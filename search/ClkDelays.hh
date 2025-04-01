@@ -27,7 +27,7 @@
 #include "MinMax.hh"
 #include "StaState.hh"
 #include "Transition.hh"
-#include "PathVertex.hh"
+#include "Path.hh"
 
 namespace sta {
 
@@ -43,7 +43,7 @@ public:
              Delay &delay,
              float &internal_latency,
              Delay &latency,
-             PathVertex &path,
+             Path &path,
              bool &exists) const;
   void latency(const RiseFall *src_rf,
                const RiseFall *end_rf,
@@ -51,28 +51,28 @@ public:
                // Return values.
                Delay &delay,
                bool &exists) const;
-  static Delay latency(PathVertex *clk_path,
+  static Delay latency(Path *clk_path,
                        StaState *sta);
   void setLatency(const RiseFall *src_rf,
                   const RiseFall *end_rf,
                   const MinMax *min_max,
-                  PathVertex *path,
+                  Path *path,
                   bool include_internal_latency,
                   StaState *sta);
 
 private:
-  static float insertionDelay(PathVertex *clk_path,
+  static float insertionDelay(Path *clk_path,
                               StaState *sta);
-  static float delay(PathVertex *clk_path,
+  static float delay(Path *clk_path,
                      StaState *sta);
-  static float clkTreeDelay(PathVertex *clk_path,
+  static float clkTreeDelay(Path *clk_path,
                             StaState *sta);
 
   Delay insertion_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   Delay delay_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   float internal_latency_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   Delay latency_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
-  PathVertex path_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
+  Path path_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   bool exists_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
 };
 

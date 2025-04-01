@@ -29,7 +29,7 @@
 #include "Transition.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
-#include "PathRef.hh"
+#include "Path.hh"
 
 namespace sta {
 
@@ -62,10 +62,10 @@ public:
       bool own_states,
       const StaState *sta);
   ~Tag();
-  const char *asString(const StaState *sta) const;
-  const char *asString(bool report_index,
-		       bool report_rf_min_max,
-		       const StaState *sta) const;
+  string to_string(const StaState *sta) const;
+  string to_string(bool report_index,
+                   bool report_rf_min_max,
+                   const StaState *sta) const;
   ClkInfo *clkInfo() const { return clk_info_; }
   bool isClock() const { return is_clk_; }
   const ClockEdge *clkEdge() const;
@@ -86,7 +86,8 @@ public:
   bool isFilter() const { return is_filter_; }
   bool isSegmentStart() const { return is_segment_start_; }
   size_t hash() const { return hash_; }
-  size_t matchHash(bool match_crpr_clk_pin) const;
+  size_t matchHash(bool match_crpr_clk_pin,
+                   const StaState *sta) const;
 
 protected:
   void findHash();

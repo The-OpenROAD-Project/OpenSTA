@@ -66,7 +66,7 @@ sta::SdfParse::error(const location_type &loc,
   sta::SdfTriple *triple;
   sta::SdfTripleSeq *delval_list;
   sta::SdfPortSpec *port_spec;
-  sta::Transition *transition;
+  const sta::Transition *transition;
 }
 
 %token DELAYFILE SDFVERSION DESIGN DATE VENDOR PROGRAM PVERSION

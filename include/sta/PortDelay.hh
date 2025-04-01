@@ -48,7 +48,7 @@ public:
   void setNetworkLatencyIncluded(bool included);
   const Pin *refPin() const { return ref_pin_; }
   void setRefPin(const Pin *ref_pin);
-  RiseFall *refTransition() const;
+  const RiseFall *refTransition() const;
 
 protected:
   PortDelay(const Pin *pin,

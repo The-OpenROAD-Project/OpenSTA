@@ -135,8 +135,8 @@ protected:
   const char *spiceTrans(const RiseFall *rf);
   float findSlew(Vertex *vertex,
 		 const RiseFall *rf,
-		 TimingArc *next_arc);
-  float slewAxisMinValue(TimingArc *arc);
+		 const TimingArc *next_arc);
+  float slewAxisMinValue(const TimingArc *arc);
   float clkWaveformTimeOffset(const Clock *clk);
 
   void gatePortValues(const Pin *input_pin,

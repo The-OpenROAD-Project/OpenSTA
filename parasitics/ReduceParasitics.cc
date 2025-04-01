@@ -312,8 +312,8 @@ reduceToPiElmore(const Parasitic *parasitic_network,
   if (drvr_node) {
     debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s %s %s",
                sta->network()->pathName(drvr_pin),
-               rf->asString(),
-               min_max->asString());
+               rf->to_string().c_str(),
+               min_max->to_string().c_str());
     ReduceToPiElmore reducer(sta);
     return reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
                                 coupling_cap_factor, rf, corner,

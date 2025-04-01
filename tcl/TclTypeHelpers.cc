@@ -161,7 +161,7 @@ tclArcDcalcArg(ArcDcalcArg &gate,
   obj = Tcl_NewStringObj(from_name, strlen(from_name));
   Tcl_ListObjAppendElement(interp, list, obj);
 
-  const char *from_edge = arc->fromEdge()->asString();
+  const char *from_edge = arc->fromEdge()->to_string().c_str();
   obj = Tcl_NewStringObj(from_edge, strlen(from_edge));
   Tcl_ListObjAppendElement(interp, list, obj);
 
@@ -169,7 +169,7 @@ tclArcDcalcArg(ArcDcalcArg &gate,
   obj = Tcl_NewStringObj(to_name, strlen(to_name));
   Tcl_ListObjAppendElement(interp, list, obj);
 
-  const char *to_edge = arc->toEdge()->asString();
+  const char *to_edge = arc->toEdge()->to_string().c_str();
   obj = Tcl_NewStringObj(to_edge, strlen(to_edge));
   Tcl_ListObjAppendElement(interp, list, obj);
 

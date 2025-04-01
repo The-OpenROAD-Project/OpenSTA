@@ -77,7 +77,7 @@ proc get_object_property { object prop } {
       return [edge_property $object $prop]
     } elseif { $object_type == "PathEnd" } {
       return [path_end_property $object $prop]
-    } elseif { $object_type == "PathRef" } {
+    } elseif { $object_type == "Path" } {
       return [path_ref_property $object $prop]
     } elseif { $object_type == "TimingArcSet" } {
       return [timing_arc_set_property $object $prop]

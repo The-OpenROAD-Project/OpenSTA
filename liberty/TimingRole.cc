@@ -26,178 +26,75 @@
 
 namespace sta {
 
-TimingRole *TimingRole::wire_;
-TimingRole *TimingRole::combinational_;
-TimingRole *TimingRole::tristate_enable_;
-TimingRole *TimingRole::tristate_disable_;
-TimingRole *TimingRole::reg_clk_q_;
-TimingRole *TimingRole::reg_set_clr_;
-TimingRole *TimingRole::latch_en_q_;
-TimingRole *TimingRole::latch_d_q_;
-TimingRole *TimingRole::sdf_iopath_;
-TimingRole *TimingRole::setup_;
-TimingRole *TimingRole::hold_;
-TimingRole *TimingRole::recovery_;
-TimingRole *TimingRole::removal_;
-TimingRole *TimingRole::width_;
-TimingRole *TimingRole::period_;
-TimingRole *TimingRole::skew_;
-TimingRole *TimingRole::nochange_;
-TimingRole *TimingRole::output_setup_;
-TimingRole *TimingRole::output_hold_;
-TimingRole *TimingRole::gated_clk_setup_;
-TimingRole *TimingRole::gated_clk_hold_;
-TimingRole *TimingRole::latch_setup_;
-TimingRole *TimingRole::latch_hold_;
-TimingRole *TimingRole::data_check_setup_;
-TimingRole *TimingRole::data_check_hold_;
-TimingRole *TimingRole::non_seq_setup_;
-TimingRole *TimingRole::non_seq_hold_;
-TimingRole *TimingRole::clock_tree_path_min_;
-TimingRole *TimingRole::clock_tree_path_max_;
-
 TimingRoleMap TimingRole::timing_roles_;
-
-void
-TimingRole::init()
-{
-  wire_ = new TimingRole("wire", false, false, false, nullptr, nullptr, 0);
-  combinational_ = new TimingRole("combinational", true, false,  false,
-				  nullptr, nullptr, 1);
-  tristate_enable_ = new TimingRole("tristate enable",
-				    true, false, false,
-				    nullptr, nullptr, 2);
-  tristate_disable_ = new TimingRole("tristate disable",
-				     true, false, false,
-				     nullptr, nullptr, 3);
-  reg_clk_q_ = new TimingRole("Reg Clk to Q", true, false, false,
-			      nullptr, nullptr, 4);
-  reg_set_clr_ = new TimingRole("Reg Set/Clr", true, false, false,
-				nullptr, nullptr, 5);
-  latch_en_q_ = new TimingRole("Latch En to Q", true, false, false,
-			       nullptr, TimingRole::regClkToQ(), 6);
-  latch_d_q_ = new TimingRole("Latch D to Q", true, false, false,
-			      nullptr, nullptr, 7);
-
-  sdf_iopath_ = new TimingRole("sdf IOPATH", true, false, false,
-			       nullptr, nullptr, 8);
-
-  setup_ = new TimingRole("setup", false, true, false,
-			  MinMax::max(), nullptr, 9);
-  hold_ = new TimingRole("hold", false, true, false,
-			 MinMax::min(), nullptr, 10);
-  recovery_ = new TimingRole("recovery", false, true, false,
-			     MinMax::max(), TimingRole::setup(), 11);
-  removal_ = new TimingRole("removal", false, true, false,
-			    MinMax::min(), TimingRole::hold(), 12);
-  width_ = new TimingRole("width", false, true, false,
-			  nullptr, nullptr, 13);
-  period_ = new TimingRole("period", false, true, false,
-			   nullptr, nullptr, 14);
-  skew_ = new TimingRole("skew", false, true, false,
-			 nullptr, nullptr, 15);
-  nochange_ = new TimingRole("nochange", true, false, false,
-			     nullptr, nullptr, 16);
-
-  output_setup_ = new TimingRole("output setup", false, true, false,
-				 MinMax::max(), TimingRole::setup(), 17);
-  output_hold_ = new TimingRole("output hold", false, true, false,
-				MinMax::min(), TimingRole::hold(), 18);
-  gated_clk_setup_ = new TimingRole("clock gating setup",
-				    false, true, false,
-				    MinMax::max(), TimingRole::setup(),19);
-  gated_clk_hold_ = new TimingRole("clock gating hold", false, true, false,
-				   MinMax::min(), TimingRole::hold(),20);
-  latch_setup_ = new TimingRole("latch setup", false, true, false,
-				MinMax::max(), TimingRole::setup(),21);
-  latch_hold_ = new TimingRole("latch hold", false, true, false,
-			       MinMax::min(), TimingRole::hold(),22);
-  data_check_setup_ = new TimingRole("data check setup",
-				     false, true, false,
-				     MinMax::max(),TimingRole::setup(),23);
-  data_check_hold_ = new TimingRole("data check hold", false, true, false,
-				    MinMax::min(), TimingRole::hold(), 24);
-  non_seq_setup_ = new TimingRole("non-sequential setup", false, true, true,
-				  MinMax::max(), TimingRole::setup(), 25);
-  non_seq_hold_ = new TimingRole("non-sequential hold", false, true, true,
-				 MinMax::min(), TimingRole::hold(), 26);
-  clock_tree_path_min_ = new TimingRole("min clock tree path", false, false, false,
-                                        MinMax::min(), nullptr, 27);
-  clock_tree_path_max_ = new TimingRole("max clock tree path", false, false, false,
-                                        MinMax::max(), nullptr, 28);
-}
-
-void
-TimingRole::destroy()
-{
-  delete wire_;
-  wire_ = nullptr;
-  delete combinational_;
-  combinational_ = nullptr;
-  delete tristate_enable_;
-  tristate_enable_ = nullptr;
-  delete tristate_disable_;
-  tristate_disable_ = nullptr;
-  delete reg_clk_q_;
-  reg_clk_q_ = nullptr;
-  delete reg_set_clr_;
-  reg_set_clr_ = nullptr;
-  delete latch_en_q_;
-  latch_en_q_ = nullptr;
-  delete latch_d_q_;
-  latch_d_q_ = nullptr;
-  delete sdf_iopath_;
-  sdf_iopath_ = nullptr;
-  delete setup_;
-  setup_ = nullptr;
-  delete hold_;
-  hold_ = nullptr;
-  delete recovery_;
-  recovery_ = nullptr;
-  delete removal_;
-  removal_ = nullptr;
-  delete width_;
-  width_ = nullptr;
-  delete period_;
-  period_ = nullptr;
-  delete skew_;
-  skew_ = nullptr;
-  delete nochange_;
-  nochange_ = nullptr;
-  delete output_setup_;
-  output_setup_ = nullptr;
-  delete output_hold_;
-  output_hold_ = nullptr;
-  delete gated_clk_setup_;
-  gated_clk_setup_ = nullptr;
-  delete gated_clk_hold_;
-  gated_clk_hold_ = nullptr;
-  delete latch_setup_;
-  latch_setup_ = nullptr;
-  delete latch_hold_;
-  latch_hold_ = nullptr;
-  delete data_check_setup_;
-  data_check_setup_ = nullptr;
-  delete data_check_hold_;
-  data_check_hold_ = nullptr;
-  delete non_seq_setup_;
-  non_seq_setup_ = nullptr;
-  delete non_seq_hold_;
-  non_seq_hold_ = nullptr;
-  delete clock_tree_path_min_;
-  clock_tree_path_min_ = nullptr;
-  delete clock_tree_path_max_;
-  clock_tree_path_max_ = nullptr;
-
-  timing_roles_.clear();
-}
+const TimingRole TimingRole::wire_("wire", false, false, false, nullptr, nullptr, 0);
+const TimingRole TimingRole::combinational_("combinational", true, false,  false,
+                                            nullptr, nullptr, 1);
+const TimingRole TimingRole::tristate_enable_("tristate enable",
+                                              true, false, false,
+                                              nullptr, nullptr, 2);
+const TimingRole TimingRole::tristate_disable_("tristate disable",
+                                               true, false, false,
+                                               nullptr, nullptr, 3);
+const TimingRole TimingRole::reg_clk_q_("Reg Clk to Q", true, false, false,
+                                        nullptr, nullptr, 4);
+const TimingRole TimingRole::reg_set_clr_("Reg Set/Clr", true, false, false,
+                                          nullptr, nullptr, 5);
+const TimingRole TimingRole::latch_en_q_("Latch En to Q", true, false, false,
+                                         nullptr, TimingRole::regClkToQ(), 6);
+const TimingRole TimingRole::latch_d_q_("Latch D to Q", true, false, false,
+                                        nullptr, nullptr, 7);
+const TimingRole TimingRole::sdf_iopath_("sdf IOPATH", true, false, false,
+                                         nullptr, nullptr, 8);
+const TimingRole TimingRole::setup_("setup", false, true, false,
+                                    MinMax::max(), nullptr, 9);
+const TimingRole TimingRole::hold_("hold", false, true, false,
+                                   MinMax::min(), nullptr, 10);
+const TimingRole TimingRole::recovery_("recovery", false, true, false,
+                                       MinMax::max(), TimingRole::setup(), 11);
+const TimingRole TimingRole::removal_("removal", false, true, false,
+                                      MinMax::min(), TimingRole::hold(), 12);
+const TimingRole TimingRole::width_("width", false, true, false,
+                                    nullptr, nullptr, 13);
+const TimingRole TimingRole::period_("period", false, true, false,
+                                     nullptr, nullptr, 14);
+const TimingRole TimingRole::skew_("skew", false, true, false,
+                                   nullptr, nullptr, 15);
+const TimingRole TimingRole::nochange_("nochange", true, false, false,
+                                       nullptr, nullptr, 16);
+const TimingRole TimingRole::output_setup_("output setup", false, true, false,
+                                           MinMax::max(), TimingRole::setup(), 17);
+const TimingRole TimingRole::output_hold_("output hold", false, true, false,
+                                          MinMax::min(), TimingRole::hold(), 18);
+const TimingRole TimingRole::gated_clk_setup_("clock gating setup",
+                                              false, true, false,
+                                              MinMax::max(), TimingRole::setup(),19);
+const TimingRole TimingRole::gated_clk_hold_("clock gating hold", false, true, false,
+                                             MinMax::min(), TimingRole::hold(),20);
+const TimingRole TimingRole::latch_setup_("latch setup", false, true, false,
+                                          MinMax::max(), TimingRole::setup(),21);
+const TimingRole TimingRole::latch_hold_("latch hold", false, true, false,
+                                         MinMax::min(), TimingRole::hold(),22);
+const TimingRole TimingRole::data_check_setup_("data check setup",
+                                               false, true, false,
+                                               MinMax::max(),TimingRole::setup(),23);
+const TimingRole TimingRole::data_check_hold_("data check hold", false, true, false,
+                                              MinMax::min(), TimingRole::hold(), 24);
+const TimingRole TimingRole::non_seq_setup_("non-sequential setup", false, true, true,
+                                            MinMax::max(), TimingRole::setup(), 25);
+const TimingRole TimingRole::non_seq_hold_("non-sequential hold", false, true, true,
+                                           MinMax::min(), TimingRole::hold(), 26);
+const TimingRole TimingRole::clock_tree_path_min_("min clock tree path", false, false,
+                                                  false, MinMax::min(), nullptr, 27);
+const TimingRole TimingRole::clock_tree_path_max_("max clock tree path", false, false,
+                                                  false, MinMax::max(), nullptr, 28);
 
 TimingRole::TimingRole(const char *name,
 		       bool is_sdf_iopath,
 		       bool is_timing_check,
 		       bool is_non_seq_check,
-		       MinMax *path_min_max,
-		       TimingRole *generic_role,
+		       const MinMax *path_min_max,
+		       const TimingRole *generic_role,
 		       int index) :
   name_(name),
   is_timing_check_(is_timing_check),
@@ -210,7 +107,7 @@ TimingRole::TimingRole(const char *name,
   timing_roles_[name] = this;
 }
 
-TimingRole *
+const TimingRole *
 TimingRole::find(const char *name)
 {
   return timing_roles_[name];
@@ -220,7 +117,7 @@ const TimingRole *
 TimingRole::sdfRole() const
 {
   if (is_sdf_iopath_)
-    return sdf_iopath_;
+    return &sdf_iopath_;
   else
     return this;
 }
@@ -243,35 +140,35 @@ TimingRole::tgtClkEarlyLate() const
 bool
 TimingRole::isWire() const
 {
-  return this == wire_;
+  return this == &wire_;
 }
 
 bool
 TimingRole::isAsyncTimingCheck() const
 {
-  return this == recovery_
-    || this == removal_;
+  return this == &recovery_
+    || this == &removal_;
 }
 
 bool
 TimingRole::isDataCheck() const
 {
-  return this == data_check_setup_
-    || this == data_check_hold_;
+  return this == &data_check_setup_
+    || this == &data_check_hold_;
 }
 
 bool
 TimingRole::isLatchDtoQ() const
 {
-  return this == latch_d_q_;
+  return this == &latch_d_q_;
 }
 
 bool
 TimingRole::isTimingCheckBetween() const
 {
   return is_timing_check_
-    && this != width_
-    && this != period_;
+    && this != &width_
+    && this != &period_;
 }
 
 bool

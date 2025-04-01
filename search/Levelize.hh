@@ -104,9 +104,7 @@ public:
   ~GraphLoop();
   EdgeSeq *edges() { return edges_; }
   bool isCombinational() const;
-  void report(Report *report,
-	      Network *network,
-	      Graph *graph) const;
+  void report(const StaState *sta) const;
 
 private:
   EdgeSeq *edges_;

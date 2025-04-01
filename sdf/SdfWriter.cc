@@ -104,7 +104,7 @@ protected:
   const char *sdfEdge(const Transition *tr);
   void writeArcDelays(Edge *edge);
   void writeSdfTriple(RiseFallMinMax &delays,
-                      RiseFall *rf);
+                      const RiseFall *rf);
   void writeSdfTriple(float min,
                       float max);
   void writeSdfDelay(double delay);
@@ -176,11 +176,13 @@ SdfWriter::write(const char *filename,
   timescale_ = default_lib->units()->timeUnit()->scale();
 
   corner_ = corner;
-  MinMax *min_max;
+  const MinMax *min_max;
   const DcalcAnalysisPt *dcalc_ap;
+
   min_max = MinMax::min();
   dcalc_ap = corner_->findDcalcAnalysisPt(min_max);
   arc_delay_min_index_ = dcalc_ap->index();
+
   min_max = MinMax::max();
   dcalc_ap = corner_->findDcalcAnalysisPt(min_max);
   arc_delay_max_index_ = dcalc_ap->index();
@@ -376,7 +378,7 @@ SdfWriter::writeIopaths(const Instance *inst,
       VertexOutEdgeIterator edge_iter(from_vertex, graph_);
       while (edge_iter.hasNext()) {
 	Edge *edge = edge_iter.next();
-	TimingRole *role = edge->role();
+	const TimingRole *role = edge->role();
 	if (role == TimingRole::combinational()
 	    || role == TimingRole::tristateEnable()
 	    || role == TimingRole::regClkToQ()
@@ -437,7 +439,7 @@ SdfWriter::writeArcDelays(Edge *edge)
   RiseFallMinMax delays;
   TimingArcSet *arc_set = edge->timingArcSet();
   for (TimingArc *arc : arc_set->arcs()) {
-    RiseFall *rf = arc->toEdge()->asRiseFall();
+    const RiseFall *rf = arc->toEdge()->asRiseFall();
     ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
     delays.setValue(rf, MinMax::min(), delayAsFloat(min_delay));
 
@@ -470,7 +472,7 @@ SdfWriter::writeArcDelays(Edge *edge)
 
 void
 SdfWriter::writeSdfTriple(RiseFallMinMax &delays,
-                          RiseFall *rf)
+                          const RiseFall *rf)
 {
   float min = delays.value(rf, MinMax::min());
   float max = delays.value(rf, MinMax::max());
@@ -513,7 +515,7 @@ SdfWriter::writeTimingChecks(const Instance *inst,
     VertexOutEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
-      TimingRole *role = edge->role();
+      const TimingRole *role = edge->role();
       const char *sdf_check = nullptr;
       if (role == TimingRole::setup())
 	sdf_check = "SETUP";
@@ -590,8 +592,8 @@ SdfWriter::writeCheck(Edge *edge,
   TimingArc *arcs[RiseFall::index_count][RiseFall::index_count] = 
     {{nullptr, nullptr}, {nullptr, nullptr}};
   for (TimingArc *arc : arc_set->arcs()) {
-    RiseFall *clk_rf = arc->fromEdge()->asRiseFall();
-    RiseFall *data_rf = arc->toEdge()->asRiseFall();;
+    const RiseFall *clk_rf = arc->fromEdge()->asRiseFall();
+    const RiseFall *data_rf = arc->toEdge()->asRiseFall();;
     arcs[clk_rf->index()][data_rf->index()] = arc;
   }
 

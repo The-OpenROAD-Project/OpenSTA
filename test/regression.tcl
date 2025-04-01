@@ -292,7 +292,7 @@ proc run_test_plain { test cmd_file log_file } {
     set run_file [test_run_file $test]
     set run_stream [open $run_file "w"]
     puts $run_stream "cd [file dirname $cmd_file]"
-    puts $run_stream "source [file tail $cmd_file]"
+    puts $run_stream "include [file tail $cmd_file]"
     if { $report_stats } {
       set stat_file [file normalize [test_stats_file $test]]
       puts $run_stream "sta::write_stats $stat_file"
@@ -328,7 +328,7 @@ proc run_test_valgrind { test cmd_file log_file } {
   set vg_cmd_file [test_valgrind_cmd_file $test]
   set vg_stream [open $vg_cmd_file "w"]
   puts $vg_stream "cd [file dirname $cmd_file]"
-  puts $vg_stream "source [file tail $cmd_file]"
+  puts $vg_stream "include [file tail $cmd_file]"
   puts $vg_stream "sta::delete_all_memory"
   close $vg_stream
 

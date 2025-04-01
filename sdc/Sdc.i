@@ -1433,6 +1433,6 @@ slew(const RiseFall *rf,
 
 %extend ClockEdge {
 Clock *clock() { return self->clock(); }
-RiseFall *transition() { return self->transition(); }
+const RiseFall *transition() { return self->transition(); }
 float time() { return self->time(); }
 }

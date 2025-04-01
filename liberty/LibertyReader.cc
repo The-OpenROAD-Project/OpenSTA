@@ -141,25 +141,7 @@ LibertyReader::init(const char *filename,
 
 LibertyReader::~LibertyReader()
 {
-  if (var_map_) {
-    LibertyVariableMap::Iterator iter(var_map_);
-    while (iter.hasNext()) {
-      const char *var;
-      float value;
-      iter.next(var, value);
-      stringDelete(var);
-    }
-    delete var_map_;
-  }
-
-  // Scaling factor attribute names are allocated, so delete them.
-  LibraryAttrMap::Iterator attr_iter(attr_visitor_map_);
-  while (attr_iter.hasNext()) {
-    const char *attr_name;
-    LibraryAttrVisitor visitor;
-    attr_iter.next(attr_name, visitor);
-    stringDelete(attr_name);
-  }
+  delete var_map_;
 }
 
 LibertyLibrary *
@@ -183,7 +165,7 @@ void
 LibertyReader::defineAttrVisitor(const char *attr_name,
 				 LibraryAttrVisitor visitor)
 {
-  attr_visitor_map_[stringCopy(attr_name)] = visitor;
+  attr_visitor_map_[attr_name] = visitor;
 }
 
 void
@@ -1125,7 +1107,7 @@ LibertyReader::visitDefaultIntrinsicFall(LibertyAttr *attr)
 
 void
 LibertyReader::visitDefaultIntrinsic(LibertyAttr *attr,
-				     RiseFall *rf)
+				     const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1150,7 +1132,7 @@ LibertyReader::visitDefaultInoutPinFallRes(LibertyAttr *attr)
 
 void
 LibertyReader::visitDefaultInoutPinRes(LibertyAttr *attr,
-				       RiseFall *rf)
+				       const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1175,7 +1157,7 @@ LibertyReader::visitDefaultOutputPinFallRes(LibertyAttr *attr)
 
 void
 LibertyReader::visitDefaultOutputPinRes(LibertyAttr *attr,
-					RiseFall *rf)
+					const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1267,7 +1249,7 @@ LibertyReader::visitInputThresholdPctRise(LibertyAttr *attr)
 
 void
 LibertyReader::visitInputThresholdPct(LibertyAttr *attr,
-				      RiseFall *rf)
+				      const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1293,7 +1275,7 @@ LibertyReader::visitOutputThresholdPctRise(LibertyAttr *attr)
 
 void
 LibertyReader::visitOutputThresholdPct(LibertyAttr *attr,
-				       RiseFall *rf)
+				       const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1319,7 +1301,7 @@ LibertyReader::visitSlewLowerThresholdPctRise(LibertyAttr *attr)
 
 void
 LibertyReader::visitSlewLowerThresholdPct(LibertyAttr *attr,
-					  RiseFall *rf)
+					  const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1345,7 +1327,7 @@ LibertyReader::visitSlewUpperThresholdPctRise(LibertyAttr *attr)
 
 void
 LibertyReader::visitSlewUpperThresholdPct(LibertyAttr *attr,
-					  RiseFall *rf)
+					  const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1616,7 +1598,7 @@ LibertyReader::visitScaleFactorSuffix(LibertyAttr *attr)
   if (scale_factors_) {
     ScaleFactorPvt pvt = ScaleFactorPvt::unknown;
     ScaleFactorType type = ScaleFactorType::unknown;
-    RiseFall *rf = nullptr;
+    const RiseFall *rf = nullptr;
     // Parse the attribute name.
     TokenParser parser(attr->name(), "_");
     if (parser.hasNext())
@@ -1654,7 +1636,7 @@ LibertyReader::visitScaleFactorPrefix(LibertyAttr *attr)
   if (scale_factors_) {
     ScaleFactorPvt pvt = ScaleFactorPvt::unknown;
     ScaleFactorType type = ScaleFactorType::unknown;
-    RiseFall *rf = nullptr;
+    const RiseFall *rf = nullptr;
     // Parse the attribute name.
     TokenParser parser(attr->name(), "_");
     if (parser.hasNext())
@@ -1692,7 +1674,7 @@ LibertyReader::visitScaleFactorHiLow(LibertyAttr *attr)
   if (scale_factors_) {
     ScaleFactorPvt pvt = ScaleFactorPvt::unknown;
     ScaleFactorType type = ScaleFactorType::unknown;
-    RiseFall *rf = nullptr;
+    const RiseFall *rf = nullptr;
     const char *pvt_name = nullptr;
     const char *type_name = nullptr;
     const char *tr_name = nullptr;
@@ -2217,7 +2199,7 @@ LibertyReader::makeStatetable()
     for (const string &internal : statetable_->internalPorts()) {
       LibertyPort *port = cell_->findLibertyPort(internal.c_str());
       if (port == nullptr)
-	port = builder_.makePort(cell_, internal.c_str());
+	port = makePort(cell_, internal.c_str());
       internal_ports.push_back(port);
     }
     cell_->makeStatetable(input_ports, internal_ports, statetable_->table());
@@ -2630,7 +2612,7 @@ LibertyReader::beginReceiverCapacitance2Fall(LibertyGroup *group)
 void
 LibertyReader::beginReceiverCapacitance(LibertyGroup *group,
                                         int index,
-                                        RiseFall *rf)
+                                        const RiseFall *rf)
 {
   if (timing_ || ports_) {
     beginTableModel(group, TableTemplateType::delay, rf, 1.0,
@@ -2676,7 +2658,7 @@ LibertyReader::beginOutputCurrentFall(LibertyGroup *group)
 }
 
 void
-LibertyReader::beginOutputCurrent(RiseFall *rf,
+LibertyReader::beginOutputCurrent(const RiseFall *rf,
                                   LibertyGroup *group)
 {
   if (timing_) {
@@ -2802,13 +2784,13 @@ void
 LibertyReader::beginNormalizedDriverWaveform(LibertyGroup *group)
 {
   beginTable(group, TableTemplateType::delay, time_scale_);
-  driver_waveform_name_ = nullptr;
+  driver_waveform_name_.clear();
 }
 
 void
 LibertyReader::visitDriverWaveformName(LibertyAttr *attr)
 {
-  driver_waveform_name_ = stringCopy(getAttrString(attr));
+  driver_waveform_name_ = getAttrString(attr);
 }
 
 void
@@ -3183,7 +3165,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
 	  LibertyPort *port = findPort(name);
 	  if (port == nullptr)
-	    port = builder_.makePort(cell_, name);
+	    port = makePort(cell_, name);
 	  ports_->push_back(port);
 	}
 	else
@@ -3197,7 +3179,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	if (param->isString()) {
 	  const char *name = param->stringValue();
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
-	  LibertyPort *port = builder_.makePort(cell_, name);
+	  LibertyPort *port = makePort(cell_, name);
 	  ports_->push_back(port);
 	}
 	else
@@ -3214,6 +3196,25 @@ LibertyReader::beginPin(LibertyGroup *group)
       test_port_ = findPort(test_cell_, pin_name);
     }
   }
+}
+
+LibertyPort *
+LibertyReader::makePort(LibertyCell *cell,
+                        const char *port_name)
+{
+  string sta_name = portLibertyToSta(port_name);
+  return builder_.makePort(cell, sta_name.c_str());
+}
+
+LibertyPort *
+LibertyReader::makeBusPort(LibertyCell *cell,
+                           const char *bus_name,
+                           int from_index,
+                           int to_index,
+                           BusDcl *bus_dcl)
+{
+  string sta_name = portLibertyToSta(bus_name);
+  return builder_.makeBusPort(cell, bus_name, from_index, to_index, bus_dcl);
 }
 
 void
@@ -3328,8 +3329,8 @@ LibertyReader::visitBusType(LibertyAttr *attr)
       if (bus_dcl) {
         for (const char *name : bus_names_) {
 	  debugPrint(debug_, "liberty", 1, " bus %s", name);
-	  LibertyPort *port = builder_.makeBusPort(cell_, name, bus_dcl->from(),
-                                                    bus_dcl->to(), bus_dcl);
+	  LibertyPort *port = makeBusPort(cell_, name, bus_dcl->from(),
+                                          bus_dcl->to(), bus_dcl);
 	  ports_->push_back(port);
 	}
       }
@@ -3374,7 +3375,7 @@ LibertyReader::visitMembers(LibertyAttr *attr)
 	    const char *port_name = value->stringValue();
 	    LibertyPort *port = findPort(port_name);
 	    if (port == nullptr)
-	      port = builder_.makePort(cell_, port_name);
+	      port = makePort(cell_, port_name);
 	    members->push_back(port);
 	  }
 	  else
@@ -3648,7 +3649,7 @@ LibertyReader::visitMinFanout(LibertyAttr *attr)
 
 void
 LibertyReader::visitFanout(LibertyAttr *attr,
-			   MinMax *min_max)
+			   const MinMax *min_max)
 {
   if (ports_) {
     float fanout;
@@ -3675,7 +3676,8 @@ LibertyReader::visitMinTransition(LibertyAttr *attr)
 }
 
 void
-LibertyReader::visitMinMaxTransition(LibertyAttr *attr, MinMax *min_max)
+LibertyReader::visitMinMaxTransition(LibertyAttr *attr,
+                                     const MinMax *min_max)
 {
   if (cell_) {
     float value;
@@ -3706,7 +3708,7 @@ LibertyReader::visitMinCapacitance(LibertyAttr *attr)
 
 void
 LibertyReader::visitMinMaxCapacitance(LibertyAttr *attr,
-				      MinMax *min_max)
+				      const MinMax *min_max)
 {
   if (cell_) {
     float value;
@@ -3770,8 +3772,8 @@ LibertyReader::visitPulseClock(LibertyAttr *attr)
   if (cell_) {
     const char *pulse_clk = getAttrString(attr);
     if (pulse_clk) {
-      RiseFall *trigger = nullptr;
-      RiseFall *sense = nullptr;
+      const RiseFall *trigger = nullptr;
+      const RiseFall *sense = nullptr;
       if (stringEq(pulse_clk, "rise_triggered_high_pulse")) {
 	trigger = RiseFall::rise();
 	sense = RiseFall::rise();
@@ -3980,16 +3982,16 @@ LibertyReader::beginSequential(LibertyGroup *group,
     LibertyPort *out_port_inv = nullptr;
     if (out_name) {
       if (has_size)
-	out_port = builder_.makeBusPort(cell_, out_name, size - 1, 0, nullptr);
+	out_port = makeBusPort(cell_, out_name, size - 1, 0, nullptr);
       else
-	out_port = builder_.makePort(cell_, out_name);
+	out_port = makePort(cell_, out_name);
       out_port->setDirection(PortDirection::internal());
     }
     if (out_inv_name) {
       if (has_size)
-	out_port_inv = builder_.makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
+	out_port_inv = makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
       else
-	out_port_inv = builder_.makePort(cell_, out_inv_name);
+	out_port_inv = makePort(cell_, out_inv_name);
       out_port_inv->setDirection(PortDirection::internal());
     }
     sequential_ = new SequentialGroup(is_register, is_bank,
@@ -4435,7 +4437,7 @@ LibertyReader::visitIntrinsicFall(LibertyAttr *attr)
 
 void
 LibertyReader::visitIntrinsic(LibertyAttr *attr,
-			      RiseFall *rf)
+			      const RiseFall *rf)
 {
   if (timing_) {
     float value;
@@ -4460,7 +4462,7 @@ LibertyReader::visitFallResistance(LibertyAttr *attr)
 
 void
 LibertyReader::visitRiseFallResistance(LibertyAttr *attr,
-				       RiseFall *rf)
+				       const RiseFall *rf)
 {
   if (timing_) {
     float value;
@@ -4593,7 +4595,7 @@ LibertyReader::endRiseFallTransitionDegredation(LibertyGroup *group)
 
 void
 LibertyReader::beginTimingTableModel(LibertyGroup *group,
-				     RiseFall *rf,
+				     const RiseFall *rf,
 				     ScaleFactorType scale_factor_type)
 {
   if (timing_)
@@ -4606,7 +4608,7 @@ LibertyReader::beginTimingTableModel(LibertyGroup *group,
 void
 LibertyReader::beginTableModel(LibertyGroup *group,
 			       TableTemplateType type,
-			       RiseFall *rf,
+			       const RiseFall *rf,
 			       float scale,
 			       ScaleFactorType scale_factor_type)
 {
@@ -4807,7 +4809,7 @@ LibertyReader::beginLut(LibertyGroup *group)
 	while (parser.hasNext()) {
 	  char *name = parser.next();
 	  if (name[0] != '\0') {
-	    LibertyPort *port = builder_.makePort(cell_, name);
+	    LibertyPort *port = makePort(cell_, name);
 	    port->setDirection(PortDirection::internal());
 	  }
 	}
@@ -5186,7 +5188,7 @@ LibertyReader::parseFunc(const char *func,
   return parseFuncExpr(func, cell_, error_msg.c_str(), report_);
 }
 
-EarlyLateAll *
+const EarlyLateAll *
 LibertyReader::getAttrEarlyLate(LibertyAttr *attr)
 {
   const char *value = getAttrString(attr);
@@ -5210,7 +5212,7 @@ LibertyReader::visitVariable(LibertyVariable *var)
   if (var_map_ == nullptr)
     var_map_ = new LibertyVariableMap;
   const char *var_name = var->variable();
-  const char *key;
+  string key;
   float value;
   bool exists;
   var_map_->findKey(var_name, key, value, exists);
@@ -5219,7 +5221,7 @@ LibertyReader::visitVariable(LibertyVariable *var)
     (*var_map_)[key] = var->value();
   }
   else
-    (*var_map_)[stringCopy(var_name)] = var->value();
+    (*var_map_)[var_name] = var->value();
 }
 
 void
@@ -5918,7 +5920,7 @@ TimingGroup::setRelatedOutputPortName(const char *name)
 }
 
 void
-TimingGroup::setIntrinsic(RiseFall *rf,
+TimingGroup::setIntrinsic(const RiseFall *rf,
 			  float value)
 {
   int rf_index = rf->index();
@@ -5927,7 +5929,7 @@ TimingGroup::setIntrinsic(RiseFall *rf,
 }
 
 void
-TimingGroup::intrinsic(RiseFall *rf,
+TimingGroup::intrinsic(const RiseFall *rf,
 		       // Return values.
 		       float &value,
 		       bool &exists)
@@ -5938,7 +5940,7 @@ TimingGroup::intrinsic(RiseFall *rf,
 }
 
 void
-TimingGroup::setResistance(RiseFall *rf,
+TimingGroup::setResistance(const RiseFall *rf,
 			   float value)
 {
   int rf_index = rf->index();
@@ -5947,7 +5949,7 @@ TimingGroup::setResistance(RiseFall *rf,
 }
 
 void
-TimingGroup::resistance(RiseFall *rf,
+TimingGroup::resistance(const RiseFall *rf,
 			// Return values.
 			float &value,
 			bool &exists)
@@ -5958,63 +5960,63 @@ TimingGroup::resistance(RiseFall *rf,
 }
 
 TableModel *
-TimingGroup::cell(RiseFall *rf)
+TimingGroup::cell(const RiseFall *rf)
 {
   return cell_[rf->index()];
 }
 
 void
-TimingGroup::setCell(RiseFall *rf,
+TimingGroup::setCell(const RiseFall *rf,
 		     TableModel *model)
 {
   cell_[rf->index()] = model;
 }
 
 TableModel *
-TimingGroup::constraint(RiseFall *rf)
+TimingGroup::constraint(const RiseFall *rf)
 {
   return constraint_[rf->index()];
 }
 
 void
-TimingGroup::setConstraint(RiseFall *rf,
+TimingGroup::setConstraint(const RiseFall *rf,
 			   TableModel *model)
 {
   constraint_[rf->index()] = model;
 }
 
 TableModel *
-TimingGroup::transition(RiseFall *rf)
+TimingGroup::transition(const RiseFall *rf)
 {
   return transition_[rf->index()];
 }
 
 void
-TimingGroup::setTransition(RiseFall *rf,
+TimingGroup::setTransition(const RiseFall *rf,
 			   TableModel *model)
 {
   transition_[rf->index()] = model;
 }
 
 void
-TimingGroup::setDelaySigma(RiseFall *rf,
-			   EarlyLate *early_late,
+TimingGroup::setDelaySigma(const RiseFall *rf,
+			   const EarlyLate *early_late,
 			   TableModel *model)
 {
   delay_sigma_[rf->index()][early_late->index()] = model;
 }
 
 void
-TimingGroup::setSlewSigma(RiseFall *rf,
-			  EarlyLate *early_late,
+TimingGroup::setSlewSigma(const RiseFall *rf,
+			  const EarlyLate *early_late,
 			  TableModel *model)
 {
   slew_sigma_[rf->index()][early_late->index()] = model;
 }
 
 void
-TimingGroup::setConstraintSigma(RiseFall *rf,
-				EarlyLate *early_late,
+TimingGroup::setConstraintSigma(const RiseFall *rf,
+				const EarlyLate *early_late,
 				TableModel *model)
 {
   constraint_sigma_[rf->index()][early_late->index()] = model;
@@ -6027,13 +6029,13 @@ TimingGroup::setReceiverModel(ReceiverModelPtr receiver_model)
 }
 
 OutputWaveforms *
-TimingGroup::outputWaveforms(RiseFall *rf)
+TimingGroup::outputWaveforms(const RiseFall *rf)
 {
   return output_waveforms_[rf->index()];
 }
 
 void
-TimingGroup::setOutputWaveforms(RiseFall *rf,
+TimingGroup::setOutputWaveforms(const RiseFall *rf,
                                 OutputWaveforms *output_waveforms)
 {
   output_waveforms_[rf->index()] = output_waveforms;

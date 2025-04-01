@@ -130,8 +130,6 @@ LibertyLibrary::~LibertyLibrary()
   delete units_;
   ocv_derate_map_.deleteContents();
 
-  for (auto [supply_name, volt] : supply_voltage_map_)
-    stringDelete(supply_name);
   delete buffers_;
   delete inverters_;
   driver_waveform_map_.deleteContents();
@@ -325,7 +323,7 @@ LibertyLibrary::scaleFactor(ScaleFactorType type,
 
 void
 LibertyLibrary::setWireSlewDegradationTable(TableModel *model,
-			 		    RiseFall *rf)
+			 		    const RiseFall *rf)
 {
   int rf_index = rf->index();
   if (wire_slew_degradation_tbls_[rf_index])
@@ -799,7 +797,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
 		   cell1->name(),
 		   arc_set1->from() ? arc_set1->from()->name() : "",
 		   arc_set1->to()->name(),
-		   arc_set1->role()->asString(),
+		   arc_set1->role()->to_string().c_str(),
 		   cell2->library()->name(),
 		   cell2->name());
   }
@@ -817,7 +815,7 @@ LibertyLibrary::checkCorners(LibertyCell *cell,
                       cell->libertyLibrary()->name(),
                       cell->name(),
                       corner->name(),
-                      min_max->asString());
+                      min_max->to_string().c_str());
     }
   }
 }
@@ -864,7 +862,7 @@ void
 LibertyLibrary::addSupplyVoltage(const char *supply_name,
 				 float voltage)
 {
-  supply_voltage_map_[stringCopy(supply_name)] = voltage;
+  supply_voltage_map_[supply_name] = voltage;
 }
 
 void
@@ -948,9 +946,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   leakage_power_(0.0),
   leakage_power_exists_(false),
   has_internal_ports_(false),
-  have_voltage_waveforms_(false),
-  footprint_(nullptr),
-  user_function_class_(nullptr)
+  have_voltage_waveforms_(false)
 {
   liberty_cell_ = this;
 }
@@ -978,9 +974,6 @@ LibertyCell::~LibertyCell()
   ocv_derate_map_.deleteContents();
 
   pg_port_map_.deleteContents();
-
-  stringDelete(footprint_);
-  stringDelete(user_function_class_);
 }
 
 LibertyPort *
@@ -1248,7 +1241,7 @@ LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
   timing_arc_sets_.push_back(arc_set);
 
   LibertyPort *from = arc_set->from();
-  TimingRole *role = arc_set->role();
+  const TimingRole *role = arc_set->role();
   if (role == TimingRole::regClkToQ()
       || role == TimingRole::latchEnToQ())
     from->setIsRegClk(true);
@@ -1772,7 +1765,7 @@ LibertyCell::makeLatchEnables(Report *report,
                     && en_rf != RiseFall::rise())
                   report->warn(1114, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
                                library_->name(),
-                               name_,
+                               name(),
                                en->name(),
                                q->name(),
                                en_rf == RiseFall::rise()?"rising":"falling");
@@ -1780,7 +1773,7 @@ LibertyCell::makeLatchEnables(Report *report,
                          && en_rf != RiseFall::fall())
                   report->warn(1115, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
                                library_->name(),
-                               name_,
+                               name(),
                                en->name(),
                                q->name(),
                                en_rf == RiseFall::rise()?"rising":"falling");
@@ -1831,7 +1824,7 @@ LibertyCell::findLatchSetup(const LibertyPort *d,
         if (from_rf == en_rf) {
           report->warn(1113, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.",
                        library_->name(),
-                       name_,
+                       name(),
                        en->name(),
                        q->name(),
                        en_rf == RiseFall::rise() ? "rising" : "falling",
@@ -1913,7 +1906,7 @@ LibertyCell::inferLatchRoles(Report *report,
 	LibertyPort *q = en_to_q->to();
         for (TimingArcSet *d_to_q : timingArcSets(nullptr, q)) {
 	  // Look for combinational d->q arcs.
-	  TimingRole *d_to_q_role = d_to_q->role();
+	  const TimingRole *d_to_q_role = d_to_q->role();
 	  if (((d_to_q_role == TimingRole::combinational()
                 && d_to_q->arcCount() == 2
                 && (d_to_q->sense() == TimingSense::positive_unate
@@ -2002,28 +1995,35 @@ LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps)
   }
 }
 
+const char *
+LibertyCell::footprint() const
+{
+  if (footprint_.empty())
+    return nullptr;
+  else
+    return footprint_.c_str();
+}
+
+
 void
 LibertyCell::setFootprint(const char *footprint)
 {
-  footprint_ = stringCopy(footprint);
+  footprint_ = footprint;
 }
 
-const char*
-LibertyCell::footprint() const
+const char *
+LibertyCell::userFunctionClass() const
 {
-  return footprint_;
+  if (user_function_class_.empty())
+    return nullptr;
+  else
+    return user_function_class_.c_str();
 }
 
 void
 LibertyCell::setUserFunctionClass(const char *user_function_class)
 {
-  user_function_class_ = stringCopy(user_function_class);
-}
-
-const char*
-LibertyCell::userFunctionClass() const
-{
-  return user_function_class_;
+  user_function_class_ = user_function_class;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2091,8 +2091,6 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   min_period_(0.0),
   pulse_clk_trigger_(nullptr),
   pulse_clk_sense_(nullptr),
-  related_ground_pin_(nullptr),
-  related_power_pin_(nullptr),
   receiver_model_(nullptr),
   driver_waveform_{nullptr, nullptr},
   min_pulse_width_exists_(false),
@@ -2129,8 +2127,6 @@ LibertyPort::~LibertyPort()
   if (tristate_enable_)
     tristate_enable_->deleteSubexprs();
   delete scaled_ports_;
-  stringDelete(related_ground_pin_);
-  stringDelete(related_power_pin_);
 }
 
 void
@@ -2597,8 +2593,8 @@ LibertyPort::setIsSwitch(bool is_switch)
 }
 
 void
-LibertyPort::setPulseClk(RiseFall *trigger,
-			 RiseFall *sense)
+LibertyPort::setPulseClk(const RiseFall *trigger,
+			 const RiseFall *sense)
 {
   pulse_clk_trigger_ = trigger;
   pulse_clk_sense_ = sense;
@@ -2673,16 +2669,34 @@ LibertyPort::setCornerPort(LibertyPort *corner_port,
   corner_ports_[ap_index] = corner_port;
 }
 
+const char *
+LibertyPort::relatedGroundPin() const
+{
+  if (related_ground_pin_.empty())
+    return nullptr;
+  else
+    return related_ground_pin_.c_str();
+}
+
 void
 LibertyPort::setRelatedGroundPin(const char *related_ground_pin)
 {
-  related_ground_pin_ = stringCopy(related_ground_pin);
+  related_ground_pin_ = related_ground_pin;
+}
+
+const char *
+LibertyPort::relatedPowerPin() const
+{
+  if (related_power_pin_.empty())
+    return nullptr;
+  else
+    return related_power_pin_.c_str();
 }
 
 void
 LibertyPort::setRelatedPowerPin(const char *related_power_pin)
 {
-  related_power_pin_ = stringCopy(related_power_pin);
+  related_power_pin_ = related_power_pin;
 }
 
 void
@@ -2846,28 +2860,22 @@ LibertyPortMemberIterator::next()
 BusDcl::BusDcl(const char *name,
 	       int from,
 	       int to) :
-  name_(stringCopy(name)),
+  name_(name),
   from_(from),
   to_(to)
 {
 }
 
-BusDcl::~BusDcl()
-{
-  stringDelete(name_);
-}
-
 ////////////////////////////////////////////////////////////////
 
 ModeDef::ModeDef(const char *name) :
-  name_(stringCopy(name))
+  name_(name)
 {
 }
 
 ModeDef::~ModeDef()
 {
   values_.deleteContents();
-  stringDelete(name_);
 }
 
 ModeValueDef *
@@ -2891,31 +2899,28 @@ ModeDef::findValueDef(const char *value)
 ModeValueDef::ModeValueDef(const char *value,
 			   FuncExpr *cond,
 			   const char *sdf_cond) :
-  value_(stringCopy(value)),
+  value_(value),
   cond_(cond),
-  sdf_cond_(stringCopy(sdf_cond))
+  sdf_cond_(sdf_cond ? sdf_cond : "")
 {
 }
 
 ModeValueDef::~ModeValueDef()
 {
-  stringDelete(value_);
   if (cond_)
     cond_->deleteSubexprs();
-  if (sdf_cond_)
-    stringDelete(sdf_cond_);
 }
 
 void
 ModeValueDef::setSdfCond(const char *sdf_cond)
 {
-  sdf_cond_ = stringCopy(sdf_cond);
+  sdf_cond_ = sdf_cond;
 }
 
 ////////////////////////////////////////////////////////////////
 
 TableTemplate::TableTemplate(const char *name) :
-  name_(stringCopy(name)),
+  name_(name),
   axis1_(nullptr),
   axis2_(nullptr),
   axis3_(nullptr)
@@ -2926,23 +2931,17 @@ TableTemplate::TableTemplate(const char *name,
                              TableAxisPtr axis1,
                              TableAxisPtr axis2,
                              TableAxisPtr axis3) :
-  name_(stringCopy(name)),
+  name_(name),
   axis1_(axis1),
   axis2_(axis2),
   axis3_(axis3)
 {
 }
 
-TableTemplate::~TableTemplate()
-{
-  stringDelete(name_);
-}
-
 void
 TableTemplate::setName(const char *name)
 {
-  stringDelete(name_);
-  name_ = stringCopy(name);
+  name_ = name;
 }
 
 void
@@ -2994,7 +2993,7 @@ Pvt::setTemperature(float temp)
 
 OperatingConditions::OperatingConditions(const char *name) :
   Pvt(0.0, 0.0, 0.0),
-  name_(stringCopy(name)),
+  name_(name),
   // Default wireload tree.
   wire_load_tree_(WireloadTree::balanced)
 {
@@ -3006,14 +3005,9 @@ OperatingConditions::OperatingConditions(const char *name,
 					 float temperature,
 					 WireloadTree wire_load_tree) :
   Pvt(process, voltage, temperature),
-  name_(stringCopy(name)),
+  name_(name),
   wire_load_tree_(wire_load_tree)
 {
-}
-
-OperatingConditions::~OperatingConditions()
-{
-  stringDelete(name_);
 }
 
 void
@@ -3101,7 +3095,7 @@ scaleFactorPvtName(ScaleFactorPvt pvt)
 ////////////////////////////////////////////////////////////////
 
 ScaleFactors::ScaleFactors(const char *name) :
-  name_(stringCopy(name))
+  name_(name)
 {
   for (int type = 0; type < scale_factor_type_count; type++) {
     for (int pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
@@ -3112,15 +3106,10 @@ ScaleFactors::ScaleFactors(const char *name) :
   }
 }
 
-ScaleFactors::~ScaleFactors()
-{
-  stringDelete(name_);
-}
-
 void
 ScaleFactors::setScale(ScaleFactorType type,
 		       ScaleFactorPvt pvt,
-		       RiseFall *rf,
+		       const RiseFall *rf,
 		       float scale)
 {
   scales_[int(type)][int(pvt)][rf->index()] = scale;
@@ -3137,7 +3126,7 @@ ScaleFactors::setScale(ScaleFactorType type,
 float
 ScaleFactors::scale(ScaleFactorType type,
 		    ScaleFactorPvt pvt,
-		    RiseFall *rf)
+		    const RiseFall *rf)
 {
   return scales_[int(type)][int(pvt)][rf->index()];
 }
@@ -3232,17 +3221,10 @@ OcvDerate::setDerateTable(const RiseFall *rf,
 
 LibertyPgPort::LibertyPgPort(const char *name,
 			     LibertyCell *cell) :
-  name_(stringCopy(name)),
+  name_(name),
   pg_type_(unknown),
-  voltage_name_(nullptr),
   cell_(cell)
 {
-}
-
-LibertyPgPort::~LibertyPgPort()
-{
-  stringDelete(name_);
-  stringDelete(voltage_name_);
 }
 
 void
@@ -3254,14 +3236,14 @@ LibertyPgPort::setPgType(PgType type)
 void
 LibertyPgPort::setVoltageName(const char *voltage_name)
 {
-  voltage_name_ = stringCopy(voltage_name);
+  voltage_name_ = voltage_name;
 }
 
 bool
 LibertyPgPort::equiv(const LibertyPgPort *port1,
                      const LibertyPgPort *port2)
 {
-  return stringEq(port1->name_, port2->name_)
+  return port1->name_ == port2->name_
     && port1->pg_type_ == port2->pg_type_;
 }
 
@@ -3281,7 +3263,7 @@ LibertyCellPgPortIterator::hasNext()
 LibertyPgPort *
 LibertyCellPgPortIterator::next()
 {
-  const char *name;
+  string name;
   LibertyPgPort *port;
   iter_.next(name, port);
   return port;

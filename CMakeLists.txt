@@ -32,7 +32,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.6.0
+project(STA VERSION 2.6.2
   LANGUAGES CXX
 )
 
@@ -184,15 +184,11 @@ set(STA_SOURCE
   search/MakeTimingModel.cc
   search/Path.cc
   search/PathAnalysisPt.cc
+  search/Path.cc
   search/PathEnd.cc
   search/PathEnum.cc
-  search/PathEnumed.cc
   search/PathExpanded.cc
   search/PathGroup.cc
-  search/PathPrev.cc
-  search/PathRef.cc
-  search/PathVertex.cc
-  search/PathVertexPtr.cc
   search/Property.cc
   search/ReportPath.cc
   search/Search.cc

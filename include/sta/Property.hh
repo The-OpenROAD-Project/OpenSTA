@@ -55,7 +55,7 @@ public:
 	      type_library, type_cell, type_port,
 	      type_liberty_library, type_liberty_cell, type_liberty_port,
 	      type_instance, type_pin, type_pins, type_net,
-	      type_clk, type_clks, type_path_refs, type_pwr_activity };
+	      type_clk, type_clks, type_paths, type_pwr_activity };
   PropertyValue();
   PropertyValue(const char *value);
   PropertyValue(string &value);
@@ -77,7 +77,7 @@ public:
   PropertyValue(const Clock *value);
   PropertyValue(ClockSeq *value);
   PropertyValue(ClockSet *value);
-  PropertyValue(PathRefSeq *value);
+  PropertyValue(ConstPathSeq *value);
   PropertyValue(PwrActivity *value);
   // Copy constructor.
   PropertyValue(const PropertyValue &props);
@@ -103,7 +103,7 @@ public:
   const Net *net() const { return net_; }
   const Clock *clock() const { return clk_; }
   ClockSeq *clocks() const { return clks_; }
-  PathRefSeq *pathRefs() const { return path_refs_; }
+  ConstPathSeq *paths() const { return paths_; }
   PwrActivity pwrActivity() const { return pwr_activity_; }
 
   // Copy assignment.
@@ -129,7 +129,7 @@ private:
     const Net *net_;
     const Clock *clk_;
     ClockSeq *clks_;
-    PathRefSeq *path_refs_;
+    ConstPathSeq *paths_;
     PwrActivity pwr_activity_;
   };
   const Unit *unit_;
@@ -196,7 +196,7 @@ getProperty(PathEnd *end,
 	    Sta *sta);
 
 PropertyValue
-getProperty(PathRef *end,
+getProperty(Path *end,
 	    const char *property,
 	    Sta *sta);
 

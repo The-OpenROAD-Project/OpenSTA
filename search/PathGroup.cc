@@ -46,7 +46,7 @@
 
 namespace sta {
 
-int PathGroup::group_path_count_max = std::numeric_limits<int>::max();
+size_t PathGroup::group_path_count_max = std::numeric_limits<size_t>::max();
 
 PathGroup *
 PathGroup::makePathGroupSlack(const char *name,
@@ -74,8 +74,8 @@ PathGroup::makePathGroupArrival(const char *name,
 }
 
 PathGroup::PathGroup(const char *name,
-		     int group_path_count,
-		     int endpoint_path_count,
+		     size_t group_path_count,
+		     size_t endpoint_path_count,
 		     bool unique_pins,
 		     float slack_min,
 		     float slack_max,
@@ -148,7 +148,7 @@ PathGroup::enumMinSlackUnderMin(PathEnd *path_end)
                                   path->transition(sta_),
                                   other_ap, sta_);
     while (other_iter.hasNext()) {
-      PathVertex *other = other_iter.next();
+      Path *other = other_iter.next();
       if (tagMatchCrpr(other->tag(sta_), tag)) {
         PathEnd *end_min = path_end->copy();
         end_min->setPath(other);
@@ -168,7 +168,7 @@ PathGroup::insert(PathEnd *path_end)
   LockGuard lock(lock_);
   path_ends_.push_back(path_end);
   if (group_path_count_ != group_path_count_max
-      && static_cast<int>(path_ends_.size()) > group_path_count_ * 2)
+      && path_ends_.size() > group_path_count_ * 2)
     prune();
 }
 
@@ -177,7 +177,7 @@ PathGroup::prune()
 {
   sort();
   VertexPathCountMap path_counts;
-  int end_count = 0;
+  size_t end_count = 0;
   for (unsigned i = 0; i < path_ends_.size(); i++) {
     PathEnd *path_end = path_ends_[i];
     Vertex *vertex = path_end->vertex(sta_);
@@ -220,7 +220,7 @@ PathGroup::iterator()
 void
 PathGroup::ensureSortedMaxPaths()
 {
-  if (static_cast<int>(path_ends_.size()) > group_path_count_)
+  if (path_ends_.size() > group_path_count_)
     prune();
   else
     sort();
@@ -411,9 +411,11 @@ PathGroups::pathGroup(const PathEnd *path_end) const
 {
   const MinMax *min_max = path_end->minMax(this);
   int mm_index =  min_max->index();
-  // GroupPaths have precedence.
   GroupPath *group_path = groupPathTo(path_end);
- if (group_path) {
+  if (path_end->isUnconstrained())
+    return unconstrained_[mm_index];
+  // GroupPaths have precedence.
+  else if (group_path) {
    if (group_path->isDefault())
      return path_delay_[mm_index];
    else {
@@ -446,8 +448,6 @@ PathGroups::pathGroup(const PathEnd *path_end) const
     else
       return path_delay_[mm_index];
   }
-  else if (path_end->isUnconstrained())
-    return unconstrained_[mm_index];
   else {
     report_->critical(1390, "unknown path end type");
     return nullptr;
@@ -716,7 +716,6 @@ void
 MakePathEndsAll::vertexEnd(Vertex *)
 {
   Debug *debug = sta_->debug();
-  Network *network = sta_->network();
   PathGroupEndsMap::Iterator group_iter(ends_);
   while (group_iter.hasNext()) {
     PathGroup *group;
@@ -734,9 +733,9 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	// PathEnum will peel the others.
 	if (!unique_ends.hasKey(path_end)) {
 	  debugPrint(debug, "path_enum", 5, "insert %s %s %s %d",
-                     path_end->vertex(sta_)->name(network),
+                     path_end->vertex(sta_)->to_string(sta_).c_str(),
                      path_end->typeName(),
-                     path_end->transition(sta_)->asString(),
+                     path_end->transition(sta_)->to_string().c_str(),
                      path_end->path()->tag(sta_)->index());
 	  // Give the group a copy of the path end because
 	  // it may delete it during pruning.
@@ -749,9 +748,9 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	}
 	else
 	  debugPrint(debug, "path_enum", 5, "prune %s %s %s %d",
-                     path_end->vertex(sta_)->name(network),
+                     path_end->vertex(sta_)->to_string(sta_).c_str(),
                      path_end->typeName(),
-                     path_end->transition(sta_)->asString(),
+                     path_end->transition(sta_)->to_string().c_str(),
                      path_end->path()->tag(sta_)->index());
       }
       // Clear ends for next vertex.

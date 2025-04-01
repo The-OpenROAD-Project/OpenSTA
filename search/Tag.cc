@@ -89,16 +89,16 @@ Tag::~Tag()
     delete states_;
 }
 
-const char *
-Tag::asString(const StaState *sta) const
+string
+Tag::to_string(const StaState *sta) const
 {
-  return asString(true, true, sta);
+  return to_string(true, true, sta);
 }
 
-const char *
-Tag::asString(bool report_index,
-	      bool report_rf_min_max,
-	      const StaState *sta) const
+string
+Tag::to_string(bool report_index,
+               bool report_rf_min_max,
+               const StaState *sta) const
 {
   const Network *network = sta->network();
   const Corners *corners = sta->corners();
@@ -111,9 +111,9 @@ Tag::asString(bool report_index,
     const RiseFall *rf = transition();
     PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
     result += " ";
-    result += rf->asString();
+    result += rf->to_string().c_str();
     result += " ";
-    result += path_ap->pathMinMax()->asString();
+    result += path_ap->pathMinMax()->to_string();
     result += "/";
     result += std::to_string(path_ap_index_);
   }
@@ -148,10 +148,10 @@ Tag::asString(bool report_index,
     result += network->pathName(clk_src);
   }
 
-  const PathVertex crpr_clk_path(clk_info_->crprClkPath(), sta);
-  if (!crpr_clk_path.isNull()) {
+  const Path *crpr_clk_path = clk_info_->crprClkPath(sta);
+  if (crpr_clk_path != nullptr) {
     result += " crpr_pin ";
-    result += network->pathName(crpr_clk_path.pin(sta));
+    result += network->pathName(crpr_clk_path->pin(sta));
   }
 
   if (input_delay_) {
@@ -178,10 +178,7 @@ Tag::asString(bool report_index,
       }
     }
   }
-
-  char *tmp = makeTmpString(result.size() + 1);
-  strcpy(tmp, result.c_str());
-  return tmp;
+  return result;
 }
 
 const RiseFall *
@@ -280,11 +277,12 @@ Tag::findHash()
 }
 
 size_t
-Tag::matchHash(bool match_crpr_clk_pin) const
+Tag::matchHash(bool match_crpr_clk_pin,
+               const StaState *sta) const
 {
   if (match_crpr_clk_pin)
     // match_hash_ with crpr clk pin thrown in.
-    return hashSum(match_hash_, clk_info_->crprClkVertexId());
+    return hashSum(match_hash_, clk_info_->crprClkVertexId(sta));
   else
     return match_hash_;
 }
@@ -421,7 +419,7 @@ tagMatch(const Tag *tag1,
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
 	&& (!match_crpr_clk_pin
 	    || !sta->sdc()->crprActive()
-	    || clk_info1->crprClkVertexId() == clk_info2->crprClkVertexId())
+	    || clk_info1->crprClkVertexId(sta) == clk_info2->crprClkVertexId(sta))
 	&& tagStateEqual(tag1, tag2));
 }
 
@@ -482,8 +480,8 @@ tagMatchCmp(const Tag *tag1,
 
   if (match_crpr_clk_pin
       && sta->sdc()->crprActive()) {
-    VertexId crpr_vertex1 = clk_info1->crprClkVertexId();
-    VertexId crpr_vertex2 = clk_info2->crprClkVertexId();
+    VertexId crpr_vertex1 = clk_info1->crprClkVertexId(sta);
+    VertexId crpr_vertex2 = clk_info2->crprClkVertexId(sta);
     if (crpr_vertex1 < crpr_vertex2)
       return -1;
     if (crpr_vertex1 > crpr_vertex2)
@@ -676,7 +674,7 @@ TagMatchHash::TagMatchHash(bool match_crpr_clk_pin,
 size_t
 TagMatchHash::operator()(const Tag *tag) const
 {
-  return tag->matchHash(match_crpr_clk_pin_);
+  return tag->matchHash(match_crpr_clk_pin_, sta_);
 }
 
 TagMatchEqual::TagMatchEqual(bool match_crpr_clk_pin,

@@ -46,8 +46,8 @@ public:
   void gatedClkEnables(Vertex *clk_vertex,
 		       // Return value.
 		       PinSet &enable_pins);
-  RiseFall *gatedClkActiveTrans(LogicValue active_value,
-				     const MinMax *min_max) const;
+  const RiseFall *gatedClkActiveTrans(LogicValue active_value,
+                                      const MinMax *min_max) const;
 
 protected:
   void isClkGatingFunc(FuncExpr *func,

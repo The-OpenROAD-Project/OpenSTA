@@ -38,7 +38,7 @@
 #include "Bfs.hh"
 #include "Search.hh"
 #include "Genclks.hh"
-#include "PathVertex.hh"
+#include "Path.hh"
 #include "Sim.hh"
 
 namespace sta {
@@ -246,9 +246,11 @@ CheckTiming::checkUnconstraintedOutputs(PinSet &unconstrained_ends)
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     PortDirection *dir = network_->direction(pin);
+    Vertex *vertex = graph_->pinLoadVertex(pin);
     if (dir->isAnyOutput()
-	&& !((hasClkedDepature(pin)
-	      && hasClkedArrival(graph_->pinLoadVertex(pin)))
+	&& !vertex->isConstant()
+        && !((hasClkedDepature(pin)
+	      && hasClkedArrival(vertex))
 	     || hasMaxDelay(pin)))
       unconstrained_ends.insert(pin);
   }
@@ -294,14 +296,16 @@ CheckTiming::checkUnconstrainedSetups(PinSet &unconstrained_ends)
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    VertexInEdgeIterator edge_iter(vertex, graph_);
-    while (edge_iter.hasNext()) {
-      Edge *edge = edge_iter.next();
-      if (edge->role() == TimingRole::setup()
-	  && (!search_->isClock(edge->from(graph_))
-	       || !hasClkedArrival(edge->to(graph_)))) {
-	unconstrained_ends.insert(vertex->pin());
-	break;
+    if (!vertex->isConstant()) {
+      VertexInEdgeIterator edge_iter(vertex, graph_);
+      while (edge_iter.hasNext()) {
+        Edge *edge = edge_iter.next();
+        if (edge->role() == TimingRole::setup()
+            && (!search_->isClock(edge->from(graph_))
+                || !hasClkedArrival(edge->to(graph_)))) {
+          unconstrained_ends.insert(vertex->pin());
+          break;
+        }
       }
     }
   }
@@ -312,7 +316,7 @@ CheckTiming::hasClkedArrival(Vertex *vertex)
 {
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
+    Path *path = path_iter.next();
     if (path->clock(this))
       return true;
   }

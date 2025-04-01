@@ -430,7 +430,7 @@ SdfReader::findPort(const Cell *cell,
 }
 
 void
-SdfReader::timingCheck(TimingRole *role,
+SdfReader::timingCheck(const TimingRole *role,
                        SdfPortSpec *data_edge,
 		       SdfPortSpec *clk_edge,
                        SdfTriple *triple)
@@ -450,7 +450,7 @@ SdfReader::timingCheck(TimingRole *role,
 }
 
 void
-SdfReader::timingCheck1(TimingRole *role,
+SdfReader::timingCheck1(const TimingRole *role,
                         Port *data_port,
 			SdfPortSpec *data_edge,
                         Port *clk_port,
@@ -498,7 +498,7 @@ SdfReader::timingCheck1(TimingRole *role,
                 network_->cellName(instance_),
                 network_->name(data_port),
                 network_->name(clk_port),
-                role->asString());
+                role->to_string().c_str());
     }
   }
 }
@@ -509,7 +509,7 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
 			      SdfPortSpec *data_edge,
 			      Pin *clk_pin,
 			      SdfPortSpec *clk_edge,
-			      TimingRole *sdf_role,
+			      const TimingRole *sdf_role,
 			      SdfTriple *triple,
 			      bool match_generic)
 {
@@ -600,8 +600,8 @@ SdfReader::timingCheckSetupHold1(SdfPortSpec *data_edge,
                                  SdfPortSpec *clk_edge,
                                  SdfTriple *setup_triple,
                                  SdfTriple *hold_triple,
-                                 TimingRole *setup_role,
-                                 TimingRole *hold_role)
+                                 const TimingRole *setup_role,
+                                 const TimingRole *hold_role)
 {
   const string *data_port_name = data_edge->port();
   const string *clk_port_name = clk_edge->port();
@@ -754,7 +754,7 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
   float **values = triple->values();
   float *value_min = values[triple_min_index_];
   float *value_max = values[triple_max_index_];
-  MinMax *min, *max;
+  const MinMax *min, *max;
   if (cond_use_ == MinMaxAll::min()) {
     min = MinMax::min();
     max = MinMax::min();
@@ -826,7 +826,7 @@ SdfReader::condMatch(const string *sdf_cond,
 }
 
 SdfPortSpec *
-SdfReader::makePortSpec(Transition *tr,
+SdfReader::makePortSpec(const Transition *tr,
 			const string *port,
 			const string *cond)
 {

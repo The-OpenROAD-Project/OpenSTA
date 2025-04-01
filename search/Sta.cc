@@ -232,7 +232,6 @@ void
 initSta()
 {
   initElapsedTime();
-  TimingRole::init();
   PortDirection::init();
   initLiberty();
   initDelayConstants();
@@ -249,7 +248,6 @@ deleteAllMemory()
     Sta::setSta(nullptr);
   }
   deleteDelayCalcs();
-  TimingRole::destroy();
   PortDirection::destroy();
   deleteLiberty();
 }
@@ -2488,6 +2486,8 @@ Sta::searchPreamble()
   findDelays();
   updateGeneratedClks();
   sdc_->searchPreamble();
+  // Delete results from last findPathEnds because they point to filtered arrivals.
+  search_->deletePathGroups();
   search_->deleteFilteredArrivals();
 }
 
@@ -2759,82 +2759,82 @@ Sta::vertexPathIterator(Vertex *vertex,
   return new VertexPathIterator(vertex, rf, min_max, this);
 }
 
-PathRef
+Path *
 Sta::vertexWorstArrivalPath(Vertex *vertex,
 			    const MinMax *min_max)
 {
   return vertexWorstArrivalPath(vertex, nullptr, min_max);
 }
 
-PathRef
+Path *
 Sta::vertexWorstArrivalPath(Vertex *vertex,
 			    const RiseFall *rf,
 			    const MinMax *min_max)
 {
-  PathRef worst_path;
+  Path *worst_path = nullptr;
   Arrival worst_arrival = min_max->initValue();
   VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
-    Arrival arrival = path->arrival(this);
+    Path *path = path_iter.next();
+    Arrival arrival = path->arrival();
     if (!path->tag(this)->isGenClkSrcPath()
 	&& delayGreater(arrival, worst_arrival, min_max, this)) {
       worst_arrival = arrival;
-      worst_path.init(path);
+      worst_path = path;
     }
   }
   return worst_path;
 }
 
-PathRef
+Path *
 Sta::vertexWorstRequiredPath(Vertex *vertex,
                              const MinMax *min_max)
 {
   return vertexWorstRequiredPath(vertex, nullptr, min_max);
 }
 
-PathRef
+Path *
 Sta::vertexWorstRequiredPath(Vertex *vertex,
                              const RiseFall *rf,
                              const MinMax *min_max)
 {
-  PathRef worst_path;
+  Path *worst_path = nullptr;
   const MinMax *req_min_max = min_max->opposite();
   Arrival worst_req = req_min_max->initValue();
   VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
-    const Required path_req = path->required(this);
+    Path *path = path_iter.next();
+    const Required path_req = path->required();
     if (!path->tag(this)->isGenClkSrcPath()
 	&& delayGreater(path_req, worst_req, req_min_max, this)) {
       worst_req = path_req;
-      worst_path.init(path);
+      worst_path = path;
     }
   }
   return worst_path;
 }
 
-PathRef
+Path *
 Sta::vertexWorstSlackPath(Vertex *vertex,
 			  const RiseFall *rf,
 			  const MinMax *min_max)
 {
-  PathRef worst_path;
+  Path *worst_path = nullptr;
   Slack min_slack = MinMax::min()->initValue();
   VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
+    Path *path = path_iter.next();
     Slack slack = path->slack(this);
     if (!path->tag(this)->isGenClkSrcPath()
 	&& delayLess(slack, min_slack, this)) {
       min_slack = slack;
-      worst_path.init(path);
+      worst_path = path;
     }
   }
   return worst_path;
 }
 
-PathRef
+Path *
 Sta::vertexWorstSlackPath(Vertex *vertex,
 			  const MinMax *min_max)
 
@@ -2891,12 +2891,12 @@ Sta::vertexArrival(Vertex *vertex,
   VertexPathIterator path_iter(vertex, rf, path_ap, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
-    const Arrival &path_arrival = path->arrival(this);
+    const Arrival &path_arrival = path->arrival();
     ClkInfo *clk_info = path->clkInfo(search_);
     if ((clk_edge == clk_edge_wildcard
 	 || clk_info->clkEdge() == clk_edge)
 	&& !clk_info->isGenClkSrcPath()
-	&& delayGreater(path->arrival(this), arrival, min_max, this))
+	&& delayGreater(path->arrival(), arrival, min_max, this))
       arrival = path_arrival;
   }
   return arrival;
@@ -2949,7 +2949,7 @@ Sta::vertexRequired(Vertex *vertex,
   VertexPathIterator path_iter(vertex, rf, path_ap, min_max, this);
   while (path_iter.hasNext()) {
     const Path *path = path_iter.next();
-    const Required path_required = path->required(this);
+    const Required path_required = path->required();
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
 	&& delayGreater(path_required, required, req_min_max, this))
@@ -3019,7 +3019,7 @@ Sta::vertexSlack(Vertex *vertex,
 		 const MinMax *min_max)
 {
   findRequired(vertex);
-  MinMax *min = MinMax::min();
+  const MinMax *min = MinMax::min();
   Slack slack = min->initValue();
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
@@ -3075,7 +3075,7 @@ Sta::vertexSlack1(Vertex *vertex,
 		  const ClockEdge *clk_edge,
 		  const PathAnalysisPt *path_ap)
 {
-  MinMax *min = MinMax::min();
+  const MinMax *min = MinMax::min();
   Slack slack = min->initValue();
   VertexPathIterator path_iter(vertex, rf, path_ap, this);
   while (path_iter.hasNext()) {
@@ -3177,7 +3177,7 @@ bool
 MinPeriodEndVisitor::pathIsFromInputPort(PathEnd *path_end)
 {
   PathExpanded expanded(path_end->path(), sta_);
-  const PathRef *start = expanded.startPath();
+  const Path *start = expanded.startPath();
   Graph *graph = sta_->graph();
   const Pin *first_pin = start->pin(graph);
   Network *network = sta_->network();
@@ -3219,7 +3219,7 @@ Sta::findRequired(Vertex *vertex)
     int fanout = 0;
     disableFanoutCrprPruning(vertex, fanout);
     debugPrint(debug_, "search", 1, "resurrect pruned required %s fanout %d",
-               vertex->name(sdc_network_),
+               vertex->to_string(this).c_str(),
                fanout);
     // Find fanout arrivals and requireds with pruning disabled.
     search_->findArrivals();
@@ -3539,14 +3539,14 @@ Sta::pathDcalcAnalysisPt(Path *path)
 }
 
 Vertex *
-Sta::maxArrivalCountVertex() const
+Sta::maxPathCountVertex() const
 {
   Vertex *max_vertex = nullptr;
   int max_count = 0;
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    int count = vertexArrivalCount(vertex);
+    int count = vertexPathCount(vertex);
     if (count > max_count) {
       max_count = count;
       max_vertex = vertex;
@@ -3556,36 +3556,23 @@ Sta::maxArrivalCountVertex() const
 }
 
 int
-Sta::vertexArrivalCount(Vertex  *vertex) const
+Sta::vertexPathCount(Vertex  *vertex) const
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group)
-    return tag_group->arrivalCount();
+    return tag_group->pathCount();
   else
     return 0;
 }
 
 int
-Sta::arrivalCount() const
+Sta::pathCount() const
 {
   int count = 0;
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    count += vertexArrivalCount(vertex);
-  }
-  return count;
-}
-
-int
-Sta::requiredCount() const
-{
-  int count = 0;
-  VertexIterator vertex_iter(graph_);
-  while (vertex_iter.hasNext()) {
-    Vertex *vertex = vertex_iter.next();
-    if (vertex->hasRequireds())
-      count += vertexArrivalCount(vertex);
+    count += vertexPathCount(vertex);
   }
   return count;
 }
@@ -3616,7 +3603,7 @@ Sta::setArcDelay(Edge *edge,
 		 ArcDelay delay)
 {
   ensureGraph();
-  for (MinMax *mm : min_max->range()) {
+  for (const MinMax *mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
     graph_->setArcDelay(edge, arc, ap_index, delay);
@@ -3639,10 +3626,10 @@ Sta::setAnnotatedSlew(Vertex *vertex,
 		      float slew)
 {
   ensureGraph();
-  for (MinMax *mm : min_max->range()) {
+  for (const MinMax *mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
-    for (RiseFall *rf1 : rf->range()) {
+    for (const RiseFall *rf1 : rf->range()) {
       graph_->setSlew(vertex, rf1, ap_index, slew);
       // Don't let delay calculation clobber the value.
       vertex->setSlewAnnotated(true, rf1, ap_index);
@@ -3703,10 +3690,10 @@ Sta::setPortExtPinCap(const Port *port,
 		      const MinMaxAll *min_max,
 		      float cap)
 {
-  for (RiseFall *rf1 : rf->range()) {
-    for (MinMax *mm : min_max->range()) {
+  for (const RiseFall *rf1 : rf->range()) {
+    for (const MinMax *mm : min_max->range()) {
       if (corner == nullptr) {
-        for (Corner *corner : *corners_)
+        for (const Corner *corner : *corners_)
           sdc_->setPortExtPinCap(port, rf1, corner, mm, cap);
       }
       else
@@ -3730,7 +3717,7 @@ Sta::portExtCaps(const Port *port,
   pin_cap = min_max->initValue();
   wire_cap = min_max->initValue();
   fanout = min_max->initValueInt();
-  for (RiseFall *rf : RiseFall::range()) {
+  for (const RiseFall *rf : RiseFall::range()) {
     float pin_cap1, wire_cap1;
     int fanout1;
     bool pin_exists1, wire_exists1, fanout_exists1;
@@ -3767,10 +3754,10 @@ Sta::setPortExtWireCap(const Port *port,
 		       const MinMaxAll *min_max,
 		       float cap)
 {
-  for (RiseFall *rf1 : rf->range()) {
-    for (MinMax *mm : min_max->range()) {
+  for (const RiseFall *rf1 : rf->range()) {
+    for (const MinMax *mm : min_max->range()) {
       if (corner == nullptr) {
-        for (Corner *corner : *corners_)
+        for (const Corner *corner : *corners_)
           sdc_->setPortExtWireCap(port, subtract_pin_cap, rf1, corner, mm, cap);
       }
       else
@@ -3793,9 +3780,9 @@ Sta::setPortExtFanout(const Port *port,
                       const Corner *corner,
 		      const MinMaxAll *min_max)
 {
-  for (MinMax *mm : min_max->range()) {
+  for (const MinMax *mm : min_max->range()) {
     if (corner == nullptr) {
-      for (Corner *corner : *corners_)
+      for (const Corner *corner : *corners_)
         sdc_->setPortExtFanout(port, corner, mm, fanout);
     }
     else
@@ -3811,9 +3798,9 @@ Sta::setNetWireCap(const Net *net,
 		   const MinMaxAll *min_max,
 		   float cap)
 {
-  for (MinMax *mm : min_max->range()) {
+  for (const MinMax *mm : min_max->range()) {
     if (corner == nullptr) {
-      for (Corner *corner : *corners_)
+      for (const Corner *corner : *corners_)
         sdc_->setNetWireCap(net, subtract_pin_cap, corner, mm, cap);
     }
     else
@@ -3846,7 +3833,7 @@ Sta::connectedCap(const Net *net,
     pin_cap = min_max->initValue();
     wire_cap = min_max->initValue();
     for (const Corner *corner : makeCornerSeq(corner)) {
-      for (RiseFall *rf : RiseFall::range()) {
+      for (const RiseFall *rf : RiseFall::range()) {
         float pin_cap1, wire_cap1;
         connectedCap(drvr_pin, rf, corner, min_max, pin_cap1, wire_cap1);
         pin_cap = min_max->minMax(pin_cap, pin_cap1);
@@ -3880,7 +3867,7 @@ Sta::capacitance(const LibertyPort *port,
   float cap = min_max->initValue();
   for (const Corner *corner : makeCornerSeq(corner)) {
     const LibertyPort *corner_port = port->cornerPort(corner, min_max);
-    for (RiseFall *rf : RiseFall::range())
+    for (const RiseFall *rf : RiseFall::range())
       cap = min_max->minMax(cap, corner_port->capacitance(rf, min_max, op_cond, op_cond));
   }
   return cap;
@@ -3994,8 +3981,8 @@ Sta::makePiElmore(Pin *drvr_pin,
 		  float rpi,
 		  float c1)
 {
-  Corner *corner = cmd_corner_;
-  for (MinMax *mm : min_max->range()) {
+  const Corner *corner = cmd_corner_;
+  for (const MinMax *mm : min_max->range()) {
     ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
     parasitics_->makePiElmore(drvr_pin, rf, ap, c2, rpi, c1);
   }
@@ -4026,8 +4013,8 @@ Sta::setElmore(Pin *drvr_pin,
 	       const MinMaxAll *min_max,
 	       float elmore)
 {
-  Corner *corner = cmd_corner_;
-  for (MinMax *mm : min_max->range()) {
+  const Corner *corner = cmd_corner_;
+  for (const MinMax *mm : min_max->range()) {
     const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
     Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, rf, ap);
     if (pi_elmore)
@@ -4195,6 +4182,8 @@ Sta::makePortPin(const char *port_name,
 void
 Sta::makeInstanceAfter(const Instance *inst)
 {
+  debugPrint(debug_, "network_edit", 1, "make instance %s",
+             sdc_network_->pathName(inst));
   if (graph_) {
     LibertyCell *lib_cell = network_->libertyCell(inst);
     if (lib_cell) {
@@ -4367,6 +4356,9 @@ Sta::replaceCellAfter(const Instance *inst)
 void
 Sta::connectPinAfter(const Pin *pin)
 {
+  debugPrint(debug_, "network_edit", 1, "connect %s to %s",
+             sdc_network_->pathName(pin),
+             sdc_network_->pathName(network_->net(pin)));
   if (graph_) {
     if (network_->isHierarchical(pin)) {
       graph_->makeWireEdgesThruPin(pin);
@@ -4453,6 +4445,9 @@ Sta::connectLoadPinAfter(Vertex *vertex)
 void
 Sta::disconnectPinBefore(const Pin *pin)
 {
+  debugPrint(debug_, "network_edit", 1, "disconnect %s from %s",
+             sdc_network_->pathName(pin),
+             sdc_network_->pathName(network_->net(pin)));
   parasitics_->disconnectPinBefore(pin, network_);
   sdc_->disconnectPinBefore(pin);
   sim_->disconnectPinBefore(pin);
@@ -4500,10 +4495,11 @@ Sta::disconnectPinBefore(const Pin *pin)
 void
 Sta::deleteEdge(Edge *edge)
 {
-  Vertex *from = edge->from(graph_);
+  debugPrint(debug_, "network_edit", 1, "delete edge %s -> %s",
+             edge->from(graph_)->name(sdc_network_),
+             edge->to(graph_)->name(sdc_network_));
   Vertex *to = edge->to(graph_);
-  search_->arrivalInvalid(to);
-  search_->requiredInvalid(from);
+  search_->deleteEdgeBefore(edge);
   graph_delay_calc_->delayInvalid(to);
   levelize_->relevelizeFrom(to);
   levelize_->deleteEdgeBefore(edge);
@@ -4514,6 +4510,8 @@ Sta::deleteEdge(Edge *edge)
 void
 Sta::deleteNetBefore(const Net *net)
 {
+  debugPrint(debug_, "network_edit", 1, "delete net %s",
+             sdc_network_->pathName(net));
   if (graph_) {
     NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
     while (pin_iter->hasNext()) {
@@ -4540,6 +4538,8 @@ Sta::deleteNetBefore(const Net *net)
 void
 Sta::deleteInstanceBefore(const Instance *inst)
 {
+  debugPrint(debug_, "network_edit", 1, "delete instance %s",
+             sdc_network_->pathName(inst));
   if (network_->isLeaf(inst)) {
     deleteInstancePinsBefore(inst);
     deleteLeafInstanceBefore(inst);
@@ -4869,7 +4869,7 @@ FanInOutSrchPred::searchThru(Edge *edge)
 bool
 FanInOutSrchPred::searchThruRole(Edge *edge)
 {
-  TimingRole *role = edge->role();
+  const TimingRole *role = edge->role();
   return role == TimingRole::wire()
     || role == TimingRole::combinational()
     || role == TimingRole::tristateEnable()
@@ -4918,7 +4918,7 @@ FaninSrchPred::FaninSrchPred(bool thru_disabled,
 bool
 FaninSrchPred::searchThruRole(Edge *edge)
 {
-  TimingRole *role = edge->role();
+  const TimingRole *role = edge->role();
   return role == TimingRole::wire()
     || role == TimingRole::combinational()
     || role == TimingRole::tristateEnable()
@@ -4994,7 +4994,7 @@ Sta::findFaninPins(Vertex *to,
 		   int pin_level)
 {
   debugPrint(debug_, "fanin", 1, "%s",
-             to->name(sdc_network_));
+             to->to_string(this).c_str());
   if (!visited.hasKey(to)) {
     visited.insert(to);
     Pin *to_pin = to->pin();
@@ -5104,7 +5104,7 @@ Sta::findFanoutPins(Vertex *from,
 		    int pin_level)
 {
   debugPrint(debug_, "fanout", 1, "%s",
-             from->name(sdc_network_));
+             from->to_string(this).c_str());
   if (!visited.hasKey(from)) {
     visited.insert(from);
     if (!search_->isEndpoint(from, pred)
@@ -5715,7 +5715,7 @@ Sta::activity(const Pin *pin)
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::writePathSpice(PathRef *path,
+Sta::writePathSpice(Path *path,
                     const char *spice_filename,
                     const char *subckt_filename,
                     const char *lib_subckt_filename,

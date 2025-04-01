@@ -203,7 +203,7 @@ class ClockEdge
 public:
   Clock *clock() const { return clock_; }
   ~ClockEdge();
-  RiseFall *transition() const { return rf_; }
+  const RiseFall *transition() const { return rf_; }
   float time() const { return time_; }
   const char *name() const { return name_; }
   int index() const { return index_; }
@@ -213,11 +213,12 @@ public:
 
   friend class Clock;  // builder
 private:
-  ClockEdge(Clock *clock, RiseFall *rf);
+  ClockEdge(Clock *clock,
+            const RiseFall *rf);
   void setTime(float time);
 
   Clock *clock_;
-  RiseFall *rf_;
+  const RiseFall *rf_;
   const char *name_;
   float time_;
   int index_;
@@ -262,7 +263,7 @@ public:
   void removeUncertainty(const RiseFallBoth *src_rf,
 			 const RiseFallBoth *tgt_rf,
 			 const SetupHoldAll *setup_hold);
-  const RiseFallMinMax *uncertainties(RiseFall *src_rf) const;
+  const RiseFallMinMax *uncertainties(const RiseFall *src_rf) const;
   bool empty() const;
 
 private:

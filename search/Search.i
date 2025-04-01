@@ -51,11 +51,11 @@ private:
   ~VertexPathIterator();
 };
 
-class PathRef
+class Path
 {
 private:
-  PathRef();
-  ~PathRef();
+  Path();
+  ~Path();
 };
 
 class PathEnd
@@ -221,44 +221,32 @@ worst_slack_corner(const Corner *corner,
   return worst_slack;
 }
 
-PathRef *
+Path *
 vertex_worst_arrival_path(Vertex *vertex,
 			  const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  PathRef path = sta->vertexWorstArrivalPath(vertex, min_max);
-  if (!path.isNull())
-    return new PathRef(path);
-  else
-    return nullptr;
+  return sta->vertexWorstArrivalPath(vertex, min_max);
 }
 
-PathRef *
+Path *
 vertex_worst_arrival_path_rf(Vertex *vertex,
 			     const RiseFall *rf,
 			     MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  PathRef path = sta->vertexWorstArrivalPath(vertex, rf, min_max);
-  if (!path.isNull())
-    return new PathRef(path);
-  else
-    return nullptr;
+  return sta->vertexWorstArrivalPath(vertex, rf, min_max);
 }
 
-PathRef *
+Path *
 vertex_worst_slack_path(Vertex *vertex,
 			const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  PathRef path = sta->vertexWorstSlackPath(vertex, min_max);
-  if (!path.isNull())
-    return new PathRef(path);
-  else
-    return nullptr;
+  return sta->vertexWorstSlackPath(vertex, min_max);
 }
 
 int
@@ -280,9 +268,9 @@ report_tag_arrivals_cmd(Vertex *vertex)
 }
 
 void
-report_arrival_count_histogram()
+report_path_count_histogram()
 {
-  Sta::sta()->search()->reportArrivalCountHistogram();
+  Sta::sta()->search()->reportPathCountHistogram();
 }
 
 int
@@ -310,15 +298,9 @@ clk_info_count()
 }
 
 int
-arrival_count()
+path_count()
 {
-  return Sta::sta()->arrivalCount();
-}
-
-int
-required_count()
-{
-  return Sta::sta()->requiredCount();
+  return Sta::sta()->pathCount();
 }
 
 int
@@ -331,11 +313,9 @@ void
 report_loops()
 {
   Sta *sta = Sta::sta();
-  Network *network = sta->network();
-  Graph *graph = sta->ensureGraph();
   Report *report = sta->report();
   for (GraphLoop *loop : *sta->graphLoops()) {
-    loop->report(report, network, graph);
+    loop->report(sta);
     report->reportLineString("");
   }
 }
@@ -494,13 +474,7 @@ set_report_path_sigmas(bool report_sigmas)
 }
 
 void
-delete_path_ref(PathRef *path)
-{
-  delete path;
-}
-
-void
-report_path_cmd(PathRef *path)
+report_path_cmd(Path *path)
 {
   Sta::sta()->reportPath(path);
 }
@@ -1245,7 +1219,7 @@ path_end_property(PathEnd *end,
 }
 
 PropertyValue
-path_ref_property(PathRef *path,
+path_ref_property(Path *path,
 		  const char *property)
 {
   return getProperty(path, property, Sta::sta());
@@ -1275,14 +1249,14 @@ bool is_output_delay() { return self->isOutputDelay(); }
 bool is_path_delay() { return self->isPathDelay(); }
 bool is_gated_clock() { return self->isGatedClock(); }
 Vertex *vertex() { return self->vertex(Sta::sta()); }
-PathRef *path() { return &self->pathRef(); }
+Path *path() { return self->path(); }
 RiseFall *end_transition()
 { return const_cast<RiseFall*>(self->path()->transition(Sta::sta())); }
 Slack slack() { return self->slack(Sta::sta()); }
 ArcDelay margin() { return self->margin(Sta::sta()); }
 Required data_required_time() { return self->requiredTimeOffset(Sta::sta()); }
 Arrival data_arrival_time() { return self->dataArrivalTimeOffset(Sta::sta()); }
-TimingRole *check_role() { return self->checkRole(Sta::sta()); }
+const TimingRole *check_role() { return self->checkRole(Sta::sta()); }
 MinMax *min_max() { return const_cast<MinMax*>(self->minMax(Sta::sta())); }
 float source_clk_offset() { return self->sourceClkOffset(Sta::sta()); }
 Arrival source_clk_latency() { return self->sourceClkLatency(Sta::sta()); }
@@ -1312,19 +1286,17 @@ Delay clk_skew() { return self->clkSkew(Sta::sta()); }
 
 }
 
-%extend PathRef {
+%extend Path {
 float
 arrival()
 {
-  Sta *sta = Sta::sta();
-  return delayAsFloat(self->arrival(sta));
+  return delayAsFloat(self->arrival());
 }
 
 float
 required()
 {
-  Sta *sta = Sta::sta();
-  return delayAsFloat(self->required(sta));
+  return delayAsFloat(self->required());
 }
 
 float
@@ -1341,11 +1313,11 @@ pin()
   return self->pin(sta);
 }
 
-const char *
+string
 tag()
 {
   Sta *sta = Sta::sta();
-  return self->tag(sta)->asString(sta);
+  return self->tag(sta)->to_string(sta);
 }
 
 // mea_opt3
@@ -1354,12 +1326,10 @@ pins()
 {
   Sta *sta = Sta::sta();
   PinSeq pins;
-  PathRef path1(self);
-  while (!path1.isNull()) {
-    pins.push_back(path1.vertex(sta)->pin());
-    PathRef prev_path;
-    path1.prevPath(sta, prev_path);
-    path1.init(prev_path);
+  Path *path1 = self;
+  while (path1) {
+    pins.push_back(path1->vertex(sta)->pin());
+    path1 = path1->prevPath();
   }
   return pins;
 }
@@ -1368,11 +1338,10 @@ pins()
 
 %extend VertexPathIterator {
 bool has_next() { return self->hasNext(); }
-PathRef *
+Path *
 next()
 {
-  Path *path = self->next();
-  return new PathRef(path);
+  return self->next();
 }
 
 void finish() { delete self; }

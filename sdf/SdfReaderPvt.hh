@@ -92,7 +92,7 @@ public:
 	      SdfTripleSeq *triples,
 	      const string *cond,
 	      bool condelse);
-  void timingCheck(TimingRole *role,
+  void timingCheck(const TimingRole *role,
 		   SdfPortSpec *data_edge,
 		   SdfPortSpec *clk_edge,
 		   SdfTriple *triple);
@@ -112,8 +112,8 @@ public:
                              SdfPortSpec *clk_edge,
                              SdfTriple *setup_triple,
                              SdfTriple *hold_triple,
-                             TimingRole *setup_role,
-                             TimingRole *hold_role);
+                             const TimingRole *setup_role,
+                             const TimingRole *hold_role);
   void timingCheckNochange(SdfPortSpec *data_edge,
 			   SdfPortSpec *clk_edge,
 			   SdfTriple *before_triple,
@@ -132,7 +132,7 @@ public:
   void deleteTriple(SdfTriple *triple);
   SdfTripleSeq *makeTripleSeq();
   void deleteTripleSeq(SdfTripleSeq *triples);
-  SdfPortSpec *makePortSpec(Transition *tr,
+  SdfPortSpec *makePortSpec(const Transition *tr,
 			    const string *port,
 			    const string *cond);
   SdfPortSpec *makeCondPortSpec(const string *cond_port);
@@ -160,14 +160,14 @@ private:
 		   const char *filename);
   Edge *findCheckEdge(Pin *from_pin,
 		      Pin *to_pin,
-		      TimingRole *sdf_role,
+		      const TimingRole *sdf_role,
 		      const string *cond_start,
 		      const string *cond_end);
   Edge *findWireEdge(Pin *from_pin,
 		     Pin *to_pin);
   bool condMatch(const string *sdf_cond,
 		 const char *lib_cond);
-  void timingCheck1(TimingRole *role,
+  void timingCheck1(const TimingRole *role,
                     Port *data_port,
                     SdfPortSpec *data_edge,
                     Port *clk_port,
@@ -177,7 +177,7 @@ private:
 			  SdfPortSpec *data_edge,
 			  Pin *clk_pin,
 			  SdfPortSpec *clk_edge,
-			  TimingRole *sdf_role,
+			  const TimingRole *sdf_role,
 			  SdfTriple *triple,
 			  bool match_generic);
   Pin *findPin(const string *name);

@@ -1180,7 +1180,7 @@ void
 WriteSdc::writeDisabledEdgeSense(Edge *edge) const
 {
   gzprintf(stream_, "set_disable_timing ");
-  const char *sense = timingSenseString(edge->sense());
+  const char *sense = to_string(edge->sense());
   string filter;
   stringPrint(filter, "sense == %s", sense);
   writeGetTimingArcs(edge, filter.c_str());
@@ -1451,9 +1451,9 @@ WriteSdc::writeDataCheck(DataCheck *check) const
 
 void
 WriteSdc::writeDataCheck(DataCheck *check,
-			 RiseFallBoth *from_rf,
-			 RiseFallBoth *to_rf,
-			 SetupHold *setup_hold,
+			 const RiseFallBoth *from_rf,
+			 const RiseFallBoth *to_rf,
+			 const SetupHold *setup_hold,
 			 float margin) const
 {
   const char *from_key = "-from";

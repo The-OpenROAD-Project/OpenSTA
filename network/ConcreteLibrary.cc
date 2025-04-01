@@ -45,9 +45,9 @@ static constexpr char escape_ = '\\';
 ConcreteLibrary::ConcreteLibrary(const char *name,
 				 const char *filename,
 				 bool is_liberty) :
-  name_(stringCopy(name)),
+  name_(name),
   id_(ConcreteNetwork::nextObjectId()),
-  filename_(stringCopy(filename)),
+  filename_(filename ? filename : ""),
   is_liberty_(is_liberty),
   bus_brkt_left_('['),
   bus_brkt_right_(']')
@@ -56,8 +56,6 @@ ConcreteLibrary::ConcreteLibrary(const char *name,
 
 ConcreteLibrary::~ConcreteLibrary()
 {
-  stringDelete(name_);
-  stringDelete(filename_);
   cell_map_.deleteContents();
 }
 
@@ -131,9 +129,9 @@ ConcreteCell::ConcreteCell(const char *name,
 			   const char *filename,
 			   bool is_leaf,
                            ConcreteLibrary *library) :
-  name_(stringCopy(name)),
+  name_(name),
   id_(ConcreteNetwork::nextObjectId()),
-  filename_(stringCopy(filename)),
+  filename_(filename ? filename : ""),
   library_(library),
   liberty_cell_(nullptr),
   ext_cell_(nullptr),
@@ -144,19 +142,14 @@ ConcreteCell::ConcreteCell(const char *name,
 
 ConcreteCell::~ConcreteCell()
 {
-  stringDelete(name_);
-  if (filename_)
-    stringDelete(filename_);
   ports_.deleteContents();
 }
 
 void
 ConcreteCell::setName(const char *name)
 {
-  const char *name_cpy = stringCopy(name);
-  library_->renameCell(this, name_cpy);
-  stringDelete(name_);
-  name_ = name_cpy;
+  library_->renameCell(this, name);
+  name_ = name;
 }
 
 void
@@ -422,7 +415,7 @@ ConcretePort::ConcretePort(const char *name,
 			   bool is_bundle,
 			   ConcretePortSeq *member_ports,
                            ConcreteCell *cell) :
-  name_(stringCopy(name)),
+  name_(name),
   id_(ConcreteNetwork::nextObjectId()),
   cell_(cell),
   direction_(PortDirection::unknown()),
@@ -444,7 +437,6 @@ ConcretePort::~ConcretePort()
   if (is_bus_)
     member_ports_->deleteContents();
   delete member_ports_;
-  stringDelete(name_);
 }
 
 Cell *
@@ -471,14 +463,14 @@ ConcretePort::busName() const
   if (is_bus_) {
     ConcreteLibrary *lib = cell_->library();
     return stringPrintTmp("%s%c%d:%d%c",
-			  name_,
+			  name(),
 			  lib->busBrktLeft(),
 			  from_index_,
 			  to_index_,
 			  lib->busBrktRight());
   }
   else
-    return name_;
+    return name();
 }
 
 ConcretePort *

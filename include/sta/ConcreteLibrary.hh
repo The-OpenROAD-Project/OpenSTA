@@ -45,10 +45,10 @@ class PatternMatch;
 class LibertyCell;
 class LibertyPort;
 
-typedef Map<const char*, ConcreteCell*, CharPtrLess> ConcreteCellMap;
+typedef Map<string, ConcreteCell*> ConcreteCellMap;
 typedef std::map<string, string> AttributeMap;
 typedef Vector<ConcretePort*> ConcretePortSeq;
-typedef Map<const char*, ConcretePort*, CharPtrLess> ConcretePortMap;
+typedef Map<string, ConcretePort*> ConcretePortMap;
 typedef ConcreteCellMap::ConstIterator ConcreteLibraryCellIterator;
 typedef ConcretePortSeq::ConstIterator ConcreteCellPortIterator;
 typedef ConcretePortSeq::ConstIterator ConcretePortMemberIterator;
@@ -60,11 +60,11 @@ public:
 			   const char *filename,
 			   bool is_liberty);
   virtual ~ConcreteLibrary();
-  const char *name() const { return name_; }
+  const char *name() const { return name_.c_str(); }
   void setName(const char *name);
   ObjectId id() const { return id_; }
   bool isLiberty() const { return is_liberty_; }
-  const char *filename() const { return filename_; }
+  const char *filename() const { return filename_.c_str(); }
   void addCell(ConcreteCell *cell);
   ConcreteCell *makeCell(const char *name,
 			 bool is_leaf,
@@ -82,9 +82,9 @@ protected:
   void renameCell(ConcreteCell *cell,
 		  const char *cell_name);
 
-  const char *name_;
+  string name_;
   ObjectId id_;
-  const char *filename_;
+  string filename_;
   bool is_liberty_;
   char bus_brkt_left_;
   char bus_brkt_right_;
@@ -99,9 +99,9 @@ class ConcreteCell
 public:
   // Use ConcreteLibrary::deleteCell.
   virtual ~ConcreteCell();
-  const char *name() const { return name_; }
+  const char *name() const { return name_.c_str(); }
   ObjectId id() const { return id_; }
-  const char *filename() const { return filename_; }
+  const char *filename() const { return filename_.c_str(); }
   ConcreteLibrary *library() const { return library_; }
   LibertyCell *libertyCell() const { return liberty_cell_; }
   void setLibertyCell(LibertyCell *cell);
@@ -156,10 +156,10 @@ protected:
 		      const char *name,
 		      int index);
 
-  const char *name_;
+  string name_;
   ObjectId id_;
   // Filename is optional.
-  const char *filename_;
+  string filename_;
   ConcreteLibrary *library_;
   LibertyCell *liberty_cell_;
   // External application cell.
@@ -181,7 +181,7 @@ class ConcretePort
 {
 public:
   virtual ~ConcretePort();
-  const char *name() const { return name_; }
+  const char *name() const { return name_.c_str(); }
   ObjectId id() const { return id_; }
   const char *busName() const;
   Cell *cell() const;
@@ -236,7 +236,7 @@ protected:
 	       ConcretePortSeq *member_ports,
                ConcreteCell *cell);
 
-  const char *name_;
+  string name_;
   ObjectId id_;
   ConcreteCell *cell_;
   PortDirection *direction_;

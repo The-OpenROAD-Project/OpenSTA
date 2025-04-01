@@ -326,8 +326,7 @@ protected:
 		   bool report_clk_path,
 		   Arrival prev_time,
 		   float time_offset) const;
-  void reportHierPinsThru(const Path *path,
-                          const TimingArc *prev_arc) const;
+  void reportHierPinsThru(const Path *path) const;
   void reportInputExternalDelay(const Path *path,
 				float time_offset) const;
   void reportLine(const char *what,
@@ -426,7 +425,7 @@ protected:
 		   const MinMax *min_max) const;
   const char *mpwCheckHiLow(const MinPulseWidthCheck *check) const;
   void reportSkewClkPath(const char *arrival_msg,
-			 const PathVertex *clk_path) const;
+			 const Path *clk_path) const;
   const char *edgeRegLatchDesc(const Edge *edge,
 			       const TimingArc *arc) const;
   const char *checkRegLatchDesc(const TimingRole *role,
@@ -434,7 +433,7 @@ protected:
   const char *regDesc(const RiseFall *clk_rf) const;
   const char *latchDesc(const RiseFall *clk_rf) const;
   void pathClkPath(const Path *path,
-		   const PathRef &clk_path) const;
+		   const Path &clk_path) const;
   bool isPropagated(const Path *clk_path) const;
   bool isPropagated(const Path *clk_path,
 		    const Clock *clk) const;
@@ -443,10 +442,10 @@ protected:
 		      const Pin *start_pin) const;
   void latchPaths(const Path *path,
                   // Return values.
-                  PathRef &d_path,
-		  PathRef &q_path,
+                  Path &d_path,
+		  Path &q_path,
 		  Edge *&d_q_edge) const;
-  bool nextArcAnnotated(const PathRef *next_path,
+  bool nextArcAnnotated(const Path *next_path,
 			size_t next_index,
 			const PathExpanded &expanded,
 			DcalcAPIndex ap_index) const;
@@ -458,7 +457,7 @@ protected:
   void pathInputDelayRefPath(const Path *path,
 			     const InputDelay *input_delay,
 			     // Return value.
-			     PathRef &ref_path) const;
+			     Path &ref_path) const;
   const char *asRisingFalling(const RiseFall *rf) const;
   const char *asRiseFall(const RiseFall *rf) const;
   Delay delayIncr(Delay time,

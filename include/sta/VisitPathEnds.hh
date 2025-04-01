@@ -85,7 +85,7 @@ protected:
 				    Path *path,
 				    const RiseFall *end_rf,
 				    const ClockEdge *tgt_clk_edge,
-				    PathVertex *ref_path,
+				    Path *ref_path,
 				    const MinMax *min_max,
 				    PathEndVisitor *visitor,
 				    bool &is_constrained);
@@ -118,7 +118,7 @@ protected:
 			  const PathAnalysisPt *clk_ap,
 			  const Pin *from_pin,
 			  Vertex *from_vertex,
-			  RiseFall *from_rf,
+			  const RiseFall *from_rf,
 			  bool filtered,
 			  PathEndVisitor *visitor,
 			  bool &is_constrained);

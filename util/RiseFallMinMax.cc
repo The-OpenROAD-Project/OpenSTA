@@ -237,7 +237,7 @@ RiseFallMinMax::hasValue(const RiseFall *rf, const MinMax *min_max) const
 void
 RiseFallMinMax::mergeWith(RiseFallMinMax *rfmm)
 {
-  for (MinMax *min_max : MinMax::range()) {
+  for (const MinMax *min_max : MinMax::range()) {
     int mm_index = min_max->index();
     for (int rf_index : RiseFall::rangeIndex()) {
       bool exists1 = exists_[rf_index][mm_index];
