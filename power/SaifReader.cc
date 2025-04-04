@@ -196,9 +196,7 @@ SaifReader::unescaped(const char *token)
   string unescaped;
   for (const char *t = token; *t; t++) {
     char ch = *t;
-    if (ch == escape_)
-      unescaped += *(t+1);
-    else
+    if (ch != escape_)
       // Just the normal noises.
       unescaped += ch;
   }
