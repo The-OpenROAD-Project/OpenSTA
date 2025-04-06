@@ -474,6 +474,13 @@ Path::setIsEnum(bool is_enum)
 ////////////////////////////////////////////////////////////////
 
 Path *
+Path::vertexPath(const Path *path,
+                 const StaState *sta)
+{
+  return vertexPath(path->vertex(sta), path->tag(sta), sta);
+}
+
+Path *
 Path::vertexPath(const Path &path,
                  const StaState *sta)
 {

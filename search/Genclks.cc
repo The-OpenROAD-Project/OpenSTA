@@ -1023,12 +1023,10 @@ Genclks::updateSrcPathPrevs()
       if (!src_path.isNull()) {
         const Path *p = &src_path;
         while (p) {
-          Path *src_vpath = Path::vertexPath(p->vertex(this),
-                                             p->tag(this), this);
+          Path *src_vpath = Path::vertexPath(p, this);
           Path *prev_path = p->prevPath();
           if (prev_path) {
-            Path *prev_vpath = Path::vertexPath(prev_path->vertex(this),
-                                                prev_path->tag(this), this);
+            Path *prev_vpath = Path::vertexPath(prev_path, this);
             src_vpath->setPrevPath(prev_vpath);
             src_vpath->setPrevEdgeArc(p->prevEdge(this),
                                       p->prevArc(this), this);

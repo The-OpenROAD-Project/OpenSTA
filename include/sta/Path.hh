@@ -122,6 +122,8 @@ public:
   void checkPrevPath(const StaState *sta) const;
   void checkPrevPaths(const StaState *sta) const;
 
+  static Path *vertexPath(const Path *path,
+                          const StaState *sta);
   static Path *vertexPath(const Path &path,
                           const StaState *sta);
   static Path *vertexPath(const Vertex *vertex,
