@@ -131,7 +131,7 @@ SaifReader::instancePush(const char *instance_name)
     bool first = true;
     for (string &inst : saif_scope_) {
       if (!first)
-        saif_scope += network_->pathDivider();
+        saif_scope += sdc_network_->pathDivider();
       saif_scope += inst;
       first = false;
     }
@@ -140,8 +140,8 @@ SaifReader::instancePush(const char *instance_name)
   }
   else {
     // Inside annotation scope.
-    Instance *parent = path_.empty() ? network_->topInstance() : path_.back();
-    Instance *child = network_->findChild(parent, instance_name);
+    Instance *parent = path_.empty() ? sdc_network_->topInstance() : path_.back();
+    Instance *child = sdc_network_->findChild(parent, instance_name);
     path_.push_back(child);
   }
   stringDelete(instance_name);
@@ -163,7 +163,7 @@ SaifReader::setNetDurations(const char *net_name,
                             SaifStateDurations &durations)
 {
   if (in_scope_level_ > 0) {
-    Instance *parent = path_.empty() ? network_->topInstance() : path_.back();
+    Instance *parent = path_.empty() ? sdc_network_->topInstance() : path_.back();
     if (parent) {
       string unescaped_name = unescaped(net_name);
       const Pin *pin = sdc_network_->findPin(parent, unescaped_name.c_str());
