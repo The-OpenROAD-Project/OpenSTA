@@ -155,6 +155,7 @@ set(STA_SOURCE
   sdc/Sdc.cc
   sdc/SdcGraph.cc
   sdc/SdcCmdComment.cc
+  sdc/Variables.cc
   sdc/WriteSdc.cc
   
   sdf/ReportAnnotation.cc

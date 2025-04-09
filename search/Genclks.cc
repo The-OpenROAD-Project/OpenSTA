@@ -42,6 +42,7 @@
 #include "Levelize.hh"
 #include "Path.hh"
 #include "Search.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -249,7 +250,7 @@ GenClkMasterSearchPred::searchFrom(const Vertex *from_vertex)
 bool
 GenClkMasterSearchPred::searchThru(Edge *edge)
 {
-  const Sdc *sdc = sta_->sdc();
+  const Variables *variables = sta_->variables();
   const TimingRole *role = edge->role();
   // Propagate clocks through constants.
   return !(edge->role()->isTimingCheck()
@@ -257,14 +258,14 @@ GenClkMasterSearchPred::searchThru(Edge *edge)
 	   || edge->isDisabledConstraint()
 	   // Constants disable edge cond expression.
 	   || edge->isDisabledCond()
-	   || sdc->isDisabledCondDefault(edge)
+	   || sta_->isDisabledCondDefault(edge)
 	   // Register/latch preset/clr edges are disabled by default.
-	   || (!sdc->presetClrArcsEnabled()
+	   || (!variables->presetClrArcsEnabled()
 	       && role == TimingRole::regSetClr())
 	   || (edge->isBidirectInstPath()
-	       && !sdc->bidirectInstPathsEnabled())
+	       && !variables->bidirectInstPathsEnabled())
 	   || (edge->isBidirectNetPath()
-	       && !sdc->bidirectNetPathsEnabled()));
+	       && !variables->bidirectNetPathsEnabled()));
 }
 
 bool
@@ -481,7 +482,7 @@ GenClkInsertionSearchPred::searchThru(Edge *edge)
   EdgeSet *fdbk_edges = genclk_info_->fdbkEdges();
   return SearchPred0::searchThru(edge)
     && !role->isTimingCheck()
-    && (sdc->clkThruTristateEnabled()
+    && (sta_->variables()->clkThruTristateEnabled()
 	|| !(role == TimingRole::tristateEnable()
 	     || role == TimingRole::tristateDisable()))
     && !(fdbk_edges && fdbk_edges->hasKey(edge))
@@ -740,13 +741,12 @@ GenClkArrivalSearchPred::GenClkArrivalSearchPred(Clock *gclk,
 bool
 GenClkArrivalSearchPred::searchThru(Edge *edge)
 {
-  const Sdc *sdc = sta_->sdc();
   const TimingRole *role = edge->role();
   return EvalPred::searchThru(edge)
     && (role == TimingRole::combinational()
 	|| role->isWire()
 	|| !combinational_)
-    && (sdc->clkThruTristateEnabled()
+    && (sta_->variables()->clkThruTristateEnabled()
 	|| !(role == TimingRole::tristateEnable()
 	     || role == TimingRole::tristateDisable()));
 }

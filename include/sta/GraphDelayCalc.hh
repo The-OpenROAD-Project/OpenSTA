@@ -132,6 +132,7 @@ public:
 		    const RiseFall *from_rf,
                     const TimingRole *role,
 		    const DcalcAnalysisPt *dcalc_ap);
+  bool bidirectDrvrSlewFromLoad(const Pin *pin) const;
 
 protected:
   void seedInvalidDelays();
@@ -246,7 +247,6 @@ protected:
   Slew checkEdgeClkSlew(const Vertex *from_vertex,
 			const RiseFall *from_rf,
 			const DcalcAnalysisPt *dcalc_ap);
-  bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
   float loadCap(const Pin *drvr_pin,
                 const RiseFall *rf,
                 const DcalcAnalysisPt *dcalc_ap,

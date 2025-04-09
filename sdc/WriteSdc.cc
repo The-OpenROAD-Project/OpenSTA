@@ -55,6 +55,7 @@
 #include "Fuzzy.hh"
 #include "StaState.hh"
 #include "Corner.hh"
+#include "Variables.hh"
 #include "WriteSdcPvt.hh"
 
 namespace sta {
@@ -2324,13 +2325,13 @@ WriteSdc::writeFanoutLimits(const MinMax *min_max,
 void
 WriteSdc::writeVariables() const
 {
-  if (sdc_->propagateAllClocks()) {
+  if (variables_->propagateAllClocks()) {
     if (native_)
       gzprintf(stream_, "set sta_propagate_all_clocks 1\n");
     else
       gzprintf(stream_, "set timing_all_clocks_propagated true\n");
   }
-  if (sdc_->presetClrArcsEnabled()) {
+  if (variables_->presetClrArcsEnabled()) {
     if (native_)
       gzprintf(stream_, "set sta_preset_clear_arcs_enabled 1\n");
     else

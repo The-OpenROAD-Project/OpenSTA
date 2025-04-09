@@ -45,6 +45,7 @@
 #include "DcalcAnalysisPt.hh"
 #include "NetCaps.hh"
 #include "ClkNetwork.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -365,7 +366,7 @@ GraphDelayCalc::seedNoDrvrCellSlew(Vertex *drvr_vertex,
   else {
     // Top level bidirect driver uses load slew unless
     // bidirect instance paths are disabled.
-    if (sdc_->bidirectDrvrSlewFromLoad(drvr_pin)) {
+    if (bidirectDrvrSlewFromLoad(drvr_pin)) {
       Vertex *load_vertex = graph_->pinLoadVertex(drvr_pin);
       slew = graph_->slew(load_vertex, rf, ap_index);
     }
@@ -393,6 +394,17 @@ GraphDelayCalc::seedNoDrvrCellSlew(Vertex *drvr_vertex,
   arc_delay_calc->finishDrvrPin();
 }
 
+// Delay calculation propagates slews from a bidirect driver
+// to the bidirect port and back through the bidirect driver when
+// sta_bidirect_inst_paths_enabled_ is true.
+bool
+GraphDelayCalc::bidirectDrvrSlewFromLoad(const Pin *pin) const
+{
+  return variables_->bidirectInstPathsEnabled()
+    && network_->direction(pin)->isBidirect()
+    && network_->isTopLevelPort(pin);
+}
+
 void
 GraphDelayCalc::seedNoDrvrSlew(Vertex *drvr_vertex,
                                const Pin *drvr_pin,
@@ -405,7 +417,7 @@ GraphDelayCalc::seedNoDrvrSlew(Vertex *drvr_vertex,
   Slew slew(default_slew);
   // Top level bidirect driver uses load slew unless
   // bidirect instance paths are disabled.
-  if (sdc_->bidirectDrvrSlewFromLoad(drvr_pin)) {
+  if (bidirectDrvrSlewFromLoad(drvr_pin)) {
     Vertex *load_vertex = graph_->pinLoadVertex(drvr_pin);
     slew = graph_->slew(load_vertex, rf, ap_index);
   }
@@ -1185,7 +1197,7 @@ GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
       if (load_changed && observer_)
         observer_->delayChangedTo(load_vertex);
       // Enqueue bidirect driver from load vertex.
-      if (sdc_->bidirectDrvrSlewFromLoad(load_pin))
+      if (bidirectDrvrSlewFromLoad(load_pin))
 	iter_->enqueue(graph_->pinDrvrVertex(load_pin));
       changed |= load_changed;
     }

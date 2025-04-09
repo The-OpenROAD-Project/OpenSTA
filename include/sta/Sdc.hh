@@ -733,6 +733,7 @@ public:
   // combinational loops when dynamic loop breaking is enabled.
   void makeLoopExceptions();
   void makeLoopExceptions(GraphLoop *loop);
+  void deleteLoopExceptions();
   void makeMulticyclePath(ExceptionFrom *from,
 			  ExceptionThruSeq *thrus,
 			  ExceptionTo *to,
@@ -793,54 +794,6 @@ public:
   const WireloadSelection *wireloadSelection(const MinMax *min_max);
   void setWireloadSelection(WireloadSelection *selection,
 			    const MinMaxAll *min_max);
-  // Common reconvergent clock pessimism.
-  // TCL variable sta_crpr_enabled.
-  bool crprEnabled() const;
-  void setCrprEnabled(bool enabled);
-  // TCL variable sta_crpr_mode.
-  CrprMode crprMode() const;
-  void setCrprMode(CrprMode mode);
-  // True when analysis type is on chip variation and crpr is enabled.
-  bool crprActive() const;
-  // TCL variable sta_propagate_gated_clock_enable.
-  // Propagate gated clock enable arrivals.
-  bool propagateGatedClockEnable() const;
-  void setPropagateGatedClockEnable(bool enable);
-  // TCL variable sta_preset_clear_arcs_enabled.
-  // Enable search through preset/clear arcs.
-  bool presetClrArcsEnabled() const;
-  void setPresetClrArcsEnabled(bool enable);
-  // TCL variable sta_cond_default_arcs_enabled.
-  // Enable/disable default arcs when conditional arcs exist.
-  bool condDefaultArcsEnabled() const;
-  void setCondDefaultArcsEnabled(bool enabled);
-  bool isDisabledCondDefault(Edge *edge) const;
-  // TCL variable sta_internal_bidirect_instance_paths_enabled.
-  // Enable/disable timing from bidirect pins back into the instance.
-  bool bidirectInstPathsEnabled() const;
-  void setBidirectInstPathsEnabled(bool enabled);
-  // TCL variable sta_bidirect_net_paths_enabled.
-  // Enable/disable timing from bidirect driver pins to their own loads.
-  bool bidirectNetPathsEnabled() const;
-  void setBidirectNetPathsEnabled(bool enabled);
-  // TCL variable sta_recovery_removal_checks_enabled.
-  bool recoveryRemovalChecksEnabled() const;
-  void setRecoveryRemovalChecksEnabled(bool enabled);
-  // TCL variable sta_gated_clock_checks_enabled.
-  bool gatedClkChecksEnabled() const;
-  void setGatedClkChecksEnabled(bool enabled);
-  // TCL variable sta_dynamic_loop_breaking.
-  bool dynamicLoopBreaking() const;
-  void setDynamicLoopBreaking(bool enable);
-  // TCL variable sta_propagate_all_clocks.
-  bool propagateAllClocks() const;
-  void setPropagateAllClocks(bool prop);
-  // TCL var sta_clock_through_tristate_enabled.
-  bool clkThruTristateEnabled() const;
-  void setClkThruTristateEnabled(bool enable);
-  // TCL variable sta_input_port_default_clock.
-  bool useDefaultArrivalClock();
-  void setUseDefaultArrivalClock(bool enable);
 
   // STA interface.
   InputDelaySet *refPinInputDelays(const Pin *ref_pin) const;
@@ -1071,7 +1024,6 @@ public:
 			  const Pin *drvr,
 			  const Pin *load);
   void ensureClkHpinDisables();
-  bool bidirectDrvrSlewFromLoad(const Pin *pin) const;
 
 protected:
   void portMembers(const Port *port,
@@ -1214,7 +1166,6 @@ protected:
 			 const Pin *loop_prev_pin);
   void makeLoopExceptionThru(const Pin *pin,
 			     ExceptionThruSeq *thrus);
-  void deleteLoopExceptions();
   void deleteConstraints();
   InputDelay *findInputDelay(const Pin *pin,
 			     const ClockEdge *clk_edge);
@@ -1317,7 +1268,6 @@ protected:
   int clk_index_;
   // Default clock used for unclocked input arrivals.
   Clock *default_arrival_clk_;
-  bool use_default_arrival_clock_;
   ClockNameMap clock_name_map_;
   ClockPinMap clock_pin_map_;
   // Clocks on hierarchical pins are indexed by the load pins.
@@ -1430,19 +1380,6 @@ protected:
   Wireload *wireload_[MinMax::index_count];
   WireloadMode wireload_mode_;
   WireloadSelection *wireload_selection_[MinMax::index_count];
-  bool crpr_enabled_;
-  CrprMode crpr_mode_;
-  bool pocv_enabled_;
-  bool propagate_gated_clock_enable_;
-  bool preset_clr_arcs_enabled_;
-  bool cond_default_arcs_enabled_;
-  bool bidirect_net_paths_enabled_;
-  bool bidirect_inst_paths_enabled_;
-  bool recovery_removal_checks_enabled_;
-  bool gated_clk_checks_enabled_;
-  bool clk_thru_tristate_enabled_;
-  bool dynamic_loop_breaking_;
-  bool propagate_all_clks_;
 
   // Annotations on graph objects that are stored in constraints
   // rather on the graph itself.

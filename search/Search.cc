@@ -67,6 +67,7 @@
 #include "Latches.hh"
 #include "Crpr.hh"
 #include "Genclks.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -91,10 +92,9 @@ EvalPred::setSearchThruLatches(bool thru_latches)
 bool
 EvalPred::searchThru(Edge *edge)
 {
-  const Sdc *sdc = sta_->sdc();
   const TimingRole *role = edge->role();
   return SearchPred0::searchThru(edge)
-    && (sdc->dynamicLoopBreaking()
+    && (sta_->variables()->dynamicLoopBreaking()
 	|| !edge->isDisabledLoop())
     && !role->isTimingCheck()
     && (search_thru_latches_
@@ -121,12 +121,12 @@ DynLoopSrchPred::DynLoopSrchPred(TagGroupBldr *tag_bldr) :
 
 bool
 DynLoopSrchPred::loopEnabled(Edge *edge,
-			     const Sdc *sdc,
+			     bool dynamic_loop_breaking_enabled,
 			     const Graph *graph,
 			     Search *search)
 {
   return !edge->isDisabledLoop()
-    || (sdc->dynamicLoopBreaking()
+    || (dynamic_loop_breaking_enabled
 	&& hasPendingLoopPaths(edge, graph, search));
 }
 
@@ -179,14 +179,14 @@ bool
 SearchThru::searchThru(Edge *edge)
 {
   const Graph *graph = sta_->graph();
-  const Sdc *sdc = sta_->sdc();
   Search *search = sta_->search();
   return EvalPred::searchThru(edge)
     // Only search thru latch D->Q if it is always open.
     // Enqueue thru latches is handled explicitly by search.
     && (edge->role() != TimingRole::latchDtoQ()
 	|| sta_->latches()->latchDtoQState(edge) == LatchEnableState::open)
-    && loopEnabled(edge, sdc, graph, search);
+    && loopEnabled(edge, sta_->variables()->dynamicLoopBreaking(),
+                   graph, search);
 }
 
 ClkArrivalSearchPred::ClkArrivalSearchPred(const StaState *sta) :
@@ -460,9 +460,9 @@ Search::findPathEnds(ExceptionFrom *from,
 		     bool clk_gating_hold)
 {
   findFilteredArrivals(from, thrus, to, unconstrained, true);
-  if (!sdc_->recoveryRemovalChecksEnabled())
+  if (!variables_->recoveryRemovalChecksEnabled())
     recovery = removal = false;
-  if (!sdc_->gatedClkChecksEnabled())
+  if (!variables_->gatedClkChecksEnabled())
     clk_gating_setup = clk_gating_hold = false;
   makePathGroups(group_path_count, endpoint_path_count, unique_pins,
                  slack_min, slack_max,
@@ -1231,7 +1231,7 @@ ArrivalVisitor::constrainedRequiredsInvalid(Vertex *vertex,
       }
     }
     // Gated clocks.
-    if (is_clk && sdc_->gatedClkChecksEnabled()) {
+    if (is_clk && variables_->gatedClkChecksEnabled()) {
       PinSet enable_pins(network_);
       search_->gatedClk()->gatedClkEnables(vertex, enable_pins);
       for (const Pin *enable : enable_pins)
@@ -1798,11 +1798,11 @@ Search::seedInputDelayArrival(const Pin *pin,
   if (input_delay) {
     clk_edge = input_delay->clkEdge();
     if (clk_edge == nullptr
-	&& sdc_->useDefaultArrivalClock())
+	&& variables_->useDefaultArrivalClock())
       clk_edge = sdc_->defaultArrivalClockEdge();
     ref_pin = input_delay->refPin();
   }
-  else if (sdc_->useDefaultArrivalClock())
+  else if (variables_->useDefaultArrivalClock())
     clk_edge = sdc_->defaultArrivalClockEdge();
   if (ref_pin) {
     Vertex *ref_vertex = graph_->pinLoadVertex(ref_pin);
@@ -2124,7 +2124,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
   Arrival to_arrival;
   if (from_clk_info->isGenClkSrcPath()) {
     if (!sdc_->clkStopPropagation(clk,from_pin,from_rf,to_pin,to_rf)
-	&& (sdc_->clkThruTristateEnabled()
+	&& (variables_->clkThruTristateEnabled()
 	    || !(role == TimingRole::tristateEnable()
 		 || role == TimingRole::tristateDisable()))) {
       const Clock *gclk = from_tag->genClkSrcPathClk(this);
@@ -2148,7 +2148,8 @@ PathVisitor::visitFromPath(const Pin *from_pin,
             path_ap->corner()->findPathAnalysisPt(min_max->opposite());
           Delay arc_delay_opp = search_->deratedDelay(from_vertex, arc, edge,
                                                       true, path_ap_opp);
-          bool arc_delay_min_max_eq = fuzzyEqual(arc_delay, arc_delay_opp);
+          bool arc_delay_min_max_eq =
+            fuzzyEqual(delayAsFloat(arc_delay), delayAsFloat(arc_delay_opp));
 	  to_tag = search_->thruClkTag(from_path, from_vertex, from_tag, true,
                                        edge, to_rf, arc_delay_min_max_eq,
                                        min_max, path_ap);
@@ -2227,7 +2228,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
       // Propagate arrival as non-clock at the end of the clock tree.
       bool to_propagates_clk =
 	!sdc_->clkStopPropagation(clk,from_pin,from_rf,to_pin,to_rf)
-	&& (sdc_->clkThruTristateEnabled()
+	&& (variables_->clkThruTristateEnabled()
 	    || !(role == TimingRole::tristateEnable()
 		 || role == TimingRole::tristateDisable()));
       arc_delay = search_->deratedDelay(from_vertex, arc, edge,
@@ -2236,7 +2237,8 @@ PathVisitor::visitFromPath(const Pin *from_pin,
         path_ap->corner()->findPathAnalysisPt(min_max->opposite());
       Delay arc_delay_opp = search_->deratedDelay(from_vertex, arc, edge,
                                                   to_propagates_clk, path_ap_opp);
-      bool arc_delay_min_max_eq = fuzzyEqual(arc_delay, arc_delay_opp);
+      bool arc_delay_min_max_eq =
+        fuzzyEqual(delayAsFloat(arc_delay), delayAsFloat(arc_delay_opp));
       to_tag = search_->thruClkTag(from_path, from_vertex, from_tag,
                                    to_propagates_clk, edge, to_rf,
                                    arc_delay_min_max_eq,
@@ -3244,7 +3246,7 @@ Search::isEndpoint(Vertex *vertex,
   return hasFanin(vertex, pred, graph_)
     && ((vertex->hasChecks()
 	 && hasEnabledChecks(vertex))
-	|| (sdc_->gatedClkChecksEnabled()
+	|| (variables_->gatedClkChecksEnabled()
 	    && gated_clk_->isGatedClkEnable(vertex))
 	|| vertex->isConstrained()
 	|| sdc_->isPathDelayInternalEndpoint(pin)

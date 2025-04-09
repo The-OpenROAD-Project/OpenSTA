@@ -35,6 +35,7 @@
 #include "Corner.hh"
 #include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -167,7 +168,8 @@ DelayCalcBase::checkDelay(const Pin *check_pin,
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
     return model->checkDelay(pinPvt(check_pin, dcalc_ap), from_slew1, to_slew1,
-                             related_out_cap, pocv_enabled_);
+                             related_out_cap,
+                             variables_->pocvEnabled());
   }
   else
     return delay_zero;

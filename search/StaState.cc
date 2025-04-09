@@ -29,6 +29,10 @@
 #include "DispatchQueue.hh"
 #include "Units.hh"
 #include "Network.hh"
+#include "Variables.hh"
+#include "Sdc.hh"
+#include "Graph.hh"
+#include "TimingArc.hh"
 
 namespace sta {
 
@@ -50,8 +54,8 @@ StaState::StaState() :
   clk_network_(nullptr),
   thread_count_(1),
   dispatch_queue_(nullptr),
-  pocv_enabled_(false),
-  sigma_factor_(1.0)
+  sigma_factor_(1.0),
+  variables_(nullptr)
 {
 }
 
@@ -106,6 +110,20 @@ void
 StaState::setDebug(Debug *debug)
 {
   debug_ = debug;
+}
+
+bool
+StaState::crprActive() const
+{
+  return sdc_->analysisType() == AnalysisType::ocv
+    && variables_->crprEnabled();
+}
+
+bool
+StaState::isDisabledCondDefault(Edge *edge) const
+{
+  return !variables_->condDefaultArcsEnabled()
+    && edge->timingArcSet()->isCondDefault();
 }
 
 } // namespace

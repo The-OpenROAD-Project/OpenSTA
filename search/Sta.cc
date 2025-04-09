@@ -44,6 +44,7 @@
 #include "Graph.hh"
 #include "GraphCmp.hh"
 #include "Sdc.hh"
+#include "Variables.hh"
 #include "WriteSdc.hh"
 #include "ExceptionPath.hh"
 #include "MakeConcreteParasitics.hh"
@@ -283,6 +284,7 @@ Sta::Sta() :
 void
 Sta::makeComponents()
 {
+  makeVariables();
   makeReport();
   makeDebug();
   makeUnits();
@@ -506,6 +508,12 @@ Sta::makePower()
 }
 
 void
+Sta::makeVariables()
+{
+  variables_ = new Variables();
+}
+
+void
 Sta::setSta(Sta *sta)
 {
   sta_ = sta;
@@ -519,6 +527,7 @@ Sta::sta()
 
 Sta::~Sta()
 {
+  delete variables_;
   // Verilog modules refer to the network in the sta so it has
   // to deleted before the network.
   delete verilog_reader_;
@@ -1693,12 +1702,6 @@ Sta::isDisabledLoop(Edge *edge) const
   return levelize_->isDisabledLoop(edge);
 }
 
-bool
-Sta::isDisabledCondDefault(Edge *edge)
-{
-  return sdc_->isDisabledCondDefault(edge);
-}
-
 PinSet
 Sta::disabledConstantPins(Edge *edge)
 {
@@ -1768,21 +1771,21 @@ Sta::exprConstantPins(FuncExpr *expr,
 bool
 Sta::isDisabledBidirectInstPath(Edge *edge) const
 {
-  return !sdc_->bidirectInstPathsEnabled()
+  return !variables_->bidirectInstPathsEnabled()
     && edge->isBidirectInstPath();
 }
 
 bool
 Sta::isDisabledBidirectNetPath(Edge *edge) const
 {
-  return !sdc_->bidirectNetPathsEnabled()
+  return !variables_->bidirectNetPathsEnabled()
     && edge->isBidirectNetPath();
 }
 
 bool
 Sta::isDisabledPresetClr(Edge *edge) const
 {
-  return !sdc_->presetClrArcsEnabled()
+  return !variables_->presetClrArcsEnabled()
     && edge->role() == TimingRole::regSetClr();
 }
 
@@ -2161,10 +2164,12 @@ Sta::checkTiming(bool no_input_delay,
 			      loops, generated_clks);
 }
 
+////////////////////////////////////////////////////////////////
+
 bool
 Sta::crprEnabled() const
 {
-  return sdc_->crprEnabled();
+  return variables_->crprEnabled();
 }
 
 void
@@ -2172,15 +2177,15 @@ Sta::setCrprEnabled(bool enabled)
 {
   // Pessimism is only relevant for on_chip_variation analysis.
   if (sdc_->analysisType() == AnalysisType::ocv
-      && enabled != sdc_->crprEnabled())
+      && enabled != variables_->crprEnabled())
     search_->arrivalsInvalid();
-  sdc_->setCrprEnabled(enabled);
+  variables_->setCrprEnabled(enabled);
 }
 
 CrprMode
 Sta::crprMode() const
 {
-  return sdc_->crprMode();
+  return variables_->crprMode();
 }
 
 void
@@ -2188,25 +2193,24 @@ Sta::setCrprMode(CrprMode mode)
 {
   // Pessimism is only relevant for on_chip_variation analysis.
   if (sdc_->analysisType() == AnalysisType::ocv
-      && sdc_->crprEnabled()
-      && sdc_->crprMode() != mode)
+      && variables_->crprEnabled()
+      && variables_->crprMode() != mode)
     search_->arrivalsInvalid();
-  sdc_->setCrprMode(mode);
+  variables_->setCrprMode(mode);
 }
 
 bool
 Sta::pocvEnabled() const
 {
-  return pocv_enabled_;
+  return variables_->pocvEnabled();
 }
 
 void
 Sta::setPocvEnabled(bool enabled)
 {
-  if (enabled != pocv_enabled_)
+  if (enabled != variables_->pocvEnabled())
     delaysInvalid();
-  pocv_enabled_ = enabled;
-  updateComponentsState();
+  variables_->setPocvEnabled(enabled);
 }
 
 void
@@ -2222,135 +2226,141 @@ Sta::setSigmaFactor(float factor)
 bool
 Sta::propagateGatedClockEnable() const
 {
-  return sdc_->propagateGatedClockEnable();
+  return variables_->propagateGatedClockEnable();
 }
 
 void
 Sta::setPropagateGatedClockEnable(bool enable)
 {
-  if (sdc_->propagateGatedClockEnable() != enable)
+  if (variables_->propagateGatedClockEnable() != enable)
     search_->arrivalsInvalid();
-  sdc_->setPropagateGatedClockEnable(enable);
+  variables_->setPropagateGatedClockEnable(enable);
 }
 
 bool
 Sta::presetClrArcsEnabled() const
 {
-  return sdc_->presetClrArcsEnabled();
+  return variables_->presetClrArcsEnabled();
 }
 
 void
 Sta::setPresetClrArcsEnabled(bool enable)
 {
-  if (sdc_->presetClrArcsEnabled() != enable) {
+  if (variables_->presetClrArcsEnabled() != enable) {
     levelize_->invalid();
     delaysInvalid();
   }
-  sdc_->setPresetClrArcsEnabled(enable);
+  variables_->setPresetClrArcsEnabled(enable);
 }
 
 bool
 Sta::condDefaultArcsEnabled() const
 {
-  return sdc_->condDefaultArcsEnabled();
+  return variables_->condDefaultArcsEnabled();
 }
 
 void
 Sta::setCondDefaultArcsEnabled(bool enabled)
 {
-  if (sdc_->condDefaultArcsEnabled() != enabled) {
+  if (variables_->condDefaultArcsEnabled() != enabled) {
     delaysInvalid();
-    sdc_->setCondDefaultArcsEnabled(enabled);
+    variables_->setCondDefaultArcsEnabled(enabled);
   }
 }
 
 bool
 Sta::bidirectInstPathsEnabled() const
 {
-  return sdc_->bidirectInstPathsEnabled();
+  return variables_->bidirectInstPathsEnabled();
 }
 
 void
 Sta::setBidirectInstPathsEnabled(bool enabled)
 {
-  if (sdc_->bidirectInstPathsEnabled() != enabled) {
+  if (variables_->bidirectInstPathsEnabled() != enabled) {
     levelize_->invalid();
     delaysInvalid();
-    sdc_->setBidirectInstPathsEnabled(enabled);
+    variables_->setBidirectInstPathsEnabled(enabled);
   }
 }
 
 bool
 Sta::bidirectNetPathsEnabled() const
 {
-  return sdc_->bidirectNetPathsEnabled();
+  return variables_->bidirectNetPathsEnabled();
 }
 
 void
 Sta::setBidirectNetPathsEnabled(bool enabled)
 {
-  if (sdc_->bidirectNetPathsEnabled() != enabled) {
+  if (variables_->bidirectNetPathsEnabled() != enabled) {
     delaysInvalid();
-    sdc_->setBidirectNetPathsEnabled(enabled);
+    variables_->setBidirectNetPathsEnabled(enabled);
   }
 }
 
 bool
 Sta::recoveryRemovalChecksEnabled() const
 {
-  return sdc_->recoveryRemovalChecksEnabled();
+  return variables_->recoveryRemovalChecksEnabled();
 } 
 
 void
 Sta::setRecoveryRemovalChecksEnabled(bool enabled)
 {
-  if (sdc_->recoveryRemovalChecksEnabled() != enabled) {
+  if (variables_->recoveryRemovalChecksEnabled() != enabled) {
     search_->arrivalsInvalid();
-    sdc_->setRecoveryRemovalChecksEnabled(enabled);
+    variables_->setRecoveryRemovalChecksEnabled(enabled);
   }
 }
 
 bool
 Sta::gatedClkChecksEnabled() const
 {
-  return sdc_->gatedClkChecksEnabled();
+  return variables_->gatedClkChecksEnabled();
 }
 
 void
 Sta::setGatedClkChecksEnabled(bool enabled)
 {
-  if (sdc_->gatedClkChecksEnabled() != enabled) {
+  if (variables_->gatedClkChecksEnabled() != enabled) {
     search_->arrivalsInvalid();
-    sdc_->setGatedClkChecksEnabled(enabled);
+    variables_->setGatedClkChecksEnabled(enabled);
   }
 }
 
 bool
 Sta::dynamicLoopBreaking() const
 {
-  return sdc_->dynamicLoopBreaking();
+  return variables_->dynamicLoopBreaking();
 }
 
 void
 Sta::setDynamicLoopBreaking(bool enable)
 {
-  if (sdc_->dynamicLoopBreaking() != enable) {
-    sdc_->setDynamicLoopBreaking(enable);
+  if (variables_->dynamicLoopBreaking() != enable) {
+    if (levelize_->levelized()) {
+      if (enable)
+	sdc_->makeLoopExceptions();
+      else
+	sdc_->deleteLoopExceptions();
+    }
     search_->arrivalsInvalid();
+    variables_->setDynamicLoopBreaking(enable);
   }
 }
 
 bool
 Sta::useDefaultArrivalClock() const
 {
-  return sdc_->useDefaultArrivalClock();
+  return variables_->useDefaultArrivalClock();
 }
 
 void
 Sta::setUseDefaultArrivalClock(bool enable)
 {
-  if (sdc_->useDefaultArrivalClock() != enable) {
-    sdc_->setUseDefaultArrivalClock(enable);
+  if (variables_->useDefaultArrivalClock() != enable) {
+    variables_->setUseDefaultArrivalClock(enable);
     search_->arrivalsInvalid();
   }
 }
@@ -2358,27 +2368,27 @@ Sta::setUseDefaultArrivalClock(bool enable)
 bool
 Sta::propagateAllClocks() const
 {
-  return sdc_->propagateAllClocks();
+  return variables_->propagateAllClocks();
 }
 
 void
 Sta::setPropagateAllClocks(bool prop)
 {
-  sdc_->setPropagateAllClocks(prop);
+  variables_->setPropagateAllClocks(prop);
 }
 
 bool
 Sta::clkThruTristateEnabled() const
 {
-  return sdc_->clkThruTristateEnabled();
+  return variables_->clkThruTristateEnabled();
 }
 
 void
 Sta::setClkThruTristateEnabled(bool enable)
 {
-  if (enable != sdc_->clkThruTristateEnabled()) {
+  if (enable != variables_->clkThruTristateEnabled()) {
     search_->arrivalsInvalid();
-    sdc_->setClkThruTristateEnabled(enable);
+    variables_->setClkThruTristateEnabled(enable);
   }
 }
 
@@ -3207,7 +3217,7 @@ Sta::findRequired(Vertex *vertex)
   searchPreamble();
   search_->findAllArrivals();
   search_->findRequireds(vertex->level());
-  if (sdc_->crprEnabled()
+  if (variables_->crprEnabled()
       && search_->crprPathPruningEnabled()
       && !search_->crprApproxMissingRequireds()
       // Clocks invariably have requireds that are pruned but it isn't
@@ -4856,12 +4866,11 @@ FanInOutSrchPred::searchFrom(const Vertex *from_vertex)
 bool
 FanInOutSrchPred::searchThru(Edge *edge)
 {
-  const Sdc *sdc = sta_->sdc();
   return searchThruRole(edge)
     && (thru_disabled_
 	|| !(edge->isDisabledConstraint()
 	     || edge->isDisabledCond()
-	     || sdc->isDisabledCondDefault(edge)))
+	     || sta_->isDisabledCondDefault(edge)))
     && (thru_constants_
 	|| edge->simTimingSense() != TimingSense::none);
 }

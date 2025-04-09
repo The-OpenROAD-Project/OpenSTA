@@ -38,6 +38,7 @@
 #include "PowerClass.hh"
 #include "ArcDelayCalc.hh"
 #include "CircuitSim.hh"
+#include "Variables.hh"
 
 struct Tcl_Interp;
 
@@ -436,8 +437,6 @@ public:
   void removeDisable(TimingArcSet *arc_set);
   // Edge is disabled by constant.
   bool isDisabledConstant(Edge *edge);
-  // Edge is default cond disabled by timing_disable_cond_default_arcs var.
-  bool isDisabledCondDefault(Edge *edge);
   // Return a set of constant pins that disabled edge.
   // Caller owns the returned set.
   PinSet disabledConstantPins(Edge *edge);
@@ -793,61 +792,7 @@ public:
 		bool no_version);
   // Remove all delay and slew annotations.
   void removeDelaySlewAnnotations();
-  // TCL variable sta_crpr_enabled.
-  // Common Reconvergent Clock Removal (CRPR).
-  // Timing check source/target common clock path overlap for search
-  // with analysis mode on_chip_variation.
-  bool crprEnabled() const;
-  void setCrprEnabled(bool enabled);
-  // TCL variable sta_crpr_mode.
-  CrprMode crprMode() const;
-  void setCrprMode(CrprMode mode);
-  // TCL variable sta_pocv_enabled.
-  // Parametric on chip variation (statisical sta).
-  bool pocvEnabled() const;
-  void setPocvEnabled(bool enabled);
-  // Number of std deviations from mean to use for normal distributions.
-  void setSigmaFactor(float factor);
-  // TCL variable sta_propagate_gated_clock_enable.
-  // Propagate gated clock enable arrivals.
-  bool propagateGatedClockEnable() const;
-  void setPropagateGatedClockEnable(bool enable);
-  // TCL variable sta_preset_clear_arcs_enabled.
-  // Enable search through preset/clear arcs.
-  bool presetClrArcsEnabled() const;
-  void setPresetClrArcsEnabled(bool enable);
-  // TCL variable sta_cond_default_arcs_enabled.
-  // Enable/disable default arcs when conditional arcs exist.
-  bool condDefaultArcsEnabled() const;
-  void setCondDefaultArcsEnabled(bool enabled);
-  // TCL variable sta_internal_bidirect_instance_paths_enabled.
-  // Enable/disable timing from bidirect pins back into the instance.
-  bool bidirectInstPathsEnabled() const;
-  void setBidirectInstPathsEnabled(bool enabled);
-  // TCL variable sta_bidirect_net_paths_enabled.
-  // Enable/disable timing from bidirect driver pins to their own loads.
-  bool bidirectNetPathsEnabled() const;
-  void setBidirectNetPathsEnabled(bool enabled);
-  // TCL variable sta_recovery_removal_checks_enabled.
-  bool recoveryRemovalChecksEnabled() const;
-  void setRecoveryRemovalChecksEnabled(bool enabled);
-  // TCL variable sta_gated_clock_checks_enabled.
-  bool gatedClkChecksEnabled() const;
-  void setGatedClkChecksEnabled(bool enabled);
-  // TCL variable sta_dynamic_loop_breaking.
-  bool dynamicLoopBreaking() const;
-  void setDynamicLoopBreaking(bool enable);
-  // TCL variable sta_propagate_all_clocks.
-  // Clocks defined after sta_propagate_all_clocks is true
-  // are propagated (existing clocks are not effected).
-  bool propagateAllClocks() const;
-  void setPropagateAllClocks(bool prop);
-  // TCL var sta_clock_through_tristate_enabled.
-  bool clkThruTristateEnabled() const;
-  void setClkThruTristateEnabled(bool enable);
-  // TCL variable sta_input_port_default_clock.
-  bool useDefaultArrivalClock() const;
-  void setUseDefaultArrivalClock(bool enable);
+
   virtual CheckErrorSeq &checkTiming(bool no_input_delay,
 				     bool no_output_delay,
 				     bool reg_multiple_clks,
@@ -1178,7 +1123,9 @@ public:
                                   bool includes_pin_caps,
                                   const ParasiticAnalysisPt *ap);
 
+  ////////////////////////////////////////////////////////////////
   // TCL network edit function support.
+
   virtual Instance *makeInstance(const char *name,
 				 LibertyCell *cell,
 				 Instance *parent);
@@ -1322,10 +1269,71 @@ public:
                       const char *gnd_name,
                       CircuitSim ckt_sim);
 
+  ////////////////////////////////////////////////////////////////
+  // TCL Variables
+
+  // TCL variable sta_crpr_enabled.
+  // Common Reconvergent Clock Removal (CRPR).
+  // Timing check source/target common clock path overlap for search
+  // with analysis mode on_chip_variation.
+  bool crprEnabled() const;
+  void setCrprEnabled(bool enabled);
+  // TCL variable sta_crpr_mode.
+  CrprMode crprMode() const;
+  void setCrprMode(CrprMode mode);
+  // TCL variable sta_pocv_enabled.
+  // Parametric on chip variation (statisical sta).
+  bool pocvEnabled() const;
+  void setPocvEnabled(bool enabled);
+  // Number of std deviations from mean to use for normal distributions.
+  void setSigmaFactor(float factor);
+  // TCL variable sta_propagate_gated_clock_enable.
+  // Propagate gated clock enable arrivals.
+  bool propagateGatedClockEnable() const;
+  void setPropagateGatedClockEnable(bool enable);
+  // TCL variable sta_preset_clear_arcs_enabled.
+  // Enable search through preset/clear arcs.
+  bool presetClrArcsEnabled() const;
+  void setPresetClrArcsEnabled(bool enable);
+  // TCL variable sta_cond_default_arcs_enabled.
+  // Enable/disable default arcs when conditional arcs exist.
+  bool condDefaultArcsEnabled() const;
+  void setCondDefaultArcsEnabled(bool enabled);
+  // TCL variable sta_internal_bidirect_instance_paths_enabled.
+  // Enable/disable timing from bidirect pins back into the instance.
+  bool bidirectInstPathsEnabled() const;
+  void setBidirectInstPathsEnabled(bool enabled);
+  // TCL variable sta_bidirect_net_paths_enabled.
+  // Enable/disable timing from bidirect driver pins to their own loads.
+  bool bidirectNetPathsEnabled() const;
+  void setBidirectNetPathsEnabled(bool enabled);
+  // TCL variable sta_recovery_removal_checks_enabled.
+  bool recoveryRemovalChecksEnabled() const;
+  void setRecoveryRemovalChecksEnabled(bool enabled);
+  // TCL variable sta_gated_clock_checks_enabled.
+  bool gatedClkChecksEnabled() const;
+  void setGatedClkChecksEnabled(bool enabled);
+  // TCL variable sta_dynamic_loop_breaking.
+  bool dynamicLoopBreaking() const;
+  void setDynamicLoopBreaking(bool enable);
+  // TCL variable sta_propagate_all_clocks.
+  // Clocks defined after sta_propagate_all_clocks is true
+  // are propagated (existing clocks are not effected).
+  bool propagateAllClocks() const;
+  void setPropagateAllClocks(bool prop);
+  // TCL var sta_clock_through_tristate_enabled.
+  bool clkThruTristateEnabled() const;
+  void setClkThruTristateEnabled(bool enable);
+  // TCL variable sta_input_port_default_clock.
+  bool useDefaultArrivalClock() const;
+  void setUseDefaultArrivalClock(bool enable);
+  ////////////////////////////////////////////////////////////////
+
 protected:
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
   // specialize the sta components.
+  virtual void makeVariables();
   virtual void makeReport();
   virtual void makeDebug();
   virtual void makeUnits();

@@ -35,6 +35,7 @@ class NetworkReader;
 class Sdc;
 class Corners;
 class Graph;
+class Edge;
 class Levelize;
 class Sim;
 class Search;
@@ -44,6 +45,7 @@ class GraphDelayCalc;
 class Latches;
 class ClkNetwork;
 class DispatchQueue;
+class Variables;
 
 // Most STA components use functionality in other components.
 // This class simplifies the process of copying pointers to the
@@ -54,7 +56,7 @@ class StaState
 public:
   // Make an empty state.
   StaState();
-  explicit StaState(const StaState *sta);
+  StaState(const StaState *sta);
   // Copy the state from sta.  This is virtual so that a component
   // can notify sub-components.
   virtual void copyState(const StaState *sta);
@@ -102,8 +104,12 @@ public:
   ClkNetwork *clkNetwork() { return clk_network_; }
   ClkNetwork *clkNetwork() const { return clk_network_; }
   unsigned threadCount() const { return thread_count_; }
-  bool pocvEnabled() const { return pocv_enabled_; }
   float sigmaFactor() const { return sigma_factor_; }
+  bool crprActive() const;
+  Variables *variables() { return variables_; }
+  const Variables *variables() const { return variables_; }
+  // Edge is default cond disabled by timing_disable_cond_default_arcs var.
+  bool isDisabledCondDefault(Edge *edge) const;
 
 protected:
   Report *report_;
@@ -126,8 +132,8 @@ protected:
   ClkNetwork *clk_network_;
   int thread_count_;
   DispatchQueue *dispatch_queue_;
-  bool pocv_enabled_;
   float sigma_factor_;
+  Variables *variables_;
 };
 
 } // namespace

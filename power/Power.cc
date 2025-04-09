@@ -942,7 +942,7 @@ Power::getMinRfSlew(const Pin *pin)
       if (delayGreater(slew, mm_slew, min_max, this))
         mm_slew = slew;
     }
-    return mm_slew;
+    return delayAsFloat(mm_slew);
   }
   return 0.0;
 }

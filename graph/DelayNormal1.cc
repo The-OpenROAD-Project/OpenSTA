@@ -32,6 +32,7 @@
 #include "Fuzzy.hh"
 #include "Units.hh"
 #include "StaState.hh"
+#include "Variables.hh"
 
 // SSTA compilation.
 #if (SSTA == 1)
@@ -237,7 +238,7 @@ delayAsFloat(const Delay &delay,
 	     const EarlyLate *early_late,
 	     const StaState *sta)
 {
-  if (sta->pocvEnabled()) {
+  if (sta->variables()->pocvEnabled()) {
     if (early_late == EarlyLate::early())
       return delay.mean() - delay.sigma() * sta->sigmaFactor();
     else if (early_late == EarlyLate::late())
@@ -268,7 +269,7 @@ delayAsString(const Delay &delay,
 	      int digits)
 {
   const Unit *unit = sta->units()->timeUnit();
-  if (sta->pocvEnabled()) {
+  if (sta->variables()->pocvEnabled()) {
     float sigma = delay.sigma();
     return stringPrintTmp("%s[%s]",
 			  unit->asString(delay.mean(), digits),

@@ -861,11 +861,11 @@ protected:
 class DynLoopSrchPred
 {
 public:
-  explicit DynLoopSrchPred(TagGroupBldr *tag_bldr);
+  DynLoopSrchPred(TagGroupBldr *tag_bldr);
 
 protected:
   bool loopEnabled(Edge *edge,
-		   const Sdc *sdc,
+                   bool dynamic_loop_breaking_enabled,
 		   const Graph *graph,
 		   Search *search);
   bool hasPendingLoopPaths(Edge *edge,
