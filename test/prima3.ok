@@ -1,9 +1,3 @@
-Warning: asap7_simple.lib.gz line 71510, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 71986, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 72462, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 72938, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 73414, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 74830, when attribute inside table model.
 Warning: asap7_simple.lib.gz line 71029, timing group from output port.
 Warning: asap7_simple.lib.gz line 71505, timing group from output port.
 Warning: asap7_simple.lib.gz line 71981, timing group from output port.
@@ -11,8 +5,6 @@ Warning: asap7_simple.lib.gz line 72457, timing group from output port.
 Warning: asap7_simple.lib.gz line 72933, timing group from output port.
 Warning: asap7_simple.lib.gz line 73409, timing group from output port.
 Warning: asap7_simple.lib.gz line 73885, timing group from output port.
-Warning: asap7_simple.lib.gz line 82276, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 83692, when attribute inside table model.
 Warning: asap7_simple.lib.gz line 81795, timing group from output port.
 Warning: asap7_simple.lib.gz line 82271, timing group from output port.
 Warning: asap7_simple.lib.gz line 82747, timing group from output port.
