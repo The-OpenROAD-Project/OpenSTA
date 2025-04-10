@@ -1112,7 +1112,7 @@ ArrivalVisitor::init(bool always_to_endpoints,
 {
   always_to_endpoints_ = always_to_endpoints;
   pred_ = pred;
-  crpr_active_ = sdc_->crprActive();
+  crpr_active_ = crprActive();
 }
 
 
@@ -2390,7 +2390,7 @@ Search::clkInfoWithCrprClkPath(ClkInfo *from_clk_info,
 			       Path *from_path,
 			       const PathAnalysisPt *path_ap)
 {
-  if (sdc_->crprActive())
+  if (crprActive())
     return findClkInfo(from_clk_info->clkEdge(),
 		       from_clk_info->clkSrc(),
 		       from_clk_info->isPropagated(),
@@ -2491,7 +2491,7 @@ Search::thruClkInfo(Path *from_path,
   // the clkinfo.
   const Pin *gen_clk_src = nullptr;
   if (from_clk_info->isGenClkSrcPath()
-      && sdc_->crprActive()
+      && crprActive()
       && sdc_->isClock(to_pin)) {
     // Don't care that it could be a regular clock root.
     gen_clk_src = to_pin;
@@ -2499,7 +2499,7 @@ Search::thruClkInfo(Path *from_path,
   }
 
   Path *to_crpr_clk_path = nullptr;
-  if (sdc_->crprActive()
+  if (crprActive()
       // Update crpr clk path for combinational paths leaving the clock
       // network (ie, tristate en->out) and buffer driving reg clk.
       && ((from_is_clk

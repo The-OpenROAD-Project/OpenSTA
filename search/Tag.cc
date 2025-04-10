@@ -418,7 +418,7 @@ tagMatch(const Tag *tag1,
 	&& tag1->isSegmentStart() == tag2->isSegmentStart()
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
 	&& (!match_crpr_clk_pin
-	    || !sta->sdc()->crprActive()
+	    || !sta->crprActive()
 	    || clk_info1->crprClkVertexId(sta) == clk_info2->crprClkVertexId(sta))
 	&& tagStateEqual(tag1, tag2));
 }
@@ -479,7 +479,7 @@ tagMatchCmp(const Tag *tag1,
     return 1;
 
   if (match_crpr_clk_pin
-      && sta->sdc()->crprActive()) {
+      && sta->crprActive()) {
     VertexId crpr_vertex1 = clk_info1->crprClkVertexId(sta);
     VertexId crpr_vertex2 = clk_info2->crprClkVertexId(sta);
     if (crpr_vertex1 < crpr_vertex2)

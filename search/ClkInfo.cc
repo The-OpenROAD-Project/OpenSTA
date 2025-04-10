@@ -217,7 +217,7 @@ clkInfoEqual(const ClkInfo *clk_info1,
 	     const ClkInfo *clk_info2,
 	     const StaState *sta)
 {
-  bool crpr_on = sta->sdc()->crprActive();
+  bool crpr_on = sta->crprActive();
   ClockUncertainties *uncertainties1 = clk_info1->uncertainties();
   ClockUncertainties *uncertainties2 = clk_info2->uncertainties();
   return clk_info1->clkEdge() == clk_info2->clkEdge()
@@ -290,7 +290,7 @@ clkInfoCmp(const ClkInfo *clk_info1,
   if (gen_clk_src1 > gen_clk_src2)
     return 1;
 
-  bool crpr_on = sta->sdc()->crprActive();
+  bool crpr_on = sta->crprActive();
   if (crpr_on) {
     const Path *crpr_path1 = clk_info1->crprClkPath(sta);
     const Path *crpr_path2 = clk_info2->crprClkPath(sta);

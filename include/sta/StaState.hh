@@ -130,10 +130,10 @@ protected:
   Search *search_;
   Latches *latches_;
   ClkNetwork *clk_network_;
+  Variables *variables_;
   int thread_count_;
   DispatchQueue *dispatch_queue_;
   float sigma_factor_;
-  Variables *variables_;
 };
 
 } // namespace

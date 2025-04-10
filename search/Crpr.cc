@@ -108,7 +108,7 @@ CheckCrpr::checkCrpr(const Path *src_path,
 {
   crpr = 0.0;
   crpr_pin = nullptr;
-  if (sdc_->crprActive()
+  if (crprActive()
       && src_path && tgt_clk_path) {
     bool same_pin = (variables_->crprMode() == CrprMode::same_pin);
     checkCrpr1(src_path, tgt_clk_path, same_pin, crpr, crpr_pin);
@@ -330,7 +330,7 @@ CheckCrpr::outputDelayCrpr(const Path *src_path,
 {
   crpr = 0.0;
   crpr_pin = nullptr;
-  if (sdc_->crprActive()) {
+  if (crprActive()) {
     const PathAnalysisPt *path_ap = src_path->pathAnalysisPt(this);
     const PathAnalysisPt *tgt_path_ap = path_ap->tgtClkAnalysisPt();
     bool same_pin = (variables_->crprMode() == CrprMode::same_pin);

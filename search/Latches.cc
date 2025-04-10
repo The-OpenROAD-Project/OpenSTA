@@ -352,8 +352,7 @@ Latches::latchOutArrival(const Path *data_path,
 	     q_arrival = adjusted_data_arrival + arc_delay;
 	     // Tag switcheroo - data passing thru gets latch enable tag.
 	     // States and path ap come from Q, everything else from enable.
-	     Path *crpr_clk_path = 
-	       sdc_->crprActive() ? enable_path : nullptr;
+	     Path *crpr_clk_path = crprActive() ? enable_path : nullptr;
 	     ClkInfo *q_clk_info = 
 	       search_->findClkInfo(en_clk_edge,
 				    en_clk_info->clkSrc(),

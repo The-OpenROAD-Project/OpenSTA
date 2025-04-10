@@ -52,10 +52,10 @@ StaState::StaState() :
   search_(nullptr),
   latches_(nullptr),
   clk_network_(nullptr),
+  variables_(nullptr),
   thread_count_(1),
   dispatch_queue_(nullptr),
-  sigma_factor_(1.0),
-  variables_(nullptr)
+  sigma_factor_(1.0)
 {
 }
 

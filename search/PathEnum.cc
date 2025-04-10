@@ -295,7 +295,7 @@ PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
   before_div_ap_index_(before_div_->pathAnalysisPtIndex(this)),
   before_div_arrival_(before_div_->arrival()),
   path_enum_(path_enum),
-  crpr_active_(sdc_->crprActive())
+  crpr_active_(crprActive())
 {
 }
 
@@ -605,7 +605,7 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
       prev_arrival = arrival;
       const Tag *tag = path->tag(this);
       const ClkInfo *clk_info = tag->clkInfo();
-      if (sdc_->crprActive()
+      if (crprActive()
           && clk_info != prev_clk_info
           // D->Q paths use the EN->Q clk info so no need to update.
           && arc->role() != TimingRole::latchDtoQ()) {
