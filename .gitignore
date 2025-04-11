@@ -32,3 +32,6 @@ test/results
 test/b3v3_1check.log
 
 doc/messages.txt
+
+# clangd turds
+.cache/
