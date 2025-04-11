@@ -44,9 +44,6 @@ class Sta;
 class Power;
 class SaifScanner;
 
-using std::vector;
-using std::string;
-
 enum class SaifState { T0, T1, TX, TZ, TB, TC, IG };
 
 typedef std::array<uint64_t, static_cast<int>(SaifState::IG)+1> SaifStateDurations;
@@ -70,7 +67,7 @@ public:
   const char *filename() { return filename_; }
 
 private:
-  string unescaped(const char *token);
+  std::string unescaped(const char *token);
 
   const char *filename_;
   const char *scope_;           // Divider delimited scope to begin annotation.
@@ -80,9 +77,9 @@ private:
   double timescale_;
   int64_t duration_;
 
-  vector<string> saif_scope_;   // Scope during parsing.
+  std::vector<std::string> saif_scope_;   // Scope during parsing.
   size_t in_scope_level_;
-  vector<Instance*> path_;      // Path within scope.
+  std::vector<Instance*> path_;      // Path within scope.
   std::set<const Pin*> annotated_pins_;
   Power *power_;
 };

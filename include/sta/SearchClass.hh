@@ -119,7 +119,7 @@ typedef UnorderedMap<Tag*, size_t, TagMatchHash, TagMatchEqual> PathIndexMap;
 typedef Vector<Slack> SlackSeq;
 typedef Delay Crpr;
 typedef Vector<Path*> PathSeq;
-typedef vector<const Path*> ConstPathSeq;
+typedef std::vector<const Path*> ConstPathSeq;
 
 enum class ReportPathFormat { full,
 			      full_clock,

@@ -34,6 +34,8 @@
 
 namespace sta {
 
+using std::vector;
+
 ParallelDelayCalc::ParallelDelayCalc(StaState *sta):
   DelayCalcBase(sta)
 {

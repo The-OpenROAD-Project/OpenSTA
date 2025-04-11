@@ -38,17 +38,13 @@
 
 namespace sta {
 
-using std::vector;
-using std::map;
-using std::array;
-
 class DelayCalcObserver;
 class MultiDrvrNet;
 class FindVertexDelays;
 class NetCaps;
 
 typedef Map<const Vertex*, MultiDrvrNet*> MultiDrvrNetMap;
-typedef vector<SlewSeq> DrvrLoadSlews;
+typedef std::vector<SlewSeq> DrvrLoadSlews;
 
 // This class traverses the graph calling the arc delay calculator and
 // annotating delays on graph edges.
@@ -191,7 +187,7 @@ protected:
                             ArcDelayCalc *arc_delay_calc,
                             LoadPinIndexMap &load_pin_index_map,
                             // Return value.
-                            array<bool, RiseFall::index_count> &delay_exists);
+                            std::array<bool, RiseFall::index_count> &delay_exists);
   bool findDriverArcDelays(Vertex *drvr_vertex,
                            const MultiDrvrNet *multi_drvr,
                            Edge *edge,
@@ -333,7 +329,7 @@ private:
   Vertex *dcalc_drvr_;
   VertexSeq drvrs_;
   // [drvr_rf->index][dcalc_ap->index]
-  vector<NetCaps> net_caps_;
+  std::vector<NetCaps> net_caps_;
 };
 
 } // namespace

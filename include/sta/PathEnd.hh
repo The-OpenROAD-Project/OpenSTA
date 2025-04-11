@@ -40,8 +40,6 @@ class RiseFall;
 class MinMax;
 class ReportPath;
 
-using std::string;
-
 // PathEnds represent search endpoints that are either unconstrained
 // or constrained by a timing check, output delay, data check,
 // or path delay.

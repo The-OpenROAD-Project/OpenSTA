@@ -62,8 +62,6 @@ class Corner;
 class ClockPinIterator;
 class ClockIterator;
 
-using std::vector;
-
 typedef std::pair<const Pin*, const Clock*> PinClockPair;
 
 class ClockInsertionkLess
@@ -1321,12 +1319,12 @@ protected:
   //  set_load port
   //  set_fanout_load port
   // Indexed by corner_index.
-  vector<PortExtCapMap> port_ext_cap_maps_;
+  std::vector<PortExtCapMap> port_ext_cap_maps_;
   // set_load net
   // Indexed by corner_index.
-  vector<NetWireCapMap> net_wire_cap_maps_;
+  std::vector<NetWireCapMap> net_wire_cap_maps_;
   // Indexed by corner_index.
-  vector<PinWireCapMap> drvr_pin_wire_cap_maps_;
+  std::vector<PinWireCapMap> drvr_pin_wire_cap_maps_;
   NetResistanceMap net_res_map_;
   PinSet disabled_pins_;
   PortSet disabled_ports_;

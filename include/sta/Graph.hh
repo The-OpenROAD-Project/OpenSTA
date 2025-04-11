@@ -247,7 +247,7 @@ public:
   ~Vertex();
   Pin *pin() const { return pin_; }
   // Pin path with load/driver suffix for bidirects.
-  string to_string(const StaState *sta) const;
+  std::string to_string(const StaState *sta) const;
   // compatibility
   const char *name(const Network *network) const;
   bool isBidirectDriver() const { return is_bidirect_drvr_; }
@@ -366,7 +366,7 @@ class Edge
 public:
   Edge();
   ~Edge();
-  string to_string(const StaState *sta) const;
+  std::string to_string(const StaState *sta) const;
   Vertex *to(const Graph *graph) const { return graph->vertex(to_); }
   VertexId to() const { return to_; }
   Vertex *from(const Graph *graph) const { return graph->vertex(from_); }
@@ -426,7 +426,7 @@ protected:
   ArcDelay *arc_delays_;
   union {
     uintptr_t bits_;
-    vector<bool> *seq_;
+    std::vector<bool> *seq_;
   } arc_delay_annotated_;
   bool arc_delay_annotated_is_bits_:1;
   bool delay_annotation_is_incremental_:1;

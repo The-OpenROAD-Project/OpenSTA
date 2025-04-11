@@ -133,7 +133,7 @@ ClkInfo::asString(const StaState *sta) const
 {
   Network *network = sta->network();
   Corners *corners = sta->corners();
-  string result;
+  std::string result;
 
   PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
   result += path_ap->pathMinMax()->to_string();

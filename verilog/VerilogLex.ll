@@ -93,22 +93,22 @@ ID_TOKEN {ID_ESCAPED_TOKEN}|{ID_ALPHA_TOKEN}
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[bB][01_xz]+ {
-  yylval->constant = new string(yytext);
+  yylval->constant = new std::string(yytext);
   return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[oO][0-7_xz]+ {
-  yylval->constant = new string(yytext);
+  yylval->constant = new std::string(yytext);
   return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[dD][0-9_]+ {
-  yylval->constant = new string(yytext);
+  yylval->constant = new std::string(yytext);
   return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[hH][0-9a-fA-F_xz]+ {
-  yylval->constant = new string(yytext);
+  yylval->constant = new std::string(yytext);
   return token::CONSTANT;
 }
 
@@ -140,7 +140,7 @@ wire { return token::WIRE; }
 wor { return token::WOR; }
 
 {ID_TOKEN}("."{ID_TOKEN})* {
-	yylval->string = new string(yytext, yyleng);
+	yylval->string = new std::string(yytext, yyleng);
 	return token::ID;
 }
 
@@ -152,7 +152,7 @@ wor { return token::WOR; }
 {BLANK}	{ /* ignore blanks */ }
 
 \"	{
-	yylval->string = new string;
+	yylval->string = new std::string;
 	BEGIN(QSTRING);
 	}
 

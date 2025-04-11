@@ -74,6 +74,8 @@ using std::abs;
 using std::max;
 using std::min;
 using std::isnormal;
+using std::vector;
+using std::map;
 
 static bool
 isPositiveUnate(const LibertyCell *cell,

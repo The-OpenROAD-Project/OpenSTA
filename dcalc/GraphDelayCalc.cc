@@ -50,6 +50,7 @@
 namespace sta {
 
 using std::abs;
+using std::array;
 
 static const Slew default_slew = 0.0;
 

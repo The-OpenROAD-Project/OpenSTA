@@ -36,8 +36,6 @@
 
 namespace sta {
 
-using std::string;
-
 class Report;
 class LibExprParse;
 
@@ -56,7 +54,7 @@ public:
 
 private:
   Report *report_;
-  string token_;
+  std::string token_;
 };
 
 } // namespace

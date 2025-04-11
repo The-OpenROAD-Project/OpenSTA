@@ -65,6 +65,7 @@ namespace sta {
 //  ra_get_s
 
 using std::abs;
+using std::vector;
 
 struct delay_work;
 struct delay_c;

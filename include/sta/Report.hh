@@ -36,8 +36,6 @@ struct Tcl_Interp;
 
 namespace sta {
 
-using std::string;
-
 // Output streams used for printing.
 // This is a wrapper for all printing.  It supports logging output to
 // a file and redirection of command output to a file.
@@ -51,7 +49,7 @@ public:
   virtual void reportLine(const char *fmt, ...)
     __attribute__((format (printf, 2, 3)));
   virtual void reportLineString(const char *line);
-  virtual void reportLineString(const string &line);
+  virtual void reportLineString(const std::string &line);
   virtual void reportBlankLine();
 
   ////////////////////////////////////////////////////////////////
@@ -158,7 +156,7 @@ protected:
   FILE *log_stream_;
   FILE *redirect_stream_;
   bool redirect_to_string_;
-  string redirect_string_;
+  std::string redirect_string_;
   // Buffer to support printf style arguments.
   size_t buffer_size_;
   char *buffer_;

@@ -285,7 +285,7 @@ PrimaDelayCalc::simulate()
     simulate1(Gq_, Cq_, Bq_, xq_init_, Vq_, prima_order_);
   }
   else {
-    MatrixXd x_to_v = MatrixXd::Identity(order_, order_);
+    Eigen::MatrixXd x_to_v = Eigen::MatrixXd::Identity(order_, order_);
     simulate1(G_, C_, B_, x_init_, x_to_v, order_);
   }
 }
@@ -293,14 +293,14 @@ PrimaDelayCalc::simulate()
 void
 PrimaDelayCalc::simulate1(const MatrixSd &G,
                  const MatrixSd &C,
-                 const MatrixXd &B,
-                 const VectorXd &x_init,
-                 const MatrixXd &x_to_v,
+                 const Eigen::MatrixXd &B,
+                 const Eigen::VectorXd &x_init,
+                 const Eigen::MatrixXd &x_to_v,
                  const size_t order)
 {
-  VectorXd x(order);
-  VectorXd x_prev(order);
-  VectorXd x_prev2(order);
+  Eigen::VectorXd x(order);
+  Eigen::VectorXd x_prev(order);
+  Eigen::VectorXd x_prev2(order);
 
   v_.resize(order);
   v_prev_.resize(order);
@@ -321,7 +321,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   // Initial time depends on ceff which impact delay, so use a sim step
   // to find an initial ceff.
   setPortCurrents();
-  VectorXd rhs(order);
+  Eigen::VectorXd rhs(order);
   rhs = B * u_ + (1.0 / time_step_) * C * (3.0 * x_prev - x_prev2);
   x = A_solver.solve(rhs);
   v_ = x_to_v * x;
@@ -771,12 +771,12 @@ PrimaDelayCalc::primaReduce()
   SparseLU<MatrixSd> G_solver(G_);
   if (G_solver.info() != Eigen::Success)
     report_->error(1752, "G matrix is singular.");
-  MatrixXd R(order_, port_count_);
+  Eigen::MatrixXd R(order_, port_count_);
   R = G_solver.solve(B_);
 
   // Step 4
-  HouseholderQR<MatrixXd> R_solver(R);
-  MatrixXd Q = R_solver.householderQ();
+  Eigen::HouseholderQR<Eigen::MatrixXd> R_solver(R);
+  Eigen::MatrixXd Q = R_solver.householderQ();
 
   // Vq is "X" in the prima paper (too many "x" variables in the paper).
   Vq_.resize(order_, prima_order_);
@@ -785,7 +785,7 @@ PrimaDelayCalc::primaReduce()
 
   // Step 6 - Arnolid iteration
   for (size_t k = 1; k < prima_order_; k++) {
-    VectorXd V = C_ * Vq_.col(k - 1);
+    Eigen::VectorXd V = C_ * Vq_.col(k - 1);
     Vq_.col(k) = G_solver.solve(V);
 
     // Modified Gram-Schmidt orthonormalization
@@ -793,9 +793,9 @@ PrimaDelayCalc::primaReduce()
       double H = Vq_.col(j).transpose() * Vq_.col(k);
       Vq_.col(k) = Vq_.col(k) - H * Vq_.col(j);
     }
-    VectorXd Vq_k = Vq_.col(k);
-    HouseholderQR<MatrixXd> Vq_k_solver(Vq_k);
-    MatrixXd VqQ = Vq_k_solver.householderQ();
+    Eigen::VectorXd Vq_k = Vq_.col(k);
+    Eigen::HouseholderQR<Eigen::MatrixXd> Vq_k_solver(Vq_k);
+    Eigen::MatrixXd VqQ = Vq_k_solver.householderQ();
     Vq_.col(k) = VqQ.col(0);
   }
 
@@ -824,36 +824,36 @@ PrimaDelayCalc::primaReduce2()
 {
   G_.makeCompressed();
   // Step 3: solve G*R = B for R
-  SparseLU<MatrixSd> G_solver(G_);
-  MatrixXd R(order_, port_count_);
+  Eigen::SparseLU<MatrixSd> G_solver(G_);
+  Eigen::MatrixXd R(order_, port_count_);
   R = G_solver.solve(B_);
 
   // Step 4
-  HouseholderQR<MatrixXd> R_solver(R);
-  MatrixXd Q = R_solver.householderQ();
+  Eigen::HouseholderQR<Eigen::MatrixXd> R_solver(R);
+  Eigen::MatrixXd Q = R_solver.householderQ();
 
   // Vq is "X" in the prima paper (too many "x" variables in the paper).
   size_t n = ceil(prima_order_ / static_cast<double>(port_count_));
-  MatrixXd Vq(order_, n * port_count_);
+  Eigen::MatrixXd Vq(order_, n * port_count_);
   // // Vq = first port_count columns of Q.
   Vq.block(0, 0, order_, port_count_) = Q.block(0, 0, order_, port_count_);
 
   // Step 6 - Arnolid iteration
   for (size_t k = 1; k < n; k++) {
-    MatrixXd V = C_ * Vq.block(0, (k - 1) * port_count_, order_, port_count_);
-    MatrixXd GV = G_solver.solve(V);
+    Eigen::MatrixXd V = C_ * Vq.block(0, (k - 1) * port_count_, order_, port_count_);
+    Eigen::MatrixXd GV = G_solver.solve(V);
     Vq.block(0, k * port_count_, order_, port_count_) = GV;
 
     // Modified Gram-Schmidt orthonormalization
     for (size_t j = 0; j < k; j++) {
-      MatrixXd H = Vq.block(0, j * port_count_, order_, port_count_).transpose()
+      Eigen::MatrixXd H = Vq.block(0, j * port_count_, order_, port_count_).transpose()
         * Vq.block(0, k * port_count_, order_, port_count_);
       Vq.block(0, k * port_count_, order_, port_count_) =
         Vq.block(0, k * port_count_, order_, port_count_) - Vq.block(0, j * port_count_, order_, port_count_) * H;
     }
-    MatrixXd Vq_k = Vq.block(0, k * port_count_, order_, port_count_);
-    HouseholderQR<MatrixXd> Vq_k_solver(Vq_k);
-    MatrixXd VqQ = Vq_k_solver.householderQ();
+    Eigen::MatrixXd Vq_k = Vq.block(0, k * port_count_, order_, port_count_);
+    Eigen::HouseholderQR<Eigen::MatrixXd> Vq_k_solver(Vq_k);
+    Eigen::MatrixXd VqQ = Vq_k_solver.householderQ();
     Vq.block(0, k * port_count_, order_, port_count_) = 
       VqQ.block(0, 0, order_, port_count_);
   }
@@ -970,7 +970,7 @@ PrimaDelayCalc::reportMatrix(const char *name,
 
 void
 PrimaDelayCalc::reportMatrix(const char *name,
-                             MatrixXd &matrix)
+                             Eigen::MatrixXd &matrix)
 {
   report_->reportLine("%s", name);
   reportMatrix(matrix);
@@ -978,7 +978,7 @@ PrimaDelayCalc::reportMatrix(const char *name,
 
 void
 PrimaDelayCalc::reportMatrix(const char *name,
-                             VectorXd &matrix)
+                             Eigen::VectorXd &matrix)
 {
   report_->reportLine("%s", name);
   reportMatrix(matrix);
@@ -986,7 +986,7 @@ PrimaDelayCalc::reportMatrix(const char *name,
 
 void
 PrimaDelayCalc::reportVector(const char *name,
-                             vector<double> &matrix)
+                             std::vector<double> &matrix)
 {
   report_->reportLine("%s", name);
   reportVector(matrix);
@@ -995,10 +995,10 @@ PrimaDelayCalc::reportVector(const char *name,
 void
 PrimaDelayCalc::reportMatrix(MatrixSd &matrix)
 {
-  for (Index i = 0; i < matrix.rows(); i++) {
+  for (Eigen::Index i = 0; i < matrix.rows(); i++) {
     string line = "| ";
-    for (Index j = 0; j < matrix.cols(); j++) {
-      string entry = stdstrPrint("%10.3e", matrix.coeff(i, j));
+    for (Eigen::Index j = 0; j < matrix.cols(); j++) {
+      std::string entry = stdstrPrint("%10.3e", matrix.coeff(i, j));
       line += entry;
       line += " ";
     }
@@ -1008,12 +1008,12 @@ PrimaDelayCalc::reportMatrix(MatrixSd &matrix)
 }
 
 void
-PrimaDelayCalc::reportMatrix(MatrixXd &matrix)
+PrimaDelayCalc::reportMatrix(Eigen::MatrixXd &matrix)
 {
-  for (Index i = 0; i < matrix.rows(); i++) {
-    string line = "| ";
-    for (Index j = 0; j < matrix.cols(); j++) {
-      string entry = stdstrPrint("%10.3e", matrix.coeff(i, j));
+  for (Eigen::Index i = 0; i < matrix.rows(); i++) {
+    std::string line = "| ";
+    for (Eigen::Index j = 0; j < matrix.cols(); j++) {
+      std::string entry = stdstrPrint("%10.3e", matrix.coeff(i, j));
       line += entry;
       line += " ";
     }
@@ -1023,11 +1023,11 @@ PrimaDelayCalc::reportMatrix(MatrixXd &matrix)
 }
 
 void
-PrimaDelayCalc::reportMatrix(VectorXd &matrix)
+PrimaDelayCalc::reportMatrix(Eigen::VectorXd &matrix)
 {
-  string line = "| ";
-  for (Index i = 0; i < matrix.rows(); i++) {
-    string entry = stdstrPrint("%10.3e", matrix.coeff(i));
+  std::string line = "| ";
+  for (Eigen::Index i = 0; i < matrix.rows(); i++) {
+    std::string entry = stdstrPrint("%10.3e", matrix.coeff(i));
     line += entry;
     line += " ";
   }
@@ -1036,11 +1036,11 @@ PrimaDelayCalc::reportMatrix(VectorXd &matrix)
 }
 
 void
-PrimaDelayCalc::reportVector(vector<double> &matrix)
+PrimaDelayCalc::reportVector(std::vector<double> &matrix)
 {
-  string line = "| ";
+  std::string line = "| ";
   for (size_t i = 0; i < matrix.size(); i++) {
-    string entry = stdstrPrint("%10.3e", matrix[i]);
+    std::string entry = stdstrPrint("%10.3e", matrix[i]);
     line += entry;
     line += " ";
   }

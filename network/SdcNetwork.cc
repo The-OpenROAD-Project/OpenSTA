@@ -30,6 +30,7 @@
 
 namespace sta {
 
+using std::string;
 using std::to_string;
 
 static string

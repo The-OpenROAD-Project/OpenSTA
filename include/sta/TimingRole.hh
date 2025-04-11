@@ -33,7 +33,7 @@ namespace sta {
 
 class TimingRole;
 
-typedef std::map<string, const TimingRole*> TimingRoleMap;
+typedef std::map<std::string, const TimingRole*> TimingRoleMap;
 
 class TimingRole
 {
@@ -68,7 +68,7 @@ public:
   static const TimingRole *nonSeqHold() { return &non_seq_hold_; }
   static const TimingRole *clockTreePathMin() { return &clock_tree_path_min_; }
   static const TimingRole *clockTreePathMax() { return &clock_tree_path_max_; }
-  const string &to_string() const { return name_; }
+  const std::string &to_string() const { return name_; }
   int index() const { return index_; }
   bool isWire() const;
   bool isTimingCheck() const { return is_timing_check_; }
@@ -101,7 +101,7 @@ private:
 	     const TimingRole *generic_role,
 	     int index);
 
-  const string name_;
+  const std::string name_;
   bool is_timing_check_;
   bool is_sdf_iopath_;
   bool is_non_seq_check_;

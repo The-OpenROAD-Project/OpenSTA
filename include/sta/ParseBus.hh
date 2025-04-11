@@ -28,8 +28,6 @@
 
 namespace sta {
 
-using std::string;
-
 // Return true if name is a bus.
 bool
 isBusName(const char *name,
@@ -51,7 +49,7 @@ parseBusName(const char *name,
 	     char escape,
 	     // Return values.
 	     bool &is_bus,
-             string &bus_name,
+             std::string &bus_name,
 	     int &index);
 // Allow multiple different left/right bus brackets.
 void
@@ -61,7 +59,7 @@ parseBusName(const char *name,
 	     char escape,
 	     // Return values.
 	     bool &is_bus,
-	     string &bus_name,
+	     std::string &bus_name,
 	     int &index);
 
 // Parse a bus range, such as BUS[4:0].
@@ -75,7 +73,7 @@ parseBusName(const char *name,
              // Return values.
              bool &is_bus,
              bool &is_range,
-             string &bus_name,
+             std::string &bus_name,
              int &from,
              int &to,
              bool &subscript_wild);
@@ -90,13 +88,13 @@ parseBusName(const char *name,
              // Return values.
              bool &is_bus,
              bool &is_range,
-             string &bus_name,
+             std::string &bus_name,
              int &from,
              int &to,
              bool &subscript_wild);
 
 // Insert escapes before ch1 and ch2 in token.
-string
+std::string
 escapeChars(const char *token,
 	    const char ch1,
 	    const char ch2,

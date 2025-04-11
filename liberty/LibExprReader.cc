@@ -42,7 +42,7 @@ parseFuncExpr(const char *func,
 	      Report *report)
 {
   if (func != nullptr && func[0] != '\0') {
-    string func1(func);
+    std::string func1(func);
     std::istringstream stream(func);
     LibExprReader reader(func, cell, error_msg, report);
     LibExprScanner scanner(stream);

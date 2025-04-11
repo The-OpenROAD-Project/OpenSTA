@@ -2774,7 +2774,7 @@ Search::reportArrivals(Vertex *vertex) const
       const PathAnalysisPt *path_ap = tag->pathAnalysisPt(this);
       const RiseFall *rf = tag->transition();
       const char *req = delayAsString(path->required(), this);
-      string prev_str;
+      std::string prev_str;
       Path *prev_path = path->prevPath();
       if (prev_path) {
         prev_str += prev_path->to_string(this);

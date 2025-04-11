@@ -60,6 +60,8 @@
 
 namespace sta {
 
+using std::string;
+
 typedef Set<ClockSense*> ClockSenseSet;
 typedef Vector<ClockSense*> ClockSenseSeq;
 

@@ -48,11 +48,11 @@ class LibertyScanner;
 typedef Vector<LibertyStmt*> LibertyStmtSeq;
 typedef Vector<LibertyGroup*> LibertyGroupSeq;
 typedef Vector<LibertyAttr*> LibertyAttrSeq;
-typedef Map<string, LibertyAttr*> LibertyAttrMap;
-typedef Map<string, LibertyDefine*> LibertyDefineMap;
+typedef Map<std::string, LibertyAttr*> LibertyAttrMap;
+typedef Map<std::string, LibertyDefine*> LibertyDefineMap;
 typedef Vector<LibertyAttrValue*> LibertyAttrValueSeq;
-typedef Map<string, float> LibertyVariableMap;
-typedef Map<string, LibertyGroupVisitor*>LibertyGroupVisitorMap;
+typedef Map<std::string, float> LibertyVariableMap;
+typedef Map<std::string, LibertyGroupVisitor*>LibertyGroupVisitorMap;
 typedef LibertyAttrValueSeq::Iterator LibertyAttrValueIterator;
 typedef Vector<LibertyGroup*> LibertyGroupSeq;
 
@@ -67,8 +67,8 @@ public:
   LibertyParser(const char *filename,
                 LibertyGroupVisitor *library_visitor,
                 Report *report);
-  const string &filename() const { return filename_; }
-  void setFilename(const string &filename);
+  const std::string &filename() const { return filename_; }
+  void setFilename(const std::string &filename);
   Report *report() const { return report_; }
   LibertyStmt *makeDefine(LibertyAttrValueSeq *values,
                           int line);
@@ -93,7 +93,7 @@ public:
                             int line);
 
 private:
-  string filename_;
+  std::string filename_;
   LibertyGroupVisitor *group_visitor_;
   Report *report_;
   LibertyGroupSeq group_stack_;
@@ -143,7 +143,7 @@ public:
 protected:
   void parseNames(LibertyAttrValueSeq *values);
 
-  string type_;
+  std::string type_;
   LibertyAttrValueSeq *params_;
   LibertyAttrSeq *attrs_;
   LibertyAttrMap *attr_map_;
@@ -177,7 +177,7 @@ public:
   virtual LibertyAttrValue *firstValue() = 0;
 
 protected:
-  string name_;
+  std::string name_;
 };
 
 // Abstract base class for simple attributes.
@@ -239,7 +239,7 @@ public:
   virtual const char *stringValue();
 
 private:
-  string value_;
+  std::string value_;
 };
 
 class LibertyFloatAttrValue : public LibertyAttrValue
@@ -272,7 +272,7 @@ public:
   LibertyAttrType valueType() const { return value_type_; }
 
 private:
-  string name_;
+  std::string name_;
   LibertyGroupType group_type_;
   LibertyAttrType value_type_;
 };
@@ -292,7 +292,7 @@ public:
   float value() const { return value_; }
 
 private:
-  string var_;
+  std::string var_;
   float value_;
 };
 

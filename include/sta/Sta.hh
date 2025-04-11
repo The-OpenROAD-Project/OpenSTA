@@ -44,9 +44,6 @@ struct Tcl_Interp;
 
 namespace sta {
 
-using std::string;
-using ::Tcl_Interp;
-
 // Don't include headers to minimize dependencies.
 class MinMax;
 class MinMaxAll;

@@ -35,8 +35,6 @@
 
 namespace sta {
 
-using std::string;
-
 class Unit;
 class Units;
 class Report;

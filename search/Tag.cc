@@ -89,20 +89,20 @@ Tag::~Tag()
     delete states_;
 }
 
-string
+std::string
 Tag::to_string(const StaState *sta) const
 {
   return to_string(true, true, sta);
 }
 
-string
+std::string
 Tag::to_string(bool report_index,
                bool report_rf_min_max,
                const StaState *sta) const
 {
   const Network *network = sta->network();
   const Corners *corners = sta->corners();
-  string result;
+  std::string result;
 
   if (report_index)
     result += std::to_string(index_);

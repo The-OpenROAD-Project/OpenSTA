@@ -46,6 +46,7 @@
 namespace sta {
 
 using std::ifstream;
+using std::ofstream;
 using std::swap;
 using std::set;
 
@@ -183,8 +184,8 @@ WriteSpice::replaceFileExt(string filename,
 void
 WriteSpice::writeGnuplotFile(StdStringSeq &node_nanes)
 {
-  string gnuplot_filename = replaceFileExt(spice_filename_, "gnuplot");
-  string csv_filename = replaceFileExt(spice_filename_, "csv");
+  std::string gnuplot_filename = replaceFileExt(spice_filename_, "gnuplot");
+  std::string csv_filename = replaceFileExt(spice_filename_, "csv");
   ofstream gnuplot_stream;
   gnuplot_stream.open(gnuplot_filename);
   if (gnuplot_stream.is_open()) {

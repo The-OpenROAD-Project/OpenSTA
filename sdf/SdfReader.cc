@@ -45,6 +45,7 @@
 
 namespace sta {
 
+using std::string;
 using std::to_string;
 
 class SdfTriple
@@ -65,8 +66,8 @@ class SdfPortSpec
 {
 public:
   SdfPortSpec(const Transition *tr,
-	      const string *port,
-	      const string *cond);
+	      const std::string *port,
+	      const std::string *cond);
   ~SdfPortSpec();
   const string *port() const { return port_; }
   const Transition *transition() const { return tr_; }

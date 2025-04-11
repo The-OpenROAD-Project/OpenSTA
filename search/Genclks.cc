@@ -895,7 +895,7 @@ Genclks::recordSrcPaths(Clock *gclk)
   bool has_edges = gclk->edges() != nullptr;
 
   for (const Pin *gclk_pin : gclk->leafPins()) {
-    vector<Path> &src_paths = genclk_src_paths_[ClockPinPair(gclk, gclk_pin)];
+    std::vector<Path> &src_paths = genclk_src_paths_[ClockPinPair(gclk, gclk_pin)];
     src_paths.resize(path_count);
     Vertex *gclk_vertex = srcPath(gclk_pin);
     bool found_src_paths = false;
@@ -1002,7 +1002,7 @@ Genclks::srcPath(const Clock *gclk,
 {
   auto itr = genclk_src_paths_.find(ClockPinPair(gclk, src_pin));
   if (itr != genclk_src_paths_.end()) {
-    vector<Path> src_paths = itr->second;
+    std::vector<Path> src_paths = itr->second;
     if (!src_paths.empty()) {
       size_t path_index = srcPathIndex(rf, path_ap);
       Path &src_path = src_paths[path_index];

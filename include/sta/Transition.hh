@@ -37,7 +37,7 @@ class Transition;
 class RiseFall;
 class RiseFallBoth;
 
-typedef Map<const string, const Transition*> TransitionMap;
+typedef Map<const std::string, const Transition*> TransitionMap;
 
 // Rise/fall transition.
 class RiseFall
@@ -48,7 +48,7 @@ public:
   static const RiseFall *fall() { return &fall_; }
   static int riseIndex() { return rise_.sdf_triple_index_; }
   static int fallIndex() { return fall_.sdf_triple_index_; }
-  const string &to_string() const { return short_name_; }
+  const std::string &to_string() const { return short_name_; }
   const char *name() const { return name_.c_str(); }
   const char *shortName() const { return short_name_.c_str(); }
   int index() const { return sdf_triple_index_; }
@@ -75,8 +75,8 @@ protected:
            const char *short_name,
            int sdf_triple_index);
 
-  const string name_;
-  const string short_name_;
+  const std::string name_;
+  const std::string short_name_;
   const int sdf_triple_index_;
 
   static const RiseFall rise_;
@@ -93,7 +93,7 @@ public:
   static const RiseFallBoth *rise() { return &rise_; }
   static const RiseFallBoth *fall() { return &fall_; }
   static const RiseFallBoth *riseFall() { return &rise_fall_; }
-  const string &to_string() const { return short_name_; }
+  const std::string &to_string() const { return short_name_; }
   const char *name() const { return name_.c_str(); }
   const char *shortName() const { return short_name_.c_str(); }
   int index() const { return sdf_triple_index_; }
@@ -119,8 +119,8 @@ protected:
                std::vector<const RiseFall*> range,
                std::vector<int> range_index);
 
-  const string name_;
-  const string short_name_;
+  const std::string name_;
+  const std::string short_name_;
   const int sdf_triple_index_;
   const RiseFall *as_rise_fall_;
   const std::vector<const RiseFall*> range_;
@@ -150,7 +150,7 @@ public:
   static const Transition *trZX() { return &tr_ZX_; }
   // Matches rise and fall.
   static const Transition *riseFall() { return &rise_fall_; }
-  const string &to_string() const { return name_; }
+  const std::string &to_string() const { return name_; }
   // As initial/final value pair.
   const char *asInitFinalString() const { return init_final_.c_str(); }
   int sdfTripleIndex() const { return sdf_triple_index_; }
@@ -168,8 +168,8 @@ private:
 	     const RiseFall *as_rise_fall,
 	     int sdf_triple_index);
 
-  const string name_;
-  const string init_final_;
+  const std::string name_;
+  const std::string init_final_;
   const RiseFall *as_rise_fall_;
   const int sdf_triple_index_;
 

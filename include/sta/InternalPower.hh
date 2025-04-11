@@ -87,11 +87,11 @@ public:
 	      const Pvt *pvt,
 	      float in_slew,
 	      float load_cap) const;
-  string reportPower(const LibertyCell *cell,
-                     const Pvt *pvt,
-                     float in_slew,
-                     float load_cap,
-                     int digits) const;
+  std::string reportPower(const LibertyCell *cell,
+                          const Pvt *pvt,
+                          float in_slew,
+                          float load_cap,
+                          int digits) const;
 
 protected:
   void findAxisValues(float in_slew,

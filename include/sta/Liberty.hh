@@ -88,9 +88,9 @@ typedef Map<const TimingArcSet*, LatchEnable*> LatchEnableMap;
 typedef Vector<LatchEnable*> LatchEnableSeq;
 typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
 typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
-typedef Map<string, float> SupplyVoltageMap;
-typedef Map<string, LibertyPgPort*> LibertyPgPortMap;
-typedef Map<string, DriverWaveform*> DriverWaveformMap;
+typedef Map<std::string, float> SupplyVoltageMap;
+typedef Map<std::string, LibertyPgPort*> LibertyPgPortMap;
+typedef Map<std::string, DriverWaveform*> DriverWaveformMap;
 typedef Vector<DcalcAnalysisPt*> DcalcAnalysisPtSeq;
 
 enum class ClockGateType { none, latch_posedge, latch_negedge, other };
@@ -647,8 +647,8 @@ protected:
   bool has_internal_ports_;
   std::atomic<bool> have_voltage_waveforms_;
   std::mutex waveform_lock_;
-  string footprint_;
-  string user_function_class_;
+  std::string footprint_;
+  std::string user_function_class_;
 
 private:
   friend class LibertyLibrary;
@@ -888,8 +888,8 @@ protected:
   float min_pulse_width_[RiseFall::index_count];
   const RiseFall *pulse_clk_trigger_;
   const RiseFall *pulse_clk_sense_;
-  string related_ground_pin_;
-  string related_power_pin_;
+  std::string related_ground_pin_;
+  std::string related_power_pin_;
   Vector<LibertyPort*> corner_ports_;
   ReceiverModelPtr receiver_model_;
   DriverWaveform *driver_waveform_[RiseFall::index_count];
@@ -969,7 +969,7 @@ public:
   void setWireloadTree(WireloadTree tree);
 
 protected:
-  string name_;
+  std::string name_;
   WireloadTree wire_load_tree_;
 };
 
@@ -996,7 +996,7 @@ public:
   void print();
 
 protected:
-  string name_;
+  std::string name_;
   float scales_[scale_factor_type_count][scale_factor_pvt_count][RiseFall::index_count];
 };
 
@@ -1011,7 +1011,7 @@ public:
   int to() const { return to_; }
 
 protected:
-  string name_;
+  std::string name_;
   int from_;
   int to_;
 };
@@ -1032,7 +1032,7 @@ protected:
   // Private to LibertyCell::makeModeDef.
   ModeDef(const char *name);
 
-  string name_;
+  std::string name_;
   ModeValueMap values_;
 
 private:
@@ -1056,9 +1056,9 @@ protected:
 	       FuncExpr *cond,
 	       const char *sdf_cond);
 
-  string value_;
+  std::string value_;
   FuncExpr *cond_;
-  string sdf_cond_;
+  std::string sdf_cond_;
 
 private:
   friend class ModeDef;
@@ -1085,7 +1085,7 @@ public:
   void setAxis3(TableAxisPtr axis);
 
 protected:
-  string name_;
+  std::string name_;
   TableAxisPtr axis1_;
   TableAxisPtr axis2_;
   TableAxisPtr axis3_;
@@ -1143,13 +1143,13 @@ public:
 		    const LibertyPgPort *port2);
 
 private:
-  string name_;
+  std::string name_;
   PgType pg_type_;
-  string voltage_name_;
+  std::string voltage_name_;
   LibertyCell *cell_;
 };
 
-string
+std::string
 portLibertyToSta(const char *port_name);
 const char *
 scanSignalTypeName(ScanSignalType scan_type);
