@@ -81,7 +81,7 @@ systemRunTime()
 size_t
 memoryUsage()
 {
-  string proc_filename;
+  std::string proc_filename;
   stringPrint(proc_filename, "/proc/%d/status", getpid());
   size_t memory = 0;
   FILE *status = fopen(proc_filename.c_str(), "r");
