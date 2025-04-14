@@ -149,7 +149,7 @@ Corners::makeParasiticAnalysisPts(bool per_corner)
         int ap_index = corner->index() * MinMax::index_count + mm_index;
         int ap_index_max = corner->index() * MinMax::index_count
           + MinMax::max()->index();
-        string ap_name = corner->name();
+        std::string ap_name = corner->name();
         ap_name += "_";
         ap_name += min_max->to_string();
         ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(ap_name.c_str(),

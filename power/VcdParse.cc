@@ -34,6 +34,8 @@
 
 namespace sta {
 
+using std::vector;
+using std::string;
 using std::isspace;
 
 // Very imprecise syntax definition
@@ -52,7 +54,7 @@ VcdParse::read(const char *filename,
     reader_ = reader;
     file_line_ = 1;
     stmt_line_ = 1;
-    string token = getToken();
+    std::string token = getToken();
     while (!token.empty()) {
       if (token == "$date")
         reader_->setDate(readStmtString());

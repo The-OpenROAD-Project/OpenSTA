@@ -48,6 +48,7 @@
 #include "ArcDelayCalc.hh"
 #include "LumpedCapDelayCalc.hh"
 #include "GraphDelayCalc.hh"
+#include "Variables.hh"
 #include "Arnoldi.hh"
 #include "ArnoldiReduce.hh"
 
@@ -64,6 +65,7 @@ namespace sta {
 //  ra_get_s
 
 using std::abs;
+using std::vector;
 
 struct delay_work;
 struct delay_c;
@@ -234,6 +236,7 @@ private:
   ArnoldiReduce *reduce_;
   delay_work *delay_work_;
   vector<rcmodel*> unsaved_parasitics_;
+  bool pocv_enabled_;
 };
 
 ArcDelayCalc *
@@ -391,6 +394,7 @@ ArnoldiDelayCalc::gateDelay(const Pin *drvr_pin,
   ConcreteParasitic *cparasitic =
     reinterpret_cast<ConcreteParasitic*>(const_cast<Parasitic*>(parasitic));
   rcmodel_ = dynamic_cast<rcmodel*>(cparasitic);
+  pocv_enabled_ = variables_->pocvEnabled();
   GateTableModel *table_model = arc->gateTableModel(dcalc_ap);
   if (table_model && rcmodel_) {
     const Pvt *pvt = pinPvt(drvr_pin, dcalc_ap);

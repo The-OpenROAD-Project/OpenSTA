@@ -39,6 +39,7 @@
 #include "PathEnd.hh"
 #include "Search.hh"
 #include "GatedClk.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -122,7 +123,7 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
 	  is_constrained = true;
 	}
       }
-      if (sdc_->gatedClkChecksEnabled())
+      if (variables_->gatedClkChecksEnabled())
 	visitGatedClkEnd(pin, vertex, path, end_rf, path_ap, filtered, visitor,
 			 is_constrained);
       visitDataCheckEnd(pin, path, end_rf, path_ap, filtered, visitor,
@@ -288,7 +289,7 @@ VisitPathEnds::checkEdgeEnabled(Edge *edge) const
     && !sdc_->isDisabledCondDefault(edge)
     && !((check_role == TimingRole::recovery()
 	  || check_role == TimingRole::removal())
-	 && !sdc_->recoveryRemovalChecksEnabled());
+	 && !variables_->recoveryRemovalChecksEnabled());
 }
 
 void

@@ -32,8 +32,6 @@
 
 namespace sta {
 
-using std::string;
-
 class FuncExpr
 {
 public:
@@ -79,7 +77,7 @@ public:
   TimingSense portTimingSense(const LibertyPort *port) const;
   // Return true if expression has port as an input.
   bool hasPort(const LibertyPort *port) const;
-  string to_string() const;
+  std::string to_string() const;
   // Sub expression for a bus function (bit_offset is 0 to bus->size()-1).
   FuncExpr *bitSubExpr(int bit_offset);
   // Check to make sure the function and port size are compatible.
@@ -88,9 +86,9 @@ public:
   bool checkSize(LibertyPort *port);
 
 private:
-  string to_string(bool with_parens) const;
-  string to_string(bool with_parens,
-                   char op) const;
+  std::string to_string(bool with_parens) const;
+  std::string to_string(bool with_parens,
+                        char op) const;
 
   Operator op_;
   FuncExpr *left_;

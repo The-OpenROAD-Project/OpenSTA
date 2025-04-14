@@ -38,6 +38,8 @@
 
 namespace sta {
 
+using std::string;
+
 ////////////////////////////////////////////////////////////////
 //
 // Graph
@@ -1298,7 +1300,8 @@ Edge::setArcDelayAnnotated(const TimingArc *arc,
   if (index > sizeof(intptr_t) * 8
       && arc_delay_annotated_is_bits_) {
     arc_delay_annotated_is_bits_ = false;
-    arc_delay_annotated_.seq_ = new vector<bool>(ap_count * RiseFall::index_count * 2);
+    size_t bit_count = ap_count * RiseFall::index_count * 2;
+    arc_delay_annotated_.seq_ = new std::vector<bool>(bit_count);
   }
   if (arc_delay_annotated_is_bits_) {
     if (annotated)

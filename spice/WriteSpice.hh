@@ -39,13 +39,10 @@
 
 namespace sta {
 
-using std::string;
-using std::ofstream;
-
 typedef std::map<const ParasiticNode*, int> ParasiticNodeMap;
-typedef Map<string, StringVector> CellSpicePortNames;
+typedef Map<std::string, StringVector> CellSpicePortNames;
 typedef Map<const LibertyPort*, LogicValue> LibertyPortLogicValues;
-typedef std::vector<string> StdStringSeq;
+typedef std::vector<std::string> StdStringSeq;
 
 // Utilities for writing a spice deck.
 class WriteSpice : public StaState
@@ -63,7 +60,7 @@ public:
 
 protected:
   void initPowerGnd();
-  void writeHeader(string &title,
+  void writeHeader(std::string &title,
                    float max_time,
                    float time_step);
   void writePrintStmt(StdStringSeq &node_names);
@@ -128,10 +125,10 @@ protected:
                              const RiseFall *from_rf,
                              const Pin *to_pin,
                              const RiseFall *to_rf,
-                             string prefix);
+                             std::string prefix);
   void writeMeasureSlewStmt(const Pin *pin,
                             const RiseFall *rf,
-                            string prefix);
+                            std::string prefix);
   const char *spiceTrans(const RiseFall *rf);
   float findSlew(Vertex *vertex,
 		 const RiseFall *rf,
@@ -164,8 +161,8 @@ protected:
                             InstanceSet &written_insts);
   PinSeq drvrLoads(const Pin *drvr_pin);
   void writeSubcktInstVoltSrcs();
-  string replaceFileExt(string filename,
-                        const char *ext);
+  std::string replaceFileExt(std::string filename,
+                             const char *ext);
 
   const char *spice_filename_;
   const char *subckt_filename_;
@@ -176,7 +173,7 @@ protected:
   CircuitSim ckt_sim_;
   const DcalcAnalysisPt *dcalc_ap_;
 
-  ofstream spice_stream_;
+  std::ofstream spice_stream_;
   LibertyLibrary *default_library_;
   float power_voltage_;
   float gnd_voltage_;
@@ -193,7 +190,7 @@ protected:
 };
 
 void
-streamPrint(ofstream &stream,
+streamPrint(std::ofstream &stream,
 	    const char *fmt,
 	    ...) __attribute__((format (printf, 2, 3)));
 

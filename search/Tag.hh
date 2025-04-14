@@ -62,10 +62,10 @@ public:
       bool own_states,
       const StaState *sta);
   ~Tag();
-  string to_string(const StaState *sta) const;
-  string to_string(bool report_index,
-                   bool report_rf_min_max,
-                   const StaState *sta) const;
+  std::string to_string(const StaState *sta) const;
+  std::string to_string(bool report_index,
+                        bool report_rf_min_max,
+                        const StaState *sta) const;
   ClkInfo *clkInfo() const { return clk_info_; }
   bool isClock() const { return is_clk_; }
   const ClockEdge *clkEdge() const;

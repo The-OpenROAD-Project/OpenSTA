@@ -41,7 +41,7 @@ class SaifScanner : public SaifFlexLexer
 {
 public:
   SaifScanner(std::istream *stream,
-             const string &filename,
+             const std::string &filename,
              SaifReader *reader,
              Report *report);
   virtual ~SaifScanner() {}
@@ -57,10 +57,10 @@ public:
   using FlexLexer::yylex;
 
 private:
-  string filename_;
+  std::string filename_;
   SaifReader *reader_;
   Report *report_;
-  string token_;
+  std::string token_;
 };
 
 } // namespace

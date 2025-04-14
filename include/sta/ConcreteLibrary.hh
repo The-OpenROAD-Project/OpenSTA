@@ -45,10 +45,10 @@ class PatternMatch;
 class LibertyCell;
 class LibertyPort;
 
-typedef Map<string, ConcreteCell*> ConcreteCellMap;
-typedef std::map<string, string> AttributeMap;
+typedef Map<std::string, ConcreteCell*> ConcreteCellMap;
+typedef std::map<std::string, std::string> AttributeMap;
 typedef Vector<ConcretePort*> ConcretePortSeq;
-typedef Map<string, ConcretePort*> ConcretePortMap;
+typedef Map<std::string, ConcretePort*> ConcretePortMap;
 typedef ConcreteCellMap::ConstIterator ConcreteLibraryCellIterator;
 typedef ConcretePortSeq::ConstIterator ConcreteCellPortIterator;
 typedef ConcretePortSeq::ConstIterator ConcretePortMemberIterator;
@@ -82,9 +82,9 @@ protected:
   void renameCell(ConcreteCell *cell,
 		  const char *cell_name);
 
-  string name_;
+  std::string name_;
   ObjectId id_;
-  string filename_;
+  std::string filename_;
   bool is_liberty_;
   char bus_brkt_left_;
   char bus_brkt_right_;
@@ -114,9 +114,9 @@ public:
   ConcreteCellPortBitIterator *portBitIterator() const;
   bool isLeaf() const { return is_leaf_; }
   void setIsLeaf(bool is_leaf);
-  void setAttribute(const string &key,
-                    const string &value);
-  string getAttribute(const string &key) const;
+  void setAttribute(const std::string &key,
+                    const std::string &value);
+  std::string getAttribute(const std::string &key) const;
 
   // Cell acts as port factory.
   ConcretePort *makePort(const char *name);
@@ -156,10 +156,10 @@ protected:
 		      const char *name,
 		      int index);
 
-  string name_;
+  std::string name_;
   ObjectId id_;
   // Filename is optional.
-  string filename_;
+  std::string filename_;
   ConcreteLibrary *library_;
   LibertyCell *liberty_cell_;
   // External application cell.
@@ -236,7 +236,7 @@ protected:
 	       ConcretePortSeq *member_ports,
                ConcreteCell *cell);
 
-  string name_;
+  std::string name_;
   ObjectId id_;
   ConcreteCell *cell_;
   PortDirection *direction_;

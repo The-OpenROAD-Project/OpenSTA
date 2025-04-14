@@ -41,7 +41,7 @@ class SpefScanner : public SpefFlexLexer
 {
 public:
   SpefScanner(std::istream *stream,
-              const string &filename,
+              const std::string &filename,
               SpefReader *reader,
               Report *report);
   virtual ~SpefScanner() {}
@@ -58,10 +58,10 @@ public:
   using FlexLexer::yylex;
 
 private:
-  string filename_;
+  std::string filename_;
   SpefReader *reader_;
   Report *report_;
-  string token_;
+  std::string token_;
 };
 
 } // namespace

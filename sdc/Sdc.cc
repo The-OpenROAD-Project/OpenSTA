@@ -30,6 +30,7 @@
 #include "Debug.hh"
 #include "Mutex.hh"
 #include "Report.hh"
+#include "Variables.hh"
 #include "PatternMatch.hh"
 #include "MinMax.hh"
 #include "TimingRole.hh"
@@ -233,19 +234,6 @@ void
 Sdc::initVariables()
 {
   analysis_type_ = AnalysisType::ocv;
-  use_default_arrival_clock_ = false;
-  crpr_enabled_ = true;
-  crpr_mode_ = CrprMode::same_pin;
-  propagate_gated_clock_enable_ = true;
-  preset_clr_arcs_enabled_ = false;
-  cond_default_arcs_enabled_ = true;
-  bidirect_net_paths_enabled_ = false;
-  bidirect_inst_paths_enabled_ = false;
-  recovery_removal_checks_enabled_ = true;
-  gated_clk_checks_enabled_ = true;
-  clk_thru_tristate_enabled_ = false;
-  dynamic_loop_breaking_ = false;
-  propagate_all_clks_ = false;
   wireload_mode_ = WireloadMode::unknown;
   max_area_ = 0.0;
   path_delays_without_to_ = false;
@@ -1000,7 +988,7 @@ Sdc::makeClock(const char *name,
   else {
     // Fresh clock definition.
     clk = new Clock(name, clk_index_++, network_);
-    clk->setIsPropagated(propagate_all_clks_);
+    clk->setIsPropagated(variables_->propagateAllClocks());
     clocks_.push_back(clk);
     // Use the copied name in the map.
     clock_name_map_[clk->name()] = clk;
@@ -1041,7 +1029,8 @@ Sdc::makeGeneratedClock(const char *name,
   clk->initGeneratedClk(pins, add_to_pins, src_pin, master_clk,
 			divide_by, multiply_by, duty_cycle,
 			invert, combinational,
-			edges, edge_shifts, propagate_all_clks_,
+			edges, edge_shifts,
+                        variables_->propagateAllClocks(),
 			comment, network_);
   makeClkPinMappings(clk);
   clearCycleAcctings();
@@ -1247,6 +1236,12 @@ Sdc::sortedClocks(ClockSeq &clks)
   for (auto clk : clocks_)
     clks.push_back(clk);
   sort(clks, ClkNameLess());
+}
+
+ClockEdge *
+Sdc::defaultArrivalClockEdge() const
+{
+  return default_arrival_clk_->edge(RiseFall::rise());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -5477,203 +5472,6 @@ Sdc::setWireloadSelection(WireloadSelection *selection,
 {
   for (auto mm_index : min_max->rangeIndex())
     wireload_selection_[mm_index] = selection;
-}
-
-////////////////////////////////////////////////////////////////
-
-bool
-Sdc::crprEnabled() const
-{
-  return crpr_enabled_;
-}
-
-void
-Sdc::setCrprEnabled(bool enabled)
-{
-  crpr_enabled_ = enabled;
-}
-
-CrprMode
-Sdc::crprMode() const
-{
-  return crpr_mode_;
-}
-
-void
-Sdc::setCrprMode(CrprMode mode)
-{
-  crpr_mode_ = mode;
-}
-
-bool
-Sdc::crprActive() const
-{
-  return analysis_type_ == AnalysisType::ocv
-    && crpr_enabled_;
-}
-
-bool
-Sdc::propagateGatedClockEnable() const
-{
-  return propagate_gated_clock_enable_;
-}
-
-void
-Sdc::setPropagateGatedClockEnable(bool enable)
-{
-  propagate_gated_clock_enable_ = enable;
-}
-
-bool
-Sdc::presetClrArcsEnabled() const
-{
-  return preset_clr_arcs_enabled_;
-}
-
-void
-Sdc::setPresetClrArcsEnabled(bool enable)
-{
-  preset_clr_arcs_enabled_ = enable;
-}
-
-bool
-Sdc::condDefaultArcsEnabled() const
-{
-  return cond_default_arcs_enabled_;
-}
-
-void
-Sdc::setCondDefaultArcsEnabled(bool enabled)
-{
-  cond_default_arcs_enabled_ = enabled;
-}
-
-bool
-Sdc::isDisabledCondDefault(Edge *edge) const
-{
-  return !cond_default_arcs_enabled_
-    && edge->timingArcSet()->isCondDefault();
-}
-
-bool
-Sdc::bidirectInstPathsEnabled() const
-{
-  return bidirect_inst_paths_enabled_;
-}
-
-void
-Sdc::setBidirectInstPathsEnabled(bool enabled)
-{
-  bidirect_inst_paths_enabled_ = enabled;
-}
-
-// Delay calculation propagates slews from a bidirect driver
-// to the bidirect port and back through the bidirect driver when
-// sta_bidirect_inst_paths_enabled_ is true.
-bool
-Sdc::bidirectDrvrSlewFromLoad(const Pin *pin) const
-{
-  return bidirect_inst_paths_enabled_
-    && network_->direction(pin)->isBidirect()
-    && network_->isTopLevelPort(pin);
-}
-
-bool
-Sdc::bidirectNetPathsEnabled() const
-{
-  return bidirect_inst_paths_enabled_;
-}
-
-void
-Sdc::setBidirectNetPathsEnabled(bool enabled)
-{
-  bidirect_inst_paths_enabled_ = enabled;
-}
-
-bool
-Sdc::recoveryRemovalChecksEnabled() const
-{
-  return recovery_removal_checks_enabled_;
-}
-
-void
-Sdc::setRecoveryRemovalChecksEnabled(bool enabled)
-{
-  recovery_removal_checks_enabled_ = enabled;
-}
-
-bool
-Sdc::gatedClkChecksEnabled() const
-{
-  return gated_clk_checks_enabled_;
-}
-
-void
-Sdc::setGatedClkChecksEnabled(bool enabled)
-{
-  gated_clk_checks_enabled_ = enabled;
-}
-
-bool
-Sdc::dynamicLoopBreaking() const
-{
-  return dynamic_loop_breaking_;
-}
-
-void
-Sdc::setDynamicLoopBreaking(bool enable)
-{
-  if (dynamic_loop_breaking_ != enable) {
-    if (levelize_->levelized()) {
-      if (enable)
-	makeLoopExceptions();
-      else
-	deleteLoopExceptions();
-    }
-    dynamic_loop_breaking_ = enable;
-  }
-}
-
-bool
-Sdc::propagateAllClocks() const
-{
-  return propagate_all_clks_;
-}
-
-void
-Sdc::setPropagateAllClocks(bool prop)
-{
-  propagate_all_clks_ = prop;
-}
-
-bool
-Sdc::clkThruTristateEnabled() const
-{
-  return clk_thru_tristate_enabled_;
-}
-
-void
-Sdc::setClkThruTristateEnabled(bool enable)
-{
-  clk_thru_tristate_enabled_ = enable;
-}
-
-ClockEdge *
-Sdc::defaultArrivalClockEdge() const
-{
-  return default_arrival_clk_->edge(RiseFall::rise());
-}
-
-bool
-Sdc::useDefaultArrivalClock()
-{
-  return use_default_arrival_clock_;
-}
-
-void
-Sdc::setUseDefaultArrivalClock(bool enable)
-{
-  use_default_arrival_clock_ = enable;
 }
 
 ////////////////////////////////////////////////////////////////

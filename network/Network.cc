@@ -34,6 +34,8 @@
 
 namespace sta {
 
+using std::string;
+
 Network::Network() :
   default_liberty_(nullptr),
   divider_('/'),

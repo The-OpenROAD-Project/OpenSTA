@@ -61,7 +61,7 @@ public:
        bool is_enum,
        const StaState *sta);
   ~Path();
-  string to_string(const StaState *sta) const;
+  std::string to_string(const StaState *sta) const;
   bool isNull() const;
   // prev_path null 
   void init(Vertex *vertex,
@@ -122,6 +122,8 @@ public:
   void checkPrevPath(const StaState *sta) const;
   void checkPrevPaths(const StaState *sta) const;
 
+  static Path *vertexPath(const Path *path,
+                          const StaState *sta);
   static Path *vertexPath(const Path &path,
                           const StaState *sta);
   static Path *vertexPath(const Vertex *vertex,

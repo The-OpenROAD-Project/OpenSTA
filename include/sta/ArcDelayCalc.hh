@@ -40,10 +40,6 @@
 
 namespace sta {
 
-using std::string;
-using std::vector;
-using std::map;
-
 class Corner;
 class Parasitic;
 class DcalcAnalysisPt;
@@ -54,7 +50,7 @@ typedef std::vector<ArcDcalcArg*> ArcDcalcArgPtrSeq;
 typedef std::vector<ArcDcalcArg> ArcDcalcArgSeq;
 
 // Driver load pin -> index in driver loads.
-typedef map<const Pin *, size_t, PinIdLess> LoadPinIndexMap;
+typedef std::map<const Pin *, size_t, PinIdLess> LoadPinIndexMap;
 
 // Arguments for gate delay calculation delay/slew at one driver pin
 // through one timing arc at one delay calc analysis point.
@@ -138,12 +134,12 @@ protected:
   ArcDelay gate_delay_;
   Slew drvr_slew_;
   // Load wire delay and slews indexed by load pin index.
-  vector<ArcDelay> wire_delays_;
-  vector<Slew> load_slews_;
+  std::vector<ArcDelay> wire_delays_;
+  std::vector<Slew> load_slews_;
 };
 
-typedef vector<ArcDcalcArg> ArcDcalcArgSeq;
-typedef vector<ArcDcalcResult> ArcDcalcResultSeq;
+typedef std::vector<ArcDcalcArg> ArcDcalcArgSeq;
+typedef std::vector<ArcDcalcResult> ArcDcalcResultSeq;
 
 // Delay calculator class hierarchy.
 //  ArcDelayCalc

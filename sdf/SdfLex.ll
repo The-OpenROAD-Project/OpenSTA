@@ -82,7 +82,7 @@ EOL	\r?\n
 
 "\"" 	{
 	BEGIN INITIAL;
-	yylval->string = new string(token_);
+	yylval->string = new std::string(token_);
 	return token::QSTRING;
 	}
 
@@ -157,7 +157,7 @@ COND	{
 
 <COND_EXPR>"("{BLANK}*IOPATH {
 	BEGIN INITIAL;
-	yylval->string = new string(token_);
+	yylval->string = new std::string(token_);
 	return token::EXPR_OPEN_IOPATH;
 	}
 
@@ -167,7 +167,7 @@ COND	{
  	 */
 	if (reader_->inTimingCheck()) {
 	  BEGIN INITIAL;
-	  yylval->string = new string(token_);
+	  yylval->string = new std::string(token_);
 	  return token::EXPR_OPEN;
 	}
         else
@@ -179,9 +179,9 @@ COND	{
         if (reader_->inTimingCheck()) {
 	  BEGIN INITIAL;
           /* remove trailing ")" */
-          string cond_id(token_);
+          std::string cond_id(token_);
           cond_id += yytext;
-          yylval->string = new string(cond_id.substr(0, cond_id.size() - 1));
+          yylval->string = new std::string(cond_id.substr(0, cond_id.size() - 1));
 	  /* No way to pass expr and id separately, so pass them together. */
 	  return token::EXPR_ID_CLOSE;
 	}
@@ -194,7 +194,7 @@ COND	{
 <COND_EXPR>.   { token_ += yytext[0]; }
 
 {ID}	{
-	  yylval->string = new string(yytext);
+	  yylval->string = new std::string(yytext);
 	  return token::ID;
 	}
 

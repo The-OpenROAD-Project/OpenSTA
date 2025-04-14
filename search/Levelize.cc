@@ -36,6 +36,8 @@
 #include "Graph.hh"
 #include "GraphCmp.hh"
 #include "SearchPred.hh"
+#include "Variables.hh"
+#include "GraphDelayCalc.hh"
 
 namespace sta {
 
@@ -185,7 +187,7 @@ Levelize::isRoot(Vertex *vertex)
 	return false;
     }
     // Bidirect pins are not treated as roots in this case.
-    return !sdc_->bidirectDrvrSlewFromLoad(vertex->pin());
+    return !graph_delay_calc_->bidirectDrvrSlewFromLoad(vertex->pin());
   }
   else
     return false;
@@ -250,7 +252,7 @@ Levelize::visit(Vertex *vertex,
 	  latch_d_to_q_edges_.insert(edge);
     }
     // Levelize bidirect driver as if it was a fanout of the bidirect load.
-    if (sdc_->bidirectDrvrSlewFromLoad(from_pin)
+    if (graph_delay_calc_->bidirectDrvrSlewFromLoad(from_pin)
 	&& !vertex->isBidirectDriver()) {
       Vertex *to_vertex = graph_->pinDrvrVertex(from_pin);
       if (search_pred_->searchTo(to_vertex)
@@ -288,7 +290,7 @@ Levelize::recordLoop(Edge *edge,
     EdgeSeq *loop_edges = loopEdges(path, edge);
     GraphLoop *loop = new GraphLoop(loop_edges);
     loops_->push_back(loop);
-    if (sdc_->dynamicLoopBreaking())
+    if (variables_->dynamicLoopBreaking())
       sdc_->makeLoopExceptions(loop);
   }
   // Record disabled loop edges so they can be cleared without

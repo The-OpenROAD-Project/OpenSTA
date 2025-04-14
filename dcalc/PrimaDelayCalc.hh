@@ -40,21 +40,12 @@ class ArcDelayCalc;
 class StaState;
 class Corner;
 
-using std::vector;
-using std::array;
-using Eigen::MatrixXd;
-using Eigen::MatrixXcd;
-using Eigen::VectorXd;
-using Eigen::SparseMatrix;
-using Eigen::Index;
-using std::map;
-
 typedef Map<const Pin*, size_t, PinIdLess> PinNodeMap;
-typedef map<const ParasiticNode*, size_t, ParasiticNodeLess> NodeIndexMap;
+typedef std::map<const ParasiticNode*, size_t, ParasiticNodeLess> NodeIndexMap;
 typedef Map<const Pin*, size_t> PortIndexMap;
-typedef SparseMatrix<double> MatrixSd;
-typedef Map<const Pin*, VectorXd, PinIdLess> PinLMap;
-typedef map<const Pin*, FloatSeq, PinIdLess> WatchPinValuesMap;
+typedef Eigen::SparseMatrix<double> MatrixSd;
+typedef Map<const Pin*, Eigen::VectorXd, PinIdLess> PinLMap;
+typedef std::map<const Pin*, FloatSeq, PinIdLess> WatchPinValuesMap;
 
 typedef Table1 Waveform;
 
@@ -96,14 +87,14 @@ public:
   ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &dcalc_args,
                                const LoadPinIndexMap &load_pin_index_map,
                                const DcalcAnalysisPt *dcalc_ap) override;
-  string reportGateDelay(const Pin *drvr_pin,
-                         const TimingArc *arc,
-                         const Slew &in_slew,
-                         float load_cap,
-                         const Parasitic *parasitic,
-                         const LoadPinIndexMap &load_pin_index_map,
-                         const DcalcAnalysisPt *dcalc_ap,
-                         int digits) override;
+  std::string reportGateDelay(const Pin *drvr_pin,
+                              const TimingArc *arc,
+                              const Slew &in_slew,
+                              float load_cap,
+                              const Parasitic *parasitic,
+                              const LoadPinIndexMap &load_pin_index_map,
+                              const DcalcAnalysisPt *dcalc_ap,
+                              int digits) override;
 
   // Record waveform for drvr/load pin.
   void watchPin(const Pin *pin) override;
@@ -116,9 +107,9 @@ protected:
   void simulate();
   void simulate1(const MatrixSd &G,
                  const MatrixSd &C,
-                 const MatrixXd &B,
-                 const VectorXd &x_init,
-                 const MatrixXd &x_to_v,
+                 const Eigen::MatrixXd &B,
+                 const Eigen::VectorXd &x_init,
+                 const Eigen::MatrixXd &x_to_v,
                  const size_t order);
   double maxTime();
   double timeStep();
@@ -164,15 +155,15 @@ protected:
   void reportMatrix(const char *name,
                     MatrixSd &matrix);
   void reportMatrix(const char *name,
-                    MatrixXd &matrix);
+                    Eigen::MatrixXd &matrix);
   void reportMatrix(const char *name,
-                    VectorXd &matrix);
+                    Eigen::VectorXd &matrix);
   void reportVector(const char *name,
-                    vector<double> &matrix);
+                    std::vector<double> &matrix);
   void reportMatrix(MatrixSd &matrix);
-  void reportMatrix(MatrixXd &matrix);
-  void reportMatrix(VectorXd &matrix);
-  void reportVector(vector<double> &matrix);
+  void reportMatrix(Eigen::MatrixXd &matrix);
+  void reportMatrix(Eigen::VectorXd &matrix);
+  void reportVector(std::vector<double> &matrix);
 
   ArcDcalcArgSeq *dcalc_args_;
   size_t drvr_count_;
@@ -184,10 +175,10 @@ protected:
 
   PinNodeMap pin_node_map_;     // Parasitic pin -> array index
   NodeIndexMap node_index_map_; // Parasitic node -> array index
-  vector<OutputWaveforms*> output_waveforms_;
+  std::vector<OutputWaveforms*> output_waveforms_;
   double resistance_sum_;
   
-  vector<double> node_capacitances_;
+  std::vector<double> node_capacitances_;
   bool includes_pin_caps_;
   float coupling_cap_multiplier_;
   
@@ -199,25 +190,25 @@ protected:
   // G*x(t) + C*x'(t) = B*u(t)
   MatrixSd G_;
   MatrixSd C_;
-  MatrixXd B_;
-  VectorXd x_init_;
-  VectorXd u_;
+  Eigen::MatrixXd B_;
+  Eigen::VectorXd x_init_;
+  Eigen::VectorXd u_;
 
   // Prima reduced MNA eqns
   size_t prima_order_;
-  MatrixXd Vq_;
+  Eigen::MatrixXd Vq_;
   MatrixSd Gq_;
   MatrixSd Cq_;
-  MatrixXd Bq_;
-  VectorXd xq_init_;
+  Eigen::MatrixXd Bq_;
+  Eigen::VectorXd xq_init_;
 
   // Node voltages.
-  VectorXd v_;                  // voltage[node_idx]
-  VectorXd v_prev_;
+  Eigen::VectorXd v_;                  // voltage[node_idx]
+  Eigen::VectorXd v_prev_;
 
   // Indexed by driver index.
-  vector<double> ceff_;
-  vector<double> drvr_current_;
+  std::vector<double> ceff_;
+  std::vector<double> drvr_current_;
 
   double time_step_;
   double time_step_prev_;
@@ -240,11 +231,11 @@ protected:
   static constexpr size_t threshold_vth = 1;
   static constexpr size_t threshold_vh = 2;
   static constexpr size_t measure_threshold_count_ = 3;
-  typedef array<double, measure_threshold_count_> ThresholdTimes;
+  typedef std::array<double, measure_threshold_count_> ThresholdTimes;
   // Vl Vth Vh
   ThresholdTimes measure_thresholds_;
   // Indexed by node number.
-  vector<ThresholdTimes> threshold_times_;
+  std::vector<ThresholdTimes> threshold_times_;
 
   // Delay calculator to use when ccs waveforms are missing from liberty.
   ArcDelayCalc *table_dcalc_;

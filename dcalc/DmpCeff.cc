@@ -47,6 +47,7 @@
 #include "DcalcAnalysisPt.hh"
 #include "ArcDelayCalc.hh"
 #include "FindRoot.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -371,7 +372,8 @@ DmpAlg::gateCapDelaySlew(double ceff,
 {
   ArcDelay model_delay;
   Slew model_slew;
-  gate_model_->gateDelay(pvt_, in_slew_, ceff, pocv_enabled_,
+  gate_model_->gateDelay(pvt_, in_slew_, ceff,
+                         variables_->pocvEnabled(),
                          model_delay, model_slew);
   delay = delayAsFloat(model_delay);
   slew = delayAsFloat(model_slew);
@@ -1562,7 +1564,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
   double rd = 0.0;
   if (gate_model) {
     rd = gateModelRd(drvr_cell, gate_model, rf, in_slew, c2, c1,
-		     pvt, pocv_enabled_);
+		     pvt, variables_->pocvEnabled());
     // Zero Rd means the table is constant and thus independent of load cap.
     if (rd < 1e-2
 	// Rpi is small compared to Rd, which makes the load capacitive.
@@ -1630,9 +1632,10 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
     const Unit *time_unit = units->timeUnit();
     float in_slew1 = delayAsFloat(in_slew);
     result += model->reportGateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, c_eff,
-                                     pocv_enabled_, digits);
+                                     variables_->pocvEnabled(), digits);
     result += "Driver waveform slew = ";
-    result += time_unit->asString(dcalc_result.drvrSlew(), digits);
+    float drvr_slew = delayAsFloat(dcalc_result.drvrSlew());
+    result += time_unit->asString(drvr_slew, digits);
     result += '\n';
   }
   return result;

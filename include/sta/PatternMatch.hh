@@ -53,10 +53,10 @@ public:
   PatternMatch(const char *pattern);
   PatternMatch(const char *pattern,
 	       const PatternMatch *inherit_from);
-  PatternMatch(const string &pattern,
+  PatternMatch(const std::string &pattern,
 	       const PatternMatch *inherit_from);
   bool match(const char *str) const;
-  bool match(const string &str) const;
+  bool match(const std::string &str) const;
   bool matchNoCase(const char *str) const;
   const char *pattern() const { return pattern_; }
   bool isRegexp() const { return is_regexp_; }

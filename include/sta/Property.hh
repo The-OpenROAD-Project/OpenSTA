@@ -34,8 +34,6 @@
 
 namespace sta {
 
-using std::string;
-
 class Sta;
 
 // Adding a new property type
@@ -58,7 +56,7 @@ public:
 	      type_clk, type_clks, type_paths, type_pwr_activity };
   PropertyValue();
   PropertyValue(const char *value);
-  PropertyValue(string &value);
+  PropertyValue(std::string &value);
   PropertyValue(float value,
                 const Unit *unit);
   explicit PropertyValue(bool value);

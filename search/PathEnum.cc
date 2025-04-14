@@ -295,7 +295,7 @@ PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
   before_div_ap_index_(before_div_->pathAnalysisPtIndex(this)),
   before_div_arrival_(before_div_->arrival()),
   path_enum_(path_enum),
-  crpr_active_(sdc_->crprActive())
+  crpr_active_(crprActive())
 {
 }
 
@@ -506,16 +506,16 @@ PathEnum::makeDiversions(PathEnd *path_end,
   Path *prev_path = path->prevPath();
   TimingArc *prev_arc = path->prevArc(this);
   PathEnumFaninVisitor fanin_visitor(path_end, path, unique_pins_, this);
-  while (prev_path
-         // Do not enumerate paths in the clk network.
-         && !path->isClock(this)) {
+  while (prev_path) {
     // Fanin visitor does all the work.
     // While visiting the fanins the fanin_visitor finds the
     // previous path and arc as well as diversions.
     fanin_visitor.visitFaninPathsThru(path, prev_path->vertex(this), prev_arc);
     // Do not enumerate beyond latch D to Q edges.
     // This breaks latch loop paths.
-    if (prev_arc->role() == TimingRole::latchDtoQ())
+    const TimingRole *prev_role = prev_arc->role();
+    if (prev_role == TimingRole::latchDtoQ()
+        || prev_role == TimingRole::regClkToQ())
       break;
     path = prev_path;
     prev_path = path->prevPath();
@@ -555,13 +555,13 @@ PathEnum::makeDivertedPath(Path *path,
       prev_copy->setPrevPath(copy);
     copies.push_back(copy);
 
-    if (Path::equal(p, after_div, this))
+    if (p == after_div)
       after_div_copy = copy;
     if (first)
       div_path = copy;
     else if (network_->isLatchData(p->pin(this)))
       break;
-    if (Path::equal(p, before_div, this)) {
+    if (p == before_div) {
       // Replaced on next pass.
       copy->setPrevPath(after_div);
       copy->setPrevEdgeArc(div_edge, div_arc, this);
@@ -603,12 +603,14 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
                  delayAsString(arrival, this));
       path->setArrival(arrival);
       prev_arrival = arrival;
-      if (sdc_->crprActive()
+      const Tag *tag = path->tag(this);
+      const ClkInfo *clk_info = tag->clkInfo();
+      if (crprActive()
+          && clk_info != prev_clk_info
           // D->Q paths use the EN->Q clk info so no need to update.
           && arc->role() != TimingRole::latchDtoQ()) {
         // When crpr is enabled the diverion may be from another crpr clk pin,
         // so update the tags to use the corresponding ClkInfo.
-        Tag *tag = path->tag(this);
         Tag *updated_tag = search_->findTag(path->transition(this),
                                             path_ap,
                                             prev_clk_info,

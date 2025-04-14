@@ -34,6 +34,7 @@
 
 namespace sta {
 
+using std::string;
 using std::map;
 using std::min;
 using std::max;

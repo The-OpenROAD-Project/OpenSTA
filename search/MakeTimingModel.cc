@@ -209,6 +209,7 @@ MakeTimingModel::makePorts()
         float load_cap = graph_delay_calc_->loadCap(pin, dcalc_ap);
         lib_bit_port->setCapacitance(load_cap);
       }
+      delete member_iter;
     }
     else {
       LibertyPort *lib_port = lib_builder_->makePort(cell_, port_name);

@@ -30,6 +30,8 @@
 
 namespace sta {
 
+using std::string;
+
 FuncExpr *
 FuncExpr::makePort(LibertyPort *port)
 {

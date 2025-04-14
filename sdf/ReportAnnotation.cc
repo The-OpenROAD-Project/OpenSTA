@@ -290,7 +290,7 @@ ReportAnnotated::reportCheckCount(const TimingRole *role,
 {
   int index = role->index();
   if (edge_count_[index] > 0) {
-    string title;
+    std::string title;
     stringPrint(title, "cell %s arcs", role->to_string().c_str());
     reportCount(title.c_str(), index, total, annotated_total);
   }

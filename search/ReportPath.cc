@@ -59,6 +59,7 @@
 #include "Latches.hh"
 #include "Corner.hh"
 #include "Genclks.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -1397,7 +1398,7 @@ ReportPath::reportVerbose(const MinPulseWidthCheck *check) const
   reportLine(clk_ideal_prop, check->closeDelay(this), close_arrival, close_el);
   reportLine(pin_name, delay_zero, close_arrival, close_el);
 
-  if (sdc_->crprEnabled()) {
+  if (variables_->crprEnabled()) {
     Crpr pessimism = check->checkCrpr(this);
     close_arrival += pessimism;
     reportLine("clock reconvergence pessimism", pessimism, close_arrival, close_el);
@@ -2530,7 +2531,7 @@ void
 ReportPath::reportCommonClkPessimism(const PathEnd *end,
 				     Arrival &clk_arrival) const
 {
-  if (sdc_->crprEnabled()) {
+  if (variables_->crprEnabled()) {
     Crpr pessimism = end->checkCrpr(this);
     clk_arrival += pessimism;
     reportLine("clock reconvergence pessimism", pessimism, clk_arrival,

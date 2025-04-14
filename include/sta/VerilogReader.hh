@@ -70,10 +70,6 @@ typedef Vector<VerilogAttrStmt*> VerilogAttrStmtSeq;
 typedef Vector<VerilogAttrEntry*> VerilogAttrEntrySeq;
 typedef Vector<VerilogError*> VerilogErrorSeq;
 
-using std::string;
-using std::vector;
-using std::set;
-
 class VerilogReader
 {
 public:
@@ -81,12 +77,12 @@ public:
   ~VerilogReader();
   bool read(const char *filename);
 
-  void makeModule(const string *module_name,
+  void makeModule(const std::string *module_name,
                   VerilogNetSeq *ports,
                   VerilogStmtSeq *stmts,
                   VerilogAttrStmtSeq *attr_stmts,
                   int line);
-  void makeModule(const string *module_name,
+  void makeModule(const std::string *module_name,
                   VerilogStmtSeq *port_dcls,
                   VerilogStmtSeq *stmts,
                   VerilogAttrStmtSeq *attr_stmts,
@@ -99,7 +95,7 @@ public:
                       VerilogDclArg *arg,
                       VerilogAttrStmtSeq *attr_stmts,
                       int line);
-  VerilogDclArg *makeDclArg(const string *net_name);
+  VerilogDclArg *makeDclArg(const std::string *net_name);
   VerilogDclArg*makeDclArg(VerilogAssign *assign);
   VerilogDclBus *makeDclBus(PortDirection *dir,
                             int from_index,
@@ -113,36 +109,36 @@ public:
                             VerilogDclArgSeq *args,
                             VerilogAttrStmtSeq *attr_stmts,
                             int line);
-  VerilogInst *makeModuleInst(const string *module_name,
-                              const string *inst_name,
+  VerilogInst *makeModuleInst(const std::string *module_name,
+                              const std::string *inst_name,
                               VerilogNetSeq *pins,
                               VerilogAttrStmtSeq *attr_stmts,
                               const int line);
   VerilogAssign *makeAssign(VerilogNet *lhs,
 			    VerilogNet *rhs,
 			    int line);
-  VerilogNetScalar *makeNetScalar(const string *name);
-  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const string *port_vname);
-  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const string *port_name,
-						  const string *net_name);
-  VerilogNetPortRef *makeNetNamedPortRefBitSelect(const string *port_name,
-						  const string *bus_name,
+  VerilogNetScalar *makeNetScalar(const std::string *name);
+  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const std::string *port_vname);
+  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const std::string *port_name,
+						  const std::string *net_name);
+  VerilogNetPortRef *makeNetNamedPortRefBitSelect(const std::string *port_name,
+						  const std::string *bus_name,
 						  int index);
-  VerilogNetPortRef *makeNetNamedPortRefScalar(const string *port_name,
+  VerilogNetPortRef *makeNetNamedPortRefScalar(const std::string *port_name,
 					       VerilogNet *net);
-  VerilogNetPortRef *makeNetNamedPortRefBit(const string *port_name,
+  VerilogNetPortRef *makeNetNamedPortRefBit(const std::string *port_name,
 					    int index,
 					    VerilogNet *net);
-  VerilogNetPortRef *makeNetNamedPortRefPart(const string *port_name,
+  VerilogNetPortRef *makeNetNamedPortRefPart(const std::string *port_name,
 					     int from_index,
 					     int to_index,
 					     VerilogNet *net);
   VerilogNetConcat *makeNetConcat(VerilogNetSeq *nets);
-  VerilogNetConstant *makeNetConstant(const string *constant,
+  VerilogNetConstant *makeNetConstant(const std::string *constant,
                                   int line);
-  VerilogNetBitSelect *makeNetBitSelect(const string *name,
+  VerilogNetBitSelect *makeNetBitSelect(const std::string *name,
 					int index);
-  VerilogNetPartSelect *makeNetPartSelect(const string *name,
+  VerilogNetPartSelect *makeNetPartSelect(const std::string *name,
 					  int from_index,
 					  int to_index);
   VerilogModule *module(Cell *cell);
@@ -160,11 +156,11 @@ public:
             const char *filename,
 	    int line,
 	    const char *fmt, ...);
-  const string &zeroNetName() const { return zero_net_name_; }
-  const string &oneNetName() const { return one_net_name_; }
+  const std::string &zeroNetName() const { return zero_net_name_; }
+  const std::string &oneNetName() const { return one_net_name_; }
   void deleteModules();
   void reportStmtCounts();
-  const string &constant10Max() const { return constant10_max_; }
+  const std::string &constant10Max() const { return constant10_max_; }
 
 protected:
   void init(const char *filename);
@@ -173,13 +169,13 @@ protected:
 		     VerilogNetSeq *ports);
   Port *makeCellPort(Cell *cell,
 		     VerilogModule *module,
-		     const string &port_name);
+		     const std::string &port_name);
   void makeNamedPortRefCellPorts(Cell *cell,
 				 VerilogModule *module,
 				 VerilogNet *mod_port,
 				 StdStringSet &port_names);
   void checkModuleDcls(VerilogModule *module,
-		       set<string> &port_names);
+		       std::set<std::string> &port_names);
   void makeModuleInstBody(VerilogModule *module,
 			  Instance *inst,
 			  VerilogBindingTbl *bindings,
@@ -230,7 +226,7 @@ protected:
 		   bool is_leaf);
   void makeInstPin(Instance *inst,
 		   Port *port,
-		   const string &net_name,
+		   const std::string &net_name,
 		   VerilogBindingTbl *bindings,
 		   Instance *parent,
 		   VerilogBindingTbl *parent_bindings,
@@ -259,7 +255,7 @@ protected:
   bool hasScalarNamedPortRefs(LibertyCell *liberty_cell,
 			      VerilogNetSeq *pins);
 
-  string filename_;
+  std::string filename_;
   Report *report_;
   Debug *debug_;
   NetworkReader *network_;
@@ -268,9 +264,9 @@ protected:
   int black_box_index_;
   VerilogModuleMap module_map_;
   VerilogErrorSeq link_errors_;
-  const string zero_net_name_;
-  const string one_net_name_;
-  string constant10_max_;
+  const std::string zero_net_name_;
+  const std::string one_net_name_;
+  std::string constant10_max_;
   ViewType *view_type_;
   bool report_stmt_stats_;
   int module_count_;

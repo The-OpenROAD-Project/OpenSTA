@@ -33,6 +33,7 @@
 #include "Levelize.hh"
 #include "Search.hh"
 #include "Latches.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -59,19 +60,20 @@ SearchPred0::searchThru(Edge *edge)
 {
   const TimingRole *role = edge->role();
   const Sdc *sdc = sta_->sdc();
+  const Variables *variables = sta_->variables();
   return !(edge->isDisabledConstraint()
 	   // Constants disable edge cond expression.
 	   || edge->isDisabledCond()
 	   || sdc->isDisabledCondDefault(edge)
 	   // Register/latch preset/clr edges are disabled by default.
 	   || (role == TimingRole::regSetClr()
-	       && !sdc->presetClrArcsEnabled())
+	       && !variables->presetClrArcsEnabled())
 	   // Constants on other pins disable this edge (ie, a mux select).
 	   || edge->simTimingSense() == TimingSense::none
 	   || (edge->isBidirectInstPath()
-	       && !sdc->bidirectInstPathsEnabled())
+	       && !variables->bidirectInstPathsEnabled())
 	   || (edge->isBidirectNetPath()
-	       && !sdc->bidirectNetPathsEnabled())
+	       && !variables->bidirectNetPathsEnabled())
 	   || (role == TimingRole::latchDtoQ()
 	       && sta_->latches()->latchDtoQState(edge)
 	       == LatchEnableState::closed));
@@ -152,12 +154,11 @@ ClkTreeSearchPred::ClkTreeSearchPred(const StaState *sta) :
 bool
 ClkTreeSearchPred::searchThru(Edge *edge)
 {
-  const Sdc *sdc = sta_->sdc();
   // Propagate clocks through constants.
   const TimingRole *role = edge->role();
   return (role->isWire()
 	  || role == TimingRole::combinational())
-    && (sdc->clkThruTristateEnabled()
+    && (sta_->variables()->clkThruTristateEnabled()
 	|| !(role == TimingRole::tristateEnable()
 	     || role == TimingRole::tristateDisable()))
     && SearchPred1::searchThru(edge);

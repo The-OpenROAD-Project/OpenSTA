@@ -38,17 +38,13 @@
 
 namespace sta {
 
-using std::vector;
-using std::map;
-using std::array;
-
 class DelayCalcObserver;
 class MultiDrvrNet;
 class FindVertexDelays;
 class NetCaps;
 
 typedef Map<const Vertex*, MultiDrvrNet*> MultiDrvrNetMap;
-typedef vector<SlewSeq> DrvrLoadSlews;
+typedef std::vector<SlewSeq> DrvrLoadSlews;
 
 // This class traverses the graph calling the arc delay calculator and
 // annotating delays on graph edges.
@@ -132,6 +128,7 @@ public:
 		    const RiseFall *from_rf,
                     const TimingRole *role,
 		    const DcalcAnalysisPt *dcalc_ap);
+  bool bidirectDrvrSlewFromLoad(const Pin *pin) const;
 
 protected:
   void seedInvalidDelays();
@@ -190,7 +187,7 @@ protected:
                             ArcDelayCalc *arc_delay_calc,
                             LoadPinIndexMap &load_pin_index_map,
                             // Return value.
-                            array<bool, RiseFall::index_count> &delay_exists);
+                            std::array<bool, RiseFall::index_count> &delay_exists);
   bool findDriverArcDelays(Vertex *drvr_vertex,
                            const MultiDrvrNet *multi_drvr,
                            Edge *edge,
@@ -246,7 +243,6 @@ protected:
   Slew checkEdgeClkSlew(const Vertex *from_vertex,
 			const RiseFall *from_rf,
 			const DcalcAnalysisPt *dcalc_ap);
-  bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
   float loadCap(const Pin *drvr_pin,
                 const RiseFall *rf,
                 const DcalcAnalysisPt *dcalc_ap,
@@ -333,7 +329,7 @@ private:
   Vertex *dcalc_drvr_;
   VertexSeq drvrs_;
   // [drvr_rf->index][dcalc_ap->index]
-  vector<NetCaps> net_caps_;
+  std::vector<NetCaps> net_caps_;
 };
 
 } // namespace

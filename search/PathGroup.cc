@@ -152,7 +152,8 @@ PathGroup::enumMinSlackUnderMin(PathEnd *path_end)
       if (tagMatchCrpr(other->tag(sta_), tag)) {
         PathEnd *end_min = path_end->copy();
         end_min->setPath(other);
-        bool slack_under = fuzzyGreater(end_min->slackNoCrpr(sta_), slack_min_);
+        float slack = delayAsFloat(end_min->slackNoCrpr(sta_));
+        bool slack_under = fuzzyGreater(slack, slack_min_);
         delete end_min;
         if (slack_under)
           return true;

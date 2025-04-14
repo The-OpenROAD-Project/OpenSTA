@@ -37,6 +37,8 @@
 
 namespace sta {
 
+using std::string;
+
 static bool
 thrusIntersectPts(ExceptionThruSeq *thrus1,
 		  ExceptionThruSeq *thrus2,

@@ -200,7 +200,7 @@ Path::init(Vertex *vertex,
   is_enum_ = false;
 }
 
-string
+std::string
 Path::to_string(const StaState *sta) const
 {
   const PathAnalysisPt *path_ap = pathAnalysisPt(sta);
@@ -472,6 +472,13 @@ Path::setIsEnum(bool is_enum)
 }
 
 ////////////////////////////////////////////////////////////////
+
+Path *
+Path::vertexPath(const Path *path,
+                 const StaState *sta)
+{
+  return vertexPath(path->vertex(sta), path->tag(sta), sta);
+}
 
 Path *
 Path::vertexPath(const Path &path,

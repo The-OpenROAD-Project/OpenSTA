@@ -36,6 +36,8 @@
 
 namespace sta {
 
+using std::string;
+
 void
 parseLibertyFile(const char *filename,
 		 LibertyGroupVisitor *library_visitor,

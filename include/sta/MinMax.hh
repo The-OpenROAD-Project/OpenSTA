@@ -32,8 +32,6 @@
 
 namespace sta {
 
-using std::string;
-
 class MinMax;
 class MinMaxAll;
 
@@ -58,7 +56,7 @@ public:
   static int earlyIndex() { return min_.index_; }
   static int maxIndex() { return max_.index_; }
   static int lateIndex() { return max_.index_; }
-  const string &to_string() const { return name_; }
+  const std::string &to_string() const { return name_; }
   int index() const { return index_; }
   float initValue() const { return init_value_; }
   int initValueInt() const { return init_value_int_; }
@@ -91,7 +89,7 @@ private:
 	 bool (*compare)(float value1,
 			 float value2));
 
-  const string name_;
+  const std::string name_;
   int index_;
   float init_value_;
   int init_value_int_;
@@ -114,7 +112,7 @@ public:
   static const MinMaxAll *max() { return &max_; }
   static const MinMaxAll *late() { return &max_; }
   static const MinMaxAll *all() { return &all_; }
-  const string &to_string() const { return name_; }
+  const std::string &to_string() const { return name_; }
   int index() const { return index_; }
   const MinMax *asMinMax() const;
   bool matches(const MinMax *min_max) const;
@@ -131,7 +129,7 @@ private:
 	    std::vector<const MinMax*> range,
 	    std::vector<int> range_index);
 
-  const string name_;
+  const std::string name_;
   int index_;
   const std::vector<const MinMax*> range_;
   const std::vector<int> range_index_;

@@ -60,8 +60,6 @@ class TimingArcBuilder;
 class LibertyAttr;
 class OutputWaveform;
 
-using std::vector;
-
 typedef void (LibertyReader::*LibraryAttrVisitor)(LibertyAttr *attr);
 typedef void (LibertyReader::*LibraryGroupVisitor)(LibertyGroup *group);
 typedef Map<string, LibraryAttrVisitor> LibraryAttrMap;
@@ -74,7 +72,7 @@ typedef Vector<InternalPowerGroup*> InternalPowerGroupSeq;
 typedef Vector<LeakagePowerGroup*> LeakagePowerGroupSeq;
 typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
 typedef Vector<OutputWaveform*> OutputWaveformSeq;
-typedef vector<string> StdStringSeq;
+typedef std::vector<std::string> StdStringSeq;
 
 class LibertyReader : public LibertyGroupVisitor
 {

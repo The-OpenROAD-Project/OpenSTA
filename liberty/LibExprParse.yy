@@ -37,7 +37,7 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 void
-sta::LibExprParse::error(const string &msg)
+sta::LibExprParse::error(const std::string &msg)
 {
   reader->parseError(msg.c_str());
 }

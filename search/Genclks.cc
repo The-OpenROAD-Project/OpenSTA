@@ -42,6 +42,7 @@
 #include "Levelize.hh"
 #include "Path.hh"
 #include "Search.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -249,7 +250,7 @@ GenClkMasterSearchPred::searchFrom(const Vertex *from_vertex)
 bool
 GenClkMasterSearchPred::searchThru(Edge *edge)
 {
-  const Sdc *sdc = sta_->sdc();
+  const Variables *variables = sta_->variables();
   const TimingRole *role = edge->role();
   // Propagate clocks through constants.
   return !(edge->role()->isTimingCheck()
@@ -257,14 +258,14 @@ GenClkMasterSearchPred::searchThru(Edge *edge)
 	   || edge->isDisabledConstraint()
 	   // Constants disable edge cond expression.
 	   || edge->isDisabledCond()
-	   || sdc->isDisabledCondDefault(edge)
+	   || sta_->isDisabledCondDefault(edge)
 	   // Register/latch preset/clr edges are disabled by default.
-	   || (!sdc->presetClrArcsEnabled()
+	   || (!variables->presetClrArcsEnabled()
 	       && role == TimingRole::regSetClr())
 	   || (edge->isBidirectInstPath()
-	       && !sdc->bidirectInstPathsEnabled())
+	       && !variables->bidirectInstPathsEnabled())
 	   || (edge->isBidirectNetPath()
-	       && !sdc->bidirectNetPathsEnabled()));
+	       && !variables->bidirectNetPathsEnabled()));
 }
 
 bool
@@ -481,7 +482,7 @@ GenClkInsertionSearchPred::searchThru(Edge *edge)
   EdgeSet *fdbk_edges = genclk_info_->fdbkEdges();
   return SearchPred0::searchThru(edge)
     && !role->isTimingCheck()
-    && (sdc->clkThruTristateEnabled()
+    && (sta_->variables()->clkThruTristateEnabled()
 	|| !(role == TimingRole::tristateEnable()
 	     || role == TimingRole::tristateDisable()))
     && !(fdbk_edges && fdbk_edges->hasKey(edge))
@@ -740,13 +741,12 @@ GenClkArrivalSearchPred::GenClkArrivalSearchPred(Clock *gclk,
 bool
 GenClkArrivalSearchPred::searchThru(Edge *edge)
 {
-  const Sdc *sdc = sta_->sdc();
   const TimingRole *role = edge->role();
   return EvalPred::searchThru(edge)
     && (role == TimingRole::combinational()
 	|| role->isWire()
 	|| !combinational_)
-    && (sdc->clkThruTristateEnabled()
+    && (sta_->variables()->clkThruTristateEnabled()
 	|| !(role == TimingRole::tristateEnable()
 	     || role == TimingRole::tristateDisable()));
 }
@@ -895,7 +895,7 @@ Genclks::recordSrcPaths(Clock *gclk)
   bool has_edges = gclk->edges() != nullptr;
 
   for (const Pin *gclk_pin : gclk->leafPins()) {
-    vector<Path> &src_paths = genclk_src_paths_[ClockPinPair(gclk, gclk_pin)];
+    std::vector<Path> &src_paths = genclk_src_paths_[ClockPinPair(gclk, gclk_pin)];
     src_paths.resize(path_count);
     Vertex *gclk_vertex = srcPath(gclk_pin);
     bool found_src_paths = false;
@@ -1002,7 +1002,7 @@ Genclks::srcPath(const Clock *gclk,
 {
   auto itr = genclk_src_paths_.find(ClockPinPair(gclk, src_pin));
   if (itr != genclk_src_paths_.end()) {
-    vector<Path> src_paths = itr->second;
+    std::vector<Path> src_paths = itr->second;
     if (!src_paths.empty()) {
       size_t path_index = srcPathIndex(rf, path_ap);
       Path &src_path = src_paths[path_index];
@@ -1023,12 +1023,10 @@ Genclks::updateSrcPathPrevs()
       if (!src_path.isNull()) {
         const Path *p = &src_path;
         while (p) {
-          Path *src_vpath = Path::vertexPath(p->vertex(this),
-                                             p->tag(this), this);
+          Path *src_vpath = Path::vertexPath(p, this);
           Path *prev_path = p->prevPath();
           if (prev_path) {
-            Path *prev_vpath = Path::vertexPath(prev_path->vertex(this),
-                                                prev_path->tag(this), this);
+            Path *prev_vpath = Path::vertexPath(prev_path, this);
             src_vpath->setPrevPath(prev_vpath);
             src_vpath->setPrevEdgeArc(p->prevEdge(this),
                                       p->prevArc(this), this);

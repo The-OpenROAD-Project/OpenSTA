@@ -126,7 +126,7 @@ protected:
   void addPathAP(PathAnalysisPt *path_ap);
 
 private:
-  string name_;
+  std::string name_;
   int index_;
   ParasiticAnalysisPtSeq parasitic_analysis_pts_;
   DcalcAnalysisPtSeq dcalc_analysis_pts_;

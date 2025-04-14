@@ -42,10 +42,10 @@ PathAnalysisPt::PathAnalysisPt(Corner *corner,
 {
 }
 
-string
+std::string
 PathAnalysisPt::to_string() const
 {
-  string name = corner_->name();
+  std::string name = corner_->name();
   name += '/';
   name += path_min_max_->to_string();
   return name;

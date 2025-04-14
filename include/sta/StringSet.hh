@@ -31,7 +31,7 @@
 namespace sta {
 
 typedef Set<const char*, CharPtrLess> StringSet;
-typedef std::set<string> StdStringSet;
+typedef std::set<std::string> StdStringSet;
 
 void
 deleteContents(StringSet *strings);

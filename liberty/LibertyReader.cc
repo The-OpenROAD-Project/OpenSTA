@@ -2775,6 +2775,7 @@ LibertyReader::endVector(LibertyGroup *group)
     if (!reference_time_exists_)
       libWarn(1224, group->line(), "vector reference_time not found.");
     reference_time_exists_ = false;
+    tbl_template_ = nullptr;
   }
 }
 

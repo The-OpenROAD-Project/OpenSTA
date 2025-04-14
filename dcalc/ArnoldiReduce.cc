@@ -38,6 +38,8 @@
 
 namespace sta {
 
+using std::string;
+
 rcmodel::rcmodel() :
   pinV(nullptr)
 {

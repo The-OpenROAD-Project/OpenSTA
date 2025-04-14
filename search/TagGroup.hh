@@ -144,7 +144,7 @@ protected:
   Vertex *vertex_;
   int default_path_count_;
   PathIndexMap path_index_map_;
-  vector<Path>  paths_;
+  std::vector<Path>  paths_;
   bool has_clk_tag_;
   bool has_genclk_src_tag_;
   bool has_filter_tag_;

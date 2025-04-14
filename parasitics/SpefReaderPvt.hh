@@ -41,9 +41,7 @@ class SpefTriple;
 class Corner;
 class SpefScanner;
 
-using std::string;
-
-typedef std::map<int, string> SpefNameMap;
+typedef std::map<int, std::string> SpefNameMap;
 
 class SpefReader : public StaState
 {

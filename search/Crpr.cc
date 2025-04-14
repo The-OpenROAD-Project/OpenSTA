@@ -41,6 +41,7 @@
 #include "PathEnd.hh"
 #include "Search.hh"
 #include "Genclks.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -107,9 +108,9 @@ CheckCrpr::checkCrpr(const Path *src_path,
 {
   crpr = 0.0;
   crpr_pin = nullptr;
-  if (sdc_->crprActive()
+  if (crprActive()
       && src_path && tgt_clk_path) {
-    bool same_pin = (sdc_->crprMode() == CrprMode::same_pin);
+    bool same_pin = (variables_->crprMode() == CrprMode::same_pin);
     checkCrpr1(src_path, tgt_clk_path, same_pin, crpr, crpr_pin);
   }
 }
@@ -267,7 +268,7 @@ Crpr
 CheckCrpr::findCrpr1(const Path *src_clk_path,
 		     const Path *tgt_clk_path)
 {
-  if (pocv_enabled_) {
+  if (variables_->pocvEnabled()) {
     // Remove variation on the common path.
     // Note that the crpr sigma is negative to offset the
     // sigma of the common clock path.
@@ -329,10 +330,10 @@ CheckCrpr::outputDelayCrpr(const Path *src_path,
 {
   crpr = 0.0;
   crpr_pin = nullptr;
-  if (sdc_->crprActive()) {
+  if (crprActive()) {
     const PathAnalysisPt *path_ap = src_path->pathAnalysisPt(this);
     const PathAnalysisPt *tgt_path_ap = path_ap->tgtClkAnalysisPt();
-    bool same_pin = (sdc_->crprMode() == CrprMode::same_pin);
+    bool same_pin = (variables_->crprMode() == CrprMode::same_pin);
     outputDelayCrpr1(src_path,tgt_clk_edge,tgt_path_ap, same_pin,
 		     crpr, crpr_pin);
   }

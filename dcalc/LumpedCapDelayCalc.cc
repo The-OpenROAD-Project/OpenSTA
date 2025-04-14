@@ -37,6 +37,7 @@
 #include "Parasitics.hh"
 #include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -144,7 +145,8 @@ LumpedCapDelayCalc::gateDelay(const Pin *drvr_pin,
     // NaNs cause seg faults during table lookup.
     if (isnan(load_cap) || isnan(delayAsFloat(in_slew)))
       report_->error(1350, "gate delay input variable is NaN");
-    model->gateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, load_cap, pocv_enabled_,
+    model->gateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, load_cap,
+                     variables_->pocvEnabled(),
                      gate_delay, drvr_slew);
     return makeResult(drvr_library, rf, gate_delay, drvr_slew, load_pin_index_map);
   }
