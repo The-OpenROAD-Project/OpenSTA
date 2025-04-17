@@ -15,8 +15,6 @@ cmake-build-debug
 build
 pvt
 
-include/sta/StaConfig.hh
-
 app/sta
 app/libOpenSTA.*
 app/sta.exe

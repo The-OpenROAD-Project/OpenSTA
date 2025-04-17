@@ -389,7 +389,7 @@ message(STATUS "SSTA: ${SSTA}")
 
 # configure a header file to pass some of the CMake settings
 configure_file(${STA_HOME}/util/StaConfig.hh.cmake
-  ${STA_HOME}/include/sta/StaConfig.hh
+  ${CMAKE_CURRENT_BINARY_DIR}/include/sta/StaConfig.hh
   )
 
 ###########################################################
@@ -464,6 +464,7 @@ target_include_directories(sta_swig
   PRIVATE
   ${STA_HOME}
   ${TCL_INCLUDE_PATH}
+  ${CMAKE_CURRENT_BINARY_DIR}/include/sta
 )
 
 ###########################################################
@@ -515,6 +516,7 @@ target_include_directories(OpenSTA
   include
   ${TCL_INCLUDE_PATH}
   ${FLEX_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_BINARY_DIR}/include/sta
 
   PRIVATE
   include/sta
@@ -582,6 +584,7 @@ install(TARGETS OpenSTA DESTINATION lib)
 
 # include
 install(DIRECTORY include/sta  DESTINATION include)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/sta  DESTINATION include)
 
 ################################################################
 
@@ -589,6 +592,7 @@ add_custom_target(sta_tags etags -o TAGS
   ${STA_SOURCE}
   */*.hh
   include/sta/*.hh
+  ${CMAKE_CURRENT_BINARY_DIR}/include/sta/*.hh
   ${SWIG_FILES}
   ${STA_TCL_FILES}
   ${SWIG_TCL_FILES}
