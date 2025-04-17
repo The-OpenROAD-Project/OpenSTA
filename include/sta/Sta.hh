@@ -1048,7 +1048,7 @@ public:
 			    bool annotated);
   // Make sure levels are up to date and return vertex level.
   Level vertexLevel(Vertex *vertex);
-  GraphLoopSeq *graphLoops();
+  GraphLoopSeq &graphLoops();
   PathAnalysisPt *pathAnalysisPt(Path *path);
   DcalcAnalysisPt *pathDcalcAnalysisPt(Path *path);
   TagIndex tagCount() const;

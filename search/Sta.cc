@@ -3529,7 +3529,7 @@ Sta::vertexLevel(Vertex *vertex)
   return vertex->level();
 }
 
-GraphLoopSeq *
+GraphLoopSeq &
 Sta::graphLoops()
 {
   ensureLevelized();

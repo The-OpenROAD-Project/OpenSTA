@@ -969,8 +969,9 @@ Vertex::init(Pin *pin,
   is_check_clk_ = false;
   is_constrained_ = false;
   has_downstream_clk_pin_ = false;
-  color_ = unsigned(LevelColor::white);
   level_ = 0;
+  visited1_ = false;
+  visited2_ = false;
   bfs_in_queue_ = 0;
   crpr_path_pruning_disabled_ = false;
 }
@@ -1040,9 +1041,15 @@ Vertex::setLevel(Level level)
 }
 
 void
-Vertex::setColor(LevelColor color)
+Vertex::setVisited(bool visited)
 {
-  color_ = unsigned(color);
+  visited1_ = visited;
+}
+
+void
+Vertex::setVisited2(bool visited)
+{
+  visited2_ = visited;
 }
 
 void

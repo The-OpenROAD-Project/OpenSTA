@@ -44,8 +44,6 @@ namespace sta {
 class MinMax;
 class Sdc;
 
-enum class LevelColor { white, gray, black };
-
 typedef ObjectTable<Vertex> VertexTable;
 typedef ObjectTable<Edge> EdgeTable;
 typedef Map<const Pin*, Vertex*> PinVertexMap;
@@ -254,11 +252,13 @@ public:
   bool isDriver(const Network *network) const;
   Level level() const { return level_; }
   void setLevel(Level level);
+  bool visited() const { return visited1_; }
+  void setVisited(bool visited);
+  bool visited2() const { return visited2_; }
+  void setVisited2(bool visited);
   bool isRoot() const{ return level_ == 0; }
   bool hasFanin() const;
   bool hasFanout() const;
-  LevelColor color() const { return static_cast<LevelColor>(color_); }
-  void setColor(LevelColor color);
   Slew *slews() { return slews_; }
   const Slew *slews() const { return slews_; }
   Path *paths() const { return paths_; }
@@ -330,16 +330,15 @@ protected:
   // Each bit corresponds to a different BFS queue.
   std::atomic<uint8_t> bfs_in_queue_; // 8
 
-  unsigned int level_:Graph::vertex_level_bits; // 24
+  int level_:Graph::vertex_level_bits; // 24
   unsigned int slew_annotated_:slew_annotated_bits;  // 4
-  // Levelization search state.
-  // LevelColor gcc barfs if this is dcl'd.
-  unsigned color_:2;
   // LogicValue gcc barfs if this is dcl'd.
   unsigned sim_value_:3;
   // Bidirect pins have two vertices.
   // This flag distinguishes the driver and load vertices.
   bool is_bidirect_drvr_:1;
+
+  unsigned object_idx_:VertexTable::idx_bits; // 7
   bool is_reg_clk_:1;
   bool is_disabled_constraint_:1;
   bool is_gated_clk_enable_:1;
@@ -350,7 +349,8 @@ protected:
   bool is_constrained_:1;
   bool has_downstream_clk_pin_:1;
   bool crpr_path_pruning_disabled_:1;
-  unsigned object_idx_:VertexTable::idx_bits; // 7
+  bool visited1_:1;
+  bool visited2_:1;
 
 private:
   friend class Graph;
