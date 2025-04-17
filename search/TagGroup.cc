@@ -84,7 +84,7 @@ TagGroup::hasTag(Tag *tag) const
 size_t
 TagGroup::pathIndex(Tag *tag) const
 {
-  size_t path_index;
+  size_t path_index = 0;
   bool exists;
   pathIndex(tag, path_index, exists);
   return path_index;

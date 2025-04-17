@@ -542,7 +542,7 @@ public:
 			       ClockSet *to_clks,
 			       InstanceSet *to_insts,
 			       const RiseFallBoth *rf,
- 			       RiseFallBoth *end_rf);
+			       const RiseFallBoth *end_rf);
   void checkExceptionToPins(ExceptionTo *to,
 			    const char *file, int) const;
   void deleteExceptionTo(ExceptionTo *to);
