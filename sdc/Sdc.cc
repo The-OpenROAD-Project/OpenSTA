@@ -4086,7 +4086,7 @@ Sdc::makeFilterPath(ExceptionFrom *from,
 void
 Sdc::makeLoopExceptions()
 {
-  for (GraphLoop *loop : *levelize_->loops()) 
+  for (GraphLoop *loop : levelize_->loops())
     makeLoopExceptions(loop);
 }
 

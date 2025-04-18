@@ -184,12 +184,10 @@ CheckTiming::checkLoops()
 {
   // These may not need to be sorted because the graph roots are
   // sorted during levelization so the discovery should be consistent.
-  GraphLoopSeq *loops = levelize_->loops();
+  GraphLoopSeq &loops = levelize_->loops();
   // Count the combinational loops.
   int loop_count = 0;
-  GraphLoopSeq::Iterator loop_iter1(loops);
-  while (loop_iter1.hasNext()) {
-    GraphLoop *loop = loop_iter1.next();
+  for (GraphLoop *loop : loops) {
     if (loop->isCombinational())
       loop_count++;
   }

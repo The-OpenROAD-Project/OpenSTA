@@ -366,16 +366,16 @@ proc check_percent { cmd_arg arg } {
 set ::sta_continue_on_error 0
 
 define_cmd_args "include" \
-  {[-echo] filename [> filename] [>> filename]}
+  {[-e|-echo] [-v|-verbose] filename [> filename] [>> filename]}
 
 # Tcl "source" command analog to support -echo and -verbose return values.
 proc_redirect include  {
-  parse_key_args "include" args keys {-encoding} flags {-echo -verbose}
+  parse_key_args "include" args keys {-encoding} flags {-e -echo -v -verbose}
   if { [llength $args] != 1 } {
     cmd_usage_error "include"
   }
-  set echo [info exists flags(-echo)]
-  set verbose [info exists flags(-verbose)]
+  set echo [expr [info exists flags(-echo)] || [info exists flags(-e)]]
+  set verbose [expr [info exists flags(-verbose)] || [info exists flags(-v)]]
   set filename [file nativename [lindex $args 0]]
   include_file $filename $echo $verbose
 }

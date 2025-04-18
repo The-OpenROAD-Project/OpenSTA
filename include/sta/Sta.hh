@@ -542,7 +542,7 @@ public:
 			       ClockSet *to_clks,
 			       InstanceSet *to_insts,
 			       const RiseFallBoth *rf,
- 			       const RiseFallBoth *end_rf);
+			       const RiseFallBoth *end_rf);
   void checkExceptionToPins(ExceptionTo *to,
 			    const char *file, int) const;
   void deleteExceptionTo(ExceptionTo *to);
@@ -1048,7 +1048,7 @@ public:
 			    bool annotated);
   // Make sure levels are up to date and return vertex level.
   Level vertexLevel(Vertex *vertex);
-  GraphLoopSeq *graphLoops();
+  GraphLoopSeq &graphLoops();
   PathAnalysisPt *pathAnalysisPt(Path *path);
   DcalcAnalysisPt *pathDcalcAnalysisPt(Path *path);
   TagIndex tagCount() const;

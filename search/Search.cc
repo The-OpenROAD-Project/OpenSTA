@@ -3565,8 +3565,10 @@ Search::ensureDownstreamClkPins()
     // as having downstream clk pins.
     ClkTreeSearchPred pred(this);
     BfsBkwdIterator iter(BfsIndex::other, &pred, this);
-    for (Vertex *vertex : *graph_->regClkVertices())
-      iter.enqueue(vertex);
+    for (Vertex *vertex : *graph_->regClkVertices()) {
+      if (!vertex->isConstant())
+        iter.enqueue(vertex);
+    }
 
     while (iter.hasNext()) {
       Vertex *vertex = iter.next();

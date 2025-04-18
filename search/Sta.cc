@@ -2073,7 +2073,7 @@ Sta::makeExceptionTo(PinSet *to_pins,
 		     ClockSet *to_clks,
 		     InstanceSet *to_insts,
 		     const RiseFallBoth *rf,
- 		     const RiseFallBoth *end_rf)
+		     const RiseFallBoth *end_rf)
 {
   return sdc_->makeExceptionTo(to_pins, to_clks, to_insts, rf, end_rf);
 }
@@ -3529,7 +3529,7 @@ Sta::vertexLevel(Vertex *vertex)
   return vertex->level();
 }
 
-GraphLoopSeq *
+GraphLoopSeq &
 Sta::graphLoops()
 {
   ensureLevelized();
