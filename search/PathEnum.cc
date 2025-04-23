@@ -354,7 +354,12 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
         makeDivertedPathEnd(from_path, edge, arc, div_end, after_div_copy);
         if (div_end) {
           // Only enumerate paths with greater slack.
-          if (div_end->slack(this) >= (path_end_slack_ * (1.0-.001))) {
+          // fuzz for difference in updatePathHeadDelays and accumulated arrivals.
+          float fuzz = .001;
+          float slack_limit = path_end_slack_ > 0
+            ? path_end_slack_ * (1.0 - fuzz)
+            : path_end_slack_ * (1.0 + fuzz);
+          if (delayGreaterEqual(div_end->slack(this), slack_limit, this)) {
             reportDiversion(edge, arc, from_path);
             path_enum_->makeDiversion(div_end, after_div_copy);
             visited_fanins_.emplace(from_vertex, arc);
