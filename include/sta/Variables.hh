@@ -33,9 +33,10 @@ class Variables
 {
 public:
   Variables();
-  // TCL variable sta_propagate_gated_clock_enable.
+  // TCL variable sta_crpr_enabled.
   bool crprEnabled() const { return crpr_enabled_; }
   void setCrprEnabled(bool enabled);
+  // TCL variable sta_crpr_mode.
   CrprMode crprMode() const { return crpr_mode_; }
   void setCrprMode(CrprMode mode);
   // Propagate gated clock enable arrivals.

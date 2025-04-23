@@ -555,6 +555,19 @@ TimingArc::~TimingArc()
   delete scaled_models_;
 }
 
+string
+TimingArc::to_string() const
+{
+  string str = set_->from()->name();
+  str += " ";
+  str += from_rf_->to_string();
+  str += " -> ";
+  str += set_->to()->name();
+  str += " ";
+  str += to_rf_->to_string();
+  return str;
+}
+
 GateTimingModel *
 TimingArc::gateModel(const DcalcAnalysisPt *dcalc_ap) const
 {

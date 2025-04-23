@@ -236,6 +236,7 @@ public:
 	    const Transition *to_rf,
 	    TimingModel *model);
   ~TimingArc();
+  std::string to_string() const;
   LibertyPort *from() const { return set_->from(); }
   LibertyPort *to() const { return set_->to(); }
   const Transition *fromEdge() const { return from_rf_; }
