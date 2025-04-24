@@ -1227,12 +1227,13 @@ filter_objects(const char *property,
     bool not_pattern_match = stringEq(op, "!~");
     for (T *object : *objects) {
       PropertyValue value(getProperty(object, property, sta));
-      const char *prop = value.asString(sta->network());
-      if (prop &&
-          ((exact_match && stringEq(prop, pattern))
-           || (not_match && !stringEq(prop, pattern))
-           || (pattern_match && patternMatch(pattern, prop))
-           || (not_pattern_match && !patternMatch(pattern, prop))))
+      string prop_str = value.to_string(sta->network());
+      const char *prop = prop_str.c_str();
+      if (!prop_str.empty()
+          && ((exact_match && stringEq(prop, pattern))
+              || (not_match && !stringEq(prop, pattern))
+              || (pattern_match && patternMatch(pattern, prop))
+              || (not_pattern_match && !patternMatch(pattern, prop))))
         filtered_objects.push_back(object);
     }
     delete objects;
