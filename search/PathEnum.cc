@@ -236,8 +236,7 @@ public:
 		       Path *before_div,
 		       bool unique_pins,
 		       PathEnum *path_enum);
-  virtual VertexVisitor *copy() const;
-  virtual void visit(Vertex *) {}  // Not used.
+  virtual VertexVisitor *copy() const override;
   void visitFaninPathsThru(Path *before_div,
 			   Vertex *prev_vertex,
 			   TimingArc *prev_arc);
@@ -255,7 +254,7 @@ public:
 			       Tag *to_tag,
 			       Arrival &to_arrival,
 			       const MinMax *min_max,
-			       const PathAnalysisPt *path_ap);
+			       const PathAnalysisPt *path_ap) override;
 
 private:
   void makeDivertedPathEnd(Path *after_div,
@@ -264,19 +263,28 @@ private:
 			   // Return values.
 			   PathEnd *&div_end,
 			   Path *&after_div_copy);
+  bool visitEdge(const Pin *from_pin,
+                 Vertex *from_vertex,
+                 Edge *edge,
+                 const Pin *to_pin,
+                 Vertex *to_vertex) override;
+  virtual void visit(Vertex *) override {}  // Not used.
   void reportDiversion(const Edge *edge,
                        const TimingArc *div_arc,
 		       Path *after_div);
 
   PathEnd *path_end_;
-  Slack path_end_slack_;
   Path *before_div_;
   bool unique_pins_;
+  PathEnum *path_enum_;
+
+  Slack path_end_slack_;
   Tag *before_div_tag_;
+  int before_div_rf_index_;
+  PathAPIndex before_div_ap_index_;
   Arrival before_div_arrival_;
   TimingArc *prev_arc_;
   Vertex *prev_vertex_;
-  PathEnum *path_enum_;
   bool crpr_active_;
   VisitedFanins visited_fanins_;
 };
@@ -287,12 +295,15 @@ PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
 					   PathEnum *path_enum) :
   PathVisitor(path_enum),
   path_end_(path_end),
-  path_end_slack_(path_end->slack(this)),
   before_div_(before_div),
   unique_pins_(unique_pins),
-  before_div_tag_(before_div_->tag(this)),
-  before_div_arrival_(before_div_->arrival()),
   path_enum_(path_enum),
+
+  path_end_slack_(path_end->slack(this)),
+  before_div_tag_(before_div_->tag(this)),
+  before_div_rf_index_(before_div_tag_->rfIndex()),
+  before_div_ap_index_(before_div_tag_->pathAPIndex()),
+  before_div_arrival_(before_div_->arrival()),
   crpr_active_(crprActive())
 {
 }
@@ -305,10 +316,52 @@ PathEnumFaninVisitor::visitFaninPathsThru(Path *before_div,
   before_div_ = before_div;
   before_div_tag_ = before_div_->tag(this);
   before_div_arrival_ = before_div_->arrival();
+  before_div_rf_index_ = before_div_tag_->rfIndex();
+  before_div_ap_index_ = before_div_tag_->pathAPIndex();
+
   prev_arc_ = prev_arc;
   prev_vertex_ = prev_vertex;
   visited_fanins_.clear();
   visitFaninPaths(before_div_->vertex(this));
+}
+
+// Specialize PathVisitor::visitEdge to filter paths/arcs to
+// reduce tag mutations.
+bool
+PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
+                                Vertex *from_vertex,
+                                Edge *edge,
+                                const Pin *to_pin,
+                                Vertex *to_vertex)
+{
+  TagGroup *from_tag_group = search_->tagGroup(from_vertex);
+  if (from_tag_group) {
+    TimingArcSet *arc_set = edge->timingArcSet();
+    VertexPathIterator from_iter(from_vertex, search_);
+    while (from_iter.hasNext()) {
+      Path *from_path = from_iter.next();
+      PathAnalysisPt *path_ap = from_path->pathAnalysisPt(this);
+      if (path_ap->index() == before_div_ap_index_) {
+        const MinMax *min_max = path_ap->pathMinMax();
+        const RiseFall *from_rf = from_path->transition(this);
+        TimingArc *arc1, *arc2;
+        arc_set->arcsFrom(from_rf, arc1, arc2);
+        if (arc1 && arc1->toEdge()->asRiseFall()->index() == before_div_rf_index_) {
+          if (!visitArc(from_pin, from_vertex, from_rf, from_path,
+                        edge, arc1, to_pin, to_vertex,
+                        min_max, path_ap))
+            return false;
+        }
+        if (arc2 && arc2->toEdge()->asRiseFall()->index() == before_div_rf_index_) {
+          if (!visitArc(from_pin, from_vertex, from_rf, from_path,
+                        edge, arc2, to_pin, to_vertex,
+                        min_max, path_ap))
+            return false;
+        }
+      }
+    }
+  }
+  return true;
 }
 
 VertexVisitor *

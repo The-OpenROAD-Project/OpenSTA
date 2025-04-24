@@ -309,9 +309,9 @@ TimingArcSet::arcsFrom(const RiseFall *from_rf,
 		       TimingArc *&arc1,
 		       TimingArc *&arc2) const
 {
-  int tr_index = from_rf->index();
-  arc1 = from_arc1_[tr_index];
-  arc2 = from_arc2_[tr_index];
+  int rf_index = from_rf->index();
+  arc1 = from_arc1_[rf_index];
+  arc2 = from_arc2_[rf_index];
 }
 
 TimingArc *
