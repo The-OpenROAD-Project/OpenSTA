@@ -128,8 +128,8 @@ ClkInfo::crprClkPath(const StaState *sta) const
   return Path::vertexPath(crpr_clk_path_, sta);
 }
 
-const char *
-ClkInfo::asString(const StaState *sta) const
+std::string
+ClkInfo::to_string(const StaState *sta) const
 {
   Network *network = sta->network();
   Corners *corners = sta->corners();
@@ -160,9 +160,7 @@ ClkInfo::asString(const StaState *sta) const
   if (is_gen_clk_src_path_)
     result += " genclk";
 
-  char *tmp = makeTmpString(result.size() + 1);
-  strcpy(tmp, result.c_str());
-  return tmp;
+  return result;
 }
 
 const Clock *

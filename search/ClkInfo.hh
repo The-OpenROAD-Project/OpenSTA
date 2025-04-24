@@ -49,7 +49,7 @@ public:
 	  Path *crpr_clk_path,
 	  const StaState *sta);
   ~ClkInfo();
-  const char *asString(const StaState *sta) const;
+  std::string to_string(const StaState *sta) const;
   const ClockEdge *clkEdge() const { return clk_edge_; }
   const Clock *clock() const;
   const Pin *clkSrc() const { return clk_src_; }

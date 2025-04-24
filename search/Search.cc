@@ -2965,7 +2965,7 @@ Search::reportClkInfos() const
     clk_infos.push_back(clk_info);
   sort(clk_infos, ClkInfoLess(this));
   for (ClkInfo *clk_info : clk_infos)
-    report_->reportLine("%s", clk_info->asString(this));
+    report_->reportLine("%s", clk_info->to_string(this).c_str());
   report_->reportLine("%zu clk infos", clk_info_set_->size());
 }
 

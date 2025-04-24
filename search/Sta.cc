@@ -541,7 +541,7 @@ Sta::~Sta()
   delete clk_skews_;
   delete check_timing_;
   delete report_path_;
-  // Constraints reference search filter, so delete search first.
+  // Sdc references search filter, so delete search first.
   delete search_;
   delete latches_;
   delete parasitics_;
@@ -4598,7 +4598,7 @@ Sta::deletePinBefore(const Pin *pin)
           Edge *edge = in_edge_iter.next();
           if (edge->role()->isWire()) {
             Vertex *from = edge->from(graph_);
-            // Only notify from vertex (to vertex will be deleted).
+            // Only notify to_vertex (from_vertex will be deleted).
             search_->requiredInvalid(from);
           }
           levelize_->deleteEdgeBefore(edge);
