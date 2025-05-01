@@ -25,6 +25,7 @@
 #pragma once
 
 #include <cstdarg>
+#include <mutex>
 
 #include "Map.hh"
 #include "StringUtil.hh"
