@@ -2875,7 +2875,7 @@ Arrival
 Sta::vertexArrival(Vertex *vertex,
                    const MinMax *min_max)
 {
-  return vertexArrival(vertex, nullptr, nullptr, nullptr, min_max);
+  return vertexArrival(vertex, nullptr, clk_edge_wildcard, nullptr, min_max);
 }
 
 Arrival

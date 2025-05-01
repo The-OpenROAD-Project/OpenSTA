@@ -3421,10 +3421,13 @@ RequiredCmp::requiredsSave(Vertex *vertex,
     size_t path_index = path->pathIndex(sta);
     Required req = requireds_[path_index];
     Required &prev_req = path->required();
-    debugPrint(debug, "search", 3, "required save %s -> %s",
+    bool changed = !delayEqual(prev_req, req);
+    debugPrint(debug, "search", 3, "required %s save %s -> %s%s",
+               path->to_string(sta).c_str(),
                delayAsString(prev_req, sta),
-               delayAsString(req, sta));
-    requireds_changed |= !delayEqual(prev_req, req);
+               delayAsString(req, sta),
+               changed ? " changed" : "");
+    requireds_changed |= changed;
     path->setRequired(req);
   }
   return requireds_changed;
