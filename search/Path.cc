@@ -697,19 +697,18 @@ Path::lessAll(const Path *path1,
 VertexPathIterator::VertexPathIterator(Vertex *vertex,
 				       const StaState *sta) :
   search_(sta->search()),
-  //filtered_(false),
+  filtered_(false),
   rf_(nullptr),
   path_ap_(nullptr),
   min_max_(nullptr),
   paths_(vertex->paths()),
   path_count_(0),
-  //path_index_(0),
+  path_index_(0),
   next_(nullptr)
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group) {
     path_count_ = tag_group->pathCount();
-    path_iter_.init(tag_group->pathIndexMap());
     findNext();
   }
 }
@@ -721,19 +720,18 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
 				       const PathAnalysisPt *path_ap,
 				       const StaState *sta) :
   search_(sta->search()),
-  //filtered_(true),
+  filtered_(true),
   rf_(rf),
   path_ap_(path_ap),
   min_max_(nullptr),
   paths_(vertex->paths()),
-  //path_count_(0),
-  //path_index_(0),
+  path_count_(0),
+  path_index_(0),
   next_(nullptr)
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group) {
     path_count_ = tag_group->pathCount();
-    path_iter_.init(tag_group->pathIndexMap());
     findNext();
   }
 }
@@ -743,19 +741,18 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
 				       const MinMax *min_max,
 				       const StaState *sta) :
   search_(sta->search()),
-  //filtered_(true),
+  filtered_(true),
   rf_(rf),
   path_ap_(nullptr),
   min_max_(min_max),
   paths_(vertex->paths()),
-  //path_count_(0),
-  //path_index_(0),
+  path_count_(0),
+  path_index_(0),
   next_(nullptr)
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group) {
     path_count_ = tag_group->pathCount();
-    path_iter_.init(tag_group->pathIndexMap());
     findNext();
   }
 }
@@ -766,34 +763,22 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
 				       const MinMax *min_max,
 				       const StaState *sta) :
   search_(sta->search()),
-  //filtered_(true),
+  filtered_(true),
   rf_(rf),
   path_ap_(path_ap),
   min_max_(min_max),
   paths_(vertex->paths()),
-  //path_count_(0),
-  //path_index_(0),
+  path_count_(0),
+  path_index_(0),
   next_(nullptr)
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group) {
     path_count_ = tag_group->pathCount();
-    path_iter_.init(tag_group->pathIndexMap());
     findNext();
   }
 }
 
-VertexPathIterator::~VertexPathIterator()
-{
-}
-
-bool
-VertexPathIterator::hasNext()
-{
-  return next_ != nullptr;
-}
-
-#if 0
 void
 VertexPathIterator::findNext()
 {
@@ -818,26 +803,15 @@ VertexPathIterator::findNext()
   }
   next_ = nullptr;
 }
-#endif
 
-void
-VertexPathIterator::findNext()
+VertexPathIterator::~VertexPathIterator()
 {
-  while (path_iter_.hasNext()) {
-    Tag *tag;
-    size_t path_index;
-    path_iter_.next(tag, path_index);
-    if ((rf_ == nullptr
-	 || tag->rfIndex() == rf_->index())
-	&& (path_ap_ == nullptr
-	    || tag->pathAPIndex() == path_ap_->index())
-	&& (min_max_ == nullptr
-	    || tag->pathAnalysisPt(search_)->pathMinMax() == min_max_)) {
-      next_ = &paths_[path_index];
-      return;
-    }
-  }
-  next_ = nullptr;
+}
+
+bool
+VertexPathIterator::hasNext()
+{
+  return next_ != nullptr;
 }
 
 Path *
