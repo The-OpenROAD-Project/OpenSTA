@@ -2965,7 +2965,7 @@ Search::reportClkInfos() const
     clk_infos.push_back(clk_info);
   sort(clk_infos, ClkInfoLess(this));
   for (ClkInfo *clk_info : clk_infos)
-    report_->reportLine("%s", clk_info->asString(this));
+    report_->reportLine("%s", clk_info->to_string(this).c_str());
   report_->reportLine("%zu clk infos", clk_info_set_->size());
 }
 
@@ -3421,10 +3421,13 @@ RequiredCmp::requiredsSave(Vertex *vertex,
     size_t path_index = path->pathIndex(sta);
     Required req = requireds_[path_index];
     Required &prev_req = path->required();
-    debugPrint(debug, "search", 3, "required save %s -> %s",
+    bool changed = !delayEqual(prev_req, req);
+    debugPrint(debug, "search", 3, "required %s save %s -> %s%s",
+               path->to_string(sta).c_str(),
                delayAsString(prev_req, sta),
-               delayAsString(req, sta));
-    requireds_changed |= !delayEqual(prev_req, req);
+               delayAsString(req, sta),
+               changed ? " changed" : "");
+    requireds_changed |= changed;
     path->setRequired(req);
   }
   return requireds_changed;

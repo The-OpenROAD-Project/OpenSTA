@@ -115,7 +115,7 @@ typedef StringSet PathGroupNameSet;
 typedef Vector<PathEnd*> PathEndSeq;
 typedef Vector<Arrival> ArrivalSeq;
 typedef Map<Vertex*, size_t> VertexPathCountMap;
-typedef UnorderedMap<Tag*, size_t, TagMatchHash, TagMatchEqual> PathIndexMap;
+typedef Map<Tag*, size_t, TagMatchLess> PathIndexMap;
 typedef Vector<Slack> SlackSeq;
 typedef Delay Crpr;
 typedef Vector<Path*> PathSeq;

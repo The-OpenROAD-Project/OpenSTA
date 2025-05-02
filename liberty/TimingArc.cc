@@ -309,9 +309,9 @@ TimingArcSet::arcsFrom(const RiseFall *from_rf,
 		       TimingArc *&arc1,
 		       TimingArc *&arc2) const
 {
-  int tr_index = from_rf->index();
-  arc1 = from_arc1_[tr_index];
-  arc2 = from_arc2_[tr_index];
+  int rf_index = from_rf->index();
+  arc1 = from_arc1_[rf_index];
+  arc2 = from_arc2_[rf_index];
 }
 
 TimingArc *
@@ -553,6 +553,19 @@ TimingArc::~TimingArc()
   // The models referenced by scaled_models_ are owned by the scaled
   // cells and are deleted by ~LibertyCell.
   delete scaled_models_;
+}
+
+string
+TimingArc::to_string() const
+{
+  string str = set_->from()->name();
+  str += " ";
+  str += from_rf_->to_string();
+  str += " -> ";
+  str += set_->to()->name();
+  str += " ";
+  str += to_rf_->to_string();
+  return str;
 }
 
 GateTimingModel *

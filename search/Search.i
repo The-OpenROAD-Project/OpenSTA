@@ -31,6 +31,7 @@
 #include "Search.hh"
 #include "search/Levelize.hh"
 #include "search/ReportPath.hh"
+#include "PathExpanded.hh"
 #include "Sta.hh"
 
 using namespace sta;
@@ -1248,6 +1249,7 @@ bool is_data_check() { return self->isDataCheck(); }
 bool is_output_delay() { return self->isOutputDelay(); }
 bool is_path_delay() { return self->isPathDelay(); }
 bool is_gated_clock() { return self->isGatedClock(); }
+Pin *pin() { return self->vertex(Sta::sta())->pin(); }
 Vertex *vertex() { return self->vertex(Sta::sta()); }
 Path *path() { return self->path(); }
 RiseFall *end_transition()
@@ -1313,6 +1315,12 @@ pin()
   return self->pin(sta);
 }
 
+const RiseFall *
+edge()
+{
+  return self->transition(Sta::sta());
+}
+
 string
 tag()
 {
@@ -1332,6 +1340,13 @@ pins()
     path1 = path1->prevPath();
   }
   return pins;
+}
+
+const Path *
+start_path()
+{
+  PathExpanded expanded(self, Sta::sta());
+  return expanded.startPath();
 }
 
 }

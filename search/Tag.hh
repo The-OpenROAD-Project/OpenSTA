@@ -138,8 +138,7 @@ public:
 
 int
 tagCmp(const Tag *tag1,
-       const Tag *tag2,
-       bool cmp_rf);
+       const Tag *tag2);
 
 // Match tag clock edge, clock driver and exception states but not clk info.
 bool

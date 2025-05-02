@@ -217,6 +217,7 @@ BfsIterator::visitParallel(Level to_level,
           }
 	  visitor->levelFinished();
 	  level_vertices.clear();
+          visit_count += vertex_count;
 	}
       }
       for (VertexVisitor *visitor : visitors)

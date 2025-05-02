@@ -177,6 +177,13 @@ arrivals_clk(const RiseFall *rf,
   return arrivals;
 }
 
+float
+arrival(const MinMax *min_max)
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(sta->vertexArrival(self, min_max));
+}
+
 StringSeq
 arrivals_clk_delays(const RiseFall *rf,
 		    Clock *clk,

@@ -131,9 +131,7 @@ TagGroupBldr::TagGroupBldr(bool match_crpr_clk_pin,
   default_path_count_(sta->corners()->count()
                       * RiseFall::index_count
                       * MinMax::index_count),
-  path_index_map_(default_path_count_,
-                  TagMatchHash(match_crpr_clk_pin, sta),
-                  TagMatchEqual(match_crpr_clk_pin, sta)),
+  path_index_map_(TagMatchLess(match_crpr_clk_pin, sta)),
   paths_(default_path_count_),
   has_clk_tag_(false),
   has_genclk_src_tag_(false),
@@ -284,9 +282,7 @@ TagGroupBldr::makeTagGroup(TagGroupIndex index,
 PathIndexMap *
 TagGroupBldr::makePathIndexMap(const StaState *sta)
 {
-  PathIndexMap *path_index_map = new PathIndexMap(path_index_map_.size(),
-                                                  TagMatchHash(true, sta),
-                                                  TagMatchEqual(true, sta));
+  PathIndexMap *path_index_map = new PathIndexMap(TagMatchLess(true, sta));
 
   size_t path_index = 0;
   for (auto const [tag, path_index1] : path_index_map_) {

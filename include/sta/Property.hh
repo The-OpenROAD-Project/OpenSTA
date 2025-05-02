@@ -85,7 +85,7 @@ public:
   Type type() const { return type_; }
   const Unit *unit() const { return unit_; }
 
-  const char *asString(const Network *network) const;
+  std::string to_string(const Network *network) const;
   const char *stringValue() const; // valid for type string
   float floatValue() const;        // valid for type float
   bool boolValue() const;          // valid for type bool

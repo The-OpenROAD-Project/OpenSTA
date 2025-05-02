@@ -293,25 +293,22 @@ bool
 TagLess::operator()(const Tag *tag1,
 		    const Tag *tag2) const
 {
-  return tagCmp(tag1, tag2, true) < 0;
+  return tagCmp(tag1, tag2) < 0;
 }
 
 int
 tagCmp(const Tag *tag1,
-       const Tag *tag2,
-       bool cmp_rf)
+       const Tag *tag2)
 {
   if (tag1 == tag2)
     return 0;
 
-  if (cmp_rf) {
-    int rf_index1 = tag1->rfIndex();
-    int rf_index2 = tag2->rfIndex();
-    if (rf_index1 < rf_index2)
-      return -1;
-    if (rf_index1 > rf_index2)
-      return 1;
-  }
+  int rf_index1 = tag1->rfIndex();
+  int rf_index2 = tag2->rfIndex();
+  if (rf_index1 < rf_index2)
+    return -1;
+  if (rf_index1 > rf_index2)
+    return 1;
 
   PathAPIndex path_ap_index1 = tag1->pathAPIndex();
   PathAPIndex path_ap_index2 = tag2->pathAPIndex();

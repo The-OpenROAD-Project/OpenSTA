@@ -217,15 +217,14 @@ private:
   void findNext();
 
   const Search *search_;
-  //bool filtered_;
+  bool filtered_;
   const RiseFall *rf_;
   const PathAnalysisPt *path_ap_;
   const MinMax *min_max_;
   Path *paths_;
   size_t path_count_;
-  //size_t path_index_;
+  size_t path_index_;
   Path *next_;
-  PathIndexMap::Iterator path_iter_;
 };
 
 } // namespace
