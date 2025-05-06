@@ -190,7 +190,7 @@ following command builds a Docker image.
 
 ```
 cd OpenSTA
-docker build --file Dockerfile.ubuntu22.04 --tag OpenSTA .
+docker build --file Dockerfile.ubuntu22.04 --tag opensta .
 ```
 
 To run a docker container using the OpenSTA image, use the -v option
@@ -198,7 +198,7 @@ to docker to mount direcories with data to use and -i to run
 interactively.
 
 ```
-docker run -i -v $HOME:/data OpenSTA
+docker run -i -v $HOME:/data opensta
 ```
 
 ## Build on Macos/Darwin

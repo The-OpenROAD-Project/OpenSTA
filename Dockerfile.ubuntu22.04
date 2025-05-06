@@ -16,8 +16,7 @@ RUN apt-get update && \
     bison \
     flex \
     automake \
-    autotools-dev \
-    valgrind
+    autotools-dev
 
 # Download CUDD
 RUN wget https://raw.githubusercontent.com/davidkebo/cudd/main/cudd_versions/cudd-3.0.0.tar.gz && \
