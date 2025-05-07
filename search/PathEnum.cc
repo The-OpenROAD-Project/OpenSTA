@@ -384,8 +384,8 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
 				      Vertex *to_vertex,
 				      const RiseFall *to_rf,
 				      Tag *to_tag,
-				      Arrival &to_arrival,
-				      const MinMax *min_max,
+				      Arrival & /* to_arrival */,
+				      const MinMax * /* min_max */,
 				      const PathAnalysisPt *path_ap)
 {
   // These paths fanin to before_div_ so we know to_vertex matches.
@@ -406,19 +406,9 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
         // Make the diverted path end to check slack with from_path crpr.
         makeDivertedPathEnd(from_path, edge, arc, div_end, after_div_copy);
         if (div_end) {
-          // Only enumerate paths with greater slack.
-          // fuzz for difference in updatePathHeadDelays and accumulated arrivals.
-          float fuzz = .001;
-          float slack_limit = path_end_slack_ > 0
-            ? path_end_slack_ * (1.0 - fuzz)
-            : path_end_slack_ * (1.0 + fuzz);
-          if (delayGreaterEqual(div_end->slack(this), slack_limit, this)) {
-            reportDiversion(edge, arc, from_path);
-            path_enum_->makeDiversion(div_end, after_div_copy);
-            visited_fanins_.emplace(from_vertex, arc);
-          }
-          else
-            delete div_end;
+          reportDiversion(edge, arc, from_path);
+          path_enum_->makeDiversion(div_end, after_div_copy);
+          visited_fanins_.emplace(from_vertex, arc);
         }
       }
       else
@@ -426,8 +416,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
                    edge->to_string(this).c_str(),
                    arc->to_string().c_str());
     }
-    // Only enumerate slower/faster paths.
-    else if (delayLessEqual(to_arrival, before_div_arrival_, min_max, this)) {
+    else {
       PathEnd *div_end;
       Path *after_div_copy;
       makeDivertedPathEnd(from_path, edge, arc, div_end, after_div_copy);
