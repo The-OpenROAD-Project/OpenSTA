@@ -2760,6 +2760,30 @@ Search::setVertexArrivals(Vertex *vertex,
   }
 }
 
+class ReportPathLess
+{
+public:
+  ReportPathLess(const StaState *sta);
+  bool operator()(const Path *path1,
+		  const Path *path2) const;
+
+private:
+  const StaState *sta_;
+};
+
+
+ReportPathLess::ReportPathLess(const StaState *sta) :
+  sta_(sta)
+{
+}
+
+bool
+ReportPathLess::operator()(const Path *path1,
+                           const Path *path2) const
+{
+  return tagCmp(path1->tag(sta_), path2->tag(sta_), sta_) < 0;
+}
+
 void
 Search::reportArrivals(Vertex *vertex) const
 {
@@ -2767,9 +2791,14 @@ Search::reportArrivals(Vertex *vertex) const
   TagGroup *tag_group = tagGroup(vertex);
   if (tag_group) {
     report_->reportLine("Group %u", tag_group->index());
+    std::vector<const Path*> paths;
     VertexPathIterator path_iter(vertex, this);
     while (path_iter.hasNext()) {
       const Path *path = path_iter.next();
+      paths.push_back(path);
+    }
+    sort(paths.begin(), paths.end(), ReportPathLess(this));
+    for (const Path *path : paths) {
       const Tag *tag = path->tag(this);
       const PathAnalysisPt *path_ap = tag->pathAnalysisPt(this);
       const RiseFall *rf = tag->transition();
