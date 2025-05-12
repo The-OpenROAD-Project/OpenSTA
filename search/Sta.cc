@@ -372,144 +372,168 @@ Sta::updateComponentsState()
 void
 Sta::makeReport()
 {
+  delete report_;
   report_ = new ReportTcl();
 }
 
 void
 Sta::makeDebug()
 {
+  delete debug_;
   debug_ = new Debug(report_);
 }
 
 void
 Sta::makeUnits()
 {
+  delete units_;
   units_ = new Units();
 }
 
 void
 Sta::makeNetwork()
 {
+  delete network_;
   network_ = makeConcreteNetwork();
 }
 
 void
 Sta::makeSdc()
 {
+  delete sdc_;
   sdc_ = new Sdc(this);
 }
 
 void
 Sta::makeLevelize()
 {
+  delete levelize_;
   levelize_ = new Levelize(this);
 }
 
 void
 Sta::makeParasitics()
 {
+  delete parasitics_;
   parasitics_ = makeConcreteParasitics(this);
 }
 
 void
 Sta::makeArcDelayCalc()
 {
+  delete arc_delay_calc_;
   arc_delay_calc_ = makeDelayCalc("dmp_ceff_elmore", this);
 }
 
 void
 Sta::makeGraphDelayCalc()
 {
+  delete graph_delay_calc_;
   graph_delay_calc_ = new GraphDelayCalc(this);
 }
 
 void
 Sta::makeSim()
 {
+  delete sim_;
   sim_ = new Sim(this);
 }
 
 void
 Sta::makeSearch()
 {
+  delete search_;
   search_ = new Search(this);
 }
 
 void
 Sta::makeLatches()
 {
+  delete latches_;
   latches_ = new Latches(this);
 }
 
 void
 Sta::makeSdcNetwork()
 {
+  delete sdc_network_;
   sdc_network_ = sta::makeSdcNetwork(network_);
 }
 
 void
 Sta::makeCheckTiming()
 {
+  delete check_timing_;
   check_timing_ = new CheckTiming(this);
 }
 
 void
 Sta::makeCheckSlewLimits()
 {
+  delete check_slew_limits_;
   check_slew_limits_ = new CheckSlewLimits(this);
 }
 
 void
 Sta::makeCheckFanoutLimits()
 {
+  delete check_fanout_limits_;
   check_fanout_limits_ = new CheckFanoutLimits(this);
 }
 
 void
 Sta::makeCheckCapacitanceLimits()
 {
+  delete check_capacitance_limits_;
   check_capacitance_limits_ = new CheckCapacitanceLimits(this);
 }
 
 void
 Sta::makeCheckMinPulseWidths()
 {
+  delete check_min_pulse_widths_;
   check_min_pulse_widths_ = new CheckMinPulseWidths(this);
 }
 
 void
 Sta::makeCheckMinPeriods()
 {
+  delete check_min_periods_;
   check_min_periods_ = new CheckMinPeriods(this);
 }
 
 void
 Sta::makeCheckMaxSkews()
 {
+  delete check_max_skews_;
   check_max_skews_ = new CheckMaxSkews(this);
 }
 
 void
 Sta::makeReportPath()
 {
+  delete report_path_;
   report_path_ = new ReportPath(this);
 }
 
 void
 Sta::makeClkNetwork()
 {
+  delete clk_network_;
   clk_network_ = new ClkNetwork(this);
 }
 
 void
 Sta::makePower()
 {
+  delete power_;
   power_ = new Power(this);
 }
 
 void
 Sta::makeVariables()
 {
+  delete variables_;
   variables_ = new Variables();
 }
 
