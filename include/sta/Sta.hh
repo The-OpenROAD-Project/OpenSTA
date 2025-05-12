@@ -1449,6 +1449,8 @@ protected:
   void setCmdNamespace1(CmdNamespace namespc);
   void setThreadCount1(int thread_count);
 
+  void clearSearch();
+
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
   Corner *cmd_corner_;

@@ -284,6 +284,7 @@ Sta::Sta() :
 void
 Sta::makeComponents()
 {
+  clearSearch();
   makeVariables();
   makeReport();
   makeDebug();
@@ -535,6 +536,12 @@ Sta::makeVariables()
 {
   delete variables_;
   variables_ = new Variables();
+}
+
+void
+Sta::clearSearch()
+{
+  delete search_;
 }
 
 void
