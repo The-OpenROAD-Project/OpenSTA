@@ -542,6 +542,7 @@ void
 Sta::clearSearch()
 {
   delete search_;
+  search_ = nullptr;
 }
 
 void
