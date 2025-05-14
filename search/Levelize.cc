@@ -135,7 +135,7 @@ Levelize::levelize()
 
   findRoots();
   findBackEdges();
-  VertexSeq topo_sorted = findToplologicalOrder();
+  VertexSeq topo_sorted = findTopologicalOrder();
   assignLevels(topo_sorted);
   ensureLatchLevels();
 
@@ -345,7 +345,7 @@ Levelize::findUnvisitedVertices()
 ////////////////////////////////////////////////////////////////
 
 VertexSeq
-Levelize::findToplologicalOrder()
+Levelize::findTopologicalOrder()
 {
   Stats stats(debug_, report_);
   std::map<Vertex*, int> in_degree;

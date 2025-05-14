@@ -74,7 +74,7 @@ protected:
   void levelize();
   void findRoots();
   VertexSeq sortedRootsWithFanout();
-  VertexSeq findToplologicalOrder();
+  VertexSeq findTopologicalOrder();
   void assignLevels(VertexSeq &topo_sorted);
   void recordLoop(Edge *edge,
                   EdgeSeq &path);
