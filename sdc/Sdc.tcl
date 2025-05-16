@@ -3530,7 +3530,7 @@ proc set_wire_load_selection_group { args } {
 ################################################################
 
 define_cmd_args "set_voltage" \
-  {[-min min_case_value] [-object_list list_of_power_nets] max_case_voltage}
+  {[-min min_case_value] [-object_list power_nets] max_case_voltage}
 
 proc set_voltage { args } {
   parse_key_args "set_voltage" args keys {-min -object_list} flags {}

@@ -112,8 +112,12 @@ private:
 class TagLess
 {
 public:
+  TagLess(const StaState *sta);
   bool operator()(const Tag *tag1,
 		  const Tag *tag2) const;
+
+private:
+  const StaState *sta_;
 };
 
 class TagIndexLess
@@ -138,7 +142,8 @@ public:
 
 int
 tagCmp(const Tag *tag1,
-       const Tag *tag2);
+       const Tag *tag2,
+       const StaState *sta);
 
 // Match tag clock edge, clock driver and exception states but not clk info.
 bool

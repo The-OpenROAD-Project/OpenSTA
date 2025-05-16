@@ -34,15 +34,6 @@
 
 namespace sta {
 
-static bool
-clkInfoEqual(const ClkInfo *clk_info1,
-	     const ClkInfo *clk_info2,
-	     const StaState *sta);
-static int
-clkInfoCmp(const ClkInfo *clk_info1,
-	   const ClkInfo *clk_info2,
-	   const StaState *sta);
-
 ClkInfo::ClkInfo(const ClockEdge *clk_edge,
 		 const Pin *clk_src,
 		 bool is_propagated,
@@ -210,7 +201,7 @@ ClkInfoEqual::operator()(const ClkInfo *clk_info1,
   return clkInfoEqual(clk_info1, clk_info2, sta_);
 }
 
-static bool
+bool
 clkInfoEqual(const ClkInfo *clk_info1,
 	     const ClkInfo *clk_info2,
 	     const StaState *sta)
@@ -253,7 +244,7 @@ ClkInfoLess::operator()(const ClkInfo *clk_info1,
   return clkInfoCmp(clk_info1, clk_info2, sta_) < 0;
 }
 
-static int
+int
 clkInfoCmp(const ClkInfo *clk_info1,
 	   const ClkInfo *clk_info2,
 	   const StaState *sta)

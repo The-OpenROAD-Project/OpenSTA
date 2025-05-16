@@ -289,26 +289,31 @@ Tag::matchHash(bool match_crpr_clk_pin,
 
 ////////////////////////////////////////////////////////////////
 
+TagLess::TagLess(const StaState *sta) :
+  sta_(sta)
+{
+}
+
 bool
 TagLess::operator()(const Tag *tag1,
 		    const Tag *tag2) const
 {
-  return tagCmp(tag1, tag2) < 0;
+  return tagCmp(tag1, tag2, sta_) < 0;
 }
 
 int
 tagCmp(const Tag *tag1,
-       const Tag *tag2)
+       const Tag *tag2,
+       const StaState *sta)
 {
   if (tag1 == tag2)
     return 0;
 
-  int rf_index1 = tag1->rfIndex();
-  int rf_index2 = tag2->rfIndex();
-  if (rf_index1 < rf_index2)
-    return -1;
-  if (rf_index1 > rf_index2)
-    return 1;
+  ClkInfo *clk_info1 = tag1->clkInfo();
+  ClkInfo *clk_info2 = tag2->clkInfo();
+  int clk_cmp = clkInfoCmp(clk_info1, clk_info2, sta);
+  if (clk_cmp != 0)
+    return clk_cmp;
 
   PathAPIndex path_ap_index1 = tag1->pathAPIndex();
   PathAPIndex path_ap_index2 = tag2->pathAPIndex();
@@ -317,11 +322,11 @@ tagCmp(const Tag *tag1,
   if (path_ap_index1 > path_ap_index2)
     return 1;
 
-  size_t clk_info1 = tag1->clkInfo()->hash();
-  size_t clk_info2 = tag2->clkInfo()->hash();
-  if (clk_info1 < clk_info2)
+  int rf_index1 = tag1->rfIndex();
+  int rf_index2 = tag2->rfIndex();
+  if (rf_index1 < rf_index2)
     return -1;
-  if (clk_info1 > clk_info2)
+  if (rf_index1 > rf_index2)
     return 1;
 
   bool is_clk1 = tag1->isClock();

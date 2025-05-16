@@ -304,6 +304,7 @@ Report::critical(int /* id */,
   printToBufferAppend(fmt, args);
   printBufferLine();
   va_end(args);
+  exit(1);
 }
 
 void

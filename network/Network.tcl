@@ -42,7 +42,11 @@ proc_redirect report_instance {
     sta_warn 234 "report_instance -verbose is deprecated."
   }
   set instance_path [lindex $args 0]
-  set instance [find_instance $instance_path]
+  if { [is_object $instance_path] } {
+    set instance $instance_path
+  } else {
+    set instance [find_instance $instance_path]
+  }
   if { $instance != "NULL" } {
     report_instance1 $instance
   } else {

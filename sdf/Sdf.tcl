@@ -65,12 +65,13 @@ proc_redirect read_sdf {
 
 define_cmd_args "report_annotated_delay" \
   {[-cell] [-net] [-from_in_ports] [-to_out_ports] [-max_lines lines]\
-     [-list_annotated] [-list_not_annotated] [-constant_arcs]}
+     [-report_annotated] [-report_unannotated] [-constant_arcs]}
 
 proc_redirect report_annotated_delay {
   parse_key_args "report_annotated_delay" args keys {-max_lines} \
-    flags {-cell -net -from_in_ports -to_out_ports -list_annotated \
-	     -list_not_annotated -constant_arcs}
+    flags {-cell -net -from_in_ports -to_out_ports  \
+             -report_annotated -report_unannotated -constant_arcs \
+             -list_not_annotated -list_annotated}
   if { [info exists flags(-cell)] || [info exists flags(-net)] \
 	 || [info exists flags(-from_in_ports)] \
 	 || [info exists flags(-to_out_ports)] } {
@@ -91,22 +92,35 @@ proc_redirect report_annotated_delay {
     check_positive_integer "-max_lines" $max_lines
   }
 
+  set report_annotated [info exists flags(-report_annotated)]
+  if { [info exists flags(-list_annotated)] } {
+    # Deprecated 05/26/2025
+    sta_warn 624 "-list_annotated is deprecated. Use -report_annotated."
+    set report_annotated 1
+  }
+  set report_unannotated [info exists flags(-report_unannotated)]
+  if { [info exists flags(-list_not_annotated)] } {
+    # Deprecated 05/26/2025
+    sta_warn 625  "-list_not_annotated is deprecated. Use -report_unannotated."
+    set report_unannotated 1
+  }
+
   report_annotated_delay_cmd $report_cells $report_nets \
     $report_in_nets $report_out_nets \
-    $max_lines [info exists flags(-list_annotated)] \
-    [info exists flags(-list_not_annotated)] \
+    $max_lines $report_annotated $report_unannotated \
     [info exists flags(-constant_arcs)]
 }
 
 define_cmd_args "report_annotated_check" \
   {[-setup] [-hold] [-recovery] [-removal] [-nochange] [-width] [-period]\
-     [-max_skew] [-max_lines lines] [-list_annotated] [-list_not_annotated]\
+     [-max_skew] [-max_lines lines] [-report_annotated] [-report_unannotated]\
      [-constant_arcs]}
 
 proc_redirect report_annotated_check {
   parse_key_args "report_annotated_check" args keys {-max_lines} \
     flags {-setup -hold -recovery -removal -nochange -width -period \
-	     -max_skew -list_annotated -list_not_annotated -constant_arcs}
+	     -max_skew -report_annotated -report_unannotated -constant_arcs \
+             -list_annotated -list_not_annotated}
   if { [info exists flags(-setup)] || [info exists flags(-hold)] \
 	 || [info exists flags(-recovery)] || [info exists flags(-removal)] \
 	 || [info exists flags(-nochange)] || [info exists flags(-width)] \
@@ -136,11 +150,23 @@ proc_redirect report_annotated_check {
     check_positive_integer "-max_lines" $max_lines
   }
 
+  set report_annotated [info exists flags(-report_annotated)]
+  if { [info exists flags(-list_annotated)] } {
+    # Deprecated 05/26/2025
+    sta_warn 626 "-list_annotated is deprecated. Use -report_annotated."
+    set report_annotated 1
+  }
+  set report_unannotated [info exists flags(-report_unannotated)]
+  if { [info exists flags(-list_not_annotated)] } {
+    # Deprecated 05/26/2025
+    sta_warn 627 "-list_not_annotated is deprecated. Use -report_unannotated."
+    set report_unannotated 1
+  }
+
   report_annotated_check_cmd $report_setup $report_hold \
     $report_recovery $report_removal $report_nochange \
     $report_width $report_period $report_max_skew \
-    $max_lines [info exists flags(-list_annotated)] \
-    [info exists flags(-list_not_annotated)] \
+    $max_lines $report_annotated $report_unannotated \
     [info exists flags(-constant_arcs)]
 }
 

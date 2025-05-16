@@ -93,6 +93,15 @@ private:
   unsigned int path_ap_index_:path_ap_index_bit_count;
 };
 
+int
+clkInfoCmp(const ClkInfo *clk_info1,
+	   const ClkInfo *clk_info2,
+	   const StaState *sta);
+bool
+clkInfoEqual(const ClkInfo *clk_info1,
+	     const ClkInfo *clk_info2,
+	     const StaState *sta);
+
 class ClkInfoLess
 {
 public:

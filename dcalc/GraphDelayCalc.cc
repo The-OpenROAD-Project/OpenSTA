@@ -209,14 +209,14 @@ public:
   virtual VertexVisitor *copy() const;
 
 protected:
-  GraphDelayCalc *graph_delay_calc1_;
+  GraphDelayCalc *graph_delay_calc_;
   ArcDelayCalc *arc_delay_calc_;
 };
 
-FindVertexDelays::FindVertexDelays(GraphDelayCalc *graph_delay_calc1) :
+FindVertexDelays::FindVertexDelays(GraphDelayCalc *graph_delay_calc) :
   VertexVisitor(),
-  graph_delay_calc1_(graph_delay_calc1),
-  arc_delay_calc_(graph_delay_calc1_->arc_delay_calc_->copy())
+  graph_delay_calc_(graph_delay_calc),
+  arc_delay_calc_(graph_delay_calc_->arc_delay_calc_->copy())
 {
 }
 
@@ -230,13 +230,13 @@ FindVertexDelays::copy() const
 {
   // Copy StaState::arc_delay_calc_ because it needs separate state
   // for each thread.
-  return new FindVertexDelays(graph_delay_calc1_);
+  return new FindVertexDelays(graph_delay_calc_);
 }
 
 void
 FindVertexDelays::visit(Vertex *vertex)
 {
-  graph_delay_calc1_->findVertexDelay(vertex, arc_delay_calc_, true);
+  graph_delay_calc_->findVertexDelay(vertex, arc_delay_calc_, true);
 }
 
 // The logical structure of incremental delay calculation closely
