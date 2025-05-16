@@ -359,6 +359,7 @@ public:
   void reportArrivals(Vertex *vertex) const;
   Slack wnsSlack(Vertex *vertex,
 		 PathAPIndex path_ap_index);
+  void levelsChangedBefore();
   void levelChangedBefore(Vertex *vertex);
   void seedInputArrival(const Pin *pin,
  			Vertex *vertex,

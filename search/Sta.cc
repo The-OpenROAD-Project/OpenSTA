@@ -210,7 +210,8 @@ class StaLevelizeObserver : public LevelizeObserver
 {
 public:
   StaLevelizeObserver(Search *search);
-  virtual void levelChangedBefore(Vertex *vertex);
+  void levelsChangedBefore() override;
+  void levelChangedBefore(Vertex *vertex) override;
 
 private:
   Search *search_;
@@ -219,6 +220,12 @@ private:
 StaLevelizeObserver::StaLevelizeObserver(Search *search) :
   search_(search)
 {
+}
+
+void
+StaLevelizeObserver::levelsChangedBefore()
+{
+  search_->levelsChangedBefore();
 }
 
 void

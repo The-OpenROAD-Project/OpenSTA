@@ -96,6 +96,8 @@ protected:
              EdgeSeq &path);
   void setLevel(Vertex  *vertex,
 		Level level);
+  void setLevelIncr(Vertex  *vertex,
+                    Level level);
   void clearLoopEdges();
   void deleteLoops();
   void reportPath(EdgeSeq &path) const;
@@ -135,6 +137,7 @@ class LevelizeObserver
 public:
   LevelizeObserver() {}
   virtual ~LevelizeObserver() {}
+  virtual void levelsChangedBefore() = 0;
   virtual void levelChangedBefore(Vertex *vertex) = 0;
 };
 

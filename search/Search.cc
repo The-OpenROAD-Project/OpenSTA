@@ -795,14 +795,30 @@ Search::arrivalInvalid(Vertex *vertex)
   }
 }
 
+// Move any pending arrival/requireds to invalid before relevelization.
+void
+Search::levelsChangedBefore()
+{
+  if (arrivals_exist_) {
+    while (arrival_iter_->hasNext()) {
+      Vertex *vertex = arrival_iter_->next();
+      arrivalInvalid(vertex);
+    }
+    while (required_iter_->hasNext()) {
+      Vertex *vertex = required_iter_->next();
+      requiredInvalid(vertex);
+    }
+  }
+}
+
 void
 Search::levelChangedBefore(Vertex *vertex)
 {
   if (arrivals_exist_) {
     arrival_iter_->remove(vertex);
     required_iter_->remove(vertex);
-    search_->arrivalInvalid(vertex);
-    search_->requiredInvalid(vertex);
+    arrivalInvalid(vertex);
+    requiredInvalid(vertex);
   }
 }
 

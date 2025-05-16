@@ -122,6 +122,8 @@ Levelize::levelize()
   Stats stats(debug_, report_);
   debugPrint(debug_, "levelize", 1, "levelize");
   clear();
+  if (observer_)
+    observer_->levelsChangedBefore();
 
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
@@ -546,6 +548,19 @@ Levelize::ensureLatchLevels()
 }
 
 void
+Levelize::setLevel(Vertex  *vertex,
+		   Level level)
+{
+  debugPrint(debug_, "levelize", 2, "set level %s %d",
+             vertex->to_string(this).c_str(),
+             level);
+  vertex->setLevel(level);
+  max_level_ = max(level, max_level_);
+  if (level >= Graph::vertex_level_max)
+    criticalError(616, "maximum logic level exceeded");
+}
+
+void
 Levelize::invalid()
 {
   if (levelized_) {
@@ -597,6 +612,8 @@ Levelize::deleteEdgeBefore(Edge *edge)
 {
   if (levelized_
       && loop_edges_.hasKey(edge)) {
+    debugPrint(debug_, "levelize", 2, "delete loop edge %s",
+               edge->to_string(this).c_str());
     disabled_loop_edges_.erase(edge);
     // Relevelize if a loop edge is removed. Incremental levelization
     // fails because the DFS path will be missing.
@@ -621,7 +638,7 @@ Levelize::relevelize()
                vertex->to_string(this).c_str());
     if (search_pred_.searchFrom(vertex)) {
       if (isRoot(vertex)) {
-	setLevel(vertex, 0);
+	setLevelIncr(vertex, 0);
 	roots_->insert(vertex);
       }
       VertexSet visited(graph_);
@@ -645,7 +662,7 @@ Levelize::visit(Vertex *vertex,
 		EdgeSeq &path)
 {
   Pin *from_pin = vertex->pin();
-  setLevel(vertex, level);
+  setLevelIncr(vertex, level);
   level += level_space;
   visited.insert(vertex);
   path_vertices.insert(vertex);
@@ -691,8 +708,8 @@ Levelize::isDisabledLoop(Edge *edge) const
 }
 
 void
-Levelize::setLevel(Vertex  *vertex,
-		   Level level)
+Levelize::setLevelIncr(Vertex  *vertex,
+                       Level level)
 {
   debugPrint(debug_, "levelize", 2, "set level %s %d",
              vertex->to_string(this).c_str(),
@@ -704,7 +721,7 @@ Levelize::setLevel(Vertex  *vertex,
   }
   max_level_ = max(level, max_level_);
   if (level >= Graph::vertex_level_max)
-    criticalError(616, "maximum logic level exceeded");
+    criticalError(617, "maximum logic level exceeded");
 }
 
 ////////////////////////////////////////////////////////////////
