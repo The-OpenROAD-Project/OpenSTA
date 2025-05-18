@@ -46,7 +46,6 @@ class ConcreteBindingTbl;
 class ConcreteLibertyLibraryIterator;
 
 typedef Vector<ConcreteLibrary*> ConcreteLibrarySeq;
-typedef std::map<std::string, std::string> AttributeMap;
 typedef Map<const char*, ConcreteLibrary*, CharPtrLess> ConcreteLibraryMap;
 typedef ConcreteLibrarySeq::ConstIterator ConcreteLibraryIterator;
 typedef Map<const char *, ConcreteInstance*,
@@ -85,6 +84,7 @@ public:
   const char *name(const Cell *cell) const override;
   std::string getAttribute(const Cell *cell,
                            const std::string &key) const override;
+  const AttributeMap &attributeMap(const Cell *cell) const override;
   ObjectId id(const Cell *cell) const override;
   Library *library(const Cell *cell) const override;
   LibertyCell *libertyCell(Cell *cell) const override;
@@ -121,6 +121,7 @@ public:
   const char *name(const Instance *instance) const override;
   std::string getAttribute(const Instance *inst,
                            const std::string &key) const override;
+  const AttributeMap &attributeMap(const Instance *inst) const override;
   ObjectId id(const Instance *instance) const override;
   Cell *cell(const Instance *instance) const override;
   Instance *parent(const Instance *instance) const override;
@@ -307,6 +308,7 @@ public:
   void setAttribute(const std::string &key,
                     const std::string &value);
   std::string getAttribute(const std::string &key) const;
+  const AttributeMap &attributeMap() const { return attribute_map_; }
   void addChild(ConcreteInstance *child);
   void deleteChild(ConcreteInstance *child);
   void addPin(ConcretePin *pin);

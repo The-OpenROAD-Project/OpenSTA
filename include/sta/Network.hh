@@ -153,6 +153,7 @@ public:
   // Attributes can be null
   virtual std::string getAttribute(const Cell *cell,
                                    const std::string &key) const = 0;
+  virtual const AttributeMap &attributeMap(const Cell *cell) const = 0;
   // Name can be a simple, bundle, bus, or bus bit name.
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const = 0;
@@ -217,6 +218,7 @@ public:
                                                 const PatternMatch *pattern) const;
   virtual std::string getAttribute(const Instance *inst,
                                    const std::string &key) const = 0;
+  virtual const AttributeMap &attributeMap(const Instance *inst) const = 0;
   // Hierarchical path name.
   virtual const char *pathName(const Instance *instance) const;
   bool pathNameLess(const Instance *inst1,
