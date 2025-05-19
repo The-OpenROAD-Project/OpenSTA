@@ -3,7 +3,13 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
-Realase 2.6.1 2025/03/30
+Release 2.7.0 2025/05/19
+-------------------------
+
+The OpenSTA library `libOpenSTA` and `sta` executable are now built in the
+build directory instead of `app/`.
+
+Release 2.6.1 2025/03/30
 -------------------------
 
 The -list_annotated and -list_not_annotated arguments to the

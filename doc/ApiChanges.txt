@@ -24,7 +24,7 @@
 
 This file summarizes STA API changes for each release.
 
-Release 2.6.2 2024/03/30
+Release 2.6.2 2025/03/30
 ------------------------
 
 The following functions have been renamed to to_string and return std::string

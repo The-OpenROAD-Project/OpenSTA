@@ -32,7 +32,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.6.2
+project(STA VERSION 2.7.0
   LANGUAGES CXX
 )
 
@@ -471,9 +471,6 @@ target_include_directories(sta_swig
 # Library
 ###########################################################
 
-# compatibility with configure
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${STA_HOME}/app)
-
 add_library(OpenSTA)
 
 target_sources(OpenSTA
@@ -553,12 +550,11 @@ target_compile_options(OpenSTA
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
 target_compile_features(OpenSTA PUBLIC cxx_std_17)
 
+message(STATUS "STA library: ${CMAKE_BINARY_DIR}/libOpenSTA.a")
+
 ###########################################################
 # Executable
 ###########################################################
-
-# compatibility with configure
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 
 # Note executable and lib name cannot be the same because
 # on osx something is case insensitive. Using STA for the
@@ -570,7 +566,7 @@ target_link_libraries(sta
   OpenSTA
   )
 
-message(STATUS "STA executable: ${STA_HOME}/app/sta")
+message(STATUS "STA executable: ${CMAKE_BINARY_DIR}/sta")
 
 ################################################################
 # Install

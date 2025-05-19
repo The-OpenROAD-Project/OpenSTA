@@ -157,8 +157,8 @@ cmake -DCUDD_DIR=<CUDD_INSTALL_DIR> ,.
 make
 ```
 The default build type is release to compile optimized code.
-The resulting executable is in `app/sta`.
-The library without a `main()` procedure is `app/libSTA.a`.
+The resulting executable is in `build/sta`.
+The library without a `main()` procedure is `build/libOpenSTA.a`.
 
 Optional CMake variables passed as -D<var>=<value> arguments to CMake are show below.
 
