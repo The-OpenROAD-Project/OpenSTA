@@ -508,6 +508,7 @@ public:
 		     ExceptionTo *to,
 		     const MinMax *min_max,
 		     bool ignore_clk_latency,
+                     bool break_path,
 		     float delay,
 		     const char *comment);
   void makeGroupPath(const char *name,

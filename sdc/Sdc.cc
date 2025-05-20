@@ -122,8 +122,10 @@ Sdc::Sdc(StaState *sta) :
   exception_id_(0),
   have_thru_hpin_exceptions_(false),
   first_thru_edge_exceptions_(0, PinPairHash(network_), PinPairEqual()),
-  path_delay_internal_startpoints_(network_),
-  path_delay_internal_endpoints_(network_)
+  path_delay_internal_from_(network_),
+  path_delay_internal_from_break_(network_),
+  path_delay_internal_to_(network_),
+  path_delay_internal_to_break_(network_)
 {
   sdc_ = this;
   initVariables();
@@ -3875,18 +3877,19 @@ Sdc::makePathDelay(ExceptionFrom *from,
 		   ExceptionTo *to,
 		   const MinMax *min_max,
 		   bool ignore_clk_latency,
+                   bool break_path,
 		   float delay,
 		   const char *comment)
 {
   checkFromThrusTo(from, thrus, to);
   PathDelay *exception = new PathDelay(from, thrus, to, min_max, 
-				       ignore_clk_latency, delay, true,
-				       comment);
+				       ignore_clk_latency, break_path,
+                                       delay, true, comment);
   addException(exception);
 }
 
 void
-Sdc::recordPathDelayInternalStartpoints(ExceptionPath *exception)
+Sdc::recordPathDelayInternalFrom(ExceptionPath *exception)
 {
   ExceptionFrom *from = exception->from();
   if (from
@@ -3894,23 +3897,29 @@ Sdc::recordPathDelayInternalStartpoints(ExceptionPath *exception)
     for (const Pin *pin : *from->pins()) {
       if (!(network_->isRegClkPin(pin)
 	    || network_->isTopLevelPort(pin))) {
-	path_delay_internal_startpoints_.insert(pin);
+	path_delay_internal_from_.insert(pin);
+        if (exception->breakPath())
+          path_delay_internal_from_break_.insert(pin);
       }
     }
   }
 }
 
 void
-Sdc::unrecordPathDelayInternalStartpoints(ExceptionFrom *from)
+Sdc::unrecordPathDelayInternalFrom(ExceptionPath *exception)
 {
+  ExceptionFrom *from = exception->from();
   if (from
       && from->hasPins()
-      && !path_delay_internal_startpoints_.empty()) {
+      && !path_delay_internal_from_.empty()) {
     for (const Pin *pin : *from->pins()) {
       if (!(network_->isRegClkPin(pin)
 	    || network_->isTopLevelPort(pin))
-	  && !pathDelayFrom(pin))
-	path_delay_internal_startpoints_.erase(pin);
+	  && !pathDelayFrom(pin)) {
+	path_delay_internal_from_.erase(pin);
+        if (exception->breakPath())
+          path_delay_internal_from_break_.erase(pin);
+      }
     }
   }
 }
@@ -3927,19 +3936,25 @@ Sdc::pathDelayFrom(const Pin *pin)
 }
 
 bool
-Sdc::isPathDelayInternalStartpoint(const Pin *pin) const
+Sdc::isPathDelayInternalFrom(const Pin *pin) const
 {
-  return path_delay_internal_startpoints_.hasKey(pin);
+  return path_delay_internal_from_.hasKey(pin);
+}
+
+bool
+Sdc::isPathDelayInternalFromBreak(const Pin *pin) const
+{
+  return path_delay_internal_from_break_.hasKey(pin);
 }
 
 const PinSet &
-Sdc::pathDelayInternalStartpoints() const
+Sdc::pathDelayInternalFrom() const
 {
-  return path_delay_internal_startpoints_;
+  return path_delay_internal_from_;
 }
 
 void
-Sdc::recordPathDelayInternalEndpoints(ExceptionPath *exception)
+Sdc::recordPathDelayInternalTo(ExceptionPath *exception)
 {
   ExceptionTo *to = exception->to();
   if (to
@@ -3947,24 +3962,28 @@ Sdc::recordPathDelayInternalEndpoints(ExceptionPath *exception)
     for (const Pin *pin : *to->pins()) {
       if (!(hasLibertyCheckTo(pin)
 	    || network_->isTopLevelPort(pin))) {
-	path_delay_internal_endpoints_.insert(pin);
+	path_delay_internal_to_.insert(pin);
+        if (exception->breakPath())
+          path_delay_internal_to_break_.insert(pin);
       }
     }
   }
 }
 
 void
-Sdc::unrecordPathDelayInternalEndpoints(ExceptionPath *exception)
+Sdc::unrecordPathDelayInternalTo(ExceptionPath *exception)
 {
   ExceptionTo *to = exception->to();
   if (to
       && to->hasPins()
-      && !path_delay_internal_endpoints_.empty()) {
+      && !path_delay_internal_to_.empty()) {
     for (const Pin *pin : *to->pins()) {
       if (!(hasLibertyCheckTo(pin)
 	    || network_->isTopLevelPort(pin))
 	  && !pathDelayTo(pin))
-	path_delay_internal_endpoints_.erase(pin);
+	path_delay_internal_to_.erase(pin);
+        if (exception->breakPath())
+          path_delay_internal_to_break_.erase(pin);
     }
   }
 }
@@ -3998,9 +4017,15 @@ Sdc::pathDelayTo(const Pin *pin)
 }
 
 bool
-Sdc::isPathDelayInternalEndpoint(const Pin *pin) const
+Sdc::isPathDelayInternalTo(const Pin *pin) const
 {
-  return path_delay_internal_endpoints_.hasKey(pin);
+  return path_delay_internal_to_.hasKey(pin);
+}
+
+bool
+Sdc::isPathDelayInternalToBreak(const Pin *pin) const
+{
+  return path_delay_internal_to_break_.hasKey(pin);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -4168,8 +4193,8 @@ Sdc::addException(ExceptionPath *exception)
              exception->asString(network_));
 
   if (exception->isPathDelay()) {
-    recordPathDelayInternalStartpoints(exception);
-    recordPathDelayInternalEndpoints(exception);
+    recordPathDelayInternalFrom(exception);
+    recordPathDelayInternalTo(exception);
     if (exception->to() == nullptr)
       path_delays_without_to_ = true;
   }
@@ -4814,8 +4839,10 @@ Sdc::deleteExceptions()
   first_thru_net_exceptions_.deleteContentsClear();
   first_thru_edge_exceptions_.deleteContentsClear();
   first_thru_edge_exceptions_.clear();
-  path_delay_internal_startpoints_.clear();
-  path_delay_internal_endpoints_.clear();
+  path_delay_internal_from_.clear();
+  path_delay_internal_from_break_.clear();
+  path_delay_internal_to_.clear();
+  path_delay_internal_to_break_.clear();
 
   deleteExceptionPtHashMapSets(exception_merge_hash_);
   exception_merge_hash_.clear();
@@ -5097,8 +5124,8 @@ Sdc::resetPath(ExceptionFrom *from,
       while (expand_iter.hasNext()) {
 	ExceptionPath *expand = expand_iter.next();
 	if (expand->resetMatch(from, thrus, to, min_max, network_)) {
-	  unrecordPathDelayInternalStartpoints(expand->from());
-	  unrecordPathDelayInternalEndpoints(expand);
+	  unrecordPathDelayInternalFrom(expand);
+	  unrecordPathDelayInternalTo(expand);
 	  delete expand;
 	}
 	else

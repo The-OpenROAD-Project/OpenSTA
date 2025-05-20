@@ -126,6 +126,7 @@ public:
   virtual const char *name() const { return nullptr; }
   virtual bool isDefault() const { return false; }
   virtual bool ignoreClkLatency() const { return false; }
+  virtual bool breakPath() const { return false; }
 
 protected:
   virtual const char *typeString() const = 0;
@@ -194,6 +195,7 @@ public:
 	    ExceptionTo *to,
 	    const MinMax *min_max,
 	    bool ignore_clk_latency,
+            bool break_path,
 	    float delay,
 	    bool own_pts,
 	    const char *comment);
@@ -211,9 +213,11 @@ public:
   virtual int typePriority() const;
   virtual bool tighterThan(ExceptionPath *exception) const;
   virtual bool ignoreClkLatency() const { return ignore_clk_latency_; }
+  virtual bool breakPath() const { return break_path_; }
 
 protected:
   bool ignore_clk_latency_;
+  bool break_path_;
   float delay_;
 };
 

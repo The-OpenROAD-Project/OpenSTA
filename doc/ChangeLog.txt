@@ -9,6 +9,9 @@ Release 2.7.0 2025/05/19
 The OpenSTA library `libOpenSTA` and `sta` executable are now built in the
 build directory instead of `app/`.
 
+The set_max_delay and set_min_delay commands now support the -probe option.
+With -probe these commands do not break paths at internal (non-startpoint) pins.
+
 Release 2.6.1 2025/03/30
 -------------------------
 

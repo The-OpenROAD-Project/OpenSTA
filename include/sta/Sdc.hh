@@ -744,6 +744,7 @@ public:
 		     ExceptionTo *to,
 		     const MinMax *min_max,
 		     bool ignore_clk_latency,
+                     bool break_path,
 		     float delay,
 		     const char *comment);
   bool pathDelaysWithoutTo() const { return path_delays_without_to_; }
@@ -1003,9 +1004,11 @@ public:
                     const Pin *pin,
                     const RiseFall *rf,
                     const MinMax *min_max) const;
-  bool isPathDelayInternalStartpoint(const Pin *pin) const;
-  const PinSet &pathDelayInternalStartpoints() const;
-  bool isPathDelayInternalEndpoint(const Pin *pin) const;
+  bool isPathDelayInternalFrom(const Pin *pin) const;
+  bool isPathDelayInternalFromBreak(const Pin *pin) const;
+  const PinSet &pathDelayInternalFrom() const;
+  bool isPathDelayInternalTo(const Pin *pin) const;
+  bool isPathDelayInternalToBreak(const Pin *pin) const;
   ExceptionPathSet *exceptions() { return &exceptions_; }
   void deleteExceptions();
   void deleteException(ExceptionPath *exception);
@@ -1042,11 +1045,11 @@ protected:
   ExceptionPath *findMergeMatch(ExceptionPath *exception);
   void addException1(ExceptionPath *exception);
   void addException2(ExceptionPath *exception);
-  void recordPathDelayInternalStartpoints(ExceptionPath *exception);
-  void unrecordPathDelayInternalStartpoints(ExceptionFrom *from);
+  void recordPathDelayInternalFrom(ExceptionPath *exception);
+  void unrecordPathDelayInternalFrom(ExceptionPath *exception);
   bool pathDelayFrom(const Pin *pin);
-  void recordPathDelayInternalEndpoints(ExceptionPath *exception);
-  void unrecordPathDelayInternalEndpoints(ExceptionPath *exception);
+  void recordPathDelayInternalTo(ExceptionPath *exception);
+  void unrecordPathDelayInternalTo(ExceptionPath *exception);
   bool pathDelayTo(const Pin *pin);
   bool hasLibertyCheckTo(const Pin *pin);
   void deleteMatchingExceptions(ExceptionPath *exception);
@@ -1355,9 +1358,13 @@ protected:
   // Exception hash with one missing from/thru/to point, used for merging.
   ExceptionPathPtHash exception_merge_hash_;
   // Path delay -from pin internal startpoints.
-  PinSet path_delay_internal_startpoints_;
-  // Path delay -to pin internal endpoints.
-  PinSet path_delay_internal_endpoints_;
+  PinSet path_delay_internal_from_;
+  // Path delay -from pin internal -from w/o -probe.
+  PinSet path_delay_internal_from_break_;
+  // Path delay -to pin internal -to.
+  PinSet path_delay_internal_to_;
+  // Path delay -to pin internal -to w/o -probe.
+  PinSet path_delay_internal_to_break_;
   // There is a path delay exception without a -to.
   bool path_delays_without_to_;
   // Group path exception names.

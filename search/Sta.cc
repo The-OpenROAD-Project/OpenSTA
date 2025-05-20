@@ -1965,12 +1965,13 @@ Sta::makePathDelay(ExceptionFrom *from,
 		   ExceptionTo *to,
 		   const MinMax *min_max,
 		   bool ignore_clk_latency,
+                   bool break_path,
 		   float delay,
 		   const char *comment)
 {
   sdc_->makePathDelay(from, thrus, to, min_max, 
-		      ignore_clk_latency, delay,
-		      comment);
+		      ignore_clk_latency, break_path,
+                      delay, comment);
   search_->endpointsInvalid();
   search_->arrivalsInvalid();
 }
