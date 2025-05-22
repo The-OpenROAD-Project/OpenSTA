@@ -41,11 +41,11 @@ public:
                  // Return values.
                  ArcDelay &gate_delay,
                  Slew &drvr_slew) const override;
-  string reportGateDelay(const Pvt *pvt,
-                         float in_slew,
-                         float load_cap,
-                         bool pocv_enabled,
-                         int digits) const override;
+  std::string reportGateDelay(const Pvt *pvt,
+                              float in_slew,
+                              float load_cap,
+                              bool pocv_enabled,
+                              int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
 
 protected:
@@ -65,13 +65,13 @@ public:
                       float to_slew,
                       float related_out_cap,
                       bool pocv_enabled) const override;
-  string reportCheckDelay(const Pvt *pvt,
-                          float from_slew,
-                          const char *from_slew_annotation,
-                          float to_slew,
-                          float related_out_cap,
-                          bool pocv_enabled,
-                          int digits) const override;
+  std::string reportCheckDelay(const Pvt *pvt,
+                               float from_slew,
+                               const char *from_slew_annotation,
+                               float to_slew,
+                               float related_out_cap,
+                               bool pocv_enabled,
+                               int digits) const override;
 
 protected:
   void setIsScaled(bool is_scaled) override;

@@ -44,6 +44,8 @@
 
 namespace sta {
 
+using std::string;
+
 bool
 readSpefFile(const char *filename,
 	     Instance *instance,

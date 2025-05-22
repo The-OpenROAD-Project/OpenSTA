@@ -62,8 +62,8 @@ class OutputWaveform;
 
 typedef void (LibertyReader::*LibraryAttrVisitor)(LibertyAttr *attr);
 typedef void (LibertyReader::*LibraryGroupVisitor)(LibertyGroup *group);
-typedef Map<string, LibraryAttrVisitor> LibraryAttrMap;
-typedef Map<string ,LibraryGroupVisitor> LibraryGroupMap;
+typedef Map<std::string, LibraryAttrVisitor> LibraryAttrMap;
+typedef Map<std::string ,LibraryGroupVisitor> LibraryGroupMap;
 typedef Vector<PortGroup*> PortGroupSeq;
 typedef Vector<SequentialGroup*> SequentialGroupSeq;
 typedef Vector<LibertyFunc*> LibertyFuncSeq;
@@ -672,7 +672,7 @@ protected:
   OutputWaveforms *output_waveforms_;
   float reference_time_;
   bool reference_time_exists_;
-  string driver_waveform_name_;
+  std::string driver_waveform_name_;
 
   TestCell *test_cell_;
   // Saved state while parsing test_cell.
@@ -932,7 +932,7 @@ protected:
   LibertyPort *port_;
   LibertyPortMemberIterator *bit_iterator_;
   LibertyPort *range_bus_port_;
-  string range_bus_name_;
+  std::string range_bus_name_;
   LibertyPort *range_name_next_;
   int range_from_;
   int range_to_;

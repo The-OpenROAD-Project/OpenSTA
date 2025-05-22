@@ -34,6 +34,7 @@
 
 namespace sta {
 
+using std::string;
 using std::make_shared;
 
 static bool

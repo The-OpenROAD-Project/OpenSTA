@@ -51,6 +51,7 @@
 
 namespace sta {
 
+using std::string;
 using std::abs;
 using std::min;
 using std::max;

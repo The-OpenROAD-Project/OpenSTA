@@ -41,6 +41,7 @@
 
 namespace sta {
 
+using std::string;
 using std::min;
 
 bool

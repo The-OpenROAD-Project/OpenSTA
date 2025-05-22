@@ -63,6 +63,8 @@
 
 namespace sta {
 
+using std::string;
+
 static void
 hierPinsAbove(const Net *net,
               const Network *network,

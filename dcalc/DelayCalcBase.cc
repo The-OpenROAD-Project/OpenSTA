@@ -39,6 +39,7 @@
 
 namespace sta {
 
+using std::string;
 using std::log;
 
 DelayCalcBase::DelayCalcBase(StaState *sta) :

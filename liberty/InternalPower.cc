@@ -31,6 +31,8 @@
 
 namespace sta {
 
+using std::string;
+
 InternalPowerAttrs::InternalPowerAttrs() :
   when_(nullptr),
   models_{nullptr, nullptr},

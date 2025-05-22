@@ -28,6 +28,8 @@
 
 namespace sta {
 
+using std::string;
+
 ArcDelayCalc *
 makeUnitDelayCalc(StaState *sta)
 {

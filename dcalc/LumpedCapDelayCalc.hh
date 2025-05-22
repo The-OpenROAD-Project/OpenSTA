@@ -57,14 +57,14 @@ public:
                            const Parasitic *parasitic,
                            const LoadPinIndexMap &load_pin_index_map,
                            const DcalcAnalysisPt *dcalc_ap) override;
-  string reportGateDelay(const Pin *drvr_pin,
-                         const TimingArc *arc,
-                         const Slew &in_slew,
-                         float load_cap,
-                         const Parasitic *parasitic,
-                         const LoadPinIndexMap &load_pin_index_map,
-                         const DcalcAnalysisPt *dcalc_ap,
-                         int digits) override;
+  std::string reportGateDelay(const Pin *drvr_pin,
+                              const TimingArc *arc,
+                              const Slew &in_slew,
+                              float load_cap,
+                              const Parasitic *parasitic,
+                              const LoadPinIndexMap &load_pin_index_map,
+                              const DcalcAnalysisPt *dcalc_ap,
+                              int digits) override;
 
 protected:
   ArcDcalcResult makeResult(const LibertyLibrary *drvr_library,

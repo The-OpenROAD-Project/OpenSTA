@@ -50,6 +50,8 @@
 
 namespace sta {
 
+using std::string;
+
 typedef Set<LatchEnable*> LatchEnableSet;
 
 void

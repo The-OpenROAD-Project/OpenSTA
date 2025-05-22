@@ -45,6 +45,7 @@
 
 namespace sta {
 
+using std::string;
 using std::abs;
 using std::make_shared;
 using Eigen::SparseLU;

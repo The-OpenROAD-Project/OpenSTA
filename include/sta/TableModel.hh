@@ -82,11 +82,11 @@ public:
                  bool pocv_enabled,
                  ArcDelay &gate_delay,
                  Slew &drvr_slew) const __attribute__ ((deprecated));
-  string reportGateDelay(const Pvt *pvt,
-                         float in_slew,
-                         float load_cap,
-                         bool pocv_enabled,
-                         int digits) const override;
+  std::string reportGateDelay(const Pvt *pvt,
+                              float in_slew,
+                              float load_cap,
+                              bool pocv_enabled,
+                              int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
 
   const TableModel *delayModel() const { return delay_model_; }
@@ -112,13 +112,13 @@ protected:
 		  float in_slew,
 		  float load_cap,
 		  float related_out_cap) const;
-  string reportTableLookup(const char *result_name,
-                           const Pvt *pvt,
-                           const TableModel *model,
-                           float in_slew,
-                           float load_cap,
-                           float related_out_cap,
-                           int digits) const;
+  std::string reportTableLookup(const char *result_name,
+                                const Pvt *pvt,
+                                const TableModel *model,
+                                float in_slew,
+                                float load_cap,
+                                float related_out_cap,
+                                int digits) const;
   void findAxisValues(const TableModel *model,
 		      float in_slew,
 		      float load_cap,
@@ -149,13 +149,13 @@ public:
                       float to_slew,
                       float related_out_cap,
                       bool pocv_enabled) const override;
-  string reportCheckDelay(const Pvt *pvt,
-                          float from_slew,
-                          const char *from_slew_annotation,
-                          float to_slew,
-                          float related_out_cap,
-                          bool pocv_enabled,
-                          int digits) const override;
+  std::string reportCheckDelay(const Pvt *pvt,
+                               float from_slew,
+                               const char *from_slew_annotation,
+                               float to_slew,
+                               float related_out_cap,
+                               bool pocv_enabled,
+                               int digits) const override;
   const TableModel *model() const { return model_; }
 
   // Check the axes before making the model.
@@ -180,14 +180,14 @@ protected:
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
-  string reportTableDelay(const char *result_name,
-                          const Pvt *pvt,
-                          const TableModel *model,
-                          float from_slew,
-                          const char *from_slew_annotation,
-                          float to_slew,
-                          float related_out_cap,
-                          int digits) const;
+  std::string reportTableDelay(const char *result_name,
+                               const Pvt *pvt,
+                               const TableModel *model,
+                               float from_slew,
+                               const char *from_slew_annotation,
+                               float to_slew,
+                               float related_out_cap,
+                               int digits) const;
   static bool checkAxis(const TableAxis *axis);
 
   TableModel *model_;
@@ -222,24 +222,24 @@ public:
 		  float value1,
 		  float value2,
 		  float value3) const;
-  string reportValue(const char *result_name,
-                     const LibertyCell *cell,
-                     const Pvt *pvt,
-                     float value1,
-                     const char *comment1,
-                     float value2,
-                     float value3,
-                     const Unit *table_unit,
-                     int digits) const;
-  string report(const Units *units,
-                Report *report) const;
+  std::string reportValue(const char *result_name,
+                          const LibertyCell *cell,
+                          const Pvt *pvt,
+                          float value1,
+                          const char *comment1,
+                          float value2,
+                          float value3,
+                          const Unit *table_unit,
+                          int digits) const;
+  std::string report(const Units *units,
+                     Report *report) const;
 
 protected:
   float scaleFactor(const LibertyCell *cell,
 		    const Pvt *pvt) const;
-  string reportPvtScaleFactor(const LibertyCell *cell,
-                              const Pvt *pvt,
-                              int digits) const;
+  std::string reportPvtScaleFactor(const LibertyCell *cell,
+                                   const Pvt *pvt,
+                                   int digits) const;
 
   TablePtr table_;
   TableTemplate *tbl_template_;
@@ -275,15 +275,15 @@ public:
 		  float axis_value1,
 		  float axis_value2,
 		  float axis_value3) const;
-  virtual string reportValue(const char *result_name,
-                             const LibertyCell *cell,
-                             const Pvt *pvt,
-                             float value1,
-                             const char *comment1,
-                             float value2,
-                             float value3,
-                             const Unit *table_unit,
-                             int digits) const = 0;
+  virtual std::string reportValue(const char *result_name,
+                                  const LibertyCell *cell,
+                                  const Pvt *pvt,
+                                  float value1,
+                                  const char *comment1,
+                                  float value2,
+                                  float value3,
+                                  const Unit *table_unit,
+                                  int digits) const = 0;
   virtual void report(const Units *units,
 		      Report *report) const = 0;
 };
@@ -300,15 +300,15 @@ public:
   float findValue(float axis_value1,
                   float axis_value2,
                   float axis_value3) const override;
-  string reportValue(const char *result_name,
-                     const LibertyCell *cell,
-                     const Pvt *pvt,
-                     float value1,
-                     const char *comment1,
-                     float value2,
-                     float value3,
-                     const Unit *table_unit,
-                     int digits) const override;
+  std::string reportValue(const char *result_name,
+                          const LibertyCell *cell,
+                          const Pvt *pvt,
+                          float value1,
+                          const char *comment1,
+                          float value2,
+                          float value3,
+                          const Unit *table_unit,
+                          int digits) const override;
   void report(const Units *units,
               Report *report) const override;
   using Table::findValue;
@@ -337,15 +337,15 @@ public:
   float findValue(float value1,
                   float value2,
                   float value3) const override;
-  string reportValue(const char *result_name,
-                     const LibertyCell *cell,
-                     const Pvt *pvt,
-                     float value1,
-                     const char *comment1,
-                     float value2,
-                     float value3,
-                     const Unit *table_unit,
-                     int digits) const override;
+  std::string reportValue(const char *result_name,
+                          const LibertyCell *cell,
+                          const Pvt *pvt,
+                          float value1,
+                          const char *comment1,
+                          float value2,
+                          float value3,
+                          const Unit *table_unit,
+                          int digits) const override;
   void report(const Units *units,
               Report *report) const override;
 
@@ -382,15 +382,15 @@ public:
   float findValue(float value1,
                   float value2,
                   float value3) const override;
-  string reportValue(const char *result_name,
-                     const LibertyCell *cell,
-                     const Pvt *pvt,
-                     float value1,
-                     const char *comment1,
-                     float value2,
-                     float value3,
-                     const Unit *table_unit,
-                     int digits) const override;
+  std::string reportValue(const char *result_name,
+                          const LibertyCell *cell,
+                          const Pvt *pvt,
+                          float value1,
+                          const char *comment1,
+                          float value2,
+                          float value3,
+                          const Unit *table_unit,
+                          int digits) const override;
   void report(const Units *units,
               Report *report) const override;
 
@@ -428,15 +428,15 @@ public:
   float findValue(float value1,
                   float value2,
                   float value3) const override;
-  string reportValue(const char *result_name,
-                     const LibertyCell *cell,
-                     const Pvt *pvt,
-                     float value1,
-                     const char *comment1,
-                     float value2,
-                     float value3,
-                     const Unit *table_unit,
-                     int digits) const override;
+  std::string reportValue(const char *result_name,
+                          const LibertyCell *cell,
+                          const Pvt *pvt,
+                          float value1,
+                          const char *comment1,
+                          float value2,
+                          float value3,
+                          const Unit *table_unit,
+                          int digits) const override;
   void report(const Units *units,
               Report *report) const override;
   using Table::findValue;
@@ -574,13 +574,13 @@ private:
 class DriverWaveform
 {
 public:
-  DriverWaveform(const string &name,
+  DriverWaveform(const std::string &name,
                  TablePtr waveforms);
   const char *name() const { return name_.c_str(); }
   Table1 waveform(float slew);
 
 private:
-  string name_;
+  std::string name_;
   TablePtr waveforms_;
 };
 
