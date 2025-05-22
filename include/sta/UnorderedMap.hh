@@ -30,7 +30,7 @@
 namespace sta {
 
 // Add convenience functions around STL container.
-template <class KEY, class VALUE, class HASH = std::hash<KEY>, class EQUAL = std::equal_to<KEY> >
+template <class KEY, class VALUE, class HASH = std::hash<KEY>, class EQUAL = std::equal_to<KEY>>
 class UnorderedMap : public std::unordered_map<KEY, VALUE, HASH, EQUAL>
 {
 public:
