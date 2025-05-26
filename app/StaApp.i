@@ -36,6 +36,7 @@
 %include "sdc/Sdc.i"
 %include "sdf/Sdf.i"
 %include "search/Search.i"
+%include "search/Property.i"
 %include "util/Util.i"
 %include "spice/WriteSpice.i"
 %include "verilog/Verilog.i"

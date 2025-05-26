@@ -1223,12 +1223,13 @@ filter_objects(const char *property,
   Vector<T*> filtered_objects;
   if (objects) {
     Sta *sta = Sta::sta();
+    Properties &properties = sta->properties();
     bool exact_match = stringEq(op, "==");
     bool pattern_match = stringEq(op, "=~");
     bool not_match = stringEq(op, "!=");
     bool not_pattern_match = stringEq(op, "!~");
     for (T *object : *objects) {
-      PropertyValue value(getProperty(object, property, sta));
+      PropertyValue value(properties.getProperty(object, property));
       string prop_str = value.to_string(sta->network());
       const char *prop = prop_str.c_str();
       if (!prop_str.empty()

@@ -46,75 +46,19 @@ namespace sta {
 using std::string;
 using std::max;
 
-static PropertyValue
-pinSlewProperty(const Pin *pin,
-		const MinMax *min_max,
-		Sta *sta);
-static PropertyValue
-pinSlewProperty(const Pin *pin,
-		const RiseFall *rf,
-		const MinMax *min_max,
-		Sta *sta);
-static PropertyValue
-pinArrivalProperty(const Pin *pin,
-                   const RiseFall *rf,
-                   const MinMax *min_max,
-                   Sta *sta);
-static PropertyValue
-pinSlackProperty(const Pin *pin,
-		 const MinMax *min_max,
-		 Sta *sta);
-static PropertyValue
-pinSlackProperty(const Pin *pin,
-		 const RiseFall *rf,
-		 const MinMax *min_max,
-		 Sta *sta);
-static PropertyValue
-portSlewProperty(const Port *port,
-		 const MinMax *min_max,
-		 Sta *sta);
-static PropertyValue
-portSlewProperty(const Port *port,
-		 const RiseFall *rf,
-		 const MinMax *min_max,
-		 Sta *sta);
-static PropertyValue
-portSlackProperty(const Port *port,
-		  const MinMax *min_max,
-		  Sta *sta);
-static PropertyValue
-portSlackProperty(const Port *port,
-		  const RiseFall *rf,
-		  const MinMax *min_max,
-		  Sta *sta);
-static PropertyValue
-edgeDelayProperty(Edge *edge,
-		  const RiseFall *rf,
-		  const MinMax *min_max,
-		  Sta *sta);
-static PropertyValue
-delayPropertyValue(Delay delay,
-		   Sta *sta);
-static PropertyValue
-resistancePropertyValue(float res,
-                        Sta *sta);
-static PropertyValue
-capacitancePropertyValue(float cap,
-                         Sta *sta);
-
-////////////////////////////////////////////////////////////////
-
 class PropertyUnknown : public Exception
 {
 public:
   PropertyUnknown(const char *type,
 		  const char *property);
+  PropertyUnknown(const char *type,
+		  const string property);
   virtual ~PropertyUnknown() {}
   virtual const char *what() const noexcept;
 
 private:
   const char *type_;
-  const char *property_;
+  const string property_;
 };
 
 PropertyUnknown::PropertyUnknown(const char *type,
@@ -125,11 +69,19 @@ PropertyUnknown::PropertyUnknown(const char *type,
 {
 }
 
+PropertyUnknown::PropertyUnknown(const char *type,
+				 const string property) :
+  Exception(),
+  type_(type),
+  property_(property)
+{
+}
+
 const char *
 PropertyUnknown::what() const noexcept
 {
   return stringPrint("%s objects do not have a %s property.",
-		     type_, property_);
+		     type_, property_.c_str());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -683,496 +635,643 @@ PropertyValue::boolValue() const
 
 ////////////////////////////////////////////////////////////////
 
+template<class TYPE>
 PropertyValue
-getProperty(const Library *lib,
-	    const char *property,
-	    Sta *sta)
+PropertyRegistry<TYPE>::getProperty(TYPE object,
+                                    const std::string property)
+
 {
-  Network *network = sta->cmdNetwork();
-  if (stringEqual(property, "name")
-      || stringEqual(property, "full_name"))
+  auto itr = registry_.find({object, property});
+  if (itr != registry_.end())
+    return itr->second;
+  else
+    return PropertyValue();
+}
+
+template<class TYPE>
+void
+PropertyRegistry<TYPE>::setProperty(TYPE object,
+                                    const std::string property,
+                                    PropertyValue value)
+{
+  registry_[{object, property}] = value;
+}
+
+////////////////////////////////////////////////////////////////
+
+Properties::Properties(Sta *sta) :
+  sta_(sta)
+{
+}
+
+void
+Properties::setProperty(const Library *lib,
+                        const string property,
+                        PropertyValue value)
+{
+  registry_lib_.setProperty(lib, property, value);
+}
+
+PropertyValue
+Properties::getProperty(const Library *lib,
+                        const std::string property)
+{
+  Network *network = sta_->cmdNetwork();
+  if (property == "name"
+      || property == "full_name")
     return PropertyValue(network->name(lib));
-  else
-    throw PropertyUnknown("library", property);
+  else {
+    PropertyValue value = registry_lib_.getProperty(lib, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("library", property);
+  }
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Properties::setProperty(const LibertyLibrary *lib,
+                        const string property,
+                        PropertyValue value)
+{
+  registry_liberty_lib_.setProperty(lib, property, value);
 }
 
 PropertyValue
-getProperty(const LibertyLibrary *lib,
-	    const char *property,
-	    Sta *)
+Properties::getProperty(const LibertyLibrary *lib,
+                        const std::string property)
 {
-  if (stringEqual(property, "name")
-      || stringEqual(property, "full_name"))
+  if (property == "name"
+      || property == "full_name")
     return PropertyValue(lib->name());
-  else if (stringEqual(property, "filename"))
+  else if (property == "filename")
     return PropertyValue(lib->filename());
-  else
-    throw PropertyUnknown("liberty library", property);
+  else {
+    PropertyValue value = registry_liberty_lib_.getProperty(lib, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("liberty library", property);
+  }
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Properties::setProperty(const LibertyCell *cell,
+                        const string property,
+                        PropertyValue value)
+{
+  registry_liberty_cell_.setProperty(cell, property, value);
 }
 
 PropertyValue
-getProperty(const LibertyCell *cell,
-	    const char *property,
-	    Sta *sta)
+Properties::getProperty(const LibertyCell *cell,
+                        const std::string property)
 {
-  if (stringEqual(property, "name")
-      || stringEqual(property, "base_name"))
+  if (property == "name"
+      || property == "base_name")
     return PropertyValue(cell->name());
-  else if (stringEqual(property, "full_name")) {
-    Network *network = sta->cmdNetwork();
+  else if (property == "full_name") {
+    Network *network = sta_->cmdNetwork();
     LibertyLibrary *lib = cell->libertyLibrary();
     string lib_name = lib->name();
     string cell_name = cell->name();
     string full_name = lib_name + network->pathDivider() + cell_name;
     return PropertyValue(full_name);
   }
-  else if (stringEqual(property, "filename"))
+  else if (property == "filename")
     return PropertyValue(cell->filename());
-  else if (stringEqual(property, "library"))
+  else if (property == "library")
     return PropertyValue(cell->libertyLibrary());
-  else if (stringEqual(property, "is_buffer"))
+  else if (property == "is_buffer")
     return PropertyValue(cell->isBuffer());
-  else if (stringEqual(property, "is_inverter"))
+  else if (property =="is_inverter")
     return PropertyValue(cell->isInverter());
-  else if (stringEqual(property, "is_memory"))
+  else if (property == "is_memory")
     return PropertyValue(cell->isMemory());
-  else if (stringEqual(property, "dont_use"))
+  else if (property == "dont_use")
     return PropertyValue(cell->dontUse());
-  else if (stringEqual(property, "area"))
-    return PropertyValue(cell->area(), sta->units()->scalarUnit());
-  else
-    throw PropertyUnknown("liberty cell", property);
+  else if (property == "area")
+    return PropertyValue(cell->area(), sta_->units()->scalarUnit());
+  else {
+    PropertyValue value = registry_liberty_cell_.getProperty(cell, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("liberty cell", property);
+  }
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Properties::setProperty(const Cell *cell,
+                        const string property,
+                        PropertyValue value)
+{
+  registry_cell_.setProperty(cell, property, value);
 }
 
 PropertyValue
-getProperty(const Cell *cell,
-	    const char *property,
-	    Sta *sta)
+Properties::getProperty(const Cell *cell,
+                        const std::string property)
 {
-  Network *network = sta->cmdNetwork();
-  if (stringEqual(property, "name")
-      || stringEqual(property, "base_name"))
+  Network *network = sta_->cmdNetwork();
+  if (property == "name"
+      || property == "base_name")
     return PropertyValue(network->name(cell));
-  else if (stringEqual(property, "full_name")) {
+  else if (property == "full_name") {
     Library *lib = network->library(cell);
     string lib_name = network->name(lib);
     string cell_name = network->name(cell);
     string full_name = lib_name + network->pathDivider() + cell_name;
     return PropertyValue(full_name);
   }
-  else if (stringEqual(property, "library"))
+  else if (property == "library")
     return PropertyValue(network->library(cell));
-  else if (stringEqual(property, "filename"))
+  else if (property == "filename")
     return PropertyValue(network->filename(cell));
-  else
-    throw PropertyUnknown("cell", property);
+  else {
+    PropertyValue value = registry_cell_.getProperty(cell, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("cell", property);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
 
-PropertyValue
-getProperty(const Port *port,
-	    const char *property,
-	    Sta *sta)
+void
+Properties::setProperty(const Port *port,
+                        const string property,
+                        PropertyValue value)
 {
-  Network *network = sta->cmdNetwork();
-  if (stringEqual(property, "name")
-	   || stringEqual(property, "full_name"))
+  registry_port_.setProperty(port, property, value);
+}
+
+PropertyValue
+Properties::getProperty(const Port *port,
+                        const std::string property)
+{
+  Network *network = sta_->cmdNetwork();
+  if (property == "name"
+	   || property == "full_name")
     return PropertyValue(network->name(port));
-  else if (stringEqual(property, "direction")
-	   || stringEqual(property, "port_direction"))
+  else if (property == "direction"
+	   || property == "port_direction")
     return PropertyValue(network->direction(port)->name());
-  else if (stringEqual(property, "liberty_port"))
+  else if (property == "liberty_port")
     return PropertyValue(network->libertyPort(port));
 
-  else if (stringEqual(property, "activity")) {
+  else if (property == "activity") {
     const Instance *top_inst = network->topInstance();
     const Pin *pin = network->findPin(top_inst, port);
-    PwrActivity activity = sta->activity(pin);
+    PwrActivity activity = sta_->activity(pin);
     return PropertyValue(&activity);
   }
 
-  else if (stringEqual(property, "slack_max"))
-    return portSlackProperty(port, MinMax::max(), sta);
-  else if (stringEqual(property, "slack_max_fall"))
-    return portSlackProperty(port, RiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "slack_max_rise"))
-    return portSlackProperty(port, RiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "slack_min"))
-    return portSlackProperty(port, MinMax::min(), sta);
-  else if (stringEqual(property, "slack_min_fall"))
-    return portSlackProperty(port, RiseFall::fall(), MinMax::min(), sta);
-  else if (stringEqual(property, "slack_min_rise"))
-    return portSlackProperty(port, RiseFall::rise(), MinMax::min(), sta);
+  else if (property == "slack_max")
+    return portSlack(port, MinMax::max());
+  else if (property == "slack_max_fall")
+    return portSlack(port, RiseFall::fall(), MinMax::max());
+  else if (property == "slack_max_rise")
+    return portSlack(port, RiseFall::rise(), MinMax::max());
+  else if (property == "slack_min")
+    return portSlack(port, MinMax::min());
+  else if (property == "slack_min_fall")
+    return portSlack(port, RiseFall::fall(), MinMax::min());
+  else if (property == "slack_min_rise")
+    return portSlack(port, RiseFall::rise(), MinMax::min());
 
-  else if (stringEqual(property, "slew_max"))
-    return portSlewProperty(port, MinMax::max(), sta);
-  else if (stringEqual(property, "slew_max_fall"))
-    return portSlewProperty(port, RiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "slew_max_rise"))
-    return portSlewProperty(port, RiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "slew_min"))
-    return portSlewProperty(port, MinMax::min(), sta);
-  else if (stringEqual(property, "slew_min_rise"))
-    return portSlewProperty(port, RiseFall::rise(), MinMax::min(), sta);
-  else if (stringEqual(property, "slew_min_fall"))
-    return portSlewProperty(port, RiseFall::fall(), MinMax::min(), sta);
+  else if (property == "slew_max")
+    return portSlew(port, MinMax::max());
+  else if (property == "slew_max_fall")
+    return portSlew(port, RiseFall::fall(), MinMax::max());
+  else if (property == "slew_max_rise")
+    return portSlew(port, RiseFall::rise(), MinMax::max());
+  else if (property == "slew_min")
+    return portSlew(port, MinMax::min());
+  else if (property == "slew_min_rise")
+    return portSlew(port, RiseFall::rise(), MinMax::min());
+  else if (property == "slew_min_fall")
+    return portSlew(port, RiseFall::fall(), MinMax::min());
 
-  else
-    throw PropertyUnknown("port", property);
-}
-
-static PropertyValue
-portSlewProperty(const Port *port,
-		 const MinMax *min_max,
-		 Sta *sta)
-{
-  Network *network = sta->ensureLibLinked();
-  Instance *top_inst = network->topInstance();
-  Pin *pin = network->findPin(top_inst, port);
-  return pinSlewProperty(pin, min_max, sta);
-}
-
-static PropertyValue
-portSlewProperty(const Port *port,
-		 const RiseFall *rf,
-		 const MinMax *min_max,
-		 Sta *sta)
-{
-  Network *network = sta->ensureLibLinked();
-  Instance *top_inst = network->topInstance();
-  Pin *pin = network->findPin(top_inst, port);
-  return pinSlewProperty(pin, rf, min_max, sta);
-}
-
-static PropertyValue
-portSlackProperty(const Port *port,
-		  const MinMax *min_max,
-		  Sta *sta)
-{
-  Network *network = sta->ensureLibLinked();
-  Instance *top_inst = network->topInstance();
-  Pin *pin = network->findPin(top_inst, port);
-  return pinSlackProperty(pin, min_max, sta);
-}
-
-static PropertyValue
-portSlackProperty(const Port *port,
-		  const RiseFall *rf,
-		  const MinMax *min_max,
-		  Sta *sta)
-{
-  Network *network = sta->ensureLibLinked();
-  Instance *top_inst = network->topInstance();
-  Pin *pin = network->findPin(top_inst, port);
-  return pinSlackProperty(pin, rf, min_max, sta);
+  else {
+    PropertyValue value = registry_port_.getProperty(port, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("port", property);
+  }
 }
 
 PropertyValue
-getProperty(const LibertyPort *port,
-	    const char *property,
-	    Sta *sta)
+Properties::portSlew(const Port *port,
+                     const MinMax *min_max)
 {
-  if (stringEqual(property, "name"))
+  Network *network = sta_->ensureLibLinked();
+  Instance *top_inst = network->topInstance();
+  Pin *pin = network->findPin(top_inst, port);
+  return pinSlew(pin, min_max);
+}
+
+PropertyValue
+Properties::portSlew(const Port *port,
+                     const RiseFall *rf,
+                     const MinMax *min_max)
+{
+  Network *network = sta_->ensureLibLinked();
+  Instance *top_inst = network->topInstance();
+  Pin *pin = network->findPin(top_inst, port);
+  return pinSlew(pin, rf, min_max);
+}
+
+PropertyValue
+Properties::portSlack(const Port *port,
+                      const MinMax *min_max)
+{
+  Network *network = sta_->ensureLibLinked();
+  Instance *top_inst = network->topInstance();
+  Pin *pin = network->findPin(top_inst, port);
+  return pinSlack(pin, min_max);
+}
+
+PropertyValue
+Properties::portSlack(const Port *port,
+                      const RiseFall *rf,
+                      const MinMax *min_max)
+{
+  Network *network = sta_->ensureLibLinked();
+  Instance *top_inst = network->topInstance();
+  Pin *pin = network->findPin(top_inst, port);
+  return pinSlack(pin, rf, min_max);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Properties::setProperty(const LibertyPort *port,
+                        const string property,
+                        PropertyValue value)
+{
+  registry_liberty_port_.setProperty(port, property, value);
+}
+
+PropertyValue
+Properties::getProperty(const LibertyPort *port,
+                        const std::string property)
+{
+  if (property == "name")
     return PropertyValue(port->name());
-  else if (stringEqual(property, "full_name"))
+  else if (property == "full_name")
     return PropertyValue(port->name());
-  else if (stringEqual(property, "lib_cell"))
+  else if (property == "lib_cell")
     return PropertyValue(port->libertyCell());
-  else if (stringEqual(property, "direction")
-	   || stringEqual(property, "port_direction"))
+  else if (property == "direction"
+	   || property == "port_direction")
     return PropertyValue(port->direction()->name());
-  else if (stringEqual(property, "capacitance")) {
+  else if (property == "capacitance") {
     float cap = port->capacitance(RiseFall::rise(), MinMax::max());
-    return capacitancePropertyValue(cap, sta);
+    return capacitancePropertyValue(cap);
   }
-  else if (stringEqual(property, "is_register_clock"))
+  else if (property == "is_register_clock")
     return PropertyValue(port->isRegClk());
 
-  else if (stringEqual(property, "drive_resistance")) {
+  else if (property == "drive_resistance") {
     float res = port->driveResistance();
-    return resistancePropertyValue(res, sta);
+    return resistancePropertyValue(res);
   }
-  else if (stringEqual(property, "drive_resistance_min_rise")) {
+  else if (property == "drive_resistance_min_rise") {
     float res = port->driveResistance(RiseFall::rise(), MinMax::min());
-    return resistancePropertyValue(res, sta);
+    return resistancePropertyValue(res);
   }
-  else if (stringEqual(property, "drive_resistance_max_rise")) {
+  else if (property == "drive_resistance_max_rise") {
     float res = port->driveResistance(RiseFall::rise(), MinMax::max());
-    return resistancePropertyValue(res, sta);
+    return resistancePropertyValue(res);
   }
-  else if (stringEqual(property, "drive_resistance_min_fall")) {
+  else if (property == "drive_resistance_min_fall") {
     float res = port->driveResistance(RiseFall::fall(), MinMax::min());
-    return resistancePropertyValue(res, sta);
+    return resistancePropertyValue(res);
   }
-  else if (stringEqual(property, "drive_resistance_max_fall")) {
+  else if (property == "drive_resistance_max_fall") {
     float res = port->driveResistance(RiseFall::fall(), MinMax::max());
-    return resistancePropertyValue(res, sta);
+    return resistancePropertyValue(res);
   }
 
-  else if (stringEqual(property, "intrinsic_delay")) {
-    ArcDelay delay = port->intrinsicDelay(sta);
-    return delayPropertyValue(delay, sta);
+  else if (property == "intrinsic_delay") {
+    ArcDelay delay = port->intrinsicDelay(sta_);
+    return delayPropertyValue(delay);
   }
-  else if (stringEqual(property, "intrinsic_delay_min_rise")) {
+  else if (property == "intrinsic_delay_min_rise") {
     ArcDelay delay = port->intrinsicDelay(RiseFall::rise(),
-                                          MinMax::min(), sta);
-    return delayPropertyValue(delay, sta);
+                                          MinMax::min(), sta_);
+    return delayPropertyValue(delay);
   }
-  else if (stringEqual(property, "intrinsic_delay_max_rise")) {
+  else if (property == "intrinsic_delay_max_rise") {
     ArcDelay delay = port->intrinsicDelay(RiseFall::rise(),
-                                          MinMax::max(), sta);
-    return delayPropertyValue(delay, sta);
+                                          MinMax::max(), sta_);
+    return delayPropertyValue(delay);
   }
-  else if (stringEqual(property, "intrinsic_delay_min_fall")) {
+  else if (property == "intrinsic_delay_min_fall") {
     ArcDelay delay = port->intrinsicDelay(RiseFall::fall(),
-                                          MinMax::min(), sta);
-    return delayPropertyValue(delay, sta);
+                                          MinMax::min(), sta_);
+    return delayPropertyValue(delay);
   }
-  else if (stringEqual(property, "intrinsic_delay_max_fall")) {
+  else if (property == "intrinsic_delay_max_fall") {
     ArcDelay delay = port->intrinsicDelay(RiseFall::fall(),
-                                          MinMax::max(), sta);
-    return delayPropertyValue(delay, sta);
+                                          MinMax::max(), sta_);
+    return delayPropertyValue(delay);
   }
-  else
-    throw PropertyUnknown("liberty port", property);
+   else {
+    PropertyValue value = registry_liberty_port_.getProperty(port, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("liberty port", property);
+   }
 }
 
 ////////////////////////////////////////////////////////////////
 
-PropertyValue
-getProperty(const Instance *inst,
-	    const char *property,
-	    Sta *sta)
+void
+Properties::setProperty(const Instance *inst,
+                        const string property,
+                        PropertyValue value)
 {
-  Network *network = sta->ensureLinked();
+  registry_inst_.setProperty(inst, property, value);
+}
+
+PropertyValue
+Properties::getProperty(const Instance *inst,
+                        const string property)
+{
+  Network *network = sta_->ensureLinked();
   LibertyCell *liberty_cell = network->libertyCell(inst);
-  if (stringEqual(property, "name"))
+  if (property == "name")
     return PropertyValue(network->name(inst));
-  else if (stringEqual(property, "full_name"))
+  else if (property == "full_name")
     return PropertyValue(network->pathName(inst));
-  else if (stringEqual(property, "ref_name"))
+  else if (property == "ref_name")
     return PropertyValue(network->name(network->cell(inst)));
-  else if (stringEqual(property, "liberty_cell"))
+  else if (property ==  "liberty_cell")
     return PropertyValue(network->libertyCell(inst));
-  else if (stringEqual(property, "cell"))
+  else if (property == "cell")
     return PropertyValue(network->cell(inst));
-  else if (stringEqual(property, "is_hierarchical"))
+  else if (property == "is_hierarchical")
     return PropertyValue(network->isHierarchical(inst));
-  else if (stringEqual(property, "is_buffer"))
+  else if (property == "is_buffer")
     return PropertyValue(liberty_cell && liberty_cell->isBuffer());
-  else if (stringEqual(property, "is_clock_gate"))
+  else if (property == "is_clock_gate")
     return PropertyValue(liberty_cell && liberty_cell->isClockGate());
-  else if (stringEqual(property, "is_inverter"))
+  else if (property == "is_inverter")
     return PropertyValue(liberty_cell && liberty_cell->isInverter());
-  else if (stringEqual(property, "is_macro"))
+  else if (property == "is_macro")
     return PropertyValue(liberty_cell && liberty_cell->isMacro());
-  else if (stringEqual(property, "is_memory"))
+  else if (property == "is_memory")
     return PropertyValue(liberty_cell && liberty_cell->isMemory());
-  else
-    throw PropertyUnknown("instance", property);
+  else {
+    PropertyValue value = registry_inst_.getProperty(inst, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("instance", property);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
 
-PropertyValue
-getProperty(const Pin *pin,
-	    const char *property,
-	    Sta *sta)
+void
+Properties::setProperty(const Pin *pin,
+                        const string property,
+                        PropertyValue value)
 {
-  Network *network = sta->ensureLinked();
-  if (stringEqual(property, "name")
-      || stringEqual(property, "lib_pin_name"))
+  registry_pin_.setProperty(pin, property, value);
+}
+
+PropertyValue
+Properties::getProperty(const Pin *pin,
+                        const std::string property)
+{
+  Network *network = sta_->ensureLinked();
+  if (property == "name"
+      || property == "lib_pin_name")
     return PropertyValue(network->portName(pin));
-  else if (stringEqual(property, "full_name"))
+  else if (property == "full_name")
     return PropertyValue(network->pathName(pin));
-  else if (stringEqual(property, "direction")
-  	   || stringEqual(property, "pin_direction"))
+  else if (property == "direction"
+  	   || property == "pin_direction")
     return PropertyValue(network->direction(pin)->name());
-  else if (stringEqual(property, "is_hierarchical"))
+  else if (property == "is_hierarchical")
     return PropertyValue(network->isHierarchical(pin));
-  else if (stringEqual(property, "is_port"))
+  else if (property == "is_port")
     return PropertyValue(network->isTopLevelPort(pin));
-  else if (stringEqual(property, "is_register_clock")) {
+  else if (property == "is_register_clock") {
     const LibertyPort *port = network->libertyPort(pin);
     return PropertyValue(port && port->isRegClk());
   }
-  else if (stringEqual(property, "clocks")) {
-    ClockSet clks = sta->clocks(pin);
+  else if (property == "clocks") {
+    ClockSet clks = sta_->clocks(pin);
     return PropertyValue(&clks);
   }
-  else if (stringEqual(property, "clock_domains")) {
-    ClockSet clks = sta->clockDomains(pin);
+  else if (property == "clock_domains") {
+    ClockSet clks = sta_->clockDomains(pin);
     return PropertyValue(&clks);
   }
-  else if (stringEqual(property, "activity")) {
-    PwrActivity activity = sta->activity(pin);
+  else if (property == "activity") {
+    PwrActivity activity = sta_->activity(pin);
     return PropertyValue(&activity);
   }
 
-  else if (stringEqual(property, "arrival_max_rise"))
-    return pinArrivalProperty(pin, RiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "arrival_max_fall"))
-    return pinArrivalProperty(pin, RiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "arrival_min_rise"))
-    return pinArrivalProperty(pin, RiseFall::rise(), MinMax::min(), sta);
-  else if (stringEqual(property, "arrival_min_fall"))
-    return pinArrivalProperty(pin, RiseFall::fall(), MinMax::min(), sta);
+  else if (property == "arrival_max_rise")
+    return pinArrival(pin, RiseFall::rise(), MinMax::max());
+  else if (property == "arrival_max_fall")
+    return pinArrival(pin, RiseFall::fall(), MinMax::max());
+  else if (property == "arrival_min_rise")
+    return pinArrival(pin, RiseFall::rise(), MinMax::min());
+  else if (property == "arrival_min_fall")
+    return pinArrival(pin, RiseFall::fall(), MinMax::min());
 
-  else if (stringEqual(property, "slack_max"))
-    return pinSlackProperty(pin, MinMax::max(), sta);
-  else if (stringEqual(property, "slack_max_fall"))
-    return pinSlackProperty(pin, RiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "slack_max_rise"))
-    return pinSlackProperty(pin, RiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "slack_min"))
-    return pinSlackProperty(pin, MinMax::min(), sta);
-  else if (stringEqual(property, "slack_min_fall"))
-    return pinSlackProperty(pin, RiseFall::fall(), MinMax::min(), sta);
-  else if (stringEqual(property, "slack_min_rise"))
-    return pinSlackProperty(pin, RiseFall::rise(), MinMax::min(), sta);
+  else if (property == "slack_max")
+    return pinSlack(pin, MinMax::max());
+  else if (property == "slack_max_fall")
+    return pinSlack(pin, RiseFall::fall(), MinMax::max());
+  else if (property == "slack_max_rise")
+    return pinSlack(pin, RiseFall::rise(), MinMax::max());
+  else if (property == "slack_min")
+    return pinSlack(pin, MinMax::min());
+  else if (property == "slack_min_fall")
+    return pinSlack(pin, RiseFall::fall(), MinMax::min());
+  else if (property == "slack_min_rise")
+    return pinSlack(pin, RiseFall::rise(), MinMax::min());
 
-  else if (stringEqual(property, "slew_max"))
-    return pinSlewProperty(pin, MinMax::max(), sta);
-  else if (stringEqual(property, "slew_max_fall"))
-    return pinSlewProperty(pin, RiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "slew_max_rise"))
-    return pinSlewProperty(pin, RiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "slew_min"))
-    return pinSlewProperty(pin, MinMax::min(), sta);
-  else if (stringEqual(property, "slew_min_rise"))
-    return pinSlewProperty(pin, RiseFall::rise(), MinMax::min(), sta);
-  else if (stringEqual(property, "slew_min_fall"))
-    return pinSlewProperty(pin, RiseFall::fall(), MinMax::min(), sta);
+  else if (property == "slew_max")
+    return pinSlew(pin, MinMax::max());
+  else if (property == "slew_max_fall")
+    return pinSlew(pin, RiseFall::fall(), MinMax::max());
+  else if (property == "slew_max_rise")
+    return pinSlew(pin, RiseFall::rise(), MinMax::max());
+  else if (property == "slew_min")
+    return pinSlew(pin, MinMax::min());
+  else if (property == "slew_min_rise")
+    return pinSlew(pin, RiseFall::rise(), MinMax::min());
+  else if (property == "slew_min_fall")
+    return pinSlew(pin, RiseFall::fall(), MinMax::min());
 
-  else
-    throw PropertyUnknown("pin", property);
+  else {
+    PropertyValue value = registry_pin_.getProperty(pin, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("pin", property);
+  }
 }
 
-static PropertyValue
-pinArrivalProperty(const Pin *pin,
-                   const RiseFall *rf,
-                   const MinMax *min_max,
-                   Sta *sta)
+PropertyValue
+Properties::pinArrival(const Pin *pin,
+                       const RiseFall *rf,
+                       const MinMax *min_max)
 {
-  Arrival arrival = sta->pinArrival(pin, rf, min_max);;
-  return PropertyValue(delayPropertyValue(arrival, sta));
+  Arrival arrival = sta_->pinArrival(pin, rf, min_max);;
+  return PropertyValue(delayPropertyValue(arrival));
 }
 
-static PropertyValue
-pinSlackProperty(const Pin *pin,
-		 const MinMax *min_max,
-		 Sta *sta)
+PropertyValue
+Properties::pinSlack(const Pin *pin,
+                     const MinMax *min_max)
 {
-  Slack slack = sta->pinSlack(pin, min_max);
-  return PropertyValue(delayPropertyValue(slack, sta));
+  Slack slack = sta_->pinSlack(pin, min_max);
+  return PropertyValue(delayPropertyValue(slack));
 }
 
-static PropertyValue
-pinSlackProperty(const Pin *pin,
-		 const RiseFall *rf,
-		 const MinMax *min_max,
-		 Sta *sta)
+PropertyValue
+Properties::pinSlack(const Pin *pin,
+                     const RiseFall *rf,
+                     const MinMax *min_max)
 {
-  Slack slack = sta->pinSlack(pin, rf, min_max);
-  return PropertyValue(delayPropertyValue(slack, sta));
+  Slack slack = sta_->pinSlack(pin, rf, min_max);
+  return PropertyValue(delayPropertyValue(slack));
 }
 
-static PropertyValue
-pinSlewProperty(const Pin *pin,
-		const MinMax *min_max,
-		Sta *sta)
+PropertyValue
+Properties::pinSlew(const Pin *pin,
+                    const MinMax *min_max)
 {
-  Graph *graph = sta->ensureGraph();
+  Graph *graph = sta_->ensureGraph();
   Vertex *vertex, *bidirect_drvr_vertex;
   graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slew slew = min_max->initValue();
   if (vertex) {
-    Slew vertex_slew = sta->vertexSlew(vertex, min_max);
-    if (delayGreater(vertex_slew, slew, min_max, sta))
+    Slew vertex_slew = sta_->vertexSlew(vertex, min_max);
+    if (delayGreater(vertex_slew, slew, min_max, sta_))
       slew = vertex_slew;
   }
   if (bidirect_drvr_vertex) {
-    Slew vertex_slew = sta->vertexSlew(bidirect_drvr_vertex, min_max);
-    if (delayGreater(vertex_slew, slew, min_max, sta))
+    Slew vertex_slew = sta_->vertexSlew(bidirect_drvr_vertex, min_max);
+    if (delayGreater(vertex_slew, slew, min_max, sta_))
       slew = vertex_slew;
   }
-  return delayPropertyValue(slew, sta);
+  return delayPropertyValue(slew);
 }
 
-static PropertyValue
-pinSlewProperty(const Pin *pin,
-		const RiseFall *rf,
-		const MinMax *min_max,
-		Sta *sta)
+PropertyValue
+Properties::pinSlew(const Pin *pin,
+                    const RiseFall *rf,
+                    const MinMax *min_max)
 {
-  Graph *graph = sta->ensureGraph();
+  Graph *graph = sta_->ensureGraph();
   Vertex *vertex, *bidirect_drvr_vertex;
   graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slew slew = min_max->initValue();
   if (vertex) {
-    Slew vertex_slew = sta->vertexSlew(vertex, rf, min_max);
-    if (delayGreater(vertex_slew, slew, min_max, sta))
+    Slew vertex_slew = sta_->vertexSlew(vertex, rf, min_max);
+    if (delayGreater(vertex_slew, slew, min_max, sta_))
       slew = vertex_slew;
   }
   if (bidirect_drvr_vertex) {
-    Slew vertex_slew = sta->vertexSlew(bidirect_drvr_vertex, rf, min_max);
-    if (delayGreater(vertex_slew, slew, min_max, sta))
+    Slew vertex_slew = sta_->vertexSlew(bidirect_drvr_vertex, rf, min_max);
+    if (delayGreater(vertex_slew, slew, min_max, sta_))
       slew = vertex_slew;
   }
-  return delayPropertyValue(slew, sta);
+  return delayPropertyValue(slew);
 }
 
 ////////////////////////////////////////////////////////////////
 
-PropertyValue
-getProperty(const Net *net,
-	    const char *property,
-	    Sta *sta)
+void
+Properties::setProperty(const Net *net,
+                        const string property,
+                        PropertyValue value)
 {
-  Network *network = sta->ensureLinked();
-  if (stringEqual(property, "name"))
+  registry_net_.setProperty(net, property, value);
+}
+
+PropertyValue
+Properties::getProperty(const Net *net,
+                        const std::string property)
+{
+  Network *network = sta_->ensureLinked();
+  if (property == "name")
     return PropertyValue(network->name(net));
-  else if (stringEqual(property, "full_name"))
+  else if (property == "full_name")
     return PropertyValue(network->pathName(net));
-  else
-    throw PropertyUnknown("net", property);
+  else {
+    PropertyValue value = registry_net_.getProperty(net, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("net", property);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
 
-PropertyValue
-getProperty(Edge *edge,
-	    const char *property,
-	    Sta *sta)
+void
+Properties::setProperty(Edge *edge,
+                        const string property,
+                        PropertyValue value)
 {
-  if (stringEqual(property, "full_name")) {
-    string full_name = edge->to_string(sta);
+  registry_edge_.setProperty(edge, property, value);
+}
+
+PropertyValue
+Properties::getProperty(Edge *edge,
+                        const std::string property)
+{
+  if (property == "full_name") {
+    string full_name = edge->to_string(sta_);
     return PropertyValue(full_name);
   }
-  if (stringEqual(property, "delay_min_fall"))
-    return edgeDelayProperty(edge, RiseFall::fall(), MinMax::min(), sta);
-  else if (stringEqual(property, "delay_max_fall"))
-    return edgeDelayProperty(edge, RiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "delay_min_rise"))
-    return edgeDelayProperty(edge, RiseFall::rise(), MinMax::min(), sta);
-  else if (stringEqual(property, "delay_max_rise"))
-    return edgeDelayProperty(edge, RiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "sense"))
+  if (property == "delay_min_fall")
+    return edgeDelay(edge, RiseFall::fall(), MinMax::min());
+  else if (property == "delay_max_fall")
+    return edgeDelay(edge, RiseFall::fall(), MinMax::max());
+  else if (property == "delay_min_rise")
+    return edgeDelay(edge, RiseFall::rise(), MinMax::min());
+  else if (property == "delay_max_rise")
+    return edgeDelay(edge, RiseFall::rise(), MinMax::max());
+  else if (property == "sense")
     return PropertyValue(to_string(edge->sense()));
-  else if (stringEqual(property, "from_pin"))
-    return PropertyValue(edge->from(sta->graph())->pin());
-  else if (stringEqual(property, "to_pin"))
-    return PropertyValue(edge->to(sta->graph())->pin());
-  else
-    throw PropertyUnknown("edge", property);
+  else if (property == "from_pin")
+    return PropertyValue(edge->from(sta_->graph())->pin());
+  else if (property == "to_pin")
+    return PropertyValue(edge->to(sta_->graph())->pin());
+  else {
+    PropertyValue value = registry_edge_.getProperty(edge, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("edge", property);
+  }
 }
 
-static PropertyValue
-edgeDelayProperty(Edge *edge,
-		  const RiseFall *rf,
-		  const MinMax *min_max,
-		  Sta *sta)
+PropertyValue
+Properties::edgeDelay(Edge *edge,
+                      const RiseFall *rf,
+                      const MinMax *min_max)
 {
   ArcDelay delay = 0.0;
   bool delay_exists = false;
@@ -1180,30 +1279,29 @@ edgeDelayProperty(Edge *edge,
   for (TimingArc *arc : arc_set->arcs()) {
     const RiseFall *to_rf = arc->toEdge()->asRiseFall();
     if (to_rf == rf) {
-      for (const Corner *corner : *sta->corners()) {
+      for (const Corner *corner : *sta_->corners()) {
 	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-	ArcDelay arc_delay = sta->arcDelay(edge, arc, dcalc_ap);
+	ArcDelay arc_delay = sta_->arcDelay(edge, arc, dcalc_ap);
 	if (!delay_exists
 	    || ((min_max == MinMax::max()
-		 && delayGreater(arc_delay, delay, sta))
+		 && delayGreater(arc_delay, delay, sta_))
 		|| (min_max == MinMax::min()
-		    && delayLess(arc_delay, delay, sta))))
+		    && delayLess(arc_delay, delay, sta_))))
 	  delay = arc_delay;
       }
     }
   }
-  return PropertyValue(delayPropertyValue(delay, sta));
+  return delayPropertyValue(delay);
 }
 
 ////////////////////////////////////////////////////////////////
 
 PropertyValue
-getProperty(TimingArcSet *arc_set,
-	    const char *property,
-	    Sta *)
+Properties::getProperty(TimingArcSet *arc_set,
+                        const std::string property)
 {
-  if (stringEqual(property, "name")
-      || stringEqual(property, "full_name")) {
+  if (property == "name"
+      || property == "full_name") {
     if (arc_set->isWire())
       return PropertyValue("wire");
     else {
@@ -1221,51 +1319,62 @@ getProperty(TimingArcSet *arc_set,
 
 ////////////////////////////////////////////////////////////////
 
-PropertyValue
-getProperty(Clock *clk,
-	    const char *property,
-	    Sta *sta)
+void
+Properties::setProperty(const Clock *clk,
+                        const string property,
+                        PropertyValue value)
 {
-  if (stringEqual(property, "name")
-      || stringEqual(property, "full_name"))
+  registry_clk_.setProperty(clk, property, value);
+}
+
+PropertyValue
+Properties::getProperty(const Clock *clk,
+                        const std::string property)
+{
+  if (property == "name"
+      || property == "full_name")
     return PropertyValue(clk->name());
-  else if (stringEqual(property, "period"))
-    return PropertyValue(clk->period(), sta->units()->timeUnit());
-  else if (stringEqual(property, "sources"))
+  else if (property == "period")
+    return PropertyValue(clk->period(), sta_->units()->timeUnit());
+  else if (property == "sources")
     return PropertyValue(clk->pins());
-  else if (stringEqual(property, "is_generated"))
+  else if (property == "is_generated")
     return PropertyValue(clk->isGenerated());
-  else if (stringEqual(property, "is_virtual"))
+  else if (property == "is_virtual")
     return PropertyValue(clk->isVirtual());
-  else if (stringEqual(property, "is_propagated"))
+  else if (property == "is_propagated")
     return PropertyValue(clk->isPropagated());
-  else
-    throw PropertyUnknown("clock", property);
+  else {
+    PropertyValue value = registry_clk_.getProperty(clk, property);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("clock", property);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
 
 PropertyValue
-getProperty(PathEnd *end,
-	    const char *property,
-	    Sta *sta)
+Properties::getProperty(PathEnd *end,
+                        const std::string property)
 {
-  if (stringEqual(property, "startpoint")) {
-    PathExpanded expanded(end->path(), sta);
-    return PropertyValue(expanded.startPath()->pin(sta));
+  if (property == "startpoint") {
+    PathExpanded expanded(end->path(), sta_);
+    return PropertyValue(expanded.startPath()->pin(sta_));
   }
-  else if (stringEqual(property, "startpoint_clock"))
-    return PropertyValue(end->path()->clock(sta));
-  else if (stringEqual(property, "endpoint"))
-    return PropertyValue(end->path()->pin(sta));
-  else if (stringEqual(property, "endpoint_clock"))
-    return PropertyValue(end->targetClk(sta));
-  else if (stringEqual(property, "endpoint_clock_pin"))
-    return PropertyValue(end->targetClkPath()->pin(sta));
-  else if (stringEqual(property, "slack"))
-    return PropertyValue(delayPropertyValue(end->slack(sta), sta));
-  else if (stringEqual(property, "points")) {
-    PathExpanded expanded(end->path(), sta);
+  else if (property == "startpoint_clock")
+    return PropertyValue(end->path()->clock(sta_));
+  else if (property == "endpoint")
+    return PropertyValue(end->path()->pin(sta_));
+  else if (property == "endpoint_clock")
+    return PropertyValue(end->targetClk(sta_));
+  else if (property == "endpoint_clock_pin")
+    return PropertyValue(end->targetClkPath()->pin(sta_));
+  else if (property == "slack")
+    return PropertyValue(delayPropertyValue(end->slack(sta_)));
+  else if (property == "points") {
+    PathExpanded expanded(end->path(), sta_);
     ConstPathSeq paths;
     for (size_t i = expanded.startIndex(); i < expanded.size(); i++) {
       const Path *path = expanded.path(i);
@@ -1278,41 +1387,37 @@ getProperty(PathEnd *end,
 }
 
 PropertyValue
-getProperty(Path *path,
-	    const char *property,
-	    Sta *sta)
+Properties::getProperty(Path *path,
+                        const std::string property)
 {
-  if (stringEqual(property, "pin"))
-    return PropertyValue(path->pin(sta));
-  else if (stringEqual(property, "arrival"))
-    return PropertyValue(delayPropertyValue(path->arrival(), sta));
-  else if (stringEqual(property, "required"))
-    return PropertyValue(delayPropertyValue(path->required(), sta));
-  else if (stringEqual(property, "slack"))
-    return PropertyValue(delayPropertyValue(path->slack(sta), sta));
+  if (property == "pin")
+    return PropertyValue(path->pin(sta_));
+  else if (property == "arrival")
+    return PropertyValue(delayPropertyValue(path->arrival()));
+  else if (property == "required")
+    return PropertyValue(delayPropertyValue(path->required()));
+  else if (property == "slack")
+    return PropertyValue(delayPropertyValue(path->slack(sta_)));
   else
     throw PropertyUnknown("path", property);
 }
 
-static PropertyValue
-delayPropertyValue(Delay delay,
-		   Sta *sta)
+PropertyValue
+Properties::delayPropertyValue(Delay delay)
 {
-  return PropertyValue(delayAsFloat(delay), sta->units()->timeUnit());
+  return PropertyValue(delayAsFloat(delay), sta_->units()->timeUnit());
 }
 
-static PropertyValue
-resistancePropertyValue(float res,
-                        Sta *sta)
+PropertyValue
+Properties::resistancePropertyValue(float res)
 {
-  return PropertyValue(res, sta->units()->resistanceUnit());
+  return PropertyValue(res, sta_->units()->resistanceUnit());
 }
 
-static PropertyValue
-capacitancePropertyValue(float cap,
-                         Sta *sta)
+PropertyValue
+Properties::capacitancePropertyValue(float cap)
 {
-  return PropertyValue(cap, sta->units()->capacitanceUnit());
+  return PropertyValue(cap, sta_->units()->capacitanceUnit());
 }
 
 } // namespace

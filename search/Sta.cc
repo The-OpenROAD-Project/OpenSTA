@@ -285,7 +285,8 @@ Sta::Sta() :
   equiv_cells_(nullptr),
   graph_sdc_annotated_(false),
   // Default to same parasitics for all corners.
-  parasitics_per_corner_(false)
+  parasitics_per_corner_(false),
+  properties_(this)
 {
 }
 
