@@ -3980,10 +3980,11 @@ Sdc::unrecordPathDelayInternalTo(ExceptionPath *exception)
     for (const Pin *pin : *to->pins()) {
       if (!(hasLibertyCheckTo(pin)
 	    || network_->isTopLevelPort(pin))
-	  && !pathDelayTo(pin))
+	  && !pathDelayTo(pin)) {
 	path_delay_internal_to_.erase(pin);
         if (exception->breakPath())
           path_delay_internal_to_break_.erase(pin);
+      }
     }
   }
 }
