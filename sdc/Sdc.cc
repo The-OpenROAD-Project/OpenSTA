@@ -363,6 +363,25 @@ Sdc::deleteNetBefore(const Net *net)
   }
 }
 
+// see Sdc::isConstrained
+void
+Sdc::deleteInstanceBefore(const Instance *inst)
+{
+  instance_pvt_maps_[MinMax::minIndex()].erase(inst);
+  instance_pvt_maps_[MinMax::maxIndex()].erase(inst);
+  inst_derating_factors_.erase(inst);
+  inst_clk_gating_check_map_.erase(inst);
+  disabled_inst_ports_.erase(inst);
+  inst_latch_borrow_limit_map_.erase(inst);
+  inst_min_pulse_width_map_.erase(inst);
+
+  for (ExceptionPath *exception : exceptions_)
+    exception->deleteInstance(inst, network_);
+  first_from_inst_exceptions_.erase(inst);
+  first_thru_inst_exceptions_.erase(inst);
+  first_to_inst_exceptions_.erase(inst);
+}
+
 void
 Sdc::makeCornersBefore()
 {

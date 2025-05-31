@@ -458,6 +458,20 @@ thrusIntersectPts(ExceptionThruSeq *thrus1,
   return true;
 }
 
+void
+ExceptionPath::deleteInstance(const Instance *inst,
+                              const Network *network)
+{
+  if (from_)
+    from_->deleteInstance(inst, network);
+  if (thrus_) {
+    for (ExceptionThru *thru : *thrus_)
+      thru->deleteInstance(inst, network);
+  }
+  if (to_)
+    to_->deleteInstance(inst, network);
+}
+
 ////////////////////////////////////////////////////////////////
 
 PathDelay::PathDelay(ExceptionFrom *from,

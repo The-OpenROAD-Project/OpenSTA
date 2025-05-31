@@ -4579,6 +4579,7 @@ void
 Sta::deleteLeafInstanceBefore(const Instance *inst)
 {
   sim_->deleteInstanceBefore(inst);
+  sdc_->deleteInstanceBefore(inst);
 }
 
 void

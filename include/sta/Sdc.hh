@@ -216,6 +216,7 @@ public:
   // Build data structures for search.
   void searchPreamble();
   void deleteNetBefore(const Net *net);
+  void deleteInstanceBefore(const Instance *inst);
 
   // SWIG sdc interface.
   PortSeq allInputs(bool no_clks);

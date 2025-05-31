@@ -119,6 +119,9 @@ public:
 			       ExceptionThruSeq *thrus,
 			       ExceptionTo *to,
 			       bool own_pts) = 0;
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
+
   // Default handlers.
   virtual bool useEndClk() const { return false; }
   virtual int pathMultiplier() const { return 0; }
@@ -414,14 +417,14 @@ public:
 			       Network *) {}
   virtual void disconnectPinBefore(const Pin *,
 				   Network *) {}
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
 
 protected:
   virtual void findHash(const Network *network);
 
   void deletePin(const Pin *pin,
                  const Network *network);
-  void deleteInstance(const Instance *inst,
-                      const Network *network);
   virtual const char *cmdKeyword() const = 0;
 
   PinSet *pins_;
@@ -536,6 +539,8 @@ public:
 			       Network *network);
   virtual void disconnectPinBefore(const Pin *pin,
 				   Network *network);
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
 
 protected:
   void findHash(const Network *network);
@@ -553,8 +558,6 @@ protected:
   void deleteEdge(const EdgePins &edge);
   void deleteNet(const Net *net,
                  const Network *network);
-  void deleteInstance(const Instance *inst,
-                      const Network *network);
   void makeAllEdges(const Network *network);
   void makePinEdges(const Network *network);
   void makeNetEdges(const Network *network);
