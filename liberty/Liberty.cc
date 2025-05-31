@@ -136,6 +136,9 @@ LibertyLibrary::~LibertyLibrary()
   delete inverters_;
   driver_waveform_map_.deleteContents();
   delete driver_waveform_default_;
+
+  delete default_ocv_derate_;
+  default_ocv_derate_ = nullptr;
 }
 
 LibertyCell *
