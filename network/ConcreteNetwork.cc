@@ -624,6 +624,13 @@ ConcreteNetwork::getAttribute(const Cell *cell,
   return ccell->getAttribute(key);
 }
 
+const AttributeMap &
+ConcreteNetwork::attributeMap(const Cell *cell) const
+{
+  const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
+  return ccell->attributeMap();
+}
+
 Port *
 ConcreteNetwork::findPort(const Cell *cell,
 			  const char *name) const
@@ -954,6 +961,13 @@ ConcreteNetwork::getAttribute(const Instance *inst,
 {
   const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
   return cinst->getAttribute(key);
+}
+
+const AttributeMap &
+ConcreteNetwork::attributeMap(const Instance *inst) const
+{
+  const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
+  return cinst->attributeMap();
 }
 
 Cell *

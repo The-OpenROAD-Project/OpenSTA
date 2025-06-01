@@ -35,7 +35,7 @@
 # Application program to run tests on.
 set app "sta"
 set sta_dir [file dirname $test_dir]
-set app_path [file join $sta_dir "app" $app]
+set app_path [file join $sta_dir "build" $app]
 # Application options.
 set app_options "-no_init -no_splash -exit"
 # Log files for each test are placed in result_dir.

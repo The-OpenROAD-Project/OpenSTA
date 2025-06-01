@@ -29,6 +29,8 @@
 
 namespace sta {
 
+using std::string;
+
 GateLinearModel::GateLinearModel(LibertyCell *cell,
                                  float intrinsic,
 				 float resistance) :

@@ -30,7 +30,7 @@
 namespace sta {
 
 // Add convenience functions around STL container.
-template <class KEY, class VALUE, class CMP = std::less<KEY> >
+template <class KEY, class VALUE, class CMP = std::less<KEY>>
 class Map : public std::map<KEY, VALUE, CMP>
 {
 public:

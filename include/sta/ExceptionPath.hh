@@ -119,6 +119,9 @@ public:
 			       ExceptionThruSeq *thrus,
 			       ExceptionTo *to,
 			       bool own_pts) = 0;
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
+
   // Default handlers.
   virtual bool useEndClk() const { return false; }
   virtual int pathMultiplier() const { return 0; }
@@ -126,6 +129,7 @@ public:
   virtual const char *name() const { return nullptr; }
   virtual bool isDefault() const { return false; }
   virtual bool ignoreClkLatency() const { return false; }
+  virtual bool breakPath() const { return false; }
 
 protected:
   virtual const char *typeString() const = 0;
@@ -194,6 +198,7 @@ public:
 	    ExceptionTo *to,
 	    const MinMax *min_max,
 	    bool ignore_clk_latency,
+            bool break_path,
 	    float delay,
 	    bool own_pts,
 	    const char *comment);
@@ -211,9 +216,11 @@ public:
   virtual int typePriority() const;
   virtual bool tighterThan(ExceptionPath *exception) const;
   virtual bool ignoreClkLatency() const { return ignore_clk_latency_; }
+  virtual bool breakPath() const { return break_path_; }
 
 protected:
   bool ignore_clk_latency_;
+  bool break_path_;
   float delay_;
 };
 
@@ -410,14 +417,14 @@ public:
 			       Network *) {}
   virtual void disconnectPinBefore(const Pin *,
 				   Network *) {}
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
 
 protected:
   virtual void findHash(const Network *network);
 
   void deletePin(const Pin *pin,
                  const Network *network);
-  void deleteInstance(const Instance *inst,
-                      const Network *network);
   virtual const char *cmdKeyword() const = 0;
 
   PinSet *pins_;
@@ -532,6 +539,8 @@ public:
 			       Network *network);
   virtual void disconnectPinBefore(const Pin *pin,
 				   Network *network);
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
 
 protected:
   void findHash(const Network *network);
@@ -549,8 +558,6 @@ protected:
   void deleteEdge(const EdgePins &edge);
   void deleteNet(const Net *net,
                  const Network *network);
-  void deleteInstance(const Instance *inst,
-                      const Network *network);
   void makeAllEdges(const Network *network);
   void makePinEdges(const Network *network);
   void makeNetEdges(const Network *network);

@@ -109,7 +109,7 @@ EvalPred::searchTo(const Vertex *to_vertex)
   const Pin *pin = to_vertex->pin();
   return SearchPred0::searchTo(to_vertex)
     && !(sdc->isLeafPinClock(pin)
-	 && !sdc->isPathDelayInternalEndpoint(pin));
+	 && !sdc->isPathDelayInternalTo(pin));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -979,7 +979,7 @@ Search::visitStartpoints(VertexVisitor *visitor)
   for (Vertex *vertex : *graph_->regClkVertices())
     visitor->visit(vertex);
 
-  const PinSet &startpoints = sdc_->pathDelayInternalStartpoints();
+  const PinSet &startpoints = sdc_->pathDelayInternalFrom();
   if (!startpoints.empty()) {
     for (const Pin *pin : startpoints) {
       Vertex *vertex = graph_->pinDrvrVertex(pin);
@@ -995,7 +995,7 @@ Search::visitEndpoints(VertexVisitor *visitor)
     Pin *pin = end->pin();
     // Filter register clock pins (fails on set_max_delay -from clk_src).
     if (!network_->isRegClkPin(pin)
-	|| sdc_->isPathDelayInternalEndpoint(pin))
+	|| sdc_->isPathDelayInternalTo(pin))
       visitor->visit(end);
   }
 }
@@ -1163,21 +1163,24 @@ ArrivalVisitor::visit(Vertex *vertex)
       && !has_fanin_one_)
     tag_bldr_no_crpr_->init(vertex);
 
-  visitFaninPaths(vertex);
-  if (crpr_active_
-      && search_->crprPathPruningEnabled()
-      && !vertex->crprPathPruningDisabled()
-      // No crpr for ideal clocks.
-      && tag_bldr_->hasPropagatedClk()
-      && !has_fanin_one_)
-    pruneCrprArrivals();
+  // Fanin paths are broken by path delays internal pin startpoints.
+  if (!sdc_->isPathDelayInternalFromBreak(pin)) {
+    visitFaninPaths(vertex);
+    if (crpr_active_
+        && search_->crprPathPruningEnabled()
+        && !vertex->crprPathPruningDisabled()
+        // No crpr for ideal clocks.
+        && tag_bldr_->hasPropagatedClk()
+        && !has_fanin_one_)
+      pruneCrprArrivals();
+  }
 
   // Insert paths that originate here.
   if (!network_->isTopLevelPort(pin)
       && sdc_->hasInputDelay(pin))
     // set_input_delay on internal pin.
     search_->seedInputSegmentArrival(pin, vertex, tag_bldr_);
-  if (sdc_->isPathDelayInternalStartpoint(pin))
+  if (sdc_->isPathDelayInternalFrom(pin))
     // set_min/max_delay -from internal pin.
     search_->makeUnclkedPaths(vertex, false, true, tag_bldr_);
   if (sdc_->isLeafPinClock(pin))
@@ -2263,10 +2266,13 @@ PathVisitor::visitFromPath(const Pin *from_pin,
     }
   }
   else {
-    arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
-    if (!delayInf(arc_delay)) {
-      to_arrival = from_arrival + arc_delay;
-      to_tag = search_->thruTag(from_tag, edge, to_rf, min_max, path_ap);
+    if (!(sdc_->isPathDelayInternalFromBreak(to_pin)
+          || sdc_->isPathDelayInternalToBreak(from_pin))) {
+      arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
+      if (!delayInf(arc_delay)) {
+        to_arrival = from_arrival + arc_delay;
+        to_tag = search_->thruTag(from_tag, edge, to_rf, min_max, path_ap);
+      }
     }
   }
   if (to_tag)
@@ -2607,7 +2613,7 @@ Search::mutateTag(Tag *from_tag,
   if (from_states) {
     // Check for state changes in from_tag (but postpone copying state set).
     bool state_change = false;
-    for (auto state : *from_states) {
+    for (ExceptionState *state : *from_states) {
       ExceptionPath *exception = state->exception();
       // One edge may traverse multiple hierarchical thru pins.
       while (state->matchesNextThru(from_pin,to_pin,to_rf,min_max,network_)) {
@@ -3294,7 +3300,7 @@ Search::isEndpoint(Vertex *vertex,
 	|| (variables_->gatedClkChecksEnabled()
 	    && gated_clk_->isGatedClkEnable(vertex))
 	|| vertex->isConstrained()
-	|| sdc_->isPathDelayInternalEndpoint(pin)
+	|| sdc_->isPathDelayInternalTo(pin)
 	|| !hasFanout(vertex, pred, graph_)
 	// Unconstrained paths at register clk pins.
 	|| (unconstrained_paths_

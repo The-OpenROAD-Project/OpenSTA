@@ -458,6 +458,20 @@ thrusIntersectPts(ExceptionThruSeq *thrus1,
   return true;
 }
 
+void
+ExceptionPath::deleteInstance(const Instance *inst,
+                              const Network *network)
+{
+  if (from_)
+    from_->deleteInstance(inst, network);
+  if (thrus_) {
+    for (ExceptionThru *thru : *thrus_)
+      thru->deleteInstance(inst, network);
+  }
+  if (to_)
+    to_->deleteInstance(inst, network);
+}
+
 ////////////////////////////////////////////////////////////////
 
 PathDelay::PathDelay(ExceptionFrom *from,
@@ -465,6 +479,7 @@ PathDelay::PathDelay(ExceptionFrom *from,
 		     ExceptionTo *to,
 		     const MinMax *min_max,
 		     bool ignore_clk_latency,
+                     bool break_path,
 		     float delay,
 		     bool own_pts,
 		     const char *comment) :
@@ -472,6 +487,7 @@ PathDelay::PathDelay(ExceptionFrom *from,
 		pathDelayPriority() + fromThruToPriority(from, thrus, to),
 		comment),
   ignore_clk_latency_(ignore_clk_latency),
+  break_path_(break_path),
   delay_(delay)
 {
 }
@@ -483,8 +499,8 @@ PathDelay::clone(ExceptionFrom *from,
 		 bool own_pts)
 {
   return new PathDelay(from, thrus, to, min_max_->asMinMax(),
-		       ignore_clk_latency_, delay_, own_pts,
-		       comment_);
+		       ignore_clk_latency_, break_path_, delay_,
+                       own_pts, comment_);
 }
 
 int

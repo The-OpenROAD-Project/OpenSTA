@@ -52,6 +52,7 @@
 
 namespace sta {
 
+using std::string;
 using std::ofstream;
 using std::ifstream;
 using std::max;

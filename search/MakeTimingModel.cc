@@ -52,6 +52,7 @@
 
 namespace sta {
 
+using std::string;
 using std::min;
 using std::max;
 using std::make_shared;

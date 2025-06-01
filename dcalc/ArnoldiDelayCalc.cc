@@ -64,6 +64,7 @@ namespace sta {
 //  ra_get_r
 //  ra_get_s
 
+using std::string;
 using std::abs;
 using std::vector;
 

@@ -37,6 +37,8 @@
 
 namespace sta {
 
+using std::string;
+
 void
 LibertyBuilder::init(Debug *debug,
                      Report *report)

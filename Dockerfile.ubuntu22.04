@@ -40,4 +40,4 @@ RUN cd OpenSTA && \
     make -j`nproc`
 
 # Run sta on entry
-ENTRYPOINT ["OpenSTA/app/sta"]
+ENTRYPOINT ["OpenSTA/build/sta"]

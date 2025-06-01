@@ -47,6 +47,8 @@
 
 namespace sta {
 
+using std::string;
+
 class SdfWriter : public StaState
 {
 public:

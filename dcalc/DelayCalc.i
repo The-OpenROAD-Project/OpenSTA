@@ -32,6 +32,8 @@
 #include "dcalc/PrimaDelayCalc.hh"
 #include "Sta.hh"
 
+using std::string;
+
 %}
 
 %inline %{

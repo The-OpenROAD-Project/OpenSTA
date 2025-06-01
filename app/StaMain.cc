@@ -97,7 +97,7 @@ sourceTclFile(const char *filename,
 	      bool verbose,
 	      Tcl_Interp *interp)
 {
-  string cmd;
+  std::string cmd;
   stringPrint(cmd, "sta::include_file %s %s %s",
 	      filename,
 	      echo ? "1" : "0",

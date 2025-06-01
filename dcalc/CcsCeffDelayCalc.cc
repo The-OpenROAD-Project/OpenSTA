@@ -39,6 +39,8 @@
 
 namespace sta {
 
+using std::string;
+
 // Implementaion based on:
 // "Gate Delay Estimation with Library Compatible Current Source Models
 // and Effective Capacitance", D. Garyfallou et al,

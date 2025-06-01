@@ -69,11 +69,11 @@ public:
   // Find and annotate drvr_vertex gate and load delays/slews.
   virtual void findDelays(Vertex *drvr_vertex);
   // Returned string is owned by the caller.
-  virtual string reportDelayCalc(const Edge *edge,
-                                 const TimingArc *arc,
-                                 const Corner *corner,
-                                 const MinMax *min_max,
-                                 int digits);
+  virtual std::string reportDelayCalc(const Edge *edge,
+                                      const TimingArc *arc,
+                                      const Corner *corner,
+                                      const MinMax *min_max,
+                                      int digits);
   // Percentage (0.0:1.0) change in delay that causes downstream
   // delays to be recomputed during incremental delay calculation.
   virtual float incrementalDelayTolerance();

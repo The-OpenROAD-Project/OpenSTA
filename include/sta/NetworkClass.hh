@@ -25,6 +25,8 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
+#include <map>
 
 #include "Set.hh"
 #include "Vector.hh"
@@ -70,6 +72,7 @@ typedef Iterator<const Pin*> ConnectedPinIterator;
 typedef ConnectedPinIterator NetConnectedPinIterator;
 typedef ConnectedPinIterator PinConnectedPinIterator;
 typedef uint32_t ObjectId;
+typedef std::map<std::string, std::string> AttributeMap;
 
 enum class LogicValue : unsigned { zero, one, unknown, rise, fall };
 

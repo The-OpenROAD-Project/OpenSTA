@@ -1260,6 +1260,12 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
+%typemap(in) PropertyValue {
+  int length;
+  const char *arg = Tcl_GetStringFromObj($input, &length);
+  $1 = PropertyValue(arg);
+}
+
 %typemap(out) PropertyValue {
   PropertyValue value = $1;
   switch (value.type()) {

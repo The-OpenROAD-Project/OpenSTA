@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <map>
 #include <string>
 
 #include "LibertyClass.hh"
@@ -35,6 +36,136 @@
 namespace sta {
 
 class Sta;
+class PropertyValue;
+
+template<class TYPE>
+class PropertyRegistry
+{
+public:
+  PropertyValue getProperty(TYPE inst,
+                            const std::string property);
+  void setProperty(TYPE inst,
+                   const std::string property,
+                   PropertyValue value);
+
+private:
+  std::map<std::pair<TYPE, const std::string>, PropertyValue> registry_;
+};
+
+class Properties
+{
+public:
+  Properties(Sta *sta);
+
+  PropertyValue getProperty(const Library *lib,
+                            const std::string property);
+  void setProperty(const Library *lib,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const LibertyLibrary *lib,
+                            const std::string property);
+  void setProperty(const LibertyLibrary *lib,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const Cell *cell,
+                            const std::string property);
+  void setProperty(const Cell *cell,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const LibertyCell *cell,
+                            const std::string property);
+  void setProperty(const LibertyCell *cell,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const Port *port,
+                            const std::string property);
+  void setProperty(const Port *port,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const LibertyPort *port,
+                            const std::string property);
+  void setProperty(const LibertyPort *port,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const Instance *inst,
+                            const std::string property);
+  void setProperty(const Instance *inst,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const Pin *pin,
+                            const std::string property);
+  void setProperty(const Pin *pin,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const Net *net,
+                            const std::string property);
+  void setProperty(const Net *net,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(Edge *edge,
+                            const std::string property);
+  void setProperty(Edge *edge,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(const Clock *clk,
+                            const std::string property);
+  void setProperty(const Clock *clk,
+                   const std::string property,
+                   PropertyValue value);
+  PropertyValue getProperty(PathEnd *end,
+                            const std::string property);
+  PropertyValue getProperty(Path *path,
+                            const std::string property);
+  PropertyValue getProperty(TimingArcSet *arc_set,
+                            const std::string property);
+
+private:
+  PropertyValue portSlew(const Port *port,
+                         const MinMax *min_max);
+  PropertyValue portSlew(const Port *port,
+                         const RiseFall *rf,
+                         const MinMax *min_max);
+  PropertyValue portSlack(const Port *port,
+                          const MinMax *min_max);
+  PropertyValue portSlack(const Port *port,
+                          const RiseFall *rf,
+                          const MinMax *min_max);
+  PropertyValue pinArrival(const Pin *pin,
+                           const RiseFall *rf,
+                           const MinMax *min_max);
+
+  PropertyValue pinSlack(const Pin *pin,
+                         const MinMax *min_max);
+  PropertyValue pinSlack(const Pin *pin,
+                         const RiseFall *rf,
+                         const MinMax *min_max);
+  PropertyValue pinSlew(const Pin *pin,
+                        const MinMax *min_max);
+  PropertyValue pinSlew(const Pin *pin,
+                        const RiseFall *rf,
+                        const MinMax *min_max);
+
+  PropertyValue delayPropertyValue(Delay delay);
+  PropertyValue resistancePropertyValue(float res);
+  PropertyValue capacitancePropertyValue(float cap);
+  PropertyValue edgeDelay(Edge *edge,
+                          const RiseFall *rf,
+                          const MinMax *min_max);
+
+  // set_property user definied properties.
+  PropertyRegistry<const Library*> registry_lib_;
+  PropertyRegistry<const LibertyLibrary*> registry_liberty_lib_;
+  PropertyRegistry<const Cell*> registry_cell_;
+  PropertyRegistry<const LibertyCell*> registry_liberty_cell_;
+  PropertyRegistry<const Port*> registry_port_;
+  PropertyRegistry<const LibertyPort*> registry_liberty_port_;
+  PropertyRegistry<const Instance*> registry_inst_;
+  PropertyRegistry<const Pin*> registry_pin_;
+  PropertyRegistry<const Net*> registry_net_;
+  PropertyRegistry<const Edge*> registry_edge_;
+  PropertyRegistry<const Clock*> registry_clk_;
+  Sta *sta_;
+};
 
 // Adding a new property type
 //  value union
@@ -132,75 +263,5 @@ private:
   };
   const Unit *unit_;
 };
-
-PropertyValue
-getProperty(const Instance *inst,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(const Pin *pin,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(const Net *net,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(const Port *port,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(const Cell *cell,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(const LibertyCell *cell,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(const LibertyPort *port,
-	    const char *property,
-	    Sta *);
-
-PropertyValue
-getProperty(const LibertyLibrary *lib,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(const Library *lib,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(Edge *edge,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(Clock *clk,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(PathEnd *end,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(Path *end,
-	    const char *property,
-	    Sta *sta);
-
-PropertyValue
-getProperty(TimingArcSet *arc_set,
-	    const char *property,
-	    Sta *sta);
 
 } // namespace

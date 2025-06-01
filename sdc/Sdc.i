@@ -696,11 +696,13 @@ make_path_delay(ExceptionFrom *from,
 		ExceptionTo *to,
 		const MinMax *min_max,
 		bool ignore_clk_latency,
+		bool break_path,
 		float delay,
-		const char *comment)
+                const char *comment)
 {
   Sta::sta()->makePathDelay(from, thrus, to, min_max, 
-			    ignore_clk_latency, delay, comment);
+			    ignore_clk_latency, break_path,
+                            delay, comment);
 }
 
 void
@@ -1221,12 +1223,13 @@ filter_objects(const char *property,
   Vector<T*> filtered_objects;
   if (objects) {
     Sta *sta = Sta::sta();
+    Properties &properties = sta->properties();
     bool exact_match = stringEq(op, "==");
     bool pattern_match = stringEq(op, "=~");
     bool not_match = stringEq(op, "!=");
     bool not_pattern_match = stringEq(op, "!~");
     for (T *object : *objects) {
-      PropertyValue value(getProperty(object, property, sta));
+      PropertyValue value(properties.getProperty(object, property));
       string prop_str = value.to_string(sta->network());
       const char *prop = prop_str.c_str();
       if (!prop_str.empty()

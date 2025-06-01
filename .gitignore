@@ -15,11 +15,6 @@ cmake-build-debug
 build
 pvt
 
-app/sta
-app/libOpenSTA.*
-app/sta.exe
-app/sta.dSYM
-
 # iverilog turd
 examples/gcd_tb
 
