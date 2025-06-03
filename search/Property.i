@@ -43,30 +43,12 @@ library_property(const Library *lib,
   return properties.getProperty(lib, property);
 }
 
-void
-set_library_property(const Library *lib,
-                     const char *property,
-                     PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(lib, property, value);
-}
-
 PropertyValue
 liberty_library_property(const LibertyLibrary *lib,
 			 const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(lib, property);
-}
-
-void
-set_liberty_library_property(const LibertyLibrary *lib,
-                             const char *property,
-                             PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(lib, property, value);
 }
 
 PropertyValue
@@ -77,30 +59,12 @@ cell_property(const Cell *cell,
   return properties.getProperty(cell, property);
 }
 
-void
-set_cell_property(const Cell *cell,
-                  const char *property,
-                  PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(cell, property, value);
-}
-
 PropertyValue
 liberty_cell_property(const LibertyCell *cell,
 		      const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(cell, property);
-}
-
-void
-set_liberty_cell_property(const LibertyCell *cell,
-                          const char *property,
-                          PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(cell, property, value);
 }
 
 PropertyValue
@@ -111,30 +75,12 @@ port_property(const Port *port,
   return properties.getProperty(port, property);
 }
 
-void
-set_port_property(const Port *port,
-                  const char *property,
-                  PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(port, property, value);
-}
-
 PropertyValue
 liberty_port_property(const LibertyPort *port,
 		      const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(port, property);
-}
-
-void
-set_liberty_port_property(const LibertyPort *port,
-                          const char *property,
-                          PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(port, property, value);
 }
 
 PropertyValue
@@ -145,30 +91,12 @@ instance_property(const Instance *inst,
   return properties.getProperty(inst, property);
 }
 
-void
-set_instance_property(const Instance *inst,
-                      const char *property,
-                      PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(inst, property, value);
-}
-
 PropertyValue
 pin_property(const Pin *pin,
 	     const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(pin, property);
-}
-
-void
-set_pin_property(const Pin *pin,
-                 const char *property,
-                 PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(pin, property, value);
 }
 
 PropertyValue
@@ -179,15 +107,6 @@ net_property(const Net *net,
   return properties.getProperty(net, property);
 }
 
-void
-set_net_property(const Net *net,
-                 const char *property,
-                 PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(net, property, value);
-}
-
 PropertyValue
 edge_property(Edge *edge,
 	      const char *property)
@@ -196,30 +115,12 @@ edge_property(Edge *edge,
   return properties.getProperty(edge, property);
 }
 
-void
-set_edge_property(Edge *edge,
-                  const char *property,
-                  PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(edge, property, value);
-}
-
 PropertyValue
 clock_property(Clock *clk,
 	       const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(clk, property);
-}
-
-void
-set_clock_property(const Clock *clk,
-                   const char *property,
-                   PropertyValue value)
-{
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(clk, property, value);
 }
 
 PropertyValue
@@ -239,8 +140,8 @@ path_property(Path *path,
 }
 
 PropertyValue
-timing_arc_set_property(TimingArcSet *arc_set,
-			const char *property)
+timing_arc_property(TimingArcSet *arc_set,
+                    const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(arc_set, property);

@@ -38,80 +38,54 @@ namespace sta {
 class Sta;
 class PropertyValue;
 
+class Sta;
+class PropertyValue;
+
 template<class TYPE>
 class PropertyRegistry
 {
 public:
-  PropertyValue getProperty(TYPE inst,
-                            const std::string property);
-  void setProperty(TYPE inst,
-                   const std::string property,
-                   PropertyValue value);
+  void defineProperty(const std::string property,
+                      std::function<PropertyValue (TYPE object,
+                                                   Sta *sta)> handler);
+  PropertyValue getProperty(TYPE object,
+                            const std::string property,
+                            const char *type_name,
+                            Sta *sta);
 
 private:
-  std::map<std::pair<TYPE, const std::string>, PropertyValue> registry_;
+  std::map<const std::string, std::function<PropertyValue (TYPE object,
+                                                           Sta *sta)>> registry_;
 };
 
 class Properties
 {
 public:
   Properties(Sta *sta);
+  virtual ~Properties() {}
 
   PropertyValue getProperty(const Library *lib,
                             const std::string property);
-  void setProperty(const Library *lib,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const LibertyLibrary *lib,
                             const std::string property);
-  void setProperty(const LibertyLibrary *lib,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const Cell *cell,
                             const std::string property);
-  void setProperty(const Cell *cell,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const LibertyCell *cell,
                             const std::string property);
-  void setProperty(const LibertyCell *cell,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const Port *port,
                             const std::string property);
-  void setProperty(const Port *port,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const LibertyPort *port,
                             const std::string property);
-  void setProperty(const LibertyPort *port,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const Instance *inst,
                             const std::string property);
-  void setProperty(const Instance *inst,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const Pin *pin,
                             const std::string property);
-  void setProperty(const Pin *pin,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const Net *net,
                             const std::string property);
-  void setProperty(const Net *net,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(Edge *edge,
                             const std::string property);
-  void setProperty(Edge *edge,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(const Clock *clk,
                             const std::string property);
-  void setProperty(const Clock *clk,
-                   const std::string property,
-                   PropertyValue value);
   PropertyValue getProperty(PathEnd *end,
                             const std::string property);
   PropertyValue getProperty(Path *path,
@@ -119,7 +93,40 @@ public:
   PropertyValue getProperty(TimingArcSet *arc_set,
                             const std::string property);
 
-private:
+  // Define handler for external property.
+  // proerties->defineProperty("foo",
+  //                           [] (const Instance *, Sta *) -> PropertyValue {
+  //                             return PropertyValue("bar");
+  //                           });
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const Library *lib,
+                                                   Sta *sta)> handler);
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const LibertyLibrary *lib,
+                                                   Sta *sta)> handler);
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const Cell *cell,
+                                                   Sta *sta)> handler);
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const LibertyCell *cell,
+                                                   Sta *sta)> handler);
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const Port *Port,
+                                                   Sta *sta)> handler);
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const LibertyPort *port,
+                                                   Sta *sta)> handler);
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const Instance *inst,
+                                                   Sta *sta)> handler);
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const Pin *pin,
+                                                   Sta *sta)> handler);
+  void defineProperty(std::string property,
+                      std::function<PropertyValue (const Net *net,
+                                                   Sta *sta)> handler);
+
+protected:
   PropertyValue portSlew(const Port *port,
                          const MinMax *min_max);
   PropertyValue portSlew(const Port *port,
@@ -152,18 +159,16 @@ private:
                           const RiseFall *rf,
                           const MinMax *min_max);
 
-  // set_property user definied properties.
-  PropertyRegistry<const Library*> registry_lib_;
-  PropertyRegistry<const LibertyLibrary*> registry_liberty_lib_;
+  PropertyRegistry<const Library*> registry_library_;
+  PropertyRegistry<const LibertyLibrary*> registry_liberty_library_;
   PropertyRegistry<const Cell*> registry_cell_;
   PropertyRegistry<const LibertyCell*> registry_liberty_cell_;
   PropertyRegistry<const Port*> registry_port_;
   PropertyRegistry<const LibertyPort*> registry_liberty_port_;
-  PropertyRegistry<const Instance*> registry_inst_;
+  PropertyRegistry<const Instance*> registry_instance_;
   PropertyRegistry<const Pin*> registry_pin_;
   PropertyRegistry<const Net*> registry_net_;
-  PropertyRegistry<const Edge*> registry_edge_;
-  PropertyRegistry<const Clock*> registry_clk_;
+
   Sta *sta_;
 };
 

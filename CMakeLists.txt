@@ -424,6 +424,7 @@ set(SWIG_FILES
   ${STA_HOME}/power/Power.i
   ${STA_HOME}/sdc/Sdc.i
   ${STA_HOME}/sdf/Sdf.i
+  ${STA_HOME}/search/Property.i
   ${STA_HOME}/search/Search.i
   ${STA_HOME}/spice/WriteSpice.i
   ${STA_HOME}/tcl/Exception.i
