@@ -26,6 +26,7 @@
 
 #include <map>
 #include <string>
+#include <functional>
 
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
