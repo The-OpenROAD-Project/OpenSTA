@@ -110,13 +110,19 @@ ClkInfo::crprClkVertexId(const StaState *sta) const
 Path *
 ClkInfo::crprClkPath(const StaState *sta)
 {
-  return Path::vertexPath(crpr_clk_path_, sta);
+  if (crpr_clk_path_.isNull())
+    return nullptr;
+  else
+    return Path::vertexPath(crpr_clk_path_, sta);
 }
 
 const Path *
 ClkInfo::crprClkPath(const StaState *sta) const
 {
-  return Path::vertexPath(crpr_clk_path_, sta);
+  if (crpr_clk_path_.isNull())
+    return nullptr;
+  else
+    return Path::vertexPath(crpr_clk_path_, sta);
 }
 
 std::string
