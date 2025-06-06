@@ -12,12 +12,6 @@ build directory instead of `app/`.
 The set_max_delay and set_min_delay commands now support the -probe option.
 With -probe these commands do not break paths at internal (non-startpoint) pins.
 
-The set_property command is used to annotate a user defined property
-on an object. It does not change the value of built in properties. If
-property names a built-in property it has no effect.
-
-  set_property [-object_type type] object property value
-
 Release 2.6.1 2025/03/30
 -------------------------
 

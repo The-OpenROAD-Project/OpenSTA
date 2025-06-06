@@ -366,7 +366,10 @@ Path::slack(const StaState *sta) const
 Path *
 Path::prevPath() const
 {
-  return prev_path_;
+  if (prev_path_ && prev_path_->isNull())
+    return nullptr;
+  else
+    return prev_path_;
 }
 
 void

@@ -635,41 +635,9 @@ PropertyValue::boolValue() const
 
 ////////////////////////////////////////////////////////////////
 
-template<class TYPE>
-PropertyValue
-PropertyRegistry<TYPE>::getProperty(TYPE object,
-                                    const std::string property)
-
-{
-  auto itr = registry_.find({object, property});
-  if (itr != registry_.end())
-    return itr->second;
-  else
-    return PropertyValue();
-}
-
-template<class TYPE>
-void
-PropertyRegistry<TYPE>::setProperty(TYPE object,
-                                    const std::string property,
-                                    PropertyValue value)
-{
-  registry_[{object, property}] = value;
-}
-
-////////////////////////////////////////////////////////////////
-
 Properties::Properties(Sta *sta) :
   sta_(sta)
 {
-}
-
-void
-Properties::setProperty(const Library *lib,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_lib_.setProperty(lib, property, value);
 }
 
 PropertyValue
@@ -681,7 +649,8 @@ Properties::getProperty(const Library *lib,
       || property == "full_name")
     return PropertyValue(network->name(lib));
   else {
-    PropertyValue value = registry_lib_.getProperty(lib, property);
+    PropertyValue value = registry_library_.getProperty(lib, property,
+                                                        "library", sta_);
     if (value.type() != PropertyValue::Type::type_none)
       return value;
     else
@@ -690,14 +659,6 @@ Properties::getProperty(const Library *lib,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Properties::setProperty(const LibertyLibrary *lib,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_liberty_lib_.setProperty(lib, property, value);
-}
 
 PropertyValue
 Properties::getProperty(const LibertyLibrary *lib,
@@ -709,7 +670,9 @@ Properties::getProperty(const LibertyLibrary *lib,
   else if (property == "filename")
     return PropertyValue(lib->filename());
   else {
-    PropertyValue value = registry_liberty_lib_.getProperty(lib, property);
+    PropertyValue value = registry_liberty_library_.getProperty(lib, property,
+                                                                "liberty_library",
+                                                                sta_);
     if (value.type() != PropertyValue::Type::type_none)
       return value;
     else
@@ -719,13 +682,36 @@ Properties::getProperty(const LibertyLibrary *lib,
 
 ////////////////////////////////////////////////////////////////
 
-void
-Properties::setProperty(const LibertyCell *cell,
-                        const string property,
-                        PropertyValue value)
+PropertyValue
+Properties::getProperty(const Cell *cell,
+                        const std::string property)
 {
-  registry_liberty_cell_.setProperty(cell, property, value);
+  Network *network = sta_->cmdNetwork();
+  if (property == "name"
+      || property == "base_name")
+    return PropertyValue(network->name(cell));
+  else if (property == "full_name") {
+    Library *lib = network->library(cell);
+    string lib_name = network->name(lib);
+    string cell_name = network->name(cell);
+    string full_name = lib_name + network->pathDivider() + cell_name;
+    return PropertyValue(full_name);
+  }
+  else if (property == "library")
+    return PropertyValue(network->library(cell));
+  else if (property == "filename")
+    return PropertyValue(network->filename(cell));
+  else {
+    PropertyValue value = registry_cell_.getProperty(cell, property,
+                                                     "cell", sta_);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("cell", property);
+  }
 }
+
+////////////////////////////////////////////////////////////////
 
 PropertyValue
 Properties::getProperty(const LibertyCell *cell,
@@ -757,7 +743,8 @@ Properties::getProperty(const LibertyCell *cell,
   else if (property == "area")
     return PropertyValue(cell->area(), sta_->units()->scalarUnit());
   else {
-    PropertyValue value = registry_liberty_cell_.getProperty(cell, property);
+    PropertyValue value = registry_liberty_cell_.getProperty(cell, property,
+                                                             "liberty_cell", sta_);
     if (value.type() != PropertyValue::Type::type_none)
       return value;
     else
@@ -766,52 +753,6 @@ Properties::getProperty(const LibertyCell *cell,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Properties::setProperty(const Cell *cell,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_cell_.setProperty(cell, property, value);
-}
-
-PropertyValue
-Properties::getProperty(const Cell *cell,
-                        const std::string property)
-{
-  Network *network = sta_->cmdNetwork();
-  if (property == "name"
-      || property == "base_name")
-    return PropertyValue(network->name(cell));
-  else if (property == "full_name") {
-    Library *lib = network->library(cell);
-    string lib_name = network->name(lib);
-    string cell_name = network->name(cell);
-    string full_name = lib_name + network->pathDivider() + cell_name;
-    return PropertyValue(full_name);
-  }
-  else if (property == "library")
-    return PropertyValue(network->library(cell));
-  else if (property == "filename")
-    return PropertyValue(network->filename(cell));
-  else {
-    PropertyValue value = registry_cell_.getProperty(cell, property);
-    if (value.type() != PropertyValue::Type::type_none)
-      return value;
-    else
-      throw PropertyUnknown("cell", property);
-  }
-}
-
-////////////////////////////////////////////////////////////////
-
-void
-Properties::setProperty(const Port *port,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_port_.setProperty(port, property, value);
-}
 
 PropertyValue
 Properties::getProperty(const Port *port,
@@ -861,7 +802,8 @@ Properties::getProperty(const Port *port,
     return portSlew(port, RiseFall::fall(), MinMax::min());
 
   else {
-    PropertyValue value = registry_port_.getProperty(port, property);
+    PropertyValue value = registry_port_.getProperty(port, property,
+                                                     "port", sta_);
     if (value.type() != PropertyValue::Type::type_none)
       return value;
     else
@@ -912,14 +854,6 @@ Properties::portSlack(const Port *port,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Properties::setProperty(const LibertyPort *port,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_liberty_port_.setProperty(port, property, value);
-}
 
 PropertyValue
 Properties::getProperty(const LibertyPort *port,
@@ -987,7 +921,8 @@ Properties::getProperty(const LibertyPort *port,
     return delayPropertyValue(delay);
   }
    else {
-    PropertyValue value = registry_liberty_port_.getProperty(port, property);
+    PropertyValue value = registry_liberty_port_.getProperty(port, property,
+                                                             "liberty_port", sta_);
     if (value.type() != PropertyValue::Type::type_none)
       return value;
     else
@@ -996,14 +931,6 @@ Properties::getProperty(const LibertyPort *port,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Properties::setProperty(const Instance *inst,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_inst_.setProperty(inst, property, value);
-}
 
 PropertyValue
 Properties::getProperty(const Instance *inst,
@@ -1034,7 +961,8 @@ Properties::getProperty(const Instance *inst,
   else if (property == "is_memory")
     return PropertyValue(liberty_cell && liberty_cell->isMemory());
   else {
-    PropertyValue value = registry_inst_.getProperty(inst, property);
+    PropertyValue value = registry_instance_.getProperty(inst, property,
+                                                         "instance", sta_);
     if (value.type() != PropertyValue::Type::type_none)
       return value;
     else
@@ -1043,14 +971,6 @@ Properties::getProperty(const Instance *inst,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Properties::setProperty(const Pin *pin,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_pin_.setProperty(pin, property, value);
-}
 
 PropertyValue
 Properties::getProperty(const Pin *pin,
@@ -1122,7 +1042,7 @@ Properties::getProperty(const Pin *pin,
     return pinSlew(pin, RiseFall::fall(), MinMax::min());
 
   else {
-    PropertyValue value = registry_pin_.getProperty(pin, property);
+    PropertyValue value = registry_pin_.getProperty(pin, property, "pin", sta_);
     if (value.type() != PropertyValue::Type::type_none)
       return value;
     else
@@ -1201,14 +1121,6 @@ Properties::pinSlew(const Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-void
-Properties::setProperty(const Net *net,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_net_.setProperty(net, property, value);
-}
-
 PropertyValue
 Properties::getProperty(const Net *net,
                         const std::string property)
@@ -1219,7 +1131,7 @@ Properties::getProperty(const Net *net,
   else if (property == "full_name")
     return PropertyValue(network->pathName(net));
   else {
-    PropertyValue value = registry_net_.getProperty(net, property);
+    PropertyValue value = registry_net_.getProperty(net, property, "net", sta_);
     if (value.type() != PropertyValue::Type::type_none)
       return value;
     else
@@ -1228,14 +1140,6 @@ Properties::getProperty(const Net *net,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Properties::setProperty(Edge *edge,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_edge_.setProperty(edge, property, value);
-}
 
 PropertyValue
 Properties::getProperty(Edge *edge,
@@ -1259,13 +1163,8 @@ Properties::getProperty(Edge *edge,
     return PropertyValue(edge->from(sta_->graph())->pin());
   else if (property == "to_pin")
     return PropertyValue(edge->to(sta_->graph())->pin());
-  else {
-    PropertyValue value = registry_edge_.getProperty(edge, property);
-    if (value.type() != PropertyValue::Type::type_none)
-      return value;
-    else
+  else
       throw PropertyUnknown("edge", property);
-  }
 }
 
 PropertyValue
@@ -1283,11 +1182,10 @@ Properties::edgeDelay(Edge *edge,
 	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
 	ArcDelay arc_delay = sta_->arcDelay(edge, arc, dcalc_ap);
 	if (!delay_exists
-	    || ((min_max == MinMax::max()
-		 && delayGreater(arc_delay, delay, sta_))
-		|| (min_max == MinMax::min()
-		    && delayLess(arc_delay, delay, sta_))))
+	    || delayGreater(arc_delay, delay, min_max, sta_)) {
 	  delay = arc_delay;
+          delay_exists = true;
+        }
       }
     }
   }
@@ -1319,14 +1217,6 @@ Properties::getProperty(TimingArcSet *arc_set,
 
 ////////////////////////////////////////////////////////////////
 
-void
-Properties::setProperty(const Clock *clk,
-                        const string property,
-                        PropertyValue value)
-{
-  registry_clk_.setProperty(clk, property, value);
-}
-
 PropertyValue
 Properties::getProperty(const Clock *clk,
                         const std::string property)
@@ -1344,13 +1234,8 @@ Properties::getProperty(const Clock *clk,
     return PropertyValue(clk->isVirtual());
   else if (property == "is_propagated")
     return PropertyValue(clk->isPropagated());
-  else {
-    PropertyValue value = registry_clk_.getProperty(clk, property);
-    if (value.type() != PropertyValue::Type::type_none)
-      return value;
-    else
-      throw PropertyUnknown("clock", property);
-  }
+  else
+    throw PropertyUnknown("clock", property);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1418,6 +1303,106 @@ PropertyValue
 Properties::capacitancePropertyValue(float cap)
 {
   return PropertyValue(cap, sta_->units()->capacitanceUnit());
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Properties::defineProperty(std::string property,
+                           std::function<PropertyValue (const Library *lib,
+                                                        Sta *sta)> handler)
+{
+  registry_library_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string property,
+                           std::function<PropertyValue (const LibertyLibrary *lib,
+                                                        Sta *sta)> handler)
+{
+  registry_liberty_library_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string property,
+                           std::function<PropertyValue (const Cell *cell,
+                                                   Sta *sta)> handler)
+{
+  registry_cell_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string property,
+                           std::function<PropertyValue (const LibertyCell *cell,
+                                                        Sta *sta)> handler)
+{
+  registry_liberty_cell_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string property,
+                           std::function<PropertyValue (const Port *Port,
+                                                        Sta *sta)> handler)
+{
+  registry_port_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string property,
+                           std::function<PropertyValue (const LibertyPort *port,
+                                                        Sta *sta)> handler)
+{
+  registry_liberty_port_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string property,
+                           std::function<PropertyValue (const Instance *inst,
+                                                        Sta *sta)> handler)
+{
+  registry_instance_.defineProperty(property, handler);
+}  
+
+void
+Properties::defineProperty(std::string property,
+                           std::function<PropertyValue (const Pin *pin,
+                                                        Sta *sta)> handler)
+{
+  registry_pin_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string property,
+                      std::function<PropertyValue (const Net *net,
+                                                   Sta *sta)> handler)
+{
+  registry_net_.defineProperty(property, handler);
+}
+
+////////////////////////////////////////////////////////////////
+
+template<class TYPE>
+PropertyValue
+PropertyRegistry<TYPE>::getProperty(TYPE object,
+                                    const std::string property,
+                                    const char *type_name,
+                                    Sta *sta)
+
+{
+  auto itr = registry_.find({property});
+  if (itr != registry_.end())
+    return itr->second(object, sta);
+  else
+    throw PropertyUnknown(type_name, property);
+}
+
+template<class TYPE>
+void
+PropertyRegistry<TYPE>::defineProperty(const std::string property,
+                                       std::function<PropertyValue (TYPE object,
+                                                                    Sta *sta)> handler)
+{
+  registry_[property] = handler;
 }
 
 } // namespace

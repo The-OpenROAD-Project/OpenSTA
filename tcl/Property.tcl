@@ -76,7 +76,7 @@ proc get_object_property { object prop } {
     } elseif { $object_type == "Path" } {
       return [path_property $object $prop]
     } elseif { $object_type == "TimingArcSet" } {
-      return [timing_arc_set_property $object $prop]
+      return [timing_arc_property $object $prop]
     } else {
       sta_error 2203 "get_property unsupported object type $object_type."
     }
@@ -114,66 +114,6 @@ proc get_property_object_type { object_type object_name quiet } {
     sta_error 2206 "$object_type '$object_name' not found."
   }
   return [lindex $object 0]
-}
-
-define_cmd_args "set_property" \
-  {[-object_type library|liberty_library|cell|liberty_cell|instance|pin|net|port|clock|timing_arc] object property value}
-
-proc set_property { args } {
-  return [get_property_cmd "set_property" "-object_type" $args]
-}
-
-proc set_property { args } {
-  parse_key_args "set_property" args keys {-object_type} flags {-quiet}
-  check_argc_eq3 "set_property" $args
-  set quiet [info exists flags(-quiet)]
-  set object [lindex $args 0]
-  if { $object == "" } {
-    sta_error 2207 "set_property object is null."
-  } elseif { ![is_object $object] } {
-    if [info exists keys(-object_type)] {
-      set object_type $keys(-object_type)
-    } else {
-      sta_error 2208 "set_property -object_type must be specified with object name argument."
-    }
-    set object [get_property_object_type $object_type $object $quiet]
-  }
-  set prop [lindex $args 1]
-  set value [lindex $args 2]
-  set_object_property $object $prop $value
-}
-
-proc set_object_property { object prop value } {
-  if { [is_object $object] } {
-    set object_type [object_type $object]
-    if { $object_type == "Instance" } {
-      set_instance_property $object $prop $value
-    } elseif { $object_type == "Pin" } {
-      set_pin_property $object $prop $value
-    } elseif { $object_type == "Net" } {
-      set_net_property $object $prop $value
-    } elseif { $object_type == "Clock" } {
-      set_clock_property $object $prop $value
-    } elseif { $object_type == "Port" } {
-      set_port_property $object $prop $value
-    } elseif { $object_type == "LibertyPort" } {
-      set_liberty_port_property $object $prop $value
-    } elseif { $object_type == "LibertyCell" } {
-      set_liberty_cell_property $object $prop $value
-    } elseif { $object_type == "Cell" } {
-      set_cell_property $object $prop $value
-    } elseif { $object_type == "Library" } {
-      set_library_property $object $prop $value
-    } elseif { $object_type == "LibertyLibrary" } {
-      set_liberty_library_property $object $prop $value
-    } elseif { $object_type == "Edge" } {
-      set_edge_property $object $prop $value
-    } else {
-      sta_error 2209 "get_property unsupported object type $object_type."
-    }
-  } else {
-    sta_error 2210 "get_property $object is not an object."
-  }
 }
 
 # sta namespace end.
