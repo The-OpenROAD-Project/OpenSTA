@@ -1182,11 +1182,10 @@ Properties::edgeDelay(Edge *edge,
 	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
 	ArcDelay arc_delay = sta_->arcDelay(edge, arc, dcalc_ap);
 	if (!delay_exists
-	    || ((min_max == MinMax::max()
-		 && delayGreater(arc_delay, delay, sta_))
-		|| (min_max == MinMax::min()
-		    && delayLess(arc_delay, delay, sta_))))
+	    || delayGreater(arc_delay, delay, min_max, sta_)) {
 	  delay = arc_delay;
+          delay_exists = true;
+        }
       }
     }
   }
