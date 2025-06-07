@@ -2027,8 +2027,8 @@ LibertyReader::makeMinPulseWidthArcs(LibertyPort *port,
         attrs = make_shared<TimingArcAttrs>();
         attrs->setTimingType(TimingType::min_pulse_width);
       }
-      // rise/fall_constraint model is on the trailing edge of the pulse.
-      const RiseFall *model_rf = hi_low->opposite();
+      // rise/fall_constraint model is on the leading edge of the pulse.
+      const RiseFall *model_rf = hi_low;
       TimingModel *check_model =
         makeScalarCheckModel(min_width, ScaleFactorType::min_pulse_width, model_rf);
       attrs->setModel(model_rf, check_model);

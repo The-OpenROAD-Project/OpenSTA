@@ -426,8 +426,13 @@ LibertyWriter::writeTimingArcSet(const TimingArcSet *arc_set)
 
   for (const RiseFall *rf : RiseFall::range()) {
     TimingArc *arc = arc_set->arcTo(rf);
-    if (arc)
-      writeTimingModels(arc, rf);
+    if (arc) {
+      // Min pulse width arcs are wrt to the leading edge of the pulse.
+      const RiseFall *model_rf = (arc_set->role() == TimingRole::width())
+        ? rf->opposite()
+        : rf;
+      writeTimingModels(arc, model_rf);
+    }
   }
 
   fprintf(stream_, "      }\n");
