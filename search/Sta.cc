@@ -2984,7 +2984,7 @@ Sta::netSlack(const Net *net,
 {
   ensureGraph();
   Slack slack = MinMax::min()->initValue();
-  NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
+  std::unique_ptr<NetConnectedPinIterator> pin_iter(network_->connectedPinIterator(net));
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     if (network_->isLoad(pin)) {
