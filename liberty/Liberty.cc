@@ -2819,6 +2819,13 @@ sortByName(const LibertyPortSet *set)
 }
 
 bool
+LibertyPortLess::operator()(const LibertyPort *port1,
+                            const LibertyPort *port2) const
+{
+  return LibertyPort::less(port1, port2);
+}
+
+bool
 LibertyPortNameLess::operator()(const LibertyPort *port1,
 				const LibertyPort *port2) const
 {
