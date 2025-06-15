@@ -145,6 +145,12 @@ enum class TableAxisVariable {
 enum class PathType { clk, data, clk_and_data };
 const int path_type_count = 2;
 
+class LibertyPortLess
+{
+public:
+  bool operator()(const LibertyPort *port1, const LibertyPort *port2) const;
+};
+
 class LibertyPortNameLess
 {
 public:
