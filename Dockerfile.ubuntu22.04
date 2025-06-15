@@ -3,9 +3,8 @@ LABEL author="James Cherry"
 LABEL maintainer="James Cherry <cherry@parallaxsw.com>"
 
 # Install basics
-ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     wget \
     cmake \
     gcc \
@@ -15,6 +14,7 @@ RUN apt-get update && \
     swig \
     bison \
     flex \
+    libfl-dev \
     automake \
     autotools-dev
 
