@@ -104,7 +104,7 @@ public:
   TimingSense timingSense() const { return timing_sense_; }
   void setTimingSense(TimingSense sense);
   FuncExpr *cond() const { return cond_; }
-  FuncExpr *&condRef() { return cond_; }
+  void setCond(FuncExpr *cond);
   const char *sdfCond() const { return sdf_cond_; }
   void setSdfCond(const char *cond);
   const char *sdfCondStart() const { return sdf_cond_start_; }

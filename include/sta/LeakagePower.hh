@@ -35,7 +35,7 @@ class LeakagePowerAttrs
 public:
   LeakagePowerAttrs();
   FuncExpr *when() const { return when_; }
-  FuncExpr *&whenRef() { return when_; }
+  void setWhen(FuncExpr *when);
   float power() { return power_; }
   void setPower(float power);
 

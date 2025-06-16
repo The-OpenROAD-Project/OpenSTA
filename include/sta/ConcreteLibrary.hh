@@ -196,6 +196,9 @@ public:
   // Bundles are groups of related ports that do not use
   // bus notation.
   bool isBundle() const { return is_bundle_; }
+  ConcretePort *bundlePort() const { return bundle_port_; }
+  bool isBundleMember() const { return bundle_port_ != nullptr; }
+  void setBundlePort(ConcretePort *port);
   bool isBus() const { return is_bus_; }
   // Index of cell bit ports.
   // Bus/bundle ports do not have an pin index.
@@ -251,6 +254,7 @@ protected:
   // Expanded bus bit ports (ordered by from_index_ to to_index_)
   // or bundle member ports.
   ConcretePortSeq *member_ports_;
+  ConcretePort *bundle_port_;
 
 private:
   friend class ConcreteCell;

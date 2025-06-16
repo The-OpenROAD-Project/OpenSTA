@@ -37,6 +37,12 @@ LeakagePowerAttrs::LeakagePowerAttrs() :
 }
 
 void
+LeakagePowerAttrs::setWhen(FuncExpr *when)
+{
+  when_ = when;
+}
+
+void
 LeakagePowerAttrs::setPower(float power)
 {
   power_ = power;

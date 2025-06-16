@@ -102,6 +102,12 @@ TimingArcAttrs::setTimingSense(TimingSense sense)
 }
 
 void
+TimingArcAttrs::setCond(FuncExpr *cond)
+{
+  cond_ = cond;
+}
+
+void
 TimingArcAttrs::setSdfCond(const char *cond)
 {
   stringDelete(sdf_cond_);

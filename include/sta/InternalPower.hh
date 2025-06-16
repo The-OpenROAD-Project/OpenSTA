@@ -39,7 +39,7 @@ public:
   virtual ~InternalPowerAttrs();
   void deleteContents();
   FuncExpr *when() const { return when_; }
-  FuncExpr *&whenRef() { return when_; }
+  void setWhen(FuncExpr *when);
   void setModel(const RiseFall *rf,
 		InternalPowerModel *model);
   InternalPowerModel *model(const RiseFall *rf) const;

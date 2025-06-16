@@ -310,8 +310,13 @@ LibertyCell *test_cell() { return self->testCell(); }
 const char *bus_name() { return self->busName(); }
 Cell *cell() { return self->cell(); }
 bool is_bus() { return self->isBus(); }
+bool is_bus_bit() { return self->isBusBit(); }
+bool is_bundle() { return self->isBundle(); }
+bool is_bundle_member() { return self->isBundleMember(); }
+bool has_members() { return self->hasMembers(); }
 LibertyPortMemberIterator *
 member_iterator() { return new LibertyPortMemberIterator(self); }
+LibertyPort *bundle_port() { return self->bundlePort(); }
 
 string
 function()
