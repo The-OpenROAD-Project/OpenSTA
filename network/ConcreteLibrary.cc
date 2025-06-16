@@ -179,6 +179,8 @@ ConcreteCell::makeBundlePort(const char *name,
 {
   ConcretePort *port = new ConcretePort(name, false, -1, -1, true, members, this);
   addPort(port);
+  for (ConcretePort *member : *members)
+    member->setBundlePort(port);
   return port;
 }
 
@@ -427,7 +429,8 @@ ConcretePort::ConcretePort(const char *name,
   is_bus_(is_bus),
   from_index_(from_index),
   to_index_(to_index),
-  member_ports_(member_ports)
+  member_ports_(member_ports),
+  bundle_port_(nullptr)
 {
 }
 
@@ -450,6 +453,12 @@ void
 ConcretePort::setLibertyPort(LibertyPort *port)
 {
   liberty_port_ = port;
+}
+
+void
+ConcretePort::setBundlePort(ConcretePort *port)
+{
+  bundle_port_ = port;
 }
 
 void

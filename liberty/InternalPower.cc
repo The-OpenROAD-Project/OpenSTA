@@ -64,6 +64,12 @@ InternalPowerAttrs::model(const RiseFall *rf) const
 }
 
 void
+InternalPowerAttrs::setWhen(FuncExpr *when)
+{
+  when_ = when;
+}
+
+void
 InternalPowerAttrs::setModel(const RiseFall *rf,
 			     InternalPowerModel *model)
 {

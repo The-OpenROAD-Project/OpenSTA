@@ -73,6 +73,7 @@ typedef Vector<LeakagePowerGroup*> LeakagePowerGroupSeq;
 typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
 typedef Vector<OutputWaveform*> OutputWaveformSeq;
 typedef std::vector<std::string> StdStringSeq;
+typedef std::function<void (FuncExpr *expr)> LibertySetFunc;
 
 class LibertyReader : public LibertyGroupVisitor
 {
@@ -187,7 +188,7 @@ public:
   virtual void makeLeakagePowers();
   virtual void parseCellFuncs();
   virtual void makeLibertyFunc(const char *expr,
-			       FuncExpr *&func_ref,
+                               LibertySetFunc set_func,
 			       bool invert,
 			       const char *attr_name,
 			       LibertyStmt *stmt);
@@ -695,20 +696,20 @@ class LibertyFunc
 {
 public:
   LibertyFunc(const char *expr,
-	      FuncExpr *&func_ref,
+              LibertySetFunc set_func,
 	      bool invert,
 	      const char *attr_name,
 	      int line);
   ~LibertyFunc();
   const char *expr() const { return expr_; }
-  FuncExpr *&funcRef() const { return func_ref_; }
+  LibertySetFunc setFunc() const { return set_func_; }
   bool invert() const { return invert_; }
   const char *attrName() const { return attr_name_; }
   int line() const { return line_; }
 
 protected:
   const char *expr_;
-  FuncExpr *&func_ref_;
+  LibertySetFunc set_func_;
   bool invert_;
   const char *attr_name_;
   int line_;

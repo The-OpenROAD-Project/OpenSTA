@@ -140,51 +140,6 @@ proc instance_sorted_children { instance } {
 
 ################################################################
 
-define_cmd_args "report_lib_cell" {cell_name [> filename] [>> filename]}
-
-proc_redirect report_lib_cell {
-  check_argc_eq1 "report_lib_cell" $args
-  set arg [lindex $args 0]
-  set cell [get_lib_cell_warn "lib_cell" $arg]
-  set corner [cmd_corner]
-  if { $cell != "NULL" } {
-    report_lib_cell_ $cell $corner
-  }
-}
-
-proc report_lib_cell_ { cell corner } {
-  global sta_report_default_digits
-
-  set lib [$cell liberty_library]
-  report_line "Cell [get_name $cell]"
-  report_line "Library [get_name $lib]"
-  set filename [liberty_cell_property $cell "filename"]
-  if { $filename != "" } {
-    report_line "File $filename"
-  }
-  set iter [$cell liberty_port_iterator]
-  while {[$iter has_next]} {
-    set port [$iter next]
-    if { [$port is_bus] } {
-      set port_name [$port bus_name]
-    } else {
-      set port_name [get_name $port]
-    }
-    set enable [$port tristate_enable]
-    if { $enable != "" } {
-      set enable " enable=$enable"
-    }
-    set func [$port function]
-    if { $func != "" } {
-      set func " function=$func"
-    }
-    report_line " $port_name [liberty_port_direction $port]$enable$func[port_capacitance_str $port $corner $sta_report_default_digits]"
-  }
-  $iter finish
-}
-
-################################################################
-
 define_cmd_args "report_net" {[-corner corner] [-digits digits]\
                                 net_path [> filename] [>> filename]}
 

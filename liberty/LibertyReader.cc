@@ -2222,13 +2222,13 @@ LibertyReader::makeLeakagePowers()
 // the cell definition when all of the ports are defined.
 void
 LibertyReader::makeLibertyFunc(const char *expr,
-			       FuncExpr *&func_ref,
+                               LibertySetFunc set_func,
 			       bool invert,
 			       const char *attr_name,
 			       LibertyStmt *stmt)
 {
-  LibertyFunc *func = new LibertyFunc(expr, func_ref, invert, attr_name,
-				      stmt->line());
+  LibertyFunc *func = new LibertyFunc(expr, set_func,
+                                      invert, attr_name, stmt->line());
   cell_funcs_.push_back(func);
 }
 
@@ -2246,12 +2246,8 @@ LibertyReader::parseCellFuncs()
       else
 	expr = FuncExpr::makeNot(expr);
     }
-    if (expr) {
-      FuncExpr *prev_func = func->funcRef(); 
-      if (prev_func)
-        prev_func->deleteSubexprs();
-      func->funcRef() = expr;
-    }
+    if (expr)
+      func->setFunc()(expr);
     delete func;
   }
   cell_funcs_.clear();
@@ -3446,7 +3442,9 @@ LibertyReader::visitFunction(LibertyAttr *attr)
     const char *func = getAttrString(attr);
     if (func) {
       for (LibertyPort *port : *ports_)
-        makeLibertyFunc(func, port->functionRef(), false, "function", attr);
+        makeLibertyFunc(func,
+                        [port] (FuncExpr *expr) { port->setFunction(expr); },
+                        false, "function", attr);
     }
   }
 }
@@ -3458,8 +3456,9 @@ LibertyReader::visitThreeState(LibertyAttr *attr)
     const char *three_state = getAttrString(attr);
     if (three_state) {
       for (LibertyPort *port : *ports_)
-	makeLibertyFunc(three_state, port->tristateEnableRef(), true,
-			"three_state", attr);
+	makeLibertyFunc(three_state,
+                        [port] (FuncExpr *expr) { port->setTristateEnable(expr); },
+                        true, "three_state", attr);
     }
   }
 }
@@ -4898,23 +4897,39 @@ LibertyReader::visitWhen(LibertyAttr *attr)
     libWarn(1265, attr, "when attribute inside table model.");
   if (mode_value_) {
     const char *func = getAttrString(attr);
-    if (func)
-      makeLibertyFunc(func, mode_value_->condRef(), false, "when", attr);
+    if (func) {
+      ModeValueDef *mode_value = mode_value_;
+      makeLibertyFunc(func,
+                      [mode_value] (FuncExpr *expr) {mode_value->setCond(expr);},
+                      false, "when", attr);
+    }
   }
   if (timing_) {
     const char *func = getAttrString(attr);
-    if (func)
-      makeLibertyFunc(func, timing_->attrs()->condRef(), false, "when", attr);
+    if (func) {
+      TimingArcAttrs *attrs = timing_->attrs().get();
+      makeLibertyFunc(func,
+                      [attrs] (FuncExpr *expr) { attrs->setCond(expr);},
+                      false, "when", attr);
+    }
   }
   if (internal_power_) {
     const char *func = getAttrString(attr);
-    if (func)
-      makeLibertyFunc(func, internal_power_->whenRef(), false, "when", attr);
+    if (func) {
+      InternalPowerGroup *internal_pwr = internal_power_;
+      makeLibertyFunc(func,
+                      [internal_pwr] (FuncExpr *expr) { internal_pwr->setWhen(expr);},
+                      false, "when", attr);
+    }
   }
   if (leakage_power_) {
     const char *func = getAttrString(attr);
-    if (func)
-      makeLibertyFunc(func, leakage_power_->whenRef(), false, "when", attr);
+    if (func) {
+      LeakagePowerGroup *leakage_pwr = leakage_power_;
+      makeLibertyFunc(func,
+                      [leakage_pwr] (FuncExpr *expr) { leakage_pwr->setWhen(expr);},
+                      false, "when", attr);
+    }
   }
 }
 
@@ -5703,12 +5718,12 @@ LibertyReader::endEcsmWaveform(LibertyGroup *)
 ////////////////////////////////////////////////////////////////
 
 LibertyFunc::LibertyFunc(const char *expr,
-			 FuncExpr *&func_ref,
+                         LibertySetFunc set_func,
 			 bool invert,
 			 const char *attr_name,
 			 int line) :
   expr_(stringCopy(expr)),
-  func_ref_(func_ref),
+  set_func_(set_func),
   invert_(invert),
   attr_name_(stringCopy(attr_name)),
   line_(line)

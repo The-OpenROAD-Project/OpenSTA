@@ -135,6 +135,8 @@ LibertyBuilder::makeBundlePort(LibertyCell *cell,
 {
   LibertyPort *port = new LibertyPort(cell, name, false, nullptr, -1, -1, true, members);
   cell->addPort(port);
+  for (ConcretePort *member : *members)
+    member->setBundlePort(port);
   return port;
 }
 

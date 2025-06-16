@@ -701,6 +701,7 @@ public:
   LibertyLibrary *libertyLibrary() const { return liberty_cell_->libertyLibrary(); }
   LibertyPort *findLibertyMember(int index) const;
   LibertyPort *findLibertyBusBit(int index) const;
+  LibertyPort *bundlePort() const;
   BusDcl *busDcl() const { return bus_dcl_; }
   void setDirection(PortDirection *dir);
   ScanSignalType scanSignalType() const { return scan_signal_type_; }
@@ -740,11 +741,9 @@ public:
                           const StaState *sta) const;
   FuncExpr *function() const { return function_; }
   void setFunction(FuncExpr *func);
-  FuncExpr *&functionRef() { return function_; }
   // Tristate enable function.
   FuncExpr *tristateEnable() const { return tristate_enable_; }
   void setTristateEnable(FuncExpr *enable);
-  FuncExpr *&tristateEnableRef() { return tristate_enable_; }
   void slewLimit(const MinMax *min_max,
 		 // Return values.
 		 float &limit,
@@ -1046,7 +1045,7 @@ public:
   ~ModeValueDef();
   const char *value() const { return value_.c_str(); }
   FuncExpr *cond() const { return cond_; }
-  FuncExpr *&condRef() { return cond_; }
+  void setCond(FuncExpr *cond);
   const char *sdfCond() const { return sdf_cond_.c_str(); }
   void setSdfCond(const char *sdf_cond);
 
