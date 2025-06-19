@@ -3,13 +3,12 @@
 
 load("@rules_hdl//dependency_support/com_github_westes_flex:flex.bzl", "genlex")
 load("@rules_hdl//dependency_support/org_gnu_bison:bison.bzl", "genyacc")
-
 load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
 load("//bazel:tcl_wrap_cc.bzl", "tcl_wrap_cc")
 
 package(
     default_visibility = ["//:__subpackages__"],
-#    features = ["layering_check"],
+    #    features = ["layering_check"],
 )
 
 genlex(
@@ -178,9 +177,8 @@ genrule(
     srcs = [],
     outs = ["util/StaConfig.hh"],
     cmd = """echo -e '
-    #define STA_VERSION "2.2.1"
-    #define STA_GIT_SHA1 "53d4d57cb8550d2ceed18adad75b73bba7858f4f"
-    #define CUDD 0
+    #define STA_VERSION "2.7.0"
+    #define STA_GIT_SHA1 "f21d4a3878e2531e3af4930818d9b5968aad9416"
     #define SSTA 0
     #define ZLIB_FOUND' > \"$@\"
     """,
@@ -302,33 +300,32 @@ cc_binary(
 
 cc_library(
     name = "opensta_lib",
-    srcs = parser_cc + parser_headers + glob([
-        "dcalc/*.hh",
-        "util/*.hh",
-        "parasitics/*.hh",
-        "liberty/*.hh",
-        "sdc/*.hh",
-        "sdf/*.hh",
-        "search/*.hh",
-        "verilog/*.hh",
-        "power/*.hh",
-        "spice/*.hh",
-    ]) + glob(
+    srcs = parser_cc + parser_headers + glob(
         include = [
             "app/StaMain.cc",
             "dcalc/*.cc",
+            "dcalc/*.hh",
             "graph/*.cc",
-            "network/*.cc",
-            "util/*.cc",
-            "parasitics/*.cc",
             "liberty/*.cc",
-            "sdc/*.cc",
-            "sdf/*.cc",
-            "search/*.cc",
-            "verilog/*.cc",
+            "liberty/*.hh",
+            "network/*.cc",
+            "parasitics/*.cc",
+            "parasitics/*.hh",
             "power/*.cc",
+            "power/*.hh",
+            "sdc/*.cc",
+            "sdc/*.hh",
+            "sdf/*.cc",
+            "sdf/*.hh",
+            "search/*.cc",
+            "search/*.hh",
             "spice/*.cc",
+            "spice/*.hh",
             "tcl/*.cc",
+            "util/*.cc",
+            "util/*.hh",
+            "verilog/*.cc",
+            "verilog/*.hh",
         ],
         exclude = [
             "graph/Delay.cc",
