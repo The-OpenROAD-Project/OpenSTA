@@ -42,11 +42,12 @@ void
 DispatchQueue::setThreadCount(size_t thread_count)
 {
   terminateThreads();
-
+  std::unique_lock<std::mutex> lock(lock_);
   threads_.resize(thread_count);
   for(size_t i = 0; i < thread_count; i++) {
     threads_[i] = std::thread(&DispatchQueue::dispatch_thread_handler, this, i);
   }
+  quit_ = false;
 }
 
 void
