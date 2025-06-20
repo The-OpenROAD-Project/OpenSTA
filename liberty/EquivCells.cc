@@ -71,6 +71,8 @@ static unsigned
 hashCellPgPorts(const LibertyCell *cell);
 static unsigned
 hashPgPort(const LibertyPgPort *port);
+static bool
+cellHasFuncs(const LibertyCell *cell);
 
 static bool
 equivCellPgPorts(const LibertyCell *cell1,
@@ -329,35 +331,44 @@ bool
 equivCells(const LibertyCell *cell1,
 	   const LibertyCell *cell2)
 {
-  return equivCellPortsAndFuncs(cell1, cell2)
+  return equivCellPorts(cell1, cell2)
+    && equivCellFuncs(cell1, cell2)
     && equivCellPgPorts(cell1, cell2)
     && equivCellSequentials(cell1, cell2)
     && equivCellStatetables(cell1, cell2)
-    && equivCellTimingArcSets(cell1, cell2);
+    // Reqwuire timing arc equivalence if there are no functions.
+    && (cellHasFuncs(cell1)
+        || equivCellTimingArcSets(cell1, cell2));
+}
+
+static bool
+cellHasFuncs(const LibertyCell *cell)
+{
+  LibertyCellPortIterator port_iter(cell);
+  while (port_iter.hasNext()) {
+    LibertyPort *port = port_iter.next();
+    if (port->function())
+      return true;
+  }
+  return false;
 }
 
 bool
-equivCellPortsAndFuncs(const LibertyCell *cell1,
-		       const LibertyCell *cell2)
+equivCellFuncs(const LibertyCell *cell1,
+               const LibertyCell *cell2)
 {
-  if (cell1->portCount() != cell2->portCount())
-    return false;
-  else {
-    LibertyCellPortIterator port_iter1(cell1);
-    while (port_iter1.hasNext()) {
-      LibertyPort *port1 = port_iter1.next();
-      const char *name = port1->name();
-      LibertyPort *port2 = cell2->findLibertyPort(name);
-      if (!(port2
-	    && LibertyPort::equiv(port1, port2)
-	    && FuncExpr::equiv(port1->function(), port2->function())
-	    && FuncExpr::equiv(port1->tristateEnable(),
-			       port2->tristateEnable()))){
-        return false;
-      }
-    }
-    return true;
+  LibertyCellPortIterator port_iter1(cell1);
+  while (port_iter1.hasNext()) {
+    LibertyPort *port1 = port_iter1.next();
+    const char *name = port1->name();
+    LibertyPort *port2 = cell2->findLibertyPort(name);
+    if (!(port2
+          && FuncExpr::equiv(port1->function(), port2->function())
+          && FuncExpr::equiv(port1->tristateEnable(),
+                             port2->tristateEnable())))
+      return false;
   }
+  return true;
 }
 
 bool
