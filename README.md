@@ -153,7 +153,7 @@ git clone https://github.com/parallaxsw/OpenSTA.git
 cd OpenSTA
 mkdir build
 cd build
-cmake -DCUDD_DIR=<CUDD_INSTALL_DIR> ,.
+cmake -DCUDD_DIR=<CUDD_INSTALL_DIR> ..
 make
 ```
 The default build type is release to compile optimized code.
