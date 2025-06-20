@@ -1384,7 +1384,7 @@ Properties::defineProperty(std::string property,
 template<class TYPE>
 PropertyValue
 PropertyRegistry<TYPE>::getProperty(TYPE object,
-                                    const std::string property,
+                                    const std::string &property,
                                     const char *type_name,
                                     Sta *sta)
 
@@ -1398,9 +1398,8 @@ PropertyRegistry<TYPE>::getProperty(TYPE object,
 
 template<class TYPE>
 void
-PropertyRegistry<TYPE>::defineProperty(const std::string property,
-                                       std::function<PropertyValue (TYPE object,
-                                                                    Sta *sta)> handler)
+PropertyRegistry<TYPE>::defineProperty(const std::string &property,
+                                       PropertyHandler handler)
 {
   registry_[property] = handler;
 }

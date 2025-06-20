@@ -46,17 +46,16 @@ template<class TYPE>
 class PropertyRegistry
 {
 public:
-  void defineProperty(const std::string property,
-                      std::function<PropertyValue (TYPE object,
-                                                   Sta *sta)> handler);
+  typedef std::function<PropertyValue (TYPE object, Sta *sta)> PropertyHandler;
+  void defineProperty(const std::string &property,
+                      PropertyHandler handler);
   PropertyValue getProperty(TYPE object,
-                            const std::string property,
+                            const std::string &property,
                             const char *type_name,
                             Sta *sta);
 
 private:
-  std::map<const std::string, std::function<PropertyValue (TYPE object,
-                                                           Sta *sta)>> registry_;
+  std::map<std::string, PropertyHandler> registry_;
 };
 
 class Properties
