@@ -98,33 +98,24 @@ public:
   //                           [] (const Instance *, Sta *) -> PropertyValue {
   //                             return PropertyValue("bar");
   //                           });
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Library *lib,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const LibertyLibrary *lib,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Cell *cell,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const LibertyCell *cell,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Port *Port,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const LibertyPort *port,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Instance *inst,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Pin *pin,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Net *net,
-                                                   Sta *sta)> handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Library *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const LibertyLibrary *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Cell *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const LibertyCell *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Port *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const LibertyPort *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Instance *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Pin *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Net *>::PropertyHandler handler);
 
 protected:
   PropertyValue portSlew(const Port *port,

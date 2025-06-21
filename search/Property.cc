@@ -1308,73 +1308,64 @@ Properties::capacitancePropertyValue(float cap)
 ////////////////////////////////////////////////////////////////
 
 void
-Properties::defineProperty(std::string property,
-                           std::function<PropertyValue (const Library *lib,
-                                                        Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const Library *>::PropertyHandler handler)
 {
   registry_library_.defineProperty(property, handler);
 }
 
 void
-Properties::defineProperty(std::string property,
-                           std::function<PropertyValue (const LibertyLibrary *lib,
-                                                        Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const LibertyLibrary *>::PropertyHandler handler)
 {
   registry_liberty_library_.defineProperty(property, handler);
 }
 
 void
-Properties::defineProperty(std::string property,
-                           std::function<PropertyValue (const Cell *cell,
-                                                   Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const Cell *>::PropertyHandler handler)
 {
   registry_cell_.defineProperty(property, handler);
 }
 
 void
-Properties::defineProperty(std::string property,
-                           std::function<PropertyValue (const LibertyCell *cell,
-                                                        Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const LibertyCell *>::PropertyHandler handler)
 {
   registry_liberty_cell_.defineProperty(property, handler);
 }
 
 void
-Properties::defineProperty(std::string property,
-                           std::function<PropertyValue (const Port *Port,
-                                                        Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const Port *>::PropertyHandler handler)
 {
   registry_port_.defineProperty(property, handler);
 }
 
 void
-Properties::defineProperty(std::string property,
-                           std::function<PropertyValue (const LibertyPort *port,
-                                                        Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const LibertyPort *>::PropertyHandler handler)
 {
   registry_liberty_port_.defineProperty(property, handler);
 }
 
 void
-Properties::defineProperty(std::string property,
-                           std::function<PropertyValue (const Instance *inst,
-                                                        Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const Instance *>::PropertyHandler handler)
 {
   registry_instance_.defineProperty(property, handler);
 }  
 
 void
-Properties::defineProperty(std::string property,
-                           std::function<PropertyValue (const Pin *pin,
-                                                        Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const Pin *>::PropertyHandler handler)
 {
   registry_pin_.defineProperty(property, handler);
 }
 
 void
-Properties::defineProperty(std::string property,
-                      std::function<PropertyValue (const Net *net,
-                                                   Sta *sta)> handler)
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const Net *>::PropertyHandler handler)
 {
   registry_net_.defineProperty(property, handler);
 }
