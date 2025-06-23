@@ -4909,7 +4909,7 @@ LibertyReader::visitWhen(LibertyAttr *attr)
                       false, "when", attr);
     }
   }
-  if (timing_) {
+  if (timing_ && !in_ccsn_) {
     const char *func = getAttrString(attr);
     if (func) {
       TimingArcAttrs *attrs = timing_->attrs().get();

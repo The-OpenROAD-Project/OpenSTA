@@ -130,15 +130,13 @@ LibertyLibrary::~LibertyLibrary()
   wireloads_.deleteContents();
   wire_load_selections_.deleteContents();
   delete units_;
+  // Also deletes default_ocv_derate_
   ocv_derate_map_.deleteContents();
 
   delete buffers_;
   delete inverters_;
   driver_waveform_map_.deleteContents();
   delete driver_waveform_default_;
-
-  delete default_ocv_derate_;
-  default_ocv_derate_ = nullptr;
 }
 
 LibertyCell *

@@ -254,8 +254,12 @@ FuncExpr::bitSubExpr(int bit_offset)
 	return makePort(port);
       }
       else {
-	LibertyPort *port = port_->findLibertyMember(bit_offset);
-	return makePort(port);
+        if (bit_offset < port_->size()) {
+          LibertyPort *port = port_->findLibertyMember(bit_offset);
+          return makePort(port);
+        }
+        else
+          return nullptr;
       }
     }
     else
