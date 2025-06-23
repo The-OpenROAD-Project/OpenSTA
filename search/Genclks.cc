@@ -109,7 +109,8 @@ GenclkInfo::setFoundLatchFdbkEdges(bool found)
 
 Genclks::Genclks(StaState *sta) :
   StaState(sta),
-  found_insertion_delays_(false)
+  found_insertion_delays_(false),
+  vertex_src_paths_map_(graph_)
 {
 }
 
@@ -124,6 +125,7 @@ Genclks::clear()
 {
   found_insertion_delays_ = false;
   genclk_info_map_.deleteContentsClear();
+  vertex_src_paths_map_.clear();
   clearSrcPaths();
 }
 
@@ -846,21 +848,27 @@ Genclks::findSrcArrivals(Clock *gclk,
   insert_iter.visit(levelize_->maxLevel(), &arrival_visitor);
 }
 
-// Copy existing generated clock source paths from vertex to tag_bldr.
+// Copy generated clock source paths to tag_bldr.
 void
 Genclks::copyGenClkSrcPaths(Vertex *vertex,
 			    TagGroupBldr *tag_bldr)
 {
-  Path *paths = graph_->paths(vertex);
-  if (paths) {
-    TagGroup *tag_group = search_->tagGroup(vertex);
-    if (tag_group) {
-      for (auto const [tag, path_index] : *tag_group->pathIndexMap()) {
-        if (tag->isGenClkSrcPath()) {
-          Path &path = paths[path_index];
-          tag_bldr->insertPath(path);
-        }
+  auto itr = vertex_src_paths_map_.find(vertex);
+  if (itr != vertex_src_paths_map_.end()) {
+    std::vector<const Path*> &src_paths = itr->second;
+    for (const Path *path : src_paths) {
+      Path src_path = *path;
+      Path *prev_path = src_path.prevPath();
+      if (prev_path) {
+        Path *prev_vpath = Path::vertexPath(prev_path, this);
+        src_path.setPrevPath(prev_vpath);
       }
+      debugPrint(debug_, "genclk", 3, "vertex %s insert genclk %s src path %s %ss",
+                 src_path.vertex(this)->to_string(this).c_str(),
+                 src_path.tag(this)->genClkSrcPathClk(this)->name(),
+                 src_path.tag(this)->pathAnalysisPt(this)->pathMinMax()->to_string().c_str(),
+                 src_path.tag(this)->to_string(true, false, this).c_str());
+      tag_bldr->insertPath(src_path);
     }
   }
 }
@@ -941,10 +949,20 @@ Genclks::recordSrcPaths(Clock *gclk)
 	}
       }
     }
-    if (!found_src_paths
-	// Don't warn if the master clock is ideal.
-	&& gclk->masterClk()
-	&& gclk->masterClk()->isPropagated())
+    if (found_src_paths) {
+      for (const Path &path : src_paths) {
+        if (!path.isNull()) {
+          const Path *p = &path;
+          while (p) {
+            vertex_src_paths_map_[p->vertex(this)].push_back(p);
+            p = p->prevPath();
+          }
+        }
+      }
+    }
+    // Don't warn if the master clock is ideal.
+    else if (gclk->masterClk()
+             && gclk->masterClk()->isPropagated())
       report_->warn(1062, "generated clock %s source pin %s missing paths from master clock %s.",
 		    gclk->name(),
 		    network_->pathName(gclk_pin),
