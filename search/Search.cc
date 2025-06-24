@@ -1276,8 +1276,7 @@ Search::arrivalsChanged(Vertex *vertex,
           || path1->tag(this) != path2->tag(this)
           || !delayEqual(path1->arrival(), path2->arrival())
           || path1->prevEdge(this) != path2->prevEdge(this)
-          || path1->prevArc(this) != path2->prevArc(this)
-          || path1->prevPath() != path2->prevPath())
+          || path1->prevArc(this) != path2->prevArc(this))
 	return true;
     }
     return false;
@@ -1409,6 +1408,7 @@ ArrivalVisitor::seedInputDelayArrival(const Pin *pin,
 {
   TagGroupBldr tag_bldr(true, this);
   tag_bldr.init(vertex);
+  search_->genclks()->copyGenClkSrcPaths(vertex, &tag_bldr);
   search_->seedInputDelayArrival(pin, vertex, input_delay,
                                  !network_->isTopLevelPort(pin), &tag_bldr);
   search_->setVertexArrivals(vertex, &tag_bldr);
@@ -1480,6 +1480,7 @@ Search::seedArrival(Vertex *vertex)
   else if (isInputArrivalSrchStart(vertex)) {
     TagGroupBldr tag_bldr(true, this);
     tag_bldr.init(vertex);
+    genclks_->copyGenClkSrcPaths(vertex, &tag_bldr);
     seedInputArrival(pin, vertex, &tag_bldr);
     setVertexArrivals(vertex, &tag_bldr);
     if (!tag_bldr.empty())
@@ -1496,6 +1497,7 @@ Search::seedArrival(Vertex *vertex)
                  network_->pathName(pin));
       TagGroupBldr tag_bldr(true, this);
       tag_bldr.init(vertex);
+      genclks_->copyGenClkSrcPaths(vertex, &tag_bldr);
       if (makeUnclkedPaths(vertex, is_reg_clk, false, &tag_bldr))
 	// Only search downstream if there are no false paths from here.
 	arrival_iter_->enqueueAdjacentVertices(vertex, search_adj_);
@@ -1737,6 +1739,7 @@ Search::seedInputArrival(const Pin *pin,
   // There can be multiple arrivals for a pin with wrt different clocks.
   TagGroupBldr tag_bldr(true, this);
   tag_bldr.init(vertex);
+  genclks_->copyGenClkSrcPaths(vertex, &tag_bldr);
   InputDelaySet *input_delays = sdc_->inputDelaysLeafPin(pin);
   if (input_delays) {
     for (InputDelay *input_delay : *input_delays) {
@@ -3221,7 +3224,6 @@ Search::findRequireds(Level level)
   seedInvalidRequireds();
   int required_count = required_iter_->visitParallel(level, &req_visitor);
   deleteTagsPrev();
-  genclks_->updateSrcPathPrevs();
   requireds_exist_ = true;
   debugPrint(debug_, "search", 1, "found %d requireds", required_count);
   stats.report("Find requireds");

@@ -27,7 +27,7 @@
 #include "Map.hh"
 #include "Transition.hh"
 #include "NetworkClass.hh"
-#include "GraphClass.hh"
+#include "Graph.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
@@ -51,6 +51,7 @@ public:
 
 typedef Map<Clock*, GenclkInfo*> GenclkInfoMap;
 typedef Map<ClockPinPair, std::vector<Path>, ClockPinPairLess> GenclkSrcPathMap;
+typedef std::map<Vertex*, std::vector<const Path*>, VertexIdLess> VertexGenclkSrcPathsMap;
 
 class Genclks : public StaState
 {
@@ -133,6 +134,7 @@ private:
   bool found_insertion_delays_;
   GenclkSrcPathMap genclk_src_paths_;
   GenclkInfoMap genclk_info_map_;
+  VertexGenclkSrcPathsMap vertex_src_paths_map_;
 };
 
 } // namespace

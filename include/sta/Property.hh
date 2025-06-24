@@ -46,17 +46,16 @@ template<class TYPE>
 class PropertyRegistry
 {
 public:
-  void defineProperty(const std::string property,
-                      std::function<PropertyValue (TYPE object,
-                                                   Sta *sta)> handler);
+  typedef std::function<PropertyValue (TYPE object, Sta *sta)> PropertyHandler;
+  void defineProperty(const std::string &property,
+                      PropertyHandler handler);
   PropertyValue getProperty(TYPE object,
-                            const std::string property,
+                            const std::string &property,
                             const char *type_name,
                             Sta *sta);
 
 private:
-  std::map<const std::string, std::function<PropertyValue (TYPE object,
-                                                           Sta *sta)>> registry_;
+  std::map<std::string, PropertyHandler> registry_;
 };
 
 class Properties
@@ -99,33 +98,24 @@ public:
   //                           [] (const Instance *, Sta *) -> PropertyValue {
   //                             return PropertyValue("bar");
   //                           });
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Library *lib,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const LibertyLibrary *lib,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Cell *cell,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const LibertyCell *cell,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Port *Port,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const LibertyPort *port,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Instance *inst,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Pin *pin,
-                                                   Sta *sta)> handler);
-  void defineProperty(std::string property,
-                      std::function<PropertyValue (const Net *net,
-                                                   Sta *sta)> handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Library *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const LibertyLibrary *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Cell *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const LibertyCell *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Port *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const LibertyPort *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Instance *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Pin *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Net *>::PropertyHandler handler);
 
 protected:
   PropertyValue portSlew(const Port *port,

@@ -67,10 +67,10 @@ bool
 equivCellPorts(const LibertyCell *cell1,
 	       const LibertyCell *cell2);
 
-// Predicate that is true when the ports and their functions match.
+// Predicate that is true cell functions match.
 bool
-equivCellPortsAndFuncs(const LibertyCell *cell1,
-		       const LibertyCell *cell2);
+equivCellFuncs(const LibertyCell *cell1,
+               const LibertyCell *cell2);
 
 // Predicate that is true when the timing arc sets match.
 bool

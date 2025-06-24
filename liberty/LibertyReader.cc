@@ -2305,8 +2305,13 @@ void
 LibertyReader::checkScaledCell(LibertyGroup *group)
 {
   if (equivCellPorts(cell_, scaled_cell_owner_)) {
-    if (!equivCellPortsAndFuncs(cell_, scaled_cell_owner_))
-      libWarn(1206, group, "scaled_cell %s, %s port functions do not match cell port functions.",
+    if (!equivCellPorts(cell_, scaled_cell_owner_))
+      libWarn(1206, group, "scaled_cell %s, %s ports do not match cell ports",
+	      cell_->name(),
+	      op_cond_->name());
+    if (!equivCellFuncs(cell_, scaled_cell_owner_))
+      libWarn(1206, group,
+              "scaled_cell %s, %s port functions do not match cell port functions.",
 	      cell_->name(),
 	      op_cond_->name());
   }
@@ -4920,7 +4925,7 @@ LibertyReader::visitWhen(LibertyAttr *attr)
                       false, "when", attr);
     }
   }
-  if (timing_) {
+  if (timing_ && !in_ccsn_) {
     const char *func = getAttrString(attr);
     if (func) {
       TimingArcAttrs *attrs = timing_->attrs().get();
