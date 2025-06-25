@@ -85,11 +85,25 @@ set_power_global_activity(float activity,
 }
 
 void
+unset_power_global_activity()
+{
+  Power *power = Sta::sta()->power();
+  power->unsetGlobalActivity();
+}
+
+void
 set_power_input_activity(float activity,
 			 float duty)
 {
   Power *power = Sta::sta()->power();
   return power->setInputActivity(activity, duty);
+}
+
+void
+unset_power_input_activity()
+{
+  Power *power = Sta::sta()->power();
+  return power->unsetInputActivity();
 }
 
 void
@@ -102,12 +116,26 @@ set_power_input_port_activity(const Port *input_port,
 }
 
 void
+unset_power_input_port_activity(const Port *input_port)
+{
+  Power *power = Sta::sta()->power();
+  return power->unsetInputPortActivity(input_port);
+}
+
+void
 set_power_pin_activity(const Pin *pin,
 		       float activity,
 		       float duty)
 {
   Power *power = Sta::sta()->power();
   return power->setUserActivity(pin, activity, duty, PwrActivityOrigin::user);
+}
+
+void
+unset_power_pin_activity(const Pin *pin)
+{
+  Power *power = Sta::sta()->power();
+  return power->unsetUserActivity(pin);
 }
 
 float
