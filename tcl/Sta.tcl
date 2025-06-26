@@ -47,7 +47,12 @@ proc get_fanin { args } {
   }
   parse_port_pin_net_arg $keys(-to) pins nets
   foreach net $nets {
-    lappend pins [net_driver_pins $net]
+    set net_pins [net_pins $net]
+    if { $net_pins != {} } {
+      lappend pins $net_pins
+    } else {
+      sta_warn 541 "No load pins connected to net [get_full_name $net]."
+    }
   }
   set flat [info exists flags(-flat)]
   set only_insts [info exists flags(-only_cells)]
