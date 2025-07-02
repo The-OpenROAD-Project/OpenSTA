@@ -4960,9 +4960,7 @@ Sta::findFaninPins(PinSeq *to,
   ensureLevelized();
   PinSet fanin(network_);
   FaninSrchPred pred(thru_disabled, thru_constants, this);
-  PinSeq::Iterator to_iter(to);
-  while (to_iter.hasNext()) {
-    const Pin *pin = to_iter.next();
+  for (const Pin *pin : *to) {
     if (network_->isHierarchical(pin)) {
       EdgesThruHierPinIterator edge_iter(pin, network_, graph_);
       while (edge_iter.hasNext()) {

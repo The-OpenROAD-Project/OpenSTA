@@ -289,7 +289,7 @@ proc set_power_activity { args } {
     foreach port $ports {
       if { [get_property $port "direction"] == "input" } {
 	if { [is_clock_src [sta::get_port_pin $port]] } {
-          sta_warn 303 "activity cannot be set on clock ports."
+          sta_warn 310 "activity cannot be set on clock ports."
         } else {
           set_power_input_port_activity $port $density $duty
         }
@@ -300,6 +300,47 @@ proc set_power_activity { args } {
     set pins [get_pins $keys(-pins)]
     foreach pin $pins {
       set_power_pin_activity $pin $density $duty
+    }
+  }
+}
+
+################################################################
+
+define_cmd_args "unset_power_activity" { [-global]\
+                                           [-input]\
+                                           [-input_ports ports]\
+                                           [-pins pins]\
+                                           [-clock clock]}
+
+proc unset_power_activity { args } {
+  parse_key_args "unset_power_activity" args \
+    keys {-input_ports -pins -clock} \
+    flags {-global -input}
+
+  check_argc_eq0 "unset_power_activity" $args
+
+  if { [info exists flags(-global)] } {
+    unset_power_global_activity
+  }
+  if { [info exists flags(-input)] } {
+    unset_power_input_activity
+  }
+  if { [info exists keys(-input_ports)] } {
+    set ports [get_ports_error "input_ports" $keys(-input_ports)]
+    foreach port $ports {
+      if { [get_property $port "direction"] == "input" } {
+	if { [is_clock_src [sta::get_port_pin $port]] } {
+          sta_warn 303 "activity cannot be set on clock ports."
+        } else {
+          unset_power_input_port_activity $port
+        }
+      }
+    }
+  }
+  if { [info exists keys(-pins)] } {
+    set pins [get_pins $keys(-pins)]
+    foreach pin $pins {
+      unset_power_pin_activity $pin
     }
   }
 }

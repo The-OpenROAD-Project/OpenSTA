@@ -203,13 +203,17 @@ Path::init(Vertex *vertex,
 std::string
 Path::to_string(const StaState *sta) const
 {
-  const PathAnalysisPt *path_ap = pathAnalysisPt(sta);
-  return stringPrintTmp("%s %s %s/%d %d",
-                        vertex(sta)->to_string(sta).c_str(),
-                        transition(sta)->to_string().c_str(),
-                        path_ap->pathMinMax()->to_string().c_str(),
-                        path_ap->index(),
-                        tagIndex(sta));
+  if (isNull())
+    return "null path";
+  else {
+    const PathAnalysisPt *path_ap = pathAnalysisPt(sta);
+    return stringPrintTmp("%s %s %s/%d %d",
+                          vertex(sta)->to_string(sta).c_str(),
+                          transition(sta)->to_string().c_str(),
+                          path_ap->pathMinMax()->to_string().c_str(),
+                          path_ap->index(),
+                          tagIndex(sta));
+  }
 }
 
 bool
@@ -366,10 +370,7 @@ Path::slack(const StaState *sta) const
 Path *
 Path::prevPath() const
 {
-  if (prev_path_ && prev_path_->isNull())
-    return nullptr;
-  else
-    return prev_path_;
+  return prev_path_;
 }
 
 void
@@ -441,18 +442,11 @@ Path::setPrevEdgeArc(Edge *prev_edge,
 }
 
 void
-Path::checkPrevPaths(const StaState *sta) const
-{
-  const Path *path = this;
-  while (path) {
-    path->checkPrevPath(sta);
-    path = path->prevPath();
-  }
-}
-
-void
 Path::checkPrevPath(const StaState *sta) const
 {
+  if (prev_path_ && prev_path_->isNull())
+    sta->report()->reportLine("path %s prev path is null.",
+                              to_string(sta).c_str());
   if (prev_path_ && !prev_path_->isNull()) {
     Graph *graph = sta->graph();
     Edge *edge = prevEdge(sta);

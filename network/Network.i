@@ -563,6 +563,20 @@ net_load_pins(Net *net)
   return pins;
 }
 
+PinSet
+net_pins(Net *net)
+{
+  Network *network = Sta::sta()->ensureLinked();
+  PinSet pins(network);
+  NetConnectedPinIterator *pin_iter = network->connectedPinIterator(net);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    pins.insert(pin);
+  }
+  delete pin_iter;
+  return pins;
+}
+
 const char *
 pin_location(const Pin *pin)
 {

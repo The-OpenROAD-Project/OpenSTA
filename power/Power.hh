@@ -87,16 +87,20 @@ public:
                     const Corner *corner);
   void setGlobalActivity(float activity,
 			 float duty);
+  void unsetGlobalActivity();
   void setInputActivity(float activity,
 			float duty);
+  void unsetInputActivity();
   void setInputPortActivity(const Port *input_port,
 			    float activity,
 			    float duty);
+  void unsetInputPortActivity(const Port *input_port);
   PwrActivity pinActivity(const Pin *pin);
   void setUserActivity(const Pin *pin,
 		       float activity,
 		       float duty,
 		       PwrActivityOrigin origin);
+  void unsetUserActivity(const Pin *pin);
   void reportActivityAnnotation(bool report_unannotated,
                                 bool report_annotated);
   float clockMinPeriod();

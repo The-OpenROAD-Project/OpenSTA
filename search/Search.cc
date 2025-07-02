@@ -1276,8 +1276,9 @@ Search::arrivalsChanged(Vertex *vertex,
           || path1->tag(this) != path2->tag(this)
           || !delayEqual(path1->arrival(), path2->arrival())
           || path1->prevEdge(this) != path2->prevEdge(this)
-          || path1->prevArc(this) != path2->prevArc(this))
-	return true;
+          || path1->prevArc(this) != path2->prevArc(this)
+          || path1->prevPath() != path2->prevPath())
+        return true;
     }
     return false;
   }
@@ -2498,7 +2499,6 @@ Search::thruClkInfo(Path *from_path,
 		    const MinMax *min_max,
 		    const PathAnalysisPt *path_ap)
 {
-  ClkInfo *to_clk_info = from_clk_info;
   bool changed = false;
   const ClockEdge *from_clk_edge = from_clk_info->clkEdge();
   const RiseFall *clk_rf = from_clk_edge->transition();
@@ -2585,13 +2585,15 @@ Search::thruClkInfo(Path *from_path,
     changed = true;
   }
 
-  if (changed)
-    to_clk_info = findClkInfo(from_clk_edge, from_clk_info->clkSrc(),
-			      to_clk_prop, gen_clk_src,
-			      from_clk_info->isGenClkSrcPath(),
-			      to_pulse_sense, to_insertion, to_latency,
-			      to_uncertainties, path_ap, to_crpr_clk_path);
-  return to_clk_info;
+  if (changed) {
+    ClkInfo *to_clk_info = findClkInfo(from_clk_edge, from_clk_info->clkSrc(),
+                                       to_clk_prop, gen_clk_src,
+                                       from_clk_info->isGenClkSrcPath(),
+                                       to_pulse_sense, to_insertion, to_latency,
+                                       to_uncertainties, path_ap, to_crpr_clk_path);
+    return to_clk_info;
+  }
+  return from_clk_info;
 }
 
 // Find the tag for a path going from from_tag thru edge to to_pin.
@@ -2781,6 +2783,20 @@ Search::setVertexArrivals(Vertex *vertex,
         LockGuard lock(filtered_arrivals_lock_);
         filtered_arrivals_->insert(vertex);
       }
+    }
+  }
+}
+
+void
+Search::checkPrevPaths() const
+{
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext()) {
+    Vertex *vertex = vertex_iter.next();
+    VertexPathIterator path_iter(vertex, graph_);
+    while (path_iter.hasNext()) {
+      Path *path = path_iter.next();
+      path->checkPrevPath(this);
     }
   }
 }

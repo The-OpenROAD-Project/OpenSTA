@@ -68,10 +68,9 @@ PathExpanded::expand(const Path *path,
   bool found_start = false;
   while (p) {
     const Path *prev_path = p->prevPath();
-    const TimingArc *prev_arc = p->prevArc(sta_);
-
     if (!found_start) {
-      if (prev_arc) {
+      if (prev_path) {
+        const TimingArc *prev_arc = p->prevArc(sta_);
 	const TimingRole *prev_role = prev_arc->role();
 	if (prev_role == TimingRole::regClkToQ()
 	    || prev_role == TimingRole::latchEnToQ()) {

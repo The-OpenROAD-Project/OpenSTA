@@ -49,6 +49,7 @@ public:
   PwrActivity(float density,
 	      float duty,
 	      PwrActivityOrigin origin);
+  void init();
   float density() const { return density_; }
   void setDensity(float density);
   float duty() const { return duty_; }

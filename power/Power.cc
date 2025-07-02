@@ -113,10 +113,24 @@ Power::setGlobalActivity(float density,
 }
   
 void
+Power::unsetGlobalActivity()
+{
+  global_activity_.init();
+  activities_valid_ = false;
+}
+
+void
 Power::setInputActivity(float density,
 			float duty)
 {
   input_activity_.set(density, duty, PwrActivityOrigin::input);
+  activities_valid_ = false;
+}
+
+void
+Power::unsetInputActivity()
+{
+  input_activity_.init();
   activities_valid_ = false;
 }
 
@@ -134,12 +148,30 @@ Power::setInputPortActivity(const Port *input_port,
 }
 
 void
+Power::unsetInputPortActivity(const Port *input_port)
+{
+  Instance *top_inst = network_->topInstance();
+  const Pin *pin = network_->findPin(top_inst, input_port);
+  if (pin) {
+    user_activity_map_.erase(pin);
+    activities_valid_ = false;
+  }
+}
+
+void
 Power::setUserActivity(const Pin *pin,
                        float density,
                        float duty,
                        PwrActivityOrigin origin)
 {
   user_activity_map_[pin] = {density, duty, origin};
+  activities_valid_ = false;
+}
+
+void
+Power::unsetUserActivity(const Pin *pin)
+{
+  user_activity_map_.erase(pin);
   activities_valid_ = false;
 }
 
@@ -664,7 +696,7 @@ Power::ensureActivities()
 
       // Initialize default input activity (after sdc is defined)
       // unless it has been set by command.
-      if (input_activity_.density() == 0.0) {
+      if (input_activity_.origin() == PwrActivityOrigin::unknown) {
         float min_period = clockMinPeriod();
         float density = 0.1 / (min_period != 0.0
                                ? min_period
@@ -1535,6 +1567,7 @@ PwrActivity::PwrActivity(float density,
   duty_(duty),
   origin_(origin)
 {
+  check();
 }
 
 PwrActivity::PwrActivity() :
@@ -1542,7 +1575,6 @@ PwrActivity::PwrActivity() :
   duty_(0.0),
   origin_(PwrActivityOrigin::unknown)
 {
-  check();
 }
 
 void
@@ -1561,6 +1593,14 @@ void
 PwrActivity::setOrigin(PwrActivityOrigin origin)
 {
   origin_ = origin;
+}
+
+void
+PwrActivity::init()
+{
+  density_ = 0.0;
+  duty_ = 0.0;
+  origin_ = PwrActivityOrigin::unknown;
 }
 
 void
