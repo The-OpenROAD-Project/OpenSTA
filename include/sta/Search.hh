@@ -408,6 +408,8 @@ public:
   TagGroupIndex tagGroupIndex(const Vertex *vertex) const;
   void setTagGroupIndex(const Vertex *vertex,
                         TagGroupIndex tag_index);
+  void checkPrevPaths() const;
+  void deletePaths(Vertex *vertex);
 
 protected:
   void init(StaState *sta);
@@ -543,7 +545,6 @@ protected:
 			     bool is_clk,
 			     const PathAnalysisPt *path_ap);
   void deletePaths();
-  void deletePaths(Vertex *vertex);
   // Delete with incremental tns/wns update.
   void deletePathsIncr(Vertex *vertex);
   TagGroup *findTagGroup(TagGroupBldr *group_bldr);

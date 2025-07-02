@@ -120,7 +120,6 @@ public:
   bool isEnum() const { return is_enum_; }
   void setIsEnum(bool is_enum);
   void checkPrevPath(const StaState *sta) const;
-  void checkPrevPaths(const StaState *sta) const;
 
   static Path *vertexPath(const Path *path,
                           const StaState *sta);
