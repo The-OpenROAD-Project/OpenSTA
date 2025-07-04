@@ -777,7 +777,7 @@ public:
 				   NetSet *nets,
 				   InstanceSet *insts,
 				   const RiseFallBoth *rf);
-  bool exceptionToInvalid(const Pin *pin);
+  bool isExceptionEndpoint(const Pin *pin);
   // Make an exception -to specification.
   ExceptionTo *makeExceptionTo(PinSet *pins,
 			       ClockSet *clks,

@@ -2085,7 +2085,7 @@ Sta::checkExceptionToPins(ExceptionTo *to,
     PinSet::Iterator pin_iter(to->pins());
     while (pin_iter.hasNext()) {
       const Pin *pin = pin_iter.next();
-      if (sdc_->exceptionToInvalid(pin)) {
+      if (!sdc_->isExceptionEndpoint(pin)) {
 	if (line)
 	  report_->fileWarn(1551, file, line, "'%s' is not a valid endpoint.",
 			    cmd_network_->pathName(pin));

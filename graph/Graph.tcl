@@ -186,7 +186,7 @@ proc edge_disable_reason { edge } {
   }
   if { [$edge is_disabled_preset_clear] } {
     if { $disables != "" } { append disables ", " }
-    append disables "timing_enable_preset_clear_arcs"
+    append disables "sta_preset_clear_arcs_enabled"
   }
   return $disables
 }
