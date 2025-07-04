@@ -2027,7 +2027,7 @@ Sta::checkExceptionFromPins(ExceptionFrom *from,
     PinSet::ConstIterator pin_iter(from->pins());
     while (pin_iter.hasNext()) {
       const Pin *pin = pin_iter.next();
-      if (exceptionFromInvalid(pin)) {
+      if (!sdc_->isExceptionStartpoint(pin)) {
 	if (line)
 	  report_->fileWarn(1554, file, line, "'%s' is not a valid start point.",
 			    cmd_network_->pathName(pin));
@@ -2037,24 +2037,6 @@ Sta::checkExceptionFromPins(ExceptionFrom *from,
       }
     }
   }
-}
-
-bool
-Sta::exceptionFromInvalid(const Pin *pin) const
-{
-  Net *net = network_->net(pin);
-  // Floating pins are invalid.
-  return (net == nullptr
-	  && !network_->isTopLevelPort(pin))
-    || (net
-	// Pins connected to power/ground are invalid.
-	&& (network_->isPower(net)
-            || network_->isGround(net)))
-    || !((network_->isTopLevelPort(pin)
-	  && network_->direction(pin)->isAnyInput())
-	 || network_->isRegClkPin(pin)
-	 || network_->isLatchData(pin)
-         || network_->direction(pin)->isInternal());
 }
 
 void

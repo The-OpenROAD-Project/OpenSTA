@@ -531,7 +531,6 @@ public:
   void checkExceptionFromPins(ExceptionFrom *from,
 			      const char *file,
 			      int line) const;
-  bool exceptionFromInvalid(const Pin *pin) const;
   void deleteExceptionFrom(ExceptionFrom *from);
   // Make an exception -through specification.
   ExceptionThru *makeExceptionThru(PinSet *pins,

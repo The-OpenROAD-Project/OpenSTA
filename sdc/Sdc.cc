@@ -3914,8 +3914,7 @@ Sdc::recordPathDelayInternalFrom(ExceptionPath *exception)
   if (from
       && from->hasPins()) {
     for (const Pin *pin : *from->pins()) {
-      if (!(network_->isRegClkPin(pin)
-	    || network_->isTopLevelPort(pin))) {
+      if (!isExceptionStartpoint(pin)) {
 	path_delay_internal_from_.insert(pin);
         if (exception->breakPath())
           path_delay_internal_from_break_.insert(pin);
@@ -3932,8 +3931,7 @@ Sdc::unrecordPathDelayInternalFrom(ExceptionPath *exception)
       && from->hasPins()
       && !path_delay_internal_from_.empty()) {
     for (const Pin *pin : *from->pins()) {
-      if (!(network_->isRegClkPin(pin)
-	    || network_->isTopLevelPort(pin))
+      if (!isExceptionStartpoint(pin)
 	  && !pathDelayFrom(pin)) {
 	path_delay_internal_from_.erase(pin);
         if (exception->breakPath())
@@ -3941,6 +3939,21 @@ Sdc::unrecordPathDelayInternalFrom(ExceptionPath *exception)
       }
     }
   }
+}
+
+bool
+Sdc::isExceptionStartpoint(const Pin *pin) const
+{
+  Net *net = network_->net(pin);
+  const LibertyPort *port = network_->libertyPort(pin);
+  return ((network_->isTopLevelPort(pin)
+           && network_->direction(pin)->isAnyInput())
+          || (port && port->isRegClk())
+          || (port && port->isLatchData()))
+    // Pins connected to power/ground are invalid.
+    && !(net
+         && (network_->isPower(net)
+             || network_->isGround(net)));
 }
 
 bool
@@ -5304,13 +5317,13 @@ Sdc::filterRegQStates(const Pin *to_pin,
   }
 }
 
-ExceptionStateSet *
+void
 Sdc::exceptionThruStates(const Pin *from_pin,
 			 const Pin *to_pin,
 			 const RiseFall *to_rf,
-			 const MinMax *min_max) const
+			 const MinMax *min_max,
+                         ExceptionStateSet *&states) const
 {
-  ExceptionStateSet *states = nullptr;
   exceptionThruStates(first_thru_pin_exceptions_.findKey(to_pin),
                       to_rf, min_max, states);
   if (!first_thru_edge_exceptions_.empty()) {
@@ -5325,7 +5338,6 @@ Sdc::exceptionThruStates(const Pin *from_pin,
     exceptionThruStates(first_thru_inst_exceptions_.findKey(to_inst),
 			to_rf, min_max, states);
   }
-  return states;
 }
 
 void

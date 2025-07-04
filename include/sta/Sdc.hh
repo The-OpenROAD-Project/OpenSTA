@@ -771,6 +771,7 @@ public:
 				   ClockSet *from_clks,
 				   InstanceSet *from_insts,
 				   const RiseFallBoth *from_rf);
+  bool isExceptionStartpoint(const Pin *pin) const;
   // Make an exception -through specification.
   ExceptionThru *makeExceptionThru(PinSet *pins,
 				   NetSet *nets,
@@ -972,10 +973,11 @@ public:
 			ExceptionStateSet *&states) const;
   // Return hierarchical -thru exceptions that start between
   // from_pin and to_pin.
-  ExceptionStateSet *exceptionThruStates(const Pin *from_pin,
-                                         const Pin *to_pin,
-                                         const RiseFall *to_rf,
-                                         const MinMax *min_max) const;
+  void exceptionThruStates(const Pin *from_pin,
+                           const Pin *to_pin,
+                           const RiseFall *to_rf,
+                           const MinMax *min_max,
+                           ExceptionStateSet *&states) const;
   // Find the highest priority exception with first exception pt at
   // pin/clk end.
   void exceptionTo(ExceptionPathType type,

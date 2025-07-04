@@ -980,11 +980,9 @@ Search::visitStartpoints(VertexVisitor *visitor)
     visitor->visit(vertex);
 
   const PinSet &startpoints = sdc_->pathDelayInternalFrom();
-  if (!startpoints.empty()) {
-    for (const Pin *pin : startpoints) {
-      Vertex *vertex = graph_->pinDrvrVertex(pin);
-      visitor->visit(vertex);
-    }
+  for (const Pin *pin : startpoints) {
+    Vertex *vertex = graph_->pinDrvrVertex(pin);
+    visitor->visit(vertex);
   }
 }
 
@@ -2176,8 +2174,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 	  to_tag = search_->thruClkTag(from_path, from_vertex, from_tag, true,
                                        edge, to_rf, arc_delay_min_max_eq,
                                        min_max, path_ap);
-	  if (to_tag)
-	    to_arrival = from_arrival + arc_delay;
+          to_arrival = from_arrival + arc_delay;
 	}
       }
     }
@@ -2272,11 +2269,10 @@ PathVisitor::visitFromPath(const Pin *from_pin,
   else {
     if (!(sdc_->isPathDelayInternalFromBreak(to_pin)
           || sdc_->isPathDelayInternalToBreak(from_pin))) {
+      to_tag = search_->thruTag(from_tag, edge, to_rf, min_max, path_ap);
       arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
-      if (!delayInf(arc_delay)) {
+      if (!delayInf(arc_delay))
         to_arrival = from_arrival + arc_delay;
-        to_tag = search_->thruTag(from_tag, edge, to_rf, min_max, path_ap);
-      }
     }
   }
   if (to_tag)
@@ -2643,7 +2639,7 @@ Search::mutateTag(Tag *from_tag,
 
       // Kill path delay tags past the -to pin.
       if ((exception->isPathDelay()
-           && sdc_->isCompleteTo(state, from_pin, from_rf, min_max))
+           && sdc_->isCompleteTo(state, to_pin, to_rf, min_max))
           // Kill loop tags at register clock pins.
           || (exception->isLoop()
               && to_is_reg_clk)) {
@@ -2653,7 +2649,7 @@ Search::mutateTag(Tag *from_tag,
     }
 
     // Get the set of -thru exceptions starting at to_pin/edge.
-    new_states = sdc_->exceptionThruStates(from_pin, to_pin, to_rf, min_max);
+    sdc_->exceptionThruStates(from_pin, to_pin, to_rf, min_max, new_states);
     if (new_states || state_change) {
       // Second pass to apply state changes and add updated existing
       // states to new states.
@@ -2666,18 +2662,18 @@ Search::mutateTag(Tag *from_tag,
 	  // Found a -thru that we've been waiting for.
 	  state = state->nextState();
 
-      // Don't propagate a completed false path -thru unless it is a
-      // clock. Clocks carry the completed false path to disable
-      // downstream paths that use the clock as data.
-      if ((state->isComplete()
-           && exception->isFalse()
-           && !from_is_clk)
-          // to_pin/edge completes a loop path.
-          || (exception->isLoop()
-              && state->isComplete())) {
-        delete new_states;
-	return nullptr;
-      }
+        // Don't propagate a completed false path -thru unless it is a
+        // clock. Clocks carry the completed false path to disable
+        // downstream paths that use the clock as data.
+        if ((state->isComplete()
+             && exception->isFalse()
+             && !from_is_clk)
+            // to_pin/edge completes a loop path.
+            || (exception->isLoop()
+                && state->isComplete())) {
+          delete new_states;
+          return nullptr;
+        }
 
         // Kill path delay tags past the -to pin.
 	if (!((exception->isPathDelay()
@@ -2691,7 +2687,7 @@ Search::mutateTag(Tag *from_tag,
   }
   else
     // Get the set of -thru exceptions starting at to_pin/edge.
-    new_states = sdc_->exceptionThruStates(from_pin, to_pin, to_rf, min_max);
+    sdc_->exceptionThruStates(from_pin, to_pin, to_rf, min_max, new_states);
 
   if (new_states)
     return findTag(to_rf, path_ap, to_clk_info, to_is_clk,
