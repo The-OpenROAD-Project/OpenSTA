@@ -999,7 +999,7 @@ Vertex::setObjectIdx(ObjectIdx idx)
 string
 Vertex::to_string(const StaState *sta) const
 {
-  const Network *network = sta->network();
+  const Network *network = sta->sdcNetwork();
   if (network->direction(pin_)->isBidirect()) {
     string str = network->pathName(pin_);
     str += ' ';
