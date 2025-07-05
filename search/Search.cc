@@ -610,7 +610,6 @@ Search::findFilteredArrivals(bool thru_latches)
     int arrival_count = arrival_iter_->visitParallel(max_level,
 						     arrival_visitor_);
     deleteTagsPrev();
-    genclks_->updateSrcPathPrevs();
     debugPrint(debug_, "search", 1, "found %d arrivals", arrival_count);
   }
   arrivals_exist_ = true;
@@ -889,7 +888,6 @@ Search::findClkArrivals()
     arrival_visitor_->init(false, &search_clk);
     arrival_iter_->visitParallel(levelize_->maxLevel(), arrival_visitor_);
     deleteTagsPrev();
-    genclks_->updateSrcPathPrevs();
     arrivals_exist_ = true;
     stats.report("Find clk arrivals");
   }
@@ -1059,7 +1057,6 @@ Search::findArrivals1(Level level)
   Stats stats(debug_, report_);
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor_);
   deleteTagsPrev();
-  genclks_->updateSrcPathPrevs();
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
       && invalid_arrivals_->empty()) {

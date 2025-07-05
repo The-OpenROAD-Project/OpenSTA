@@ -1041,33 +1041,6 @@ Genclks::srcPath(const Clock *gclk,
   return nullptr;
 }
 
-void
-Genclks::updateSrcPathPrevs()
-{
-  for (auto const & [clk_pin, src_paths] : genclk_src_paths_) {
-    for (const Path &src_path : src_paths) {
-      if (!src_path.isNull()) {
-        const Path *p = &src_path;
-        while (p) {
-          Path *src_vpath = Path::vertexPath(p, this);
-          if (src_vpath) {
-            Path *prev_path = p->prevPath();
-            if (prev_path) {
-              Path *prev_vpath = Path::vertexPath(prev_path, this);
-              src_vpath->setPrevPath(prev_vpath);
-              src_vpath->setPrevEdgeArc(p->prevEdge(this),
-                                        p->prevArc(this), this);
-            }
-          }
-          p = p->prevPath();
-        }
-        debugPrint(debug_, "genclk", 3, "repaired src path prev %s",
-                   src_path.to_string(this).c_str());
-      }
-    }
-  }
-}
-
 Arrival
 Genclks::insertionDelay(const Clock *clk,
 			const Pin *pin,
