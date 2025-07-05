@@ -4240,7 +4240,7 @@ Sta::replaceEquivCellBefore(const Instance *inst,
               if (to_set)
                 edge->setTimingArcSet(to_set);
               else
-                report_->critical(1553, "corresponding timing arc set not found in equiv cells");
+                report_->critical(1555, "corresponding timing arc set not found in equiv cells");
             }
           }
         }
