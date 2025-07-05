@@ -118,8 +118,6 @@ public:
 				      Corner *corner,
 				      const MinMaxAll *min_max,
 				      bool infer_latches);
-  bool setMinLibrary(const char *min_filename,
-		     const char *max_filename);
   bool readVerilog(const char *filename);
   // Network readers call this to notify the Sta to delete any previously
   // linked network.

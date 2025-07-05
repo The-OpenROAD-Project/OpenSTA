@@ -736,20 +736,6 @@ Sta::readLibertyAfter(LibertyLibrary *liberty,
 }
 
 bool
-Sta::setMinLibrary(const char *min_filename,
-		   const char *max_filename)
-{
-  LibertyLibrary *max_lib = network_->findLibertyFilename(max_filename);
-  if (max_lib) {
-    LibertyLibrary *min_lib = readLibertyFile(min_filename, cmd_corner_,
-					      MinMaxAll::min(), false);
-    return min_lib != nullptr;
-  }
-  else
-    return false;
-}
-
-bool
 Sta::readVerilog(const char *filename)
 {
   NetworkReader *network = networkReader();
