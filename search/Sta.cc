@@ -4089,7 +4089,9 @@ Sta::replaceCell(Instance *inst,
 {
   NetworkEdit *network = networkCmdEdit();
   LibertyCell *from_lib_cell = network->libertyCell(inst);
-  if (sta::equivCells(from_lib_cell, to_lib_cell)) {
+  if (sta::equivCellsArcs(from_lib_cell, to_lib_cell)) {
+    // Replace celll optimized for less disruption to graph
+    // when ports and timing arcs are equivalent.
     replaceEquivCellBefore(inst, to_lib_cell);
     network->replaceCell(inst, to_cell);
     replaceEquivCellAfter(inst);

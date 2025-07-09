@@ -57,10 +57,16 @@ protected:
 };
 
 // Predicate that is true when the ports, functions, sequentials and
-// timing arcs match.
+// functions or timing arcs match.
 bool
 equivCells(const LibertyCell *cell1,
 	   const LibertyCell *cell2);
+
+// Predicate that is true when the ports, functions, sequentials and
+// timing arcs match.
+bool
+equivCellsArcs(const LibertyCell *cell1,
+               const LibertyCell *cell2);
 
 // Predicate that is true when the ports match.
 bool
