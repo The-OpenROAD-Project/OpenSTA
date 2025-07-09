@@ -61,7 +61,7 @@ foreach subdir $subdirs {
     set files [glob -nocomplain [file join $subdir "*.{cc,hh,yy,ll,i}"]]
     set files_c [concat $files_c $files]
 }
-set warn_regexp_c {(?:(?:criticalError|->warn|->fileWarn|->error|->fileError|libWarn|libError| warn)\(|tclArgError\(interp,\s*)([0-9]+),.*(".+")}
+set warn_regexp_c {(?:(?:->critical|->warn|->fileWarn|->error|->fileError|libWarn|libError| warn)\(|tclArgError\(interp,\s*)([0-9]+),.*(".+")}
 
 set files_tcl {}
 foreach subdir $subdirs {

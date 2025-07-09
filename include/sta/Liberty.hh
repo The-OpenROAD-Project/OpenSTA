@@ -489,7 +489,6 @@ public:
   // timing arcs.
   bool hasInferedRegTimingArcs() const { return has_infered_reg_timing_arcs_; }
   TestCell *testCell() const { return test_cell_; }
-  bool isLatchData(LibertyPort *port);
   void latchEnable(const TimingArcSet *arc_set,
 		   // Return values.
 		   const LibertyPort *&enable_port,
@@ -803,6 +802,10 @@ public:
   // Has register/latch rise/fall edges from pin.
   bool isRegClk() const { return is_reg_clk_; }
   void setIsRegClk(bool is_clk);
+  bool isRegOutput() const { return is_reg_output_; }
+  void setIsRegOutput(bool is_reg_out);
+  bool isLatchData() const { return is_latch_data_; }
+  void setIsLatchData(bool is_latch_data);
   // Is the clock for timing checks.
   bool isCheckClk() const { return is_check_clk_; }
   void setIsCheckClk(bool is_clk);
@@ -899,6 +902,8 @@ protected:
   bool min_period_exists_:1;
   bool is_clk_:1;
   bool is_reg_clk_:1;
+  bool is_reg_output_:1;
+  bool is_latch_data_: 1;
   bool is_check_clk_:1;
   bool is_clk_gate_clk_:1;
   bool is_clk_gate_enable_:1;

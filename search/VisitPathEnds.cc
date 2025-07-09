@@ -113,9 +113,8 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
       else if (vertex->hasChecks())
 	visitCheckEnd(pin, vertex, path, end_rf, path_ap, filtered, visitor,
 		      is_constrained);
-      else if (!sdc_->exceptionToInvalid(pin)
-	       && (!filtered
-		   || search_->matchesFilter(path, nullptr))) {
+      else if (!filtered
+               || search_->matchesFilter(path, nullptr)) {
 	PathDelay *path_delay = pathDelayTo(path, pin, end_rf, path_min_max);
 	if (path_delay) {
 	  PathEndPathDelay path_end(path_delay, path, this);
@@ -231,8 +230,7 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
       }
     }
   }
-  if (!check_clked
-      && !sdc_->exceptionToInvalid(pin))
+  if (!check_clked)
     visitCheckEndUnclked(pin, vertex, path, end_rf, path_ap, filtered,
 			 visitor, is_constrained);
 }

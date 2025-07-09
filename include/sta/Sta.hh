@@ -118,8 +118,6 @@ public:
 				      Corner *corner,
 				      const MinMaxAll *min_max,
 				      bool infer_latches);
-  bool setMinLibrary(const char *min_filename,
-		     const char *max_filename);
   bool readVerilog(const char *filename);
   // Network readers call this to notify the Sta to delete any previously
   // linked network.
@@ -531,7 +529,6 @@ public:
   void checkExceptionFromPins(ExceptionFrom *from,
 			      const char *file,
 			      int line) const;
-  bool exceptionFromInvalid(const Pin *pin) const;
   void deleteExceptionFrom(ExceptionFrom *from);
   // Make an exception -through specification.
   ExceptionThru *makeExceptionThru(PinSet *pins,

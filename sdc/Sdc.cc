@@ -3799,6 +3799,22 @@ Sdc::makeExceptionFrom(PinSet *from_pins,
     return nullptr;
 }
 
+bool
+Sdc::isExceptionStartpoint(const Pin *pin) const
+{
+  Net *net = network_->net(pin);
+  const LibertyPort *port = network_->libertyPort(pin);
+  return ((network_->isTopLevelPort(pin)
+           && network_->direction(pin)->isAnyInput())
+          || (port && port->isRegClk())
+          || (port && port->isLatchData()))
+    // Pins connected to power/ground are invalid.
+    && !(net
+         && (network_->isPower(net)
+             || network_->isGround(net)))
+    && !network_->isHierarchical(pin);
+}
+
 ExceptionThru *
 Sdc::makeExceptionThru(PinSet *pins,
 		       NetSet *nets,
@@ -3833,31 +3849,31 @@ Sdc::makeExceptionTo(PinSet *pins,
 // Valid endpoints include gated clock enables which are not
 // known until clock arrivals are determined.
 bool
-Sdc::exceptionToInvalid(const Pin *pin)
+Sdc::isExceptionEndpoint(const Pin *pin)
 {
   Net *net = network_->net(pin);
-  // Floating pins are invalid.
-  if ((net == nullptr
-       && !(network_->isTopLevelPort(pin)
-            || network_->direction(pin)->isInternal()))
-      || (net
-	  // Pins connected to power/ground are invalid.
-	  && (network_->isPower(net)
-	      || network_->isGround(net)))
-      // Hierarchical pins are invalid.
-      || network_->isHierarchical(pin))
-    return true;
-  // Register/latch Q pins are invalid.
-  LibertyPort *port = network_->libertyPort(pin);
+  bool has_checks = false;
+  const LibertyPort *port = network_->libertyPort(pin);
   if (port) {
+    // Look for timing checks to the pin witihout using the graph because
+    // it may not exist.
     LibertyCell *cell = port->libertyCell();
     for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
-      const TimingRole *role = arc_set->role();
-      if (role->genericRole() == TimingRole::regClkToQ())
-	return true;
+      if (arc_set->role()->isTimingCheck()) {
+	has_checks = true;
+        break;
+      }
     }
   }
-  return false;
+  return ((network_->isTopLevelPort(pin)
+           && network_->direction(pin)->isAnyOutput())
+          || has_checks
+          || (port && port->isLatchData()))
+    // Pins connected to power/ground are invalid.
+    && !(net
+         && (network_->isPower(net)
+             || network_->isGround(net)))
+    && !network_->isHierarchical(pin);
 }
 
 void
@@ -3914,8 +3930,7 @@ Sdc::recordPathDelayInternalFrom(ExceptionPath *exception)
   if (from
       && from->hasPins()) {
     for (const Pin *pin : *from->pins()) {
-      if (!(network_->isRegClkPin(pin)
-	    || network_->isTopLevelPort(pin))) {
+      if (!isExceptionStartpoint(pin)) {
 	path_delay_internal_from_.insert(pin);
         if (exception->breakPath())
           path_delay_internal_from_break_.insert(pin);
@@ -3932,8 +3947,7 @@ Sdc::unrecordPathDelayInternalFrom(ExceptionPath *exception)
       && from->hasPins()
       && !path_delay_internal_from_.empty()) {
     for (const Pin *pin : *from->pins()) {
-      if (!(network_->isRegClkPin(pin)
-	    || network_->isTopLevelPort(pin))
+      if (!isExceptionStartpoint(pin)
 	  && !pathDelayFrom(pin)) {
 	path_delay_internal_from_.erase(pin);
         if (exception->breakPath())
@@ -5304,13 +5318,13 @@ Sdc::filterRegQStates(const Pin *to_pin,
   }
 }
 
-ExceptionStateSet *
+void
 Sdc::exceptionThruStates(const Pin *from_pin,
 			 const Pin *to_pin,
 			 const RiseFall *to_rf,
-			 const MinMax *min_max) const
+			 const MinMax *min_max,
+                         ExceptionStateSet *&states) const
 {
-  ExceptionStateSet *states = nullptr;
   exceptionThruStates(first_thru_pin_exceptions_.findKey(to_pin),
                       to_rf, min_max, states);
   if (!first_thru_edge_exceptions_.empty()) {
@@ -5325,7 +5339,6 @@ Sdc::exceptionThruStates(const Pin *from_pin,
     exceptionThruStates(first_thru_inst_exceptions_.findKey(to_inst),
 			to_rf, min_max, states);
   }
-  return states;
 }
 
 void

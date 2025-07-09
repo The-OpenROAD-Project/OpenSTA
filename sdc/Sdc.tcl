@@ -2355,6 +2355,7 @@ proc set_path_delay { cmd args min_max } {
   set from [parse_from_arg keys arg_error]
   set thrus [parse_thrus_arg args arg_error]
   set to [parse_to_arg keys flags arg_error]
+  check_exception_pins $from $to
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
   } else {

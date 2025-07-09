@@ -655,7 +655,7 @@ Network::isLatchData(const Pin *pin) const
 {
   LibertyPort *port = libertyPort(pin);
   if (port)
-    return port->libertyCell()->isLatchData(port);
+    return port->isLatchData();
   else
     return false;
 }

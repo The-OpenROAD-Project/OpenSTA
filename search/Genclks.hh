@@ -85,7 +85,6 @@ public:
   Level clkPinMaxLevel(const Clock *clk) const;
   void copyGenClkSrcPaths(Vertex *vertex,
 			  TagGroupBldr *tag_bldr);
-  void updateSrcPathPrevs();
 
 private:
   void findInsertionDelays();

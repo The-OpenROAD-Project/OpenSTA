@@ -341,6 +341,19 @@ equivCells(const LibertyCell *cell1,
         || equivCellTimingArcSets(cell1, cell2));
 }
 
+bool
+equivCellsArcs(const LibertyCell *cell1,
+               const LibertyCell *cell2)
+{
+  return equivCellPorts(cell1, cell2)
+    && equivCellFuncs(cell1, cell2)
+    && equivCellPgPorts(cell1, cell2)
+    && equivCellSequentials(cell1, cell2)
+    && equivCellStatetables(cell1, cell2)
+    // Reqwuire timing arc equivalence if there are no functions.
+    && equivCellTimingArcSets(cell1, cell2);
+}
+
 static bool
 cellHasFuncs(const LibertyCell *cell)
 {
