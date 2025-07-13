@@ -65,6 +65,8 @@ proc_redirect report_lib_cell {
 }
 
 proc report_lib_cell_ { cell corner } {
+  global sta_report_default_digits
+
   set lib [$cell liberty_library]
   report_line "Cell [get_name $cell]"
   report_line "Library [get_name $lib]"

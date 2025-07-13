@@ -821,6 +821,20 @@ ConcreteParasitics::deleteParasitics(const Pin *drvr_pin,
 }
 
 void
+ConcreteParasitics::deleteParasitics(const Pin *drvr_pin)
+{
+  ConcreteParasitic **parasitics = drvr_parasitic_map_[drvr_pin];
+  if (parasitics) {
+    int ap_count = corners_->parasiticAnalysisPtCount();
+    int ap_rf_count = ap_count * RiseFall::index_count;
+    for (int i = 0; i < ap_rf_count; i++) {
+      delete parasitics[i];
+      parasitics[i] = nullptr;
+    }
+  }
+}
+
+void
 ConcreteParasitics::deleteParasitics(const Net *net,
 				     const ParasiticAnalysisPt *ap)
 {
@@ -1244,7 +1258,7 @@ ConcreteParasitics::makeParasiticNetwork(const Net *net,
     delete parasitic;
     if (net) {
       for (const Pin *drvr_pin : *network_->drivers(net))
-        deleteParasitics(drvr_pin, ap);
+        deleteParasitics(drvr_pin);
     }
   }
   parasitic = new ConcreteParasiticNetwork(net, includes_pin_caps, network_);
