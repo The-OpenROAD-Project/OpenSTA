@@ -224,6 +224,16 @@ Set these variables before using cmake to cirumvent the Xcode versions.
 Homebrew does not support tclreadline, but the macports system does
 (see https://www.macports.org). 
 
+## Install using a package manager
+
+### Guix
+
+OpenSTA is available in the [default repositories](https://hpc.guix.info/package/opensta):
+
+```
+  guix install opensta
+```
+
 ## Bug Reports
 
 Use the Issues tab on the github repository to report bugs.
