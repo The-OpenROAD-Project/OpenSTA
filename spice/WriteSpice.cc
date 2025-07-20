@@ -25,6 +25,7 @@
 #include "spice/WriteSpice.hh"
 
 #include <algorithm> // swap
+#include <filesystem>
 
 #include "Debug.hh"
 #include "Units.hh"
@@ -127,18 +128,6 @@ WriteSpice::initPowerGnd()
     gnd_voltage_ = 0.0;
 }
 
-// Use c++17 fs::path(filename).stem()
-static string
-filenameStem(const char *filename)
-{
-  string filename1 = filename;
-  const size_t last_slash_idx = filename1.find_last_of("\\/");
-  if (last_slash_idx != std::string::npos)
-    return filename1.substr(last_slash_idx + 1);
-  else
-    return filename1;
-}
-
 void
 WriteSpice::writeHeader(string &title,
                         float max_time,
@@ -146,9 +135,9 @@ WriteSpice::writeHeader(string &title,
 {
   streamPrint(spice_stream_, "* %s\n", title.c_str());
   streamPrint(spice_stream_, ".include \"%s\"\n", model_filename_);
-  string subckt_filename_stem = filenameStem(subckt_filename_);
-  streamPrint(spice_stream_, ".include \"%s\"\n", subckt_filename_stem.c_str());
-
+  std::filesystem::path subckt_filename
+    = std::filesystem::path(subckt_filename_).filename();
+  streamPrint(spice_stream_, ".include \"%s\"\n", subckt_filename.c_str());
   streamPrint(spice_stream_, ".tran %.3g %.3g\n", time_step, max_time);
   // Suppress printing model parameters.
   if (ckt_sim_ == CircuitSim::hspice)
