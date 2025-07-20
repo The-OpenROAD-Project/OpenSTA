@@ -2909,6 +2909,9 @@ proc set_load { args } {
   parse_port_net_args [lindex $args 1] ports nets
   
   if { $ports != {} } {
+    if { $subtract_pin_load } {
+      sta_warn 486 "-subtract_pin_load not allowed for port objects."
+    }
     # -pin_load is the default.
     if { $pin_load || (!$pin_load && !$wire_load) } {
       foreach port $ports {
@@ -2916,7 +2919,7 @@ proc set_load { args } {
       }
     } elseif { $wire_load } {
       foreach port $ports {
-        set_port_ext_wire_cap $port $subtract_pin_load $rf $corner $min_max $cap
+        set_port_ext_wire_cap $port 0 $rf $corner $min_max $cap
       }
     }
   }
