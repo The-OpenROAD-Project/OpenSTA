@@ -994,6 +994,14 @@ LibertyCell::findLibertyPortsMatching(PatternMatch *pattern) const
     LibertyPort *port = port_iter.next();
     if (pattern->match(port->name()))
       matches.push_back(port);
+    if (port->hasMembers()) {
+      LibertyPortMemberIterator port_iter2(port);
+      while (port_iter2.hasNext()) {
+	LibertyPort *port2 = port_iter2.next();
+	if (pattern->match(port2->name()))
+	  matches.push_back(port2);
+      }
+    }
   }
   return matches;
 }
@@ -2347,7 +2355,7 @@ void
 LibertyPort::setFunction(FuncExpr *func)
 {
   function_ = func;
-  if (is_bus_ || is_bundle_) {
+  if (hasMembers()) {
     LibertyPortMemberIterator member_iter(this);
     int bit_offset = 0;
     while (member_iter.hasNext()) {
@@ -2388,6 +2396,7 @@ LibertyPort::setSlewLimit(float slew,
 			  const MinMax *min_max)
 {
   slew_limit_.setValue(min_max, slew);
+  setMemberMinMaxFloat(slew, min_max, &LibertyPort::setSlewLimit);
 }
 
 void
@@ -2404,6 +2413,7 @@ LibertyPort::setCapacitanceLimit(float cap,
 				 const MinMax *min_max)
 {
   cap_limit_.setValue(min_max, cap);
+  setMemberMinMaxFloat(cap, min_max, &LibertyPort::setCapacitanceLimit);
 }
 
 void
@@ -2420,6 +2430,7 @@ LibertyPort::setFanoutLoad(float fanout_load)
 {
   fanout_load_ = fanout_load;
   fanout_load_exists_ = true;
+  setMemberFloat(fanout_load, &LibertyPort::setFanoutLoad);
 }
 
 void
@@ -2470,6 +2481,13 @@ LibertyPort::setMinPeriod(float min_period)
 {
   min_period_ = min_period;
   min_period_exists_ = true;
+  if (hasMembers()) {
+    LibertyPortMemberIterator member_iter(this);
+    while (member_iter.hasNext()) {
+      LibertyPort *port_bit = member_iter.next();
+      port_bit->setMinPeriod(min_period);
+    }
+  }
 }
 
 void
@@ -2489,6 +2507,13 @@ LibertyPort::setMinPulseWidth(const RiseFall *hi_low,
   int hi_low_index = hi_low->index();
   min_pulse_width_[hi_low_index] = min_width;
   min_pulse_width_exists_ |= (1 << hi_low_index);
+  if (hasMembers()) {
+    LibertyPortMemberIterator member_iter(this);
+    while (member_iter.hasNext()) {
+      LibertyPort *port_bit = member_iter.next();
+      port_bit->setMinPulseWidth(hi_low, min_width);
+    }
+  }
 }
 
 bool
@@ -2538,24 +2563,28 @@ void
 LibertyPort::setIsClock(bool is_clk)
 {
   is_clk_ = is_clk;
+  setMemberFlag(is_clk, &LibertyPort::setIsClock);
 }
 
 void
 LibertyPort::setIsRegClk(bool is_clk)
 {
   is_reg_clk_ = is_clk;
+  setMemberFlag(is_clk, &LibertyPort::setIsRegClk);
 }
 
 void
 LibertyPort::setIsRegOutput(bool is_reg_out)
 {
   is_reg_output_ = is_reg_out;
+  setMemberFlag(is_reg_out, &LibertyPort::setIsRegOutput);
 }
 
 void
 LibertyPort::setIsLatchData(bool is_latch_data)
 {
   is_latch_data_ = is_latch_data;
+  setMemberFlag(is_latch_data, &LibertyPort::setIsLatchData);
 }
 
 void
@@ -2592,24 +2621,28 @@ void
 LibertyPort::setIsolationCellData(bool isolation_cell_data)
 {
   isolation_cell_data_ = isolation_cell_data;
+  setMemberFlag(isolation_cell_data, &LibertyPort::setIsolationCellData);
 }
 
 void
 LibertyPort::setIsolationCellEnable(bool isolation_cell_enable)
 {
   isolation_cell_enable_ = isolation_cell_enable;
+  setMemberFlag(isolation_cell_enable, &LibertyPort::setIsolationCellEnable);
 }
 
 void
 LibertyPort::setLevelShifterData(bool level_shifter_data)
 {
   level_shifter_data_ = level_shifter_data;
+  setMemberFlag(level_shifter_data, &LibertyPort::setLevelShifterData);
 }
 
 void
 LibertyPort::setIsSwitch(bool is_switch)
 {
   is_switch_ = is_switch;
+  setMemberFlag(is_switch, &LibertyPort::setIsSwitch);
 }
 
 void
@@ -2819,6 +2852,50 @@ LibertyPort::setClkTreeDelay(const TableModel *model,
                              const MinMax *min_max)
 {
   clk_tree_delay_[from_rf->index()][to_rf->index()][min_max->index()] = model;
+}
+
+void
+LibertyPort::setMemberFlag(bool value,
+			   const std::function<void(LibertyPort*,
+						    bool)> &setter)
+{
+  if (hasMembers()) {
+    LibertyPortMemberIterator member_iter(this);
+    while (member_iter.hasNext()) {
+      LibertyPort *port_bit = member_iter.next();
+      setter(port_bit, value);
+    }
+  }
+}
+
+void
+LibertyPort::setMemberFloat(float value,
+			    const std::function<void(LibertyPort*,
+						     float)> &setter)
+{
+  if (hasMembers()) {
+    LibertyPortMemberIterator member_iter(this);
+    while (member_iter.hasNext()) {
+      LibertyPort *port_bit = member_iter.next();
+      setter(port_bit, value);
+    }
+  }
+}
+
+void
+LibertyPort::setMemberMinMaxFloat(float value,
+				  const MinMax *min_max,
+				  const std::function<void(LibertyPort*,
+							   float,
+							   const MinMax *)> &setter)
+{
+  if (hasMembers()) {
+    LibertyPortMemberIterator member_iter(this);
+    while (member_iter.hasNext()) {
+      LibertyPort *port_bit = member_iter.next();
+      setter(port_bit, value, min_max);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////

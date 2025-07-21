@@ -872,6 +872,8 @@ Properties::getProperty(const LibertyPort *port,
     float cap = port->capacitance(RiseFall::rise(), MinMax::max());
     return capacitancePropertyValue(cap);
   }
+  else if (property == "is_clock")
+    return PropertyValue(port->isClock());
   else if (property == "is_register_clock")
     return PropertyValue(port->isRegClk());
 
@@ -989,6 +991,10 @@ Properties::getProperty(const Pin *pin,
     return PropertyValue(network->isHierarchical(pin));
   else if (property == "is_port")
     return PropertyValue(network->isTopLevelPort(pin));
+  else if (property == "is_clock") {
+    const LibertyPort *port = network->libertyPort(pin);
+    return PropertyValue(port->isClock());
+  }
   else if (property == "is_register_clock") {
     const LibertyPort *port = network->libertyPort(pin);
     return PropertyValue(port && port->isRegClk());
