@@ -197,7 +197,8 @@ Corners::makeDcalcAnalysisPts(Corner *corner)
   switch (sdc_->analysisType()) {
   case AnalysisType::single:
     corner->setDcalcAnalysisPtcount(1);
-    makeDcalcAnalysisPt(corner, MinMax::max(), MinMax::min());
+    max_ap = makeDcalcAnalysisPt(corner, MinMax::max(), MinMax::min());
+    max_ap->setCheckClkSlewIndex(max_ap->index());
     break;
   case AnalysisType::bc_wc:
     corner->setDcalcAnalysisPtcount(2);
