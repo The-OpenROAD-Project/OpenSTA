@@ -606,6 +606,6 @@ add_custom_target(sta_tags
 add_custom_command(
   TARGET OpenSTA
   POST_BUILD
-  COMMAND ${CMAKE_SOURCE_DIR}/etc/FindMessages.tcl > ${CMAKE_SOURCE_DIR}/doc/messages.txt || true
+  COMMAND cd ${CMAKE_CURRENT_LIST_DIR} && etc/FindMessages.tcl > ${CMAKE_CURRENT_LIST_DIR}/doc/messages.txt || true
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
