@@ -171,6 +171,11 @@ public:
                         // Return values.
                         Edge *&edge,
                         TimingArc *&arc);
+  void minPeriodArc(Vertex *vertex,
+		    const RiseFall *rf,
+		    // Return values.
+		    Edge *&edge,
+		    TimingArc *&arc);
   // Sdf period check annotation.
   void periodCheckAnnotation(const Pin *pin,
 			     DcalcAPIndex ap_index,

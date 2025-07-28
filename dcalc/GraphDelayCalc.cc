@@ -1597,28 +1597,39 @@ GraphDelayCalc::reportDelayCalc(const Edge *edge,
 
 void
 GraphDelayCalc::minPeriod(const Pin *pin,
+			  const Corner *corner,
 			  // Return values.
 			  float &min_period,
 			  bool &exists)
 {
   exists = false;
   const MinMax *min_max = MinMax::max();
-  for (const DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
-    // Sdf annotation.
-    float min_period1 = 0.0;
-    bool exists1 = false;
-    graph_->periodCheckAnnotation(pin, dcalc_ap->index(),
-				  min_period, exists);
-    if (exists1 
-	&& (!exists || min_period1 < min_period)) {
-      min_period = min_period1;
+  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
+  // Sdf annotation.
+  float min_period1 = 0.0;
+  bool exists1 = false;
+  graph_->periodCheckAnnotation(pin, dcalc_ap->index(),
+				min_period, exists);
+  if (exists1
+      && (!exists || min_period1 < min_period)) {
+    min_period = min_period1;
+    exists = true;
+  }
+  if (!exists) {
+    // Liberty timing group timing_type minimum_period.
+    Vertex *vertex = graph_->pinLoadVertex(pin);
+    Edge *edge;
+    TimingArc *arc;
+    graph_->minPeriodArc(vertex, RiseFall::rise(), edge, arc);
+    if (edge) {
       exists = true;
+      min_period = delayAsFloat(graph_->arcDelay(edge, arc, dcalc_ap->index()));
     }
   }
   if (!exists) {
+    // Liberty port min_period attribute.
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
-      // Liberty library.
       Instance *inst = network_->instance(pin);
       OperatingConditions *op_cond = sdc_->operatingConditions(min_max);
       const Pvt *pvt = inst ? sdc_->pvt(inst, min_max) : nullptr;

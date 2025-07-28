@@ -546,7 +546,7 @@ SdfWriter::writeTimingChecks(const Instance *inst,
     }
     float min_period;
     bool exists;
-    graph_delay_calc_->minPeriod(pin, min_period, exists);
+    graph_delay_calc_->minPeriod(pin, corner_, min_period, exists);
     if (exists) {
       ensureTimingCheckheaders(check_header, inst, inst_header);
       writePeriodCheck(pin, min_period);

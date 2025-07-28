@@ -5554,14 +5554,16 @@ MinPeriodCheckSeq &
 Sta::minPeriodViolations()
 {
   minPeriodPreamble();
-  return check_min_periods_->violations();
+  const Corner *corner = cmdCorner();
+  return check_min_periods_->violations(corner);
 }
 
 MinPeriodCheck *
 Sta::minPeriodSlack()
 {
   minPeriodPreamble();
-  return check_min_periods_->minSlackCheck();
+  const Corner *corner = cmdCorner();
+  return check_min_periods_->minSlackCheck(corner);
 }
 
 void

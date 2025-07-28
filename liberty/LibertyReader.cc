@@ -4235,6 +4235,7 @@ LibertyReader::endTiming(LibertyGroup *group)
     TimingType timing_type = timing_->attrs()->timingType();
     if (timing_->relatedPortNames() == nullptr
         && !(timing_type == TimingType::min_pulse_width
+	     || timing_type == TimingType::minimum_period
              || timing_type == TimingType::min_clock_tree_path
              || timing_type == TimingType::max_clock_tree_path))
       libWarn(1243, group, "timing group missing related_pin/related_bus_pin.");
