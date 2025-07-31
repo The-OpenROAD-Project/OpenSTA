@@ -105,6 +105,17 @@ Power::Power(StaState *sta) :
 }
 
 void
+Power::clear()
+{
+  global_activity_.init();
+  input_activity_.init();
+  user_activity_map_.clear();
+  seq_activity_map_.clear();
+  activity_map_.clear();
+  activities_valid_ = false;
+}
+
+void
 Power::setGlobalActivity(float density,
 			 float duty)
 {
@@ -737,7 +748,7 @@ Power::ensureActivities()
 void
 Power::seedActivities(BfsFwdIterator &bfs)
 {
-  for (Vertex *vertex : *levelize_->roots()) {
+  for (Vertex *vertex : levelize_->roots()) {
     const Pin *pin = vertex->pin();
     // Clock activities are baked in.
     if (!sdc_->isLeafPinClock(pin)

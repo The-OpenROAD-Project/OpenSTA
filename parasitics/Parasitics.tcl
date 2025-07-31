@@ -38,30 +38,11 @@ define_cmd_args "read_spef" \
 
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
-    keys {-path -coupling_reduction_factor -reduce_to -corner} \
-    flags {-min -max -increment -pin_cap_included -keep_capacitive_coupling \
-	     -reduce -delete_after_reduce -quiet -save}
+    keys {-path -coupling_reduction_factor -corner -name} \
+    flags {-min -max -increment -pin_cap_included -keep_capacitive_coupling -reduce}
   check_argc_eq1 "read_spef" $args
 
   set reduce [info exists flags(-reduce)]
-  if { [info exists flags(-quiet)] } {
-    # deprecated 2024-02-08
-    sta_warn 272 "read_spef -quiet is deprecated."
-  }
-  if { [info exists keys(-reduce_to)] } {
-    # deprecated 2024-02-08
-    sta_warn 273 "read_spef -reduce_to is deprecated. Use -reduce instead."
-    set reduce 1
-  }
-  if { [info exists flags(-delete_after_reduce)] } {
-    # deprecated 2024-02-08
-    sta_warn 274 "read_spef -delete_after_reduce is deprecated."
-  }
-  if { [info exists flags(-save)] } {
-    # deprecated 2024-02-08
-    sta_warn 275 "read_spef -save is deprecated."
-  }
-
   set instance [top_instance]
   if [info exists keys(-path)] {
     set path $keys(-path)

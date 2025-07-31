@@ -871,6 +871,30 @@ Graph::minPulseWidthArc(Vertex *vertex,
   arc = nullptr;
 }
 
+void
+Graph::minPeriodArc(Vertex *vertex,
+		    const RiseFall *rf,
+		    // Return values.
+		    Edge *&edge,
+		    TimingArc *&arc)
+{
+  VertexOutEdgeIterator edge_iter(vertex, this);
+  while (edge_iter.hasNext()) {
+    edge = edge_iter.next();
+    TimingArcSet *arc_set = edge->timingArcSet();
+    if (arc_set->role() == TimingRole::period()) {
+      for (TimingArc *arc1 : arc_set->arcs()) {
+        if (arc1->fromEdge()->asRiseFall() == rf) {
+          arc = arc1;
+          return;
+        }
+      }
+    }
+  }
+  edge = nullptr;
+  arc = nullptr;
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

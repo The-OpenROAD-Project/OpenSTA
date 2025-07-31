@@ -230,14 +230,14 @@ void
 CheckTiming::checkUnconstrainedEndpoints()
 {
   PinSet unconstrained_ends(network_);
-  checkUnconstraintedOutputs(unconstrained_ends);
+  checkUnconstrainedOutputs(unconstrained_ends);
   checkUnconstrainedSetups(unconstrained_ends);
   pushPinErrors("Warning: There %is %d unconstrained endpoint%s.",
 		unconstrained_ends);
 }
 
 void
-CheckTiming::checkUnconstraintedOutputs(PinSet &unconstrained_ends)
+CheckTiming::checkUnconstrainedOutputs(PinSet &unconstrained_ends)
 {
   Instance *top_inst = network_->topInstance();
   InstancePinIterator *pin_iter = network_->pinIterator(top_inst);

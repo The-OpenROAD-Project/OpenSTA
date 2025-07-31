@@ -39,11 +39,20 @@ namespace sta {
 class MinPeriodCheckVisitor
 {
 public:
-  MinPeriodCheckVisitor() {}
+  MinPeriodCheckVisitor(const Corner *corner);
   virtual ~MinPeriodCheckVisitor() {}
   virtual void visit(MinPeriodCheck &check,
 		     StaState *sta) = 0;
+  const Corner *corner() { return corner_; }
+
+protected:
+  const Corner *corner_;
 };
+
+MinPeriodCheckVisitor::MinPeriodCheckVisitor(const Corner *corner) :
+  corner_(corner)
+{
+}
 
 CheckMinPeriods::CheckMinPeriods(StaState *sta) :
   sta_(sta)
@@ -64,7 +73,8 @@ CheckMinPeriods::clear()
 class MinPeriodViolatorsVisitor : public MinPeriodCheckVisitor
 {
 public:
-  MinPeriodViolatorsVisitor(MinPeriodCheckSeq &checks);
+  MinPeriodViolatorsVisitor(const Corner *corner,
+			    MinPeriodCheckSeq &checks);
   virtual void visit(MinPeriodCheck &check,
 		     StaState *sta);
 
@@ -72,7 +82,9 @@ private:
   MinPeriodCheckSeq &checks_;
 };
 
-MinPeriodViolatorsVisitor::MinPeriodViolatorsVisitor(MinPeriodCheckSeq &checks):
+MinPeriodViolatorsVisitor::MinPeriodViolatorsVisitor(const Corner *corner,
+						     MinPeriodCheckSeq &checks):
+  MinPeriodCheckVisitor(corner),
   checks_(checks)
 {
 }
@@ -86,10 +98,10 @@ MinPeriodViolatorsVisitor::visit(MinPeriodCheck &check,
 }
 
 MinPeriodCheckSeq &
-CheckMinPeriods::violations()
+CheckMinPeriods::violations(const Corner *corner)
 {
   clear();
-  MinPeriodViolatorsVisitor visitor(checks_);
+  MinPeriodViolatorsVisitor visitor(corner, checks_);
   visitMinPeriodChecks(&visitor);
   sort(checks_, MinPeriodSlackLess(sta_));
   return checks_;
@@ -113,16 +125,17 @@ CheckMinPeriods::visitMinPeriodChecks(Vertex *vertex,
 {
   Search *search = sta_->search();
   GraphDelayCalc *graph_dcalc = sta_->graphDelayCalc();
+  const Corner *corner = visitor->corner();
   Pin *pin = vertex->pin();
   float min_period;
   bool exists;
-  graph_dcalc->minPeriod(pin, min_period, exists);
+  graph_dcalc->minPeriod(pin, corner, min_period, exists);
   if (exists) {
     const ClockSet clks = search->clocks(vertex);
     ClockSet::ConstIterator clk_iter(clks);
     while (clk_iter.hasNext()) {
       Clock *clk = clk_iter.next();
-      MinPeriodCheck check(pin, clk);
+      MinPeriodCheck check(pin, clk, corner);
       visitor->visit(check, sta_);
     }
   }
@@ -133,16 +146,17 @@ CheckMinPeriods::visitMinPeriodChecks(Vertex *vertex,
 class MinPeriodSlackVisitor : public MinPeriodCheckVisitor
 {
 public:
-  MinPeriodSlackVisitor();
-  virtual void visit(MinPeriodCheck &check,
-		     StaState *sta);
+  MinPeriodSlackVisitor(const Corner *corner);
+  void visit(MinPeriodCheck &check,
+	     StaState *sta) override;
   MinPeriodCheck *minSlackCheck();
 
 private:
   MinPeriodCheck *min_slack_check_;
 };
 
-MinPeriodSlackVisitor::MinPeriodSlackVisitor() :
+MinPeriodSlackVisitor::MinPeriodSlackVisitor(const Corner *corner) :
+  MinPeriodCheckVisitor(corner),
   min_slack_check_(nullptr)
 {
 }
@@ -167,10 +181,10 @@ MinPeriodSlackVisitor::minSlackCheck()
 }
 
 MinPeriodCheck *
-CheckMinPeriods::minSlackCheck()
+CheckMinPeriods::minSlackCheck(const Corner *corner)
 {
   clear();
-  MinPeriodSlackVisitor visitor;
+  MinPeriodSlackVisitor visitor(corner);
   visitMinPeriodChecks(&visitor);
   MinPeriodCheck *check = visitor.minSlackCheck();
   // Save check for cleanup.
@@ -181,16 +195,18 @@ CheckMinPeriods::minSlackCheck()
 ////////////////////////////////////////////////////////////////
 
 MinPeriodCheck::MinPeriodCheck(Pin *pin,
-			       Clock *clk) :
+			       Clock *clk,
+			       const Corner *corner) :
   pin_(pin),
-  clk_(clk)
+  clk_(clk),
+  corner_(corner)
 {
 }
 
 MinPeriodCheck *
 MinPeriodCheck::copy()
 {
-  return new MinPeriodCheck(pin_, clk_);
+  return new MinPeriodCheck(pin_, clk_, corner_);
 }
 
 float
@@ -205,7 +221,7 @@ MinPeriodCheck::minPeriod(const StaState *sta) const
   GraphDelayCalc *graph_dcalc = sta->graphDelayCalc();
   float min_period;
   bool exists;
-  graph_dcalc->minPeriod(pin_, min_period, exists);
+  graph_dcalc->minPeriod(pin_, corner_, min_period, exists);
   return min_period;
 }
 

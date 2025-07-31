@@ -28,7 +28,7 @@
 
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
-#include "GraphClass.hh"
+#include "Graph.hh"
 #include "SearchPred.hh"
 #include "StaState.hh"
 
@@ -58,7 +58,7 @@ public:
   void deleteEdgeBefore(Edge *edge);
   int maxLevel() const { return max_level_; }
   // Vertices with no fanin edges.
-  VertexSet *roots() { return roots_; }
+  VertexSet &roots() { return roots_; }
   bool isRoot(Vertex *vertex);
   bool hasFanout(Vertex *vertex);
   // Reset to virgin state.
@@ -69,6 +69,7 @@ public:
   GraphLoopSeq &loops() { return loops_; }
   // Set the observer for level changes.
   void setObserver(LevelizeObserver *observer);
+  void checkLevels();
 
 protected:
   void levelize();
@@ -91,7 +92,6 @@ protected:
              Edge *from,
              Level level,
              Level level_space,
-             VertexSet &visited,
              VertexSet &path_vertices,
              EdgeSeq &path);
   void setLevel(Vertex  *vertex,
@@ -107,8 +107,9 @@ protected:
   bool levels_valid_;
   Level max_level_;
   Level level_space_;
-  VertexSet *roots_;
-  VertexSet *relevelize_from_;
+  size_t max_incremental_level_;
+  VertexSet roots_;
+  VertexSet relevelize_from_;
   GraphLoopSeq loops_;
   EdgeSet loop_edges_;
   EdgeSet disabled_loop_edges_;

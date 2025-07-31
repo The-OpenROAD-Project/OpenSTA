@@ -145,6 +145,7 @@ record_sta_tests {
   get_objrefs
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
+  liberty_backslash_eol
   liberty_ccsn
   liberty_latch3
   path_group_names

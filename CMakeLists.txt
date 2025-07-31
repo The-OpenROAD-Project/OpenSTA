@@ -586,16 +586,22 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/sta  DESTINATION include)
 
 ################################################################
 
-add_custom_target(sta_tags etags -o TAGS
+add_custom_target(sta_tags
+  COMMAND etags -o TAGS
   ${STA_SOURCE}
   */*.hh
   include/sta/*.hh
   ${CMAKE_CURRENT_BINARY_DIR}/include/sta/*.hh
   ${SWIG_FILES}
+  ${SWIG_FILES}
+
+  # Append tcl tags.
+  # Note that the regexp used for tcl files is broken in etags so provide one that works.
+  COMMAND etags -a -o TAGS --language=none
+  --regex='/^[ \\t]*proc[ \\t]+[a-zA-Z0-9_]+/'
   ${STA_TCL_FILES}
-  ${SWIG_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
-  )
+)
 
 add_custom_command(
   TARGET OpenSTA

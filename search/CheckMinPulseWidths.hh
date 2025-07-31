@@ -38,7 +38,7 @@ class MinPulseWidthCheckVisitor;
 class CheckMinPulseWidths
 {
 public:
-  explicit CheckMinPulseWidths(StaState *sta);
+  CheckMinPulseWidths(StaState *sta);
   ~CheckMinPulseWidths();
   void clear();
   // Min pulse width checks for pins.
@@ -96,7 +96,7 @@ protected:
 class MinPulseWidthSlackLess
 {
 public:
-  explicit MinPulseWidthSlackLess(const StaState *sta);
+  MinPulseWidthSlackLess(const StaState *sta);
   bool operator()(const MinPulseWidthCheck *check1,
 		  const MinPulseWidthCheck *check2) const;
 

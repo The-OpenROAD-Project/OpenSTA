@@ -289,6 +289,8 @@ LibertyBuilder::makeTimingArcs(LibertyCell *cell,
     return makeMinPulseWidthArcs(cell, from_port, to_port, related_out,
                                  TimingRole::width(), attrs);
   case TimingType::minimum_period:
+    return makeMinPulseWidthArcs(cell, from_port, to_port, related_out,
+                                 TimingRole::period(), attrs);
   case TimingType::nochange_high_high:
   case TimingType::nochange_high_low:
   case TimingType::nochange_low_high:

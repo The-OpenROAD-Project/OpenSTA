@@ -38,12 +38,12 @@ class MinPeriodCheckVisitor;
 class CheckMinPeriods
 {
 public:
-  explicit CheckMinPeriods(StaState *sta);
+  CheckMinPeriods(StaState *sta);
   ~CheckMinPeriods();
   void clear();
-  MinPeriodCheckSeq &violations();
+  MinPeriodCheckSeq &violations(const Corner *corner);
   // Min period check with the least slack.
-  MinPeriodCheck *minSlackCheck();
+  MinPeriodCheck *minSlackCheck(const Corner *corner);
 
 protected:
   void visitMinPeriodChecks(MinPeriodCheckVisitor *visitor);
@@ -57,7 +57,9 @@ protected:
 class MinPeriodCheck
 {
 public:
-  MinPeriodCheck(Pin *pin, Clock *clk);
+  MinPeriodCheck(Pin *pin,
+		 Clock *clk,
+		 const Corner *corner);
   MinPeriodCheck *copy();
   Pin *pin() const { return pin_; }
   Clock *clk() const { return clk_; }
@@ -68,17 +70,18 @@ public:
 private:
   Pin *pin_;
   Clock *clk_;
+  const Corner *corner_;
 };
 
 class MinPeriodSlackLess
 {
 public:
-  explicit MinPeriodSlackLess(StaState *sta);
+  MinPeriodSlackLess(StaState *sta);
   bool operator()(const MinPeriodCheck *check1,
 		  const MinPeriodCheck *check2) const;
 
 private:
- const StaState *sta_;
+  const StaState *sta_;
 };
 
 } // namespace

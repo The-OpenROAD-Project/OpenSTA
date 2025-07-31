@@ -26,6 +26,7 @@
 
 #include <mutex>
 #include <atomic>
+#include <functional>
 
 #include "MinMax.hh"
 #include "RiseFallMinMax.hh"
@@ -873,6 +874,16 @@ protected:
   void addScaledPort(OperatingConditions *op_cond,
 		     LibertyPort *scaled_port);
   RiseFallMinMax clkTreeDelays1() const;
+  void setMemberFlag(bool value,
+		     const std::function<void(LibertyPort*, bool)> &setter);
+  void setMemberFloat(float value,
+		      const std::function<void(LibertyPort*, float)> &setter);
+  void setMemberMinMaxFloat(float value,
+			    const MinMax *min_max,
+			    const std::function<void(LibertyPort*,
+						     float,
+						     const MinMax *)> &setter);
+
 
   LibertyCell *liberty_cell_;
   BusDcl *bus_dcl_;

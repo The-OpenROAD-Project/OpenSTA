@@ -586,6 +586,7 @@ Sta::clear()
     parasitics_->clear();
   graph_delay_calc_->clear();
   sim_->clear();
+  power_->clear();
   if (check_min_pulse_widths_)
     check_min_pulse_widths_->clear();
   if (check_min_periods_)
@@ -4407,7 +4408,7 @@ Sta::connectDrvrPinAfter(Vertex *vertex)
   graph_delay_calc_->delayInvalid(vertex);
   search_->requiredInvalid(vertex);
   search_->endpointInvalid(vertex);
-  levelize_->invalidFrom(vertex);
+  levelize_->relevelizeFrom(vertex);
   clk_network_->connectPinAfter(pin);
 }
 
@@ -4422,11 +4423,11 @@ Sta::connectLoadPinAfter(Vertex *vertex)
     graph_delay_calc_->delayInvalid(from_vertex);
     search_->requiredInvalid(from_vertex);
     sdc_->clkHpinDisablesChanged(from_vertex->pin());
+    levelize_->relevelizeFrom(from_vertex);
   }
   Pin *pin = vertex->pin();
   sdc_->clkHpinDisablesChanged(pin);
   graph_delay_calc_->delayInvalid(vertex);
-  levelize_->invalidFrom(vertex);
   search_->arrivalInvalid(vertex);
   search_->endpointInvalid(vertex);
   clk_network_->connectPinAfter(pin);
@@ -4584,6 +4585,7 @@ Sta::deletePinBefore(const Pin *pin)
           }
           levelize_->deleteEdgeBefore(edge);
         }
+	// Deletes edges to/from vertex also.
         graph_->deleteVertex(vertex);
       }
     }
@@ -4606,6 +4608,7 @@ Sta::deletePinBefore(const Pin *pin)
           }
           levelize_->deleteEdgeBefore(edge);
         }
+	// Deletes edges to/from vertex also.
         graph_->deleteVertex(vertex);
       }
     }
@@ -5554,14 +5557,16 @@ MinPeriodCheckSeq &
 Sta::minPeriodViolations()
 {
   minPeriodPreamble();
-  return check_min_periods_->violations();
+  const Corner *corner = cmdCorner();
+  return check_min_periods_->violations(corner);
 }
 
 MinPeriodCheck *
 Sta::minPeriodSlack()
 {
   minPeriodPreamble();
-  return check_min_periods_->minSlackCheck();
+  const Corner *corner = cmdCorner();
+  return check_min_periods_->minSlackCheck(corner);
 }
 
 void

@@ -53,6 +53,7 @@ public:
                         const ParasiticAnalysisPt *ap) override;
   void deleteParasitics(const Pin *drvr_pin,
                         const ParasiticAnalysisPt *ap) override;
+  void deleteParasitics(const Pin *drvr_pin);
 
   bool isReducedParasiticNetwork(const Parasitic *parasitic) const override;
   void setIsReducedParasiticNetwork(Parasitic *parasitic,

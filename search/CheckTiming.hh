@@ -59,7 +59,7 @@ protected:
   void checkUnconstrainedEndpoints();
   bool hasClkedArrival(Vertex *vertex);
   void checkNoOutputDelay(PinSet &ends);
-  void checkUnconstraintedOutputs(PinSet &unconstrained_ends);
+  void checkUnconstrainedOutputs(PinSet &unconstrained_ends);
   void checkUnconstrainedSetups(PinSet &unconstrained_ends);
   void checkLoops();
   bool hasClkedDepature(Pin *pin);
