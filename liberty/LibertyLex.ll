@@ -78,7 +78,7 @@ TOKEN ({ALPHA}|{DIGIT}|_)({ALPHA}|{DIGIT}|[._\-])*(:({ALPHA}|{DIGIT}|_)+)?
 /* bus_naming_style : %s[%d] ; */
 BUS_STYLE "%s"{BUS_LEFT}"%d"{BUS_RIGHT}
 PUNCTUATION [,\:;|(){}+*&!'=]
-TOKEN_END {PUNCTUATION}|[ \t\r\n]
+TOKEN_END {PUNCTUATION}|[ \t\r\n]|\\{EOL}
 EOL \r?\n
 %%
 
