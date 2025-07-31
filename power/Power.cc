@@ -105,6 +105,17 @@ Power::Power(StaState *sta) :
 }
 
 void
+Power::clear()
+{
+  global_activity_.init();
+  input_activity_.init();
+  user_activity_map_.clear();
+  seq_activity_map_.clear();
+  activity_map_.clear();
+  activities_valid_ = false;
+}
+
+void
 Power::setGlobalActivity(float density,
 			 float duty)
 {

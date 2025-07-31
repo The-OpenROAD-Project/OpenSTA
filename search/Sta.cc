@@ -586,6 +586,7 @@ Sta::clear()
     parasitics_->clear();
   graph_delay_calc_->clear();
   sim_->clear();
+  power_->clear();
   if (check_min_pulse_widths_)
     check_min_pulse_widths_->clear();
   if (check_min_periods_)
