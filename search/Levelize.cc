@@ -51,16 +51,15 @@ Levelize::Levelize(StaState *sta) :
   levels_valid_(false),
   max_level_(0),
   level_space_(10),
-  roots_(new VertexSet(graph_)),
-  relevelize_from_(new VertexSet(graph_)),
+  max_incremental_level_(100),
+  roots_(graph_),
+  relevelize_from_(graph_),
   observer_(nullptr)
 {
 }
 
 Levelize::~Levelize()
 {
-  delete roots_;
-  delete relevelize_from_;
   delete observer_;
   loops_.deleteContents();
 }
@@ -83,8 +82,8 @@ Levelize::clear()
 {
   levelized_ = false;
   levels_valid_ = false;
-  roots_->clear();
-  relevelize_from_->clear();
+  roots_.clear();
+  relevelize_from_.clear();
   clearLoopEdges();
   loops_.deleteContentsClear();
   loop_edges_.clear();
@@ -106,7 +105,8 @@ void
 Levelize::ensureLevelized()
 {
   if (!levels_valid_) {
-    if (levelized_)
+    if (levelized_
+	&& relevelize_from_.size() < max_incremental_level_)
       relevelize();
     else
       levelize();
@@ -151,6 +151,7 @@ Levelize::levelize()
     vertex->setVisited(false);
     vertex->setOnPath(false);
   }
+  relevelize_from_.clear();
   levelized_ = true;
   levels_valid_ = true;
   stats.report("Levelize");
@@ -159,7 +160,7 @@ Levelize::levelize()
 void
 Levelize::findRoots()
 {
-  roots_->clear();
+  roots_.clear();
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
@@ -167,17 +168,17 @@ Levelize::findRoots()
       debugPrint(debug_, "levelize", 2, "root %s%s",
                  vertex->to_string(this).c_str(),
                  hasFanout(vertex) ? " fanout" : "");
-      roots_->insert(vertex);
+      roots_.insert(vertex);
     }
   }
   if (debug_->check("levelize", 1)) {
     size_t fanout_roots = 0;
-    for (Vertex *root : *roots_) {
+    for (Vertex *root : roots_) {
       if (hasFanout(root))
           fanout_roots++;
     }
     debugPrint(debug_, "levelize", 1, "Found %zu roots %zu with fanout",
-               roots_->size(),
+               roots_.size(),
                fanout_roots);
   }
 }
@@ -251,7 +252,7 @@ VertexSeq
 Levelize::sortedRootsWithFanout()
 {
   VertexSeq roots;
-  for (Vertex *root : *roots_) {
+  for (Vertex *root : roots_) {
     if (hasFanout(root))
       roots.push_back(root);
   }
@@ -322,7 +323,7 @@ Levelize::findCycleBackEdges()
       stack.emplace(vertex, new VertexOutEdgeIterator(vertex, graph_));
       EdgeSet back_edges = findBackEdges(path, stack);
       for (Edge *back_edge : back_edges)
-        roots_->insert(back_edge->from(graph_));
+        roots_.insert(back_edge->from(graph_));
       back_edge_count += back_edges.size();
     }
   }
@@ -378,7 +379,7 @@ Levelize::findTopologicalOrder()
   }
 
   std::deque<Vertex*> queue;
-  for (Vertex *root : *roots_)
+  for (Vertex *root : roots_)
     queue.push_back(root);
 
   VertexSeq topo_order;
@@ -501,10 +502,11 @@ Levelize::reportPath(EdgeSeq &path) const
 void
 Levelize::assignLevels(VertexSeq &topo_sorted)
 {
-  for (Vertex *root : *roots_)
+  for (Vertex *root : roots_)
     setLevel(root, 0);
   for (Vertex *vertex : topo_sorted) {
-    if (vertex->level() != -1) {
+    if (vertex->level() != -1
+	&& search_pred_.searchFrom(vertex)) {
       VertexOutEdgeIterator edge_iter(vertex, graph_);
       while (edge_iter.hasNext()) {
         Edge *edge = edge_iter.next();
@@ -557,7 +559,7 @@ Levelize::setLevel(Vertex  *vertex,
   vertex->setLevel(level);
   max_level_ = max(level, max_level_);
   if (level >= Graph::vertex_level_max)
-    criticalError(616, "maximum logic level exceeded");
+    report_->critical(616, "maximum logic level exceeded");
 }
 
 void
@@ -580,9 +582,9 @@ Levelize::invalidFrom(Vertex *vertex)
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *from_vertex = edge->from(graph_);
-      relevelize_from_->insert(from_vertex);
+      relevelize_from_.insert(from_vertex);
     }
-    relevelize_from_->insert(vertex);
+    relevelize_from_.insert(vertex);
     levels_valid_ = false;
   }
 }
@@ -591,8 +593,8 @@ void
 Levelize::deleteVertexBefore(Vertex *vertex)
 {
   if (levelized_) {
-    roots_->erase(vertex);
-    relevelize_from_->erase(vertex);
+    roots_.erase(vertex);
+    relevelize_from_.erase(vertex);
   }
 }
 
@@ -600,9 +602,9 @@ void
 Levelize::relevelizeFrom(Vertex *vertex)
 {
   if (levelized_) {
-    debugPrint(debug_, "levelize", 1, "invalid relevelize from %s",
+    debugPrint(debug_, "levelize", 1, "relevelize from %s",
                vertex->to_string(this).c_str());
-    relevelize_from_->insert(vertex);
+    relevelize_from_.insert(vertex);
     levels_valid_ = false;
   }
 }
@@ -633,23 +635,22 @@ Levelize::deleteEdgeBefore(Edge *edge)
 void
 Levelize::relevelize()
 {
-  for (Vertex *vertex : *relevelize_from_) {
+  for (Vertex *vertex : relevelize_from_) {
     debugPrint(debug_, "levelize", 1, "relevelize from %s",
                vertex->to_string(this).c_str());
     if (search_pred_.searchFrom(vertex)) {
-      if (isRoot(vertex)) {
-	setLevelIncr(vertex, 0);
-	roots_->insert(vertex);
-      }
-      VertexSet visited(graph_);
+      if (isRoot(vertex))
+	roots_.insert(vertex);
       VertexSet path_vertices(graph_);
       EdgeSeq path;
-      visit(vertex, nullptr, vertex->level(), 1, visited, path_vertices, path);
+      visit(vertex, nullptr, vertex->level(), 1, path_vertices, path);
     }
   }
   ensureLatchLevels();
   levels_valid_ = true;
-  relevelize_from_->clear();
+  relevelize_from_.clear();
+
+  checkLevels();
 }
 
 void
@@ -657,14 +658,11 @@ Levelize::visit(Vertex *vertex,
 		Edge *from,
                 Level level,
 		Level level_space,
-                VertexSet &visited,
                 VertexSet &path_vertices,
 		EdgeSeq &path)
 {
   Pin *from_pin = vertex->pin();
   setLevelIncr(vertex, level);
-  level += level_space;
-  visited.insert(vertex);
   path_vertices.insert(vertex);
   if (from)
     path.push_back(from);
@@ -679,9 +677,9 @@ Levelize::visit(Vertex *vertex,
         if (path_vertices.find(to_vertex) != path_vertices.end())
 	  // Back edges form feedback loops.
           recordLoop(edge, path);
-        else if (visited.find(to_vertex) == visited.end()
-                 && to_vertex->level() < level)
-	  visit(to_vertex, edge, level, level_space, visited, path_vertices, path);
+        else if (to_vertex->level() <= level)
+	  visit(to_vertex, edge, level+level_space, level_space,
+		path_vertices, path);
       }
       if (edge->role() == TimingRole::latchDtoQ())
 	  latch_d_to_q_edges_.insert(edge);
@@ -691,9 +689,9 @@ Levelize::visit(Vertex *vertex,
 	&& !vertex->isBidirectDriver()) {
       Vertex *to_vertex = graph_->pinDrvrVertex(from_pin);
       if (search_pred_.searchTo(to_vertex)
-	  && (visited.find(to_vertex) == visited.end()
-	      || to_vertex->level() < level))
-	visit(to_vertex, nullptr, level, level_space, visited, path_vertices, path);
+	  && (to_vertex->level() <= level))
+	visit(to_vertex, nullptr, level+level_space, level_space,
+	      path_vertices, path);
     }
   }
   path_vertices.erase(vertex);
@@ -722,6 +720,34 @@ Levelize::setLevelIncr(Vertex  *vertex,
   max_level_ = max(level, max_level_);
   if (level >= Graph::vertex_level_max)
     criticalError(617, "maximum logic level exceeded");
+}
+
+void
+Levelize::checkLevels()
+{
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext()) {
+    Vertex *vertex = vertex_iter.next();
+    if (search_pred_.searchTo(vertex)) {
+      Level level = vertex->level();
+      VertexInEdgeIterator edge_iter1(vertex, graph_);
+      while (edge_iter1.hasNext()) {
+	Edge *edge = edge_iter1.next();
+	Vertex *from_vertex = edge->from(graph_);
+	Level from_level = from_vertex->level();
+	if (search_pred_.searchFrom(from_vertex)
+	    && search_pred_.searchThru(edge)
+	    && from_level >= level
+	    // Loops with no entry edges are all level zero.
+	    && !(from_level == 0 && level == 0))
+	  report_->warn(617, "level check failed %s %d -> %s %d",
+			from_vertex->name(network_),
+			from_vertex->level(),
+			vertex->name(network_),
+			level);
+      }
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////

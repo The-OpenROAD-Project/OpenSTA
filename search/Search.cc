@@ -1671,7 +1671,7 @@ Search::makeUnclkedPaths(Vertex *vertex,
 void
 Search::findRootVertices(VertexSet &vertices)
 {
-  for (Vertex *vertex : *levelize_->roots()) {
+  for (Vertex *vertex : levelize_->roots()) {
     const Pin *pin = vertex->pin();
     if (!sdc_->isLeafPinClock(pin)
 	&& !sdc_->hasInputDelay(pin)

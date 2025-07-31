@@ -297,7 +297,7 @@ GraphDelayCalc::seedInvalidDelays()
 void
 GraphDelayCalc::seedRootSlews()
 {
-  for (Vertex *vertex : *levelize_->roots())
+  for (Vertex *vertex : levelize_->roots())
     seedRootSlew(vertex, arc_delay_calc_);
 }
 
