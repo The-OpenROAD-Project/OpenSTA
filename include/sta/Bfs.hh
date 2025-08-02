@@ -75,7 +75,7 @@ public:
   // Notify iterator that vertex will be deleted.
   void deleteVertexBefore(Vertex *vertex);
   void remove(Vertex *vertex);
-  void reportEntries();
+  void reportEntries() const;
 
   virtual bool hasNext();
   bool hasNext(Level to_level);
@@ -103,7 +103,7 @@ protected:
 			 Level level2) const = 0;
   virtual bool levelLessOrEqual(Level level1,
 				Level level2) const = 0;
-  virtual void incrLevel(Level &level) = 0;
+  virtual void incrLevel(Level &level) const = 0;
   void findNext(Level to_level);
   void deleteEntries();
 
@@ -139,7 +139,7 @@ protected:
 				Level level2) const;
   virtual bool levelLess(Level level1,
 			 Level level2) const;
-  virtual void incrLevel(Level &level);
+  virtual void incrLevel(Level &level) const;
 };
 
 class BfsBkwdIterator : public BfsIterator
@@ -159,7 +159,7 @@ protected:
 				Level level2) const;
   virtual bool levelLess(Level level1,
 			 Level level2) const;
-  virtual void incrLevel(Level &level);
+  virtual void incrLevel(Level &level) const;
 };
 
 } // namespace

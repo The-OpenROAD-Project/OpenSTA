@@ -70,9 +70,10 @@ public:
   // Set the observer for level changes.
   void setObserver(LevelizeObserver *observer);
   void checkLevels();
+  // Public for regression testing.
+  void levelize();
 
 protected:
-  void levelize();
   void findRoots();
   VertexSeq sortedRootsWithFanout();
   VertexSeq findTopologicalOrder();

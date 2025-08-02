@@ -4486,7 +4486,7 @@ Sta::disconnectPinBefore(const Pin *pin)
 void
 Sta::deleteEdge(Edge *edge)
 {
-  debugPrint(debug_, "network_edit", 1, "delete edge %s -> %s",
+  debugPrint(debug_, "network_edit", 2, "delete edge %s -> %s",
              edge->from(graph_)->name(sdc_network_),
              edge->to(graph_)->name(sdc_network_));
   Vertex *to = edge->to(graph_);
@@ -4568,6 +4568,8 @@ void
 Sta::deletePinBefore(const Pin *pin)
 {
   if (graph_) {
+    debugPrint(debug_, "network_edit", 1, "delete pin %s",
+	       sdc_network_->pathName(pin));
     if (network_->isLoad(pin)) {
       Vertex *vertex = graph_->pinLoadVertex(pin);
       if (vertex) {
