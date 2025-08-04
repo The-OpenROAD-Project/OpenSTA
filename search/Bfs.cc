@@ -303,12 +303,14 @@ BfsIterator::checkInQueue(Vertex *vertex)
 	if (vertex->bfsInQueue(bfs_index_))
 	  return;
 	else
-	  printf("extra %s\n", vertex->to_string(this).c_str());
+	  debugPrint(debug_, "bfs", 1, "extra %s",
+		     vertex->to_string(this).c_str());
       }
     }
   }
   if (vertex->bfsInQueue(bfs_index_))
-    printf("missing %s\n", vertex->to_string(this).c_str());
+    debugPrint(debug_, "brs", 1, "missing %s",
+	       vertex->to_string(this).c_str());
 }
 
 void
@@ -327,7 +329,6 @@ BfsIterator::remove(Vertex *vertex)
       && static_cast<Level>(queue_.size()) > level) {
     debugPrint(debug_, "bfs", 2, "remove %s",
 	       vertex->to_string(this).c_str());
-    printf("bfs remove %s\n", vertex->to_string(this).c_str());
     for (Vertex *&v : queue_[level]) {
       if (v == vertex) {
 	v = nullptr;
