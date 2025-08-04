@@ -327,7 +327,6 @@ BfsIterator::remove(Vertex *vertex)
       && static_cast<Level>(queue_.size()) > level) {
     debugPrint(debug_, "bfs", 2, "remove %s",
 	       vertex->to_string(this).c_str());
-    printf("bfs remove %s\n", vertex->to_string(this).c_str());
     for (Vertex *&v : queue_[level]) {
       if (v == vertex) {
 	v = nullptr;
