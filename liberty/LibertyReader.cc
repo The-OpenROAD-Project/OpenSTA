@@ -26,6 +26,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <string>
 
 #include "EnumNameMap.hh"
 #include "Report.hh"
@@ -875,8 +876,23 @@ LibertyReader::visitCapacitiveLoadUnit(LibertyAttr *attr)
       LibertyAttrValueIterator value_iter(attr->values());
       if (value_iter.hasNext()) {
 	LibertyAttrValue *value = value_iter.next();
+	bool valid = false;
+	float scale;
 	if (value->isFloat()) {
-	  float scale = value->floatValue();
+	  scale = value->floatValue();
+	  valid = true;
+	}
+	else if (value->isString()) {
+	  try {
+	    scale = std::stof(value->stringValue());
+	    valid = true;
+	  }
+	  catch (...) {
+	    valid = false;
+	  }
+	}
+
+	if (valid) {
 	  if (value_iter.hasNext()) {
 	    value = value_iter.next();
 	    if (value->isString()) {
@@ -970,10 +986,24 @@ LibertyReader::visitVoltageMap(LibertyAttr *attr)
 	  const char *supply_name = value->stringValue();
 	  if (value_iter.hasNext()) {
 	    value = value_iter.next();
+            bool valid = false;
+	    float voltage;
 	    if (value->isFloat()) {
-	      float voltage = value->floatValue();
-	      library_->addSupplyVoltage(supply_name, voltage);
+	      voltage = value->floatValue();
+	      valid = true;
 	    }
+	    else if (value->isString()) {
+	      try {
+                voltage = std::stof(value->stringValue());
+                valid = true;
+	      }
+	      catch (...) {
+	        valid = false;
+	      }
+	    }
+
+	    if (valid)
+	      library_->addSupplyVoltage(supply_name, voltage);
 	    else
 	      libWarn(1166, attr, "voltage_map voltage is not a float.");
 	  }

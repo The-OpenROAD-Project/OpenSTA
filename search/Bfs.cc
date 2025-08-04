@@ -89,19 +89,16 @@ BfsIterator::clear()
 }
 
 void
-BfsIterator::reportEntries()
+BfsIterator::reportEntries() const
 {
-  Level level = first_level_;
-  while (levelLessOrEqual(level, last_level_)) {
-    VertexSeq &level_vertices = queue_[level];
+  for (Level level=first_level_; levelLessOrEqual(level, last_level_);incrLevel(level)){
+    const VertexSeq &level_vertices = queue_[level];
     if (!level_vertices.empty()) {
       report_->reportLine("Level %d", level);
-      for (Vertex *vertex : level_vertices) {
-	if (vertex)
-	  report_->reportLine(" %s", vertex->to_string(this).c_str());
-      }
+      for (Vertex *vertex : level_vertices)
+	report_->reportLine(" %s",
+			    vertex ? vertex->to_string(this).c_str() : "NULL");
     }
-    incrLevel(level);
   }
 }
 
@@ -255,9 +252,18 @@ void
 BfsIterator::findNext(Level to_level)
 {
   while (levelLessOrEqual(first_level_, last_level_)
-	 && levelLessOrEqual(first_level_, to_level)
-	 && queue_[first_level_].empty())
+	 && levelLessOrEqual(first_level_, to_level)) {
+    VertexSeq &level_vertices = queue_[first_level_];
+    // Skip null entries from deleted vertices.
+    while (!level_vertices.empty()) {
+      Vertex *vertex = level_vertices.back();
+      if (vertex == nullptr)
+	level_vertices.pop_back();
+      else
+	return;
+    }
     incrLevel(first_level_);
+  }
 }
 
 void
@@ -283,7 +289,7 @@ BfsIterator::enqueue(Vertex *vertex)
 bool
 BfsIterator::inQueue(Vertex *vertex)
 {
-  //  checkInQueue(vertex);
+  // checkInQueue(vertex);
   return vertex->bfsInQueue(bfs_index_);
 }
 
@@ -319,6 +325,9 @@ BfsIterator::remove(Vertex *vertex)
   Level level = vertex->level();
   if (vertex->bfsInQueue(bfs_index_)
       && static_cast<Level>(queue_.size()) > level) {
+    debugPrint(debug_, "bfs", 2, "remove %s",
+	       vertex->to_string(this).c_str());
+    printf("bfs remove %s\n", vertex->to_string(this).c_str());
     for (Vertex *&v : queue_[level]) {
       if (v == vertex) {
 	v = nullptr;
@@ -346,7 +355,7 @@ BfsFwdIterator::~BfsFwdIterator()
 }
 
 void
-BfsFwdIterator::incrLevel(Level &level)
+BfsFwdIterator::incrLevel(Level &level) const
 {
   level++;
 }
@@ -400,7 +409,7 @@ BfsBkwdIterator::~BfsBkwdIterator()
 }
 
 void
-BfsBkwdIterator::incrLevel(Level &level)
+BfsBkwdIterator::incrLevel(Level &level) const
 {
   level--;
 }

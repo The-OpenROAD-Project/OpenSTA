@@ -602,7 +602,7 @@ void
 Levelize::relevelizeFrom(Vertex *vertex)
 {
   if (levelized_) {
-    debugPrint(debug_, "levelize", 1, "relevelize from %s",
+    debugPrint(debug_, "levelize", 1, "level invalid from %s",
                vertex->to_string(this).c_str());
     relevelize_from_.insert(vertex);
     levels_valid_ = false;
@@ -649,8 +649,6 @@ Levelize::relevelize()
   ensureLatchLevels();
   levels_valid_ = true;
   relevelize_from_.clear();
-
-  checkLevels();
 }
 
 void
