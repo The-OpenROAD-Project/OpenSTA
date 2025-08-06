@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <deque>
+#include <limits>
 
 #include "Report.hh"
 #include "Debug.hh"
@@ -51,7 +52,7 @@ Levelize::Levelize(StaState *sta) :
   levels_valid_(false),
   max_level_(0),
   level_space_(10),
-  max_incremental_level_(100),
+  max_incremental_level_(std::numeric_limits<size_t>::max()),
   roots_(graph_),
   relevelize_from_(graph_),
   observer_(nullptr)
