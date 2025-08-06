@@ -51,7 +51,6 @@ Levelize::Levelize(StaState *sta) :
   levels_valid_(false),
   max_level_(0),
   level_space_(10),
-  max_incremental_level_(100),
   roots_(graph_),
   relevelize_from_(graph_),
   observer_(nullptr)
@@ -105,8 +104,7 @@ void
 Levelize::ensureLevelized()
 {
   if (!levels_valid_) {
-    if (levelized_
-	&& relevelize_from_.size() < max_incremental_level_)
+    if (levelized_)
       relevelize();
     else
       levelize();

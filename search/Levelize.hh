@@ -108,7 +108,6 @@ protected:
   bool levels_valid_;
   Level max_level_;
   Level level_space_;
-  size_t max_incremental_level_;
   VertexSet roots_;
   VertexSet relevelize_from_;
   GraphLoopSeq loops_;
