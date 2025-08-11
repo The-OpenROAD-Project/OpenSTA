@@ -89,7 +89,9 @@ PatternMatch::compileRegexp()
   anchored_pattern += '$';
   Tcl_Obj *pattern_obj = Tcl_NewStringObj(anchored_pattern.c_str(),
 					  anchored_pattern.size());
+  Tcl_IncrRefCount(pattern_obj);
   regexp_ = Tcl_GetRegExpFromObj(interp_, pattern_obj, flags);
+  Tcl_DecrRefCount(pattern_obj);
   if (regexp_ == nullptr && interp_)
     throw RegexpCompileError(pattern_);
 }
