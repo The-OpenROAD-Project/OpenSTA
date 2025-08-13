@@ -260,8 +260,10 @@ GraphDelayCalc::findDelays(Level level)
     if (incremental_)
       seedInvalidDelays();
 
-    FindVertexDelays visitor(this);
-    dcalc_count += iter_->visitParallel(level, &visitor);
+    if (!iter_->empty()) {
+      FindVertexDelays visitor(this);
+      dcalc_count += iter_->visitParallel(level, &visitor);
+    }
 
     // Timing checks require slews at both ends of the arc,
     // so find their delays after all slews are known.
