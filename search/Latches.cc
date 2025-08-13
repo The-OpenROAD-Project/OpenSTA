@@ -93,7 +93,7 @@ Latches::latchRequired(const Path *data_path,
     CycleAccting *acct = sdc_->cycleAccting(data_clk_edge,
                                             enable_clk_edge);
     // checkTgtClkTime
-    float tgt_clk_time = acct->requiredTime(check_role);
+    float tgt_clk_time = path_delay ? 0.0 : acct->requiredTime(check_role);
     // checkTgtClkArrival broken down into components.
     Arrival enable_arrival = max_delay
       + tgt_clk_time

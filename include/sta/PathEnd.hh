@@ -375,6 +375,8 @@ public:
   virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual Required requiredTime(const StaState *sta) const;
   virtual Arrival borrow(const StaState *sta) const;
+  virtual float targetClkTime(const StaState *sta) const;
+  virtual float targetClkOffset(const StaState *sta) const;
   Arrival targetClkWidth(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
