@@ -7,7 +7,7 @@
   "endpoint": "_1416_[0]/D",
   "source_clock": "clk",
   "source_clock_edge": "rise",
-  "source_path": [
+  "source_clock_path": [
     {
       "instance": "",
       "cell": "counter",
@@ -25,7 +25,9 @@
       "net": "clk",
       "arrival": 0.000e+00,
       "slew": 0.000e+00
-    },
+    }
+  ],
+  "source_path": [
     {
       "instance": "_1415_",
       "cell": "sky130_fd_sc_hd__dfrtp_1",

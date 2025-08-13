@@ -1103,6 +1103,7 @@ ReportPath::reportJson(const PathEnd *end,
                sdc_network_->pathName(endpoint));
 
   const ClockEdge *src_clk_edge = end->sourceClkEdge(this);
+  const Path *src_clk_path = expanded.clkPath();
   const Path *tgt_clk_path = end->targetClkPath();
   if (src_clk_edge) {
     stringAppend(result, "  \"source_clock\": \"%s\",\n",
@@ -1110,6 +1111,8 @@ ReportPath::reportJson(const PathEnd *end,
     stringAppend(result, "  \"source_clock_edge\": \"%s\",\n",
                  src_clk_edge->transition()->name());
   }
+  if (src_clk_path)
+    reportJson(src_clk_path, "source_clock_path", 2, true, result);
   reportJson(expanded, "source_path", 2, !end->isUnconstrained(), result);
 
   const ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
@@ -1180,7 +1183,7 @@ ReportPath::reportJson(const PathExpanded &expanded,
                        string &result) const
 {
   stringAppend(result, "%*s\"%s\": [\n", indent, "", path_name);
-  for (size_t i = 0; i < expanded.size(); i++) {
+  for (size_t i = expanded.startIndex(); i < expanded.size(); i++) {
     const Path *path = expanded.path(i);
     const Pin *pin = path->vertex(this)->pin();
     const Net *net = network_->net(pin);
