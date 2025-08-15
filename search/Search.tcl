@@ -1111,7 +1111,7 @@ proc parse_path_group_arg { group_names } {
 define_cmd_args "report_clock_min_period" \
   { [-clocks clocks] [-include_port_paths] }
 
-proc report_clock_min_period { args } {
+proc_redirect report_clock_min_period {
   parse_key_args "report_min_clock_period" args \
     keys {-clocks} flags {-include_port_paths} 0
   
@@ -1131,7 +1131,7 @@ proc report_clock_min_period { args } {
       # max frequency in MHz
       set fmax [expr 1.0e-6 / $min_period]
     }
-    puts "[get_name $clk] period_min = [sta::format_time $min_period 2] fmax = [format %.2f $fmax]"
+    report_line "[get_name $clk] period_min = [sta::format_time $min_period 2] fmax = [format %.2f $fmax]"
   }
 }
 
