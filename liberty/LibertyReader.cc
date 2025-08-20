@@ -557,6 +557,8 @@ LibertyReader::defineVisitors()
 
   defineGroupVisitor("ecsm_waveform", &LibertyReader::beginEcsmWaveform,
 		     &LibertyReader::endEcsmWaveform);
+  defineGroupVisitor("ecsm_waveform_set", &LibertyReader::beginEcsmWaveform,
+		     &LibertyReader::endEcsmWaveform);
 }
 
 void
