@@ -1193,6 +1193,24 @@ PathEndLatchCheck::checkRole(const StaState *sta) const
     return TimingRole::latchSetup();
 }
 
+float
+PathEndLatchCheck::targetClkTime(const StaState *sta) const
+{
+  if (path_delay_)
+    return 0.0;
+  else
+    return PathEndClkConstrained::targetClkTime(sta);
+}
+
+float
+PathEndLatchCheck::targetClkOffset(const StaState *sta) const
+{
+  if (path_delay_)
+    return -targetClkEdge(sta)->time();
+  else
+    return PathEndClkConstrained::targetClkOffset(sta);
+}
+
 Required
 PathEndLatchCheck::requiredTime(const StaState *sta) const
 {

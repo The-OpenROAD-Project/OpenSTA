@@ -356,7 +356,8 @@ public:
 
   TagGroup *tagGroup(const Vertex *vertex) const;
   TagGroup *tagGroup(TagGroupIndex index) const;
-  void reportArrivals(Vertex *vertex) const;
+  void reportArrivals(Vertex *vertex,
+		      bool report_tag_index) const;
   Slack wnsSlack(Vertex *vertex,
 		 PathAPIndex path_ap_index);
   void levelsChangedBefore();
@@ -410,6 +411,7 @@ public:
                         TagGroupIndex tag_index);
   void checkPrevPaths() const;
   void deletePaths(Vertex *vertex);
+  void deleteTagGroup(TagGroup *group);
 
 protected:
   void init(StaState *sta);
@@ -645,6 +647,7 @@ protected:
   // Capacity of tag_groups_.
   TagGroupIndex tag_group_capacity_;
   std::mutex tag_group_lock_;
+  std::mutex tag_group_ref_count_lock_;
   // Latches data outputs to queue on the next search pass.
   VertexSet *pending_latch_outputs_;
   std::mutex pending_latch_outputs_lock_;

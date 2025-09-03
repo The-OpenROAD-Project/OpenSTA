@@ -65,6 +65,9 @@ public:
   size_t pathIndex(Tag *tag) const;
   PathIndexMap *pathIndexMap() const { return path_index_map_; }
   bool hasTag(Tag *tag) const;
+  void incrRefCount();
+  void decrRefCount();
+  int refCount() const { return ref_count_; }
 
 protected:
   static size_t pathIndexMapHash(PathIndexMap *path_index_map);
@@ -72,6 +75,7 @@ protected:
   // tag -> path index
   PathIndexMap *path_index_map_;
   size_t hash_;
+  int ref_count_;
   unsigned int index_:tag_group_index_bits;
   bool has_clk_tag_:1;
   bool has_genclk_src_tag_:1;

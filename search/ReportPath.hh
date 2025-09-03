@@ -302,24 +302,28 @@ protected:
 		   float time_offset) const;
   void reportPath2(const Path *path,
 		   const PathExpanded &expanded,
+		   bool skip_first_path,
 		   bool clk_used_as_data,
 		   float time_offset) const;
   void  reportPath3(const Path *path,
 		    const PathExpanded &expanded,
-		    bool clk_used_as_data,
 		    bool report_clk_path,
-		    Arrival prev_time,
 		    float time_offset) const;
   void reportPath4(const Path *path,
 		   const PathExpanded &expanded,
-		   bool clk_used_as_data,
 		   bool skip_first_path,
-		   bool skip_last_path,
+		   bool propagated_clk,
+		   bool report_clk_path,
 		   float time_offset) const;
   void reportPath5(const Path *path,
 		   const PathExpanded &expanded,
+		   bool skip_first_path,
+		   bool propagated_clk,
+		   bool report_clk_path,
+		   float time_offset) const;
+  void reportPath6(const Path *path,
+		   const PathExpanded &expanded,
 		   size_t path_first_index,
-		   size_t path_last_index,
 		   bool propagated_clk,
 		   bool report_clk_path,
 		   Arrival prev_time,

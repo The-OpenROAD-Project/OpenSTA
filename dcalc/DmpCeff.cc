@@ -263,12 +263,16 @@ protected:
 
   // Driver parameter Newton-Raphson state.
   int nr_order_;
-  double *x_;
-  double *fvec_;
-  double **fjac_;
-  double *scale_;
-  double *p_;
-  int *index_;
+
+  static constexpr int max_nr_order_ = 3;
+
+  double x_[max_nr_order_];
+  double fvec_[max_nr_order_];
+  double fjac_storage_[max_nr_order_ * max_nr_order_];
+  double *fjac_[max_nr_order_];
+  double scale_[max_nr_order_];
+  double p_[max_nr_order_ ];
+  int index_[max_nr_order_];
 
   // Driver slew used to check load delay.
   double drvr_slew_;
@@ -288,27 +292,12 @@ DmpAlg::DmpAlg(int nr_order,
   c1_(0.0),
   nr_order_(nr_order)
 {
-  x_ = new double[nr_order_];
-  fvec_ = new double[nr_order_];
-  scale_ = new double[nr_order_];
-  p_ = new double[nr_order_];
-  fjac_ = new double*[nr_order_];
   for (int i = 0; i < nr_order_; i++)
-    fjac_[i] = new double[nr_order_];
-  index_ = new int[nr_order_];
+    // Only use the upper left block of the matrix
+    fjac_[i] = fjac_storage_ + i * max_nr_order_;
 }
 
-DmpAlg::~DmpAlg()
-{
-  delete [] x_;
-  delete [] fvec_;
-  delete [] scale_;
-  delete [] p_;
-  for (int i = 0; i < nr_order_; i++)
-    delete [] fjac_[i];
-  delete [] fjac_;
-  delete [] index_;
-}
+DmpAlg::~DmpAlg() = default;
 
 void
 DmpAlg::init(const LibertyLibrary *drvr_library,

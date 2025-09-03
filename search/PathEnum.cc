@@ -35,6 +35,7 @@
 #include "PathAnalysisPt.hh"
 #include "Tag.hh"
 #include "Search.hh"
+#include "Latches.hh"
 #include "PathEnd.hh"
 #include "Path.hh"
 
@@ -219,7 +220,8 @@ PathEnum::reportDiversionPath(Diversion *div)
                         p->to_string(this).c_str(),
                         delayAsString(p->arrival(), this),
                         Path::equal(p, after_div, this) ? " <-after diversion" : "");
-    if (p != path && network_->isLatchData(p->pin(this)))
+    if (p != path
+        && network_->isLatchData(p->pin(this)))
       break;
     p = p->prevPath();
   }
@@ -529,13 +531,23 @@ PathEnum::divSlack(Path *before_div,
                    const TimingArc *div_arc,
 		   const PathAnalysisPt *path_ap)
 {
-  Arrival arc_arrival = before_div->arrival();
+  Arrival before_div_arrival = before_div->arrival();
   if (div_edge) {
-    ArcDelay div_delay = search_->deratedDelay(div_edge->from(graph_),
-                                               div_arc, div_edge,
-                                               false, path_ap);
-    Arrival div_arrival = search_->clkPathArrival(after_div) + div_delay;
-    return div_arrival - arc_arrival;
+    if (div_edge->role()->isLatchDtoQ()) {
+      Arrival div_arrival;
+      ArcDelay div_delay;
+      Tag *q_tag;
+      latches_->latchOutArrival(after_div, div_arc, div_edge, path_ap,
+				q_tag, div_delay, div_arrival);
+      return div_arrival - before_div_arrival;
+    }
+    else {
+      ArcDelay div_delay = search_->deratedDelay(div_edge->from(graph_),
+						 div_arc, div_edge,
+						 false, path_ap);
+      Arrival div_arrival = search_->clkPathArrival(after_div) + div_delay;
+      return div_arrival - before_div_arrival;
+    }
   }
   else {
     report()->error(1370, "path diversion missing edge.");
@@ -634,39 +646,56 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
   Tag *prev_tag = after_div->tag(this);
   ClkInfo *prev_clk_info = prev_tag->clkInfo();
   Arrival prev_arrival = search_->clkPathArrival(after_div);
-  for (int i = paths.size() - 1; i >= 0; i--) {
+  int path_idx_max = paths.size() - 1;
+  // paths[0] is the path endpoint
+  for (int i = path_idx_max; i >= 0; i--) {
     Path *path = paths[i];
     TimingArc *arc = path->prevArc(this);
     Edge *edge = path->prevEdge(this);
     if (edge) {
+      Arrival arrival;
       PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
-      ArcDelay arc_delay = search_->deratedDelay(edge->from(graph_),
-                                                 arc, edge, false, path_ap);
-      Arrival arrival = prev_arrival + arc_delay;
-      debugPrint(debug_, "path_enum", 5, "update arrival %s %s %s -> %s",
-                 path->vertex(this)->to_string(this).c_str(),
-                 path->tag(this)->to_string(this).c_str(),
-                 delayAsString(path->arrival(), this),
-                 delayAsString(arrival, this));
-      path->setArrival(arrival);
-      prev_arrival = arrival;
-      const Tag *tag = path->tag(this);
-      const ClkInfo *clk_info = tag->clkInfo();
-      if (crprActive()
-          && clk_info != prev_clk_info
-          // D->Q paths use the EN->Q clk info so no need to update.
-          && arc->role() != TimingRole::latchDtoQ()) {
-        // When crpr is enabled the diverion may be from another crpr clk pin,
-        // so update the tags to use the corresponding ClkInfo.
-        Tag *updated_tag = search_->findTag(path->transition(this),
-                                            path_ap,
-                                            prev_clk_info,
-                                            tag->isClock(),
-                                            tag->inputDelay(),
-                                            tag->isSegmentStart(),
-                                            tag->states(), false);
-        path->setTag(updated_tag);
+      const MinMax *min_max = path->minMax(this);
+      if (i == path_idx_max
+	  && edge->role()->isLatchDtoQ()
+	  && min_max == MinMax::max()) {
+	ArcDelay arc_delay;
+	Tag *q_tag;
+	latches_->latchOutArrival(after_div, arc, edge, path_ap,
+				  q_tag, arc_delay, arrival);
+	path->setArrival(arrival);
+	path->setTag(q_tag);
+	prev_clk_info = q_tag->clkInfo();
       }
+      else {
+	ArcDelay arc_delay = search_->deratedDelay(edge->from(graph_),
+						   arc, edge, false, path_ap);
+	arrival = prev_arrival + arc_delay;
+	path->setArrival(arrival);
+	const Tag *tag = path->tag(this);
+	const ClkInfo *clk_info = tag->clkInfo();
+	if (crprActive()
+	    && clk_info != prev_clk_info
+	    // D->Q paths use the EN->Q clk info so no need to update.
+	    && arc->role() != TimingRole::latchDtoQ()) {
+	  // When crpr is enabled the diverion may be from another crpr clk pin,
+	  // so update the tags to use the corresponding ClkInfo.
+	  Tag *updated_tag = search_->findTag(path->transition(this),
+					      path_ap,
+					      prev_clk_info,
+					      tag->isClock(),
+					      tag->inputDelay(),
+					      tag->isSegmentStart(),
+					      tag->states(), false);
+	  path->setTag(updated_tag);
+	}
+	debugPrint(debug_, "path_enum", 5, "update arrival %s %s %s -> %s",
+		   path->vertex(this)->to_string(this).c_str(),
+		   path->tag(this)->to_string(this).c_str(),
+		   delayAsString(path->arrival(), this),
+		   delayAsString(arrival, this));
+      }
+      prev_arrival = arrival;
     }
   }
 }

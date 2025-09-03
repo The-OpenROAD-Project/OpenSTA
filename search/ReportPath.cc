@@ -549,8 +549,7 @@ ReportPath::reportFull(const PathEndLatchCheck *end) const
   if (ignore_clk_latency) {
     // Based on reportSrcPath.
     reportPathHeader();
-    reportPath3(end->path(), expanded, false, false, 0.0,
-		end->sourceClkOffset(this));
+    reportPath3(end->path(), expanded, false, end->sourceClkOffset(this));
   }
   else
     reportSrcPath(end, expanded);
@@ -716,8 +715,7 @@ ReportPath::reportFull(const PathEndPathDelay *end) const
   if (end->ignoreClkLatency(this)) {
     // Based on reportSrcPath.
     reportPathHeader();
-    reportPath3(end->path(), expanded, false, false, 0.0,
-                end->sourceClkOffset(this));
+    reportPath3(end->path(), expanded, false, end->sourceClkOffset(this));
   }
   else
     reportSrcPath(end, expanded);
@@ -935,11 +933,9 @@ ReportPath::reportFull(const PathEndDataCheck *end) const
     const ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
     float prev = delayAsFloat(clk_arrival) + src_offset;
     float offset = prev - delayAsFloat(clk_delay) - tgt_clk_edge->time();
-    reportPath5(data_clk_path, clk_expanded, clk_expanded.startIndex(),
-		clk_expanded.size() - 1,
-		data_clk_path->clkInfo(search_)->isPropagated(), false,
-		// Delay to startpoint is already included.
-		prev, offset);
+    // Delay to startpoint is already included.
+    reportPath6(data_clk_path, clk_expanded, clk_expanded.startIndex(),
+		true, false, prev, offset);
   }
   reportRequired(end, checkRoleReason(end));
   reportSlack(end);
@@ -1103,6 +1099,7 @@ ReportPath::reportJson(const PathEnd *end,
                sdc_network_->pathName(endpoint));
 
   const ClockEdge *src_clk_edge = end->sourceClkEdge(this);
+  const Path *src_clk_path = expanded.clkPath();
   const Path *tgt_clk_path = end->targetClkPath();
   if (src_clk_edge) {
     stringAppend(result, "  \"source_clock\": \"%s\",\n",
@@ -1110,6 +1107,8 @@ ReportPath::reportJson(const PathEnd *end,
     stringAppend(result, "  \"source_clock_edge\": \"%s\",\n",
                  src_clk_edge->transition()->name());
   }
+  if (src_clk_path)
+    reportJson(src_clk_path, "source_clock_path", 2, true, result);
   reportJson(expanded, "source_path", 2, !end->isUnconstrained(), result);
 
   const ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
@@ -1180,7 +1179,7 @@ ReportPath::reportJson(const PathExpanded &expanded,
                        string &result) const
 {
   stringAppend(result, "%*s\"%s\": [\n", indent, "", path_name);
-  for (size_t i = 0; i < expanded.size(); i++) {
+  for (size_t i = expanded.startIndex(); i < expanded.size(); i++) {
     const Path *path = expanded.path(i);
     const Pin *pin = path->vertex(this)->pin();
     const Net *net = network_->net(pin);
@@ -1657,7 +1656,7 @@ ReportPath::reportSkewClkPath(const char *arrival_msg,
 				insertion, latency);
       reportClkSrcLatency(insertion, clk_time, early_late);
       PathExpanded clk_expanded(clk_path, this);
-      reportPath2(clk_path, clk_expanded, false, 0.0);
+      reportPath1(clk_path, clk_expanded, false, 0.0);
     }
   }
   else {
@@ -2226,8 +2225,8 @@ ReportPath::reportTgtClk(const PathEnd *end,
 	PathExpanded clk_expanded(clk_path, this);
 	float insertion_offset = tgtClkInsertionOffet(clk_path, early_late,
 						      path_ap);
-	reportPath5(clk_path, clk_expanded, 0, clk_expanded.size() - 1, is_prop,
-		    reportClkPath(), delay_zero, time_offset + insertion_offset);
+	reportPath6(clk_path, clk_expanded, 0, is_prop, reportClkPath(),
+		    delay_zero, time_offset + insertion_offset);
       }
       else {
 	// Output departure.
@@ -2374,7 +2373,7 @@ ReportPath::reportGenClkSrcAndPath(const Path *path,
 					      time_offset, clk_used_as_data);
   if (path) {
     PathExpanded expanded(path, this);
-    reportPath4(path, expanded, skip_first_path, false, clk_used_as_data,
+    reportPath2(path, expanded, skip_first_path, clk_used_as_data,
 		path_time_offset);
   }
 }
@@ -2416,7 +2415,7 @@ ReportPath::reportGenClkSrcPath1(const Clock *clk,
         reportClkSrcLatency(insertion, gclk_time, early_late);
       }
       PathExpanded src_expanded(src_path, this);
-      reportPath4(src_path, src_expanded, skip_first_path, false,
+      reportPath2(src_path, src_expanded, skip_first_path,
                   clk_used_as_data, gclk_time);
       if (!clk->isPropagated())
         reportLine("clock network delay (ideal)", 0.0,
@@ -2600,10 +2599,50 @@ ReportPath::reportPathFull(const Path *path) const
 
 ////////////////////////////////////////////////////////////////
 
+// Main entry point for reporting a path.
 void
 ReportPath::reportPath1(const Path *path,
 			const PathExpanded &expanded,
 			bool clk_used_as_data,
+			float time_offset) const
+{
+  reportPath2(path, expanded, false, clk_used_as_data, time_offset);
+}
+
+// Alternate entry point with skip_first_path arg.
+void
+ReportPath::reportPath2(const Path *path,
+			const PathExpanded &expanded,
+			bool skip_first_path,
+			bool clk_used_as_data,
+			float time_offset) const
+{
+  bool clk_is_propagated  = path->clkInfo(search_)->isPropagated();
+  bool report_clk_path = (reportClkPath() && clk_is_propagated)
+    || clk_used_as_data;
+  bool propagated_clk = clk_is_propagated || clk_used_as_data;
+  reportPath4(path, expanded, skip_first_path, propagated_clk,
+	      report_clk_path, time_offset);
+}
+
+// Alternate entry point with report_clk_path arg.
+void
+ReportPath::reportPath3(const Path *path,
+			const PathExpanded &expanded,
+			bool report_clk_path,
+			float time_offset) const
+{
+  bool propagated_clk  = path->clkInfo(search_)->isPropagated();
+  reportPath4(path, expanded, false, propagated_clk,
+	      report_clk_path, time_offset);
+}
+
+void
+ReportPath::reportPath4(const Path *path,
+			const PathExpanded &expanded,
+			bool skip_first_path,
+			bool propagated_clk,
+			bool report_clk_path,
 			float time_offset) const
 {
   const Path *d_path, *q_path;
@@ -2617,11 +2656,11 @@ ReportPath::reportPath1(const Path *path,
     if (latch_enable_path) {
       const EarlyLate *early_late = latch_enable_path->minMax(this);
       latch_enable_time = search_->clkPathArrival(latch_enable_path);
-      if (reportClkPath()) {
+      if (report_clk_path) {
 	PathExpanded enable_expanded(latch_enable_path, this);
 	// Report the path to the latch enable.
-	reportPath2(latch_enable_path, enable_expanded, false,
-		    time_offset);
+	reportPath5(latch_enable_path, enable_expanded, skip_first_path,
+		    propagated_clk, report_clk_path, time_offset);
       }
       Arrival time = latch_enable_time + latch_time_given;
       Arrival incr = latch_time_given;
@@ -2631,86 +2670,45 @@ ReportPath::reportPath1(const Path *path,
 	reportLine("time borrowed from startpoint", incr, time, early_late);
       // Override latch D arrival with enable + given.
       reportPathLine(expanded.path(0), delay_zero, time, "latch_D");
-      bool propagated_clk = path->clkInfo(search_)->isPropagated();
-      bool report_clk_path = path->isClock(search_) || reportClkPath();
-      reportPath5(path, expanded, 1, expanded.size() - 1,
-		  propagated_clk, report_clk_path,
+      reportPath6(path, expanded, 1, propagated_clk, report_clk_path,
 		  latch_enable_time + latch_time_given, time_offset);
     }
   }
   else
-    reportPath2(path, expanded, clk_used_as_data, time_offset);
-}
-
-void
-ReportPath::reportPath2(const Path *path,
-			const PathExpanded &expanded,
-			bool clk_used_as_data,
-			float time_offset) const
-{
-  // Report the clock path if the end is a clock or we wouldn't have
-  // anything to report.
-  bool report_clk_path = clk_used_as_data
-    || (reportClkPath()
-	&& path->clkInfo(search_)->isPropagated());
-  reportPath3(path, expanded, clk_used_as_data, report_clk_path,
-	      delay_zero, time_offset);
-}
-
-void
-ReportPath::reportPath3(const Path *path,
-			const PathExpanded &expanded,
-			bool clk_used_as_data,
-			bool report_clk_path,
-			Arrival prev_time,
-			float time_offset) const
-{
-  bool propagated_clk = clk_used_as_data
-    || path->clkInfo(search_)->isPropagated();
-  size_t path_last_index = expanded.size() - 1;
-  reportPath5(path, expanded, 0, path_last_index, propagated_clk,
-	      report_clk_path, prev_time, time_offset);
-}
-
-void
-ReportPath::reportPath4(const Path *path,
-			const PathExpanded &expanded,
-			bool skip_first_path,
-			bool skip_last_path,
-			bool clk_used_as_data,
-			float time_offset) const
-{
-  size_t path_first_index = 0;
-  Arrival prev_time(0.0);
-  if (skip_first_path) {
-    path_first_index = 1;
-    const Path *start = expanded.path(0);
-    prev_time = start->arrival() + time_offset;
-  }
-  size_t path_last_index = expanded.size() - 1;
-  if (skip_last_path
-      && path_last_index > 1)
-    path_last_index--;
-  bool propagated_clk = clk_used_as_data
-    || path->clkInfo(search_)->isPropagated();
-  // Report the clock path if the end is a clock or we wouldn't have
-  // anything to report.
-  bool report_clk_path = path->isClock(search_) 
-    || (reportClkPath() && propagated_clk);
-  reportPath5(path, expanded, path_first_index, path_last_index,
-	      propagated_clk, report_clk_path, prev_time, time_offset);
+    reportPath5(path, expanded, skip_first_path, propagated_clk,
+		report_clk_path, time_offset);
 }
 
 void
 ReportPath::reportPath5(const Path *path,
 			const PathExpanded &expanded,
+			bool skip_first_path,
+			bool propagated_clk,
+			bool report_clk_path,
+			float time_offset) const
+{
+  size_t path_first_index = 0;
+  Arrival prev_time = 0.0;
+  if (skip_first_path) {
+    path_first_index = 1;
+    const Path *start = expanded.path(0);
+    prev_time = start->arrival() + time_offset;
+  }
+  reportPath6(path, expanded, path_first_index, propagated_clk,
+	      report_clk_path, prev_time, time_offset);
+}
+
+// This does the real workk of reporting an expanded path.
+void
+ReportPath::reportPath6(const Path *path,
+			const PathExpanded &expanded,
 			size_t path_first_index,
-			size_t path_last_index,
 			bool propagated_clk,
 			bool report_clk_path,
 			Arrival prev_time,
 			float time_offset) const
 {
+  size_t path_last_index = expanded.size() - 1;
   const MinMax *min_max = path->minMax(this);
   DcalcAnalysisPt *dcalc_ap = path->pathAnalysisPt(this)->dcalcAnalysisPt();
   DcalcAPIndex ap_index = dcalc_ap->index();
@@ -2986,8 +2984,7 @@ ReportPath::reportInputExternalDelay(const Path *first_path,
 	pathInputDelayRefPath(first_path, input_delay, ref_path);
 	if (!ref_path.isNull() && reportClkPath()) {
 	  PathExpanded ref_expanded(&ref_path, this);
-	  reportPath3(&ref_path, ref_expanded, false, true,
-		      delay_zero, 0.0);
+	  reportPath3(&ref_path, ref_expanded, true, 0.0);
 	}
       }
       float input_arrival =

@@ -303,12 +303,14 @@ BfsIterator::checkInQueue(Vertex *vertex)
 	if (vertex->bfsInQueue(bfs_index_))
 	  return;
 	else
-	  printf("extra %s\n", vertex->to_string(this).c_str());
+	  debugPrint(debug_, "bfs", 1, "extra %s",
+		     vertex->to_string(this).c_str());
       }
     }
   }
   if (vertex->bfsInQueue(bfs_index_))
-    printf("missing %s\n", vertex->to_string(this).c_str());
+    debugPrint(debug_, "brs", 1, "missing %s",
+	       vertex->to_string(this).c_str());
 }
 
 void
