@@ -156,6 +156,7 @@ record_sta_tests {
   report_json2
   suppress_msg
   verilog_attribute
+  report_checks_sorted
 }
 
 define_test_group fast [group_tests all]

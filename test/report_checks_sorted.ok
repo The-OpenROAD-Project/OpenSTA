@@ -1,0 +1,87 @@
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r4 (rising edge-triggered flip-flop clocked by clk)
+Path Group: long
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+  64.76   64.76 ^ r1/Q (DFFHQx4_ASAP7_75t_R)
+  17.77   82.53 ^ u2/Y (BUFx2_ASAP7_75t_R)
+  17.88  100.42 ^ u3/Y (BUFx2_ASAP7_75t_R)
+  16.66  117.08 ^ u4/Y (BUFx2_ASAP7_75t_R)
+   0.00  117.08 ^ r4/D (DFFHQx4_ASAP7_75t_R)
+         117.08   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r4/CLK (DFFHQx4_ASAP7_75t_R)
+ -12.61  487.39   library setup time
+         487.39   data required time
+---------------------------------------------------------
+         487.39   data required time
+        -117.08   data arrival time
+---------------------------------------------------------
+         370.32   slack (MET)
+
+
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: custom
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+  64.76   64.76 ^ r1/Q (DFFHQx4_ASAP7_75t_R)
+  17.77   82.53 ^ u2/Y (BUFx2_ASAP7_75t_R)
+  17.88  100.42 ^ u3/Y (BUFx2_ASAP7_75t_R)
+   0.00  100.42 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         100.42   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -12.98  487.02   library setup time
+         487.02   data required time
+---------------------------------------------------------
+         487.02   data required time
+        -100.42   data arrival time
+---------------------------------------------------------
+         386.60   slack (MET)
+
+
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+  64.76   64.76 ^ r1/Q (DFFHQx4_ASAP7_75t_R)
+  17.77   82.53 ^ u2/Y (BUFx2_ASAP7_75t_R)
+   0.00   82.53 ^ r2/D (DFFHQx4_ASAP7_75t_R)
+          82.53   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+ -12.98  487.02   library setup time
+         487.02   data required time
+---------------------------------------------------------
+         487.02   data required time
+         -82.53   data arrival time
+---------------------------------------------------------
+         404.48   slack (MET)
+
+
