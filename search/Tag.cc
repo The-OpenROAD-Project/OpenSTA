@@ -355,7 +355,7 @@ tagCmp(const Tag *tag1,
   return tagStateCmp(tag1, tag2);
 }
 
-int
+bool
 tagEqual(const Tag *tag1,
 	 const Tag *tag2)
 {

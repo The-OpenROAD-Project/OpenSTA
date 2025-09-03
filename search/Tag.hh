@@ -140,6 +140,9 @@ public:
 		  const Tag *tag2) const;
 };
 
+bool
+tagEqual(const Tag *tag1,
+	 const Tag *tag2);
 int
 tagCmp(const Tag *tag1,
        const Tag *tag2,

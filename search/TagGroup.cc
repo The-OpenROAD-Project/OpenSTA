@@ -44,6 +44,7 @@ TagGroup::TagGroup(TagGroupIndex index,
 		   bool has_loop_tag) :
   path_index_map_(path_index_map),
   hash_(pathIndexMapHash(path_index_map)),
+  ref_count_(0),
   index_(index),
   has_clk_tag_(has_clk_tag),
   has_genclk_src_tag_(has_genclk_src_tag),
@@ -56,6 +57,7 @@ TagGroup::TagGroup(TagGroupIndex index,
 TagGroup::TagGroup(TagGroupBldr *tag_bldr) :
   path_index_map_(&tag_bldr->pathIndexMap()),
   hash_(pathIndexMapHash(path_index_map_)),
+  ref_count_(0),
   own_path_map_(false)
 {
 }
@@ -64,6 +66,18 @@ TagGroup::~TagGroup()
 {
   if (own_path_map_)
     delete path_index_map_;
+}
+
+void
+TagGroup::incrRefCount()
+{
+  ref_count_++;
+}
+
+void
+TagGroup::decrRefCount()
+{
+  ref_count_--;
 }
 
 size_t
