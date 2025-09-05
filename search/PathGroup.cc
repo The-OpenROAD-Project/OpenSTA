@@ -546,8 +546,6 @@ PathGroups::makePathEnds(ExceptionTo *to,
   pushGroupPathEnds(path_ends);
   if (sort_by_slack) {
     sort(path_ends, PathEndLess(this));
-    if (static_cast<int>(path_ends.size()) > group_path_count_)
-      path_ends.resize(group_path_count_);
   }
 
   if (unconstrained_paths

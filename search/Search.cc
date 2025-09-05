@@ -2783,7 +2783,7 @@ Search::setVertexArrivals(Vertex *vertex,
       }
     }
     if (tag_group != prev_tag_group) {
-      LockGuard lock(tag_group_ref_count_lock_);
+      LockGuard lock(tag_group_lock_);
       tag_group->incrRefCount();
       if (prev_tag_group) {
 	prev_tag_group->decrRefCount();
