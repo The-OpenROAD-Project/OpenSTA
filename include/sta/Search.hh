@@ -647,7 +647,6 @@ protected:
   // Capacity of tag_groups_.
   TagGroupIndex tag_group_capacity_;
   std::mutex tag_group_lock_;
-  std::mutex tag_group_ref_count_lock_;
   // Latches data outputs to queue on the next search pass.
   VertexSet *pending_latch_outputs_;
   std::mutex pending_latch_outputs_lock_;
