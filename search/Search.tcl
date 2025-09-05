@@ -978,7 +978,7 @@ proc report_slack { pin } {
 proc report_tag_arrivals { pin } {
   set pin [get_port_pin_error "pin" $pin]
   foreach vertex [$pin vertices] {
-    report_tag_arrivals_cmd $vertex
+    report_tag_arrivals_cmd $vertex 1
   }
 }
 
