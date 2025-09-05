@@ -366,9 +366,6 @@ public:
  			Vertex *vertex,
  			TagGroupBldr *tag_bldr);
   void ensureDownstreamClkPins();
-  // Check paths from inputs from the default arrival clock
-  // (missing set_input_delay).
-  virtual bool checkDefaultArrivalPaths() { return true; }
   bool matchesFilter(Path *path,
 		     const ClockEdge *to_clk_edge);
   CheckCrpr *checkCrpr() { return check_crpr_; }

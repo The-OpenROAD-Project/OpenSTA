@@ -178,9 +178,6 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
                     && tgt_clk != sdc_->defaultArrivalClock()
                     && sdc_->sameClockGroup(src_clk, tgt_clk)
                     && !sdc_->clkStopPropagation(tgt_pin, tgt_clk)
-                    && (search_->checkDefaultArrivalPaths()
-                        || src_clk_edge
-                        != sdc_->defaultArrivalClockEdge())
                     // False paths and path delays override
                     // paths.
                     && (exception == nullptr
@@ -360,9 +357,6 @@ VisitPathEnds::visitOutputDelayEnd1(OutputDelay *output_delay,
     is_constrained = true;
   }
   else if (src_clk_edge
-           && (search_->checkDefaultArrivalPaths()
-               || src_clk_edge
-               != sdc_->defaultArrivalClockEdge())
            && tgt_clk_edge
 	   && sdc_->sameClockGroup(path->clock(this), tgt_clk_edge->clock())
 	   // False paths and path delays override.
