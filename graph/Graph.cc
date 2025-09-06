@@ -35,6 +35,7 @@
 #include "PortDirection.hh"
 #include "Network.hh"
 #include "DcalcAnalysisPt.hh"
+#include "FuncExpr.hh"
 
 namespace sta {
 
@@ -1293,6 +1294,11 @@ Edge::to_string(const StaState *sta) const
   string str = from(graph)->to_string(sta);
   str += " -> ";
   str += to(graph)->to_string(sta);
+  FuncExpr *when = arc_set_->cond();
+  if (when) {
+    str += " ";
+    str += when->to_string();
+  }
   return str;
 }
 

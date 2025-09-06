@@ -39,6 +39,7 @@ project(STA VERSION 2.7.0
 option(CUDD_DIR "CUDD BDD package directory")
 option(USE_TCL_READLINE "Use TCL readline package" ON)
 option(ENABLE_TSAN "Compile with thread santizer enabled" OFF)
+option(ENABLE_ASAN "Compile with address santizer enabled" OFF)
 
 # Turn on to debug compiler args.
 set(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -539,6 +540,12 @@ if(ENABLE_TSAN)
   message(STATUS "Thread sanitizer: ${ENABLE_TSAN}")
   set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=thread")
   set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=thread")
+endif()
+
+if(ENABLE_ASAN)
+  message(STATUS "Address sanitizer: ${ENABLE_ASAN}")
+  set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=address")
+  set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address")
 endif()
 
 target_compile_options(OpenSTA

@@ -204,7 +204,6 @@ protected:
                                   const DcalcAnalysisPt *dcalc_ap,
                                   ArcDelayCalc *arc_delay_calc);
   void findParallelEdge(Vertex *vertex,
-                        Edge *drvr_edge,
                         const TimingArc *drvr_arc,
                         // Return values.
                         Edge *&edge,
