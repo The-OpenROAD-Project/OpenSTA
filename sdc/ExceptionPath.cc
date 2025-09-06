@@ -2159,37 +2159,39 @@ ExpandedExceptionVisitor::expandThru(ExceptionFrom *expanded_from,
 				     ExceptionThruSeq::Iterator &thru_iter,
 				     ExceptionThruSeq *expanded_thrus)
 {
-  if (thru_iter.hasNext()) {
-    ExceptionThru *thru = thru_iter.next();
-    const RiseFallBoth *rf = thru->transition();
-    if (thru->pins()) {
-      for (const Pin *pin : *thru->pins()) {
-        PinSet pins(network_);
-        pins.insert(pin);
-        ExceptionThru expanded_thru(&pins, nullptr, nullptr, rf, false, network_);
-        expanded_thrus->push_back(&expanded_thru);
-        expandThru(expanded_from, thru_iter, expanded_thrus);
-        expanded_thrus->pop_back();
+  if (exception_->thrus()) {
+    if (thru_iter.hasNext()) {
+      ExceptionThru *thru = thru_iter.next();
+      const RiseFallBoth *rf = thru->transition();
+      if (thru->pins()) {
+	for (const Pin *pin : *thru->pins()) {
+	  PinSet pins(network_);
+	  pins.insert(pin);
+	  ExceptionThru expanded_thru(&pins, nullptr, nullptr, rf, false, network_);
+	  expanded_thrus->push_back(&expanded_thru);
+	  expandThru(expanded_from, thru_iter, expanded_thrus);
+	  expanded_thrus->pop_back();
+	}
       }
-    }
-    if (thru->nets()) {
-      for (const Net *net : *thru->nets()) {
-        NetSet nets(network_);
-        nets.insert(net);
-        ExceptionThru expanded_thru(nullptr, &nets, nullptr, rf, false, network_);
-        expanded_thrus->push_back(&expanded_thru);
-        expandThru(expanded_from, thru_iter, expanded_thrus);
-        expanded_thrus->pop_back();
+      if (thru->nets()) {
+	for (const Net *net : *thru->nets()) {
+	  NetSet nets(network_);
+	  nets.insert(net);
+	  ExceptionThru expanded_thru(nullptr, &nets, nullptr, rf, false, network_);
+	  expanded_thrus->push_back(&expanded_thru);
+	  expandThru(expanded_from, thru_iter, expanded_thrus);
+	  expanded_thrus->pop_back();
+	}
       }
-    }
-    if (thru->instances()) {
-      for (const Instance *inst : *thru->instances()) {
-        InstanceSet insts(network_);
-        insts.insert(inst);
-        ExceptionThru expanded_thru(nullptr, nullptr, &insts, rf, false, network_);
-        expanded_thrus->push_back(&expanded_thru);
-        expandThru(expanded_from, thru_iter, expanded_thrus);
-        expanded_thrus->pop_back();
+      if (thru->instances()) {
+	for (const Instance *inst : *thru->instances()) {
+	  InstanceSet insts(network_);
+	  insts.insert(inst);
+	  ExceptionThru expanded_thru(nullptr, nullptr, &insts, rf, false, network_);
+	  expanded_thrus->push_back(&expanded_thru);
+	  expandThru(expanded_from, thru_iter, expanded_thrus);
+	  expanded_thrus->pop_back();
+	}
       }
     }
   }
