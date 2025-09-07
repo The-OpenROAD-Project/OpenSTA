@@ -5115,8 +5115,10 @@ ExpandException::visit(ExceptionFrom *from,
   ExceptionThruSeq *thrus_clone = nullptr;
   if (thrus) {
     thrus_clone = new ExceptionThruSeq;
-    for (ExceptionThru *thru : *thrus)
-      thrus_clone->push_back(thru->clone(network_));
+    for (ExceptionThru *thru : *thrus) {
+      ExceptionThru *thru_clone = thru->clone(network_);
+      thrus_clone->push_back(thru_clone);
+    }
   }
   ExceptionTo *to_clone = nullptr;
   if (to)
