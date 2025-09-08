@@ -2227,7 +2227,8 @@ PathVisitor::visitFromPath(const Pin *from_pin,
     }
   }
   else if (edge->role() == TimingRole::latchDtoQ()) {
-    if (min_max == MinMax::max()) {
+    if (min_max == MinMax::max()
+	&& clk) {
       arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
       latches_->latchOutArrival(from_path, arc, edge, path_ap,
                                 to_tag, arc_delay, to_arrival);

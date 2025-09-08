@@ -632,7 +632,7 @@ private:
   void expandFrom();
   void expandThrus(ExceptionFrom *expanded_from);
   void expandThru(ExceptionFrom *expanded_from,
-		  ExceptionThruSeq::Iterator &thru_iter,
+		  size_t next_thru_idx,
 		  ExceptionThruSeq *expanded_thrus);
   void expandTo(ExceptionFrom *expanded_from,
 		ExceptionThruSeq *expanded_thrus);

@@ -1012,7 +1012,7 @@ GraphDelayCalc::makeArcDcalcArgs(Vertex *drvr_vertex,
       arc1 = arc;
     }
     else
-      findParallelEdge(drvr_vertex1, edge, arc, edge1, arc1);
+      findParallelEdge(drvr_vertex1, arc, edge1, arc1);
     // Shockingly one fpga vendor connects outputs with no timing arcs together.
     if (edge1) {
       Vertex *from_vertex = edge1->from(graph_);
@@ -1036,7 +1036,6 @@ GraphDelayCalc::makeArcDcalcArgs(Vertex *drvr_vertex,
 // primary driver drvr_edge/drvr_arc.
 void
 GraphDelayCalc::findParallelEdge(Vertex *vertex,
-                                 Edge *drvr_edge,
                                  const TimingArc *drvr_arc,
                                  // Return values.
                                  Edge *&edge,
@@ -1047,11 +1046,10 @@ GraphDelayCalc::findParallelEdge(Vertex *vertex,
   if (vertex_cell == drvr_cell) {
     // Homogeneous drivers.
     arc = drvr_arc;
-    LibertyPort *from_port = network_->libertyPort(drvr_edge->from(graph_)->pin());
     VertexInEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       edge = edge_iter.next();
-      if (network_->libertyPort(edge->from(graph_)->pin()) == from_port)
+      if (edge->timingArcSet() == arc->set())
         return;
     }
   }
