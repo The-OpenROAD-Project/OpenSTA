@@ -352,11 +352,8 @@ Genclks::seedSrcPins(Clock *clk,
 {
   VertexSet src_vertices(graph_);
   clk->srcPinVertices(src_vertices, network_, graph_);
-  VertexSet::Iterator vertex_iter(src_vertices);
-  while (vertex_iter.hasNext()) {
-    Vertex *vertex = vertex_iter.next();
+  for (Vertex *vertex : src_vertices)
     iter.enqueue(vertex);
-  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -972,11 +969,22 @@ Genclks::recordSrcPaths(Clock *gclk)
 		    network_->pathName(gclk_pin),
 		    gclk->masterClk()->name());
   }
-  // This can be narrowed to visited vertices.
-  VertexIterator vertex_iter(graph_);
-  while (vertex_iter.hasNext()) {
-    Vertex *vertex = vertex_iter.next();
+  deleteGenclkSrcPaths(gclk);
+}
+
+void
+Genclks:: deleteGenclkSrcPaths(Clock *gclk)
+{
+  GenclkInfo *genclk_info = genclkInfo(gclk);
+  GenClkInsertionSearchPred srch_pred(gclk, nullptr, genclk_info, this);
+  BfsFwdIterator insert_iter(BfsIndex::other, &srch_pred, this);
+  FilterPath *src_filter = genclk_info->srcFilter();
+  seedSrcPins(gclk, src_filter, insert_iter);
+  GenClkArrivalSearchPred eval_pred(gclk, this);
+  while (insert_iter.hasNext()) {
+    Vertex *vertex = insert_iter.next();
     search_->deletePaths(vertex);
+    insert_iter.enqueueAdjacentVertices(vertex, &srch_pred);
   }
 }
 
