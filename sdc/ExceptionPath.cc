@@ -2280,15 +2280,21 @@ ExceptionState::hash() const
 }
 
 bool
-ExceptionStateLess::operator()(const ExceptionState *state1,
-                               const ExceptionState *state2) const
+exceptionStateLess(const ExceptionState *state1,
+		   const ExceptionState *state2)
 {
   const ExceptionPath *except1 = state1->exception();
   const ExceptionPath *except2 = state2->exception();
-    return except1->id() < except2->id()
-  //return except1 < except2
+  return except1->id() < except2->id()
     || (except1 == except2
         && state1->index() < state2->index());
+}
+
+bool
+ExceptionStateLess::operator()(const ExceptionState *state1,
+                               const ExceptionState *state2) const
+{
+  return exceptionStateLess(state1, state2);
 }
 
 ////////////////////////////////////////////////////////////////

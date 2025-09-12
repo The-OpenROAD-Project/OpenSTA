@@ -571,9 +571,9 @@ tagStateCmp(const Tag *tag1,
 	 && state_iter2.hasNext()) {
     ExceptionState *state1 = state_iter1.next();
     ExceptionState *state2 = state_iter2.next();
-    if (state1 < state2)
+    if (exceptionStateLess(state1, state2))
       return -1;
-    if (state1 > state2)
+    if (exceptionStateLess(state2, state1))
       return 1;
   }
   return 0;
