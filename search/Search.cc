@@ -429,8 +429,10 @@ Search::deletePaths(Vertex *vertex)
   debugPrint(debug_, "search", 4, "delete paths %s",
              vertex->name(network_));
   TagGroup *tag_group = tagGroup(vertex);
-  if (tag_group)
+  if (tag_group) {
     graph_->deletePaths(vertex);
+    tag_group->decrRefCount();
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -631,6 +633,16 @@ Search::deleteTagsPrev()
   for (TagGroup** tag_groups: tag_groups_prev_)
     delete [] tag_groups;
   tag_groups_prev_.clear();
+}
+
+void
+Search::deleteUnusedTagGroups()
+{
+  for (TagGroupIndex i = 0; i < tag_group_next_; i++) {
+    TagGroup *group = tag_groups_[i];
+    if (group && group->refCount() == 0)
+      deleteTagGroup(group);
+  }
 }
 
 VertexSeq
@@ -1062,6 +1074,7 @@ Search::findArrivals1(Level level)
   Stats stats(debug_, report_);
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor_);
   deleteTagsPrev();
+  deleteUnusedTagGroups();
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
       && invalid_arrivals_->empty()) {
@@ -2757,40 +2770,25 @@ Search::setVertexArrivals(Vertex *vertex,
     TagGroup *prev_tag_group = tagGroup(vertex);
     Path *prev_paths = graph_->paths(vertex);
     TagGroup *tag_group = findTagGroup(tag_bldr);
-    size_t path_count = tag_group->pathCount();
-    // Reuse path array if it is the same size.
-    if (prev_tag_group
-	&& path_count == prev_tag_group->pathCount()) {
+    if (tag_group == prev_tag_group) {
       tag_bldr->copyPaths(tag_group, prev_paths);
-      vertex->setTagGroupIndex(tag_group->index());
-      if (tag_group->hasFilterTag()) {
-        LockGuard lock(filtered_arrivals_lock_);
-        filtered_arrivals_->insert(vertex);
-      }
       requiredInvalid(vertex);
     }
     else {
       if (prev_tag_group) {
         graph_->deletePaths(vertex);
+	prev_tag_group->decrRefCount();
         requiredInvalid(vertex);
       }
+      size_t path_count = tag_group->pathCount();
       Path *paths = graph_->makePaths(vertex, path_count);
       tag_bldr->copyPaths(tag_group, paths);
-
       vertex->setTagGroupIndex(tag_group->index());
-      if (tag_group->hasFilterTag()) {
-        LockGuard lock(filtered_arrivals_lock_);
-        filtered_arrivals_->insert(vertex);
-      }
-    }
-    if (tag_group != prev_tag_group) {
-      LockGuard lock(tag_group_lock_);
       tag_group->incrRefCount();
-      if (prev_tag_group) {
-	prev_tag_group->decrRefCount();
-	if (prev_tag_group->refCount() == 0)
-	  deleteTagGroup(prev_tag_group);
-      }
+    }
+    if (tag_group->hasFilterTag()) {
+      LockGuard lock(filtered_arrivals_lock_);
+      filtered_arrivals_->insert(vertex);
     }
   }
 }

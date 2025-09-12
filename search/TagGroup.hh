@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <atomic>
+
 #include "Vector.hh"
 #include "Map.hh"
 #include "Iterator.hh"
@@ -75,7 +77,7 @@ protected:
   // tag -> path index
   PathIndexMap *path_index_map_;
   size_t hash_;
-  int ref_count_;
+  std::atomic<int> ref_count_;
   unsigned int index_:tag_group_index_bits;
   bool has_clk_tag_:1;
   bool has_genclk_src_tag_:1;

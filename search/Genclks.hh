@@ -130,6 +130,7 @@ private:
 			  VertexSet &path_vertices,
 			  VertexSet &visited_vertices,
 			  EdgeSet *&fdbk_edges);
+  void deleteGenclkSrcPaths(Clock *gclk);
 
   bool found_insertion_delays_;
   GenclkSrcPathMap genclk_src_paths_;

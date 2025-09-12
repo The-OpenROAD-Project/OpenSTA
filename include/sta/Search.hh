@@ -421,6 +421,7 @@ protected:
 		       DcalcAnalysisPt *dcalc_ap_max);
   void deleteTags();
   void deleteTagsPrev();
+  void deleteUnusedTagGroups();
   void seedInvalidArrivals();
   void seedArrivals();
   void findClockVertices(VertexSet &vertices);
