@@ -338,8 +338,8 @@ tagCmp(const Tag *tag1,
 
   InputDelay *input_delay1 = tag1->inputDelay();
   InputDelay *input_delay2 = tag2->inputDelay();
-  int input_delay_index1 = input_delay1 ? input_delay1->index() : 0;
-  int input_delay_index2 = input_delay2 ? input_delay2->index() : 0;
+  int input_delay_index1 = input_delay1 ? input_delay1->index() : -1;
+  int input_delay_index2 = input_delay2 ? input_delay2->index() : -1;
   if (input_delay_index1 < input_delay_index2)
     return -1;
   if (input_delay_index1 > input_delay_index2)

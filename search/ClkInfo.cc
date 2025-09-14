@@ -271,18 +271,23 @@ clkInfoCmp(const ClkInfo *clk_info1,
   if (path_ap_index1 > path_ap_index2)
     return 1;
 
+  const Network *network = sta->network();
   const Pin *clk_src1 = clk_info1->clkSrc();
   const Pin *clk_src2 = clk_info2->clkSrc();
-  if (clk_src1 < clk_src2)
+  int clk_src_id1 = clk_src1 ? network->id(clk_src1) : -1;
+  int clk_src_id2 = clk_src2 ? network->id(clk_src2) : -1;
+  if (clk_src_id1 < clk_src_id2)
     return -1;
-  if (clk_src1 > clk_src2)
+  if (clk_src_id1 > clk_src_id2)
     return 1;
 
   const Pin *gen_clk_src1 = clk_info1->genClkSrc();
   const Pin *gen_clk_src2 = clk_info2->genClkSrc();
-  if (gen_clk_src1 < gen_clk_src2)
+  int gen_clk_src_id1 = gen_clk_src1 ? network->id(gen_clk_src1) : -1;
+  int gen_clk_src_id2 = gen_clk_src2 ? network->id(gen_clk_src2) : -1;
+  if (gen_clk_src_id1 < gen_clk_src_id2)
     return -1;
-  if (gen_clk_src1 > gen_clk_src2)
+  if (gen_clk_src_id1 > gen_clk_src_id2)
     return 1;
 
   bool crpr_on = sta->crprActive();
@@ -296,9 +301,15 @@ clkInfoCmp(const ClkInfo *clk_info1,
 
   const ClockUncertainties *uncertainties1 = clk_info1->uncertainties();
   const ClockUncertainties *uncertainties2 = clk_info2->uncertainties();
-  if (uncertainties1 < uncertainties2)
+  if (uncertainties1 == nullptr  && uncertainties2)
     return -1;
-  if (uncertainties1 > uncertainties2)
+  if (uncertainties1  && uncertainties2 == nullptr)
+    return 1;
+  if (uncertainties1 && uncertainties2
+      && MinMaxValues<float>::less(uncertainties1, uncertainties2))
+    return -1;
+  if (uncertainties1 && uncertainties2
+      && MinMaxValues<float>::less(uncertainties2, uncertainties1))
     return 1;
 
   const Arrival &insert1 = clk_info1->insertion();
