@@ -1215,11 +1215,10 @@ ArrivalVisitor::visit(Vertex *vertex)
   // If vertex is a latch data input arrival that changed from the
   // previous eval pass enqueue the latch outputs to be re-evaled on the
   // next pass.
-  if (network_->isLatchData(pin)) {
-    if (arrivals_changed
-        && network_->isLatchData(pin))
-      search_->enqueueLatchDataOutputs(vertex);
-  }
+  if (arrivals_changed
+      && network_->isLatchData(pin))
+    search_->enqueueLatchDataOutputs(vertex);
+
   if (!search_->arrivalsAtEndpointsExist()
       || always_to_endpoints_
       || arrivals_changed)

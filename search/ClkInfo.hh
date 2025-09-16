@@ -57,7 +57,7 @@ public:
   const Pin *genClkSrc() const { return gen_clk_src_; }
   bool isPulseClk() const { return is_pulse_clk_; }
   const RiseFall *pulseClkSense() const;
-  int pulseClkSenseTrIndex() const { return pulse_clk_sense_; }
+  int pulseClkSenseRfIndex() const { return pulse_clk_sense_; }
   float latency() const { return latency_; }
   Arrival &insertion() { return insertion_; }
   const Arrival &insertion() const { return insertion_; }

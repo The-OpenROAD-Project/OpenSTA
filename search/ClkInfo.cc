@@ -263,7 +263,7 @@ ClkInfo::equal(const ClkInfo *clk_info1,
     && clk_info1->isPropagated() == clk_info2->isPropagated()
     && clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
     && clk_info1->isPulseClk() == clk_info2->isPulseClk()
-    && clk_info1->pulseClkSenseTrIndex() == clk_info2->pulseClkSenseTrIndex();
+    && clk_info1->pulseClkSenseRfIndex() == clk_info2->pulseClkSenseRfIndex();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -375,8 +375,8 @@ ClkInfo::cmp(const ClkInfo *clk_info1,
   if (is_pulse_clk1 && !is_pulse_clk2)
     return 1;
 
-  int pulse_clk_sense_index1 = clk_info1->pulseClkSenseTrIndex();
-  int pulse_clk_sense_index2 = clk_info2->pulseClkSenseTrIndex();
+  int pulse_clk_sense_index1 = clk_info1->pulseClkSenseRfIndex();
+  int pulse_clk_sense_index2 = clk_info2->pulseClkSenseRfIndex();
   if (pulse_clk_sense_index1 < pulse_clk_sense_index2)
     return -1;
   if (pulse_clk_sense_index1 > pulse_clk_sense_index2)
