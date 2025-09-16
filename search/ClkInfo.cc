@@ -47,7 +47,7 @@ ClkInfo::ClkInfo(const ClockEdge *clk_edge,
 		 float latency,
 		 ClockUncertainties *uncertainties,
                  PathAPIndex path_ap_index,
-		 Path *crpr_clk_path,
+		 const Path *crpr_clk_path,
 		 const StaState *sta) :
   clk_edge_(clk_edge),
   clk_src_(clk_src),
@@ -254,6 +254,7 @@ ClkInfo::equal(const ClkInfo *clk_info1,
 	|| Path::equal(clk_info1->crprClkPathRaw(),
                        clk_info2->crprClkPathRaw(),
                        sta))
+    //	|| clk_info1->crprClkVertexId(sta) == clk_info2->crprClkVertexId(sta))
     && ((uncertainties1 == nullptr
 	 && uncertainties2 == nullptr)
 	|| (uncertainties1 && uncertainties2

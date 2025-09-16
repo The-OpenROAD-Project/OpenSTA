@@ -162,7 +162,7 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
 					       tgt_clk_path_ap, this);
 	  while (tgt_clk_path_iter.hasNext()) {
 	    Path *tgt_clk_path = tgt_clk_path_iter.next();
-	    ClkInfo *tgt_clk_info = tgt_clk_path->clkInfo(this);
+	    const ClkInfo *tgt_clk_info = tgt_clk_path->clkInfo(this);
 	    const ClockEdge *tgt_clk_edge = tgt_clk_path->clkEdge(this);
 	    const Clock *tgt_clk = tgt_clk_path->clock(this);
 	    const Pin *tgt_pin = tgt_clk_vertex->pin();

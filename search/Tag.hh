@@ -54,7 +54,7 @@ public:
   Tag(TagIndex index,
       int rf_index,
       PathAPIndex path_ap_index,
-      ClkInfo *clk_info,
+      const ClkInfo *clk_info,
       bool is_clk,
       InputDelay *input_delay,
       bool is_segment_start,
@@ -66,7 +66,7 @@ public:
   std::string to_string(bool report_index,
                         bool report_rf_min_max,
                         const StaState *sta) const;
-  ClkInfo *clkInfo() const { return clk_info_; }
+  const ClkInfo *clkInfo() const { return clk_info_; }
   bool isClock() const { return is_clk_; }
   const ClockEdge *clkEdge() const;
   const Clock *clock() const;
@@ -126,7 +126,7 @@ protected:
 			     const Tag *tag2);
 
 private:
-  ClkInfo *clk_info_;
+  const ClkInfo *clk_info_;
   InputDelay *input_delay_;
   ExceptionStateSet *states_;
   size_t hash_;

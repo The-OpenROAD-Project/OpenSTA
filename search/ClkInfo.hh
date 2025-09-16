@@ -46,7 +46,7 @@ public:
 	  float latency,
 	  ClockUncertainties *uncertainties,
           PathAPIndex path_ap_index,
-	  Path *crpr_clk_path,
+	  const Path *crpr_clk_path,
 	  const StaState *sta);
   ~ClkInfo();
   std::string to_string(const StaState *sta) const;

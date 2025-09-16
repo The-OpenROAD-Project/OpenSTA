@@ -2881,7 +2881,7 @@ Sta::vertexArrival(Vertex *vertex,
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     const Arrival &path_arrival = path->arrival();
-    ClkInfo *clk_info = path->clkInfo(search_);
+    const ClkInfo *clk_info = path->clkInfo(search_);
     if ((clk_edge == clk_edge_wildcard
 	 || clk_info->clkEdge() == clk_edge)
 	&& !clk_info->isGenClkSrcPath()

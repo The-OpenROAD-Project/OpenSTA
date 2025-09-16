@@ -644,7 +644,7 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
 			       Path *after_div)
 {
   Tag *prev_tag = after_div->tag(this);
-  ClkInfo *prev_clk_info = prev_tag->clkInfo();
+  const ClkInfo *prev_clk_info = prev_tag->clkInfo();
   Arrival prev_arrival = search_->clkPathArrival(after_div);
   int path_idx_max = paths.size() - 1;
   // paths[0] is the path endpoint

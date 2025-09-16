@@ -41,7 +41,7 @@ namespace sta {
 Tag::Tag(TagIndex index,
 	 int rf_index,
 	 PathAPIndex path_ap_index,
-	 ClkInfo *clk_info,
+	 const ClkInfo *clk_info,
 	 bool is_clk,
 	 InputDelay *input_delay,
 	 bool is_segment_start,
@@ -305,8 +305,8 @@ Tag::cmp(const Tag *tag1,
   if (tag1 == tag2)
     return 0;
 
-  ClkInfo *clk_info1 = tag1->clkInfo();
-  ClkInfo *clk_info2 = tag2->clkInfo();
+  const ClkInfo *clk_info1 = tag1->clkInfo();
+  const ClkInfo *clk_info2 = tag2->clkInfo();
   int clk_cmp = ClkInfo::cmp(clk_info1, clk_info2, sta);
   if (clk_cmp != 0)
     return clk_cmp;

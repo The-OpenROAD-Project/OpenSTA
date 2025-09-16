@@ -56,7 +56,7 @@ CheckCrpr::CheckCrpr(StaState *sta) :
 // Find the maximum possible crpr (clock min/max delta delay) for a
 // path from it's ClkInfo.
 Arrival
-CheckCrpr::maxCrpr(ClkInfo *clk_info)
+CheckCrpr::maxCrpr(const ClkInfo *clk_info)
 {
   const Path *crpr_clk_path = clk_info->crprClkPath(this);
   if (crpr_clk_path) {
@@ -126,8 +126,8 @@ CheckCrpr::checkCrpr1(const Path *src_path,
   crpr = 0.0;
   crpr_pin = nullptr;
   const Tag *src_tag = src_path->tag(this);
-  ClkInfo *src_clk_info = src_tag->clkInfo();
-  ClkInfo *tgt_clk_info = tgt_clk_path->tag(this)->clkInfo();
+  const ClkInfo *src_clk_info = src_tag->clkInfo();
+  const ClkInfo *tgt_clk_info = tgt_clk_path->tag(this)->clkInfo();
   const Clock *src_clk = src_clk_info->clock();
   const Clock *tgt_clk = tgt_clk_info->clock();
   const Path *src_clk_path = nullptr;
@@ -246,7 +246,7 @@ ConstPathSeq
 CheckCrpr::genClkSrcPaths(const Path *path)
 {
   ConstPathSeq gclk_paths;
-  ClkInfo *clk_info = path->clkInfo(this);
+  const ClkInfo *clk_info = path->clkInfo(this);
   const ClockEdge *clk_edge = clk_info->clkEdge();
   const Pin *clk_src = clk_info->clkSrc();
   PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
@@ -350,7 +350,7 @@ CheckCrpr::outputDelayCrpr1(const Path *src_path,
 {
   crpr = 0.0;
   crpr_pin = nullptr;
-  ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
+  const ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
   const Clock *tgt_clk = tgt_clk_edge->clock();
   const Clock *src_clk = src_path->clock(this);
   if (src_clk && tgt_clk

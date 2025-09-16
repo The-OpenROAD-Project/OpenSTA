@@ -49,7 +49,7 @@ Path::Path() :
 {
 }
 
-Path::Path(Path *path) :
+Path::Path(const Path *path) :
   prev_path_(path ? path->prev_path_ : nullptr),
   arrival_(path ? path->arrival_ : 0.0),
   required_(path ? path->required_ : 0.0),
@@ -279,7 +279,7 @@ Path::pathIndex(const StaState *sta) const
   return this - paths;
 }
 
-ClkInfo *
+const ClkInfo *
 Path::clkInfo(const StaState *sta) const
 {
   return tag(sta)->clkInfo();

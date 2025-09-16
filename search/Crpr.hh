@@ -39,7 +39,7 @@ public:
   explicit CheckCrpr(StaState *sta);
 
   // Find the maximum possible crpr (clock min/max delta delay) for path.
-  Arrival maxCrpr(ClkInfo *clk_info);
+  Arrival maxCrpr(const ClkInfo *clk_info);
   // Timing check CRPR.
   Crpr checkCrpr(const Path *src_clk_path,
 		 const Path *tgt_clk_path);

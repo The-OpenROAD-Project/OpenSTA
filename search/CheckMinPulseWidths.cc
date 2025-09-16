@@ -322,17 +322,17 @@ MinPulseWidthCheck::closePath(const StaState *sta) const
   const RiseFall *open_rf = open_path_->transition(sta);
   const RiseFall *close_rf = open_rf->opposite();
   Tag *open_tag = open_path_->tag(sta);
-  ClkInfo *open_clk_info = open_tag->clkInfo();
-  ClkInfo close_clk_info(open_clk_info->clkEdge()->opposite(),
-			 open_clk_info->clkSrc(),
-			 open_clk_info->isPropagated(),
-			 open_clk_info->genClkSrc(),
-			 open_clk_info->isGenClkSrcPath(),
-			 open_clk_info->pulseClkSense(),
-			 delay_zero, 0.0, nullptr,
-			 open_clk_info->pathAPIndex(),
-			 open_clk_info->crprClkPath(sta),
-			 sta);
+  const ClkInfo *open_clk_info = open_tag->clkInfo();
+  const ClkInfo close_clk_info(open_clk_info->clkEdge()->opposite(),
+			       open_clk_info->clkSrc(),
+			       open_clk_info->isPropagated(),
+			       open_clk_info->genClkSrc(),
+			       open_clk_info->isGenClkSrcPath(),
+			       open_clk_info->pulseClkSense(),
+			       delay_zero, 0.0, nullptr,
+			       open_clk_info->pathAPIndex(),
+			       open_clk_info->crprClkPath(sta),
+			       sta);
   Tag close_tag(0,
 		close_rf->index(),
 		close_ap->index(),
@@ -394,7 +394,7 @@ const ClockEdge *
 MinPulseWidthCheck::closeClkEdge(const StaState *sta) const
 {
   Tag *open_tag = open_path_->tag(sta);
-  ClkInfo *open_clk_info = open_tag->clkInfo();
+  const ClkInfo *open_clk_info = open_tag->clkInfo();
   return open_clk_info->clkEdge()->opposite();
 }
 
