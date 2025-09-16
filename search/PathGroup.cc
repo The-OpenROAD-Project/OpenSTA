@@ -149,7 +149,7 @@ PathGroup::enumMinSlackUnderMin(PathEnd *path_end)
                                   other_ap, sta_);
     while (other_iter.hasNext()) {
       Path *other = other_iter.next();
-      if (tagMatchCrpr(other->tag(sta_), tag)) {
+      if (Tag::matchCrpr(other->tag(sta_), tag)) {
         PathEnd *end_min = path_end->copy();
         end_min->setPath(other);
         float slack = delayAsFloat(end_min->slackNoCrpr(sta_));

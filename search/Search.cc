@@ -2826,7 +2826,7 @@ bool
 ReportPathLess::operator()(const Path *path1,
                            const Path *path2) const
 {
-  return tagCmp(path1->tag(sta_), path2->tag(sta_), sta_) < 0;
+  return Tag::cmp(path1->tag(sta_), path2->tag(sta_), sta_) < 0;
 }
 
 void
@@ -3610,7 +3610,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
 	while (to_iter.hasNext()) {
 	  Path *to_path = to_iter.next();
 	  Tag *to_path_tag = to_path->tag(this);
-	  if (tagMatchNoCrpr(to_path_tag, to_tag)) {
+	  if (Tag::matchNoCrpr(to_path_tag, to_tag)) {
 	    Required to_required = to_path->required();
 	    Required from_required = to_required - arc_delay;
 	    debugPrint(debug_, "search", 3, "  to tag   %2u: %s",

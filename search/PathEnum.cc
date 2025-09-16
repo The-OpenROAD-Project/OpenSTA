@@ -393,7 +393,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
   // These paths fanin to before_div_ so we know to_vertex matches.
   if ((!unique_pins_ || from_vertex != prev_vertex_)
       && arc != prev_arc_
-      && tagMatchNoCrpr(to_tag, before_div_tag_)) {
+      && Tag::matchNoCrpr(to_tag, before_div_tag_)) {
     debugPrint(debug_, "path_enum", 3, "visit fanin %s -> %s %s %s",
                from_path->to_string(this).c_str(),
                to_vertex->to_string(this).c_str(),

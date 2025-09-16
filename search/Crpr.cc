@@ -81,7 +81,7 @@ CheckCrpr::otherMinMaxArrival(const Path *path)
 				other_ap, this);
   while (other_iter.hasNext()) {
     Path *other = other_iter.next();
-    if (tagMatchCrpr(other->tag(this), tag))
+    if (Tag::matchCrpr(other->tag(this), tag))
       return other->arrival();
   }
   // No corresponding path found.

@@ -38,16 +38,6 @@
 
 namespace sta {
 
-static int
-tagStateCmp(const Tag *tag1,
-	    const Tag *tag2);
-static bool
-tagStateEqual(ExceptionStateSet *states1,
-	      ExceptionStateSet *states2);
-static bool
-tagStateEqualCrpr(const Tag *tag1,
-		  const Tag *tag2);
-
 Tag::Tag(TagIndex index,
 	 int rf_index,
 	 PathAPIndex path_ap_index,
@@ -304,13 +294,13 @@ bool
 TagLess::operator()(const Tag *tag1,
 		    const Tag *tag2) const
 {
-  return tagCmp(tag1, tag2, sta_) < 0;
+  return Tag::cmp(tag1, tag2, sta_) < 0;
 }
 
 int
-tagCmp(const Tag *tag1,
-       const Tag *tag2,
-       const StaState *sta)
+Tag::cmp(const Tag *tag1,
+	 const Tag *tag2,
+	 const StaState *sta)
 {
   if (tag1 == tag2)
     return 0;
@@ -358,22 +348,15 @@ tagCmp(const Tag *tag1,
   if (is_segment_start1 && !is_segment_start2)
     return 1;
 
-  return tagStateCmp(tag1, tag2);
+  return stateCmp(tag1, tag2);
 }
 
 bool
-tagEqual(const Tag *tag1,
-	 const Tag *tag2,
-	 const StaState *sta)
+Tag::equal(const Tag *tag1,
+	   const Tag *tag2,
+	   const StaState *sta)
 {
-  return tag1 == tag2
-    || (tag1->rfIndex() == tag2->rfIndex()
-	&& tag1->pathAPIndex() == tag2->pathAPIndex()
-	&& ClkInfo::equal(tag1->clkInfo(), tag2->clkInfo(), sta)
-	&& tag1->isClock() == tag2->isClock()
-	&& tag1->inputDelay() == tag2->inputDelay()
-	&& tag1->isSegmentStart() == tag2->isSegmentStart()
-	&& tagStateEqual(tag1, tag2));
+  return cmp(tag1, tag2, sta) == 0;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -398,45 +381,33 @@ bool
 TagMatchLess::operator()(const Tag *tag1,
 			 const Tag *tag2) const
 {
-  return tagMatchCmp(tag1, tag2, match_crpr_clk_pin_, sta_) < 0;
+  return Tag::matchCmp(tag1, tag2, match_crpr_clk_pin_, sta_) < 0;
 }
 
 ////////////////////////////////////////////////////////////////
 
 bool
-tagMatch(const Tag *tag1,
-	 const Tag *tag2,
-	 const StaState *sta)
+Tag::match(const Tag *tag1,
+	   const Tag *tag2,
+	   const StaState *sta)
 {
-  return tagMatch(tag1, tag2, true, sta);
+  return Tag::matchCmp(tag1, tag2, true, sta) == 0;
 }
 
 bool
-tagMatch(const Tag *tag1,
-  	 const Tag *tag2,
-	 bool match_crpr_clk_pin,
-	 const StaState *sta)
+Tag::match(const Tag *tag1,
+	   const Tag *tag2,
+	   bool match_crpr_clk_pin,
+	   const StaState *sta)
 {
-  const ClkInfo *clk_info1 = tag1->clkInfo();
-  const ClkInfo *clk_info2 = tag2->clkInfo();
-  return tag1 == tag2
-    || (clk_info1->clkEdge() == clk_info2->clkEdge()
-	&& tag1->rfIndex() == tag2->rfIndex()
-	&& tag1->pathAPIndex() == tag2->pathAPIndex()
-	&& tag1->isClock() == tag2->isClock()
-	&& tag1->isSegmentStart() == tag2->isSegmentStart()
-	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
-	&& (!match_crpr_clk_pin
-	    || !sta->crprActive()
-	    || clk_info1->crprClkVertexId(sta) == clk_info2->crprClkVertexId(sta))
-	&& tagStateEqual(tag1, tag2));
+  return Tag::matchCmp(tag1, tag2, match_crpr_clk_pin, sta) == 0;
 }
 
 int
-tagMatchCmp(const Tag *tag1,
-	    const Tag *tag2,
-	    bool match_crpr_clk_pin,
-	    const StaState *sta)
+Tag::matchCmp(const Tag *tag1,
+	      const Tag *tag2,
+	      bool match_crpr_clk_pin,
+	      const StaState *sta)
 {
   if (tag1 == tag2)
     return 0;
@@ -497,12 +468,12 @@ tagMatchCmp(const Tag *tag1,
       return 1;
   }
 
-  return tagStateCmp(tag1, tag2);
+  return stateCmp(tag1, tag2);
 }
 
 bool
-tagMatchNoCrpr(const Tag *tag1,
-	       const Tag *tag2)
+Tag::matchNoCrpr(const Tag *tag1,
+		 const Tag *tag2)
 {
   const ClkInfo *clk_info1 = tag1->clkInfo();
   const ClkInfo *clk_info2 = tag2->clkInfo();
@@ -512,12 +483,12 @@ tagMatchNoCrpr(const Tag *tag1,
 	&& tag1->pathAPIndex() == tag2->pathAPIndex()
 	&& tag1->isClock() == tag2->isClock()
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
-	&& tagStateEqual(tag1, tag2));
+	&& Tag::stateEqual(tag1, tag2));
 }
 
 bool
-tagMatchNoPathAp(const Tag *tag1,
-		 const Tag *tag2)
+Tag::matchNoPathAp(const Tag *tag1,
+		   const Tag *tag2)
 {
   const ClkInfo *clk_info1 = tag1->clkInfo();
   const ClkInfo *clk_info2 = tag2->clkInfo();
@@ -527,12 +498,12 @@ tagMatchNoPathAp(const Tag *tag1,
 	&& tag1->isClock() == tag2->isClock()
 	&& tag1->isSegmentStart() == tag2->isSegmentStart()
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
-	&& tagStateEqual(tag1, tag2));
+	&& Tag::stateEqual(tag1, tag2));
 }
 
 bool
-tagMatchCrpr(const Tag *tag1,
-	     const Tag *tag2)
+Tag::matchCrpr(const Tag *tag1,
+	       const Tag *tag2)
 {
   const ClkInfo *clk_info1 = tag1->clkInfo();
   const ClkInfo *clk_info2 = tag2->clkInfo();
@@ -542,14 +513,14 @@ tagMatchCrpr(const Tag *tag1,
 	&& tag1->isClock() == tag2->isClock()
 	&& tag1->isSegmentStart() == tag2->isSegmentStart()
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
-	&& tagStateEqualCrpr(tag1, tag2));
+	&& stateEqualCrpr(tag1, tag2));
 }
 
 ////////////////////////////////////////////////////////////////
 
-static int
-tagStateCmp(const Tag *tag1,
-	    const Tag *tag2)
+int
+Tag::stateCmp(const Tag *tag1,
+	      const Tag *tag2)
 {
   ExceptionStateSet *states1 = tag1->states();
   ExceptionStateSet *states2 = tag2->states();
@@ -587,45 +558,16 @@ tagStateCmp(const Tag *tag1,
 }
 
 bool
-tagStateEqual(const Tag *tag1,
-	      const Tag *tag2)
+Tag::stateEqual(const Tag *tag1,
+		const Tag *tag2)
 {
-  return tagStateEqual(tag1->states(), tag2->states());
-}
-
-static bool
-tagStateEqual(ExceptionStateSet *states1,
-	      ExceptionStateSet *states2)
-{
-  bool states_null1 = (states1 == nullptr || states1->empty());
-  bool states_null2 = (states2 == nullptr || states2->empty());
-  if (states_null1 && states_null2)
-    return true;
-  else if (states_null1 != states_null2)
-    return false;
-
-  size_t state_size1 = states1->size();
-  size_t state_size2 = states2->size();
-  if (state_size1 == state_size2) {
-    ExceptionStateSet::Iterator state_iter1(states1);
-    ExceptionStateSet::Iterator state_iter2(states2);
-    while (state_iter1.hasNext()
-	   && state_iter2.hasNext()) {
-      ExceptionState *state1 = state_iter1.next();
-      ExceptionState *state2 = state_iter2.next();
-      if (state1 != state2)
-	return false;
-    }
-    return true;
-  }
-  else
-    return false;
+  return stateCmp(tag1, tag2) == 0;
 }
 
 // Match loop exception states only for crpr min/max paths.
-static bool
-tagStateEqualCrpr(const Tag *tag1,
-		  const Tag *tag2)
+bool
+Tag::stateEqualCrpr(const Tag *tag1,
+		    const Tag *tag2)
 {
   ExceptionStateSet *states1 = tag1->states();
   ExceptionStateSet *states2 = tag2->states();
@@ -681,7 +623,7 @@ bool
 TagEqual::operator()(const Tag *tag1,
 		     const Tag *tag2) const
 {
-  return tagEqual(tag1, tag2, sta_);
+  return Tag::equal(tag1, tag2, sta_);
 }
 
 TagMatchHash::TagMatchHash(bool match_crpr_clk_pin,
@@ -708,7 +650,7 @@ bool
 TagMatchEqual::operator()(const Tag *tag1, 
 			  const Tag *tag2) const
 {
-  return tagMatch(tag1, tag2, match_crpr_clk_pin_, sta_);
+  return Tag::match(tag1, tag2, match_crpr_clk_pin_, sta_);
 }
 
 } // namespace

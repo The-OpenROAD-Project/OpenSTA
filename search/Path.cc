@@ -642,7 +642,7 @@ Path::cmpNoCrpr(const Path *path1,
   VertexId vertex_id1 = path1->vertexId(sta);
   VertexId vertex_id2 = path2->vertexId(sta);
   if (vertex_id1 == vertex_id2)
-    return tagMatchCmp(path1->tag(sta), path2->tag(sta), false, sta);
+    return Tag::matchCmp(path1->tag(sta), path2->tag(sta), false, sta);
   else if (vertex_id1 < vertex_id2)
     return -1;
   else

@@ -283,7 +283,7 @@ PathGroupPathVisitor::visitFromToPath(const Pin *,
       VertexPathIterator to_iter(to_vertex, to_rf, path_ap, this);
       while (to_iter.hasNext()) {
 	Path *to_path = to_iter.next();
-	if (tagMatchNoCrpr(to_path->tag(this), to_tag)
+	if (Tag::matchNoCrpr(to_path->tag(this), to_tag)
 	    && matching_paths->hasKey(to_path)) {
 	  debugPrint(debug_, "visit_path_group", 2, 
                      "match crpr %s %s -> %s %s",

@@ -90,8 +90,40 @@ public:
   size_t matchHash(bool match_crpr_clk_pin,
                    const StaState *sta) const;
 
+  static int cmp(const Tag *tag1,
+		 const Tag *tag2,
+		 const StaState *sta);
+  static int matchCmp(const Tag *tag1,
+		      const Tag *tag2,
+		      bool match_clk_clk_pin,
+		      const StaState *sta);
+  static bool match(const Tag *tag1,
+		    const Tag *tag2,
+		    bool match_crpr_clk_pin,
+		    const StaState *sta);
+  static bool equal(const Tag *tag1,
+		    const Tag *tag2,
+		    const StaState *sta);
+  static bool matchNoPathAp(const Tag *tag1,
+			    const Tag *tag2);
+  static bool matchCrpr(const Tag *tag1,
+			const Tag *tag2);
+  static bool matchNoCrpr(const Tag *tag1,
+			  const Tag *tag2);
+
 protected:
   void findHash();
+
+  // Match tag clock edge, clock driver and exception states but not clk info.
+  static bool match(const Tag *tag1,
+		    const Tag *tag2,
+		    const StaState *sta);
+  static bool stateEqual(const Tag *tag1,
+			 const Tag *tag2);
+  static int stateCmp(const Tag *tag1,
+		      const Tag *tag2);
+  static bool stateEqualCrpr(const Tag *tag1,
+			     const Tag *tag2);
 
 private:
   ClkInfo *clk_info_;
@@ -148,43 +180,5 @@ public:
 private:
   const StaState *sta_;
 };
-
-bool
-tagEqual(const Tag *tag1,
-	 const Tag *tag2,
-	 const StaState *sta);
-int
-tagCmp(const Tag *tag1,
-       const Tag *tag2,
-       const StaState *sta);
-
-// Match tag clock edge, clock driver and exception states but not clk info.
-bool
-tagMatch(const Tag *tag1,
-	 const Tag *tag2,
-	 const StaState *sta);
-bool
-tagMatch(const Tag *tag1,
-	 const Tag *tag2,
- 	 bool match_crpr_clk_pin,
-	 const StaState *sta);
-bool
-tagStateEqual(const Tag *tag1,
-	      const Tag *tag2);
-bool
-tagMatchNoCrpr(const Tag *tag1,
-	       const Tag *tag2);
-int
-tagMatchCmp(const Tag *tag1,
-	    const Tag *tag2,
-	    bool match_clk_clk_pin,
-	    const StaState *sta);
-
-bool
-tagMatchNoPathAp(const Tag *tag1,
-		 const Tag *tag2);
-bool
-tagMatchCrpr(const Tag *tag1,
-	     const Tag *tag2);
 
 } // namespace
