@@ -166,8 +166,8 @@ public:
 	     == values2->values_[MinMax::maxIndex()]));
   }
 
-  static bool less(const MinMaxValues *values1,
-		   const MinMaxValues *values2)
+  static int cmp(const MinMaxValues *values1,
+		 const MinMaxValues *values2)
   {
     if (!values1->exists_[MinMax::minIndex()]
 	&& values2->exists_[MinMax::minIndex()])

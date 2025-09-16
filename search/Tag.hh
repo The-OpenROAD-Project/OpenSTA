@@ -85,7 +85,8 @@ public:
   bool isLoop() const { return is_loop_; }
   bool isFilter() const { return is_filter_; }
   bool isSegmentStart() const { return is_segment_start_; }
-  size_t hash() const { return hash_; }
+  size_t hash(bool match_crpr_clk_pin,
+	      const StaState *sta) const;
   size_t matchHash(bool match_crpr_clk_pin,
                    const StaState *sta) const;
 
@@ -130,19 +131,28 @@ public:
 class TagHash
 {
 public:
+  TagHash(const StaState *sta);
   size_t operator()(const Tag *tag) const;
+
+private:
+  const StaState *sta_;
 };
 
 class TagEqual
 {
 public:
+  TagEqual(const StaState *sta);
   bool operator()(const Tag *tag1,
 		  const Tag *tag2) const;
+
+private:
+  const StaState *sta_;
 };
 
 bool
 tagEqual(const Tag *tag1,
-	 const Tag *tag2);
+	 const Tag *tag2,
+	 const StaState *sta);
 int
 tagCmp(const Tag *tag1,
        const Tag *tag2,

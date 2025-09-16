@@ -235,7 +235,7 @@ Search::init(StaState *sta)
   arrival_iter_ = new BfsFwdIterator(BfsIndex::arrival, nullptr, sta);
   required_iter_ = new BfsBkwdIterator(BfsIndex::required, search_adj_, sta);
   tag_capacity_ = 128;
-  tag_set_ = new TagSet(tag_capacity_);
+  tag_set_ = new TagSet(tag_capacity_, TagHash(sta), TagEqual(sta));
   clk_info_set_ = new ClkInfoSet(ClkInfoLess(sta));
   tag_next_ = 0;
   tags_ = new Tag*[tag_capacity_];
@@ -543,8 +543,8 @@ Search::deleteFilteredArrivals()
       }
       filtered_arrivals_->clear();
       deleteFilterTagGroups();
-      deleteFilterClkInfos();
       deleteFilterTags();
+      deleteFilterClkInfos();
     }
     deleteFilter();
   }
@@ -590,7 +590,7 @@ Search::deleteFilterClkInfos()
 {
   for (auto itr = clk_info_set_->cbegin(); itr != clk_info_set_->cend(); ) {
     ClkInfo *clk_info = *itr;
-    if (clk_info->refsFilter(this)) {
+    if (clk_info->crprPathRefsFilter()) {
       itr = clk_info_set_->erase(itr);
       delete clk_info;
     }
@@ -614,8 +614,7 @@ Search::findFilteredArrivals(bool thru_latches)
     if (thru_latches)
       enqueuePendingLatchOutputs();
     debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
-    int arrival_count = arrival_iter_->visitParallel(max_level,
-						     arrival_visitor_);
+    int arrival_count = arrival_iter_->visitParallel(max_level, arrival_visitor_);
     deleteTagsPrev();
     debugPrint(debug_, "search", 1, "found %d arrivals", arrival_count);
   }
@@ -2727,7 +2726,7 @@ Search::mutateTag(Tag *from_tag,
 TagGroup *
 Search::findTagGroup(TagGroupBldr *tag_bldr)
 {
-  TagGroup probe(tag_bldr);
+  TagGroup probe(tag_bldr, this);
   LockGuard lock(tag_group_lock_);
   TagGroup *tag_group = tag_group_set_->findKey(&probe);
   if (tag_group == nullptr) {

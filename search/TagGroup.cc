@@ -41,9 +41,10 @@ TagGroup::TagGroup(TagGroupIndex index,
 		   bool has_clk_tag,
 		   bool has_genclk_src_tag,
 		   bool has_filter_tag,
-		   bool has_loop_tag) :
+		   bool has_loop_tag,
+		   const StaState *sta) :
   path_index_map_(path_index_map),
-  hash_(pathIndexMapHash(path_index_map)),
+  hash_(hash(path_index_map, sta)),
   ref_count_(0),
   index_(index),
   has_clk_tag_(has_clk_tag),
@@ -54,9 +55,10 @@ TagGroup::TagGroup(TagGroupIndex index,
 {
 }
 
-TagGroup::TagGroup(TagGroupBldr *tag_bldr) :
+TagGroup::TagGroup(TagGroupBldr *tag_bldr,
+		   const StaState *sta) :
   path_index_map_(&tag_bldr->pathIndexMap()),
-  hash_(pathIndexMapHash(path_index_map_)),
+  hash_(hash(path_index_map_, sta)),
   ref_count_(0),
   own_path_map_(false)
 {
@@ -81,11 +83,13 @@ TagGroup::decrRefCount()
 }
 
 size_t
-TagGroup::pathIndexMapHash(PathIndexMap *path_index_map)
+TagGroup::hash(PathIndexMap *path_index_map,
+	       const StaState *sta)
 {
+  bool crpr_on = sta->crprActive();
   size_t hash = 0;
   for (auto const [tag, path_index] : *path_index_map)
-    hash += tag->hash();
+    hash += tag->hash(crpr_on, sta);
   return hash;
 }
 
@@ -268,7 +272,7 @@ TagGroupBldr::insertPath(Tag *tag,
   if (tag->isGenClkSrcPath())
     has_genclk_src_tag_ = true;
   if (tag->isFilter()
-      || tag->clkInfo()->refsFilter(sta_))
+      || tag->clkInfo()->crprPathRefsFilter())
     has_filter_tag_ = true;
   if (tag->isLoop())
     has_loop_tag_ = true;
@@ -289,7 +293,7 @@ TagGroupBldr::makeTagGroup(TagGroupIndex index,
 {
   return new TagGroup(index, makePathIndexMap(sta),
 		      has_clk_tag_, has_genclk_src_tag_, has_filter_tag_,
-		      has_loop_tag_);
+		      has_loop_tag_, sta);
 
 }
 

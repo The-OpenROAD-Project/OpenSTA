@@ -262,18 +262,25 @@ Tag::findHash()
     for (ExceptionState *state : *states_)
       hashIncr(hash_, state->hash());
   }
+  hashIncr(hash_, clk_info_->hash());
   match_hash_ = hash_;
 
   // Finish hash_.
-  hashIncr(hash_, clk_info_->hash());
   if (input_delay_)
     hashIncr(hash_, input_delay_->index());
 
   // Finish match_hash_.
-  const ClockEdge *clk_edge = clk_info_->clkEdge();
-  if (clk_edge)
-    hashIncr(match_hash_, clk_edge->index());
   hashIncr(match_hash_, clk_info_->isGenClkSrcPath());
+}
+
+size_t
+Tag::hash(bool match_crpr_clk_pin,
+	  const StaState *sta) const
+{
+  if (match_crpr_clk_pin)
+    return hashSum(hash_, clk_info_->crprClkVertexId(sta));
+  else
+    return hash_;
 }
 
 size_t
@@ -281,7 +288,6 @@ Tag::matchHash(bool match_crpr_clk_pin,
                const StaState *sta) const
 {
   if (match_crpr_clk_pin)
-    // match_hash_ with crpr clk pin thrown in.
     return hashSum(match_hash_, clk_info_->crprClkVertexId(sta));
   else
     return match_hash_;
@@ -311,7 +317,7 @@ tagCmp(const Tag *tag1,
 
   ClkInfo *clk_info1 = tag1->clkInfo();
   ClkInfo *clk_info2 = tag2->clkInfo();
-  int clk_cmp = clkInfoCmp(clk_info1, clk_info2, sta);
+  int clk_cmp = ClkInfo::cmp(clk_info1, clk_info2, sta);
   if (clk_cmp != 0)
     return clk_cmp;
 
@@ -357,12 +363,13 @@ tagCmp(const Tag *tag1,
 
 bool
 tagEqual(const Tag *tag1,
-	 const Tag *tag2)
+	 const Tag *tag2,
+	 const StaState *sta)
 {
   return tag1 == tag2
     || (tag1->rfIndex() == tag2->rfIndex()
 	&& tag1->pathAPIndex() == tag2->pathAPIndex()
-	&& tag1->clkInfo() == tag2->clkInfo()
+	&& ClkInfo::equal(tag1->clkInfo(), tag2->clkInfo(), sta)
 	&& tag1->isClock() == tag2->isClock()
 	&& tag1->inputDelay() == tag2->inputDelay()
 	&& tag1->isSegmentStart() == tag2->isSegmentStart()
@@ -653,17 +660,28 @@ tagStateEqualCrpr(const Tag *tag1,
 
 ////////////////////////////////////////////////////////////////
 
+TagHash::TagHash(const StaState *sta) :
+  sta_(sta)
+{
+}
+
 size_t
 TagHash::operator()(const Tag *tag) const
 {
-  return tag->hash();
+  bool crpr_on = sta_->crprActive();
+  return tag->matchHash(crpr_on, sta_);
+}
+
+TagEqual::TagEqual(const StaState *sta) :
+  sta_(sta)
+{
 }
 
 bool
 TagEqual::operator()(const Tag *tag1,
 		     const Tag *tag2) const
 {
-  return tagEqual(tag1, tag2);
+  return tagEqual(tag1, tag2, sta_);
 }
 
 TagMatchHash::TagMatchHash(bool match_crpr_clk_pin,

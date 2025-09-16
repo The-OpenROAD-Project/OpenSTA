@@ -24,6 +24,7 @@
 
 #include "ClkInfo.hh"
 
+#include "Units.hh"
 #include "Network.hh"
 #include "Graph.hh"
 #include "Sdc.hh"
@@ -55,6 +56,7 @@ ClkInfo::ClkInfo(const ClockEdge *clk_edge,
   latency_(latency),
   is_propagated_(is_propagated),
   is_gen_clk_src_path_(is_gen_clk_src_path),
+  crpr_path_refs_filter_(crpr_clk_path ? crpr_clk_path->tag(sta)->isFilter() : false),
   is_pulse_clk_(pulse_clk_sense != nullptr),
   pulse_clk_sense_(pulse_clk_sense ? pulse_clk_sense->index() : 0),
   path_ap_index_(path_ap_index)
@@ -78,7 +80,12 @@ ClkInfo::findHash(const StaState *sta)
     hashIncr(hash_, network->vertexId(clk_src_));
   if (gen_clk_src_)
     hashIncr(hash_, network->vertexId(gen_clk_src_));
-  hashIncr(hash_, crprClkVertexId(sta));
+  if (crpr_clk_path_.isNull())
+    hashIncr(hash_, vertex_id_null);
+  else {
+    hashIncr(hash_, crpr_clk_path_.vertexId(sta));
+    hashIncr(hash_, crpr_clk_path_.tag(sta)->hash(false, sta));
+  }
   if (uncertainties_) {
     float uncertainty;
     bool exists;
@@ -101,19 +108,13 @@ ClkInfo::findHash(const StaState *sta)
 VertexId
 ClkInfo::crprClkVertexId(const StaState *sta) const
 {
-  if (crpr_clk_path_.isNull())
-    return vertex_id_null;
-  else
-    return crpr_clk_path_.vertexId(sta);
+  return crpr_clk_path_.vertexId(sta);
 }
 
 Path *
 ClkInfo::crprClkPath(const StaState *sta)
 {
-  if (crpr_clk_path_.isNull())
-    return nullptr;
-  else
-    return Path::vertexPath(crpr_clk_path_, sta);
+  return Path::vertexPath(crpr_clk_path_, sta);
 }
 
 const Path *
@@ -123,6 +124,15 @@ ClkInfo::crprClkPath(const StaState *sta) const
     return nullptr;
   else
     return Path::vertexPath(crpr_clk_path_, sta);
+}
+
+const Path *
+ClkInfo::crprClkPathRaw() const
+{
+  if (crpr_clk_path_.isNull())
+    return nullptr;
+  else
+    return &crpr_clk_path_;
 }
 
 std::string
@@ -150,13 +160,37 @@ ClkInfo::to_string(const StaState *sta) const
 
   if (!crpr_clk_path_.isNull()) {
     const Pin *crpr_clk_pin = crpr_clk_path_.vertex(sta)->pin();
-    result += " crpr_pin ";
+    result += " crpr ";
     result += network->pathName(crpr_clk_pin);
+    result += "/";
+    result += std::to_string(crpr_clk_path_.tag(sta)->index());
   }
 
   if (is_gen_clk_src_path_)
     result += " genclk";
+  if (gen_clk_src_) {
+    result += " ";
+    result += network->pathName(gen_clk_src_);
+  }
 
+  if (insertion_ > 0.0) {
+    result += " insert";
+    result += std::to_string(insertion_);
+  }
+
+  if (uncertainties_) {
+    result += " uncertain ";
+    float uncertainty;
+    bool exists;
+    uncertainties_->value(MinMax::min(), uncertainty, exists);
+    if (exists)
+      result += sta->units()->timeUnit()->asString(uncertainty);
+    uncertainties_->value(MinMax::max(), uncertainty, exists);
+    if (exists) {
+      result += ":";
+      result += sta->units()->timeUnit()->asString(uncertainty);
+    }
+  }
   return result;
 }
 
@@ -178,13 +212,6 @@ ClkInfo::pulseClkSense() const
     return nullptr;
 }
 
-bool
-ClkInfo::refsFilter(const StaState *sta) const
-{
-  return !crpr_clk_path_.isNull()
-    && crpr_clk_path_.tag(sta)->isFilter();
-}
-
 ////////////////////////////////////////////////////////////////
 
 size_t
@@ -204,13 +231,13 @@ bool
 ClkInfoEqual::operator()(const ClkInfo *clk_info1,
 			 const ClkInfo *clk_info2) const
 {
-  return clkInfoEqual(clk_info1, clk_info2, sta_);
+  return ClkInfo::equal(clk_info1, clk_info2, sta_);
 }
 
 bool
-clkInfoEqual(const ClkInfo *clk_info1,
-	     const ClkInfo *clk_info2,
-	     const StaState *sta)
+ClkInfo::equal(const ClkInfo *clk_info1,
+	       const ClkInfo *clk_info2,
+	       const StaState *sta)
 {
   bool crpr_on = sta->crprActive();
   ClockUncertainties *uncertainties1 = clk_info1->uncertainties();
@@ -220,14 +247,13 @@ clkInfoEqual(const ClkInfo *clk_info1,
     && clk_info1->clkSrc() == clk_info2->clkSrc()
     && clk_info1->genClkSrc() == clk_info2->genClkSrc()
     && (!crpr_on
-	|| Path::equal(clk_info1->crprClkPath(sta),
-                       clk_info2->crprClkPath(sta),
+	|| Path::equal(clk_info1->crprClkPathRaw(),
+                       clk_info2->crprClkPathRaw(),
                        sta))
     && ((uncertainties1 == nullptr
 	 && uncertainties2 == nullptr)
 	|| (uncertainties1 && uncertainties2
-	    && MinMaxValues<float>::equal(uncertainties1,
-					  uncertainties2)))
+	    && ClockUncertainties::equal(uncertainties1, uncertainties2)))
     && clk_info1->insertion() == clk_info2->insertion()
     && clk_info1->latency() == clk_info2->latency()
     && clk_info1->isPropagated() == clk_info2->isPropagated()
@@ -247,13 +273,13 @@ bool
 ClkInfoLess::operator()(const ClkInfo *clk_info1,
 			const ClkInfo *clk_info2) const
 {
-  return clkInfoCmp(clk_info1, clk_info2, sta_) < 0;
+  return ClkInfo::cmp(clk_info1, clk_info2, sta_) < 0;
 }
 
 int
-clkInfoCmp(const ClkInfo *clk_info1,
-	   const ClkInfo *clk_info2,
-	   const StaState *sta)
+ClkInfo::cmp(const ClkInfo *clk_info1,
+	     const ClkInfo *clk_info2,
+	     const StaState *sta)
 {
   const ClockEdge *clk_edge1 = clk_info1->clkEdge();
   const ClockEdge *clk_edge2 = clk_info2->clkEdge();
@@ -292,8 +318,8 @@ clkInfoCmp(const ClkInfo *clk_info1,
 
   bool crpr_on = sta->crprActive();
   if (crpr_on) {
-    const Path *crpr_path1 = clk_info1->crprClkPath(sta);
-    const Path *crpr_path2 = clk_info2->crprClkPath(sta);
+    const Path *crpr_path1 = clk_info1->crprClkPathRaw();
+    const Path *crpr_path2 = clk_info2->crprClkPathRaw();
     int path_cmp = Path::cmp(crpr_path1, crpr_path2, sta);
     if (path_cmp != 0)
       return path_cmp;
@@ -305,13 +331,11 @@ clkInfoCmp(const ClkInfo *clk_info1,
     return -1;
   if (uncertainties1  && uncertainties2 == nullptr)
     return 1;
-  if (uncertainties1 && uncertainties2
-      && MinMaxValues<float>::less(uncertainties1, uncertainties2))
-    return -1;
-  if (uncertainties1 && uncertainties2
-      && MinMaxValues<float>::less(uncertainties2, uncertainties1))
-    return 1;
-
+  if (uncertainties1 && uncertainties2) {
+    int uncertain_cmp = ClockUncertainties::cmp(uncertainties1, uncertainties2);
+    if (uncertain_cmp != 0)
+      return uncertain_cmp;
+  }
   const Arrival &insert1 = clk_info1->insertion();
   const Arrival &insert2 = clk_info2->insertion();
   if (delayLess(insert1, insert2, sta))

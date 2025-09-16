@@ -47,9 +47,11 @@ public:
 	   bool has_clk_tag,
 	   bool has_genclk_src_tag,
 	   bool has_filter_tag,
-	   bool has_loop_tag);
+	   bool has_loop_tag,
+	   const StaState *sta);
   // For Search::findTagGroup to probe.
-  TagGroup(TagGroupBldr *tag_bldr);
+  TagGroup(TagGroupBldr *tag_bldr,
+	   const StaState *sta);
   ~TagGroup();
   TagGroupIndex index() const { return index_; }
   size_t hash() const { return hash_; }
@@ -72,7 +74,8 @@ public:
   int refCount() const { return ref_count_; }
 
 protected:
-  static size_t pathIndexMapHash(PathIndexMap *path_index_map);
+  static size_t hash(PathIndexMap *path_index_map,
+		     const StaState *sta);
 
   // tag -> path index
   PathIndexMap *path_index_map_;

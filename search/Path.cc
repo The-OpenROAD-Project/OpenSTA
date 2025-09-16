@@ -608,10 +608,20 @@ Path::cmp(const Path *path1,
 	  const Path *path2,
 	  const StaState *sta)
 {
-  if (path1 && path2) {
+  if (path1 == path2)
+    return 0;
+  else if (path1 == nullptr && path2)
+    return 1;
+  else if (path1 && path2 == nullptr)
+    return -1;
+  else {
     VertexId vertex_id1 = path1->vertexId(sta);
     VertexId vertex_id2 = path2->vertexId(sta);
-    if (vertex_id1 == vertex_id2) {
+    if (vertex_id1 < vertex_id2)
+      return -1;
+    else if (vertex_id1 > vertex_id2)
+      return 1;
+    else {
       TagIndex tag_index1 = path1->tagIndex(sta);
       TagIndex tag_index2 = path2->tagIndex(sta);
       if (tag_index1 == tag_index2)
@@ -621,18 +631,7 @@ Path::cmp(const Path *path1,
       else
 	return 1;
     }
-    else if (vertex_id1 < vertex_id2)
-      return -1;
-    else
-      return 1;
   }
-  else if (path1 == nullptr
-	   && path2 == nullptr)
-    return 0;
-  else if (path1 == nullptr)
-    return -1;
-  else
-    return 1;
 }
 
 int

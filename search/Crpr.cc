@@ -361,7 +361,7 @@ CheckCrpr::outputDelayCrpr1(const Path *src_path,
     Path *tgt_genclk_path = portClkPath(tgt_clk_edge,
                                         tgt_clk_edge->clock()->defaultPin(),
                                         tgt_path_ap);
-    Path *src_clk_path = src_path->clkInfo(this)->crprClkPath(this);
+    const Path *src_clk_path = src_path->clkInfo(this)->crprClkPath(this);
     if (src_clk_path)
       findCrpr(src_clk_path, tgt_genclk_path, same_pin, crpr, crpr_pin);
   }
