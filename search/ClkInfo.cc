@@ -24,6 +24,8 @@
 
 #include "ClkInfo.hh"
 
+#include <functional>
+
 #include "Units.hh"
 #include "Network.hh"
 #include "Graph.hh"
@@ -86,18 +88,20 @@ ClkInfo::findHash(const StaState *sta)
     hashIncr(hash_, crpr_clk_path_.vertexId(sta));
     hashIncr(hash_, crpr_clk_path_.tag(sta)->hash(false, sta));
   }
+
+  std::hash<float> hash_float;
   if (uncertainties_) {
     float uncertainty;
     bool exists;
     uncertainties_->value(MinMax::min(), uncertainty, exists);
     if (exists)
-      hashIncr(hash_, uncertainty * 1E+12F);
+      hashIncr(hash_, hash_float(uncertainty));
     uncertainties_->value(MinMax::max(), uncertainty, exists);
     if (exists)
-      hashIncr(hash_, uncertainty * 1E+12F);
+      hashIncr(hash_, hash_float(uncertainty));
   }
-  hashIncr(hash_, latency_ * 1E+12F);
-  hashIncr(hash_, delayAsFloat(insertion_) * 1E+12F);
+  hashIncr(hash_, hash_float(latency_));
+  hashIncr(hash_, hash_float(delayAsFloat(insertion_)));
   hashIncr(hash_, is_propagated_);
   hashIncr(hash_, is_gen_clk_src_path_);
   hashIncr(hash_, is_pulse_clk_);
