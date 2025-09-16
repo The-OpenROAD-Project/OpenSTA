@@ -343,10 +343,7 @@ pathIndexMapEqual(const PathIndexMap *path_index_map1,
       size_t path_index2;
       bool exists2;
       path_index_map2->findKey(tag1, tag2, path_index2, exists2);
-      if (!exists2 
-	  // ArrivalMap equal function is TagMatchEqual, so make sure
-	  // the tag is an exact match.
-	  || tag2 != tag1)
+      if (!exists2)
 	return false;
     }
     return true;
