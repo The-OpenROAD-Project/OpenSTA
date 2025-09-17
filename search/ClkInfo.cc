@@ -243,28 +243,7 @@ ClkInfo::equal(const ClkInfo *clk_info1,
 	       const ClkInfo *clk_info2,
 	       const StaState *sta)
 {
-  bool crpr_on = sta->crprActive();
-  ClockUncertainties *uncertainties1 = clk_info1->uncertainties();
-  ClockUncertainties *uncertainties2 = clk_info2->uncertainties();
-  return clk_info1->clkEdge() == clk_info2->clkEdge()
-    && clk_info1->pathAPIndex() == clk_info2->pathAPIndex()
-    && clk_info1->clkSrc() == clk_info2->clkSrc()
-    && clk_info1->genClkSrc() == clk_info2->genClkSrc()
-    && (!crpr_on
-	|| Path::equal(clk_info1->crprClkPathRaw(),
-                       clk_info2->crprClkPathRaw(),
-                       sta))
-    //	|| clk_info1->crprClkVertexId(sta) == clk_info2->crprClkVertexId(sta))
-    && ((uncertainties1 == nullptr
-	 && uncertainties2 == nullptr)
-	|| (uncertainties1 && uncertainties2
-	    && ClockUncertainties::equal(uncertainties1, uncertainties2)))
-    && clk_info1->insertion() == clk_info2->insertion()
-    && clk_info1->latency() == clk_info2->latency()
-    && clk_info1->isPropagated() == clk_info2->isPropagated()
-    && clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
-    && clk_info1->isPulseClk() == clk_info2->isPulseClk()
-    && clk_info1->pulseClkSenseRfIndex() == clk_info2->pulseClkSenseRfIndex();
+  return ClkInfo::cmp(clk_info1, clk_info2, sta) == 0;
 }
 
 ////////////////////////////////////////////////////////////////

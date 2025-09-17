@@ -576,7 +576,8 @@ Search::deleteFilterTags()
   for (TagIndex i = 0; i < tag_next_; i++) {
     Tag *tag = tags_[i];
     if (tag
-	&& tag->isFilter()) {
+	&& (tag->isFilter()
+	    || tag->clkInfo()->crprPathRefsFilter())) {
       tags_[i] = nullptr;
       tag_set_->erase(tag);
       delete tag;
@@ -595,7 +596,7 @@ Search::deleteFilterClkInfos()
       delete clk_info;
     }
     else
-    itr++;
+      itr++;
   }
 }
 

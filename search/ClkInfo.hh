@@ -73,6 +73,7 @@ public:
   bool isGenClkSrcPath() const { return is_gen_clk_src_path_; }
   size_t hash() const { return hash_; }
   bool crprPathRefsFilter() const { return crpr_path_refs_filter_; }
+  const Path *crprClkPathRaw() const;
 
   static int cmp(const ClkInfo *clk_info1,
 		 const ClkInfo *clk_info2,
@@ -82,7 +83,6 @@ public:
 		    const StaState *sta);
 protected:
   void findHash(const StaState *sta);
-  const Path *crprClkPathRaw() const;
 
 private:
   const ClockEdge *clk_edge_;
