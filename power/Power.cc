@@ -490,6 +490,9 @@ PropActivityVisitor::visit(Vertex *vertex)
     }
     if (network_->isDriver(pin)) {
       LibertyPort *port = network_->libertyPort(pin);
+      LibertyCell *test_cell = port->libertyCell()->testCell();
+      if (test_cell)
+	port = test_cell->findLibertyPort(port->name());
       if (port) {
 	FuncExpr *func = port->function();
 	if (func) {
@@ -519,23 +522,28 @@ PropActivityVisitor::visit(Vertex *vertex)
   }
   if (changed) {
     LibertyCell *cell = network_->libertyCell(inst);
-    if (network_->isLoad(pin) && cell) {
-      if (cell->hasSequentials()) {
-        debugPrint(debug_, "power_activity", 3, "pending seq %s",
-                   network_->pathName(inst));
-        visited_regs_.insert(inst);
+    if (cell) {
+      LibertyCell *test_cell = cell->libertyCell()->testCell();
+      if (network_->isLoad(pin)) {
+	if (cell->hasSequentials()
+	    || (test_cell
+		&& test_cell->hasSequentials())) {
+	  debugPrint(debug_, "power_activity", 3, "pending seq %s",
+		     network_->pathName(inst));
+	  visited_regs_.insert(inst);
+	}
+	// Gated clock cells latch the enable so there is no EN->GCLK timing arc.
+	if (cell->isClockGate()) {
+	  const Pin *enable, *clk, *gclk;
+	  power_->clockGatePins(inst, enable, clk, gclk);
+	  if (gclk) {
+	    Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
+	    bfs_->enqueue(gclk_vertex);
+	  }
+	}
       }
-      // Gated clock cells latch the enable so there is no EN->GCLK timing arc.
-      if (cell->isClockGate()) {
-        const Pin *enable, *clk, *gclk;
-        power_->clockGatePins(inst, enable, clk, gclk);
-        if (gclk) {
-          Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
-          bfs_->enqueue(gclk_vertex);
-        }
-      }
+      bfs_->enqueueAdjacentVertices(vertex);
     }
-    bfs_->enqueueAdjacentVertices(vertex);
   }
 }
 
@@ -725,12 +733,9 @@ Power::ensureActivities()
       int pass = 1;
       while (!regs.empty() && pass < max_activity_passes_) {
         visitor.init();
-        InstanceSet::Iterator reg_iter(regs);
-	while (reg_iter.hasNext()) {
-	  const Instance *reg = reg_iter.next();
+	for (const Instance *reg : regs)
 	  // Propagate activiities across register D->Q.
 	  seedRegOutputActivities(reg, bfs);
-	}
 	// Propagate register output activities through
 	// combinational logic.
 	bfs.visit(levelize_->maxLevel(), &visitor);
@@ -771,7 +776,11 @@ Power::seedRegOutputActivities(const Instance *inst,
 			       BfsFwdIterator &bfs)
 {
   LibertyCell *cell = network_->libertyCell(inst);
-  for (Sequential *seq : cell->sequentials()) {
+  LibertyCell *test_cell = cell->testCell();
+  const SequentialSeq &seqs = test_cell
+    ? test_cell->sequentials()
+    : cell->sequentials();
+  for (Sequential *seq : seqs) {
     seedRegOutputActivities(inst, seq, seq->output(), false);
     seedRegOutputActivities(inst, seq, seq->outputInv(), true);
     // Enqueue register output pins with functions that reference
@@ -780,6 +789,8 @@ Power::seedRegOutputActivities(const Instance *inst,
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
       LibertyPort *port = network_->libertyPort(pin);
+      if (test_cell)
+	port = test_cell->findLibertyPort(port->name());
       if (port) {
         FuncExpr *func = port->function();
         Vertex *vertex = graph_->pinDrvrVertex(pin);
