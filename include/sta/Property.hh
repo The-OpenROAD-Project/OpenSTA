@@ -94,10 +94,10 @@ public:
                             const std::string property);
 
   // Define handler for external property.
-  // proerties->defineProperty("foo",
-  //                           [] (const Instance *, Sta *) -> PropertyValue {
-  //                             return PropertyValue("bar");
-  //                           });
+  // properties->defineProperty("foo",
+  //                            [] (const Instance *, Sta *) -> PropertyValue {
+  //                              return PropertyValue("bar");
+  //                            });
   void defineProperty(std::string &property,
                       PropertyRegistry<const Library *>::PropertyHandler handler);
   void defineProperty(std::string &property,
@@ -116,6 +116,8 @@ public:
                       PropertyRegistry<const Pin *>::PropertyHandler handler);
   void defineProperty(std::string &property,
                       PropertyRegistry<const Net *>::PropertyHandler handler);
+  void defineProperty(std::string &property,
+                      PropertyRegistry<const Clock *>::PropertyHandler handler);
 
 protected:
   PropertyValue portSlew(const Port *port,
@@ -159,6 +161,7 @@ protected:
   PropertyRegistry<const Instance*> registry_instance_;
   PropertyRegistry<const Pin*> registry_pin_;
   PropertyRegistry<const Net*> registry_net_;
+  PropertyRegistry<const Clock*> registry_clock_;
 
   Sta *sta_;
 };

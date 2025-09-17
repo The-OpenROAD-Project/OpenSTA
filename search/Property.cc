@@ -1240,8 +1240,14 @@ Properties::getProperty(const Clock *clk,
     return PropertyValue(clk->isVirtual());
   else if (property == "is_propagated")
     return PropertyValue(clk->isPropagated());
-  else
-    throw PropertyUnknown("clock", property);
+  else {
+    PropertyValue value = registry_clock_.getProperty(clk, property,
+                                                      "clock", sta_);
+    if (value.type() != PropertyValue::Type::type_none)
+      return value;
+    else
+      throw PropertyUnknown("clock", property);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1374,6 +1380,13 @@ Properties::defineProperty(std::string &property,
                            PropertyRegistry<const Net *>::PropertyHandler handler)
 {
   registry_net_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string &property,
+                           PropertyRegistry<const Clock *>::PropertyHandler handler)
+{
+  registry_clock_.defineProperty(property, handler);
 }
 
 ////////////////////////////////////////////////////////////////
