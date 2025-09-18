@@ -1322,7 +1322,7 @@ Edge::arcDelayAnnotated(const TimingArc *arc,
 {
   size_t index = arc->index() * ap_count + ap_index;
   if (arc_delay_annotated_is_bits_)
-    return arc_delay_annotated_.bits_ & (1 << index);
+    return arc_delay_annotated_.bits_ & arcDelayAnnotateBit(index);
   else
     return (*arc_delay_annotated_.seq_)[index];
 }
@@ -1334,7 +1334,7 @@ Edge::setArcDelayAnnotated(const TimingArc *arc,
                            bool annotated)
 {
   size_t index = arc->index() * ap_count + ap_index;
-  if (index > sizeof(intptr_t) * 8
+  if (index > sizeof(uintptr_t) * 8
       && arc_delay_annotated_is_bits_) {
     arc_delay_annotated_is_bits_ = false;
     size_t bit_count = ap_count * RiseFall::index_count * 2;
@@ -1342,9 +1342,9 @@ Edge::setArcDelayAnnotated(const TimingArc *arc,
   }
   if (arc_delay_annotated_is_bits_) {
     if (annotated)
-      arc_delay_annotated_.bits_ |= (1 << index);
+      arc_delay_annotated_.bits_ |= arcDelayAnnotateBit(index);
     else
-      arc_delay_annotated_.bits_ &= ~(1 << index);
+      arc_delay_annotated_.bits_ &= ~arcDelayAnnotateBit(index);
   }
   else
     (*arc_delay_annotated_.seq_)[index] = annotated;
@@ -1366,6 +1366,12 @@ void
 Edge::setDelayAnnotationIsIncremental(bool is_incr)
 {
   delay_annotation_is_incremental_ = is_incr;
+}
+
+uintptr_t
+Edge::arcDelayAnnotateBit(size_t index)
+{
+  return static_cast<uintptr_t>(1) << index;
 }
 
 const TimingRole *

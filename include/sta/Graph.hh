@@ -421,6 +421,7 @@ protected:
                             DcalcAPIndex ap_index,
                             DcalcAPIndex ap_count,
                             bool annotated);
+  static uintptr_t arcDelayAnnotateBit(size_t index);
 
   TimingArcSet *arc_set_;
   VertexId from_;
