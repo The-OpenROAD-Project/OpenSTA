@@ -104,7 +104,8 @@ public:
   virtual void setTimeUnit(const std::string &time_unit,
                            double time_unit_scale,
                            double time_scale) = 0;
-  virtual void setTimeMax(VcdTime time_max) = 0;
+  virtual void setTimeMin(VcdTime time) = 0;
+  virtual void setTimeMax(VcdTime time) = 0;
   virtual void varMinDeltaTime(VcdTime min_delta_time) = 0;
   virtual bool varIdValid(const std::string &id) = 0;
   virtual void makeVar(const VcdScope &scope,
