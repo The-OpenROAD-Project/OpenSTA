@@ -293,7 +293,7 @@ ClkDelays::insertionDelay(Path *clk_path,
   const ClockEdge *clk_edge = clk_path->clkEdge(sta);
   const Clock *clk = clk_edge->clock();
   const RiseFall *clk_rf = clk_edge->transition();
-  ClkInfo *clk_info = clk_path->clkInfo(sta);
+  const ClkInfo *clk_info = clk_path->clkInfo(sta);
   const Pin *src_pin = clk_info->clkSrc();
   const PathAnalysisPt *path_ap = clk_path->pathAnalysisPt(sta);
   const MinMax *min_max = clk_path->minMax(sta);

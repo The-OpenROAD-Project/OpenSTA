@@ -711,12 +711,12 @@ Genclks::makeTag(const Clock *gclk,
     state = state->nextState();
   ExceptionStateSet *states = new ExceptionStateSet();
   states->insert(state);
-  ClkInfo *clk_info = search_->findClkInfo(master_clk->edge(master_rf),
-					   master_pin, true, nullptr, true,
-					   nullptr, insert, 0.0, nullptr,
-					   path_ap, nullptr);
-  return search_->findTag(master_rf, path_ap, clk_info, false, nullptr, false,
-			  states, true);
+  const ClkInfo *clk_info = search_->findClkInfo(master_clk->edge(master_rf),
+						 master_pin, true, nullptr, true,
+						 nullptr, insert, 0.0, nullptr,
+						 path_ap, nullptr);
+  return search_->findTag(master_rf, path_ap, clk_info, false,
+			  nullptr, false, states, true);
 }
 
 class GenClkArrivalSearchPred : public EvalPred

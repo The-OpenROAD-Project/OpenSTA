@@ -41,7 +41,7 @@ class Path
 {
 public:
   Path();
-  Path(Path *path);
+  Path(const Path *path);
   Path(Vertex *vertex,
        Tag *tag,
        const StaState *sta);
@@ -89,7 +89,7 @@ public:
   TagIndex tagIndex(const StaState *sta) const;
   void setTag(Tag *tag);
   size_t pathIndex(const StaState *sta) const;
-  ClkInfo *clkInfo(const StaState *sta) const;
+  const ClkInfo *clkInfo(const StaState *sta) const;
   const ClockEdge *clkEdge(const StaState *sta) const;
   const Clock *clock(const StaState *sta) const;
   bool isClock(const StaState *sta) const;

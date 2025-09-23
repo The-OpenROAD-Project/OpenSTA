@@ -64,7 +64,7 @@ class CheckCrpr;
 class Genclks;
 class Corner;
 
-typedef Set<ClkInfo*, ClkInfoLess> ClkInfoSet;
+typedef Set<const ClkInfo*, ClkInfoLess> ClkInfoSet;
 typedef UnorderedSet<Tag*, TagHash, TagEqual> TagSet;
 typedef UnorderedSet<TagGroup*, TagGroupHash, TagGroupEqual> TagGroupSet;
 typedef Map<Vertex*, Slack> VertexSlackMap;
@@ -158,7 +158,7 @@ public:
   // Clock arrival respecting ideal clock insertion delay and latency.
   Arrival clkPathArrival(const Path *clk_path) const;
   Arrival clkPathArrival(const Path *clk_path,
-			 ClkInfo *clk_info,
+			 const ClkInfo *clk_info,
 			 const ClockEdge *clk_edge,
 			 const MinMax *min_max,
 			 const PathAnalysisPt *path_ap) const;
@@ -244,7 +244,7 @@ public:
 		     const RiseFall *from_rf,
 		     const Clock *clk,
 		     const RiseFall *clk_rf,
-		     ClkInfo *clk_info,
+		     const ClkInfo *clk_info,
 		     const Pin *to_pin,
 		     const RiseFall *to_rf,
 		     const MinMax *min_max,
@@ -263,20 +263,20 @@ public:
                   bool arc_delay_min_max_eq,
                   const MinMax *min_max,
                   const PathAnalysisPt *path_ap);
-  ClkInfo *thruClkInfo(Path *from_path,
-                       Vertex *from_vertex,
-                       ClkInfo *from_clk_info,
-                       bool from_is_clk,
-                       Edge *edge,
-                       Vertex *to_vertex,
-                       const Pin *to_pin,
-                       bool to_is_clk,
-                       bool arc_delay_min_max_eq,
-                       const MinMax *min_max,
-                       const PathAnalysisPt *path_ap);
-  ClkInfo *clkInfoWithCrprClkPath(ClkInfo *from_clk_info,
-				  Path *from_path,
-				  const PathAnalysisPt *path_ap);
+  const ClkInfo *thruClkInfo(Path *from_path,
+			     Vertex *from_vertex,
+			     const ClkInfo *from_clk_info,
+			     bool from_is_clk,
+			     Edge *edge,
+			     Vertex *to_vertex,
+			     const Pin *to_pin,
+			     bool to_is_clk,
+			     bool arc_delay_min_max_eq,
+			     const MinMax *min_max,
+			     const PathAnalysisPt *path_ap);
+  const ClkInfo *clkInfoWithCrprClkPath(const ClkInfo *from_clk_info,
+					Path *from_path,
+					const PathAnalysisPt *path_ap);
   void seedClkArrivals(const Pin *pin,
 		       Vertex *vertex,
 		       TagGroupBldr *tag_bldr);
@@ -323,7 +323,7 @@ public:
 
   Tag *findTag(const RiseFall *rf,
 	       const PathAnalysisPt *path_ap,
-	       ClkInfo *tag_clk,
+	       const ClkInfo *tag_clk,
 	       bool is_clk,
 	       InputDelay *input_delay,
 	       bool is_segment_start,
@@ -331,22 +331,22 @@ public:
 	       bool own_states);
   void reportTags() const;
   void reportClkInfos() const;
-  virtual ClkInfo *findClkInfo(const ClockEdge *clk_edge,
-			       const Pin *clk_src,
-			       bool is_propagated,
-			       const Pin *gen_clk_src,
-			       bool gen_clk_src_path,
-			       const RiseFall *pulse_clk_sense,
-			       Arrival insertion,
-			       float latency,
-			       ClockUncertainties *uncertainties,
-			       const PathAnalysisPt *path_ap,
-			       Path *crpr_clk_path);
-  ClkInfo *findClkInfo(const ClockEdge *clk_edge,
-		       const Pin *clk_src,
-		       bool is_propagated,
-		       Arrival insertion,
-		       const PathAnalysisPt *path_ap);
+  const ClkInfo *findClkInfo(const ClockEdge *clk_edge,
+			     const Pin *clk_src,
+			     bool is_propagated,
+			     const Pin *gen_clk_src,
+			     bool gen_clk_src_path,
+			     const RiseFall *pulse_clk_sense,
+			     Arrival insertion,
+			     float latency,
+			     ClockUncertainties *uncertainties,
+			     const PathAnalysisPt *path_ap,
+			     Path *crpr_clk_path);
+  const ClkInfo *findClkInfo(const ClockEdge *clk_edge,
+			     const Pin *clk_src,
+			     bool is_propagated,
+			     Arrival insertion,
+			     const PathAnalysisPt *path_ap);
   // Timing derated arc delay for a path analysis point.
   ArcDelay deratedDelay(const Vertex *from_vertex,
 			const TimingArc *arc,
@@ -515,13 +515,13 @@ protected:
 		 const Pin *from_pin,
 		 const RiseFall *from_rf,
 		 bool from_is_clk,
-		 ClkInfo *from_clk_info,
+		 const ClkInfo *from_clk_info,
 		 const Pin *to_pin,
 		 const RiseFall *to_rf,
 		 bool to_is_clk,
 		 bool to_is_reg_clk,
 		 bool to_is_segment_start,
-		 ClkInfo *to_clk_info,
+		 const ClkInfo *to_clk_info,
 		 InputDelay *to_input_delay,
 		 const MinMax *min_max,
 		 const PathAnalysisPt *path_ap);

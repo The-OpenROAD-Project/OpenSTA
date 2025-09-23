@@ -330,7 +330,7 @@ PathEnd::checkTgtClkDelay(const Path *tgt_clk_path,
     const MinMax *min_max = tgt_clk_path->minMax(sta);
     const EarlyLate *early_late = check_role->tgtClkEarlyLate();
     const PathAnalysisPt *tgt_path_ap = tgt_clk_path->pathAnalysisPt(sta);
-    ClkInfo *clk_info = tgt_clk_path->clkInfo(sta);
+    const ClkInfo *clk_info = tgt_clk_path->clkInfo(sta);
     const Pin *tgt_src_pin = clk_info->clkSrc();
     const Clock *tgt_clk = tgt_clk_edge->clock();
     const RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
@@ -560,14 +560,14 @@ PathEndClkConstrained::sourceClkOffset(const ClockEdge *src_clk_edge,
 Arrival
 PathEndClkConstrained::sourceClkLatency(const StaState *sta) const
 {
-  ClkInfo *clk_info = path_->clkInfo(sta);
+  const ClkInfo *clk_info = path_->clkInfo(sta);
   return clk_info->latency();
 }
 
 Arrival
 PathEndClkConstrained::sourceClkInsertionDelay(const StaState *sta) const
 {
-  ClkInfo *clk_info = path_->clkInfo(sta);
+  const ClkInfo *clk_info = path_->clkInfo(sta);
   return clk_info->insertion();
 }
 
@@ -1033,7 +1033,7 @@ PathEndCheck::sourceClkDelay(const StaState *sta) const
   PathExpanded expanded(path_, sta);
   const Path *src_clk_path = expanded.clkPath();
   if (src_clk_path) {
-    ClkInfo *src_clk_info = path_->tag(sta)->clkInfo();
+    const ClkInfo *src_clk_info = path_->tag(sta)->clkInfo();
     if (src_clk_info->isPropagated()) {
       // Propagated clock.  Propagated arrival is seeded with insertion delay.
       Arrival clk_arrival = src_clk_path->arrival();
@@ -1280,7 +1280,7 @@ PathEndLatchCheck::targetClkWidth(const StaState *sta) const
   const Search *search = sta->search();
   Arrival disable_arrival = search->clkPathArrival(disable_path_);
   Arrival enable_arrival = search->clkPathArrival(clk_path_);
-  ClkInfo *enable_clk_info = clk_path_->clkInfo(sta);
+  const ClkInfo *enable_clk_info = clk_path_->clkInfo(sta);
   if (enable_clk_info->isPulseClk())
     return disable_arrival - enable_arrival;
   else {

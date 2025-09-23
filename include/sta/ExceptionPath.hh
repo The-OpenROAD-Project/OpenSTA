@@ -667,6 +667,10 @@ private:
   int index_;
 };
 
+bool
+exceptionStateLess(const ExceptionState *state1,
+		   const ExceptionState *state2);
+
 // Exception thrown by check.
 class EmptyExpceptionPt : public Exception
 {

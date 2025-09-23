@@ -331,7 +331,7 @@ Latches::latchOutArrival(const Path *data_path,
 				   tgt_clk_path_ap, this);
     while (enable_iter.hasNext()) {
       Path *enable_path = enable_iter.next();
-       ClkInfo *en_clk_info = enable_path->clkInfo(this);
+       const ClkInfo *en_clk_info = enable_path->clkInfo(this);
        const ClockEdge *en_clk_edge = en_clk_info->clkEdge();
        if (enable_path->isClock(this)) {
 	 ExceptionPath *excpt = exceptionTo(data_path, en_clk_edge);
@@ -353,7 +353,7 @@ Latches::latchOutArrival(const Path *data_path,
 	     // Tag switcheroo - data passing thru gets latch enable tag.
 	     // States and path ap come from Q, everything else from enable.
 	     Path *crpr_clk_path = crprActive() ? enable_path : nullptr;
-	     ClkInfo *q_clk_info = 
+	     const ClkInfo *q_clk_info = 
 	       search_->findClkInfo(en_clk_edge,
 				    en_clk_info->clkSrc(),
 				    en_clk_info->isPropagated(),

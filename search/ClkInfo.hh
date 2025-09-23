@@ -46,7 +46,7 @@ public:
 	  float latency,
 	  ClockUncertainties *uncertainties,
           PathAPIndex path_ap_index,
-	  Path *crpr_clk_path,
+	  const Path *crpr_clk_path,
 	  const StaState *sta);
   ~ClkInfo();
   std::string to_string(const StaState *sta) const;
@@ -57,7 +57,7 @@ public:
   const Pin *genClkSrc() const { return gen_clk_src_; }
   bool isPulseClk() const { return is_pulse_clk_; }
   const RiseFall *pulseClkSense() const;
-  int pulseClkSenseTrIndex() const { return pulse_clk_sense_; }
+  int pulseClkSenseRfIndex() const { return pulse_clk_sense_; }
   float latency() const { return latency_; }
   Arrival &insertion() { return insertion_; }
   const Arrival &insertion() const { return insertion_; }
@@ -69,11 +69,18 @@ public:
   const Path *crprClkPath(const StaState *sta) const;
   VertexId crprClkVertexId(const StaState *sta) const;
   bool hasCrprClkPin() const { return !crpr_clk_path_.isNull(); }
-  bool refsFilter(const StaState *sta) const;
   // This clk_info/tag is used for a generated clock source path.
   bool isGenClkSrcPath() const { return is_gen_clk_src_path_; }
   size_t hash() const { return hash_; }
+  bool crprPathRefsFilter() const { return crpr_path_refs_filter_; }
+  const Path *crprClkPathRaw() const;
 
+  static int cmp(const ClkInfo *clk_info1,
+		 const ClkInfo *clk_info2,
+		 const StaState *sta);
+  static bool equal(const ClkInfo *clk_info1,
+		    const ClkInfo *clk_info2,
+		    const StaState *sta);
 protected:
   void findHash(const StaState *sta);
 
@@ -88,19 +95,13 @@ private:
   size_t hash_;
   bool is_propagated_:1;
   bool is_gen_clk_src_path_:1;
+  // This is used to break a circular dependency in Search::deleteFilteredArrival
+  // between tags and clk infos that reference a filter.
+  bool crpr_path_refs_filter_:1;
   bool is_pulse_clk_:1;
   unsigned int pulse_clk_sense_:RiseFall::index_bit_count;
   unsigned int path_ap_index_:path_ap_index_bit_count;
 };
-
-int
-clkInfoCmp(const ClkInfo *clk_info1,
-	   const ClkInfo *clk_info2,
-	   const StaState *sta);
-bool
-clkInfoEqual(const ClkInfo *clk_info1,
-	     const ClkInfo *clk_info2,
-	     const StaState *sta);
 
 class ClkInfoLess
 {

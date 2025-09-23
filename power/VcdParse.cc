@@ -52,8 +52,8 @@ VcdParse::read(const char *filename,
     Stats stats(debug_, report_);
     filename_ = filename;
     reader_ = reader;
-    file_line_ = 1;
-    stmt_line_ = 1;
+    file_line_ = 0;
+    stmt_line_ = 0;
     std::string token = getToken();
     while (!token.empty()) {
       if (token == "$date")
@@ -205,11 +205,19 @@ void
 VcdParse::parseVarValues()
 {
   string token = getToken();
+  bool first_time = true;
   while (!token.empty()) {
     char char0 = toupper(token[0]);
     if (char0 == '#' && token.size() > 1) {
-      prev_time_ = time_;
-      time_ = stoll(token.substr(1));
+      VcdTime time = stoll(token.substr(1));
+      if (first_time) {
+	prev_time_ = time;
+	first_time = false;
+	reader_->setTimeMin(time);
+      }
+      else
+	prev_time_ = time_;
+      time_ = time;
       if (time_ > prev_time_)
         reader_->varMinDeltaTime(time_ - prev_time_);
     }
@@ -286,20 +294,18 @@ VcdParse::getToken()
 {
   string token;
   int ch = gzgetc(stream_);
-  if (ch == '\n')
-    file_line_++;
   // skip whitespace
   while (ch != EOF && isspace(ch)) {
-    ch = gzgetc(stream_);
     if (ch == '\n')
       file_line_++;
+    ch = gzgetc(stream_);
   }
   while (ch != EOF && !isspace(ch)) {
     token.push_back(ch);
     ch = gzgetc(stream_);
-    if (ch == '\n')
-      file_line_++;
   }
+  if (ch == '\n')
+    file_line_++;
   if (ch == EOF)
     return "";
   else

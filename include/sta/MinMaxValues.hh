@@ -149,8 +149,8 @@ public:
       exists_[mm_index] = false;
   }
 
-  static bool equal(MinMaxValues *values1,
-		    MinMaxValues *values2)
+  static bool equal(const MinMaxValues *values1,
+		    const MinMaxValues *values2)
   {
     return ((!values1->exists_[MinMax::minIndex()]
 	     && !values2->exists_[MinMax::minIndex()])
@@ -164,6 +164,32 @@ public:
 	     && values2->exists_[MinMax::maxIndex()]
 	     && values1->values_[MinMax::maxIndex()] 
 	     == values2->values_[MinMax::maxIndex()]));
+  }
+
+  static int cmp(const MinMaxValues *values1,
+		 const MinMaxValues *values2)
+  {
+    if (!values1->exists_[MinMax::minIndex()]
+	&& values2->exists_[MinMax::minIndex()])
+      return -1;
+    if (values1->exists_[MinMax::minIndex()]
+	&& !values2->exists_[MinMax::minIndex()])
+      return 1;
+    if (!values1->exists_[MinMax::maxIndex()]
+	&& values2->exists_[MinMax::maxIndex()])
+      return -1;
+    if (values1->exists_[MinMax::maxIndex()]
+	&& !values2->exists_[MinMax::maxIndex()])
+      return 1;
+    if (values1->values_[MinMax::minIndex()] < values2->values_[MinMax::minIndex()])
+      return -1;
+    if (values1->values_[MinMax::minIndex()] > values2->values_[MinMax::minIndex()])
+      return 1;
+    if (values1->values_[MinMax::maxIndex()] < values2->values_[MinMax::maxIndex()])
+      return -1;
+    if (values1->values_[MinMax::maxIndex()] > values2->values_[MinMax::maxIndex()])
+      return 1;
+    return 0;
   }
 
 private:

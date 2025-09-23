@@ -393,7 +393,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
   // These paths fanin to before_div_ so we know to_vertex matches.
   if ((!unique_pins_ || from_vertex != prev_vertex_)
       && arc != prev_arc_
-      && tagMatchNoCrpr(to_tag, before_div_tag_)) {
+      && Tag::matchNoCrpr(to_tag, before_div_tag_)) {
     debugPrint(debug_, "path_enum", 3, "visit fanin %s -> %s %s %s",
                from_path->to_string(this).c_str(),
                to_vertex->to_string(this).c_str(),
@@ -644,7 +644,7 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
 			       Path *after_div)
 {
   Tag *prev_tag = after_div->tag(this);
-  ClkInfo *prev_clk_info = prev_tag->clkInfo();
+  const ClkInfo *prev_clk_info = prev_tag->clkInfo();
   Arrival prev_arrival = search_->clkPathArrival(after_div);
   int path_idx_max = paths.size() - 1;
   // paths[0] is the path endpoint

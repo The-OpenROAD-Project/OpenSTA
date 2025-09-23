@@ -127,6 +127,7 @@ public:
                  Report *report,
                  Debug *debug);
   VcdTime timeMax() const { return time_max_; }
+  VcdTime timeMin() const { return time_min_; }
   const VcdIdCountsMap &countMap() const { return vcd_count_map_; }
   double timeScale() const { return time_scale_; }
 
@@ -137,7 +138,8 @@ public:
   void setTimeUnit(const string &time_unit,
                    double time_unit_scale,
                    double time_scale) override;
-  void setTimeMax(VcdTime time_max) override;
+  void setTimeMin(VcdTime time) override;
+  void setTimeMax(VcdTime time) override;
   void varMinDeltaTime(VcdTime) override {}
   bool varIdValid(const string &id) override;
   void makeVar(const VcdScope &scope,
@@ -164,6 +166,7 @@ private:
   Debug *debug_;
 
   double time_scale_;
+  VcdTime time_min_;
   VcdTime time_max_;
   VcdIdCountsMap vcd_count_map_;
 };
@@ -177,7 +180,8 @@ VcdCountReader::VcdCountReader(const char *scope,
   report_(report),
   debug_(debug),
   time_scale_(1.0),
-  time_max_(0.0)
+  time_min_(0),
+  time_max_(0)
 {
 }
 
@@ -190,9 +194,15 @@ VcdCountReader::setTimeUnit(const string &,
 }
 
 void
-VcdCountReader::setTimeMax(VcdTime time_max)
+VcdCountReader::setTimeMin(VcdTime time)
 {
-  time_max_ = time_max;
+  time_min_ = time;
+}
+
+void
+VcdCountReader::setTimeMax(VcdTime time)
+{
+  time_max_ = time;
 }
 
 bool
@@ -400,14 +410,16 @@ ReadVcdActivities::readActivities()
 void
 ReadVcdActivities::setActivities()
 {
+  VcdTime time_min = vcd_reader_.timeMin();
   VcdTime time_max = vcd_reader_.timeMax();
+  VcdTime time_delta = time_max - time_min;
   double time_scale = vcd_reader_.timeScale();
   for (auto& [id, vcd_counts] : vcd_reader_.countMap()) {
     for (const VcdCount &vcd_count : vcd_counts) {
       double transition_count = vcd_count.transitionCount();
       VcdTime high_time = vcd_count.highTime(time_max);
-      float duty = static_cast<double>(high_time) / time_max;
-      float density = transition_count / (time_max * time_scale);
+      float duty = static_cast<double>(high_time) / time_delta;
+      float density = transition_count / (time_delta * time_scale);
       if (debug_->check("read_vcd_activities", 1)) {
         for (const Pin *pin : vcd_count.pins()) {
           debugPrint(debug_, "read_vcd_activities", 1,
@@ -433,8 +445,9 @@ ReadVcdActivities::checkClkPeriod(const Pin *pin,
                                   double transition_count)
 {
   VcdTime time_max = vcd_reader_.timeMax();
+  VcdTime time_min = vcd_reader_.timeMin();
   double time_scale = vcd_reader_.timeScale();
-  double sim_period = time_max * time_scale / (transition_count / 2.0);
+  double sim_period = (time_max - time_min) * time_scale / (transition_count / 2.0);
   ClockSet *clks = sdc_->findLeafPinClocks(pin);
   if (clks) {
     for (Clock *clk : *clks) {
@@ -449,4 +462,4 @@ ReadVcdActivities::checkClkPeriod(const Pin *pin,
   }
 }
 
-}
+} // namespace

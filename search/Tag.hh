@@ -54,7 +54,7 @@ public:
   Tag(TagIndex index,
       int rf_index,
       PathAPIndex path_ap_index,
-      ClkInfo *clk_info,
+      const ClkInfo *clk_info,
       bool is_clk,
       InputDelay *input_delay,
       bool is_segment_start,
@@ -66,7 +66,7 @@ public:
   std::string to_string(bool report_index,
                         bool report_rf_min_max,
                         const StaState *sta) const;
-  ClkInfo *clkInfo() const { return clk_info_; }
+  const ClkInfo *clkInfo() const { return clk_info_; }
   bool isClock() const { return is_clk_; }
   const ClockEdge *clkEdge() const;
   const Clock *clock() const;
@@ -85,15 +85,48 @@ public:
   bool isLoop() const { return is_loop_; }
   bool isFilter() const { return is_filter_; }
   bool isSegmentStart() const { return is_segment_start_; }
-  size_t hash() const { return hash_; }
+  size_t hash(bool match_crpr_clk_pin,
+	      const StaState *sta) const;
   size_t matchHash(bool match_crpr_clk_pin,
                    const StaState *sta) const;
+
+  static int cmp(const Tag *tag1,
+		 const Tag *tag2,
+		 const StaState *sta);
+  static int matchCmp(const Tag *tag1,
+		      const Tag *tag2,
+		      bool match_clk_clk_pin,
+		      const StaState *sta);
+  static bool match(const Tag *tag1,
+		    const Tag *tag2,
+		    bool match_crpr_clk_pin,
+		    const StaState *sta);
+  static bool equal(const Tag *tag1,
+		    const Tag *tag2,
+		    const StaState *sta);
+  static bool matchNoPathAp(const Tag *tag1,
+			    const Tag *tag2);
+  static bool matchCrpr(const Tag *tag1,
+			const Tag *tag2);
+  static bool matchNoCrpr(const Tag *tag1,
+			  const Tag *tag2);
 
 protected:
   void findHash();
 
+  // Match tag clock edge, clock driver and exception states but not clk info.
+  static bool match(const Tag *tag1,
+		    const Tag *tag2,
+		    const StaState *sta);
+  static bool stateEqual(const Tag *tag1,
+			 const Tag *tag2);
+  static int stateCmp(const Tag *tag1,
+		      const Tag *tag2);
+  static bool stateEqualCrpr(const Tag *tag1,
+			     const Tag *tag2);
+
 private:
-  ClkInfo *clk_info_;
+  const ClkInfo *clk_info_;
   InputDelay *input_delay_;
   ExceptionStateSet *states_;
   size_t hash_;
@@ -130,51 +163,22 @@ public:
 class TagHash
 {
 public:
+  TagHash(const StaState *sta);
   size_t operator()(const Tag *tag) const;
+
+private:
+  const StaState *sta_;
 };
 
 class TagEqual
 {
 public:
+  TagEqual(const StaState *sta);
   bool operator()(const Tag *tag1,
 		  const Tag *tag2) const;
+
+private:
+  const StaState *sta_;
 };
-
-bool
-tagEqual(const Tag *tag1,
-	 const Tag *tag2);
-int
-tagCmp(const Tag *tag1,
-       const Tag *tag2,
-       const StaState *sta);
-
-// Match tag clock edge, clock driver and exception states but not clk info.
-bool
-tagMatch(const Tag *tag1,
-	 const Tag *tag2,
-	 const StaState *sta);
-bool
-tagMatch(const Tag *tag1,
-	 const Tag *tag2,
- 	 bool match_crpr_clk_pin,
-	 const StaState *sta);
-bool
-tagStateEqual(const Tag *tag1,
-	      const Tag *tag2);
-bool
-tagMatchNoCrpr(const Tag *tag1,
-	       const Tag *tag2);
-int
-tagMatchCmp(const Tag *tag1,
-	    const Tag *tag2,
-	    bool match_clk_clk_pin,
-	    const StaState *sta);
-
-bool
-tagMatchNoPathAp(const Tag *tag1,
-		 const Tag *tag2);
-bool
-tagMatchCrpr(const Tag *tag1,
-	     const Tag *tag2);
 
 } // namespace

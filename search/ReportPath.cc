@@ -2112,7 +2112,7 @@ ReportPath::reportSrcClkAndPath(const Path *path,
       else if (clk_used_as_data 
  	       && pathFromGenPropClk(path, path->minMax(this))) {
 	reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time, min_max);
- 	ClkInfo *clk_info = path->tag(search_)->clkInfo();
+ 	const ClkInfo *clk_info = path->tag(search_)->clkInfo();
  	if (clk_info->isPropagated())
  	  reportClkSrcLatency(clk_insertion, clk_time, early_late);
 	reportPath1(path, expanded, true, time_offset);
@@ -2259,7 +2259,7 @@ ReportPath::tgtClkInsertionOffet(const Path *clk_path,
 				 const EarlyLate *early_late,
 				 const PathAnalysisPt *path_ap) const
 {
-  ClkInfo *clk_info = clk_path->clkInfo(this);
+  const ClkInfo *clk_info = clk_path->clkInfo(this);
   const Pin *src_pin = clk_info->clkSrc();
   const ClockEdge *clk_edge = clk_info->clkEdge();
   const Clock *clk = clk_edge->clock();
@@ -2278,7 +2278,7 @@ bool
 ReportPath::pathFromGenPropClk(const Path *clk_path,
 			       const EarlyLate *early_late) const
 {
-  ClkInfo *clk_info = clk_path->tag(search_)->clkInfo();
+  const ClkInfo *clk_info = clk_path->tag(search_)->clkInfo();
   const ClockEdge *clk_edge = clk_info->clkEdge();
   if (clk_edge) {
     const Clock *clk = clk_edge->clock();
@@ -2393,7 +2393,7 @@ ReportPath::reportGenClkSrcPath1(const Clock *clk,
   const Path *src_path = search_->genclks()->srcPath(clk, clk_pin,
                                                      clk_rf, insert_ap);
   if (src_path) {
-    ClkInfo *src_clk_info = src_path->clkInfo(this);
+    const ClkInfo *src_clk_info = src_path->clkInfo(this);
     const ClockEdge *src_clk_edge = src_clk_info->clkEdge();
     const Clock *src_clk = src_clk_info->clock();
     if (src_clk) {
