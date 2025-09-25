@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025, The OpenROAD Authors
 
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_hdl//dependency_support/com_github_westes_flex:flex.bzl", "genlex")
 load("@rules_hdl//dependency_support/org_gnu_bison:bison.bzl", "genyacc")
 load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
@@ -302,7 +304,6 @@ cc_library(
     name = "opensta_lib",
     srcs = parser_cc + parser_headers + glob(
         include = [
-            "app/StaMain.cc",
             "dcalc/*.cc",
             "dcalc/*.hh",
             "graph/*.cc",
@@ -333,6 +334,7 @@ cc_library(
             "util/Machine*.cc",
         ],
     ) + [
+        "app/StaMain.cc",
         "util/Machine.cc",
         ":StaConfig",
     ],
