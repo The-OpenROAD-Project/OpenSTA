@@ -273,7 +273,7 @@ proc set_power_activity { args } {
   if { [info exists keys(-duty)] } {
     set duty $keys(-duty)
     check_float "duty" $duty
-    if { $duty < 0.0 || $duty > 1.0 } {i
+    if { $duty < 0.0 || $duty > 1.0 } {
       sta_error 309 "duty should be 0.0 to 1.0"
     }
   }
