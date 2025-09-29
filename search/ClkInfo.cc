@@ -166,8 +166,10 @@ ClkInfo::to_string(const StaState *sta) const
     const Pin *crpr_clk_pin = crpr_clk_path_.vertex(sta)->pin();
     result += " crpr ";
     result += network->pathName(crpr_clk_pin);
-    result += "/";
+    result += " ";
     result += std::to_string(crpr_clk_path_.tag(sta)->index());
+    result += "/";
+    result += crpr_clk_path_.minMax(sta)->to_string();
   }
 
   if (is_gen_clk_src_path_)

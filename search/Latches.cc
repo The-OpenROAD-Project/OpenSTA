@@ -75,6 +75,8 @@ Latches::latchRequired(const Path *data_path,
       time_given_to_startpoint = 0.0;
   }
   else if (enable_path && disable_path) {
+    debugPrint(debug_, "latch", 1, "latch %s",
+               sdc_network_->pathName(data_path->pin(this)));
     Delay open_latency, latency_diff, max_borrow;
     float nom_pulse_width, open_uncertainty;
     Crpr open_crpr, crpr_diff;
@@ -102,8 +104,7 @@ Latches::latchRequired(const Path *data_path,
       + PathEnd::checkSetupMcpAdjustment(data_clk_edge, enable_clk_edge, mcp,
 					 1, sdc_)
       + open_crpr;
-    debugPrint(debug_, "latch", 1, "latch data %s %s enable %s",
-               network_->pathName(data_path->pin(this)),
+    debugPrint(debug_, "latch", 1, "data %s enable %s",
                delayAsString(data_arrival, this),
                delayAsString(enable_arrival, this));
     if (delayLessEqual(data_arrival, enable_arrival, this)) {
@@ -145,6 +146,11 @@ Latches::latchRequired(const Path *data_path,
     adjusted_data_arrival = data_arrival;
     time_given_to_startpoint = 0.0;
   }
+  debugPrint(debug_, "latch", 2, "req %s borrow %s time_given %s adj_arrival %s",
+	     delayAsString(required, this),
+	     delayAsString(borrow, this),
+	     delayAsString(time_given_to_startpoint, this),
+	     delayAsString(adjusted_data_arrival, this));
 }
 
 void
@@ -209,6 +215,16 @@ Latches::latchBorrowInfo(const Path *data_path,
     open_crpr = 0.0;
     crpr_diff = 0.0;
   }
+  debugPrint(debug_, "latch", 2, "nom_width %s open_lat %s lat_diff %s open_uncert %s",
+	     delayAsString(nom_pulse_width, this),
+	     delayAsString(open_latency, this),
+	     delayAsString(latency_diff, this),
+	     delayAsString(open_uncertainty, this));
+  debugPrint(debug_, "latch", 2, "open_crpr %s crpr_diff %s open_uncert %s max_borrow %s",
+	     delayAsString(open_crpr, this),
+	     delayAsString(crpr_diff, this),
+	     delayAsString(open_uncertainty, this),
+	     borrow_limit_exists ? delayAsString(max_borrow, this) : "none");
 }
 
 void
