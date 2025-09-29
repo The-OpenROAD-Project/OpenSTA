@@ -1382,7 +1382,11 @@ ArrivalVisitor::pruneCrprArrivals()
                    delayAsString(max_crpr, this),
                    delayAsString(max_arrival_max_crpr, this));
         Arrival arrival = tag_bldr_->arrival(path_index);
-	if (delayGreater(max_arrival_max_crpr, arrival, min_max, this)) {
+	// Latch D->Q path uses enable min so crpr clk path min/max
+	// does not match the path min/max.
+	if (delayGreater(max_arrival_max_crpr, arrival, min_max, this)
+	    && clk_info_no_crpr->crprClkPath(this)->minMax(this)
+	    == clk_info->crprClkPath(this)->minMax(this)) {
 	  debugPrint(debug_, "search", 3, "  pruned %s",
                      tag->to_string(this).c_str());
           path_itr = path_index_map.erase(path_itr);
