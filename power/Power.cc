@@ -494,7 +494,8 @@ PropActivityVisitor::visit(Vertex *vertex)
         LibertyCell *test_cell = port->libertyCell()->testCell();
         if (test_cell)
           port = test_cell->findLibertyPort(port->name());
-
+      }
+      if (port) {
 	FuncExpr *func = port->function();
 	if (func) {
           PwrActivity activity = power_->evalActivity(func, inst);
