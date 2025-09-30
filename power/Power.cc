@@ -490,10 +490,11 @@ PropActivityVisitor::visit(Vertex *vertex)
     }
     if (network_->isDriver(pin)) {
       LibertyPort *port = network_->libertyPort(pin);
-      LibertyCell *test_cell = port->libertyCell()->testCell();
-      if (test_cell)
-	port = test_cell->findLibertyPort(port->name());
       if (port) {
+        LibertyCell *test_cell = port->libertyCell()->testCell();
+        if (test_cell)
+          port = test_cell->findLibertyPort(port->name());
+
 	FuncExpr *func = port->function();
 	if (func) {
           PwrActivity activity = power_->evalActivity(func, inst);
