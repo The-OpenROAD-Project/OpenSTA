@@ -4,7 +4,7 @@ Naming conventions
 directory - lowercase (directory)
 filename - corresponding class name without prefix (Filename)
 class - upper camel case (ClassName)
-member function - upper camel case (memberFunction)
+member function - lower camel case (memberFunction)
 member variable - snake case with trailing underscore (member_variable_)
                   Trailing underscore prevents conflict with accessor 
                   member function name.
