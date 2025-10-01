@@ -83,6 +83,7 @@ sta::VerilogParse::error(const location_type &loc,
 }
 
 %token INT CONSTANT ID STRING MODULE ENDMODULE ASSIGN PARAMETER DEFPARAM
+%token SPECIFY ENDSPECIFY SPECPARAM
 %token WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0 REG
 %token ATTR_OPEN ATTR_CLOSED
 
@@ -99,6 +100,8 @@ sta::VerilogParse::error(const location_type &loc,
 %type <stmt> stmt declaration instance parameter parameter_dcls parameter_dcl
 %type <stmt> defparam param_values param_value port_dcl
 %type <stmt_seq> stmts stmt_seq net_assignments continuous_assign port_dcls
+%type <stmt> specify_block
+%type <stmt_seq> specify_stmts
 %type <assign> net_assignment
 %type <dcl_arg> dcl_arg
 %type <dcl_arg_seq> dcl_args
@@ -232,12 +235,32 @@ stmt:
 |	defparam
 |	declaration
 |	instance
+|	specify_block
 |	error ';'
 	{ yyerrok; $$ = nullptr; }
 	;
 
 stmt_seq:
 	continuous_assign
+	;
+
+/* specify blocks are used by some comercial tools to convey macro timing
+ * and other metadata.
+ * Their presence is not forbidden in structural verilog, this is a placeholder
+ * that just ignores them and allows verilog processing to proceed
+ * <<TODO>> if someone in the future wants implement support for timing info
+ * via specify blocks, implement proper parsing here
+ */
+specify_block:
+	SPECIFY specify_stmts ENDSPECIFY
+	{ $$ = nullptr; }
+	;
+
+specify_stmts:
+	SPECPARAM parameter_dcl ';'
+	{ $$ = nullptr; }
+|   specify_stmts SPECPARAM parameter_dcl ';'
+	{ $$ = nullptr; }
 	;
 
 /* Parameters are parsed and ignored. */

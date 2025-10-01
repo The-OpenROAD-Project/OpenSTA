@@ -132,6 +132,9 @@ output { return token::OUTPUT; }
 parameter { return token::PARAMETER; }
 defparam { return token::DEFPARAM; }
 reg { return token::REG; }
+specify { return token::SPECIFY; }
+endspecify { return token::ENDSPECIFY; }
+specparam { return token::SPECPARAM; }
 supply0 { return token::SUPPLY0; }
 supply1 { return token::SUPPLY1; }
 tri { return token::TRI; }
