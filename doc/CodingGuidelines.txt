@@ -105,6 +105,9 @@ private order.
  friend class Frobulator;
  }
 
+Class member functions should not be defined inside the class unless they
+are simple accessors that return a member variable.
+
 Avoid using [] to lookup a map value because it creates a key/null value
 pair if the lookup fails.  Use map::find or sta::Map::findKey instead.
 
@@ -113,6 +116,11 @@ Avoid nested classes/enums because SWIG has trouble with them.
 Avoid all use of global variables as "caches", even if they are thread local.
 OpenSTA goes to great lengths to minimize global state variable that prevent
 multiple instances of the Sta class from coexisting.
+
+Do not use thread_local variables. They are essentially global
+variables so they prevent multiple instances of an Sta object from
+existing concurrently, so they sbould also be avoided. Use stack state
+in each thread instead.
 
 Regression Tests
 ................
@@ -129,11 +137,17 @@ Tests log files and results are in test/results. The result/test.log
 is compared to test.ok to determine if a test passes.
 
 Test scripts are written in tcl and live in the /test directory.
-Compress large liberty, verilog, and spef, files and use existing
-libraries to prevent repository bloat.
+Compress large liberty, verilog, and spef, files., Use small or
+existing verilog and liberty files to prevent repository bloat.
 
 The test script should use a one line comment at the beginning of the
 file so head -1 can show what it is for. Use file names to roughly
 group regressions and use numeric suffixes to distinguish them.
 
 The script test/save_ok saves a test/results/<test>.log to test/<test>.okfile.
+
+To add a new regression:
+ add <test>.tcl to /tcl
+ add <test> name to test/regression_vars.tcl
+ run <test> with test/regression <test>
+ use save_ok <test> to save the log file to >test>.log
