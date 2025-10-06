@@ -221,18 +221,21 @@ CheckCrpr::findCrpr(const Path *src_clk_path,
     int level_diff = src_level - tgt_level;
     if (level_diff >= 0) {
       src_clk_path2 = src_clk_path2->prevPath();
-      if (src_clk_path2 == nullptr)
+      if (src_clk_path2 == nullptr
+	  || src_clk_path2->isNull())
         break;
       src_level = src_clk_path2->vertex(this)->level();
     }
     if (level_diff <= 0) {
       tgt_clk_path2 = tgt_clk_path2->prevPath();
-      if (tgt_clk_path2 == nullptr)
+      if (tgt_clk_path2 == nullptr
+	  || tgt_clk_path2->isNull())
         break;
       tgt_level = tgt_clk_path2->vertex(this)->level();
     }
   }
-  if (src_clk_path2 && tgt_clk_path2
+  if (src_clk_path2 && !src_clk_path2->isNull()
+      && tgt_clk_path2 && !tgt_clk_path2->isNull()
       && (src_clk_path2->transition(this) == tgt_clk_path2->transition(this)
 	  || same_pin)) {
     debugPrint(debug_, "crpr", 2, "crpr pin %s",
