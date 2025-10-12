@@ -66,7 +66,7 @@ DispatchQueue::dispatch(const fp_t& op)
   // Manual unlocking is done before notifying, to avoid waking up
   // the waiting thread only to block again (see notify_one for details)
   lock.unlock();
-  cv_.notify_all();
+  cv_.notify_one();
 }
 
 void
@@ -79,7 +79,7 @@ DispatchQueue::dispatch(fp_t&& op)
   // Manual unlocking is done before notifying, to avoid waking up
   // the waiting thread only to block again (see notify_one for details)
   lock.unlock();
-  cv_.notify_all();
+  cv_.notify_one();
 }
 
 void
