@@ -886,11 +886,17 @@ SdcNetwork::findNetRelative(const Instance *inst,
 {
   Net *net = network_->findNetRelative(inst, path_name);
   if (net == nullptr) {
-    string path_name1 = escapeBrackets(path_name, this);
+    string path_name1 = escapeDividers(path_name, network_);
     net = network_->findNetRelative(inst, path_name1.c_str());
+
     if (net == nullptr) {
-      string path_name2 = escapeDividers(path_name1.c_str(), network_);
+      string path_name2 = escapeBrackets(path_name, network_);
       net = network_->findNetRelative(inst, path_name2.c_str());
+
+      if (net == nullptr) {
+	string path_name3 = escapeDividers(path_name2.c_str(), network_);
+	net = network_->findNetRelative(inst, path_name3.c_str());
+      }
     }
   }
   return net;
