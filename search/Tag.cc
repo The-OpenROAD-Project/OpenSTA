@@ -138,11 +138,15 @@ Tag::to_string(bool report_index,
     result += network->pathName(clk_src);
   }
 
+  result += " crpr_pin ";
   const Path *crpr_clk_path = clk_info_->crprClkPath(sta);
-  if (crpr_clk_path != nullptr) {
-    result += " crpr_pin ";
+  if (crpr_clk_path) {
     result += network->pathName(crpr_clk_path->pin(sta));
+    result += " ";
+    result += crpr_clk_path->minMax(sta)->to_string();
   }
+  else
+    result += "null";
 
   if (input_delay_) {
     result += " input ";

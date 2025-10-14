@@ -149,14 +149,16 @@ record_sta_tests {
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  package_require
   path_group_names
   prima3
+  report_checks_sorted
   report_checks_src_attr
   report_json1
   report_json2
   suppress_msg
   verilog_attribute
-  report_checks_sorted
+  verilog_specify
 }
 
 define_test_group fast [group_tests all]

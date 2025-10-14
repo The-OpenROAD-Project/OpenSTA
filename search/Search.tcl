@@ -421,7 +421,7 @@ define_cmd_args "report_checks" \
      [-sort_by_slack]\
      [-path_group group_name]\
      [-format full|full_clock|full_clock_expanded|short|end|slack_only|summary|json]\
-     [-fields capacitance|slew|input_pin|net|src_attr]\
+     [-fields capacitance|slew|fanout|input_pin|net|src_attr]\
      [-digits digits]\
      [-no_line_splits]\
      [> filename] [>> filename]}

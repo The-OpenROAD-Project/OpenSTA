@@ -26,6 +26,7 @@
 
 #include "StaConfig.hh"
 
+// IWYU pragma: begin_exports
 #if (SSTA == 1)
   // Delays are Normal PDFs.
   #include "DelayNormal1.hh"
@@ -36,6 +37,7 @@
   // Delays are floats.
   #include "DelayFloat.hh"
 #endif
+// IWYU pragma: end_exports
 
 namespace sta {
 
