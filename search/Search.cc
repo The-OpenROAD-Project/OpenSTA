@@ -1074,7 +1074,8 @@ Search::findArrivals1(Level level)
   Stats stats(debug_, report_);
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor_);
   deleteTagsPrev();
-  deleteUnusedTagGroups();
+  if (arrival_count > 0)
+    deleteUnusedTagGroups();
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
       && invalid_arrivals_->empty()) {
