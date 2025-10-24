@@ -1437,8 +1437,6 @@ protected:
 			Corner *corner,
 			const MinMax *min_max);
   void powerPreamble();
-  void disableFanoutCrprPruning(Vertex *vertex,
-				int &fanou);
   virtual void replaceCell(Instance *inst,
                            Cell *to_cell,
                            LibertyCell *to_lib_cell);

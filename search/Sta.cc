@@ -3200,48 +3200,8 @@ Sta::findRequired(Vertex *vertex)
       // Need to include downstream required times if there is fanout.
       && !hasFanout(vertex, search_->searchAdj(), graph_))
     search_->seedRequired(vertex);
-  else {
+  else
     search_->findRequireds(vertex->level());
-    if (variables_->crprEnabled()
-	&& search_->crprPathPruningEnabled()
-	&& !search_->crprApproxMissingRequireds()
-	// Clocks invariably have requireds that are pruned but it isn't
-	// worth finding arrivals and requireds all over again for
-	// the entire fanout of the clock.
-	&& !search_->isClock(vertex)) {
-      // Invalidate arrivals and requireds and disable
-      // path pruning on fanout vertices with DFS.
-      int fanout = 0;
-      disableFanoutCrprPruning(vertex, fanout);
-      debugPrint(debug_, "search", 1, "resurrect pruned required %s fanout %d",
-		 vertex->to_string(this).c_str(),
-		 fanout);
-      // Find fanout arrivals and requireds with pruning disabled.
-      search_->findArrivals();
-      search_->findRequireds(vertex->level());
-    }
-  }
-}
-
-void
-Sta::disableFanoutCrprPruning(Vertex *vertex,
-			      int &fanout)
-{
-  if (!vertex->crprPathPruningDisabled()) {
-    search_->arrivalInvalid(vertex);
-    search_->requiredInvalid(vertex);
-    vertex->setCrprPathPruningDisabled(true);
-    fanout++;
-    SearchPred *pred = search_->searchAdj();
-    VertexOutEdgeIterator edge_iter(vertex, graph_);
-    while (edge_iter.hasNext()) {
-      Edge *edge = edge_iter.next();
-      Vertex *to_vertex = edge->to(graph_);
-      if (pred->searchThru(edge)
-	  && pred->searchTo(to_vertex))
-	disableFanoutCrprPruning(to_vertex, fanout);
-    }
-  }
 }
 
 Slack
