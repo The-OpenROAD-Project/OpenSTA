@@ -256,6 +256,12 @@ PathGroups::PathGroups(const StaState *sta) :
   slack_min_(-INF),
   slack_max_(INF)
 {
+  makeGroups(group_path_count_, endpoint_path_count_, unique_pins_,
+	     slack_min_, slack_max_, nullptr,
+	     true, true, true, true, MinMax::max());
+  makeGroups(group_path_count_, endpoint_path_count_, unique_pins_,
+	     slack_min_, slack_max_, nullptr,
+	     true, true, true, true, MinMax::min());
 }
 
 PathGroups::PathGroups(int group_path_count,
