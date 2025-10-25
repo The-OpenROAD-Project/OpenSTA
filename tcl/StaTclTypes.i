@@ -322,6 +322,16 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
+%typemap(out) StdStringSeq {
+  StdStringSeq &strs = $1;
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  for (const std::string &str : strs) {
+    Tcl_Obj *obj = Tcl_NewStringObj(str.c_str(), str.size());
+    Tcl_ListObjAppendElement(interp, list, obj);
+  }
+  Tcl_SetObjResult(interp, list);
+}
+
 %typemap(out) Library* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);

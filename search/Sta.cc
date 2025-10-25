@@ -1990,9 +1990,35 @@ Sta::makeGroupPath(const char *name,
 bool
 Sta::isGroupPathName(const char *group_name)
 {
-  return PathGroups::isGroupPathName(group_name)
-    || sdc_->findClock(group_name)
-    || sdc_->isGroupPathName(group_name);
+  return isPathGroupName(group_name);
+}
+
+bool
+Sta::isPathGroupName(const char *group_name) const
+{
+  return sdc_->findClock(group_name)
+    || sdc_->isGroupPathName(group_name)
+    || stringEq(group_name, PathGroups::asyncPathGroupName())
+    || stringEq(group_name, PathGroups::pathDelayGroupName())
+    || stringEq(group_name, PathGroups::gatedClkGroupName())
+    || stringEq(group_name, PathGroups::asyncPathGroupName());
+}
+
+StdStringSeq
+Sta::pathGroupNames() const
+{
+  StdStringSeq names;
+  for (const Clock *clk : *sdc_->clocks())
+    names.push_back(clk->name());
+
+  for (auto const &[name, group] : sdc_->groupPaths())
+    names.push_back(name);
+
+  names.push_back(PathGroups::asyncPathGroupName());
+  names.push_back(PathGroups::pathDelayGroupName());
+  names.push_back(PathGroups::gatedClkGroupName());
+  names.push_back(PathGroups::unconstrainedGroupName());
+  return names;
 }
 
 ExceptionFrom *
@@ -3004,13 +3030,84 @@ Sta::pinSlack(const Pin *pin,
   return slack;
 }
 
+////////////////////////////////////////////////////////////////
+
+class EndpointPathEndVisitor : public PathEndVisitor
+{
+public:
+  EndpointPathEndVisitor(const std::string &path_group_name,
+			 const PathGroups &path_groups,
+			 const MinMax *min_max,
+			 const StaState *sta);
+  PathEndVisitor *copy() const;
+  void visit(PathEnd *path_end);
+  Slack slack() const { return slack_; }
+
+private:
+  const std::string &path_group_name_;
+  const PathGroups &path_groups_;
+  const MinMax *min_max_;
+  Slack slack_;
+  const StaState *sta_;
+};
+
+EndpointPathEndVisitor::EndpointPathEndVisitor(const std::string &path_group_name,
+					       const PathGroups &path_groups,
+					       const MinMax *min_max,
+					       const StaState *sta) :
+  path_group_name_(path_group_name),
+  path_groups_(path_groups),
+  min_max_(min_max),
+  slack_(MinMax::min()->initValue()),
+  sta_(sta)
+{
+}
+
+PathEndVisitor *
+EndpointPathEndVisitor::copy() const
+{
+  return new EndpointPathEndVisitor(path_group_name_, path_groups_, min_max_, sta_);
+}
+
+void
+EndpointPathEndVisitor::visit(PathEnd *path_end)
+{
+  if (path_end->minMax(sta_) == min_max_
+      && path_groups_.pathGroup(path_end)->name() == path_group_name_) {
+    Slack end_slack = path_end->slack(sta_);
+    if (delayLess(end_slack, slack_, sta_))
+      slack_ = end_slack;
+  }
+}
+
+Slack
+Sta::endpointSlack(const Pin *pin,
+		   const std::string &path_group_name,
+		   const MinMax *min_max)
+{
+  ensureGraph();
+  Vertex *vertex = graph_->pinLoadVertex(pin);
+  if (vertex) {
+    findRequired(vertex);
+    // Make path groups to use PathGroups::pathGroup(PathEnd).
+    PathGroups path_groups(this);
+    VisitPathEnds visit_ends(this);
+    EndpointPathEndVisitor path_end_visitor(path_group_name, path_groups, min_max, this);
+    visit_ends.visitPathEnds(vertex, &path_end_visitor);
+    return path_end_visitor.slack();
+  }
+  else
+    return INF;
+}
+
+////////////////////////////////////////////////////////////////
+
 Slack
 Sta::vertexSlack(Vertex *vertex,
 		 const MinMax *min_max)
 {
   findRequired(vertex);
-  const MinMax *min = MinMax::min();
-  Slack slack = min->initValue();
+  Slack slack = MinMax::min()->initValue();
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();

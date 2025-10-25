@@ -73,6 +73,7 @@ typedef InstanceSeq::Iterator SlowDrvrIterator;
 typedef Vector<const char*> CheckError;
 typedef Vector<CheckError*> CheckErrorSeq;
 typedef Vector<Corner*> CornerSeq;
+typedef std::vector<std::string> StdStringSeq;
 
 enum class CmdNamespace { sta, sdc };
 
@@ -516,7 +517,10 @@ public:
 		     ExceptionThruSeq *thrus,
 		     ExceptionTo *to,
 		     const char *comment);
-  bool isGroupPathName(const char *group_name);
+  // Deprecated 10/24/2025
+  bool isGroupPathName(const char *group_name) __attribute__ ((deprecated));
+  bool isPathGroupName(const char *group_name) const;
+  StdStringSeq pathGroupNames() const;
   void resetPath(ExceptionFrom *from,
 		 ExceptionThruSeq *thrus,
 		 ExceptionTo *to,
@@ -1002,6 +1006,10 @@ public:
 		 const MinMax *min_max);
   Slack pinSlack(const Pin *pin,
 		 const MinMax *min_max);
+  // Worst slack for an endpoint in a path group.
+  Slack endpointSlack(const Pin *pin,
+		      const std::string &path_group_name,
+		      const MinMax *min_max);
   Slack vertexSlack(Vertex *vertex,
 		    const MinMax *min_max);
   Slack vertexSlack(Vertex *vertex,
