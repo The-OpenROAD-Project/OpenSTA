@@ -3036,7 +3036,6 @@ class EndpointPathEndVisitor : public PathEndVisitor
 {
 public:
   EndpointPathEndVisitor(const std::string &path_group_name,
-			 const PathGroups &path_groups,
 			 const MinMax *min_max,
 			 const StaState *sta);
   PathEndVisitor *copy() const;
@@ -3045,18 +3044,15 @@ public:
 
 private:
   const std::string &path_group_name_;
-  const PathGroups &path_groups_;
   const MinMax *min_max_;
   Slack slack_;
   const StaState *sta_;
 };
 
 EndpointPathEndVisitor::EndpointPathEndVisitor(const std::string &path_group_name,
-					       const PathGroups &path_groups,
 					       const MinMax *min_max,
 					       const StaState *sta) :
   path_group_name_(path_group_name),
-  path_groups_(path_groups),
   min_max_(min_max),
   slack_(MinMax::min()->initValue()),
   sta_(sta)
@@ -3066,14 +3062,14 @@ EndpointPathEndVisitor::EndpointPathEndVisitor(const std::string &path_group_nam
 PathEndVisitor *
 EndpointPathEndVisitor::copy() const
 {
-  return new EndpointPathEndVisitor(path_group_name_, path_groups_, min_max_, sta_);
+  return new EndpointPathEndVisitor(path_group_name_, min_max_, sta_);
 }
 
 void
 EndpointPathEndVisitor::visit(PathEnd *path_end)
 {
   if (path_end->minMax(sta_) == min_max_
-      && path_groups_.pathGroup(path_end)->name() == path_group_name_) {
+      && PathGroups::pathGroupName(path_end, sta_) == path_group_name_) {
     Slack end_slack = path_end->slack(sta_);
     if (delayLess(end_slack, slack_, sta_))
       slack_ = end_slack;
@@ -3089,10 +3085,8 @@ Sta::endpointSlack(const Pin *pin,
   Vertex *vertex = graph_->pinLoadVertex(pin);
   if (vertex) {
     findRequired(vertex);
-    // Make path groups to use PathGroups::pathGroup(PathEnd).
-    PathGroups path_groups(this);
     VisitPathEnds visit_ends(this);
-    EndpointPathEndVisitor path_end_visitor(path_group_name, path_groups, min_max, this);
+    EndpointPathEndVisitor path_end_visitor(path_group_name, min_max, this);
     visit_ends.visitPathEnds(vertex, &path_end_visitor);
     return path_end_visitor.slack();
   }

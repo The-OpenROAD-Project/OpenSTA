@@ -107,7 +107,6 @@ protected:
 class PathGroups : public StaState
 {
 public:
-  PathGroups(const StaState *sta);
   PathGroups(int group_path_count,
 	     int endpoint_path_count,
 	     bool unique_pins,
@@ -135,6 +134,8 @@ public:
   PathGroup *findPathGroup(const Clock *clock,
 			   const MinMax *min_max) const;
   PathGroup *pathGroup(const PathEnd *path_end) const;
+  static std::string pathGroupName(const PathEnd *path_end,
+				   const StaState *sta);
   static const char *asyncPathGroupName() { return async_group_name_; }
   static const char *pathDelayGroupName() { return  path_delay_group_name_; }
   static const char *gatedClkGroupName() { return gated_clk_group_name_; }
@@ -178,7 +179,8 @@ protected:
 		  const MinMax *min_max);
   bool reportGroup(const char *group_name,
 		   PathGroupNameSet *group_names) const;
-  GroupPath *groupPathTo(const PathEnd *path_end) const;
+  static GroupPath *groupPathTo(const PathEnd *path_end,
+				const StaState *sta);
 
   int group_path_count_;
   int endpoint_path_count_;
