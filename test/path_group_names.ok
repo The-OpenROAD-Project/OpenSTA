@@ -1,2 +1,2 @@
-Initial path groups: 
-Final path groups: In2Out In2Reg Reg2Out Reg2Reg
+Initial path groups: clk asynchronous {path delay} {gated clock} unconstrained
+Final path groups: clk In2Out In2Reg Reg2Out Reg2Reg asynchronous {path delay} {gated clock} unconstrained

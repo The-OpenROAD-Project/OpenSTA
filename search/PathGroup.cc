@@ -248,15 +248,6 @@ const char *PathGroups::gated_clk_group_name_ = "gated clock";
 const char *PathGroups::async_group_name_ = "asynchronous";
 const char *PathGroups::unconstrained_group_name_ = "unconstrained";
 
-bool
-PathGroups::isGroupPathName(const char *group_name)
-{
-  return stringEq(group_name, path_delay_group_name_)
-    || stringEq(group_name, gated_clk_group_name_)
-    || stringEq(group_name, async_group_name_)
-    || stringEq(group_name, unconstrained_group_name_);
-}
-
 PathGroups::PathGroups(int group_path_count,
 		       int endpoint_path_count,
 		       bool unique_pins,
@@ -412,7 +403,7 @@ PathGroups::pathGroup(const PathEnd *path_end) const
 {
   const MinMax *min_max = path_end->minMax(this);
   int mm_index =  min_max->index();
-  GroupPath *group_path = groupPathTo(path_end);
+  GroupPath *group_path = groupPathTo(path_end, this);
   if (path_end->isUnconstrained())
     return unconstrained_[mm_index];
   // GroupPaths have precedence.
@@ -455,16 +446,63 @@ PathGroups::pathGroup(const PathEnd *path_end) const
   }
 }
 
+// Mirrors PathGroups::pathGroup.
+std::string
+PathGroups::pathGroupName(const PathEnd *path_end,
+			  const StaState *sta)
+{
+  GroupPath *group_path = groupPathTo(path_end, sta);
+  if (path_end->isUnconstrained())
+    return unconstrained_group_name_;
+  // GroupPaths have precedence.
+  else if (group_path) {
+   if (group_path->isDefault())
+     return path_delay_group_name_;
+   else
+     return group_path->name();
+  }
+  else if (path_end->isCheck() || path_end->isLatchCheck()) {
+    const TimingRole *check_role = path_end->checkRole(sta);
+    const Clock *tgt_clk = path_end->targetClk(sta);
+    if (check_role == TimingRole::removal()
+	|| check_role == TimingRole::recovery())
+      return async_group_name_;
+    else
+      return tgt_clk->name();
+  }
+  else if (path_end->isOutputDelay()
+	   || path_end->isDataCheck())
+    return path_end->targetClk(sta)->name();
+  else if (path_end->isGatedClock())
+    return gated_clk_group_name_;
+  else if (path_end->isPathDelay()) {
+    // Path delays that end at timing checks are part of the target clk group
+    // unless -ignore_clock_latency is true.
+    PathDelay *path_delay = path_end->pathDelay();
+    const Clock *tgt_clk = path_end->targetClk(sta);
+    if (tgt_clk
+	&& !path_delay->ignoreClkLatency())
+      return tgt_clk->name();
+    else
+      return path_delay_group_name_;
+  }
+  else {
+    sta->report()->critical(1391, "unknown path end type");
+    return nullptr;
+  }
+}
+
 GroupPath *
-PathGroups::groupPathTo(const PathEnd *path_end) const
+PathGroups::groupPathTo(const PathEnd *path_end,
+			const StaState *sta)
 {
   const Path *path = path_end->path();
-  const Pin *pin = path->pin(this);
+  const Pin *pin = path->pin(sta);
   ExceptionPath *exception = 
-    search_->exceptionTo(ExceptionPathType::group_path, path,
-			 pin, path->transition(this),
-			 path_end->targetClkEdge(this),
-			 path->minMax(this), false, false);
+    sta->search()->exceptionTo(ExceptionPathType::group_path, path,
+			       pin, path->transition(sta),
+			       path_end->targetClkEdge(sta),
+			       path->minMax(sta), false, false);
   return dynamic_cast<GroupPath*>(exception);
 }
 

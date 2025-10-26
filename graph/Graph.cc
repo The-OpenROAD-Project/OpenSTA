@@ -594,7 +594,6 @@ Graph::deletePaths(Vertex *vertex)
 {
   vertex->setPaths(nullptr);
   vertex->tag_group_index_ = tag_group_index_max;
-  vertex->crpr_path_pruning_disabled_ = false;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -998,7 +997,6 @@ Vertex::init(Pin *pin,
   visited1_ = false;
   visited2_ = false;
   bfs_in_queue_ = 0;
-  crpr_path_pruning_disabled_ = false;
 }
 
 Vertex::~Vertex()
@@ -1118,12 +1116,6 @@ void
 Vertex::removeSlewAnnotated()
 {
   slew_annotated_ = 0;
-}
-
-void
-Vertex::setCrprPathPruningDisabled(bool disabled)
-{
-  crpr_path_pruning_disabled_ = disabled;
 }
 
 TagGroupIndex

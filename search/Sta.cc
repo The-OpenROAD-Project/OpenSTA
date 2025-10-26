@@ -1990,9 +1990,35 @@ Sta::makeGroupPath(const char *name,
 bool
 Sta::isGroupPathName(const char *group_name)
 {
-  return PathGroups::isGroupPathName(group_name)
-    || sdc_->findClock(group_name)
-    || sdc_->isGroupPathName(group_name);
+  return isPathGroupName(group_name);
+}
+
+bool
+Sta::isPathGroupName(const char *group_name) const
+{
+  return sdc_->findClock(group_name)
+    || sdc_->isGroupPathName(group_name)
+    || stringEq(group_name, PathGroups::asyncPathGroupName())
+    || stringEq(group_name, PathGroups::pathDelayGroupName())
+    || stringEq(group_name, PathGroups::gatedClkGroupName())
+    || stringEq(group_name, PathGroups::unconstrainedGroupName());
+}
+
+StdStringSeq
+Sta::pathGroupNames() const
+{
+  StdStringSeq names;
+  for (const Clock *clk : *sdc_->clocks())
+    names.push_back(clk->name());
+
+  for (auto const &[name, group] : sdc_->groupPaths())
+    names.push_back(name);
+
+  names.push_back(PathGroups::asyncPathGroupName());
+  names.push_back(PathGroups::pathDelayGroupName());
+  names.push_back(PathGroups::gatedClkGroupName());
+  names.push_back(PathGroups::unconstrainedGroupName());
+  return names;
 }
 
 ExceptionFrom *
@@ -3004,13 +3030,78 @@ Sta::pinSlack(const Pin *pin,
   return slack;
 }
 
+////////////////////////////////////////////////////////////////
+
+class EndpointPathEndVisitor : public PathEndVisitor
+{
+public:
+  EndpointPathEndVisitor(const std::string &path_group_name,
+			 const MinMax *min_max,
+			 const StaState *sta);
+  PathEndVisitor *copy() const;
+  void visit(PathEnd *path_end);
+  Slack slack() const { return slack_; }
+
+private:
+  const std::string &path_group_name_;
+  const MinMax *min_max_;
+  Slack slack_;
+  const StaState *sta_;
+};
+
+EndpointPathEndVisitor::EndpointPathEndVisitor(const std::string &path_group_name,
+					       const MinMax *min_max,
+					       const StaState *sta) :
+  path_group_name_(path_group_name),
+  min_max_(min_max),
+  slack_(MinMax::min()->initValue()),
+  sta_(sta)
+{
+}
+
+PathEndVisitor *
+EndpointPathEndVisitor::copy() const
+{
+  return new EndpointPathEndVisitor(path_group_name_, min_max_, sta_);
+}
+
+void
+EndpointPathEndVisitor::visit(PathEnd *path_end)
+{
+  if (path_end->minMax(sta_) == min_max_
+      && PathGroups::pathGroupName(path_end, sta_) == path_group_name_) {
+    Slack end_slack = path_end->slack(sta_);
+    if (delayLess(end_slack, slack_, sta_))
+      slack_ = end_slack;
+  }
+}
+
+Slack
+Sta::endpointSlack(const Pin *pin,
+		   const std::string &path_group_name,
+		   const MinMax *min_max)
+{
+  ensureGraph();
+  Vertex *vertex = graph_->pinLoadVertex(pin);
+  if (vertex) {
+    findRequired(vertex);
+    VisitPathEnds visit_ends(this);
+    EndpointPathEndVisitor path_end_visitor(path_group_name, min_max, this);
+    visit_ends.visitPathEnds(vertex, &path_end_visitor);
+    return path_end_visitor.slack();
+  }
+  else
+    return INF;
+}
+
+////////////////////////////////////////////////////////////////
+
 Slack
 Sta::vertexSlack(Vertex *vertex,
 		 const MinMax *min_max)
 {
   findRequired(vertex);
-  const MinMax *min = MinMax::min();
-  Slack slack = min->initValue();
+  Slack slack = MinMax::min()->initValue();
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
@@ -3200,48 +3291,8 @@ Sta::findRequired(Vertex *vertex)
       // Need to include downstream required times if there is fanout.
       && !hasFanout(vertex, search_->searchAdj(), graph_))
     search_->seedRequired(vertex);
-  else {
+  else
     search_->findRequireds(vertex->level());
-    if (variables_->crprEnabled()
-	&& search_->crprPathPruningEnabled()
-	&& !search_->crprApproxMissingRequireds()
-	// Clocks invariably have requireds that are pruned but it isn't
-	// worth finding arrivals and requireds all over again for
-	// the entire fanout of the clock.
-	&& !search_->isClock(vertex)) {
-      // Invalidate arrivals and requireds and disable
-      // path pruning on fanout vertices with DFS.
-      int fanout = 0;
-      disableFanoutCrprPruning(vertex, fanout);
-      debugPrint(debug_, "search", 1, "resurrect pruned required %s fanout %d",
-		 vertex->to_string(this).c_str(),
-		 fanout);
-      // Find fanout arrivals and requireds with pruning disabled.
-      search_->findArrivals();
-      search_->findRequireds(vertex->level());
-    }
-  }
-}
-
-void
-Sta::disableFanoutCrprPruning(Vertex *vertex,
-			      int &fanout)
-{
-  if (!vertex->crprPathPruningDisabled()) {
-    search_->arrivalInvalid(vertex);
-    search_->requiredInvalid(vertex);
-    vertex->setCrprPathPruningDisabled(true);
-    fanout++;
-    SearchPred *pred = search_->searchAdj();
-    VertexOutEdgeIterator edge_iter(vertex, graph_);
-    while (edge_iter.hasNext()) {
-      Edge *edge = edge_iter.next();
-      Vertex *to_vertex = edge->to(graph_);
-      if (pred->searchThru(edge)
-	  && pred->searchTo(to_vertex))
-	disableFanoutCrprPruning(to_vertex, fanout);
-    }
-  }
 }
 
 Slack

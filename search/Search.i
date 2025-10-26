@@ -251,6 +251,31 @@ vertex_worst_slack_path(Vertex *vertex,
   return sta->vertexWorstSlackPath(vertex, min_max);
 }
 
+Slack
+endpoint_slack(const Pin *pin,
+	       const char *path_group_name,
+	       const MinMax *min_max)
+{
+  Sta *sta = Sta::sta();
+  sta->ensureLibLinked();
+  if (sta->isGroupPathName(path_group_name)) {
+    Slack slack = sta->endpointSlack(pin, std::string(path_group_name), min_max);
+    return sta->units()->timeUnit()->staToUser(slack);
+  }
+  else {
+    sta->report()->error(1577, "%s is not a known path group name.",
+			 path_group_name);
+    return INF;
+  }
+}
+
+StdStringSeq
+path_group_names()
+{
+  Sta *sta = Sta::sta();
+  return sta->pathGroupNames();
+}
+
 int
 tag_group_count()
 {

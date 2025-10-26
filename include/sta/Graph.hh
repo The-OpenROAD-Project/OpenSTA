@@ -304,8 +304,6 @@ public:
   bool bfsInQueue(BfsIndex index) const;
   void setBfsInQueue(BfsIndex index, bool value);
   bool isRegClk() const { return is_reg_clk_; }
-  bool crprPathPruningDisabled() const { return crpr_path_pruning_disabled_;}
-  void setCrprPathPruningDisabled(bool disabled);
   
   // ObjectTable interface.
   ObjectIdx objectIdx() const { return object_idx_; }
@@ -353,7 +351,6 @@ protected:
   bool is_check_clk_:1;
   bool is_constrained_:1;
   bool has_downstream_clk_pin_:1;
-  bool crpr_path_pruning_disabled_:1;
   bool visited1_:1;
   bool visited2_:1;
 

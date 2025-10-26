@@ -734,7 +734,7 @@ make_group_path(const char *name,
 bool
 is_path_group_name(const char *name)
 {
-  return Sta::sta()->isGroupPathName(name);
+  return Sta::sta()->isPathGroupName(name);
 }
 
 ExceptionFrom *
@@ -863,7 +863,7 @@ set_clock_sense_cmd(PinSet *pins,
   else if (stop_propagation)
     sta->setClockSense(pins, clks, ClockSense::stop);
   else
-    sta->report()->critical(1577, "unknown clock sense");
+    sta->report()->critical(2123, "unknown clock sense");
 }
 
 void
@@ -1328,7 +1328,7 @@ filter_timing_arcs(const char *property,
 ////////////////////////////////////////////////////////////////
 
 StringSeq
-path_group_names()
+group_path_names()
 {
   StringSeq pg_names;
   for (auto const& [name, group] : Sta::sta()->sdc()->groupPaths())
