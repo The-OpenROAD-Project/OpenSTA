@@ -2001,7 +2001,7 @@ Sta::isPathGroupName(const char *group_name) const
     || stringEq(group_name, PathGroups::asyncPathGroupName())
     || stringEq(group_name, PathGroups::pathDelayGroupName())
     || stringEq(group_name, PathGroups::gatedClkGroupName())
-    || stringEq(group_name, PathGroups::asyncPathGroupName());
+    || stringEq(group_name, PathGroups::unconstrainedGroupName());
 }
 
 StdStringSeq
