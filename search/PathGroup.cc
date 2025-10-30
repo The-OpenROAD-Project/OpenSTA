@@ -642,15 +642,14 @@ MakePathEnds1::visitPathEnd(PathEnd *path_end,
   if (group->saveable(path_end)) {
     // Only keep the path end with the smallest slack/latest arrival.
     PathEnd *worst_end = ends_.findKey(group);
-    PathEnd *copy = path_end->copy();
     if (worst_end) {
       if (cmp_(path_end, worst_end)) {
-	ends_[group] = copy;
+	ends_[group] = path_end->copy();
 	delete worst_end;
       }
     }
     else
-      ends_[group] = copy;
+      ends_[group] = path_end->copy();
   }
 }
 
