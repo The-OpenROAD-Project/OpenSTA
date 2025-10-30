@@ -3767,6 +3767,34 @@ Search::exceptionTo(ExceptionPathType type,
 
 ////////////////////////////////////////////////////////////////
 
+// Find group paths that end at the path.
+ExceptionPathSeq
+Search::groupPathsTo(const PathEnd *path_end) const
+{
+  ExceptionPathSeq group_paths;
+  const Path *path = path_end->path();
+  const Pin *pin = path->pin(this);
+  const Tag *tag = path->tag(this);
+  const RiseFall *rf = tag->transition();
+  const ClockEdge *clk_edge = path_end->targetClkEdge(this);
+  const MinMax *min_max = tag->minMax(this);
+  const ExceptionStateSet *states = path->tag(this)->states();
+  if (states) {
+    for (auto state : *states) {
+      ExceptionPath *exception = state->exception();
+      if (exception->isGroupPath()
+	  && sdc_->exceptionMatchesTo(exception, pin, rf, clk_edge, min_max,
+				      false, false))
+	group_paths.push_back(exception);
+    }
+  }
+  // Check for group_path -to exceptions originating at the end pin or target clock.
+  sdc_->groupPathsTo(pin, rf, clk_edge, min_max, group_paths);
+  return group_paths;
+}
+
+////////////////////////////////////////////////////////////////
+
 Slack
 Search::totalNegativeSlack(const MinMax *min_max)
 {
@@ -4095,13 +4123,13 @@ Search::deletePathGroups()
   path_groups_ = nullptr;
 }
 
-PathGroup *
-Search::pathGroup(const PathEnd *path_end) const
+PathGroupSeq
+Search::pathGroups(const PathEnd *path_end) const
 {
   if (path_groups_)
-    return path_groups_->pathGroup(path_end);
+    return path_groups_->pathGroups(path_end);
   else
-    return nullptr;
+    return PathGroupSeq();
 }
 
 bool

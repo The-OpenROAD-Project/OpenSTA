@@ -181,6 +181,12 @@ Tag::transition() const
   return RiseFall::find(rf_index_);
 }
 
+const MinMax *
+Tag::minMax(const StaState *sta) const
+{
+  return pathAnalysisPt(sta)->pathMinMax();
+}
+
 PathAnalysisPt *
 Tag::pathAnalysisPt(const StaState *sta) const
 {

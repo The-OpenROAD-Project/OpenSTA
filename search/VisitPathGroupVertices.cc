@@ -177,12 +177,14 @@ VisitPathGroupEnds::vertexBegin(Vertex *)
 void
 VisitPathGroupEnds::visit(PathEnd *path_end)
 {
-  PathGroup *group = sta_->search()->pathGroup(path_end);
-  if (group == path_group_) {
-    Path *path = path_end->path();
-    Vertex *vertex = path->vertex(sta_);
-    vertexPathSetMapInsertPath(matching_path_map_, vertex, path->tag(sta_), sta_);
-    vertex_matches_ = true;
+  PathGroupSeq groups = sta_->search()->pathGroups(path_end);
+  for (PathGroup *group : groups) {
+    if (group == path_group_) {
+      Path *path = path_end->path();
+      Vertex *vertex = path->vertex(sta_);
+      vertexPathSetMapInsertPath(matching_path_map_, vertex, path->tag(sta_), sta_);
+      vertex_matches_ = true;
+    }
   }
 }
 

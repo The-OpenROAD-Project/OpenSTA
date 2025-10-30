@@ -68,7 +68,7 @@ public:
 	      path_delay
   };
 
-  virtual PathEnd *copy() = 0;
+  virtual PathEnd *copy() const = 0;
   virtual ~PathEnd();
   void deletePath();
   Path *path() { return path_; }
@@ -84,6 +84,8 @@ public:
   PathAPIndex pathIndex(const StaState *sta) const;
   virtual void reportShort(const ReportPath *report) const = 0;
   virtual void reportFull(const ReportPath *report) const = 0;
+  PathGroup *pathGroup() const { return path_group_; }
+  void setPathGroup(PathGroup *path_group);
 
   // Predicates for PathEnd type.
   // Default methods overridden by respective types.
@@ -216,6 +218,7 @@ protected:
                                PathDelay *path_delay,
                                const StaState *sta);
   Path *path_;
+  PathGroup *path_group_;
 };
 
 class PathEndUnconstrained : public PathEnd
@@ -224,7 +227,7 @@ public:
   explicit PathEndUnconstrained(Path *path);
   virtual Type type() const;
   virtual const char *typeName() const;
-  virtual PathEnd *copy();
+  virtual PathEnd *copy() const;
   virtual void reportShort(const ReportPath *report) const;
   virtual void reportFull(const ReportPath *report) const;
   virtual bool isUnconstrained() const;
@@ -321,7 +324,7 @@ public:
 	       Path *clk_path,
 	       MultiCyclePath *mcp,
 	       const StaState *sta);
-  virtual PathEnd *copy();
+  virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
   virtual void reportShort(const ReportPath *report) const;
@@ -367,7 +370,7 @@ public:
   virtual bool isCheck() const { return false; }
   virtual bool isLatchCheck() const { return true; }
   virtual PathDelay *pathDelay() const { return path_delay_; }
-  virtual PathEnd *copy();
+  virtual PathEnd *copy() const;
   Path *latchDisable();
   const Path *latchDisable() const;
   virtual void reportShort(const ReportPath *report) const;
@@ -428,7 +431,7 @@ public:
 		     Path *clk_path,
 		     MultiCyclePath *mcp,
 		     const StaState *sta);
-  virtual PathEnd *copy();
+  virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
   virtual void reportShort(const ReportPath *report) const;
@@ -474,7 +477,7 @@ public:
 		    MultiCyclePath *mcp,
 		    ArcDelay margin,
 		    const StaState *sta);
-  virtual PathEnd *copy();
+  virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
   virtual void reportShort(const ReportPath *report) const;
@@ -506,7 +509,7 @@ public:
 		   Path *data_clk_path,
 		   MultiCyclePath *mcp,
 		   const StaState *sta);
-  virtual PathEnd *copy();
+  virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
   virtual void reportShort(const ReportPath *report) const;
@@ -560,7 +563,7 @@ public:
 		   Path *path,
 		   OutputDelay *output_delay,
 		   const StaState *sta);
-  virtual PathEnd *copy();
+  virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
   virtual void reportShort(const ReportPath *report) const;

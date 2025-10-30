@@ -71,6 +71,8 @@ typedef Map<Vertex*, Slack> VertexSlackMap;
 typedef Vector<VertexSlackMap> VertexSlackMapSeq;
 typedef Vector<WorstSlacks> WorstSlacksSeq;
 typedef std::vector<DelayDbl> DelayDblSeq;
+typedef Vector<ExceptionPath*> ExceptionPathSeq;
+typedef std::vector<PathGroup*> PathGroupSeq;
 
 class Search : public StaState
 {
@@ -165,7 +167,7 @@ public:
   // Clock arrival at the path source/launch point.
   Arrival pathClkPathArrival(const Path *path) const;
 
-  PathGroup *pathGroup(const PathEnd *path_end) const;
+  PathGroupSeq pathGroups(const PathEnd *path_end) const;
   void deletePathGroups();
   void makePathGroups(int group_path_count,
                       int endpoint_path_count,
@@ -187,6 +189,7 @@ public:
 				     const MinMax *min_max,
 				     bool match_min_max_exactly,
 				     bool require_to_pin) const;
+  ExceptionPathSeq groupPathsTo(const PathEnd *path_end) const;
   FilterPath *filter() const { return filter_; }
   void deleteFilter();
   void deleteFilteredArrivals();

@@ -168,6 +168,7 @@ PathGroup::insert(PathEnd *path_end)
 {
   LockGuard lock(lock_);
   path_ends_.push_back(path_end);
+  path_end->setPathGroup(this);
   if (group_path_count_ != group_path_count_max
       && path_ends_.size() > group_path_count_ * 2)
     prune();
@@ -398,37 +399,43 @@ PathGroups::reportGroup(const char *group_name,
     || group_names->hasKey(group_name);
 }
 
-PathGroup *
-PathGroups::pathGroup(const PathEnd *path_end) const
+PathGroupSeq
+PathGroups::pathGroups(const PathEnd *path_end) const
 {
+  PathGroupSeq path_groups;
+  PathGroup *path_group = nullptr;
+  ExceptionPathSeq group_paths = search_->groupPathsTo(path_end);
   const MinMax *min_max = path_end->minMax(this);
   int mm_index =  min_max->index();
-  GroupPath *group_path = groupPathTo(path_end, this);
   if (path_end->isUnconstrained())
-    return unconstrained_[mm_index];
+    path_group = unconstrained_[mm_index];
   // GroupPaths have precedence.
-  else if (group_path) {
-   if (group_path->isDefault())
-     return path_delay_[mm_index];
-   else {
-     const char *group_name = group_path->name();
-     return findPathGroup(group_name, min_max);
-   }
+  else if (!group_paths.empty()) {
+    for (ExceptionPath *group_path : group_paths) {
+      if (group_path->isDefault())
+	path_groups.push_back(path_delay_[mm_index]);
+      else {
+	const char *group_name = group_path->name();
+	PathGroup *group = findPathGroup(group_name, min_max);
+	if (group)
+	  path_groups.push_back(group);
+      }
+    }
   }
   else if (path_end->isCheck() || path_end->isLatchCheck()) {
     const TimingRole *check_role = path_end->checkRole(this);
     const Clock *tgt_clk = path_end->targetClk(this);
     if (check_role == TimingRole::removal()
 	|| check_role == TimingRole::recovery())
-      return async_[mm_index];
+      path_group = async_[mm_index];
     else
-      return findPathGroup(tgt_clk, min_max);
+      path_group = findPathGroup(tgt_clk, min_max);
   }
   else if (path_end->isOutputDelay()
-	   || path_end->isDataCheck())
-    return findPathGroup(path_end->targetClk(this), min_max);
+      || path_end->isDataCheck())
+    path_group = findPathGroup(path_end->targetClk(this), min_max);
   else if (path_end->isGatedClock())
-    return gated_clk_[mm_index];
+    path_group = gated_clk_[mm_index];
   else if (path_end->isPathDelay()) {
     // Path delays that end at timing checks are part of the target clk group
     // unless -ignore_clock_latency is true.
@@ -436,45 +443,52 @@ PathGroups::pathGroup(const PathEnd *path_end) const
     const Clock *tgt_clk = path_end->targetClk(this);
     if (tgt_clk
 	&& !path_delay->ignoreClkLatency())
-      return findPathGroup(tgt_clk, min_max);
+      path_group = findPathGroup(tgt_clk, min_max);
     else
-      return path_delay_[mm_index];
+      path_group = path_delay_[mm_index];
   }
-  else {
-    report_->critical(1390, "unknown path end type");
-    return nullptr;
-  }
+  if (path_group)
+    path_groups.push_back(path_group);
+  return path_groups;
 }
 
 // Mirrors PathGroups::pathGroup.
-std::string
-PathGroups::pathGroupName(const PathEnd *path_end,
-			  const StaState *sta)
+StdStringSeq
+PathGroups::pathGroupNames(const PathEnd *path_end,
+			   const StaState *sta)
 {
-  GroupPath *group_path = groupPathTo(path_end, sta);
+  StdStringSeq group_names;
+  const char *group_name = nullptr;
+  const Search *search = sta->search();
+  ExceptionPathSeq group_paths = search->groupPathsTo(path_end);
   if (path_end->isUnconstrained())
-    return unconstrained_group_name_;
-  // GroupPaths have precedence.
-  else if (group_path) {
-   if (group_path->isDefault())
-     return path_delay_group_name_;
-   else
-     return group_path->name();
+    group_name = unconstrained_group_name_;
+  else if (!group_paths.empty()) {
+    // GroupPaths have precedence.
+    for (ExceptionPath *group_path : group_paths) {
+      if (group_path->isDefault())
+	group_names.push_back(path_delay_group_name_);
+      else
+	group_names.push_back(group_path->name());
+    }
   }
   else if (path_end->isCheck() || path_end->isLatchCheck()) {
     const TimingRole *check_role = path_end->checkRole(sta);
     const Clock *tgt_clk = path_end->targetClk(sta);
     if (check_role == TimingRole::removal()
 	|| check_role == TimingRole::recovery())
-      return async_group_name_;
+      group_name = async_group_name_;
     else
-      return tgt_clk->name();
+      group_name = tgt_clk->name();
   }
   else if (path_end->isOutputDelay()
-	   || path_end->isDataCheck())
-    return path_end->targetClk(sta)->name();
+	   || path_end->isDataCheck()) {
+    const Clock *tgt_clk = path_end->targetClk(sta);
+    if (tgt_clk)
+      group_name = tgt_clk->name();
+  }
   else if (path_end->isGatedClock())
-    return gated_clk_group_name_;
+    group_name = gated_clk_group_name_;
   else if (path_end->isPathDelay()) {
     // Path delays that end at timing checks are part of the target clk group
     // unless -ignore_clock_latency is true.
@@ -482,28 +496,13 @@ PathGroups::pathGroupName(const PathEnd *path_end,
     const Clock *tgt_clk = path_end->targetClk(sta);
     if (tgt_clk
 	&& !path_delay->ignoreClkLatency())
-      return tgt_clk->name();
+      group_name = tgt_clk->name();
     else
-      return path_delay_group_name_;
+      group_name = path_delay_group_name_;
   }
-  else {
-    sta->report()->critical(1391, "unknown path end type");
-    return nullptr;
-  }
-}
-
-GroupPath *
-PathGroups::groupPathTo(const PathEnd *path_end,
-			const StaState *sta)
-{
-  const Path *path = path_end->path();
-  const Pin *pin = path->pin(sta);
-  ExceptionPath *exception = 
-    sta->search()->exceptionTo(ExceptionPathType::group_path, path,
-			       pin, path->transition(sta),
-			       path_end->targetClkEdge(sta),
-			       path->minMax(sta), false, false);
-  return dynamic_cast<GroupPath*>(exception);
+  if (group_name)
+    group_names.push_back(group_name);
+  return group_names;
 }
 
 void
@@ -632,8 +631,7 @@ MakePathEnds1::copy() const
 void
 MakePathEnds1::visit(PathEnd *path_end)
 {
-  PathGroup *group = path_groups_->pathGroup(path_end);
-  if (group)
+  for (PathGroup *group : path_groups_->pathGroups(path_end))
     visitPathEnd(path_end, group);
 }
 
@@ -644,14 +642,15 @@ MakePathEnds1::visitPathEnd(PathEnd *path_end,
   if (group->saveable(path_end)) {
     // Only keep the path end with the smallest slack/latest arrival.
     PathEnd *worst_end = ends_.findKey(group);
+    PathEnd *copy = path_end->copy();
     if (worst_end) {
       if (cmp_(path_end, worst_end)) {
-	ends_[group] = path_end->copy();
+	ends_[group] = copy;
 	delete worst_end;
       }
     }
     else
-      ends_[group] = path_end->copy();
+      ends_[group] = copy;
   }
 }
 
@@ -732,8 +731,7 @@ MakePathEndsAll::~MakePathEndsAll()
 void
 MakePathEndsAll::visit(PathEnd *path_end)
 {
-  PathGroup *group = path_groups_->pathGroup(path_end);
-  if (group)
+  for (PathGroup *group : path_groups_->pathGroups(path_end))
     visitPathEnd(path_end, group);
 }
 

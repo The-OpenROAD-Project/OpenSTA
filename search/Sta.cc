@@ -3068,11 +3068,15 @@ EndpointPathEndVisitor::copy() const
 void
 EndpointPathEndVisitor::visit(PathEnd *path_end)
 {
-  if (path_end->minMax(sta_) == min_max_
-      && PathGroups::pathGroupName(path_end, sta_) == path_group_name_) {
-    Slack end_slack = path_end->slack(sta_);
-    if (delayLess(end_slack, slack_, sta_))
-      slack_ = end_slack;
+  if (path_end->minMax(sta_) == min_max_) {
+    StdStringSeq group_names = PathGroups::pathGroupNames(path_end, sta_);
+    for (std::string &group_name : group_names) {
+      if (group_name == path_group_name_) {
+	Slack end_slack = path_end->slack(sta_);
+	if (delayLess(end_slack, slack_, sta_))
+	  slack_ = end_slack;
+      }
+    }
   }
 }
 

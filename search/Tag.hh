@@ -73,6 +73,7 @@ public:
   const Pin *clkSrc() const;
   int rfIndex() const { return rf_index_; }
   const RiseFall *transition() const;
+  const MinMax *minMax(const StaState *sta) const;
   PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
   PathAPIndex pathAPIndex() const { return path_ap_index_; }
   TagIndex index() const { return index_; }
