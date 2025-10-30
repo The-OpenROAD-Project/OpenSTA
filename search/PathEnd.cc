@@ -49,7 +49,8 @@
 namespace sta {
 
 PathEnd::PathEnd(Path *path) :
-  path_(path)
+  path_(path),
+  path_group_(nullptr)
 {
 }
 
@@ -63,6 +64,12 @@ void
 PathEnd::setPath(Path *path)
 {
   path_ = path;
+}
+
+void
+PathEnd::setPathGroup(PathGroup *path_group)
+{
+  path_group_ = path_group;
 }
 
 Vertex *
@@ -454,7 +461,7 @@ PathEndUnconstrained::PathEndUnconstrained(Path *path) :
 }
 
 PathEnd *
-PathEndUnconstrained::copy()
+PathEndUnconstrained::copy() const
 {
   return new PathEndUnconstrained(path_);
 }
@@ -955,7 +962,7 @@ PathEndCheck::PathEndCheck(Path *path,
 }
 
 PathEnd *
-PathEndCheck::copy()
+PathEndCheck::copy() const
 {
   return new PathEndCheck(path_, check_arc_, check_edge_,
 			  clk_path_, mcp_, crpr_, crpr_valid_);
@@ -1126,7 +1133,7 @@ PathEndLatchCheck::PathEndLatchCheck(Path *path,
 }
 
 PathEnd *
-PathEndLatchCheck::copy()
+PathEndLatchCheck::copy() const
 {
   return new PathEndLatchCheck(path_, check_arc_, check_edge_,
 			       clk_path_, disable_path_, mcp_, path_delay_,
@@ -1346,7 +1353,7 @@ PathEndOutputDelay::PathEndOutputDelay(OutputDelay *output_delay,
 }
 
 PathEnd *
-PathEndOutputDelay::copy()
+PathEndOutputDelay::copy() const
 {
   return new PathEndOutputDelay(output_delay_, path_, clk_path_,
 				mcp_, crpr_, crpr_valid_);
@@ -1552,7 +1559,7 @@ PathEndGatedClock::PathEndGatedClock(Path *gating_ref,
 }
 
 PathEnd *
-PathEndGatedClock::copy()
+PathEndGatedClock::copy() const
 {
   return new PathEndGatedClock(path_, clk_path_, check_role_,
 			       mcp_, margin_, crpr_, crpr_valid_);
@@ -1668,7 +1675,7 @@ PathEndDataCheck::PathEndDataCheck(DataCheck *check,
 }
 
 PathEnd *
-PathEndDataCheck::copy()
+PathEndDataCheck::copy() const
 {
   return new PathEndDataCheck(check_, path_, data_clk_path_,
  			      clk_path_, mcp_, crpr_, crpr_valid_);
@@ -1825,7 +1832,7 @@ PathEndPathDelay::PathEndPathDelay(PathDelay *path_delay,
 }
 
 PathEnd *
-PathEndPathDelay::copy()
+PathEndPathDelay::copy() const
 {
   return new PathEndPathDelay(path_delay_, path_, clk_path_,
 			      check_arc_, check_edge_, output_delay_,

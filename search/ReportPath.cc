@@ -401,8 +401,8 @@ ReportPath::reportEndpointHeader(const PathEnd *end,
 {
   PathGroup *prev_group = nullptr;
   if (prev_end)
-    prev_group = search_->pathGroup(prev_end);
-  PathGroup *group = search_->pathGroup(end);
+    prev_group = prev_end->pathGroup();
+  PathGroup *group = end->pathGroup();
   if (group && group != prev_group) {
     if (prev_group)
       reportBlankLine();
@@ -1086,7 +1086,7 @@ ReportPath::reportJson(const PathEnd *end,
   result += "{\n";
   stringAppend(result, "  \"type\": \"%s\",\n", end->typeName());
   stringAppend(result, "  \"path_group\": \"%s\",\n",
-               search_->pathGroup(end)->name());
+               end->pathGroup()->name());
   stringAppend(result, "  \"path_type\": \"%s\",\n",
                end->minMax(this)->to_string().c_str());
 
@@ -1273,7 +1273,7 @@ ReportPath::reportSlackOnly(const PathEnd *end) const
 {
   string line;
   const EarlyLate *early_late = end->pathEarlyLate(this);
-  reportDescription(search_->pathGroup(end)->name(), line);
+  reportDescription(end->pathGroup()->name(), line);
   if (end->isUnconstrained())
     reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, line);
   else
@@ -1939,7 +1939,7 @@ ReportPath::reportGroup(const PathEnd *end) const
 {
   string line;
   line = "Path Group: ";
-  PathGroup *group = search_->pathGroup(end);
+  PathGroup *group = end->pathGroup();
   line += group ? group->name() : "(none)";
   report_->reportLineString(line);
 

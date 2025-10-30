@@ -996,6 +996,12 @@ public:
                           const MinMax *min_max,
                           bool match_min_max_exactly,
                           bool require_to_pin) const;
+  void groupPathsTo(const Pin *pin,
+		    const RiseFall *rf,
+		    const ClockEdge *clk_edge,
+		    const MinMax *min_max,
+		    // Return value.
+		    ExceptionPathSeq &group_paths) const;
   bool isCompleteTo(ExceptionState *state,
 		    const Pin *pin,
 		    const RiseFall *rf,
@@ -1164,6 +1170,13 @@ protected:
 		   // Return values.
 		   ExceptionPath *&hi_priority_exception,
 		   int &hi_priority) const;
+  void groupPathsTo(const ExceptionPathSet *to_exceptions,
+		    const Pin *pin,
+		    const RiseFall *rf,
+		    const ClockEdge *clk_edge,
+		    const MinMax *min_max,
+		    // Return value.
+		    ExceptionPathSeq &group_paths) const;
   void makeLoopPath(ExceptionThruSeq *thrus);
   void makeLoopException(const Pin *loop_input_pin,
 			 const Pin *loop_pin,

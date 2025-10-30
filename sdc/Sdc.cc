@@ -5362,6 +5362,8 @@ Sdc::exceptionThruStates(const ExceptionPathSet *exceptions,
   }
 }
 
+////////////////////////////////////////////////////////////////
+
 void
 Sdc::exceptionTo(ExceptionPathType type,
 		 const Pin *pin,
@@ -5480,6 +5482,47 @@ Sdc::isCompleteTo(ExceptionState *state,
     && to
     && exception->matches(min_max, true)
     && to->matches(pin, rf, network_);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Sdc::groupPathsTo(const Pin *pin,
+		  const RiseFall *rf,
+		  const ClockEdge *clk_edge,
+		  const MinMax *min_max,
+		  // Return value.
+		  ExceptionPathSeq &group_paths) const
+{
+  if (!first_to_inst_exceptions_.empty()) {
+    Instance *inst = network_->instance(pin);
+    groupPathsTo(first_to_inst_exceptions_.findKey(inst), pin, rf,
+		clk_edge, min_max, group_paths);
+  }
+  if (!first_to_pin_exceptions_.empty())
+    groupPathsTo(first_to_pin_exceptions_.findKey(pin), pin, rf,
+		 clk_edge, min_max, group_paths);
+  if (clk_edge && !first_to_clk_exceptions_.empty())
+    groupPathsTo(first_to_clk_exceptions_.findKey(clk_edge->clock()),
+		 pin, rf, clk_edge, min_max, group_paths);
+}
+
+void
+Sdc::groupPathsTo(const ExceptionPathSet *to_exceptions,
+		  const Pin *pin,
+		  const RiseFall *rf,
+		  const ClockEdge *clk_edge,
+		  const MinMax *min_max,
+		  // Return value.
+		  ExceptionPathSeq &group_paths) const
+{
+  if (to_exceptions) {
+    for (ExceptionPath *exception : *to_exceptions) {
+      if (exception->isGroupPath()
+	  && exceptionMatchesTo(exception, pin, rf, clk_edge, min_max, true, false))
+	group_paths.push_back(exception);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////

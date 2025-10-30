@@ -40,6 +40,8 @@ class PathEndVisitor;
 typedef PathEndSeq::Iterator PathGroupIterator;
 typedef Map<const Clock*, PathGroup*> PathGroupClkMap;
 typedef Map<const char*, PathGroup*, CharPtrLess> PathGroupNamedMap;
+typedef std::vector<PathGroup*> PathGroupSeq;
+typedef std::vector<std::string> StdStringSeq;
 
 // A collection of PathEnds grouped and sorted for reporting.
 class PathGroup
@@ -133,9 +135,9 @@ public:
 			   const MinMax *min_max) const;
   PathGroup *findPathGroup(const Clock *clock,
 			   const MinMax *min_max) const;
-  PathGroup *pathGroup(const PathEnd *path_end) const;
-  static std::string pathGroupName(const PathEnd *path_end,
-				   const StaState *sta);
+  PathGroupSeq pathGroups(const PathEnd *path_end) const;
+  static StdStringSeq pathGroupNames(const PathEnd *path_end,
+				     const StaState *sta);
   static const char *asyncPathGroupName() { return async_group_name_; }
   static const char *pathDelayGroupName() { return  path_delay_group_name_; }
   static const char *gatedClkGroupName() { return gated_clk_group_name_; }
@@ -179,8 +181,6 @@ protected:
 		  const MinMax *min_max);
   bool reportGroup(const char *group_name,
 		   PathGroupNameSet *group_names) const;
-  static GroupPath *groupPathTo(const PathEnd *path_end,
-				const StaState *sta);
 
   int group_path_count_;
   int endpoint_path_count_;

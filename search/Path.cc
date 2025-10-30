@@ -306,7 +306,7 @@ Path::isClock(const StaState *sta) const
 const MinMax *
 Path::minMax(const StaState *sta) const
 {
-  return pathAnalysisPt(sta)->pathMinMax();
+  return tag(sta)->minMax(sta);
 }
 
 PathAPIndex
