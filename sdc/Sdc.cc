@@ -4601,6 +4601,7 @@ Sdc::recordException(ExceptionPath *exception)
   exception->setId(++exception_id_);
   recordMergeHashes(exception);
   recordExceptionFirstPts(exception);
+  recordExceptionPins(exception);
   checkForThruHpins(exception);
 }
 
@@ -4669,6 +4670,22 @@ Sdc::recordExceptionFirstFrom(ExceptionPath *exception)
   recordExceptionInsts(exception, from->instances(),
 		       first_from_inst_exceptions_);
   recordExceptionClks(exception, from->clks(), first_from_clk_exceptions_);
+}
+
+void
+Sdc::recordExceptionPins(ExceptionPath *exception)
+{
+  ExceptionFrom *from = exception->from();
+  if (from)
+    recordExceptionPins(exception, from->pins(), pin_exceptions_);
+  ExceptionThruSeq *thrus = exception->thrus();
+  if (thrus) {
+    for (ExceptionThru *thru : *thrus)
+      recordExceptionPins(exception, thru->pins(), pin_exceptions_);
+  }
+  ExceptionTo *to = exception->to();
+  if (to)
+    recordExceptionPins(exception, to->pins(), pin_exceptions_);
 }
 
 void
@@ -5089,7 +5106,8 @@ public:
   ExpandException(ExceptionPath *exception,
 		  ExceptionPathSet &expansions,
 		  Network *network);
-  virtual void visit(ExceptionFrom *from, ExceptionThruSeq *thrus,
+  virtual void visit(ExceptionFrom *from,
+		     ExceptionThruSeq *thrus,
 		     ExceptionTo *to);
 
 private:
@@ -5606,22 +5624,32 @@ Sdc::connectPinAfter(const Pin *pin)
 void
 Sdc::disconnectPinBefore(const Pin *pin)
 {
-  if (have_thru_hpin_exceptions_) {
-    for (ExceptionPath *exception : exceptions_) {
+  auto itr = pin_exceptions_.find(pin);
+  if (itr != pin_exceptions_.end()) {
+    for (ExceptionPath *exception : *itr->second) {
+      ExceptionFrom *from = exception->from();
+      if (from)
+	from->disconnectPinBefore(pin, network_);
+      ExceptionTo *to = exception->to();
+      if (to)
+	to->disconnectPinBefore(pin, network_);
       ExceptionPt *first_pt = exception->firstPt();
       ExceptionThruSeq *thrus = exception->thrus();
       if (thrus) {
-        for (ExceptionThru *thru : *exception->thrus()) {
-          if (thru->edges()) {
-            thru->disconnectPinBefore(pin, network_);
-            if (thru == first_pt)
-              recordExceptionEdges(exception, thru->edges(),
-                                   first_thru_edge_exceptions_);
-          }
-        }
+	for (ExceptionThru *thru : *exception->thrus()) {
+	  thru->disconnectPinBefore(pin, network_);
+	  if (thru == first_pt)
+	    recordExceptionEdges(exception, thru->edges(),
+				 first_thru_edge_exceptions_);
+	}
       }
     }
+    first_from_pin_exceptions_.erase(pin);
+    first_thru_pin_exceptions_.erase(pin);
+    first_to_pin_exceptions_.erase(pin);
+    pin_exceptions_.erase(pin);
   }
+
   for (int corner_index = 0; corner_index < corners_->count(); corner_index++)
     drvr_pin_wire_cap_maps_[corner_index].erase(pin);
 }

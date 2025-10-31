@@ -1054,6 +1054,7 @@ protected:
   ExceptionPath *findMergeMatch(ExceptionPath *exception);
   void addException1(ExceptionPath *exception);
   void addException2(ExceptionPath *exception);
+  void recordExceptionPins(ExceptionPath *exception);
   void recordPathDelayInternalFrom(ExceptionPath *exception);
   void unrecordPathDelayInternalFrom(ExceptionPath *exception);
   bool pathDelayFrom(const Pin *pin);
@@ -1369,6 +1370,7 @@ protected:
   PinExceptionsMap first_to_pin_exceptions_;
   ClockExceptionsMap first_to_clk_exceptions_;
   InstanceExceptionsMap first_to_inst_exceptions_;
+  PinExceptionsMap pin_exceptions_;
   // Edges that traverse hierarchical exception pins.
   EdgeExceptionsMap first_thru_edge_exceptions_;
   // Exception hash with one missing from/thru/to point, used for merging.
