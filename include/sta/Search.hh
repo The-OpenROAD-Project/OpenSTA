@@ -256,7 +256,8 @@ public:
                Edge *edge,
                const RiseFall *to_rf,
                const MinMax *min_max,
-               const PathAnalysisPt *path_ap);
+               const PathAnalysisPt *path_ap,
+               TagSet *tag_cache = nullptr);
   Tag *thruClkTag(Path *from_path,
                   Vertex *from_vertex,
                   Tag *from_tag,
@@ -325,13 +326,14 @@ public:
 			 const RiseFall *to_rf);
 
   Tag *findTag(const RiseFall *rf,
-	       const PathAnalysisPt *path_ap,
-	       const ClkInfo *tag_clk,
-	       bool is_clk,
-	       InputDelay *input_delay,
-	       bool is_segment_start,
-	       ExceptionStateSet *states,
-	       bool own_states);
+               const PathAnalysisPt *path_ap,
+               const ClkInfo *tag_clk,
+               bool is_clk,
+               InputDelay *input_delay,
+               bool is_segment_start,
+               ExceptionStateSet *states,
+               bool own_states,
+               TagSet *tag_cache = nullptr);
   void reportTags() const;
   void reportClkInfos() const;
   const ClkInfo *findClkInfo(const ClockEdge *clk_edge,
@@ -515,19 +517,20 @@ protected:
   void findAllArrivals(bool thru_latches);
   void findArrivals1(Level level);
   Tag *mutateTag(Tag *from_tag,
-		 const Pin *from_pin,
-		 const RiseFall *from_rf,
-		 bool from_is_clk,
-		 const ClkInfo *from_clk_info,
-		 const Pin *to_pin,
-		 const RiseFall *to_rf,
-		 bool to_is_clk,
-		 bool to_is_reg_clk,
-		 bool to_is_segment_start,
-		 const ClkInfo *to_clk_info,
-		 InputDelay *to_input_delay,
-		 const MinMax *min_max,
-		 const PathAnalysisPt *path_ap);
+                 const Pin *from_pin,
+                 const RiseFall *from_rf,
+                 bool from_is_clk,
+                 const ClkInfo *from_clk_info,
+                 const Pin *to_pin,
+                 const RiseFall *to_rf,
+                 bool to_is_clk,
+                 bool to_is_reg_clk,
+                 bool to_is_segment_start,
+                 const ClkInfo *to_clk_info,
+                 InputDelay *to_input_delay,
+                 const MinMax *min_max,
+                 const PathAnalysisPt *path_ap,
+                 TagSet *tag_cache = nullptr);
   ExceptionPath *exceptionTo(const Path *path,
 			     const Pin *pin,
 			     const RiseFall *rf,
@@ -706,6 +709,7 @@ public:
 	      const StaState *sta);
   virtual void visitFaninPaths(Vertex *to_vertex);
   virtual void visitFanoutPaths(Vertex *from_vertex);
+  void initTagCache();
 
 protected:
   // Return false to stop visiting.
@@ -752,6 +756,7 @@ protected:
 			       const MinMax *min_max,
 			       const PathAnalysisPt *path_ap) = 0;
   SearchPred *pred_;
+  std::unique_ptr<TagSet> tag_cache_;
 };
 
 // Visitor called during forward search to record an
