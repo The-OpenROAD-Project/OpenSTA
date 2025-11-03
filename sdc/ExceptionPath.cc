@@ -1155,6 +1155,13 @@ ExceptionFromTo::deleteInstance(const Instance *inst,
   }
 }
 
+void
+ExceptionFromTo::disconnectPinBefore(const Pin *pin,
+				     Network *network)
+{
+  deletePin(pin, network);
+}
+
 const char *
 ExceptionFromTo::asString(const Network *network) const
 {
@@ -2057,6 +2064,7 @@ void
 ExceptionThru::disconnectPinBefore(const Pin *pin,
  				   Network *network)
 {
+  deletePin(pin, network);
   // Remove edges from/to leaf pin and through hier pin.
   deletePinEdges(pin, network);
 }

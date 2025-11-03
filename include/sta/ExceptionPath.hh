@@ -416,7 +416,7 @@ public:
   virtual void connectPinAfter(PinSet *,
 			       Network *) {}
   virtual void disconnectPinBefore(const Pin *,
-				   Network *) {}
+				   Network *);
   void deleteInstance(const Instance *inst,
                       const Network *network);
 
