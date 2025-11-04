@@ -716,7 +716,7 @@ Genclks::makeTag(const Clock *gclk,
 						 nullptr, insert, 0.0, nullptr,
 						 path_ap, nullptr);
   return search_->findTag(master_rf, path_ap, clk_info, false,
-			  nullptr, false, states, true);
+			  nullptr, false, states, true, nullptr);
 }
 
 class GenClkArrivalSearchPred : public EvalPred

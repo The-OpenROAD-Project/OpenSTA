@@ -257,7 +257,7 @@ public:
                const RiseFall *to_rf,
                const MinMax *min_max,
                const PathAnalysisPt *path_ap,
-               TagSet *tag_cache = nullptr);
+               TagSet *tag_cache);
   Tag *thruClkTag(Path *from_path,
                   Vertex *from_vertex,
                   Tag *from_tag,
@@ -333,7 +333,7 @@ public:
                bool is_segment_start,
                ExceptionStateSet *states,
                bool own_states,
-               TagSet *tag_cache = nullptr);
+               TagSet *tag_cache);
   void reportTags() const;
   void reportClkInfos() const;
   const ClkInfo *findClkInfo(const ClockEdge *clk_edge,
@@ -530,7 +530,7 @@ protected:
                  InputDelay *to_input_delay,
                  const MinMax *min_max,
                  const PathAnalysisPt *path_ap,
-                 TagSet *tag_cache = nullptr);
+                 TagSet *tag_cache);
   ExceptionPath *exceptionTo(const Path *path,
 			     const Pin *pin,
 			     const RiseFall *rf,
@@ -704,12 +704,13 @@ class PathVisitor : public VertexVisitor, public StaState
 {
 public:
   // Uses search->evalPred() for search predicate.
-  explicit PathVisitor(const StaState *sta);
+  PathVisitor(const StaState *sta);
   PathVisitor(SearchPred *pred,
+	      bool make_tag_cache,
 	      const StaState *sta);
+  virtual ~PathVisitor();
   virtual void visitFaninPaths(Vertex *to_vertex);
   virtual void visitFanoutPaths(Vertex *from_vertex);
-  void initTagCache();
 
 protected:
   // Return false to stop visiting.
@@ -756,7 +757,7 @@ protected:
 			       const MinMax *min_max,
 			       const PathAnalysisPt *path_ap) = 0;
   SearchPred *pred_;
-  std::unique_ptr<TagSet> tag_cache_;
+  TagSet *tag_cache_;
 };
 
 // Visitor called during forward search to record an
@@ -764,7 +765,7 @@ protected:
 class ArrivalVisitor : public PathVisitor
 {
 public:
-  explicit ArrivalVisitor(const StaState *sta);
+  ArrivalVisitor(const StaState *sta);
   virtual ~ArrivalVisitor();
   // Initialize the visitor.
   // Defaults pred to search->eval_pred_.
@@ -838,12 +839,14 @@ protected:
 class RequiredVisitor : public PathVisitor
 {
 public:
-  explicit RequiredVisitor(const StaState *sta);
+  RequiredVisitor(const StaState *sta);
   virtual ~RequiredVisitor();
   virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 protected:
+  RequiredVisitor(bool make_tag_cache,
+		  const StaState *sta);
   // Return false to stop visiting.
   virtual bool visitFromToPath(const Pin *from_pin,
 			       Vertex *from_vertex,

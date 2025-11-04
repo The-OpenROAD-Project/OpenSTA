@@ -686,7 +686,7 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
 					      tag->isClock(),
 					      tag->inputDelay(),
 					      tag->isSegmentStart(),
-					      tag->states(), false);
+					      tag->states(), false, nullptr);
 	  path->setTag(updated_tag);
 	}
 	debugPrint(debug_, "path_enum", 5, "update arrival %s %s %s -> %s",
