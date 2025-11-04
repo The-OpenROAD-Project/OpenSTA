@@ -53,6 +53,7 @@ public:
 					 int group_path_count,
 					 int endpoint_path_count,
 					 bool unique_pins,
+					 bool unique_edges,
 					 const MinMax *min_max,
 					 const StaState *sta);
   // Path group that compares arrival time, sorted by min_max.
@@ -60,6 +61,7 @@ public:
 				       int group_path_count,
 				       int endpoint_path_count,
 				       bool unique_pins,
+				       bool unique_edges,
 				       float min_slack,
 				       float max_slack,
 				       const StaState *sta);
@@ -83,6 +85,7 @@ protected:
 	    size_t group_path_count,
 	    size_t endpoint_path_count,
 	    bool unique_pins,
+	    bool unique_edges,
 	    float min_slack,
 	    float max_slack,
 	    bool cmp_slack,
@@ -96,6 +99,7 @@ protected:
   size_t group_path_count_;
   size_t endpoint_path_count_;
   bool unique_pins_;
+  bool unique_edges_;
   float slack_min_;
   float slack_max_;
   PathEndSeq path_ends_;
@@ -112,6 +116,7 @@ public:
   PathGroups(int group_path_count,
 	     int endpoint_path_count,
 	     bool unique_pins,
+	     bool unique_edges,
 	     float slack_min,
 	     float slack_max,
 	     PathGroupNameSet *group_names,
@@ -148,6 +153,7 @@ protected:
 			 int group_path_count,
 			 int endpoint_path_count,
 			 bool unique_pins,
+			 bool unique_edges,
 			 const Corner *corner,
 			 const MinMaxAll *min_max);
   void makeGroupPathEnds(ExceptionTo *to,
@@ -162,6 +168,7 @@ protected:
 		    int group_path_count,
 		    int endpoint_path_count,
 		    bool unique_pins,
+		    bool unique_edges,
 		    bool cmp_slack);
 
   void pushGroupPathEnds(PathEndSeq &path_ends);
@@ -171,6 +178,7 @@ protected:
   void makeGroups(int group_path_count,
 		  int endpoint_path_count,
 		  bool unique_pins,
+		  bool unique_edges,
 		  float slack_min,
 		  float slack_max,
 		  PathGroupNameSet *group_names,
@@ -185,6 +193,7 @@ protected:
   int group_path_count_;
   int endpoint_path_count_;
   bool unique_pins_;
+  bool unique_edges_;
   float slack_min_;
   float slack_max_;
 

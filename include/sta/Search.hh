@@ -105,6 +105,7 @@ public:
                           size_t group_path_count,
                           size_t endpoint_path_count,
                           bool unique_pins,
+                          bool unique_edges,
                           float slack_min,
                           float slack_max,
                           bool sort_by_slack,
@@ -169,18 +170,6 @@ public:
 
   PathGroupSeq pathGroups(const PathEnd *path_end) const;
   void deletePathGroups();
-  void makePathGroups(int group_path_count,
-                      int endpoint_path_count,
-                      bool unique_pins,
-                      float min_slack,
-                      float max_slack,
-                      PathGroupNameSet *group_names,
-                      bool setup,
-                      bool hold,
-                      bool recovery,
-                      bool removal,
-                      bool clk_gating_setup,
-                      bool clk_gating_hold);
   virtual ExceptionPath *exceptionTo(ExceptionPathType type,
 				     const Path *path,
 				     const Pin *pin,

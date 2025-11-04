@@ -821,9 +821,12 @@ public:
                                   // Number of paths to report for
                                   // each endpoint.
                                   int endpoint_path_count,
-                                  // endpoint_path_count paths report unique pins
-                                  // without rise/fall variations.
+                                  // endpoint_path_count paths report paths with
+				  // unique pins.
                                   bool unique_pins,
+                                  // endpoint_path_count paths report paths with
+				  // unique pins and rise/fall edges.
+				  bool unique_edges,
                                   // Min/max bounds for slack of
                                   // returned path ends.
                                   float slack_min,

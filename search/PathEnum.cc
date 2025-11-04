@@ -48,6 +48,7 @@ namespace sta {
 // after_div<--------+ 
 //                   |
 //      <--...--before_div<--...--path<---path_end
+//
 class Diversion
 {
 public:
@@ -105,6 +106,7 @@ deleteDiversionPathEnd(Diversion *div)
 PathEnum::PathEnum(size_t group_path_count,
 		   size_t endpoint_path_count,
 		   bool unique_pins,
+		   bool unique_edges,
 		   bool cmp_slack,
 		   const StaState *sta) :
   StaState(sta),
@@ -112,6 +114,7 @@ PathEnum::PathEnum(size_t group_path_count,
   group_path_count_(group_path_count),
   endpoint_path_count_(endpoint_path_count),
   unique_pins_(unique_pins),
+  unique_edges_(unique_edges),
   div_queue_(DiversionGreater(sta)),
   div_count_(0),
   inserts_pruned_(false),
@@ -230,6 +233,7 @@ PathEnum::reportDiversionPath(Diversion *div)
 ////////////////////////////////////////////////////////////////
 
 typedef std::set<std::pair<const Vertex*, const TimingArc*>> VisitedFanins;
+typedef std::pair<const Vertex*, const RiseFall*> VertexEdge;
 
 class PathEnumFaninVisitor : public PathVisitor
 {
@@ -237,6 +241,7 @@ public:
   PathEnumFaninVisitor(PathEnd *path_end,
 		       Path *before_div,
 		       bool unique_pins,
+		       bool unique_edges,
 		       PathEnum *path_enum);
   virtual VertexVisitor *copy() const override;
   void visitFaninPathsThru(Path *before_div,
@@ -271,6 +276,7 @@ private:
                  const Pin *to_pin,
                  Vertex *to_vertex) override;
   virtual void visit(Vertex *) override {}  // Not used.
+  void insertUniqueEdgeDiv(Diversion *div);
   void reportDiversion(const Edge *edge,
                        const TimingArc *div_arc,
 		       Path *after_div);
@@ -278,6 +284,7 @@ private:
   PathEnd *path_end_;
   Path *before_div_;
   bool unique_pins_;
+  bool unique_edges_;
   PathEnum *path_enum_;
 
   Slack path_end_slack_;
@@ -289,16 +296,19 @@ private:
   Vertex *prev_vertex_;
   bool crpr_active_;
   VisitedFanins visited_fanins_;
+  std::map<VertexEdge, Diversion*> unique_edge_divs_;
 };
 
 PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
 					   Path *before_div,
 					   bool unique_pins,
+					   bool unique_edges,
 					   PathEnum *path_enum) :
   PathVisitor(path_enum),
   path_end_(path_end),
   before_div_(before_div),
   unique_pins_(unique_pins),
+  unique_edges_(unique_edges),
   path_enum_(path_enum),
 
   path_end_slack_(path_end->slack(this)),
@@ -308,6 +318,13 @@ PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
   before_div_arrival_(before_div_->arrival()),
   crpr_active_(crprActive())
 {
+}
+
+VertexVisitor *
+PathEnumFaninVisitor::copy() const
+{
+  return new PathEnumFaninVisitor(path_end_, before_div_, unique_pins_,
+				  unique_edges_, path_enum_);
 }
 
 void
@@ -324,7 +341,13 @@ PathEnumFaninVisitor::visitFaninPathsThru(Path *before_div,
   prev_arc_ = prev_arc;
   prev_vertex_ = prev_vertex;
   visited_fanins_.clear();
+  unique_edge_divs_.clear();
   visitFaninPaths(before_div_->vertex(this));
+
+  if (unique_edges_) {
+    for (auto [vertex_edge, div] : unique_edge_divs_)
+      path_enum_->insert(div);
+  }
 }
 
 // Specialize PathVisitor::visitEdge to filter paths/arcs to
@@ -342,13 +365,15 @@ PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
     VertexPathIterator from_iter(from_vertex, search_);
     while (from_iter.hasNext()) {
       Path *from_path = from_iter.next();
+      // Filter paths by path ap.
       PathAnalysisPt *path_ap = from_path->pathAnalysisPt(this);
       if (path_ap->index() == before_div_ap_index_) {
         const MinMax *min_max = path_ap->pathMinMax();
         const RiseFall *from_rf = from_path->transition(this);
         TimingArc *arc1, *arc2;
         arc_set->arcsFrom(from_rf, arc1, arc2);
-        if (arc1 && arc1->toEdge()->asRiseFall()->index() == before_div_rf_index_) {
+        // Filter arcs by to edge.
+	if (arc1 && arc1->toEdge()->asRiseFall()->index() == before_div_rf_index_) {
           if (!visitArc(from_pin, from_vertex, from_rf, from_path,
                         edge, arc1, to_pin, to_vertex,
                         min_max, path_ap))
@@ -364,13 +389,6 @@ PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
     }
   }
   return true;
-}
-
-VertexVisitor *
-PathEnumFaninVisitor::copy() const
-{
-  return new PathEnumFaninVisitor(path_end_, before_div_, unique_pins_,
-				  path_enum_);
 }
 
 bool
@@ -393,40 +411,47 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
   // These paths fanin to before_div_ so we know to_vertex matches.
   if ((!unique_pins_ || from_vertex != prev_vertex_)
       && arc != prev_arc_
-      && Tag::matchNoCrpr(to_tag, before_div_tag_)) {
+      && Tag::matchNoCrpr(to_tag, before_div_tag_)
+      // Ignore paths that only differ by crpr from same vertex/edge.
+      && (!crpr_active_
+	  || visited_fanins_.find({from_vertex, arc}) == visited_fanins_.end())) {
     debugPrint(debug_, "path_enum", 3, "visit fanin %s -> %s %s %s",
                from_path->to_string(this).c_str(),
                to_vertex->to_string(this).c_str(),
                to_rf->to_string().c_str(),
                delayAsString(search_->deratedDelay(from_vertex, arc, edge,
                                                    false,path_ap), this));
-    if (crpr_active_) {
-      // Ingore paths that only differ by crpr from same vertex/edge.
-      if (visited_fanins_.find({from_vertex, arc}) == visited_fanins_.end()) {
-        PathEnd *div_end;
-        Path *after_div_copy;
-        // Make the diverted path end to check slack with from_path crpr.
-        makeDivertedPathEnd(from_path, edge, arc, div_end, after_div_copy);
-        if (div_end) {
-          reportDiversion(edge, arc, from_path);
-          path_enum_->makeDiversion(div_end, after_div_copy);
-          visited_fanins_.emplace(from_vertex, arc);
-        }
-      }
-      else
-        debugPrint(debug_, "path_enum", 3, "      pruned %s %s",
-                   edge->to_string(this).c_str(),
-                   arc->to_string().c_str());
-    }
-    else {
-      PathEnd *div_end;
-      Path *after_div_copy;
-      makeDivertedPathEnd(from_path, edge, arc, div_end, after_div_copy);
-      reportDiversion(edge, arc, from_path);
-      path_enum_->makeDiversion(div_end, after_div_copy);
-    }
+    PathEnd *div_end;
+    Path *after_div_copy;
+    // Make the diverted path end to check slack with from_path crpr.
+    makeDivertedPathEnd(from_path, edge, arc, div_end, after_div_copy);
+    reportDiversion(edge, arc, from_path);
+    Diversion *div = new Diversion(div_end, after_div_copy);
+    if (unique_edges_)
+      insertUniqueEdgeDiv(div);
+    else
+      path_enum_->insert(div);
+    if (crpr_active_)
+      visited_fanins_.emplace(from_vertex, arc);
   }
+  else
+    debugPrint(debug_, "path_enum", 3, "      pruned %s %s",
+	       edge->to_string(this).c_str(),
+	       arc->to_string().c_str());
   return true;
+}
+
+void
+PathEnumFaninVisitor::insertUniqueEdgeDiv(Diversion *div)
+{
+  Slack div_slack = div->pathEnd()->slack(this);
+  const Path *div_path = div->divPath();
+  const Vertex *div_vertex = div_path->vertex(this);
+  const RiseFall *div_rf = div_path->transition(this);
+  auto itr = unique_edge_divs_.find({div_vertex, div_rf});
+  if (itr == unique_edge_divs_.end()
+      || div_slack > itr->second->pathEnd()->slack(this))
+    itr->second = div;
 }
 
 void
@@ -440,12 +465,8 @@ PathEnumFaninVisitor::makeDivertedPathEnd(Path *after_div,
   Path *div_path;
   path_enum_->makeDivertedPath(path_end_->path(), before_div_, after_div,
 			       div_edge, div_arc, div_path, after_div_copy);
-  if (after_div_copy) {
-    div_end = path_end_->copy();
-    div_end->setPath(div_path);
-  }
-  else
-    div_end = nullptr;
+  div_end = path_end_->copy();
+  div_end->setPath(div_path);
 }
 
 void
@@ -476,21 +497,11 @@ PathEnumFaninVisitor::reportDiversion(const Edge *div_edge,
   }
 }
 
-// A diversion is an alternate path formed by changing the previous 
-// path/arc of before_div to after_div/div_arc in path.
-//
-//             div_arc
-// after_div<--------+ 
-//                   |
-//      <--...--before_div<--...--path<---path_end
 void
-PathEnum::makeDiversion(PathEnd *div_end,
-			Path *after_div_copy)
+PathEnum::insert(Diversion *div)
 {
-  Diversion *div = new Diversion(div_end, after_div_copy);
   div_queue_.push(div);
   div_count_++;
-
   if (div_queue_.size() > group_path_count_ * 2)
     // We have more potenial paths than we will need.
     pruneDiversionQueue();
@@ -550,7 +561,7 @@ PathEnum::divSlack(Path *before_div,
     }
   }
   else {
-    report()->error(1370, "path diversion missing edge.");
+    report_->error(1370, "path diversion missing edge.");
     return 0.0;
   }
 }
@@ -564,7 +575,8 @@ PathEnum::makeDiversions(PathEnd *path_end,
   Path *path = before;
   Path *prev_path = path->prevPath();
   TimingArc *prev_arc = path->prevArc(this);
-  PathEnumFaninVisitor fanin_visitor(path_end, path, unique_pins_, this);
+  PathEnumFaninVisitor fanin_visitor(path_end, path, unique_pins_,
+				     unique_edges_, this);
   while (prev_path) {
     // Fanin visitor does all the work.
     // While visiting the fanins the fanin_visitor finds the

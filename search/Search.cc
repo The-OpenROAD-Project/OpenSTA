@@ -450,6 +450,7 @@ Search::findPathEnds(ExceptionFrom *from,
 		     size_t group_path_count,
 		     size_t endpoint_path_count,
 		     bool unique_pins,
+		     bool unique_edges,
 		     float slack_min,
 		     float slack_max,
 		     bool sort_by_slack,
@@ -466,11 +467,15 @@ Search::findPathEnds(ExceptionFrom *from,
     recovery = removal = false;
   if (!variables_->gatedClkChecksEnabled())
     clk_gating_setup = clk_gating_hold = false;
-  makePathGroups(group_path_count, endpoint_path_count, unique_pins,
-                 slack_min, slack_max,
-                 group_names, setup, hold,
-                 recovery, removal,
-                 clk_gating_setup, clk_gating_hold);
+  path_groups_ = new PathGroups(group_path_count, endpoint_path_count,
+			        unique_pins, unique_edges,
+                                slack_min, slack_max,
+                                group_names,
+                                setup, hold,
+                                recovery, removal,
+                                clk_gating_setup, clk_gating_hold,
+                                unconstrained_paths_,
+                                this);
   ensureDownstreamClkPins();
   PathEndSeq path_ends = path_groups_->makePathEnds(to, unconstrained_paths_,
                                                     corner, min_max,
@@ -4125,31 +4130,6 @@ Search::wnsSlack(Vertex *vertex,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Search::makePathGroups(int group_path_count,
-		       int endpoint_path_count,
-		       bool unique_pins,
-		       float slack_min,
-		       float slack_max,
-		       PathGroupNameSet *group_names,
-		       bool setup,
-		       bool hold,
-		       bool recovery,
-		       bool removal,
-		       bool clk_gating_setup,
-		       bool clk_gating_hold)
-{
-  path_groups_ = new PathGroups(group_path_count, endpoint_path_count,
-			        unique_pins,
-                                slack_min, slack_max,
-                                group_names,
-                                setup, hold,
-                                recovery, removal,
-                                clk_gating_setup, clk_gating_hold,
-                                unconstrained_paths_,
-                                this);
-}
 
 void
 Search::deletePathGroups()

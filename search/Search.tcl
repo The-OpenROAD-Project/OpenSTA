@@ -102,6 +102,7 @@ define_cmd_args "find_timing_paths" \
      [-group_path_count path_count] \
      [-endpoint_path_count path_count]\
      [-unique_paths_to_endpoint]\
+     [-unique_edges_to_endpoint]\
      [-slack_max slack_max]\
      [-slack_min slack_min]\
      [-sort_by_slack]\
@@ -121,7 +122,9 @@ proc find_timing_paths_cmd { cmd args_var } {
 	    -path_delay -corner -group_count -endpoint_count \
 	    -group_path_count -endpoint_path_count \
 	    -slack_max -slack_min -path_group} \
-    flags {-unconstrained -sort_by_slack -unique_paths_to_endpoint} 0
+    flags {-unconstrained -sort_by_slack \
+	     -unique_paths_to_endpoint \
+	     -unique_edges_to_endpoint} 0
 
   set min_max "max"
   set end_rf "rise_fall"
@@ -195,6 +198,7 @@ proc find_timing_paths_cmd { cmd args_var } {
   }
 
   set unique_pins [info exists flags(-unique_paths_to_endpoint)]
+  set unique_edges [info exists flags(-unique_edges_to_endpoint)]
 
   set slack_min "-1e+30"
   if [info exist keys(-slack_min)] {
@@ -229,7 +233,8 @@ proc find_timing_paths_cmd { cmd args_var } {
 
   set path_ends [find_path_ends $from $thrus $to $unconstrained \
 		   $corner $min_max \
-		   $group_path_count $endpoint_path_count $unique_pins \
+		   $group_path_count $endpoint_path_count \
+		   $unique_pins $unique_edges \
 		   $slack_min $slack_max \
 		   $sort_by_slack $groups \
 		   1 1 1 1 1 1]
@@ -574,7 +579,7 @@ proc_redirect report_check_types {
       set slack_max $sta::float_inf
     }
     set path_ends [find_path_ends "NULL" {} "NULL" 0 \
-		     $corner $path_min_max $group_path_count 1 0 \
+		     $corner $path_min_max $group_path_count 1 1 0 \
 		     $slack_min $slack_max \
 		     0 {} \
 		     $setup $hold \

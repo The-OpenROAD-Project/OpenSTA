@@ -61,6 +61,7 @@ public:
   PathEnum(size_t group_path_count,
 	   size_t endpoint_path_count,
 	   bool unique_pins,
+	   bool unique_edges,
 	   bool cmp_slack,
 	   const StaState *sta);
   // Insert path ends that are enumerated in slack/arrival order.
@@ -72,8 +73,7 @@ public:
 private:
   void makeDiversions(PathEnd *path_end,
 		      Path *before);
-  void makeDiversion(PathEnd *div_end,
-		     Path *after_div_copy);
+  void insert(Diversion *div);
   void makeDivertedPath(Path *path,
 			Path *before_div,
 			Path *after_div,
@@ -97,6 +97,7 @@ private:
   size_t group_path_count_;
   size_t endpoint_path_count_;
   bool unique_pins_;
+  bool unique_edges_;
   DiversionQueue div_queue_;
   int div_count_;
   // Number of paths returned for each endpoint (limit to endpoint_path_count).
