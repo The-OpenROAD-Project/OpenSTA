@@ -144,7 +144,7 @@ typedef UnorderedMap<EdgePins, ExceptionPathSet*,
 		     PinPairHash, PinPairEqual> EdgeExceptionsMap;
 typedef Vector<ExceptionThru*> ExceptionThruSeq;
 typedef Map<const Port*,InputDrive*> InputDriveMap;
-typedef Map<int, ExceptionPathSet*, std::less<int> > ExceptionPathPtHash;
+typedef Map<size_t, ExceptionPathSet*, std::less<size_t> > ExceptionPathPtHash;
 typedef Set<ClockLatency*, ClockLatencyLess> ClockLatencies;
 typedef Map<const Pin*, ClockUncertainties*> PinClockUncertaintyMap;
 typedef Set<InterClockUncertainty*, InterClockUncertaintyLess> InterClockUncertaintySet;

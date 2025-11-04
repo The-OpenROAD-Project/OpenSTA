@@ -630,7 +630,8 @@ FalsePath::overrides(ExceptionPath *exception) const
 
 ////////////////////////////////////////////////////////////////
 
-LoopPath::LoopPath(ExceptionThruSeq *thrus, bool own_pts) :
+LoopPath::LoopPath(ExceptionThruSeq *thrus,
+		   bool own_pts) :
   FalsePath(nullptr, thrus, nullptr, MinMaxAll::all(), own_pts,
 	    falsePathPriority() + fromThruToPriority(nullptr, thrus, nullptr),
 	    nullptr)
@@ -1128,9 +1129,12 @@ ExceptionFromTo::deletePin(const Pin *pin,
                            const Network *network)
 {
   if (pins_) {
-    pins_->erase(pin);
-    // Incrementally update hash.
-    hash_ -= network->id(pin) * hash_pin;
+    auto itr = pins_->find(pin);
+    if (itr != pins_->end()) {
+      pins_->erase(itr);
+      // Incrementally update hash.
+      hash_ -= network->id(pin) * hash_pin;
+    }
   }
 }
 
@@ -1138,9 +1142,12 @@ void
 ExceptionFromTo::deleteClock(Clock *clk)
 {
   if (clks_) {
-    clks_->erase(clk);
-    // Incrementally update hash.
-    hash_ -= clk->index() * hash_clk;
+    auto itr = clks_->find(clk);
+    if (itr != clks_->end()) {
+      clks_->erase(itr);
+      // Incrementally update hash.
+      hash_ -= clk->index() * hash_clk;
+    }
   }
 }
 
@@ -1149,9 +1156,12 @@ ExceptionFromTo::deleteInstance(const Instance *inst,
                                 const Network *network)
 {
   if (insts_) {
-    insts_->erase(inst);
-    // Incrementally update hash.
-    hash_ -= network->id(inst) * hash_inst;
+    auto itr = insts_->find(inst);
+    if (itr != insts_->end()) {
+      insts_->erase(itr);
+      // Incrementally update hash.
+      hash_ -= network->id(inst) * hash_inst;
+    }
   }
 }
 
@@ -1782,9 +1792,12 @@ ExceptionThru::deletePin(const Pin *pin,
                          const Network *network)
 {
   if (pins_) {
-    pins_->erase(pin);
-    // Incrementally update hash.
-    hash_ -= network->id(pin) * hash_pin;
+    auto itr = pins_->find(pin);
+    if (itr != pins_->end()) {
+      pins_->erase(itr);
+      // Incrementally update hash.
+      hash_ -= network->id(pin) * hash_pin;
+    }
   }
 }
 
@@ -1793,9 +1806,12 @@ ExceptionThru::deleteNet(const Net *net,
                          const Network *network)
 {
   if (nets_) {
-    nets_->erase(net);
-    // Incrementally update hash.
-    hash_ -= network->id(net) * hash_net;
+    auto itr = nets_->find(net);
+    if (itr != nets_->end()) {
+      nets_->erase(itr);
+      // Incrementally update hash.
+      hash_ -= network->id(net) * hash_net;
+    }
   }
 }
 
@@ -1804,9 +1820,12 @@ ExceptionThru::deleteInstance(const Instance *inst,
                               const Network *network)
 {
   if (insts_) {
-    insts_->erase(inst);
-    // Incrementally update hash.
-    hash_ -= network->id(inst) * hash_inst;
+    auto itr = insts_->find(inst);
+    if (itr != insts_->end()) {
+      insts_->erase(itr);
+      // Incrementally update hash.
+      hash_ -= network->id(inst) * hash_inst;
+    }
   }
 }
 
