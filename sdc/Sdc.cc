@@ -4894,6 +4894,7 @@ Sdc::deleteExceptions()
   path_delay_internal_from_break_.clear();
   path_delay_internal_to_.clear();
   path_delay_internal_to_break_.clear();
+  pin_exceptions_.deleteContentsClear();
 
   deleteExceptionPtHashMapSets(exception_merge_hash_);
   exception_merge_hash_.clear();

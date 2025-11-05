@@ -395,7 +395,7 @@ Latches::latchOutArrival(const Path *data_path,
 						      en_clk_edge->transition(),
 						      MinMax::max(), false, states))
 	       q_tag = search_->findTag(q_rf, path_ap, q_clk_info, false,
-					nullptr, false, states, true);
+					nullptr, false, states, true, nullptr);
 	   }
 	   return;
 	 }

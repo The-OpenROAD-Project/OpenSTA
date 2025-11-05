@@ -194,7 +194,7 @@ following command builds a Docker image.
 
 ```
 cd OpenSTA
-docker build --file Dockerfile.ubuntu22.04 --tag opensta .
+docker build --file Dockerfile.ubuntu22.04 --tag opensta_ubuntu22.04 .
 ```
 
 To run a docker container using the OpenSTA image, use the -v option
