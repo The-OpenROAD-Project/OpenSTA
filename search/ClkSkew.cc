@@ -421,7 +421,8 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
   while (src_iter.hasNext()) {
     Path *src_path = src_iter.next();
     const Clock *src_clk = src_path->clock(this);
-    if (src_rf->matches(src_path->transition(this))
+    if (src_path->isClock(this)
+	&& src_rf->matches(src_path->transition(this))
 	&& src_path->minMax(this) == setup_hold_
 	&& clk_set_.find(src_clk) != clk_set_.end()) {
       Corner *src_corner = src_path->pathAnalysisPt(this)->corner();
