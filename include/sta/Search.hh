@@ -170,6 +170,19 @@ public:
 
   PathGroupSeq pathGroups(const PathEnd *path_end) const;
   void deletePathGroups();
+  void makePathGroups(int group_path_count,
+                      int endpoint_path_count,
+                      bool unique_pins,
+                      bool unique_edges,
+                      float min_slack,
+                      float max_slack,
+                      PathGroupNameSet *group_names,
+                      bool setup,
+                      bool hold,
+                      bool recovery,
+                      bool removal,
+                      bool clk_gating_setup,
+                      bool clk_gating_hold);
   virtual ExceptionPath *exceptionTo(ExceptionPathType type,
 				     const Path *path,
 				     const Pin *pin,
@@ -281,6 +294,7 @@ public:
   BfsFwdIterator *arrivalIterator() const { return arrival_iter_; }
   BfsBkwdIterator *requiredIterator() const { return required_iter_; }
   bool arrivalsAtEndpointsExist()const{return arrivals_at_endpoints_exist_;}
+  // Used by OpenROAD.
   bool makeUnclkedPaths(Vertex *vertex,
 			bool is_segment_start,
                         bool require_exception,
