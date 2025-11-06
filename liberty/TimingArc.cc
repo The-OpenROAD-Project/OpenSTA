@@ -565,14 +565,23 @@ TimingArc::~TimingArc()
 string
 TimingArc::to_string() const
 {
-  string str = set_->from()->name();
-  str += " ";
-  str += from_rf_->to_string();
-  str += " -> ";
-  str += set_->to()->name();
-  str += " ";
-  str += to_rf_->to_string();
-  return str;
+  if (set_->role()->isWire()) {
+    string str = "wire ";
+    str += from_rf_->to_string();
+    str += " -> ";
+    str += to_rf_->to_string();
+    return str;
+  }
+  else {
+    string str = set_->from()->name();
+    str += " ";
+    str += from_rf_->to_string();
+    str += " -> ";
+    str += set_->to()->name();
+    str += " ";
+    str += to_rf_->to_string();
+    return str;
+  }
 }
 
 GateTimingModel *
