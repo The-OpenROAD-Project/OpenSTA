@@ -450,7 +450,7 @@ PathEnumFaninVisitor::insertUniqueEdgeDiv(Diversion *div)
   const RiseFall *div_rf = div_path->transition(this);
   auto itr = unique_edge_divs_.find({div_vertex, div_rf});
   if (itr == unique_edge_divs_.end()
-      || div_slack > itr->second->pathEnd()->slack(this))
+      || delayGreater(div_slack, itr->second->pathEnd()->slack(this), this))
     itr->second = div;
 }
 
