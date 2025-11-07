@@ -394,7 +394,7 @@ PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
 bool
 PathEnumFaninVisitor::visitFromToPath(const Pin *,
 				      Vertex *from_vertex,
-				      const RiseFall *,
+				      const RiseFall *from_rf,
 				      Tag *,
 				      Path *from_path,
                                       const Arrival &,
@@ -410,6 +410,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
 {
   // These paths fanin to before_div_ so we know to_vertex matches.
   if ((!unique_pins_ || from_vertex != prev_vertex_)
+      && (!unique_edges_ || from_rf != prev_arc_->fromEdge()->asRiseFall())
       && arc != prev_arc_
       && Tag::matchNoCrpr(to_tag, before_div_tag_)
       // Ignore paths that only differ by crpr from same vertex/edge.
@@ -449,9 +450,14 @@ PathEnumFaninVisitor::insertUniqueEdgeDiv(Diversion *div)
   const Vertex *div_vertex = div_path->vertex(this);
   const RiseFall *div_rf = div_path->transition(this);
   auto itr = unique_edge_divs_.find({div_vertex, div_rf});
-  if (itr == unique_edge_divs_.end()
-      || div_slack > itr->second->pathEnd()->slack(this))
+  if (itr == unique_edge_divs_.end())
+    unique_edge_divs_[{div_vertex, div_rf}] = div;
+  else if (delayGreater(div_slack, itr->second->pathEnd()->slack(this), this)) {
+    deleteDiversionPathEnd(itr->second);
     itr->second = div;
+  }
+  else
+    deleteDiversionPathEnd(div);
 }
 
 void

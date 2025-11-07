@@ -179,9 +179,9 @@ ClkInfo::to_string(const StaState *sta) const
     result += network->pathName(gen_clk_src_);
   }
 
-  if (insertion_ > 0.0) {
+  if (delayGreater(insertion_, 0.0, sta)) {
     result += " insert";
-    result += std::to_string(insertion_);
+    result += delayAsString(insertion_, sta);
   }
 
   if (uncertainties_) {

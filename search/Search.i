@@ -260,7 +260,7 @@ endpoint_slack(const Pin *pin,
   sta->ensureLibLinked();
   if (sta->isPathGroupName(path_group_name)) {
     Slack slack = sta->endpointSlack(pin, std::string(path_group_name), min_max);
-    return sta->units()->timeUnit()->staToUser(slack);
+    return sta->units()->timeUnit()->staToUser(delayAsFloat(slack));
   }
   else {
     sta->report()->error(1577, "%s is not a known path group name.",
