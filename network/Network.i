@@ -753,6 +753,15 @@ bool is_top_level_port() { return Sta::sta()->ensureLinked()->isTopLevelPort(sel
 PinConnectedPinIterator *connected_pin_iterator()
 { return Sta::sta()->ensureLinked()->connectedPinIterator(self); }
 
+bool
+is_pwr_gnd()
+{
+  sta::Sta *sta = Sta::sta();
+  Network *network = sta->network();
+  LibertyPort *lib_port = network->libertyPort(self);
+  return lib_port && lib_port->isPwrGnd();
+}
+
 Vertex **
 vertices()
 {

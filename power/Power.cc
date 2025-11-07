@@ -1368,7 +1368,7 @@ Power::pgNameVoltage(LibertyCell *cell,
 		     const DcalcAnalysisPt *dcalc_ap)
 {
   if (pg_port_name) {
-    LibertyPgPort *pg_port = cell->findPgPort(pg_port_name);
+    LibertyPort *pg_port = cell->findLibertyPort(pg_port_name);
     if (pg_port) {
       const char *volt_name = pg_port->voltageName();
       LibertyLibrary *library = cell->libertyLibrary();
@@ -1484,14 +1484,17 @@ Power::findUnannotatedPins(const Instance *inst,
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
+    LibertyPort *liberty_port = sdc_network_->libertyPort(pin);
     if (!network_->direction(pin)->isInternal()
+	&& !network_->direction(pin)->isPowerGround()
+	&& !(liberty_port && liberty_port->isPwrGnd())
         && user_activity_map_.find(pin) == user_activity_map_.end())
       unannotated_pins.push_back(pin);
   }
   delete pin_iter;
 }
 
-// leaf pins - internal pins + top instance pins
+// leaf pins - internal pins - power/ground pins + top instance pins
 size_t
 Power::pinCount()
 {
@@ -1502,7 +1505,10 @@ Power::pinCount()
     InstancePinIterator *pin_iter = network_->pinIterator(leaf);
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
-      if (!network_->direction(pin)->isInternal())
+      LibertyPort *liberty_port = sdc_network_->libertyPort(pin);
+      if (!network_->direction(pin)->isInternal()
+	  && !network_->direction(pin)->isPowerGround()
+	  && !(liberty_port && liberty_port->isPwrGnd()))
         count++;
     }
     delete pin_iter;

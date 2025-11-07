@@ -4303,7 +4303,8 @@ Sta::replaceEquivCellBefore(const Instance *inst,
         else {
           // Force delay calculation on output pins.
           Vertex *vertex = graph_->pinDrvrVertex(pin);
-          graph_delay_calc_->delayInvalid(vertex);
+	  if (vertex)
+	    graph_delay_calc_->delayInvalid(vertex);
         }
       }
     }

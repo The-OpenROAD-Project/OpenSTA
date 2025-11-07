@@ -73,7 +73,7 @@ protected:
   void writeSubcktInstVoltSrcs(const Instance *inst,
 			       LibertyPortLogicValues &port_values,
                                const PinSet &excluded_input_pins);
-  float pgPortVoltage(LibertyPgPort *pg_port);
+  float pgPortVoltage(LibertyPort *pg_port);
   void writeVoltageSource(const char *inst_name,
 			  const char *port_name,
 			  float voltage);

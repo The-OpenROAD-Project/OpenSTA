@@ -50,6 +50,9 @@ The following classes now return const objects.
   Transition
   TimingRole
 
+Liberty PgPorts are now LibertyPorts with additional member functions for
+liberty pg_pins.
+
 Release 2.6.1 2025/03/??
 -------------------------
 

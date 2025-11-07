@@ -59,6 +59,7 @@ protected:
   void writeCells();
   void writeCell(const LibertyCell *cell);
   void writePort(const LibertyPort *port);
+  void writePwrGndPort(const LibertyPort *port);
   void writeBusPort(const LibertyPort *port);
   void writePortAttrs(const LibertyPort *port);
   void writeTimingArcSet(const TimingArcSet *arc_set);
@@ -310,7 +311,9 @@ LibertyWriter::writeCell(const LibertyCell *cell)
   while (port_iter.hasNext()) {
     const LibertyPort *port = port_iter.next();
     if (!port->direction()->isInternal()) {
-      if (port->isBus())
+      if (port->isPwrGnd())
+	writePwrGndPort(port);
+      else if (port->isBus())
         writeBusPort(port);
       else if (port->isBundle())
         report_->error(1340, "%s/%s bundled ports not supported.",
@@ -392,6 +395,15 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
     if (!isAutoWidthArc(port, arc_set))
       writeTimingArcSet(arc_set);
   }
+}
+
+void
+LibertyWriter::writePwrGndPort(const LibertyPort *port)
+{
+  fprintf(stream_, "    pg_pin(\"%s\") {\n", port->name());
+  fprintf(stream_, "      pg_type : \"%s\";\n", pwrGndTypeName(port->pwrGndType()));
+  fprintf(stream_, "      voltage_name : \"%s\";\n", port->voltageName());
+  fprintf(stream_, "    }\n");
 }
 
 // Check if arc is added for port min_pulse_width_high/low attribute.
