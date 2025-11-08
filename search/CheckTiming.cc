@@ -273,10 +273,7 @@ CheckTiming::hasClkedDepature(Pin *pin)
 bool
 CheckTiming::hasMaxDelay(Pin *pin)
 {
-  ExceptionPathSet *exceptions = sdc_->exceptions();
-  ExceptionPathSet::Iterator exception_iter(exceptions);
-  while (exception_iter.hasNext()) {
-    ExceptionPath *exception = exception_iter.next();
+  for (ExceptionPath *exception : sdc_->exceptions()) {
     ExceptionTo *to = exception->to();
     if (exception->isPathDelay()
 	&& exception->minMax() == MinMaxAll::max()

@@ -95,7 +95,7 @@ typedef Set<LibertyPortPair, LibertyPortPairLess> LibertyPortPairSet;
 typedef Map<const Instance*, DisabledInstancePorts*> DisabledInstancePortsMap;
 typedef Map<LibertyCell*, DisabledCellPorts*> DisabledCellPortsMap;
 typedef MinMaxValues<float> ClockUncertainties;
-typedef Set<ExceptionPath*> ExceptionPathSet;
+typedef std::set<ExceptionPath*> ExceptionPathSet;
 typedef PinPair EdgePins;
 typedef PinPairSet EdgePinsSet;
 typedef Map<const Pin*, LogicValue> LogicValueMap;

@@ -1196,7 +1196,7 @@ void
 WriteSdc::writeExceptions() const
 {
   ExceptionPathSeq exceptions;
-  for (ExceptionPath *exception : *sdc_->exceptions())
+  for (ExceptionPath *exception : sdc_->exceptions())
     exceptions.push_back(exception);
   sort(exceptions, ExceptionPathLess(network_));
   for (ExceptionPath *exception : exceptions) {
