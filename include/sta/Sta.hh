@@ -907,9 +907,6 @@ public:
   PinSet endpointPins();
   VertexSet *endpoints();
   int endpointViolationCount(const MinMax *min_max);
-  // Find the fanin vertices for a group path.
-  // Vertices in the clock network are NOT included.
-  PinSet findGroupPathPins(const char *group_path_name);
   // Find all required times after updateTiming().
   void findRequireds();
   std::string reportDelayCalc(Edge *edge,
