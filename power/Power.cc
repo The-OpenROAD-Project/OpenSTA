@@ -100,7 +100,8 @@ Power::Power(StaState *sta) :
   input_activity_(),            // default set in ensureActivities()
   seq_activity_map_(100, SeqPinHash(network_), SeqPinEqual()),
   activities_valid_(false),
-  bdd_(sta)
+  bdd_(sta),
+  corner_(nullptr)
 {
 }
 
@@ -113,6 +114,8 @@ Power::clear()
   seq_activity_map_.clear();
   activity_map_.clear();
   activities_valid_ = false;
+  instance_powers_.clear();
+  corner_ = nullptr;
 }
 
 void
@@ -286,13 +289,10 @@ Power::power(const Corner *corner,
   pad.clear();
 
   ensureActivities();
-  Stats stats(debug_, report_);
-  LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
+  ensureInstPowers(corner);
+  for (auto [inst, inst_power] : instance_powers_) {
     LibertyCell *cell = network_->libertyCell(inst);
     if (cell) {
-      PowerResult inst_power = power(inst, cell, corner);
       if (cell->isMacro()
 	  || cell->isMemory()
           || cell->interfaceTiming())
@@ -308,8 +308,6 @@ Power::power(const Corner *corner,
       total.incr(inst_power);
     }
   }
-  delete inst_iter;
-  stats.report("Find power");
 }
 
 bool
@@ -332,17 +330,15 @@ PowerResult
 Power::power(const Instance *inst,
 	     const Corner *corner)
 {
+  ensureActivities();
+  ensureInstPowers(corner);
   if (network_->isHierarchical(inst)) {
     PowerResult result;
     powerInside(inst, corner, result);
     return result;
   }
-  LibertyCell *cell = network_->libertyCell(inst);
-  if (cell) {
-    ensureActivities();
-    return power(inst, cell, corner);
-  }
-  return PowerResult();
+  else
+    return instance_powers_[inst];
 }
 
 void
@@ -355,13 +351,8 @@ Power::powerInside(const Instance *hinst,
     Instance *child = child_iter->next();
     if (network_->isHierarchical(child))
       powerInside(child, corner, result);
-    else {
-      LibertyCell *cell = network_->libertyCell(child);
-      if (cell) {
-        PowerResult inst_power = power(child, cell, corner);
-        result.incr(inst_power);
-      }
-    }
+    else
+      result.incr(instance_powers_[child]);
   }
   delete child_iter;
 }
@@ -707,6 +698,7 @@ Power::evalBddActivity(DdNode *bdd,
 void
 Power::ensureActivities()
 {
+  Stats stats(debug_, report_);
   // No need to propagate activites if global activity is set.
   if (!global_activity_.isSet()) {
     if (!activities_valid_) {
@@ -750,6 +742,7 @@ Power::ensureActivities()
       activities_valid_ = true;
     }
   }
+  stats.report("Power activities");
 }
 
 void
@@ -840,6 +833,32 @@ Power::seedRegOutputActivities(const Instance *reg,
 }
 
 ////////////////////////////////////////////////////////////////
+
+void
+Power::ensureInstPowers(const Corner *corner)
+{
+  if (instance_powers_.empty()
+      || corner != corner_)
+    findInstPowers(corner);
+}
+
+void
+Power::findInstPowers(const Corner *corner)
+{
+  Stats stats(debug_, report_);
+  LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
+  while (inst_iter->hasNext()) {
+    Instance *inst = inst_iter->next();
+    LibertyCell *cell = network_->libertyCell(inst);
+    if (cell) {
+      PowerResult inst_power = power(inst, cell, corner);
+      instance_powers_[inst] = inst_power;
+    }
+  }
+  delete inst_iter;
+  corner_ = corner;
+  stats.report("Find power");
+}
 
 PowerResult
 Power::power(const Instance *inst,
@@ -1537,6 +1556,22 @@ Power::clockMinPeriod()
   }
   else
     return 0.0;
+}
+
+void
+Power::deleteInstanceBefore(const Instance *)
+{
+  activities_valid_ = false;
+  instance_powers_.clear();
+  corner_ = nullptr;
+}
+
+void
+Power::deletePinBefore(const Pin *)
+{
+  activities_valid_ = false;
+  instance_powers_.clear();
+  corner_ = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

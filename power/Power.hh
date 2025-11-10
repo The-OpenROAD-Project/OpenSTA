@@ -107,6 +107,8 @@ public:
   float clockMinPeriod();
   InstanceSeq highestPowerInstances(size_t count,
                                     const Corner *corner);
+  void deleteInstanceBefore(const Instance *inst);
+  void deletePinBefore(const Pin *pin);
 
 protected:
   PwrActivity &activity(const Pin *pin);
@@ -129,6 +131,8 @@ protected:
 		   PwrActivity &activity);
   PwrActivity findActivity(const Pin *pin);
 
+  void ensureInstPowers(const Corner *corner);
+  void findInstPowers(const Corner *corner);
   PowerResult power(const Instance *inst,
                     LibertyCell *cell,
                     const Corner *corner);
@@ -229,6 +233,8 @@ private:
   PwrSeqActivityMap seq_activity_map_;
   bool activities_valid_;
   Bdd bdd_;
+  std::map<const Instance*, PowerResult> instance_powers_;
+  const Corner *corner_;
 
   static constexpr int max_activity_passes_ = 100;
 

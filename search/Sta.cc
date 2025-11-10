@@ -4588,6 +4588,7 @@ Sta::deleteLeafInstanceBefore(const Instance *inst)
 {
   sim_->deleteInstanceBefore(inst);
   sdc_->deleteInstanceBefore(inst);
+  power_->deleteInstanceBefore(inst);
 }
 
 void
@@ -4664,6 +4665,7 @@ Sta::deletePinBefore(const Pin *pin)
   }
   sim_->deletePinBefore(pin);
   clk_network_->deletePinBefore(pin);
+  power_->deletePinBefore(pin);
 }
 
 void
