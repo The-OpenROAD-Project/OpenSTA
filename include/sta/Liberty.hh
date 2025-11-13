@@ -43,7 +43,6 @@ class WriteTimingModel;
 class LibertyCellIterator;
 class LibertyCellPortIterator;
 class LibertyCellPortBitIterator;
-class LibertyCellPgPortIterator;
 class LibertyPortMemberIterator;
 class ModeValueDef;
 class TestCell;
@@ -56,7 +55,6 @@ class LibertyReader;
 class OcvDerate;
 class TimingArcAttrs;
 class InternalPowerAttrs;
-class LibertyPgPort;
 class StaState;
 class Corner;
 class Corners;
@@ -90,7 +88,6 @@ typedef Vector<LatchEnable*> LatchEnableSeq;
 typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
 typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<std::string, float> SupplyVoltageMap;
-typedef Map<std::string, LibertyPgPort*> LibertyPgPortMap;
 typedef Map<std::string, DriverWaveform*> DriverWaveformMap;
 typedef Vector<DcalcAnalysisPt*> DcalcAnalysisPtSeq;
 
@@ -100,6 +97,12 @@ enum class DelayModelType { cmos_linear, cmos_pwl, cmos2, table, polynomial, dcm
 
 enum class ScanSignalType { enable, enable_inverted, clock, clock_a, clock_b,
                             input, input_inverted, output, output_inverted, none };
+enum class PwrGndType { none,
+			primary_power, primary_ground,
+			backup_power, backup_ground,
+			internal_power, internal_ground,
+			nwell, pwell,
+			deepnwell, deeppwell};
 
 enum class ScaleFactorPvt { process, volt, temp, unknown };
 constexpr int scale_factor_pvt_count = int(ScaleFactorPvt::unknown) + 1;
@@ -423,8 +426,6 @@ public:
   LibertyPort *findLibertyPort(const char *name) const;
   LibertyPortSeq findLibertyPortsMatching(PatternMatch *pattern) const;
   bool hasInternalPorts() const { return has_internal_ports_; }
-  LibertyPgPort *findPgPort(const char *name) const;
-  size_t pgPortCount() const { return pg_port_map_.size(); }
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   void setScaleFactors(ScaleFactors *scale_factors);
   ModeDef *makeModeDef(const char *name);
@@ -533,7 +534,6 @@ public:
   void setOcvArcDepth(float depth);
   void setOcvDerate(OcvDerate *derate);
   void addOcvDerate(OcvDerate *derate);
-  void addPgPort(LibertyPgPort *pg_port);
   void setTestCell(TestCell *test);
   void setHasInferedRegTimingArcs(bool infered);
   void setIsDisabledConstraint(bool is_disabled);
@@ -643,7 +643,6 @@ protected:
   Vector<LibertyCell*> corner_cells_;
   float leakage_power_;
   bool leakage_power_exists_;
-  LibertyPgPortMap pg_port_map_;
   bool has_internal_ports_;
   std::atomic<bool> have_voltage_waveforms_;
   std::mutex waveform_lock_;
@@ -653,7 +652,6 @@ protected:
 private:
   friend class LibertyLibrary;
   friend class LibertyCellPortIterator;
-  friend class LibertyCellPgPortIterator;
   friend class LibertyPort;
   friend class LibertyBuilder;
 };
@@ -681,17 +679,6 @@ private:
   ConcreteCellPortBitIterator *iter_;
 };
 
-class LibertyCellPgPortIterator : public Iterator<LibertyPgPort*>
-{
-public:
-  LibertyCellPgPortIterator(const LibertyCell *cell);
-  bool hasNext();
-  LibertyPgPort *next();
-
-private:
-  LibertyPgPortMap::Iterator iter_;
-};
-
 ////////////////////////////////////////////////////////////////
 
 class LibertyPort : public ConcretePort
@@ -704,6 +691,16 @@ public:
   LibertyPort *bundlePort() const;
   BusDcl *busDcl() const { return bus_dcl_; }
   void setDirection(PortDirection *dir);
+
+  ////////////////////////////////////////////////////////////////
+  // pg_pin functions
+  bool isPwrGnd() const;
+  PwrGndType pwrGndType() const { return pwr_gnd_type_; }
+  void setPwrGndType(PwrGndType type);
+  const char *voltageName() const { return voltage_name_.c_str(); }
+  void setVoltageName(const char *voltage_name);
+  ////////////////////////////////////////////////////////////////
+
   ScanSignalType scanSignalType() const { return scan_signal_type_; }
   void setScanSignalType(ScanSignalType type);
   void fanoutLoad(// Return values.
@@ -887,8 +884,10 @@ protected:
 
   LibertyCell *liberty_cell_;
   BusDcl *bus_dcl_;
-  FuncExpr *function_;
+  PwrGndType pwr_gnd_type_;
+  std::string voltage_name_;
   ScanSignalType scan_signal_type_;
+  FuncExpr *function_;
   FuncExpr *tristate_enable_;
   ScaledPortMap *scaled_ports_;
   RiseFallMinMax capacitance_;
@@ -1136,37 +1135,13 @@ private:
   TablePtr derate_[RiseFall::index_count][EarlyLate::index_count][path_type_count];
 };
 
-// Power/ground port.
-class LibertyPgPort
-{
-public:
-  enum PgType { unknown,
-		primary_power, primary_ground,
-		backup_power, backup_ground,
-		internal_power, internal_ground,
-		nwell, pwell,
-		deepnwell, deeppwell};
-  LibertyPgPort(const char *name,
-		LibertyCell *cell);
-  const char *name() const { return name_.c_str(); }
-  LibertyCell *cell() const { return cell_; }
-  PgType pgType() const { return pg_type_; }
-  void setPgType(PgType type);
-  const char *voltageName() const { return voltage_name_.c_str(); }
-  void setVoltageName(const char *voltage_name);
-  static bool equiv(const LibertyPgPort *port1,
-		    const LibertyPgPort *port2);
-
-private:
-  std::string name_;
-  PgType pg_type_;
-  std::string voltage_name_;
-  LibertyCell *cell_;
-};
-
 std::string
 portLibertyToSta(const char *port_name);
 const char *
 scanSignalTypeName(ScanSignalType scan_type);
+const char *
+pwrGndTypeName(PwrGndType pwr_gnd_type);
+PwrGndType
+findPwrGndType(const char *pg_name);
 
 } // namespace

@@ -975,8 +975,6 @@ LibertyCell::~LibertyCell()
 
   delete test_cell_;
   ocv_derate_map_.deleteContents();
-
-  pg_port_map_.deleteContents();
 }
 
 LibertyPort *
@@ -1019,18 +1017,6 @@ void
 LibertyCell::setHasInternalPorts(bool has_internal)
 {
   has_internal_ports_ = has_internal;
-}
-
-void
-LibertyCell::addPgPort(LibertyPgPort *pg_port)
-{
-  pg_port_map_[pg_port->name()] = pg_port;
-}
-
-LibertyPgPort *
-LibertyCell::findPgPort(const char *name) const
-{
-  return pg_port_map_.findKey(name);
 }
 
 ModeDef *
@@ -2093,8 +2079,9 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   ConcretePort(name, is_bus, from_index, to_index, is_bundle, members, cell),
   liberty_cell_(cell),
   bus_dcl_(bus_dcl),
-  function_(nullptr),
+  pwr_gnd_type_(PwrGndType::none),
   scan_signal_type_(ScanSignalType::none),
+  function_(nullptr),
   tristate_enable_(nullptr),
   scaled_ports_(nullptr),
   fanout_load_(0.0),
@@ -2168,6 +2155,50 @@ static EnumNameMap<ScanSignalType> scan_signal_type_map =
    {ScanSignalType::output_inverted, "output_inverted"},
    {ScanSignalType::none, "none"}};
 
+bool
+LibertyPort::isPwrGnd() const
+{
+  return pwr_gnd_type_ != PwrGndType::none;
+}
+
+void
+LibertyPort::setPwrGndType(PwrGndType type)
+{
+  pwr_gnd_type_ = type;
+}
+
+void
+LibertyPort::setVoltageName(const char *voltage_name)
+{
+  voltage_name_ = voltage_name;
+}
+
+static EnumNameMap<PwrGndType> pwr_gnd_type_map =
+  {{PwrGndType::none, "node"},
+   {PwrGndType::primary_power, "primary_power"},
+   {PwrGndType::primary_ground, "primary_ground"},
+   {PwrGndType::backup_power, "backup_power"},
+   {PwrGndType::backup_ground, "backup_ground"},
+   {PwrGndType::internal_power, "internal_power"},
+   {PwrGndType::internal_ground, "internal_ground"},
+   {PwrGndType::nwell, "nwell"},
+   {PwrGndType::pwell, "pwell"},
+   {PwrGndType::deepnwell, "deepnwell"},
+   {PwrGndType::deeppwell, "deeppwell"}};
+
+const char *
+pwrGndTypeName(PwrGndType pg_type)
+{
+  return pwr_gnd_type_map.find(pg_type);
+}
+
+PwrGndType
+findPwrGndType(const char *pg_name)
+{
+  return pwr_gnd_type_map.find(pg_name, PwrGndType::none);
+}
+
+////////////////////////////////////////////////////////////////
 
 const char *
 scanSignalTypeName(ScanSignalType scan_type)
@@ -2526,7 +2557,8 @@ LibertyPort::equiv(const LibertyPort *port1,
   return (port1 == nullptr && port2 == nullptr)
     || (port1 != nullptr && port2 != nullptr
 	&& stringEq(port1->name(), port2->name())
-	&& port1->direction() == port2->direction());
+	&& port1->direction() == port2->direction()
+	&& port1->pwr_gnd_type_ == port2->pwr_gnd_type_);
 }
 
 bool
@@ -3328,58 +3360,6 @@ OcvDerate::setDerateTable(const RiseFall *rf,
 			  TablePtr derate)
 {
   derate_[rf->index()][early_late->index()][int(path_type)] = derate;
-}
-
-////////////////////////////////////////////////////////////////
-
-LibertyPgPort::LibertyPgPort(const char *name,
-			     LibertyCell *cell) :
-  name_(name),
-  pg_type_(unknown),
-  cell_(cell)
-{
-}
-
-void
-LibertyPgPort::setPgType(PgType type)
-{
-  pg_type_ = type;
-}
-
-void
-LibertyPgPort::setVoltageName(const char *voltage_name)
-{
-  voltage_name_ = voltage_name;
-}
-
-bool
-LibertyPgPort::equiv(const LibertyPgPort *port1,
-                     const LibertyPgPort *port2)
-{
-  return port1->name_ == port2->name_
-    && port1->pg_type_ == port2->pg_type_;
-}
-
-////////////////////////////////////////////////////////////////
-
-LibertyCellPgPortIterator::LibertyCellPgPortIterator(const LibertyCell *cell) :
-  iter_(const_cast<LibertyCell*>(cell)->pg_port_map_)
-{
-}
-
-bool
-LibertyCellPgPortIterator::hasNext()
-{
-  return iter_.hasNext();
-}
-
-LibertyPgPort *
-LibertyCellPgPortIterator::next()
-{
-  string name;
-  LibertyPgPort *port;
-  iter_.next(name, port);
-  return port;
 }
 
 } // namespace

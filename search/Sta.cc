@@ -75,7 +75,6 @@
 #include "ClkLatency.hh"
 #include "FindRegister.hh"
 #include "ReportPath.hh"
-#include "VisitPathGroupVertices.hh"
 #include "Genclks.hh"
 #include "ClkNetwork.hh"
 #include "power/Power.hh"
@@ -2721,36 +2720,6 @@ Sta::endpointViolationCount(const MinMax *min_max)
   return violations;
 }
 
-PinSet
-Sta::findGroupPathPins(const char *group_path_name)
-{
-  if (!(search_->havePathGroups()
-        && search_->arrivalsValid())) {
-    PathEndSeq path_ends = findPathEnds(// from, thrus, to, unconstrained
-                                        nullptr, nullptr, nullptr, false,
-                                        // corner, min_max, 
-                                        nullptr, MinMaxAll::max(),
-                                        // group_path_count, endpoint_path_count
-                                        1, 1,
-					// unique_pins, unique_edges
-					true, true,
-                                        -INF, INF, // slack_min, slack_max,
-                                        false, // sort_by_slack
-                                        nullptr, // group_names
-                                        // setup, hold, recovery, removal, 
-                                        true, true, true, true,
-                                        // clk_gating_setup, clk_gating_hold
-                                        true, true);
-  }
-
-  PathGroup *path_group = search_->findPathGroup(group_path_name,
-						 MinMax::max());
-  PinSet pins(network_);
-  VertexPinCollector visitor(pins);
-  visitPathGroupVertices(path_group, &visitor, this);
-  return pins;
-}
-
 ////////////////////////////////////////////////////////////////
 
 void
@@ -4303,7 +4272,8 @@ Sta::replaceEquivCellBefore(const Instance *inst,
         else {
           // Force delay calculation on output pins.
           Vertex *vertex = graph_->pinDrvrVertex(pin);
-          graph_delay_calc_->delayInvalid(vertex);
+	  if (vertex)
+	    graph_delay_calc_->delayInvalid(vertex);
         }
       }
     }
@@ -4618,6 +4588,7 @@ Sta::deleteLeafInstanceBefore(const Instance *inst)
 {
   sim_->deleteInstanceBefore(inst);
   sdc_->deleteInstanceBefore(inst);
+  power_->deleteInstanceBefore(inst);
 }
 
 void
@@ -4694,6 +4665,7 @@ Sta::deletePinBefore(const Pin *pin)
   }
   sim_->deletePinBefore(pin);
   clk_network_->deletePinBefore(pin);
+  power_->deletePinBefore(pin);
 }
 
 void

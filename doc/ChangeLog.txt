@@ -17,6 +17,8 @@ to remove paths through identical pins and rise/fall edges.
 
   report_checks [-unique_edges_to_endpoint]
 
+Instances now have pins for verilog netlist power/ground connections,
+
 Release 2.6.1 2025/03/30
 -------------------------
 

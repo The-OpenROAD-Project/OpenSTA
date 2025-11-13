@@ -561,6 +561,8 @@ LibertyReader::defineVisitors()
 		     &LibertyReader::endEcsmWaveform);
   defineGroupVisitor("ecsm_waveform_set", &LibertyReader::beginEcsmWaveform,
 		     &LibertyReader::endEcsmWaveform);
+  defineGroupVisitor("ecsm_capacitance", &LibertyReader::beginEcsmWaveform,
+		     &LibertyReader::endEcsmWaveform);
 }
 
 void
@@ -5686,8 +5688,7 @@ LibertyReader::beginPgPin(LibertyGroup *group)
 {
   if (cell_) {
     const char *name = group->firstName();
-    pg_port_ = new LibertyPgPort(name, cell_);
-    cell_->addPgPort(pg_port_);
+    pg_port_ = builder_.makePort(cell_, name);
   }
 }
 
@@ -5702,35 +5703,27 @@ LibertyReader::visitPgType(LibertyAttr *attr)
 {
   if (pg_port_) {
     const char *type_name = getAttrString(attr);
-    LibertyPgPort::PgType type = LibertyPgPort::PgType::unknown;
-    if (stringEqual(type_name, "primary_ground"))
-      type = LibertyPgPort::PgType::primary_ground;
-    else if (stringEqual(type_name, "primary_power"))
-      type = LibertyPgPort::PgType::primary_power;
-
-    else if (stringEqual(type_name, "backup_ground"))
-      type = LibertyPgPort::PgType::backup_ground;
-    else if (stringEqual(type_name, "backup_power"))
-      type = LibertyPgPort::PgType::backup_power;
-
-    else if (stringEqual(type_name, "internal_ground"))
-      type = LibertyPgPort::PgType::internal_ground;
-    else if (stringEqual(type_name, "internal_power"))
-      type = LibertyPgPort::PgType::internal_power;
-
-    else if (stringEqual(type_name, "nwell"))
-      type = LibertyPgPort::PgType::nwell;
-    else if (stringEqual(type_name, "pwell"))
-      type = LibertyPgPort::PgType::pwell;
-
-    else if (stringEqual(type_name, "deepnwell"))
-      type = LibertyPgPort::PgType::deepnwell;
-    else if (stringEqual(type_name, "deeppwell"))
-      type = LibertyPgPort::PgType::deeppwell;
-
-    else
+    PwrGndType type = findPwrGndType(type_name);
+    PortDirection *dir = PortDirection::unknown();
+    switch (type) {
+    case PwrGndType::primary_ground:;
+    case PwrGndType::backup_ground:
+    case PwrGndType::internal_ground:
+      dir = PortDirection::ground();
+      break;
+    case PwrGndType::primary_power:
+    case PwrGndType::backup_power:
+    case PwrGndType::internal_power:
+      dir = PortDirection::power();
+      break;
+    case PwrGndType::none:
       libError(1291, attr, "unknown pg_type.");
-    pg_port_->setPgType(type);
+      break;
+    default:
+      break;
+    }
+    pg_port_->setPwrGndType(type);
+    pg_port_->setDirection(dir);
   }
 }
 

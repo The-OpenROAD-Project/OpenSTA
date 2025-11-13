@@ -653,7 +653,7 @@ protected:
   const EarlyLateAll *derate_type_;
   const EarlyLateAll *sigma_type_;
   PathType path_type_;
-  LibertyPgPort *pg_port_;
+  LibertyPort *pg_port_;
   ScaleFactorType scale_factor_type_;
   TableAxisPtr axis_[3];
   TablePtr table_;

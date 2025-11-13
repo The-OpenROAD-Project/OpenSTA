@@ -67,16 +67,8 @@ static unsigned
 hashFuncExpr(const FuncExpr *expr);
 static unsigned
 hashPort(const LibertyPort *port);
-static unsigned
-hashCellPgPorts(const LibertyCell *cell);
-static unsigned
-hashPgPort(const LibertyPgPort *port);
 static bool
 cellHasFuncs(const LibertyCell *cell);
-
-static bool
-equivCellPgPorts(const LibertyCell *cell1,
-                 const LibertyCell *cell2);
 
 static float
 cellDriveResistance(const LibertyCell *cell)
@@ -201,7 +193,6 @@ static unsigned
 hashCell(const LibertyCell *cell)
 {
   return hashCellPorts(cell)
-    + hashCellPgPorts(cell)
     + hashCellSequentials(cell);
 }
 
@@ -224,25 +215,6 @@ hashPort(const LibertyPort *port)
 {
   return hashString(port->name()) * 3
     + port->direction()->index() * 5;
-}
-
-static unsigned
-hashCellPgPorts(const LibertyCell *cell)
-{
-  unsigned hash = 0;
-  LibertyCellPgPortIterator port_iter(cell);
-  while (port_iter.hasNext()) {
-    LibertyPgPort *port = port_iter.next();
-    hash += hashPgPort(port);
-  }
-  return hash;
-}
-
-static unsigned
-hashPgPort(const LibertyPgPort *port)
-{
-  return hashString(port->name()) * 3
-    + static_cast<int>(port->pgType()) * 5;
 }
 
 static unsigned
@@ -333,7 +305,6 @@ equivCells(const LibertyCell *cell1,
 {
   return equivCellPorts(cell1, cell2)
     && equivCellFuncs(cell1, cell2)
-    && equivCellPgPorts(cell1, cell2)
     && equivCellSequentials(cell1, cell2)
     && equivCellStatetables(cell1, cell2)
     // Reqwuire timing arc equivalence if there are no functions.
@@ -347,7 +318,6 @@ equivCellsArcs(const LibertyCell *cell1,
 {
   return equivCellPorts(cell1, cell2)
     && equivCellFuncs(cell1, cell2)
-    && equivCellPgPorts(cell1, cell2)
     && equivCellSequentials(cell1, cell2)
     && equivCellStatetables(cell1, cell2)
     // Reqwuire timing arc equivalence if there are no functions.
@@ -397,25 +367,6 @@ equivCellPorts(const LibertyCell *cell1,
       const char* name = port1->name();
       LibertyPort *port2 = cell2->findLibertyPort(name);
       if (!(port2 && LibertyPort::equiv(port1, port2)))
-        return false;
-    }
-    return true;
-  }
-}
-
-static bool
-equivCellPgPorts(const LibertyCell *cell1,
-                 const LibertyCell *cell2)
-{
-  if (cell1->pgPortCount() != cell2->pgPortCount())
-    return false;
-  else {
-    LibertyCellPgPortIterator port_iter1(cell1);
-    while (port_iter1.hasNext()) {
-      LibertyPgPort *port1 = port_iter1.next();
-      const char* name = port1->name();
-      LibertyPgPort *port2 = cell2->findPgPort(name);
-      if (!(port2 && LibertyPgPort::equiv(port1, port2)))
         return false;
     }
     return true;

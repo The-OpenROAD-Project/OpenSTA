@@ -1355,19 +1355,6 @@ set_voltage_net(const Net *net,
 
 ////////////////////////////////////////////////////////////////
 
-PinSet
-group_path_pins(const char *group_path_name)
-{
-  Sta *sta = Sta::sta();
-  Sdc *sdc = sta->sdc();
-  if (sdc->isGroupPathName(group_path_name))
-    return sta->findGroupPathPins(group_path_name);
-  else
-    return PinSet(sta->network());
-}
-
-////////////////////////////////////////////////////////////////
-
 char
 pin_case_logic_value(const Pin *pin)
 {

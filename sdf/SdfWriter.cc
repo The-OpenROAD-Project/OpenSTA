@@ -514,42 +514,44 @@ SdfWriter::writeTimingChecks(const Instance *inst,
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     Vertex *vertex = graph_->pinLoadVertex(pin);
-    VertexOutEdgeIterator edge_iter(vertex, graph_);
-    while (edge_iter.hasNext()) {
-      Edge *edge = edge_iter.next();
-      const TimingRole *role = edge->role();
-      const char *sdf_check = nullptr;
-      if (role == TimingRole::setup())
-	sdf_check = "SETUP";
-      else if (role == TimingRole::hold())
-	sdf_check = "HOLD";
-      else if (role == TimingRole::recovery())
-	sdf_check = "RECOVERY";
-      else if (role == TimingRole::removal())
-	sdf_check = "REMOVAL";
-      if (sdf_check) {
-	ensureTimingCheckheaders(check_header, inst, inst_header);
-	writeCheck(edge, sdf_check);
+    if (vertex) {
+      VertexOutEdgeIterator edge_iter(vertex, graph_);
+      while (edge_iter.hasNext()) {
+	Edge *edge = edge_iter.next();
+	const TimingRole *role = edge->role();
+	const char *sdf_check = nullptr;
+	if (role == TimingRole::setup())
+	  sdf_check = "SETUP";
+	else if (role == TimingRole::hold())
+	  sdf_check = "HOLD";
+	else if (role == TimingRole::recovery())
+	  sdf_check = "RECOVERY";
+	else if (role == TimingRole::removal())
+	  sdf_check = "REMOVAL";
+	if (sdf_check) {
+	  ensureTimingCheckheaders(check_header, inst, inst_header);
+	  writeCheck(edge, sdf_check);
+	}
       }
-    }
-    for (auto hi_low : RiseFall::range()) {
-      float min_width, max_width;
-      Edge *edge;
-      TimingArc *arc;
-      graph_->minPulseWidthArc(vertex, hi_low, edge, arc);
-      if (edge) {
-        min_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_min_index_));
-        max_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_max_index_));
-	ensureTimingCheckheaders(check_header, inst, inst_header);
-	writeWidthCheck(pin, hi_low, min_width, max_width);
+      for (auto hi_low : RiseFall::range()) {
+	float min_width, max_width;
+	Edge *edge;
+	TimingArc *arc;
+	graph_->minPulseWidthArc(vertex, hi_low, edge, arc);
+	if (edge) {
+	  min_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_min_index_));
+	  max_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_max_index_));
+	  ensureTimingCheckheaders(check_header, inst, inst_header);
+	  writeWidthCheck(pin, hi_low, min_width, max_width);
+	}
       }
-    }
-    float min_period;
-    bool exists;
-    graph_delay_calc_->minPeriod(pin, corner_, min_period, exists);
-    if (exists) {
-      ensureTimingCheckheaders(check_header, inst, inst_header);
-      writePeriodCheck(pin, min_period);
+      float min_period;
+      bool exists;
+      graph_delay_calc_->minPeriod(pin, corner_, min_period, exists);
+      if (exists) {
+	ensureTimingCheckheaders(check_header, inst, inst_header);
+	writePeriodCheck(pin, min_period);
+      }
     }
   }
   delete pin_iter;

@@ -261,7 +261,7 @@ WriteSpice::recordSpicePortNames(const char *cell_name,
     for (size_t i = 2; i < tokens.size(); i++) {
       const char *port_name = tokens[i].c_str();
       LibertyPort *port = cell->findLibertyPort(port_name);
-      LibertyPgPort *pg_port = cell->findPgPort(port_name);
+      LibertyPort *pg_port = cell->findLibertyPort(port_name);
       if (port == nullptr
 	  && pg_port == nullptr
 	  && !stringEqual(port_name, power_name_)
@@ -326,7 +326,7 @@ WriteSpice::writeSubcktInst(const Instance *inst)
   for (string subckt_port_name : spice_port_names) {
     const char *subckt_port_cname = subckt_port_name.c_str();
     Pin *pin = network_->findPin(inst, subckt_port_cname);
-    LibertyPgPort *pg_port = cell->findPgPort(subckt_port_cname);
+    LibertyPort *pg_port = cell->findLibertyPort(subckt_port_cname);
     const char *pin_name;
     if (pin) {
       pin_name = network_->pathName(pin);
@@ -357,13 +357,13 @@ WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
     const char *subckt_port_name = subckt_port_sname.c_str();
     LibertyPort *port = cell->findLibertyPort(subckt_port_name);
     const Pin *pin = port ? network_->findPin(inst, port) : nullptr;
-    LibertyPgPort *pg_port = cell->findPgPort(subckt_port_name);
+    bool is_pg_port = port && port->isPwrGnd();
     debugPrint(debug_, "write_spice", 2, " port %s%s",
                subckt_port_name,
-               pg_port ? " pwr/gnd" : "");
-    if (pg_port)
+               is_pg_port ? " pwr/gnd" : "");
+    if (is_pg_port)
       writeVoltageSource(inst_name, subckt_port_name,
-			 pgPortVoltage(pg_port));
+			 pgPortVoltage(port));
     else if (stringEq(subckt_port_name, power_name_))
       writeVoltageSource(inst_name, subckt_port_name, power_voltage_);
     else if (stringEq(subckt_port_name, gnd_name_))
@@ -420,7 +420,7 @@ WriteSpice::writeVoltageSource(LibertyCell *cell,
                                float voltage)
 {
   if (pg_port_name) {
-    LibertyPgPort *pg_port = cell->findPgPort(pg_port_name);
+    LibertyPort *pg_port = cell->findLibertyPort(pg_port_name);
     if (pg_port)
       voltage = pgPortVoltage(pg_port);
     else
@@ -433,9 +433,9 @@ WriteSpice::writeVoltageSource(LibertyCell *cell,
 }
 
 float
-WriteSpice::pgPortVoltage(LibertyPgPort *pg_port)
+WriteSpice::pgPortVoltage(LibertyPort *pg_port)
 {
-  LibertyLibrary *liberty = pg_port->cell()->libertyLibrary();
+  LibertyLibrary *liberty = pg_port->libertyCell()->libertyLibrary();
   float voltage = 0.0;
   bool exists;
   const char *voltage_name = pg_port->voltageName();
@@ -448,14 +448,14 @@ WriteSpice::pgPortVoltage(LibertyPgPort *pg_port)
 	voltage = gnd_voltage_;
       else
 	report_->error(1601 , "pg_pin %s/%s voltage %s not found,",
-		       pg_port->cell()->name(),
+		       pg_port->libertyCell()->name(),
 		       pg_port->name(),
 		       voltage_name);
     }
   }
   else
     report_->error(1602, "Liberty pg_port %s/%s missing voltage_name attribute,",
-		   pg_port->cell()->name(),
+		   pg_port->libertyCell()->name(),
 		   pg_port->name());
   return voltage;
 }
