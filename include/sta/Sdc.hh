@@ -1115,6 +1115,7 @@ protected:
   void recordMergeHash(ExceptionPath *exception, ExceptionPt *missing_pt);
   void recordMergeHashes(ExceptionPath *exception);
   void unrecordExceptionFirstPts(ExceptionPath *exception);
+  void unrecordExceptionPins(ExceptionPath *exception);
   void unrecordExceptionClks(ExceptionPath *exception,
 			     ClockSet *clks,
 			     ClockExceptionsMap &exception_map);
