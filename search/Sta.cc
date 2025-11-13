@@ -4662,6 +4662,7 @@ Sta::deletePinBefore(const Pin *pin)
       }
     }
   }
+  sdc_->deletePinBefore(pin);
   sim_->deletePinBefore(pin);
   clk_network_->deletePinBefore(pin);
   power_->deletePinBefore(pin);
