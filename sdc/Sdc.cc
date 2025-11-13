@@ -5685,22 +5685,22 @@ Sdc::connectPinAfter(const Pin *pin)
 }
 
 void
-Sdc::disconnectPinBefore(const Pin *pin)
+Sdc::deletePinBefore(const Pin *pin)
 {
   auto itr = pin_exceptions_.find(pin);
   if (itr != pin_exceptions_.end()) {
     for (ExceptionPath *exception : itr->second) {
       ExceptionFrom *from = exception->from();
       if (from)
-	from->disconnectPinBefore(pin, network_);
+	from->deletePinBefore(pin, network_);
       ExceptionTo *to = exception->to();
       if (to)
-	to->disconnectPinBefore(pin, network_);
+	to->deletePinBefore(pin, network_);
       ExceptionPt *first_pt = exception->firstPt();
       ExceptionThruSeq *thrus = exception->thrus();
       if (thrus) {
 	for (ExceptionThru *thru : *exception->thrus()) {
-	  thru->disconnectPinBefore(pin, network_);
+	  thru->deletePinBefore(pin, network_);
 	  if (thru == first_pt)
 	    recordExceptionEdges(exception, thru->edges(),
 				 first_thru_edge_exceptions_);

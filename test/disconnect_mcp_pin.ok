@@ -44,16 +44,16 @@ Path Type: max
    0.00  510.00 ^ u1/A (BUFx2_ASAP7_75t_R)
          510.00   data arrival time
 
- 250.00  250.00   clock clk (fall edge)
-   0.00  250.00   clock network delay (propagated)
-   0.00  250.00   clock reconvergence pessimism
-         250.00 v clk (in)
- -10.00  240.00   data check setup time
-         240.00   data required time
+ 750.00  750.00   clock clk (fall edge)
+   0.00  750.00   clock network delay (propagated)
+   0.00  750.00   clock reconvergence pessimism
+         750.00 v clk (in)
+ -10.00  740.00   data check setup time
+         740.00   data required time
 ---------------------------------------------------------
-         240.00   data required time
+         740.00   data required time
         -510.00   data arrival time
 ---------------------------------------------------------
-        -270.00   slack (VIOLATED)
+         230.00   slack (MET)
 
 
