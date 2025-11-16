@@ -140,6 +140,7 @@ record_example_tests {
 record_sta_tests {
   disconnect_mcp_pin
   get_filter
+  get_is_buffer
   get_is_memory
   get_lib_pins_of_objects
   get_noargs
