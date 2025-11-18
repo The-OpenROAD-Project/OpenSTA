@@ -1226,7 +1226,8 @@ LibertyCell::bufferPorts(// Return values.
       }
       output = port;
     }
-    else if (!dir->isPowerGround()) {
+    else if (!port->isPwrGnd()) {
+        // Invalid direction.
 	input = nullptr;
 	output = nullptr;
 	break;

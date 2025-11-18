@@ -24,6 +24,8 @@
 
 #include "ArcDelayCalc.hh"
 
+#include <cstdlib>
+
 #include "Units.hh"
 #include "Liberty.hh"
 #include "TimingArc.hh"

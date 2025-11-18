@@ -1027,7 +1027,7 @@ public:
   void removeGraphAnnotations();
 
   // Network edit before/after methods.
-  void disconnectPinBefore(const Pin *pin);
+  void deletePinBefore(const Pin *pin);
   void connectPinAfter(const Pin *pin);
   void clkHpinDisablesChanged(const Pin *pin);
   void makeClkHpinDisable(const Clock *clk,
@@ -1115,6 +1115,7 @@ protected:
   void recordMergeHash(ExceptionPath *exception, ExceptionPt *missing_pt);
   void recordMergeHashes(ExceptionPath *exception);
   void unrecordExceptionFirstPts(ExceptionPath *exception);
+  void unrecordExceptionPins(ExceptionPath *exception);
   void unrecordExceptionClks(ExceptionPath *exception,
 			     ClockSet *clks,
 			     ClockExceptionsMap &exception_map);

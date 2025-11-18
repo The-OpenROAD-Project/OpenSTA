@@ -355,8 +355,8 @@ public:
                        const Network *network) = 0;
   virtual void connectPinAfter(PinSet *,
 			       Network *network) = 0;
-  virtual void disconnectPinBefore(const Pin *pin,
-				   Network *network) = 0;
+  virtual void deletePinBefore(const Pin *pin,
+                               Network *network) = 0;
 
 protected:
   const RiseFallBoth *rf_;
@@ -415,8 +415,8 @@ public:
                        const Network *) {}
   virtual void connectPinAfter(PinSet *,
 			       Network *) {}
-  virtual void disconnectPinBefore(const Pin *,
-				   Network *);
+  virtual void deletePinBefore(const Pin *,
+                               Network *);
   void deleteInstance(const Instance *inst,
                       const Network *network);
 
@@ -537,8 +537,8 @@ public:
   virtual size_t objectCount() const;
   virtual void connectPinAfter(PinSet *drvrs,
 			       Network *network);
-  virtual void disconnectPinBefore(const Pin *pin,
-				   Network *network);
+  virtual void deletePinBefore(const Pin *pin,
+                               Network *network);
   void deleteInstance(const Instance *inst,
                       const Network *network);
 

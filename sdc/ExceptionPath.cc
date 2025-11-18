@@ -1166,8 +1166,8 @@ ExceptionFromTo::deleteInstance(const Instance *inst,
 }
 
 void
-ExceptionFromTo::disconnectPinBefore(const Pin *pin,
-				     Network *network)
+ExceptionFromTo::deletePinBefore(const Pin *pin,
+                                 Network *network)
 {
   deletePin(pin, network);
 }
@@ -2080,8 +2080,8 @@ ExceptionThru::makePinEdges(const Pin *pin,
 }
 
 void
-ExceptionThru::disconnectPinBefore(const Pin *pin,
- 				   Network *network)
+ExceptionThru::deletePinBefore(const Pin *pin,
+                               Network *network)
 {
   deletePin(pin, network);
   // Remove edges from/to leaf pin and through hier pin.

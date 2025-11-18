@@ -4477,7 +4477,6 @@ Sta::disconnectPinBefore(const Pin *pin)
              sdc_network_->pathName(pin),
              sdc_network_->pathName(network_->net(pin)));
   parasitics_->disconnectPinBefore(pin, network_);
-  sdc_->disconnectPinBefore(pin);
   sim_->disconnectPinBefore(pin);
   if (graph_) {
     if (network_->isDriver(pin)) {
@@ -4663,6 +4662,7 @@ Sta::deletePinBefore(const Pin *pin)
       }
     }
   }
+  sdc_->deletePinBefore(pin);
   sim_->deletePinBefore(pin);
   clk_network_->deletePinBefore(pin);
   power_->deletePinBefore(pin);

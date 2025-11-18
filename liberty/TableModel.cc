@@ -24,6 +24,7 @@
 
 #include "TableModel.hh"
 
+#include <cmath>
 #include <string>
 
 #include "Error.hh"

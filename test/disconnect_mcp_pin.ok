@@ -1,0 +1,59 @@
+Warning: disconnect_mcp_pin.tcl line 15, 'u0/A' is not a valid endpoint.
+Warning: disconnect_mcp_pin.tcl line 16, 'u1/A' is not a valid endpoint.
+Warning: disconnect_mcp_pin.tcl line 17, 'u0/A' is not a valid endpoint.
+Warning: disconnect_mcp_pin.tcl line 18, 'u1/A' is not a valid endpoint.
+Startpoint: data_in[1] (input port clocked by clk)
+Endpoint: u1 (falling edge-triggered data to data check clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+  10.00  510.00 ^ input external delay
+   0.00  510.00 ^ data_in[1] (in)
+   0.00  510.00 ^ u1/A (BUFx2_ASAP7_75t_R)
+         510.00   data arrival time
+
+ 750.00  750.00   clock clk (fall edge)
+   0.00  750.00   clock network delay (propagated)
+   0.00  750.00   clock reconvergence pessimism
+         750.00 v clk (in)
+ -10.00  740.00   data check setup time
+         740.00   data required time
+---------------------------------------------------------
+         740.00   data required time
+        -510.00   data arrival time
+---------------------------------------------------------
+         230.00   slack (MET)
+
+
+No paths found.
+Startpoint: data_in[1] (input port clocked by clk)
+Endpoint: u1 (falling edge-triggered data to data check clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+  10.00  510.00 ^ input external delay
+   0.00  510.00 ^ data_in[1] (in)
+   0.00  510.00 ^ u1/A (BUFx2_ASAP7_75t_R)
+         510.00   data arrival time
+
+ 750.00  750.00   clock clk (fall edge)
+   0.00  750.00   clock network delay (propagated)
+   0.00  750.00   clock reconvergence pessimism
+         750.00 v clk (in)
+ -10.00  740.00   data check setup time
+         740.00   data required time
+---------------------------------------------------------
+         740.00   data required time
+        -510.00   data arrival time
+---------------------------------------------------------
+         230.00   slack (MET)
+
+
