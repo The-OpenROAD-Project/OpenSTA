@@ -534,7 +534,7 @@ VerilogReader::makeModuleInst(const string *module_vname,
   // to reduce the memory footprint of the verilog parser.
   if (liberty_cell
       && hasScalarNamedPortRefs(liberty_cell, pins)) {
-    int port_count = network_->portBitCount(cell);
+    const int port_count = liberty_cell->portBitCount();
     StdStringSeq net_names(port_count);
     for (VerilogNet *vnet : *pins) {
       VerilogNetPortRefScalarNet *vpin =
