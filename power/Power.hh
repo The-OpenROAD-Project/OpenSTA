@@ -76,6 +76,7 @@ class Power : public StaState
 public:
   Power(StaState *sta);
   void clear();
+  void activitiesInvalid();
   void power(const Corner *corner,
 	     // Return values.
 	     PowerResult &total,

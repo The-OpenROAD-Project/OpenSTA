@@ -120,20 +120,25 @@ Power::clear()
 }
 
 void
+Power::activitiesInvalid()
+{
+  activities_valid_ = false;
+  instance_powers_valid_ = false;
+}
+
+void
 Power::setGlobalActivity(float density,
 			 float duty)
 {
   global_activity_.set(density, duty, PwrActivityOrigin::global);
-  activities_valid_ = false;
-  instance_powers_valid_ = false;
+  activitiesInvalid();
 }
   
 void
 Power::unsetGlobalActivity()
 {
   global_activity_.init();
-  activities_valid_ = false;
-  instance_powers_valid_ = false;
+  activitiesInvalid();
 }
 
 void
@@ -141,16 +146,14 @@ Power::setInputActivity(float density,
 			float duty)
 {
   input_activity_.set(density, duty, PwrActivityOrigin::input);
-  activities_valid_ = false;
-  instance_powers_valid_ = false;
+  activitiesInvalid();
 }
 
 void
 Power::unsetInputActivity()
 {
   input_activity_.init();
-  activities_valid_ = false;
-  instance_powers_valid_ = false;
+  activitiesInvalid();
 }
 
 void
@@ -162,8 +165,7 @@ Power::setInputPortActivity(const Port *input_port,
   const Pin *pin = network_->findPin(top_inst, input_port);
   if (pin) {
     user_activity_map_[pin] = {density, duty, PwrActivityOrigin::user};
-    activities_valid_ = false;
-    instance_powers_valid_ = false;
+    activitiesInvalid();
   }
 }
 
@@ -174,8 +176,7 @@ Power::unsetInputPortActivity(const Port *input_port)
   const Pin *pin = network_->findPin(top_inst, input_port);
   if (pin) {
     user_activity_map_.erase(pin);
-    activities_valid_ = false;
-    instance_powers_valid_ = false;
+    activitiesInvalid();
   }
 }
 
@@ -186,17 +187,14 @@ Power::setUserActivity(const Pin *pin,
                        PwrActivityOrigin origin)
 {
   user_activity_map_[pin] = {density, duty, origin};
-  activities_valid_ = false;
-  instance_powers_valid_ = false;
-
+  activitiesInvalid();
 }
 
 void
 Power::unsetUserActivity(const Pin *pin)
 {
   user_activity_map_.erase(pin);
-  activities_valid_ = false;
-  instance_powers_valid_ = false;
+  activitiesInvalid();
 }
 
 PwrActivity &
@@ -243,7 +241,7 @@ Power::setSeqActivity(const Instance *reg,
 		      PwrActivity &activity)
 {
   seq_activity_map_[SeqPin(reg, output)] = activity;
-  activities_valid_ = false;
+  activitiesInvalid();
 }
 
 bool
@@ -709,10 +707,9 @@ void
 Power::ensureActivities()
 {
   Stats stats(debug_, report_);
-  // No need to propagate activites if global activity is set.
-  if (!global_activity_.isSet()) {
-    if (!activities_valid_) {
-      Stats stats(debug_, report_);
+  if (!activities_valid_) {
+    // No need to propagate activites if global activity is set.
+    if (!global_activity_.isSet()) {
       // Clear existing activities.
       activity_map_.clear();
       seq_activity_map_.clear();
@@ -748,9 +745,8 @@ Power::ensureActivities()
                    pass, visitor.maxChange());
         pass++;
       }
-      stats.report("Find power activities");
-      activities_valid_ = true;
     }
+    activities_valid_ = true;
   }
   stats.report("Power activities");
 }

@@ -1111,6 +1111,7 @@ Sta::makeClock(const char *name,
   sdc_->makeClock(name, pins, add_to_pins, period, waveform, comment);
   update_genclks_ = true;
   search_->arrivalsInvalid();
+  power_->activitiesInvalid();
 }
 
 void
@@ -1135,6 +1136,7 @@ Sta::makeGeneratedClock(const char *name,
 			   edges, edge_shifts, comment);
   update_genclks_ = true;
   search_->arrivalsInvalid();
+  power_->activitiesInvalid();
 }
 
 void
@@ -1142,6 +1144,7 @@ Sta::removeClock(Clock *clk)
 {
   sdc_->removeClock(clk);
   search_->arrivalsInvalid();
+  power_->activitiesInvalid();
 }
 
 bool
@@ -1819,6 +1822,7 @@ Sta::setLogicValue(Pin *pin,
   sdc_->setLogicValue(pin, value);
   // Levelization respects constant disabled edges.
   levelize_->invalid();
+  power_->activitiesInvalid();
   sim_->constantsInvalid();
   // Constants disable edges which isolate downstream vertices of the
   // graph from the delay calculator's BFS search.  This means that
@@ -1834,6 +1838,7 @@ Sta::setCaseAnalysis(Pin *pin,
 		     LogicValue value)
 {
   sdc_->setCaseAnalysis(pin, value);
+  power_->activitiesInvalid();
   // Levelization respects constant disabled edges.
   levelize_->invalid();
   sim_->constantsInvalid();
