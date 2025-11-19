@@ -234,6 +234,7 @@ private:
   bool activities_valid_;
   Bdd bdd_;
   std::map<const Instance*, PowerResult> instance_powers_;
+  bool instance_powers_valid_;
   const Corner *corner_;
 
   static constexpr int max_activity_passes_ = 100;

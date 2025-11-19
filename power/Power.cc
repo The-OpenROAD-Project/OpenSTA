@@ -101,6 +101,7 @@ Power::Power(StaState *sta) :
   seq_activity_map_(100, SeqPinHash(network_), SeqPinEqual()),
   activities_valid_(false),
   bdd_(sta),
+  instance_powers_valid_(false),
   corner_(nullptr)
 {
 }
@@ -124,6 +125,7 @@ Power::setGlobalActivity(float density,
 {
   global_activity_.set(density, duty, PwrActivityOrigin::global);
   activities_valid_ = false;
+  instance_powers_valid_ = false;
 }
   
 void
@@ -131,6 +133,7 @@ Power::unsetGlobalActivity()
 {
   global_activity_.init();
   activities_valid_ = false;
+  instance_powers_valid_ = false;
 }
 
 void
@@ -139,6 +142,7 @@ Power::setInputActivity(float density,
 {
   input_activity_.set(density, duty, PwrActivityOrigin::input);
   activities_valid_ = false;
+  instance_powers_valid_ = false;
 }
 
 void
@@ -146,6 +150,7 @@ Power::unsetInputActivity()
 {
   input_activity_.init();
   activities_valid_ = false;
+  instance_powers_valid_ = false;
 }
 
 void
@@ -158,6 +163,7 @@ Power::setInputPortActivity(const Port *input_port,
   if (pin) {
     user_activity_map_[pin] = {density, duty, PwrActivityOrigin::user};
     activities_valid_ = false;
+    instance_powers_valid_ = false;
   }
 }
 
@@ -169,6 +175,7 @@ Power::unsetInputPortActivity(const Port *input_port)
   if (pin) {
     user_activity_map_.erase(pin);
     activities_valid_ = false;
+    instance_powers_valid_ = false;
   }
 }
 
@@ -180,6 +187,8 @@ Power::setUserActivity(const Pin *pin,
 {
   user_activity_map_[pin] = {density, duty, origin};
   activities_valid_ = false;
+  instance_powers_valid_ = false;
+
 }
 
 void
@@ -187,6 +196,7 @@ Power::unsetUserActivity(const Pin *pin)
 {
   user_activity_map_.erase(pin);
   activities_valid_ = false;
+  instance_powers_valid_ = false;
 }
 
 PwrActivity &
@@ -837,9 +847,11 @@ Power::seedRegOutputActivities(const Instance *reg,
 void
 Power::ensureInstPowers(const Corner *corner)
 {
-  if (instance_powers_.empty()
-      || corner != corner_)
+  if (!instance_powers_valid_
+      || corner != corner_) {
     findInstPowers(corner);
+    instance_powers_valid_ = true;
+  }
 }
 
 void
