@@ -5241,8 +5241,8 @@ Sta::slowDrivers(int count)
 {
   findDelays();
   InstanceSeq insts = network_->leafInstances();
-  sort(insts, [=] (const Instance *inst1,
-                   const Instance *inst2) {
+  sort(insts, [this] (const Instance *inst1,
+                      const Instance *inst2) {
     return delayGreater(instMaxSlew(inst1, this),
                         instMaxSlew(inst2, this),
                         this);

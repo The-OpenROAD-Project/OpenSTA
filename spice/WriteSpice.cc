@@ -533,8 +533,8 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
   // Sort resistors for consistent regression results.
   ParasiticResistorSeq resistors = parasitics_->resistors(parasitic);
   sort(resistors.begin(), resistors.end(),
-       [=] (const ParasiticResistor *r1,
-            const ParasiticResistor *r2) {
+       [this] (const ParasiticResistor *r1,
+               const ParasiticResistor *r2) {
          return parasitics_->id(r1) < parasitics_->id(r2);
        });
   for (ParasiticResistor *resistor : resistors) {
@@ -577,8 +577,8 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
   // Sort nodes for consistent regression results.
   ParasiticNodeSeq nodes = parasitics_->nodes(parasitic);
   sort(nodes.begin(), nodes.end(),
-       [=] (const ParasiticNode *node1,
-            const ParasiticNode *node2) {
+       [this] (const ParasiticNode *node1,
+               const ParasiticNode *node2) {
          const char *name1 = parasitics_->name(node1);
          const char *name2 = parasitics_->name(node2);
          return stringLess(name1, name2);
@@ -598,8 +598,8 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
   // Sort coupling capacitors for consistent regression results.
   ParasiticCapacitorSeq capacitors = parasitics_->capacitors(parasitic);
   sort(capacitors.begin(), capacitors.end(),
-       [=] (const ParasiticCapacitor *c1,
-            const ParasiticCapacitor *c2) {
+       [this] (const ParasiticCapacitor *c1,
+               const ParasiticCapacitor *c2) {
          return parasitics_->id(c1) < parasitics_->id(c2);
        });
   const Net *net = pinNet(drvr_pin, network_);
