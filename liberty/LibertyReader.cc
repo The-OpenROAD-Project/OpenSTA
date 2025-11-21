@@ -5690,7 +5690,7 @@ LibertyReader::visitPgType(LibertyAttr *attr)
     PwrGndType type = findPwrGndType(type_name);
     PortDirection *dir = PortDirection::unknown();
     switch (type) {
-    case PwrGndType::primary_ground:;
+    case PwrGndType::primary_ground:
     case PwrGndType::backup_ground:
     case PwrGndType::internal_ground:
       dir = PortDirection::ground();
