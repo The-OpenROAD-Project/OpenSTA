@@ -191,6 +191,10 @@ protected:
 			       bool invert);
   void seedRegOutputActivities(const Instance *inst,
 			       BfsFwdIterator &bfs);
+  void seedRegOutputActivities(const Instance *inst,
+                               const LibertyCell *test_cell,
+                               const SequentialSeq &seqs,
+                               BfsFwdIterator &bfs);
   PwrActivity evalActivity(FuncExpr *expr,
 			   const Instance *inst);
   PwrActivity evalActivity(FuncExpr *expr,

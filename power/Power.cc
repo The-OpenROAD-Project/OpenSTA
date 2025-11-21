@@ -490,12 +490,15 @@ PropActivityVisitor::visit(Vertex *vertex)
     if (network_->isDriver(pin)) {
       LibertyPort *port = network_->libertyPort(pin);
       if (port) {
-        LibertyCell *test_cell = port->libertyCell()->testCell();
-        if (test_cell)
-          port = test_cell->findLibertyPort(port->name());
-      }
-      if (port) {
 	FuncExpr *func = port->function();
+        if (func == nullptr) {
+          LibertyCell *test_cell = port->libertyCell()->testCell();
+          if (test_cell) {
+            port = test_cell->findLibertyPort(port->name());
+            if (port)
+              func = port->function();
+          }
+        }
 	if (func) {
           PwrActivity activity = power_->evalActivity(func, inst);
 	  changed = setActivityCheck(pin, activity);
@@ -777,10 +780,24 @@ Power::seedRegOutputActivities(const Instance *inst,
 			       BfsFwdIterator &bfs)
 {
   LibertyCell *cell = network_->libertyCell(inst);
-  LibertyCell *test_cell = cell->testCell();
-  const SequentialSeq &seqs = test_cell
-    ? test_cell->sequentials()
-    : cell->sequentials();
+  const SequentialSeq &seqs = cell->sequentials();
+  if (!seqs.empty())
+    seedRegOutputActivities(inst, nullptr, seqs, bfs);
+  else {
+    LibertyCell *test_cell = cell->testCell();
+    if (test_cell) {
+      const SequentialSeq &seqs = test_cell->sequentials();
+      seedRegOutputActivities(inst, test_cell, seqs, bfs);
+    }
+  }
+}
+
+void
+Power::seedRegOutputActivities(const Instance *inst,
+                               const LibertyCell *test_cell,
+                               const SequentialSeq &seqs,
+                               BfsFwdIterator &bfs)
+{
   for (Sequential *seq : seqs) {
     seedRegOutputActivities(inst, seq, seq->output(), false);
     seedRegOutputActivities(inst, seq, seq->outputInv(), true);
@@ -791,7 +808,7 @@ Power::seedRegOutputActivities(const Instance *inst,
       Pin *pin = pin_iter->next();
       LibertyPort *port = network_->libertyPort(pin);
       if (test_cell)
-	port = test_cell->findLibertyPort(port->name());
+        port = test_cell->findLibertyPort(port->name());
       if (port) {
         FuncExpr *func = port->function();
         Vertex *vertex = graph_->pinDrvrVertex(pin);
