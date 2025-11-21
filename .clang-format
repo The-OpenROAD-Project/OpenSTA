@@ -12,18 +12,20 @@ AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: TopLevel
 BinPackArguments: false
 # fails
-BinPackParameters: false
+BinPackParameters: AlwaysOnePerLine
 BraceWrapping:   
   AfterClass: true
   AfterStruct: true
   AfterFunction: true
   BeforeElse: true
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 # fails if all initializers fit on one line
 BreakConstructorInitializers: AfterColon
-ColumnLimit: 0
+ColumnLimit: 90
 # fails
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 2
 IncludeBlocks: Preserve
+PackConstructorInitializers: Never
 PointerAlignment: Right
+SortIncludes: Never
