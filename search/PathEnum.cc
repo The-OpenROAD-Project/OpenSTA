@@ -636,7 +636,8 @@ PathEnum::makeDivertedPath(Path *path,
       after_div_copy = copy;
     if (first)
       div_path = copy;
-    else if (network_->isLatchData(p->pin(this)))
+    else if (found_div
+             && network_->isLatchData(p->pin(this)))
       break;
     if (p == before_div) {
       // Replaced on next pass.

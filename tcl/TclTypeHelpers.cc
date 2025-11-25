@@ -101,7 +101,7 @@ tclArgError(Tcl_Interp *interp,
   try {
     Sta::sta()->report()->error(id, msg, arg);
   } catch (const std::exception &e) {
-    Tcl_SetResult(interp, const_cast<char*>(e.what()), TCL_STATIC);
+    Tcl_SetResult(interp, const_cast<char*>(e.what()), TCL_VOLATILE);
   }
 }
 
