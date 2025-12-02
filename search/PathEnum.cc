@@ -97,7 +97,11 @@ DiversionGreater::operator()(Diversion *div1,
 static void
 deleteDiversionPathEnd(Diversion *div)
 {
-  delete div->pathEnd();
+  PathEnd *div_end = div->pathEnd();
+  Path *div_path = div_end->path();
+  if (div_path->isEnum())
+    delete div_path;
+  delete div_end;
   delete div;
 }
 
@@ -197,6 +201,7 @@ PathEnum::findNext()
       makeDiversions(path_end, div->divPath());
       // Caller owns the path end now, so don't delete it.
       next_ = path_end;
+      //search_->saveEnumPath(path_end->path());
       delete div;
       break;
     }

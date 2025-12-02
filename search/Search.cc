@@ -409,9 +409,20 @@ Search::deletePaths()
       Vertex *vertex = vertex_iter.next();
       deletePaths(vertex);
     }
+
+    for (Path *path : enum_paths_)
+      delete path;
+    enum_paths_.clear();
+
     filtered_arrivals_->clear();
     arrivals_exist_ = false;
   }
+}
+
+void
+Search::saveEnumPath(Path *path)
+{
+  enum_paths_.push_back(path);
 }
 
 // Delete with incremental tns/wns update.
