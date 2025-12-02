@@ -721,10 +721,12 @@ ConcreteParasiticNetwork::disconnectPin(const Pin *pin,
       ccapacitor->replaceNode(node, subnode);
     }
 
-    pin_nodes_.erase(pin);
+    pin_nodes_.erase(pin_node);
     delete node;
   }
 }
+
+////////////////////////////////////////////////////////////////
 
 NetIdPairLess::NetIdPairLess(const Network *network) :
   net_less_(network)
@@ -891,6 +893,13 @@ ConcreteParasitics::disconnectPinBefore(const Pin *pin,
       }
     }
   }
+}
+
+void
+ConcreteParasitics::deletePinBefore(const Pin *pin)
+{
+  // Actions are the same.
+  disconnectPinBefore(pin, network_);
 }
 
 void
