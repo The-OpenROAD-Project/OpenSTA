@@ -307,6 +307,7 @@ public:
 			       Vertex *vertex,
 			       TagGroupBldr *tag_bldr);
   void enqueueLatchDataOutputs(Vertex *vertex);
+  void enqueueLatchOutput(Vertex *vertex);
   virtual void seedRequired(Vertex *vertex);
   virtual void seedRequiredEnqueueFanin(Vertex *vertex);
   void seedInputDelayArrival(const Pin *pin,
@@ -417,6 +418,7 @@ public:
   void checkPrevPaths() const;
   void deletePaths(Vertex *vertex);
   void deleteTagGroup(TagGroup *group);
+  bool postpone_latch_outputs_;
 
 protected:
   void init(StaState *sta);
