@@ -254,6 +254,7 @@ Search::init(StaState *sta)
   filter_to_ = nullptr;
   filtered_arrivals_ = new VertexSet(graph_);
   found_downstream_clk_pins_ = false;
+  postpone_latch_outputs_ = false;
 }
 
 // Init "options".
@@ -639,6 +640,7 @@ Search::findFilteredArrivals(bool thru_latches)
   // fanin startpoints to reach -thru/-to endpoints.
   arrival_visitor_->init(true);
   // Iterate until data arrivals at all latches stop changing.
+  postpone_latch_outputs_ = true;
   for (int pass = 1; pass == 1 || (thru_latches && havePendingLatchOutputs()) ; pass++) {
     if (thru_latches)
       enqueuePendingLatchOutputs();
@@ -646,6 +648,7 @@ Search::findFilteredArrivals(bool thru_latches)
     int arrival_count = arrival_iter_->visitParallel(max_level, arrival_visitor_);
     deleteTagsPrev();
     debugPrint(debug_, "search", 1, "found %d arrivals", arrival_count);
+    postpone_latch_outputs_ = false;
   }
   arrivals_exist_ = true;
 }
@@ -1054,10 +1057,13 @@ Search::findAllArrivals(bool thru_latches)
 {
   arrival_visitor_->init(false);
   // Iterate until data arrivals at all latches stop changing.
+  postpone_latch_outputs_ = true;
   for (int pass = 1; pass == 1 || (thru_latches && havePendingLatchOutputs()); pass++) {
     enqueuePendingLatchOutputs();
     debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
     findArrivals1(levelize_->maxLevel());
+    if (pass > 2)
+      postpone_latch_outputs_ = false;
   }
 }
 
@@ -1076,8 +1082,11 @@ Search::clearPendingLatchOutputs()
 void
 Search::enqueuePendingLatchOutputs()
 {
-  for (Vertex *latch_vertex : *pending_latch_outputs_)
+  for (Vertex *latch_vertex : *pending_latch_outputs_) {
+    debugPrint(debug_, "search", 2, "enqueue latch output %s",
+               latch_vertex->to_string(this).c_str());
     arrival_iter_->enqueue(latch_vertex);
+  }
   clearPendingLatchOutputs();
 }
 
@@ -1473,6 +1482,13 @@ Search::enqueueLatchDataOutputs(Vertex *vertex)
       pending_latch_outputs_->insert(out_vertex);
     }
   }
+}
+
+void
+Search::enqueueLatchOutput(Vertex *vertex)
+{
+  LockGuard lock(pending_latch_outputs_lock_);
+  pending_latch_outputs_->insert(vertex);
 }
 
 void
@@ -2287,11 +2303,34 @@ PathVisitor::visitFromPath(const Pin *from_pin,
   else if (edge->role() == TimingRole::latchDtoQ()) {
     if (min_max == MinMax::max()
 	&& clk) {
-      arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
-      latches_->latchOutArrival(from_path, arc, edge, path_ap,
-                                to_tag, arc_delay, to_arrival);
-      if (to_tag)
-        to_tag = search_->thruTag(to_tag, edge, to_rf, min_max, path_ap, tag_cache_);
+      bool postponed = false;
+      if (search_->postpone_latch_outputs_) {
+        const Path *from_clk_path = from_clk_info->crprClkPath(this);
+        if (from_clk_path) {
+          Vertex *d_clk_vertex = from_clk_path->vertex(this);
+          Level d_clk_level = d_clk_vertex->level();
+          Level q_level = to_vertex->level();
+          if (d_clk_level >= q_level) {
+            // Crpr clk path on latch data input is required to find Q
+            // arrival. If the data clk path level is >= Q level the
+            // crpr clk path prev_path pointers are not complete.
+            debugPrint(debug_, "search", 3, "postponed latch eval %d %s -> %s %d",
+                       d_clk_level,
+                       d_clk_vertex->to_string(this).c_str(),
+                       edge->to_string(this).c_str(),
+                       q_level);
+            postponed = true;
+            search_->enqueueLatchOutput(to_vertex);
+          }
+        }
+      }
+      if (!postponed) {
+        arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
+        latches_->latchOutArrival(from_path, arc, edge, path_ap,
+                                  to_tag, arc_delay, to_arrival);
+        if (to_tag)
+          to_tag = search_->thruTag(to_tag, edge, to_rf, min_max, path_ap, tag_cache_);
+      }
     }
   }
   else if (from_tag->isClock()) {
