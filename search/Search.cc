@@ -2304,7 +2304,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
     if (min_max == MinMax::max()
 	&& clk) {
       bool postponed = false;
-      if (search_->postpone_latch_outputs_) {
+      if (search_->postponeLatchOutputs()) {
         const Path *from_clk_path = from_clk_info->crprClkPath(this);
         if (from_clk_path) {
           Vertex *d_clk_vertex = from_clk_path->vertex(this);

@@ -418,7 +418,7 @@ public:
   void checkPrevPaths() const;
   void deletePaths(Vertex *vertex);
   void deleteTagGroup(TagGroup *group);
-  bool postpone_latch_outputs_;
+  bool postponeLatchOutputs() const { return postpone_latch_outputs_; }
 
 protected:
   void init(StaState *sta);
@@ -671,6 +671,7 @@ protected:
   VertexSet *filtered_arrivals_;
   std::mutex filtered_arrivals_lock_;
   bool found_downstream_clk_pins_;
+  bool postpone_latch_outputs_;
   PathGroups *path_groups_;
   VisitPathEnds *visit_path_ends_;
   GatedClk *gated_clk_;
