@@ -74,14 +74,19 @@ VcdParse::read(const char *filename,
         // empty body
         readStmtString();
       else if (token == "$dumpall")
-        parseVarValues();
+        // Ignore dumpall body.
+        readStmtTokens();
       else if (token == "$dumpvars")
         // Initial values.
         parseVarValues();
+      else if (token[0] == '#') {
+        time_ = stoll(token.substr(1));
+	reader_->setTimeMin(time_);
+        prev_time_ = time_;
+      }
       else if (token[0] == '$')
         report_->fileError(800, filename_, stmt_line_, "unhandled vcd command.");
-      else
-        parseVarValues();
+
       token = getToken();
     }
     gzclose(stream_);
@@ -205,18 +210,11 @@ void
 VcdParse::parseVarValues()
 {
   string token = getToken();
-  bool first_time = true;
   while (!token.empty()) {
     char char0 = toupper(token[0]);
     if (char0 == '#' && token.size() > 1) {
       VcdTime time = stoll(token.substr(1));
-      if (first_time) {
-	prev_time_ = time;
-	first_time = false;
-	reader_->setTimeMin(time);
-      }
-      else
-	prev_time_ = time_;
+      prev_time_ = time_;
       time_ = time;
       if (time_ > prev_time_)
         reader_->varMinDeltaTime(time_ - prev_time_);
