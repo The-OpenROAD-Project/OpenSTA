@@ -158,6 +158,7 @@ record_sta_tests {
   report_checks_src_attr
   report_json1
   report_json2
+  set_units_float
   suppress_msg
   verilog_attribute
   verilog_specify

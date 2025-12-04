@@ -167,13 +167,13 @@ proc set_unit_values { unit key suffix key_var } {
     set arg_suffix [string range $value end-[expr $suffix_length - 1] end]
     if { [string match -nocase $arg_suffix $suffix] } {
       set arg_prefix [string range $value 0 end-$suffix_length]
-      if { [regexp "^(10*)?(\[Mkmunpf\])?$" $arg_prefix ignore mult prefix] } {
+      if { [regexp "^(10*\.?0*)?(\[Mkmunpf\])?$" $arg_prefix ignore mult prefix] } {
         #puts "$arg_prefix '$mult' '$prefix'"
         if { $mult == "" } {
           set mult 1
         }
         set scale [unit_prefix_scale $unit $prefix ]
-        set_cmd_unit_scale $unit $scale
+        set_cmd_unit_scale $unit [expr $scale * $mult]
       } else {
         sta_error 166 "unknown unit $unit prefix '${arg_prefix}'."
       }
