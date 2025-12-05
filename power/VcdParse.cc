@@ -232,28 +232,15 @@ VcdParse::parseVarValues()
       reader_->varAppendValue(id, time_, char0);
     }
     else if (char0 == 'B') {
-      char char1 = toupper(token[1]);
-      if (char1 == 'X'
-          || char1 == 'U'
-          || char1 == 'Z') {
-        string id = getToken();
-        if (!reader_->varIdValid(id))
-          report_->fileError(806, filename_, stmt_line_,
-                             "unknown variable %s", id.c_str());
-        // Bus mixed 0/1/X/U not supported.
-        reader_->varAppendValue(id, time_, char1);
-      }
+      string bus_value = token.substr(1);
+      string id = getToken();
+      if (!reader_->varIdValid(id))
+        report_->fileError(807, filename_, stmt_line_,
+                           "unknown variable %s", id.c_str());
       else {
-        string bus_value = token.substr(1);
-        string id = getToken();
-        if (!reader_->varIdValid(id))
-          report_->fileError(807, filename_, stmt_line_,
-                             "unknown variable %s", id.c_str());
-        else {
-          // Reverse the bus value to match the bit order in the VCD file.
-          std::reverse(bus_value.begin(), bus_value.end());
-          reader_->varAppendBusValue(id, time_, bus_value);
-        }
+        // Reverse the bus value to match the bit order in the VCD file.
+        std::reverse(bus_value.begin(), bus_value.end());
+        reader_->varAppendBusValue(id, time_, bus_value);
       }
     }
     token = getToken();
