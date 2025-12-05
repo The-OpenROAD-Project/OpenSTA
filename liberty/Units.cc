@@ -87,27 +87,27 @@ Unit::setScale(float scale)
   setScaledSuffix();
 }
 
-const char *
+std::string
 Unit::scaleAbbreviation() const
 {
   if (fuzzyEqual(scale_, 1E+6))
-    return "M";
+    return "1M";
   else if (fuzzyEqual(scale_, 1E+3))
-    return "k";
+    return "1k";
   if (fuzzyEqual(scale_, 1.0))
-    return "";
+    return "1";
   else if (fuzzyEqual(scale_, 1E-3))
-    return "m";
+    return "1m";
   else if (fuzzyEqual(scale_, 1E-6))
-    return "u";
+    return "1u";
   else if (fuzzyEqual(scale_, 1E-9))
-    return "n";
+    return "1n";
   else if (fuzzyEqual(scale_, 1E-12))
-    return "p";
+    return "1p";
   else if (fuzzyEqual(scale_, 1E-15))
-    return "f";
+    return "1f";
   else
-    return "?";
+    return stdstrPrint("%.1e", scale_);
 }
 
 void

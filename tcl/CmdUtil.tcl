@@ -122,7 +122,7 @@ define_cmd_args "report_units" {}
 proc report_units { args } {
   check_argc_eq0 "report_units" $args
   foreach unit {"time" "capacitance" "resistance" "voltage" "current" "power" "distance"} {
-    report_line " $unit 1[unit_scaled_suffix $unit]"
+    report_line " $unit [unit_scaled_suffix $unit]"
   }
 }
 
@@ -167,7 +167,7 @@ proc set_unit_values { unit key suffix key_var } {
     set arg_suffix [string range $value end-[expr $suffix_length - 1] end]
     if { [string match -nocase $arg_suffix $suffix] } {
       set arg_prefix [string range $value 0 end-$suffix_length]
-      if { [regexp "^(10*\.?0*)?(\[Mkmunpf\])?$" $arg_prefix ignore mult prefix] } {
+      if { [regexp "^(10*\\\.?0*)?(\[Mkmunpf\])?$" $arg_prefix ignore mult prefix] } {
         #puts "$arg_prefix '$mult' '$prefix'"
         if { $mult == "" } {
           set mult 1

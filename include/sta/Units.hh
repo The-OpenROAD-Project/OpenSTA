@@ -42,7 +42,7 @@ public:
   void operator=(const Unit &unit);
   float scale() const { return scale_; }
   void setScale(float scale);
-  const char *scaleAbbreviation() const;
+  std::string scaleAbbreviation() const;
   const char *suffix() const { return suffix_.c_str(); }
   // scale abbreviation + suffix
   const char *scaledSuffix() const { return scaled_suffix_.c_str(); }
