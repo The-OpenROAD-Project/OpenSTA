@@ -154,7 +154,6 @@ record_sta_tests {
   package_require
   path_group_names
   prima3
-  read_vcd
   report_checks_sorted
   report_checks_src_attr
   report_json1
