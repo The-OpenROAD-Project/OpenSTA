@@ -42,10 +42,15 @@ public:
   void operator=(const Unit &unit);
   float scale() const { return scale_; }
   void setScale(float scale);
+  // Mkmunpf abbreviation for scale.
   std::string scaleAbbreviation() const;
-  const char *suffix() const { return suffix_.c_str(); }
+  // 1Mkmunpf or scale
+  std::string scaleString() const;
+  std::string suffix() const { return suffix_; }
+  // scaleString + suffix
+  std::string scaleSuffix() const;
   // scale abbreviation + suffix
-  const char *scaledSuffix() const { return scaled_suffix_.c_str(); }
+  std::string scaleAbbrevSuffix() const { return scale_abbrev_suffix_; }
   void setSuffix(const char *suffix);
   int digits() const { return digits_; }
   void setDigits(int digits);
@@ -57,11 +62,11 @@ public:
 		       int digits) const;
 
 private:
-  void setScaledSuffix();
+  void setScaleAbbrevSuffix();
 
   float scale_;			// multiplier from user units to internal units
   std::string suffix_;		// print suffix
-  std::string scaled_suffix_;
+  std::string scale_abbrev_suffix_;
   int digits_;			// print digits (after decimal pt)
 };
 

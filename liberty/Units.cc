@@ -40,7 +40,7 @@ Unit::Unit(const char *suffix) :
   suffix_(suffix),
   digits_(3)
 {
-  setScaledSuffix();
+  setScaleAbbrevSuffix();
 }
 
 Unit::Unit(float scale,
@@ -50,13 +50,13 @@ Unit::Unit(float scale,
   suffix_(suffix),
   digits_(digits)
 {
-  setScaledSuffix();
+  setScaleAbbrevSuffix();
 }
 
 void
-Unit::setScaledSuffix()
+Unit::setScaleAbbrevSuffix()
 {
-  scaled_suffix_ = scaleAbbreviation() + suffix_;
+  scale_abbrev_suffix_ = scaleAbbreviation() + suffix_;
 }
 
 void
@@ -64,7 +64,7 @@ Unit::operator=(const Unit &unit)
 {
   scale_ = unit.scale_;
   suffix_ = unit.suffix_;
-  scaled_suffix_ = unit.scaled_suffix_;
+  scale_abbrev_suffix_ = unit.scale_abbrev_suffix_;
   digits_ = unit.digits_;
 }
 
@@ -84,11 +84,34 @@ void
 Unit::setScale(float scale)
 {
   scale_ = scale;
-  setScaledSuffix();
+  setScaleAbbrevSuffix();
 }
 
 std::string
 Unit::scaleAbbreviation() const
+{
+  if (fuzzyEqual(scale_, 1E+6))
+    return "M";
+  else if (fuzzyEqual(scale_, 1E+3))
+    return "k";
+  if (fuzzyEqual(scale_, 1.0))
+    return "";
+  else if (fuzzyEqual(scale_, 1E-3))
+    return "m";
+  else if (fuzzyEqual(scale_, 1E-6))
+    return "u";
+  else if (fuzzyEqual(scale_, 1E-9))
+    return "n";
+  else if (fuzzyEqual(scale_, 1E-12))
+    return "p";
+  else if (fuzzyEqual(scale_, 1E-15))
+    return "f";
+  else
+    return "?";
+}
+
+std::string
+Unit::scaleString() const
 {
   if (fuzzyEqual(scale_, 1E+6))
     return "1M";
@@ -110,11 +133,17 @@ Unit::scaleAbbreviation() const
     return stdstrPrint("%.1e", scale_);
 }
 
+std::string
+Unit::scaleSuffix() const
+{
+  return scaleString() + suffix_;
+}
+
 void
 Unit::setSuffix(const char *suffix)
 {
   suffix_ = suffix;
-  setScaledSuffix();
+  setScaleAbbrevSuffix();
 }
 
 void

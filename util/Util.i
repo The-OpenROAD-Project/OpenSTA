@@ -23,6 +23,7 @@
 // This notice may not be removed or altered from any source distribution.
 
 %module util
+%include <std_string.i>
 
 %{
 
@@ -425,7 +426,7 @@ unit_scale_abbreviation (const char *unit_name)
     return "";
 }
 
-const char *
+std::string
 unit_suffix(const char *unit_name)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);
@@ -435,12 +436,23 @@ unit_suffix(const char *unit_name)
     return "";
 }
 
-const char *
-unit_scaled_suffix(const char *unit_name)
+std::string
+unit_scale_suffix(const char *unit_name)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit) {
+    return unit->scaleSuffix();
+  }
+  else
+    return "";
+}
+
+std::string
+unit_scale_abbrev_suffix(const char *unit_name)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit)
-    return unit->scaledSuffix();
+    return unit->scaleAbbrevSuffix();
   else
     return "";
 }
