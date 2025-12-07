@@ -243,21 +243,19 @@ should be a short description of the problem. Attach a test case to
 reproduce the issue as described below. Issues without test cases are
 unlikely to get a response.
 
-The files in the test case should be collected into a directory named
-YYYYMMDD where YYYY is the year, MM is the month, and DD is the
-day (this format allows "ls" to report them in chronological order).
-The contents of the directory should be collected into a compressed
-tarfile named YYYYMMDD.tgz.
-
 The test case should have a tcl command file recreates the issue named
-run.tcl. If there are more than one command file using the same data
+run.tcl. If is are more than one command file using the same data
 files, there should be separate command files, run1.tcl, run2.tcl
 etc. The bug report can refer to these command files by name.
 
 Command files should not have absolute filenames like
-"/home/cho/OpenSTA_Request/write_path_spice/dump_spice" in them.
+"/home/john/OpenSTA_bug/write_path_spice/dump_spice" in them.
 These obviously are not portable. Use filenames relative to the test
 case directory.
+
+The files in the test case should be collected into a directory.
+The contents of the directory should be collected into a compressed
+tarfile.
 
 ## Contributions
 
