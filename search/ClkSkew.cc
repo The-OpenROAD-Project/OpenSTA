@@ -50,40 +50,6 @@ namespace sta {
 
 using std::abs;
 
-// Source/target clock skew.
-class ClkSkew
-{
-public:
-  ClkSkew();
-  ClkSkew(Path *src_path,
-	  Path *tgt_path,
-          bool include_internal_latency,
-	  StaState *sta);
-  ClkSkew(const ClkSkew &clk_skew);
-  void operator=(const ClkSkew &clk_skew);
-  Path *srcPath() { return src_path_; }
-  Path *tgtPath() { return tgt_path_; }
-  float srcLatency(const StaState *sta);
-  float tgtLatency(const StaState *sta);
-  float srcInternalClkLatency(const StaState *sta);
-  float tgtInternalClkLatency(const StaState *sta);
-  Crpr crpr(const StaState *sta);
-  float uncertainty(const StaState *sta);
-  float skew() const { return skew_; }
-  static bool srcTgtPathNameLess(ClkSkew &clk_skew1,
-                                 ClkSkew &clk_skew2,
-                                 const StaState *sta);
-
-private:
-  float clkTreeDelay(Path *clk_path,
-                     const StaState *sta);
-
-  Path *src_path_;
-  Path *tgt_path_;
-  bool include_internal_latency_;
-  float skew_;
-};
-
 ClkSkew::ClkSkew() :
   src_path_(nullptr),
   tgt_path_(nullptr),
@@ -206,8 +172,16 @@ ClkSkew::srcTgtPathNameLess(ClkSkew &clk_skew1,
 
 ClkSkews::ClkSkews(StaState *sta) :
   StaState(sta),
+  corner_(nullptr),
+  include_internal_latency_(true),
   fanout_pred_(sta)
 {
+}
+
+void
+ClkSkews::clear()
+{
+  skews_.clear();
 }
 
 void
@@ -217,8 +191,7 @@ ClkSkews::reportClkSkew(ConstClockSeq &clks,
                         bool include_internal_latency,
 			int digits)
 {
-  ClkSkewMap skews = findClkSkew(clks, corner, setup_hold,
-                                 include_internal_latency);
+  findClkSkew(clks, corner, include_internal_latency);
 
   // Sort the clocks to report in a stable order.
   ConstClockSeq sorted_clks;
@@ -228,9 +201,9 @@ ClkSkews::reportClkSkew(ConstClockSeq &clks,
 
   for (const Clock *clk : sorted_clks) {
     report_->reportLine("Clock %s", clk->name());
-    auto skew_itr = skews.find(clk);
-    if (skew_itr != skews.end())
-      reportClkSkew(skew_itr->second, digits);
+    auto skew_itr = skews_.find(clk);
+    if (skew_itr != skews_.end())
+      reportClkSkew(skew_itr->second[setup_hold->index()], digits);
     else
       report_->reportLine("No launch/capture paths found.");
     report_->reportBlankLine();
@@ -289,25 +262,30 @@ ClkSkews::findWorstClkSkew(const Corner *corner,
   ConstClockSeq clks;
   for (const Clock *clk : *sdc_->clocks())
     clks.push_back(clk);
-  ClkSkewMap skews = findClkSkew(clks, corner, setup_hold, include_internal_latency);
+  findClkSkew(clks, corner, include_internal_latency);
   float worst_skew = 0.0;
-  for (const auto& [clk, clk_skew] : skews) {
-    float skew = clk_skew.skew();
+  for (const auto& [clk, clk_skews] : skews_) {
+    float skew = clk_skews[setup_hold->index()].skew();
     if (abs(skew) > abs(worst_skew))
       worst_skew = skew;
   }
   return worst_skew;
 }
 
-ClkSkewMap
+void
 ClkSkews::findClkSkew(ConstClockSeq &clks,
 		      const Corner *corner,
-		      const SetupHold *setup_hold,
                       bool include_internal_latency)
 {	      
-  ClkSkewMap skews;
+  if (corner == corner_
+      && include_internal_latency == include_internal_latency_
+      && clks == clks_
+      && !skews_.empty())
+    return;
+
+  skews_.clear();
+  clks_ = clks;
   corner_ = corner;
-  setup_hold_ = setup_hold;
   include_internal_latency_ = include_internal_latency;
 
   clk_set_.clear();
@@ -315,7 +293,7 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
     clk_set_.insert(clk);
 
   if (thread_count_ > 1) {
-    std::vector<ClkSkewMap> partial_skews(thread_count_, skews);
+    std::vector<ClkSkewMap> partial_skews(thread_count_);
     for (Vertex *src_vertex : *graph_->regClkVertices()) {
       if (hasClkPaths(src_vertex)) {
         dispatch_queue_->dispatch([this, src_vertex, &partial_skews](int i) {
@@ -328,14 +306,30 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
     // Reduce skews from each register source.
     for (size_t i = 0; i < partial_skews.size(); i++) {
       for (auto& [clk, partial_skew] : partial_skews[i]) {
-        auto ins = skews.insert(std::make_pair(clk, partial_skew));
-        if (!ins.second) {
-          ClkSkew &final_skew = ins.first->second;
-          if (abs(partial_skew.skew()) > abs(final_skew.skew())
-              || (fuzzyEqual(abs(partial_skew.skew()), abs(final_skew.skew()))
-                  // Break ties based on source/target path names.
-                  && ClkSkew::srcTgtPathNameLess(partial_skew, final_skew, this)))
-            final_skew = partial_skew;
+        auto itr = skews_.find(clk);
+        if (itr == skews_.end()) {
+          // Insert new entry using emplace with piecewise_construct
+          // This will default-construct the array, then we copy the elements
+          auto result = skews_.emplace(std::piecewise_construct,
+                                       std::forward_as_tuple(clk),
+                                       std::make_tuple());
+          itr = result.first;
+          // Copy array elements
+          for (int setup_hold_idx : SetupHold::rangeIndex())
+            itr->second[setup_hold_idx] = partial_skew[setup_hold_idx];
+        } else {
+          // Update existing entry
+          for (int setup_hold_idx : SetupHold::rangeIndex()) {
+            ClkSkew &final_skew = itr->second[setup_hold_idx];
+            ClkSkew &partial_skew_val = partial_skew[setup_hold_idx];
+            float partial_skew1 = partial_skew_val.skew();
+            float final_skew1 = final_skew.skew();
+            if (abs(partial_skew1) > abs(final_skew1)
+                || (fuzzyEqual(abs(partial_skew1), abs(final_skew1))
+                    // Break ties based on source/target path names.
+                    && ClkSkew::srcTgtPathNameLess(partial_skew_val, final_skew, this)))
+              final_skew = partial_skew_val;
+          }
         }
       }
     }
@@ -343,10 +337,9 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
   else {
     for (Vertex *src_vertex : *graph_->regClkVertices()) {
       if (hasClkPaths(src_vertex))
-        findClkSkewFrom(src_vertex, skews);
+        findClkSkewFrom(src_vertex, skews_);
     }
   }
-  return skews;
 }
 
 bool
@@ -392,11 +385,8 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       const TimingRole *role = edge->role();
-      if (role->isTimingCheck()
-	  && ((setup_hold_ == SetupHold::max()
-	       && role->genericRole() == TimingRole::setup())
-	      || ((setup_hold_ == SetupHold::min()
-		   && role->genericRole() == TimingRole::hold())))) {
+      if (role->genericRole() == TimingRole::setup()
+          || role->genericRole() == TimingRole::hold()) {
 	Vertex *tgt_vertex = edge->from(graph_);
 	const RiseFall *tgt_rf1 = edge->timingArcSet()->isRisingFallingEdge();
 	const RiseFallBoth *tgt_rf = tgt_rf1
@@ -416,16 +406,15 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
                       ClkSkewMap &skews)
 {
   Unit *time_unit = units_->timeUnit();
-  const SetupHold *tgt_min_max = setup_hold_->opposite();
   VertexPathIterator src_iter(src_vertex, this);
   while (src_iter.hasNext()) {
     Path *src_path = src_iter.next();
     const Clock *src_clk = src_path->clock(this);
     if (src_path->isClock(this)
 	&& src_rf->matches(src_path->transition(this))
-	&& src_path->minMax(this) == setup_hold_
 	&& clk_set_.find(src_clk) != clk_set_.end()) {
       Corner *src_corner = src_path->pathAnalysisPt(this)->corner();
+      const MinMax *tgt_min_max = src_path->minMax(this)->opposite();
       if (corner_ == nullptr
 	  || src_corner == corner_) {
 	VertexPathIterator tgt_iter(tgt_vertex, this);
@@ -438,7 +427,8 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	      && tgt_path->minMax(this) == tgt_min_max
 	      && tgt_path->pathAnalysisPt(this)->corner() == src_corner) {
 	    ClkSkew probe(src_path, tgt_path, include_internal_latency_, this);
-	    ClkSkew &clk_skew = skews[src_clk];
+	    const SetupHold *setup_hold = src_path->minMax(this);
+            ClkSkew &clk_skew = skews[src_clk][setup_hold->index()];
 	    debugPrint(debug_, "clk_skew", 2,
                        "%s %s %s -> %s %s %s crpr = %s skew = %s",
                        network_->pathName(src_path->pin(this)),
