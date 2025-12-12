@@ -49,6 +49,12 @@ DispatchQueue::setThreadCount(size_t thread_count)
   }
 }
 
+size_t
+DispatchQueue::getThreadCount() const
+{
+  return threads_.size();
+}
+
 void
 DispatchQueue::finishTasks()
 {

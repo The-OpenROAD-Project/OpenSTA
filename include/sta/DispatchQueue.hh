@@ -24,6 +24,7 @@ public:
   DispatchQueue(size_t thread_cnt);
   ~DispatchQueue();
   void setThreadCount(size_t thread_count);
+  size_t getThreadCount() const;
   // Dispatch and copy.
   void dispatch(const fp_t& op);
   // Dispatch and move.
