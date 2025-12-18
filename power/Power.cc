@@ -694,8 +694,8 @@ Power::evalBddActivity(DdNode *bdd,
       Cudd_RecursiveDeref(bdd_.cuddMgr(), diff);
       float var_density = var_activity.density() * diff_duty;
       density += var_density;
-      debugPrint(debug_, "power_activity", 3, "var %s %.3e * %.3f = %.3e",
-                 port->name(),
+      debugPrint(debug_, "power_activity", 3, "%s %.3e * %.3f = %.3e",
+                 network_->pathName(pin),
                  var_activity.density(),
                  diff_duty,
                  var_density);
