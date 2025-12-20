@@ -185,6 +185,17 @@ proc define_hidden_cmd_args { cmd arglist } {
   namespace export $cmd
 }
 
+# "Optional Upvar"
+# If $other_var is not empty, the upvar is executed.
+# Otherwise, $my_var is set to empty.
+proc upvar_opt { level other_var my_var } {
+  if { $other_var != "" } {
+    uplevel 1 "upvar $level $other_var $my_var"
+  } else {
+    uplevel 1 "set $my_var \"\""
+  }
+}
+
 ################################################################
 
 proc sta_warn { msg_id msg } {
