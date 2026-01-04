@@ -27,15 +27,15 @@
 #include <cstdarg>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include "Machine.hh" // __attribute__
-#include "Vector.hh"
 
 namespace sta {
 
 inline bool
 stringEq(const char *str1,
-	 const char *str2)
+         const char *str2)
 {
   return strcmp(str1, str2) == 0;
 }
@@ -43,15 +43,15 @@ stringEq(const char *str1,
 // Compare the first length characters.
 inline bool
 stringEq(const char *str1,
-	 const char *str2,
-	 size_t length)
+         const char *str2,
+         size_t length)
 {
   return strncmp(str1, str2, length) == 0;
 }
 
 inline bool
 stringEqIf(const char *str1,
-	   const char *str2)
+           const char *str2)
 {
   return (str1 == nullptr && str2 == nullptr)
     || (str1 && str2 && strcmp(str1, str2) == 0);
@@ -60,7 +60,7 @@ stringEqIf(const char *str1,
 // Case sensitive compare the beginning of str1 to str2.
 inline bool
 stringBeginEq(const char *str1,
-	      const char *str2)
+              const char *str2)
 {
   return strncmp(str1, str2, strlen(str2)) == 0;
 }
@@ -68,7 +68,7 @@ stringBeginEq(const char *str1,
 // Case insensitive compare the beginning of str1 to str2.
 inline bool
 stringBeginEqual(const char *str1,
-		 const char *str2)
+                 const char *str2)
 {
   return strncasecmp(str1, str2, strlen(str2)) == 0;
 }
@@ -76,14 +76,14 @@ stringBeginEqual(const char *str1,
 // Case insensitive compare.
 inline bool
 stringEqual(const char *str1,
-	    const char *str2)
+            const char *str2)
 {
   return strcasecmp(str1, str2) == 0;
 }
 
 inline bool
 stringEqualIf(const char *str1,
-	      const char *str2)
+              const char *str2)
 {
   return (str1 == nullptr && str2 == nullptr)
     || (str1 && str2 && strcasecmp(str1, str2) == 0);
@@ -91,14 +91,14 @@ stringEqualIf(const char *str1,
 
 inline bool
 stringLess(const char *str1,
-	   const char *str2)
+           const char *str2)
 {
   return strcmp(str1, str2) < 0;
 }
 
 inline bool
 stringLessIf(const char *str1,
-	     const char *str2)
+             const char *str2)
 {
   return (str1 == nullptr && str2 != nullptr)
     || (str1 != nullptr && str2 != nullptr && strcmp(str1, str2) < 0);
@@ -108,7 +108,7 @@ class CharPtrLess
 {
 public:
   bool operator()(const char *string1,
-		  const char *string2) const
+                  const char *string2) const
   {
     return stringLess(string1, string2);
   }
@@ -119,7 +119,7 @@ class CharPtrCaseLess
 {
 public:
   bool operator()(const char *string1,
-		  const char *string2) const
+                  const char *string2) const
   {
     return strcasecmp(string1, string2) < 0;
   }
@@ -129,7 +129,7 @@ class StringLessIf
 {
 public:
   bool operator()(const char *string1,
-		  const char *string2) const
+                  const char *string2) const
   {
     return stringLessIf(string1, string2);
   }
@@ -141,7 +141,7 @@ stringCopy(const char *str);
 
 inline void
 stringAppend(char *&str1,
-	     const char *str2)
+             const char *str2)
 {
   strcpy(str1, str2);
   str1 += strlen(str2);
@@ -164,17 +164,17 @@ isDigits(const char *str);
 // Caller owns returned string.
 char *
 stringPrint(const char *fmt,
-	    ...) __attribute__((format (printf, 1, 2)));
+            ...) __attribute__((format (printf, 1, 2)));
 std::string
 stdstrPrint(const char *fmt,
-	       ...) __attribute__((format (printf, 1, 2)));
+               ...) __attribute__((format (printf, 1, 2)));
 char *
 stringPrintArgs(const char *fmt,
-		va_list args);
+                va_list args);
 void
 stringPrint(std::string &str,
-	    const char *fmt,
-	    ...) __attribute__((format (printf, 2, 3)));
+            const char *fmt,
+            ...) __attribute__((format (printf, 2, 3)));
 // Formated append to std::string.
 void
 stringAppend(std::string &str,
@@ -184,7 +184,7 @@ stringAppend(std::string &str,
 // Print to a temporary string.
 char *
 stringPrintTmp(const char *fmt,
-	       ...)  __attribute__((format (printf, 1, 2)));
+               ...)  __attribute__((format (printf, 1, 2)));
 
 char *
 makeTmpString(size_t length);
@@ -199,7 +199,7 @@ isTmpString(const char *str);
 void
 trimRight(std::string &str);
 
-typedef Vector<std::string> StringVector;
+using StringVector = std::vector<std::string>;
 
 void
 split(const std::string &text,

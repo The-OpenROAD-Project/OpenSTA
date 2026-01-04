@@ -48,7 +48,7 @@ class LeakagePower
 {
 public:
   LeakagePower(LibertyCell *cell,
-	       LeakagePowerAttrs *attrs);
+               LeakagePowerAttrs *attrs);
   ~LeakagePower();
   LibertyCell *libertyCell() const { return cell_; }
   FuncExpr *when() const { return when_; }

@@ -33,8 +33,8 @@
 
 namespace sta {
 
-typedef int64_t VcdTime;
-typedef std::vector<std::string> VcdScope;
+using VcdTime = int64_t;
+using VcdScope = std::vector<std::string>;
 
 enum class VcdVarType {
   wire,

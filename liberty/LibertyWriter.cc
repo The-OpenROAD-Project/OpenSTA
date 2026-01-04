@@ -312,7 +312,7 @@ LibertyWriter::writeCell(const LibertyCell *cell)
     const LibertyPort *port = port_iter.next();
     if (!port->direction()->isInternal()) {
       if (port->isPwrGnd())
-	writePwrGndPort(port);
+        writePwrGndPort(port);
       else if (port->isBus())
         writeBusPort(port);
       else if (port->isBundle())
@@ -364,13 +364,14 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
     fprintf(stream_, "      function : \"%s\";\n", func->to_string().c_str());
   auto tristate_enable = port->tristateEnable();
   if (tristate_enable) {
-    if (tristate_enable->op() == FuncExpr::op_not) {
+    if (tristate_enable->op() == FuncExpr::Op::not_) {
       FuncExpr *three_state = tristate_enable->left();
       fprintf(stream_, "      three_state : \"%s\";\n",
               three_state->to_string().c_str());
     }
     else {
-      FuncExpr three_state(FuncExpr::op_not, tristate_enable, nullptr, nullptr);
+      FuncExpr three_state(FuncExpr::Op::not_, tristate_enable,
+                           nullptr, nullptr);
       fprintf(stream_, "      three_state : \"%s\";\n",
               three_state.to_string().c_str());
     }
@@ -460,24 +461,24 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
   if (gate_model) {
     const TableModel *delay_model = gate_model->delayModel();
     const char *template_name = delay_model->tblTemplate()->name();
-    fprintf(stream_, "	cell_%s(%s) {\n", rf->name(), template_name);
+    fprintf(stream_, "        cell_%s(%s) {\n", rf->name(), template_name);
     writeTableModel(delay_model);
-    fprintf(stream_, "	}\n");
+    fprintf(stream_, "        }\n");
 
     const TableModel *slew_model = gate_model->slewModel();
     if (slew_model) {
       template_name = slew_model->tblTemplate()->name();
-      fprintf(stream_, "	%s_transition(%s) {\n", rf->name(), template_name);
+      fprintf(stream_, "        %s_transition(%s) {\n", rf->name(), template_name);
       writeTableModel(slew_model);
-      fprintf(stream_, "	}\n");
+      fprintf(stream_, "        }\n");
     }
   }
   else if (check_model) {
     const TableModel *model = check_model->model();
     const char *template_name = model->tblTemplate()->name();
-    fprintf(stream_, "	%s_constraint(%s) {\n", rf->name(), template_name);
+    fprintf(stream_, "        %s_constraint(%s) {\n", rf->name(), template_name);
     writeTableModel(model);
-    fprintf(stream_, "	}\n");
+    fprintf(stream_, "        }\n");
   }
   else
     report_->error(1341, "%s/%s/%s timing model not supported.",

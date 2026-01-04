@@ -37,9 +37,9 @@ namespace sta {
 
 FuncExpr *
 parseFuncExpr(const char *func,
-	      LibertyCell *cell,
-	      const char *error_msg,
-	      Report *report)
+              LibertyCell *cell,
+              const char *error_msg,
+              Report *report)
 {
   if (func != nullptr && func[0] != '\0') {
     std::string func1(func);
@@ -56,9 +56,9 @@ parseFuncExpr(const char *func,
 }
 
 LibExprReader::LibExprReader(const char *func,
-			     LibertyCell *cell,
-			     const char *error_msg,
-			     Report *report) :
+                             LibertyCell *cell,
+                             const char *error_msg,
+                             Report *report) :
   func_(func),
   cell_(cell),
   error_msg_(error_msg),
@@ -97,7 +97,7 @@ LibExprReader::makeFuncExprNot(FuncExpr *arg)
 
 FuncExpr *
 LibExprReader::makeFuncExprXor(FuncExpr *arg1,
-			       FuncExpr *arg2)
+                               FuncExpr *arg2)
 {
   if (arg1 && arg2)
     return FuncExpr::makeXor(arg1, arg2);
@@ -107,7 +107,7 @@ LibExprReader::makeFuncExprXor(FuncExpr *arg1,
 
 FuncExpr *
 LibExprReader::makeFuncExprAnd(FuncExpr *arg1,
-			       FuncExpr *arg2)
+                               FuncExpr *arg2)
 {
   if (arg1 && arg2)
     return FuncExpr::makeAnd(arg1, arg2);
@@ -117,7 +117,7 @@ LibExprReader::makeFuncExprAnd(FuncExpr *arg1,
 
 FuncExpr *
 LibExprReader::makeFuncExprOr(FuncExpr *arg1,
-			      FuncExpr *arg2)
+                              FuncExpr *arg2)
 {
   if (arg1 && arg2)
     return FuncExpr::makeOr(arg1, arg2);

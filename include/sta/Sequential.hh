@@ -55,8 +55,8 @@ enum class StateInternalValue {
 
 class StatetableRow;
 
-typedef std::vector<StateInputValue> StateInputValues;
-typedef std::vector<StateInternalValue> StateInternalValues;
+using StateInputValues = std::vector<StateInputValue>;
+using StateInternalValues = std::vector<StateInternalValue>;
 
 // Register/Latch
 class Sequential
@@ -81,14 +81,14 @@ protected:
   //   clocked_on/next_state for registers
   //   enable/data for latches
   Sequential(bool is_register,
-	     FuncExpr *clock,
-	     FuncExpr *data,
-	     FuncExpr *clear,
-	     FuncExpr *preset,
-	     LogicValue clr_preset_out,
-	     LogicValue clr_preset_out_inv,
-	     LibertyPort *output,
-	     LibertyPort *output_inv);
+             FuncExpr *clock,
+             FuncExpr *data,
+             FuncExpr *clear,
+             FuncExpr *preset,
+             LogicValue clr_preset_out,
+             LogicValue clr_preset_out_inv,
+             LibertyPort *output,
+             LibertyPort *output_inv);
 
   bool is_register_;
   FuncExpr *clock_;

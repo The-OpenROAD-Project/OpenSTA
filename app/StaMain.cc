@@ -30,14 +30,13 @@
 
 #include "Machine.hh"
 #include "StringUtil.hh"
-#include "Vector.hh"
 #include "Sta.hh"
 
 namespace sta {
 
 int
 parseThreadsArg(int &argc,
-		char *argv[])
+                char *argv[])
 {
   char *thread_arg = findCmdLineKey(argc, argv, "-threads");
   if (thread_arg) {
@@ -53,15 +52,15 @@ parseThreadsArg(int &argc,
 
 bool
 findCmdLineFlag(int &argc,
-		char *argv[],
-		const char *flag)
+                char *argv[],
+                const char *flag)
 {
   for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
     if (stringEq(arg, flag)) {
       // Remove flag from argv.
       for (int j = i + 1; j < argc; j++, i++)
-	argv[i] = argv[j];
+        argv[i] = argv[j];
       argc--;
       argv[argc] = nullptr;
       return true;
@@ -72,8 +71,8 @@ findCmdLineFlag(int &argc,
 
 char *
 findCmdLineKey(int &argc,
-	       char *argv[],
-	       const char *key)
+               char *argv[],
+               const char *key)
 {
   for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
@@ -81,7 +80,7 @@ findCmdLineKey(int &argc,
       char *value = argv[i + 1];
       // Remove key and value from argv.
       for (int j = i + 2; j < argc; j++, i++)
-	argv[i] = argv[j];
+        argv[i] = argv[j];
       argc -= 2;
       argv[argc] = nullptr;
       return value;
@@ -93,15 +92,15 @@ findCmdLineKey(int &argc,
 // Use overridden version of source to echo cmds and results.
 int
 sourceTclFile(const char *filename,
-	      bool echo,
-	      bool verbose,
-	      Tcl_Interp *interp)
+              bool echo,
+              bool verbose,
+              Tcl_Interp *interp)
 {
   std::string cmd;
   stringPrint(cmd, "sta::include_file %s %s %s",
-	      filename,
-	      echo ? "1" : "0",
-	      verbose ? "1" : "0");
+              filename,
+              echo ? "1" : "0",
+              verbose ? "1" : "0");
   int code = Tcl_Eval(interp, cmd.c_str());
   const char *result = Tcl_GetStringResult(interp);
   if (result[0] != '\0')
@@ -111,7 +110,7 @@ sourceTclFile(const char *filename,
 
 void
 evalTclInit(Tcl_Interp *interp,
-	    const char *inits[])
+            const char *inits[])
 {
   char *unencoded = unencode(inits);
   if (Tcl_Eval(interp, unencoded) != TCL_OK) {
@@ -146,14 +145,6 @@ unencode(const char *inits[])
   }
   *u = '\0';
   return unencoded;
-}
-
-// Hack until c++17 filesystem is better supported.
-bool
-is_regular_file(const char *filename)
-{
-  struct stat sb;
-  return stat(filename, &sb) == 0 && S_ISREG(sb.st_mode);
 }
 
 } // namespace

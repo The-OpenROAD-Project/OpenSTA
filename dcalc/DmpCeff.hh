@@ -49,14 +49,16 @@ public:
                            float load_cap,
                            const Parasitic *parasitic,
                            const LoadPinIndexMap &load_pin_index_map,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   std::string reportGateDelay(const Pin *drvr_pin,
                               const TimingArc *arc,
                               const Slew &in_slew,
                               float load_cap,
                               const Parasitic *parasitic,
                               const LoadPinIndexMap &load_pin_index_map,
-                              const DcalcAnalysisPt *dcalc_ap,
+                              const Scene *scene,
+                              const MinMax *min_max,
                               int digits) override;
   void copyState(const StaState *sta) override;
 
@@ -71,22 +73,23 @@ protected:
                              Slew &load_slew) = 0;
   void gateDelaySlew(// Return values.
                      double &delay,
-		     double &slew);
+                     double &slew);
   void loadDelaySlewElmore(const Pin *load_pin,
                            double elmore,
                            ArcDelay &delay,
                            Slew &slew);
   // Select the appropriate special case Dartu/Menezes/Pileggi algorithm.
   void setCeffAlgorithm(const LibertyLibrary *library,
-			const LibertyCell *cell,
-			const Pvt *pvt,
-			const GateTableModel *gate_model,
-			const RiseFall *rf,
-			double in_slew,
-			double c2,
-			double rpi,
-			double c1);
+                        const LibertyCell *cell,
+                        const Pvt *pvt,
+                        const GateTableModel *gate_model,
+                        const RiseFall *rf,
+                        double in_slew,
+                        double c2,
+                        double rpi,
+                        double c1);
 
+  const Parasitics *parasitics_;
   static bool unsuppored_model_warned_;
 
 private:

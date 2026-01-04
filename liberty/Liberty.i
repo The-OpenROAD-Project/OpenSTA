@@ -116,12 +116,12 @@ private:
 
 bool
 read_liberty_cmd(char *filename,
-		 Corner *corner,
-		 const MinMaxAll *min_max,
-		 bool infer_latches)
+                 Scene *scene,
+                 const MinMaxAll *min_max,
+                 bool infer_latches)
 {
   Sta *sta = Sta::sta();
-  LibertyLibrary *lib = sta->readLiberty(filename, corner, min_max, infer_latches);
+  LibertyLibrary *lib = sta->readLiberty(filename, scene, min_max, infer_latches);
   return (lib != nullptr);
 }
 
@@ -148,21 +148,21 @@ find_equiv_cells(LibertyCell *cell)
 
 bool
 equiv_cells(LibertyCell *cell1,
-	    LibertyCell *cell2)
+            LibertyCell *cell2)
 {
   return sta::equivCells(cell1, cell2);
 }
 
 bool
 equiv_cell_ports(LibertyCell *cell1,
-		 LibertyCell *cell2)
+                 LibertyCell *cell2)
 {
   return equivCellPorts(cell1, cell2);
 }
 
 bool
 equiv_cell_timing_arcs(LibertyCell *cell1,
-		       LibertyCell *cell2)
+                       LibertyCell *cell2)
 {
   return equivCellTimingArcSets(cell1, cell2);
 }
@@ -178,7 +178,7 @@ liberty_port_direction(const LibertyPort *port)
 {
   return port->direction()->name();
 }
-	     
+             
 bool
 liberty_supply_exists(const char *supply_name)
 {
@@ -230,8 +230,8 @@ find_liberty_cell(const char *name)
 
 LibertyCellSeq
 find_liberty_cells_matching(const char *pattern,
-			    bool regexp,
-			    bool nocase)
+                            bool regexp,
+                            bool nocase)
 {
   PatternMatch matcher(pattern, regexp, nocase, Sta::sta()->tclInterp());
   return self->findLibertyCellsMatching(&matcher);
@@ -278,8 +278,8 @@ find_liberty_port(const char *name)
 
 LibertyPortSeq
 find_liberty_ports_matching(const char *pattern,
-			    bool regexp,
-			    bool nocase)
+                            bool regexp,
+                            bool nocase)
 {
   PatternMatch matcher(pattern, regexp, nocase, Sta::sta()->tclInterp());
   return self->findLibertyPortsMatching(&matcher);
@@ -297,9 +297,8 @@ timing_arc_sets()
 void
 ensure_voltage_waveforms()
 {
-  Corners *corners = Sta::sta()->corners();
-  const DcalcAnalysisPtSeq &dcalc_aps = corners->dcalcAnalysisPts();
-  self->ensureVoltageWaveforms(dcalc_aps);
+  const SceneSeq &scenes = Sta::sta()->scenes();
+  self->ensureVoltageWaveforms(scenes);
 }
 
 LibertyCell *test_cell() { return self->testCell(); }
@@ -319,7 +318,7 @@ member_iterator() { return new LibertyPortMemberIterator(self); }
 LibertyPort *bundle_port() { return self->bundlePort(); }
 bool is_pwr_gnd() { return self->isPwrGnd(); }
 
-string
+std::string
 function()
 {
   FuncExpr *func = self->function();
@@ -329,7 +328,7 @@ function()
     return "";
 }
 
-string
+std::string
 tristate_enable()
 {
   FuncExpr *enable = self->tristateEnable();
@@ -340,11 +339,11 @@ tristate_enable()
 }
 
 float
-capacitance(Corner *corner,
-	    const MinMax *min_max)
+capacitance(Scene *scene,
+            const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  return sta->capacitance(self, corner, min_max);
+  return sta->capacitance(self, scene, min_max);
 }
 
 void
@@ -374,9 +373,9 @@ full_name()
   const char *to = self->to()->name();
   const char *cell_name = self->libertyCell()->name();
   return stringPrintTmp("%s %s -> %s",
-			cell_name,
-			from,
-			to);
+                        cell_name,
+                        from,
+                        to);
 }
 
 TimingArcSeq &

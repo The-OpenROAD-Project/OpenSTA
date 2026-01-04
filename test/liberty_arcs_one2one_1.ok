@@ -1,4 +1,4 @@
-Warning: liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
+Warning 1216: liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
 report_edges -from partial_wide_inv_cell/A[0]
 A[0] -> Y[0] combinational
   ^ -> v 1.00:1.00

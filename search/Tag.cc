@@ -31,23 +31,23 @@
 #include "ExceptionPath.hh"
 #include "Sdc.hh"
 #include "Graph.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Search.hh"
-#include "PathAnalysisPt.hh"
 #include "ClkInfo.hh"
 
 namespace sta {
 
-Tag::Tag(TagIndex index,
-	 int rf_index,
-	 PathAPIndex path_ap_index,
-	 const ClkInfo *clk_info,
-	 bool is_clk,
-	 InputDelay *input_delay,
-	 bool is_segment_start,
-	 ExceptionStateSet *states,
-	 bool own_states,
-	 const StaState *sta) :
+Tag::Tag(Scene *scene,
+         TagIndex index,
+         const RiseFall *rf,
+         const MinMax *min_max,
+         const ClkInfo *clk_info,
+         bool is_clk,
+         InputDelay *input_delay,
+         bool is_segment_start,
+         ExceptionStateSet *states,
+         bool own_states) :
+  scene_(scene),
   clk_info_(clk_info),
   input_delay_(input_delay),
   states_(states),
@@ -57,18 +57,18 @@ Tag::Tag(TagIndex index,
   is_loop_(false),
   is_segment_start_(is_segment_start),
   own_states_(own_states),
-  rf_index_(rf_index),
-  path_ap_index_(path_ap_index)
+  rf_index_(rf->index()),
+  min_max_index_(min_max->index())
 {
   findHash();
   if (states_) {
-    FilterPath *filter = sta->search()->filter();
+    FilterPath *filter = scene_->sdc()->filter();
     for (ExceptionState *state : *states_) {
       ExceptionPath *exception = state->exception();
       if (exception->isLoop())
-	is_loop_ = true;
+        is_loop_ = true;
       if (exception == filter)
-	is_filter_ = true;
+        is_filter_ = true;
     }
   }
 }
@@ -91,24 +91,25 @@ Tag::to_string(bool report_index,
                const StaState *sta) const
 {
   const Network *network = sta->network();
-  const Corners *corners = sta->corners();
   std::string result;
 
-  if (report_index)
+  if (report_index) {
     result += std::to_string(index_);
+    result += " ";
+  }
+
+  result += scene_->name();
+  result += " ";
 
   if (report_rf_min_max) {
     const RiseFall *rf = transition();
-    PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
+    const MinMax *min_max = minMax();
+    result += rf->to_string();
     result += " ";
-    result += rf->to_string().c_str();
+    result += min_max->to_string();
     result += " ";
-    result += path_ap->pathMinMax()->to_string();
-    result += "/";
-    result += std::to_string(path_ap_index_);
   }
 
-  result += " ";
   const ClockEdge *clk_edge = clkEdge();
   if (clk_edge)
     result += clk_edge->name();
@@ -121,11 +122,11 @@ Tag::to_string(bool report_index,
     if (is_clk_) {
       result += "clock";
       if (clk_info_->isPropagated())
-	result += " prop";
+        result += " prop";
       else
-	result += " ideal";
+        result += " ideal";
       if (is_genclk_src)
-	result += " ";
+        result += " ";
     }
     if (clk_info_->isGenClkSrcPath())
       result += "genclk";
@@ -162,13 +163,13 @@ Tag::to_string(bool report_index,
       result += " ";
       result += exception->asString(network);
       if (state->nextThru()) {
-	result += " (next thru ";
-	result += state->nextThru()->asString(network);
-	result += ")";
+        result += " (next thru ";
+        result += state->nextThru()->asString(network);
+        result += ")";
       }
       else {
-	if (exception->thrus() != nullptr)
-	  result += " (thrus complete)";
+        if (exception->thrus() != nullptr)
+          result += " (thrus complete)";
       }
     }
   }
@@ -182,16 +183,9 @@ Tag::transition() const
 }
 
 const MinMax *
-Tag::minMax(const StaState *sta) const
+Tag::minMax() const
 {
-  return pathAnalysisPt(sta)->pathMinMax();
-}
-
-PathAnalysisPt *
-Tag::pathAnalysisPt(const StaState *sta) const
-{
-  const Corners *corners = sta->corners();
-  return corners->findPathAnalysisPt(path_ap_index_);
+  return MinMax::find(min_max_index_);
 }
 
 void
@@ -225,24 +219,24 @@ Tag::isGenClkSrcPath() const
 }
 
 const Clock *
-Tag::genClkSrcPathClk(const StaState *sta) const
+Tag::genClkSrcPathClk() const
 {
   if (clk_info_->isGenClkSrcPath()
       && states_) {
-    FilterPath *filter = sta->search()->filter();
+    FilterPath *filter = scene_->sdc()->filter();
     for (ExceptionState *state : *states_) {
       ExceptionPath *except = state->exception();
       if (except->isFilter()
-	  && except != filter) {
-	ExceptionTo *to = except->to();
-	if (to) {
-	  ClockSet *clks = to->clks();
-	  if (clks && clks->size() == 1) {
-	    ClockSet::Iterator clk_iter(clks);
-	    const Clock *clk = clk_iter.next();
-	    return clk;
-	  }
-	}
+          && except != filter) {
+        ExceptionTo *to = except->to();
+        if (to) {
+          ClockSet *clks = to->clks();
+          if (clks && clks->size() == 1) {
+            ClockSet::iterator clk_iter = clks->begin();
+            const Clock *clk = *clk_iter;
+            return clk;
+          }
+        }
       }
     }
   }
@@ -254,8 +248,9 @@ Tag::findHash()
 {
   // Common to hash_ and match_hash_.
   hash_ = hash_init_value;
+  hashIncr(hash_, scene_->index());
   hashIncr(hash_, rf_index_);
-  hashIncr(hash_, path_ap_index_);
+  hashIncr(hash_, min_max_index_);
   hashIncr(hash_, is_clk_);
   hashIncr(hash_, is_segment_start_);
   if (states_) {
@@ -275,7 +270,7 @@ Tag::findHash()
 
 size_t
 Tag::hash(bool match_crpr_clk_pin,
-	  const StaState *sta) const
+          const StaState *sta) const
 {
   if (match_crpr_clk_pin)
     return hashSum(hash_, clk_info_->crprClkVertexId(sta));
@@ -302,18 +297,25 @@ TagLess::TagLess(const StaState *sta) :
 
 bool
 TagLess::operator()(const Tag *tag1,
-		    const Tag *tag2) const
+                    const Tag *tag2) const
 {
   return Tag::cmp(tag1, tag2, sta_) < 0;
 }
 
 int
 Tag::cmp(const Tag *tag1,
-	 const Tag *tag2,
-	 const StaState *sta)
+         const Tag *tag2,
+         const StaState *sta)
 {
   if (tag1 == tag2)
     return 0;
+
+  size_t scene_index1 = tag1->scene()->index();
+  size_t scene_index2 = tag2->scene()->index();
+  if (scene_index1 < scene_index2)
+    return -1;
+  else if (scene_index1 > scene_index2)
+    return 1;
 
   const ClkInfo *clk_info1 = tag1->clkInfo();
   const ClkInfo *clk_info2 = tag2->clkInfo();
@@ -321,18 +323,18 @@ Tag::cmp(const Tag *tag1,
   if (clk_cmp != 0)
     return clk_cmp;
 
-  PathAPIndex path_ap_index1 = tag1->pathAPIndex();
-  PathAPIndex path_ap_index2 = tag2->pathAPIndex();
-  if (path_ap_index1 < path_ap_index2)
-    return -1;
-  if (path_ap_index1 > path_ap_index2)
-    return 1;
-
   int rf_index1 = tag1->rfIndex();
   int rf_index2 = tag2->rfIndex();
   if (rf_index1 < rf_index2)
     return -1;
   if (rf_index1 > rf_index2)
+    return 1;
+
+  int mm_index1 = tag1->minMaxIndex();
+  int mm_index2 = tag2->minMaxIndex();
+  if (mm_index1 < mm_index2)
+    return -1;
+  if (mm_index1 > mm_index2)
     return 1;
 
   bool is_clk1 = tag1->isClock();
@@ -363,8 +365,8 @@ Tag::cmp(const Tag *tag1,
 
 bool
 Tag::equal(const Tag *tag1,
-	   const Tag *tag2,
-	   const StaState *sta)
+           const Tag *tag2,
+           const StaState *sta)
 {
   return cmp(tag1, tag2, sta) == 0;
 }
@@ -373,7 +375,7 @@ Tag::equal(const Tag *tag1,
 
 bool
 TagIndexLess::operator()(const Tag *tag1,
-			 const Tag *tag2) const
+                         const Tag *tag2) const
 {
   return tag1->index() < tag2->index();
 }
@@ -381,7 +383,7 @@ TagIndexLess::operator()(const Tag *tag1,
 ////////////////////////////////////////////////////////////////
 
 TagMatchLess::TagMatchLess(bool match_crpr_clk_pin,
-			   const StaState *sta) :
+                           const StaState *sta) :
   match_crpr_clk_pin_(match_crpr_clk_pin),
   sta_(sta)
 {
@@ -389,7 +391,7 @@ TagMatchLess::TagMatchLess(bool match_crpr_clk_pin,
 
 bool
 TagMatchLess::operator()(const Tag *tag1,
-			 const Tag *tag2) const
+                         const Tag *tag2) const
 {
   return Tag::matchCmp(tag1, tag2, match_crpr_clk_pin_, sta_) < 0;
 }
@@ -398,29 +400,36 @@ TagMatchLess::operator()(const Tag *tag1,
 
 bool
 Tag::match(const Tag *tag1,
-	   const Tag *tag2,
-	   const StaState *sta)
+           const Tag *tag2,
+           const StaState *sta)
 {
   return Tag::matchCmp(tag1, tag2, true, sta) == 0;
 }
 
 bool
 Tag::match(const Tag *tag1,
-	   const Tag *tag2,
-	   bool match_crpr_clk_pin,
-	   const StaState *sta)
+           const Tag *tag2,
+           bool match_crpr_clk_pin,
+           const StaState *sta)
 {
   return Tag::matchCmp(tag1, tag2, match_crpr_clk_pin, sta) == 0;
 }
 
 int
 Tag::matchCmp(const Tag *tag1,
-	      const Tag *tag2,
-	      bool match_crpr_clk_pin,
-	      const StaState *sta)
+              const Tag *tag2,
+              bool match_crpr_clk_pin,
+              const StaState *sta)
 {
   if (tag1 == tag2)
     return 0;
+
+  size_t scene_index1 = tag1->scene()->index();
+  size_t scene_index2 = tag2->scene()->index();
+  if (scene_index1 < scene_index2)
+    return -1;
+  else if (scene_index1 > scene_index2)
+    return 1;
 
   int rf_index1 = tag1->rfIndex();
   int rf_index2 = tag2->rfIndex();
@@ -429,11 +438,11 @@ Tag::matchCmp(const Tag *tag1,
   if (rf_index1 > rf_index2)
     return 1;
 
-  PathAPIndex path_ap_index1 = tag1->pathAPIndex();
-  PathAPIndex path_ap_index2 = tag2->pathAPIndex();
-  if (path_ap_index1 < path_ap_index2)
+  int mm_index1 = tag1->minMaxIndex();
+  int mm_index2 = tag2->minMaxIndex();
+  if (mm_index1 < mm_index2)
     return -1;
-  if (path_ap_index1 > path_ap_index2)
+  if (mm_index1 > mm_index2)
     return 1;
 
   const ClkInfo *clk_info1 = tag1->clkInfo();
@@ -468,8 +477,7 @@ Tag::matchCmp(const Tag *tag1,
   if (is_segment_start1 && !is_segment_start2)
     return 1;
 
-  if (match_crpr_clk_pin
-      && sta->crprActive()) {
+  if (match_crpr_clk_pin) {
     VertexId crpr_vertex1 = clk_info1->crprClkVertexId(sta);
     VertexId crpr_vertex2 = clk_info2->crprClkVertexId(sta);
     if (crpr_vertex1 < crpr_vertex2)
@@ -483,54 +491,59 @@ Tag::matchCmp(const Tag *tag1,
 
 bool
 Tag::matchNoCrpr(const Tag *tag1,
-		 const Tag *tag2)
+                 const Tag *tag2)
 {
   const ClkInfo *clk_info1 = tag1->clkInfo();
   const ClkInfo *clk_info2 = tag2->clkInfo();
   return tag1 == tag2
-    || (clk_info1->clkEdge() == clk_info2->clkEdge()
-	&& tag1->rfIndex() == tag2->rfIndex()
-	&& tag1->pathAPIndex() == tag2->pathAPIndex()
-	&& tag1->isClock() == tag2->isClock()
-	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
-	&& Tag::stateEqual(tag1, tag2));
+    || (tag1->scene() == tag2->scene()
+        && clk_info1->clkEdge() == clk_info2->clkEdge()
+        && tag1->rfIndex() == tag2->rfIndex()
+        && tag1->minMaxIndex() == tag2->minMaxIndex()
+        && tag1->isClock() == tag2->isClock()
+        && clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
+        && Tag::stateEqual(tag1, tag2));
 }
 
 bool
 Tag::matchNoPathAp(const Tag *tag1,
-		   const Tag *tag2)
+                   const Tag *tag2)
 {
   const ClkInfo *clk_info1 = tag1->clkInfo();
   const ClkInfo *clk_info2 = tag2->clkInfo();
   return tag1 == tag2
-    || (clk_info1->clkEdge() == clk_info2->clkEdge()
-	&& tag1->rfIndex() == tag2->rfIndex()
-	&& tag1->isClock() == tag2->isClock()
-	&& tag1->isSegmentStart() == tag2->isSegmentStart()
-	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
-	&& Tag::stateEqual(tag1, tag2));
+    || (tag1->scene() == tag2->scene()
+        && clk_info1->clkEdge() == clk_info2->clkEdge()
+        && tag1->rfIndex() == tag2->rfIndex()
+        // min_max not matched
+        && tag1->isClock() == tag2->isClock()
+        && tag1->isSegmentStart() == tag2->isSegmentStart()
+        && clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
+        && Tag::stateEqual(tag1, tag2));
 }
 
 bool
 Tag::matchCrpr(const Tag *tag1,
-	       const Tag *tag2)
+               const Tag *tag2)
 {
   const ClkInfo *clk_info1 = tag1->clkInfo();
   const ClkInfo *clk_info2 = tag2->clkInfo();
   return tag1 == tag2
-    || (clk_info1->clkEdge() == clk_info2->clkEdge()
-	&& tag1->rfIndex() == tag2->rfIndex()
-	&& tag1->isClock() == tag2->isClock()
-	&& tag1->isSegmentStart() == tag2->isSegmentStart()
-	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
-	&& stateEqualCrpr(tag1, tag2));
+    || (tag1->scene() == tag2->scene()
+        && clk_info1->clkEdge() == clk_info2->clkEdge()
+        && tag1->rfIndex() == tag2->rfIndex()
+        // min_max not matched
+        && tag1->isClock() == tag2->isClock()
+        && tag1->isSegmentStart() == tag2->isSegmentStart()
+        && clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
+        && stateEqualCrpr(tag1, tag2));
 }
 
 ////////////////////////////////////////////////////////////////
 
 int
 Tag::stateCmp(const Tag *tag1,
-	      const Tag *tag2)
+              const Tag *tag2)
 {
   ExceptionStateSet *states1 = tag1->states();
   ExceptionStateSet *states2 = tag2->states();
@@ -553,23 +566,24 @@ Tag::stateCmp(const Tag *tag1,
   if (state_size1 > state_size2)
     return 1;
 
-  ExceptionStateSet::Iterator state_iter1(states1);
-  ExceptionStateSet::Iterator state_iter2(states2);
-  while (state_iter1.hasNext()
-	 && state_iter2.hasNext()) {
-    ExceptionState *state1 = state_iter1.next();
-    ExceptionState *state2 = state_iter2.next();
-    if (exceptionStateLess(state1, state2))
-      return -1;
-    if (exceptionStateLess(state2, state1))
-      return 1;
+  auto iter1 = states1->begin();
+  auto iter2 = states2->begin();
+  while (iter1 != states1->end()
+         && iter2 != states2->end()) {
+    ExceptionState *state1 = *iter1;
+    ExceptionState *state2 = *iter2;
+    int state_cmp = exceptionStateCmp(state1, state2);
+    if (state_cmp != 0)
+      return state_cmp;
+    ++iter1;
+    ++iter2;
   }
   return 0;
 }
 
 bool
 Tag::stateEqual(const Tag *tag1,
-		const Tag *tag2)
+                const Tag *tag2)
 {
   return stateCmp(tag1, tag2) == 0;
 }
@@ -577,37 +591,43 @@ Tag::stateEqual(const Tag *tag1,
 // Match loop exception states only for crpr min/max paths.
 bool
 Tag::stateEqualCrpr(const Tag *tag1,
-		    const Tag *tag2)
+                    const Tag *tag2)
 {
   ExceptionStateSet *states1 = tag1->states();
   ExceptionStateSet *states2 = tag2->states();
-  ExceptionStateSet::Iterator state_iter1(states1);
-  ExceptionStateSet::Iterator state_iter2(states2);
-  ExceptionState *state1, *state2;
-  do {
-    state1 = nullptr;
-    while (state_iter1.hasNext()) {
-      state1 = state_iter1.next();
-      ExceptionPath *exception1 = state1->exception();
-      if (exception1->isLoop())
-	break;
-      else
-	state1 = nullptr;
-    }
-    state2 = nullptr;
-    while (state_iter2.hasNext()) {
-      state2 = state_iter2.next();
-      ExceptionPath *exception2 = state2->exception();
-      if (exception2->isLoop())
-	break;
-      else
-	state2 = nullptr;
-    }
-    if (state1 != state2)
-      return false;
-  } while (state1 && state2);
-  return state1 == nullptr
-    && state2 == nullptr;
+  if (states1 && states2) {
+    auto iter1 = states1->begin();
+    auto iter2 = states2->begin();
+    ExceptionState *state1, *state2;
+    do {
+      state1 = nullptr;
+      while (iter1 != states1->end()) {
+        state1 = *iter1;
+        ++iter1;
+        ExceptionPath *exception1 = state1->exception();
+        if (exception1->isLoop())
+          break;
+        else
+          state1 = nullptr;
+      }
+      state2 = nullptr;
+      while (iter2 != states2->end()) {
+        state2 = *iter2;
+        ++iter2;
+        ExceptionPath *exception2 = state2->exception();
+        if (exception2->isLoop())
+          break;
+        else
+          state2 = nullptr;
+      }
+      if (state1 != state2)
+        return false;
+    } while (state1 && state2);
+    return state1 == nullptr
+      && state2 == nullptr;
+  }
+  else
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -620,8 +640,7 @@ TagHash::TagHash(const StaState *sta) :
 size_t
 TagHash::operator()(const Tag *tag) const
 {
-  bool crpr_on = sta_->crprActive();
-  return tag->matchHash(crpr_on, sta_);
+  return tag->matchHash(true, sta_);
 }
 
 TagEqual::TagEqual(const StaState *sta) :
@@ -631,13 +650,13 @@ TagEqual::TagEqual(const StaState *sta) :
 
 bool
 TagEqual::operator()(const Tag *tag1,
-		     const Tag *tag2) const
+                     const Tag *tag2) const
 {
   return Tag::equal(tag1, tag2, sta_);
 }
 
 TagMatchHash::TagMatchHash(bool match_crpr_clk_pin,
-			   const StaState *sta) :
+                           const StaState *sta) :
   match_crpr_clk_pin_(match_crpr_clk_pin),
   sta_(sta)
 {
@@ -650,7 +669,7 @@ TagMatchHash::operator()(const Tag *tag) const
 }
 
 TagMatchEqual::TagMatchEqual(bool match_crpr_clk_pin,
-			     const StaState *sta) :
+                             const StaState *sta) :
   match_crpr_clk_pin_(match_crpr_clk_pin),
   sta_(sta)
 {
@@ -658,7 +677,7 @@ TagMatchEqual::TagMatchEqual(bool match_crpr_clk_pin,
 
 bool
 TagMatchEqual::operator()(const Tag *tag1, 
-			  const Tag *tag2) const
+                          const Tag *tag2) const
 {
   return Tag::match(tag1, tag2, match_crpr_clk_pin_, sta_);
 }

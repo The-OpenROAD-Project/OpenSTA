@@ -24,10 +24,10 @@
 
 #pragma once
 
+#include <vector>
+#include <map>
+
 #include "Zlib.hh"
-#include "Vector.hh"
-#include "Map.hh"
-#include "Set.hh"
 #include "StringUtil.hh"
 
 namespace sta {
@@ -45,19 +45,17 @@ class LibertySubgroupIterator;
 class LibertyAttrIterator;
 class LibertyScanner;
 
-typedef Vector<LibertyStmt*> LibertyStmtSeq;
-typedef Vector<LibertyGroup*> LibertyGroupSeq;
-typedef Vector<LibertyAttr*> LibertyAttrSeq;
-typedef Map<std::string, LibertyAttr*> LibertyAttrMap;
-typedef Map<std::string, LibertyDefine*> LibertyDefineMap;
-typedef Vector<LibertyAttrValue*> LibertyAttrValueSeq;
-typedef Map<std::string, float> LibertyVariableMap;
-typedef Map<std::string, LibertyGroupVisitor*>LibertyGroupVisitorMap;
-typedef LibertyAttrValueSeq::Iterator LibertyAttrValueIterator;
-typedef Vector<LibertyGroup*> LibertyGroupSeq;
+using LibertyStmtSeq = std::vector<LibertyStmt*>;
+using LibertyGroupSeq = std::vector<LibertyGroup*>;
+using LibertyAttrSeq = std::vector<LibertyAttr*>;
+using LibertyAttrMap = std::map<std::string, LibertyAttr*>;
+using LibertyDefineMap = std::map<std::string, LibertyDefine*>;
+using LibertyAttrValueSeq = std::vector<LibertyAttrValue*>;
+using LibertyVariableMap = std::map<std::string, float>;
+using LibertyGroupVisitorMap = std::map<std::string, LibertyGroupVisitor*>;
 
 enum class LibertyAttrType { attr_string, attr_int, attr_double,
-			     attr_boolean, attr_unknown };
+                             attr_boolean, attr_unknown };
 
 enum class LibertyGroupType { library, cell, pin, timing, unknown };
 
@@ -122,8 +120,8 @@ class LibertyGroup : public LibertyStmt
 {
 public:
   LibertyGroup(const char *type,
-	       LibertyAttrValueSeq *params,
-	       int line);
+               LibertyAttrValueSeq *params,
+               int line);
   virtual ~LibertyGroup();
   virtual bool isGroup() const { return true; }
   const char *type() const { return type_.c_str(); }
@@ -151,24 +149,12 @@ protected:
   LibertyDefineMap *define_map_;
 };
 
-class LibertySubgroupIterator : public LibertyGroupSeq::Iterator
-{
-public:
-  LibertySubgroupIterator(LibertyGroup *group);
-};
-
-class LibertyAttrIterator : public LibertyAttrSeq::Iterator
-{
-public:
-  LibertyAttrIterator(LibertyGroup *group);
-};
-
 // Abstract base class for attributes.
 class LibertyAttr : public LibertyStmt
 {
 public:
   LibertyAttr(const char *name,
-	      int line);
+              int line);
   const char *name() const { return name_.c_str(); }
   virtual bool isAttribute() const { return true; }
   virtual bool isSimple() const = 0;
@@ -186,13 +172,13 @@ class LibertySimpleAttr : public LibertyAttr
 {
 public:
   LibertySimpleAttr(const char *name,
-		    LibertyAttrValue *value,
-		    int line);
+                    LibertyAttrValue *value,
+                    int line);
   virtual ~LibertySimpleAttr();
-  virtual bool isSimple() const { return true; }
-  virtual bool isComplex() const { return false; }
-  virtual LibertyAttrValue *firstValue() { return value_; }
-  virtual LibertyAttrValueSeq *values() const;
+  bool isSimple() const override { return true; };
+  bool isComplex() const override { return false; };
+  LibertyAttrValue *firstValue() override { return value_; };
+  LibertyAttrValueSeq *values() const override;
 
 private:
   LibertyAttrValue *value_;
@@ -204,13 +190,13 @@ class LibertyComplexAttr : public LibertyAttr
 {
 public:
   LibertyComplexAttr(const char *name,
-		     LibertyAttrValueSeq *values,
-		     int line);
+                     LibertyAttrValueSeq *values,
+                     int line);
   virtual ~LibertyComplexAttr();
-  virtual bool isSimple() const { return false; }
-  virtual bool isComplex() const { return true; }
-  virtual LibertyAttrValue *firstValue();
-  virtual LibertyAttrValueSeq *values() const { return values_; }
+  bool isSimple() const override { return false; }
+  bool isComplex() const override { return true; }
+  LibertyAttrValue *firstValue() override ;
+  LibertyAttrValueSeq *values() const override { return values_; }
 
 private:
   LibertyAttrValueSeq *values_;
@@ -222,10 +208,10 @@ class LibertyAttrValue
 public:
   LibertyAttrValue() {}
   virtual ~LibertyAttrValue() {}
-  virtual bool isString() = 0;
-  virtual bool isFloat() = 0;
-  virtual float floatValue() = 0;
-  virtual const char *stringValue() = 0;
+  virtual bool isString() const = 0;
+  virtual bool isFloat() const  = 0;
+  virtual float floatValue() const = 0;
+  virtual const char *stringValue() const  = 0;
 };
 
 class LibertyStringAttrValue : public LibertyAttrValue
@@ -233,10 +219,10 @@ class LibertyStringAttrValue : public LibertyAttrValue
 public:
   LibertyStringAttrValue(const char *value);
   virtual ~LibertyStringAttrValue() {}
-  virtual bool isFloat() { return false; }
-  virtual bool isString() { return true; }
-  virtual float floatValue();
-  virtual const char *stringValue();
+  bool isFloat() const override { return false; }
+  bool isString() const override { return true; }
+  float floatValue() const override ;
+  const char *stringValue() const  override;
 
 private:
   std::string value_;
@@ -247,10 +233,10 @@ class LibertyFloatAttrValue : public LibertyAttrValue
 public:
   LibertyFloatAttrValue(float value);
   virtual ~LibertyFloatAttrValue() {}
-  virtual bool isString() { return false; }
-  virtual bool isFloat() { return true; }
-  virtual float floatValue();
-  virtual const char *stringValue();
+  bool isString() const override { return false; }
+  bool isFloat() const override { return true; }
+  float floatValue() const override;
+  const char *stringValue() const override;
 
 private:
   float value_;
@@ -263,9 +249,9 @@ class LibertyDefine : public LibertyStmt
 {
 public:
   LibertyDefine(const char *name,
-		LibertyGroupType group_type,
-		LibertyAttrType value_type,
-		int line);
+                LibertyGroupType group_type,
+                LibertyAttrType value_type,
+                int line);
   virtual bool isDefine() const { return true; }
   const char *name() const { return name_.c_str(); }
   LibertyGroupType groupType() const { return group_type_; }
@@ -285,9 +271,9 @@ class LibertyVariable : public LibertyStmt
 {
 public:
   LibertyVariable(const char *var,
-		  float value,
-		  int line);
-  virtual bool isVariable() const { return true; }
+                  float value,
+                  int line);
+  bool isVariable() const override { return true; }
   const char *variable() const { return var_.c_str(); }
   float value() const { return value_; }
 
@@ -313,6 +299,6 @@ public:
 
 void
 parseLibertyFile(const char *filename,
-		 LibertyGroupVisitor *library_visitor,
-		 Report *report);
+                 LibertyGroupVisitor *library_visitor,
+                 Report *report);
 } // namespace

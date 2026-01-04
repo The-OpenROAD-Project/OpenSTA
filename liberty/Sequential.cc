@@ -29,14 +29,14 @@
 namespace sta {
 
 Sequential::Sequential(bool is_register,
-		       FuncExpr *clock,
-		       FuncExpr *data,
-		       FuncExpr *clear,
-		       FuncExpr *preset,
-		       LogicValue clr_preset_out,
-		       LogicValue clr_preset_out_inv,
-		       LibertyPort *output,
-		       LibertyPort *output_inv) :
+                       FuncExpr *clock,
+                       FuncExpr *data,
+                       FuncExpr *clear,
+                       FuncExpr *preset,
+                       LogicValue clr_preset_out,
+                       LogicValue clr_preset_out_inv,
+                       LibertyPort *output,
+                       LibertyPort *output_inv) :
   is_register_(is_register),
   clock_(clock),
   data_(data),

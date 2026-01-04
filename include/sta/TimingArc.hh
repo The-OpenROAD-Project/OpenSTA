@@ -25,8 +25,9 @@
 #pragma once
 
 #include <memory>
+#include <vector>
+#include <map>
 
-#include "Vector.hh"
 #include "Transition.hh"
 #include "Delay.hh"
 #include "LibertyClass.hh"
@@ -36,11 +37,11 @@ namespace sta {
 class TimingArcAttrs;
 class WireTimingArc;
 class GateTableModel;
-class DcalcAnalysisPt;
+class Scene;
 
-typedef int TimingArcIndex;
-typedef Vector<TimingArc*> TimingArcSeq;
-typedef Map<const OperatingConditions*, TimingModel*> ScaledTimingModelMap;
+using TimingArcIndex = int;
+using TimingArcSeq = std::vector<TimingArc*>;
+using ScaledTimingModelMap = std::map<const OperatingConditions*, TimingModel*>;
 
 enum class TimingType {
   clear,
@@ -117,7 +118,7 @@ public:
   void setModeValue(const char *value);
   TimingModel *model(const RiseFall *rf) const;
   void setModel(const RiseFall *rf,
-		TimingModel *model);
+                TimingModel *model);
   float ocvArcDepth() const { return ocv_arc_depth_; }
   void setOcvArcDepth(float depth);
 
@@ -143,11 +144,11 @@ class TimingArcSet
 {
 public:
   TimingArcSet(LibertyCell *cell,
-	       LibertyPort *from,
-	       LibertyPort *to,
-	       LibertyPort *related_out,
-	       const TimingRole *role,
-	       TimingArcAttrsPtr attrs);
+               LibertyPort *from,
+               LibertyPort *to,
+               LibertyPort *related_out,
+               const TimingRole *role,
+               TimingArcAttrsPtr attrs);
   virtual ~TimingArcSet();
   LibertyCell *libertyCell() const;
   LibertyPort *from() const { return from_; }
@@ -162,9 +163,9 @@ public:
   TimingArcSeq &arcs() { return arcs_; }
   // Return 1 or 2 arcs matching from transition.
   void arcsFrom(const RiseFall *from_rf,
-		// Return values.
-		TimingArc *&arc1,
-		TimingArc *&arc2) const;
+                // Return values.
+                TimingArc *&arc1,
+                TimingArc *&arc2) const;
   TimingArc *arcTo(const RiseFall *to_rf) const;
   const TimingArcSeq &arcs() const { return arcs_; }
   TimingArcIndex addTimingArc(TimingArc *arc);
@@ -186,15 +187,13 @@ public:
   const char *modeValue() const { return attrs_->modeValue(); }
   // Timing arc set index in cell.
   TimingArcIndex index() const { return index_; }
-  bool isDisabledConstraint() const { return is_disabled_constraint_; }
-  void setIsDisabledConstraint(bool is_disabled);
   // OCV arc depth from timing/cell/library.
   float ocvArcDepth() const;
 
   static bool equiv(const TimingArcSet *set1,
-		    const TimingArcSet *set2);
+                    const TimingArcSet *set2);
   static bool less(const TimingArcSet *set1,
-		   const TimingArcSet *set2);
+                   const TimingArcSet *set2);
 
   static void init();
   static void destroy();
@@ -217,7 +216,6 @@ protected:
   TimingArcSeq arcs_;
   bool is_cond_default_;
   unsigned index_;
-  bool is_disabled_constraint_;
   TimingArc *from_arc1_[RiseFall::index_count];
   TimingArc *from_arc2_[RiseFall::index_count];
   TimingArc *to_arc_[RiseFall::index_count];
@@ -232,9 +230,9 @@ class TimingArc
 {
 public:
   TimingArc(TimingArcSet *set,
-	    const Transition *from_rf,
-	    const Transition *to_rf,
-	    TimingModel *model);
+            const Transition *from_rf,
+            const Transition *to_rf,
+            TimingModel *model);
   ~TimingArc();
   std::string to_string() const;
   LibertyPort *from() const { return set_->from(); }
@@ -247,24 +245,28 @@ public:
   // Index in TimingArcSet.
   unsigned index() const { return index_; }
   TimingModel *model() const { return model_; }
-  GateTimingModel *gateModel(const DcalcAnalysisPt *dcalc_ap) const;
-  CheckTimingModel *checkModel(const DcalcAnalysisPt *dcalc_ap) const;
+  GateTimingModel *gateModel(const Scene *scene,
+                             const MinMax *min_max) const;
+  CheckTimingModel *checkModel(const Scene *scene,
+                               const MinMax *min_max) const;
   GateTableModel *gateTableModel() const;
-  GateTableModel *gateTableModel(const DcalcAnalysisPt *dcalc_ap) const;
-  const TimingArc *cornerArc(int ap_index) const;
-  void setCornerArc(TimingArc *corner_arc,
-		    int ap_index);
+  GateTableModel *gateTableModel(const Scene *scene,
+                                 const MinMax *min_max) const;
+  const TimingArc *sceneArc(int ap_index) const;
+  void setSceneArc(TimingArc *scene_arc,
+                   int ap_index);
   float driveResistance() const;
   ArcDelay intrinsicDelay() const;
 
   static bool equiv(const TimingArc *arc1,
-		    const TimingArc *arc2);
+                    const TimingArc *arc2);
 
 protected:
-  TimingModel *model(const DcalcAnalysisPt *dcalc_ap) const;
+  TimingModel *model(const Scene *scene,
+                     const MinMax *min_max) const;
   void setIndex(unsigned index);
   void addScaledModel(const OperatingConditions *op_cond,
-		      TimingModel *scaled_model);
+                      TimingModel *scaled_model);
 
   TimingArcSet *set_;
   const Transition *from_rf_;
@@ -272,7 +274,7 @@ protected:
   unsigned index_;
   TimingModel *model_;
   ScaledTimingModelMap *scaled_models_;
-  Vector<TimingArc*> corner_arcs_;
+  std::vector<TimingArc*> scene_arcs_;
 
 private:
   friend class LibertyLibrary;

@@ -46,7 +46,7 @@ class SaifScanner;
 
 enum class SaifState { T0, T1, TX, TZ, TB, TC, IG };
 
-typedef std::array<uint64_t, static_cast<int>(SaifState::IG)+1> SaifStateDurations;
+using SaifStateDurations = std::array<uint64_t, static_cast<int>(SaifState::IG)+1>;
 
 class SaifReader : public StaState
 {

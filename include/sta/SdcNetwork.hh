@@ -248,28 +248,28 @@ public:
 
 protected:
   void parsePath(const char *path,
-		 // Return values.
-		 Instance *&inst,
-		 const char *&path_tail) const;
+                 // Return values.
+                 Instance *&inst,
+                 const char *&path_tail) const;
   void scanPath(const char *path,
-		// Return values.
-		// Unescaped divider count.
-		int &divider_count,
-		int &path_length) const;
+                // Return values.
+                // Unescaped divider count.
+                int &divider_count,
+                int &path_length) const;
   void parsePath(const char *path,
-		 int divider_count,
-		 int path_length,
-		 // Return values.
-		 Instance *&inst,
-		 const char *&path_tail) const;
+                 int divider_count,
+                 int path_length,
+                 // Return values.
+                 Instance *&inst,
+                 const char *&path_tail) const;
   bool visitMatches(const Instance *parent,
-		    const PatternMatch *pattern,
-		    std::function<bool (const Instance *instance,
-					const PatternMatch *tail)>
-		    visit_tail) const;
+                    const PatternMatch *pattern,
+                    std::function<bool (const Instance *instance,
+                                        const PatternMatch *tail)>
+                    visit_tail) const;
   bool visitPinTail(const Instance *instance,
-		    const PatternMatch *tail,
-		    PinSeq &matches) const;
+                    const PatternMatch *tail,
+                    PinSeq &matches) const;
   void findInstancesMatching1(const Instance *context,
                               const PatternMatch *pattern,
                               InstanceSeq &matches) const;

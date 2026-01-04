@@ -30,7 +30,6 @@
 #include "StringSet.hh"
 #include "StringSeq.hh"
 #include "PatternMatch.hh"
-#include "Vector.hh"
 #include "Network.hh"
 #include "Liberty.hh"
 #include "FuncExpr.hh"
@@ -40,7 +39,7 @@
 #include "Graph.hh"
 #include "NetworkClass.hh"
 #include "Clock.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Search.hh"
 #include "Path.hh"
 #include "search/Tag.hh"
@@ -53,15 +52,15 @@
 
 namespace sta {
 
-typedef MinPulseWidthCheckSeq::Iterator MinPulseWidthCheckSeqIterator;
 typedef MinMaxAll MinMaxAllNull;
+typedef std::vector<std::string> StdStringSeq;
 
 #if TCL_MAJOR_VERSION < 9
     typedef int Tcl_Size;
 #endif
 
 template <class TYPE>
-Vector<TYPE> *
+std::vector<TYPE> *
 tclListSeqPtr(Tcl_Obj *const source,
               swig_type_info *swig_type,
               Tcl_Interp *interp)
@@ -71,7 +70,7 @@ tclListSeqPtr(Tcl_Obj *const source,
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
-    Vector<TYPE> *seq = new Vector<TYPE>;
+    std::vector<TYPE> *seq = new std::vector<TYPE>;
     for (int i = 0; i < argc; i++) {
       void *obj;
       // Ignore returned TCL_ERROR because can't get swig_type_info.
@@ -276,8 +275,8 @@ using namespace sta;
 ////////////////////////////////////////////////////////////////
 
 // String that is deleted after crossing over to tcland.
-%typemap(out) string {
-  string &str = $1;
+%typemap(out) std::string {
+  std::string &str = $1;
   // String is volatile because it is deleted.
   Tcl_SetResult(interp, const_cast<char*>(str.c_str()), TCL_VOLATILE);
 }
@@ -302,6 +301,14 @@ using namespace sta;
   $1 = tclListSetStdString($input, interp);
 }
 
+%typemap(in) StdStringSeq {
+  $1 = tclListSeqStdString($input, interp);
+}
+
+%typemap(in) StdStringSeq* {
+  $1 = tclListSeqStdString($input, interp);
+}
+
 %typemap(out) StringSeq* {
   StringSeq *strs = $1;
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
@@ -320,6 +327,14 @@ using namespace sta;
     Tcl_ListObjAppendElement(interp, list, obj);
   }
   Tcl_SetObjResult(interp, list);
+}
+
+%typemap(in) StdStringSet* {
+  $1 = tclListSetStdString($input, interp);
+}
+
+%typemap(in) StdStringSeq {
+  $1 = tclListSeqStdString($input, interp);
 }
 
 %typemap(out) StdStringSeq {
@@ -577,6 +592,10 @@ using namespace sta;
 %typemap(in) InstanceSeq* {
   $1 = tclListSeqPtr<const Instance*>($input, SWIGTYPE_p_Instance, interp);
 }
+
+%typemap(in) InstanceSeq {
+  $1 = tclListSeq<const Instance*>($input, SWIGTYPE_p_Instance, interp);
+ }
 
 %typemap(out) InstanceSeq {
   seqTclList<InstanceSeq, Instance>($1, SWIGTYPE_p_Instance, interp);
@@ -922,7 +941,7 @@ using namespace sta;
       || stringEqual(arg, "min"))
     $1 = const_cast<MinMax*>(MinMax::min());
   else if (stringEqual(arg, "setup")
-	   || stringEqual(arg, "max"))
+           || stringEqual(arg, "max"))
     $1 = const_cast<MinMax*>(MinMax::max());
   else {
     tclArgError(interp, 2162, "%s not setup, hold, min or max.", arg);
@@ -939,13 +958,14 @@ using namespace sta;
       || stringEqual(arg, "min"))
     $1 = const_cast<SetupHoldAll*>(SetupHoldAll::min());
   else if (stringEqual(arg, "setup")
-	   || stringEqual(arg, "max"))
+           || stringEqual(arg, "max"))
     $1 = const_cast<SetupHoldAll*>(SetupHoldAll::max());
   else if (stringEqual(arg, "setup_hold")
-	   || stringEqual(arg, "min_max"))
+           || stringEqual(arg, "min_max"))
     $1 = const_cast<SetupHoldAll*>(SetupHoldAll::all());
   else {
-    tclArgError(interp, 2163, "%s not setup, hold, setup_hold, min, max or min_max.", arg);
+    tclArgError(interp, 2163, "%s not setup, hold, setup_hold, min, max or min_max.",
+                arg);
     return TCL_ERROR;
   }
 }
@@ -1109,16 +1129,12 @@ using namespace sta;
 %typemap(out) CheckErrorSeq & {
   Tcl_Obj *error_list = Tcl_NewListObj(0, nullptr);
   CheckErrorSeq *check_errors = $1;
-  CheckErrorSeq::Iterator check_iter(check_errors);
-  while (check_iter.hasNext()) {
-    CheckError *error = check_iter.next();
+  for (CheckError *error : *check_errors) {
     Tcl_Obj *string_list = Tcl_NewListObj(0, nullptr);
-    CheckError::Iterator string_iter(error);
-    while (string_iter.hasNext()) {
-      const char *str = string_iter.next();
+    for (const char *str : *error) {
       size_t str_len = strlen(str);
       Tcl_Obj *obj = Tcl_NewStringObj(const_cast<char*>(str),
-				      static_cast<int>(str_len));
+                                      static_cast<int>(str_len));
       Tcl_ListObjAppendElement(interp, string_list, obj);
     }
     Tcl_ListObjAppendElement(interp, error_list, string_list);
@@ -1153,11 +1169,6 @@ using namespace sta;
   seqTclList<PathEndSeq, PathEnd>($1, SWIGTYPE_p_PathEnd, interp);
 }
 
-%typemap(out) MinPulseWidthCheckSeqIterator* {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
 %typemap(out) PathSeq* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
@@ -1172,21 +1183,6 @@ using namespace sta;
     Tcl_ListObjAppendElement(interp, list, obj);
   }
   Tcl_SetObjResult(interp, list);
-}
-
-%typemap(out) MinPulseWidthCheck* {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
-%typemap(out) MinPulseWidthCheckSeq & {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
-%typemap(out) MinPulseWidthCheckSeqIterator & {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
 }
 
 %typemap(out) VertexPathIterator* {
@@ -1247,24 +1243,107 @@ using namespace sta;
   Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
 }
 
-%typemap(in) PathGroupNameSet* {
-  $1 = tclListSetConstChar($input, interp);
-}
-
 %typemap(in) StringSet* {
   $1 = tclListSetConstChar($input, interp);
 }
 
-%typemap(out) Corner* {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
+%typemap(out) Mode* {
+  const Mode *mode = $1;
+  if (mode)
+    Tcl_SetResult(interp, const_cast<char*>($1->name().c_str()), TCL_VOLATILE);
+  else
+    Tcl_SetResult(interp, const_cast<char*>("NULL"), TCL_STATIC);
 }
 
-%typemap(out) Corners* {
+%typemap(in) ModeSeq {
+  Tcl_Size argc;
+  Tcl_Obj **argv;
+
+  Sta *sta = Sta::sta();
+  std::vector<Mode*> seq;
+  if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK
+      && argc > 0) {
+    for (int i = 0; i < argc; i++) {
+      int length;
+      const char *mode_name = Tcl_GetStringFromObj(argv[i], &length);
+      Mode *mode = sta->findMode(mode_name);
+      if (mode)
+        seq.push_back(mode);
+      else {
+        tclArgError(interp, 2174, "mode %s not found.", mode_name);
+        return TCL_ERROR;
+      }
+    }
+  }
+  $1 = seq;
+}
+
+%typemap(out) ModeSeq {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  Corners *corners = $1;
-  for (Corner *corner : *corners) {
-    Tcl_Obj *obj = SWIG_NewInstanceObj(corner, SWIGTYPE_p_Corner, false);
+  ModeSeq &modes = $1;
+  for (Mode *mode : modes) {
+    const std::string &mode_name = mode->name();
+    Tcl_Obj *obj = Tcl_NewStringObj(mode_name.c_str(), mode_name.size());
+    Tcl_ListObjAppendElement(interp, list, obj);
+  }
+  Tcl_SetObjResult(interp, list);
+}
+
+%typemap(in) Scene* {
+  sta::Sta *sta = Sta::sta();
+  int length;
+  char *scene_name = Tcl_GetStringFromObj($input, &length);
+  // parse_scene_or_all support depreated 11/21/2025
+  if (stringEq(scene_name, "NULL"))
+    $1 = nullptr;
+  else {
+    Scene *scene = sta->findScene(scene_name);
+    if (scene)
+      $1 = scene;
+    else {
+      tclArgError(interp, 2173, "scene %s not found.", scene_name);
+      return TCL_ERROR;
+    }
+  }
+}
+
+%typemap(out) Scene* {
+  const Scene *scene = $1;
+  if (scene)
+    Tcl_SetResult(interp, const_cast<char*>($1->name().c_str()), TCL_VOLATILE);
+  else
+    Tcl_SetResult(interp, const_cast<char*>("NULL"), TCL_STATIC);
+}
+
+%typemap(in) SceneSeq {
+  Tcl_Size argc;
+  Tcl_Obj **argv;
+
+  Sta *sta = Sta::sta();
+  std::vector<Scene*> seq;
+  if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK
+      && argc > 0) {
+    for (int i = 0; i < argc; i++) {
+      int length;
+      const char *scene_name = Tcl_GetStringFromObj(argv[i], &length);
+      Scene *scene = sta->findScene(scene_name);
+      if (scene)
+        seq.push_back(scene);
+      else {
+        tclArgError(interp, 2172, "scene %s not found.", scene_name);
+        return TCL_ERROR;
+      }
+    }
+  }
+  $1 = seq;
+}
+
+%typemap(out) SceneSeq {
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  SceneSeq &scenes = $1;
+  for (Scene *scene : scenes) {
+    const std::string &scene_name = scene->name();
+    Tcl_Obj *obj = Tcl_NewStringObj(scene_name.c_str(), scene_name.size());
     Tcl_ListObjAppendElement(interp, list, obj);
   }
   Tcl_SetObjResult(interp, list);
@@ -1279,108 +1358,103 @@ using namespace sta;
 %typemap(out) PropertyValue {
   PropertyValue value = $1;
   switch (value.type()) {
-  case PropertyValue::Type::type_none:
+  case PropertyValue::Type::none:
     Tcl_SetResult(interp, const_cast<char*>(""), TCL_STATIC);
     break;
-  case PropertyValue::Type::type_string:
+  case PropertyValue::Type::string:
     Tcl_SetResult(interp, const_cast<char*>(value.stringValue()), TCL_VOLATILE);
     break;
-  case PropertyValue::Type::type_float: {
+  case PropertyValue::Type::float_: {
     const Unit *unit = value.unit();
     const char *float_string = unit->asString(value.floatValue(), 6);
     Tcl_SetResult(interp, const_cast<char*>(float_string), TCL_VOLATILE);
   }
     break;
-  case PropertyValue::Type::type_bool: {
+  case PropertyValue::Type::bool_: {
     const char *bool_string = value.boolValue() ? "1" : "0";
     Tcl_SetResult(interp, const_cast<char*>(bool_string), TCL_STATIC);
   }
     break;
-  case PropertyValue::Type::type_library: {
+  case PropertyValue::Type::library: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Library*>(value.library()),
-				       SWIGTYPE_p_Library, false);
+                                       SWIGTYPE_p_Library, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_cell: {
+  case PropertyValue::Type::cell: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Cell*>(value.cell()),
-				       SWIGTYPE_p_Cell, false);
+                                       SWIGTYPE_p_Cell, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_port: {
+  case PropertyValue::Type::port: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Port*>(value.port()),
-				       SWIGTYPE_p_Port, false);
+                                       SWIGTYPE_p_Port, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_liberty_library: {
+  case PropertyValue::Type::liberty_library: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<LibertyLibrary*>(value.libertyLibrary()),
-				       SWIGTYPE_p_LibertyLibrary, false);
+                                       SWIGTYPE_p_LibertyLibrary, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_liberty_cell: {
+  case PropertyValue::Type::liberty_cell: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<LibertyCell*>(value.libertyCell()),
-				       SWIGTYPE_p_LibertyCell, false);
+                                       SWIGTYPE_p_LibertyCell, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_liberty_port: {
+  case PropertyValue::Type::liberty_port: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<LibertyPort*>(value.libertyPort()),
-				       SWIGTYPE_p_LibertyPort, false);
+                                       SWIGTYPE_p_LibertyPort, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_instance: {
+  case PropertyValue::Type::instance: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Instance*>(value.instance()),
-				       SWIGTYPE_p_Instance, false);
+                                       SWIGTYPE_p_Instance, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_pin: {
+  case PropertyValue::Type::pin: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Pin*>(value.pin()),
                                        SWIGTYPE_p_Pin, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_pins: {
+  case PropertyValue::Type::pins: {
     Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-    PinSeq *pins = value.pins();
-    PinSeq::Iterator pin_iter(pins);
-    while (pin_iter.hasNext()) {
-      const Pin *pin = pin_iter.next();
+    for (const Pin *pin : *value.pins()) {
       Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Pin*>(pin), SWIGTYPE_p_Pin, false);
       Tcl_ListObjAppendElement(interp, list, obj);
     }
     Tcl_SetObjResult(interp, list);
   }
     break;
-  case PropertyValue::Type::type_net: {
+  case PropertyValue::Type::net: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Net*>(value.net()),
-				       SWIGTYPE_p_Net, false);
+                                       SWIGTYPE_p_Net, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_clk: {
+  case PropertyValue::Type::clk: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Clock*>(value.clock()),
-				       SWIGTYPE_p_Clock, false);
+                                       SWIGTYPE_p_Clock, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_clks: {
+  case PropertyValue::Type::clks: {
     Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
     ClockSeq *clks = value.clocks();
-    ClockSeq::Iterator clk_iter(clks);
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
+    for (Clock *clk : *clks) {
       Tcl_Obj *obj = SWIG_NewInstanceObj(clk, SWIGTYPE_p_Clock, false);
       Tcl_ListObjAppendElement(interp, list, obj);
     }
     Tcl_SetObjResult(interp, list);
   }
     break;
-  case PropertyValue::Type::type_paths: {
+  case PropertyValue::Type::paths: {
     Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
     for (const Path *path : *value.paths()) {
       Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Path*>(path), SWIGTYPE_p_Path, false);
@@ -1389,7 +1463,7 @@ using namespace sta;
     Tcl_SetObjResult(interp, list);
   }
     break;
-  case PropertyValue::Type::type_pwr_activity: {
+  case PropertyValue::Type::pwr_activity: {
     PwrActivity activity = value.pwrActivity();
     Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
     Tcl_Obj *obj;

@@ -29,6 +29,6 @@
 namespace sta {
 
 // Hide a bit of the std verbosity.
-typedef std::lock_guard<std::mutex> LockGuard;
+using LockGuard = std::lock_guard<std::mutex>;
 
 } // namespace

@@ -51,7 +51,7 @@ LeakagePowerAttrs::setPower(float power)
 ////////////////////////////////////////////////////////////////
 
 LeakagePower::LeakagePower(LibertyCell *cell,
-			   LeakagePowerAttrs *attrs) :
+                           LeakagePowerAttrs *attrs) :
   cell_(cell),
   when_(attrs->when()),
   power_(attrs->power())

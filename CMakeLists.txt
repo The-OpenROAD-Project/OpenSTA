@@ -32,7 +32,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.7.0
+project(STA VERSION 3.0.0
   LANGUAGES CXX
 )
 
@@ -77,7 +77,6 @@ set(STA_SOURCE
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
   dcalc/CcsCeffDelayCalc.cc
-  dcalc/DcalcAnalysisPt.cc
   dcalc/DelayCalc.cc
   dcalc/DelayCalcBase.cc
   dcalc/DmpCeff.cc
@@ -135,6 +134,7 @@ set(STA_SOURCE
   parasitics/SpefReaderPvt.hh
 
   power/Power.cc
+  power/ReportPower.cc
   power/VcdReader.cc
   power/SaifReader.cc
   power/VcdParse.cc
@@ -154,7 +154,6 @@ set(STA_SOURCE
   sdc/PortDelay.cc
   sdc/PortExtCap.cc
   sdc/Sdc.cc
-  sdc/SdcGraph.cc
   sdc/SdcCmdComment.cc
   sdc/Variables.cc
   sdc/WriteSdc.cc
@@ -168,15 +167,14 @@ set(STA_SOURCE
   search/CheckMaxSkews.cc
   search/CheckMinPeriods.cc
   search/CheckMinPulseWidths.cc
-  search/CheckCapacitanceLimits.cc
-  search/CheckFanoutLimits.cc
-  search/CheckSlewLimits.cc
+  search/CheckCapacitances.cc
+  search/CheckFanouts.cc
+  search/CheckSlews.cc
   search/CheckTiming.cc
   search/ClkInfo.cc
   search/ClkLatency.cc
   search/ClkNetwork.cc
   search/ClkSkew.cc
-  search/Corner.cc
   search/Crpr.cc
   search/FindRegister.cc
   search/GatedClk.cc
@@ -184,8 +182,8 @@ set(STA_SOURCE
   search/Latches.cc
   search/Levelize.cc
   search/MakeTimingModel.cc
+  search/Mode.cc
   search/Path.cc
-  search/PathAnalysisPt.cc
   search/Path.cc
   search/PathEnd.cc
   search/PathEnum.cc
@@ -195,6 +193,7 @@ set(STA_SOURCE
   search/ReportPath.cc
   search/Search.cc
   search/SearchPred.cc
+  search/Scene.cc
   search/Sim.cc
   search/Sta.cc
   search/StaState.cc
@@ -222,6 +221,7 @@ set(STA_SOURCE
   util/ReportStd.cc
   util/ReportTcl.cc
   util/RiseFallMinMax.cc
+  util/RiseFallMinMaxDelay.cc
   util/RiseFallValues.cc
   util/Stats.cc
   util/StringSeq.cc
@@ -549,14 +549,14 @@ endif()
 
 target_compile_options(OpenSTA
   PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:${CXX_FLAGS}>
+  $<$<CXX_COMPILER_ID:GNU>:${CXX_FLAGS} -Wno-format-zero-length>
   $<$<CXX_COMPILER_ID:Clang>:${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   $<$<CXX_COMPILER_ID:AppleClang>:${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   )
 
 # Disable compiler specific extensions like gnu++11.
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
-target_compile_features(OpenSTA PUBLIC cxx_std_17)
+target_compile_features(OpenSTA PUBLIC cxx_std_20)
 
 message(STATUS "STA library: ${CMAKE_BINARY_DIR}/libOpenSTA.a")
 

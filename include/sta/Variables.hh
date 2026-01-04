@@ -54,10 +54,6 @@ public:
   // Enable/disable timing from bidirect pins back into the instance.
   bool bidirectInstPathsEnabled() const { return bidirect_inst_paths_enabled_; }
   void setBidirectInstPathsEnabled(bool enabled);
-  // TCL variable sta_bidirect_net_paths_enabled.
-  // Enable/disable timing from bidirect driver pins to their own loads.
-  bool bidirectNetPathsEnabled() const { return bidirect_net_paths_enabled_; }
-  void setBidirectNetPathsEnabled(bool enabled);
   // TCL variable sta_recovery_removal_checks_enabled.
   bool recoveryRemovalChecksEnabled() const { return recovery_removal_checks_enabled_; }
   void setRecoveryRemovalChecksEnabled(bool enabled);
@@ -85,7 +81,6 @@ private:
   bool propagate_gated_clock_enable_;
   bool preset_clr_arcs_enabled_;
   bool cond_default_arcs_enabled_;
-  bool bidirect_net_paths_enabled_;
   bool bidirect_inst_paths_enabled_;
   bool recovery_removal_checks_enabled_;
   bool gated_clk_checks_enabled_;

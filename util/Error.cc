@@ -37,7 +37,7 @@ Exception::Exception() :
 }
 
 ExceptionMsg::ExceptionMsg(const char *msg,
-			   const bool suppressed) :
+                           const bool suppressed) :
   Exception(),
   msg_(msg),
   suppressed_(suppressed)
@@ -51,7 +51,7 @@ ExceptionMsg::what() const noexcept
 }
 
 ExceptionLine::ExceptionLine(const char *filename,
-			     int line) :
+                             int line) :
   Exception(),
   filename_(filename),
   line_(line)

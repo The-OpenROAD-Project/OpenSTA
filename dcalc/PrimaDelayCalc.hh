@@ -29,7 +29,6 @@
 #include <Eigen/SparseCore>
 #include <Eigen/SparseLU>
 
-#include "Map.hh"
 #include "LumpedCapDelayCalc.hh"
 #include "ArcDcalcWaveforms.hh"
 #include "Parasitics.hh"
@@ -38,16 +37,16 @@ namespace sta {
 
 class ArcDelayCalc;
 class StaState;
-class Corner;
+class Scene;
 
-typedef Map<const Pin*, size_t, PinIdLess> PinNodeMap;
-typedef std::map<const ParasiticNode*, size_t, ParasiticNodeLess> NodeIndexMap;
-typedef Map<const Pin*, size_t> PortIndexMap;
-typedef Eigen::SparseMatrix<double> MatrixSd;
-typedef Map<const Pin*, Eigen::VectorXd, PinIdLess> PinLMap;
-typedef std::map<const Pin*, FloatSeq, PinIdLess> WatchPinValuesMap;
+using PinNodeMap = std::map<const Pin*, size_t, PinIdLess>;
+using NodeIndexMap = std::map<const ParasiticNode*, size_t, ParasiticNodeLess>;
+using PortIndexMap = std::map<const Pin*, size_t>;
+using MatrixSd = Eigen::SparseMatrix<double>;
+using PinLMap = std::map<const Pin*, Eigen::VectorXd, PinIdLess>;
+using WatchPinValuesMap = std::map<const Pin*, FloatSeq, PinIdLess>;
 
-typedef Table1 Waveform;
+using Waveform = Table1;
 
 ArcDelayCalc *
 makePrimaDelayCalc(StaState *sta);
@@ -65,35 +64,41 @@ public:
   void setPrimaReduceOrder(size_t order);
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   bool reduceSupported() const override { return false; }
   Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                              const Pin *drvr_pin,
                              const RiseFall *rf,
-                             const DcalcAnalysisPt *dcalc_ap) override;
+                             const Scene *scene,
+                             const MinMax *min_max) override;
   ArcDcalcResult inputPortDelay(const Pin *drvr_pin,
                                 float in_slew,
                                 const RiseFall *rf,
                                 const Parasitic *parasitic,
                                 const LoadPinIndexMap &load_pin_index_map,
-                                const DcalcAnalysisPt *dcalc_ap) override;
+                                const Scene *scene,
+                                const MinMax *min_max) override;
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
                            const Slew &in_slew,
                            float load_cap,
                            const Parasitic *parasitic,
                            const LoadPinIndexMap &load_pin_index_map,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &dcalc_args,
                                const LoadPinIndexMap &load_pin_index_map,
-                               const DcalcAnalysisPt *dcalc_ap) override;
+                               const Scene *scene,
+                               const MinMax *min_max) override;
   std::string reportGateDelay(const Pin *drvr_pin,
                               const TimingArc *arc,
                               const Slew &in_slew,
                               float load_cap,
                               const Parasitic *parasitic,
                               const LoadPinIndexMap &load_pin_index_map,
-                              const DcalcAnalysisPt *dcalc_ap,
+                              const Scene *scene,
+                              const MinMax *min_max,
                               int digits) override;
 
   // Record waveform for drvr/load pin.
@@ -147,7 +152,7 @@ protected:
                      const Pin *drvr_pin,
                      const RiseFall *drvr_rf,
                      const Pin *load_pin,
-                     const Corner *corner,
+                     const Scene *scene,
                      const MinMax *min_max);
   void primaReduce();
   void primaReduce2();
@@ -168,7 +173,9 @@ protected:
   ArcDcalcArgSeq *dcalc_args_;
   size_t drvr_count_;
   float load_cap_;
-  const DcalcAnalysisPt *dcalc_ap_;
+  const Scene *scene_;
+  const MinMax *min_max_;
+  Parasitics *parasitics_;
   const Parasitic *parasitic_network_;
   const RiseFall *drvr_rf_;
   const LoadPinIndexMap *load_pin_index_map_;

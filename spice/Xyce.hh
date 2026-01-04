@@ -31,8 +31,8 @@
 
 namespace sta {
 
-typedef std::vector<std::string> StdStringSeq;
-typedef std::vector<Table1> WaveformSeq;
+using StdStringSeq = std::vector<std::string>;
+using WaveformSeq = std::vector<Table1>;
 
 void
 readXyceCsv(const char *csv_filename,

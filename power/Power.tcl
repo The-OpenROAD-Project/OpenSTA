@@ -33,7 +33,7 @@ namespace eval sta {
 define_cmd_args "report_power" \
   { [-instances instances]\
       [-highest_power_instances count]\
-      [-corner corner]\
+      [-scene scene]\
       [-digits digits]\
       [-format format]\
       [> filename] [>> filename] }
@@ -42,7 +42,8 @@ proc_redirect report_power {
   global sta_report_default_digits
 
   parse_key_args "report_power" args \
-    keys {-instances -highest_power_instances -corner -digits -format} flags {}
+    keys {-instances -highest_power_instances -corner -scene -format -digits}\
+    flags {}
 
   check_argc_eq0 "report_power" $args
 
@@ -55,7 +56,7 @@ proc_redirect report_power {
   } else {
     set digits $sta_report_default_digits
   }
-  set corner [parse_corner keys]
+  set scene [parse_scene keys]
 
   if { [info exists keys(-format)] } {
     set format $keys(-format)
@@ -69,24 +70,24 @@ proc_redirect report_power {
   if { [info exists keys(-instances)] } {
     set insts [get_instances_error "-instances" $keys(-instances)]
     if { $format == "json" } {
-      report_power_insts_json $insts $corner $digits
+      report_power_insts_json $insts $scene $digits
     } else {
-      report_power_insts $insts $corner $digits
+      report_power_insts $insts $scene $digits
     }
   } elseif { [info exists keys(-highest_power_instances)] } {
     set count $keys(-highest_power_instances)
     check_positive_integer "-highest_power_instances" $count
-    set insts [highest_power_instances $count $corner]
+    set insts [highest_power_instances $count $scene]
     if { $format == "json" } {
-      report_power_insts_json $insts $corner $digits
+      report_power_insts_json $insts $scene $digits
     } else {
-      report_power_insts $insts $corner $digits
+      report_power_insts $insts $scene $digits
     }
   } else {
     if { $format == "json" } {
-      report_power_design_json $corner $digits
+      report_power_design_json $scene $digits
     } else {
-      report_power_design $corner $digits
+      report_power_design $scene $digits
     }
   }
 }
@@ -101,223 +102,14 @@ proc liberty_libraries_exist {} {
   return $have_liberty
 }
 
-proc report_power_design { corner digits } {
-  set power_result [design_power $corner]
-  set totals        [lrange $power_result  0  3]
-  set sequential    [lrange $power_result  4  7]
-  set combinational [lrange $power_result  8 11]
-  set clock         [lrange $power_result 12 15]
-  set macro         [lrange $power_result 16 19]
-  set pad           [lrange $power_result 20 end]
-  lassign $totals design_internal design_switching design_leakage design_total
-
-  set field_width [max [expr $digits + 6] 10]
-  report_power_title5       "Group" "Internal" "Switching" "Leakage" "Total" $field_width
-  report_power_title5_units "     " "Power"    "Power"     "Power"   "Power" "(Watts)" $field_width
-  report_title_dashes5 $field_width
-  report_power_row "Sequential"    $sequential    $design_total $field_width $digits
-  report_power_row "Combinational" $combinational $design_total $field_width $digits
-  report_power_row "Clock"         $clock         $design_total $field_width $digits
-  report_power_row "Macro"         $macro         $design_total $field_width $digits
-  report_power_row "Pad"           $pad           $design_total $field_width $digits
-  report_title_dashes5 $field_width
-  report_power_row "Total" $power_result $design_total $field_width $digits
-
-  report_line "[format %-20s {}][power_col_percent $design_internal  $design_total $field_width][power_col_percent $design_switching $design_total $field_width][power_col_percent $design_leakage $design_total $field_width]"
-}
-
-proc report_power_design_json { corner digits } {
-  set power_result [design_power $corner]
-  set totals        [lrange $power_result  0  3]
-  set sequential    [lrange $power_result  4  7]
-  set combinational [lrange $power_result  8 11]
-  set clock         [lrange $power_result 12 15]
-  set macro         [lrange $power_result 16 19]
-  set pad           [lrange $power_result 20 end]
-
-  report_line "\{"
-  report_power_row_json "Sequential" $sequential $digits ","
-  report_power_row_json "Combinational" $combinational $digits ","
-  report_power_row_json "Clock" $clock $digits ","
-  report_power_row_json "Macro" $macro $digits ","
-  report_power_row_json "Pad" $pad $digits ","
-  report_power_row_json "Total" $totals $digits ""
-  report_line "\}"
-}
-
-proc report_power_row_json { name row_result digits separator } {
-  lassign $row_result internal switching leakage total
-  report_line "  \"$name\": \{"
-  report_line "    \"internal\": [format %.${digits}e $internal],"
-  report_line "    \"switching\": [format %.${digits}e $switching],"
-  report_line "    \"leakage\": [format %.${digits}e $leakage],"
-  report_line "    \"total\": [format %.${digits}e $total]"
-  report_line "  \}$separator"
-}
-
-proc max { x y } {
-  if { $x >= $y } {
-    return $x
-  } else {
-    return $y
-  }
-}
-
-proc report_power_title5 { title1 title2 title3 title4 title5 field_width } {
-  report_line "[format %-20s $title1] [format %${field_width}s $title2] [format %${field_width}s $title3] [format %${field_width}s $title4] [format %${field_width}s $title5]"
-}
-
-proc report_power_title5_units { title1 title2 title3 title4 title5 units field_width } {
-  report_line "[format %-20s $title1] [format %${field_width}s $title2] [format %${field_width}s $title3] [format %${field_width}s $title4] [format %${field_width}s $title5] $units"
-}
-
-proc report_power_title4 { title1 title2 title3 title4 field_width } {
-  report_line " [format %${field_width}s $title1] [format %${field_width}s $title2] [format  %${field_width}s $title3] [format %${field_width}s $title4]"
-}
-
-proc report_power_title4_units { title1 title2 title3 title4 units field_width } {
-  report_line " [format %${field_width}s $title1] [format %${field_width}s $title2] [format  %${field_width}s $title3] [format %${field_width}s $title4] $units"
-}
-
-proc report_title_dashes5 { field_width } {
-  set count [expr 20 + ($field_width + 1) * 4]
-  report_title_dashes $count
-}
-
-proc report_title_dashes4 { field_width } {
-  set count [expr ($field_width + 1) * 4]
-  report_title_dashes $count
-}
-
-proc report_title_dashes { count } {
-  set line ""
-  for {set i 0} {$i < $count} {incr i} {
-    set line "-$line"
-  }
-  report_line $line
-}
-
-proc report_power_row { type row_result design_total field_width digits } {
-  lassign $row_result internal switching leakage total
-  if { $design_total == 0.0 || [is_nan $design_total] } {
-    set percent 0.0
-  } else {
-    set percent [expr $total / $design_total * 100]
-  }
-  report_line "[format %-20s $type][power_col $internal $field_width $digits][power_col $switching $field_width $digits][power_col $leakage $field_width $digits][power_col $total $field_width $digits] [format %5.1f $percent]%"
-}
-
-proc is_nan { str } {
-  return  [string match "*NaN" $str]
-}
-
-proc power_col { pwr field_width digits } {
-  if { [is_nan $pwr] } {
-    format " %${field_width}s" $pwr
-  } else {
-    format " %$field_width.${digits}e" $pwr
-  }
-}
-
-proc power_col_percent { col_total total field_width } {
-  if { $total == 0.0 || [is_nan $total]} {
-    set percent 0.0
-  } else {
-    set percent [expr $col_total / $total * 100]
-  }
-  format "%$field_width.1f%%" $percent
-}
-
-proc report_power_line { type pwr digits } {
-  if { [is_nan $pwr] } {
-    report_line [format "%-16s %s" $type $pwr]
-  } else {
-    report_line [format "%-16s %.${digits}e" $type $pwr]
-  }
-}
-
-proc report_power_insts { insts corner digits } {
-  set inst_pwrs {}
-  foreach inst $insts {
-    set power_result [instance_power $inst $corner]
-    lappend inst_pwrs [list $inst $power_result]
-  }
-  set inst_pwrs [lsort -command inst_pwr_cmp $inst_pwrs]
-
-  set field_width [max [expr $digits + 6] 10]
-
-  report_power_title4       "Internal" "Switching" "Leakage" "Total" $field_width
-  report_power_title4_units "Power"    "Power"     "Power"   "Power" "(Watts)" $field_width
-  report_title_dashes4 $field_width
-
-  foreach inst_pwr $inst_pwrs {
-    set inst [lindex $inst_pwr 0]
-    set power [lindex $inst_pwr 1]
-    report_power_inst $inst $power $field_width $digits
-  }
-}
-
-proc report_power_insts_json { insts corner digits } {
-  set inst_pwrs {}
-  foreach inst $insts {
-    set power_result [instance_power $inst $corner]
-    lappend inst_pwrs [list $inst $power_result]
-  }
-  set inst_pwrs [lsort -command inst_pwr_cmp $inst_pwrs]
-
-  report_line "\["
-  set first 1
-  foreach inst_pwr $inst_pwrs {
-    set inst [lindex $inst_pwr 0]
-    set power [lindex $inst_pwr 1]
-    if { !$first } {
-      report_line ","
-    }
-    set first 0
-    report_power_inst_json $inst $power $digits
-  }
-  report_line "\]"
-}
-
-proc report_power_inst_json { inst power digits } {
-  lassign $power internal switching leakage total
-  set inst_name [get_full_name $inst]
-  report_line "\{"
-  report_line "  \"name\": \"$inst_name\","
-  report_line "  \"internal\": [format %.${digits}e $internal],"
-  report_line "  \"switching\": [format %.${digits}e $switching],"
-  report_line "  \"leakage\": [format %.${digits}e $leakage],"
-  report_line "  \"total\": [format %.${digits}e $total]"
-  report_line "\}"
-}
-
-proc inst_pwr_cmp { inst_pwr1 inst_pwr2 } {
-  set pwr1 [lindex $inst_pwr1 1]
-  set pwr2 [lindex $inst_pwr2 1]
-  lassign $pwr1 internal1 switching1 leakage1 total1
-  lassign $pwr2 internal2 switching2 leakage2 total2
-  if { $total1 < $total2 } {
-    return 1
-  } elseif { $total1 == $total2 } {
-    return 0
-  } else {
-    return -1
-  }
-}
-
-proc report_power_inst { inst power_result field_width digits } {
-  lassign $power_result internal switching leakage total
-  report_line "[power_col $internal $field_width $digits][power_col $switching $field_width $digits][power_col $leakage $field_width $digits][power_col $total $field_width $digits] [get_full_name $inst]"
-}
-
 ################################################################
 
 define_cmd_args "set_power_activity" { [-global]\
-					 [-input]\
-					 [-input_ports ports]\
-					 [-pins pins]\
-					 [-activity activity | -density density]\
-					 [-duty duty]\
+                                         [-input]\
+                                         [-input_ports ports]\
+                                         [-pins pins]\
+                                         [-activity activity | -density density]\
+                                         [-duty duty]\
                                          [-clock clock]}
 
 proc set_power_activity { args } {
@@ -343,7 +135,7 @@ proc set_power_activity { args } {
         sta_error 307 "-activity requires a clock to be defined"
       }
     }
-    set density [expr $activity / [clock_min_period]]
+    set density [expr $activity / [clock_min_period [sta::cmd_mode]]]
   }
 
   if { [info exists keys(-density)] } {
@@ -373,7 +165,7 @@ proc set_power_activity { args } {
     set ports [get_ports_error "input_ports" $keys(-input_ports)]
     foreach port $ports {
       if { [get_property $port "direction"] == "input" } {
-	if { [is_clock_src [sta::get_port_pin $port]] } {
+        if { [is_clock_src [sta::get_port_pin $port]] } {
           sta_warn 310 "activity cannot be set on clock ports."
         } else {
           set_power_input_port_activity $port $density $duty
@@ -414,7 +206,7 @@ proc unset_power_activity { args } {
     set ports [get_ports_error "input_ports" $keys(-input_ports)]
     foreach port $ports {
       if { [get_property $port "direction"] == "input" } {
-	if { [is_clock_src [sta::get_port_pin $port]] } {
+        if { [is_clock_src [sta::get_port_pin $port]] } {
           sta_warn 303 "activity cannot be set on clock ports."
         } else {
           unset_power_input_port_activity $port
@@ -451,11 +243,11 @@ proc read_power_activities { args } {
 
 ################################################################
 
-define_cmd_args "read_vcd" { [-scope scope] filename }
+define_cmd_args "read_vcd" { [-scope scope] [-mode mode_name] filename }
 
 proc read_vcd { args } {
   parse_key_args "read_vcd" args \
-    keys {-scope} flags {}
+    keys {-scope -mode_name} flags {}
 
   check_argc_eq1 "read_vcd" $args
   set filename [file nativename [lindex $args 0]]
@@ -463,7 +255,11 @@ proc read_vcd { args } {
   if { [info exists keys(-scope)] } {
     set scope $keys(-scope)
   }
-  read_vcd_file $filename $scope
+  set mode_name [sta::cmd_mode]
+  if { [info exists keys(-mode)] } {
+    set mode_name $keys(-mode)
+  }
+  read_vcd_file $filename $scope $mode_name
 }
 
 ################################################################
@@ -499,15 +295,19 @@ proc_redirect report_activity_annotation {
 ################################################################
 
 proc power_find_nan { } {
-  set corner [cmd_corner]
+  set scene [cmd_scene]
   foreach inst [network_leaf_instances] {
-    set power_result [instance_power $inst $corner]
+    set power_result [instance_power $inst $scene]
     lassign $power_result internal switching leakage total
     if { [is_nan $internal] || [is_nan $switching] || [is_nan $leakage] } {
       report_line "[get_full_name $inst] $internal $switching $leakage"
       break
     }
   }
+}
+
+proc is_nan { str } {
+  return  [string match "*NaN" $str]
 }
 
 # sta namespace end.

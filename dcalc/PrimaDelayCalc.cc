@@ -33,8 +33,7 @@
 #include "PortDirection.hh"
 #include "Network.hh"
 #include "Sdc.hh"
-#include "DcalcAnalysisPt.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Graph.hh"
 #include "Parasitics.hh"
 #include "GraphDelayCalc.hh"
@@ -64,9 +63,12 @@ makePrimaDelayCalc(StaState *sta)
 PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
   DelayCalcBase(sta),
   dcalc_args_(nullptr),
+  scene_(nullptr),
+  min_max_(nullptr),
+  parasitics_(nullptr),
+  parasitic_network_(nullptr),
   load_pin_index_map_(nullptr),
   pin_node_map_(network_),
-  node_index_map_(ParasiticNodeLess(parasitics_, network_)),
   prima_order_(3),
   make_waveforms_(false),
   waveform_drvr_pin_(nullptr),
@@ -81,7 +83,7 @@ PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   dcalc_args_(nullptr),
   load_pin_index_map_(nullptr),
   pin_node_map_(network_),
-  node_index_map_(ParasiticNodeLess(parasitics_, network_)),
+  node_index_map_(dcalc.node_index_map_),
   prima_order_(dcalc.prima_order_),
   make_waveforms_(false),
   waveform_drvr_pin_(nullptr),
@@ -113,27 +115,26 @@ PrimaDelayCalc::copyState(const StaState *sta)
 Parasitic *
 PrimaDelayCalc::findParasitic(const Pin *drvr_pin,
                               const RiseFall *rf,
-                              const DcalcAnalysisPt *dcalc_ap)
+                              const Scene *scene,
+                              const MinMax *min_max)
 {
-  const Corner *corner = dcalc_ap->corner();
-  const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-  // set_load net has precidence over parasitics.
-  if (sdc_->drvrPinHasWireCap(drvr_pin, corner)
+  const Sdc *sdc = scene->sdc();
+  Parasitics *parasitics = scene->parasitics(min_max);
+  if (parasitics == nullptr
+      // set_load net has precedence over parasitics.
       || network_->direction(drvr_pin)->isInternal())
     return nullptr;
-  Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+  Parasitic *parasitic = parasitics->findParasiticNetwork(drvr_pin);
   if (parasitic)
     return parasitic;
-  const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
-  Wireload *wireload = sdc_->wireload(cnst_min_max);
+  Wireload *wireload = sdc->wireload(min_max);
   if (wireload) {
     float pin_cap, wire_cap, fanout;
     bool has_wire_cap;
-    graph_delay_calc_->netCaps(drvr_pin, rf, dcalc_ap, pin_cap, wire_cap,
+    graph_delay_calc_->netCaps(drvr_pin, rf, scene, min_max, pin_cap, wire_cap,
                                fanout, has_wire_cap);
-    parasitic = parasitics_->makeWireloadNetwork(drvr_pin, wireload,
-                                                 fanout, cnst_min_max,
-                                                 parasitic_ap);
+    parasitic = parasitics->makeWireloadNetwork(drvr_pin, wireload,
+                                                fanout, scene, min_max);
   }
   return parasitic;
 }
@@ -142,7 +143,8 @@ Parasitic *
 PrimaDelayCalc::reduceParasitic(const Parasitic *,
                                 const Pin *,
                                 const RiseFall *,
-                                const DcalcAnalysisPt *)
+                                const Scene *,
+                                const MinMax *)
 {
   return nullptr;
 }
@@ -153,18 +155,16 @@ PrimaDelayCalc::inputPortDelay(const Pin *drvr_pin,
                                const RiseFall *rf,
                                const Parasitic *parasitic,
                                const LoadPinIndexMap &load_pin_index_map,
-                               const DcalcAnalysisPt *dcalc_ap)
+                               const Scene *scene,
+                               const MinMax *min_max)
 {
+  Parasitics *parasitics = scene->parasitics(min_max);
   ArcDcalcResult dcalc_result(load_pin_index_map.size());
   LibertyLibrary *drvr_library = network_->defaultLibertyLibrary();
-
   const Parasitic *pi_elmore = nullptr;
-  if (parasitic && parasitics_->isParasiticNetwork(parasitic)) {
-    const ParasiticAnalysisPt *ap = dcalc_ap->parasiticAnalysisPt();
-    pi_elmore = parasitics_->reduceToPiElmore(parasitic, drvr_pin, rf,
-                                              dcalc_ap->corner(),
-                                              dcalc_ap->constraintMinMax(), ap);
-  }
+  if (parasitic && parasitics->isParasiticNetwork(parasitic))
+    pi_elmore = parasitics->reduceToPiElmore(parasitic, drvr_pin, rf,
+                                             scene, min_max);
 
   for (auto load_pin_index : load_pin_index_map) {
     const Pin *load_pin = load_pin_index.first;
@@ -174,7 +174,7 @@ PrimaDelayCalc::inputPortDelay(const Pin *drvr_pin,
     bool elmore_exists = false;
     float elmore = 0.0;
     if (pi_elmore)
-      parasitics_->findElmore(pi_elmore, load_pin, elmore, elmore_exists);
+      parasitics->findElmore(pi_elmore, load_pin, elmore, elmore_exists);
     if (elmore_exists)
       // Input port with no external driver.
       dspfWireDelaySlew(load_pin, rf, in_slew, elmore, wire_delay, load_slew);
@@ -192,33 +192,37 @@ PrimaDelayCalc::gateDelay(const Pin *drvr_pin,
                           float load_cap,
                           const Parasitic *parasitic,
                           const LoadPinIndexMap &load_pin_index_map,
-                          const DcalcAnalysisPt *dcalc_ap)
+                          const Scene *scene,
+                const MinMax *min_max)
 {
   ArcDcalcArgSeq dcalc_args;
   dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, load_cap, parasitic);
-  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map, dcalc_ap);
+  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map, scene, min_max);
   return dcalc_results[0];
 }
 
 ArcDcalcResultSeq
 PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
                            const LoadPinIndexMap &load_pin_index_map,
-                           const DcalcAnalysisPt *dcalc_ap)
+                           const Scene *scene,
+                           const MinMax *min_max)
 {
   dcalc_args_ = &dcalc_args;
   load_pin_index_map_ = &load_pin_index_map;
   drvr_count_ = dcalc_args.size();
-  dcalc_ap_ = dcalc_ap;
+  scene_ = scene;
+  min_max_ = min_max;
   drvr_rf_ = dcalc_args[0].arc()->toEdge()->asRiseFall();
   parasitic_network_ = dcalc_args[0].parasitic();
   load_cap_ = dcalc_args[0].loadCap();
+  parasitics_ = scene->parasitics(min_max);
+  node_index_map_ = NodeIndexMap(ParasiticNodeLess(parasitics_, network_));
 
   bool failed = false;
   output_waveforms_.resize(drvr_count_);
-  const DcalcAnalysisPtSeq &dcalc_aps = corners_->dcalcAnalysisPts();
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
-    GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(dcalc_ap);
+    GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(scene, min_max);
     if (table_model && dcalc_arg.parasitic()) {
       OutputWaveforms *output_waveforms = table_model->outputWaveforms();
       float in_slew = dcalc_arg.inSlewFlt();
@@ -236,7 +240,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
         drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
         if (!vdd_exists)
           report_->error(1720, "VDD not defined in library %s", drvr_library->name());
-        drvr_cell->ensureVoltageWaveforms(dcalc_aps);
+        drvr_cell->ensureVoltageWaveforms(scenes_);
         if (drvr_idx == 0) {
           vth_ = drvr_library->outputThreshold(drvr_rf_) * vdd_;
           vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
@@ -266,11 +270,13 @@ PrimaDelayCalc::tableDcalcResults()
     const Pin *drvr_pin = dcalc_arg.drvrPin();
     if (drvr_pin) {
       const RiseFall *rf = dcalc_arg.drvrEdge();
-      const Parasitic *parasitic = table_dcalc_->findParasitic(drvr_pin, rf, dcalc_ap_);
+      const Parasitic *parasitic = table_dcalc_->findParasitic(drvr_pin, rf,
+                                                               scene_, min_max_);
       dcalc_arg.setParasitic(parasitic);
     }
   }
-  return table_dcalc_->gateDelays(*dcalc_args_, *load_pin_index_map_, dcalc_ap_);
+  return table_dcalc_->gateDelays(*dcalc_args_, *load_pin_index_map_,
+                                  scene_, min_max_);
 }
 
 void
@@ -388,8 +394,7 @@ PrimaDelayCalc::driverResistance()
 {
   const Pin *drvr_pin = (*dcalc_args_)[0].drvrPin();
   LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
-  const MinMax *min_max = dcalc_ap_->delayMinMax();
-  return drvr_port->driveResistance(drvr_rf_, min_max);
+  return drvr_port->driveResistance(drvr_rf_, min_max_);
 }
 
 void
@@ -458,17 +463,16 @@ PrimaDelayCalc::pinCapacitance(ParasiticNode *node)
 {
   const Pin *pin = parasitics_->pin(node);
   float pin_cap = 0.0;
+  const Sdc *sdc = scene_->sdc();
   if (pin) {
     Port *port = network_->port(pin);
     LibertyPort *lib_port = network_->libertyPort(port);
-    const Corner *corner = dcalc_ap_->corner();
-    const MinMax *cnst_min_max = dcalc_ap_->constraintMinMax();
     if (lib_port) {
       if (!includes_pin_caps_)
-        pin_cap = sdc_->pinCapacitance(pin, drvr_rf_, corner, cnst_min_max);
+        pin_cap = sdc->pinCapacitance(pin, drvr_rf_, scene_, min_max_);
     }
     else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc_->portExtCap(port, drvr_rf_, corner, cnst_min_max);
+      pin_cap = sdc->portExtCap(port, drvr_rf_, min_max_);
   }
   return pin_cap;
 }
@@ -910,14 +914,15 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                 float load_cap,
                                 const Parasitic *,
                                 const LoadPinIndexMap &,
-                                const DcalcAnalysisPt *dcalc_ap,
+                                const Scene *scene,
+                                const MinMax *min_max,
                                 int digits)
 {
-  GateTimingModel *model = arc->gateModel(dcalc_ap);
+  GateTimingModel *model = arc->gateModel(scene, min_max);
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
-    return model->reportGateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, load_cap,
-                                  false, digits);
+    return model->reportGateDelay(pinPvt(drvr_pin, scene, min_max),
+                                  in_slew1, load_cap, false, digits);
   }
   return "";
 }

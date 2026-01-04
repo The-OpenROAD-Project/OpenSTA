@@ -31,8 +31,9 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Clock.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Search.hh"
+#include "Sdc.hh"
 #include "Sta.hh"
 
 using namespace sta;
@@ -92,22 +93,22 @@ vertex_iterator()
 
 void
 set_arc_delay(Edge *edge,
-	      TimingArc *arc,
-	      const Corner *corner,
-	      const MinMaxAll *min_max,
-	      float delay)
+              TimingArc *arc,
+              const Scene *scene,
+              const MinMaxAll *min_max,
+              float delay)
 {
-  Sta::sta()->setArcDelay(edge, arc, corner, min_max, delay);
+  Sta::sta()->setArcDelay(edge, arc, scene, min_max, delay);
 }
 
 void
 set_annotated_slew(Vertex *vertex,
-		   const Corner *corner,
-		   const MinMaxAll *min_max,
-		   const RiseFallBoth *rf,
-		   float slew)
+                   const Scene *scene,
+                   const MinMaxAll *min_max,
+                   const RiseFallBoth *rf,
+                   float slew)
 {
-  Sta::sta()->setAnnotatedSlew(vertex, corner, min_max, rf, slew);
+  Sta::sta()->setAnnotatedSlew(vertex, scene, min_max, rf, slew);
 }
 
 // Remove all delay and slew annotations.
@@ -132,20 +133,20 @@ int level() { return Sta::sta()->vertexLevel(self); }
 int tag_group_index() { return self->tagGroupIndex(); }
 
 Slew
-slew(const RiseFall *rf,
+slew(const RiseFallBoth *rf,
      const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  return sta->vertexSlew(self, rf, min_max);
+  return sta->slew(self, rf, sta->scenes(), min_max);
 }
 
 Slew
-slew_corner(const RiseFall *rf,
-            const Corner *corner,
+slew_scenes(const RiseFallBoth *rf,
+            const SceneSeq scenes,
             const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  return sta->vertexSlew(self, rf, corner, min_max);
+  return sta->slew(self, rf, scenes, min_max);
 }
 
 VertexOutEdgeIterator *
@@ -160,161 +161,12 @@ in_edge_iterator()
   return new VertexInEdgeIterator(self, Sta::sta()->graph());
 }
 
-FloatSeq
-arrivals_clk(const RiseFall *rf,
-	     Clock *clk,
-	     const RiseFall *clk_rf)
-{
-  Sta *sta = Sta::sta();
-  FloatSeq arrivals;
-  const ClockEdge *clk_edge = nullptr;
-  if (clk)
-    clk_edge = clk->edge(clk_rf);
-  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    arrivals.push_back(delayAsFloat(sta->vertexArrival(self, rf, clk_edge,
-                                                       path_ap, nullptr)));
-  }
-  return arrivals;
-}
-
-float
-arrival(const MinMax *min_max)
-{
-  Sta *sta = Sta::sta();
-  return delayAsFloat(sta->vertexArrival(self, min_max));
-}
-
-StringSeq
-arrivals_clk_delays(const RiseFall *rf,
-		    Clock *clk,
-		    const RiseFall *clk_rf,
-		    int digits)
-{
-  Sta *sta = Sta::sta();
-  StringSeq arrivals;
-  const ClockEdge *clk_edge = nullptr;
-  if (clk)
-    clk_edge = clk->edge(clk_rf);
-  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    arrivals.push_back(delayAsString(sta->vertexArrival(self, rf, clk_edge,
-                                                        path_ap, nullptr),
-                                     sta, digits));
-  }
-  return arrivals;
-}
-
-FloatSeq
-requireds_clk(const RiseFall *rf,
-	      Clock *clk,
-	      const RiseFall *clk_rf)
-{
-  Sta *sta = Sta::sta();
-  FloatSeq reqs;
-  const ClockEdge *clk_edge = nullptr;
-  if (clk)
-    clk_edge = clk->edge(clk_rf);
-  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    reqs.push_back(delayAsFloat(sta->vertexRequired(self, rf, clk_edge,
-                                                    path_ap)));
-  }
-  return reqs;
-}
-
-StringSeq
-requireds_clk_delays(const RiseFall *rf,
-		     Clock *clk,
-		     const RiseFall *clk_rf,
-		     int digits)
-{
-  Sta *sta = Sta::sta();
-  StringSeq reqs;
-  const ClockEdge *clk_edge = nullptr;
-  if (clk)
-    clk_edge = clk->edge(clk_rf);
-  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    reqs.push_back(delayAsString(sta->vertexRequired(self, rf, clk_edge, path_ap),
-                                 sta, digits));
-  }
-  return reqs;
-}
-
-Slack
-slack(MinMax *min_max)
-{
-  Sta *sta = Sta::sta();
-  return sta->vertexSlack(self, min_max);
-}
-
-FloatSeq
-slacks(RiseFall *rf)
-{
-  Sta *sta = Sta::sta();
-  FloatSeq slacks;
-  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    slacks.push_back(delayAsFloat(sta->vertexSlack(self, rf, path_ap)));
-  }
-  return slacks;
-}
-
-// Slack with respect to a clock rise/fall edge.
-FloatSeq
-slacks_clk(const RiseFall *rf,
-	   Clock *clk,
-	   const RiseFall *clk_rf)
-{
-  Sta *sta = Sta::sta();
-  FloatSeq slacks;
-  const ClockEdge *clk_edge = nullptr;
-  if (clk)
-    clk_edge = clk->edge(clk_rf);
-  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    slacks.push_back(delayAsFloat(sta->vertexSlack(self, rf, clk_edge,
-                                                   path_ap)));
-  }
-  return slacks;
-}
-
-StringSeq
-slacks_clk_delays(const RiseFall *rf,
-		  Clock *clk,
-		  const RiseFall *clk_rf,
-		  int digits)
-{
-  Sta *sta = Sta::sta();
-  StringSeq slacks;
-  const ClockEdge *clk_edge = nullptr;
-  if (clk)
-    clk_edge = clk->edge(clk_rf);
-  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    slacks.push_back(delayAsString(sta->vertexSlack(self, rf, clk_edge,
-                                                    path_ap),
-                                   sta, digits));
-  }
-  return slacks;
-}
-
 VertexPathIterator *
 path_iterator(const RiseFall *rf,
-	      const MinMax *min_max)
+              const MinMax *min_max)
 {
-  return Sta::sta()->vertexPathIterator(self, rf, min_max);
+  return new VertexPathIterator(self, rf, min_max, Sta::sta());
 }
-
-bool
-has_downstream_clk_pin()
-{
-  return self->hasDownstreamClkPin();
-}
-
-bool
-is_clock()
-{
-  Sta *sta = Sta::sta();
-  Search *search = sta->search();
-  return search->isClock(self);
-}
-
-bool is_disabled_constraint() { return self->isDisabledConstraint(); }
 
 } // Vertex methods
 
@@ -328,62 +180,85 @@ const char *sense() { return to_string(self->sense()); }
 TimingArcSeq &
 timing_arcs() { return self->timingArcSet()->arcs(); }
 bool is_disabled_loop() { return Sta::sta()->isDisabledLoop(self); }
-bool is_disabled_constraint() { return Sta::sta()->isDisabledConstraint(self);}
-bool is_disabled_constant() { return Sta::sta()->isDisabledConstant(self); }
+
+bool is_disabled_constraint()
+{
+  Sta *sta = Sta::sta();
+  const Sdc *sdc = sta->cmdSdc();
+  return sta->isDisabledConstraint(self, sdc);
+}
+
+bool is_disabled_constant()
+{
+  Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
+  return sta->isDisabledConstant(self, mode);
+}
+
 bool is_disabled_cond_default()
 { return Sta::sta()->isDisabledCondDefault(self); }
+
 PinSet
-disabled_constant_pins() { return Sta::sta()->disabledConstantPins(self); }
+disabled_constant_pins()
+{
+  Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
+  return sta->disabledConstantPins(self, mode);
+}
+
 bool is_disabled_bidirect_inst_path()
 { return Sta::sta()->isDisabledBidirectInstPath(self); }
-bool is_disabled_bidirect_net_path()
-{ return Sta::sta()->isDisabledBidirectNetPath(self); }
 bool is_disabled_preset_clear()
 { return Sta::sta()->isDisabledPresetClr(self); }
 const char *
-sim_timing_sense(){return to_string(Sta::sta()->simTimingSense(self));}
+sim_timing_sense(){
+  Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
+  return to_string(sta->simTimingSense(self, mode));
+}
 
 FloatSeq
 arc_delays(TimingArc *arc)
 {
   Sta *sta = Sta::sta();
   FloatSeq delays;
-  for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts())
-    delays.push_back(delayAsFloat(sta->arcDelay(self, arc, dcalc_ap)));
+  DcalcAPIndex ap_count = sta->dcalcAnalysisPtCount();
+  for (DcalcAPIndex ap_index = 0; ap_index < ap_count; ap_index++)
+    delays.push_back(delayAsFloat(sta->arcDelay(self, arc, ap_index)));
   return delays;
 }
 
 StringSeq
 arc_delay_strings(TimingArc *arc,
-		  int digits)
+                  int digits)
 {
   Sta *sta = Sta::sta();
   StringSeq delays;
-  for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts())
-    delays.push_back(delayAsString(sta->arcDelay(self, arc, dcalc_ap),
+  DcalcAPIndex ap_count = sta->dcalcAnalysisPtCount();
+  for (DcalcAPIndex ap_index = 0; ap_index < ap_count; ap_index++)
+    delays.push_back(delayAsString(sta->arcDelay(self, arc, ap_index),
                                    sta, digits));
   return delays;
 }
 
 bool
 delay_annotated(TimingArc *arc,
-		const Corner *corner,
-		const MinMax *min_max)
+                const Scene *scene,
+                const MinMax *min_max)
 {
-  DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-  return Sta::sta()->arcDelayAnnotated(self, arc, dcalc_ap);
+  return Sta::sta()->arcDelayAnnotated(self, arc, scene, min_max);
 }
 
 float
 arc_delay(TimingArc *arc,
-	  const Corner *corner,
-	  const MinMax *min_max)
+          const Scene *scene,
+          const MinMax *min_max)
 {
-  DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-  return delayAsFloat(Sta::sta()->arcDelay(self, arc, dcalc_ap));
+  DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
+  return delayAsFloat(Sta::sta()->arcDelay(self, arc, ap_index));
 }
 
-string
+std::string
 cond()
 {
   FuncExpr *cond = self->timingArcSet()->cond();

@@ -45,9 +45,9 @@ DeratingFactors::DeratingFactors()
 
 void
 DeratingFactors::setFactor(PathClkOrData clk_data,
-			   const RiseFallBoth *rf,
-			   const EarlyLate *early_late,
-			   float factor)
+                           const RiseFallBoth *rf,
+                           const EarlyLate *early_late,
+                           float factor)
 {
   for (auto rf1 : rf->range())
     factors_[int(clk_data)].setValue(rf1, early_late, factor);
@@ -55,10 +55,10 @@ DeratingFactors::setFactor(PathClkOrData clk_data,
 
 void
 DeratingFactors::factor(PathClkOrData clk_data,
-			const RiseFall *rf,
-			const EarlyLate *early_late,
-			float &factor,
-			bool &exists) const
+                        const RiseFall *rf,
+                        const EarlyLate *early_late,
+                        float &factor,
+                        bool &exists) const
 {
   factors_[int(clk_data)].value(rf, early_late, factor, exists);
 }
@@ -72,8 +72,8 @@ DeratingFactors::clear()
 
 void
 DeratingFactors::isOneValue(const EarlyLate *early_late,
-			    bool &is_one_value,
-			    float &value) const
+                            bool &is_one_value,
+                            float &value) const
 {
   bool is_one_value0, is_one_value1;
   float value0, value1;
@@ -87,9 +87,9 @@ DeratingFactors::isOneValue(const EarlyLate *early_late,
 
 void
 DeratingFactors::isOneValue(PathClkOrData clk_data,
-			    const EarlyLate *early_late,
-			    bool &is_one_value,
-			    float &value) const
+                            const EarlyLate *early_late,
+                            bool &is_one_value,
+                            float &value) const
 {
   is_one_value = factors_[int(clk_data)].isOneValue(early_late, value);
 }
@@ -110,32 +110,32 @@ DeratingFactorsGlobal::DeratingFactorsGlobal()
 
 void
 DeratingFactorsGlobal::setFactor(TimingDerateType type,
-				 PathClkOrData clk_data,
-				 const RiseFallBoth *rf,
-				 const EarlyLate *early_late,
-				 float factor)
+                                 PathClkOrData clk_data,
+                                 const RiseFallBoth *rf,
+                                 const EarlyLate *early_late,
+                                 float factor)
 {
   factors_[index(type)].setFactor(clk_data, rf, early_late, factor);
 }
 
 void
 DeratingFactorsGlobal::factor(TimingDerateType type,
-			      PathClkOrData clk_data,
-			      const RiseFall *rf,
-			      const EarlyLate *early_late,
-			      float &factor,
-			      bool &exists) const
+                              PathClkOrData clk_data,
+                              const RiseFall *rf,
+                              const EarlyLate *early_late,
+                              float &factor,
+                              bool &exists) const
 {
   factors_[index(type)].factor(clk_data, rf, early_late, factor, exists);
 }
 
 void
 DeratingFactorsGlobal::factor(TimingDerateCellType type,
-			      PathClkOrData clk_data,
-			      const RiseFall *rf,
-			      const EarlyLate *early_late,
-			      float &factor,
-			      bool &exists) const
+                              PathClkOrData clk_data,
+                              const RiseFall *rf,
+                              const EarlyLate *early_late,
+                              float &factor,
+                              bool &exists) const
 {
   factors_[index(type)].factor(clk_data, rf, early_late, factor, exists);
 }
@@ -162,21 +162,21 @@ DeratingFactorsCell::DeratingFactorsCell()
 
 void
 DeratingFactorsCell::setFactor(TimingDerateCellType type,
-			       PathClkOrData clk_data,
-			       const RiseFallBoth *rf,
-			       const EarlyLate *early_late,
-			       float factor)
+                               PathClkOrData clk_data,
+                               const RiseFallBoth *rf,
+                               const EarlyLate *early_late,
+                               float factor)
 {
   factors_[index(type)].setFactor(clk_data, rf, early_late, factor);
 }
 
 void
 DeratingFactorsCell::factor(TimingDerateCellType type,
-			    PathClkOrData clk_data,
-			    const RiseFall *rf,
-			    const EarlyLate *early_late,
-			    float &factor,
-			    bool &exists) const
+                            PathClkOrData clk_data,
+                            const RiseFall *rf,
+                            const EarlyLate *early_late,
+                            float &factor,
+                            bool &exists) const
 {
   factors_[index(type)].factor(clk_data, rf, early_late, factor, exists);
 }
@@ -196,8 +196,8 @@ DeratingFactorsCell::factors(TimingDerateCellType type)
 
 void
 DeratingFactorsCell::isOneValue(const EarlyLate *early_late,
-				bool &is_one_value,
-				float &value) const
+                                bool &is_one_value,
+                                float &value) const
 {
   bool is_one_value1, is_one_value2;
   float value1, value2;

@@ -24,6 +24,7 @@
 
 #include "Liberty.hh"
 
+#include "ContainerHelpers.hh"
 #include "Mutex.hh"
 #include "EnumNameMap.hh"
 #include "Report.hh"
@@ -45,14 +46,11 @@
 #include "EquivCells.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
-#include "Corner.hh"
-#include "DcalcAnalysisPt.hh"
+#include "Scene.hh"
 
 namespace sta {
 
 using std::string;
-
-typedef Set<LatchEnable*> LatchEnableSet;
 
 void
 initLiberty()
@@ -67,7 +65,7 @@ deleteLiberty()
 }
 
 LibertyLibrary::LibertyLibrary(const char *name,
-			       const char *filename) :
+                               const char *filename) :
   ConcreteLibrary(name, filename, true),
   units_(new Units()),
   delay_model_type_(DelayModelType::table), // default
@@ -101,7 +99,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
   for (int i = 0; i != table_template_type_count; i++) {
     TableTemplateType type = static_cast<TableTemplateType>(i);
     TableTemplate *scalar_template = new TableTemplate("scalar", nullptr,
-						       nullptr, nullptr);
+                                                       nullptr, nullptr);
     addTableTemplate(scalar_template, type);
   }
 
@@ -116,26 +114,26 @@ LibertyLibrary::LibertyLibrary(const char *name,
 
 LibertyLibrary::~LibertyLibrary()
 {
-  bus_dcls_.deleteContents();
+  deleteContents(bus_dcls_);
   for (int i = 0; i < table_template_type_count; i++)
-    template_maps_[i].deleteContents();
-  scale_factors_map_.deleteContents();
+    deleteContents(template_maps_[i]);
+  deleteContents(scale_factors_map_);
   delete scale_factors_;
 
   for (auto rf_index : RiseFall::rangeIndex()) {
     TableModel *model = wire_slew_degradation_tbls_[rf_index];
     delete model;
   }
-  operating_conditions_.deleteContents();
-  wireloads_.deleteContents();
-  wire_load_selections_.deleteContents();
+  deleteContents(operating_conditions_);
+  deleteContents(wireloads_);
+  deleteContents(wire_load_selections_);
   delete units_;
   // Also deletes default_ocv_derate_
-  ocv_derate_map_.deleteContents();
+  deleteContents(ocv_derate_map_);
 
   delete buffers_;
   delete inverters_;
-  driver_waveform_map_.deleteContents();
+  deleteContents(driver_waveform_map_);
   delete driver_waveform_default_;
 }
 
@@ -183,8 +181,8 @@ LibertyLibrary::buffers()
     while (cell_iter.hasNext()) {
       LibertyCell *cell = cell_iter.next();
       if (!cell->dontUse()
-	  && cell->isBuffer())
-	buffers_->push_back(cell);
+          && cell->isBuffer())
+        buffers_->push_back(cell);
     }
   }
   return buffers_;
@@ -205,7 +203,7 @@ LibertyLibrary::addBusDcl(BusDcl *bus_dcl)
 BusDcl *
 LibertyLibrary::findBusDcl(const char *name) const
 {
-  return bus_dcls_.findKey(name);
+  return findKey(bus_dcls_, name);
 }
 
 BusDclSeq
@@ -219,16 +217,16 @@ LibertyLibrary::busDcls() const
 
 void
 LibertyLibrary::addTableTemplate(TableTemplate *tbl_template,
-				 TableTemplateType type)
+                                 TableTemplateType type)
 {
   template_maps_[int(type)][tbl_template->name()] = tbl_template;
 }
 
 TableTemplate *
 LibertyLibrary::findTableTemplate(const char *name,
-				  TableTemplateType type)
+                                  TableTemplateType type)
 {
-  return template_maps_[int(type)].findKey(name);
+  return findKey(template_maps_[int(type)], name);
 }
 
 TableTemplateSeq
@@ -280,24 +278,24 @@ LibertyLibrary::findScaleFactors(const char *name)
 
 float
 LibertyLibrary::scaleFactor(ScaleFactorType type,
-			    const Pvt *pvt) const
+                            const Pvt *pvt) const
 {
   return scaleFactor(type, 0, nullptr, pvt);
 }
 
 float
 LibertyLibrary::scaleFactor(ScaleFactorType type,
-			    const LibertyCell *cell,
-			    const Pvt *pvt) const
+                            const LibertyCell *cell,
+                            const Pvt *pvt) const
 {
   return scaleFactor(type, 0, cell, pvt);
 }
 
 float
 LibertyLibrary::scaleFactor(ScaleFactorType type,
-			    int rf_index,
-			    const LibertyCell *cell,
-			    const Pvt *pvt) const
+                            int rf_index,
+                            const LibertyCell *cell,
+                            const Pvt *pvt) const
 {
   if (pvt == nullptr)
     pvt = default_operating_conditions_;
@@ -312,11 +310,11 @@ LibertyLibrary::scaleFactor(ScaleFactorType type,
       scale_factors = scale_factors_;
     if (scale_factors) {
       float process_scale = 1.0F + (pvt->process() - nominal_process_)
-	* scale_factors->scale(type, ScaleFactorPvt::process, rf_index);
+        * scale_factors->scale(type, ScaleFactorPvt::process, rf_index);
       float temp_scale = 1.0F + (pvt->temperature() - nominal_temperature_)
-	* scale_factors->scale(type, ScaleFactorPvt::temp, rf_index);
+        * scale_factors->scale(type, ScaleFactorPvt::temp, rf_index);
       float volt_scale = 1.0F + (pvt->voltage() - nominal_voltage_)
-	* scale_factors->scale(type, ScaleFactorPvt::volt, rf_index);
+        * scale_factors->scale(type, ScaleFactorPvt::volt, rf_index);
       float scale = process_scale * temp_scale * volt_scale;
       return scale;
     }
@@ -326,7 +324,7 @@ LibertyLibrary::scaleFactor(ScaleFactorType type,
 
 void
 LibertyLibrary::setWireSlewDegradationTable(TableModel *model,
-			 		    const RiseFall *rf)
+                                            const RiseFall *rf)
 {
   int rf_index = rf->index();
   if (wire_slew_degradation_tbls_[rf_index])
@@ -342,8 +340,8 @@ LibertyLibrary::wireSlewDegradationTable(const RiseFall *rf) const
 
 float
 LibertyLibrary::degradeWireSlew(const RiseFall *rf,
-				float in_slew,
-				float wire_delay) const
+                                float in_slew,
+                                float wire_delay) const
 {
   const TableModel *model = wireSlewDegradationTable(rf);
   if (model)
@@ -354,8 +352,8 @@ LibertyLibrary::degradeWireSlew(const RiseFall *rf,
 
 float
 LibertyLibrary::degradeWireSlew(const TableModel *model,
-				float in_slew,
-				float wire_delay) const
+                                float in_slew,
+                                float wire_delay) const
 {
   switch (model->order()) {
   case 0:
@@ -378,10 +376,10 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
     if (var1 == TableAxisVariable::output_pin_transition
-	&& var2 == TableAxisVariable::connect_delay)
+        && var2 == TableAxisVariable::connect_delay)
       return model->findValue(in_slew, wire_delay, 0.0);
     else if (var1 == TableAxisVariable::connect_delay
-	     && var2 == TableAxisVariable::output_pin_transition)
+             && var2 == TableAxisVariable::output_pin_transition)
       return model->findValue(wire_delay, in_slew, 0.0);
     else {
       criticalError(1117, "unsupported slew degradation table axes");
@@ -414,9 +412,9 @@ LibertyLibrary::checkSlewDegradationAxes(const TablePtr &table)
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
     return (var1 == TableAxisVariable::output_pin_transition
-	    && var2 == TableAxisVariable::connect_delay)
+            && var2 == TableAxisVariable::connect_delay)
       || (var1 == TableAxisVariable::connect_delay
-	  && var2 == TableAxisVariable::output_pin_transition);
+          && var2 == TableAxisVariable::output_pin_transition);
   }
   default:
     criticalError(1119, "unsupported slew degradation table axes");
@@ -426,7 +424,7 @@ LibertyLibrary::checkSlewDegradationAxes(const TablePtr &table)
 
 void
 LibertyLibrary::defaultMaxFanout(float &fanout,
-				 bool &exists) const
+                                 bool &exists) const
 {
   fanout = default_max_fanout_;
   exists = default_max_fanout_exists_;
@@ -441,7 +439,7 @@ LibertyLibrary::setDefaultMaxFanout(float fanout)
 
 void
 LibertyLibrary::defaultMaxSlew(float &slew,
-			       bool &exists) const
+                               bool &exists) const
 {
   slew = default_max_slew_;
   exists = default_max_slew_exists_;
@@ -456,7 +454,7 @@ LibertyLibrary::setDefaultMaxSlew(float slew)
 
 void
 LibertyLibrary::defaultMaxCapacitance(float &cap,
-				      bool &exists) const
+                                      bool &exists) const
 {
   cap = default_max_cap_;
   exists = default_max_cap_exists_;
@@ -471,8 +469,8 @@ LibertyLibrary::setDefaultMaxCapacitance(float cap)
 
 void
 LibertyLibrary::defaultFanoutLoad(// Return values.
-				  float &fanout,
-				  bool &exists) const
+                                  float &fanout,
+                                  bool &exists) const
 {
   fanout = default_fanout_load_;
   exists = default_fanout_load_exists_;
@@ -505,26 +503,26 @@ LibertyLibrary::setDefaultOutputPinCap(float cap)
 
 void
 LibertyLibrary::defaultIntrinsic(const RiseFall *rf,
-				 // Return values.
-				 float &intrinsic,
-				 bool &exists) const
+                                 // Return values.
+                                 float &intrinsic,
+                                 bool &exists) const
 {
   default_intrinsic_.value(rf, intrinsic, exists);
 }
 
 void
 LibertyLibrary::setDefaultIntrinsic(const RiseFall *rf,
-				    float value)
+                                    float value)
 {
   default_intrinsic_.setValue(rf, value);
 }
 
 void
 LibertyLibrary::defaultPinResistance(const RiseFall *rf,
-				     const PortDirection *dir,
-				     // Return values.
-				     float &res,
-				     bool &exists) const
+                                     const PortDirection *dir,
+                                     // Return values.
+                                     float &res,
+                                     bool &exists) const
 {
   if (dir->isAnyTristate())
     defaultBidirectPinRes(rf, res, exists);
@@ -534,32 +532,32 @@ LibertyLibrary::defaultPinResistance(const RiseFall *rf,
 
 void
 LibertyLibrary::defaultBidirectPinRes(const RiseFall *rf,
-				      // Return values.
-				      float &res,
-				      bool &exists) const
+                                      // Return values.
+                                      float &res,
+                                      bool &exists) const
 {
   return default_inout_pin_res_.value(rf, res, exists);
 }
 
 void
 LibertyLibrary::setDefaultBidirectPinRes(const RiseFall *rf,
-					 float value)
+                                         float value)
 {
   default_inout_pin_res_.setValue(rf, value);
 }
 
 void
 LibertyLibrary::defaultOutputPinRes(const RiseFall *rf,
-				    // Return values.
-				    float &res,
-				    bool &exists) const
+                                    // Return values.
+                                    float &res,
+                                    bool &exists) const
 {
   default_output_pin_res_.value(rf, res, exists);
 }
 
 void
 LibertyLibrary::setDefaultOutputPinRes(const RiseFall *rf,
-				       float value)
+                                       float value)
 {
   default_output_pin_res_.setValue(rf, value);
 }
@@ -573,7 +571,7 @@ LibertyLibrary::addWireload(Wireload *wireload)
 Wireload *
 LibertyLibrary::findWireload(const char *name) const
 {
-  return wireloads_.findKey(name);
+  return findKey(wireloads_, name);
 }
 
 void
@@ -597,7 +595,7 @@ LibertyLibrary::addWireloadSelection(WireloadSelection *selection)
 WireloadSelection *
 LibertyLibrary::findWireloadSelection(const char *name) const
 {
-  return wire_load_selections_.findKey(name);
+  return findKey(wire_load_selections_, name);
 }
 
 WireloadSelection *
@@ -633,7 +631,7 @@ LibertyLibrary::addOperatingConditions(OperatingConditions *op_cond)
 OperatingConditions *
 LibertyLibrary::findOperatingConditions(const char *name)
 {
-  return operating_conditions_.findKey(name);
+  return findKey(operating_conditions_, name);
 }
 
 OperatingConditions *
@@ -656,7 +654,7 @@ LibertyLibrary::inputThreshold(const RiseFall *rf) const
 
 void
 LibertyLibrary::setInputThreshold(const RiseFall *rf,
-				  float th)
+                                  float th)
 {
   input_threshold_[rf->index()] = th;
 }
@@ -669,7 +667,7 @@ LibertyLibrary::outputThreshold(const RiseFall *rf) const
 
 void
 LibertyLibrary::setOutputThreshold(const RiseFall *rf,
-				   float th)
+                                   float th)
 {
   output_threshold_[rf->index()] = th;
 }
@@ -682,7 +680,7 @@ LibertyLibrary::slewLowerThreshold(const RiseFall *rf) const
 
 void
 LibertyLibrary::setSlewLowerThreshold(const RiseFall *rf,
-				      float th)
+                                      float th)
 {
   slew_lower_threshold_[rf->index()] = th;
 }
@@ -695,7 +693,7 @@ LibertyLibrary::slewUpperThreshold(const RiseFall *rf) const
 
 void
 LibertyLibrary::setSlewUpperThreshold(const RiseFall *rf,
-				      float th)
+                                      float th)
 {
   slew_upper_threshold_[rf->index()] = th;
 }
@@ -714,7 +712,7 @@ LibertyLibrary::setSlewDerateFromLibrary(float derate)
 
 LibertyCell *
 LibertyLibrary::makeScaledCell(const char *name,
-			       const char *filename)
+                               const char *filename)
 {
   LibertyCell *cell = new LibertyCell(this, name, filename);
   return cell;
@@ -723,10 +721,10 @@ LibertyLibrary::makeScaledCell(const char *name,
 ////////////////////////////////////////////////////////////////
 
 void
-LibertyLibrary::makeCornerMap(LibertyLibrary *lib,
-			      int ap_index,
-			      Network *network,
-			      Report *report)
+LibertyLibrary::makeSceneMap(LibertyLibrary *lib,
+                             int ap_index,
+                             Network *network,
+                             Report *report)
 {
   LibertyCellIterator cell_iter(lib);
   while (cell_iter.hasNext()) {
@@ -734,30 +732,30 @@ LibertyLibrary::makeCornerMap(LibertyLibrary *lib,
     const char *name = cell->name();
     LibertyCell *link_cell = network->findLibertyCell(name);
     if (link_cell)
-      makeCornerMap(link_cell, cell, ap_index, report);
+      makeSceneMap(link_cell, cell, ap_index, report);
   }
 }
 
 // Map a cell linked in the network to the corresponding liberty cell
-// to use for delay calculation at a corner.
+// to use for delay calculation at a scene.
 void
-LibertyLibrary::makeCornerMap(LibertyCell *link_cell,
-			      LibertyCell *corner_cell,
-			      int ap_index,
-			      Report *report)
+LibertyLibrary::makeSceneMap(LibertyCell *link_cell,
+                             LibertyCell *scene_cell,
+                             int ap_index,
+                             Report *report)
 {
-  link_cell->setCornerCell(corner_cell, ap_index);
-  makeCornerMap(link_cell, corner_cell, true, ap_index, report);
+  link_cell->setSceneCell(scene_cell, ap_index);
+  makeSceneMap(link_cell, scene_cell, true, ap_index, report);
   // Check for brain damage in the other direction.
-  makeCornerMap(corner_cell, link_cell, false, ap_index, report);
+  makeSceneMap(scene_cell, link_cell, false, ap_index, report);
 }
 
 void
-LibertyLibrary::makeCornerMap(LibertyCell *cell1,
-			      LibertyCell *cell2,
-			      bool link,
-			      int ap_index,
-			      Report *report)
+LibertyLibrary::makeSceneMap(LibertyCell *cell1,
+                              LibertyCell *cell2,
+                              bool link,
+                              int ap_index,
+                              Report *report)
 {
   LibertyCellPortBitIterator port_iter1(cell1);
   while (port_iter1.hasNext()) {
@@ -766,15 +764,15 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
     LibertyPort *port2 = cell2->findLibertyPort(port_name);
     if (port2) {
       if (link)
-	port1->setCornerPort(port2, ap_index);
+        port1->setScenePort(port2, ap_index);
     }
     else
       report->warn(1110, "cell %s/%s port %s not found in cell %s/%s.",
-		   cell1->library()->name(),
-		   cell1->name(),
-		   port_name,
-		   cell2->library()->name(),
-		   cell2->name());
+                   cell1->library()->name(),
+                   cell1->name(),
+                   port_name,
+                   cell2->library()->name(),
+                   cell2->name());
   }
 
   for (TimingArcSet *arc_set1 : cell1->timing_arc_sets_) {
@@ -789,35 +787,35 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
              arc_itr1++, arc_itr2++) {
           TimingArc *arc1 = *arc_itr1;
           TimingArc *arc2 = *arc_itr2;
-	  if (TimingArc::equiv(arc1, arc2))
-	    arc1->setCornerArc(arc2, ap_index);
-	}
+          if (TimingArc::equiv(arc1, arc2))
+            arc1->setSceneArc(arc2, ap_index);
+        }
       }
     }
     else
       report->warn(1111, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
-		   cell1->library()->name(),
-		   cell1->name(),
-		   arc_set1->from() ? arc_set1->from()->name() : "",
-		   arc_set1->to()->name(),
-		   arc_set1->role()->to_string().c_str(),
-		   cell2->library()->name(),
-		   cell2->name());
+                   cell1->library()->name(),
+                   cell1->name(),
+                   arc_set1->from() ? arc_set1->from()->name() : "",
+                   arc_set1->to()->name(),
+                   arc_set1->role()->to_string().c_str(),
+                   cell2->library()->name(),
+                   cell2->name());
   }
 }
 
 void
-LibertyLibrary::checkCorners(LibertyCell *cell,
-                             Corners *corners,
+LibertyLibrary::checkScenes(LibertyCell *cell,
+                             const SceneSeq &scenes,
                              Report *report)
 {
-  for (const Corner *corner : *corners) {
+  for (const Scene *scene : scenes) {
     for (auto min_max : MinMax::range()) {
-      if (!cell->checkCornerCell(corner, min_max))
+      if (!cell->checkSceneCell(scene, min_max))
         report->error(1112, "Liberty cell %s/%s for corner %s/%s not found.",
                       cell->libertyLibrary()->name(),
                       cell->name(),
-                      corner->name(),
+                      scene->name().c_str(),
                       min_max->to_string().c_str());
     }
   }
@@ -852,7 +850,7 @@ LibertyLibrary::setDefaultOcvDerate(OcvDerate *derate)
 OcvDerate *
 LibertyLibrary::findOcvDerate(const char *derate_name)
 {
-  return ocv_derate_map_.findKey(derate_name);
+  return findKey(ocv_derate_map_, derate_name);
 }
 
 void
@@ -863,24 +861,32 @@ LibertyLibrary::addOcvDerate(OcvDerate *derate)
 
 void
 LibertyLibrary::addSupplyVoltage(const char *supply_name,
-				 float voltage)
+                                 float voltage)
 {
   supply_voltage_map_[supply_name] = voltage;
 }
 
 void
 LibertyLibrary::supplyVoltage(const char *supply_name,
-			      // Return value.
-			      float &voltage,
-			      bool &exists) const
+                              // Return value.
+                              float &voltage,
+                              bool &exists) const
 {
-  supply_voltage_map_.findKey(supply_name, voltage, exists);
+  auto itr = supply_voltage_map_.find(supply_name);
+  if (itr != supply_voltage_map_.end()) {
+    voltage = itr->second;
+    exists = true;
+  }
+  else {
+    voltage = 0.0;
+    exists = false;
+  }
 }
 
 bool
 LibertyLibrary::supplyExists(const char *supply_name) const
 {
-  return supply_voltage_map_.hasKey(supply_name);
+  return supply_voltage_map_.contains(supply_name);
 }
 
 DriverWaveform *
@@ -922,8 +928,8 @@ LibertyCellIterator::next()
 ////////////////////////////////////////////////////////////////
 
 LibertyCell::LibertyCell(LibertyLibrary *library,
-			 const char *name,
-			 const char *filename) :
+                         const char *name,
+                         const char *filename) :
   ConcreteCell(name, filename, true, library),
   liberty_library_(library),
   area_(0.0),
@@ -945,7 +951,6 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   test_cell_(nullptr),
   ocv_arc_depth_(0.0),
   ocv_derate_(nullptr),
-  is_disabled_constraint_(false),
   leakage_power_(0.0),
   leakage_power_exists_(false),
   has_internal_ports_(false),
@@ -956,25 +961,25 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
 
 LibertyCell::~LibertyCell()
 {
-  mode_defs_.deleteContents();
-  latch_enables_.deleteContents();
+  deleteContents(mode_defs_);
+  deleteContents(latch_enables_);
 
-  timing_arc_sets_.deleteContents();
-  port_timing_arc_set_map_.deleteContents();
-  timing_arc_set_from_map_.deleteContents();
-  timing_arc_set_to_map_.deleteContents();
+  deleteContents(timing_arc_sets_);
+  deleteContents(port_timing_arc_set_map_);
+  deleteContents(timing_arc_set_from_map_);
+  deleteContents(timing_arc_set_to_map_);
 
   deleteInternalPowerAttrs();
-  internal_powers_.deleteContents();
-  leakage_powers_.deleteContents();
+  deleteContents(internal_powers_);
+  deleteContents(leakage_powers_);
 
-  sequentials_.deleteContents();
+  deleteContents(sequentials_);
   delete statetable_;
-  bus_dcls_.deleteContents();
-  scaled_cells_.deleteContents();
+  deleteContents(bus_dcls_);
+  deleteContents(scaled_cells_);
 
+  deleteContents(ocv_derate_map_);
   delete test_cell_;
-  ocv_derate_map_.deleteContents();
 }
 
 LibertyPort *
@@ -995,9 +1000,9 @@ LibertyCell::findLibertyPortsMatching(PatternMatch *pattern) const
     if (port->hasMembers()) {
       LibertyPortMemberIterator port_iter2(port);
       while (port_iter2.hasNext()) {
-	LibertyPort *port2 = port_iter2.next();
-	if (pattern->match(port2->name()))
-	  matches.push_back(port2);
+        LibertyPort *port2 = port_iter2.next();
+        if (pattern->match(port2->name()))
+          matches.push_back(port2);
       }
     }
   }
@@ -1030,7 +1035,7 @@ LibertyCell::makeModeDef(const char *name)
 ModeDef *
 LibertyCell::findModeDef(const char *name)
 {
-  return mode_defs_.findKey(name);
+  return findKey(mode_defs_, name);
 }
 
 void
@@ -1048,7 +1053,7 @@ LibertyCell::addBusDcl(BusDcl *bus_dcl)
 BusDcl *
 LibertyCell::findBusDcl(const char *name) const
 {
-  return bus_dcls_.findKey(name);
+  return findKey(bus_dcls_, name);
 }
 
 void
@@ -1167,11 +1172,11 @@ LibertyCell::isBuffer() const
 
 bool
 LibertyCell::hasBufferFunc(const LibertyPort *input,
-			   const LibertyPort *output) const
+                           const LibertyPort *output) const
 {
   FuncExpr *func = output->function();
   return func
-    && func->op() == FuncExpr::op_port
+    && func->op() == FuncExpr::Op::port
     && func->port() == input;
 }
 
@@ -1189,19 +1194,19 @@ LibertyCell::isInverter() const
 
 bool
 LibertyCell::hasInverterFunc(const LibertyPort *input,
-			     const LibertyPort *output) const
+                             const LibertyPort *output) const
 {
   FuncExpr *func = output->function();
   return func
-    && func->op() == FuncExpr::op_not
-    && func->left()->op() == FuncExpr::op_port
+    && func->op() == FuncExpr::Op::not_
+    && func->left()->op() == FuncExpr::Op::port
     && func->left()->port() == input;
 }
 
 void
 LibertyCell::bufferPorts(// Return values.
-			 LibertyPort *&input,
-			 LibertyPort *&output) const
+                         LibertyPort *&input,
+                         LibertyPort *&output) const
 {
   input = nullptr;
   output = nullptr;
@@ -1210,19 +1215,19 @@ LibertyCell::bufferPorts(// Return values.
     PortDirection *dir = port->direction();
     if (dir->isInput()) {
       if (input) {
-	// More than one input.
-	input = nullptr;
-	output = nullptr;
-	break;
+        // More than one input.
+        input = nullptr;
+        output = nullptr;
+        break;
       }
       input = port;
     }
     else if (dir->isOutput()) {
       if (output) {
-	// More than one output.
-	input = nullptr;
-	output = nullptr;
-	break;
+        // More than one output.
+        input = nullptr;
+        output = nullptr;
+        break;
       }
       output = port;
     }
@@ -1276,7 +1281,7 @@ LibertyCell::addInternalPowerAttrs(InternalPowerAttrs *attrs)
 void
 LibertyCell::deleteInternalPowerAttrs()
 {
-  for (auto attrs : internal_power_attrs_) {
+  for (InternalPowerAttrs *attrs : internal_power_attrs_) {
     attrs->deleteContents();
     delete attrs;
   }
@@ -1297,8 +1302,8 @@ LibertyCell::setLeakagePower(float leakage)
 
 void
 LibertyCell::leakagePower(// Return values.
-			  float &leakage,
-			  bool &exists) const
+                          float &leakage,
+                          bool &exists) const
 {
   leakage = leakage_power_;
   exists = leakage_power_exists_;
@@ -1306,8 +1311,8 @@ LibertyCell::leakagePower(// Return values.
 
 void
 LibertyCell::finish(bool infer_latches,
-		    Report *report,
-		    Debug *debug)
+                    Report *report,
+                    Debug *debug)
 {
   translatePresetClrCheckRoles();
   makeTimingArcMap(report);
@@ -1325,14 +1330,14 @@ LibertyCell::findDefaultCondArcs()
     bool has_cond_arcs = false;
     for (auto set : *sets) {
       if (set->cond()) {
-	has_cond_arcs = true;
-	break;
+        has_cond_arcs = true;
+        break;
       }
     }
     if (has_cond_arcs) {
       for (auto set : *sets) {
-	if (!set->cond())
-	  set->setIsCondDefault(true);
+        if (!set->cond())
+          set->setIsCondDefault(true);
       }
     }
   }
@@ -1352,11 +1357,11 @@ LibertyCell::translatePresetClrCheckRoles()
 
   if (!pre_clr_ports.empty()) {
     for (auto arc_set : timing_arc_sets_) {
-      if (pre_clr_ports.findKey(arc_set->to())) {
-	if (arc_set->role() == TimingRole::setup())
-	  arc_set->setRole(TimingRole::recovery());
-	else if (arc_set->role() == TimingRole::hold())
-	  arc_set->setRole(TimingRole::removal());
+      if (findKey(pre_clr_ports, arc_set->to())) {
+        if (arc_set->role() == TimingRole::setup())
+          arc_set->setRole(TimingRole::recovery());
+        else if (arc_set->role() == TimingRole::hold())
+          arc_set->setRole(TimingRole::removal());
       }
     }
   }
@@ -1368,22 +1373,22 @@ LibertyCell::makeTimingArcMap(Report *)
   // Filter duplicate timing arcs, keeping the later definition.
   for (auto arc_set : timing_arc_sets_)
     // The last definition will be left in the set.
-    timing_arc_set_map_.insert(arc_set);
+    timing_arc_set_set_.insert(arc_set);
 
   // Prune the arc sets not in the map.
   int j = 0;
   for (size_t i = 0; i < timing_arc_sets_.size(); i++) {
     TimingArcSet *arc_set = timing_arc_sets_[i];
-    TimingArcSet *match = timing_arc_set_map_.findKey(arc_set);
+    TimingArcSet *match = findKey(timing_arc_set_set_, arc_set);
     if (match != arc_set) {
       // Unfortunately these errors are common in some brain damaged
       // libraries.
       // report->warn("cell %s/%s has duplicate %s -> %s %s timing groups.",
-      // 		   library_->name(),
-      // 		   name_,
-      // 		   match->from()->name(),
-      // 		   match->to()->name(),
-      // 		   match->role()->asString());
+      //                   library_->name(),
+      //                   name_,
+      //                   match->from()->name(),
+      //                   match->to()->name(),
+      //                   match->role()->asString());
       delete arc_set;
     }
     else
@@ -1392,7 +1397,7 @@ LibertyCell::makeTimingArcMap(Report *)
   }
   timing_arc_sets_.resize(j);
 
-  if (timing_arc_set_map_.size() != timing_arc_sets_.size())
+  if (timing_arc_sets_.size() != timing_arc_sets_.size())
     criticalError(1121, "timing arc count mismatch");
 }
 
@@ -1403,7 +1408,8 @@ LibertyCell::makeTimingArcPortMaps()
     LibertyPort *from = arc_set->from();
     LibertyPort *to = arc_set->to();
     LibertyPortPair port_pair(from, to);
-    TimingArcSetSeq *sets = port_timing_arc_set_map_.findKey(port_pair);
+    TimingArcSetSeq *sets =
+      findKey(port_timing_arc_set_map_, port_pair);
     if (sets == nullptr) {
       // First arc set for from/to ports.
       sets = new TimingArcSetSeq;
@@ -1411,14 +1417,14 @@ LibertyCell::makeTimingArcPortMaps()
     }
     sets->push_back(arc_set);
 
-    sets = timing_arc_set_from_map_.findKey(from);
+    sets = findKey(timing_arc_set_from_map_, from);
     if (sets == nullptr) {
       sets = new TimingArcSetSeq;
       timing_arc_set_from_map_[from] = sets;
     }
     sets->push_back(arc_set);
 
-    sets = timing_arc_set_to_map_.findKey(to);
+    sets = findKey(timing_arc_set_to_map_, to);
     if (sets == nullptr) {
       sets = new TimingArcSetSeq;
       timing_arc_set_to_map_[to] = sets;
@@ -1429,17 +1435,17 @@ LibertyCell::makeTimingArcPortMaps()
 
 const TimingArcSetSeq &
 LibertyCell::timingArcSets(const LibertyPort *from,
-			   const LibertyPort *to) const
+                           const LibertyPort *to) const
 {
   TimingArcSetSeq *arc_sets = nullptr;
   if (from && to) {
     LibertyPortPair port_pair(from, to);
-    arc_sets = port_timing_arc_set_map_.findKey(port_pair);
+    arc_sets = findKey(port_timing_arc_set_map_, port_pair);
   }
   else if (from)
-    arc_sets = timing_arc_set_from_map_.findKey(from);
+    arc_sets = findKey(timing_arc_set_from_map_, from);
   else if (to)
-    arc_sets = timing_arc_set_to_map_.findKey(to);
+    arc_sets = findKey(timing_arc_set_to_map_, to);
 
   if (arc_sets)
     return *arc_sets;
@@ -1450,9 +1456,9 @@ LibertyCell::timingArcSets(const LibertyPort *from,
 }
 
 TimingArcSet *
-LibertyCell::findTimingArcSet(TimingArcSet *key) const
+LibertyCell::findTimingArcSet(TimingArcSet *arc_set) const
 {
-  return timing_arc_set_map_.findKey(key);
+  return findKey(timing_arc_set_set_, arc_set);
 }
 
 TimingArcSet *
@@ -1470,21 +1476,21 @@ LibertyCell::timingArcSetCount() const
 bool
 LibertyCell::hasTimingArcs(LibertyPort *port) const
 {
-  return timing_arc_set_from_map_.findKey(port)
-    || timing_arc_set_to_map_.findKey(port);
+  return findKey(timing_arc_set_from_map_, port)
+    || findKey(timing_arc_set_to_map_, port);
 }
 
 void
 LibertyCell::makeSequential(int size,
-			    bool is_register,
-			    FuncExpr *clk,
-			    FuncExpr *data,
-			    FuncExpr *clear,
-			    FuncExpr *preset,
-			    LogicValue clr_preset_out,
-			    LogicValue clr_preset_out_inv,
-			    LibertyPort *output,
-			    LibertyPort *output_inv)
+                            bool is_register,
+                            FuncExpr *clk,
+                            FuncExpr *data,
+                            FuncExpr *clear,
+                            FuncExpr *preset,
+                            LogicValue clr_preset_out,
+                            LogicValue clr_preset_out_inv,
+                            LibertyPort *output,
+                            LibertyPort *output_inv)
 {
   for (int bit = 0; bit < size; bit++) {
     FuncExpr *clk_bit = nullptr;
@@ -1506,9 +1512,9 @@ LibertyCell::makeSequential(int size,
     if (output_inv && output_inv->hasMembers())
       out_inv_bit = output_inv->findLibertyMember(bit);
     Sequential *seq = new Sequential(is_register, clk_bit, data_bit,
-				     clear_bit,preset_bit,
-				     clr_preset_out, clr_preset_out_inv,
-				     out_bit, out_inv_bit);
+                                     clear_bit,preset_bit,
+                                     clr_preset_out, clr_preset_out_inv,
+                                     out_bit, out_inv_bit);
     sequentials_.push_back(seq);
     port_to_seq_map_[seq->output()] = seq;
     port_to_seq_map_[seq->outputInv()] = seq;
@@ -1518,7 +1524,7 @@ LibertyCell::makeSequential(int size,
 Sequential *
 LibertyCell::outputPortSequential(LibertyPort *port)
 {
-  return port_to_seq_map_.findKey(port);
+  return findKey(port_to_seq_map_, port);
 }
 
 bool
@@ -1538,7 +1544,7 @@ LibertyCell::makeStatetable(LibertyPortSeq &input_ports,
 
 void
 LibertyCell::addScaledCell(OperatingConditions *op_cond,
-			   LibertyCell *scaled_cell)
+                           LibertyCell *scaled_cell)
 {
   scaled_cells_[op_cond] = scaled_cell;
 
@@ -1567,9 +1573,9 @@ LibertyCell::addScaledCell(OperatingConditions *op_cond,
       const TimingArc *scaled_arc = *arc_itr2;
 
       if (TimingArc::equiv(arc, scaled_arc)) {
-	TimingModel *model = scaled_arc->model();
-	model->setIsScaled(true);
-	arc->addScaledModel(op_cond, model);
+        TimingModel *model = scaled_arc->model();
+        model->setIsScaled(true);
+        arc->addScaledModel(op_cond, model);
       }
     }
   }
@@ -1594,53 +1600,41 @@ LibertyCell::setTestCell(TestCell *test)
   test_cell_ = test;
 }
 
-void
-LibertyCell::setIsDisabledConstraint(bool is_disabled)
+LibertyCell *
+LibertyCell::sceneCell(const Scene *scene,
+                       const MinMax *min_max)
 {
-  is_disabled_constraint_ = is_disabled;
+  return sceneCell(scene->libertyIndex(min_max));
 }
 
 LibertyCell *
-LibertyCell::cornerCell(const Corner *corner,
-                        const MinMax *min_max)
+LibertyCell::sceneCell(int ap_index)
 {
-  return cornerCell(corner->libertyIndex(min_max));
-}
-
-LibertyCell *
-LibertyCell::cornerCell(const DcalcAnalysisPt *dcalc_ap)
-{
-  return cornerCell(dcalc_ap->libertyIndex());
-}
-
-LibertyCell *
-LibertyCell::cornerCell(int ap_index)
-{
-  if (corner_cells_.empty())
+  if (scene_cells_.empty())
     return this;
-  else if (ap_index < static_cast<int>(corner_cells_.size()))
-    return corner_cells_[ap_index];
+  else if (ap_index < static_cast<int>(scene_cells_.size()))
+    return scene_cells_[ap_index];
   else
     return nullptr;
 }
 
 bool
-LibertyCell::checkCornerCell(const Corner *corner,
+LibertyCell::checkSceneCell(const Scene *scene,
                              const MinMax *min_max) const
 {
-  unsigned lib_index = corner->libertyIndex(min_max);
-  return corner_cells_.empty()
-    || (lib_index < corner_cells_.size()
-        && corner_cells_[lib_index]);
+  unsigned lib_index = scene->libertyIndex(min_max);
+  return scene_cells_.empty()
+    || (lib_index < scene_cells_.size()
+        && scene_cells_[lib_index]);
 }
 
 void
-LibertyCell::setCornerCell(LibertyCell *corner_cell,
-			   int ap_index)
+LibertyCell::setSceneCell(LibertyCell *scene_cell,
+                           int ap_index)
 {
-  if (ap_index >= static_cast<int>(corner_cells_.size()))
-    corner_cells_.resize(ap_index + 1);
-  corner_cells_[ap_index] = corner_cell;
+  if (ap_index >= static_cast<int>(scene_cells_.size()))
+    scene_cells_.resize(ap_index + 1);
+  scene_cells_[ap_index] = scene_cell;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1675,7 +1669,7 @@ LibertyCell::setOcvDerate(OcvDerate *derate)
 OcvDerate *
 LibertyCell::findOcvDerate(const char *derate_name)
 {
-  return ocv_derate_map_.findKey(derate_name);
+  return findKey(ocv_derate_map_, derate_name);
 }
 
 void
@@ -1691,13 +1685,13 @@ class LatchEnable
 {
 public:
   LatchEnable(LibertyPort *data,
-	      LibertyPort *enable,
-	      const RiseFall *enable_edge,
-	      FuncExpr *enable_func,
-	      LibertyPort *output,
-	      TimingArcSet *d_to_q,
-	      TimingArcSet *en_to_q,
-	      TimingArcSet *setup_check);
+              LibertyPort *enable,
+              const RiseFall *enable_edge,
+              FuncExpr *enable_func,
+              LibertyPort *output,
+              TimingArcSet *d_to_q,
+              TimingArcSet *en_to_q,
+              TimingArcSet *setup_check);
   LibertyPort *data() const { return data_; }
   LibertyPort *output() const { return output_; }
   LibertyPort *enable() const { return enable_; }
@@ -1719,13 +1713,13 @@ private:
 };
 
 LatchEnable::LatchEnable(LibertyPort *data,
-			 LibertyPort *enable,
-			 const RiseFall *enable_edge,
-			 FuncExpr *enable_func,
-			 LibertyPort *output,
-			 TimingArcSet *d_to_q,
-			 TimingArcSet *en_to_q,
-			 TimingArcSet *setup_check) :
+                         LibertyPort *enable,
+                         const RiseFall *enable_edge,
+                         FuncExpr *enable_func,
+                         LibertyPort *output,
+                         TimingArcSet *d_to_q,
+                         TimingArcSet *en_to_q,
+                         TimingArcSet *setup_check) :
   data_(data),
   enable_(enable),
   enable_edge_(enable_edge),
@@ -1742,20 +1736,20 @@ LatchEnable::LatchEnable(LibertyPort *data,
 // Use timing arcs rather than sequentials (because they are optional).
 void
 LibertyCell::makeLatchEnables(Report *report,
-			      Debug *debug)
+                              Debug *debug)
 {
   if (hasSequentials()
       || hasInferedRegTimingArcs()) {
     for (auto en_to_q : timing_arc_sets_) {
       if (en_to_q->role() == TimingRole::latchEnToQ()) {
-	LibertyPort *en = en_to_q->from();
-	LibertyPort *q = en_to_q->to();
+        LibertyPort *en = en_to_q->from();
+        LibertyPort *q = en_to_q->to();
         for (TimingArcSet *d_to_q : timingArcSets(nullptr, q)) {
-	  if (d_to_q->role() == TimingRole::latchDtoQ()
+          if (d_to_q->role() == TimingRole::latchDtoQ()
               && condMatch(en_to_q, d_to_q)) {
-	    LibertyPort *d = d_to_q->from();
+            LibertyPort *d = d_to_q->from();
             const RiseFall *en_rf = en_to_q->isRisingFallingEdge();
-	    if (en_rf) {
+            if (en_rf) {
               TimingArcSet *setup_check = findLatchSetup(d, en, en_rf, q, d_to_q,
                                                          report);
               LatchEnable *latch_enable = makeLatchEnable(d, en, en_rf, q, d_to_q,
@@ -1784,7 +1778,7 @@ LibertyCell::makeLatchEnables(Report *report,
               }
             }
           }
-	}
+        }
       }
     }
   }
@@ -1845,15 +1839,15 @@ LibertyCell::findLatchSetup(const LibertyPort *d,
 
 FuncExpr *
 LibertyCell::findLatchEnableFunc(const LibertyPort *d,
-				 const LibertyPort *en,
+                                 const LibertyPort *en,
                                  const RiseFall *en_rf) const
 {
   for (auto seq : sequentials_) {
     if (seq->isLatch()
-	&& seq->data()
-	&& seq->data()->hasPort(d)
-	&& seq->clock()
-	&& seq->clock()->hasPort(en)) {
+        && seq->data()
+        && seq->data()->hasPort(d)
+        && seq->clock()
+        && seq->clock()->hasPort(en)) {
       FuncExpr *en_func = seq->clock();
       TimingSense en_sense = en_func->portTimingSense(en);
       if ((en_sense == TimingSense::positive_unate
@@ -1868,17 +1862,17 @@ LibertyCell::findLatchEnableFunc(const LibertyPort *d,
 
 LatchEnable *
 LibertyCell::makeLatchEnable(LibertyPort *d,
-			     LibertyPort *en,
+                             LibertyPort *en,
                              const RiseFall *en_rf,
-			     LibertyPort *q,
-			     TimingArcSet *d_to_q,
-			     TimingArcSet *en_to_q,
-			     TimingArcSet *setup_check,
-			     Debug *debug)
+                             LibertyPort *q,
+                             TimingArcSet *d_to_q,
+                             TimingArcSet *en_to_q,
+                             TimingArcSet *setup_check,
+                             Debug *debug)
 {
   FuncExpr *en_func = findLatchEnableFunc(d, en, en_rf);
   LatchEnable *latch_enable = new LatchEnable(d, en, en_rf, en_func, q,
-					      d_to_q, en_to_q, setup_check);
+                                              d_to_q, en_to_q, setup_check);
   latch_enables_.push_back(latch_enable);
   latch_d_to_q_map_[d_to_q] = latch_enable;
   latch_check_map_[setup_check] = latch_enable;
@@ -1902,25 +1896,25 @@ LibertyCell::inferLatchRoles(Report *report,
 {
   if (hasInferedRegTimingArcs()) {
     // Hunt down potential latch D/EN/Q triples.
-    LatchEnableSet latch_enables;
+    std::set<LatchEnable*> latch_enables;
     for (TimingArcSet *en_to_q : timingArcSets()) {
       // Locate potential d->q arcs from reg clk->q arcs.
       if (en_to_q->role() == TimingRole::regClkToQ()) {
-	LibertyPort *en = en_to_q->from();
-	LibertyPort *q = en_to_q->to();
+        LibertyPort *en = en_to_q->from();
+        LibertyPort *q = en_to_q->to();
         for (TimingArcSet *d_to_q : timingArcSets(nullptr, q)) {
-	  // Look for combinational d->q arcs.
-	  const TimingRole *d_to_q_role = d_to_q->role();
-	  if (((d_to_q_role == TimingRole::combinational()
+          // Look for combinational d->q arcs.
+          const TimingRole *d_to_q_role = d_to_q->role();
+          if (((d_to_q_role == TimingRole::combinational()
                 && d_to_q->arcCount() == 2
                 && (d_to_q->sense() == TimingSense::positive_unate
                     || d_to_q->sense() == TimingSense::negative_unate))
                // Previously identified as D->Q arc.
                || d_to_q_role == TimingRole::latchDtoQ())
               && condMatch(en_to_q, d_to_q)) {
-	    LibertyPort *d = d_to_q->from();
+            LibertyPort *d = d_to_q->from();
             const RiseFall *en_rf = en_to_q->isRisingFallingEdge();
-	    if (en_rf) {
+            if (en_rf) {
               TimingArcSet *setup_check = findLatchSetup(d, en, en_rf, q, en_to_q,
                                                          report);
               makeLatchEnable(d, en, en_rf, q, d_to_q, en_to_q, setup_check, debug);
@@ -1928,7 +1922,7 @@ LibertyCell::inferLatchRoles(Report *report,
               en_to_q->setRole(TimingRole::latchEnToQ());
             }
           }
-	}
+        }
       }
     }
   }
@@ -1936,12 +1930,12 @@ LibertyCell::inferLatchRoles(Report *report,
 
 void
 LibertyCell::latchEnable(const TimingArcSet *d_to_q_set,
-			 // Return values.
-			 const LibertyPort *&enable_port,
-			 const FuncExpr *&enable_func,
-			 const RiseFall *&enable_edge) const
+                         // Return values.
+                         const LibertyPort *&enable_port,
+                         const FuncExpr *&enable_func,
+                         const RiseFall *&enable_edge) const
 {
-  LatchEnable *latch_enable = latch_d_to_q_map_.findKey(d_to_q_set);
+  LatchEnable *latch_enable = findKey(latch_d_to_q_map_, d_to_q_set);
   if (latch_enable) {
     enable_port = latch_enable->enable();
     enable_func = latch_enable->enableFunc();
@@ -1957,7 +1951,7 @@ LibertyCell::latchEnable(const TimingArcSet *d_to_q_set,
 const RiseFall *
 LibertyCell::latchCheckEnableEdge(TimingArcSet *check_set)
 {
-  LatchEnable *latch_enable = latch_check_map_.findKey(check_set);
+  LatchEnable *latch_enable = findKey(latch_check_map_, check_set);
   if (latch_enable)
     return latch_enable->enableEdge();
   else
@@ -1965,7 +1959,7 @@ LibertyCell::latchCheckEnableEdge(TimingArcSet *check_set)
 }
 
 void
-LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps)
+LibertyCell::ensureVoltageWaveforms(const SceneSeq &scenes)
 {
   if (!have_voltage_waveforms_) {
     LockGuard lock(waveform_lock_);
@@ -1978,12 +1972,14 @@ LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps)
         criticalError(1120, "library missing vdd");
       for (TimingArcSet *arc_set : timingArcSets()) {
         for (TimingArc *arc : arc_set->arcs()) {
-          for (const DcalcAnalysisPt *dcalc_ap : dcalc_aps) {
-            GateTableModel *model = arc->gateTableModel(dcalc_ap);
-            if (model) {
-              OutputWaveforms *output_waveforms = model->outputWaveforms();
-              if (output_waveforms)
-                output_waveforms->ensureVoltageWaveforms(vdd);
+          for (const Scene *scene : scenes) {
+            for (const MinMax *min_max : MinMax::range()) {
+              GateTableModel *model = arc->gateTableModel(scene, min_max);
+              if (model) {
+                OutputWaveforms *output_waveforms = model->outputWaveforms();
+                if (output_waveforms)
+                  output_waveforms->ensureVoltageWaveforms(vdd);
+              }
             }
           }
         }
@@ -2070,13 +2066,13 @@ LibertyCellPortBitIterator::next()
 ////////////////////////////////////////////////////////////////
 
 LibertyPort::LibertyPort(LibertyCell *cell,
-			 const char *name,
-			 bool is_bus,
-			 BusDcl *bus_dcl,
+                         const char *name,
+                         bool is_bus,
+                         BusDcl *bus_dcl,
                          int from_index,
-			 int to_index,
-			 bool is_bundle,
-			 ConcretePortSeq *members) :
+                         int to_index,
+                         bool is_bundle,
+                         ConcretePortSeq *members) :
   ConcretePort(name, is_bus, from_index, to_index, is_bundle, members, cell),
   liberty_cell_(cell),
   bus_dcl_(bus_dcl),
@@ -2107,7 +2103,6 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   isolation_cell_enable_(false),
   level_shifter_data_(false),
   is_switch_(false),
-  is_disabled_constraint_(false),
   is_pad_(false)
 {
   liberty_port_ = this;
@@ -2236,8 +2231,8 @@ LibertyPort::setCapacitance(float cap)
 
 void
 LibertyPort::setCapacitance(const RiseFall *rf,
-			    const MinMax *min_max,
-			    float cap)
+                            const MinMax *min_max,
+                            float cap)
 {
   capacitance_.setValue(rf, min_max, cap);
   if (hasMembers()) {
@@ -2269,7 +2264,7 @@ LibertyPort::capacitance(const MinMax *min_max) const
 
 float
 LibertyPort::capacitance(const RiseFall *rf,
-			 const MinMax *min_max) const
+                         const MinMax *min_max) const
 {
   float cap;
   bool exists;
@@ -2282,19 +2277,19 @@ LibertyPort::capacitance(const RiseFall *rf,
 
 void
 LibertyPort::capacitance(const RiseFall *rf,
-			 const MinMax *min_max,
-			 // Return values.
-			 float &cap,
-			 bool &exists) const
+                         const MinMax *min_max,
+                         // Return values.
+                         float &cap,
+                         bool &exists) const
 {
   capacitance_.value(rf, min_max, cap, exists);
 }
 
 float
 LibertyPort::capacitance(const RiseFall *rf,
-			 const MinMax *min_max,
-			 const OperatingConditions *op_cond,
-			 const Pvt *pvt) const
+                         const MinMax *min_max,
+                         const OperatingConditions *op_cond,
+                         const Pvt *pvt) const
 {
   if (scaled_ports_) {
     LibertyPort *scaled_port = (*scaled_ports_)[op_cond];
@@ -2325,22 +2320,22 @@ LibertyPort::driveResistance() const
 // Min/max "drive" for all cell timing arcs.
 float
 LibertyPort::driveResistance(const RiseFall *rf,
-			     const MinMax *min_max) const
+                             const MinMax *min_max) const
 {
   float max_drive = min_max->initValue();
   bool found_drive = false;
   for (TimingArcSet *arc_set : liberty_cell_->timingArcSets(nullptr, this)) {
     if (!arc_set->role()->isTimingCheck()) {
       for (TimingArc *arc : arc_set->arcs()) {
-	if (rf == nullptr
-	    || arc->toEdge()->asRiseFall() == rf) {
+        if (rf == nullptr
+            || arc->toEdge()->asRiseFall() == rf) {
           float drive = arc->driveResistance();
           if (drive > 0.0) {
             if (min_max->compare(drive, max_drive))
               max_drive = drive;
-	    found_drive = true;
-	  }
-	}
+            found_drive = true;
+          }
+        }
       }
     }
   }
@@ -2358,7 +2353,7 @@ LibertyPort::intrinsicDelay(const StaState *sta) const
 
 ArcDelay
 LibertyPort::intrinsicDelay(const RiseFall *rf,
-			    const MinMax *min_max,
+                            const MinMax *min_max,
                             const StaState *sta) const
 {
   ArcDelay max_delay = min_max->initValue();
@@ -2366,14 +2361,14 @@ LibertyPort::intrinsicDelay(const RiseFall *rf,
   for (TimingArcSet *arc_set : liberty_cell_->timingArcSets(nullptr, this)) {
     if (!arc_set->role()->isTimingCheck()) {
       for (TimingArc *arc : arc_set->arcs()) {
-	if (rf == nullptr
-	    || arc->toEdge()->asRiseFall() == rf) {
+        if (rf == nullptr
+            || arc->toEdge()->asRiseFall() == rf) {
           ArcDelay delay = arc->intrinsicDelay();
           if (delayGreater(delay, 0.0, sta)) {
-	    if (delayGreater(delay, max_delay, min_max, sta))
-	      max_delay = delay;
-	    found_delay = true;
-	  }
+            if (delayGreater(delay, max_delay, min_max, sta))
+              max_delay = delay;
+            found_delay = true;
+          }
         }
       }
     }
@@ -2411,7 +2406,7 @@ LibertyPort::setTristateEnable(FuncExpr *enable)
     while (member_iter.hasNext()) {
       LibertyPort *port_bit = member_iter.next();
       FuncExpr *sub_expr =
-	(enable) ? enable->bitSubExpr(port_bit->busBitIndex()) : nullptr;
+        (enable) ? enable->bitSubExpr(port_bit->busBitIndex()) : nullptr;
       port_bit->setTristateEnable(sub_expr);
     }
   }
@@ -2419,16 +2414,16 @@ LibertyPort::setTristateEnable(FuncExpr *enable)
 
 void
 LibertyPort::slewLimit(const MinMax *min_max,
-		       // Return values.
-		       float &limit,
-		       bool &exists) const
+                       // Return values.
+                       float &limit,
+                       bool &exists) const
 {
   slew_limit_.value(min_max, limit, exists);
 }
 
 void
 LibertyPort::setSlewLimit(float slew,
-			  const MinMax *min_max)
+                          const MinMax *min_max)
 {
   slew_limit_.setValue(min_max, slew);
   setMemberMinMaxFloat(slew, min_max, &LibertyPort::setSlewLimit);
@@ -2436,16 +2431,16 @@ LibertyPort::setSlewLimit(float slew,
 
 void
 LibertyPort::capacitanceLimit(const MinMax *min_max,
-			      // Return values.
-			      float &limit,
-			      bool &exists) const
+                              // Return values.
+                              float &limit,
+                              bool &exists) const
 {
   return cap_limit_.value(min_max, limit, exists);
 }
 
 void
 LibertyPort::setCapacitanceLimit(float cap,
-				 const MinMax *min_max)
+                                 const MinMax *min_max)
 {
   cap_limit_.setValue(min_max, cap);
   setMemberMinMaxFloat(cap, min_max, &LibertyPort::setCapacitanceLimit);
@@ -2453,8 +2448,8 @@ LibertyPort::setCapacitanceLimit(float cap,
 
 void
 LibertyPort::fanoutLoad(// Return values.
-			float &fanout_load,
-			bool &exists) const
+                        float &fanout_load,
+                        bool &exists) const
 {
   fanout_load = fanout_load_;
   exists = fanout_load_exists_;
@@ -2470,25 +2465,25 @@ LibertyPort::setFanoutLoad(float fanout_load)
 
 void
 LibertyPort::fanoutLimit(const MinMax *min_max,
-			 // Return values.
-			 float &limit,
-			 bool &exists) const
+                         // Return values.
+                         float &limit,
+                         bool &exists) const
 {
   return fanout_limit_.value(min_max, limit, exists);
 }
 
 void
 LibertyPort::setFanoutLimit(float fanout,
-			    const MinMax *min_max)
+                            const MinMax *min_max)
 {
   fanout_limit_.setValue(min_max, fanout);
 }
 
 void
 LibertyPort::minPeriod(const OperatingConditions *op_cond,
-		       const Pvt *pvt,
-		       float &min_period,
-		       bool &exists) const
+                       const Pvt *pvt,
+                       float &min_period,
+                       bool &exists) const
 {
   if (scaled_ports_) {
     LibertyPort *scaled_port = (*scaled_ports_)[op_cond];
@@ -2499,13 +2494,13 @@ LibertyPort::minPeriod(const OperatingConditions *op_cond,
   }
   LibertyLibrary *lib = liberty_cell_->libertyLibrary();
   min_period = min_period_ * lib->scaleFactor(ScaleFactorType::min_period,
-					      liberty_cell_, pvt);
+                                              liberty_cell_, pvt);
   exists = min_period_exists_;
 }
 
 void
 LibertyPort::minPeriod(float &min_period,
-		       bool &exists) const
+                       bool &exists) const
 {
   min_period = min_period_;
   exists = min_period_exists_;
@@ -2527,8 +2522,8 @@ LibertyPort::setMinPeriod(float min_period)
 
 void
 LibertyPort::minPulseWidth(const RiseFall *hi_low,
-			   float &min_width,
-			   bool &exists) const
+                           float &min_width,
+                           bool &exists) const
 {
   int hi_low_index = hi_low->index();
   min_width = min_pulse_width_[hi_low_index];
@@ -2537,7 +2532,7 @@ LibertyPort::minPulseWidth(const RiseFall *hi_low,
 
 void
 LibertyPort::setMinPulseWidth(const RiseFall *hi_low,
-			      float min_width)
+                              float min_width)
 {
   int hi_low_index = hi_low->index();
   min_pulse_width_[hi_low_index] = min_width;
@@ -2553,18 +2548,18 @@ LibertyPort::setMinPulseWidth(const RiseFall *hi_low,
 
 bool
 LibertyPort::equiv(const LibertyPort *port1,
-		   const LibertyPort *port2)
+                   const LibertyPort *port2)
 {
   return (port1 == nullptr && port2 == nullptr)
     || (port1 != nullptr && port2 != nullptr
-	&& stringEq(port1->name(), port2->name())
-	&& port1->direction() == port2->direction()
-	&& port1->pwr_gnd_type_ == port2->pwr_gnd_type_);
+        && stringEq(port1->name(), port2->name())
+        && port1->direction() == port2->direction()
+        && port1->pwr_gnd_type_ == port2->pwr_gnd_type_);
 }
 
 bool
 LibertyPort::less(const LibertyPort *port1,
-		  const LibertyPort *port2)
+                  const LibertyPort *port2)
 {
   if (port1 == nullptr && port2 != nullptr)
     return true;
@@ -2582,7 +2577,7 @@ LibertyPort::less(const LibertyPort *port1,
 
 void
 LibertyPort::addScaledPort(OperatingConditions *op_cond,
-			   LibertyPort *scaled_port)
+                           LibertyPort *scaled_port)
 {
   if (scaled_ports_ == nullptr)
     scaled_ports_ = new ScaledPortMap;
@@ -2683,16 +2678,10 @@ LibertyPort::setIsSwitch(bool is_switch)
 
 void
 LibertyPort::setPulseClk(const RiseFall *trigger,
-			 const RiseFall *sense)
+                         const RiseFall *sense)
 {
   pulse_clk_trigger_ = trigger;
   pulse_clk_sense_ = sense;
-}
-
-void
-LibertyPort::setIsDisabledConstraint(bool is_disabled)
-{
-  is_disabled_constraint_ = is_disabled;
 }
 
 void
@@ -2702,60 +2691,48 @@ LibertyPort::setIsPad(bool is_pad)
 }
 
 LibertyPort *
-LibertyPort::cornerPort(const Corner *corner,
-                        const MinMax *min_max)
+LibertyPort::scenePort(const Scene *scene,
+                       const MinMax *min_max)
 {
-  return cornerPort(corner->libertyIndex(min_max));
+  return scenePort(scene->libertyIndex(min_max));
 }
 
 const LibertyPort *
-LibertyPort::cornerPort(const Corner *corner,
-                        const MinMax *min_max) const
+LibertyPort::scenePort(const Scene *scene,
+                       const MinMax *min_max) const
 {
-  return cornerPort(corner->libertyIndex(min_max));
+  return scenePort(scene->libertyIndex(min_max));
 }
 
 LibertyPort *
-LibertyPort::cornerPort(const DcalcAnalysisPt *dcalc_ap)
+LibertyPort::scenePort(int ap_index)
 {
-  return cornerPort(dcalc_ap->libertyIndex());
-}
-
-const LibertyPort *
-LibertyPort::cornerPort(const DcalcAnalysisPt *dcalc_ap) const
-{
-  return cornerPort(dcalc_ap->libertyIndex());
-}
-
-LibertyPort *
-LibertyPort::cornerPort(int ap_index)
-{
-  if (corner_ports_.empty())
+  if (scene_ports_.empty())
     return this;
-  else if (ap_index < static_cast<int>(corner_ports_.size()))
-    return corner_ports_[ap_index];
+  else if (ap_index < static_cast<int>(scene_ports_.size()))
+    return scene_ports_[ap_index];
   else
     return nullptr;
 }
 
 const LibertyPort *
-LibertyPort::cornerPort(int ap_index) const
+LibertyPort::scenePort(int ap_index) const
 {
-  if (corner_ports_.empty())
+  if (scene_ports_.empty())
     return this;
-  else if (ap_index < static_cast<int>(corner_ports_.size()))
-    return corner_ports_[ap_index];
+  else if (ap_index < static_cast<int>(scene_ports_.size()))
+    return scene_ports_[ap_index];
   else
     return nullptr;
 }
 
 void
-LibertyPort::setCornerPort(LibertyPort *corner_port,
-			   int ap_index)
+LibertyPort::setScenePort(LibertyPort *scene_port,
+                           int ap_index)
 {
-  if (ap_index >= static_cast<int>(corner_ports_.size()))
-    corner_ports_.resize(ap_index + 1);
-  corner_ports_[ap_index] = corner_port;
+  if (ap_index >= static_cast<int>(scene_ports_.size()))
+    scene_ports_.resize(ap_index + 1);
+  scene_ports_[ap_index] = scene_port;
 }
 
 const char *
@@ -2892,8 +2869,8 @@ LibertyPort::setClkTreeDelay(const TableModel *model,
 
 void
 LibertyPort::setMemberFlag(bool value,
-			   const std::function<void(LibertyPort*,
-						    bool)> &setter)
+                           const std::function<void(LibertyPort*,
+                                                    bool)> &setter)
 {
   if (hasMembers()) {
     LibertyPortMemberIterator member_iter(this);
@@ -2906,8 +2883,8 @@ LibertyPort::setMemberFlag(bool value,
 
 void
 LibertyPort::setMemberFloat(float value,
-			    const std::function<void(LibertyPort*,
-						     float)> &setter)
+                            const std::function<void(LibertyPort*,
+                                                     float)> &setter)
 {
   if (hasMembers()) {
     LibertyPortMemberIterator member_iter(this);
@@ -2920,10 +2897,10 @@ LibertyPort::setMemberFloat(float value,
 
 void
 LibertyPort::setMemberMinMaxFloat(float value,
-				  const MinMax *min_max,
-				  const std::function<void(LibertyPort*,
-							   float,
-							   const MinMax *)> &setter)
+                                  const MinMax *min_max,
+                                  const std::function<void(LibertyPort*,
+                                                           float,
+                                                           const MinMax *)> &setter)
 {
   if (hasMembers()) {
     LibertyPortMemberIterator member_iter(this);
@@ -2955,20 +2932,20 @@ LibertyPortLess::operator()(const LibertyPort *port1,
 
 bool
 LibertyPortNameLess::operator()(const LibertyPort *port1,
-				const LibertyPort *port2) const
+                                const LibertyPort *port2) const
 {
   return stringLess(port1->name(), port2->name());
 }
 
 bool
 LibertyPortPairLess::operator()(const LibertyPortPair &pair1,
-				const LibertyPortPair &pair2) const
+                                const LibertyPortPair &pair2) const
 {
   ObjectId id1 = pair1.first ? pair1.first->id() : 0;
   ObjectId id2 = pair2.first ? pair2.first->id() : 0;
   return id1 < id2
     || (id1 == id2
-	&& pair1.second->id() < pair2.second->id());
+        && pair1.second->id() < pair2.second->id());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2998,8 +2975,8 @@ LibertyPortMemberIterator::next()
 ////////////////////////////////////////////////////////////////
 
 BusDcl::BusDcl(const char *name,
-	       int from,
-	       int to) :
+               int from,
+               int to) :
   name_(name),
   from_(from),
   to_(to)
@@ -3015,13 +2992,13 @@ ModeDef::ModeDef(const char *name) :
 
 ModeDef::~ModeDef()
 {
-  values_.deleteContents();
+  deleteContents(values_);
 }
 
 ModeValueDef *
 ModeDef::defineValue(const char *value,
-		     FuncExpr *cond,
-		     const char *sdf_cond)
+                     FuncExpr *cond,
+                     const char *sdf_cond)
 {
   ModeValueDef *val_def = new ModeValueDef(value, cond, sdf_cond);
   values_[val_def->value()] = val_def;
@@ -3037,8 +3014,8 @@ ModeDef::findValueDef(const char *value)
 ////////////////////////////////////////////////////////////////
 
 ModeValueDef::ModeValueDef(const char *value,
-			   FuncExpr *cond,
-			   const char *sdf_cond) :
+                           FuncExpr *cond,
+                           const char *sdf_cond) :
   value_(value),
   cond_(cond),
   sdf_cond_(sdf_cond ? sdf_cond : "")
@@ -3111,8 +3088,8 @@ TableTemplate::setAxis3(TableAxisPtr axis)
 ////////////////////////////////////////////////////////////////
 
 Pvt::Pvt(float process,
-	 float voltage,
-	 float temperature) :
+         float voltage,
+         float temperature) :
   process_(process),
   voltage_(voltage),
   temperature_(temperature)
@@ -3146,10 +3123,10 @@ OperatingConditions::OperatingConditions(const char *name) :
 }
 
 OperatingConditions::OperatingConditions(const char *name,
-					 float process,
-					 float voltage,
-					 float temperature,
-					 WireloadTree wire_load_tree) :
+                                         float process,
+                                         float voltage,
+                                         float temperature,
+                                         WireloadTree wire_load_tree) :
   Pvt(process, voltage, temperature),
   name_(name),
   wire_load_tree_(wire_load_tree)
@@ -3246,7 +3223,7 @@ ScaleFactors::ScaleFactors(const char *name) :
   for (int type = 0; type < scale_factor_type_count; type++) {
     for (int pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
       for (auto rf_index : RiseFall::rangeIndex()) {
-	scales_[type][pvt][rf_index] = 0.0;
+        scales_[type][pvt][rf_index] = 0.0;
       }
     }
   }
@@ -3254,40 +3231,40 @@ ScaleFactors::ScaleFactors(const char *name) :
 
 void
 ScaleFactors::setScale(ScaleFactorType type,
-		       ScaleFactorPvt pvt,
-		       const RiseFall *rf,
-		       float scale)
+                       ScaleFactorPvt pvt,
+                       const RiseFall *rf,
+                       float scale)
 {
   scales_[int(type)][int(pvt)][rf->index()] = scale;
 }
 
 void
 ScaleFactors::setScale(ScaleFactorType type,
-		       ScaleFactorPvt pvt,
-		       float scale)
+                       ScaleFactorPvt pvt,
+                       float scale)
 {
   scales_[int(type)][int(pvt)][0] = scale;
 }
 
 float
 ScaleFactors::scale(ScaleFactorType type,
-		    ScaleFactorPvt pvt,
-		    const RiseFall *rf)
+                    ScaleFactorPvt pvt,
+                    const RiseFall *rf)
 {
   return scales_[int(type)][int(pvt)][rf->index()];
 }
 
 float
 ScaleFactors::scale(ScaleFactorType type,
-		    ScaleFactorPvt pvt,
-		    int rf_index)
+                    ScaleFactorPvt pvt,
+                    int rf_index)
 {
   return scales_[int(type)][int(pvt)][rf_index];
 }
 
 float
 ScaleFactors::scale(ScaleFactorType type,
-		    ScaleFactorPvt pvt)
+                    ScaleFactorPvt pvt)
 {
   return scales_[int(type)][int(pvt)][0];
 }
@@ -3306,15 +3283,15 @@ ScaleFactors::print()
     printf("%10s ", scaleFactorTypeName(type));
     for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
       if (scaleFactorTypeRiseFallSuffix(type)
-	  || scaleFactorTypeRiseFallPrefix(type)
-	  || scaleFactorTypeLowHighSuffix(type)) {
-	printf(" %.3f,%.3f",
-	       scales_[type_index][pvt_index][RiseFall::riseIndex()],
-	       scales_[type_index][pvt_index][RiseFall::fallIndex()]);
+          || scaleFactorTypeRiseFallPrefix(type)
+          || scaleFactorTypeLowHighSuffix(type)) {
+        printf(" %.3f,%.3f",
+               scales_[type_index][pvt_index][RiseFall::riseIndex()],
+               scales_[type_index][pvt_index][RiseFall::fallIndex()]);
       }
       else {
-	printf(" %.3f",
-	       scales_[type_index][pvt_index][0]);
+        printf(" %.3f",
+               scales_[type_index][pvt_index][0]);
       }
     }
     printf("\n");
@@ -3348,17 +3325,17 @@ OcvDerate::~OcvDerate()
 
 const Table *
 OcvDerate::derateTable(const RiseFall *rf,
-		       const EarlyLate *early_late,
-		       PathType path_type)
+                       const EarlyLate *early_late,
+                       PathType path_type)
 {
   return derate_[rf->index()][early_late->index()][int(path_type)].get();
 }
 
 void
 OcvDerate::setDerateTable(const RiseFall *rf,
-			  const EarlyLate *early_late,
-			  const PathType path_type,
-			  TablePtr derate)
+                          const EarlyLate *early_late,
+                          const PathType path_type,
+                          TablePtr derate)
 {
   derate_[rf->index()][early_late->index()][int(path_type)] = derate;
 }

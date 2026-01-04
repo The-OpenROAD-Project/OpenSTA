@@ -41,7 +41,7 @@ public:
   FuncExpr *when() const { return when_; }
   void setWhen(FuncExpr *when);
   void setModel(const RiseFall *rf,
-		InternalPowerModel *model);
+                InternalPowerModel *model);
   InternalPowerModel *model(const RiseFall *rf) const;
   const char *relatedPgPin() const { return related_pg_pin_; }
   void setRelatedPgPin(const char *related_pg_pin);
@@ -56,9 +56,9 @@ class InternalPower
 {
 public:
   InternalPower(LibertyCell *cell,
-		LibertyPort *port,
-		LibertyPort *related_port,
-		InternalPowerAttrs *attrs);
+                LibertyPort *port,
+                LibertyPort *related_port,
+                InternalPowerAttrs *attrs);
   ~InternalPower();
   LibertyCell *libertyCell() const;
   LibertyPort *port() const { return port_; }
@@ -66,9 +66,9 @@ public:
   FuncExpr *when() const { return when_; }
   const char *relatedPgPin() const { return related_pg_pin_; }
   float power(const RiseFall *rf,
-	      const Pvt *pvt,
-	      float in_slew,
-	      float load_cap);
+              const Pvt *pvt,
+              float in_slew,
+              float load_cap);
 
 protected:
   LibertyPort *port_;
@@ -81,12 +81,12 @@ protected:
 class InternalPowerModel
 {
 public:
-  explicit InternalPowerModel(TableModel *model);
+  InternalPowerModel(TableModel *model);
   ~InternalPowerModel();
   float power(const LibertyCell *cell,
-	      const Pvt *pvt,
-	      float in_slew,
-	      float load_cap) const;
+              const Pvt *pvt,
+              float in_slew,
+              float load_cap) const;
   std::string reportPower(const LibertyCell *cell,
                           const Pvt *pvt,
                           float in_slew,
@@ -95,14 +95,14 @@ public:
 
 protected:
   void findAxisValues(float in_slew,
-		      float load_cap,
-		      // Return values.
-		      float &axis_value1,
-		      float &axis_value2,
-		      float &axis_value3) const;
+                      float load_cap,
+                      // Return values.
+                      float &axis_value1,
+                      float &axis_value2,
+                      float &axis_value3) const;
   float axisValue(const TableAxis *axis,
-		  float in_slew,
-		  float load_cap) const;
+                  float in_slew,
+                  float load_cap) const;
   bool checkAxes(const TableModel *model);
   bool checkAxis(const TableAxis *axis);
 

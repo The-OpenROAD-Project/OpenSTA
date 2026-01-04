@@ -1,0 +1,208 @@
+Startpoint: r2 (rising edge-triggered flip-flop clocked by m1_clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by m1_clk)
+Path Group: m1_clk
+Path Type: max
+Mode: mode1
+Corner: scene1
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock m1_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  52.65   52.65 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  101.95 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  162.97 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  178.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         178.74   data arrival time
+
+1000.00 1000.00   clock m1_clk (rise edge)
+   0.00 1000.00   clock network delay (ideal)
+   0.00 1000.00   clock reconvergence pessimism
+        1000.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -13.66  986.34   library setup time
+         986.34   data required time
+---------------------------------------------------------
+         986.34   data required time
+        -178.74   data arrival time
+---------------------------------------------------------
+         807.59   slack (MET)
+
+
+Startpoint: r1 (rising edge-triggered flip-flop clocked by m2_clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by m2_clk)
+Path Group: m2_clk
+Path Type: max
+Mode: mode2
+Corner: scene2
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock m2_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+ 123.56  123.56 ^ r1/Q (DFFHQx4_ASAP7_75t_R)
+ 112.01  235.57 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  22.14  257.71 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         257.71   data arrival time
+
+ 500.00  500.00   clock m2_clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -40.66  459.34   library setup time
+         459.34   data required time
+---------------------------------------------------------
+         459.34   data required time
+        -257.71   data arrival time
+---------------------------------------------------------
+         201.62   slack (MET)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by m1_clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by m1_clk)
+Path Group: m1_clk
+Path Type: max
+Mode: mode1
+Corner: scene1
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock m1_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  52.65   52.65 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  101.95 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  162.97 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  178.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         178.74   data arrival time
+
+1000.00 1000.00   clock m1_clk (rise edge)
+   0.00 1000.00   clock network delay (ideal)
+   0.00 1000.00   clock reconvergence pessimism
+        1000.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -13.66  986.34   library setup time
+         986.34   data required time
+---------------------------------------------------------
+         986.34   data required time
+        -178.74   data arrival time
+---------------------------------------------------------
+         807.59   slack (MET)
+
+
+Startpoint: in1 (input port clocked by m1_clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by m1_clk)
+Path Group: m1_clk
+Path Type: max
+Mode: mode1
+Corner: scene1
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock m1_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+ 100.00  100.00 ^ input external delay
+   0.00  100.00 ^ in1 (in)
+  12.28  112.28 ^ r1/D (DFFHQx4_ASAP7_75t_R)
+         112.28   data arrival time
+
+1000.00 1000.00   clock m1_clk (rise edge)
+   0.00 1000.00   clock network delay (ideal)
+   0.00 1000.00   clock reconvergence pessimism
+        1000.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+ -12.80  987.20   library setup time
+         987.20   data required time
+---------------------------------------------------------
+         987.20   data required time
+        -112.28   data arrival time
+---------------------------------------------------------
+         874.92   slack (MET)
+
+
+Startpoint: in2 (input port clocked by m1_clk)
+Endpoint: r2 (rising edge-triggered flip-flop clocked by m1_clk)
+Path Group: m1_clk
+Path Type: max
+Mode: mode1
+Corner: scene1
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock m1_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+ 100.00  100.00 ^ input external delay
+   0.00  100.00 ^ in2 (in)
+  12.28  112.28 ^ r2/D (DFFHQx4_ASAP7_75t_R)
+         112.28   data arrival time
+
+1000.00 1000.00   clock m1_clk (rise edge)
+   0.00 1000.00   clock network delay (ideal)
+   0.00 1000.00   clock reconvergence pessimism
+        1000.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+ -12.80  987.20   library setup time
+         987.20   data required time
+---------------------------------------------------------
+         987.20   data required time
+        -112.28   data arrival time
+---------------------------------------------------------
+         874.92   slack (MET)
+
+
+Startpoint: r1 (rising edge-triggered flip-flop clocked by m2_clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by m2_clk)
+Path Group: m2_clk
+Path Type: max
+Mode: mode2
+Corner: scene2
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock m2_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+ 123.56  123.56 ^ r1/Q (DFFHQx4_ASAP7_75t_R)
+ 112.01  235.57 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  22.14  257.71 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         257.71   data arrival time
+
+ 500.00  500.00   clock m2_clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -40.66  459.34   library setup time
+         459.34   data required time
+---------------------------------------------------------
+         459.34   data required time
+        -257.71   data arrival time
+---------------------------------------------------------
+         201.62   slack (MET)
+
+
+Startpoint: r3 (rising edge-triggered flip-flop clocked by m2_clk)
+Endpoint: out (output port clocked by m2_clk)
+Path Group: m2_clk
+Path Type: max
+Mode: mode2
+Corner: scene2
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock m2_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ 123.30  123.30 ^ r3/Q (DFFHQx4_ASAP7_75t_R)
+  19.50  142.80 ^ out (out)
+         142.80   data arrival time
+
+ 500.00  500.00   clock m2_clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+-100.00  400.00   output external delay
+         400.00   data required time
+---------------------------------------------------------
+         400.00   data required time
+        -142.80   data arrival time
+---------------------------------------------------------
+         257.20   slack (MET)
+
+

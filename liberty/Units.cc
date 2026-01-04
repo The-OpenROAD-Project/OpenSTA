@@ -44,8 +44,8 @@ Unit::Unit(const char *suffix) :
 }
 
 Unit::Unit(float scale,
-	   const char *suffix,
-	   int digits) :
+           const char *suffix,
+           int digits) :
   scale_(scale),
   suffix_(suffix),
   digits_(digits)
@@ -172,7 +172,7 @@ Unit::asString(double value) const
 
 const char *
 Unit::asString(float value,
-	       int digits) const
+               int digits) const
 {
   // Special case INF because it blows up otherwise.
   if (abs(value) >= INF * .1)

@@ -37,7 +37,7 @@ namespace eval sta {
 # $flag_var(flag) -> 1 if the flag is present
 # Keys and flags are removed from arg_var in the caller.
 proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
-			{unknown_key_is_error 1} } {
+                        {unknown_key_is_error 1} } {
   upvar 1 $arg_var args
   upvar 1 $key_var key_value
   upvar 1 $flag_var flag_present
@@ -47,41 +47,41 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
     if { [is_keyword_arg $arg] } {
       set key_index [lsearch -exact $keys $arg]
       if { $key_index >= 0 } {
-	set key $arg
-	if { [llength $args] == 1 } {
-	  sta_error 560 "$cmd $key missing value."
-	}
-	set key_value($key) [lindex $args 1]
-	set args [lrange $args 1 end]
+        set key $arg
+        if { [llength $args] == 1 } {
+          sta_error 560 "$cmd $key missing value."
+        }
+        set key_value($key) [lindex $args 1]
+        set args [lrange $args 1 end]
       } else {
-	set flag_index [lsearch -exact $flags $arg]
-	if { $flag_index >= 0 } {
-	  set flag_present($arg) 1
-	} else {
-	  # No exact keyword/flag match found.
-	  # Try finding a keyword/flag that begins with
-	  # the same substring.
-	  set wild_arg "${arg}*"
-	  set key_index [lsearch -glob $keys $wild_arg]
-	  if { $key_index >= 0 } {
-	    set key [lindex $keys $key_index]
-	    if { [llength $args] == 1 } {
-	      sta_error 561 "$cmd $key missing value."
-	    }
-	    set key_value($key) [lindex $args 1]
-	    set args [lrange $args 1 end]
-	  } else {
-	    set flag_index [lsearch -glob $flags $wild_arg]
-	    if { $flag_index >= 0 } {
-	      set flag [lindex $flags $flag_index]
-	      set flag_present($flag) 1
-	    } elseif { $unknown_key_is_error } {
-	      sta_error 562 "$cmd $arg is not a known keyword or flag."
-	    } else {
-	      lappend args_rtn $arg
-	    }
-	  }
-	}
+        set flag_index [lsearch -exact $flags $arg]
+        if { $flag_index >= 0 } {
+          set flag_present($arg) 1
+        } else {
+          # No exact keyword/flag match found.
+          # Try finding a keyword/flag that begins with
+          # the same substring.
+          set wild_arg "${arg}*"
+          set key_index [lsearch -glob $keys $wild_arg]
+          if { $key_index >= 0 } {
+            set key [lindex $keys $key_index]
+            if { [llength $args] == 1 } {
+              sta_error 561 "$cmd $key missing value."
+            }
+            set key_value($key) [lindex $args 1]
+            set args [lrange $args 1 end]
+          } else {
+            set flag_index [lsearch -glob $flags $wild_arg]
+            if { $flag_index >= 0 } {
+              set flag [lindex $flags $flag_index]
+              set flag_present($flag) 1
+            } elseif { $unknown_key_is_error } {
+              sta_error 562 "$cmd $arg is not a known keyword or flag."
+            } else {
+              lappend args_rtn $arg
+            }
+          }
+        }
       }
     } else {
       lappend args_rtn $arg
@@ -109,8 +109,8 @@ proc check_for_key_args { cmd arg_var } {
 
 proc is_keyword_arg { arg } {
   if { [string length $arg] >= 2 \
-	 && [string index $arg 0] == "-" \
-	 && [string is alpha [string index $arg 1]] } {
+         && [string index $arg 0] == "-" \
+         && [string is alpha [string index $arg 1]] } {
     return 1
   } else {
     return 0
@@ -124,11 +124,11 @@ proc is_keyword_arg { arg } {
 # The value of the last expression in the body is returned.
 proc proc_redirect { proc_name body } {
   set proc_body [concat "proc $proc_name { args } {" \
-		   "global errorCode errorInfo;" \
-		   "set redirect \[parse_redirect_args args\];" \
-		   "set code \[catch {" $body "} ret \];" \
-		   "if {\$redirect} { redirect_file_end };" \
-		   "if {\$code == 1} {return -code \$code -errorcode \$errorCode -errorinfo \$errorInfo \$ret} else {return \$ret} }" ]
+                   "global errorCode errorInfo;" \
+                   "set redirect \[parse_redirect_args args\];" \
+                   "set code \[catch {" $body "} ret \];" \
+                   "if {\$redirect} { redirect_file_end };" \
+                   "if {\$code == 1} {return -code \$code -errorcode \$errorCode -errorinfo \$errorInfo \$ret} else {return \$ret} }" ]
   eval $proc_body
 }
 

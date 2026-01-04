@@ -37,8 +37,7 @@
 #include "liberty/LibertyBuilder.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
-#include "Corner.hh"
-#include "DcalcAnalysisPt.hh"
+#include "Scene.hh"
 #include "GraphDelayCalc.hh"
 #include "Sdc.hh"
 #include "StaState.hh"
@@ -61,30 +60,32 @@ LibertyLibrary *
 makeTimingModel(const char *lib_name,
                 const char *cell_name,
                 const char *filename,
-                const Corner *corner,
+                const Scene *scene,
                 Sta *sta)
 {
-  MakeTimingModel maker(lib_name, cell_name, filename, corner, sta);
+  MakeTimingModel maker(lib_name, cell_name, filename, scene, sta);
   return maker.makeTimingModel();
 }
 
 MakeTimingModel::MakeTimingModel(const char *lib_name,
                                  const char *cell_name,
                                  const char *filename,
-                                 const Corner *corner,
+                                 const Scene *scene,
                                  Sta *sta) :
   StaState(sta),
   lib_name_(lib_name),
   cell_name_(cell_name),
   filename_(filename),
-  corner_(corner),
+  scene_(scene),
   cell_(nullptr),
   min_max_(MinMax::max()),
   lib_builder_(new LibertyBuilder),
   tbl_template_index_(1),
+  sdc_(scene->sdc()),
   sdc_backup_(nullptr),
   sta_(sta)
 {
+  scenes_.insert(scene_);
 }
 
 MakeTimingModel::~MakeTimingModel()
@@ -118,7 +119,7 @@ MakeTimingModel::makeTimingModel()
 void
 MakeTimingModel::saveSdc()
 {
-  sdc_backup_ = new Sdc(this);
+  sdc_backup_ = new Sdc(sdc_->mode(), this);
   swapSdcWithBackup();
   sta_->delaysInvalid();
 }
@@ -186,7 +187,6 @@ MakeTimingModel::findArea()
 void
 MakeTimingModel::makePorts()
 {
-  const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
   Instance *top_inst = network_->topInstance();
   Cell *top_cell = network_->cell(top_inst);
   CellPortIterator *port_iter = network_->portIterator(top_cell);
@@ -207,7 +207,7 @@ MakeTimingModel::makePorts()
         Port *bit_port = member_iter->next();
         Pin *pin = network_->findPin(top_inst, bit_port);
         LibertyPort *lib_bit_port = modelPort(pin);
-        float load_cap = graph_delay_calc_->loadCap(pin, dcalc_ap);
+        float load_cap = graph_delay_calc_->loadCap(pin, scene_, min_max_);
         lib_bit_port->setCapacitance(load_cap);
       }
       delete member_iter;
@@ -216,7 +216,7 @@ MakeTimingModel::makePorts()
       LibertyPort *lib_port = lib_builder_->makePort(cell_, port_name);
       lib_port->setDirection(network_->direction(port));
       Pin *pin = network_->findPin(top_inst, port);
-      float load_cap = graph_delay_calc_->loadCap(pin, dcalc_ap);
+      float load_cap = graph_delay_calc_->loadCap(pin, scene_, min_max_);
       lib_port->setCapacitance(load_cap);
     }
   }
@@ -275,9 +275,10 @@ void
 MakeEndTimingArcs::visit(PathEnd *path_end)
 {
   Path *src_path = path_end->path();
+  const Sdc *sdc = src_path->sdc(sta_);
   const Clock *src_clk = src_path->clock(sta_);
   const ClockEdge *tgt_clk_edge = path_end->targetClkEdge(sta_);
-  if (src_clk == sta_->sdc()->defaultArrivalClock()
+  if (src_clk == sdc->defaultArrivalClock()
       && tgt_clk_edge) {
     Network *network = sta_->network();
     Debug *debug = sta_->debug();
@@ -334,7 +335,7 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
 {
   Instance *top_inst = network_->topInstance();
   Pin *input_pin = network_->findPin(top_inst, input_port);
-  if (!sta_->isClockSrc(input_pin)) {
+  if (!sdc_->isClock(input_pin)) {
     MakeEndTimingArcs end_visitor(sta_);
     OutputPinDelays output_delays;
     for (const RiseFall *input_rf : RiseFall::range()) {
@@ -342,26 +343,26 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
       sta_->setInputDelay(input_pin, input_rf1,
                           sdc_->defaultArrivalClock(),
                           sdc_->defaultArrivalClockEdge()->transition(),
-                          nullptr, false, false, MinMaxAll::all(), true, 0.0);
+                          nullptr, false, false, MinMaxAll::all(), true, 0.0, sdc_);
 
       PinSet *from_pins = new PinSet(network_);
       from_pins->insert(input_pin);
       ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
-                                                    input_rf1);
+                                                    input_rf1, sdc_);
       search_->findFilteredArrivals(from, nullptr, nullptr, false, false);
 
       end_visitor.setInputRf(input_rf);
       VertexSeq endpoints = search_->filteredEndpoints();
       VisitPathEnds visit_ends(sta_);
       for (Vertex *end : endpoints)
-        visit_ends.visitPathEnds(end, corner_, MinMaxAll::all(), true, &end_visitor);
+        visit_ends.visitPathEnds(end, scenes_, MinMaxAll::all(), true, &end_visitor);
       findOutputDelays(input_rf, output_delays);
       search_->deleteFilteredArrivals();
 
       sta_->removeInputDelay(input_pin, input_rf1,
                              sdc_->defaultArrivalClock(),
                              sdc_->defaultArrivalClockEdge()->transition(),
-                             MinMaxAll::all());
+                             MinMaxAll::all(), sdc_);
     }
     makeSetupHoldTimingArcs(input_pin, end_visitor.margins());
     makeInputOutputTimingArcs(input_pin, output_delays);
@@ -547,7 +548,7 @@ MakeTimingModel::findClkTreeDelays()
         ClockSet *clks = sdc_->findClocks(pin);
         if (clks->size() == 1) {
           for (const Clock *clk : *clks) {
-            ClkDelays delays = sta_->findClkDelays(clk, true);
+            ClkDelays delays = sta_->findClkDelays(clk, scene_, true);
             for (const MinMax *min_max : MinMax::range()) {
               makeClkTreePaths(lib_port, min_max, TimingSense::positive_unate, delays);
               makeClkTreePaths(lib_port, min_max, TimingSense::negative_unate, delays);
@@ -656,9 +657,9 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                     Delay delay,
                                     const RiseFall *rf)
 {
-  const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
-  const Pvt *pvt = dcalc_ap->operatingConditions();
+  const Pvt *pvt = sdc_->operatingConditions(min_max_);
   PinSet *drvrs = network_->drivers(network_->net(network_->term(output_pin)));
+  DcalcAPIndex ap_index = scene_->dcalcAnalysisPtIndex(min_max_);
   const Pin *drvr_pin = *drvrs->begin();
   const LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
   if (drvr_port) {
@@ -674,11 +675,14 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
             Vertex *gate_in_vertex = graph_->pinLoadVertex(gate_in_pin);
             Slew in_slew = graph_->slew(gate_in_vertex,
                                         drvr_arc->fromEdge()->asRiseFall(),
-                                        dcalc_ap->index());
+                                        ap_index);
             float in_slew1 = delayAsFloat(in_slew);
-            GateTableModel *drvr_gate_model = drvr_arc->gateTableModel(dcalc_ap);
+            GateTableModel *drvr_gate_model = drvr_arc->gateTableModel(scene_,
+                                                                       min_max_);
             if (drvr_gate_model) {
-              float output_load_cap = graph_delay_calc_->loadCap(output_pin, dcalc_ap);
+              float output_load_cap = graph_delay_calc_->loadCap(output_pin,
+                                                                 scene_,
+                                                                 min_max_);
               ArcDelay drvr_self_delay;
               Slew drvr_self_slew;
               drvr_gate_model->gateDelay(pvt, in_slew1, output_load_cap, false,
@@ -731,7 +735,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
     }
   }
   Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
-  Slew slew = graph_->slew(output_vertex, rf, dcalc_ap->index());
+  Slew slew = graph_->slew(output_vertex, rf, ap_index);
   return makeGateModelScalar(delay, slew, rf);
 }
 
@@ -739,7 +743,7 @@ TableTemplate *
 MakeTimingModel::ensureTableTemplate(const TableTemplate *drvr_template,
                                      TableAxisPtr load_axis)
 {
-  TableTemplate *model_template = template_map_.findKey(drvr_template);
+  TableTemplate *model_template = findKey(template_map_, drvr_template);
   if (model_template == nullptr) {
     string template_name = "template_";
     template_name += std::to_string(tbl_template_index_++);

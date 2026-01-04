@@ -40,17 +40,16 @@
 
 namespace sta {
 
-class Corner;
+class Scene;
 class Parasitic;
-class DcalcAnalysisPt;
 class MultiDrvrNet;
 class ArcDcalcArg;
 
-typedef std::vector<ArcDcalcArg*> ArcDcalcArgPtrSeq;
-typedef std::vector<ArcDcalcArg> ArcDcalcArgSeq;
+using ArcDcalcArgPtrSeq = std::vector<ArcDcalcArg*>;
+using ArcDcalcArgSeq = std::vector<ArcDcalcArg>;
 
 // Driver load pin -> index in driver loads.
-typedef std::map<const Pin *, size_t, PinIdLess> LoadPinIndexMap;
+using LoadPinIndexMap = std::map<const Pin *, size_t, PinIdLess>;
 
 // Arguments for gate delay calculation delay/slew at one driver pin
 // through one timing arc at one delay calc analysis point.
@@ -81,7 +80,7 @@ public:
   const Net *drvrNet(const Network *network) const;
   Edge *edge() const { return edge_; }
   const TimingArc *arc() const { return arc_; }
-  Slew inSlew() const { return in_slew_; }
+  const Slew &inSlew() const { return in_slew_; }
   float inSlewFlt() const;
   void setInSlew(Slew in_slew);
   const Parasitic *parasitic() const { return parasitic_; }
@@ -138,8 +137,7 @@ protected:
   std::vector<Slew> load_slews_;
 };
 
-typedef std::vector<ArcDcalcArg> ArcDcalcArgSeq;
-typedef std::vector<ArcDcalcResult> ArcDcalcResultSeq;
+using ArcDcalcResultSeq = std::vector<ArcDcalcResult>;
 
 // Delay calculator class hierarchy.
 //  ArcDelayCalc
@@ -160,7 +158,7 @@ typedef std::vector<ArcDcalcResult> ArcDcalcResultSeq;
 class ArcDelayCalc : public StaState
 {
 public:
-  explicit ArcDelayCalc(StaState *sta);
+  ArcDelayCalc(StaState *sta);
   virtual ~ArcDelayCalc() {}
   virtual ArcDelayCalc *copy() = 0;
   virtual const char *name() const = 0;
@@ -168,26 +166,30 @@ public:
   // Find the parasitic for drvr_pin that is acceptable to the delay
   // calculator by probing parasitics_.
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
-				   const RiseFall *rf,
-				   const DcalcAnalysisPt *dcalc_ap) = 0;
+                                   const RiseFall *rf,
+                                   const Scene *scene,
+                const MinMax *min_max) = 0;
   virtual bool reduceSupported() const = 0;
   // Reduce parasitic_network to a representation acceptable to the delay calculator.
   virtual Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                                      const Pin *drvr_pin,
                                      const RiseFall *rf,
-                                     const DcalcAnalysisPt *dcalc_ap) = 0;
+                                     const Scene *scene,
+                const MinMax *min_max) = 0;
   // Reduce parasitic_network to a representation acceptable to the delay calculator
-  // for one or more corners and min/max rise/fall.
-  // Null corner means reduce all corners.
+  // for one or more scenes and min/max rise/fall.
+  // Null scene means reduce all scenes.
   virtual void reduceParasitic(const Parasitic *parasitic_network,
                                const Net *net,
-                               const Corner *corner,
+                               const Scene *scene,
                                const MinMaxAll *min_max) = 0;
   // Set the in_slew, load_cap, parasitic for gates.
   virtual void setDcalcArgParasiticSlew(ArcDcalcArg &gate,
-                                        const DcalcAnalysisPt *dcalc_ap) = 0;
+                                        const Scene *scene,
+                const MinMax *min_max) = 0;
   virtual void setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
-                                        const DcalcAnalysisPt *dcalc_ap) = 0;
+                                        const Scene *scene,
+                const MinMax *min_max) = 0;
   // Find the wire delays and slews for an input port without a driving cell.
   // This call primarily initializes the load delay/slew iterator.
   virtual ArcDcalcResult inputPortDelay(const Pin *port_pin,
@@ -195,7 +197,8 @@ public:
                                         const RiseFall *rf,
                                         const Parasitic *parasitic,
                                         const LoadPinIndexMap &load_pin_index_map,
-                                        const DcalcAnalysisPt *dcalc_ap) = 0;
+                                        const Scene *scene,
+                                        const MinMax *min_max) = 0;
 
   // Find the delay and slew for arc driving drvr_pin.
   virtual ArcDcalcResult gateDelay(const Pin *drvr_pin,
@@ -205,23 +208,26 @@ public:
                                    float load_cap,
                                    const Parasitic *parasitic,
                                    const LoadPinIndexMap &load_pin_index_map,
-                                   const DcalcAnalysisPt *dcalc_ap) = 0;
+                                   const Scene *scene,
+                const MinMax *min_max) = 0;
   // deprecated 2024-02-27
   virtual void gateDelay(const TimingArc *arc,
-			 const Slew &in_slew,
-			 float load_cap,
-			 const Parasitic *parasitic,
-			 float related_out_cap,
-			 const Pvt *pvt,
-			 const DcalcAnalysisPt *dcalc_ap,
-			 // Return values.
-			 ArcDelay &gate_delay,
-			 Slew &drvr_slew) __attribute__ ((deprecated));
+                         const Slew &in_slew,
+                         float load_cap,
+                         const Parasitic *parasitic,
+                         float related_out_cap,
+                         const Pvt *pvt,
+                         const Scene *scene,
+                         const MinMax *min_max,
+                         // Return values.
+                         ArcDelay &gate_delay,
+                         Slew &drvr_slew) __attribute__ ((deprecated));
 
   // Find gate delays and slews for parallel gates.
   virtual ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &args,
                                        const LoadPinIndexMap &load_pin_index_map,
-                                       const DcalcAnalysisPt *dcalc_ap) = 0;
+                                       const Scene *scene,
+                const MinMax *min_max) = 0;
 
   // Find the delay for a timing check arc given the arc's
   // from/clock, to/data slews and related output pin parasitic.
@@ -230,7 +236,8 @@ public:
                               const Slew &from_slew,
                               const Slew &to_slew,
                               float related_out_cap,
-                              const DcalcAnalysisPt *dcalc_ap) = 0;
+                              const Scene *scene,
+                              const MinMax *min_max) = 0;
   // Report delay and slew calculation.
   virtual std::string reportGateDelay(const Pin *drvr_pin,
                                       const TimingArc *arc,
@@ -238,7 +245,8 @@ public:
                                       float load_cap,
                                       const Parasitic *parasitic,
                                       const LoadPinIndexMap &load_pin_index_map,
-                                      const DcalcAnalysisPt *dcalc_ap,
+                                      const Scene *scene,
+                                      const MinMax *min_max,
                                       int digits) = 0;
   // Report timing check delay calculation.
   virtual std::string reportCheckDelay(const Pin *check_pin,
@@ -247,7 +255,8 @@ public:
                                        const char *from_slew_annotation,
                                        const Slew &to_slew,
                                        float related_out_cap,
-                                       const DcalcAnalysisPt *dcalc_ap,
+                                       const Scene *scene,
+                                       const MinMax *min_max,
                                        int digits) = 0;
   virtual void finishDrvrPin() = 0;
 };

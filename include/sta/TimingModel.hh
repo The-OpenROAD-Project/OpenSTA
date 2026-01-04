@@ -50,12 +50,12 @@ public:
   GateTimingModel(LibertyCell *cell);
   // Gate delay calculation.
   virtual void gateDelay(const Pvt *pvt,
-			 float in_slew,
-			 float load_cap,
-			 bool pocv_enabled,
-			 // Return values.
-			 ArcDelay &gate_delay,
-			 Slew &drvr_slew) const = 0;
+                         float in_slew,
+                         float load_cap,
+                         bool pocv_enabled,
+                         // Return values.
+                         ArcDelay &gate_delay,
+                         Slew &drvr_slew) const = 0;
   virtual std::string reportGateDelay(const Pvt *pvt,
                                       float in_slew,
                                       float load_cap,

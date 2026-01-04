@@ -31,7 +31,6 @@
 #include "Network.hh"
 #include "Graph.hh"
 #include "ArcDelayCalc.hh"
-#include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 
 namespace sta {
@@ -40,7 +39,8 @@ using std::make_shared;
 
 Waveform
 ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
-                                 const DcalcAnalysisPt *dcalc_ap,
+                                 const Scene *scene,
+                                 const MinMax *min_max,
                                  const StaState *sta)
 {
   const Network *network = sta->network();
@@ -55,7 +55,8 @@ ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
       const Vertex *in_vertex = graph->pinLoadVertex(in_pin);
       GraphDelayCalc *graph_dcalc = sta->graphDelayCalc();
       Slew in_slew = graph_dcalc->edgeFromSlew(in_vertex, in_rf,
-                                               dcalc_arg.arc()->role(), dcalc_ap);
+                                               dcalc_arg.arc()->role(),
+                                               scene, min_max);
       LibertyLibrary *library = port->libertyLibrary();
       float vdd;
       bool vdd_exists;
@@ -67,7 +68,8 @@ ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
       FloatSeq *time_values = new FloatSeq;
       for (float time : *in_waveform.axis1()->values())
         time_values->push_back(time + dcalc_arg.inputDelay());
-      TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time, time_values);
+      TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
+                                                      time_values);
       // Scale the waveform from 0:vdd.
       FloatSeq *scaled_values = new FloatSeq;
       for (float value : *in_waveform.values()) {

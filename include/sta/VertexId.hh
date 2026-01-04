@@ -30,7 +30,7 @@
 
 namespace sta {
 
-typedef ObjectId VertexId;
+using VertexId = ObjectId;
 
 static constexpr VertexId vertex_id_null = object_id_null;
 

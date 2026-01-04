@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <string>
 
+#include "ContainerHelpers.hh"
 #include "EnumNameMap.hh"
 #include "Report.hh"
 #include "Debug.hh"
@@ -59,12 +60,12 @@ using std::string;
 
 static void
 scaleFloats(FloatSeq *floats,
-	    float scale);
+            float scale);
 
 LibertyLibrary *
 readLibertyFile(const char *filename,
-		bool infer_latches,
-		Network *network)
+                bool infer_latches,
+                Network *network)
 {
   LibertyReader reader(filename, infer_latches, network);
   return reader.readLibertyFile(filename);
@@ -153,8 +154,8 @@ LibertyReader::readLibertyFile(const char *filename)
 
 void
 LibertyReader::defineGroupVisitor(const char *type,
-				  LibraryGroupVisitor begin_visitor,
-				  LibraryGroupVisitor end_visitor)
+                                  LibraryGroupVisitor begin_visitor,
+                                  LibraryGroupVisitor end_visitor)
 {
   group_begin_map_[type] = begin_visitor;
   group_end_map_[type] = end_visitor;
@@ -162,7 +163,7 @@ LibertyReader::defineGroupVisitor(const char *type,
 
 void
 LibertyReader::defineAttrVisitor(const char *attr_name,
-				 LibraryAttrVisitor visitor)
+                                 LibraryAttrVisitor visitor)
 {
   attr_visitor_map_[attr_name] = visitor;
 }
@@ -172,13 +173,13 @@ LibertyReader::defineVisitors()
 {
   // Library
   defineGroupVisitor("library", &LibertyReader::beginLibrary,
-		     &LibertyReader::endLibrary);
+                     &LibertyReader::endLibrary);
   defineAttrVisitor("time_unit", &LibertyReader::visitTimeUnit);
   defineAttrVisitor("pulling_resistance_unit",
-		    &LibertyReader::visitPullingResistanceUnit);
+                    &LibertyReader::visitPullingResistanceUnit);
   defineAttrVisitor("resistance_unit", &LibertyReader::visitResistanceUnit);
   defineAttrVisitor("capacitive_load_unit",
-		    &LibertyReader::visitCapacitiveLoadUnit);
+                    &LibertyReader::visitCapacitiveLoadUnit);
   defineAttrVisitor("voltage_unit", &LibertyReader::visitVoltageUnit);
   defineAttrVisitor("current_unit", &LibertyReader::visitCurrentUnit);
   defineAttrVisitor("leakage_power_unit", &LibertyReader::visitPowerUnit);
@@ -190,62 +191,62 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("nom_voltage", &LibertyReader::visitNomVolt);
   defineAttrVisitor("nom_process", &LibertyReader::visitNomProc);
   defineAttrVisitor("default_inout_pin_cap",
-		    &LibertyReader::visitDefaultInoutPinCap);
+                    &LibertyReader::visitDefaultInoutPinCap);
   defineAttrVisitor("default_input_pin_cap",
-		    &LibertyReader::visitDefaultInputPinCap);
+                    &LibertyReader::visitDefaultInputPinCap);
   defineAttrVisitor("default_output_pin_cap",
-		    &LibertyReader::visitDefaultOutputPinCap);
+                    &LibertyReader::visitDefaultOutputPinCap);
   defineAttrVisitor("default_max_transition",
-		    &LibertyReader::visitDefaultMaxTransition);
+                    &LibertyReader::visitDefaultMaxTransition);
   defineAttrVisitor("default_max_fanout",
-		    &LibertyReader::visitDefaultMaxFanout);
+                    &LibertyReader::visitDefaultMaxFanout);
   defineAttrVisitor("default_intrinsic_rise",
-		    &LibertyReader::visitDefaultIntrinsicRise);
+                    &LibertyReader::visitDefaultIntrinsicRise);
   defineAttrVisitor("default_intrinsic_fall",
-		    &LibertyReader::visitDefaultIntrinsicFall);
+                    &LibertyReader::visitDefaultIntrinsicFall);
   defineAttrVisitor("default_inout_pin_rise_res",
-		    &LibertyReader::visitDefaultInoutPinRiseRes);
+                    &LibertyReader::visitDefaultInoutPinRiseRes);
   defineAttrVisitor("default_inout_pin_fall_res",
-		    &LibertyReader::visitDefaultInoutPinFallRes);
+                    &LibertyReader::visitDefaultInoutPinFallRes);
   defineAttrVisitor("default_output_pin_rise_res",
-		    &LibertyReader::visitDefaultOutputPinRiseRes);
+                    &LibertyReader::visitDefaultOutputPinRiseRes);
   defineAttrVisitor("default_output_pin_fall_res",
-		    &LibertyReader::visitDefaultOutputPinFallRes);
+                    &LibertyReader::visitDefaultOutputPinFallRes);
   defineAttrVisitor("default_fanout_load",
-		    &LibertyReader::visitDefaultFanoutLoad);
+                    &LibertyReader::visitDefaultFanoutLoad);
   defineAttrVisitor("default_wire_load",
-		    &LibertyReader::visitDefaultWireLoad);
+                    &LibertyReader::visitDefaultWireLoad);
   defineAttrVisitor("default_wire_load_mode",
-		    &LibertyReader::visitDefaultWireLoadMode);
+                    &LibertyReader::visitDefaultWireLoadMode);
   defineAttrVisitor("default_wire_load_selection",
-		    &LibertyReader::visitDefaultWireLoadSelection);
+                    &LibertyReader::visitDefaultWireLoadSelection);
   defineAttrVisitor("default_operating_conditions",
-		    &LibertyReader::visitDefaultOperatingConditions);
+                    &LibertyReader::visitDefaultOperatingConditions);
   defineAttrVisitor("input_threshold_pct_fall",
-		    &LibertyReader::visitInputThresholdPctFall);
+                    &LibertyReader::visitInputThresholdPctFall);
   defineAttrVisitor("input_threshold_pct_rise",
-		    &LibertyReader::visitInputThresholdPctRise);
+                    &LibertyReader::visitInputThresholdPctRise);
   defineAttrVisitor("output_threshold_pct_fall",
-		    &LibertyReader::visitOutputThresholdPctFall);
+                    &LibertyReader::visitOutputThresholdPctFall);
   defineAttrVisitor("output_threshold_pct_rise",
-		    &LibertyReader::visitOutputThresholdPctRise);
+                    &LibertyReader::visitOutputThresholdPctRise);
   defineAttrVisitor("slew_lower_threshold_pct_fall",
-		    &LibertyReader::visitSlewLowerThresholdPctFall);
+                    &LibertyReader::visitSlewLowerThresholdPctFall);
   defineAttrVisitor("slew_lower_threshold_pct_rise",
-		    &LibertyReader::visitSlewLowerThresholdPctRise);
+                    &LibertyReader::visitSlewLowerThresholdPctRise);
   defineAttrVisitor("slew_upper_threshold_pct_fall",
-		    &LibertyReader::visitSlewUpperThresholdPctFall);
+                    &LibertyReader::visitSlewUpperThresholdPctFall);
   defineAttrVisitor("slew_upper_threshold_pct_rise",
-		    &LibertyReader::visitSlewUpperThresholdPctRise);
+                    &LibertyReader::visitSlewUpperThresholdPctRise);
   defineAttrVisitor("slew_derate_from_library",
-		    &LibertyReader::visitSlewDerateFromLibrary);
+                    &LibertyReader::visitSlewDerateFromLibrary);
 
   defineGroupVisitor("lu_table_template",
-		     &LibertyReader::beginTableTemplateDelay,
-		     &LibertyReader::endTableTemplate);
+                     &LibertyReader::beginTableTemplateDelay,
+                     &LibertyReader::endTableTemplate);
   defineGroupVisitor("output_current_template",
-		     &LibertyReader::beginTableTemplateOutputCurrent,
-		     &LibertyReader::endTableTemplate);
+                     &LibertyReader::beginTableTemplateOutputCurrent,
+                     &LibertyReader::endTableTemplate);
   defineAttrVisitor("variable_1", &LibertyReader::visitVariable1);
   defineAttrVisitor("variable_2", &LibertyReader::visitVariable2);
   defineAttrVisitor("variable_3", &LibertyReader::visitVariable3);
@@ -257,47 +258,47 @@ LibertyReader::defineVisitors()
                      &LibertyReader::beginTechnology,
                      &LibertyReader::endTechnology);
   defineGroupVisitor("rise_transition_degradation",
-		     &LibertyReader::beginRiseTransitionDegredation,
-		     &LibertyReader::endRiseFallTransitionDegredation);
+                     &LibertyReader::beginRiseTransitionDegredation,
+                     &LibertyReader::endRiseFallTransitionDegredation);
   defineGroupVisitor("fall_transition_degradation",
-		     &LibertyReader::beginFallTransitionDegredation,
-		     &LibertyReader::endRiseFallTransitionDegredation);
+                     &LibertyReader::beginFallTransitionDegredation,
+                     &LibertyReader::endRiseFallTransitionDegredation);
 
   defineGroupVisitor("type", &LibertyReader::beginType,
-		     &LibertyReader::endType);
+                     &LibertyReader::endType);
   defineAttrVisitor("bit_from", &LibertyReader::visitBitFrom);
   defineAttrVisitor("bit_to", &LibertyReader::visitBitTo);
 
   defineGroupVisitor("scaling_factors", &LibertyReader::beginScalingFactors,
-		     &LibertyReader::endScalingFactors);
+                     &LibertyReader::endScalingFactors);
   defineScalingFactorVisitors();
 
   defineGroupVisitor("operating_conditions", &LibertyReader::beginOpCond,
-		     &LibertyReader::endOpCond);
+                     &LibertyReader::endOpCond);
   defineAttrVisitor("process", &LibertyReader::visitProc);
   defineAttrVisitor("voltage", &LibertyReader::visitVolt);
   defineAttrVisitor("temperature", &LibertyReader::visitTemp);
   defineAttrVisitor("tree_type", &LibertyReader::visitTreeType);
 
   defineGroupVisitor("wire_load", &LibertyReader::beginWireload,
-		     &LibertyReader::endWireload);
+                     &LibertyReader::endWireload);
   defineAttrVisitor("resistance", &LibertyReader::visitResistance);
   defineAttrVisitor("slope", &LibertyReader::visitSlope);
   defineAttrVisitor("fanout_length", &LibertyReader::visitFanoutLength);
 
   defineGroupVisitor("wire_load_selection",
-		     &LibertyReader::beginWireloadSelection,
-		     &LibertyReader::endWireloadSelection);
+                     &LibertyReader::beginWireloadSelection,
+                     &LibertyReader::endWireloadSelection);
   defineAttrVisitor("wire_load_from_area",
-		    &LibertyReader::visitWireloadFromArea);
+                    &LibertyReader::visitWireloadFromArea);
 
   // Cells
   defineGroupVisitor("cell", &LibertyReader::beginCell,
-		     &LibertyReader::endCell);
+                     &LibertyReader::endCell);
   defineGroupVisitor("scaled_cell", &LibertyReader::beginScaledCell,
-		     &LibertyReader::endScaledCell);
+                     &LibertyReader::endScaledCell);
   defineAttrVisitor("clock_gating_integrated_cell",
-		    &LibertyReader::visitClockGatingIntegratedCell);
+                    &LibertyReader::visitClockGatingIntegratedCell);
   defineAttrVisitor("area", &LibertyReader::visitArea);
   defineAttrVisitor("dont_use", &LibertyReader::visitDontUse);
   defineAttrVisitor("is_macro_cell", &LibertyReader::visitIsMacro);
@@ -320,7 +321,7 @@ LibertyReader::defineVisitors()
   defineGroupVisitor("pin", &LibertyReader::beginPin,&LibertyReader::endPin);
   defineGroupVisitor("bus", &LibertyReader::beginBus,&LibertyReader::endBus);
   defineGroupVisitor("bundle", &LibertyReader::beginBundle,
-		     &LibertyReader::endBundle);
+                     &LibertyReader::endBundle);
   defineAttrVisitor("direction", &LibertyReader::visitDirection);
   defineAttrVisitor("clock", &LibertyReader::visitClock);
   defineAttrVisitor("bus_type", &LibertyReader::visitBusType);
@@ -331,9 +332,9 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("rise_capacitance", &LibertyReader::visitRiseCap);
   defineAttrVisitor("fall_capacitance", &LibertyReader::visitFallCap);
   defineAttrVisitor("rise_capacitance_range",
-		    &LibertyReader::visitRiseCapRange);
+                    &LibertyReader::visitRiseCapRange);
   defineAttrVisitor("fall_capacitance_range",
-		    &LibertyReader::visitFallCapRange);
+                    &LibertyReader::visitFallCapRange);
   defineAttrVisitor("fanout_load", &LibertyReader::visitFanoutLoad);
   defineAttrVisitor("max_fanout", &LibertyReader::visitMaxFanout);
   defineAttrVisitor("min_fanout", &LibertyReader::visitMinFanout);
@@ -343,19 +344,19 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("min_capacitance", &LibertyReader::visitMinCapacitance);
   defineAttrVisitor("min_period", &LibertyReader::visitMinPeriod);
   defineAttrVisitor("min_pulse_width_low",
-		    &LibertyReader::visitMinPulseWidthLow);
+                    &LibertyReader::visitMinPulseWidthLow);
   defineAttrVisitor("min_pulse_width_high",
-		    &LibertyReader::visitMinPulseWidthHigh);
+                    &LibertyReader::visitMinPulseWidthHigh);
   defineAttrVisitor("pulse_clock",
-		    &LibertyReader::visitPulseClock);
+                    &LibertyReader::visitPulseClock);
   defineAttrVisitor("clock_gate_clock_pin",
-		    &LibertyReader::visitClockGateClockPin);
+                    &LibertyReader::visitClockGateClockPin);
   defineAttrVisitor("clock_gate_enable_pin",
-		    &LibertyReader::visitClockGateEnablePin);
+                    &LibertyReader::visitClockGateEnablePin);
   defineAttrVisitor("clock_gate_out_pin",
-		    &LibertyReader::visitClockGateOutPin);
+                    &LibertyReader::visitClockGateOutPin);
   defineAttrVisitor("is_pll_feedback_pin",
-		    &LibertyReader::visitIsPllFeedbackPin);
+                    &LibertyReader::visitIsPllFeedbackPin);
   defineAttrVisitor("signal_type", &LibertyReader::visitSignalType);
 
   defineAttrVisitor("isolation_cell_data_pin",
@@ -368,16 +369,16 @@ LibertyReader::defineVisitors()
 
   // Memory
   defineGroupVisitor("memory", &LibertyReader::beginMemory,
-		     &LibertyReader::endMemory);
+                     &LibertyReader::endMemory);
 
   // Register/latch
   defineGroupVisitor("ff", &LibertyReader::beginFF, &LibertyReader::endFF);
   defineGroupVisitor("ff_bank", &LibertyReader::beginFFBank,
-		     &LibertyReader::endFFBank);
+                     &LibertyReader::endFFBank);
   defineGroupVisitor("latch", &LibertyReader::beginLatch,
-		     &LibertyReader::endLatch);
+                     &LibertyReader::endLatch);
   defineGroupVisitor("latch_bank", &LibertyReader::beginLatchBank,
-		     &LibertyReader::endLatchBank);
+                     &LibertyReader::endLatchBank);
   defineAttrVisitor("clocked_on", &LibertyReader::visitClockedOn);
   defineAttrVisitor("enable", &LibertyReader::visitClockedOn);
   defineAttrVisitor("data_in", &LibertyReader::visitDataIn);
@@ -393,11 +394,11 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("table", &LibertyReader::visitTable);
 
   defineGroupVisitor("timing", &LibertyReader::beginTiming,
-		     &LibertyReader::endTiming);
+                     &LibertyReader::endTiming);
   defineAttrVisitor("related_pin", &LibertyReader::visitRelatedPin);
   defineAttrVisitor("related_bus_pins", &LibertyReader::visitRelatedBusPins);
   defineAttrVisitor("related_output_pin",
-		    &LibertyReader::visitRelatedOutputPin);
+                    &LibertyReader::visitRelatedOutputPin);
   defineAttrVisitor("timing_type", &LibertyReader::visitTimingType);
   defineAttrVisitor("timing_sense", &LibertyReader::visitTimingSense);
   defineAttrVisitor("sdf_cond_start", &LibertyReader::visitSdfCondStart);
@@ -408,47 +409,47 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("rise_resistance", &LibertyReader::visitRiseResistance);
   defineAttrVisitor("fall_resistance", &LibertyReader::visitFallResistance);
   defineGroupVisitor("cell_rise", &LibertyReader::beginCellRise,
-		     &LibertyReader::endCellRiseFall);
+                     &LibertyReader::endCellRiseFall);
   defineGroupVisitor("cell_fall", &LibertyReader::beginCellFall,
-		     &LibertyReader::endCellRiseFall);
+                     &LibertyReader::endCellRiseFall);
   defineGroupVisitor("rise_transition", &LibertyReader::beginRiseTransition,
-		     &LibertyReader::endRiseFallTransition);
+                     &LibertyReader::endRiseFallTransition);
   defineGroupVisitor("fall_transition", &LibertyReader::beginFallTransition,
-		     &LibertyReader::endRiseFallTransition);
+                     &LibertyReader::endRiseFallTransition);
   defineGroupVisitor("rise_constraint", &LibertyReader::beginRiseConstraint,
-		     &LibertyReader::endRiseFallConstraint);
+                     &LibertyReader::endRiseFallConstraint);
   defineGroupVisitor("fall_constraint", &LibertyReader::beginFallConstraint,
-		     &LibertyReader::endRiseFallConstraint);
+                     &LibertyReader::endRiseFallConstraint);
   defineAttrVisitor("value", &LibertyReader::visitValue);
   defineAttrVisitor("values", &LibertyReader::visitValues);
 
   defineGroupVisitor("lut", &LibertyReader::beginLut,&LibertyReader::endLut);
 
   defineGroupVisitor("test_cell", &LibertyReader::beginTestCell,
-		     &LibertyReader::endTestCell);
+                     &LibertyReader::endTestCell);
 
   defineGroupVisitor("mode_definition", &LibertyReader::beginModeDef,
-		     &LibertyReader::endModeDef);
+                     &LibertyReader::endModeDef);
   defineGroupVisitor("mode_value", &LibertyReader::beginModeValue,
-		     &LibertyReader::endModeValue);
+                     &LibertyReader::endModeValue);
   defineAttrVisitor("when", &LibertyReader::visitWhen);
   defineAttrVisitor("sdf_cond", &LibertyReader::visitSdfCond);
 
   // Power attributes.
   defineGroupVisitor("power_lut_template",
-		     &LibertyReader::beginTableTemplatePower,
-		     &LibertyReader::endTableTemplate);
+                     &LibertyReader::beginTableTemplatePower,
+                     &LibertyReader::endTableTemplate);
   defineGroupVisitor("leakage_power", &LibertyReader::beginLeakagePower,
-		     &LibertyReader::endLeakagePower);
+                     &LibertyReader::endLeakagePower);
   defineGroupVisitor("internal_power", &LibertyReader::beginInternalPower,
-		     &LibertyReader::endInternalPower);
+                     &LibertyReader::endInternalPower);
   // power group for both rise/fall
   defineGroupVisitor("power", &LibertyReader::beginRisePower,
-		     &LibertyReader::endPower);
+                     &LibertyReader::endPower);
   defineGroupVisitor("fall_power", &LibertyReader::beginFallPower,
-		     &LibertyReader::endRiseFallPower);
+                     &LibertyReader::endRiseFallPower);
   defineGroupVisitor("rise_power", &LibertyReader::beginRisePower,
-		     &LibertyReader::endRiseFallPower);
+                     &LibertyReader::endRiseFallPower);
   defineAttrVisitor("related_ground_pin",&LibertyReader::visitRelatedGroundPin);
   defineAttrVisitor("related_power_pin", &LibertyReader::visitRelatedPowerPin);
   defineAttrVisitor("related_pg_pin", &LibertyReader::visitRelatedPgPin);
@@ -456,43 +457,43 @@ LibertyReader::defineVisitors()
   // AOCV attributes.
   defineAttrVisitor("ocv_arc_depth", &LibertyReader::visitOcvArcDepth);
   defineAttrVisitor("default_ocv_derate_group",
-		    &LibertyReader::visitDefaultOcvDerateGroup);
+                    &LibertyReader::visitDefaultOcvDerateGroup);
   defineAttrVisitor("ocv_derate_group", &LibertyReader::visitOcvDerateGroup);
   defineGroupVisitor("ocv_table_template",
-		     &LibertyReader::beginTableTemplateOcv,
-		     &LibertyReader::endTableTemplate);
+                     &LibertyReader::beginTableTemplateOcv,
+                     &LibertyReader::endTableTemplate);
   defineGroupVisitor("ocv_derate",
-		     &LibertyReader::beginOcvDerate,
-		     &LibertyReader::endOcvDerate);
+                     &LibertyReader::beginOcvDerate,
+                     &LibertyReader::endOcvDerate);
   defineGroupVisitor("ocv_derate_factors",
-		     &LibertyReader::beginOcvDerateFactors,
-		     &LibertyReader::endOcvDerateFactors);
+                     &LibertyReader::beginOcvDerateFactors,
+                     &LibertyReader::endOcvDerateFactors);
   defineAttrVisitor("rf_type", &LibertyReader::visitRfType);
   defineAttrVisitor("derate_type", &LibertyReader::visitDerateType);
   defineAttrVisitor("path_type", &LibertyReader::visitPathType);
 
   // POCV attributes.
   defineGroupVisitor("ocv_sigma_cell_rise", &LibertyReader::beginOcvSigmaCellRise,
-		     &LibertyReader::endOcvSigmaCell);
+                     &LibertyReader::endOcvSigmaCell);
   defineGroupVisitor("ocv_sigma_cell_fall", &LibertyReader::beginOcvSigmaCellFall,
-		     &LibertyReader::endOcvSigmaCell);
+                     &LibertyReader::endOcvSigmaCell);
   defineGroupVisitor("ocv_sigma_rise_transition",
-		     &LibertyReader::beginOcvSigmaRiseTransition,
-		     &LibertyReader::endOcvSigmaTransition);
+                     &LibertyReader::beginOcvSigmaRiseTransition,
+                     &LibertyReader::endOcvSigmaTransition);
   defineGroupVisitor("ocv_sigma_fall_transition",
-		     &LibertyReader::beginOcvSigmaFallTransition,
-		     &LibertyReader::endOcvSigmaTransition);
+                     &LibertyReader::beginOcvSigmaFallTransition,
+                     &LibertyReader::endOcvSigmaTransition);
   defineGroupVisitor("ocv_sigma_rise_constraint",
-		     &LibertyReader::beginOcvSigmaRiseConstraint,
-		     &LibertyReader::endOcvSigmaConstraint);
+                     &LibertyReader::beginOcvSigmaRiseConstraint,
+                     &LibertyReader::endOcvSigmaConstraint);
   defineGroupVisitor("ocv_sigma_fall_constraint",
-		     &LibertyReader::beginOcvSigmaFallConstraint,
-		     &LibertyReader::endOcvSigmaConstraint);
+                     &LibertyReader::beginOcvSigmaFallConstraint,
+                     &LibertyReader::endOcvSigmaConstraint);
   defineAttrVisitor("sigma_type", &LibertyReader::visitSigmaType);
   defineAttrVisitor("cell_leakage_power", &LibertyReader::visitCellLeakagePower);
 
   defineGroupVisitor("pg_pin", &LibertyReader::beginPgPin,
-		     &LibertyReader::endPgPin);
+                     &LibertyReader::endPgPin);
   defineAttrVisitor("pg_type", &LibertyReader::visitPgType);
   defineAttrVisitor("voltage_name", &LibertyReader::visitVoltageName);
 
@@ -539,28 +540,28 @@ LibertyReader::defineVisitors()
 
   // ccsn (not implemented, this is needed to properly ignore ccsn groups)
   defineGroupVisitor("ccsn_first_stage", &LibertyReader::beginCcsn,
-		     &LibertyReader::endCcsn);
+                     &LibertyReader::endCcsn);
   defineGroupVisitor("ccsn_last_stage", &LibertyReader::beginCcsn,
-		     &LibertyReader::endCcsn);
+                     &LibertyReader::endCcsn);
   defineGroupVisitor("output_voltage_rise", &LibertyReader::beginCcsn,
-		     &LibertyReader::endCcsn);
+                     &LibertyReader::endCcsn);
   defineGroupVisitor("output_voltage_fall", &LibertyReader::beginCcsn,
-		     &LibertyReader::endCcsn);
+                     &LibertyReader::endCcsn);
   defineGroupVisitor("propagated_noise_low", &LibertyReader::beginCcsn,
-		     &LibertyReader::endCcsn);
+                     &LibertyReader::endCcsn);
   defineGroupVisitor("propagated_noise_high", &LibertyReader::beginCcsn,
-		     &LibertyReader::endCcsn);
+                     &LibertyReader::endCcsn);
   defineGroupVisitor("input_ccb", &LibertyReader::beginCcsn,
-		     &LibertyReader::endCcsn);
+                     &LibertyReader::endCcsn);
   defineGroupVisitor("output_ccb", &LibertyReader::beginCcsn,
-		     &LibertyReader::endCcsn);
+                     &LibertyReader::endCcsn);
 
   defineGroupVisitor("ecsm_waveform", &LibertyReader::beginEcsmWaveform,
-		     &LibertyReader::endEcsmWaveform);
+                     &LibertyReader::endEcsmWaveform);
   defineGroupVisitor("ecsm_waveform_set", &LibertyReader::beginEcsmWaveform,
-		     &LibertyReader::endEcsmWaveform);
+                     &LibertyReader::endEcsmWaveform);
   defineGroupVisitor("ecsm_capacitance", &LibertyReader::beginEcsmWaveform,
-		     &LibertyReader::endEcsmWaveform);
+                     &LibertyReader::endEcsmWaveform);
 }
 
 void
@@ -573,40 +574,40 @@ LibertyReader::defineScalingFactorVisitors()
       ScaleFactorPvt pvt = static_cast<ScaleFactorPvt>(pvt_index);
       const char *pvt_name = scaleFactorPvtName(pvt);
       if (scaleFactorTypeRiseFallSuffix(type)) {
-	for (auto tr : RiseFall::range()) {
-	  const char *tr_name = (tr == RiseFall::rise()) ? "rise":"fall";
-	  string attr_name;
+        for (auto tr : RiseFall::range()) {
+          const char *tr_name = (tr == RiseFall::rise()) ? "rise":"fall";
+          string attr_name;
           stringPrint(attr_name, "k_%s_%s_%s",
                       pvt_name,
                       type_name,
                       tr_name);
-	  defineAttrVisitor(attr_name.c_str() ,&LibertyReader::visitScaleFactorSuffix);
-	}
+          defineAttrVisitor(attr_name.c_str() ,&LibertyReader::visitScaleFactorSuffix);
+        }
       }
       else if (scaleFactorTypeRiseFallPrefix(type)) {
-	for (auto tr : RiseFall::range()) {
-	  const char *tr_name = (tr == RiseFall::rise()) ? "rise":"fall";
-	  string attr_name;
+        for (auto tr : RiseFall::range()) {
+          const char *tr_name = (tr == RiseFall::rise()) ? "rise":"fall";
+          string attr_name;
           stringPrint(attr_name, "k_%s_%s_%s",
                       pvt_name,
                       tr_name,
                       type_name);
-	  defineAttrVisitor(attr_name.c_str(),&LibertyReader::visitScaleFactorPrefix);
-	}
+          defineAttrVisitor(attr_name.c_str(),&LibertyReader::visitScaleFactorPrefix);
+        }
       }
       else if (scaleFactorTypeLowHighSuffix(type)) {
-	for (auto tr : RiseFall::range()) {
-	  const char *tr_name = (tr == RiseFall::rise()) ? "high":"low";
-	  string attr_name;
+        for (auto tr : RiseFall::range()) {
+          const char *tr_name = (tr == RiseFall::rise()) ? "high":"low";
+          string attr_name;
           stringPrint(attr_name, "k_%s_%s_%s",
                       pvt_name,
                       tr_name,
                       type_name);
-	  defineAttrVisitor(attr_name.c_str(),&LibertyReader::visitScaleFactorHiLow);
-	}
+          defineAttrVisitor(attr_name.c_str(),&LibertyReader::visitScaleFactorHiLow);
+        }
       }
       else {
-	  string attr_name;
+          string attr_name;
           stringPrint(attr_name, "k_%s_%s",
                       pvt_name,
                       type_name);
@@ -619,25 +620,25 @@ LibertyReader::defineScalingFactorVisitors()
 void
 LibertyReader::visitAttr(LibertyAttr *attr)
 {
-  LibraryAttrVisitor visitor = attr_visitor_map_.findKey(attr->name());
+  LibraryAttrVisitor *visitor = findKeyValuePtr(attr_visitor_map_, attr->name());
   if (visitor)
-    (this->*visitor)(attr);
+    (this->**visitor)(attr);
 }
 
 void
 LibertyReader::begin(LibertyGroup *group)
 {
-  LibraryGroupVisitor visitor = group_begin_map_.findKey(group->type());
+  LibraryGroupVisitor *visitor = findKeyValuePtr(group_begin_map_, group->type());
   if (visitor)
-    (this->*visitor)(group);
+    (this->**visitor)(group);
 }
 
 void
 LibertyReader::end(LibertyGroup *group)
 {
-  LibraryGroupVisitor visitor = group_end_map_.findKey(group->type());
+  LibraryGroupVisitor *visitor = findKeyValuePtr(group_end_map_, group->type());
   if (visitor)
-    (this->*visitor)(group);
+    (this->**visitor)(group);
 }
 
 void
@@ -718,7 +719,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
       library_->setDefaultWireloadSelection(selection);
     else
       libWarn(1143, group, "default_wire_selection %s not found.",
-	      default_wireload_selection_);
+              default_wireload_selection_);
     stringDelete(default_wireload_selection_);
     default_wireload_selection_ = nullptr;
   }
@@ -730,7 +731,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
       library_->setDefaultOperatingConditions(op_cond);
     else
       libWarn(1144, group, "default_operating_condition %s not found.",
-	      default_operating_condition_);
+              default_operating_condition_);
     stringDelete(default_operating_condition_);
     default_operating_condition_ = nullptr;
   }
@@ -757,7 +758,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
   }
   if (missing_threshold)
     libError(1149, group, "Library %s is missing one or more thresholds.",
-	     library_->name());
+             library_->name());
 }
 
 void
@@ -772,7 +773,7 @@ LibertyReader::visitPullingResistanceUnit(LibertyAttr *attr)
 {
   if (library_)
     parseUnits(attr, "ohm", res_scale_,
-	       library_->units()->resistanceUnit());
+               library_->units()->resistanceUnit());
 }
 
 void
@@ -813,9 +814,9 @@ LibertyReader::visitDistanceUnit(LibertyAttr *attr)
 
 void
 LibertyReader::parseUnits(LibertyAttr *attr,
-			  const char *unit_suffix,
-			  float &scale_var,
-			  Unit *unit)
+                          const char *unit_suffix,
+                          float &scale_var,
+                          Unit *unit)
 {
   string units = getAttrString(attr);
   if (!units.empty()) {
@@ -875,48 +876,46 @@ LibertyReader::visitCapacitiveLoadUnit(LibertyAttr *attr)
 {
   if (library_) {
     if (attr->isComplex()) {
-      LibertyAttrValueIterator value_iter(attr->values());
-      if (value_iter.hasNext()) {
-	LibertyAttrValue *value = value_iter.next();
-	bool valid = false;
-	float scale;
-	if (value->isFloat()) {
-	  scale = value->floatValue();
-	  valid = true;
-	}
-	else if (value->isString()) {
-	  try {
-	    scale = std::stof(value->stringValue());
-	    valid = true;
-	  }
-	  catch (...) {
-	    valid = false;
-	  }
-	}
+      LibertyAttrValueSeq *values = attr->values();
+      if (values->size() == 2) {
+        LibertyAttrValue *value = (*values)[0];
+        bool valid = false;
+        float scale;
+        if (value->isFloat()) {
+          scale = value->floatValue();
+          valid = true;
+        }
+        else if (value->isString()) {
+          try {
+            scale = std::stof(value->stringValue());
+            valid = true;
+          }
+          catch (...) {
+            valid = false;
+          }
+        }
 
-	if (valid) {
-	  if (value_iter.hasNext()) {
-	    value = value_iter.next();
-	    if (value->isString()) {
-	      const char *suffix = value->stringValue();
-	      if (stringEqual(suffix, "ff"))
-		cap_scale_ = scale * 1E-15F;
-	      else if (stringEqual(suffix, "pf"))
-		cap_scale_ = scale * 1E-12F;
-	      else
-		libWarn(1154, attr, "capacitive_load_units are not ff or pf.");
-	    }
-	    else
-	      libWarn(1155, attr, "capacitive_load_units are not a string.");
-	  }
-	  else
-	    libWarn(1156, attr, "capacitive_load_units missing suffix.");
-	}
-	else
-	  libWarn(1157, attr, "capacitive_load_units scale is not a float.");
+        if (valid) {
+          value = (*values)[1];
+          if (value->isString()) {
+            const char *suffix = value->stringValue();
+            if (stringEqual(suffix, "ff"))
+              cap_scale_ = scale * 1E-15F;
+            else if (stringEqual(suffix, "pf"))
+              cap_scale_ = scale * 1E-12F;
+            else
+              libWarn(1154, attr, "capacitive_load_units are not ff or pf.");
+          }
+          else
+            libWarn(1155, attr, "capacitive_load_units are not a string.");
+        }
+        else
+          libWarn(1157, attr, "capacitive_load_units scale is not a float.");
       }
+      else if (values->size() == 1)
+        libWarn(1156, attr, "capacitive_load_units missing suffix.");
       else
-	libWarn(1158, attr, "capacitive_load_units missing scale and suffix.");
+        libWarn(1158, attr, "capacitive_load_units missing scale and suffix.");
     }
     else
       libWarn(1159, attr, "capacitive_load_unit missing values suffix.");
@@ -932,28 +931,28 @@ LibertyReader::visitDelayModel(LibertyAttr *attr)
     const char *type_name = getAttrString(attr);
     if (type_name) {
       if (stringEq(type_name, "table_lookup"))
-	library_->setDelayModelType(DelayModelType::table);
+        library_->setDelayModelType(DelayModelType::table);
       else if (stringEq(type_name, "generic_cmos"))
-	library_->setDelayModelType(DelayModelType::cmos_linear);
+        library_->setDelayModelType(DelayModelType::cmos_linear);
       else if (stringEq(type_name, "piecewise_cmos")) {
-	library_->setDelayModelType(DelayModelType::cmos_pwl);
-	libWarn(1160, attr, "delay_model %s not supported.", type_name);
+        library_->setDelayModelType(DelayModelType::cmos_pwl);
+        libWarn(1160, attr, "delay_model %s not supported.", type_name);
       }
       else if (stringEq(type_name, "cmos2")) {
-	library_->setDelayModelType(DelayModelType::cmos2);
-	libWarn(1161, attr, "delay_model %s not supported.", type_name);
+        library_->setDelayModelType(DelayModelType::cmos2);
+        libWarn(1161, attr, "delay_model %s not supported.", type_name);
       }
       else if (stringEq(type_name, "polynomial")) {
-	library_->setDelayModelType(DelayModelType::polynomial);
-	libWarn(1162, attr, "delay_model %s not supported.", type_name);
+        library_->setDelayModelType(DelayModelType::polynomial);
+        libWarn(1162, attr, "delay_model %s not supported.", type_name);
       }
       // Evil IBM garbage.
       else if (stringEq(type_name, "dcm")) {
-	library_->setDelayModelType(DelayModelType::dcm);
-	libWarn(1163, attr, "delay_model %s not supported..", type_name);
+        library_->setDelayModelType(DelayModelType::dcm);
+        libWarn(1163, attr, "delay_model %s not supported..", type_name);
       }
       else
-	libWarn(1164, attr, "unknown delay_model %s.", type_name);
+        libWarn(1164, attr, "unknown delay_model %s.", type_name);
     }
   }
 }
@@ -965,11 +964,11 @@ LibertyReader::visitBusStyle(LibertyAttr *attr)
     const char *bus_style = getAttrString(attr);
     // Assume bus style is of the form "%s[%d]".
     if (bus_style
-	&& strlen(bus_style) == 6
-	&& bus_style[0] == '%'
-	&& bus_style[1] == 's'
-	&& bus_style[3] == '%'
-	&& bus_style[4] == 'd')
+        && strlen(bus_style) == 6
+        && bus_style[0] == '%'
+        && bus_style[1] == 's'
+        && bus_style[3] == '%'
+        && bus_style[4] == 'd')
       library_->setBusBrkts(bus_style[2], bus_style[5]);
     else
       libWarn(1165, attr, "unknown bus_naming_style format.");
@@ -981,42 +980,42 @@ LibertyReader::visitVoltageMap(LibertyAttr *attr)
 {
   if (library_) {
     if (attr->isComplex()) {
-      LibertyAttrValueIterator value_iter(attr->values());
-      if (value_iter.hasNext()) {
-	LibertyAttrValue *value = value_iter.next();
-	if (value->isString()) {
-	  const char *supply_name = value->stringValue();
-	  if (value_iter.hasNext()) {
-	    value = value_iter.next();
+      LibertyAttrValueSeq *values = attr->values();
+      if (values->size() >= 1) {
+        LibertyAttrValue *value = (*values)[0];
+        if (value->isString()) {
+          const char *supply_name = value->stringValue();
+          if (values->size() == 2) {
+            value = (*values)[1];
             bool valid = false;
-	    float voltage;
-	    if (value->isFloat()) {
-	      voltage = value->floatValue();
-	      valid = true;
-	    }
-	    else if (value->isString()) {
-	      try {
+            float voltage;
+            if (value->isFloat()) {
+              voltage = value->floatValue();
+              valid = true;
+            }
+            else if (value->isString()) {
+              try {
                 voltage = std::stof(value->stringValue());
                 valid = true;
-	      }
-	      catch (...) {
-	        valid = false;
-	      }
-	    }
+              }
+              catch (...) {
+                valid = false;
+              }
+            }
 
-	    if (valid)
-	      library_->addSupplyVoltage(supply_name, voltage);
-	    else
-	      libWarn(1166, attr, "voltage_map voltage is not a float.");
-	  }
-	  else
-	    libWarn(1167, attr, "voltage_map missing voltage.");
-	}
-	else
-	  libWarn(1168, attr, "voltage_map supply name is not a string.");
+            if (valid)
+              library_->addSupplyVoltage(supply_name, voltage);
+            else
+              libWarn(1166, attr, "voltage_map voltage is not a float.");
+          }
+          else
+            libWarn(1167, attr, "voltage_map missing voltage.");
+        }
+        else
+          libWarn(1168, attr, "voltage_map supply name is not a string.");
       }
       else
-	libWarn(1169, attr, "voltage_map missing supply name and voltage.");
+        libWarn(1169, attr, "voltage_map missing supply name and voltage.");
     }
     else
       libWarn(1170, attr, "voltage_map missing values suffix.");
@@ -1104,7 +1103,7 @@ LibertyReader::visitDefaultMaxTransition(LibertyAttr *attr)
     getAttrFloat(attr, value, exists);
     if (exists) {
       if (value == 0.0)
-	libWarn(1171, attr, "default_max_transition is 0.0.");
+        libWarn(1171, attr, "default_max_transition is 0.0.");
       library_->setDefaultMaxSlew(value * time_scale_);
     }
   }
@@ -1119,7 +1118,7 @@ LibertyReader::visitDefaultMaxFanout(LibertyAttr *attr)
     getAttrFloat(attr, value, exists);
     if (exists) {
       if (value == 0.0)
-	libWarn(1172, attr, "default_max_fanout is 0.0.");
+        libWarn(1172, attr, "default_max_fanout is 0.0.");
       library_->setDefaultMaxFanout(value);
     }
   }
@@ -1139,7 +1138,7 @@ LibertyReader::visitDefaultIntrinsicFall(LibertyAttr *attr)
 
 void
 LibertyReader::visitDefaultIntrinsic(LibertyAttr *attr,
-				     const RiseFall *rf)
+                                     const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1164,7 +1163,7 @@ LibertyReader::visitDefaultInoutPinFallRes(LibertyAttr *attr)
 
 void
 LibertyReader::visitDefaultInoutPinRes(LibertyAttr *attr,
-				       const RiseFall *rf)
+                                       const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1189,7 +1188,7 @@ LibertyReader::visitDefaultOutputPinFallRes(LibertyAttr *attr)
 
 void
 LibertyReader::visitDefaultOutputPinRes(LibertyAttr *attr,
-					const RiseFall *rf)
+                                        const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1209,7 +1208,7 @@ LibertyReader::visitDefaultFanoutLoad(LibertyAttr *attr)
     getAttrFloat(attr, value, exists);
     if (exists) {
       if (value == 0.0)
-	libWarn(1173, attr, "default_fanout_load is 0.0.");
+        libWarn(1173, attr, "default_fanout_load is 0.0.");
       library_->setDefaultFanoutLoad(value);
     }
   }
@@ -1235,10 +1234,10 @@ LibertyReader::visitDefaultWireLoadMode(LibertyAttr *attr)
     if (wire_load_mode) {
       WireloadMode mode = stringWireloadMode(wire_load_mode);
       if (mode != WireloadMode::unknown)
-	library_->setDefaultWireloadMode(mode);
+        library_->setDefaultWireloadMode(mode);
       else
-	libWarn(1174, attr, "default_wire_load_mode %s not found.",
-		wire_load_mode);
+        libWarn(1174, attr, "default_wire_load_mode %s not found.",
+                wire_load_mode);
     }
   }
 }
@@ -1281,7 +1280,7 @@ LibertyReader::visitInputThresholdPctRise(LibertyAttr *attr)
 
 void
 LibertyReader::visitInputThresholdPct(LibertyAttr *attr,
-				      const RiseFall *rf)
+                                      const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1307,7 +1306,7 @@ LibertyReader::visitOutputThresholdPctRise(LibertyAttr *attr)
 
 void
 LibertyReader::visitOutputThresholdPct(LibertyAttr *attr,
-				       const RiseFall *rf)
+                                       const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1333,7 +1332,7 @@ LibertyReader::visitSlewLowerThresholdPctRise(LibertyAttr *attr)
 
 void
 LibertyReader::visitSlewLowerThresholdPct(LibertyAttr *attr,
-					  const RiseFall *rf)
+                                          const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1359,7 +1358,7 @@ LibertyReader::visitSlewUpperThresholdPctRise(LibertyAttr *attr)
 
 void
 LibertyReader::visitSlewUpperThresholdPct(LibertyAttr *attr,
-					  const RiseFall *rf)
+                                          const RiseFall *rf)
 {
   if (library_) {
     float value;
@@ -1414,7 +1413,7 @@ LibertyReader::beginTableTemplateOutputCurrent(LibertyGroup *group)
 
 void
 LibertyReader::beginTableTemplate(LibertyGroup *group,
-				  TableTemplateType type)
+                                  TableTemplateType type)
 {
   if (library_) {
     const char *name = group->firstName();
@@ -1455,7 +1454,7 @@ LibertyReader::endTableTemplate(LibertyGroup *group)
 
 TableAxisPtr
 LibertyReader::makeAxis(int index,
-			LibertyGroup *group)
+                        LibertyGroup *group)
 {
   TableAxisVariable axis_var = axis_var_[index];
   FloatSeq *axis_values = axis_values_[index];
@@ -1504,7 +1503,7 @@ LibertyReader::visitVariable3(LibertyAttr *attr)
 
 void
 LibertyReader::visitVariable(int index,
-			     LibertyAttr *attr)
+                             LibertyAttr *attr)
 {
   if (tbl_template_) {
     const char *type = getAttrString(attr);
@@ -1536,7 +1535,7 @@ LibertyReader::visitIndex3(LibertyAttr *attr)
 
 void
 LibertyReader::visitIndex(int index,
-			  LibertyAttr *attr)
+                          LibertyAttr *attr)
 {
   if (tbl_template_
       // Ignore index_xx in ecsm_waveform groups.
@@ -1576,15 +1575,15 @@ LibertyReader::endType(LibertyGroup *group)
     if (type_bit_from_exists_ && type_bit_to_exists_) {
       BusDcl *bus_dcl = new BusDcl(name, type_bit_from_, type_bit_to_);
       if (cell_)
-	cell_->addBusDcl(bus_dcl);
+        cell_->addBusDcl(bus_dcl);
       else if (library_)
-	library_->addBusDcl(bus_dcl);
+        library_->addBusDcl(bus_dcl);
     }
     else {
       if (!type_bit_from_exists_)
-	libWarn(1179, group, "bus type %s missing bit_from.", name);
+        libWarn(1179, group, "bus type %s missing bit_from.", name);
       if (!type_bit_to_exists_)
-	libWarn(1180, group, "bus type %s missing bit_to.", name);
+        libWarn(1180, group, "bus type %s missing bit_to.", name);
     }
   }
   else
@@ -1646,18 +1645,18 @@ LibertyReader::visitScaleFactorSuffix(LibertyAttr *attr)
     if (parser.hasNext()) {
       const char *tr_name = parser.next();
       if (stringEq(tr_name, "rise"))
-	rf = RiseFall::rise();
+        rf = RiseFall::rise();
       else if (stringEq(tr_name, "fall"))
-	rf = RiseFall::fall();
+        rf = RiseFall::fall();
     }
     if (pvt != ScaleFactorPvt::unknown
-	&& type != ScaleFactorType::unknown
-	&& rf) {
+        && type != ScaleFactorType::unknown
+        && rf) {
       float value;
       bool exists;
       getAttrFloat(attr, value, exists);
       if (exists)
-	scale_factors_->setScale(type, pvt, rf, value);
+        scale_factors_->setScale(type, pvt, rf, value);
     }
   }
 }
@@ -1680,22 +1679,22 @@ LibertyReader::visitScaleFactorPrefix(LibertyAttr *attr)
     if (parser.hasNext()) {
       const char *tr_name = parser.next();
       if (stringEq(tr_name, "rise"))
-	rf = RiseFall::rise();
+        rf = RiseFall::rise();
       else if (stringEq(tr_name, "fall"))
-	rf = RiseFall::fall();
+        rf = RiseFall::fall();
     }
     if (parser.hasNext()) {
       const char *type_name = parser.next();
       type = findScaleFactorType(type_name);
     }
     if (pvt != ScaleFactorPvt::unknown
-	&& type != ScaleFactorType::unknown
-	&& rf) {
+        && type != ScaleFactorType::unknown
+        && rf) {
       float value;
       bool exists;
       getAttrFloat(attr, value, exists);
       if (exists)
-	scale_factors_->setScale(type, pvt, rf, value);
+        scale_factors_->setScale(type, pvt, rf, value);
     }
   }
 }
@@ -1725,18 +1724,18 @@ LibertyReader::visitScaleFactorHiLow(LibertyAttr *attr)
     if (parser.hasNext()) {
       tr_name = parser.next();
       if (stringEq(tr_name, "high"))
-	rf = RiseFall::rise();
+        rf = RiseFall::rise();
       else if (stringEq(tr_name, "low"))
-	rf = RiseFall::fall();
+        rf = RiseFall::fall();
     }
     if (pvt != ScaleFactorPvt::unknown
-	&& type != ScaleFactorType::unknown
-	&& rf) {
+        && type != ScaleFactorType::unknown
+        && rf) {
       float value;
       bool exists;
       getAttrFloat(attr, value, exists);
       if (exists)
-	scale_factors_->setScale(type, pvt, rf, value);
+        scale_factors_->setScale(type, pvt, rf, value);
     }
   }
 }
@@ -1762,12 +1761,12 @@ LibertyReader::visitScaleFactor(LibertyAttr *attr)
       type = findScaleFactorType(type_name);
     }
     if (pvt != ScaleFactorPvt::unknown
-	&& type != ScaleFactorType::unknown) {
+        && type != ScaleFactorType::unknown) {
       float value;
       bool exists;
       getAttrFloat(attr, value, exists);
       if (exists)
-	scale_factors_->setScale(type, pvt, value);
+        scale_factors_->setScale(type, pvt, value);
     }
   }
 }
@@ -1927,37 +1926,38 @@ LibertyReader::visitWireloadFromArea(LibertyAttr *attr)
 {
   if (wireload_selection_) {
     if (attr->isComplex()) {
-      LibertyAttrValueIterator value_iter(attr->values());
-      if (value_iter.hasNext()) {
-	LibertyAttrValue *value = value_iter.next();
-	if (value->isFloat()) {
-	  float min_area = value->floatValue();
-	  value = value_iter.next();
-	  if (value->isFloat()) {
-	    float max_area = value->floatValue();
-	    value = value_iter.next();
-	    if (value->isString()) {
-	      const char *wireload_name = value->stringValue();
-	      const Wireload *wireload =
-		library_->findWireload(wireload_name);
-	      if (wireload)
-		wireload_selection_->addWireloadFromArea(min_area, max_area,
-							 wireload);
-	      else
-		libWarn(1187, attr, "wireload %s not found.", wireload_name);
-	    }
-	    else
-	      libWarn(1188, attr,
-		      "wire_load_from_area wireload name not a string.");
-	  }
-	  else
-	    libWarn(1189, attr, "wire_load_from_area min not a float.");
-	}
-	else
-	  libWarn(1190, attr, "wire_load_from_area max not a float.");
+      LibertyAttrValueSeq *values = attr->values();
+      if (values->size() == 3) {
+        LibertyAttrValue *value = (*values)[0];
+        if (value->isFloat()) {
+          float min_area = value->floatValue();
+          value = (*values)[1];
+          if (value->isFloat()) {
+            float max_area = value->floatValue();
+
+            value = (*values)[2];
+            if (value->isString()) {
+              const char *wireload_name = value->stringValue();
+              const Wireload *wireload =
+                library_->findWireload(wireload_name);
+              if (wireload)
+                wireload_selection_->addWireloadFromArea(min_area, max_area,
+                                                         wireload);
+              else
+                libWarn(1187, attr, "wireload %s not found.", wireload_name);
+            }
+            else
+              libWarn(1188, attr,
+                      "wire_load_from_area wireload name not a string.");
+          }
+          else
+            libWarn(1189, attr, "wire_load_from_area min not a float.");
+        }
+        else
+          libWarn(1190, attr, "wire_load_from_area max not a float.");
       }
       else
-	libWarn(1191, attr, "wire_load_from_area missing parameters.");
+        libWarn(1191, attr, "wire_load_from_area missing parameters.");
     }
     else
       libWarn(1192, attr, "wire_load_from_area missing parameters.");
@@ -1999,12 +1999,12 @@ LibertyReader::endCell(LibertyGroup *group)
     if (ocv_derate_name_) {
       OcvDerate *derate = cell_->findOcvDerate(ocv_derate_name_);
       if (derate == nullptr)
-	derate = library_->findOcvDerate(ocv_derate_name_);
+        derate = library_->findOcvDerate(ocv_derate_name_);
       if (derate)
-	cell_->setOcvDerate(derate);
+        cell_->setOcvDerate(derate);
       else
-	libWarn(1194, group, "cell %s ocv_derate_group %s not found.",
-		cell_->name(), ocv_derate_name_);
+        libWarn(1194, group, "cell %s ocv_derate_group %s not found.",
+                cell_->name(), ocv_derate_name_);
       stringDelete(ocv_derate_name_);
       ocv_derate_name_ = nullptr;
     }
@@ -2031,13 +2031,13 @@ LibertyReader::finishPortGroups()
 
 void
 LibertyReader::checkPort(LibertyPort *port,
-			 int line)
+                         int line)
 {
   FuncExpr *func_expr = port->function();
   if (func_expr) {
     if (func_expr->checkSize(port)) {
       libWarn(1195, line, "port %s function size does not match port size.",
-	      port->name());
+              port->name());
     }
   }
   if (port->tristateEnable()
@@ -2170,9 +2170,9 @@ LibertyReader::makeCellSequential(SequentialGroup *seq)
     }
   }
   cell_->makeSequential(size, is_register, clk_expr, data_expr, clr_expr,
-			preset_expr, seq->clrPresetVar1(),
-			seq->clrPresetVar2(),
-			seq->outPort(), seq->outInvPort());
+                        preset_expr, seq->clrPresetVar1(),
+                        seq->clrPresetVar2(),
+                        seq->outPort(), seq->outInvPort());
   if (!is_register)
     checkLatchEnableSense(clk_expr, line);
 
@@ -2189,11 +2189,10 @@ LibertyReader::makeCellSequential(SequentialGroup *seq)
 
 void
 LibertyReader::checkLatchEnableSense(FuncExpr *enable_func,
-				     int line)
+                                     int line)
 {
-  FuncExprPortIterator enable_iter(enable_func);
-  while (enable_iter.hasNext()) {
-    LibertyPort *enable_port = enable_iter.next();
+  LibertyPortSet enable_ports = enable_func->ports();
+  for (LibertyPort *enable_port : enable_ports) {
     TimingSense enable_sense = enable_func->portTimingSense(enable_port);
     switch (enable_sense) {
     case TimingSense::positive_unate:
@@ -2201,12 +2200,12 @@ LibertyReader::checkLatchEnableSense(FuncExpr *enable_func,
       break;
     case TimingSense::non_unate:
       libWarn(1200, line, "latch enable function is non-unate for port %s.",
-	      enable_port->name());
+              enable_port->name());
       break;
     case TimingSense::none:
     case TimingSense::unknown:
       libWarn(1201, line, "latch enable function is unknown for port %s.",
-	      enable_port->name());
+              enable_port->name());
       break;
     }
   }
@@ -2224,14 +2223,14 @@ LibertyReader::makeStatetable()
       if (port)
         input_ports.push_back(port);
       else
-	libWarn(1298, statetable_->line(), "statetable input port %s not found.",
+        libWarn(1298, statetable_->line(), "statetable input port %s not found.",
                 input.c_str());
     }
     LibertyPortSeq internal_ports;
     for (const string &internal : statetable_->internalPorts()) {
       LibertyPort *port = cell_->findLibertyPort(internal.c_str());
       if (port == nullptr)
-	port = makePort(cell_, internal.c_str());
+        port = makePort(cell_, internal.c_str());
       internal_ports.push_back(port);
     }
     cell_->makeStatetable(input_ports, internal_ports, statetable_->table());
@@ -2257,9 +2256,9 @@ LibertyReader::makeLeakagePowers()
 void
 LibertyReader::makeLibertyFunc(const char *expr,
                                LibertySetFunc set_func,
-			       bool invert,
-			       const char *attr_name,
-			       LibertyStmt *stmt)
+                               bool invert,
+                               const char *attr_name,
+                               LibertyStmt *stmt)
 {
   LibertyFunc *func = new LibertyFunc(expr, set_func,
                                       invert, attr_name, stmt->line());
@@ -2272,13 +2271,13 @@ LibertyReader::parseCellFuncs()
   for (LibertyFunc *func : cell_funcs_) {
     FuncExpr *expr = parseFunc(func->expr(), func->attrName(), func->line());
     if (func->invert() && expr) {
-      if (expr->op() == FuncExpr::op_not) {
-	FuncExpr *inv = expr;
-	expr = expr->left();
-	delete inv;
+      if (expr->op() == FuncExpr::Op::not_) {
+        FuncExpr *inv = expr;
+        expr = expr->left();
+        delete inv;
       }
       else
-	expr = FuncExpr::makeNot(expr);
+        expr = FuncExpr::makeNot(expr);
     }
     if (expr)
       func->setFunc()(expr);
@@ -2296,17 +2295,17 @@ LibertyReader::beginScaledCell(LibertyGroup *group)
     if (scaled_cell_owner_) {
       const char *op_cond_name = group->secondName();
       if (op_cond_name) {
-	op_cond_ = library_->findOperatingConditions(op_cond_name);
-	if (op_cond_) {
-	  debugPrint(debug_, "liberty", 1, "scaled cell %s %s",
+        op_cond_ = library_->findOperatingConditions(op_cond_name);
+        if (op_cond_) {
+          debugPrint(debug_, "liberty", 1, "scaled cell %s %s",
                      name, op_cond_name);
-	  cell_ = library_->makeScaledCell(name, filename_);
-	}
-	else
-	  libWarn(1202, group, "operating conditions %s not found.", op_cond_name);
+          cell_ = library_->makeScaledCell(name, filename_);
+        }
+        else
+          libWarn(1202, group, "operating conditions %s not found.", op_cond_name);
       }
       else
-	libWarn(1203, group, "scaled_cell missing operating condition.");
+        libWarn(1203, group, "scaled_cell missing operating condition.");
     }
     else
       libWarn(1204, group, "scaled_cell cell %s has not been defined.", name);
@@ -2339,25 +2338,25 @@ LibertyReader::checkScaledCell(LibertyGroup *group)
   if (equivCellPorts(cell_, scaled_cell_owner_)) {
     if (!equivCellPorts(cell_, scaled_cell_owner_))
       libWarn(1206, group, "scaled_cell %s, %s ports do not match cell ports",
-	      cell_->name(),
-	      op_cond_->name());
+              cell_->name(),
+              op_cond_->name());
     if (!equivCellFuncs(cell_, scaled_cell_owner_))
       libWarn(1206, group,
               "scaled_cell %s, %s port functions do not match cell port functions.",
-	      cell_->name(),
-	      op_cond_->name());
+              cell_->name(),
+              op_cond_->name());
   }
   else
     libWarn(1207, group, "scaled_cell ports do not match cell ports.");
   if (!equivCellTimingArcSets(cell_, scaled_cell_owner_))
     libWarn(1208, group, "scaled_cell %s, %s timing does not match cell timing.",
-	    cell_->name(),
-	    op_cond_->name());
+            cell_->name(),
+            op_cond_->name());
 }
 
 void
 LibertyReader::makeTimingArcs(LibertyPort *to_port,
-			      TimingGroup *timing)
+                              TimingGroup *timing)
 {
   LibertyPort *related_out_port = nullptr;
   const char *related_out_port_name = timing->relatedOutputPortName();
@@ -2387,7 +2386,7 @@ LibertyReader::makeTimingArcs(LibertyPort *to_port,
 
 void
 TimingGroup::makeTimingModels(LibertyCell *cell,
-			      LibertyReader *visitor)
+                              LibertyReader *visitor)
 {
   switch (cell->libertyLibrary()->delayModelType()) {
   case DelayModelType::cmos_linear:
@@ -2417,18 +2416,18 @@ TimingGroup::makeLinearModels(LibertyCell *cell)
     TimingModel *model = nullptr;
     if (timingTypeIsCheck(attrs_->timingType())) {
       if (intr_exists)
-	model = new CheckLinearModel(cell, intr);
+        model = new CheckLinearModel(cell, intr);
     }
     else {
       float res = resistance_[rf_index];
       bool res_exists = resistance_exists_[rf_index];
       if (!res_exists)
-	library->defaultPinResistance(rf, PortDirection::output(),
-				      res, res_exists);
+        library->defaultPinResistance(rf, PortDirection::output(),
+                                      res, res_exists);
       if (!res_exists)
-	res = 0.0F;
+        res = 0.0F;
       if (intr_exists)
-	model = new GateLinearModel(cell, intr, res);
+        model = new GateLinearModel(cell, intr, res);
     }
     attrs_->setModel(rf, model);
   }
@@ -2451,22 +2450,22 @@ TimingGroup::makeTableModels(LibertyCell *cell,
                                               output_waveforms_[rf_index]));
       TimingType timing_type = attrs_->timingType();
       if (timing_type == TimingType::clear
-	  || timing_type == TimingType::combinational
-	  || timing_type == TimingType::combinational_fall
-	  || timing_type == TimingType::combinational_rise
-	  || timing_type == TimingType::falling_edge
-	  || timing_type == TimingType::preset
-	  || timing_type == TimingType::rising_edge
-	  || timing_type == TimingType::three_state_disable
-	  || timing_type == TimingType::three_state_disable_rise
-	  || timing_type == TimingType::three_state_disable_fall
-	  || timing_type == TimingType::three_state_enable
-	  || timing_type == TimingType::three_state_enable_fall
-	  || timing_type == TimingType::three_state_enable_rise) {
-	if (transition == nullptr)
-	  reader->libWarn(1210, line_, "missing %s_transition.", rf->name());
-	if (delay == nullptr)
-	  reader->libWarn(1211, line_, "missing cell_%s.", rf->name());
+          || timing_type == TimingType::combinational
+          || timing_type == TimingType::combinational_fall
+          || timing_type == TimingType::combinational_rise
+          || timing_type == TimingType::falling_edge
+          || timing_type == TimingType::preset
+          || timing_type == TimingType::rising_edge
+          || timing_type == TimingType::three_state_disable
+          || timing_type == TimingType::three_state_disable_rise
+          || timing_type == TimingType::three_state_disable_fall
+          || timing_type == TimingType::three_state_enable
+          || timing_type == TimingType::three_state_enable_fall
+          || timing_type == TimingType::three_state_enable_rise) {
+        if (transition == nullptr)
+          reader->libWarn(1210, line_, "missing %s_transition.", rf->name());
+        if (delay == nullptr)
+          reader->libWarn(1211, line_, "missing cell_%s.", rf->name());
       }
     }
     else if (constraint)
@@ -2477,10 +2476,10 @@ TimingGroup::makeTableModels(LibertyCell *cell,
 
 void
 LibertyReader::makeTimingArcs(const char *from_port_name,
-			      PortNameBitIterator &from_port_iter,
-			      LibertyPort *to_port,
-			      LibertyPort *related_out_port,
-			      TimingGroup *timing)
+                              PortNameBitIterator &from_port_iter,
+                              LibertyPort *to_port,
+                              LibertyPort *related_out_port,
+                              TimingGroup *timing)
 {
   if (from_port_iter.size() == 1 && !to_port->hasMembers()) {
     // one -> one
@@ -2510,8 +2509,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
         libWarn(1214, timing->line(), "timing group from output port.");
       LibertyPortMemberIterator bit_iter(to_port);
       while (bit_iter.hasNext()) {
-	LibertyPort *to_port_bit = bit_iter.next();
-	builder_.makeTimingArcs(cell_, from_port, to_port_bit, related_out_port,
+        LibertyPort *to_port_bit = bit_iter.next();
+        builder_.makeTimingArcs(cell_, from_port, to_port_bit, related_out_port,
                                 timing->attrs(), timing->line());
       }
     }
@@ -2524,42 +2523,42 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
       LibertyPortMemberIterator to_port_iter(to_port);
       // warn about different sizes
       if (from_size != to_size)
-	libWarn(1216, timing->line(),
-		"timing port %s and related port %s are different sizes.",
-		from_port_name,
-		to_port->name());
+        libWarn(1216, timing->line(),
+                "timing port %s and related port %s are different sizes.",
+                from_port_name,
+                to_port->name());
       // align to/from iterators for one-to-one mapping
       while (from_size > to_size) {
-	from_size--;
-	from_port_iter.next();
+        from_size--;
+        from_port_iter.next();
       }
       while (to_size > from_size) {
-	to_size--;
-	to_port_iter.next();
+        to_size--;
+        to_port_iter.next();
       }
       // make timing arcs
       while (from_port_iter.hasNext() && to_port_iter.hasNext()) {
-	LibertyPort *from_port_bit = from_port_iter.next();
-	LibertyPort *to_port_bit = to_port_iter.next();
-	if (from_port_bit->direction()->isOutput())
-	  libWarn(1215, timing->line(), "timing group from output port.");
-	builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
-				related_out_port, timing->attrs(),
-				timing->line());
+        LibertyPort *from_port_bit = from_port_iter.next();
+        LibertyPort *to_port_bit = to_port_iter.next();
+        if (from_port_bit->direction()->isOutput())
+          libWarn(1215, timing->line(), "timing group from output port.");
+        builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
+                                related_out_port, timing->attrs(),
+                                timing->line());
       }
     }
     else {
       while (from_port_iter.hasNext()) {
-	LibertyPort *from_port_bit = from_port_iter.next();
+        LibertyPort *from_port_bit = from_port_iter.next();
         if (from_port_bit->direction()->isOutput())
           libWarn(1217, timing->line(), "timing group from output port.");
-	LibertyPortMemberIterator to_iter(to_port);
-	while (to_iter.hasNext()) {
-	  LibertyPort *to_port_bit = to_iter.next();
-	  builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
+        LibertyPortMemberIterator to_iter(to_port);
+        while (to_iter.hasNext()) {
+          LibertyPort *to_port_bit = to_iter.next();
+          builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
                                   related_out_port, timing->attrs(),
                                   timing->line());
-	}
+        }
       }
     }
   }
@@ -2568,7 +2567,7 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
 void
 LibertyReader::makeTimingArcs(LibertyPort *to_port,
                               LibertyPort *related_out_port,
-			      TimingGroup *timing)
+                              TimingGroup *timing)
 {
   if (to_port->hasMembers()) {
     LibertyPortMemberIterator bit_iter(to_port);
@@ -2707,17 +2706,17 @@ void
 LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
 {
   if (timing_) {
-    Set<float> slew_set, cap_set;
+    std::set<float> slew_set, cap_set;
     FloatSeq *slew_values = new FloatSeq;
     FloatSeq *cap_values = new FloatSeq;
     for (OutputWaveform *waveform : output_currents_) {
       float slew = waveform->slew();
-      if (!slew_set.hasKey(slew)) {
+      if (!slew_set.contains(slew)) {
         slew_set.insert(slew);
         slew_values->push_back(slew);
       }
       float cap = waveform->cap();
-      if (!cap_set.hasKey(cap)) {
+      if (!cap_set.contains(cap)) {
         cap_set.insert(cap);
         cap_values->push_back(cap);
       }
@@ -2750,7 +2749,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
                                                           current_waveforms,
                                                           ref_time_tbl);
     timing_->setOutputWaveforms(rf_, output_current);
-    output_currents_.deleteContentsClear();
+    deleteContents(output_currents_);
   }
 }
 
@@ -2878,7 +2877,7 @@ LibertyReader::visitDriverWaveformRiseFall(LibertyAttr *attr,
 
 void
 LibertyReader::makeInternalPowers(LibertyPort *port,
-				  InternalPowerGroup *power_group)
+                                  InternalPowerGroup *power_group)
 {
   int line = power_group->line();
   StringSeq *related_port_names = power_group->relatedPortNames();
@@ -2886,9 +2885,9 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
     for (const char *related_port_name : *related_port_names) {
       PortNameBitIterator related_port_iter(cell_, related_port_name, this, line);
       if (related_port_iter.hasNext()) {
-	debugPrint(debug_, "liberty", 2, "  power %s -> %s",
+        debugPrint(debug_, "liberty", 2, "  power %s -> %s",
                    related_port_name, port->name());
-	makeInternalPowers(port, related_port_name, related_port_iter, power_group);
+        makeInternalPowers(port, related_port_name, related_port_iter, power_group);
       }
     }
   }
@@ -2896,8 +2895,8 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
     if (port->hasMembers()) {
       LibertyPortMemberIterator bit_iter(port);
       while (bit_iter.hasNext()) {
-	LibertyPort *port_bit = bit_iter.next();
-	builder_.makeInternalPower(cell_, port_bit, nullptr, power_group);
+        LibertyPort *port_bit = bit_iter.next();
+        builder_.makeInternalPower(cell_, port_bit, nullptr, power_group);
       }
     }
     else
@@ -2907,9 +2906,9 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
 
 void
 LibertyReader::makeInternalPowers(LibertyPort *port,
-				  const char *related_port_name,
-				  PortNameBitIterator &related_port_iter,
-				  InternalPowerGroup *power_group)
+                                  const char *related_port_name,
+                                  PortNameBitIterator &related_port_iter,
+                                  InternalPowerGroup *power_group)
 {
   if (related_port_iter.size() == 1 && !port->hasMembers()) {
     // one -> one
@@ -2931,8 +2930,8 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
       LibertyPort *related_port = related_port_iter.next();
       LibertyPortMemberIterator bit_iter(port);
       while (bit_iter.hasNext()) {
-	LibertyPort *port_bit = bit_iter.next();
-	builder_.makeInternalPower(cell_, port_bit, related_port, power_group);
+        LibertyPort *port_bit = bit_iter.next();
+        builder_.makeInternalPower(cell_, port_bit, related_port, power_group);
       }
     }
   }
@@ -2940,27 +2939,27 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
     // bus -> bus
     if (power_group->isOneToOne()) {
       if (static_cast<int>(related_port_iter.size()) == port->size()) {
-	LibertyPortMemberIterator to_iter(port);
-	while (related_port_iter.hasNext() && to_iter.hasNext()) {
-	  LibertyPort *related_port_bit = related_port_iter.next();
-	  LibertyPort *port_bit = to_iter.next();
-	  builder_.makeInternalPower(cell_, port_bit, related_port_bit, power_group);
-	}
+        LibertyPortMemberIterator to_iter(port);
+        while (related_port_iter.hasNext() && to_iter.hasNext()) {
+          LibertyPort *related_port_bit = related_port_iter.next();
+          LibertyPort *port_bit = to_iter.next();
+          builder_.makeInternalPower(cell_, port_bit, related_port_bit, power_group);
+        }
       }
       else
-	libWarn(1227, power_group->line(),
-		"internal_power port %s and related port %s are different sizes.",
-		related_port_name,
-		port->name());
+        libWarn(1227, power_group->line(),
+                "internal_power port %s and related port %s are different sizes.",
+                related_port_name,
+                port->name());
     }
     else {
       while (related_port_iter.hasNext()) {
-	LibertyPort *related_port_bit = related_port_iter.next();
-	LibertyPortMemberIterator to_iter(port);
-	while (to_iter.hasNext()) {
-	  LibertyPort *port_bit = to_iter.next();
-	  builder_.makeInternalPower(cell_, port_bit, related_port_bit, power_group);
-	}
+        LibertyPort *related_port_bit = related_port_iter.next();
+        LibertyPortMemberIterator to_iter(port);
+        while (to_iter.hasNext()) {
+          LibertyPort *port_bit = to_iter.next();
+          builder_.makeInternalPower(cell_, port_bit, related_port_bit, power_group);
+        }
       }
     }
   }
@@ -3136,11 +3135,11 @@ LibertyReader::visitClockGatingIntegratedCell(LibertyAttr *attr)
     const char *clock_gate_type = getAttrString(attr);
     if (clock_gate_type) {
       if (stringBeginEqual(clock_gate_type, "latch_posedge"))
-	cell_->setClockGateType(ClockGateType::latch_posedge);
+        cell_->setClockGateType(ClockGateType::latch_posedge);
       else if (stringBeginEqual(clock_gate_type, "latch_negedge"))
-	cell_->setClockGateType(ClockGateType::latch_negedge);
+        cell_->setClockGateType(ClockGateType::latch_negedge);
       else
-	cell_->setClockGateType(ClockGateType::other);
+        cell_->setClockGateType(ClockGateType::other);
     }
   }
 }
@@ -3176,17 +3175,17 @@ LibertyReader::beginPin(LibertyGroup *group)
       saved_port_group_ = port_group_;
       ports_ = new LibertyPortSeq;
       for (LibertyAttrValue *param : *group->params()) {
-	if (param->isString()) {
-	  const char *port_name = param->stringValue();
-	  debugPrint(debug_, "liberty", 1, " port %s", port_name);
-	  PortNameBitIterator port_iter(cell_, port_name, this, group->line());
-	  while (port_iter.hasNext()) {
-	    LibertyPort *port = port_iter.next();
-	    ports_->push_back(port);
-	  }
-	}
-	else
-	  libWarn(1231, group, "pin name is not a string.");
+        if (param->isString()) {
+          const char *port_name = param->stringValue();
+          debugPrint(debug_, "liberty", 1, " port %s", port_name);
+          PortNameBitIterator port_iter(cell_, port_name, this, group->line());
+          while (port_iter.hasNext()) {
+            LibertyPort *port = port_iter.next();
+            ports_->push_back(port);
+          }
+        }
+        else
+          libWarn(1231, group, "pin name is not a string.");
       }
     }
     else if (in_bundle_) {
@@ -3194,30 +3193,30 @@ LibertyReader::beginPin(LibertyGroup *group)
       saved_port_group_ = port_group_;
       ports_ = new LibertyPortSeq;
       for (LibertyAttrValue *param : *group->params()) {
-	if (param->isString()) {
-	  const char *name = param->stringValue();
-	  debugPrint(debug_, "liberty", 1, " port %s", name);
-	  LibertyPort *port = findPort(name);
-	  if (port == nullptr)
-	    port = makePort(cell_, name);
-	  ports_->push_back(port);
-	}
-	else
-	  libWarn(1232, group, "pin name is not a string.");
+        if (param->isString()) {
+          const char *name = param->stringValue();
+          debugPrint(debug_, "liberty", 1, " port %s", name);
+          LibertyPort *port = findPort(name);
+          if (port == nullptr)
+            port = makePort(cell_, name);
+          ports_->push_back(port);
+        }
+        else
+          libWarn(1232, group, "pin name is not a string.");
       }
     }
     else {
       ports_ = new LibertyPortSeq;
       // Multiple port names can share group def.
       for (LibertyAttrValue *param : *group->params()) {
-	if (param->isString()) {
-	  const char *name = param->stringValue();
-	  debugPrint(debug_, "liberty", 1, " port %s", name);
-	  LibertyPort *port = makePort(cell_, name);
-	  ports_->push_back(port);
-	}
-	else
-	  libWarn(1233, group, "pin name is not a string.");
+        if (param->isString()) {
+          const char *name = param->stringValue();
+          debugPrint(debug_, "liberty", 1, " port %s", name);
+          LibertyPort *port = makePort(cell_, name);
+          ports_->push_back(port);
+        }
+        else
+          libWarn(1233, group, "pin name is not a string.");
       }
     }
     port_group_ = new PortGroup(ports_, group->line());
@@ -3289,7 +3288,7 @@ LibertyReader::setPortCapDefault(LibertyPort *port)
       bool exists;
       port->capacitance(tr, min_max, cap, exists);
       if (!exists)
-	port->setCapacitance(tr, min_max, defaultCap(port));
+        port->setCapacitance(tr, min_max, defaultCap(port));
     }
   }
 }
@@ -3322,7 +3321,7 @@ LibertyReader::beginBusOrBundle(LibertyGroup *group)
     if (param->isString()) {
       const char *name = param->stringValue();
       if (name)
-	bus_names_.push_back(stringCopy(name));
+        bus_names_.push_back(stringCopy(name));
     }
   }
   ports_ = new LibertyPortSeq;
@@ -3350,17 +3349,17 @@ LibertyReader::visitBusType(LibertyAttr *attr)
       // Look for bus dcl local to cell first.
       BusDcl *bus_dcl = cell_->findBusDcl(bus_type);
       if (bus_dcl == nullptr)
-	bus_dcl = library_->findBusDcl(bus_type);
+        bus_dcl = library_->findBusDcl(bus_type);
       if (bus_dcl) {
         for (const char *name : bus_names_) {
-	  debugPrint(debug_, "liberty", 1, " bus %s", name);
-	  LibertyPort *port = makeBusPort(cell_, name, bus_dcl->from(),
+          debugPrint(debug_, "liberty", 1, " bus %s", name);
+          LibertyPort *port = makeBusPort(cell_, name, bus_dcl->from(),
                                           bus_dcl->to(), bus_dcl);
-	  ports_->push_back(port);
-	}
+          ports_->push_back(port);
+        }
       }
       else
-	libWarn(1235, attr, "bus_type %s not found.", bus_type);
+        libWarn(1235, attr, "bus_type %s not found.", bus_type);
     }
     else
       libWarn(1236, attr, "bus_type is not a string.");
@@ -3393,21 +3392,21 @@ LibertyReader::visitMembers(LibertyAttr *attr)
   if (cell_) {
     if (attr->isComplex()) {
       for (const char *name : bus_names_) {
-	debugPrint(debug_, "liberty", 1, " bundle %s", name);
-	ConcretePortSeq *members = new ConcretePortSeq;
+        debugPrint(debug_, "liberty", 1, " bundle %s", name);
+        ConcretePortSeq *members = new ConcretePortSeq;
         for (LibertyAttrValue *value : *attr->values()) {
-	  if (value->isString()) {
-	    const char *port_name = value->stringValue();
-	    LibertyPort *port = findPort(port_name);
-	    if (port == nullptr)
-	      port = makePort(cell_, port_name);
-	    members->push_back(port);
-	  }
-	  else
-	    libWarn(1238, attr, "member is not a string.");
-	}
-	LibertyPort *port = builder_.makeBundlePort(cell_, name, members);
-	ports_->push_back(port);
+          if (value->isString()) {
+            const char *port_name = value->stringValue();
+            LibertyPort *port = findPort(port_name);
+            if (port == nullptr)
+              port = makePort(cell_, port_name);
+            members->push_back(port);
+          }
+          else
+            libWarn(1238, attr, "member is not a string.");
+        }
+        LibertyPort *port = builder_.makeBundlePort(cell_, name, members);
+        ports_->push_back(port);
       }
     }
     else
@@ -3441,7 +3440,7 @@ libertyReaderFindPort(LibertyCell *cell,
 
 LibertyPort *
 LibertyReader::findPort(LibertyCell *cell,
-			const char *port_name)
+                        const char *port_name)
 {
   return libertyReaderFindPort(cell, port_name);
 }
@@ -3454,21 +3453,21 @@ LibertyReader::visitDirection(LibertyAttr *attr)
     if (dir) {
       PortDirection *port_dir = PortDirection::unknown();
       if (stringEq(dir, "input"))
-	port_dir = PortDirection::input();
+        port_dir = PortDirection::input();
       else if (stringEq(dir, "output"))
-	port_dir = PortDirection::output();
+        port_dir = PortDirection::output();
       else if (stringEq(dir, "inout"))
-	port_dir = PortDirection::bidirect();
+        port_dir = PortDirection::bidirect();
       else if (stringEq(dir, "internal"))
-	port_dir = PortDirection::internal();
+        port_dir = PortDirection::internal();
       else
-	libWarn(1240, attr, "unknown port direction.");
+        libWarn(1240, attr, "unknown port direction.");
 
       for (LibertyPort *port : *ports_)  {
-	// Tristate enable function sets direction to tristate; don't
-	// clobber it.
-	if (!port->direction()->isTristate())
-	  port->setDirection(port_dir);
+        // Tristate enable function sets direction to tristate; don't
+        // clobber it.
+        if (!port->direction()->isTristate())
+          port->setDirection(port_dir);
       }
     }
   }
@@ -3495,7 +3494,7 @@ LibertyReader::visitThreeState(LibertyAttr *attr)
     const char *three_state = getAttrString(attr);
     if (three_state) {
       for (LibertyPort *port : *ports_)
-	makeLibertyFunc(three_state,
+        makeLibertyFunc(three_state,
                         [port] (FuncExpr *expr) { port->setTristateEnable(expr); },
                         true, "three_state", attr);
     }
@@ -3523,7 +3522,7 @@ LibertyReader::visitClock(LibertyAttr *attr)
     getAttrBool(attr, is_clk, exists);
     if (exists) {
       for (LibertyPort *port : *ports_)
-	port->setIsClock(is_clk);
+        port->setIsClock(is_clk);
     }
   }
 }
@@ -3551,7 +3550,7 @@ LibertyReader::visitCapacitance(LibertyAttr *attr)
     if (exists) {
       cap *= cap_scale_;
       for (LibertyPort *port : *ports_)
-	port->setCapacitance(cap);
+        port->setCapacitance(cap);
     }
   }
   if (wireload_) {
@@ -3573,8 +3572,8 @@ LibertyReader::visitRiseCap(LibertyAttr *attr)
     if (exists) {
       cap *= cap_scale_;
       for (LibertyPort *port : *ports_) {
-	port->setCapacitance(RiseFall::rise(), MinMax::min(), cap);
-	port->setCapacitance(RiseFall::rise(), MinMax::max(), cap);
+        port->setCapacitance(RiseFall::rise(), MinMax::min(), cap);
+        port->setCapacitance(RiseFall::rise(), MinMax::max(), cap);
       }
     }
   }
@@ -3590,8 +3589,8 @@ LibertyReader::visitFallCap(LibertyAttr *attr)
     if (exists) {
       cap *= cap_scale_;
       for (LibertyPort *port : *ports_) {
-	port->setCapacitance(RiseFall::fall(), MinMax::min(), cap);
-	port->setCapacitance(RiseFall::fall(), MinMax::max(), cap);
+        port->setCapacitance(RiseFall::fall(), MinMax::min(), cap);
+        port->setCapacitance(RiseFall::fall(), MinMax::max(), cap);
       }
     }
   }
@@ -3608,8 +3607,8 @@ LibertyReader::visitRiseCapRange(LibertyAttr *attr)
       min *= cap_scale_;
       max *= cap_scale_;
       for (LibertyPort *port : *ports_) {
-	port->setCapacitance(RiseFall::rise(), MinMax::min(), min);
-	port->setCapacitance(RiseFall::rise(), MinMax::max(), max);
+        port->setCapacitance(RiseFall::rise(), MinMax::min(), min);
+        port->setCapacitance(RiseFall::rise(), MinMax::max(), max);
       }
     }
   }
@@ -3626,8 +3625,8 @@ LibertyReader::visitFallCapRange(LibertyAttr *attr)
       min *= cap_scale_;
       max *= cap_scale_;
       for (LibertyPort *port : *ports_) {
-	port->setCapacitance(RiseFall::fall(), MinMax::min(), min);
-	port->setCapacitance(RiseFall::fall(), MinMax::max(), max);
+        port->setCapacitance(RiseFall::fall(), MinMax::min(), min);
+        port->setCapacitance(RiseFall::fall(), MinMax::max(), max);
       }
     }
   }
@@ -3641,7 +3640,7 @@ LibertyReader::defaultCap(LibertyPort *port)
   if (dir->isInput())
     cap = library_->defaultInputPinCap();
   else if (dir->isOutput()
-	   || dir->isTristate())
+           || dir->isTristate())
     cap = library_->defaultOutputPinCap();
   else if (dir->isBidirect())
     cap = library_->defaultBidirectPinCap();
@@ -3657,8 +3656,8 @@ LibertyReader::visitFanoutLoad(LibertyAttr *attr)
     getAttrFloat(attr, fanout, exists);
     if (exists) {
       visitPorts([&] (LibertyPort *port) {
-		   port->setFanoutLoad(fanout);
-		 });
+                   port->setFanoutLoad(fanout);
+                 });
     }
   }
 }
@@ -3677,7 +3676,7 @@ LibertyReader::visitMinFanout(LibertyAttr *attr)
 
 void
 LibertyReader::visitFanout(LibertyAttr *attr,
-			   const MinMax *min_max)
+                           const MinMax *min_max)
 {
   if (ports_) {
     float fanout;
@@ -3685,8 +3684,8 @@ LibertyReader::visitFanout(LibertyAttr *attr,
     getAttrFloat(attr, fanout, exists);
     if (exists) {
       visitPorts([&] (LibertyPort *port) {
-		   port->setFanoutLimit(fanout, min_max);
-		 });
+                   port->setFanoutLimit(fanout, min_max);
+                 });
     }
   }
 }
@@ -3713,11 +3712,11 @@ LibertyReader::visitMinMaxTransition(LibertyAttr *attr,
     getAttrFloat(attr, value, exists);
     if (exists) {
       if (min_max == MinMax::max() && value == 0.0)
-	libWarn(1241, attr, "max_transition is 0.0.");
+        libWarn(1241, attr, "max_transition is 0.0.");
       value *= time_scale_;
       visitPorts([&] (LibertyPort *port) {
-		   port->setSlewLimit(value, min_max);
-		 });
+                   port->setSlewLimit(value, min_max);
+                 });
     }
   }
 }
@@ -3736,7 +3735,7 @@ LibertyReader::visitMinCapacitance(LibertyAttr *attr)
 
 void
 LibertyReader::visitMinMaxCapacitance(LibertyAttr *attr,
-				      const MinMax *min_max)
+                                      const MinMax *min_max)
 {
   if (cell_) {
     float value;
@@ -3744,10 +3743,9 @@ LibertyReader::visitMinMaxCapacitance(LibertyAttr *attr,
     getAttrFloat(attr, value, exists);
     if (exists) {
       value *= cap_scale_;
-      LibertyPortSeq::Iterator port_iter(ports_);
       visitPorts([&] (LibertyPort *port) {
-		   port->setCapacitanceLimit(value, min_max);
-		 });
+        port->setCapacitanceLimit(value, min_max);
+      });
     }
   }
 }
@@ -3761,7 +3759,7 @@ LibertyReader::visitMinPeriod(LibertyAttr *attr)
     getAttrFloat(attr, value, exists);
     if (exists) {
       for (LibertyPort *port : *ports_)
-	port->setMinPeriod(value * time_scale_);
+        port->setMinPeriod(value * time_scale_);
     }
   }
 }
@@ -3780,7 +3778,7 @@ LibertyReader::visitMinPulseWidthHigh(LibertyAttr *attr)
 
 void
 LibertyReader::visitMinPulseWidth(LibertyAttr *attr,
-				  const RiseFall *rf)
+                                  const RiseFall *rf)
 {
   if (cell_) {
     float value;
@@ -3789,7 +3787,7 @@ LibertyReader::visitMinPulseWidth(LibertyAttr *attr,
     if (exists) {
       value *= time_scale_;
       for (LibertyPort *port : *ports_)
-	port->setMinPulseWidth(rf, value);
+        port->setMinPulseWidth(rf, value);
     }
   }
 }
@@ -3803,26 +3801,26 @@ LibertyReader::visitPulseClock(LibertyAttr *attr)
       const RiseFall *trigger = nullptr;
       const RiseFall *sense = nullptr;
       if (stringEq(pulse_clk, "rise_triggered_high_pulse")) {
-	trigger = RiseFall::rise();
-	sense = RiseFall::rise();
+        trigger = RiseFall::rise();
+        sense = RiseFall::rise();
       }
       else if (stringEq(pulse_clk, "rise_triggered_low_pulse")) {
-	trigger = RiseFall::rise();
-	sense = RiseFall::fall();
+        trigger = RiseFall::rise();
+        sense = RiseFall::fall();
       }
       else if (stringEq(pulse_clk, "fall_triggered_high_pulse")) {
-	trigger = RiseFall::fall();
-	sense = RiseFall::rise();
+        trigger = RiseFall::fall();
+        sense = RiseFall::rise();
       }
       else if (stringEq(pulse_clk, "fall_triggered_low_pulse")) {
-	trigger = RiseFall::fall();
-	sense = RiseFall::fall();
+        trigger = RiseFall::fall();
+        sense = RiseFall::fall();
       }
       else
-	libWarn(1242,attr, "pulse_latch unknown pulse type.");
+        libWarn(1242,attr, "pulse_latch unknown pulse type.");
       if (trigger) {
         for (LibertyPort *port : *ports_)
-	  port->setPulseClk(trigger, sense);
+          port->setPulseClk(trigger, sense);
       }
     }
   }
@@ -3920,7 +3918,7 @@ LibertyReader::visitPortBoolAttr(LibertyAttr *attr,
     getAttrBool(attr, value, exists);
     if (exists) {
       for (LibertyPort *port : *ports_)
-	(port->*setter)(value);
+        (port->*setter)(value);
     }
   }
 }
@@ -3992,8 +3990,8 @@ LibertyReader::endLatchBank(LibertyGroup *)
 
 void
 LibertyReader::beginSequential(LibertyGroup *group,
-			       bool is_register,
-			       bool is_bank)
+                               bool is_register,
+                               bool is_bank)
 {
   if (cell_) {
     // Define ff/latch state variables as internal ports.
@@ -4005,31 +4003,31 @@ LibertyReader::beginSequential(LibertyGroup *group,
     LibertyPort *out_port_inv = nullptr;
     if (out_name) {
       if (has_size)
-	out_port = makeBusPort(cell_, out_name, size - 1, 0, nullptr);
+        out_port = makeBusPort(cell_, out_name, size - 1, 0, nullptr);
       else
-	out_port = makePort(cell_, out_name);
+        out_port = makePort(cell_, out_name);
       out_port->setDirection(PortDirection::internal());
     }
     if (out_inv_name) {
       if (has_size)
-	out_port_inv = makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
+        out_port_inv = makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
       else
-	out_port_inv = makePort(cell_, out_inv_name);
+        out_port_inv = makePort(cell_, out_inv_name);
       out_port_inv->setDirection(PortDirection::internal());
     }
     sequential_ = new SequentialGroup(is_register, is_bank,
-				      out_port, out_port_inv, size,
-				      group->line());
+                                      out_port, out_port_inv, size,
+                                      group->line());
     cell_sequentials_.push_back(sequential_);
   }
 }
 
 void
 LibertyReader::seqPortNames(LibertyGroup *group,
-			    const char *&out_name,
-			    const char *&out_inv_name,
-			    bool &has_size,
-			    int &size)
+                            const char *&out_name,
+                            const char *&out_inv_name,
+                            bool &has_size,
+                            int &size)
 {
   out_name = nullptr;
   out_inv_name = nullptr;
@@ -4262,14 +4260,14 @@ LibertyReader::endTiming(LibertyGroup *group)
     for (auto rf : RiseFall::range()) {
       TableModel *model = timing_->constraint(rf);
       if (model) {
-	ScaleFactorType type=timingTypeScaleFactorType(timing_->attrs()->timingType());
-	model->setScaleFactorType(type);
+        ScaleFactorType type=timingTypeScaleFactorType(timing_->attrs()->timingType());
+        model->setScaleFactorType(type);
       }
     }
     TimingType timing_type = timing_->attrs()->timingType();
     if (timing_->relatedPortNames() == nullptr
         && !(timing_type == TimingType::min_pulse_width
-	     || timing_type == TimingType::minimum_period
+             || timing_type == TimingType::minimum_period
              || timing_type == TimingType::min_clock_tree_path
              || timing_type == TimingType::max_clock_tree_path))
       libWarn(1243, group, "timing group missing related_pin/related_bus_pin.");
@@ -4289,7 +4287,7 @@ LibertyReader::visitRelatedPin(LibertyAttr *attr)
 
 void
 LibertyReader::visitRelatedPin(LibertyAttr *attr,
-			       RelatedPortGroup *group)
+                               RelatedPortGroup *group)
 {
   const char *port_names = getAttrString(attr);
   if (port_names) {
@@ -4344,7 +4342,7 @@ LibertyReader::visitRelatedBusPins(LibertyAttr *attr)
 
 void
 LibertyReader::visitRelatedBusPins(LibertyAttr *attr,
-				   RelatedPortGroup *group)
+                                   RelatedPortGroup *group)
 {
   const char *port_names = getAttrString(attr);
   if (port_names) {
@@ -4371,9 +4369,9 @@ LibertyReader::visitTimingType(LibertyAttr *attr)
     if (type_name) {
       TimingType type = findTimingType(type_name);
       if (type == TimingType::unknown)
-	libWarn(1244, attr, "unknown timing_type %s.", type_name);
+        libWarn(1244, attr, "unknown timing_type %s.", type_name);
       else
-	timing_->attrs()->setTimingType(type);
+        timing_->attrs()->setTimingType(type);
     }
   }
 }
@@ -4385,13 +4383,13 @@ LibertyReader::visitTimingSense(LibertyAttr *attr)
     const char *sense_name = getAttrString(attr);
     if (sense_name) {
       if (stringEq(sense_name, "non_unate"))
-	timing_->attrs()->setTimingSense(TimingSense::non_unate);
+        timing_->attrs()->setTimingSense(TimingSense::non_unate);
       else if (stringEq(sense_name, "positive_unate"))
-	timing_->attrs()->setTimingSense(TimingSense::positive_unate);
+        timing_->attrs()->setTimingSense(TimingSense::positive_unate);
       else if (stringEq(sense_name, "negative_unate"))
-	timing_->attrs()->setTimingSense(TimingSense::negative_unate);
+        timing_->attrs()->setTimingSense(TimingSense::negative_unate);
       else
-	libWarn(1245, attr, "unknown timing_sense %s.", sense_name);
+        libWarn(1245, attr, "unknown timing_sense %s.", sense_name);
     }
   }
 }
@@ -4421,26 +4419,22 @@ LibertyReader::visitMode(LibertyAttr *attr)
 {
   if (timing_) {
     if (attr->isComplex()) {
-      LibertyAttrValueIterator value_iter(attr->values());
-      if (value_iter.hasNext()) {
-	LibertyAttrValue *value = value_iter.next();
-	if (value->isString()) {
-	  timing_->attrs()->setModeName(value->stringValue());
-	  if (value_iter.hasNext()) {
-	    value = value_iter.next();
-	    if (value->isString())
-	      timing_->attrs()->setModeValue(value->stringValue());
-	    else
-	      libWarn(1246, attr, "mode value is not a string.");
-	  }
-	  else
-	    libWarn(1247, attr, "missing mode value.");
-	}
-	else
-	  libWarn(1248, attr, "mode name is not a string.");
+      LibertyAttrValueSeq *values = attr->values();
+      if (values->size() == 2) {
+        LibertyAttrValue *value = (*values)[0];
+        if (value->isString())
+          timing_->attrs()->setModeName(value->stringValue());
+        else
+          libWarn(1248, attr, "mode name is not a string.");
+
+        value = (*values)[1];
+        if (value->isString())
+          timing_->attrs()->setModeValue(value->stringValue());
+        else
+          libWarn(1246, attr, "mode value is not a string.");
       }
       else
-	libWarn(1249, attr, "mode missing values.");
+        libWarn(1249, attr, "mode requirees 2 values.");
     }
     else
       libWarn(1250, attr, "mode missing mode name and value.");
@@ -4461,7 +4455,7 @@ LibertyReader::visitIntrinsicFall(LibertyAttr *attr)
 
 void
 LibertyReader::visitIntrinsic(LibertyAttr *attr,
-			      const RiseFall *rf)
+                              const RiseFall *rf)
 {
   if (timing_) {
     float value;
@@ -4486,7 +4480,7 @@ LibertyReader::visitFallResistance(LibertyAttr *attr)
 
 void
 LibertyReader::visitRiseFallResistance(LibertyAttr *attr,
-				       const RiseFall *rf)
+                                       const RiseFall *rf)
 {
   if (timing_) {
     float value;
@@ -4587,8 +4581,8 @@ LibertyReader::beginRiseTransitionDegredation(LibertyGroup *group)
 {
   if (library_)
     beginTableModel(group, TableTemplateType::delay,
-		    RiseFall::rise(), time_scale_,
-		    ScaleFactorType::transition);
+                    RiseFall::rise(), time_scale_,
+                    ScaleFactorType::transition);
 }
 
 void
@@ -4596,8 +4590,8 @@ LibertyReader::beginFallTransitionDegredation(LibertyGroup *group)
 {
   if (library_)
     beginTableModel(group, TableTemplateType::delay,
-		    RiseFall::fall(), time_scale_,
-		    ScaleFactorType::transition);
+                    RiseFall::fall(), time_scale_,
+                    ScaleFactorType::transition);
 }
 
 void
@@ -4619,22 +4613,22 @@ LibertyReader::endRiseFallTransitionDegredation(LibertyGroup *group)
 
 void
 LibertyReader::beginTimingTableModel(LibertyGroup *group,
-				     const RiseFall *rf,
-				     ScaleFactorType scale_factor_type)
+                                     const RiseFall *rf,
+                                     ScaleFactorType scale_factor_type)
 {
   if (timing_)
     beginTableModel(group, TableTemplateType::delay, rf,
-		    time_scale_, scale_factor_type);
+                    time_scale_, scale_factor_type);
   else
     libWarn(1255, group, "%s group not in timing group.", group->firstName());
 }
 
 void
 LibertyReader::beginTableModel(LibertyGroup *group,
-			       TableTemplateType type,
-			       const RiseFall *rf,
-			       float scale,
-			       ScaleFactorType scale_factor_type)
+                               TableTemplateType type,
+                               const RiseFall *rf,
+                               float scale,
+                               ScaleFactorType scale_factor_type)
 {
   beginTable(group, type, scale);
   rf_ = rf;
@@ -4653,8 +4647,8 @@ LibertyReader::endTableModel()
 
 void
 LibertyReader::beginTable(LibertyGroup *group,
-			  TableTemplateType type,
-			  float scale)
+                          TableTemplateType type,
+                          float scale)
 {
   const char *template_name = group->firstName();
   if (library_ && template_name) {
@@ -4720,8 +4714,8 @@ LibertyReader::makeTable(LibertyAttr *attr,
       // Column index1*size(index2) + index2
       // Row    index3
       FloatTable *table = makeFloatTable(attr,
-					 axis_[0]->size()*axis_[1]->size(),
-					 axis_[2]->size(), scale);
+                                         axis_[0]->size()*axis_[1]->size(),
+                                         axis_[2]->size(), scale);
       table_ = make_shared<Table3>(table, axis_[0], axis_[1], axis_[2]);
     }
     else if (axis_[0] && axis_[1]) {
@@ -4729,7 +4723,7 @@ LibertyReader::makeTable(LibertyAttr *attr,
       // Row    variable1/axis[0]
       // Column variable2/axis[1]
       FloatTable *table = makeFloatTable(attr, axis_[0]->size(),
-					 axis_[1]->size(), scale);
+                                         axis_[1]->size(), scale);
       table_ = make_shared<Table2>(table, axis_[0], axis_[1]);
     }
     else if (axis_[0]) {
@@ -4754,9 +4748,9 @@ LibertyReader::makeTable(LibertyAttr *attr,
 
 FloatTable *
 LibertyReader::makeFloatTable(LibertyAttr *attr,
-			      size_t rows,
-			      size_t cols,
-			      float scale)
+                              size_t rows,
+                              size_t cols,
+                              float scale)
 {
   FloatTable *table = new FloatTable;
   table->reserve(rows);
@@ -4775,24 +4769,24 @@ LibertyReader::makeFloatTable(LibertyAttr *attr,
       libWarn(1258, attr, "%s is not a list of floats.", attr->name());
     if (row->size() != cols) {
       libWarn(1259, attr, "table row has %zu columns but axis has %zu.",
-	      row->size(),
-	      cols);
+              row->size(),
+              cols);
       // Fill out row columns with zeros.
       for (size_t c = row->size(); c < cols; c++)
-	row->push_back(0.0);
+        row->push_back(0.0);
     }
   }
   if (table->size() != rows) {
     libWarn(1260, attr, "table has %zu rows but axis has %zu.",
-	    table->size(),
-	    rows);
+            table->size(),
+            rows);
     // Fill with zero'd rows.
     for (size_t r = table->size(); r < rows; r++) {
       FloatSeq *row = new FloatSeq;
       table->push_back(row);
       // Fill out row with zeros.
       for (size_t c = row->size(); c < cols; c++)
-	row->push_back(0.0);
+        row->push_back(0.0);
     }
   }
   return table;
@@ -4827,19 +4821,19 @@ LibertyReader::beginLut(LibertyGroup *group)
   if (cell_) {
     for (LibertyAttrValue *param : *group->params()) {
       if (param->isString()) {
-	const char *names = param->stringValue();
-	// Parse space separated list of related port names.
-	TokenParser parser(names, " ");
-	while (parser.hasNext()) {
-	  char *name = parser.next();
-	  if (name[0] != '\0') {
-	    LibertyPort *port = makePort(cell_, name);
-	    port->setDirection(PortDirection::internal());
-	  }
-	}
+        const char *names = param->stringValue();
+        // Parse space separated list of related port names.
+        TokenParser parser(names, " ");
+        while (parser.hasNext()) {
+          char *name = parser.next();
+          if (name[0] != '\0') {
+            LibertyPort *port = makePort(cell_, name);
+            port->setDirection(PortDirection::internal());
+          }
+        }
       }
       else
-	libWarn(1261, group, "lut output is not a string.");
+        libWarn(1261, group, "lut output is not a string.");
     }
   }
 }
@@ -5008,9 +5002,9 @@ LibertyReader::getAttrString(LibertyAttr *attr)
 
 void
 LibertyReader::getAttrInt(LibertyAttr *attr,
-			  // Return values.
-			  int &value,
-			  bool &exists)
+                          // Return values.
+                          int &value,
+                          bool &exists)
 {
   value = 0;
   exists = false;
@@ -5030,9 +5024,9 @@ LibertyReader::getAttrInt(LibertyAttr *attr,
 
 void
 LibertyReader::getAttrFloat(LibertyAttr *attr,
-			    // Return values.
-			    float &value,
-			    bool &valid)
+                            // Return values.
+                            float &value,
+                            bool &valid)
 {
   valid = false;
   if (attr->isSimple()) 
@@ -5043,10 +5037,10 @@ LibertyReader::getAttrFloat(LibertyAttr *attr,
 
 void
 LibertyReader::getAttrFloat(LibertyAttr *attr,
-			    LibertyAttrValue *attr_value,
-			    // Return values.
-			    float &value,
-			    bool &valid)
+                            LibertyAttrValue *attr_value,
+                            // Return values.
+                            float &value,
+                            bool &valid)
 {
   if (attr_value->isFloat()) {
     valid = true;
@@ -5064,9 +5058,9 @@ LibertyReader::getAttrFloat(LibertyAttr *attr,
       if ((*end && !isspace(*end))
           // strtof support INF as a valid float.
           || stringEqual(string, "inf"))
-	libWarn(1271, attr, "%s value %s is not a float.",
-		attr->name(),
-		string);
+        libWarn(1271, attr, "%s value %s is not a float.",
+                attr->name(),
+                string);
       valid = true;
     }
   }
@@ -5076,31 +5070,30 @@ LibertyReader::getAttrFloat(LibertyAttr *attr,
 //  attr(float1, float2);
 void
 LibertyReader::getAttrFloat2(LibertyAttr *attr,
-			     // Return values.
-			     float &value1,
-			     float &value2,
-			     bool &exists)
+                             // Return values.
+                             float &value1,
+                             float &value2,
+                             bool &exists)
 {
   exists = false;
   if (attr->isComplex()) {
-    LibertyAttrValueIterator value_iter(attr->values());
-    if (value_iter.hasNext()) {
-      LibertyAttrValue *value = value_iter.next();
+    LibertyAttrValueSeq *values = attr->values();
+    if (values->size() == 2) {
+      LibertyAttrValue *value = (*values)[0];
       getAttrFloat(attr, value, value1, exists);
-      if (exists) {
-	if (value_iter.hasNext()) {
-	  value = value_iter.next();
-	  getAttrFloat(attr, value, value2, exists);
-	}
-	else
-	  libWarn(1272, attr, "%s missing values.", attr->name());
-      }
+      if (!exists)
+        libWarn(1272, attr, "%s is not a float.", attr->name());
+
+      value = (*values)[1];
+      getAttrFloat(attr, value, value2, exists);
+      if (!exists)
+        libWarn(1273, attr, "%s is not a float.", attr->name());
     }
     else
-      libWarn(1273, attr, "%s missing values.", attr->name());
+      libWarn(1274, attr, "%s requires 2 valules.", attr->name());
   }
   else
-    libWarn(1274, attr, "%s is not a complex attribute.", attr->name());
+    libWarn(1345, attr, "%s requires 2 valules.", attr->name());
 }
 
 // Parse string of comma separated floats.
@@ -5108,9 +5101,9 @@ LibertyReader::getAttrFloat2(LibertyAttr *attr,
 // consistent about including the delimiters.
 void
 LibertyReader::parseStringFloatList(const char *float_list,
-				    float scale,
-				    FloatSeq *values,
-				    LibertyAttr *attr)
+                                    float scale,
+                                    FloatSeq *values,
+                                    LibertyAttr *attr)
 {
   const char *delimiters = ", ";
   TokenParser parser(float_list, delimiters);
@@ -5122,10 +5115,10 @@ LibertyReader::parseStringFloatList(const char *float_list,
     char *end;
     float value = strtof(token, &end) * scale;
     if (end == token
-	|| (end && !(*end == '\0'
-		     || isspace(*end)
-		     || strchr(delimiters, *end) != nullptr
-		     || *end == '}')))
+        || (end && !(*end == '\0'
+                     || isspace(*end)
+                     || strchr(delimiters, *end) != nullptr
+                     || *end == '}')))
       libWarn(1275, attr, "%s is not a float.", token);
     values->push_back(value);
   }
@@ -5133,25 +5126,25 @@ LibertyReader::parseStringFloatList(const char *float_list,
 
 FloatSeq *
 LibertyReader::readFloatSeq(LibertyAttr *attr,
-			    float scale)
+                            float scale)
 {
   FloatSeq *values = nullptr;
   if (attr->isComplex()) {
-    LibertyAttrValueIterator value_iter(attr->values());
-    if (value_iter.hasNext()) {
-      LibertyAttrValue *value = value_iter.next();
+    LibertyAttrValueSeq *attr_values = attr->values();
+    if (attr_values->size() == 1) {
+      LibertyAttrValue *value = (*attr_values)[0];
       if (value->isString()) {
-	values = new FloatSeq;
-	parseStringFloatList(value->stringValue(), scale, values, attr);
+        values = new FloatSeq;
+        parseStringFloatList(value->stringValue(), scale, values, attr);
       }
       else if (value->isFloat()) {
-	values = new FloatSeq;
+        values = new FloatSeq;
         values->push_back(value->floatValue());
       }
       else
-	libWarn(1276, attr, "%s is missing values.", attr->name());
+        libWarn(1276, attr, "%s is missing values.", attr->name());
     }
-    if (value_iter.hasNext())
+    else
       libWarn(1277, attr, "%s has more than one string.", attr->name());
   }
   else {
@@ -5168,9 +5161,9 @@ LibertyReader::readFloatSeq(LibertyAttr *attr,
 
 void
 LibertyReader::getAttrBool(LibertyAttr *attr,
-			   // Return values.
-			   bool &value,
-			   bool &exists)
+                           // Return values.
+                           bool &value,
+                           bool &exists)
 {
   exists = false;
   if (attr->isSimple()) {
@@ -5178,15 +5171,15 @@ LibertyReader::getAttrBool(LibertyAttr *attr,
     if (val->isString()) {
       const char *str = val->stringValue();
       if (stringEqual(str, "true")) {
-	value = true;
-	exists = true;
+        value = true;
+        exists = true;
       }
       else if (stringEqual(str, "false")) {
-	value = false;
-	exists = true;
+        value = false;
+        exists = true;
       }
       else
-	libWarn(1279, attr, "%s attribute is not boolean.", attr->name());
+        libWarn(1279, attr, "%s attribute is not boolean.", attr->name());
     }
     else
       libWarn(1280, attr, "%s attribute is not boolean.", attr->name());
@@ -5209,7 +5202,7 @@ LibertyReader::getAttrLogicValue(LibertyAttr *attr)
       return LogicValue::unknown;
     else
       libWarn(1282, attr, "attribute %s value %s not recognized.",
-	      attr->name(), str);
+              attr->name(), str);
     // fall thru
   }
   return LogicValue::unknown;
@@ -5217,12 +5210,12 @@ LibertyReader::getAttrLogicValue(LibertyAttr *attr)
 
 FuncExpr *
 LibertyReader::parseFunc(const char *func,
-			 const char *attr_name,
-			 int line)
+                         const char *attr_name,
+                         int line)
 {
   string error_msg;
   stringPrint(error_msg, "%s, line %d %s",
-              filename_,		
+              filename_,                
               line,
               attr_name);
   return parseFuncExpr(func, cell_, error_msg.c_str(), report_);
@@ -5255,7 +5248,7 @@ LibertyReader::visitVariable(LibertyVariable *var)
   string key;
   float value;
   bool exists;
-  var_map_->findKey(var_name, key, value, exists);
+  findKeyValue(var_map_, var_name, value, exists);
   if (exists) {
     // Duplicate variable name.
     (*var_map_)[key] = var->value();
@@ -5266,11 +5259,11 @@ LibertyReader::visitVariable(LibertyVariable *var)
 
 void
 LibertyReader::variableValue(const char *var,
-			     float &value,
-			     bool &exists)
+                             float &value,
+                             bool &exists)
 {
   if (var_map_)
-    var_map_->findKey(var, value, exists);
+    findKeyValue(var_map_, var, value, exists);
   else
     exists = false;
 }
@@ -5280,8 +5273,8 @@ LibertyReader::variableValue(const char *var,
 void
 LibertyReader::libWarn(int id,
                        LibertyStmt *stmt,
-		       const char *fmt,
-		       ...)
+                       const char *fmt,
+                       ...)
 {
   va_list args;
   va_start(args, fmt);
@@ -5292,8 +5285,8 @@ LibertyReader::libWarn(int id,
 void
 LibertyReader::libWarn(int id,
                        int line,
-		       const char *fmt,
-		       ...)
+                       const char *fmt,
+                       ...)
 {
   va_list args;
   va_start(args, fmt);
@@ -5304,8 +5297,8 @@ LibertyReader::libWarn(int id,
 void
 LibertyReader::libError(int id,
                         LibertyStmt *stmt,
-			const char *fmt,
-			...)
+                        const char *fmt,
+                        ...)
 {
   va_list args;
   va_start(args, fmt);
@@ -5362,8 +5355,8 @@ LibertyReader::beginFallPower(LibertyGroup *group)
 {
   if (internal_power_)
     beginTableModel(group, TableTemplateType::power,
-		    RiseFall::fall(), energy_scale_,
-		    ScaleFactorType::internal_power);
+                    RiseFall::fall(), energy_scale_,
+                    ScaleFactorType::internal_power);
 }
 
 void
@@ -5371,8 +5364,8 @@ LibertyReader::beginRisePower(LibertyGroup *group)
 {
   if (internal_power_)
     beginTableModel(group, TableTemplateType::power,
-		    RiseFall::rise(), energy_scale_,
-		    ScaleFactorType::internal_power);
+                    RiseFall::rise(), energy_scale_,
+                    ScaleFactorType::internal_power);
 }
 
 void
@@ -5505,12 +5498,12 @@ LibertyReader::endOcvDerateFactors(LibertyGroup *)
   if (ocv_derate_) {
     for (auto early_late : derate_type_->range()) {
       for (auto rf : rf_type_->range()) {
-	if (path_type_ == PathType::clk_and_data) {
-	  ocv_derate_->setDerateTable(rf, early_late, PathType::clk, table_);
-	  ocv_derate_->setDerateTable(rf, early_late, PathType::data, table_);
-	}
-	else
-	  ocv_derate_->setDerateTable(rf, early_late, path_type_, table_);
+        if (path_type_ == PathType::clk_and_data) {
+          ocv_derate_->setDerateTable(rf, early_late, PathType::clk, table_);
+          ocv_derate_->setDerateTable(rf, early_late, PathType::data, table_);
+        }
+        else
+          ocv_derate_->setDerateTable(rf, early_late, path_type_, table_);
       }
     }
   }
@@ -5573,11 +5566,11 @@ LibertyReader::endOcvSigmaCell(LibertyGroup *group)
       TableModel *table_model = new TableModel(table_, tbl_template_,
                                                scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
-	timing_->setDelaySigma(rf_, EarlyLate::min(), table_model);
-	timing_->setDelaySigma(rf_, EarlyLate::max(), table_model);
+        timing_->setDelaySigma(rf_, EarlyLate::min(), table_model);
+        timing_->setDelaySigma(rf_, EarlyLate::max(), table_model);
       }
       else
-	timing_->setDelaySigma(rf_, sigma_type_->asMinMax(), table_model);
+        timing_->setDelaySigma(rf_, sigma_type_->asMinMax(), table_model);
     }
     else
       libWarn(1288, group, "unsupported model axis.");
@@ -5605,11 +5598,11 @@ LibertyReader::endOcvSigmaTransition(LibertyGroup *group)
       TableModel *table_model = new TableModel(table_, tbl_template_,
                                                scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
-	timing_->setSlewSigma(rf_, EarlyLate::min(), table_model);
-	timing_->setSlewSigma(rf_, EarlyLate::max(), table_model);
+        timing_->setSlewSigma(rf_, EarlyLate::min(), table_model);
+        timing_->setSlewSigma(rf_, EarlyLate::max(), table_model);
       }
       else
-	timing_->setSlewSigma(rf_, sigma_type_->asMinMax(), table_model);
+        timing_->setSlewSigma(rf_, sigma_type_->asMinMax(), table_model);
     }
     else
       libWarn(1289, group, "unsupported model axis.");
@@ -5637,11 +5630,11 @@ LibertyReader::endOcvSigmaConstraint(LibertyGroup *group)
       TableModel *table_model = new TableModel(table_, tbl_template_,
                                                scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
-	timing_->setConstraintSigma(rf_, EarlyLate::min(), table_model);
-	timing_->setConstraintSigma(rf_, EarlyLate::max(), table_model);
+        timing_->setConstraintSigma(rf_, EarlyLate::min(), table_model);
+        timing_->setConstraintSigma(rf_, EarlyLate::max(), table_model);
       }
       else
-	timing_->setConstraintSigma(rf_, sigma_type_->asMinMax(), table_model);
+        timing_->setConstraintSigma(rf_, sigma_type_->asMinMax(), table_model);
     }
     else
       libWarn(1290, group, "unsupported model axis.");
@@ -5750,9 +5743,9 @@ LibertyReader::endEcsmWaveform(LibertyGroup *)
 
 LibertyFunc::LibertyFunc(const char *expr,
                          LibertySetFunc set_func,
-			 bool invert,
-			 const char *attr_name,
-			 int line) :
+                         bool invert,
+                         const char *attr_name,
+                         int line) :
   expr_(stringCopy(expr)),
   set_func_(set_func),
   invert_(invert),
@@ -5770,7 +5763,7 @@ LibertyFunc::~LibertyFunc()
 ////////////////////////////////////////////////////////////////
 
 PortGroup::PortGroup(LibertyPortSeq *ports,
-		     int line) :
+                     int line) :
   ports_(ports),
   line_(line)
 {
@@ -5778,7 +5771,7 @@ PortGroup::PortGroup(LibertyPortSeq *ports,
 
 PortGroup::~PortGroup()
 {
-  timings_.deleteContents();
+  deleteContents(timings_);
   delete ports_;
 }
 
@@ -5797,11 +5790,11 @@ PortGroup::addInternalPowerGroup(InternalPowerGroup *internal_power)
 ////////////////////////////////////////////////////////////////
 
 SequentialGroup::SequentialGroup(bool is_register,
-				 bool is_bank,
-				 LibertyPort *out_port,
-				 LibertyPort *out_inv_port,
-				 int size,
-				 int line) :
+                                 bool is_bank,
+                                 LibertyPort *out_port,
+                                 LibertyPort *out_inv_port,
+                                 int size,
+                                 int line) :
   is_register_(is_register),
   is_bank_(is_bank),
   out_port_(out_port),
@@ -5952,7 +5945,7 @@ TimingGroup::setRelatedOutputPortName(const char *name)
 
 void
 TimingGroup::setIntrinsic(const RiseFall *rf,
-			  float value)
+                          float value)
 {
   int rf_index = rf->index();
   intrinsic_[rf_index] = value;
@@ -5961,9 +5954,9 @@ TimingGroup::setIntrinsic(const RiseFall *rf,
 
 void
 TimingGroup::intrinsic(const RiseFall *rf,
-		       // Return values.
-		       float &value,
-		       bool &exists)
+                       // Return values.
+                       float &value,
+                       bool &exists)
 {
   int rf_index = rf->index();
   value = intrinsic_[rf_index];
@@ -5972,7 +5965,7 @@ TimingGroup::intrinsic(const RiseFall *rf,
 
 void
 TimingGroup::setResistance(const RiseFall *rf,
-			   float value)
+                           float value)
 {
   int rf_index = rf->index();
   resistance_[rf_index] = value;
@@ -5981,9 +5974,9 @@ TimingGroup::setResistance(const RiseFall *rf,
 
 void
 TimingGroup::resistance(const RiseFall *rf,
-			// Return values.
-			float &value,
-			bool &exists)
+                        // Return values.
+                        float &value,
+                        bool &exists)
 {
   int rf_index = rf->index();
   value = resistance_[rf_index];
@@ -5998,7 +5991,7 @@ TimingGroup::cell(const RiseFall *rf)
 
 void
 TimingGroup::setCell(const RiseFall *rf,
-		     TableModel *model)
+                     TableModel *model)
 {
   cell_[rf->index()] = model;
 }
@@ -6011,7 +6004,7 @@ TimingGroup::constraint(const RiseFall *rf)
 
 void
 TimingGroup::setConstraint(const RiseFall *rf,
-			   TableModel *model)
+                           TableModel *model)
 {
   constraint_[rf->index()] = model;
 }
@@ -6024,31 +6017,31 @@ TimingGroup::transition(const RiseFall *rf)
 
 void
 TimingGroup::setTransition(const RiseFall *rf,
-			   TableModel *model)
+                           TableModel *model)
 {
   transition_[rf->index()] = model;
 }
 
 void
 TimingGroup::setDelaySigma(const RiseFall *rf,
-			   const EarlyLate *early_late,
-			   TableModel *model)
+                           const EarlyLate *early_late,
+                           TableModel *model)
 {
   delay_sigma_[rf->index()][early_late->index()] = model;
 }
 
 void
 TimingGroup::setSlewSigma(const RiseFall *rf,
-			  const EarlyLate *early_late,
-			  TableModel *model)
+                          const EarlyLate *early_late,
+                          TableModel *model)
 {
   slew_sigma_[rf->index()][early_late->index()] = model;
 }
 
 void
 TimingGroup::setConstraintSigma(const RiseFall *rf,
-				const EarlyLate *early_late,
-				TableModel *model)
+                                const EarlyLate *early_late,
+                                TableModel *model)
 {
   constraint_sigma_[rf->index()][early_late->index()] = model;
 }
@@ -6099,9 +6092,9 @@ LeakagePowerGroup::~LeakagePowerGroup()
 ////////////////////////////////////////////////////////////////
 
 PortNameBitIterator::PortNameBitIterator(LibertyCell *cell,
-					 const char *port_name,
-					 LibertyReader *visitor,
-					 int line) :
+                                         const char *port_name,
+                                         LibertyReader *visitor,
+                                         int line) :
   cell_(cell),
   visitor_(visitor),
   line_(line),
@@ -6137,29 +6130,29 @@ PortNameBitIterator::init(const char *port_name)
     if (is_range) {
       port = visitor_->findPort(port_name);
       if (port) {
-	if (port->isBus()) {
-	  if (port->busIndexInRange(from)
-	      && port->busIndexInRange(to)) {
-	    range_bus_port_ = port;
-	    range_from_ = from;
-	    range_to_ = to;
-	    range_bit_ = from;
-	  }
-	  else
-	    visitor_->libWarn(1292, line_, "port %s subscript out of range.",
-			      port_name);
-	}
-	else
-	  visitor_->libWarn(1293, line_, "port range %s of non-bus port %s.",
-			    port_name,
-			    bus_name.c_str());
+        if (port->isBus()) {
+          if (port->busIndexInRange(from)
+              && port->busIndexInRange(to)) {
+            range_bus_port_ = port;
+            range_from_ = from;
+            range_to_ = to;
+            range_bit_ = from;
+          }
+          else
+            visitor_->libWarn(1292, line_, "port %s subscript out of range.",
+                              port_name);
+        }
+        else
+          visitor_->libWarn(1293, line_, "port range %s of non-bus port %s.",
+                            port_name,
+                            bus_name.c_str());
       }
       else {
-	range_bus_name_ = bus_name;
-	range_from_ = from;
-	range_to_ = to;
-	range_bit_ = from;
-	findRangeBusNameNext();
+        range_bus_name_ = bus_name;
+        range_from_ = from;
+        range_to_ = to;
+        range_bit_ = from;
+        findRangeBusNameNext();
       }
       size_ = abs(from - to) + 1;
     }
@@ -6179,11 +6172,11 @@ PortNameBitIterator::hasNext()
   return port_
     || (bit_iterator_ && bit_iterator_->hasNext())
     || (range_bus_port_
-	&& ((range_from_ > range_to_)
-	    ? range_bit_ >= range_to_
-	    : range_bit_ <= range_from_))
+        && ((range_from_ > range_to_)
+            ? range_bit_ >= range_to_
+            : range_bit_ <= range_from_))
     || (!range_bus_name_.empty()
-	&& range_name_next_);
+        && range_name_next_);
 }
 
 LibertyPort *
@@ -6229,9 +6222,9 @@ PortNameBitIterator::findRangeBusNameNext()
     range_name_next_ = visitor_->findPort(bus_bit_name.c_str());
     if (range_name_next_) {
       if (range_from_ > range_to_)
-	range_bit_--;
+        range_bit_--;
       else
-	range_bit_++;
+        range_bit_++;
     }
     else
       visitor_->libWarn(1295, line_, "port %s not found.", bus_bit_name.c_str());

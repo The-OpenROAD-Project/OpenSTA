@@ -32,7 +32,7 @@
 
 namespace sta {
 
-class Corner;
+class Scene;
 class StaState;
 
 class EstimateParasitics : public StaState
@@ -41,58 +41,58 @@ public:
   EstimateParasitics(StaState *sta);
   // Helper function for wireload estimation.
   void estimatePiElmore(const Pin *drvr_pin,
-			const RiseFall *rf,
-			const Wireload *wireload,
-			float fanout,
-			float net_pin_cap,
-			const Corner *corner,
-			const MinMax *min_max,
-			// Return values.
-			float &c2,
-			float &rpi,
-			float &c1,
-			float &elmore_res,
-			float &elmore_cap,
-			bool &elmore_use_load_cap);
+                        const RiseFall *rf,
+                        const Wireload *wireload,
+                        float fanout,
+                        float net_pin_cap,
+                        const Scene *scene,
+                        const MinMax *min_max,
+                        // Return values.
+                        float &c2,
+                        float &rpi,
+                        float &c1,
+                        float &elmore_res,
+                        float &elmore_cap,
+                        bool &elmore_use_load_cap);
 
 protected:
   void estimatePiElmoreBest(const Pin *drvr_pin,
-			    float net_pin_cap,
-			    float wireload_cap,
-			    const RiseFall *rf,
-			    const Corner *corner,
-			    const MinMax *min_max,
-			    // Return values.
-			    float &c2,
-			    float &rpi,
-			    float &c1,
-			    float &elmore_res,
-			    float &elmore_cap,
-			    bool &elmore_use_load_cap) const;
+                            float net_pin_cap,
+                            float wireload_cap,
+                            const RiseFall *rf,
+                            const Scene *scene,
+                            const MinMax *min_max,
+                            // Return values.
+                            float &c2,
+                            float &rpi,
+                            float &c1,
+                            float &elmore_res,
+                            float &elmore_cap,
+                            bool &elmore_use_load_cap) const;
   void estimatePiElmoreWorst(const Pin *drvr_pin,
-			     float wireload_cap,
-			     float wireload_res,
-			     float fanout,
-			     float net_pin_cap,
-			     const RiseFall *rf,
-			     const Corner *corner,
-			     const MinMax *min_max,
-			     // Return values.
-			     float &c2, float &rpi, float &c1,
-			     float &elmore_res, float &elmore_cap,
-			     bool &elmore_use_load_cap);
+                             float wireload_cap,
+                             float wireload_res,
+                             float fanout,
+                             float net_pin_cap,
+                             const RiseFall *rf,
+                             const Scene *scene,
+                             const MinMax *min_max,
+                             // Return values.
+                             float &c2, float &rpi, float &c1,
+                             float &elmore_res, float &elmore_cap,
+                             bool &elmore_use_load_cap);
   void estimatePiElmoreBalanced(const Pin *drvr_pin,
-				float wireload_cap,
-				float wireload_res,
-				float fanout,
-				float net_pin_cap,
-				const RiseFall *rf,
-				const Corner *corner,
-				const MinMax *min_max,
-				// Return values.
-				float &c2, float &rpi, float &c1,
-				float &elmore_res, float &elmore_cap,
-				bool &elmore_use_load_cap);
+                                float wireload_cap,
+                                float wireload_res,
+                                float fanout,
+                                float net_pin_cap,
+                                const RiseFall *rf,
+                                const Scene *scene,
+                                const MinMax *min_max,
+                                // Return values.
+                                float &c2, float &rpi, float &c1,
+                                float &elmore_res, float &elmore_cap,
+                                bool &elmore_use_load_cap);
 };
 
 } // namespace

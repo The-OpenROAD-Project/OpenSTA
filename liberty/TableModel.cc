@@ -29,6 +29,7 @@
 
 #include "Error.hh"
 #include "EnumNameMap.hh"
+#include "ContainerHelpers.hh"
 #include "Units.hh"
 #include "Liberty.hh"
 
@@ -48,10 +49,10 @@ deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
 static string
 reportPvt(const LibertyCell *cell,
           const Pvt *pvt,
-	  int digits);
+          int digits);
 static void
 appendSpaces(string &result,
-	     int count);
+             int count);
 
 TimingModel::TimingModel(LibertyCell *cell) :
   cell_(cell)
@@ -60,9 +61,9 @@ TimingModel::TimingModel(LibertyCell *cell) :
 
 GateTableModel::GateTableModel(LibertyCell *cell,
                                TableModel *delay_model,
-			       TableModel *delay_sigma_models[EarlyLate::index_count],
-			       TableModel *slew_model,
-			       TableModel *slew_sigma_models[EarlyLate::index_count],
+                               TableModel *delay_sigma_models[EarlyLate::index_count],
+                               TableModel *slew_model,
+                               TableModel *slew_sigma_models[EarlyLate::index_count],
                                ReceiverModelPtr receiver_model,
                                OutputWaveforms *output_waveforms) :
   GateTimingModel(cell),
@@ -114,31 +115,31 @@ GateTableModel::setIsScaled(bool is_scaled)
 
 void
 GateTableModel::gateDelay(const Pvt *pvt,
-			  float in_slew,
-			  float load_cap,
-			  bool pocv_enabled,
-			  // return values
-			  ArcDelay &gate_delay,
-			  Slew &drvr_slew) const
+                          float in_slew,
+                          float load_cap,
+                          bool pocv_enabled,
+                          // return values
+                          ArcDelay &gate_delay,
+                          Slew &drvr_slew) const
 {
   float delay = findValue(pvt, delay_model_, in_slew, load_cap, 0.0);
   float sigma_early = 0.0;
   float sigma_late = 0.0;
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
     sigma_early = findValue(pvt, delay_sigma_models_[EarlyLate::earlyIndex()],
-			    in_slew, load_cap, 0.0);
+                            in_slew, load_cap, 0.0);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
     sigma_late = findValue(pvt, delay_sigma_models_[EarlyLate::lateIndex()],
-			   in_slew, load_cap, 0.0);
+                           in_slew, load_cap, 0.0);
   gate_delay = makeDelay(delay, sigma_early, sigma_late);
 
   float slew = findValue(pvt, slew_model_, in_slew, load_cap, 0.0);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
     sigma_early = findValue(pvt, slew_sigma_models_[EarlyLate::earlyIndex()],
-			    in_slew, load_cap, 0.0);
+                            in_slew, load_cap, 0.0);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
     sigma_late = findValue(pvt, slew_sigma_models_[EarlyLate::lateIndex()],
-			   in_slew, load_cap, 0.0);
+                           in_slew, load_cap, 0.0);
   // Clip negative slews to zero.
   if (slew < 0.0)
     slew = 0.0;
@@ -159,10 +160,10 @@ GateTableModel::gateDelay(const Pvt *pvt,
 
 string
 GateTableModel::reportGateDelay(const Pvt *pvt,
-				float in_slew,
-				float load_cap,
-				bool pocv_enabled,
-				int digits) const
+                                float in_slew,
+                                float load_cap,
+                                bool pocv_enabled,
+                                int digits) const
 {
   string result = reportPvt(cell_, pvt, digits);
   result += reportTableLookup("Delay", pvt, delay_model_, in_slew,
@@ -180,11 +181,11 @@ GateTableModel::reportGateDelay(const Pvt *pvt,
                               load_cap, 9.0, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
     result += reportTableLookup("Slew sigma(early)", pvt,
-		      slew_sigma_models_[EarlyLate::earlyIndex()],
-		      in_slew, load_cap, 0.0, digits);
+                      slew_sigma_models_[EarlyLate::earlyIndex()],
+                      in_slew, load_cap, 0.0, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
     result += reportTableLookup("Slew sigma(late)", pvt,
-		      slew_sigma_models_[EarlyLate::lateIndex()],
+                      slew_sigma_models_[EarlyLate::lateIndex()],
                                 in_slew, load_cap, 0.0, digits);
   float drvr_slew = findValue(pvt, slew_model_, in_slew, load_cap, 0.0);
   if (drvr_slew < 0.0)
@@ -194,17 +195,17 @@ GateTableModel::reportGateDelay(const Pvt *pvt,
 
 string
 GateTableModel::reportTableLookup(const char *result_name,
-				  const Pvt *pvt,
-				  const TableModel *model,
-				  float in_slew,
-				  float load_cap,
-				  float related_out_cap,
-				  int digits) const
+                                  const Pvt *pvt,
+                                  const TableModel *model,
+                                  float in_slew,
+                                  float load_cap,
+                                  float related_out_cap,
+                                  int digits) const
 {
   if (model) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(model, in_slew, load_cap, related_out_cap,
-		   axis_value1, axis_value2, axis_value3);
+                   axis_value1, axis_value2, axis_value3);
     const LibertyLibrary *library = cell_->libertyLibrary();
     return model->reportValue(result_name, cell_, pvt, axis_value1, nullptr,
                               axis_value2, axis_value3,
@@ -215,15 +216,15 @@ GateTableModel::reportTableLookup(const char *result_name,
 
 float
 GateTableModel::findValue(const Pvt *pvt,
-			  const TableModel *model,
-			  float in_slew,
-			  float load_cap,
-			  float related_out_cap) const
+                          const TableModel *model,
+                          float in_slew,
+                          float load_cap,
+                          float related_out_cap) const
 {
   if (model) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(model, in_slew, load_cap, related_out_cap,
-		   axis_value1, axis_value2, axis_value3);
+                   axis_value1, axis_value2, axis_value3);
     return model->findValue(cell_, pvt, axis_value1, axis_value2, axis_value3);
   }
   else
@@ -232,13 +233,13 @@ GateTableModel::findValue(const Pvt *pvt,
 
 void
 GateTableModel::findAxisValues(const TableModel *model,
-			       float in_slew,
-			       float load_cap,
-			       float related_out_cap,
-			       // Return values.
-			       float &axis_value1,
-			       float &axis_value2,
-			       float &axis_value3) const
+                               float in_slew,
+                               float load_cap,
+                               float related_out_cap,
+                               // Return values.
+                               float &axis_value1,
+                               float &axis_value2,
+                               float &axis_value3) const
 {
   switch (model->order()) {
   case 0:
@@ -248,24 +249,24 @@ GateTableModel::findAxisValues(const TableModel *model,
     break;
   case 1:
     axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
-			    related_out_cap);
+                            related_out_cap);
     axis_value2 = 0.0;
     axis_value3 = 0.0;
     break;
   case 2:
     axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
-			    related_out_cap);
+                            related_out_cap);
     axis_value2 = axisValue(model->axis2(), in_slew, load_cap,
-			    related_out_cap);
+                            related_out_cap);
     axis_value3 = 0.0;
     break;
   case 3:
     axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
-			    related_out_cap);
+                            related_out_cap);
     axis_value2 = axisValue(model->axis2(), in_slew, load_cap,
-			    related_out_cap);
+                            related_out_cap);
     axis_value3 = axisValue(model->axis3(), in_slew, load_cap,
-			    related_out_cap);
+                            related_out_cap);
     break;
   default:
     axis_value1 = 0.0;
@@ -287,9 +288,9 @@ GateTableModel::driveResistance(const Pvt *pvt) const
 
 void
 GateTableModel::maxCapSlew(float in_slew,
-			   const Pvt *pvt,
-			   float &slew,
-			   float &cap) const
+                           const Pvt *pvt,
+                           float &slew,
+                           float &cap) const
 {
   const TableAxis *axis1 = slew_model_->axis1();
   const TableAxis *axis2 = slew_model_->axis2();
@@ -300,12 +301,12 @@ GateTableModel::maxCapSlew(float in_slew,
     slew = findValue(pvt, slew_model_, in_slew, cap, 0.0);
   }
   else if (axis2
-	   && axis2->variable()==TableAxisVariable::total_output_net_capacitance) {
+           && axis2->variable()==TableAxisVariable::total_output_net_capacitance) {
     cap = axis2->axisValue(axis2->size() - 1);
     slew = findValue(pvt, slew_model_, in_slew, cap, 0.0);
   }
   else if (axis3
-	   && axis3->variable()==TableAxisVariable::total_output_net_capacitance) {
+           && axis3->variable()==TableAxisVariable::total_output_net_capacitance) {
     cap = axis3->axisValue(axis3->size() - 1);
     slew = findValue(pvt, slew_model_, in_slew, cap, 0.0);
   }
@@ -321,9 +322,9 @@ GateTableModel::maxCapSlew(float in_slew,
 
 float
 GateTableModel::axisValue(const TableAxis *axis,
-			  float in_slew,
-			  float load_cap,
-			  float related_out_cap) const
+                          float in_slew,
+                          float load_cap,
+                          float related_out_cap) const
 {
   TableAxisVariable var = axis->variable();
   if (var == TableAxisVariable::input_transition_time
@@ -405,7 +406,7 @@ ReceiverModel::checkAxes(TablePtr table)
 
 CheckTableModel::CheckTableModel(LibertyCell *cell,
                                  TableModel *model,
-				 TableModel *sigma_models[EarlyLate::index_count]) :
+                                 TableModel *sigma_models[EarlyLate::index_count]) :
   CheckTimingModel(cell),
   model_(model)
 {
@@ -427,10 +428,10 @@ CheckTableModel::setIsScaled(bool is_scaled)
 
 ArcDelay
 CheckTableModel::checkDelay(const Pvt *pvt,
-			    float from_slew,
-			    float to_slew,
-			    float related_out_cap,
-			    bool pocv_enabled) const
+                            float from_slew,
+                            float to_slew,
+                            float related_out_cap,
+                            bool pocv_enabled) const
 {
   if (model_) {
     float mean = findValue(pvt, model_, from_slew, to_slew, related_out_cap);
@@ -438,10 +439,10 @@ CheckTableModel::checkDelay(const Pvt *pvt,
     float sigma_late = 0.0;
     if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
       sigma_early = findValue(pvt, sigma_models_[EarlyLate::earlyIndex()],
-			      from_slew, to_slew, related_out_cap);
+                              from_slew, to_slew, related_out_cap);
     if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
       sigma_late = findValue(pvt, sigma_models_[EarlyLate::lateIndex()],
-			     from_slew, to_slew, related_out_cap);
+                             from_slew, to_slew, related_out_cap);
     return makeDelay(mean, sigma_early, sigma_late);  
   }
   else
@@ -450,15 +451,15 @@ CheckTableModel::checkDelay(const Pvt *pvt,
 
 float
 CheckTableModel::findValue(const Pvt *pvt,
-			   const TableModel *model,
-			   float from_slew,
-			   float to_slew,
-			   float related_out_cap) const
+                           const TableModel *model,
+                           float from_slew,
+                           float to_slew,
+                           float related_out_cap) const
 {
   if (model) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(from_slew, to_slew, related_out_cap,
-		   axis_value1, axis_value2, axis_value3);
+                   axis_value1, axis_value2, axis_value3);
     return model->findValue(cell_, pvt, axis_value1, axis_value2, axis_value3);
   }
   else
@@ -467,12 +468,12 @@ CheckTableModel::findValue(const Pvt *pvt,
 
 string
 CheckTableModel::reportCheckDelay(const Pvt *pvt,
-				  float from_slew,
-				  const char *from_slew_annotation,
-				  float to_slew,
-				  float related_out_cap,
-				  bool pocv_enabled,
-				  int digits) const
+                                  float from_slew,
+                                  const char *from_slew_annotation,
+                                  float to_slew,
+                                  float related_out_cap,
+                                  bool pocv_enabled,
+                                  int digits) const
 {
   string result = reportTableDelay("Check", pvt, model_,
                                    from_slew, from_slew_annotation, to_slew,
@@ -492,18 +493,18 @@ CheckTableModel::reportCheckDelay(const Pvt *pvt,
 
 string
 CheckTableModel::reportTableDelay(const char *result_name,
-				  const Pvt *pvt,
-				  const TableModel *model,
-				  float from_slew,
-				  const char *from_slew_annotation,
-				  float to_slew,
-				  float related_out_cap,
-				  int digits) const
+                                  const Pvt *pvt,
+                                  const TableModel *model,
+                                  float from_slew,
+                                  const char *from_slew_annotation,
+                                  float to_slew,
+                                  float related_out_cap,
+                                  int digits) const
 {
   if (model) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(from_slew, to_slew, related_out_cap,
-		   axis_value1, axis_value2, axis_value3);
+                   axis_value1, axis_value2, axis_value3);
     string result = reportPvt(cell_, pvt, digits);
     result += model_->reportValue(result_name, cell_, pvt,
                                   axis_value1, from_slew_annotation, axis_value2,
@@ -516,12 +517,12 @@ CheckTableModel::reportTableDelay(const char *result_name,
 
 void
 CheckTableModel::findAxisValues(float from_slew,
-				float to_slew,
-				float related_out_cap,
-				// Return values.
-				float &axis_value1,
-				float &axis_value2,
-				float &axis_value3) const
+                                float to_slew,
+                                float related_out_cap,
+                                // Return values.
+                                float &axis_value1,
+                                float &axis_value2,
+                                float &axis_value3) const
 {
   switch (model_->order()) {
   case 0:
@@ -531,24 +532,24 @@ CheckTableModel::findAxisValues(float from_slew,
     break;
   case 1:
     axis_value1 = axisValue(model_->axis1(), from_slew, to_slew,
-			    related_out_cap);
+                            related_out_cap);
     axis_value2 = 0.0;
     axis_value3 = 0.0;
     break;
   case 2:
     axis_value1 = axisValue(model_->axis1(), from_slew, to_slew,
-			    related_out_cap);
+                            related_out_cap);
     axis_value2 = axisValue(model_->axis2(), from_slew, to_slew,
-			    related_out_cap);
+                            related_out_cap);
     axis_value3 = 0.0;
     break;
   case 3:
     axis_value1 = axisValue(model_->axis1(), from_slew, to_slew,
-			    related_out_cap);
+                            related_out_cap);
     axis_value2 = axisValue(model_->axis2(), from_slew, to_slew,
-			    related_out_cap);
+                            related_out_cap);
     axis_value3 = axisValue(model_->axis3(), from_slew, to_slew,
-			    related_out_cap);
+                            related_out_cap);
     break;
   default:
     criticalError(241, "unsupported table order");
@@ -557,9 +558,9 @@ CheckTableModel::findAxisValues(float from_slew,
 
 float
 CheckTableModel::axisValue(const TableAxis *axis,
-			   float from_slew,
-			   float to_slew,
-			   float related_out_cap) const
+                           float from_slew,
+                           float to_slew,
+                           float related_out_cap) const
 {
   TableAxisVariable var = axis->variable();
   if (var == TableAxisVariable::related_pin_transition)
@@ -603,8 +604,8 @@ CheckTableModel::checkAxis(const TableAxis *axis)
 
 TableModel::TableModel(TablePtr table,
                        TableTemplate *tbl_template,
-		       ScaleFactorType scale_factor_type,
-		       const RiseFall *rf) :
+                       ScaleFactorType scale_factor_type,
+                       const RiseFall *rf) :
   table_(table),
   tbl_template_(tbl_template),
   scale_factor_type_(int(scale_factor_type)),
@@ -659,18 +660,18 @@ TableModel::value(size_t axis_index1,
 
 float
 TableModel::findValue(float axis_value1,
-		      float axis_value2,
-		      float axis_value3) const
+                      float axis_value2,
+                      float axis_value3) const
 {
   return table_->findValue(axis_value1, axis_value2, axis_value3);
 }
 
 float
 TableModel::findValue(const LibertyCell *cell,
-		      const Pvt *pvt,
-		      float axis_value1,
-		      float axis_value2,
-		      float axis_value3) const
+                      const Pvt *pvt,
+                      float axis_value1,
+                      float axis_value2,
+                      float axis_value3) const
 {
   return table_->findValue(axis_value1, axis_value2, axis_value3)
     * scaleFactor(cell, pvt);
@@ -678,7 +679,7 @@ TableModel::findValue(const LibertyCell *cell,
 
 float
 TableModel::scaleFactor(const LibertyCell *cell,
-			const Pvt *pvt) const
+                        const Pvt *pvt) const
 {
   if (is_scaled_)
     // Scaled tables are not derated because scale factors are wrt
@@ -691,14 +692,14 @@ TableModel::scaleFactor(const LibertyCell *cell,
 
 string
 TableModel::reportValue(const char *result_name,
-			const LibertyCell *cell,
-			const Pvt *pvt,
-			float value1,
-			const char *comment1,
-			float value2,
-			float value3,
+                        const LibertyCell *cell,
+                        const Pvt *pvt,
+                        float value1,
+                        const char *comment1,
+                        float value2,
+                        float value3,
                         const Unit *table_unit,
-			int digits) const
+                        int digits) const
 {
   string result = table_->reportValue("Table value", cell, pvt, value1,
                                       comment1, value2, value3, table_unit, digits);
@@ -714,8 +715,8 @@ TableModel::reportValue(const char *result_name,
 
 static string
 reportPvt(const LibertyCell *cell,
-	  const Pvt *pvt,
-	  int digits)
+          const Pvt *pvt,
+          int digits)
 {
   const LibertyLibrary *library = cell->libertyLibrary();
   if (pvt == nullptr)
@@ -723,9 +724,9 @@ reportPvt(const LibertyCell *cell,
   if (pvt) {
     string result;
     stringPrint(result, "P = %.*f V = %.*f T = %.*f\n",
-		digits, pvt->process(),
-		digits, pvt->voltage(),
-		digits, pvt->temperature());
+                digits, pvt->process(),
+                digits, pvt->voltage(),
+                digits, pvt->temperature());
     return result;
   }
   return "";
@@ -733,16 +734,16 @@ reportPvt(const LibertyCell *cell,
 
 string
 TableModel::reportPvtScaleFactor(const LibertyCell *cell,
-				 const Pvt *pvt,
-				 int digits) const
+                                 const Pvt *pvt,
+                                 int digits) const
 {
   if (pvt == nullptr)
     pvt = cell->libertyLibrary()->defaultOperatingConditions();
   if (pvt) {
     string result;
     stringPrint(result, "PVT scale factor = %.*f\n",
-		digits,
-		scaleFactor(cell, pvt));
+                digits,
+                scaleFactor(cell, pvt));
     return result;
   }
   return "";
@@ -766,22 +767,22 @@ Table0::value(size_t,
 
 float
 Table0::findValue(float,
-		  float,
-		  float) const
+                  float,
+                  float) const
 {
   return value_;
 }
 
 string
 Table0::reportValue(const char *result_name,
-		    const LibertyCell *,
-		    const Pvt *,
-		    float value1,
-		    const char *comment1,
-		    float value2,
-		    float value3,
+                    const LibertyCell *,
+                    const Pvt *,
+                    float value1,
+                    const char *comment1,
+                    float value2,
+                    float value3,
                     const Unit *table_unit,
-		    int digits) const
+                    int digits) const
 {
   string result = result_name;
   result += " constant = ";
@@ -794,7 +795,7 @@ Table0::reportValue(const char *result_name,
 
 void
 Table0::report(const Units *units,
-	       Report *report) const
+               Report *report) const
 {
   int digits = 4;
   const Unit *table_unit = units->timeUnit();
@@ -811,7 +812,7 @@ Table1::Table1() :
 }
 
 Table1::Table1(FloatSeq *values,
-	       TableAxisPtr axis1) :
+               TableAxisPtr axis1) :
   Table(),
   values_(values),
   axis1_(axis1)
@@ -865,8 +866,8 @@ Table1::value(size_t axis_index1) const
 
 float
 Table1::findValue(float axis_value1,
-		  float,
-		  float) const
+                  float,
+                  float) const
 {
   return findValue(axis_value1);
 }
@@ -913,14 +914,14 @@ Table1::findValueClip(float axis_value1) const
 
 string
 Table1::reportValue(const char *result_name,
-		    const LibertyCell *cell,
-		    const Pvt *,
-		    float value1,
-		    const char *comment1,
-		    float value2,
-		    float value3,
+                    const LibertyCell *cell,
+                    const Pvt *,
+                    float value1,
+                    const char *comment1,
+                    float value2,
+                    float value3,
                     const Unit *table_unit,
-		    int digits) const
+                    int digits) const
 {
   const Units *units = cell->libertyLibrary()->units();
   const Unit *unit1 = axis1_->unit(units);
@@ -946,7 +947,7 @@ Table1::reportValue(const char *result_name,
     result += table_unit->asString(value(index1), digits);
     result += "     ";
     result += table_unit->asString(value(index1 + 1),
-				    digits);
+                                    digits);
     result += '\n';
   }
 
@@ -959,7 +960,7 @@ Table1::reportValue(const char *result_name,
 
 void
 Table1::report(const Units *units,
-	       Report *report) const
+               Report *report) const
 {
   int digits = 4;
   const Unit *unit1 = axis1_->unit(units);
@@ -984,8 +985,8 @@ Table1::report(const Units *units,
 ////////////////////////////////////////////////////////////////
 
 Table2::Table2(FloatTable *values,
-	       TableAxisPtr axis1,
-	       TableAxisPtr axis2) :
+               TableAxisPtr axis1,
+               TableAxisPtr axis2) :
   Table(),
   values_(values),
   axis1_(axis1),
@@ -995,7 +996,7 @@ Table2::Table2(FloatTable *values,
 
 Table2::~Table2()
 {
-  values_->deleteContents();
+  deleteContents(*values_);
   delete values_;
 }
 
@@ -1018,8 +1019,8 @@ Table2::value(size_t axis_index1,
 // Bilinear Interpolation.
 float
 Table2::findValue(float axis_value1,
-		  float axis_value2,
-		  float) const
+                  float axis_value2,
+                  float) const
 {
   size_t size1 = axis1_->size();
   size_t size2 = axis2_->size();
@@ -1035,8 +1036,8 @@ Table2::findValue(float axis_value1,
       double dx2 = (x2 - x2l) / (x2u - x2l);
       double y01 = value(0, axis_index2 + 1);
       double tbl_value
-	= (1 - dx2) * y00
-	+      dx2  * y01;
+        = (1 - dx2) * y00
+        +      dx2  * y01;
       return tbl_value;
     }
   }
@@ -1079,14 +1080,14 @@ Table2::findValue(float axis_value1,
 
 string
 Table2::reportValue(const char *result_name,
-		    const LibertyCell *cell,
-		    const Pvt *,
-		    float value1,
-		    const char *comment1,
-		    float value2,
-		    float value3,
+                    const LibertyCell *cell,
+                    const Pvt *,
+                    float value1,
+                    const char *comment1,
+                    float value2,
+                    float value3,
                     const Unit *table_unit,
-		    int digits) const
+                    int digits) const
 {
   const Units *units = cell->libertyLibrary()->units();
   const Unit *unit1 = axis1_->unit(units);
@@ -1146,7 +1147,7 @@ Table2::reportValue(const char *result_name,
 
 void
 Table2::report(const Units *units,
-	       Report *report) const
+               Report *report) const
 {
   int digits = 4;
   const Unit *table_unit = units->timeUnit();
@@ -1175,9 +1176,9 @@ Table2::report(const Units *units,
 ////////////////////////////////////////////////////////////////
 
 Table3::Table3(FloatTable *values,
-	       TableAxisPtr axis1,
-	       TableAxisPtr axis2,
-	       TableAxisPtr axis3) :
+               TableAxisPtr axis1,
+               TableAxisPtr axis2,
+               TableAxisPtr axis3) :
   Table2(values, axis1, axis2),
   axis3_(axis3)
 {
@@ -1195,8 +1196,8 @@ Table3::value(size_t axis_index1,
 // Bilinear Interpolation.
 float
 Table3::findValue(float axis_value1,
-		  float axis_value2,
-		  float axis_value3) const
+                  float axis_value2,
+                  float axis_value3) const
 {
   size_t axis_index1 = axis1_->findAxisIndex(axis_value1);
   size_t axis_index2 = axis2_->findAxisIndex(axis_value2);
@@ -1226,7 +1227,7 @@ Table3::findValue(float axis_value1,
     if (axis2_->size() != 1) {
       y110 = value(axis_index1 + 1, axis_index2 + 1, axis_index3);
       if (axis3_->size() != 1)
-	y111 = value(axis_index1 + 1, axis_index2 + 1, axis_index3 + 1);
+        y111 = value(axis_index1 + 1, axis_index2 + 1, axis_index3 + 1);
     }
   }
   if (axis2_->size() != 1) {
@@ -1269,14 +1270,14 @@ Table3::findValue(float axis_value1,
 //       0.40 | 0.20     0.30
 string
 Table3::reportValue(const char *result_name,
-		    const LibertyCell *cell,
-		    const Pvt *,
-		    float value1,
-		    const char *comment1,
-		    float value2,
-		    float value3,
+                    const LibertyCell *cell,
+                    const Pvt *,
+                    float value1,
+                    const char *comment1,
+                    float value2,
+                    float value3,
                     const Unit *table_unit,
-		    int digits) const
+                    int digits) const
 {
   const Units *units = cell->libertyLibrary()->units();
   const Unit *unit1 = axis1_->unit(units);
@@ -1322,11 +1323,11 @@ Table3::reportValue(const char *result_name,
     result += unit1->asString(axis1_->axisValue(axis_index1+1), digits);
     result += "   v   / ";
     result += table_unit->asString(value(axis_index1+1,axis_index2,axis_index3),
-				    digits);
+                                    digits);
     if (axis3_->size() != 1) {
       result += "     ";
       result += table_unit->asString(value(axis_index1+1,axis_index2,axis_index3+1),
-				      digits);
+                                      digits);
     }
   }
   else {
@@ -1343,7 +1344,7 @@ Table3::reportValue(const char *result_name,
   if (axis3_->size() != 1) {
     result += "     ";
     result += table_unit->asString(value(axis_index1, axis_index2, axis_index3+1),
-				    digits);
+                                    digits);
   }
   result += '\n';
 
@@ -1351,11 +1352,11 @@ Table3::reportValue(const char *result_name,
   if (axis1_->size() != 1
       && axis2_->size() != 1) {
     result += table_unit->asString(value(axis_index1+1,axis_index2+1,axis_index3),
-				    digits);
+                                    digits);
     if (axis3_->size() != 1) {
       result += "     ";
       result +=table_unit->asString(value(axis_index1+1,axis_index2+1,axis_index3+1),
-				     digits);
+                                     digits);
     }
   }
   result += '\n';
@@ -1383,7 +1384,7 @@ Table3::reportValue(const char *result_name,
 
 static void
 appendSpaces(string &result,
-	     int count)
+             int count)
 {
   while (count--)
     result += ' ';
@@ -1391,7 +1392,7 @@ appendSpaces(string &result,
 
 void
 Table3::report(const Units *units,
-	       Report *report) const
+               Report *report) const
 {
   int digits = 4;
   const Unit *table_unit = units->timeUnit();
@@ -1426,7 +1427,7 @@ Table3::report(const Units *units,
 ////////////////////////////////////////////////////////////////
 
 TableAxis::TableAxis(TableAxisVariable variable,
-		     FloatSeq *values) :
+                     FloatSeq *values) :
   variable_(variable),
   values_(values)
 {
@@ -1489,9 +1490,9 @@ findValueIndex(float value,
     while (upper - lower > 1) {
       int mid = (upper + lower) >> 1;
       if (value >= (*values)[mid])
-	lower = mid;
+        lower = mid;
       else
-	upper = mid;
+        upper = mid;
     }
     return lower;
   }
@@ -1517,9 +1518,9 @@ TableAxis::findAxisIndex(float value,
         return;
       }
       if (value > (*values_)[mid])
-	lower = mid;
+        lower = mid;
       else
-	upper = mid;
+        upper = mid;
     }
   }
   exists = false;
@@ -1539,9 +1540,9 @@ TableAxis::findAxisClosestIndex(float value) const
     while (upper - lower > 1) {
       int mid = (upper + lower) >> 1;
       if (value >= (*values_)[mid])
-	lower = mid;
+        lower = mid;
       else
-	upper = mid;
+        upper = mid;
     }
     if ((value - (*values_)[lower]) < ((*values_)[upper] - value))
       return lower;
@@ -1599,7 +1600,7 @@ tableVariableString(TableAxisVariable variable)
 
 const Unit *
 tableVariableUnit(TableAxisVariable variable,
-		  const Units *units)
+                  const Units *units)
 {
   switch (variable) {
   case TableAxisVariable::total_output_net_capacitance:
@@ -1649,9 +1650,9 @@ OutputWaveforms::OutputWaveforms(TableAxisPtr slew_axis,
 
 OutputWaveforms::~OutputWaveforms()
 {
-  current_waveforms_.deleteContents();
-  voltage_waveforms_.deleteContents();
-  voltage_currents_.deleteContents();
+  deleteContents(current_waveforms_);;
+  deleteContents(voltage_waveforms_);
+  deleteContents(voltage_currents_);
   delete ref_times_;
 }
 

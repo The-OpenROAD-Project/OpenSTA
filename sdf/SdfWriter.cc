@@ -39,11 +39,9 @@
 #include "MinMaxValues.hh"
 #include "Network.hh"
 #include "Graph.hh"
-#include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "StaState.hh"
-#include "Corner.hh"
-#include "PathAnalysisPt.hh"
+#include "Scene.hh"
 
 namespace sta {
 
@@ -55,18 +53,18 @@ public:
   SdfWriter(StaState *sta);
   ~SdfWriter();
   void write(const char *filename,
-	     const Corner *corner,
-	     char sdf_divider,
-	     bool include_typ,
+             const Scene *scene,
+             char sdf_divider,
+             bool include_typ,
              int digits,
-	     bool gzip,
-	     bool no_timestamp,
-	     bool no_version);
+             bool gzip,
+             bool no_timestamp,
+             bool no_version);
 
 protected:
   void writeHeader(LibertyLibrary *default_lib,
-		   bool no_timestamp,
-		   bool no_version);
+                   bool no_timestamp,
+                   bool no_version);
   void writeTrailer();
   void writeInterconnects();
   void writeInstInterconnects(Instance *inst);
@@ -76,33 +74,33 @@ protected:
   void writeInstHeader(const Instance *inst);
   void writeInstTrailer();
   void writeIopaths(const Instance *inst,
-		    bool &inst_header);
+                    bool &inst_header);
   void writeIopathHeader();
   void writeIopathTrailer();
   void writeTimingChecks(const Instance *inst,
-			 bool &inst_header);
+                         bool &inst_header);
   void ensureTimingCheckheaders(bool &check_header,
-				const Instance *inst,
-				bool &inst_header);
+                                const Instance *inst,
+                                bool &inst_header);
   void writeCheck(Edge *edge,
-		  const char *sdf_check);
+                  const char *sdf_check);
   void writeCheck(Edge *edge,
-		  TimingArc *arc,
-		  const char *sdf_check,
-		  bool use_data_edge,
-		  bool use_clk_edge);
+                  TimingArc *arc,
+                  const char *sdf_check,
+                  bool use_data_edge,
+                  bool use_clk_edge);
   void writeEdgeCheck(Edge *edge,
-		      const char *sdf_check,
-		      int clk_rf_index,
-		      TimingArc *arcs[RiseFall::index_count][RiseFall::index_count]);
+                      const char *sdf_check,
+                      int clk_rf_index,
+                      TimingArc *arcs[RiseFall::index_count][RiseFall::index_count]);
   void writeTimingCheckHeader();
   void writeTimingCheckTrailer();
   void writeWidthCheck(const Pin *pin,
-		       const RiseFall *hi_low,
-		       float min_width,
-		       float max_width);
+                       const RiseFall *hi_low,
+                       float min_width,
+                       float max_width);
   void writePeriodCheck(const Pin *pin,
-			float min_period);
+                        float min_period);
   const char *sdfEdge(const Transition *tr);
   void writeArcDelays(Edge *edge);
   void writeSdfTriple(RiseFallMinMax &delays,
@@ -125,25 +123,25 @@ private:
   char *delay_format_;
 
   gzFile stream_;
-  const Corner *corner_;
+  const Scene *scene_;
   int arc_delay_min_index_;
   int arc_delay_max_index_;
 };
 
 void
 writeSdf(const char *filename,
-	 const Corner *corner,
-	 char sdf_divider,
+         const Scene *scene,
+         char sdf_divider,
          bool include_typ,
-	 int digits,
-	 bool gzip,
-	 bool no_timestamp,
-	 bool no_version,
-	 StaState *sta)
+         int digits,
+         bool gzip,
+         bool no_timestamp,
+         bool no_version,
+         StaState *sta)
 {
   SdfWriter writer(sta);
-  writer.write(filename, corner, sdf_divider, include_typ, digits, gzip,
-	       no_timestamp, no_version);
+  writer.write(filename, scene, sdf_divider, include_typ, digits, gzip,
+               no_timestamp, no_version);
 }
 
 SdfWriter::SdfWriter(StaState *sta) :
@@ -161,13 +159,13 @@ SdfWriter::~SdfWriter()
 
 void
 SdfWriter::write(const char *filename,
-		 const Corner *corner,
-		 char sdf_divider,
+                 const Scene *scene,
+                 char sdf_divider,
                  bool include_typ,
-		 int digits,
-		 bool gzip,
-		 bool no_timestamp,
-		 bool no_version)
+                 int digits,
+                 bool gzip,
+                 bool no_timestamp,
+                 bool no_version)
 {
   sdf_divider_ = sdf_divider;
   include_typ_ = include_typ;
@@ -177,17 +175,9 @@ SdfWriter::write(const char *filename,
   LibertyLibrary *default_lib = network_->defaultLibertyLibrary();
   timescale_ = default_lib->units()->timeUnit()->scale();
 
-  corner_ = corner;
-  const MinMax *min_max;
-  const DcalcAnalysisPt *dcalc_ap;
-
-  min_max = MinMax::min();
-  dcalc_ap = corner_->findDcalcAnalysisPt(min_max);
-  arc_delay_min_index_ = dcalc_ap->index();
-
-  min_max = MinMax::max();
-  dcalc_ap = corner_->findDcalcAnalysisPt(min_max);
-  arc_delay_max_index_ = dcalc_ap->index();
+  scene_ = scene;
+  arc_delay_min_index_ = scene->dcalcAnalysisPtIndex(MinMax::min());
+  arc_delay_max_index_ = scene->dcalcAnalysisPtIndex(MinMax::max());
 
   stream_ = gzopen(filename, gzip ? "wb" : "wT");
   if (stream_ == nullptr)
@@ -204,13 +194,13 @@ SdfWriter::write(const char *filename,
 
 void
 SdfWriter::writeHeader(LibertyLibrary *default_lib,
-		       bool no_timestamp,
-		       bool no_version)
+                       bool no_timestamp,
+                       bool no_version)
 {
   gzprintf(stream_, "(DELAYFILE\n");
   gzprintf(stream_, " (SDFVERSION \"3.0\")\n");
   gzprintf(stream_, " (DESIGN \"%s\")\n", 
-	   network_->cellName(network_->topInstance()));
+           network_->cellName(network_->topInstance()));
   
   if (!no_timestamp) {
     time_t now;
@@ -228,11 +218,11 @@ SdfWriter::writeHeader(LibertyLibrary *default_lib,
   gzprintf(stream_, " (DIVIDER %c)\n", sdf_divider_);
 
   LibertyLibrary *lib_min = default_lib;
-  const LibertySeq &libs_min = corner_->libertyLibraries(MinMax::min());
+  const LibertySeq &libs_min = scene_->libertyLibraries(MinMax::min());
   if (!libs_min.empty())
     lib_min = libs_min[0];
   LibertyLibrary *lib_max = default_lib;
-  const LibertySeq &libs_max = corner_->libertyLibraries(MinMax::max());
+  const LibertySeq &libs_max = scene_->libertyLibraries(MinMax::max());
   if (!libs_max.empty())
     lib_max = libs_max[0];
 
@@ -284,7 +274,7 @@ SdfWriter::writeInterconnects()
 {
   gzprintf(stream_, " (CELL\n");
   gzprintf(stream_, "  (CELLTYPE \"%s\")\n",
-	   network_->cellName(network_->topInstance()));
+           network_->cellName(network_->topInstance()));
   gzprintf(stream_, "  (INSTANCE)\n");
   gzprintf(stream_, "  (DELAY\n");
   gzprintf(stream_, "   (ABSOLUTE\n");
@@ -369,7 +359,7 @@ SdfWriter::writeInstTrailer()
 
 void
 SdfWriter::writeIopaths(const Instance *inst,
-			bool &inst_header)
+                        bool &inst_header)
 {
   bool iopath_header = false;
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
@@ -379,39 +369,39 @@ SdfWriter::writeIopaths(const Instance *inst,
       Vertex *from_vertex = graph_->pinLoadVertex(from_pin);      
       VertexOutEdgeIterator edge_iter(from_vertex, graph_);
       while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	const TimingRole *role = edge->role();
-	if (role == TimingRole::combinational()
-	    || role == TimingRole::tristateEnable()
-	    || role == TimingRole::regClkToQ()
-	    || role == TimingRole::regSetClr()
-	    || role == TimingRole::latchEnToQ()
-	    || role == TimingRole::latchDtoQ()) {
-	  Vertex *to_vertex = edge->to(graph_);
-	  Pin *to_pin = to_vertex->pin();
-	  if (!inst_header) {
-	    writeInstHeader(inst);
-	    inst_header = true;
-	  }
-	  if (!iopath_header) {
-	    writeIopathHeader();
-	    iopath_header = true;
-	  }
-	  const char *sdf_cond = edge->timingArcSet()->sdfCond();
-	  if (sdf_cond) {
-	    gzprintf(stream_, "    (COND %s\n", sdf_cond);
-	    gzprintf(stream_, " ");
-	  }
-	  string from_pin_name = sdfPortName(from_pin);
-	  string to_pin_name = sdfPortName(to_pin);
+        Edge *edge = edge_iter.next();
+        const TimingRole *role = edge->role();
+        if (role == TimingRole::combinational()
+            || role == TimingRole::tristateEnable()
+            || role == TimingRole::regClkToQ()
+            || role == TimingRole::regSetClr()
+            || role == TimingRole::latchEnToQ()
+            || role == TimingRole::latchDtoQ()) {
+          Vertex *to_vertex = edge->to(graph_);
+          Pin *to_pin = to_vertex->pin();
+          if (!inst_header) {
+            writeInstHeader(inst);
+            inst_header = true;
+          }
+          if (!iopath_header) {
+            writeIopathHeader();
+            iopath_header = true;
+          }
+          const char *sdf_cond = edge->timingArcSet()->sdfCond();
+          if (sdf_cond) {
+            gzprintf(stream_, "    (COND %s\n", sdf_cond);
+            gzprintf(stream_, " ");
+          }
+          string from_pin_name = sdfPortName(from_pin);
+          string to_pin_name = sdfPortName(to_pin);
           gzprintf(stream_, "    (IOPATH %s %s ",
-		   from_pin_name.c_str(),
-		   to_pin_name.c_str());
-	  writeArcDelays(edge);
-	  if (sdf_cond)
-	    gzprintf(stream_, ")");
-	  gzprintf(stream_, ")\n");
-	}
+                   from_pin_name.c_str(),
+                   to_pin_name.c_str());
+          writeArcDelays(edge);
+          if (sdf_cond)
+            gzprintf(stream_, ")");
+          gzprintf(stream_, ")\n");
+        }
       }
     }
   }
@@ -455,9 +445,9 @@ SdfWriter::writeArcDelays(Edge *edge)
     writeSdfTriple(delays, RiseFall::rise());
     // Merge rise/fall values if they are the same.
     if (!(fuzzyEqual(delays.value(RiseFall::rise(), MinMax::min()),
-		     delays.value(RiseFall::fall(), MinMax::min()))
-	  && fuzzyEqual(delays.value(RiseFall::rise(), MinMax::max()),
-			delays.value(RiseFall::fall(),MinMax::max())))) {
+                     delays.value(RiseFall::fall(), MinMax::min()))
+          && fuzzyEqual(delays.value(RiseFall::rise(), MinMax::max()),
+                        delays.value(RiseFall::fall(),MinMax::max())))) {
       gzprintf(stream_, " ");
       writeSdfTriple(delays, RiseFall::fall());
     }
@@ -506,7 +496,7 @@ SdfWriter::writeSdfDelay(double delay)
 
 void
 SdfWriter::writeTimingChecks(const Instance *inst,
-			     bool &inst_header)
+                             bool &inst_header)
 {
   bool check_header = false;
 
@@ -517,40 +507,40 @@ SdfWriter::writeTimingChecks(const Instance *inst,
     if (vertex) {
       VertexOutEdgeIterator edge_iter(vertex, graph_);
       while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	const TimingRole *role = edge->role();
-	const char *sdf_check = nullptr;
-	if (role == TimingRole::setup())
-	  sdf_check = "SETUP";
-	else if (role == TimingRole::hold())
-	  sdf_check = "HOLD";
-	else if (role == TimingRole::recovery())
-	  sdf_check = "RECOVERY";
-	else if (role == TimingRole::removal())
-	  sdf_check = "REMOVAL";
-	if (sdf_check) {
-	  ensureTimingCheckheaders(check_header, inst, inst_header);
-	  writeCheck(edge, sdf_check);
-	}
+        Edge *edge = edge_iter.next();
+        const TimingRole *role = edge->role();
+        const char *sdf_check = nullptr;
+        if (role == TimingRole::setup())
+          sdf_check = "SETUP";
+        else if (role == TimingRole::hold())
+          sdf_check = "HOLD";
+        else if (role == TimingRole::recovery())
+          sdf_check = "RECOVERY";
+        else if (role == TimingRole::removal())
+          sdf_check = "REMOVAL";
+        if (sdf_check) {
+          ensureTimingCheckheaders(check_header, inst, inst_header);
+          writeCheck(edge, sdf_check);
+        }
       }
       for (auto hi_low : RiseFall::range()) {
-	float min_width, max_width;
-	Edge *edge;
-	TimingArc *arc;
-	graph_->minPulseWidthArc(vertex, hi_low, edge, arc);
-	if (edge) {
-	  min_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_min_index_));
-	  max_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_max_index_));
-	  ensureTimingCheckheaders(check_header, inst, inst_header);
-	  writeWidthCheck(pin, hi_low, min_width, max_width);
-	}
+        float min_width, max_width;
+        Edge *edge;
+        TimingArc *arc;
+        graph_->minPulseWidthArc(vertex, hi_low, edge, arc);
+        if (edge) {
+          min_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_min_index_));
+          max_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_max_index_));
+          ensureTimingCheckheaders(check_header, inst, inst_header);
+          writeWidthCheck(pin, hi_low, min_width, max_width);
+        }
       }
       float min_period;
       bool exists;
-      graph_delay_calc_->minPeriod(pin, corner_, min_period, exists);
+      graph_delay_calc_->minPeriod(pin, scene_, min_period, exists);
       if (exists) {
-	ensureTimingCheckheaders(check_header, inst, inst_header);
-	writePeriodCheck(pin, min_period);
+        ensureTimingCheckheaders(check_header, inst, inst_header);
+        writePeriodCheck(pin, min_period);
       }
     }
   }
@@ -562,8 +552,8 @@ SdfWriter::writeTimingChecks(const Instance *inst,
 
 void
 SdfWriter::ensureTimingCheckheaders(bool &check_header,
-				    const Instance *inst,
-				    bool &inst_header)
+                                    const Instance *inst,
+                                    bool &inst_header)
 {
   if (!inst_header) {
     writeInstHeader(inst);
@@ -589,7 +579,7 @@ SdfWriter::writeTimingCheckTrailer()
 
 void
 SdfWriter::writeCheck(Edge *edge,
-		      const char *sdf_check)
+                      const char *sdf_check)
 {
   TimingArcSet *arc_set = edge->timingArcSet();
   // Examine the arcs to see if the check requires clk or data edge specifiers.
@@ -605,7 +595,7 @@ SdfWriter::writeCheck(Edge *edge,
       && arcs[RiseFall::fallIndex()][RiseFall::fallIndex()] == nullptr)
     writeEdgeCheck(edge, sdf_check, RiseFall::riseIndex(), arcs);
   else if (arcs[RiseFall::riseIndex()][RiseFall::riseIndex()] == nullptr
-	   && arcs[RiseFall::riseIndex()][RiseFall::fallIndex()] == nullptr)
+           && arcs[RiseFall::riseIndex()][RiseFall::fallIndex()] == nullptr)
     writeEdgeCheck(edge, sdf_check, RiseFall::fallIndex(), arcs);
   else {
     // No special case; write all the checks with data and clock edge specifiers.
@@ -616,9 +606,9 @@ SdfWriter::writeCheck(Edge *edge,
 
 void
 SdfWriter::writeEdgeCheck(Edge *edge,
-			  const char *sdf_check,
-			  int clk_rf_index,
-			  TimingArc *arcs[RiseFall::index_count][RiseFall::index_count])
+                          const char *sdf_check,
+                          int clk_rf_index,
+                          TimingArc *arcs[RiseFall::index_count][RiseFall::index_count])
 {
   // SDF requires edge specifiers on the data port to define separate
   // rise/fall check values.
@@ -629,36 +619,36 @@ SdfWriter::writeEdgeCheck(Edge *edge,
       && arcs[clk_rf_index][RiseFall::riseIndex()]
       && arcs[clk_rf_index][RiseFall::fallIndex()]
       && delayEqual(graph_->arcDelay(edge, 
-				     arcs[clk_rf_index][RiseFall::riseIndex()],
-				     arc_delay_min_index_),
-		    graph_->arcDelay(edge,
-				     arcs[clk_rf_index][RiseFall::fallIndex()],
-				     arc_delay_min_index_))
+                                     arcs[clk_rf_index][RiseFall::riseIndex()],
+                                     arc_delay_min_index_),
+                    graph_->arcDelay(edge,
+                                     arcs[clk_rf_index][RiseFall::fallIndex()],
+                                     arc_delay_min_index_))
       && delayEqual(graph_->arcDelay(edge,
-				     arcs[clk_rf_index][RiseFall::riseIndex()],
-				     arc_delay_max_index_),
-		    graph_->arcDelay(edge,
-				     arcs[clk_rf_index][RiseFall::fallIndex()],
-				     arc_delay_max_index_)))
+                                     arcs[clk_rf_index][RiseFall::riseIndex()],
+                                     arc_delay_max_index_),
+                    graph_->arcDelay(edge,
+                                     arcs[clk_rf_index][RiseFall::fallIndex()],
+                                     arc_delay_max_index_)))
     // Rise/fall margins are the same, so no data edge specifier is required.
     writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()],
-	       sdf_check, false, true);
+               sdf_check, false, true);
   else {
     if (arcs[clk_rf_index][RiseFall::riseIndex()])
       writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()], 
-		 sdf_check, true, true);
+                 sdf_check, true, true);
     if (arcs[clk_rf_index][RiseFall::fallIndex()])
       writeCheck(edge, arcs[clk_rf_index][RiseFall::fallIndex()],
-		 sdf_check, true, true);
+                 sdf_check, true, true);
   }
 }
 
 void
 SdfWriter::writeCheck(Edge *edge,
-		      TimingArc *arc,
-		      const char *sdf_check,
-		      bool use_data_edge,
-		      bool use_clk_edge)
+                      TimingArc *arc,
+                      const char *sdf_check,
+                      bool use_data_edge,
+                      bool use_clk_edge)
 {
   TimingArcSet *arc_set = edge->timingArcSet();
   Pin *from_pin = edge->from(graph_)->pin();
@@ -674,8 +664,8 @@ SdfWriter::writeCheck(Edge *edge,
   string to_pin_name = sdfPortName(to_pin);
   if (use_data_edge) {
     gzprintf(stream_, "(%s %s)",
-	     sdfEdge(arc->toEdge()),
-	     to_pin_name.c_str());
+             sdfEdge(arc->toEdge()),
+             to_pin_name.c_str());
   }
   else
     gzprintf(stream_, "%s", to_pin_name.c_str());
@@ -691,8 +681,8 @@ SdfWriter::writeCheck(Edge *edge,
   string from_pin_name = sdfPortName(from_pin);
   if (use_clk_edge)
     gzprintf(stream_, "(%s %s)",
-	     sdfEdge(arc->fromEdge()),
-	     from_pin_name.c_str());
+             sdfEdge(arc->fromEdge()),
+             from_pin_name.c_str());
   else
     gzprintf(stream_, "%s", from_pin_name.c_str());
 
@@ -710,21 +700,21 @@ SdfWriter::writeCheck(Edge *edge,
 
 void
 SdfWriter::writeWidthCheck(const Pin *pin,
-			   const RiseFall *hi_low,
-			   float min_width,
-			   float max_width)
+                           const RiseFall *hi_low,
+                           float min_width,
+                           float max_width)
 {
   string pin_name = sdfPortName(pin);
   gzprintf(stream_, "    (WIDTH (%s %s) ",
-	   sdfEdge(hi_low->asTransition()),
-	   pin_name.c_str());
+           sdfEdge(hi_low->asTransition()),
+           pin_name.c_str());
   writeSdfTriple(min_width, max_width);
   gzprintf(stream_, ")\n");
 }
 
 void
 SdfWriter::writePeriodCheck(const Pin *pin,
-			    float min_period)
+                            float min_period)
 {
   string pin_name = sdfPortName(pin);
   gzprintf(stream_, "    (PERIOD %s ", pin_name.c_str());
@@ -766,7 +756,6 @@ SdfWriter::sdfPathName(const Instance *instance)
 {
   InstanceSeq inst_path;
   network_->path(instance, inst_path);
-  InstanceSeq::Iterator path_iter1(inst_path);
   string path_name;
   while (!inst_path.empty()) {
     const Instance *inst = inst_path.back();
@@ -791,8 +780,8 @@ SdfWriter::sdfName(const Instance *inst)
     // Ignore sta escapes.
     if (ch != network_escape_) {
       if (!(isalnum(ch) || ch == '_'))
-	// Insert escape.
-	sdf_name += sdf_escape_;
+        // Insert escape.
+        sdf_name += sdf_escape_;
       sdf_name += ch;
     }
     p++;

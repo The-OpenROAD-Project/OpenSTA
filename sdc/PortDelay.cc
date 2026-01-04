@@ -30,7 +30,7 @@
 namespace sta {
 
 PortDelay::PortDelay(const Pin *pin,
-		     const ClockEdge *clk_edge,
+                     const ClockEdge *clk_edge,
                      const Network *network) :
   pin_(pin),
   clk_edge_(clk_edge),
@@ -92,9 +92,9 @@ PortDelay::refTransition() const
 }
 
 InputDelay::InputDelay(const Pin *pin,
-		       const ClockEdge *clk_edge,
-		       int index,
-		       const Network *network) :
+                       const ClockEdge *clk_edge,
+                       int index,
+                       const Network *network) :
   PortDelay(pin, clk_edge, network),
   index_(index)
 {
@@ -102,8 +102,8 @@ InputDelay::InputDelay(const Pin *pin,
 }
 
 OutputDelay::OutputDelay(const Pin *pin,
-			 const ClockEdge *clk_edge,
-			 const Network *network) :
+                         const ClockEdge *clk_edge,
+                         const Network *network) :
   PortDelay(pin, clk_edge, network)
 {
   if (network)
