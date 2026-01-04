@@ -24,7 +24,7 @@
 
 This file summarizes STA API changes for each release.
 
-Release 3.0.0 2025/11/26
+Release 3.0.0 2025/01/03
 ------------------------
 
 OpenSTA now requires c++ 20.
@@ -32,7 +32,6 @@ OpenSTA now requires c++ 20.
 Corner replaced by Scene
  mode()
  parasitics(min_max)
-DcalcAnalysisPt replaced by scene/min_min
 DcalcAnalysisPt replaced by scene/min_min
 PathAnalysisPt replaced by scene/min_min
 StaState::sdc_ moved to Mode

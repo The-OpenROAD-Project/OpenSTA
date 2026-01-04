@@ -197,7 +197,8 @@ PrimaDelayCalc::gateDelay(const Pin *drvr_pin,
 {
   ArcDcalcArgSeq dcalc_args;
   dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, load_cap, parasitic);
-  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map, scene, min_max);
+  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map,
+                                               scene, min_max);
   return dcalc_results[0];
 }
 
