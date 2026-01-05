@@ -168,14 +168,14 @@ public:
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
                                    const RiseFall *rf,
                                    const Scene *scene,
-                const MinMax *min_max) = 0;
+                                   const MinMax *min_max) = 0;
   virtual bool reduceSupported() const = 0;
   // Reduce parasitic_network to a representation acceptable to the delay calculator.
   virtual Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                                      const Pin *drvr_pin,
                                      const RiseFall *rf,
                                      const Scene *scene,
-                const MinMax *min_max) = 0;
+                                     const MinMax *min_max) = 0;
   // Reduce parasitic_network to a representation acceptable to the delay calculator
   // for one or more scenes and min/max rise/fall.
   // Null scene means reduce all scenes.
@@ -186,10 +186,10 @@ public:
   // Set the in_slew, load_cap, parasitic for gates.
   virtual void setDcalcArgParasiticSlew(ArcDcalcArg &gate,
                                         const Scene *scene,
-                const MinMax *min_max) = 0;
+                                        const MinMax *min_max) = 0;
   virtual void setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
                                         const Scene *scene,
-                const MinMax *min_max) = 0;
+                                        const MinMax *min_max) = 0;
   // Find the wire delays and slews for an input port without a driving cell.
   // This call primarily initializes the load delay/slew iterator.
   virtual ArcDcalcResult inputPortDelay(const Pin *port_pin,
@@ -209,7 +209,7 @@ public:
                                    const Parasitic *parasitic,
                                    const LoadPinIndexMap &load_pin_index_map,
                                    const Scene *scene,
-                const MinMax *min_max) = 0;
+                                   const MinMax *min_max) = 0;
   // deprecated 2024-02-27
   virtual void gateDelay(const TimingArc *arc,
                          const Slew &in_slew,
@@ -227,7 +227,7 @@ public:
   virtual ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &args,
                                        const LoadPinIndexMap &load_pin_index_map,
                                        const Scene *scene,
-                const MinMax *min_max) = 0;
+                                       const MinMax *min_max) = 0;
 
   // Find the delay for a timing check arc given the arc's
   // from/clock, to/data slews and related output pin parasitic.

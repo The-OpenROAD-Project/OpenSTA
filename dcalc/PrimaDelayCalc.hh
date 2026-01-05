@@ -250,4 +250,4 @@ protected:
   using ArcDelayCalc::reduceParasitic;
 };
 
-} // namespacet
+} // namespace
