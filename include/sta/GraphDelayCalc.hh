@@ -58,10 +58,12 @@ public:
   virtual void setObserver(DelayCalcObserver *observer);
   // Invalidate all delays/slews.
   virtual void delaysInvalid();
+  virtual void levelsChangedBefore();
   // Invalidate vertex and downstream delays/slews.
   virtual void delayInvalid(Vertex *vertex);
   virtual void delayInvalid(const Pin *pin);
   virtual void deleteVertexBefore(Vertex *vertex);
+  virtual void levelChangedBefore(Vertex *vertex);
   // Reset to virgin state.
   virtual void clear();
   // Find arc delays and vertex slews thru level.
