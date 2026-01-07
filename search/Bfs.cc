@@ -325,7 +325,7 @@ BfsIterator::checkLevel(Vertex *vertex,
                         Level level)
 {
   if (vertex->level() != level)
-    report_->error(000, "vertex %s level %d != bfs level %d",
+    report_->error(2300, "vertex %s level %d != bfs level %d",
                    vertex->to_string(this).c_str(),
                    vertex->level(),
                    level);
