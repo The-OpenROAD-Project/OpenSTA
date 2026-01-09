@@ -45,7 +45,6 @@ class VerilogWriter
 {
 public:
   VerilogWriter(const char *filename,
-		bool sort,
 		bool include_pwr_gnd,
 		CellSeq *remove_cells,
 		FILE *stream,
@@ -81,7 +80,6 @@ protected:
                       const Port *port);
 
   const char *filename_;
-  bool sort_;
   bool include_pwr_gnd_;
   CellSet remove_cells_;
   FILE *stream_;
@@ -91,7 +89,6 @@ protected:
 
 void
 writeVerilog(const char *filename,
-	     bool sort,
 	     bool include_pwr_gnd,
 	     CellSeq *remove_cells,
 	     Network *network)
@@ -99,7 +96,7 @@ writeVerilog(const char *filename,
   if (network->topInstance()) {
     FILE *stream = fopen(filename, "w");
     if (stream) {
-      VerilogWriter writer(filename, sort, include_pwr_gnd,
+      VerilogWriter writer(filename, include_pwr_gnd,
 			   remove_cells, stream, network);
       writer.writeModules();
       fclose(stream);
@@ -110,13 +107,11 @@ writeVerilog(const char *filename,
 }
 
 VerilogWriter::VerilogWriter(const char *filename,
-			     bool sort,
 			     bool include_pwr_gnd,
 			     CellSeq *remove_cells,
 			     FILE *stream,
 			     Network *network) :
   filename_(filename),
-  sort_(sort),
   include_pwr_gnd_(include_pwr_gnd),
   remove_cells_(network),
   stream_(stream),
@@ -146,13 +141,12 @@ VerilogWriter::findHierChildren()
   CellSet cells(network_);
   findHierChildren(network_->topInstance(), children, cells);
 
-  if (sort_)
-    sort(children, [this](const Instance *inst1,
-                          const Instance *inst2) {
-      const char *cell_name1 = network_->cellName(inst1);
-      const char *cell_name2 = network_->cellName(inst2);
-      return stringLess(cell_name1, cell_name2);
-    });
+  sort(children, [this](const Instance *inst1,
+                        const Instance *inst2) {
+    const char *cell_name1 = network_->cellName(inst1);
+    const char *cell_name2 = network_->cellName(inst2);
+    return stringLess(cell_name1, cell_name2);
+  });
 
   return children;
 }
@@ -327,11 +321,10 @@ VerilogWriter::writeChildren(const Instance *inst)
   }
   delete child_iter;
 
-  if (sort_)
-    sort(children, [this](const Instance *inst1,
-                          const Instance *inst2) {
-      return stringLess(network_->name(inst1), network_->name(inst2));
-    });
+  sort(children, [this](const Instance *inst1,
+                        const Instance *inst2) {
+    return stringLess(network_->name(inst1), network_->name(inst2));
+  });
 
   for (auto child : children)
     writeChild(child);

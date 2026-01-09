@@ -39,14 +39,13 @@ read_verilog_cmd(const char *filename)
 
 void
 write_verilog_cmd(const char *filename,
-		  bool sort,
 		  bool include_pwr_gnd,
 		  CellSeq *remove_cells)
 {
   // This does NOT want the SDC (cmd) network because it wants
   // to see the sta internal names.
   Network *network = Sta::sta()->network();
-  writeVerilog(filename, sort, include_pwr_gnd, remove_cells, network);
+  writeVerilog(filename, include_pwr_gnd, remove_cells, network);
   delete remove_cells;
 }
 

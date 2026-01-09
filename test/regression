@@ -31,6 +31,7 @@ exec tclsh $0 ${1+"$@"}
 
 # Directory containing tests.
 set test_dir [file dirname [file normalize [info script]]]
+set sta_dir [file normalize [file join $test_dir ".."]]
 source [file join $test_dir regression_vars.tcl]
 source [file join $test_dir regression.tcl]
 

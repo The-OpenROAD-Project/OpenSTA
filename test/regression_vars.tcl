@@ -34,7 +34,6 @@
 
 # Application program to run tests on.
 set app "sta"
-set sta_dir [file dirname $test_dir]
 set app_path [file join $sta_dir "build" $app]
 # Application options.
 set app_options "-no_init -no_splash -exit"
@@ -52,7 +51,7 @@ if [info exists env(DIFF_OPTIONS)] {
 }
 
 set valgrind_suppress [file join $test_dir valgrind.suppress]
-set valgrind_options "--num-callers=20 --leak-check=full --freelist-vol=100000000 --leak-resolution=high --suppressions=$valgrind_suppress"
+set valgrind_options "--num-callers=20 --leak-check=full --show-leak-kinds=all --leak-resolution=high --suppressions=$valgrind_suppress"
 if { [exec "uname"] == "Darwin" } {
   append valgrind_options " --dsymutil=yes"
 }
@@ -70,31 +69,6 @@ proc record_test { test cmd_dir } {
   lappend test_groups(all) $test
   return $test
 }
-
-# Record tests in the $STA/test directory.
-proc record_sta_tests { tests } {
-  global test_dir
-  foreach test $tests {
-    # Prune commented tests from the list.
-    if { [string index $test 0] != "#" } {
-      record_test $test $test_dir
-    }
-  }
-}
-
-# Record tests in the $STA/examples directory.
-proc record_example_tests { tests } {
-  global test_dir test_groups
-  set example_dir [file join $test_dir ".." "examples"]
-  foreach test $tests {
-    # Prune commented tests from the list.
-    if { [string index $test 0] != "#" } {
-      record_test $test $example_dir
-    }
-  }
-}
-
-################################################################
 
 proc define_test_group { name tests } {
   global test_groups
@@ -124,6 +98,38 @@ proc list_delete { list delete } {
 
 ################################################################
 
+# Record tests in $STA/test.
+proc record_public_tests { tests } {
+  global sta_dir cmd_dirs test_groups test_dir
+  set public_dir [file join $sta_dir "test"]
+  foreach test $tests {
+    if { [string index $test 0] != "#" } {
+      record_test $test $public_dir
+      # sync pvt/test okfiles to sta/test
+      set public_ok [file join $public_dir $test.ok]
+      if { [file exists $public_ok] } {
+        file copy -force $public_ok [file join $test_dir $test.ok]
+      }
+    }
+  }
+  define_test_group public $tests
+}
+
+# Record tests in the $STA/examples directory.
+proc record_example_tests { tests } {
+  global test_dir test_groups
+  set example_dir [file join $test_dir ".." "examples"]
+  foreach test $tests {
+    # Prune commented tests from the list.
+    if { [string index $test 0] != "#" } {
+      record_test $test $example_dir
+    }
+  }
+  define_test_group examples $tests
+}
+
+################################################################
+
 # Regression test lists.
 
 # Record tests in sta/examples
@@ -137,7 +143,7 @@ record_example_tests {
   spef_parasitics
 }
 
-record_sta_tests {
+record_public_tests {
   disconnect_mcp_pin
   get_filter
   get_is_buffer
@@ -153,6 +159,7 @@ record_sta_tests {
   liberty_latch3
   package_require
   path_group_names
+  power_json
   prima3
   report_checks_sorted
   report_checks_src_attr

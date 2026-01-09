@@ -13772,16 +13772,7 @@
       <text:p text:style-name="P29"><text:alphabetical-index-mark-start text:id="IMark53760024032"/><text:span text:style-name="Command_20_Heading">write_verilog</text:span><text:alphabetical-index-mark-end text:id="IMark53760024032"/></text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Table109.A1" office:value-type="string">
-      <text:p text:style-name="P264">[-sort<text:span text:style-name="T22">]</text:span></text:p>
       <text:p text:style-name="P264"><text:span text:style-name="T22">[-include_pwr_gnd]</text:span><text:line-break/>[-remove_cells <text:span text:style-name="T1">lib_cells</text:span><text:span text:style-name="T22">]</text:span><text:line-break/><text:span text:style-name="T1">filename</text:span></text:p>
-     </table:table-cell>
-    </table:table-row>
-    <table:table-row table:style-name="Table109.1">
-     <table:table-cell table:style-name="Table109.A2" office:value-type="string">
-      <text:p text:style-name="P265"><text:span text:style-name="Command_20_Argument"><text:span text:style-name="T317">-sort</text:span></text:span></text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Table109.A2" office:value-type="string">
-      <text:p text:style-name="P29"><text:span text:style-name="Default_20_Paragraph_20_Font">Sort the instances in the netlist.</text:span></text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="Table109.1">
@@ -13809,7 +13800,7 @@
      </table:table-cell>
     </table:table-row>
    </table:table>
-   <text:p text:style-name="P290">The <text:span text:style-name="T7">write_verilog</text:span> command writes a Verilog netlist to <text:span text:style-name="T3">filename</text:span>. Use <text:span text:style-name="T317">-sort</text:span> to sort the instances so the results are reproducible across operating systems. Use <text:span text:style-name="T7">-remove_cells</text:span> to remove instances of <text:span text:style-name="T3">lib_cells</text:span> from the netlist.</text:p>
+   <text:p text:style-name="P290">The <text:span text:style-name="T7">write_verilog</text:span> command writes a Verilog netlist to <text:span text:style-name="T3">filename</text:span>. Instances are always sorted so the results are reproducible across operating systems. Use <text:span text:style-name="T7">-remove_cells</text:span> to remove instances of <text:span text:style-name="T3">lib_cells</text:span> from the netlist.</text:p>
    <text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="__RefHeading___Toc42589_2528141652"/><text:alphabetical-index-mark-start text:id="IMark53760024032"/>Filter Expressions<text:bookmark-end text:name="__RefHeading___Toc42589_2528141652"/><text:alphabetical-index-mark-end text:id="IMark53760024032"/></text:h>
    <text:p text:style-name="P291">The <text:span text:style-name="Example">get_cells</text:span>, <text:span text:style-name="Example">get_pins</text:span>, <text:span text:style-name="Example">get_ports</text:span> and <text:span text:style-name="Example">get_timing_edges</text:span> functions support filtering the returned objects by property values. Supported filter expressions are shown below.</text:p>
    <table:table table:name="Table66" table:style-name="Table66">

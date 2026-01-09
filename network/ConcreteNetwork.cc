@@ -1286,7 +1286,6 @@ ConcreteNetwork::replaceCell(Instance *inst,
       if (cport) {
         rpins[cport->pinIndex()] = cpin;
         cpin->port_ = cport;
-        cpin->id_ = ConcreteNetwork::nextObjectId();
       }
     }
   }

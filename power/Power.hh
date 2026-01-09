@@ -238,7 +238,7 @@ private:
   PwrSeqActivityMap seq_activity_map_;
   bool activities_valid_;
   Bdd bdd_;
-  std::map<const Instance*, PowerResult> instance_powers_;
+  std::map<const Instance*, PowerResult, InstanceIdLess> instance_powers_;
   bool instance_powers_valid_;
   const Corner *corner_;
 

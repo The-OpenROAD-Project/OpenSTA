@@ -1365,6 +1365,7 @@ protected:
   virtual void makeCheckMaxSkews();
   virtual void makeReportPath();
   virtual void makePower();
+  virtual void makeClkSkews();
   virtual void makeObservers();
   NetworkEdit *networkCmdEdit();
 

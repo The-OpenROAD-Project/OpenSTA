@@ -106,6 +106,8 @@ protected:
   virtual void incrLevel(Level &level) const = 0;
   void findNext(Level to_level);
   void deleteEntries();
+  void checkLevel(Vertex *vertex,
+                  Level level);
 
   BfsIndex bfs_index_;
   Level level_min_;

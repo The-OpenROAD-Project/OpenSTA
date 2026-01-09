@@ -101,6 +101,7 @@ Power::Power(StaState *sta) :
   seq_activity_map_(100, SeqPinHash(network_), SeqPinEqual()),
   activities_valid_(false),
   bdd_(sta),
+  instance_powers_(InstanceIdLess(network_)),
   instance_powers_valid_(false),
   corner_(nullptr)
 {
@@ -694,8 +695,8 @@ Power::evalBddActivity(DdNode *bdd,
       Cudd_RecursiveDeref(bdd_.cuddMgr(), diff);
       float var_density = var_activity.density() * diff_duty;
       density += var_density;
-      debugPrint(debug_, "power_activity", 3, "var %s %.3e * %.3f = %.3e",
-                 port->name(),
+      debugPrint(debug_, "power_activity", 3, "%s %.3e * %.3f = %.3e",
+                 network_->pathName(pin),
                  var_activity.density(),
                  diff_duty,
                  var_density);
@@ -834,24 +835,34 @@ Power::seedRegOutputActivities(const Instance *reg,
 {
   const Pin *out_pin = network_->findPin(reg, output);
   if (!hasUserActivity(out_pin)) {
-    PwrActivity activity = evalActivity(seq->data(), reg);
-    // Register output activity cannnot exceed one transition per clock cycle,
-    // but latch output can.
-    if (seq->isRegister()) {
-      FuncExpr *clk_func = seq->clock();
-      if (clk_func->port()) {
-        const Pin *pin = network_->findPin(reg, clk_func->port());
-        const Clock *clk = findClk(pin);
-        if (clk) {
-          if (activity.density() > 1.0 / clk->period())
-            activity.setDensity(1.0 / clk->period());
-        }
+    PwrActivity in_activity = evalActivity(seq->data(), reg);
+    float in_density = in_activity.density();
+    float in_duty = in_activity.duty();
+    // Default propagates input density/duty thru reg/latch.
+    float out_density = in_density;
+    float out_duty = in_duty;
+    PwrActivity clk_activity = evalActivity(seq->clock(), reg);
+    float clk_density = clk_activity.density();
+    if (in_density > clk_density / 2) {
+      if (seq->isRegister())
+        out_density = 2 * in_duty * (1 - in_duty) * clk_density;
+      else if (seq->isLatch()) {
+        PwrActivity clk_activity = evalActivity(seq->clock(), reg);
+        float clk_duty = clk_activity.duty();
+        FuncExpr *clk_func = seq->clock();
+        bool clk_invert = clk_func
+          && clk_func->op() == FuncExpr::op_not
+          && clk_func->left()->op() == FuncExpr::op_port;
+        if (clk_invert)
+          out_density = in_density * (1 - clk_duty);
+        else
+          out_density = in_density * clk_duty;
       }
     }
     if (invert)
-      activity.setDuty(1.0 - activity.duty());
-    activity.setOrigin(PwrActivityOrigin::propagated);
-    setSeqActivity(reg, output, activity);
+      out_duty = 1.0 - out_duty;
+    PwrActivity out_activity(out_density, out_duty, PwrActivityOrigin::propagated);
+    setSeqActivity(reg, output, out_activity);
   }
 }
 

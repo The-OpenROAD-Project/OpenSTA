@@ -276,6 +276,7 @@ public:
   // Network edit before/after methods.
   virtual void disconnectPinBefore(const Pin *pin,
                                    const Network *network) = 0;
+  virtual void deletePinBefore(const Pin *pin) = 0;
   virtual void loadPinCapacitanceChanged(const Pin *pin) = 0;
 
 protected:

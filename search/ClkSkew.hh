@@ -36,10 +36,43 @@
 
 namespace sta {
 
-class ClkSkew;
 class SearchPred;
 
-typedef std::map<const Clock*, ClkSkew> ClkSkewMap;
+// Source/target clock skew.
+class ClkSkew
+{
+public:
+  ClkSkew();
+  ClkSkew(Path *src_path,
+	  Path *tgt_path,
+          bool include_internal_latency,
+	  StaState *sta);
+  ClkSkew(const ClkSkew &clk_skew);
+  void operator=(const ClkSkew &clk_skew);
+  Path *srcPath() { return src_path_; }
+  Path *tgtPath() { return tgt_path_; }
+  float srcLatency(const StaState *sta);
+  float tgtLatency(const StaState *sta);
+  float srcInternalClkLatency(const StaState *sta);
+  float tgtInternalClkLatency(const StaState *sta);
+  Crpr crpr(const StaState *sta);
+  float uncertainty(const StaState *sta);
+  float skew() const { return skew_; }
+  static bool srcTgtPathNameLess(ClkSkew &clk_skew1,
+                                 ClkSkew &clk_skew2,
+                                 const StaState *sta);
+
+private:
+  float clkTreeDelay(Path *clk_path,
+                     const StaState *sta);
+
+  Path *src_path_;
+  Path *tgt_path_;
+  bool include_internal_latency_;
+  float skew_;
+};
+
+typedef std::map<const Clock*, ClkSkew[SetupHold::index_count]> ClkSkewMap;
 
 class FanOutSrchPred : public SearchPred1
 {
@@ -53,6 +86,7 @@ class ClkSkews : public StaState
 {
 public:
   ClkSkews(StaState *sta);
+  void clear();
   // Report clk skews for clks.
   void reportClkSkew(ConstClockSeq &clks,
 		     const Corner *corner,
@@ -65,10 +99,9 @@ public:
                          bool include_internal_latency);
   
 protected:
-  ClkSkewMap findClkSkew(ConstClockSeq &clks,
-                         const Corner *corner,
-                         const SetupHold *setup_hold,
-                         bool include_internal_latency);
+  void findClkSkew(ConstClockSeq &clks,
+                   const Corner *corner,
+                   bool include_internal_latency);
   bool hasClkPaths(Vertex *vertex);
   void findClkSkewFrom(Vertex *src_vertex,
 		       ClkSkewMap &skews);
@@ -88,11 +121,12 @@ protected:
   void reportClkSkew(ClkSkew &clk_skew,
                      int digits);
 
+  ConstClockSeq clks_;
   ConstClockSet clk_set_;
   const Corner *corner_;
-  const SetupHold *setup_hold_;
   bool include_internal_latency_;
   FanOutSrchPred fanout_pred_;
+  ClkSkewMap skews_;
 };
 
 } // namespace

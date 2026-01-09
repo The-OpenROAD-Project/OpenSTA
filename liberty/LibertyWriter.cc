@@ -137,20 +137,20 @@ LibertyWriter::writeHeader()
   fprintf(stream_, "  simulation                     : false;\n");
   const Unit *cap_unit = library_->units()->capacitanceUnit();
   fprintf(stream_, "  capacitive_load_unit (1,%s);\n",
-          cap_unit->scaledSuffix());
+          cap_unit->scaleAbbrevSuffix().c_str());
   fprintf(stream_, "  leakage_power_unit             : 1pW;\n");
   const Unit *current_unit = library_->units()->currentUnit();
   fprintf(stream_, "  current_unit                   : \"1%s\";\n",
-          current_unit->scaledSuffix());
+          current_unit->scaleAbbrevSuffix().c_str());
   const Unit *res_unit = library_->units()->resistanceUnit();
   fprintf(stream_, "  pulling_resistance_unit        : \"1%s\";\n",
-          res_unit->scaledSuffix());
+          res_unit->scaleAbbrevSuffix().c_str());
   const Unit *time_unit = library_->units()->timeUnit();
   fprintf(stream_, "  time_unit                      : \"1%s\";\n",
-          time_unit->scaledSuffix());
+          time_unit->scaleAbbrevSuffix().c_str());
   const Unit *volt_unit = library_->units()->voltageUnit();
   fprintf(stream_, "  voltage_unit                   : \"1%s\";\n",
-          volt_unit->scaledSuffix());
+          volt_unit->scaleAbbrevSuffix().c_str());
   fprintf(stream_, "  library_features(report_delay_calculation);\n");
   fprintf(stream_, "\n");
 

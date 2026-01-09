@@ -209,16 +209,19 @@ StaSimObserver::fanoutEdgesChangeAfter(Vertex *vertex)
 class StaLevelizeObserver : public LevelizeObserver
 {
 public:
-  StaLevelizeObserver(Search *search);
+  StaLevelizeObserver(Search *search, GraphDelayCalc *graph_delay_calc);
   void levelsChangedBefore() override;
   void levelChangedBefore(Vertex *vertex) override;
 
 private:
   Search *search_;
+  GraphDelayCalc *graph_delay_calc_;
 };
 
-StaLevelizeObserver::StaLevelizeObserver(Search *search) :
-  search_(search)
+StaLevelizeObserver::StaLevelizeObserver(Search *search,
+                                         GraphDelayCalc *graph_delay_calc) :
+  search_(search),
+  graph_delay_calc_(graph_delay_calc)
 {
 }
 
@@ -226,12 +229,14 @@ void
 StaLevelizeObserver::levelsChangedBefore()
 {
   search_->levelsChangedBefore();
+  graph_delay_calc_->levelsChangedBefore();
 }
 
 void
 StaLevelizeObserver::levelChangedBefore(Vertex *vertex)
 {
   search_->levelChangedBefore(vertex);
+  graph_delay_calc_->levelChangedBefore(vertex);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -310,6 +315,8 @@ Sta::makeComponents()
   makeSdcNetwork();
   makeReportPath();
   makePower();
+  makeClkSkews();
+
   setCmdNamespace1(CmdNamespace::sdc);
   setThreadCount1(defaultThreadCount());
   updateComponentsState();
@@ -324,7 +331,7 @@ Sta::makeObservers()
 {
   graph_delay_calc_->setObserver(new StaDelayCalcObserver(search_));
   sim_->setObserver(new StaSimObserver(graph_delay_calc_, levelize_, search_));
-  levelize_->setObserver(new StaLevelizeObserver(search_));
+  levelize_->setObserver(new StaLevelizeObserver(search_, graph_delay_calc_));
 }
 
 int
@@ -371,8 +378,7 @@ Sta::updateComponentsState()
   if (check_timing_)
     check_timing_->copyState(this);
   clk_network_->copyState(this);
-  if (clk_skews_)
-    clk_skews_->copyState(this);
+  clk_skews_->copyState(this);
   if (power_)
     power_->copyState(this);
 }
@@ -590,6 +596,7 @@ Sta::clear()
     check_min_pulse_widths_->clear();
   if (check_min_periods_)
     check_min_periods_->clear();
+  clk_skews_->clear();
   delete graph_;
   graph_ = nullptr;
   current_instance_ = nullptr;
@@ -611,6 +618,7 @@ Sta::networkChanged()
     check_min_pulse_widths_->clear();
   if (check_min_periods_)
     check_min_periods_->clear();
+  clk_skews_->clear();
   delete graph_;
   graph_ = nullptr;
   graph_sdc_annotated_ = false;
@@ -2481,6 +2489,7 @@ Sta::findPathEnds(ExceptionFrom *from,
 		  bool clk_gating_hold)
 {
   searchPreamble();
+  clk_skews_->clear();
   return search_->findPathEnds(from, thrus, to, unconstrained,
 			       corner, min_max, group_path_count,
 			       endpoint_path_count,
@@ -2628,8 +2637,9 @@ float
 Sta::findWorstClkSkew(const SetupHold *setup_hold,
                       bool include_internal_latency)
 {
+
   clkSkewPreamble();
-  return clk_skews_->findWorstClkSkew(cmd_corner_, setup_hold,
+  return clk_skews_->findWorstClkSkew(nullptr, setup_hold,
                                       include_internal_latency);
 }
 
@@ -2637,8 +2647,12 @@ void
 Sta::clkSkewPreamble()
 {
   ensureClkArrivals();
-  if (clk_skews_ == nullptr)
-    clk_skews_ = new ClkSkews(this);
+}
+
+void
+Sta::makeClkSkews()
+{
+  clk_skews_ = new ClkSkews(this);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -4367,6 +4381,7 @@ Sta::replaceCellBefore(const Instance *inst,
       }
     }
     delete pin_iter;
+    clk_skews_->clear();
   }
 }
 
@@ -4431,6 +4446,7 @@ Sta::connectPinAfter(const Pin *pin)
   }
   sdc_->connectPinAfter(pin);
   sim_->connectPinAfter(pin);
+  clk_skews_->clear();
 }
 
 void
@@ -4521,6 +4537,7 @@ Sta::disconnectPinBefore(const Pin *pin)
 	}
       }
     }
+    clk_skews_->clear();
   }
 }
 
@@ -4671,6 +4688,7 @@ Sta::deletePinBefore(const Pin *pin)
   sim_->deletePinBefore(pin);
   clk_network_->deletePinBefore(pin);
   power_->deletePinBefore(pin);
+  clk_skews_->clear();
 }
 
 void

@@ -69,7 +69,7 @@ public:
   };
 
   virtual PathEnd *copy() const = 0;
-  virtual ~PathEnd();
+  virtual ~PathEnd() {}
   void deletePath();
   Path *path() { return path_; }
   const Path *path() const { return path_; }

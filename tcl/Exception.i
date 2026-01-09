@@ -23,7 +23,7 @@
 // This notice may not be removed or altered from any source distribution.
 
 %exception {
-  try { $function }
+  try { $action }
   catch (std::bad_alloc &) {
     fprintf(stderr, "Error: out of memory.\n");
     exit(1);

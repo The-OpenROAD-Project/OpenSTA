@@ -1,0 +1,55 @@
+{
+  "Sequential": {
+    "internal": 8.01e-06,
+    "switching": 4.99e-08,
+    "leakage": 1.45e-09,
+    "total": 8.06e-06
+  },
+  "Combinational": {
+    "internal": 2.03e-07,
+    "switching": 5.32e-08,
+    "leakage": 1.59e-10,
+    "total": 2.56e-07
+  },
+  "Clock": {
+    "internal": 0.00e+00,
+    "switching": 0.00e+00,
+    "leakage": 0.00e+00,
+    "total": 0.00e+00
+  },
+  "Macro": {
+    "internal": 0.00e+00,
+    "switching": 0.00e+00,
+    "leakage": 0.00e+00,
+    "total": 0.00e+00
+  },
+  "Pad": {
+    "internal": 0.00e+00,
+    "switching": 0.00e+00,
+    "leakage": 0.00e+00,
+    "total": 0.00e+00
+  },
+  "Total": {
+    "internal": 8.22e-06,
+    "switching": 1.03e-07,
+    "leakage": 1.61e-09,
+    "total": 8.32e-06
+  }
+}
+[
+{
+  "name": "u2",
+  "internal": 1.05e-07,
+  "switching": 2.74e-08,
+  "leakage": 9.07e-11,
+  "total": 1.32e-07
+}
+,
+{
+  "name": "u1",
+  "internal": 9.83e-08,
+  "switching": 2.58e-08,
+  "leakage": 6.82e-11,
+  "total": 1.24e-07
+}
+]

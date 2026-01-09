@@ -153,7 +153,7 @@ public:
                       char value) override;
   void varAppendBusValue(const string &id,
                          VcdTime time,
-                         int64_t bus_value) override;
+                         const string &bus_value) override;
 
 private:
   void addVarPin(const string &pin_name,
@@ -329,14 +329,21 @@ VcdCountReader::varAppendValue(const string &id,
 void
 VcdCountReader::varAppendBusValue(const string &id,
                                   VcdTime time,
-                                  int64_t bus_value)
+                                  const string &bus_value)
 {
   const auto &itr = vcd_count_map_.find(id);
   if (itr != vcd_count_map_.end()) {
     VcdCounts &vcd_counts = itr->second;
     for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {
-      char bit_value = ((bus_value >> bit_idx) & 0x1) ? '1' : '0';
+      char bit_value;
+      if (bus_value.size() == 1)
+        bit_value = bus_value[0];
+      else if  (bit_idx < bus_value.size())
+        bit_value = bus_value[bit_idx];
+      else
+        bit_value = '0';
       VcdCount &vcd_count = vcd_counts[bit_idx];
+      vcd_count.incrCounts(time, bit_value);
       if (debug_->check("read_vcd", 3)) {
         for (const Pin *pin : vcd_count.pins()) {
           debugPrint(debug_, "read_vcd", 3, "%s time %" PRIu64 " value %c",
@@ -345,7 +352,6 @@ VcdCountReader::varAppendBusValue(const string &id,
                      bit_value);
         }
       }
-      vcd_count.incrCounts(time, bit_value);
     }
   }
 }

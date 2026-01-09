@@ -54,12 +54,6 @@ PathEnd::PathEnd(Path *path) :
 {
 }
 
-PathEnd::~PathEnd()
-{
-  if (path_->isEnum())
-    delete path_;
-}
-
 void
 PathEnd::setPath(Path *path)
 {

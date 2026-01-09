@@ -185,6 +185,19 @@ GraphDelayCalc::delayInvalid(Vertex *vertex)
 }
 
 void
+GraphDelayCalc::levelsChangedBefore()
+{
+  delaysInvalid();
+}
+
+void
+GraphDelayCalc::levelChangedBefore(Vertex *vertex)
+{
+  iter_->remove(vertex);
+  delayInvalid(vertex);
+}
+
+void
 GraphDelayCalc::deleteVertexBefore(Vertex *vertex)
 {
   iter_->deleteVertexBefore(vertex);
