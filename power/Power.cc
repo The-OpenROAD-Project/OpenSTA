@@ -101,6 +101,7 @@ Power::Power(StaState *sta) :
   seq_activity_map_(100, SeqPinHash(network_), SeqPinEqual()),
   activities_valid_(false),
   bdd_(sta),
+  instance_powers_(InstanceIdLess(network_)),
   instance_powers_valid_(false),
   corner_(nullptr)
 {
