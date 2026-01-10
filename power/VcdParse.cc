@@ -77,16 +77,29 @@ VcdParse::read(const char *filename,
       else if (token == "$dumpall")
         // Ignore dumpall body.
         readStmtTokens();
+      // Read initial values
       else if (token == "$dumpvars")
         // Initial values.
         parseVarValues();
       else if (token[0] == '#') {
-        time_ = stoll(token.substr(1));
+        try {
+          time_ = stoll(token.substr(1));
+        }
+        catch (std::invalid_argument &error) {
+          report_->fileError(805, filename_, file_line_, "invalid time %s",
+                             token.substr(1).c_str());
+        }
+        catch (std::out_of_range &error) {
+          report_->fileError(806, filename_, file_line_, "time out of range %s",
+                             token.substr(1).c_str());
+        }
 	reader_->setTimeMin(time_);
         prev_time_ = time_;
       }
       else if (token[0] == '$')
-        report_->fileError(800, filename_, stmt_line_, "unhandled vcd command.");
+        report_->fileError(800, filename_, file_line_, "unknown vcd command.");
+      else
+        parseVarValues();
 
       token = getToken();
     }
@@ -123,7 +136,7 @@ VcdParse::parseTimescale()
     setTimeUnit(tokens[1], time_scale);
   }
   else
-    report_->fileError(801, filename_, stmt_line_, "timescale syntax error.");
+    report_->fileError(801, filename_, file_line_, "timescale syntax error.");
 }
 
 void
@@ -138,7 +151,7 @@ VcdParse::setTimeUnit(const string &time_unit,
   else if (time_unit == "ns")
     time_unit_scale = 1e-9;
   else
-    report_->fileError(802, filename_, stmt_line_, "Unknown timescale unit.");
+    report_->fileError(802, filename_, file_line_, "Unknown timescale unit.");
   reader_->setTimeUnit(time_unit, time_unit_scale, time_scale);
 }
 
@@ -170,7 +183,7 @@ VcdParse::parseVar()
     string type_name = tokens[0];
     VcdVarType type = vcd_var_type_map.find(type_name, VcdVarType::unknown);
     if (type == VcdVarType::unknown)
-      report_->fileWarn(1370, filename_, stmt_line_,
+      report_->fileWarn(1370, filename_, file_line_,
                         "Unknown variable type %s.",
                         type_name.c_str());
     else {
@@ -189,7 +202,7 @@ VcdParse::parseVar()
     }
   }
   else
-    report_->fileError(804, filename_, stmt_line_, "Variable syntax error.");
+    report_->fileError(804, filename_, file_line_, "Variable syntax error.");
 }
 
 void
@@ -227,15 +240,17 @@ VcdParse::parseVarValues()
              || char0 == 'Z') {
       string id = token.substr(1);
       if (!reader_->varIdValid(id))
-        report_->fileError(805, filename_, stmt_line_,
+        report_->fileError(805, filename_, file_line_,
                            "unknown variable %s", id.c_str());
       reader_->varAppendValue(id, time_, char0);
     }
     else if (char0 == 'B') {
+      if (file_line_ == 148904)
+        printf("luse\n");
       string bus_value = token.substr(1);
       string id = getToken();
       if (!reader_->varIdValid(id))
-        report_->fileError(807, filename_, stmt_line_,
+        report_->fileError(807, filename_, file_line_,
                            "unknown variable %s", id.c_str());
       else {
         // Reverse the bus value to match the bit order in the VCD file.
