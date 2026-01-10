@@ -406,7 +406,7 @@ ReadVcdActivities::readActivities()
 {
   ClockSeq *clks = sdc_->clocks();
   if (clks->empty())
-    report_->error(805, "No clocks have been defined.");
+    report_->error(820, "No clocks have been defined.");
 
   vcd_parse_.read(filename_, &vcd_reader_);
 
@@ -454,20 +454,26 @@ void
 ReadVcdActivities::checkClkPeriod(const Pin *pin,
                                   double transition_count)
 {
-  VcdTime time_max = vcd_reader_.timeMax();
-  VcdTime time_min = vcd_reader_.timeMin();
-  double time_scale = vcd_reader_.timeScale();
-  double sim_period = (time_max - time_min) * time_scale / (transition_count / 2.0);
   ClockSet *clks = sdc_->findLeafPinClocks(pin);
   if (clks) {
+    VcdTime time_max = vcd_reader_.timeMax();
+    VcdTime time_min = vcd_reader_.timeMin();
+    double time_scale = vcd_reader_.timeScale();
+    double sim_period = (time_max - time_min) * time_scale / (transition_count / 2.0);
     for (Clock *clk : *clks) {
-      double clk_period = clk->period();
-      if (abs((clk_period - sim_period) / clk_period) > sim_clk_period_tolerance_)
-        // Warn if sim clock period differs from SDC by more than 10%.
-        report_->warn(1452, "clock %s vcd period %s differs from SDC clock period %s",
+      if (transition_count == 0)
+        report_->warn(1452, "clock %s pin %s has no vcd transitions.",
                       clk->name(),
-                      delayAsString(sim_period, this),
-                      delayAsString(clk_period, this));
+                      sdc_network_->pathName(pin));
+      else {
+        double clk_period = clk->period();
+        if (abs((clk_period - sim_period) / clk_period) > sim_clk_period_tolerance_)
+          // Warn if sim clock period differs from SDC by more than 10%.
+          report_->warn(1452, "clock %s vcd period %s differs from SDC clock period %s",
+                        clk->name(),
+                        delayAsString(sim_period, this),
+                        delayAsString(clk_period, this));
+      }
     }
   }
 }
