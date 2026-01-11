@@ -469,7 +469,7 @@ ReadVcdActivities::checkClkPeriod(const Pin *pin,
         double clk_period = clk->period();
         if (abs((clk_period - sim_period) / clk_period) > sim_clk_period_tolerance_)
           // Warn if sim clock period differs from SDC by more than 10%.
-          report_->warn(1452, "clock %s vcd period %s differs from SDC clock period %s",
+          report_->warn(1453, "clock %s vcd period %s differs from SDC clock period %s",
                         clk->name(),
                         delayAsString(sim_period, this),
                         delayAsString(clk_period, this));
