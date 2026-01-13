@@ -872,9 +872,8 @@ WriteSpice::gatePortValues(const Instance *,
   CUDD_VALUE_TYPE value;
   DdGen *cube_gen = Cudd_FirstCube(cudd_mgr, diff, &cube, &value);
 
-  FuncExprPortIterator port_iter(expr);
-  while (port_iter.hasNext()) {
-    const LibertyPort *port = port_iter.next();
+  LibertyPortSet ports = expr->ports();
+  for (const LibertyPort *port : ports) {
     if (port != input_port) {
       DdNode *port_node = bdd_.findNode(port);
       int var_index = Cudd_NodeReadIndex(port_node);
