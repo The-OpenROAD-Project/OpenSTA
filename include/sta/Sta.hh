@@ -538,6 +538,8 @@ public:
                Sdc *sdc);
   void removeDisable(TimingArcSet *arc_set,
                      Sdc *sdc);
+  [[nodiscard]] bool isConstant(const Pin *pin,
+                                const Mode *mode) const;
   // Edge is disabled by constant.
   [[nodiscard]] bool isDisabledConstant(Edge *edge,
                                         const Mode *mode);

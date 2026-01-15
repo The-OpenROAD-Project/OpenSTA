@@ -1716,6 +1716,15 @@ Sta::isDisabledConstraint(Edge *edge,
 }
 
 bool
+Sta::isConstant(const Pin *pin,
+                const Mode *mode) const
+{
+  Sim *sim = mode->sim();
+  sim->ensureConstantsPropagated();
+  return sim->isConstant(pin);
+}
+
+bool
 Sta::isDisabledConstant(Edge *edge,
                         const Mode *mode)
 {
