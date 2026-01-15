@@ -245,8 +245,6 @@ VcdParse::parseVarValues()
       reader_->varAppendValue(id, time_, char0);
     }
     else if (char0 == 'B') {
-      if (file_line_ == 148904)
-        printf("luse\n");
       string bus_value = token.substr(1);
       string id = getToken();
       if (!reader_->varIdValid(id))
