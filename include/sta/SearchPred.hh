@@ -34,10 +34,12 @@ namespace sta {
 // Class hierarchy:
 // SearchPred
 //  SearchAdj (unless loop disabled, latch D->Q, timing check, dynamic loop)
-//  SearchPred0 (unless disabled or constant)
-//   EvalPred (unless timing check)
+//  SearchPred0 (unless timing check, disabled or constant)
+//   EvalPred (unless dynamic loop breaking)
 //    SearchThru (unless latch D->Q)
+//   GenClkInsertionSearchPred
 //   SearchPred1 (unless loop disabled)
+//    FanOutSrchPred
 //  ClkTreeSearchPred (only wire or combinational)
 
 // Virtual base class for search predicates.

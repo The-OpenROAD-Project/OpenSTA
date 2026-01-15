@@ -116,7 +116,8 @@ SearchPred0::searchThru(Edge *edge,
   const Variables *variables = sta_->variables();
   const Sdc *sdc = mode->sdc();
   const Sim *sim = mode->sim();
-  return !(sdc->isDisabledConstraint(edge)
+  return !(role->isTimingCheck()
+           || sdc->isDisabledConstraint(edge)
            // Constants disable edge cond expression.
            || sim->isDisabledCond(edge)
            || sdc->isDisabledCondDefault(edge)

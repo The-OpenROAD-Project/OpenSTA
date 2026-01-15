@@ -673,7 +673,6 @@ protected:
 
 // Eval across latch D->Q edges.
 // SearchPred0 unless
-//  timing check edge
 //  disabled loop
 //  disabled converging clock edge (Xilinx)
 //  clk source pin

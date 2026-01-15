@@ -96,7 +96,6 @@ EvalPred::searchThru(Edge *edge,
   return SearchPred0::searchThru(edge, mode)
     && (sta_->variables()->dynamicLoopBreaking()
         || !edge->isDisabledLoop())
-    && !role->isTimingCheck()
     && (search_thru_latches_
         || role->isLatchDtoQ()
         || sta_->latches()->latchDtoQState(edge, mode) == LatchEnableState::open);
