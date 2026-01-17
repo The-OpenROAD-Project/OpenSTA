@@ -415,7 +415,9 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
 {
   // These paths fanin to before_div_ so we know to_vertex matches.
   if ((!unique_pins_ || from_vertex != prev_vertex_)
-      && (!unique_edges_ || from_rf != prev_arc_->fromEdge()->asRiseFall())
+      && (!unique_edges_
+          || from_vertex != prev_vertex_
+          || from_rf != prev_arc_->fromEdge()->asRiseFall())
       && arc != prev_arc_
       && Tag::matchNoCrpr(to_tag, before_div_tag_)
       // Ignore paths that only differ by crpr from same vertex/edge.
@@ -443,10 +445,26 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
     if (crpr_active_)
       visited_fanins_.emplace(from_vertex, arc);
   }
-  else
-    debugPrint(debug_, "path_enum", 3, "      pruned %s %s",
-               edge->to_string(this).c_str(),
-               arc->to_string().c_str());
+  else {
+    if (debug_->check("path_enum", 3)) {
+      bool unique_pins = !(!unique_pins_ || from_vertex != prev_vertex_);
+      bool unique_edges = !(!unique_edges_
+                            || from_rf != prev_arc_->fromEdge()->asRiseFall());
+      bool same_arc = !(arc != prev_arc_);
+      bool tag_march = !Tag::matchNoCrpr(to_tag, before_div_tag_);
+      bool crpr = !(!crpr_active_
+                    || visited_fanins_.find({from_vertex, arc})
+                    == visited_fanins_.end());
+      debugPrint(debug_, "path_enum", 3, "      pruned %s%s%s%s%s %s %s",
+                 unique_pins ? "unique_pins " : "",
+                 unique_edges ? "unique_edges " : "",
+                 same_arc ? "same_arc " : "",
+                 tag_march ? "tag_march " : "",
+                 crpr ? "crpr " : "",
+                 edge->to_string(this).c_str(),
+                 arc->to_string().c_str());
+    }
+  }
   return true;
 }
 
