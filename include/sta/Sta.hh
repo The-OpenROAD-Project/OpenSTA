@@ -1105,6 +1105,11 @@ public:
                   const RiseFallBoth *rf,
                   const SceneSeq &scenes,
                   const MinMax *min_max);
+  Arrival arrival(Vertex *vertex,
+                  const RiseFall *rf,
+                  const ClockEdge *clk_edge,
+                  const SceneSeq &scenes,
+                  const MinMax *min_max);
 
   Required required(Vertex *vertex,
                     const RiseFallBoth *rf,

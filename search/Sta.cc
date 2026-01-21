@@ -3075,6 +3075,31 @@ Sta::arrival(Vertex *vertex,
   return arrival;
 }
 
+Arrival
+Sta::arrival(Vertex *vertex,
+             const RiseFall *rf,
+             const ClockEdge *clk_edge,
+             const SceneSeq &scenes,
+             const MinMax *min_max)
+{
+  searchPreamble();
+  search_->findArrivals(vertex->level());
+  const SceneSet scenes_set = Scene::sceneSet(scenes);
+  Arrival arrival = min_max->initValue();
+  VertexPathIterator path_iter(vertex, rf, min_max, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    const Arrival &path_arrival = path->arrival();
+    const ClkInfo *clk_info = path->clkInfo(search_);
+    if (clk_info->clkEdge() == clk_edge
+        && !clk_info->isGenClkSrcPath()
+        && scenes_set.contains(path->scene(this))
+        && delayGreater(path->arrival(), arrival, min_max, this))
+      arrival = path_arrival;
+  }
+  return arrival;
+}
+
 Required
 Sta::required(Vertex *vertex,
               const RiseFallBoth *rf,
