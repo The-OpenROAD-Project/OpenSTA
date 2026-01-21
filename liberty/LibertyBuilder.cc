@@ -424,25 +424,27 @@ LibertyBuilder::makeRegLatchArcs(LibertyCell *cell,
                                  TimingArcAttrsPtr attrs)
 {
   FuncExpr *to_func = to_port->function();
-  LibertyPortSet to_ports = to_func->ports();
-  for (LibertyPort *func_port : to_ports) {
-    Sequential *seq = cell->outputPortSequential(func_port);
-    if (seq) {
-      if (seq->clock() && seq->clock()->hasPort(from_port)) {
-        const TimingRole *role = seq->isRegister() ?
-          TimingRole::regClkToQ() : TimingRole::latchEnToQ();
-        return makeFromTransitionArcs(cell, from_port, to_port, nullptr,
-                                      from_rf, role, attrs);
+  if (to_func) {
+    LibertyPortSet to_ports = to_func->ports();
+    for (LibertyPort *func_port : to_ports) {
+      Sequential *seq = cell->outputPortSequential(func_port);
+      if (seq) {
+        if (seq->clock() && seq->clock()->hasPort(from_port)) {
+          const TimingRole *role = seq->isRegister() ?
+            TimingRole::regClkToQ() : TimingRole::latchEnToQ();
+          return makeFromTransitionArcs(cell, from_port, to_port, nullptr,
+                                        from_rf, role, attrs);
+        }
+        else if (seq->isLatch()
+                 && seq->data()
+                 && seq->data()->hasPort(from_port))
+          return makeFromTransitionArcs(cell, from_port, to_port, nullptr,
+                                        from_rf, TimingRole::latchDtoQ(), attrs);
+        else if ((seq->clear() && seq->clear()->hasPort(from_port))
+                 || (seq->preset() && seq->preset()->hasPort(from_port)))
+          return makeFromTransitionArcs(cell, from_port, to_port, nullptr,
+                                        from_rf, TimingRole::regSetClr(), attrs);
       }
-      else if (seq->isLatch()
-               && seq->data()
-               && seq->data()->hasPort(from_port))
-        return makeFromTransitionArcs(cell, from_port, to_port, nullptr,
-                                      from_rf, TimingRole::latchDtoQ(), attrs);
-      else if ((seq->clear() && seq->clear()->hasPort(from_port))
-               || (seq->preset() && seq->preset()->hasPort(from_port)))
-        return makeFromTransitionArcs(cell, from_port, to_port, nullptr,
-                                      from_rf, TimingRole::regSetClr(), attrs);
     }
   }
   // No associated ff/latch - assume register clk->q.
