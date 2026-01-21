@@ -112,16 +112,18 @@ private:
 ConcreteInstanceNetIterator::
 ConcreteInstanceNetIterator(ConcreteInstanceNetMap *nets):
   nets_(nets),
-  iter_(nets->begin()),
   next_(nullptr)
 {
-  findNext();
+  if (nets) {
+    iter_ = nets->begin();
+    findNext();
+  }
 }
 
 bool
 ConcreteInstanceNetIterator::hasNext()
 {
-  return next_ != nullptr;
+  return nets_ && next_ != nullptr;
 }
 
 // Skip nets that have been merged.
