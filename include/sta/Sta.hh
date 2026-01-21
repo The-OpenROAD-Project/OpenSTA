@@ -865,7 +865,7 @@ public:
   ////////////////////////////////////////////////////////////////
   // User visible but non SDC commands.
 
-  // Clear all state except network.
+  // Clear all state except network, scenes and liberty libraries.
   virtual void clear();
   // Namespace used by command interpreter.
   CmdNamespace cmdNamespace();

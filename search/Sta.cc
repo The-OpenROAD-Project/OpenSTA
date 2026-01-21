@@ -537,11 +537,6 @@ Sta::clear()
 {
   // Sdc holds search filter, so clear search first.
   search_->clear();
-  for (Mode *mode : modes_) {
-    mode->sdc()->clear();
-    mode->clkNetwork()->clkPinsInvalid();
-  }
-  // scenes are NOT cleared because they are used to index liberty files.
   levelize_->clear();
   deleteParasitics();
   graph_delay_calc_->clear();
@@ -551,6 +546,13 @@ Sta::clear()
   if (check_min_periods_)
     check_min_periods_->clear();
   clk_skews_->clear();
+
+  // scenes are NOT cleared because they are used to index liberty files.
+  for (Mode *mode : modes_) {
+    mode->sdc()->clear();
+    mode->clkNetwork()->clkPinsInvalid();
+  }
+
   delete graph_;
   graph_ = nullptr;
   current_instance_ = nullptr;
@@ -611,24 +613,7 @@ Sta::findModes(const std::string &name) const
 void
 Sta::networkChanged()
 {
-  // Everything else from clear().
-  search_->clear();
-  levelize_->clear();
-  deleteContents(parasitics_name_map_);
-  graph_delay_calc_->clear();
-  for (const Mode *mode : modes_)
-    mode->sim()->clear();
-  for (Scene *scene : scenes_)
-    scene->setParasitics(nullptr, MinMaxAll::minMax());
-  if (check_min_pulse_widths_)
-    check_min_pulse_widths_->clear();
-  if (check_min_periods_)
-    check_min_periods_->clear();
-  clk_skews_->clear();
-  delete graph_;
-  graph_ = nullptr;
-  current_instance_ = nullptr;
-  updateComponentsState();
+  clear();
 }
 
 void
@@ -4253,6 +4238,7 @@ Sta::deleteParasitics()
   parasitics_name_map_.clear();
 
   parasitics_name_map_[parasitics_default->name()] = parasitics_default;
+  parasitics_default->clear();
 
   for (Scene *scene : scenes_)
     scene->setParasitics(parasitics_default, MinMaxAll::minMax());
