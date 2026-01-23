@@ -209,9 +209,9 @@ proc sta_warn { msg_id msg } {
 proc sta_error { msg_id msg } {
   if { ! [is_suppressed $msg_id] } {
     if { [sdc_filename] != "" } {
-      error "Error: [file tail [sdc_filename]] line [sdc_file_line], $msg"
+      error "Error $msg_id: [file tail [sdc_filename]] line [sdc_file_line], $msg"
     } else {
-      error "Error: $msg"
+      error "Error $msg_id: $msg"
     }
   }
 }

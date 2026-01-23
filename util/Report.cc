@@ -247,7 +247,7 @@ Report::error(int id,
   va_list args;
   va_start(args, fmt);
   // No prefix msg, no \n.
-  printToBuffer("%d", id);
+  printToBuffer("%d ", id);
   printToBufferAppend(fmt, args);
   va_end(args);
   throw ExceptionMsg(buffer_, isSuppressed(id));
@@ -259,7 +259,7 @@ Report::verror(int id,
                va_list args)
 {
   // No prefix msg, no \n.
-  printToBuffer("%d", id);
+  printToBuffer("%d ", id);
   printToBufferAppend(fmt, args);
   throw ExceptionMsg(buffer_, isSuppressed(id));
 }
