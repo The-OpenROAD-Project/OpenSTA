@@ -42,3 +42,8 @@ puts {[get_ports -filter direction==input *]}
 report_object_full_names [get_ports -filter direction==input *]
 puts {[get_ports -filter direction==output *]}
 report_object_full_names [get_ports -filter direction==output *]
+
+# Test invalid operator ~= (should be =~)
+puts {[get_cells -filter {name ~= *r1*} *]}
+catch {get_cells -filter {name ~= *r1*} *} result
+puts $result
