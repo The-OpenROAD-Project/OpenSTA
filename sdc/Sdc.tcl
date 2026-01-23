@@ -317,11 +317,18 @@ proc current_design { {design ""} } {
 
 # Generic get_* filter.
 proc filter_objs { filter objects filter_function object_type } {
-  set filter_regexp1 {@?([a-zA-Z_]+) *((==|!=|=~|!~) *([0-9a-zA-Z_\*]+))?}
-  set filter_or_regexp "($filter_regexp1) *\\|\\| *($filter_regexp1)"
-  set filter_and_regexp "($filter_regexp1) *&& *($filter_regexp1)"
+  # Regexp for attr op arg (e.g., full_name =~ *blk*)
+  set filter_regexp_op {@?([a-zA-Z_]+) *(==|!=|=~|!~) *([0-9a-zA-Z_\*]+)}
+  # Regexp for bool attr (e.g., is_hierarchical) - anchored for standalone use
+  set filter_regexp_bool {^@?([a-zA-Z_]+)$}
+  # Regexp for wildcard attr (e.g., full_name <?> *blk*)
+  set filter_regexp_wild_op {@?([a-zA-Z_]+) *(.+) *([0-9a-zA-Z_\*]+)}
+  # Regexp for term in compound expression (no anchors)
+  set filter_regexp_term {@?([a-zA-Z_]+)( *(==|!=|=~|!~) *([0-9a-zA-Z_\*]+))?}
+  set filter_or_regexp "($filter_regexp_term) *\\|\\| *($filter_regexp_term)"
+  set filter_and_regexp "($filter_regexp_term) *&& *($filter_regexp_term)"
   set filtered_objects {}
-  # Ignore sub-exprs in filter_regexp1 for expr2 match var.
+  # Ignore sub-exprs in filter_regexp for expr2 match var.
   if { [regexp $filter_or_regexp $filter ignore expr1 ignore ignore ignore ignore expr2] } {
     set filtered_objects1 [filter_objs $expr1 $objects $filter_function $object_type]
     set filtered_objects2 [filter_objs $expr2 $objects $filter_function $object_type]
@@ -329,11 +336,13 @@ proc filter_objs { filter objects filter_function object_type } {
   } elseif { [regexp $filter_and_regexp $filter ignore expr1 ignore ignore ignore ignore expr2] } {
     set filtered_objects [filter_objs $expr1 $objects $filter_function $object_type]
     set filtered_objects [filter_objs $expr2 $filtered_objects $filter_function $object_type]
-  } elseif { [regexp $filter_regexp1 $filter ignore attr_name ignore op arg] } {
-    # If no op/arg, use <attr_name>==1 by default.
-    set op [expr {($op == "") ? "==" : $op}]
-    set arg [expr {($arg == "") ? "1" : $arg}]
+  } elseif { [regexp $filter_regexp_op $filter ignore attr_name op arg] } {
     set filtered_objects [$filter_function $attr_name $op $arg $objects]
+  } elseif { [regexp $filter_regexp_bool $filter ignore attr_name] } {
+    # Bool property: use <attr_name>==1 by default.
+    set filtered_objects [$filter_function $attr_name "==" "1" $objects]
+  } elseif { [regexp $filter_regexp_wild_op $filter ignore attr_name op arg] } {
+    sta_error 336 "unknown filter operand."
   } else {
     sta_error 350 "unsupported $object_type -filter expression."
   }
