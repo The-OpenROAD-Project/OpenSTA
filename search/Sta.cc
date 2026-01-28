@@ -4908,8 +4908,6 @@ Sta::deletePinBefore(const Pin *pin)
     mode->sim()->deletePinBefore(pin);
     mode->clkNetwork()->deletePinBefore(pin);
   }
-  power_->deletePinBefore(pin);
-  clk_skews_->clear();
 }
 
 void
