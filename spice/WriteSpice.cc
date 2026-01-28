@@ -43,6 +43,7 @@
 #include "Path.hh"
 #include "DcalcAnalysisPt.hh"
 #include "Bdd.hh"
+#include "cudd.h"
 
 namespace sta {
 
@@ -850,8 +851,6 @@ WriteSpice::gatePortValues(const Pin *input_pin,
   }
 }
 
-#if CUDD
-
 void
 WriteSpice::gatePortValues(const Instance *,
                            const FuncExpr *expr,
@@ -894,104 +893,6 @@ WriteSpice::gatePortValues(const Instance *,
   Cudd_Ref(diff);
   bdd_.clearVarMap();
 }
-
-#else
-
-void
-WriteSpice::gatePortValues(const Instance *inst,
-                           const FuncExpr *expr,
-                           const LibertyPort *input_port,
-                           // Return values.
-                           LibertyPortLogicValues &port_values)
-{
-  FuncExpr *left = expr->left();
-  FuncExpr *right = expr->right();
-  switch (expr->op()) {
-  case FuncExpr::op_port:
-    break;
-  case FuncExpr::op_not:
-    gatePortValues(inst, left, input_port, port_values);
-    break;
-  case FuncExpr::op_or:
-    if (left->hasPort(input_port)
-	&& right->op() == FuncExpr::op_port) {
-      gatePortValues(inst, left, input_port, port_values);
-      port_values[right->port()] = LogicValue::zero;
-    }
-    else if (left->hasPort(input_port)
-	     && right->op() == FuncExpr::op_not
-	     && right->left()->op() == FuncExpr::op_port) {
-      // input_port + !right_port
-      gatePortValues(inst, left, input_port, port_values);
-      port_values[right->left()->port()] = LogicValue::one;
-    }
-    else if (right->hasPort(input_port)
-	     && left->op() == FuncExpr::op_port) {
-      gatePortValues(inst, right, input_port, port_values);
-      port_values[left->port()] = LogicValue::zero;
-    }
-    else if (right->hasPort(input_port)
-	     && left->op() == FuncExpr::op_not
-	     && left->left()->op() == FuncExpr::op_port) {
-      // input_port + !left_port
-      gatePortValues(inst, right, input_port, port_values);
-      port_values[left->left()->port()] = LogicValue::one;
-    }
-    else {
-      gatePortValues(inst, left, input_port, port_values);
-      gatePortValues(inst, right, input_port, port_values);
-    }
-    break;
-  case FuncExpr::op_and:
-    if (left->hasPort(input_port)
-	&& right->op() == FuncExpr::op_port) {
-      gatePortValues(inst, left, input_port, port_values);
-      port_values[right->port()] = LogicValue::one;
-    }
-    else if (left->hasPort(input_port)
-	     && right->op() == FuncExpr::op_not
-	     && right->left()->op() == FuncExpr::op_port) {
-      // input_port * !right_port
-      gatePortValues(inst, left, input_port, port_values);
-      port_values[right->left()->port()] = LogicValue::zero;
-    }
-    else if (right->hasPort(input_port)
-	     && left->op() == FuncExpr::op_port) {
-      gatePortValues(inst, right, input_port, port_values);
-      port_values[left->port()] = LogicValue::one;
-    }
-    else if (right->hasPort(input_port)
-	     && left->op() == FuncExpr::op_not
-	     && left->left()->op() == FuncExpr::op_port) {
-      // input_port * !left_port
-      gatePortValues(inst, right, input_port, port_values);
-      port_values[left->left()->port()] = LogicValue::zero;
-    }
-    else {
-      gatePortValues(inst, left, input_port, port_values);
-      gatePortValues(inst, right, input_port, port_values);
-    }
-    break;
-  case FuncExpr::op_xor:
-    // Need to know timing arc sense to get this right.
-    if (left->port() == input_port
-	&& right->op() == FuncExpr::op_port)
-      port_values[right->port()] = LogicValue::zero;
-    else if (right->port() == input_port
-	     && left->op() == FuncExpr::op_port)
-      port_values[left->port()] = LogicValue::zero;
-    else {
-      gatePortValues(inst, left, input_port, port_values);
-      gatePortValues(inst, right, input_port, port_values);
-    }
-    break;
-  case FuncExpr::op_one:
-  case FuncExpr::op_zero:
-    break;
-  }
-}
-
-#endif
 
 void
 WriteSpice::regPortValues(const Pin *input_pin,
