@@ -108,8 +108,7 @@ public:
   float clockMinPeriod();
   InstanceSeq highestPowerInstances(size_t count,
                                     const Corner *corner);
-  void deleteInstanceBefore(const Instance *inst);
-  void deletePinBefore(const Pin *pin);
+  void powerInvalid();
 
 protected:
   PwrActivity &activity(const Pin *pin);
