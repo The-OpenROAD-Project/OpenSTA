@@ -1153,7 +1153,9 @@ public:
   virtual void disconnectPin(Pin *pin);
   virtual void makePortPin(const char *port_name,
                            PortDirection *dir);
-  // Notify STA of network change.
+  // Notify STA that the network has changed without using the network
+  // editing API. For example, reading a netlist without using the
+  // builtin network readers.
   void networkChanged();
   void deleteLeafInstanceBefore(const Instance *inst);
   void deleteInstancePinsBefore(const Instance *inst);
