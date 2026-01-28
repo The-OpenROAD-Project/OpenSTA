@@ -127,8 +127,8 @@ public:
   void reportActivityAnnotation(bool report_unannotated,
                                 bool report_annotated);
   float clockMinPeriod(const Sdc *sdc);
-  void deleteInstanceBefore(const Instance *inst);
-  void deletePinBefore(const Pin *pin);
+  float clockMinPeriod();
+  void powerInvalid();
 
 protected:
   PwrActivity &activity(const Pin *pin);
