@@ -104,4 +104,11 @@ network_changed()
   Sta::sta()->networkChanged();
 }
 
+// Notify STA of network change without touching SDC network references.
+void
+network_changed_non_sdc()
+{
+  Sta::sta()->networkChangedNonSdc();
+}
+
 %} // inline

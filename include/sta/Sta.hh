@@ -866,7 +866,9 @@ public:
   // User visible but non SDC commands.
 
   // Clear all state except network, scenes and liberty libraries.
-  virtual void clear();
+  void clear();
+  // Clear all state except network, scenes liberty libraries, and sdc.
+  void clearNonSdc();
   // Namespace used by command interpreter.
   CmdNamespace cmdNamespace();
   void setCmdNamespace(CmdNamespace namespc);
@@ -1261,6 +1263,8 @@ public:
   // editing API. For example, reading a netlist without using the
   // builtin network readers.
   void networkChanged();
+  // Network changed but all SDC references to instance/net/pin/port are preserved.
+  void networkChangedNonSdc();
   void deleteLeafInstanceBefore(const Instance *inst);
   void deleteInstancePinsBefore(const Instance *inst);
 

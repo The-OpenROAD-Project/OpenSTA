@@ -535,6 +535,14 @@ Sta::~Sta()
 void
 Sta::clear()
 {
+  clearNonSdc();
+  for (Mode *mode : modes_)
+    mode->sdc()->clear();
+}
+
+void
+Sta::clearNonSdc()
+{
   // Sdc holds search filter, so clear search first.
   search_->clear();
   levelize_->clear();
@@ -548,10 +556,8 @@ Sta::clear()
   clk_skews_->clear();
 
   // scenes are NOT cleared because they are used to index liberty files.
-  for (Mode *mode : modes_) {
-    mode->sdc()->clear();
+  for (Mode *mode : modes_)
     mode->clkNetwork()->clkPinsInvalid();
-  }
 
   delete graph_;
   graph_ = nullptr;
@@ -614,6 +620,12 @@ void
 Sta::networkChanged()
 {
   clear();
+}
+
+void
+Sta::networkChangedNonSdc()
+{
+  clearNonSdc();
 }
 
 void
