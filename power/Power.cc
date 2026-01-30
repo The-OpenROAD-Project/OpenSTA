@@ -1530,12 +1530,15 @@ Power::findLeakagePower(const Instance *inst,
     cell_leakage *= duty;
   }
   // Ignore unconditional leakage unless there are no conditional leakage groups.
-  if (found_cond)
+  if (found_cond) {
     leakage = cond_leakage;
+    if (cell_leakage_exists)
+      leakage += cell_leakage;
+  }
   else if (found_uncond)
     leakage = uncond_leakage;
-  if (cell_leakage_exists)
-    leakage += cell_leakage;
+  else if (cell_leakage_exists)
+    leakage = cell_leakage;
   debugPrint(debug_, "power", 2, "leakage %s %.3e",
              cell->name(),
              leakage);
