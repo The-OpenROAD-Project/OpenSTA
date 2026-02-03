@@ -63,6 +63,16 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Build CXX_FLAGS: ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
+# Enable Link-Time Optimization (LTO) for Release builds.
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+if(ipo_supported)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+  message(STATUS "IPO/LTO: enabled for Release builds")
+else()
+  message(STATUS "IPO/LTO: not supported - ${ipo_error}")
+endif()
+
 ################################################################
 #
 # Source files.
