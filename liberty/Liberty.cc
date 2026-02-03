@@ -1132,7 +1132,7 @@ LibertyCell::isClockGateLatchPosedge() const
 bool
 LibertyCell::isClockGateLatchNegedge() const
 {
-  return clock_gate_type_ == ClockGateType::latch_posedge;
+  return clock_gate_type_ == ClockGateType::latch_negedge;
 }
 
 bool
