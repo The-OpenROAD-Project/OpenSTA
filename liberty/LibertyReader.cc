@@ -601,8 +601,8 @@ LibertyReader::defineScalingFactorVisitors()
           string attr_name;
           stringPrint(attr_name, "k_%s_%s_%s",
                       pvt_name,
-                      tr_name,
-                      type_name);
+                      type_name,
+                      tr_name);
           defineAttrVisitor(attr_name.c_str(),&LibertyReader::visitScaleFactorHiLow);
         }
       }
