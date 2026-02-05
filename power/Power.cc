@@ -1495,12 +1495,16 @@ Power::findLeakagePower(const Instance *inst,
   bool found_uncond = false;
   float cond_duty_sum = 0.0;
   for (LeakagePower *leak : *scene_cell->leakagePowers()) {
+    LibertyPort *pg_port = leak->relatedPgPort();
+    if (pg_port == nullptr
+        || pg_port->pwrGndType() == PwrGndType::primary_power) {
     FuncExpr *when = leak->when();
     if (when) {
       PwrActivity cond_activity = evalActivity(when, inst);
       float cond_duty = cond_activity.duty();
-      debugPrint(debug_, "power", 2, "leakage %s %s %.3e * %.2f",
+        debugPrint(debug_, "power", 2, "leakage %s %s %s %.3e * %.2f",
                  cell->name(),
+                   leak->relatedPgPort()->name(),
                  when->to_string().c_str(),
                  leak->power(),
                  cond_duty);
@@ -1510,12 +1514,14 @@ Power::findLeakagePower(const Instance *inst,
       found_cond = true;
     }
     else {
-      debugPrint(debug_, "power", 2, "leakage -- %s %.3e",
+        debugPrint(debug_, "power", 2, "leakage %s %s -- %.3e",
                  cell->name(),
+                   leak->relatedPgPort()->name(),
                  leak->power());
       uncond_leakage += leak->power();
       found_uncond = true;
     }
+  }
   }
   float leakage = 0.0;
   float cell_leakage;

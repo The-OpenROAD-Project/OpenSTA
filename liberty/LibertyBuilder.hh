@@ -70,8 +70,6 @@ public:
                                    LibertyPort *port,
                                    LibertyPort *related_port,
                                    InternalPowerAttrs *attrs);
-  LeakagePower *makeLeakagePower(LibertyCell *cell,
-                                 LeakagePowerAttrs *attrs);
 
   TimingArcSet *makeFromTransitionArcs(LibertyCell *cell,
                                        LibertyPort *from_port,
