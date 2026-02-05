@@ -56,25 +56,3 @@ LeakagePower::~LeakagePower()
 }
 
 } // namespace
->>>>>>>
-
-namespace sta {
-
-LeakagePower::LeakagePower(LibertyCell *cell,
-                           LibertyPort *related_pg_port,
-                           FuncExpr *when,
-                           float power) :
-  cell_(cell),
-  related_pg_port_(related_pg_port),
-  when_(when),
-  power_(power)
-{
-}
-
-LeakagePower::~LeakagePower()
-{
-  if (when_)
-    when_->deleteSubexprs();
-}
-
-} // namespace

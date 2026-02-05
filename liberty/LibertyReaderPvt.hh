@@ -912,23 +912,6 @@ class LeakagePowerGroup
 {
 public:
   LeakagePowerGroup(int line);
-<<<<<<<
-=======
-  const std::string &relatedPgPin() const { return related_pg_pin_; }
-  void setRelatedPgPin(std::string pin_name);
-  FuncExpr *when() const { return when_; }
-  void setWhen(FuncExpr *when);
-  float power() const { return power_; }
-  void setPower(float power);
-
-protected:
-  std::string related_pg_pin_;
-  FuncExpr *when_;
-  float power_;
-  int line_;
-};
-
->>>>>>>
   const std::string &relatedPgPin() const { return related_pg_pin_; }
   void setRelatedPgPin(std::string pin_name);
   FuncExpr *when() const { return when_; }
