@@ -530,12 +530,13 @@ CcsCeffDelayCalc::drvrWaveform()
       }
     }
     TableAxisPtr drvr_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                         drvr_times);
-    Table1 drvr_table(drvr_volts, drvr_time_axis);
+                                                         std::move(*drvr_times));
+    delete drvr_times;
+    Table drvr_table(drvr_volts, drvr_time_axis);
     return drvr_table;
   }
   else
-    return Table1();
+    return Table();
 }
 
 Waveform
@@ -561,12 +562,13 @@ CcsCeffDelayCalc::loadWaveform(const Pin *load_pin)
         load_volts->push_back(v1);
       }
       TableAxisPtr load_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                           load_times);
-      Table1 load_table(load_volts, load_time_axis);
+                                                           std::move(*load_times));
+      delete load_times;
+      Table load_table(load_volts, load_time_axis);
       return load_table;
     }
   }
-  return Table1();
+  return Table();
 }
 
 Waveform
@@ -605,12 +607,13 @@ CcsCeffDelayCalc::drvrRampWaveform(const Pin *in_pin,
         load_volts->push_back(v1);
       }
       TableAxisPtr load_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                           load_times);
-      Table1 load_table(load_volts, load_time_axis);
+                                                           std::move(*load_times));
+      delete load_times;
+      Table load_table(load_volts, load_time_axis);
       return load_table;
     }
   }
-  return Table1();
+  return Table();
 }
 
 bool

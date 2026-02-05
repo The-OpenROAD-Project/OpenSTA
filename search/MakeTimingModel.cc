@@ -196,8 +196,7 @@ MakeTimingModel::makePorts()
     if (network_->isBus(port)) {
       int from_index = network_->fromIndex(port);
       int to_index = network_->toIndex(port);
-      BusDcl *bus_dcl = new BusDcl(port_name, from_index, to_index);
-      library_->addBusDcl(bus_dcl);
+      BusDcl *bus_dcl = library_->makeBusDcl(port_name, from_index, to_index);
       LibertyPort *lib_port = lib_builder_->makeBusPort(cell_, port_name,
                                                         from_index, to_index,
                                                         bus_dcl);
@@ -590,7 +589,7 @@ MakeTimingModel::makeClkTreePaths(LibertyPort *lib_port,
     const TimingRole *role = (min_max == MinMax::min())
       ? TimingRole::clockTreePathMin()
       : TimingRole::clockTreePathMax();
-    lib_builder_->makeClockTreePathArcs(cell_, lib_port, role, min_max, attrs);
+    lib_builder_->makeClockTreePathArcs(cell_, lib_port, role, attrs);
   }
 }
 
@@ -607,7 +606,7 @@ MakeTimingModel::makeScalarCheckModel(float value,
                                       ScaleFactorType scale_factor_type,
                                       const RiseFall *rf)
 {
-  TablePtr table = make_shared<Table0>(value);
+  TablePtr table = make_shared<Table>(value);
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *table_model = new TableModel(table, tbl_template,
@@ -621,8 +620,8 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
                                      Slew slew,
                                      const RiseFall *rf)
 {
-  TablePtr delay_table = make_shared<Table0>(delayAsFloat(delay));
-  TablePtr slew_table = make_shared<Table0>(delayAsFloat(slew));
+  TablePtr delay_table = make_shared<Table>(delayAsFloat(delay));
+  TablePtr slew_table = make_shared<Table>(delayAsFloat(slew));
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
@@ -639,7 +638,7 @@ TimingModel *
 MakeTimingModel::makeGateModelScalar(Delay delay,
                                      const RiseFall *rf)
 {
-  TablePtr delay_table = make_shared<Table0>(delayAsFloat(delay));
+  TablePtr delay_table = make_shared<Table>(delayAsFloat(delay));
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
@@ -664,7 +663,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
   const LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
   if (drvr_port) {
     const LibertyCell *drvr_cell = drvr_port->libertyCell();
-    for (TimingArcSet *arc_set : drvr_cell->timingArcSets(nullptr, drvr_port)) {
+    for (TimingArcSet *arc_set : drvr_cell->timingArcSetsTo(drvr_port)) {
       for (TimingArc *drvr_arc : arc_set->arcs()) {
         // Use the first timing arc to simplify life.
         if (drvr_arc->toEdge()->asRiseFall() == rf) {
@@ -692,11 +691,11 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
               const TableTemplate *drvr_template = drvr_table->tblTemplate();
               const TableAxis *drvr_load_axis = loadCapacitanceAxis(drvr_table);
               if (drvr_load_axis) {
-                const FloatSeq *drvr_axis_values = drvr_load_axis->values();
+                const FloatSeq &drvr_axis_values = drvr_load_axis->values();
                 FloatSeq *load_values = new FloatSeq;
                 FloatSeq *slew_values = new FloatSeq;
-                for (size_t i = 0; i < drvr_axis_values->size(); i++) {
-                  float load_cap = (*drvr_axis_values)[i];
+                for (size_t i = 0; i < drvr_axis_values.size(); i++) {
+                  float load_cap = drvr_axis_values[i];
                   // get slew from driver input pin
                   ArcDelay gate_delay;
                   Slew gate_slew;
@@ -708,13 +707,13 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                   slew_values->push_back(delayAsFloat(gate_slew));
                 }
 
-                FloatSeq *axis_values = new FloatSeq(*drvr_axis_values);
+                FloatSeq axis_values = drvr_axis_values;
                 TableAxisPtr load_axis =
                   std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
-                                              axis_values);
+                                              std::move(axis_values));
 
-                TablePtr delay_table = make_shared<Table1>(load_values, load_axis);
-                TablePtr slew_table = make_shared<Table1>(slew_values, load_axis);
+                TablePtr delay_table = make_shared<Table>(load_values, load_axis);
+                TablePtr slew_table = make_shared<Table>(slew_values, load_axis);
 
                 TableTemplate *model_template = ensureTableTemplate(drvr_template,
                                                                     load_axis);
@@ -748,9 +747,9 @@ MakeTimingModel::ensureTableTemplate(const TableTemplate *drvr_template,
     string template_name = "template_";
     template_name += std::to_string(tbl_template_index_++);
 
-    model_template = new TableTemplate(template_name.c_str());
+    model_template = library_->makeTableTemplate(template_name,
+                                                 TableTemplateType::delay);
     model_template->setAxis1(load_axis);
-    library_->addTableTemplate(model_template, TableTemplateType::delay);
     template_map_[drvr_template] = model_template;
   }
   return model_template;

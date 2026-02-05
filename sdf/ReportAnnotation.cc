@@ -519,12 +519,12 @@ ReportAnnotated::reportArcs(Vertex *vertex,
       }
       else
         role_name = "delay";
-      const char *cond = edge->timingArcSet()->sdfCond();
+      const std::string &cond = edge->timingArcSet()->sdfCond();
       report_->reportLine(" %-18s %s -> %s %s",
                           role_name,
                           network_->pathName(from_pin),
                           network_->pathName(to_pin),
-                          cond ? cond : "");
+                          cond.c_str());
       i++;
     }
   }

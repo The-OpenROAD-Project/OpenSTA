@@ -46,7 +46,7 @@ using MatrixSd = Eigen::SparseMatrix<double>;
 using PinLMap = std::map<const Pin*, Eigen::VectorXd, PinIdLess>;
 using WatchPinValuesMap = std::map<const Pin*, FloatSeq, PinIdLess>;
 
-using Waveform = Table1;
+using Waveform = Table;
 
 ArcDelayCalc *
 makePrimaDelayCalc(StaState *sta);

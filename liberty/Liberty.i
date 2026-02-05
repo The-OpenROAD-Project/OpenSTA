@@ -237,13 +237,13 @@ find_liberty_cells_matching(const char *pattern,
   return self->findLibertyCellsMatching(&matcher);
 }
 
-Wireload *
+const Wireload *
 find_wireload(const char *model_name)
 {
   return self->findWireload(model_name);
 }
 
-WireloadSelection *
+const WireloadSelection *
 find_wireload_selection(const char *selection_name)
 {
   return self->findWireloadSelection(selection_name);
@@ -364,7 +364,7 @@ scan_signal_type()
 LibertyPort *from() { return self->from(); }
 LibertyPort *to() { return self->to(); }
 const TimingRole *role() { return self->role(); }
-const char *sdf_cond() { return self->sdfCond(); }
+const char *sdf_cond() { return self->sdfCond().c_str(); }
 
 const char *
 full_name()
@@ -448,7 +448,7 @@ voltage_time(float in_slew,
   return 0.0;
 }
 
-Table1
+Table
 voltage_waveform(float in_slew,
                  float load_cap)
 {
@@ -456,14 +456,14 @@ voltage_waveform(float in_slew,
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      Table1 waveform = waveforms->voltageWaveform(in_slew, load_cap);
+      Table waveform = waveforms->voltageWaveform(in_slew, load_cap);
       return waveform;
     }
   }
-  return Table1();
+  return Table();
 }
 
-const Table1 *
+const Table *
 voltage_waveform_raw(float in_slew,
                      float load_cap)
 {
@@ -471,14 +471,14 @@ voltage_waveform_raw(float in_slew,
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      const Table1 *waveform = waveforms->voltageWaveformRaw(in_slew, load_cap);
+      const Table *waveform = waveforms->voltageWaveformRaw(in_slew, load_cap);
       return waveform;
     }
   }
   return nullptr;
 }
 
-Table1
+Table
 current_waveform(float in_slew,
                  float load_cap)
 {
@@ -486,14 +486,14 @@ current_waveform(float in_slew,
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      Table1 waveform = waveforms->currentWaveform(in_slew, load_cap);
+      Table waveform = waveforms->currentWaveform(in_slew, load_cap);
       return waveform;
     }
   }
-  return Table1();
+  return Table();
 }
 
-const Table1 *
+const Table *
 current_waveform_raw(float in_slew,
                      float load_cap)
 {
@@ -501,14 +501,14 @@ current_waveform_raw(float in_slew,
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      const Table1 *waveform = waveforms->currentWaveformRaw(in_slew, load_cap);
+      const Table *waveform = waveforms->currentWaveformRaw(in_slew, load_cap);
       return waveform;
     }
   }
   return nullptr;
 }
 
-Table1
+Table
 voltage_current_waveform(float in_slew,
                          float load_cap)
 {
@@ -516,11 +516,11 @@ voltage_current_waveform(float in_slew,
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      Table1 waveform = waveforms->voltageCurrentWaveform(in_slew, load_cap);
+      Table waveform = waveforms->voltageCurrentWaveform(in_slew, load_cap);
       return waveform;
     }
   }
-  return Table1();
+  return Table();
 }
 
 float

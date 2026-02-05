@@ -76,7 +76,6 @@ public:
   LibertyPort *output() const { return output_; }
   LibertyPort *outputInv() const { return output_inv_; }
 
-protected:
   // clock/data are:
   //   clocked_on/next_state for registers
   //   enable/data for latches
@@ -89,7 +88,12 @@ protected:
              LogicValue clr_preset_out_inv,
              LibertyPort *output,
              LibertyPort *output_inv);
+  Sequential(Sequential &&other) noexcept;
+  Sequential(const Sequential &) = delete;
+  Sequential &operator=(Sequential &&) noexcept;
+  Sequential &operator=(const Sequential &) = delete;
 
+protected:
   bool is_register_;
   FuncExpr *clock_;
   FuncExpr *data_;

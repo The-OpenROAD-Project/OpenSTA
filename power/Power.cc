@@ -998,9 +998,9 @@ Power::seedRegOutputActivities(const Instance *inst,
                                const SequentialSeq &seqs,
                                BfsFwdIterator &bfs)
 {
-  for (Sequential *seq : seqs) {
-    seedRegOutputActivities(inst, seq, seq->output(), false);
-    seedRegOutputActivities(inst, seq, seq->outputInv(), true);
+  for (const Sequential &seq : seqs) {
+    seedRegOutputActivities(inst, seq, seq.output(), false);
+    seedRegOutputActivities(inst, seq, seq.outputInv(), true);
     // Enqueue register output pins with functions that reference
     // the sequential internal pins (IQ, IQN).
     InstancePinIterator *pin_iter = network_->pinIterator(inst);
@@ -1014,8 +1014,8 @@ Power::seedRegOutputActivities(const Instance *inst,
         Vertex *vertex = graph_->pinDrvrVertex(pin);
         if (vertex
             && func
-            && (func->port() == seq->output()
-                || func->port() == seq->outputInv())) {
+            && (func->port() == seq.output()
+                || func->port() == seq.outputInv())) {
           debugPrint(debug_, "power_reg", 1, "enqueue reg output %s",
                      vertex->to_string(this).c_str());
           bfs.enqueue(vertex);
@@ -1028,27 +1028,27 @@ Power::seedRegOutputActivities(const Instance *inst,
 
 void
 Power::seedRegOutputActivities(const Instance *reg,
-			       Sequential *seq,
+			       const Sequential &seq,
 			       LibertyPort *output,
 			       bool invert)
 {
   const Pin *out_pin = network_->findPin(reg, output);
   if (!hasUserActivity(out_pin)) {
-    PwrActivity in_activity = evalActivity(seq->data(), reg);
+    PwrActivity in_activity = evalActivity(seq.data(), reg);
     float in_density = in_activity.density();
     float in_duty = in_activity.duty();
     // Default propagates input density/duty thru reg/latch.
     float out_density = in_density;
     float out_duty = in_duty;
-    PwrActivity clk_activity = evalActivity(seq->clock(), reg);
+    PwrActivity clk_activity = evalActivity(seq.clock(), reg);
     float clk_density = clk_activity.density();
     if (in_density > clk_density / 2) {
-      if (seq->isRegister())
+      if (seq.isRegister())
         out_density = 2 * in_duty * (1 - in_duty) * clk_density;
-      else if (seq->isLatch()) {
-        PwrActivity clk_activity = evalActivity(seq->clock(), reg);
+      else if (seq.isLatch()) {
+        PwrActivity clk_activity = evalActivity(seq.clock(), reg);
         float clk_duty = clk_activity.duty();
-        FuncExpr *clk_func = seq->clock();
+        FuncExpr *clk_func = seq.clock();
         bool clk_invert = clk_func
           && clk_func->op() == FuncExpr::Op::not_
           && clk_func->left()->op() == FuncExpr::Op::port;
@@ -1164,7 +1164,7 @@ Power::findInputInternalPower(const Pin *pin,
   LibertyCell *scene_cell = cell->sceneCell(scene, min_max);
   const LibertyPort *scene_port = port->scenePort(scene, min_max);
   if (scene_cell && scene_port) {
-    const InternalPowerSeq &internal_pwrs = scene_cell->internalPowers(scene_port);
+    const InternalPowerPtrSeq &internal_pwrs = scene_cell->internalPowers(scene_port);
     if (!internal_pwrs.empty()) {
       debugPrint(debug_, "power", 2, "internal input %s/%s cap %s",
                  network_->pathName(inst),
@@ -1174,8 +1174,8 @@ Power::findInputInternalPower(const Pin *pin,
       const Pvt *pvt = scene->sdc()->operatingConditions(MinMax::max());
       Vertex *vertex = graph_->pinLoadVertex(pin);
       float internal = 0.0;
-      for (InternalPower *pwr : internal_pwrs) {
-        const char *related_pg_pin = pwr->relatedPgPin();
+      for (const InternalPower *pwr : internal_pwrs) {
+        const char *related_pg_pin = pwr->relatedPgPin().c_str();
         float energy = 0.0;
         int rf_count = 0;
         for (const RiseFall *rf : RiseFall::range()) {
@@ -1313,13 +1313,13 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
   FuncExpr *func = to_port->function();
 
   map<const char*, float, StringLessIf> pg_duty_sum;
-  for (InternalPower *pwr : scene_cell->internalPowers(to_scene_port)) {
+  for (const InternalPower *pwr : scene_cell->internalPowers(to_scene_port)) {
     const LibertyPort *from_scene_port = pwr->relatedPort();
     if (from_scene_port) {
       const Pin *from_pin = findLinkPin(inst, from_scene_port);
       float from_density = findActivity(from_pin).density();
       float duty = findInputDuty(inst, func, pwr);
-      const char *related_pg_pin = pwr->relatedPgPin();
+      const char *related_pg_pin = pwr->relatedPgPin().c_str();
       // Note related_pg_pin may be null.
       pg_duty_sum[related_pg_pin] += from_density * duty;
     }
@@ -1328,9 +1328,9 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
   debugPrint(debug_, "power", 2,
              "             when act/ns  duty  wgt   energy    power");
   float internal = 0.0;
-  for (InternalPower *pwr : scene_cell->internalPowers(to_scene_port)) {
+  for (const InternalPower *pwr : scene_cell->internalPowers(to_scene_port)) {
     FuncExpr *when = pwr->when();
-    const char *related_pg_pin = pwr->relatedPgPin();
+    const char *related_pg_pin = pwr->relatedPgPin().c_str();
     float duty = findInputDuty(inst, func, pwr);
     Vertex *from_vertex = nullptr;
     bool positive_unate = true;
@@ -1386,8 +1386,7 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
 float
 Power::findInputDuty(const Instance *inst,
                      FuncExpr *func,
-                     InternalPower *pwr)
-
+                     const InternalPower *pwr)
 {
   const LibertyPort *from_scene_port = pwr->relatedPort();
   if (from_scene_port) {
@@ -1494,11 +1493,16 @@ Power::findLeakagePower(const Instance *inst,
   float uncond_leakage = 0.0;
   bool found_uncond = false;
   float cond_duty_sum = 0.0;
+<<<<<<<
   for (LeakagePower *leak : *scene_cell->leakagePowers()) {
     LibertyPort *pg_port = leak->relatedPgPort();
     if (pg_port == nullptr
         || pg_port->pwrGndType() == PwrGndType::primary_power) {
     FuncExpr *when = leak->when();
+=======
+  for (const LeakagePower &leak : scene_cell->leakagePowers()) {
+    FuncExpr *when = leak.when();
+>>>>>>>
     if (when) {
       PwrActivity cond_activity = evalActivity(when, inst);
       float cond_duty = cond_activity.duty();
@@ -1506,19 +1510,24 @@ Power::findLeakagePower(const Instance *inst,
                  cell->name(),
                    leak->relatedPgPort()->name(),
                  when->to_string().c_str(),
-                 leak->power(),
+                 leak.power(),
                  cond_duty);
-      cond_leakage += leak->power() * cond_duty;
-      if (leak->power() > 0.0)
+      cond_leakage += leak.power() * cond_duty;
+      if (leak.power() > 0.0)
         cond_duty_sum += cond_duty;
       found_cond = true;
     }
     else {
         debugPrint(debug_, "power", 2, "leakage %s %s -- %.3e",
                  cell->name(),
+<<<<<<<
                    leak->relatedPgPort()->name(),
                  leak->power());
       uncond_leakage += leak->power();
+=======
+                 leak.power());
+      uncond_leakage += leak.power();
+>>>>>>>
       found_uncond = true;
     }
   }

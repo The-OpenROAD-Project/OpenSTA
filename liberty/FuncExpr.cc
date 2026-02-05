@@ -89,13 +89,17 @@ FuncExpr::FuncExpr(Op op,
 {
 }
 
-void
-FuncExpr::deleteSubexprs()
+FuncExpr::~FuncExpr()
 {
-  if (left_)
-    left_->deleteSubexprs();
-  if (right_)
-    right_->deleteSubexprs();
+  delete left_;
+  delete right_;
+}
+
+void
+FuncExpr::shallowDelete()
+{
+  left_ = nullptr;
+  right_ = nullptr;
   delete this;
 }
 
@@ -209,7 +213,7 @@ FuncExpr::to_string(bool with_parens) const
     return port_->name();
   case Op::not_: {
     string result = "!";
-    result += left_->to_string(true);
+    result += left_ ? left_->to_string(true) : "?";
     return result;
   }
   case Op::or_:
@@ -235,9 +239,9 @@ FuncExpr::to_string(bool with_parens,
   string result;
   if (with_parens)
     result += '(';
-  result += left_->to_string(true);
+  result += left_ ? left_->to_string(true) : "?";
   result += op;
-  result += right_->to_string(true);
+  result += right_ ? right_->to_string(true) : "?";
   if (with_parens)
     result += ')';
   return result;
@@ -277,8 +281,9 @@ FuncExpr::bitSubExpr(int bit_offset)
     return makeXor(left_->bitSubExpr(bit_offset),
                    right_->bitSubExpr(bit_offset));
   case Op::one:
+    return makeOne();
   case Op::zero:
-    return this;
+    return makeZero();
   }
   // Prevent warnings from lame compilers.
   return nullptr;
@@ -335,15 +340,15 @@ FuncExpr::checkSize(size_t size)
 }
 
 FuncExpr *
-funcExprNot(FuncExpr *expr)
+FuncExpr::invert()
 {
-  if (expr->op() == FuncExpr::Op::not_) {
-    FuncExpr *not_expr = expr->left();
-    delete expr;
-    return not_expr;
+  if (op_ == FuncExpr::Op::not_) {
+    FuncExpr *inv = left_;
+    shallowDelete() ;
+    return inv;
   }
   else
-    return FuncExpr::makeNot(expr);
+    return FuncExpr::makeNot(this);
 }
 
 LibertyPortSet

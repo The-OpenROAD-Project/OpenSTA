@@ -801,7 +801,7 @@ public:
   WireloadMode wireloadMode() const { return wireload_mode_; };
   void setWireloadMode(WireloadMode mode);
   const WireloadSelection *wireloadSelection(const MinMax *min_max);
-  void setWireloadSelection(WireloadSelection *selection,
+  void setWireloadSelection(const WireloadSelection *selection,
                             const MinMaxAll *min_max);
 
   // STA interface.
@@ -1418,7 +1418,7 @@ protected:
   float max_area_;
   Wireload *wireload_[MinMax::index_count];
   WireloadMode wireload_mode_;
-  WireloadSelection *wireload_selection_[MinMax::index_count];
+  const WireloadSelection *wireload_selection_[MinMax::index_count];
 
 private:
   friend class WriteSdc;

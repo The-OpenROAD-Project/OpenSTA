@@ -65,11 +65,11 @@ ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
         report->error(1751, "VDD not defined in library %s", library->name());
       Waveform in_waveform = driver_waveform->waveform(delayAsFloat(in_slew));
       // Delay time axis.
-      FloatSeq *time_values = new FloatSeq;
-      for (float time : *in_waveform.axis1()->values())
-        time_values->push_back(time + dcalc_arg.inputDelay());
+      FloatSeq time_values;
+      for (float time : in_waveform.axis1()->values())
+        time_values.push_back(time + dcalc_arg.inputDelay());
       TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                      time_values);
+                                                      std::move(time_values));
       // Scale the waveform from 0:vdd.
       FloatSeq *scaled_values = new FloatSeq;
       for (float value : *in_waveform.values()) {

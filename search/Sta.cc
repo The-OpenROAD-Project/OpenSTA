@@ -254,6 +254,7 @@ deleteAllMemory()
   deleteDelayCalcs();
   PortDirection::destroy();
   deleteLiberty();
+  deleteTmpStrings();
 }
 
 ////////////////////////////////////////////////////////////////

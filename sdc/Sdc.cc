@@ -3870,7 +3870,7 @@ Sdc::isExceptionEndpoint(const Pin *pin) const
     // Look for timing checks to the pin witihout using the graph because
     // it may not exist.
     LibertyCell *cell = port->libertyCell();
-    for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
+    for (TimingArcSet *arc_set : cell->timingArcSetsTo(port)) {
       if (arc_set->role()->isTimingCheck()) {
         has_checks = true;
         break;
@@ -4046,7 +4046,7 @@ Sdc::hasLibertyCheckTo(const Pin *pin)
   if (cell) {
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
-      for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
+      for (TimingArcSet *arc_set : cell->timingArcSetsTo(port)) {
         if (arc_set->role()->isTimingCheckBetween())
           return true;
       }
@@ -5645,7 +5645,7 @@ Sdc::wireloadSelection(const MinMax *min_max)
     // Look for a default.
     LibertyLibrary *lib = network_->defaultLibertyLibrary();
     if (lib) {
-      WireloadSelection *default_sel = lib->defaultWireloadSelection();
+      const WireloadSelection *default_sel = lib->defaultWireloadSelection();
       if (default_sel) {
         sel = default_sel;
         setWireloadSelection(default_sel, MinMaxAll::all());
@@ -5656,7 +5656,7 @@ Sdc::wireloadSelection(const MinMax *min_max)
 }
 
 void
-Sdc::setWireloadSelection(WireloadSelection *selection,
+Sdc::setWireloadSelection(const WireloadSelection *selection,
                           const MinMaxAll *min_max)
 {
   for (auto mm_index : min_max->rangeIndex())

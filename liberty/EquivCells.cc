@@ -218,8 +218,8 @@ static unsigned
 hashCellSequentials(const LibertyCell *cell)
 {
   unsigned hash = 0;
-  for (const Sequential *seq : cell->sequentials())
-    hash += hashSequential(seq);
+  for (const Sequential &seq : cell->sequentials())
+    hash += hashSequential(&seq);
   const Statetable *statetable = cell->statetable();
   if (statetable)
     hash += hashStatetable(statetable);
@@ -380,14 +380,14 @@ equivCellSequentials(const LibertyCell *cell1,
   for (;
        seq_itr1 != seqs1.end() && seq_itr2 != seqs2.end();
        seq_itr1++, seq_itr2++) {
-    const Sequential *seq1 = *seq_itr1;
-    const Sequential *seq2 = *seq_itr2;
-    if (!(FuncExpr::equiv(seq1->clock(), seq2->clock())
-          && FuncExpr::equiv(seq1->data(), seq2->data())
-          && LibertyPort::equiv(seq1->output(), seq2->output())
-          && LibertyPort::equiv(seq1->outputInv(), seq2->outputInv())
-          && FuncExpr::equiv(seq1->clear(), seq2->clear())
-          && FuncExpr::equiv(seq1->preset(), seq2->preset())))
+    const Sequential &seq1 = *seq_itr1;
+    const Sequential &seq2 = *seq_itr2;
+    if (!(FuncExpr::equiv(seq1.clock(), seq2.clock())
+          && FuncExpr::equiv(seq1.data(), seq2.data())
+          && LibertyPort::equiv(seq1.output(), seq2.output())
+          && LibertyPort::equiv(seq1.outputInv(), seq2.outputInv())
+          && FuncExpr::equiv(seq1.clear(), seq2.clear())
+          && FuncExpr::equiv(seq1.preset(), seq2.preset())))
       return false;
   }
   return seq_itr1 == seqs1.end() && seq_itr2 == seqs2.end();

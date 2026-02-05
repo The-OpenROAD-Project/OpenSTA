@@ -34,15 +34,12 @@ namespace sta {
 
 class Report;
 class LibertyGroupVisitor;
-class LibertyAttrVisitor;
 class LibertyStmt;
 class LibertyGroup;
 class LibertyAttr;
 class LibertyDefine;
 class LibertyAttrValue;
 class LibertyVariable;
-class LibertySubgroupIterator;
-class LibertyAttrIterator;
 class LibertyScanner;
 
 using LibertyStmtSeq = std::vector<LibertyStmt*>;
@@ -72,21 +69,21 @@ public:
                           int line);
   LibertyAttrType attrValueType(const char *value_type_name);
   LibertyGroupType groupType(const char *group_type_name);
-  void groupBegin(const char *type,
+  void groupBegin(std::string type,
                   LibertyAttrValueSeq *params,
                   int line);
   LibertyGroup *groupEnd();
   LibertyGroup *group();
   void deleteGroups();
-  LibertyStmt *makeSimpleAttr(const char *name,
+  LibertyStmt *makeSimpleAttr(std::string name,
                               LibertyAttrValue *value,
                               int line);
-  LibertyStmt *makeComplexAttr(const char *name,
+  LibertyStmt *makeComplexAttr(std::string name,
                                LibertyAttrValueSeq *values,
                                int line);
-  LibertyAttrValue *makeStringAttrValue(char *value);
+  LibertyAttrValue *makeStringAttrValue(std::string value);
   LibertyAttrValue *makeFloatAttrValue(float value);
-  LibertyStmt *makeVariable(const char *var,
+  LibertyStmt *makeVariable(std::string var,
                             float value,
                             int line);
 
@@ -106,6 +103,8 @@ public:
   int line() const { return line_; }
   virtual bool isGroup() const { return false; }
   virtual bool isAttribute() const { return false; }
+  virtual bool isSimpleAttr() const { return false; }
+  virtual bool isComplexAttr() const { return false; }
   virtual bool isDefine() const { return false; }
   virtual bool isVariable() const { return false; }
 
@@ -119,46 +118,35 @@ protected:
 class LibertyGroup : public LibertyStmt
 {
 public:
-  LibertyGroup(const char *type,
+  LibertyGroup(std::string type,
                LibertyAttrValueSeq *params,
                int line);
   virtual ~LibertyGroup();
   virtual bool isGroup() const { return true; }
-  const char *type() const { return type_.c_str(); }
+  const std::string &type() const { return type_; }
+  LibertyAttrValueSeq *params() const { return params_; }
   // First param as a string.
   const char *firstName();
   // Second param as a string.
   const char *secondName();
-  LibertyAttr *findAttr(const char *name);
-  void addSubgroup(LibertyGroup *subgroup);
-  void addDefine(LibertyDefine *define);
-  void addAttribute(LibertyAttr *attr);
-  void addVariable(LibertyVariable *var);
-  LibertyGroupSeq *subgroups() const { return subgroups_; }
-  LibertyAttrSeq *attrs() const { return attrs_; }
-  LibertyAttrValueSeq *params() const { return params_; }
+  void addStmt(LibertyStmt *stmt);
+  LibertyStmtSeq *stmts() const { return stmts_; }
 
 protected:
   void parseNames(LibertyAttrValueSeq *values);
 
   std::string type_;
   LibertyAttrValueSeq *params_;
-  LibertyAttrSeq *attrs_;
-  LibertyAttrMap *attr_map_;
-  LibertyGroupSeq *subgroups_;
-  LibertyDefineMap *define_map_;
+  LibertyStmtSeq *stmts_;
 };
 
 // Abstract base class for attributes.
 class LibertyAttr : public LibertyStmt
 {
 public:
-  LibertyAttr(const char *name,
+  LibertyAttr(std::string name,
               int line);
-  const char *name() const { return name_.c_str(); }
-  virtual bool isAttribute() const { return true; }
-  virtual bool isSimple() const = 0;
-  virtual bool isComplex() const = 0;
+  const std::string &name() const { return name_; }
   virtual LibertyAttrValueSeq *values() const = 0;
   virtual LibertyAttrValue *firstValue() = 0;
 
@@ -171,12 +159,11 @@ protected:
 class LibertySimpleAttr : public LibertyAttr
 {
 public:
-  LibertySimpleAttr(const char *name,
+  LibertySimpleAttr(std::string name,
                     LibertyAttrValue *value,
                     int line);
   virtual ~LibertySimpleAttr();
-  bool isSimple() const override { return true; };
-  bool isComplex() const override { return false; };
+  bool isSimpleAttr() const override { return true; };
   LibertyAttrValue *firstValue() override { return value_; };
   LibertyAttrValueSeq *values() const override;
 
@@ -189,12 +176,11 @@ private:
 class LibertyComplexAttr : public LibertyAttr
 {
 public:
-  LibertyComplexAttr(const char *name,
+  LibertyComplexAttr(std::string name,
                      LibertyAttrValueSeq *values,
                      int line);
   virtual ~LibertyComplexAttr();
-  bool isSimple() const override { return false; }
-  bool isComplex() const override { return true; }
+  bool isComplexAttr() const override { return true; };
   LibertyAttrValue *firstValue() override ;
   LibertyAttrValueSeq *values() const override { return values_; }
 
@@ -211,18 +197,18 @@ public:
   virtual bool isString() const = 0;
   virtual bool isFloat() const  = 0;
   virtual float floatValue() const = 0;
-  virtual const char *stringValue() const  = 0;
+  virtual const std::string &stringValue() const = 0;
 };
 
 class LibertyStringAttrValue : public LibertyAttrValue
 {
 public:
-  LibertyStringAttrValue(const char *value);
+  LibertyStringAttrValue(std::string value);
   virtual ~LibertyStringAttrValue() {}
   bool isFloat() const override { return false; }
   bool isString() const override { return true; }
   float floatValue() const override ;
-  const char *stringValue() const  override;
+  const std::string &stringValue() const  override { return value_; }
 
 private:
   std::string value_;
@@ -235,8 +221,8 @@ public:
   virtual ~LibertyFloatAttrValue() {}
   bool isString() const override { return false; }
   bool isFloat() const override { return true; }
-  float floatValue() const override;
-  const char *stringValue() const override;
+  float floatValue() const override { return value_; }
+  const std::string &stringValue() const override;
 
 private:
   float value_;
@@ -248,12 +234,12 @@ private:
 class LibertyDefine : public LibertyStmt
 {
 public:
-  LibertyDefine(const char *name,
+  LibertyDefine(std::string name,
                 LibertyGroupType group_type,
                 LibertyAttrType value_type,
                 int line);
   virtual bool isDefine() const { return true; }
-  const char *name() const { return name_.c_str(); }
+  const std::string &name() const { return name_; }
   LibertyGroupType groupType() const { return group_type_; }
   LibertyAttrType valueType() const { return value_type_; }
 
@@ -270,11 +256,11 @@ private:
 class LibertyVariable : public LibertyStmt
 {
 public:
-  LibertyVariable(const char *var,
+  LibertyVariable(std::string var,
                   float value,
                   int line);
   bool isVariable() const override { return true; }
-  const char *variable() const { return var_.c_str(); }
+  const std::string &variable() const { return var_; }
   float value() const { return value_; }
 
 private:

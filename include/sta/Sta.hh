@@ -153,6 +153,10 @@ public:
                                       Scene *scene,
                                       const MinMaxAll *min_max,
                                       bool infer_latches);
+  // tmp public
+  void readLibertyAfter(LibertyLibrary *liberty,
+                        Scene *scene,
+                        const MinMax *min_max);
   bool readVerilog(const char *filename);
   // Network readers call this to notify the Sta to delete any previously
   // linked network.
@@ -1577,9 +1581,6 @@ protected:
                      const Mode *mode);
   void findRegisterPreamble(const Mode *mode);
   bool crossesHierarchy(Edge *edge) const;
-  void readLibertyAfter(LibertyLibrary *liberty,
-                        Scene *scene,
-                        const MinMax *min_max);
   void powerPreamble();
   void powerPreamble(const Scene *scene);
   virtual void replaceCell(Instance *inst,

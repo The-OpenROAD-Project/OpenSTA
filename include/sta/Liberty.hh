@@ -24,11 +24,13 @@
 
 #pragma once
 
+#include <memory>
 #include <mutex>
 #include <atomic>
 #include <functional>
 #include <set>
 #include <map>
+#include <string>
 #include <vector>
 
 #include "ContainerHelpers.hh"
@@ -39,6 +41,8 @@
 #include "MinMaxValues.hh"
 #include "Transition.hh"
 #include "Delay.hh"
+#include "InternalPower.hh"
+#include "LeakagePower.hh"
 #include "LibertyClass.hh"
 
 namespace sta {
@@ -48,48 +52,96 @@ class LibertyCellIterator;
 class LibertyCellPortIterator;
 class LibertyCellPortBitIterator;
 class LibertyPortMemberIterator;
-class ModeValueDef;
 class TestCell;
 class PatternMatch;
-class LatchEnable;
 class Report;
 class Debug;
 class LibertyBuilder;
 class LibertyReader;
 class OcvDerate;
 class TimingArcAttrs;
-class InternalPowerAttrs;
 class StaState;
 class Scene;
 class DriverWaveform;
 
-using TableTemplateMap = std::map<const char*, TableTemplate*, CharPtrLess>;
+// Mode definition mode_value group (defined before ModeValueMap / ModeDef).
+class ModeValueDef
+{
+public:
+  ModeValueDef(std::string value, FuncExpr *cond, std::string sdf_cond);
+  ModeValueDef(ModeValueDef &&other) noexcept;
+  ~ModeValueDef();
+  const std::string &value() const { return value_; }
+  FuncExpr *cond() const { return cond_; }
+  void setCond(FuncExpr *cond);
+  const std::string &sdfCond() const { return sdf_cond_; }
+  void setSdfCond(std::string sdf_cond);
+
+private:
+  std::string value_;
+  FuncExpr *cond_;
+  std::string sdf_cond_;
+};
+
+// Latch enable port/function for a latch D->Q timing arc set.
+class LatchEnable
+{
+public:
+  LatchEnable(LibertyPort *data,
+              LibertyPort *enable,
+              const RiseFall *enable_edge,
+              FuncExpr *enable_func,
+              LibertyPort *output,
+              TimingArcSet *d_to_q,
+              TimingArcSet *en_to_q,
+              TimingArcSet *setup_check);
+  LibertyPort *data() const { return data_; }
+  LibertyPort *output() const { return output_; }
+  LibertyPort *enable() const { return enable_; }
+  FuncExpr *enableFunc() const { return enable_func_; }
+  const RiseFall *enableEdge() const { return enable_edge_; }
+  TimingArcSet *dToQ() const { return d_to_q_; }
+  TimingArcSet *enToQ() const { return en_to_q_; }
+  TimingArcSet *setupCheck() const { return setup_check_; }
+
+private:
+  LibertyPort *data_;
+  LibertyPort *enable_;
+  const RiseFall *enable_edge_;
+  FuncExpr *enable_func_;
+  LibertyPort *output_;
+  TimingArcSet *d_to_q_;
+  TimingArcSet *en_to_q_;
+  TimingArcSet *setup_check_;
+};
+
+using TableTemplateMap = std::map<std::string, TableTemplate>;
 using TableTemplateSeq = std::vector<TableTemplate*>;
-using BusDclMap = std::map<const char*, BusDcl *, CharPtrLess>;
-using BusDclSeq = std::vector<BusDcl *>;
-using ScaleFactorsMap = std::map<const char*, ScaleFactors*, CharPtrLess>;
-using WireloadMap = std::map<const char*, Wireload*, CharPtrLess>;
-using WireloadSelectionMap = std::map<const char*, WireloadSelection*, CharPtrLess>;
-using OperatingConditionsMap = std::map<const char*, OperatingConditions*, CharPtrLess>;
-using PortToSequentialMap = std::map<LibertyPort*, Sequential*>;
+using BusDclMap = std::map<std::string, BusDcl>;
+using BusDclSeq = std::vector<BusDcl*>;
+using ScaleFactorsMap = std::map<std::string, ScaleFactors>;
+using WireloadMap = std::map<std::string, Wireload>;
+using WireloadSelectionMap = std::map<std::string, WireloadSelection>;
+using OperatingConditionsMap = std::map<std::string, OperatingConditions>;
+using PortToSequentialMap = std::map<LibertyPort*, size_t>;
 using TimingArcSetSeq = std::vector<TimingArcSet*>;
 using TimingArcSetSet = std::set<TimingArcSet*, TimingArcSetLess>;
-using LibertyPortPairTimingArcMap = std::map<LibertyPortPair, TimingArcSetSeq*,
+using LibertyPortPairTimingArcMap = std::map<LibertyPortPair, TimingArcSetSeq,
                                              LibertyPortPairLess>;
-using InternalPowerSeq = std::vector<InternalPower*>;
-using PortInternalPowerMap = std::map<const LibertyPort *, InternalPowerSeq>;
-using LeakagePowerSeq = std::vector<LeakagePower*>;
-using LibertyPortTimingArcMap = std::map<const LibertyPort*, TimingArcSetSeq*>;
+using InternalPowerSeq = std::vector<InternalPower>;
+using InternalPowerPtrSeq = std::vector<const InternalPower*>;
+using InternalPowerIndexSeq = std::vector<size_t>;
+using PortInternalPowerMap = std::map<const LibertyPort *, InternalPowerIndexSeq>;
+using LeakagePowerSeq = std::vector<LeakagePower>;
 using ScaledCellMap = std::map<const OperatingConditions*, LibertyCell*>;
 using ScaledPortMap = std::map<const OperatingConditions*, LibertyPort*>;
-using ModeDefMap = std::map<const char *, ModeDef*, CharPtrLess>;
-using ModeValueMap = std::map<const char *, ModeValueDef*, CharPtrLess>;
-using LatchEnableMap = std::map<const TimingArcSet*, LatchEnable*>;
-using LatchEnableSeq = std::vector<LatchEnable*>;
-using OcvDerateMap = std::map<const char *, OcvDerate*, CharPtrLess>;
-using InternalPowerAttrsSeq = std::vector<InternalPowerAttrs*>;
+using ModeDefMap = std::map<std::string, ModeDef>;
+using ModeValueMap = std::map<std::string, ModeValueDef>;
+using LatchEnableIndexMap = std::map<const TimingArcSet*, size_t>;
+using LatchEnableSeq = std::vector<LatchEnable>;
+using OcvDerateMap = std::map<std::string, OcvDerate>;
 using SupplyVoltageMap = std::map<std::string, float>;
-using DriverWaveformMap = std::map<std::string, DriverWaveform*>;
+using DriverWaveformMap = std::map<std::string, DriverWaveform>;
 using SceneSeq = std::vector<Scene*>;
 
 enum class ClockGateType { none, latch_posedge, latch_negedge, other };
@@ -162,14 +214,15 @@ public:
 
   DelayModelType delayModelType() const { return delay_model_type_; }
   void setDelayModelType(DelayModelType type);
-  void addBusDcl(BusDcl *bus_dcl);
+  BusDcl *makeBusDcl(std::string name, int from, int to);
   BusDcl *findBusDcl(const char *name) const;
   BusDclSeq busDcls() const;
-  void addTableTemplate(TableTemplate *tbl_template,
-                        TableTemplateType type);
+  TableTemplate *makeTableTemplate(std::string name,
+                                   TableTemplateType type);
   TableTemplate *findTableTemplate(const char *name,
                                    TableTemplateType type);
   TableTemplateSeq tableTemplates() const;
+  TableTemplateSeq tableTemplates(TableTemplateType type) const;
   float nominalProcess() const { return nominal_process_; }
   void setNominalProcess(float process);
   float nominalVoltage() const { return nominal_voltage_; }
@@ -178,8 +231,8 @@ public:
   void setNominalTemperature(float temperature);
 
   void setScaleFactors(ScaleFactors *scales);
-  // Add named scale factor group.
-  void addScaleFactors(ScaleFactors *scales);
+  // Make named scale factor group. Returns pointer to the inserted element.
+  ScaleFactors *makeScaleFactors(const char *name);
   ScaleFactors *findScaleFactors(const char *name);
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   float scaleFactor(ScaleFactorType type,
@@ -280,20 +333,20 @@ public:
   Units *units() { return units_; }
   const Units *units() const { return units_; }
 
-  Wireload *findWireload(const char *name) const;
-  void setDefaultWireload(Wireload *wireload);
-  Wireload *defaultWireload() const;
-  WireloadSelection *findWireloadSelection(const char *name) const;
-  WireloadSelection *defaultWireloadSelection() const;
-  void addWireload(Wireload *wireload);
+  Wireload *makeWireload(std::string name);
+  const Wireload *findWireload(const char *name) const;
+  void setDefaultWireload(const Wireload *wireload);
+  const Wireload *defaultWireload() const;
+  WireloadSelection *makeWireloadSelection(std::string name);
+  const WireloadSelection *findWireloadSelection(const char *name) const;
+  const WireloadSelection *defaultWireloadSelection() const;
   WireloadMode defaultWireloadMode() const;
   void setDefaultWireloadMode(WireloadMode mode);
-  void addWireloadSelection(WireloadSelection *selection);
-  void setDefaultWireloadSelection(WireloadSelection *selection);
+  void setDefaultWireloadSelection(const WireloadSelection *selection);
 
+  OperatingConditions *makeOperatingConditions(std::string name);
   OperatingConditions *findOperatingConditions(const char *name);
   OperatingConditions *defaultOperatingConditions() const;
-  void addOperatingConditions(OperatingConditions *op_cond);
   void setDefaultOperatingConditions(OperatingConditions *op_cond);
 
   // AOCV
@@ -302,8 +355,8 @@ public:
   void setOcvArcDepth(float depth);
   OcvDerate *defaultOcvDerate() const;
   void setDefaultOcvDerate(OcvDerate *derate);
+  OcvDerate *makeOcvDerate(std::string name);
   OcvDerate *findOcvDerate(const char *derate_name);
-  void addOcvDerate(OcvDerate *derate);
   void addSupplyVoltage(const char *suppy_name,
                         float voltage);
   bool supplyExists(const char *suppy_name) const;
@@ -338,8 +391,9 @@ public:
               Report *report);
 
   DriverWaveform *findDriverWaveform(const char *name);
-  DriverWaveform *driverWaveformDefault() { return driver_waveform_default_; }
-  void addDriverWaveform(DriverWaveform *driver_waveform);
+  DriverWaveform *driverWaveformDefault() { return findDriverWaveform(""); }
+  DriverWaveform *makeDriverWaveform(const std::string &name,
+                                     TablePtr waveforms);
 
 protected:
   float degradeWireSlew(const TableModel *model,
@@ -376,9 +430,9 @@ protected:
   float slew_upper_threshold_[RiseFall::index_count];
   float slew_derate_from_library_;
   WireloadMap wireloads_;
-  Wireload *default_wire_load_;
+  const Wireload *default_wire_load_;
   WireloadMode default_wire_load_mode_;
-  WireloadSelection *default_wire_load_selection_;
+  const WireloadSelection *default_wire_load_selection_;
   WireloadSelectionMap wire_load_selections_;
   OperatingConditionsMap operating_conditions_;
   OperatingConditions *default_operating_conditions_;
@@ -389,8 +443,6 @@ protected:
   LibertyCellSeq *buffers_;
   LibertyCellSeq *inverters_;
   DriverWaveformMap driver_waveform_map_;
-  // Unnamed driver waveform.
-  DriverWaveform *driver_waveform_default_;
 
   static constexpr float input_threshold_default_ = .5;
   static constexpr float output_threshold_default_ = .5;
@@ -429,8 +481,8 @@ public:
   bool hasInternalPorts() const { return has_internal_ports_; }
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   void setScaleFactors(ScaleFactors *scale_factors);
-  ModeDef *makeModeDef(const char *name);
-  ModeDef *findModeDef(const char *name);
+  ModeDef *makeModeDef(std::string name);
+  const ModeDef *findModeDef(const char *name) const;
 
   float area() const { return area_; }
   void setArea(float area);
@@ -462,18 +514,20 @@ public:
   bool isClockGate() const;
   void setClockGateType(ClockGateType type);
   const TimingArcSetSeq &timingArcSets() const { return timing_arc_sets_; }
+  const TimingArcSetSeq &timingArcSetsFrom(const LibertyPort *from) const;
+  const TimingArcSetSeq &timingArcSetsTo(const LibertyPort *to) const;
   // from or to may be nullptr to wildcard.
   const TimingArcSetSeq &timingArcSets(const LibertyPort *from,
                                        const LibertyPort *to) const;
   size_t timingArcSetCount() const;
   // Find a timing arc set equivalent to key.
   TimingArcSet *findTimingArcSet(TimingArcSet *key) const;
-  TimingArcSet *findTimingArcSet(unsigned arc_set_index) const;
+  TimingArcSet *findTimingArcSet(size_t index) const;
   bool hasTimingArcs(LibertyPort *port) const;
 
   const InternalPowerSeq &internalPowers() const { return internal_powers_; }
-  const InternalPowerSeq &internalPowers(const LibertyPort *port);
-  LeakagePowerSeq *leakagePowers() { return &leakage_powers_; }
+  InternalPowerPtrSeq internalPowers(const LibertyPort *port) const;
+  const LeakagePowerSeq &leakagePowers() const { return leakage_powers_; }
   void leakagePower(// Return values.
                     float &leakage,
                     bool &exists) const;
@@ -487,6 +541,7 @@ public:
   const Statetable *statetable() const { return statetable_; }
 
   // Find bus declaration local to this cell.
+  BusDcl *makeBusDcl(std::string name, int from, int to);
   BusDcl *findBusDcl(const char *name) const;
   // True when TimingArcSetBuilder::makeRegLatchArcs infers register
   // timing arcs.
@@ -505,6 +560,7 @@ public:
   // AOCV
   float ocvArcDepth() const;
   OcvDerate *ocvDerate() const;
+  OcvDerate *makeOcvDerate(std::string name);
   OcvDerate *findOcvDerate(const char *derate_name);
 
   // Build helpers.
@@ -521,18 +577,25 @@ public:
   void makeStatetable(LibertyPortSeq &input_ports,
                       LibertyPortSeq &internal_ports,
                       StatetableRows &table);
-  void addBusDcl(BusDcl *bus_dcl);
   // Add scaled cell after it is complete.
   void addScaledCell(OperatingConditions *op_cond,
                      LibertyCell *scaled_cell);
-  unsigned addTimingArcSet(TimingArcSet *set);
-  void addInternalPower(InternalPower *power);
-  void addInternalPowerAttrs(InternalPowerAttrs *attrs);
-  void addLeakagePower(LeakagePower *power);
+  TimingArcSet *makeTimingArcSet(LibertyPort *from,
+                                 LibertyPort *to,
+                                 LibertyPort *related_out,
+                                 const TimingRole *role,
+                                 TimingArcAttrsPtr attrs);
+  void makeInternalPower(LibertyPort *port,
+                         LibertyPort *related_port,
+                         const std::string &related_pg_pin,
+                         const std::shared_ptr<FuncExpr> &when,
+                         InternalPowerModels &models);
+  void makeLeakagePower(LibertyPort *related_pg_port,
+                        FuncExpr *when,
+                        float power);
   void setLeakagePower(float leakage);
   void setOcvArcDepth(float depth);
   void setOcvDerate(OcvDerate *derate);
-  void addOcvDerate(OcvDerate *derate);
   void setTestCell(TestCell *test);
   void setHasInferedRegTimingArcs(bool infered);
   void setSceneCell(LibertyCell *scene_cell,
@@ -585,8 +648,6 @@ protected:
   void translatePresetClrCheckRoles();
   void inferLatchRoles(Report *report,
                        Debug *debug);
-  void deleteInternalPowerAttrs();
-  void makeTimingArcMap(Report *report);
   void makeTimingArcPortMaps();
   bool hasBufferFunc(const LibertyPort *input,
                      const LibertyPort *output) const;
@@ -612,12 +673,9 @@ protected:
   TimingArcSetSeq timing_arc_sets_;
   TimingArcSetSet timing_arc_set_set_;
   LibertyPortPairTimingArcMap port_timing_arc_set_map_;
-  LibertyPortTimingArcMap timing_arc_set_from_map_;
-  LibertyPortTimingArcMap timing_arc_set_to_map_;
   bool has_infered_reg_timing_arcs_;
   InternalPowerSeq internal_powers_;
   PortInternalPowerMap port_internal_powers_;
-  InternalPowerAttrsSeq internal_power_attrs_;
   LeakagePowerSeq leakage_powers_;
   SequentialSeq sequentials_;
   PortToSequentialMap port_to_seq_map_;
@@ -627,10 +685,10 @@ protected:
   ScaleFactors *scale_factors_;
   ScaledCellMap scaled_cells_;
   TestCell *test_cell_;
-  // Latch D->Q to LatchEnable.
-  LatchEnableMap latch_d_to_q_map_;
-  // Latch EN->D setup to LatchEnable.
-  LatchEnableMap latch_check_map_;
+  // Latch D->Q to LatchEnable index.
+  LatchEnableIndexMap latch_d_to_q_map_;
+  // Latch EN->D setup to LatchEnable index.
+  LatchEnableIndexMap latch_check_map_;
   LatchEnableSeq latch_enables_;
   // Ports that have latch D->Q timing arc sets from them.
   LibertyPortSet latch_data_ports_;
@@ -834,10 +892,6 @@ public:
   float clkTreeDelay(float in_slew,
                      const RiseFall *from_rf,
                      const MinMax *min_max) const;
-  void setClkTreeDelay(const TableModel *model,
-                       const RiseFall *from_rf,
-                       const RiseFall *to_rf,
-                       const MinMax *min_max);
   // deprecated 2024-06-22
   RiseFallMinMax clkTreeDelays() const __attribute__ ((deprecated));
   // deprecated 2024-02-27
@@ -898,8 +952,6 @@ protected:
   std::vector<LibertyPort*> scene_ports_;
   ReceiverModelPtr receiver_model_;
   DriverWaveform *driver_waveform_[RiseFall::index_count];
-  // Redundant with clock_tree_path_delay timing arcs but faster to access.
-  const TableModel *clk_tree_delay_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
 
   unsigned int min_pulse_width_exists_:RiseFall::index_count;
   bool min_period_exists_:1;
@@ -1009,10 +1061,10 @@ protected:
 class BusDcl
 {
 public:
-  BusDcl(const char *name,
+  BusDcl(std::string name,
          int from,
          int to);
-  const char *name() const { return name_.c_str(); }
+  const std::string &name() const { return name_; }
   int from() const { return from_; }
   int to() const { return to_; }
 
@@ -1026,18 +1078,16 @@ protected:
 class ModeDef
 {
 public:
-  ~ModeDef();
-  const char *name() const { return name_.c_str(); }
+  const std::string &name() const { return name_; }
   ModeValueDef *defineValue(const char *value,
                             FuncExpr *cond,
                             const char *sdf_cond);
-  ModeValueDef *findValueDef(const char *value);
-  ModeValueMap *values() { return &values_; }
+  const ModeValueDef *findValueDef(const char *value) const;
+  const ModeValueMap *values() const { return &values_; }
+
+  explicit ModeDef(std::string name);
 
 protected:
-  // Private to LibertyCell::makeModeDef.
-  ModeDef(const char *name);
-
   std::string name_;
   ModeValueMap values_;
 
@@ -1045,41 +1095,19 @@ private:
   friend class LibertyCell;
 };
 
-// Mode definition mode_value group.
-class ModeValueDef
-{
-public:
-  ~ModeValueDef();
-  const char *value() const { return value_.c_str(); }
-  FuncExpr *cond() const { return cond_; }
-  void setCond(FuncExpr *cond);
-  const char *sdfCond() const { return sdf_cond_.c_str(); }
-  void setSdfCond(const char *sdf_cond);
-
-protected:
-  // Private to ModeDef::defineValue.
-  ModeValueDef(const char *value,
-               FuncExpr *cond,
-               const char *sdf_cond);
-
-  std::string value_;
-  FuncExpr *cond_;
-  std::string sdf_cond_;
-
-private:
-  friend class ModeDef;
-};
-
 class TableTemplate
 {
 public:
-  TableTemplate(const char *name);
-  TableTemplate(const char *name,
+  TableTemplate(std::string name);
+  TableTemplate(std::string name,
+                TableTemplateType type);
+  TableTemplate(std::string name,
                 TableAxisPtr axis1,
                 TableAxisPtr axis2,
                 TableAxisPtr axis3);
-  const char *name() const { return name_.c_str(); }
-  void setName(const char *name);
+  const std::string &name() const { return name_; }
+  void setName(std::string name);
+  TableTemplateType type() const { return type_; }
   const TableAxis *axis1() const { return axis1_.get(); }
   TableAxisPtr axis1ptr() const { return axis1_; }
   void setAxis1(TableAxisPtr axis);
@@ -1092,6 +1120,7 @@ public:
 
 protected:
   std::string name_;
+  TableTemplateType type_;
   TableAxisPtr axis1_;
   TableAxisPtr axis2_;
   TableAxisPtr axis3_;
@@ -1101,8 +1130,8 @@ class TestCell : public LibertyCell
 {
 public:
   TestCell(LibertyLibrary *library,
-           const char *name,
-           const char *filename);
+           std::string name,
+           std::string filename);
 
 protected:
 };
@@ -1110,9 +1139,9 @@ protected:
 class OcvDerate
 {
 public:
-  OcvDerate(const char *name);
+  OcvDerate(std::string name);
   ~OcvDerate();
-  const char *name() const { return name_; }
+  const std::string &name() const { return name_; }
   const Table *derateTable(const RiseFall *rf,
                            const EarlyLate *early_late,
                            PathType path_type);
@@ -1122,7 +1151,7 @@ public:
                       TablePtr derate);
 
 private:
-  const char *name_;
+  std::string name_;
   // [rf_type][derate_type][path_type]
   TablePtr derate_[RiseFall::index_count][EarlyLate::index_count][path_type_count];
 };

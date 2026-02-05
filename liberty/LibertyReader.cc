@@ -59,7 +59,7 @@ using std::make_shared;
 using std::string;
 
 static void
-scaleFloats(FloatSeq *floats,
+scaleFloats(FloatSeq &floats,
             float scale);
 
 LibertyLibrary *
@@ -703,7 +703,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
   // These attributes reference named groups in the library so
   // wait until the end of the library to resolve them.
   if (default_wireload_) {
-    Wireload *wireload = library_->findWireload(default_wireload_);
+    const Wireload *wireload = library_->findWireload(default_wireload_);
     if (wireload)
       library_->setDefaultWireload(wireload);
     else
@@ -713,7 +713,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
   }
 
   if (default_wireload_selection_) {
-    WireloadSelection *selection =
+    const WireloadSelection *selection =
       library_->findWireloadSelection(default_wireload_selection_);
     if (selection)
       library_->setDefaultWireloadSelection(selection);
@@ -818,17 +818,17 @@ LibertyReader::parseUnits(LibertyAttr *attr,
                           float &scale_var,
                           Unit *unit)
 {
-  string units = getAttrString(attr);
-  if (!units.empty()) {
+  const char *units = getAttrString(attr);
+  if (units) {
     // Unit format is <multipler_digits><scale_suffix_char><unit_suffix>.
     // Find the multiplier digits.
-    string units = getAttrString(attr);
-    size_t mult_end = units.find_first_not_of("0123456789");
+    string units1 = units;
+    size_t mult_end = units1.find_first_not_of("0123456789");
     float mult = 1.0F;
     string scale_suffix;
-    if (mult_end != units.npos) {
-      string unit_mult = units.substr(0, mult_end);
-      scale_suffix = units.substr(mult_end);
+    if (mult_end != units1.npos) {
+      string unit_mult = units1.substr(0, mult_end);
+      scale_suffix = units1.substr(mult_end);
       if (unit_mult == "1")
         mult = 1.0F;
       else if (unit_mult == "10")
@@ -875,7 +875,7 @@ void
 LibertyReader::visitCapacitiveLoadUnit(LibertyAttr *attr)
 {
   if (library_) {
-    if (attr->isComplex()) {
+    if (attr->isComplexAttr()) {
       LibertyAttrValueSeq *values = attr->values();
       if (values->size() == 2) {
         LibertyAttrValue *value = (*values)[0];
@@ -898,10 +898,10 @@ LibertyReader::visitCapacitiveLoadUnit(LibertyAttr *attr)
         if (valid) {
           value = (*values)[1];
           if (value->isString()) {
-            const char *suffix = value->stringValue();
-            if (stringEqual(suffix, "ff"))
+            const std::string suffix = value->stringValue();
+            if (stringEqual(suffix.c_str(), "ff"))
               cap_scale_ = scale * 1E-15F;
-            else if (stringEqual(suffix, "pf"))
+            else if (stringEqual(suffix.c_str(), "pf"))
               cap_scale_ = scale * 1E-12F;
             else
               libWarn(1154, attr, "capacitive_load_units are not ff or pf.");
@@ -979,12 +979,12 @@ void
 LibertyReader::visitVoltageMap(LibertyAttr *attr)
 {
   if (library_) {
-    if (attr->isComplex()) {
+    if (attr->isComplexAttr()) {
       LibertyAttrValueSeq *values = attr->values();
       if (values->size() >= 1) {
         LibertyAttrValue *value = (*values)[0];
         if (value->isString()) {
-          const char *supply_name = value->stringValue();
+          const std::string &supply_name = value->stringValue();
           if (values->size() == 2) {
             value = (*values)[1];
             bool valid = false;
@@ -1004,7 +1004,7 @@ LibertyReader::visitVoltageMap(LibertyAttr *attr)
             }
 
             if (valid)
-              library_->addSupplyVoltage(supply_name, voltage);
+              library_->addSupplyVoltage(supply_name.c_str(), voltage);
             else
               libWarn(1166, attr, "voltage_map voltage is not a float.");
           }
@@ -1418,8 +1418,7 @@ LibertyReader::beginTableTemplate(LibertyGroup *group,
   if (library_) {
     const char *name = group->firstName();
     if (name) {
-      tbl_template_ = new TableTemplate(name);
-      library_->addTableTemplate(tbl_template_, type);
+      tbl_template_ = library_->makeTableTemplate(name, type);
     }
     else
       libWarn(1175, group, "table template missing name.");
@@ -1431,7 +1430,9 @@ LibertyReader::beginTableTemplate(LibertyGroup *group,
 void
 LibertyReader::clearAxisValues()
 {
-  axis_values_[0] = axis_values_[1] = axis_values_[2] = nullptr;
+  axis_values_[0].clear();
+  axis_values_[1].clear();
+  axis_values_[2].clear();
 }
 
 void
@@ -1457,30 +1458,31 @@ LibertyReader::makeAxis(int index,
                         LibertyGroup *group)
 {
   TableAxisVariable axis_var = axis_var_[index];
-  FloatSeq *axis_values = axis_values_[index];
   if (axis_var != TableAxisVariable::unknown) {
-    if (axis_values) {
+    FloatSeq values;
+    if (!axis_values_[index].empty()) {
       const Units *units = library_->units();
       float scale = tableVariableUnit(axis_var, units)->scale();
-      scaleFloats(axis_values, scale);
+      values = std::move(axis_values_[index]);
+      scaleFloats(values, scale);
     }
-    return make_shared<TableAxis>(axis_var, axis_values);
+    return make_shared<TableAxis>(axis_var, std::move(values));
   }
-  else if (axis_values) {
+  else if (!axis_values_[index].empty()) {
     libWarn(1176, group, "missing variable_%d attribute.", index + 1);
-    delete axis_values;
-    axis_values_[index] = nullptr;
+    axis_values_[index].clear();
   }
   // No warning for missing index_xx attributes because they are not required.
   return nullptr;
 }
 
 static void
-scaleFloats(FloatSeq *floats, float scale)
+scaleFloats(FloatSeq &floats,
+            float scale)
 {
-  size_t count = floats->size();
+  size_t count = floats.size();
   for (size_t i = 0; i < count; i++)
-    (*floats)[i] *= scale;
+    floats[i] *= scale;
 }
 
 void
@@ -1538,22 +1540,21 @@ LibertyReader::visitIndex(int index,
                           LibertyAttr *attr)
 {
   if (tbl_template_
-      // Ignore index_xx in ecsm_waveform groups.
+      // Ignore index_* in ecsm_waveform groups.
       && !in_ecsm_waveform_) {
-    FloatSeq *axis_values = readFloatSeq(attr, 1.0F);
-    if (axis_values) {
-      if (axis_values->empty())
-        libWarn(1177, attr, "missing table index values.");
-      else {
-        float prev = (*axis_values)[0];
-        for (size_t i = 1; i < axis_values->size(); i++) {
-          float value = (*axis_values)[i];
-          if (value <= prev)
-            libWarn(1178, attr, "non-increasing table index values.");
-          prev = value;
-        }
+    FloatSeq axis_values = readFloatSeq(attr, 1.0F);
+    if (axis_values.empty())
+      libWarn(1177, attr, "missing table index values.");
+    else {
+      // Check monotonicity of the values.
+      float prev = axis_values[0];
+      for (size_t i = 1; i < axis_values.size(); i++) {
+        float value = axis_values[i];
+        if (value <= prev)
+          libWarn(1178, attr, "non-increasing table index values.");
+        prev = value;
       }
-      axis_values_[index] = axis_values;
+      axis_values_[index] = std::move(axis_values);
     }
   }
 }
@@ -1573,11 +1574,10 @@ LibertyReader::endType(LibertyGroup *group)
   const char *name = group->firstName();
   if (name) {
     if (type_bit_from_exists_ && type_bit_to_exists_) {
-      BusDcl *bus_dcl = new BusDcl(name, type_bit_from_, type_bit_to_);
       if (cell_)
-        cell_->addBusDcl(bus_dcl);
+        cell_->makeBusDcl(name, type_bit_from_, type_bit_to_);
       else if (library_)
-        library_->addBusDcl(bus_dcl);
+        library_->makeBusDcl(name, type_bit_from_, type_bit_to_);
     }
     else {
       if (!type_bit_from_exists_)
@@ -1610,8 +1610,7 @@ LibertyReader::beginScalingFactors(LibertyGroup *group)
   const char *name = group->firstName();
   if (name) {
     save_scale_factors_ = scale_factors_;
-    scale_factors_ = new ScaleFactors(name);
-    library_->addScaleFactors(scale_factors_);
+    scale_factors_ = library_->makeScaleFactors(name);
   }
   else
     libWarn(1182, group, "scaling_factors do not have a name.");
@@ -1631,7 +1630,7 @@ LibertyReader::visitScaleFactorSuffix(LibertyAttr *attr)
     ScaleFactorType type = ScaleFactorType::unknown;
     const RiseFall *rf = nullptr;
     // Parse the attribute name.
-    TokenParser parser(attr->name(), "_");
+    TokenParser parser(attr->name().c_str(), "_");
     if (parser.hasNext())
       parser.next();
     if (parser.hasNext()) {
@@ -1669,7 +1668,7 @@ LibertyReader::visitScaleFactorPrefix(LibertyAttr *attr)
     ScaleFactorType type = ScaleFactorType::unknown;
     const RiseFall *rf = nullptr;
     // Parse the attribute name.
-    TokenParser parser(attr->name(), "_");
+    TokenParser parser(attr->name().c_str(), "_");
     if (parser.hasNext())
       parser.next();
     if (parser.hasNext()) {
@@ -1710,7 +1709,7 @@ LibertyReader::visitScaleFactorHiLow(LibertyAttr *attr)
     const char *type_name = nullptr;
     const char *tr_name = nullptr;
     // Parse the attribute name.
-    TokenParser parser(attr->name(), "_");
+    TokenParser parser(attr->name().c_str(), "_");
     if (parser.hasNext())
       parser.next();
     if (parser.hasNext()) {
@@ -1749,7 +1748,7 @@ LibertyReader::visitScaleFactor(LibertyAttr *attr)
     const char *pvt_name = nullptr;
     const char *type_name = nullptr;
     // Parse the attribute name.
-    TokenParser parser(attr->name(), " ");
+    TokenParser parser(attr->name().c_str(), " ");
     if (parser.hasNext())
       parser.next();
     if (parser.hasNext()) {
@@ -1778,10 +1777,8 @@ LibertyReader::beginOpCond(LibertyGroup *group)
 {
   if (library_) {
     const char *name = group->firstName();
-    if (name) {
-      op_cond_ = new OperatingConditions(name);
-      library_->addOperatingConditions(op_cond_);
-    }
+    if (name)
+      op_cond_ = library_->makeOperatingConditions(name);
     else
       libWarn(1183, group, "operating_conditions missing name.");
   }
@@ -1848,10 +1845,8 @@ LibertyReader::beginWireload(LibertyGroup *group)
 {
   if (library_) {
     const char *name = group->firstName();
-    if (name) {
-      wireload_ = new Wireload(name, library_);
-      library_->addWireload(wireload_);
-    }
+    if (name)
+      wireload_ = library_->makeWireload(name);
   }
   else
     libWarn(1184, group, "wire_load missing name.");
@@ -1906,10 +1901,8 @@ LibertyReader::beginWireloadSelection(LibertyGroup *group)
 {
   if (library_) {
     const char *name = group->firstName();
-    if (name) {
-      wireload_selection_ = new WireloadSelection(name);
-      library_->addWireloadSelection(wireload_selection_);
-    }
+    if (name)
+      wireload_selection_ = library_->makeWireloadSelection(name);
   }
   else
     libWarn(1186, group, "wire_load_selection missing name.");
@@ -1925,7 +1918,7 @@ void
 LibertyReader::visitWireloadFromArea(LibertyAttr *attr)
 {
   if (wireload_selection_) {
-    if (attr->isComplex()) {
+    if (attr->isComplexAttr()) {
       LibertyAttrValueSeq *values = attr->values();
       if (values->size() == 3) {
         LibertyAttrValue *value = (*values)[0];
@@ -1937,14 +1930,14 @@ LibertyReader::visitWireloadFromArea(LibertyAttr *attr)
 
             value = (*values)[2];
             if (value->isString()) {
-              const char *wireload_name = value->stringValue();
+              const std::string &wireload_name = value->stringValue();
               const Wireload *wireload =
-                library_->findWireload(wireload_name);
+                library_->findWireload(wireload_name.c_str());
               if (wireload)
                 wireload_selection_->addWireloadFromArea(min_area, max_area,
                                                          wireload);
               else
-                libWarn(1187, attr, "wireload %s not found.", wireload_name);
+                libWarn(1187, attr, "wireload %s not found.", wireload_name.c_str());
             }
             else
               libWarn(1188, attr,
@@ -2077,7 +2070,7 @@ LibertyReader::makeScalarCheckModel(float value,
                                     ScaleFactorType scale_factor_type,
                                     const RiseFall *rf)
 {
-  TablePtr table = make_shared<Table0>(value);
+  TablePtr table = make_shared<Table>(value);
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *table_model = new TableModel(table, tbl_template,
@@ -2103,7 +2096,6 @@ LibertyReader::makeInternalPowers(PortGroup *port_group)
   for (InternalPowerGroup *power_group : port_group->internalPowerGroups()) {
     for (LibertyPort *port : *port_group->ports())
       makeInternalPowers(port, power_group);
-    cell_->addInternalPowerAttrs(power_group);
   }
 }
 
@@ -2134,7 +2126,7 @@ LibertyReader::makeCellSequential(SequentialGroup *seq)
     clk_expr = parseFunc(clk, clk_attr, line);
     if (clk_expr && clk_expr->checkSize(size)) {
       libWarn(1196, line, "%s %s bus width mismatch.", type, clk_attr);
-      clk_expr->deleteSubexprs();
+      delete clk_expr;
       clk_expr = nullptr;
     }
   }
@@ -2145,7 +2137,7 @@ LibertyReader::makeCellSequential(SequentialGroup *seq)
     data_expr = parseFunc(data, data_attr, line);
     if (data_expr && data_expr->checkSize(size)) {
       libWarn(1197, line, "%s %s bus width mismatch.", type, data_attr);
-      data_expr->deleteSubexprs();
+      delete data_expr;
       data_expr = nullptr;
     }
   }
@@ -2155,7 +2147,7 @@ LibertyReader::makeCellSequential(SequentialGroup *seq)
     clr_expr = parseFunc(clr, "clear", line);
     if (clr_expr && clr_expr->checkSize(size)) {
       libWarn(1198, line, "%s %s bus width mismatch.", type, "clear");
-      clr_expr->deleteSubexprs();
+      delete clr_expr;
       clr_expr = nullptr;
     }
   }
@@ -2165,7 +2157,7 @@ LibertyReader::makeCellSequential(SequentialGroup *seq)
     preset_expr = parseFunc(preset, "preset", line);
     if (preset_expr && preset_expr->checkSize(size)) {
       libWarn(1199, line, "%s %s bus width mismatch.", type, "preset");
-      preset_expr->deleteSubexprs();
+      delete preset_expr;
       preset_expr = nullptr;
     }
   }
@@ -2177,14 +2169,10 @@ LibertyReader::makeCellSequential(SequentialGroup *seq)
     checkLatchEnableSense(clk_expr, line);
 
   // The expressions used in the sequentials are copied by bitSubExpr.
-  if (clk_expr)
-    clk_expr->deleteSubexprs();
-  if (data_expr)
-    data_expr->deleteSubexprs();
-  if (clr_expr)
-    clr_expr->deleteSubexprs();
-  if (preset_expr)
-    preset_expr->deleteSubexprs();
+  delete clk_expr;
+  delete data_expr;
+  delete clr_expr;
+  delete preset_expr;
 }
 
 void
@@ -2245,6 +2233,15 @@ void
 LibertyReader::makeLeakagePowers()
 {
   for (LeakagePowerGroup *power_group : leakage_powers_) {
+<<<<<<<
+=======
+    LibertyPort *related_pg_pin =
+      cell_->findLibertyPort(power_group->relatedPgPin().c_str());
+    cell_->makeLeakagePower(related_pg_pin, power_group->when(), power_group->power());
+    delete power_group;
+  }
+  leakage_powers_.clear();
+>>>>>>>
     LibertyPort *related_pg_pin =
       cell_->findLibertyPort(power_group->relatedPgPin().c_str());
     LeakagePower *leakage = new LeakagePower(cell_, related_pg_pin, power_group->when(),
@@ -2274,15 +2271,8 @@ LibertyReader::parseCellFuncs()
 {
   for (LibertyFunc *func : cell_funcs_) {
     FuncExpr *expr = parseFunc(func->expr(), func->attrName(), func->line());
-    if (func->invert() && expr) {
-      if (expr->op() == FuncExpr::Op::not_) {
-        FuncExpr *inv = expr;
-        expr = expr->left();
-        delete inv;
-      }
-      else
-        expr = FuncExpr::makeNot(expr);
-    }
+    if (func->invert() && expr)
+      expr = expr->invert();
     if (expr)
       func->setFunc()(expr);
     delete func;
@@ -2441,7 +2431,7 @@ void
 TimingGroup::makeTableModels(LibertyCell *cell,
                              LibertyReader *reader)
 {
-  for (auto rf : RiseFall::range()) {
+  for (const RiseFall *rf : RiseFall::range()) {
     int rf_index = rf->index();
     TableModel *delay = cell_[rf_index];
     TableModel *transition = transition_[rf_index];
@@ -2475,6 +2465,9 @@ TimingGroup::makeTableModels(LibertyCell *cell,
     else if (constraint)
       attrs_->setModel(rf, new CheckTableModel(cell, constraint,
                                                constraint_sigma_[rf_index]));
+    cell_[rf_index] = nullptr;
+    transition_[rf_index] = nullptr;
+    constraint_[rf_index] = nullptr;
   }
 }
 
@@ -2664,14 +2657,14 @@ LibertyReader::endReceiverCapacitanceRiseFall(LibertyGroup *group)
 {
   if (table_) {
     if (ReceiverModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, tbl_template_,
-                                               scale_factor_type_, rf_);
       if (receiver_model_ == nullptr) {
         receiver_model_ = make_shared<ReceiverModel>();
         if (timing_)
           timing_->setReceiverModel(receiver_model_);
       }
-      receiver_model_->setCapacitanceModel(table_model, index_, rf_);
+      receiver_model_->setCapacitanceModel(TableModel(table_, tbl_template_,
+                                                      scale_factor_type_, rf_),
+                                           index_, rf_);
     }
     else
       libWarn(1219, group, "unsupported model axis.");
@@ -2711,28 +2704,31 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
 {
   if (timing_) {
     std::set<float> slew_set, cap_set;
-    FloatSeq *slew_values = new FloatSeq;
-    FloatSeq *cap_values = new FloatSeq;
+    FloatSeq slew_values;
+    FloatSeq cap_values;
     for (OutputWaveform *waveform : output_currents_) {
       float slew = waveform->slew();
       if (!slew_set.contains(slew)) {
         slew_set.insert(slew);
-        slew_values->push_back(slew);
+        slew_values.push_back(slew);
       }
       float cap = waveform->cap();
       if (!cap_set.contains(cap)) {
         cap_set.insert(cap);
-        cap_values->push_back(cap);
+        cap_values.push_back(cap);
       }
     }
     sort(slew_values, std::less<float>());
     sort(cap_values, std::less<float>());
-    TableAxisPtr slew_axis = make_shared<TableAxis>(TableAxisVariable::input_net_transition,
-                                                    slew_values);
-    TableAxisPtr cap_axis = make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
-                                                   cap_values);
-    FloatSeq *ref_times = new FloatSeq(slew_values->size());
-    Table1Seq current_waveforms(slew_axis->size() * cap_axis->size());
+    size_t slew_size = slew_values.size();
+    size_t cap_size = cap_values.size();
+    TableAxisPtr slew_axis=make_shared<TableAxis>(TableAxisVariable::input_net_transition,
+                                                  std::move(slew_values));
+    TableAxisPtr cap_axis =
+      make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
+                             std::move(cap_values));
+    FloatSeq ref_times(slew_size);
+    Table1Seq current_waveforms(slew_size * cap_size);
     for (OutputWaveform *waveform : output_currents_) {
       size_t slew_index, cap_index;
       bool slew_exists, cap_exists;
@@ -2741,17 +2737,17 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
       if (slew_exists && cap_exists) {
         size_t index = slew_index * cap_axis->size() + cap_index;
         current_waveforms[index] = waveform->stealCurrents();
-        (*ref_times)[slew_index] = waveform->referenceTime();
+        ref_times[slew_index] = waveform->referenceTime();
       }
       else
         libWarn(1221, group, "output current waveform %.2e %.2e not found.",
                 waveform->slew(),
                 waveform->cap());
     }
-    Table1 *ref_time_tbl = new Table1(ref_times, slew_axis);
+    Table ref_time_tbl(std::move(ref_times), slew_axis);
     OutputWaveforms *output_current = new OutputWaveforms(slew_axis, cap_axis, rf_,
                                                           current_waveforms,
-                                                          ref_time_tbl);
+                                                          std::move(ref_time_tbl));
     timing_->setOutputWaveforms(rf_, output_current);
     deleteContents(output_currents_);
   }
@@ -2781,28 +2777,26 @@ void
 LibertyReader::endVector(LibertyGroup *group)
 {
   if (timing_ && tbl_template_) {
-    FloatSeq *slew_values = axis_values_[0];
-    FloatSeq *cap_values = axis_values_[1];
+    TableAxisPtr slew_axis, cap_axis;
     // Canonicalize axis order.
     if (tbl_template_->axis1()->variable() == TableAxisVariable::input_net_transition) {
-      slew_values = axis_values_[0];
-      cap_values = axis_values_[1];
+      slew_axis = axis_[0];
+      cap_axis = axis_[1];
     }
     else {
-      slew_values = axis_values_[1];
-      cap_values = axis_values_[0];
+      slew_axis = axis_[1];
+      cap_axis = axis_[0];
     }
 
-    if (slew_values->size() == 1 && cap_values->size() == 1) {
-      // Convert 1x1xN Table3 to Table1.
-      float slew = (*slew_values)[0];
-      float cap = (*cap_values)[0];
-      Table3 *table3 = dynamic_cast<Table3*>(table_.get());
-      FloatTable *values3 = table3->values3();
-      // Steal the values.
-      FloatSeq *values = (*values3)[0];
-      (*values3)[0] = nullptr;
-      Table1 *table1 = new Table1(values, axis_[2]);
+    if (slew_axis->size() == 1 && cap_axis->size() == 1) {
+      // Convert 1x1xN Table (order 3) to 1D Table.
+      float slew = slew_axis->axisValue(0);
+      float cap = cap_axis->axisValue(0);
+      Table *table_ptr = table_.get();
+      FloatTable *values3 = table_ptr->values3();
+      FloatSeq row = std::move((*values3)[0]);
+      values3->erase(values3->begin());
+      Table *table1 = new Table(std::move(row), axis_[2]);
       OutputWaveform *waveform = new OutputWaveform(slew, cap, table1, reference_time_);
       output_currents_.push_back(waveform);
     }
@@ -2837,9 +2831,7 @@ LibertyReader::endNormalizedDriverWaveform(LibertyGroup *group)
     if (table_->axis1()->variable() == TableAxisVariable::input_net_transition) {
       if (table_->axis2()->variable() == TableAxisVariable::normalized_voltage) {
         // Null driver_waveform_name_ means it is the default unnamed waveform.
-        DriverWaveform *driver_waveform = new DriverWaveform(driver_waveform_name_,
-                                                             table_);
-        library_->addDriverWaveform(driver_waveform);
+        library_->makeDriverWaveform(driver_waveform_name_, table_);
 
       }
       else
@@ -2896,15 +2888,18 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
     }
   }
   else {
+    const std::string &related_pg_pin = power_group->relatedPgPin();
     if (port->hasMembers()) {
       LibertyPortMemberIterator bit_iter(port);
       while (bit_iter.hasNext()) {
         LibertyPort *port_bit = bit_iter.next();
-        builder_.makeInternalPower(cell_, port_bit, nullptr, power_group);
+        cell_->makeInternalPower(port_bit, nullptr, related_pg_pin,
+                                 power_group->when(), power_group->models());
       }
     }
     else
-      builder_.makeInternalPower(cell_, port, nullptr, power_group);
+      cell_->makeInternalPower(port, nullptr, related_pg_pin, power_group->when(),
+                               power_group->models());
   }
 }
 
@@ -2914,18 +2909,21 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
                                   PortNameBitIterator &related_port_iter,
                                   InternalPowerGroup *power_group)
 {
+  const std::string &related_pg_pin = power_group->relatedPgPin();
+  const auto &when = power_group->when();
+  InternalPowerModels &models = power_group->models();
   if (related_port_iter.size() == 1 && !port->hasMembers()) {
     // one -> one
     if (related_port_iter.hasNext()) {
       LibertyPort *related_port = related_port_iter.next();
-      builder_.makeInternalPower(cell_, port, related_port, power_group);
+      cell_->makeInternalPower(port, related_port, related_pg_pin, when, models);
     }
   }
   else if (related_port_iter.size() > 1 && !port->hasMembers()) {
     // bus -> one
     while (related_port_iter.hasNext()) {
       LibertyPort *related_port = related_port_iter.next();
-      builder_.makeInternalPower(cell_, port, related_port, power_group);
+      cell_->makeInternalPower(port, related_port, related_pg_pin, when, models);
     }
   }
   else if (related_port_iter.size() == 1 && port->hasMembers()) {
@@ -2935,7 +2933,7 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
       LibertyPortMemberIterator bit_iter(port);
       while (bit_iter.hasNext()) {
         LibertyPort *port_bit = bit_iter.next();
-        builder_.makeInternalPower(cell_, port_bit, related_port, power_group);
+        cell_->makeInternalPower(port_bit, related_port, related_pg_pin, when, models);
       }
     }
   }
@@ -2947,7 +2945,8 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
         while (related_port_iter.hasNext() && to_iter.hasNext()) {
           LibertyPort *related_port_bit = related_port_iter.next();
           LibertyPort *port_bit = to_iter.next();
-          builder_.makeInternalPower(cell_, port_bit, related_port_bit, power_group);
+          cell_->makeInternalPower(port_bit, related_port_bit, related_pg_pin,
+                                   when, models);
         }
       }
       else
@@ -2962,7 +2961,8 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
         LibertyPortMemberIterator to_iter(port);
         while (to_iter.hasNext()) {
           LibertyPort *port_bit = to_iter.next();
-          builder_.makeInternalPower(cell_, port_bit, related_port_bit, power_group);
+          cell_->makeInternalPower(port_bit, related_port_bit, related_pg_pin,
+                                   when, models);
         }
       }
     }
@@ -3180,9 +3180,9 @@ LibertyReader::beginPin(LibertyGroup *group)
       ports_ = new LibertyPortSeq;
       for (LibertyAttrValue *param : *group->params()) {
         if (param->isString()) {
-          const char *port_name = param->stringValue();
-          debugPrint(debug_, "liberty", 1, " port %s", port_name);
-          PortNameBitIterator port_iter(cell_, port_name, this, group->line());
+          const std::string &port_name = param->stringValue();
+          debugPrint(debug_, "liberty", 1, " port %s", port_name.c_str());
+          PortNameBitIterator port_iter(cell_, port_name.c_str(), this, group->line());
           while (port_iter.hasNext()) {
             LibertyPort *port = port_iter.next();
             ports_->push_back(port);
@@ -3198,7 +3198,7 @@ LibertyReader::beginPin(LibertyGroup *group)
       ports_ = new LibertyPortSeq;
       for (LibertyAttrValue *param : *group->params()) {
         if (param->isString()) {
-          const char *name = param->stringValue();
+          const char *name = param->stringValue().c_str();
           debugPrint(debug_, "liberty", 1, " port %s", name);
           LibertyPort *port = findPort(name);
           if (port == nullptr)
@@ -3214,7 +3214,7 @@ LibertyReader::beginPin(LibertyGroup *group)
       // Multiple port names can share group def.
       for (LibertyAttrValue *param : *group->params()) {
         if (param->isString()) {
-          const char *name = param->stringValue();
+          const char *name = param->stringValue().c_str();
           debugPrint(debug_, "liberty", 1, " port %s", name);
           LibertyPort *port = makePort(cell_, name);
           ports_->push_back(port);
@@ -3323,9 +3323,8 @@ LibertyReader::beginBusOrBundle(LibertyGroup *group)
   // Multiple port names can share group def.
   for (LibertyAttrValue *param : *group->params()) {
     if (param->isString()) {
-      const char *name = param->stringValue();
-      if (name)
-        bus_names_.push_back(stringCopy(name));
+      const string &name = param->stringValue();
+      bus_names_.push_back(stringCopy(name.c_str()));
     }
   }
   ports_ = new LibertyPortSeq;
@@ -3394,13 +3393,13 @@ void
 LibertyReader::visitMembers(LibertyAttr *attr)
 {
   if (cell_) {
-    if (attr->isComplex()) {
+    if (attr->isComplexAttr()) {
       for (const char *name : bus_names_) {
         debugPrint(debug_, "liberty", 1, " bundle %s", name);
         ConcretePortSeq *members = new ConcretePortSeq;
         for (LibertyAttrValue *value : *attr->values()) {
           if (value->isString()) {
-            const char *port_name = value->stringValue();
+            const char *port_name = value->stringValue().c_str();
             LibertyPort *port = findPort(port_name);
             if (port == nullptr)
               port = makePort(cell_, port_name);
@@ -4054,7 +4053,7 @@ LibertyReader::seqPortNames(LibertyGroup *group,
     else {
       // in_port (ignored), out_port, out_port_inv
       out_name = group->secondName();
-      out_inv_name = third_value->stringValue();
+      out_inv_name = third_value->stringValue().c_str();
     }
   }
 }
@@ -4422,7 +4421,7 @@ void
 LibertyReader::visitMode(LibertyAttr *attr)
 {
   if (timing_) {
-    if (attr->isComplex()) {
+    if (attr->isComplexAttr()) {
       LibertyAttrValueSeq *values = attr->values();
       if (values->size() == 2) {
         LibertyAttrValue *value = (*values)[0];
@@ -4624,7 +4623,7 @@ LibertyReader::beginTimingTableModel(LibertyGroup *group,
     beginTableModel(group, TableTemplateType::delay, rf,
                     time_scale_, scale_factor_type);
   else
-    libWarn(1255, group, "%s group not in timing group.", group->firstName());
+    libWarn(1255, group, "%s group not in timing group.", group->type().c_str());
 }
 
 void
@@ -4709,7 +4708,7 @@ void
 LibertyReader::makeTable(LibertyAttr *attr,
                          float scale)
 {
-  if (attr->isComplex()) {
+  if (attr->isComplexAttr()) {
     makeTableAxis(0, attr);
     makeTableAxis(1, attr);
     makeTableAxis(2, attr);
@@ -4717,80 +4716,67 @@ LibertyReader::makeTable(LibertyAttr *attr,
       // 3D table
       // Column index1*size(index2) + index2
       // Row    index3
-      FloatTable *table = makeFloatTable(attr,
-                                         axis_[0]->size()*axis_[1]->size(),
-                                         axis_[2]->size(), scale);
-      table_ = make_shared<Table3>(table, axis_[0], axis_[1], axis_[2]);
+      table_ = make_shared<Table>(makeFloatTable(attr,
+                                                axis_[0]->size() * axis_[1]->size(),
+                                                axis_[2]->size(), scale),
+                                 axis_[0], axis_[1], axis_[2]);
     }
     else if (axis_[0] && axis_[1]) {
       // 2D table
       // Row    variable1/axis[0]
       // Column variable2/axis[1]
-      FloatTable *table = makeFloatTable(attr, axis_[0]->size(),
-                                         axis_[1]->size(), scale);
-      table_ = make_shared<Table2>(table, axis_[0], axis_[1]);
+      table_ = make_shared<Table>(makeFloatTable(attr, axis_[0]->size(),
+                                                 axis_[1]->size(), scale),
+                                  axis_[0], axis_[1]);
     }
     else if (axis_[0]) {
       // 1D table
-      FloatTable *table = makeFloatTable(attr, 1, axis_[0]->size(), scale);
-      FloatSeq *values = (*table)[0];
-      delete table;
-      table_ = make_shared<Table1>(values, axis_[0]);
+      FloatTable table = makeFloatTable(attr, 1, axis_[0]->size(), scale);
+      table_ = make_shared<Table>(std::move(table[0]), axis_[0]);
     }
     else if (axis_[0] == nullptr && axis_[1] == nullptr && axis_[2] == nullptr) {
       // scalar
-      FloatTable *table = makeFloatTable(attr, 1, 1, scale);
-      float value = (*(*table)[0])[0];
-      delete (*table)[0];
-      delete table;
-      table_ = make_shared<Table0>(value);
+      FloatTable table = makeFloatTable(attr, 1, 1, scale);
+      float value = table[0][0];
+      table_ = make_shared<Table>(value);
     }
   }
   else
-    libWarn(1257, attr, "%s is missing values.", attr->name());
+    libWarn(1257, attr, "%s is missing values.", attr->name().c_str());
 }
 
-FloatTable *
+FloatTable
 LibertyReader::makeFloatTable(LibertyAttr *attr,
                               size_t rows,
                               size_t cols,
                               float scale)
 {
-  FloatTable *table = new FloatTable;
-  table->reserve(rows);
+  FloatTable table;
+  table.reserve(rows);
   for (LibertyAttrValue *value : *attr->values()) {
-    FloatSeq *row = new FloatSeq;
-    row->reserve(cols);
-    table->push_back(row);
-    if (value->isString()) {
-      const char *values_list = value->stringValue();
-      parseStringFloatList(values_list, scale, row, attr);
-    }
+    FloatSeq row;
+    if (value->isString())
+      row = parseStringFloatList(value->stringValue(), scale, attr);
     else if (value->isFloat())
-      // Scalar value.
-      row->push_back(value->floatValue() * scale);
+      row.push_back(value->floatValue() * scale);
     else
-      libWarn(1258, attr, "%s is not a list of floats.", attr->name());
-    if (row->size() != cols) {
+      libWarn(1258, attr, "%s is not a list of floats.", attr->name().c_str());
+    if (row.size() != cols) {
       libWarn(1259, attr, "table row has %zu columns but axis has %zu.",
-              row->size(),
+              row.size(),
               cols);
-      // Fill out row columns with zeros.
-      for (size_t c = row->size(); c < cols; c++)
-        row->push_back(0.0);
+      for (size_t c = row.size(); c < cols; c++)
+        row.push_back(0.0);
     }
+    table.push_back(std::move(row));
   }
-  if (table->size() != rows) {
+  if (table.size() != rows) {
     libWarn(1260, attr, "table has %zu rows but axis has %zu.",
-            table->size(),
+            table.size(),
             rows);
-    // Fill with zero'd rows.
-    for (size_t r = table->size(); r < rows; r++) {
-      FloatSeq *row = new FloatSeq;
-      table->push_back(row);
-      // Fill out row with zeros.
-      for (size_t c = row->size(); c < cols; c++)
-        row->push_back(0.0);
+    for (size_t r = table.size(); r < rows; r++) {
+      FloatSeq row(cols, 0.0);
+      table.push_back(std::move(row));
     }
   }
   return table;
@@ -4800,18 +4786,18 @@ void
 LibertyReader::makeTableAxis(int index,
                              LibertyAttr *attr)
 {
-  if (axis_values_[index]) {
+  if (axis_[index] && !axis_values_[index].empty()) {
     TableAxisVariable var = axis_[index]->variable();
-    FloatSeq *values = axis_values_[index];
     const Units *units = library_->units();
     float scale = tableVariableUnit(var, units)->scale();
+    FloatSeq values = std::move(axis_values_[index]);
     scaleFloats(values, scale);
-    axis_[index] = make_shared<TableAxis>(var, values);
+    axis_[index] = make_shared<TableAxis>(var, std::move(values));
   }
-  else if (axis_[index] && axis_[index]->values() == nullptr) {
+  else if (axis_[index] && axis_[index]->values().empty()) {
     libWarn(1344, attr, "Table axis and template missing values.");
     axis_[index] = nullptr;
-    axis_values_[index] = nullptr;
+    axis_values_[index].clear();
   }
 }
 
@@ -4825,9 +4811,9 @@ LibertyReader::beginLut(LibertyGroup *group)
   if (cell_) {
     for (LibertyAttrValue *param : *group->params()) {
       if (param->isString()) {
-        const char *names = param->stringValue();
+        const std::string &names = param->stringValue();
         // Parse space separated list of related port names.
-        TokenParser parser(names, " ");
+        TokenParser parser(names.c_str(), " ");
         while (parser.hasNext()) {
           char *name = parser.next();
           if (name[0] != '\0') {
@@ -4857,7 +4843,7 @@ LibertyReader::beginTestCell(LibertyGroup *group)
   else {
     string name = cell_->name();
     name += "/test_cell";
-    test_cell_ = new TestCell(cell_->libertyLibrary(), name.c_str(),
+    test_cell_ = new TestCell(cell_->libertyLibrary(), std::move(name),
                               cell_->filename());
     cell_->setTestCell(test_cell_);
 
@@ -4956,7 +4942,9 @@ LibertyReader::visitWhen(LibertyAttr *attr)
     if (func) {
       InternalPowerGroup *internal_pwr = internal_power_;
       makeLibertyFunc(func,
-                      [internal_pwr] (FuncExpr *expr) { internal_pwr->setWhen(expr);},
+                      [internal_pwr] (FuncExpr *expr) {
+                        internal_pwr->setWhen(std::shared_ptr<FuncExpr>(expr));
+                      },
                       false, "when", attr);
     }
   }
@@ -4992,15 +4980,15 @@ LibertyReader::visitSdfCond(LibertyAttr *attr)
 const char *
 LibertyReader::getAttrString(LibertyAttr *attr)
 {
-  if (attr->isSimple()) {
+  if (attr->isSimpleAttr()) {
     LibertyAttrValue *value = attr->firstValue();
     if (value->isString())
-      return value->stringValue();
+      return value->stringValue().c_str();
     else
-      libWarn(1266, attr, "%s attribute is not a string.", attr->name());
+      libWarn(1266, attr, "%s attribute is not a string.", attr->name().c_str());
   }
   else
-    libWarn(1267, attr, "%s is not a simple attribute.", attr->name());
+    libWarn(1267, attr, "%s is not a simple attribute.", attr->name().c_str());
   return nullptr;
 }
 
@@ -5012,7 +5000,7 @@ LibertyReader::getAttrInt(LibertyAttr *attr,
 {
   value = 0;
   exists = false;
-  if (attr->isSimple()) {
+  if (attr->isSimpleAttr()) {
     LibertyAttrValue *attr_value = attr->firstValue();
     if (attr_value->isFloat()) {
       float float_val = attr_value->floatValue();
@@ -5020,10 +5008,10 @@ LibertyReader::getAttrInt(LibertyAttr *attr,
       exists = true;
     }
     else
-      libWarn(1268, attr, "%s attribute is not an integer.",attr->name());
+      libWarn(1268, attr, "%s attribute is not an integer.",attr->name().c_str());
   }
   else
-    libWarn(1269, attr, "%s is not a simple attribute.", attr->name());
+    libWarn(1269, attr, "%s is not a simple attribute.", attr->name().c_str());
 }
 
 void
@@ -5033,10 +5021,10 @@ LibertyReader::getAttrFloat(LibertyAttr *attr,
                             bool &valid)
 {
   valid = false;
-  if (attr->isSimple()) 
+  if (attr->isSimpleAttr()) 
     getAttrFloat(attr, attr->firstValue(), value, valid);
   else
-    libWarn(1270, attr, "%s is not a simple attribute.", attr->name());
+    libWarn(1270, attr, "%s is not a simple attribute.", attr->name().c_str());
 }
 
 void
@@ -5051,20 +5039,20 @@ LibertyReader::getAttrFloat(LibertyAttr *attr,
     value = attr_value->floatValue();
   }
   else if (attr_value->isString()) {
-    const char *string = attr_value->stringValue();
+    const std::string &str = attr_value->stringValue();
     // See if attribute string is a variable.
-    variableValue(string, value, valid);
+    variableValue(str.c_str(), value, valid);
     if (!valid) {
       // For some reason area attributes for pads are quoted floats.
       // Check that the string is a valid double.
       char *end;
-      value = strtof(string, &end);
+      value = strtof(str.c_str(), &end);
       if ((*end && !isspace(*end))
           // strtof support INF as a valid float.
-          || stringEqual(string, "inf"))
+          || str == "inf")
         libWarn(1271, attr, "%s value %s is not a float.",
-                attr->name(),
-                string);
+                attr->name().c_str(),
+                str.c_str());
       valid = true;
     }
   }
@@ -5080,85 +5068,94 @@ LibertyReader::getAttrFloat2(LibertyAttr *attr,
                              bool &exists)
 {
   exists = false;
-  if (attr->isComplex()) {
+  if (attr->isComplexAttr()) {
     LibertyAttrValueSeq *values = attr->values();
     if (values->size() == 2) {
       LibertyAttrValue *value = (*values)[0];
       getAttrFloat(attr, value, value1, exists);
       if (!exists)
-        libWarn(1272, attr, "%s is not a float.", attr->name());
+        libWarn(1272, attr, "%s is not a float.", attr->name().c_str());
 
       value = (*values)[1];
       getAttrFloat(attr, value, value2, exists);
       if (!exists)
-        libWarn(1273, attr, "%s is not a float.", attr->name());
+        libWarn(1273, attr, "%s is not a float.", attr->name().c_str());
     }
     else
-      libWarn(1274, attr, "%s requires 2 valules.", attr->name());
+      libWarn(1274, attr, "%s requires 2 valules.", attr->name().c_str());
   }
   else
-    libWarn(1345, attr, "%s requires 2 valules.", attr->name());
+    libWarn(1345, attr, "%s requires 2 valules.", attr->name().c_str());
 }
 
 // Parse string of comma separated floats.
 // Note that some brain damaged vendors (that used to "Think") are not
 // consistent about including the delimiters.
-void
-LibertyReader::parseStringFloatList(const char *float_list,
+FloatSeq
+LibertyReader::parseStringFloatList(const std::string &float_list,
                                     float scale,
-                                    FloatSeq *values,
                                     LibertyAttr *attr)
 {
-  const char *delimiters = ", ";
-  TokenParser parser(float_list, delimiters);
-  while (parser.hasNext()) {
-    char *token = parser.next();
+  FloatSeq values;
+  const char *token = float_list.c_str();
+  while (*token != '\0') {
     // Some (brain dead) libraries enclose floats in brackets.
     if (*token == '{')
       token++;
     char *end;
     float value = strtof(token, &end) * scale;
     if (end == token
-        || (end && !(*end == '\0'
-                     || isspace(*end)
-                     || strchr(delimiters, *end) != nullptr
-                     || *end == '}')))
-      libWarn(1275, attr, "%s is not a float.", token);
-    values->push_back(value);
+        || !(*end == '\0'
+             || isspace(*end)
+             || *end == ','
+             || *end == '}')) {
+      std::string token_end = token;
+      if (end != token) {
+        token_end.clear();
+        for (const char *t = token; t <= end; t++)
+          token_end += *t;
+      }
+      libWarn(1275, attr, "%s is not a float.", token_end.c_str());
+      token += token_end.size();
+    }
+    else {
+      values.push_back(value);
+      token = end;
+    }
+    while (*token == ',' || *token == ' ' || *token == '}')
+      token++;
   }
+  return values;
 }
 
-FloatSeq *
+FloatSeq
 LibertyReader::readFloatSeq(LibertyAttr *attr,
                             float scale)
 {
-  FloatSeq *values = nullptr;
-  if (attr->isComplex()) {
+  FloatSeq values;
+  if (attr->isComplexAttr()) {
     LibertyAttrValueSeq *attr_values = attr->values();
     if (attr_values->size() == 1) {
       LibertyAttrValue *value = (*attr_values)[0];
       if (value->isString()) {
-        values = new FloatSeq;
-        parseStringFloatList(value->stringValue(), scale, values, attr);
+        values = parseStringFloatList(value->stringValue(), scale, attr);
       }
       else if (value->isFloat()) {
-        values = new FloatSeq;
-        values->push_back(value->floatValue());
+        values.push_back(value->floatValue());
       }
       else
-        libWarn(1276, attr, "%s is missing values.", attr->name());
+        libWarn(1276, attr, "%s is missing values.", attr->name().c_str());
     }
     else
-      libWarn(1277, attr, "%s has more than one string.", attr->name());
+      libWarn(1277, attr, "%s has more than one string.", attr->name().c_str());
   }
   else {
     LibertyAttrValue *value = attr->firstValue();
     if (value->isString()) {
-      values = new FloatSeq;
-      parseStringFloatList(value->stringValue(), scale, values, attr);
+      values = parseStringFloatList(value->stringValue(), scale, attr);
     }
     else
-      libWarn(1278, attr, "%s is missing values.", attr->name());
+      libWarn(1278, attr, "%s is missing values.", attr->name().c_str());
   }
   return values;
 }
@@ -5170,26 +5167,26 @@ LibertyReader::getAttrBool(LibertyAttr *attr,
                            bool &exists)
 {
   exists = false;
-  if (attr->isSimple()) {
+  if (attr->isSimpleAttr()) {
     LibertyAttrValue *val = attr->firstValue();
     if (val->isString()) {
-      const char *str = val->stringValue();
-      if (stringEqual(str, "true")) {
+      const std::string &str = val->stringValue();
+      if (stringEqual(str.c_str(), "true")) {
         value = true;
         exists = true;
       }
-      else if (stringEqual(str, "false")) {
+      else if (stringEqual(str.c_str(), "false")) {
         value = false;
         exists = true;
       }
       else
-        libWarn(1279, attr, "%s attribute is not boolean.", attr->name());
+        libWarn(1279, attr, "%s attribute is not boolean.", attr->name().c_str());
     }
     else
-      libWarn(1280, attr, "%s attribute is not boolean.", attr->name());
+      libWarn(1280, attr, "%s attribute is not boolean.", attr->name().c_str());
   }
   else
-    libWarn(1281, attr, "%s is not a simple attribute.", attr->name());
+    libWarn(1281, attr, "%s is not a simple attribute.", attr->name().c_str());
 }
 
 // Read L/H/X string attribute values as bool.
@@ -5206,7 +5203,7 @@ LibertyReader::getAttrLogicValue(LibertyAttr *attr)
       return LogicValue::unknown;
     else
       libWarn(1282, attr, "attribute %s value %s not recognized.",
-              attr->name(), str);
+              attr->name().c_str(), str);
     // fall thru
   }
   return LogicValue::unknown;
@@ -5248,17 +5245,11 @@ LibertyReader::visitVariable(LibertyVariable *var)
 {
   if (var_map_ == nullptr)
     var_map_ = new LibertyVariableMap;
-  const char *var_name = var->variable();
-  string key;
+  const string &var_name = var->variable();
   float value;
   bool exists;
   findKeyValue(var_map_, var_name, value, exists);
-  if (exists) {
-    // Duplicate variable name.
-    (*var_map_)[key] = var->value();
-  }
-  else
-    (*var_map_)[var_name] = var->value();
+  (*var_map_)[var_name] = var->value();
 }
 
 void
@@ -5337,15 +5328,9 @@ void
 LibertyReader::beginInternalPower(LibertyGroup *group)
 {
   if (port_group_) {
-    internal_power_ = makeInternalPowerGroup(group->line());
+    internal_power_ = new InternalPowerGroup(group->line());
     port_group_->addInternalPowerGroup(internal_power_);
   }
-}
-
-InternalPowerGroup *
-LibertyReader::makeInternalPowerGroup(int line)
-{
-  return new InternalPowerGroup(line);
 }
 
 void
@@ -5378,7 +5363,7 @@ LibertyReader::endRiseFallPower(LibertyGroup *)
   if (table_) {
     TableModel *table_model = new TableModel(table_, tbl_template_,
                                              scale_factor_type_, rf_);
-    internal_power_->setModel(rf_, new InternalPowerModel(table_model));
+    internal_power_->setModel(rf_, std::make_shared<InternalPowerModel>(table_model));
   }
   endTableModel();
 }
@@ -5390,7 +5375,7 @@ LibertyReader::endPower(LibertyGroup *)
     TableModel *table_model = new TableModel(table_, tbl_template_,
                                              scale_factor_type_, rf_);
     // Share the model for rise/fall.
-    InternalPowerModel *power_model = new InternalPowerModel(table_model);
+    auto power_model = std::make_shared<InternalPowerModel>(table_model);
     internal_power_->setModel(RiseFall::rise(), power_model);
     internal_power_->setModel(RiseFall::fall(), power_model);
   }
@@ -5472,7 +5457,7 @@ LibertyReader::beginOcvDerate(LibertyGroup *group)
 {
   const char *name = group->firstName();
   if (name)
-    ocv_derate_ = new OcvDerate(stringCopy(name));
+    ocv_derate_ = library_->makeOcvDerate(name);
   else
     libWarn(1285, group, "ocv_derate missing name.");
 }
@@ -5480,10 +5465,6 @@ LibertyReader::beginOcvDerate(LibertyGroup *group)
 void
 LibertyReader::endOcvDerate(LibertyGroup *)
 {
-  if (cell_)
-    library_->addOcvDerate(ocv_derate_);
-  else if (library_)
-    library_->addOcvDerate(ocv_derate_);
   ocv_derate_ = nullptr;
 }
 
@@ -5779,6 +5760,7 @@ PortGroup::~PortGroup()
 {
   deleteContents(timings_);
   delete ports_;
+  deleteContents(internal_power_groups_);
 }
 
 void
@@ -6074,13 +6056,29 @@ TimingGroup::setOutputWaveforms(const RiseFall *rf,
 ////////////////////////////////////////////////////////////////
 
 InternalPowerGroup::InternalPowerGroup(int line) :
-  InternalPowerAttrs(),
-  RelatedPortGroup(line)
+  RelatedPortGroup(line),
+  when_(),
+  models_{}
 {
 }
 
-InternalPowerGroup::~InternalPowerGroup()
+void
+InternalPowerGroup::setWhen(std::shared_ptr<FuncExpr> when)
 {
+  when_ = std::move(when);
+}
+
+void
+InternalPowerGroup::setModel(const RiseFall *rf,
+                             std::shared_ptr<InternalPowerModel> model)
+{
+  models_[rf->index()] = std::move(model);
+}
+
+void
+InternalPowerGroup::setRelatedPgPin(std::string related_pg_pin)
+{
+  related_pg_pin_ = std::move(related_pg_pin);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -6094,8 +6092,27 @@ LeakagePowerGroup::LeakagePowerGroup(int line) :
 
 void
 LeakagePowerGroup::setRelatedPgPin(std::string pin_name)
+<<<<<<<
+=======
 {
   related_pg_pin_ = std::move(pin_name);
+}
+
+void
+LeakagePowerGroup::setWhen(FuncExpr *when)
+{
+  when_ = when;
+}
+
+void
+LeakagePowerGroup::setPower(float power)
+>>>>>>>
+{
+<<<<<<<
+  related_pg_pin_ = std::move(pin_name);
+=======
+  power_ = power;
+>>>>>>>
 }
 
 void
@@ -6258,7 +6275,7 @@ PortNameBitIterator::findRangeBusNameNext()
 
 OutputWaveform::OutputWaveform(float slew,
                                float cap,
-                               Table1 *currents,
+                               Table *currents,
                                float reference_time) :
   slew_(slew),
   cap_(cap),
@@ -6272,10 +6289,10 @@ OutputWaveform::~OutputWaveform()
   delete currents_;
 }
 
-Table1 *
+Table *
 OutputWaveform::stealCurrents()
 {
-  Table1 *currents = currents_;
+  Table *currents = currents_;
   currents_ = nullptr;
   return currents;
 }

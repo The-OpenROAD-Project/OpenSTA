@@ -564,7 +564,7 @@ GraphDelayCalc::driveCellDefaultFromPort(const LibertyCell *cell,
 {
   LibertyPort *from_port = 0;
   int from_port_index = 0;
-  for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, to_port)) {
+  for (TimingArcSet *arc_set : cell->timingArcSetsTo(to_port)) {
     LibertyPort *set_from_port = arc_set->from();
     int set_from_port_index = findPortIndex(cell, set_from_port);
     if (from_port == nullptr

@@ -25,8 +25,9 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 #include "StringSeq.hh"
 #include "MinMax.hh"
@@ -61,8 +62,8 @@ class OutputWaveform;
 
 using LibraryAttrVisitor = void (LibertyReader::*)(LibertyAttr *attr);
 using LibraryGroupVisitor = void (LibertyReader::*)(LibertyGroup *group);
-using LibraryAttrMap = std::map<std::string, LibraryAttrVisitor>;
-using LibraryGroupMap = std::map<std::string ,LibraryGroupVisitor>;
+using LibraryAttrMap = std::unordered_map<std::string, LibraryAttrVisitor>;
+using LibraryGroupMap = std::unordered_map<std::string, LibraryGroupVisitor>;
 using PortGroupSeq = std::vector<PortGroup*>;
 using SequentialGroupSeq = std::vector<SequentialGroup*>;
 using LibertyFuncSeq = std::vector<LibertyFunc*>;
@@ -82,10 +83,12 @@ public:
                 Network *network);
   virtual ~LibertyReader();
   virtual LibertyLibrary *readLibertyFile(const char *filename);
+  LibertyLibrary *library() { return library_; }
+  const LibertyLibrary *library() const { return library_; }
+
   virtual void init(const char *filename,
                     bool infer_latches,
                     Network *network);
-  LibertyLibrary *library() const { return library_; }
   virtual bool save(LibertyGroup *) { return false; }
   virtual bool save(LibertyAttr *) { return false; }
   virtual bool save(LibertyVariable *) { return false; }
@@ -384,10 +387,10 @@ public:
   virtual void endTable();
   virtual void makeTable(LibertyAttr *attr,
                          float scale);
-  virtual FloatTable *makeFloatTable(LibertyAttr *attr,
-                                     size_t rows,
-                                     size_t cols,
-                                     float scale);
+  virtual FloatTable makeFloatTable(LibertyAttr *attr,
+                                    size_t rows,
+                                    size_t cols,
+                                    float scale);
 
   virtual void beginLut(LibertyGroup *group);
   virtual void endLut(LibertyGroup *group);
@@ -408,7 +411,6 @@ public:
   virtual void endLeakagePower(LibertyGroup *group);
   virtual void beginInternalPower(LibertyGroup *group);
   virtual void endInternalPower(LibertyGroup *group);
-  virtual InternalPowerGroup *makeInternalPowerGroup(int line);
   virtual void beginFallPower(LibertyGroup *group);
   virtual void beginRisePower(LibertyGroup *group);
   virtual void endRiseFallPower(LibertyGroup *group);
@@ -496,6 +498,8 @@ public:
   void endEcsmWaveform(LibertyGroup *group);
   LibertyPort *findPort(LibertyCell *cell,
                         const char *port_name);
+  virtual void begin(LibertyGroup *group);
+  virtual void end(LibertyGroup *group);
 
 protected:
   LibertyPort *makePort(LibertyCell *cell,
@@ -513,8 +517,6 @@ protected:
                              int line);
   void setEnergyScale();
   void defineVisitors();
-  virtual void begin(LibertyGroup *group);
-  virtual void end(LibertyGroup *group);
   void defineGroupVisitor(const char *type,
                           LibraryGroupVisitor begin_visitor,
                           LibraryGroupVisitor end_visitor);
@@ -556,10 +558,9 @@ protected:
                      float &value1,
                      float &value2,
                      bool &exists);
-  void parseStringFloatList(const char *float_list,
-                            float scale,
-                            FloatSeq *values,
-                            LibertyAttr *attr);
+  FloatSeq parseStringFloatList(const std::string &float_list,
+                                float scale,
+                                LibertyAttr *attr);
   LogicValue getAttrLogicValue(LibertyAttr *attr);
   void getAttrBool(LibertyAttr *attr,
                    // Return values.
@@ -571,8 +572,8 @@ protected:
                   LibertyAttr *attr);
   TableAxisPtr makeAxis(int index,
                         LibertyGroup *group);
-  FloatSeq *readFloatSeq(LibertyAttr *attr,
-                         float scale);
+  FloatSeq readFloatSeq(LibertyAttr *attr,
+                        float scale);
   void variableValue(const char *var,
                      float &value,
                      bool &exists);
@@ -631,7 +632,7 @@ protected:
   bool in_ccsn_;
   bool in_ecsm_waveform_;
   TableAxisVariable axis_var_[3];
-  FloatSeq *axis_values_[3];
+  FloatSeq axis_values_[3];
   int type_bit_from_;
   bool type_bit_from_exists_;
   int type_bit_to_;
@@ -889,17 +890,45 @@ protected:
   ReceiverModelPtr receiver_model_;
 };
 
-class InternalPowerGroup : public InternalPowerAttrs, public RelatedPortGroup
+class InternalPowerGroup : public RelatedPortGroup
 {
 public:
   InternalPowerGroup(int line);
-  virtual ~InternalPowerGroup();
+  const std::string &relatedPgPin() const { return related_pg_pin_; }
+  void setRelatedPgPin(std::string related_pg_pin);
+  const std::shared_ptr<FuncExpr> &when() const { return when_; }
+  void setWhen(std::shared_ptr<FuncExpr> when);
+  void setModel(const RiseFall *rf,
+                std::shared_ptr<InternalPowerModel> model);
+  InternalPowerModels &models() { return models_; }
+
+private:
+  std::string related_pg_pin_;
+  std::shared_ptr<FuncExpr> when_;
+  InternalPowerModels models_;
 };
 
 class LeakagePowerGroup
 {
 public:
   LeakagePowerGroup(int line);
+<<<<<<<
+=======
+  const std::string &relatedPgPin() const { return related_pg_pin_; }
+  void setRelatedPgPin(std::string pin_name);
+  FuncExpr *when() const { return when_; }
+  void setWhen(FuncExpr *when);
+  float power() const { return power_; }
+  void setPower(float power);
+
+protected:
+  std::string related_pg_pin_;
+  FuncExpr *when_;
+  float power_;
+  int line_;
+};
+
+>>>>>>>
   const std::string &relatedPgPin() const { return related_pg_pin_; }
   void setRelatedPgPin(std::string pin_name);
   FuncExpr *when() const { return when_; }
@@ -953,19 +982,19 @@ class OutputWaveform
 public:
   OutputWaveform(float axis_value1,
                  float axis_value2,
-                 Table1 *currents,
+                 Table *currents,
                  float reference_time);
   ~OutputWaveform();
   float slew() const { return slew_; }
   float cap() const { return cap_; }
-  Table1 *currents() const { return currents_; }
-  Table1 *stealCurrents();
+  Table *currents() const { return currents_; }
+  Table *stealCurrents();
   float referenceTime() { return reference_time_; }
 
 private:
   float slew_;
   float cap_;
-  Table1 *currents_;
+  Table *currents_;
   float reference_time_;
 };
 

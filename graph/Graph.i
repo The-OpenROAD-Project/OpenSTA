@@ -271,13 +271,13 @@ cond()
 const char *
 mode_name()
 {
-  return self->timingArcSet()->modeName();
+  return self->timingArcSet()->modeName().c_str();
 }
 
 const char *
 mode_value()
 {
-  return self->timingArcSet()->modeValue();
+  return self->timingArcSet()->modeValue().c_str();
 }
 
 const char *

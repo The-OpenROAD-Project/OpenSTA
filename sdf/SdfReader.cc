@@ -371,16 +371,16 @@ SdfReader::iopath(SdfPortSpec *from_edge,
           while (edge_iter.hasNext()) {
             Edge *edge = edge_iter.next();
             TimingArcSet *arc_set = edge->timingArcSet();
-            const char *lib_cond = arc_set->sdfCond();
+            const std::string &lib_cond = arc_set->sdfCond();
             const TimingRole *edge_role = arc_set->role();
-            bool cond_use_flag = cond_use_ && cond && lib_cond == nullptr
+            bool cond_use_flag = cond_use_ && cond && lib_cond.empty()
               && !(!is_incremental_only_ && in_incremental_);
             if (edge->from(graph_)->pin() == from_pin
                 && edge_role->sdfRole() == TimingRole::sdfIopath()
                 && (cond_use_flag
                     || (!condelse && condMatch(cond, lib_cond))
                     // condelse matches the default (unconditional) arc.
-                    || (condelse && lib_cond == nullptr))) {
+                    || (condelse && lib_cond.empty()))) {
               matched = true;
               for (TimingArc *arc : arc_set->arcs()) {
                 if ((from_edge->transition() == Transition::riseFall())
@@ -526,8 +526,8 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
     if (edge->from(graph_)->pin() == clk_pin) {
       TimingArcSet *arc_set = edge->timingArcSet();
       const TimingRole *edge_role = arc_set->role();
-      const char *lib_cond_start = arc_set->sdfCondStart();
-      const char *lib_cond_end = arc_set->sdfCondEnd();
+      const std::string &lib_cond_start = arc_set->sdfCondStart();
+      const std::string &lib_cond_end = arc_set->sdfCondEnd();
       bool cond_matches = condMatch(cond_start, lib_cond_start)
         && condMatch(cond_end, lib_cond_end);
       if (((!match_generic && edge_role->sdfRole() == sdf_role)
@@ -800,15 +800,15 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
 
 bool
 SdfReader::condMatch(const string *sdf_cond,
-                     const char *lib_cond)
+                     const std::string &lib_cond)
 {
   // If the sdf is not conditional it matches any library condition.
   if (sdf_cond == nullptr)
     return true;
-  else if (sdf_cond && lib_cond) {
+  else if (sdf_cond && !lib_cond.empty()) {
     // Match sdf_cond and lib_cond ignoring blanks.
     const char *c1 = sdf_cond->c_str();
-    const char *c2 = lib_cond;
+    const char *c2 = lib_cond.c_str();
     char ch1, ch2;
     do {
       ch1 = *c1++;

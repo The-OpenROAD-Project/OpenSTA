@@ -192,6 +192,8 @@ char *
 makeTmpString(std::string &str);
 bool
 isTmpString(const char *str);
+void
+deleteTmpStrings();
 
 ////////////////////////////////////////////////////////////////
 

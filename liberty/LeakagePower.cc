@@ -41,6 +41,36 @@ LeakagePower::LeakagePower(LibertyCell *cell,
 {
 }
 
+LeakagePower::LeakagePower(LeakagePower &&other) noexcept
+{
+  cell_ = other.cell_;
+  related_pg_port_ = other.related_pg_port_;
+  when_ = other.when_;
+  other.when_ = nullptr;
+  power_ = other.power_;
+}
+
+LeakagePower::~LeakagePower()
+{
+  delete when_;
+}
+
+} // namespace
+>>>>>>>
+
+namespace sta {
+
+LeakagePower::LeakagePower(LibertyCell *cell,
+                           LibertyPort *related_pg_port,
+                           FuncExpr *when,
+                           float power) :
+  cell_(cell),
+  related_pg_port_(related_pg_port),
+  when_(when),
+  power_(power)
+{
+}
+
 LeakagePower::~LeakagePower()
 {
   if (when_)

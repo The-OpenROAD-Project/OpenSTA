@@ -894,13 +894,13 @@ Sim::isDisabledMode(Edge *edge,
   is_disabled = false;
   disable_cond = 0;
   TimingArcSet *arc_set = edge->timingArcSet();
-  const char *mode_name = arc_set->modeName();
-  const char *mode_value = arc_set->modeValue();
-  if (mode_name && mode_value) {
+  const std::string &mode_name = arc_set->modeName();
+  const std::string &mode_value = arc_set->modeValue();
+  if (!mode_name.empty() && !mode_value.empty()) {
     LibertyCell *cell = network_->libertyCell(inst);
-    ModeDef *mode_def = cell->findModeDef(mode_name);
+    const ModeDef *mode_def = cell->findModeDef(mode_name.c_str());
     if (mode_def) {
-      ModeValueDef *value_def = mode_def->findValueDef(mode_value);
+      const ModeValueDef *value_def = mode_def->findValueDef(mode_value.c_str());
       if (value_def) {
         FuncExpr *cond = value_def->cond();
         if (cond) {
@@ -908,16 +908,14 @@ Sim::isDisabledMode(Edge *edge,
           if (cond_value == LogicValue::zero) {
             // For a mode value to be disabled by having a value of
             // logic zero one mode value must logic one.
-            for (const auto [name, value_def] : *mode_def->values()) {
-              if (value_def) {
-                FuncExpr *cond1 = value_def->cond();
-                if (cond1) {
-                  LogicValue cond_value1 = evalExpr(cond1, inst);
-                  if (cond_value1 == LogicValue::one) {
-                    disable_cond = cond;
-                    is_disabled = true;
-                    break;
-                  }
+            for (const auto &[name, value_def] : *mode_def->values()) {
+              FuncExpr *cond1 = value_def.cond();
+              if (cond1) {
+                LogicValue cond_value1 = evalExpr(cond1, inst);
+                if (cond_value1 == LogicValue::one) {
+                  disable_cond = cond;
+                  is_disabled = true;
+                  break;
                 }
               }
             }

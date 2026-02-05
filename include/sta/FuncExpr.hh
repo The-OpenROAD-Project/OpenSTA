@@ -47,6 +47,8 @@ public:
            FuncExpr *left,
            FuncExpr *right,
            LibertyPort *port);
+  ~FuncExpr();
+  void shallowDelete();
   static FuncExpr *makePort(LibertyPort *port);
   static FuncExpr *makeNot(FuncExpr *expr);
   static FuncExpr *makeAnd(FuncExpr *left,
@@ -61,11 +63,11 @@ public:
                     const FuncExpr *expr2);
   static bool less(const FuncExpr *expr1,
                    const FuncExpr *expr2);
+  // Invert expr by deleting leading NOT if found.
+  FuncExpr *invert();
 
   // Deep copy.
   FuncExpr *copy();
-  // Delete expression and all of its subexpressions.
-  void deleteSubexprs();
   // op == port
   LibertyPort *port() const;
   Op op() const { return op_; }

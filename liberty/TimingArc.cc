@@ -51,11 +51,6 @@ TimingArcAttrs::TimingArcAttrs() :
   timing_type_(TimingType::combinational),
   timing_sense_(TimingSense::unknown),
   cond_(nullptr),
-  sdf_cond_(nullptr),
-  sdf_cond_start_(nullptr),
-  sdf_cond_end_(nullptr),
-  mode_name_(nullptr),
-  mode_value_(nullptr),
   ocv_arc_depth_(0.0),
   models_{nullptr, nullptr}
 {
@@ -65,11 +60,6 @@ TimingArcAttrs::TimingArcAttrs(TimingSense sense) :
   timing_type_(TimingType::combinational),
   timing_sense_(sense),
   cond_(nullptr),
-  sdf_cond_(nullptr),
-  sdf_cond_start_(nullptr),
-  sdf_cond_end_(nullptr),
-  mode_name_(nullptr),
-  mode_value_(nullptr),
   ocv_arc_depth_(0.0),
   models_{nullptr, nullptr}
 {
@@ -77,15 +67,7 @@ TimingArcAttrs::TimingArcAttrs(TimingSense sense) :
 
 TimingArcAttrs::~TimingArcAttrs()
 {
-  if (cond_)
-    cond_->deleteSubexprs();
-  if (sdf_cond_start_ != sdf_cond_)
-    stringDelete(sdf_cond_start_);
-  if (sdf_cond_end_ != sdf_cond_)
-    stringDelete(sdf_cond_end_);
-  stringDelete(sdf_cond_);
-  stringDelete(mode_name_);
-  stringDelete(mode_value_);
+  delete cond_;
   delete models_[RiseFall::riseIndex()];
   delete models_[RiseFall::fallIndex()];
 }
@@ -109,39 +91,34 @@ TimingArcAttrs::setCond(FuncExpr *cond)
 }
 
 void
-TimingArcAttrs::setSdfCond(const char *cond)
+TimingArcAttrs::setSdfCond(const std::string &cond)
 {
-  stringDelete(sdf_cond_);
-  sdf_cond_ = stringCopy(cond);
+  sdf_cond_ = cond;
   sdf_cond_start_ = sdf_cond_end_ = sdf_cond_;
 }
 
 void
-TimingArcAttrs::setSdfCondStart(const char *cond)
+TimingArcAttrs::setSdfCondStart(const std::string &cond)
 {
-  stringDelete(sdf_cond_start_);
-  sdf_cond_start_ = stringCopy(cond);
+  sdf_cond_start_ = cond;
 }
 
 void
-TimingArcAttrs::setSdfCondEnd(const char *cond)
+TimingArcAttrs::setSdfCondEnd(const std::string &cond)
 {
-  stringDelete(sdf_cond_end_);
-  sdf_cond_end_ = stringCopy(cond);
+  sdf_cond_end_ = cond;
 }
 
 void
-TimingArcAttrs::setModeName(const char *name)
+TimingArcAttrs::setModeName(const std::string &name)
 {
-  stringDelete(mode_name_);
-  mode_name_ = stringCopy(name);
+  mode_name_ = name;
 }
 
 void
-TimingArcAttrs::setModeValue(const char *value)
+TimingArcAttrs::setModeValue(const std::string &value)
 {
-  stringDelete(mode_value_);
-  mode_value_ = stringCopy(value);
+  mode_value_ = value;
 }
 
 TimingModel *
@@ -192,19 +169,20 @@ TimingArc::intrinsicDelay() const
 TimingArcAttrsPtr TimingArcSet::wire_timing_arc_attrs_ = nullptr;
 TimingArcSet *TimingArcSet::wire_timing_arc_set_ = nullptr;
 
-TimingArcSet::TimingArcSet(LibertyCell *cell,
+TimingArcSet::TimingArcSet(LibertyCell *,
                            LibertyPort *from,
                            LibertyPort *to,
                            LibertyPort *related_out,
                            const TimingRole *role,
-                           TimingArcAttrsPtr attrs) :
+                           TimingArcAttrsPtr attrs,
+                           size_t index) :
   from_(from),
   to_(to),
   related_out_(related_out),
   role_(role),
   attrs_(attrs),
   is_cond_default_(false),
-  index_(cell->addTimingArcSet(this)),
+  index_(index),
   from_arc1_{nullptr, nullptr},
   from_arc2_{nullptr, nullptr},
   to_arc_{nullptr, nullptr}
@@ -247,10 +225,10 @@ TimingArcSet::libertyCell() const
     return nullptr;
 }
 
-TimingArcIndex
+size_t
 TimingArcSet::addTimingArc(TimingArc *arc)
 {
-  TimingArcIndex arc_index = arcs_.size();
+  size_t arc_index = arcs_.size();
   // Rise/fall to rise/fall.
   if (arc_index > RiseFall::index_count * RiseFall::index_count)
     criticalError(243, "timing arc max index exceeded\n");
@@ -301,6 +279,12 @@ void
 TimingArcSet::setRole(const TimingRole *role)
 {
   role_ = role;
+}
+
+void
+TimingArcSet::setIndex(size_t index)
+{
+  index_ = index;
 }
 
 void
@@ -379,9 +363,9 @@ TimingArcSet::equiv(const TimingArcSet *set1,
     && LibertyPort::equiv(set1->to(), set2->to())
     && set1->role() == set2->role()
     && FuncExpr::equiv(set1->cond(), set2->cond())
-    && stringEqIf(set1->sdfCond(), set2->sdfCond())
-    && stringEqIf(set1->sdfCondStart(), set2->sdfCondStart())
-    && stringEqIf(set1->sdfCondEnd(), set2->sdfCondEnd())
+    && set1->sdfCond() == set2->sdfCond()
+    && set1->sdfCondStart() == set2->sdfCondStart()
+    && set1->sdfCondEnd() == set2->sdfCondEnd()
     && timingArcsEquiv(set1, set2);
 }
 
@@ -428,36 +412,36 @@ timingArcSetLess(const TimingArcSet *set1,
         const FuncExpr *cond1 = set1->cond();
         const FuncExpr *cond2 = set2->cond();
         if (FuncExpr::equiv(cond1, cond2)) {
-          const char *sdf_cond1 = set1->sdfCond();
-          const char *sdf_cond2 = set2->sdfCond();
-          if (stringEqIf(sdf_cond1, sdf_cond2)) {
-            const char *sdf_cond_start1 = set1->sdfCondStart();
-            const char *sdf_cond_start2 = set2->sdfCondStart();
-            if (stringEqIf(sdf_cond_start1, sdf_cond_start2)) {
-              const char *sdf_cond_end1 = set1->sdfCondEnd();
-              const char *sdf_cond_end2 = set2->sdfCondEnd();
-              if (stringEqIf(sdf_cond_end1, sdf_cond_end2)) {
-                const char *mode_name1 = set1->modeName();
-                const char *mode_name2 = set2->modeName();
-                if (stringEqIf(mode_name1, mode_name2)) {
-                  const char *mode_value1 = set1->modeValue();
-                  const char *mode_value2 = set2->modeValue();
-                  if (stringEqIf(mode_value1, mode_value2))
+          const std::string &sdf_cond1 = set1->sdfCond();
+          const std::string &sdf_cond2 = set2->sdfCond();
+          if (sdf_cond1 == sdf_cond2) {
+            const std::string &sdf_cond_start1 = set1->sdfCondStart();
+            const std::string &sdf_cond_start2 = set2->sdfCondStart();
+            if (sdf_cond_start1 == sdf_cond_start2) {
+              const std::string &sdf_cond_end1 = set1->sdfCondEnd();
+              const std::string &sdf_cond_end2 = set2->sdfCondEnd();
+              if (sdf_cond_end1 == sdf_cond_end2) {
+                const std::string &mode_name1 = set1->modeName();
+                const std::string &mode_name2 = set2->modeName();
+                if (mode_name1 == mode_name2) {
+                  const std::string &mode_value1 = set1->modeValue();
+                  const std::string &mode_value2 = set2->modeValue();
+                  if (mode_value1 == mode_value2)
                     return timingArcsLess(set1, set2);
                   else
-                    return stringLessIf(mode_value1, mode_value2);
+                    return mode_value1 < mode_value2;
                 }
                 else
-                  return stringLessIf(mode_name1, mode_name2);
+                  return mode_name1 < mode_name2;
               }
               else
-                return stringLessIf(sdf_cond_end1, sdf_cond_end2);
+                return sdf_cond_end1 < sdf_cond_end2;
             }
             else
-              return stringLessIf(sdf_cond_start1, sdf_cond_start2);
+              return sdf_cond_start1 < sdf_cond_start2;
           }
           else
-            return stringLessIf(sdf_cond1, sdf_cond2);
+            return sdf_cond1 < sdf_cond2;
         }
         else
           return FuncExpr::less(cond1, cond2);

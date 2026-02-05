@@ -215,7 +215,7 @@ protected:
                       const MinMax *min_max);
   void seedActivities(BfsFwdIterator &bfs);
   void seedRegOutputActivities(const Instance *reg,
-			       Sequential *seq,
+			       const Sequential &seq,
 			       LibertyPort *output,
 			       bool invert);
   void seedRegOutputActivities(const Instance *inst,
@@ -233,7 +233,7 @@ protected:
   LibertyPort *findExprOutPort(FuncExpr *expr);
   float findInputDuty(const Instance *inst,
 		      FuncExpr *func,
-		      InternalPower *pwr);
+		      const InternalPower *pwr);
   float evalDiffDuty(FuncExpr *expr,
                      LibertyPort *from_port,
                      const Instance *inst);

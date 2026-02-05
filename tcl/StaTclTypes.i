@@ -837,19 +837,21 @@ using namespace sta;
   $1 = ints;
 }
 
-%typemap(out) Table1 {
-  Table1 &table = $1;
+%typemap(out) Table {
+  Table &table = $1;
   if (table.axis1()) {
     Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
     Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
-    for (float f : *table.axis1()->values()) {
+    for (float f : table.axis1()->values()) {
       Tcl_Obj *obj = Tcl_NewDoubleObj(f);
       Tcl_ListObjAppendElement(interp, list1, obj);
     }
     Tcl_Obj *list2 = Tcl_NewListObj(0, nullptr);
-    for (float f : *table.values()) {
-      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
-      Tcl_ListObjAppendElement(interp, list2, obj);
+    if (table.values()) {
+      for (float f : *table.values()) {
+        Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+        Tcl_ListObjAppendElement(interp, list2, obj);
+      }
     }
     Tcl_ListObjAppendElement(interp, list3, list1);
     Tcl_ListObjAppendElement(interp, list3, list2);
@@ -857,19 +859,23 @@ using namespace sta;
   }
 }
 
-%typemap(out) const Table1* {
-  const Table1 *table = $1;
+%typemap(out) const Table* {
+  const Table *table = $1;
   Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
   if (table) {
     Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
-    for (float f : *table->axis1()->values()) {
-      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
-      Tcl_ListObjAppendElement(interp, list1, obj);
+    if (table->axis1()) {
+      for (float f : table->axis1()->values()) {
+        Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+        Tcl_ListObjAppendElement(interp, list1, obj);
+      }
     }
     Tcl_Obj *list2 = Tcl_NewListObj(0, nullptr);
-    for (float f : *table->values()) {
-      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
-      Tcl_ListObjAppendElement(interp, list2, obj);
+    if (table->values()) {
+      for (float f : *table->values()) {
+        Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+        Tcl_ListObjAppendElement(interp, list2, obj);
+      }
     }
     Tcl_ListObjAppendElement(interp, list3, list1);
     Tcl_ListObjAppendElement(interp, list3, list2);

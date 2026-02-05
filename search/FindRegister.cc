@@ -97,7 +97,7 @@ private:
                  bool latches);
   virtual void visitReg(Instance *inst) = 0;
   virtual void visitSequential(Instance *inst,
-                               Sequential *seq) = 0;
+                               const Sequential *seq) = 0;
   void visitFanoutRegs(Vertex *from_vertex,
                        TimingSense from_sense,
                        const RiseFallBoth *clk_rf,
@@ -241,17 +241,17 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
 {
   has_seqs = false;
   matches = false;
-  for (Sequential *seq : cell->sequentials()) {
+  for (const Sequential &seq : cell->sequentials()) {
     has_seqs = true;
-    if ((seq->isRegister() && edge_triggered)
-        || (seq->isLatch() && latches)) {
+    if ((seq.isRegister() && edge_triggered)
+        || (seq.isLatch() && latches)) {
       if (clk_rf == RiseFallBoth::riseFall()) {
-        visitSequential(inst, seq);
+        visitSequential(inst, &seq);
         matches = true;
         break;
       }
       else {
-        FuncExpr *clk_func = seq->clock();
+        FuncExpr *clk_func = seq.clock();
         LibertyPort *port = network_->libertyPort(clk_pin);
         TimingSense port_sense = clk_func->portTimingSense(port);
         TimingSense path_sense = pathSenseThru(clk_sense, port_sense);
@@ -259,7 +259,7 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
              && clk_rf == RiseFallBoth::rise())
             || (path_sense == TimingSense::negative_unate
                 && clk_rf == RiseFallBoth::fall())) {
-          visitSequential(inst, seq);
+          visitSequential(inst, &seq);
           matches = true;
           break;
         }
@@ -324,7 +324,7 @@ public:
 private:
   virtual void visitReg(Instance *inst);
   virtual void visitSequential(Instance *inst,
-                               Sequential *seq);
+                               const Sequential *seq);
 
   InstanceSet regs_;
 };
@@ -348,7 +348,7 @@ FindRegInstances::findRegs(ClockSet *clks,
 
 void
 FindRegInstances::visitSequential(Instance *,
-                                  Sequential *)
+                                  const Sequential *)
 {
 }
 
@@ -385,14 +385,14 @@ public:
 protected:
   virtual void visitReg(Instance *inst);
   virtual void visitSequential(Instance *inst,
-                               Sequential *seq);
+                               const Sequential *seq);
   virtual bool matchPin(Pin *pin);
   void visitExpr(FuncExpr *expr,
                  Instance *inst,
-                 Sequential *seq);
+                 const Sequential *seq);
   // Sequential expressions to find instance pins.
-  virtual FuncExpr *seqExpr1(Sequential *seq) = 0;
-  virtual FuncExpr *seqExpr2(Sequential *seq) = 0;
+  virtual FuncExpr *seqExpr1(const Sequential *seq) = 0;
+  virtual FuncExpr *seqExpr2(const Sequential *seq) = 0;
 
   PinSet pins_;
 };
@@ -416,7 +416,7 @@ FindRegPins::findPins(ClockSet *clks,
 
 void
 FindRegPins::visitSequential(Instance *inst,
-                             Sequential *seq)
+                             const Sequential *seq)
 {
   visitExpr(seqExpr1(seq), inst, seq);
   visitExpr(seqExpr2(seq), inst, seq);
@@ -425,7 +425,7 @@ FindRegPins::visitSequential(Instance *inst,
 void
 FindRegPins::visitExpr(FuncExpr *expr,
                        Instance *inst,
-                       Sequential *)
+                       const Sequential *)
 {
   if (expr) {
     LibertyPortSet ports = expr->ports();
@@ -462,8 +462,8 @@ public:
 
 private:
   virtual bool matchPin(Pin *pin);
-  virtual FuncExpr *seqExpr1(Sequential *seq);
-  virtual FuncExpr *seqExpr2(Sequential *seq);
+  virtual FuncExpr *seqExpr1(const Sequential *seq);
+  virtual FuncExpr *seqExpr2(const Sequential *seq);
 };
 
 FindRegDataPins::FindRegDataPins(const StaState *sta) :
@@ -472,13 +472,13 @@ FindRegDataPins::FindRegDataPins(const StaState *sta) :
 }
 
 FuncExpr *
-FindRegDataPins::seqExpr1(Sequential *seq)
+FindRegDataPins::seqExpr1(const Sequential *seq)
 {
   return seq->data();
 }
 
 FuncExpr *
-FindRegDataPins::seqExpr2(Sequential *)
+FindRegDataPins::seqExpr2(const Sequential *)
 {
   return nullptr;
 }
@@ -529,8 +529,8 @@ public:
 
 private:
   virtual bool matchPin(Pin *pin);
-  virtual FuncExpr *seqExpr1(Sequential *seq);
-  virtual FuncExpr *seqExpr2(Sequential *seq);
+  virtual FuncExpr *seqExpr1(const Sequential *seq);
+  virtual FuncExpr *seqExpr2(const Sequential *seq);
 };
 
 FindRegClkPins::FindRegClkPins(const StaState *sta) :
@@ -544,7 +544,7 @@ FindRegClkPins::matchPin(Pin *pin)
   // Liberty port clock attribute is not present in latches (for nlc18 anyway).
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  for (TimingArcSet *arc_set : cell->timingArcSets(port, nullptr)) {
+  for (TimingArcSet *arc_set : cell->timingArcSetsFrom(port)) {
     const TimingRole *role = arc_set->role();
     if (role == TimingRole::regClkToQ()
         || role == TimingRole::latchEnToQ())
@@ -555,13 +555,13 @@ FindRegClkPins::matchPin(Pin *pin)
 
 
 FuncExpr *
-FindRegClkPins::seqExpr1(Sequential *seq)
+FindRegClkPins::seqExpr1(const Sequential *seq)
 {
   return seq->clock();
 }
 
 FuncExpr *
-FindRegClkPins::seqExpr2(Sequential *)
+FindRegClkPins::seqExpr2(const Sequential *)
 {
   return nullptr;
 }
@@ -587,8 +587,8 @@ public:
 
 private:
   virtual bool matchPin(Pin *pin);
-  virtual FuncExpr *seqExpr1(Sequential *seq) { return seq->clear(); }
-  virtual FuncExpr *seqExpr2(Sequential *seq) { return seq->preset(); }
+  virtual FuncExpr *seqExpr1(const Sequential *seq) { return seq->clear(); }
+  virtual FuncExpr *seqExpr2(const Sequential *seq) { return seq->preset(); }
 };
 
 FindRegAsyncPins::FindRegAsyncPins(const StaState *sta) :
@@ -601,7 +601,7 @@ FindRegAsyncPins::matchPin(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  for (TimingArcSet *arc_set : cell->timingArcSets(port, nullptr)) {
+  for (TimingArcSet *arc_set : cell->timingArcSetsFrom(port)) {
     const TimingRole *role = arc_set->role();
     if (role == TimingRole::regSetClr())
       return true;
@@ -631,12 +631,12 @@ public:
 private:
   virtual bool matchPin(Pin *pin);
   virtual void visitSequential(Instance *inst,
-                               Sequential *seq);
+                               const Sequential *seq);
   void visitOutput(LibertyPort *port,
                    Instance *inst);
   // Unused.
-  virtual FuncExpr *seqExpr1(Sequential *seq);
-  virtual FuncExpr *seqExpr2(Sequential *seq);
+  virtual FuncExpr *seqExpr1(const Sequential *seq);
+  virtual FuncExpr *seqExpr2(const Sequential *seq);
 };
 
 FindRegOutputPins::FindRegOutputPins(const StaState *sta) :
@@ -649,7 +649,7 @@ FindRegOutputPins::matchPin(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
+  for (TimingArcSet *arc_set : cell->timingArcSetsTo( port)) {
     const TimingRole *role = arc_set->role();
     if (role == TimingRole::regClkToQ()
         || role == TimingRole::latchEnToQ()
@@ -661,7 +661,7 @@ FindRegOutputPins::matchPin(Pin *pin)
 
 void
 FindRegOutputPins::visitSequential(Instance *inst,
-                                   Sequential *seq)
+                                   const Sequential *seq)
 {
   visitOutput(seq->output(), inst);
   visitOutput(seq->outputInv(), inst);
@@ -690,13 +690,13 @@ FindRegOutputPins::visitOutput(LibertyPort *port,
 }
 
 FuncExpr *
-FindRegOutputPins::seqExpr1(Sequential *)
+FindRegOutputPins::seqExpr1(const Sequential *)
 {
   return nullptr;
 }
 
 FuncExpr *
-FindRegOutputPins::seqExpr2(Sequential *)
+FindRegOutputPins::seqExpr2(const Sequential *)
 {
   return nullptr;
 }

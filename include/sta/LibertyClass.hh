@@ -68,7 +68,7 @@ class StatetableRow;
 
 using LibertyLibrarySeq = std::vector<LibertyLibrary*>;
 using LibertyCellSeq = std::vector<LibertyCell*>;
-using SequentialSeq = std::vector<Sequential*>;
+using SequentialSeq = std::vector<Sequential>;
 using LibertyCellEquivMap = std::map<LibertyCell*, LibertyCellSeq*>;
 using LibertyPortSeq = std::vector<LibertyPort*>;
 using LibertyPortSet = std::set<LibertyPort*>;

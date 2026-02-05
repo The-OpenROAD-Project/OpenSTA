@@ -387,9 +387,9 @@ SdfWriter::writeIopaths(const Instance *inst,
             writeIopathHeader();
             iopath_header = true;
           }
-          const char *sdf_cond = edge->timingArcSet()->sdfCond();
-          if (sdf_cond) {
-            gzprintf(stream_, "    (COND %s\n", sdf_cond);
+          const std::string &sdf_cond = edge->timingArcSet()->sdfCond();
+          if (!sdf_cond.empty()) {
+            gzprintf(stream_, "    (COND %s\n", sdf_cond.c_str());
             gzprintf(stream_, " ");
           }
           string from_pin_name = sdfPortName(from_pin);
@@ -398,7 +398,7 @@ SdfWriter::writeIopaths(const Instance *inst,
                    from_pin_name.c_str(),
                    to_pin_name.c_str());
           writeArcDelays(edge);
-          if (sdf_cond)
+          if (!sdf_cond.empty())
             gzprintf(stream_, ")");
           gzprintf(stream_, ")\n");
         }
@@ -653,13 +653,13 @@ SdfWriter::writeCheck(Edge *edge,
   TimingArcSet *arc_set = edge->timingArcSet();
   Pin *from_pin = edge->from(graph_)->pin();
   Pin *to_pin = edge->to(graph_)->pin();
-  const char *sdf_cond_start = arc_set->sdfCondStart();
-  const char *sdf_cond_end = arc_set->sdfCondEnd();
+  const std::string &sdf_cond_start = arc_set->sdfCondStart();
+  const std::string &sdf_cond_end = arc_set->sdfCondEnd();
 
   gzprintf(stream_, "    (%s ", sdf_check);
 
-  if (sdf_cond_start)
-    gzprintf(stream_, "(COND %s ", sdf_cond_start);
+  if (!sdf_cond_start.empty())
+    gzprintf(stream_, "(COND %s ", sdf_cond_start.c_str());
 
   string to_pin_name = sdfPortName(to_pin);
   if (use_data_edge) {
@@ -670,13 +670,13 @@ SdfWriter::writeCheck(Edge *edge,
   else
     gzprintf(stream_, "%s", to_pin_name.c_str());
 
-  if (sdf_cond_start)
+  if (!sdf_cond_start.empty())
     gzprintf(stream_, ")");
 
   gzprintf(stream_, " ");
 
-  if (sdf_cond_end)
-    gzprintf(stream_, "(COND %s ", sdf_cond_end);
+  if (!sdf_cond_end.empty())
+    gzprintf(stream_, "(COND %s ", sdf_cond_end.c_str());
 
   string from_pin_name = sdfPortName(from_pin);
   if (use_clk_edge)
@@ -686,7 +686,7 @@ SdfWriter::writeCheck(Edge *edge,
   else
     gzprintf(stream_, "%s", from_pin_name.c_str());
 
-  if (sdf_cond_end)
+  if (!sdf_cond_end.empty())
     gzprintf(stream_, ")");
 
   gzprintf(stream_, " ");

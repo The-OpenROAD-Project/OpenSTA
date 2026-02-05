@@ -760,7 +760,7 @@ WriteSpice::writeWaveformVoltSource(const Pin *pin,
 	      volt_index_++,
 	      network_->pathName(pin));
   streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
-  Table1 waveform = drvr_waveform->waveform(slew);
+  Table waveform = drvr_waveform->waveform(slew);
   const TableAxis *time_axis = waveform.axis1();
   for (size_t time_index = 0; time_index <  time_axis->size(); time_index++) {
     float time = delay + time_axis->axisValue(time_index);

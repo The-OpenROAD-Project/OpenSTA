@@ -960,8 +960,8 @@ PrimaDelayCalc::watchWaveform(const Pin *pin)
 {
   FloatSeq &voltages = watch_pin_values_[pin];
   TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                  new FloatSeq(times_));
-  Table1 waveform(new FloatSeq(voltages), time_axis);
+                                                  FloatSeq(times_));
+  Table waveform(new FloatSeq(voltages), time_axis);
   return waveform;
 }
 

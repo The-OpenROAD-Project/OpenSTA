@@ -49,16 +49,54 @@ Sequential::Sequential(bool is_register,
 {
 }
 
+Sequential::Sequential(Sequential &&other) noexcept :
+  is_register_(other.is_register_),
+  clock_(other.clock_),
+  data_(other.data_),
+  clear_(other.clear_),
+  preset_(other.preset_),
+  clr_preset_out_(other.clr_preset_out_),
+  clr_preset_out_inv_(other.clr_preset_out_inv_),
+  output_(other.output_),
+  output_inv_(other.output_inv_)
+{
+  other.clock_ = nullptr;
+  other.data_ = nullptr;
+  other.clear_ = nullptr;
+  other.preset_ = nullptr;
+}
+
+Sequential &
+Sequential::operator=(Sequential &&other) noexcept
+{
+  if (this != &other) {
+    delete clock_;
+    delete data_;
+    delete clear_;
+    delete preset_;
+    is_register_ = other.is_register_;
+    clock_ = other.clock_;
+    data_ = other.data_;
+    clear_ = other.clear_;
+    preset_ = other.preset_;
+    clr_preset_out_ = other.clr_preset_out_;
+    clr_preset_out_inv_ = other.clr_preset_out_inv_;
+    output_ = other.output_;
+    output_inv_ = other.output_inv_;
+    other.clock_ = nullptr;
+    other.data_ = nullptr;
+    other.clear_ = nullptr;
+    other.preset_ = nullptr;
+  }
+  return *this;
+}
+
 Sequential::~Sequential()
 {
-  if (clock_)
-    clock_->deleteSubexprs();
-  if (data_)
-    data_->deleteSubexprs();
-  if (clear_)
-    clear_->deleteSubexprs();
-  if (preset_)
-    preset_->deleteSubexprs();
+  delete clock_;
+  delete data_;
+  delete clear_;
+  delete preset_;
 }
 
 ////////////////////////////////////////////////////////////////

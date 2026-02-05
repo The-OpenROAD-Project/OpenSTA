@@ -167,7 +167,7 @@ private:
   Edge *findWireEdge(Pin *from_pin,
                      Pin *to_pin);
   bool condMatch(const std::string *sdf_cond,
-                 const char *lib_cond);
+                 const std::string &lib_cond);
   void timingCheck1(const TimingRole *role,
                     Port *data_port,
                     SdfPortSpec *data_edge,
