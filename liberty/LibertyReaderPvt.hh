@@ -899,13 +899,21 @@ public:
   virtual ~InternalPowerGroup();
 };
 
-class LeakagePowerGroup : public LeakagePowerAttrs
+class LeakagePowerGroup
 {
 public:
-  explicit LeakagePowerGroup(int line);
-  virtual ~LeakagePowerGroup();
+  LeakagePowerGroup(int line);
+  const std::string &relatedPgPin() const { return related_pg_pin_; }
+  void setRelatedPgPin(std::string pin_name);
+  FuncExpr *when() const { return when_; }
+  void setWhen(FuncExpr *when);
+  float power() const { return power_; }
+  void setPower(float power);
 
 protected:
+  std::string related_pg_pin_;
+  FuncExpr *when_;
+  float power_;
   int line_;
 };
 

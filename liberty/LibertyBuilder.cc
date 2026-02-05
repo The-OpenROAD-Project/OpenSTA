@@ -757,11 +757,4 @@ LibertyBuilder::makeInternalPower(LibertyCell *cell,
   return new InternalPower(cell, port, related_port, attrs);
 }
 
-LeakagePower *
-LibertyBuilder::makeLeakagePower(LibertyCell *cell,
-				 LeakagePowerAttrs *attrs)
-{
-  return new LeakagePower(cell, attrs);
-}
-
 } // namespace
