@@ -77,7 +77,7 @@ portVerilogName(const char *sta_name)
   return staToVerilog2(sta_name);
 }
 
-//Unescaping logic should follow reverse of verilogToSta logic
+// Unescaping logic should follow reverse of verilogToSta logic
 static string
 staToVerilog(const char *sta_name)
 {
@@ -92,8 +92,8 @@ staToVerilog(const char *sta_name)
       escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
-        //Only keep the character after "\"
-        //to remove the escape added by verilogToSta"
+        // Only keep the character after "\"
+        // to remove the escape added by verilogToSta"
 	escaped_name += next_ch;
 	s++;
       }
@@ -113,8 +113,8 @@ staToVerilog(const char *sta_name)
     return string(sta_name);
 }
 
-//Unescaping logic should follow reverse of verilogToSta logic
-//For "\\" handling, this should be like staToVerilog
+// Unescaping logic should follow reverse of verilogToSta logic
+// For "\\" handling, this should be like staToVerilog
 static string
 staToVerilog2(const char *sta_name)
 {
