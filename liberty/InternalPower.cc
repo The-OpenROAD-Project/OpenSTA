@@ -35,7 +35,7 @@ namespace sta {
 
 InternalPower::InternalPower(LibertyPort *port,
                              LibertyPort *related_port,
-                             const std::string &related_pg_pin,
+                             LibertyPort *related_pg_pin,
                              const std::shared_ptr<FuncExpr> &when,
                              InternalPowerModels &models) :
   port_(port),

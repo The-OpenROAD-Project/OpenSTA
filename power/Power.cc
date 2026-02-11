@@ -1176,7 +1176,7 @@ Power::findInputInternalPower(const Pin *pin,
       Vertex *vertex = graph_->pinLoadVertex(pin);
       float internal = 0.0;
       for (const InternalPower *pwr : internal_pwrs) {
-        const char *related_pg_pin = pwr->relatedPgPin().c_str();
+        LibertyPort *related_pg_pin = pwr->relatedPgPin();
         float energy = 0.0;
         int rf_count = 0;
         for (const RiseFall *rf : RiseFall::range()) {
@@ -1214,7 +1214,7 @@ Power::findInputInternalPower(const Pin *pin,
                    duty,
                    energy,
                    port_internal,
-                   related_pg_pin ? related_pg_pin : "no pg_pin");
+                   related_pg_pin ? related_pg_pin->name() : "no pg_pin");
         internal += port_internal;
       }
       result.incrInternal(internal);
@@ -1313,14 +1313,14 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
   const LibertyPort *to_scene_port = to_port->scenePort(scene, min_max);
   FuncExpr *func = to_port->function();
 
-  map<const char*, float, StringLessIf> pg_duty_sum;
+  std::map<LibertyPort*, float> pg_duty_sum;
   for (const InternalPower *pwr : scene_cell->internalPowers(to_scene_port)) {
     const LibertyPort *from_scene_port = pwr->relatedPort();
     if (from_scene_port) {
       const Pin *from_pin = findLinkPin(inst, from_scene_port);
       float from_density = findActivity(from_pin).density();
       float duty = findInputDuty(inst, func, pwr);
-      const char *related_pg_pin = pwr->relatedPgPin().c_str();
+      LibertyPort *related_pg_pin = pwr->relatedPgPin();
       // Note related_pg_pin may be null.
       pg_duty_sum[related_pg_pin] += from_density * duty;
     }
@@ -1331,7 +1331,7 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
   float internal = 0.0;
   for (const InternalPower *pwr : scene_cell->internalPowers(to_scene_port)) {
     FuncExpr *when = pwr->when();
-    const char *related_pg_pin = pwr->relatedPgPin().c_str();
+    LibertyPort *related_pg_pin = pwr->relatedPgPin();
     float duty = findInputDuty(inst, func, pwr);
     Vertex *from_vertex = nullptr;
     bool positive_unate = true;
@@ -1378,7 +1378,7 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
                weight,
                energy,
                port_internal,
-               related_pg_pin ? related_pg_pin : "no pg_pin");
+               related_pg_pin ? related_pg_pin->name() : "no pg_pin");
     internal += port_internal;
   }
   result.incrInternal(internal);
@@ -1517,13 +1517,13 @@ Power::findLeakagePower(const Instance *inst,
   LibertyCell *scene_cell = cell->sceneCell(scene, MinMax::max());
   std::map<LibertyPort*, LeakageSummary> leakage_summaries;
   Sim *sim = scene->mode()->sim();
-  for (const LeakagePower &leak : scene_cell->leakagePowers()) {
-    LibertyPort *pg_port = leak.relatedPgPort();
+  for (const LeakagePower &pwr : scene_cell->leakagePowers()) {
+    LibertyPort *pg_port = pwr.relatedPgPort();
     if (pg_port == nullptr
         || pg_port->pwrGndType() == PwrGndType::primary_power) {
       LeakageSummary &sum = leakage_summaries[pg_port];
-      float leakage = leak.power();
-      FuncExpr *when = leak.when();
+      float leakage = pwr.power();
+      FuncExpr *when = pwr.when();
       if (when) {
         LogicValue when_value = sim->evalExpr(when, inst);
         if (when_value == LogicValue::one) {

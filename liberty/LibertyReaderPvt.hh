@@ -423,6 +423,7 @@ public:
   virtual void makeInternalPowers(LibertyPort *port,
                                   const char *related_port_name,
                                   PortNameBitIterator &related_port_iter,
+                                  LibertyPort *related_pg_pin,
                                   InternalPowerGroup *power_group);
 
   // AOCV attributes.

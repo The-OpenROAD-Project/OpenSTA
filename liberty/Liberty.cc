@@ -1265,7 +1265,7 @@ LibertyCell::makeTimingArcSet(LibertyPort *from,
 void
 LibertyCell::makeInternalPower(LibertyPort *port,
                                LibertyPort *related_port,
-                               const std::string &related_pg_pin,
+                               LibertyPort *related_pg_pin,
                                const std::shared_ptr<FuncExpr> &when,
                                InternalPowerModels &models)
 {
