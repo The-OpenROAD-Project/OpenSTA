@@ -322,6 +322,20 @@ bison_target(SaifParse ${STA_HOME}/power/SaifParse.yy
   ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc)
 add_flex_bison_dependency(SaifLex SaifParse)
 
+# Suppress -Wsign-compare in flex-generated code (yyleng vs int loop counter).
+# Only needed with older GCC (e.g. CentOS 7 stock 4.8.5); newer GCC/flex handle it.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_source_files_properties(
+    ${FLEX_VerilogLex_OUTPUTS}
+    ${FLEX_LibertyLex_OUTPUTS}
+    ${FLEX_LibExprLex_OUTPUTS}
+    ${FLEX_SdfLex_OUTPUTS}
+    ${FLEX_SpefLex_OUTPUTS}
+    ${FLEX_SaifLex_OUTPUTS}
+    PROPERTIES COMPILE_FLAGS "-Wno-sign-compare"
+  )
+endif()
+
 ################################################################
 
 set(STA_TCL_INIT ${CMAKE_CURRENT_BINARY_DIR}/StaTclInitVar.cc)
