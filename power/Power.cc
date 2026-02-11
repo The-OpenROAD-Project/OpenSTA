@@ -901,6 +901,7 @@ Power::power(const Instance *inst,
 	     LibertyCell *cell,
 	     const Corner *corner)
 {
+  debugPrint(debug_, "power", 2, "find power %s", sdc_network_->pathName(inst));
   PowerResult result;
   findInternalPower(inst, cell, corner, result);
   findSwitchingPower(inst, cell, corner, result);
@@ -1282,6 +1283,32 @@ Power::findSwitchingPower(const Instance *inst,
 ////////////////////////////////////////////////////////////////
 
 
+// Leakage totals for one power/gnd pin.
+class LeakageSummary
+{
+public:
+  LeakageSummary();
+
+  bool cond_exists;
+  float cond_leakage;
+  float cond_duty_sum;
+  bool cond_true_exists;
+  float cond_true_leakage;
+  bool uncond_exists;
+  float uncond_leakage;
+};
+
+LeakageSummary::LeakageSummary() :
+  cond_exists(false),
+  cond_leakage(0.0),
+  cond_duty_sum(0.0),
+  cond_true_exists(false),
+  cond_true_leakage(0.0),
+  uncond_exists(false),
+  uncond_leakage(0.0)
+{
+}
+
 void
 Power::findLeakagePower(const Instance *inst,
 			LibertyCell *cell,
@@ -1290,66 +1317,80 @@ Power::findLeakagePower(const Instance *inst,
 			PowerResult &result)
 {
   LibertyCell *corner_cell = cell->cornerCell(corner, MinMax::max());
-  float cond_leakage = 0.0;
-  bool found_cond = false;
-  float uncond_leakage = 0.0;
-  bool found_uncond = false;
-  float cond_duty_sum = 0.0;
+  std::map<LibertyPort*, LeakageSummary> leakage_summaries;
   for (LeakagePower *leak : *corner_cell->leakagePowers()) {
     LibertyPort *pg_port = leak->relatedPgPort();
     if (pg_port == nullptr
         || pg_port->pwrGndType() == PwrGndType::primary_power) {
+      LeakageSummary &sum = leakage_summaries[pg_port];
+      float leakage = leak->power();
       FuncExpr *when = leak->when();
       if (when) {
-        PwrActivity cond_activity = evalActivity(when, inst);
-        float cond_duty = cond_activity.duty();
-        debugPrint(debug_, "power", 2, "leakage %s %s %s %.3e * %.2f",
-                   cell->name(),
-                   leak->relatedPgPort()->name(),
-                   when->to_string().c_str(),
-                   leak->power(),
-                   cond_duty);
-        cond_leakage += leak->power() * cond_duty;
-        if (leak->power() > 0.0)
-          cond_duty_sum += cond_duty;
-        found_cond = true;
+        LogicValue when_value = sim_->evalExpr(when, inst);
+        if (when_value == LogicValue::one) {
+          debugPrint(debug_, "power", 2, "leakage %s/%s %s=1 %.3e",
+                     cell->name(),
+                     pg_port->name(),
+                     when->to_string().c_str(),
+                     leakage);
+          sum.cond_true_leakage = leakage;
+          sum.cond_true_exists = true;
+        }
+        else {
+          PwrActivity cond_activity = evalActivity(when, inst);
+          float cond_duty = cond_activity.duty();
+          debugPrint(debug_, "power", 2, "leakage %s %s %s %.3e * %.2f",
+                     cell->name(),
+                     pg_port->name(),
+                     when->to_string().c_str(),
+                     leakage,
+                     cond_duty);
+          // Leakage power average weighted by duty.
+          sum.cond_leakage += leakage * cond_duty;
+          if (leakage > 0.0)
+            sum.cond_duty_sum += cond_duty;
+          sum.cond_exists = true;
+        }
       }
       else {
         debugPrint(debug_, "power", 2, "leakage %s %s -- %.3e",
                    cell->name(),
-                   leak->relatedPgPort()->name(),
-                   leak->power());
-        uncond_leakage += leak->power();
-        found_uncond = true;
+                   pg_port->name(),
+                   leakage);
+        sum.uncond_leakage = leakage;
+        sum.uncond_exists = true;
       }
     }
   }
-  float leakage = 0.0;
+
   float cell_leakage;
   bool cell_leakage_exists;
   cell->leakagePower(cell_leakage, cell_leakage_exists);
-  if (cell_leakage_exists) {
-    float duty = 1.0 - cond_duty_sum;
-    debugPrint(debug_, "power", 2, "leakage cell %s %.3e * %.2f",
-               cell->name(),
-               cell_leakage,
-               duty);
-    cell_leakage *= duty;
+
+  if (!leakage_summaries.empty()) {
+    for (const auto &[pg_port, sum] : leakage_summaries) {
+      float leakage = 0.0;
+      if (sum.cond_true_exists)
+        leakage = sum.cond_true_leakage;
+      else if (sum.cond_exists) {
+        leakage = sum.cond_leakage;
+        if (cell_leakage_exists) {
+          float duty = 1.0 - sum.cond_duty_sum;
+          leakage += cell_leakage * duty;
+        }
+      }
+      // Ignore unconditional leakage unless there are no conditional leakage groups.
+      else if (sum.uncond_exists)
+        leakage = sum.uncond_leakage;
+      debugPrint(debug_, "power", 2, "leakage %s/%s %.3e",
+                 cell->name(),
+                 pg_port->name(),
+                 leakage);
+      result.incrLeakage(leakage);
+    }
   }
-  // Ignore unconditional leakage unless there are no conditional leakage groups.
-  if (found_cond) {
-    leakage = cond_leakage;
-    if (cell_leakage_exists)
-      leakage += cell_leakage;
-  }
-  else if (found_uncond)
-    leakage = uncond_leakage;
-  else if (cell_leakage_exists)
-    leakage = cell_leakage;
-  debugPrint(debug_, "power", 2, "leakage %s %.3e",
-             cell->name(),
-             leakage);
-  result.incrLeakage(leakage);
+  else
+    result.incrLeakage(cell_leakage);
 }
 
 // External.
