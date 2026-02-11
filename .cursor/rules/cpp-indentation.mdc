@@ -1,0 +1,43 @@
+---
+description: C++ function call indentation for OpenSTA
+globs: ["**/*.cc", "**/*.hh", "**/*.h"]
+alwaysApply: false
+---
+
+# C++ Function Call Indentation
+
+## Short Calls — Single Line
+
+When arguments fit within the column limit (90 chars), keep them on one line:
+
+```cpp
+// ✅ GOOD
+adjusted_data_arrival = delaySum(required, data_shift_to_enable_clk, this);
+
+// ❌ BAD
+adjusted_data_arrival = delaySum(required,
+                 data_shift_to_enable_clk,
+                 this);
+```
+
+## Nested Function Calls — Align Under Inner Call
+
+When breaking nested calls across lines:
+- Indent continuation lines of the inner call under its first argument (align with content after `innerFunc(`).
+- Place remaining outer arguments on the same line as the inner call's closing `)`, indented under the outer function.
+
+```cpp
+// ✅ GOOD
+required = delayDiff(delaySum(max_delay,
+                              search_->clkPathArrival(disable_path),
+                              this),
+                     margin, this);
+
+// ❌ BAD
+required = delayDiff(
+             delaySum(max_delay,
+                      search_->clkPathArrival(disable_path),
+                      this),
+             margin,
+             this);
+```
