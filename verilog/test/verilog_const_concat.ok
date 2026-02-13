@@ -1,0 +1,292 @@
+--- Test 1: read verilog with constants ---
+cells: 8
+nets: 14
+ports: 8
+and_const: ref=AND2_X1
+or_const: ref=OR2_X1
+buf1: ref=BUF_X1
+inv1: ref=INV_X1
+reg1: ref=DFF_X1
+reg2: ref=DFF_X1
+reg3: ref=DFF_X1
+reg4: ref=DFF_X1
+PASS: read verilog with constants
+--- Test 2: timing with constants ---
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in2 (in)
+   2.85    2.85 v or_const/ZN (OR2_X1)
+   0.00    2.85 v reg2/D (DFF_X1)
+           2.85   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.14    9.86   library setup time
+           9.86   data required time
+---------------------------------------------------------
+           9.86   data required time
+          -2.85   data arrival time
+---------------------------------------------------------
+           7.01   slack (MET)
+
+
+PASS: report_checks
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg4 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ in2 (in)
+  -0.98   -0.98 v inv1/ZN (INV_X1)
+   0.00   -0.98 v reg4/D (DFF_X1)
+          -0.98   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg4/CK (DFF_X1)
+   1.14    1.14   library hold time
+           1.14   data required time
+---------------------------------------------------------
+           1.14   data required time
+           0.98   data arrival time
+---------------------------------------------------------
+          -2.12   slack (VIOLATED)
+
+
+PASS: report_checks min
+No paths found.
+PASS: in1->out1 (and with constant)
+No paths found.
+PASS: in2->out2 (or with constant)
+Warning: verilog_const_concat.tcl line 1, unknown field nets.
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00 v input external delay
+     2    2.34   10.00    0.00    0.00 v in2 (in)
+                 10.00    0.00    0.00 v or_const/A1 (OR2_X1)
+     1    1.06    0.33    2.85    2.85 v or_const/ZN (OR2_X1)
+                  0.33    0.00    2.85 v reg2/D (DFF_X1)
+                                  2.85   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ reg2/CK (DFF_X1)
+                         -0.14    9.86   library setup time
+                                  9.86   data required time
+-----------------------------------------------------------------------------
+                                  9.86   data required time
+                                 -2.85   data arrival time
+-----------------------------------------------------------------------------
+                                  7.01   slack (MET)
+
+
+PASS: report with fields
+--- Test 3: write_verilog ---
+PASS: write_verilog
+PASS: write_verilog -include_pwr_gnd
+PASS: output file exists size=652
+PASS: pwr_gnd file exists size=677
+--- Test 4: net reports ---
+Net n1
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and_const/ZN output (AND2_X1)
+
+Load pins
+ reg1/D input (DFF_X1) 1.06-1.14
+
+report_net n1: done
+Net n2
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ or_const/ZN output (OR2_X1)
+
+Load pins
+ reg2/D input (DFF_X1) 1.06-1.14
+
+report_net n2: done
+Net n3
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ reg3/D input (DFF_X1) 1.06-1.14
+
+report_net n3: done
+Net n4
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ inv1/ZN output (INV_X1)
+
+Load pins
+ reg4/D input (DFF_X1) 1.06-1.14
+
+report_net n4: done
+--- Test 5: instance reports ---
+Instance and_const
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input in1
+  A2 input one_
+ Output pins:
+  ZN output n1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance or_const
+ Cell: OR2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: OR2_X1
+ Input pins:
+  A1 input in2
+  A2 input zero_
+ Output pins:
+  ZN output n2
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf1
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input in1
+ Output pins:
+  Z output n3
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance inv1
+ Cell: INV_X1
+ Library: NangateOpenCellLibrary
+ Path cells: INV_X1
+ Input pins:
+  A input in2
+ Output pins:
+  ZN output n4
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n1
+  CK input clk
+ Output pins:
+  Q output out1
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg2
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n2
+  CK input clk
+ Output pins:
+  Q output out2
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg3
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n3
+  CK input clk
+ Output pins:
+  Q output out3
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg4
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n4
+  CK input clk
+ Output pins:
+  Q output out4
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+PASS: report_instance all
+--- Test 6: re-read same verilog ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+re-read cells: 8
+re-read nets: 14
+PASS: re-read verilog (module re-definition)
+--- Test 7: roundtrip ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+roundtrip cells: 8
+roundtrip nets: 14
+PASS: roundtrip
+ALL PASSED

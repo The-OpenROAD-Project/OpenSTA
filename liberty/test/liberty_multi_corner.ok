@@ -1,0 +1,168 @@
+PASS: multi-corner liberty read
+PASS: fast library loaded
+PASS: slow library loaded
+PASS: fast INV_X1 found
+PASS: slow INV_X1 found
+PASS: link_design
+PASS: constraints set
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Corner: fast
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.05    0.05 v reg1/Q (DFF_X1)
+   0.00    0.05 v out1 (out)
+           0.05   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.05   data arrival time
+---------------------------------------------------------
+           6.95   slack (MET)
+
+
+PASS: report_checks -corner fast
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Corner: slow
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.29    0.29 ^ reg1/Q (DFF_X1)
+   0.00    0.29 ^ out1 (out)
+           0.29   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.29   data arrival time
+---------------------------------------------------------
+           6.71   slack (MET)
+
+
+PASS: report_checks -corner slow
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                      10.00        0.00      5.00
+PASS: report_clock_properties
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+Corner: fast
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   2.00    2.00 ^ input external delay
+   0.00    2.00 ^ in1 (in)
+   0.01    2.01 ^ buf1/Z (BUF_X1)
+   0.00    2.01 ^ reg1/D (DFF_X1)
+           2.01   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -2.01   data arrival time
+---------------------------------------------------------
+           2.01   slack (MET)
+
+
+PASS: report_checks -corner fast -path_delay min
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Corner: slow
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.29    0.29 ^ reg1/Q (DFF_X1)
+   0.00    0.29 ^ out1 (out)
+           0.29   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.29   data arrival time
+---------------------------------------------------------
+           6.71   slack (MET)
+
+
+PASS: report_checks -corner slow -path_delay max
+Cell BUF_X1
+Library NangateOpenCellLibrary_fast
+File ../../test/nangate45/Nangate45_fast.lib
+ VDD power
+ VSS ground
+ A input 0.91-0.98
+ Z output function=A
+PASS: report_lib_cell fast BUF_X1
+Cell BUF_X1
+Library NangateOpenCellLibrary_slow
+File ../../test/nangate45/Nangate45_slow.lib
+ VDD power
+ VSS ground
+ A input 0.84-0.93
+ Z output function=A
+PASS: report_lib_cell slow BUF_X1
+Cell DFF_X1
+Library NangateOpenCellLibrary_fast
+File ../../test/nangate45/Nangate45_fast.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.10-1.16
+ CK input 0.89-0.97
+ Q output function=IQ
+ QN output function=IQN
+PASS: report_lib_cell fast DFF_X1
+Cell DFF_X1
+Library NangateOpenCellLibrary_slow
+File ../../test/nangate45/Nangate45_slow.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.03-1.11
+ CK input 0.82-0.91
+ Q output function=IQ
+ QN output function=IQN
+PASS: report_lib_cell slow DFF_X1
+PASS: fast BUF_X1 pins (2 pins)
+PASS: slow BUF_X1 pins (2 pins)
+ALL PASSED

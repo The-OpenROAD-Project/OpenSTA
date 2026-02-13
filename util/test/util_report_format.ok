@@ -1,0 +1,125 @@
+--- unit format sequences ---
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+PASS: ns/pF/kOhm
+ time 1us
+ capacitance 1nF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+PASS: us/nF
+ time 1ps
+ capacitance 1fF
+ resistance 1ohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+PASS: ps/fF/Ohm
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+PASS: back to ns/pF/kOhm
+--- format functions edge cases ---
+format_time 0: 0.000
+format_time 1e-9: 1.000
+format_time 1e-12: 0.001000
+format_time 1e-6: 1000.000
+PASS: format_time
+format_cap 0: 0.000
+format_cap 1e-12: 1.000
+format_cap 1e-15: 0.001000
+PASS: format_capacitance
+format_res 0: 0.000
+format_res 1000: 1.000
+format_res 1e6: 1000.000
+PASS: format_resistance
+format_volt 0: 0.000
+format_volt 1.1: 1.100
+format_volt 0.001: 0.001000
+PASS: format_voltage
+format_curr 0: 0.000
+format_curr 1e-3: 0.001
+format_curr 1e-6: 0.000000
+PASS: format_current
+format_pwr 0: 0.000
+format_pwr 1e-3: 0.001
+format_pwr 1e-9: 0.000000
+PASS: format_power
+format_dist 0: 0.000
+format_dist 1e-6: 0.000
+format_dist 1e-3: 0.001000
+PASS: format_distance
+--- redirect sequences ---
+redirect string 1: 92 chars
+redirect string 2: 92 chars
+redirect string 3: 184 chars
+PASS: redirect sequences
+--- with_output_to_variable ---
+v1: 92 chars
+v2: 18 chars
+v3: 92 chars
+PASS: with_output_to_variable
+--- log file ---
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+ time 1ps
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+PASS: log file with reports
+PASS: log file has content
+--- redirect file append ---
+PASS: redirect file append
+PASS: redirect file has content
+--- error handling ---
+PASS: FileNotReadable caught
+PASS: FileNotReadable for verilog caught
+--- fuzzy equal ---
+fuzzy_equal(1.0, 1.0) = 1
+fuzzy_equal(1.0, 2.0) = 0
+fuzzy_equal(0.0, 0.0) = 1
+fuzzy_equal(1e-15, 1e-15) = 1
+PASS: fuzzy_equal
+--- is_object ---
+is_object(string) = 0
+PASS: is_object
+--- system info ---
+PASS: thread_count positive
+PASS: processor_count positive
+PASS: memory_usage non-negative
+PASS: cputime non-negative
+PASS: elapsed non-negative
+PASS: user_run_time non-negative
+PASS: system info
+--- debug ---
+PASS: debug level
+--- suppress ---
+PASS: suppress/unsuppress
+ALL PASSED

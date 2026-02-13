@@ -1,0 +1,44 @@
+--- Test 1: Read comprehensive verilog ---
+cells: 13
+nets: 40
+ports: 22
+PASS: read
+--- Test 2: Timing ---
+Warning: verilog_coverage.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Startpoint: data_in[0] (input port clocked by clk)
+Endpoint: valid (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_in[0] (in)
+   0.06    0.06 v b0/Z (BUF_X1)
+   0.02    0.08 v lo_proc/b0/Z (BUF_X1)
+   0.02    0.11 v and_const/ZN (AND2_X1)
+   0.04    0.14 v or_valid/ZN (OR2_X1)
+   0.00    0.14 v valid (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           9.86   slack (MET)
+
+
+PASS: timing
+--- Test 3: Write verilog ---
+output size: 1608
+PASS: write
+--- Test 4: Hierarchical queries ---
+hierarchical cells: 21
+ALL PASSED

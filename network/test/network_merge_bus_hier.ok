@@ -1,0 +1,297 @@
+PASS: read Nangate45
+PASS: link hierarchical design
+--- hierarchical instance queries ---
+top-level cells: 7
+sub1/* cells: 2
+sub2/* cells: 2
+PASS: hierarchical instance queries
+--- hierarchical net queries ---
+top-level nets: 11
+sub1/* nets: 4
+sub2/* nets: 4
+PASS: hierarchical net queries
+--- hierarchical pin queries ---
+sub1/* pins: 3
+sub2/* pins: 3
+sub1/and_gate/* pins: 3
+PASS: hierarchical pin queries
+PASS: timing setup
+No paths found.
+PASS: in1->out1 through hierarchy
+Startpoint: in2 (input port clocked by clk)
+Endpoint: out2 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   2.00    2.00 v input external delay
+   0.00    2.00 v in2 (in)
+   0.06    2.06 v sub1/and_gate/ZN (AND2_X1)
+   0.02    2.09 v sub1/buf_gate/Z (BUF_X1)
+   0.02    2.11 v sub2/and_gate/ZN (AND2_X1)
+   0.03    2.14 v sub2/buf_gate/Z (BUF_X1)
+   0.02    2.16 v buf_out2/Z (BUF_X1)
+   0.00    2.16 v out2 (out)
+           2.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -2.16   data arrival time
+---------------------------------------------------------
+           4.84   slack (MET)
+
+
+PASS: in2->out2 through hierarchy
+No paths found.
+PASS: in3->out1 through hierarchy
+No paths found.
+No paths found.
+PASS: rise/fall through hierarchy
+--- net merge operations ---
+PASS: created instances and nets
+Net merge_net_src
+ Pin capacitance: 1.59-1.78
+ Wire capacitance: 0.00
+ Total capacitance: 1.59-1.78
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ merge_test_a/Z output (BUF_X1)
+
+Load pins
+ merge_test_b/A input (BUF_X2) 1.59-1.78
+
+Net merge_net_dst
+ Pin capacitance: 1.55-1.70
+ Wire capacitance: 0.00
+ Total capacitance: 1.55-1.70
+ Number of drivers: 0
+ Number of loads: 1
+ Number of pins: 1
+
+Load pins
+ merge_test_c/A input (INV_X1) 1.55-1.70
+
+PASS: report nets before merge
+PASS: reconnect across nets
+PASS: replace cells
+Net merge_net_src
+ Pin capacitance: 0.00
+ Wire capacitance: 0.00
+ Total capacitance: 0.00
+ Number of drivers: 1
+ Number of loads: 0
+ Number of pins: 1
+
+Driver pins
+ merge_test_a/Z output (BUF_X4)
+
+Net merge_net_dst
+ Pin capacitance: 8.75-9.84
+ Wire capacitance: 0.00
+ Total capacitance: 8.75-9.84
+ Number of drivers: 0
+ Number of loads: 2
+ Number of pins: 2
+
+Load pins
+ merge_test_b/A input (BUF_X8) 5.81-6.59
+ merge_test_c/A input (INV_X2) 2.94-3.25
+
+PASS: report nets after replace
+PASS: cleanup merge test
+--- chain creation ---
+PASS: chain creation
+PASS: chain cell replacement
+Net chain_net_1
+ Pin capacitance: 1.55-1.70
+ Wire capacitance: 0.00
+ Total capacitance: 1.55-1.70
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ chain_inst_0/Z output (BUF_X1)
+
+Load pins
+ chain_inst_1/A input (INV_X1) 1.55-1.70
+
+Net chain_net_2
+ Pin capacitance: 3.00-3.40
+ Wire capacitance: 0.00
+ Total capacitance: 3.00-3.40
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ chain_inst_1/ZN output (INV_X1)
+
+Load pins
+ chain_inst_2/A input (BUF_X4) 3.00-3.40
+
+Net chain_net_3
+ Pin capacitance: 5.81-6.59
+ Wire capacitance: 0.00
+ Total capacitance: 5.81-6.59
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ chain_inst_2/Z output (BUF_X4)
+
+Load pins
+ chain_inst_3/A input (BUF_X8) 5.81-6.59
+
+Net chain_net_4
+ Pin capacitance: 1.55-1.70
+ Wire capacitance: 0.00
+ Total capacitance: 1.55-1.70
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ chain_inst_3/Z output (BUF_X8)
+
+Load pins
+ chain_inst_4/A input (INV_X1) 1.55-1.70
+
+PASS: chain net reports
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_3/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_4/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_5/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
+Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
+PASS: chain cleanup
+Startpoint: in1 (input port clocked by clk)
+Endpoint: out2 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   2.00    2.00 v input external delay
+   0.00    2.00 v in1 (in)
+   0.06    2.06 v buf_in/Z (BUF_X1)
+   0.03    2.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    2.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    2.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    2.16 v sub2/buf_gate/Z (BUF_X1)
+   0.02    2.18 v buf_out2/Z (BUF_X1)
+   0.00    2.18 v out2 (out)
+           2.18   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -2.18   data arrival time
+---------------------------------------------------------
+           4.82   slack (MET)
+
+
+PASS: final timing
+ALL PASSED

@@ -1,0 +1,340 @@
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   2.03    2.03 v buf1/Z (BUF_X1)
+   0.10    2.13 v and1/ZN (AND2_X1)
+   0.00    2.13 v reg1/D (DFF_X1)
+           2.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.13    9.87   library setup time
+           9.87   data required time
+---------------------------------------------------------
+           9.87   data required time
+          -2.13   data arrival time
+---------------------------------------------------------
+           7.74   slack (MET)
+
+
+--- instance sorting ---
+total cells: 3
+cells in order:
+  and1 ref=AND2_X1
+  buf1 ref=BUF_X1
+  reg1 ref=DFF_X1
+--- net sorting ---
+total nets: 6
+nets in order:
+  clk
+  in1
+  in2
+  n1
+  n2
+  out1
+--- port sorting ---
+total ports: 4
+ports in order:
+  clk dir=input
+  in1 dir=input
+  in2 dir=input
+  out1 dir=output
+--- pin sorting ---
+total pins: 11
+pins in order:
+  and1/A1 dir=input
+  and1/A2 dir=input
+  and1/ZN dir=output
+  buf1/A dir=input
+  buf1/Z dir=output
+  reg1/IQ dir=internal
+  reg1/IQN dir=internal
+  reg1/D dir=input
+  reg1/CK dir=input
+  reg1/Q dir=output
+  reg1/QN dir=output
+--- collection operations ---
+buf1 pins: 2
+and1 pins: 3
+reg1 pins: 6
+--- timing report sorting ---
+Warning: network_sorting.tcl line 1, unknown field nets.
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00 v input external delay
+     1    0.88   10.00    0.00    0.00 v in1 (in)
+                 10.00    0.00    0.00 v buf1/A (BUF_X1)
+     1    0.87    0.32    2.03    2.03 v buf1/Z (BUF_X1)
+                  0.32    0.00    2.03 v and1/A1 (AND2_X1)
+     1    1.06    0.30    0.10    2.13 v and1/ZN (AND2_X1)
+                  0.30    0.00    2.13 v reg1/D (DFF_X1)
+                                  2.13   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ reg1/CK (DFF_X1)
+                         -0.13    9.87   library setup time
+                                  9.87   data required time
+-----------------------------------------------------------------------------
+                                  9.87   data required time
+                                 -2.13   data arrival time
+-----------------------------------------------------------------------------
+                                  7.74   slack (MET)
+
+
+Warning: network_sorting.tcl line 1, unknown field nets.
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00 ^ input external delay
+     1    0.97   10.00    0.00    0.00 ^ in1 (in)
+                 10.00    0.00    0.00 ^ buf1/A (BUF_X1)
+     1    0.92    0.31   -0.18   -0.18 ^ buf1/Z (BUF_X1)
+                  0.31    0.00   -0.18 ^ and1/A1 (AND2_X1)
+     1    1.14    0.02    0.06   -0.12 ^ and1/ZN (AND2_X1)
+                  0.02    0.00   -0.12 ^ reg1/D (DFF_X1)
+                                 -0.12   data arrival time
+
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00   clock reconvergence pessimism
+                                  0.00 ^ reg1/CK (DFF_X1)
+                          0.01    0.01   library hold time
+                                  0.01   data required time
+-----------------------------------------------------------------------------
+                                  0.01   data required time
+                                  0.12   data arrival time
+-----------------------------------------------------------------------------
+                                 -0.13   slack (VIOLATED)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   2.03    2.03 v buf1/Z (BUF_X1)
+   0.10    2.13 v and1/ZN (AND2_X1)
+   0.00    2.13 v reg1/D (DFF_X1)
+           2.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.13    9.87   library setup time
+           9.87   data required time
+---------------------------------------------------------
+           9.87   data required time
+          -2.13   data arrival time
+---------------------------------------------------------
+           7.74   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   2.03    2.03 v buf1/Z (BUF_X1)
+   0.10    2.13 v and1/ZN (AND2_X1)
+   0.00    2.13 v reg1/D (DFF_X1)
+           2.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.13    9.87   library setup time
+           9.87   data required time
+---------------------------------------------------------
+           9.87   data required time
+          -2.13   data arrival time
+---------------------------------------------------------
+           7.74   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.92   slack (MET)
+
+
+--- report_net sorted ---
+Net n1
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ and1/A1 input (AND2_X1) 0.87-0.92
+
+Net n2
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and1/ZN output (AND2_X1)
+
+Load pins
+ reg1/D input (DFF_X1) 1.06-1.14
+
+Net n1
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ and1/A1 input (AND2_X1) 0.87-0.92
+
+Net n2
+ Pin capacitance: 1.0623-1.1403
+ Wire capacitance: 0.0000
+ Total capacitance: 1.0623-1.1403
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and1/ZN output (AND2_X1)
+
+Load pins
+ reg1/D input (DFF_X1) 1.0623-1.1403
+
+Net n1
+ Pin capacitance: 0.874832-0.918145
+ Wire capacitance: 0.000000
+ Total capacitance: 0.874832-0.918145
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ and1/A1 input (AND2_X1) 0.874832-0.918145
+
+--- report_instance sorted ---
+Instance and1
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input n1
+  A2 input in2
+ Output pins:
+  ZN output n2
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf1
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input in1
+ Output pins:
+  Z output n1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n2
+  CK input clk
+ Output pins:
+  Q output out1
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+--- property queries ---
+buf1 full_name: buf1
+buf1 ref_name: BUF_X1
+n1 full_name: n1
+buf1/A full_name: buf1/A
+buf1/A direction: input
+in1 full_name: in1
+in1 direction: input
+--- library queries ---
+libraries: 1
+  lib: NangateOpenCellLibrary
+ALL PASSED

@@ -1,0 +1,203 @@
+--- redirect + log simultaneously ---
+redirect file size: 1961
+PASS: redirect + log simultaneously
+log file size: 1961
+PASS: log file has content
+--- gzipped liberty read ---
+Warning: ../../test/nangate45/nangate45_typ.lib.gz line 37, library NangateOpenCellLibrary already exists.
+PASS: read gzipped liberty
+--- trigger warn paths ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.32    0.32 ^ reg1/Q (DFF_X1)
+   0.00    0.32 ^ out1 (out)
+           0.32   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.32   data arrival time
+---------------------------------------------------------
+           9.68   slack (MET)
+
+
+PASS: report_checks with extreme load
+--- debug check path coverage ---
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+delay_calc: find delays to level 50
+delay_calc: find delays reg1/Q (DFF_X1)
+delay_calc: find delays out1 (dcalc_test1)
+delay_calc: found 2 delays
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.02
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+A v -> Z v
+delay_calc: find delays to level 50
+delay_calc: found 0 delays
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.03
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+dcalc with debug: done
+PASS: report_dcalc with debug on
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.92   slack (MET)
+
+
+PASS: report_checks with levelize debug
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.92   slack (MET)
+
+
+PASS: report_checks with bfs debug
+--- multiple redirect cycles ---
+PASS: multiple redirect cycles
+--- string redirect cycles ---
+s1 len: 95
+s2 len: 883
+s3 len: 1866
+PASS: string redirect cycles
+--- report_line coverage ---
+
+test line 1
+test line with special chars: [ ] { }
+PASS: report_line coverage
+--- format functions edge cases ---
+format_time(0): 0.000
+format_time(-1ns): -1.000
+format_time(1us, 6 digits): 1000.000000
+format_capacitance(0): 0.000
+format_capacitance(1nF): 999999.938
+format_resistance(0): 0.000
+format_resistance(1MOhm): 1000.000
+format_power(0): 0.000
+format_power(1W): 1000000000.000
+PASS: format functions edge cases
+--- set_cmd_units edge cases ---
+ time 1ps
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+ time 1us
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+PASS: set_cmd_units time edge cases
+PASS: set_cmd_units capacitance edge cases
+PASS: set_cmd_units resistance edge cases
+PASS: set_cmd_units distance edge cases
+PASS: set_cmd_units power edge cases
+PASS: set_cmd_units current edge cases
+PASS: set_cmd_units voltage edge cases
+--- suppress_msg exercising suppressed check ---
+PASS: suppress_msg many IDs
+PASS: unsuppress_msg many IDs
+PASS: suppress/unsuppress single
+ALL PASSED

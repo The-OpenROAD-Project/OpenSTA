@@ -1,0 +1,1576 @@
+--- Baseline timing ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+PASS: baseline
+--- set_assigned_delay -cell for combinational arc ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_delay -cell and1
+--- set_assigned_delay -cell -rise ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_delay -cell -rise
+--- set_assigned_delay -cell -fall ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_delay -cell -fall
+--- set_assigned_delay -cell -min ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+PASS: set_assigned_delay -cell -min
+--- set_assigned_delay -cell -max ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_delay -cell -max
+--- set_assigned_delay -net ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_delay -net
+--- set_assigned_delay -net -rise -max ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_delay -net rise max
+--- set_assigned_check -setup ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_check -setup
+--- set_assigned_check -hold ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+PASS: set_assigned_check -hold
+--- set_assigned_check -setup on reg2 ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_check -setup reg2
+--- set_assigned_check -hold on reg2 ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.07   slack (MET)
+
+
+PASS: set_assigned_check -hold reg2
+--- set_assigned_check -recovery ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+  -0.06    9.94   library recovery time
+           9.94   data required time
+---------------------------------------------------------
+           9.94   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_check -recovery
+--- set_assigned_check -removal ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg2 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg2/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.07   slack (MET)
+
+
+PASS: set_assigned_check -removal
+--- set_assigned_check -setup -rise ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+  -0.06    9.94   library recovery time
+           9.94   data required time
+---------------------------------------------------------
+           9.94   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_check -setup -rise
+--- set_assigned_check -setup -fall ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+  -0.06    9.94   library recovery time
+           9.94   data required time
+---------------------------------------------------------
+           9.94   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+PASS: set_assigned_check -setup -fall
+--- set_assigned_transition ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.50    0.50 ^ input external delay
+   0.00    0.00    0.50 ^ rst (in)
+   0.00    0.00    0.50 ^ reg1/RN (DFFR_X1)
+                   0.50   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+                  10.00 ^ reg1/CK (DFFR_X1)
+          -0.06    9.94   library recovery time
+                   9.94   data required time
+----------------------------------------------------------------
+                   9.94   data required time
+                  -0.50   data arrival time
+----------------------------------------------------------------
+                   9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+   0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.01    0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.00    0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.00    0.12 ^ out1 (out)
+                   0.12   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+          -2.00    8.00   output external delay
+                   8.00   data required time
+----------------------------------------------------------------
+                   8.00   data required time
+                  -0.12   data arrival time
+----------------------------------------------------------------
+                   7.88   slack (MET)
+
+
+PASS: set_assigned_transition in1
+--- set_assigned_transition -rise ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.50    0.50 ^ input external delay
+   0.00    0.00    0.50 ^ rst (in)
+   0.00    0.00    0.50 ^ reg1/RN (DFFR_X1)
+                   0.50   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+                  10.00 ^ reg1/CK (DFFR_X1)
+          -0.06    9.94   library recovery time
+                   9.94   data required time
+----------------------------------------------------------------
+                   9.94   data required time
+                  -0.50   data arrival time
+----------------------------------------------------------------
+                   9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+   0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.01    0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.00    0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.00    0.12 ^ out1 (out)
+                   0.12   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+          -2.00    8.00   output external delay
+                   8.00   data required time
+----------------------------------------------------------------
+                   8.00   data required time
+                  -0.12   data arrival time
+----------------------------------------------------------------
+                   7.88   slack (MET)
+
+
+PASS: set_assigned_transition -rise
+--- set_assigned_transition -fall ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.50    0.50 ^ input external delay
+   0.00    0.00    0.50 ^ rst (in)
+   0.00    0.00    0.50 ^ reg1/RN (DFFR_X1)
+                   0.50   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+                  10.00 ^ reg1/CK (DFFR_X1)
+          -0.06    9.94   library recovery time
+                   9.94   data required time
+----------------------------------------------------------------
+                   9.94   data required time
+                  -0.50   data arrival time
+----------------------------------------------------------------
+                   9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+   0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.01    0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.00    0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.00    0.12 ^ out1 (out)
+                   0.12   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+          -2.00    8.00   output external delay
+                   8.00   data required time
+----------------------------------------------------------------
+                   8.00   data required time
+                  -0.12   data arrival time
+----------------------------------------------------------------
+                   7.88   slack (MET)
+
+
+PASS: set_assigned_transition -fall
+--- set_assigned_transition -min ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg2 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.50    0.50 ^ input external delay
+   0.00    0.00    0.50 ^ rst (in)
+   0.00    0.00    0.50 ^ reg2/RN (DFFR_X1)
+                   0.50   data arrival time
+
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.00    0.00   clock reconvergence pessimism
+                   0.00 ^ reg2/CK (DFFR_X1)
+           0.18    0.18   library removal time
+                   0.18   data required time
+----------------------------------------------------------------
+                   0.18   data required time
+                  -0.50   data arrival time
+----------------------------------------------------------------
+                   0.32   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+   0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.01    0.08    0.08 v reg1/Q (DFFR_X1)
+   0.01    0.00    0.08 v reg2/D (DFFR_X1)
+                   0.08   data arrival time
+
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.00    0.00   clock reconvergence pessimism
+                   0.00 ^ reg2/CK (DFFR_X1)
+           0.01    0.01   library hold time
+                   0.01   data required time
+----------------------------------------------------------------
+                   0.01   data required time
+                  -0.08   data arrival time
+----------------------------------------------------------------
+                   0.07   slack (MET)
+
+
+PASS: set_assigned_transition -min
+--- set_assigned_transition -max ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.50    0.50 ^ input external delay
+   0.00    0.00    0.50 ^ rst (in)
+   0.00    0.00    0.50 ^ reg1/RN (DFFR_X1)
+                   0.50   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+                  10.00 ^ reg1/CK (DFFR_X1)
+          -0.06    9.94   library recovery time
+                   9.94   data required time
+----------------------------------------------------------------
+                   9.94   data required time
+                  -0.50   data arrival time
+----------------------------------------------------------------
+                   9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+   0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.01    0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.00    0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.00    0.12 ^ out1 (out)
+                   0.12   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+          -2.00    8.00   output external delay
+                   8.00   data required time
+----------------------------------------------------------------
+                   8.00   data required time
+                  -0.12   data arrival time
+----------------------------------------------------------------
+                   7.88   slack (MET)
+
+
+PASS: set_assigned_transition -max
+--- set_assigned_transition on internal pin ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.50    0.50 ^ input external delay
+   0.00    0.00    0.50 ^ rst (in)
+   0.00    0.00    0.50 ^ reg1/RN (DFFR_X1)
+                   0.50   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+                  10.00 ^ reg1/CK (DFFR_X1)
+          -0.06    9.94   library recovery time
+                   9.94   data required time
+----------------------------------------------------------------
+                   9.94   data required time
+                  -0.50   data arrival time
+----------------------------------------------------------------
+                   9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+   0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.01    0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.00    0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.00    0.12 ^ out1 (out)
+                   0.12   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+          -2.00    8.00   output external delay
+                   8.00   data required time
+----------------------------------------------------------------
+                   8.00   data required time
+                  -0.12   data arrival time
+----------------------------------------------------------------
+                   7.88   slack (MET)
+
+
+PASS: set_assigned_transition internal
+--- report_annotated_delay ---
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            26           3          23
+internal net arcs                     6           1           5
+net arcs from primary inputs          6           0           6
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                     41           4          37
+PASS: report_annotated_delay
+--- report_annotated_delay -list_annotated ---
+Warning: search_assigned_delays.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            26           3          23
+internal net arcs                     6           1           5
+net arcs from primary inputs          6           0           6
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                     41           4          37
+
+Annotated Arcs
+ delay              and1/A1 -> and1/ZN 
+ delay              and1/A2 -> and1/ZN 
+ internal net       and1/ZN -> buf1/A 
+ delay              buf1/A -> buf1/Z 
+PASS: report_annotated_delay list_annotated
+--- report_annotated_delay -list_not_annotated ---
+Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            26           3          23
+internal net arcs                     6           1           5
+net arcs from primary inputs          6           0           6
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                     41           4          37
+
+Unannotated Arcs
+ primary input net  clk -> reg1/CK 
+ primary input net  clk -> reg2/CK 
+ primary input net  in1 -> and1/A1 
+ primary input net  in2 -> and1/A2 
+ primary input net  rst -> reg1/RN 
+ primary input net  rst -> reg2/RN 
+ internal net       buf1/Z -> reg1/D 
+ delay              buf2/A -> buf2/Z 
+ primary output net buf2/Z -> out1 
+ delay              buf3/A -> buf3/Z 
+ primary output net buf3/Z -> out2 
+ delay              buf4/A -> buf4/Z 
+ primary output net buf4/Z -> out3 
+ delay              reg1/CK -> reg1/QN 
+ delay              reg1/CK -> reg1/Q 
+ internal net       reg1/Q -> reg2/D 
+ internal net       reg1/Q -> buf2/A 
+ internal net       reg1/QN -> buf4/A 
+ delay              reg1/RN -> reg1/QN (CK == 1'b1) && (D == 1'b1)
+ delay              reg1/RN -> reg1/QN (CK == 1'b1) && (D == 1'b0)
+ delay              reg1/RN -> reg1/QN (CK == 1'b0) && (D == 1'b1)
+ delay              reg1/RN -> reg1/QN (CK == 1'b0) && (D == 1'b0)
+ delay              reg1/RN -> reg1/Q (CK == 1'b1) && (D == 1'b1)
+ delay              reg1/RN -> reg1/Q (CK == 1'b1) && (D == 1'b0)
+ delay              reg1/RN -> reg1/Q (CK == 1'b0) && (D == 1'b1)
+ delay              reg1/RN -> reg1/Q (CK == 1'b0) && (D == 1'b0)
+ delay              reg2/CK -> reg2/QN 
+ delay              reg2/CK -> reg2/Q 
+ internal net       reg2/Q -> buf3/A 
+ delay              reg2/RN -> reg2/QN (CK == 1'b1) && (D == 1'b1)
+ delay              reg2/RN -> reg2/QN (CK == 1'b1) && (D == 1'b0)
+ delay              reg2/RN -> reg2/QN (CK == 1'b0) && (D == 1'b1)
+ delay              reg2/RN -> reg2/QN (CK == 1'b0) && (D == 1'b0)
+ delay              reg2/RN -> reg2/Q (CK == 1'b1) && (D == 1'b1)
+ delay              reg2/RN -> reg2/Q (CK == 1'b1) && (D == 1'b0)
+ delay              reg2/RN -> reg2/Q (CK == 1'b0) && (D == 1'b1)
+ delay              reg2/RN -> reg2/Q (CK == 1'b0) && (D == 1'b0)
+PASS: report_annotated_delay list_not_annotated
+--- report_annotated_delay -max_lines 5 ---
+Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            26           3          23
+internal net arcs                     6           1           5
+net arcs from primary inputs          6           0           6
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                     41           4          37
+
+Unannotated Arcs
+ primary input net  clk -> reg1/CK 
+ primary input net  clk -> reg2/CK 
+ primary input net  in1 -> and1/A1 
+ primary input net  in2 -> and1/A2 
+ primary input net  rst -> reg1/RN 
+PASS: report_annotated_delay max_lines
+--- report_annotated_check ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       2           2           0
+cell hold arcs                        2           2           0
+cell recovery arcs                    2           1           1
+cell removal arcs                     2           1           1
+cell width arcs                       4           0           4
+----------------------------------------------------------------
+                                     12           6           6
+PASS: report_annotated_check
+--- report_annotated_check -list_annotated ---
+Warning: search_assigned_delays.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       2           2           0
+cell hold arcs                        2           2           0
+cell recovery arcs                    2           1           1
+cell removal arcs                     2           1           1
+cell width arcs                       4           0           4
+----------------------------------------------------------------
+                                     12           6           6
+
+Annotated Arcs
+ removal            reg1/CK -> reg1/RN 
+ recovery           reg1/CK -> reg1/RN 
+ setup              reg1/CK -> reg1/D RN === 1'b1
+ hold               reg1/CK -> reg1/D RN === 1'b1
+ setup              reg2/CK -> reg2/D RN === 1'b1
+ hold               reg2/CK -> reg2/D RN === 1'b1
+PASS: report_annotated_check list_annotated
+--- report_annotated_check -list_not_annotated ---
+Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       2           2           0
+cell hold arcs                        2           2           0
+cell recovery arcs                    2           1           1
+cell removal arcs                     2           1           1
+cell width arcs                       4           0           4
+----------------------------------------------------------------
+                                     12           6           6
+
+Unannotated Arcs
+ width              reg1/CK -> reg1/CK RN === 1'b1
+ width              reg1/RN -> reg1/RN 
+ width              reg2/CK -> reg2/CK RN === 1'b1
+ removal            reg2/CK -> reg2/RN 
+ recovery           reg2/CK -> reg2/RN 
+ width              reg2/RN -> reg2/RN 
+PASS: report_annotated_check list_not_annotated
+--- report_annotated_check -setup ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       2           2           0
+----------------------------------------------------------------
+                                      2           2           0
+PASS: report_annotated_check setup
+--- report_annotated_check -hold ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell hold arcs                        2           2           0
+----------------------------------------------------------------
+                                      2           2           0
+PASS: report_annotated_check hold
+--- Final timing after all annotations ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+  -0.06    9.94   library recovery time
+           9.94   data required time
+---------------------------------------------------------
+           9.94   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.44   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg2 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg2/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.07   slack (MET)
+
+
+PASS: final timing
+--- worst_slack min ---
+worst_slack min: 0.0698775432295878
+worst_slack max: 7.881454822969938
+PASS: worst_slack
+--- report_wns/report_tns ---
+wns max 0.00
+wns min 0.00
+tns max 0.00
+tns min 0.00
+PASS: report_wns/report_tns
+ALL PASSED

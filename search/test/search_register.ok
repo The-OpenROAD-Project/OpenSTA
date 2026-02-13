@@ -1,0 +1,52 @@
+--- all_registers -cells (default) ---
+All registers: 3
+  latch1
+  latch2
+  reg1
+--- all_registers -cells ---
+All register cells: 3
+--- all_registers -data_pins ---
+Data pins: 3
+  latch1/D
+  latch2/D
+  reg1/D
+--- all_registers -clock_pins ---
+Clock pins: 3
+  latch1/G
+  latch2/G
+  reg1/CK
+--- all_registers -async_pins ---
+Async pins: 0
+--- all_registers -output_pins ---
+Output pins: 4
+  latch1/Q
+  latch2/Q
+  reg1/Q
+  reg1/QN
+--- all_registers -edge_triggered ---
+Edge-triggered cells: 1
+  reg1
+--- all_registers -level_sensitive ---
+Level-sensitive cells: 2
+  latch1
+  latch2
+--- all_registers -clock clk ---
+Cells on clk: 3
+  latch1
+  latch2
+  reg1
+--- all_registers -rise_clock clk ---
+Cells on rise clk: 3
+--- all_registers -fall_clock clk ---
+Cells on fall clk: 0
+--- all_registers -clock clk -data_pins ---
+Data pins on clk: 3
+--- all_registers -clock clk -clock_pins ---
+Clock pins on clk: 3
+--- all_registers -clock clk -output_pins ---
+Output pins on clk: 4
+--- all_registers -clock clk -edge_triggered -data_pins ---
+Edge-triggered data pins on clk: 1
+--- all_registers -clock clk -level_sensitive -data_pins ---
+Level-sensitive data pins on clk: 2
+ALL PASSED

@@ -1,0 +1,285 @@
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+--- cell property queries ---
+total cells: 5
+  (u1: Error: instance objects do not have a lib_name property.)
+  (u2: Error: instance objects do not have a lib_name property.)
+  (r1: Error: instance objects do not have a lib_name property.)
+  (r2: Error: instance objects do not have a lib_name property.)
+  (r3: Error: instance objects do not have a lib_name property.)
+--- pin direction / connectivity ---
+u1/A: dir=input net=
+u1/Y: dir=output net=
+u2/A: dir=input net=
+u2/B: dir=input net=
+u2/Y: dir=output net=
+r1/CLK: dir=input net=
+r1/D: dir=input net=
+r1/Q: dir=output net=
+--- net queries ---
+total nets: 10
+net r1q: r1q
+net r2q: r2q
+net u1z: u1z
+net u2z: u2z
+net in1: in1
+net in2: in2
+net out: out
+net clk1: clk1
+net clk2: clk2
+net clk3: clk3
+--- report_net for various nets ---
+Net r1q
+ Pin capacitance: 0.40-0.52
+ Wire capacitance: 0.00
+ Total capacitance: 0.40-0.52
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ r1/Q output (DFFHQx4_ASAP7_75t_R)
+
+Load pins
+ u2/A input (AND2x2_ASAP7_75t_R) 0.40-0.52
+
+PASS: report_net r1q
+Net u1z
+ Pin capacitance: 0.32-0.57
+ Wire capacitance: 0.00
+ Total capacitance: 0.32-0.57
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ u1/Y output (BUFx2_ASAP7_75t_R)
+
+Load pins
+ u2/B input (AND2x2_ASAP7_75t_R) 0.32-0.57
+
+PASS: report_net u1z
+Net u2z
+ Pin capacitance: 0.55-0.62
+ Wire capacitance: 0.00
+ Total capacitance: 0.55-0.62
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ u2/Y output (AND2x2_ASAP7_75t_R)
+
+Load pins
+ r3/D input (DFFHQx4_ASAP7_75t_R) 0.55-0.62
+
+PASS: report_net u2z
+--- report_instance ---
+Instance u1
+ Cell: BUFx2_ASAP7_75t_R
+ Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
+ Path cells: BUFx2_ASAP7_75t_R
+ Input pins:
+  A input r2q
+ Output pins:
+  Y output u1z
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+PASS: report_instance u1
+Instance u2
+ Cell: AND2x2_ASAP7_75t_R
+ Library: asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
+ Path cells: AND2x2_ASAP7_75t_R
+ Input pins:
+  A input r1q
+  B input u1z
+ Output pins:
+  Y output u2z
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+PASS: report_instance u2
+Instance r1
+ Cell: DFFHQx4_ASAP7_75t_R
+ Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+ Path cells: DFFHQx4_ASAP7_75t_R
+ Input pins:
+  CLK input clk1
+  D input in1
+ Output pins:
+  Q output r1q
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+PASS: report_instance r1
+Instance r2
+ Cell: DFFHQx4_ASAP7_75t_R
+ Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+ Path cells: DFFHQx4_ASAP7_75t_R
+ Input pins:
+  CLK input clk2
+  D input in2
+ Output pins:
+  Q output r2q
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+PASS: report_instance r2
+Instance r3
+ Cell: DFFHQx4_ASAP7_75t_R
+ Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+ Path cells: DFFHQx4_ASAP7_75t_R
+ Input pins:
+  CLK input clk3
+  D input u2z
+ Output pins:
+  Q output out
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+PASS: report_instance r3
+--- filter expressions on cells ---
+BUFx* cells: 1
+INVx* cells: 0
+DFFC* cells: 0
+--- pin pattern matching ---
+*/CLK pins: 3
+*/D pins: 3
+*/Q pins: 3
+*/Y pins: 2
+--- hierarchical queries ---
+hierarchical cells: 5
+hierarchical nets: 10
+hierarchical pins: 20
+--- port queries ---
+total ports: 6
+port in1: direction=input
+port in2: direction=input
+port out: direction=output
+port clk1: direction=input
+port clk2: direction=input
+port clk3: direction=input
+--- liberty library queries ---
+libraries count: 5
+lib: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+lib: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
+lib: asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
+lib: asap7sc7p5t_OA_RVT_FF_nldm_211120
+lib: asap7sc7p5t_AO_RVT_FF_nldm_211120
+--- lib cell pattern queries ---
+all lib cells: 202
+BUF* lib cells: 12
+INV* lib cells: 11
+--- collection queries ---
+all_inputs: 5
+all_outputs: 1
+all_clocks: 1
+all_registers: 3
+all_registers -data_pins: 3
+all_registers -clock_pins: 3
+all_registers -output_pins: 3
+--- timing analysis ---
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  45.31   45.31 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.76   57.08 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   71.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   71.95 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          71.95   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.11  492.89   library setup time
+         492.89   data required time
+---------------------------------------------------------
+         492.89   data required time
+         -71.95   data arrival time
+---------------------------------------------------------
+         420.94   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.00    1.00 v r1/D (DFFHQx4_ASAP7_75t_R)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+   6.33    6.33   library hold time
+           6.33   data required time
+---------------------------------------------------------
+           6.33   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+          -5.33   slack (VIOLATED)
+
+
+Warning: network_properties.tcl line 1, unknown field nets.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+     1    0.58    6.09   45.31   45.31 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+                  6.09    0.00   45.31 ^ u1/A (BUFx2_ASAP7_75t_R)
+     1    0.57    5.15   11.76   57.08 ^ u1/Y (BUFx2_ASAP7_75t_R)
+                  5.15    0.00   57.08 ^ u2/B (AND2x2_ASAP7_75t_R)
+     1    0.62    6.96   14.88   71.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+                  6.96    0.00   71.95 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+                                 71.95   data arrival time
+
+                  0.00  500.00  500.00   clock clk (rise edge)
+                          0.00  500.00   clock network delay (ideal)
+                          0.00  500.00   clock reconvergence pessimism
+                                500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+                         -7.11  492.89   library setup time
+                                492.89   data required time
+-----------------------------------------------------------------------------
+                                492.89   data required time
+                                -71.95   data arrival time
+-----------------------------------------------------------------------------
+                                420.94   slack (MET)
+
+
+ALL PASSED

@@ -1,0 +1,136 @@
+--- latch: all_registers default ---
+all registers: 3
+  latch1
+  latch2
+  reg1
+PASS: latch all_registers
+--- latch: all_registers -cells ---
+cells: 3
+  latch1
+  latch2
+  reg1
+PASS: latch cells
+--- latch: all_registers -level_sensitive ---
+level_sensitive: 2
+  latch1
+  latch2
+PASS: latch level_sensitive
+--- latch: all_registers -edge_triggered ---
+edge_triggered: 1
+  reg1
+PASS: latch edge_triggered
+--- latch: all_registers -level_sensitive -data_pins ---
+level_sensitive data_pins: 2
+  latch1/D
+  latch2/D
+PASS: latch level_sensitive data_pins
+--- latch: all_registers -level_sensitive -clock_pins ---
+level_sensitive clock_pins: 2
+  latch1/G
+  latch2/G
+PASS: latch level_sensitive clock_pins
+--- latch: all_registers -level_sensitive -output_pins ---
+level_sensitive output_pins: 2
+  latch1/Q
+  latch2/Q
+PASS: latch level_sensitive output_pins
+--- latch: all_registers -edge_triggered -data_pins ---
+edge_triggered data_pins: 1
+  reg1/D
+PASS: latch edge_triggered data_pins
+--- latch: all_registers -edge_triggered -clock_pins ---
+edge_triggered clock_pins: 1
+  reg1/CK
+PASS: latch edge_triggered clock_pins
+--- latch: all_registers -edge_triggered -output_pins ---
+edge_triggered output_pins: 2
+  reg1/Q
+  reg1/QN
+PASS: latch edge_triggered output_pins
+--- latch: all_registers -rise_clock ---
+rise_clock cells: 3
+  latch1
+  latch2
+  reg1
+PASS: latch rise_clock
+--- latch: all_registers -fall_clock ---
+fall_clock cells: 0
+PASS: latch fall_clock
+--- latch: all_registers -rise_clock -level_sensitive ---
+rise level_sensitive: 2
+PASS: latch rise level_sensitive
+--- latch: all_registers -fall_clock -level_sensitive ---
+fall level_sensitive: 0
+PASS: latch fall level_sensitive
+--- latch: all_registers -rise_clock -edge_triggered ---
+rise edge_triggered: 1
+PASS: latch rise edge_triggered
+--- latch: all_registers -fall_clock -edge_triggered ---
+fall edge_triggered: 0
+PASS: latch fall edge_triggered
+--- latch: all_registers -rise_clock -data_pins ---
+rise data_pins: 3
+PASS: latch rise data_pins
+--- latch: all_registers -fall_clock -data_pins ---
+fall data_pins: 0
+PASS: latch fall data_pins
+--- latch: all_registers -rise_clock -clock_pins ---
+rise clock_pins: 3
+PASS: latch rise clock_pins
+--- latch: all_registers -fall_clock -clock_pins ---
+fall clock_pins: 0
+PASS: latch fall clock_pins
+--- latch: all_registers -rise_clock -output_pins ---
+rise output_pins: 4
+PASS: latch rise output_pins
+--- latch: all_registers -fall_clock -output_pins ---
+fall output_pins: 0
+PASS: latch fall output_pins
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+--- async: all_registers -async_pins ---
+async pins: 2
+  reg1/RN
+  reg2/RN
+PASS: async_pins
+--- async: all_registers -async_pins -clock clk ---
+async pins clk: 2
+  reg1/RN
+  reg2/RN
+PASS: async_pins clock
+--- async: all_registers -async_pins -edge_triggered ---
+async pins edge_triggered: 2
+PASS: async_pins edge_triggered
+--- async: all_registers -output_pins ---
+output pins: 4
+  reg1/Q
+  reg1/QN
+  reg2/Q
+  reg2/QN
+PASS: output_pins async design
+--- async: all_registers -output_pins -edge_triggered ---
+output pins edge_triggered: 4
+  reg1/Q
+  reg1/QN
+  reg2/Q
+  reg2/QN
+PASS: output_pins edge_triggered
+--- async: all_registers -output_pins -clock clk ---
+output pins clk: 4
+  reg1/Q
+  reg1/QN
+  reg2/Q
+  reg2/QN
+PASS: output_pins clock
+--- async: all_registers -rise_clock -async_pins ---
+rise async_pins: 2
+PASS: rise async_pins
+--- async: all_registers -fall_clock -async_pins ---
+fall async_pins: 0
+PASS: fall async_pins
+--- async: all_registers -rise_clock -output_pins ---
+rise output_pins: 4
+PASS: rise output_pins async
+--- async: all_registers -fall_clock -output_pins ---
+fall output_pins: 0
+PASS: fall output_pins async
+ALL PASSED

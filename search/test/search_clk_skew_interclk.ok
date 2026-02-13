@@ -1,0 +1,650 @@
+--- report_clock_skew -setup (all clocks) ---
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
+PASS: clock_skew setup all
+--- report_clock_skew -hold (all clocks) ---
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
+PASS: clock_skew hold all
+--- report_clock_skew -clock clk1 -setup ---
+Clock clk1
+No launch/capture paths found.
+
+PASS: clock_skew setup clk1
+--- report_clock_skew -clock clk2 -setup ---
+Clock clk2
+No launch/capture paths found.
+
+PASS: clock_skew setup clk2
+--- report_clock_skew -clock clk1 -hold ---
+Clock clk1
+No launch/capture paths found.
+
+PASS: clock_skew hold clk1
+--- report_clock_skew -clock clk2 -hold ---
+Clock clk2
+No launch/capture paths found.
+
+PASS: clock_skew hold clk2
+--- report_clock_skew -digits 6 ---
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
+PASS: clock_skew digits 6
+--- report_clock_skew -include_internal_latency ---
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
+PASS: clock_skew internal_latency
+--- report_clock_skew -hold -include_internal_latency ---
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
+PASS: clock_skew hold internal_latency
+--- report_clock_latency (all clocks) ---
+Clock clk1
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+Clock clk2
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg3/CK
+           0.00 network latency reg3/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg3/CK
+           0.00 network latency reg3/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+PASS: clock_latency all
+--- report_clock_latency -clock clk1 ---
+Clock clk1
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+PASS: clock_latency clk1
+--- report_clock_latency -clock clk2 ---
+Clock clk2
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg3/CK
+           0.00 network latency reg3/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg3/CK
+           0.00 network latency reg3/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+PASS: clock_latency clk2
+--- report_clock_latency -include_internal_latency ---
+Clock clk1
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+Clock clk2
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg3/CK
+           0.00 network latency reg3/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg3/CK
+           0.00 network latency reg3/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+PASS: clock_latency internal
+--- report_clock_latency -digits 6 ---
+Clock clk1
+rise -> rise
+    min     max
+0.000000 0.000000 source latency
+0.000000         network latency reg1/CK
+        0.000000 network latency reg1/CK
+---------------
+0.000000 0.000000 latency
+        0.000000 skew
+
+fall -> fall
+    min     max
+0.000000 0.000000 source latency
+0.000000         network latency reg1/CK
+        0.000000 network latency reg1/CK
+---------------
+0.000000 0.000000 latency
+        0.000000 skew
+
+
+Clock clk2
+rise -> rise
+    min     max
+0.000000 0.000000 source latency
+0.000000         network latency reg3/CK
+        0.000000 network latency reg3/CK
+---------------
+0.000000 0.000000 latency
+        0.000000 skew
+
+fall -> fall
+    min     max
+0.000000 0.000000 source latency
+0.000000         network latency reg3/CK
+        0.000000 network latency reg3/CK
+---------------
+0.000000 0.000000 latency
+        0.000000 skew
+
+
+PASS: clock_latency digits 6
+--- report_clock_min_period (all clocks) ---
+clk1 period_min = 0.00 fmax = inf
+clk2 period_min = 0.00 fmax = inf
+PASS: clock_min_period all
+--- report_clock_min_period -clocks clk1 ---
+clk1 period_min = 0.00 fmax = inf
+PASS: clock_min_period clk1
+--- report_clock_min_period -clocks clk2 ---
+clk2 period_min = 0.00 fmax = inf
+PASS: clock_min_period clk2
+--- report_clock_min_period -include_port_paths ---
+clk1 period_min = 2.08 fmax = 480.43
+clk2 period_min = 3.08 fmax = 324.52
+PASS: clock_min_period port_paths
+--- find_clk_min_period clk1 ---
+clk1 min_period: 0.0
+clk1 min_period (port): 2.0814878709529694e-9
+PASS: find_clk_min_period clk1
+--- find_clk_min_period clk2 ---
+clk2 min_period: 0.0
+clk2 min_period (port): 3.0814879536933404e-9
+PASS: find_clk_min_period clk2
+--- clock latency + uncertainty ---
+Startpoint: in3 (input port clocked by clk2)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  15.00   15.00   clock clk2 (rise edge)
+   0.50   15.50   clock network delay (ideal)
+   2.00   17.50 v input external delay
+   0.00   17.50 v in3 (in)
+   0.08   17.58 v or1/ZN (OR2_X1)
+   0.03   17.61 ^ nor1/ZN (NOR2_X1)
+   0.00   17.61 ^ reg2/D (DFF_X1)
+          17.61   data arrival time
+
+  20.00   20.00   clock clk1 (rise edge)
+   0.30   20.30   clock network delay (ideal)
+   0.00   20.30   clock reconvergence pessimism
+          20.30 ^ reg2/CK (DFF_X1)
+  -0.03   20.27   library setup time
+          20.27   data required time
+---------------------------------------------------------
+          20.27   data required time
+         -17.61   data arrival time
+---------------------------------------------------------
+           2.66   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (ideal)
+   0.00   10.30 ^ reg1/CK (DFF_X1)
+   0.08   10.38 v reg1/Q (DFF_X1)
+   0.00   10.38 v reg3/D (DFF_X1)
+          10.38   data arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.50   15.50   clock network delay (ideal)
+  -0.20   15.30   inter-clock uncertainty
+   0.00   15.30   clock reconvergence pessimism
+          15.30 ^ reg3/CK (DFF_X1)
+  -0.04   15.26   library setup time
+          15.26   data required time
+---------------------------------------------------------
+          15.26   data required time
+         -10.38   data arrival time
+---------------------------------------------------------
+           4.88   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk1)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   1.00    1.30 ^ input external delay
+   0.00    1.30 ^ in2 (in)
+   0.00    1.30 v inv1/ZN (INV_X1)
+   0.04    1.34 v and1/ZN (AND2_X1)
+   0.01    1.35 ^ nand1/ZN (NAND2_X1)
+   0.00    1.35 ^ reg1/D (DFF_X1)
+           1.35   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30   clock reconvergence pessimism
+           0.30 ^ reg1/CK (DFF_X1)
+   0.01    0.31   library hold time
+           0.31   data required time
+---------------------------------------------------------
+           0.31   data required time
+          -1.35   data arrival time
+---------------------------------------------------------
+           1.05   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30 ^ reg1/CK (DFF_X1)
+   0.08    0.38 v reg1/Q (DFF_X1)
+   0.00    0.38 v reg3/D (DFF_X1)
+           0.38   data arrival time
+
+   0.00    0.00   clock clk2 (rise edge)
+   0.50    0.50   clock network delay (ideal)
+   0.10    0.60   inter-clock uncertainty
+   0.00    0.60   clock reconvergence pessimism
+           0.60 ^ reg3/CK (DFF_X1)
+   0.00    0.60   library hold time
+           0.60   data required time
+---------------------------------------------------------
+           0.60   data required time
+          -0.38   data arrival time
+---------------------------------------------------------
+          -0.22   slack (VIOLATED)
+
+
+PASS: inter-clock latency+uncertainty timing
+--- clock skew after latency+uncertainty ---
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
+PASS: skew after latency+uncertainty
+--- clock_groups ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30 ^ reg2/CK (DFF_X1)
+   0.08    0.38 ^ reg2/Q (DFF_X1)
+   0.00    0.38 ^ out1 (out)
+           0.38   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (ideal)
+   0.00   10.30   clock reconvergence pessimism
+  -2.00    8.30   output external delay
+           8.30   data required time
+---------------------------------------------------------
+           8.30   data required time
+          -0.38   data arrival time
+---------------------------------------------------------
+           7.92   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.50    0.50   clock network delay (ideal)
+   0.00    0.50 ^ reg3/CK (DFF_X1)
+   0.08    0.58 ^ reg3/Q (DFF_X1)
+   0.00    0.58 ^ out2 (out)
+           0.58   data arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.50   15.50   clock network delay (ideal)
+   0.00   15.50   clock reconvergence pessimism
+  -3.00   12.50   output external delay
+          12.50   data required time
+---------------------------------------------------------
+          12.50   data required time
+          -0.58   data arrival time
+---------------------------------------------------------
+          11.92   slack (MET)
+
+
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
+PASS: async clock groups skew
+--- remove clock_groups ---
+Startpoint: in3 (input port clocked by clk2)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  15.00   15.00   clock clk2 (rise edge)
+   0.50   15.50   clock network delay (ideal)
+   2.00   17.50 v input external delay
+   0.00   17.50 v in3 (in)
+   0.08   17.58 v or1/ZN (OR2_X1)
+   0.03   17.61 ^ nor1/ZN (NOR2_X1)
+   0.00   17.61 ^ reg2/D (DFF_X1)
+          17.61   data arrival time
+
+  20.00   20.00   clock clk1 (rise edge)
+   0.30   20.30   clock network delay (ideal)
+   0.00   20.30   clock reconvergence pessimism
+          20.30 ^ reg2/CK (DFF_X1)
+  -0.03   20.27   library setup time
+          20.27   data required time
+---------------------------------------------------------
+          20.27   data required time
+         -17.61   data arrival time
+---------------------------------------------------------
+           2.66   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (ideal)
+   0.00   10.30 ^ reg1/CK (DFF_X1)
+   0.08   10.38 v reg1/Q (DFF_X1)
+   0.00   10.38 v reg3/D (DFF_X1)
+          10.38   data arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.50   15.50   clock network delay (ideal)
+  -0.20   15.30   inter-clock uncertainty
+   0.00   15.30   clock reconvergence pessimism
+          15.30 ^ reg3/CK (DFF_X1)
+  -0.04   15.26   library setup time
+          15.26   data required time
+---------------------------------------------------------
+          15.26   data required time
+         -10.38   data arrival time
+---------------------------------------------------------
+           4.88   slack (MET)
+
+
+PASS: remove clock_groups
+--- report_pulse_width_checks multi-clock ---
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.05    5.00    4.95 (MET)
+reg2/CK (high)                          0.05    5.00    4.95 (MET)
+reg1/CK (low)                           0.05    5.00    4.95 (MET)
+reg2/CK (low)                           0.05    5.00    4.95 (MET)
+reg3/CK (high)                          0.05    7.50    7.45 (MET)
+reg3/CK (low)                           0.05    7.50    7.45 (MET)
+
+PASS: pulse_width multi-clock
+--- report_pulse_width_checks -verbose multi-clock ---
+Pin: reg1/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30   reg1/CK
+           0.30   open edge arrival time
+
+   5.00    5.00   clock clk1 (fall edge)
+   0.30    5.30   clock network delay (ideal)
+   0.00    5.30   reg1/CK
+   0.00    5.30   clock reconvergence pessimism
+           5.30   close edge arrival time
+---------------------------------------------------------
+           0.05   required pulse width (high)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.95   slack (MET)
+
+Pin: reg2/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30   reg2/CK
+           0.30   open edge arrival time
+
+   5.00    5.00   clock clk1 (fall edge)
+   0.30    5.30   clock network delay (ideal)
+   0.00    5.30   reg2/CK
+   0.00    5.30   clock reconvergence pessimism
+           5.30   close edge arrival time
+---------------------------------------------------------
+           0.05   required pulse width (high)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.95   slack (MET)
+
+Pin: reg1/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock clk1 (fall edge)
+   0.30    5.30   clock network delay (ideal)
+   0.00    5.30   reg1/CK
+           5.30   open edge arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (ideal)
+   0.00   10.30   reg1/CK
+   0.00   10.30   clock reconvergence pessimism
+          10.30   close edge arrival time
+---------------------------------------------------------
+           0.05   required pulse width (low)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.95   slack (MET)
+
+Pin: reg2/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock clk1 (fall edge)
+   0.30    5.30   clock network delay (ideal)
+   0.00    5.30   reg2/CK
+           5.30   open edge arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (ideal)
+   0.00   10.30   reg2/CK
+   0.00   10.30   clock reconvergence pessimism
+          10.30   close edge arrival time
+---------------------------------------------------------
+           0.05   required pulse width (low)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.95   slack (MET)
+
+Pin: reg3/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.50    0.50   clock network delay (ideal)
+   0.00    0.50   reg3/CK
+           0.50   open edge arrival time
+
+   7.50    7.50   clock clk2 (fall edge)
+   0.50    8.00   clock network delay (ideal)
+   0.00    8.00   reg3/CK
+   0.00    8.00   clock reconvergence pessimism
+           8.00   close edge arrival time
+---------------------------------------------------------
+           0.05   required pulse width (high)
+           7.50   actual pulse width
+---------------------------------------------------------
+           7.45   slack (MET)
+
+Pin: reg3/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   7.50    7.50   clock clk2 (fall edge)
+   0.50    8.00   clock network delay (ideal)
+   0.00    8.00   reg3/CK
+           8.00   open edge arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.50   15.50   clock network delay (ideal)
+   0.00   15.50   reg3/CK
+   0.00   15.50   clock reconvergence pessimism
+          15.50   close edge arrival time
+---------------------------------------------------------
+           0.05   required pulse width (low)
+           7.50   actual pulse width
+---------------------------------------------------------
+           7.45   slack (MET)
+
+
+PASS: pulse_width verbose multi-clock
+--- report_clock_properties ---
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     15.00        0.00      7.50
+PASS: clock_properties
+ALL PASSED

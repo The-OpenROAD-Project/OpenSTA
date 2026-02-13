@@ -1,0 +1,54 @@
+--- set_cmd_units -time ns -capacitance pF -resistance kOhm ---
+PASS: set_cmd_units ns/pF/kOhm
+--- report_units ---
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+--- set_cmd_units -time ps -capacitance fF ---
+PASS: set_cmd_units ps/fF
+--- report_units after change ---
+ time 1ps
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+--- set_cmd_units -voltage mV ---
+PASS: set_cmd_units -voltage mV
+--- set_cmd_units -current uA ---
+PASS: set_cmd_units -current uA
+--- set_cmd_units -distance um ---
+PASS: set_cmd_units -distance um
+--- report_units after all changes ---
+ time 1ps
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1mv
+ current 1uA
+ power 1W
+ distance 1um
+--- elapsed_run_time ---
+PASS: elapsed_run_time returned non-negative value
+--- user_run_time ---
+PASS: user_run_time returned non-negative value
+--- log_begin / log_end ---
+test log entry from util_commands
+PASS: log_begin/log_end completed
+PASS: log file has content
+--- suppress_msg / unsuppress_msg ---
+PASS: suppress_msg 100 200 300
+PASS: unsuppress_msg 100 200 300
+--- suppress_msg single ---
+PASS: suppress_msg 999
+PASS: unsuppress_msg 999
+--- with_output_to_variable ---
+captured output length: 95
+PASS: with_output_to_variable captured output
+--- with_output_to_variable second call ---
+PASS: with_output_to_variable second call
+ALL PASSED

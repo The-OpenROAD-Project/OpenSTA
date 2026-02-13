@@ -1,0 +1,4082 @@
+--- report_checks full_clock_expanded with CRPR ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk1 (in)
+   0.03    0.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ck1buf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.02    0.16 ^ buf3/Z (BUF_X1)
+   0.00    0.16 ^ out1 (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (propagated)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           7.84   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk2 (in)
+   0.02    0.02 ^ ck2buf/Z (CLKBUF_X1)
+   0.00    0.02 ^ reg3/CK (DFF_X1)
+   0.09    0.11 ^ reg3/Q (DFF_X1)
+   0.02    0.13 ^ buf4/Z (BUF_X1)
+   0.00    0.13 ^ out2 (out)
+           0.13   data arrival time
+
+   8.00    8.00   clock clk2 (rise edge)
+   0.00    8.00   clock network delay (propagated)
+   0.00    8.00   clock reconvergence pessimism
+  -2.00    6.00   output external delay
+           6.00   data required time
+---------------------------------------------------------
+           6.00   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           5.87   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk1 (in)
+   0.03    0.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.00    0.03 ^ reg1/CK (DFF_X1)
+   0.09    0.11 ^ reg1/Q (DFF_X1)
+   0.02    0.13 ^ buf2/Z (BUF_X1)
+   0.00    0.13 ^ reg2/D (DFF_X1)
+           0.13   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk1 (in)
+   0.03    0.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ck1buf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.00    0.05   clock reconvergence pessimism
+   0.01    0.06   library hold time
+           0.06   data required time
+---------------------------------------------------------
+           0.06   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           0.07   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk2 (in)
+   0.02    0.02 ^ ck2buf/Z (CLKBUF_X1)
+   0.00    0.02 ^ reg3/CK (DFF_X1)
+   0.08    0.10 v reg3/Q (DFF_X1)
+   0.02    0.12 v buf4/Z (BUF_X1)
+   0.00    0.12 v out2 (out)
+           0.12   data arrival time
+
+   0.00    0.00   clock clk2 (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00   clock reconvergence pessimism
+  -2.00   -2.00   output external delay
+          -2.00   data required time
+---------------------------------------------------------
+          -2.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           2.12   slack (MET)
+
+
+PASS: full_clock_expanded CRPR
+--- report_checks -to each output ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk1 (in)
+   0.03    0.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ck1buf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.02    0.16 ^ buf3/Z (BUF_X1)
+   0.00    0.16 ^ out1 (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (propagated)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           7.84   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk2 (in)
+   0.02    0.02 ^ ck2buf/Z (CLKBUF_X1)
+   0.00    0.02 ^ reg3/CK (DFF_X1)
+   0.09    0.11 ^ reg3/Q (DFF_X1)
+   0.02    0.13 ^ buf4/Z (BUF_X1)
+   0.00    0.13 ^ out2 (out)
+           0.13   data arrival time
+
+   8.00    8.00   clock clk2 (rise edge)
+   0.00    8.00   clock network delay (propagated)
+   0.00    8.00   clock reconvergence pessimism
+  -2.00    6.00   output external delay
+           6.00   data required time
+---------------------------------------------------------
+           6.00   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           5.87   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk1 (in)
+   0.03    0.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ck1buf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.08    0.13 v reg2/Q (DFF_X1)
+   0.02    0.16 v buf3/Z (BUF_X1)
+   0.00    0.16 v out1 (out)
+           0.16   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00   clock reconvergence pessimism
+  -2.00   -2.00   output external delay
+          -2.00   data required time
+---------------------------------------------------------
+          -2.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           2.16   slack (MET)
+
+
+PASS: per-output reports
+--- report_checks -from specific pins ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk1 (in)
+   0.03    0.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.00    0.03 ^ reg1/CK (DFF_X1)
+   0.08    0.11 v reg1/Q (DFF_X1)
+   0.02    0.13 v buf2/Z (BUF_X1)
+   0.00    0.13 v reg2/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock source latency
+   0.00   10.00 ^ clk1 (in)
+   0.03   10.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.03   10.05 ^ ck1buf2/Z (CLKBUF_X1)
+   0.00   10.05 ^ reg2/CK (DFF_X1)
+   0.00   10.05   clock reconvergence pessimism
+  -0.04   10.02   library setup time
+          10.02   data required time
+---------------------------------------------------------
+          10.02   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.89   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.02    1.02 v and1/ZN (AND2_X1)
+   0.02    1.05 v buf1/Z (BUF_X1)
+   0.00    1.05 v reg1/D (DFF_X1)
+           1.05   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock source latency
+   0.00   10.00 ^ clk1 (in)
+   0.03   10.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.00   10.03 ^ reg1/CK (DFF_X1)
+   0.00   10.03   clock reconvergence pessimism
+  -0.04    9.99   library setup time
+           9.99   data required time
+---------------------------------------------------------
+           9.99   data required time
+          -1.05   data arrival time
+---------------------------------------------------------
+           8.94   slack (MET)
+
+
+PASS: from-pin reports
+--- report_checks with various fields ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description                          Src Attr
+---------------------------------------------------------------------------------------------------------------------
+                          0.00    0.00   clock clk1 (rise edge)
+                          0.05    0.05   clock network delay (propagated)
+                  0.01    0.00    0.05 ^ reg2/CK (DFF_X1)
+     2    2.11    0.01    0.09    0.14 ^ reg2/Q (DFF_X1)
+                                         n5 (net)
+                  0.01    0.00    0.14 ^ buf3/A (BUF_X1)
+     1    0.00    0.00    0.02    0.16 ^ buf3/Z (BUF_X1)
+                                         out1 (net)
+                  0.00    0.00    0.16 ^ out1 (out)
+                                  0.16   data arrival time
+
+                         10.00   10.00   clock clk1 (rise edge)
+                          0.00   10.00   clock network delay (propagated)
+                          0.00   10.00   clock reconvergence pessimism
+                         -2.00    8.00   output external delay
+                                  8.00   data required time
+---------------------------------------------------------------------------------------------------------------------
+                                  8.00   data required time
+                                 -0.16   data arrival time
+---------------------------------------------------------------------------------------------------------------------
+                                  7.84   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description                          Src Attr
+---------------------------------------------------------------------------------------------------------------------
+                          0.00    0.00   clock clk2 (rise edge)
+                          0.02    0.02   clock network delay (propagated)
+                  0.01    0.00    0.02 ^ reg3/CK (DFF_X1)
+     1    0.97    0.01    0.09    0.11 ^ reg3/Q (DFF_X1)
+                                         n6 (net)
+                  0.01    0.00    0.11 ^ buf4/A (BUF_X1)
+     1    0.00    0.00    0.02    0.13 ^ buf4/Z (BUF_X1)
+                                         out2 (net)
+                  0.00    0.00    0.13 ^ out2 (out)
+                                  0.13   data arrival time
+
+                          8.00    8.00   clock clk2 (rise edge)
+                          0.00    8.00   clock network delay (propagated)
+                          0.00    8.00   clock reconvergence pessimism
+                         -2.00    6.00   output external delay
+                                  6.00   data required time
+---------------------------------------------------------------------------------------------------------------------
+                                  6.00   data required time
+                                 -0.13   data arrival time
+---------------------------------------------------------------------------------------------------------------------
+                                  5.87   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+Fanout     Cap    Slew   Delay    Time   Description                          Src Attr
+---------------------------------------------------------------------------------------------------------------------
+                          0.00    0.00   clock clk1 (rise edge)
+                          0.03    0.03   clock network delay (propagated)
+                  0.01    0.00    0.03 ^ reg1/CK (DFF_X1)
+     1    0.97    0.01    0.09    0.11 ^ reg1/Q (DFF_X1)
+                                         n3 (net)
+                  0.01    0.00    0.11 ^ buf2/A (BUF_X1)
+     1    1.14    0.01    0.02    0.13 ^ buf2/Z (BUF_X1)
+                                         n4 (net)
+                  0.01    0.00    0.13 ^ reg2/D (DFF_X1)
+                                  0.13   data arrival time
+
+                          0.00    0.00   clock clk1 (rise edge)
+                          0.05    0.05   clock network delay (propagated)
+                          0.00    0.05   clock reconvergence pessimism
+                                  0.05 ^ reg2/CK (DFF_X1)
+                          0.01    0.06   library hold time
+                                  0.06   data required time
+---------------------------------------------------------------------------------------------------------------------
+                                  0.06   data required time
+                                 -0.13   data arrival time
+---------------------------------------------------------------------------------------------------------------------
+                                  0.07   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: min
+
+Fanout     Cap    Slew   Delay    Time   Description                          Src Attr
+---------------------------------------------------------------------------------------------------------------------
+                          0.00    0.00   clock clk2 (rise edge)
+                          0.02    0.02   clock network delay (propagated)
+                  0.01    0.00    0.02 ^ reg3/CK (DFF_X1)
+     1    0.88    0.01    0.08    0.10 v reg3/Q (DFF_X1)
+                                         n6 (net)
+                  0.01    0.00    0.10 v buf4/A (BUF_X1)
+     1    0.00    0.00    0.02    0.12 v buf4/Z (BUF_X1)
+                                         out2 (net)
+                  0.00    0.00    0.12 v out2 (out)
+                                  0.12   data arrival time
+
+                          0.00    0.00   clock clk2 (rise edge)
+                          0.00    0.00   clock network delay (propagated)
+                          0.00    0.00   clock reconvergence pessimism
+                         -2.00   -2.00   output external delay
+                                 -2.00   data required time
+---------------------------------------------------------------------------------------------------------------------
+                                 -2.00   data required time
+                                 -0.12   data arrival time
+---------------------------------------------------------------------------------------------------------------------
+                                  2.12   slack (MET)
+
+
+PASS: all fields
+--- report_checks with -no_line_splits ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.05    0.05   clock network delay (propagated)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.02    0.16 ^ buf3/Z (BUF_X1)
+   0.00    0.16 ^ out1 (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (propagated)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           7.84   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.02    0.02   clock network delay (propagated)
+   0.00    0.02 ^ reg3/CK (DFF_X1)
+   0.09    0.11 ^ reg3/Q (DFF_X1)
+   0.02    0.13 ^ buf4/Z (BUF_X1)
+   0.00    0.13 ^ out2 (out)
+           0.13   data arrival time
+
+   8.00    8.00   clock clk2 (rise edge)
+   0.00    8.00   clock network delay (propagated)
+   0.00    8.00   clock reconvergence pessimism
+  -2.00    6.00   output external delay
+           6.00   data required time
+---------------------------------------------------------
+           6.00   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           5.87   slack (MET)
+
+
+PASS: no_line_splits
+--- report_checks with digits ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk1 (rise edge)
+   0.051608    0.051608   clock network delay (propagated)
+   0.000000    0.051608 ^ reg2/CK (DFF_X1)
+   0.088983    0.140591 ^ reg2/Q (DFF_X1)
+   0.017383    0.157974 ^ buf3/Z (BUF_X1)
+   0.000000    0.157974 ^ out1 (out)
+               0.157974   data arrival time
+
+  10.000000   10.000000   clock clk1 (rise edge)
+   0.000000   10.000000   clock network delay (propagated)
+   0.000000   10.000000   clock reconvergence pessimism
+  -2.000000    8.000000   output external delay
+               8.000000   data required time
+-----------------------------------------------------------------
+               8.000000   data required time
+              -0.157974   data arrival time
+-----------------------------------------------------------------
+               7.842026   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk2 (rise edge)
+   0.022900    0.022900   clock network delay (propagated)
+   0.000000    0.022900 ^ reg3/CK (DFF_X1)
+   0.086446    0.109346 ^ reg3/Q (DFF_X1)
+   0.016580    0.125926 ^ buf4/Z (BUF_X1)
+   0.000000    0.125926 ^ out2 (out)
+               0.125926   data arrival time
+
+   8.000000    8.000000   clock clk2 (rise edge)
+   0.000000    8.000000   clock network delay (propagated)
+   0.000000    8.000000   clock reconvergence pessimism
+  -2.000000    6.000000   output external delay
+               6.000000   data required time
+-----------------------------------------------------------------
+               6.000000   data required time
+              -0.125926   data arrival time
+-----------------------------------------------------------------
+               5.874074   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk1 (rise edge)
+   0.025477    0.025477   clock network delay (propagated)
+   0.000000    0.025477 ^ reg1/CK (DFF_X1)
+   0.087080    0.112557 ^ reg1/Q (DFF_X1)
+   0.019707    0.132264 ^ buf2/Z (BUF_X1)
+   0.000000    0.132264 ^ reg2/D (DFF_X1)
+               0.132264   data arrival time
+
+   0.000000    0.000000   clock clk1 (rise edge)
+   0.051608    0.051608   clock network delay (propagated)
+   0.000000    0.051608   clock reconvergence pessimism
+               0.051608 ^ reg2/CK (DFF_X1)
+   0.006736    0.058344   library hold time
+               0.058344   data required time
+-----------------------------------------------------------------
+               0.058344   data required time
+              -0.132264   data arrival time
+-----------------------------------------------------------------
+               0.073920   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: min
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk2 (rise edge)
+   0.022900    0.022900   clock network delay (propagated)
+   0.000000    0.022900 ^ reg3/CK (DFF_X1)
+   0.079971    0.102871 v reg3/Q (DFF_X1)
+   0.021351    0.124222 v buf4/Z (BUF_X1)
+   0.000000    0.124222 v out2 (out)
+               0.124222   data arrival time
+
+   0.000000    0.000000   clock clk2 (rise edge)
+   0.000000    0.000000   clock network delay (propagated)
+   0.000000    0.000000   clock reconvergence pessimism
+  -2.000000   -2.000000   output external delay
+              -2.000000   data required time
+-----------------------------------------------------------------
+              -2.000000   data required time
+              -0.124222   data arrival time
+-----------------------------------------------------------------
+               2.124222   slack (MET)
+
+
+PASS: digits 6
+--- report_checks JSON format ---
+{"checks": [
+{
+  "type": "output_delay",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg2/Q",
+  "endpoint": "out1",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/Q",
+      "net": "n5",
+      "arrival": 1.406e-10,
+      "capacitance": 2.115e-15,
+      "slew": 9.341e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/A",
+      "net": "n5",
+      "arrival": 1.406e-10,
+      "slew": 9.341e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/Z",
+      "net": "out1",
+      "arrival": 1.580e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.695e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out1",
+      "arrival": 1.580e-10,
+      "slew": 3.695e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.580e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 8.000e-09,
+  "slack": 7.842e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk2",
+  "path_type": "max",
+  "startpoint": "reg3/Q",
+  "endpoint": "out2",
+  "source_clock": "clk2",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk2",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/A",
+      "net": "clk2",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/Z",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.551e-12
+    },
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/CK",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "slew": 6.551e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/Q",
+      "net": "n6",
+      "arrival": 1.093e-10,
+      "capacitance": 9.747e-16,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/A",
+      "net": "n6",
+      "arrival": 1.093e-10,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/Z",
+      "net": "out2",
+      "arrival": 1.259e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.638e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.259e-10,
+      "slew": 3.638e-12
+    }
+  ],
+  "target_clock": "clk2",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.259e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 6.000e-09,
+  "slack": 5.874e-09
+}
+]
+}
+{"checks": [
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "min",
+  "startpoint": "reg1/Q",
+  "endpoint": "reg2/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/Q",
+      "net": "n3",
+      "arrival": 1.126e-10,
+      "capacitance": 9.747e-16,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/A",
+      "net": "n3",
+      "arrival": 1.126e-10,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/Z",
+      "net": "n4",
+      "arrival": 1.323e-10,
+      "capacitance": 1.140e-15,
+      "slew": 5.953e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/D",
+      "net": "n4",
+      "arrival": 1.323e-10,
+      "slew": 5.953e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "data_arrival_time": 1.323e-10,
+  "crpr": -0.000e+00,
+  "margin": 6.736e-12,
+  "required_time": 5.834e-11,
+  "slack": 7.392e-11
+},
+{
+  "type": "output_delay",
+  "path_group": "clk2",
+  "path_type": "min",
+  "startpoint": "reg3/Q",
+  "endpoint": "out2",
+  "source_clock": "clk2",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk2",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/A",
+      "net": "clk2",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/Z",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.551e-12
+    },
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/CK",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "slew": 6.551e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/Q",
+      "net": "n6",
+      "arrival": 1.029e-10,
+      "capacitance": 8.752e-16,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/A",
+      "net": "n6",
+      "arrival": 1.029e-10,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/Z",
+      "net": "out2",
+      "arrival": 1.242e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.903e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.242e-10,
+      "slew": 3.903e-12
+    }
+  ],
+  "target_clock": "clk2",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.242e-10,
+  "crpr": -0.000e+00,
+  "margin": -2.000e-09,
+  "required_time": -2.000e-09,
+  "slack": 2.124e-09
+}
+]
+}
+PASS: JSON format
+--- report_checks JSON with endpoint_path_count ---
+{"checks": [
+{
+  "type": "output_delay",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg2/Q",
+  "endpoint": "out1",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/Q",
+      "net": "n5",
+      "arrival": 1.406e-10,
+      "capacitance": 2.115e-15,
+      "slew": 9.341e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/A",
+      "net": "n5",
+      "arrival": 1.406e-10,
+      "slew": 9.341e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/Z",
+      "net": "out1",
+      "arrival": 1.580e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.695e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out1",
+      "arrival": 1.580e-10,
+      "slew": 3.695e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.580e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 8.000e-09,
+  "slack": 7.842e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg2/Q",
+  "endpoint": "out1",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/Q",
+      "net": "n5",
+      "arrival": 1.338e-10,
+      "capacitance": 1.938e-15,
+      "slew": 6.717e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/A",
+      "net": "n5",
+      "arrival": 1.338e-10,
+      "slew": 6.717e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/Z",
+      "net": "out1",
+      "arrival": 1.557e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.908e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out1",
+      "arrival": 1.557e-10,
+      "slew": 3.908e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.557e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 8.000e-09,
+  "slack": 7.844e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in2",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in2",
+      "arrival": 1.000e-09,
+      "capacitance": 8.941e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A2",
+      "net": "in2",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.025e-09,
+      "capacitance": 8.752e-16,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.025e-09,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.048e-09,
+      "capacitance": 1.062e-15,
+      "slew": 5.011e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.048e-09,
+      "slew": 5.011e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.048e-09,
+  "crpr": 0.000e+00,
+  "margin": 3.608e-11,
+  "required_time": 9.989e-09,
+  "slack": 8.941e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk2",
+  "path_type": "max",
+  "startpoint": "reg3/Q",
+  "endpoint": "out2",
+  "source_clock": "clk2",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk2",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/A",
+      "net": "clk2",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/Z",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.551e-12
+    },
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/CK",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "slew": 6.551e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/Q",
+      "net": "n6",
+      "arrival": 1.093e-10,
+      "capacitance": 9.747e-16,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/A",
+      "net": "n6",
+      "arrival": 1.093e-10,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/Z",
+      "net": "out2",
+      "arrival": 1.259e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.638e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.259e-10,
+      "slew": 3.638e-12
+    }
+  ],
+  "target_clock": "clk2",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.259e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 6.000e-09,
+  "slack": 5.874e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk2",
+  "path_type": "max",
+  "startpoint": "reg3/Q",
+  "endpoint": "out2",
+  "source_clock": "clk2",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk2",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/A",
+      "net": "clk2",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/Z",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.551e-12
+    },
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/CK",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "slew": 6.551e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/Q",
+      "net": "n6",
+      "arrival": 1.029e-10,
+      "capacitance": 8.752e-16,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/A",
+      "net": "n6",
+      "arrival": 1.029e-10,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/Z",
+      "net": "out2",
+      "arrival": 1.242e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.903e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.242e-10,
+      "slew": 3.903e-12
+    }
+  ],
+  "target_clock": "clk2",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.242e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 6.000e-09,
+  "slack": 5.876e-09
+}
+]
+}
+PASS: JSON endpoint count
+--- find_timing_paths and iterate ---
+Found 10 paths
+Path 0:
+  pin: out1
+  slack: 7.842025695481425e-9
+  arrival: 1.5797398111860872e-10
+  required: 0.0
+  path_pins: 10
+  start_path pin: reg2/Q
+Path 1:
+  pin: out1
+  slack: 7.844318083982671e-9
+  arrival: 1.5568145383948462e-10
+  required: 0.0
+  path_pins: 10
+  start_path pin: reg2/Q
+Path 2:
+  pin: reg1/D
+  slack: 8.941200668743932e-9
+  arrival: 1.0481947532170466e-9
+  required: 0.0
+  path_pins: 6
+  start_path pin: in2
+Path 3:
+  pin: reg1/D
+  slack: 8.943422002971602e-9
+  arrival: 1.0459734189893766e-9
+  required: 0.0
+  path_pins: 6
+  start_path pin: in1
+Path 4:
+  pin: reg1/D
+  slack: 8.950316932043734e-9
+  arrival: 1.0453631293927401e-9
+  required: 0.0
+  path_pins: 6
+  start_path pin: in2
+Path 5:
+  pin: reg1/D
+  slack: 8.951607455287558e-9
+  arrival: 1.0440722730820085e-9
+  required: 0.0
+  path_pins: 6
+  start_path pin: in1
+Path 6:
+  pin: reg2/D
+  slack: 9.885211760263246e-9
+  arrival: 1.2980823360653204e-10
+  required: 0.0
+  path_pins: 8
+  start_path pin: reg1/Q
+Path 7:
+  pin: reg2/D
+  slack: 9.889370211624282e-9
+  arrival: 1.3226435224833466e-10
+  required: 0.0
+  path_pins: 8
+  start_path pin: reg1/Q
+Path 8:
+  pin: out2
+  slack: 5.8740736719187225e-9
+  arrival: 1.2592588083393252e-10
+  required: 0.0
+  path_pins: 8
+  start_path pin: reg3/Q
+Path 9:
+  pin: out2
+  slack: 5.875777642216917e-9
+  arrival: 1.2422182726901099e-10
+  required: 0.0
+  path_pins: 8
+  start_path pin: reg3/Q
+PASS: path iteration
+--- report_path_end with prev_end chaining ---
+{"checks": [
+{
+  "type": "output_delay",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg2/Q",
+  "endpoint": "out1",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/Q",
+      "net": "n5",
+      "arrival": 1.406e-10,
+      "capacitance": 2.115e-15,
+      "slew": 9.341e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/A",
+      "net": "n5",
+      "arrival": 1.406e-10,
+      "slew": 9.341e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/Z",
+      "net": "out1",
+      "arrival": 1.580e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.695e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out1",
+      "arrival": 1.580e-10,
+      "slew": 3.695e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.580e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 8.000e-09,
+  "slack": 7.842e-09
+}
+{
+  "type": "output_delay",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg2/Q",
+  "endpoint": "out1",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/Q",
+      "net": "n5",
+      "arrival": 1.338e-10,
+      "capacitance": 1.938e-15,
+      "slew": 6.717e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/A",
+      "net": "n5",
+      "arrival": 1.338e-10,
+      "slew": 6.717e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/Z",
+      "net": "out1",
+      "arrival": 1.557e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.908e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out1",
+      "arrival": 1.557e-10,
+      "slew": 3.908e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.557e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 8.000e-09,
+  "slack": 7.844e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in2",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in2",
+      "arrival": 1.000e-09,
+      "capacitance": 8.941e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A2",
+      "net": "in2",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.025e-09,
+      "capacitance": 8.752e-16,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.025e-09,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.048e-09,
+      "capacitance": 1.062e-15,
+      "slew": 5.011e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.048e-09,
+      "slew": 5.011e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.048e-09,
+  "crpr": 0.000e+00,
+  "margin": 3.608e-11,
+  "required_time": 9.989e-09,
+  "slack": 8.941e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in1",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in1",
+      "arrival": 1.000e-09,
+      "capacitance": 8.748e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A1",
+      "net": "in1",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.022e-09,
+      "capacitance": 8.752e-16,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.022e-09,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.046e-09,
+      "capacitance": 1.062e-15,
+      "slew": 5.011e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.046e-09,
+      "slew": 5.011e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.046e-09,
+  "crpr": 0.000e+00,
+  "margin": 3.608e-11,
+  "required_time": 9.989e-09,
+  "slack": 8.943e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in2",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in2",
+      "arrival": 1.000e-09,
+      "capacitance": 9.746e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A2",
+      "net": "in2",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.026e-09,
+      "capacitance": 9.747e-16,
+      "slew": 7.001e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.026e-09,
+      "slew": 7.001e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.045e-09,
+      "capacitance": 1.140e-15,
+      "slew": 5.947e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.045e-09,
+      "slew": 5.947e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.045e-09,
+  "crpr": 0.000e+00,
+  "margin": 2.980e-11,
+  "required_time": 9.996e-09,
+  "slack": 8.950e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in1",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in1",
+      "arrival": 1.000e-09,
+      "capacitance": 9.181e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A1",
+      "net": "in1",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.024e-09,
+      "capacitance": 9.747e-16,
+      "slew": 7.001e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.024e-09,
+      "slew": 7.001e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.044e-09,
+      "capacitance": 1.140e-15,
+      "slew": 5.947e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.044e-09,
+      "slew": 5.947e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.044e-09,
+  "crpr": 0.000e+00,
+  "margin": 2.980e-11,
+  "required_time": 9.996e-09,
+  "slack": 8.952e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg1/Q",
+  "endpoint": "reg2/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/Q",
+      "net": "n3",
+      "arrival": 1.061e-10,
+      "capacitance": 8.752e-16,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/A",
+      "net": "n3",
+      "arrival": 1.061e-10,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/Z",
+      "net": "n4",
+      "arrival": 1.298e-10,
+      "capacitance": 1.062e-15,
+      "slew": 5.013e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/D",
+      "net": "n4",
+      "arrival": 1.298e-10,
+      "slew": 5.013e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "data_arrival_time": 1.298e-10,
+  "crpr": 0.000e+00,
+  "margin": 3.659e-11,
+  "required_time": 1.002e-08,
+  "slack": 9.885e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg1/Q",
+  "endpoint": "reg2/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/Q",
+      "net": "n3",
+      "arrival": 1.126e-10,
+      "capacitance": 9.747e-16,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/A",
+      "net": "n3",
+      "arrival": 1.126e-10,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/Z",
+      "net": "n4",
+      "arrival": 1.323e-10,
+      "capacitance": 1.140e-15,
+      "slew": 5.953e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/D",
+      "net": "n4",
+      "arrival": 1.323e-10,
+      "slew": 5.953e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "data_arrival_time": 1.323e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.997e-11,
+  "required_time": 1.002e-08,
+  "slack": 9.889e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk2",
+  "path_type": "max",
+  "startpoint": "reg3/Q",
+  "endpoint": "out2",
+  "source_clock": "clk2",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk2",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/A",
+      "net": "clk2",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/Z",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.551e-12
+    },
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/CK",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "slew": 6.551e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/Q",
+      "net": "n6",
+      "arrival": 1.093e-10,
+      "capacitance": 9.747e-16,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/A",
+      "net": "n6",
+      "arrival": 1.093e-10,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/Z",
+      "net": "out2",
+      "arrival": 1.259e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.638e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.259e-10,
+      "slew": 3.638e-12
+    }
+  ],
+  "target_clock": "clk2",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.259e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 6.000e-09,
+  "slack": 5.874e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk2",
+  "path_type": "max",
+  "startpoint": "reg3/Q",
+  "endpoint": "out2",
+  "source_clock": "clk2",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk2",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/A",
+      "net": "clk2",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/Z",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.551e-12
+    },
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/CK",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "slew": 6.551e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/Q",
+      "net": "n6",
+      "arrival": 1.029e-10,
+      "capacitance": 8.752e-16,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/A",
+      "net": "n6",
+      "arrival": 1.029e-10,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/Z",
+      "net": "out2",
+      "arrival": 1.242e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.903e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.242e-10,
+      "slew": 3.903e-12
+    }
+  ],
+  "target_clock": "clk2",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.242e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 6.000e-09,
+  "slack": 5.876e-09
+},
+]
+}
+PASS: report_path_end chaining
+--- report_path_ends as sequence ---
+{"checks": [
+{
+  "type": "output_delay",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg2/Q",
+  "endpoint": "out1",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/Q",
+      "net": "n5",
+      "arrival": 1.406e-10,
+      "capacitance": 2.115e-15,
+      "slew": 9.341e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/A",
+      "net": "n5",
+      "arrival": 1.406e-10,
+      "slew": 9.341e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/Z",
+      "net": "out1",
+      "arrival": 1.580e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.695e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out1",
+      "arrival": 1.580e-10,
+      "slew": 3.695e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.580e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 8.000e-09,
+  "slack": 7.842e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg2/Q",
+  "endpoint": "out1",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/Q",
+      "net": "n5",
+      "arrival": 1.338e-10,
+      "capacitance": 1.938e-15,
+      "slew": 6.717e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/A",
+      "net": "n5",
+      "arrival": 1.338e-10,
+      "slew": 6.717e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/Z",
+      "net": "out1",
+      "arrival": 1.557e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.908e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out1",
+      "arrival": 1.557e-10,
+      "slew": 3.908e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.557e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 8.000e-09,
+  "slack": 7.844e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in2",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in2",
+      "arrival": 1.000e-09,
+      "capacitance": 8.941e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A2",
+      "net": "in2",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.025e-09,
+      "capacitance": 8.752e-16,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.025e-09,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.048e-09,
+      "capacitance": 1.062e-15,
+      "slew": 5.011e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.048e-09,
+      "slew": 5.011e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.048e-09,
+  "crpr": 0.000e+00,
+  "margin": 3.608e-11,
+  "required_time": 9.989e-09,
+  "slack": 8.941e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in1",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in1",
+      "arrival": 1.000e-09,
+      "capacitance": 8.748e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A1",
+      "net": "in1",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.022e-09,
+      "capacitance": 8.752e-16,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.022e-09,
+      "slew": 5.258e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.046e-09,
+      "capacitance": 1.062e-15,
+      "slew": 5.011e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.046e-09,
+      "slew": 5.011e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.046e-09,
+  "crpr": 0.000e+00,
+  "margin": 3.608e-11,
+  "required_time": 9.989e-09,
+  "slack": 8.943e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in2",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in2",
+      "arrival": 1.000e-09,
+      "capacitance": 9.746e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A2",
+      "net": "in2",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.026e-09,
+      "capacitance": 9.747e-16,
+      "slew": 7.001e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.026e-09,
+      "slew": 7.001e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.045e-09,
+      "capacitance": 1.140e-15,
+      "slew": 5.947e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.045e-09,
+      "slew": 5.947e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.045e-09,
+  "crpr": 0.000e+00,
+  "margin": 2.980e-11,
+  "required_time": 9.996e-09,
+  "slack": 8.950e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "in1",
+  "endpoint": "reg1/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "in1",
+      "arrival": 1.000e-09,
+      "capacitance": 9.181e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/A1",
+      "net": "in1",
+      "arrival": 1.000e-09,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "and1",
+      "cell": "AND2_X1",
+      "verilog_src": "",
+      "pin": "and1/ZN",
+      "net": "n1",
+      "arrival": 1.024e-09,
+      "capacitance": 9.747e-16,
+      "slew": 7.001e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/A",
+      "net": "n1",
+      "arrival": 1.024e-09,
+      "slew": 7.001e-12
+    },
+    {
+      "instance": "buf1",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf1/Z",
+      "net": "n2",
+      "arrival": 1.044e-09,
+      "capacitance": 1.140e-15,
+      "slew": 5.947e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/D",
+      "net": "n2",
+      "arrival": 1.044e-09,
+      "slew": 5.947e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "data_arrival_time": 1.044e-09,
+  "crpr": 0.000e+00,
+  "margin": 2.980e-11,
+  "required_time": 9.996e-09,
+  "slack": 8.952e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg1/Q",
+  "endpoint": "reg2/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/Q",
+      "net": "n3",
+      "arrival": 1.061e-10,
+      "capacitance": 8.752e-16,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/A",
+      "net": "n3",
+      "arrival": 1.061e-10,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/Z",
+      "net": "n4",
+      "arrival": 1.298e-10,
+      "capacitance": 1.062e-15,
+      "slew": 5.013e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/D",
+      "net": "n4",
+      "arrival": 1.298e-10,
+      "slew": 5.013e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "data_arrival_time": 1.298e-10,
+  "crpr": 0.000e+00,
+  "margin": 3.659e-11,
+  "required_time": 1.002e-08,
+  "slack": 9.885e-09
+},
+{
+  "type": "check",
+  "path_group": "clk1",
+  "path_type": "max",
+  "startpoint": "reg1/Q",
+  "endpoint": "reg2/D",
+  "source_clock": "clk1",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg1",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg1/Q",
+      "net": "n3",
+      "arrival": 1.126e-10,
+      "capacitance": 9.747e-16,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/A",
+      "net": "n3",
+      "arrival": 1.126e-10,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/Z",
+      "net": "n4",
+      "arrival": 1.323e-10,
+      "capacitance": 1.140e-15,
+      "slew": 5.953e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/D",
+      "net": "n4",
+      "arrival": 1.323e-10,
+      "slew": 5.953e-12
+    }
+  ],
+  "target_clock": "clk1",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk1",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/A",
+      "net": "clk1",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck1buf1",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf1/Z",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "capacitance": 1.729e-15,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/A",
+      "net": "clk1_buf1",
+      "arrival": 2.548e-11,
+      "slew": 8.079e-12
+    },
+    {
+      "instance": "ck1buf2",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck1buf2/Z",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.565e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "clk1_buf2",
+      "arrival": 5.161e-11,
+      "slew": 6.565e-12
+    }
+  ],
+  "data_arrival_time": 1.323e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.997e-11,
+  "required_time": 1.002e-08,
+  "slack": 9.889e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk2",
+  "path_type": "max",
+  "startpoint": "reg3/Q",
+  "endpoint": "out2",
+  "source_clock": "clk2",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk2",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/A",
+      "net": "clk2",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/Z",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.551e-12
+    },
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/CK",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "slew": 6.551e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/Q",
+      "net": "n6",
+      "arrival": 1.093e-10,
+      "capacitance": 9.747e-16,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/A",
+      "net": "n6",
+      "arrival": 1.093e-10,
+      "slew": 7.316e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/Z",
+      "net": "out2",
+      "arrival": 1.259e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.638e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.259e-10,
+      "slew": 3.638e-12
+    }
+  ],
+  "target_clock": "clk2",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.259e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 6.000e-09,
+  "slack": 5.874e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk2",
+  "path_type": "max",
+  "startpoint": "reg3/Q",
+  "endpoint": "out2",
+  "source_clock": "clk2",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "clk2",
+      "arrival": 0.000e+00,
+      "capacitance": 7.798e-16,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/A",
+      "net": "clk2",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "ck2buf",
+      "cell": "CLKBUF_X1",
+      "verilog_src": "",
+      "pin": "ck2buf/Z",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "capacitance": 9.497e-16,
+      "slew": 6.551e-12
+    },
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/CK",
+      "net": "clk2_buf",
+      "arrival": 2.290e-11,
+      "slew": 6.551e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg3",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg3/Q",
+      "net": "n6",
+      "arrival": 1.029e-10,
+      "capacitance": 8.752e-16,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/A",
+      "net": "n6",
+      "arrival": 1.029e-10,
+      "slew": 5.625e-12
+    },
+    {
+      "instance": "buf4",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf4/Z",
+      "net": "out2",
+      "arrival": 1.242e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.903e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_crpr_data_checks",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.242e-10,
+      "slew": 3.903e-12
+    }
+  ],
+  "target_clock": "clk2",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.242e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 6.000e-09,
+  "slack": 5.876e-09
+}
+]
+}
+PASS: report_path_ends sequence
+--- set_report_path_format json then report ---
+{
+"path": [
+  {
+    "instance": "reg2",
+    "cell": "DFF_X1",
+    "verilog_src": "",
+    "pin": "reg2/Q",
+    "net": "n5",
+    "arrival": 1.406e-10,
+    "capacitance": 2.115e-15,
+    "slew": 9.341e-12
+  },
+  {
+    "instance": "buf3",
+    "cell": "BUF_X1",
+    "verilog_src": "",
+    "pin": "buf3/A",
+    "net": "n5",
+    "arrival": 1.406e-10,
+    "slew": 9.341e-12
+  },
+  {
+    "instance": "buf3",
+    "cell": "BUF_X1",
+    "verilog_src": "",
+    "pin": "buf3/Z",
+    "net": "out1",
+    "arrival": 1.580e-10,
+    "capacitance": 0.000e+00,
+    "slew": 3.695e-12
+  },
+  {
+    "instance": "",
+    "cell": "search_crpr_data_checks",
+    "verilog_src": "",
+    "pin": "out1",
+    "arrival": 1.580e-10,
+    "slew": 3.695e-12
+  }
+]
+}
+
+PASS: report_path json format
+--- set_report_path_format full_clock_expanded ---
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk1 (in)
+   0.03    0.03 ^ ck1buf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ck1buf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.02    0.16 ^ buf3/Z (BUF_X1)
+   0.00    0.16 ^ out1 (out)
+PASS: report_path full_clock_expanded format
+--- PathEnd vertex access ---
+vertex: out1
+  is_clock: 0
+  has_downstream_clk_pin: 0
+PASS: PathEnd vertex
+--- find_timing_paths min_max ---
+min_max paths: 10
+  min_max: min slack=7.392011308615665e-11
+  min_max: min slack=7.521362005435961e-11
+  min_max: min slack=1.01143582398322e-9
+  min_max: min slack=2.1242216874384212e-9
+  min_max: min slack=2.125925879781221e-9
+  min_max: max slack=7.842025695481425e-9
+  min_max: max slack=7.844318083982671e-9
+  min_max: max slack=8.941200668743932e-9
+  min_max: max slack=5.8740736719187225e-9
+  min_max: max slack=5.875777642216917e-9
+PASS: min_max paths
+--- report_tns/wns ---
+tns max 0.00
+wns max 0.00
+worst slack max 5.87
+worst slack min 0.07
+tns max 0.000000
+wns max 0.000000
+worst slack max 5.874074
+PASS: tns/wns
+--- search debug info ---
+tag_group_count: 10
+tag_count: 44
+clk_info_count: 20
+path_count: 140
+PASS: search debug
+ALL PASSED

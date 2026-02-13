@@ -1,0 +1,439 @@
+--- get_cells with wildcard * ---
+buf* cells: 1
+PASS: get_cells wildcard *
+--- get_cells with ? wildcard ---
+buf? cells: 1
+PASS: get_cells wildcard ?
+--- get_cells exact match ---
+buf1 cells: 1
+PASS: get_cells exact match
+--- get_cells * ---
+* cells: 3
+PASS: get_cells *
+--- get_pins with wildcards ---
+buf1/* pins: 2
+PASS: get_pins wildcard
+buf1/? pins: 2
+PASS: get_pins ? wildcard
+*/* pins: 10
+PASS: get_pins */*
+--- get_ports with wildcards ---
+*1 ports: 2
+PASS: get_ports wildcard
+* ports: 3
+PASS: get_ports *
+--- get_nets with wildcards ---
+n* nets: 2
+PASS: get_nets wildcard
+--- non-matching patterns ---
+Warning: util_pattern_string.tcl line 1, instance 'zzz_nonexistent' not found.
+get_cells nonexistent: rc=0
+PASS: non-matching pattern
+Warning: util_pattern_string.tcl line 1, pin 'zzz_nonexistent/*' not found.
+get_pins nonexistent: rc=0
+PASS: non-matching pin pattern
+--- get_lib_cells with wildcards ---
+BUF* lib_cells: 6
+PASS: get_lib_cells wildcard
+DFF_X? lib_cells: 2
+PASS: get_lib_cells ? wildcard
+* lib_cells: 134
+PASS: get_lib_cells *
+--- set_debug with level > 0 ---
+PASS: set_debug multiple modules
+delay_calc: delays invalid
+delay_calc: find delays to level 50
+delay_calc: found 9 delays
+search: find arrivals pass 1
+search: find arrivals to level 50
+search: arrival seed clk clk pin clk
+search: arrival seed input arrival in1
+search: find arrivals buf1/A
+search:  in1
+search:   ^ -> ^ min
+search:   from tag: 4 ^ min/0 clk ^ clk_src clk crpr_pin null input in1
+search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 < MIA
+search:  in1
+search:   ^ -> ^ max
+search:   from tag: 6 ^ max/1 clk ^ clk_src clk crpr_pin null input in1
+search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 > MIA
+search:  in1
+search:   v -> v min
+search:   from tag: 5 v min/0 clk ^ clk_src clk crpr_pin null input in1
+search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 < MIA
+search:  in1
+search:   v -> v max
+search:   from tag: 7 v max/1 clk ^ clk_src clk crpr_pin null input in1
+search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 > MIA
+search: find arrivals reg1/CK
+search:  clk
+search:   ^ -> ^ min
+search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 < MIA
+search:  clk
+search:   ^ -> ^ max
+search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 > MIA
+search:  clk
+search:   v -> v min
+search:   from tag: 1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
+search:    5.000 + 0.000 = 5.000 < MIA
+search:  clk
+search:   v -> v max
+search:   from tag: 3 v max/1 clk v (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 3 v max/1 clk v (clock ideal) clk_src clk crpr_pin null
+search:    5.000 + 0.000 = 5.000 > MIA
+search: find arrivals reg1/Q
+search:  reg1/CK
+search:   ^ -> ^ min
+search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.081 = 0.081 < MIA
+search:  reg1/CK
+search:   ^ -> v min
+search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.075 = 0.075 < MIA
+search:  reg1/CK
+search:   ^ -> ^ max
+search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.081 = 0.081 > MIA
+search:  reg1/CK
+search:   ^ -> v max
+search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.075 = 0.075 > MIA
+search: find arrivals reg1/QN
+search:  reg1/CK
+search:   ^ -> ^ min
+search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.056 = 0.056 < MIA
+search:  reg1/CK
+search:   ^ -> v min
+search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.057 = 0.057 < MIA
+search:  reg1/CK
+search:   ^ -> ^ max
+search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.056 = 0.056 > MIA
+search:  reg1/CK
+search:   ^ -> v max
+search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.057 = 0.057 > MIA
+search: find arrivals buf1/Z
+search:  buf1/A
+search:   ^ -> ^ min
+search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.018 = 0.018 < MIA
+search:  buf1/A
+search:   ^ -> ^ max
+search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.018 = 0.018 > MIA
+search:  buf1/A
+search:   v -> v min
+search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.022 = 0.022 < MIA
+search:  buf1/A
+search:   v -> v max
+search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.022 = 0.022 > MIA
+search: find arrivals inv1/A
+search:  buf1/Z
+search:   ^ -> ^ min
+search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:    0.018 + 0.000 = 0.018 < MIA
+search:  buf1/Z
+search:   ^ -> ^ max
+search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:    0.018 + 0.000 = 0.018 > MIA
+search:  buf1/Z
+search:   v -> v min
+search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:    0.022 + 0.000 = 0.022 < MIA
+search:  buf1/Z
+search:   v -> v max
+search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:    0.022 + 0.000 = 0.022 > MIA
+search: find arrivals out1
+search:  reg1/Q
+search:   ^ -> ^ min
+search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:    0.081 + 0.000 = 0.081 < MIA
+search:  reg1/Q
+search:   ^ -> ^ max
+search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:    0.081 + 0.000 = 0.081 > MIA
+search:  reg1/Q
+search:   v -> v min
+search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:    0.075 + 0.000 = 0.075 < MIA
+search:  reg1/Q
+search:   v -> v max
+search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:    0.075 + 0.000 = 0.075 > MIA
+search: find arrivals inv1/ZN
+search:  inv1/A
+search:   ^ -> v min
+search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:    0.018 + 0.006 = 0.024 < MIA
+search:  inv1/A
+search:   ^ -> v max
+search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:    0.018 + 0.006 = 0.024 > MIA
+search:  inv1/A
+search:   v -> ^ min
+search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:    0.022 + 0.010 = 0.032 < MIA
+search:  inv1/A
+search:   v -> ^ max
+search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:    0.022 + 0.010 = 0.032 > MIA
+search: find arrivals reg1/D
+search:  inv1/ZN
+search:   ^ -> ^ min
+search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:    0.032 + 0.000 = 0.032 < MIA
+search:  inv1/ZN
+search:   ^ -> ^ max
+search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:    0.032 + 0.000 = 0.032 > MIA
+search:  inv1/ZN
+search:   v -> v min
+search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:    0.024 + 0.000 = 0.024 < MIA
+search:  inv1/ZN
+search:   v -> v max
+search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:    0.024 + 0.000 = 0.024 > MIA
+search: found 9 arrivals
+search: find end slack reg1/D
+search: find end slack reg1/QN
+search: find end slack out1
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.92   slack (MET)
+
+
+PASS: report_checks with debug on
+PASS: set_debug all off
+--- FileNotWritable error path ---
+PASS: caught FileNotWritable for bad path
+PASS: caught error for unwritable log path
+--- report_checks with rise/fall fields ---
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   0.00    0.00 v input external delay
+   0.88    0.15    0.00    0.00 v in1 (in)
+   1.55    0.01    0.07    0.07 v buf1/Z (BUF_X1)
+   1.14    0.01    0.01    0.08 ^ inv1/ZN (INV_X1)
+           0.01    0.00    0.08 ^ reg1/D (DFF_X1)
+                           0.08   data arrival time
+
+           0.00   10.00   10.00   clock clk (rise edge)
+                   0.00   10.00   clock network delay (ideal)
+                   0.00   10.00   clock reconvergence pessimism
+                          10.00 ^ reg1/CK (DFF_X1)
+                  -0.03    9.97   library setup time
+                           9.97   data required time
+-----------------------------------------------------------------------
+                           9.97   data required time
+                          -0.08   data arrival time
+-----------------------------------------------------------------------
+                           9.89   slack (MET)
+
+
+PASS: report_checks with rise/fall transitions
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   0.00    0.00 ^ input external delay
+   0.97    0.20    0.00    0.00 ^ in1 (in)
+           0.20    0.00    0.00 ^ buf1/A (BUF_X1)
+   1.70    0.01    0.03    0.03 ^ buf1/Z (BUF_X1)
+           0.01    0.00    0.03 ^ inv1/A (INV_X1)
+   1.06    0.00    0.01    0.04 v inv1/ZN (INV_X1)
+           0.00    0.00    0.04 v reg1/D (DFF_X1)
+                           0.04   data arrival time
+
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   0.00    0.00   clock reconvergence pessimism
+                           0.00 ^ reg1/CK (DFF_X1)
+                   0.00    0.00   library hold time
+                           0.00   data required time
+-----------------------------------------------------------------------
+                           0.00   data required time
+                          -0.04   data arrival time
+-----------------------------------------------------------------------
+                           0.04   slack (MET)
+
+
+PASS: report_checks min with fields
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   0.00    0.00 v input external delay
+   0.88    0.15    0.00    0.00 v in1 (in)
+           0.15    0.00    0.00 v buf1/A (BUF_X1)
+   1.55    0.01    0.07    0.07 v buf1/Z (BUF_X1)
+           0.01    0.00    0.07 v inv1/A (INV_X1)
+   1.14    0.01    0.01    0.08 ^ inv1/ZN (INV_X1)
+           0.01    0.00    0.08 ^ reg1/D (DFF_X1)
+                           0.08   data arrival time
+
+           0.00   10.00   10.00   clock clk (rise edge)
+                   0.00   10.00   clock network delay (ideal)
+                   0.00   10.00   clock reconvergence pessimism
+                          10.00 ^ reg1/CK (DFF_X1)
+                  -0.03    9.97   library setup time
+                           9.97   data required time
+-----------------------------------------------------------------------
+                           9.97   data required time
+                          -0.08   data arrival time
+-----------------------------------------------------------------------
+                           9.89   slack (MET)
+
+
+PASS: report_checks max with fields
+--- set_load rise/fall ---
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.07    0.07 v buf1/Z (BUF_X1)
+   0.01    0.08 ^ inv1/ZN (INV_X1)
+   0.00    0.08 ^ reg1/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.89   slack (MET)
+
+
+PASS: report_checks with min/max loads
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.07    0.07 v buf1/Z (BUF_X1)
+   0.01    0.08 ^ inv1/ZN (INV_X1)
+   0.00    0.08 ^ reg1/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.89   slack (MET)
+
+
+PASS: report_checks with rise/fall min/max loads
+--- with_output_to_variable nesting ---
+v1 captured 984 chars
+PASS: with_output_to_variable
+v2 captured 1967 chars
+PASS: with_output_to_variable multiple reports
+--- redirect_string with reports ---
+redirect string: 1414 chars
+PASS: redirect_string with full report
+ALL PASSED

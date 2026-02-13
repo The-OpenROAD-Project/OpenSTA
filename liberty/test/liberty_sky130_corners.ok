@@ -1,0 +1,632 @@
+PASS: read sky130hd tt
+PASS: read sky130hd ff
+PASS: read sky130hd ss
+PASS: read sky130hs tt
+Warning: ../../test/sky130hs/sky130_fd_sc_hs__tt_025C_1v80.lib line 1, library sky130_fd_sc_hs__tt_025C_1v80 already exists.
+PASS: read sky130hs full
+Cell sky130_fd_sc_hd__inv_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ Y output function=!A
+Cell sky130_fd_sc_hd__inv_2
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ Y output function=!A
+Cell sky130_fd_sc_hd__inv_4
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.01-0.01
+ Y output function=!A
+Cell sky130_fd_sc_hd__buf_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__buf_2
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__buf_4
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__nand2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ Y output function=!A+!B
+Cell sky130_fd_sc_hd__nand3_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ Y output function=(!A+!B)+!C
+Cell sky130_fd_sc_hd__nand4_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ D input 0.00-0.00
+ Y output function=((!A+!B)+!C)+!D
+Cell sky130_fd_sc_hd__nor2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ Y output function=!A*!B
+Cell sky130_fd_sc_hd__nor3_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ Y output function=(!A*!B)*!C
+Cell sky130_fd_sc_hd__nor4_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ D input 0.00-0.00
+ Y output function=((!A*!B)*!C)*!D
+Cell sky130_fd_sc_hd__and2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ X output function=A*B
+Cell sky130_fd_sc_hd__and3_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ X output function=(A*B)*C
+Cell sky130_fd_sc_hd__and4_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ D input 0.00-0.00
+ X output function=((A*B)*C)*D
+Cell sky130_fd_sc_hd__or2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ X output function=A+B
+Cell sky130_fd_sc_hd__or3_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ X output function=(A+B)+C
+Cell sky130_fd_sc_hd__or4_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ D input 0.00-0.00
+ X output function=((A+B)+C)+D
+Cell sky130_fd_sc_hd__xor2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ X output function=(A*!B)+(!A*B)
+Cell sky130_fd_sc_hd__xnor2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ Y output function=(!A*!B)+(A*B)
+Cell sky130_fd_sc_hd__a21o_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ X output function=(A1*A2)+B1
+Cell sky130_fd_sc_hd__a21oi_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ Y output function=(!A1*!B1)+(!A2*!B1)
+Cell sky130_fd_sc_hd__a22o_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ X output function=(B1*B2)+(A1*A2)
+Cell sky130_fd_sc_hd__a22oi_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ Y output function=(((!A1*!B1)+(!A1*!B2))+(!A2*!B1))+(!A2*!B2)
+Cell sky130_fd_sc_hd__o21a_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ X output function=(A1*B1)+(A2*B1)
+Cell sky130_fd_sc_hd__o21ai_0
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ Y output function=(!A1*!A2)+!B1
+Cell sky130_fd_sc_hd__o22a_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ X output function=(((A1*B1)+(A2*B1))+(A1*B2))+(A2*B2)
+Cell sky130_fd_sc_hd__o22ai_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ Y output function=(!B1*!B2)+(!A1*!A2)
+Cell sky130_fd_sc_hd__a31o_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ A3 input 0.00-0.00
+ B1 input 0.00-0.00
+ X output function=((A1*A2)*A3)+B1
+Cell sky130_fd_sc_hd__a32o_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ A3 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ X output function=((A1*A2)*A3)+(B1*B2)
+Cell sky130_fd_sc_hd__mux2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 0.00-0.00
+ A1 input 0.00-0.00
+ S input 0.00-0.00
+ X output function=(A0*!S)+(A1*S)
+Cell sky130_fd_sc_hd__mux4_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 0.00-0.00
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ A3 input 0.00-0.00
+ S0 input 0.00-0.00
+ S1 input 0.00-0.00
+ X output function=((((A0*!S0)*!S1)+((A1*S0)*!S1))+((A2*!S0)*S1))+((A3*S0)*S1)
+Cell sky130_fd_sc_hd__fa_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.01-0.01
+ B input 0.01-0.01
+ CIN input 0.00-0.00
+ COUT output function=((A*B)+(A*CIN))+(B*CIN)
+ SUM output function=((((A*!B)*!CIN)+((!A*B)*!CIN))+((!A*!B)*CIN))+((A*B)*CIN)
+Cell sky130_fd_sc_hd__ha_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ COUT output function=A*B
+ SUM output function=(A*!B)+(!A*B)
+Cell sky130_fd_sc_hd__maj3_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ X output function=((A*B)+(A*C))+(B*C)
+Cell sky130_fd_sc_hd__dfxtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+Cell sky130_fd_sc_hd__dfrtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ RESET_B input 0.00-0.00
+Cell sky130_fd_sc_hd__dfstp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ SET_B input 0.00-0.00
+Cell sky130_fd_sc_hd__dfbbp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ Q_N output function=IQ_N
+ RESET_B input 0.00-0.00
+ SET_B input 0.00-0.00
+Cell sky130_fd_sc_hd__dlxtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ D input 0.00-0.00
+ GATE input 0.00-0.00
+ Q output function=IQ
+Cell sky130_fd_sc_hd__dlxtn_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ D input 0.00-0.00
+ GATE_N input 0.00-0.00
+ Q output function=IQ
+Cell sky130_fd_sc_hd__sdfxtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ SCD input 0.00-0.00
+ SCE input 0.00-0.00
+Cell sky130_fd_sc_hd__sdfxbp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ Q_N output function=IQ_N
+ SCD input 0.00-0.00
+ SCE input 0.00-0.00
+Cell sky130_fd_sc_hd__ebufn_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ TE_B input 0.00-0.00
+ Z tristate enable=!TE_B function=A 0.00
+Cell sky130_fd_sc_hd__ebufn_2
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ TE_B input 0.00-0.00
+ Z tristate enable=!TE_B function=A 0.00
+Cell sky130_fd_sc_hd__clkbuf_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__clkbuf_2
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__clkinv_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ Y output function=!A
+Cell sky130_fd_sc_hd__clkinv_2
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ Y output function=!A
+Cell sky130_fd_sc_hd__conb_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ HI output function=1
+ LO output function=0
+Cell sky130_fd_sc_hd__diode_2
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ DIODE input 0.00-0.00
+Warning: liberty_sky130_corners.tcl line 1, liberty cell 'sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__fill_1' not found.
+PASS: sky130hd comprehensive cell reports
+PASS: sky130 cell properties
+sky130_fd_sc_hd__inv_1/A: cap=0.002390 dir=input
+sky130_fd_sc_hd__inv_1/Y: cap=0.000000 dir=output
+sky130_fd_sc_hd__buf_1/A: cap=0.002191 dir=input
+sky130_fd_sc_hd__buf_1/X: cap=0.000000 dir=output
+sky130_fd_sc_hd__nand2_1/A: cap=0.002375 dir=input
+sky130_fd_sc_hd__nand2_1/B: cap=0.002428 dir=input
+sky130_fd_sc_hd__nand2_1/Y: cap=0.000000 dir=output
+sky130_fd_sc_hd__dfxtp_1/CLK: cap=0.001877 dir=input
+sky130_fd_sc_hd__dfxtp_1/D: cap=0.001674 dir=input
+sky130_fd_sc_hd__dfxtp_1/Q: cap=0.000000 dir=output
+sky130_fd_sc_hd__dfrtp_1/CLK: cap=0.001871 dir=input
+sky130_fd_sc_hd__dfrtp_1/D: cap=0.002006 dir=input
+sky130_fd_sc_hd__dfrtp_1/RESET_B: cap=0.003632 dir=input
+sky130_fd_sc_hd__dfrtp_1/Q: cap=0.000000 dir=output
+PASS: sky130 pin capacitances
+PASS: write sky130hd tt
+PASS: write sky130hs tt
+PASS: read ASAP7 AO LVT
+PASS: read ASAP7 AO SLVT
+PASS: read ASAP7 OA LVT
+PASS: read ASAP7 OA SLVT
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13156, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13189, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13222, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13255, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13288, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13321, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13354, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14748, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14781, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14814, timing group from output port.
+PASS: read ASAP7 SIMPLE LVT
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13156, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13189, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13222, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13255, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13288, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13321, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13354, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14748, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14781, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14814, timing group from output port.
+PASS: read ASAP7 SIMPLE SLVT
+PASS: read ASAP7 INVBUF LVT TT
+PASS: read ASAP7 INVBUF SLVT TT
+PASS: read ASAP7 INVBUF RVT TT
+PASS: read ASAP7 INVBUF RVT SS
+PASS: read ASAP7 AO RVT SS
+PASS: read ASAP7 OA RVT SS
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13156, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13189, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13222, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13255, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13288, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13321, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13354, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14748, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14781, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14814, timing group from output port.
+PASS: read ASAP7 SIMPLE RVT SS
+PASS: read ASAP7 SRAM macro
+ALL PASSED

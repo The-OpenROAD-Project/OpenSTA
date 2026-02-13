@@ -1,0 +1,2091 @@
+--- Test 1: coupling SPEF port parsing ---
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+PASS: read coupling SPEF
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  11.30   11.30   clock network delay (propagated)
+   0.00   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  64.33   75.63 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  43.21  118.83 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  57.09  175.92 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.82  188.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         188.74   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.10  511.10   clock network delay (propagated)
+   0.00  511.10   clock reconvergence pessimism
+         511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.95  503.15   library setup time
+         503.15   data required time
+---------------------------------------------------------
+         503.15   data required time
+        -188.74   data arrival time
+---------------------------------------------------------
+         314.41   slack (MET)
+
+
+PASS: report_checks
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   9.46   10.46 v r1/D (DFFHQx4_ASAP7_75t_R)
+          10.46   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+  11.30   11.30   clock network delay (propagated)
+   0.00   11.30   clock reconvergence pessimism
+          11.30 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+  12.57   23.87   library hold time
+          23.87   data required time
+---------------------------------------------------------
+          23.87   data required time
+         -10.46   data arrival time
+---------------------------------------------------------
+         -13.41   slack (VIOLATED)
+
+
+PASS: min path
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk2 (in)
+  11.30   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  64.33   75.63 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  43.21  118.83 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  57.09  175.92 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.82  188.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         188.74   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock source latency
+   0.00  500.00 ^ clk3 (in)
+  11.10  511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+   0.00  511.10   clock reconvergence pessimism
+  -7.95  503.15   library setup time
+         503.15   data required time
+---------------------------------------------------------
+         503.15   data required time
+        -188.74   data arrival time
+---------------------------------------------------------
+         314.41   slack (MET)
+
+
+PASS: full_clock format
+--- Test 2: coupling factor variations ---
+Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  11.30   11.30   clock network delay (propagated)
+   0.00   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  61.85   73.15 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  38.56  111.70 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  51.37  163.08 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.49  175.57 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         175.57   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.10  511.10   clock network delay (propagated)
+   0.00  511.10   clock reconvergence pessimism
+         511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.56  503.55   library setup time
+         503.55   data required time
+---------------------------------------------------------
+         503.55   data required time
+        -175.57   data arrival time
+---------------------------------------------------------
+         327.98   slack (MET)
+
+
+PASS: factor 0.0
+Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  11.30   11.30   clock network delay (propagated)
+   0.00   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  62.48   73.78 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  39.67  113.44 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  52.80  166.25 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.57  178.82 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         178.82   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.10  511.10   clock network delay (propagated)
+   0.00  511.10   clock reconvergence pessimism
+         511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.64  503.46   library setup time
+         503.46   data required time
+---------------------------------------------------------
+         503.46   data required time
+        -178.82   data arrival time
+---------------------------------------------------------
+         324.64   slack (MET)
+
+
+PASS: factor 0.25
+Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  11.30   11.30   clock network delay (propagated)
+   0.00   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  63.71   75.00 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  42.02  117.02 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  55.63  172.65 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.73  185.39 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         185.39   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.10  511.10   clock network delay (propagated)
+   0.00  511.10   clock reconvergence pessimism
+         511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.84  503.26   library setup time
+         503.26   data required time
+---------------------------------------------------------
+         503.26   data required time
+        -185.39   data arrival time
+---------------------------------------------------------
+         317.87   slack (MET)
+
+
+PASS: factor 0.75
+Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  11.30   11.30   clock network delay (propagated)
+   0.00   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  64.33   75.63 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  43.21  118.83 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  57.09  175.92 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.82  188.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         188.74   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.10  511.10   clock network delay (propagated)
+   0.00  511.10   clock reconvergence pessimism
+         511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.95  503.15   library setup time
+         503.15   data required time
+---------------------------------------------------------
+         503.15   data required time
+        -188.74   data arrival time
+---------------------------------------------------------
+         314.41   slack (MET)
+
+
+PASS: factor 1.0
+--- Test 3: SPEF with -reduce ---
+Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+PASS: read_spef -reduce coupling
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  11.30   11.30   clock network delay (propagated)
+   0.00   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  64.33   75.63 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  43.21  118.83 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  57.09  175.92 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.82  188.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         188.74   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.10  511.10   clock network delay (propagated)
+   0.00  511.10   clock reconvergence pessimism
+         511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.95  503.15   library setup time
+         503.15   data required time
+---------------------------------------------------------
+         503.15   data required time
+        -188.74   data arrival time
+---------------------------------------------------------
+         314.41   slack (MET)
+
+
+PASS: report after reduce
+PASS: read_spef -reduce normal
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  124.92 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  185.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  201.72 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         201.72   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -8.46  503.46   library setup time
+         503.46   data required time
+---------------------------------------------------------
+         503.46   data required time
+        -201.72   data arrival time
+---------------------------------------------------------
+         301.74   slack (MET)
+
+
+PASS: report after reduce normal
+--- Test 4: GCD sky130 SPEF ---
+Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+PASS: read GCD SPEF
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+ 324.08  324.08 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+ 123.00  447.08 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+ 323.28  770.36 v _215_/X (sky130_fd_sc_hd__maj3_2)
+ 324.95 1095.31 v _216_/X (sky130_fd_sc_hd__maj3_2)
+ 360.72 1456.03 v _217_/X (sky130_fd_sc_hd__maj3_2)
+ 377.41 1833.45 v _218_/X (sky130_fd_sc_hd__maj3_2)
+ 396.61 2230.06 v _219_/X (sky130_fd_sc_hd__maj3_2)
+ 247.78 2477.83 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+ 156.61 2634.45 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+ 337.85 2972.30 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+ 172.08 3144.38 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+ 432.04 3576.42 v _292_/X (sky130_fd_sc_hd__o311a_2)
+ 721.76 4298.18 ^ _295_/Y (sky130_fd_sc_hd__o31ai_4)
+ 365.37 4663.55 ^ split1/X (sky130_fd_sc_hd__buf_4)
+ 112.46 4776.01 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
+   0.06 4776.07 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
+        4776.07   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _418_/CLK (sky130_fd_sc_hd__dfxtp_1)
+-159.13 -154.13   library setup time
+        -154.13   data required time
+---------------------------------------------------------
+        -154.13   data required time
+        -4776.07   data arrival time
+---------------------------------------------------------
+        -4930.21   slack (VIOLATED)
+
+
+PASS: GCD report_checks
+Startpoint: reset (input port clocked by clk)
+Endpoint: _413_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ reset (in)
+  41.22   42.22 v _283_/Y (sky130_fd_sc_hd__o22ai_1)
+   0.07   42.29 v _413_/D (sky130_fd_sc_hd__dfxtp_4)
+          42.29   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ _413_/CLK (sky130_fd_sc_hd__dfxtp_4)
+ -52.40  -52.40   library hold time
+         -52.40   data required time
+---------------------------------------------------------
+         -52.40   data required time
+         -42.29   data arrival time
+---------------------------------------------------------
+          94.69   slack (MET)
+
+
+PASS: GCD min path
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+ 324.08  324.08 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+ 123.00  447.08 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+ 323.28  770.36 v _215_/X (sky130_fd_sc_hd__maj3_2)
+ 324.95 1095.31 v _216_/X (sky130_fd_sc_hd__maj3_2)
+ 360.72 1456.03 v _217_/X (sky130_fd_sc_hd__maj3_2)
+ 377.41 1833.45 v _218_/X (sky130_fd_sc_hd__maj3_2)
+ 396.61 2230.06 v _219_/X (sky130_fd_sc_hd__maj3_2)
+ 247.78 2477.83 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+ 156.61 2634.45 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+ 337.85 2972.30 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+ 172.08 3144.38 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+ 432.04 3576.42 v _292_/X (sky130_fd_sc_hd__o311a_2)
+ 721.76 4298.18 ^ _295_/Y (sky130_fd_sc_hd__o31ai_4)
+ 365.37 4663.55 ^ split1/X (sky130_fd_sc_hd__buf_4)
+ 112.46 4776.01 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
+   0.06 4776.07 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
+        4776.07   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _418_/CLK (sky130_fd_sc_hd__dfxtp_1)
+-159.13 -154.13   library setup time
+        -154.13   data required time
+---------------------------------------------------------
+        -154.13   data required time
+        -4776.07   data arrival time
+---------------------------------------------------------
+        -4930.21   slack (VIOLATED)
+
+
+PASS: GCD sort_by_slack
+--- Test 5: GCD delay calculators ---
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+ 324.08  324.08 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+ 122.66  446.73 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+ 323.07  769.80 v _215_/X (sky130_fd_sc_hd__maj3_2)
+ 324.61 1094.41 v _216_/X (sky130_fd_sc_hd__maj3_2)
+ 360.52 1454.93 v _217_/X (sky130_fd_sc_hd__maj3_2)
+ 376.42 1831.34 v _218_/X (sky130_fd_sc_hd__maj3_2)
+ 394.79 2226.14 v _219_/X (sky130_fd_sc_hd__maj3_2)
+ 246.30 2472.44 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+ 155.49 2627.93 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+ 336.91 2964.84 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+ 171.31 3136.14 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+ 430.68 3566.82 v _292_/X (sky130_fd_sc_hd__o311a_2)
+ 721.18 4288.00 ^ _295_/Y (sky130_fd_sc_hd__o31ai_4)
+ 363.57 4651.56 ^ split1/X (sky130_fd_sc_hd__buf_4)
+ 111.52 4763.08 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
+   0.00 4763.08 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
+        4763.08   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _418_/CLK (sky130_fd_sc_hd__dfxtp_1)
+-159.12 -154.12   library setup time
+        -154.12   data required time
+---------------------------------------------------------
+        -154.12   data required time
+        -4763.08   data arrival time
+---------------------------------------------------------
+        -4917.21   slack (VIOLATED)
+
+
+PASS: GCD dmp_ceff_two_pole
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+ 324.10  324.10 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+ 123.70  447.80 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+ 323.61  771.41 v _215_/X (sky130_fd_sc_hd__maj3_2)
+ 325.83 1097.23 v _216_/X (sky130_fd_sc_hd__maj3_2)
+ 361.45 1458.68 v _217_/X (sky130_fd_sc_hd__maj3_2)
+ 378.73 1837.41 v _218_/X (sky130_fd_sc_hd__maj3_2)
+ 397.96 2235.37 v _219_/X (sky130_fd_sc_hd__maj3_2)
+ 248.95 2484.32 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+ 157.95 2642.26 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+ 340.12 2982.39 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+ 173.25 3155.64 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+ 434.33 3589.97 v _292_/X (sky130_fd_sc_hd__o311a_2)
+ 721.73 4311.69 ^ _295_/Y (sky130_fd_sc_hd__o31ai_4)
+ 366.44 4678.13 ^ split1/X (sky130_fd_sc_hd__buf_4)
+ 114.67 4792.80 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
+   0.00 4792.80 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
+        4792.80   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _418_/CLK (sky130_fd_sc_hd__dfxtp_1)
+-160.48 -155.48   library setup time
+        -155.48   data required time
+---------------------------------------------------------
+        -155.48   data required time
+        -4792.80   data arrival time
+---------------------------------------------------------
+        -4948.27   slack (VIOLATED)
+
+
+PASS: GCD arnoldi
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+ 324.19  324.19 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+ 123.31  447.50 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+ 323.50  771.00 v _215_/X (sky130_fd_sc_hd__maj3_2)
+ 325.44 1096.44 v _216_/X (sky130_fd_sc_hd__maj3_2)
+ 361.75 1458.19 v _217_/X (sky130_fd_sc_hd__maj3_2)
+ 378.20 1836.39 v _218_/X (sky130_fd_sc_hd__maj3_2)
+ 396.45 2232.84 v _219_/X (sky130_fd_sc_hd__maj3_2)
+ 246.86 2479.70 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+ 156.94 2636.64 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+ 339.14 2975.78 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+ 172.71 3148.49 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+ 433.19 3581.68 v _292_/X (sky130_fd_sc_hd__o311a_2)
+ 727.20 4308.88 ^ _295_/Y (sky130_fd_sc_hd__o31ai_4)
+ 368.17 4677.05 ^ split1/X (sky130_fd_sc_hd__buf_4)
+ 112.45 4789.50 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
+   0.00 4789.50 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
+        4789.50   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _418_/CLK (sky130_fd_sc_hd__dfxtp_1)
+-159.73 -154.73   library setup time
+        -154.73   data required time
+---------------------------------------------------------
+        -154.73   data required time
+        -4789.50   data arrival time
+---------------------------------------------------------
+        -4944.23   slack (VIOLATED)
+
+
+PASS: GCD lumped_cap
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+ 324.08  324.08 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+ 123.00  447.08 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+ 323.28  770.36 v _215_/X (sky130_fd_sc_hd__maj3_2)
+ 324.95 1095.31 v _216_/X (sky130_fd_sc_hd__maj3_2)
+ 360.72 1456.03 v _217_/X (sky130_fd_sc_hd__maj3_2)
+ 377.41 1833.45 v _218_/X (sky130_fd_sc_hd__maj3_2)
+ 396.61 2230.06 v _219_/X (sky130_fd_sc_hd__maj3_2)
+ 247.78 2477.83 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+ 156.61 2634.45 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+ 337.85 2972.30 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+ 172.08 3144.38 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+ 432.04 3576.42 v _292_/X (sky130_fd_sc_hd__o311a_2)
+ 721.76 4298.18 ^ _295_/Y (sky130_fd_sc_hd__o31ai_4)
+ 365.37 4663.55 ^ split1/X (sky130_fd_sc_hd__buf_4)
+ 112.46 4776.01 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
+   0.06 4776.07 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
+        4776.07   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _418_/CLK (sky130_fd_sc_hd__dfxtp_1)
+-159.13 -154.13   library setup time
+        -154.13   data required time
+---------------------------------------------------------
+        -154.13   data required time
+        -4776.07   data arrival time
+---------------------------------------------------------
+        -4930.21   slack (VIOLATED)
+
+
+PASS: GCD back to default
+--- Test 6: GCD re-read with reduce ---
+PASS: GCD re-read reduce
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+ 324.08  324.08 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+ 123.00  447.08 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+ 323.28  770.36 v _215_/X (sky130_fd_sc_hd__maj3_2)
+ 324.95 1095.31 v _216_/X (sky130_fd_sc_hd__maj3_2)
+ 360.72 1456.03 v _217_/X (sky130_fd_sc_hd__maj3_2)
+ 377.41 1833.45 v _218_/X (sky130_fd_sc_hd__maj3_2)
+ 396.61 2230.06 v _219_/X (sky130_fd_sc_hd__maj3_2)
+ 247.78 2477.83 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+ 156.61 2634.45 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+ 337.85 2972.30 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+ 172.08 3144.38 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+ 432.04 3576.42 v _292_/X (sky130_fd_sc_hd__o311a_2)
+ 721.76 4298.18 ^ _295_/Y (sky130_fd_sc_hd__o31ai_4)
+ 365.37 4663.55 ^ split1/X (sky130_fd_sc_hd__buf_4)
+ 112.46 4776.01 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
+   0.06 4776.07 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
+        4776.07   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _418_/CLK (sky130_fd_sc_hd__dfxtp_1)
+-159.13 -154.13   library setup time
+        -154.13   data required time
+---------------------------------------------------------
+        -154.13   data required time
+        -4776.07   data arrival time
+---------------------------------------------------------
+        -4930.21   slack (VIOLATED)
+
+
+PASS: GCD report after re-read
+--- Test 7: GCD annotation ---
+Found 0 unannotated drivers.
+Found 3 partially unannotated drivers.
+PASS: GCD annotation
+Found 0 unannotated drivers.
+Found 3 partially unannotated drivers.
+ _206_/Y
+ _210_/Y
+ _418_/Q
+PASS: GCD annotation unannotated
+--- Test 8: GCD net reports ---
+Net clk
+ Pin capacitance: 1.98-2.23
+ Wire capacitance: 29.40-29.40
+ Total capacitance: 31.38-31.62
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ clk input port
+
+Load pins
+ clkbuf_0_clk/A input (sky130_fd_sc_hd__clkbuf_4) 1.98-2.23
+
+report_net clk: done
+Net clk
+ Pin capacitance: 1.984000-2.228000
+ Wire capacitance: 29.395939-29.395943
+ Total capacitance: 31.379938-31.623941
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ clk input port
+
+Load pins
+ clkbuf_0_clk/A input (sky130_fd_sc_hd__clkbuf_4) 1.984000-2.228000
+
+report_net -digits 6 clk: done
+Net reset
+ Pin capacitance: 6.63-7.35
+ Wire capacitance: 11.01
+ Total capacitance: 17.64-18.36
+ Number of drivers: 1
+ Number of loads: 3
+ Number of pins: 4
+
+Driver pins
+ reset input port
+
+Load pins
+ _278_/A input (sky130_fd_sc_hd__inv_1) 2.21-2.39
+ _283_/B2 input (sky130_fd_sc_hd__o22ai_1) 2.25-2.48
+ _288_/B1 input (sky130_fd_sc_hd__a21oi_1) 2.17-2.48
+
+report_net reset: done
+Net req_val
+ Pin capacitance: 3.82-4.24
+ Wire capacitance: 9.38-9.38
+ Total capacitance: 13.20-13.61
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ req_val input port
+
+Load pins
+ _282_/B input (sky130_fd_sc_hd__nand2_1) 2.22-2.43
+ _289_/A2 input (sky130_fd_sc_hd__o21ai_0) 1.60-1.81
+
+report_net req_val: done
+Net resp_val
+ Pin capacitance: 2.22-2.42
+ Wire capacitance: 9.72-9.72
+ Total capacitance: 11.94-12.14
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ _285_/X output (sky130_fd_sc_hd__and2_1)
+
+Load pins
+ _288_/A2 input (sky130_fd_sc_hd__a21oi_1) 2.22-2.42
+ resp_val output port
+
+report_net resp_val: done
+PASS: GCD net reports
+--- Test 9: GCD annotated delay ---
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                           652           0         652
+internal net arcs                   592           0         592
+----------------------------------------------------------------
+                                   1244           0        1244
+annotated -cell -net: done
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+net arcs from primary inputs         39           0          39
+net arcs to primary outputs          18           0          18
+----------------------------------------------------------------
+                                     57           0          57
+annotated -from_in -to_out: done
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                           652           0         652
+internal net arcs                   592           0         592
+net arcs from primary inputs         39           0          39
+net arcs to primary outputs          18           0          18
+----------------------------------------------------------------
+                                   1301           0        1301
+
+Annotated Arcs
+annotated -report_annotated: done
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                           652           0         652
+internal net arcs                   592           0         592
+net arcs from primary inputs         39           0          39
+net arcs to primary outputs          18           0          18
+----------------------------------------------------------------
+                                   1301           0        1301
+
+Unannotated Arcs
+ primary input net  clk -> clkbuf_0_clk/A 
+ primary input net  req_msg[0] -> _291_/B 
+ primary input net  req_msg[10] -> _332_/A1 
+ primary input net  req_msg[11] -> _334_/B 
+ primary input net  req_msg[12] -> _338_/A2 
+ primary input net  req_msg[13] -> _340_/A1 
+ primary input net  req_msg[14] -> _343_/B 
+ primary input net  req_msg[15] -> _346_/B 
+ primary input net  req_msg[16] -> _350_/A2 
+ primary input net  req_msg[17] -> _357_/A2 
+ primary input net  req_msg[18] -> _360_/A1 
+ primary input net  req_msg[19] -> _363_/A1 
+ primary input net  req_msg[1] -> _303_/B 
+ primary input net  req_msg[20] -> _367_/A1 
+ primary input net  req_msg[21] -> _370_/A1 
+ primary input net  req_msg[22] -> _372_/A1 
+ primary input net  req_msg[23] -> _375_/A1 
+ primary input net  req_msg[24] -> _378_/A1 
+ primary input net  req_msg[25] -> _382_/A1 
+ primary input net  req_msg[26] -> _387_/A1 
+ primary input net  req_msg[27] -> _390_/A1 
+ primary input net  req_msg[28] -> _394_/A1 
+ primary input net  req_msg[29] -> _398_/A1 
+ primary input net  req_msg[2] -> _308_/A2 
+ primary input net  req_msg[30] -> _402_/A1 
+ primary input net  req_msg[31] -> _407_/A1 
+ primary input net  req_msg[3] -> _310_/B 
+ primary input net  req_msg[4] -> _315_/B 
+ primary input net  req_msg[5] -> _317_/A1 
+ primary input net  req_msg[6] -> _320_/B 
+ primary input net  req_msg[7] -> _323_/B 
+ primary input net  req_msg[8] -> _326_/A1 
+ primary input net  req_msg[9] -> _329_/A1 
+ primary input net  req_val -> _282_/B 
+ primary input net  req_val -> _289_/A2 
+ primary input net  reset -> _278_/A 
+ primary input net  reset -> _283_/B2 
+ primary input net  reset -> _288_/B1 
+ primary input net  resp_rdy -> _288_/A1 
+ delay              _197_/A -> _197_/Y 
+ delay              _197_/A -> _197_/Y 
+ delay              _197_/B -> _197_/Y 
+ delay              _197_/B -> _197_/Y 
+ internal net       _197_/Y -> _234_/A1 
+ internal net       _197_/Y -> _269_/A 
+ delay              _198_/A -> _198_/Y 
+ delay              _198_/B_N -> _198_/Y 
+ internal net       _198_/Y -> _232_/A 
+ internal net       _198_/Y -> _267_/B 
+ internal net       _198_/Y -> _292_/A2 
+ delay              _199_/A -> _199_/Y 
+ delay              _199_/A -> _199_/Y 
+ delay              _199_/B -> _199_/Y 
+ delay              _199_/B -> _199_/Y 
+ internal net       _199_/Y -> _231_/A1 
+ internal net       _199_/Y -> _265_/A 
+ internal net       _199_/Y -> _266_/A1 
+ delay              _200_/A_N -> _200_/Y 
+ delay              _200_/B -> _200_/Y 
+ internal net       _200_/Y -> _231_/A2 
+ internal net       _200_/Y -> _262_/A 
+ internal net       _200_/Y -> _264_/A 
+ internal net       _200_/Y -> _266_/A2 
+ delay              _201_/A -> _201_/Y 
+ delay              _201_/A -> _201_/Y 
+ delay              _201_/B -> _201_/Y 
+ delay              _201_/B -> _201_/Y 
+ internal net       _201_/Y -> _202_/A 
+ delay              _202_/A -> _202_/Y 
+ internal net       _202_/Y -> _228_/A1 
+ internal net       _202_/Y -> _258_/A 
+ internal net       _202_/Y -> _259_/B1 
+ internal net       _202_/Y -> _261_/A1 
+ delay              _203_/A -> _203_/Y 
+ delay              _203_/B_N -> _203_/Y 
+ internal net       _203_/Y -> _228_/A2 
+ internal net       _203_/Y -> _256_/B 
+ internal net       _203_/Y -> _258_/B 
+ internal net       _203_/Y -> _259_/A1 
+ internal net       _203_/Y -> _261_/A2 
+ delay              _204_/A -> _204_/Y 
+ delay              _204_/A -> _204_/Y 
+ delay              _204_/B -> _204_/Y 
+ delay              _204_/B -> _204_/Y 
+ internal net       _204_/Y -> _225_/A1 
+ internal net       _204_/Y -> _254_/A 
+ internal net       _204_/Y -> _255_/A1 
+ delay              _205_/A -> _205_/Y 
+ internal net       _205_/Y -> _206_/B 
+ internal net       _205_/Y -> _377_/A1 
+ delay              _206_/A -> _206_/Y 
+ delay              _206_/B -> _206_/Y 
+ internal net       _206_/Y -> _225_/A2 
+ internal net       _206_/Y -> _251_/B 
+ internal net       _206_/Y -> _253_/A 
+ internal net       _206_/Y -> _255_/A2 
+ delay              _207_/A -> _207_/Y 
+ delay              _207_/A -> _207_/Y 
+ delay              _207_/B -> _207_/Y 
+ delay              _207_/B -> _207_/Y 
+ internal net       _207_/Y -> _208_/A 
+ internal net       _207_/Y -> _249_/A 
+ delay              _208_/A -> _208_/Y 
+ internal net       _208_/Y -> _222_/A1 
+ internal net       _208_/Y -> _250_/A1 
+ delay              _209_/A -> _209_/Y 
+ internal net       _209_/Y -> _219_/B 
+ internal net       _209_/Y -> _371_/A1 
+ delay              _210_/A -> _210_/Y 
+ internal net       _210_/Y -> _218_/B 
+ internal net       _210_/Y -> _316_/B2 
+ internal net       _210_/Y -> _368_/A1 
+ delay              _211_/A -> _211_/Y 
+ internal net       _211_/Y -> _217_/B 
+ internal net       _211_/Y -> _365_/A1 
+ delay              _212_/A -> _212_/Y 
+ internal net       _212_/Y -> _216_/B 
+ internal net       _212_/Y -> _362_/A1 
+ delay              _213_/A -> _213_/Y 
+ internal net       _213_/Y -> _215_/B 
+ internal net       _213_/Y -> _359_/A1 
+ delay              _214_/A -> _214_/Y 
+ delay              _214_/B_N -> _214_/Y 
+ internal net       _214_/Y -> _215_/C 
+ internal net       _214_/Y -> rebuffer10/A 
+ delay              _215_/A -> _215_/X 
+ delay              _215_/B -> _215_/X 
+ delay              _215_/C -> _215_/X 
+ internal net       _215_/X -> _216_/C 
+ internal net       _215_/X -> rebuffer6/A 
+ delay              _216_/A -> _216_/X 
+ delay              _216_/B -> _216_/X 
+ delay              _216_/C -> _216_/X 
+ internal net       _216_/X -> _217_/C 
+ internal net       _216_/X -> rebuffer7/A 
+ delay              _217_/A -> _217_/X 
+ delay              _217_/B -> _217_/X 
+ delay              _217_/C -> _217_/X 
+ internal net       _217_/X -> _218_/C 
+ internal net       _217_/X -> _246_/B 
+ delay              _218_/A -> _218_/X 
+ delay              _218_/B -> _218_/X 
+ delay              _218_/C -> _218_/X 
+ internal net       _218_/X -> _219_/C 
+ internal net       _218_/X -> rebuffer3/A 
+ delay              _219_/A -> _219_/X 
+ delay              _219_/B -> _219_/X 
+ delay              _219_/C -> _219_/X 
+ internal net       _219_/X -> _222_/A2 
+ internal net       _219_/X -> _249_/B 
+ internal net       _219_/X -> _250_/A2 
+ delay              _220_/A_N -> _220_/Y 
+ delay              _220_/B -> _220_/Y 
+ internal net       _220_/Y -> _222_/B1 
+ internal net       _220_/Y -> _251_/A 
+ delay              _221_/A_N -> _221_/Y 
+ delay              _221_/B -> _221_/Y 
+ internal net       _221_/Y -> _222_/C1 
+ internal net       _221_/Y -> _250_/B1 
+ delay              _222_/A1 -> _222_/Y 
+ delay              _222_/A2 -> _222_/Y 
+ delay              _222_/B1 -> _222_/Y 
+ delay              _222_/C1 -> _222_/Y 
+ internal net       _222_/Y -> _225_/A3 
+ internal net       _222_/Y -> _253_/B 
+ internal net       _222_/Y -> _255_/A3 
+ delay              _223_/A -> _223_/Y 
+ delay              _223_/B_N -> _223_/Y 
+ internal net       _223_/Y -> _225_/B1 
+ internal net       _223_/Y -> _255_/B1 
+ delay              _224_/A -> _224_/Y 
+ delay              _224_/B_N -> _224_/Y 
+ internal net       _224_/Y -> _225_/C1 
+ internal net       _224_/Y -> _256_/A 
+ delay              _225_/A1 -> _225_/Y 
+ delay              _225_/A2 -> _225_/Y 
+ delay              _225_/A3 -> _225_/Y 
+ delay              _225_/B1 -> _225_/Y 
+ delay              _225_/C1 -> _225_/Y 
+ internal net       _225_/Y -> _228_/A3 
+ internal net       _225_/Y -> _258_/C 
+ internal net       _225_/Y -> _259_/A2 
+ internal net       _225_/Y -> rebuffer4/A 
+ delay              _226_/A_N -> _226_/Y 
+ delay              _226_/B -> _226_/Y 
+ internal net       _226_/Y -> _228_/B1 
+ internal net       _226_/Y -> _261_/B1 
+ delay              _227_/A_N -> _227_/Y 
+ delay              _227_/B -> _227_/Y 
+ internal net       _227_/Y -> _228_/C1 
+ internal net       _227_/Y -> _262_/B 
+ delay              _228_/A1 -> _228_/Y 
+ delay              _228_/A2 -> _228_/Y 
+ delay              _228_/A3 -> _228_/Y 
+ delay              _228_/B1 -> _228_/Y 
+ delay              _228_/C1 -> _228_/Y 
+ internal net       _228_/Y -> _231_/A3 
+ internal net       _228_/Y -> _264_/B 
+ internal net       _228_/Y -> rebuffer2/A 
+ delay              _229_/A -> _229_/Y 
+ delay              _229_/B_N -> _229_/Y 
+ internal net       _229_/Y -> _231_/B1 
+ internal net       _229_/Y -> _266_/B1 
+ delay              _230_/A -> _230_/Y 
+ delay              _230_/B_N -> _230_/Y 
+ internal net       _230_/Y -> _231_/C1 
+ internal net       _230_/Y -> _267_/A 
+ delay              _231_/A1 -> _231_/Y 
+ delay              _231_/A2 -> _231_/Y 
+ delay              _231_/A3 -> _231_/Y 
+ delay              _231_/B1 -> _231_/Y 
+ delay              _231_/C1 -> _231_/Y 
+ internal net       _231_/Y -> _232_/B 
+ internal net       _231_/Y -> _292_/A3 
+ delay              _232_/A -> _232_/Y 
+ delay              _232_/B -> _232_/Y 
+ internal net       _232_/Y -> _234_/A2 
+ internal net       _232_/Y -> _270_/B 
+ delay              _233_/A_N -> _233_/Y 
+ delay              _233_/B -> _233_/Y 
+ internal net       _233_/Y -> _234_/B1_N 
+ internal net       _233_/Y -> _292_/C1 
+ delay              _234_/A1 -> _234_/Y 
+ delay              _234_/A2 -> _234_/Y 
+ delay              _234_/B1_N -> _234_/Y 
+ internal net       _234_/Y -> _238_/A 
+ internal net       _234_/Y -> _409_/C 
+ delay              _235_/A -> _235_/Y 
+ delay              _235_/B_N -> _235_/Y 
+ internal net       _235_/Y -> _237_/A 
+ internal net       _235_/Y -> _295_/A2 
+ internal net       _235_/Y -> _298_/A1 
+ internal net       _235_/Y -> _351_/A 
+ delay              _236_/A_N -> _236_/Y 
+ delay              _236_/B -> _236_/Y 
+ internal net       _236_/Y -> _237_/B_N 
+ internal net       _236_/Y -> _292_/B1 
+ delay              _237_/A -> _237_/Y 
+ delay              _237_/B_N -> _237_/Y 
+ internal net       _237_/Y -> _238_/B 
+ delay              _238_/A -> _238_/Y 
+ delay              _238_/A -> _238_/Y 
+ delay              _238_/B -> _238_/Y 
+ delay              _238_/B -> _238_/Y 
+ primary output net _238_/Y -> resp_msg[15] 
+ delay              _239_/A -> _239_/Y 
+ delay              _239_/A -> _239_/Y 
+ delay              _239_/B -> _239_/Y 
+ delay              _239_/B -> _239_/Y 
+ internal net       _239_/Y -> _240_/B 
+ delay              _240_/A -> _240_/Y 
+ delay              _240_/A -> _240_/Y 
+ delay              _240_/B -> _240_/Y 
+ delay              _240_/B -> _240_/Y 
+ internal net       _240_/Y -> _358_/B2 
+ primary output net _240_/Y -> resp_msg[1] 
+ delay              _241_/A -> _241_/Y 
+ delay              _241_/A -> _241_/Y 
+ delay              _241_/B -> _241_/Y 
+ delay              _241_/B -> _241_/Y 
+ internal net       _241_/Y -> _242_/A 
+ delay              _242_/A -> _242_/Y 
+ delay              _242_/A -> _242_/Y 
+ delay              _242_/B -> _242_/Y 
+ delay              _242_/B -> _242_/Y 
+ internal net       _242_/Y -> _361_/B2 
+ primary output net _242_/Y -> resp_msg[2] 
+ delay              _243_/A -> _243_/Y 
+ delay              _243_/A -> _243_/Y 
+ delay              _243_/B -> _243_/Y 
+ delay              _243_/B -> _243_/Y 
+ internal net       _243_/Y -> _244_/B 
+ delay              _244_/A -> _244_/Y 
+ delay              _244_/A -> _244_/Y 
+ delay              _244_/B -> _244_/Y 
+ delay              _244_/B -> _244_/Y 
+ internal net       _244_/Y -> _364_/B2 
+ primary output net _244_/Y -> resp_msg[3] 
+ delay              _245_/A -> _245_/Y 
+ delay              _245_/A -> _245_/Y 
+ delay              _245_/B -> _245_/Y 
+ delay              _245_/B -> _245_/Y 
+ internal net       _245_/Y -> _246_/A 
+ delay              _246_/A -> _246_/Y 
+ delay              _246_/A -> _246_/Y 
+ delay              _246_/B -> _246_/Y 
+ delay              _246_/B -> _246_/Y 
+ internal net       _246_/Y -> _367_/B1 
+ primary output net _246_/Y -> resp_msg[4] 
+ delay              _247_/A -> _247_/Y 
+ delay              _247_/A -> _247_/Y 
+ delay              _247_/B -> _247_/Y 
+ delay              _247_/B -> _247_/Y 
+ internal net       _247_/Y -> _248_/B 
+ delay              _248_/A -> _248_/Y 
+ delay              _248_/A -> _248_/Y 
+ delay              _248_/B -> _248_/Y 
+ delay              _248_/B -> _248_/Y 
+ internal net       _248_/Y -> _369_/A 
+ primary output net _248_/Y -> resp_msg[5] 
+ delay              _249_/A -> _249_/Y 
+ delay              _249_/A -> _249_/Y 
+ delay              _249_/B -> _249_/Y 
+ delay              _249_/B -> _249_/Y 
+ internal net       _249_/Y -> _373_/B2 
+ primary output net _249_/Y -> resp_msg[6] 
+ delay              _250_/A1 -> _250_/X 
+ delay              _250_/A2 -> _250_/X 
+ delay              _250_/B1 -> _250_/X 
+ internal net       _250_/X -> _252_/A 
+ delay              _251_/A -> _251_/X 
+ delay              _251_/B -> _251_/X 
+ internal net       _251_/X -> _252_/B 
+ delay              _252_/A -> _252_/Y 
+ delay              _252_/A -> _252_/Y 
+ delay              _252_/B -> _252_/Y 
+ delay              _252_/B -> _252_/Y 
+ internal net       _252_/Y -> _376_/B2 
+ primary output net _252_/Y -> resp_msg[7] 
+ delay              _253_/A -> _253_/Y 
+ delay              _253_/B -> _253_/Y 
+ internal net       _253_/Y -> _254_/B 
+ delay              _254_/A -> _254_/Y 
+ delay              _254_/A -> _254_/Y 
+ delay              _254_/B -> _254_/Y 
+ delay              _254_/B -> _254_/Y 
+ internal net       _254_/Y -> _379_/B2 
+ primary output net _254_/Y -> resp_msg[8] 
+ delay              _255_/A1 -> _255_/X 
+ delay              _255_/A2 -> _255_/X 
+ delay              _255_/A3 -> _255_/X 
+ delay              _255_/B1 -> _255_/X 
+ internal net       _255_/X -> _257_/A 
+ delay              _256_/A -> _256_/Y 
+ delay              _256_/B -> _256_/Y 
+ internal net       _256_/Y -> _257_/B 
+ delay              _257_/A -> _257_/X 
+ delay              _257_/A -> _257_/X 
+ delay              _257_/B -> _257_/X 
+ delay              _257_/B -> _257_/X 
+ internal net       _257_/X -> _383_/B2 
+ primary output net _257_/X -> resp_msg[9] 
+ delay              _258_/A -> _258_/Y 
+ delay              _258_/B -> _258_/Y 
+ delay              _258_/C -> _258_/Y 
+ internal net       _258_/Y -> _260_/A 
+ delay              _259_/A1 -> _259_/Y 
+ delay              _259_/A2 -> _259_/Y 
+ delay              _259_/B1 -> _259_/Y 
+ internal net       _259_/Y -> _260_/B_N 
+ delay              _260_/A -> _260_/Y 
+ delay              _260_/B_N -> _260_/Y 
+ internal net       _260_/Y -> _387_/B1 
+ primary output net _260_/Y -> resp_msg[10] 
+ delay              _261_/A1 -> _261_/Y 
+ delay              _261_/A2 -> _261_/Y 
+ delay              _261_/A3 -> _261_/Y 
+ delay              _261_/B1 -> _261_/Y 
+ internal net       _261_/Y -> _263_/A 
+ delay              _262_/A -> _262_/Y 
+ delay              _262_/B -> _262_/Y 
+ internal net       _262_/Y -> _263_/B 
+ delay              _263_/A -> _263_/Y 
+ delay              _263_/A -> _263_/Y 
+ delay              _263_/B -> _263_/Y 
+ delay              _263_/B -> _263_/Y 
+ internal net       _263_/Y -> _391_/B2 
+ primary output net _263_/Y -> resp_msg[11] 
+ delay              _264_/A -> _264_/Y 
+ delay              _264_/B -> _264_/Y 
+ internal net       _264_/Y -> _265_/B 
+ delay              _265_/A -> _265_/Y 
+ delay              _265_/A -> _265_/Y 
+ delay              _265_/B -> _265_/Y 
+ delay              _265_/B -> _265_/Y 
+ internal net       _265_/Y -> _395_/B2 
+ primary output net _265_/Y -> resp_msg[12] 
+ delay              _266_/A1 -> _266_/Y 
+ delay              _266_/A2 -> _266_/Y 
+ delay              _266_/A3 -> _266_/Y 
+ delay              _266_/B1 -> _266_/Y 
+ internal net       _266_/Y -> _268_/A 
+ delay              _267_/A -> _267_/Y 
+ delay              _267_/B -> _267_/Y 
+ internal net       _267_/Y -> _268_/B 
+ delay              _268_/A -> _268_/Y 
+ delay              _268_/A -> _268_/Y 
+ delay              _268_/B -> _268_/Y 
+ delay              _268_/B -> _268_/Y 
+ internal net       _268_/Y -> _399_/B2 
+ primary output net _268_/Y -> resp_msg[13] 
+ delay              _269_/A -> _269_/Y 
+ internal net       _269_/Y -> _270_/A 
+ internal net       _269_/Y -> _292_/A1 
+ delay              _270_/A -> _270_/Y 
+ delay              _270_/A -> _270_/Y 
+ delay              _270_/B -> _270_/Y 
+ delay              _270_/B -> _270_/Y 
+ internal net       _270_/Y -> _403_/B2 
+ primary output net _270_/Y -> resp_msg[14] 
+ delay              _271_/A -> _271_/X 
+ delay              _271_/A -> _271_/X 
+ delay              _271_/B -> _271_/X 
+ delay              _271_/B -> _271_/X 
+ internal net       _271_/X -> _353_/B2 
+ primary output net _271_/X -> resp_msg[0] 
+ delay              _272_/A -> _272_/Y 
+ delay              _272_/B -> _272_/Y 
+ internal net       _272_/Y -> _275_/A 
+ delay              _273_/A -> _273_/Y 
+ delay              _273_/B -> _273_/Y 
+ delay              _273_/C -> _273_/Y 
+ delay              _273_/D -> _273_/Y 
+ internal net       _273_/Y -> _275_/B 
+ delay              _274_/A -> _274_/Y 
+ delay              _274_/B -> _274_/Y 
+ delay              _274_/C -> _274_/Y 
+ delay              _274_/D -> _274_/Y 
+ internal net       _274_/Y -> _275_/C 
+ delay              _275_/A -> _275_/Y 
+ delay              _275_/B -> _275_/Y 
+ delay              _275_/C -> _275_/Y 
+ internal net       _275_/Y -> _277_/C 
+ delay              _276_/A -> _276_/X 
+ delay              _276_/B -> _276_/X 
+ delay              _276_/C -> _276_/X 
+ delay              _276_/D -> _276_/X 
+ internal net       _276_/X -> _277_/D 
+ delay              _277_/A -> _277_/Y 
+ delay              _277_/B -> _277_/Y 
+ delay              _277_/C -> _277_/Y 
+ delay              _277_/D -> _277_/Y 
+ internal net       _277_/Y -> _283_/A1 
+ internal net       _277_/Y -> _290_/A3 
+ delay              _278_/A -> _278_/Y 
+ internal net       _278_/Y -> _279_/B 
+ internal net       _278_/Y -> _290_/A2 
+ delay              _279_/A -> _279_/Y 
+ delay              _279_/B -> _279_/Y 
+ internal net       _279_/Y -> _283_/A2 
+ delay              _282_/A -> _282_/Y 
+ delay              _282_/B -> _282_/Y 
+ internal net       _282_/Y -> _283_/B1 
+ delay              _283_/A1 -> _283_/Y 
+ delay              _283_/A2 -> _283_/Y 
+ delay              _283_/B1 -> _283_/Y 
+ delay              _283_/B2 -> _283_/Y 
+ internal net       _283_/Y -> _413_/D 
+ delay              _284_/A -> _284_/Y 
+ delay              _284_/B -> _284_/Y 
+ internal net       _284_/Y -> _285_/B 
+ internal net       _284_/Y -> _359_/A2 
+ internal net       _284_/Y -> _362_/A2 
+ internal net       _284_/Y -> _365_/A2 
+ internal net       _284_/Y -> _367_/C1 
+ internal net       _284_/Y -> _368_/A2 
+ internal net       _284_/Y -> _370_/C1 
+ internal net       _284_/Y -> _371_/A2 
+ internal net       _284_/Y -> _377_/A2 
+ internal net       _284_/Y -> _387_/C1 
+ internal net       _284_/Y -> _410_/B1 
+ delay              _285_/A -> _285_/X 
+ delay              _285_/B -> _285_/X 
+ internal net       _285_/X -> _288_/A2 
+ primary output net _285_/X -> resp_val 
+ delay              _286_/A -> _286_/Y 
+ internal net       _286_/Y -> _289_/A1 
+ internal net       _286_/Y -> _297_/B 
+ internal net       _286_/Y -> _315_/A 
+ internal net       _286_/Y -> _350_/A1 
+ internal net       _286_/Y -> _357_/A1 
+ internal net       _286_/Y -> _360_/A2 
+ internal net       _286_/Y -> _363_/A2 
+ internal net       _286_/Y -> _372_/A2 
+ internal net       _286_/Y -> _375_/A2 
+ internal net       _286_/Y -> _378_/A2 
+ internal net       _286_/Y -> _382_/A2 
+ internal net       _286_/Y -> _390_/A2 
+ internal net       _286_/Y -> _394_/A2 
+ internal net       _286_/Y -> _398_/A2 
+ internal net       _286_/Y -> _402_/A2 
+ internal net       _286_/Y -> _407_/A2 
+ delay              _288_/A1 -> _288_/Y 
+ delay              _288_/A2 -> _288_/Y 
+ delay              _288_/B1 -> _288_/Y 
+ internal net       _288_/Y -> _289_/B1 
+ internal net       _288_/Y -> _290_/B1 
+ delay              _289_/A1 -> _289_/Y 
+ delay              _289_/A2 -> _289_/Y 
+ delay              _289_/B1 -> _289_/Y 
+ internal net       _289_/Y -> _411_/D 
+ delay              _290_/A1 -> _290_/X 
+ delay              _290_/A2 -> _290_/X 
+ delay              _290_/A3 -> _290_/X 
+ delay              _290_/B1 -> _290_/X 
+ delay              _290_/B2 -> _290_/X 
+ internal net       _290_/X -> _412_/D 
+ delay              _291_/A -> _291_/Y 
+ delay              _291_/B -> _291_/Y 
+ internal net       _291_/Y -> _302_/A 
+ delay              _292_/A1 -> _292_/X 
+ delay              _292_/A2 -> _292_/X 
+ delay              _292_/A3 -> _292_/X 
+ delay              _292_/B1 -> _292_/X 
+ delay              _292_/C1 -> _292_/X 
+ internal net       _292_/X -> _295_/A3 
+ internal net       _292_/X -> _298_/A2 
+ internal net       _292_/X -> _351_/B 
+ delay              _293_/A -> _293_/X 
+ delay              _293_/B -> _293_/X 
+ internal net       _293_/X -> _295_/B1 
+ internal net       _293_/X -> _354_/B 
+ internal net       _293_/X -> _374_/A2_N 
+ internal net       _293_/X -> _380_/B 
+ internal net       _293_/X -> _384_/B 
+ internal net       _293_/X -> _388_/B 
+ internal net       _293_/X -> _392_/B 
+ internal net       _293_/X -> _396_/B 
+ internal net       _293_/X -> _400_/B 
+ internal net       _293_/X -> _404_/B 
+ delay              _295_/A1 -> _295_/Y 
+ delay              _295_/A2 -> _295_/Y 
+ delay              _295_/A3 -> _295_/Y 
+ delay              _295_/B1 -> _295_/Y 
+ internal net       _295_/Y -> _301_/A2 
+ internal net       _295_/Y -> _304_/A2 
+ internal net       _295_/Y -> _311_/A2 
+ internal net       _295_/Y -> _321_/A2 
+ internal net       _295_/Y -> _324_/A2 
+ internal net       _295_/Y -> _328_/A1 
+ internal net       _295_/Y -> _333_/S 
+ internal net       _295_/Y -> _335_/A2 
+ internal net       _295_/Y -> _344_/A2 
+ internal net       _295_/Y -> _347_/A2 
+ internal net       _295_/Y -> split1/A 
+ delay              _297_/A -> _297_/Y 
+ delay              _297_/B -> _297_/Y 
+ internal net       _297_/Y -> _298_/B1_N 
+ internal net       _297_/Y -> _350_/B1 
+ internal net       _297_/Y -> _351_/C 
+ internal net       _297_/Y -> _357_/B1 
+ internal net       _297_/Y -> _360_/B1 
+ internal net       _297_/Y -> _363_/B1 
+ internal net       _297_/Y -> _372_/B1 
+ internal net       _297_/Y -> _375_/B1 
+ internal net       _297_/Y -> _378_/B1 
+ internal net       _297_/Y -> _382_/B1 
+ internal net       _297_/Y -> _390_/B1 
+ internal net       _297_/Y -> _394_/B1 
+ internal net       _297_/Y -> _398_/B1 
+ internal net       _297_/Y -> _402_/B1 
+ internal net       _297_/Y -> _407_/B1 
+ internal net       _297_/Y -> _409_/D 
+ delay              _298_/A1 -> _298_/X 
+ delay              _298_/A2 -> _298_/X 
+ delay              _298_/B1_N -> _298_/X 
+ internal net       _298_/X -> _301_/B1 
+ internal net       _298_/X -> _304_/B1 
+ internal net       _298_/X -> _308_/B1 
+ internal net       _298_/X -> _311_/B1 
+ internal net       _298_/X -> _316_/B1 
+ internal net       _298_/X -> _321_/B1 
+ internal net       _298_/X -> _324_/B1 
+ internal net       _298_/X -> _335_/B1 
+ internal net       _298_/X -> _338_/B1 
+ internal net       _298_/X -> _344_/B1 
+ internal net       _298_/X -> _347_/B1 
+ internal net       _298_/X -> _353_/A2 
+ internal net       _298_/X -> _358_/A2 
+ internal net       _298_/X -> _361_/A2 
+ internal net       _298_/X -> _364_/A2 
+ internal net       _298_/X -> _366_/B 
+ internal net       _298_/X -> _370_/B1 
+ internal net       _298_/X -> _373_/A2 
+ internal net       _298_/X -> _376_/A2 
+ internal net       _298_/X -> _379_/A2 
+ internal net       _298_/X -> _383_/A2 
+ internal net       _298_/X -> _386_/B 
+ internal net       _298_/X -> _391_/A2 
+ internal net       _298_/X -> _395_/A2 
+ internal net       _298_/X -> _399_/A2 
+ internal net       _298_/X -> _403_/A2 
+ internal net       _298_/X -> _406_/B 
+ delay              _301_/A1 -> _301_/Y 
+ delay              _301_/A2 -> _301_/Y 
+ delay              _301_/B1 -> _301_/Y 
+ delay              _301_/B2 -> _301_/Y 
+ internal net       _301_/Y -> _302_/B 
+ delay              _302_/A -> _302_/Y 
+ delay              _302_/B -> _302_/Y 
+ internal net       _302_/Y -> _414_/D 
+ delay              _303_/A -> _303_/Y 
+ delay              _303_/B -> _303_/Y 
+ internal net       _303_/Y -> _305_/A 
+ delay              _304_/A1 -> _304_/Y 
+ delay              _304_/A2 -> _304_/Y 
+ delay              _304_/B1 -> _304_/Y 
+ delay              _304_/B2 -> _304_/Y 
+ internal net       _304_/Y -> _305_/B 
+ delay              _305_/A -> _305_/Y 
+ delay              _305_/B -> _305_/Y 
+ internal net       _305_/Y -> _415_/D 
+ delay              _307_/A -> _307_/Y 
+ delay              _307_/B -> _307_/Y 
+ internal net       _307_/Y -> _309_/A 
+ delay              _308_/A1 -> _308_/Y 
+ delay              _308_/A2 -> _308_/Y 
+ delay              _308_/B1 -> _308_/Y 
+ delay              _308_/B2 -> _308_/Y 
+ internal net       _308_/Y -> _309_/B 
+ delay              _309_/A -> _309_/Y 
+ delay              _309_/B -> _309_/Y 
+ internal net       _309_/Y -> _416_/D 
+ delay              _310_/A -> _310_/Y 
+ delay              _310_/B -> _310_/Y 
+ internal net       _310_/Y -> _312_/A 
+ delay              _311_/A1 -> _311_/Y 
+ delay              _311_/A2 -> _311_/Y 
+ delay              _311_/B1 -> _311_/Y 
+ delay              _311_/B2 -> _311_/Y 
+ internal net       _311_/Y -> _312_/B 
+ delay              _312_/A -> _312_/Y 
+ delay              _312_/B -> _312_/Y 
+ internal net       _312_/Y -> _417_/D 
+ delay              _313_/A -> _313_/Y 
+ internal net       _313_/Y -> _316_/A1 
+ delay              _315_/A -> _315_/Y 
+ delay              _315_/B -> _315_/Y 
+ internal net       _315_/Y -> _316_/C1 
+ delay              _316_/A1 -> _316_/Y 
+ delay              _316_/A2 -> _316_/Y 
+ delay              _316_/B1 -> _316_/Y 
+ delay              _316_/B2 -> _316_/Y 
+ delay              _316_/C1 -> _316_/Y 
+ internal net       _316_/Y -> _418_/D 
+ delay              _317_/A0 -> _317_/Y 
+ delay              _317_/A1 -> _317_/Y 
+ delay              _317_/S -> _317_/Y 
+ delay              _317_/S -> _317_/Y 
+ internal net       _317_/Y -> _319_/A2 
+ delay              _318_/A -> _318_/Y 
+ delay              _318_/B -> _318_/Y 
+ internal net       _318_/Y -> _319_/B1 
+ delay              _319_/A1 -> _319_/Y 
+ delay              _319_/A2 -> _319_/Y 
+ delay              _319_/B1 -> _319_/Y 
+ internal net       _319_/Y -> _419_/D 
+ delay              _320_/A -> _320_/Y 
+ delay              _320_/B -> _320_/Y 
+ internal net       _320_/Y -> _322_/A 
+ delay              _321_/A1 -> _321_/Y 
+ delay              _321_/A2 -> _321_/Y 
+ delay              _321_/B1 -> _321_/Y 
+ delay              _321_/B2 -> _321_/Y 
+ internal net       _321_/Y -> _322_/B 
+ delay              _322_/A -> _322_/Y 
+ delay              _322_/B -> _322_/Y 
+ internal net       _322_/Y -> _420_/D 
+ delay              _323_/A -> _323_/Y 
+ delay              _323_/B -> _323_/Y 
+ internal net       _323_/Y -> _325_/A 
+ delay              _324_/A1 -> _324_/Y 
+ delay              _324_/A2 -> _324_/Y 
+ delay              _324_/B1 -> _324_/Y 
+ delay              _324_/B2 -> _324_/Y 
+ internal net       _324_/Y -> _325_/B 
+ delay              _325_/A -> _325_/Y 
+ delay              _325_/B -> _325_/Y 
+ internal net       _325_/Y -> _421_/D 
+ delay              _326_/A0 -> _326_/Y 
+ delay              _326_/A1 -> _326_/Y 
+ delay              _326_/S -> _326_/Y 
+ delay              _326_/S -> _326_/Y 
+ internal net       _326_/Y -> _328_/A2 
+ delay              _327_/A -> _327_/Y 
+ delay              _327_/B -> _327_/Y 
+ internal net       _327_/Y -> _328_/B1 
+ delay              _328_/A1 -> _328_/Y 
+ delay              _328_/A2 -> _328_/Y 
+ delay              _328_/B1 -> _328_/Y 
+ internal net       _328_/Y -> _422_/D 
+ delay              _329_/A0 -> _329_/Y 
+ delay              _329_/A1 -> _329_/Y 
+ delay              _329_/S -> _329_/Y 
+ delay              _329_/S -> _329_/Y 
+ internal net       _329_/Y -> _331_/A2 
+ delay              _330_/A -> _330_/Y 
+ delay              _330_/B -> _330_/Y 
+ internal net       _330_/Y -> _331_/B1 
+ delay              _331_/A1 -> _331_/Y 
+ delay              _331_/A2 -> _331_/Y 
+ delay              _331_/B1 -> _331_/Y 
+ internal net       _331_/Y -> _423_/D 
+ delay              _332_/A0 -> _332_/X 
+ delay              _332_/A1 -> _332_/X 
+ delay              _332_/S -> _332_/X 
+ delay              _332_/S -> _332_/X 
+ internal net       _332_/X -> _333_/A0 
+ delay              _333_/A0 -> _333_/X 
+ delay              _333_/A1 -> _333_/X 
+ delay              _333_/S -> _333_/X 
+ delay              _333_/S -> _333_/X 
+ internal net       _333_/X -> _424_/D 
+ delay              _334_/A -> _334_/Y 
+ delay              _334_/B -> _334_/Y 
+ internal net       _334_/Y -> _336_/A 
+ delay              _335_/A1 -> _335_/Y 
+ delay              _335_/A2 -> _335_/Y 
+ delay              _335_/B1 -> _335_/Y 
+ delay              _335_/B2 -> _335_/Y 
+ internal net       _335_/Y -> _336_/B 
+ delay              _336_/A -> _336_/Y 
+ delay              _336_/B -> _336_/Y 
+ internal net       _336_/Y -> _425_/D 
+ delay              _337_/A -> _337_/Y 
+ delay              _337_/B -> _337_/Y 
+ internal net       _337_/Y -> _339_/A 
+ delay              _338_/A1 -> _338_/Y 
+ delay              _338_/A2 -> _338_/Y 
+ delay              _338_/B1 -> _338_/Y 
+ delay              _338_/B2 -> _338_/Y 
+ internal net       _338_/Y -> _339_/B 
+ delay              _339_/A -> _339_/Y 
+ delay              _339_/B -> _339_/Y 
+ internal net       _339_/Y -> _426_/D 
+ delay              _340_/A0 -> _340_/Y 
+ delay              _340_/A1 -> _340_/Y 
+ delay              _340_/S -> _340_/Y 
+ delay              _340_/S -> _340_/Y 
+ internal net       _340_/Y -> _342_/A2 
+ delay              _341_/A -> _341_/Y 
+ delay              _341_/B -> _341_/Y 
+ internal net       _341_/Y -> _342_/B1 
+ delay              _342_/A1 -> _342_/Y 
+ delay              _342_/A2 -> _342_/Y 
+ delay              _342_/B1 -> _342_/Y 
+ internal net       _342_/Y -> _427_/D 
+ delay              _343_/A -> _343_/Y 
+ delay              _343_/B -> _343_/Y 
+ internal net       _343_/Y -> _345_/A 
+ delay              _344_/A1 -> _344_/Y 
+ delay              _344_/A2 -> _344_/Y 
+ delay              _344_/B1 -> _344_/Y 
+ delay              _344_/B2 -> _344_/Y 
+ internal net       _344_/Y -> _345_/B 
+ delay              _345_/A -> _345_/Y 
+ delay              _345_/B -> _345_/Y 
+ internal net       _345_/Y -> _428_/D 
+ delay              _346_/A -> _346_/Y 
+ delay              _346_/B -> _346_/Y 
+ internal net       _346_/Y -> _348_/A 
+ delay              _347_/A1 -> _347_/Y 
+ delay              _347_/A2 -> _347_/Y 
+ delay              _347_/B1 -> _347_/Y 
+ delay              _347_/B2 -> _347_/Y 
+ internal net       _347_/Y -> _348_/B 
+ delay              _348_/A -> _348_/Y 
+ delay              _348_/B -> _348_/Y 
+ internal net       _348_/Y -> _429_/D 
+ delay              _350_/A1 -> _350_/Y 
+ delay              _350_/A2 -> _350_/Y 
+ delay              _350_/B1 -> _350_/Y 
+ internal net       _350_/Y -> _355_/A1 
+ delay              _351_/A -> _351_/Y 
+ delay              _351_/B -> _351_/Y 
+ delay              _351_/C -> _351_/Y 
+ internal net       _351_/Y -> _353_/B1 
+ internal net       _351_/Y -> _358_/B1 
+ internal net       _351_/Y -> _361_/B1 
+ internal net       _351_/Y -> _364_/B1 
+ internal net       _351_/Y -> _367_/B2 
+ internal net       _351_/Y -> _369_/B 
+ internal net       _351_/Y -> _373_/B1 
+ internal net       _351_/Y -> _376_/B1 
+ internal net       _351_/Y -> _379_/B1 
+ internal net       _351_/Y -> _383_/B1 
+ internal net       _351_/Y -> _387_/B2 
+ internal net       _351_/Y -> _391_/B1 
+ internal net       _351_/Y -> _395_/B1 
+ internal net       _351_/Y -> _399_/B1 
+ internal net       _351_/Y -> _403_/B1 
+ delay              _353_/A1 -> _353_/Y 
+ delay              _353_/A2 -> _353_/Y 
+ delay              _353_/B1 -> _353_/Y 
+ delay              _353_/B2 -> _353_/Y 
+ internal net       _353_/Y -> _355_/A2 
+ delay              _354_/A -> _354_/Y 
+ delay              _354_/B -> _354_/Y 
+ internal net       _354_/Y -> _355_/B1 
+ delay              _355_/A1 -> _355_/Y 
+ delay              _355_/A2 -> _355_/Y 
+ delay              _355_/B1 -> _355_/Y 
+ internal net       _355_/Y -> _430_/D 
+ delay              _357_/A1 -> _357_/Y 
+ delay              _357_/A2 -> _357_/Y 
+ delay              _357_/B1 -> _357_/Y 
+ internal net       _357_/Y -> _359_/B1 
+ delay              _358_/A1 -> _358_/Y 
+ delay              _358_/A2 -> _358_/Y 
+ delay              _358_/B1 -> _358_/Y 
+ delay              _358_/B2 -> _358_/Y 
+ internal net       _358_/Y -> _359_/B2 
+ delay              _359_/A1 -> _359_/Y 
+ delay              _359_/A2 -> _359_/Y 
+ delay              _359_/B1 -> _359_/Y 
+ delay              _359_/B2 -> _359_/Y 
+ internal net       _359_/Y -> _431_/D 
+ delay              _360_/A1 -> _360_/Y 
+ delay              _360_/A2 -> _360_/Y 
+ delay              _360_/B1 -> _360_/Y 
+ internal net       _360_/Y -> _362_/B1 
+ delay              _361_/A1 -> _361_/Y 
+ delay              _361_/A2 -> _361_/Y 
+ delay              _361_/B1 -> _361_/Y 
+ delay              _361_/B2 -> _361_/Y 
+ internal net       _361_/Y -> _362_/B2 
+ delay              _362_/A1 -> _362_/Y 
+ delay              _362_/A2 -> _362_/Y 
+ delay              _362_/B1 -> _362_/Y 
+ delay              _362_/B2 -> _362_/Y 
+ internal net       _362_/Y -> _432_/D 
+ delay              _363_/A1 -> _363_/Y 
+ delay              _363_/A2 -> _363_/Y 
+ delay              _363_/B1 -> _363_/Y 
+ internal net       _363_/Y -> _365_/B1 
+ delay              _364_/A1 -> _364_/Y 
+ delay              _364_/A2 -> _364_/Y 
+ delay              _364_/B1 -> _364_/Y 
+ delay              _364_/B2 -> _364_/Y 
+ internal net       _364_/Y -> _365_/B2 
+ delay              _365_/A1 -> _365_/Y 
+ delay              _365_/A2 -> _365_/Y 
+ delay              _365_/B1 -> _365_/Y 
+ delay              _365_/B2 -> _365_/Y 
+ internal net       _365_/Y -> _433_/D 
+ delay              _366_/A -> _366_/Y 
+ delay              _366_/B -> _366_/Y 
+ internal net       _366_/Y -> _368_/B1 
+ delay              _367_/A1 -> _367_/Y 
+ delay              _367_/A2 -> _367_/Y 
+ delay              _367_/B1 -> _367_/Y 
+ delay              _367_/B2 -> _367_/Y 
+ delay              _367_/C1 -> _367_/Y 
+ internal net       _367_/Y -> _368_/B2 
+ delay              _368_/A1 -> _368_/Y 
+ delay              _368_/A2 -> _368_/Y 
+ delay              _368_/B1 -> _368_/Y 
+ delay              _368_/B2 -> _368_/Y 
+ internal net       _368_/Y -> _434_/D 
+ delay              _369_/A -> _369_/Y 
+ delay              _369_/B -> _369_/Y 
+ internal net       _369_/Y -> _371_/B1 
+ delay              _370_/A1 -> _370_/Y 
+ delay              _370_/A2 -> _370_/Y 
+ delay              _370_/B1 -> _370_/Y 
+ delay              _370_/B2 -> _370_/Y 
+ delay              _370_/C1 -> _370_/Y 
+ internal net       _370_/Y -> _371_/B2 
+ delay              _371_/A1 -> _371_/Y 
+ delay              _371_/A2 -> _371_/Y 
+ delay              _371_/B1 -> _371_/Y 
+ delay              _371_/B2 -> _371_/Y 
+ internal net       _371_/Y -> _435_/D 
+ delay              _372_/A1 -> _372_/Y 
+ delay              _372_/A2 -> _372_/Y 
+ delay              _372_/B1 -> _372_/Y 
+ internal net       _372_/Y -> _374_/B1 
+ delay              _373_/A1 -> _373_/Y 
+ delay              _373_/A2 -> _373_/Y 
+ delay              _373_/B1 -> _373_/Y 
+ delay              _373_/B2 -> _373_/Y 
+ internal net       _373_/Y -> _374_/B2 
+ delay              _374_/A1_N -> _374_/Y 
+ delay              _374_/A2_N -> _374_/Y 
+ delay              _374_/B1 -> _374_/Y 
+ delay              _374_/B2 -> _374_/Y 
+ internal net       _374_/Y -> _436_/D 
+ delay              _375_/A1 -> _375_/Y 
+ delay              _375_/A2 -> _375_/Y 
+ delay              _375_/B1 -> _375_/Y 
+ internal net       _375_/Y -> _377_/B1 
+ delay              _376_/A1 -> _376_/Y 
+ delay              _376_/A2 -> _376_/Y 
+ delay              _376_/B1 -> _376_/Y 
+ delay              _376_/B2 -> _376_/Y 
+ internal net       _376_/Y -> _377_/B2 
+ delay              _377_/A1 -> _377_/Y 
+ delay              _377_/A2 -> _377_/Y 
+ delay              _377_/B1 -> _377_/Y 
+ delay              _377_/B2 -> _377_/Y 
+ internal net       _377_/Y -> _437_/D 
+ delay              _378_/A1 -> _378_/Y 
+ delay              _378_/A2 -> _378_/Y 
+ delay              _378_/B1 -> _378_/Y 
+ internal net       _378_/Y -> _381_/A1 
+ delay              _379_/A1 -> _379_/Y 
+ delay              _379_/A2 -> _379_/Y 
+ delay              _379_/B1 -> _379_/Y 
+ delay              _379_/B2 -> _379_/Y 
+ internal net       _379_/Y -> _381_/A2 
+ delay              _380_/A -> _380_/Y 
+ delay              _380_/B -> _380_/Y 
+ internal net       _380_/Y -> _381_/B1 
+ delay              _381_/A1 -> _381_/Y 
+ delay              _381_/A2 -> _381_/Y 
+ delay              _381_/B1 -> _381_/Y 
+ internal net       _381_/Y -> _438_/D 
+ delay              _382_/A1 -> _382_/Y 
+ delay              _382_/A2 -> _382_/Y 
+ delay              _382_/B1 -> _382_/Y 
+ internal net       _382_/Y -> _385_/A1 
+ delay              _383_/A1 -> _383_/Y 
+ delay              _383_/A2 -> _383_/Y 
+ delay              _383_/B1 -> _383_/Y 
+ delay              _383_/B2 -> _383_/Y 
+ internal net       _383_/Y -> _385_/A2 
+ delay              _384_/A -> _384_/Y 
+ delay              _384_/B -> _384_/Y 
+ internal net       _384_/Y -> _385_/B1 
+ delay              _385_/A1 -> _385_/Y 
+ delay              _385_/A2 -> _385_/Y 
+ delay              _385_/B1 -> _385_/Y 
+ internal net       _385_/Y -> _439_/D 
+ delay              _386_/A -> _386_/Y 
+ delay              _386_/B -> _386_/Y 
+ internal net       _386_/Y -> _389_/A1 
+ delay              _387_/A1 -> _387_/Y 
+ delay              _387_/A2 -> _387_/Y 
+ delay              _387_/B1 -> _387_/Y 
+ delay              _387_/B2 -> _387_/Y 
+ delay              _387_/C1 -> _387_/Y 
+ internal net       _387_/Y -> _389_/A2 
+ delay              _388_/A -> _388_/Y 
+ delay              _388_/B -> _388_/Y 
+ internal net       _388_/Y -> _389_/B1 
+ delay              _389_/A1 -> _389_/Y 
+ delay              _389_/A2 -> _389_/Y 
+ delay              _389_/B1 -> _389_/Y 
+ internal net       _389_/Y -> _440_/D 
+ delay              _390_/A1 -> _390_/Y 
+ delay              _390_/A2 -> _390_/Y 
+ delay              _390_/B1 -> _390_/Y 
+ internal net       _390_/Y -> _393_/A1 
+ delay              _391_/A1 -> _391_/Y 
+ delay              _391_/A2 -> _391_/Y 
+ delay              _391_/B1 -> _391_/Y 
+ delay              _391_/B2 -> _391_/Y 
+ internal net       _391_/Y -> _393_/A2 
+ delay              _392_/A -> _392_/Y 
+ delay              _392_/B -> _392_/Y 
+ internal net       _392_/Y -> _393_/B1 
+ delay              _393_/A1 -> _393_/Y 
+ delay              _393_/A2 -> _393_/Y 
+ delay              _393_/B1 -> _393_/Y 
+ internal net       _393_/Y -> _441_/D 
+ delay              _394_/A1 -> _394_/Y 
+ delay              _394_/A2 -> _394_/Y 
+ delay              _394_/B1 -> _394_/Y 
+ internal net       _394_/Y -> _397_/A1 
+ delay              _395_/A1 -> _395_/Y 
+ delay              _395_/A2 -> _395_/Y 
+ delay              _395_/B1 -> _395_/Y 
+ delay              _395_/B2 -> _395_/Y 
+ internal net       _395_/Y -> _397_/A2 
+ delay              _396_/A -> _396_/Y 
+ delay              _396_/B -> _396_/Y 
+ internal net       _396_/Y -> _397_/B1 
+ delay              _397_/A1 -> _397_/Y 
+ delay              _397_/A2 -> _397_/Y 
+ delay              _397_/B1 -> _397_/Y 
+ internal net       _397_/Y -> _442_/D 
+ delay              _398_/A1 -> _398_/Y 
+ delay              _398_/A2 -> _398_/Y 
+ delay              _398_/B1 -> _398_/Y 
+ internal net       _398_/Y -> _401_/A1 
+ delay              _399_/A1 -> _399_/Y 
+ delay              _399_/A2 -> _399_/Y 
+ delay              _399_/B1 -> _399_/Y 
+ delay              _399_/B2 -> _399_/Y 
+ internal net       _399_/Y -> _401_/A2 
+ delay              _400_/A -> _400_/Y 
+ delay              _400_/B -> _400_/Y 
+ internal net       _400_/Y -> _401_/B1 
+ delay              _401_/A1 -> _401_/Y 
+ delay              _401_/A2 -> _401_/Y 
+ delay              _401_/B1 -> _401_/Y 
+ internal net       _401_/Y -> _443_/D 
+ delay              _402_/A1 -> _402_/Y 
+ delay              _402_/A2 -> _402_/Y 
+ delay              _402_/B1 -> _402_/Y 
+ internal net       _402_/Y -> _405_/A1 
+ delay              _403_/A1 -> _403_/Y 
+ delay              _403_/A2 -> _403_/Y 
+ delay              _403_/B1 -> _403_/Y 
+ delay              _403_/B2 -> _403_/Y 
+ internal net       _403_/Y -> _405_/A2 
+ delay              _404_/A -> _404_/Y 
+ delay              _404_/B -> _404_/Y 
+ internal net       _404_/Y -> _405_/B1 
+ delay              _405_/A1 -> _405_/Y 
+ delay              _405_/A2 -> _405_/Y 
+ delay              _405_/B1 -> _405_/Y 
+ internal net       _405_/Y -> _444_/D 
+ delay              _406_/A -> _406_/Y 
+ delay              _406_/B -> _406_/Y 
+ internal net       _406_/Y -> _410_/A1 
+ delay              _407_/A1 -> _407_/Y 
+ delay              _407_/A2 -> _407_/Y 
+ delay              _407_/B1 -> _407_/Y 
+ internal net       _407_/Y -> _410_/A2 
+ delay              _408_/A -> _408_/Y 
+ internal net       _408_/Y -> _409_/B 
+ internal net       _408_/Y -> _410_/B2 
+ delay              _409_/A -> _409_/X 
+ delay              _409_/B -> _409_/X 
+ delay              _409_/C -> _409_/X 
+ delay              _409_/D -> _409_/X 
+ internal net       _409_/X -> _410_/A3 
+ delay              _410_/A1 -> _410_/Y 
+ delay              _410_/A2 -> _410_/Y 
+ delay              _410_/A3 -> _410_/Y 
+ delay              _410_/B1 -> _410_/Y 
+ delay              _410_/B2 -> _410_/Y 
+ internal net       _410_/Y -> _445_/D 
+ delay              _411_/CLK -> _411_/Q 
+ internal net       _411_/Q -> _282_/A 
+ internal net       _411_/Q -> _284_/B 
+ internal net       _411_/Q -> _286_/A 
+ internal net       _411_/Q -> _291_/A 
+ internal net       _411_/Q -> _293_/B 
+ internal net       _411_/Q -> _295_/A1 
+ internal net       _411_/Q -> _303_/A 
+ internal net       _411_/Q -> _308_/A1 
+ internal net       _411_/Q -> _310_/A 
+ internal net       _411_/Q -> _317_/S 
+ internal net       _411_/Q -> _320_/A 
+ internal net       _411_/Q -> _323_/A 
+ internal net       _411_/Q -> _326_/S 
+ internal net       _411_/Q -> _329_/S 
+ internal net       _411_/Q -> _332_/S 
+ internal net       _411_/Q -> _334_/A 
+ internal net       _411_/Q -> _338_/A1 
+ internal net       _411_/Q -> _340_/S 
+ internal net       _411_/Q -> _343_/A 
+ internal net       _411_/Q -> _346_/A 
+ internal net       _411_/Q -> _367_/A2 
+ internal net       _411_/Q -> _370_/A2 
+ internal net       _411_/Q -> _387_/A2 
+ primary output net _411_/Q -> req_rdy 
+ delay              _412_/CLK -> _412_/Q 
+ internal net       _412_/Q -> _285_/A 
+ internal net       _412_/Q -> _290_/B2 
+ delay              _413_/CLK -> _413_/Q 
+ internal net       _413_/Q -> _279_/A 
+ internal net       _413_/Q -> _284_/A 
+ internal net       _413_/Q -> _290_/A1 
+ internal net       _413_/Q -> _293_/A 
+ internal net       _413_/Q -> _297_/A 
+ delay              _414_/CLK -> _414_/Q 
+ internal net       _414_/Q -> _214_/B_N 
+ internal net       _414_/Q -> rebuffer5/A 
+ internal net       _414_/Q -> rebuffer8/A 
+ delay              _415_/CLK -> _415_/Q 
+ internal net       _415_/Q -> _215_/A 
+ internal net       _415_/Q -> _239_/A 
+ internal net       _415_/Q -> _274_/D 
+ internal net       _415_/Q -> _304_/A1 
+ internal net       _415_/Q -> _358_/A1 
+ delay              _416_/CLK -> _416_/Q 
+ internal net       _416_/Q -> _216_/A 
+ internal net       _416_/Q -> _241_/A 
+ internal net       _416_/Q -> _276_/A 
+ internal net       _416_/Q -> _307_/A 
+ internal net       _416_/Q -> _361_/A1 
+ delay              _417_/CLK -> _417_/Q 
+ internal net       _417_/Q -> _217_/A 
+ internal net       _417_/Q -> _243_/A 
+ internal net       _417_/Q -> _273_/A 
+ internal net       _417_/Q -> _311_/A1 
+ internal net       _417_/Q -> _364_/A1 
+ delay              _418_/CLK -> _418_/Q 
+ internal net       _418_/Q -> _218_/A 
+ internal net       _418_/Q -> _245_/A 
+ internal net       _418_/Q -> _273_/B 
+ internal net       _418_/Q -> _313_/A 
+ internal net       _418_/Q -> _366_/A 
+ delay              _419_/CLK -> _419_/Q 
+ internal net       _419_/Q -> _219_/A 
+ internal net       _419_/Q -> _247_/A 
+ internal net       _419_/Q -> _276_/B 
+ internal net       _419_/Q -> _318_/A 
+ internal net       _419_/Q -> _370_/B2 
+ delay              _420_/CLK -> _420_/Q 
+ internal net       _420_/Q -> _207_/A 
+ internal net       _420_/Q -> _221_/A_N 
+ internal net       _420_/Q -> _274_/A 
+ internal net       _420_/Q -> _321_/A1 
+ internal net       _420_/Q -> _373_/A1 
+ delay              _421_/CLK -> _421_/Q 
+ internal net       _421_/Q -> _206_/A 
+ internal net       _421_/Q -> _220_/A_N 
+ internal net       _421_/Q -> _274_/B 
+ internal net       _421_/Q -> _324_/A1 
+ internal net       _421_/Q -> _376_/A1 
+ delay              _422_/CLK -> _422_/Q 
+ internal net       _422_/Q -> _204_/A 
+ internal net       _422_/Q -> _223_/A 
+ internal net       _422_/Q -> _276_/C 
+ internal net       _422_/Q -> _327_/A 
+ internal net       _422_/Q -> _379_/A1 
+ delay              _423_/CLK -> _423_/Q 
+ internal net       _423_/Q -> _203_/B_N 
+ internal net       _423_/Q -> _224_/A 
+ internal net       _423_/Q -> _276_/D 
+ internal net       _423_/Q -> _330_/A 
+ internal net       _423_/Q -> _383_/A1 
+ delay              _424_/CLK -> _424_/Q 
+ internal net       _424_/Q -> _201_/A 
+ internal net       _424_/Q -> _226_/A_N 
+ internal net       _424_/Q -> _273_/C 
+ internal net       _424_/Q -> _333_/A1 
+ internal net       _424_/Q -> _386_/A 
+ delay              _425_/CLK -> _425_/Q 
+ internal net       _425_/Q -> _200_/B 
+ internal net       _425_/Q -> _227_/A_N 
+ internal net       _425_/Q -> _277_/A 
+ internal net       _425_/Q -> _335_/A1 
+ internal net       _425_/Q -> _391_/A1 
+ delay              _426_/CLK -> _426_/Q 
+ internal net       _426_/Q -> _199_/A 
+ internal net       _426_/Q -> _229_/A 
+ internal net       _426_/Q -> _277_/B 
+ internal net       _426_/Q -> _337_/A 
+ internal net       _426_/Q -> _395_/A1 
+ delay              _427_/CLK -> _427_/Q 
+ internal net       _427_/Q -> _198_/B_N 
+ internal net       _427_/Q -> _230_/A 
+ internal net       _427_/Q -> _272_/A 
+ internal net       _427_/Q -> _341_/A 
+ internal net       _427_/Q -> _399_/A1 
+ delay              _428_/CLK -> _428_/Q 
+ internal net       _428_/Q -> _197_/A 
+ internal net       _428_/Q -> _233_/A_N 
+ internal net       _428_/Q -> _272_/B 
+ internal net       _428_/Q -> _344_/A1 
+ internal net       _428_/Q -> _403_/A1 
+ delay              _429_/CLK -> _429_/Q 
+ internal net       _429_/Q -> _235_/B_N 
+ internal net       _429_/Q -> _236_/A_N 
+ internal net       _429_/Q -> _273_/D 
+ internal net       _429_/Q -> _347_/A1 
+ internal net       _429_/Q -> _406_/A 
+ internal net       _429_/Q -> _409_/A 
+ delay              _430_/CLK -> _430_/Q 
+ internal net       _430_/Q -> _214_/A 
+ internal net       _430_/Q -> _271_/A 
+ internal net       _430_/Q -> _301_/B2 
+ internal net       _430_/Q -> _354_/A 
+ delay              _431_/CLK -> _431_/Q 
+ internal net       _431_/Q -> _213_/A 
+ internal net       _431_/Q -> _239_/B 
+ internal net       _431_/Q -> _304_/B2 
+ delay              _432_/CLK -> _432_/Q 
+ internal net       _432_/Q -> _212_/A 
+ internal net       _432_/Q -> _241_/B 
+ internal net       _432_/Q -> _308_/B2 
+ delay              _433_/CLK -> _433_/Q 
+ internal net       _433_/Q -> _211_/A 
+ internal net       _433_/Q -> _243_/B 
+ internal net       _433_/Q -> _311_/B2 
+ delay              _434_/CLK -> _434_/Q 
+ internal net       _434_/Q -> _210_/A 
+ internal net       _434_/Q -> _245_/B 
+ delay              _435_/CLK -> _435_/Q 
+ internal net       _435_/Q -> _209_/A 
+ internal net       _435_/Q -> _247_/B 
+ internal net       _435_/Q -> _317_/A0 
+ delay              _436_/CLK -> _436_/Q 
+ internal net       _436_/Q -> _207_/B 
+ internal net       _436_/Q -> _221_/B 
+ internal net       _436_/Q -> _321_/B2 
+ internal net       _436_/Q -> _374_/A1_N 
+ delay              _437_/CLK -> _437_/Q 
+ internal net       _437_/Q -> _205_/A 
+ internal net       _437_/Q -> _220_/B 
+ internal net       _437_/Q -> _324_/B2 
+ delay              _438_/CLK -> _438_/Q 
+ internal net       _438_/Q -> _204_/B 
+ internal net       _438_/Q -> _223_/B_N 
+ internal net       _438_/Q -> _326_/A0 
+ internal net       _438_/Q -> _380_/A 
+ delay              _439_/CLK -> _439_/Q 
+ internal net       _439_/Q -> _203_/A 
+ internal net       _439_/Q -> _224_/B_N 
+ internal net       _439_/Q -> _329_/A0 
+ internal net       _439_/Q -> _384_/A 
+ delay              _440_/CLK -> _440_/Q 
+ internal net       _440_/Q -> _201_/B 
+ internal net       _440_/Q -> _226_/B 
+ internal net       _440_/Q -> _332_/A0 
+ internal net       _440_/Q -> _388_/A 
+ delay              _441_/CLK -> _441_/Q 
+ internal net       _441_/Q -> _200_/A_N 
+ internal net       _441_/Q -> _227_/B 
+ internal net       _441_/Q -> _335_/B2 
+ internal net       _441_/Q -> _392_/A 
+ delay              _442_/CLK -> _442_/Q 
+ internal net       _442_/Q -> _199_/B 
+ internal net       _442_/Q -> _229_/B_N 
+ internal net       _442_/Q -> _338_/B2 
+ internal net       _442_/Q -> _396_/A 
+ delay              _443_/CLK -> _443_/Q 
+ internal net       _443_/Q -> _198_/A 
+ internal net       _443_/Q -> _230_/B_N 
+ internal net       _443_/Q -> _340_/A0 
+ internal net       _443_/Q -> _400_/A 
+ delay              _444_/CLK -> _444_/Q 
+ internal net       _444_/Q -> _197_/B 
+ internal net       _444_/Q -> _233_/B 
+ internal net       _444_/Q -> _344_/B2 
+ internal net       _444_/Q -> _404_/A 
+ delay              _445_/CLK -> _445_/Q 
+ internal net       _445_/Q -> _235_/A 
+ internal net       _445_/Q -> _236_/B 
+ internal net       _445_/Q -> _347_/B2 
+ internal net       _445_/Q -> _408_/A 
+ delay              clkbuf_0_clk/A -> clkbuf_0_clk/X 
+ internal net       clkbuf_0_clk/X -> clkbuf_2_0__f_clk/A 
+ internal net       clkbuf_0_clk/X -> clkbuf_2_1__f_clk/A 
+ internal net       clkbuf_0_clk/X -> clkbuf_2_2__f_clk/A 
+ internal net       clkbuf_0_clk/X -> clkbuf_2_3__f_clk/A 
+ delay              clkbuf_2_0__f_clk/A -> clkbuf_2_0__f_clk/X 
+ internal net       clkbuf_2_0__f_clk/X -> _414_/CLK 
+ internal net       clkbuf_2_0__f_clk/X -> _416_/CLK 
+ internal net       clkbuf_2_0__f_clk/X -> _418_/CLK 
+ internal net       clkbuf_2_0__f_clk/X -> _429_/CLK 
+ internal net       clkbuf_2_0__f_clk/X -> _430_/CLK 
+ internal net       clkbuf_2_0__f_clk/X -> _432_/CLK 
+ internal net       clkbuf_2_0__f_clk/X -> _434_/CLK 
+ internal net       clkbuf_2_0__f_clk/X -> _444_/CLK 
+ internal net       clkbuf_2_0__f_clk/X -> _445_/CLK 
+ delay              clkbuf_2_1__f_clk/A -> clkbuf_2_1__f_clk/X 
+ internal net       clkbuf_2_1__f_clk/X -> _411_/CLK 
+ internal net       clkbuf_2_1__f_clk/X -> _413_/CLK 
+ internal net       clkbuf_2_1__f_clk/X -> _415_/CLK 
+ internal net       clkbuf_2_1__f_clk/X -> _417_/CLK 
+ internal net       clkbuf_2_1__f_clk/X -> _421_/CLK 
+ internal net       clkbuf_2_1__f_clk/X -> _431_/CLK 
+ internal net       clkbuf_2_1__f_clk/X -> _433_/CLK 
+ internal net       clkbuf_2_1__f_clk/X -> _437_/CLK 
+ internal net       clkbuf_2_1__f_clk/X -> _438_/CLK 
+ delay              clkbuf_2_2__f_clk/A -> clkbuf_2_2__f_clk/X 
+ internal net       clkbuf_2_2__f_clk/X -> _423_/CLK 
+ internal net       clkbuf_2_2__f_clk/X -> _424_/CLK 
+ internal net       clkbuf_2_2__f_clk/X -> _425_/CLK 
+ internal net       clkbuf_2_2__f_clk/X -> _426_/CLK 
+ internal net       clkbuf_2_2__f_clk/X -> _427_/CLK 
+ internal net       clkbuf_2_2__f_clk/X -> _428_/CLK 
+ internal net       clkbuf_2_2__f_clk/X -> _441_/CLK 
+ internal net       clkbuf_2_2__f_clk/X -> _442_/CLK 
+ internal net       clkbuf_2_2__f_clk/X -> _443_/CLK 
+ delay              clkbuf_2_3__f_clk/A -> clkbuf_2_3__f_clk/X 
+ internal net       clkbuf_2_3__f_clk/X -> _412_/CLK 
+ internal net       clkbuf_2_3__f_clk/X -> _419_/CLK 
+ internal net       clkbuf_2_3__f_clk/X -> _420_/CLK 
+ internal net       clkbuf_2_3__f_clk/X -> _422_/CLK 
+ internal net       clkbuf_2_3__f_clk/X -> _435_/CLK 
+ internal net       clkbuf_2_3__f_clk/X -> _436_/CLK 
+ internal net       clkbuf_2_3__f_clk/X -> _439_/CLK 
+ internal net       clkbuf_2_3__f_clk/X -> _440_/CLK 
+ delay              rebuffer10/A -> rebuffer10/X 
+ internal net       rebuffer10/X -> _240_/A 
+ delay              rebuffer2/A -> rebuffer2/X 
+ internal net       rebuffer2/X -> _266_/A3 
+ delay              rebuffer3/A -> rebuffer3/X 
+ internal net       rebuffer3/X -> _248_/A 
+ delay              rebuffer4/A -> rebuffer4/X 
+ internal net       rebuffer4/X -> _261_/A3 
+ delay              rebuffer5/A -> rebuffer5/X 
+ internal net       rebuffer5/X -> _274_/C 
+ delay              rebuffer6/A -> rebuffer6/X 
+ internal net       rebuffer6/X -> _242_/B 
+ delay              rebuffer7/A -> rebuffer7/X 
+ internal net       rebuffer7/X -> _244_/A 
+ delay              rebuffer8/A -> rebuffer8/X 
+ internal net       rebuffer8/X -> _271_/B 
+ internal net       rebuffer8/X -> _301_/A1 
+ internal net       rebuffer8/X -> rebuffer9/A 
+ delay              rebuffer9/A -> rebuffer9/X 
+ internal net       rebuffer9/X -> _353_/A1 
+ delay              split1/A -> split1/X 
+ internal net       split1/X -> _307_/B 
+ internal net       split1/X -> _316_/A2 
+ internal net       split1/X -> _318_/B 
+ internal net       split1/X -> _319_/A1 
+ internal net       split1/X -> _327_/B 
+ internal net       split1/X -> _330_/B 
+ internal net       split1/X -> _331_/A1 
+ internal net       split1/X -> _337_/B 
+ internal net       split1/X -> _341_/B 
+ internal net       split1/X -> _342_/A1 
+annotated -report_unannotated: done
+ALL PASSED

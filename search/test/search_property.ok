@@ -1,0 +1,95 @@
+--- Pin properties ---
+pin name: D
+pin full_name: reg1/D
+pin direction: input
+pin is_hierarchical: 0
+pin is_port: 0
+pin lib_pin_name: D
+pin pin_direction: input
+--- Pin clock properties ---
+ck is_clock: 1
+ck is_register_clock: 1
+ck clocks count: 1
+ck clock_domains count: 1
+--- Pin timing properties ---
+pin arrival_max_rise: 1.045363
+pin arrival_max_fall: 1.048195
+pin arrival_min_rise: 1.044072
+pin arrival_min_fall: 1.045861
+pin slack_max: 8.913024
+pin slack_max_rise: 8.923905
+pin slack_max_fall: 8.913024
+pin slack_min: 1.039178
+pin slack_min_rise: 1.039178
+pin slack_min_fall: 1.044237
+pin slew_max: 0.005947
+pin slew_max_rise: 0.005947
+pin slew_max_fall: 0.005011
+pin slew_min: 0.005010
+pin slew_min_rise: 0.005947
+pin slew_min_fall: 0.005010
+pin activity: 1.00000e+07 0.250 propagated
+--- Port properties ---
+port name: in1
+port full_name: in1
+port direction: input
+--- Instance properties ---
+inst name: reg1
+inst full_name: reg1
+inst ref_name: DFF_X1
+inst cell: DFF_X1
+--- Net properties ---
+net name: n1
+net full_name: n1
+--- Clock properties ---
+clock name: clk
+clock full_name: clk
+clock period: 10.000000
+clock sources count: 1
+clock is_generated: 0
+clock is_virtual: 0
+--- LibertyCell properties ---
+lib_cell name: DFF_X1
+lib_cell full_name: NangateOpenCellLibrary/DFF_X1
+lib_cell base_name: DFF_X1
+lib_cell filename: ../../test/nangate45/Nangate45_typ.lib
+lib_cell library: NangateOpenCellLibrary
+lib_cell is_buffer: 0
+--- LibertyPort properties ---
+lib_port name: D
+lib_port full_name: D
+lib_port direction: input
+--- Library properties ---
+lib name: NangateOpenCellLibrary
+lib full_name: NangateOpenCellLibrary
+--- Edge properties ---
+edge full_name: and1/A1 -> and1/ZN
+edge delay_min_fall: 0.022456
+edge delay_max_fall: 0.022456
+edge delay_min_rise: 0.024490
+edge delay_max_rise: 0.024490
+edge sense: positive_unate
+edge from_pin: and1/A1
+--- PathEnd properties ---
+pathend startpoint: reg1/Q
+pathend endpoint: out1
+pathend startpoint_clock: clk
+pathend endpoint_clock: clk
+pathend slack: 7.899714
+--- Path properties ---
+path pin: out1
+path arrival: 0.100286
+path required: 0.000000
+path slack: -0.100286
+--- Edge additional properties ---
+edge to_pin: and1/ZN
+--- get_property with -object_type ---
+by name cell: reg1
+by name pin: D
+by name net: n1
+by name port: in1
+by name clock: clk
+by name lib_cell: DFF_X1
+by name lib_pin: D
+by name library: NangateOpenCellLibrary
+ALL PASSED

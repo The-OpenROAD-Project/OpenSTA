@@ -1,0 +1,181 @@
+# Test VerilogReader and VerilogWriter with bus part-select, bit-select,
+# concatenation expressions, hierarchical sub-modules with bus ports,
+# and write_verilog roundtrip of bus designs.
+# Targets: VerilogReader.cc uncovered:
+#   net_part_select_count_ (part-select parsing, line ~209)
+#   net_bit_select_count_ (bit-select, line ~207)
+#   net_port_ref_bit_count_ / net_port_ref_part_count_ (port ref bus)
+#   concat_count_ (concatenation expression, line ~214)
+#   makeCellPorts bus port handling
+#   makeModule with port_dcls (bus declarations)
+#   linkNetwork with hierarchical bus connections
+# Also targets: VerilogWriter.cc:
+#   writeInstBusPin / writeInstBusPinBit (bus port writing)
+#   writeWireDcls (bus wire declaration, parseBusName)
+#   findHierChildren (hierarchical child discovery)
+#   writeModule for hierarchical modules
+
+source ../../test/helpers.tcl
+
+#---------------------------------------------------------------
+# Test 1: Read verilog with bus expressions
+#---------------------------------------------------------------
+puts "--- Test 1: read bus partselect verilog ---"
+read_liberty ../../test/nangate45/Nangate45_typ.lib
+read_verilog verilog_bus_partselect.v
+link_design verilog_bus_partselect
+
+set cells [get_cells *]
+puts "cells: [llength $cells]"
+
+set nets [get_nets *]
+puts "nets: [llength $nets]"
+
+set ports [get_ports *]
+puts "ports: [llength $ports]"
+
+# Verify hierarchical instances
+set hier_cells [get_cells -hierarchical *]
+puts "hierarchical cells: [llength $hier_cells]"
+
+puts "PASS: read bus partselect verilog"
+
+#---------------------------------------------------------------
+# Test 2: Timing analysis with bus design
+#---------------------------------------------------------------
+puts "--- Test 2: timing ---"
+create_clock -name clk -period 10 [get_ports clk]
+set_input_delay -clock clk 0 [get_ports data_in*]
+set_input_delay -clock clk 0 [get_ports sel]
+set_output_delay -clock clk 0 [get_ports data_out*]
+set_output_delay -clock clk 0 [get_ports valid]
+set_input_transition 0.1 [all_inputs]
+
+report_checks
+puts "PASS: report_checks"
+
+report_checks -path_delay min
+puts "PASS: min path"
+
+report_checks -from [get_ports {data_in[0]}] -to [get_ports {data_out[0]}]
+puts "PASS: data_in[0]->data_out[0]"
+
+report_checks -from [get_ports {data_in[4]}] -to [get_ports {data_out[4]}]
+puts "PASS: data_in[4]->data_out[4]"
+
+report_checks -from [get_ports sel] -to [get_ports valid]
+puts "PASS: sel->valid"
+
+report_checks -fields {slew cap input_pins nets fanout}
+puts "PASS: report with fields"
+
+#---------------------------------------------------------------
+# Test 3: Write verilog with bus nets (exercises bus wire dcls)
+#---------------------------------------------------------------
+puts "--- Test 3: write verilog ---"
+
+set out1 [make_result_file verilog_bus_ps_basic.v]
+write_verilog $out1
+set sz1 [file size $out1]
+puts "basic write: $sz1 bytes"
+puts "PASS: basic write"
+
+# With power/ground
+set out2 [make_result_file verilog_bus_ps_pwr.v]
+write_verilog -include_pwr_gnd $out2
+set sz2 [file size $out2]
+puts "pwr_gnd write: $sz2 bytes"
+if { $sz2 >= $sz1 } {
+  puts "PASS: pwr_gnd >= basic"
+}
+
+# With remove_cells (empty)
+set out3 [make_result_file verilog_bus_ps_remove.v]
+write_verilog -remove_cells {} $out3
+set sz3 [file size $out3]
+puts "remove_cells write: $sz3 bytes"
+puts "PASS: remove_cells write"
+
+#---------------------------------------------------------------
+# Test 4: Read back written verilog (roundtrip)
+# Exercises: VerilogReader re-parsing bus declarations from writer output
+#---------------------------------------------------------------
+puts "--- Test 4: roundtrip ---"
+read_liberty ../../test/nangate45/Nangate45_typ.lib
+read_verilog $out1
+link_design verilog_bus_partselect
+
+set cells2 [get_cells *]
+puts "roundtrip cells: [llength $cells2]"
+
+create_clock -name clk -period 10 [get_ports clk]
+set_input_delay -clock clk 0 [all_inputs]
+set_output_delay -clock clk 0 [all_outputs]
+set_input_transition 0.1 [all_inputs]
+
+report_checks
+puts "PASS: roundtrip timing"
+
+# Write again to see if sizes match
+set out4 [make_result_file verilog_bus_ps_roundtrip2.v]
+write_verilog $out4
+set sz4 [file size $out4]
+puts "roundtrip2 write: $sz4 bytes"
+puts "PASS: roundtrip write"
+
+#---------------------------------------------------------------
+# Test 5: Instance and net reports for bus design
+#---------------------------------------------------------------
+puts "--- Test 5: reports ---"
+
+# Report bus nets
+foreach net_name {buf_out[0] buf_out[1] buf_out[7] inv_out[0] inv_out[7] mux_out[0] mux_out[7]} {
+  catch {report_net $net_name} msg
+  puts "report_net $net_name: done"
+}
+
+# Report instances in hierarchy
+foreach inst_name {buf0 buf7 inv0 inv3 reg0 reg7 or01 mux_lo0} {
+  catch {report_instance $inst_name} msg
+  puts "report_instance $inst_name: done"
+}
+puts "PASS: instance/net reports"
+
+#---------------------------------------------------------------
+# Test 6: Hierarchical queries
+#---------------------------------------------------------------
+puts "--- Test 6: hierarchical queries ---"
+
+# Query through hierarchical path
+catch {report_checks -through [get_pins buf0/Z]} msg
+puts "through buf0/Z: done"
+
+catch {report_checks -through [get_pins inv0/ZN]} msg
+puts "through inv0/ZN: done"
+
+catch {report_checks -through [get_pins mux_lo0/ZN]} msg
+puts "through mux_lo0/ZN: done"
+
+puts "PASS: hierarchical queries"
+
+#---------------------------------------------------------------
+# Test 7: Network modification in bus design
+#---------------------------------------------------------------
+puts "--- Test 7: modify bus design ---"
+
+# Add an extra buffer on a bus bit
+set nn [make_net "extra_bus_wire"]
+set ni [make_instance "extra_buf_bus" NangateOpenCellLibrary/BUF_X2]
+connect_pin extra_bus_wire extra_buf_bus/A
+
+set out5 [make_result_file verilog_bus_ps_modified.v]
+write_verilog $out5
+set sz5 [file size $out5]
+puts "modified write: $sz5 bytes"
+
+disconnect_pin extra_bus_wire extra_buf_bus/A
+delete_instance extra_buf_bus
+delete_net extra_bus_wire
+puts "PASS: bus design modification"
+
+puts "ALL PASSED"

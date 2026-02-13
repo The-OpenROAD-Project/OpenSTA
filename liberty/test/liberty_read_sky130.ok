@@ -1,0 +1,5 @@
+PASS: library loaded
+PASS: inv_1 cell found
+PASS: pins found (2 pins)
+PASS: nand2_1 found
+ALL PASSED

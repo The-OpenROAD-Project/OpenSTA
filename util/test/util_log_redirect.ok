@@ -1,0 +1,180 @@
+--- Test 1: log with timing reports ---
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+   0.04    0.04 ^ r3/Q (DFFHQx4_ASAP7_75t_R)
+   0.00    0.04 ^ out (out)
+           0.04   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+  -1.00  499.00   output external delay
+         499.00   data required time
+---------------------------------------------------------
+         499.00   data required time
+          -0.04   data arrival time
+---------------------------------------------------------
+         498.96   slack (MET)
+
+
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+   0.04    0.04 v r1/Q (DFFHQx4_ASAP7_75t_R)
+   0.02    0.06 v u2/Y (AND2x2_ASAP7_75t_R)
+   0.00    0.06 v r3/D (DFFHQx4_ASAP7_75t_R)
+           0.06   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.06   data arrival time
+---------------------------------------------------------
+           0.05   slack (MET)
+
+
+No paths found.
+Warning: util_log_redirect.tcl line 1, unknown field nets.
+Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+     1    0.00    0.01    0.04    0.04 ^ r3/Q (DFFHQx4_ASAP7_75t_R)
+                  0.00    0.00    0.04 ^ out (out)
+                                  0.04   data arrival time
+
+                  0.00  500.00  500.00   clock clk (rise edge)
+                          0.00  500.00   clock network delay (ideal)
+                          0.00  500.00   clock reconvergence pessimism
+                         -1.00  499.00   output external delay
+                                499.00   data required time
+-----------------------------------------------------------------------------
+                                499.00   data required time
+                                 -0.04   data arrival time
+-----------------------------------------------------------------------------
+                                498.96   slack (MET)
+
+
+ time 1ns
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+PASS: log with timing reports
+PASS: log file has 3404 chars
+--- Test 2: simultaneous log and redirect ---
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+   0.04    0.04 v r1/Q (DFFHQx4_ASAP7_75t_R)
+   0.02    0.06 v u2/Y (AND2x2_ASAP7_75t_R)
+   0.00    0.06 v r3/D (DFFHQx4_ASAP7_75t_R)
+           0.06   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.06   data arrival time
+---------------------------------------------------------
+           0.05   slack (MET)
+
+
+PASS: simultaneous log and redirect
+PASS: log file has 2022 chars
+PASS: redirect file has 997 chars
+--- Test 3: redirect file append ---
+PASS: redirect file append (3 writes)
+PASS: appended file has 2022 chars
+--- Test 4: redirect to string ---
+captured string 1: 902 chars
+captured string 2: 1120 chars
+with_output v1: 902 chars
+with_output v2: 2022 chars
+PASS: redirect to string
+--- Test 5: log + redirect string ---
+log+string captured: 997 chars
+PASS: log + redirect string
+--- Test 6: message suppression ---
+PASS: caught error
+PASS: suppress/unsuppress
+--- Test 7: report formatting ---
+ time 1ps
+ capacitance 1fF
+ resistance 1ohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+ time 1us
+ capacitance 1nF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+PASS: report formatting
+ALL PASSED

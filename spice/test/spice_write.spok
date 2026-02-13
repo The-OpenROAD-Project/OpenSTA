@@ -1,0 +1,59 @@
+* Path from reg1/Q ^ to out1 ^
+.include "/workspace/sta/OpenSTA/spice/test/results/spice_out/mock_model.sp"
+.include "path_1.subckt"
+.tran 1e-13 3.1e-08
+
+.print tran v(clk) v(reg1/CK) v(reg1/Q) v(out1)
+
+**************
+* Input source
+**************
+
+v1 clk 0 pwl(
++0.000e+00 0.000e+00
++9.985e-10 0.000e+00
++1.001e-09 1.100e+00
++5.999e-09 1.100e+00
++6.001e-09 0.000e+00
++1.100e-08 0.000e+00
++1.100e-08 1.100e+00
++1.600e-08 1.100e+00
++1.600e-08 0.000e+00
++2.100e-08 0.000e+00
++2.100e-08 1.100e+00
++2.600e-08 1.100e+00
++2.600e-08 0.000e+00
++3.100e-08 0.000e+00
++)
+
+*****************
+* Stage instances
+*****************
+
+xstage1 clk reg1/CK stage1
+xstage2 reg1/CK reg1/Q out1 stage2
+
+***************
+* Stage subckts
+***************
+
+.subckt stage1 clk reg1/CK
+* Net clk
+* Net has no parasitics.
+R1 clk reg1/CK 1.000e-04
+.ends
+
+.subckt stage2 reg1/CK reg1/Q out1
+* Gate reg1 CK -> Q
+xreg1 reg1/D reg1/CK reg1/Q reg1/VDD reg1/VSS DFF_X1
+v1 reg1/D 0 1.100
+v2 reg1/VDD 0 1.100
+v3 reg1/VSS 0 0.000
+
+* Load pins
+* Net out1
+* Net has no parasitics.
+R1 reg1/Q out1 1.000e-04
+.ends
+
+.end

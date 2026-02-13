@@ -1,0 +1,320 @@
+PASS: read Nangate45
+PASS: read ASAP7 SEQ
+PASS: read IHP
+PASS: INV_X1/A capacitance = 1.700230
+PASS: INV_X1/ZN capacitance = 0.000000
+PASS: DFF_X1/CK capacitance = 0.949653
+PASS: DFF_X1/D capacitance = 1.140290
+INV_X1/A cap = 1.700230
+INV_X2/A cap = 3.250891
+INV_X4/A cap = 6.258425
+INV_X8/A cap = 11.810652
+INV_X16/A cap = 25.228138
+INV_X32/A cap = 49.191467
+PASS: INV capacitance sweep
+BUF_X1/A cap = 0.974659
+BUF_X2/A cap = 1.779209
+BUF_X4/A cap = 3.401892
+BUF_X8/A cap = 6.585178
+BUF_X16/A cap = 12.410827
+BUF_X32/A cap = 26.703922
+PASS: BUF capacitance sweep
+INV_X1 area = 0.532000
+INV_X2 area = 0.798000
+INV_X4 area = 1.330000
+INV_X8 area = 2.394000
+INV_X16 area = 4.522000
+INV_X32 area = 8.778000
+BUF_X1 area = 0.798000
+BUF_X2 area = 1.064000
+BUF_X4 area = 1.862000
+BUF_X8 area = 3.458000
+BUF_X16 area = 6.650000
+BUF_X32 area = 13.034000
+DFF_X1 area = 4.522000
+DFF_X2 area = 5.054000
+DFFR_X1 area = 5.320000
+DFFS_X1 area = 5.320000
+DFFRS_X1 area = 6.384000
+NAND2_X1 area = 0.798000
+NAND2_X2 area = 1.330000
+NAND2_X4 area = 2.394000
+NOR2_X1 area = 0.798000
+NOR2_X2 area = 1.330000
+NOR2_X4 area = 2.394000
+AOI21_X1 area = 1.064000
+OAI21_X1 area = 1.064000
+MUX2_X1 area = 1.862000
+FA_X1 area = 4.256000
+HA_X1 area = 2.660000
+TINV_X1 area = 1.064000
+CLKGATETST_X1 area = 3.990000
+PASS: cell area queries
+INV_X1 dont_use = 0
+BUF_X1 dont_use = 0
+DFF_X1 dont_use = 0
+ANTENNA_X1 dont_use = 1
+FILLCELL_X1 dont_use = 1
+PASS: dont_use queries
+PASS: leakage power queries
+Warning: liberty_cell_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+PASS: design with constraints
+No paths found.
+PASS: max path report
+No paths found.
+PASS: min path report
+No paths found.
+PASS: in2->out2 path
+No paths found.
+PASS: rise_from path
+No paths found.
+PASS: fall_from path
+No paths found.
+PASS: rise_to path
+No paths found.
+PASS: fall_to path
+Group                                  Slack
+--------------------------------------------
+clk1                                    2.05
+clk2                                    0.08
+clk1                                    6.92
+clk2                                    9.88
+
+PASS: report_check_types max/min delay
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+inv1/ZN                                 0.20    0.02    0.18 (MET)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+nor1/ZN                                26.70    1.14   25.56 (MET)
+
+PASS: report_check_types max_slew/cap/fanout
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+PASS: report_check_types recovery/removal
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.05    5.00    4.95 (MET)
+
+PASS: report_check_types min_pulse_width/min_period
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+PASS: report_check_types clock_gating
+PASS: report_check_types max_skew
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             1.76e-06   6.90e-09   2.36e-07   2.01e-06  85.9%
+Combinational          1.33e-07   7.11e-08   1.25e-07   3.29e-07  14.1%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  1.90e-06   7.80e-08   3.61e-07   2.33e-06 100.0%
+                          81.2%       3.3%      15.5%
+PASS: report_power
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   5.87e-07   6.90e-09   7.86e-08   6.73e-07 reg1
+   5.89e-07   0.00e+00   7.84e-08   6.67e-07 reg2
+   5.87e-07   0.00e+00   7.86e-08   6.65e-07 reg3
+   2.56e-08   2.00e-08   2.51e-08   7.07e-08 and1
+   2.70e-08   2.01e-08   2.27e-08   6.98e-08 or1
+   3.04e-08   1.13e-08   2.14e-08   6.31e-08 buf1
+   2.33e-08   5.90e-09   1.44e-08   4.35e-08 inv1
+   1.46e-08   6.90e-09   1.97e-08   4.11e-08 nor1
+   1.24e-08   6.90e-09   2.18e-08   4.11e-08 nand1
+PASS: report_power instances
+PASS: read Sky130
+Cell sky130_fd_sc_hd__ebufn_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 1.73-1.88
+ TE_B input 2.93-3.34
+ Z tristate enable=!TE_B function=A 2.26
+Cell sky130_fd_sc_hd__ebufn_2
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 1.74-1.89
+ TE_B input 3.75-4.41
+ Z tristate enable=!TE_B function=A 2.75
+Cell sky130_fd_sc_hd__ebufn_4
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 2.37-2.60
+ TE_B input 6.26-7.48
+ Z tristate enable=!TE_B function=A 5.20
+PASS: Sky130 tristate cells
+Cell sky130_fd_sc_hd__dlxtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ D input 1.70-1.85
+ GATE input 1.68-1.82
+ Q output function=IQ
+Cell sky130_fd_sc_hd__dlxtn_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ D input 1.70-1.89
+ GATE_N input 1.66-1.82
+ Q output function=IQ
+PASS: Sky130 latch cells
+Cell sky130_fd_sc_hd__sdfxtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 1.69-1.86
+ D input 1.62-1.78
+ Q output function=IQ
+ SCD input 1.72-1.90
+ SCE input 3.19-3.58
+Cell sky130_fd_sc_hd__sdfxbp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 1.70-1.87
+ D input 1.61-1.78
+ Q output function=IQ
+ Q_N output function=IQ_N
+ SCD input 1.72-1.90
+ SCE input 3.17-3.56
+PASS: Sky130 scan DFF cells
+Cell sky130_fd_sc_hd__dfxtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 1.71-1.88
+ D input 1.67-1.68
+ Q output function=IQ
+Cell sky130_fd_sc_hd__dfrtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 1.71-1.87
+ D input 1.95-2.01
+ Q output function=IQ
+ RESET_B input 3.56-3.63
+Cell sky130_fd_sc_hd__dfstp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 1.69-1.86
+ D input 2.23-2.49
+ Q output function=IQ
+ SET_B input 3.36-3.44
+Cell sky130_fd_sc_hd__dfbbp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 1.69-1.89
+ D input 1.49-1.70
+ Q output function=IQ
+ Q_N output function=IQ_N
+ RESET_B input 1.53-1.67
+ SET_B input 3.35-3.53
+PASS: Sky130 async set/reset DFF cells
+Cell sky130_fd_sc_hd__mux2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 1.51-1.61
+ A1 input 1.81-1.96
+ S input 3.29-3.52
+ X output function=(A0*!S)+(A1*S)
+Cell sky130_fd_sc_hd__mux2i_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 2.10-2.31
+ A1 input 2.15-2.36
+ S input 4.48-4.83
+ Y output function=(!A0*!S)+(!A1*S)
+Cell sky130_fd_sc_hd__mux4_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 1.48-1.57
+ A1 input 1.40-1.48
+ A2 input 1.42-1.51
+ A3 input 1.44-1.52
+ S0 input 3.70-4.09
+ S1 input 2.61-2.74
+ X output function=((((A0*!S0)*!S1)+((A1*S0)*!S1))+((A2*!S0)*S1))+((A3*S0)*S1)
+PASS: Sky130 mux cells
+PASS: write_liberty
+Warning: /workspace/sta/OpenSTA/liberty/test/results/liberty_cell_deep_write.lib line 1, library NangateOpenCellLibrary already exists.
+INFO: roundtrip read had issue: Error: /workspace/sta/OpenSTA/liberty/test/results/liberty_cell_deep_write.lib, l
+ALL PASSED

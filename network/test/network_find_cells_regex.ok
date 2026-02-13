@@ -1,0 +1,189 @@
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+PASS: read 6 libraries
+PASS: link design
+--- glob matching ---
+glob *: 767 cells
+glob INV_*: 6 cells
+glob BUF_*: 6 cells
+glob DFF*: 17 cells
+glob *NAND*: 21 cells
+glob *NOR*: 25 cells
+glob sky130 inv: 7 cells
+glob sky130 buf: 7 cells
+glob sky130 dfxtp: 3 cells
+glob ASAP7 INV: 11 cells
+glob ASAP7 BUF: 12 cells
+glob IHP inv: 5 cells
+glob IHP buf: 5 cells
+glob NONEXISTENT: 0 cells
+PASS: glob matching
+--- regex matching ---
+regex INV_Xn: 6 cells
+regex BUF_Xn: 6 cells
+regex NANDn: 9 cells
+regex .*inv.*: 38 cells
+regex DFF: 25 cells
+regex sky130: 428 cells
+PASS: regex matching
+--- nocase matching ---
+nocase inv_*: 0 cells
+nocase buf_*: 0 cells
+nocase dff*: 0 cells
+PASS: nocase matching
+--- liberty cell/port matching ---
+lib INV: 6
+find_liberty: NangateOpenCellLibrary
+find_liberty: sky130_fd_sc_hd__tt_025C_1v80
+PASS: liberty cell/port matching
+--- design queries ---
+r1: ref=DFF_X1 fn=r1
+r2: ref=DFF_X1 fn=r2
+r3: ref=DFF_X1 fn=r3
+u1: ref=BUF_X1 fn=u1
+u2: ref=AND2_X1 fn=u2
+PASS: instance queries
+r1/D: dir=input fn=r1/D
+r1/CK: dir=input fn=r1/CK
+r1/Q: dir=output fn=r1/Q
+u1/A: dir=input fn=u1/A
+u1/Z: dir=output fn=u1/Z
+u2/A1: dir=input fn=u2/A1
+u2/A2: dir=input fn=u2/A2
+u2/ZN: dir=output fn=u2/ZN
+PASS: pin queries
+net r1q: 2 pins
+net r2q: 2 pins
+net u1z: 2 pins
+net u2z: 2 pins
+PASS: net queries
+--- timing ---
+Warning: network_find_cells_regex.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 ^ r2/Q (DFF_X1)
+   0.02    0.10 ^ u1/Z (BUF_X1)
+   0.03    0.13 ^ u2/ZN (AND2_X1)
+   0.00    0.13 ^ r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CK (DFF_X1)
+   0.08    0.08 ^ r1/Q (DFF_X1)
+   0.03    0.11 ^ u2/ZN (AND2_X1)
+   0.00    0.11 ^ r3/D (DFF_X1)
+           0.11   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.11   data arrival time
+---------------------------------------------------------
+           9.86   slack (MET)
+
+
+PASS: timing
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.00    0.00 v r1/D (DFF_X1)
+           0.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ r1/CK (DFF_X1)
+   0.05    0.05   library hold time
+           0.05   data required time
+---------------------------------------------------------
+           0.05   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+          -0.05   slack (VIOLATED)
+
+
+PASS: min path
+No paths found.
+PASS: in1->out
+No paths found.
+PASS: in2->out
+ALL PASSED

@@ -1,0 +1,143 @@
+PASS: clocks created
+PASS: generated clocks
+PASS: clock latency
+PASS: clock uncertainty
+PASS: clock transition
+PASS: propagated clock
+PASS: clock groups
+Warning: sdc_write_options.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+PASS: clock sense
+PASS: input delays
+PASS: output delays
+PASS: driving cells
+PASS: set_drive
+PASS: loads
+PASS: input transitions
+PASS: design limits
+PASS: exception paths
+PASS: disable timing
+PASS: case analysis
+PASS: operating conditions
+PASS: wire load
+PASS: timing derate
+PASS: min pulse width
+PASS: port fanout
+PASS: resistance
+PASS: max area
+PASS: logic one
+PASS: max time borrow
+PASS: clock gating check
+PASS: voltage
+PASS: write_sdc basic
+PASS: write_sdc -compatible
+PASS: write_sdc -digits 2
+PASS: write_sdc -digits 8
+PASS: write_sdc -compatible -digits 6
+PASS: write_sdc -map_hpins
+PASS: read_sdc basic
+Warning: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
+Warning: generated clock gen_edges pin clk1 is in the fanout of multiple clocks.
+Startpoint: reg2/Q (clock source 'gen_edges')
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock gen_edges (fall edge)
+   0.00    5.00   clock network delay
+           5.00 v out1 (out)
+           5.00   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.25   10.25   clock network delay (propagated)
+  -0.20   10.05   clock uncertainty
+   0.00   10.05   clock reconvergence pessimism
+  -3.00    7.05   output external delay
+           7.05   data required time
+---------------------------------------------------------
+           7.05   data required time
+          -5.00   data arrival time
+---------------------------------------------------------
+           2.05   slack (MET)
+
+
+Startpoint: reg3/Q (clock source 'gen_mul3')
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  13.33   13.33   clock gen_mul3 (rise edge)
+   0.00   13.33   clock network delay
+          13.33 ^ out2 (out)
+          13.33   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.20   20.20   clock network delay (ideal)
+   0.00   20.20   clock reconvergence pessimism
+  -3.50   16.70   output external delay
+          16.70   data required time
+---------------------------------------------------------
+          16.70   data required time
+         -13.33   data arrival time
+---------------------------------------------------------
+           3.37   slack (MET)
+
+
+PASS: report_checks after read_sdc
+PASS: read_sdc compatible
+Warning: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
+Warning: generated clock gen_edges pin clk1 is in the fanout of multiple clocks.
+Startpoint: reg2/Q (clock source 'gen_edges')
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock gen_edges (fall edge)
+   0.00    5.00   clock network delay
+           5.00 v out1 (out)
+           5.00   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.25   10.25   clock network delay (propagated)
+  -0.20   10.05   clock uncertainty
+   0.00   10.05   clock reconvergence pessimism
+  -3.00    7.05   output external delay
+           7.05   data required time
+---------------------------------------------------------
+           7.05   data required time
+          -5.00   data arrival time
+---------------------------------------------------------
+           2.05   slack (MET)
+
+
+Startpoint: reg3/Q (clock source 'gen_mul3')
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  13.33   13.33   clock gen_mul3 (rise edge)
+   0.00   13.33   clock network delay
+          13.33 ^ out2 (out)
+          13.33   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.20   20.20   clock network delay (ideal)
+   0.00   20.20   clock reconvergence pessimism
+  -3.50   16.70   output external delay
+          16.70   data required time
+---------------------------------------------------------
+          16.70   data required time
+         -13.33   data arrival time
+---------------------------------------------------------
+           3.37   slack (MET)
+
+
+PASS: report_checks after read_sdc compatible
+ALL PASSED

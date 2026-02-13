@@ -1,0 +1,515 @@
+--- Master clock properties ---
+clk name: clk
+clk full_name: clk
+clk period: 10.000000
+clk is_generated: 0
+clk is_virtual: 0
+clk is_propagated: 0
+clk sources: 1
+  src: clk
+PASS: master clock properties
+--- Generated clock properties ---
+div_clk name: div_clk
+div_clk full_name: div_clk
+div_clk period: 20.000000
+div_clk is_generated: 1
+div_clk is_virtual: 0
+div_clk is_propagated: 0
+div_clk sources: 1
+  src: div_reg/Q
+PASS: generated clock properties
+--- Propagated clock toggle ---
+clk is_propagated (after set): 1
+div_clk is_propagated (after set): 0
+clk is_propagated (after unset): 0
+PASS: propagated toggle
+--- Virtual clock ---
+vclk is_virtual: 1
+vclk is_generated: 0
+vclk period: 5.000000
+vclk sources: 0
+PASS: virtual clock
+--- Pin clocks/clock_domains ---
+reg1/CK clocks: 1
+reg1/CK clock_domains: 1
+reg2/CK clocks: 1
+reg2/CK clock_domains: 1
+reg1/D clocks: 0
+reg1/Q clocks: 0
+PASS: pin clocks/clock_domains
+--- GenClk full_clock_expanded max ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg2/CK (DFF_X1)
+     1    0.97    0.01    0.08    0.08 ^ reg2/Q (DFF_X1)
+                                         n4 (net)
+                  0.01    0.00    0.08 ^ buf3/A (BUF_X1)
+     1    0.00    0.00    0.02    0.10 ^ buf3/Z (BUF_X1)
+                                         out2 (net)
+                  0.00    0.00    0.10 ^ out2 (out)
+                                  0.10   data arrival time
+
+                  0.00   20.00   20.00   clock div_clk (rise edge)
+                          0.00   20.00   clock network delay (ideal)
+                          0.00   20.00   clock reconvergence pessimism
+                         -1.00   19.00   output external delay
+                                 19.00   data required time
+-----------------------------------------------------------------------------
+                                 19.00   data required time
+                                 -0.10   data arrival time
+-----------------------------------------------------------------------------
+                                 18.90   slack (MET)
+
+
+PASS: genclk full_clock_expanded max
+--- GenClk full_clock_expanded min ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: min
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg2/CK (DFF_X1)
+     1    0.88    0.01    0.08    0.08 v reg2/Q (DFF_X1)
+                                         n4 (net)
+                  0.01    0.00    0.08 v buf3/A (BUF_X1)
+     1    0.00    0.00    0.02    0.10 v buf3/Z (BUF_X1)
+                                         out2 (net)
+                  0.00    0.00    0.10 v out2 (out)
+                                  0.10   data arrival time
+
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00   clock reconvergence pessimism
+                         -1.00   -1.00   output external delay
+                                 -1.00   data required time
+-----------------------------------------------------------------------------
+                                 -1.00   data required time
+                                 -0.10   data arrival time
+-----------------------------------------------------------------------------
+                                  1.10   slack (MET)
+
+
+PASS: genclk full_clock_expanded min
+--- GenClk full_clock max ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg2/CK (DFF_X1)
+     1    0.97    0.01    0.08    0.08 ^ reg2/Q (DFF_X1)
+     1    0.00    0.00    0.02    0.10 ^ buf3/Z (BUF_X1)
+                  0.00    0.00    0.10 ^ out2 (out)
+                                  0.10   data arrival time
+
+                  0.00   20.00   20.00   clock div_clk (rise edge)
+                          0.00   20.00   clock network delay (ideal)
+                          0.00   20.00   clock reconvergence pessimism
+                         -1.00   19.00   output external delay
+                                 19.00   data required time
+-----------------------------------------------------------------------------
+                                 19.00   data required time
+                                 -0.10   data arrival time
+-----------------------------------------------------------------------------
+                                 18.90   slack (MET)
+
+
+PASS: genclk full_clock
+--- GenClk full max ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg2/CK (DFF_X1)
+     1    0.97    0.01    0.08    0.08 ^ reg2/Q (DFF_X1)
+     1    0.00    0.00    0.02    0.10 ^ buf3/Z (BUF_X1)
+                  0.00    0.00    0.10 ^ out2 (out)
+                                  0.10   data arrival time
+
+                  0.00   20.00   20.00   clock div_clk (rise edge)
+                          0.00   20.00   clock network delay (ideal)
+                          0.00   20.00   clock reconvergence pessimism
+                         -1.00   19.00   output external delay
+                                 19.00   data required time
+-----------------------------------------------------------------------------
+                                 19.00   data required time
+                                 -0.10   data arrival time
+-----------------------------------------------------------------------------
+                                 18.90   slack (MET)
+
+
+PASS: genclk full
+--- GenClk all formats ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+
+max_delay/setup group div_clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+out2 (output)                          19.00    0.10   18.90 (MET)
+
+Startpoint                           Endpoint                               Slack
+--------------------------------------------------------------------------------
+reg2/Q (search_genclk)               out2 (output)                          18.90
+
+Group                                  Slack
+--------------------------------------------
+div_clk                                18.90
+
+{"checks": [
+{
+  "type": "output_delay",
+  "path_group": "div_clk",
+  "path_type": "max",
+  "startpoint": "reg2/Q",
+  "endpoint": "out2",
+  "source_clock": "div_clk",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "div_reg",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "div_reg/Q",
+      "net": "div_clk",
+      "arrival": 0.000e+00,
+      "capacitance": 9.497e-16,
+      "slew": 7.270e-12
+    },
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/CK",
+      "net": "div_clk",
+      "arrival": 0.000e+00,
+      "slew": 7.270e-12
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg2",
+      "cell": "DFF_X1",
+      "verilog_src": "",
+      "pin": "reg2/Q",
+      "net": "n4",
+      "arrival": 8.371e-11,
+      "capacitance": 9.747e-16,
+      "slew": 7.314e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/A",
+      "net": "n4",
+      "arrival": 8.371e-11,
+      "slew": 7.314e-12
+    },
+    {
+      "instance": "buf3",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf3/Z",
+      "net": "out2",
+      "arrival": 1.003e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.638e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_genclk",
+      "verilog_src": "",
+      "pin": "out2",
+      "arrival": 1.003e-10,
+      "slew": 3.638e-12
+    }
+  ],
+  "target_clock": "div_clk",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.003e-10,
+  "crpr": 0.000e+00,
+  "margin": 1.000e-09,
+  "required_time": 1.900e-08,
+  "slack": 1.890e-08
+}
+]
+}
+PASS: genclk all formats
+--- GenClk propagated full_clock_expanded ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock source latency
+     1    0.78    0.00    0.00    0.00 ^ clk (in)
+                  0.00    0.00    0.00 ^ clkbuf/A (CLKBUF_X1)
+     2    1.90    0.01    0.03    0.03 ^ clkbuf/Z (CLKBUF_X1)
+                  0.01    0.00    0.03 ^ div_reg/CK (DFF_X1)
+     1    0.95    0.01    0.09    0.11 ^ div_reg/Q (DFF_X1)
+                          0.00    0.11   clock network delay (ideal)
+                  0.00    0.00    0.11 ^ reg2/CK (DFF_X1)
+     1    0.97    0.01    0.08    0.20 ^ reg2/Q (DFF_X1)
+                  0.01    0.00    0.20 ^ buf3/A (BUF_X1)
+     1    0.00    0.00    0.02    0.21 ^ buf3/Z (BUF_X1)
+                  0.00    0.00    0.21 ^ out2 (out)
+                                  0.21   data arrival time
+
+                  0.00   20.00   20.00   clock div_clk (rise edge)
+                          0.11   20.11   clock network delay (ideal)
+                          0.00   20.11   clock reconvergence pessimism
+                         -1.00   19.11   output external delay
+                                 19.11   data required time
+-----------------------------------------------------------------------------
+                                 19.11   data required time
+                                 -0.21   data arrival time
+-----------------------------------------------------------------------------
+                                 18.90   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: min
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock source latency
+     1    0.78    0.00    0.00    0.00 ^ clk (in)
+                  0.00    0.00    0.00 ^ clkbuf/A (CLKBUF_X1)
+     2    1.90    0.01    0.03    0.03 ^ clkbuf/Z (CLKBUF_X1)
+                  0.01    0.00    0.03 ^ div_reg/CK (DFF_X1)
+     1    0.95    0.01    0.09    0.11 ^ div_reg/Q (DFF_X1)
+                          0.00    0.11   clock network delay (ideal)
+                  0.00    0.00    0.11 ^ reg2/CK (DFF_X1)
+     1    0.88    0.01    0.08    0.19 v reg2/Q (DFF_X1)
+                  0.01    0.00    0.19 v buf3/A (BUF_X1)
+     1    0.00    0.00    0.02    0.21 v buf3/Z (BUF_X1)
+                  0.00    0.00    0.21 v out2 (out)
+                                  0.21   data arrival time
+
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.11    0.11   clock network delay (ideal)
+                          0.00    0.11   clock reconvergence pessimism
+                         -1.00   -0.89   output external delay
+                                 -0.89   data required time
+-----------------------------------------------------------------------------
+                                 -0.89   data required time
+                                 -0.21   data arrival time
+-----------------------------------------------------------------------------
+                                  1.10   slack (MET)
+
+
+PASS: genclk propagated expanded
+--- find_timing_paths genclk domain ---
+GenClk max paths: 2
+  pin=out2 slack=1.889971379398503e-8
+    is_check: 0 is_output: 1
+    target_clk: div_clk
+    startpoint_clock: div_clk
+    endpoint_clock: div_clk
+    points: 4
+  pin=out2 slack=1.890143330740557e-8
+    is_check: 0 is_output: 1
+    target_clk: div_clk
+    startpoint_clock: div_clk
+    endpoint_clock: div_clk
+    points: 4
+PASS: genclk paths
+--- report_path_cmd genclk ---
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg2/CK (DFF_X1)
+     1    0.97    0.01    0.08    0.08 ^ reg2/Q (DFF_X1)
+                  0.01    0.00    0.08 ^ buf3/A (BUF_X1)
+     1    0.00    0.00    0.02    0.10 ^ buf3/Z (BUF_X1)
+                  0.00    0.00    0.10 ^ out2 (out)
+PASS: genclk report_path_cmd
+--- report_path_ends genclk ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg2/CK (DFF_X1)
+     1    0.97    0.01    0.08    0.08 ^ reg2/Q (DFF_X1)
+                  0.01    0.00    0.08 ^ buf3/A (BUF_X1)
+     1    0.00    0.00    0.02    0.10 ^ buf3/Z (BUF_X1)
+                  0.00    0.00    0.10 ^ out2 (out)
+                                  0.10   data arrival time
+
+                  0.00   20.00   20.00   clock div_clk (rise edge)
+                          0.00   20.00   clock network delay (ideal)
+                          0.00   20.00   clock reconvergence pessimism
+                         -1.00   19.00   output external delay
+                                 19.00   data required time
+-----------------------------------------------------------------------------
+                                 19.00   data required time
+                                 -0.10   data arrival time
+-----------------------------------------------------------------------------
+                                 18.90   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock div_clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg2/CK (DFF_X1)
+     1    0.88    0.01    0.08    0.08 v reg2/Q (DFF_X1)
+                  0.01    0.00    0.08 v buf3/A (BUF_X1)
+     1    0.00    0.00    0.02    0.10 v buf3/Z (BUF_X1)
+                  0.00    0.00    0.10 v out2 (out)
+                                  0.10   data arrival time
+
+                  0.00   20.00   20.00   clock div_clk (rise edge)
+                          0.00   20.00   clock network delay (ideal)
+                          0.00   20.00   clock reconvergence pessimism
+                         -1.00   19.00   output external delay
+                                 19.00   data required time
+-----------------------------------------------------------------------------
+                                 19.00   data required time
+                                 -0.10   data arrival time
+-----------------------------------------------------------------------------
+                                 18.90   slack (MET)
+
+
+PASS: genclk report_path_ends
+--- report_clock_properties ---
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                      10.00        0.00      5.00
+div_clk                  20.00        0.00     10.00 (generated)
+vclk                      5.00        0.00      2.50
+PASS: clock_properties
+--- report_clock_skew ---
+Clock clk
+   0.03 source latency div_reg/CK ^
+  -0.03 target latency div_reg/CK ^
+   0.00 CRPR
+--------------
+   0.00 setup skew
+
+Clock div_clk
+No launch/capture paths found.
+
+Clock vclk
+No launch/capture paths found.
+
+Clock clk
+   0.03 source latency div_reg/CK ^
+  -0.03 target latency div_reg/CK ^
+   0.00 CRPR
+--------------
+   0.00 hold skew
+
+Clock div_clk
+No launch/capture paths found.
+
+Clock vclk
+No launch/capture paths found.
+
+PASS: clock_skew
+--- GenClk digits ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock div_clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000 ^ reg2/CK (DFF_X1)
+   0.083707    0.083707 ^ reg2/Q (DFF_X1)
+   0.016579    0.100286 ^ buf3/Z (BUF_X1)
+   0.000000    0.100286 ^ out2 (out)
+               0.100286   data arrival time
+
+  20.000000   20.000000   clock div_clk (rise edge)
+   0.000000   20.000000   clock network delay (ideal)
+   0.000000   20.000000   clock reconvergence pessimism
+  -1.000000   19.000000   output external delay
+              19.000000   data required time
+-----------------------------------------------------------------
+              19.000000   data required time
+              -0.100286   data arrival time
+-----------------------------------------------------------------
+              18.899714   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
+Endpoint: out2 (output port clocked by div_clk)
+Path Group: div_clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock div_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.02    0.10 ^ buf3/Z (BUF_X1)
+   0.00    0.10 ^ out2 (out)
+           0.10   data arrival time
+
+  20.00   20.00   clock div_clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -1.00   19.00   output external delay
+          19.00   data required time
+---------------------------------------------------------
+          19.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+          18.90   slack (MET)
+
+
+PASS: genclk digits
+--- tns/wns ---
+tns max 0.00
+wns max 0.00
+worst slack max 7.90
+worst slack min 0.05
+PASS: tns/wns
+ALL PASSED

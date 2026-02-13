@@ -1,0 +1,330 @@
+--- report_annotated_delay ---
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+internal net arcs                     3           0           3
+net arcs from primary inputs          3           0           3
+net arcs to primary outputs           1           0           1
+----------------------------------------------------------------
+                                     13           0          13
+PASS: report_annotated_delay default
+--- report_annotated_delay -list_annotated ---
+Warning: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+internal net arcs                     3           0           3
+net arcs from primary inputs          3           0           3
+net arcs to primary outputs           1           0           1
+----------------------------------------------------------------
+                                     13           0          13
+
+Annotated Arcs
+PASS: report_annotated_delay list_annotated
+--- report_annotated_delay -list_not_annotated ---
+Warning: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+internal net arcs                     3           0           3
+net arcs from primary inputs          3           0           3
+net arcs to primary outputs           1           0           1
+----------------------------------------------------------------
+                                     13           0          13
+
+Unannotated Arcs
+ primary input net  clk -> reg1/CK 
+ primary input net  in1 -> and1/A1 
+ primary input net  in2 -> and1/A2 
+ delay              and1/A1 -> and1/ZN 
+ delay              and1/A2 -> and1/ZN 
+ internal net       and1/ZN -> buf1/A 
+ delay              buf1/A -> buf1/Z 
+ internal net       buf1/Z -> reg1/D 
+ delay              buf2/A -> buf2/Z 
+ primary output net buf2/Z -> out1 
+ delay              reg1/CK -> reg1/QN 
+ delay              reg1/CK -> reg1/Q 
+ internal net       reg1/Q -> buf2/A 
+PASS: report_annotated_delay list_not_annotated
+--- report_annotated_delay -list_not_annotated -max_lines 5 ---
+Warning: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+internal net arcs                     3           0           3
+net arcs from primary inputs          3           0           3
+net arcs to primary outputs           1           0           1
+----------------------------------------------------------------
+                                     13           0          13
+
+Unannotated Arcs
+ primary input net  clk -> reg1/CK 
+ primary input net  in1 -> and1/A1 
+ primary input net  in2 -> and1/A2 
+ delay              and1/A1 -> and1/ZN 
+ delay              and1/A2 -> and1/ZN 
+PASS: report_annotated_delay max_lines
+--- report_annotated_delay -constant_arcs ---
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+constant arcs                                     0           0
+internal net arcs                     3           0           3
+constant arcs                                     0           0
+net arcs from primary inputs          3           0           3
+constant arcs                                     0           0
+net arcs to primary outputs           1           0           1
+constant arcs                                     0           0
+----------------------------------------------------------------
+                                     13           0          13
+PASS: report_annotated_delay constant_arcs
+--- report_annotated_check ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       1           0           1
+cell hold arcs                        1           0           1
+cell width arcs                       1           0           1
+----------------------------------------------------------------
+                                      3           0           3
+PASS: report_annotated_check default
+--- report_annotated_check -setup ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       1           0           1
+----------------------------------------------------------------
+                                      1           0           1
+PASS: report_annotated_check setup
+--- report_annotated_check -hold ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell hold arcs                        1           0           1
+----------------------------------------------------------------
+                                      1           0           1
+PASS: report_annotated_check hold
+--- report_annotated_check -setup -hold ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       1           0           1
+cell hold arcs                        1           0           1
+----------------------------------------------------------------
+                                      2           0           2
+PASS: report_annotated_check setup+hold
+--- report_annotated_check -list_annotated ---
+Warning: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       1           0           1
+cell hold arcs                        1           0           1
+cell width arcs                       1           0           1
+----------------------------------------------------------------
+                                      3           0           3
+
+Annotated Arcs
+PASS: report_annotated_check list_annotated
+--- report_annotated_check -list_not_annotated ---
+Warning: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       1           0           1
+cell hold arcs                        1           0           1
+cell width arcs                       1           0           1
+----------------------------------------------------------------
+                                      3           0           3
+
+Unannotated Arcs
+ width              reg1/CK -> reg1/CK 
+ setup              reg1/CK -> reg1/D 
+ hold               reg1/CK -> reg1/D 
+PASS: report_annotated_check list_not_annotated
+--- report_annotated_check -recovery ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+PASS: report_annotated_check recovery
+--- report_annotated_check -removal ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+PASS: report_annotated_check removal
+--- report_annotated_check -width ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell width arcs                       1           0           1
+----------------------------------------------------------------
+                                      1           0           1
+PASS: report_annotated_check width
+--- report_annotated_check -period ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+PASS: report_annotated_check period
+--- report_annotated_check -max_skew ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+PASS: report_annotated_check max_skew
+--- report_annotated_check -nochange ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+PASS: report_annotated_check nochange
+--- report_disabled_edges ---
+PASS: report_disabled_edges default
+--- disable + report_disabled_edges ---
+buf1 A Z constraint
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+PASS: disable + report_disabled_edges
+--- disable lib cell + report_disabled_edges ---
+buf1 A Z constraint
+buf2 A Z constraint
+No paths found.
+PASS: disable lib cell + report_disabled_edges
+--- write_sdf divider . ---
+PASS: write_sdf divider .
+--- write_sdf divider / ---
+PASS: write_sdf divider /
+--- write_sdf include_typ ---
+PASS: write_sdf include_typ
+--- write_sdf digits 6 ---
+PASS: write_sdf digits 6
+--- write_sdf digits 1 ---
+PASS: write_sdf digits 1
+--- write_verilog ---
+PASS: write_verilog default
+--- write_verilog -include_pwr_gnd ---
+PASS: write_verilog include_pwr_gnd
+--- write_verilog -remove_cells ---
+PASS: write_verilog remove_cells
+--- read_sdf ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+PASS: read_sdf
+--- report_annotated_delay after read_sdf ---
+Warning: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           6           0
+internal net arcs                     3           3           0
+net arcs from primary inputs          3           3           0
+net arcs to primary outputs           1           1           0
+----------------------------------------------------------------
+                                     13          13           0
+
+Annotated Arcs
+ primary input net  clk -> reg1/CK 
+ primary input net  in1 -> and1/A1 
+ primary input net  in2 -> and1/A2 
+ delay              and1/A1 -> and1/ZN 
+ delay              and1/A2 -> and1/ZN 
+ internal net       and1/ZN -> buf1/A 
+ delay              buf1/A -> buf1/Z 
+ internal net       buf1/Z -> reg1/D 
+ delay              buf2/A -> buf2/Z 
+ primary output net buf2/Z -> out1 
+ delay              reg1/CK -> reg1/QN 
+ delay              reg1/CK -> reg1/Q 
+ internal net       reg1/Q -> buf2/A 
+PASS: report_annotated after read_sdf
+--- report_annotated_check after read_sdf ---
+Warning: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       1           1           0
+cell hold arcs                        1           1           0
+----------------------------------------------------------------
+                                      2           2           0
+
+Annotated Arcs
+ setup              reg1/CK -> reg1/D 
+ hold               reg1/CK -> reg1/D 
+PASS: report_annotated_check after read_sdf
+--- remove_delay_slew_annotations ---
+PASS: remove_delay_slew_annotations
+--- report_annotated_delay after remove ---
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+internal net arcs                     3           0           3
+net arcs from primary inputs          3           0           3
+net arcs to primary outputs           1           0           1
+----------------------------------------------------------------
+                                     13           0          13
+PASS: report_annotated_delay after remove
+ALL PASSED

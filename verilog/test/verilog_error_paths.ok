@@ -1,0 +1,370 @@
+--- Test 1: read hierarchical bus design ---
+cells: 34
+nets: 55
+ports: 28
+hierarchical cells: 38
+bus_in ports: 8
+bus_out ports: 8
+din ports: 4
+dout ports: 4
+sub1: ref=sub_mod
+sub2: ref=sub_mod
+PASS: read hierarchical bus design
+--- Test 2: timing analysis ---
+Startpoint: din[1] (input port clocked by clk)
+Endpoint: reg_b0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v din[1] (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.03    0.09 v sub1/and_inner/ZN (AND2_X1)
+   0.02    0.12 v sub1/buf_inner/Z (BUF_X1)
+   0.03    0.14 v and_b0/ZN (AND2_X1)
+   0.00    0.14 v reg_b0/D (DFF_X1)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg_b0/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           9.82   slack (MET)
+
+
+PASS: report_checks
+Startpoint: din[3] (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ din[3] (in)
+   0.03    0.03 ^ buf3/Z (BUF_X2)
+   0.00    0.03 ^ reg3/D (DFF_X1)
+           0.03   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg3/CK (DFF_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.03   data arrival time
+---------------------------------------------------------
+           0.03   slack (MET)
+
+
+PASS: min path
+Startpoint: sel (input port clocked by clk)
+Endpoint: flag (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v sel (in)
+   0.08    0.08 v or_sel/ZN (OR2_X1)
+   0.00    0.08 v flag (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.92   slack (MET)
+
+
+PASS: sel->flag (through assign)
+No paths found.
+PASS: din[1]->bus_out[0] (through sub1)
+No paths found.
+PASS: din[2]->bus_out[1] (through sub2)
+No paths found.
+din[0]->dout[0]: done
+No paths found.
+din[1]->dout[1]: done
+No paths found.
+din[2]->dout[2]: done
+No paths found.
+din[3]->dout[3]: done
+Warning: verilog_error_paths.tcl line 1, unknown field nets.
+Startpoint: din[1] (input port clocked by clk)
+Endpoint: reg_b0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00 v input external delay
+     1    0.88    0.10    0.00    0.00 v din[1] (in)
+                  0.10    0.00    0.00 v buf1/A (BUF_X1)
+     4    4.36    0.01    0.06    0.06 v buf1/Z (BUF_X1)
+                  0.01    0.00    0.06 v sub1/and_inner/A1 (AND2_X1)
+     1    0.88    0.01    0.03    0.09 v sub1/and_inner/ZN (AND2_X1)
+                  0.01    0.00    0.09 v sub1/buf_inner/A (BUF_X1)
+     1    0.89    0.00    0.02    0.12 v sub1/buf_inner/Z (BUF_X1)
+                  0.00    0.00    0.12 v and_b0/A2 (AND2_X1)
+     1    1.06    0.01    0.03    0.14 v and_b0/ZN (AND2_X1)
+                  0.01    0.00    0.14 v reg_b0/D (DFF_X1)
+                                  0.14   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ reg_b0/CK (DFF_X1)
+                         -0.04    9.96   library setup time
+                                  9.96   data required time
+-----------------------------------------------------------------------------
+                                  9.96   data required time
+                                 -0.14   data arrival time
+-----------------------------------------------------------------------------
+                                  9.82   slack (MET)
+
+
+PASS: report with fields
+--- Test 3: fanin/fanout ---
+fanin to flag: 12
+fanout from sel: 4
+fanin cells to dout[0]: 2
+fanout cells from din[0]: 11
+fanout endpoints from din[1]: 3
+PASS: fanin/fanout
+--- Test 4: write verilog ---
+PASS: write_verilog
+PASS: write_verilog -include_pwr_gnd
+PASS: output size=2592
+PASS: pwr_gnd size=2592
+--- Test 5: net reports ---
+Net sel
+ Pin capacitance: 0.90-0.94
+ Wire capacitance: 0.00
+ Total capacitance: 0.90-0.94
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ sel input port
+
+Load pins
+ or_sel/A2 input (OR2_X1) 0.90-0.94
+
+report_net w1: done
+Net w2
+ Pin capacitance: 0.79-0.95
+ Wire capacitance: 0.00
+ Total capacitance: 0.79-0.95
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and_en/ZN output (AND2_X1)
+
+Load pins
+ or_sel/A1 input (OR2_X1) 0.79-0.95
+
+report_net w2: done
+Net w3
+ Pin capacitance: 0.00
+ Wire capacitance: 0.00
+ Total capacitance: 0.00
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ or_sel/ZN output (OR2_X1)
+
+Load pins
+ flag output port
+
+report_net w3: done
+PASS: net reports
+--- Test 6: instance reports ---
+Instance buf0
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input din[0]
+ Output pins:
+  Z output stage2[0]
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf1
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input din[1]
+ Output pins:
+  Z output stage2[1]
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf2
+ Cell: BUF_X2
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X2
+ Input pins:
+  A input din[2]
+ Output pins:
+  Z output stage2[2]
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf3
+ Cell: BUF_X2
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X2
+ Input pins:
+  A input din[3]
+ Output pins:
+  Z output stage2[3]
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance and_en
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input stage2[0]
+  A2 input en
+ Output pins:
+  ZN output w2
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance or_sel
+ Cell: OR2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: OR2_X1
+ Input pins:
+  A1 input w2
+  A2 input sel
+ Output pins:
+  ZN output w3
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance sub1
+ Cell: sub_mod
+ Library: verilog
+ Path cells: sub_mod
+ Input pins:
+  A input stage2[1]
+  B input stage2[2]
+ Output pins:
+  Y output wide1[0]
+ Children:
+  and_inner (AND2_X1)
+  buf_inner (BUF_X1)
+Instance sub2
+ Cell: sub_mod
+ Library: verilog
+ Path cells: sub_mod
+ Input pins:
+  A input stage2[2]
+  B input stage2[3]
+ Output pins:
+  Y output wide1[1]
+ Children:
+  and_inner (AND2_X1)
+  buf_inner (BUF_X1)
+Instance reg0
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input stage2[0]
+  CK input clk
+ Output pins:
+  Q output dout[0]
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input stage2[1]
+  CK input clk
+ Output pins:
+  Q output dout[1]
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg2
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input stage2[2]
+  CK input clk
+ Output pins:
+  Q output dout[2]
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg3
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input stage2[3]
+  CK input clk
+ Output pins:
+  Q output dout[3]
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+PASS: instance reports
+--- Test 7: re-read ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+re-read cells: 34
+re-read nets: 55
+PASS: re-read
+ALL PASSED

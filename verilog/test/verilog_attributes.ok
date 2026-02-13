@@ -1,0 +1,177 @@
+--- Test 1: Yosys attributes ---
+cells: 2
+nets: 5
+ports: 4
+pins: 12
+_1415_ ref: sky130_fd_sc_hd__dfrtp_1
+Startpoint: reset (input port clocked by clk)
+Endpoint: _1415_ (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ reset (in)
+   0.00    0.00 ^ _1415_/RESET_B (sky130_fd_sc_hd__dfrtp_1)
+           0.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ _1415_/CLK (sky130_fd_sc_hd__dfrtp_1)
+   0.23   10.23   library recovery time
+          10.23   data required time
+---------------------------------------------------------
+          10.23   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+          10.23   slack (MET)
+
+
+Startpoint: _1415_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _1416_[0] (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _1415_/CLK (sky130_fd_sc_hd__dfrtp_1)
+   0.33    0.33 v _1415_/Q (sky130_fd_sc_hd__dfrtp_1)
+   0.00    0.33 v _1416_[0]/D (sky130_fd_sc_hd__dfrtp_1)
+           0.33   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ _1416_[0]/CLK (sky130_fd_sc_hd__dfrtp_1)
+  -0.12    9.88   library setup time
+           9.88   data required time
+---------------------------------------------------------
+           9.88   data required time
+          -0.33   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+PASS: report_checks with attributes
+Startpoint: reset (input port clocked by clk)
+Endpoint: _1415_ (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ reset (in)
+   0.00    0.00 ^ _1415_/RESET_B (sky130_fd_sc_hd__dfrtp_1)
+           0.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ _1415_/CLK (sky130_fd_sc_hd__dfrtp_1)
+   0.30    0.30   library removal time
+           0.30   data required time
+---------------------------------------------------------
+           0.30   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+          -0.30   slack (VIOLATED)
+
+
+Startpoint: in (input port clocked by clk)
+Endpoint: _1415_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ in (in)
+   0.00    0.00 ^ _1415_/D (sky130_fd_sc_hd__dfrtp_1)
+           0.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ _1415_/CLK (sky130_fd_sc_hd__dfrtp_1)
+  -0.03   -0.03   library hold time
+          -0.03   data required time
+---------------------------------------------------------
+          -0.03   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+           0.03   slack (MET)
+
+
+PASS: report_checks min with attributes
+Startpoint: reset (input port clocked by clk)
+Endpoint: _1415_ (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   0.00    0.00 ^ input external delay
+   0.01    0.00    0.00    0.00 ^ reset (in)
+           0.00    0.00    0.00 ^ _1415_/RESET_B (sky130_fd_sc_hd__dfrtp_1)
+                           0.00   data arrival time
+
+           0.00   10.00   10.00   clock clk (rise edge)
+                   0.00   10.00   clock network delay (ideal)
+                   0.00   10.00   clock reconvergence pessimism
+                          10.00 ^ _1415_/CLK (sky130_fd_sc_hd__dfrtp_1)
+                   0.23   10.23   library recovery time
+                          10.23   data required time
+-----------------------------------------------------------------------
+                          10.23   data required time
+                          -0.00   data arrival time
+-----------------------------------------------------------------------
+                          10.23   slack (MET)
+
+
+Startpoint: _1415_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _1416_[0] (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+           0.00    0.00    0.00 ^ _1415_/CLK (sky130_fd_sc_hd__dfrtp_1)
+   0.00    0.04    0.33    0.33 v _1415_/Q (sky130_fd_sc_hd__dfrtp_1)
+           0.04    0.00    0.33 v _1416_[0]/D (sky130_fd_sc_hd__dfrtp_1)
+                           0.33   data arrival time
+
+           0.00   10.00   10.00   clock clk (rise edge)
+                   0.00   10.00   clock network delay (ideal)
+                   0.00   10.00   clock reconvergence pessimism
+                          10.00 ^ _1416_[0]/CLK (sky130_fd_sc_hd__dfrtp_1)
+                  -0.12    9.88   library setup time
+                           9.88   data required time
+-----------------------------------------------------------------------
+                           9.88   data required time
+                          -0.33   data arrival time
+-----------------------------------------------------------------------
+                           9.55   slack (MET)
+
+
+PASS: report_checks with fields
+--- write_verilog and read back ---
+PASS: write_verilog
+PASS: output file exists and non-empty
+PASS: write_verilog -include_pwr_gnd
+PASS: pwr_gnd file exists and non-empty
+ALL PASSED

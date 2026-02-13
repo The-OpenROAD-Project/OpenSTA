@@ -615,3 +615,28 @@ add_custom_command(
   COMMAND ${STA_HOME}/etc/FindMessages.tcl > ${STA_HOME}/doc/messages.txt || true
   WORKING_DIRECTORY ${STA_HOME}
 )
+
+################################################################
+# Tests
+################################################################
+
+option(BUILD_TESTS "Build unit tests" OFF)
+if(BUILD_TESTS)
+  enable_testing()
+  find_package(GTest REQUIRED)
+  include(GoogleTest)
+  add_subdirectory(test)
+  # Per-module tests
+  add_subdirectory(util/test)
+  add_subdirectory(liberty/test)
+  add_subdirectory(graph/test)
+  add_subdirectory(network/test)
+  add_subdirectory(sdc/test)
+  add_subdirectory(sdf/test)
+  add_subdirectory(dcalc/test)
+  add_subdirectory(search/test)
+  add_subdirectory(parasitics/test)
+  add_subdirectory(power/test)
+  add_subdirectory(verilog/test)
+  add_subdirectory(spice/test)
+endif()

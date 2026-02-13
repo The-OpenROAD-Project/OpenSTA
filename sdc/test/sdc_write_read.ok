@@ -1,0 +1,28 @@
+PASS: clocks created
+PASS: generated clock created
+PASS: delays set
+PASS: uncertainty set
+PASS: latency set
+PASS: transition set
+PASS: driving cell set
+PASS: load set
+PASS: input transition set
+PASS: false path set
+PASS: multicycle set
+PASS: max delay set
+PASS: design limits set
+PASS: case analysis set
+PASS: operating conditions set
+PASS: wire load model set
+PASS: timing derate set
+PASS: propagated clock set
+PASS: write_sdc
+No paths found.
+PASS: report_checks before clear
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     20.00        0.00     10.00
+gen_div2                 20.00        0.00     10.00 (generated)
+PASS: report_clock_properties before clear
+ALL PASSED

@@ -1,0 +1,98 @@
+PASS: clocks created
+PASS: input delay -source_latency_included
+PASS: input delay -network_latency_included
+PASS: input delay -source_latency_included -network_latency_included
+PASS: input delay -clock_fall -source_latency_included -add_delay
+PASS: input delay rise/fall with latency flags
+PASS: output delay -source_latency_included
+PASS: output delay -network_latency_included
+PASS: output delay -clock_fall -source_latency_included -add_delay
+PASS: output delay -clock_fall -network_latency_included -add_delay
+PASS: output delay 4-way rise/fall min/max
+PASS: set_propagated_clock clk1
+PASS: clock latency (removes propagation)
+PASS: set_propagated_clock on pin clk2
+PASS: clock latency on pin (removes propagation)
+PASS: max_time_borrow on clocks
+PASS: max_time_borrow on pins
+PASS: max_time_borrow on instance
+PASS: max_time_borrow on instance reg3
+PASS: min_pulse_width global
+PASS: min_pulse_width clock high != low
+PASS: min_pulse_width clock same
+PASS: min_pulse_width pin
+PASS: min_pulse_width pin high/low
+PASS: min_pulse_width instance
+PASS: set_max_area
+PASS: group_path -default
+PASS: group_path named with -through
+PASS: group_path named clk-to-clk
+PASS: group_path duplicate
+PASS: clock_groups -logically_exclusive
+PASS: false_path -setup
+PASS: false_path -hold
+PASS: multicycle -setup -start
+PASS: multicycle -hold -end
+PASS: max_delay -ignore_clock_latency
+PASS: min_delay
+PASS: write_sdc
+PASS: write_sdc -compatible
+PASS: write_sdc -digits 8
+PASS: unset_input_delay
+PASS: unset_output_delay
+PASS: unset false paths
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30 ^ reg2/CK (DFF_X1)
+   0.08    0.38 ^ reg2/Q (DFF_X1)
+   0.00    0.38 ^ out1 (out)
+           0.38   data arrival time
+
+   5.00    5.00   clock clk1 (fall edge)
+   0.30    5.30   clock network delay (ideal)
+   0.00    5.30   clock reconvergence pessimism
+  -3.20    2.10   output external delay
+           2.10   data required time
+---------------------------------------------------------
+           2.10   data required time
+          -0.38   data arrival time
+---------------------------------------------------------
+           1.72   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.20    0.20   clock network delay (ideal)
+   0.00    0.20 ^ reg3/CK (DFF_X1)
+   0.08    0.28 ^ reg3/Q (DFF_X1)
+   0.00    0.28 ^ out2 (out)
+           0.28   data arrival time
+
+  10.00   10.00   clock clk2 (fall edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.80    7.20   output external delay
+           7.20   data required time
+---------------------------------------------------------
+           7.20   data required time
+          -0.28   data arrival time
+---------------------------------------------------------
+           6.92   slack (MET)
+
+
+PASS: read_sdc + report
+PASS: write_sdc after re-read
+ALL PASSED

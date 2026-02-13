@@ -1,0 +1,112 @@
+--- report_checks baseline ---
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.06    1.06 v buf1/Z (BUF_X1)
+   0.04    1.10 v or1/ZN (OR2_X1)
+   0.00    1.10 v reg2/D (DFF_X1)
+           1.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -1.10   data arrival time
+---------------------------------------------------------
+           8.86   slack (MET)
+
+
+PASS: timing analysis completed
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ in2 (in)
+   0.01    1.01 v inv1/ZN (INV_X1)
+   0.03    1.04 v and1/ZN (AND2_X1)
+   0.00    1.04 v reg1/D (DFF_X1)
+           1.04   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.04   data arrival time
+---------------------------------------------------------
+           1.04   slack (MET)
+
+
+PASS: min path analysis
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.06    1.06 v buf1/Z (BUF_X1)
+   0.04    1.10 v or1/ZN (OR2_X1)
+   0.00    1.10 v reg2/D (DFF_X1)
+           1.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -1.10   data arrival time
+---------------------------------------------------------
+           8.86   slack (MET)
+
+
+PASS: max path analysis
+No paths found.
+PASS: in1->out1
+No paths found.
+PASS: in2->out1
+No paths found.
+PASS: in1->out2
+No paths found.
+PASS: in2->out2
+PASS: mock SPICE files created
+--- write_path_spice min path ---
+PASS: write_path_spice min completed
+--- write_path_spice max path ---
+PASS: write_path_spice max completed
+--- write_path_spice hspice ---
+PASS: write_path_spice hspice completed
+--- write_path_spice xyce ---
+PASS: write_path_spice xyce completed
+--- write_path_spice specific path ---
+INFO: write_path_spice specific: Error: spice_path_min.tcl line 1, No paths found for -path_args -from in1 -to out2.
+PASS: write_path_spice specific code path exercised
+ALL PASSED

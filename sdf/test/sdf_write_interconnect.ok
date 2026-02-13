@@ -1,0 +1,302 @@
+--- read SPEF for interconnect ---
+PASS: read SPEF (DSPEF)
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.99    0.99 ^ r2/Q (DFF_X1)
+   0.69    1.69 ^ u1/Z (BUF_X1)
+   0.74    2.42 ^ u2/ZN (AND2_X1)
+   0.00    2.42 ^ r3/D (DFF_X1)
+           2.42   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CK (DFF_X1)
+  -0.11  499.89   library setup time
+         499.89   data required time
+---------------------------------------------------------
+         499.89   data required time
+          -2.42   data arrival time
+---------------------------------------------------------
+         497.47   slack (MET)
+
+
+PASS: report_checks with SPEF
+--- write_sdf with interconnect ---
+PASS: write_sdf default size=2688
+--- write_sdf -include_typ ---
+PASS: write_sdf -include_typ size=2980
+--- write_sdf -divider . ---
+PASS: write_sdf -divider . size=2688
+--- write_sdf -digits ---
+PASS: write_sdf -digits 2 size=2576
+PASS: write_sdf -digits 4 size=2800
+PASS: write_sdf -digits 6 size=3024
+PASS: write_sdf -digits 8 size=3248
+--- write_sdf -no_timestamp -no_version ---
+PASS: write_sdf clean size=2634
+--- write_sdf -gzip ---
+PASS: write_sdf -gzip created non-empty file
+--- write_sdf all options ---
+PASS: write_sdf all options size=3094
+--- read back SDF ---
+PASS: read back written SDF
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.99    0.99 ^ r2/Q (DFF_X1)
+   0.69    1.68 ^ u1/Z (BUF_X1)
+   0.74    2.42 ^ u2/ZN (AND2_X1)
+   0.00    2.42 ^ r3/D (DFF_X1)
+           2.42   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CK (DFF_X1)
+  -0.11  499.89   library setup time
+         499.89   data required time
+---------------------------------------------------------
+         499.89   data required time
+          -2.42   data arrival time
+---------------------------------------------------------
+         497.47   slack (MET)
+
+
+PASS: report_checks after SDF roundtrip
+--- annotated delay with interconnect ---
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             9           9           0
+----------------------------------------------------------------
+                                      9           9           0
+PASS: annotated delay -cell
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+internal net arcs                     4           4           0
+----------------------------------------------------------------
+                                      4           4           0
+PASS: annotated delay -net
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             9           9           0
+internal net arcs                     4           4           0
+----------------------------------------------------------------
+                                     13          13           0
+PASS: annotated delay -cell -net
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+net arcs from primary inputs          5           5           0
+net arcs to primary outputs           1           1           0
+----------------------------------------------------------------
+                                      6           6           0
+PASS: annotated delay from/to ports
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             9           9           0
+internal net arcs                     4           4           0
+net arcs from primary inputs          5           5           0
+net arcs to primary outputs           1           1           0
+----------------------------------------------------------------
+                                     19          19           0
+
+Annotated Arcs
+ primary input net  clk1 -> r1/CK 
+ primary input net  clk2 -> r2/CK 
+ primary input net  clk3 -> r3/CK 
+ primary input net  in1 -> r1/D 
+ primary input net  in2 -> r2/D 
+ delay              r1/CK -> r1/QN 
+ delay              r1/CK -> r1/Q 
+ internal net       r1/Q -> u2/A1 
+ delay              r2/CK -> r2/QN 
+ delay              r2/CK -> r2/Q 
+ internal net       r2/Q -> u1/A 
+ delay              r3/CK -> r3/QN 
+ delay              r3/CK -> r3/Q 
+ primary output net r3/Q -> out 
+ delay              u1/A -> u1/Z 
+ internal net       u1/Z -> u2/A2 
+ delay              u2/A1 -> u2/ZN 
+ delay              u2/A2 -> u2/ZN 
+ internal net       u2/ZN -> r3/D 
+PASS: annotated delay -report_annotated
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             9           9           0
+internal net arcs                     4           4           0
+net arcs from primary inputs          5           5           0
+net arcs to primary outputs           1           1           0
+----------------------------------------------------------------
+                                     19          19           0
+
+Unannotated Arcs
+PASS: annotated delay -report_unannotated
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             9           9           0
+constant arcs                                     0           0
+internal net arcs                     4           4           0
+constant arcs                                     0           0
+net arcs from primary inputs          5           5           0
+constant arcs                                     0           0
+net arcs to primary outputs           1           1           0
+constant arcs                                     0           0
+----------------------------------------------------------------
+                                     19          19           0
+PASS: annotated delay -constant_arcs
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             9           9           0
+internal net arcs                     4           4           0
+net arcs from primary inputs          5           5           0
+net arcs to primary outputs           1           1           0
+----------------------------------------------------------------
+                                     19          19           0
+PASS: annotated delay -max_lines 5
+--- annotated check with interconnect ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      9           9           0
+PASS: annotated check all
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+----------------------------------------------------------------
+                                      3           3           0
+PASS: annotated check -setup
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell hold arcs                        3           3           0
+----------------------------------------------------------------
+                                      3           3           0
+PASS: annotated check -hold
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+----------------------------------------------------------------
+                                      6           6           0
+PASS: annotated check -setup -hold
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      9           9           0
+
+Annotated Arcs
+ width              r1/CK -> r1/CK 
+ setup              r1/CK -> r1/D 
+ hold               r1/CK -> r1/D 
+ width              r2/CK -> r2/CK 
+ setup              r2/CK -> r2/D 
+ hold               r2/CK -> r2/D 
+ width              r3/CK -> r3/CK 
+ setup              r3/CK -> r3/D 
+ hold               r3/CK -> r3/D 
+PASS: annotated check -report_annotated
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      9           9           0
+
+Unannotated Arcs
+PASS: annotated check -report_unannotated
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      9           9           0
+PASS: annotated check -max_lines 3
+--- read original example SDF ---
+PASS: read example1.sdf
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   1.10    1.10 v r2/Q (DFF_X1)
+   1.10    2.20 v u1/Z (BUF_X1)
+   1.10    3.30 v u2/ZN (AND2_X1)
+   0.00    3.30 v r3/D (DFF_X1)
+           3.30   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CK (DFF_X1)
+  -0.50  499.50   library setup time
+         499.50   data required time
+---------------------------------------------------------
+         499.50   data required time
+          -3.30   data arrival time
+---------------------------------------------------------
+         496.20   slack (MET)
+
+
+PASS: report_checks with example1.sdf
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             9           9           0
+internal net arcs                     4           4           0
+----------------------------------------------------------------
+                                     13          13           0
+PASS: annotated delay after example1.sdf
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+----------------------------------------------------------------
+                                      6           6           0
+PASS: annotated check after example1.sdf
+--- write SDF after SDF annotation ---
+PASS: write_sdf after annotation size=2214
+ALL PASSED

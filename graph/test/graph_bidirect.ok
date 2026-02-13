@@ -1,0 +1,960 @@
+--- Test 1: graph with reconvergent paths ---
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v d1 (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.05    0.10 v or1/ZN (OR2_X1)
+   0.03    0.13 v and2/ZN (AND2_X1)
+   0.00    0.13 v reg2/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+PASS: report_checks
+Startpoint: d4 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ d4 (in)
+   0.01    0.01 v inv2/ZN (INV_X1)
+   0.02    0.03 ^ nand1/ZN (NAND2_X1)
+   0.02    0.05 ^ or2/ZN (OR2_X1)
+   0.00    0.05 ^ reg3/D (DFF_X1)
+           0.05   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg3/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.05   data arrival time
+---------------------------------------------------------
+           0.05   slack (MET)
+
+
+PASS: report_checks min
+--- Test 2: path queries ---
+No paths found.
+PASS: d1->q1
+No paths found.
+PASS: d1->q2 (reconvergent)
+No paths found.
+PASS: d2->q1
+No paths found.
+PASS: d3->q3
+No paths found.
+PASS: d4->q3
+No paths found.
+PASS: d1->q4 (reconvergent)
+No paths found.
+PASS: d3->q4 (reconvergent)
+--- Test 3: report with fields ---
+Warning: graph_bidirect.tcl line 1, unknown field nets.
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00 v input external delay
+     1    0.88    0.10    0.00    0.00 v d1 (in)
+                  0.10    0.00    0.00 v buf1/A (BUF_X1)
+     2    1.67    0.01    0.06    0.06 v buf1/Z (BUF_X1)
+                  0.01    0.00    0.06 v or1/A1 (OR2_X1)
+     2    1.96    0.01    0.05    0.10 v or1/ZN (OR2_X1)
+                  0.01    0.00    0.10 v and2/A2 (AND2_X1)
+     1    1.06    0.01    0.03    0.13 v and2/ZN (AND2_X1)
+                  0.01    0.00    0.13 v reg2/D (DFF_X1)
+                                  0.13   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ reg2/CK (DFF_X1)
+                         -0.04    9.96   library setup time
+                                  9.96   data required time
+-----------------------------------------------------------------------------
+                                  9.96   data required time
+                                 -0.13   data arrival time
+-----------------------------------------------------------------------------
+                                  9.83   slack (MET)
+
+
+PASS: report with all fields
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v d1 (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.05    0.10 v or1/ZN (OR2_X1)
+   0.03    0.13 v and2/ZN (AND2_X1)
+   0.00    0.13 v reg2/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+PASS: report full_clock
+Startpoint: d4 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   0.00    0.00 ^ input external delay
+   1.70    0.10    0.00    0.00 ^ d4 (in)
+   3.07    0.02    0.01    0.01 v inv2/ZN (INV_X1)
+   0.95    0.01    0.02    0.03 ^ nand1/ZN (NAND2_X1)
+   1.14    0.01    0.02    0.05 ^ or2/ZN (OR2_X1)
+           0.01    0.00    0.05 ^ reg3/D (DFF_X1)
+                           0.05   data arrival time
+
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   0.00    0.00   clock reconvergence pessimism
+                           0.00 ^ reg3/CK (DFF_X1)
+                   0.00    0.00   library hold time
+                           0.00   data required time
+-----------------------------------------------------------------------
+                           0.00   data required time
+                          -0.05   data arrival time
+-----------------------------------------------------------------------
+                           0.05   slack (MET)
+
+
+PASS: min with slew/cap fields
+--- Test 4: fanin/fanout ---
+fanin to q2: 3
+fanout from d1: 13
+fanin cells to q2: 2
+fanout cells from d1: 8
+fanin to q3: 3
+fanout from d3: 14
+--- Test 5: report_dcalc ---
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 1.86
+|        0.37     1.90
+v      --------------------
+0.08 | 0.03     0.03
+0.13 | 0.03     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Delay = 0.03
+
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 1.86
+|        0.37     1.90
+v      --------------------
+0.08 | 0.01     0.01
+0.13 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+A v -> Z v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 1.67
+|        0.37     1.90
+v      --------------------
+0.08 | 0.05     0.05
+0.13 | 0.06     0.07
+Table value = 0.06
+PVT scale factor = 1.00
+Delay = 0.06
+
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 1.67
+|        0.37     1.90
+v      --------------------
+0.08 | 0.01     0.01
+0.13 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+dcalc buf1: done
+Library: NangateOpenCellLibrary
+Cell: AND2_X1
+Arc sense: positive_unate
+Arc type: combinational
+A1 ^ -> ZN ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 2.06
+|        1.89     3.79
+v      --------------------
+0.00 | 0.03     0.03
+0.02 | 0.03     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Delay = 0.03
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 2.06
+|        1.89     3.79
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+A1 v -> ZN v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.94
+|        1.89     3.79
+v      --------------------
+0.00 | 0.03     0.03
+0.02 | 0.03     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Delay = 0.03
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.94
+|        1.89     3.79
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+dcalc and1 A1: done
+Library: NangateOpenCellLibrary
+Cell: AND2_X1
+Arc sense: positive_unate
+Arc type: combinational
+A2 ^ -> ZN ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 2.06
+|        1.89     3.79
+v      --------------------
+0.00 | 0.03     0.04
+0.02 | 0.03     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Delay = 0.03
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 2.06
+|        1.89     3.79
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+A2 v -> ZN v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.94
+|        1.89     3.79
+v      --------------------
+0.00 | 0.03     0.03
+0.02 | 0.04     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Delay = 0.03
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.94
+|        1.89     3.79
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+dcalc and1 A2: done
+Library: NangateOpenCellLibrary
+Cell: OR2_X1
+Arc sense: positive_unate
+Arc type: combinational
+A1 ^ -> ZN ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 2.11
+|        1.89     3.79
+v      --------------------
+0.00 | 0.02     0.03
+0.02 | 0.03     0.03
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 2.11
+|        1.89     3.79
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+A1 v -> ZN v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.96
+|        1.89     3.79
+v      --------------------
+0.00 | 0.04     0.05
+0.02 | 0.05     0.05
+Table value = 0.05
+PVT scale factor = 1.00
+Delay = 0.05
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.96
+|        1.89     3.79
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+dcalc or1 A1: done
+Library: NangateOpenCellLibrary
+Cell: NAND2_X1
+Arc sense: negative_unate
+Arc type: combinational
+A1 ^ -> ZN v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 0.79
+|        0.37     1.85
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.02
+Table value = 0.01
+PVT scale factor = 1.00
+Delay = 0.01
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 0.79
+|        0.37     1.85
+v      --------------------
+0.00 | 0.00     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+A1 v -> ZN ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 0.95
+|        0.37     1.85
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.02
+Table value = 0.01
+PVT scale factor = 1.00
+Delay = 0.01
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 0.95
+|        0.37     1.85
+v      --------------------
+0.00 | 0.00     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+dcalc nand1: done
+Library: NangateOpenCellLibrary
+Cell: NOR2_X1
+Arc sense: negative_unate
+Arc type: combinational
+A1 ^ -> ZN v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 0.90
+|        0.83     1.67
+v      --------------------
+0.02 | 0.01     0.01
+0.04 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Delay = 0.01
+
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 0.90
+|        0.83     1.67
+v      --------------------
+0.02 | 0.01     0.01
+0.04 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+A1 v -> ZN ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 0.94
+|        0.83     1.67
+v      --------------------
+0.02 | 0.02     0.03
+0.04 | 0.03     0.04
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 0.94
+|        0.83     1.67
+v      --------------------
+0.02 | 0.01     0.02
+0.04 | 0.02     0.02
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+dcalc nor1: done
+Library: NangateOpenCellLibrary
+Cell: DFF_X1
+Arc sense: non_unate
+Arc type: Reg Clk to Q
+CK ^ -> Q ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.00 | 0.08     0.09
+0.00 | 0.08     0.09
+Table value = 0.08
+PVT scale factor = 1.00
+Delay = 0.08
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.00 | 0.01     0.01
+0.00 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+CK ^ -> Q v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.00 | 0.08     0.08
+0.00 | 0.08     0.08
+Table value = 0.08
+PVT scale factor = 1.00
+Delay = 0.08
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.00 | 0.01     0.01
+0.00 | 0.01     0.01
+Table value = 0.00
+PVT scale factor = 1.00
+Slew = 0.00
+Driver waveform slew = 0.00
+
+.............................................
+
+dcalc reg1: done
+--- Test 6: network queries ---
+total pins: 50
+total nets: 19
+Net n1
+ Pin capacitance: 1.67-1.86
+ Wire capacitance: 0.00
+ Total capacitance: 1.67-1.86
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ and1/A1 input (AND2_X1) 0.87-0.92
+ or1/A1 input (OR2_X1) 0.79-0.95
+
+Net n2
+ Pin capacitance: 2.42-2.57
+ Wire capacitance: 0.00
+ Total capacitance: 2.42-2.57
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ buf2/Z output (BUF_X1)
+
+Load pins
+ and1/A2 input (AND2_X1) 0.89-0.97
+ nand1/A1 input (NAND2_X1) 1.53-1.60
+
+Net n3
+ Pin capacitance: 2.31-2.66
+ Wire capacitance: 0.00
+ Total capacitance: 2.31-2.66
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ inv1/ZN output (INV_X1)
+
+Load pins
+ nor1/A1 input (NOR2_X1) 1.41-1.71
+ or1/A2 input (OR2_X1) 0.90-0.94
+
+Net n4
+ Pin capacitance: 3.07-3.32
+ Wire capacitance: 0.00
+ Total capacitance: 3.07-3.32
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ inv2/ZN output (INV_X1)
+
+Load pins
+ nand1/A2 input (NAND2_X1) 1.50-1.66
+ nor1/A2 input (NOR2_X1) 1.56-1.65
+
+Net n5
+ Pin capacitance: 1.94-2.06
+ Wire capacitance: 0.00
+ Total capacitance: 1.94-2.06
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ and1/ZN output (AND2_X1)
+
+Load pins
+ and2/A1 input (AND2_X1) 0.87-0.92
+ reg1/D input (DFF_X1) 1.06-1.14
+
+Net n6
+ Pin capacitance: 1.96-2.11
+ Wire capacitance: 0.00
+ Total capacitance: 1.96-2.11
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ or1/ZN output (OR2_X1)
+
+Load pins
+ and2/A2 input (AND2_X1) 0.89-0.97
+ reg4/D input (DFF_X1) 1.06-1.14
+
+Net n7
+ Pin capacitance: 0.79-0.95
+ Wire capacitance: 0.00
+ Total capacitance: 0.79-0.95
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ nand1/ZN output (NAND2_X1)
+
+Load pins
+ or2/A1 input (OR2_X1) 0.79-0.95
+
+Net n8
+ Pin capacitance: 0.90-0.94
+ Wire capacitance: 0.00
+ Total capacitance: 0.90-0.94
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ nor1/ZN output (NOR2_X1)
+
+Load pins
+ or2/A2 input (OR2_X1) 0.90-0.94
+
+Net n9
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and2/ZN output (AND2_X1)
+
+Load pins
+ reg2/D input (DFF_X1) 1.06-1.14
+
+Net n10
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ or2/ZN output (OR2_X1)
+
+Load pins
+ reg3/D input (DFF_X1) 1.06-1.14
+
+PASS: report_net all
+Instance buf1
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input d1
+ Output pins:
+  Z output n1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf2
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input d2
+ Output pins:
+  Z output n2
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance inv1
+ Cell: INV_X1
+ Library: NangateOpenCellLibrary
+ Path cells: INV_X1
+ Input pins:
+  A input d3
+ Output pins:
+  ZN output n3
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance inv2
+ Cell: INV_X1
+ Library: NangateOpenCellLibrary
+ Path cells: INV_X1
+ Input pins:
+  A input d4
+ Output pins:
+  ZN output n4
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance and1
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input n1
+  A2 input n2
+ Output pins:
+  ZN output n5
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance or1
+ Cell: OR2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: OR2_X1
+ Input pins:
+  A1 input n1
+  A2 input n3
+ Output pins:
+  ZN output n6
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance nand1
+ Cell: NAND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: NAND2_X1
+ Input pins:
+  A1 input n2
+  A2 input n4
+ Output pins:
+  ZN output n7
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance nor1
+ Cell: NOR2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: NOR2_X1
+ Input pins:
+  A1 input n3
+  A2 input n4
+ Output pins:
+  ZN output n8
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance and2
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input n5
+  A2 input n6
+ Output pins:
+  ZN output n9
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance or2
+ Cell: OR2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: OR2_X1
+ Input pins:
+  A1 input n7
+  A2 input n8
+ Output pins:
+  ZN output n10
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n5
+  CK input clk
+ Output pins:
+  Q output q1
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg2
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n9
+  CK input clk
+ Output pins:
+  Q output q2
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg3
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n10
+  CK input clk
+ Output pins:
+  Q output q3
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg4
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n6
+  CK input clk
+ Output pins:
+  Q output q4
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+PASS: report_instance all
+--- Test 7: modify graph ---
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v d1 (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.05    0.10 v or1/ZN (OR2_X1)
+   0.03    0.13 v and2/ZN (AND2_X1)
+   0.00    0.13 v reg2/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+PASS: report after add instance
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v d1 (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.05    0.10 v or1/ZN (OR2_X1)
+   0.03    0.13 v and2/ZN (AND2_X1)
+   0.00    0.13 v reg2/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+PASS: report after delete instance
+ALL PASSED

@@ -1,0 +1,37 @@
+PASS: setup
+PASS: false_path through net n1
+PASS: false_path through net n2
+PASS: false_path from/through net n3/to
+PASS: false_path -rise_through net n4
+PASS: false_path -fall_through net n5
+PASS: false_path through instance buf1
+PASS: false_path from/through instance and1/to
+PASS: false_path -rise_through instance or1
+PASS: false_path through net then pin
+PASS: false_path through instance then pin
+PASS: false_path through pin then net
+PASS: false_path 3 through: pin, net, instance
+PASS: false_path multi-pin from/to
+PASS: false_path mixed clock+pin from
+PASS: false_path from instance
+PASS: false_path to instance
+PASS: max_delay through net
+PASS: max_delay through instance
+PASS: max_delay through pin
+PASS: min_delay through net
+PASS: max_delay -ignore_clock_latency
+PASS: multicycle through pin
+PASS: multicycle hold through pin
+PASS: group_path through net
+PASS: group_path through instance
+PASS: group_path through pin
+PASS: group_path -default
+PASS: write_sdc
+PASS: write_sdc compatible
+PASS: write_sdc digits 6
+PASS: unset net through paths
+PASS: unset instance through paths
+PASS: write_sdc after unset
+PASS: read_sdc
+PASS: write_sdc after read
+ALL PASSED

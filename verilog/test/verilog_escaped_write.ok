@@ -1,0 +1,151 @@
+--- Test 1: write bus design ---
+cells: 12
+nets: 19
+ports: 11
+PASS: write_verilog bus design
+PASS: bus output size=880
+PASS: write_verilog bus -include_pwr_gnd
+PASS: bus pwr output size=880
+PASS: pwr_gnd >= basic
+--- Test 2: roundtrip bus design ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+roundtrip cells: 12
+roundtrip nets: 19
+roundtrip ports: 11
+roundtrip data_in[*]: 4
+roundtrip data_out[*]: 4
+Startpoint: data_in[0] (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_in[0] (in)
+   0.06    0.06 v buf0/Z (BUF_X1)
+   0.03    0.08 v and0/ZN (AND2_X1)
+   0.00    0.08 v reg0/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg0/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+PASS: timing after roundtrip
+--- Test 3: write complex bus design ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+PASS: write_verilog complex bus
+PASS: complex output size=2075
+PASS: write_verilog complex -include_pwr_gnd
+PASS: complex pwr output size=2075
+--- roundtrip complex bus ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+complex roundtrip cells: 28
+complex roundtrip ports: 27
+roundtrip data_a[*]: 8
+roundtrip data_b[*]: 8
+roundtrip result[*]: 8
+Startpoint: data_a[6] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_a[6] (in)
+   0.06    0.06 v buf_a6/Z (BUF_X1)
+   0.03    0.09 v and6/ZN (AND2_X1)
+   0.05    0.13 v or_carry/ZN (OR2_X1)
+   0.02    0.16 v buf_carry/Z (BUF_X1)
+   0.00    0.16 v carry (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+PASS: timing after complex roundtrip
+--- Test 4: write hierarchical design ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+PASS: write_verilog hier
+PASS: hier output size=704
+PASS: write_verilog hier -include_pwr_gnd
+PASS: hier pwr output size=704
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+hier roundtrip cells: 7
+hier roundtrip nets: 11
+hier roundtrip ports: 6
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+PASS: timing after hier roundtrip
+--- Test 5: write supply/tristate design ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+PASS: write_verilog supply/tri
+PASS: supply output size=911
+PASS: write_verilog supply -include_pwr_gnd
+PASS: supply pwr output size=941
+--- Test 6: write constant design ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+PASS: write_verilog const/concat
+PASS: const output size=652
+PASS: write_verilog const -include_pwr_gnd
+PASS: const pwr output size=677
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+const roundtrip cells: 8
+const roundtrip nets: 14
+PASS: const roundtrip
+ALL PASSED

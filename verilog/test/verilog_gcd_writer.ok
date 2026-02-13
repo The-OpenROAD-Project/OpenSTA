@@ -1,0 +1,159 @@
+--- Test 1: GCD sky130 write ---
+Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+cells: 1292
+nets: 288
+ports: 54
+basic write: 74836 bytes
+PASS: basic write non-empty
+pwr_gnd write: 74836 bytes
+PASS: pwr_gnd >= basic
+remove_cells write: skipped (Error: verilog_gcd_writer.tcl line 1, unsupported object type LibertyCell.)
+PASS: write with remove_cells
+pwr+remove write: 74836 bytes
+PASS: write with pwr + remove
+--- Test 2: roundtrip ---
+Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
+roundtrip cells: 1292
+roundtrip write: 74836 bytes
+PASS: roundtrip sizes similar
+--- Test 3: timing after roundtrip ---
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: resp_msg[15] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+   0.31    0.31 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+   0.12    0.43 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+   0.31    0.74 v _215_/X (sky130_fd_sc_hd__maj3_2)
+   0.31    1.05 v _216_/X (sky130_fd_sc_hd__maj3_2)
+   0.34    1.40 v _217_/X (sky130_fd_sc_hd__maj3_2)
+   0.32    1.72 v _218_/X (sky130_fd_sc_hd__maj3_2)
+   0.36    2.08 v _219_/X (sky130_fd_sc_hd__maj3_2)
+   0.21    2.29 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+   0.14    2.42 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+   0.29    2.72 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+   0.13    2.85 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+   0.17    3.03 ^ _232_/Y (sky130_fd_sc_hd__nor2_2)
+   0.10    3.12 v _234_/Y (sky130_fd_sc_hd__a21boi_2)
+   0.12    3.25 v _238_/Y (sky130_fd_sc_hd__xnor2_2)
+   0.00    3.25 v resp_msg[15] (out)
+           3.25   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+  -1.00    4.00   output external delay
+           4.00   data required time
+---------------------------------------------------------
+           4.00   data required time
+          -3.25   data arrival time
+---------------------------------------------------------
+           0.75   slack (MET)
+
+
+PASS: report_checks after roundtrip
+Startpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _412_/CLK (sky130_fd_sc_hd__dfxtp_1)
+   0.29    0.29 ^ _412_/Q (sky130_fd_sc_hd__dfxtp_1)
+   0.11    0.40 ^ _290_/X (sky130_fd_sc_hd__a32o_1)
+   0.00    0.40 ^ _412_/D (sky130_fd_sc_hd__dfxtp_1)
+           0.40   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ _412_/CLK (sky130_fd_sc_hd__dfxtp_1)
+  -0.04   -0.04   library hold time
+          -0.04   data required time
+---------------------------------------------------------
+          -0.04   data required time
+          -0.40   data arrival time
+---------------------------------------------------------
+           0.43   slack (MET)
+
+
+PASS: min path after roundtrip
+Warning: verilog_gcd_writer.tcl line 1, unknown field nets.
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: resp_msg[15] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+     3    0.01    0.03    0.31    0.31 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+                  0.03    0.00    0.31 v _214_/B_N (sky130_fd_sc_hd__nor2b_4)
+     2    0.01    0.04    0.12    0.43 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+                  0.04    0.00    0.43 v _215_/C (sky130_fd_sc_hd__maj3_2)
+     2    0.01    0.06    0.31    0.74 v _215_/X (sky130_fd_sc_hd__maj3_2)
+                  0.06    0.00    0.74 v _216_/C (sky130_fd_sc_hd__maj3_2)
+     2    0.01    0.06    0.31    1.05 v _216_/X (sky130_fd_sc_hd__maj3_2)
+                  0.06    0.00    1.05 v _217_/C (sky130_fd_sc_hd__maj3_2)
+     2    0.01    0.08    0.34    1.40 v _217_/X (sky130_fd_sc_hd__maj3_2)
+                  0.08    0.00    1.40 v _218_/C (sky130_fd_sc_hd__maj3_2)
+     2    0.01    0.06    0.32    1.72 v _218_/X (sky130_fd_sc_hd__maj3_2)
+                  0.06    0.00    1.72 v _219_/C (sky130_fd_sc_hd__maj3_2)
+     3    0.02    0.10    0.36    2.08 v _219_/X (sky130_fd_sc_hd__maj3_2)
+                  0.10    0.00    2.08 v _222_/A2 (sky130_fd_sc_hd__o211ai_4)
+     3    0.01    0.19    0.21    2.29 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+                  0.19    0.00    2.29 ^ _225_/A3 (sky130_fd_sc_hd__a311oi_4)
+     4    0.01    0.13    0.14    2.42 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+                  0.13    0.00    2.42 v _228_/A3 (sky130_fd_sc_hd__o311ai_4)
+     3    0.01    0.29    0.29    2.72 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+                  0.29    0.00    2.72 ^ _231_/A3 (sky130_fd_sc_hd__a311oi_4)
+     2    0.01    0.11    0.13    2.85 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+                  0.11    0.00    2.85 v _232_/B (sky130_fd_sc_hd__nor2_2)
+     2    0.01    0.17    0.17    3.03 ^ _232_/Y (sky130_fd_sc_hd__nor2_2)
+                  0.17    0.00    3.03 ^ _234_/A2 (sky130_fd_sc_hd__a21boi_2)
+     2    0.01    0.08    0.10    3.12 v _234_/Y (sky130_fd_sc_hd__a21boi_2)
+                  0.08    0.00    3.12 v _238_/A (sky130_fd_sc_hd__xnor2_2)
+     1    0.00    0.04    0.12    3.25 v _238_/Y (sky130_fd_sc_hd__xnor2_2)
+                  0.04    0.00    3.25 v resp_msg[15] (out)
+                                  3.25   data arrival time
+
+                  0.00    5.00    5.00   clock clk (rise edge)
+                          0.00    5.00   clock network delay (ideal)
+                          0.00    5.00   clock reconvergence pessimism
+                         -1.00    4.00   output external delay
+                                  4.00   data required time
+-----------------------------------------------------------------------------
+                                  4.00   data required time
+                                 -3.25   data arrival time
+-----------------------------------------------------------------------------
+                                  0.75   slack (MET)
+
+
+PASS: fields after roundtrip
+--- Test 4: Nangate45 verilog_test1 ---
+verilog_test1 basic: 194 bytes
+verilog_test1 pwr_gnd: 194 bytes
+PASS: verilog_test1 pwr_gnd >= basic
+PASS: verilog_test1 write
+--- Test 5: -sort option ---
+Warning: verilog_gcd_writer.tcl line 1, The -sort flag is ignored.
+write_verilog -sort: 
+sort write: 194 bytes
+PASS: -sort option
+--- Test 6: modify then write ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+modified write: 248 bytes
+PASS: modified write with unconnected pin
+modified pwr_gnd write: 248 bytes
+PASS: modified pwr_gnd write
+ALL PASSED

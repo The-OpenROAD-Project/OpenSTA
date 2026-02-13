@@ -1,0 +1,316 @@
+--- all_registers default ---
+registers: 2
+  reg1
+  reg2
+PASS: all_registers default
+--- all_registers -cells ---
+register cells: 2
+  reg1
+  reg2
+PASS: all_registers cells
+--- all_registers -data_pins ---
+data pins: 4
+  reg1/D
+  reg1/RN
+  reg2/D
+  reg2/RN
+PASS: data_pins
+--- all_registers -clock_pins ---
+clock pins: 2
+  reg1/CK
+  reg2/CK
+PASS: clock_pins
+--- all_registers -async_pins ---
+async pins: 2
+  reg1/RN
+  reg2/RN
+PASS: async_pins
+--- all_registers -output_pins ---
+output pins: 4
+  reg1/Q
+  reg1/QN
+  reg2/Q
+  reg2/QN
+PASS: output_pins
+--- all_registers -edge_triggered ---
+edge-triggered: 2
+  reg1
+  reg2
+PASS: edge_triggered
+--- all_registers -level_sensitive ---
+level-sensitive: 0
+PASS: level_sensitive
+--- all_registers -clock clk -cells ---
+cells on clk: 2
+  reg1
+  reg2
+PASS: clock filter cells
+--- all_registers -clock clk -data_pins ---
+data pins on clk: 4
+  reg1/D
+  reg1/RN
+  reg2/D
+  reg2/RN
+PASS: clock filter data_pins
+--- all_registers -clock clk -clock_pins ---
+clock pins on clk: 2
+  reg1/CK
+  reg2/CK
+PASS: clock filter clock_pins
+--- all_registers -clock clk -async_pins ---
+async pins on clk: 2
+  reg1/RN
+  reg2/RN
+PASS: clock filter async_pins
+--- all_registers -clock clk -output_pins ---
+output pins on clk: 4
+  reg1/Q
+  reg1/QN
+  reg2/Q
+  reg2/QN
+PASS: clock filter output_pins
+--- all_registers -rise_clock ---
+rise clk cells: 2
+PASS: rise_clock
+--- all_registers -fall_clock ---
+fall clk cells: 0
+PASS: fall_clock
+--- all_registers -edge_triggered -clock clk -data_pins ---
+edge-triggered data pins on clk: 4
+PASS: edge_triggered clock data_pins
+--- all_registers -edge_triggered -clock clk -async_pins ---
+edge-triggered async pins on clk: 2
+PASS: edge_triggered clock async_pins
+--- all_registers -edge_triggered -clock clk -output_pins ---
+edge-triggered output pins on clk: 4
+PASS: edge_triggered clock output_pins
+--- all_registers -edge_triggered -clock clk -clock_pins ---
+edge-triggered clock pins on clk: 2
+PASS: edge_triggered clock clock_pins
+--- set_data_check ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ en (in)
+   0.00    1.00 ^ clk_gate/A2 (AND2_X1)
+           1.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ clk_gate/A1 (AND2_X1)
+   0.00   10.00   clock gating setup time
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+           9.00   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg1 (falling edge-triggered data to data check clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   1.00   11.00 v input external delay
+   0.00   11.00 v in2 (in)
+   0.02   11.02 v and1/ZN (AND2_X1)
+   0.02   11.05 v buf1/Z (BUF_X1)
+   0.01   11.06 ^ inv1/ZN (INV_X1)
+   0.00   11.06 ^ reg1/D (DFFR_X1)
+          11.06   data arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.02    5.02   clock network delay (propagated)
+   0.00    5.02   clock reconvergence pessimism
+           5.02 v reg1/CK (DFFR_X1)
+  -0.50    4.52   data check setup time
+           4.52   data required time
+---------------------------------------------------------
+           4.52   data required time
+         -11.06   data arrival time
+---------------------------------------------------------
+          -6.54   slack (VIOLATED)
+
+
+PASS: set_data_check
+--- remove_data_check ---
+PASS: remove_data_check
+--- set_clock_gating_check ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ en (in)
+   0.00    1.00 ^ clk_gate/A2 (AND2_X1)
+           1.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ clk_gate/A1 (AND2_X1)
+  -0.50    9.50   clock gating setup time
+           9.50   data required time
+---------------------------------------------------------
+           9.50   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+           8.50   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg1 (falling edge-triggered data to data check clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   1.00   11.00 v input external delay
+   0.00   11.00 v in2 (in)
+   0.02   11.02 v and1/ZN (AND2_X1)
+   0.02   11.05 v buf1/Z (BUF_X1)
+   0.01   11.06 ^ inv1/ZN (INV_X1)
+   0.00   11.06 ^ reg1/D (DFFR_X1)
+          11.06   data arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.02    5.02   clock network delay (propagated)
+   0.00    5.02   clock reconvergence pessimism
+           5.02 v reg1/CK (DFFR_X1)
+  -0.50    4.52   data check setup time
+           4.52   data required time
+---------------------------------------------------------
+           4.52   data required time
+         -11.06   data arrival time
+---------------------------------------------------------
+          -6.54   slack (VIOLATED)
+
+
+PASS: clock_gating_check
+--- write_sdc ---
+PASS: write_sdc
+--- startpoints ---
+startpoints: 7
+PASS: startpoints
+--- endpoints ---
+endpoints: 9
+PASS: endpoints
+--- endpoint_path_count ---
+endpoint_path_count: 9
+PASS: endpoint_path_count
+--- find_timing_paths -from -to ---
+paths from/to: 1
+PASS: find_timing_paths from/to
+--- find_timing_paths -through ---
+paths through: 1
+PASS: find_timing_paths through
+--- find_timing_paths -rise_from ---
+paths rise_from: 1
+PASS: rise_from
+--- find_timing_paths -fall_from ---
+paths fall_from: 1
+PASS: fall_from
+--- find_timing_paths -rise_to ---
+paths rise_to: 1
+PASS: rise_to
+--- find_timing_paths -fall_to ---
+paths fall_to: 1
+PASS: fall_to
+--- find_timing_paths -rise_through ---
+paths rise_through: 1
+PASS: rise_through
+--- find_timing_paths -fall_through ---
+paths fall_through: 1
+PASS: fall_through
+--- check_setup individual flags ---
+PASS: check_setup flags
+--- report_tns ---
+tns max -6.54
+tns min -4.00
+tns max -6.536289
+PASS: report_tns
+--- report_wns ---
+wns max -6.54
+wns min -4.00
+wns max -6.536289
+PASS: report_wns
+--- report_worst_slack ---
+worst slack max -6.54
+worst slack min -4.00
+worst slack max -6.536289
+PASS: report_worst_slack
+ALL PASSED

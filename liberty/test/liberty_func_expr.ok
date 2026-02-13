@@ -1,0 +1,801 @@
+PASS: read Nangate45
+Warning: liberty_func_expr.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+PASS: design setup
+Cell XOR2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 2.18-2.23
+ B input 2.36-2.41
+ Z output function=A^B
+PASS: report XOR2_X1
+Cell XOR2_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 4.24-4.33
+ B input 4.40-4.50
+ Z output function=A^B
+PASS: report XOR2_X2
+Cell XNOR2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 2.13-2.23
+ B input 2.37-2.57
+ ZN output function=!(A^B)
+PASS: report XNOR2_X1
+Cell XNOR2_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 3.80-4.00
+ B input 4.42-4.84
+ ZN output function=!(A^B)
+PASS: report XNOR2_X2
+Cell AOI21_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.54-1.63
+ B1 input 1.45-1.65
+ B2 input 1.41-1.68
+ ZN output function=!(A+(B1*B2))
+Cell AOI21_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 2.94-3.14
+ B1 input 2.73-3.13
+ B2 input 2.95-3.48
+ ZN output function=!(A+(B1*B2))
+Cell AOI21_X4
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 5.77-6.14
+ B1 input 5.61-6.40
+ B2 input 5.64-6.71
+ ZN output function=!(A+(B1*B2))
+PASS: report AOI21 variants
+Cell AOI22_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.50-1.69
+ A2 input 1.43-1.69
+ B1 input 1.55-1.58
+ B2 input 1.52-1.62
+ ZN output function=!((A1*A2)+(B1*B2))
+Cell AOI22_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 2.78-3.15
+ A2 input 2.96-3.48
+ B1 input 2.93-2.99
+ B2 input 3.23-3.44
+ ZN output function=!((A1*A2)+(B1*B2))
+Cell AOI22_X4
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 5.68-6.42
+ A2 input 5.76-6.78
+ B1 input 5.98-6.09
+ B2 input 6.18-6.61
+ ZN output function=!((A1*A2)+(B1*B2))
+PASS: report AOI22 variants
+Cell AOI211_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.56-1.62
+ B input 1.47-1.66
+ C1 input 1.40-1.66
+ C2 input 1.37-1.68
+ ZN output function=!(((C1*C2)+B)+A)
+Cell AOI211_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 2.99-3.11
+ B input 3.05-3.43
+ C1 input 2.65-3.17
+ C2 input 2.82-3.45
+ ZN output function=!(((C1*C2)+B)+A)
+Cell AOI211_X4
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.61-1.67
+ B input 1.51-1.70
+ C1 input 1.39-1.63
+ C2 input 1.44-1.75
+ ZN output function=!!!(((C1*C2)+B)+A)
+PASS: report AOI211 variants
+Cell OAI21_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.52-1.67
+ B1 input 1.46-1.66
+ B2 input 1.56-1.57
+ ZN output function=!(A*(B1+B2))
+Cell OAI21_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 2.88-3.18
+ B1 input 2.70-3.10
+ B2 input 3.31-3.33
+ ZN output function=!(A*(B1+B2))
+Cell OAI21_X4
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 5.62-6.19
+ B1 input 5.56-6.35
+ B2 input 6.46-6.50
+ ZN output function=!(A*(B1+B2))
+PASS: report OAI21 variants
+Cell OAI22_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.46-1.67
+ A2 input 1.56-1.58
+ B1 input 1.41-1.67
+ B2 input 1.55-1.62
+ ZN output function=!((A1+A2)*(B1+B2))
+Cell OAI22_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 2.71-3.13
+ A2 input 3.36-3.40
+ B1 input 2.65-3.16
+ B2 input 3.20-3.33
+ ZN output function=!((A1+A2)*(B1+B2))
+Cell OAI22_X4
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 5.62-6.45
+ A2 input 6.47-6.52
+ B1 input 5.51-6.52
+ B2 input 6.23-6.48
+ ZN output function=!((A1+A2)*(B1+B2))
+PASS: report OAI22 variants
+Cell OAI211_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.53-1.61
+ B input 1.50-1.66
+ C1 input 1.44-1.60
+ C2 input 1.52-1.56
+ ZN output function=!(((C1+C2)*A)*B)
+Cell OAI211_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 3.17-3.33
+ B input 2.89-3.21
+ C1 input 2.70-3.00
+ C2 input 3.16-3.22
+ ZN output function=!(((C1+C2)*A)*B)
+Cell OAI211_X4
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 6.05-6.36
+ B input 5.93-6.55
+ C1 input 5.61-6.21
+ C2 input 6.30-6.42
+ ZN output function=!(((C1+C2)*A)*B)
+PASS: report OAI211 variants
+Cell OAI33_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.40-1.68
+ A2 input 1.49-1.62
+ A3 input 1.57-1.57
+ B1 input 1.36-1.65
+ B2 input 1.47-1.61
+ B3 input 1.55-1.58
+ ZN output function=!(((A1+A2)+A3)*((B1+B2)+B3))
+PASS: report OAI33
+Cell MUX2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 0.91-0.95
+ B input 0.90-0.94
+ S input 1.81-1.92
+ Z output function=(S*B)+(A*!S)
+Cell MUX2_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.56-1.59
+ B input 1.48-1.74
+ S input 2.52-2.62
+ Z output function=(S*B)+(A*!S)
+PASS: report MUX2 variants
+Cell FA_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 3.61-3.75
+ B input 3.40-3.47
+ CI input 2.66-2.76
+ CO output function=(A*B)+(CI*(A+B))
+ S output function=CI^(A^B)
+PASS: report FA_X1 (full adder)
+Cell HA_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 3.06-3.19
+ B input 3.34-3.45
+ CO output function=A*B
+ S output function=A^B
+PASS: report HA_X1 (half adder)
+Cell TINV_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ EN input 1.64-1.75
+ I input 1.38-1.44
+ ZN tristate enable=!EN function=!I 0.80-0.80
+PASS: report TINV_X1 (tristate inv)
+Cell TBUF_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.77-1.88
+ EN input 1.58-1.73
+ Z tristate enable=!EN function=A 1.05-1.05
+Cell TBUF_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 3.11-3.33
+ EN input 2.54-2.74
+ Z tristate enable=!EN function=A 1.63-1.64
+PASS: report TBUF tristate buffer
+Cell ANTENNA_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 0.02-0.02
+PASS: report ANTENNA_X1
+Cell FILLCELL_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+Cell FILLCELL_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+Cell FILLCELL_X4
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+Cell FILLCELL_X8
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+Cell FILLCELL_X16
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+Cell FILLCELL_X32
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+PASS: report FILLCELL variants
+Cell LOGIC0_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ Z output function=0
+Cell LOGIC1_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ Z output function=1
+PASS: report tie cells
+Cell CLKGATETST_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ IQ internal
+ CK input 1.67-1.81
+ E input 0.84-0.88
+ SE input 0.72-0.78
+ GCK output
+Cell CLKGATETST_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ IQ internal
+ CK input 2.63-2.82
+ E input 0.84-0.87
+ SE input 0.75-0.81
+ GCK output
+Cell CLKGATETST_X4
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ IQ internal
+ CK input 4.00-4.44
+ E input 0.90-0.93
+ SE input 0.75-0.81
+ GCK output
+Cell CLKGATETST_X8
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ IQ internal
+ CK input 7.20-7.96
+ E input 0.86-0.90
+ SE input 0.74-0.80
+ GCK output
+PASS: report clock gate cells
+Cell SDFF_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.07-1.12
+ SE input 1.76-1.89
+ SI input 0.88-0.92
+ CK input 0.87-0.96
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFF_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.07-1.13
+ SE input 1.74-1.85
+ SI input 0.86-0.90
+ CK input 0.89-0.98
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFR_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.10-1.15
+ RN input 1.47-1.49
+ SE input 1.88-2.00
+ SI input 0.84-0.88
+ CK input 0.94-1.03
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFR_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.09-1.14
+ RN input 1.51-1.53
+ SE input 1.81-1.92
+ SI input 0.84-0.88
+ CK input 0.87-0.96
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFS_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.10-1.15
+ SE input 1.89-2.00
+ SI input 0.86-0.90
+ SN input 1.32-1.34
+ CK input 0.89-0.98
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFS_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.06-1.12
+ SE input 1.78-1.91
+ SI input 0.88-0.91
+ SN input 2.20-2.22
+ CK input 0.87-0.96
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFRS_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.09-1.14
+ RN input 2.13-2.25
+ SE input 1.92-2.14
+ SI input 0.82-0.86
+ SN input 1.48-1.52
+ CK input 0.86-0.95
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFRS_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.07-1.12
+ RN input 2.55-2.63
+ SE input 1.81-2.02
+ SI input 0.82-0.86
+ SN input 1.81-1.84
+ CK input 0.84-0.94
+ Q output function=IQ
+ QN output function=IQN
+PASS: report scan DFF variants
+PASS: write_liberty (exercises FuncExpr::to_string)
+PASS: read IHP library
+Cell sg13g2_inv_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Y output function=!A
+ A input 2.84-2.94
+Cell sg13g2_buf_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=A
+ A input 2.30-2.36
+Cell sg13g2_nand2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Y output function=!(A*B)
+ A input 2.90-2.99
+ B input 2.90-3.14
+Cell sg13g2_nor2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Y output function=!(A+B)
+ A input 3.01-3.06
+ B input 2.86-3.01
+Cell sg13g2_xor2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=A^B
+ A input 5.72-5.85
+ B input 5.09-5.25
+Cell sg13g2_xnor2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Y output function=!(A^B)
+ A input 5.53-5.66
+ B input 5.00-5.06
+Cell sg13g2_mux2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=(!S*A0)+(S*A1)
+ A0 input 0.38-3.63
+ A1 input 0.52-3.70
+ S input 5.00-5.09
+Cell sg13g2_dfrbp_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Q output function=IQ
+ Q_N output function=IQN
+ CLK input 2.52-2.89
+ D input 1.63-1.90
+ RESET_B input 6.40-6.55
+ IQ internal
+ IQN internal
+Cell sg13g2_ebufn_2
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Z tristate enable=!TE_B function=A 4.51-7.42
+ A input 2.58-2.66
+ TE_B input 6.21-6.60
+Warning: liberty_func_expr.tcl line 1, liberty cell 'sg13g2_stdcell_typ_1p20V_25C/sg13g2_antn' not found.
+Cell sg13g2_tiehi
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ L_HI output function=1
+Cell sg13g2_tielo
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ L_LO output function=0
+PASS: IHP cell reports
+PASS: write_liberty IHP
+PASS: read Sky130
+Cell sky130_fd_sc_hd__a21o_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 2.31-2.47
+ A2 input 2.23-2.43
+ B1 input 2.25-2.59
+ X output function=(A1*A2)+B1
+Cell sky130_fd_sc_hd__a21oi_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 2.28-2.43
+ A2 input 2.22-2.42
+ B1 input 2.17-2.48
+ Y output function=(!A1*!B1)+(!A2*!B1)
+Cell sky130_fd_sc_hd__a22o_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 2.26-2.43
+ A2 input 2.26-2.53
+ B1 input 2.24-2.51
+ B2 input 2.16-2.49
+ X output function=(B1*B2)+(A1*A2)
+Cell sky130_fd_sc_hd__a22oi_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 2.28-2.43
+ A2 input 2.26-2.50
+ B1 input 2.22-2.47
+ B2 input 2.16-2.49
+ Y output function=(((!A1*!B1)+(!A1*!B2))+(!A2*!B1))+(!A2*!B2)
+Cell sky130_fd_sc_hd__a31o_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 2.27-2.42
+ A2 input 2.28-2.46
+ A3 input 2.26-2.51
+ B1 input 2.15-2.49
+ X output function=((A1*A2)*A3)+B1
+Cell sky130_fd_sc_hd__a32o_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 2.26-2.43
+ A2 input 2.23-2.44
+ A3 input 2.21-2.49
+ B1 input 2.24-2.52
+ B2 input 2.11-2.43
+ X output function=((A1*A2)*A3)+(B1*B2)
+Cell sky130_fd_sc_hd__o21a_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 2.25-2.47
+ A2 input 2.26-2.57
+ B1 input 2.29-2.45
+ X output function=(A1*B1)+(A2*B1)
+Cell sky130_fd_sc_hd__o21ai_0
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 1.68-1.82
+ A2 input 1.60-1.81
+ B1 input 1.62-1.69
+ Y output function=(!A1*!A2)+!B1
+Cell sky130_fd_sc_hd__o22a_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 2.25-2.45
+ A2 input 2.27-2.58
+ B1 input 2.32-2.49
+ B2 input 2.24-2.49
+ X output function=(((A1*B1)+(A2*B1))+(A1*B2))+(A2*B2)
+Cell sky130_fd_sc_hd__mux2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 1.51-1.61
+ A1 input 1.81-1.96
+ S input 3.29-3.52
+ X output function=(A0*!S)+(A1*S)
+Cell sky130_fd_sc_hd__mux4_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 1.48-1.57
+ A1 input 1.40-1.48
+ A2 input 1.42-1.51
+ A3 input 1.44-1.52
+ S0 input 3.70-4.09
+ S1 input 2.61-2.74
+ X output function=((((A0*!S0)*!S1)+((A1*S0)*!S1))+((A2*!S0)*S1))+((A3*S0)*S1)
+Cell sky130_fd_sc_hd__xor2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 4.21-4.54
+ B input 4.17-4.51
+ X output function=(A*!B)+(!A*B)
+Cell sky130_fd_sc_hd__xnor2_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 4.34-4.68
+ B input 4.47-4.65
+ Y output function=(!A*!B)+(A*B)
+Cell sky130_fd_sc_hd__fa_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 6.56-6.90
+ B input 5.87-6.18
+ CIN input 4.46-4.58
+ COUT output function=((A*B)+(A*CIN))+(B*CIN)
+ SUM output function=((((A*!B)*!CIN)+((!A*B)*!CIN))+((!A*!B)*CIN))+((A*B)*CIN)
+Cell sky130_fd_sc_hd__ha_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 2.95-3.10
+ B input 2.83-2.84
+ COUT output function=A*B
+ SUM output function=(A*!B)+(!A*B)
+Cell sky130_fd_sc_hd__maj3_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 2.67-2.82
+ B input 2.42-2.66
+ C input 2.96-3.14
+ X output function=((A*B)+(A*C))+(B*C)
+Cell sky130_fd_sc_hd__dlxtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ D input 1.70-1.85
+ GATE input 1.68-1.82
+ Q output function=IQ
+Cell sky130_fd_sc_hd__sdfxtp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 1.69-1.86
+ D input 1.62-1.78
+ Q output function=IQ
+ SCD input 1.72-1.90
+ SCE input 3.19-3.58
+Cell sky130_fd_sc_hd__ebufn_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 1.73-1.88
+ TE_B input 2.93-3.34
+ Z tristate enable=!TE_B function=A 2.26
+PASS: Sky130 complex cell reports
+PASS: write_liberty Sky130
+No paths found.
+PASS: report_checks
+No paths found.
+PASS: report_checks min delay
+ALL PASSED

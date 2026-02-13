@@ -1,0 +1,61 @@
+PASS: base clocks
+PASS: virtual clock
+PASS: clock -add on same port
+PASS: asymmetric waveform clock
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     20.00        0.00     10.00
+vclk                      8.00        0.00      4.00
+clk1_2x                   5.00        0.00      2.50
+clk_asym                 12.00        0.00      3.00
+PASS: report_clock_properties initial
+PASS: generated clock -divide_by 2
+PASS: generated clock -divide_by 3
+PASS: generated clock -multiply_by 2
+Warning: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
+Warning: generated clock gclk_div3 pin clk2 is in the fanout of multiple clocks.
+Warning: generated clock gclk_mul2 pin clk1 is in the fanout of multiple clocks.
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     20.00        0.00     10.00
+vclk                      8.00        0.00      4.00
+clk1_2x                   5.00        0.00      2.50
+clk_asym                 12.00        0.00      3.00
+gclk_div2                10.00        0.00      5.00 (generated)
+gclk_div3                36.00        0.00      9.00 (generated)
+gclk_mul2                 2.50        0.00      1.25 (generated)
+PASS: report_clock_properties with generated
+PASS: source latency on generated clock
+PASS: network latency on generated clock
+PASS: uncertainty on generated clock
+PASS: inter-clock uncertainty with generated
+PASS: transition on generated clock
+PASS: propagated on generated clock
+PASS: input delay with generated clock
+PASS: output delay with generated clock
+PASS: clock groups with generated clocks
+PASS: false path between generated clocks
+PASS: multicycle to generated clock
+PASS: write_sdc with generated clocks
+PASS: write_sdc -compatible with generated clocks
+PASS: write_sdc -digits 6 with generated clocks
+No paths found.
+PASS: report_checks with generated clocks
+No paths found.
+PASS: report_checks path 2
+PASS: unset clock groups
+PASS: delete gclk_mul2
+PASS: unset latencies on gclk_div2
+PASS: delete gclk_div2
+PASS: delete gclk_div3
+PASS: delete virtual clock
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     20.00        0.00     10.00
+clk1_2x                   5.00        0.00      2.50
+clk_asym                 12.00        0.00      3.00
+PASS: report_clock_properties after deletions
+ALL PASSED

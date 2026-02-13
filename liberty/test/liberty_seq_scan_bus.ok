@@ -1,0 +1,147 @@
+PASS: read Sky130 library
+sdfxtp_1 area = 26.275200
+PASS: sdfxtp_1 has test_cell
+sdfxtp_1/SCD dir=input
+sdfxtp_1/SCE dir=input
+sdfxtp_1/CLK dir=input
+sdfxtp_1/D dir=input
+sdfxtp_1/Q dir=output
+PASS: scan cell port queries
+sdfxbp_1 area = 30.028799
+PASS: second scan cell
+sky130_fd_sc_hd__ebufn_1 area = 10.009600
+sky130_fd_sc_hd__ebufn_1 Z tristate_enable = !TE_B
+sky130_fd_sc_hd__ebufn_2 area = 11.260800
+sky130_fd_sc_hd__ebufn_2 Z tristate_enable = !TE_B
+sky130_fd_sc_hd__ebufn_4 area = 16.265600
+sky130_fd_sc_hd__ebufn_4 Z tristate_enable = !TE_B
+sky130_fd_sc_hd__ebufn_8 area = 26.275200
+sky130_fd_sc_hd__ebufn_8 Z tristate_enable = !TE_B
+PASS: tristate cell queries
+sky130_fd_sc_hd__dlxtp_1 area = 15.014400
+sky130_fd_sc_hd__dlxtn_1 area = 15.014400
+sky130_fd_sc_hd__dlxbn_1 area = 18.768000
+sky130_fd_sc_hd__dlxbp_1 area = 18.768000
+PASS: latch cell queries
+sky130_fd_sc_hd__dfrtp_1 area=25.024000 is_buf=0 is_inv=0
+sky130_fd_sc_hd__dfstp_1 area=26.275200 is_buf=0 is_inv=0
+sky130_fd_sc_hd__dfxtp_1 area=20.019199 is_buf=0 is_inv=0
+sky130_fd_sc_hd__dfbbp_1 area=32.531200 is_buf=0 is_inv=0
+PASS: DFF with async set/clear
+PASS: internal power queries
+sky130_fd_sc_hd__and2_1/X dir=output func=A*B
+sky130_fd_sc_hd__or2_1/X dir=output func=A+B
+sky130_fd_sc_hd__xor2_1/X dir=output func=(A*!B)+(!A*B)
+sky130_fd_sc_hd__xnor2_1/Y dir=output func=(!A*!B)+(A*B)
+sky130_fd_sc_hd__mux2_1/X dir=output func=(A0*!S)+(A1*S)
+PASS: port function queries
+PASS: read Nangate45
+INV_X1/A cap=0.001700
+INV_X2/A cap=0.003251
+INV_X4/A cap=0.006258
+BUF_X1/A cap=0.000975
+BUF_X2/A cap=0.001779
+BUF_X4/A cap=0.003402
+NAND2_X1/A1 cap=0.001599
+NAND2_X1/A2 cap=0.001664
+NOR2_X1/A1 cap=0.001714
+NOR2_X1/A2 cap=0.001651
+AOI21_X1/A cap=0.001626
+AOI21_X1/B1 cap=0.001647
+AOI21_X1/B2 cap=0.001677
+OAI21_X1/A cap=0.001671
+OAI21_X1/B1 cap=0.001662
+OAI21_X1/B2 cap=0.001572
+PASS: port capacitance queries
+DFF_X1 arc_sets = 5
+DFFR_X1 arc_sets = 16
+DFFS_X1 arc_sets = 16
+DFFRS_X1 arc_sets = 35
+PASS: timing arc queries
+PASS: read fakeram library (bus ports)
+fakeram/clk dir=input bus=0 bundle=0 has_members=0
+fakeram/rd_out dir=output bus=1 bundle=0 has_members=1
+  member_count = 7
+fakeram/we_in dir=input bus=0 bundle=0 has_members=0
+fakeram/ce_in dir=input bus=0 bundle=0 has_members=0
+fakeram/addr_in dir=input bus=1 bundle=0 has_members=1
+  member_count = 6
+fakeram/wd_in dir=input bus=1 bundle=0 has_members=1
+  member_count = 7
+fakeram/w_mask_in dir=input bus=1 bundle=0 has_members=1
+  member_count = 7
+PASS: bus port queries
+PASS: read ASAP7 SEQ (latch + statetable)
+DLLx1 arc_sets = 6
+PASS: ASAP7 latch cell arcs
+ICGx1 arc_sets = 13
+PASS: ASAP7 ICG cell arcs
+PASS: design setup
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           6.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+PASS: report_checks
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             1.52e-06   6.90e-09   2.36e-07   1.76e-06  84.7%
+Combinational          1.22e-07   7.11e-08   1.25e-07   3.18e-07  15.3%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  1.64e-06   7.80e-08   3.61e-07   2.08e-06 100.0%
+                          78.9%       3.8%      17.4%
+PASS: report_power
+PASS: write_liberty
+ALL PASSED

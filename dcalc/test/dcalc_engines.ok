@@ -1,0 +1,656 @@
+--- Testing unit delay calculator ---
+
+No paths found.
+PASS: unit delay calculator report_checks
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   1.00    1.00 ^ reg1/Q (DFF_X1)
+   0.00    1.00 ^ out1 (out)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+   0.00    0.00   output external delay
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+           1.00   slack (MET)
+
+
+PASS: unit min path
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   1.00    1.00 v buf1/Z (BUF_X1)
+   1.00    2.00 ^ inv1/ZN (INV_X1)
+   0.00    2.00 ^ reg1/D (DFF_X1)
+           2.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -1.00    9.00   library setup time
+           9.00   data required time
+---------------------------------------------------------
+           9.00   data required time
+          -2.00   data arrival time
+---------------------------------------------------------
+           7.00   slack (MET)
+
+
+PASS: unit max path
+--- Testing lumped_cap delay calculator ---
+
+No paths found.
+PASS: lumped_cap delay calculator report_checks
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ in1 (in)
+   0.02    0.02 ^ buf1/Z (BUF_X1)
+   0.01    0.02 v inv1/ZN (INV_X1)
+   0.00    0.02 v reg1/D (DFF_X1)
+           0.02   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.02   data arrival time
+---------------------------------------------------------
+           0.02   slack (MET)
+
+
+PASS: lumped_cap min path
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.92   slack (MET)
+
+
+PASS: lumped_cap max path
+--- Testing report_dcalc ---
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.02
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+A v -> Z v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.03
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+
+PASS: report_dcalc from/to
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.02
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+A v -> Z v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.03
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+
+PASS: report_dcalc -min
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.02
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+A v -> Z v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.03
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+
+PASS: report_dcalc -max
+Library: NangateOpenCellLibrary
+Cell: INV_X1
+Arc sense: negative_unate
+Arc type: combinational
+A ^ -> ZN v
+P = 1.000000 V = 1.100000 T = 25.000000
+------- input_net_transition = 0.007053
+|       total_output_net_capacitance = 1.062342
+|        0.365616     1.897810
+v      --------------------
+0.004724 | 0.004611     0.006782
+0.017186 | 0.005658     0.009630
+Table value = 0.005947
+PVT scale factor = 1.000000
+Delay = 0.005947
+
+------- input_net_transition = 0.007053
+|       total_output_net_capacitance = 1.062342
+|        0.365616     1.897810
+v      --------------------
+0.004724 | 0.002081     0.003192
+0.017186 | 0.004539     0.006195
+Table value = 0.003092
+PVT scale factor = 1.000000
+Slew = 0.003092
+
+.............................................
+
+A v -> ZN ^
+P = 1.000000 V = 1.100000 T = 25.000000
+------- input_net_transition = 0.005514
+|       total_output_net_capacitance = 1.140290
+|        0.365616     1.897810
+v      --------------------
+0.004724 | 0.007266     0.011031
+0.017186 | 0.011759     0.017202
+Table value = 0.009509
+PVT scale factor = 1.000000
+Delay = 0.009509
+
+------- input_net_transition = 0.005514
+|       total_output_net_capacitance = 1.140290
+|        0.365616     1.897810
+v      --------------------
+0.004724 | 0.003321     0.006755
+0.017186 | 0.006463     0.009176
+Table value = 0.005233
+PVT scale factor = 1.000000
+Slew = 0.005233
+
+.............................................
+
+
+PASS: report_dcalc -digits
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.02
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+A v -> Z v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.02     0.02
+0.00 | 0.02     0.03
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.00 | 0.00     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+
+PASS: report_dcalc -from only
+Library: NangateOpenCellLibrary
+Cell: INV_X1
+Arc sense: negative_unate
+Arc type: combinational
+A ^ -> ZN v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.06
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Delay = 0.01
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.06
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.00
+0.02 | 0.00     0.01
+Table value = 0.00
+PVT scale factor = 1.00
+Slew = 0.00
+
+.............................................
+
+A v -> ZN ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.14
+|        0.37     1.90
+v      --------------------
+0.00 | 0.01     0.01
+0.02 | 0.01     0.02
+Table value = 0.01
+PVT scale factor = 1.00
+Delay = 0.01
+
+------- input_net_transition = 0.01
+|       total_output_net_capacitance = 1.14
+|        0.37     1.90
+v      --------------------
+0.00 | 0.00     0.01
+0.02 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+
+PASS: report_dcalc -to only
+Library: NangateOpenCellLibrary
+Cell: DFF_X1
+Arc type: setup
+CK ^ -> D ^
+P = 1.00 V = 1.10 T = 25.00
+------- constrained_pin_transition = 0.01 (ideal clock)
+|       related_pin_transition = 0.00
+|        0.00     0.04
+v      --------------------
+0.00 | 0.03     0.02
+0.04 | 0.04     0.03
+Table value = 0.03
+PVT scale factor = 1.00
+Check = 0.03
+
+.............................................
+
+CK ^ -> D v
+P = 1.00 V = 1.10 T = 25.00
+------- constrained_pin_transition = 0.00 (ideal clock)
+|       related_pin_transition = 0.00
+|        0.00     0.04
+v      --------------------
+0.00 | 0.04     0.02
+0.04 | 0.05     0.04
+Table value = 0.04
+PVT scale factor = 1.00
+Check = 0.04
+
+.............................................
+
+
+PASS: report_dcalc DFF check arcs
+Library: NangateOpenCellLibrary
+Cell: DFF_X1
+Arc sense: non_unate
+Arc type: Reg Clk to Q
+CK ^ -> Q ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.00 | 0.08     0.09
+0.00 | 0.08     0.09
+Table value = 0.08
+PVT scale factor = 1.00
+Delay = 0.08
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.00 | 0.01     0.01
+0.00 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+
+.............................................
+
+CK ^ -> Q v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.00 | 0.08     0.08
+0.00 | 0.08     0.08
+Table value = 0.08
+PVT scale factor = 1.00
+Delay = 0.08
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.00 | 0.01     0.01
+0.00 | 0.01     0.01
+Table value = 0.00
+PVT scale factor = 1.00
+Slew = 0.00
+
+.............................................
+
+
+PASS: report_dcalc DFF CK->Q arc
+--- Testing set_load ---
+
+No paths found.
+PASS: report_checks after set_load
+Library: NangateOpenCellLibrary
+Cell: DFF_X1
+Arc sense: non_unate
+Arc type: Reg Clk to Q
+CK ^ -> Q ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.05
+|        0.37     1.90
+v      --------------------
+0.00 | 0.08     0.09
+0.00 | 0.08     0.09
+Table value = 0.08
+PVT scale factor = 1.00
+Delay = 0.08
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.05
+|        0.37     1.90
+v      --------------------
+0.00 | 0.01     0.01
+0.00 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+CK ^ -> Q v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.05
+|        0.37     1.90
+v      --------------------
+0.00 | 0.08     0.08
+0.00 | 0.08     0.08
+Table value = 0.08
+PVT scale factor = 1.00
+Delay = 0.08
+
+------- input_net_transition = 0.00
+|       total_output_net_capacitance = 0.05
+|        0.37     1.90
+v      --------------------
+0.00 | 0.01     0.01
+0.00 | 0.01     0.01
+Table value = 0.00
+PVT scale factor = 1.00
+Slew = 0.00
+Driver waveform slew = 0.00
+
+.............................................
+
+PASS: report_dcalc after set_load
+--- Testing set_input_transition ---
+No paths found.
+PASS: report_checks after set_input_transition
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.20
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.13 | 0.03     0.04
+0.20 | 0.03     0.03
+Table value = 0.03
+PVT scale factor = 1.00
+Delay = 0.03
+
+------- input_net_transition = 0.20
+|       total_output_net_capacitance = 1.70
+|        0.37     1.90
+v      --------------------
+0.13 | 0.01     0.01
+0.20 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+A v -> Z v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.20
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.13 | 0.06     0.07
+0.20 | 0.08     0.08
+Table value = 0.08
+PVT scale factor = 1.00
+Delay = 0.08
+
+------- input_net_transition = 0.20
+|       total_output_net_capacitance = 1.55
+|        0.37     1.90
+v      --------------------
+0.13 | 0.01     0.01
+0.20 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+PASS: report_dcalc after set_input_transition
+--- Testing dmp_ceff_two_pole delay calculator ---
+
+No paths found.
+PASS: dmp_ceff_two_pole report_checks
+ALL PASSED

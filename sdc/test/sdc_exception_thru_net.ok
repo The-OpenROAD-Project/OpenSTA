@@ -1,0 +1,27 @@
+PASS: setup
+PASS: false_path through net
+PASS: false_path from/through net/to
+PASS: false_path through net+pin
+PASS: false_path through instance
+PASS: false_path from instance
+PASS: false_path to instance
+PASS: false_path multi-object
+PASS: false_path multi from (clk + pin)
+PASS: write_sdc with net/inst exceptions
+PASS: unset exceptions
+PASS: max_delay -ignore_clock_latency
+PASS: min_delay
+PASS: max_delay through net
+PASS: max_delay through instance
+PASS: multicycle -setup -start
+PASS: multicycle -hold -end
+PASS: group_path -default
+PASS: group_path with through
+PASS: write_sdc with all exception types
+PASS: write_sdc compatible
+group_path_names = grp_thru
+PASS: group_path_names
+is_path_group_name grp_thru = 1
+is_path_group_name nonexistent = 0
+PASS: is_path_group_name
+ALL PASSED

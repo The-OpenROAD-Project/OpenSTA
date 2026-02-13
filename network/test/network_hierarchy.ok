@@ -1,0 +1,520 @@
+--- hierarchical cell queries ---
+flat cells: 7
+hierarchical cells: 11
+sub* cells (flat): 2
+sub* cells (hier): 2
+Warning: network_hierarchy.tcl line 1, instance 'sub1/*' not found.
+sub1/* cells (hier): 0
+Warning: network_hierarchy.tcl line 1, instance 'sub2/*' not found.
+sub2/* cells (hier): 0
+*gate* cells (hier): 4
+--- hierarchical pin queries ---
+flat pins: 20
+hierarchical all pins: 30
+sub1/* pins (hier): 3
+sub2/* pins (hier): 3
+sub1/and_gate/A1: sub1/and_gate/A1
+*/A pins (hier): 8
+*/Z pins (hier): 5
+*/ZN pins (hier): 3
+--- hierarchical net queries ---
+flat nets: 11
+hierarchical nets: 19
+w* nets (flat): 5
+w* nets (hier): 5
+--- port properties ---
+total ports: 6
+port clk: direction=input
+port in1: direction=input
+port in2: direction=input
+port in3: direction=input
+port out1: direction=output
+port out2: direction=output
+input ports: 4
+output ports: 2
+--- instance properties ---
+buf_in: ref=BUF_X1 full=buf_in
+sub1: ref=sub_block full=sub1
+sub2: ref=sub_block full=sub2
+inv1: ref=INV_X1 full=inv1
+reg1: ref=DFF_X1 full=reg1
+buf_out1: ref=BUF_X2 full=buf_out1
+buf_out2: ref=BUF_X1 full=buf_out2
+--- report_instance hierarchy ---
+Instance buf_in
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input in1
+ Output pins:
+  Z output w1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+report_instance buf_in: done
+Instance sub1
+ Cell: sub_block
+ Library: verilog
+ Path cells: sub_block
+ Input pins:
+  A input w1
+  B input in2
+ Output pins:
+  Y output w2
+ Children:
+  and_gate (AND2_X1)
+  buf_gate (BUF_X1)
+report_instance sub1: done
+Instance sub2
+ Cell: sub_block
+ Library: verilog
+ Path cells: sub_block
+ Input pins:
+  A input w2
+  B input in3
+ Output pins:
+  Y output w3
+ Children:
+  and_gate (AND2_X1)
+  buf_gate (BUF_X1)
+report_instance sub2: done
+Instance inv1
+ Cell: INV_X1
+ Library: NangateOpenCellLibrary
+ Path cells: INV_X1
+ Input pins:
+  A input w3
+ Output pins:
+  ZN output w4
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+report_instance inv1: done
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input w4
+  CK input clk
+ Output pins:
+  Q output w5
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+report_instance reg1: done
+Instance buf_out1
+ Cell: BUF_X2
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X2
+ Input pins:
+  A input w5
+ Output pins:
+  Z output out1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+report_instance buf_out1: done
+Instance buf_out2
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input w3
+ Output pins:
+  Z output out2
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+report_instance buf_out2: done
+--- report_net internal ---
+Net w1
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf_in/Z output (BUF_X1)
+
+Load pins
+ sub1/and_gate/A1 input (AND2_X1) 0.87-0.92
+
+Hierarchical pins
+ sub1/A input
+
+report_net w1: done
+Net w2
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ sub1/buf_gate/Z output (BUF_X1)
+
+Load pins
+ sub2/and_gate/A1 input (AND2_X1) 0.87-0.92
+
+Hierarchical pins
+ sub1/Y output
+ sub2/A input
+
+report_net w2: done
+Net w3
+ Pin capacitance: 2.42-2.67
+ Wire capacitance: 0.00
+ Total capacitance: 2.42-2.67
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ sub2/buf_gate/Z output (BUF_X1)
+
+Load pins
+ buf_out2/A input (BUF_X1) 0.88-0.97
+ inv1/A input (INV_X1) 1.55-1.70
+
+Hierarchical pins
+ sub2/Y output
+
+report_net w3: done
+Net w4
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ inv1/ZN output (INV_X1)
+
+Load pins
+ reg1/D input (DFF_X1) 1.06-1.14
+
+report_net w4: done
+Net w5
+ Pin capacitance: 1.59-1.78
+ Wire capacitance: 0.00
+ Total capacitance: 1.59-1.78
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ reg1/Q output (DFF_X1)
+
+Load pins
+ buf_out1/A input (BUF_X2) 1.59-1.78
+
+report_net w5: done
+--- fanin/fanout through hierarchy ---
+fanin to out1 flat: 5
+fanin to out1 cells: 3
+fanin to out1 startpoints: 1
+fanout from in1 flat: 17
+fanout from in1 cells: 2
+fanout from in1 endpoints: 0
+fanin to out2 timing trace: 18
+fanin to out2 all trace: 18
+fanout from in2 all trace: 15
+fanin to out1 levels=1: 3
+fanin to out1 levels=3: 5
+fanout from in1 levels=1: 3
+--- timing through hierarchy ---
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+PASS: report_checks through hierarchy
+Startpoint: in3 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ in3 (in)
+   0.04    0.04 ^ sub2/and_gate/ZN (AND2_X1)
+   0.02    0.07 ^ sub2/buf_gate/Z (BUF_X1)
+   0.01    0.07 v inv1/ZN (INV_X1)
+   0.00    0.07 v reg1/D (DFF_X1)
+           0.07   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.07   data arrival time
+---------------------------------------------------------
+           0.07   slack (MET)
+
+
+PASS: min path through hierarchy
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+PASS: max path through hierarchy
+No paths found.
+PASS: in1->out1 through hierarchy
+No paths found.
+PASS: in2->out1 through hierarchy
+Startpoint: in3 (input port clocked by clk)
+Endpoint: out2 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in3 (in)
+   0.06    0.06 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.09 v sub2/buf_gate/Z (BUF_X1)
+   0.02    0.11 v buf_out2/Z (BUF_X1)
+   0.00    0.11 v out2 (out)
+           0.11   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.11   data arrival time
+---------------------------------------------------------
+           9.89   slack (MET)
+
+
+PASS: in3->out2 through hierarchy
+Warning: network_hierarchy.tcl line 1, unknown field nets.
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00 v input external delay
+     1    0.88    0.10    0.00    0.00 v in1 (in)
+                  0.10    0.00    0.00 v buf_in/A (BUF_X1)
+     1    0.87    0.01    0.06    0.06 v buf_in/Z (BUF_X1)
+                  0.01    0.00    0.06 v sub1/and_gate/A1 (AND2_X1)
+     1    0.88    0.01    0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+                  0.01    0.00    0.08 v sub1/buf_gate/A (BUF_X1)
+     1    0.87    0.00    0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+                  0.00    0.00    0.11 v sub2/and_gate/A1 (AND2_X1)
+     1    0.88    0.01    0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+                  0.01    0.00    0.13 v sub2/buf_gate/A (BUF_X1)
+     2    2.42    0.01    0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+                  0.01    0.00    0.16 v inv1/A (INV_X1)
+     1    1.14    0.01    0.01    0.17 ^ inv1/ZN (INV_X1)
+                  0.01    0.00    0.17 ^ reg1/D (DFF_X1)
+                                  0.17   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ reg1/CK (DFF_X1)
+                         -0.03    9.97   library setup time
+                                  9.97   data required time
+-----------------------------------------------------------------------------
+                                  9.97   data required time
+                                 -0.17   data arrival time
+-----------------------------------------------------------------------------
+                                  9.80   slack (MET)
+
+
+PASS: report_checks with fields
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+PASS: report_checks full_clock format
+--- network modification with hierarchy ---
+PASS: make_instance new_hier_buf
+PASS: make_net new_hier_net
+PASS: connect_pin new_hier_net new_hier_buf/A
+PASS: disconnect_pin
+PASS: delete_instance new_hier_buf
+PASS: delete_net new_hier_net
+--- registers in hierarchy ---
+all_registers: 1
+register data_pins: 1
+register clock_pins: 1
+register output_pins: 2
+--- report_check_types ---
+Startpoint: in3 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ in3 (in)
+   0.04    0.04 ^ sub2/and_gate/ZN (AND2_X1)
+   0.02    0.07 ^ sub2/buf_gate/Z (BUF_X1)
+   0.01    0.07 v inv1/ZN (INV_X1)
+   0.00    0.07 v reg1/D (DFF_X1)
+           0.07   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.07   data arrival time
+---------------------------------------------------------
+           0.07   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+PASS: report_check_types
+ALL PASSED

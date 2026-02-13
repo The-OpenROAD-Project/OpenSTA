@@ -1,0 +1,5 @@
+PASS: suppress_msg accepted
+PASS: unsuppress_msg accepted
+PASS: suppress_msg multiple IDs accepted
+PASS: unsuppress_msg multiple IDs accepted
+ALL PASSED

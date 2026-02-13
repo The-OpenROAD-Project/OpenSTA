@@ -1,0 +1,273 @@
+--- thread operations ---
+initial thread_count: 1
+thread_count after set to 2: 2
+thread_count after set to 1: 1
+thread_count after set to 4: 4
+PASS: thread count operations
+--- processor_count ---
+processor_count: 64
+PASS: processor_count positive
+--- memory_usage ---
+PASS: memory_usage non-negative
+--- load design for parallel timing ---
+Warning: util_parallel_misc.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Startpoint: data_a[6] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_a[6] (in)
+   0.06    0.06 v buf_a6/Z (BUF_X1)
+   0.03    0.09 v and6/ZN (AND2_X1)
+   0.05    0.13 v or_carry/ZN (OR2_X1)
+   0.02    0.16 v buf_carry/Z (BUF_X1)
+   0.00    0.16 v carry (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+PASS: report_checks with 1 thread
+Startpoint: data_a[6] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_a[6] (in)
+   0.06    0.06 v buf_a6/Z (BUF_X1)
+   0.03    0.09 v and6/ZN (AND2_X1)
+   0.05    0.13 v or_carry/ZN (OR2_X1)
+   0.02    0.16 v buf_carry/Z (BUF_X1)
+   0.00    0.16 v carry (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+PASS: report_checks with 2 threads
+Startpoint: data_a[6] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_a[6] (in)
+   0.06    0.06 v buf_a6/Z (BUF_X1)
+   0.03    0.09 v and6/ZN (AND2_X1)
+   0.05    0.13 v or_carry/ZN (OR2_X1)
+   0.02    0.16 v buf_carry/Z (BUF_X1)
+   0.00    0.16 v carry (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+PASS: report_checks with 4 threads
+--- buffer growth test ---
+large capture length: 4827
+PASS: buffer growth
+--- string redirect large ---
+string redirect length: 4827
+PASS: string redirect large
+--- file redirect large ---
+file redirect size: 4827
+PASS: file redirect large
+--- append cycles ---
+appended file size: 2079
+PASS: append cycles
+--- debug with threads ---
+search: find arrivals pass 1
+search: find arrivals to level 90
+search: found 0 arrivals
+Startpoint: data_a[6] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_a[6] (in)
+   0.06    0.06 v buf_a6/Z (BUF_X1)
+   0.03    0.09 v and6/ZN (AND2_X1)
+   0.05    0.13 v or_carry/ZN (OR2_X1)
+   0.02    0.16 v buf_carry/Z (BUF_X1)
+   0.00    0.16 v carry (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+PASS: debug search with threads
+delay_calc: find delays to level 90
+delay_calc: found 0 delays
+Startpoint: data_a[6] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_a[6] (in)
+   0.06    0.06 v buf_a6/Z (BUF_X1)
+   0.03    0.09 v and6/ZN (AND2_X1)
+   0.05    0.13 v or_carry/ZN (OR2_X1)
+   0.02    0.16 v buf_carry/Z (BUF_X1)
+   0.00    0.16 v carry (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+PASS: debug delay_calc with threads
+--- report_line coverage ---
+
+single line
+line with special: [ ] { } $ \
+very long line: abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij
+PASS: report_line coverage
+--- format extreme values ---
+format_time(1fs): 0.000000
+format_time(1ms): 1000000.062
+format_capacitance(1aF): 0.001000
+format_resistance(1mOhm): 0.000000
+format_power(1pW): 0.001000
+format_distance(1nm): 0.001000
+PASS: format extreme values
+--- log with design ops ---
+Startpoint: data_a[6] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_a[6] (in)
+   0.06    0.06 v buf_a6/Z (BUF_X1)
+   0.03    0.09 v and6/ZN (AND2_X1)
+   0.05    0.13 v or_carry/ZN (OR2_X1)
+   0.02    0.16 v buf_carry/Z (BUF_X1)
+   0.00    0.16 v carry (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+Startpoint: data_b[0] (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ data_b[0] (in)
+   0.04    0.04 ^ and0/ZN (AND2_X1)
+   0.00    0.04 ^ reg0/D (DFF_X1)
+           0.04   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg0/CK (DFF_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.04   data arrival time
+---------------------------------------------------------
+           0.04   slack (MET)
+
+
+ time 1ns
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+PASS: log with design ops
+--- error paths ---
+PASS: caught nonexistent liberty error
+PASS: caught nonexistent verilog error
+PASS: caught nonexistent SPEF error
+PASS: caught nonexistent SDF error
+ALL PASSED

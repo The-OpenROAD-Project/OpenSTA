@@ -1,0 +1,122 @@
+PASS: read fakeram45_64x7
+fakeram cell found
+  clk dir=input bus=0 bit=0 bundle=0 bm=0 members=0 func="" tri=""
+  rd_out dir=output bus=1 bit=0 bundle=0 bm=0 members=1 func="" tri=""
+    member[0]: rd_out[6] dir=output bit=1
+    member[1]: rd_out[5] dir=output bit=1
+    member[2]: rd_out[4] dir=output bit=1
+    total members=7
+  we_in dir=input bus=0 bit=0 bundle=0 bm=0 members=0 func="" tri=""
+  ce_in dir=input bus=0 bit=0 bundle=0 bm=0 members=0 func="" tri=""
+  addr_in dir=input bus=1 bit=0 bundle=0 bm=0 members=1 func="" tri=""
+    member[0]: addr_in[5] dir=input bit=1
+    member[1]: addr_in[4] dir=input bit=1
+    member[2]: addr_in[3] dir=input bit=1
+    total members=6
+  wd_in dir=input bus=1 bit=0 bundle=0 bm=0 members=1 func="" tri=""
+    member[0]: wd_in[6] dir=input bit=1
+    member[1]: wd_in[5] dir=input bit=1
+    member[2]: wd_in[4] dir=input bit=1
+    total members=7
+  w_mask_in dir=input bus=1 bit=0 bundle=0 bm=0 members=1 func="" tri=""
+    member[0]: w_mask_in[6] dir=input bit=1
+    member[1]: w_mask_in[5] dir=input bit=1
+    member[2]: w_mask_in[4] dir=input bit=1
+    total members=7
+PASS: fakeram bus port iteration
+fakeram45_64x32: bus_ports=4 total_bits=102
+fakeram45_256x16: bus_ports=4 total_bits=56
+fakeram45_512x64: bus_ports=4 total_bits=201
+fakeram45_1024x32: bus_ports=4 total_bits=106
+fakeram45_64x96: bus_ports=4 total_bits=294
+PASS: SRAM macro bus ports
+PASS: read gf180mcu SRAM
+Warning: liberty_busport_mem_iter.tcl line 1, library 'gf180mcu_fd_ip_sram__sram256x8m8wm1' not found.
+gf180mcu cells: 0
+PASS: gf180mcu SRAM bus ports
+PASS: read Nangate45
+INV_X1 leaf=1 buf=0 inv=1 area=0.532000 du=0 arcs=1
+INV_X2 leaf=1 buf=0 inv=1 area=0.798000 du=0 arcs=1
+BUF_X1 leaf=1 buf=1 inv=0 area=0.798000 du=0 arcs=1
+BUF_X2 leaf=1 buf=1 inv=0 area=1.064000 du=0 arcs=1
+CLKBUF_X1 leaf=1 buf=1 inv=0 area=0.798000 du=0 arcs=1
+NAND2_X1 leaf=1 buf=0 inv=0 area=0.798000 du=0 arcs=2
+NOR2_X1 leaf=1 buf=0 inv=0 area=0.798000 du=0 arcs=2
+AND2_X1 leaf=1 buf=0 inv=0 area=1.064000 du=0 arcs=2
+OR2_X1 leaf=1 buf=0 inv=0 area=1.064000 du=0 arcs=2
+XOR2_X1 leaf=1 buf=0 inv=0 area=1.596000 du=0 arcs=4
+MUX2_X1 leaf=1 buf=0 inv=0 area=1.862000 du=0 arcs=6
+AOI21_X1 leaf=1 buf=0 inv=0 area=1.064000 du=0 arcs=5
+OAI21_X1 leaf=1 buf=0 inv=0 area=1.064000 du=0 arcs=5
+AOI22_X1 leaf=1 buf=0 inv=0 area=1.330000 du=0 arcs=12
+OAI22_X1 leaf=1 buf=0 inv=0 area=1.330000 du=0 arcs=12
+DFF_X1 leaf=1 buf=0 inv=0 area=4.522000 du=0 arcs=5
+DFF_X2 leaf=1 buf=0 inv=0 area=5.054000 du=0 arcs=5
+DFFR_X1 leaf=1 buf=0 inv=0 area=5.320000 du=0 arcs=16
+DFFS_X1 leaf=1 buf=0 inv=0 area=5.320000 du=0 arcs=16
+DFFRS_X1 leaf=1 buf=0 inv=0 area=6.384000 du=0 arcs=35
+SDFF_X1 leaf=1 buf=0 inv=0 area=6.118000 du=0 arcs=9
+SDFFR_X1 leaf=1 buf=0 inv=0 area=6.650000 du=0 arcs=44
+SDFFRS_X1 leaf=1 buf=0 inv=0 area=7.714000 du=0 arcs=111
+TLAT_X1 leaf=1 buf=0 inv=0 area=3.458000 du=0 arcs=7
+TINV_X1 leaf=1 buf=0 inv=0 area=1.064000 du=0 arcs=3
+CLKGATETST_X1 leaf=1 buf=0 inv=0 area=3.990000 du=0 arcs=9
+HA_X1 leaf=1 buf=0 inv=0 area=2.660000 du=0 arcs=6
+FA_X1 leaf=1 buf=0 inv=0 area=4.256000 du=0 arcs=18
+ANTENNA_X1 leaf=1 buf=0 inv=0 area=0.266000 du=1 arcs=0
+FILLCELL_X1 leaf=1 buf=0 inv=0 area=0.266000 du=1 arcs=0
+FILLCELL_X2 leaf=1 buf=0 inv=0 area=0.266000 du=1 arcs=0
+LOGIC0_X1 leaf=1 buf=0 inv=0 area=0.532000 du=1 arcs=0
+LOGIC1_X1 leaf=1 buf=0 inv=0 area=0.532000 du=1 arcs=0
+PASS: cell classification
+--- test_cell / scan queries ---
+SDFF_X1 test_cell is null
+SDFFR_X1 test_cell is null
+SDFFRS_X1 test_cell is null
+DFF_X1 has no test_cell (expected)
+PASS: test_cell queries
+--- function and tristate queries ---
+TINV_X1/VDD dir=power func="" tri=""
+TINV_X1/VSS dir=ground func="" tri=""
+TINV_X1/EN dir=input func="" tri=""
+TINV_X1/I dir=input func="" tri=""
+TINV_X1/ZN dir=tristate func="!I" tri="!EN"
+PASS: TINV tristate queries
+CLKGATETST_X1/VDD dir=power func=""
+CLKGATETST_X1/VSS dir=ground func=""
+CLKGATETST_X1/IQ dir=internal func=""
+CLKGATETST_X1/CK dir=input func=""
+CLKGATETST_X1/E dir=input func=""
+CLKGATETST_X1/SE dir=input func=""
+CLKGATETST_X1/GCK dir=output func=""
+PASS: CLKGATETST queries
+INV_X1/ZN func=!A
+BUF_X1/Z func=A
+NAND2_X1/ZN func=!(A1*A2)
+NOR2_X1/ZN func=!(A1+A2)
+AND2_X1/ZN func=A1*A2
+OR2_X1/ZN func=A1+A2
+XOR2_X1/Z func=A^B
+XNOR2_X1/ZN func=!(A^B)
+AOI21_X1/ZN func=!(A+(B1*B2))
+OAI21_X1/ZN func=!(A*(B1+B2))
+MUX2_X1/Z func=(S*B)+(A*!S)
+HA_X1/CO func=A*B
+HA_X1/S func=A^B
+FA_X1/CO func=(A*B)+(CI*(A+B))
+FA_X1/S func=CI^(A^B)
+PASS: output function queries
+PASS: read Sky130
+sky130_fd_sc_hd__ebufn_1/A dir=input func="" tri=""
+sky130_fd_sc_hd__ebufn_1/TE_B dir=input func="" tri=""
+sky130_fd_sc_hd__ebufn_1/Z dir=tristate func="A" tri="!TE_B"
+sky130_fd_sc_hd__ebufn_2/A dir=input func="" tri=""
+sky130_fd_sc_hd__ebufn_2/TE_B dir=input func="" tri=""
+sky130_fd_sc_hd__ebufn_2/Z dir=tristate func="A" tri="!TE_B"
+PASS: Sky130 tristate port queries
+Warning: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
+PASS: read fake_macros
+PASS: write_liberty fakeram
+Warning: /workspace/sta/OpenSTA/liberty/test/results/liberty_busport_mem_iter_write.lib line 1, library fakeram45_64x7 already exists.
+PASS: read roundtrip library
+ALL PASSED

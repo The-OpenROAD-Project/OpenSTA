@@ -1,0 +1,308 @@
+PASS: read sky130hd
+PASS: read Nangate45
+PASS: read ASAP7 SEQ
+PASS: read IHP
+--- Nangate45 cell classification ---
+BUF_X1 is_buffer = 1
+BUF_X1 is_inverter = 0
+BUF_X1 is_leaf = 1
+INV_X1 is_buffer = 0
+INV_X1 is_inverter = 1
+CLKGATETST_X1 is_buffer = 0
+CLKGATETST_X1 is_inverter = 0
+DFF_X1 is_buffer = 0
+DFF_X1 is_inverter = 0
+DFF_X1 is_leaf = 1
+SDFF_X1 test_cell = NULL
+PASS: Nangate45 classification
+--- port function queries ---
+  INV_X1/ZN func=!A dir=output
+  BUF_X1/Z func=A dir=output
+  NAND2_X1/ZN func=!(A1*A2) dir=output
+  NOR2_X1/ZN func=!(A1+A2) dir=output
+  AND2_X1/ZN func=A1*A2 dir=output
+  OR2_X1/ZN func=A1+A2 dir=output
+  XOR2_X1/Z func=A^B dir=output
+  XNOR2_X1/ZN func=!(A^B) dir=output
+  AOI21_X1/ZN func=!(A+(B1*B2)) dir=output
+  OAI21_X1/ZN func=!(A*(B1+B2)) dir=output
+  MUX2_X1/Z func=(S*B)+(A*!S) dir=output
+  HA_X1/CO func=A*B dir=output
+  HA_X1/S func=A^B dir=output
+  FA_X1/CO func=(A*B)+(CI*(A+B)) dir=output
+  FA_X1/S func=CI^(A^B) dir=output
+PASS: port function queries
+--- bus port member iteration ---
+PASS: bus port member iteration
+--- port capacitance corner ---
+PASS: port capacitance corner
+--- timing arc sets ---
+INV_X1 arc_sets=1
+  A -> ZN is_check=0
+    rise -> fall
+    fall -> rise
+BUF_X1 arc_sets=1
+  A -> Z is_check=0
+    rise -> rise
+    fall -> fall
+DFF_X1 arc_sets=5
+  CK -> D is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> D is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> CK is_check=1
+    rise -> fall
+    fall -> rise
+  CK -> Q is_check=0
+    rise -> rise
+    rise -> fall
+  CK -> QN is_check=0
+    rise -> rise
+    rise -> fall
+DFFR_X1 arc_sets=16
+  CK -> D is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> D is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> RN is_check=1
+    rise -> rise
+  CK -> RN is_check=1
+    rise -> rise
+  RN -> RN is_check=1
+    fall -> rise
+  CK -> CK is_check=1
+    rise -> fall
+    fall -> rise
+  CK -> Q is_check=0
+    rise -> rise
+    rise -> fall
+  RN -> Q is_check=0
+    fall -> fall
+  RN -> Q is_check=0
+    fall -> fall
+  RN -> Q is_check=0
+    fall -> fall
+  RN -> Q is_check=0
+    fall -> fall
+  CK -> QN is_check=0
+    rise -> rise
+    rise -> fall
+  RN -> QN is_check=0
+    fall -> rise
+  RN -> QN is_check=0
+    fall -> rise
+  RN -> QN is_check=0
+    fall -> rise
+  RN -> QN is_check=0
+    fall -> rise
+NAND2_X1 arc_sets=2
+  A1 -> ZN is_check=0
+    rise -> fall
+    fall -> rise
+  A2 -> ZN is_check=0
+    rise -> fall
+    fall -> rise
+AOI21_X1 arc_sets=5
+  A -> ZN is_check=0
+    rise -> fall
+    fall -> rise
+  A -> ZN is_check=0
+    rise -> fall
+    fall -> rise
+  A -> ZN is_check=0
+    rise -> fall
+    fall -> rise
+  B1 -> ZN is_check=0
+    rise -> fall
+    fall -> rise
+  B2 -> ZN is_check=0
+    rise -> fall
+    fall -> rise
+MUX2_X1 arc_sets=6
+  A -> Z is_check=0
+    rise -> rise
+    fall -> fall
+  A -> Z is_check=0
+    rise -> rise
+    fall -> fall
+  B -> Z is_check=0
+    rise -> rise
+    fall -> fall
+  B -> Z is_check=0
+    rise -> rise
+    fall -> fall
+  S -> Z is_check=0
+    rise -> rise
+    fall -> fall
+  S -> Z is_check=0
+    rise -> fall
+    fall -> rise
+SDFF_X1 arc_sets=9
+  CK -> D is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> D is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> SE is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> SE is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> SI is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> SI is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> CK is_check=1
+    rise -> fall
+    fall -> rise
+  CK -> Q is_check=0
+    rise -> rise
+    rise -> fall
+  CK -> QN is_check=0
+    rise -> rise
+    rise -> fall
+CLKGATETST_X1 arc_sets=9
+  CK -> CK is_check=1
+    fall -> rise
+  CK -> E is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> E is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> SE is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> SE is_check=1
+    rise -> rise
+    rise -> fall
+  CK -> GCK is_check=0
+    rise -> rise
+    fall -> fall
+  CK -> GCK is_check=0
+    rise -> rise
+    fall -> fall
+  CK -> GCK is_check=0
+    rise -> rise
+    fall -> fall
+  CK -> GCK is_check=0
+    fall -> fall
+PASS: timing arc sets
+--- Sky130 cell queries ---
+sky130_fd_sc_hd__inv_1 is_buffer=0 is_inverter=1
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__inv_2 is_buffer=0 is_inverter=1
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__inv_4 is_buffer=0 is_inverter=1
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__buf_1 is_buffer=1 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__buf_2 is_buffer=1 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__nand2_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__nor2_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__and2_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__or2_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__dfxtp_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__dfrtp_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__mux2_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__dlxtp_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+sky130_fd_sc_hd__ebufn_1 is_buffer=0 is_inverter=0
+  VGND pwr_gnd=1
+  VNB pwr_gnd=1
+  VPB pwr_gnd=1
+  VPWR pwr_gnd=1
+PASS: Sky130 cell queries
+--- operating conditions ---
+Sky130 default OC process=1.0 voltage=1.7999999523162842 temp=25.0
+PASS: operating conditions
+--- IHP cell queries ---
+sg13g2_inv_1 is_buffer=0 is_inverter=1
+  arc_sets=1
+sg13g2_inv_2 is_buffer=0 is_inverter=1
+  arc_sets=1
+sg13g2_buf_1 is_buffer=1 is_inverter=0
+  arc_sets=1
+sg13g2_buf_2 is_buffer=1 is_inverter=0
+  arc_sets=1
+sg13g2_nand2_1 is_buffer=0 is_inverter=0
+  arc_sets=2
+sg13g2_nor2_1 is_buffer=0 is_inverter=0
+  arc_sets=2
+sg13g2_and2_1 is_buffer=0 is_inverter=0
+  arc_sets=2
+sg13g2_dfrbp_1 is_buffer=0 is_inverter=0
+  arc_sets=10
+sg13g2_dfrbp_2 is_buffer=0 is_inverter=0
+  arc_sets=10
+sg13g2_ebufn_2 is_buffer=0 is_inverter=0
+  arc_sets=3
+PASS: IHP cell queries
+--- ensure voltage waveforms ---
+PASS: INV_X1 ensure_voltage_waveforms
+PASS: DFF_X1 ensure_voltage_waveforms
+PASS: ensure voltage waveforms
+--- liberty cell matching ---
+INV_* matches = 6
+DFF* matches = 8
+* matches = 134
+regex INV_X matches = 6
+INV_X1 port * matches = 4
+INV_X1 port A matches = 1
+PASS: liberty cell matching
+ALL PASSED

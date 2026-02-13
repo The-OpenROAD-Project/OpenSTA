@@ -1,0 +1,274 @@
+=== FANIN/FANOUT SEARCH ===
+--- get_fanin of register ---
+Fanin pins of reg1/D: 24
+  in1
+  in2
+  in3
+  in4
+  and1/A1
+  and1/A2
+  and1/ZN
+  or1/A1
+  or1/A2
+  or1/ZN
+  and2/A1
+  and2/A2
+  and2/ZN
+  buf1/A
+  buf1/Z
+  inv1/A
+  inv1/ZN
+  buf2/A
+  buf2/Z
+  inv2/A
+  inv2/ZN
+  buf3/A
+  buf3/Z
+  reg1/D
+PASS: fanin pins
+--- get_fanin -flat ---
+Fanin flat of reg1/D: 24
+  in1
+  in2
+  in3
+  in4
+  and1/A1
+  and1/A2
+  and1/ZN
+  or1/A1
+  or1/A2
+  or1/ZN
+  and2/A1
+  and2/A2
+  and2/ZN
+  buf1/A
+  buf1/Z
+  inv1/A
+  inv1/ZN
+  buf2/A
+  buf2/Z
+  inv2/A
+  inv2/ZN
+  buf3/A
+  buf3/Z
+  reg1/D
+PASS: fanin flat
+--- get_fanin -startpoints_only ---
+Fanin startpoints of reg1/D: 4
+  in1
+  in2
+  in3
+  in4
+PASS: fanin startpoints
+--- get_fanin -only_cells ---
+Fanin cells of reg1/D: 10
+  
+  and1
+  or1
+  and2
+  buf1
+  inv1
+  buf2
+  inv2
+  buf3
+  reg1
+PASS: fanin cells
+--- get_fanin with -pin_levels ---
+Fanin 2 levels of reg1/D: 3
+  buf3/A
+  buf3/Z
+  reg1/D
+PASS: fanin pin_levels
+--- get_fanin with -levels ---
+Fanin 2 inst levels of reg1/D: 5
+  inv2/A
+  inv2/ZN
+  buf3/A
+  buf3/Z
+  reg1/D
+PASS: fanin levels
+--- get_fanout of driver pin ---
+Fanout pins of inv2/ZN: 10
+  inv2/ZN
+  buf3/A
+  buf3/Z
+  buf4/A
+  buf4/Z
+  buf5/A
+  buf5/Z
+  reg1/D
+  reg2/D
+  reg3/D
+PASS: fanout pins
+--- get_fanout -flat ---
+Fanout flat of and2/ZN: 18
+  and2/ZN
+  buf1/A
+  buf1/Z
+  inv1/A
+  inv1/ZN
+  buf2/A
+  buf2/Z
+  inv2/A
+  inv2/ZN
+  buf3/A
+  buf3/Z
+  buf4/A
+  buf4/Z
+  buf5/A
+  buf5/Z
+  reg1/D
+  reg2/D
+  reg3/D
+PASS: fanout flat
+--- get_fanout -endpoints_only ---
+Fanout endpoints of and2/ZN: 3
+  reg1/D
+  reg2/D
+  reg3/D
+PASS: fanout endpoints
+--- get_fanout -only_cells ---
+Fanout cells of inv2/ZN: 7
+  inv2
+  buf3
+  buf4
+  buf5
+  reg1
+  reg2
+  reg3
+PASS: fanout cells
+--- get_fanout with -pin_levels ---
+Fanout 2 levels of and2/ZN: 3
+  and2/ZN
+  buf1/A
+  buf1/Z
+PASS: fanout pin_levels
+--- get_fanout with -levels ---
+Fanout 2 inst levels of and2/ZN: 5
+  and2/ZN
+  buf1/A
+  buf1/Z
+  inv1/A
+  inv1/ZN
+PASS: fanout levels
+=== VERTEX/PIN QUERIES ===
+--- Pin arrival ---
+ (clk ^) r 1.13:1.14 f 1.13:1.16
+ (clk ^) r 0.08:0.08 f 0.08:0.08
+ (clk ^) r 1.02:1.03 f 1.02:1.02
+ (clk ^) r 1.00:1.00 f 1.00:1.00
+ (clk ^) r 0.10:0.10 f 0.10:0.10
+PASS: pin arrival
+--- Pin required ---
+ (clk ^) r 0.00:9.97 f 0.00:9.96
+ (clk ^) r -2.00:8.00 f -2.00:8.00
+PASS: pin required
+--- Pin slack ---
+ (clk ^) r 1.12:8.83 f 1.13:8.80
+ (clk ^) r 2.10:7.90 f 2.10:7.90
+PASS: pin slack
+--- Pin slack various ---
+PASS: pin slack various
+=== PATH QUERY ===
+--- find_timing_paths and path details ---
+Found 10 paths
+  endpoint: out1
+    slack: 7.899713772019368e-9
+    arrival: 1.0028596009181712e-10
+    required: 7.999999773744548e-9
+    path_pins: 6
+    start_pin: reg1/Q
+  endpoint: out1
+    slack: 7.901434173618327e-9
+    arrival: 9.856562094290311e-11
+    required: 7.999999773744548e-9
+    path_pins: 6
+    start_pin: reg1/Q
+  endpoint: out2
+    slack: 7.918512068272321e-9
+    arrival: 8.148756669434931e-11
+    required: 0.0
+    path_pins: 4
+    start_pin: reg2/Q
+  endpoint: out3
+    slack: 7.918512068272321e-9
+    arrival: 8.148756669434931e-11
+    required: 0.0
+    path_pins: 4
+    start_pin: reg3/Q
+  endpoint: out2
+    slack: 7.924581879592552e-9
+    arrival: 7.541753332951373e-11
+    required: 0.0
+    path_pins: 4
+    start_pin: reg2/Q
+  endpoint: out3
+    slack: 7.924581879592552e-9
+    arrival: 7.541753332951373e-11
+    required: 0.0
+    path_pins: 4
+    start_pin: reg3/Q
+  endpoint: reg1/D
+    slack: 8.803825224390494e-9
+    arrival: 1.1573944025400351e-9
+    required: 9.961219404885924e-9
+    path_pins: 16
+    start_pin: in4
+  endpoint: reg2/D
+    slack: 8.803825224390494e-9
+    arrival: 1.1573944025400351e-9
+    required: 0.0
+    path_pins: 16
+    start_pin: in4
+  endpoint: reg3/D
+    slack: 8.803825224390494e-9
+    arrival: 1.1573944025400351e-9
+    required: 0.0
+    path_pins: 16
+    start_pin: in4
+  endpoint: reg1/D
+    slack: 8.807621298956292e-9
+    arrival: 1.153597661840422e-9
+    required: 0.0
+    path_pins: 16
+    start_pin: in3
+PASS: path details
+--- worst_slack_vertex ---
+Worst slack vertex: out1
+  arrival: 1.0028596009181712e-10
+  slack: 7.899713772019368e-9
+PASS: worst_slack_vertex
+--- find_requireds ---
+PASS: find_requireds
+=== REPORT DEBUG ===
+--- tag/clk_info counts ---
+tag_group_count: 4
+tag_count: 24
+clk_info_count: 4
+path_count: 180
+endpoint_violation_count max: 0
+endpoint_violation_count min: 0
+PASS: debug counts
+--- report_path_cmd ---
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf6/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+PASS: report_path_cmd
+--- get_fanin with -trace_arcs all (thru disabled/constants) ---
+Fanin trace_arcs all: 24
+PASS: trace_arcs all
+--- get_fanin with -trace_arcs timing ---
+Fanin trace_arcs timing: 24
+PASS: trace_arcs timing
+--- get_fanin with -trace_arcs enabled ---
+Fanin trace_arcs enabled: 24
+PASS: trace_arcs enabled
+--- get_fanin thru constants ---
+Fanin with constants: 24
+PASS: thru_constants
+ALL PASSED

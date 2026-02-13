@@ -1,0 +1,277 @@
+--- Test 1: SDC namespace with flat design ---
+PASS: set_cmd_namespace sdc
+sdc ports: 11
+sdc cells: 12
+sdc nets: 19
+sdc data_in[*]: 4
+sdc data_out[*]: 4
+sdc data_in[0]: dir=input
+sdc data_in[1]: dir=input
+sdc data_in[2]: dir=input
+sdc data_in[3]: dir=input
+sdc flat pins: 44
+sdc hier pins: 44
+sdc n* nets: 8
+sdc hier nets: 19
+sdc buf* cells: 4
+sdc and* cells: 4
+sdc reg* cells: 4
+sdc hier cells: 12
+Startpoint: data_in[0] (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_in[0] (in)
+   0.06    0.06 v buf0/Z (BUF_X1)
+   0.03    0.08 v and0/ZN (AND2_X1)
+   0.00    0.08 v reg0/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg0/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+PASS: sdc namespace report_checks
+Startpoint: enable (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ enable (in)
+   0.04    0.04 ^ and0/ZN (AND2_X1)
+   0.00    0.04 ^ reg0/D (DFF_X1)
+           0.04   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg0/CK (DFF_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.04   data arrival time
+---------------------------------------------------------
+           0.04   slack (MET)
+
+
+PASS: sdc namespace min path
+PASS: sta::set_cmd_namespace sta
+sta ports: 11
+sta cells: 12
+sta nets: 19
+Startpoint: data_in[0] (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_in[0] (in)
+   0.06    0.06 v buf0/Z (BUF_X1)
+   0.03    0.08 v and0/ZN (AND2_X1)
+   0.00    0.08 v reg0/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg0/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+PASS: sta namespace report_checks
+--- Test 2: SDC namespace with hierarchical design ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+sdc hier cells: 11
+sdc hier pins: 30
+sdc hier nets: 19
+sdc sub* cells: 2
+sdc hier sub*: 2
+sdc port clk: dir=input
+sdc port in1: dir=input
+sdc port in2: dir=input
+sdc port in3: dir=input
+sdc port out1: dir=output
+sdc port out2: dir=output
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+PASS: sdc hier report_checks
+No paths found.
+PASS: sdc hier in1->out1
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+PASS: sta hier report_checks after switch
+--- Test 3: path divider ---
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+sub1/* pins (default divider): 3
+hier sub1/* pins: 3
+sub1 cell ref: sub_block
+all nets: 11
+hier all nets: 19
+No paths found.
+PASS: in1->out1
+Startpoint: in2 (input port clocked by clk)
+Endpoint: out2 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in2 (in)
+   0.06    0.06 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.09 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.11 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.14 v sub2/buf_gate/Z (BUF_X1)
+   0.02    0.16 v buf_out2/Z (BUF_X1)
+   0.00    0.16 v out2 (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+PASS: in2->out2
+Startpoint: in3 (input port clocked by clk)
+Endpoint: out2 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in3 (in)
+   0.06    0.06 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.09 v sub2/buf_gate/Z (BUF_X1)
+   0.02    0.11 v buf_out2/Z (BUF_X1)
+   0.00    0.11 v out2 (out)
+           0.11   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.11   data arrival time
+---------------------------------------------------------
+           9.89   slack (MET)
+
+
+PASS: in3->out2
+fanin to out1 flat: 5
+fanout from in1 flat: 17
+fanin to out2 cells: 2
+fanout from in3 endpoints: 0
+--- Test 4: register queries ---
+all_registers: 1
+register data_pins: 1
+register clock_pins: 1
+register output_pins: 2
+register async_pins: 0
+ALL PASSED

@@ -1,0 +1,980 @@
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+--- Test 1: manual pi + dmp_ceff_elmore ---
+PASS: pi/elmore set
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  48.40   48.40 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   60.17 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   75.04 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   75.04 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          75.04   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -5.78  494.22   library setup time
+         494.22   data required time
+---------------------------------------------------------
+         494.22   data required time
+         -75.04   data arrival time
+---------------------------------------------------------
+         419.17   slack (MET)
+
+
+PASS: dmp_ceff_elmore with pi
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.00    1.00 v r1/D (DFFHQx4_ASAP7_75t_R)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+   8.56    8.56   library hold time
+           8.56   data required time
+---------------------------------------------------------
+           8.56   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+          -7.56   slack (VIOLATED)
+
+
+PASS: min with pi
+--- Test 2: dmp_ceff_two_pole ---
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  48.40   48.40 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   60.17 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   75.04 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   75.04 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          75.04   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -5.78  494.22   library setup time
+         494.22   data required time
+---------------------------------------------------------
+         494.22   data required time
+         -75.04   data arrival time
+---------------------------------------------------------
+         419.17   slack (MET)
+
+
+PASS: dmp_ceff_two_pole with pi
+No paths found.
+PASS: in1->out two_pole
+No paths found.
+PASS: in2->out two_pole
+--- Test 3: extreme slew ---
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  45.32   45.32 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.76   57.08 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   71.96 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   71.96 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          71.96   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.11  492.89   library setup time
+         492.89   data required time
+---------------------------------------------------------
+         492.89   data required time
+         -71.96   data arrival time
+---------------------------------------------------------
+         420.94   slack (MET)
+
+
+PASS: very small slew 0.01
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  45.34   45.34 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.76   57.11 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   71.98 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   71.98 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          71.98   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -7.09  492.91   library setup time
+         492.91   data required time
+---------------------------------------------------------
+         492.91   data required time
+         -71.98   data arrival time
+---------------------------------------------------------
+         420.92   slack (MET)
+
+
+PASS: small slew 0.1
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  56.39   56.39 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   68.16 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   83.03 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   83.03 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          83.03   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -3.73  496.27   library setup time
+         496.27   data required time
+---------------------------------------------------------
+         496.27   data required time
+         -83.03   data arrival time
+---------------------------------------------------------
+         413.24   slack (MET)
+
+
+PASS: medium slew 50
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  84.45   84.45 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   96.22 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88  111.09 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00  111.09 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         111.09   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+   2.57  502.57   library setup time
+         502.57   data required time
+---------------------------------------------------------
+         502.57   data required time
+        -111.09   data arrival time
+---------------------------------------------------------
+         391.48   slack (MET)
+
+
+PASS: large slew 500
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+ 161.62  161.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.78  173.40 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88  188.28 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00  188.28 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         188.28   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  18.08  518.08   library setup time
+         518.08   data required time
+---------------------------------------------------------
+         518.08   data required time
+        -188.28   data arrival time
+---------------------------------------------------------
+         329.80   slack (MET)
+
+
+PASS: very large slew 2000
+--- Test 4: tiny pi model ---
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  48.40   48.40 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   60.17 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   75.04 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   75.04 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          75.04   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -5.78  494.22   library setup time
+         494.22   data required time
+---------------------------------------------------------
+         494.22   data required time
+         -75.04   data arrival time
+---------------------------------------------------------
+         419.17   slack (MET)
+
+
+PASS: tiny pi model
+--- Test 5: large pi model ---
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  48.40   48.40 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   60.17 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   75.04 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   75.04 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          75.04   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -5.78  494.22   library setup time
+         494.22   data required time
+---------------------------------------------------------
+         494.22   data required time
+         -75.04   data arrival time
+---------------------------------------------------------
+         419.17   slack (MET)
+
+
+PASS: large pi model
+--- Test 6: report_dcalc ---
+Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
+Cell: BUFx2_ASAP7_75t_R
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+P = 1.000000 V = 0.770000 T = 0.000000
+------- input_net_transition = 6.099100
+|       total_output_net_capacitance = 0.565282
+|        1.440000     2.880000
+v      --------------------
+5.000000 | 12.833000     15.145800
+10.000000 | 14.375000     16.681900
+Table value = 11.767857
+PVT scale factor = 1.000000
+Delay = 11.767857
+
+------- input_net_transition = 6.099100
+|       total_output_net_capacitance = 0.565282
+|        1.440000     2.880000
+v      --------------------
+5.000000 | 7.612690     11.681800
+10.000000 | 7.631100     11.699600
+Table value = 5.145066
+PVT scale factor = 1.000000
+Slew = 5.145066
+Driver waveform slew = 5.145066
+
+.............................................
+
+A v -> Y v
+P = 1.000000 V = 0.770000 T = 0.000000
+------- input_net_transition = 5.283920
+|       total_output_net_capacitance = 0.565708
+|        1.440000     2.880000
+v      --------------------
+5.000000 | 13.395100     15.605499
+10.000000 | 15.032999     17.245100
+Table value = 12.146009
+PVT scale factor = 1.000000
+Delay = 12.146009
+
+------- input_net_transition = 5.283920
+|       total_output_net_capacitance = 0.565708
+|        1.440000     2.880000
+v      --------------------
+5.000000 | 6.998250     10.429300
+10.000000 | 7.020140     10.451000
+Table value = 4.916347
+PVT scale factor = 1.000000
+Slew = 4.916347
+Driver waveform slew = 4.916347
+
+.............................................
+
+dmp_elmore u1: done
+Library: asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
+Cell: AND2x2_ASAP7_75t_R
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+P = 1.0000 V = 0.7000 T = 25.0000
+------- input_net_transition = 6.0255
+|       total_output_net_capacitance = 0.6212
+|        1.4400     2.8800
+v      --------------------
+5.0000 | 16.6604     19.5485
+10.0000 | 17.8038     20.6883
+Table value = 15.2532
+PVT scale factor = 1.0000
+Delay = 15.2532
+
+------- input_net_transition = 6.0255
+|       total_output_net_capacitance = 0.6212
+|        1.4400     2.8800
+v      --------------------
+5.0000 | 9.6841     14.4815
+10.0000 | 9.6803     14.4760
+Table value = 6.9558
+PVT scale factor = 1.0000
+Slew = 6.9558
+Driver waveform slew = 6.9558
+
+.............................................
+
+A v -> Y v
+P = 1.0000 V = 0.7000 T = 25.0000
+------- input_net_transition = 5.2046
+|       total_output_net_capacitance = 0.6192
+|        1.4400     2.8800
+v      --------------------
+5.0000 | 16.7215     19.2327
+10.0000 | 18.4070     20.9322
+Table value = 15.3587
+PVT scale factor = 1.0000
+Delay = 15.3587
+
+------- input_net_transition = 5.2046
+|       total_output_net_capacitance = 0.6192
+|        1.4400     2.8800
+v      --------------------
+5.0000 | 8.1900     11.9873
+10.0000 | 8.1957     11.9745
+Table value = 6.0261
+PVT scale factor = 1.0000
+Slew = 6.0261
+Driver waveform slew = 6.0261
+
+.............................................
+
+dmp_elmore u2 A: done
+Library: asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
+Cell: AND2x2_ASAP7_75t_R
+Arc sense: positive_unate
+Arc type: combinational
+B ^ -> Y ^
+P = 1.00 V = 0.70 T = 25.00
+------- input_net_transition = 5.15
+|       total_output_net_capacitance = 0.62
+|        1.44     2.88
+v      --------------------
+5.00 | 16.47     19.36
+10.00 | 18.11     20.96
+Table value = 14.88
+PVT scale factor = 1.00
+Delay = 14.88
+
+------- input_net_transition = 5.15
+|       total_output_net_capacitance = 0.62
+|        1.44     2.88
+v      --------------------
+5.00 | 9.69     14.48
+10.00 | 9.69     14.49
+Table value = 6.96
+PVT scale factor = 1.00
+Slew = 6.96
+Driver waveform slew = 6.96
+
+.............................................
+
+B v -> Y v
+P = 1.00 V = 0.70 T = 25.00
+------- input_net_transition = 4.92
+|       total_output_net_capacitance = 0.62
+|        1.44     2.88
+v      --------------------
+5.00 | 15.82     18.32
+10.00 | 17.62     20.13
+Table value = 14.36
+PVT scale factor = 1.00
+Delay = 14.36
+
+------- input_net_transition = 4.92
+|       total_output_net_capacitance = 0.62
+|        1.44     2.88
+v      --------------------
+5.00 | 8.02     11.83
+10.00 | 8.02     11.83
+Table value = 5.84
+PVT scale factor = 1.00
+Slew = 5.84
+Driver waveform slew = 5.84
+
+.............................................
+
+dmp_elmore u2 B: done
+Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+Cell: DFFHQx4_ASAP7_75t_R
+Arc sense: non_unate
+Arc type: Reg Clk to Q
+CLK ^ -> Q ^
+P = 1.00 V = 0.77 T = 0.00
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.52
+|        1.44     2.88
+v      --------------------
+10.00 | 49.30     50.80
+20.00 | 52.04     53.53
+Table value = 48.34
+PVT scale factor = 1.00
+Delay = 48.34
+
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.52
+|        1.44     2.88
+v      --------------------
+10.00 | 7.26     9.21
+20.00 | 7.26     9.21
+Table value = 6.03
+PVT scale factor = 1.00
+Slew = 6.03
+Driver waveform slew = 6.03
+
+.............................................
+
+CLK ^ -> Q v
+P = 1.00 V = 0.77 T = 0.00
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.51
+|        1.44     2.88
+v      --------------------
+10.00 | 47.74     49.14
+20.00 | 50.34     51.75
+Table value = 46.84
+PVT scale factor = 1.00
+Delay = 46.84
+
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.51
+|        1.44     2.88
+v      --------------------
+10.00 | 6.31     8.01
+20.00 | 6.30     8.01
+Table value = 5.20
+PVT scale factor = 1.00
+Slew = 5.20
+Driver waveform slew = 5.20
+
+.............................................
+
+dmp_elmore r1: done
+Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+Cell: DFFHQx4_ASAP7_75t_R
+Arc sense: non_unate
+Arc type: Reg Clk to Q
+CLK ^ -> Q ^
+Pi model C2=0.00 Rpi=2.00 C1=0.00, Ceff=0.00
+P = 1.00 V = 0.77 T = 0.00
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.00
+|        1.44     2.88
+v      --------------------
+10.00 | 49.30     50.80
+20.00 | 52.04     53.53
+Table value = 47.80
+PVT scale factor = 1.00
+Delay = 47.80
+
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.00
+|        1.44     2.88
+v      --------------------
+10.00 | 7.26     9.21
+20.00 | 7.26     9.21
+Table value = 5.32
+PVT scale factor = 1.00
+Slew = 5.32
+Driver waveform slew = 5.32
+
+.............................................
+
+CLK ^ -> Q v
+Pi model C2=0.00 Rpi=2.00 C1=0.00, Ceff=0.00
+P = 1.00 V = 0.77 T = 0.00
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.00
+|        1.44     2.88
+v      --------------------
+10.00 | 47.74     49.14
+20.00 | 50.34     51.75
+Table value = 46.35
+PVT scale factor = 1.00
+Delay = 46.35
+
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.00
+|        1.44     2.88
+v      --------------------
+10.00 | 6.31     8.01
+20.00 | 6.30     8.01
+Table value = 4.60
+PVT scale factor = 1.00
+Slew = 4.60
+Driver waveform slew = 4.60
+
+.............................................
+
+dmp_elmore r3 min: done
+Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
+Cell: BUFx2_ASAP7_75t_R
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+P = 1.000000 V = 0.770000 T = 0.000000
+------- input_net_transition = 6.099100
+|       total_output_net_capacitance = 0.565282
+|        1.440000     2.880000
+v      --------------------
+5.000000 | 12.833000     15.145800
+10.000000 | 14.375000     16.681900
+Table value = 11.767857
+PVT scale factor = 1.000000
+Delay = 11.767857
+
+------- input_net_transition = 6.099100
+|       total_output_net_capacitance = 0.565282
+|        1.440000     2.880000
+v      --------------------
+5.000000 | 7.612690     11.681800
+10.000000 | 7.631100     11.699600
+Table value = 5.145066
+PVT scale factor = 1.000000
+Slew = 5.145066
+Driver waveform slew = 5.145066
+
+.............................................
+
+A v -> Y v
+P = 1.000000 V = 0.770000 T = 0.000000
+------- input_net_transition = 5.283920
+|       total_output_net_capacitance = 0.565708
+|        1.440000     2.880000
+v      --------------------
+5.000000 | 13.395100     15.605499
+10.000000 | 15.032999     17.245100
+Table value = 12.146009
+PVT scale factor = 1.000000
+Delay = 12.146009
+
+------- input_net_transition = 5.283920
+|       total_output_net_capacitance = 0.565708
+|        1.440000     2.880000
+v      --------------------
+5.000000 | 6.998250     10.429300
+10.000000 | 7.020140     10.451000
+Table value = 4.916347
+PVT scale factor = 1.000000
+Slew = 4.916347
+Driver waveform slew = 4.916347
+
+.............................................
+
+dmp_two_pole u1: done
+Library: asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
+Cell: AND2x2_ASAP7_75t_R
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+P = 1.00 V = 0.70 T = 25.00
+------- input_net_transition = 6.03
+|       total_output_net_capacitance = 0.62
+|        1.44     2.88
+v      --------------------
+5.00 | 16.66     19.55
+10.00 | 17.80     20.69
+Table value = 15.25
+PVT scale factor = 1.00
+Delay = 15.25
+
+------- input_net_transition = 6.03
+|       total_output_net_capacitance = 0.62
+|        1.44     2.88
+v      --------------------
+5.00 | 9.68     14.48
+10.00 | 9.68     14.48
+Table value = 6.96
+PVT scale factor = 1.00
+Slew = 6.96
+Driver waveform slew = 6.96
+
+.............................................
+
+A v -> Y v
+P = 1.00 V = 0.70 T = 25.00
+------- input_net_transition = 5.20
+|       total_output_net_capacitance = 0.62
+|        1.44     2.88
+v      --------------------
+5.00 | 16.72     19.23
+10.00 | 18.41     20.93
+Table value = 15.36
+PVT scale factor = 1.00
+Delay = 15.36
+
+------- input_net_transition = 5.20
+|       total_output_net_capacitance = 0.62
+|        1.44     2.88
+v      --------------------
+5.00 | 8.19     11.99
+10.00 | 8.20     11.97
+Table value = 6.03
+PVT scale factor = 1.00
+Slew = 6.03
+Driver waveform slew = 6.03
+
+.............................................
+
+dmp_two_pole u2: done
+Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+Cell: DFFHQx4_ASAP7_75t_R
+Arc sense: non_unate
+Arc type: Reg Clk to Q
+CLK ^ -> Q ^
+P = 1.00 V = 0.77 T = 0.00
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.58
+|        1.44     2.88
+v      --------------------
+10.00 | 49.30     50.80
+20.00 | 52.04     53.53
+Table value = 48.40
+PVT scale factor = 1.00
+Delay = 48.40
+
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.58
+|        1.44     2.88
+v      --------------------
+10.00 | 7.26     9.21
+20.00 | 7.26     9.21
+Table value = 6.10
+PVT scale factor = 1.00
+Slew = 6.10
+Driver waveform slew = 6.10
+
+.............................................
+
+CLK ^ -> Q v
+P = 1.00 V = 0.77 T = 0.00
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.58
+|        1.44     2.88
+v      --------------------
+10.00 | 47.74     49.14
+20.00 | 50.34     51.75
+Table value = 46.90
+PVT scale factor = 1.00
+Delay = 46.90
+
+------- input_net_transition = 10.00
+|       total_output_net_capacitance = 0.58
+|        1.44     2.88
+v      --------------------
+10.00 | 6.31     8.01
+20.00 | 6.30     8.01
+Table value = 5.28
+PVT scale factor = 1.00
+Slew = 5.28
+Driver waveform slew = 5.28
+
+.............................................
+
+dmp_two_pole r2: done
+PASS: dcalc reports
+--- Test 7: SPEF override manual ---
+PASS: SPEF override
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          94.93   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -3.87  508.05   library setup time
+         508.05   data required time
+---------------------------------------------------------
+         508.05   data required time
+         -94.93   data arrival time
+---------------------------------------------------------
+         413.12   slack (MET)
+
+
+PASS: dmp_ceff_elmore with SPEF
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  48.40   48.40 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   60.17 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   75.04 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   75.04 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          75.04   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (propagated)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -5.78  494.22   library setup time
+         494.22   data required time
+---------------------------------------------------------
+         494.22   data required time
+         -75.04   data arrival time
+---------------------------------------------------------
+         419.17   slack (MET)
+
+
+PASS: dmp_ceff_two_pole with SPEF
+--- Test 8: load variation ---
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          94.93   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -3.87  508.05   library setup time
+         508.05   data required time
+---------------------------------------------------------
+         508.05   data required time
+         -94.93   data arrival time
+---------------------------------------------------------
+         413.12   slack (MET)
+
+
+dmp load=0.0001: done
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          94.93   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -3.87  508.05   library setup time
+         508.05   data required time
+---------------------------------------------------------
+         508.05   data required time
+         -94.93   data arrival time
+---------------------------------------------------------
+         413.12   slack (MET)
+
+
+dmp load=0.001: done
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          94.93   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -3.87  508.05   library setup time
+         508.05   data required time
+---------------------------------------------------------
+         508.05   data required time
+         -94.93   data arrival time
+---------------------------------------------------------
+         413.12   slack (MET)
+
+
+dmp load=0.01: done
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          94.93   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -3.87  508.05   library setup time
+         508.05   data required time
+---------------------------------------------------------
+         508.05   data required time
+         -94.93   data arrival time
+---------------------------------------------------------
+         413.12   slack (MET)
+
+
+dmp load=0.05: done
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          94.93   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -3.87  508.05   library setup time
+         508.05   data required time
+---------------------------------------------------------
+         508.05   data required time
+         -94.93   data arrival time
+---------------------------------------------------------
+         413.12   slack (MET)
+
+
+dmp load=0.1: done
+PASS: load variation
+--- Test 9: find_delays ---
+PASS: find_delays
+PASS: invalidate + find_delays
+ALL PASSED

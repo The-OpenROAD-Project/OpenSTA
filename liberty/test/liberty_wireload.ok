@@ -1,0 +1,28 @@
+PASS: read Nangate45
+PASS: set_wire_load_model 1K_1_1
+PASS: set_wire_load_model 1K_1_2
+PASS: set_wire_load_model 1K_1_4
+PASS: set_wire_load_model 3K_1_1
+PASS: set_wire_load_model 3K_1_2
+PASS: set_wire_load_model 3K_1_4
+PASS: set_wire_load_model 5K_1_1
+PASS: set_wire_load_model 5K_1_2
+PASS: set_wire_load_model 5K_1_4
+PASS: wire_load_mode top
+PASS: wire_load_mode enclosed
+PASS: wire_load_mode segmented
+PASS: constraints
+No paths found.
+PASS: report_checks with wireload
+PASS: write_sdc with wireload
+PASS: write_liberty with wireload models
+PASS: read Sky130
+PASS: sky130 wireload Small
+PASS: sky130 wireload Medium
+PASS: write_liberty sky130
+PASS: read IHP
+PASS: write_liberty IHP
+PASS: set_operating_conditions
+No paths found.
+PASS: report_checks with operating conditions
+ALL PASSED

@@ -1,0 +1,32 @@
+--- write_timing_model for search_path_end_types ---
+PASS: write model pet
+--- read back model ---
+Warning: /workspace/sta/OpenSTA/search/test/results/model_pet.lib line 1, library model_pet_lib already exists.
+PASS: read model pet
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+--- write_timing_model for crpr design ---
+PASS: write model crpr
+--- read back crpr model ---
+Warning: /workspace/sta/OpenSTA/search/test/results/model_crpr.lib line 1, library model_crpr_lib already exists.
+PASS: read model crpr
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+--- write_timing_model for latch design ---
+PASS: write model latch
+--- read back latch model ---
+Warning: /workspace/sta/OpenSTA/search/test/results/model_latch.lib line 1, library search_latch already exists.
+PASS: read model latch
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+--- write_timing_model default ---
+PASS: write model simple
+--- write_timing_model with corner ---
+PASS: write model corner
+--- read back and use as block ---
+Warning: /workspace/sta/OpenSTA/search/test/results/model_simple.lib line 1, library search_test1 already exists.
+PASS: read model simple
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+--- write_timing_model for multicorner analysis ---
+PASS: write model multicorner
+--- read back multicorner model ---
+Warning: /workspace/sta/OpenSTA/search/test/results/model_multicorner.lib line 1, library mc_lib already exists.
+PASS: read model multicorner
+ALL PASSED

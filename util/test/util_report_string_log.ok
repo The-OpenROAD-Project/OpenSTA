@@ -1,0 +1,379 @@
+--- Test 1: log file with large output ---
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.00    0.00 v r1/D (DFF_X1)
+           0.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ r1/CK (DFF_X1)
+   0.05    0.05   library hold time
+           0.05   data required time
+---------------------------------------------------------
+           0.05   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+          -0.05   slack (VIOLATED)
+
+
+Warning: util_report_string_log.tcl line 1, unknown field nets.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ r2/CK (DFF_X1)
+     1    0.88    0.01    0.08    0.08 v r2/Q (DFF_X1)
+                  0.01    0.00    0.08 v u1/A (BUF_X1)
+     1    0.89    0.00    0.02    0.10 v u1/Z (BUF_X1)
+                  0.00    0.00    0.10 v u2/A2 (AND2_X1)
+     1    1.06    0.01    0.03    0.13 v u2/ZN (AND2_X1)
+                  0.01    0.00    0.13 v r3/D (DFF_X1)
+                                  0.13   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ r3/CK (DFF_X1)
+                         -0.04    9.96   library setup time
+                                  9.96   data required time
+-----------------------------------------------------------------------------
+                                  9.96   data required time
+                                 -0.13   data arrival time
+-----------------------------------------------------------------------------
+                                  9.83   slack (MET)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r3/CK (DFF_X1)
+   0.08    0.08 ^ r3/Q (DFF_X1)
+   0.00    0.08 ^ out (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.92   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.00    0.00 v r1/D (DFF_X1)
+           0.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r1/CK (DFF_X1)
+  -0.07    9.93   library setup time
+           9.93   data required time
+---------------------------------------------------------
+           9.93   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+           9.93   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk)
+Endpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in2 (in)
+   0.00    0.00 v r2/D (DFF_X1)
+           0.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r2/CK (DFF_X1)
+  -0.07    9.93   library setup time
+           9.93   data required time
+---------------------------------------------------------
+           9.93   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+           9.93   slack (MET)
+
+
+ time 1ns
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+ time 1ps
+ capacitance 1fF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um
+PASS: log file with large output
+log file size: 10600
+PASS: log file has significant content
+--- Test 2: log + redirect simultaneous ---
+PASS: simultaneous log + redirect
+log size: 3326, redirect size: 3326
+PASS: both files have content
+--- Test 3: redirect string ---
+redirect string length: 2002
+PASS: redirect string captured large content
+cycle 0 string length: 95
+cycle 1 string length: 95
+cycle 2 string length: 95
+cycle 3 string length: 95
+cycle 4 string length: 95
+PASS: redirect string cycles
+--- Test 4: with_output_to_variable ---
+v1 length: 994
+v2 length: 913
+v3 length: 95
+v4 length: 2002
+PASS: combined output >= single
+PASS: with_output_to_variable
+--- Test 5: redirect file append ---
+before append: 95, after append: 1089
+PASS: append grew file
+PASS: redirect file append
+--- Test 6: error paths ---
+PASS: caught FileNotReadable
+PASS: caught FileNotWritable
+Warning: /workspace/sta/OpenSTA/util/test/results/bad_verilog.v line 2, module NONEXISTENT_CELL not found. Creating black box for u1.
+bad verilog result: rc=0
+PASS: bad verilog error path
+--- Test 7: message suppression ---
+PASS: suppress range
+PASS: unsuppress range
+PASS: suppress SPEF warnings
+PASS: unsuppress SPEF warnings
+--- Test 8: debug levels ---
+PASS: debug level setting
+PASS: higher debug levels
+--- Test 9: format functions ---
+format_time(1e-9) = 1.0000
+format_time(1e-10) = 0.1000
+format_time(1e-11) = 0.0100
+format_time(1e-12) = 0.0010
+format_time(5.5e-9) = 5.5000
+format_time(0.0) = 0.0000
+format_capacitance(1e-12) = 1.0000
+format_capacitance(1e-13) = 0.1000
+format_capacitance(1e-14) = 0.0100
+format_capacitance(1e-15) = 0.0010
+format_capacitance(5.5e-12) = 5.5000
+format_capacitance(0.0) = 0.0000
+format_resistance(100) = 0.1000
+format_resistance(1000) = 1.0000
+format_resistance(10000) = 10.0000
+format_resistance(0.1) = 0.0001
+format_resistance(0.0) = 0.0000
+format_power(1e-3) = 1000000.0625
+format_power(1e-6) = 1000.0000
+format_power(1e-9) = 1.0000
+format_power(5.5e-3) = 5500000.0000
+format_power(0.0) = 0.0000
+PASS: format functions
+ALL PASSED

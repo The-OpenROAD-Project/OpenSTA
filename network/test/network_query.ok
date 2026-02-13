@@ -1,0 +1,8 @@
+Cells: 3
+PASS: cell count correct
+Nets: 6
+PASS: nets found
+PASS: pins found on buf1
+Ports: 4
+PASS: port count correct
+ALL PASSED

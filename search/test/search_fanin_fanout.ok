@@ -1,0 +1,93 @@
+--- get_fanin -to reg1/D -flat ---
+Fanin pins: and1/A1 and1/A2 and1/ZN buf1/A buf1/Z in1 in2 reg1/D
+--- get_fanin -to reg1/D -only_cells ---
+Fanin cells: {} and1 buf1 reg1
+--- get_fanin -to reg1/D -startpoints_only ---
+Fanin startpoints: in1 in2
+--- get_fanin -to out1 -flat ---
+Fanin to out1: buf2/A buf2/Z out1 reg1/CK reg1/Q
+--- get_fanin -to out1 -only_cells ---
+Fanin cells to out1: {} buf2 reg1
+--- get_fanin -to out1 -startpoints_only ---
+Fanin startpoints to out1: reg1/CK
+--- get_fanin -levels ---
+Fanin 1 level: buf1/A buf1/Z reg1/D
+--- get_fanin -pin_levels ---
+Fanin pin_levels 2: buf1/A buf1/Z reg1/D
+--- get_fanin -trace_arcs timing ---
+Fanin trace timing: and1/A1 and1/A2 and1/ZN buf1/A buf1/Z in1 in2 reg1/D
+--- get_fanin -trace_arcs enabled ---
+Fanin trace enabled: and1/A1 and1/A2 and1/ZN buf1/A buf1/Z in1 in2 reg1/D
+--- get_fanin -trace_arcs all ---
+Fanin trace all: and1/A1 and1/A2 and1/ZN buf1/A buf1/Z in1 in2 reg1/D
+--- get_fanout -from in1 -flat ---
+Fanout pins: and1/A1 and1/ZN buf1/A buf1/Z in1 reg1/D
+--- get_fanout -from in1 -only_cells ---
+Fanout cells: {} and1 buf1 reg1
+--- get_fanout -from in1 -endpoints_only ---
+Fanout endpoints: reg1/D
+--- get_fanout -from reg1/Q -flat ---
+Fanout from reg1/Q: buf2/A buf2/Z out1 reg1/Q
+--- get_fanout -from reg1/Q -only_cells ---
+Fanout cells from reg1/Q: {} buf2 reg1
+--- get_fanout -from reg1/Q -endpoints_only ---
+Fanout endpoints from reg1/Q: out1
+--- get_fanout -levels ---
+Fanout 1 level: and1/A1 and1/ZN in1
+--- get_fanout -pin_levels ---
+Fanout pin_levels 2: and1/A1 and1/ZN in1
+--- get_fanout -trace_arcs timing ---
+Fanout trace timing: and1/A1 and1/ZN buf1/A buf1/Z in1 reg1/D
+--- get_fanout -trace_arcs enabled ---
+Fanout trace enabled: and1/A1 and1/ZN buf1/A buf1/Z in1 reg1/D
+--- get_fanout -trace_arcs all ---
+Fanout trace all: and1/A1 and1/ZN buf1/A buf1/Z in1 reg1/D
+--- get_timing_edges -from -to ---
+Edges from/to: 1 edges
+--- get_timing_edges -from ---
+Edges from buf1/A: 1 edges
+--- get_timing_edges -to ---
+Edges to buf1/Z: 1 edges
+--- get_timing_edges -of_objects instance ---
+Edges of and1: 1 edges
+--- get_timing_edges -of_objects lib_cell ---
+Warning: search_fanin_fanout.tcl line 1, library 'Nangate45_typ' not found.
+Edges of AND2_X1 lib cell: 0 edges
+--- report_edges -from ---
+A1 -> ZN combinational
+  ^ -> ^ 0.02:0.02
+  v -> v 0.02:0.02
+--- report_edges -to ---
+A2 -> ZN combinational
+  ^ -> ^ 0.03:0.03
+  v -> v 0.02:0.02
+A1 -> ZN combinational
+  ^ -> ^ 0.02:0.02
+  v -> v 0.02:0.02
+--- report_edges -from -to ---
+A1 -> ZN combinational
+  ^ -> ^ 0.02:0.02
+  v -> v 0.02:0.02
+--- report_edges -from buf1/A ---
+A -> Z combinational
+  ^ -> ^ 0.02:0.02
+  v -> v 0.02:0.02
+--- report_edges -from reg1/CK ---
+CK -> QN Reg Clk to Q
+  ^ -> ^ 0.06:0.06
+  ^ -> v 0.06:0.06
+CK -> Q Reg Clk to Q
+  ^ -> ^ 0.08:0.08
+  ^ -> v 0.08:0.08
+CK -> CK width
+  ^ -> v 0.05:0.05
+  v -> ^ 0.05:0.05
+CK -> D setup
+  ^ -> ^ 0.03:0.03
+  ^ -> v 0.04:0.04
+CK -> D hold
+  ^ -> ^ 0.00:0.00
+  ^ -> v 0.00:0.00
+--- report_path for a pin ---
+--- report_path -min ---
+ALL fanin/fanout tests PASSED

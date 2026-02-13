@@ -1,0 +1,1155 @@
+Startpoint: in3 (input port clocked by clk2)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   2.00   17.00 v input external delay
+   0.00   17.00 v in3 (in)
+   0.05   17.05 v or1/ZN (OR2_X1)
+   0.03   17.07 ^ nor1/ZN (NOR2_X1)
+   0.00   17.07 ^ reg2/D (DFF_X1)
+          17.07   data arrival time
+
+  20.00   20.00   clock clk1 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg2/CK (DFF_X1)
+  -0.03   19.97   library setup time
+          19.97   data required time
+---------------------------------------------------------
+          19.97   data required time
+         -17.07   data arrival time
+---------------------------------------------------------
+           2.89   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   0.00   15.00   clock reconvergence pessimism
+          15.00 ^ reg3/CK (DFF_X1)
+  -0.04   14.96   library setup time
+          14.96   data required time
+---------------------------------------------------------
+          14.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           4.88   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk1)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ in2 (in)
+   0.00    1.00 v inv1/ZN (INV_X1)
+   0.03    1.03 v and1/ZN (AND2_X1)
+   0.01    1.05 ^ nand1/ZN (NAND2_X1)
+   0.00    1.05 ^ reg1/D (DFF_X1)
+           1.05   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -1.05   data arrival time
+---------------------------------------------------------
+           1.04   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 v reg1/Q (DFF_X1)
+   0.00    0.08 v reg3/D (DFF_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk2 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg3/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+PASS: two clock timing
+--- exception state tags ---
+Startpoint: in3 (input port clocked by clk2)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   2.00   17.00 v input external delay
+   0.00   17.00 v in3 (in)
+   0.05   17.05 v or1/ZN (OR2_X1)
+   0.03   17.07 ^ nor1/ZN (NOR2_X1)
+   0.00   17.07 ^ reg2/D (DFF_X1)
+          17.07   data arrival time
+
+  20.00   20.00   clock clk1 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg2/CK (DFF_X1)
+  -0.03   19.97   library setup time
+          19.97   data required time
+---------------------------------------------------------
+          19.97   data required time
+         -17.07   data arrival time
+---------------------------------------------------------
+           2.89   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   0.00   15.00   clock reconvergence pessimism
+          15.00 ^ reg3/CK (DFF_X1)
+  -0.04   14.96   library setup time
+          14.96   data required time
+---------------------------------------------------------
+          14.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           4.88   slack (MET)
+
+
+PASS: false_path tag state
+Startpoint: in3 (input port clocked by clk2)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   2.00   17.00 v input external delay
+   0.00   17.00 v in3 (in)
+   0.05   17.05 v or1/ZN (OR2_X1)
+   0.03   17.07 ^ nor1/ZN (NOR2_X1)
+   0.00   17.07 ^ reg2/D (DFF_X1)
+          17.07   data arrival time
+
+  20.00   20.00   clock clk1 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg2/CK (DFF_X1)
+  -0.03   19.97   library setup time
+          19.97   data required time
+---------------------------------------------------------
+          19.97   data required time
+         -17.07   data arrival time
+---------------------------------------------------------
+           2.89   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg3/CK (DFF_X1)
+   0.08    0.08 ^ reg3/Q (DFF_X1)
+   0.00    0.08 ^ out2 (out)
+           0.08   data arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   0.00   15.00   clock reconvergence pessimism
+  -3.00   12.00   output external delay
+          12.00   data required time
+---------------------------------------------------------
+          12.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+          11.92   slack (MET)
+
+
+PASS: mcp tag state
+Startpoint: in3 (input port clocked by clk2)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   2.00   17.00 v input external delay
+   0.00   17.00 v in3 (in)
+   0.05   17.05 v or1/ZN (OR2_X1)
+   0.03   17.07 ^ nor1/ZN (NOR2_X1)
+   0.00   17.07 ^ reg2/D (DFF_X1)
+          17.07   data arrival time
+
+  20.00   20.00   clock clk1 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg2/CK (DFF_X1)
+  -0.03   19.97   library setup time
+          19.97   data required time
+---------------------------------------------------------
+          19.97   data required time
+         -17.07   data arrival time
+---------------------------------------------------------
+           2.89   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg3/CK (DFF_X1)
+   0.08    0.08 ^ reg3/Q (DFF_X1)
+   0.00    0.08 ^ out2 (out)
+           0.08   data arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   0.00   15.00   clock reconvergence pessimism
+  -3.00   12.00   output external delay
+          12.00   data required time
+---------------------------------------------------------
+          12.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+          11.92   slack (MET)
+
+
+PASS: max_delay tag state
+--- group_path tag matching ---
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: gp1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.02    1.02 v buf1/Z (BUF_X1)
+   0.05    1.07 v or1/ZN (OR2_X1)
+   0.03    1.09 ^ nor1/ZN (NOR2_X1)
+   0.00    1.09 ^ reg2/D (DFF_X1)
+           1.09   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -1.09   data arrival time
+---------------------------------------------------------
+           8.87   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Endpoint: out2 (output port clocked by clk2)
+Path Group: gp2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk2 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg3/CK (DFF_X1)
+   0.08    0.08 ^ reg3/Q (DFF_X1)
+   0.00    0.08 ^ out2 (out)
+           0.08   data arrival time
+
+  15.00   15.00   clock clk2 (rise edge)
+   0.00   15.00   clock network delay (ideal)
+   0.00   15.00   clock reconvergence pessimism
+  -3.00   12.00   output external delay
+          12.00   data required time
+---------------------------------------------------------
+          12.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+          11.92   slack (MET)
+
+
+PASS: group_path tags
+--- find_timing_paths multi-clock ---
+multi-clock paths: 22
+  reg2/D slack=8.872357071254555e-9
+  reg1/D slack=8.883310975704717e-9
+  reg2/D slack=8.895908010231324e-9
+  reg1/D slack=8.896163805616197e-9
+  reg2/D slack=8.900515879872728e-9
+  reg1/D slack=8.903342951782633e-9
+  reg1/D slack=8.904557091682364e-9
+  reg2/D slack=8.907270476754547e-9
+  out2 slack=1.1918511511055385e-8
+  out2 slack=1.1924581322375616e-8
+  reg2/D slack=2.8924040940125906e-9
+  reg1/D slack=2.9033575543735424e-9
+  reg1/D slack=2.923498998441687e-9
+  reg2/D slack=2.927426967502811e-9
+  out1 slack=7.918512068272321e-9
+  out1 slack=7.924581879592552e-9
+  reg1/D slack=8.90797124952769e-9
+  reg2/D slack=8.912323323784221e-9
+  reg2/D slack=8.914291527162277e-9
+  reg1/D slack=8.922941496791736e-9
+  reg3/D slack=1.9883289681388305e-8
+  reg3/D slack=1.988473030678506e-8
+PASS: multi-clock paths
+--- find_timing_paths min multi-clock ---
+min multi-clock: 22
+PASS: min multi-clock paths
+--- total_negative_slack ---
+tns max: 0.0
+tns min: -14.924071290086962
+PASS: tns
+--- worst_slack ---
+worst_slack max: 2.892404175815367
+worst_slack min: -14.924071290086962
+PASS: worst_slack
+--- worst_negative_slack ---
+wns: 0.0
+PASS: wns
+--- report_check_types all ---
+Group                                  Slack
+--------------------------------------------
+gp1                                     1.05
+gp2                                     3.08
+clk1                                    1.04
+clk2                                  -14.92
+gp1                                     8.87
+gp2                                    11.92
+clk1                                    2.89
+clk2                                   19.88
+
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+nor1/ZN                                 0.20    0.01    0.19 (MET)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+nor1/ZN                                26.70    1.14   25.56 (MET)
+
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.05    5.00    4.95 (MET)
+
+PASS: report_check_types all
+--- generated clock tags ---
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: gp1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.02    1.02 v buf1/Z (BUF_X1)
+   0.05    1.07 v or1/ZN (OR2_X1)
+   0.03    1.09 ^ nor1/ZN (NOR2_X1)
+   0.00    1.09 ^ reg2/D (DFF_X1)
+           1.09   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -1.09   data arrival time
+---------------------------------------------------------
+           8.87   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Endpoint: out2 (output port clocked by gen_clk)
+Path Group: gp2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock gen_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg3/CK (DFF_X1)
+   0.08    0.08 ^ reg3/Q (DFF_X1)
+   0.00    0.08 ^ out2 (out)
+           0.08   data arrival time
+
+  20.00   20.00   clock gen_clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.50   17.50   output external delay
+          17.50   data required time
+---------------------------------------------------------
+          17.50   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+          17.42   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           7.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Path Group: gen_clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock gen_clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: gp1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ in1 (in)
+   0.02    1.02 ^ buf1/Z (BUF_X1)
+   0.03    1.04 ^ or1/ZN (OR2_X1)
+   0.01    1.05 v nor1/ZN (NOR2_X1)
+   0.00    1.05 v reg2/D (DFF_X1)
+           1.05   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.05   data arrival time
+---------------------------------------------------------
+           1.05   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Endpoint: out2 (output port clocked by gen_clk)
+Path Group: gp2
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock gen_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg3/CK (DFF_X1)
+   0.08    0.08 v reg3/Q (DFF_X1)
+   0.00    0.08 v out2 (out)
+           0.08   data arrival time
+
+   0.00    0.00   clock gen_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+  -2.50   -2.50   output external delay
+          -2.50   data required time
+---------------------------------------------------------
+          -2.50   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           2.58   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk1)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ in2 (in)
+   0.00    1.00 v inv1/ZN (INV_X1)
+   0.03    1.03 v and1/ZN (AND2_X1)
+   0.01    1.05 ^ nand1/ZN (NAND2_X1)
+   0.00    1.05 ^ reg1/D (DFF_X1)
+           1.05   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -1.05   data arrival time
+---------------------------------------------------------
+           1.04   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Path Group: gen_clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 v reg1/Q (DFF_X1)
+   0.00    0.08 v reg3/D (DFF_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock gen_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg3/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+PASS: generated clock tag states
+--- report_checks -format full_clock ---
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: gp1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.02    1.02 v buf1/Z (BUF_X1)
+   0.05    1.07 v or1/ZN (OR2_X1)
+   0.03    1.09 ^ nor1/ZN (NOR2_X1)
+   0.00    1.09 ^ reg2/D (DFF_X1)
+           1.09   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -1.09   data arrival time
+---------------------------------------------------------
+           8.87   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Endpoint: out2 (output port clocked by gen_clk)
+Path Group: gp2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock gen_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg3/CK (DFF_X1)
+   0.08    0.08 ^ reg3/Q (DFF_X1)
+   0.00    0.08 ^ out2 (out)
+           0.08   data arrival time
+
+  20.00   20.00   clock gen_clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.50   17.50   output external delay
+          17.50   data required time
+---------------------------------------------------------
+          17.50   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+          17.42   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           7.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Path Group: gen_clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock gen_clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+PASS: full_clock format with gen clk
+--- report_checks -format full_clock_expanded ---
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: gp1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.02    1.02 v buf1/Z (BUF_X1)
+   0.05    1.07 v or1/ZN (OR2_X1)
+   0.03    1.09 ^ nor1/ZN (NOR2_X1)
+   0.00    1.09 ^ reg2/D (DFF_X1)
+           1.09   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -1.09   data arrival time
+---------------------------------------------------------
+           8.87   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Endpoint: out2 (output port clocked by gen_clk)
+Path Group: gp2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock gen_clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg3/CK (DFF_X1)
+   0.08    0.08 ^ reg3/Q (DFF_X1)
+   0.00    0.08 ^ out2 (out)
+           0.08   data arrival time
+
+  20.00   20.00   clock gen_clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.50   17.50   output external delay
+          17.50   data required time
+---------------------------------------------------------
+          17.50   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+          17.42   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           7.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Path Group: gen_clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock gen_clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+PASS: full_clock_expanded with gen clk
+--- clock uncertainty + latency ---
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: gp1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   1.00    1.30 v input external delay
+   0.00    1.30 v in1 (in)
+   0.02    1.32 v buf1/Z (BUF_X1)
+   0.05    1.37 v or1/ZN (OR2_X1)
+   0.03    1.39 ^ nor1/ZN (NOR2_X1)
+   0.00    1.39 ^ reg2/D (DFF_X1)
+           1.39   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (ideal)
+   0.00   10.30   clock reconvergence pessimism
+          10.30 ^ reg2/CK (DFF_X1)
+  -0.03   10.27   library setup time
+          10.27   data required time
+---------------------------------------------------------
+          10.27   data required time
+          -1.39   data arrival time
+---------------------------------------------------------
+           8.87   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Endpoint: out2 (output port clocked by gen_clk)
+Path Group: gp2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock gen_clk (rise edge)
+   0.50    0.50   clock network delay (ideal)
+   0.00    0.50 ^ reg3/CK (DFF_X1)
+   0.08    0.58 ^ reg3/Q (DFF_X1)
+   0.00    0.58 ^ out2 (out)
+           0.58   data arrival time
+
+  20.00   20.00   clock gen_clk (rise edge)
+   0.50   20.50   clock network delay (ideal)
+   0.00   20.50   clock reconvergence pessimism
+  -2.50   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+          -0.58   data arrival time
+---------------------------------------------------------
+          17.42   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30 ^ reg2/CK (DFF_X1)
+   0.08    0.38 ^ reg2/Q (DFF_X1)
+   0.00    0.38 ^ out1 (out)
+           0.38   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (ideal)
+   0.00   10.30   clock reconvergence pessimism
+  -2.00    8.30   output external delay
+           8.30   data required time
+---------------------------------------------------------
+           8.30   data required time
+          -0.38   data arrival time
+---------------------------------------------------------
+           7.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Path Group: gen_clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (ideal)
+   0.00   10.30 ^ reg1/CK (DFF_X1)
+   0.08   10.38 v reg1/Q (DFF_X1)
+   0.00   10.38 v reg3/D (DFF_X1)
+          10.38   data arrival time
+
+  20.00   20.00   clock gen_clk (rise edge)
+   0.50   20.50   clock network delay (ideal)
+  -0.20   20.30   inter-clock uncertainty
+   0.00   20.30   clock reconvergence pessimism
+          20.30 ^ reg3/CK (DFF_X1)
+  -0.04   20.26   library setup time
+          20.26   data required time
+---------------------------------------------------------
+          20.26   data required time
+         -10.38   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: gp1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   1.00    1.30 ^ input external delay
+   0.00    1.30 ^ in1 (in)
+   0.02    1.32 ^ buf1/Z (BUF_X1)
+   0.03    1.34 ^ or1/ZN (OR2_X1)
+   0.01    1.35 v nor1/ZN (NOR2_X1)
+   0.00    1.35 v reg2/D (DFF_X1)
+           1.35   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30   clock reconvergence pessimism
+           0.30 ^ reg2/CK (DFF_X1)
+   0.00    0.30   library hold time
+           0.30   data required time
+---------------------------------------------------------
+           0.30   data required time
+          -1.35   data arrival time
+---------------------------------------------------------
+           1.05   slack (MET)
+
+
+Startpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Endpoint: out2 (output port clocked by gen_clk)
+Path Group: gp2
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock gen_clk (rise edge)
+   0.50    0.50   clock network delay (ideal)
+   0.00    0.50 ^ reg3/CK (DFF_X1)
+   0.08    0.58 v reg3/Q (DFF_X1)
+   0.00    0.58 v out2 (out)
+           0.58   data arrival time
+
+   0.00    0.00   clock gen_clk (rise edge)
+   0.50    0.50   clock network delay (ideal)
+   0.00    0.50   clock reconvergence pessimism
+  -2.50   -2.00   output external delay
+          -2.00   data required time
+---------------------------------------------------------
+          -2.00   data required time
+          -0.58   data arrival time
+---------------------------------------------------------
+           2.58   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk1)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   1.00    1.30 ^ input external delay
+   0.00    1.30 ^ in2 (in)
+   0.00    1.30 v inv1/ZN (INV_X1)
+   0.03    1.33 v and1/ZN (AND2_X1)
+   0.01    1.35 ^ nand1/ZN (NAND2_X1)
+   0.00    1.35 ^ reg1/D (DFF_X1)
+           1.35   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30   clock reconvergence pessimism
+           0.30 ^ reg1/CK (DFF_X1)
+   0.01    0.31   library hold time
+           0.31   data required time
+---------------------------------------------------------
+           0.31   data required time
+          -1.35   data arrival time
+---------------------------------------------------------
+           1.04   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by gen_clk)
+Path Group: gen_clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.30    0.30   clock network delay (ideal)
+   0.00    0.30 ^ reg1/CK (DFF_X1)
+   0.08    0.38 v reg1/Q (DFF_X1)
+   0.00    0.38 v reg3/D (DFF_X1)
+           0.38   data arrival time
+
+   0.00    0.00   clock gen_clk (rise edge)
+   0.50    0.50   clock network delay (ideal)
+   0.10    0.60   inter-clock uncertainty
+   0.00    0.60   clock reconvergence pessimism
+           0.60 ^ reg3/CK (DFF_X1)
+   0.00    0.60   library hold time
+           0.60   data required time
+---------------------------------------------------------
+           0.60   data required time
+          -0.38   data arrival time
+---------------------------------------------------------
+          -0.22   slack (VIOLATED)
+
+
+PASS: latency + uncertainty tags
+--- per-pin tag queries ---
+ (clk1 ^) r 1.35:1.39 f 1.35:1.36
+ (gen_clk ^) r 2.07:2.07 f 2.04:2.04
+ (clk1 ^) r 0.31:10.27 f 0.30:10.26
+ (gen_clk ^) r 0.31:10.27 f 0.30:10.26
+ (clk1 ^) r 1.04:8.88 f 1.05:8.90
+ (gen_clk ^) r 1.76:8.20 f 1.74:8.22
+ (clk1 ^) r 0.38:0.38 f 0.38:0.38
+ (clk1 ^) r 0.61:10.27 f 0.60:10.26
+ (clk1 ^) r -0.22:9.88 f -0.22:9.88
+PASS: per-pin tag queries
+--- clock_skew with generated clock ---
+Clock clk1
+No launch/capture paths found.
+
+Clock gen_clk
+No launch/capture paths found.
+
+Clock clk1
+No launch/capture paths found.
+
+Clock gen_clk
+No launch/capture paths found.
+
+PASS: clock_skew gen_clk
+--- report_clock_latency with generated ---
+Clock clk1
+rise -> rise
+    min     max
+   0.30    0.30 source latency
+   0.30         network latency reg1/CK
+           0.30 network latency reg1/CK
+---------------
+   0.60    0.60 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.30    0.30 source latency
+   0.30         network latency reg1/CK
+           0.30 network latency reg1/CK
+---------------
+   0.60    0.60 latency
+           0.00 skew
+
+
+Clock gen_clk
+rise -> rise
+    min     max
+   0.50    0.50 source latency
+   0.50         network latency reg3/CK
+           0.50 network latency reg3/CK
+---------------
+   1.00    1.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.50    0.50 source latency
+   0.50         network latency reg3/CK
+           0.50 network latency reg3/CK
+---------------
+   1.00    1.00 latency
+           0.00 skew
+
+
+PASS: clock_latency gen_clk
+--- report_clock_min_period ---
+clk1 period_min = 0.00 fmax = inf
+gen_clk period_min = 0.00 fmax = inf
+PASS: clock_min_period gen_clk
+ALL PASSED

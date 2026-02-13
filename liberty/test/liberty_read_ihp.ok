@@ -1,0 +1,135 @@
+PASS: IHP library loaded
+PASS: sg13g2_inv_1 found
+Cell sg13g2_inv_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Y output function=!A
+ A input 0.00-0.00
+PASS: report_lib_cell sg13g2_inv_1
+PASS: sg13g2_inv_1 pins (2 pins)
+PASS: all INV sizes found
+PASS: sg13g2_buf_1 found
+Cell sg13g2_buf_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=A
+ A input 0.00-0.00
+PASS: report_lib_cell sg13g2_buf_1
+PASS: sg13g2_nand2_1 found
+Cell sg13g2_nand2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Y output function=!(A*B)
+ A input 0.00-0.00
+ B input 0.00-0.00
+PASS: report_lib_cell sg13g2_nand2_1
+PASS: all NAND variants found
+PASS: sg13g2_nor2_1 found
+Cell sg13g2_nor2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Y output function=!(A+B)
+ A input 0.00-0.00
+ B input 0.00-0.00
+PASS: report_lib_cell sg13g2_nor2_1
+PASS: all NOR variants found
+PASS: sg13g2_and2_1 found
+Cell sg13g2_and2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=A*B
+ A input 0.00-0.00
+ B input 0.00-0.00
+PASS: report_lib_cell sg13g2_and2_1
+PASS: all AND variants found
+PASS: sg13g2_mux2_1 found
+Cell sg13g2_mux2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=(!S*A0)+(S*A1)
+ A0 input 0.00-0.00
+ A1 input 0.00-0.00
+ S input 0.01-0.01
+PASS: report_lib_cell sg13g2_mux2_1
+PASS: sg13g2_mux4_1 found
+Cell sg13g2_mux4_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=(((A0*(!S0*!S1))+(A1*(S0*!S1)))+(A2*(!S0*S1)))+(A3*(S0*S1))
+ A0 input 0.00-0.00
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ A3 input 0.00-0.00
+ S0 input 0.01-0.01
+ S1 input 0.00-0.01
+PASS: report_lib_cell sg13g2_mux4_1
+PASS: sg13g2_dfrbp_1 found
+Cell sg13g2_dfrbp_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Q output function=IQ
+ Q_N output function=IQN
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ RESET_B input 0.01-0.01
+ IQ internal
+ IQN internal
+PASS: report_lib_cell sg13g2_dfrbp_1
+PASS: sg13g2_dfrbp_1 pins (7 pins)
+PASS: sg13g2_dlhq_1 found
+Cell sg13g2_dlhq_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Q output function=IQ
+ D input 0.00-0.00
+ GATE input 0.00-0.00
+ IQ internal
+ IQN internal
+PASS: report_lib_cell sg13g2_dlhq_1
+PASS: sg13g2_a21o_1 found
+Cell sg13g2_a21o_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=(A1*A2)+B1
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+PASS: report_lib_cell sg13g2_a21o_1
+PASS: sg13g2_xor2_1 found
+Cell sg13g2_xor2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=A^B
+ A input 0.01-0.01
+ B input 0.01-0.01
+PASS: report_lib_cell sg13g2_xor2_1
+PASS: sg13g2_xnor2_1 found
+Cell sg13g2_xnor2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Y output function=!(A^B)
+ A input 0.01-0.01
+ B input 0.01-0.01
+PASS: report_lib_cell sg13g2_xnor2_1
+PASS: sg13g2_ebufn_2 found
+Cell sg13g2_ebufn_2
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Z tristate enable=!TE_B function=A 0.00-0.01
+ A input 0.00-0.00
+ TE_B input 0.01-0.01
+PASS: report_lib_cell sg13g2_ebufn_2
+PASS: sg13g2_dlygate4sd1_1 found
+Cell sg13g2_dlygate4sd1_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=A
+ A input 0.00-0.00
+PASS: report_lib_cell sg13g2_dlygate4sd1_1
+PASS: all IHP cells: 78
+PASS: IHP INV cells: 5
+PASS: IHP NAND cells: 7
+PASS: read IHP 1p50V library
+PASS: IHP 1p50V library loaded
+PASS: IHP 1p50V total cells: 78
+ALL PASSED

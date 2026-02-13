@@ -1,0 +1,48 @@
+--- initial cell count ---
+initial cells: 3
+--- current_design ---
+current_design: network_test1
+--- make_net new_net1 ---
+PASS: make_net created new_net1
+--- verify new net exists ---
+PASS: new_net1 found
+--- make_instance new_buf BUF_X1 ---
+PASS: make_instance created new_buf
+--- verify new instance exists ---
+PASS: new_buf found
+--- cell count after adding instance ---
+cells after make_instance: 4
+--- connect_pin new_net1 new_buf/A ---
+connect_pin result: 1
+--- connect output pin to new net ---
+connect_pin output result: 1
+--- disconnect_pin new_net1 new_buf/A ---
+disconnect_pin result: 1
+--- replace_cell new_buf with INV_X1 ---
+replace_cell INV_X1 result (expect 0): 0
+--- replace_cell buf1 with BUF_X2 ---
+replace_cell BUF_X2 result: 1
+--- verify buf1 cell changed ---
+buf1 ref_name after replace: BUF_X2
+--- disconnect remaining new_buf pins ---
+disconnect new_buf/Z: 1
+--- delete_instance new_buf ---
+PASS: delete_instance new_buf
+--- verify new_buf removed ---
+Warning: network_modify.tcl line 1, instance 'new_buf' not found.
+get_cells new_buf after delete: 
+--- cell count after delete ---
+cells after delete_instance: 3
+--- delete_net new_net1 ---
+PASS: delete_net new_net1
+--- delete_net new_net2 ---
+PASS: delete_net new_net2
+--- make another instance and delete by object ---
+PASS: make_instance temp_buf
+PASS: delete_instance by object
+--- make and delete net by object ---
+PASS: make_net temp_net
+PASS: delete_net by object
+--- current_design with name ---
+current_design with name: network_test1
+ALL PASSED

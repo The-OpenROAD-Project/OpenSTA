@@ -155,7 +155,7 @@ Report::printToBufferAppend(const char *fmt,
   va_copy(args_copy, args);
   size_t length = vsnprint(buffer_ + buffer_length_, buffer_size_- buffer_length_,
                            fmt, args);
-  if (length >= buffer_size_) {
+  if (length >= buffer_size_ - buffer_length_) {
     buffer_size_ = buffer_length_ + length * 2;
     char *new_buffer = new char[buffer_size_];
     strncpy(new_buffer, buffer_, buffer_length_);

@@ -1,0 +1,267 @@
+--- find_requireds ---
+PASS: find_requireds
+--- endpoint_violation_count ---
+max violations: 0
+min violations: 0
+PASS: endpoint_violation_count
+--- report_tags ---
+0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
+2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+3 v max/1 clk v (clock ideal) clk_src clk crpr_pin null
+4 ^ min/0 clk ^ clk_src clk crpr_pin null input in1
+5 v min/0 clk ^ clk_src clk crpr_pin null input in1
+6 ^ max/1 clk ^ clk_src clk crpr_pin null input in1
+7 v max/1 clk ^ clk_src clk crpr_pin null input in1
+8 ^ min/0 clk ^ clk_src clk crpr_pin null input in2
+9 v min/0 clk ^ clk_src clk crpr_pin null input in2
+10 ^ max/1 clk ^ clk_src clk crpr_pin null input in2
+11 v max/1 clk ^ clk_src clk crpr_pin null input in2
+12 ^ min/0 clk ^ clk_src clk crpr_pin null
+13 ^ max/1 clk ^ clk_src clk crpr_pin null
+14 v min/0 clk ^ clk_src clk crpr_pin null
+15 v max/1 clk ^ clk_src clk crpr_pin null
+Longest hash bucket length 1 hash=15
+PASS: report_tags
+--- report_clk_infos ---
+min/0 clk ^ clk_src clk
+max/1 clk ^ clk_src clk
+min/0 clk v clk_src clk
+max/1 clk v clk_src clk
+4 clk infos
+PASS: report_clk_infos
+--- report_tag_groups ---
+Group    0 hash = 17966705655932391860 ( 134)
+  0 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+  1 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+  2 1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
+  3 3 v max/1 clk v (clock ideal) clk_src clk crpr_pin null
+
+Group    1 hash = 2705662179234464818 ( 101)
+  0 4 ^ min/0 clk ^ clk_src clk crpr_pin null input in1
+  1 6 ^ max/1 clk ^ clk_src clk crpr_pin null input in1
+  2 5 v min/0 clk ^ clk_src clk crpr_pin null input in1
+  3 7 v max/1 clk ^ clk_src clk crpr_pin null input in1
+
+Group    2 hash = 17969741592058791410 (  82)
+  0 12 ^ min/0 clk ^ clk_src clk crpr_pin null
+  1 13 ^ max/1 clk ^ clk_src clk crpr_pin null
+  2 14 v min/0 clk ^ clk_src clk crpr_pin null
+  3 15 v max/1 clk ^ clk_src clk crpr_pin null
+
+Longest hash bucket length 1 hash=82
+PASS: report_tag_groups
+--- report_path_count_histogram ---
+     4     15
+PASS: report_path_count_histogram
+--- report_arrival_entries ---
+PASS: report_arrival_entries
+--- report_required_entries ---
+PASS: report_required_entries
+--- counts ---
+tags: 16
+tag_groups: 3
+clk_infos: 4
+paths: 60
+PASS: counts
+--- vertex queries ---
+worst_slack_vertex pin: out1
+worst_slack_vertex level: 50
+worst_arrival_path pin: out1
+worst_arrival_path arrival: 1.0028596009181712e-10
+worst_slack_path pin: out1
+worst_slack_path slack: 7.899713772019368e-9
+Vertex out1
+Group 2
+ ^ min 0.100 / -2.000 12 clk ^ clk_src clk crpr_pin null prev buf2/Z ^ min/0 12 buf2/Z ^ -> out1 ^
+ v min 0.099 / -2.000 14 clk ^ clk_src clk crpr_pin null prev buf2/Z v min/0 14 buf2/Z v -> out1 v
+ ^ max 0.100 / 8.000 13 clk ^ clk_src clk crpr_pin null prev buf2/Z ^ max/1 13 buf2/Z ^ -> out1 ^
+ v max 0.099 / 8.000 15 clk ^ clk_src clk crpr_pin null prev buf2/Z v max/1 15 buf2/Z v -> out1 v
+Vertex out1
+ ^ min 0.100 / -2.000  clk ^ clk_src clk crpr_pin null prev buf2/Z ^ min/0 12 buf2/Z ^ -> out1 ^
+ v min 0.099 / -2.000  clk ^ clk_src clk crpr_pin null prev buf2/Z v min/0 14 buf2/Z v -> out1 v
+ ^ max 0.100 / 8.000  clk ^ clk_src clk crpr_pin null prev buf2/Z ^ max/1 13 buf2/Z ^ -> out1 ^
+ v max 0.099 / 8.000  clk ^ clk_src clk crpr_pin null prev buf2/Z v max/1 15 buf2/Z v -> out1 v
+PASS: vertex queries
+--- worst_slack_vertex min ---
+worst_slack_vertex min pin: reg1/D
+worst_arrival_path min pin: reg1/D
+worst_slack_path min pin: reg1/D
+worst_slack_path min slack: 1.0391780769225534e-9
+PASS: vertex min queries
+--- Arrival invalidation via network edit ---
+Worst slack after BUF_X2: 7.899713772019368e-9
+Worst slack after BUF_X1: 7.899713772019368e-9
+PASS: arrival invalidation
+--- Delete instance timing invalidation ---
+Worst slack after delete: 7.899713772019368e-9
+PASS: delete timing invalidation
+--- Create violations ---
+max violations (tight): 0
+max violations (normal): 0
+PASS: violation count changes
+--- find_timing_paths sort_by_slack ---
+Sorted paths: 6
+  slack: 7.899713772019368e-9 pin=out1
+  slack: 7.901434173618327e-9 pin=out1
+  slack: 8.913024096557365e-9 pin=reg1/D
+  slack: 8.915245430785035e-9 pin=reg1/D
+  slack: 8.923905170377111e-9 pin=reg1/D
+  slack: 8.925195693620935e-9 pin=reg1/D
+PASS: sort_by_slack
+--- report_checks slack filters ---
+No paths found.
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+PASS: slack filters
+--- report_checks from/to/through ---
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+   0.02    1.02 v and1/ZN (AND2_X1)
+   0.02    1.05 v buf1/Z (BUF_X1)
+   0.00    1.05 v reg1/D (DFF_X1)
+           1.05   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -1.05   data arrival time
+---------------------------------------------------------
+           8.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in2 (in)
+   0.02    1.02 v and1/ZN (AND2_X1)
+   0.02    1.05 v buf1/Z (BUF_X1)
+   0.00    1.05 v reg1/D (DFF_X1)
+           1.05   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -1.05   data arrival time
+---------------------------------------------------------
+           8.91   slack (MET)
+
+
+No paths found.
+PASS: from/to/through
+--- report_tns/wns ---
+tns max 0.00
+wns max 0.00
+worst slack max 7.90
+worst slack min 1.04
+tns max 0.000000
+wns max 0.000000
+PASS: tns/wns
+--- levelize ---
+PASS: levelize
+ALL PASSED

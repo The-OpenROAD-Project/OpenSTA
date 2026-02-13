@@ -1,0 +1,1082 @@
+PASS: design setup
+--- Test 1: pi models on all driver pins ---
+PASS: set pi models
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+PASS: dmp_ceff_elmore with pi
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ in2 (in)
+   0.04    1.04 ^ and1/ZN (AND2_X1)
+   0.02    1.06 ^ buf1/Z (BUF_X1)
+   0.00    1.06 ^ reg1/D (DFF_X1)
+           1.06   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.06   data arrival time
+---------------------------------------------------------
+           1.06   slack (MET)
+
+
+PASS: min with pi
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+PASS: max with pi
+--- Test 2: tiny pi model ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+PASS: tiny pi model
+--- Test 3: large pi model ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+PASS: large pi model
+--- Test 4: dmp_ceff_two_pole ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+PASS: two_pole with pi
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ in2 (in)
+   0.04    1.04 ^ and1/ZN (AND2_X1)
+   0.02    1.06 ^ buf1/Z (BUF_X1)
+   0.00    1.06 ^ reg1/D (DFF_X1)
+           1.06   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.06   data arrival time
+---------------------------------------------------------
+           1.06   slack (MET)
+
+
+PASS: two_pole min
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+two_pole slew=0.01: done
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+two_pole slew=0.1: done
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+two_pole slew=0.5: done
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+two_pole slew=1.0: done
+Startpoint: in2 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in2 (in)
+   1.08    2.08 v and1/ZN (AND2_X1)
+   0.07    2.15 v buf1/Z (BUF_X1)
+   0.00    2.15 v reg1/D (DFF_X1)
+           2.15   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -2.15   data arrival time
+---------------------------------------------------------
+           7.81   slack (MET)
+
+
+two_pole slew=5.0: done
+PASS: two_pole varying slew
+--- Test 5: SPEF then pi override ---
+PASS: read SPEF
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.11    0.11 ^ reg1/Q (DFF_X1)
+   0.04    0.14 ^ buf2/Z (BUF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.86   slack (MET)
+
+
+PASS: dmp with SPEF
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.11    0.11 ^ reg1/Q (DFF_X1)
+   0.04    0.14 ^ buf2/Z (BUF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.86   slack (MET)
+
+
+PASS: pi override after SPEF
+--- Test 6: report_dcalc ---
+Library: NangateOpenCellLibrary
+Cell: AND2_X1
+Arc sense: positive_unate
+Arc type: combinational
+A1 ^ -> ZN ^
+Pi model C2=5.00 Rpi=1.50 C1=5.97, Ceff=9.74
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 9.74
+|        7.57     15.14
+v      --------------------
+0.08 | 0.06     0.08
+0.13 | 0.07     0.09
+Table value = 0.07
+PVT scale factor = 1.00
+Delay = 0.07
+
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 9.74
+|        7.57     15.14
+v      --------------------
+0.08 | 0.02     0.04
+0.13 | 0.02     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Slew = 0.03
+Driver waveform slew = 0.03
+
+.............................................
+
+A1 v -> ZN v
+Pi model C2=5.00 Rpi=1.50 C1=5.88, Ceff=9.05
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 9.05
+|        7.57     15.14
+v      --------------------
+0.08 | 0.07     0.08
+0.13 | 0.08     0.09
+Table value = 0.07
+PVT scale factor = 1.00
+Delay = 0.07
+
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 9.05
+|        7.57     15.14
+v      --------------------
+0.08 | 0.01     0.02
+0.13 | 0.02     0.02
+Table value = 0.02
+PVT scale factor = 1.00
+Slew = 0.02
+Driver waveform slew = 0.02
+
+.............................................
+
+Library: NangateOpenCellLibrary
+Cell: AND2_X1
+Arc sense: positive_unate
+Arc type: combinational
+A1 ^ -> ZN ^
+Pi model C2=5.00 Rpi=1.50 C1=5.97, Ceff=9.74
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 9.74
+|        7.57     15.14
+v      --------------------
+0.08 | 0.06     0.08
+0.13 | 0.07     0.09
+Table value = 0.07
+PVT scale factor = 1.00
+Delay = 0.07
+
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 9.74
+|        7.57     15.14
+v      --------------------
+0.08 | 0.02     0.04
+0.13 | 0.02     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Slew = 0.03
+Driver waveform slew = 0.03
+
+.............................................
+
+A1 v -> ZN v
+Pi model C2=5.00 Rpi=1.50 C1=5.88, Ceff=9.05
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 9.05
+|        7.57     15.14
+v      --------------------
+0.08 | 0.07     0.08
+0.13 | 0.08     0.09
+Table value = 0.07
+PVT scale factor = 1.00
+Delay = 0.07
+
+------- input_net_transition = 0.10
+|       total_output_net_capacitance = 9.05
+|        7.57     15.14
+v      --------------------
+0.08 | 0.01     0.02
+0.13 | 0.02     0.02
+Table value = 0.02
+PVT scale factor = 1.00
+Slew = 0.02
+Driver waveform slew = 0.02
+
+.............................................
+
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+Pi model C2=4.00 Rpi=1.20 C1=5.14, Ceff=8.21
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.03
+|       total_output_net_capacitance = 8.21
+|        7.58     15.16
+v      --------------------
+0.02 | 0.04     0.06
+0.04 | 0.04     0.06
+Table value = 0.04
+PVT scale factor = 1.00
+Delay = 0.04
+
+------- input_net_transition = 0.03
+|       total_output_net_capacitance = 8.21
+|        7.58     15.16
+v      --------------------
+0.02 | 0.02     0.04
+0.04 | 0.02     0.04
+Table value = 0.02
+PVT scale factor = 1.00
+Slew = 0.02
+Driver waveform slew = 0.02
+
+.............................................
+
+A v -> Z v
+Pi model C2=4.00 Rpi=1.20 C1=5.06, Ceff=7.51
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 7.51
+|        3.79     7.58
+v      --------------------
+0.02 | 0.03     0.04
+0.04 | 0.05     0.05
+Table value = 0.04
+PVT scale factor = 1.00
+Delay = 0.04
+
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 7.51
+|        3.79     7.58
+v      --------------------
+0.02 | 0.01     0.01
+0.04 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+Pi model C2=4.00 Rpi=1.20 C1=5.14, Ceff=8.21
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.03
+|       total_output_net_capacitance = 8.21
+|        7.58     15.16
+v      --------------------
+0.02 | 0.04     0.06
+0.04 | 0.04     0.06
+Table value = 0.04
+PVT scale factor = 1.00
+Delay = 0.04
+
+------- input_net_transition = 0.03
+|       total_output_net_capacitance = 8.21
+|        7.58     15.16
+v      --------------------
+0.02 | 0.02     0.04
+0.04 | 0.02     0.04
+Table value = 0.02
+PVT scale factor = 1.00
+Slew = 0.02
+Driver waveform slew = 0.02
+
+.............................................
+
+A v -> Z v
+Pi model C2=4.00 Rpi=1.20 C1=5.06, Ceff=7.51
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 7.51
+|        3.79     7.58
+v      --------------------
+0.02 | 0.03     0.04
+0.04 | 0.05     0.05
+Table value = 0.04
+PVT scale factor = 1.00
+Delay = 0.04
+
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 7.51
+|        3.79     7.58
+v      --------------------
+0.02 | 0.01     0.01
+0.04 | 0.01     0.01
+Table value = 0.01
+PVT scale factor = 1.00
+Slew = 0.01
+Driver waveform slew = 0.01
+
+.............................................
+
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.03
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.02 | 0.02     0.03
+0.04 | 0.03     0.03
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.03
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.02 | 0.00     0.01
+0.04 | 0.01     0.01
+Table value = 0.00
+PVT scale factor = 1.00
+Slew = 0.00
+Driver waveform slew = 0.00
+
+.............................................
+
+A v -> Z v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.02 | 0.03     0.03
+0.04 | 0.04     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Delay = 0.03
+
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.02 | 0.00     0.01
+0.04 | 0.01     0.01
+Table value = 0.00
+PVT scale factor = 1.00
+Slew = 0.00
+Driver waveform slew = 0.00
+
+.............................................
+
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.03
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.02 | 0.02     0.03
+0.04 | 0.03     0.03
+Table value = 0.02
+PVT scale factor = 1.00
+Delay = 0.02
+
+------- input_net_transition = 0.03
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.02 | 0.00     0.01
+0.04 | 0.01     0.01
+Table value = 0.00
+PVT scale factor = 1.00
+Slew = 0.00
+Driver waveform slew = 0.00
+
+.............................................
+
+A v -> Z v
+P = 1.00 V = 1.10 T = 25.00
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.02 | 0.03     0.03
+0.04 | 0.04     0.04
+Table value = 0.03
+PVT scale factor = 1.00
+Delay = 0.03
+
+------- input_net_transition = 0.02
+|       total_output_net_capacitance = 0.00
+|        0.37     1.90
+v      --------------------
+0.02 | 0.00     0.01
+0.04 | 0.01     0.01
+Table value = 0.00
+PVT scale factor = 1.00
+Slew = 0.00
+Driver waveform slew = 0.00
+
+.............................................
+
+PASS: dmp_ceff_elmore dcalc
+Library: NangateOpenCellLibrary
+Cell: AND2_X1
+Arc sense: positive_unate
+Arc type: combinational
+A1 ^ -> ZN ^
+Pi model C2=5.000000 Rpi=1.500000 C1=5.974659, Ceff=9.738044
+P = 1.000000 V = 1.100000 T = 25.000000
+------- input_net_transition = 0.100000
+|       total_output_net_capacitance = 9.738044
+|        7.572170     15.144300
+v      --------------------
+0.078060 | 0.062624     0.080940
+0.130081 | 0.068272     0.086549
+Table value = 0.070241
+PVT scale factor = 1.000000
+Delay = 0.070241
+
+------- input_net_transition = 0.100000
+|       total_output_net_capacitance = 9.738044
+|        7.572170     15.144300
+v      --------------------
+0.078060 | 0.021738     0.038195
+0.130081 | 0.022815     0.038541
+Table value = 0.026811
+PVT scale factor = 1.000000
+Slew = 0.026811
+Driver waveform slew = 0.027505
+
+.............................................
+
+A1 v -> ZN v
+Pi model C2=5.000000 Rpi=1.500000 C1=5.875250, Ceff=9.054702
+P = 1.000000 V = 1.100000 T = 25.000000
+------- input_net_transition = 0.100000
+|       total_output_net_capacitance = 9.054702
+|        7.572170     15.144300
+v      --------------------
+0.078060 | 0.066293     0.077190
+0.130081 | 0.079405     0.091097
+Table value = 0.074022
+PVT scale factor = 1.000000
+Delay = 0.074022
+
+------- input_net_transition = 0.100000
+|       total_output_net_capacitance = 9.054702
+|        7.572170     15.144300
+v      --------------------
+0.078060 | 0.013976     0.020467
+0.130081 | 0.016062     0.022174
+Table value = 0.016096
+PVT scale factor = 1.000000
+Slew = 0.016096
+Driver waveform slew = 0.016859
+
+.............................................
+
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+Pi model C2=4.000000 Rpi=1.200000 C1=5.140290, Ceff=8.205650
+P = 1.000000 V = 1.100000 T = 25.000000
+------- input_net_transition = 0.027505
+|       total_output_net_capacitance = 8.205650
+|        7.581710     15.163399
+v      --------------------
+0.017186 | 0.039601     0.057926
+0.040984 | 0.044404     0.062642
+Table value = 0.043189
+PVT scale factor = 1.000000
+Delay = 0.043189
+
+------- input_net_transition = 0.027505
+|       total_output_net_capacitance = 8.205650
+|        7.581710     15.163399
+v      --------------------
+0.017186 | 0.020107     0.037372
+0.040984 | 0.020285     0.037427
+Table value = 0.021600
+PVT scale factor = 1.000000
+Slew = 0.021600
+Driver waveform slew = 0.022042
+
+.............................................
+
+A v -> Z v
+Pi model C2=4.000000 Rpi=1.200000 C1=5.062342, Ceff=7.504267
+P = 1.000000 V = 1.100000 T = 25.000000
+------- input_net_transition = 0.016859
+|       total_output_net_capacitance = 7.504267
+|        3.790860     7.581710
+v      --------------------
+0.004724 | 0.028461     0.034145
+0.017186 | 0.034962     0.040649
+Table value = 0.040362
+PVT scale factor = 1.000000
+Delay = 0.040362
+
+------- input_net_transition = 0.016859
+|       total_output_net_capacitance = 7.504267
+|        3.790860     7.581710
+v      --------------------
+0.004724 | 0.007723     0.011312
+0.017186 | 0.007766     0.011340
+Table value = 0.011266
+PVT scale factor = 1.000000
+Slew = 0.011266
+Driver waveform slew = 0.011829
+
+.............................................
+
+Library: NangateOpenCellLibrary
+Cell: BUF_X1
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Z ^
+P = 1.000000 V = 1.100000 T = 25.000000
+------- input_net_transition = 0.028990
+|       total_output_net_capacitance = 0.000000
+|        0.365616     1.895430
+v      --------------------
+0.017186 | 0.021491     0.025664
+0.040984 | 0.026003     0.030515
+Table value = 0.022692
+PVT scale factor = 1.000000
+Delay = 0.022692
+
+------- input_net_transition = 0.028990
+|       total_output_net_capacitance = 0.000000
+|        0.365616     1.895430
+v      --------------------
+0.017186 | 0.004627     0.007598
+0.040984 | 0.005781     0.008343
+Table value = 0.004538
+PVT scale factor = 1.000000
+Slew = 0.004538
+Driver waveform slew = 0.004538
+
+.............................................
+
+A v -> Z v
+P = 1.000000 V = 1.100000 T = 25.000000
+------- input_net_transition = 0.014699
+|       total_output_net_capacitance = 0.000000
+|        0.365616     1.895430
+v      --------------------
+0.004724 | 0.021689     0.025089
+0.017186 | 0.028237     0.031601
+Table value = 0.026125
+PVT scale factor = 1.000000
+Delay = 0.026125
+
+------- input_net_transition = 0.014699
+|       total_output_net_capacitance = 0.000000
+|        0.365616     1.895430
+v      --------------------
+0.004724 | 0.004281     0.005879
+0.017186 | 0.004332     0.005931
+Table value = 0.003940
+PVT scale factor = 1.000000
+Slew = 0.003940
+Driver waveform slew = 0.003940
+
+.............................................
+
+PASS: dmp_ceff_two_pole dcalc
+--- Test 7: incremental ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.11    0.11 ^ reg1/Q (DFF_X1)
+   0.04    0.14 ^ buf2/Z (BUF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.86   slack (MET)
+
+
+PASS: incremental load out1
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.11    0.11 ^ reg1/Q (DFF_X1)
+   0.04    0.14 ^ buf2/Z (BUF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.86   slack (MET)
+
+
+PASS: incremental load out1 (2)
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.11    0.11 ^ reg1/Q (DFF_X1)
+   0.04    0.14 ^ buf2/Z (BUF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.86   slack (MET)
+
+
+PASS: incremental slew 0.5
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.11    0.11 ^ reg1/Q (DFF_X1)
+   0.04    0.14 ^ buf2/Z (BUF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.86   slack (MET)
+
+
+PASS: incremental slew 2.0
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.11    0.11 ^ reg1/Q (DFF_X1)
+   0.04    0.14 ^ buf2/Z (BUF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+  -2.00    3.00   output external delay
+           3.00   data required time
+---------------------------------------------------------
+           3.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           2.86   slack (MET)
+
+
+PASS: incremental clock 5
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.11    0.11 ^ reg1/Q (DFF_X1)
+   0.04    0.14 ^ buf2/Z (BUF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+   2.00    2.00   clock clk (rise edge)
+   0.00    2.00   clock network delay (ideal)
+   0.00    2.00   clock reconvergence pessimism
+  -2.00    0.00   output external delay
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+          -0.14   slack (VIOLATED)
+
+
+PASS: incremental clock 2
+--- Test 8: find_delays ---
+PASS: find_delays
+PASS: invalidate + find_delays
+PASS: multiple invalidation cycles
+ALL PASSED

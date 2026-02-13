@@ -1,0 +1,81 @@
+PASS: read uncompressed ASAP7 SEQ RVT FF
+PASS: SEQ RVT FF library loaded
+PASS: DFFHQNx1 found
+Cell DFFHQNx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ QN output function=IQN
+ CLK input 0.40-0.52
+ D input 0.55-0.62
+ IQN internal
+ IQNN internal
+PASS: report_lib_cell DFFHQNx1
+PASS: DLLx1 latch found
+Cell DLLx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ Q output function=IQ
+ CLK input 0.41-0.53
+ D input 0.50-0.63
+ IQ internal
+ IQN internal
+PASS: report_lib_cell DLLx1
+PASS: ICGx1 found
+Cell ICGx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ IQ internal
+ GCLK output
+ CLK input 1.63-2.39
+ ENA input 0.33-0.47
+ SE input 0.39-0.47
+PASS: report_lib_cell ICGx1
+PASS: SEQ RVT FF total cells: 33
+PASS: DFFHQNx1 pins (5 pins)
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+PASS: read compressed ASAP7 SIMPLE RVT FF
+PASS: SIMPLE RVT FF library loaded
+PASS: SIMPLE RVT FF total cells: 56
+PASS: read compressed ASAP7 INVBUF RVT FF
+PASS: INVBUF RVT FF library loaded
+PASS: INVBUF RVT FF total cells: 37
+PASS: read compressed ASAP7 OA RVT FF
+PASS: OA RVT FF library loaded
+PASS: OA RVT FF total cells: 34
+PASS: read compressed ASAP7 AO RVT FF
+PASS: AO RVT FF library loaded
+PASS: AO RVT FF total cells: 42
+PASS: read ASAP7 SEQ RVT SS
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13156, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13189, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13222, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13255, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13288, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13321, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13354, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14748, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14781, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14814, timing group from output port.
+PASS: read compressed ASAP7 SIMPLE RVT SS
+PASS: read compressed ASAP7 INVBUF RVT SS
+PASS: read compressed CCSN library
+PASS: read liberty_latch3.lib
+Warning: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
+PASS: read fake_macros.lib
+PASS: read fakeram45_256x16.lib
+ALL PASSED

@@ -1,0 +1,145 @@
+--- Port slack properties (portSlack calls pinSlack) ---
+in1 slack_max: 8.915246
+in1 slack_max_rise: 8.925196
+in1 slack_max_fall: 8.915246
+in1 slack_min: 1.039178
+in1 slack_min_rise: 1.039178
+in1 slack_min_fall: 1.044237
+PASS: port slack properties
+--- Port slew properties (portSlew calls pinSlew) ---
+in1 slew_max: 0.000000
+in1 slew_max_rise: 0.000000
+in1 slew_max_fall: 0.000000
+in1 slew_min: 0.000000
+in1 slew_min_rise: 0.000000
+in1 slew_min_fall: 0.000000
+PASS: port slew properties
+--- Output port slack/slew ---
+out1 slack_max: 7.899714
+out1 slack_max_rise: 7.899714
+out1 slack_max_fall: 7.901434
+out1 slack_min: 2.098566
+out1 slack_min_rise: 2.100286
+out1 slack_min_fall: 2.098566
+out1 slew_max: 0.003903
+out1 slew_min: 0.003638
+PASS: output port slack/slew
+--- Port direction and liberty_port ---
+in1 direction: input
+in1 port_direction: input
+in1 liberty_port: none
+out1 direction: output
+PASS: port direction/liberty_port
+--- Port activity ---
+in1 activity: 1.00000e+07 0.500 input
+out1 activity: 1.00000e+07 0.250 propagated
+PASS: port activity
+--- Pin slack (via direct pin property) ---
+reg1/D slack_max: 8.413024
+reg1/D slack_max_rise: 8.423905
+reg1/D slack_max_fall: 8.413024
+reg1/D slack_min: 1.039178
+reg1/D slack_min_rise: 1.039178
+reg1/D slack_min_fall: 1.044237
+PASS: pin slack
+--- Pin slew ---
+reg1/D slew_max: 0.005947
+reg1/D slew_max_rise: 0.005947
+reg1/D slew_max_fall: 0.005011
+reg1/D slew_min: 0.005010
+reg1/D slew_min_rise: 0.005947
+reg1/D slew_min_fall: 0.005010
+PASS: pin slew
+--- Pin arrival ---
+reg1/D arrival_max_rise: 1.545363
+reg1/D arrival_max_fall: 1.548195
+reg1/D arrival_min_rise: 1.044072
+reg1/D arrival_min_fall: 1.045861
+PASS: pin arrival
+--- Pin activity ---
+reg1/D activity: 1.00000e+07 0.250 propagated
+PASS: pin activity
+--- Pin clock properties ---
+reg1/CK is_clock: 1
+reg1/CK is_register_clock: 1
+reg1/CK clocks: 1
+reg1/CK clock_domains: 1
+PASS: pin clock properties
+--- Net properties ---
+n1 name: n1
+n1 full_name: n1
+Unknown net property caught: Error: net objects do not have 
+PASS: net properties
+--- Instance properties ---
+reg1 name: reg1
+reg1 full_name: reg1
+reg1 ref_name: DFF_X1
+reg1 cell: DFF_X1
+reg1 liberty_cell: DFF_X1
+PASS: instance properties
+--- Clock properties ---
+clk name: clk
+clk period: 10.000000
+clk is_generated: 0
+clk is_virtual: 0
+clk is_propagated: 0
+clk sources: 1
+PASS: clock properties
+--- LibertyCell properties ---
+DFF_X1 name: DFF_X1
+DFF_X1 full_name: NangateOpenCellLibrary/DFF_X1
+DFF_X1 base_name: DFF_X1
+DFF_X1 is_buffer: 0
+DFF_X1 library: NangateOpenCellLibrary
+DFF_X1 area: 4.522000
+PASS: liberty cell properties
+--- LibertyPort properties ---
+DFF_X1/D name: D
+DFF_X1/D full_name: D
+DFF_X1/D direction: input
+DFF_X1/D capacitance: 1.140290
+DFF_X1/D is_clock: 0
+DFF_X1/D is_register_clock: 0
+DFF_X1/CK is_clock: 1
+DFF_X1/CK is_register_clock: 1
+PASS: liberty port properties
+--- Library properties ---
+lib name: NangateOpenCellLibrary
+lib full_name: NangateOpenCellLibrary
+lib filename: ../../test/nangate45/Nangate45_typ.lib
+PASS: library properties
+--- Edge properties ---
+edge full_name: and1/A1 -> and1/ZN
+edge delay_min_rise: 0.024490
+edge delay_min_fall: 0.022456
+edge delay_max_rise: 0.024490
+edge delay_max_fall: 0.022456
+edge sense: positive_unate
+edge from_pin: and1/A1
+edge to_pin: and1/ZN
+PASS: edge properties
+--- TimingArcSet property ---
+arc_set full_name: AND2_X1 A1 -> ZN
+arc_set name: AND2_X1 A1 -> ZN
+arc_set full_name: AND2_X1 A2 -> ZN
+arc_set name: AND2_X1 A2 -> ZN
+PASS: timing arc set properties
+--- PathEnd properties ---
+pathend startpoint: reg1/Q
+pathend endpoint: out1
+pathend startpoint_clock: clk
+pathend endpoint_clock: clk
+pathend slack: 7.899714
+pathend points count: 4
+PASS: pathend properties
+--- Path properties ---
+path pin: out1
+path arrival: 0.100286
+path required: 8.000000
+path slack: 7.899714
+PASS: path properties
+--- Unknown property error handling ---
+Unknown port property caught: Error: port objects do not have
+Unknown pin property caught: Error: pin objects do not have 
+PASS: unknown property handling
+ALL PASSED
