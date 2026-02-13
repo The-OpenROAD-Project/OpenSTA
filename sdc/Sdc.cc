@@ -702,9 +702,9 @@ Sdc::swapDeratingFactors(Sdc *sdc1,
 void
 Sdc::deleteDeratingFactors()
 {
-  deleteContents(net_derating_factors_);
-  deleteContents(inst_derating_factors_);
-  deleteContents(cell_derating_factors_);
+  deleteContentsClear(net_derating_factors_);
+  deleteContentsClear(inst_derating_factors_);
+  deleteContentsClear(cell_derating_factors_);
 
   delete derating_factors_;
   derating_factors_ = nullptr;
