@@ -4581,7 +4581,7 @@ TEST_F(SdcInitTest, SdcIsDisableClockGatingCheckPinNull) {
 ////////////////////////////////////////////////////////////////
 
 // Clock::addPin with nullptr - covers Clock::addPin
-TEST_F(SdcInitTest, R5_ClockAddPinNull) {
+TEST_F(SdcInitTest, ClockAddPinNull) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -4596,7 +4596,7 @@ TEST_F(SdcInitTest, R5_ClockAddPinNull) {
 }
 
 // Clock::setSlew - covers Clock::setSlew(rf, min_max, float)
-TEST_F(SdcInitTest, R5_ClockSetSlewRfMinMax) {
+TEST_F(SdcInitTest, ClockSetSlewRfMinMax) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -4614,7 +4614,7 @@ TEST_F(SdcInitTest, R5_ClockSetSlewRfMinMax) {
 
 // ClockEdge::setTime - covers ClockEdge::setTime
 // Note: setTime is private/friend, but we can check after clock operations
-TEST_F(SdcInitTest, R5_ClockEdgeTime) {
+TEST_F(SdcInitTest, ClockEdgeTime) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -4631,7 +4631,7 @@ TEST_F(SdcInitTest, R5_ClockEdgeTime) {
 }
 
 // ClockEdge opposite
-TEST_F(SdcInitTest, R5_ClockEdgeOpposite) {
+TEST_F(SdcInitTest, ClockEdgeOpposite) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -4648,7 +4648,7 @@ TEST_F(SdcInitTest, R5_ClockEdgeOpposite) {
 }
 
 // ClockEdge pulseWidth
-TEST_F(SdcInitTest, R5_ClockEdgePulseWidth) {
+TEST_F(SdcInitTest, ClockEdgePulseWidth) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(4.0);
@@ -4663,7 +4663,7 @@ TEST_F(SdcInitTest, R5_ClockEdgePulseWidth) {
 }
 
 // ClockEdge name and index
-TEST_F(SdcInitTest, R5_ClockEdgeNameIndex) {
+TEST_F(SdcInitTest, ClockEdgeNameIndex) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -4679,7 +4679,7 @@ TEST_F(SdcInitTest, R5_ClockEdgeNameIndex) {
 }
 
 // DisabledCellPorts - covers constructor/destructor and methods
-TEST_F(SdcInitTest, R5_DisabledCellPortsBasic) {
+TEST_F(SdcInitTest, DisabledCellPortsBasic) {
   // We need a real liberty cell
   LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
                                            sta_->cmdCorner(),
@@ -4693,7 +4693,7 @@ TEST_F(SdcInitTest, R5_DisabledCellPortsBasic) {
 }
 
 // DisabledCellPorts setDisabled/removeDisabled with TimingArcSet
-TEST_F(SdcInitTest, R5_DisabledCellPortsTimingArcSet) {
+TEST_F(SdcInitTest, DisabledCellPortsTimingArcSet) {
   LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
                                            sta_->cmdCorner(),
                                            MinMaxAll::min(), false);
@@ -4711,7 +4711,7 @@ TEST_F(SdcInitTest, R5_DisabledCellPortsTimingArcSet) {
 }
 
 // DisabledCellPorts isDisabled for from/to/role
-TEST_F(SdcInitTest, R5_DisabledCellPortsIsDisabled) {
+TEST_F(SdcInitTest, DisabledCellPortsIsDisabled) {
   LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
                                            sta_->cmdCorner(),
                                            MinMaxAll::min(), false);
@@ -4734,46 +4734,46 @@ TEST_F(SdcInitTest, R5_DisabledCellPortsIsDisabled) {
 }
 
 // ExceptionPath::typeString via various subclasses
-TEST_F(SdcInitTest, R5_FalsePathTypeString) {
+TEST_F(SdcInitTest, FalsePathTypeString) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   EXPECT_NE(fp.typeString(), nullptr);
 }
 
-TEST_F(SdcInitTest, R5_PathDelayTypeString) {
+TEST_F(SdcInitTest, PathDelayTypeString) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
                false, false, 5.0f, true, nullptr);
   EXPECT_NE(pd.typeString(), nullptr);
 }
 
-TEST_F(SdcInitTest, R5_MultiCyclePathTypeString) {
+TEST_F(SdcInitTest, MultiCyclePathTypeString) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 3, true, nullptr);
   EXPECT_NE(mcp.typeString(), nullptr);
 }
 
-TEST_F(SdcInitTest, R5_FilterPathTypeString) {
+TEST_F(SdcInitTest, FilterPathTypeString) {
   FilterPath fp(nullptr, nullptr, nullptr, true);
   EXPECT_NE(fp.typeString(), nullptr);
 }
 
-TEST_F(SdcInitTest, R5_GroupPathTypeString) {
+TEST_F(SdcInitTest, GroupPathTypeString) {
   GroupPath gp("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
   EXPECT_NE(gp.typeString(), nullptr);
 }
 
-TEST_F(SdcInitTest, R5_LoopPathTypeString) {
+TEST_F(SdcInitTest, LoopPathTypeString) {
   LoopPath lp(nullptr, true);
   EXPECT_NE(lp.typeString(), nullptr);
 }
 
 // ExceptionPath::mergeable tests
-TEST_F(SdcInitTest, R5_FalsePathMergeable) {
+TEST_F(SdcInitTest, FalsePathMergeable) {
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   EXPECT_TRUE(fp1.mergeable(&fp2));
 }
 
-TEST_F(SdcInitTest, R5_PathDelayMergeable) {
+TEST_F(SdcInitTest, PathDelayMergeable) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
                 false, false, 5.0f, true, nullptr);
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
@@ -4781,7 +4781,7 @@ TEST_F(SdcInitTest, R5_PathDelayMergeable) {
   EXPECT_TRUE(pd1.mergeable(&pd2));
 }
 
-TEST_F(SdcInitTest, R5_PathDelayMergeableDifferentDelay) {
+TEST_F(SdcInitTest, PathDelayMergeableDifferentDelay) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
                 false, false, 5.0f, true, nullptr);
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
@@ -4789,7 +4789,7 @@ TEST_F(SdcInitTest, R5_PathDelayMergeableDifferentDelay) {
   EXPECT_FALSE(pd1.mergeable(&pd2));
 }
 
-TEST_F(SdcInitTest, R5_MultiCyclePathMergeable) {
+TEST_F(SdcInitTest, MultiCyclePathMergeable) {
   MultiCyclePath mcp1(nullptr, nullptr, nullptr, MinMaxAll::all(),
                       true, 3, true, nullptr);
   MultiCyclePath mcp2(nullptr, nullptr, nullptr, MinMaxAll::all(),
@@ -4797,32 +4797,32 @@ TEST_F(SdcInitTest, R5_MultiCyclePathMergeable) {
   EXPECT_TRUE(mcp1.mergeable(&mcp2));
 }
 
-TEST_F(SdcInitTest, R5_GroupPathMergeable) {
+TEST_F(SdcInitTest, GroupPathMergeable) {
   GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
   GroupPath gp2("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
   EXPECT_TRUE(gp1.mergeable(&gp2));
 }
 
-TEST_F(SdcInitTest, R5_GroupPathNotMergeable) {
+TEST_F(SdcInitTest, GroupPathNotMergeable) {
   GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
   GroupPath gp2("grp2", false, nullptr, nullptr, nullptr, true, nullptr);
   EXPECT_FALSE(gp1.mergeable(&gp2));
 }
 
-TEST_F(SdcInitTest, R5_LoopPathNotMergeable) {
+TEST_F(SdcInitTest, LoopPathNotMergeable) {
   LoopPath lp1(nullptr, true);
   LoopPath lp2(nullptr, true);
   EXPECT_FALSE(lp1.mergeable(&lp2));
 }
 
 // ExceptionPath::overrides tests
-TEST_F(SdcInitTest, R5_FalsePathOverrides) {
+TEST_F(SdcInitTest, FalsePathOverrides) {
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   EXPECT_TRUE(fp1.overrides(&fp2));
 }
 
-TEST_F(SdcInitTest, R5_PathDelayOverrides) {
+TEST_F(SdcInitTest, PathDelayOverrides) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
                 false, false, 5.0f, true, nullptr);
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
@@ -4830,7 +4830,7 @@ TEST_F(SdcInitTest, R5_PathDelayOverrides) {
   EXPECT_TRUE(pd1.overrides(&pd2));
 }
 
-TEST_F(SdcInitTest, R5_MultiCyclePathOverrides) {
+TEST_F(SdcInitTest, MultiCyclePathOverrides) {
   MultiCyclePath mcp1(nullptr, nullptr, nullptr, MinMaxAll::all(),
                       true, 3, true, nullptr);
   MultiCyclePath mcp2(nullptr, nullptr, nullptr, MinMaxAll::all(),
@@ -4838,21 +4838,21 @@ TEST_F(SdcInitTest, R5_MultiCyclePathOverrides) {
   EXPECT_TRUE(mcp1.overrides(&mcp2));
 }
 
-TEST_F(SdcInitTest, R5_FilterPathOverrides) {
+TEST_F(SdcInitTest, FilterPathOverrides2) {
   FilterPath fp1(nullptr, nullptr, nullptr, true);
   FilterPath fp2(nullptr, nullptr, nullptr, true);
   // FilterPath::overrides always returns false
   EXPECT_FALSE(fp1.overrides(&fp2));
 }
 
-TEST_F(SdcInitTest, R5_GroupPathOverrides) {
+TEST_F(SdcInitTest, GroupPathOverrides) {
   GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
   GroupPath gp2("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
   EXPECT_TRUE(gp1.overrides(&gp2));
 }
 
 // ExceptionPath::matches with min_max
-TEST_F(SdcInitTest, R5_MultiCyclePathMatches) {
+TEST_F(SdcInitTest, MultiCyclePathMatches) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 3, true, nullptr);
   EXPECT_TRUE(mcp.matches(MinMax::max(), false));
@@ -4860,7 +4860,7 @@ TEST_F(SdcInitTest, R5_MultiCyclePathMatches) {
 }
 
 // ExceptionPath type priorities
-TEST_F(SdcInitTest, R5_ExceptionPathStaticPriorities) {
+TEST_F(SdcInitTest, ExceptionPathStaticPriorities) {
   EXPECT_EQ(ExceptionPath::falsePathPriority(), 4000);
   EXPECT_EQ(ExceptionPath::pathDelayPriority(), 3000);
   EXPECT_EQ(ExceptionPath::multiCyclePathPriority(), 2000);
@@ -4869,13 +4869,13 @@ TEST_F(SdcInitTest, R5_ExceptionPathStaticPriorities) {
 }
 
 // ExceptionPath fromThruToPriority
-TEST_F(SdcInitTest, R5_ExceptionFromThruToPriority) {
+TEST_F(SdcInitTest, ExceptionFromThruToPriority) {
   int p = ExceptionPath::fromThruToPriority(nullptr, nullptr, nullptr);
   EXPECT_EQ(p, 0);
 }
 
 // PathDelay specific getters
-TEST_F(SdcInitTest, R5_PathDelayGetters) {
+TEST_F(SdcInitTest, PathDelayGetters) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
                true, true, 5.0f, true, nullptr);
   EXPECT_FLOAT_EQ(pd.delay(), 5.0f);
@@ -4890,7 +4890,7 @@ TEST_F(SdcInitTest, R5_PathDelayGetters) {
 }
 
 // MultiCyclePath specific getters
-TEST_F(SdcInitTest, R5_MultiCyclePathGetters) {
+TEST_F(SdcInitTest, MultiCyclePathGetters) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
                      true, 5, true, nullptr);
   EXPECT_EQ(mcp.pathMultiplier(), 5);
@@ -4899,7 +4899,7 @@ TEST_F(SdcInitTest, R5_MultiCyclePathGetters) {
 }
 
 // MultiCyclePath pathMultiplier with MinMax
-TEST_F(SdcInitTest, R5_MultiCyclePathMultiplierMinMax) {
+TEST_F(SdcInitTest, MultiCyclePathMultiplierMinMax) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
                      true, 5, true, nullptr);
   int mult_max = mcp.pathMultiplier(MinMax::max());
@@ -4907,7 +4907,7 @@ TEST_F(SdcInitTest, R5_MultiCyclePathMultiplierMinMax) {
 }
 
 // MultiCyclePath priority with MinMax
-TEST_F(SdcInitTest, R5_MultiCyclePathPriorityMinMax) {
+TEST_F(SdcInitTest, MultiCyclePathPriorityMinMax) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
                      true, 5, true, nullptr);
   int p = mcp.priority(MinMax::max());
@@ -4915,14 +4915,14 @@ TEST_F(SdcInitTest, R5_MultiCyclePathPriorityMinMax) {
 }
 
 // GroupPath name and isDefault
-TEST_F(SdcInitTest, R5_GroupPathName) {
+TEST_F(SdcInitTest, GroupPathName) {
   GroupPath gp("test_group", true, nullptr, nullptr, nullptr, true, nullptr);
   EXPECT_STREQ(gp.name(), "test_group");
   EXPECT_TRUE(gp.isDefault());
 }
 
 // FilterPath basic
-TEST_F(SdcInitTest, R5_FilterPathBasic) {
+TEST_F(SdcInitTest, FilterPathBasic) {
   FilterPath fp(nullptr, nullptr, nullptr, true);
   EXPECT_TRUE(fp.isFilter());
   EXPECT_FALSE(fp.isFalse());
@@ -4933,14 +4933,14 @@ TEST_F(SdcInitTest, R5_FilterPathBasic) {
 }
 
 // FalsePath with priority
-TEST_F(SdcInitTest, R5_FalsePathWithPriority) {
+TEST_F(SdcInitTest, FalsePathWithPriority) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true,
                4500, nullptr);
   EXPECT_EQ(fp.priority(), 4500);
 }
 
 // LoopPath basic
-TEST_F(SdcInitTest, R5_LoopPathBasicProps) {
+TEST_F(SdcInitTest, LoopPathBasicProps) {
   LoopPath lp(nullptr, true);
   EXPECT_TRUE(lp.isLoop());
   EXPECT_TRUE(lp.isFalse());
@@ -4949,7 +4949,7 @@ TEST_F(SdcInitTest, R5_LoopPathBasicProps) {
 }
 
 // Exception hash
-TEST_F(SdcInitTest, R5_ExceptionPathHash) {
+TEST_F(SdcInitTest, ExceptionPathHash) {
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   size_t h1 = fp1.hash();
   FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
@@ -4958,7 +4958,7 @@ TEST_F(SdcInitTest, R5_ExceptionPathHash) {
 }
 
 // ExceptionPath clone tests
-TEST_F(SdcInitTest, R5_FalsePathCloneAndCheck) {
+TEST_F(SdcInitTest, FalsePathCloneAndCheck) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   ExceptionPath *clone = fp.clone(nullptr, nullptr, nullptr, true);
   ASSERT_NE(clone, nullptr);
@@ -4966,7 +4966,7 @@ TEST_F(SdcInitTest, R5_FalsePathCloneAndCheck) {
   delete clone;
 }
 
-TEST_F(SdcInitTest, R5_PathDelayCloneAndCheck) {
+TEST_F(SdcInitTest, PathDelayCloneAndCheck) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
                false, false, 5.0f, true, nullptr);
   ExceptionPath *clone = pd.clone(nullptr, nullptr, nullptr, true);
@@ -4976,7 +4976,7 @@ TEST_F(SdcInitTest, R5_PathDelayCloneAndCheck) {
   delete clone;
 }
 
-TEST_F(SdcInitTest, R5_MultiCyclePathCloneAndCheck) {
+TEST_F(SdcInitTest, MultiCyclePathCloneAndCheck) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 4, true, nullptr);
   ExceptionPath *clone = mcp.clone(nullptr, nullptr, nullptr, true);
@@ -4986,7 +4986,7 @@ TEST_F(SdcInitTest, R5_MultiCyclePathCloneAndCheck) {
   delete clone;
 }
 
-TEST_F(SdcInitTest, R5_GroupPathCloneAndCheck) {
+TEST_F(SdcInitTest, GroupPathCloneAndCheck) {
   GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, nullptr);
   ExceptionPath *clone = gp.clone(nullptr, nullptr, nullptr, true);
   ASSERT_NE(clone, nullptr);
@@ -4995,7 +4995,7 @@ TEST_F(SdcInitTest, R5_GroupPathCloneAndCheck) {
   delete clone;
 }
 
-TEST_F(SdcInitTest, R5_FilterPathCloneAndCheck) {
+TEST_F(SdcInitTest, FilterPathCloneAndCheck) {
   FilterPath fp(nullptr, nullptr, nullptr, true);
   ExceptionPath *clone = fp.clone(nullptr, nullptr, nullptr, true);
   ASSERT_NE(clone, nullptr);
@@ -5004,7 +5004,7 @@ TEST_F(SdcInitTest, R5_FilterPathCloneAndCheck) {
 }
 
 // ExceptionState constructor
-TEST_F(SdcInitTest, R5_ExceptionState) {
+TEST_F(SdcInitTest, ExceptionState) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   ExceptionState state(&fp, nullptr, 0);
   EXPECT_EQ(state.exception(), &fp);
@@ -5014,7 +5014,7 @@ TEST_F(SdcInitTest, R5_ExceptionState) {
 }
 
 // ExceptionState setNextState
-TEST_F(SdcInitTest, R5_ExceptionStateSetNextState) {
+TEST_F(SdcInitTest, ExceptionStateSetNextState) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   ExceptionState state1(&fp, nullptr, 0);
   ExceptionState state2(&fp, nullptr, 1);
@@ -5023,7 +5023,7 @@ TEST_F(SdcInitTest, R5_ExceptionStateSetNextState) {
 }
 
 // ExceptionState hash
-TEST_F(SdcInitTest, R5_ExceptionStateHash) {
+TEST_F(SdcInitTest, ExceptionStateHash) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   ExceptionState state(&fp, nullptr, 0);
   size_t h = state.hash();
@@ -5031,7 +5031,7 @@ TEST_F(SdcInitTest, R5_ExceptionStateHash) {
 }
 
 // exceptionStateLess
-TEST_F(SdcInitTest, R5_ExceptionStateLess) {
+TEST_F(SdcInitTest, ExceptionStateLess) {
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   ExceptionState state1(&fp1, nullptr, 0);
@@ -5041,13 +5041,13 @@ TEST_F(SdcInitTest, R5_ExceptionStateLess) {
 }
 
 // Sdc::setOperatingConditions(op_cond, MinMaxAll*)
-TEST_F(SdcInitTest, R5_SdcSetOperatingConditionsMinMaxAll) {
+TEST_F(SdcInitTest, SdcSetOperatingConditionsMinMaxAll) {
   Sdc *sdc = sta_->sdc();
   sdc->setOperatingConditions(nullptr, MinMaxAll::all());
 }
 
 // Sdc::disable/removeDisable for LibertyPort
-TEST_F(SdcInitTest, R5_SdcDisableLibertyPort) {
+TEST_F(SdcInitTest, SdcDisableLibertyPort) {
   LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
                                            sta_->cmdCorner(),
                                            MinMaxAll::min(), false);
@@ -5062,7 +5062,7 @@ TEST_F(SdcInitTest, R5_SdcDisableLibertyPort) {
 }
 
 // Sdc::disable/removeDisable for TimingArcSet
-TEST_F(SdcInitTest, R5_SdcDisableTimingArcSet) {
+TEST_F(SdcInitTest, SdcDisableTimingArcSet) {
   LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
                                            sta_->cmdCorner(),
                                            MinMaxAll::min(), false);
@@ -5077,14 +5077,14 @@ TEST_F(SdcInitTest, R5_SdcDisableTimingArcSet) {
 }
 
 // Sdc clock querying via findClock
-TEST_F(SdcInitTest, R5_SdcFindClockNull) {
+TEST_F(SdcInitTest, SdcFindClockNull) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("nonexistent_clk");
   EXPECT_EQ(clk, nullptr);
 }
 
 // Sdc latch borrow limit on clock
-TEST_F(SdcInitTest, R5_SdcLatchBorrowLimitOnClock) {
+TEST_F(SdcInitTest, SdcLatchBorrowLimitOnClock) {
   Sdc *sdc = sta_->sdc();
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
@@ -5097,7 +5097,7 @@ TEST_F(SdcInitTest, R5_SdcLatchBorrowLimitOnClock) {
 }
 
 // InterClockUncertainty more thorough
-TEST_F(SdcInitTest, R5_InterClockUncertaintyEmpty) {
+TEST_F(SdcInitTest, InterClockUncertaintyEmpty) {
   FloatSeq *waveform1 = new FloatSeq;
   waveform1->push_back(0.0);
   waveform1->push_back(5.0);
@@ -5115,7 +5115,7 @@ TEST_F(SdcInitTest, R5_InterClockUncertaintyEmpty) {
   EXPECT_EQ(icu.target(), clk2);
 }
 
-TEST_F(SdcInitTest, R5_InterClockUncertaintySetAndGet) {
+TEST_F(SdcInitTest, InterClockUncertaintySetAndGet) {
   FloatSeq *waveform1 = new FloatSeq;
   waveform1->push_back(0.0);
   waveform1->push_back(5.0);
@@ -5139,7 +5139,7 @@ TEST_F(SdcInitTest, R5_InterClockUncertaintySetAndGet) {
   EXPECT_FLOAT_EQ(unc, 0.1f);
 }
 
-TEST_F(SdcInitTest, R5_InterClockUncertaintyRemove) {
+TEST_F(SdcInitTest, InterClockUncertaintyRemove) {
   FloatSeq *waveform1 = new FloatSeq;
   waveform1->push_back(0.0);
   waveform1->push_back(5.0);
@@ -5159,7 +5159,7 @@ TEST_F(SdcInitTest, R5_InterClockUncertaintyRemove) {
   EXPECT_TRUE(icu.empty());
 }
 
-TEST_F(SdcInitTest, R5_InterClockUncertaintyUncertainties) {
+TEST_F(SdcInitTest, InterClockUncertaintyUncertainties) {
   FloatSeq *waveform1 = new FloatSeq;
   waveform1->push_back(0.0);
   waveform1->push_back(5.0);
@@ -5177,7 +5177,7 @@ TEST_F(SdcInitTest, R5_InterClockUncertaintyUncertainties) {
 }
 
 // CycleAccting exercises
-TEST_F(SdcInitTest, R5_CycleAcctingConstruct) {
+TEST_F(SdcInitTest, CycleAcctingConstruct2) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5192,7 +5192,7 @@ TEST_F(SdcInitTest, R5_CycleAcctingConstruct) {
   EXPECT_EQ(ca.target(), fall);
 }
 
-TEST_F(SdcInitTest, R5_CycleAcctingFindDefaultArrivalSrcDelays) {
+TEST_F(SdcInitTest, CycleAcctingFindDefaultArrivalSrcDelays) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5208,7 +5208,7 @@ TEST_F(SdcInitTest, R5_CycleAcctingFindDefaultArrivalSrcDelays) {
 }
 
 // DisabledPorts from/to operations
-TEST_F(SdcInitTest, R5_DisabledPortsFromToOps) {
+TEST_F(SdcInitTest, DisabledPortsFromToOps) {
   LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
                                            sta_->cmdCorner(),
                                            MinMaxAll::min(), false);
@@ -5232,7 +5232,7 @@ TEST_F(SdcInitTest, R5_DisabledPortsFromToOps) {
 }
 
 // ClockCompareSet
-TEST_F(SdcInitTest, R5_ClockSetCompare) {
+TEST_F(SdcInitTest, ClockSetCompare) {
   FloatSeq *waveform1 = new FloatSeq;
   waveform1->push_back(0.0);
   waveform1->push_back(5.0);
@@ -5253,7 +5253,7 @@ TEST_F(SdcInitTest, R5_ClockSetCompare) {
 }
 
 // Sdc::clockUncertainty on null pin
-TEST_F(SdcInitTest, R5_SdcClockUncertaintyNullPin) {
+TEST_F(SdcInitTest, SdcClockUncertaintyNullPin) {
   Sdc *sdc = sta_->sdc();
   float unc;
   bool exists;
@@ -5263,7 +5263,7 @@ TEST_F(SdcInitTest, R5_SdcClockUncertaintyNullPin) {
 }
 
 // ExceptionPtIterator with from only
-TEST_F(SdcInitTest, R5_ExceptionPtIteratorFromOnly) {
+TEST_F(SdcInitTest, ExceptionPtIteratorFromOnly) {
   const Network *network = sta_->cmdNetwork();
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                            RiseFallBoth::riseFall(),
@@ -5280,7 +5280,7 @@ TEST_F(SdcInitTest, R5_ExceptionPtIteratorFromOnly) {
 }
 
 // ExceptionFrom basic properties
-TEST_F(SdcInitTest, R5_ExceptionFromProperties) {
+TEST_F(SdcInitTest, ExceptionFromProperties) {
   const Network *network = sta_->cmdNetwork();
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                            RiseFallBoth::rise(),
@@ -5294,7 +5294,7 @@ TEST_F(SdcInitTest, R5_ExceptionFromProperties) {
 }
 
 // ExceptionTo basic properties
-TEST_F(SdcInitTest, R5_ExceptionToProperties) {
+TEST_F(SdcInitTest, ExceptionToProperties) {
   const Network *network = sta_->cmdNetwork();
   ExceptionTo *to = new ExceptionTo(nullptr, nullptr, nullptr,
                                      RiseFallBoth::fall(),
@@ -5310,7 +5310,7 @@ TEST_F(SdcInitTest, R5_ExceptionToProperties) {
 }
 
 // ExceptionThru basic properties
-TEST_F(SdcInitTest, R5_ExceptionThruProperties) {
+TEST_F(SdcInitTest, ExceptionThruProperties) {
   const Network *network = sta_->cmdNetwork();
   ExceptionThru *thru = new ExceptionThru(nullptr, nullptr, nullptr,
                                            RiseFallBoth::riseFall(),
@@ -5326,7 +5326,7 @@ TEST_F(SdcInitTest, R5_ExceptionThruProperties) {
 }
 
 // ExceptionThru objectCount
-TEST_F(SdcInitTest, R5_ExceptionThruObjectCount) {
+TEST_F(SdcInitTest, ExceptionThruObjectCount) {
   const Network *network = sta_->cmdNetwork();
   ExceptionThru *thru = new ExceptionThru(nullptr, nullptr, nullptr,
                                            RiseFallBoth::riseFall(),
@@ -5336,7 +5336,7 @@ TEST_F(SdcInitTest, R5_ExceptionThruObjectCount) {
 }
 
 // ExceptionFromTo objectCount
-TEST_F(SdcInitTest, R5_ExceptionFromToObjectCount) {
+TEST_F(SdcInitTest, ExceptionFromToObjectCount) {
   const Network *network = sta_->cmdNetwork();
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                            RiseFallBoth::riseFall(),
@@ -5346,7 +5346,7 @@ TEST_F(SdcInitTest, R5_ExceptionFromToObjectCount) {
 }
 
 // ExceptionPt hash
-TEST_F(SdcInitTest, R5_ExceptionPtHash) {
+TEST_F(SdcInitTest, ExceptionPtHash) {
   const Network *network = sta_->cmdNetwork();
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                            RiseFallBoth::riseFall(),
@@ -5357,7 +5357,7 @@ TEST_F(SdcInitTest, R5_ExceptionPtHash) {
 }
 
 // ExceptionFrom::findHash (called during construction)
-TEST_F(SdcInitTest, R5_ExceptionFromFindHash) {
+TEST_F(SdcInitTest, ExceptionFromFindHash) {
   const Network *network = sta_->cmdNetwork();
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                            RiseFallBoth::rise(),
@@ -5369,20 +5369,20 @@ TEST_F(SdcInitTest, R5_ExceptionFromFindHash) {
 }
 
 // checkFromThrusTo with nulls should not throw
-TEST_F(SdcInitTest, R5_CheckFromThrusToAllNull) {
+TEST_F(SdcInitTest, CheckFromThrusToAllNull) {
   // All nullptr should not throw EmptyExceptionPt
   checkFromThrusTo(nullptr, nullptr, nullptr);
 }
 
 // EmptyExceptionPt what
-TEST_F(SdcInitTest, R5_EmptyExceptionPtWhat) {
+TEST_F(SdcInitTest, EmptyExceptionPtWhat2) {
   EmptyExpceptionPt e;
   const char *msg = e.what();
   EXPECT_NE(msg, nullptr);
 }
 
 // ExceptionPathLess comparator
-TEST_F(SdcInitTest, R5_ExceptionPathLessComparator) {
+TEST_F(SdcInitTest, ExceptionPathLessComparator2) {
   const Network *network = sta_->cmdNetwork();
   ExceptionPathLess less(network);
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
@@ -5393,14 +5393,14 @@ TEST_F(SdcInitTest, R5_ExceptionPathLessComparator) {
 
 
 // Sdc::isLeafPinNonGeneratedClock with null
-TEST_F(SdcInitTest, R5_SdcIsLeafPinNonGeneratedClockNull) {
+TEST_F(SdcInitTest, SdcIsLeafPinNonGeneratedClockNull) {
   Sdc *sdc = sta_->sdc();
   bool result = sdc->isLeafPinNonGeneratedClock(nullptr);
   EXPECT_FALSE(result);
 }
 
 // Clock removeSlew
-TEST_F(SdcInitTest, R5_ClockRemoveSlew) {
+TEST_F(SdcInitTest, ClockRemoveSlew) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5417,7 +5417,7 @@ TEST_F(SdcInitTest, R5_ClockRemoveSlew) {
 }
 
 // Clock slews accessor
-TEST_F(SdcInitTest, R5_ClockSlewsAccessor) {
+TEST_F(SdcInitTest, ClockSlewsAccessor) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5430,7 +5430,7 @@ TEST_F(SdcInitTest, R5_ClockSlewsAccessor) {
 }
 
 // Clock uncertainties
-TEST_F(SdcInitTest, R5_ClockUncertaintiesAccessor) {
+TEST_F(SdcInitTest, ClockUncertaintiesAccessor) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5443,7 +5443,7 @@ TEST_F(SdcInitTest, R5_ClockUncertaintiesAccessor) {
 }
 
 // Clock setUncertainty and removeUncertainty
-TEST_F(SdcInitTest, R5_ClockSetRemoveUncertainty) {
+TEST_F(SdcInitTest, ClockSetRemoveUncertainty) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5463,7 +5463,7 @@ TEST_F(SdcInitTest, R5_ClockSetRemoveUncertainty) {
 }
 
 // Clock generated properties
-TEST_F(SdcInitTest, R5_ClockGeneratedProperties) {
+TEST_F(SdcInitTest, ClockGeneratedProperties) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5479,7 +5479,7 @@ TEST_F(SdcInitTest, R5_ClockGeneratedProperties) {
 }
 
 // ClkNameLess comparator
-TEST_F(SdcInitTest, R5_ClkNameLess) {
+TEST_F(SdcInitTest, ClkNameLess) {
   FloatSeq *waveform1 = new FloatSeq;
   waveform1->push_back(0.0);
   waveform1->push_back(5.0);
@@ -5497,7 +5497,7 @@ TEST_F(SdcInitTest, R5_ClkNameLess) {
 }
 
 // CycleAcctings
-TEST_F(SdcInitTest, R5_CycleAcctings) {
+TEST_F(SdcInitTest, CycleAcctings) {
   Sdc *sdc = sta_->sdc();
   CycleAcctings acctings(sdc);
   // Clear should not crash
@@ -5505,7 +5505,7 @@ TEST_F(SdcInitTest, R5_CycleAcctings) {
 }
 
 // Clock setPropagated / removePropagated
-TEST_F(SdcInitTest, R5_ClockPropagation) {
+TEST_F(SdcInitTest, ClockPropagation2) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5524,7 +5524,7 @@ TEST_F(SdcInitTest, R5_ClockPropagation) {
 // R6 tests: DisabledPorts from/to operations
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_DisabledPortsAllState) {
+TEST_F(SdcInitTest, DisabledPortsAllState) {
   DisabledPorts dp;
   EXPECT_FALSE(dp.all());
   dp.setDisabledAll();
@@ -5537,7 +5537,7 @@ TEST_F(SdcInitTest, R6_DisabledPortsAllState) {
   EXPECT_EQ(dp.fromTo(), nullptr);
 }
 
-TEST_F(SdcInitTest, R6_DisabledCellPortsConstruct) {
+TEST_F(SdcInitTest, DisabledCellPortsConstruct) {
   // DisabledCellPorts requires a LibertyCell; use nullptr since
   // we only exercise the constructor path
   LibertyLibrary lib("test_lib", "test.lib");
@@ -5552,7 +5552,7 @@ TEST_F(SdcInitTest, R6_DisabledCellPortsConstruct) {
 // R6 tests: Sdc public accessors
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_SdcAnalysisType) {
+TEST_F(SdcInitTest, SdcAnalysisType) {
   Sdc *sdc = sta_->sdc();
   sdc->setAnalysisType(AnalysisType::single);
   EXPECT_EQ(sdc->analysisType(), AnalysisType::single);
@@ -5562,7 +5562,7 @@ TEST_F(SdcInitTest, R6_SdcAnalysisType) {
   EXPECT_EQ(sdc->analysisType(), AnalysisType::ocv);
 }
 
-TEST_F(SdcInitTest, R6_SdcMaxArea) {
+TEST_F(SdcInitTest, SdcMaxArea2) {
   Sdc *sdc = sta_->sdc();
   sdc->setMaxArea(500.0);
   EXPECT_FLOAT_EQ(sdc->maxArea(), 500.0f);
@@ -5572,7 +5572,7 @@ TEST_F(SdcInitTest, R6_SdcMaxArea) {
 // R6 tests: Sdc setOperatingConditions
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_SdcSetOperatingConditions) {
+TEST_F(SdcInitTest, SdcSetOperatingConditions) {
   Sdc *sdc = sta_->sdc();
   sdc->setOperatingConditions(nullptr, MinMax::max());
   sdc->setOperatingConditions(nullptr, MinMax::min());
@@ -5584,7 +5584,7 @@ TEST_F(SdcInitTest, R6_SdcSetOperatingConditions) {
 // R6 tests: Sdc wireload mode
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_SdcWireloadMode) {
+TEST_F(SdcInitTest, SdcWireloadMode2) {
   Sdc *sdc = sta_->sdc();
   sdc->setWireloadMode(WireloadMode::top);
   EXPECT_EQ(sdc->wireloadMode(), WireloadMode::top);
@@ -5596,19 +5596,19 @@ TEST_F(SdcInitTest, R6_SdcWireloadMode) {
 // R6 tests: ExceptionPath mergeable between same types
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_FalsePathMergeableSame) {
+TEST_F(SdcInitTest, FalsePathMergeableSame) {
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   EXPECT_TRUE(fp1.mergeable(&fp2));
 }
 
-TEST_F(SdcInitTest, R6_FalsePathNotMergeableDiffMinMax) {
+TEST_F(SdcInitTest, FalsePathNotMergeableDiffMinMax) {
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::min(), true, nullptr);
   FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::max(), true, nullptr);
   EXPECT_FALSE(fp1.mergeable(&fp2));
 }
 
-TEST_F(SdcInitTest, R6_FalsePathNotMergeableDiffType) {
+TEST_F(SdcInitTest, FalsePathNotMergeableDiffType) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
                1.0e-9f, true, nullptr);
@@ -5619,14 +5619,14 @@ TEST_F(SdcInitTest, R6_FalsePathNotMergeableDiffType) {
 // R6 tests: PathDelay min direction
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_PathDelayMinDirection) {
+TEST_F(SdcInitTest, PathDelayMinDirection) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::min(), false, false,
                5.0e-9f, true, nullptr);
   EXPECT_TRUE(pd.matches(MinMax::min(), false));
   EXPECT_FALSE(pd.matches(MinMax::max(), false));
 }
 
-TEST_F(SdcInitTest, R6_PathDelayTighterMin) {
+TEST_F(SdcInitTest, PathDelayTighterMin) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::min(), false, false,
                 5.0e-9f, true, nullptr);
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::min(), false, false,
@@ -5640,33 +5640,33 @@ TEST_F(SdcInitTest, R6_PathDelayTighterMin) {
 // R6 tests: ExceptionPath hash
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_PathDelayHash) {
+TEST_F(SdcInitTest, PathDelayHash) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
                5.0e-9f, true, nullptr);
   size_t h = pd.hash();
   EXPECT_GE(h, 0u);
 }
 
-TEST_F(SdcInitTest, R6_MultiCyclePathHash) {
+TEST_F(SdcInitTest, MultiCyclePathHash) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 3, true, nullptr);
   size_t h = mcp.hash();
   EXPECT_GE(h, 0u);
 }
 
-TEST_F(SdcInitTest, R6_GroupPathHash) {
+TEST_F(SdcInitTest, GroupPathHash) {
   GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, nullptr);
   size_t h = gp.hash();
   EXPECT_GE(h, 0u);
 }
 
-TEST_F(SdcInitTest, R6_FilterPathHash) {
+TEST_F(SdcInitTest, FilterPathHash) {
   FilterPath flp(nullptr, nullptr, nullptr, true);
   size_t h = flp.hash();
   EXPECT_GE(h, 0u);
 }
 
-TEST_F(SdcInitTest, R6_LoopPathHash) {
+TEST_F(SdcInitTest, LoopPathHash) {
   LoopPath lp(nullptr, true);
   size_t h = lp.hash();
   EXPECT_GE(h, 0u);
@@ -5676,33 +5676,33 @@ TEST_F(SdcInitTest, R6_LoopPathHash) {
 // R6 tests: ExceptionPath typeString
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_FalsePathTypeString) {
+TEST_F(SdcInitTest, FalsePathTypeString2) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
   const char *ts = fp.typeString();
   EXPECT_NE(ts, nullptr);
 }
 
-TEST_F(SdcInitTest, R6_PathDelayTypeString) {
+TEST_F(SdcInitTest, PathDelayTypeString2) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
                1.0e-9f, true, nullptr);
   const char *ts = pd.typeString();
   EXPECT_NE(ts, nullptr);
 }
 
-TEST_F(SdcInitTest, R6_MultiCyclePathTypeString) {
+TEST_F(SdcInitTest, MultiCyclePathTypeString2) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 2, true, nullptr);
   const char *ts = mcp.typeString();
   EXPECT_NE(ts, nullptr);
 }
 
-TEST_F(SdcInitTest, R6_GroupPathTypeString) {
+TEST_F(SdcInitTest, GroupPathTypeString2) {
   GroupPath gp("g", false, nullptr, nullptr, nullptr, true, nullptr);
   const char *ts = gp.typeString();
   EXPECT_NE(ts, nullptr);
 }
 
-TEST_F(SdcInitTest, R6_FilterPathTypeString) {
+TEST_F(SdcInitTest, FilterPathTypeString2) {
   FilterPath flp(nullptr, nullptr, nullptr, true);
   const char *ts = flp.typeString();
   EXPECT_NE(ts, nullptr);
@@ -5712,7 +5712,7 @@ TEST_F(SdcInitTest, R6_FilterPathTypeString) {
 // R6 tests: Clock operations
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_ClockEdgeTimeAccess) {
+TEST_F(SdcInitTest, ClockEdgeTimeAccess) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5729,7 +5729,7 @@ TEST_F(SdcInitTest, R6_ClockEdgeTimeAccess) {
   EXPECT_NE(fall_edge->name(), nullptr);
 }
 
-TEST_F(SdcInitTest, R6_ClockMakeClock) {
+TEST_F(SdcInitTest, ClockMakeClock) {
   Sdc *sdc = sta_->sdc();
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
@@ -5740,7 +5740,7 @@ TEST_F(SdcInitTest, R6_ClockMakeClock) {
   EXPECT_STREQ(clk->name(), "direct_clk");
 }
 
-TEST_F(SdcInitTest, R6_ClockLeafPins) {
+TEST_F(SdcInitTest, ClockLeafPins) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5755,7 +5755,7 @@ TEST_F(SdcInitTest, R6_ClockLeafPins) {
 // R6 tests: Sdc exception operations
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_SdcMakeAndDeleteException) {
+TEST_F(SdcInitTest, SdcMakeAndDeleteException) {
   sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr);
   Sdc *sdc = sta_->sdc();
   EXPECT_FALSE(sdc->exceptions().empty());
@@ -5763,7 +5763,7 @@ TEST_F(SdcInitTest, R6_SdcMakeAndDeleteException) {
   EXPECT_TRUE(sdc->exceptions().empty());
 }
 
-TEST_F(SdcInitTest, R6_SdcMultiCyclePathWithEndClk) {
+TEST_F(SdcInitTest, SdcMultiCyclePathWithEndClk) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
                            MinMaxAll::max(),
                            true, 3, nullptr);
@@ -5771,7 +5771,7 @@ TEST_F(SdcInitTest, R6_SdcMultiCyclePathWithEndClk) {
   EXPECT_FALSE(sdc->exceptions().empty());
 }
 
-TEST_F(SdcInitTest, R6_SdcMultiCyclePathWithStartClk) {
+TEST_F(SdcInitTest, SdcMultiCyclePathWithStartClk) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
                            MinMaxAll::min(),
                            false, 2, nullptr);
@@ -5783,13 +5783,13 @@ TEST_F(SdcInitTest, R6_SdcMultiCyclePathWithStartClk) {
 // R6 tests: Sdc constraint accessors
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_SdcClockGatingCheckGlobal) {
+TEST_F(SdcInitTest, SdcClockGatingCheckGlobal2) {
   Sdc *sdc = sta_->sdc();
   sdc->setClockGatingCheck(RiseFallBoth::rise(), SetupHold::min(), 0.3);
   sdc->setClockGatingCheck(RiseFallBoth::fall(), SetupHold::max(), 0.7);
 }
 
-TEST_F(SdcInitTest, R6_SdcClockGatingCheckGlobalRiseFall) {
+TEST_F(SdcInitTest, SdcClockGatingCheckGlobalRiseFall) {
   Sdc *sdc = sta_->sdc();
   sdc->setClockGatingCheck(RiseFallBoth::riseFall(), SetupHold::min(), 0.5);
   sdc->setClockGatingCheck(RiseFallBoth::riseFall(), SetupHold::max(), 0.8);
@@ -5800,7 +5800,7 @@ TEST_F(SdcInitTest, R6_SdcClockGatingCheckGlobalRiseFall) {
   EXPECT_FLOAT_EQ(margin, 0.5f);
 }
 
-TEST_F(SdcInitTest, R6_SdcVoltageAccess) {
+TEST_F(SdcInitTest, SdcVoltageAccess) {
   Sdc *sdc = sta_->sdc();
   sdc->setVoltage(MinMax::min(), 0.9);
   sdc->setVoltage(MinMax::max(), 1.1);
@@ -5818,14 +5818,14 @@ TEST_F(SdcInitTest, R6_SdcVoltageAccess) {
 // R6 tests: ExceptionPt construction
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_ExceptionFromRiseFall) {
+TEST_F(SdcInitTest, ExceptionFromRiseFall) {
   ExceptionFrom from(nullptr, nullptr, nullptr,
                      RiseFallBoth::rise(), true,
                      sta_->cmdNetwork());
   EXPECT_NE(from.transition(), nullptr);
 }
 
-TEST_F(SdcInitTest, R6_ExceptionFromHasObjects) {
+TEST_F(SdcInitTest, ExceptionFromHasObjects) {
   ExceptionFrom from(nullptr, nullptr, nullptr,
                      RiseFallBoth::riseFall(), true,
                      sta_->cmdNetwork());
@@ -5840,7 +5840,7 @@ TEST_F(SdcInitTest, R6_ExceptionFromHasObjects) {
 // R6 tests: Clock group operations
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_ClockGroupsPhysicallyExclusive) {
+TEST_F(SdcInitTest, ClockGroupsPhysicallyExclusive) {
   FloatSeq *wave = new FloatSeq;
   wave->push_back(0.0);
   wave->push_back(5.0);
@@ -5855,7 +5855,7 @@ TEST_F(SdcInitTest, R6_ClockGroupsPhysicallyExclusive) {
   sta_->removeClockGroupsPhysicallyExclusive("pe_grp");
 }
 
-TEST_F(SdcInitTest, R6_ClockGroupsAsynchronous) {
+TEST_F(SdcInitTest, ClockGroupsAsynchronous) {
   FloatSeq *wave = new FloatSeq;
   wave->push_back(0.0);
   wave->push_back(5.0);
@@ -5874,7 +5874,7 @@ TEST_F(SdcInitTest, R6_ClockGroupsAsynchronous) {
 // R6 tests: Sdc Latch borrow limits
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_SdcMinPulseWidth) {
+TEST_F(SdcInitTest, SdcMinPulseWidth) {
   Sdc *sdc = sta_->sdc();
   sdc->setMinPulseWidth(RiseFallBoth::riseFall(), 0.5);
   // Just exercise the code path - no assertion needed
@@ -5885,7 +5885,7 @@ TEST_F(SdcInitTest, R6_SdcMinPulseWidth) {
 // R6 tests: Clock uncertainty with MinMax
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_ClockSetUncertaintyMinMax) {
+TEST_F(SdcInitTest, ClockSetUncertaintyMinMax) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -5908,7 +5908,7 @@ TEST_F(SdcInitTest, R6_ClockSetUncertaintyMinMax) {
 // R6 tests: Additional ExceptionPath coverage
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_LoopPathClone) {
+TEST_F(SdcInitTest, LoopPathClone) {
   LoopPath lp(nullptr, true);
   ExceptionPath *cloned = lp.clone(nullptr, nullptr, nullptr, true);
   EXPECT_NE(cloned, nullptr);
@@ -5917,31 +5917,31 @@ TEST_F(SdcInitTest, R6_LoopPathClone) {
   delete cloned;
 }
 
-TEST_F(SdcInitTest, R6_LoopPathOverrides) {
+TEST_F(SdcInitTest, LoopPathOverrides) {
   LoopPath lp1(nullptr, true);
   LoopPath lp2(nullptr, true);
   EXPECT_TRUE(lp1.overrides(&lp2));
 }
 
-TEST_F(SdcInitTest, R6_LoopPathTighterThan) {
+TEST_F(SdcInitTest, LoopPathTighterThan) {
   LoopPath lp1(nullptr, true);
   LoopPath lp2(nullptr, true);
   EXPECT_FALSE(lp1.tighterThan(&lp2));
 }
 
-TEST_F(SdcInitTest, R6_GroupPathAsString) {
+TEST_F(SdcInitTest, GroupPathAsString) {
   GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, nullptr);
   const char *str = gp.asString(sta_->cmdNetwork());
   EXPECT_NE(str, nullptr);
 }
 
-TEST_F(SdcInitTest, R6_FilterPathAsString) {
+TEST_F(SdcInitTest, FilterPathAsString) {
   FilterPath flp(nullptr, nullptr, nullptr, true);
   const char *str = flp.asString(sta_->cmdNetwork());
   EXPECT_NE(str, nullptr);
 }
 
-TEST_F(SdcInitTest, R6_LoopPathAsString) {
+TEST_F(SdcInitTest, LoopPathAsString) {
   LoopPath lp(nullptr, true);
   const char *str = lp.asString(sta_->cmdNetwork());
   EXPECT_NE(str, nullptr);
@@ -5951,7 +5951,7 @@ TEST_F(SdcInitTest, R6_LoopPathAsString) {
 // R6 tests: PatternMatch for clocks
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_FindClocksMatchingWildcard) {
+TEST_F(SdcInitTest, FindClocksMatchingWildcard) {
   FloatSeq *wave1 = new FloatSeq;
   wave1->push_back(0.0);
   wave1->push_back(5.0);
@@ -5981,7 +5981,7 @@ TEST_F(SdcInitTest, R6_FindClocksMatchingWildcard) {
 // R6 tests: Sdc pathDelaysWithoutTo after adding delay
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_SdcPathDelaysWithoutToAfterAdd) {
+TEST_F(SdcInitTest, SdcPathDelaysWithoutToAfterAdd) {
   // Add a path delay without a "to" endpoint
   sta_->makePathDelay(nullptr, nullptr, nullptr,
                       MinMax::max(), false, false, 5.0e-9, nullptr);
@@ -5993,7 +5993,7 @@ TEST_F(SdcInitTest, R6_SdcPathDelaysWithoutToAfterAdd) {
 // R6 tests: Sdc multiple operations in sequence
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_SdcComplexSequence) {
+TEST_F(SdcInitTest, SdcComplexSequence) {
   Sdc *sdc = sta_->sdc();
 
   // Create clocks
@@ -6035,7 +6035,7 @@ TEST_F(SdcInitTest, R6_SdcComplexSequence) {
 // R6 tests: Clock properties after propagation
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_ClockPropagateCycle) {
+TEST_F(SdcInitTest, ClockPropagateCycle) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -6056,7 +6056,7 @@ TEST_F(SdcInitTest, R6_ClockPropagateCycle) {
 // R6 tests: InterClockUncertainty hash
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_InterClockUncertaintySetGet) {
+TEST_F(SdcInitTest, InterClockUncertaintySetGet) {
   FloatSeq *w1 = new FloatSeq;
   w1->push_back(0.0);
   w1->push_back(5.0);
@@ -6085,7 +6085,7 @@ TEST_F(SdcInitTest, R6_InterClockUncertaintySetGet) {
 // R6 tests: DeratingFactorsCell isOneValue edge cases
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_DeratingFactorsCellSetAndGet) {
+TEST_F(SdcInitTest, DeratingFactorsCellSetAndGet) {
   DeratingFactorsCell dfc;
   dfc.setFactor(TimingDerateCellType::cell_delay,
                 PathClkOrData::clk,
@@ -6105,19 +6105,19 @@ TEST_F(SdcInitTest, R6_DeratingFactorsCellSetAndGet) {
 // R6 tests: RiseFallMinMax additional
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_RiseFallMinMaxEqual) {
+TEST_F(SdcInitTest, RiseFallMinMaxEqual) {
   RiseFallMinMax rfmm1(5.0f);
   RiseFallMinMax rfmm2(5.0f);
   EXPECT_TRUE(rfmm1.equal(&rfmm2));
 }
 
-TEST_F(SdcInitTest, R6_RiseFallMinMaxNotEqual) {
+TEST_F(SdcInitTest, RiseFallMinMaxNotEqual) {
   RiseFallMinMax rfmm1(5.0f);
   RiseFallMinMax rfmm2(3.0f);
   EXPECT_FALSE(rfmm1.equal(&rfmm2));
 }
 
-TEST_F(SdcInitTest, R6_RiseFallMinMaxIsOneValue) {
+TEST_F(SdcInitTest, RiseFallMinMaxIsOneValue) {
   RiseFallMinMax rfmm(7.0f);
   float val;
   bool is_one = rfmm.isOneValue(val);
@@ -6125,7 +6125,7 @@ TEST_F(SdcInitTest, R6_RiseFallMinMaxIsOneValue) {
   EXPECT_FLOAT_EQ(val, 7.0f);
 }
 
-TEST_F(SdcInitTest, R6_RiseFallMinMaxIsOneValueFalse) {
+TEST_F(SdcInitTest, RiseFallMinMaxIsOneValueFalse) {
   RiseFallMinMax rfmm;
   rfmm.setValue(RiseFall::rise(), MinMax::min(), 1.0f);
   rfmm.setValue(RiseFall::rise(), MinMax::max(), 2.0f);
@@ -6140,7 +6140,7 @@ TEST_F(SdcInitTest, R6_RiseFallMinMaxIsOneValueFalse) {
 // R6 tests: Variables toggle all booleans back and forth
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_VariablesAllToggles) {
+TEST_F(SdcInitTest, VariablesAllToggles) {
   Variables vars;
   vars.setCrprEnabled(false);
   EXPECT_FALSE(vars.crprEnabled());
@@ -6177,7 +6177,7 @@ TEST_F(SdcInitTest, R6_VariablesAllToggles) {
 // R6 tests: Additional Variables coverage
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_VariablesCrprMode) {
+TEST_F(SdcInitTest, VariablesCrprMode) {
   Variables vars;
   vars.setCrprMode(CrprMode::same_pin);
   EXPECT_EQ(vars.crprMode(), CrprMode::same_pin);
@@ -6185,7 +6185,7 @@ TEST_F(SdcInitTest, R6_VariablesCrprMode) {
   EXPECT_EQ(vars.crprMode(), CrprMode::same_transition);
 }
 
-TEST_F(SdcInitTest, R6_VariablesPropagateGatedClockEnable) {
+TEST_F(SdcInitTest, VariablesPropagateGatedClockEnable) {
   Variables vars;
   vars.setPropagateGatedClockEnable(true);
   EXPECT_TRUE(vars.propagateGatedClockEnable());
@@ -6193,7 +6193,7 @@ TEST_F(SdcInitTest, R6_VariablesPropagateGatedClockEnable) {
   EXPECT_FALSE(vars.propagateGatedClockEnable());
 }
 
-TEST_F(SdcInitTest, R6_VariablesPresetClrArcsEnabled) {
+TEST_F(SdcInitTest, VariablesPresetClrArcsEnabled) {
   Variables vars;
   vars.setPresetClrArcsEnabled(true);
   EXPECT_TRUE(vars.presetClrArcsEnabled());
@@ -6201,7 +6201,7 @@ TEST_F(SdcInitTest, R6_VariablesPresetClrArcsEnabled) {
   EXPECT_FALSE(vars.presetClrArcsEnabled());
 }
 
-TEST_F(SdcInitTest, R6_VariablesCondDefaultArcsEnabled) {
+TEST_F(SdcInitTest, VariablesCondDefaultArcsEnabled) {
   Variables vars;
   vars.setCondDefaultArcsEnabled(false);
   EXPECT_FALSE(vars.condDefaultArcsEnabled());
@@ -6209,7 +6209,7 @@ TEST_F(SdcInitTest, R6_VariablesCondDefaultArcsEnabled) {
   EXPECT_TRUE(vars.condDefaultArcsEnabled());
 }
 
-TEST_F(SdcInitTest, R6_VariablesBidirectInstPathsEnabled) {
+TEST_F(SdcInitTest, VariablesBidirectInstPathsEnabled) {
   Variables vars;
   vars.setBidirectInstPathsEnabled(true);
   EXPECT_TRUE(vars.bidirectInstPathsEnabled());
@@ -6217,7 +6217,7 @@ TEST_F(SdcInitTest, R6_VariablesBidirectInstPathsEnabled) {
   EXPECT_FALSE(vars.bidirectInstPathsEnabled());
 }
 
-TEST_F(SdcInitTest, R6_VariablesBidirectNetPathsEnabled) {
+TEST_F(SdcInitTest, VariablesBidirectNetPathsEnabled) {
   Variables vars;
   vars.setBidirectNetPathsEnabled(true);
   EXPECT_TRUE(vars.bidirectNetPathsEnabled());
@@ -6225,7 +6225,7 @@ TEST_F(SdcInitTest, R6_VariablesBidirectNetPathsEnabled) {
   EXPECT_FALSE(vars.bidirectNetPathsEnabled());
 }
 
-TEST_F(SdcInitTest, R6_VariablesRecoveryRemovalChecksEnabled) {
+TEST_F(SdcInitTest, VariablesRecoveryRemovalChecksEnabled) {
   Variables vars;
   vars.setRecoveryRemovalChecksEnabled(false);
   EXPECT_FALSE(vars.recoveryRemovalChecksEnabled());
@@ -6233,7 +6233,7 @@ TEST_F(SdcInitTest, R6_VariablesRecoveryRemovalChecksEnabled) {
   EXPECT_TRUE(vars.recoveryRemovalChecksEnabled());
 }
 
-TEST_F(SdcInitTest, R6_VariablesGatedClkChecksEnabled) {
+TEST_F(SdcInitTest, VariablesGatedClkChecksEnabled) {
   Variables vars;
   vars.setGatedClkChecksEnabled(false);
   EXPECT_FALSE(vars.gatedClkChecksEnabled());
@@ -6245,7 +6245,7 @@ TEST_F(SdcInitTest, R6_VariablesGatedClkChecksEnabled) {
 // R6 tests: ClockLatency
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_ClockLatencyConstruction) {
+TEST_F(SdcInitTest, ClockLatencyConstruction) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
@@ -6267,7 +6267,7 @@ TEST_F(SdcInitTest, R6_ClockLatencyConstruction) {
 // R6 tests: InputDrive
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_InputDriveConstruction) {
+TEST_F(SdcInitTest, InputDriveConstruction) {
   InputDrive drive;
   drive.setSlew(RiseFallBoth::riseFall(), MinMaxAll::all(), 0.1f);
   drive.setDriveResistance(RiseFallBoth::riseFall(), MinMaxAll::all(), 50.0f);
@@ -6278,7 +6278,7 @@ TEST_F(SdcInitTest, R6_InputDriveConstruction) {
   EXPECT_FLOAT_EQ(res, 50.0f);
 }
 
-TEST_F(SdcInitTest, R6_InputDriveResistanceMinMaxEqual) {
+TEST_F(SdcInitTest, InputDriveResistanceMinMaxEqual2) {
   InputDrive drive;
   drive.setDriveResistance(RiseFallBoth::rise(), MinMaxAll::all(), 100.0f);
   EXPECT_TRUE(drive.driveResistanceMinMaxEqual(RiseFall::rise()));
@@ -6288,7 +6288,7 @@ TEST_F(SdcInitTest, R6_InputDriveResistanceMinMaxEqual) {
 // R6 tests: RiseFallMinMax more coverage
 ////////////////////////////////////////////////////////////////
 
-TEST_F(SdcInitTest, R6_RiseFallMinMaxHasValue) {
+TEST_F(SdcInitTest, RiseFallMinMaxHasValue) {
   RiseFallMinMax rfmm;
   EXPECT_FALSE(rfmm.hasValue());
   rfmm.setValue(RiseFall::rise(), MinMax::max(), 1.0f);
@@ -6297,21 +6297,21 @@ TEST_F(SdcInitTest, R6_RiseFallMinMaxHasValue) {
   EXPECT_FALSE(rfmm.hasValue(RiseFall::fall(), MinMax::min()));
 }
 
-TEST_F(SdcInitTest, R6_RiseFallMinMaxRemoveValue) {
+TEST_F(SdcInitTest, RiseFallMinMaxRemoveValue) {
   RiseFallMinMax rfmm(5.0f);
   rfmm.removeValue(RiseFallBoth::rise(), MinMaxAll::max());
   EXPECT_FALSE(rfmm.hasValue(RiseFall::rise(), MinMax::max()));
   EXPECT_TRUE(rfmm.hasValue(RiseFall::rise(), MinMax::min()));
 }
 
-TEST_F(SdcInitTest, R6_RiseFallMinMaxMergeValue) {
+TEST_F(SdcInitTest, RiseFallMinMaxMergeValue) {
   RiseFallMinMax rfmm;
   rfmm.setValue(RiseFall::rise(), MinMax::max(), 1.0f);
   rfmm.mergeValue(RiseFall::rise(), MinMax::max(), 2.0f);
   EXPECT_FLOAT_EQ(rfmm.value(RiseFall::rise(), MinMax::max()), 2.0f);
 }
 
-TEST_F(SdcInitTest, R6_RiseFallMinMaxMaxValue) {
+TEST_F(SdcInitTest, RiseFallMinMaxMaxValue) {
   RiseFallMinMax rfmm;
   rfmm.setValue(RiseFall::rise(), MinMax::max(), 3.0f);
   rfmm.setValue(RiseFall::fall(), MinMax::max(), 7.0f);
@@ -6327,13 +6327,13 @@ TEST_F(SdcInitTest, R6_RiseFallMinMaxMaxValue) {
 ////////////////////////////////////////////////////////////////
 
 // DeratingFactors default construction
-TEST_F(SdcInitTest, R8_DeratingFactorsDefault) {
+TEST_F(SdcInitTest, DeratingFactorsDefault) {
   DeratingFactors df;
   EXPECT_FALSE(df.hasValue());
 }
 
 // DeratingFactors set and get
-TEST_F(SdcInitTest, R8_DeratingFactorsSetGet) {
+TEST_F(SdcInitTest, DeratingFactorsSetGet2) {
   DeratingFactors df;
   df.setFactor(PathClkOrData::clk, RiseFallBoth::rise(),
                EarlyLate::early(), 0.95f);
@@ -6346,7 +6346,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsSetGet) {
 }
 
 // DeratingFactors::clear
-TEST_F(SdcInitTest, R8_DeratingFactorsClear) {
+TEST_F(SdcInitTest, DeratingFactorsClear2) {
   DeratingFactors df;
   df.setFactor(PathClkOrData::data, RiseFallBoth::riseFall(),
                EarlyLate::late(), 1.05f);
@@ -6356,7 +6356,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsClear) {
 }
 
 // DeratingFactors::isOneValue
-TEST_F(SdcInitTest, R8_DeratingFactorsIsOneValue) {
+TEST_F(SdcInitTest, DeratingFactorsIsOneValue2) {
   DeratingFactors df;
   df.setFactor(PathClkOrData::clk, RiseFallBoth::riseFall(),
                EarlyLate::early(), 0.9f);
@@ -6370,7 +6370,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsIsOneValue) {
 }
 
 // DeratingFactors isOneValue per clk_data
-TEST_F(SdcInitTest, R8_DeratingFactorsIsOneValueClkData) {
+TEST_F(SdcInitTest, DeratingFactorsIsOneValueClkData2) {
   DeratingFactors df;
   df.setFactor(PathClkOrData::clk, RiseFallBoth::riseFall(),
                EarlyLate::early(), 0.95f);
@@ -6383,7 +6383,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsIsOneValueClkData) {
 }
 
 // DeratingFactorsGlobal
-TEST_F(SdcInitTest, R8_DeratingFactorsGlobalDefault) {
+TEST_F(SdcInitTest, DeratingFactorsGlobalDefault) {
   DeratingFactorsGlobal dfg;
   float factor;
   bool exists;
@@ -6393,7 +6393,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsGlobalDefault) {
 }
 
 // DeratingFactorsGlobal set and get
-TEST_F(SdcInitTest, R8_DeratingFactorsGlobalSetGet) {
+TEST_F(SdcInitTest, DeratingFactorsGlobalSetGet) {
   DeratingFactorsGlobal dfg;
   dfg.setFactor(TimingDerateType::cell_delay, PathClkOrData::clk,
                 RiseFallBoth::rise(), EarlyLate::early(), 0.98f);
@@ -6406,7 +6406,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsGlobalSetGet) {
 }
 
 // DeratingFactorsGlobal clear
-TEST_F(SdcInitTest, R8_DeratingFactorsGlobalClear) {
+TEST_F(SdcInitTest, DeratingFactorsGlobalClear2) {
   DeratingFactorsGlobal dfg;
   dfg.setFactor(TimingDerateType::net_delay, PathClkOrData::data,
                 RiseFallBoth::riseFall(), EarlyLate::late(), 1.05f);
@@ -6419,14 +6419,14 @@ TEST_F(SdcInitTest, R8_DeratingFactorsGlobalClear) {
 }
 
 // DeratingFactorsGlobal factors accessor
-TEST_F(SdcInitTest, R8_DeratingFactorsGlobalFactorsAccessor) {
+TEST_F(SdcInitTest, DeratingFactorsGlobalFactorsAccessor) {
   DeratingFactorsGlobal dfg;
   DeratingFactors *df = dfg.factors(TimingDerateType::cell_check);
   EXPECT_NE(df, nullptr);
 }
 
 // DeratingFactorsGlobal with TimingDerateCellType
-TEST_F(SdcInitTest, R8_DeratingFactorsGlobalCellType) {
+TEST_F(SdcInitTest, DeratingFactorsGlobalCellType) {
   DeratingFactorsGlobal dfg;
   dfg.setFactor(TimingDerateType::cell_check, PathClkOrData::data,
                 RiseFallBoth::fall(), EarlyLate::late(), 1.02f);
@@ -6439,7 +6439,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsGlobalCellType) {
 }
 
 // DeratingFactorsCell
-TEST_F(SdcInitTest, R8_DeratingFactorsCellDefault) {
+TEST_F(SdcInitTest, DeratingFactorsCellDefault) {
   DeratingFactorsCell dfc;
   float factor;
   bool exists;
@@ -6449,7 +6449,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsCellDefault) {
 }
 
 // DeratingFactorsCell set and get
-TEST_F(SdcInitTest, R8_DeratingFactorsCellSetGet) {
+TEST_F(SdcInitTest, DeratingFactorsCellSetGet) {
   DeratingFactorsCell dfc;
   dfc.setFactor(TimingDerateCellType::cell_delay, PathClkOrData::data,
                 RiseFallBoth::riseFall(), EarlyLate::early(), 0.97f);
@@ -6462,7 +6462,7 @@ TEST_F(SdcInitTest, R8_DeratingFactorsCellSetGet) {
 }
 
 // DeratingFactorsCell clear
-TEST_F(SdcInitTest, R8_DeratingFactorsCellClear) {
+TEST_F(SdcInitTest, DeratingFactorsCellClear2) {
   DeratingFactorsCell dfc;
   dfc.setFactor(TimingDerateCellType::cell_check, PathClkOrData::clk,
                 RiseFallBoth::rise(), EarlyLate::late(), 1.1f);
@@ -6475,14 +6475,14 @@ TEST_F(SdcInitTest, R8_DeratingFactorsCellClear) {
 }
 
 // DeratingFactorsCell factors accessor
-TEST_F(SdcInitTest, R8_DeratingFactorsCellFactorsAccessor) {
+TEST_F(SdcInitTest, DeratingFactorsCellFactorsAccessor) {
   DeratingFactorsCell dfc;
   DeratingFactors *df = dfc.factors(TimingDerateCellType::cell_delay);
   EXPECT_NE(df, nullptr);
 }
 
 // DeratingFactorsCell isOneValue
-TEST_F(SdcInitTest, R8_DeratingFactorsCellIsOneValue) {
+TEST_F(SdcInitTest, DeratingFactorsCellIsOneValue2) {
   DeratingFactorsCell dfc;
   dfc.setFactor(TimingDerateCellType::cell_delay, PathClkOrData::clk,
                 RiseFallBoth::riseFall(), EarlyLate::early(), 0.95f);
@@ -6500,13 +6500,13 @@ TEST_F(SdcInitTest, R8_DeratingFactorsCellIsOneValue) {
 }
 
 // DeratingFactorsNet
-TEST_F(SdcInitTest, R8_DeratingFactorsNetDefault) {
+TEST_F(SdcInitTest, DeratingFactorsNetDefault) {
   DeratingFactorsNet dfn;
   EXPECT_FALSE(dfn.hasValue());
 }
 
 // DeratingFactorsNet set and get
-TEST_F(SdcInitTest, R8_DeratingFactorsNetSetGet) {
+TEST_F(SdcInitTest, DeratingFactorsNetSetGet) {
   DeratingFactorsNet dfn;
   dfn.setFactor(PathClkOrData::data, RiseFallBoth::riseFall(),
                 EarlyLate::late(), 1.03f);
@@ -6519,14 +6519,14 @@ TEST_F(SdcInitTest, R8_DeratingFactorsNetSetGet) {
 }
 
 // ClockLatency construction
-TEST_F(SdcInitTest, R8_ClockLatencyConstruct) {
+TEST_F(SdcInitTest, ClockLatencyConstruct2) {
   ClockLatency lat(nullptr, nullptr);
   EXPECT_EQ(lat.clock(), nullptr);
   EXPECT_EQ(lat.pin(), nullptr);
 }
 
 // ClockLatency set and get
-TEST_F(SdcInitTest, R8_ClockLatencySetGet) {
+TEST_F(SdcInitTest, ClockLatencySetGet) {
   ClockLatency lat(nullptr, nullptr);
   lat.setDelay(RiseFallBoth::riseFall(), MinMaxAll::all(), 1.5f);
   float delay;
@@ -6537,7 +6537,7 @@ TEST_F(SdcInitTest, R8_ClockLatencySetGet) {
 }
 
 // ClockLatency delays accessor
-TEST_F(SdcInitTest, R8_ClockLatencyDelaysAccessor) {
+TEST_F(SdcInitTest, ClockLatencyDelaysAccessor) {
   ClockLatency lat(nullptr, nullptr);
   lat.setDelay(RiseFallBoth::rise(), MinMaxAll::min(), 0.5f);
   RiseFallMinMax *delays = lat.delays();
@@ -6546,14 +6546,14 @@ TEST_F(SdcInitTest, R8_ClockLatencyDelaysAccessor) {
 }
 
 // ClockInsertion construction
-TEST_F(SdcInitTest, R8_ClockInsertionConstruct) {
+TEST_F(SdcInitTest, ClockInsertionConstruct2) {
   ClockInsertion ins(nullptr, nullptr);
   EXPECT_EQ(ins.clock(), nullptr);
   EXPECT_EQ(ins.pin(), nullptr);
 }
 
 // ClockInsertion set and get
-TEST_F(SdcInitTest, R8_ClockInsertionSetGet) {
+TEST_F(SdcInitTest, ClockInsertionSetGet) {
   ClockInsertion ins(nullptr, nullptr);
   ins.setDelay(RiseFallBoth::riseFall(), MinMaxAll::all(),
                EarlyLateAll::all(), 2.0f);
@@ -6566,7 +6566,7 @@ TEST_F(SdcInitTest, R8_ClockInsertionSetGet) {
 }
 
 // ClockInsertion delays accessor
-TEST_F(SdcInitTest, R8_ClockInsertionDelaysAccessor) {
+TEST_F(SdcInitTest, ClockInsertionDelaysAccessor) {
   ClockInsertion ins(nullptr, nullptr);
   ins.setDelay(RiseFallBoth::rise(), MinMaxAll::min(),
                EarlyLateAll::early(), 0.3f);
@@ -6575,14 +6575,14 @@ TEST_F(SdcInitTest, R8_ClockInsertionDelaysAccessor) {
 }
 
 // ClockGatingCheck
-TEST_F(SdcInitTest, R8_ClockGatingCheckConstruct) {
+TEST_F(SdcInitTest, ClockGatingCheckConstruct) {
   ClockGatingCheck cgc;
   RiseFallMinMax *margins = cgc.margins();
   EXPECT_NE(margins, nullptr);
 }
 
 // ClockGatingCheck active value
-TEST_F(SdcInitTest, R8_ClockGatingCheckActiveValue) {
+TEST_F(SdcInitTest, ClockGatingCheckActiveValue) {
   ClockGatingCheck cgc;
   cgc.setActiveValue(LogicValue::one);
   EXPECT_EQ(cgc.activeValue(), LogicValue::one);
@@ -6591,7 +6591,7 @@ TEST_F(SdcInitTest, R8_ClockGatingCheckActiveValue) {
 }
 
 // InputDrive construction
-TEST_F(SdcInitTest, R8_InputDriveConstruct) {
+TEST_F(SdcInitTest, InputDriveConstruct) {
   InputDrive drive;
   float res;
   bool exists;
@@ -6600,7 +6600,7 @@ TEST_F(SdcInitTest, R8_InputDriveConstruct) {
 }
 
 // InputDrive set slew
-TEST_F(SdcInitTest, R8_InputDriveSetSlew) {
+TEST_F(SdcInitTest, InputDriveSetSlew2) {
   InputDrive drive;
   drive.setSlew(RiseFallBoth::riseFall(), MinMaxAll::all(), 0.1f);
   float slew;
@@ -6611,7 +6611,7 @@ TEST_F(SdcInitTest, R8_InputDriveSetSlew) {
 }
 
 // InputDrive set resistance
-TEST_F(SdcInitTest, R8_InputDriveSetResistance) {
+TEST_F(SdcInitTest, InputDriveSetResistance2) {
   InputDrive drive;
   drive.setDriveResistance(RiseFallBoth::riseFall(), MinMaxAll::all(), 50.0f);
   float res;
@@ -6623,14 +6623,14 @@ TEST_F(SdcInitTest, R8_InputDriveSetResistance) {
 }
 
 // InputDrive drive resistance min/max equal
-TEST_F(SdcInitTest, R8_InputDriveResistanceEqual) {
+TEST_F(SdcInitTest, InputDriveResistanceEqual) {
   InputDrive drive;
   drive.setDriveResistance(RiseFallBoth::riseFall(), MinMaxAll::all(), 100.0f);
   EXPECT_TRUE(drive.driveResistanceMinMaxEqual(RiseFall::rise()));
 }
 
 // InputDrive drive resistance min/max not equal
-TEST_F(SdcInitTest, R8_InputDriveResistanceNotEqual) {
+TEST_F(SdcInitTest, InputDriveResistanceNotEqual) {
   InputDrive drive;
   drive.setDriveResistance(RiseFallBoth::rise(), MinMaxAll::min(), 50.0f);
   drive.setDriveResistance(RiseFallBoth::rise(), MinMaxAll::max(), 100.0f);
@@ -6638,13 +6638,13 @@ TEST_F(SdcInitTest, R8_InputDriveResistanceNotEqual) {
 }
 
 // InputDrive no drive cell
-TEST_F(SdcInitTest, R8_InputDriveNoDriveCell) {
+TEST_F(SdcInitTest, InputDriveNoDriveCell) {
   InputDrive drive;
   EXPECT_FALSE(drive.hasDriveCell(RiseFall::rise(), MinMax::max()));
 }
 
 // InputDrive slews accessor
-TEST_F(SdcInitTest, R8_InputDriveSlewsAccessor) {
+TEST_F(SdcInitTest, InputDriveSlewsAccessor) {
   InputDrive drive;
   drive.setSlew(RiseFallBoth::rise(), MinMaxAll::max(), 0.2f);
   const RiseFallMinMax *slews = drive.slews();
@@ -6653,7 +6653,7 @@ TEST_F(SdcInitTest, R8_InputDriveSlewsAccessor) {
 }
 
 // ExceptionPath priorities
-TEST_F(SdcInitTest, R8_ExceptionPathPriorities) {
+TEST_F(SdcInitTest, ExceptionPathPriorities) {
   EXPECT_EQ(ExceptionPath::falsePathPriority(), 4000);
   EXPECT_EQ(ExceptionPath::pathDelayPriority(), 3000);
   EXPECT_EQ(ExceptionPath::multiCyclePathPriority(), 2000);
@@ -6662,7 +6662,7 @@ TEST_F(SdcInitTest, R8_ExceptionPathPriorities) {
 }
 
 // FalsePath creation and type
-TEST_F(SdcInitTest, R8_FalsePathType) {
+TEST_F(SdcInitTest, FalsePathType) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_TRUE(fp.isFalse());
   EXPECT_FALSE(fp.isLoop());
@@ -6674,13 +6674,13 @@ TEST_F(SdcInitTest, R8_FalsePathType) {
 }
 
 // FalsePath priority
-TEST_F(SdcInitTest, R8_FalsePathPriority) {
+TEST_F(SdcInitTest, FalsePathPriority) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_EQ(fp.typePriority(), ExceptionPath::falsePathPriority());
 }
 
 // PathDelay creation and type
-TEST_F(SdcInitTest, R8_PathDelayType) {
+TEST_F(SdcInitTest, PathDelayType) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
                false, false, 5.0f, false, nullptr);
   EXPECT_TRUE(pd.isPathDelay());
@@ -6690,7 +6690,7 @@ TEST_F(SdcInitTest, R8_PathDelayType) {
 }
 
 // PathDelay ignoreClkLatency
-TEST_F(SdcInitTest, R8_PathDelayIgnoreClkLatency) {
+TEST_F(SdcInitTest, PathDelayIgnoreClkLatency) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
                 true, false, 3.0f, false, nullptr);
   EXPECT_TRUE(pd1.ignoreClkLatency());
@@ -6700,14 +6700,14 @@ TEST_F(SdcInitTest, R8_PathDelayIgnoreClkLatency) {
 }
 
 // PathDelay breakPath
-TEST_F(SdcInitTest, R8_PathDelayBreakPath) {
+TEST_F(SdcInitTest, PathDelayBreakPath) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
                false, true, 3.0f, false, nullptr);
   EXPECT_TRUE(pd.breakPath());
 }
 
 // PathDelay tighterThan
-TEST_F(SdcInitTest, R8_PathDelayTighterThanMin) {
+TEST_F(SdcInitTest, PathDelayTighterThanMin) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::min(),
                 false, false, 3.0f, false, nullptr);
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::min(),
@@ -6717,7 +6717,7 @@ TEST_F(SdcInitTest, R8_PathDelayTighterThanMin) {
 }
 
 // PathDelay tighterThan max
-TEST_F(SdcInitTest, R8_PathDelayTighterThanMax) {
+TEST_F(SdcInitTest, PathDelayTighterThanMax) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
                 false, false, 3.0f, false, nullptr);
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
@@ -6727,7 +6727,7 @@ TEST_F(SdcInitTest, R8_PathDelayTighterThanMax) {
 }
 
 // MultiCyclePath creation and type
-TEST_F(SdcInitTest, R8_MultiCyclePathType) {
+TEST_F(SdcInitTest, MultiCyclePathType) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 3, false, nullptr);
   EXPECT_TRUE(mcp.isMultiCycle());
@@ -6737,7 +6737,7 @@ TEST_F(SdcInitTest, R8_MultiCyclePathType) {
 }
 
 // MultiCyclePath with start clk
-TEST_F(SdcInitTest, R8_MultiCyclePathStartClk) {
+TEST_F(SdcInitTest, MultiCyclePathStartClk) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      false, 2, false, nullptr);
   EXPECT_FALSE(mcp.useEndClk());
@@ -6745,7 +6745,7 @@ TEST_F(SdcInitTest, R8_MultiCyclePathStartClk) {
 }
 
 // MultiCyclePath tighterThan
-TEST_F(SdcInitTest, R8_MultiCyclePathTighterThan) {
+TEST_F(SdcInitTest, MultiCyclePathTighterThan2) {
   MultiCyclePath mcp1(nullptr, nullptr, nullptr, MinMaxAll::all(),
                       true, 2, false, nullptr);
   MultiCyclePath mcp2(nullptr, nullptr, nullptr, MinMaxAll::all(),
@@ -6758,14 +6758,14 @@ TEST_F(SdcInitTest, R8_MultiCyclePathTighterThan) {
 }
 
 // FilterPath creation and type
-TEST_F(SdcInitTest, R8_FilterPathType) {
+TEST_F(SdcInitTest, FilterPathType) {
   FilterPath fp(nullptr, nullptr, nullptr, false);
   EXPECT_TRUE(fp.isFilter());
   EXPECT_EQ(fp.type(), ExceptionPathType::filter);
 }
 
 // GroupPath creation and type
-TEST_F(SdcInitTest, R8_GroupPathType) {
+TEST_F(SdcInitTest, GroupPathType) {
   GroupPath gp("test_group", false, nullptr, nullptr, nullptr, false, nullptr);
   EXPECT_TRUE(gp.isGroupPath());
   EXPECT_EQ(gp.type(), ExceptionPathType::group_path);
@@ -6774,13 +6774,13 @@ TEST_F(SdcInitTest, R8_GroupPathType) {
 }
 
 // GroupPath default
-TEST_F(SdcInitTest, R8_GroupPathDefault) {
+TEST_F(SdcInitTest, GroupPathDefault) {
   GroupPath gp("default_group", true, nullptr, nullptr, nullptr, false, nullptr);
   EXPECT_TRUE(gp.isDefault());
 }
 
 // LoopPath creation
-TEST_F(SdcInitTest, R8_LoopPathType) {
+TEST_F(SdcInitTest, LoopPathType) {
   LoopPath lp(nullptr, false);
   EXPECT_TRUE(lp.isFalse());
   EXPECT_TRUE(lp.isLoop());
@@ -6788,7 +6788,7 @@ TEST_F(SdcInitTest, R8_LoopPathType) {
 }
 
 // ExceptionPath minMax
-TEST_F(SdcInitTest, R8_ExceptionPathMinMax) {
+TEST_F(SdcInitTest, ExceptionPathMinMax) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::min(), false, nullptr);
   EXPECT_EQ(fp.minMax(), MinMaxAll::min());
   EXPECT_TRUE(fp.matches(MinMax::min(), true));
@@ -6796,14 +6796,14 @@ TEST_F(SdcInitTest, R8_ExceptionPathMinMax) {
 }
 
 // ExceptionPath matches min/max all
-TEST_F(SdcInitTest, R8_ExceptionPathMatchesAll) {
+TEST_F(SdcInitTest, ExceptionPathMatchesAll) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_TRUE(fp.matches(MinMax::min(), true));
   EXPECT_TRUE(fp.matches(MinMax::max(), true));
 }
 
 // FalsePath hash
-TEST_F(SdcInitTest, R8_FalsePathHash) {
+TEST_F(SdcInitTest, FalsePathHash) {
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   // Same structure should have same hash
@@ -6811,14 +6811,14 @@ TEST_F(SdcInitTest, R8_FalsePathHash) {
 }
 
 // FalsePath overrides
-TEST_F(SdcInitTest, R8_FalsePathOverrides) {
+TEST_F(SdcInitTest, FalsePathOverrides2) {
   FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_TRUE(fp1.overrides(&fp2));
 }
 
 // PathDelay hash
-TEST_F(SdcInitTest, R8_PathDelayHashR8) {
+TEST_F(SdcInitTest, PathDelayHashR8) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
                false, false, 5.0f, false, nullptr);
   size_t h = pd.hash();
@@ -6826,7 +6826,7 @@ TEST_F(SdcInitTest, R8_PathDelayHashR8) {
 }
 
 // FalsePath not mergeable with PathDelay
-TEST_F(SdcInitTest, R8_FalsePathNotMergeablePathDelay) {
+TEST_F(SdcInitTest, FalsePathNotMergeablePathDelay) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
                false, false, 5.0f, false, nullptr);
@@ -6834,7 +6834,7 @@ TEST_F(SdcInitTest, R8_FalsePathNotMergeablePathDelay) {
 }
 
 // GroupPath tighterThan
-TEST_F(SdcInitTest, R8_GroupPathTighterThan) {
+TEST_F(SdcInitTest, GroupPathTighterThan2) {
   GroupPath gp1("g1", false, nullptr, nullptr, nullptr, false, nullptr);
   GroupPath gp2("g2", false, nullptr, nullptr, nullptr, false, nullptr);
   // Group paths have no value to compare
@@ -6843,7 +6843,7 @@ TEST_F(SdcInitTest, R8_GroupPathTighterThan) {
 }
 
 // FilterPath tighterThan
-TEST_F(SdcInitTest, R8_FilterPathTighterThan) {
+TEST_F(SdcInitTest, FilterPathTighterThan2) {
   FilterPath fp1(nullptr, nullptr, nullptr, false);
   FilterPath fp2(nullptr, nullptr, nullptr, false);
   bool t = fp1.tighterThan(&fp2);
@@ -6851,63 +6851,63 @@ TEST_F(SdcInitTest, R8_FilterPathTighterThan) {
 }
 
 // ExceptionPath id
-TEST_F(SdcInitTest, R8_ExceptionPathId) {
+TEST_F(SdcInitTest, ExceptionPathId) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   fp.setId(42);
   EXPECT_EQ(fp.id(), 42u);
 }
 
 // ExceptionPath setPriority
-TEST_F(SdcInitTest, R8_ExceptionPathSetPriority) {
+TEST_F(SdcInitTest, ExceptionPathSetPriority) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   fp.setPriority(999);
   EXPECT_EQ(fp.priority(), 999);
 }
 
 // ExceptionPath useEndClk default
-TEST_F(SdcInitTest, R8_ExceptionPathUseEndClkDefault) {
+TEST_F(SdcInitTest, ExceptionPathUseEndClkDefault) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_FALSE(fp.useEndClk());
 }
 
 // ExceptionPath pathMultiplier default
-TEST_F(SdcInitTest, R8_ExceptionPathPathMultiplierDefault) {
+TEST_F(SdcInitTest, ExceptionPathPathMultiplierDefault) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_EQ(fp.pathMultiplier(), 0);
 }
 
 // ExceptionPath delay default
-TEST_F(SdcInitTest, R8_ExceptionPathDelayDefault) {
+TEST_F(SdcInitTest, ExceptionPathDelayDefault) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_FLOAT_EQ(fp.delay(), 0.0f);
 }
 
 // ExceptionPath name default
-TEST_F(SdcInitTest, R8_ExceptionPathNameDefault) {
+TEST_F(SdcInitTest, ExceptionPathNameDefault) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_EQ(fp.name(), nullptr);
 }
 
 // ExceptionPath isDefault
-TEST_F(SdcInitTest, R8_ExceptionPathIsDefault) {
+TEST_F(SdcInitTest, ExceptionPathIsDefault) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_FALSE(fp.isDefault());
 }
 
 // ExceptionPath ignoreClkLatency default
-TEST_F(SdcInitTest, R8_ExceptionPathIgnoreClkLatencyDefault) {
+TEST_F(SdcInitTest, ExceptionPathIgnoreClkLatencyDefault) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_FALSE(fp.ignoreClkLatency());
 }
 
 // ExceptionPath breakPath default
-TEST_F(SdcInitTest, R8_ExceptionPathBreakPathDefault) {
+TEST_F(SdcInitTest, ExceptionPathBreakPathDefault) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
   EXPECT_FALSE(fp.breakPath());
 }
 
 // Clock slew set and get
-TEST_F(SdcInitTest, R8_ClockSlewSetGet) {
+TEST_F(SdcInitTest, ClockSlewSetGet2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -6924,7 +6924,7 @@ TEST_F(SdcInitTest, R8_ClockSlewSetGet) {
 }
 
 // Clock removeSlew
-TEST_F(SdcInitTest, R8_ClockRemoveSlew) {
+TEST_F(SdcInitTest, ClockRemoveSlew2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -6941,7 +6941,7 @@ TEST_F(SdcInitTest, R8_ClockRemoveSlew) {
 }
 
 // Clock slews accessor
-TEST_F(SdcInitTest, R8_ClockSlewsAccessor) {
+TEST_F(SdcInitTest, ClockSlewsAccessor2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -6955,7 +6955,7 @@ TEST_F(SdcInitTest, R8_ClockSlewsAccessor) {
 }
 
 // Clock period
-TEST_F(SdcInitTest, R8_ClockPeriod) {
+TEST_F(SdcInitTest, ClockPeriod) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(10.0);
@@ -6967,7 +6967,7 @@ TEST_F(SdcInitTest, R8_ClockPeriod) {
 }
 
 // Clock period access via makeClock
-TEST_F(SdcInitTest, R8_ClockPeriodAccess) {
+TEST_F(SdcInitTest, ClockPeriodAccess) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(12.5);
@@ -6979,7 +6979,7 @@ TEST_F(SdcInitTest, R8_ClockPeriodAccess) {
 }
 
 // Clock isVirtual
-TEST_F(SdcInitTest, R8_ClockIsVirtual) {
+TEST_F(SdcInitTest, ClockIsVirtual2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -6992,7 +6992,7 @@ TEST_F(SdcInitTest, R8_ClockIsVirtual) {
 }
 
 // Clock isPropagated
-TEST_F(SdcInitTest, R8_ClockIsPropagated) {
+TEST_F(SdcInitTest, ClockIsPropagated) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7007,7 +7007,7 @@ TEST_F(SdcInitTest, R8_ClockIsPropagated) {
 }
 
 // Clock isIdeal
-TEST_F(SdcInitTest, R8_ClockIsIdeal) {
+TEST_F(SdcInitTest, ClockIsIdeal) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7019,7 +7019,7 @@ TEST_F(SdcInitTest, R8_ClockIsIdeal) {
 }
 
 // Clock edge
-TEST_F(SdcInitTest, R8_ClockEdge) {
+TEST_F(SdcInitTest, ClockEdge) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7035,7 +7035,7 @@ TEST_F(SdcInitTest, R8_ClockEdge) {
 }
 
 // ClockEdge properties
-TEST_F(SdcInitTest, R8_ClockEdgeProperties) {
+TEST_F(SdcInitTest, ClockEdgeProperties2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7051,7 +7051,7 @@ TEST_F(SdcInitTest, R8_ClockEdgeProperties) {
 }
 
 // ClockEdge opposite
-TEST_F(SdcInitTest, R8_ClockEdgeOpposite) {
+TEST_F(SdcInitTest, ClockEdgeOpposite2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7066,7 +7066,7 @@ TEST_F(SdcInitTest, R8_ClockEdgeOpposite) {
 }
 
 // ClockEdge pulseWidth
-TEST_F(SdcInitTest, R8_ClockEdgePulseWidth) {
+TEST_F(SdcInitTest, ClockEdgePulseWidth2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7080,7 +7080,7 @@ TEST_F(SdcInitTest, R8_ClockEdgePulseWidth) {
 }
 
 // ClockEdge index
-TEST_F(SdcInitTest, R8_ClockEdgeIndex) {
+TEST_F(SdcInitTest, ClockEdgeIndex) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7094,7 +7094,7 @@ TEST_F(SdcInitTest, R8_ClockEdgeIndex) {
 }
 
 // Clock uncertainty
-TEST_F(SdcInitTest, R8_ClockUncertainty) {
+TEST_F(SdcInitTest, ClockUncertainty2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7111,7 +7111,7 @@ TEST_F(SdcInitTest, R8_ClockUncertainty) {
 }
 
 // Clock removeUncertainty
-TEST_F(SdcInitTest, R8_ClockRemoveUncertainty) {
+TEST_F(SdcInitTest, ClockRemoveUncertainty) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7128,7 +7128,7 @@ TEST_F(SdcInitTest, R8_ClockRemoveUncertainty) {
 }
 
 // Clock isGenerated
-TEST_F(SdcInitTest, R8_ClockIsGenerated) {
+TEST_F(SdcInitTest, ClockIsGenerated) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7140,7 +7140,7 @@ TEST_F(SdcInitTest, R8_ClockIsGenerated) {
 }
 
 // Clock addToPins
-TEST_F(SdcInitTest, R8_ClockAddToPins) {
+TEST_F(SdcInitTest, ClockAddToPins) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7155,7 +7155,7 @@ TEST_F(SdcInitTest, R8_ClockAddToPins) {
 }
 
 // Clock waveform
-TEST_F(SdcInitTest, R8_ClockWaveform) {
+TEST_F(SdcInitTest, ClockWaveform) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7169,7 +7169,7 @@ TEST_F(SdcInitTest, R8_ClockWaveform) {
 }
 
 // Clock index
-TEST_F(SdcInitTest, R8_ClockIndex) {
+TEST_F(SdcInitTest, ClockIndex2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
@@ -7187,7 +7187,7 @@ TEST_F(SdcInitTest, R8_ClockIndex) {
 }
 
 // Clock combinational
-TEST_F(SdcInitTest, R8_ClockCombinational) {
+TEST_F(SdcInitTest, ClockCombinational) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7200,7 +7200,7 @@ TEST_F(SdcInitTest, R8_ClockCombinational) {
 }
 
 // InterClockUncertainty
-TEST_F(SdcInitTest, R8_InterClockUncertaintyConstruct) {
+TEST_F(SdcInitTest, InterClockUncertaintyConstruct) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
@@ -7219,7 +7219,7 @@ TEST_F(SdcInitTest, R8_InterClockUncertaintyConstruct) {
 }
 
 // InterClockUncertainty set and get
-TEST_F(SdcInitTest, R8_InterClockUncertaintySetGet) {
+TEST_F(SdcInitTest, InterClockUncertaintySetGet2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
@@ -7244,7 +7244,7 @@ TEST_F(SdcInitTest, R8_InterClockUncertaintySetGet) {
 }
 
 // InterClockUncertainty removeUncertainty
-TEST_F(SdcInitTest, R8_InterClockUncertaintyRemove) {
+TEST_F(SdcInitTest, InterClockUncertaintyRemove2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
@@ -7265,7 +7265,7 @@ TEST_F(SdcInitTest, R8_InterClockUncertaintyRemove) {
 }
 
 // InterClockUncertainty uncertainties accessor
-TEST_F(SdcInitTest, R8_InterClockUncertaintyAccessor) {
+TEST_F(SdcInitTest, InterClockUncertaintyAccessor) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
@@ -7285,7 +7285,7 @@ TEST_F(SdcInitTest, R8_InterClockUncertaintyAccessor) {
 }
 
 // Sdc::setTimingDerate global
-TEST_F(SdcInitTest, R8_SdcSetTimingDerateGlobal) {
+TEST_F(SdcInitTest, SdcSetTimingDerateGlobal2) {
   Sdc *sdc = sta_->sdc();
   sdc->setTimingDerate(TimingDerateType::cell_delay,
                        PathClkOrData::clk,
@@ -7296,14 +7296,14 @@ TEST_F(SdcInitTest, R8_SdcSetTimingDerateGlobal) {
 }
 
 // Sdc::setMaxArea and maxArea
-TEST_F(SdcInitTest, R8_SdcSetMaxAreaR8) {
+TEST_F(SdcInitTest, SdcSetMaxAreaR8) {
   Sdc *sdc = sta_->sdc();
   sdc->setMaxArea(500.0f);
   EXPECT_FLOAT_EQ(sdc->maxArea(), 500.0f);
 }
 
 // Sdc::setAnalysisType
-TEST_F(SdcInitTest, R8_SdcSetAnalysisTypeR8) {
+TEST_F(SdcInitTest, SdcSetAnalysisTypeR8) {
   Sdc *sdc = sta_->sdc();
   sdc->setAnalysisType(AnalysisType::bc_wc);
   EXPECT_EQ(sdc->analysisType(), AnalysisType::bc_wc);
@@ -7314,7 +7314,7 @@ TEST_F(SdcInitTest, R8_SdcSetAnalysisTypeR8) {
 }
 
 // Sdc::setWireloadMode
-TEST_F(SdcInitTest, R8_SdcSetWireloadModeR8) {
+TEST_F(SdcInitTest, SdcSetWireloadModeR8) {
   Sdc *sdc = sta_->sdc();
   sdc->setWireloadMode(WireloadMode::enclosed);
   // Just verify no crash
@@ -7323,7 +7323,7 @@ TEST_F(SdcInitTest, R8_SdcSetWireloadModeR8) {
 }
 
 // Sdc::setPropagatedClock / removePropagatedClock
-TEST_F(SdcInitTest, R8_SdcPropagatedClock) {
+TEST_F(SdcInitTest, SdcPropagatedClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7338,7 +7338,7 @@ TEST_F(SdcInitTest, R8_SdcPropagatedClock) {
 }
 
 // Sdc::setClockSlew
-TEST_F(SdcInitTest, R8_SdcSetClockSlew) {
+TEST_F(SdcInitTest, SdcSetClockSlew2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7353,7 +7353,7 @@ TEST_F(SdcInitTest, R8_SdcSetClockSlew) {
 }
 
 // Sdc::removeClockSlew
-TEST_F(SdcInitTest, R8_SdcRemoveClockSlew) {
+TEST_F(SdcInitTest, SdcRemoveClockSlew) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7369,7 +7369,7 @@ TEST_F(SdcInitTest, R8_SdcRemoveClockSlew) {
 }
 
 // Sdc::setClockLatency
-TEST_F(SdcInitTest, R8_SdcSetClockLatency) {
+TEST_F(SdcInitTest, SdcSetClockLatency2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7388,7 +7388,7 @@ TEST_F(SdcInitTest, R8_SdcSetClockLatency) {
 }
 
 // Sdc::removeClockLatency
-TEST_F(SdcInitTest, R8_SdcRemoveClockLatency) {
+TEST_F(SdcInitTest, SdcRemoveClockLatency) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7407,14 +7407,14 @@ TEST_F(SdcInitTest, R8_SdcRemoveClockLatency) {
 }
 
 // Sdc::clockLatencies accessor
-TEST_F(SdcInitTest, R8_SdcClockLatencies) {
+TEST_F(SdcInitTest, SdcClockLatencies) {
   Sdc *sdc = sta_->sdc();
   const ClockLatencies *lats = sdc->clockLatencies();
   EXPECT_NE(lats, nullptr);
 }
 
 // Sdc::clockLatency (float overload)
-TEST_F(SdcInitTest, R8_SdcClockLatencyFloat) {
+TEST_F(SdcInitTest, SdcClockLatencyFloat) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7429,7 +7429,7 @@ TEST_F(SdcInitTest, R8_SdcClockLatencyFloat) {
 }
 
 // Sdc::setClockInsertion and clockInsertion
-TEST_F(SdcInitTest, R8_SdcClockInsertion) {
+TEST_F(SdcInitTest, SdcClockInsertion) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7445,7 +7445,7 @@ TEST_F(SdcInitTest, R8_SdcClockInsertion) {
 }
 
 // Sdc::removeClockInsertion
-TEST_F(SdcInitTest, R8_SdcRemoveClockInsertion) {
+TEST_F(SdcInitTest, SdcRemoveClockInsertion) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7460,14 +7460,14 @@ TEST_F(SdcInitTest, R8_SdcRemoveClockInsertion) {
 }
 
 // Sdc::setMinPulseWidth
-TEST_F(SdcInitTest, R8_SdcSetMinPulseWidthR8) {
+TEST_F(SdcInitTest, SdcSetMinPulseWidthR8) {
   Sdc *sdc = sta_->sdc();
   sdc->setMinPulseWidth(RiseFallBoth::riseFall(), 0.5f);
   // Just verify no crash
 }
 
 // Sdc::setLatchBorrowLimit
-TEST_F(SdcInitTest, R8_SdcSetLatchBorrowLimit) {
+TEST_F(SdcInitTest, SdcSetLatchBorrowLimit) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7480,7 +7480,7 @@ TEST_F(SdcInitTest, R8_SdcSetLatchBorrowLimit) {
 }
 
 // Sdc::removeClock
-TEST_F(SdcInitTest, R8_SdcRemoveClock) {
+TEST_F(SdcInitTest, SdcRemoveClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7493,21 +7493,21 @@ TEST_F(SdcInitTest, R8_SdcRemoveClock) {
 }
 
 // Sdc::defaultArrivalClock
-TEST_F(SdcInitTest, R8_SdcDefaultArrivalClock) {
+TEST_F(SdcInitTest, SdcDefaultArrivalClock2) {
   Sdc *sdc = sta_->sdc();
   Clock *def_clk = sdc->defaultArrivalClock();
   EXPECT_NE(def_clk, nullptr);
 }
 
 // Sdc::defaultArrivalClockEdge
-TEST_F(SdcInitTest, R8_SdcDefaultArrivalClockEdge) {
+TEST_F(SdcInitTest, SdcDefaultArrivalClockEdge2) {
   Sdc *sdc = sta_->sdc();
   ClockEdge *edge = sdc->defaultArrivalClockEdge();
   EXPECT_NE(edge, nullptr);
 }
 
 // Sdc::haveClkSlewLimits
-TEST_F(SdcInitTest, R8_SdcHaveClkSlewLimits) {
+TEST_F(SdcInitTest, SdcHaveClkSlewLimits2) {
   Sdc *sdc = sta_->sdc();
   bool have = sdc->haveClkSlewLimits();
   // Initially no limits
@@ -7515,14 +7515,14 @@ TEST_F(SdcInitTest, R8_SdcHaveClkSlewLimits) {
 }
 
 // Sdc::invalidateGeneratedClks
-TEST_F(SdcInitTest, R8_SdcInvalidateGeneratedClks) {
+TEST_F(SdcInitTest, SdcInvalidateGeneratedClks2) {
   Sdc *sdc = sta_->sdc();
   sdc->invalidateGeneratedClks();
   // Just verify no crash
 }
 
 // Variables toggles - more variables
-TEST_F(SdcInitTest, R8_VariablesDynamicLoopBreaking) {
+TEST_F(SdcInitTest, VariablesDynamicLoopBreaking) {
   sta_->setDynamicLoopBreaking(true);
   EXPECT_TRUE(sta_->dynamicLoopBreaking());
   sta_->setDynamicLoopBreaking(false);
@@ -7530,7 +7530,7 @@ TEST_F(SdcInitTest, R8_VariablesDynamicLoopBreaking) {
 }
 
 // Variables propagateAllClocks
-TEST_F(SdcInitTest, R8_VariablesPropagateAllClocks) {
+TEST_F(SdcInitTest, VariablesPropagateAllClocks) {
   sta_->setPropagateAllClocks(true);
   EXPECT_TRUE(sta_->propagateAllClocks());
   sta_->setPropagateAllClocks(false);
@@ -7538,7 +7538,7 @@ TEST_F(SdcInitTest, R8_VariablesPropagateAllClocks) {
 }
 
 // Variables clkThruTristateEnabled
-TEST_F(SdcInitTest, R8_VariablesClkThruTristateEnabled) {
+TEST_F(SdcInitTest, VariablesClkThruTristateEnabled) {
   sta_->setClkThruTristateEnabled(true);
   EXPECT_TRUE(sta_->clkThruTristateEnabled());
   sta_->setClkThruTristateEnabled(false);
@@ -7546,7 +7546,7 @@ TEST_F(SdcInitTest, R8_VariablesClkThruTristateEnabled) {
 }
 
 // Variables useDefaultArrivalClock
-TEST_F(SdcInitTest, R8_VariablesUseDefaultArrivalClock) {
+TEST_F(SdcInitTest, VariablesUseDefaultArrivalClock) {
   sta_->setUseDefaultArrivalClock(true);
   EXPECT_TRUE(sta_->useDefaultArrivalClock());
   sta_->setUseDefaultArrivalClock(false);
@@ -7554,7 +7554,7 @@ TEST_F(SdcInitTest, R8_VariablesUseDefaultArrivalClock) {
 }
 
 // Variables pocvEnabled
-TEST_F(SdcInitTest, R8_VariablesPocvEnabled) {
+TEST_F(SdcInitTest, VariablesPocvEnabled) {
   sta_->setPocvEnabled(true);
   EXPECT_TRUE(sta_->pocvEnabled());
   sta_->setPocvEnabled(false);
@@ -7562,7 +7562,7 @@ TEST_F(SdcInitTest, R8_VariablesPocvEnabled) {
 }
 
 // Variables crprEnabled
-TEST_F(SdcInitTest, R8_VariablesCrprEnabled) {
+TEST_F(SdcInitTest, VariablesCrprEnabled) {
   sta_->setCrprEnabled(true);
   EXPECT_TRUE(sta_->crprEnabled());
   sta_->setCrprEnabled(false);
@@ -7570,7 +7570,7 @@ TEST_F(SdcInitTest, R8_VariablesCrprEnabled) {
 }
 
 // RiseFallMinMax clear
-TEST_F(SdcInitTest, R8_RiseFallMinMaxClear) {
+TEST_F(SdcInitTest, RiseFallMinMaxClear) {
   RiseFallMinMax rfmm(1.0f);
   EXPECT_TRUE(rfmm.hasValue());
   rfmm.clear();
@@ -7578,7 +7578,7 @@ TEST_F(SdcInitTest, R8_RiseFallMinMaxClear) {
 }
 
 // RiseFallMinMax setValue individual
-TEST_F(SdcInitTest, R8_RiseFallMinMaxSetValueIndividual) {
+TEST_F(SdcInitTest, RiseFallMinMaxSetValueIndividual) {
   RiseFallMinMax rfmm;
   rfmm.setValue(RiseFall::rise(), MinMax::min(), 1.0f);
   rfmm.setValue(RiseFall::rise(), MinMax::max(), 2.0f);
@@ -7591,7 +7591,7 @@ TEST_F(SdcInitTest, R8_RiseFallMinMaxSetValueIndividual) {
 }
 
 // RiseFallMinMax setValue with RiseFallBoth and MinMaxAll
-TEST_F(SdcInitTest, R8_RiseFallMinMaxSetValueBoth) {
+TEST_F(SdcInitTest, RiseFallMinMaxSetValueBoth) {
   RiseFallMinMax rfmm;
   rfmm.setValue(RiseFallBoth::riseFall(), MinMaxAll::all(), 5.0f);
   EXPECT_FLOAT_EQ(rfmm.value(RiseFall::rise(), MinMax::min()), 5.0f);
@@ -7601,7 +7601,7 @@ TEST_F(SdcInitTest, R8_RiseFallMinMaxSetValueBoth) {
 }
 
 // PortExtCap
-TEST_F(SdcInitTest, R8_PortExtCapConstruct) {
+TEST_F(SdcInitTest, PortExtCapConstruct) {
   PortExtCap pec(nullptr);
   EXPECT_EQ(pec.port(), nullptr);
   float cap;
@@ -7611,7 +7611,7 @@ TEST_F(SdcInitTest, R8_PortExtCapConstruct) {
 }
 
 // PortExtCap set and get pin cap
-TEST_F(SdcInitTest, R8_PortExtCapSetPinCap) {
+TEST_F(SdcInitTest, PortExtCapSetPinCap) {
   PortExtCap pec(nullptr);
   pec.setPinCap(1.0f, RiseFall::rise(), MinMax::max());
   float cap;
@@ -7622,7 +7622,7 @@ TEST_F(SdcInitTest, R8_PortExtCapSetPinCap) {
 }
 
 // PortExtCap set and get wire cap
-TEST_F(SdcInitTest, R8_PortExtCapSetWireCap) {
+TEST_F(SdcInitTest, PortExtCapSetWireCap) {
   PortExtCap pec(nullptr);
   pec.setWireCap(0.5f, RiseFall::fall(), MinMax::min());
   float cap;
@@ -7633,7 +7633,7 @@ TEST_F(SdcInitTest, R8_PortExtCapSetWireCap) {
 }
 
 // PortExtCap set and get fanout
-TEST_F(SdcInitTest, R8_PortExtCapSetFanout) {
+TEST_F(SdcInitTest, PortExtCapSetFanout) {
   PortExtCap pec(nullptr);
   pec.setFanout(4, MinMax::max());
   int fanout;
@@ -7644,7 +7644,7 @@ TEST_F(SdcInitTest, R8_PortExtCapSetFanout) {
 }
 
 // PortExtCap accessors
-TEST_F(SdcInitTest, R8_PortExtCapAccessors) {
+TEST_F(SdcInitTest, PortExtCapAccessors) {
   PortExtCap pec(nullptr);
   pec.setPinCap(1.0f, RiseFall::rise(), MinMax::max());
   RiseFallMinMax *pin_cap = pec.pinCap();
@@ -7656,7 +7656,7 @@ TEST_F(SdcInitTest, R8_PortExtCapAccessors) {
 }
 
 // clkCmp
-TEST_F(SdcInitTest, R8_ClkCmp) {
+TEST_F(SdcInitTest, ClkCmp) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
@@ -7676,7 +7676,7 @@ TEST_F(SdcInitTest, R8_ClkCmp) {
 }
 
 // clkEdgeCmp
-TEST_F(SdcInitTest, R8_ClkEdgeCmp) {
+TEST_F(SdcInitTest, ClkEdgeCmp) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7691,7 +7691,7 @@ TEST_F(SdcInitTest, R8_ClkEdgeCmp) {
 }
 
 // clkEdgeLess
-TEST_F(SdcInitTest, R8_ClkEdgeLess) {
+TEST_F(SdcInitTest, ClkEdgeLess) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7708,7 +7708,7 @@ TEST_F(SdcInitTest, R8_ClkEdgeLess) {
 }
 
 // ClockNameLess
-TEST_F(SdcInitTest, R8_ClockNameLess) {
+TEST_F(SdcInitTest, ClockNameLess) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
@@ -7726,7 +7726,7 @@ TEST_F(SdcInitTest, R8_ClockNameLess) {
 }
 
 // Sdc::setClockGatingCheck (global)
-TEST_F(SdcInitTest, R8_SdcClockGatingCheckGlobalR8) {
+TEST_F(SdcInitTest, SdcClockGatingCheckGlobalR8) {
   Sdc *sdc = sta_->sdc();
   sdc->setClockGatingCheck(RiseFallBoth::riseFall(),
                            SetupHold::max(), 0.5f);
@@ -7734,7 +7734,7 @@ TEST_F(SdcInitTest, R8_SdcClockGatingCheckGlobalR8) {
 }
 
 // Sdc::setClockGatingCheck on clock
-TEST_F(SdcInitTest, R8_SdcClockGatingCheckOnClock) {
+TEST_F(SdcInitTest, SdcClockGatingCheckOnClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7748,7 +7748,7 @@ TEST_F(SdcInitTest, R8_SdcClockGatingCheckOnClock) {
 }
 
 // Clock slewLimit set and get
-TEST_F(SdcInitTest, R8_ClockSlewLimit) {
+TEST_F(SdcInitTest, ClockSlewLimit) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
@@ -7767,7 +7767,7 @@ TEST_F(SdcInitTest, R8_ClockSlewLimit) {
 }
 
 // ExceptionPt transition
-TEST_F(SdcInitTest, R8_ExceptionPtTransition) {
+TEST_F(SdcInitTest, ExceptionPtTransition) {
   ExceptionFrom from(nullptr, nullptr, nullptr,
                      RiseFallBoth::rise(), false, nullptr);
   EXPECT_EQ(from.transition(), RiseFallBoth::rise());
@@ -7777,7 +7777,7 @@ TEST_F(SdcInitTest, R8_ExceptionPtTransition) {
 }
 
 // ExceptionTo isTo
-TEST_F(SdcInitTest, R8_ExceptionToIsTo) {
+TEST_F(SdcInitTest, ExceptionToIsTo) {
   ExceptionTo to(nullptr, nullptr, nullptr,
                  RiseFallBoth::fall(),
                  RiseFallBoth::riseFall(),
@@ -7787,7 +7787,7 @@ TEST_F(SdcInitTest, R8_ExceptionToIsTo) {
 }
 
 // ExceptionFrom hasObjects (empty)
-TEST_F(SdcInitTest, R8_ExceptionFromHasObjectsEmpty) {
+TEST_F(SdcInitTest, ExceptionFromHasObjectsEmpty) {
   ExceptionFrom from(nullptr, nullptr, nullptr,
                      RiseFallBoth::riseFall(), false, nullptr);
   EXPECT_FALSE(from.hasObjects());
@@ -7797,7 +7797,7 @@ TEST_F(SdcInitTest, R8_ExceptionFromHasObjectsEmpty) {
 }
 
 // MultiCyclePath matches min/max
-TEST_F(SdcInitTest, R8_MultiCyclePathMatchesMinMax) {
+TEST_F(SdcInitTest, MultiCyclePathMatchesMinMax) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 3, false, nullptr);
   EXPECT_TRUE(mcp.matches(MinMax::min(), false));
@@ -7805,7 +7805,7 @@ TEST_F(SdcInitTest, R8_MultiCyclePathMatchesMinMax) {
 }
 
 // MultiCyclePath pathMultiplier with min_max
-TEST_F(SdcInitTest, R8_MultiCyclePathMultiplierWithMinMax) {
+TEST_F(SdcInitTest, MultiCyclePathMultiplierWithMinMax2) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 3, false, nullptr);
   int mult_max = mcp.pathMultiplier(MinMax::max());
@@ -7813,55 +7813,55 @@ TEST_F(SdcInitTest, R8_MultiCyclePathMultiplierWithMinMax) {
 }
 
 // ExceptionPath fromThruToPriority
-TEST_F(SdcInitTest, R8_ExceptionPathFromThruToPriority) {
+TEST_F(SdcInitTest, ExceptionPathFromThruToPriority) {
   int prio = ExceptionPath::fromThruToPriority(nullptr, nullptr, nullptr);
   EXPECT_EQ(prio, 0);
 }
 
 // Sdc::disabledCellPorts
-TEST_F(SdcInitTest, R8_SdcDisabledCellPorts) {
+TEST_F(SdcInitTest, SdcDisabledCellPorts2) {
   Sdc *sdc = sta_->sdc();
   DisabledCellPortsMap *dcm = sdc->disabledCellPorts();
   EXPECT_NE(dcm, nullptr);
 }
 
 // Sdc::disabledInstancePorts
-TEST_F(SdcInitTest, R8_SdcDisabledInstancePorts) {
+TEST_F(SdcInitTest, SdcDisabledInstancePorts) {
   Sdc *sdc = sta_->sdc();
   const DisabledInstancePortsMap *dim = sdc->disabledInstancePorts();
   EXPECT_NE(dim, nullptr);
 }
 
 // Sdc::disabledPins
-TEST_F(SdcInitTest, R8_SdcDisabledPins) {
+TEST_F(SdcInitTest, SdcDisabledPins) {
   Sdc *sdc = sta_->sdc();
   const PinSet *pins = sdc->disabledPins();
   EXPECT_NE(pins, nullptr);
 }
 
 // Sdc::disabledPorts
-TEST_F(SdcInitTest, R8_SdcDisabledPorts) {
+TEST_F(SdcInitTest, SdcDisabledPorts) {
   Sdc *sdc = sta_->sdc();
   const PortSet *ports = sdc->disabledPorts();
   EXPECT_NE(ports, nullptr);
 }
 
 // Sdc::disabledLibPorts
-TEST_F(SdcInitTest, R8_SdcDisabledLibPorts) {
+TEST_F(SdcInitTest, SdcDisabledLibPorts) {
   Sdc *sdc = sta_->sdc();
   const LibertyPortSet *lib_ports = sdc->disabledLibPorts();
   EXPECT_NE(lib_ports, nullptr);
 }
 
 // Sdc::netResistances
-TEST_F(SdcInitTest, R8_SdcNetResistances) {
+TEST_F(SdcInitTest, SdcNetResistances) {
   Sdc *sdc = sta_->sdc();
   NetResistanceMap &nr = sdc->netResistances();
   (void)nr.size();
 }
 
 // Sdc::clockInsertions
-TEST_F(SdcInitTest, R8_SdcClockInsertions) {
+TEST_F(SdcInitTest, SdcClockInsertions) {
   Sdc *sdc = sta_->sdc();
   const ClockInsertions &insertions = sdc->clockInsertions();
   (void)insertions.size();
@@ -7941,7 +7941,7 @@ protected:
 
 // --- CycleAccting: sourceCycle, targetCycle via timing update ---
 
-TEST_F(SdcDesignTest, R10_CycleAcctingSourceTargetCycle) {
+TEST_F(SdcDesignTest, CycleAcctingSourceTargetCycle) {
   // CycleAccting methods are called internally during timing
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
@@ -7964,7 +7964,7 @@ TEST_F(SdcDesignTest, R10_CycleAcctingSourceTargetCycle) {
 
 // --- ExceptionThru: asString ---
 
-TEST_F(SdcInitTest, R10_ExceptionThruAsString) {
+TEST_F(SdcInitTest, ExceptionThruAsString) {
   Sdc *sdc = sta_->sdc();
   Network *network = sta_->cmdNetwork();
   // Create ExceptionThru with no objects
@@ -7977,7 +7977,7 @@ TEST_F(SdcInitTest, R10_ExceptionThruAsString) {
 
 // --- ExceptionTo: asString, matches, cmdKeyword ---
 
-TEST_F(SdcInitTest, R10_ExceptionToAsString) {
+TEST_F(SdcInitTest, ExceptionToAsString) {
   Network *network = sta_->cmdNetwork();
   ExceptionTo *to = new ExceptionTo(nullptr, nullptr, nullptr,
                                     RiseFallBoth::riseFall(),
@@ -7993,7 +7993,7 @@ TEST_F(SdcInitTest, R10_ExceptionToAsString) {
 
 // --- ExceptionFrom: findHash ---
 
-TEST_F(SdcInitTest, R10_ExceptionFromHash) {
+TEST_F(SdcInitTest, ExceptionFromHash) {
   Network *network = sta_->cmdNetwork();
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                           RiseFallBoth::riseFall(), true, network);
@@ -8004,7 +8004,7 @@ TEST_F(SdcInitTest, R10_ExceptionFromHash) {
 
 // --- ExceptionPath: mergeable ---
 
-TEST_F(SdcInitTest, R10_ExceptionPathMergeable) {
+TEST_F(SdcInitTest, ExceptionPathMergeable) {
   Sdc *sdc = sta_->sdc();
   FalsePath *fp1 = new FalsePath(nullptr, nullptr, nullptr,
                                  MinMaxAll::all(), true, nullptr);
@@ -8024,7 +8024,7 @@ TEST_F(SdcInitTest, R10_ExceptionPathMergeable) {
 
 // --- ExceptionPt constructor ---
 
-TEST_F(SdcInitTest, R10_ExceptionPtBasic) {
+TEST_F(SdcInitTest, ExceptionPtBasic) {
   Network *network = sta_->cmdNetwork();
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                           RiseFallBoth::rise(), true, network);
@@ -8036,7 +8036,7 @@ TEST_F(SdcInitTest, R10_ExceptionPtBasic) {
 
 // --- ExceptionFromTo destructor ---
 
-TEST_F(SdcInitTest, R10_ExceptionFromToDestructor) {
+TEST_F(SdcInitTest, ExceptionFromToDestructor) {
   Network *network = sta_->cmdNetwork();
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                           RiseFallBoth::riseFall(), true, network);
@@ -8046,7 +8046,7 @@ TEST_F(SdcInitTest, R10_ExceptionFromToDestructor) {
 
 // --- ExceptionPath destructor ---
 
-TEST_F(SdcInitTest, R10_ExceptionPathDestructor) {
+TEST_F(SdcInitTest, ExceptionPathDestructor) {
   FalsePath *fp = new FalsePath(nullptr, nullptr, nullptr,
                                 MinMaxAll::all(), true, nullptr);
   delete fp;
@@ -8054,7 +8054,7 @@ TEST_F(SdcInitTest, R10_ExceptionPathDestructor) {
 
 // --- DisabledCellPorts: construct and accessors ---
 
-TEST_F(SdcInitTest, R10_DisabledCellPortsConstruct) {
+TEST_F(SdcInitTest, DisabledCellPortsConstruct2) {
   LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
                                           sta_->cmdCorner(),
                                           MinMaxAll::min(), false);
@@ -8074,7 +8074,7 @@ TEST_F(SdcInitTest, R10_DisabledCellPortsConstruct) {
 
 // --- PortDelay: refTransition ---
 
-TEST_F(SdcDesignTest, R10_PortDelayRefTransition) {
+TEST_F(SdcDesignTest, PortDelayRefTransition) {
   Sdc *sdc = sta_->sdc();
   const InputDelaySet &delays = sdc->inputDelays();
   for (InputDelay *delay : delays) {
@@ -8098,7 +8098,7 @@ TEST_F(SdcDesignTest, R10_PortDelayRefTransition) {
 
 // --- ClockEdge: accessors (time, clock, transition) ---
 
-TEST_F(SdcInitTest, R10_ClockEdgeAccessors) {
+TEST_F(SdcInitTest, ClockEdgeAccessors) {
   Sdc *sdc = sta_->sdc();
   PinSet *clk_pins = new PinSet(sta_->cmdNetwork());
   FloatSeq *waveform = new FloatSeq;
@@ -8131,7 +8131,7 @@ TEST_F(SdcInitTest, R10_ClockEdgeAccessors) {
 
 // --- Sdc: removeDataCheck ---
 
-TEST_F(SdcDesignTest, R10_SdcRemoveDataCheck) {
+TEST_F(SdcDesignTest, SdcRemoveDataCheck) {
   Sdc *sdc = sta_->sdc();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
@@ -8149,7 +8149,7 @@ TEST_F(SdcDesignTest, R10_SdcRemoveDataCheck) {
 
 // --- Sdc: deleteInterClockUncertainty ---
 
-TEST_F(SdcInitTest, R10_SdcInterClockUncertainty) {
+TEST_F(SdcInitTest, SdcInterClockUncertainty) {
   Sdc *sdc = sta_->sdc();
   PinSet *pins1 = new PinSet(sta_->cmdNetwork());
   FloatSeq *waveform1 = new FloatSeq;
@@ -8178,7 +8178,7 @@ TEST_F(SdcInitTest, R10_SdcInterClockUncertainty) {
 
 // --- Sdc: clearClkGroupExclusions (via removeClockGroupsLogicallyExclusive) ---
 
-TEST_F(SdcInitTest, R10_SdcClearClkGroupExclusions) {
+TEST_F(SdcInitTest, SdcClearClkGroupExclusions) {
   ClockGroups *cg = sta_->makeClockGroups("grp_exc", true, false, false, false, nullptr);
   EXPECT_NE(cg, nullptr);
   sta_->removeClockGroupsLogicallyExclusive("grp_exc");
@@ -8186,7 +8186,7 @@ TEST_F(SdcInitTest, R10_SdcClearClkGroupExclusions) {
 
 // --- Sdc: false path exercises pathDelayFrom/To indirectly ---
 
-TEST_F(SdcDesignTest, R10_SdcFalsePathExercise) {
+TEST_F(SdcDesignTest, SdcFalsePathExercise) {
   // Creating a false path from/to exercises pathDelayFrom/To code paths
   // through makeFalsePath and the SDC infrastructure
   Network *network = sta_->cmdNetwork();
@@ -8215,7 +8215,7 @@ TEST_F(SdcDesignTest, R10_SdcFalsePathExercise) {
 
 // --- WriteSdc via SdcDesignTest ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcBasic) {
+TEST_F(SdcDesignTest, WriteSdcBasic) {
   const char *filename = "/tmp/test_write_sdc_sdc_r10.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -8223,7 +8223,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcBasic) {
   if (f) fclose(f);
 }
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithOutputDelay) {
+TEST_F(SdcDesignTest, WriteSdcWithOutputDelay) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -8240,7 +8240,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithOutputDelay) {
   if (f) fclose(f);
 }
 
-TEST_F(SdcDesignTest, R10_WriteSdcNative) {
+TEST_F(SdcDesignTest, WriteSdcNative) {
   const char *filename = "/tmp/test_write_sdc_sdc_r10_native.sdc";
   sta_->writeSdc(filename, false, true, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -8248,7 +8248,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcNative) {
   if (f) fclose(f);
 }
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithFalsePath) {
+TEST_F(SdcDesignTest, WriteSdcWithFalsePath) {
   sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr);
   const char *filename = "/tmp/test_write_sdc_sdc_r10_fp.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
@@ -8257,7 +8257,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithFalsePath) {
   if (f) fclose(f);
 }
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithDerating) {
+TEST_F(SdcDesignTest, WriteSdcWithDerating) {
   sta_->setTimingDerate(TimingDerateType::cell_delay,
                         PathClkOrData::data,
                         RiseFallBoth::riseFall(),
@@ -8269,7 +8269,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithDerating) {
   if (f) fclose(f);
 }
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithDisable) {
+TEST_F(SdcDesignTest, WriteSdcWithDisable) {
   Graph *graph = sta_->graph();
   Network *network = sta_->cmdNetwork();
   Pin *pin = findPin("r1/D");
@@ -8290,7 +8290,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithDisable) {
   if (f) fclose(f);
 }
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithClockLatency) {
+TEST_F(SdcDesignTest, WriteSdcWithClockLatency) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     sta_->setClockLatency(clk, nullptr, RiseFallBoth::riseFall(),
@@ -8303,7 +8303,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithClockLatency) {
   if (f) fclose(f);
 }
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithInterClkUncertainty) {
+TEST_F(SdcDesignTest, WriteSdcWithInterClkUncertainty) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     sta_->setClockUncertainty(clk, RiseFallBoth::riseFall(),
@@ -8319,7 +8319,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithInterClkUncertainty) {
 
 // --- Sdc: capacitanceLimit ---
 
-TEST_F(SdcDesignTest, R10_SdcCapacitanceLimit) {
+TEST_F(SdcDesignTest, SdcCapacitanceLimit) {
   Sdc *sdc = sta_->sdc();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
@@ -8335,14 +8335,14 @@ TEST_F(SdcDesignTest, R10_SdcCapacitanceLimit) {
 
 // --- Sdc: annotateGraphConstrained ---
 
-TEST_F(SdcDesignTest, R10_SdcAnnotateGraphConstrained) {
+TEST_F(SdcDesignTest, SdcAnnotateGraphConstrained) {
   // These are called during timing update; exercising indirectly
   sta_->updateTiming(true);
 }
 
 // --- DisabledInstancePorts: construct and accessors ---
 
-TEST_F(SdcDesignTest, R10_DisabledInstancePortsAccessors) {
+TEST_F(SdcDesignTest, DisabledInstancePortsAccessors) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -8356,7 +8356,7 @@ TEST_F(SdcDesignTest, R10_DisabledInstancePortsAccessors) {
 
 // --- PinClockPairLess: using public class ---
 
-TEST_F(SdcDesignTest, R10_PinClockPairLessDesign) {
+TEST_F(SdcDesignTest, PinClockPairLessDesign) {
   Network *network = sta_->cmdNetwork();
   PinClockPairLess less(network);
   (void)less;
@@ -8364,7 +8364,7 @@ TEST_F(SdcDesignTest, R10_PinClockPairLessDesign) {
 
 // --- Sdc: clockLatency for edge ---
 
-TEST_F(SdcDesignTest, R10_SdcClockLatencyEdge) {
+TEST_F(SdcDesignTest, SdcClockLatencyEdge) {
   Sdc *sdc = sta_->sdc();
   Graph *graph = sta_->graph();
   Network *network = sta_->cmdNetwork();
@@ -8384,7 +8384,7 @@ TEST_F(SdcDesignTest, R10_SdcClockLatencyEdge) {
 
 // --- Sdc: disable/removeDisable for pin pair ---
 
-TEST_F(SdcDesignTest, R10_SdcDisablePinPair) {
+TEST_F(SdcDesignTest, SdcDisablePinPair) {
   Sdc *sdc = sta_->sdc();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
@@ -8420,7 +8420,7 @@ TEST_F(SdcDesignTest, R10_SdcDisablePinPair) {
 
 // --- ExceptionThru: makePinEdges, makeNetEdges, makeInstEdges, deletePinEdges ---
 
-TEST_F(SdcDesignTest, R10_ExceptionThruEdges) {
+TEST_F(SdcDesignTest, ExceptionThruEdges) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *pin = network->findPin(top, "in1");
@@ -8435,7 +8435,7 @@ TEST_F(SdcDesignTest, R10_ExceptionThruEdges) {
   }
 }
 
-TEST_F(SdcDesignTest, R10_ExceptionThruWithNet) {
+TEST_F(SdcDesignTest, ExceptionThruWithNet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   // Find a net
@@ -8453,7 +8453,7 @@ TEST_F(SdcDesignTest, R10_ExceptionThruWithNet) {
   delete net_iter;
 }
 
-TEST_F(SdcDesignTest, R10_ExceptionThruWithInstance) {
+TEST_F(SdcDesignTest, ExceptionThruWithInstance) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *inst_iter = network->childIterator(top);
@@ -8472,7 +8472,7 @@ TEST_F(SdcDesignTest, R10_ExceptionThruWithInstance) {
 
 // --- WriteSdc with leaf/map_hpins ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcLeaf) {
+TEST_F(SdcDesignTest, WriteSdcLeaf) {
   const char *filename = "/tmp/test_write_sdc_sdc_r10_leaf.sdc";
   sta_->writeSdc(filename, true, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -8482,7 +8482,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcLeaf) {
 
 // --- WriteSdc with data check ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithDataCheck) {
+TEST_F(SdcDesignTest, WriteSdcWithDataCheck) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *from_pin = network->findPin(top, "r1/D");
@@ -8501,7 +8501,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithDataCheck) {
 
 // --- WriteSdc with port loads ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithPortLoad) {
+TEST_F(SdcDesignTest, WriteSdcWithPortLoad) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -8520,7 +8520,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithPortLoad) {
 
 // --- WriteSdc with clock slew ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithClockSlew) {
+TEST_F(SdcDesignTest, WriteSdcWithClockSlew) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     sta_->setClockSlew(clk, RiseFallBoth::riseFall(), MinMaxAll::all(), 0.1f);
@@ -8534,7 +8534,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithClockSlew) {
 
 // --- WriteSdc with clock insertion ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithClockInsertion) {
+TEST_F(SdcDesignTest, WriteSdcWithClockInsertion) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     sta_->setClockInsertion(clk, nullptr, RiseFallBoth::rise(),
@@ -8549,7 +8549,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithClockInsertion) {
 
 // --- WriteSdc with multicycle path ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithMulticycle) {
+TEST_F(SdcDesignTest, WriteSdcWithMulticycle) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
                            MinMaxAll::max(), true, 2, nullptr);
   const char *filename = "/tmp/test_write_sdc_sdc_r10_mcp.sdc";
@@ -8561,7 +8561,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithMulticycle) {
 
 // --- WriteSdc with max area ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithMaxArea) {
+TEST_F(SdcDesignTest, WriteSdcWithMaxArea) {
   sta_->sdc()->setMaxArea(1000.0);
   const char *filename = "/tmp/test_write_sdc_sdc_r10_maxarea.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
@@ -8572,7 +8572,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithMaxArea) {
 
 // --- WriteSdc with min pulse width ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithMpw) {
+TEST_F(SdcDesignTest, WriteSdcWithMpw) {
   sta_->sdc()->setMinPulseWidth(RiseFallBoth::rise(), 0.5);
   const char *filename = "/tmp/test_write_sdc_sdc_r10_mpw.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
@@ -8583,7 +8583,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithMpw) {
 
 // --- WriteSdc with voltage ---
 
-TEST_F(SdcDesignTest, R10_WriteSdcWithVoltage) {
+TEST_F(SdcDesignTest, WriteSdcWithVoltage) {
   sta_->sdc()->setVoltage(MinMax::max(), 1.1);
   sta_->sdc()->setVoltage(MinMax::min(), 0.9);
   const char *filename = "/tmp/test_write_sdc_sdc_r10_voltage.sdc";
@@ -8595,7 +8595,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithVoltage) {
 
 // --- Sdc: deleteLatchBorrowLimitsReferencing (via clock removal) ---
 
-TEST_F(SdcInitTest, R10_SdcDeleteLatchBorrowLimits) {
+TEST_F(SdcInitTest, SdcDeleteLatchBorrowLimits) {
   Sdc *sdc = sta_->sdc();
   PinSet *clk_pins = new PinSet(sta_->cmdNetwork());
   FloatSeq *waveform = new FloatSeq;
@@ -8615,7 +8615,7 @@ TEST_F(SdcInitTest, R10_SdcDeleteLatchBorrowLimits) {
 // ============================================================
 
 // --- WriteSdc with drive resistance ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithDriveResistance) {
+TEST_F(SdcDesignTest, WriteSdcWithDriveResistance) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -8634,7 +8634,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithDriveResistance) {
 }
 
 // --- WriteSdc with logic value / set_logic_one ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithLogicValue) {
+TEST_F(SdcDesignTest, WriteSdcWithLogicValue) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -8649,7 +8649,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithLogicValue) {
 }
 
 // --- WriteSdc with case analysis ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithCaseAnalysis) {
+TEST_F(SdcDesignTest, WriteSdcWithCaseAnalysis) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in2 = network->findPin(top, "in2");
@@ -8664,7 +8664,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithCaseAnalysis) {
 }
 
 // --- WriteSdc with latch borrow limit on pin ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithLatchBorrowLimitPin) {
+TEST_F(SdcDesignTest, WriteSdcWithLatchBorrowLimitPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *pin = network->findPin(top, "r1/D");
@@ -8679,7 +8679,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithLatchBorrowLimitPin) {
 }
 
 // --- WriteSdc with latch borrow limit on instance ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithLatchBorrowLimitInst) {
+TEST_F(SdcDesignTest, WriteSdcWithLatchBorrowLimitInst) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -8696,7 +8696,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithLatchBorrowLimitInst) {
 }
 
 // --- WriteSdc with slew limits ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithSlewLimits) {
+TEST_F(SdcDesignTest, WriteSdcWithSlewLimits) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -8720,7 +8720,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithSlewLimits) {
 }
 
 // --- WriteSdc with cap limits ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithCapLimits) {
+TEST_F(SdcDesignTest, WriteSdcWithCapLimits) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -8739,7 +8739,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithCapLimits) {
 }
 
 // --- WriteSdc with fanout limits ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithFanoutLimits) {
+TEST_F(SdcDesignTest, WriteSdcWithFanoutLimits) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -8757,7 +8757,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithFanoutLimits) {
 }
 
 // --- WriteSdc with min pulse width on pin ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithMpwOnPin) {
+TEST_F(SdcDesignTest, WriteSdcWithMpwOnPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *clk_pin = network->findPin(top, "r1/CK");
@@ -8772,7 +8772,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithMpwOnPin) {
 }
 
 // --- WriteSdc with min pulse width on instance ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithMpwOnInst) {
+TEST_F(SdcDesignTest, WriteSdcWithMpwOnInst) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -8789,7 +8789,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithMpwOnInst) {
 }
 
 // --- WriteSdc with disable on instance ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithDisableInstance) {
+TEST_F(SdcDesignTest, WriteSdcWithDisableInstance) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -8820,7 +8820,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithDisableInstance) {
 }
 
 // --- WriteSdc with disable on liberty port ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithDisableLibPort) {
+TEST_F(SdcDesignTest, WriteSdcWithDisableLibPort) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -8844,7 +8844,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithDisableLibPort) {
 }
 
 // --- WriteSdc with disable on cell ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithDisableCell) {
+TEST_F(SdcDesignTest, WriteSdcWithDisableCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -8864,7 +8864,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithDisableCell) {
 }
 
 // --- WriteSdc with output delay ---
-TEST_F(SdcDesignTest, R10_WriteSdcWithOutputDelayDetailed) {
+TEST_F(SdcDesignTest, WriteSdcWithOutputDelayDetailed) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -8886,7 +8886,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcWithOutputDelayDetailed) {
 }
 
 // --- Sdc: outputDelays iterator ---
-TEST_F(SdcDesignTest, R10_SdcOutputDelays) {
+TEST_F(SdcDesignTest, SdcOutputDelays) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -8909,7 +8909,7 @@ TEST_F(SdcDesignTest, R10_SdcOutputDelays) {
 }
 
 // --- Sdc: Variables class accessors ---
-TEST_F(SdcDesignTest, R10_VariablesAccessors) {
+TEST_F(SdcDesignTest, VariablesAccessors) {
   // Test Variables accessors that modify search behavior
   bool crpr_orig = sta_->crprEnabled();
   sta_->setCrprEnabled(!crpr_orig);
@@ -8923,7 +8923,7 @@ TEST_F(SdcDesignTest, R10_VariablesAccessors) {
 }
 
 // --- Clock: name, period, waveform ---
-TEST_F(SdcDesignTest, R10_ClockAccessors) {
+TEST_F(SdcDesignTest, ClockAccessors) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   ASSERT_NE(clk, nullptr);
@@ -8941,7 +8941,7 @@ TEST_F(SdcDesignTest, R10_ClockAccessors) {
 }
 
 // --- ExceptionFrom: hasPins, hasClocks, hasInstances ---
-TEST_F(SdcDesignTest, R10_ExceptionFromHasPins) {
+TEST_F(SdcDesignTest, ExceptionFromHasPins) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -8960,7 +8960,7 @@ TEST_F(SdcDesignTest, R10_ExceptionFromHasPins) {
 }
 
 // --- ExceptionTo: hasPins, endRf ---
-TEST_F(SdcDesignTest, R10_ExceptionToHasPins) {
+TEST_F(SdcDesignTest, ExceptionToHasPins) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -8979,7 +8979,7 @@ TEST_F(SdcDesignTest, R10_ExceptionToHasPins) {
 }
 
 // --- Sdc: removeClockLatency ---
-TEST_F(SdcDesignTest, R10_SdcRemoveClockLatency) {
+TEST_F(SdcDesignTest, SdcRemoveClockLatency) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -8991,7 +8991,7 @@ TEST_F(SdcDesignTest, R10_SdcRemoveClockLatency) {
 }
 
 // --- Sdc: removeCaseAnalysis ---
-TEST_F(SdcDesignTest, R10_SdcRemoveCaseAnalysis) {
+TEST_F(SdcDesignTest, SdcRemoveCaseAnalysis) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9002,7 +9002,7 @@ TEST_F(SdcDesignTest, R10_SdcRemoveCaseAnalysis) {
 }
 
 // --- Sdc: removeDerating ---
-TEST_F(SdcDesignTest, R10_SdcRemoveDerating) {
+TEST_F(SdcDesignTest, SdcRemoveDerating) {
   sta_->setTimingDerate(TimingDerateType::cell_delay,
                         PathClkOrData::data,
                         RiseFallBoth::riseFall(),
@@ -9011,7 +9011,7 @@ TEST_F(SdcDesignTest, R10_SdcRemoveDerating) {
 }
 
 // --- WriteSdc comprehensive: multiple constraints ---
-TEST_F(SdcDesignTest, R10_WriteSdcComprehensive) {
+TEST_F(SdcDesignTest, WriteSdcComprehensive) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Sdc *sdc = sta_->sdc();
@@ -9071,7 +9071,7 @@ TEST_F(SdcDesignTest, R10_WriteSdcComprehensive) {
 }
 
 // --- Clock: isPropagated, edges, edgeCount ---
-TEST_F(SdcDesignTest, R10_ClockEdgeDetails) {
+TEST_F(SdcDesignTest, ClockEdgeDetails) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   ASSERT_NE(clk, nullptr);
@@ -9090,7 +9090,7 @@ TEST_F(SdcDesignTest, R10_ClockEdgeDetails) {
 }
 
 // --- Sdc: clocks() - get all clocks ---
-TEST_F(SdcDesignTest, R10_SdcClocksList) {
+TEST_F(SdcDesignTest, SdcClocksList) {
   Sdc *sdc = sta_->sdc();
   const ClockSeq &clks = sdc->clks();
   EXPECT_GT(clks.size(), 0u);
@@ -9100,7 +9100,7 @@ TEST_F(SdcDesignTest, R10_SdcClocksList) {
 }
 
 // --- InputDrive: accessors ---
-TEST_F(SdcDesignTest, R10_InputDriveAccessors) {
+TEST_F(SdcDesignTest, InputDriveAccessors) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9130,7 +9130,7 @@ TEST_F(SdcDesignTest, R10_InputDriveAccessors) {
 // --- WriteSdc with net wire cap (triggers writeNetLoads, writeNetLoad,
 //     writeGetNet, WriteGetNet, scaleCapacitance, writeFloat, writeCapacitance,
 //     writeCommentSeparator, closeFile, ~WriteSdc) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithNetWireCap) {
+TEST_F(SdcDesignTest, WriteSdcWithNetWireCap) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   NetIterator *net_iter = network->netIterator(top);
@@ -9149,7 +9149,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithNetWireCap) {
 
 // --- WriteSdc with net resistance (triggers writeNetResistances,
 //     writeNetResistance, writeGetNet, scaleResistance, writeResistance) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithNetResistance) {
+TEST_F(SdcDesignTest, WriteSdcWithNetResistance) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   NetIterator *net_iter = network->netIterator(top);
@@ -9167,7 +9167,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithNetResistance) {
 
 // --- WriteSdc with input slew (triggers writeInputTransitions,
 //     writeRiseFallMinMaxTimeCmd, WriteGetPort, scaleTime) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithInputSlew) {
+TEST_F(SdcDesignTest, WriteSdcWithInputSlew) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9187,7 +9187,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithInputSlew) {
 
 // --- WriteSdc with driving cell (triggers writeDrivingCells, writeDrivingCell,
 //     WriteGetLibCell, WriteGetPort) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithDrivingCell) {
+TEST_F(SdcDesignTest, WriteSdcWithDrivingCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9241,7 +9241,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithDrivingCell) {
 
 // --- WriteSdc with clock groups that have actual clock members
 //     (triggers writeClockGroups, WriteGetClock, writeGetClock) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithClockGroupsMembers) {
+TEST_F(SdcDesignTest, WriteSdcWithClockGroupsMembers) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -9279,7 +9279,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithClockGroupsMembers) {
 // --- WriteSdc with false path having -from pins and -through pins and -to pins
 //     (triggers writeExceptionFrom, WriteGetPin, writeExceptionThru,
 //     writeExceptionTo) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathFromThruTo) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathFromThruTo) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9319,7 +9319,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathFromThruTo) {
 
 // --- WriteSdc with false path -through net
 //     (triggers writeExceptionThru with nets, writeGetNet) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathThruNet) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathThruNet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   NetIterator *net_iter = network->netIterator(top);
@@ -9342,7 +9342,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathThruNet) {
 }
 
 // --- WriteSdc with false path -from clock (triggers writeGetClock in from) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathFromClock) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathFromClock) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -9361,7 +9361,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathFromClock) {
 
 // --- WriteSdc with false path -from instance (triggers writeGetInstance,
 //     WriteGetInstance) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathFromInstance) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathFromInstance) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -9383,7 +9383,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathFromInstance) {
 
 // --- WriteSdc with multicycle path with -from pin
 //     (triggers writeExceptionCmd for multicycle, writeExceptionFrom) ---
-TEST_F(SdcDesignTest, R11_WriteSdcMulticycleWithFrom) {
+TEST_F(SdcDesignTest, WriteSdcMulticycleWithFrom) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9404,7 +9404,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcMulticycleWithFrom) {
 
 // --- WriteSdc with path delay (max_delay/min_delay)
 //     (triggers writeExceptionCmd for path delay, writeExceptionValue) ---
-TEST_F(SdcDesignTest, R11_WriteSdcPathDelay) {
+TEST_F(SdcDesignTest, WriteSdcPathDelay) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9431,7 +9431,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcPathDelay) {
 
 // --- WriteSdc with group path
 //     (triggers writeExceptionCmd for group path) ---
-TEST_F(SdcDesignTest, R11_WriteSdcGroupPath) {
+TEST_F(SdcDesignTest, WriteSdcGroupPath) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9451,7 +9451,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcGroupPath) {
 
 // --- WriteSdc with clock sense
 //     (triggers writeClockSenses, PinClockPairNameLess) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithClockSense) {
+TEST_F(SdcDesignTest, WriteSdcWithClockSense) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *clk1 = network->findPin(top, "clk1");
@@ -9473,7 +9473,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithClockSense) {
 
 // --- WriteSdc with port ext wire cap and fanout
 //     (triggers writePortLoads with wire cap, writeMinMaxIntValuesCmd) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithPortExtWireCap) {
+TEST_F(SdcDesignTest, WriteSdcWithPortExtWireCap) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -9495,7 +9495,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithPortExtWireCap) {
 
 // --- WriteSdc with clock gating check
 //     (triggers writeClockGatingChecks) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithClockGatingCheck) {
+TEST_F(SdcDesignTest, WriteSdcWithClockGatingCheck) {
   sta_->setClockGatingCheck(RiseFallBoth::riseFall(),
                             MinMax::max(), 0.1f);
   Sdc *sdc = sta_->sdc();
@@ -9511,7 +9511,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithClockGatingCheck) {
 }
 
 // --- Sdc: connectedCap via Sta API ---
-TEST_F(SdcDesignTest, R11_SdcConnectedCap) {
+TEST_F(SdcDesignTest, SdcConnectedCap) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -9526,7 +9526,7 @@ TEST_F(SdcDesignTest, R11_SdcConnectedCap) {
 }
 
 // --- Sdc: connectedCap on net via Sta API ---
-TEST_F(SdcDesignTest, R11_SdcConnectedCapNet) {
+TEST_F(SdcDesignTest, SdcConnectedCapNet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   NetIterator *net_iter = network->netIterator(top);
@@ -9542,7 +9542,7 @@ TEST_F(SdcDesignTest, R11_SdcConnectedCapNet) {
 }
 
 // --- ExceptionPath::mergeable ---
-TEST_F(SdcDesignTest, R11_ExceptionPathMergeable) {
+TEST_F(SdcDesignTest, ExceptionPathMergeable) {
   // Create two false paths and check mergeability
   sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr);
   Sdc *sdc = sta_->sdc();
@@ -9563,7 +9563,7 @@ TEST_F(SdcDesignTest, R11_ExceptionPathMergeable) {
 
 // --- WriteSdc with propagated clock on pin
 //     (triggers writePropagatedClkPins) ---
-TEST_F(SdcDesignTest, R11_WriteSdcWithPropagatedClk) {
+TEST_F(SdcDesignTest, WriteSdcWithPropagatedClk) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *clk1 = network->findPin(top, "clk1");
@@ -9579,7 +9579,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcWithPropagatedClk) {
 
 // --- WriteSdc with min_delay path delay
 //     (triggers min_delay branch in writeExceptionCmd) ---
-TEST_F(SdcDesignTest, R11_WriteSdcMinDelay) {
+TEST_F(SdcDesignTest, WriteSdcMinDelay) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9606,7 +9606,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcMinDelay) {
 
 // --- WriteSdc with multicycle -hold (min) with -end
 //     (triggers the hold branch in writeExceptionCmd) ---
-TEST_F(SdcDesignTest, R11_WriteSdcMulticycleHold) {
+TEST_F(SdcDesignTest, WriteSdcMulticycleHold) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
                            MinMaxAll::min(), true, 0, nullptr);
   const char *filename = "/tmp/test_sdc_r11_mcp_hold.sdc";
@@ -9618,7 +9618,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcMulticycleHold) {
 
 // --- WriteSdc with multicycle -setup with -start
 //     (triggers the start branch in writeExceptionCmd) ---
-TEST_F(SdcDesignTest, R11_WriteSdcMulticycleStart) {
+TEST_F(SdcDesignTest, WriteSdcMulticycleStart) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
                            MinMaxAll::max(), false, 2, nullptr);
   const char *filename = "/tmp/test_sdc_r11_mcp_start.sdc";
@@ -9630,7 +9630,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcMulticycleStart) {
 
 // --- WriteSdc with group path default
 //     (triggers isDefault branch in writeExceptionCmd) ---
-TEST_F(SdcDesignTest, R11_WriteSdcGroupPathDefault) {
+TEST_F(SdcDesignTest, WriteSdcGroupPathDefault) {
   sta_->makeGroupPath(nullptr, true, nullptr, nullptr, nullptr, nullptr);
   const char *filename = "/tmp/test_sdc_r11_grppath_default.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
@@ -9641,7 +9641,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcGroupPathDefault) {
 
 // --- WriteSdc with false path -from with rise_from
 //     (triggers rf_prefix = "-rise_" branch) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathRiseFrom) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathRiseFrom) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9661,7 +9661,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathRiseFrom) {
 
 // --- WriteSdc with false path -from with fall_from
 //     (triggers rf_prefix = "-fall_" branch) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathFallFrom) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathFallFrom) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9681,7 +9681,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathFallFrom) {
 
 // --- WriteSdc with path delay -ignore_clock_latency
 //     (triggers the ignoreClkLatency branch) ---
-TEST_F(SdcDesignTest, R11_WriteSdcPathDelayIgnoreClkLat) {
+TEST_F(SdcDesignTest, WriteSdcPathDelayIgnoreClkLat) {
   sta_->makePathDelay(nullptr, nullptr, nullptr, MinMax::max(), true, false,
                       8.0f, nullptr);
   const char *filename = "/tmp/test_sdc_r11_pathdelay_ignoreclk.sdc";
@@ -9693,7 +9693,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcPathDelayIgnoreClkLat) {
 
 // --- WriteSdc with false path -to with end_rf rise
 //     (triggers the end_rf != riseFall branch in writeExceptionTo) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathToRise) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathToRise) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -9713,7 +9713,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathToRise) {
 }
 
 // --- WriteSdc with multiple from objects (triggers multi_objs branch with [list ]) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathMultiFrom) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathMultiFrom) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -9735,7 +9735,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathMultiFrom) {
 
 // --- WriteSdc with data check that has a clock ref
 //     (triggers writeDataChecks, WriteGetPinAndClkKey) ---
-TEST_F(SdcDesignTest, R11_WriteSdcDataCheckWithClock) {
+TEST_F(SdcDesignTest, WriteSdcDataCheckWithClock) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *from_pin = network->findPin(top, "r1/D");
@@ -9755,7 +9755,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcDataCheckWithClock) {
 }
 
 // --- Sdc::removeDataCheck ---
-TEST_F(SdcDesignTest, R11_SdcRemoveDataCheck) {
+TEST_F(SdcDesignTest, SdcRemoveDataCheck2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *from_pin = network->findPin(top, "r1/D");
@@ -9772,7 +9772,7 @@ TEST_F(SdcDesignTest, R11_SdcRemoveDataCheck) {
 
 // --- WriteSdc with clock uncertainty on pin
 //     (triggers writeClockUncertaintyPins, writeClockUncertaintyPin) ---
-TEST_F(SdcDesignTest, R11_WriteSdcClockUncertaintyPin) {
+TEST_F(SdcDesignTest, WriteSdcClockUncertaintyPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *clk1 = network->findPin(top, "clk1");
@@ -9788,7 +9788,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcClockUncertaintyPin) {
 
 // --- WriteSdc with voltage on net
 //     (triggers writeVoltages with net voltage) ---
-TEST_F(SdcDesignTest, R11_WriteSdcVoltageNet) {
+TEST_F(SdcDesignTest, WriteSdcVoltageNet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   NetIterator *net_iter = network->netIterator(top);
@@ -9808,7 +9808,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcVoltageNet) {
 // --- WriteSdc with disable on timing arcs of cell
 //     (triggers writeGetTimingArcsOfOjbects, writeGetTimingArcs,
 //     getTimingArcsCmd) ---
-TEST_F(SdcDesignTest, R11_WriteSdcDisableTimingArcs) {
+TEST_F(SdcDesignTest, WriteSdcDisableTimingArcs) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -9842,7 +9842,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcDisableTimingArcs) {
 
 // --- WriteSdc with min pulse width on clock
 //     (triggers writeMinPulseWidths clock branch) ---
-TEST_F(SdcDesignTest, R11_WriteSdcMpwClock) {
+TEST_F(SdcDesignTest, WriteSdcMpwClock) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -9858,7 +9858,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcMpwClock) {
 
 // --- WriteSdc with slew limit on clock data
 //     (triggers writeClkSlewLimits, writeClkSlewLimit) ---
-TEST_F(SdcDesignTest, R11_WriteSdcSlewLimitClkData) {
+TEST_F(SdcDesignTest, WriteSdcSlewLimitClkData) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -9876,7 +9876,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcSlewLimitClkData) {
 
 // --- WriteSdc with cell-level cap limit
 //     (triggers writeCapLimits cell branch) ---
-TEST_F(SdcDesignTest, R11_WriteSdcCapLimitCell) {
+TEST_F(SdcDesignTest, WriteSdcCapLimitCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -9897,7 +9897,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcCapLimitCell) {
 
 // --- WriteSdc with cell-level fanout limit
 //     (triggers writeFanoutLimits cell branch) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFanoutLimitCell) {
+TEST_F(SdcDesignTest, WriteSdcFanoutLimitCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -9918,7 +9918,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFanoutLimitCell) {
 
 // --- WriteSdc with cell-level slew limit
 //     (triggers writeSlewLimits cell branch) ---
-TEST_F(SdcDesignTest, R11_WriteSdcSlewLimitCell) {
+TEST_F(SdcDesignTest, WriteSdcSlewLimitCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -9938,7 +9938,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcSlewLimitCell) {
 }
 
 // --- WriteSdc comprehensive: trigger as many writer paths as possible ---
-TEST_F(SdcDesignTest, R11_WriteSdcMegaComprehensive) {
+TEST_F(SdcDesignTest, WriteSdcMegaComprehensive) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Sdc *sdc = sta_->sdc();
@@ -10076,7 +10076,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcMegaComprehensive) {
 }
 
 // --- Sdc: remove clock groups ---
-TEST_F(SdcDesignTest, R11_SdcRemoveClockGroups) {
+TEST_F(SdcDesignTest, SdcRemoveClockGroups) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -10091,7 +10091,7 @@ TEST_F(SdcDesignTest, R11_SdcRemoveClockGroups) {
 }
 
 // --- Sdc: remove physically exclusive clock groups ---
-TEST_F(SdcDesignTest, R11_SdcRemovePhysExclClkGroups) {
+TEST_F(SdcDesignTest, SdcRemovePhysExclClkGroups) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -10105,7 +10105,7 @@ TEST_F(SdcDesignTest, R11_SdcRemovePhysExclClkGroups) {
 }
 
 // --- Sdc: remove async clock groups ---
-TEST_F(SdcDesignTest, R11_SdcRemoveAsyncClkGroups) {
+TEST_F(SdcDesignTest, SdcRemoveAsyncClkGroups) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -10119,7 +10119,7 @@ TEST_F(SdcDesignTest, R11_SdcRemoveAsyncClkGroups) {
 }
 
 // --- Sdc: clear via removeConstraints (covers initVariables, clearCycleAcctings) ---
-TEST_F(SdcDesignTest, R11_SdcRemoveConstraintsCover) {
+TEST_F(SdcDesignTest, SdcRemoveConstraintsCover) {
   Sdc *sdc = sta_->sdc();
   // Set various constraints first
   sdc->setMaxArea(500.0);
@@ -10130,7 +10130,7 @@ TEST_F(SdcDesignTest, R11_SdcRemoveConstraintsCover) {
 }
 
 // --- ExceptionFrom: hash via exception creation and matching ---
-TEST_F(SdcDesignTest, R11_ExceptionFromMatching) {
+TEST_F(SdcDesignTest, ExceptionFromMatching) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -10151,7 +10151,7 @@ TEST_F(SdcDesignTest, R11_ExceptionFromMatching) {
 }
 
 // --- DisabledCellPorts accessors ---
-TEST_F(SdcDesignTest, R11_DisabledCellPortsAccessors) {
+TEST_F(SdcDesignTest, DisabledCellPortsAccessors) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -10170,7 +10170,7 @@ TEST_F(SdcDesignTest, R11_DisabledCellPortsAccessors) {
 }
 
 // --- DisabledInstancePorts with disable ---
-TEST_F(SdcDesignTest, R11_DisabledInstancePortsDisable) {
+TEST_F(SdcDesignTest, DisabledInstancePortsDisable) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -10207,7 +10207,7 @@ TEST_F(SdcDesignTest, R11_DisabledInstancePortsDisable) {
 
 // --- WriteSdc with latch borrow limit on clock
 //     (triggers writeLatchBorrowLimits clock branch) ---
-TEST_F(SdcDesignTest, R11_WriteSdcLatchBorrowClock) {
+TEST_F(SdcDesignTest, WriteSdcLatchBorrowClock) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -10221,7 +10221,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcLatchBorrowClock) {
 }
 
 // --- WriteSdc with derating on cell, instance, net ---
-TEST_F(SdcDesignTest, R11_WriteSdcDeratingCellInstNet) {
+TEST_F(SdcDesignTest, WriteSdcDeratingCellInstNet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
 
@@ -10265,7 +10265,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcDeratingCellInstNet) {
 }
 
 // --- Sdc: capacitanceLimit on pin ---
-TEST_F(SdcDesignTest, R11_SdcCapLimitPin) {
+TEST_F(SdcDesignTest, SdcCapLimitPin) {
   Sdc *sdc = sta_->sdc();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
@@ -10282,7 +10282,7 @@ TEST_F(SdcDesignTest, R11_SdcCapLimitPin) {
 
 // --- WriteSdc with set_false_path -hold only
 //     (triggers writeSetupHoldFlag for hold) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathHold) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathHold) {
   sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::min(), nullptr);
   const char *filename = "/tmp/test_sdc_r11_fp_hold.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
@@ -10293,7 +10293,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathHold) {
 
 // --- WriteSdc with set_false_path -setup only
 //     (triggers writeSetupHoldFlag for setup) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathSetup) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathSetup) {
   sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::max(), nullptr);
   const char *filename = "/tmp/test_sdc_r11_fp_setup.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
@@ -10304,7 +10304,7 @@ TEST_F(SdcDesignTest, R11_WriteSdcFalsePathSetup) {
 
 // --- WriteSdc with exception -through with rise_through
 //     (triggers rf_prefix branches in writeExceptionThru) ---
-TEST_F(SdcDesignTest, R11_WriteSdcFalsePathRiseThru) {
+TEST_F(SdcDesignTest, WriteSdcFalsePathRiseThru) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");

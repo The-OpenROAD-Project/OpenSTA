@@ -399,127 +399,127 @@ TEST_F(VerilogTest, NetEscapedBus) {
 ////////////////////////////////////////////////////////////////
 
 // staToVerilog: names with dollar sign
-TEST_F(VerilogTest, R5_CellWithDollar) {
+TEST_F(VerilogTest, CellWithDollar) {
   std::string result = cellVerilogName("cell$gen");
   EXPECT_EQ(result.front(), '\\');
   EXPECT_EQ(result.back(), ' ');
 }
 
 // staToVerilog: name with tab character
-TEST_F(VerilogTest, R5_CellWithTab) {
+TEST_F(VerilogTest, CellWithTab) {
   std::string result = cellVerilogName("cell\tname");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // staToVerilog: instance with brackets
-TEST_F(VerilogTest, R5_InstanceWithBrackets) {
+TEST_F(VerilogTest, InstanceWithBrackets) {
   std::string result = instanceVerilogName("inst[0]");
   EXPECT_EQ(result.front(), '\\');
   EXPECT_EQ(result.back(), ' ');
 }
 
 // verilogToSta: empty escaped name
-TEST_F(VerilogTest, R5_EmptyEscapedName) {
+TEST_F(VerilogTest, EmptyEscapedName) {
   std::string name = "\\";
   std::string result = instanceVerilogToSta(&name);
   EXPECT_TRUE(result.empty());
 }
 
 // verilogToSta: escaped name with only space
-TEST_F(VerilogTest, R5_EscapedOnlySpace) {
+TEST_F(VerilogTest, EscapedOnlySpace) {
   std::string name = "\\ ";
   std::string result = instanceVerilogToSta(&name);
   EXPECT_TRUE(result.empty());
 }
 
 // netVerilogName: escaped characters with bus notation
-TEST_F(VerilogTest, R5_NetEscapedWithBus) {
+TEST_F(VerilogTest, NetEscapedWithBus) {
   std::string result = netVerilogName("net.a[3]");
   EXPECT_FALSE(result.empty());
 }
 
 // portVerilogName: special character with underscore
-TEST_F(VerilogTest, R5_PortSpecialWithUnderscore) {
+TEST_F(VerilogTest, PortSpecialWithUnderscore) {
   std::string result = portVerilogName("_port.a_");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // cellVerilogName: name with only special chars
-TEST_F(VerilogTest, R5_CellOnlySpecialChars) {
+TEST_F(VerilogTest, CellOnlySpecialChars) {
   std::string result = cellVerilogName("./#@");
   EXPECT_EQ(result.front(), '\\');
   EXPECT_EQ(result.back(), ' ');
 }
 
 // instanceVerilogToSta: plain unescaped name
-TEST_F(VerilogTest, R5_UnescapedInstance) {
+TEST_F(VerilogTest, UnescapedInstance) {
   std::string name = "plain_inst";
   std::string result = instanceVerilogToSta(&name);
   EXPECT_EQ(result, "plain_inst");
 }
 
 // netVerilogToSta: escaped name with bus notation
-TEST_F(VerilogTest, R5_EscapedNetBus) {
+TEST_F(VerilogTest, EscapedNetBus) {
   std::string name = "\\data[7:0] ";
   std::string result = netVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
 // moduleVerilogToSta: escaped module name
-TEST_F(VerilogTest, R5_EscapedModule) {
+TEST_F(VerilogTest, EscapedModule) {
   std::string name = "\\mod/special ";
   std::string result = moduleVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
 // portVerilogToSta: escaped port name
-TEST_F(VerilogTest, R5_EscapedPort) {
+TEST_F(VerilogTest, EscapedPort) {
   std::string name = "\\port$gen ";
   std::string result = portVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
 // netVerilogName: name with backslash-escaped bracket
-TEST_F(VerilogTest, R5_NetEscapedBracketSlash) {
+TEST_F(VerilogTest, NetEscapedBracketSlash) {
   std::string result = netVerilogName("a\\[b");
   EXPECT_FALSE(result.empty());
 }
 
 // portVerilogName: name that is just digits
-TEST_F(VerilogTest, R5_PortJustDigits) {
+TEST_F(VerilogTest, PortJustDigits) {
   std::string result = portVerilogName("12345");
   // All digits - alphanumeric, no escaping needed
   EXPECT_EQ(result, "12345");
 }
 
 // cellVerilogName: name with hyphen
-TEST_F(VerilogTest, R5_CellWithHyphen) {
+TEST_F(VerilogTest, CellWithHyphen) {
   std::string result = cellVerilogName("cell-name");
   EXPECT_EQ(result.front(), '\\');
   EXPECT_EQ(result.back(), ' ');
 }
 
 // instanceVerilogName: name with equal sign
-TEST_F(VerilogTest, R5_InstanceWithEquals) {
+TEST_F(VerilogTest, InstanceWithEquals) {
   std::string result = instanceVerilogName("inst=val");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // netVerilogName: name with percent
-TEST_F(VerilogTest, R5_NetWithPercent) {
+TEST_F(VerilogTest, NetWithPercent) {
   std::string result = netVerilogName("net%1");
   EXPECT_EQ(result.front(), '\\');
   EXPECT_EQ(result.back(), ' ');
 }
 
 // portVerilogName: name with plus
-TEST_F(VerilogTest, R5_PortWithPlus) {
+TEST_F(VerilogTest, PortWithPlus) {
   std::string result = portVerilogName("port+a");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // instanceVerilogToSta: escaped name with various special chars
-TEST_F(VerilogTest, R5_EscapedInstanceComplex) {
+TEST_F(VerilogTest, EscapedInstanceComplex) {
   std::string name = "\\inst.a/b[c] ";
   std::string result = instanceVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
@@ -528,66 +528,66 @@ TEST_F(VerilogTest, R5_EscapedInstanceComplex) {
 }
 
 // netVerilogToSta: plain net with underscore
-TEST_F(VerilogTest, R5_PlainNetUnderscore) {
+TEST_F(VerilogTest, PlainNetUnderscore) {
   std::string name = "_net_wire_";
   std::string result = netVerilogToSta(&name);
   EXPECT_EQ(result, "_net_wire_");
 }
 
 // portVerilogToSta: plain port with numbers
-TEST_F(VerilogTest, R5_PlainPortNumeric) {
+TEST_F(VerilogTest, PlainPortNumeric) {
   std::string name = "port_123";
   std::string result = portVerilogToSta(&name);
   EXPECT_EQ(result, "port_123");
 }
 
 // moduleVerilogToSta: plain module with mixed case
-TEST_F(VerilogTest, R5_PlainModuleMixedCase) {
+TEST_F(VerilogTest, PlainModuleMixedCase) {
   std::string name = "MyModule_V2";
   std::string result = moduleVerilogToSta(&name);
   EXPECT_EQ(result, "MyModule_V2");
 }
 
 // cellVerilogName: name with tilde
-TEST_F(VerilogTest, R5_CellWithTilde) {
+TEST_F(VerilogTest, CellWithTilde) {
   std::string result = cellVerilogName("cell~inv");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // instanceVerilogName: name with ampersand
-TEST_F(VerilogTest, R5_InstanceWithAmpersand) {
+TEST_F(VerilogTest, InstanceWithAmpersand) {
   std::string result = instanceVerilogName("inst&and");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // netVerilogName: name with exclamation
-TEST_F(VerilogTest, R5_NetWithExclamation) {
+TEST_F(VerilogTest, NetWithExclamation) {
   std::string result = netVerilogName("net!rst");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // portVerilogName: name with pipe
-TEST_F(VerilogTest, R5_PortWithPipe) {
+TEST_F(VerilogTest, PortWithPipe) {
   std::string result = portVerilogName("port|or");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // instanceVerilogToSta: escaped name without trailing space (edge case)
-TEST_F(VerilogTest, R5_EscapedNoTrailingSpaceComplex) {
+TEST_F(VerilogTest, EscapedNoTrailingSpaceComplex) {
   std::string name = "\\inst/a[0]";
   std::string result = instanceVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
 // cellVerilogName: very long name
-TEST_F(VerilogTest, R5_CellLongName) {
+TEST_F(VerilogTest, CellLongName) {
   std::string long_name(200, 'a');
   std::string result = cellVerilogName(long_name.c_str());
   EXPECT_EQ(result, long_name);
 }
 
 // cellVerilogName: very long name with special char
-TEST_F(VerilogTest, R5_CellLongEscapedName) {
+TEST_F(VerilogTest, CellLongEscapedName) {
   std::string long_name(200, 'a');
   long_name[100] = '/';
   std::string result = cellVerilogName(long_name.c_str());
@@ -600,7 +600,7 @@ TEST_F(VerilogTest, R5_CellLongEscapedName) {
 ////////////////////////////////////////////////////////////////
 
 // VerilogNetScalar: constructor and properties
-TEST_F(VerilogTest, R6_NetScalarConstruct) {
+TEST_F(VerilogTest, NetScalarConstruct) {
   VerilogNetScalar net("wire1");
   EXPECT_TRUE(net.isNamed());
   EXPECT_TRUE(net.isScalar());
@@ -609,14 +609,14 @@ TEST_F(VerilogTest, R6_NetScalarConstruct) {
 }
 
 // VerilogNetScalar: with bus-like name
-TEST_F(VerilogTest, R6_NetScalarBusLikeName) {
+TEST_F(VerilogTest, NetScalarBusLikeName) {
   VerilogNetScalar net("data");
   EXPECT_TRUE(net.isScalar());
   EXPECT_EQ(net.name(), "data");
 }
 
 // VerilogNetBitSelect: constructor and properties
-TEST_F(VerilogTest, R6_NetBitSelectConstruct) {
+TEST_F(VerilogTest, NetBitSelectConstruct) {
   VerilogNetBitSelect net("data", 3);
   EXPECT_TRUE(net.isNamed());
   EXPECT_FALSE(net.isScalar());
@@ -626,14 +626,14 @@ TEST_F(VerilogTest, R6_NetBitSelectConstruct) {
 }
 
 // VerilogNetBitSelect: index 0
-TEST_F(VerilogTest, R6_NetBitSelectZero) {
+TEST_F(VerilogTest, NetBitSelectZero) {
   VerilogNetBitSelect net("wire", 0);
   EXPECT_EQ(net.index(), 0);
   EXPECT_EQ(net.name(), "wire[0]");
 }
 
 // VerilogNetPartSelect: constructor and properties
-TEST_F(VerilogTest, R6_NetPartSelectConstruct) {
+TEST_F(VerilogTest, NetPartSelectConstruct) {
   VerilogNetPartSelect net("bus", 7, 0);
   EXPECT_TRUE(net.isNamed());
   EXPECT_FALSE(net.isScalar());
@@ -643,14 +643,14 @@ TEST_F(VerilogTest, R6_NetPartSelectConstruct) {
 }
 
 // VerilogNetPartSelect: ascending
-TEST_F(VerilogTest, R6_NetPartSelectAscending) {
+TEST_F(VerilogTest, NetPartSelectAscending) {
   VerilogNetPartSelect net("addr", 0, 15);
   EXPECT_EQ(net.fromIndex(), 0);
   EXPECT_EQ(net.toIndex(), 15);
 }
 
 // VerilogNetUnnamed: constructor and properties via VerilogNetConcat
-TEST_F(VerilogTest, R6_NetUnnamedConstruct) {
+TEST_F(VerilogTest, NetUnnamedConstruct) {
   VerilogNetSeq *nets = new VerilogNetSeq;
   VerilogNetConcat net(nets);
   // VerilogNetConcat extends VerilogNetUnnamed
@@ -659,21 +659,21 @@ TEST_F(VerilogTest, R6_NetUnnamedConstruct) {
 }
 
 // VerilogNetNamed: constructor, destructor, name
-TEST_F(VerilogTest, R6_NetNamedConstruct) {
+TEST_F(VerilogTest, NetNamedConstruct) {
   VerilogNetScalar net("test_named");
   EXPECT_TRUE(net.isNamed());
   EXPECT_EQ(net.name(), "test_named");
 }
 
 // VerilogNetNamed: destructor (via delete)
-TEST_F(VerilogTest, R6_NetNamedDelete) {
+TEST_F(VerilogTest, NetNamedDelete) {
   VerilogNetNamed *net = new VerilogNetScalar("to_delete");
   EXPECT_EQ(net->name(), "to_delete");
   delete net;
 }
 
 // VerilogNetPortRef: constructor
-TEST_F(VerilogTest, R6_NetPortRefConstruct) {
+TEST_F(VerilogTest, NetPortRefConstruct) {
   VerilogNetPortRefScalarNet ref("port_a");
   EXPECT_TRUE(ref.isNamedPortRef());
   EXPECT_EQ(ref.name(), "port_a");
@@ -681,7 +681,7 @@ TEST_F(VerilogTest, R6_NetPortRefConstruct) {
 }
 
 // VerilogNetPortRefScalarNet: with net name
-TEST_F(VerilogTest, R6_NetPortRefScalarNetWithName) {
+TEST_F(VerilogTest, NetPortRefScalarNetWithName) {
   VerilogNetPortRefScalarNet ref("port_a", "wire_a");
   EXPECT_TRUE(ref.isNamedPortRef());
   EXPECT_TRUE(ref.isNamedPortRefScalarNet());
@@ -691,7 +691,7 @@ TEST_F(VerilogTest, R6_NetPortRefScalarNetWithName) {
 }
 
 // VerilogNetPortRefScalarNet: set net name
-TEST_F(VerilogTest, R6_NetPortRefScalarNetSetName) {
+TEST_F(VerilogTest, NetPortRefScalarNetSetName) {
   VerilogNetPortRefScalarNet ref("port_a");
   EXPECT_FALSE(ref.hasNet());
   ref.setNetName("wire_b");
@@ -700,7 +700,7 @@ TEST_F(VerilogTest, R6_NetPortRefScalarNetSetName) {
 }
 
 // VerilogNetPortRefScalar: constructor with net
-TEST_F(VerilogTest, R6_NetPortRefScalarConstruct) {
+TEST_F(VerilogTest, NetPortRefScalarConstruct) {
   VerilogNetScalar *inner_net = new VerilogNetScalar("inner_wire");
   VerilogNetPortRefScalar ref("port_b", inner_net);
   EXPECT_TRUE(ref.isNamedPortRef());
@@ -710,14 +710,14 @@ TEST_F(VerilogTest, R6_NetPortRefScalarConstruct) {
 }
 
 // VerilogNetPortRefScalar: constructor with null net
-TEST_F(VerilogTest, R6_NetPortRefScalarNullNet) {
+TEST_F(VerilogTest, NetPortRefScalarNullNet) {
   VerilogNetPortRefScalar ref("port_c", nullptr);
   EXPECT_TRUE(ref.isNamedPortRef());
   EXPECT_FALSE(ref.hasNet());
 }
 
 // VerilogNetPortRefBit: constructor
-TEST_F(VerilogTest, R6_NetPortRefBitConstruct) {
+TEST_F(VerilogTest, NetPortRefBitConstruct) {
   VerilogNetScalar *inner_net = new VerilogNetScalar("inner2");
   VerilogNetPortRefBit ref("port_d", 3, inner_net);
   EXPECT_TRUE(ref.isNamedPortRef());
@@ -727,7 +727,7 @@ TEST_F(VerilogTest, R6_NetPortRefBitConstruct) {
 }
 
 // VerilogNetPortRefPart: constructor and name
-TEST_F(VerilogTest, R6_NetPortRefPartConstruct) {
+TEST_F(VerilogTest, NetPortRefPartConstruct) {
   VerilogNetScalar *inner_net = new VerilogNetScalar("inner3");
   VerilogNetPortRefPart ref("port_e", 7, 0, inner_net);
   EXPECT_TRUE(ref.isNamedPortRef());
@@ -737,7 +737,7 @@ TEST_F(VerilogTest, R6_NetPortRefPartConstruct) {
 }
 
 // VerilogNetConcat: constructor with nets
-TEST_F(VerilogTest, R6_NetConcatConstruct) {
+TEST_F(VerilogTest, NetConcatConstruct) {
   VerilogNetSeq *nets = new VerilogNetSeq;
   nets->push_back(new VerilogNetScalar("a"));
   nets->push_back(new VerilogNetScalar("b"));
@@ -746,7 +746,7 @@ TEST_F(VerilogTest, R6_NetConcatConstruct) {
 }
 
 // VerilogDclArg: constructor with name
-TEST_F(VerilogTest, R6_DclArgName) {
+TEST_F(VerilogTest, DclArgName) {
   VerilogDclArg arg("wire_name");
   EXPECT_EQ(arg.netName(), "wire_name");
   EXPECT_TRUE(arg.isNamed());
@@ -754,7 +754,7 @@ TEST_F(VerilogTest, R6_DclArgName) {
 }
 
 // VerilogDclArg: constructor with assign
-TEST_F(VerilogTest, R6_DclArgAssign) {
+TEST_F(VerilogTest, DclArgAssign) {
   VerilogNetScalar *lhs = new VerilogNetScalar("out");
   VerilogNetScalar *rhs = new VerilogNetScalar("in");
   VerilogAssign *assign = new VerilogAssign(lhs, rhs, 1);
@@ -764,7 +764,7 @@ TEST_F(VerilogTest, R6_DclArgAssign) {
 }
 
 // VerilogAssign: constructor and accessors
-TEST_F(VerilogTest, R6_AssignConstruct) {
+TEST_F(VerilogTest, AssignConstruct) {
   VerilogNetScalar *lhs = new VerilogNetScalar("out");
   VerilogNetScalar *rhs = new VerilogNetScalar("in");
   VerilogAssign assign(lhs, rhs, 10);
@@ -775,7 +775,7 @@ TEST_F(VerilogTest, R6_AssignConstruct) {
 }
 
 // VerilogStmt: constructor and properties
-TEST_F(VerilogTest, R6_StmtConstruct) {
+TEST_F(VerilogTest, StmtConstruct) {
   // VerilogStmt is abstract, test through VerilogAssign
   VerilogNetScalar *lhs = new VerilogNetScalar("a");
   VerilogNetScalar *rhs = new VerilogNetScalar("b");
@@ -789,7 +789,7 @@ TEST_F(VerilogTest, R6_StmtConstruct) {
 }
 
 // VerilogStmt: destructor (via delete of derived)
-TEST_F(VerilogTest, R6_StmtDelete) {
+TEST_F(VerilogTest, StmtDelete) {
   VerilogNetScalar *lhs = new VerilogNetScalar("x");
   VerilogNetScalar *rhs = new VerilogNetScalar("y");
   VerilogStmt *stmt = new VerilogAssign(lhs, rhs, 1);
@@ -798,7 +798,7 @@ TEST_F(VerilogTest, R6_StmtDelete) {
 }
 
 // VerilogInst: constructor and accessors
-TEST_F(VerilogTest, R6_InstConstruct) {
+TEST_F(VerilogTest, InstConstruct) {
   VerilogInst *inst = new VerilogModuleInst("INV", "u1", nullptr,
                                             new VerilogAttrStmtSeq, 1);
   EXPECT_TRUE(inst->isInstance());
@@ -809,7 +809,7 @@ TEST_F(VerilogTest, R6_InstConstruct) {
 }
 
 // VerilogInst: setInstanceName
-TEST_F(VerilogTest, R6_InstSetName) {
+TEST_F(VerilogTest, InstSetName) {
   VerilogModuleInst inst("BUF", "old_name", nullptr,
                          new VerilogAttrStmtSeq, 1);
   EXPECT_EQ(inst.instanceName(), "old_name");
@@ -818,14 +818,14 @@ TEST_F(VerilogTest, R6_InstSetName) {
 }
 
 // VerilogModuleInst: hasPins with nullptr
-TEST_F(VerilogTest, R6_ModuleInstHasPinsNull) {
+TEST_F(VerilogTest, ModuleInstHasPinsNull) {
   VerilogModuleInst inst("INV", "u1", nullptr,
                          new VerilogAttrStmtSeq, 1);
   EXPECT_FALSE(inst.hasPins());
 }
 
 // VerilogModuleInst: hasPins with empty pins
-TEST_F(VerilogTest, R6_ModuleInstHasPinsEmpty) {
+TEST_F(VerilogTest, ModuleInstHasPinsEmpty) {
   VerilogNetSeq *pins = new VerilogNetSeq;
   VerilogModuleInst inst("INV", "u1", pins,
                          new VerilogAttrStmtSeq, 1);
@@ -833,7 +833,7 @@ TEST_F(VerilogTest, R6_ModuleInstHasPinsEmpty) {
 }
 
 // VerilogModuleInst: hasPins with pins
-TEST_F(VerilogTest, R6_ModuleInstHasPinsTrue) {
+TEST_F(VerilogTest, ModuleInstHasPinsTrue) {
   VerilogNetSeq *pins = new VerilogNetSeq;
   pins->push_back(new VerilogNetScalar("wire1"));
   VerilogModuleInst inst("INV", "u1", pins,
@@ -842,14 +842,14 @@ TEST_F(VerilogTest, R6_ModuleInstHasPinsTrue) {
 }
 
 // VerilogModuleInst: moduleName
-TEST_F(VerilogTest, R6_ModuleInstModuleName) {
+TEST_F(VerilogTest, ModuleInstModuleName) {
   VerilogModuleInst inst("BUF_X2", "buffer1", nullptr,
                          new VerilogAttrStmtSeq, 5);
   EXPECT_EQ(inst.moduleName(), "BUF_X2");
 }
 
 // VerilogDcl: constructor with args seq
-TEST_F(VerilogTest, R6_DclConstructSeq) {
+TEST_F(VerilogTest, DclConstructSeq) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("wire1"));
@@ -862,7 +862,7 @@ TEST_F(VerilogTest, R6_DclConstructSeq) {
 }
 
 // VerilogDcl: portName
-TEST_F(VerilogTest, R6_DclPortName) {
+TEST_F(VerilogTest, DclPortName) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("my_wire"));
@@ -872,7 +872,7 @@ TEST_F(VerilogTest, R6_DclPortName) {
 }
 
 // VerilogDcl: appendArg
-TEST_F(VerilogTest, R6_DclAppendArg) {
+TEST_F(VerilogTest, DclAppendArg) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("w1"));
@@ -882,7 +882,7 @@ TEST_F(VerilogTest, R6_DclAppendArg) {
 }
 
 // VerilogDclBus: constructor with args seq
-TEST_F(VerilogTest, R6_DclBusConstructSeq) {
+TEST_F(VerilogTest, DclBusConstructSeq) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("bus_wire"));
@@ -896,7 +896,7 @@ TEST_F(VerilogTest, R6_DclBusConstructSeq) {
 }
 
 // VerilogDclBus: constructor with single arg
-TEST_F(VerilogTest, R6_DclBusConstructSingle) {
+TEST_F(VerilogTest, DclBusConstructSingle) {
   PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("single_bus");
   VerilogDclBus dcl(PortDirection::output(), 3, 0, arg,
@@ -906,7 +906,7 @@ TEST_F(VerilogTest, R6_DclBusConstructSingle) {
 }
 
 // VerilogDclBus: ascending range
-TEST_F(VerilogTest, R6_DclBusAscending) {
+TEST_F(VerilogTest, DclBusAscending) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("asc_bus"));
@@ -918,7 +918,7 @@ TEST_F(VerilogTest, R6_DclBusAscending) {
 }
 
 // VerilogAttrStmt: constructor
-TEST_F(VerilogTest, R6_AttrStmtConstruct) {
+TEST_F(VerilogTest, AttrStmtConstruct) {
   VerilogAttrEntrySeq *entries = new VerilogAttrEntrySeq;
   entries->push_back(new VerilogAttrEntry("key1", "val1"));
   VerilogAttrStmt stmt(entries);
@@ -928,14 +928,14 @@ TEST_F(VerilogTest, R6_AttrStmtConstruct) {
 }
 
 // VerilogAttrEntry: constructor and accessors
-TEST_F(VerilogTest, R6_AttrEntryConstruct) {
+TEST_F(VerilogTest, AttrEntryConstruct) {
   VerilogAttrEntry entry("my_attr", "my_value");
   EXPECT_EQ(entry.key(), "my_attr");
   EXPECT_EQ(entry.value(), "my_value");
 }
 
 // VerilogNetScalar: multiple instances
-TEST_F(VerilogTest, R6_MultipleNetScalars) {
+TEST_F(VerilogTest, MultipleNetScalars) {
   VerilogNetScalar net1("a");
   VerilogNetScalar net2("b");
   VerilogNetScalar net3("c");
@@ -948,14 +948,14 @@ TEST_F(VerilogTest, R6_MultipleNetScalars) {
 }
 
 // VerilogNetPortRefScalarNet: empty net name
-TEST_F(VerilogTest, R6_PortRefScalarNetEmpty) {
+TEST_F(VerilogTest, PortRefScalarNetEmpty) {
   VerilogNetPortRefScalarNet ref("port_a");
   EXPECT_FALSE(ref.hasNet());
   EXPECT_EQ(ref.netName(), "");
 }
 
 // VerilogNetPortRefBit: index 0
-TEST_F(VerilogTest, R6_PortRefBitIndex0) {
+TEST_F(VerilogTest, PortRefBitIndex0) {
   VerilogNetScalar *inner = new VerilogNetScalar("w");
   VerilogNetPortRefBit ref("port", 0, inner);
   std::string rname = ref.name();
@@ -963,7 +963,7 @@ TEST_F(VerilogTest, R6_PortRefBitIndex0) {
 }
 
 // VerilogNetPortRefPart: ascending range
-TEST_F(VerilogTest, R6_PortRefPartAsc) {
+TEST_F(VerilogTest, PortRefPartAsc) {
   VerilogNetScalar *inner = new VerilogNetScalar("w");
   VerilogNetPortRefPart ref("port", 0, 3, inner);
   std::string rname = ref.name();
@@ -972,7 +972,7 @@ TEST_F(VerilogTest, R6_PortRefPartAsc) {
 }
 
 // VerilogDcl: single arg constructor
-TEST_F(VerilogTest, R6_DclSingleArg) {
+TEST_F(VerilogTest, DclSingleArg) {
   PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("single_wire");
   VerilogDcl dcl(PortDirection::input(), arg, new VerilogAttrStmtSeq, 1);
@@ -981,59 +981,59 @@ TEST_F(VerilogTest, R6_DclSingleArg) {
 }
 
 // Additional name conversion tests
-TEST_F(VerilogTest, R6_CellWithQuestionMark) {
+TEST_F(VerilogTest, CellWithQuestionMark) {
   std::string result = cellVerilogName("cell?name");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R6_InstanceWithSemicolon) {
+TEST_F(VerilogTest, InstanceWithSemicolon) {
   std::string result = instanceVerilogName("inst;name");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R6_NetWithComma) {
+TEST_F(VerilogTest, NetWithComma) {
   std::string result = netVerilogName("net,name");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R6_PortWithParens) {
+TEST_F(VerilogTest, PortWithParens) {
   std::string result = portVerilogName("port(a)");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R6_CellWithCurlyBraces) {
+TEST_F(VerilogTest, CellWithCurlyBraces) {
   std::string result = cellVerilogName("cell{name}");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R6_InstanceWithLessThan) {
+TEST_F(VerilogTest, InstanceWithLessThan) {
   std::string result = instanceVerilogName("inst<0>");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // VerilogToSta: net with bus range
-TEST_F(VerilogTest, R6_EscapedNetRange) {
+TEST_F(VerilogTest, EscapedNetRange) {
   std::string name = "\\data[7:0] ";
   std::string result = netVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
 // VerilogToSta: module with digit prefix
-TEST_F(VerilogTest, R6_ModuleDigitPrefix) {
+TEST_F(VerilogTest, ModuleDigitPrefix) {
   std::string name = "123module";
   std::string result = moduleVerilogToSta(&name);
   EXPECT_EQ(result, "123module");
 }
 
 // portVerilogToSta: escaped
-TEST_F(VerilogTest, R6_EscapedPortComplex) {
+TEST_F(VerilogTest, EscapedPortComplex) {
   std::string name = "\\port.a[0]/b ";
   std::string result = portVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
 // cellVerilogName round-trip with special chars
-TEST_F(VerilogTest, R6_RoundTripSpecialCell) {
+TEST_F(VerilogTest, RoundTripSpecialCell) {
   // STA name with escaped bracket
   std::string sta_name = "cell\\[0\\]";
   std::string verilog = cellVerilogName(sta_name.c_str());
@@ -1041,13 +1041,13 @@ TEST_F(VerilogTest, R6_RoundTripSpecialCell) {
 }
 
 // instanceVerilogName: name with backslash in middle
-TEST_F(VerilogTest, R6_InstanceBackslashMiddle) {
+TEST_F(VerilogTest, InstanceBackslashMiddle) {
   std::string result = instanceVerilogName("inst\\mid");
   EXPECT_FALSE(result.empty());
 }
 
 // netVerilogName: escaped bracket bus
-TEST_F(VerilogTest, R6_NetEscapedBracketBus2) {
+TEST_F(VerilogTest, NetEscapedBracketBus2) {
   std::string result = netVerilogName("data\\[3\\]");
   EXPECT_FALSE(result.empty());
 }
@@ -1057,7 +1057,7 @@ TEST_F(VerilogTest, R6_NetEscapedBracketBus2) {
 ////////////////////////////////////////////////////////////////
 
 // VerilogNetScalar::isScalar - uncovered
-TEST_F(VerilogTest, R8_NetScalarIsScalar) {
+TEST_F(VerilogTest, NetScalarIsScalar) {
   VerilogNetScalar net("scalar_w");
   EXPECT_TRUE(net.isScalar());
   EXPECT_TRUE(net.isNamed());
@@ -1065,7 +1065,7 @@ TEST_F(VerilogTest, R8_NetScalarIsScalar) {
 }
 
 // VerilogNetBitSelect::isScalar - uncovered (returns false)
-TEST_F(VerilogTest, R8_NetBitSelectNotScalar) {
+TEST_F(VerilogTest, NetBitSelectNotScalar) {
   VerilogNetBitSelect net("bus_w", 5);
   EXPECT_FALSE(net.isScalar());
   EXPECT_TRUE(net.isNamed());
@@ -1074,7 +1074,7 @@ TEST_F(VerilogTest, R8_NetBitSelectNotScalar) {
 }
 
 // VerilogNetPartSelect::isScalar - uncovered (returns false)
-TEST_F(VerilogTest, R8_NetPartSelectNotScalar) {
+TEST_F(VerilogTest, NetPartSelectNotScalar) {
   VerilogNetPartSelect net("range_w", 15, 0);
   EXPECT_FALSE(net.isScalar());
   EXPECT_EQ(net.fromIndex(), 15);
@@ -1082,7 +1082,7 @@ TEST_F(VerilogTest, R8_NetPartSelectNotScalar) {
 }
 
 // VerilogNetPortRefScalarNet::isScalar - uncovered (returns true)
-TEST_F(VerilogTest, R8_NetPortRefScalarNetIsScalar) {
+TEST_F(VerilogTest, NetPortRefScalarNetIsScalar) {
   VerilogNetPortRefScalarNet ref("port_ref", "net_ref");
   EXPECT_TRUE(ref.isScalar());
   EXPECT_TRUE(ref.isNamedPortRef());
@@ -1091,7 +1091,7 @@ TEST_F(VerilogTest, R8_NetPortRefScalarNetIsScalar) {
 }
 
 // VerilogNetPortRefScalar::isScalar - uncovered (returns true)
-TEST_F(VerilogTest, R8_NetPortRefScalarIsScalar) {
+TEST_F(VerilogTest, NetPortRefScalarIsScalar) {
   VerilogNetScalar *inner = new VerilogNetScalar("inner_w");
   VerilogNetPortRefScalar ref("pref_s", inner);
   EXPECT_TRUE(ref.isScalar());
@@ -1100,7 +1100,7 @@ TEST_F(VerilogTest, R8_NetPortRefScalarIsScalar) {
 }
 
 // VerilogNetUnnamed::isNamed - uncovered
-TEST_F(VerilogTest, R8_NetUnnamedIsNamed) {
+TEST_F(VerilogTest, NetUnnamedIsNamed) {
   VerilogNetSeq *nets = new VerilogNetSeq;
   VerilogNetConcat concat(nets);
   EXPECT_FALSE(concat.isNamed());
@@ -1108,7 +1108,7 @@ TEST_F(VerilogTest, R8_NetUnnamedIsNamed) {
 }
 
 // VerilogNetUnnamed::name - returns empty string
-TEST_F(VerilogTest, R8_NetUnnamedName) {
+TEST_F(VerilogTest, NetUnnamedName) {
   VerilogNetSeq *nets = new VerilogNetSeq;
   nets->push_back(new VerilogNetScalar("x"));
   VerilogNetConcat concat(nets);
@@ -1117,7 +1117,7 @@ TEST_F(VerilogTest, R8_NetUnnamedName) {
 }
 
 // VerilogNetPortRefBit::name - uncovered
-TEST_F(VerilogTest, R8_NetPortRefBitName) {
+TEST_F(VerilogTest, NetPortRefBitName) {
   VerilogNetScalar *inner = new VerilogNetScalar("w1");
   VerilogNetPortRefBit ref("port_bit", 7, inner);
   std::string n = ref.name();
@@ -1127,7 +1127,7 @@ TEST_F(VerilogTest, R8_NetPortRefBitName) {
 }
 
 // VerilogNetPortRefBit: index 0
-TEST_F(VerilogTest, R8_NetPortRefBitIndex0) {
+TEST_F(VerilogTest, NetPortRefBitIndex0) {
   VerilogNetScalar *inner = new VerilogNetScalar("w2");
   VerilogNetPortRefBit ref("p0", 0, inner);
   std::string n = ref.name();
@@ -1135,7 +1135,7 @@ TEST_F(VerilogTest, R8_NetPortRefBitIndex0) {
 }
 
 // VerilogNetPortRefBit: null inner net
-TEST_F(VerilogTest, R8_NetPortRefBitNullNet) {
+TEST_F(VerilogTest, NetPortRefBitNullNet) {
   VerilogNetPortRefBit ref("p_null", 3, nullptr);
   EXPECT_FALSE(ref.hasNet());
   std::string n = ref.name();
@@ -1143,7 +1143,7 @@ TEST_F(VerilogTest, R8_NetPortRefBitNullNet) {
 }
 
 // VerilogStmt::isAssign - uncovered on base
-TEST_F(VerilogTest, R8_StmtIsAssign) {
+TEST_F(VerilogTest, StmtIsAssign) {
   VerilogNetScalar *lhs = new VerilogNetScalar("a");
   VerilogNetScalar *rhs = new VerilogNetScalar("b");
   VerilogAssign assign(lhs, rhs, 1);
@@ -1155,7 +1155,7 @@ TEST_F(VerilogTest, R8_StmtIsAssign) {
 }
 
 // VerilogStmt destructor via delete
-TEST_F(VerilogTest, R8_StmtDestructor) {
+TEST_F(VerilogTest, StmtDestructor) {
   VerilogNetScalar *lhs = new VerilogNetScalar("x");
   VerilogNetScalar *rhs = new VerilogNetScalar("y");
   VerilogStmt *stmt = new VerilogAssign(lhs, rhs, 42);
@@ -1165,7 +1165,7 @@ TEST_F(VerilogTest, R8_StmtDestructor) {
 }
 
 // VerilogInst: constructor and destructor
-TEST_F(VerilogTest, R8_InstConstructDestruct) {
+TEST_F(VerilogTest, InstConstructDestruct) {
   VerilogModuleInst *inst = new VerilogModuleInst(
     "AND2", "and_inst", nullptr, new VerilogAttrStmtSeq, 10);
   EXPECT_TRUE(inst->isInstance());
@@ -1178,7 +1178,7 @@ TEST_F(VerilogTest, R8_InstConstructDestruct) {
 }
 
 // VerilogModuleInst: pins with content
-TEST_F(VerilogTest, R8_ModuleInstPinsContent) {
+TEST_F(VerilogTest, ModuleInstPinsContent) {
   VerilogNetSeq *pins = new VerilogNetSeq;
   pins->push_back(new VerilogNetScalar("a_wire"));
   pins->push_back(new VerilogNetScalar("b_wire"));
@@ -1189,7 +1189,7 @@ TEST_F(VerilogTest, R8_ModuleInstPinsContent) {
 }
 
 // VerilogModuleInst: setInstanceName
-TEST_F(VerilogTest, R8_ModuleInstSetName) {
+TEST_F(VerilogTest, ModuleInstSetName) {
   VerilogModuleInst inst("BUF", "old", nullptr,
                          new VerilogAttrStmtSeq, 1);
   EXPECT_EQ(inst.instanceName(), "old");
@@ -1198,7 +1198,7 @@ TEST_F(VerilogTest, R8_ModuleInstSetName) {
 }
 
 // VerilogDcl: constructor with single arg
-TEST_F(VerilogTest, R8_DclSingleArg) {
+TEST_F(VerilogTest, DclSingleArg2) {
   PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("single_wire");
   VerilogDcl dcl(PortDirection::input(), arg, new VerilogAttrStmtSeq, 5);
@@ -1209,7 +1209,7 @@ TEST_F(VerilogTest, R8_DclSingleArg) {
 }
 
 // VerilogDcl: output direction
-TEST_F(VerilogTest, R8_DclOutputDirection) {
+TEST_F(VerilogTest, DclOutputDirection) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("out_wire"));
@@ -1218,7 +1218,7 @@ TEST_F(VerilogTest, R8_DclOutputDirection) {
 }
 
 // VerilogDcl: size
-TEST_F(VerilogTest, R8_DclSize) {
+TEST_F(VerilogTest, DclSize) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("w1"));
@@ -1227,7 +1227,7 @@ TEST_F(VerilogTest, R8_DclSize) {
 }
 
 // VerilogDclBus: size calculation
-TEST_F(VerilogTest, R8_DclBusSize) {
+TEST_F(VerilogTest, DclBusSize) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("bus_w"));
@@ -1238,7 +1238,7 @@ TEST_F(VerilogTest, R8_DclBusSize) {
 }
 
 // VerilogDclBus: ascending index
-TEST_F(VerilogTest, R8_DclBusAscending) {
+TEST_F(VerilogTest, DclBusAscending2) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("bus_asc"));
@@ -1250,7 +1250,7 @@ TEST_F(VerilogTest, R8_DclBusAscending) {
 }
 
 // VerilogDclBus: single-arg constructor
-TEST_F(VerilogTest, R8_DclBusSingleArg) {
+TEST_F(VerilogTest, DclBusSingleArg) {
   PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("single_bus");
   VerilogDclBus dcl(PortDirection::output(), 3, 0, arg,
@@ -1260,14 +1260,14 @@ TEST_F(VerilogTest, R8_DclBusSingleArg) {
 }
 
 // VerilogDclArg: named vs assign
-TEST_F(VerilogTest, R8_DclArgNamed) {
+TEST_F(VerilogTest, DclArgNamed) {
   VerilogDclArg arg("my_net");
   EXPECT_TRUE(arg.isNamed());
   EXPECT_EQ(arg.netName(), "my_net");
   EXPECT_EQ(arg.assign(), nullptr);
 }
 
-TEST_F(VerilogTest, R8_DclArgAssign) {
+TEST_F(VerilogTest, DclArgAssign2) {
   VerilogNetScalar *lhs = new VerilogNetScalar("out");
   VerilogNetScalar *rhs = new VerilogNetScalar("in");
   VerilogAssign *assign = new VerilogAssign(lhs, rhs, 1);
@@ -1277,7 +1277,7 @@ TEST_F(VerilogTest, R8_DclArgAssign) {
 }
 
 // VerilogAssign: accessors
-TEST_F(VerilogTest, R8_AssignAccessors) {
+TEST_F(VerilogTest, AssignAccessors) {
   VerilogNetScalar *lhs = new VerilogNetScalar("out");
   VerilogNetScalar *rhs = new VerilogNetScalar("in");
   VerilogAssign assign(lhs, rhs, 15);
@@ -1288,7 +1288,7 @@ TEST_F(VerilogTest, R8_AssignAccessors) {
 }
 
 // VerilogNetNamed: constructor and destructor
-TEST_F(VerilogTest, R8_NetNamedConstructDelete) {
+TEST_F(VerilogTest, NetNamedConstructDelete) {
   VerilogNetNamed *net = new VerilogNetScalar("named_w");
   EXPECT_TRUE(net->isNamed());
   EXPECT_EQ(net->name(), "named_w");
@@ -1296,7 +1296,7 @@ TEST_F(VerilogTest, R8_NetNamedConstructDelete) {
 }
 
 // VerilogNetConcat: with multiple nets
-TEST_F(VerilogTest, R8_NetConcatMultiple) {
+TEST_F(VerilogTest, NetConcatMultiple) {
   VerilogNetSeq *nets = new VerilogNetSeq;
   nets->push_back(new VerilogNetScalar("a"));
   nets->push_back(new VerilogNetScalar("b"));
@@ -1306,7 +1306,7 @@ TEST_F(VerilogTest, R8_NetConcatMultiple) {
 }
 
 // VerilogNetPortRef: constructor
-TEST_F(VerilogTest, R8_NetPortRefConstruct) {
+TEST_F(VerilogTest, NetPortRefConstruct2) {
   VerilogNetPortRefScalarNet ref("port_x");
   EXPECT_TRUE(ref.isNamedPortRef());
   EXPECT_FALSE(ref.hasNet());
@@ -1314,7 +1314,7 @@ TEST_F(VerilogTest, R8_NetPortRefConstruct) {
 }
 
 // VerilogNetPortRefScalarNet: various operations
-TEST_F(VerilogTest, R8_NetPortRefScalarNetOps) {
+TEST_F(VerilogTest, NetPortRefScalarNetOps) {
   VerilogNetPortRefScalarNet ref("port_y", "net_y");
   EXPECT_TRUE(ref.hasNet());
   EXPECT_EQ(ref.netName(), "net_y");
@@ -1323,14 +1323,14 @@ TEST_F(VerilogTest, R8_NetPortRefScalarNetOps) {
 }
 
 // VerilogNetPortRefScalar: null net
-TEST_F(VerilogTest, R8_NetPortRefScalarNull) {
+TEST_F(VerilogTest, NetPortRefScalarNull) {
   VerilogNetPortRefScalar ref("port_z", nullptr);
   EXPECT_FALSE(ref.hasNet());
   EXPECT_TRUE(ref.isScalar());
 }
 
 // VerilogNetPortRefPart: constructor
-TEST_F(VerilogTest, R8_NetPortRefPartConstruct) {
+TEST_F(VerilogTest, NetPortRefPartConstruct2) {
   VerilogNetScalar *inner = new VerilogNetScalar("w_part");
   VerilogNetPortRefPart ref("port_part", 15, 0, inner);
   EXPECT_TRUE(ref.isNamedPortRef());
@@ -1340,14 +1340,14 @@ TEST_F(VerilogTest, R8_NetPortRefPartConstruct) {
 }
 
 // VerilogNetPortRefPart: ascending range
-TEST_F(VerilogTest, R8_NetPortRefPartAscending) {
+TEST_F(VerilogTest, NetPortRefPartAscending) {
   VerilogNetScalar *inner = new VerilogNetScalar("w_part_asc");
   VerilogNetPortRefPart ref("port_asc", 0, 7, inner);
   EXPECT_EQ(ref.toIndex(), 7);
 }
 
 // VerilogAttrStmt: construction
-TEST_F(VerilogTest, R8_AttrStmtConstruct) {
+TEST_F(VerilogTest, AttrStmtConstruct2) {
   VerilogAttrEntrySeq *entries = new VerilogAttrEntrySeq;
   entries->push_back(new VerilogAttrEntry("key1", "val1"));
   VerilogAttrStmt stmt(entries);
@@ -1357,14 +1357,14 @@ TEST_F(VerilogTest, R8_AttrStmtConstruct) {
 }
 
 // VerilogAttrEntry: key and value
-TEST_F(VerilogTest, R8_AttrEntryKeyValue) {
+TEST_F(VerilogTest, AttrEntryKeyValue) {
   VerilogAttrEntry entry("attr_key", "attr_value");
   EXPECT_EQ(entry.key(), "attr_key");
   EXPECT_EQ(entry.value(), "attr_value");
 }
 
 // VerilogNetBitSelect: various indices
-TEST_F(VerilogTest, R8_NetBitSelectLargeIndex) {
+TEST_F(VerilogTest, NetBitSelectLargeIndex) {
   VerilogNetBitSelect net("data", 31);
   EXPECT_EQ(net.index(), 31);
   EXPECT_EQ(net.name(), "data[31]");
@@ -1372,7 +1372,7 @@ TEST_F(VerilogTest, R8_NetBitSelectLargeIndex) {
 }
 
 // VerilogNetPartSelect: equal indices
-TEST_F(VerilogTest, R8_NetPartSelectEqual) {
+TEST_F(VerilogTest, NetPartSelectEqual) {
   VerilogNetPartSelect net("single", 5, 5);
   EXPECT_EQ(net.fromIndex(), 5);
   EXPECT_EQ(net.toIndex(), 5);
@@ -1380,78 +1380,78 @@ TEST_F(VerilogTest, R8_NetPartSelectEqual) {
 }
 
 // VerilogNetScalar: empty name
-TEST_F(VerilogTest, R8_NetScalarEmptyName) {
+TEST_F(VerilogTest, NetScalarEmptyName) {
   VerilogNetScalar net("");
   EXPECT_TRUE(net.isScalar());
   EXPECT_TRUE(net.name().empty());
 }
 
 // Additional name conversion edge cases
-TEST_F(VerilogTest, R8_CellNameWithBackslashEscape) {
+TEST_F(VerilogTest, CellNameWithBackslashEscape) {
   std::string result = cellVerilogName("cell\\name");
   EXPECT_FALSE(result.empty());
 }
 
-TEST_F(VerilogTest, R8_InstanceNameAllDigits) {
+TEST_F(VerilogTest, InstanceNameAllDigits) {
   std::string result = instanceVerilogName("0123456789");
   EXPECT_EQ(result, "0123456789");
 }
 
-TEST_F(VerilogTest, R8_NetNameSingleUnderscore) {
+TEST_F(VerilogTest, NetNameSingleUnderscore) {
   EXPECT_EQ(netVerilogName("_"), "_");
 }
 
-TEST_F(VerilogTest, R8_PortNameSingleChar) {
+TEST_F(VerilogTest, PortNameSingleChar) {
   EXPECT_EQ(portVerilogName("a"), "a");
 }
 
-TEST_F(VerilogTest, R8_CellNameWithBraces) {
+TEST_F(VerilogTest, CellNameWithBraces) {
   std::string result = cellVerilogName("{a,b}");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R8_InstanceNameWithStar) {
+TEST_F(VerilogTest, InstanceNameWithStar) {
   std::string result = instanceVerilogName("inst*2");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R8_NetNameWithQuote) {
+TEST_F(VerilogTest, NetNameWithQuote) {
   std::string result = netVerilogName("net\"q");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R8_PortNameWithBacktick) {
+TEST_F(VerilogTest, PortNameWithBacktick) {
   std::string result = portVerilogName("port`tick");
   EXPECT_EQ(result.front(), '\\');
 }
 
 // Verilog to STA conversions: edge cases
-TEST_F(VerilogTest, R8_EscapedInstanceOnlyBrackets) {
+TEST_F(VerilogTest, EscapedInstanceOnlyBrackets) {
   std::string name = "\\[0] ";
   std::string result = instanceVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
-TEST_F(VerilogTest, R8_EscapedNetOnlySlash) {
+TEST_F(VerilogTest, EscapedNetOnlySlash) {
   std::string name = "\\/ ";
   std::string result = netVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
-TEST_F(VerilogTest, R8_ModuleToStaEscapedComplex) {
+TEST_F(VerilogTest, ModuleToStaEscapedComplex) {
   std::string name = "\\mod.a/b[1] ";
   std::string result = moduleVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
-TEST_F(VerilogTest, R8_PortToStaEscapedBracket) {
+TEST_F(VerilogTest, PortToStaEscapedBracket) {
   std::string name = "\\port[3] ";
   std::string result = portVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
 }
 
 // VerilogDcl: appendArg
-TEST_F(VerilogTest, R8_DclAppendMultiple) {
+TEST_F(VerilogTest, DclAppendMultiple) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("w1"));
@@ -1462,7 +1462,7 @@ TEST_F(VerilogTest, R8_DclAppendMultiple) {
 }
 
 // Multiple VerilogNetScalar instances
-TEST_F(VerilogTest, R8_MultipleNetScalars) {
+TEST_F(VerilogTest, MultipleNetScalars2) {
   std::vector<VerilogNetScalar*> nets;
   for (int i = 0; i < 10; i++) {
     std::string name = "net_" + std::to_string(i);
@@ -1478,7 +1478,7 @@ TEST_F(VerilogTest, R8_MultipleNetScalars) {
 }
 
 // VerilogModuleInst: namedPins with named port refs
-TEST_F(VerilogTest, R8_ModuleInstNamedPins) {
+TEST_F(VerilogTest, ModuleInstNamedPins) {
   VerilogNetSeq *pins = new VerilogNetSeq;
   pins->push_back(new VerilogNetPortRefScalarNet("A", "w1"));
   pins->push_back(new VerilogNetPortRefScalarNet("Y", "w2"));
@@ -1489,7 +1489,7 @@ TEST_F(VerilogTest, R8_ModuleInstNamedPins) {
 }
 
 // VerilogModuleInst: ordered pins (not named)
-TEST_F(VerilogTest, R8_ModuleInstOrderedPins) {
+TEST_F(VerilogTest, ModuleInstOrderedPins) {
   VerilogNetSeq *pins = new VerilogNetSeq;
   pins->push_back(new VerilogNetScalar("w1"));
   pins->push_back(new VerilogNetScalar("w2"));
@@ -1500,7 +1500,7 @@ TEST_F(VerilogTest, R8_ModuleInstOrderedPins) {
 }
 
 // VerilogNetPortRefScalarNet: empty net name
-TEST_F(VerilogTest, R8_PortRefScalarNetEmptyName) {
+TEST_F(VerilogTest, PortRefScalarNetEmptyName) {
   VerilogNetPortRefScalarNet ref("port_empty");
   EXPECT_FALSE(ref.hasNet());
   EXPECT_TRUE(ref.netName().empty());
@@ -1511,7 +1511,7 @@ TEST_F(VerilogTest, R8_PortRefScalarNetEmptyName) {
 ////////////////////////////////////////////////////////////////
 
 // VerilogNetScalar: exercises various named operations
-TEST_F(VerilogTest, R9_NetScalarOperations) {
+TEST_F(VerilogTest, NetScalarOperations) {
   VerilogNetScalar net("test_wire");
   EXPECT_TRUE(net.isNamed());
   EXPECT_TRUE(net.isScalar());
@@ -1521,14 +1521,14 @@ TEST_F(VerilogTest, R9_NetScalarOperations) {
 }
 
 // VerilogNetBitSelect: negative index edge case
-TEST_F(VerilogTest, R9_NetBitSelectNegativeIndex) {
+TEST_F(VerilogTest, NetBitSelectNegativeIndex) {
   VerilogNetBitSelect net("data", -1);
   EXPECT_FALSE(net.isScalar());
   EXPECT_EQ(net.index(), -1);
 }
 
 // VerilogNetPartSelect: single bit range
-TEST_F(VerilogTest, R9_NetPartSelectSingleBit) {
+TEST_F(VerilogTest, NetPartSelectSingleBit) {
   VerilogNetPartSelect net("bus", 0, 0);
   EXPECT_FALSE(net.isScalar());
   EXPECT_EQ(net.fromIndex(), 0);
@@ -1536,7 +1536,7 @@ TEST_F(VerilogTest, R9_NetPartSelectSingleBit) {
 }
 
 // VerilogNetConcat: with multiple nested types
-TEST_F(VerilogTest, R9_NetConcatMixedTypes) {
+TEST_F(VerilogTest, NetConcatMixedTypes) {
   VerilogNetSeq *nets = new VerilogNetSeq;
   nets->push_back(new VerilogNetScalar("a"));
   nets->push_back(new VerilogNetBitSelect("b", 0));
@@ -1547,7 +1547,7 @@ TEST_F(VerilogTest, R9_NetConcatMixedTypes) {
 }
 
 // VerilogNetPortRefScalarNet: setNetName then clear
-TEST_F(VerilogTest, R9_PortRefScalarNetSetClear) {
+TEST_F(VerilogTest, PortRefScalarNetSetClear) {
   VerilogNetPortRefScalarNet ref("port_a");
   EXPECT_FALSE(ref.hasNet());
   ref.setNetName("wire_a");
@@ -1558,7 +1558,7 @@ TEST_F(VerilogTest, R9_PortRefScalarNetSetClear) {
 }
 
 // VerilogNetPortRefScalar: with bit select net
-TEST_F(VerilogTest, R9_PortRefScalarWithBitSelect) {
+TEST_F(VerilogTest, PortRefScalarWithBitSelect) {
   VerilogNetBitSelect *inner = new VerilogNetBitSelect("data", 5);
   VerilogNetPortRefScalar ref("port_data", inner);
   EXPECT_TRUE(ref.isScalar());
@@ -1566,7 +1566,7 @@ TEST_F(VerilogTest, R9_PortRefScalarWithBitSelect) {
 }
 
 // VerilogNetPortRefBit: with part select net
-TEST_F(VerilogTest, R9_PortRefBitWithPartSelect) {
+TEST_F(VerilogTest, PortRefBitWithPartSelect) {
   VerilogNetPartSelect *inner = new VerilogNetPartSelect("bus", 7, 0);
   VerilogNetPortRefBit ref("port_bus", 0, inner);
   EXPECT_TRUE(ref.isNamedPortRef());
@@ -1574,7 +1574,7 @@ TEST_F(VerilogTest, R9_PortRefBitWithPartSelect) {
 }
 
 // VerilogNetPortRefPart: with concat net
-TEST_F(VerilogTest, R9_PortRefPartWithConcat) {
+TEST_F(VerilogTest, PortRefPartWithConcat) {
   VerilogNetSeq *nets = new VerilogNetSeq;
   nets->push_back(new VerilogNetScalar("x"));
   nets->push_back(new VerilogNetScalar("y"));
@@ -1585,7 +1585,7 @@ TEST_F(VerilogTest, R9_PortRefPartWithConcat) {
 }
 
 // VerilogModuleInst: with large pin count
-TEST_F(VerilogTest, R9_ModuleInstManyPins) {
+TEST_F(VerilogTest, ModuleInstManyPins) {
   VerilogNetSeq *pins = new VerilogNetSeq;
   for (int i = 0; i < 20; i++) {
     std::string pname = "pin_" + std::to_string(i);
@@ -1600,7 +1600,7 @@ TEST_F(VerilogTest, R9_ModuleInstManyPins) {
 }
 
 // VerilogModuleInst: with mixed pin types
-TEST_F(VerilogTest, R9_ModuleInstMixedPins) {
+TEST_F(VerilogTest, ModuleInstMixedPins) {
   VerilogNetSeq *pins = new VerilogNetSeq;
   pins->push_back(new VerilogNetPortRefScalarNet("A", "w1"));
   pins->push_back(new VerilogNetPortRefScalarNet("Y"));
@@ -1611,7 +1611,7 @@ TEST_F(VerilogTest, R9_ModuleInstMixedPins) {
 }
 
 // VerilogDcl: various directions
-TEST_F(VerilogTest, R9_DclBidirectional) {
+TEST_F(VerilogTest, DclBidirectional) {
   PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("bidir_port");
   VerilogDcl dcl(PortDirection::bidirect(), arg, new VerilogAttrStmtSeq, 1);
@@ -1620,7 +1620,7 @@ TEST_F(VerilogTest, R9_DclBidirectional) {
 }
 
 // VerilogDcl: appendArg to seq
-TEST_F(VerilogTest, R9_DclAppendArgMultiple) {
+TEST_F(VerilogTest, DclAppendArgMultiple) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("w1"));
@@ -1632,7 +1632,7 @@ TEST_F(VerilogTest, R9_DclAppendArgMultiple) {
 }
 
 // VerilogDclBus: large bus
-TEST_F(VerilogTest, R9_DclBusLarge) {
+TEST_F(VerilogTest, DclBusLarge) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("wide_bus"));
@@ -1643,7 +1643,7 @@ TEST_F(VerilogTest, R9_DclBusLarge) {
 }
 
 // VerilogDclBus: descending range
-TEST_F(VerilogTest, R9_DclBusDescending) {
+TEST_F(VerilogTest, DclBusDescending) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("desc_bus"));
@@ -1655,7 +1655,7 @@ TEST_F(VerilogTest, R9_DclBusDescending) {
 }
 
 // VerilogAttrStmt: multiple entries
-TEST_F(VerilogTest, R9_AttrStmtMultipleEntries) {
+TEST_F(VerilogTest, AttrStmtMultipleEntries) {
   VerilogAttrEntrySeq *entries = new VerilogAttrEntrySeq;
   entries->push_back(new VerilogAttrEntry("attr1", "val1"));
   entries->push_back(new VerilogAttrEntry("attr2", "val2"));
@@ -1665,14 +1665,14 @@ TEST_F(VerilogTest, R9_AttrStmtMultipleEntries) {
 }
 
 // VerilogAttrEntry: empty key and value
-TEST_F(VerilogTest, R9_AttrEntryEmpty) {
+TEST_F(VerilogTest, AttrEntryEmpty) {
   VerilogAttrEntry entry("", "");
   EXPECT_TRUE(entry.key().empty());
   EXPECT_TRUE(entry.value().empty());
 }
 
 // VerilogAssign: with concat lhs
-TEST_F(VerilogTest, R9_AssignConcatLhs) {
+TEST_F(VerilogTest, AssignConcatLhs) {
   VerilogNetSeq *nets = new VerilogNetSeq;
   nets->push_back(new VerilogNetScalar("a"));
   nets->push_back(new VerilogNetScalar("b"));
@@ -1684,7 +1684,7 @@ TEST_F(VerilogTest, R9_AssignConcatLhs) {
 }
 
 // VerilogInst: destructor coverage
-TEST_F(VerilogTest, R9_InstDestructor) {
+TEST_F(VerilogTest, InstDestructor) {
   VerilogNetSeq *pins = new VerilogNetSeq;
   pins->push_back(new VerilogNetScalar("w1"));
   VerilogModuleInst *inst = new VerilogModuleInst(
@@ -1695,7 +1695,7 @@ TEST_F(VerilogTest, R9_InstDestructor) {
 }
 
 // VerilogStmt: line accessor
-TEST_F(VerilogTest, R9_StmtLineAccessor) {
+TEST_F(VerilogTest, StmtLineAccessor) {
   VerilogNetScalar *lhs = new VerilogNetScalar("a");
   VerilogNetScalar *rhs = new VerilogNetScalar("b");
   VerilogAssign assign(lhs, rhs, 100);
@@ -1703,58 +1703,58 @@ TEST_F(VerilogTest, R9_StmtLineAccessor) {
 }
 
 // Additional namespace conversion edge cases
-TEST_F(VerilogTest, R9_CellNameWithNewline) {
+TEST_F(VerilogTest, CellNameWithNewline) {
   std::string result = cellVerilogName("cell\nname");
   EXPECT_EQ(result.front(), '\\');
   EXPECT_EQ(result.back(), ' ');
 }
 
-TEST_F(VerilogTest, R9_InstanceNameWithCarriageReturn) {
+TEST_F(VerilogTest, InstanceNameWithCarriageReturn) {
   std::string result = instanceVerilogName("inst\rname");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R9_NetNameWithNull) {
+TEST_F(VerilogTest, NetNameWithNull) {
   // Test with single character that is not alphanumeric or underscore
   std::string result = netVerilogName("net!name");
   EXPECT_EQ(result.front(), '\\');
 }
 
-TEST_F(VerilogTest, R9_PortNameMixedSpecial) {
+TEST_F(VerilogTest, PortNameMixedSpecial) {
   std::string result = portVerilogName("port/name[0]");
   EXPECT_EQ(result.front(), '\\');
   EXPECT_EQ(result.back(), ' ');
 }
 
 // Round-trip tests: staToVerilog -> verilogToSta should preserve identity for simple names
-TEST_F(VerilogTest, R9_RoundTripSimpleName) {
+TEST_F(VerilogTest, RoundTripSimpleName) {
   std::string sta_name = "simple_wire";
   std::string verilog = netVerilogName(sta_name.c_str());
   std::string back = netVerilogToSta(&verilog);
   EXPECT_EQ(back, sta_name);
 }
 
-TEST_F(VerilogTest, R9_RoundTripSimpleCell) {
+TEST_F(VerilogTest, RoundTripSimpleCell) {
   std::string sta_name = "my_cell_123";
   std::string verilog = cellVerilogName(sta_name.c_str());
   EXPECT_EQ(verilog, sta_name); // no escaping needed
 }
 
-TEST_F(VerilogTest, R9_RoundTripSimpleInstance) {
+TEST_F(VerilogTest, RoundTripSimpleInstance) {
   std::string sta_name = "u1_abc";
   std::string verilog = instanceVerilogName(sta_name.c_str());
   std::string back = instanceVerilogToSta(&verilog);
   EXPECT_EQ(back, sta_name);
 }
 
-TEST_F(VerilogTest, R9_RoundTripSimplePort) {
+TEST_F(VerilogTest, RoundTripSimplePort) {
   std::string sta_name = "clk_in";
   std::string verilog = portVerilogName(sta_name.c_str());
   std::string back = portVerilogToSta(&verilog);
   EXPECT_EQ(back, sta_name);
 }
 
-TEST_F(VerilogTest, R9_RoundTripSimpleModule) {
+TEST_F(VerilogTest, RoundTripSimpleModule) {
   std::string sta_name = "top_module";
   std::string verilog = cellVerilogName(sta_name.c_str());
   std::string back = moduleVerilogToSta(&verilog);
@@ -1762,14 +1762,14 @@ TEST_F(VerilogTest, R9_RoundTripSimpleModule) {
 }
 
 // VerilogNetPortRefScalarNet: constructor with empty strings
-TEST_F(VerilogTest, R9_PortRefScalarNetEmptyBoth) {
+TEST_F(VerilogTest, PortRefScalarNetEmptyBoth) {
   VerilogNetPortRefScalarNet ref("");
   EXPECT_TRUE(ref.name().empty());
   EXPECT_FALSE(ref.hasNet());
 }
 
 // VerilogModuleInst: with null pins and null attrs
-TEST_F(VerilogTest, R9_ModuleInstNullPinsAndAttrs) {
+TEST_F(VerilogTest, ModuleInstNullPinsAndAttrs) {
   VerilogModuleInst inst("CELL", "u1", nullptr,
                          new VerilogAttrStmtSeq, 1);
   EXPECT_FALSE(inst.hasPins());
@@ -1777,7 +1777,7 @@ TEST_F(VerilogTest, R9_ModuleInstNullPinsAndAttrs) {
 }
 
 // VerilogDclArg: with long name
-TEST_F(VerilogTest, R9_DclArgLongName) {
+TEST_F(VerilogTest, DclArgLongName) {
   std::string long_name(200, 'w');
   VerilogDclArg arg(long_name);
   EXPECT_TRUE(arg.isNamed());
@@ -1785,7 +1785,7 @@ TEST_F(VerilogTest, R9_DclArgLongName) {
 }
 
 // VerilogDcl: portName with bus arg
-TEST_F(VerilogTest, R9_DclBusPortName) {
+TEST_F(VerilogTest, DclBusPortName) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("bus_port"));
@@ -1801,7 +1801,7 @@ TEST_F(VerilogTest, R9_DclBusPortName) {
 
 // Test net bus range conversion from verilog to STA format
 // Covers: netVerilogToSta bus name conversion
-TEST_F(VerilogTest, R10_NetBusRangeConversion) {
+TEST_F(VerilogTest, NetBusRangeConversion) {
   // Verilog bus notation should convert properly
   std::string verilog_name = "data[3]";
   std::string net_name = netVerilogToSta(&verilog_name);
@@ -1810,7 +1810,7 @@ TEST_F(VerilogTest, R10_NetBusRangeConversion) {
 
 // Test instance name starting with digit (needs escaping)
 // Covers: instanceVerilogName escape handling
-TEST_F(VerilogTest, R10_InstanceDigitStart) {
+TEST_F(VerilogTest, InstanceDigitStart) {
   std::string name = instanceVerilogName("123abc");
   // Instance names starting with digit get escaped in Verilog
   EXPECT_FALSE(name.empty());
@@ -1818,14 +1818,14 @@ TEST_F(VerilogTest, R10_InstanceDigitStart) {
 
 // Test cell name with special characters
 // Covers: cellVerilogName special char handling
-TEST_F(VerilogTest, R10_CellWithHyphen) {
+TEST_F(VerilogTest, CellWithHyphen2) {
   std::string name = cellVerilogName("cell-name");
   EXPECT_FALSE(name.empty());
 }
 
 // Test empty name handling
 // Covers: various name conversion with empty strings
-TEST_F(VerilogTest, R10_EmptyNames) {
+TEST_F(VerilogTest, EmptyNames) {
   std::string cell = cellVerilogName("");
   std::string inst = instanceVerilogName("");
   std::string net = netVerilogName("");
@@ -1836,7 +1836,7 @@ TEST_F(VerilogTest, R10_EmptyNames) {
 
 // Test bus name from verilog to sta conversion
 // Covers: netVerilogToSta with bus notation
-TEST_F(VerilogTest, R10_BusVerilogToSta) {
+TEST_F(VerilogTest, BusVerilogToSta) {
   std::string verilog_name = "bus[7:0]";
   std::string bus = netVerilogToSta(&verilog_name);
   EXPECT_FALSE(bus.empty());
@@ -1844,7 +1844,7 @@ TEST_F(VerilogTest, R10_BusVerilogToSta) {
 
 // Test escaped instance name to STA conversion
 // Covers: instanceVerilogToSta with escaped name
-TEST_F(VerilogTest, R10_EscapedInstanceToSta) {
+TEST_F(VerilogTest, EscapedInstanceToSta) {
   std::string verilog_name = "\\inst[0] ";
   std::string name = instanceVerilogToSta(&verilog_name);
   EXPECT_FALSE(name.empty());
@@ -1852,7 +1852,7 @@ TEST_F(VerilogTest, R10_EscapedInstanceToSta) {
 
 // Test verilog to STA net conversion with brackets
 // Covers: netVerilogToSta bracket handling
-TEST_F(VerilogTest, R10_NetVerilogToStaBrackets) {
+TEST_F(VerilogTest, NetVerilogToStaBrackets) {
   std::string name1 = "wire1";
   std::string net1 = netVerilogToSta(&name1);
   EXPECT_EQ(net1, "wire1");
@@ -1863,35 +1863,35 @@ TEST_F(VerilogTest, R10_NetVerilogToStaBrackets) {
 
 // Test port verilog name with brackets
 // Covers: portVerilogName bracket/escape handling
-TEST_F(VerilogTest, R10_PortWithBrackets) {
+TEST_F(VerilogTest, PortWithBrackets2) {
   std::string name = portVerilogName("data[0]");
   EXPECT_FALSE(name.empty());
 }
 
 // Test cell name that needs escaping
 // Covers: cellVerilogName with slash
-TEST_F(VerilogTest, R10_CellWithSlash) {
+TEST_F(VerilogTest, CellWithSlash) {
   std::string name = cellVerilogName("lib/cell");
   EXPECT_FALSE(name.empty());
 }
 
 // Test net name with multiple special chars
 // Covers: netVerilogName with special chars
-TEST_F(VerilogTest, R10_NetSpecialChars) {
+TEST_F(VerilogTest, NetSpecialChars) {
   std::string name = netVerilogName("net.a/b");
   EXPECT_FALSE(name.empty());
 }
 
 // Test STA to Verilog port name conversion
 // Covers: portVerilogName with hierarchy separator
-TEST_F(VerilogTest, R10_PortHierSep) {
+TEST_F(VerilogTest, PortHierSep) {
   std::string name = portVerilogName("block/port");
   EXPECT_FALSE(name.empty());
 }
 
 // Test instance Verilog to STA with regular name
 // Covers: instanceVerilogToSta simple case
-TEST_F(VerilogTest, R10_InstanceToStaSimple) {
+TEST_F(VerilogTest, InstanceToStaSimple) {
   std::string verilog_name = "u1";
   std::string name = instanceVerilogToSta(&verilog_name);
   EXPECT_EQ(name, "u1");
@@ -1899,7 +1899,7 @@ TEST_F(VerilogTest, R10_InstanceToStaSimple) {
 
 // Test VerilogDclArg with string name
 // Covers: VerilogDclArg constructor, isNamed, netName
-TEST_F(VerilogTest, R10_DclArgBasic) {
+TEST_F(VerilogTest, DclArgBasic) {
   VerilogDclArg arg("test_net");
   EXPECT_TRUE(arg.isNamed());
   EXPECT_EQ(arg.netName(), "test_net");
@@ -1907,7 +1907,7 @@ TEST_F(VerilogTest, R10_DclArgBasic) {
 
 // Test VerilogDcl portName
 // Covers: VerilogDcl::portName
-TEST_F(VerilogTest, R10_DclPortName) {
+TEST_F(VerilogTest, DclPortName2) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("my_port"));
@@ -1917,7 +1917,7 @@ TEST_F(VerilogTest, R10_DclPortName) {
 
 // Test VerilogDclBus with different ranges
 // Covers: VerilogDclBus constructor, portName with different bit ranges
-TEST_F(VerilogTest, R10_DclBusDifferentRange) {
+TEST_F(VerilogTest, DclBusDifferentRange) {
   PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("wide_bus"));
@@ -2005,7 +2005,7 @@ protected:
 // Test readVerilog exercises the VerilogReader, VerilogScanner, VerilogModule paths
 // Covers: makeVerilogReader, readVerilogFile, deleteVerilogReader,
 //         VerilogScanner, VerilogReader::module
-TEST_F(VerilogDesignTest, R9_ReadVerilogExercisesReader) {
+TEST_F(VerilogDesignTest, ReadVerilogExercisesReader) {
   ASSERT_TRUE(design_loaded_);
   // The design was already loaded via readVerilog in SetUp
   // Verify we have a valid network
@@ -2017,7 +2017,7 @@ TEST_F(VerilogDesignTest, R9_ReadVerilogExercisesReader) {
 
 // Test writeVerilog exercises VerilogWriter
 // Covers: writeVerilog, VerilogWriter::findHierChildren
-TEST_F(VerilogDesignTest, R9_WriteVerilog) {
+TEST_F(VerilogDesignTest, WriteVerilog) {
   ASSERT_TRUE(design_loaded_);
 
   const char *tmpfile = "/tmp/test_r9_verilog_out.v";
@@ -2035,7 +2035,7 @@ TEST_F(VerilogDesignTest, R9_WriteVerilog) {
 
 // Test writeVerilog with include_pwr_gnd flag
 // Covers: VerilogWriter power/ground pin handling
-TEST_F(VerilogDesignTest, R9_WriteVerilogWithPwrGnd) {
+TEST_F(VerilogDesignTest, WriteVerilogWithPwrGnd) {
   ASSERT_TRUE(design_loaded_);
 
   const char *tmpfile = "/tmp/test_r9_verilog_pwrgnd.v";
@@ -2053,7 +2053,7 @@ TEST_F(VerilogDesignTest, R9_WriteVerilogWithPwrGnd) {
 
 // Test writeVerilog then re-read round-trip
 // Covers: readVerilog + writeVerilog round-trip, VerilogReader error paths
-TEST_F(VerilogDesignTest, R9_WriteReadVerilogRoundTrip) {
+TEST_F(VerilogDesignTest, WriteReadVerilogRoundTrip) {
   ASSERT_TRUE(design_loaded_);
 
   const char *tmpfile = "/tmp/test_r9_verilog_rt.v";
@@ -2071,7 +2071,7 @@ TEST_F(VerilogDesignTest, R9_WriteReadVerilogRoundTrip) {
 
 // Test readVerilog with nonexistent file throws FileNotReadable
 // Covers: VerilogReader/VerilogScanner error handling
-TEST_F(VerilogDesignTest, R9_ReadVerilogNonexistent) {
+TEST_F(VerilogDesignTest, ReadVerilogNonexistent) {
   ASSERT_TRUE(design_loaded_);
 
   EXPECT_THROW(
@@ -2082,7 +2082,7 @@ TEST_F(VerilogDesignTest, R9_ReadVerilogNonexistent) {
 
 // Test network topology after readVerilog
 // Covers: VerilogReader::makeNamedPortRefCellPorts, VerilogBindingTbl::bind
-TEST_F(VerilogDesignTest, R9_VerifyNetworkTopology) {
+TEST_F(VerilogDesignTest, VerifyNetworkTopology) {
   ASSERT_TRUE(design_loaded_);
 
   Network *network = sta_->network();
@@ -2105,7 +2105,7 @@ TEST_F(VerilogDesignTest, R9_VerifyNetworkTopology) {
 
 // Test network instances after readVerilog
 // Covers: VerilogInst, VerilogModuleInst linking
-TEST_F(VerilogDesignTest, R9_VerifyNetworkInstances) {
+TEST_F(VerilogDesignTest, VerifyNetworkInstances) {
   ASSERT_TRUE(design_loaded_);
 
   Network *network = sta_->network();
@@ -2125,7 +2125,7 @@ TEST_F(VerilogDesignTest, R9_VerifyNetworkInstances) {
 
 // Test network nets after readVerilog
 // Covers: VerilogNetNamed, VerilogNetScalar linking
-TEST_F(VerilogDesignTest, R9_VerifyNetworkNets) {
+TEST_F(VerilogDesignTest, VerifyNetworkNets) {
   ASSERT_TRUE(design_loaded_);
 
   Network *network = sta_->network();
@@ -2145,7 +2145,7 @@ TEST_F(VerilogDesignTest, R9_VerifyNetworkNets) {
 
 // Test writeVerilog with remove_cells
 // Covers: VerilogWriter cell filtering path
-TEST_F(VerilogDesignTest, R9_WriteVerilogRemoveCells) {
+TEST_F(VerilogDesignTest, WriteVerilogRemoveCells) {
   ASSERT_TRUE(design_loaded_);
 
   const char *tmpfile = "/tmp/test_r9_verilog_rmcells.v";
@@ -2164,7 +2164,7 @@ TEST_F(VerilogDesignTest, R9_WriteVerilogRemoveCells) {
 
 // Test graph construction triggers VerilogReader paths
 // Covers: VerilogReader cell/instance lookup
-TEST_F(VerilogDesignTest, R9_EnsureGraphVerify) {
+TEST_F(VerilogDesignTest, EnsureGraphVerify) {
   ASSERT_TRUE(design_loaded_);
 
   sta_->ensureGraph();
@@ -2187,7 +2187,7 @@ TEST_F(VerilogDesignTest, R9_EnsureGraphVerify) {
 
 // Test multiple readVerilog calls (re-read)
 // Covers: VerilogReader::readNetlistBefore, cleanup paths
-TEST_F(VerilogDesignTest, R9_ReadVerilogTwice) {
+TEST_F(VerilogDesignTest, ReadVerilogTwice) {
   ASSERT_TRUE(design_loaded_);
 
   // Re-read the same verilog
@@ -2208,7 +2208,7 @@ TEST_F(VerilogDesignTest, R9_ReadVerilogTwice) {
 
 // Test reading verilog with positional (ordered) pin connections
 // Covers: VerilogReader::makeOrderedInstPins
-TEST_F(VerilogDesignTest, R10_ReadPositionalConnections) {
+TEST_F(VerilogDesignTest, ReadPositionalConnections) {
   ASSERT_TRUE(design_loaded_);
 
   // Read verilog with positional connections
@@ -2233,7 +2233,7 @@ TEST_F(VerilogDesignTest, R10_ReadPositionalConnections) {
 
 // Test reading verilog with constant net connections (1'b1, 1'b0)
 // Covers: VerilogNetConstant, constant pin handling
-TEST_F(VerilogDesignTest, R10_ReadConstantConnections) {
+TEST_F(VerilogDesignTest, ReadConstantConnections) {
   ASSERT_TRUE(design_loaded_);
 
   bool result = sta_->readVerilog("verilog/test/constant_net.v");
@@ -2254,7 +2254,7 @@ TEST_F(VerilogDesignTest, R10_ReadConstantConnections) {
 
 // Test reading verilog with assign statements
 // Covers: VerilogStmt::isAssign, VerilogAssign
-TEST_F(VerilogDesignTest, R10_ReadAssignStatements) {
+TEST_F(VerilogDesignTest, ReadAssignStatements) {
   ASSERT_TRUE(design_loaded_);
 
   bool result = sta_->readVerilog("verilog/test/assign_net.v");
@@ -2273,7 +2273,7 @@ TEST_F(VerilogDesignTest, R10_ReadAssignStatements) {
 
 // Test reading verilog with bus bit select connections
 // Covers: makeNetNamedPortRefBit, makeNetNamedPortRefPart
-TEST_F(VerilogDesignTest, R10_ReadBusConnections) {
+TEST_F(VerilogDesignTest, ReadBusConnections) {
   ASSERT_TRUE(design_loaded_);
 
   bool result = sta_->readVerilog("verilog/test/bus_connect.v");
@@ -2295,7 +2295,7 @@ TEST_F(VerilogDesignTest, R10_ReadBusConnections) {
 
 // Test reading same design again (basic reload)
 // Covers: readVerilog overwrite, VerilogReader cleanup paths
-TEST_F(VerilogDesignTest, R10_ReadConcatenation) {
+TEST_F(VerilogDesignTest, ReadConcatenation) {
   ASSERT_TRUE(design_loaded_);
 
   // Just re-read the base design
@@ -2311,7 +2311,7 @@ TEST_F(VerilogDesignTest, R10_ReadConcatenation) {
 
 // Test reading a wrapper module that instantiates a black box
 // Covers: VerilogReader::makeBlackBox, unknown cell handling
-TEST_F(VerilogDesignTest, R10_ReadBlackBoxModule) {
+TEST_F(VerilogDesignTest, ReadBlackBoxModule) {
   ASSERT_TRUE(design_loaded_);
 
   // Create a temporary verilog file with a black box
@@ -2339,7 +2339,7 @@ TEST_F(VerilogDesignTest, R10_ReadBlackBoxModule) {
 
 // Test writeVerilog with sorted output
 // Covers: writeVerilog, VerilogWriter::writeModule sorted
-TEST_F(VerilogDesignTest, R10_WriteVerilogSorted) {
+TEST_F(VerilogDesignTest, WriteVerilogSorted) {
   ASSERT_TRUE(design_loaded_);
 
   Network *network = sta_->network();
@@ -2360,7 +2360,7 @@ TEST_F(VerilogDesignTest, R10_WriteVerilogSorted) {
 
 // Test reading verilog with escaped names
 // Covers: VerilogReader escaped name handling
-TEST_F(VerilogDesignTest, R10_ReadEscapedNames) {
+TEST_F(VerilogDesignTest, ReadEscapedNames) {
   ASSERT_TRUE(design_loaded_);
 
   const char *esc_file = "verilog/test/escaped_r10.v";
@@ -2388,7 +2388,7 @@ TEST_F(VerilogDesignTest, R10_ReadEscapedNames) {
 
 // Test reading verilog with unconnected ports (empty parens)
 // Covers: VerilogReader empty port ref handling
-TEST_F(VerilogDesignTest, R10_ReadUnconnectedPorts) {
+TEST_F(VerilogDesignTest, ReadUnconnectedPorts) {
   ASSERT_TRUE(design_loaded_);
 
   const char *unc_file = "verilog/test/unconn_r10.v";
@@ -2415,7 +2415,7 @@ TEST_F(VerilogDesignTest, R10_ReadUnconnectedPorts) {
 
 // Test reading hierarchical modules
 // Covers: VerilogReader multi-module handling, linkModule
-TEST_F(VerilogDesignTest, R10_ReadMultipleModules) {
+TEST_F(VerilogDesignTest, ReadMultipleModules) {
   ASSERT_TRUE(design_loaded_);
 
   const char *hier_file = "verilog/test/hier_r10.v";
@@ -2451,7 +2451,7 @@ TEST_F(VerilogDesignTest, R10_ReadMultipleModules) {
 
 // Test reading a non-existent file (error path)
 // Covers: VerilogReader file open error path
-TEST_F(VerilogDesignTest, R10_ReadNonexistentFile) {
+TEST_F(VerilogDesignTest, ReadNonexistentFile) {
   ASSERT_TRUE(design_loaded_);
 
   // readVerilog throws an exception for non-existent files
@@ -2460,7 +2460,7 @@ TEST_F(VerilogDesignTest, R10_ReadNonexistentFile) {
 
 // Test reading with warning-level constructs
 // Covers: VerilogReader warning paths (duplicate module, etc.)
-TEST_F(VerilogDesignTest, R10_ReadWithWarningConstructs) {
+TEST_F(VerilogDesignTest, ReadWithWarningConstructs) {
   ASSERT_TRUE(design_loaded_);
 
   const char *warn_file = "verilog/test/warn_r10.v";
@@ -2487,7 +2487,7 @@ TEST_F(VerilogDesignTest, R10_ReadWithWarningConstructs) {
 
 // Test writeVerilog with remove cells filter
 // Covers: VerilogWriter cell removal filtering
-TEST_F(VerilogDesignTest, R10_WriteVerilogRemoveCellsActual) {
+TEST_F(VerilogDesignTest, WriteVerilogRemoveCellsActual) {
   ASSERT_TRUE(design_loaded_);
 
   Network *network = sta_->network();
@@ -2508,7 +2508,7 @@ TEST_F(VerilogDesignTest, R10_WriteVerilogRemoveCellsActual) {
 
 // Test writeVerilog with power/ground net inclusion
 // Covers: VerilogWriter include_pwr_gnd flag
-TEST_F(VerilogDesignTest, R10_WriteVerilogPwrGndTrue) {
+TEST_F(VerilogDesignTest, WriteVerilogPwrGndTrue) {
   ASSERT_TRUE(design_loaded_);
 
   Network *network = sta_->network();
@@ -2528,7 +2528,7 @@ TEST_F(VerilogDesignTest, R10_WriteVerilogPwrGndTrue) {
 
 // Test read-write-read round trip
 // Covers: VerilogReader + VerilogWriter pipeline
-TEST_F(VerilogDesignTest, R10_ReadWriteRoundTrip) {
+TEST_F(VerilogDesignTest, ReadWriteRoundTrip) {
   ASSERT_TRUE(design_loaded_);
 
   Network *network = sta_->network();
@@ -2576,7 +2576,7 @@ TEST_F(VerilogDesignTest, R10_ReadWriteRoundTrip) {
 
 // R11_1: Read verilog with constant values to cover VerilogNetConstant,
 // VerilogConstantNetNameIterator, VerilogNullNetNameIterator
-TEST_F(VerilogDesignTest, R11_ReadVerilogConstants) {
+TEST_F(VerilogDesignTest, ReadVerilogConstants) {
   ASSERT_TRUE(design_loaded_);
 
   // Write a verilog file with constant connections
@@ -2601,7 +2601,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogConstants) {
 // R11_2: Read verilog with bit select and part select connections
 // Covers VerilogNetBitSelect::isScalar, VerilogNetPartSelect::isScalar,
 // VerilogNetPortRefBit::name, VerilogBusNetNameIterator
-TEST_F(VerilogDesignTest, R11_ReadVerilogBitPartSelect) {
+TEST_F(VerilogDesignTest, ReadVerilogBitPartSelect) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_bitpart.v";
@@ -2628,7 +2628,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogBitPartSelect) {
 // R11_3: Read verilog with unnamed port connections (positional)
 // Covers VerilogNetUnnamed::isNamed, VerilogNetUnnamed::name,
 // VerilogOneNetNameIterator
-TEST_F(VerilogDesignTest, R11_ReadVerilogPositional) {
+TEST_F(VerilogDesignTest, ReadVerilogPositional) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_pos.v";
@@ -2648,7 +2648,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogPositional) {
 
 // R11_4: Read verilog with named port ref to a concat and complex nets
 // Covers VerilogNetPortRefScalar, VerilogNetPortRefScalarNet::isScalar
-TEST_F(VerilogDesignTest, R11_ReadVerilogConcat) {
+TEST_F(VerilogDesignTest, ReadVerilogConcat) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_concat.v";
@@ -2670,7 +2670,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogConcat) {
 
 // R11_5: Read verilog with multiple modules to exercise VerilogReader::module(Cell*)
 // and VerilogBindingTbl
-TEST_F(VerilogDesignTest, R11_ReadVerilogMultiModule) {
+TEST_F(VerilogDesignTest, ReadVerilogMultiModule) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_multi.v";
@@ -2699,7 +2699,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogMultiModule) {
 
 // R11_6: Read verilog with black box instance (unknown module)
 // Covers VerilogReader::isBlackBox, makeBlackBox
-TEST_F(VerilogDesignTest, R11_ReadVerilogBlackBox) {
+TEST_F(VerilogDesignTest, ReadVerilogBlackBox) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_bbox.v";
@@ -2721,7 +2721,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogBlackBox) {
 // R11_7: Read verilog with named port ref and bit index on port
 // Covers VerilogNetPortRefBit, makeNetNamedPortRefBit,
 // makeNetNamedPortRefPart
-TEST_F(VerilogDesignTest, R11_ReadVerilogNamedPortRefBit) {
+TEST_F(VerilogDesignTest, ReadVerilogNamedPortRefBit) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_portref_bit.v";
@@ -2745,7 +2745,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogNamedPortRefBit) {
 
 // R11_8: Read verilog with assign statements and port concatenation
 // Covers VerilogAssign::isAssign, VerilogStmt hierarchy paths
-TEST_F(VerilogDesignTest, R11_ReadVerilogAssignConcat) {
+TEST_F(VerilogDesignTest, ReadVerilogAssignConcat) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_assign_concat.v";
@@ -2767,7 +2767,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogAssignConcat) {
 }
 
 // R11_9: Read verilog with supply0/supply1 nets (covers special net types)
-TEST_F(VerilogDesignTest, R11_ReadVerilogSupplyNets) {
+TEST_F(VerilogDesignTest, ReadVerilogSupplyNets) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_supply.v";
@@ -2788,7 +2788,7 @@ TEST_F(VerilogDesignTest, R11_ReadVerilogSupplyNets) {
 }
 
 // R11_10: Read verilog with escaped names to exercise more parser paths
-TEST_F(VerilogDesignTest, R11_ReadVerilogEscapedNames) {
+TEST_F(VerilogDesignTest, ReadVerilogEscapedNames) {
   ASSERT_TRUE(design_loaded_);
 
   const char *vpath = "/tmp/test_r11_escaped.v";

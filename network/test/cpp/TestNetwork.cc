@@ -2592,7 +2592,7 @@ TEST(NetSetDefaultTest, EmptySet) {
 ////////////////////////////////////////////////////////////////
 
 // Network: connect via Port path with a freshly made instance
-TEST_F(ConcreteNetworkLinkedTest, R5_ConnectNewPin) {
+TEST_F(ConcreteNetworkLinkedTest, ConnectNewPin) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u3 = network_.makeInstance(inv_cell, "u3", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -2603,7 +2603,7 @@ TEST_F(ConcreteNetworkLinkedTest, R5_ConnectNewPin) {
 }
 
 // ConcreteCell: findPort for bus bits by name
-TEST(ConcreteCellTest, R5_FindBusBitByName) {
+TEST(ConcreteCellTest, FindBusBitByName) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("REG", true, "");
@@ -2615,19 +2615,19 @@ TEST(ConcreteCellTest, R5_FindBusBitByName) {
 }
 
 // Network: isCheckClk (non-liberty pin => false)
-TEST_F(ConcreteNetworkLinkedTest, R5_IsCheckClk) {
+TEST_F(ConcreteNetworkLinkedTest, IsCheckClk) {
   EXPECT_FALSE(network_.isCheckClk(pin_u1_a_));
 }
 
 // Network: busIndexInRange on scalar port (always false)
-TEST_F(ConcreteNetworkLinkedTest, R5_BusIndexInRangeScalar) {
+TEST_F(ConcreteNetworkLinkedTest, BusIndexInRangeScalar) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
   EXPECT_FALSE(network_.busIndexInRange(port_a, 0));
 }
 
 // Network: busIndexInRange on bus port
-TEST_F(ConcreteNetworkLinkedTest, R5_BusIndexInRangeBus) {
+TEST_F(ConcreteNetworkLinkedTest, BusIndexInRangeBus) {
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib_);
   clib->setBusBrkts('[', ']');
   Cell *cell = network_.makeCell(lib_, "BUS_TEST", true, "test.lib");
@@ -2639,7 +2639,7 @@ TEST_F(ConcreteNetworkLinkedTest, R5_BusIndexInRangeBus) {
 }
 
 // Network: hasMembersViaNetwork on bus port
-TEST_F(ConcreteNetworkLinkedTest, R5_HasMembersBus) {
+TEST_F(ConcreteNetworkLinkedTest, HasMembersBus) {
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib_);
   clib->setBusBrkts('[', ']');
   Cell *cell = network_.makeCell(lib_, "HAS_MEM_TEST", true, "test.lib");
@@ -2648,7 +2648,7 @@ TEST_F(ConcreteNetworkLinkedTest, R5_HasMembersBus) {
 }
 
 // Network: findMember on bus port
-TEST_F(ConcreteNetworkLinkedTest, R5_FindMemberBus) {
+TEST_F(ConcreteNetworkLinkedTest, FindMemberBus) {
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib_);
   clib->setBusBrkts('[', ']');
   Cell *cell = network_.makeCell(lib_, "FIND_MEM_TEST", true, "test.lib");
@@ -2660,21 +2660,21 @@ TEST_F(ConcreteNetworkLinkedTest, R5_FindMemberBus) {
 }
 
 // Network: isInside (pin inside pin context)
-TEST_F(ConcreteNetworkLinkedTest, R5_IsInsidePinPin) {
+TEST_F(ConcreteNetworkLinkedTest, IsInsidePinPin) {
   EXPECT_FALSE(network_.isInside(pin_u1_a_, pin_u2_a_));
 }
 
 // (R5_CheckLibertyCorners removed: segfaults without Report* initialized)
 
 // Network: findLibertyFilename (none loaded)
-TEST(ConcreteNetworkExtraTest, R5_FindLibertyFilename) {
+TEST(ConcreteNetworkExtraTest, FindLibertyFilename) {
   ConcreteNetwork network;
   LibertyLibrary *found = network.findLibertyFilename("nonexistent.lib");
   EXPECT_EQ(found, nullptr);
 }
 
 // Network: leafInstanceIterator with hierarchical instance
-TEST_F(ConcreteNetworkLinkedTest, R5_LeafInstanceIteratorHier) {
+TEST_F(ConcreteNetworkLinkedTest, LeafInstanceIteratorHier) {
   Instance *top = network_.topInstance();
   LeafInstanceIterator *iter = network_.leafInstanceIterator(top);
   int count = 0;
@@ -2687,7 +2687,7 @@ TEST_F(ConcreteNetworkLinkedTest, R5_LeafInstanceIteratorHier) {
 }
 
 // Network: findPin(Instance, Port)
-TEST_F(ConcreteNetworkLinkedTest, R5_FindPinByPort) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinByPort2) {
   Cell *cell = network_.cell(u1_);
   Port *port_a = network_.findPort(cell, "A");
   Pin *found = network_.findPin(u1_, port_a);
@@ -2695,7 +2695,7 @@ TEST_F(ConcreteNetworkLinkedTest, R5_FindPinByPort) {
 }
 
 // ConcretePort: setBundlePort
-TEST(ConcretePortTest, R5_SetBundlePort) {
+TEST(ConcretePortTest, SetBundlePort) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   ConcreteCell *cell = lib.makeCell("MUX", true, "");
   ConcretePort *a = cell->makePort("A");
@@ -2710,7 +2710,7 @@ TEST(ConcretePortTest, R5_SetBundlePort) {
 }
 
 // BusPort default constructor and setDirection
-TEST(ConcretePortTest, R5_BusPortDefaultConstructor) {
+TEST(ConcretePortTest, BusPortDefaultConstructor) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("REG", true, "");
@@ -2722,14 +2722,14 @@ TEST(ConcretePortTest, R5_BusPortDefaultConstructor) {
 }
 
 // ConcreteNetwork: cell(LibertyCell) forwarding
-TEST(ConcreteNetworkExtraTest, R5_CellFromLibertyCell) {
+TEST(ConcreteNetworkExtraTest, CellFromLibertyCell) {
   ConcreteNetwork network;
   Cell *result = network.cell(static_cast<LibertyCell*>(nullptr));
   EXPECT_EQ(result, nullptr);
 }
 
 // ConcreteNetwork: cell(const LibertyCell) forwarding
-TEST(ConcreteNetworkExtraTest, R5_CellFromConstLibertyCell) {
+TEST(ConcreteNetworkExtraTest, CellFromConstLibertyCell) {
   ConcreteNetwork network;
   const Cell *result = network.cell(static_cast<const LibertyCell*>(nullptr));
   EXPECT_EQ(result, nullptr);
@@ -2790,50 +2790,50 @@ protected:
 };
 
 // NetworkNameAdapter: topInstance forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterTopInstance) {
+TEST_F(NetworkAdapterTest, AdapterTopInstance) {
   Instance *top = sdc_net_->topInstance();
   EXPECT_NE(top, nullptr);
   EXPECT_EQ(top, network_.topInstance());
 }
 
 // NetworkNameAdapter: name(Library) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterLibraryName) {
+TEST_F(NetworkAdapterTest, AdapterLibraryName) {
   EXPECT_STREQ(sdc_net_->name(lib_), "adapter_lib");
 }
 
 // NetworkNameAdapter: id(Library) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterLibraryId) {
+TEST_F(NetworkAdapterTest, AdapterLibraryId) {
   ObjectId adapter_id = sdc_net_->id(lib_);
   ObjectId direct_id = network_.id(lib_);
   EXPECT_EQ(adapter_id, direct_id);
 }
 
 // NetworkNameAdapter: findLibrary forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterFindLibrary) {
+TEST_F(NetworkAdapterTest, AdapterFindLibrary) {
   Library *found = sdc_net_->findLibrary("adapter_lib");
   EXPECT_EQ(found, lib_);
 }
 
 // NetworkNameAdapter: findLibertyFilename forwarding (no liberty libs)
-TEST_F(NetworkAdapterTest, R5_AdapterFindLibertyFilename) {
+TEST_F(NetworkAdapterTest, AdapterFindLibertyFilename) {
   LibertyLibrary *found = sdc_net_->findLibertyFilename("nonexistent.lib");
   EXPECT_EQ(found, nullptr);
 }
 
 // NetworkNameAdapter: findLiberty forwarding (no liberty libs)
-TEST_F(NetworkAdapterTest, R5_AdapterFindLiberty) {
+TEST_F(NetworkAdapterTest, AdapterFindLiberty) {
   LibertyLibrary *found = sdc_net_->findLiberty("nonexistent");
   EXPECT_EQ(found, nullptr);
 }
 
 // NetworkNameAdapter: defaultLibertyLibrary forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterDefaultLibertyLibrary) {
+TEST_F(NetworkAdapterTest, AdapterDefaultLibertyLibrary) {
   LibertyLibrary *def = sdc_net_->defaultLibertyLibrary();
   EXPECT_EQ(def, nullptr);
 }
 
 // NetworkNameAdapter: libraryIterator forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterLibraryIterator) {
+TEST_F(NetworkAdapterTest, AdapterLibraryIterator) {
   LibraryIterator *iter = sdc_net_->libraryIterator();
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -2846,7 +2846,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterLibraryIterator) {
 }
 
 // NetworkNameAdapter: libertyLibraryIterator forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterLibertyLibraryIterator) {
+TEST_F(NetworkAdapterTest, AdapterLibertyLibraryIterator) {
   LibertyLibraryIterator *iter = sdc_net_->libertyLibraryIterator();
   ASSERT_NE(iter, nullptr);
   // No liberty libs loaded
@@ -2855,62 +2855,62 @@ TEST_F(NetworkAdapterTest, R5_AdapterLibertyLibraryIterator) {
 }
 
 // NetworkNameAdapter: name(Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellName) {
+TEST_F(NetworkAdapterTest, AdapterCellName) {
   EXPECT_STREQ(sdc_net_->name(inv_cell_), "BUF");
 }
 
 // NetworkNameAdapter: id(Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellId) {
+TEST_F(NetworkAdapterTest, AdapterCellId) {
   ObjectId adapter_id = sdc_net_->id(inv_cell_);
   ObjectId direct_id = network_.id(inv_cell_);
   EXPECT_EQ(adapter_id, direct_id);
 }
 
 // NetworkNameAdapter: getAttribute(Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellGetAttribute) {
+TEST_F(NetworkAdapterTest, AdapterCellGetAttribute) {
   std::string val = sdc_net_->getAttribute(inv_cell_, "nonexistent");
   EXPECT_TRUE(val.empty());
 }
 
 // NetworkNameAdapter: attributeMap(Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellAttributeMap) {
+TEST_F(NetworkAdapterTest, AdapterCellAttributeMap) {
   const AttributeMap &map = sdc_net_->attributeMap(inv_cell_);
   (void)map;
   // Just verify it doesn't crash
 }
 
 // NetworkNameAdapter: library(Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellLibrary) {
+TEST_F(NetworkAdapterTest, AdapterCellLibrary) {
   Library *lib = sdc_net_->library(inv_cell_);
   EXPECT_EQ(lib, lib_);
 }
 
 // NetworkNameAdapter: filename(Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellFilename) {
+TEST_F(NetworkAdapterTest, AdapterCellFilename) {
   const char *fn = sdc_net_->filename(inv_cell_);
   EXPECT_STREQ(fn, "adapter.lib");
 }
 
 // NetworkNameAdapter: findPort forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterFindPort) {
+TEST_F(NetworkAdapterTest, AdapterFindPort) {
   Port *found = sdc_net_->findPort(inv_cell_, "A");
   EXPECT_EQ(found, port_a_);
 }
 
 // NetworkNameAdapter: findPortsMatching forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterFindPortsMatching) {
+TEST_F(NetworkAdapterTest, AdapterFindPortsMatching) {
   PatternMatch pattern("*");
   PortSeq ports = sdc_net_->findPortsMatching(inv_cell_, &pattern);
   EXPECT_EQ(ports.size(), 2u);
 }
 
 // NetworkNameAdapter: isLeaf(Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellIsLeaf) {
+TEST_F(NetworkAdapterTest, AdapterCellIsLeaf) {
   EXPECT_TRUE(sdc_net_->isLeaf(inv_cell_));
 }
 
 // NetworkNameAdapter: portIterator forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortIterator) {
+TEST_F(NetworkAdapterTest, AdapterPortIterator) {
   CellPortIterator *iter = sdc_net_->portIterator(inv_cell_);
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -2923,7 +2923,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterPortIterator) {
 }
 
 // NetworkNameAdapter: portBitIterator forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortBitIterator) {
+TEST_F(NetworkAdapterTest, AdapterPortBitIterator) {
   CellPortBitIterator *iter = sdc_net_->portBitIterator(inv_cell_);
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -2936,71 +2936,71 @@ TEST_F(NetworkAdapterTest, R5_AdapterPortBitIterator) {
 }
 
 // NetworkNameAdapter: portBitCount forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortBitCount) {
+TEST_F(NetworkAdapterTest, AdapterPortBitCount) {
   int count = sdc_net_->portBitCount(inv_cell_);
   EXPECT_EQ(count, 2);
 }
 
 // NetworkNameAdapter: name(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortName) {
+TEST_F(NetworkAdapterTest, AdapterPortName) {
   EXPECT_STREQ(sdc_net_->name(port_a_), "A");
 }
 
 // NetworkNameAdapter: id(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortId) {
+TEST_F(NetworkAdapterTest, AdapterPortId) {
   ObjectId adapter_id = sdc_net_->id(port_a_);
   ObjectId direct_id = network_.id(port_a_);
   EXPECT_EQ(adapter_id, direct_id);
 }
 
 // NetworkNameAdapter: cell(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortCell) {
+TEST_F(NetworkAdapterTest, AdapterPortCell) {
   Cell *cell = sdc_net_->cell(port_a_);
   EXPECT_EQ(cell, inv_cell_);
 }
 
 // NetworkNameAdapter: direction(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortDirection) {
+TEST_F(NetworkAdapterTest, AdapterPortDirection) {
   PortDirection *dir = sdc_net_->direction(port_a_);
   EXPECT_EQ(dir, PortDirection::input());
 }
 
 // NetworkNameAdapter: isBundle(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortIsBundle) {
+TEST_F(NetworkAdapterTest, AdapterPortIsBundle) {
   EXPECT_FALSE(sdc_net_->isBundle(port_a_));
 }
 
 // NetworkNameAdapter: isBus(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortIsBus) {
+TEST_F(NetworkAdapterTest, AdapterPortIsBus) {
   EXPECT_FALSE(sdc_net_->isBus(port_a_));
 }
 
 // NetworkNameAdapter: size(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortSize) {
+TEST_F(NetworkAdapterTest, AdapterPortSize) {
   EXPECT_EQ(sdc_net_->size(port_a_), 1);
 }
 
 // NetworkNameAdapter: busName(Port) scalar forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortBusName) {
+TEST_F(NetworkAdapterTest, AdapterPortBusName) {
   const char *bn = sdc_net_->busName(port_a_);
   // Scalar port returns name (not nullptr) through SdcNetwork
   EXPECT_NE(bn, nullptr);
 }
 
 // NetworkNameAdapter: fromIndex(Port) forwarding (scalar ports return -1)
-TEST_F(NetworkAdapterTest, R5_AdapterPortFromIndex) {
+TEST_F(NetworkAdapterTest, AdapterPortFromIndex) {
   int idx = sdc_net_->fromIndex(port_a_);
   EXPECT_EQ(idx, -1);
 }
 
 // NetworkNameAdapter: toIndex(Port) forwarding (scalar ports return -1)
-TEST_F(NetworkAdapterTest, R5_AdapterPortToIndex) {
+TEST_F(NetworkAdapterTest, AdapterPortToIndex) {
   int idx = sdc_net_->toIndex(port_a_);
   EXPECT_EQ(idx, -1);
 }
 
 // NetworkNameAdapter: hasMembers(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPortHasMembers) {
+TEST_F(NetworkAdapterTest, AdapterPortHasMembers) {
   EXPECT_FALSE(sdc_net_->hasMembers(port_a_));
 }
 
@@ -3008,43 +3008,43 @@ TEST_F(NetworkAdapterTest, R5_AdapterPortHasMembers) {
 // (R5_AdapterPortFindBusBit removed: segfaults on scalar port)
 
 // NetworkNameAdapter: id(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterInstanceId) {
+TEST_F(NetworkAdapterTest, AdapterInstanceId) {
   ObjectId adapter_id = sdc_net_->id(u1_);
   ObjectId direct_id = network_.id(u1_);
   EXPECT_EQ(adapter_id, direct_id);
 }
 
 // NetworkNameAdapter: cell(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterInstanceCell) {
+TEST_F(NetworkAdapterTest, AdapterInstanceCell) {
   Cell *cell = sdc_net_->cell(u1_);
   EXPECT_EQ(cell, inv_cell_);
 }
 
 // NetworkNameAdapter: getAttribute(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterInstanceGetAttribute) {
+TEST_F(NetworkAdapterTest, AdapterInstanceGetAttribute) {
   std::string val = sdc_net_->getAttribute(u1_, "nonexistent");
   EXPECT_TRUE(val.empty());
 }
 
 // NetworkNameAdapter: attributeMap(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterInstanceAttributeMap) {
+TEST_F(NetworkAdapterTest, AdapterInstanceAttributeMap) {
   const AttributeMap &map = sdc_net_->attributeMap(u1_);
   (void)map;
 }
 
 // NetworkNameAdapter: parent(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterInstanceParent) {
+TEST_F(NetworkAdapterTest, AdapterInstanceParent) {
   Instance *parent = sdc_net_->parent(u1_);
   EXPECT_EQ(parent, network_.topInstance());
 }
 
 // NetworkNameAdapter: isLeaf(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterInstanceIsLeaf) {
+TEST_F(NetworkAdapterTest, AdapterInstanceIsLeaf) {
   EXPECT_TRUE(sdc_net_->isLeaf(u1_));
 }
 
 // NetworkNameAdapter: findPin(Instance, Port) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterFindPinByPort) {
+TEST_F(NetworkAdapterTest, AdapterFindPinByPort) {
   Pin *pin = sdc_net_->findPin(u1_, port_a_);
   EXPECT_EQ(pin, pin_b1_a_);
 }
@@ -3052,7 +3052,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterFindPinByPort) {
 // (R5_AdapterFindPinByLibertyPort removed: segfaults with nullptr LibertyPort)
 
 // NetworkNameAdapter: childIterator forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterChildIterator) {
+TEST_F(NetworkAdapterTest, AdapterChildIterator) {
   Instance *top = sdc_net_->topInstance();
   InstanceChildIterator *iter = sdc_net_->childIterator(top);
   ASSERT_NE(iter, nullptr);
@@ -3066,7 +3066,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterChildIterator) {
 }
 
 // NetworkNameAdapter: pinIterator(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterInstancePinIterator) {
+TEST_F(NetworkAdapterTest, AdapterInstancePinIterator) {
   InstancePinIterator *iter = sdc_net_->pinIterator(u1_);
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -3079,7 +3079,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterInstancePinIterator) {
 }
 
 // NetworkNameAdapter: netIterator(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterInstanceNetIterator) {
+TEST_F(NetworkAdapterTest, AdapterInstanceNetIterator) {
   Instance *top = sdc_net_->topInstance();
   InstanceNetIterator *iter = sdc_net_->netIterator(top);
   ASSERT_NE(iter, nullptr);
@@ -3093,81 +3093,81 @@ TEST_F(NetworkAdapterTest, R5_AdapterInstanceNetIterator) {
 }
 
 // NetworkNameAdapter: id(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPinId) {
+TEST_F(NetworkAdapterTest, AdapterPinId) {
   ObjectId adapter_id = sdc_net_->id(pin_b1_a_);
   ObjectId direct_id = network_.id(pin_b1_a_);
   EXPECT_EQ(adapter_id, direct_id);
 }
 
 // NetworkNameAdapter: port(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPinPort) {
+TEST_F(NetworkAdapterTest, AdapterPinPort) {
   Port *port = sdc_net_->port(pin_b1_a_);
   EXPECT_EQ(port, port_a_);
 }
 
 // NetworkNameAdapter: instance(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPinInstance) {
+TEST_F(NetworkAdapterTest, AdapterPinInstance) {
   Instance *inst = sdc_net_->instance(pin_b1_a_);
   EXPECT_EQ(inst, u1_);
 }
 
 // NetworkNameAdapter: net(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPinNet) {
+TEST_F(NetworkAdapterTest, AdapterPinNet) {
   Net *net = sdc_net_->net(pin_b1_a_);
   EXPECT_EQ(net, net1_);
 }
 
 // NetworkNameAdapter: term(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPinTerm) {
+TEST_F(NetworkAdapterTest, AdapterPinTerm) {
   Term *term = sdc_net_->term(pin_b1_a_);
   // leaf instance pins have no term
   EXPECT_EQ(term, nullptr);
 }
 
 // NetworkNameAdapter: direction(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPinDirection) {
+TEST_F(NetworkAdapterTest, AdapterPinDirection) {
   PortDirection *dir = sdc_net_->direction(pin_b1_a_);
   EXPECT_EQ(dir, PortDirection::input());
 }
 
 // NetworkNameAdapter: vertexId(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPinVertexId) {
+TEST_F(NetworkAdapterTest, AdapterPinVertexId) {
   VertexId vid = sdc_net_->vertexId(pin_b1_a_);
   (void)vid;  // Just verify it doesn't crash
 }
 
 // NetworkNameAdapter: setVertexId forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterSetVertexId) {
+TEST_F(NetworkAdapterTest, AdapterSetVertexId) {
   sdc_net_->setVertexId(pin_b1_a_, 42);
   VertexId vid = sdc_net_->vertexId(pin_b1_a_);
   EXPECT_EQ(vid, 42u);
 }
 
 // NetworkNameAdapter: id(Net) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterNetId) {
+TEST_F(NetworkAdapterTest, AdapterNetId) {
   ObjectId adapter_id = sdc_net_->id(net1_);
   ObjectId direct_id = network_.id(net1_);
   EXPECT_EQ(adapter_id, direct_id);
 }
 
 // NetworkNameAdapter: instance(Net) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterNetInstance) {
+TEST_F(NetworkAdapterTest, AdapterNetInstance) {
   Instance *inst = sdc_net_->instance(net1_);
   EXPECT_EQ(inst, network_.topInstance());
 }
 
 // NetworkNameAdapter: isPower(Net) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterNetIsPower) {
+TEST_F(NetworkAdapterTest, AdapterNetIsPower) {
   EXPECT_FALSE(sdc_net_->isPower(net1_));
 }
 
 // NetworkNameAdapter: isGround(Net) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterNetIsGround) {
+TEST_F(NetworkAdapterTest, AdapterNetIsGround) {
   EXPECT_FALSE(sdc_net_->isGround(net1_));
 }
 
 // NetworkNameAdapter: pinIterator(Net) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterNetPinIterator) {
+TEST_F(NetworkAdapterTest, AdapterNetPinIterator) {
   NetPinIterator *iter = sdc_net_->pinIterator(net1_);
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -3180,87 +3180,87 @@ TEST_F(NetworkAdapterTest, R5_AdapterNetPinIterator) {
 }
 
 // NetworkNameAdapter: termIterator(Net) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterNetTermIterator) {
+TEST_F(NetworkAdapterTest, AdapterNetTermIterator) {
   NetTermIterator *iter = sdc_net_->termIterator(net1_);
   ASSERT_NE(iter, nullptr);
   delete iter;
 }
 
 // NetworkNameAdapter: constantPinIterator forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterConstantPinIterator) {
+TEST_F(NetworkAdapterTest, AdapterConstantPinIterator) {
   ConstantPinIterator *iter = sdc_net_->constantPinIterator();
   ASSERT_NE(iter, nullptr);
   delete iter;
 }
 
 // NetworkNameAdapter: pathDivider forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPathDivider) {
+TEST_F(NetworkAdapterTest, AdapterPathDivider) {
   char div = sdc_net_->pathDivider();
   EXPECT_EQ(div, network_.pathDivider());
 }
 
 // NetworkNameAdapter: setPathDivider forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterSetPathDivider) {
+TEST_F(NetworkAdapterTest, AdapterSetPathDivider) {
   sdc_net_->setPathDivider('/');
   EXPECT_EQ(network_.pathDivider(), '/');
 }
 
 // NetworkNameAdapter: pathEscape forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterPathEscape) {
+TEST_F(NetworkAdapterTest, AdapterPathEscape) {
   char esc = sdc_net_->pathEscape();
   EXPECT_EQ(esc, network_.pathEscape());
 }
 
 // NetworkNameAdapter: setPathEscape forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterSetPathEscape) {
+TEST_F(NetworkAdapterTest, AdapterSetPathEscape) {
   sdc_net_->setPathEscape('~');
   EXPECT_EQ(network_.pathEscape(), '~');
 }
 
 // NetworkNameAdapter: isEditable forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterIsEditable) {
+TEST_F(NetworkAdapterTest, AdapterIsEditable) {
   EXPECT_TRUE(sdc_net_->isEditable());
 }
 
 // NetworkNameAdapter: libertyCell(Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterLibertyCellFromCell) {
+TEST_F(NetworkAdapterTest, AdapterLibertyCellFromCell) {
   LibertyCell *lc = sdc_net_->libertyCell(inv_cell_);
   EXPECT_EQ(lc, nullptr);
 }
 
 // NetworkNameAdapter: libertyCell(const Cell) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterConstLibertyCellFromCell) {
+TEST_F(NetworkAdapterTest, AdapterConstLibertyCellFromCell) {
   const LibertyCell *lc = sdc_net_->libertyCell(static_cast<const Cell*>(inv_cell_));
   EXPECT_EQ(lc, nullptr);
 }
 
 // NetworkNameAdapter: cell(LibertyCell*) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellFromLibertyCell) {
+TEST_F(NetworkAdapterTest, AdapterCellFromLibertyCell) {
   Cell *c = sdc_net_->cell(static_cast<LibertyCell*>(nullptr));
   EXPECT_EQ(c, nullptr);
 }
 
 // NetworkNameAdapter: cell(const LibertyCell*) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterCellFromConstLibertyCell) {
+TEST_F(NetworkAdapterTest, AdapterCellFromConstLibertyCell) {
   const Cell *c = sdc_net_->cell(static_cast<const LibertyCell*>(nullptr));
   EXPECT_EQ(c, nullptr);
 }
 
 // NetworkNameAdapter: mergedInto forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterMergedInto) {
+TEST_F(NetworkAdapterTest, AdapterMergedInto) {
   Net *merged = sdc_net_->mergedInto(net1_);
   EXPECT_EQ(merged, nullptr);
 }
 
 // NetworkNameAdapter: makeNet forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterMakeNet) {
+TEST_F(NetworkAdapterTest, AdapterMakeNet) {
   Instance *top = sdc_net_->topInstance();
   Net *new_net = sdc_net_->makeNet("adapter_net", top);
   EXPECT_NE(new_net, nullptr);
 }
 
 // NetworkNameAdapter: connect(Instance, Port, Net) forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterConnect) {
+TEST_F(NetworkAdapterTest, AdapterConnect) {
   Instance *top = sdc_net_->topInstance();
   Net *new_net = sdc_net_->makeNet("connect_net", top);
   Pin *pin = sdc_net_->connect(u1_, port_y_, new_net);
@@ -3268,7 +3268,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterConnect) {
 }
 
 // NetworkNameAdapter: disconnectPin forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterDisconnectPin) {
+TEST_F(NetworkAdapterTest, AdapterDisconnectPin) {
   Instance *top = sdc_net_->topInstance();
   Net *new_net = sdc_net_->makeNet("disc_net", top);
   Pin *pin = sdc_net_->connect(u1_, port_y_, new_net);
@@ -3279,7 +3279,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterDisconnectPin) {
 }
 
 // NetworkNameAdapter: deletePin forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterDeletePin) {
+TEST_F(NetworkAdapterTest, AdapterDeletePin) {
   Instance *top = sdc_net_->topInstance();
   Net *new_net = sdc_net_->makeNet("delpin_net", top);
   Pin *pin = sdc_net_->connect(u1_, port_y_, new_net);
@@ -3290,7 +3290,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterDeletePin) {
 }
 
 // NetworkNameAdapter: mergeInto forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterMergeInto) {
+TEST_F(NetworkAdapterTest, AdapterMergeInto) {
   Instance *top = sdc_net_->topInstance();
   Net *net_a = sdc_net_->makeNet("merge_a", top);
   Net *net_b = sdc_net_->makeNet("merge_b", top);
@@ -3300,121 +3300,121 @@ TEST_F(NetworkAdapterTest, R5_AdapterMergeInto) {
 }
 
 // SdcNetwork: constructor and basic forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkTopInstance) {
+TEST_F(NetworkAdapterTest, SdcNetworkTopInstance) {
   Instance *top = sdc_net_->topInstance();
   EXPECT_NE(top, nullptr);
   EXPECT_EQ(top, network_.topInstance());
 }
 
 // SdcNetwork: name(Port) forwarding with sdc namespace
-TEST_F(NetworkAdapterTest, R5_SdcNetworkPortName) {
+TEST_F(NetworkAdapterTest, SdcNetworkPortName) {
   const char *name = sdc_net_->name(port_a_);
   EXPECT_NE(name, nullptr);
 }
 
 // SdcNetwork: busName(Port) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkPortBusName) {
+TEST_F(NetworkAdapterTest, SdcNetworkPortBusName) {
   const char *bn = sdc_net_->busName(port_a_);
   // SdcNetwork busName returns name for scalar port
   EXPECT_NE(bn, nullptr);
 }
 
 // SdcNetwork: findPort forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindPort) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindPort) {
   Port *found = sdc_net_->findPort(inv_cell_, "A");
   EXPECT_EQ(found, port_a_);
 }
 
 // SdcNetwork: findPortsMatching forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindPortsMatching) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindPortsMatching) {
   PatternMatch pattern("*");
   PortSeq ports = sdc_net_->findPortsMatching(inv_cell_, &pattern);
   EXPECT_EQ(ports.size(), 2u);
 }
 
 // SdcNetwork: findNet(Instance, name) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindNet) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindNet) {
   Instance *top = sdc_net_->topInstance();
   Net *found = sdc_net_->findNet(top, "w1");
   EXPECT_EQ(found, net1_);
 }
 
 // SdcNetwork: name(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkInstanceName) {
+TEST_F(NetworkAdapterTest, SdcNetworkInstanceName) {
   const char *name = sdc_net_->name(u1_);
   EXPECT_NE(name, nullptr);
 }
 
 // SdcNetwork: pathName(Instance) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkInstancePathName) {
+TEST_F(NetworkAdapterTest, SdcNetworkInstancePathName) {
   const char *path = sdc_net_->pathName(u1_);
   EXPECT_NE(path, nullptr);
 }
 
 // SdcNetwork: pathName(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkPinPathName) {
+TEST_F(NetworkAdapterTest, SdcNetworkPinPathName) {
   const char *path = sdc_net_->pathName(pin_b1_a_);
   EXPECT_NE(path, nullptr);
 }
 
 // SdcNetwork: portName(Pin) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkPinPortName) {
+TEST_F(NetworkAdapterTest, SdcNetworkPinPortName) {
   const char *port_name = sdc_net_->portName(pin_b1_a_);
   EXPECT_NE(port_name, nullptr);
 }
 
 // SdcNetwork: name(Net) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkNetName) {
+TEST_F(NetworkAdapterTest, SdcNetworkNetName) {
   const char *name = sdc_net_->name(net1_);
   EXPECT_NE(name, nullptr);
 }
 
 // SdcNetwork: pathName(Net) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkNetPathName) {
+TEST_F(NetworkAdapterTest, SdcNetworkNetPathName) {
   const char *path = sdc_net_->pathName(net1_);
   EXPECT_NE(path, nullptr);
 }
 
 // SdcNetwork: findChild forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindChild) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindChild) {
   Instance *top = sdc_net_->topInstance();
   Instance *child = sdc_net_->findChild(top, "b1");
   EXPECT_EQ(child, u1_);
 }
 
 // SdcNetwork: findInstance by path name
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindInstance) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindInstance) {
   Instance *found = sdc_net_->findInstance("b1");
   EXPECT_EQ(found, u1_);
 }
 
 // SdcNetwork: findPin(path) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindPinPath) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindPinPath) {
   Pin *found = sdc_net_->findPin("b1/A");
   EXPECT_EQ(found, pin_b1_a_);
 }
 
 // SdcNetwork: findPin(Instance, port_name) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindPinInstancePort) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindPinInstancePort) {
   Pin *found = sdc_net_->findPin(u1_, "A");
   EXPECT_EQ(found, pin_b1_a_);
 }
 
 // SdcNetwork: findNet(path) forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindNetPath) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindNetPath) {
   Net *found = sdc_net_->findNet("w1");
   EXPECT_EQ(found, net1_);
 }
 
 // SdcNetwork: findNetRelative forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindNetRelative) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindNetRelative) {
   Instance *top = sdc_net_->topInstance();
   Net *found = sdc_net_->findNetRelative(top, "w1");
   EXPECT_EQ(found, net1_);
 }
 
 // SdcNetwork: findNetsMatching forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindNetsMatching) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindNetsMatching) {
   Instance *top = sdc_net_->topInstance();
   PatternMatch pattern("w*");
   NetSeq nets = sdc_net_->findNetsMatching(top, &pattern);
@@ -3422,7 +3422,7 @@ TEST_F(NetworkAdapterTest, R5_SdcNetworkFindNetsMatching) {
 }
 
 // SdcNetwork: findInstNetsMatching forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindInstNetsMatching) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindInstNetsMatching) {
   Instance *top = sdc_net_->topInstance();
   PatternMatch pattern("w*");
   NetSeq nets;
@@ -3431,7 +3431,7 @@ TEST_F(NetworkAdapterTest, R5_SdcNetworkFindInstNetsMatching) {
 }
 
 // SdcNetwork: findInstancesMatching forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindInstancesMatching) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindInstancesMatching) {
   Instance *top = sdc_net_->topInstance();
   PatternMatch pattern("b*");
   InstanceSeq insts = sdc_net_->findInstancesMatching(top, &pattern);
@@ -3439,28 +3439,28 @@ TEST_F(NetworkAdapterTest, R5_SdcNetworkFindInstancesMatching) {
 }
 
 // SdcNetwork: findPinsMatching forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindPinsMatching) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindPinsMatching) {
   PatternMatch pattern("b1/A");
   PinSeq pins = sdc_net_->findPinsMatching(network_.topInstance(), &pattern);
   EXPECT_GE(pins.size(), 1u);
 }
 
 // SdcNetwork: findInstanceRelative forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkFindInstanceRelative) {
+TEST_F(NetworkAdapterTest, SdcNetworkFindInstanceRelative) {
   Instance *top = sdc_net_->topInstance();
   Instance *found = sdc_net_->findInstanceRelative(top, "b1");
   EXPECT_EQ(found, u1_);
 }
 
 // SdcNetwork: makeNet forwarding
-TEST_F(NetworkAdapterTest, R5_SdcNetworkMakeNet) {
+TEST_F(NetworkAdapterTest, SdcNetworkMakeNet) {
   Instance *top = sdc_net_->topInstance();
   Net *new_net = sdc_net_->makeNet("sdc_net_new", top);
   EXPECT_NE(new_net, nullptr);
 }
 
 // NetworkNameAdapter: location forwarding
-TEST_F(NetworkAdapterTest, R5_AdapterLocation) {
+TEST_F(NetworkAdapterTest, AdapterLocation) {
   double x, y;
   bool exists;
   sdc_net_->location(pin_b1_a_, x, y, exists);
@@ -3468,7 +3468,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterLocation) {
 }
 
 // NetworkNameAdapter: libertyPort forwarding (non-liberty port)
-TEST_F(NetworkAdapterTest, R5_AdapterLibertyPort) {
+TEST_F(NetworkAdapterTest, AdapterLibertyPort) {
   LibertyPort *lp = sdc_net_->libertyPort(port_a_);
   EXPECT_EQ(lp, nullptr);
 }
@@ -3478,7 +3478,7 @@ TEST_F(NetworkAdapterTest, R5_AdapterLibertyPort) {
 ////////////////////////////////////////////////////////////////
 
 // ConcreteNetwork: addConstantNet then verify iteration
-TEST_F(ConcreteNetworkLinkedTest, R6_AddConstantAndIterate) {
+TEST_F(ConcreteNetworkLinkedTest, AddConstantAndIterate) {
   network_.addConstantNet(net1_, LogicValue::one);
   ConstantPinIterator *iter = network_.constantPinIterator();
   EXPECT_NE(iter, nullptr);
@@ -3495,21 +3495,21 @@ TEST_F(ConcreteNetworkLinkedTest, R6_AddConstantAndIterate) {
 }
 
 // ConcreteInstance: cell() accessor
-TEST_F(ConcreteNetworkLinkedTest, R6_ConcreteInstanceCell) {
+TEST_F(ConcreteNetworkLinkedTest, ConcreteInstanceCell) {
   Cell *cell = network_.cell(u1_);
   EXPECT_NE(cell, nullptr);
   EXPECT_STREQ(network_.name(cell), "INV");
 }
 
 // ConcreteInstance: findChild returns nullptr on leaf
-TEST_F(ConcreteNetworkLinkedTest, R6_FindChildOnLeaf) {
+TEST_F(ConcreteNetworkLinkedTest, FindChildOnLeaf) {
   // u1_ is a leaf instance, should have no children
   Instance *child = network_.findChild(u1_, "nonexistent");
   EXPECT_EQ(child, nullptr);
 }
 
 // ConcreteInstance: findPin(Port) with existing port
-TEST_F(ConcreteNetworkLinkedTest, R6_FindPinByPortDirect) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinByPortDirect) {
   Cell *cell = network_.cell(u1_);
   Port *port_a = network_.findPort(cell, "A");
   Pin *pin = network_.findPin(u1_, port_a);
@@ -3517,7 +3517,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindPinByPortDirect) {
 }
 
 // ConcreteInstance: deleteChild
-TEST_F(ConcreteNetworkLinkedTest, R6_DeleteChild) {
+TEST_F(ConcreteNetworkLinkedTest, DeleteChild) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *top = network_.topInstance();
   Instance *temp = network_.makeInstance(inv_cell, "temp_child", top);
@@ -3528,7 +3528,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_DeleteChild) {
 }
 
 // ConcreteInstance: addNet and deleteNet (via network)
-TEST_F(ConcreteNetworkLinkedTest, R6_AddAndDeleteNet) {
+TEST_F(ConcreteNetworkLinkedTest, AddAndDeleteNet) {
   Instance *top = network_.topInstance();
   Net *new_net = network_.makeNet("r6_net", top);
   EXPECT_NE(new_net, nullptr);
@@ -3538,7 +3538,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_AddAndDeleteNet) {
 }
 
 // ConcreteInstance: setCell (replaceCell exercises setCell)
-TEST_F(ConcreteNetworkLinkedTest, R6_SetCellViaReplace) {
+TEST_F(ConcreteNetworkLinkedTest, SetCellViaReplace) {
   Cell *buf_cell = network_.makeCell(lib_, "BUF_R6", true, "test.lib");
   network_.makePort(buf_cell, "A");
   network_.makePort(buf_cell, "Y");
@@ -3554,7 +3554,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_SetCellViaReplace) {
 }
 
 // ConcretePin: name() via Network base class
-TEST_F(ConcreteNetworkLinkedTest, R6_ConcretePinName) {
+TEST_F(ConcreteNetworkLinkedTest, ConcretePinName) {
   const Network &net = network_;
   const char *name = net.name(pin_u1_a_);
   EXPECT_NE(name, nullptr);
@@ -3564,7 +3564,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_ConcretePinName) {
 }
 
 // ConcretePin: setVertexId
-TEST_F(ConcreteNetworkLinkedTest, R6_PinSetVertexIdMultiple) {
+TEST_F(ConcreteNetworkLinkedTest, PinSetVertexIdMultiple) {
   network_.setVertexId(pin_u1_a_, 100);
   EXPECT_EQ(network_.vertexId(pin_u1_a_), 100u);
   network_.setVertexId(pin_u1_a_, 200);
@@ -3574,7 +3574,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_PinSetVertexIdMultiple) {
 }
 
 // ConcreteTerm: name() via Network base class
-TEST_F(ConcreteNetworkLinkedTest, R6_ConcreteTermName) {
+TEST_F(ConcreteNetworkLinkedTest, ConcreteTermName) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u3 = network_.makeInstance(inv_cell, "u3_term", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -3588,7 +3588,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_ConcreteTermName) {
 }
 
 // Network: name(Term), pathName(Term), portName(Term)
-TEST_F(ConcreteNetworkLinkedTest, R6_TermPathAndPortName) {
+TEST_F(ConcreteNetworkLinkedTest, TermPathAndPortName) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u4 = network_.makeInstance(inv_cell, "u4_term", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -3609,7 +3609,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_TermPathAndPortName) {
 }
 
 // Network: id(Term)
-TEST_F(ConcreteNetworkLinkedTest, R6_TermId) {
+TEST_F(ConcreteNetworkLinkedTest, TermId2) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u5 = network_.makeInstance(inv_cell, "u5_term", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -3621,7 +3621,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_TermId) {
 }
 
 // Network: findPin by string name on instance
-TEST_F(ConcreteNetworkLinkedTest, R6_FindPinByStringName) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinByStringName) {
   Pin *found = network_.findPin(u1_, "A");
   EXPECT_EQ(found, pin_u1_a_);
   Pin *found_y = network_.findPin(u1_, "Y");
@@ -3631,7 +3631,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindPinByStringName) {
 }
 
 // Network: findNet by instance and name
-TEST_F(ConcreteNetworkLinkedTest, R6_FindNetByInstanceName) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetByInstanceName) {
   Instance *top = network_.topInstance();
   Net *found = network_.findNet(top, "n1");
   EXPECT_EQ(found, net1_);
@@ -3642,7 +3642,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindNetByInstanceName) {
 }
 
 // Network: findNetsMatching comprehensive
-TEST_F(ConcreteNetworkLinkedTest, R6_FindNetsMatchingComprehensive) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetsMatchingComprehensive) {
   Instance *top = network_.topInstance();
   PatternMatch pattern_all("*");
   NetSeq all_matches = network_.findNetsMatching(top, &pattern_all);
@@ -3650,14 +3650,14 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindNetsMatchingComprehensive) {
 }
 
 // Network: hasMembersOnScalarPort
-TEST_F(ConcreteNetworkLinkedTest, R6_HasMembersScalar) {
+TEST_F(ConcreteNetworkLinkedTest, HasMembersScalar) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
   EXPECT_FALSE(network_.hasMembers(port_a));
 }
 
 // Network: hasMembersOnBusPort
-TEST_F(ConcreteNetworkLinkedTest, R6_HasMembersBusPort) {
+TEST_F(ConcreteNetworkLinkedTest, HasMembersBusPort) {
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib_);
   clib->setBusBrkts('[', ']');
   Cell *cell = network_.makeCell(lib_, "R6_BUS_TEST", true, "test.lib");
@@ -3666,7 +3666,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_HasMembersBusPort) {
 }
 
 // Network: libertyCell from const cell
-TEST_F(ConcreteNetworkLinkedTest, R6_LibertyCellFromConstCell) {
+TEST_F(ConcreteNetworkLinkedTest, LibertyCellFromConstCell) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   const Cell *cc = inv_cell;
   const LibertyCell *lcell = network_.libertyCell(cc);
@@ -3674,7 +3674,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_LibertyCellFromConstCell) {
 }
 
 // ConcreteNet: destructor (via deleteNet which calls ~ConcreteNet)
-TEST_F(ConcreteNetworkLinkedTest, R6_NetDestructor) {
+TEST_F(ConcreteNetworkLinkedTest, NetDestructor) {
   Instance *top = network_.topInstance();
   Net *temp_net = network_.makeNet("r6_temp_net", top);
   EXPECT_NE(network_.findNet(top, "r6_temp_net"), nullptr);
@@ -3683,7 +3683,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_NetDestructor) {
 }
 
 // ConcreteNet: addPin, addTerm via connect and makeTerm
-TEST_F(ConcreteNetworkLinkedTest, R6_NetAddPinAndTerm) {
+TEST_F(ConcreteNetworkLinkedTest, NetAddPinAndTerm) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u6 = network_.makeInstance(inv_cell, "u6", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -3700,7 +3700,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_NetAddPinAndTerm) {
 }
 
 // ConcreteNet: deleteTerm (via disconnect which removes term)
-TEST_F(ConcreteNetworkLinkedTest, R6_NetTermIteratorAfterConnect) {
+TEST_F(ConcreteNetworkLinkedTest, NetTermIteratorAfterConnect) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u7 = network_.makeInstance(inv_cell, "u7", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -3721,7 +3721,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_NetTermIteratorAfterConnect) {
 }
 
 // ConcreteInstancePinIterator constructor exercise
-TEST_F(ConcreteNetworkLinkedTest, R6_InstancePinIteratorExercise) {
+TEST_F(ConcreteNetworkLinkedTest, InstancePinIteratorExercise) {
   InstancePinIterator *iter = network_.pinIterator(u1_);
   ASSERT_NE(iter, nullptr);
   PinSeq pins;
@@ -3733,7 +3733,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_InstancePinIteratorExercise) {
 }
 
 // ConcreteNetPinIterator constructor
-TEST_F(ConcreteNetworkLinkedTest, R6_NetPinIteratorExercise) {
+TEST_F(ConcreteNetworkLinkedTest, NetPinIteratorExercise) {
   // net1_ has 1 pin (u1_A)
   NetPinIterator *iter = network_.pinIterator(net1_);
   ASSERT_NE(iter, nullptr);
@@ -3747,7 +3747,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_NetPinIteratorExercise) {
 }
 
 // ConcreteNetTermIterator
-TEST_F(ConcreteNetworkLinkedTest, R6_NetTermIteratorEmpty) {
+TEST_F(ConcreteNetworkLinkedTest, NetTermIteratorEmpty) {
   // net3_ has pins but no terms (leaf connections)
   NetTermIterator *iter = network_.termIterator(net3_);
   ASSERT_NE(iter, nullptr);
@@ -3761,7 +3761,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_NetTermIteratorEmpty) {
 }
 
 // ConcreteLibertyLibraryIterator (exercises constructor and destructor)
-TEST(ConcreteNetworkExtraTest, R6_LibertyLibIteratorEmpty) {
+TEST(ConcreteNetworkExtraTest, LibertyLibIteratorEmpty) {
   ConcreteNetwork network;
   LibertyLibraryIterator *iter = network.libertyLibraryIterator();
   ASSERT_NE(iter, nullptr);
@@ -3770,7 +3770,7 @@ TEST(ConcreteNetworkExtraTest, R6_LibertyLibIteratorEmpty) {
 }
 
 // ConcreteLibertyLibraryIterator with one liberty library
-TEST(ConcreteNetworkExtraTest, R6_LibertyLibIteratorWithLib) {
+TEST(ConcreteNetworkExtraTest, LibertyLibIteratorWithLib) {
   ConcreteNetwork network;
   network.makeLibertyLibrary("r6_lib", "r6.lib");
   LibertyLibraryIterator *iter = network.libertyLibraryIterator();
@@ -3785,7 +3785,7 @@ TEST(ConcreteNetworkExtraTest, R6_LibertyLibIteratorWithLib) {
 }
 
 // ConcreteLibraryIterator1 (exercises constructor)
-TEST(ConcreteNetworkExtraTest, R6_LibraryIteratorMultiple) {
+TEST(ConcreteNetworkExtraTest, LibraryIteratorMultiple) {
   ConcreteNetwork network;
   network.makeLibrary("r6_lib1", "r6_1.lib");
   network.makeLibrary("r6_lib2", "r6_2.lib");
@@ -3801,7 +3801,7 @@ TEST(ConcreteNetworkExtraTest, R6_LibraryIteratorMultiple) {
 }
 
 // ConcreteCellPortIterator1 (exercises constructor)
-TEST(ConcreteCellTest, R6_PortIterator1) {
+TEST(ConcreteCellTest, PortIterator1) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   ConcreteCell *cell = lib.makeCell("R6_AND3", true, "");
   cell->makePort("A");
@@ -3820,7 +3820,7 @@ TEST(ConcreteCellTest, R6_PortIterator1) {
 }
 
 // ConcreteCellPortBitIterator (with bus ports)
-TEST(ConcreteCellTest, R6_PortBitIteratorWithBus) {
+TEST(ConcreteCellTest, PortBitIteratorWithBus) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("R6_REG8", true, "");
@@ -3840,7 +3840,7 @@ TEST(ConcreteCellTest, R6_PortBitIteratorWithBus) {
 }
 
 // ConcreteCellPortBitIterator1 exercise
-TEST(ConcreteCellTest, R6_PortBitIterator1Simple) {
+TEST(ConcreteCellTest, PortBitIterator1Simple) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   ConcreteCell *cell = lib.makeCell("R6_INV2", true, "");
   cell->makePort("A");
@@ -3857,7 +3857,7 @@ TEST(ConcreteCellTest, R6_PortBitIterator1Simple) {
 }
 
 // ConcretePortMemberIterator1 exercise
-TEST(ConcretePortTest, R6_MemberIteratorBus) {
+TEST(ConcretePortTest, MemberIteratorBus) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("R6_REG4", true, "");
@@ -3874,7 +3874,7 @@ TEST(ConcretePortTest, R6_MemberIteratorBus) {
 }
 
 // ConcreteInstanceChildIterator exercise
-TEST_F(ConcreteNetworkLinkedTest, R6_ChildIteratorExercise) {
+TEST_F(ConcreteNetworkLinkedTest, ChildIteratorExercise) {
   Instance *top = network_.topInstance();
   InstanceChildIterator *iter = network_.childIterator(top);
   ASSERT_NE(iter, nullptr);
@@ -3887,7 +3887,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_ChildIteratorExercise) {
 }
 
 // Network: connect with LibertyPort (null liberty port variant)
-TEST_F(ConcreteNetworkLinkedTest, R6_ConnectWithPort) {
+TEST_F(ConcreteNetworkLinkedTest, ConnectWithPort) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u8 = network_.makeInstance(inv_cell, "u8_conn", network_.topInstance());
   Port *port_y = network_.findPort(inv_cell, "Y");
@@ -3898,7 +3898,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_ConnectWithPort) {
 }
 
 // Network: deletePin (exercises ConcreteInstance::deletePin)
-TEST_F(ConcreteNetworkLinkedTest, R6_DeletePinExercise) {
+TEST_F(ConcreteNetworkLinkedTest, DeletePinExercise) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u9 = network_.makeInstance(inv_cell, "u9_delpin", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -3912,7 +3912,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_DeletePinExercise) {
 }
 
 // BusPort: default constructor exercises (via makeBusPort)
-TEST(ConcretePortTest, R6_BusPortDefaultCtor) {
+TEST(ConcretePortTest, BusPortDefaultCtor) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("R6_BUSTEST", true, "");
@@ -3925,7 +3925,7 @@ TEST(ConcretePortTest, R6_BusPortDefaultCtor) {
 }
 
 // BusPort: setDirection propagates to members
-TEST(ConcretePortTest, R6_BusPortSetDirection) {
+TEST(ConcretePortTest, BusPortSetDirection) {
   PortDirection::init();
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
@@ -3940,20 +3940,20 @@ TEST(ConcretePortTest, R6_BusPortSetDirection) {
 }
 
 // NetworkNameAdapter: makeLibertyLibrary forwarding
-TEST_F(NetworkAdapterTest, R6_AdapterMakeLibertyLibrary) {
+TEST_F(NetworkAdapterTest, AdapterMakeLibertyLibrary) {
   LibertyLibrary *lib = sdc_net_->makeLibertyLibrary("r6_lib", "r6.lib");
   EXPECT_NE(lib, nullptr);
 }
 
 // NetworkNameAdapter: findCellsMatching forwarding
-TEST_F(NetworkAdapterTest, R6_AdapterFindCellsMatching) {
+TEST_F(NetworkAdapterTest, AdapterFindCellsMatching) {
   PatternMatch pattern("BUF*");
   CellSeq cells = sdc_net_->findCellsMatching(lib_, &pattern);
   EXPECT_GE(cells.size(), 1u);
 }
 
 // NetworkNameAdapter: isLinked forwarding
-TEST_F(NetworkAdapterTest, R6_AdapterIsLinked) {
+TEST_F(NetworkAdapterTest, AdapterIsLinked) {
   EXPECT_TRUE(sdc_net_->isLinked());
 }
 
@@ -3961,7 +3961,7 @@ TEST_F(NetworkAdapterTest, R6_AdapterIsLinked) {
 // without an actual LibertyPort, so skip.
 
 // Network: findPin(Instance, Port) with non-matching port
-TEST_F(ConcreteNetworkLinkedTest, R6_FindPinNonMatchingPort) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinNonMatchingPort) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_y = network_.findPort(inv_cell, "Y");
   // u1_ is connected on A and Y, find Y pin
@@ -3970,7 +3970,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindPinNonMatchingPort) {
 }
 
 // Network: findPinsMatching with no match
-TEST_F(ConcreteNetworkLinkedTest, R6_FindPinsMatchingNoMatch) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinsMatchingNoMatch) {
   Instance *top = network_.topInstance();
   PatternMatch pattern("nonexistent/*");
   PinSeq pins = network_.findPinsMatching(top, &pattern);
@@ -3978,7 +3978,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindPinsMatchingNoMatch) {
 }
 
 // Network: findNetsMatching with no match
-TEST_F(ConcreteNetworkLinkedTest, R6_FindNetsMatchingNoMatch) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetsMatchingNoMatch) {
   Instance *top = network_.topInstance();
   PatternMatch pattern("zzz*");
   NetSeq matches = network_.findNetsMatching(top, &pattern);
@@ -3986,7 +3986,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindNetsMatchingNoMatch) {
 }
 
 // Network: findInstancesMatching with no match
-TEST_F(ConcreteNetworkLinkedTest, R6_FindInstancesMatchingNoMatch) {
+TEST_F(ConcreteNetworkLinkedTest, FindInstancesMatchingNoMatch) {
   Instance *top = network_.topInstance();
   PatternMatch pattern("zzz*");
   InstanceSeq matches = network_.findInstancesMatching(top, &pattern);
@@ -3994,7 +3994,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindInstancesMatchingNoMatch) {
 }
 
 // ConcreteNetwork: initPins via makePins on new instance
-TEST_F(ConcreteNetworkLinkedTest, R6_InitPinsExercise) {
+TEST_F(ConcreteNetworkLinkedTest, InitPinsExercise) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u10 = network_.makeInstance(inv_cell, "u10_init", network_.topInstance());
   network_.makePins(u10);
@@ -4005,7 +4005,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_InitPinsExercise) {
 }
 
 // ConcreteNetwork: mergeInto and mergedInto cycle
-TEST_F(ConcreteNetworkLinkedTest, R6_MergeIntoCycle) {
+TEST_F(ConcreteNetworkLinkedTest, MergeIntoCycle) {
   Instance *top = network_.topInstance();
   Net *na = network_.makeNet("r6_merge_a", top);
   Net *nb = network_.makeNet("r6_merge_b", top);
@@ -4019,7 +4019,7 @@ TEST_F(ConcreteNetworkLinkedTest, R6_MergeIntoCycle) {
 // Can't easily test without real LibertyPort, skip.
 
 // PatternMatch: exercise findPortsMatching with wildcard
-TEST_F(ConcreteNetworkLinkedTest, R6_FindPortsMatchingWildcard) {
+TEST_F(ConcreteNetworkLinkedTest, FindPortsMatchingWildcard) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   PatternMatch pattern("?");
   PortSeq ports = network_.findPortsMatching(inv_cell, &pattern);
@@ -4028,20 +4028,20 @@ TEST_F(ConcreteNetworkLinkedTest, R6_FindPortsMatchingWildcard) {
 }
 
 // ConcreteNetwork: findCellsMatching with no match
-TEST_F(ConcreteNetworkLinkedTest, R6_FindCellsMatchingNoMatch) {
+TEST_F(ConcreteNetworkLinkedTest, FindCellsMatchingNoMatch) {
   PatternMatch pattern("ZZZZ*");
   CellSeq cells = network_.findCellsMatching(lib_, &pattern);
   EXPECT_EQ(cells.size(), 0u);
 }
 
 // Network: isInsideNet with non-top instance
-TEST_F(ConcreteNetworkLinkedTest, R6_IsInsideNetNonTop) {
+TEST_F(ConcreteNetworkLinkedTest, IsInsideNetNonTop) {
   // net1_ is in top, not inside u1_
   EXPECT_FALSE(network_.isInside(net1_, u1_));
 }
 
 // ConcreteNetwork: multiple connect/disconnect cycles
-TEST_F(ConcreteNetworkLinkedTest, R6_ConnectDisconnectCycle) {
+TEST_F(ConcreteNetworkLinkedTest, ConnectDisconnectCycle) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u11 = network_.makeInstance(inv_cell, "u11_cycle", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -4067,33 +4067,33 @@ TEST_F(ConcreteNetworkLinkedTest, R6_ConnectDisconnectCycle) {
 // is complex. Skip direct testing.
 
 // SdcNetwork: findChild forwarding with non-existent
-TEST_F(NetworkAdapterTest, R6_SdcFindChildNonexistent) {
+TEST_F(NetworkAdapterTest, SdcFindChildNonexistent) {
   Instance *top = sdc_net_->topInstance();
   Instance *child = sdc_net_->findChild(top, "nonexistent");
   EXPECT_EQ(child, nullptr);
 }
 
 // SdcNetwork: findNet with non-existent
-TEST_F(NetworkAdapterTest, R6_SdcFindNetNonexistent) {
+TEST_F(NetworkAdapterTest, SdcFindNetNonexistent) {
   Instance *top = sdc_net_->topInstance();
   Net *found = sdc_net_->findNet(top, "nonexistent");
   EXPECT_EQ(found, nullptr);
 }
 
 // SdcNetwork: findPin with non-existent path
-TEST_F(NetworkAdapterTest, R6_SdcFindPinNonexistent) {
+TEST_F(NetworkAdapterTest, SdcFindPinNonexistent) {
   Pin *found = sdc_net_->findPin("nonexistent/X");
   EXPECT_EQ(found, nullptr);
 }
 
 // SdcNetwork: findInstance with non-existent path
-TEST_F(NetworkAdapterTest, R6_SdcFindInstanceNonexistent) {
+TEST_F(NetworkAdapterTest, SdcFindInstanceNonexistent) {
   Instance *found = sdc_net_->findInstance("nonexistent_inst");
   EXPECT_EQ(found, nullptr);
 }
 
 // SdcNetwork: deleteNet forwarding
-TEST_F(NetworkAdapterTest, R6_SdcDeleteNet) {
+TEST_F(NetworkAdapterTest, SdcDeleteNet) {
   Instance *top = sdc_net_->topInstance();
   Net *n = sdc_net_->makeNet("r6_sdc_delnet", top);
   EXPECT_NE(n, nullptr);
@@ -4103,13 +4103,13 @@ TEST_F(NetworkAdapterTest, R6_SdcDeleteNet) {
 }
 
 // SdcNetwork: libertyCell on cell (no liberty cell)
-TEST_F(NetworkAdapterTest, R6_SdcLibertyCellFromCell) {
+TEST_F(NetworkAdapterTest, SdcLibertyCellFromCell) {
   LibertyCell *lc = sdc_net_->libertyCell(inv_cell_);
   EXPECT_EQ(lc, nullptr);
 }
 
 // SdcNetwork: libertyPort from port
-TEST_F(NetworkAdapterTest, R6_SdcLibertyPortFromPort) {
+TEST_F(NetworkAdapterTest, SdcLibertyPortFromPort) {
   LibertyPort *lp = sdc_net_->libertyPort(port_a_);
   EXPECT_EQ(lp, nullptr);
 }
@@ -4119,14 +4119,14 @@ TEST_F(NetworkAdapterTest, R6_SdcLibertyPortFromPort) {
 ////////////////////////////////////////////////////////////////
 
 // ConcreteInstance::findChild on instance with no children
-TEST_F(ConcreteNetworkLinkedTest, R7_FindChildNonexistent) {
+TEST_F(ConcreteNetworkLinkedTest, FindChildNonexistent) {
   // u1_ is a leaf instance, should have no children
   Instance *child = network_.findChild(u1_, "nonexistent");
   EXPECT_EQ(child, nullptr);
 }
 
 // ConcreteInstance::findPin(Port) - exercise via Network::findPin(Instance*, Port*)
-TEST_F(ConcreteNetworkLinkedTest, R7_FindPinByPort) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinByPort3) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
   Pin *pin = network_.findPin(u1_, port_a);
@@ -4135,14 +4135,14 @@ TEST_F(ConcreteNetworkLinkedTest, R7_FindPinByPort) {
 }
 
 // ConcretePin::name() - exercises the name() method on concrete pins
-TEST_F(ConcreteNetworkLinkedTest, R7_PinName) {
+TEST_F(ConcreteNetworkLinkedTest, PinName2) {
   const char *name = network_.name(network_.port(pin_u1_a_));
   EXPECT_NE(name, nullptr);
   EXPECT_STREQ(name, "A");
 }
 
 // ConcretePin::setVertexId - exercises via Network::setVertexId
-TEST_F(ConcreteNetworkLinkedTest, R7_PinVertexId) {
+TEST_F(ConcreteNetworkLinkedTest, PinVertexId2) {
   VertexId orig = network_.vertexId(pin_u1_a_);
   network_.setVertexId(pin_u1_a_, 42);
   EXPECT_EQ(network_.vertexId(pin_u1_a_), 42u);
@@ -4151,7 +4151,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_PinVertexId) {
 }
 
 // ConcreteNet: term iterator (exercises ConcreteNetTermIterator)
-TEST_F(ConcreteNetworkLinkedTest, R7_NetTermIterator) {
+TEST_F(ConcreteNetworkLinkedTest, NetTermIterator2) {
   NetTermIterator *iter = network_.termIterator(net1_);
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -4165,7 +4165,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_NetTermIterator) {
 }
 
 // ConcreteNet: pin iterator (exercises ConcreteNetPinIterator)
-TEST_F(ConcreteNetworkLinkedTest, R7_NetPinIterator) {
+TEST_F(ConcreteNetworkLinkedTest, NetPinIterator2) {
   NetPinIterator *iter = network_.pinIterator(net2_);
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -4179,7 +4179,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_NetPinIterator) {
 }
 
 // Network::makeTerm (exercises ConcreteTerm constructor and ConcreteNet::addTerm)
-TEST_F(ConcreteNetworkLinkedTest, R7_MakeTermAndTermName) {
+TEST_F(ConcreteNetworkLinkedTest, MakeTermAndTermName) {
   // Make a top-level pin to create a term
   Instance *top = network_.topInstance();
   Cell *top_cell = network_.cell(top);
@@ -4206,7 +4206,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_MakeTermAndTermName) {
 }
 
 // Network::findPinLinear - exercises the linear search fallback
-TEST_F(ConcreteNetworkLinkedTest, R7_FindPinLinear) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinLinear) {
   // findPinLinear is a fallback used when there's no hash lookup
   Pin *pin = network_.findPin(u1_, "A");
   EXPECT_NE(pin, nullptr);
@@ -4216,7 +4216,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_FindPinLinear) {
 }
 
 // Network::findNetLinear - exercises linear net search
-TEST_F(ConcreteNetworkLinkedTest, R7_FindNetLinear) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetLinear) {
   Instance *top = network_.topInstance();
   Net *net = network_.findNet(top, "n1");
   EXPECT_NE(net, nullptr);
@@ -4225,7 +4225,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_FindNetLinear) {
 }
 
 // Network::hasMembers on scalar port and bus port
-TEST(ConcretePortTest, R7_HasMembersScalar) {
+TEST(ConcretePortTest, HasMembersScalar) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("R7_HAS", true, "");
@@ -4240,7 +4240,7 @@ TEST(ConcretePortTest, R7_HasMembersScalar) {
 // R7_LibertyLibraryFromCell removed (segfault)
 
 // ConcreteInstance::initPins - exercised when making a new instance
-TEST_F(ConcreteNetworkLinkedTest, R7_InitPinsNewInstance) {
+TEST_F(ConcreteNetworkLinkedTest, InitPinsNewInstance) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *new_inst = network_.makeInstance(inv_cell, "r7_initpins", network_.topInstance());
   EXPECT_NE(new_inst, nullptr);
@@ -4260,7 +4260,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_InitPinsNewInstance) {
 }
 
 // ConcreteNetwork::deleteInstance (exercises deleteChild, deletePin)
-TEST_F(ConcreteNetworkLinkedTest, R7_DeleteInstance) {
+TEST_F(ConcreteNetworkLinkedTest, DeleteInstance2) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *del_inst = network_.makeInstance(inv_cell, "r7_del", network_.topInstance());
   EXPECT_NE(del_inst, nullptr);
@@ -4272,7 +4272,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_DeleteInstance) {
 }
 
 // ConcreteNetwork: deleteNet (exercises ConcreteNet destructor, ConcreteInstance::deleteNet)
-TEST_F(ConcreteNetworkLinkedTest, R7_DeleteNet) {
+TEST_F(ConcreteNetworkLinkedTest, DeleteNet2) {
   Instance *top = network_.topInstance();
   Net *del_net = network_.makeNet("r7_del_net", top);
   EXPECT_NE(del_net, nullptr);
@@ -4284,7 +4284,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_DeleteNet) {
 }
 
 // ConcreteInstance::setCell (indirect via replaceCell)
-TEST_F(ConcreteNetworkLinkedTest, R7_ReplaceCell) {
+TEST_F(ConcreteNetworkLinkedTest, ReplaceCell2) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   // Create a second cell type
   Cell *buf_cell = network_.makeCell(lib_, "R7_BUF", true, "test.lib");
@@ -4297,7 +4297,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_ReplaceCell) {
 }
 
 // ConcreteInstance::addNet via makeNet and findNet on child instance
-TEST_F(ConcreteNetworkLinkedTest, R7_InstanceNet) {
+TEST_F(ConcreteNetworkLinkedTest, InstanceNet) {
   // Make net on a non-top instance (exercises ConcreteInstance::addNet(name, net))
   Cell *sub_cell = network_.makeCell(lib_, "R7_SUB", false, "test.lib");
   network_.makePort(sub_cell, "in1");
@@ -4309,28 +4309,28 @@ TEST_F(ConcreteNetworkLinkedTest, R7_InstanceNet) {
 }
 
 // NetworkNameAdapter: findPort forwarding
-TEST_F(NetworkAdapterTest, R7_AdapterFindPort) {
+TEST_F(NetworkAdapterTest, AdapterFindPort2) {
   Port *port = sdc_net_->findPort(inv_cell_, "A");
   EXPECT_NE(port, nullptr);
   EXPECT_EQ(port, port_a_);
 }
 
 // NetworkNameAdapter: findPortsMatching forwarding
-TEST_F(NetworkAdapterTest, R7_AdapterFindPortsMatching) {
+TEST_F(NetworkAdapterTest, AdapterFindPortsMatching2) {
   PatternMatch pattern("*");
   PortSeq ports = sdc_net_->findPortsMatching(inv_cell_, &pattern);
   EXPECT_GE(ports.size(), 2u);
 }
 
 // NetworkNameAdapter: name(Port) forwarding
-TEST_F(NetworkAdapterTest, R7_AdapterPortName) {
+TEST_F(NetworkAdapterTest, AdapterPortName2) {
   const char *name = sdc_net_->name(port_a_);
   EXPECT_NE(name, nullptr);
   EXPECT_STREQ(name, "A");
 }
 
 // NetworkNameAdapter: busName(Port) forwarding
-TEST_F(NetworkAdapterTest, R7_AdapterPortBusName) {
+TEST_F(NetworkAdapterTest, AdapterPortBusName2) {
   const char *bname = sdc_net_->busName(port_a_);
   EXPECT_NE(bname, nullptr);
 }
@@ -4342,7 +4342,7 @@ TEST_F(NetworkAdapterTest, R7_AdapterPortBusName) {
 // R7_AdapterFindPinLibertyPort removed (segfault)
 
 // NetworkNameAdapter: id(Term) forwarding
-TEST_F(NetworkAdapterTest, R7_AdapterTermId) {
+TEST_F(NetworkAdapterTest, AdapterTermId) {
   // Make a top-level pin to get a term
   Instance *top = sdc_net_->topInstance();
   Cell *top_cell = sdc_net_->cell(top);
@@ -4358,14 +4358,14 @@ TEST_F(NetworkAdapterTest, R7_AdapterTermId) {
 }
 
 // NetworkNameAdapter: makeNet forwarding
-TEST_F(NetworkAdapterTest, R7_AdapterMakeNet) {
+TEST_F(NetworkAdapterTest, AdapterMakeNet2) {
   Instance *top = sdc_net_->topInstance();
   Net *net = sdc_net_->makeNet("r7_adapter_net", top);
   EXPECT_NE(net, nullptr);
 }
 
 // NetworkNameAdapter: connect(Instance, Port, Net) forwarding
-TEST_F(NetworkAdapterTest, R7_AdapterConnect) {
+TEST_F(NetworkAdapterTest, AdapterConnect2) {
   Instance *top = sdc_net_->topInstance();
   Net *net = sdc_net_->makeNet("r7_adapter_conn_net", top);
   // makeInstance requires LibertyCell, get it from the network
@@ -4377,7 +4377,7 @@ TEST_F(NetworkAdapterTest, R7_AdapterConnect) {
 }
 
 // Network::findNetsMatchingLinear exercises
-TEST_F(ConcreteNetworkLinkedTest, R7_FindNetsMatchingLinear) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetsMatchingLinear) {
   Instance *top = network_.topInstance();
   PatternMatch pattern("n*");
   NetSeq matches = network_.findNetsMatching(top, &pattern);
@@ -4386,7 +4386,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_FindNetsMatchingLinear) {
 }
 
 // ConcreteNetwork: addConstantNet and clearConstantNets
-TEST_F(ConcreteNetworkLinkedTest, R7_ConstantNets) {
+TEST_F(ConcreteNetworkLinkedTest, ConstantNets) {
   Instance *top = network_.topInstance();
   Net *const_net = network_.makeNet("r7_const", top);
   network_.addConstantNet(const_net, LogicValue::one);
@@ -4399,7 +4399,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_ConstantNets) {
 }
 
 // ConcreteLibertyLibraryIterator exercise
-TEST(ConcreteNetworkTest, R7_LibertyLibraryIterator) {
+TEST(ConcreteNetworkTest, LibertyLibraryIterator) {
   ConcreteNetwork network;
   LibertyLibraryIterator *iter = network.libertyLibraryIterator();
   ASSERT_NE(iter, nullptr);
@@ -4408,7 +4408,7 @@ TEST(ConcreteNetworkTest, R7_LibertyLibraryIterator) {
 }
 
 // ConcreteLibraryIterator1 exercise
-TEST(ConcreteNetworkTest, R7_LibraryIteratorEmpty) {
+TEST(ConcreteNetworkTest, LibraryIteratorEmpty) {
   ConcreteNetwork network;
   LibraryIterator *iter = network.libraryIterator();
   ASSERT_NE(iter, nullptr);
@@ -4417,7 +4417,7 @@ TEST(ConcreteNetworkTest, R7_LibraryIteratorEmpty) {
 }
 
 // ConcreteInstancePinIterator exercise
-TEST_F(ConcreteNetworkLinkedTest, R7_InstancePinIterator) {
+TEST_F(ConcreteNetworkLinkedTest, InstancePinIterator2) {
   InstancePinIterator *iter = network_.pinIterator(u1_);
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -4432,7 +4432,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_InstancePinIterator) {
 }
 
 // Network: mergeInto exercises (ConcreteNet::mergeInto path)
-TEST_F(ConcreteNetworkLinkedTest, R7_MergeNets) {
+TEST_F(ConcreteNetworkLinkedTest, MergeNets) {
   Instance *top = network_.topInstance();
   Net *na = network_.makeNet("r7_merge_a", top);
   Net *nb = network_.makeNet("r7_merge_b", top);
@@ -4442,7 +4442,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_MergeNets) {
 }
 
 // BusPort: setDirection exercises BusPort::setDirection
-TEST(ConcretePortTest, R7_BusPortSetDirectionInput) {
+TEST(ConcretePortTest, BusPortSetDirectionInput) {
   PortDirection::init();
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
@@ -4464,7 +4464,7 @@ TEST(ConcretePortTest, R7_BusPortSetDirectionInput) {
 // R7_AdapterLinkNetwork removed (segfault)
 
 // ConcreteNetwork: findAnyCell
-TEST_F(ConcreteNetworkLinkedTest, R7_FindAnyCell) {
+TEST_F(ConcreteNetworkLinkedTest, FindAnyCell) {
   Cell *cell = network_.findAnyCell("INV");
   EXPECT_NE(cell, nullptr);
   Cell *no_cell = network_.findAnyCell("NONEXISTENT_R7");
@@ -4472,38 +4472,38 @@ TEST_F(ConcreteNetworkLinkedTest, R7_FindAnyCell) {
 }
 
 // ConcreteNetwork: isPower/isGround on net
-TEST_F(ConcreteNetworkLinkedTest, R7_NetPowerGround) {
+TEST_F(ConcreteNetworkLinkedTest, NetPowerGround) {
   EXPECT_FALSE(network_.isPower(net1_));
   EXPECT_FALSE(network_.isGround(net1_));
 }
 
 // ConcreteNetwork: net instance
-TEST_F(ConcreteNetworkLinkedTest, R7_NetInstance) {
+TEST_F(ConcreteNetworkLinkedTest, NetInstance2) {
   Instance *inst = network_.instance(net1_);
   EXPECT_EQ(inst, network_.topInstance());
 }
 
 // Network: cellName convenience
-TEST_F(ConcreteNetworkLinkedTest, R7_CellNameConvenience) {
+TEST_F(ConcreteNetworkLinkedTest, CellNameConvenience) {
   const char *name = network_.cellName(u2_);
   EXPECT_STREQ(name, "INV");
 }
 
 // ConcreteNetwork: pin direction
-TEST_F(ConcreteNetworkLinkedTest, R7_PinDirection) {
+TEST_F(ConcreteNetworkLinkedTest, PinDirection2) {
   PortDirection *dir = network_.direction(pin_u1_a_);
   EXPECT_NE(dir, nullptr);
   EXPECT_TRUE(dir->isInput());
 }
 
 // NetworkNameAdapter: hasMembers on scalar port
-TEST_F(NetworkAdapterTest, R7_AdapterHasMembers) {
+TEST_F(NetworkAdapterTest, AdapterHasMembers) {
   bool has = sdc_net_->hasMembers(port_a_);
   EXPECT_FALSE(has);
 }
 
 // ConcreteNetwork: disconnectPin and reconnect cycle
-TEST_F(ConcreteNetworkLinkedTest, R7_DisconnectReconnect) {
+TEST_F(ConcreteNetworkLinkedTest, DisconnectReconnect) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *inst = network_.makeInstance(inv_cell, "r7_disc", network_.topInstance());
   Port *port_a = network_.findPort(inv_cell, "A");
@@ -4521,7 +4521,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_DisconnectReconnect) {
 }
 
 // ConcreteNetwork: instance attribute
-TEST_F(ConcreteNetworkLinkedTest, R7_InstanceAttribute) {
+TEST_F(ConcreteNetworkLinkedTest, InstanceAttribute) {
   network_.setAttribute(u1_, "r7_key", "r7_value");
   std::string val = network_.getAttribute(u1_, "r7_key");
   EXPECT_EQ(val, "r7_value");
@@ -4530,7 +4530,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_InstanceAttribute) {
 }
 
 // ConcreteNetwork: instance net iterator
-TEST_F(ConcreteNetworkLinkedTest, R7_InstanceNetIterator) {
+TEST_F(ConcreteNetworkLinkedTest, InstanceNetIterator2) {
   // Net iterator on a child instance with local nets
   Cell *sub_cell = network_.makeCell(lib_, "R7_SUBC", false, "test.lib");
   network_.makePort(sub_cell, "p1");
@@ -4549,7 +4549,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_InstanceNetIterator) {
 }
 
 // Network: visitConnectedPins exercises (through connectedPins API)
-TEST_F(ConcreteNetworkLinkedTest, R7_ConnectedPins) {
+TEST_F(ConcreteNetworkLinkedTest, ConnectedPins) {
   // Exercise connectedPinIterator as an alternative
   ConnectedPinIterator *iter = network_.connectedPinIterator(pin_u1_a_);
   int count = 0;
@@ -4562,7 +4562,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_ConnectedPins) {
 }
 
 // ConcreteNetwork: portBitCount
-TEST_F(ConcreteNetworkLinkedTest, R7_PortBitCount) {
+TEST_F(ConcreteNetworkLinkedTest, PortBitCount) {
   Cell *cell = network_.cell(u1_);
   int count = network_.portBitCount(cell);
   // INV has A and Y = 2 bit ports
@@ -4570,7 +4570,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_PortBitCount) {
 }
 
 // ConcreteNetwork: setCellNetworkView / cellNetworkView
-TEST_F(ConcreteNetworkLinkedTest, R7_CellNetworkView) {
+TEST_F(ConcreteNetworkLinkedTest, CellNetworkView) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   // Initially null
   Instance *view = network_.cellNetworkView(inv_cell);
@@ -4592,7 +4592,7 @@ TEST_F(ConcreteNetworkLinkedTest, R7_CellNetworkView) {
 ////////////////////////////////////////////////////////////////
 
 // ConcreteNetwork::connect(Instance*, LibertyPort*, Net*) - uncovered overload
-TEST_F(ConcreteNetworkLinkedTest, R8_ConnectWithLibertyPort) {
+TEST_F(ConcreteNetworkLinkedTest, ConnectWithLibertyPort) {
   // connect with LibertyPort* just forwards to connect with Port*
   // Since we don't have a real LibertyPort, test the Port-based connect path
   Instance *top = network_.topInstance();
@@ -4610,7 +4610,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_ConnectWithLibertyPort) {
 }
 
 // ConcreteNetwork::clearConstantNets
-TEST_F(ConcreteNetworkLinkedTest, R8_ClearConstantNets) {
+TEST_F(ConcreteNetworkLinkedTest, ClearConstantNets) {
   // Add constant nets and clear them
   network_.addConstantNet(net1_, LogicValue::zero);
   network_.addConstantNet(net2_, LogicValue::one);
@@ -4625,7 +4625,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_ClearConstantNets) {
 }
 
 // ConcreteInstance::cell() const - uncovered
-TEST_F(ConcreteNetworkLinkedTest, R8_InstanceCell) {
+TEST_F(ConcreteNetworkLinkedTest, InstanceCell2) {
   Cell *cell = network_.cell(u1_);
   EXPECT_NE(cell, nullptr);
   // Verify it's the INV cell
@@ -4633,7 +4633,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_InstanceCell) {
 }
 
 // ConcreteInstance::findChild - exercise child lookup
-TEST_F(ConcreteNetworkLinkedTest, R8_FindChildInstance) {
+TEST_F(ConcreteNetworkLinkedTest, FindChildInstance) {
   Instance *top = network_.topInstance();
   Instance *child = network_.findChild(top, "u1");
   EXPECT_EQ(child, u1_);
@@ -4642,7 +4642,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_FindChildInstance) {
 }
 
 // ConcreteInstance::findPin(Port*) - uncovered overload
-TEST_F(ConcreteNetworkLinkedTest, R8_FindPinByPortDirect) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinByPortDirect2) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
   Pin *pin = network_.findPin(u1_, port_a);
@@ -4651,7 +4651,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_FindPinByPortDirect) {
 }
 
 // ConcreteInstance::deleteChild - exercise child deletion
-TEST_F(ConcreteNetworkLinkedTest, R8_DeleteChildInstance) {
+TEST_F(ConcreteNetworkLinkedTest, DeleteChildInstance) {
   Instance *top = network_.topInstance();
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *temp = network_.makeInstance(inv_cell, "temp_child", top);
@@ -4664,7 +4664,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_DeleteChildInstance) {
 }
 
 // ConcreteInstance::addNet / deleteNet through ConcreteNetwork
-TEST_F(ConcreteNetworkLinkedTest, R8_AddDeleteNet) {
+TEST_F(ConcreteNetworkLinkedTest, AddDeleteNet) {
   Instance *top = network_.topInstance();
   Net *new_net = network_.makeNet("test_net_r8", top);
   EXPECT_NE(new_net, nullptr);
@@ -4676,7 +4676,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_AddDeleteNet) {
 }
 
 // ConcreteInstance::setCell
-TEST_F(ConcreteNetworkLinkedTest, R8_SetInstanceCell) {
+TEST_F(ConcreteNetworkLinkedTest, SetInstanceCell) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   // Replace u1 cell with same cell (exercises the path)
   network_.replaceCell(u1_, inv_cell);
@@ -4685,7 +4685,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_SetInstanceCell) {
 }
 
 // ConcreteInstance::initPins - exercise pin initialization
-TEST_F(ConcreteNetworkLinkedTest, R8_InstanceInitPins) {
+TEST_F(ConcreteNetworkLinkedTest, InstanceInitPins) {
   Instance *top = network_.topInstance();
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u_new = network_.makeInstance(inv_cell, "u_init", top);
@@ -4704,7 +4704,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_InstanceInitPins) {
 }
 
 // ConcretePin: port and instance accessors
-TEST_F(ConcreteNetworkLinkedTest, R8_PinPortAndInstance) {
+TEST_F(ConcreteNetworkLinkedTest, PinPortAndInstance) {
   Port *port = network_.port(pin_u1_a_);
   EXPECT_NE(port, nullptr);
   Instance *inst = network_.instance(pin_u1_a_);
@@ -4712,7 +4712,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_PinPortAndInstance) {
 }
 
 // ConcretePin::setVertexId - uncovered
-TEST_F(ConcreteNetworkLinkedTest, R8_PinSetVertexId) {
+TEST_F(ConcreteNetworkLinkedTest, PinSetVertexId) {
   VertexId orig = network_.vertexId(pin_u1_a_);
   network_.setVertexId(pin_u1_a_, 999);
   EXPECT_EQ(network_.vertexId(pin_u1_a_), 999u);
@@ -4720,7 +4720,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_PinSetVertexId) {
 }
 
 // ConcreteNet::addPin / deletePin (through connect/disconnect)
-TEST_F(ConcreteNetworkLinkedTest, R8_NetPinManipulation) {
+TEST_F(ConcreteNetworkLinkedTest, NetPinManipulation) {
   Instance *top = network_.topInstance();
   Net *test_net = network_.makeNet("r8_net", top);
   Cell *inv_cell = network_.findCell(lib_, "INV");
@@ -4755,7 +4755,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_NetPinManipulation) {
 }
 
 // ConcreteNet::addTerm / deleteTerm (through makeTerm)
-TEST_F(ConcreteNetworkLinkedTest, R8_TermManipulation) {
+TEST_F(ConcreteNetworkLinkedTest, TermManipulation) {
   Instance *top = network_.topInstance();
   Cell *top_cell = network_.cell(top);
   Port *clk_port = network_.findPort(top_cell, "clk");
@@ -4794,7 +4794,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_TermManipulation) {
 }
 
 // ConcreteNetPinIterator - uncovered constructor
-TEST_F(ConcreteNetworkLinkedTest, R8_NetPinIteratorEmpty) {
+TEST_F(ConcreteNetworkLinkedTest, NetPinIteratorEmpty) {
   Instance *top = network_.topInstance();
   Net *empty_net = network_.makeNet("empty_r8", top);
   NetPinIterator *iter = network_.pinIterator(empty_net);
@@ -4805,7 +4805,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_NetPinIteratorEmpty) {
 }
 
 // ConcreteNetTermIterator - uncovered constructor
-TEST_F(ConcreteNetworkLinkedTest, R8_NetTermIteratorEmpty) {
+TEST_F(ConcreteNetworkLinkedTest, NetTermIteratorEmpty2) {
   Instance *top = network_.topInstance();
   Net *empty_net = network_.makeNet("empty_term_r8", top);
   NetTermIterator *iter = network_.termIterator(empty_net);
@@ -4816,7 +4816,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_NetTermIteratorEmpty) {
 }
 
 // ConcreteLibraryIterator1 - uncovered
-TEST_F(ConcreteNetworkLinkedTest, R8_LibraryIterator) {
+TEST_F(ConcreteNetworkLinkedTest, LibraryIterator) {
   LibraryIterator *iter = network_.libraryIterator();
   int count = 0;
   while (iter->hasNext()) {
@@ -4829,7 +4829,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_LibraryIterator) {
 }
 
 // ConcreteLibertyLibraryIterator - uncovered
-TEST_F(ConcreteNetworkLinkedTest, R8_LibertyLibraryIterator) {
+TEST_F(ConcreteNetworkLinkedTest, LibertyLibraryIterator) {
   LibertyLibraryIterator *iter = network_.libertyLibraryIterator();
   EXPECT_NE(iter, nullptr);
   // No liberty libraries in our simple network, so it may be empty
@@ -4844,7 +4844,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_LibertyLibraryIterator) {
 }
 
 // ConcreteCellPortIterator1 - uncovered
-TEST_F(ConcreteNetworkLinkedTest, R8_CellPortIterator) {
+TEST_F(ConcreteNetworkLinkedTest, CellPortIterator) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   CellPortIterator *iter = network_.portIterator(inv_cell);
   int count = 0;
@@ -4858,7 +4858,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_CellPortIterator) {
 }
 
 // ConcreteCellPortBitIterator / ConcreteCellPortBitIterator1 - uncovered
-TEST_F(ConcreteNetworkLinkedTest, R8_CellPortBitIterator) {
+TEST_F(ConcreteNetworkLinkedTest, CellPortBitIterator2) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   CellPortBitIterator *iter = network_.portBitIterator(inv_cell);
   int count = 0;
@@ -4872,7 +4872,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_CellPortBitIterator) {
 }
 
 // ConcreteInstanceChildIterator - uncovered
-TEST_F(ConcreteNetworkLinkedTest, R8_InstanceChildIterator) {
+TEST_F(ConcreteNetworkLinkedTest, InstanceChildIterator) {
   Instance *top = network_.topInstance();
   InstanceChildIterator *iter = network_.childIterator(top);
   int count = 0;
@@ -4886,7 +4886,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_InstanceChildIterator) {
 }
 
 // ConcreteInstancePinIterator - uncovered constructor
-TEST_F(ConcreteNetworkLinkedTest, R8_InstancePinIteratorCount) {
+TEST_F(ConcreteNetworkLinkedTest, InstancePinIteratorCount) {
   InstancePinIterator *iter = network_.pinIterator(u1_);
   int count = 0;
   while (iter->hasNext()) {
@@ -4902,7 +4902,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_InstancePinIteratorCount) {
 // R8_LibertyLibraryOfCell removed (segfault - no liberty in simple network)
 
 // Network::hasMembers - uncovered
-TEST_F(ConcreteNetworkLinkedTest, R8_HasMembers) {
+TEST_F(ConcreteNetworkLinkedTest, HasMembers) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
   bool has = network_.hasMembers(port_a);
@@ -4910,7 +4910,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_HasMembers) {
 }
 
 // Network::findPin with port name string
-TEST_F(ConcreteNetworkLinkedTest, R8_FindPinByName) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinByName2) {
   Pin *pin = network_.findPin(u1_, "A");
   EXPECT_NE(pin, nullptr);
   EXPECT_EQ(pin, pin_u1_a_);
@@ -4919,7 +4919,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_FindPinByName) {
 }
 
 // Network::findPin(Instance*, Port*) - uncovered overload
-TEST_F(ConcreteNetworkLinkedTest, R8_FindPinByPortOverload) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinByPortOverload) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
   Pin *pin = network_.findPin(u1_, port_a);
@@ -4928,7 +4928,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_FindPinByPortOverload) {
 }
 
 // Network::findNet by name
-TEST_F(ConcreteNetworkLinkedTest, R8_FindNetByName) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetByName2) {
   Instance *top = network_.topInstance();
   Net *net = network_.findNet(top, "n1");
   EXPECT_NE(net, nullptr);
@@ -4938,7 +4938,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_FindNetByName) {
 }
 
 // Network::findNetsMatching pattern
-TEST_F(ConcreteNetworkLinkedTest, R8_FindNetsMatching) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetsMatching2) {
   Instance *top = network_.topInstance();
   PatternMatch pat("n*", false, false, nullptr);
   NetSeq matches;
@@ -4947,7 +4947,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_FindNetsMatching) {
 }
 
 // ConcreteNetwork::mergeNets exercise
-TEST_F(ConcreteNetworkLinkedTest, R8_MergeNetsExercise) {
+TEST_F(ConcreteNetworkLinkedTest, MergeNetsExercise) {
   Instance *top = network_.topInstance();
   Net *a = network_.makeNet("merge_a", top);
   Net *b = network_.makeNet("merge_b", top);
@@ -4971,7 +4971,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_MergeNetsExercise) {
 
 // NetworkNameAdapter forwarding tests via SdcNetwork
 // NetworkNameAdapter::findPort
-TEST_F(NetworkAdapterTest, R8_AdapterFindPortByName) {
+TEST_F(NetworkAdapterTest, AdapterFindPortByName) {
   Port *port = sdc_net_->findPort(inv_cell_, "A");
   EXPECT_NE(port, nullptr);
   EXPECT_EQ(port, port_a_);
@@ -4980,20 +4980,20 @@ TEST_F(NetworkAdapterTest, R8_AdapterFindPortByName) {
 }
 
 // NetworkNameAdapter::findPortsMatching
-TEST_F(NetworkAdapterTest, R8_AdapterFindPortsMatching) {
+TEST_F(NetworkAdapterTest, AdapterFindPortsMatching3) {
   PatternMatch pat("*", false, false, nullptr);
   PortSeq ports = sdc_net_->findPortsMatching(inv_cell_, &pat);
   EXPECT_EQ(ports.size(), 2u); // A and Y
 }
 
 // NetworkNameAdapter::name(Port*) forwarding
-TEST_F(NetworkAdapterTest, R8_AdapterPortNameForward) {
+TEST_F(NetworkAdapterTest, AdapterPortNameForward) {
   const char *name = sdc_net_->name(port_a_);
   EXPECT_STREQ(name, "A");
 }
 
 // NetworkNameAdapter::busName(Port*) forwarding
-TEST_F(NetworkAdapterTest, R8_AdapterBusNameForward) {
+TEST_F(NetworkAdapterTest, AdapterBusNameForward) {
   const char *bname = sdc_net_->busName(port_a_);
   EXPECT_STREQ(bname, "A"); // scalar port
 }
@@ -5005,7 +5005,7 @@ TEST_F(NetworkAdapterTest, R8_AdapterBusNameForward) {
 // R8_AdapterMakeInstanceNull removed (segfault)
 
 // NetworkNameAdapter::makeNet forwarding
-TEST_F(NetworkAdapterTest, R8_AdapterMakeNetForward) {
+TEST_F(NetworkAdapterTest, AdapterMakeNetForward) {
   Instance *top = sdc_net_->topInstance();
   Net *net = sdc_net_->makeNet("adapter_net_r8", top);
   EXPECT_NE(net, nullptr);
@@ -5014,7 +5014,7 @@ TEST_F(NetworkAdapterTest, R8_AdapterMakeNetForward) {
 }
 
 // NetworkNameAdapter::connect forwarding
-TEST_F(NetworkAdapterTest, R8_AdapterConnectForward) {
+TEST_F(NetworkAdapterTest, AdapterConnectForward) {
   Instance *top = sdc_net_->topInstance();
   Net *net = sdc_net_->makeNet("conn_r8", top);
   Port *port_y = network_.findPort(inv_cell_, "Y");
@@ -5025,7 +5025,7 @@ TEST_F(NetworkAdapterTest, R8_AdapterConnectForward) {
 }
 
 // NetworkEdit::connectPin exercises
-TEST_F(ConcreteNetworkLinkedTest, R8_DisconnectAndReconnect) {
+TEST_F(ConcreteNetworkLinkedTest, DisconnectAndReconnect) {
   // Disconnect pin and reconnect to different net
   Instance *top = network_.topInstance();
   Net *alt_net = network_.makeNet("alt_r8", top);
@@ -5093,7 +5093,7 @@ TEST(ConcretePortR8Test, BusPortSetDirection) {
 }
 
 // ConcreteNetwork: multiple nets and find
-TEST_F(ConcreteNetworkLinkedTest, R8_MultipleNetsFind) {
+TEST_F(ConcreteNetworkLinkedTest, MultipleNetsFind) {
   Instance *top = network_.topInstance();
   for (int i = 0; i < 10; i++) {
     std::string name = "multi_net_" + std::to_string(i);
@@ -5115,7 +5115,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_MultipleNetsFind) {
 }
 
 // ConcreteNetwork: instance with many children
-TEST_F(ConcreteNetworkLinkedTest, R8_ManyChildren) {
+TEST_F(ConcreteNetworkLinkedTest, ManyChildren) {
   Instance *top = network_.topInstance();
   Cell *inv_cell = network_.findCell(lib_, "INV");
   for (int i = 0; i < 5; i++) {
@@ -5141,7 +5141,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_ManyChildren) {
 }
 
 // ConcreteNetwork: deletePin through disconnect
-TEST_F(ConcreteNetworkLinkedTest, R8_DeletePinPath) {
+TEST_F(ConcreteNetworkLinkedTest, DeletePinPath) {
   Instance *top = network_.topInstance();
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Instance *u_del = network_.makeInstance(inv_cell, "u_del_r8", top);
@@ -5163,7 +5163,7 @@ TEST_F(ConcreteNetworkLinkedTest, R8_DeletePinPath) {
 // R8_CheckLibertyCorners removed (segfault - no liberty in simple network)
 
 // ConnectedPinIterator1 - uncovered through connectedPinIterator
-TEST_F(ConcreteNetworkLinkedTest, R8_ConnectedPinIteratorMultiPin) {
+TEST_F(ConcreteNetworkLinkedTest, ConnectedPinIteratorMultiPin) {
   // net2_ has u1_y and u2_a connected
   ConnectedPinIterator *iter = network_.connectedPinIterator(pin_u1_y_);
   int count = 0;
@@ -5177,98 +5177,98 @@ TEST_F(ConcreteNetworkLinkedTest, R8_ConnectedPinIteratorMultiPin) {
 }
 
 // NetworkNameAdapter: various forwarding methods
-TEST_F(NetworkAdapterTest, R8_AdapterCellName) {
+TEST_F(NetworkAdapterTest, AdapterCellName2) {
   const char *name = sdc_net_->name(inv_cell_);
   EXPECT_STREQ(name, "BUF");
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterCellId) {
+TEST_F(NetworkAdapterTest, AdapterCellId2) {
   ObjectId aid = sdc_net_->id(inv_cell_);
   ObjectId did = network_.id(inv_cell_);
   EXPECT_EQ(aid, did);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterCellLibrary) {
+TEST_F(NetworkAdapterTest, AdapterCellLibrary2) {
   Library *lib = sdc_net_->library(inv_cell_);
   EXPECT_EQ(lib, lib_);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterCellIsLeaf) {
+TEST_F(NetworkAdapterTest, AdapterCellIsLeaf2) {
   EXPECT_TRUE(sdc_net_->isLeaf(inv_cell_));
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterInstanceId) {
+TEST_F(NetworkAdapterTest, AdapterInstanceId2) {
   ObjectId aid = sdc_net_->id(u1_);
   ObjectId did = network_.id(u1_);
   EXPECT_EQ(aid, did);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterInstanceCell) {
+TEST_F(NetworkAdapterTest, AdapterInstanceCell2) {
   Cell *cell = sdc_net_->cell(u1_);
   EXPECT_EQ(cell, inv_cell_);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterInstanceParent) {
+TEST_F(NetworkAdapterTest, AdapterInstanceParent2) {
   Instance *parent = sdc_net_->parent(u1_);
   EXPECT_EQ(parent, sdc_net_->topInstance());
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterInstanceIsLeaf) {
+TEST_F(NetworkAdapterTest, AdapterInstanceIsLeaf2) {
   EXPECT_TRUE(sdc_net_->isLeaf(u1_));
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterPinId) {
+TEST_F(NetworkAdapterTest, AdapterPinId2) {
   ObjectId aid = sdc_net_->id(pin_b1_a_);
   ObjectId did = network_.id(pin_b1_a_);
   EXPECT_EQ(aid, did);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterPinPort) {
+TEST_F(NetworkAdapterTest, AdapterPinPort2) {
   Port *port = sdc_net_->port(pin_b1_a_);
   EXPECT_EQ(port, port_a_);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterPinInstance) {
+TEST_F(NetworkAdapterTest, AdapterPinInstance2) {
   Instance *inst = sdc_net_->instance(pin_b1_a_);
   EXPECT_EQ(inst, u1_);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterPinNet) {
+TEST_F(NetworkAdapterTest, AdapterPinNet2) {
   Net *net = sdc_net_->net(pin_b1_a_);
   EXPECT_EQ(net, net1_);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterPinDirection) {
+TEST_F(NetworkAdapterTest, AdapterPinDirection2) {
   PortDirection *dir = sdc_net_->direction(pin_b1_a_);
   EXPECT_TRUE(dir->isInput());
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterPinVertexId) {
+TEST_F(NetworkAdapterTest, AdapterPinVertexId2) {
   VertexId vid = sdc_net_->vertexId(pin_b1_a_);
   VertexId dvid = network_.vertexId(pin_b1_a_);
   EXPECT_EQ(vid, dvid);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterNetId) {
+TEST_F(NetworkAdapterTest, AdapterNetId2) {
   ObjectId aid = sdc_net_->id(net1_);
   ObjectId did = network_.id(net1_);
   EXPECT_EQ(aid, did);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterNetInstance) {
+TEST_F(NetworkAdapterTest, AdapterNetInstance2) {
   Instance *inst = sdc_net_->instance(net1_);
   EXPECT_EQ(inst, sdc_net_->topInstance());
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterNetIsPower) {
+TEST_F(NetworkAdapterTest, AdapterNetIsPower2) {
   EXPECT_FALSE(sdc_net_->isPower(net1_));
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterNetIsGround) {
+TEST_F(NetworkAdapterTest, AdapterNetIsGround2) {
   EXPECT_FALSE(sdc_net_->isGround(net1_));
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterNetPinIterator) {
+TEST_F(NetworkAdapterTest, AdapterNetPinIterator2) {
   NetPinIterator *iter = sdc_net_->pinIterator(net1_);
   EXPECT_NE(iter, nullptr);
   int count = 0;
@@ -5280,7 +5280,7 @@ TEST_F(NetworkAdapterTest, R8_AdapterNetPinIterator) {
   EXPECT_GE(count, 1);
 }
 
-TEST_F(NetworkAdapterTest, R8_AdapterNetTermIterator) {
+TEST_F(NetworkAdapterTest, AdapterNetTermIterator2) {
   NetTermIterator *iter = sdc_net_->termIterator(net1_);
   EXPECT_NE(iter, nullptr);
   delete iter;
@@ -5292,7 +5292,7 @@ TEST_F(NetworkAdapterTest, R8_AdapterNetTermIterator) {
 
 // R10_ ConcreteNetwork: Bus port creation and direction setting
 // Covers: BusPort::BusPort, BusPort::setDirection
-TEST_F(ConcreteNetworkLinkedTest, R10_BusPortCreation) {
+TEST_F(ConcreteNetworkLinkedTest, BusPortCreation) {
   // Create bus port on a new cell (not one with existing instances)
   Cell *bus_cell = network_.makeCell(lib_, "BUS_TEST", true, "test.lib");
   Port *bus = network_.makeBusPort(bus_cell, "bus_data", 0, 7);
@@ -5309,7 +5309,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_BusPortCreation) {
 
 // R10_ ConcreteNetwork: multiple clear operations
 // Covers: ConcreteNetwork clear paths
-TEST_F(ConcreteNetworkLinkedTest, R10_ClearAndRebuild) {
+TEST_F(ConcreteNetworkLinkedTest, ClearAndRebuild) {
   // Verify we can query before clear
   Instance *top = network_.topInstance();
   EXPECT_NE(top, nullptr);
@@ -5319,7 +5319,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_ClearAndRebuild) {
 
 // R10_ ConcreteInstance: cell() accessor
 // Covers: ConcreteInstance::cell() const
-TEST_F(ConcreteNetworkLinkedTest, R10_InstanceCellAccessor) {
+TEST_F(ConcreteNetworkLinkedTest, InstanceCellAccessor) {
   Cell *cell = network_.cell(u1_);
   ASSERT_NE(cell, nullptr);
   EXPECT_STREQ(network_.name(cell), "INV");
@@ -5331,7 +5331,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_InstanceCellAccessor) {
 
 // R10_ ConcreteInstance: findChild via network interface
 // Covers: ConcreteInstance::findChild(const char*) const
-TEST_F(ConcreteNetworkLinkedTest, R10_FindChildExhaustive) {
+TEST_F(ConcreteNetworkLinkedTest, FindChildExhaustive) {
   Instance *top = network_.topInstance();
   Instance *c1 = network_.findChild(top, "u1");
   Instance *c2 = network_.findChild(top, "u2");
@@ -5346,7 +5346,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_FindChildExhaustive) {
 
 // R10_ ConcreteInstance: findPin(Port*) via network interface
 // Covers: ConcreteInstance::findPin(Port const*) const
-TEST_F(ConcreteNetworkLinkedTest, R10_FindPinByPort) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinByPort4) {
   Cell *inv_cell = network_.cell(u1_);
   Port *port_a = network_.findPort(inv_cell, "A");
   Port *port_y = network_.findPort(inv_cell, "Y");
@@ -5361,7 +5361,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_FindPinByPort) {
 
 // R10_ ConcreteInstance: deleteChild then verify
 // Covers: ConcreteInstance::deleteChild(ConcreteInstance*)
-TEST_F(ConcreteNetworkLinkedTest, R10_DeleteChildAndVerify) {
+TEST_F(ConcreteNetworkLinkedTest, DeleteChildAndVerify) {
   Instance *top = network_.topInstance();
   Cell *inv_cell = network_.cell(u1_);
   Instance *extra = network_.makeInstance(inv_cell, "extra", top);
@@ -5381,7 +5381,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_DeleteChildAndVerify) {
 
 // R10_ ConcreteInstance: addNet and deleteNet
 // Covers: ConcreteInstance::addNet, ConcreteInstance::deleteNet, ConcreteNet::~ConcreteNet
-TEST_F(ConcreteNetworkLinkedTest, R10_AddDeleteNetExhaustive) {
+TEST_F(ConcreteNetworkLinkedTest, AddDeleteNetExhaustive) {
   Instance *top = network_.topInstance();
   Net *n4 = network_.makeNet("n4", top);
   ASSERT_NE(n4, nullptr);
@@ -5400,7 +5400,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_AddDeleteNetExhaustive) {
 
 // R10_ ConcreteInstance: setCell
 // Covers: ConcreteInstance::setCell(ConcreteCell*)
-TEST_F(ConcreteNetworkLinkedTest, R10_SetCellOnInstance) {
+TEST_F(ConcreteNetworkLinkedTest, SetCellOnInstance) {
   // Create a second cell type
   Cell *buf_cell = network_.makeCell(lib_, "BUF2", true, "test.lib");
   network_.makePort(buf_cell, "A");
@@ -5416,7 +5416,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_SetCellOnInstance) {
 
 // R10_ ConcretePin: port name via port accessor
 // Covers: ConcretePin internal paths
-TEST_F(ConcreteNetworkLinkedTest, R10_PinPortName) {
+TEST_F(ConcreteNetworkLinkedTest, PinPortName2) {
   Port *port = network_.port(pin_u1_a_);
   ASSERT_NE(port, nullptr);
   const char *name = network_.name(port);
@@ -5425,7 +5425,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_PinPortName) {
 
 // R10_ ConcretePin: setVertexId
 // Covers: ConcretePin::setVertexId(unsigned int)
-TEST_F(ConcreteNetworkLinkedTest, R10_PinSetVertexIdMultiple) {
+TEST_F(ConcreteNetworkLinkedTest, PinSetVertexIdMultiple2) {
   network_.setVertexId(pin_u1_a_, 100);
   EXPECT_EQ(network_.vertexId(pin_u1_a_), 100u);
   network_.setVertexId(pin_u1_a_, 200);
@@ -5436,7 +5436,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_PinSetVertexIdMultiple) {
 
 // R10_ ConcreteNet: pin iteration and manipulation
 // Covers: ConcreteNet::addPin, ConcreteNetPinIterator ctor
-TEST_F(ConcreteNetworkLinkedTest, R10_NetPinIteration) {
+TEST_F(ConcreteNetworkLinkedTest, NetPinIteration) {
   // net2_ connects u1.Y and u2.A
   NetPinIterator *iter = network_.pinIterator(net2_);
   ASSERT_NE(iter, nullptr);
@@ -5452,7 +5452,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_NetPinIteration) {
 
 // R10_ ConcreteNet: term iteration
 // Covers: ConcreteNet::addTerm, ConcreteNetTermIterator ctor
-TEST_F(ConcreteNetworkLinkedTest, R10_NetTermIteration) {
+TEST_F(ConcreteNetworkLinkedTest, NetTermIteration) {
   // Leaf-level nets don't have terms, but let's verify the iterator works
   NetTermIterator *iter = network_.termIterator(net1_);
   ASSERT_NE(iter, nullptr);
@@ -5468,7 +5468,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_NetTermIteration) {
 
 // R10_ Iterators: library iterator
 // Covers: ConcreteLibraryIterator1 ctor
-TEST_F(ConcreteNetworkLinkedTest, R10_LibraryIteratorMultiple) {
+TEST_F(ConcreteNetworkLinkedTest, LibraryIteratorMultiple) {
   // Create a second library
   Library *lib2 = network_.makeLibrary("test_lib2", "test2.lib");
   ASSERT_NE(lib2, nullptr);
@@ -5487,7 +5487,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_LibraryIteratorMultiple) {
 
 // R10_ Iterators: liberty library iterator
 // Covers: ConcreteLibertyLibraryIterator ctor/dtor
-TEST_F(ConcreteNetworkLinkedTest, R10_LibertyLibraryIterator) {
+TEST_F(ConcreteNetworkLinkedTest, LibertyLibraryIterator2) {
   LibertyLibraryIterator *iter = network_.libertyLibraryIterator();
   ASSERT_NE(iter, nullptr);
   // No liberty libs in this test fixture
@@ -5497,7 +5497,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_LibertyLibraryIterator) {
 
 // R10_ Iterators: cell port iterator
 // Covers: ConcreteCellPortIterator1 ctor
-TEST_F(ConcreteNetworkLinkedTest, R10_CellPortIteratorOnTopCell) {
+TEST_F(ConcreteNetworkLinkedTest, CellPortIteratorOnTopCell) {
   Cell *top_cell = network_.cell(network_.topInstance());
   CellPortIterator *iter = network_.portIterator(top_cell);
   ASSERT_NE(iter, nullptr);
@@ -5513,7 +5513,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_CellPortIteratorOnTopCell) {
 
 // R10_ Iterators: cell port bit iterator
 // Covers: ConcreteCellPortBitIterator ctor, ConcreteCellPortBitIterator1 ctor
-TEST_F(ConcreteNetworkLinkedTest, R10_CellPortBitIteratorOnTopCell) {
+TEST_F(ConcreteNetworkLinkedTest, CellPortBitIteratorOnTopCell) {
   Cell *top_cell = network_.cell(network_.topInstance());
   CellPortBitIterator *iter = network_.portBitIterator(top_cell);
   ASSERT_NE(iter, nullptr);
@@ -5529,7 +5529,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_CellPortBitIteratorOnTopCell) {
 
 // R10_ Iterators: instance child iterator
 // Covers: ConcreteInstanceChildIterator ctor
-TEST_F(ConcreteNetworkLinkedTest, R10_InstanceChildIteratorCount) {
+TEST_F(ConcreteNetworkLinkedTest, InstanceChildIteratorCount) {
   Instance *top = network_.topInstance();
   InstanceChildIterator *iter = network_.childIterator(top);
   ASSERT_NE(iter, nullptr);
@@ -5545,7 +5545,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_InstanceChildIteratorCount) {
 
 // R10_ Iterators: instance pin iterator
 // Covers: ConcreteInstancePinIterator ctor
-TEST_F(ConcreteNetworkLinkedTest, R10_InstancePinIteratorOnU2) {
+TEST_F(ConcreteNetworkLinkedTest, InstancePinIteratorOnU2) {
   InstancePinIterator *iter = network_.pinIterator(u2_);
   ASSERT_NE(iter, nullptr);
   int count = 0;
@@ -5560,7 +5560,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_InstancePinIteratorOnU2) {
 
 // R10_ Iterators: port member iterator (for bus port)
 // Covers: ConcretePortMemberIterator1 ctor
-TEST_F(ConcreteNetworkLinkedTest, R10_PortMemberIterator) {
+TEST_F(ConcreteNetworkLinkedTest, PortMemberIterator) {
   // Create on a new cell to avoid instance pin mismatch
   Cell *bus_cell2 = network_.makeCell(lib_, "BUS_TEST2", true, "test.lib");
   Port *bus = network_.makeBusPort(bus_cell2, "test_bus", 0, 3);
@@ -5580,7 +5580,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_PortMemberIterator) {
 
 // R10_ Network: hasMembers for scalar port
 // Covers: Network::hasMembers(Port const*) const
-TEST_F(ConcreteNetworkLinkedTest, R10_HasMembersScalar) {
+TEST_F(ConcreteNetworkLinkedTest, HasMembersScalar2) {
   Cell *inv_cell = network_.cell(u1_);
   Port *port_a = network_.findPort(inv_cell, "A");
   EXPECT_FALSE(network_.hasMembers(port_a));
@@ -5588,7 +5588,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_HasMembersScalar) {
 
 // R10_ Network: findPinLinear
 // Covers: Network::findPinLinear(Instance const*, char const*) const
-TEST_F(ConcreteNetworkLinkedTest, R10_FindPinLinear) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinLinear2) {
   Pin *pin = network_.findPin(u1_, "A");
   EXPECT_EQ(pin, pin_u1_a_);
   Pin *null_pin = network_.findPin(u1_, "nonexistent");
@@ -5597,7 +5597,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_FindPinLinear) {
 
 // R10_ Network: findNetLinear
 // Covers: Network::findNetLinear(Instance const*, char const*) const
-TEST_F(ConcreteNetworkLinkedTest, R10_FindNetByNameLinear) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetByNameLinear) {
   Instance *top = network_.topInstance();
   Net *net = network_.findNet(top, "n1");
   EXPECT_EQ(net, net1_);
@@ -5607,7 +5607,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_FindNetByNameLinear) {
 
 // R10_ Network: findNetsMatchingLinear with wildcard
 // Covers: Network::findNetsMatchingLinear(Instance const*, PatternMatch const*) const
-TEST_F(ConcreteNetworkLinkedTest, R10_FindNetsMatchingWildcard) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetsMatchingWildcard) {
   Instance *top = network_.topInstance();
   PatternMatch pattern("n*");
   NetSeq matches;
@@ -5616,7 +5616,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_FindNetsMatchingWildcard) {
 }
 
 // R10_ Network: findNetsMatchingLinear with exact match
-TEST_F(ConcreteNetworkLinkedTest, R10_FindNetsMatchingExact) {
+TEST_F(ConcreteNetworkLinkedTest, FindNetsMatchingExact) {
   Instance *top = network_.topInstance();
   PatternMatch pattern("n2");
   NetSeq matches;
@@ -5626,7 +5626,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_FindNetsMatchingExact) {
 
 // R10_ NetworkEdit: connectPin(Pin*, Net*)
 // Covers: NetworkEdit::connectPin(Pin*, Net*)
-TEST_F(ConcreteNetworkLinkedTest, R10_ConnectPinReconnect) {
+TEST_F(ConcreteNetworkLinkedTest, ConnectPinReconnect) {
   // Disconnect pin_u1_a_ from net1_ and reconnect to net3_
   network_.disconnectPin(pin_u1_a_);
   Pin *reconnected = network_.connect(u1_,
@@ -5636,7 +5636,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_ConnectPinReconnect) {
 }
 
 // R10_ NetworkEdit: disconnect and verify iteration
-TEST_F(ConcreteNetworkLinkedTest, R10_DisconnectPinVerifyNet) {
+TEST_F(ConcreteNetworkLinkedTest, DisconnectPinVerifyNet) {
   // Count pins on net2_ before disconnect
   NetPinIterator *iter = network_.pinIterator(net2_);
   int before_count = 0;
@@ -5657,7 +5657,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_DisconnectPinVerifyNet) {
 
 // R10_ NetworkAdapter: hasMembers forwarding on scalar port
 // Covers: NetworkNameAdapter hasMembers path
-TEST_F(NetworkAdapterTest, R10_AdapterHasMembersScalar) {
+TEST_F(NetworkAdapterTest, AdapterHasMembersScalar) {
   EXPECT_FALSE(sdc_net_->hasMembers(port_a_));
   EXPECT_FALSE(sdc_net_->isBus(port_a_));
   EXPECT_FALSE(sdc_net_->isBundle(port_a_));
@@ -5665,21 +5665,21 @@ TEST_F(NetworkAdapterTest, R10_AdapterHasMembersScalar) {
 
 // R10_ NetworkAdapter: port size forwarding
 // Covers: NetworkNameAdapter size path
-TEST_F(NetworkAdapterTest, R10_AdapterPortSize) {
+TEST_F(NetworkAdapterTest, AdapterPortSize2) {
   int size = sdc_net_->size(port_a_);
   EXPECT_EQ(size, 1);  // Scalar port has size 1
 }
 
 // R10_ NetworkAdapter: name(Port) forwarding
 // Covers: NetworkNameAdapter::name(Port const*) const
-TEST_F(NetworkAdapterTest, R10_AdapterPortName) {
+TEST_F(NetworkAdapterTest, AdapterPortName3) {
   const char *name = sdc_net_->name(port_a_);
   EXPECT_STREQ(name, "A");
 }
 
 // R10_ NetworkAdapter: busName forwarding
 // Covers: NetworkNameAdapter::busName(Port const*) const
-TEST_F(NetworkAdapterTest, R10_AdapterBusName) {
+TEST_F(NetworkAdapterTest, AdapterBusName) {
   const char *name = sdc_net_->busName(port_a_);
   // Scalar port busName is nullptr
   (void)name;
@@ -5687,7 +5687,7 @@ TEST_F(NetworkAdapterTest, R10_AdapterBusName) {
 
 // R10_ NetworkAdapter: makeNet forwarding
 // Covers: NetworkNameAdapter::makeNet(char const*, Instance*)
-TEST_F(NetworkAdapterTest, R10_AdapterMakeNet) {
+TEST_F(NetworkAdapterTest, AdapterMakeNet3) {
   Instance *top = sdc_net_->topInstance();
   Net *net = sdc_net_->makeNet("adapter_net", top);
   ASSERT_NE(net, nullptr);
@@ -5697,7 +5697,7 @@ TEST_F(NetworkAdapterTest, R10_AdapterMakeNet) {
 
 // R10_ NetworkAdapter: findPort forwarding
 // Covers: NetworkNameAdapter::findPort(Cell const*, char const*) const
-TEST_F(NetworkAdapterTest, R10_AdapterFindPortByName) {
+TEST_F(NetworkAdapterTest, AdapterFindPortByName2) {
   Port *found = sdc_net_->findPort(inv_cell_, "A");
   EXPECT_EQ(found, port_a_);
   Port *not_found = sdc_net_->findPort(inv_cell_, "nonexistent");
@@ -5706,7 +5706,7 @@ TEST_F(NetworkAdapterTest, R10_AdapterFindPortByName) {
 
 // R10_ NetworkAdapter: findPortsMatching forwarding
 // Covers: NetworkNameAdapter::findPortsMatching(Cell const*, PatternMatch const*) const
-TEST_F(NetworkAdapterTest, R10_AdapterFindPortsMatchingWild) {
+TEST_F(NetworkAdapterTest, AdapterFindPortsMatchingWild) {
   PatternMatch pattern("*");
   PortSeq ports = sdc_net_->findPortsMatching(inv_cell_, &pattern);
   EXPECT_EQ(ports.size(), 2u);  // A, Y
@@ -5714,14 +5714,14 @@ TEST_F(NetworkAdapterTest, R10_AdapterFindPortsMatchingWild) {
 
 // R10_ NetworkAdapter: findPin(Instance, Port) forwarding
 // Covers: NetworkNameAdapter::findPin(Instance const*, Port const*) const
-TEST_F(NetworkAdapterTest, R10_AdapterFindPinByPort) {
+TEST_F(NetworkAdapterTest, AdapterFindPinByPort2) {
   Pin *pin = sdc_net_->findPin(u1_, port_a_);
   EXPECT_EQ(pin, pin_b1_a_);
 }
 
 // R10_ ConcreteNetwork: merge nets exercise
 // Covers: ConcreteNet pin/term manipulation, mergeInto
-TEST_F(ConcreteNetworkLinkedTest, R10_MergeNetsAndVerify) {
+TEST_F(ConcreteNetworkLinkedTest, MergeNetsAndVerify) {
   Instance *top = network_.topInstance();
   Net *merge_src = network_.makeNet("merge_src", top);
   Net *merge_dst = network_.makeNet("merge_dst", top);
@@ -5746,7 +5746,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_MergeNetsAndVerify) {
 
 // R10_ ConcreteInstance: initPins explicit exercise
 // Covers: ConcreteInstance::initPins
-TEST_F(ConcreteNetworkLinkedTest, R10_InitPinsExercise) {
+TEST_F(ConcreteNetworkLinkedTest, InitPinsExercise2) {
   // makeInstance already calls initPins, but let's create a new instance
   // and verify pins are initialized properly
   Instance *top = network_.topInstance();
@@ -5769,7 +5769,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_InitPinsExercise) {
 
 // R10_ ConcreteInstance: disconnect pin exercises internal paths
 // Covers: disconnect/connect paths for pins
-TEST_F(ConcreteNetworkLinkedTest, R10_DisconnectPinExercise) {
+TEST_F(ConcreteNetworkLinkedTest, DisconnectPinExercise) {
   Instance *top = network_.topInstance();
   Cell *inv_cell = network_.cell(u1_);
   Instance *dp_inst = network_.makeInstance(inv_cell, "dp_test", top);
@@ -5787,7 +5787,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_DisconnectPinExercise) {
 }
 
 // R10_ Network: multiple libraries and find
-TEST_F(ConcreteNetworkLinkedTest, R10_MultipleCellsAndFind) {
+TEST_F(ConcreteNetworkLinkedTest, MultipleCellsAndFind) {
   // Create cells in a new library
   Library *lib2 = network_.makeLibrary("other_lib", "other.lib");
   Cell *nand = network_.makeCell(lib2, "NAND2", true, "other.lib");
@@ -5803,7 +5803,7 @@ TEST_F(ConcreteNetworkLinkedTest, R10_MultipleCellsAndFind) {
 }
 
 // R10_ ConcreteNetwork: findPin across multiple instances
-TEST_F(ConcreteNetworkLinkedTest, R10_FindPinAllInstances) {
+TEST_F(ConcreteNetworkLinkedTest, FindPinAllInstances) {
   // Check all instances
   Pin *u1a = network_.findPin(u1_, "A");
   Pin *u1y = network_.findPin(u1_, "Y");

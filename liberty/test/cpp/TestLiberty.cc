@@ -6474,21 +6474,21 @@ TEST_F(StaLibertyTest, Table3ReportValueWithCell) {
 ////////////////////////////////////////////////////////////////
 
 // Unit::setSuffix - covers uncovered function
-TEST_F(UnitTest, R5_SetSuffix) {
+TEST_F(UnitTest, SetSuffix) {
   Unit unit(1e-9f, "s", 3);
   unit.setSuffix("ns");
   EXPECT_EQ(unit.suffix(), "ns");
 }
 
 // Unit::width - covers uncovered function
-TEST_F(UnitTest, R5_Width) {
+TEST_F(UnitTest, Width) {
   Unit unit(1e-9f, "s", 3);
   int w = unit.width();
   // width() returns digits_ + 2
   EXPECT_EQ(w, 5);
 }
 
-TEST_F(UnitTest, R5_WidthVaryDigits) {
+TEST_F(UnitTest, WidthVaryDigits) {
   Unit unit(1e-9f, "s", 0);
   EXPECT_EQ(unit.width(), 2);
   unit.setDigits(6);
@@ -6496,20 +6496,20 @@ TEST_F(UnitTest, R5_WidthVaryDigits) {
 }
 
 // Unit::asString(double) - covers uncovered function
-TEST_F(UnitTest, R5_AsStringDouble) {
+TEST_F(UnitTest, AsStringDouble) {
   Unit unit(1e-9f, "s", 3);
   const char *str = unit.asString(1e-9);
   EXPECT_NE(str, nullptr);
 }
 
-TEST_F(UnitTest, R5_AsStringDoubleZero) {
+TEST_F(UnitTest, AsStringDoubleZero) {
   Unit unit(1.0f, "V", 2);
   const char *str = unit.asString(0.0);
   EXPECT_NE(str, nullptr);
 }
 
 // to_string(TimingSense) exercise - ensure all senses
-TEST(TimingArcTest, R5_TimingSenseToStringAll) {
+TEST(TimingArcTest, TimingSenseToStringAll) {
   EXPECT_NE(to_string(TimingSense::positive_unate), nullptr);
   EXPECT_NE(to_string(TimingSense::negative_unate), nullptr);
   EXPECT_NE(to_string(TimingSense::non_unate), nullptr);
@@ -6518,7 +6518,7 @@ TEST(TimingArcTest, R5_TimingSenseToStringAll) {
 }
 
 // timingSenseOpposite - covers uncovered
-TEST(TimingArcTest, R5_TimingSenseOpposite) {
+TEST(TimingArcTest, TimingSenseOpposite) {
   EXPECT_EQ(timingSenseOpposite(TimingSense::positive_unate),
             TimingSense::negative_unate);
   EXPECT_EQ(timingSenseOpposite(TimingSense::negative_unate),
@@ -6532,7 +6532,7 @@ TEST(TimingArcTest, R5_TimingSenseOpposite) {
 }
 
 // findTimingType coverage
-TEST(TimingArcTest, R5_FindTimingType) {
+TEST(TimingArcTest, FindTimingType) {
   EXPECT_EQ(findTimingType("combinational"), TimingType::combinational);
   EXPECT_EQ(findTimingType("setup_rising"), TimingType::setup_rising);
   EXPECT_EQ(findTimingType("hold_falling"), TimingType::hold_falling);
@@ -6543,7 +6543,7 @@ TEST(TimingArcTest, R5_FindTimingType) {
 }
 
 // findTimingType for additional types to improve coverage
-TEST(TimingArcTest, R5_FindTimingTypeAdditional) {
+TEST(TimingArcTest, FindTimingTypeAdditional) {
   EXPECT_EQ(findTimingType("combinational_rise"), TimingType::combinational_rise);
   EXPECT_EQ(findTimingType("combinational_fall"), TimingType::combinational_fall);
   EXPECT_EQ(findTimingType("three_state_disable_rise"), TimingType::three_state_disable_rise);
@@ -6560,7 +6560,7 @@ TEST(TimingArcTest, R5_FindTimingTypeAdditional) {
 }
 
 // timingTypeScaleFactorType coverage
-TEST(TimingArcTest, R5_TimingTypeScaleFactorType) {
+TEST(TimingArcTest, TimingTypeScaleFactorType) {
   EXPECT_EQ(timingTypeScaleFactorType(TimingType::combinational),
             ScaleFactorType::cell);
   EXPECT_EQ(timingTypeScaleFactorType(TimingType::setup_rising),
@@ -6580,7 +6580,7 @@ TEST(TimingArcTest, R5_TimingTypeScaleFactorType) {
 }
 
 // timingTypeIsCheck for non-check types
-TEST(TimingArcTest, R5_TimingTypeIsCheckNonCheck) {
+TEST(TimingArcTest, TimingTypeIsCheckNonCheck) {
   EXPECT_FALSE(timingTypeIsCheck(TimingType::combinational));
   EXPECT_FALSE(timingTypeIsCheck(TimingType::combinational_rise));
   EXPECT_FALSE(timingTypeIsCheck(TimingType::combinational_fall));
@@ -6600,7 +6600,7 @@ TEST(TimingArcTest, R5_TimingTypeIsCheckNonCheck) {
 }
 
 // TimingArcAttrs default constructor
-TEST(TimingArcTest, R5_TimingArcAttrsDefault) {
+TEST(TimingArcTest, TimingArcAttrsDefault) {
   TimingArcAttrs attrs;
   EXPECT_EQ(attrs.timingType(), TimingType::combinational);
   EXPECT_EQ(attrs.timingSense(), TimingSense::unknown);
@@ -6613,13 +6613,13 @@ TEST(TimingArcTest, R5_TimingArcAttrsDefault) {
 }
 
 // TimingArcAttrs with sense constructor
-TEST(TimingArcTest, R5_TimingArcAttrsSense) {
+TEST(TimingArcTest, TimingArcAttrsSense) {
   TimingArcAttrs attrs(TimingSense::positive_unate);
   EXPECT_EQ(attrs.timingSense(), TimingSense::positive_unate);
 }
 
 // TimingArcAttrs setters
-TEST(TimingArcTest, R5_TimingArcAttrsSetters) {
+TEST(TimingArcTest, TimingArcAttrsSetters) {
   TimingArcAttrs attrs;
   attrs.setTimingType(TimingType::setup_rising);
   EXPECT_EQ(attrs.timingType(), TimingType::setup_rising);
@@ -6630,7 +6630,7 @@ TEST(TimingArcTest, R5_TimingArcAttrsSetters) {
 }
 
 // ScaleFactors - covers ScaleFactors constructor and methods
-TEST(LibertyTest, R5_ScaleFactors) {
+TEST(LibertyTest, ScaleFactors) {
   ScaleFactors sf("test_sf");
   EXPECT_STREQ(sf.name(), "test_sf");
   sf.setScale(ScaleFactorType::cell, ScaleFactorPvt::process,
@@ -6640,7 +6640,7 @@ TEST(LibertyTest, R5_ScaleFactors) {
   EXPECT_FLOAT_EQ(v, 1.5f);
 }
 
-TEST(LibertyTest, R5_ScaleFactorsNoRf) {
+TEST(LibertyTest, ScaleFactorsNoRf) {
   ScaleFactors sf("sf2");
   sf.setScale(ScaleFactorType::pin_cap, ScaleFactorPvt::volt, 2.0f);
   float v = sf.scale(ScaleFactorType::pin_cap, ScaleFactorPvt::volt);
@@ -6648,7 +6648,7 @@ TEST(LibertyTest, R5_ScaleFactorsNoRf) {
 }
 
 // findScaleFactorPvt
-TEST(LibertyTest, R5_FindScaleFactorPvt) {
+TEST(LibertyTest, FindScaleFactorPvt) {
   EXPECT_EQ(findScaleFactorPvt("process"), ScaleFactorPvt::process);
   EXPECT_EQ(findScaleFactorPvt("volt"), ScaleFactorPvt::volt);
   EXPECT_EQ(findScaleFactorPvt("temp"), ScaleFactorPvt::temp);
@@ -6656,21 +6656,21 @@ TEST(LibertyTest, R5_FindScaleFactorPvt) {
 }
 
 // scaleFactorPvtName
-TEST(LibertyTest, R5_ScaleFactorPvtName) {
+TEST(LibertyTest, ScaleFactorPvtName) {
   EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::process), "process");
   EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::volt), "volt");
   EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::temp), "temp");
 }
 
 // findScaleFactorType / scaleFactorTypeName
-TEST(LibertyTest, R5_FindScaleFactorType) {
+TEST(LibertyTest, FindScaleFactorType) {
   EXPECT_EQ(findScaleFactorType("cell"), ScaleFactorType::cell);
   EXPECT_EQ(findScaleFactorType("hold"), ScaleFactorType::hold);
   EXPECT_EQ(findScaleFactorType("setup"), ScaleFactorType::setup);
   EXPECT_EQ(findScaleFactorType("nonexist"), ScaleFactorType::unknown);
 }
 
-TEST(LibertyTest, R5_ScaleFactorTypeName) {
+TEST(LibertyTest, ScaleFactorTypeName) {
   EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::cell), "cell");
   EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::hold), "hold");
   EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::setup), "setup");
@@ -6679,7 +6679,7 @@ TEST(LibertyTest, R5_ScaleFactorTypeName) {
 }
 
 // scaleFactorTypeRiseFallSuffix, scaleFactorTypeRiseFallPrefix, scaleFactorTypeLowHighSuffix
-TEST(LibertyTest, R5_ScaleFactorTypeFlags) {
+TEST(LibertyTest, ScaleFactorTypeFlags) {
   EXPECT_TRUE(scaleFactorTypeRiseFallSuffix(ScaleFactorType::cell));
   EXPECT_FALSE(scaleFactorTypeRiseFallSuffix(ScaleFactorType::pin_cap));
   EXPECT_TRUE(scaleFactorTypeRiseFallPrefix(ScaleFactorType::transition));
@@ -6689,7 +6689,7 @@ TEST(LibertyTest, R5_ScaleFactorTypeFlags) {
 }
 
 // BusDcl
-TEST(LibertyTest, R5_BusDcl) {
+TEST(LibertyTest, BusDcl) {
   BusDcl dcl("data", 7, 0);
   EXPECT_STREQ(dcl.name(), "data");
   EXPECT_EQ(dcl.from(), 7);
@@ -6697,7 +6697,7 @@ TEST(LibertyTest, R5_BusDcl) {
 }
 
 // Pvt
-TEST(LibertyTest, R5_Pvt) {
+TEST(LibertyTest, Pvt) {
   Pvt pvt(1.0f, 1.1f, 25.0f);
   EXPECT_FLOAT_EQ(pvt.process(), 1.0f);
   EXPECT_FLOAT_EQ(pvt.voltage(), 1.1f);
@@ -6711,12 +6711,12 @@ TEST(LibertyTest, R5_Pvt) {
 }
 
 // OperatingConditions
-TEST(LibertyTest, R5_OperatingConditionsNameOnly) {
+TEST(LibertyTest, OperatingConditionsNameOnly) {
   OperatingConditions oc("typical");
   EXPECT_STREQ(oc.name(), "typical");
 }
 
-TEST(LibertyTest, R5_OperatingConditionsFull) {
+TEST(LibertyTest, OperatingConditionsFull) {
   OperatingConditions oc("fast", 1.0f, 1.21f, 0.0f, WireloadTree::balanced);
   EXPECT_STREQ(oc.name(), "fast");
   EXPECT_FLOAT_EQ(oc.process(), 1.0f);
@@ -6725,14 +6725,14 @@ TEST(LibertyTest, R5_OperatingConditionsFull) {
   EXPECT_EQ(oc.wireloadTree(), WireloadTree::balanced);
 }
 
-TEST(LibertyTest, R5_OperatingConditionsSetWireloadTree) {
+TEST(LibertyTest, OperatingConditionsSetWireloadTree) {
   OperatingConditions oc("nom");
   oc.setWireloadTree(WireloadTree::worst_case);
   EXPECT_EQ(oc.wireloadTree(), WireloadTree::worst_case);
 }
 
 // TableTemplate
-TEST(LibertyTest, R5_TableTemplate) {
+TEST(LibertyTest, TableTemplate) {
   TableTemplate tt("my_template");
   EXPECT_STREQ(tt.name(), "my_template");
   EXPECT_EQ(tt.axis1(), nullptr);
@@ -6740,14 +6740,14 @@ TEST(LibertyTest, R5_TableTemplate) {
   EXPECT_EQ(tt.axis3(), nullptr);
 }
 
-TEST(LibertyTest, R5_TableTemplateSetName) {
+TEST(LibertyTest, TableTemplateSetName) {
   TableTemplate tt("old");
   tt.setName("new_name");
   EXPECT_STREQ(tt.name(), "new_name");
 }
 
 // TableAxis
-TEST_F(Table1Test, R5_TableAxisBasic) {
+TEST_F(Table1Test, TableAxisBasic) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(0.1f);
   vals->push_back(0.5f);
@@ -6762,7 +6762,7 @@ TEST_F(Table1Test, R5_TableAxisBasic) {
   EXPECT_FLOAT_EQ(axis->max(), 1.0f);
 }
 
-TEST_F(Table1Test, R5_TableAxisInBounds) {
+TEST_F(Table1Test, TableAxisInBounds) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(0.0f);
   vals->push_back(1.0f);
@@ -6773,7 +6773,7 @@ TEST_F(Table1Test, R5_TableAxisInBounds) {
   EXPECT_FALSE(axis->inBounds(-0.1f));
 }
 
-TEST_F(Table1Test, R5_TableAxisFindIndex) {
+TEST_F(Table1Test, TableAxisFindIndex) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(0.0f);
   vals->push_back(0.5f);
@@ -6784,7 +6784,7 @@ TEST_F(Table1Test, R5_TableAxisFindIndex) {
   EXPECT_EQ(axis->findAxisIndex(0.7f), 1u);
 }
 
-TEST_F(Table1Test, R5_TableAxisFindClosestIndex) {
+TEST_F(Table1Test, TableAxisFindClosestIndex) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(0.0f);
   vals->push_back(0.5f);
@@ -6796,7 +6796,7 @@ TEST_F(Table1Test, R5_TableAxisFindClosestIndex) {
   EXPECT_EQ(axis->findAxisClosestIndex(0.9f), 2u);
 }
 
-TEST_F(Table1Test, R5_TableAxisVariableString) {
+TEST_F(Table1Test, TableAxisVariableString) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(0.0f);
   auto axis = std::make_shared<TableAxis>(
@@ -6805,14 +6805,14 @@ TEST_F(Table1Test, R5_TableAxisVariableString) {
 }
 
 // tableVariableString / stringTableAxisVariable
-TEST_F(Table1Test, R5_TableVariableString) {
+TEST_F(Table1Test, TableVariableString) {
   EXPECT_NE(tableVariableString(TableAxisVariable::total_output_net_capacitance), nullptr);
   EXPECT_NE(tableVariableString(TableAxisVariable::input_net_transition), nullptr);
   EXPECT_NE(tableVariableString(TableAxisVariable::related_pin_transition), nullptr);
   EXPECT_NE(tableVariableString(TableAxisVariable::constrained_pin_transition), nullptr);
 }
 
-TEST_F(Table1Test, R5_StringTableAxisVariable) {
+TEST_F(Table1Test, StringTableAxisVariable) {
   EXPECT_EQ(stringTableAxisVariable("total_output_net_capacitance"),
             TableAxisVariable::total_output_net_capacitance);
   EXPECT_EQ(stringTableAxisVariable("input_net_transition"),
@@ -6822,7 +6822,7 @@ TEST_F(Table1Test, R5_StringTableAxisVariable) {
 }
 
 // Table0
-TEST_F(Table1Test, R5_Table0) {
+TEST_F(Table1Test, Table0) {
   Table0 t(42.0f);
   EXPECT_EQ(t.order(), 0);
   EXPECT_FLOAT_EQ(t.value(0, 0, 0), 42.0f);
@@ -6830,14 +6830,14 @@ TEST_F(Table1Test, R5_Table0) {
 }
 
 // Table1 default constructor
-TEST_F(Table1Test, R5_Table1Default) {
+TEST_F(Table1Test, Table1Default) {
   Table1 t;
   EXPECT_EQ(t.order(), 1);
   EXPECT_EQ(t.axis1(), nullptr);
 }
 
 // Table1 copy constructor
-TEST_F(Table1Test, R5_Table1Copy) {
+TEST_F(Table1Test, Table1Copy) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(1.0f);
   vals->push_back(2.0f);
@@ -6854,7 +6854,7 @@ TEST_F(Table1Test, R5_Table1Copy) {
 }
 
 // Table1 move constructor
-TEST_F(Table1Test, R5_Table1Move) {
+TEST_F(Table1Test, Table1Move) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(3.0f);
   vals->push_back(4.0f);
@@ -6870,7 +6870,7 @@ TEST_F(Table1Test, R5_Table1Move) {
 }
 
 // Table1 findValue (single-arg)
-TEST_F(Table1Test, R5_Table1FindValueSingle) {
+TEST_F(Table1Test, Table1FindValueSingle) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(1.0f);
   vals->push_back(2.0f);
@@ -6885,7 +6885,7 @@ TEST_F(Table1Test, R5_Table1FindValueSingle) {
 }
 
 // Table1 findValueClip
-TEST_F(Table1Test, R5_Table1FindValueClip) {
+TEST_F(Table1Test, Table1FindValueClip) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(10.0f);
   vals->push_back(20.0f);
@@ -6904,7 +6904,7 @@ TEST_F(Table1Test, R5_Table1FindValueClip) {
 }
 
 // Table1 move assignment
-TEST_F(Table1Test, R5_Table1MoveAssign) {
+TEST_F(Table1Test, Table1MoveAssign) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(5.0f);
   FloatSeq *axis_vals = new FloatSeq;
@@ -6920,13 +6920,13 @@ TEST_F(Table1Test, R5_Table1MoveAssign) {
 // Removed: R5_OcvDerate (segfault)
 
 // portLibertyToSta conversion
-TEST(LibertyTest, R5_PortLibertyToSta) {
+TEST(LibertyTest, PortLibertyToSta) {
   std::string result = portLibertyToSta("foo[0]");
   // Should replace [] with escaped versions or similar
   EXPECT_FALSE(result.empty());
 }
 
-TEST(LibertyTest, R5_PortLibertyToStaPlain) {
+TEST(LibertyTest, PortLibertyToStaPlain) {
   std::string result = portLibertyToSta("A");
   EXPECT_EQ(result, "A");
 }
@@ -6934,7 +6934,7 @@ TEST(LibertyTest, R5_PortLibertyToStaPlain) {
 // Removed: R5_WireloadSelection (segfault)
 
 // TableAxisVariable unit lookup
-TEST_F(Table1Test, R5_TableVariableUnit) {
+TEST_F(Table1Test, TableVariableUnit) {
   Units units;
   const Unit *u = tableVariableUnit(
     TableAxisVariable::total_output_net_capacitance, &units);
@@ -6945,7 +6945,7 @@ TEST_F(Table1Test, R5_TableVariableUnit) {
 }
 
 // TableModel with Table0
-TEST_F(Table1Test, R5_TableModel0) {
+TEST_F(Table1Test, TableModel0) {
   auto tbl = std::make_shared<Table0>(1.5f);
   TableTemplate tmpl("tmpl0");
   TableModel model(tbl, &tmpl, ScaleFactorType::cell, RiseFall::rise());
@@ -6956,45 +6956,45 @@ TEST_F(Table1Test, R5_TableModel0) {
 // StaLibertyTest-based tests for coverage of loaded library functions
 
 // LibertyCell getters on loaded cells
-TEST_F(StaLibertyTest, R5_CellArea) {
+TEST_F(StaLibertyTest, CellArea2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   // Area should be some positive value for Nangate45
   EXPECT_GE(buf->area(), 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_CellDontUse) {
+TEST_F(StaLibertyTest, CellDontUse2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   // BUF_X1 should not be marked dont_use
   EXPECT_FALSE(buf->dontUse());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsMacro) {
+TEST_F(StaLibertyTest, CellIsMacro2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isMacro());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsMemory) {
+TEST_F(StaLibertyTest, CellIsMemory2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isMemory());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsPad) {
+TEST_F(StaLibertyTest, CellIsPad) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isPad());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsBuffer) {
+TEST_F(StaLibertyTest, CellIsBuffer2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_TRUE(buf->isBuffer());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsInverter) {
+TEST_F(StaLibertyTest, CellIsInverter2) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   EXPECT_TRUE(inv->isInverter());
@@ -7003,7 +7003,7 @@ TEST_F(StaLibertyTest, R5_CellIsInverter) {
   EXPECT_FALSE(buf->isInverter());
 }
 
-TEST_F(StaLibertyTest, R5_CellHasSequentials) {
+TEST_F(StaLibertyTest, CellHasSequentials2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->hasSequentials());
@@ -7012,7 +7012,7 @@ TEST_F(StaLibertyTest, R5_CellHasSequentials) {
     EXPECT_TRUE(dff->hasSequentials());
 }
 
-TEST_F(StaLibertyTest, R5_CellTimingArcSets) {
+TEST_F(StaLibertyTest, CellTimingArcSets2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7020,7 +7020,7 @@ TEST_F(StaLibertyTest, R5_CellTimingArcSets) {
   EXPECT_GT(buf->timingArcSetCount(), 0u);
 }
 
-TEST_F(StaLibertyTest, R5_CellInternalPowers) {
+TEST_F(StaLibertyTest, CellInternalPowers2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &powers = buf->internalPowers();
@@ -7028,7 +7028,7 @@ TEST_F(StaLibertyTest, R5_CellInternalPowers) {
   EXPECT_GE(powers.size(), 0u);
 }
 
-TEST_F(StaLibertyTest, R5_CellLeakagePower) {
+TEST_F(StaLibertyTest, CellLeakagePower2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   float leakage;
@@ -7037,13 +7037,13 @@ TEST_F(StaLibertyTest, R5_CellLeakagePower) {
   // Just exercise the function
 }
 
-TEST_F(StaLibertyTest, R5_CellInterfaceTiming) {
+TEST_F(StaLibertyTest, CellInterfaceTiming) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->interfaceTiming());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsClockGate) {
+TEST_F(StaLibertyTest, CellIsClockGate2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isClockGate());
@@ -7052,44 +7052,44 @@ TEST_F(StaLibertyTest, R5_CellIsClockGate) {
   EXPECT_FALSE(buf->isClockGateOther());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsClockCell) {
+TEST_F(StaLibertyTest, CellIsClockCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isClockCell());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsLevelShifter) {
+TEST_F(StaLibertyTest, CellIsLevelShifter) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isLevelShifter());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsIsolationCell) {
+TEST_F(StaLibertyTest, CellIsIsolationCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isIsolationCell());
 }
 
-TEST_F(StaLibertyTest, R5_CellAlwaysOn) {
+TEST_F(StaLibertyTest, CellAlwaysOn) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->alwaysOn());
 }
 
-TEST_F(StaLibertyTest, R5_CellIsDisabledConstraint) {
+TEST_F(StaLibertyTest, CellIsDisabledConstraint) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isDisabledConstraint());
 }
 
-TEST_F(StaLibertyTest, R5_CellHasInternalPorts) {
+TEST_F(StaLibertyTest, CellHasInternalPorts2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->hasInternalPorts());
 }
 
 // LibertyPort tests
-TEST_F(StaLibertyTest, R5_PortCapacitance) {
+TEST_F(StaLibertyTest, PortCapacitance) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7098,7 +7098,7 @@ TEST_F(StaLibertyTest, R5_PortCapacitance) {
   EXPECT_GE(cap, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_PortCapacitanceMinMax) {
+TEST_F(StaLibertyTest, PortCapacitanceMinMax) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7109,7 +7109,7 @@ TEST_F(StaLibertyTest, R5_PortCapacitanceMinMax) {
   EXPECT_GE(cap_max, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_PortCapacitanceRfMinMax) {
+TEST_F(StaLibertyTest, PortCapacitanceRfMinMax) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7120,7 +7120,7 @@ TEST_F(StaLibertyTest, R5_PortCapacitanceRfMinMax) {
   // Just exercise the function
 }
 
-TEST_F(StaLibertyTest, R5_PortCapacitanceIsOneValue) {
+TEST_F(StaLibertyTest, PortCapacitanceIsOneValue) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7129,7 +7129,7 @@ TEST_F(StaLibertyTest, R5_PortCapacitanceIsOneValue) {
   a->capacitanceIsOneValue();
 }
 
-TEST_F(StaLibertyTest, R5_PortDriveResistance) {
+TEST_F(StaLibertyTest, PortDriveResistance) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -7138,7 +7138,7 @@ TEST_F(StaLibertyTest, R5_PortDriveResistance) {
   EXPECT_GE(dr, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_PortDriveResistanceRfMinMax) {
+TEST_F(StaLibertyTest, PortDriveResistanceRfMinMax) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -7147,7 +7147,7 @@ TEST_F(StaLibertyTest, R5_PortDriveResistanceRfMinMax) {
   EXPECT_GE(dr, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_PortFunction) {
+TEST_F(StaLibertyTest, PortFunction2) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   LibertyPort *zn = inv->findLibertyPort("ZN");
@@ -7156,7 +7156,7 @@ TEST_F(StaLibertyTest, R5_PortFunction) {
   EXPECT_NE(func, nullptr);
 }
 
-TEST_F(StaLibertyTest, R5_PortIsClock) {
+TEST_F(StaLibertyTest, PortIsClock) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7164,7 +7164,7 @@ TEST_F(StaLibertyTest, R5_PortIsClock) {
   EXPECT_FALSE(a->isClock());
 }
 
-TEST_F(StaLibertyTest, R5_PortFanoutLoad) {
+TEST_F(StaLibertyTest, PortFanoutLoad) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7175,7 +7175,7 @@ TEST_F(StaLibertyTest, R5_PortFanoutLoad) {
   // Just exercise
 }
 
-TEST_F(StaLibertyTest, R5_PortMinPeriod) {
+TEST_F(StaLibertyTest, PortMinPeriod2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7186,7 +7186,7 @@ TEST_F(StaLibertyTest, R5_PortMinPeriod) {
   // BUF port probably doesn't have min_period
 }
 
-TEST_F(StaLibertyTest, R5_PortMinPulseWidth) {
+TEST_F(StaLibertyTest, PortMinPulseWidth2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7196,7 +7196,7 @@ TEST_F(StaLibertyTest, R5_PortMinPulseWidth) {
   a->minPulseWidth(RiseFall::rise(), min_width, exists);
 }
 
-TEST_F(StaLibertyTest, R5_PortSlewLimit) {
+TEST_F(StaLibertyTest, PortSlewLimit) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7206,7 +7206,7 @@ TEST_F(StaLibertyTest, R5_PortSlewLimit) {
   a->slewLimit(MinMax::max(), limit, exists);
 }
 
-TEST_F(StaLibertyTest, R5_PortCapacitanceLimit) {
+TEST_F(StaLibertyTest, PortCapacitanceLimit) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -7216,7 +7216,7 @@ TEST_F(StaLibertyTest, R5_PortCapacitanceLimit) {
   z->capacitanceLimit(MinMax::max(), limit, exists);
 }
 
-TEST_F(StaLibertyTest, R5_PortFanoutLimit) {
+TEST_F(StaLibertyTest, PortFanoutLimit) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -7226,7 +7226,7 @@ TEST_F(StaLibertyTest, R5_PortFanoutLimit) {
   z->fanoutLimit(MinMax::max(), limit, exists);
 }
 
-TEST_F(StaLibertyTest, R5_PortIsPwrGnd) {
+TEST_F(StaLibertyTest, PortIsPwrGnd) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7234,7 +7234,7 @@ TEST_F(StaLibertyTest, R5_PortIsPwrGnd) {
   EXPECT_FALSE(a->isPwrGnd());
 }
 
-TEST_F(StaLibertyTest, R5_PortDirection) {
+TEST_F(StaLibertyTest, PortDirection) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7245,7 +7245,7 @@ TEST_F(StaLibertyTest, R5_PortDirection) {
   EXPECT_EQ(z->direction(), PortDirection::output());
 }
 
-TEST_F(StaLibertyTest, R5_PortIsRegClk) {
+TEST_F(StaLibertyTest, PortIsRegClk) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7255,7 +7255,7 @@ TEST_F(StaLibertyTest, R5_PortIsRegClk) {
   EXPECT_FALSE(a->isCheckClk());
 }
 
-TEST_F(StaLibertyTest, R5_PortIsLatchData) {
+TEST_F(StaLibertyTest, PortIsLatchData) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7263,7 +7263,7 @@ TEST_F(StaLibertyTest, R5_PortIsLatchData) {
   EXPECT_FALSE(a->isLatchData());
 }
 
-TEST_F(StaLibertyTest, R5_PortIsPllFeedback) {
+TEST_F(StaLibertyTest, PortIsPllFeedback) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7271,7 +7271,7 @@ TEST_F(StaLibertyTest, R5_PortIsPllFeedback) {
   EXPECT_FALSE(a->isPllFeedback());
 }
 
-TEST_F(StaLibertyTest, R5_PortIsSwitch) {
+TEST_F(StaLibertyTest, PortIsSwitch) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7279,7 +7279,7 @@ TEST_F(StaLibertyTest, R5_PortIsSwitch) {
   EXPECT_FALSE(a->isSwitch());
 }
 
-TEST_F(StaLibertyTest, R5_PortIsClockGateFlags) {
+TEST_F(StaLibertyTest, PortIsClockGateFlags) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7289,7 +7289,7 @@ TEST_F(StaLibertyTest, R5_PortIsClockGateFlags) {
   EXPECT_FALSE(a->isClockGateOut());
 }
 
-TEST_F(StaLibertyTest, R5_PortIsolationFlags) {
+TEST_F(StaLibertyTest, PortIsolationFlags) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7299,7 +7299,7 @@ TEST_F(StaLibertyTest, R5_PortIsolationFlags) {
   EXPECT_FALSE(a->levelShifterData());
 }
 
-TEST_F(StaLibertyTest, R5_PortPulseClk) {
+TEST_F(StaLibertyTest, PortPulseClk2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7308,7 +7308,7 @@ TEST_F(StaLibertyTest, R5_PortPulseClk) {
   EXPECT_EQ(a->pulseClkSense(), nullptr);
 }
 
-TEST_F(StaLibertyTest, R5_PortIsDisabledConstraint) {
+TEST_F(StaLibertyTest, PortIsDisabledConstraint2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7316,7 +7316,7 @@ TEST_F(StaLibertyTest, R5_PortIsDisabledConstraint) {
   EXPECT_FALSE(a->isDisabledConstraint());
 }
 
-TEST_F(StaLibertyTest, R5_PortIsPad) {
+TEST_F(StaLibertyTest, PortIsPad) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7325,61 +7325,61 @@ TEST_F(StaLibertyTest, R5_PortIsPad) {
 }
 
 // LibertyLibrary tests
-TEST_F(StaLibertyTest, R5_LibraryDelayModelType) {
+TEST_F(StaLibertyTest, LibraryDelayModelType2) {
   EXPECT_EQ(lib_->delayModelType(), DelayModelType::table);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryNominalVoltage) {
+TEST_F(StaLibertyTest, LibraryNominalVoltage) {
   EXPECT_GT(lib_->nominalVoltage(), 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryNominalTemperature) {
+TEST_F(StaLibertyTest, LibraryNominalTemperature) {
   // Just exercise
   float temp = lib_->nominalTemperature();
   (void)temp;
 }
 
-TEST_F(StaLibertyTest, R5_LibraryNominalProcess) {
+TEST_F(StaLibertyTest, LibraryNominalProcess) {
   float proc = lib_->nominalProcess();
   (void)proc;
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultInputPinCap) {
+TEST_F(StaLibertyTest, LibraryDefaultInputPinCap2) {
   float cap = lib_->defaultInputPinCap();
   EXPECT_GE(cap, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultOutputPinCap) {
+TEST_F(StaLibertyTest, LibraryDefaultOutputPinCap2) {
   float cap = lib_->defaultOutputPinCap();
   EXPECT_GE(cap, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultMaxSlew) {
+TEST_F(StaLibertyTest, LibraryDefaultMaxSlew2) {
   float slew;
   bool exists;
   lib_->defaultMaxSlew(slew, exists);
   // Just exercise
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultMaxCap) {
+TEST_F(StaLibertyTest, LibraryDefaultMaxCap) {
   float cap;
   bool exists;
   lib_->defaultMaxCapacitance(cap, exists);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultMaxFanout) {
+TEST_F(StaLibertyTest, LibraryDefaultMaxFanout2) {
   float fanout;
   bool exists;
   lib_->defaultMaxFanout(fanout, exists);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultFanoutLoad) {
+TEST_F(StaLibertyTest, LibraryDefaultFanoutLoad) {
   float load;
   bool exists;
   lib_->defaultFanoutLoad(load, exists);
 }
 
-TEST_F(StaLibertyTest, R5_LibrarySlewThresholds) {
+TEST_F(StaLibertyTest, LibrarySlewThresholds) {
   float lt_r = lib_->slewLowerThreshold(RiseFall::rise());
   float lt_f = lib_->slewLowerThreshold(RiseFall::fall());
   float ut_r = lib_->slewUpperThreshold(RiseFall::rise());
@@ -7390,77 +7390,77 @@ TEST_F(StaLibertyTest, R5_LibrarySlewThresholds) {
   EXPECT_LE(ut_f, 1.0f);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryInputOutputThresholds) {
+TEST_F(StaLibertyTest, LibraryInputOutputThresholds) {
   float it_r = lib_->inputThreshold(RiseFall::rise());
   float ot_r = lib_->outputThreshold(RiseFall::rise());
   EXPECT_GT(it_r, 0.0f);
   EXPECT_GT(ot_r, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_LibrarySlewDerate) {
+TEST_F(StaLibertyTest, LibrarySlewDerate) {
   float derate = lib_->slewDerateFromLibrary();
   EXPECT_GT(derate, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryUnits) {
+TEST_F(StaLibertyTest, LibraryUnits2) {
   Units *units = lib_->units();
   EXPECT_NE(units, nullptr);
   EXPECT_NE(units->timeUnit(), nullptr);
   EXPECT_NE(units->capacitanceUnit(), nullptr);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultWireload) {
+TEST_F(StaLibertyTest, LibraryDefaultWireload) {
   // Nangate45 may or may not have a default wireload
   Wireload *wl = lib_->defaultWireload();
   (void)wl; // just exercise
 }
 
-TEST_F(StaLibertyTest, R5_LibraryFindWireload) {
+TEST_F(StaLibertyTest, LibraryFindWireload) {
   Wireload *wl = lib_->findWireload("nonexistent_wl");
   EXPECT_EQ(wl, nullptr);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultWireloadMode) {
+TEST_F(StaLibertyTest, LibraryDefaultWireloadMode) {
   WireloadMode mode = lib_->defaultWireloadMode();
   (void)mode;
 }
 
-TEST_F(StaLibertyTest, R5_LibraryFindOperatingConditions) {
+TEST_F(StaLibertyTest, LibraryFindOperatingConditions) {
   // Try to find non-existent OC
   OperatingConditions *oc = lib_->findOperatingConditions("nonexistent_oc");
   EXPECT_EQ(oc, nullptr);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultOperatingConditions) {
+TEST_F(StaLibertyTest, LibraryDefaultOperatingConditions) {
   OperatingConditions *oc = lib_->defaultOperatingConditions();
   // May or may not exist
   (void)oc;
 }
 
-TEST_F(StaLibertyTest, R5_LibraryOcvArcDepth) {
+TEST_F(StaLibertyTest, LibraryOcvArcDepth) {
   float depth = lib_->ocvArcDepth();
   EXPECT_GE(depth, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryBuffers) {
+TEST_F(StaLibertyTest, LibraryBuffers) {
   LibertyCellSeq *bufs = lib_->buffers();
   EXPECT_NE(bufs, nullptr);
   EXPECT_GT(bufs->size(), 0u);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryInverters) {
+TEST_F(StaLibertyTest, LibraryInverters) {
   LibertyCellSeq *invs = lib_->inverters();
   EXPECT_NE(invs, nullptr);
   EXPECT_GT(invs->size(), 0u);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryTableTemplates) {
+TEST_F(StaLibertyTest, LibraryTableTemplates2) {
   auto templates = lib_->tableTemplates();
   // Should have some templates
   EXPECT_GE(templates.size(), 0u);
 }
 
-TEST_F(StaLibertyTest, R5_LibrarySupplyVoltage) {
+TEST_F(StaLibertyTest, LibrarySupplyVoltage) {
   float voltage;
   bool exists;
   lib_->supplyVoltage("VDD", voltage, exists);
@@ -7468,7 +7468,7 @@ TEST_F(StaLibertyTest, R5_LibrarySupplyVoltage) {
 }
 
 // TimingArcSet on real cells
-TEST_F(StaLibertyTest, R5_TimingArcSetProperties) {
+TEST_F(StaLibertyTest, TimingArcSetProperties2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7481,7 +7481,7 @@ TEST_F(StaLibertyTest, R5_TimingArcSetProperties) {
   EXPECT_FALSE(as->isWire());
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcSetSense) {
+TEST_F(StaLibertyTest, TimingArcSetSense) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7490,7 +7490,7 @@ TEST_F(StaLibertyTest, R5_TimingArcSetSense) {
   (void)sense; // exercise
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcSetCond) {
+TEST_F(StaLibertyTest, TimingArcSetCond) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7501,21 +7501,21 @@ TEST_F(StaLibertyTest, R5_TimingArcSetCond) {
   }
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcSetWire) {
+TEST_F(StaLibertyTest, TimingArcSetWire2) {
   TimingArcSet *wire = TimingArcSet::wireTimingArcSet();
   EXPECT_NE(wire, nullptr);
   EXPECT_TRUE(wire->isWire());
   EXPECT_EQ(TimingArcSet::wireArcCount(), 2);
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcSetWireArcIndex) {
+TEST_F(StaLibertyTest, TimingArcSetWireArcIndex) {
   int rise_idx = TimingArcSet::wireArcIndex(RiseFall::rise());
   int fall_idx = TimingArcSet::wireArcIndex(RiseFall::fall());
   EXPECT_NE(rise_idx, fall_idx);
 }
 
 // TimingArc properties
-TEST_F(StaLibertyTest, R5_TimingArcProperties) {
+TEST_F(StaLibertyTest, TimingArcProperties2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7531,7 +7531,7 @@ TEST_F(StaLibertyTest, R5_TimingArcProperties) {
   EXPECT_NE(arc->to(), nullptr);
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcToString) {
+TEST_F(StaLibertyTest, TimingArcToString) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7542,7 +7542,7 @@ TEST_F(StaLibertyTest, R5_TimingArcToString) {
   EXPECT_FALSE(str.empty());
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcDriveResistance) {
+TEST_F(StaLibertyTest, TimingArcDriveResistance2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7553,7 +7553,7 @@ TEST_F(StaLibertyTest, R5_TimingArcDriveResistance) {
   EXPECT_GE(dr, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcIntrinsicDelay) {
+TEST_F(StaLibertyTest, TimingArcIntrinsicDelay2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7564,7 +7564,7 @@ TEST_F(StaLibertyTest, R5_TimingArcIntrinsicDelay) {
   (void)ad;
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcModel) {
+TEST_F(StaLibertyTest, TimingArcModel) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7575,7 +7575,7 @@ TEST_F(StaLibertyTest, R5_TimingArcModel) {
   EXPECT_NE(model, nullptr);
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcEquiv) {
+TEST_F(StaLibertyTest, TimingArcEquiv2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7589,7 +7589,7 @@ TEST_F(StaLibertyTest, R5_TimingArcEquiv) {
   }
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcSetEquiv) {
+TEST_F(StaLibertyTest, TimingArcSetEquiv) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7597,7 +7597,7 @@ TEST_F(StaLibertyTest, R5_TimingArcSetEquiv) {
   EXPECT_TRUE(TimingArcSet::equiv(arc_sets[0], arc_sets[0]));
 }
 
-TEST_F(StaLibertyTest, R5_TimingArcSetLess) {
+TEST_F(StaLibertyTest, TimingArcSetLess) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7609,7 +7609,7 @@ TEST_F(StaLibertyTest, R5_TimingArcSetLess) {
 }
 
 // LibertyPort equiv and less
-TEST_F(StaLibertyTest, R5_LibertyPortEquiv) {
+TEST_F(StaLibertyTest, LibertyPortEquiv) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7620,7 +7620,7 @@ TEST_F(StaLibertyTest, R5_LibertyPortEquiv) {
   EXPECT_FALSE(LibertyPort::equiv(a, z));
 }
 
-TEST_F(StaLibertyTest, R5_LibertyPortLess) {
+TEST_F(StaLibertyTest, LibertyPortLess) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7634,7 +7634,7 @@ TEST_F(StaLibertyTest, R5_LibertyPortLess) {
 }
 
 // LibertyPortNameLess comparator
-TEST_F(StaLibertyTest, R5_LibertyPortNameLess) {
+TEST_F(StaLibertyTest, LibertyPortNameLess) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7648,7 +7648,7 @@ TEST_F(StaLibertyTest, R5_LibertyPortNameLess) {
 }
 
 // LibertyCell bufferPorts
-TEST_F(StaLibertyTest, R5_BufferPorts) {
+TEST_F(StaLibertyTest, BufferPorts) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   ASSERT_TRUE(buf->isBuffer());
@@ -7660,7 +7660,7 @@ TEST_F(StaLibertyTest, R5_BufferPorts) {
 }
 
 // Cell port iterators
-TEST_F(StaLibertyTest, R5_CellPortIterator) {
+TEST_F(StaLibertyTest, CellPortIterator) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyCellPortIterator iter(buf);
@@ -7673,7 +7673,7 @@ TEST_F(StaLibertyTest, R5_CellPortIterator) {
   EXPECT_GT(count, 0);
 }
 
-TEST_F(StaLibertyTest, R5_CellPortBitIterator) {
+TEST_F(StaLibertyTest, CellPortBitIterator) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyCellPortBitIterator iter(buf);
@@ -7687,28 +7687,28 @@ TEST_F(StaLibertyTest, R5_CellPortBitIterator) {
 }
 
 // Library default pin resistances
-TEST_F(StaLibertyTest, R5_LibraryDefaultIntrinsic) {
+TEST_F(StaLibertyTest, LibraryDefaultIntrinsic) {
   float intrinsic;
   bool exists;
   lib_->defaultIntrinsic(RiseFall::rise(), intrinsic, exists);
   lib_->defaultIntrinsic(RiseFall::fall(), intrinsic, exists);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultOutputPinRes) {
+TEST_F(StaLibertyTest, LibraryDefaultOutputPinRes) {
   float res;
   bool exists;
   lib_->defaultOutputPinRes(RiseFall::rise(), res, exists);
   lib_->defaultOutputPinRes(RiseFall::fall(), res, exists);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultBidirectPinRes) {
+TEST_F(StaLibertyTest, LibraryDefaultBidirectPinRes) {
   float res;
   bool exists;
   lib_->defaultBidirectPinRes(RiseFall::rise(), res, exists);
   lib_->defaultBidirectPinRes(RiseFall::fall(), res, exists);
 }
 
-TEST_F(StaLibertyTest, R5_LibraryDefaultPinResistance) {
+TEST_F(StaLibertyTest, LibraryDefaultPinResistance) {
   float res;
   bool exists;
   lib_->defaultPinResistance(RiseFall::rise(), PortDirection::output(),
@@ -7718,7 +7718,7 @@ TEST_F(StaLibertyTest, R5_LibraryDefaultPinResistance) {
 }
 
 // Test modeDef on cell
-TEST_F(StaLibertyTest, R5_CellModeDef) {
+TEST_F(StaLibertyTest, CellModeDef) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   if (dff) {
     // Try to find a nonexistent mode def
@@ -7727,7 +7727,7 @@ TEST_F(StaLibertyTest, R5_CellModeDef) {
 }
 
 // LibertyCell findTimingArcSet by index
-TEST_F(StaLibertyTest, R5_CellFindTimingArcSetByIndex) {
+TEST_F(StaLibertyTest, CellFindTimingArcSetByIndex2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const auto &arc_sets = buf->timingArcSets();
@@ -7738,7 +7738,7 @@ TEST_F(StaLibertyTest, R5_CellFindTimingArcSetByIndex) {
 }
 
 // LibertyCell hasTimingArcs
-TEST_F(StaLibertyTest, R5_CellHasTimingArcs) {
+TEST_F(StaLibertyTest, CellHasTimingArcs2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7747,25 +7747,25 @@ TEST_F(StaLibertyTest, R5_CellHasTimingArcs) {
 }
 
 // Library supply
-TEST_F(StaLibertyTest, R5_LibrarySupplyExists) {
+TEST_F(StaLibertyTest, LibrarySupplyExists) {
   // Try non-existent supply
   EXPECT_FALSE(lib_->supplyExists("NONEXISTENT_VDD"));
 }
 
 // Library findWireloadSelection
-TEST_F(StaLibertyTest, R5_LibraryFindWireloadSelection) {
+TEST_F(StaLibertyTest, LibraryFindWireloadSelection) {
   WireloadSelection *ws = lib_->findWireloadSelection("nonexistent_sel");
   EXPECT_EQ(ws, nullptr);
 }
 
 // Library defaultWireloadSelection
-TEST_F(StaLibertyTest, R5_LibraryDefaultWireloadSelection) {
+TEST_F(StaLibertyTest, LibraryDefaultWireloadSelection) {
   WireloadSelection *ws = lib_->defaultWireloadSelection();
   (void)ws;
 }
 
 // LibertyPort member iterator
-TEST_F(StaLibertyTest, R5_PortMemberIterator) {
+TEST_F(StaLibertyTest, PortMemberIterator) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7782,7 +7782,7 @@ TEST_F(StaLibertyTest, R5_PortMemberIterator) {
 }
 
 // LibertyPort relatedGroundPin / relatedPowerPin
-TEST_F(StaLibertyTest, R5_PortRelatedPins) {
+TEST_F(StaLibertyTest, PortRelatedPins2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -7793,7 +7793,7 @@ TEST_F(StaLibertyTest, R5_PortRelatedPins) {
 }
 
 // LibertyPort receiverModel
-TEST_F(StaLibertyTest, R5_PortReceiverModel) {
+TEST_F(StaLibertyTest, PortReceiverModel2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -7804,7 +7804,7 @@ TEST_F(StaLibertyTest, R5_PortReceiverModel) {
 }
 
 // LibertyCell footprint
-TEST_F(StaLibertyTest, R5_CellFootprint) {
+TEST_F(StaLibertyTest, CellFootprint2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const char *fp = buf->footprint();
@@ -7812,21 +7812,21 @@ TEST_F(StaLibertyTest, R5_CellFootprint) {
 }
 
 // LibertyCell ocv methods
-TEST_F(StaLibertyTest, R5_CellOcvArcDepth) {
+TEST_F(StaLibertyTest, CellOcvArcDepth2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   float depth = buf->ocvArcDepth();
   EXPECT_GE(depth, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R5_CellOcvDerate) {
+TEST_F(StaLibertyTest, CellOcvDerate2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   OcvDerate *derate = buf->ocvDerate();
   (void)derate;
 }
 
-TEST_F(StaLibertyTest, R5_CellFindOcvDerate) {
+TEST_F(StaLibertyTest, CellFindOcvDerate) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   OcvDerate *derate = buf->findOcvDerate("nonexistent");
@@ -7834,7 +7834,7 @@ TEST_F(StaLibertyTest, R5_CellFindOcvDerate) {
 }
 
 // LibertyCell scaleFactors
-TEST_F(StaLibertyTest, R5_CellScaleFactors) {
+TEST_F(StaLibertyTest, CellScaleFactors2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   ScaleFactors *sf = buf->scaleFactors();
@@ -7842,14 +7842,14 @@ TEST_F(StaLibertyTest, R5_CellScaleFactors) {
 }
 
 // LibertyCell testCell
-TEST_F(StaLibertyTest, R5_CellTestCell) {
+TEST_F(StaLibertyTest, CellTestCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_EQ(buf->testCell(), nullptr);
 }
 
 // LibertyCell sequentials
-TEST_F(StaLibertyTest, R5_CellSequentials) {
+TEST_F(StaLibertyTest, CellSequentials) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   if (dff) {
     const auto &seqs = dff->sequentials();
@@ -7858,7 +7858,7 @@ TEST_F(StaLibertyTest, R5_CellSequentials) {
 }
 
 // LibertyCell leakagePowers
-TEST_F(StaLibertyTest, R5_CellLeakagePowers) {
+TEST_F(StaLibertyTest, CellLeakagePowers) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LeakagePowerSeq *lps = buf->leakagePowers();
@@ -7866,27 +7866,27 @@ TEST_F(StaLibertyTest, R5_CellLeakagePowers) {
 }
 
 // LibertyCell statetable
-TEST_F(StaLibertyTest, R5_CellStatetable) {
+TEST_F(StaLibertyTest, CellStatetable) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_EQ(buf->statetable(), nullptr);
 }
 
 // LibertyCell findBusDcl
-TEST_F(StaLibertyTest, R5_CellFindBusDcl) {
+TEST_F(StaLibertyTest, CellFindBusDcl) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_EQ(buf->findBusDcl("nonexistent"), nullptr);
 }
 
 // LibertyLibrary scaleFactor
-TEST_F(StaLibertyTest, R5_LibraryScaleFactor) {
+TEST_F(StaLibertyTest, LibraryScaleFactor) {
   float sf = lib_->scaleFactor(ScaleFactorType::cell, nullptr);
   EXPECT_FLOAT_EQ(sf, 1.0f);
 }
 
 // LibertyLibrary addSupplyVoltage / supplyVoltage
-TEST_F(StaLibertyTest, R5_LibraryAddSupplyVoltage) {
+TEST_F(StaLibertyTest, LibraryAddSupplyVoltage) {
   lib_->addSupplyVoltage("test_supply", 1.1f);
   float voltage;
   bool exists;
@@ -7897,51 +7897,51 @@ TEST_F(StaLibertyTest, R5_LibraryAddSupplyVoltage) {
 }
 
 // LibertyLibrary BusDcl operations
-TEST_F(StaLibertyTest, R5_LibraryBusDcls) {
+TEST_F(StaLibertyTest, LibraryBusDcls2) {
   auto dcls = lib_->busDcls();
   // Just exercise the function
   (void)dcls;
 }
 
 // LibertyLibrary findScaleFactors
-TEST_F(StaLibertyTest, R5_LibraryFindScaleFactors) {
+TEST_F(StaLibertyTest, LibraryFindScaleFactors) {
   ScaleFactors *sf = lib_->findScaleFactors("nonexistent");
   EXPECT_EQ(sf, nullptr);
 }
 
 // LibertyLibrary scaleFactors
-TEST_F(StaLibertyTest, R5_LibraryScaleFactors) {
+TEST_F(StaLibertyTest, LibraryScaleFactors2) {
   ScaleFactors *sf = lib_->scaleFactors();
   (void)sf;
 }
 
 // LibertyLibrary findTableTemplate
-TEST_F(StaLibertyTest, R5_LibraryFindTableTemplate) {
+TEST_F(StaLibertyTest, LibraryFindTableTemplate) {
   TableTemplate *tt = lib_->findTableTemplate("nonexistent",
                                                TableTemplateType::delay);
   EXPECT_EQ(tt, nullptr);
 }
 
 // LibertyLibrary defaultOcvDerate
-TEST_F(StaLibertyTest, R5_LibraryDefaultOcvDerate) {
+TEST_F(StaLibertyTest, LibraryDefaultOcvDerate) {
   OcvDerate *derate = lib_->defaultOcvDerate();
   (void)derate;
 }
 
 // LibertyLibrary findOcvDerate
-TEST_F(StaLibertyTest, R5_LibraryFindOcvDerate) {
+TEST_F(StaLibertyTest, LibraryFindOcvDerate) {
   OcvDerate *derate = lib_->findOcvDerate("nonexistent");
   EXPECT_EQ(derate, nullptr);
 }
 
 // LibertyLibrary findDriverWaveform
-TEST_F(StaLibertyTest, R5_LibraryFindDriverWaveform) {
+TEST_F(StaLibertyTest, LibraryFindDriverWaveform) {
   DriverWaveform *dw = lib_->findDriverWaveform("nonexistent");
   EXPECT_EQ(dw, nullptr);
 }
 
 // LibertyLibrary driverWaveformDefault
-TEST_F(StaLibertyTest, R5_LibraryDriverWaveformDefault) {
+TEST_F(StaLibertyTest, LibraryDriverWaveformDefault) {
   DriverWaveform *dw = lib_->driverWaveformDefault();
   (void)dw;
 }
@@ -8131,13 +8131,13 @@ TEST(R6_WireloadSelectionTest, MultipleEntries) {
 // R6 tests: GateLinearModel / CheckLinearModel more coverage
 ////////////////////////////////////////////////////////////////
 
-TEST_F(LinearModelTest, R6_GateLinearModelDriveResistance) {
+TEST_F(LinearModelTest, GateLinearModelDriveResistance) {
   GateLinearModel model(cell_, 1.0f, 0.5f);
   float res = model.driveResistance(nullptr);
   EXPECT_FLOAT_EQ(res, 0.5f);
 }
 
-TEST_F(LinearModelTest, R6_CheckLinearModelCheckDelay) {
+TEST_F(LinearModelTest, CheckLinearModelCheckDelay2) {
   CheckLinearModel model(cell_, 2.0f);
   ArcDelay delay = model.checkDelay(nullptr, 0.0f, 0.0f, 0.0f, false);
   EXPECT_FLOAT_EQ(delayAsFloat(delay), 2.0f);
@@ -8591,15 +8591,15 @@ TEST(R6_TestCellTest, CellIsInverter) {
 // R6 tests: StaLibertyTest - functions on real parsed library
 ////////////////////////////////////////////////////////////////
 
-TEST_F(StaLibertyTest, R6_LibraryNominalValues) {
+TEST_F(StaLibertyTest, LibraryNominalValues2) {
   EXPECT_GT(lib_->nominalVoltage(), 0.0f);
 }
 
-TEST_F(StaLibertyTest, R6_LibraryDelayModel) {
+TEST_F(StaLibertyTest, LibraryDelayModel) {
   EXPECT_EQ(lib_->delayModelType(), DelayModelType::table);
 }
 
-TEST_F(StaLibertyTest, R6_FindCell) {
+TEST_F(StaLibertyTest, FindCell) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   EXPECT_NE(inv, nullptr);
   if (inv) {
@@ -8608,7 +8608,7 @@ TEST_F(StaLibertyTest, R6_FindCell) {
   }
 }
 
-TEST_F(StaLibertyTest, R6_CellTimingArcSets) {
+TEST_F(StaLibertyTest, CellTimingArcSets3) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   EXPECT_NE(inv, nullptr);
   if (inv) {
@@ -8616,25 +8616,25 @@ TEST_F(StaLibertyTest, R6_CellTimingArcSets) {
   }
 }
 
-TEST_F(StaLibertyTest, R6_LibrarySlewDerate) {
+TEST_F(StaLibertyTest, LibrarySlewDerate2) {
   float derate = lib_->slewDerateFromLibrary();
   EXPECT_GT(derate, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R6_LibraryInputThresholds) {
+TEST_F(StaLibertyTest, LibraryInputThresholds) {
   float rise_thresh = lib_->inputThreshold(RiseFall::rise());
   float fall_thresh = lib_->inputThreshold(RiseFall::fall());
   EXPECT_GT(rise_thresh, 0.0f);
   EXPECT_GT(fall_thresh, 0.0f);
 }
 
-TEST_F(StaLibertyTest, R6_LibrarySlewThresholds) {
+TEST_F(StaLibertyTest, LibrarySlewThresholds2) {
   float lower_rise = lib_->slewLowerThreshold(RiseFall::rise());
   float upper_rise = lib_->slewUpperThreshold(RiseFall::rise());
   EXPECT_LT(lower_rise, upper_rise);
 }
 
-TEST_F(StaLibertyTest, R6_CellPortIteration) {
+TEST_F(StaLibertyTest, CellPortIteration) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   EXPECT_NE(inv, nullptr);
   if (inv) {
@@ -8650,7 +8650,7 @@ TEST_F(StaLibertyTest, R6_CellPortIteration) {
   }
 }
 
-TEST_F(StaLibertyTest, R6_PortCapacitance) {
+TEST_F(StaLibertyTest, PortCapacitance2) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   EXPECT_NE(inv, nullptr);
   if (inv) {
@@ -8663,7 +8663,7 @@ TEST_F(StaLibertyTest, R6_PortCapacitance) {
   }
 }
 
-TEST_F(StaLibertyTest, R6_CellLeakagePower) {
+TEST_F(StaLibertyTest, CellLeakagePower3) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   EXPECT_NE(inv, nullptr);
   if (inv) {
@@ -8675,17 +8675,17 @@ TEST_F(StaLibertyTest, R6_CellLeakagePower) {
   }
 }
 
-TEST_F(StaLibertyTest, R6_PatternMatchCells) {
+TEST_F(StaLibertyTest, PatternMatchCells) {
   PatternMatch pattern("INV_*");
   LibertyCellSeq matches = lib_->findLibertyCellsMatching(&pattern);
   EXPECT_GT(matches.size(), 0u);
 }
 
-TEST_F(StaLibertyTest, R6_LibraryName) {
+TEST_F(StaLibertyTest, LibraryName) {
   EXPECT_NE(lib_->name(), nullptr);
 }
 
-TEST_F(StaLibertyTest, R6_LibraryFilename) {
+TEST_F(StaLibertyTest, LibraryFilename) {
   EXPECT_NE(lib_->filename(), nullptr);
 }
 
@@ -8695,7 +8695,7 @@ TEST_F(StaLibertyTest, R6_LibraryFilename) {
 
 // Covers LibertyStmt::LibertyStmt(int), LibertyStmt::isVariable(),
 // LibertyGroup::isGroup(), LibertyGroup::findAttr()
-TEST(LibertyParserTest, R7_LibertyGroupConstruction) {
+TEST(LibertyParserTest, LibertyGroupConstruction) {
   LibertyAttrValueSeq *params = new LibertyAttrValueSeq;
   LibertyStringAttrValue *val = new LibertyStringAttrValue("test_lib");
   params->push_back(val);
@@ -8712,7 +8712,7 @@ TEST(LibertyParserTest, R7_LibertyGroupConstruction) {
 // R7_LibertySimpleAttr removed (segfault)
 
 // Covers LibertyComplexAttr::isSimple()
-TEST(LibertyParserTest, R7_LibertyComplexAttr) {
+TEST(LibertyParserTest, LibertyComplexAttr) {
   LibertyAttrValueSeq *vals = new LibertyAttrValueSeq;
   vals->push_back(new LibertyFloatAttrValue(1.0f));
   vals->push_back(new LibertyFloatAttrValue(2.0f));
@@ -8730,7 +8730,7 @@ TEST(LibertyParserTest, R7_LibertyComplexAttr) {
 // R7_LibertyFloatAttrValueStringValue removed (segfault)
 
 // Covers LibertyDefine::isDefine()
-TEST(LibertyParserTest, R7_LibertyDefine) {
+TEST(LibertyParserTest, LibertyDefine) {
   LibertyDefine def("my_define", LibertyGroupType::cell,
                      LibertyAttrType::attr_string, 20);
   EXPECT_TRUE(def.isDefine());
@@ -8743,7 +8743,7 @@ TEST(LibertyParserTest, R7_LibertyDefine) {
 }
 
 // Covers LibertyVariable::isVariable()
-TEST(LibertyParserTest, R7_LibertyVariable) {
+TEST(LibertyParserTest, LibertyVariable) {
   LibertyVariable var("input_threshold_pct_rise", 50.0f, 15);
   EXPECT_TRUE(var.isVariable());
   EXPECT_FALSE(var.isGroup());
@@ -8763,7 +8763,7 @@ TEST(LibertyParserTest, R7_LibertyVariable) {
 ////////////////////////////////////////////////////////////////
 
 // Covers LibertyBuilder::~LibertyBuilder()
-TEST(LibertyBuilderTest, R7_LibertyBuilderDestructor) {
+TEST(LibertyBuilderTest, LibertyBuilderDestructor) {
   LibertyBuilder *builder = new LibertyBuilder();
   EXPECT_NE(builder, nullptr);
   delete builder;
@@ -8776,7 +8776,7 @@ TEST(LibertyBuilderTest, R7_LibertyBuilderDestructor) {
 ////////////////////////////////////////////////////////////////
 
 // Covers WireloadForArea::WireloadForArea(float, float, const Wireload*)
-TEST_F(StaLibertyTest, R7_WireloadSelectionFindWireload) {
+TEST_F(StaLibertyTest, WireloadSelectionFindWireload) {
   // Create a WireloadSelection and add entries which
   // internally creates WireloadForArea objects
   WireloadSelection sel("test_sel");
@@ -8802,7 +8802,7 @@ TEST_F(StaLibertyTest, R7_WireloadSelectionFindWireload) {
 ////////////////////////////////////////////////////////////////
 
 // Covers LibertyPort::findLibertyMember(int) const
-TEST_F(StaLibertyTest, R7_FindLibertyMember) {
+TEST_F(StaLibertyTest, FindLibertyMember) {
   // Search for a bus port in the library
   LibertyCell *cell = nullptr;
   LibertyCellIterator cell_iter(lib_);
@@ -8835,7 +8835,7 @@ TEST_F(StaLibertyTest, R7_FindLibertyMember) {
 
 // Covers LibertyCell::inferLatchRoles through readLiberty
 // (the library load already calls inferLatchRoles internally)
-TEST_F(StaLibertyTest, R7_InferLatchRolesAlreadyCalled) {
+TEST_F(StaLibertyTest, InferLatchRolesAlreadyCalled) {
   // Find a latch cell
   LibertyCell *cell = lib_->findLibertyCell("DFFR_X1");
   if (cell) {
@@ -8850,7 +8850,7 @@ TEST_F(StaLibertyTest, R7_InferLatchRolesAlreadyCalled) {
 
 // Covers TimingArc::setIndex, TimingArcSet::deleteTimingArc
 // Through iteration over arcs from library
-TEST_F(StaLibertyTest, R7_TimingArcIteration) {
+TEST_F(StaLibertyTest, TimingArcIteration) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   EXPECT_NE(inv, nullptr);
   if (inv) {
@@ -8869,7 +8869,7 @@ TEST_F(StaLibertyTest, R7_TimingArcIteration) {
 
 // Covers LibertyPort::cornerPort (the DcalcAnalysisPt variant)
 // by accessing corner info
-TEST_F(StaLibertyTest, R7_PortCornerPort) {
+TEST_F(StaLibertyTest, PortCornerPort2) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   EXPECT_NE(inv, nullptr);
   if (inv) {
@@ -8888,7 +8888,7 @@ TEST_F(StaLibertyTest, R7_PortCornerPort) {
 ////////////////////////////////////////////////////////////////
 
 // LibertyCell::dontUse
-TEST_F(StaLibertyTest, R8_CellDontUse) {
+TEST_F(StaLibertyTest, CellDontUse3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   // Default dontUse should be false
@@ -8896,7 +8896,7 @@ TEST_F(StaLibertyTest, R8_CellDontUse) {
 }
 
 // LibertyCell::setDontUse
-TEST_F(StaLibertyTest, R8_CellSetDontUse) {
+TEST_F(StaLibertyTest, CellSetDontUse2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setDontUse(true);
@@ -8906,21 +8906,21 @@ TEST_F(StaLibertyTest, R8_CellSetDontUse) {
 }
 
 // LibertyCell::isBuffer for non-buffer cell
-TEST_F(StaLibertyTest, R8_CellIsBufferNonBuffer) {
+TEST_F(StaLibertyTest, CellIsBufferNonBuffer) {
   LibertyCell *and2 = lib_->findLibertyCell("AND2_X1");
   ASSERT_NE(and2, nullptr);
   EXPECT_FALSE(and2->isBuffer());
 }
 
 // LibertyCell::isInverter for non-inverter cell
-TEST_F(StaLibertyTest, R8_CellIsInverterNonInverter) {
+TEST_F(StaLibertyTest, CellIsInverterNonInverter) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isInverter());
 }
 
 // LibertyCell::hasInternalPorts
-TEST_F(StaLibertyTest, R8_CellHasInternalPorts) {
+TEST_F(StaLibertyTest, CellHasInternalPorts3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   // Simple buffer has no internal ports
@@ -8928,14 +8928,14 @@ TEST_F(StaLibertyTest, R8_CellHasInternalPorts) {
 }
 
 // LibertyCell::isMacro
-TEST_F(StaLibertyTest, R8_CellIsMacro) {
+TEST_F(StaLibertyTest, CellIsMacro3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isMacro());
 }
 
 // LibertyCell::setIsMacro
-TEST_F(StaLibertyTest, R8_CellSetIsMacro) {
+TEST_F(StaLibertyTest, CellSetIsMacro2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setIsMacro(true);
@@ -8945,14 +8945,14 @@ TEST_F(StaLibertyTest, R8_CellSetIsMacro) {
 }
 
 // LibertyCell::isMemory
-TEST_F(StaLibertyTest, R8_CellIsMemory) {
+TEST_F(StaLibertyTest, CellIsMemory3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isMemory());
 }
 
 // LibertyCell::setIsMemory
-TEST_F(StaLibertyTest, R8_CellSetIsMemory) {
+TEST_F(StaLibertyTest, CellSetIsMemory) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setIsMemory(true);
@@ -8961,14 +8961,14 @@ TEST_F(StaLibertyTest, R8_CellSetIsMemory) {
 }
 
 // LibertyCell::isPad
-TEST_F(StaLibertyTest, R8_CellIsPad) {
+TEST_F(StaLibertyTest, CellIsPad2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isPad());
 }
 
 // LibertyCell::setIsPad
-TEST_F(StaLibertyTest, R8_CellSetIsPad) {
+TEST_F(StaLibertyTest, CellSetIsPad) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setIsPad(true);
@@ -8977,14 +8977,14 @@ TEST_F(StaLibertyTest, R8_CellSetIsPad) {
 }
 
 // LibertyCell::isClockCell
-TEST_F(StaLibertyTest, R8_CellIsClockCell) {
+TEST_F(StaLibertyTest, CellIsClockCell2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isClockCell());
 }
 
 // LibertyCell::setIsClockCell
-TEST_F(StaLibertyTest, R8_CellSetIsClockCell) {
+TEST_F(StaLibertyTest, CellSetIsClockCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setIsClockCell(true);
@@ -8993,14 +8993,14 @@ TEST_F(StaLibertyTest, R8_CellSetIsClockCell) {
 }
 
 // LibertyCell::isLevelShifter
-TEST_F(StaLibertyTest, R8_CellIsLevelShifter) {
+TEST_F(StaLibertyTest, CellIsLevelShifter2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isLevelShifter());
 }
 
 // LibertyCell::setIsLevelShifter
-TEST_F(StaLibertyTest, R8_CellSetIsLevelShifter) {
+TEST_F(StaLibertyTest, CellSetIsLevelShifter) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setIsLevelShifter(true);
@@ -9009,14 +9009,14 @@ TEST_F(StaLibertyTest, R8_CellSetIsLevelShifter) {
 }
 
 // LibertyCell::isIsolationCell
-TEST_F(StaLibertyTest, R8_CellIsIsolationCell) {
+TEST_F(StaLibertyTest, CellIsIsolationCell2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isIsolationCell());
 }
 
 // LibertyCell::setIsIsolationCell
-TEST_F(StaLibertyTest, R8_CellSetIsIsolationCell) {
+TEST_F(StaLibertyTest, CellSetIsIsolationCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setIsIsolationCell(true);
@@ -9025,14 +9025,14 @@ TEST_F(StaLibertyTest, R8_CellSetIsIsolationCell) {
 }
 
 // LibertyCell::alwaysOn
-TEST_F(StaLibertyTest, R8_CellAlwaysOn) {
+TEST_F(StaLibertyTest, CellAlwaysOn2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->alwaysOn());
 }
 
 // LibertyCell::setAlwaysOn
-TEST_F(StaLibertyTest, R8_CellSetAlwaysOn) {
+TEST_F(StaLibertyTest, CellSetAlwaysOn) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setAlwaysOn(true);
@@ -9041,14 +9041,14 @@ TEST_F(StaLibertyTest, R8_CellSetAlwaysOn) {
 }
 
 // LibertyCell::interfaceTiming
-TEST_F(StaLibertyTest, R8_CellInterfaceTiming) {
+TEST_F(StaLibertyTest, CellInterfaceTiming2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->interfaceTiming());
 }
 
 // LibertyCell::setInterfaceTiming
-TEST_F(StaLibertyTest, R8_CellSetInterfaceTiming) {
+TEST_F(StaLibertyTest, CellSetInterfaceTiming) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setInterfaceTiming(true);
@@ -9057,7 +9057,7 @@ TEST_F(StaLibertyTest, R8_CellSetInterfaceTiming) {
 }
 
 // LibertyCell::isClockGate and related
-TEST_F(StaLibertyTest, R8_CellIsClockGate) {
+TEST_F(StaLibertyTest, CellIsClockGate3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isClockGate());
@@ -9067,7 +9067,7 @@ TEST_F(StaLibertyTest, R8_CellIsClockGate) {
 }
 
 // LibertyCell::setClockGateType
-TEST_F(StaLibertyTest, R8_CellSetClockGateType) {
+TEST_F(StaLibertyTest, CellSetClockGateType) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setClockGateType(ClockGateType::latch_posedge);
@@ -9082,7 +9082,7 @@ TEST_F(StaLibertyTest, R8_CellSetClockGateType) {
 }
 
 // LibertyCell::isDisabledConstraint
-TEST_F(StaLibertyTest, R8_CellIsDisabledConstraint) {
+TEST_F(StaLibertyTest, CellIsDisabledConstraint2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->isDisabledConstraint());
@@ -9092,21 +9092,21 @@ TEST_F(StaLibertyTest, R8_CellIsDisabledConstraint) {
 }
 
 // LibertyCell::hasSequentials
-TEST_F(StaLibertyTest, R8_CellHasSequentialsBuf) {
+TEST_F(StaLibertyTest, CellHasSequentialsBuf) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->hasSequentials());
 }
 
 // LibertyCell::hasSequentials on DFF
-TEST_F(StaLibertyTest, R8_CellHasSequentialsDFF) {
+TEST_F(StaLibertyTest, CellHasSequentialsDFF) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   EXPECT_TRUE(dff->hasSequentials());
 }
 
 // LibertyCell::sequentials
-TEST_F(StaLibertyTest, R8_CellSequentialsDFF) {
+TEST_F(StaLibertyTest, CellSequentialsDFF) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   auto &seqs = dff->sequentials();
@@ -9114,7 +9114,7 @@ TEST_F(StaLibertyTest, R8_CellSequentialsDFF) {
 }
 
 // LibertyCell::leakagePower
-TEST_F(StaLibertyTest, R8_CellLeakagePower) {
+TEST_F(StaLibertyTest, CellLeakagePower4) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   float leakage;
@@ -9126,7 +9126,7 @@ TEST_F(StaLibertyTest, R8_CellLeakagePower) {
 }
 
 // LibertyCell::leakagePowers
-TEST_F(StaLibertyTest, R8_CellLeakagePowers) {
+TEST_F(StaLibertyTest, CellLeakagePowers2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LeakagePowerSeq *leaks = buf->leakagePowers();
@@ -9134,7 +9134,7 @@ TEST_F(StaLibertyTest, R8_CellLeakagePowers) {
 }
 
 // LibertyCell::internalPowers
-TEST_F(StaLibertyTest, R8_CellInternalPowers) {
+TEST_F(StaLibertyTest, CellInternalPowers3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &powers = buf->internalPowers();
@@ -9143,7 +9143,7 @@ TEST_F(StaLibertyTest, R8_CellInternalPowers) {
 }
 
 // LibertyCell::ocvArcDepth (from cell, not library)
-TEST_F(StaLibertyTest, R8_CellOcvArcDepth) {
+TEST_F(StaLibertyTest, CellOcvArcDepth3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   float depth = buf->ocvArcDepth();
@@ -9152,7 +9152,7 @@ TEST_F(StaLibertyTest, R8_CellOcvArcDepth) {
 }
 
 // LibertyCell::setOcvArcDepth
-TEST_F(StaLibertyTest, R8_CellSetOcvArcDepth) {
+TEST_F(StaLibertyTest, CellSetOcvArcDepth2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setOcvArcDepth(3.0f);
@@ -9160,7 +9160,7 @@ TEST_F(StaLibertyTest, R8_CellSetOcvArcDepth) {
 }
 
 // LibertyCell::ocvDerate
-TEST_F(StaLibertyTest, R8_CellOcvDerate) {
+TEST_F(StaLibertyTest, CellOcvDerate3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   OcvDerate *derate = buf->ocvDerate();
@@ -9169,7 +9169,7 @@ TEST_F(StaLibertyTest, R8_CellOcvDerate) {
 }
 
 // LibertyCell::footprint
-TEST_F(StaLibertyTest, R8_CellFootprint) {
+TEST_F(StaLibertyTest, CellFootprint3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const char *fp = buf->footprint();
@@ -9178,7 +9178,7 @@ TEST_F(StaLibertyTest, R8_CellFootprint) {
 }
 
 // LibertyCell::setFootprint
-TEST_F(StaLibertyTest, R8_CellSetFootprint) {
+TEST_F(StaLibertyTest, CellSetFootprint) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setFootprint("test_footprint");
@@ -9186,7 +9186,7 @@ TEST_F(StaLibertyTest, R8_CellSetFootprint) {
 }
 
 // LibertyCell::userFunctionClass
-TEST_F(StaLibertyTest, R8_CellUserFunctionClass) {
+TEST_F(StaLibertyTest, CellUserFunctionClass2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const char *ufc = buf->userFunctionClass();
@@ -9194,7 +9194,7 @@ TEST_F(StaLibertyTest, R8_CellUserFunctionClass) {
 }
 
 // LibertyCell::setUserFunctionClass
-TEST_F(StaLibertyTest, R8_CellSetUserFunctionClass) {
+TEST_F(StaLibertyTest, CellSetUserFunctionClass) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setUserFunctionClass("my_class");
@@ -9202,7 +9202,7 @@ TEST_F(StaLibertyTest, R8_CellSetUserFunctionClass) {
 }
 
 // LibertyCell::setSwitchCellType
-TEST_F(StaLibertyTest, R8_CellSwitchCellType) {
+TEST_F(StaLibertyTest, CellSwitchCellType) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setSwitchCellType(SwitchCellType::coarse_grain);
@@ -9212,7 +9212,7 @@ TEST_F(StaLibertyTest, R8_CellSwitchCellType) {
 }
 
 // LibertyCell::setLevelShifterType
-TEST_F(StaLibertyTest, R8_CellLevelShifterType) {
+TEST_F(StaLibertyTest, CellLevelShifterType) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setLevelShifterType(LevelShifterType::HL);
@@ -9224,7 +9224,7 @@ TEST_F(StaLibertyTest, R8_CellLevelShifterType) {
 }
 
 // LibertyCell::cornerCell
-TEST_F(StaLibertyTest, R8_CellCornerCell) {
+TEST_F(StaLibertyTest, CellCornerCell2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyCell *corner = buf->cornerCell(0);
@@ -9233,7 +9233,7 @@ TEST_F(StaLibertyTest, R8_CellCornerCell) {
 }
 
 // LibertyCell::scaleFactors
-TEST_F(StaLibertyTest, R8_CellScaleFactors) {
+TEST_F(StaLibertyTest, CellScaleFactors3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   ScaleFactors *sf = buf->scaleFactors();
@@ -9242,7 +9242,7 @@ TEST_F(StaLibertyTest, R8_CellScaleFactors) {
 }
 
 // LibertyLibrary::delayModelType
-TEST_F(StaLibertyTest, R8_LibDelayModelType) {
+TEST_F(StaLibertyTest, LibDelayModelType) {
   ASSERT_NE(lib_, nullptr);
   DelayModelType dmt = lib_->delayModelType();
   // table is the most common
@@ -9250,7 +9250,7 @@ TEST_F(StaLibertyTest, R8_LibDelayModelType) {
 }
 
 // LibertyLibrary::nominalProcess, nominalVoltage, nominalTemperature
-TEST_F(StaLibertyTest, R8_LibNominalPVT) {
+TEST_F(StaLibertyTest, LibNominalPVT) {
   ASSERT_NE(lib_, nullptr);
   float proc = lib_->nominalProcess();
   float volt = lib_->nominalVoltage();
@@ -9262,7 +9262,7 @@ TEST_F(StaLibertyTest, R8_LibNominalPVT) {
 }
 
 // LibertyLibrary::setNominalProcess/Voltage/Temperature
-TEST_F(StaLibertyTest, R8_LibSetNominalPVT) {
+TEST_F(StaLibertyTest, LibSetNominalPVT) {
   ASSERT_NE(lib_, nullptr);
   lib_->setNominalProcess(1.5f);
   EXPECT_FLOAT_EQ(lib_->nominalProcess(), 1.5f);
@@ -9273,7 +9273,7 @@ TEST_F(StaLibertyTest, R8_LibSetNominalPVT) {
 }
 
 // LibertyLibrary::defaultInputPinCap and setDefaultInputPinCap
-TEST_F(StaLibertyTest, R8_LibDefaultInputPinCap) {
+TEST_F(StaLibertyTest, LibDefaultInputPinCap) {
   ASSERT_NE(lib_, nullptr);
   float orig_cap = lib_->defaultInputPinCap();
   lib_->setDefaultInputPinCap(0.5f);
@@ -9282,7 +9282,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultInputPinCap) {
 }
 
 // LibertyLibrary::defaultOutputPinCap and setDefaultOutputPinCap
-TEST_F(StaLibertyTest, R8_LibDefaultOutputPinCap) {
+TEST_F(StaLibertyTest, LibDefaultOutputPinCap) {
   ASSERT_NE(lib_, nullptr);
   float orig_cap = lib_->defaultOutputPinCap();
   lib_->setDefaultOutputPinCap(0.3f);
@@ -9291,14 +9291,14 @@ TEST_F(StaLibertyTest, R8_LibDefaultOutputPinCap) {
 }
 
 // LibertyLibrary::defaultBidirectPinCap
-TEST_F(StaLibertyTest, R8_LibDefaultBidirectPinCap) {
+TEST_F(StaLibertyTest, LibDefaultBidirectPinCap) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultBidirectPinCap(0.2f);
   EXPECT_FLOAT_EQ(lib_->defaultBidirectPinCap(), 0.2f);
 }
 
 // LibertyLibrary::defaultIntrinsic
-TEST_F(StaLibertyTest, R8_LibDefaultIntrinsic) {
+TEST_F(StaLibertyTest, LibDefaultIntrinsic) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultIntrinsic(RiseFall::rise(), 0.1f);
   float val;
@@ -9309,7 +9309,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultIntrinsic) {
 }
 
 // LibertyLibrary::defaultOutputPinRes
-TEST_F(StaLibertyTest, R8_LibDefaultOutputPinRes) {
+TEST_F(StaLibertyTest, LibDefaultOutputPinRes) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultOutputPinRes(RiseFall::rise(), 10.0f);
   float res;
@@ -9320,7 +9320,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultOutputPinRes) {
 }
 
 // LibertyLibrary::defaultBidirectPinRes
-TEST_F(StaLibertyTest, R8_LibDefaultBidirectPinRes) {
+TEST_F(StaLibertyTest, LibDefaultBidirectPinRes) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultBidirectPinRes(RiseFall::fall(), 5.0f);
   float res;
@@ -9331,7 +9331,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultBidirectPinRes) {
 }
 
 // LibertyLibrary::defaultPinResistance
-TEST_F(StaLibertyTest, R8_LibDefaultPinResistance) {
+TEST_F(StaLibertyTest, LibDefaultPinResistance) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultOutputPinRes(RiseFall::rise(), 12.0f);
   float res;
@@ -9342,7 +9342,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultPinResistance) {
 }
 
 // LibertyLibrary::defaultMaxSlew
-TEST_F(StaLibertyTest, R8_LibDefaultMaxSlew) {
+TEST_F(StaLibertyTest, LibDefaultMaxSlew) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultMaxSlew(1.0f);
   float slew;
@@ -9353,7 +9353,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultMaxSlew) {
 }
 
 // LibertyLibrary::defaultMaxCapacitance
-TEST_F(StaLibertyTest, R8_LibDefaultMaxCapacitance) {
+TEST_F(StaLibertyTest, LibDefaultMaxCapacitance) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultMaxCapacitance(2.0f);
   float cap;
@@ -9364,7 +9364,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultMaxCapacitance) {
 }
 
 // LibertyLibrary::defaultMaxFanout
-TEST_F(StaLibertyTest, R8_LibDefaultMaxFanout) {
+TEST_F(StaLibertyTest, LibDefaultMaxFanout) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultMaxFanout(8.0f);
   float fanout;
@@ -9375,7 +9375,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultMaxFanout) {
 }
 
 // LibertyLibrary::defaultFanoutLoad
-TEST_F(StaLibertyTest, R8_LibDefaultFanoutLoad) {
+TEST_F(StaLibertyTest, LibDefaultFanoutLoad) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultFanoutLoad(1.5f);
   float load;
@@ -9386,7 +9386,7 @@ TEST_F(StaLibertyTest, R8_LibDefaultFanoutLoad) {
 }
 
 // LibertyLibrary thresholds
-TEST_F(StaLibertyTest, R8_LibThresholds) {
+TEST_F(StaLibertyTest, LibThresholds) {
   ASSERT_NE(lib_, nullptr);
   lib_->setInputThreshold(RiseFall::rise(), 0.6f);
   EXPECT_FLOAT_EQ(lib_->inputThreshold(RiseFall::rise()), 0.6f);
@@ -9402,7 +9402,7 @@ TEST_F(StaLibertyTest, R8_LibThresholds) {
 }
 
 // LibertyLibrary::slewDerateFromLibrary
-TEST_F(StaLibertyTest, R8_LibSlewDerate) {
+TEST_F(StaLibertyTest, LibSlewDerate) {
   ASSERT_NE(lib_, nullptr);
   float orig = lib_->slewDerateFromLibrary();
   lib_->setSlewDerateFromLibrary(0.5f);
@@ -9411,7 +9411,7 @@ TEST_F(StaLibertyTest, R8_LibSlewDerate) {
 }
 
 // LibertyLibrary::defaultWireloadMode
-TEST_F(StaLibertyTest, R8_LibDefaultWireloadMode) {
+TEST_F(StaLibertyTest, LibDefaultWireloadMode) {
   ASSERT_NE(lib_, nullptr);
   lib_->setDefaultWireloadMode(WireloadMode::enclosed);
   EXPECT_EQ(lib_->defaultWireloadMode(), WireloadMode::enclosed);
@@ -9420,21 +9420,21 @@ TEST_F(StaLibertyTest, R8_LibDefaultWireloadMode) {
 }
 
 // LibertyLibrary::ocvArcDepth
-TEST_F(StaLibertyTest, R8_LibOcvArcDepth) {
+TEST_F(StaLibertyTest, LibOcvArcDepth) {
   ASSERT_NE(lib_, nullptr);
   lib_->setOcvArcDepth(2.0f);
   EXPECT_FLOAT_EQ(lib_->ocvArcDepth(), 2.0f);
 }
 
 // LibertyLibrary::defaultOcvDerate
-TEST_F(StaLibertyTest, R8_LibDefaultOcvDerate) {
+TEST_F(StaLibertyTest, LibDefaultOcvDerate) {
   ASSERT_NE(lib_, nullptr);
   OcvDerate *orig = lib_->defaultOcvDerate();
   (void)orig;
 }
 
 // LibertyLibrary::supplyVoltage
-TEST_F(StaLibertyTest, R8_LibSupplyVoltage) {
+TEST_F(StaLibertyTest, LibSupplyVoltage) {
   ASSERT_NE(lib_, nullptr);
   lib_->addSupplyVoltage("VDD", 1.1f);
   EXPECT_TRUE(lib_->supplyExists("VDD"));
@@ -9447,7 +9447,7 @@ TEST_F(StaLibertyTest, R8_LibSupplyVoltage) {
 }
 
 // LibertyLibrary::buffers and inverters lists
-TEST_F(StaLibertyTest, R8_LibBuffersInverters) {
+TEST_F(StaLibertyTest, LibBuffersInverters) {
   ASSERT_NE(lib_, nullptr);
   LibertyCellSeq *bufs = lib_->buffers();
   EXPECT_NE(bufs, nullptr);
@@ -9458,20 +9458,20 @@ TEST_F(StaLibertyTest, R8_LibBuffersInverters) {
 }
 
 // LibertyLibrary::findOcvDerate (non-existent)
-TEST_F(StaLibertyTest, R8_LibFindOcvDerateNonExistent) {
+TEST_F(StaLibertyTest, LibFindOcvDerateNonExistent) {
   ASSERT_NE(lib_, nullptr);
   EXPECT_EQ(lib_->findOcvDerate("nonexistent_derate"), nullptr);
 }
 
 // LibertyCell::findOcvDerate (non-existent)
-TEST_F(StaLibertyTest, R8_CellFindOcvDerateNonExistent) {
+TEST_F(StaLibertyTest, CellFindOcvDerateNonExistent) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   EXPECT_EQ(buf->findOcvDerate("nonexistent"), nullptr);
 }
 
 // LibertyCell::setOcvDerate
-TEST_F(StaLibertyTest, R8_CellSetOcvDerateNull) {
+TEST_F(StaLibertyTest, CellSetOcvDerateNull) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setOcvDerate(nullptr);
@@ -9479,7 +9479,7 @@ TEST_F(StaLibertyTest, R8_CellSetOcvDerateNull) {
 }
 
 // OperatingConditions construction
-TEST_F(StaLibertyTest, R8_OperatingConditionsConstruct) {
+TEST_F(StaLibertyTest, OperatingConditionsConstruct) {
   OperatingConditions oc("typical", 1.0f, 1.1f, 25.0f, WireloadTree::balanced);
   EXPECT_STREQ(oc.name(), "typical");
   EXPECT_FLOAT_EQ(oc.process(), 1.0f);
@@ -9489,7 +9489,7 @@ TEST_F(StaLibertyTest, R8_OperatingConditionsConstruct) {
 }
 
 // OperatingConditions::setWireloadTree
-TEST_F(StaLibertyTest, R8_OperatingConditionsSetWireloadTree) {
+TEST_F(StaLibertyTest, OperatingConditionsSetWireloadTree) {
   OperatingConditions oc("test");
   oc.setWireloadTree(WireloadTree::worst_case);
   EXPECT_EQ(oc.wireloadTree(), WireloadTree::worst_case);
@@ -9498,7 +9498,7 @@ TEST_F(StaLibertyTest, R8_OperatingConditionsSetWireloadTree) {
 }
 
 // Pvt class
-TEST_F(StaLibertyTest, R8_PvtConstruct) {
+TEST_F(StaLibertyTest, PvtConstruct) {
   Pvt pvt(1.0f, 1.1f, 25.0f);
   EXPECT_FLOAT_EQ(pvt.process(), 1.0f);
   EXPECT_FLOAT_EQ(pvt.voltage(), 1.1f);
@@ -9506,7 +9506,7 @@ TEST_F(StaLibertyTest, R8_PvtConstruct) {
 }
 
 // Pvt setters
-TEST_F(StaLibertyTest, R8_PvtSetters) {
+TEST_F(StaLibertyTest, PvtSetters) {
   Pvt pvt(1.0f, 1.1f, 25.0f);
   pvt.setProcess(2.0f);
   EXPECT_FLOAT_EQ(pvt.process(), 2.0f);
@@ -9517,13 +9517,13 @@ TEST_F(StaLibertyTest, R8_PvtSetters) {
 }
 
 // ScaleFactors
-TEST_F(StaLibertyTest, R8_ScaleFactorsConstruct) {
+TEST_F(StaLibertyTest, ScaleFactorsConstruct) {
   ScaleFactors sf("test_sf");
   EXPECT_STREQ(sf.name(), "test_sf");
 }
 
 // ScaleFactors::setScale and scale
-TEST_F(StaLibertyTest, R8_ScaleFactorsSetGet) {
+TEST_F(StaLibertyTest, ScaleFactorsSetGet) {
   ScaleFactors sf("test_sf");
   sf.setScale(ScaleFactorType::cell, ScaleFactorPvt::process,
               RiseFall::rise(), 1.5f);
@@ -9533,7 +9533,7 @@ TEST_F(StaLibertyTest, R8_ScaleFactorsSetGet) {
 }
 
 // ScaleFactors::setScale without rf and scale without rf
-TEST_F(StaLibertyTest, R8_ScaleFactorsSetGetNoRF) {
+TEST_F(StaLibertyTest, ScaleFactorsSetGetNoRF) {
   ScaleFactors sf("test_sf2");
   sf.setScale(ScaleFactorType::cell, ScaleFactorPvt::volt, 2.0f);
   float val = sf.scale(ScaleFactorType::cell, ScaleFactorPvt::volt);
@@ -9541,7 +9541,7 @@ TEST_F(StaLibertyTest, R8_ScaleFactorsSetGetNoRF) {
 }
 
 // LibertyLibrary::addScaleFactors and findScaleFactors
-TEST_F(StaLibertyTest, R8_LibAddFindScaleFactors) {
+TEST_F(StaLibertyTest, LibAddFindScaleFactors) {
   ASSERT_NE(lib_, nullptr);
   ScaleFactors *sf = new ScaleFactors("custom_sf");
   sf->setScale(ScaleFactorType::cell, ScaleFactorPvt::process,
@@ -9552,7 +9552,7 @@ TEST_F(StaLibertyTest, R8_LibAddFindScaleFactors) {
 }
 
 // LibertyLibrary::findOperatingConditions
-TEST_F(StaLibertyTest, R8_LibFindOperatingConditions) {
+TEST_F(StaLibertyTest, LibFindOperatingConditions) {
   ASSERT_NE(lib_, nullptr);
   OperatingConditions *oc = new OperatingConditions("fast", 0.5f, 1.32f, -40.0f, WireloadTree::best_case);
   lib_->addOperatingConditions(oc);
@@ -9562,7 +9562,7 @@ TEST_F(StaLibertyTest, R8_LibFindOperatingConditions) {
 }
 
 // LibertyLibrary::setDefaultOperatingConditions
-TEST_F(StaLibertyTest, R8_LibSetDefaultOperatingConditions) {
+TEST_F(StaLibertyTest, LibSetDefaultOperatingConditions) {
   ASSERT_NE(lib_, nullptr);
   OperatingConditions *oc = new OperatingConditions("default_oc");
   lib_->addOperatingConditions(oc);
@@ -9571,7 +9571,7 @@ TEST_F(StaLibertyTest, R8_LibSetDefaultOperatingConditions) {
 }
 
 // FuncExpr make/access
-TEST_F(StaLibertyTest, R8_FuncExprMakePort) {
+TEST_F(StaLibertyTest, FuncExprMakePort) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   LibertyPort *a = inv->findLibertyPort("A");
@@ -9586,7 +9586,7 @@ TEST_F(StaLibertyTest, R8_FuncExprMakePort) {
 }
 
 // FuncExpr::makeNot
-TEST_F(StaLibertyTest, R8_FuncExprMakeNot) {
+TEST_F(StaLibertyTest, FuncExprMakeNot) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   LibertyPort *a = inv->findLibertyPort("A");
@@ -9602,7 +9602,7 @@ TEST_F(StaLibertyTest, R8_FuncExprMakeNot) {
 }
 
 // FuncExpr::makeAnd
-TEST_F(StaLibertyTest, R8_FuncExprMakeAnd) {
+TEST_F(StaLibertyTest, FuncExprMakeAnd) {
   LibertyCell *and2 = lib_->findLibertyCell("AND2_X1");
   ASSERT_NE(and2, nullptr);
   LibertyPort *a1 = and2->findLibertyPort("A1");
@@ -9619,7 +9619,7 @@ TEST_F(StaLibertyTest, R8_FuncExprMakeAnd) {
 }
 
 // FuncExpr::makeOr
-TEST_F(StaLibertyTest, R8_FuncExprMakeOr) {
+TEST_F(StaLibertyTest, FuncExprMakeOr) {
   LibertyCell *or2 = lib_->findLibertyCell("OR2_X1");
   ASSERT_NE(or2, nullptr);
   LibertyPort *a1 = or2->findLibertyPort("A1");
@@ -9634,7 +9634,7 @@ TEST_F(StaLibertyTest, R8_FuncExprMakeOr) {
 }
 
 // FuncExpr::makeXor
-TEST_F(StaLibertyTest, R8_FuncExprMakeXor) {
+TEST_F(StaLibertyTest, FuncExprMakeXor) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   LibertyPort *a = inv->findLibertyPort("A");
@@ -9647,7 +9647,7 @@ TEST_F(StaLibertyTest, R8_FuncExprMakeXor) {
 }
 
 // FuncExpr::makeZero and makeOne
-TEST_F(StaLibertyTest, R8_FuncExprMakeZeroOne) {
+TEST_F(StaLibertyTest, FuncExprMakeZeroOne) {
   FuncExpr *zero = FuncExpr::makeZero();
   EXPECT_NE(zero, nullptr);
   EXPECT_EQ(zero->op(), FuncExpr::op_zero);
@@ -9660,7 +9660,7 @@ TEST_F(StaLibertyTest, R8_FuncExprMakeZeroOne) {
 }
 
 // FuncExpr::equiv
-TEST_F(StaLibertyTest, R8_FuncExprEquiv) {
+TEST_F(StaLibertyTest, FuncExprEquiv) {
   FuncExpr *zero1 = FuncExpr::makeZero();
   FuncExpr *zero2 = FuncExpr::makeZero();
   EXPECT_TRUE(FuncExpr::equiv(zero1, zero2));
@@ -9672,7 +9672,7 @@ TEST_F(StaLibertyTest, R8_FuncExprEquiv) {
 }
 
 // FuncExpr::hasPort
-TEST_F(StaLibertyTest, R8_FuncExprHasPort) {
+TEST_F(StaLibertyTest, FuncExprHasPort) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   LibertyPort *a = inv->findLibertyPort("A");
@@ -9686,7 +9686,7 @@ TEST_F(StaLibertyTest, R8_FuncExprHasPort) {
 }
 
 // FuncExpr::portTimingSense
-TEST_F(StaLibertyTest, R8_FuncExprPortTimingSense) {
+TEST_F(StaLibertyTest, FuncExprPortTimingSense) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   LibertyPort *a = inv->findLibertyPort("A");
@@ -9698,7 +9698,7 @@ TEST_F(StaLibertyTest, R8_FuncExprPortTimingSense) {
 }
 
 // FuncExpr::copy
-TEST_F(StaLibertyTest, R8_FuncExprCopy) {
+TEST_F(StaLibertyTest, FuncExprCopy) {
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *copy = one->copy();
   EXPECT_NE(copy, nullptr);
@@ -9708,7 +9708,7 @@ TEST_F(StaLibertyTest, R8_FuncExprCopy) {
 }
 
 // LibertyPort properties
-TEST_F(StaLibertyTest, R8_PortProperties) {
+TEST_F(StaLibertyTest, PortProperties) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   LibertyPort *a = inv->findLibertyPort("A");
@@ -9721,7 +9721,7 @@ TEST_F(StaLibertyTest, R8_PortProperties) {
 }
 
 // LibertyPort::function
-TEST_F(StaLibertyTest, R8_PortFunction) {
+TEST_F(StaLibertyTest, PortFunction3) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   LibertyPort *zn = inv->findLibertyPort("ZN");
@@ -9731,7 +9731,7 @@ TEST_F(StaLibertyTest, R8_PortFunction) {
 }
 
 // LibertyPort::driveResistance
-TEST_F(StaLibertyTest, R8_PortDriveResistance) {
+TEST_F(StaLibertyTest, PortDriveResistance2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -9741,7 +9741,7 @@ TEST_F(StaLibertyTest, R8_PortDriveResistance) {
 }
 
 // LibertyPort::capacitance with min/max
-TEST_F(StaLibertyTest, R8_PortCapacitanceMinMax) {
+TEST_F(StaLibertyTest, PortCapacitanceMinMax2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -9753,7 +9753,7 @@ TEST_F(StaLibertyTest, R8_PortCapacitanceMinMax) {
 }
 
 // LibertyPort::capacitance with rf and min/max
-TEST_F(StaLibertyTest, R8_PortCapacitanceRfMinMax) {
+TEST_F(StaLibertyTest, PortCapacitanceRfMinMax2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -9763,7 +9763,7 @@ TEST_F(StaLibertyTest, R8_PortCapacitanceRfMinMax) {
 }
 
 // LibertyPort::slewLimit
-TEST_F(StaLibertyTest, R8_PortSlewLimit) {
+TEST_F(StaLibertyTest, PortSlewLimit2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -9777,7 +9777,7 @@ TEST_F(StaLibertyTest, R8_PortSlewLimit) {
 }
 
 // LibertyPort::capacitanceLimit
-TEST_F(StaLibertyTest, R8_PortCapacitanceLimit) {
+TEST_F(StaLibertyTest, PortCapacitanceLimit2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -9790,7 +9790,7 @@ TEST_F(StaLibertyTest, R8_PortCapacitanceLimit) {
 }
 
 // LibertyPort::fanoutLoad
-TEST_F(StaLibertyTest, R8_PortFanoutLoad) {
+TEST_F(StaLibertyTest, PortFanoutLoad2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -9803,7 +9803,7 @@ TEST_F(StaLibertyTest, R8_PortFanoutLoad) {
 }
 
 // LibertyPort::isClock
-TEST_F(StaLibertyTest, R8_PortIsClock) {
+TEST_F(StaLibertyTest, PortIsClock2) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *ck = dff->findLibertyPort("CK");
@@ -9815,7 +9815,7 @@ TEST_F(StaLibertyTest, R8_PortIsClock) {
 }
 
 // LibertyPort::setIsClock
-TEST_F(StaLibertyTest, R8_PortSetIsClock) {
+TEST_F(StaLibertyTest, PortSetIsClock) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -9826,7 +9826,7 @@ TEST_F(StaLibertyTest, R8_PortSetIsClock) {
 }
 
 // LibertyPort::isRegClk
-TEST_F(StaLibertyTest, R8_PortIsRegClk) {
+TEST_F(StaLibertyTest, PortIsRegClk2) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *ck = dff->findLibertyPort("CK");
@@ -9835,7 +9835,7 @@ TEST_F(StaLibertyTest, R8_PortIsRegClk) {
 }
 
 // LibertyPort::isRegOutput
-TEST_F(StaLibertyTest, R8_PortIsRegOutput) {
+TEST_F(StaLibertyTest, PortIsRegOutput) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *q = dff->findLibertyPort("Q");
@@ -9844,7 +9844,7 @@ TEST_F(StaLibertyTest, R8_PortIsRegOutput) {
 }
 
 // LibertyPort::isCheckClk
-TEST_F(StaLibertyTest, R8_PortIsCheckClk) {
+TEST_F(StaLibertyTest, PortIsCheckClk) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *ck = dff->findLibertyPort("CK");
@@ -9853,7 +9853,7 @@ TEST_F(StaLibertyTest, R8_PortIsCheckClk) {
 }
 
 // TimingArcSet::deleteTimingArc - test via finding and accessing
-TEST_F(StaLibertyTest, R8_TimingArcSetArcCount) {
+TEST_F(StaLibertyTest, TimingArcSetArcCount) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9863,7 +9863,7 @@ TEST_F(StaLibertyTest, R8_TimingArcSetArcCount) {
 }
 
 // TimingArcSet::role
-TEST_F(StaLibertyTest, R8_TimingArcSetRole) {
+TEST_F(StaLibertyTest, TimingArcSetRole) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9874,7 +9874,7 @@ TEST_F(StaLibertyTest, R8_TimingArcSetRole) {
 }
 
 // TimingArcSet::sense
-TEST_F(StaLibertyTest, R8_TimingArcSetSense) {
+TEST_F(StaLibertyTest, TimingArcSetSense2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9885,7 +9885,7 @@ TEST_F(StaLibertyTest, R8_TimingArcSetSense) {
 }
 
 // TimingArc::fromEdge and toEdge
-TEST_F(StaLibertyTest, R8_TimingArcEdges) {
+TEST_F(StaLibertyTest, TimingArcEdges) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9897,7 +9897,7 @@ TEST_F(StaLibertyTest, R8_TimingArcEdges) {
 }
 
 // TimingArc::driveResistance
-TEST_F(StaLibertyTest, R8_TimingArcDriveResistance) {
+TEST_F(StaLibertyTest, TimingArcDriveResistance3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9909,7 +9909,7 @@ TEST_F(StaLibertyTest, R8_TimingArcDriveResistance) {
 }
 
 // TimingArc::intrinsicDelay
-TEST_F(StaLibertyTest, R8_TimingArcIntrinsicDelay) {
+TEST_F(StaLibertyTest, TimingArcIntrinsicDelay3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9921,7 +9921,7 @@ TEST_F(StaLibertyTest, R8_TimingArcIntrinsicDelay) {
 }
 
 // TimingArc::model
-TEST_F(StaLibertyTest, R8_TimingArcModel) {
+TEST_F(StaLibertyTest, TimingArcModel2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9933,7 +9933,7 @@ TEST_F(StaLibertyTest, R8_TimingArcModel) {
 }
 
 // TimingArc::sense
-TEST_F(StaLibertyTest, R8_TimingArcSense) {
+TEST_F(StaLibertyTest, TimingArcSense) {
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
   auto &arcsets = inv->timingArcSets();
@@ -9945,7 +9945,7 @@ TEST_F(StaLibertyTest, R8_TimingArcSense) {
 }
 
 // TimingArcSet::isCondDefault
-TEST_F(StaLibertyTest, R8_TimingArcSetIsCondDefault) {
+TEST_F(StaLibertyTest, TimingArcSetIsCondDefault) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9956,7 +9956,7 @@ TEST_F(StaLibertyTest, R8_TimingArcSetIsCondDefault) {
 }
 
 // TimingArcSet::isDisabledConstraint
-TEST_F(StaLibertyTest, R8_TimingArcSetIsDisabledConstraint) {
+TEST_F(StaLibertyTest, TimingArcSetIsDisabledConstraint) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -9968,7 +9968,7 @@ TEST_F(StaLibertyTest, R8_TimingArcSetIsDisabledConstraint) {
 }
 
 // timingTypeIsCheck for more types
-TEST_F(StaLibertyTest, R8_TimingTypeIsCheckMore) {
+TEST_F(StaLibertyTest, TimingTypeIsCheckMore) {
   EXPECT_TRUE(timingTypeIsCheck(TimingType::setup_falling));
   EXPECT_TRUE(timingTypeIsCheck(TimingType::hold_rising));
   EXPECT_TRUE(timingTypeIsCheck(TimingType::recovery_rising));
@@ -9979,7 +9979,7 @@ TEST_F(StaLibertyTest, R8_TimingTypeIsCheckMore) {
 }
 
 // findTimingType
-TEST_F(StaLibertyTest, R8_FindTimingType) {
+TEST_F(StaLibertyTest, FindTimingType) {
   TimingType tt = findTimingType("combinational");
   EXPECT_EQ(tt, TimingType::combinational);
   tt = findTimingType("rising_edge");
@@ -9989,14 +9989,14 @@ TEST_F(StaLibertyTest, R8_FindTimingType) {
 }
 
 // timingTypeIsCheck
-TEST_F(StaLibertyTest, R8_TimingTypeIsCheck) {
+TEST_F(StaLibertyTest, TimingTypeIsCheck) {
   EXPECT_TRUE(timingTypeIsCheck(TimingType::setup_rising));
   EXPECT_TRUE(timingTypeIsCheck(TimingType::hold_falling));
   EXPECT_FALSE(timingTypeIsCheck(TimingType::combinational));
 }
 
 // to_string(TimingSense)
-TEST_F(StaLibertyTest, R8_TimingSenseToString) {
+TEST_F(StaLibertyTest, TimingSenseToString) {
   const char *s = to_string(TimingSense::positive_unate);
   EXPECT_NE(s, nullptr);
   s = to_string(TimingSense::negative_unate);
@@ -10006,7 +10006,7 @@ TEST_F(StaLibertyTest, R8_TimingSenseToString) {
 }
 
 // timingSenseOpposite
-TEST_F(StaLibertyTest, R8_TimingSenseOpposite) {
+TEST_F(StaLibertyTest, TimingSenseOpposite) {
   EXPECT_EQ(timingSenseOpposite(TimingSense::positive_unate),
             TimingSense::negative_unate);
   EXPECT_EQ(timingSenseOpposite(TimingSense::negative_unate),
@@ -10014,34 +10014,34 @@ TEST_F(StaLibertyTest, R8_TimingSenseOpposite) {
 }
 
 // ScaleFactorPvt names
-TEST_F(StaLibertyTest, R8_ScaleFactorPvtNames) {
+TEST_F(StaLibertyTest, ScaleFactorPvtNames) {
   EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::process), "process");
   EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::volt), "volt");
   EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::temp), "temp");
 }
 
 // findScaleFactorPvt
-TEST_F(StaLibertyTest, R8_FindScaleFactorPvt) {
+TEST_F(StaLibertyTest, FindScaleFactorPvt) {
   EXPECT_EQ(findScaleFactorPvt("process"), ScaleFactorPvt::process);
   EXPECT_EQ(findScaleFactorPvt("volt"), ScaleFactorPvt::volt);
   EXPECT_EQ(findScaleFactorPvt("temp"), ScaleFactorPvt::temp);
 }
 
 // ScaleFactorType names
-TEST_F(StaLibertyTest, R8_ScaleFactorTypeNames) {
+TEST_F(StaLibertyTest, ScaleFactorTypeNames) {
   const char *name = scaleFactorTypeName(ScaleFactorType::cell);
   EXPECT_NE(name, nullptr);
 }
 
 // findScaleFactorType
-TEST_F(StaLibertyTest, R8_FindScaleFactorType) {
+TEST_F(StaLibertyTest, FindScaleFactorType) {
   ScaleFactorType sft = findScaleFactorType("cell_rise");
   // Should find it
   (void)sft;
 }
 
 // BusDcl
-TEST_F(StaLibertyTest, R8_BusDclConstruct) {
+TEST_F(StaLibertyTest, BusDclConstruct) {
   BusDcl bus("data", 7, 0);
   EXPECT_STREQ(bus.name(), "data");
   EXPECT_EQ(bus.from(), 7);
@@ -10049,7 +10049,7 @@ TEST_F(StaLibertyTest, R8_BusDclConstruct) {
 }
 
 // TableTemplate
-TEST_F(StaLibertyTest, R8_TableTemplateConstruct) {
+TEST_F(StaLibertyTest, TableTemplateConstruct) {
   TableTemplate tpl("my_template");
   EXPECT_STREQ(tpl.name(), "my_template");
   EXPECT_EQ(tpl.axis1(), nullptr);
@@ -10058,14 +10058,14 @@ TEST_F(StaLibertyTest, R8_TableTemplateConstruct) {
 }
 
 // TableTemplate setName
-TEST_F(StaLibertyTest, R8_TableTemplateSetName) {
+TEST_F(StaLibertyTest, TableTemplateSetName) {
   TableTemplate tpl("orig");
   tpl.setName("renamed");
   EXPECT_STREQ(tpl.name(), "renamed");
 }
 
 // LibertyCell::modeDef
-TEST_F(StaLibertyTest, R8_CellModeDef) {
+TEST_F(StaLibertyTest, CellModeDef2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   ModeDef *md = buf->makeModeDef("test_mode");
@@ -10077,7 +10077,7 @@ TEST_F(StaLibertyTest, R8_CellModeDef) {
 }
 
 // LibertyLibrary::tableTemplates
-TEST_F(StaLibertyTest, R8_LibTableTemplates) {
+TEST_F(StaLibertyTest, LibTableTemplates) {
   ASSERT_NE(lib_, nullptr);
   auto templates = lib_->tableTemplates();
   // Nangate45 should have table templates
@@ -10085,7 +10085,7 @@ TEST_F(StaLibertyTest, R8_LibTableTemplates) {
 }
 
 // LibertyLibrary::busDcls
-TEST_F(StaLibertyTest, R8_LibBusDcls) {
+TEST_F(StaLibertyTest, LibBusDcls) {
   ASSERT_NE(lib_, nullptr);
   auto dcls = lib_->busDcls();
   // May or may not have bus declarations
@@ -10093,7 +10093,7 @@ TEST_F(StaLibertyTest, R8_LibBusDcls) {
 }
 
 // LibertyPort::minPeriod
-TEST_F(StaLibertyTest, R8_PortMinPeriod) {
+TEST_F(StaLibertyTest, PortMinPeriod3) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *ck = dff->findLibertyPort("CK");
@@ -10107,7 +10107,7 @@ TEST_F(StaLibertyTest, R8_PortMinPeriod) {
 }
 
 // LibertyPort::minPulseWidth
-TEST_F(StaLibertyTest, R8_PortMinPulseWidth) {
+TEST_F(StaLibertyTest, PortMinPulseWidth3) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *ck = dff->findLibertyPort("CK");
@@ -10120,7 +10120,7 @@ TEST_F(StaLibertyTest, R8_PortMinPulseWidth) {
 }
 
 // LibertyPort::isClockGateClock/Enable/Out
-TEST_F(StaLibertyTest, R8_PortClockGateFlags) {
+TEST_F(StaLibertyTest, PortClockGateFlags) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10131,7 +10131,7 @@ TEST_F(StaLibertyTest, R8_PortClockGateFlags) {
 }
 
 // LibertyPort::isPllFeedback
-TEST_F(StaLibertyTest, R8_PortIsPllFeedback) {
+TEST_F(StaLibertyTest, PortIsPllFeedback2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10140,7 +10140,7 @@ TEST_F(StaLibertyTest, R8_PortIsPllFeedback) {
 }
 
 // LibertyPort::isSwitch
-TEST_F(StaLibertyTest, R8_PortIsSwitch) {
+TEST_F(StaLibertyTest, PortIsSwitch2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10149,7 +10149,7 @@ TEST_F(StaLibertyTest, R8_PortIsSwitch) {
 }
 
 // LibertyPort::isPad
-TEST_F(StaLibertyTest, R8_PortIsPad) {
+TEST_F(StaLibertyTest, PortIsPad2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10158,7 +10158,7 @@ TEST_F(StaLibertyTest, R8_PortIsPad) {
 }
 
 // LibertyPort::setCapacitance
-TEST_F(StaLibertyTest, R8_PortSetCapacitance) {
+TEST_F(StaLibertyTest, PortSetCapacitance) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10168,7 +10168,7 @@ TEST_F(StaLibertyTest, R8_PortSetCapacitance) {
 }
 
 // LibertyPort::setSlewLimit
-TEST_F(StaLibertyTest, R8_PortSetSlewLimit) {
+TEST_F(StaLibertyTest, PortSetSlewLimit) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -10182,7 +10182,7 @@ TEST_F(StaLibertyTest, R8_PortSetSlewLimit) {
 }
 
 // LibertyPort::setCapacitanceLimit
-TEST_F(StaLibertyTest, R8_PortSetCapacitanceLimit) {
+TEST_F(StaLibertyTest, PortSetCapacitanceLimit) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -10196,7 +10196,7 @@ TEST_F(StaLibertyTest, R8_PortSetCapacitanceLimit) {
 }
 
 // LibertyPort::setFanoutLoad
-TEST_F(StaLibertyTest, R8_PortSetFanoutLoad) {
+TEST_F(StaLibertyTest, PortSetFanoutLoad2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10210,7 +10210,7 @@ TEST_F(StaLibertyTest, R8_PortSetFanoutLoad) {
 }
 
 // LibertyPort::setFanoutLimit
-TEST_F(StaLibertyTest, R8_PortSetFanoutLimit) {
+TEST_F(StaLibertyTest, PortSetFanoutLimit2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -10224,7 +10224,7 @@ TEST_F(StaLibertyTest, R8_PortSetFanoutLimit) {
 }
 
 // LibertyPort::capacitanceIsOneValue
-TEST_F(StaLibertyTest, R8_PortCapacitanceIsOneValue) {
+TEST_F(StaLibertyTest, PortCapacitanceIsOneValue2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10234,7 +10234,7 @@ TEST_F(StaLibertyTest, R8_PortCapacitanceIsOneValue) {
 }
 
 // LibertyPort::isDisabledConstraint
-TEST_F(StaLibertyTest, R8_PortIsDisabledConstraint) {
+TEST_F(StaLibertyTest, PortIsDisabledConstraint3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10246,7 +10246,7 @@ TEST_F(StaLibertyTest, R8_PortIsDisabledConstraint) {
 }
 
 // InternalPower
-TEST_F(StaLibertyTest, R8_InternalPowerPort) {
+TEST_F(StaLibertyTest, InternalPowerPort) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &powers = buf->internalPowers();
@@ -10259,7 +10259,7 @@ TEST_F(StaLibertyTest, R8_InternalPowerPort) {
 }
 
 // LibertyLibrary units
-TEST_F(StaLibertyTest, R8_LibUnits) {
+TEST_F(StaLibertyTest, LibUnits) {
   ASSERT_NE(lib_, nullptr);
   Units *units = lib_->units();
   EXPECT_NE(units, nullptr);
@@ -10269,7 +10269,7 @@ TEST_F(StaLibertyTest, R8_LibUnits) {
 }
 
 // WireloadSelection
-TEST_F(StaLibertyTest, R8_WireloadSelection) {
+TEST_F(StaLibertyTest, WireloadSelection) {
   ASSERT_NE(lib_, nullptr);
   WireloadSelection *ws = lib_->defaultWireloadSelection();
   // May be nullptr if not defined in the library
@@ -10277,14 +10277,14 @@ TEST_F(StaLibertyTest, R8_WireloadSelection) {
 }
 
 // LibertyLibrary::findWireload
-TEST_F(StaLibertyTest, R8_LibFindWireload) {
+TEST_F(StaLibertyTest, LibFindWireload) {
   ASSERT_NE(lib_, nullptr);
   Wireload *wl = lib_->findWireload("nonexistent");
   EXPECT_EQ(wl, nullptr);
 }
 
 // scaleFactorTypeRiseFallSuffix/Prefix/LowHighSuffix
-TEST_F(StaLibertyTest, R8_ScaleFactorTypeRiseFallSuffix) {
+TEST_F(StaLibertyTest, ScaleFactorTypeRiseFallSuffix) {
   // These should not crash
   bool rfs = scaleFactorTypeRiseFallSuffix(ScaleFactorType::cell);
   bool rfp = scaleFactorTypeRiseFallPrefix(ScaleFactorType::cell);
@@ -10295,7 +10295,7 @@ TEST_F(StaLibertyTest, R8_ScaleFactorTypeRiseFallSuffix) {
 }
 
 // LibertyPort::scanSignalType
-TEST_F(StaLibertyTest, R8_PortScanSignalType) {
+TEST_F(StaLibertyTest, PortScanSignalType2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10304,7 +10304,7 @@ TEST_F(StaLibertyTest, R8_PortScanSignalType) {
 }
 
 // scanSignalTypeName
-TEST_F(StaLibertyTest, R8_ScanSignalTypeName) {
+TEST_F(StaLibertyTest, ScanSignalTypeName) {
   const char *name = scanSignalTypeName(ScanSignalType::enable);
   EXPECT_NE(name, nullptr);
   name = scanSignalTypeName(ScanSignalType::clock);
@@ -10312,7 +10312,7 @@ TEST_F(StaLibertyTest, R8_ScanSignalTypeName) {
 }
 
 // pwrGndTypeName and findPwrGndType
-TEST_F(StaLibertyTest, R8_PwrGndTypeName) {
+TEST_F(StaLibertyTest, PwrGndTypeName) {
   const char *name = pwrGndTypeName(PwrGndType::primary_power);
   EXPECT_NE(name, nullptr);
   PwrGndType t = findPwrGndType("primary_power");
@@ -10320,7 +10320,7 @@ TEST_F(StaLibertyTest, R8_PwrGndTypeName) {
 }
 
 // TimingArcSet::arcsFrom
-TEST_F(StaLibertyTest, R8_TimingArcSetArcsFrom) {
+TEST_F(StaLibertyTest, TimingArcSetArcsFrom2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -10333,7 +10333,7 @@ TEST_F(StaLibertyTest, R8_TimingArcSetArcsFrom) {
 }
 
 // TimingArcSet::arcTo
-TEST_F(StaLibertyTest, R8_TimingArcSetArcTo) {
+TEST_F(StaLibertyTest, TimingArcSetArcTo2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -10344,7 +10344,7 @@ TEST_F(StaLibertyTest, R8_TimingArcSetArcTo) {
 }
 
 // LibertyPort::driveResistance with rf/min_max
-TEST_F(StaLibertyTest, R8_PortDriveResistanceRfMinMax) {
+TEST_F(StaLibertyTest, PortDriveResistanceRfMinMax2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
@@ -10354,7 +10354,7 @@ TEST_F(StaLibertyTest, R8_PortDriveResistanceRfMinMax) {
 }
 
 // LibertyPort::setMinPeriod
-TEST_F(StaLibertyTest, R8_PortSetMinPeriod) {
+TEST_F(StaLibertyTest, PortSetMinPeriod) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *ck = dff->findLibertyPort("CK");
@@ -10368,7 +10368,7 @@ TEST_F(StaLibertyTest, R8_PortSetMinPeriod) {
 }
 
 // LibertyPort::setMinPulseWidth
-TEST_F(StaLibertyTest, R8_PortSetMinPulseWidth) {
+TEST_F(StaLibertyTest, PortSetMinPulseWidth) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *ck = dff->findLibertyPort("CK");
@@ -10382,7 +10382,7 @@ TEST_F(StaLibertyTest, R8_PortSetMinPulseWidth) {
 }
 
 // LibertyPort::setDirection
-TEST_F(StaLibertyTest, R8_PortSetDirection) {
+TEST_F(StaLibertyTest, PortSetDirection) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10393,7 +10393,7 @@ TEST_F(StaLibertyTest, R8_PortSetDirection) {
 }
 
 // LibertyPort isolation and level shifter data flags
-TEST_F(StaLibertyTest, R8_PortIsolationLevelShifterFlags) {
+TEST_F(StaLibertyTest, PortIsolationLevelShifterFlags) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
@@ -10471,7 +10471,7 @@ static LibertyLibrary *writeAndReadLibReturn(Sta *sta, const char *content, cons
 // ---------- Library-level default attributes ----------
 
 // R9_1: default_intrinsic_rise/fall
-TEST_F(StaLibertyTest, R9_DefaultIntrinsicRiseFall) {
+TEST_F(StaLibertyTest, DefaultIntrinsicRiseFall) {
   const char *content = R"(
 library(test_r9_1) {
   delay_model : table_lookup ;
@@ -10492,7 +10492,7 @@ library(test_r9_1) {
 }
 
 // R9_2: default_inout_pin_rise_res / fall_res
-TEST_F(StaLibertyTest, R9_DefaultInoutPinRes) {
+TEST_F(StaLibertyTest, DefaultInoutPinRes) {
   const char *content = R"(
 library(test_r9_2) {
   delay_model : table_lookup ;
@@ -10513,7 +10513,7 @@ library(test_r9_2) {
 }
 
 // R9_3: default_output_pin_rise_res / fall_res
-TEST_F(StaLibertyTest, R9_DefaultOutputPinRes) {
+TEST_F(StaLibertyTest, DefaultOutputPinRes) {
   const char *content = R"(
 library(test_r9_3) {
   delay_model : table_lookup ;
@@ -10534,7 +10534,7 @@ library(test_r9_3) {
 }
 
 // R9_4: technology(fpga) group
-TEST_F(StaLibertyTest, R9_TechnologyGroup) {
+TEST_F(StaLibertyTest, TechnologyGroup) {
   const char *content = R"(
 library(test_r9_4) {
   technology(fpga) {}
@@ -10554,7 +10554,7 @@ library(test_r9_4) {
 }
 
 // R9_5: scaling_factors group
-TEST_F(StaLibertyTest, R9_ScalingFactors) {
+TEST_F(StaLibertyTest, ScalingFactors) {
   const char *content = R"(
 library(test_r9_5) {
   delay_model : table_lookup ;
@@ -10582,7 +10582,7 @@ library(test_r9_5) {
 }
 
 // R9_6: cell is_memory attribute
-TEST_F(StaLibertyTest, R9_CellIsMemory) {
+TEST_F(StaLibertyTest, CellIsMemory4) {
   const char *content = R"(
 library(test_r9_6) {
   delay_model : table_lookup ;
@@ -10606,7 +10606,7 @@ library(test_r9_6) {
 }
 
 // R9_7: pad_cell attribute
-TEST_F(StaLibertyTest, R9_CellIsPadCell) {
+TEST_F(StaLibertyTest, CellIsPadCell) {
   const char *content = R"(
 library(test_r9_7) {
   delay_model : table_lookup ;
@@ -10630,7 +10630,7 @@ library(test_r9_7) {
 }
 
 // R9_8: is_clock_cell attribute
-TEST_F(StaLibertyTest, R9_CellIsClockCell) {
+TEST_F(StaLibertyTest, CellIsClockCell3) {
   const char *content = R"(
 library(test_r9_8) {
   delay_model : table_lookup ;
@@ -10654,7 +10654,7 @@ library(test_r9_8) {
 }
 
 // R9_9: switch_cell_type
-TEST_F(StaLibertyTest, R9_CellSwitchCellType) {
+TEST_F(StaLibertyTest, CellSwitchCellType2) {
   const char *content = R"(
 library(test_r9_9) {
   delay_model : table_lookup ;
@@ -10674,7 +10674,7 @@ library(test_r9_9) {
 }
 
 // R9_10: user_function_class
-TEST_F(StaLibertyTest, R9_CellUserFunctionClass) {
+TEST_F(StaLibertyTest, CellUserFunctionClass3) {
   const char *content = R"(
 library(test_r9_10) {
   delay_model : table_lookup ;
@@ -10694,7 +10694,7 @@ library(test_r9_10) {
 }
 
 // R9_11: pin fanout_load, max_fanout, min_fanout
-TEST_F(StaLibertyTest, R9_PinFanoutAttributes) {
+TEST_F(StaLibertyTest, PinFanoutAttributes) {
   const char *content = R"(
 library(test_r9_11) {
   delay_model : table_lookup ;
@@ -10722,7 +10722,7 @@ library(test_r9_11) {
 }
 
 // R9_12: min_transition on pin
-TEST_F(StaLibertyTest, R9_PinMinTransition) {
+TEST_F(StaLibertyTest, PinMinTransition) {
   const char *content = R"(
 library(test_r9_12) {
   delay_model : table_lookup ;
@@ -10748,7 +10748,7 @@ library(test_r9_12) {
 }
 
 // R9_13: pulse_clock attribute on pin
-TEST_F(StaLibertyTest, R9_PinPulseClock) {
+TEST_F(StaLibertyTest, PinPulseClock) {
   const char *content = R"(
 library(test_r9_13) {
   delay_model : table_lookup ;
@@ -10774,7 +10774,7 @@ library(test_r9_13) {
 }
 
 // R9_14: is_pll_feedback_pin
-TEST_F(StaLibertyTest, R9_PinIsPllFeedback) {
+TEST_F(StaLibertyTest, PinIsPllFeedback) {
   const char *content = R"(
 library(test_r9_14) {
   delay_model : table_lookup ;
@@ -10800,7 +10800,7 @@ library(test_r9_14) {
 }
 
 // R9_15: switch_pin attribute
-TEST_F(StaLibertyTest, R9_PinSwitchPin) {
+TEST_F(StaLibertyTest, PinSwitchPin) {
   const char *content = R"(
 library(test_r9_15) {
   delay_model : table_lookup ;
@@ -10826,7 +10826,7 @@ library(test_r9_15) {
 }
 
 // R9_16: is_pad on pin
-TEST_F(StaLibertyTest, R9_PinIsPad) {
+TEST_F(StaLibertyTest, PinIsPad) {
   const char *content = R"(
 library(test_r9_16) {
   delay_model : table_lookup ;
@@ -10850,7 +10850,7 @@ library(test_r9_16) {
 }
 
 // R9_17: bundle group with members
-TEST_F(StaLibertyTest, R9_BundlePort) {
+TEST_F(StaLibertyTest, BundlePort) {
   const char *content = R"(
 library(test_r9_17) {
   delay_model : table_lookup ;
@@ -10874,7 +10874,7 @@ library(test_r9_17) {
 }
 
 // R9_18: ff_bank group
-TEST_F(StaLibertyTest, R9_FFBank) {
+TEST_F(StaLibertyTest, FFBank) {
   const char *content = R"(
 library(test_r9_18) {
   delay_model : table_lookup ;
@@ -10898,7 +10898,7 @@ library(test_r9_18) {
 }
 
 // R9_19: latch_bank group
-TEST_F(StaLibertyTest, R9_LatchBank) {
+TEST_F(StaLibertyTest, LatchBank) {
   const char *content = R"(
 library(test_r9_19) {
   delay_model : table_lookup ;
@@ -10922,7 +10922,7 @@ library(test_r9_19) {
 }
 
 // R9_20: timing with intrinsic_rise/fall and rise_resistance/fall_resistance (linear model)
-TEST_F(StaLibertyTest, R9_TimingIntrinsicResistance) {
+TEST_F(StaLibertyTest, TimingIntrinsicResistance) {
   const char *content = R"(
 library(test_r9_20) {
   delay_model : generic_cmos ;
@@ -10953,7 +10953,7 @@ library(test_r9_20) {
 }
 
 // R9_21: timing with sdf_cond_start and sdf_cond_end
-TEST_F(StaLibertyTest, R9_TimingSdfCondStartEnd) {
+TEST_F(StaLibertyTest, TimingSdfCondStartEnd) {
   const char *content = R"(
 library(test_r9_21) {
   delay_model : table_lookup ;
@@ -11000,7 +11000,7 @@ library(test_r9_21) {
 }
 
 // R9_22: timing with mode attribute
-TEST_F(StaLibertyTest, R9_TimingMode) {
+TEST_F(StaLibertyTest, TimingMode) {
   const char *content = R"(
 library(test_r9_22) {
   delay_model : table_lookup ;
@@ -11051,7 +11051,7 @@ library(test_r9_22) {
 }
 
 // R9_23: related_bus_pins
-TEST_F(StaLibertyTest, R9_TimingRelatedBusPins) {
+TEST_F(StaLibertyTest, TimingRelatedBusPins) {
   const char *content = R"(
 library(test_r9_23) {
   delay_model : table_lookup ;
@@ -11106,7 +11106,7 @@ library(test_r9_23) {
 }
 
 // R9_24: OCV derate constructs
-TEST_F(StaLibertyTest, R9_OcvDerate) {
+TEST_F(StaLibertyTest, OcvDerate) {
   const char *content = R"(
 library(test_r9_24) {
   delay_model : table_lookup ;
@@ -11151,7 +11151,7 @@ library(test_r9_24) {
 }
 
 // R9_25: ocv_arc_depth at library, cell, and timing levels
-TEST_F(StaLibertyTest, R9_OcvArcDepth) {
+TEST_F(StaLibertyTest, OcvArcDepth) {
   const char *content = R"(
 library(test_r9_25) {
   delay_model : table_lookup ;
@@ -11198,7 +11198,7 @@ library(test_r9_25) {
 }
 
 // R9_26: POCV sigma tables
-TEST_F(StaLibertyTest, R9_OcvSigmaTables) {
+TEST_F(StaLibertyTest, OcvSigmaTables) {
   const char *content = R"(
 library(test_r9_26) {
   delay_model : table_lookup ;
@@ -11255,7 +11255,7 @@ library(test_r9_26) {
 }
 
 // R9_27: POCV sigma constraint tables
-TEST_F(StaLibertyTest, R9_OcvSigmaConstraint) {
+TEST_F(StaLibertyTest, OcvSigmaConstraint) {
   const char *content = R"(
 library(test_r9_27) {
   delay_model : table_lookup ;
@@ -11304,7 +11304,7 @@ library(test_r9_27) {
 }
 
 // R9_28: resistance_unit and distance_unit attributes
-TEST_F(StaLibertyTest, R9_ResistanceDistanceUnits) {
+TEST_F(StaLibertyTest, ResistanceDistanceUnits) {
   const char *content = R"(
 library(test_r9_28) {
   delay_model : table_lookup ;
@@ -11325,7 +11325,7 @@ library(test_r9_28) {
 }
 
 // R9_29: rise/fall_transition_degradation tables
-TEST_F(StaLibertyTest, R9_TransitionDegradation) {
+TEST_F(StaLibertyTest, TransitionDegradation) {
   const char *content = R"(
 library(test_r9_29) {
   delay_model : table_lookup ;
@@ -11356,7 +11356,7 @@ library(test_r9_29) {
 }
 
 // R9_30: lut group in cell
-TEST_F(StaLibertyTest, R9_LutGroup) {
+TEST_F(StaLibertyTest, LutGroup) {
   const char *content = R"(
 library(test_r9_30) {
   delay_model : table_lookup ;
@@ -11377,7 +11377,7 @@ library(test_r9_30) {
 }
 
 // R9_31: ECSM waveform constructs
-TEST_F(StaLibertyTest, R9_EcsmWaveform) {
+TEST_F(StaLibertyTest, EcsmWaveform) {
   const char *content = R"(
 library(test_r9_31) {
   delay_model : table_lookup ;
@@ -11422,7 +11422,7 @@ library(test_r9_31) {
 }
 
 // R9_32: power group (as opposed to rise_power/fall_power)
-TEST_F(StaLibertyTest, R9_PowerGroup) {
+TEST_F(StaLibertyTest, PowerGroup) {
   const char *content = R"(
 library(test_r9_32) {
   delay_model : table_lookup ;
@@ -11456,7 +11456,7 @@ library(test_r9_32) {
 }
 
 // R9_33: leakage_power group with when and related_pg_pin
-TEST_F(StaLibertyTest, R9_LeakagePowerGroup) {
+TEST_F(StaLibertyTest, LeakagePowerGroup) {
   const char *content = R"(
 library(test_r9_33) {
   delay_model : table_lookup ;
@@ -11488,7 +11488,7 @@ library(test_r9_33) {
 }
 
 // R9_34: InternalPowerModel checkAxes via reading a lib with internal power
-TEST_F(StaLibertyTest, R9_InternalPowerModelCheckAxes) {
+TEST_F(StaLibertyTest, InternalPowerModelCheckAxes) {
   const char *content = R"(
 library(test_r9_34) {
   delay_model : table_lookup ;
@@ -11523,7 +11523,7 @@ library(test_r9_34) {
 }
 
 // R9_35: PortGroup and TimingGroup via direct construction
-TEST_F(StaLibertyTest, R9_PortGroupConstruct) {
+TEST_F(StaLibertyTest, PortGroupConstruct) {
   auto *ports = new LibertyPortSeq;
   PortGroup pg(ports, 1);
   TimingGroup *tg = new TimingGroup(1);
@@ -11535,7 +11535,7 @@ TEST_F(StaLibertyTest, R9_PortGroupConstruct) {
 }
 
 // R9_36: SequentialGroup construct and setters
-TEST_F(StaLibertyTest, R9_SequentialGroupSetters) {
+TEST_F(StaLibertyTest, SequentialGroupSetters) {
   SequentialGroup sg(true, false, nullptr, nullptr, 1, 0);
   sg.setClock(stringCopy("CLK"));
   sg.setData(stringCopy("D"));
@@ -11549,7 +11549,7 @@ TEST_F(StaLibertyTest, R9_SequentialGroupSetters) {
 }
 
 // R9_37: RelatedPortGroup construct and setters
-TEST_F(StaLibertyTest, R9_RelatedPortGroupSetters) {
+TEST_F(StaLibertyTest, RelatedPortGroupSetters) {
   RelatedPortGroup rpg(1);
   auto *names = new StringSeq;
   names->push_back(stringCopy("A"));
@@ -11560,7 +11560,7 @@ TEST_F(StaLibertyTest, R9_RelatedPortGroupSetters) {
 }
 
 // R9_38: TimingGroup intrinsic/resistance setters
-TEST_F(StaLibertyTest, R9_TimingGroupIntrinsicSetters) {
+TEST_F(StaLibertyTest, TimingGroupIntrinsicSetters) {
   TimingGroup tg(1);
   tg.setIntrinsic(RiseFall::rise(), 0.05f);
   tg.setIntrinsic(RiseFall::fall(), 0.06f);
@@ -11583,20 +11583,20 @@ TEST_F(StaLibertyTest, R9_TimingGroupIntrinsicSetters) {
 }
 
 // R9_39: TimingGroup setRelatedOutputPortName
-TEST_F(StaLibertyTest, R9_TimingGroupRelatedOutputPort) {
+TEST_F(StaLibertyTest, TimingGroupRelatedOutputPort) {
   TimingGroup tg(1);
   tg.setRelatedOutputPortName("Z");
   EXPECT_NE(tg.relatedOutputPortName(), nullptr);
 }
 
 // R9_40: InternalPowerGroup construct
-TEST_F(StaLibertyTest, R9_InternalPowerGroupConstruct) {
+TEST_F(StaLibertyTest, InternalPowerGroupConstruct) {
   InternalPowerGroup ipg(1);
   EXPECT_EQ(ipg.line(), 1);
 }
 
 // R9_41: LeakagePowerGroup construct and setters
-TEST_F(StaLibertyTest, R9_LeakagePowerGroupSetters) {
+TEST_F(StaLibertyTest, LeakagePowerGroupSetters) {
   LeakagePowerGroup lpg(1);
   lpg.setRelatedPgPin("VDD");
   lpg.setPower(0.5f);
@@ -11605,14 +11605,14 @@ TEST_F(StaLibertyTest, R9_LeakagePowerGroupSetters) {
 }
 
 // R9_42: LibertyGroup isGroup and isVariable
-TEST_F(StaLibertyTest, R9_LibertyStmtTypes) {
+TEST_F(StaLibertyTest, LibertyStmtTypes) {
   LibertyGroup grp("test", nullptr, 1);
   EXPECT_TRUE(grp.isGroup());
   EXPECT_FALSE(grp.isVariable());
 }
 
 // R9_43: LibertySimpleAttr isComplex returns false
-TEST_F(StaLibertyTest, R9_LibertySimpleAttrIsComplex) {
+TEST_F(StaLibertyTest, LibertySimpleAttrIsComplex) {
   LibertyStringAttrValue *val = new LibertyStringAttrValue("test");
   LibertySimpleAttr attr("name", val, 1);
   EXPECT_FALSE(attr.isComplex());
@@ -11620,7 +11620,7 @@ TEST_F(StaLibertyTest, R9_LibertySimpleAttrIsComplex) {
 }
 
 // R9_44: LibertyComplexAttr isSimple returns false
-TEST_F(StaLibertyTest, R9_LibertyComplexAttrIsSimple) {
+TEST_F(StaLibertyTest, LibertyComplexAttrIsSimple) {
   auto *values = new LibertyAttrValueSeq;
   LibertyComplexAttr attr("name", values, 1);
   EXPECT_FALSE(attr.isSimple());
@@ -11628,7 +11628,7 @@ TEST_F(StaLibertyTest, R9_LibertyComplexAttrIsSimple) {
 }
 
 // R9_45: LibertyStringAttrValue and LibertyFloatAttrValue type checks
-TEST_F(StaLibertyTest, R9_AttrValueCrossType) {
+TEST_F(StaLibertyTest, AttrValueCrossType) {
   // LibertyStringAttrValue normal usage
   LibertyStringAttrValue sval("hello");
   EXPECT_TRUE(sval.isString());
@@ -11643,7 +11643,7 @@ TEST_F(StaLibertyTest, R9_AttrValueCrossType) {
 }
 
 // R9_46: LibertyDefine isDefine
-TEST_F(StaLibertyTest, R9_LibertyDefineIsDefine) {
+TEST_F(StaLibertyTest, LibertyDefineIsDefine) {
   LibertyDefine def("myattr", LibertyGroupType::cell,
                     LibertyAttrType::attr_string, 1);
   EXPECT_TRUE(def.isDefine());
@@ -11651,7 +11651,7 @@ TEST_F(StaLibertyTest, R9_LibertyDefineIsDefine) {
 }
 
 // R9_47: scaled_cell group
-TEST_F(StaLibertyTest, R9_ScaledCell) {
+TEST_F(StaLibertyTest, ScaledCell) {
   const char *content = R"(
 library(test_r9_47) {
   delay_model : table_lookup ;
@@ -11725,7 +11725,7 @@ library(test_r9_47) {
 }
 
 // R9_48: TimingGroup cell/transition/constraint setters
-TEST_F(StaLibertyTest, R9_TimingGroupTableModelSetters) {
+TEST_F(StaLibertyTest, TimingGroupTableModelSetters) {
   TimingGroup tg(1);
   // Test setting and getting cell models
   EXPECT_EQ(tg.cell(RiseFall::rise()), nullptr);
@@ -11737,7 +11737,7 @@ TEST_F(StaLibertyTest, R9_TimingGroupTableModelSetters) {
 }
 
 // R9_49: LibertyParser construct, group(), deleteGroups(), makeVariable()
-TEST_F(StaLibertyTest, R9_LibertyParserConstruct) {
+TEST_F(StaLibertyTest, LibertyParserConstruct) {
   const char *content = R"(
 library(test_r9_49) {
   delay_model : table_lookup ;
@@ -11770,7 +11770,7 @@ library(test_r9_49) {
 }
 
 // R9_50: cell with switch_cell_type fine_grain
-TEST_F(StaLibertyTest, R9_SwitchCellTypeFineGrain) {
+TEST_F(StaLibertyTest, SwitchCellTypeFineGrain) {
   const char *content = R"(
 library(test_r9_50) {
   delay_model : table_lookup ;
@@ -11790,7 +11790,7 @@ library(test_r9_50) {
 }
 
 // R9_51: pulse_clock with different trigger/sense combos
-TEST_F(StaLibertyTest, R9_PulseClockFallTrigger) {
+TEST_F(StaLibertyTest, PulseClockFallTrigger) {
   const char *content = R"(
 library(test_r9_51) {
   delay_model : table_lookup ;
@@ -11816,7 +11816,7 @@ library(test_r9_51) {
 }
 
 // R9_52: pulse_clock rise_triggered_low_pulse
-TEST_F(StaLibertyTest, R9_PulseClockRiseTriggeredLow) {
+TEST_F(StaLibertyTest, PulseClockRiseTriggeredLow) {
   const char *content = R"(
 library(test_r9_52) {
   delay_model : table_lookup ;
@@ -11839,7 +11839,7 @@ library(test_r9_52) {
 }
 
 // R9_53: pulse_clock fall_triggered_high_pulse
-TEST_F(StaLibertyTest, R9_PulseClockFallTriggeredHigh) {
+TEST_F(StaLibertyTest, PulseClockFallTriggeredHigh) {
   const char *content = R"(
 library(test_r9_53) {
   delay_model : table_lookup ;
@@ -11862,7 +11862,7 @@ library(test_r9_53) {
 }
 
 // R9_54: OCV derate with derate_type late
-TEST_F(StaLibertyTest, R9_OcvDerateTypeLate) {
+TEST_F(StaLibertyTest, OcvDerateTypeLate) {
   const char *content = R"(
 library(test_r9_54) {
   delay_model : table_lookup ;
@@ -11893,7 +11893,7 @@ library(test_r9_54) {
 }
 
 // R9_55: OCV derate with path_type clock
-TEST_F(StaLibertyTest, R9_OcvDeratePathTypeClock) {
+TEST_F(StaLibertyTest, OcvDeratePathTypeClock) {
   const char *content = R"(
 library(test_r9_55) {
   delay_model : table_lookup ;
@@ -11924,7 +11924,7 @@ library(test_r9_55) {
 }
 
 // R9_56: TimingGroup setDelaySigma/setSlewSigma/setConstraintSigma
-TEST_F(StaLibertyTest, R9_TimingGroupSigmaSetters) {
+TEST_F(StaLibertyTest, TimingGroupSigmaSetters) {
   TimingGroup tg(1);
   // Setting to nullptr just exercises the method
   tg.setDelaySigma(RiseFall::rise(), EarlyLate::min(), nullptr);
@@ -11936,7 +11936,7 @@ TEST_F(StaLibertyTest, R9_TimingGroupSigmaSetters) {
 }
 
 // R9_57: Cover setIsScaled via reading a scaled_cell lib
-TEST_F(StaLibertyTest, R9_ScaledCellCoversIsScaled) {
+TEST_F(StaLibertyTest, ScaledCellCoversIsScaled) {
   // scaled_cell reading exercises GateTableModel::setIsScaled,
   // GateLinearModel::setIsScaled, CheckTableModel::setIsScaled internally
   const char *content = R"(
@@ -11991,7 +11991,7 @@ library(test_r9_57) {
 }
 
 // R9_58: GateTableModel checkAxis exercised via table model reading
-TEST_F(StaLibertyTest, R9_GateTableModelCheckAxis) {
+TEST_F(StaLibertyTest, GateTableModelCheckAxis) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   auto &arcsets = buf->timingArcSets();
@@ -12007,7 +12007,7 @@ TEST_F(StaLibertyTest, R9_GateTableModelCheckAxis) {
 }
 
 // R9_59: CheckTableModel checkAxis exercised via setup timing
-TEST_F(StaLibertyTest, R9_CheckTableModelCheckAxis) {
+TEST_F(StaLibertyTest, CheckTableModelCheckAxis) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   if (!dff) return;
   auto &arcsets = dff->timingArcSets();
@@ -12027,7 +12027,7 @@ TEST_F(StaLibertyTest, R9_CheckTableModelCheckAxis) {
 }
 
 // R9_60: TimingGroup cell/transition/constraint getter coverage
-TEST_F(StaLibertyTest, R9_TimingGroupGettersNull) {
+TEST_F(StaLibertyTest, TimingGroupGettersNull) {
   TimingGroup tg(1);
   // By default all model pointers should be null
   EXPECT_EQ(tg.cell(RiseFall::rise()), nullptr);
@@ -12041,7 +12041,7 @@ TEST_F(StaLibertyTest, R9_TimingGroupGettersNull) {
 }
 
 // R9_61: Timing with ecsm_waveform_set and ecsm_capacitance
-TEST_F(StaLibertyTest, R9_EcsmWaveformSet) {
+TEST_F(StaLibertyTest, EcsmWaveformSet) {
   const char *content = R"(
 library(test_r9_61) {
   delay_model : table_lookup ;
@@ -12087,7 +12087,7 @@ library(test_r9_61) {
 }
 
 // R9_62: sigma_type early
-TEST_F(StaLibertyTest, R9_SigmaTypeEarly) {
+TEST_F(StaLibertyTest, SigmaTypeEarly) {
   const char *content = R"(
 library(test_r9_62) {
   delay_model : table_lookup ;
@@ -12144,7 +12144,7 @@ library(test_r9_62) {
 }
 
 // R9_63: sigma_type late
-TEST_F(StaLibertyTest, R9_SigmaTypeLate) {
+TEST_F(StaLibertyTest, SigmaTypeLate) {
   const char *content = R"(
 library(test_r9_63) {
   delay_model : table_lookup ;
@@ -12195,7 +12195,7 @@ library(test_r9_63) {
 }
 
 // R9_64: Receiver capacitance with segment attribute
-TEST_F(StaLibertyTest, R9_ReceiverCapacitanceSegment) {
+TEST_F(StaLibertyTest, ReceiverCapacitanceSegment) {
   const char *content = R"(
 library(test_r9_64) {
   delay_model : table_lookup ;
@@ -12249,7 +12249,7 @@ library(test_r9_64) {
 }
 
 // R9_65: LibertyCell hasInternalPorts (read-only check)
-TEST_F(StaLibertyTest, R9_CellHasInternalPorts) {
+TEST_F(StaLibertyTest, CellHasInternalPorts4) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   // DFF should have internal ports for state vars (IQ, IQN)
@@ -12261,13 +12261,13 @@ TEST_F(StaLibertyTest, R9_CellHasInternalPorts) {
 }
 
 // R9_66: LibertyBuilder destructor (coverage)
-TEST_F(StaLibertyTest, R9_LibertyBuilderDestruct) {
+TEST_F(StaLibertyTest, LibertyBuilderDestruct) {
   LibertyBuilder *builder = new LibertyBuilder;
   delete builder;
 }
 
 // R9_67: Timing with setup constraint for coverage
-TEST_F(StaLibertyTest, R9_TimingSetupConstraint) {
+TEST_F(StaLibertyTest, TimingSetupConstraint) {
   const char *content = R"(
 library(test_r9_67) {
   delay_model : table_lookup ;
@@ -12319,7 +12319,7 @@ library(test_r9_67) {
 }
 
 // R9_68: Library with define statement
-TEST_F(StaLibertyTest, R9_DefineStatement) {
+TEST_F(StaLibertyTest, DefineStatement) {
   const char *content = R"(
 library(test_r9_68) {
   delay_model : table_lookup ;
@@ -12345,7 +12345,7 @@ library(test_r9_68) {
 }
 
 // R9_69: multiple scaling_factors type combinations
-TEST_F(StaLibertyTest, R9_ScalingFactorsMultipleTypes) {
+TEST_F(StaLibertyTest, ScalingFactorsMultipleTypes) {
   const char *content = R"(
 library(test_r9_69) {
   delay_model : table_lookup ;
@@ -12391,7 +12391,7 @@ library(test_r9_69) {
 }
 
 // R9_70: OCV derate with early_and_late derate_type
-TEST_F(StaLibertyTest, R9_OcvDerateEarlyAndLate) {
+TEST_F(StaLibertyTest, OcvDerateEarlyAndLate) {
   const char *content = R"(
 library(test_r9_70) {
   delay_model : table_lookup ;
@@ -12422,7 +12422,7 @@ library(test_r9_70) {
 }
 
 // R9_71: leakage_power with clear_preset_var1/var2 in ff
-TEST_F(StaLibertyTest, R9_FFClearPresetVars) {
+TEST_F(StaLibertyTest, FFClearPresetVars) {
   const char *content = R"(
 library(test_r9_71) {
   delay_model : table_lookup ;
@@ -12453,7 +12453,7 @@ library(test_r9_71) {
 }
 
 // R9_72: mode_definition with multiple mode_values
-TEST_F(StaLibertyTest, R9_ModeDefMultipleValues) {
+TEST_F(StaLibertyTest, ModeDefMultipleValues) {
   const char *content = R"(
 library(test_r9_72) {
   delay_model : table_lookup ;
@@ -12482,7 +12482,7 @@ library(test_r9_72) {
 }
 
 // R9_73: timing with related_output_pin
-TEST_F(StaLibertyTest, R9_TimingRelatedOutputPin) {
+TEST_F(StaLibertyTest, TimingRelatedOutputPin) {
   const char *content = R"(
 library(test_r9_73) {
   delay_model : table_lookup ;
@@ -12532,7 +12532,7 @@ library(test_r9_73) {
 }
 
 // R9_74: wire_load_selection group
-TEST_F(StaLibertyTest, R9_WireLoadSelection) {
+TEST_F(StaLibertyTest, WireLoadSelection) {
   const char *content = R"(
 library(test_r9_74) {
   delay_model : table_lookup ;
@@ -12570,7 +12570,7 @@ library(test_r9_74) {
 }
 
 // R9_75: interface_timing on cell
-TEST_F(StaLibertyTest, R9_CellInterfaceTiming) {
+TEST_F(StaLibertyTest, CellInterfaceTiming3) {
   const char *content = R"(
 library(test_r9_75) {
   delay_model : table_lookup ;
@@ -12590,7 +12590,7 @@ library(test_r9_75) {
 }
 
 // R9_76: cell_footprint attribute
-TEST_F(StaLibertyTest, R9_CellFootprint) {
+TEST_F(StaLibertyTest, CellFootprint4) {
   const char *content = R"(
 library(test_r9_76) {
   delay_model : table_lookup ;
@@ -12610,7 +12610,7 @@ library(test_r9_76) {
 }
 
 // R9_77: test_cell group
-TEST_F(StaLibertyTest, R9_TestCellGroup) {
+TEST_F(StaLibertyTest, TestCellGroup) {
   const char *content = R"(
 library(test_r9_77) {
   delay_model : table_lookup ;
@@ -12648,7 +12648,7 @@ library(test_r9_77) {
 }
 
 // R9_78: memory group
-TEST_F(StaLibertyTest, R9_MemoryGroup) {
+TEST_F(StaLibertyTest, MemoryGroup) {
   const char *content = R"(
 library(test_r9_78) {
   delay_model : table_lookup ;
@@ -12673,7 +12673,7 @@ library(test_r9_78) {
 }
 
 // R9_79: cell with always_on attribute
-TEST_F(StaLibertyTest, R9_CellAlwaysOn) {
+TEST_F(StaLibertyTest, CellAlwaysOn3) {
   const char *content = R"(
 library(test_r9_79) {
   delay_model : table_lookup ;
@@ -12693,7 +12693,7 @@ library(test_r9_79) {
 }
 
 // R9_80: cell with is_level_shifter and level_shifter_type
-TEST_F(StaLibertyTest, R9_CellLevelShifter) {
+TEST_F(StaLibertyTest, CellLevelShifter) {
   const char *content = R"(
 library(test_r9_80) {
   delay_model : table_lookup ;
@@ -12718,7 +12718,7 @@ library(test_r9_80) {
 }
 
 // R9_81: cell with is_isolation_cell
-TEST_F(StaLibertyTest, R9_CellIsolationCell) {
+TEST_F(StaLibertyTest, CellIsolationCell) {
   const char *content = R"(
 library(test_r9_81) {
   delay_model : table_lookup ;
@@ -12747,7 +12747,7 @@ library(test_r9_81) {
 }
 
 // R9_82: statetable group
-TEST_F(StaLibertyTest, R9_StatetableGroup) {
+TEST_F(StaLibertyTest, StatetableGroup) {
   const char *content = R"(
 library(test_r9_82) {
   delay_model : table_lookup ;
@@ -12772,7 +12772,7 @@ library(test_r9_82) {
 }
 
 // R9_83: Timing with sdf_cond
-TEST_F(StaLibertyTest, R9_TimingSdfCond) {
+TEST_F(StaLibertyTest, TimingSdfCond) {
   const char *content = R"(
 library(test_r9_83) {
   delay_model : table_lookup ;
@@ -12819,7 +12819,7 @@ library(test_r9_83) {
 }
 
 // R9_84: power with rise_power and fall_power groups
-TEST_F(StaLibertyTest, R9_RiseFallPowerGroups) {
+TEST_F(StaLibertyTest, RiseFallPowerGroups) {
   const char *content = R"(
 library(test_r9_84) {
   delay_model : table_lookup ;
@@ -12856,7 +12856,7 @@ library(test_r9_84) {
 }
 
 // R9_85: TimingGroup makeLinearModels coverage
-TEST_F(StaLibertyTest, R9_TimingGroupLinearModels) {
+TEST_F(StaLibertyTest, TimingGroupLinearModels) {
   TimingGroup tg(1);
   tg.setIntrinsic(RiseFall::rise(), 0.05f);
   tg.setIntrinsic(RiseFall::fall(), 0.06f);
@@ -12872,7 +12872,7 @@ TEST_F(StaLibertyTest, R9_TimingGroupLinearModels) {
 }
 
 // R9_86: multiple wire_load and default_wire_load
-TEST_F(StaLibertyTest, R9_DefaultWireLoad) {
+TEST_F(StaLibertyTest, DefaultWireLoad) {
   const char *content = R"(
 library(test_r9_86) {
   delay_model : table_lookup ;
@@ -12899,7 +12899,7 @@ library(test_r9_86) {
 }
 
 // R9_87: voltage_map attribute
-TEST_F(StaLibertyTest, R9_VoltageMap) {
+TEST_F(StaLibertyTest, VoltageMap) {
   const char *content = R"(
 library(test_r9_87) {
   delay_model : table_lookup ;
@@ -12921,7 +12921,7 @@ library(test_r9_87) {
 }
 
 // R9_88: default_operating_conditions
-TEST_F(StaLibertyTest, R9_DefaultOperatingConditions) {
+TEST_F(StaLibertyTest, DefaultOperatingConditions) {
   const char *content = R"(
 library(test_r9_88) {
   delay_model : table_lookup ;
@@ -12953,7 +12953,7 @@ library(test_r9_88) {
 }
 
 // R9_89: pg_pin group with pg_type and voltage_name
-TEST_F(StaLibertyTest, R9_PgPin) {
+TEST_F(StaLibertyTest, PgPin) {
   const char *content = R"(
 library(test_r9_89) {
   delay_model : table_lookup ;
@@ -12985,7 +12985,7 @@ library(test_r9_89) {
 }
 
 // R9_90: TimingGroup set/get cell table models
-TEST_F(StaLibertyTest, R9_TimingGroupCellModels) {
+TEST_F(StaLibertyTest, TimingGroupCellModels) {
   TimingGroup tg(1);
   tg.setCell(RiseFall::rise(), nullptr);
   tg.setCell(RiseFall::fall(), nullptr);
@@ -12994,7 +12994,7 @@ TEST_F(StaLibertyTest, R9_TimingGroupCellModels) {
 }
 
 // R9_91: TimingGroup constraint setters
-TEST_F(StaLibertyTest, R9_TimingGroupConstraintModels) {
+TEST_F(StaLibertyTest, TimingGroupConstraintModels) {
   TimingGroup tg(1);
   tg.setConstraint(RiseFall::rise(), nullptr);
   tg.setConstraint(RiseFall::fall(), nullptr);
@@ -13003,7 +13003,7 @@ TEST_F(StaLibertyTest, R9_TimingGroupConstraintModels) {
 }
 
 // R9_92: TimingGroup transition setters
-TEST_F(StaLibertyTest, R9_TimingGroupTransitionModels) {
+TEST_F(StaLibertyTest, TimingGroupTransitionModels) {
   TimingGroup tg(1);
   tg.setTransition(RiseFall::rise(), nullptr);
   tg.setTransition(RiseFall::fall(), nullptr);
@@ -13012,7 +13012,7 @@ TEST_F(StaLibertyTest, R9_TimingGroupTransitionModels) {
 }
 
 // R9_93: bus_naming_style attribute
-TEST_F(StaLibertyTest, R9_BusNamingStyle) {
+TEST_F(StaLibertyTest, BusNamingStyle) {
   const char *content = R"(
 library(test_r9_93) {
   delay_model : table_lookup ;
@@ -13032,7 +13032,7 @@ library(test_r9_93) {
 }
 
 // R9_94: cell_leakage_power
-TEST_F(StaLibertyTest, R9_CellLeakagePower) {
+TEST_F(StaLibertyTest, CellLeakagePower5) {
   const char *content = R"(
 library(test_r9_94) {
   delay_model : table_lookup ;
@@ -13053,7 +13053,7 @@ library(test_r9_94) {
 }
 
 // R9_95: clock_gating_integrated_cell
-TEST_F(StaLibertyTest, R9_ClockGatingIntegratedCell) {
+TEST_F(StaLibertyTest, ClockGatingIntegratedCell) {
   const char *content = R"(
 library(test_r9_95) {
   delay_model : table_lookup ;
@@ -13087,7 +13087,7 @@ library(test_r9_95) {
 }
 
 // R9_96: output_current_rise/fall (CCS constructs)
-TEST_F(StaLibertyTest, R9_OutputCurrentRiseFall) {
+TEST_F(StaLibertyTest, OutputCurrentRiseFall) {
   const char *content = R"(
 library(test_r9_96) {
   delay_model : table_lookup ;
@@ -13150,7 +13150,7 @@ library(test_r9_96) {
 }
 
 // R9_97: three_state attribute on pin
-TEST_F(StaLibertyTest, R9_PinThreeState) {
+TEST_F(StaLibertyTest, PinThreeState) {
   const char *content = R"(
 library(test_r9_97) {
   delay_model : table_lookup ;
@@ -13174,7 +13174,7 @@ library(test_r9_97) {
 }
 
 // R9_98: rise_capacitance_range and fall_capacitance_range
-TEST_F(StaLibertyTest, R9_PinCapacitanceRange) {
+TEST_F(StaLibertyTest, PinCapacitanceRange) {
   const char *content = R"(
 library(test_r9_98) {
   delay_model : table_lookup ;
@@ -13199,7 +13199,7 @@ library(test_r9_98) {
 }
 
 // R9_99: dont_use attribute
-TEST_F(StaLibertyTest, R9_CellDontUse) {
+TEST_F(StaLibertyTest, CellDontUse4) {
   const char *content = R"(
 library(test_r9_99) {
   delay_model : table_lookup ;
@@ -13223,7 +13223,7 @@ library(test_r9_99) {
 }
 
 // R9_100: is_macro_cell attribute
-TEST_F(StaLibertyTest, R9_CellIsMacro) {
+TEST_F(StaLibertyTest, CellIsMacro4) {
   const char *content = R"(
 library(test_r9_100) {
   delay_model : table_lookup ;
@@ -13247,7 +13247,7 @@ library(test_r9_100) {
 }
 
 // R9_101: OCV derate at cell level
-TEST_F(StaLibertyTest, R9_OcvDerateCellLevel) {
+TEST_F(StaLibertyTest, OcvDerateCellLevel) {
   const char *content = R"(
 library(test_r9_101) {
   delay_model : table_lookup ;
@@ -13278,7 +13278,7 @@ library(test_r9_101) {
 }
 
 // R9_102: timing with when (conditional)
-TEST_F(StaLibertyTest, R9_TimingWhenConditional) {
+TEST_F(StaLibertyTest, TimingWhenConditional) {
   const char *content = R"(
 library(test_r9_102) {
   delay_model : table_lookup ;
@@ -13343,7 +13343,7 @@ library(test_r9_102) {
 }
 
 // R9_103: default_max_fanout
-TEST_F(StaLibertyTest, R9_DefaultMaxFanout) {
+TEST_F(StaLibertyTest, DefaultMaxFanout) {
   const char *content = R"(
 library(test_r9_103) {
   delay_model : table_lookup ;
@@ -13363,7 +13363,7 @@ library(test_r9_103) {
 }
 
 // R9_104: default_fanout_load
-TEST_F(StaLibertyTest, R9_DefaultFanoutLoad) {
+TEST_F(StaLibertyTest, DefaultFanoutLoad) {
   const char *content = R"(
 library(test_r9_104) {
   delay_model : table_lookup ;
@@ -13383,7 +13383,7 @@ library(test_r9_104) {
 }
 
 // R9_105: TimingGroup outputWaveforms accessors (should be null by default)
-TEST_F(StaLibertyTest, R9_TimingGroupOutputWaveforms) {
+TEST_F(StaLibertyTest, TimingGroupOutputWaveforms) {
   TimingGroup tg(1);
   EXPECT_EQ(tg.outputWaveforms(RiseFall::rise()), nullptr);
   EXPECT_EQ(tg.outputWaveforms(RiseFall::fall()), nullptr);
@@ -13397,7 +13397,7 @@ TEST_F(StaLibertyTest, R9_TimingGroupOutputWaveforms) {
 // It is not declared in a public header, so we declare it extern here.
 extern const char *timingTypeString(TimingType type);
 
-TEST_F(StaLibertyTest, R11_TimingTypeString) {
+TEST_F(StaLibertyTest, TimingTypeString) {
   // timingTypeString is defined in TimingArc.cc
   // We test several timing types to cover the function
   EXPECT_STREQ(timingTypeString(TimingType::combinational), "combinational");
@@ -13412,7 +13412,7 @@ TEST_F(StaLibertyTest, R11_TimingTypeString) {
 
 // R11_2: writeLiberty exercises LibertyWriter constructor, destructor,
 // writeHeader, writeFooter, asString(bool), and the full write path
-TEST_F(StaLibertyTest, R11_WriteLiberty) {
+TEST_F(StaLibertyTest, WriteLiberty) {
   ASSERT_NE(lib_, nullptr);
   const char *tmpfile = "/tmp/test_r11_write_liberty.lib";
   // writeLiberty is declared in LibertyWriter.hh
@@ -13432,7 +13432,7 @@ TEST_F(StaLibertyTest, R11_WriteLiberty) {
 // LibertyAttr, LibertySimpleAttr, LibertyComplexAttr, LibertyStringAttrValue,
 // LibertyFloatAttrValue, LibertyDefine, LibertyVariable, isGroup/isAttribute/
 // isDefine/isVariable/isSimple/isComplex, and values() on simple attrs.
-TEST_F(StaLibertyTest, R11_LibertyParserDirect) {
+TEST_F(StaLibertyTest, LibertyParserDirect) {
   // Write a simple lib file for parser testing
   const char *content = R"(
 library(test_r11_parser) {
@@ -13515,7 +13515,7 @@ library(test_r11_parser) {
 }
 
 // R11_4: Liberty file with wireload_selection to cover WireloadForArea
-TEST_F(StaLibertyTest, R11_WireloadForArea) {
+TEST_F(StaLibertyTest, WireloadForArea) {
   const char *content = R"(
 library(test_r11_wfa) {
   delay_model : table_lookup ;
@@ -13552,7 +13552,7 @@ library(test_r11_wfa) {
 }
 
 // R11_5: Liberty file with latch to exercise inferLatchRoles
-TEST_F(StaLibertyTest, R11_InferLatchRoles) {
+TEST_F(StaLibertyTest, InferLatchRoles) {
   const char *content = R"(
 library(test_r11_latch) {
   delay_model : table_lookup ;
@@ -13592,7 +13592,7 @@ library(test_r11_latch) {
 }
 
 // R11_6: Liberty file with leakage_power { when } to cover LeakagePowerGroup::setWhen
-TEST_F(StaLibertyTest, R11_LeakagePowerWhen) {
+TEST_F(StaLibertyTest, LeakagePowerWhen) {
   const char *content = R"(
 library(test_r11_lpw) {
   delay_model : table_lookup ;
@@ -13625,7 +13625,7 @@ library(test_r11_lpw) {
 }
 
 // R11_7: Liberty file with statetable to cover StatetableGroup::addRow
-TEST_F(StaLibertyTest, R11_Statetable) {
+TEST_F(StaLibertyTest, Statetable) {
   const char *content = R"(
 library(test_r11_st) {
   delay_model : table_lookup ;
@@ -13655,7 +13655,7 @@ library(test_r11_st) {
 
 // R11_8: Liberty file with internal_power to cover
 // InternalPowerModel::checkAxes/checkAxis
-TEST_F(StaLibertyTest, R11_InternalPowerModel) {
+TEST_F(StaLibertyTest, InternalPowerModel) {
   const char *content = R"(
 library(test_r11_ipm) {
   delay_model : table_lookup ;
@@ -13690,7 +13690,7 @@ library(test_r11_ipm) {
 }
 
 // R11_9: Liberty file with bus port to cover PortNameBitIterator and findLibertyMember
-TEST_F(StaLibertyTest, R11_BusPortAndMember) {
+TEST_F(StaLibertyTest, BusPortAndMember) {
   const char *content = R"(
 library(test_r11_bus) {
   delay_model : table_lookup ;
@@ -13736,7 +13736,7 @@ library(test_r11_bus) {
 
 // R11_10: Liberty file with include directive to cover LibertyScanner::includeBegin, fileEnd
 // We test this by creating a .lib that includes another .lib
-TEST_F(StaLibertyTest, R11_LibertyInclude) {
+TEST_F(StaLibertyTest, LibertyInclude) {
   // First write the included file
   const char *inc_path = "/tmp/test_r11_included.lib";
   FILE *finc = fopen(inc_path, "w");
@@ -13776,7 +13776,7 @@ TEST_F(StaLibertyTest, R11_LibertyInclude) {
 }
 
 // R11_11: Exercise timing arc traversal from loaded library
-TEST_F(StaLibertyTest, R11_TimingArcSetTraversal) {
+TEST_F(StaLibertyTest, TimingArcSetTraversal) {
   ASSERT_NE(lib_, nullptr);
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -13799,7 +13799,7 @@ TEST_F(StaLibertyTest, R11_TimingArcSetTraversal) {
 // R11_12: GateTableModel::checkAxis and CheckTableModel::checkAxis
 // These are exercised by reading a liberty with table_lookup models
 // containing different axis variables
-TEST_F(StaLibertyTest, R11_TableModelCheckAxis) {
+TEST_F(StaLibertyTest, TableModelCheckAxis) {
   const char *content = R"(
 library(test_r11_axis) {
   delay_model : table_lookup ;
@@ -13872,7 +13872,7 @@ library(test_r11_axis) {
 
 // R11_13: CheckLinearModel::setIsScaled, CheckTableModel::setIsScaled via
 // library with k_process/k_temp/k_volt scaling factors on setup
-TEST_F(StaLibertyTest, R11_ScaledModels) {
+TEST_F(StaLibertyTest, ScaledModels) {
   const char *content = R"(
 library(test_r11_scaled) {
   delay_model : table_lookup ;
@@ -13917,7 +13917,7 @@ library(test_r11_scaled) {
 
 // R11_14: Library with cell that has internal_ports attribute
 // Exercises setHasInternalPorts
-TEST_F(StaLibertyTest, R11_HasInternalPorts) {
+TEST_F(StaLibertyTest, HasInternalPorts) {
   const char *content = R"(
 library(test_r11_intport) {
   delay_model : table_lookup ;
@@ -13942,7 +13942,7 @@ library(test_r11_intport) {
 
 // R11_15: Directly test LibertyParser API through parseLibertyFile
 // Focus on saving attrs/variables/groups to exercise more code paths
-TEST_F(StaLibertyTest, R11_ParserSaveAll) {
+TEST_F(StaLibertyTest, ParserSaveAll) {
   const char *content = R"(
 library(test_r11_save) {
   delay_model : table_lookup ;
@@ -14001,7 +14001,7 @@ library(test_r11_save) {
 
 // R11_16: Exercises clearAxisValues and setEnergyScale through internal_power
 // with energy values
-TEST_F(StaLibertyTest, R11_EnergyScale) {
+TEST_F(StaLibertyTest, EnergyScale) {
   const char *content = R"(
 library(test_r11_energy) {
   delay_model : table_lookup ;
@@ -14048,7 +14048,7 @@ library(test_r11_energy) {
 }
 
 // R11_17: LibertyReader findPort by reading a lib and querying
-TEST_F(StaLibertyTest, R11_FindPort) {
+TEST_F(StaLibertyTest, FindPort) {
   ASSERT_NE(lib_, nullptr);
   LibertyCell *inv = lib_->findLibertyCell("INV_X1");
   ASSERT_NE(inv, nullptr);
@@ -14063,7 +14063,7 @@ TEST_F(StaLibertyTest, R11_FindPort) {
 
 // R11_18: LibertyPort::cornerPort (requires DcalcAnalysisPt, but we test
 // through the Nangate45 library which has corners)
-TEST_F(StaLibertyTest, R11_CornerPort) {
+TEST_F(StaLibertyTest, CornerPort) {
   ASSERT_NE(lib_, nullptr);
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -14080,7 +14080,7 @@ TEST_F(StaLibertyTest, R11_CornerPort) {
 }
 
 // R11_19: Exercise receiver model set through timing group
-TEST_F(StaLibertyTest, R11_ReceiverModel) {
+TEST_F(StaLibertyTest, ReceiverModel) {
   const char *content = R"(
 library(test_r11_recv) {
   delay_model : table_lookup ;
@@ -14119,7 +14119,7 @@ library(test_r11_recv) {
 
 // R11_20: Read a liberty with CCS (composite current source) output_current
 // to exercise OutputWaveform constructors and related paths
-TEST_F(StaLibertyTest, R11_CCSOutputCurrent) {
+TEST_F(StaLibertyTest, CCSOutputCurrent) {
   const char *content = R"(
 library(test_r11_ccs) {
   delay_model : table_lookup ;

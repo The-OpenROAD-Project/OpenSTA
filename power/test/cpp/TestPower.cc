@@ -463,12 +463,10 @@ TEST_F(PwrActivityTest, SetDutyBoundary) {
 // VcdValue coverage tests
 ////////////////////////////////////////////////////////////////
 
-// VcdValue tests - use zero-initialized memory since constructor is not defined
-// VcdValue has only POD members (int64_t, char, uint64_t) so memset is safe
+// VcdValue tests
 
 } // namespace sta
 
-#include <cstring>
 #include "power/VcdParse.hh"
 
 namespace sta {
@@ -476,31 +474,23 @@ namespace sta {
 class VcdValueTest : public ::testing::Test {};
 
 TEST_F(VcdValueTest, SetValueAndAccess) {
-  // Zero-initialize to work around missing default constructor
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
-
-  val->setValue(100, '1');
-  EXPECT_EQ(val->time(), 100);
-  EXPECT_EQ(val->value(), '1');
+  VcdValue val;
+  val.setValue(100, '1');
+  EXPECT_EQ(val.time(), 100);
+  EXPECT_EQ(val.value(), '1');
 }
 
 TEST_F(VcdValueTest, ValueBitAccess) {
-  // Zero-initialize
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
-
+  VcdValue val;
   // When value_ is non-null char, value(int) returns value_ regardless of bit
-  val->setValue(200, 'X');
-  EXPECT_EQ(val->value(0), 'X');
-  EXPECT_EQ(val->value(3), 'X');
+  val.setValue(200, 'X');
+  EXPECT_EQ(val.value(0), 'X');
+  EXPECT_EQ(val.value(3), 'X');
 }
 
 // Test PwrActivity check() is called during construction
 // Covers: PwrActivity::check
-TEST_F(PwrActivityTest, R5_CheckCalledDuringConstruction) {
+TEST_F(PwrActivityTest, CheckCalledDuringConstruction) {
   // check() clips density values smaller than min_density
   PwrActivity act1(1e-11f, 0.5f, PwrActivityOrigin::user);
   EXPECT_FLOAT_EQ(act1.density(), 0.0f);  // clipped by check()
@@ -514,14 +504,14 @@ TEST_F(PwrActivityTest, R5_CheckCalledDuringConstruction) {
 
 // Test PwrActivity check() via set()
 // Covers: PwrActivity::check
-TEST_F(PwrActivityTest, R5_CheckCalledDuringSet) {
+TEST_F(PwrActivityTest, CheckCalledDuringSet) {
   PwrActivity act;
   act.set(1e-11f, 0.5f, PwrActivityOrigin::propagated);
   EXPECT_FLOAT_EQ(act.density(), 0.0f);  // clipped by check()
 }
 
 // Test PwrActivity setDensity does not call check()
-TEST_F(PwrActivityTest, R5_SetDensityDirect) {
+TEST_F(PwrActivityTest, SetDensityDirect) {
   PwrActivity act;
   act.setDensity(1e-11f);
   // setDensity does NOT call check(), so the value is stored as-is
@@ -529,77 +519,67 @@ TEST_F(PwrActivityTest, R5_SetDensityDirect) {
 }
 
 // Test VcdValue with zero value
-TEST_F(VcdValueTest, R5_ValueZero) {
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
+TEST_F(VcdValueTest, ValueZero) {
+  VcdValue val;
 
-  val->setValue(0, '0');
-  EXPECT_EQ(val->time(), 0);
-  EXPECT_EQ(val->value(), '0');
+  val.setValue(0, '0');
+  EXPECT_EQ(val.time(), 0);
+  EXPECT_EQ(val.value(), '0');
 }
 
 // Test VcdValue with Z value
-TEST_F(VcdValueTest, R5_ValueZ) {
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
+TEST_F(VcdValueTest, ValueZ) {
+  VcdValue val;
 
-  val->setValue(500, 'Z');
-  EXPECT_EQ(val->time(), 500);
-  EXPECT_EQ(val->value(), 'Z');
-  EXPECT_EQ(val->value(0), 'Z');
+  val.setValue(500, 'Z');
+  EXPECT_EQ(val.time(), 500);
+  EXPECT_EQ(val.value(), 'Z');
+  EXPECT_EQ(val.value(0), 'Z');
 }
 
 // Test VcdValue busValue
-TEST_F(VcdValueTest, R5_BusValue) {
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
+TEST_F(VcdValueTest, BusValue) {
+  VcdValue val;
 
   // When value_ is '\0', busValue is used
-  val->setValue(100, '\0');
-  EXPECT_EQ(val->value(), '\0');
+  val.setValue(100, '\0');
+  EXPECT_EQ(val.value(), '\0');
   // busValue will be 0 since we zero-initialized
-  EXPECT_EQ(val->busValue(), 0u);
+  EXPECT_EQ(val.busValue(), 0u);
 }
 
 // Test VcdValue large time values
-TEST_F(VcdValueTest, R5_LargeTime) {
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
+TEST_F(VcdValueTest, LargeTime) {
+  VcdValue val;
 
   VcdTime large_time = 1000000000LL;
-  val->setValue(large_time, '1');
-  EXPECT_EQ(val->time(), large_time);
-  EXPECT_EQ(val->value(), '1');
+  val.setValue(large_time, '1');
+  EXPECT_EQ(val.time(), large_time);
+  EXPECT_EQ(val.value(), '1');
 }
 
 // Test VcdValue overwrite
-TEST_F(VcdValueTest, R5_OverwriteValue) {
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
+TEST_F(VcdValueTest, OverwriteValue) {
+  VcdValue val;
 
-  val->setValue(100, '0');
-  EXPECT_EQ(val->value(), '0');
+  val.setValue(100, '0');
+  EXPECT_EQ(val.value(), '0');
 
-  val->setValue(200, '1');
-  EXPECT_EQ(val->time(), 200);
-  EXPECT_EQ(val->value(), '1');
+  val.setValue(200, '1');
+  EXPECT_EQ(val.time(), 200);
+  EXPECT_EQ(val.value(), '1');
 }
 
 // Test PwrActivity check() is called and clips negative small density
 // Covers: PwrActivity::check
-TEST_F(PwrActivityTest, R6_CheckClipsNegativeSmallDensity) {
+TEST_F(PwrActivityTest, CheckClipsNegativeSmallDensity) {
   PwrActivity act(-5e-12f, 0.5f, PwrActivityOrigin::propagated);
   EXPECT_FLOAT_EQ(act.density(), 0.0f);  // clipped by check()
 }
 
 // Test PwrActivity check() boundary at threshold
 // Covers: PwrActivity::check with values near threshold
-TEST_F(PwrActivityTest, R6_CheckAtThreshold) {
+TEST_F(PwrActivityTest, CheckAtThreshold) {
   // 1E-10 is exactly the threshold - should NOT be clipped
   PwrActivity act1(1e-10f, 0.5f, PwrActivityOrigin::user);
   EXPECT_FLOAT_EQ(act1.density(), 1e-10f);
@@ -611,7 +591,7 @@ TEST_F(PwrActivityTest, R6_CheckAtThreshold) {
 
 // Test PwrActivity check() via set() with negative small
 // Covers: PwrActivity::check via set
-TEST_F(PwrActivityTest, R6_CheckViaSetNegative) {
+TEST_F(PwrActivityTest, CheckViaSetNegative) {
   PwrActivity act;
   act.set(-5e-12f, 0.3f, PwrActivityOrigin::vcd);
   EXPECT_FLOAT_EQ(act.density(), 0.0f);
@@ -620,14 +600,14 @@ TEST_F(PwrActivityTest, R6_CheckViaSetNegative) {
 
 // Test PwrActivity check() does NOT clip normal density
 // Covers: PwrActivity::check positive path
-TEST_F(PwrActivityTest, R6_CheckDoesNotClipNormal) {
+TEST_F(PwrActivityTest, CheckDoesNotClipNormal) {
   PwrActivity act(1e-5f, 0.5f, PwrActivityOrigin::clock);
   EXPECT_FLOAT_EQ(act.density(), 1e-5f);
 }
 
 // Test PwrActivity with zero density and zero duty
 // Covers: PwrActivity construction edge case
-TEST_F(PwrActivityTest, R6_ZeroDensityZeroDuty) {
+TEST_F(PwrActivityTest, ZeroDensityZeroDuty) {
   PwrActivity act(0.0f, 0.0f, PwrActivityOrigin::user);
   EXPECT_FLOAT_EQ(act.density(), 0.0f);
   EXPECT_FLOAT_EQ(act.duty(), 0.0f);
@@ -636,7 +616,7 @@ TEST_F(PwrActivityTest, R6_ZeroDensityZeroDuty) {
 
 // Test PwrActivity multiple init/set cycles
 // Covers: PwrActivity::init and set cycle
-TEST_F(PwrActivityTest, R6_MultipleInitSetCycles) {
+TEST_F(PwrActivityTest, MultipleInitSetCycles) {
   PwrActivity act;
   for (int i = 0; i < 10; i++) {
     act.set(static_cast<float>(i * 100), 0.5f, PwrActivityOrigin::propagated);
@@ -648,7 +628,7 @@ TEST_F(PwrActivityTest, R6_MultipleInitSetCycles) {
 
 // Test PowerResult with very small values
 // Covers: PowerResult accumulation precision
-TEST_F(PowerResultTest, R6_VerySmallValues) {
+TEST_F(PowerResultTest, VerySmallValues) {
   PowerResult result;
   result.incrInternal(1e-20f);
   result.incrSwitching(2e-20f);
@@ -658,7 +638,7 @@ TEST_F(PowerResultTest, R6_VerySmallValues) {
 
 // Test PowerResult clear then incr multiple times
 // Covers: PowerResult clear/incr pattern
-TEST_F(PowerResultTest, R6_ClearIncrPattern) {
+TEST_F(PowerResultTest, ClearIncrPattern) {
   PowerResult result;
   for (int i = 0; i < 5; i++) {
     result.clear();
@@ -670,7 +650,7 @@ TEST_F(PowerResultTest, R6_ClearIncrPattern) {
 
 // Test PowerResult incr from two populated results
 // Covers: PowerResult::incr accumulation
-TEST_F(PowerResultTest, R6_IncrMultipleSources) {
+TEST_F(PowerResultTest, IncrMultipleSources) {
   PowerResult target;
   for (int i = 0; i < 3; i++) {
     PowerResult source;
@@ -687,49 +667,43 @@ TEST_F(PowerResultTest, R6_IncrMultipleSources) {
 
 // Test VcdValue busValue with zero-initialized memory
 // Covers: VcdValue::busValue
-TEST_F(VcdValueTest, R6_BusValueZeroInit) {
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
+TEST_F(VcdValueTest, BusValueZeroInit) {
+  VcdValue val;
   // Zero-initialized: busValue should be 0
-  EXPECT_EQ(val->busValue(), 0u);
+  EXPECT_EQ(val.busValue(), 0u);
   // value_ is '\0', so value(bit) should look at bus_value_
-  EXPECT_EQ(val->value(0), '0');
+  EXPECT_EQ(val.value(0), '0');
 }
 
 // Test VcdValue value(bit) when value_ is set (non-null char)
 // Covers: VcdValue::value(int bit) when value_ is non-null
-TEST_F(VcdValueTest, R6_ValueBitWithScalarValue) {
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
+TEST_F(VcdValueTest, ValueBitWithScalarValue) {
+  VcdValue val;
   // When value_ is non-null, value(bit) returns value_ regardless of bit
-  val->setValue(100, '1');
-  EXPECT_EQ(val->value(0), '1');
-  EXPECT_EQ(val->value(5), '1');
-  EXPECT_EQ(val->value(31), '1');
+  val.setValue(100, '1');
+  EXPECT_EQ(val.value(0), '1');
+  EXPECT_EQ(val.value(5), '1');
+  EXPECT_EQ(val.value(31), '1');
 }
 
 // Test VcdValue setValue multiple times
 // Covers: VcdValue::setValue overwrite behavior
-TEST_F(VcdValueTest, R6_SetValueMultipleTimes) {
-  alignas(VcdValue) char buf[sizeof(VcdValue)];
-  std::memset(buf, 0, sizeof(VcdValue));
-  VcdValue *val = reinterpret_cast<VcdValue *>(buf);
-  val->setValue(100, '0');
-  EXPECT_EQ(val->time(), 100);
-  EXPECT_EQ(val->value(), '0');
-  val->setValue(200, '1');
-  EXPECT_EQ(val->time(), 200);
-  EXPECT_EQ(val->value(), '1');
-  val->setValue(300, 'X');
-  EXPECT_EQ(val->time(), 300);
-  EXPECT_EQ(val->value(), 'X');
+TEST_F(VcdValueTest, SetValueMultipleTimes) {
+  VcdValue val;
+  val.setValue(100, '0');
+  EXPECT_EQ(val.time(), 100);
+  EXPECT_EQ(val.value(), '0');
+  val.setValue(200, '1');
+  EXPECT_EQ(val.time(), 200);
+  EXPECT_EQ(val.value(), '1');
+  val.setValue(300, 'X');
+  EXPECT_EQ(val.time(), 300);
+  EXPECT_EQ(val.value(), 'X');
 }
 
 // Test PwrActivity density boundary with negative threshold
 // Covers: PwrActivity::check with negative values near threshold
-TEST_F(PwrActivityTest, R6_NegativeNearThreshold) {
+TEST_F(PwrActivityTest, NegativeNearThreshold) {
   PwrActivity act1(-1e-10f, 0.5f, PwrActivityOrigin::user);
   EXPECT_FLOAT_EQ(act1.density(), -1e-10f);
   PwrActivity act2(-9e-11f, 0.5f, PwrActivityOrigin::user);
@@ -738,7 +712,7 @@ TEST_F(PwrActivityTest, R6_NegativeNearThreshold) {
 
 // Test PwrActivity originName for all origins
 // Covers: PwrActivity::originName exhaustive
-TEST_F(PwrActivityTest, R6_OriginNameExhaustive) {
+TEST_F(PwrActivityTest, OriginNameExhaustive) {
   EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::unknown).originName(), "unknown");
   EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::global).originName(), "global");
   EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::input).originName(), "input");
@@ -757,7 +731,7 @@ TEST_F(PwrActivityTest, R6_OriginNameExhaustive) {
 
 // Test PwrActivity::check - density below threshold is clipped to 0
 // Covers: PwrActivity::check
-TEST_F(PwrActivityTest, R8_CheckClipsBelowThreshold) {
+TEST_F(PwrActivityTest, CheckClipsBelowThreshold) {
   // Density between -1e-10 and 1e-10 (exclusive) should be clipped
   PwrActivity act1(5e-11f, 0.5f, PwrActivityOrigin::user);
   EXPECT_FLOAT_EQ(act1.density(), 0.0f);
@@ -775,7 +749,7 @@ TEST_F(PwrActivityTest, R8_CheckClipsBelowThreshold) {
 
 // Test PwrActivity check via set method
 // Covers: PwrActivity::check
-TEST_F(PwrActivityTest, R8_CheckViaSet) {
+TEST_F(PwrActivityTest, CheckViaSet) {
   PwrActivity act;
   act.set(1e-12f, 0.5f, PwrActivityOrigin::propagated);
   EXPECT_FLOAT_EQ(act.density(), 0.0f);  // below threshold, clipped to 0
@@ -785,7 +759,7 @@ TEST_F(PwrActivityTest, R8_CheckViaSet) {
 
 // Test PwrActivity setDensity does NOT call check() (no clipping)
 // Covers: PwrActivity::setDensity
-TEST_F(PwrActivityTest, R8_CheckViaSetDensity) {
+TEST_F(PwrActivityTest, CheckViaSetDensity) {
   PwrActivity act;
   // setDensity does NOT call check(), so even tiny values are stored as-is
   act.setDensity(1e-12f);
@@ -876,7 +850,7 @@ protected:
 //         ActivitySrchPred::ActivitySrchPred,
 //         PropActivityVisitor::copy, PropActivityVisitor::init,
 //         SeqPinHash::SeqPinHash, SeqPinEqual::operator()
-TEST_F(PowerDesignTest, R8_PowerCalculation) {
+TEST_F(PowerDesignTest, PowerCalculation) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -893,7 +867,7 @@ TEST_F(PowerDesignTest, R8_PowerCalculation) {
 
 // Test Power for individual instances
 // Covers: Power::powerInside, Power::findInstClk, Power::findLinkPort
-TEST_F(PowerDesignTest, R8_PowerPerInstance) {
+TEST_F(PowerDesignTest, PowerPerInstance) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -916,7 +890,7 @@ TEST_F(PowerDesignTest, R8_PowerPerInstance) {
 
 // Test Sta::activity for pins (exercises Power::activity, hasActivity)
 // Covers: Power::hasActivity, Power::activity
-TEST_F(PowerDesignTest, R8_PinActivityQuery) {
+TEST_F(PowerDesignTest, PinActivityQuery) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 

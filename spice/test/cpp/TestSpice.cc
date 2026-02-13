@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <cstdio>
+#include <unistd.h>
 
 #include "MinMax.hh"
 #include "Transition.hh"
@@ -33,7 +34,11 @@ TEST_F(SpiceSmokeTest, TransitionNames) {
 class StreamPrintTest : public ::testing::Test {
 protected:
   void SetUp() override {
-    tmpfile_ = std::tmpnam(nullptr);
+    char tmpl[] = "/tmp/sta_spice_test_XXXXXX";
+    int fd = mkstemp(tmpl);
+    ASSERT_NE(fd, -1);
+    close(fd);
+    tmpfile_ = tmpl;
   }
   void TearDown() override {
     std::remove(tmpfile_.c_str());
@@ -97,7 +102,11 @@ TEST_F(StreamPrintTest, MultipleWrites) {
 class XyceCsvTest : public ::testing::Test {
 protected:
   void SetUp() override {
-    tmpfile_ = std::tmpnam(nullptr);
+    char tmpl[] = "/tmp/sta_xyce_test_XXXXXX";
+    int fd = mkstemp(tmpl);
+    ASSERT_NE(fd, -1);
+    close(fd);
+    tmpfile_ = tmpl;
   }
   void TearDown() override {
     std::remove(tmpfile_.c_str());
@@ -465,7 +474,7 @@ TEST_F(SpiceSmokeTest, MinMaxCompare) {
 }
 
 // Test RiseFall find
-TEST_F(SpiceSmokeTest, R5_RiseFallFind) {
+TEST_F(SpiceSmokeTest, RiseFallFind) {
   EXPECT_EQ(RiseFall::find("rise"), RiseFall::rise());
   EXPECT_EQ(RiseFall::find("fall"), RiseFall::fall());
   EXPECT_EQ(RiseFall::find("^"), RiseFall::rise());
@@ -474,13 +483,13 @@ TEST_F(SpiceSmokeTest, R5_RiseFallFind) {
 }
 
 // Test Transition find used in spice
-TEST_F(SpiceSmokeTest, R5_TransitionFind) {
+TEST_F(SpiceSmokeTest, TransitionFind) {
   EXPECT_EQ(Transition::find("^"), Transition::rise());
   EXPECT_EQ(Transition::find("v"), Transition::fall());
 }
 
 // Test streamPrint with empty format
-TEST_F(StreamPrintTest, R5_EmptyFormat) {
+TEST_F(StreamPrintTest, EmptyFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "%s", "");
@@ -493,7 +502,7 @@ TEST_F(StreamPrintTest, R5_EmptyFormat) {
 }
 
 // Test streamPrint with integer formatting
-TEST_F(StreamPrintTest, R5_IntegerFormatting) {
+TEST_F(StreamPrintTest, IntegerFormatting) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "R%d %d %d %.2f\n", 1, 10, 20, 100.5);
@@ -506,7 +515,7 @@ TEST_F(StreamPrintTest, R5_IntegerFormatting) {
 }
 
 // Test streamPrint with multiple lines
-TEST_F(StreamPrintTest, R5_MultipleLines) {
+TEST_F(StreamPrintTest, MultipleLines) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "line1\n");
@@ -525,7 +534,7 @@ TEST_F(StreamPrintTest, R5_MultipleLines) {
 }
 
 // Test streamPrint with special characters
-TEST_F(StreamPrintTest, R5_SpecialChars) {
+TEST_F(StreamPrintTest, SpecialChars) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "* SPICE deck for %s\n", "test_design");
@@ -538,7 +547,7 @@ TEST_F(StreamPrintTest, R5_SpecialChars) {
 }
 
 // Test RiseFall index constants used by spice
-TEST_F(SpiceSmokeTest, R5_RiseFallIndexConstants) {
+TEST_F(SpiceSmokeTest, RiseFallIndexConstants) {
   EXPECT_EQ(RiseFall::riseIndex(), 0);
   EXPECT_EQ(RiseFall::fallIndex(), 1);
   // index_count is a static constexpr, verify via range size
@@ -546,7 +555,7 @@ TEST_F(SpiceSmokeTest, R5_RiseFallIndexConstants) {
 }
 
 // Test RiseFall range iteration used in spice
-TEST_F(SpiceSmokeTest, R5_RiseFallRange) {
+TEST_F(SpiceSmokeTest, RiseFallRange2) {
   int count = 0;
   for (auto rf : RiseFall::range()) {
     EXPECT_NE(rf, nullptr);
@@ -556,20 +565,20 @@ TEST_F(SpiceSmokeTest, R5_RiseFallRange) {
 }
 
 // Test RiseFallBoth range
-TEST_F(SpiceSmokeTest, R5_RiseFallBothRange) {
+TEST_F(SpiceSmokeTest, RiseFallBothRange) {
   EXPECT_NE(RiseFallBoth::rise(), nullptr);
   EXPECT_NE(RiseFallBoth::fall(), nullptr);
   EXPECT_NE(RiseFallBoth::riseFall(), nullptr);
 }
 
 // Test Transition init strings used in WriteSpice
-TEST_F(SpiceSmokeTest, R5_TransitionInitFinalStrings) {
+TEST_F(SpiceSmokeTest, TransitionInitFinalStrings) {
   EXPECT_NE(Transition::rise()->asInitFinalString(), nullptr);
   EXPECT_NE(Transition::fall()->asInitFinalString(), nullptr);
 }
 
 // Test MinMax initValue used in spice
-TEST_F(SpiceSmokeTest, R5_MinMaxInitValue) {
+TEST_F(SpiceSmokeTest, MinMaxInitValue) {
   float min_init = MinMax::min()->initValue();
   float max_init = MinMax::max()->initValue();
   EXPECT_GT(min_init, 0.0f);
@@ -577,7 +586,7 @@ TEST_F(SpiceSmokeTest, R5_MinMaxInitValue) {
 }
 
 // Test MinMax opposite used in spice
-TEST_F(SpiceSmokeTest, R5_MinMaxOpposite) {
+TEST_F(SpiceSmokeTest, MinMaxOpposite) {
   EXPECT_EQ(MinMax::min()->opposite(), MinMax::max());
   EXPECT_EQ(MinMax::max()->opposite(), MinMax::min());
 }
@@ -588,7 +597,7 @@ TEST_F(SpiceSmokeTest, R5_MinMaxOpposite) {
 
 // Test streamPrint with wide variety of format specifiers
 // Covers: streamPrint with many format types
-TEST_F(StreamPrintTest, R6_FormatSpecifiers) {
+TEST_F(StreamPrintTest, FormatSpecifiers) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "%c %s %d %f %e %g\n", 'A', "test", 42, 3.14, 1.5e-12, 1.8);
@@ -604,7 +613,7 @@ TEST_F(StreamPrintTest, R6_FormatSpecifiers) {
 
 // Test streamPrint with SPICE node naming
 // Covers: streamPrint for SPICE net naming patterns
-TEST_F(StreamPrintTest, R6_SpiceNodeNaming) {
+TEST_F(StreamPrintTest, SpiceNodeNaming) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "C%d %s %s %.4e\n", 1, "n_top/sub/net:1", "0", 1.5e-15);
@@ -619,7 +628,7 @@ TEST_F(StreamPrintTest, R6_SpiceNodeNaming) {
 
 // Test streamPrint with SPICE .include directive
 // Covers: streamPrint for SPICE directives
-TEST_F(StreamPrintTest, R6_SpiceIncludeDirective) {
+TEST_F(StreamPrintTest, SpiceIncludeDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, ".include \"%s\"\n", "/path/to/models.spice");
@@ -634,7 +643,7 @@ TEST_F(StreamPrintTest, R6_SpiceIncludeDirective) {
 
 // Test streamPrint SPICE voltage source
 // Covers: streamPrint for voltage sources
-TEST_F(StreamPrintTest, R6_SpiceVoltageSource) {
+TEST_F(StreamPrintTest, SpiceVoltageSource) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "v%s %s 0 %.3f\n", "dd", "vdd", 1.800);
@@ -648,7 +657,7 @@ TEST_F(StreamPrintTest, R6_SpiceVoltageSource) {
 
 // Test streamPrint SPICE .tran with detailed parameters
 // Covers: streamPrint for transient analysis
-TEST_F(StreamPrintTest, R6_SpiceTransAnalysis) {
+TEST_F(StreamPrintTest, SpiceTransAnalysis) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, ".tran %g %g %g %g\n", 1e-13, 5e-9, 0.0, 1e-12);
@@ -662,7 +671,7 @@ TEST_F(StreamPrintTest, R6_SpiceTransAnalysis) {
 
 // Test streamPrint SPICE PWL source
 // Covers: streamPrint with PWL voltage source
-TEST_F(StreamPrintTest, R6_SpicePWLSource) {
+TEST_F(StreamPrintTest, SpicePWLSource) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "v_in in 0 PWL(\n");
@@ -680,7 +689,7 @@ TEST_F(StreamPrintTest, R6_SpicePWLSource) {
 
 // Test readXyceCsv with precision values
 // Covers: readXyceCsv parsing
-TEST_F(XyceCsvTest, R6_ReadPrecisionValues) {
+TEST_F(XyceCsvTest, ReadPrecisionValues) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,V(out)\n";
@@ -701,7 +710,7 @@ TEST_F(XyceCsvTest, R6_ReadPrecisionValues) {
 
 // Test readXyceCsv with many signals
 // Covers: readXyceCsv with wide data
-TEST_F(XyceCsvTest, R6_ReadManySignals) {
+TEST_F(XyceCsvTest, ReadManySignals) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME";
@@ -727,7 +736,7 @@ TEST_F(XyceCsvTest, R6_ReadManySignals) {
 
 // Test Transition asRiseFall returns correct mapping for all types
 // Covers: Transition::asRiseFall for spice
-TEST_F(SpiceSmokeTest, R6_TransitionAsRiseFallMapping) {
+TEST_F(SpiceSmokeTest, TransitionAsRiseFallMapping) {
   // Rise-type transitions
   EXPECT_EQ(Transition::rise()->asRiseFall(), RiseFall::rise());
   EXPECT_EQ(Transition::tr0Z()->asRiseFall(), RiseFall::rise());
@@ -749,7 +758,7 @@ TEST_F(SpiceSmokeTest, R6_TransitionAsRiseFallMapping) {
 
 // Test MinMax compare function exhaustively
 // Covers: MinMax::compare
-TEST_F(SpiceSmokeTest, R6_MinMaxCompareExhaustive) {
+TEST_F(SpiceSmokeTest, MinMaxCompareExhaustive) {
   // min: true when v1 < v2
   EXPECT_TRUE(MinMax::min()->compare(-1.0f, 0.0f));
   EXPECT_TRUE(MinMax::min()->compare(0.0f, 1.0f));
@@ -765,7 +774,7 @@ TEST_F(SpiceSmokeTest, R6_MinMaxCompareExhaustive) {
 
 // Test MinMax find by string name
 // Covers: MinMax::find
-TEST_F(SpiceSmokeTest, R6_MinMaxFindByName) {
+TEST_F(SpiceSmokeTest, MinMaxFindByName) {
   EXPECT_EQ(MinMax::find("min"), MinMax::min());
   EXPECT_EQ(MinMax::find("max"), MinMax::max());
   EXPECT_EQ(MinMax::find("unknown"), nullptr);
@@ -773,14 +782,14 @@ TEST_F(SpiceSmokeTest, R6_MinMaxFindByName) {
 
 // Test MinMax to_string
 // Covers: MinMax::to_string
-TEST_F(SpiceSmokeTest, R6_MinMaxToString) {
+TEST_F(SpiceSmokeTest, MinMaxToString) {
   EXPECT_EQ(MinMax::min()->to_string(), "min");
   EXPECT_EQ(MinMax::max()->to_string(), "max");
 }
 
 // Test RiseFall shortName
 // Covers: RiseFall::shortName
-TEST_F(SpiceSmokeTest, R6_RiseFallShortName) {
+TEST_F(SpiceSmokeTest, RiseFallShortName) {
   EXPECT_STREQ(RiseFall::rise()->shortName(), "^");
   EXPECT_STREQ(RiseFall::fall()->shortName(), "v");
 }
@@ -791,7 +800,7 @@ TEST_F(SpiceSmokeTest, R6_RiseFallShortName) {
 
 // Test streamPrint with SPICE transistor format (used in writeParasiticNetwork)
 // Covers: streamPrint paths used by WriteSpice
-TEST_F(StreamPrintTest, R8_SpiceTransistorFormat) {
+TEST_F(StreamPrintTest, SpiceTransistorFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "M%d %s %s %s %s %s W=%.3e L=%.3e\n",
@@ -809,7 +818,7 @@ TEST_F(StreamPrintTest, R8_SpiceTransistorFormat) {
 
 // Test streamPrint with SPICE capacitor format (used in writeParasiticNetwork)
 // Covers: streamPrint paths used by WriteSpice::writeParasiticNetwork
-TEST_F(StreamPrintTest, R8_SpiceCapacitorFormat) {
+TEST_F(StreamPrintTest, SpiceCapacitorFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "C%d %s %s %.4e\n", 1, "net1:1", "0", 1.5e-15);
@@ -826,7 +835,7 @@ TEST_F(StreamPrintTest, R8_SpiceCapacitorFormat) {
 
 // Test streamPrint with SPICE voltage source (used in writeClkedStepSource)
 // Covers: streamPrint paths used by WriteSpice::writeClkedStepSource
-TEST_F(StreamPrintTest, R8_SpiceVoltageSource) {
+TEST_F(StreamPrintTest, SpiceVoltageSource2) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "v%s %s 0 pwl(0 %.3f %.3e %.3f)\n",
@@ -842,7 +851,7 @@ TEST_F(StreamPrintTest, R8_SpiceVoltageSource) {
 
 // Test streamPrint with SPICE waveform format (used in writeWaveformVoltSource)
 // Covers: streamPrint paths used by WriteSpice::writeWaveformVoltSource
-TEST_F(StreamPrintTest, R8_SpiceWaveformFormat) {
+TEST_F(StreamPrintTest, SpiceWaveformFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "v%s %s 0 pwl(\n", "in", "in_node");
@@ -861,7 +870,7 @@ TEST_F(StreamPrintTest, R8_SpiceWaveformFormat) {
 
 // Test streamPrint with SPICE .measure format (used in spiceTrans context)
 // Covers: streamPrint with RISE/FALL strings (used by WriteSpice::spiceTrans)
-TEST_F(StreamPrintTest, R8_SpiceMeasureRiseFall) {
+TEST_F(StreamPrintTest, SpiceMeasureRiseFall) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   // This mimics how spiceTrans returns RISE/FALL strings
@@ -880,7 +889,7 @@ TEST_F(StreamPrintTest, R8_SpiceMeasureRiseFall) {
 
 // Test Xyce CSV with special values
 // Covers: readXyceCsv edge cases
-TEST_F(XyceCsvTest, R8_ReadCsvWithZeroValues) {
+TEST_F(XyceCsvTest, ReadCsvWithZeroValues) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,V(sig)\n";
@@ -901,7 +910,7 @@ TEST_F(XyceCsvTest, R8_ReadCsvWithZeroValues) {
 
 // Test Xyce CSV with large number of signals
 // Covers: readXyceCsv with many columns
-TEST_F(XyceCsvTest, R8_ReadCsvManySignals) {
+TEST_F(XyceCsvTest, ReadCsvManySignals) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME";
@@ -928,7 +937,7 @@ TEST_F(XyceCsvTest, R8_ReadCsvManySignals) {
 ////////////////////////////////////////////////////////////////
 
 // streamPrint: SPICE subcircuit definition (used by WriteSpice)
-TEST_F(StreamPrintTest, R9_SpiceSubcktDefinition) {
+TEST_F(StreamPrintTest, SpiceSubcktDefinition) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, ".subckt %s %s %s %s %s\n",
@@ -948,7 +957,7 @@ TEST_F(StreamPrintTest, R9_SpiceSubcktDefinition) {
 }
 
 // streamPrint: SPICE resistor network (used in writeParasiticNetwork)
-TEST_F(StreamPrintTest, R9_SpiceResistorNetwork) {
+TEST_F(StreamPrintTest, SpiceResistorNetwork) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   for (int i = 0; i < 10; i++) {
@@ -964,7 +973,7 @@ TEST_F(StreamPrintTest, R9_SpiceResistorNetwork) {
 }
 
 // streamPrint: SPICE capacitor network (used in writeParasiticNetwork)
-TEST_F(StreamPrintTest, R9_SpiceCapacitorNetwork) {
+TEST_F(StreamPrintTest, SpiceCapacitorNetwork) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   for (int i = 0; i < 10; i++) {
@@ -980,7 +989,7 @@ TEST_F(StreamPrintTest, R9_SpiceCapacitorNetwork) {
 }
 
 // streamPrint: SPICE .lib directive
-TEST_F(StreamPrintTest, R9_SpiceLibDirective) {
+TEST_F(StreamPrintTest, SpiceLibDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, ".lib '%s' %s\n", "/path/to/models.lib", "tt");
@@ -994,7 +1003,7 @@ TEST_F(StreamPrintTest, R9_SpiceLibDirective) {
 }
 
 // streamPrint: SPICE .option directive
-TEST_F(StreamPrintTest, R9_SpiceOptionDirective) {
+TEST_F(StreamPrintTest, SpiceOptionDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, ".option %s=%g %s=%g\n", "reltol", 1e-6, "abstol", 1e-12);
@@ -1008,7 +1017,7 @@ TEST_F(StreamPrintTest, R9_SpiceOptionDirective) {
 }
 
 // streamPrint: SPICE .print directive
-TEST_F(StreamPrintTest, R9_SpicePrintDirective) {
+TEST_F(StreamPrintTest, SpicePrintDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, ".print tran v(%s) v(%s) v(%s)\n",
@@ -1024,7 +1033,7 @@ TEST_F(StreamPrintTest, R9_SpicePrintDirective) {
 }
 
 // streamPrint: SPICE pulse source
-TEST_F(StreamPrintTest, R9_SpicePulseSource) {
+TEST_F(StreamPrintTest, SpicePulseSource) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "v%s %s 0 PULSE(%.3f %.3f %.3e %.3e %.3e %.3e %.3e)\n",
@@ -1039,7 +1048,7 @@ TEST_F(StreamPrintTest, R9_SpicePulseSource) {
 }
 
 // streamPrint: SPICE mutual inductance
-TEST_F(StreamPrintTest, R9_SpiceMutualInductance) {
+TEST_F(StreamPrintTest, SpiceMutualInductance) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "L%d %s %s %.4e\n", 1, "n1", "n2", 1e-9);
@@ -1055,7 +1064,7 @@ TEST_F(StreamPrintTest, R9_SpiceMutualInductance) {
 }
 
 // streamPrint: SPICE probe statement
-TEST_F(StreamPrintTest, R9_SpiceProbeStatement) {
+TEST_F(StreamPrintTest, SpiceProbeStatement) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, ".probe v(%s) v(%s) i(%s)\n",
@@ -1069,7 +1078,7 @@ TEST_F(StreamPrintTest, R9_SpiceProbeStatement) {
 }
 
 // streamPrint: SPICE with escaped characters
-TEST_F(StreamPrintTest, R9_SpiceEscapedChars) {
+TEST_F(StreamPrintTest, SpiceEscapedChars) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "* Node: %s\n", "top/sub/inst:pin");
@@ -1084,7 +1093,7 @@ TEST_F(StreamPrintTest, R9_SpiceEscapedChars) {
 }
 
 // streamPrint: SPICE full deck structure
-TEST_F(StreamPrintTest, R9_SpiceFullDeck) {
+TEST_F(StreamPrintTest, SpiceFullDeck) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, "* Full SPICE deck\n");
@@ -1116,7 +1125,7 @@ TEST_F(StreamPrintTest, R9_SpiceFullDeck) {
 }
 
 // XyceCsv: with very small values
-TEST_F(XyceCsvTest, R9_ReadCsvSmallValues) {
+TEST_F(XyceCsvTest, ReadCsvSmallValues) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,V(sig1),V(sig2)\n";
@@ -1134,7 +1143,7 @@ TEST_F(XyceCsvTest, R9_ReadCsvSmallValues) {
 }
 
 // XyceCsv: with very large values
-TEST_F(XyceCsvTest, R9_ReadCsvLargeValues) {
+TEST_F(XyceCsvTest, ReadCsvLargeValues) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,V(sig)\n";
@@ -1152,7 +1161,7 @@ TEST_F(XyceCsvTest, R9_ReadCsvLargeValues) {
 }
 
 // XyceCsv: with 100 time steps
-TEST_F(XyceCsvTest, R9_ReadCsv100TimeSteps) {
+TEST_F(XyceCsvTest, ReadCsv100TimeSteps) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,V(out),V(in)\n";
@@ -1174,7 +1183,7 @@ TEST_F(XyceCsvTest, R9_ReadCsv100TimeSteps) {
 }
 
 // XyceCsv: with signal names containing special characters
-TEST_F(XyceCsvTest, R9_ReadCsvSpecialSignalNames) {
+TEST_F(XyceCsvTest, ReadCsvSpecialSignalNames) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,V(top/sub/net:1),V(top/sub/net:2)\n";
@@ -1193,7 +1202,7 @@ TEST_F(XyceCsvTest, R9_ReadCsvSpecialSignalNames) {
 }
 
 // XyceCsv: with current probes
-TEST_F(XyceCsvTest, R9_ReadCsvCurrentProbes) {
+TEST_F(XyceCsvTest, ReadCsvCurrentProbes) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,I(v_supply),V(out)\n";
@@ -1211,7 +1220,7 @@ TEST_F(XyceCsvTest, R9_ReadCsvCurrentProbes) {
 }
 
 // Transition properties relevant to SPICE
-TEST_F(SpiceSmokeTest, R9_TransitionAsRiseFallBoth) {
+TEST_F(SpiceSmokeTest, TransitionAsRiseFallBoth) {
   // Rise-like transitions have valid asRiseFallBoth
   EXPECT_NE(Transition::rise()->asRiseFallBoth(), nullptr);
   EXPECT_NE(Transition::fall()->asRiseFallBoth(), nullptr);
@@ -1219,25 +1228,25 @@ TEST_F(SpiceSmokeTest, R9_TransitionAsRiseFallBoth) {
   EXPECT_NE(Transition::trZ1()->asRiseFallBoth(), nullptr);
 }
 
-TEST_F(SpiceSmokeTest, R9_TransitionIndex) {
+TEST_F(SpiceSmokeTest, TransitionIndex) {
   EXPECT_GE(Transition::rise()->index(), 0);
   EXPECT_GE(Transition::fall()->index(), 0);
   EXPECT_NE(Transition::rise()->index(), Transition::fall()->index());
 }
 
-TEST_F(SpiceSmokeTest, R9_RiseFallBothIndex) {
+TEST_F(SpiceSmokeTest, RiseFallBothIndex) {
   EXPECT_GE(RiseFallBoth::rise()->index(), 0);
   EXPECT_GE(RiseFallBoth::fall()->index(), 0);
   EXPECT_GE(RiseFallBoth::riseFall()->index(), 0);
 }
 
-TEST_F(SpiceSmokeTest, R9_RiseFallBothToString) {
+TEST_F(SpiceSmokeTest, RiseFallBothToString) {
   EXPECT_EQ(RiseFallBoth::rise()->to_string(), "^");
   EXPECT_EQ(RiseFallBoth::fall()->to_string(), "v");
   EXPECT_FALSE(RiseFallBoth::riseFall()->to_string().empty());
 }
 
-TEST_F(SpiceSmokeTest, R9_MinMaxAllForSpice) {
+TEST_F(SpiceSmokeTest, MinMaxAllForSpice) {
   // MinMaxAll range used in SPICE for iteration
   int count = 0;
   for (auto mm : MinMaxAll::all()->range()) {
@@ -1247,12 +1256,12 @@ TEST_F(SpiceSmokeTest, R9_MinMaxAllForSpice) {
   EXPECT_EQ(count, 2);
 }
 
-TEST_F(SpiceSmokeTest, R9_MinMaxAllAsMinMax) {
+TEST_F(SpiceSmokeTest, MinMaxAllAsMinMax) {
   EXPECT_EQ(MinMaxAll::min()->asMinMax(), MinMax::min());
   EXPECT_EQ(MinMaxAll::max()->asMinMax(), MinMax::max());
 }
 
-TEST_F(SpiceSmokeTest, R9_TransitionRiseFallAsString) {
+TEST_F(SpiceSmokeTest, TransitionRiseFallAsString) {
   // Transition::to_string used in SPICE reporting
   EXPECT_EQ(Transition::rise()->to_string(), "^");
   EXPECT_EQ(Transition::fall()->to_string(), "v");
@@ -1260,12 +1269,12 @@ TEST_F(SpiceSmokeTest, R9_TransitionRiseFallAsString) {
   EXPECT_FALSE(Transition::riseFall()->to_string().empty());
 }
 
-TEST_F(SpiceSmokeTest, R9_RiseFallAsRiseFallBoth) {
+TEST_F(SpiceSmokeTest, RiseFallAsRiseFallBoth) {
   EXPECT_EQ(RiseFall::rise()->asRiseFallBoth(), RiseFallBoth::rise());
   EXPECT_EQ(RiseFall::fall()->asRiseFallBoth(), RiseFallBoth::fall());
 }
 
-TEST_F(SpiceSmokeTest, R9_MinMaxCompareInfinity) {
+TEST_F(SpiceSmokeTest, MinMaxCompareInfinity) {
   float large = 1e30f;
   float small = -1e30f;
   EXPECT_TRUE(MinMax::min()->compare(small, large));
@@ -1274,7 +1283,7 @@ TEST_F(SpiceSmokeTest, R9_MinMaxCompareInfinity) {
   EXPECT_FALSE(MinMax::max()->compare(small, large));
 }
 
-TEST_F(SpiceSmokeTest, R9_RiseFallRangeValues) {
+TEST_F(SpiceSmokeTest, RiseFallRangeValues) {
   // Verify range produces rise then fall
   auto range = RiseFall::range();
   int idx = 0;
@@ -1287,7 +1296,7 @@ TEST_F(SpiceSmokeTest, R9_RiseFallRangeValues) {
 }
 
 // XyceCsv: single row of data
-TEST_F(XyceCsvTest, R9_ReadCsvSingleRow) {
+TEST_F(XyceCsvTest, ReadCsvSingleRow) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,V(out)\n";
@@ -1304,7 +1313,7 @@ TEST_F(XyceCsvTest, R9_ReadCsvSingleRow) {
 }
 
 // XyceCsv: with alternating sign values
-TEST_F(XyceCsvTest, R9_ReadCsvAlternatingSign) {
+TEST_F(XyceCsvTest, ReadCsvAlternatingSign) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME,V(out)\n";
@@ -1323,7 +1332,7 @@ TEST_F(XyceCsvTest, R9_ReadCsvAlternatingSign) {
 }
 
 // streamPrint: SPICE .end directive
-TEST_F(StreamPrintTest, R9_SpiceEndDirective) {
+TEST_F(StreamPrintTest, SpiceEndDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   streamPrint(out, ".end\n");
@@ -1336,7 +1345,7 @@ TEST_F(StreamPrintTest, R9_SpiceEndDirective) {
 }
 
 // XyceCsv: many columns (50 signals)
-TEST_F(XyceCsvTest, R9_ReadCsv50Signals) {
+TEST_F(XyceCsvTest, ReadCsv50Signals) {
   {
     std::ofstream out(tmpfile_);
     out << "TIME";

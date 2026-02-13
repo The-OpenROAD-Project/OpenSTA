@@ -2285,7 +2285,7 @@ TEST_F(DesignParasiticsTest, DeleteParasiticsAllNets) {
 
 // Test NetIdPairLess comparator construction
 // Covers: NetIdPairLess::NetIdPairLess(const Network*)
-TEST_F(DesignParasiticsTest, R5_NetIdPairLessConstruct) {
+TEST_F(DesignParasiticsTest, NetIdPairLessConstruct) {
   ASSERT_TRUE(design_loaded_);
   const Network *network = sta_->network();
   // Construct the comparator - this covers the constructor
@@ -2317,7 +2317,7 @@ TEST_F(DesignParasiticsTest, R5_NetIdPairLessConstruct) {
 
 // Test ConcreteParasitic virtual destructor via delete (D0 variant)
 // Covers: ConcreteParasitic::~ConcreteParasiticD0Ev
-TEST_F(DesignParasiticsTest, R5_ConcreteParasiticDeleteViaPtr) {
+TEST_F(DesignParasiticsTest, ConcreteParasiticDeleteViaPtr) {
   ASSERT_TRUE(design_loaded_);
   ConcreteParasitic *p = new ConcretePiElmore(1e-12f, 100.0f, 2e-12f);
   // Deleting via base pointer exercises the D0 destructor variant
@@ -2326,7 +2326,7 @@ TEST_F(DesignParasiticsTest, R5_ConcreteParasiticDeleteViaPtr) {
 
 // Test ConcreteParasiticDevice construction with id, value, nodes
 // Covers: ConcreteParasiticDevice::ConcreteParasiticDevice(size_t, float, node*, node*)
-TEST_F(DesignParasiticsTest, R5_ConcreteParasiticDeviceConstruct) {
+TEST_F(DesignParasiticsTest, ConcreteParasiticDeviceConstruct) {
   ASSERT_TRUE(design_loaded_);
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
@@ -2340,7 +2340,7 @@ TEST_F(DesignParasiticsTest, R5_ConcreteParasiticDeviceConstruct) {
 
 // Test ConcreteParasiticDevice base class constructor
 // Covers: ConcreteParasiticDevice::ConcreteParasiticDevice(size_t, float, Node*, Node*)
-TEST_F(StaParasiticsTest, R6_ConcreteParasiticDeviceConstruction) {
+TEST_F(StaParasiticsTest, ConcreteParasiticDeviceConstruction) {
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
   // ConcreteParasiticDevice is the base of Resistor/Capacitor
@@ -2354,7 +2354,7 @@ TEST_F(StaParasiticsTest, R6_ConcreteParasiticDeviceConstruction) {
 
 // Test ConcreteParasitic D0 destructor via delete through base pointer
 // Covers: ConcreteParasitic::~ConcreteParasitic() D0
-TEST_F(StaParasiticsTest, R6_ConcreteParasiticD0Destructor) {
+TEST_F(StaParasiticsTest, ConcreteParasiticD0Destructor) {
   ConcreteParasitic *p = new ConcretePiElmore(1e-12f, 100.0f, 2e-12f);
   EXPECT_TRUE(p->isPiElmore());
   delete p;
@@ -2363,7 +2363,7 @@ TEST_F(StaParasiticsTest, R6_ConcreteParasiticD0Destructor) {
 
 // Test ConcreteParasitic D0 destructor for PoleResidue
 // Covers: ConcreteParasitic::~ConcreteParasitic() D0 via ConcretePoleResidue
-TEST_F(StaParasiticsTest, R6_ConcretePoleResidueD0Destructor) {
+TEST_F(StaParasiticsTest, ConcretePoleResidueD0Destructor) {
   ConcreteParasitic *p = new ConcretePoleResidue();
   EXPECT_TRUE(p->isPoleResidue());
   delete p;
@@ -2371,7 +2371,7 @@ TEST_F(StaParasiticsTest, R6_ConcretePoleResidueD0Destructor) {
 
 // Test ConcreteParasitic D0 destructor for PiPoleResidue
 // Covers: ConcreteParasitic::~ConcreteParasitic() D0 via ConcretePiPoleResidue
-TEST_F(StaParasiticsTest, R6_ConcretePiPoleResidueD0Destructor) {
+TEST_F(StaParasiticsTest, ConcretePiPoleResidueD0Destructor) {
   ConcreteParasitic *p = new ConcretePiPoleResidue(1e-12f, 100.0f, 2e-12f);
   EXPECT_TRUE(p->isPiPoleResidue());
   delete p;
@@ -2379,7 +2379,7 @@ TEST_F(StaParasiticsTest, R6_ConcretePiPoleResidueD0Destructor) {
 
 // Test ConcreteParasiticNetwork creation and methods
 // Covers: ConcreteParasiticNetwork::nodes, resistors, capacitors, capacitance
-TEST_F(StaParasiticsTest, R6_ParasiticNetworkCreation) {
+TEST_F(StaParasiticsTest, ParasiticNetworkCreation) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   EXPECT_TRUE(pnet.isParasiticNetwork());
@@ -2393,7 +2393,7 @@ TEST_F(StaParasiticsTest, R6_ParasiticNetworkCreation) {
 
 // Test ConcreteParasiticNetwork with includesPinCaps flag
 // Covers: ConcreteParasiticNetwork constructor with includes_pin_caps=true
-TEST_F(StaParasiticsTest, R6_ParasiticNetworkIncludesPinCaps) {
+TEST_F(StaParasiticsTest, ParasiticNetworkIncludesPinCaps2) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, true, network);
   EXPECT_TRUE(pnet.includesPinCaps());
@@ -2401,7 +2401,7 @@ TEST_F(StaParasiticsTest, R6_ParasiticNetworkIncludesPinCaps) {
 
 // Test ConcreteParasiticNetwork findParasiticNode returns nullptr for missing
 // Covers: ConcreteParasiticNetwork::findParasiticNode
-TEST_F(StaParasiticsTest, R6_ParasiticNetworkFindNodeMissing) {
+TEST_F(StaParasiticsTest, ParasiticNetworkFindNodeMissing) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   ConcreteParasiticNode *node = pnet.findParasiticNode(static_cast<const Pin*>(nullptr));
@@ -2410,7 +2410,7 @@ TEST_F(StaParasiticsTest, R6_ParasiticNetworkFindNodeMissing) {
 
 // Test ConcreteParasiticNetwork addResistor with standalone nodes
 // Covers: ConcreteParasiticNetwork::addResistor
-TEST_F(StaParasiticsTest, R6_ParasiticNetworkAddResistorStandalone) {
+TEST_F(StaParasiticsTest, ParasiticNetworkAddResistorStandalone) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
@@ -2422,7 +2422,7 @@ TEST_F(StaParasiticsTest, R6_ParasiticNetworkAddResistorStandalone) {
 
 // Test ConcreteParasiticNetwork addCapacitor with standalone nodes
 // Covers: ConcreteParasiticNetwork::addCapacitor
-TEST_F(StaParasiticsTest, R6_ParasiticNetworkAddCapacitorStandalone) {
+TEST_F(StaParasiticsTest, ParasiticNetworkAddCapacitorStandalone) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
@@ -2434,7 +2434,7 @@ TEST_F(StaParasiticsTest, R6_ParasiticNetworkAddCapacitorStandalone) {
 
 // Test parasiticAnalysisPtIndex with a real corner
 // Covers: ConcreteParasitics::parasiticAnalysisPtIndex
-TEST_F(StaParasiticsTest, R6_ParasiticAnalysisPtIndexWithCorner) {
+TEST_F(StaParasiticsTest, ParasiticAnalysisPtIndexWithCorner) {
   Parasitics *parasitics = sta_->parasitics();
   Corner *corner = sta_->cmdCorner();
   ASSERT_NE(corner, nullptr);
@@ -2448,7 +2448,7 @@ TEST_F(StaParasiticsTest, R6_ParasiticAnalysisPtIndexWithCorner) {
 
 // Test ConcreteParasiticNetwork resistors/capacitors empty by default
 // Covers: ConcreteParasiticNetwork::resistors, ConcreteParasiticNetwork::capacitors
-TEST_F(StaParasiticsTest, R6_ParasiticNetworkEmptyLists) {
+TEST_F(StaParasiticsTest, ParasiticNetworkEmptyLists) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   EXPECT_TRUE(pnet.resistors().empty());
@@ -2457,7 +2457,7 @@ TEST_F(StaParasiticsTest, R6_ParasiticNetworkEmptyLists) {
 
 // Test ConcretePiElmore with zero values
 // Covers: ConcretePiElmore constructor, accessors
-TEST_F(StaParasiticsTest, R6_PiElmoreZeroValues) {
+TEST_F(StaParasiticsTest, PiElmoreZeroValues) {
   ConcretePiElmore pe(0.0f, 0.0f, 0.0f);
   EXPECT_TRUE(pe.isPiElmore());
   EXPECT_FALSE(pe.isPoleResidue());
@@ -2466,7 +2466,7 @@ TEST_F(StaParasiticsTest, R6_PiElmoreZeroValues) {
 
 // Test parasiticAnalysisPtIndex indirectly by reading SPEF for specific rf
 // Covers: ConcreteParasitics::parasiticAnalysisPtIndex
-TEST_F(DesignParasiticsTest, R5_ParasiticAnalysisPtIndex) {
+TEST_F(DesignParasiticsTest, ParasiticAnalysisPtIndex) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
   // Read SPEF with reduction to exercise analysis pt indexing
@@ -2484,7 +2484,7 @@ TEST_F(DesignParasiticsTest, R5_ParasiticAnalysisPtIndex) {
 
 // Test ReportParasiticAnnotation report
 // Covers: ReportParasiticAnnotation::report
-TEST_F(DesignParasiticsTest, R5_ReportParasiticAnnotation) {
+TEST_F(DesignParasiticsTest, ReportParasiticAnnotation2) {
   ASSERT_TRUE(design_loaded_);
 
   // Ensure the graph is built first
@@ -2505,7 +2505,7 @@ TEST_F(DesignParasiticsTest, R5_ReportParasiticAnnotation) {
 
 // Test ConcreteParasiticDevice constructor directly
 // Covers: ConcreteParasiticDevice::ConcreteParasiticDevice(size_t, float, node*, node*)
-TEST_F(ConcreteParasiticDeviceTest, R8_DirectDeviceConstruction) {
+TEST_F(ConcreteParasiticDeviceTest, DirectDeviceConstruction) {
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
   // Construct via ConcreteParasiticCapacitor (which calls base ConcreteParasiticDevice ctor)
@@ -2518,7 +2518,7 @@ TEST_F(ConcreteParasiticDeviceTest, R8_DirectDeviceConstruction) {
 
 // Test ConcreteParasiticDevice via resistor with large id
 // Covers: ConcreteParasiticDevice::ConcreteParasiticDevice
-TEST_F(ConcreteParasiticDeviceTest, R8_LargeIdDevice) {
+TEST_F(ConcreteParasiticDeviceTest, LargeIdDevice) {
   ConcreteParasiticNode n1(static_cast<const Net*>(nullptr), 100, false);
   ConcreteParasiticNode n2(static_cast<const Net*>(nullptr), 200, false);
   ConcreteParasiticResistor res(999999, 1.5e3f, &n1, &n2);
@@ -2528,7 +2528,7 @@ TEST_F(ConcreteParasiticDeviceTest, R8_LargeIdDevice) {
 
 // Test ConcreteParasitic destructor via delete on base pointer
 // Covers: ConcreteParasitic::~ConcreteParasitic()
-TEST_F(ConcretePiElmoreTest, R8_DestructorViaBasePointer) {
+TEST_F(ConcretePiElmoreTest, DestructorViaBasePointer) {
   ConcreteParasitic *p = new ConcretePiElmore(1e-12f, 50.0f, 2e-12f);
   EXPECT_TRUE(p->isPiElmore());
   delete p;  // calls ConcreteParasitic::~ConcreteParasitic()
@@ -2536,7 +2536,7 @@ TEST_F(ConcretePiElmoreTest, R8_DestructorViaBasePointer) {
 
 // Test ConcreteParasitic destructor via ConcretePoleResidue
 // Covers: ConcreteParasitic::~ConcreteParasitic()
-TEST_F(ConcretePoleResidueTest, R8_DestructorViaBasePointer) {
+TEST_F(ConcretePoleResidueTest, DestructorViaBasePointer) {
   ConcreteParasitic *p = new ConcretePoleResidue();
   EXPECT_TRUE(p->isPoleResidue());
   delete p;
@@ -2544,7 +2544,7 @@ TEST_F(ConcretePoleResidueTest, R8_DestructorViaBasePointer) {
 
 // Test ConcreteParasitic destructor via ConcretePiPoleResidue
 // Covers: ConcreteParasitic::~ConcreteParasitic()
-TEST_F(ConcretePiPoleResidueTest, R8_DestructorViaBasePointer) {
+TEST_F(ConcretePiPoleResidueTest, DestructorViaBasePointer) {
   ConcreteParasitic *p = new ConcretePiPoleResidue(1e-12f, 100.0f, 2e-12f);
   EXPECT_TRUE(p->isPiPoleResidue());
   delete p;
@@ -2552,7 +2552,7 @@ TEST_F(ConcretePiPoleResidueTest, R8_DestructorViaBasePointer) {
 
 // Test reading SPEF with max only to exercise parasiticAnalysisPtIndex
 // Covers: ConcreteParasitics::parasiticAnalysisPtIndex
-TEST_F(DesignParasiticsTest, R8_ParasiticAnalysisPtIndexMaxOnly) {
+TEST_F(DesignParasiticsTest, ParasiticAnalysisPtIndexMaxOnly) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
   bool success = sta_->readSpef(
@@ -2567,7 +2567,7 @@ TEST_F(DesignParasiticsTest, R8_ParasiticAnalysisPtIndexMaxOnly) {
 
 // Test reading SPEF and querying to exercise ReportParasiticAnnotation::report
 // Covers: ReportParasiticAnnotation::report
-TEST_F(DesignParasiticsTest, R8_ReportAnnotationAfterSpef) {
+TEST_F(DesignParasiticsTest, ReportAnnotationAfterSpef) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
   Corner *corner = sta_->cmdCorner();
@@ -2582,7 +2582,7 @@ TEST_F(DesignParasiticsTest, R8_ReportAnnotationAfterSpef) {
 //         ReduceToPi::isVisited, ReduceToPi::leave, ReduceToPi::setDownstreamCap,
 //         ReduceToPi::downstreamCap, ReduceToPi::isLoopResistor,
 //         ReduceToPi::markLoopResistor
-TEST_F(DesignParasiticsTest, R8_ReduceToPiElmoreWithNetwork) {
+TEST_F(DesignParasiticsTest, ReduceToPiElmoreWithNetwork) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
 

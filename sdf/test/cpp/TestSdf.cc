@@ -414,7 +414,7 @@ TEST_F(SdfSmokeTest, MinMaxAllAsMinMax) {
 
 // Test SDF edge names for transitions
 // Covers: SdfWriter::sdfEdge - exercises transition to SDF edge string mapping
-TEST_F(SdfSmokeTest, R5_TransitionAsInitFinalString) {
+TEST_F(SdfSmokeTest, TransitionAsInitFinalString) {
   // SDF uses init/final transition string representation
   EXPECT_NE(Transition::rise()->asInitFinalString(), nullptr);
   EXPECT_NE(Transition::fall()->asInitFinalString(), nullptr);
@@ -429,7 +429,7 @@ TEST_F(SdfSmokeTest, R5_TransitionAsInitFinalString) {
 }
 
 // Test Transition asRiseFall for SDF edge transitions
-TEST_F(SdfSmokeTest, R5_TransitionAsRiseFallAll) {
+TEST_F(SdfSmokeTest, TransitionAsRiseFallAll) {
   // Rise transitions map to rise
   EXPECT_EQ(Transition::rise()->asRiseFall(), RiseFall::rise());
   // Fall transitions map to fall
@@ -445,7 +445,7 @@ TEST_F(SdfSmokeTest, R5_TransitionAsRiseFallAll) {
 }
 
 // Test MinMaxAll matches method
-TEST_F(SdfSmokeTest, R5_MinMaxAllMatches) {
+TEST_F(SdfSmokeTest, MinMaxAllMatches2) {
   EXPECT_TRUE(MinMaxAll::min()->matches(MinMax::min()));
   EXPECT_FALSE(MinMaxAll::min()->matches(MinMax::max()));
   EXPECT_TRUE(MinMaxAll::max()->matches(MinMax::max()));
@@ -455,7 +455,7 @@ TEST_F(SdfSmokeTest, R5_MinMaxAllMatches) {
 }
 
 // Test MinMaxAll matches MinMaxAll
-TEST_F(SdfSmokeTest, R5_MinMaxAllMatchesAll) {
+TEST_F(SdfSmokeTest, MinMaxAllMatchesAll) {
   EXPECT_TRUE(MinMaxAll::all()->matches(MinMaxAll::min()));
   EXPECT_TRUE(MinMaxAll::all()->matches(MinMaxAll::max()));
   EXPECT_TRUE(MinMaxAll::all()->matches(MinMaxAll::all()));
@@ -464,20 +464,20 @@ TEST_F(SdfSmokeTest, R5_MinMaxAllMatchesAll) {
 }
 
 // Test MinMax find by name
-TEST_F(SdfSmokeTest, R5_MinMaxFindByName) {
+TEST_F(SdfSmokeTest, MinMaxFindByName) {
   EXPECT_EQ(MinMax::find("min"), MinMax::min());
   EXPECT_EQ(MinMax::find("max"), MinMax::max());
   EXPECT_EQ(MinMax::find("nonexistent"), nullptr);
 }
 
 // Test MinMax find by index
-TEST_F(SdfSmokeTest, R5_MinMaxFindByIndex) {
+TEST_F(SdfSmokeTest, MinMaxFindByIndex) {
   EXPECT_EQ(MinMax::find(MinMax::minIndex()), MinMax::min());
   EXPECT_EQ(MinMax::find(MinMax::maxIndex()), MinMax::max());
 }
 
 // Test MinMaxAll find by name
-TEST_F(SdfSmokeTest, R5_MinMaxAllFindByName) {
+TEST_F(SdfSmokeTest, MinMaxAllFindByName) {
   EXPECT_EQ(MinMaxAll::find("min"), MinMaxAll::min());
   EXPECT_EQ(MinMaxAll::find("max"), MinMaxAll::max());
   EXPECT_EQ(MinMaxAll::find("all"), MinMaxAll::all());
@@ -485,13 +485,13 @@ TEST_F(SdfSmokeTest, R5_MinMaxAllFindByName) {
 }
 
 // Test MinMax opposite
-TEST_F(SdfSmokeTest, R5_MinMaxOpposite) {
+TEST_F(SdfSmokeTest, MinMaxOpposite2) {
   EXPECT_EQ(MinMax::min()->opposite(), MinMax::max());
   EXPECT_EQ(MinMax::max()->opposite(), MinMax::min());
 }
 
 // Test MinMax minMax function
-TEST_F(SdfSmokeTest, R5_MinMaxMinMaxFunc) {
+TEST_F(SdfSmokeTest, MinMaxMinMaxFunc2) {
   EXPECT_FLOAT_EQ(MinMax::min()->minMax(3.0f, 5.0f), 3.0f);
   EXPECT_FLOAT_EQ(MinMax::min()->minMax(5.0f, 3.0f), 3.0f);
   EXPECT_FLOAT_EQ(MinMax::max()->minMax(3.0f, 5.0f), 5.0f);
@@ -499,20 +499,20 @@ TEST_F(SdfSmokeTest, R5_MinMaxMinMaxFunc) {
 }
 
 // Test MinMax to_string
-TEST_F(SdfSmokeTest, R5_MinMaxToString) {
+TEST_F(SdfSmokeTest, MinMaxToString) {
   EXPECT_EQ(MinMax::min()->to_string(), "min");
   EXPECT_EQ(MinMax::max()->to_string(), "max");
 }
 
 // Test MinMaxAll to_string
-TEST_F(SdfSmokeTest, R5_MinMaxAllToString) {
+TEST_F(SdfSmokeTest, MinMaxAllToString) {
   EXPECT_EQ(MinMaxAll::min()->to_string(), "min");
   EXPECT_EQ(MinMaxAll::max()->to_string(), "max");
   EXPECT_EQ(MinMaxAll::all()->to_string(), "all");
 }
 
 // Test MinMax initValueInt
-TEST_F(SdfSmokeTest, R5_MinMaxInitValueInt) {
+TEST_F(SdfSmokeTest, MinMaxInitValueInt) {
   // min's init value is a large positive integer
   EXPECT_GT(MinMax::min()->initValueInt(), 0);
   // max's init value is a large negative integer
@@ -520,7 +520,7 @@ TEST_F(SdfSmokeTest, R5_MinMaxInitValueInt) {
 }
 
 // Test MinMaxAll rangeIndex
-TEST_F(SdfSmokeTest, R5_MinMaxAllRangeIndex) {
+TEST_F(SdfSmokeTest, MinMaxAllRangeIndex) {
   auto &min_range_idx = MinMaxAll::min()->rangeIndex();
   EXPECT_EQ(min_range_idx.size(), 1u);
   EXPECT_EQ(min_range_idx[0], MinMax::minIndex());
@@ -535,7 +535,7 @@ TEST_F(SdfSmokeTest, R5_MinMaxAllRangeIndex) {
 
 // Test MinMax constructor coverage (exercises internal MinMax ctor)
 // Covers: MinMax::MinMax(const char*, int, float, int, compare_fn)
-TEST_F(SdfSmokeTest, R6_MinMaxConstructorCoverage) {
+TEST_F(SdfSmokeTest, MinMaxConstructorCoverage) {
   // The MinMax constructor is private; we verify it was called via singletons
   const MinMax *mn = MinMax::min();
   EXPECT_STREQ(mn->to_string().c_str(), "min");
@@ -557,14 +557,14 @@ TEST_F(SdfSmokeTest, R6_MinMaxConstructorCoverage) {
 
 // Test MinMax minMax with equal values
 // Covers: MinMax::minMax edge case
-TEST_F(SdfSmokeTest, R6_MinMaxMinMaxEqualValues) {
+TEST_F(SdfSmokeTest, MinMaxMinMaxEqualValues) {
   EXPECT_FLOAT_EQ(MinMax::min()->minMax(5.0f, 5.0f), 5.0f);
   EXPECT_FLOAT_EQ(MinMax::max()->minMax(5.0f, 5.0f), 5.0f);
 }
 
 // Test MinMaxAll index values
 // Covers: MinMaxAll constructor internals
-TEST_F(SdfSmokeTest, R6_MinMaxAllIndices) {
+TEST_F(SdfSmokeTest, MinMaxAllIndices) {
   EXPECT_EQ(MinMaxAll::min()->index(), 0);
   EXPECT_EQ(MinMaxAll::max()->index(), 1);
   EXPECT_EQ(MinMaxAll::all()->index(), 2);
@@ -572,14 +572,14 @@ TEST_F(SdfSmokeTest, R6_MinMaxAllIndices) {
 
 // Test MinMax find with nullptr
 // Covers: MinMax::find edge case
-TEST_F(SdfSmokeTest, R6_MinMaxFindNull) {
+TEST_F(SdfSmokeTest, MinMaxFindNull) {
   const MinMax *result = MinMax::find("invalid_string");
   EXPECT_EQ(result, nullptr);
 }
 
 // Test RiseFall asRiseFallBoth
 // Covers: RiseFall::asRiseFallBoth
-TEST_F(SdfSmokeTest, R6_RiseFallAsRiseFallBoth) {
+TEST_F(SdfSmokeTest, RiseFallAsRiseFallBoth2) {
   const RiseFallBoth *rfb = RiseFall::rise()->asRiseFallBoth();
   EXPECT_EQ(rfb, RiseFallBoth::rise());
   rfb = RiseFall::fall()->asRiseFallBoth();
@@ -588,7 +588,7 @@ TEST_F(SdfSmokeTest, R6_RiseFallAsRiseFallBoth) {
 
 // Test Transition::riseFall matches all transitions
 // Covers: Transition::matches for riseFall wildcard
-TEST_F(SdfSmokeTest, R6_TransitionRiseFallMatchesAll) {
+TEST_F(SdfSmokeTest, TransitionRiseFallMatchesAll) {
   EXPECT_TRUE(Transition::riseFall()->matches(Transition::rise()));
   EXPECT_TRUE(Transition::riseFall()->matches(Transition::fall()));
   EXPECT_TRUE(Transition::riseFall()->matches(Transition::tr0Z()));
@@ -605,21 +605,21 @@ TEST_F(SdfSmokeTest, R6_TransitionRiseFallMatchesAll) {
 
 // Test Transition::find with empty/unknown string
 // Covers: Transition::find edge case
-TEST_F(SdfSmokeTest, R6_TransitionFindUnknown) {
+TEST_F(SdfSmokeTest, TransitionFindUnknown) {
   const Transition *t = Transition::find("nonexistent");
   EXPECT_EQ(t, nullptr);
 }
 
 // Test RiseFall::find with unknown string
 // Covers: RiseFall::find edge case
-TEST_F(SdfSmokeTest, R6_RiseFallFindUnknown) {
+TEST_F(SdfSmokeTest, RiseFallFindUnknown) {
   const RiseFall *rf = RiseFall::find("unknown");
   EXPECT_EQ(rf, nullptr);
 }
 
 // Test Transition::maxIndex value
 // Covers: Transition::maxIndex
-TEST_F(SdfSmokeTest, R6_TransitionMaxIndex) {
+TEST_F(SdfSmokeTest, TransitionMaxIndex) {
   // Transition::maxIndex() returns the max valid index
   EXPECT_GE(Transition::maxIndex(), 1);
   // All transitions should have index <= maxIndex
@@ -629,21 +629,21 @@ TEST_F(SdfSmokeTest, R6_TransitionMaxIndex) {
 
 // Test RiseFall to_string
 // Covers: RiseFall::to_string
-TEST_F(SdfSmokeTest, R6_RiseFallToString) {
+TEST_F(SdfSmokeTest, RiseFallToString) {
   EXPECT_EQ(RiseFall::rise()->to_string(), "^");
   EXPECT_EQ(RiseFall::fall()->to_string(), "v");
 }
 
 // Test MinMax compare with equal values
 // Covers: MinMax::compare edge case
-TEST_F(SdfSmokeTest, R6_MinMaxCompareEqual) {
+TEST_F(SdfSmokeTest, MinMaxCompareEqual) {
   EXPECT_FALSE(MinMax::min()->compare(5.0f, 5.0f));
   EXPECT_FALSE(MinMax::max()->compare(5.0f, 5.0f));
 }
 
 // Test MinMax compare with negative values
 // Covers: MinMax::compare with negatives
-TEST_F(SdfSmokeTest, R6_MinMaxCompareNegative) {
+TEST_F(SdfSmokeTest, MinMaxCompareNegative) {
   EXPECT_TRUE(MinMax::min()->compare(-2.0f, -1.0f));
   EXPECT_FALSE(MinMax::min()->compare(-1.0f, -2.0f));
   EXPECT_TRUE(MinMax::max()->compare(-1.0f, -2.0f));
@@ -652,7 +652,7 @@ TEST_F(SdfSmokeTest, R6_MinMaxCompareNegative) {
 
 // Test MinMax compare with zero
 // Covers: MinMax::compare with zero
-TEST_F(SdfSmokeTest, R6_MinMaxCompareZero) {
+TEST_F(SdfSmokeTest, MinMaxCompareZero) {
   EXPECT_TRUE(MinMax::min()->compare(0.0f, 1.0f));
   EXPECT_FALSE(MinMax::min()->compare(0.0f, 0.0f));
   EXPECT_TRUE(MinMax::max()->compare(1.0f, 0.0f));
@@ -661,7 +661,7 @@ TEST_F(SdfSmokeTest, R6_MinMaxCompareZero) {
 
 // Test MinMaxAll range sizes
 // Covers: MinMaxAll::range
-TEST_F(SdfSmokeTest, R6_MinMaxAllRangeSizes) {
+TEST_F(SdfSmokeTest, MinMaxAllRangeSizes) {
   EXPECT_EQ(MinMaxAll::min()->range().size(), 1u);
   EXPECT_EQ(MinMaxAll::max()->range().size(), 1u);
   EXPECT_EQ(MinMaxAll::all()->range().size(), 2u);
@@ -669,7 +669,7 @@ TEST_F(SdfSmokeTest, R6_MinMaxAllRangeSizes) {
 
 // Test Transition sdfTripleIndex uniqueness
 // Covers: Transition::sdfTripleIndex
-TEST_F(SdfSmokeTest, R6_TransitionSdfTripleIndexUnique) {
+TEST_F(SdfSmokeTest, TransitionSdfTripleIndexUnique) {
   std::set<int> indices;
   indices.insert(Transition::rise()->sdfTripleIndex());
   indices.insert(Transition::fall()->sdfTripleIndex());
@@ -688,7 +688,7 @@ TEST_F(SdfSmokeTest, R6_TransitionSdfTripleIndexUnique) {
 
 // Test RiseFall range iteration
 // Covers: RiseFall::range
-TEST_F(SdfSmokeTest, R6_RiseFallRangeIteration) {
+TEST_F(SdfSmokeTest, RiseFallRangeIteration) {
   int count = 0;
   for (auto rf : RiseFall::range()) {
     EXPECT_NE(rf, nullptr);
@@ -699,7 +699,7 @@ TEST_F(SdfSmokeTest, R6_RiseFallRangeIteration) {
 
 // Test MinMax range
 // Covers: MinMax::range
-TEST_F(SdfSmokeTest, R6_MinMaxRangeIteration) {
+TEST_F(SdfSmokeTest, MinMaxRangeIteration) {
   int count = 0;
   for (auto mm : MinMax::range()) {
     EXPECT_NE(mm, nullptr);
@@ -710,14 +710,14 @@ TEST_F(SdfSmokeTest, R6_MinMaxRangeIteration) {
 
 // Test RiseFallBoth find with nullptr
 // Covers: RiseFallBoth::find edge case
-TEST_F(SdfSmokeTest, R6_RiseFallBothFindNull) {
+TEST_F(SdfSmokeTest, RiseFallBothFindNull) {
   const RiseFallBoth *result = RiseFallBoth::find("nonexistent");
   EXPECT_EQ(result, nullptr);
 }
 
 // Test Transition asRiseFallBoth for non-rise/fall transitions
 // Covers: Transition::asRiseFallBoth edge cases
-TEST_F(SdfSmokeTest, R6_TransitionAsRiseFallBothTristate) {
+TEST_F(SdfSmokeTest, TransitionAsRiseFallBothTristate) {
   // Tristate transitions should still return valid RiseFallBoth
   const RiseFallBoth *rfb_0z = Transition::tr0Z()->asRiseFallBoth();
   EXPECT_NE(rfb_0z, nullptr);
@@ -725,7 +725,7 @@ TEST_F(SdfSmokeTest, R6_TransitionAsRiseFallBothTristate) {
 
 // Test Transition to_string for riseFall wildcard
 // Covers: Transition::to_string for riseFall
-TEST_F(SdfSmokeTest, R6_TransitionRiseFallToString) {
+TEST_F(SdfSmokeTest, TransitionRiseFallToString) {
   EXPECT_FALSE(Transition::riseFall()->to_string().empty());
 }
 
@@ -816,7 +816,7 @@ protected:
 // Covers: SdfWriter::~SdfWriter, SdfWriter::writeTrailer,
 //         SdfWriter::writeInstTrailer, SdfWriter::writeTimingCheckHeader,
 //         SdfWriter::writeTimingCheckTrailer, SdfWriter::sdfEdge
-TEST_F(SdfDesignTest, R8_WriteSdfExercisesWriter) {
+TEST_F(SdfDesignTest, WriteSdfExercisesWriter) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -843,7 +843,7 @@ TEST_F(SdfDesignTest, R8_WriteSdfExercisesWriter) {
 
 // Test writeSdf with gzip
 // Covers: SdfWriter methods through gzip path
-TEST_F(SdfDesignTest, R8_WriteSdfGzip) {
+TEST_F(SdfDesignTest, WriteSdfGzip) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -871,7 +871,7 @@ TEST_F(SdfDesignTest, R8_WriteSdfGzip) {
 
 // Test writeSdf with dot divider
 // Covers: SdfWriter path separator handling
-TEST_F(SdfDesignTest, R9_WriteSdfDotDivider) {
+TEST_F(SdfDesignTest, WriteSdfDotDivider) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -893,7 +893,7 @@ TEST_F(SdfDesignTest, R9_WriteSdfDotDivider) {
 
 // Test writeSdf without typ values
 // Covers: SdfWriter min/max only path
-TEST_F(SdfDesignTest, R9_WriteSdfNoTyp) {
+TEST_F(SdfDesignTest, WriteSdfNoTyp) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -915,7 +915,7 @@ TEST_F(SdfDesignTest, R9_WriteSdfNoTyp) {
 
 // Test writeSdf with high precision
 // Covers: SdfWriter digit formatting
-TEST_F(SdfDesignTest, R9_WriteSdfHighPrecision) {
+TEST_F(SdfDesignTest, WriteSdfHighPrecision) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -937,7 +937,7 @@ TEST_F(SdfDesignTest, R9_WriteSdfHighPrecision) {
 
 // Test writeSdf with no_timestamp
 // Covers: SdfWriter header control
-TEST_F(SdfDesignTest, R9_WriteSdfNoTimestamp) {
+TEST_F(SdfDesignTest, WriteSdfNoTimestamp) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -959,7 +959,7 @@ TEST_F(SdfDesignTest, R9_WriteSdfNoTimestamp) {
 
 // Test writeSdf with no_timescale
 // Covers: SdfWriter timescale control
-TEST_F(SdfDesignTest, R9_WriteSdfNoTimescale) {
+TEST_F(SdfDesignTest, WriteSdfNoTimescale) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -981,7 +981,7 @@ TEST_F(SdfDesignTest, R9_WriteSdfNoTimescale) {
 
 // Test writeSdf and readSdf round-trip
 // Covers: readSdf, SdfReader constructor, SdfScanner, SdfPortSpec, SdfTriple
-TEST_F(SdfDesignTest, R9_WriteThenReadSdf) {
+TEST_F(SdfDesignTest, WriteThenReadSdf) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1002,7 +1002,7 @@ TEST_F(SdfDesignTest, R9_WriteThenReadSdf) {
 
 // Test readSdf with unescaped_dividers option
 // Covers: SdfReader unescaped divider path
-TEST_F(SdfDesignTest, R9_ReadSdfUnescapedDividers) {
+TEST_F(SdfDesignTest, ReadSdfUnescapedDividers) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1022,7 +1022,7 @@ TEST_F(SdfDesignTest, R9_ReadSdfUnescapedDividers) {
 
 // Test readSdf with incremental_only option
 // Covers: SdfReader incremental_only path
-TEST_F(SdfDesignTest, R9_ReadSdfIncrementalOnly) {
+TEST_F(SdfDesignTest, ReadSdfIncrementalOnly) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1042,7 +1042,7 @@ TEST_F(SdfDesignTest, R9_ReadSdfIncrementalOnly) {
 
 // Test readSdf with cond_use min
 // Covers: SdfReader cond_use min path
-TEST_F(SdfDesignTest, R9_ReadSdfCondUseMin) {
+TEST_F(SdfDesignTest, ReadSdfCondUseMin) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1062,7 +1062,7 @@ TEST_F(SdfDesignTest, R9_ReadSdfCondUseMin) {
 
 // Test readSdf with cond_use max
 // Covers: SdfReader cond_use max path
-TEST_F(SdfDesignTest, R9_ReadSdfCondUseMax) {
+TEST_F(SdfDesignTest, ReadSdfCondUseMax) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1082,7 +1082,7 @@ TEST_F(SdfDesignTest, R9_ReadSdfCondUseMax) {
 
 // Test writeSdf then read with both unescaped and incremental
 // Covers: combined SdfReader option paths
-TEST_F(SdfDesignTest, R9_ReadSdfCombinedOptions) {
+TEST_F(SdfDesignTest, ReadSdfCombinedOptions) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1102,7 +1102,7 @@ TEST_F(SdfDesignTest, R9_ReadSdfCombinedOptions) {
 
 // Test writeSdf with low precision (1 digit)
 // Covers: SdfWriter digit formatting edge case
-TEST_F(SdfDesignTest, R9_WriteSdfLowPrecision) {
+TEST_F(SdfDesignTest, WriteSdfLowPrecision) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1124,7 +1124,7 @@ TEST_F(SdfDesignTest, R9_WriteSdfLowPrecision) {
 
 // Test writeSdf gzip then readSdf
 // Covers: SdfReader gzip input path
-TEST_F(SdfDesignTest, R9_WriteSdfGzipThenRead) {
+TEST_F(SdfDesignTest, WriteSdfGzipThenRead) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1144,7 +1144,7 @@ TEST_F(SdfDesignTest, R9_WriteSdfGzipThenRead) {
 
 // Test writeSdf with no_timestamp and no_timescale
 // Covers: SdfWriter combined header options
-TEST_F(SdfDesignTest, R9_WriteSdfNoTimestampNoTimescale) {
+TEST_F(SdfDesignTest, WriteSdfNoTimestampNoTimescale) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1166,7 +1166,7 @@ TEST_F(SdfDesignTest, R9_WriteSdfNoTimestampNoTimescale) {
 
 // Test readSdf with nonexistent file throws FileNotReadable
 // Covers: SdfReader error handling path
-TEST_F(SdfDesignTest, R9_ReadSdfNonexistent) {
+TEST_F(SdfDesignTest, ReadSdfNonexistent) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1180,7 +1180,7 @@ TEST_F(SdfDesignTest, R9_ReadSdfNonexistent) {
 }
 
 // R9_ SdfSmokeTest - Transition properties for SDF
-TEST_F(SdfSmokeTest, R9_TransitionRiseProperties) {
+TEST_F(SdfSmokeTest, TransitionRiseProperties) {
   const Transition *t = Transition::rise();
   EXPECT_NE(t, nullptr);
   EXPECT_EQ(t->asRiseFall(), RiseFall::rise());
@@ -1189,7 +1189,7 @@ TEST_F(SdfSmokeTest, R9_TransitionRiseProperties) {
   EXPECT_NE(t->asInitFinalString(), nullptr);
 }
 
-TEST_F(SdfSmokeTest, R9_TransitionFallProperties) {
+TEST_F(SdfSmokeTest, TransitionFallProperties) {
   const Transition *t = Transition::fall();
   EXPECT_NE(t, nullptr);
   EXPECT_EQ(t->asRiseFall(), RiseFall::fall());
@@ -1198,7 +1198,7 @@ TEST_F(SdfSmokeTest, R9_TransitionFallProperties) {
   EXPECT_NE(t->asInitFinalString(), nullptr);
 }
 
-TEST_F(SdfSmokeTest, R9_TransitionTristateProperties) {
+TEST_F(SdfSmokeTest, TransitionTristateProperties) {
   // 0Z
   const Transition *t0z = Transition::tr0Z();
   EXPECT_NE(t0z, nullptr);
@@ -1221,7 +1221,7 @@ TEST_F(SdfSmokeTest, R9_TransitionTristateProperties) {
   EXPECT_NE(tz0->asRiseFallBoth(), nullptr);
 }
 
-TEST_F(SdfSmokeTest, R9_TransitionUnknownProperties) {
+TEST_F(SdfSmokeTest, TransitionUnknownProperties) {
   // 0X
   const Transition *t0x = Transition::tr0X();
   EXPECT_NE(t0x, nullptr);
@@ -1243,7 +1243,7 @@ TEST_F(SdfSmokeTest, R9_TransitionUnknownProperties) {
   EXPECT_NE(tx0->asRiseFallBoth(), nullptr);
 }
 
-TEST_F(SdfSmokeTest, R9_TransitionHighZUnknown) {
+TEST_F(SdfSmokeTest, TransitionHighZUnknown) {
   // XZ
   const Transition *txz = Transition::trXZ();
   EXPECT_NE(txz, nullptr);
@@ -1255,7 +1255,7 @@ TEST_F(SdfSmokeTest, R9_TransitionHighZUnknown) {
   EXPECT_FALSE(tzx->to_string().empty());
 }
 
-TEST_F(SdfSmokeTest, R9_RiseFallBothRiseFallMatches) {
+TEST_F(SdfSmokeTest, RiseFallBothRiseFallMatches) {
   EXPECT_TRUE(RiseFallBoth::riseFall()->matches(RiseFall::rise()));
   EXPECT_TRUE(RiseFallBoth::riseFall()->matches(RiseFall::fall()));
   EXPECT_TRUE(RiseFallBoth::rise()->matches(RiseFall::rise()));
@@ -1264,7 +1264,7 @@ TEST_F(SdfSmokeTest, R9_RiseFallBothRiseFallMatches) {
   EXPECT_TRUE(RiseFallBoth::fall()->matches(RiseFall::fall()));
 }
 
-TEST_F(SdfSmokeTest, R9_MinMaxAllRange) {
+TEST_F(SdfSmokeTest, MinMaxAllRange2) {
   // Verify MinMaxAll::all() range contains both min and max
   int count = 0;
   for (auto mm : MinMaxAll::all()->range()) {
@@ -1274,7 +1274,7 @@ TEST_F(SdfSmokeTest, R9_MinMaxAllRange) {
   EXPECT_EQ(count, 2);
 }
 
-TEST_F(SdfSmokeTest, R9_MinMaxInitValue) {
+TEST_F(SdfSmokeTest, MinMaxInitValue2) {
   // min init value is large positive (for finding minimum)
   float min_init = MinMax::min()->initValue();
   EXPECT_GT(min_init, 0.0f);
@@ -1284,7 +1284,7 @@ TEST_F(SdfSmokeTest, R9_MinMaxInitValue) {
   EXPECT_LT(max_init, 0.0f);
 }
 
-TEST_F(SdfSmokeTest, R9_MinMaxCompareExtremes) {
+TEST_F(SdfSmokeTest, MinMaxCompareExtremes) {
   // Very large values
   EXPECT_TRUE(MinMax::min()->compare(1e10f, 1e20f));
   EXPECT_FALSE(MinMax::min()->compare(1e20f, 1e10f));
@@ -1296,7 +1296,7 @@ TEST_F(SdfSmokeTest, R9_MinMaxCompareExtremes) {
   EXPECT_TRUE(MinMax::max()->compare(1e-10f, 1e-20f));
 }
 
-TEST_F(SdfSmokeTest, R9_RiseFallToStringAndFind) {
+TEST_F(SdfSmokeTest, RiseFallToStringAndFind) {
   EXPECT_EQ(RiseFall::rise()->to_string(), "^");
   EXPECT_EQ(RiseFall::fall()->to_string(), "v");
   EXPECT_EQ(RiseFall::find("^"), RiseFall::rise());
@@ -1305,44 +1305,44 @@ TEST_F(SdfSmokeTest, R9_RiseFallToStringAndFind) {
   EXPECT_EQ(RiseFall::find("fall"), RiseFall::fall());
 }
 
-TEST_F(SdfSmokeTest, R9_TransitionFindByName) {
+TEST_F(SdfSmokeTest, TransitionFindByName) {
   EXPECT_EQ(Transition::find("^"), Transition::rise());
   EXPECT_EQ(Transition::find("v"), Transition::fall());
   EXPECT_EQ(Transition::find("nonexistent"), nullptr);
 }
 
-TEST_F(SdfSmokeTest, R9_MinMaxAllAsMinMax) {
+TEST_F(SdfSmokeTest, MinMaxAllAsMinMax2) {
   EXPECT_EQ(MinMaxAll::min()->asMinMax(), MinMax::min());
   EXPECT_EQ(MinMaxAll::max()->asMinMax(), MinMax::max());
 }
 
-TEST_F(SdfSmokeTest, R9_RiseFallOpposite) {
+TEST_F(SdfSmokeTest, RiseFallOpposite2) {
   EXPECT_EQ(RiseFall::rise()->opposite(), RiseFall::fall());
   EXPECT_EQ(RiseFall::fall()->opposite(), RiseFall::rise());
 }
 
-TEST_F(SdfSmokeTest, R9_TransitionMatchesSelf) {
+TEST_F(SdfSmokeTest, TransitionMatchesSelf2) {
   EXPECT_TRUE(Transition::rise()->matches(Transition::rise()));
   EXPECT_TRUE(Transition::fall()->matches(Transition::fall()));
   EXPECT_FALSE(Transition::rise()->matches(Transition::fall()));
   EXPECT_FALSE(Transition::fall()->matches(Transition::rise()));
 }
 
-TEST_F(SdfSmokeTest, R9_TransitionMatchesRiseFallWildcard) {
+TEST_F(SdfSmokeTest, TransitionMatchesRiseFallWildcard) {
   EXPECT_TRUE(Transition::riseFall()->matches(Transition::rise()));
   EXPECT_TRUE(Transition::riseFall()->matches(Transition::fall()));
   EXPECT_TRUE(Transition::riseFall()->matches(Transition::tr0Z()));
   EXPECT_TRUE(Transition::riseFall()->matches(Transition::trXZ()));
 }
 
-TEST_F(SdfSmokeTest, R9_MinMaxMinMaxFunc) {
+TEST_F(SdfSmokeTest, MinMaxMinMaxFunc3) {
   EXPECT_FLOAT_EQ(MinMax::min()->minMax(10.0f, 20.0f), 10.0f);
   EXPECT_FLOAT_EQ(MinMax::max()->minMax(10.0f, 20.0f), 20.0f);
   EXPECT_FLOAT_EQ(MinMax::min()->minMax(-5.0f, 5.0f), -5.0f);
   EXPECT_FLOAT_EQ(MinMax::max()->minMax(-5.0f, 5.0f), 5.0f);
 }
 
-TEST_F(SdfSmokeTest, R9_RiseFallBothFind) {
+TEST_F(SdfSmokeTest, RiseFallBothFind) {
   EXPECT_EQ(RiseFallBoth::find("rise"), RiseFallBoth::rise());
   EXPECT_EQ(RiseFallBoth::find("fall"), RiseFallBoth::fall());
   EXPECT_EQ(RiseFallBoth::find("rise_fall"), RiseFallBoth::riseFall());
@@ -1355,7 +1355,7 @@ TEST_F(SdfSmokeTest, R9_RiseFallBothFind) {
 
 // R11_1: Write SDF then read it with a path argument
 // Covers: SdfReader with path set, SdfTriple construction paths
-TEST_F(SdfDesignTest, R11_ReadSdfWithPath) {
+TEST_F(SdfDesignTest, ReadSdfWithPath) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1376,7 +1376,7 @@ TEST_F(SdfDesignTest, R11_ReadSdfWithPath) {
 
 // R11_2: Read a hand-crafted SDF with specific constructs to exercise
 // SdfReader::makeTriple(), makeTriple(float), SdfPortSpec, SdfTriple::hasValue
-TEST_F(SdfDesignTest, R11_ReadHandCraftedSdf) {
+TEST_F(SdfDesignTest, ReadHandCraftedSdf) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1417,7 +1417,7 @@ TEST_F(SdfDesignTest, R11_ReadHandCraftedSdf) {
 
 // R11_3: Read SDF with edge-specific IOPATH (posedge, negedge)
 // Covers: SdfPortSpec with transitions, sdfEdge paths
-TEST_F(SdfDesignTest, R11_ReadSdfEdgeIopath) {
+TEST_F(SdfDesignTest, ReadSdfEdgeIopath) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1454,7 +1454,7 @@ TEST_F(SdfDesignTest, R11_ReadSdfEdgeIopath) {
 
 // R11_4: Read SDF with SETUPHOLD combined check
 // Covers: SdfReader::timingCheckSetupHold path
-TEST_F(SdfDesignTest, R11_ReadSdfSetupHold) {
+TEST_F(SdfDesignTest, ReadSdfSetupHold) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1488,7 +1488,7 @@ TEST_F(SdfDesignTest, R11_ReadSdfSetupHold) {
 
 // R11_5: Read SDF with RECREM combined check
 // Covers: SdfReader::timingCheckRecRem path
-TEST_F(SdfDesignTest, R11_ReadSdfRecRem) {
+TEST_F(SdfDesignTest, ReadSdfRecRem) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1522,7 +1522,7 @@ TEST_F(SdfDesignTest, R11_ReadSdfRecRem) {
 
 // R11_6: Read SDF with WIDTH check
 // Covers: SdfReader::timingCheckWidth path
-TEST_F(SdfDesignTest, R11_ReadSdfWidth) {
+TEST_F(SdfDesignTest, ReadSdfWidth) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1556,7 +1556,7 @@ TEST_F(SdfDesignTest, R11_ReadSdfWidth) {
 
 // R11_7: Read SDF with PERIOD check
 // Covers: SdfReader::timingCheckPeriod path
-TEST_F(SdfDesignTest, R11_ReadSdfPeriod) {
+TEST_F(SdfDesignTest, ReadSdfPeriod) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1591,7 +1591,7 @@ TEST_F(SdfDesignTest, R11_ReadSdfPeriod) {
 // R11_8: Read SDF with NOCHANGE check
 // Covers: SdfReader::timingCheckNochange, notSupported
 // NOCHANGE is not supported and throws, so we catch the exception
-TEST_F(SdfDesignTest, R11_ReadSdfNochange) {
+TEST_F(SdfDesignTest, ReadSdfNochange) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1628,7 +1628,7 @@ TEST_F(SdfDesignTest, R11_ReadSdfNochange) {
 
 // R11_9: Read SDF with INTERCONNECT delay
 // Covers: SdfReader::interconnect path
-TEST_F(SdfDesignTest, R11_ReadSdfInterconnect) {
+TEST_F(SdfDesignTest, ReadSdfInterconnect) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1664,7 +1664,7 @@ TEST_F(SdfDesignTest, R11_ReadSdfInterconnect) {
 
 // R11_10: WriteSdf with include_typ=true and no_version=false to cover
 // the writeHeader path with version
-TEST_F(SdfDesignTest, R11_WriteSdfWithVersion) {
+TEST_F(SdfDesignTest, WriteSdfWithVersion) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 

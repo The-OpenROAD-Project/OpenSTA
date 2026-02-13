@@ -2499,7 +2499,7 @@ TEST(StringUtilCovTest, StringDeleteCheckRegular)
 
 // Test Report redirectStringPrint with empty string
 // Covers: Report::redirectStringPrint
-TEST(ReportCovTest, R5_RedirectStringPrintEmpty)
+TEST(ReportCovTest, RedirectStringPrintEmpty)
 {
   Report report;
   report.redirectStringBegin();
@@ -2509,7 +2509,7 @@ TEST(ReportCovTest, R5_RedirectStringPrintEmpty)
 }
 
 // Test Report redirectStringPrint with large string
-TEST(ReportCovTest, R5_RedirectStringPrintLarge)
+TEST(ReportCovTest, RedirectStringPrintLarge)
 {
   Report report;
   report.redirectStringBegin();
@@ -2520,7 +2520,7 @@ TEST(ReportCovTest, R5_RedirectStringPrintLarge)
 }
 
 // Test Report redirectStringPrint multiple times
-TEST(ReportCovTest, R5_RedirectStringPrintMultiple)
+TEST(ReportCovTest, RedirectStringPrintMultiple)
 {
   Report report;
   report.redirectStringBegin();
@@ -2533,7 +2533,7 @@ TEST(ReportCovTest, R5_RedirectStringPrintMultiple)
 
 // Test Report printToBuffer with va_list
 // Covers: Report::printToBuffer(const char*, va_list)
-TEST(ReportCovTest, R5_PrintToBufferViaReportLine)
+TEST(ReportCovTest, PrintToBufferViaReportLine)
 {
   Report report;
   report.redirectStringBegin();
@@ -2545,7 +2545,7 @@ TEST(ReportCovTest, R5_PrintToBufferViaReportLine)
 }
 
 // Test Report::reportLineString
-TEST(ReportCovTest, R5_ReportLineString)
+TEST(ReportCovTest, ReportLineString)
 {
   Report report;
   report.redirectStringBegin();
@@ -2556,7 +2556,7 @@ TEST(ReportCovTest, R5_ReportLineString)
 }
 
 // Test Report::reportLineString with std::string
-TEST(ReportCovTest, R5_ReportLineStringStd)
+TEST(ReportCovTest, ReportLineStringStd)
 {
   Report report;
   report.redirectStringBegin();
@@ -2568,7 +2568,7 @@ TEST(ReportCovTest, R5_ReportLineStringStd)
 }
 
 // Test Report::reportBlankLine
-TEST(ReportCovTest, R5_ReportBlankLine)
+TEST(ReportCovTest, ReportBlankLine)
 {
   Report report;
   report.redirectStringBegin();
@@ -2580,7 +2580,7 @@ TEST(ReportCovTest, R5_ReportBlankLine)
 
 // Test ReportStd constructor
 // Covers: ReportStd::ReportStd()
-TEST(ReportStdCovTest, R5_ReportStdConstructor)
+TEST(ReportStdCovTest, ReportStdConstructor)
 {
   Report *report = makeReportStd();
   EXPECT_NE(report, nullptr);
@@ -2591,7 +2591,7 @@ TEST(ReportStdCovTest, R5_ReportStdConstructor)
 
 // Test ReportStd printErrorConsole via fileError
 // Covers: ReportStd::printErrorConsole
-TEST(ReportStdCovTest, R5_PrintErrorConsoleViaWarn)
+TEST(ReportStdCovTest, PrintErrorConsoleViaWarn)
 {
   Report *report = makeReportStd();
   // warn uses printErrorConsole path
@@ -2600,7 +2600,7 @@ TEST(ReportStdCovTest, R5_PrintErrorConsoleViaWarn)
 }
 
 // Test Report suppress/unsuppress messages
-TEST(ReportCovTest, R5_SuppressUnsuppress)
+TEST(ReportCovTest, SuppressUnsuppress)
 {
   Report report;
   EXPECT_FALSE(report.isSuppressed(100));
@@ -2611,7 +2611,7 @@ TEST(ReportCovTest, R5_SuppressUnsuppress)
 }
 
 // Test Report suppressed warn is silent
-TEST(ReportCovTest, R5_SuppressedWarn)
+TEST(ReportCovTest, SuppressedWarn)
 {
   Report report;
   report.suppressMsgId(200);
@@ -2623,7 +2623,7 @@ TEST(ReportCovTest, R5_SuppressedWarn)
 }
 
 // Test Report logBegin/logEnd
-TEST(ReportCovTest, R5_LogBeginEnd)
+TEST(ReportCovTest, LogBeginEnd)
 {
   Report report;
   const char *logfile = "/tmp/sta_test_log_r5.log";
@@ -2641,7 +2641,7 @@ TEST(ReportCovTest, R5_LogBeginEnd)
 }
 
 // Test Report redirectFileBegin/redirectFileEnd
-TEST(ReportCovTest, R5_RedirectFileBeginEnd)
+TEST(ReportCovTest, RedirectFileBeginEnd)
 {
   Report report;
   const char *tmpfile = "/tmp/sta_test_redirect_r5.txt";
@@ -2659,7 +2659,7 @@ TEST(ReportCovTest, R5_RedirectFileBeginEnd)
 }
 
 // Test Report redirectFileAppendBegin
-TEST(ReportCovTest, R5_RedirectFileAppendBegin)
+TEST(ReportCovTest, RedirectFileAppendBegin)
 {
   Report report;
   const char *tmpfile = "/tmp/sta_test_append_r5.txt";
@@ -2687,7 +2687,7 @@ TEST(ReportCovTest, R5_RedirectFileAppendBegin)
 
 // Test gzstreambuf basic operations
 // Covers: gzstreambuf::~gzstreambufD0Ev (virtual destructor)
-TEST(GzStreamTest, R5_GzStreamBufConstruction)
+TEST(GzStreamTest, GzStreamBufConstruction)
 {
   // Test igzstream with a non-existent file
   gzstream::igzstream stream;
@@ -2695,7 +2695,7 @@ TEST(GzStreamTest, R5_GzStreamBufConstruction)
 }
 
 // Test gzstreambuf with actual gz file
-TEST(GzStreamTest, R5_GzStreamWriteRead)
+TEST(GzStreamTest, GzStreamWriteRead)
 {
   const char *tmpfile = "/tmp/sta_test_gz_r5.gz";
 
@@ -2719,21 +2719,21 @@ TEST(GzStreamTest, R5_GzStreamWriteRead)
 }
 
 // Test Report error throws ExceptionMsg
-TEST(ReportCovTest, R5_ErrorThrowsException)
+TEST(ReportCovTest, ErrorThrowsException)
 {
   Report report;
   EXPECT_THROW(report.error(1, "test error %s", "msg"), ExceptionMsg);
 }
 
 // Test Report fileError throws ExceptionMsg
-TEST(ReportCovTest, R5_FileErrorThrowsException)
+TEST(ReportCovTest, FileErrorThrowsException)
 {
   Report report;
   EXPECT_THROW(report.fileError(1, "test.v", 10, "file error"), ExceptionMsg);
 }
 
 // Test Report verror throws ExceptionMsg
-TEST(ReportCovTest, R5_VerrorThrowsException)
+TEST(ReportCovTest, VerrorThrowsException)
 {
   Report report;
   EXPECT_THROW(report.error(1, "verror test"), ExceptionMsg);
@@ -2746,7 +2746,7 @@ TEST(ReportCovTest, R5_VerrorThrowsException)
 // Test Report::critical calls exit (we can't test exit directly,
 // but we can test that the function exists and the format works)
 // Covers: Report::critical - we test via Report::error which shares formatting
-TEST(ReportCovTest, R6_ReportErrorFormatting)
+TEST(ReportCovTest, ReportErrorFormatting)
 {
   Report report;
   try {
@@ -2760,7 +2760,7 @@ TEST(ReportCovTest, R6_ReportErrorFormatting)
 
 // Test Report::fileCritical via fileError (shares code path)
 // Covers: Report::fileCritical formatting path
-TEST(ReportCovTest, R6_ReportFileErrorFormatting)
+TEST(ReportCovTest, ReportFileErrorFormatting)
 {
   Report report;
   try {
@@ -2776,7 +2776,7 @@ TEST(ReportCovTest, R6_ReportFileErrorFormatting)
 
 // Test Report D0 destructor through base pointer
 // Covers: Report::~Report() D0
-TEST(ReportCovTest, R6_ReportD0Destructor)
+TEST(ReportCovTest, ReportD0Destructor)
 {
   Report *report = new Report();
   EXPECT_NE(report, nullptr);
@@ -2786,7 +2786,7 @@ TEST(ReportCovTest, R6_ReportD0Destructor)
 
 // Test ReportStd creation via makeReportStd
 // Covers: ReportStd::ReportStd constructor, makeReportStd
-TEST(ReportCovTest, R6_ReportStdCreation)
+TEST(ReportCovTest, ReportStdCreation)
 {
   Report *report = makeReportStd();
   ASSERT_NE(report, nullptr);
@@ -2802,7 +2802,7 @@ TEST(ReportCovTest, R6_ReportStdCreation)
 
 // Test ReportStd warn output
 // Covers: ReportStd::printErrorConsole (indirectly via warn)
-TEST(ReportCovTest, R6_ReportStdWarn)
+TEST(ReportCovTest, ReportStdWarn)
 {
   Report *report = makeReportStd();
   ASSERT_NE(report, nullptr);
@@ -2817,7 +2817,7 @@ TEST(ReportCovTest, R6_ReportStdWarn)
 
 // Test ReportStd error
 // Covers: ReportStd error path
-TEST(ReportCovTest, R6_ReportStdError)
+TEST(ReportCovTest, ReportStdError)
 {
   Report *report = makeReportStd();
   ASSERT_NE(report, nullptr);
@@ -2827,7 +2827,7 @@ TEST(ReportCovTest, R6_ReportStdError)
 
 // Test Report printToBuffer with long format (indirectly via reportLine)
 // Covers: Report::printToBuffer buffer growth
-TEST(ReportCovTest, R6_ReportPrintToBufferLong)
+TEST(ReportCovTest, ReportPrintToBufferLong)
 {
   Report report;
   report.redirectStringBegin();
@@ -2841,7 +2841,7 @@ TEST(ReportCovTest, R6_ReportPrintToBufferLong)
 
 // Test Report redirectStringPrint indirectly via redirectStringBegin/End
 // Covers: Report::redirectStringPrint
-TEST(ReportCovTest, R6_RedirectStringPrint)
+TEST(ReportCovTest, RedirectStringPrint)
 {
   Report report;
   report.redirectStringBegin();
@@ -2853,7 +2853,7 @@ TEST(ReportCovTest, R6_RedirectStringPrint)
 
 // Test Report multiple printString calls during redirect
 // Covers: Report::redirectStringPrint concatenation
-TEST(ReportCovTest, R6_RedirectStringPrintMultiple)
+TEST(ReportCovTest, RedirectStringPrintMultiple2)
 {
   Report report;
   report.redirectStringBegin();
@@ -2866,7 +2866,7 @@ TEST(ReportCovTest, R6_RedirectStringPrintMultiple)
 
 // Test gzstreambuf D0 destructor through gzstream objects
 // Covers: gzstreambuf::~gzstreambuf() D0
-TEST(GzStreamCovTest, R6_GzStreamBufD0Destructor)
+TEST(GzStreamCovTest, GzStreamBufD0Destructor)
 {
   const char *tmpfile = "/tmp/test_gz_d0.gz";
   {
@@ -2888,7 +2888,7 @@ TEST(GzStreamCovTest, R6_GzStreamBufD0Destructor)
 
 // Test Report suppress and unsuppress multiple IDs
 // Covers: Report::suppressMsgId, unsuppressMsgId
-TEST(ReportCovTest, R6_SuppressMultipleIds)
+TEST(ReportCovTest, SuppressMultipleIds)
 {
   Report report;
   report.suppressMsgId(1);
@@ -2907,7 +2907,7 @@ TEST(ReportCovTest, R6_SuppressMultipleIds)
 
 // Test Report warn with long message that exceeds buffer
 // Covers: Report::printToBuffer buffer reallocation
-TEST(ReportCovTest, R6_WarnLongMessage)
+TEST(ReportCovTest, WarnLongMessage)
 {
   Report report;
   report.redirectStringBegin();
@@ -2921,7 +2921,7 @@ TEST(ReportCovTest, R6_WarnLongMessage)
 
 // Test Report fileWarn with long message
 // Covers: Report::printToBuffer via fileWarn
-TEST(ReportCovTest, R6_FileWarnLongMessage)
+TEST(ReportCovTest, FileWarnLongMessage2)
 {
   Report report;
   report.redirectStringBegin();
@@ -2936,7 +2936,7 @@ TEST(ReportCovTest, R6_FileWarnLongMessage)
 
 // Test Report error with suppressed flag
 // Covers: ExceptionMsg suppression
-TEST(ReportCovTest, R6_ErrorSuppressed)
+TEST(ReportCovTest, ErrorSuppressed)
 {
   Report report;
   report.suppressMsgId(900);
@@ -2950,7 +2950,7 @@ TEST(ReportCovTest, R6_ErrorSuppressed)
 
 // Test Report error without suppression
 // Covers: ExceptionMsg non-suppression
-TEST(ReportCovTest, R6_ErrorNotSuppressed)
+TEST(ReportCovTest, ErrorNotSuppressed)
 {
   Report report;
   try {
@@ -2975,7 +2975,7 @@ TEST(ReportCovTest, R6_ErrorNotSuppressed)
 
 // Test Report::printToBuffer via reportLine
 // Covers: Report::printToBuffer(const char*, va_list)
-TEST(ReportCovTest, R8_PrintToBufferViaReportLine)
+TEST(ReportCovTest, PrintToBufferViaReportLine2)
 {
   Report report;
   report.redirectStringBegin();
@@ -2989,7 +2989,7 @@ TEST(ReportCovTest, R8_PrintToBufferViaReportLine)
 
 // Test Report::redirectStringPrint via redirectStringBegin/End
 // Covers: Report::redirectStringPrint(const char*, size_t)
-TEST(ReportCovTest, R8_RedirectStringPrint)
+TEST(ReportCovTest, RedirectStringPrint2)
 {
   Report report;
   report.redirectStringBegin();
@@ -3005,7 +3005,7 @@ TEST(ReportCovTest, R8_RedirectStringPrint)
 
 // Test Report::redirectStringPrint with long string
 // Covers: Report::redirectStringPrint(const char*, size_t)
-TEST(ReportCovTest, R8_RedirectStringPrintLong)
+TEST(ReportCovTest, RedirectStringPrintLong)
 {
   Report report;
   report.redirectStringBegin();
@@ -3018,7 +3018,7 @@ TEST(ReportCovTest, R8_RedirectStringPrintLong)
 
 // Test Report::printToBuffer with various format strings
 // Covers: Report::printToBuffer(const char*, va_list)
-TEST(ReportCovTest, R8_PrintToBufferFormats)
+TEST(ReportCovTest, PrintToBufferFormats)
 {
   Report report;
   report.redirectStringBegin();
@@ -3035,7 +3035,7 @@ TEST(ReportCovTest, R8_PrintToBufferFormats)
 
 // Test ReportStd constructor and printErrorConsole
 // Covers: ReportStd::ReportStd(), ReportStd::printErrorConsole
-TEST(ReportStdCovTest, R8_ReportStdConstructorAndPrint)
+TEST(ReportStdCovTest, ReportStdConstructorAndPrint)
 {
   Report *report = makeReportStd();
   ASSERT_NE(report, nullptr);
@@ -3048,7 +3048,7 @@ TEST(ReportStdCovTest, R8_ReportStdConstructorAndPrint)
 
 // Test ReportStd printErrorConsole through fileWarn
 // Covers: ReportStd::printErrorConsole(const char*, size_t)
-TEST(ReportStdCovTest, R8_PrintErrorConsoleViaFileWarn)
+TEST(ReportStdCovTest, PrintErrorConsoleViaFileWarn)
 {
   Report *report = makeReportStd();
   ASSERT_NE(report, nullptr);
@@ -3058,7 +3058,7 @@ TEST(ReportStdCovTest, R8_PrintErrorConsoleViaFileWarn)
 
 // Test Report::printToBuffer with empty format
 // Covers: Report::printToBuffer
-TEST(ReportCovTest, R8_PrintToBufferEmpty)
+TEST(ReportCovTest, PrintToBufferEmpty)
 {
   Report report;
   report.redirectStringBegin();
@@ -3070,7 +3070,7 @@ TEST(ReportCovTest, R8_PrintToBufferEmpty)
 
 // Test Report warn with redirect
 // Covers: Report::printToBuffer, Report::redirectStringPrint
-TEST(ReportCovTest, R8_WarnWithRedirect)
+TEST(ReportCovTest, WarnWithRedirect)
 {
   Report report;
   report.redirectStringBegin();
@@ -3083,7 +3083,7 @@ TEST(ReportCovTest, R8_WarnWithRedirect)
 
 // Test Report fileWarn with redirect
 // Covers: Report::printToBuffer, Report::redirectStringPrint
-TEST(ReportCovTest, R8_FileWarnWithRedirect)
+TEST(ReportCovTest, FileWarnWithRedirect)
 {
   Report report;
   report.redirectStringBegin();
@@ -3096,7 +3096,7 @@ TEST(ReportCovTest, R8_FileWarnWithRedirect)
 
 // Test gzstream write and read
 // Covers: gzstreambuf (exercises gzstream I/O paths)
-TEST(GzStreamTest, R8_WriteAndReadGz)
+TEST(GzStreamTest, WriteAndReadGz)
 {
   const char *tmpfile = "/tmp/test_r8_gzstream.gz";
   {

@@ -480,7 +480,7 @@ TEST(VertexStandaloneTest, SlewsDefault)
 
 // Test Edge::arcDelayAnnotateBit - static method
 // Covers: Edge::arcDelayAnnotateBit
-TEST(EdgeStandaloneTest, R5_ArcDelayAnnotateBit)
+TEST(EdgeStandaloneTest, ArcDelayAnnotateBit)
 {
   // arcDelayAnnotateBit returns a bitmask for a given index
   // The function is static and protected, but accessible indirectly
@@ -494,7 +494,7 @@ TEST(EdgeStandaloneTest, R5_ArcDelayAnnotateBit)
 
 // Test Edge init (protected but covered via Graph::makeEdge)
 // Covers: Edge::init
-TEST(EdgeStandaloneTest, R5_EdgeInitViaTimingArcSet)
+TEST(EdgeStandaloneTest, EdgeInitViaTimingArcSet)
 {
   Edge e;
   // setTimingArcSet exercises part of what init does
@@ -504,7 +504,7 @@ TEST(EdgeStandaloneTest, R5_EdgeInitViaTimingArcSet)
 
 // Test Vertex setSlews
 // Covers: Vertex::setSlews
-TEST(VertexStandaloneTest, R5_SetSlews)
+TEST(VertexStandaloneTest, SetSlews)
 {
   Vertex v;
   EXPECT_EQ(v.slews(), nullptr);
@@ -522,7 +522,7 @@ TEST(VertexStandaloneTest, R5_SetSlews)
 
 // Test Vertex setPaths
 // Covers: Vertex::setPaths (public method on Vertex)
-TEST(VertexStandaloneTest, R5_SetPaths)
+TEST(VertexStandaloneTest, SetPaths)
 {
   Vertex v;
   EXPECT_EQ(v.paths(), nullptr);
@@ -532,7 +532,7 @@ TEST(VertexStandaloneTest, R5_SetPaths)
 }
 
 // Test Edge timing sense combinations
-TEST(EdgeStandaloneTest, R5_SimTimingSenseCombinations)
+TEST(EdgeStandaloneTest, SimTimingSenseCombinations)
 {
   Edge e;
   e.setSimTimingSense(TimingSense::positive_unate);
@@ -546,7 +546,7 @@ TEST(EdgeStandaloneTest, R5_SimTimingSenseCombinations)
 }
 
 // Test multiple BFS queue indices
-TEST(VertexStandaloneTest, R5_BfsMultipleQueues)
+TEST(VertexStandaloneTest, BfsMultipleQueues)
 {
   Vertex v;
   // Test multiple BFS queue indices
@@ -563,7 +563,7 @@ TEST(VertexStandaloneTest, R5_BfsMultipleQueues)
 }
 
 // Test Edge from/to vertex IDs
-TEST(EdgeStandaloneTest, R5_FromToIds)
+TEST(EdgeStandaloneTest, FromToIds)
 {
   Edge e;
   // Default-constructed edge has from/to of 0
@@ -574,7 +574,7 @@ TEST(EdgeStandaloneTest, R5_FromToIds)
 }
 
 // Test Vertex level setting with various values
-TEST(VertexStandaloneTest, R5_LevelBoundaryValues)
+TEST(VertexStandaloneTest, LevelBoundaryValues)
 {
   Vertex v;
   v.setLevel(0);
@@ -598,7 +598,7 @@ TEST(VertexStandaloneTest, R5_LevelBoundaryValues)
 
 // Test Edge arcDelayAnnotateBit via removeDelayAnnotated path
 // Covers: Edge::arcDelayAnnotateBit
-TEST(EdgeStandaloneTest, R6_ArcDelayAnnotateBitPath)
+TEST(EdgeStandaloneTest, ArcDelayAnnotateBitPath)
 {
   Edge e;
   // Set some delay annotations then remove them
@@ -610,7 +610,7 @@ TEST(EdgeStandaloneTest, R6_ArcDelayAnnotateBitPath)
 
 // Test Edge setTimingArcSet with nullptr
 // Covers: Edge::init (partial) via setTimingArcSet
-TEST(EdgeStandaloneTest, R6_SetTimingArcSetNull)
+TEST(EdgeStandaloneTest, SetTimingArcSetNull)
 {
   Edge e;
   e.setTimingArcSet(nullptr);
@@ -619,7 +619,7 @@ TEST(EdgeStandaloneTest, R6_SetTimingArcSetNull)
 
 // Test Vertex setSlews indirectly - slews_ is protected
 // Covers: Vertex::setSlews path
-TEST(VertexStandaloneTest, R6_VertexSlewsProtected)
+TEST(VertexStandaloneTest, VertexSlewsProtected)
 {
   Vertex v;
   // Initially slews_ is nullptr
@@ -631,7 +631,7 @@ TEST(VertexStandaloneTest, R6_VertexSlewsProtected)
 
 // Test Edge from/to IDs are zero for default-constructed edge
 // Covers: Edge::from, Edge::to
-TEST(EdgeStandaloneTest, R6_DefaultFromToZero)
+TEST(EdgeStandaloneTest, DefaultFromToZero)
 {
   Edge e;
   EXPECT_EQ(e.from(), static_cast<VertexId>(0));
@@ -640,7 +640,7 @@ TEST(EdgeStandaloneTest, R6_DefaultFromToZero)
 
 // Test Vertex isRoot and level interaction
 // Covers: Vertex::isRoot, Vertex::level, Vertex::setLevel
-TEST(VertexStandaloneTest, R6_IsRootLevelInteraction)
+TEST(VertexStandaloneTest, IsRootLevelInteraction)
 {
   Vertex v;
   // Level 0 = root
@@ -656,7 +656,7 @@ TEST(VertexStandaloneTest, R6_IsRootLevelInteraction)
 
 // Test Vertex all BFS indices
 // Covers: Vertex::bfsInQueue, Vertex::setBfsInQueue
-TEST(VertexStandaloneTest, R6_BfsAllIndices)
+TEST(VertexStandaloneTest, BfsAllIndices)
 {
   Vertex v;
   // Set all BFS indices to true
@@ -682,7 +682,7 @@ TEST(VertexStandaloneTest, R6_BfsAllIndices)
 
 // Test Vertex SimValue with all LogicValues
 // Covers: Vertex::setSimValue, Vertex::simValue, Vertex::isConstant
-TEST(VertexStandaloneTest, R6_SimValueAllStates)
+TEST(VertexStandaloneTest, SimValueAllStates)
 {
   Vertex v;
   v.setSimValue(LogicValue::zero);
@@ -700,7 +700,7 @@ TEST(VertexStandaloneTest, R6_SimValueAllStates)
 
 // Test Edge simTimingSense all values
 // Covers: Edge::setSimTimingSense, Edge::simTimingSense
-TEST(EdgeStandaloneTest, R6_SimTimingSenseAllValues)
+TEST(EdgeStandaloneTest, SimTimingSenseAllValues)
 {
   Edge e;
   e.setSimTimingSense(TimingSense::unknown);
@@ -717,7 +717,7 @@ TEST(EdgeStandaloneTest, R6_SimTimingSenseAllValues)
 
 // Test Vertex slewAnnotated with all rf/mm combinations
 // Covers: Vertex::setSlewAnnotated, Vertex::slewAnnotated
-TEST(VertexStandaloneTest, R6_SlewAnnotatedAllCombinations)
+TEST(VertexStandaloneTest, SlewAnnotatedAllCombinations)
 {
   Vertex v;
   // Set all 4 combinations
@@ -740,7 +740,7 @@ TEST(VertexStandaloneTest, R6_SlewAnnotatedAllCombinations)
 
 // Test Vertex tagGroupIndex max value
 // Covers: Vertex::tagGroupIndex, Vertex::setTagGroupIndex
-TEST(VertexStandaloneTest, R6_TagGroupIndexMax)
+TEST(VertexStandaloneTest, TagGroupIndexMax)
 {
   Vertex v;
   EXPECT_EQ(v.tagGroupIndex(), tag_group_index_max);
@@ -752,7 +752,7 @@ TEST(VertexStandaloneTest, R6_TagGroupIndexMax)
 
 // Test Edge setArcDelays and access
 // Covers: Edge::setArcDelays, Edge::arcDelays
-TEST(EdgeStandaloneTest, R6_ArcDelaysSetAndAccess)
+TEST(EdgeStandaloneTest, ArcDelaysSetAndAccess)
 {
   Edge e;
   EXPECT_EQ(e.arcDelays(), nullptr);
@@ -768,7 +768,7 @@ TEST(EdgeStandaloneTest, R6_ArcDelaysSetAndAccess)
 
 // Test Vertex objectIdx with large value
 // Covers: Vertex::setObjectIdx, Vertex::objectIdx
-TEST(VertexStandaloneTest, R6_ObjectIdxLargeValue)
+TEST(VertexStandaloneTest, ObjectIdxLargeValue)
 {
   Vertex v;
   v.setObjectIdx(0xFFFF);
@@ -779,7 +779,7 @@ TEST(VertexStandaloneTest, R6_ObjectIdxLargeValue)
 
 // Test Edge objectIdx with large value
 // Covers: Edge::setObjectIdx, Edge::objectIdx
-TEST(EdgeStandaloneTest, R6_ObjectIdxLargeValue)
+TEST(EdgeStandaloneTest, ObjectIdxLargeValue)
 {
   Edge e;
   // Edge objectIdx may be a narrow bitfield; test with small values
@@ -791,7 +791,7 @@ TEST(EdgeStandaloneTest, R6_ObjectIdxLargeValue)
 
 // Test Vertex multiple flag combinations
 // Covers: Vertex setter/getter interactions
-TEST(VertexStandaloneTest, R6_MultipleFlagCombinations)
+TEST(VertexStandaloneTest, MultipleFlagCombinations)
 {
   Vertex v;
   // Set multiple flags and verify they don't interfere
@@ -835,7 +835,7 @@ TEST(VertexStandaloneTest, R6_MultipleFlagCombinations)
 
 // Test Edge multiple flag combinations
 // Covers: Edge setter/getter interactions
-TEST(EdgeStandaloneTest, R6_MultipleFlagCombinations)
+TEST(EdgeStandaloneTest, MultipleFlagCombinations)
 {
   Edge e;
   e.setIsBidirectInstPath(true);
@@ -865,7 +865,7 @@ TEST(EdgeStandaloneTest, R6_MultipleFlagCombinations)
 
 // Test delayLess with MinMax
 // Covers: delayLessEqual 4-arg variant
-TEST_F(DelayFloatTest, R6_DelayLessEqualMinMaxVariant)
+TEST_F(DelayFloatTest, DelayLessEqualMinMaxVariant)
 {
   // With max: standard less-equal
   EXPECT_TRUE(delayLessEqual(1.0f, 2.0f, MinMax::max(), nullptr));
@@ -884,7 +884,7 @@ TEST_F(DelayFloatTest, R6_DelayLessEqualMinMaxVariant)
 
 // Test Edge::arcDelayAnnotateBit via removeDelayAnnotated
 // Covers: Edge::arcDelayAnnotateBit(unsigned long)
-TEST(EdgeStandaloneTest, R8_ArcDelayAnnotateBitExercise)
+TEST(EdgeStandaloneTest, ArcDelayAnnotateBitExercise)
 {
   Edge e;
   e.setDelayAnnotationIsIncremental(true);
@@ -895,7 +895,7 @@ TEST(EdgeStandaloneTest, R8_ArcDelayAnnotateBitExercise)
 
 // Test multiple Vertex flag combinations don't interfere
 // Covers: Vertex flags interaction with multiple setters
-TEST(VertexStandaloneTest, R8_MultipleFlagInteraction)
+TEST(VertexStandaloneTest, MultipleFlagInteraction)
 {
   Vertex v;
   v.setHasChecks(true);
@@ -925,7 +925,7 @@ TEST(VertexStandaloneTest, R8_MultipleFlagInteraction)
 
 // Test Edge multiple flag combinations
 // Covers: Edge flags interaction
-TEST(EdgeStandaloneTest, R8_MultipleFlagInteraction)
+TEST(EdgeStandaloneTest, MultipleFlagInteraction)
 {
   Edge e;
   e.setIsBidirectInstPath(true);
@@ -1022,7 +1022,7 @@ protected:
 // Covers: Graph::makePinVertices, Graph::makePinInstanceEdges,
 //         Graph::makeWireEdgesThruPin, Vertex::name,
 //         VertexInEdgeIterator, FindNetDrvrLoadCounts
-TEST_F(GraphDesignTest, R8_GraphVerticesAndEdges) {
+TEST_F(GraphDesignTest, GraphVerticesAndEdges) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1051,7 +1051,7 @@ TEST_F(GraphDesignTest, R8_GraphVerticesAndEdges) {
 
 // Test Vertex name with a real graph
 // Covers: Vertex::name(const Network*) const
-TEST_F(GraphDesignTest, R8_VertexName) {
+TEST_F(GraphDesignTest, VertexName) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1076,7 +1076,7 @@ TEST_F(GraphDesignTest, R8_VertexName) {
 
 // Test Graph edges traversal
 // Covers: VertexOutEdgeIterator
-TEST_F(GraphDesignTest, R8_EdgeTraversal) {
+TEST_F(GraphDesignTest, EdgeTraversal) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 
@@ -1102,7 +1102,7 @@ TEST_F(GraphDesignTest, R8_EdgeTraversal) {
 
 // Test VertexInEdgeIterator
 // Covers: VertexInEdgeIterator::VertexInEdgeIterator
-TEST_F(GraphDesignTest, R8_VertexInEdgeIterator) {
+TEST_F(GraphDesignTest, VertexInEdgeIterator) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
 

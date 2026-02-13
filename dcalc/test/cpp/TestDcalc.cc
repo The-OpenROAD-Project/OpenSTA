@@ -1446,7 +1446,7 @@ TEST_F(StaDcalcTest, NetCapsInitMultiple) {
 ////////////////////////////////////////////////////////////////
 
 // Test ArcDcalcResult copy
-TEST_F(ArcDcalcResultTest, R5_CopyResult) {
+TEST_F(ArcDcalcResultTest, CopyResult) {
   ArcDcalcResult result(2);
   result.setGateDelay(1e-10f);
   result.setDrvrSlew(2e-10f);
@@ -1465,7 +1465,7 @@ TEST_F(ArcDcalcResultTest, R5_CopyResult) {
 }
 
 // Test ArcDcalcArg assignment
-TEST_F(ArcDcalcArgTest, R5_Assignment) {
+TEST_F(ArcDcalcArgTest, Assignment) {
   ArcDcalcArg arg;
   arg.setLoadCap(3.5e-12f);
   arg.setInputDelay(1.5e-9f);
@@ -1479,7 +1479,7 @@ TEST_F(ArcDcalcArgTest, R5_Assignment) {
 }
 
 // Test ArcDcalcArg: set and get all fields
-TEST_F(ArcDcalcArgTest, R5_AllSettersGetters) {
+TEST_F(ArcDcalcArgTest, AllSettersGetters) {
   ArcDcalcArg arg;
   arg.setLoadCap(1e-12f);
   arg.setInputDelay(2e-9f);
@@ -1494,7 +1494,7 @@ TEST_F(ArcDcalcArgTest, R5_AllSettersGetters) {
 }
 
 // Test FindRoot: with derivative zero (should still converge or fail gracefully)
-TEST_F(FindRootAdditionalTest, R5_FlatDerivative) {
+TEST_F(FindRootAdditionalTest, FlatDerivative) {
   // Function with zero derivative at some points
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = (x - 2.0) * (x - 2.0) * (x - 2.0);
@@ -1509,7 +1509,7 @@ TEST_F(FindRootAdditionalTest, R5_FlatDerivative) {
 }
 
 // Test FindRoot: linear function
-TEST_F(FindRootAdditionalTest, R5_LinearFunction) {
+TEST_F(FindRootAdditionalTest, LinearFunction) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = 2.0 * x - 6.0;
     dy = 2.0;
@@ -1521,7 +1521,7 @@ TEST_F(FindRootAdditionalTest, R5_LinearFunction) {
 }
 
 // Test FindRoot 4-arg: negative y1 and positive y2
-TEST_F(FindRootAdditionalTest, R5_FourArgNormalBracket) {
+TEST_F(FindRootAdditionalTest, FourArgNormalBracket) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x * x - 4.0;
     dy = 2.0 * x;
@@ -1534,14 +1534,14 @@ TEST_F(FindRootAdditionalTest, R5_FourArgNormalBracket) {
 }
 
 // Test ArcDcalcResult: default gate delay is zero
-TEST_F(ArcDcalcResultTest, R5_DefaultValues) {
+TEST_F(ArcDcalcResultTest, DefaultValues) {
   ArcDcalcResult result;
   EXPECT_FLOAT_EQ(delayAsFloat(result.gateDelay()), 0.0f);
   EXPECT_FLOAT_EQ(delayAsFloat(result.drvrSlew()), 0.0f);
 }
 
 // Test UnitDelayCalc copyState
-TEST_F(StaDcalcTest, R5_UnitDelayCalcCopyState) {
+TEST_F(StaDcalcTest, UnitDelayCalcCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("unit", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -1549,7 +1549,7 @@ TEST_F(StaDcalcTest, R5_UnitDelayCalcCopyState) {
 }
 
 // Test LumpedCap copyState
-TEST_F(StaDcalcTest, R5_LumpedCapCopyState) {
+TEST_F(StaDcalcTest, LumpedCapCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("lumped_cap", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -1557,7 +1557,7 @@ TEST_F(StaDcalcTest, R5_LumpedCapCopyState) {
 }
 
 // Test Arnoldi copyState
-TEST_F(StaDcalcTest, R5_ArnoldiCopyState) {
+TEST_F(StaDcalcTest, ArnoldiCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("arnoldi", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -1565,7 +1565,7 @@ TEST_F(StaDcalcTest, R5_ArnoldiCopyState) {
 }
 
 // Test all calcs reduceSupported
-TEST_F(StaDcalcTest, R5_AllCalcsReduceSupported) {
+TEST_F(StaDcalcTest, AllCalcsReduceSupported) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -1578,7 +1578,7 @@ TEST_F(StaDcalcTest, R5_AllCalcsReduceSupported) {
 }
 
 // Test NetCaps with large values
-TEST_F(StaDcalcTest, R5_NetCapsLargeValues) {
+TEST_F(StaDcalcTest, NetCapsLargeValues) {
   NetCaps caps(100e-12f, 200e-12f, 1000.0f, true);
   EXPECT_FLOAT_EQ(caps.pinCap(), 100e-12f);
   EXPECT_FLOAT_EQ(caps.wireCap(), 200e-12f);
@@ -1587,7 +1587,7 @@ TEST_F(StaDcalcTest, R5_NetCapsLargeValues) {
 }
 
 // Test ArcDcalcResult with resize down
-TEST_F(ArcDcalcResultTest, R5_ResizeDown) {
+TEST_F(ArcDcalcResultTest, ResizeDown) {
   ArcDcalcResult result(5);
   for (size_t i = 0; i < 5; i++) {
     result.setWireDelay(i, static_cast<float>(i) * 1e-12f);
@@ -1599,20 +1599,20 @@ TEST_F(ArcDcalcResultTest, R5_ResizeDown) {
 }
 
 // Test MultiDrvrNet drvrs
-TEST_F(StaDcalcTest, R5_MultiDrvrNetDrvrs) {
+TEST_F(StaDcalcTest, MultiDrvrNetDrvrs) {
   MultiDrvrNet mdn;
   VertexSeq &drvrs = mdn.drvrs();
   EXPECT_TRUE(drvrs.empty());
 }
 
 // Test GraphDelayCalc delayCalc returns non-null after init
-TEST_F(StaDcalcTest, R5_GraphDelayCalcExists) {
+TEST_F(StaDcalcTest, GraphDelayCalcExists) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   EXPECT_NE(gdc, nullptr);
 }
 
 // Test UnitDelayCalc reduceParasitic Net overload
-TEST_F(StaDcalcTest, R5_UnitDelayCalcReduceParasiticNetOverload) {
+TEST_F(StaDcalcTest, UnitDelayCalcReduceParasiticNetOverload) {
   ArcDelayCalc *calc = makeDelayCalc("unit", sta_);
   ASSERT_NE(calc, nullptr);
   calc->reduceParasitic(static_cast<const Parasitic*>(nullptr),
@@ -1908,7 +1908,7 @@ TEST_F(DesignDcalcTest, ArcDcalcArgAccessorsWithDesign) {
 ////////////////////////////////////////////////////////////////
 
 // NetCaps: init with different values
-TEST_F(StaDcalcTest, R6_NetCapsInitVariants) {
+TEST_F(StaDcalcTest, NetCapsInitVariants) {
   NetCaps caps;
   caps.init(0.0f, 0.0f, 0.0f, false);
   EXPECT_FLOAT_EQ(caps.pinCap(), 0.0f);
@@ -1924,7 +1924,7 @@ TEST_F(StaDcalcTest, R6_NetCapsInitVariants) {
 }
 
 // NetCaps: parameterized constructor with zero values
-TEST_F(StaDcalcTest, R6_NetCapsConstructorZero) {
+TEST_F(StaDcalcTest, NetCapsConstructorZero) {
   NetCaps caps(0.0f, 0.0f, 0.0f, false);
   EXPECT_FLOAT_EQ(caps.pinCap(), 0.0f);
   EXPECT_FLOAT_EQ(caps.wireCap(), 0.0f);
@@ -1933,7 +1933,7 @@ TEST_F(StaDcalcTest, R6_NetCapsConstructorZero) {
 }
 
 // NetCaps: parameterized constructor with large values
-TEST_F(StaDcalcTest, R6_NetCapsConstructorLarge) {
+TEST_F(StaDcalcTest, NetCapsConstructorLarge) {
   NetCaps caps(1e-6f, 5e-7f, 100.0f, true);
   EXPECT_FLOAT_EQ(caps.pinCap(), 1e-6f);
   EXPECT_FLOAT_EQ(caps.wireCap(), 5e-7f);
@@ -1942,7 +1942,7 @@ TEST_F(StaDcalcTest, R6_NetCapsConstructorLarge) {
 }
 
 // ArcDcalcArg: drvrCell returns nullptr with null drvrPin
-TEST_F(ArcDcalcArgTest, R6_DrvrCellNullPin) {
+TEST_F(ArcDcalcArgTest, DrvrCellNullPin) {
   ArcDcalcArg arg;
   // With null drvrPin, drvrCell returns nullptr
   // Can't call drvrCell with null arc, it would dereference arc_.
@@ -1951,7 +1951,7 @@ TEST_F(ArcDcalcArgTest, R6_DrvrCellNullPin) {
 }
 
 // ArcDcalcArg: assignment/move semantics via vector
-TEST_F(ArcDcalcArgTest, R6_ArgInVector) {
+TEST_F(ArcDcalcArgTest, ArgInVector) {
   ArcDcalcArgSeq args;
   ArcDcalcArg arg1;
   arg1.setLoadCap(1.0e-12f);
@@ -1973,7 +1973,7 @@ TEST_F(ArcDcalcArgTest, R6_ArgInVector) {
 }
 
 // ArcDcalcResult: copy semantics
-TEST_F(ArcDcalcResultTest, R6_ResultCopy) {
+TEST_F(ArcDcalcResultTest, ResultCopy) {
   ArcDcalcResult result(3);
   result.setGateDelay(5e-10f);
   result.setDrvrSlew(2e-10f);
@@ -1993,7 +1993,7 @@ TEST_F(ArcDcalcResultTest, R6_ResultCopy) {
 }
 
 // ArcDcalcResult: in vector (exercises copy/move)
-TEST_F(ArcDcalcResultTest, R6_ResultInVector) {
+TEST_F(ArcDcalcResultTest, ResultInVector) {
   ArcDcalcResultSeq results;
   for (int i = 0; i < 5; i++) {
     ArcDcalcResult r(2);
@@ -2011,7 +2011,7 @@ TEST_F(ArcDcalcResultTest, R6_ResultInVector) {
 }
 
 // GraphDelayCalc: delaysInvalid
-TEST_F(StaDcalcTest, R6_GraphDelayCalcDelaysInvalid) {
+TEST_F(StaDcalcTest, GraphDelayCalcDelaysInvalid2) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   ASSERT_NE(gdc, nullptr);
   // Should not crash
@@ -2019,21 +2019,21 @@ TEST_F(StaDcalcTest, R6_GraphDelayCalcDelaysInvalid) {
 }
 
 // GraphDelayCalc: clear
-TEST_F(StaDcalcTest, R6_GraphDelayCalcClear) {
+TEST_F(StaDcalcTest, GraphDelayCalcClear2) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   ASSERT_NE(gdc, nullptr);
   gdc->clear();
 }
 
 // GraphDelayCalc: copyState
-TEST_F(StaDcalcTest, R6_GraphDelayCalcCopyState) {
+TEST_F(StaDcalcTest, GraphDelayCalcCopyState2) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   ASSERT_NE(gdc, nullptr);
   gdc->copyState(sta_);
 }
 
 // Test all calcs: finishDrvrPin does not crash
-TEST_F(StaDcalcTest, R6_AllCalcsFinishDrvrPin) {
+TEST_F(StaDcalcTest, AllCalcsFinishDrvrPin) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -2044,7 +2044,7 @@ TEST_F(StaDcalcTest, R6_AllCalcsFinishDrvrPin) {
 }
 
 // Test all calcs: setDcalcArgParasiticSlew (single) with empty arg
-TEST_F(StaDcalcTest, R6_AllCalcsSetDcalcArgSingle) {
+TEST_F(StaDcalcTest, AllCalcsSetDcalcArgSingle) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -2056,7 +2056,7 @@ TEST_F(StaDcalcTest, R6_AllCalcsSetDcalcArgSingle) {
 }
 
 // Test all calcs: setDcalcArgParasiticSlew (seq) with empty seq
-TEST_F(StaDcalcTest, R6_AllCalcsSetDcalcArgSeqEmpty) {
+TEST_F(StaDcalcTest, AllCalcsSetDcalcArgSeqEmpty) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -2068,7 +2068,7 @@ TEST_F(StaDcalcTest, R6_AllCalcsSetDcalcArgSeqEmpty) {
 }
 
 // Test all calcs: inputPortDelay with null args
-TEST_F(StaDcalcTest, R6_AllCalcsInputPortDelayNull) {
+TEST_F(StaDcalcTest, AllCalcsInputPortDelayNull) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -2083,7 +2083,7 @@ TEST_F(StaDcalcTest, R6_AllCalcsInputPortDelayNull) {
 }
 
 // FindRoot: additional test for 4-arg overload with tight bounds
-TEST_F(FindRootAdditionalTest, R6_TightBoundsLinear) {
+TEST_F(FindRootAdditionalTest, TightBoundsLinear) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = 2.0 * x - 6.0;
     dy = 2.0;
@@ -2096,7 +2096,7 @@ TEST_F(FindRootAdditionalTest, R6_TightBoundsLinear) {
 }
 
 // FindRoot: test where Newton step goes out of bracket
-TEST_F(FindRootAdditionalTest, R6_NewtonOutOfBracket) {
+TEST_F(FindRootAdditionalTest, NewtonOutOfBracket) {
   // Using a function where Newton step may overshoot
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x * x * x - x - 2.0;
@@ -2110,7 +2110,7 @@ TEST_F(FindRootAdditionalTest, R6_NewtonOutOfBracket) {
 }
 
 // FindRoot: sin function
-TEST_F(FindRootAdditionalTest, R6_SinRoot) {
+TEST_F(FindRootAdditionalTest, SinRoot) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = sin(x);
     dy = cos(x);
@@ -2123,7 +2123,7 @@ TEST_F(FindRootAdditionalTest, R6_SinRoot) {
 }
 
 // FindRoot: exponential function
-TEST_F(FindRootAdditionalTest, R6_ExpMinusConst) {
+TEST_F(FindRootAdditionalTest, ExpMinusConst) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = exp(x) - 3.0;
     dy = exp(x);
@@ -2135,21 +2135,21 @@ TEST_F(FindRootAdditionalTest, R6_ExpMinusConst) {
 }
 
 // GraphDelayCalc: levelsChangedBefore
-TEST_F(StaDcalcTest, R6_GraphDelayCalcLevelsChangedBefore) {
+TEST_F(StaDcalcTest, GraphDelayCalcLevelsChangedBefore) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   ASSERT_NE(gdc, nullptr);
   gdc->levelsChangedBefore();
 }
 
 // GraphDelayCalc: setObserver with nullptr
-TEST_F(StaDcalcTest, R6_GraphDelayCalcSetObserverNull) {
+TEST_F(StaDcalcTest, GraphDelayCalcSetObserverNull) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   ASSERT_NE(gdc, nullptr);
   gdc->setObserver(nullptr);
 }
 
 // MultiDrvrNet: drvrs vector
-TEST_F(StaDcalcTest, R6_MultiDrvrNetDrvrs) {
+TEST_F(StaDcalcTest, MultiDrvrNetDrvrs2) {
   MultiDrvrNet mdn;
   EXPECT_TRUE(mdn.drvrs().empty());
   // drvrs() returns a reference to internal vector
@@ -2158,7 +2158,7 @@ TEST_F(StaDcalcTest, R6_MultiDrvrNetDrvrs) {
 }
 
 // ArcDcalcArg: multiple set/get cycles
-TEST_F(ArcDcalcArgTest, R6_MultipleSetGetCycles) {
+TEST_F(ArcDcalcArgTest, MultipleSetGetCycles) {
   ArcDcalcArg arg;
   for (int i = 0; i < 10; i++) {
     float cap = static_cast<float>(i) * 1e-12f;
@@ -2174,7 +2174,7 @@ TEST_F(ArcDcalcArgTest, R6_MultipleSetGetCycles) {
 }
 
 // ArcDcalcResult: zero gate delay and nonzero wire delays
-TEST_F(ArcDcalcResultTest, R6_ZeroGateNonzeroWire) {
+TEST_F(ArcDcalcResultTest, ZeroGateNonzeroWire) {
   ArcDcalcResult result(2);
   result.setGateDelay(0.0f);
   result.setDrvrSlew(0.0f);
@@ -2192,7 +2192,7 @@ TEST_F(ArcDcalcResultTest, R6_ZeroGateNonzeroWire) {
 }
 
 // ArcDcalcResult: resize down then up
-TEST_F(ArcDcalcResultTest, R6_ResizeDownThenUp) {
+TEST_F(ArcDcalcResultTest, ResizeDownThenUp) {
   ArcDcalcResult result(5);
   for (size_t i = 0; i < 5; i++) {
     result.setWireDelay(i, static_cast<float>(i) * 1e-12f);
@@ -2209,7 +2209,7 @@ TEST_F(ArcDcalcResultTest, R6_ResizeDownThenUp) {
 }
 
 // DesignDcalc: timing with ccs_ceff calculator
-TEST_F(DesignDcalcTest, R6_TimingCcsCeff) {
+TEST_F(DesignDcalcTest, TimingCcsCeff2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("ccs_ceff");
   sta_->updateTiming(true);
@@ -2217,7 +2217,7 @@ TEST_F(DesignDcalcTest, R6_TimingCcsCeff) {
 }
 
 // DesignDcalc: timing with prima calculator
-TEST_F(DesignDcalcTest, R6_TimingPrima) {
+TEST_F(DesignDcalcTest, TimingPrima2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("prima");
   sta_->updateTiming(true);
@@ -2225,7 +2225,7 @@ TEST_F(DesignDcalcTest, R6_TimingPrima) {
 }
 
 // DesignDcalc: findDelays with lumped_cap
-TEST_F(DesignDcalcTest, R6_FindDelaysLumpedCap) {
+TEST_F(DesignDcalcTest, FindDelaysLumpedCap) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("lumped_cap");
   sta_->findDelays();
@@ -2233,7 +2233,7 @@ TEST_F(DesignDcalcTest, R6_FindDelaysLumpedCap) {
 }
 
 // DesignDcalc: findDelays with unit
-TEST_F(DesignDcalcTest, R6_FindDelaysUnit) {
+TEST_F(DesignDcalcTest, FindDelaysUnit) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("unit");
   sta_->findDelays();
@@ -2241,7 +2241,7 @@ TEST_F(DesignDcalcTest, R6_FindDelaysUnit) {
 }
 
 // DesignDcalc: findDelays with dmp_ceff_two_pole
-TEST_F(DesignDcalcTest, R6_FindDelaysDmpTwoPole) {
+TEST_F(DesignDcalcTest, FindDelaysDmpTwoPole) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_two_pole");
   sta_->findDelays();
@@ -2249,7 +2249,7 @@ TEST_F(DesignDcalcTest, R6_FindDelaysDmpTwoPole) {
 }
 
 // DesignDcalc: findDelays with arnoldi
-TEST_F(DesignDcalcTest, R6_FindDelaysArnoldi) {
+TEST_F(DesignDcalcTest, FindDelaysArnoldi) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("arnoldi");
   sta_->findDelays();
@@ -2257,7 +2257,7 @@ TEST_F(DesignDcalcTest, R6_FindDelaysArnoldi) {
 }
 
 // DesignDcalc: findDelays with ccs_ceff
-TEST_F(DesignDcalcTest, R6_FindDelaysCcsCeff) {
+TEST_F(DesignDcalcTest, FindDelaysCcsCeff) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("ccs_ceff");
   sta_->findDelays();
@@ -2265,7 +2265,7 @@ TEST_F(DesignDcalcTest, R6_FindDelaysCcsCeff) {
 }
 
 // DesignDcalc: findDelays with prima
-TEST_F(DesignDcalcTest, R6_FindDelaysPrima) {
+TEST_F(DesignDcalcTest, FindDelaysPrima) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("prima");
   sta_->findDelays();
@@ -2273,7 +2273,7 @@ TEST_F(DesignDcalcTest, R6_FindDelaysPrima) {
 }
 
 // ArcDcalcArg: copy constructor
-TEST_F(ArcDcalcArgTest, R6_CopyConstructor) {
+TEST_F(ArcDcalcArgTest, CopyConstructor) {
   ArcDcalcArg arg;
   arg.setLoadCap(5.0e-12f);
   arg.setInSlew(100e-12f);
@@ -2291,7 +2291,7 @@ TEST_F(ArcDcalcArgTest, R6_CopyConstructor) {
 }
 
 // ArcDcalcArg: default constructed values
-TEST_F(ArcDcalcArgTest, R6_DefaultValues) {
+TEST_F(ArcDcalcArgTest, DefaultValues) {
   ArcDcalcArg arg;
   EXPECT_EQ(arg.inPin(), nullptr);
   EXPECT_EQ(arg.drvrPin(), nullptr);
@@ -2303,7 +2303,7 @@ TEST_F(ArcDcalcArgTest, R6_DefaultValues) {
 }
 
 // ArcDcalcArg: setParasitic round-trip
-TEST_F(ArcDcalcArgTest, R6_SetParasitic) {
+TEST_F(ArcDcalcArgTest, SetParasitic2) {
   ArcDcalcArg arg;
   EXPECT_EQ(arg.parasitic(), nullptr);
   // Set to a non-null sentinel (won't be dereferenced)
@@ -2315,7 +2315,7 @@ TEST_F(ArcDcalcArgTest, R6_SetParasitic) {
 }
 
 // ArcDcalcResult: zero loads
-TEST_F(ArcDcalcResultTest, R6_ZeroLoads) {
+TEST_F(ArcDcalcResultTest, ZeroLoads) {
   ArcDcalcResult result;
   result.setGateDelay(1e-10f);
   result.setDrvrSlew(5e-11f);
@@ -2324,7 +2324,7 @@ TEST_F(ArcDcalcResultTest, R6_ZeroLoads) {
 }
 
 // ArcDcalcResult: single load
-TEST_F(ArcDcalcResultTest, R6_SingleLoad) {
+TEST_F(ArcDcalcResultTest, SingleLoad2) {
   ArcDcalcResult result(1);
   result.setGateDelay(2e-10f);
   result.setDrvrSlew(1e-10f);
@@ -2335,7 +2335,7 @@ TEST_F(ArcDcalcResultTest, R6_SingleLoad) {
 }
 
 // ArcDcalcResult: setLoadCount from zero
-TEST_F(ArcDcalcResultTest, R6_SetLoadCountFromZero) {
+TEST_F(ArcDcalcResultTest, SetLoadCountFromZero) {
   ArcDcalcResult result;
   result.setLoadCount(3);
   result.setWireDelay(0, 1e-12f);
@@ -2345,7 +2345,7 @@ TEST_F(ArcDcalcResultTest, R6_SetLoadCountFromZero) {
 }
 
 // Test all calcs: name() returns non-empty string
-TEST_F(StaDcalcTest, R6_AllCalcsName) {
+TEST_F(StaDcalcTest, AllCalcsName) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -2357,7 +2357,7 @@ TEST_F(StaDcalcTest, R6_AllCalcsName) {
 }
 
 // Test all calcs: reduceSupported returns a bool
-TEST_F(StaDcalcTest, R6_AllCalcsReduceSupported) {
+TEST_F(StaDcalcTest, AllCalcsReduceSupported2) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -2370,7 +2370,7 @@ TEST_F(StaDcalcTest, R6_AllCalcsReduceSupported) {
 }
 
 // Test all calcs: copy() produces a valid calc
-TEST_F(StaDcalcTest, R6_AllCalcsCopy) {
+TEST_F(StaDcalcTest, AllCalcsCopy) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -2384,7 +2384,7 @@ TEST_F(StaDcalcTest, R6_AllCalcsCopy) {
 }
 
 // FindRoot: quadratic function with exact root
-TEST_F(FindRootAdditionalTest, R6_QuadraticExact) {
+TEST_F(FindRootAdditionalTest, QuadraticExact) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x * x - 4.0;
     dy = 2.0 * x;
@@ -2396,7 +2396,7 @@ TEST_F(FindRootAdditionalTest, R6_QuadraticExact) {
 }
 
 // FindRoot: 4-arg overload with quadratic
-TEST_F(FindRootAdditionalTest, R6_QuadraticFourArg) {
+TEST_F(FindRootAdditionalTest, QuadraticFourArg) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x * x - 9.0;
     dy = 2.0 * x;
@@ -2417,50 +2417,50 @@ TEST_F(FindRootAdditionalTest, R6_QuadraticFourArg) {
 // R8_DrvrNetNull removed (segfault - dereferences null pin)
 
 // ArcDcalcArg: multiple set/get with edge cases
-TEST_F(ArcDcalcArgTest, R8_ZeroLoadCap) {
+TEST_F(ArcDcalcArgTest, ZeroLoadCap) {
   ArcDcalcArg arg;
   arg.setLoadCap(0.0f);
   EXPECT_FLOAT_EQ(arg.loadCap(), 0.0f);
 }
 
-TEST_F(ArcDcalcArgTest, R8_NegativeInputDelay) {
+TEST_F(ArcDcalcArgTest, NegativeInputDelay) {
   ArcDcalcArg arg;
   arg.setInputDelay(-1.0e-9f);
   EXPECT_FLOAT_EQ(arg.inputDelay(), -1.0e-9f);
 }
 
-TEST_F(ArcDcalcArgTest, R8_VeryLargeLoadCap) {
+TEST_F(ArcDcalcArgTest, VeryLargeLoadCap) {
   ArcDcalcArg arg;
   arg.setLoadCap(1.0e-3f);
   EXPECT_FLOAT_EQ(arg.loadCap(), 1.0e-3f);
 }
 
-TEST_F(ArcDcalcArgTest, R8_VerySmallSlew) {
+TEST_F(ArcDcalcArgTest, VerySmallSlew) {
   ArcDcalcArg arg;
   arg.setInSlew(1.0e-15f);
   EXPECT_FLOAT_EQ(arg.inSlewFlt(), 1.0e-15f);
 }
 
 // ArcDcalcResult: edge cases
-TEST_F(ArcDcalcResultTest, R8_NegativeGateDelay) {
+TEST_F(ArcDcalcResultTest, NegativeGateDelay) {
   ArcDcalcResult result;
   result.setGateDelay(-1.0e-10f);
   EXPECT_FLOAT_EQ(delayAsFloat(result.gateDelay()), -1.0e-10f);
 }
 
-TEST_F(ArcDcalcResultTest, R8_VeryLargeWireDelay) {
+TEST_F(ArcDcalcResultTest, VeryLargeWireDelay) {
   ArcDcalcResult result(1);
   result.setWireDelay(0, 1.0e-3f);
   EXPECT_FLOAT_EQ(delayAsFloat(result.wireDelay(0)), 1.0e-3f);
 }
 
-TEST_F(ArcDcalcResultTest, R8_ZeroDrvrSlew) {
+TEST_F(ArcDcalcResultTest, ZeroDrvrSlew) {
   ArcDcalcResult result;
   result.setDrvrSlew(0.0f);
   EXPECT_FLOAT_EQ(delayAsFloat(result.drvrSlew()), 0.0f);
 }
 
-TEST_F(ArcDcalcResultTest, R8_MultipleLoadSetGet) {
+TEST_F(ArcDcalcResultTest, MultipleLoadSetGet) {
   ArcDcalcResult result(5);
   for (size_t i = 0; i < 5; i++) {
     float delay = static_cast<float>(i + 1) * 1e-12f;
@@ -2477,13 +2477,13 @@ TEST_F(ArcDcalcResultTest, R8_MultipleLoadSetGet) {
 }
 
 // NetCaps additional coverage - default constructor doesn't zero-init
-TEST_F(StaDcalcTest, R8_NetCapsDefaultConstructorExists) {
+TEST_F(StaDcalcTest, NetCapsDefaultConstructorExists) {
   NetCaps caps;
   // Default constructor doesn't initialize members, just verify construction
   SUCCEED();
 }
 
-TEST_F(StaDcalcTest, R8_NetCapsParameterizedConstructor) {
+TEST_F(StaDcalcTest, NetCapsParameterizedConstructor) {
   NetCaps caps(1.0e-12f, 2.0e-12f, 3.0f, true);
   EXPECT_FLOAT_EQ(caps.pinCap(), 1.0e-12f);
   EXPECT_FLOAT_EQ(caps.wireCap(), 2.0e-12f);
@@ -2491,7 +2491,7 @@ TEST_F(StaDcalcTest, R8_NetCapsParameterizedConstructor) {
   EXPECT_TRUE(caps.hasNetLoad());
 }
 
-TEST_F(StaDcalcTest, R8_NetCapsInit) {
+TEST_F(StaDcalcTest, NetCapsInit) {
   NetCaps caps;
   caps.init(5.0e-12f, 10.0e-12f, 2.0f, true);
   EXPECT_FLOAT_EQ(caps.pinCap(), 5.0e-12f);
@@ -2500,7 +2500,7 @@ TEST_F(StaDcalcTest, R8_NetCapsInit) {
   EXPECT_TRUE(caps.hasNetLoad());
 }
 
-TEST_F(StaDcalcTest, R8_NetCapsInitZero) {
+TEST_F(StaDcalcTest, NetCapsInitZero) {
   NetCaps caps(1.0f, 2.0f, 3.0f, true);
   caps.init(0.0f, 0.0f, 0.0f, false);
   EXPECT_FLOAT_EQ(caps.pinCap(), 0.0f);
@@ -2509,7 +2509,7 @@ TEST_F(StaDcalcTest, R8_NetCapsInitZero) {
   EXPECT_FALSE(caps.hasNetLoad());
 }
 
-TEST_F(StaDcalcTest, R8_NetCapsLargeValues) {
+TEST_F(StaDcalcTest, NetCapsLargeValues2) {
   NetCaps caps(100.0e-12f, 200.0e-12f, 50.0f, true);
   EXPECT_FLOAT_EQ(caps.pinCap(), 100.0e-12f);
   EXPECT_FLOAT_EQ(caps.wireCap(), 200.0e-12f);
@@ -2517,42 +2517,42 @@ TEST_F(StaDcalcTest, R8_NetCapsLargeValues) {
 }
 
 // GraphDelayCalc additional coverage
-TEST_F(StaDcalcTest, R8_GraphDelayCalcConstruct) {
+TEST_F(StaDcalcTest, GraphDelayCalcConstruct) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   EXPECT_NE(gdc, nullptr);
 }
 
-TEST_F(StaDcalcTest, R8_GraphDelayCalcClear) {
+TEST_F(StaDcalcTest, GraphDelayCalcClear3) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->clear();
   SUCCEED();
 }
 
-TEST_F(StaDcalcTest, R8_GraphDelayCalcDelaysInvalid) {
+TEST_F(StaDcalcTest, GraphDelayCalcDelaysInvalid3) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->delaysInvalid();
   SUCCEED();
 }
 
-TEST_F(StaDcalcTest, R8_GraphDelayCalcSetObserver) {
+TEST_F(StaDcalcTest, GraphDelayCalcSetObserver) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->setObserver(nullptr);
   SUCCEED();
 }
 
-TEST_F(StaDcalcTest, R8_GraphDelayCalcLevelsChanged) {
+TEST_F(StaDcalcTest, GraphDelayCalcLevelsChanged) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->levelsChangedBefore();
   SUCCEED();
 }
 
-TEST_F(StaDcalcTest, R8_GraphDelayCalcCopyState) {
+TEST_F(StaDcalcTest, GraphDelayCalcCopyState3) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->copyState(sta_);
   SUCCEED();
 }
 
-TEST_F(StaDcalcTest, R8_GraphDelayCalcIncrTolerance) {
+TEST_F(StaDcalcTest, GraphDelayCalcIncrTolerance) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   float tol = gdc->incrementalDelayTolerance();
   EXPECT_GE(tol, 0.0f);
@@ -2569,7 +2569,7 @@ TEST_F(StaDcalcTest, R8_GraphDelayCalcIncrTolerance) {
 // R8_AllCalcsReportCheckDelay removed (segfault)
 
 // FindRoot: additional edge cases
-TEST_F(FindRootAdditionalTest, R8_LinearFunction) {
+TEST_F(FindRootAdditionalTest, LinearFunction2) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = 2.0 * x - 10.0;
     dy = 2.0;
@@ -2580,7 +2580,7 @@ TEST_F(FindRootAdditionalTest, R8_LinearFunction) {
   EXPECT_NEAR(root, 5.0, 1e-8);
 }
 
-TEST_F(FindRootAdditionalTest, R8_FourArgLinear) {
+TEST_F(FindRootAdditionalTest, FourArgLinear) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = 3.0 * x - 6.0;
     dy = 3.0;
@@ -2592,7 +2592,7 @@ TEST_F(FindRootAdditionalTest, R8_FourArgLinear) {
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
 
-TEST_F(FindRootAdditionalTest, R8_HighOrderPoly) {
+TEST_F(FindRootAdditionalTest, HighOrderPoly) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x * x * x * x - 16.0;
     dy = 4.0 * x * x * x;
@@ -2603,7 +2603,7 @@ TEST_F(FindRootAdditionalTest, R8_HighOrderPoly) {
   EXPECT_NEAR(root, 2.0, 1e-6);
 }
 
-TEST_F(FindRootAdditionalTest, R8_NegativeRoot) {
+TEST_F(FindRootAdditionalTest, NegativeRoot) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x + 3.0;
     dy = 1.0;
@@ -2614,7 +2614,7 @@ TEST_F(FindRootAdditionalTest, R8_NegativeRoot) {
   EXPECT_NEAR(root, -3.0, 1e-8);
 }
 
-TEST_F(FindRootAdditionalTest, R8_TrigFunction) {
+TEST_F(FindRootAdditionalTest, TrigFunction) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = std::cos(x);
     dy = -std::sin(x);
@@ -2626,7 +2626,7 @@ TEST_F(FindRootAdditionalTest, R8_TrigFunction) {
   EXPECT_NEAR(root, M_PI / 2.0, 1e-8);
 }
 
-TEST_F(FindRootAdditionalTest, R8_VeryTightBounds) {
+TEST_F(FindRootAdditionalTest, VeryTightBounds) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x - 5.0;
     dy = 1.0;
@@ -2637,7 +2637,7 @@ TEST_F(FindRootAdditionalTest, R8_VeryTightBounds) {
   EXPECT_NEAR(root, 5.0, 1e-8);
 }
 
-TEST_F(FindRootAdditionalTest, R8_ExpFunction) {
+TEST_F(FindRootAdditionalTest, ExpFunction) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = std::exp(x) - 10.0;
     dy = std::exp(x);
@@ -2648,7 +2648,7 @@ TEST_F(FindRootAdditionalTest, R8_ExpFunction) {
   EXPECT_NEAR(root, std::log(10.0), 1e-8);
 }
 
-TEST_F(FindRootAdditionalTest, R8_FourArgSwap) {
+TEST_F(FindRootAdditionalTest, FourArgSwap) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x - 7.0;
     dy = 1.0;
@@ -2661,28 +2661,28 @@ TEST_F(FindRootAdditionalTest, R8_FourArgSwap) {
 }
 
 // DesignDcalcTest: additional delay calculator exercises on real design
-TEST_F(DesignDcalcTest, R8_TimingLumpedCap) {
+TEST_F(DesignDcalcTest, TimingLumpedCap2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("lumped_cap");
   sta_->updateTiming(true);
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R8_TimingUnit) {
+TEST_F(DesignDcalcTest, TimingUnit2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("unit");
   sta_->updateTiming(true);
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R8_TimingArnoldi) {
+TEST_F(DesignDcalcTest, TimingArnoldi2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("arnoldi");
   sta_->updateTiming(true);
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R8_FindDelaysDmpElmore) {
+TEST_F(DesignDcalcTest, FindDelaysDmpElmore) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -2692,21 +2692,21 @@ TEST_F(DesignDcalcTest, R8_FindDelaysDmpElmore) {
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R8_FindDelaysDmpTwoPole) {
+TEST_F(DesignDcalcTest, FindDelaysDmpTwoPole2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_two_pole");
   sta_->updateTiming(true);
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R8_FindDelaysCcsCeff) {
+TEST_F(DesignDcalcTest, FindDelaysCcsCeff2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("ccs_ceff");
   sta_->updateTiming(true);
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R8_FindDelaysPrima) {
+TEST_F(DesignDcalcTest, FindDelaysPrima2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("prima");
   sta_->updateTiming(true);
@@ -2720,14 +2720,14 @@ TEST_F(DesignDcalcTest, R8_FindDelaysPrima) {
 // R8_LumpedCapReportGateDelay removed (segfault)
 
 // LumpedCap: safe exercises that don't need real timing arcs
-TEST_F(StaDcalcTest, R8_LumpedCapFinishDrvrPin) {
+TEST_F(StaDcalcTest, LumpedCapFinishDrvrPin2) {
   ArcDelayCalc *calc = makeDelayCalc("lumped_cap", sta_);
   ASSERT_NE(calc, nullptr);
   calc->finishDrvrPin();
   delete calc;
 }
 
-TEST_F(StaDcalcTest, R8_LumpedCapCopyState) {
+TEST_F(StaDcalcTest, LumpedCapCopyState2) {
   ArcDelayCalc *calc = makeDelayCalc("lumped_cap", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -2738,14 +2738,14 @@ TEST_F(StaDcalcTest, R8_LumpedCapCopyState) {
 // R8_DmpCeffElmoreFindParasitic removed (segfault)
 // R8_DmpCeffElmoreInputPortDelay removed (segfault)
 
-TEST_F(StaDcalcTest, R8_DmpCeffElmoreFinishDrvrPin) {
+TEST_F(StaDcalcTest, DmpCeffElmoreFinishDrvrPin2) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_elmore", sta_);
   ASSERT_NE(calc, nullptr);
   calc->finishDrvrPin();
   delete calc;
 }
 
-TEST_F(StaDcalcTest, R8_DmpCeffElmoreCopyState) {
+TEST_F(StaDcalcTest, DmpCeffElmoreCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_elmore", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -2756,14 +2756,14 @@ TEST_F(StaDcalcTest, R8_DmpCeffElmoreCopyState) {
 // R8_DmpCeffTwoPoleFindParasitic removed (segfault)
 // R8_DmpCeffTwoPoleInputPortDelay removed (segfault)
 
-TEST_F(StaDcalcTest, R8_DmpCeffTwoPoleFinishDrvrPin) {
+TEST_F(StaDcalcTest, DmpCeffTwoPoleFinishDrvrPin2) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_two_pole", sta_);
   ASSERT_NE(calc, nullptr);
   calc->finishDrvrPin();
   delete calc;
 }
 
-TEST_F(StaDcalcTest, R8_DmpCeffTwoPoleCopyState) {
+TEST_F(StaDcalcTest, DmpCeffTwoPoleCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_two_pole", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -2774,14 +2774,14 @@ TEST_F(StaDcalcTest, R8_DmpCeffTwoPoleCopyState) {
 // R8_CcsCeffFindParasitic removed (segfault)
 // R8_CcsCeffInputPortDelay removed (segfault)
 
-TEST_F(StaDcalcTest, R8_CcsCeffFinishDrvrPin) {
+TEST_F(StaDcalcTest, CcsCeffFinishDrvrPin2) {
   ArcDelayCalc *calc = makeDelayCalc("ccs_ceff", sta_);
   ASSERT_NE(calc, nullptr);
   calc->finishDrvrPin();
   delete calc;
 }
 
-TEST_F(StaDcalcTest, R8_CcsCeffCopyState) {
+TEST_F(StaDcalcTest, CcsCeffCopyState2) {
   ArcDelayCalc *calc = makeDelayCalc("ccs_ceff", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -2792,7 +2792,7 @@ TEST_F(StaDcalcTest, R8_CcsCeffCopyState) {
 // R8_PrimaFindParasitic removed (segfault)
 // R8_PrimaInputPortDelay removed (segfault)
 
-TEST_F(StaDcalcTest, R8_PrimaCopyState) {
+TEST_F(StaDcalcTest, PrimaCopyState2) {
   ArcDelayCalc *calc = makeDelayCalc("prima", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -2801,19 +2801,19 @@ TEST_F(StaDcalcTest, R8_PrimaCopyState) {
 }
 
 // ArcDcalcArg: FullConstructor variants
-TEST_F(ArcDcalcArgTest, R8_FullConstructorAllZeros) {
+TEST_F(ArcDcalcArgTest, FullConstructorAllZeros) {
   ArcDcalcArg arg(nullptr, nullptr, nullptr, nullptr, 0.0f, 0.0f, nullptr);
   EXPECT_FLOAT_EQ(arg.inSlewFlt(), 0.0f);
   EXPECT_FLOAT_EQ(arg.loadCap(), 0.0f);
   EXPECT_FLOAT_EQ(arg.inputDelay(), 0.0f);
 }
 
-TEST_F(ArcDcalcArgTest, R8_InputDelayConstructorZero) {
+TEST_F(ArcDcalcArgTest, InputDelayConstructorZero) {
   ArcDcalcArg arg(nullptr, nullptr, nullptr, nullptr, 0.0f);
   EXPECT_FLOAT_EQ(arg.inputDelay(), 0.0f);
 }
 
-TEST_F(ArcDcalcArgTest, R8_CopyAssignment) {
+TEST_F(ArcDcalcArgTest, CopyAssignment) {
   ArcDcalcArg arg;
   arg.setLoadCap(3.0e-12f);
   arg.setInputDelay(2.0e-9f);
@@ -2827,7 +2827,7 @@ TEST_F(ArcDcalcArgTest, R8_CopyAssignment) {
 }
 
 // ArcDcalcResult: copy construction
-TEST_F(ArcDcalcResultTest, R8_CopyConstruction) {
+TEST_F(ArcDcalcResultTest, CopyConstruction) {
   ArcDcalcResult result(3);
   result.setGateDelay(1e-10f);
   result.setDrvrSlew(2e-10f);
@@ -2847,7 +2847,7 @@ TEST_F(ArcDcalcResultTest, R8_CopyConstruction) {
 }
 
 // ArcDcalcArgSeq operations
-TEST_F(ArcDcalcArgTest, R8_ArgSeqOperations) {
+TEST_F(ArcDcalcArgTest, ArgSeqOperations) {
   ArcDcalcArgSeq args;
   for (int i = 0; i < 5; i++) {
     ArcDcalcArg arg;
@@ -2864,7 +2864,7 @@ TEST_F(ArcDcalcArgTest, R8_ArgSeqOperations) {
 // R8_AllCalcsReduceParasiticNet removed (segfault)
 
 // All delay calcs: setDcalcArgParasiticSlew (single and seq)
-TEST_F(StaDcalcTest, R8_AllCalcsSetDcalcArgParasitic) {
+TEST_F(StaDcalcTest, AllCalcsSetDcalcArgParasitic) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -2883,7 +2883,7 @@ TEST_F(StaDcalcTest, R8_AllCalcsSetDcalcArgParasitic) {
 ////////////////////////////////////////////////////////////////
 
 // R9_ Test reportDelayCalc with dmp_ceff_elmore (exercises gateDelaySlew)
-TEST_F(DesignDcalcTest, R9_ReportDelayCalcDmpElmore) {
+TEST_F(DesignDcalcTest, ReportDelayCalcDmpElmore) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -2912,7 +2912,7 @@ TEST_F(DesignDcalcTest, R9_ReportDelayCalcDmpElmore) {
 }
 
 // R9_ Test reportDelayCalc with dmp_ceff_two_pole
-TEST_F(DesignDcalcTest, R9_ReportDelayCalcDmpTwoPole) {
+TEST_F(DesignDcalcTest, ReportDelayCalcDmpTwoPole) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_two_pole");
   sta_->updateTiming(true);
@@ -2941,7 +2941,7 @@ TEST_F(DesignDcalcTest, R9_ReportDelayCalcDmpTwoPole) {
 }
 
 // R9_ Test reportDelayCalc with ccs_ceff
-TEST_F(DesignDcalcTest, R9_ReportDelayCalcCcsCeff) {
+TEST_F(DesignDcalcTest, ReportDelayCalcCcsCeff) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("ccs_ceff");
   sta_->updateTiming(true);
@@ -2970,7 +2970,7 @@ TEST_F(DesignDcalcTest, R9_ReportDelayCalcCcsCeff) {
 }
 
 // R9_ Test reportDelayCalc with lumped_cap
-TEST_F(DesignDcalcTest, R9_ReportDelayCalcLumpedCap) {
+TEST_F(DesignDcalcTest, ReportDelayCalcLumpedCap) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("lumped_cap");
   sta_->updateTiming(true);
@@ -2999,7 +2999,7 @@ TEST_F(DesignDcalcTest, R9_ReportDelayCalcLumpedCap) {
 }
 
 // R9_ Test reportDelayCalc with arnoldi
-TEST_F(DesignDcalcTest, R9_ReportDelayCalcArnoldi) {
+TEST_F(DesignDcalcTest, ReportDelayCalcArnoldi) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("arnoldi");
   sta_->updateTiming(true);
@@ -3028,7 +3028,7 @@ TEST_F(DesignDcalcTest, R9_ReportDelayCalcArnoldi) {
 }
 
 // R9_ Test reportDelayCalc with prima
-TEST_F(DesignDcalcTest, R9_ReportDelayCalcPrima) {
+TEST_F(DesignDcalcTest, ReportDelayCalcPrima) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("prima");
   Corner *corner = sta_->cmdCorner();
@@ -3060,7 +3060,7 @@ TEST_F(DesignDcalcTest, R9_ReportDelayCalcPrima) {
 }
 
 // R9_ Test incremental timing with different calculators
-TEST_F(DesignDcalcTest, R9_IncrementalDmpTwoPole) {
+TEST_F(DesignDcalcTest, IncrementalDmpTwoPole) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_two_pole");
   sta_->updateTiming(true);
@@ -3068,7 +3068,7 @@ TEST_F(DesignDcalcTest, R9_IncrementalDmpTwoPole) {
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R9_IncrementalCcsCeff) {
+TEST_F(DesignDcalcTest, IncrementalCcsCeff) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("ccs_ceff");
   sta_->updateTiming(true);
@@ -3076,7 +3076,7 @@ TEST_F(DesignDcalcTest, R9_IncrementalCcsCeff) {
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R9_IncrementalLumpedCap) {
+TEST_F(DesignDcalcTest, IncrementalLumpedCap) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("lumped_cap");
   sta_->updateTiming(true);
@@ -3084,7 +3084,7 @@ TEST_F(DesignDcalcTest, R9_IncrementalLumpedCap) {
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R9_IncrementalArnoldi) {
+TEST_F(DesignDcalcTest, IncrementalArnoldi) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("arnoldi");
   sta_->updateTiming(true);
@@ -3092,7 +3092,7 @@ TEST_F(DesignDcalcTest, R9_IncrementalArnoldi) {
   SUCCEED();
 }
 
-TEST_F(DesignDcalcTest, R9_IncrementalPrima) {
+TEST_F(DesignDcalcTest, IncrementalPrima) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("prima");
   sta_->updateTiming(true);
@@ -3101,7 +3101,7 @@ TEST_F(DesignDcalcTest, R9_IncrementalPrima) {
 }
 
 // R9_ Cycle through all calculators
-TEST_F(DesignDcalcTest, R9_CycleAllCalcs) {
+TEST_F(DesignDcalcTest, CycleAllCalcs) {
   ASSERT_TRUE(design_loaded_);
   const char *calcs[] = {"unit", "lumped_cap", "dmp_ceff_elmore",
                           "dmp_ceff_two_pole", "arnoldi", "ccs_ceff", "prima"};
@@ -3115,7 +3115,7 @@ TEST_F(DesignDcalcTest, R9_CycleAllCalcs) {
 // R9_ReportMultipleEdges removed (segfault)
 
 // R9_ Test findDelays then verify graph vertices have edge delays
-TEST_F(DesignDcalcTest, R9_VerifyEdgeDelays) {
+TEST_F(DesignDcalcTest, VerifyEdgeDelays) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3137,7 +3137,7 @@ TEST_F(DesignDcalcTest, R9_VerifyEdgeDelays) {
 }
 
 // R9_ Test min analysis report
-TEST_F(DesignDcalcTest, R9_MinAnalysisReport) {
+TEST_F(DesignDcalcTest, MinAnalysisReport) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3165,7 +3165,7 @@ TEST_F(DesignDcalcTest, R9_MinAnalysisReport) {
 }
 
 // R9_ Test arnoldi reduce on design
-TEST_F(DesignDcalcTest, R9_ArnoldiReduceDesign) {
+TEST_F(DesignDcalcTest, ArnoldiReduceDesign) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
   Instance *top = sta_->network()->topInstance();
@@ -3207,7 +3207,7 @@ TEST_F(DesignDcalcTest, R9_ArnoldiReduceDesign) {
 }
 
 // R9_ CcsCeff watchPin with design pin
-TEST_F(DesignDcalcTest, R9_CcsCeffWatchPinDesign) {
+TEST_F(DesignDcalcTest, CcsCeffWatchPinDesign) {
   ASSERT_TRUE(design_loaded_);
   ArcDelayCalc *calc = makeDelayCalc("ccs_ceff", sta_);
   CcsCeffDelayCalc *ccs = dynamic_cast<CcsCeffDelayCalc*>(calc);
@@ -3225,7 +3225,7 @@ TEST_F(DesignDcalcTest, R9_CcsCeffWatchPinDesign) {
 }
 
 // R9_ PrimaDelayCalc watchPin with design pin
-TEST_F(DesignDcalcTest, R9_PrimaWatchPinDesign) {
+TEST_F(DesignDcalcTest, PrimaWatchPinDesign) {
   ASSERT_TRUE(design_loaded_);
   ArcDelayCalc *calc = makeDelayCalc("prima", sta_);
   PrimaDelayCalc *prima = dynamic_cast<PrimaDelayCalc*>(calc);
@@ -3243,7 +3243,7 @@ TEST_F(DesignDcalcTest, R9_PrimaWatchPinDesign) {
 }
 
 // R9_ Test setIncrementalDelayTolerance + retiming
-TEST_F(DesignDcalcTest, R9_IncrTolRetiming) {
+TEST_F(DesignDcalcTest, IncrTolRetiming) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->setIncrementalDelayTolerance(0.01f);
@@ -3254,7 +3254,7 @@ TEST_F(DesignDcalcTest, R9_IncrTolRetiming) {
 }
 
 // R9_ Test findDelays with graph verification
-TEST_F(DesignDcalcTest, R9_FindDelaysVerifyGraph) {
+TEST_F(DesignDcalcTest, FindDelaysVerifyGraph) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->findDelays();
@@ -3264,7 +3264,7 @@ TEST_F(DesignDcalcTest, R9_FindDelaysVerifyGraph) {
 }
 
 // R9_ NetCaps very small values
-TEST_F(StaDcalcTest, R9_NetCapsVerySmall) {
+TEST_F(StaDcalcTest, NetCapsVerySmall) {
   NetCaps caps;
   caps.init(1e-18f, 2e-18f, 0.001f, true);
   EXPECT_FLOAT_EQ(caps.pinCap(), 1e-18f);
@@ -3273,7 +3273,7 @@ TEST_F(StaDcalcTest, R9_NetCapsVerySmall) {
 }
 
 // R9_ NetCaps negative values
-TEST_F(StaDcalcTest, R9_NetCapsNegative) {
+TEST_F(StaDcalcTest, NetCapsNegative) {
   NetCaps caps;
   caps.init(-1e-12f, -2e-12f, -1.0f, false);
   EXPECT_FLOAT_EQ(caps.pinCap(), -1e-12f);
@@ -3281,7 +3281,7 @@ TEST_F(StaDcalcTest, R9_NetCapsNegative) {
 }
 
 // R9_ ArcDcalcArg full constructor with all non-null
-TEST_F(ArcDcalcArgTest, R9_FullConstructorNonNull) {
+TEST_F(ArcDcalcArgTest, FullConstructorNonNull) {
   int d1=1,d2=2,d3=3,d4=4,d5=5;
   ArcDcalcArg arg(reinterpret_cast<const Pin*>(&d1),
                    reinterpret_cast<const Pin*>(&d2),
@@ -3303,7 +3303,7 @@ TEST_F(ArcDcalcArgTest, R9_FullConstructorNonNull) {
 }
 
 // R9_ ArcDcalcResult large load count ops
-TEST_F(ArcDcalcResultTest, R9_LargeLoadCountOps) {
+TEST_F(ArcDcalcResultTest, LargeLoadCountOps) {
   ArcDcalcResult result(50);
   result.setGateDelay(1e-9f);
   result.setDrvrSlew(5e-10f);
@@ -3316,7 +3316,7 @@ TEST_F(ArcDcalcResultTest, R9_LargeLoadCountOps) {
 }
 
 // R9_ ArcDcalcResult: resize multiple times
-TEST_F(ArcDcalcResultTest, R9_ResizeMultiple) {
+TEST_F(ArcDcalcResultTest, ResizeMultiple) {
   ArcDcalcResult result;
   for (int s = 1; s <= 10; s++) {
     result.setLoadCount(s);
@@ -3327,7 +3327,7 @@ TEST_F(ArcDcalcResultTest, R9_ResizeMultiple) {
 }
 
 // R9_ ArcDcalcResultSeq operations
-TEST_F(ArcDcalcResultTest, R9_ResultSeqOps) {
+TEST_F(ArcDcalcResultTest, ResultSeqOps) {
   ArcDcalcResultSeq results;
   for (int i = 0; i < 10; i++) {
     ArcDcalcResult r(3);
@@ -3339,7 +3339,7 @@ TEST_F(ArcDcalcResultTest, R9_ResultSeqOps) {
 }
 
 // R9_ FindRoot: steep derivative
-TEST_F(FindRootAdditionalTest, R9_SteepDerivative) {
+TEST_F(FindRootAdditionalTest, SteepDerivative) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = 1000.0 * x - 500.0;
     dy = 1000.0;
@@ -3351,7 +3351,7 @@ TEST_F(FindRootAdditionalTest, R9_SteepDerivative) {
 }
 
 // R9_ FindRoot: quartic function
-TEST_F(FindRootAdditionalTest, R9_QuarticRoot) {
+TEST_F(FindRootAdditionalTest, QuarticRoot) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x*x*x*x - 81.0;
     dy = 4.0*x*x*x;
@@ -3363,7 +3363,7 @@ TEST_F(FindRootAdditionalTest, R9_QuarticRoot) {
 }
 
 // R9_ FindRoot: 4-arg negative bracket
-TEST_F(FindRootAdditionalTest, R9_FourArgNegBracket) {
+TEST_F(FindRootAdditionalTest, FourArgNegBracket) {
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x + 5.0;
     dy = 1.0;
@@ -3375,7 +3375,7 @@ TEST_F(FindRootAdditionalTest, R9_FourArgNegBracket) {
 }
 
 // R9_ MultiDrvrNet set and reset
-TEST_F(StaDcalcTest, R9_MultiDrvrNetSetReset) {
+TEST_F(StaDcalcTest, MultiDrvrNetSetReset) {
   MultiDrvrNet mdn;
   int d1=1,d2=2;
   mdn.setDcalcDrvr(reinterpret_cast<Vertex*>(&d1));
@@ -3387,7 +3387,7 @@ TEST_F(StaDcalcTest, R9_MultiDrvrNetSetReset) {
 }
 
 // R9_ All calcs copyState twice
-TEST_F(StaDcalcTest, R9_AllCalcsCopyStateTwice) {
+TEST_F(StaDcalcTest, AllCalcsCopyStateTwice) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -3399,7 +3399,7 @@ TEST_F(StaDcalcTest, R9_AllCalcsCopyStateTwice) {
 }
 
 // R9_ GraphDelayCalc levels then clear
-TEST_F(StaDcalcTest, R9_GraphDelayCalcLevelsClear) {
+TEST_F(StaDcalcTest, GraphDelayCalcLevelsClear) {
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   ASSERT_NE(gdc, nullptr);
   gdc->levelsChangedBefore();
@@ -3408,7 +3408,7 @@ TEST_F(StaDcalcTest, R9_GraphDelayCalcLevelsClear) {
 }
 
 // R9_ All calcs inputPortDelay with non-zero slew
-TEST_F(StaDcalcTest, R9_AllCalcsInputPortDelaySlew) {
+TEST_F(StaDcalcTest, AllCalcsInputPortDelaySlew) {
   StringSeq names = delayCalcNames();
   for (const char *name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
@@ -3428,7 +3428,7 @@ TEST_F(StaDcalcTest, R9_AllCalcsInputPortDelaySlew) {
 
 // R10_ DmpCeffElmore: explicit make/delete exercises constructor/destructor
 // Covers: DmpCeffElmoreDelayCalc::DmpCeffElmoreDelayCalc, DmpCeffDelayCalc::~DmpCeffDelayCalc
-TEST_F(StaDcalcTest, R10_DmpCeffElmoreMakeDelete) {
+TEST_F(StaDcalcTest, DmpCeffElmoreMakeDelete) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   EXPECT_STREQ(calc->name(), "dmp_ceff_elmore");
@@ -3438,7 +3438,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffElmoreMakeDelete) {
 
 // R10_ DmpCeffTwoPole: explicit make/delete exercises constructor/destructor
 // Covers: DmpCeffTwoPoleDelayCalc::DmpCeffTwoPoleDelayCalc, DmpCeffDelayCalc::~DmpCeffDelayCalc
-TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleMakeDelete) {
+TEST_F(StaDcalcTest, DmpCeffTwoPoleMakeDelete) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   EXPECT_STREQ(calc->name(), "dmp_ceff_two_pole");
@@ -3448,7 +3448,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleMakeDelete) {
 
 // R10_ DmpCeffElmore: copy exercises copy constructor chain
 // Covers: DmpCeffElmoreDelayCalc::copy -> DmpCeffElmoreDelayCalc(StaState*)
-TEST_F(StaDcalcTest, R10_DmpCeffElmoreCopy) {
+TEST_F(StaDcalcTest, DmpCeffElmoreCopy2) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
@@ -3460,7 +3460,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffElmoreCopy) {
 
 // R10_ DmpCeffTwoPole: copy exercises copy constructor chain
 // Covers: DmpCeffTwoPoleDelayCalc::copy
-TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleCopy) {
+TEST_F(StaDcalcTest, DmpCeffTwoPoleCopy2) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
@@ -3471,7 +3471,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleCopy) {
 }
 
 // R10_ DmpCeffElmore: copyState exercises DmpCeffDelayCalc::copyState
-TEST_F(StaDcalcTest, R10_DmpCeffElmoreCopyState) {
+TEST_F(StaDcalcTest, DmpCeffElmoreCopyState2) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -3480,7 +3480,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffElmoreCopyState) {
 }
 
 // R10_ DmpCeffTwoPole: copyState exercises DmpCeffDelayCalc::copyState
-TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleCopyState) {
+TEST_F(StaDcalcTest, DmpCeffTwoPoleCopyState2) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
@@ -3490,7 +3490,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleCopyState) {
 
 // R10_ DmpCeffElmore inputPortDelay with null args
 // Covers: DmpCeffElmoreDelayCalc::inputPortDelay
-TEST_F(StaDcalcTest, R10_DmpCeffElmoreInputPortDelay) {
+TEST_F(StaDcalcTest, DmpCeffElmoreInputPortDelay2) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   LoadPinIndexMap load_pin_index_map(sta_->network());
@@ -3503,7 +3503,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffElmoreInputPortDelay) {
 
 // R10_ DmpCeffTwoPole inputPortDelay with null args
 // Covers: DmpCeffTwoPoleDelayCalc::inputPortDelay
-TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleInputPortDelay) {
+TEST_F(StaDcalcTest, DmpCeffTwoPoleInputPortDelay2) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   LoadPinIndexMap load_pin_index_map(sta_->network());
@@ -3515,7 +3515,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleInputPortDelay) {
 }
 
 // R10_ DmpCeffElmore: setDcalcArgParasiticSlew with empty args
-TEST_F(StaDcalcTest, R10_DmpCeffElmoreSetDcalcArgEmpty) {
+TEST_F(StaDcalcTest, DmpCeffElmoreSetDcalcArgEmpty) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   ArcDcalcArgSeq args;
@@ -3524,7 +3524,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffElmoreSetDcalcArgEmpty) {
 }
 
 // R10_ DmpCeffTwoPole: setDcalcArgParasiticSlew with empty args
-TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleSetDcalcArgEmpty) {
+TEST_F(StaDcalcTest, DmpCeffTwoPoleSetDcalcArgEmpty) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   ArcDcalcArgSeq args;
@@ -3533,7 +3533,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleSetDcalcArgEmpty) {
 }
 
 // R10_ DmpCeffElmore: finishDrvrPin doesn't crash
-TEST_F(StaDcalcTest, R10_DmpCeffElmoreFinishDrvrPin) {
+TEST_F(StaDcalcTest, DmpCeffElmoreFinishDrvrPin3) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   calc->finishDrvrPin();
@@ -3541,7 +3541,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffElmoreFinishDrvrPin) {
 }
 
 // R10_ DmpCeffTwoPole: finishDrvrPin doesn't crash
-TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleFinishDrvrPin) {
+TEST_F(StaDcalcTest, DmpCeffTwoPoleFinishDrvrPin3) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   calc->finishDrvrPin();
@@ -3552,7 +3552,7 @@ TEST_F(StaDcalcTest, R10_DmpCeffTwoPoleFinishDrvrPin) {
 // Covers: GraphDelayCalc::findDelays(Vertex*), initRootSlews, findDriverArcDelays,
 //         zeroSlewAndWireDelays, FindVertexDelays ctor/dtor/copy,
 //         DmpCeffDelayCalc::gateDelaySlew, DmpAlg internal methods
-TEST_F(DesignDcalcTest, R10_DmpCeffElmoreVertexDelays) {
+TEST_F(DesignDcalcTest, DmpCeffElmoreVertexDelays) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3580,7 +3580,7 @@ TEST_F(DesignDcalcTest, R10_DmpCeffElmoreVertexDelays) {
 
 // R10_ DesignDcalcTest: Full timing with dmp_ceff_two_pole with detailed parasitics
 // Covers: DmpCeffTwoPoleDelayCalc::loadDelay, gateDelay
-TEST_F(DesignDcalcTest, R10_DmpCeffTwoPoleWithParasitics) {
+TEST_F(DesignDcalcTest, DmpCeffTwoPoleWithParasitics) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
   Instance *top = sta_->network()->topInstance();
@@ -3596,7 +3596,7 @@ TEST_F(DesignDcalcTest, R10_DmpCeffTwoPoleWithParasitics) {
 
 // R10_ DesignDcalcTest: reportDelayCalc exercises report path
 // Covers: GraphDelayCalc::reportDelayCalc
-TEST_F(DesignDcalcTest, R10_ReportDelayCalcDmpElmore) {
+TEST_F(DesignDcalcTest, ReportDelayCalcDmpElmore2) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3634,7 +3634,7 @@ TEST_F(DesignDcalcTest, R10_ReportDelayCalcDmpElmore) {
 
 // R10_ DesignDcalcTest: loadCap query after timing
 // Covers: GraphDelayCalc::loadCap variants
-TEST_F(DesignDcalcTest, R10_LoadCapQuery) {
+TEST_F(DesignDcalcTest, LoadCapQuery) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3665,7 +3665,7 @@ TEST_F(DesignDcalcTest, R10_LoadCapQuery) {
 
 // R10_ DesignDcalcTest: netCaps query after timing
 // Covers: GraphDelayCalc::netCaps
-TEST_F(DesignDcalcTest, R10_NetCapsQuery) {
+TEST_F(DesignDcalcTest, NetCapsQuery) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3693,7 +3693,7 @@ TEST_F(DesignDcalcTest, R10_NetCapsQuery) {
 
 // R10_ DesignDcalcTest: makeLoadPinIndexMap exercises vertex pin mapping
 // Covers: GraphDelayCalc::makeLoadPinIndexMap
-TEST_F(DesignDcalcTest, R10_MakeLoadPinIndexMap) {
+TEST_F(DesignDcalcTest, MakeLoadPinIndexMap) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3718,7 +3718,7 @@ TEST_F(DesignDcalcTest, R10_MakeLoadPinIndexMap) {
 
 // R10_ DesignDcalcTest: findDriverArcDelays exercises the public 5-arg overload
 // Covers: GraphDelayCalc::findDriverArcDelays
-TEST_F(DesignDcalcTest, R10_FindDriverArcDelays) {
+TEST_F(DesignDcalcTest, FindDriverArcDelays) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3756,7 +3756,7 @@ TEST_F(DesignDcalcTest, R10_FindDriverArcDelays) {
 
 // R10_ DesignDcalcTest: edgeFromSlew exercises slew lookup (TimingRole overload)
 // Covers: GraphDelayCalc::edgeFromSlew
-TEST_F(DesignDcalcTest, R10_EdgeFromSlew) {
+TEST_F(DesignDcalcTest, EdgeFromSlew) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3785,7 +3785,7 @@ TEST_F(DesignDcalcTest, R10_EdgeFromSlew) {
 
 // R10_ DesignDcalcTest: incremental delay tolerance exercises incremental code path
 // Covers: GraphDelayCalc::incrementalDelayTolerance
-TEST_F(DesignDcalcTest, R10_IncrementalDelayToleranceQuery) {
+TEST_F(DesignDcalcTest, IncrementalDelayToleranceQuery) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
@@ -3803,7 +3803,7 @@ TEST_F(DesignDcalcTest, R10_IncrementalDelayToleranceQuery) {
 
 // R10_ DesignDcalcTest: delayInvalid(Vertex*) and delayInvalid(Pin*)
 // Covers: GraphDelayCalc::delayInvalid variants
-TEST_F(DesignDcalcTest, R10_DelayInvalidVariants) {
+TEST_F(DesignDcalcTest, DelayInvalidVariants) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3828,7 +3828,7 @@ TEST_F(DesignDcalcTest, R10_DelayInvalidVariants) {
 
 // R10_ DesignDcalcTest: CCS ceff with actual parasitics
 // Covers: CcsCeffDelayCalc paths
-TEST_F(DesignDcalcTest, R10_CcsCeffWithParasitics) {
+TEST_F(DesignDcalcTest, CcsCeffWithParasitics) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("ccs_ceff");
   sta_->updateTiming(true);
@@ -3839,7 +3839,7 @@ TEST_F(DesignDcalcTest, R10_CcsCeffWithParasitics) {
 }
 
 // R10_ DesignDcalcTest: CCS ceff with unreduced parasitics
-TEST_F(DesignDcalcTest, R10_CcsCeffUnreducedParasitics) {
+TEST_F(DesignDcalcTest, CcsCeffUnreducedParasitics) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
   Instance *top = sta_->network()->topInstance();
@@ -3855,7 +3855,7 @@ TEST_F(DesignDcalcTest, R10_CcsCeffUnreducedParasitics) {
 
 // R10_ DesignDcalcTest: prima with timing and reporting
 // Covers: PrimaDelayCalc internal methods
-TEST_F(DesignDcalcTest, R10_PrimaTimingWithReport) {
+TEST_F(DesignDcalcTest, PrimaTimingWithReport) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
   Instance *top = sta_->network()->topInstance();
@@ -3895,7 +3895,7 @@ TEST_F(DesignDcalcTest, R10_PrimaTimingWithReport) {
 
 // R10_ DesignDcalcTest: bidirectDrvrSlewFromLoad
 // Covers: GraphDelayCalc::bidirectDrvrSlewFromLoad
-TEST_F(DesignDcalcTest, R10_BidirectDrvrSlewFromLoad) {
+TEST_F(DesignDcalcTest, BidirectDrvrSlewFromLoad) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3916,7 +3916,7 @@ TEST_F(DesignDcalcTest, R10_BidirectDrvrSlewFromLoad) {
 
 // R10_ DesignDcalcTest: minPeriod query
 // Covers: GraphDelayCalc::minPeriod
-TEST_F(DesignDcalcTest, R10_MinPeriodQuery) {
+TEST_F(DesignDcalcTest, MinPeriodQuery) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -3938,7 +3938,7 @@ TEST_F(DesignDcalcTest, R10_MinPeriodQuery) {
 
 // R10_ DesignDcalcTest: Arnoldi with loadCap and netCaps query
 // Covers: ArnoldiDelayCalc paths, delay_work_alloc, rcmodel
-TEST_F(DesignDcalcTest, R10_ArnoldiLoadCapAndNetCaps) {
+TEST_F(DesignDcalcTest, ArnoldiLoadCapAndNetCaps) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
   Instance *top = sta_->network()->topInstance();
@@ -3968,7 +3968,7 @@ TEST_F(DesignDcalcTest, R10_ArnoldiLoadCapAndNetCaps) {
 }
 
 // R10_ ArcDcalcArg: edge() accessor returns nullptr for default-constructed arg
-TEST_F(ArcDcalcArgTest, R10_DefaultEdgeIsNull) {
+TEST_F(ArcDcalcArgTest, DefaultEdgeIsNull) {
   ArcDcalcArg arg;
   EXPECT_EQ(arg.edge(), nullptr);
   EXPECT_EQ(arg.arc(), nullptr);
@@ -3979,7 +3979,7 @@ TEST_F(ArcDcalcArgTest, R10_DefaultEdgeIsNull) {
 
 // R10_ DesignDcalcTest: exercise findDelays(Level) triggering FindVertexDelays BFS
 // Covers: FindVertexDelays::FindVertexDelays, ~FindVertexDelays, copy
-TEST_F(DesignDcalcTest, R10_FindDelaysLevel) {
+TEST_F(DesignDcalcTest, FindDelaysLevel) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->ensureGraph();
@@ -3989,7 +3989,7 @@ TEST_F(DesignDcalcTest, R10_FindDelaysLevel) {
 
 // R10_ DesignDcalcTest: ArcDcalcArg with actual design edge
 // Covers: ArcDcalcArg::inEdge, drvrVertex, drvrNet with real data
-TEST_F(DesignDcalcTest, R10_ArcDcalcArgWithRealEdge) {
+TEST_F(DesignDcalcTest, ArcDcalcArgWithRealEdge) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -4033,7 +4033,7 @@ TEST_F(DesignDcalcTest, R10_ArcDcalcArgWithRealEdge) {
 
 // R10_ DesignDcalcTest: makeArcDcalcArg with instance names
 // Covers: makeArcDcalcArg
-TEST_F(DesignDcalcTest, R10_MakeArcDcalcArgByName) {
+TEST_F(DesignDcalcTest, MakeArcDcalcArgByName) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);
@@ -4046,7 +4046,7 @@ TEST_F(DesignDcalcTest, R10_MakeArcDcalcArgByName) {
 
 // R10_ DesignDcalcTest: DmpCeff with incremental invalidation and recompute
 // Covers: GraphDelayCalc incremental paths
-TEST_F(DesignDcalcTest, R10_DmpCeffElmoreLevelBasedIncremental) {
+TEST_F(DesignDcalcTest, DmpCeffElmoreLevelBasedIncremental) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->setIncrementalDelayTolerance(0.005f);
@@ -4072,7 +4072,7 @@ TEST_F(DesignDcalcTest, R10_DmpCeffElmoreLevelBasedIncremental) {
 
 // R10_ DesignDcalcTest: Arnoldi reduce all driver nets
 // Covers: ArnoldiDelayCalc::reduce paths, delay_work_alloc
-TEST_F(DesignDcalcTest, R10_ArnoldiReduceAllNets) {
+TEST_F(DesignDcalcTest, ArnoldiReduceAllNets) {
   ASSERT_TRUE(design_loaded_);
   Corner *corner = sta_->cmdCorner();
   Instance *top = sta_->network()->topInstance();
@@ -4116,7 +4116,7 @@ TEST_F(DesignDcalcTest, R10_ArnoldiReduceAllNets) {
 
 // R10_ DesignDcalcTest: levelChangedBefore exercises vertex level change
 // Covers: GraphDelayCalc::levelChangedBefore
-TEST_F(DesignDcalcTest, R10_LevelChangedBefore) {
+TEST_F(DesignDcalcTest, LevelChangedBefore) {
   ASSERT_TRUE(design_loaded_);
   sta_->setArcDelayCalc("dmp_ceff_elmore");
   sta_->updateTiming(true);

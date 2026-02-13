@@ -56,9 +56,7 @@ if { $rc == 0 } {
   puts "PASS: write_path_spice completed successfully"
   diff_files $test_name.spok [file join $spice_dir path_1.sp]
 } else {
-  # Even partial execution gives us coverage of the C++ code
-  puts "INFO: write_path_spice returned error (expected with mock files): $msg"
-  puts "PASS: write_path_spice code path exercised"
+  puts "FAIL: write_path_spice returned error: $msg"
 }
 
 puts "ALL PASSED"

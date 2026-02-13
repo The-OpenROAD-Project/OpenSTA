@@ -5708,337 +5708,337 @@ TEST_F(StaInitTest, StaGlobalSingleton3) {
 
 // === Sta.cc simple getters/setters (no network required) ===
 
-TEST_F(StaInitTest, R4_StaArrivalsInvalid) {
+TEST_F(StaInitTest, StaArrivalsInvalid2) {
   sta_->arrivalsInvalid();
 }
 
-TEST_F(StaInitTest, R4_StaBidirectInstPathsEnabled) {
+TEST_F(StaInitTest, StaBidirectInstPathsEnabled2) {
   bool val = sta_->bidirectInstPathsEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaBidirectNetPathsEnabled) {
+TEST_F(StaInitTest, StaBidirectNetPathsEnabled2) {
   bool val = sta_->bidirectNetPathsEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaClkThruTristateEnabled) {
+TEST_F(StaInitTest, StaClkThruTristateEnabled2) {
   bool val = sta_->clkThruTristateEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaCmdCornerConst) {
+TEST_F(StaInitTest, StaCmdCornerConst) {
   const Sta *csta = sta_;
   Corner *c = csta->cmdCorner();
   EXPECT_NE(c, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaCmdNamespace) {
+TEST_F(StaInitTest, StaCmdNamespace2) {
   CmdNamespace ns = sta_->cmdNamespace();
   (void)ns;
 }
 
-TEST_F(StaInitTest, R4_StaCondDefaultArcsEnabled) {
+TEST_F(StaInitTest, StaCondDefaultArcsEnabled2) {
   bool val = sta_->condDefaultArcsEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaCrprEnabled) {
+TEST_F(StaInitTest, StaCrprEnabled2) {
   bool val = sta_->crprEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaCrprMode) {
+TEST_F(StaInitTest, StaCrprMode) {
   CrprMode mode = sta_->crprMode();
   (void)mode;
 }
 
-TEST_F(StaInitTest, R4_StaCurrentInstance) {
+TEST_F(StaInitTest, StaCurrentInstance2) {
   Instance *inst = sta_->currentInstance();
   // Without network linked, returns nullptr
   (void)inst;
 }
 
-TEST_F(StaInitTest, R4_StaDefaultThreadCount) {
+TEST_F(StaInitTest, StaDefaultThreadCount2) {
   int tc = sta_->defaultThreadCount();
   EXPECT_GE(tc, 1);
 }
 
-TEST_F(StaInitTest, R4_StaDelaysInvalid) {
+TEST_F(StaInitTest, StaDelaysInvalid2) {
   sta_->delaysInvalid(); // void return
 }
 
-TEST_F(StaInitTest, R4_StaDynamicLoopBreaking) {
+TEST_F(StaInitTest, StaDynamicLoopBreaking) {
   bool val = sta_->dynamicLoopBreaking();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaGatedClkChecksEnabled) {
+TEST_F(StaInitTest, StaGatedClkChecksEnabled2) {
   bool val = sta_->gatedClkChecksEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaMultiCorner) {
+TEST_F(StaInitTest, StaMultiCorner2) {
   bool val = sta_->multiCorner();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaPocvEnabled) {
+TEST_F(StaInitTest, StaPocvEnabled) {
   bool val = sta_->pocvEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaPresetClrArcsEnabled) {
+TEST_F(StaInitTest, StaPresetClrArcsEnabled2) {
   bool val = sta_->presetClrArcsEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaPropagateAllClocks) {
+TEST_F(StaInitTest, StaPropagateAllClocks2) {
   bool val = sta_->propagateAllClocks();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaPropagateGatedClockEnable) {
+TEST_F(StaInitTest, StaPropagateGatedClockEnable2) {
   bool val = sta_->propagateGatedClockEnable();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaRecoveryRemovalChecksEnabled) {
+TEST_F(StaInitTest, StaRecoveryRemovalChecksEnabled2) {
   bool val = sta_->recoveryRemovalChecksEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaUseDefaultArrivalClock) {
+TEST_F(StaInitTest, StaUseDefaultArrivalClock) {
   bool val = sta_->useDefaultArrivalClock();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_StaTagCount) {
+TEST_F(StaInitTest, StaTagCount2) {
   int tc = sta_->tagCount();
   (void)tc;
 }
 
-TEST_F(StaInitTest, R4_StaTagGroupCount) {
+TEST_F(StaInitTest, StaTagGroupCount2) {
   int tgc = sta_->tagGroupCount();
   (void)tgc;
 }
 
-TEST_F(StaInitTest, R4_StaClkInfoCount) {
+TEST_F(StaInitTest, StaClkInfoCount2) {
   int cnt = sta_->clkInfoCount();
   (void)cnt;
 }
 
 // === Sta.cc simple setters (no network required) ===
 
-TEST_F(StaInitTest, R4_StaSetBidirectInstPathsEnabled) {
+TEST_F(StaInitTest, StaSetBidirectInstPathsEnabled2) {
   sta_->setBidirectInstPathsEnabled(true);
   EXPECT_TRUE(sta_->bidirectInstPathsEnabled());
   sta_->setBidirectInstPathsEnabled(false);
   EXPECT_FALSE(sta_->bidirectInstPathsEnabled());
 }
 
-TEST_F(StaInitTest, R4_StaSetBidirectNetPathsEnabled) {
+TEST_F(StaInitTest, StaSetBidirectNetPathsEnabled2) {
   sta_->setBidirectNetPathsEnabled(true);
   EXPECT_TRUE(sta_->bidirectNetPathsEnabled());
   sta_->setBidirectNetPathsEnabled(false);
   EXPECT_FALSE(sta_->bidirectNetPathsEnabled());
 }
 
-TEST_F(StaInitTest, R4_StaSetClkThruTristateEnabled) {
+TEST_F(StaInitTest, StaSetClkThruTristateEnabled2) {
   sta_->setClkThruTristateEnabled(true);
   EXPECT_TRUE(sta_->clkThruTristateEnabled());
   sta_->setClkThruTristateEnabled(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetCondDefaultArcsEnabled) {
+TEST_F(StaInitTest, StaSetCondDefaultArcsEnabled2) {
   sta_->setCondDefaultArcsEnabled(true);
   EXPECT_TRUE(sta_->condDefaultArcsEnabled());
   sta_->setCondDefaultArcsEnabled(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetCrprEnabled) {
+TEST_F(StaInitTest, StaSetCrprEnabled2) {
   sta_->setCrprEnabled(true);
   EXPECT_TRUE(sta_->crprEnabled());
   sta_->setCrprEnabled(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetDynamicLoopBreaking) {
+TEST_F(StaInitTest, StaSetDynamicLoopBreaking) {
   sta_->setDynamicLoopBreaking(true);
   EXPECT_TRUE(sta_->dynamicLoopBreaking());
   sta_->setDynamicLoopBreaking(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetGatedClkChecksEnabled) {
+TEST_F(StaInitTest, StaSetGatedClkChecksEnabled2) {
   sta_->setGatedClkChecksEnabled(true);
   EXPECT_TRUE(sta_->gatedClkChecksEnabled());
   sta_->setGatedClkChecksEnabled(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetPocvEnabled) {
+TEST_F(StaInitTest, StaSetPocvEnabled2) {
   sta_->setPocvEnabled(true);
   EXPECT_TRUE(sta_->pocvEnabled());
   sta_->setPocvEnabled(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetPresetClrArcsEnabled) {
+TEST_F(StaInitTest, StaSetPresetClrArcsEnabled2) {
   sta_->setPresetClrArcsEnabled(true);
   EXPECT_TRUE(sta_->presetClrArcsEnabled());
   sta_->setPresetClrArcsEnabled(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetPropagateAllClocks) {
+TEST_F(StaInitTest, StaSetPropagateAllClocks2) {
   sta_->setPropagateAllClocks(true);
   EXPECT_TRUE(sta_->propagateAllClocks());
   sta_->setPropagateAllClocks(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetPropagateGatedClockEnable) {
+TEST_F(StaInitTest, StaSetPropagateGatedClockEnable2) {
   sta_->setPropagateGatedClockEnable(true);
   EXPECT_TRUE(sta_->propagateGatedClockEnable());
   sta_->setPropagateGatedClockEnable(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetRecoveryRemovalChecksEnabled) {
+TEST_F(StaInitTest, StaSetRecoveryRemovalChecksEnabled2) {
   sta_->setRecoveryRemovalChecksEnabled(true);
   EXPECT_TRUE(sta_->recoveryRemovalChecksEnabled());
   sta_->setRecoveryRemovalChecksEnabled(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetUseDefaultArrivalClock) {
+TEST_F(StaInitTest, StaSetUseDefaultArrivalClock) {
   sta_->setUseDefaultArrivalClock(true);
   EXPECT_TRUE(sta_->useDefaultArrivalClock());
   sta_->setUseDefaultArrivalClock(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetIncrementalDelayTolerance) {
+TEST_F(StaInitTest, StaSetIncrementalDelayTolerance) {
   sta_->setIncrementalDelayTolerance(0.5f);
 }
 
-TEST_F(StaInitTest, R4_StaSetSigmaFactor) {
+TEST_F(StaInitTest, StaSetSigmaFactor2) {
   sta_->setSigmaFactor(1.5f);
 }
 
-TEST_F(StaInitTest, R4_StaSetReportPathDigits) {
+TEST_F(StaInitTest, StaSetReportPathDigits) {
   sta_->setReportPathDigits(4);
 }
 
-TEST_F(StaInitTest, R4_StaSetReportPathFormat) {
+TEST_F(StaInitTest, StaSetReportPathFormat) {
   sta_->setReportPathFormat(ReportPathFormat::full);
 }
 
-TEST_F(StaInitTest, R4_StaSetReportPathNoSplit) {
+TEST_F(StaInitTest, StaSetReportPathNoSplit) {
   sta_->setReportPathNoSplit(true);
   sta_->setReportPathNoSplit(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetReportPathSigmas) {
+TEST_F(StaInitTest, StaSetReportPathSigmas) {
   sta_->setReportPathSigmas(true);
   sta_->setReportPathSigmas(false);
 }
 
-TEST_F(StaInitTest, R4_StaSetMaxArea) {
+TEST_F(StaInitTest, StaSetMaxArea) {
   sta_->setMaxArea(100.0f);
 }
 
-TEST_F(StaInitTest, R4_StaSetWireloadMode) {
+TEST_F(StaInitTest, StaSetWireloadMode2) {
   sta_->setWireloadMode(WireloadMode::top);
 }
 
-TEST_F(StaInitTest, R4_StaSetThreadCount) {
+TEST_F(StaInitTest, StaSetThreadCount2) {
   sta_->setThreadCount(1);
 }
 
 // setThreadCount1 is protected, skip
 
-TEST_F(StaInitTest, R4_StaConstraintsChanged) {
+TEST_F(StaInitTest, StaConstraintsChanged2) {
   sta_->constraintsChanged();
 }
 
-TEST_F(StaInitTest, R4_StaDeleteParasitics) {
+TEST_F(StaInitTest, StaDeleteParasitics3) {
   sta_->deleteParasitics();
 }
 
 // networkCmdEdit is protected, skip
 
-TEST_F(StaInitTest, R4_StaClearLogicConstants) {
+TEST_F(StaInitTest, StaClearLogicConstants3) {
   sta_->clearLogicConstants();
 }
 
-TEST_F(StaInitTest, R4_StaRemoveDelaySlewAnnotations) {
+TEST_F(StaInitTest, StaRemoveDelaySlewAnnotations2) {
   sta_->removeDelaySlewAnnotations();
 }
 
-TEST_F(StaInitTest, R4_StaRemoveNetLoadCaps) {
+TEST_F(StaInitTest, StaRemoveNetLoadCaps2) {
   sta_->removeNetLoadCaps();
 }
 
-TEST_F(StaInitTest, R4_StaClkPinsInvalid) {
+TEST_F(StaInitTest, StaClkPinsInvalid3) {
   sta_->clkPinsInvalid();
 }
 
 // disableAfter is protected, skip
 
-TEST_F(StaInitTest, R4_StaNetworkChanged) {
+TEST_F(StaInitTest, StaNetworkChanged2) {
   sta_->networkChanged();
 }
 
-TEST_F(StaInitTest, R4_StaUnsetTimingDerate) {
+TEST_F(StaInitTest, StaUnsetTimingDerate2) {
   sta_->unsetTimingDerate();
 }
 
-TEST_F(StaInitTest, R4_StaSetCmdNamespace) {
+TEST_F(StaInitTest, StaSetCmdNamespace) {
   sta_->setCmdNamespace(CmdNamespace::sdc);
 }
 
-TEST_F(StaInitTest, R4_StaSetCmdCorner) {
+TEST_F(StaInitTest, StaSetCmdCorner2) {
   Corner *corner = sta_->cmdCorner();
   sta_->setCmdCorner(corner);
 }
 
 // === Sta.cc: functions that call ensureLinked/ensureGraph (throw Exception) ===
 
-TEST_F(StaInitTest, R4_StaStartpointPinsThrows) {
+TEST_F(StaInitTest, StaStartpointPinsThrows) {
   EXPECT_THROW(sta_->startpointPins(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaEndpointsThrows) {
+TEST_F(StaInitTest, StaEndpointsThrows) {
   EXPECT_THROW(sta_->endpoints(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaEndpointPinsThrows) {
+TEST_F(StaInitTest, StaEndpointPinsThrows) {
   EXPECT_THROW(sta_->endpointPins(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaNetSlackThrows) {
+TEST_F(StaInitTest, StaNetSlackThrows) {
   EXPECT_THROW(sta_->netSlack(static_cast<const Net*>(nullptr), MinMax::max()), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaPinSlackRfThrows) {
+TEST_F(StaInitTest, StaPinSlackRfThrows) {
   EXPECT_THROW(sta_->pinSlack(static_cast<const Pin*>(nullptr), RiseFall::rise(), MinMax::max()), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaPinSlackThrows) {
+TEST_F(StaInitTest, StaPinSlackThrows) {
   EXPECT_THROW(sta_->pinSlack(static_cast<const Pin*>(nullptr), MinMax::max()), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaEndpointSlackThrows) {
+TEST_F(StaInitTest, StaEndpointSlackThrows) {
   std::string group_name("default");
   EXPECT_THROW(sta_->endpointSlack(static_cast<const Pin*>(nullptr), group_name, MinMax::max()), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaGraphLoopsThrows) {
+TEST_F(StaInitTest, StaGraphLoopsThrows) {
   EXPECT_THROW(sta_->graphLoops(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaVertexLevelThrows) {
+TEST_F(StaInitTest, StaVertexLevelThrows) {
   EXPECT_THROW(sta_->vertexLevel(nullptr), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaFindLogicConstantsThrows2) {
+TEST_F(StaInitTest, StaFindLogicConstantsThrows2) {
   EXPECT_THROW(sta_->findLogicConstants(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaEnsureClkNetworkThrows) {
+TEST_F(StaInitTest, StaEnsureClkNetworkThrows) {
   EXPECT_THROW(sta_->ensureClkNetwork(), Exception);
 }
 
@@ -6046,23 +6046,23 @@ TEST_F(StaInitTest, R4_StaEnsureClkNetworkThrows) {
 
 // delayCalcPreamble is protected, skip
 
-TEST_F(StaInitTest, R4_StaFindDelaysThrows) {
+TEST_F(StaInitTest, StaFindDelaysThrows) {
   EXPECT_THROW(sta_->findDelays(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaFindRequiredsThrows) {
+TEST_F(StaInitTest, StaFindRequiredsThrows) {
   EXPECT_THROW(sta_->findRequireds(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaEnsureLinkedThrows) {
+TEST_F(StaInitTest, StaEnsureLinkedThrows) {
   EXPECT_THROW(sta_->ensureLinked(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaEnsureGraphThrows) {
+TEST_F(StaInitTest, StaEnsureGraphThrows) {
   EXPECT_THROW(sta_->ensureGraph(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaEnsureLevelizedThrows) {
+TEST_F(StaInitTest, StaEnsureLevelizedThrows) {
   EXPECT_THROW(sta_->ensureLevelized(), Exception);
 }
 
@@ -6070,59 +6070,59 @@ TEST_F(StaInitTest, R4_StaEnsureLevelizedThrows) {
 
 // sdcChangedGraph is protected, skip
 
-TEST_F(StaInitTest, R4_StaFindFaninPinsThrows) {
+TEST_F(StaInitTest, StaFindFaninPinsThrows2) {
   EXPECT_THROW(sta_->findFaninPins(static_cast<Vector<const Pin*>*>(nullptr), false, false, 0, 0, false, false), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaFindFanoutPinsThrows) {
+TEST_F(StaInitTest, StaFindFanoutPinsThrows2) {
   EXPECT_THROW(sta_->findFanoutPins(static_cast<Vector<const Pin*>*>(nullptr), false, false, 0, 0, false, false), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaMakePortPinThrows) {
+TEST_F(StaInitTest, StaMakePortPinThrows) {
   EXPECT_THROW(sta_->makePortPin("test", nullptr), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaWriteSdcThrows) {
+TEST_F(StaInitTest, StaWriteSdcThrows2) {
   EXPECT_THROW(sta_->writeSdc("test.sdc", false, false, 4, false, false), Exception);
 }
 
 // === Sta.cc: SearchPreamble and related ===
 
-TEST_F(StaInitTest, R4_StaSearchPreamble) {
+TEST_F(StaInitTest, StaSearchPreamble2) {
   // searchPreamble calls ensureClkArrivals which calls findDelays
   // It will throw because ensureGraph is called
   EXPECT_THROW(sta_->searchPreamble(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaEnsureClkArrivals) {
+TEST_F(StaInitTest, StaEnsureClkArrivals2) {
   // calls findDelays which calls ensureGraph
   EXPECT_THROW(sta_->ensureClkArrivals(), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaUpdateTiming) {
+TEST_F(StaInitTest, StaUpdateTiming2) {
   // calls findDelays
   EXPECT_THROW(sta_->updateTiming(false), Exception);
 }
 
 // === Sta.cc: Report header functions ===
 
-TEST_F(StaInitTest, R4_StaReportPathEndHeader) {
+TEST_F(StaInitTest, StaReportPathEndHeader2) {
   sta_->reportPathEndHeader();
 }
 
-TEST_F(StaInitTest, R4_StaReportPathEndFooter) {
+TEST_F(StaInitTest, StaReportPathEndFooter2) {
   sta_->reportPathEndFooter();
 }
 
-TEST_F(StaInitTest, R4_StaReportSlewLimitShortHeader) {
+TEST_F(StaInitTest, StaReportSlewLimitShortHeader) {
   sta_->reportSlewLimitShortHeader();
 }
 
-TEST_F(StaInitTest, R4_StaReportFanoutLimitShortHeader) {
+TEST_F(StaInitTest, StaReportFanoutLimitShortHeader) {
   sta_->reportFanoutLimitShortHeader();
 }
 
-TEST_F(StaInitTest, R4_StaReportCapacitanceLimitShortHeader) {
+TEST_F(StaInitTest, StaReportCapacitanceLimitShortHeader) {
   sta_->reportCapacitanceLimitShortHeader();
 }
 
@@ -6132,67 +6132,67 @@ TEST_F(StaInitTest, R4_StaReportCapacitanceLimitShortHeader) {
 
 // === Sta.cc: function pointer checks for methods needing network ===
 
-TEST_F(StaInitTest, R4_StaIsClockPinExists) {
+TEST_F(StaInitTest, StaIsClockPinExists) {
   auto fn = static_cast<bool (Sta::*)(const Pin*) const>(&Sta::isClock);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaIsClockNetExists) {
+TEST_F(StaInitTest, StaIsClockNetExists) {
   auto fn = static_cast<bool (Sta::*)(const Net*) const>(&Sta::isClock);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaIsIdealClockExists) {
+TEST_F(StaInitTest, StaIsIdealClockExists) {
   auto fn = &Sta::isIdealClock;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaIsPropagatedClockExists) {
+TEST_F(StaInitTest, StaIsPropagatedClockExists) {
   auto fn = &Sta::isPropagatedClock;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaIsClockSrcExists) {
+TEST_F(StaInitTest, StaIsClockSrcExists) {
   auto fn = &Sta::isClockSrc;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaConnectPinPortExists) {
+TEST_F(StaInitTest, StaConnectPinPortExists) {
   auto fn = static_cast<void (Sta::*)(Instance*, Port*, Net*)>(&Sta::connectPin);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaConnectPinLibPortExists) {
+TEST_F(StaInitTest, StaConnectPinLibPortExists) {
   auto fn = static_cast<void (Sta::*)(Instance*, LibertyPort*, Net*)>(&Sta::connectPin);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaDisconnectPinExists) {
+TEST_F(StaInitTest, StaDisconnectPinExists) {
   auto fn = &Sta::disconnectPin;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaReplaceCellExists) {
+TEST_F(StaInitTest, StaReplaceCellExists) {
   auto fn = static_cast<void (Sta::*)(Instance*, LibertyCell*)>(&Sta::replaceCell);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaMakeInstanceExists) {
+TEST_F(StaInitTest, StaMakeInstanceExists) {
   auto fn = &Sta::makeInstance;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaMakeNetExists) {
+TEST_F(StaInitTest, StaMakeNetExists) {
   auto fn = &Sta::makeNet;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaDeleteInstanceExists) {
+TEST_F(StaInitTest, StaDeleteInstanceExists) {
   auto fn = &Sta::deleteInstance;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaDeleteNetExists) {
+TEST_F(StaInitTest, StaDeleteNetExists) {
   auto fn = &Sta::deleteNet;
   EXPECT_NE(fn, nullptr);
 }
@@ -6200,33 +6200,33 @@ TEST_F(StaInitTest, R4_StaDeleteNetExists) {
 // === Sta.cc: check/violation preambles ===
 
 
-TEST_F(StaInitTest, R4_StaSetParasiticAnalysisPts) {
+TEST_F(StaInitTest, StaSetParasiticAnalysisPts) {
   sta_->setParasiticAnalysisPts(false);
 }
 
 // === Sta.cc: Sta::setReportPathFields ===
 
-TEST_F(StaInitTest, R4_StaSetReportPathFields) {
+TEST_F(StaInitTest, StaSetReportPathFields) {
   sta_->setReportPathFields(true, true, true, true, true, true, true);
 }
 
 // === Sta.cc: delete exception helpers ===
 
-TEST_F(StaInitTest, R4_StaDeleteExceptionFrom) {
+TEST_F(StaInitTest, StaDeleteExceptionFrom) {
   sta_->deleteExceptionFrom(nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaDeleteExceptionThru) {
+TEST_F(StaInitTest, StaDeleteExceptionThru) {
   sta_->deleteExceptionThru(nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaDeleteExceptionTo) {
+TEST_F(StaInitTest, StaDeleteExceptionTo) {
   sta_->deleteExceptionTo(nullptr);
 }
 
 // === Sta.cc: readNetlistBefore ===
 
-TEST_F(StaInitTest, R4_StaReadNetlistBefore) {
+TEST_F(StaInitTest, StaReadNetlistBefore) {
   sta_->readNetlistBefore();
 }
 
@@ -6234,32 +6234,32 @@ TEST_F(StaInitTest, R4_StaReadNetlistBefore) {
 
 // === Sta.cc: operatingConditions ===
 
-TEST_F(StaInitTest, R4_StaOperatingConditions) {
+TEST_F(StaInitTest, StaOperatingConditions2) {
   auto oc = sta_->operatingConditions(MinMax::max());
   (void)oc;
 }
 
 // === Sta.cc: removeConstraints ===
 
-TEST_F(StaInitTest, R4_StaRemoveConstraints) {
+TEST_F(StaInitTest, StaRemoveConstraints2) {
   sta_->removeConstraints();
 }
 
 // === Sta.cc: disabledEdgesSorted (calls ensureLevelized internally) ===
 
-TEST_F(StaInitTest, R4_StaDisabledEdgesSortedThrows) {
+TEST_F(StaInitTest, StaDisabledEdgesSortedThrows) {
   EXPECT_THROW(sta_->disabledEdgesSorted(), Exception);
 }
 
 // === Sta.cc: disabledEdges (calls ensureLevelized) ===
 
-TEST_F(StaInitTest, R4_StaDisabledEdgesThrows) {
+TEST_F(StaInitTest, StaDisabledEdgesThrows) {
   EXPECT_THROW(sta_->disabledEdges(), Exception);
 }
 
 // === Sta.cc: findReportPathField ===
 
-TEST_F(StaInitTest, R4_StaFindReportPathField) {
+TEST_F(StaInitTest, StaFindReportPathField) {
   auto field = sta_->findReportPathField("delay");
   // May or may not find it
   (void)field;
@@ -6267,7 +6267,7 @@ TEST_F(StaInitTest, R4_StaFindReportPathField) {
 
 // === Sta.cc: findCorner ===
 
-TEST_F(StaInitTest, R4_StaFindCornerByName) {
+TEST_F(StaInitTest, StaFindCornerByName) {
   auto corner = sta_->findCorner("default");
   // May or may not exist
   (void)corner;
@@ -6276,44 +6276,44 @@ TEST_F(StaInitTest, R4_StaFindCornerByName) {
 
 // === Sta.cc: totalNegativeSlack ===
 
-TEST_F(StaInitTest, R4_StaTotalNegativeSlackThrows) {
+TEST_F(StaInitTest, StaTotalNegativeSlackThrows) {
   EXPECT_THROW(sta_->totalNegativeSlack(MinMax::max()), Exception);
 }
 
 // === Sta.cc: worstSlack ===
 
-TEST_F(StaInitTest, R4_StaWorstSlackThrows) {
+TEST_F(StaInitTest, StaWorstSlackThrows) {
   EXPECT_THROW(sta_->worstSlack(MinMax::max()), Exception);
 }
 
 // === Sta.cc: setArcDelayCalc ===
 
-TEST_F(StaInitTest, R4_StaSetArcDelayCalc) {
+TEST_F(StaInitTest, StaSetArcDelayCalc) {
   sta_->setArcDelayCalc("unit");
 }
 
 // === Sta.cc: setAnalysisType ===
 
-TEST_F(StaInitTest, R4_StaSetAnalysisType) {
+TEST_F(StaInitTest, StaSetAnalysisType) {
   sta_->setAnalysisType(AnalysisType::ocv);
 }
 
 // === Sta.cc: setTimingDerate (global) ===
 
-TEST_F(StaInitTest, R4_StaSetTimingDerate) {
+TEST_F(StaInitTest, StaSetTimingDerate) {
   sta_->setTimingDerate(TimingDerateType::cell_delay, PathClkOrData::clk,
                         RiseFallBoth::riseFall(), MinMax::max(), 1.05f);
 }
 
 // === Sta.cc: setVoltage ===
 
-TEST_F(StaInitTest, R4_StaSetVoltage) {
+TEST_F(StaInitTest, StaSetVoltage) {
   sta_->setVoltage(MinMax::max(), 1.0f);
 }
 
 // === Sta.cc: setReportPathFieldOrder segfaults on null, use method exists ===
 
-TEST_F(StaInitTest, R4_StaSetReportPathFieldOrderExists) {
+TEST_F(StaInitTest, StaSetReportPathFieldOrderExists) {
   auto fn = &Sta::setReportPathFieldOrder;
   EXPECT_NE(fn, nullptr);
 }
@@ -6323,7 +6323,7 @@ TEST_F(StaInitTest, R4_StaSetReportPathFieldOrderExists) {
 
 // === Property.cc: defineProperty overloads ===
 
-TEST_F(StaInitTest, R4_PropertiesDefineLibrary) {
+TEST_F(StaInitTest, PropertiesDefineLibrary) {
   Properties props(sta_);
   std::string prop_name("test_lib_prop");
   props.defineProperty(prop_name,
@@ -6331,7 +6331,7 @@ TEST_F(StaInitTest, R4_PropertiesDefineLibrary) {
       [](const Library*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefineLibertyLibrary) {
+TEST_F(StaInitTest, PropertiesDefineLibertyLibrary) {
   Properties props(sta_);
   std::string prop_name("test_liblib_prop");
   props.defineProperty(prop_name,
@@ -6339,7 +6339,7 @@ TEST_F(StaInitTest, R4_PropertiesDefineLibertyLibrary) {
       [](const LibertyLibrary*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefineCell) {
+TEST_F(StaInitTest, PropertiesDefineCell) {
   Properties props(sta_);
   std::string prop_name("test_cell_prop");
   props.defineProperty(prop_name,
@@ -6347,7 +6347,7 @@ TEST_F(StaInitTest, R4_PropertiesDefineCell) {
       [](const Cell*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefineLibertyCell) {
+TEST_F(StaInitTest, PropertiesDefineLibertyCell) {
   Properties props(sta_);
   std::string prop_name("test_libcell_prop");
   props.defineProperty(prop_name,
@@ -6355,7 +6355,7 @@ TEST_F(StaInitTest, R4_PropertiesDefineLibertyCell) {
       [](const LibertyCell*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefinePort) {
+TEST_F(StaInitTest, PropertiesDefinePort) {
   Properties props(sta_);
   std::string prop_name("test_port_prop");
   props.defineProperty(prop_name,
@@ -6363,7 +6363,7 @@ TEST_F(StaInitTest, R4_PropertiesDefinePort) {
       [](const Port*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefineLibertyPort) {
+TEST_F(StaInitTest, PropertiesDefineLibertyPort) {
   Properties props(sta_);
   std::string prop_name("test_libport_prop");
   props.defineProperty(prop_name,
@@ -6371,7 +6371,7 @@ TEST_F(StaInitTest, R4_PropertiesDefineLibertyPort) {
       [](const LibertyPort*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefineInstance) {
+TEST_F(StaInitTest, PropertiesDefineInstance) {
   Properties props(sta_);
   std::string prop_name("test_inst_prop");
   props.defineProperty(prop_name,
@@ -6379,7 +6379,7 @@ TEST_F(StaInitTest, R4_PropertiesDefineInstance) {
       [](const Instance*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefinePin) {
+TEST_F(StaInitTest, PropertiesDefinePin) {
   Properties props(sta_);
   std::string prop_name("test_pin_prop");
   props.defineProperty(prop_name,
@@ -6387,7 +6387,7 @@ TEST_F(StaInitTest, R4_PropertiesDefinePin) {
       [](const Pin*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefineNet) {
+TEST_F(StaInitTest, PropertiesDefineNet) {
   Properties props(sta_);
   std::string prop_name("test_net_prop");
   props.defineProperty(prop_name,
@@ -6395,7 +6395,7 @@ TEST_F(StaInitTest, R4_PropertiesDefineNet) {
       [](const Net*, Sta*) -> PropertyValue { return PropertyValue(); }));
 }
 
-TEST_F(StaInitTest, R4_PropertiesDefineClock) {
+TEST_F(StaInitTest, PropertiesDefineClock) {
   Properties props(sta_);
   std::string prop_name("test_clk_prop");
   props.defineProperty(prop_name,
@@ -6405,14 +6405,14 @@ TEST_F(StaInitTest, R4_PropertiesDefineClock) {
 
 // === Search.cc: RequiredCmp ===
 
-TEST_F(StaInitTest, R4_RequiredCmpConstruct) {
+TEST_F(StaInitTest, RequiredCmpConstruct) {
   RequiredCmp cmp;
   (void)cmp;
 }
 
 // === Search.cc: EvalPred constructor ===
 
-TEST_F(StaInitTest, R4_EvalPredConstruct) {
+TEST_F(StaInitTest, EvalPredConstruct) {
   EvalPred pred(sta_);
   (void)pred;
 }
@@ -6420,80 +6420,80 @@ TEST_F(StaInitTest, R4_EvalPredConstruct) {
 
 // === Search.cc: ClkArrivalSearchPred ===
 
-TEST_F(StaInitTest, R4_ClkArrivalSearchPredConstruct) {
+TEST_F(StaInitTest, ClkArrivalSearchPredConstruct) {
   ClkArrivalSearchPred pred(sta_);
   (void)pred;
 }
 
 // === Search.cc: Search accessors ===
 
-TEST_F(StaInitTest, R4_SearchTagCount) {
+TEST_F(StaInitTest, SearchTagCount2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   int tc = search->tagCount();
   (void)tc;
 }
 
-TEST_F(StaInitTest, R4_SearchTagGroupCount) {
+TEST_F(StaInitTest, SearchTagGroupCount2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   int tgc = search->tagGroupCount();
   (void)tgc;
 }
 
-TEST_F(StaInitTest, R4_SearchClkInfoCount) {
+TEST_F(StaInitTest, SearchClkInfoCount2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   int cnt = search->clkInfoCount();
   (void)cnt;
 }
 
-TEST_F(StaInitTest, R4_SearchArrivalsInvalid) {
+TEST_F(StaInitTest, SearchArrivalsInvalid2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->arrivalsInvalid();
 }
 
-TEST_F(StaInitTest, R4_SearchRequiredsInvalid) {
+TEST_F(StaInitTest, SearchRequiredsInvalid2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->requiredsInvalid();
 }
 
-TEST_F(StaInitTest, R4_SearchEndpointsInvalid) {
+TEST_F(StaInitTest, SearchEndpointsInvalid2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->endpointsInvalid();
 }
 
-TEST_F(StaInitTest, R4_SearchClear) {
+TEST_F(StaInitTest, SearchClear2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->clear();
 }
 
-TEST_F(StaInitTest, R4_SearchHavePathGroups) {
+TEST_F(StaInitTest, SearchHavePathGroups2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   bool val = search->havePathGroups();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_SearchCrprPathPruningEnabled) {
+TEST_F(StaInitTest, SearchCrprPathPruningEnabled) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   bool val = search->crprPathPruningEnabled();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_SearchCrprApproxMissingRequireds) {
+TEST_F(StaInitTest, SearchCrprApproxMissingRequireds) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   bool val = search->crprApproxMissingRequireds();
   (void)val;
 }
 
-TEST_F(StaInitTest, R4_SearchSetCrprpathPruningEnabled) {
+TEST_F(StaInitTest, SearchSetCrprpathPruningEnabled) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->setCrprpathPruningEnabled(true);
@@ -6501,7 +6501,7 @@ TEST_F(StaInitTest, R4_SearchSetCrprpathPruningEnabled) {
   search->setCrprpathPruningEnabled(false);
 }
 
-TEST_F(StaInitTest, R4_SearchSetCrprApproxMissingRequireds) {
+TEST_F(StaInitTest, SearchSetCrprApproxMissingRequireds) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->setCrprApproxMissingRequireds(true);
@@ -6509,13 +6509,13 @@ TEST_F(StaInitTest, R4_SearchSetCrprApproxMissingRequireds) {
   search->setCrprApproxMissingRequireds(false);
 }
 
-TEST_F(StaInitTest, R4_SearchDeleteFilter) {
+TEST_F(StaInitTest, SearchDeleteFilter2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->deleteFilter();
 }
 
-TEST_F(StaInitTest, R4_SearchDeletePathGroups) {
+TEST_F(StaInitTest, SearchDeletePathGroups2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->deletePathGroups();
@@ -6523,87 +6523,87 @@ TEST_F(StaInitTest, R4_SearchDeletePathGroups) {
 
 // === PathEnd.cc: more PathEndUnconstrained methods ===
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedCheckRole) {
+TEST_F(StaInitTest, PathEndUnconstrainedCheckRole) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   const TimingRole *role = pe.checkRole(sta_);
   EXPECT_EQ(role, nullptr);
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedTypeName) {
+TEST_F(StaInitTest, PathEndUnconstrainedTypeName) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   const char *name = pe.typeName();
   EXPECT_STREQ(name, "unconstrained");
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedType) {
+TEST_F(StaInitTest, PathEndUnconstrainedType) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_EQ(pe.type(), PathEnd::unconstrained);
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedIsUnconstrained) {
+TEST_F(StaInitTest, PathEndUnconstrainedIsUnconstrained) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_TRUE(pe.isUnconstrained());
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedIsCheck) {
+TEST_F(StaInitTest, PathEndUnconstrainedIsCheck) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_FALSE(pe.isCheck());
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedIsLatchCheck) {
+TEST_F(StaInitTest, PathEndUnconstrainedIsLatchCheck) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_FALSE(pe.isLatchCheck());
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedIsOutputDelay) {
+TEST_F(StaInitTest, PathEndUnconstrainedIsOutputDelay) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_FALSE(pe.isOutputDelay());
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedIsGatedClock) {
+TEST_F(StaInitTest, PathEndUnconstrainedIsGatedClock) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_FALSE(pe.isGatedClock());
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedIsPathDelay) {
+TEST_F(StaInitTest, PathEndUnconstrainedIsPathDelay) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_FALSE(pe.isPathDelay());
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedTargetClkEdge) {
+TEST_F(StaInitTest, PathEndUnconstrainedTargetClkEdge) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_EQ(pe.targetClkEdge(sta_), nullptr);
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedTargetClkTime) {
+TEST_F(StaInitTest, PathEndUnconstrainedTargetClkTime) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_FLOAT_EQ(pe.targetClkTime(sta_), 0.0f);
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedTargetClkOffset) {
+TEST_F(StaInitTest, PathEndUnconstrainedTargetClkOffset) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_FLOAT_EQ(pe.targetClkOffset(sta_), 0.0f);
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedSourceClkOffset) {
+TEST_F(StaInitTest, PathEndUnconstrainedSourceClkOffset) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_FLOAT_EQ(pe.sourceClkOffset(sta_), 0.0f);
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedCopy) {
+TEST_F(StaInitTest, PathEndUnconstrainedCopy) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   PathEnd *copy = pe.copy();
@@ -6612,7 +6612,7 @@ TEST_F(StaInitTest, R4_PathEndUnconstrainedCopy) {
   delete copy;
 }
 
-TEST_F(StaInitTest, R4_PathEndUnconstrainedExceptPathCmp) {
+TEST_F(StaInitTest, PathEndUnconstrainedExceptPathCmp) {
   Path *p1 = new Path();
   Path *p2 = new Path();
   PathEndUnconstrained pe1(p1);
@@ -6623,7 +6623,7 @@ TEST_F(StaInitTest, R4_PathEndUnconstrainedExceptPathCmp) {
 
 // === PathEnd.cc: PathEndCheck constructor/type ===
 
-TEST_F(StaInitTest, R4_PathEndCheckConstruct) {
+TEST_F(StaInitTest, PathEndCheckConstruct2) {
   Path *p = new Path();
   Path *clk = new Path();
   PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, sta_);
@@ -6633,7 +6633,7 @@ TEST_F(StaInitTest, R4_PathEndCheckConstruct) {
   EXPECT_STREQ(pe.typeName(), "check");
 }
 
-TEST_F(StaInitTest, R4_PathEndCheckGetters) {
+TEST_F(StaInitTest, PathEndCheckGetters) {
   Path *p = new Path();
   Path *clk = new Path();
   PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, sta_);
@@ -6641,7 +6641,7 @@ TEST_F(StaInitTest, R4_PathEndCheckGetters) {
   EXPECT_EQ(pe.multiCyclePath(), nullptr);
 }
 
-TEST_F(StaInitTest, R4_PathEndCheckCopy) {
+TEST_F(StaInitTest, PathEndCheckCopy) {
   Path *p = new Path();
   Path *clk = new Path();
   PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, sta_);
@@ -6663,13 +6663,13 @@ TEST_F(StaInitTest, R4_PathEndCheckCopy) {
 
 // === Bfs.cc: BfsFwdIterator/BfsBkwdIterator ===
 
-TEST_F(StaInitTest, R4_BfsFwdIteratorConstruct) {
+TEST_F(StaInitTest, BfsFwdIteratorConstruct) {
   BfsFwdIterator iter(BfsIndex::other, nullptr, sta_);
   bool has = iter.hasNext();
   (void)has;
 }
 
-TEST_F(StaInitTest, R4_BfsBkwdIteratorConstruct) {
+TEST_F(StaInitTest, BfsBkwdIteratorConstruct) {
   BfsBkwdIterator iter(BfsIndex::other, nullptr, sta_);
   bool has = iter.hasNext();
   (void)has;
@@ -6677,7 +6677,7 @@ TEST_F(StaInitTest, R4_BfsBkwdIteratorConstruct) {
 
 // === ClkNetwork.cc: ClkNetwork accessors ===
 
-TEST_F(StaInitTest, R4_ClkNetworkAccessors) {
+TEST_F(StaInitTest, ClkNetworkAccessors) {
   ClkNetwork *clk_net = sta_->clkNetwork();
   if (clk_net) {
     clk_net->clear();
@@ -6686,7 +6686,7 @@ TEST_F(StaInitTest, R4_ClkNetworkAccessors) {
 
 // === Corner.cc: Corner accessors ===
 
-TEST_F(StaInitTest, R4_CornerAccessors) {
+TEST_F(StaInitTest, CornerAccessors) {
   Corner *corner = sta_->cmdCorner();
   ASSERT_NE(corner, nullptr);
   int idx = corner->index();
@@ -6697,14 +6697,14 @@ TEST_F(StaInitTest, R4_CornerAccessors) {
 
 // === WorstSlack.cc: function exists ===
 
-TEST_F(StaInitTest, R4_StaWorstSlackWithVertexExists) {
+TEST_F(StaInitTest, StaWorstSlackWithVertexExists) {
   auto fn = static_cast<void (Sta::*)(const MinMax*, Slack&, Vertex*&)>(&Sta::worstSlack);
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathGroup.cc: PathGroup name constants ===
 
-TEST_F(StaInitTest, R4_PathGroupNameConstants) {
+TEST_F(StaInitTest, PathGroupNameConstants) {
   // PathGroup has static name constants
   auto fn = static_cast<bool (Search::*)(void) const>(&Search::havePathGroups);
   EXPECT_NE(fn, nullptr);
@@ -6712,7 +6712,7 @@ TEST_F(StaInitTest, R4_PathGroupNameConstants) {
 
 // === CheckTiming.cc: checkTiming ===
 
-TEST_F(StaInitTest, R4_StaCheckTimingThrows) {
+TEST_F(StaInitTest, StaCheckTimingThrows2) {
   EXPECT_THROW(sta_->checkTiming(true, true, true, true, true, true, true), Exception);
 }
 
@@ -6720,100 +6720,100 @@ TEST_F(StaInitTest, R4_StaCheckTimingThrows) {
 
 // === PathEnum.cc: function exists ===
 
-TEST_F(StaInitTest, R4_PathEnumExists) {
+TEST_F(StaInitTest, PathEnumExists) {
   auto fn = &PathEnum::hasNext;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Genclks.cc: Genclks exists ===
 
-TEST_F(StaInitTest, R4_GenclksExists2) {
+TEST_F(StaInitTest, GenclksExists2) {
   auto fn = &Genclks::clear;
   EXPECT_NE(fn, nullptr);
 }
 
 // === MakeTimingModel.cc: function exists ===
 
-TEST_F(StaInitTest, R4_StaWriteTimingModelThrows) {
+TEST_F(StaInitTest, StaWriteTimingModelThrows) {
   EXPECT_THROW(sta_->writeTimingModel("out.lib", "model", "cell", nullptr), Exception);
 }
 
 // === Tag.cc: Tag function exists ===
 
-TEST_F(StaInitTest, R4_TagTransitionExists) {
+TEST_F(StaInitTest, TagTransitionExists) {
   auto fn = &Tag::transition;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_TagPathAPIndexExists) {
+TEST_F(StaInitTest, TagPathAPIndexExists) {
   auto fn = &Tag::pathAPIndex;
   EXPECT_NE(fn, nullptr);
 }
 
 // === StaState.cc: StaState units ===
 
-TEST_F(StaInitTest, R4_StaStateReport) {
+TEST_F(StaInitTest, StaStateReport) {
   Report *rpt = sta_->report();
   EXPECT_NE(rpt, nullptr);
 }
 
 // === ClkSkew.cc: function exists ===
 
-TEST_F(StaInitTest, R4_StaFindWorstClkSkewExists) {
+TEST_F(StaInitTest, StaFindWorstClkSkewExists) {
   auto fn = &Sta::findWorstClkSkew;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkLatency.cc: function exists ===
 
-TEST_F(StaInitTest, R4_StaReportClkLatencyExists) {
+TEST_F(StaInitTest, StaReportClkLatencyExists) {
   auto fn = &Sta::reportClkLatency;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkInfo.cc: accessors ===
 
-TEST_F(StaInitTest, R4_ClkInfoClockEdgeExists) {
+TEST_F(StaInitTest, ClkInfoClockEdgeExists) {
   auto fn = &ClkInfo::clkEdge;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_ClkInfoIsPropagatedExists) {
+TEST_F(StaInitTest, ClkInfoIsPropagatedExists) {
   auto fn = &ClkInfo::isPropagated;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_ClkInfoIsGenClkSrcPathExists) {
+TEST_F(StaInitTest, ClkInfoIsGenClkSrcPathExists) {
   auto fn = &ClkInfo::isGenClkSrcPath;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Crpr.cc: function exists ===
 
-TEST_F(StaInitTest, R4_CrprExists) {
+TEST_F(StaInitTest, CrprExists) {
   auto fn = &Search::crprApproxMissingRequireds;
   EXPECT_NE(fn, nullptr);
 }
 
 // === FindRegister.cc: findRegister functions ===
 
-TEST_F(StaInitTest, R4_StaFindRegisterInstancesThrows) {
+TEST_F(StaInitTest, StaFindRegisterInstancesThrows2) {
   EXPECT_THROW(sta_->findRegisterInstances(nullptr, RiseFallBoth::riseFall(), false, false), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaFindRegisterClkPinsThrows) {
+TEST_F(StaInitTest, StaFindRegisterClkPinsThrows2) {
   EXPECT_THROW(sta_->findRegisterClkPins(nullptr, RiseFallBoth::riseFall(), false, false), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaFindRegisterDataPinsThrows) {
+TEST_F(StaInitTest, StaFindRegisterDataPinsThrows2) {
   EXPECT_THROW(sta_->findRegisterDataPins(nullptr, RiseFallBoth::riseFall(), false, false), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaFindRegisterOutputPinsThrows) {
+TEST_F(StaInitTest, StaFindRegisterOutputPinsThrows2) {
   EXPECT_THROW(sta_->findRegisterOutputPins(nullptr, RiseFallBoth::riseFall(), false, false), Exception);
 }
 
-TEST_F(StaInitTest, R4_StaFindRegisterAsyncPinsThrows) {
+TEST_F(StaInitTest, StaFindRegisterAsyncPinsThrows2) {
   EXPECT_THROW(sta_->findRegisterAsyncPins(nullptr, RiseFallBoth::riseFall(), false, false), Exception);
 }
 
@@ -6821,79 +6821,79 @@ TEST_F(StaInitTest, R4_StaFindRegisterAsyncPinsThrows) {
 
 // === Sta.cc: Sta::setCurrentInstance ===
 
-TEST_F(StaInitTest, R4_StaSetCurrentInstanceNull) {
+TEST_F(StaInitTest, StaSetCurrentInstanceNull) {
   sta_->setCurrentInstance(nullptr);
 }
 
 // === Sta.cc: Sta::pathGroupNames ===
 
-TEST_F(StaInitTest, R4_StaPathGroupNames) {
+TEST_F(StaInitTest, StaPathGroupNames) {
   auto names = sta_->pathGroupNames();
   (void)names;
 }
 
 // === Sta.cc: Sta::isPathGroupName ===
 
-TEST_F(StaInitTest, R4_StaIsPathGroupName) {
+TEST_F(StaInitTest, StaIsPathGroupName) {
   bool val = sta_->isPathGroupName("nonexistent");
   EXPECT_FALSE(val);
 }
 
 // === Sta.cc: Sta::removeClockGroupsLogicallyExclusive etc ===
 
-TEST_F(StaInitTest, R4_StaRemoveClockGroupsLogicallyExclusive) {
+TEST_F(StaInitTest, StaRemoveClockGroupsLogicallyExclusive2) {
   sta_->removeClockGroupsLogicallyExclusive("test");
 }
 
-TEST_F(StaInitTest, R4_StaRemoveClockGroupsPhysicallyExclusive) {
+TEST_F(StaInitTest, StaRemoveClockGroupsPhysicallyExclusive2) {
   sta_->removeClockGroupsPhysicallyExclusive("test");
 }
 
-TEST_F(StaInitTest, R4_StaRemoveClockGroupsAsynchronous) {
+TEST_F(StaInitTest, StaRemoveClockGroupsAsynchronous2) {
   sta_->removeClockGroupsAsynchronous("test");
 }
 
 // === Sta.cc: Sta::setDebugLevel ===
 
-TEST_F(StaInitTest, R4_StaSetDebugLevel) {
+TEST_F(StaInitTest, StaSetDebugLevel) {
   sta_->setDebugLevel("search", 0);
 }
 
 // === Sta.cc: Sta::slowDrivers ===
 
-TEST_F(StaInitTest, R4_StaSlowDriversThrows) {
+TEST_F(StaInitTest, StaSlowDriversThrows) {
   EXPECT_THROW(sta_->slowDrivers(10), Exception);
 }
 
 
 // === Sta.cc: Sta::setMinPulseWidth ===
 
-TEST_F(StaInitTest, R4_StaSetMinPulseWidth) {
+TEST_F(StaInitTest, StaSetMinPulseWidth) {
   sta_->setMinPulseWidth(RiseFallBoth::riseFall(), 0.1f);
 }
 
 // === Sta.cc: various set* functions that delegate to Sdc ===
 
-TEST_F(StaInitTest, R4_StaSetClockGatingCheckGlobal) {
+TEST_F(StaInitTest, StaSetClockGatingCheckGlobal2) {
   sta_->setClockGatingCheck(RiseFallBoth::riseFall(), MinMax::max(), 0.1f);
 }
 
 // === Sta.cc: Sta::makeExceptionFrom/Thru/To ===
 
-TEST_F(StaInitTest, R4_StaMakeExceptionFrom) {
+TEST_F(StaInitTest, StaMakeExceptionFrom2) {
   ExceptionFrom *from = sta_->makeExceptionFrom(nullptr, nullptr, nullptr,
                                                   RiseFallBoth::riseFall());
   // Returns a valid ExceptionFrom even with null args
   if (from) sta_->deleteExceptionFrom(from);
 }
 
-TEST_F(StaInitTest, R4_StaMakeExceptionThru) {
+TEST_F(StaInitTest, StaMakeExceptionThru2) {
   ExceptionThru *thru = sta_->makeExceptionThru(nullptr, nullptr, nullptr,
                                                   RiseFallBoth::riseFall());
   if (thru) sta_->deleteExceptionThru(thru);
 }
 
-TEST_F(StaInitTest, R4_StaMakeExceptionTo) {
+TEST_F(StaInitTest, StaMakeExceptionTo2) {
   ExceptionTo *to = sta_->makeExceptionTo(nullptr, nullptr, nullptr,
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::riseFall());
@@ -6902,109 +6902,109 @@ TEST_F(StaInitTest, R4_StaMakeExceptionTo) {
 
 // === Sta.cc: Sta::setLatchBorrowLimit ===
 
-TEST_F(StaInitTest, R4_StaSetLatchBorrowLimitExists) {
+TEST_F(StaInitTest, StaSetLatchBorrowLimitExists) {
   auto fn = static_cast<void (Sta::*)(const Pin*, float)>(&Sta::setLatchBorrowLimit);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::setDriveResistance ===
 
-TEST_F(StaInitTest, R4_StaSetDriveResistanceExists) {
+TEST_F(StaInitTest, StaSetDriveResistanceExists) {
   auto fn = &Sta::setDriveResistance;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::setInputSlew ===
 
-TEST_F(StaInitTest, R4_StaSetInputSlewExists) {
+TEST_F(StaInitTest, StaSetInputSlewExists) {
   auto fn = &Sta::setInputSlew;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::setResistance ===
 
-TEST_F(StaInitTest, R4_StaSetResistanceExists) {
+TEST_F(StaInitTest, StaSetResistanceExists) {
   auto fn = &Sta::setResistance;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::setNetWireCap ===
 
-TEST_F(StaInitTest, R4_StaSetNetWireCapExists) {
+TEST_F(StaInitTest, StaSetNetWireCapExists) {
   auto fn = &Sta::setNetWireCap;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::connectedCap ===
 
-TEST_F(StaInitTest, R4_StaConnectedCapPinExists) {
+TEST_F(StaInitTest, StaConnectedCapPinExists) {
   auto fn = static_cast<void (Sta::*)(const Pin*, const RiseFall*, const Corner*, const MinMax*, float&, float&) const>(&Sta::connectedCap);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::portExtCaps ===
 
-TEST_F(StaInitTest, R4_StaPortExtCapsExists) {
+TEST_F(StaInitTest, StaPortExtCapsExists) {
   auto fn = &Sta::portExtCaps;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::setOperatingConditions ===
 
-TEST_F(StaInitTest, R4_StaSetOperatingConditions) {
+TEST_F(StaInitTest, StaSetOperatingConditions2) {
   sta_->setOperatingConditions(nullptr, MinMaxAll::all());
 }
 
 // === Sta.cc: Sta::power ===
 
-TEST_F(StaInitTest, R4_StaPowerExists) {
+TEST_F(StaInitTest, StaPowerExists) {
   auto fn = static_cast<void (Sta::*)(const Corner*, PowerResult&, PowerResult&, PowerResult&, PowerResult&, PowerResult&, PowerResult&)>(&Sta::power);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::readLiberty ===
 
-TEST_F(StaInitTest, R4_StaReadLibertyExists) {
+TEST_F(StaInitTest, StaReadLibertyExists) {
   auto fn = &Sta::readLiberty;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: linkDesign ===
 
-TEST_F(StaInitTest, R4_StaLinkDesignExists) {
+TEST_F(StaInitTest, StaLinkDesignExists) {
   auto fn = &Sta::linkDesign;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::readVerilog ===
 
-TEST_F(StaInitTest, R4_StaReadVerilogExists) {
+TEST_F(StaInitTest, StaReadVerilogExists) {
   auto fn = &Sta::readVerilog;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::readSpef ===
 
-TEST_F(StaInitTest, R4_StaReadSpefExists) {
+TEST_F(StaInitTest, StaReadSpefExists) {
   auto fn = &Sta::readSpef;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: initSta and deleteAllMemory ===
 
-TEST_F(StaInitTest, R4_InitStaExists) {
+TEST_F(StaInitTest, InitStaExists) {
   auto fn = &initSta;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_DeleteAllMemoryExists) {
+TEST_F(StaInitTest, DeleteAllMemoryExists) {
   auto fn = &deleteAllMemory;
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathEnd.cc: slack computation on PathEndUnconstrained ===
 
-TEST_F(StaInitTest, R4_PathEndSlack) {
+TEST_F(StaInitTest, PathEndSlack) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   Slack s = pe.slack(sta_);
@@ -7013,66 +7013,66 @@ TEST_F(StaInitTest, R4_PathEndSlack) {
 
 // === Sta.cc: Sta method exists checks for vertex* functions ===
 
-TEST_F(StaInitTest, R4_StaVertexArrivalMinMaxExists) {
+TEST_F(StaInitTest, StaVertexArrivalMinMaxExists) {
   auto fn = static_cast<Arrival (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexArrival);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaVertexRequiredMinMaxExists) {
+TEST_F(StaInitTest, StaVertexRequiredMinMaxExists) {
   auto fn = static_cast<Required (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexRequired);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaVertexSlackMinMaxExists) {
+TEST_F(StaInitTest, StaVertexSlackMinMaxExists) {
   auto fn = static_cast<Slack (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexSlack);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaVertexSlewMinMaxExists) {
+TEST_F(StaInitTest, StaVertexSlewMinMaxExists) {
   auto fn = static_cast<Slew (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexSlew);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaVertexPathCountExists) {
+TEST_F(StaInitTest, StaVertexPathCountExists) {
   auto fn = &Sta::vertexPathCount;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaVertexWorstArrivalPathExists) {
+TEST_F(StaInitTest, StaVertexWorstArrivalPathExists) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexWorstArrivalPath);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaVertexWorstSlackPathExists) {
+TEST_F(StaInitTest, StaVertexWorstSlackPathExists) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexWorstSlackPath);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaVertexSlacksExists) {
+TEST_F(StaInitTest, StaVertexSlacksExists) {
   auto fn = static_cast<void (Sta::*)(Vertex*, Slack (&)[2][2])>(&Sta::vertexSlacks);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: reporting function exists ===
 
-TEST_F(StaInitTest, R4_StaReportPathEndExists) {
+TEST_F(StaInitTest, StaReportPathEndExists) {
   auto fn = static_cast<void (Sta::*)(PathEnd*)>(&Sta::reportPathEnd);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaReportPathEndsExists) {
+TEST_F(StaInitTest, StaReportPathEndsExists) {
   auto fn = &Sta::reportPathEnds;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R4_StaFindPathEndsExists) {
+TEST_F(StaInitTest, StaFindPathEndsExists) {
   auto fn = &Sta::findPathEnds;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta.cc: Sta::makeClockGroups ===
 
-TEST_F(StaInitTest, R4_StaMakeClockGroups) {
+TEST_F(StaInitTest, StaMakeClockGroups) {
   sta_->makeClockGroups("test_grp", false, false, false, false, nullptr);
 }
 
@@ -7084,42 +7084,42 @@ TEST_F(StaInitTest, R4_StaMakeClockGroups) {
 
 // === CheckMaxSkews: constructor/destructor/clear ===
 
-TEST_F(StaInitTest, R5_CheckMaxSkewsCtorDtorClear) {
+TEST_F(StaInitTest, CheckMaxSkewsCtorDtorClear) {
   CheckMaxSkews checker(sta_);
   checker.clear();
 }
 
 // === CheckMinPeriods: constructor/destructor/clear ===
 
-TEST_F(StaInitTest, R5_CheckMinPeriodsCtorDtorClear) {
+TEST_F(StaInitTest, CheckMinPeriodsCtorDtorClear) {
   CheckMinPeriods checker(sta_);
   checker.clear();
 }
 
 // === CheckMinPulseWidths: constructor/destructor/clear ===
 
-TEST_F(StaInitTest, R5_CheckMinPulseWidthsCtorDtorClear) {
+TEST_F(StaInitTest, CheckMinPulseWidthsCtorDtorClear) {
   CheckMinPulseWidths checker(sta_);
   checker.clear();
 }
 
 // === MinPulseWidthCheck: default constructor ===
 
-TEST_F(StaInitTest, R5_MinPulseWidthCheckDefaultCtor) {
+TEST_F(StaInitTest, MinPulseWidthCheckDefaultCtor) {
   MinPulseWidthCheck check;
   EXPECT_EQ(check.openPath(), nullptr);
 }
 
 // === MinPulseWidthCheck: constructor with nullptr ===
 
-TEST_F(StaInitTest, R5_MinPulseWidthCheckNullptrCtor) {
+TEST_F(StaInitTest, MinPulseWidthCheckNullptrCtor) {
   MinPulseWidthCheck check(nullptr);
   EXPECT_EQ(check.openPath(), nullptr);
 }
 
 // === MinPeriodCheck: constructor ===
 
-TEST_F(StaInitTest, R5_MinPeriodCheckCtor) {
+TEST_F(StaInitTest, MinPeriodCheckCtor) {
   MinPeriodCheck check(nullptr, nullptr, nullptr);
   EXPECT_EQ(check.pin(), nullptr);
   EXPECT_EQ(check.clk(), nullptr);
@@ -7127,7 +7127,7 @@ TEST_F(StaInitTest, R5_MinPeriodCheckCtor) {
 
 // === MinPeriodCheck: copy ===
 
-TEST_F(StaInitTest, R5_MinPeriodCheckCopy) {
+TEST_F(StaInitTest, MinPeriodCheckCopy) {
   MinPeriodCheck check(nullptr, nullptr, nullptr);
   MinPeriodCheck *copy = check.copy();
   EXPECT_NE(copy, nullptr);
@@ -7138,42 +7138,42 @@ TEST_F(StaInitTest, R5_MinPeriodCheckCopy) {
 
 // === MaxSkewSlackLess: constructor ===
 
-TEST_F(StaInitTest, R5_MaxSkewSlackLessCtor) {
+TEST_F(StaInitTest, MaxSkewSlackLessCtor) {
   MaxSkewSlackLess less(sta_);
   (void)less;
 }
 
 // === MinPeriodSlackLess: constructor ===
 
-TEST_F(StaInitTest, R5_MinPeriodSlackLessCtor) {
+TEST_F(StaInitTest, MinPeriodSlackLessCtor) {
   MinPeriodSlackLess less(sta_);
   (void)less;
 }
 
 // === MinPulseWidthSlackLess: constructor ===
 
-TEST_F(StaInitTest, R5_MinPulseWidthSlackLessCtor) {
+TEST_F(StaInitTest, MinPulseWidthSlackLessCtor) {
   MinPulseWidthSlackLess less(sta_);
   (void)less;
 }
 
 // === Path: default constructor and isNull ===
 
-TEST_F(StaInitTest, R5_PathDefaultCtorIsNull) {
+TEST_F(StaInitTest, PathDefaultCtorIsNull) {
   Path path;
   EXPECT_TRUE(path.isNull());
 }
 
 // === Path: copy from null pointer ===
 
-TEST_F(StaInitTest, R5_PathCopyFromNull) {
+TEST_F(StaInitTest, PathCopyFromNull) {
   Path path(static_cast<const Path *>(nullptr));
   EXPECT_TRUE(path.isNull());
 }
 
 // === Path: arrival/required getters on default path ===
 
-TEST_F(StaInitTest, R5_PathArrivalRequired) {
+TEST_F(StaInitTest, PathArrivalRequired) {
   Path path;
   path.setArrival(1.5f);
   EXPECT_FLOAT_EQ(path.arrival(), 1.5f);
@@ -7183,7 +7183,7 @@ TEST_F(StaInitTest, R5_PathArrivalRequired) {
 
 // === Path: isEnum ===
 
-TEST_F(StaInitTest, R5_PathIsEnum) {
+TEST_F(StaInitTest, PathIsEnum2) {
   Path path;
   EXPECT_FALSE(path.isEnum());
   path.setIsEnum(true);
@@ -7194,14 +7194,14 @@ TEST_F(StaInitTest, R5_PathIsEnum) {
 
 // === Path: prevPath on default ===
 
-TEST_F(StaInitTest, R5_PathPrevPathDefault) {
+TEST_F(StaInitTest, PathPrevPathDefault) {
   Path path;
   EXPECT_EQ(path.prevPath(), nullptr);
 }
 
 // === Path: setPrevPath ===
 
-TEST_F(StaInitTest, R5_PathSetPrevPath) {
+TEST_F(StaInitTest, PathSetPrevPath2) {
   Path path;
   Path prev;
   path.setPrevPath(&prev);
@@ -7212,14 +7212,14 @@ TEST_F(StaInitTest, R5_PathSetPrevPath) {
 
 // === PathLess: constructor ===
 
-TEST_F(StaInitTest, R5_PathLessCtor) {
+TEST_F(StaInitTest, PathLessCtor) {
   PathLess less(sta_);
   (void)less;
 }
 
 // === ClkSkew: default constructor ===
 
-TEST_F(StaInitTest, R5_ClkSkewDefaultCtor) {
+TEST_F(StaInitTest, ClkSkewDefaultCtor) {
   ClkSkew skew;
   EXPECT_EQ(skew.srcPath(), nullptr);
   EXPECT_EQ(skew.tgtPath(), nullptr);
@@ -7228,7 +7228,7 @@ TEST_F(StaInitTest, R5_ClkSkewDefaultCtor) {
 
 // === ClkSkew: copy constructor ===
 
-TEST_F(StaInitTest, R5_ClkSkewCopyCtor) {
+TEST_F(StaInitTest, ClkSkewCopyCtor) {
   ClkSkew skew1;
   ClkSkew skew2(skew1);
   EXPECT_EQ(skew2.srcPath(), nullptr);
@@ -7238,7 +7238,7 @@ TEST_F(StaInitTest, R5_ClkSkewCopyCtor) {
 
 // === ClkSkew: assignment operator ===
 
-TEST_F(StaInitTest, R5_ClkSkewAssignment) {
+TEST_F(StaInitTest, ClkSkewAssignment2) {
   ClkSkew skew1;
   ClkSkew skew2;
   skew2 = skew1;
@@ -7251,56 +7251,56 @@ TEST_F(StaInitTest, R5_ClkSkewAssignment) {
 
 // === ClkInfoLess: constructor ===
 
-TEST_F(StaInitTest, R5_ClkInfoLessCtor) {
+TEST_F(StaInitTest, ClkInfoLessCtor) {
   ClkInfoLess less(sta_);
   (void)less;
 }
 
 // === ClkInfoEqual: constructor ===
 
-TEST_F(StaInitTest, R5_ClkInfoEqualCtor) {
+TEST_F(StaInitTest, ClkInfoEqualCtor) {
   ClkInfoEqual eq(sta_);
   (void)eq;
 }
 
 // === ClkInfoHash: operator() with nullptr safety check ===
 
-TEST_F(StaInitTest, R5_ClkInfoHashExists) {
+TEST_F(StaInitTest, ClkInfoHashExists) {
   ClkInfoHash hash;
   (void)hash;
 }
 
 // === TagLess: constructor ===
 
-TEST_F(StaInitTest, R5_TagLessCtor) {
+TEST_F(StaInitTest, TagLessCtor) {
   TagLess less(sta_);
   (void)less;
 }
 
 // === TagIndexLess: existence ===
 
-TEST_F(StaInitTest, R5_TagIndexLessExists) {
+TEST_F(StaInitTest, TagIndexLessExists) {
   TagIndexLess less;
   (void)less;
 }
 
 // === TagHash: constructor ===
 
-TEST_F(StaInitTest, R5_TagHashCtor) {
+TEST_F(StaInitTest, TagHashCtor) {
   TagHash hash(sta_);
   (void)hash;
 }
 
 // === TagEqual: constructor ===
 
-TEST_F(StaInitTest, R5_TagEqualCtor) {
+TEST_F(StaInitTest, TagEqualCtor) {
   TagEqual eq(sta_);
   (void)eq;
 }
 
 // === TagMatchLess: constructor ===
 
-TEST_F(StaInitTest, R5_TagMatchLessCtor) {
+TEST_F(StaInitTest, TagMatchLessCtor) {
   TagMatchLess less(true, sta_);
   (void)less;
   TagMatchLess less2(false, sta_);
@@ -7309,7 +7309,7 @@ TEST_F(StaInitTest, R5_TagMatchLessCtor) {
 
 // === TagMatchHash: constructor ===
 
-TEST_F(StaInitTest, R5_TagMatchHashCtor) {
+TEST_F(StaInitTest, TagMatchHashCtor) {
   TagMatchHash hash(true, sta_);
   (void)hash;
   TagMatchHash hash2(false, sta_);
@@ -7318,7 +7318,7 @@ TEST_F(StaInitTest, R5_TagMatchHashCtor) {
 
 // === TagMatchEqual: constructor ===
 
-TEST_F(StaInitTest, R5_TagMatchEqualCtor) {
+TEST_F(StaInitTest, TagMatchEqualCtor) {
   TagMatchEqual eq(true, sta_);
   (void)eq;
   TagMatchEqual eq2(false, sta_);
@@ -7330,33 +7330,33 @@ TEST_F(StaInitTest, R5_TagMatchEqualCtor) {
 
 // === DiversionGreater: constructors ===
 
-TEST_F(StaInitTest, R5_DiversionGreaterDefaultCtor) {
+TEST_F(StaInitTest, DiversionGreaterDefaultCtor) {
   DiversionGreater greater;
   (void)greater;
 }
 
-TEST_F(StaInitTest, R5_DiversionGreaterStaCtor) {
+TEST_F(StaInitTest, DiversionGreaterStaCtor) {
   DiversionGreater greater(sta_);
   (void)greater;
 }
 
 // === ClkSkews: constructor and clear ===
 
-TEST_F(StaInitTest, R5_ClkSkewsCtorClear) {
+TEST_F(StaInitTest, ClkSkewsCtorClear) {
   ClkSkews skews(sta_);
   skews.clear();
 }
 
 // === Genclks: constructor, destructor, and clear ===
 
-TEST_F(StaInitTest, R5_GenclksCtorDtorClear) {
+TEST_F(StaInitTest, GenclksCtorDtorClear) {
   Genclks genclks(sta_);
   genclks.clear();
 }
 
 // === ClockPinPairLess: operator ===
 
-TEST_F(StaInitTest, R5_ClockPinPairLessExists) {
+TEST_F(StaInitTest, ClockPinPairLessExists) {
   // ClockPinPairLess comparison dereferences Clock*, so just test existence
   ClockPinPairLess less;
   (void)less;
@@ -7365,14 +7365,14 @@ TEST_F(StaInitTest, R5_ClockPinPairLessExists) {
 
 // === Levelize: setLevelSpace ===
 
-TEST_F(StaInitTest, R5_LevelizeSetLevelSpace) {
+TEST_F(StaInitTest, LevelizeSetLevelSpace2) {
   Levelize *levelize = sta_->levelize();
   levelize->setLevelSpace(5);
 }
 
 // === Levelize: maxLevel ===
 
-TEST_F(StaInitTest, R5_LevelizeMaxLevel) {
+TEST_F(StaInitTest, LevelizeMaxLevel2) {
   Levelize *levelize = sta_->levelize();
   int ml = levelize->maxLevel();
   EXPECT_GE(ml, 0);
@@ -7380,70 +7380,70 @@ TEST_F(StaInitTest, R5_LevelizeMaxLevel) {
 
 // === Levelize: clear ===
 
-TEST_F(StaInitTest, R5_LevelizeClear) {
+TEST_F(StaInitTest, LevelizeClear2) {
   Levelize *levelize = sta_->levelize();
   levelize->clear();
 }
 
 // === SearchPred0: constructor ===
 
-TEST_F(StaInitTest, R5_SearchPred0Ctor) {
+TEST_F(StaInitTest, SearchPred0Ctor) {
   SearchPred0 pred(sta_);
   (void)pred;
 }
 
 // === SearchPred1: constructor ===
 
-TEST_F(StaInitTest, R5_SearchPred1Ctor) {
+TEST_F(StaInitTest, SearchPred1Ctor) {
   SearchPred1 pred(sta_);
   (void)pred;
 }
 
 // === SearchPred2: constructor ===
 
-TEST_F(StaInitTest, R5_SearchPred2Ctor) {
+TEST_F(StaInitTest, SearchPred2Ctor) {
   SearchPred2 pred(sta_);
   (void)pred;
 }
 
 // === SearchPredNonLatch2: constructor ===
 
-TEST_F(StaInitTest, R5_SearchPredNonLatch2Ctor) {
+TEST_F(StaInitTest, SearchPredNonLatch2Ctor) {
   SearchPredNonLatch2 pred(sta_);
   (void)pred;
 }
 
 // === SearchPredNonReg2: constructor ===
 
-TEST_F(StaInitTest, R5_SearchPredNonReg2Ctor) {
+TEST_F(StaInitTest, SearchPredNonReg2Ctor) {
   SearchPredNonReg2 pred(sta_);
   (void)pred;
 }
 
 // === ClkTreeSearchPred: constructor ===
 
-TEST_F(StaInitTest, R5_ClkTreeSearchPredCtor) {
+TEST_F(StaInitTest, ClkTreeSearchPredCtor) {
   ClkTreeSearchPred pred(sta_);
   (void)pred;
 }
 
 // === FanOutSrchPred: constructor ===
 
-TEST_F(StaInitTest, R5_FanOutSrchPredCtor) {
+TEST_F(StaInitTest, FanOutSrchPredCtor) {
   FanOutSrchPred pred(sta_);
   (void)pred;
 }
 
 // === WorstSlack: constructor/destructor ===
 
-TEST_F(StaInitTest, R5_WorstSlackCtorDtor) {
+TEST_F(StaInitTest, WorstSlackCtorDtor) {
   WorstSlack ws(sta_);
   (void)ws;
 }
 
 // === WorstSlack: copy constructor ===
 
-TEST_F(StaInitTest, R5_WorstSlackCopyCtor) {
+TEST_F(StaInitTest, WorstSlackCopyCtor) {
   WorstSlack ws1(sta_);
   WorstSlack ws2(ws1);
   (void)ws2;
@@ -7451,35 +7451,35 @@ TEST_F(StaInitTest, R5_WorstSlackCopyCtor) {
 
 // === WorstSlacks: constructor ===
 
-TEST_F(StaInitTest, R5_WorstSlacksCtorDtor) {
+TEST_F(StaInitTest, WorstSlacksCtorDtor) {
   WorstSlacks wslacks(sta_);
   (void)wslacks;
 }
 
 // === Sim: clear ===
 
-TEST_F(StaInitTest, R5_SimClear) {
+TEST_F(StaInitTest, SimClear2) {
   Sim *sim = sta_->sim();
   sim->clear();
 }
 
 // === StaState: copyUnits ===
 
-TEST_F(StaInitTest, R5_StaStateCopyUnits) {
+TEST_F(StaInitTest, StaStateCopyUnits3) {
   Units *units = sta_->units();
   sta_->copyUnits(units);
 }
 
 // === PropertyValue: default constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueDefaultCtor) {
+TEST_F(StaInitTest, PropertyValueDefaultCtor) {
   PropertyValue pv;
   EXPECT_EQ(pv.type(), PropertyValue::type_none);
 }
 
 // === PropertyValue: string constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueStringCtor) {
+TEST_F(StaInitTest, PropertyValueStringCtor) {
   PropertyValue pv("hello");
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
   EXPECT_STREQ(pv.stringValue(), "hello");
@@ -7487,7 +7487,7 @@ TEST_F(StaInitTest, R5_PropertyValueStringCtor) {
 
 // === PropertyValue: float constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueFloatCtor) {
+TEST_F(StaInitTest, PropertyValueFloatCtor) {
   PropertyValue pv(3.14f, nullptr);
   EXPECT_EQ(pv.type(), PropertyValue::type_float);
   EXPECT_FLOAT_EQ(pv.floatValue(), 3.14f);
@@ -7495,7 +7495,7 @@ TEST_F(StaInitTest, R5_PropertyValueFloatCtor) {
 
 // === PropertyValue: bool constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueBoolCtor) {
+TEST_F(StaInitTest, PropertyValueBoolCtor) {
   PropertyValue pv(true);
   EXPECT_EQ(pv.type(), PropertyValue::type_bool);
   EXPECT_TRUE(pv.boolValue());
@@ -7503,7 +7503,7 @@ TEST_F(StaInitTest, R5_PropertyValueBoolCtor) {
 
 // === PropertyValue: copy constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueCopyCtor) {
+TEST_F(StaInitTest, PropertyValueCopyCtor) {
   PropertyValue pv1("test");
   PropertyValue pv2(pv1);
   EXPECT_EQ(pv2.type(), PropertyValue::type_string);
@@ -7512,7 +7512,7 @@ TEST_F(StaInitTest, R5_PropertyValueCopyCtor) {
 
 // === PropertyValue: move constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueMoveCtor) {
+TEST_F(StaInitTest, PropertyValueMoveCtor) {
   PropertyValue pv1("test");
   PropertyValue pv2(std::move(pv1));
   EXPECT_EQ(pv2.type(), PropertyValue::type_string);
@@ -7521,7 +7521,7 @@ TEST_F(StaInitTest, R5_PropertyValueMoveCtor) {
 
 // === PropertyValue: copy assignment ===
 
-TEST_F(StaInitTest, R5_PropertyValueCopyAssign) {
+TEST_F(StaInitTest, PropertyValueCopyAssign) {
   PropertyValue pv1("test");
   PropertyValue pv2;
   pv2 = pv1;
@@ -7531,7 +7531,7 @@ TEST_F(StaInitTest, R5_PropertyValueCopyAssign) {
 
 // === PropertyValue: move assignment ===
 
-TEST_F(StaInitTest, R5_PropertyValueMoveAssign) {
+TEST_F(StaInitTest, PropertyValueMoveAssign) {
   PropertyValue pv1("test");
   PropertyValue pv2;
   pv2 = std::move(pv1);
@@ -7541,7 +7541,7 @@ TEST_F(StaInitTest, R5_PropertyValueMoveAssign) {
 
 // === PropertyValue: Library constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueLibraryCtor) {
+TEST_F(StaInitTest, PropertyValueLibraryCtor) {
   PropertyValue pv(static_cast<const Library *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_library);
   EXPECT_EQ(pv.library(), nullptr);
@@ -7549,7 +7549,7 @@ TEST_F(StaInitTest, R5_PropertyValueLibraryCtor) {
 
 // === PropertyValue: Cell constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueCellCtor) {
+TEST_F(StaInitTest, PropertyValueCellCtor) {
   PropertyValue pv(static_cast<const Cell *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_cell);
   EXPECT_EQ(pv.cell(), nullptr);
@@ -7557,7 +7557,7 @@ TEST_F(StaInitTest, R5_PropertyValueCellCtor) {
 
 // === PropertyValue: Port constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValuePortCtor) {
+TEST_F(StaInitTest, PropertyValuePortCtor) {
   PropertyValue pv(static_cast<const Port *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_port);
   EXPECT_EQ(pv.port(), nullptr);
@@ -7565,7 +7565,7 @@ TEST_F(StaInitTest, R5_PropertyValuePortCtor) {
 
 // === PropertyValue: LibertyLibrary constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueLibertyLibraryCtor) {
+TEST_F(StaInitTest, PropertyValueLibertyLibraryCtor) {
   PropertyValue pv(static_cast<const LibertyLibrary *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_liberty_library);
   EXPECT_EQ(pv.libertyLibrary(), nullptr);
@@ -7573,7 +7573,7 @@ TEST_F(StaInitTest, R5_PropertyValueLibertyLibraryCtor) {
 
 // === PropertyValue: LibertyCell constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueLibertyCellCtor) {
+TEST_F(StaInitTest, PropertyValueLibertyCellCtor) {
   PropertyValue pv(static_cast<const LibertyCell *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_liberty_cell);
   EXPECT_EQ(pv.libertyCell(), nullptr);
@@ -7581,7 +7581,7 @@ TEST_F(StaInitTest, R5_PropertyValueLibertyCellCtor) {
 
 // === PropertyValue: LibertyPort constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueLibertyPortCtor) {
+TEST_F(StaInitTest, PropertyValueLibertyPortCtor) {
   PropertyValue pv(static_cast<const LibertyPort *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_liberty_port);
   EXPECT_EQ(pv.libertyPort(), nullptr);
@@ -7589,7 +7589,7 @@ TEST_F(StaInitTest, R5_PropertyValueLibertyPortCtor) {
 
 // === PropertyValue: Instance constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueInstanceCtor) {
+TEST_F(StaInitTest, PropertyValueInstanceCtor) {
   PropertyValue pv(static_cast<const Instance *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_instance);
   EXPECT_EQ(pv.instance(), nullptr);
@@ -7597,7 +7597,7 @@ TEST_F(StaInitTest, R5_PropertyValueInstanceCtor) {
 
 // === PropertyValue: Pin constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValuePinCtor) {
+TEST_F(StaInitTest, PropertyValuePinCtor) {
   PropertyValue pv(static_cast<const Pin *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_pin);
   EXPECT_EQ(pv.pin(), nullptr);
@@ -7605,7 +7605,7 @@ TEST_F(StaInitTest, R5_PropertyValuePinCtor) {
 
 // === PropertyValue: Net constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueNetCtor) {
+TEST_F(StaInitTest, PropertyValueNetCtor) {
   PropertyValue pv(static_cast<const Net *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_net);
   EXPECT_EQ(pv.net(), nullptr);
@@ -7613,7 +7613,7 @@ TEST_F(StaInitTest, R5_PropertyValueNetCtor) {
 
 // === PropertyValue: Clock constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueClockCtor) {
+TEST_F(StaInitTest, PropertyValueClockCtor) {
   PropertyValue pv(static_cast<const Clock *>(nullptr));
   EXPECT_EQ(pv.type(), PropertyValue::type_clk);
   EXPECT_EQ(pv.clock(), nullptr);
@@ -7624,7 +7624,7 @@ TEST_F(StaInitTest, R5_PropertyValueClockCtor) {
 
 // === Sta: maxPathCountVertex ===
 
-TEST_F(StaInitTest, R5_StaMaxPathCountVertexExists) {
+TEST_F(StaInitTest, StaMaxPathCountVertexExists) {
   // maxPathCountVertex requires search state; just test function pointer
   auto fn = &Sta::maxPathCountVertex;
   EXPECT_NE(fn, nullptr);
@@ -7632,241 +7632,241 @@ TEST_F(StaInitTest, R5_StaMaxPathCountVertexExists) {
 
 // === Sta: connectPin ===
 
-TEST_F(StaInitTest, R5_StaConnectPinExists) {
+TEST_F(StaInitTest, StaConnectPinExists) {
   auto fn = static_cast<void (Sta::*)(Instance*, LibertyPort*, Net*)>(&Sta::connectPin);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: replaceCellExists ===
 
-TEST_F(StaInitTest, R5_StaReplaceCellExists) {
+TEST_F(StaInitTest, StaReplaceCellExists2) {
   auto fn = static_cast<void (Sta::*)(Instance*, Cell*)>(&Sta::replaceCell);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: disable functions exist ===
 
-TEST_F(StaInitTest, R5_StaDisableLibertyPortExists) {
+TEST_F(StaInitTest, StaDisableLibertyPortExists) {
   auto fn = static_cast<void (Sta::*)(LibertyPort*)>(&Sta::disable);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaDisableTimingArcSetExists) {
+TEST_F(StaInitTest, StaDisableTimingArcSetExists) {
   auto fn = static_cast<void (Sta::*)(TimingArcSet*)>(&Sta::disable);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaDisableEdgeExists) {
+TEST_F(StaInitTest, StaDisableEdgeExists) {
   auto fn = static_cast<void (Sta::*)(Edge*)>(&Sta::disable);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: removeDisable functions exist ===
 
-TEST_F(StaInitTest, R5_StaRemoveDisableLibertyPortExists) {
+TEST_F(StaInitTest, StaRemoveDisableLibertyPortExists) {
   auto fn = static_cast<void (Sta::*)(LibertyPort*)>(&Sta::removeDisable);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaRemoveDisableTimingArcSetExists) {
+TEST_F(StaInitTest, StaRemoveDisableTimingArcSetExists) {
   auto fn = static_cast<void (Sta::*)(TimingArcSet*)>(&Sta::removeDisable);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaRemoveDisableEdgeExists) {
+TEST_F(StaInitTest, StaRemoveDisableEdgeExists) {
   auto fn = static_cast<void (Sta::*)(Edge*)>(&Sta::removeDisable);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: disableClockGatingCheck ===
 
-TEST_F(StaInitTest, R5_StaDisableClockGatingCheckExists) {
+TEST_F(StaInitTest, StaDisableClockGatingCheckExists) {
   auto fn = static_cast<void (Sta::*)(Pin*)>(&Sta::disableClockGatingCheck);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: removeDisableClockGatingCheck ===
 
-TEST_F(StaInitTest, R5_StaRemoveDisableClockGatingCheckExists) {
+TEST_F(StaInitTest, StaRemoveDisableClockGatingCheckExists) {
   auto fn = static_cast<void (Sta::*)(Pin*)>(&Sta::removeDisableClockGatingCheck);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexArrival overloads exist ===
 
-TEST_F(StaInitTest, R5_StaVertexArrivalMinMaxExists) {
+TEST_F(StaInitTest, StaVertexArrivalMinMaxExists2) {
   auto fn = static_cast<Arrival (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexArrival);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaVertexArrivalRfApExists) {
+TEST_F(StaInitTest, StaVertexArrivalRfApExists) {
   auto fn = static_cast<Arrival (Sta::*)(Vertex*, const RiseFall*, const PathAnalysisPt*)>(&Sta::vertexArrival);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexRequired overloads exist ===
 
-TEST_F(StaInitTest, R5_StaVertexRequiredMinMaxExists) {
+TEST_F(StaInitTest, StaVertexRequiredMinMaxExists2) {
   auto fn = static_cast<Required (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexRequired);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaVertexRequiredRfApExists) {
+TEST_F(StaInitTest, StaVertexRequiredRfApExists) {
   auto fn = static_cast<Required (Sta::*)(Vertex*, const RiseFall*, const PathAnalysisPt*)>(&Sta::vertexRequired);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaVertexRequiredRfMinMaxExists) {
+TEST_F(StaInitTest, StaVertexRequiredRfMinMaxExists) {
   auto fn = static_cast<Required (Sta::*)(Vertex*, const RiseFall*, const MinMax*)>(&Sta::vertexRequired);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexSlack overload exists ===
 
-TEST_F(StaInitTest, R5_StaVertexSlackRfApExists) {
+TEST_F(StaInitTest, StaVertexSlackRfApExists) {
   auto fn = static_cast<Slack (Sta::*)(Vertex*, const RiseFall*, const PathAnalysisPt*)>(&Sta::vertexSlack);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexSlew overloads exist ===
 
-TEST_F(StaInitTest, R5_StaVertexSlewDcalcExists) {
+TEST_F(StaInitTest, StaVertexSlewDcalcExists) {
   auto fn = static_cast<Slew (Sta::*)(Vertex*, const RiseFall*, const DcalcAnalysisPt*)>(&Sta::vertexSlew);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaVertexSlewCornerMinMaxExists) {
+TEST_F(StaInitTest, StaVertexSlewCornerMinMaxExists) {
   auto fn = static_cast<Slew (Sta::*)(Vertex*, const RiseFall*, const Corner*, const MinMax*)>(&Sta::vertexSlew);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexPathIterator exists ===
 
-TEST_F(StaInitTest, R5_StaVertexPathIteratorExists) {
+TEST_F(StaInitTest, StaVertexPathIteratorExists) {
   auto fn = static_cast<VertexPathIterator* (Sta::*)(Vertex*, const RiseFall*, const PathAnalysisPt*)>(&Sta::vertexPathIterator);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexWorstRequiredPath overloads ===
 
-TEST_F(StaInitTest, R5_StaVertexWorstRequiredPathMinMaxExists) {
+TEST_F(StaInitTest, StaVertexWorstRequiredPathMinMaxExists) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const MinMax*)>(&Sta::vertexWorstRequiredPath);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaVertexWorstRequiredPathRfMinMaxExists) {
+TEST_F(StaInitTest, StaVertexWorstRequiredPathRfMinMaxExists) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const RiseFall*, const MinMax*)>(&Sta::vertexWorstRequiredPath);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkCapacitance exists ===
 
-TEST_F(StaInitTest, R5_StaCheckCapacitanceExists) {
+TEST_F(StaInitTest, StaCheckCapacitanceExists) {
   auto fn = &Sta::checkCapacitance;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkSlew exists ===
 
-TEST_F(StaInitTest, R5_StaCheckSlewExists) {
+TEST_F(StaInitTest, StaCheckSlewExists) {
   auto fn = &Sta::checkSlew;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkFanout exists ===
 
-TEST_F(StaInitTest, R5_StaCheckFanoutExists) {
+TEST_F(StaInitTest, StaCheckFanoutExists) {
   auto fn = &Sta::checkFanout;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: findSlewLimit exists ===
 
-TEST_F(StaInitTest, R5_StaFindSlewLimitExists) {
+TEST_F(StaInitTest, StaFindSlewLimitExists) {
   auto fn = &Sta::findSlewLimit;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: reportCheck exists ===
 
-TEST_F(StaInitTest, R5_StaReportCheckMaxSkewExists) {
+TEST_F(StaInitTest, StaReportCheckMaxSkewExists) {
   auto fn = static_cast<void (Sta::*)(MaxSkewCheck*, bool)>(&Sta::reportCheck);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pinsForClock exists ===
 
-TEST_F(StaInitTest, R5_StaPinsExists) {
+TEST_F(StaInitTest, StaPinsExists) {
   auto fn = static_cast<const PinSet* (Sta::*)(const Clock*)>(&Sta::pins);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: removeDataCheck exists ===
 
-TEST_F(StaInitTest, R5_StaRemoveDataCheckExists) {
+TEST_F(StaInitTest, StaRemoveDataCheckExists) {
   auto fn = &Sta::removeDataCheck;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: makePortPinAfter exists ===
 
-TEST_F(StaInitTest, R5_StaMakePortPinAfterExists) {
+TEST_F(StaInitTest, StaMakePortPinAfterExists) {
   auto fn = &Sta::makePortPinAfter;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: setArcDelayAnnotated exists ===
 
-TEST_F(StaInitTest, R5_StaSetArcDelayAnnotatedExists) {
+TEST_F(StaInitTest, StaSetArcDelayAnnotatedExists) {
   auto fn = &Sta::setArcDelayAnnotated;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: delaysInvalidFromFanin exists ===
 
-TEST_F(StaInitTest, R5_StaDelaysInvalidFromFaninExists) {
+TEST_F(StaInitTest, StaDelaysInvalidFromFaninExists) {
   auto fn = static_cast<void (Sta::*)(const Pin*)>(&Sta::delaysInvalidFromFanin);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: makeParasiticNetwork exists ===
 
-TEST_F(StaInitTest, R5_StaMakeParasiticNetworkExists) {
+TEST_F(StaInitTest, StaMakeParasiticNetworkExists) {
   auto fn = &Sta::makeParasiticNetwork;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pathAnalysisPt exists ===
 
-TEST_F(StaInitTest, R5_StaPathAnalysisPtExists) {
+TEST_F(StaInitTest, StaPathAnalysisPtExists) {
   auto fn = static_cast<PathAnalysisPt* (Sta::*)(Path*)>(&Sta::pathAnalysisPt);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pathDcalcAnalysisPt exists ===
 
-TEST_F(StaInitTest, R5_StaPathDcalcAnalysisPtExists) {
+TEST_F(StaInitTest, StaPathDcalcAnalysisPtExists) {
   auto fn = &Sta::pathDcalcAnalysisPt;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pvt exists ===
 
-TEST_F(StaInitTest, R5_StaPvtExists) {
+TEST_F(StaInitTest, StaPvtExists) {
   auto fn = &Sta::pvt;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: setPvt exists ===
 
-TEST_F(StaInitTest, R5_StaSetPvtExists) {
+TEST_F(StaInitTest, StaSetPvtExists) {
   auto fn = static_cast<void (Sta::*)(Instance*, const MinMaxAll*, float, float, float)>(&Sta::setPvt);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: arrivalsValid ===
 
-TEST_F(StaInitTest, R5_SearchArrivalsValid) {
+TEST_F(StaInitTest, SearchArrivalsValid) {
   Search *search = sta_->search();
   bool valid = search->arrivalsValid();
   (void)valid;
@@ -7874,7 +7874,7 @@ TEST_F(StaInitTest, R5_SearchArrivalsValid) {
 
 // === Sim: findLogicConstants ===
 
-TEST_F(StaInitTest, R5_SimFindLogicConstantsExists) {
+TEST_F(StaInitTest, SimFindLogicConstantsExists) {
   // findLogicConstants requires graph; just test function pointer
   auto fn = &Sim::findLogicConstants;
   EXPECT_NE(fn, nullptr);
@@ -7882,7 +7882,7 @@ TEST_F(StaInitTest, R5_SimFindLogicConstantsExists) {
 
 // === ReportField: getters ===
 
-TEST_F(StaInitTest, R5_ReportFieldGetters) {
+TEST_F(StaInitTest, ReportFieldGetters) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldSlew();
   EXPECT_NE(field, nullptr);
@@ -7894,7 +7894,7 @@ TEST_F(StaInitTest, R5_ReportFieldGetters) {
 
 // === ReportField: setWidth ===
 
-TEST_F(StaInitTest, R5_ReportFieldSetWidth) {
+TEST_F(StaInitTest, ReportFieldSetWidth2) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldFanout();
   int orig = field->width();
@@ -7905,7 +7905,7 @@ TEST_F(StaInitTest, R5_ReportFieldSetWidth) {
 
 // === ReportField: setEnabled ===
 
-TEST_F(StaInitTest, R5_ReportFieldSetEnabled) {
+TEST_F(StaInitTest, ReportFieldSetEnabled2) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldCapacitance();
   bool orig = field->enabled();
@@ -7916,7 +7916,7 @@ TEST_F(StaInitTest, R5_ReportFieldSetEnabled) {
 
 // === ReportField: leftJustify ===
 
-TEST_F(StaInitTest, R5_ReportFieldLeftJustify) {
+TEST_F(StaInitTest, ReportFieldLeftJustify) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldSlew();
   bool lj = field->leftJustify();
@@ -7925,7 +7925,7 @@ TEST_F(StaInitTest, R5_ReportFieldLeftJustify) {
 
 // === ReportField: unit ===
 
-TEST_F(StaInitTest, R5_ReportFieldUnit) {
+TEST_F(StaInitTest, ReportFieldUnit) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldSlew();
   Unit *u = field->unit();
@@ -7934,7 +7934,7 @@ TEST_F(StaInitTest, R5_ReportFieldUnit) {
 
 // === Corner: constructor ===
 
-TEST_F(StaInitTest, R5_CornerCtor) {
+TEST_F(StaInitTest, CornerCtor) {
   Corner corner("test_corner", 0);
   EXPECT_STREQ(corner.name(), "test_corner");
   EXPECT_EQ(corner.index(), 0);
@@ -7942,14 +7942,14 @@ TEST_F(StaInitTest, R5_CornerCtor) {
 
 // === Corners: count ===
 
-TEST_F(StaInitTest, R5_CornersCount) {
+TEST_F(StaInitTest, CornersCount) {
   Corners *corners = sta_->corners();
   EXPECT_GE(corners->count(), 0);
 }
 
 // === Path static: less with null paths ===
 
-TEST_F(StaInitTest, R5_PathStaticLessNull) {
+TEST_F(StaInitTest, PathStaticLessNull) {
   Path p1;
   Path p2;
   // Both null - less should be false
@@ -7959,7 +7959,7 @@ TEST_F(StaInitTest, R5_PathStaticLessNull) {
 
 // === Path static: lessAll with null paths ===
 
-TEST_F(StaInitTest, R5_PathStaticLessAllNull) {
+TEST_F(StaInitTest, PathStaticLessAllNull) {
   Path p1;
   Path p2;
   bool result = Path::lessAll(&p1, &p2, sta_);
@@ -7968,7 +7968,7 @@ TEST_F(StaInitTest, R5_PathStaticLessAllNull) {
 
 // === Path static: equal with null paths ===
 
-TEST_F(StaInitTest, R5_PathStaticEqualNull) {
+TEST_F(StaInitTest, PathStaticEqualNull) {
   Path p1;
   Path p2;
   bool result = Path::equal(&p1, &p2, sta_);
@@ -7977,7 +7977,7 @@ TEST_F(StaInitTest, R5_PathStaticEqualNull) {
 
 // === Sta: isClockNet returns false with no design ===
 
-TEST_F(StaInitTest, R5_StaIsClockNetExists) {
+TEST_F(StaInitTest, StaIsClockNetExists2) {
   // isClock(Net*) dereferences the pointer; just test function pointer
   auto fn = static_cast<bool (Sta::*)(const Net*) const>(&Sta::isClock);
   EXPECT_NE(fn, nullptr);
@@ -7985,7 +7985,7 @@ TEST_F(StaInitTest, R5_StaIsClockNetExists) {
 
 // === PropertyValue: PinSeq constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValuePinSeqCtor) {
+TEST_F(StaInitTest, PropertyValuePinSeqCtor) {
   PinSeq *pins = new PinSeq;
   PropertyValue pv(pins);
   EXPECT_EQ(pv.type(), PropertyValue::type_pins);
@@ -7993,7 +7993,7 @@ TEST_F(StaInitTest, R5_PropertyValuePinSeqCtor) {
 
 // === PropertyValue: ClockSeq constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueClockSeqCtor) {
+TEST_F(StaInitTest, PropertyValueClockSeqCtor) {
   ClockSeq *clks = new ClockSeq;
   PropertyValue pv(clks);
   EXPECT_EQ(pv.type(), PropertyValue::type_clks);
@@ -8001,31 +8001,31 @@ TEST_F(StaInitTest, R5_PropertyValueClockSeqCtor) {
 
 // === Search: tagGroup returns nullptr for invalid index ===
 
-TEST_F(StaInitTest, R5_SearchTagGroupExists) {
+TEST_F(StaInitTest, SearchTagGroupExists) {
   auto fn = static_cast<TagGroup* (Search::*)(int) const>(&Search::tagGroup);
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkNetwork: pinsForClock and clocks exist ===
 
-TEST_F(StaInitTest, R5_ClkNetworkPinsExists) {
+TEST_F(StaInitTest, ClkNetworkPinsExists) {
   auto fn = static_cast<const PinSet* (ClkNetwork::*)(const Clock*)>(&ClkNetwork::pins);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ClkNetworkClocksExists) {
+TEST_F(StaInitTest, ClkNetworkClocksExists) {
   auto fn = static_cast<const ClockSet* (ClkNetwork::*)(const Pin*)>(&ClkNetwork::clocks);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ClkNetworkIsClockExists) {
+TEST_F(StaInitTest, ClkNetworkIsClockExists) {
   auto fn = static_cast<bool (ClkNetwork::*)(const Net*) const>(&ClkNetwork::isClock);
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathEnd: type enum values ===
 
-TEST_F(StaInitTest, R5_PathEndTypeEnums) {
+TEST_F(StaInitTest, PathEndTypeEnums2) {
   EXPECT_EQ(PathEnd::unconstrained, 0);
   EXPECT_EQ(PathEnd::check, 1);
   EXPECT_EQ(PathEnd::data_check, 2);
@@ -8037,21 +8037,21 @@ TEST_F(StaInitTest, R5_PathEndTypeEnums) {
 
 // === PathEnd: less function exists ===
 
-TEST_F(StaInitTest, R5_PathEndLessFnExists) {
+TEST_F(StaInitTest, PathEndLessFnExists) {
   auto fn = &PathEnd::less;
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathEnd: cmpNoCrpr function exists ===
 
-TEST_F(StaInitTest, R5_PathEndCmpNoCrprFnExists) {
+TEST_F(StaInitTest, PathEndCmpNoCrprFnExists) {
   auto fn = &PathEnd::cmpNoCrpr;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPathFormat enum ===
 
-TEST_F(StaInitTest, R5_ReportPathFormatEnums) {
+TEST_F(StaInitTest, ReportPathFormatEnums) {
   EXPECT_NE(ReportPathFormat::full, ReportPathFormat::json);
   EXPECT_NE(ReportPathFormat::full_clock, ReportPathFormat::endpoint);
   EXPECT_NE(ReportPathFormat::summary, ReportPathFormat::slack_only);
@@ -8059,7 +8059,7 @@ TEST_F(StaInitTest, R5_ReportPathFormatEnums) {
 
 // === SearchClass constants ===
 
-TEST_F(StaInitTest, R5_SearchClassConstants) {
+TEST_F(StaInitTest, SearchClassConstants2) {
   EXPECT_GT(tag_index_bit_count, 0u);
   EXPECT_EQ(tag_index_null, tag_index_max);
   EXPECT_GT(path_ap_index_bit_count, 0);
@@ -8068,7 +8068,7 @@ TEST_F(StaInitTest, R5_SearchClassConstants) {
 
 // === ReportPath: setReportFields (public) ===
 
-TEST_F(StaInitTest, R5_ReportPathSetReportFields) {
+TEST_F(StaInitTest, ReportPathSetReportFields2) {
   ReportPath *rpt = sta_->reportPath();
   rpt->setReportFields(true, true, true, true, true, true, true);
   rpt->setReportFields(false, false, false, false, false, false, false);
@@ -8076,7 +8076,7 @@ TEST_F(StaInitTest, R5_ReportPathSetReportFields) {
 
 // === MaxSkewCheck: skew with empty paths ===
 
-TEST_F(StaInitTest, R5_MaxSkewCheckSkewZero) {
+TEST_F(StaInitTest, MaxSkewCheckSkewZero) {
   Path clk_path;
   Path ref_path;
   clk_path.setArrival(0.0f);
@@ -8088,7 +8088,7 @@ TEST_F(StaInitTest, R5_MaxSkewCheckSkewZero) {
 
 // === MaxSkewCheck: skew with different arrivals ===
 
-TEST_F(StaInitTest, R5_MaxSkewCheckSkewNonZero) {
+TEST_F(StaInitTest, MaxSkewCheckSkewNonZero) {
   Path clk_path;
   Path ref_path;
   clk_path.setArrival(5.0f);
@@ -8100,7 +8100,7 @@ TEST_F(StaInitTest, R5_MaxSkewCheckSkewNonZero) {
 
 // === MaxSkewCheck: clkPath and refPath ===
 
-TEST_F(StaInitTest, R5_MaxSkewCheckPaths) {
+TEST_F(StaInitTest, MaxSkewCheckPaths) {
   Path clk_path;
   Path ref_path;
   MaxSkewCheck check(&clk_path, &ref_path, nullptr, nullptr);
@@ -8111,28 +8111,28 @@ TEST_F(StaInitTest, R5_MaxSkewCheckPaths) {
 
 // === ClkSkew: srcTgtPathNameLess exists ===
 
-TEST_F(StaInitTest, R5_ClkSkewSrcTgtPathNameLessExists) {
+TEST_F(StaInitTest, ClkSkewSrcTgtPathNameLessExists) {
   auto fn = &ClkSkew::srcTgtPathNameLess;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkSkew: srcInternalClkLatency exists ===
 
-TEST_F(StaInitTest, R5_ClkSkewSrcInternalClkLatencyExists) {
+TEST_F(StaInitTest, ClkSkewSrcInternalClkLatencyExists) {
   auto fn = &ClkSkew::srcInternalClkLatency;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkSkew: tgtInternalClkLatency exists ===
 
-TEST_F(StaInitTest, R5_ClkSkewTgtInternalClkLatencyExists) {
+TEST_F(StaInitTest, ClkSkewTgtInternalClkLatencyExists) {
   auto fn = &ClkSkew::tgtInternalClkLatency;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: setReportFieldOrder ===
 
-TEST_F(StaInitTest, R5_ReportPathSetReportFieldOrderExists) {
+TEST_F(StaInitTest, ReportPathSetReportFieldOrderExists) {
   // setReportFieldOrder(nullptr) segfaults; just test function pointer
   auto fn = &ReportPath::setReportFieldOrder;
   EXPECT_NE(fn, nullptr);
@@ -8140,7 +8140,7 @@ TEST_F(StaInitTest, R5_ReportPathSetReportFieldOrderExists) {
 
 // === ReportPath: findField ===
 
-TEST_F(StaInitTest, R5_ReportPathFindFieldByName) {
+TEST_F(StaInitTest, ReportPathFindFieldByName) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *slew = rpt->findField("slew");
   EXPECT_NE(slew, nullptr);
@@ -8155,7 +8155,7 @@ TEST_F(StaInitTest, R5_ReportPathFindFieldByName) {
 
 // === PropertyValue: std::string constructor ===
 
-TEST_F(StaInitTest, R5_PropertyValueStdStringCtor) {
+TEST_F(StaInitTest, PropertyValueStdStringCtor) {
   std::string s = "test_string";
   PropertyValue pv(s);
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
@@ -8164,7 +8164,7 @@ TEST_F(StaInitTest, R5_PropertyValueStdStringCtor) {
 
 // === Levelize: invalid ===
 
-TEST_F(StaInitTest, R5_LevelizeInvalid) {
+TEST_F(StaInitTest, LevelizeInvalid) {
   Levelize *levelize = sta_->levelize();
   levelize->invalid();
   EXPECT_FALSE(levelize->levelized());
@@ -8172,34 +8172,34 @@ TEST_F(StaInitTest, R5_LevelizeInvalid) {
 
 // === R5_ Round 2: Re-add public ReportPath methods that were accidentally removed ===
 
-TEST_F(StaInitTest, R5_ReportPathDigits) {
+TEST_F(StaInitTest, ReportPathDigits) {
   ReportPath *rpt = sta_->reportPath();
   int d = rpt->digits();
   EXPECT_GE(d, 0);
 }
 
-TEST_F(StaInitTest, R5_ReportPathSetDigits) {
+TEST_F(StaInitTest, ReportPathSetDigits) {
   ReportPath *rpt = sta_->reportPath();
   rpt->setDigits(5);
   EXPECT_EQ(rpt->digits(), 5);
   rpt->setDigits(3);  // restore default
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportSigmas) {
+TEST_F(StaInitTest, ReportPathReportSigmas2) {
   ReportPath *rpt = sta_->reportPath();
   bool sigmas = rpt->reportSigmas();
   // Default should be false
   EXPECT_FALSE(sigmas);
 }
 
-TEST_F(StaInitTest, R5_ReportPathSetReportSigmas) {
+TEST_F(StaInitTest, ReportPathSetReportSigmas) {
   ReportPath *rpt = sta_->reportPath();
   rpt->setReportSigmas(true);
   EXPECT_TRUE(rpt->reportSigmas());
   rpt->setReportSigmas(false);
 }
 
-TEST_F(StaInitTest, R5_ReportPathPathFormat) {
+TEST_F(StaInitTest, ReportPathPathFormat) {
   ReportPath *rpt = sta_->reportPath();
   ReportPathFormat fmt = rpt->pathFormat();
   // Check it is a valid format
@@ -8212,7 +8212,7 @@ TEST_F(StaInitTest, R5_ReportPathPathFormat) {
               || fmt == ReportPathFormat::json);
 }
 
-TEST_F(StaInitTest, R5_ReportPathSetPathFormat) {
+TEST_F(StaInitTest, ReportPathSetPathFormat) {
   ReportPath *rpt = sta_->reportPath();
   ReportPathFormat old_fmt = rpt->pathFormat();
   rpt->setPathFormat(ReportPathFormat::summary);
@@ -8220,41 +8220,41 @@ TEST_F(StaInitTest, R5_ReportPathSetPathFormat) {
   rpt->setPathFormat(old_fmt);
 }
 
-TEST_F(StaInitTest, R5_ReportPathFindFieldSlew) {
+TEST_F(StaInitTest, ReportPathFindFieldSlew) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *slew = rpt->findField("slew");
   EXPECT_NE(slew, nullptr);
   EXPECT_STREQ(slew->name(), "slew");
 }
 
-TEST_F(StaInitTest, R5_ReportPathFindFieldFanout) {
+TEST_F(StaInitTest, ReportPathFindFieldFanout) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *fo = rpt->findField("fanout");
   EXPECT_NE(fo, nullptr);
   EXPECT_STREQ(fo->name(), "fanout");
 }
 
-TEST_F(StaInitTest, R5_ReportPathFindFieldCapacitance) {
+TEST_F(StaInitTest, ReportPathFindFieldCapacitance) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *cap = rpt->findField("capacitance");
   EXPECT_NE(cap, nullptr);
   EXPECT_STREQ(cap->name(), "capacitance");
 }
 
-TEST_F(StaInitTest, R5_ReportPathFindFieldNonexistent) {
+TEST_F(StaInitTest, ReportPathFindFieldNonexistent) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *f = rpt->findField("nonexistent_field_xyz");
   EXPECT_EQ(f, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathSetNoSplit) {
+TEST_F(StaInitTest, ReportPathSetNoSplit) {
   ReportPath *rpt = sta_->reportPath();
   rpt->setNoSplit(true);
   rpt->setNoSplit(false);
   SUCCEED();
 }
 
-TEST_F(StaInitTest, R5_ReportPathFieldSrcAttr) {
+TEST_F(StaInitTest, ReportPathFieldSrcAttr) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *src = rpt->fieldSrcAttr();
   // src_attr field may or may not exist
@@ -8262,7 +8262,7 @@ TEST_F(StaInitTest, R5_ReportPathFieldSrcAttr) {
   SUCCEED();
 }
 
-TEST_F(StaInitTest, R5_ReportPathSetReportFieldsPublic) {
+TEST_F(StaInitTest, ReportPathSetReportFieldsPublic) {
   ReportPath *rpt = sta_->reportPath();
   // Call setReportFields with various combinations
   rpt->setReportFields(true, false, false, false, true, false, false);
@@ -8272,186 +8272,186 @@ TEST_F(StaInitTest, R5_ReportPathSetReportFieldsPublic) {
 
 // === ReportPath: header methods (public) ===
 
-TEST_F(StaInitTest, R5_ReportPathReportJsonHeaderExists) {
+TEST_F(StaInitTest, ReportPathReportJsonHeaderExists) {
   auto fn = &ReportPath::reportJsonHeader;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportPeriodHeaderShortExists) {
+TEST_F(StaInitTest, ReportPathReportPeriodHeaderShortExists) {
   auto fn = &ReportPath::reportPeriodHeaderShort;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportMaxSkewHeaderShortExists) {
+TEST_F(StaInitTest, ReportPathReportMaxSkewHeaderShortExists) {
   auto fn = &ReportPath::reportMaxSkewHeaderShort;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportMpwHeaderShortExists) {
+TEST_F(StaInitTest, ReportPathReportMpwHeaderShortExists) {
   auto fn = &ReportPath::reportMpwHeaderShort;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: report method function pointers ===
 
-TEST_F(StaInitTest, R5_ReportPathReportPathEndHeaderExists) {
+TEST_F(StaInitTest, ReportPathReportPathEndHeaderExists) {
   auto fn = &ReportPath::reportPathEndHeader;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportPathEndFooterExists) {
+TEST_F(StaInitTest, ReportPathReportPathEndFooterExists) {
   auto fn = &ReportPath::reportPathEndFooter;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportEndHeaderExists) {
+TEST_F(StaInitTest, ReportPathReportEndHeaderExists) {
   auto fn = &ReportPath::reportEndHeader;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportSummaryHeaderExists) {
+TEST_F(StaInitTest, ReportPathReportSummaryHeaderExists) {
   auto fn = &ReportPath::reportSummaryHeader;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportSlackOnlyHeaderExists) {
+TEST_F(StaInitTest, ReportPathReportSlackOnlyHeaderExists) {
   auto fn = &ReportPath::reportSlackOnlyHeader;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportJsonFooterExists) {
+TEST_F(StaInitTest, ReportPathReportJsonFooterExists) {
   auto fn = &ReportPath::reportJsonFooter;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: reportCheck overloads ===
 
-TEST_F(StaInitTest, R5_ReportPathReportCheckMinPeriodExists) {
+TEST_F(StaInitTest, ReportPathReportCheckMinPeriodExists) {
   auto fn = static_cast<void (ReportPath::*)(const MinPeriodCheck*, bool) const>(
     &ReportPath::reportCheck);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportCheckMaxSkewExists) {
+TEST_F(StaInitTest, ReportPathReportCheckMaxSkewExists) {
   auto fn = static_cast<void (ReportPath::*)(const MaxSkewCheck*, bool) const>(
     &ReportPath::reportCheck);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportChecksMinPeriodExists) {
+TEST_F(StaInitTest, ReportPathReportChecksMinPeriodExists) {
   auto fn = static_cast<void (ReportPath::*)(const MinPeriodCheckSeq*, bool) const>(
     &ReportPath::reportChecks);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportChecksMaxSkewExists) {
+TEST_F(StaInitTest, ReportPathReportChecksMaxSkewExists) {
   auto fn = static_cast<void (ReportPath::*)(const MaxSkewCheckSeq*, bool) const>(
     &ReportPath::reportChecks);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportMpwCheckExists) {
+TEST_F(StaInitTest, ReportPathReportMpwCheckExists) {
   auto fn = &ReportPath::reportMpwCheck;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportMpwChecksExists) {
+TEST_F(StaInitTest, ReportPathReportMpwChecksExists) {
   auto fn = &ReportPath::reportMpwChecks;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: report short/full/json overloads ===
 
-TEST_F(StaInitTest, R5_ReportPathReportShortMaxSkewCheckExists) {
+TEST_F(StaInitTest, ReportPathReportShortMaxSkewCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const MaxSkewCheck*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportVerboseMaxSkewCheckExists) {
+TEST_F(StaInitTest, ReportPathReportVerboseMaxSkewCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const MaxSkewCheck*) const>(
     &ReportPath::reportVerbose);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportShortMinPeriodCheckExists) {
+TEST_F(StaInitTest, ReportPathReportShortMinPeriodCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const MinPeriodCheck*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportVerboseMinPeriodCheckExists) {
+TEST_F(StaInitTest, ReportPathReportVerboseMinPeriodCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const MinPeriodCheck*) const>(
     &ReportPath::reportVerbose);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportShortMinPulseWidthCheckExists) {
+TEST_F(StaInitTest, ReportPathReportShortMinPulseWidthCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const MinPulseWidthCheck*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportVerboseMinPulseWidthCheckExists) {
+TEST_F(StaInitTest, ReportPathReportVerboseMinPulseWidthCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const MinPulseWidthCheck*) const>(
     &ReportPath::reportVerbose);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportLimitShortHeaderExists) {
+TEST_F(StaInitTest, ReportPathReportLimitShortHeaderExists) {
   auto fn = &ReportPath::reportLimitShortHeader;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportLimitShortExists) {
+TEST_F(StaInitTest, ReportPathReportLimitShortExists) {
   auto fn = &ReportPath::reportLimitShort;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportLimitVerboseExists) {
+TEST_F(StaInitTest, ReportPathReportLimitVerboseExists) {
   auto fn = &ReportPath::reportLimitVerbose;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: report short for PathEnd types ===
 
-TEST_F(StaInitTest, R5_ReportPathReportShortCheckExists) {
+TEST_F(StaInitTest, ReportPathReportShortCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndCheck*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportShortLatchCheckExists) {
+TEST_F(StaInitTest, ReportPathReportShortLatchCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndLatchCheck*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportShortPathDelayExists) {
+TEST_F(StaInitTest, ReportPathReportShortPathDelayExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndPathDelay*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportShortOutputDelayExists) {
+TEST_F(StaInitTest, ReportPathReportShortOutputDelayExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndOutputDelay*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportShortGatedClockExists) {
+TEST_F(StaInitTest, ReportPathReportShortGatedClockExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndGatedClock*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportShortDataCheckExists) {
+TEST_F(StaInitTest, ReportPathReportShortDataCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndDataCheck*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportShortUnconstrainedExists) {
+TEST_F(StaInitTest, ReportPathReportShortUnconstrainedExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndUnconstrained*) const>(
     &ReportPath::reportShort);
   EXPECT_NE(fn, nullptr);
@@ -8459,43 +8459,43 @@ TEST_F(StaInitTest, R5_ReportPathReportShortUnconstrainedExists) {
 
 // === ReportPath: reportFull for PathEnd types ===
 
-TEST_F(StaInitTest, R5_ReportPathReportFullCheckExists) {
+TEST_F(StaInitTest, ReportPathReportFullCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndCheck*) const>(
     &ReportPath::reportFull);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportFullLatchCheckExists) {
+TEST_F(StaInitTest, ReportPathReportFullLatchCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndLatchCheck*) const>(
     &ReportPath::reportFull);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportFullPathDelayExists) {
+TEST_F(StaInitTest, ReportPathReportFullPathDelayExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndPathDelay*) const>(
     &ReportPath::reportFull);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportFullOutputDelayExists) {
+TEST_F(StaInitTest, ReportPathReportFullOutputDelayExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndOutputDelay*) const>(
     &ReportPath::reportFull);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportFullGatedClockExists) {
+TEST_F(StaInitTest, ReportPathReportFullGatedClockExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndGatedClock*) const>(
     &ReportPath::reportFull);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportFullDataCheckExists) {
+TEST_F(StaInitTest, ReportPathReportFullDataCheckExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndDataCheck*) const>(
     &ReportPath::reportFull);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportFullUnconstrainedExists) {
+TEST_F(StaInitTest, ReportPathReportFullUnconstrainedExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEndUnconstrained*) const>(
     &ReportPath::reportFull);
   EXPECT_NE(fn, nullptr);
@@ -8503,7 +8503,7 @@ TEST_F(StaInitTest, R5_ReportPathReportFullUnconstrainedExists) {
 
 // === ReportField: blank getter ===
 
-TEST_F(StaInitTest, R5_ReportFieldBlank) {
+TEST_F(StaInitTest, ReportFieldBlank2) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldSlew();
   const char *blank = field->blank();
@@ -8512,7 +8512,7 @@ TEST_F(StaInitTest, R5_ReportFieldBlank) {
 
 // === ReportField: setProperties ===
 
-TEST_F(StaInitTest, R5_ReportFieldSetProperties) {
+TEST_F(StaInitTest, ReportFieldSetProperties2) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldSlew();
   int old_width = field->width();
@@ -8527,63 +8527,63 @@ TEST_F(StaInitTest, R5_ReportFieldSetProperties) {
 
 // === CheckCapacitanceLimits: constructor ===
 
-TEST_F(StaInitTest, R5_CheckCapacitanceLimitsCtorDtor) {
+TEST_F(StaInitTest, CheckCapacitanceLimitsCtorDtor) {
   CheckCapacitanceLimits checker(sta_);
   SUCCEED();
 }
 
 // === CheckSlewLimits: constructor ===
 
-TEST_F(StaInitTest, R5_CheckSlewLimitsCtorDtor) {
+TEST_F(StaInitTest, CheckSlewLimitsCtorDtor) {
   CheckSlewLimits checker(sta_);
   SUCCEED();
 }
 
 // === CheckFanoutLimits: constructor ===
 
-TEST_F(StaInitTest, R5_CheckFanoutLimitsCtorDtor) {
+TEST_F(StaInitTest, CheckFanoutLimitsCtorDtor) {
   CheckFanoutLimits checker(sta_);
   SUCCEED();
 }
 
 // === PathExpanded: empty constructor ===
 
-TEST_F(StaInitTest, R5_PathExpandedEmptyCtor) {
+TEST_F(StaInitTest, PathExpandedEmptyCtor) {
   PathExpanded expanded(sta_);
   EXPECT_EQ(expanded.size(), static_cast<size_t>(0));
 }
 
 // === PathGroups: static group names ===
 
-TEST_F(StaInitTest, R5_PathGroupsAsyncGroupName) {
+TEST_F(StaInitTest, PathGroupsAsyncGroupName) {
   const char *name = PathGroups::asyncPathGroupName();
   EXPECT_NE(name, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathGroupsPathDelayGroupName) {
+TEST_F(StaInitTest, PathGroupsPathDelayGroupName) {
   const char *name = PathGroups::pathDelayGroupName();
   EXPECT_NE(name, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathGroupsGatedClkGroupName) {
+TEST_F(StaInitTest, PathGroupsGatedClkGroupName) {
   const char *name = PathGroups::gatedClkGroupName();
   EXPECT_NE(name, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathGroupsUnconstrainedGroupName) {
+TEST_F(StaInitTest, PathGroupsUnconstrainedGroupName) {
   const char *name = PathGroups::unconstrainedGroupName();
   EXPECT_NE(name, nullptr);
 }
 
 // === PathGroup: static max path count ===
 
-TEST_F(StaInitTest, R5_PathGroupMaxPathCountMax) {
+TEST_F(StaInitTest, PathGroupMaxPathCountMax) {
   EXPECT_GT(PathGroup::group_path_count_max, static_cast<size_t>(0));
 }
 
 // === PathGroup: makePathGroupSlack factory ===
 
-TEST_F(StaInitTest, R5_PathGroupMakeSlack) {
+TEST_F(StaInitTest, PathGroupMakeSlack2) {
   PathGroup *pg = PathGroup::makePathGroupSlack(
     "test_slack", 10, 1, false, false, -1e30, 1e30, sta_);
   EXPECT_NE(pg, nullptr);
@@ -8594,7 +8594,7 @@ TEST_F(StaInitTest, R5_PathGroupMakeSlack) {
 
 // === PathGroup: makePathGroupArrival factory ===
 
-TEST_F(StaInitTest, R5_PathGroupMakeArrival) {
+TEST_F(StaInitTest, PathGroupMakeArrival2) {
   PathGroup *pg = PathGroup::makePathGroupArrival(
     "test_arrival", 5, 1, false, false, MinMax::max(), sta_);
   EXPECT_NE(pg, nullptr);
@@ -8604,7 +8604,7 @@ TEST_F(StaInitTest, R5_PathGroupMakeArrival) {
 
 // === PathGroup: clear and pathEnds ===
 
-TEST_F(StaInitTest, R5_PathGroupClear) {
+TEST_F(StaInitTest, PathGroupClear) {
   PathGroup *pg = PathGroup::makePathGroupSlack(
     "test_clear", 10, 1, false, false, -1e30, 1e30, sta_);
   const PathEndSeq &ends = pg->pathEnds();
@@ -8616,33 +8616,33 @@ TEST_F(StaInitTest, R5_PathGroupClear) {
 
 // === CheckCrpr: constructor ===
 
-TEST_F(StaInitTest, R5_CheckCrprCtor) {
+TEST_F(StaInitTest, CheckCrprCtor) {
   CheckCrpr crpr(sta_);
   SUCCEED();
 }
 
 // === GatedClk: constructor ===
 
-TEST_F(StaInitTest, R5_GatedClkCtor) {
+TEST_F(StaInitTest, GatedClkCtor) {
   GatedClk gclk(sta_);
   SUCCEED();
 }
 
 // === ClkLatency: constructor ===
 
-TEST_F(StaInitTest, R5_ClkLatencyCtor) {
+TEST_F(StaInitTest, ClkLatencyCtor) {
   ClkLatency lat(sta_);
   SUCCEED();
 }
 
 // === Sta function pointers: more uncovered methods ===
 
-TEST_F(StaInitTest, R5_StaVertexSlacksExists) {
+TEST_F(StaInitTest, StaVertexSlacksExists2) {
   auto fn = &Sta::vertexSlacks;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_StaReportCheckMaxSkewBoolExists) {
+TEST_F(StaInitTest, StaReportCheckMaxSkewBoolExists) {
   auto fn = static_cast<void (Sta::*)(MaxSkewCheck*, bool)>(&Sta::reportCheck);
   EXPECT_NE(fn, nullptr);
 }
@@ -8653,41 +8653,41 @@ TEST_F(StaInitTest, R5_StaReportCheckMaxSkewBoolExists) {
 
 // === Path: more static methods ===
 
-TEST_F(StaInitTest, R5_PathEqualBothNull) {
+TEST_F(StaInitTest, PathEqualBothNull) {
   bool eq = Path::equal(nullptr, nullptr, sta_);
   EXPECT_TRUE(eq);
 }
 
 // === Search: more function pointers ===
 
-TEST_F(StaInitTest, R5_SearchSaveEnumPathExists) {
+TEST_F(StaInitTest, SearchSaveEnumPathExists) {
   auto fn = &Search::saveEnumPath;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_SearchVisitEndpointsExists) {
+TEST_F(StaInitTest, SearchVisitEndpointsExists) {
   auto fn = &Search::visitEndpoints;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_SearchCheckPrevPathsExists) {
+TEST_F(StaInitTest, SearchCheckPrevPathsExists) {
   auto fn = &Search::checkPrevPaths;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_SearchIsGenClkSrcExists) {
+TEST_F(StaInitTest, SearchIsGenClkSrcExists) {
   auto fn = &Search::isGenClkSrc;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Levelize: more methods ===
 
-TEST_F(StaInitTest, R5_LevelizeCheckLevelsExists) {
+TEST_F(StaInitTest, LevelizeCheckLevelsExists) {
   auto fn = &Levelize::checkLevels;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_LevelizeLevelized) {
+TEST_F(StaInitTest, LevelizeLevelized) {
   Levelize *levelize = sta_->levelize();
   bool lev = levelize->levelized();
   (void)lev;
@@ -8696,14 +8696,14 @@ TEST_F(StaInitTest, R5_LevelizeLevelized) {
 
 // === Sim: more methods ===
 
-TEST_F(StaInitTest, R5_SimMakePinAfterExists) {
+TEST_F(StaInitTest, SimMakePinAfterExists) {
   auto fn = &Sim::makePinAfter;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Corners: iteration ===
 
-TEST_F(StaInitTest, R5_CornersIteration) {
+TEST_F(StaInitTest, CornersIteration) {
   Corners *corners = sta_->corners();
   int count = corners->count();
   EXPECT_GE(count, 1);
@@ -8711,7 +8711,7 @@ TEST_F(StaInitTest, R5_CornersIteration) {
   EXPECT_NE(corner, nullptr);
 }
 
-TEST_F(StaInitTest, R5_CornerFindName) {
+TEST_F(StaInitTest, CornerFindName) {
   Corners *corners = sta_->corners();
   Corner *corner = corners->findCorner("default");
   (void)corner;
@@ -8720,7 +8720,7 @@ TEST_F(StaInitTest, R5_CornerFindName) {
 
 // === Corner: name and index ===
 
-TEST_F(StaInitTest, R5_CornerNameAndIndex) {
+TEST_F(StaInitTest, CornerNameAndIndex) {
   Corners *corners = sta_->corners();
   Corner *corner = corners->findCorner(0);
   EXPECT_NE(corner, nullptr);
@@ -8732,52 +8732,52 @@ TEST_F(StaInitTest, R5_CornerNameAndIndex) {
 
 // === PathEnd: function pointer existence for virtual methods ===
 
-TEST_F(StaInitTest, R5_PathEndTransitionExists) {
+TEST_F(StaInitTest, PathEndTransitionExists) {
   auto fn = &PathEnd::transition;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndTargetClkExists) {
+TEST_F(StaInitTest, PathEndTargetClkExists) {
   auto fn = &PathEnd::targetClk;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndTargetClkDelayExists) {
+TEST_F(StaInitTest, PathEndTargetClkDelayExists) {
   auto fn = &PathEnd::targetClkDelay;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndTargetClkArrivalExists) {
+TEST_F(StaInitTest, PathEndTargetClkArrivalExists) {
   auto fn = &PathEnd::targetClkArrival;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndTargetClkUncertaintyExists) {
+TEST_F(StaInitTest, PathEndTargetClkUncertaintyExists) {
   auto fn = &PathEnd::targetClkUncertainty;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndInterClkUncertaintyExists) {
+TEST_F(StaInitTest, PathEndInterClkUncertaintyExists) {
   auto fn = &PathEnd::interClkUncertainty;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndTargetClkMcpAdjustmentExists) {
+TEST_F(StaInitTest, PathEndTargetClkMcpAdjustmentExists) {
   auto fn = &PathEnd::targetClkMcpAdjustment;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndTargetClkInsertionDelayExists) {
+TEST_F(StaInitTest, PathEndTargetClkInsertionDelayExists) {
   auto fn = &PathEnd::targetClkInsertionDelay;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndTargetNonInterClkUncertaintyExists) {
+TEST_F(StaInitTest, PathEndTargetNonInterClkUncertaintyExists) {
   auto fn = &PathEnd::targetNonInterClkUncertainty;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathEndPathIndexExists) {
+TEST_F(StaInitTest, PathEndPathIndexExists) {
   auto fn = &PathEnd::pathIndex;
   EXPECT_NE(fn, nullptr);
 }
@@ -8787,48 +8787,48 @@ TEST_F(StaInitTest, R5_PathEndPathIndexExists) {
 
 // === ReportPath: reportPathEnds function pointer ===
 
-TEST_F(StaInitTest, R5_ReportPathReportPathEndsExists) {
+TEST_F(StaInitTest, ReportPathReportPathEndsExists) {
   auto fn = &ReportPath::reportPathEnds;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: reportPath function pointer (Path*) ===
 
-TEST_F(StaInitTest, R5_ReportPathReportPathExists) {
+TEST_F(StaInitTest, ReportPathReportPathExists) {
   auto fn = static_cast<void (ReportPath::*)(const Path*) const>(&ReportPath::reportPath);
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: reportEndLine function pointer ===
 
-TEST_F(StaInitTest, R5_ReportPathReportEndLineExists) {
+TEST_F(StaInitTest, ReportPathReportEndLineExists) {
   auto fn = &ReportPath::reportEndLine;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: reportSummaryLine function pointer ===
 
-TEST_F(StaInitTest, R5_ReportPathReportSummaryLineExists) {
+TEST_F(StaInitTest, ReportPathReportSummaryLineExists) {
   auto fn = &ReportPath::reportSummaryLine;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: reportSlackOnly function pointer ===
 
-TEST_F(StaInitTest, R5_ReportPathReportSlackOnlyExists) {
+TEST_F(StaInitTest, ReportPathReportSlackOnlyExists) {
   auto fn = &ReportPath::reportSlackOnly;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: reportJson overloads ===
 
-TEST_F(StaInitTest, R5_ReportPathReportJsonPathEndExists) {
+TEST_F(StaInitTest, ReportPathReportJsonPathEndExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEnd*, bool) const>(
     &ReportPath::reportJson);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportJsonPathExists) {
+TEST_F(StaInitTest, ReportPathReportJsonPathExists) {
   auto fn = static_cast<void (ReportPath::*)(const Path*) const>(
     &ReportPath::reportJson);
   EXPECT_NE(fn, nullptr);
@@ -8836,14 +8836,14 @@ TEST_F(StaInitTest, R5_ReportPathReportJsonPathExists) {
 
 // === Search: pathClkPathArrival function pointers ===
 
-TEST_F(StaInitTest, R5_SearchPathClkPathArrivalExists) {
+TEST_F(StaInitTest, SearchPathClkPathArrivalExists) {
   auto fn = &Search::pathClkPathArrival;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Genclks: more function pointers ===
 
-TEST_F(StaInitTest, R5_GenclksFindLatchFdbkEdgesExists) {
+TEST_F(StaInitTest, GenclksFindLatchFdbkEdgesExists) {
   auto fn = static_cast<void (Genclks::*)(const Clock*)>(&Genclks::findLatchFdbkEdges);
   EXPECT_NE(fn, nullptr);
 }
@@ -8856,68 +8856,68 @@ TEST_F(StaInitTest, R5_GenclksFindLatchFdbkEdgesExists) {
 
 // === MinPulseWidthCheck: corner function pointer ===
 
-TEST_F(StaInitTest, R5_MinPulseWidthCheckCornerExists) {
+TEST_F(StaInitTest, MinPulseWidthCheckCornerExists) {
   auto fn = &MinPulseWidthCheck::corner;
   EXPECT_NE(fn, nullptr);
 }
 
 // === MaxSkewCheck: more function pointers ===
 
-TEST_F(StaInitTest, R5_MaxSkewCheckClkPinExists) {
+TEST_F(StaInitTest, MaxSkewCheckClkPinExists) {
   auto fn = &MaxSkewCheck::clkPin;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_MaxSkewCheckRefPinExists) {
+TEST_F(StaInitTest, MaxSkewCheckRefPinExists) {
   auto fn = &MaxSkewCheck::refPin;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_MaxSkewCheckMaxSkewMethodExists) {
+TEST_F(StaInitTest, MaxSkewCheckMaxSkewMethodExists) {
   auto fn = &MaxSkewCheck::maxSkew;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_MaxSkewCheckSlackExists) {
+TEST_F(StaInitTest, MaxSkewCheckSlackExists) {
   auto fn = &MaxSkewCheck::slack;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkInfo: more function pointers ===
 
-TEST_F(StaInitTest, R5_ClkInfoCrprClkPathRawExists) {
+TEST_F(StaInitTest, ClkInfoCrprClkPathRawExists) {
   auto fn = &ClkInfo::crprClkPathRaw;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ClkInfoIsPropagatedExists) {
+TEST_F(StaInitTest, ClkInfoIsPropagatedExists2) {
   auto fn = &ClkInfo::isPropagated;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ClkInfoIsGenClkSrcPathExists) {
+TEST_F(StaInitTest, ClkInfoIsGenClkSrcPathExists2) {
   auto fn = &ClkInfo::isGenClkSrcPath;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ClkInfoClkEdgeExists) {
+TEST_F(StaInitTest, ClkInfoClkEdgeExists) {
   auto fn = &ClkInfo::clkEdge;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Tag: more function pointers ===
 
-TEST_F(StaInitTest, R5_TagPathAPIndexExists) {
+TEST_F(StaInitTest, TagPathAPIndexExists2) {
   auto fn = &Tag::pathAPIndex;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_TagClkSrcExists) {
+TEST_F(StaInitTest, TagClkSrcExists) {
   auto fn = &Tag::clkSrc;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_TagSetStatesExists) {
+TEST_F(StaInitTest, TagSetStatesExists) {
   auto fn = &Tag::setStates;
   EXPECT_NE(fn, nullptr);
 }
@@ -8926,37 +8926,37 @@ TEST_F(StaInitTest, R5_TagSetStatesExists) {
 
 // === Path: more function pointers ===
 
-TEST_F(StaInitTest, R5_PathPrevVertexExists) {
+TEST_F(StaInitTest, PathPrevVertexExists2) {
   auto fn = &Path::prevVertex;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathCheckPrevPathExists) {
+TEST_F(StaInitTest, PathCheckPrevPathExists2) {
   auto fn = &Path::checkPrevPath;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_PathTagIndexExists) {
+TEST_F(StaInitTest, PathTagIndexExists2) {
   auto fn = &Path::tagIndex;
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathEnd: reportShort virtual function pointer ===
 
-TEST_F(StaInitTest, R5_PathEndReportShortExists) {
+TEST_F(StaInitTest, PathEndReportShortExists) {
   auto fn = &PathEnd::reportShort;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: reportPathEnd overloads ===
 
-TEST_F(StaInitTest, R5_ReportPathReportPathEndSingleExists) {
+TEST_F(StaInitTest, ReportPathReportPathEndSingleExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEnd*) const>(
     &ReportPath::reportPathEnd);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_ReportPathReportPathEndPrevExists) {
+TEST_F(StaInitTest, ReportPathReportPathEndPrevExists) {
   auto fn = static_cast<void (ReportPath::*)(const PathEnd*, const PathEnd*, bool) const>(
     &ReportPath::reportPathEnd);
   EXPECT_NE(fn, nullptr);
@@ -8966,7 +8966,7 @@ TEST_F(StaInitTest, R5_ReportPathReportPathEndPrevExists) {
 
 // === Corner: DcalcAnalysisPt access ===
 
-TEST_F(StaInitTest, R5_CornerDcalcAnalysisPt) {
+TEST_F(StaInitTest, CornerDcalcAnalysisPt) {
   Corners *corners = sta_->corners();
   Corner *corner = corners->findCorner(0);
   EXPECT_NE(corner, nullptr);
@@ -8976,13 +8976,13 @@ TEST_F(StaInitTest, R5_CornerDcalcAnalysisPt) {
 
 // === PathAnalysisPt access through Corners ===
 
-TEST_F(StaInitTest, R5_CornersPathAnalysisPtCount) {
+TEST_F(StaInitTest, CornersPathAnalysisPtCount2) {
   Corners *corners = sta_->corners();
   int count = corners->pathAnalysisPtCount();
   EXPECT_GT(count, 0);
 }
 
-TEST_F(StaInitTest, R5_CornersDcalcAnalysisPtCount) {
+TEST_F(StaInitTest, CornersDcalcAnalysisPtCount2) {
   Corners *corners = sta_->corners();
   int count = corners->dcalcAnalysisPtCount();
   EXPECT_GT(count, 0);
@@ -8990,35 +8990,35 @@ TEST_F(StaInitTest, R5_CornersDcalcAnalysisPtCount) {
 
 // === Sta: isClock(Pin*) function pointer ===
 
-TEST_F(StaInitTest, R5_StaIsClockPinExists) {
+TEST_F(StaInitTest, StaIsClockPinExists2) {
   auto fn = static_cast<bool (Sta::*)(const Pin*) const>(&Sta::isClock);
   EXPECT_NE(fn, nullptr);
 }
 
 // === GraphLoop: report function pointer ===
 
-TEST_F(StaInitTest, R5_GraphLoopReportExists) {
+TEST_F(StaInitTest, GraphLoopReportExists) {
   auto fn = &GraphLoop::report;
   EXPECT_NE(fn, nullptr);
 }
 
 // === SearchPredNonReg2: searchThru function pointer ===
 
-TEST_F(StaInitTest, R5_SearchPredNonReg2SearchThruExists) {
+TEST_F(StaInitTest, SearchPredNonReg2SearchThruExists) {
   auto fn = &SearchPredNonReg2::searchThru;
   EXPECT_NE(fn, nullptr);
 }
 
 // === CheckCrpr: maxCrpr function pointer ===
 
-TEST_F(StaInitTest, R5_CheckCrprMaxCrprExists) {
+TEST_F(StaInitTest, CheckCrprMaxCrprExists) {
   auto fn = &CheckCrpr::maxCrpr;
   EXPECT_NE(fn, nullptr);
 }
 
 // === CheckCrpr: checkCrpr function pointers ===
 
-TEST_F(StaInitTest, R5_CheckCrprCheckCrpr2ArgExists) {
+TEST_F(StaInitTest, CheckCrprCheckCrpr2ArgExists) {
   auto fn = static_cast<Crpr (CheckCrpr::*)(const Path*, const Path*)>(
     &CheckCrpr::checkCrpr);
   EXPECT_NE(fn, nullptr);
@@ -9026,7 +9026,7 @@ TEST_F(StaInitTest, R5_CheckCrprCheckCrpr2ArgExists) {
 
 // === GatedClk: isGatedClkEnable function pointer ===
 
-TEST_F(StaInitTest, R5_GatedClkIsGatedClkEnableExists) {
+TEST_F(StaInitTest, GatedClkIsGatedClkEnableExists) {
   auto fn = static_cast<bool (GatedClk::*)(Vertex*) const>(
     &GatedClk::isGatedClkEnable);
   EXPECT_NE(fn, nullptr);
@@ -9034,39 +9034,39 @@ TEST_F(StaInitTest, R5_GatedClkIsGatedClkEnableExists) {
 
 // === GatedClk: gatedClkActiveTrans function pointer ===
 
-TEST_F(StaInitTest, R5_GatedClkGatedClkActiveTransExists) {
+TEST_F(StaInitTest, GatedClkGatedClkActiveTransExists) {
   auto fn = &GatedClk::gatedClkActiveTrans;
   EXPECT_NE(fn, nullptr);
 }
 
 // === FindRegister: free functions ===
 
-TEST_F(StaInitTest, R5_FindRegInstancesExists) {
+TEST_F(StaInitTest, FindRegInstancesExists) {
   auto fn = &findRegInstances;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_FindRegDataPinsExists) {
+TEST_F(StaInitTest, FindRegDataPinsExists) {
   auto fn = &findRegDataPins;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_FindRegClkPinsExists) {
+TEST_F(StaInitTest, FindRegClkPinsExists) {
   auto fn = &findRegClkPins;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_FindRegAsyncPinsExists) {
+TEST_F(StaInitTest, FindRegAsyncPinsExists) {
   auto fn = &findRegAsyncPins;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_FindRegOutputPinsExists) {
+TEST_F(StaInitTest, FindRegOutputPinsExists) {
   auto fn = &findRegOutputPins;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R5_InitPathSenseThruExists) {
+TEST_F(StaInitTest, InitPathSenseThruExists) {
   auto fn = &initPathSenseThru;
   EXPECT_NE(fn, nullptr);
 }
@@ -9077,7 +9077,7 @@ TEST_F(StaInitTest, R5_InitPathSenseThruExists) {
 
 // === OutputDelays: constructor and timingSense ===
 
-TEST_F(StaInitTest, R6_OutputDelaysCtorAndTimingSense) {
+TEST_F(StaInitTest, OutputDelaysCtorAndTimingSense) {
   OutputDelays od;
   TimingSense sense = od.timingSense();
   (void)sense;
@@ -9086,7 +9086,7 @@ TEST_F(StaInitTest, R6_OutputDelaysCtorAndTimingSense) {
 
 // === ClkDelays: constructor and latency ===
 
-TEST_F(StaInitTest, R6_ClkDelaysDefaultCtor) {
+TEST_F(StaInitTest, ClkDelaysDefaultCtor) {
   ClkDelays cd;
   // Test default-constructed ClkDelays latency accessor
   Delay delay_val;
@@ -9097,7 +9097,7 @@ TEST_F(StaInitTest, R6_ClkDelaysDefaultCtor) {
   EXPECT_FALSE(exists);
 }
 
-TEST_F(StaInitTest, R6_ClkDelaysLatencyStatic) {
+TEST_F(StaInitTest, ClkDelaysLatencyStatic) {
   // Static latency with null path
   auto fn = static_cast<Delay (*)(Path*, StaState*)>(&ClkDelays::latency);
   EXPECT_NE(fn, nullptr);
@@ -9105,27 +9105,27 @@ TEST_F(StaInitTest, R6_ClkDelaysLatencyStatic) {
 
 // === Bdd: constructor and destructor ===
 
-TEST_F(StaInitTest, R6_BddCtorDtor) {
+TEST_F(StaInitTest, BddCtorDtor) {
   Bdd bdd(sta_);
   // Just constructing and destructing exercises the vtable
   SUCCEED();
 }
 
-TEST_F(StaInitTest, R6_BddNodePortExists) {
+TEST_F(StaInitTest, BddNodePortExists) {
   auto fn = &Bdd::nodePort;
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathExpanded: constructor with two args (Path*, bool, StaState*) ===
 
-TEST_F(StaInitTest, R6_PathExpandedStaOnlyCtor) {
+TEST_F(StaInitTest, PathExpandedStaOnlyCtor) {
   PathExpanded expanded(sta_);
   EXPECT_EQ(expanded.size(), 0u);
 }
 
 // === Search: visitEndpoints ===
 
-TEST_F(StaInitTest, R6_SearchVisitEndpointsExists) {
+TEST_F(StaInitTest, SearchVisitEndpointsExists2) {
   auto fn = &Search::visitEndpoints;
   EXPECT_NE(fn, nullptr);
 }
@@ -9134,7 +9134,7 @@ TEST_F(StaInitTest, R6_SearchVisitEndpointsExists) {
 
 // === Search: findPathGroup by name ===
 
-TEST_F(StaInitTest, R6_SearchFindPathGroupByName) {
+TEST_F(StaInitTest, SearchFindPathGroupByName) {
   Search *search = sta_->search();
   PathGroup *grp = search->findPathGroup("nonexistent", MinMax::max());
   EXPECT_EQ(grp, nullptr);
@@ -9142,7 +9142,7 @@ TEST_F(StaInitTest, R6_SearchFindPathGroupByName) {
 
 // === Search: findPathGroup by clock ===
 
-TEST_F(StaInitTest, R6_SearchFindPathGroupByClock) {
+TEST_F(StaInitTest, SearchFindPathGroupByClock) {
   Search *search = sta_->search();
   PathGroup *grp = search->findPathGroup(static_cast<const Clock*>(nullptr),
                                           MinMax::max());
@@ -9151,7 +9151,7 @@ TEST_F(StaInitTest, R6_SearchFindPathGroupByClock) {
 
 // === Search: tag ===
 
-TEST_F(StaInitTest, R6_SearchTagZero) {
+TEST_F(StaInitTest, SearchTagZero) {
   Search *search = sta_->search();
   // tagCount should be 0 initially
   TagIndex count = search->tagCount();
@@ -9161,7 +9161,7 @@ TEST_F(StaInitTest, R6_SearchTagZero) {
 
 // === Search: tagGroupCount ===
 
-TEST_F(StaInitTest, R6_SearchTagGroupCount) {
+TEST_F(StaInitTest, SearchTagGroupCount3) {
   Search *search = sta_->search();
   TagGroupIndex count = search->tagGroupCount();
   (void)count;
@@ -9170,7 +9170,7 @@ TEST_F(StaInitTest, R6_SearchTagGroupCount) {
 
 // === Search: clkInfoCount ===
 
-TEST_F(StaInitTest, R6_SearchClkInfoCount) {
+TEST_F(StaInitTest, SearchClkInfoCount3) {
   Search *search = sta_->search();
   int count = search->clkInfoCount();
   EXPECT_EQ(count, 0);
@@ -9178,7 +9178,7 @@ TEST_F(StaInitTest, R6_SearchClkInfoCount) {
 
 // === Search: initVars (called indirectly through clear) ===
 
-TEST_F(StaInitTest, R6_SearchClear) {
+TEST_F(StaInitTest, SearchClear3) {
   Search *search = sta_->search();
   search->clear();
   SUCCEED();
@@ -9186,14 +9186,14 @@ TEST_F(StaInitTest, R6_SearchClear) {
 
 // === Search: checkPrevPaths ===
 
-TEST_F(StaInitTest, R6_SearchCheckPrevPathsExists) {
+TEST_F(StaInitTest, SearchCheckPrevPathsExists2) {
   auto fn = &Search::checkPrevPaths;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: arrivalsValid ===
 
-TEST_F(StaInitTest, R6_SearchArrivalsValid) {
+TEST_F(StaInitTest, SearchArrivalsValid2) {
   Search *search = sta_->search();
   bool valid = search->arrivalsValid();
   (void)valid;
@@ -9204,7 +9204,7 @@ TEST_F(StaInitTest, R6_SearchArrivalsValid) {
 
 // === Search: havePathGroups ===
 
-TEST_F(StaInitTest, R6_SearchHavePathGroups) {
+TEST_F(StaInitTest, SearchHavePathGroups3) {
   Search *search = sta_->search();
   bool have = search->havePathGroups();
   EXPECT_FALSE(have);
@@ -9212,7 +9212,7 @@ TEST_F(StaInitTest, R6_SearchHavePathGroups) {
 
 // === Search: requiredsSeeded ===
 
-TEST_F(StaInitTest, R6_SearchRequiredsSeeded) {
+TEST_F(StaInitTest, SearchRequiredsSeeded2) {
   Search *search = sta_->search();
   bool seeded = search->requiredsSeeded();
   EXPECT_FALSE(seeded);
@@ -9220,7 +9220,7 @@ TEST_F(StaInitTest, R6_SearchRequiredsSeeded) {
 
 // === Search: requiredsExist ===
 
-TEST_F(StaInitTest, R6_SearchRequiredsExist) {
+TEST_F(StaInitTest, SearchRequiredsExist2) {
   Search *search = sta_->search();
   bool exist = search->requiredsExist();
   EXPECT_FALSE(exist);
@@ -9228,7 +9228,7 @@ TEST_F(StaInitTest, R6_SearchRequiredsExist) {
 
 // === Search: arrivalsAtEndpointsExist ===
 
-TEST_F(StaInitTest, R6_SearchArrivalsAtEndpointsExist) {
+TEST_F(StaInitTest, SearchArrivalsAtEndpointsExist2) {
   Search *search = sta_->search();
   bool exist = search->arrivalsAtEndpointsExist();
   EXPECT_FALSE(exist);
@@ -9236,7 +9236,7 @@ TEST_F(StaInitTest, R6_SearchArrivalsAtEndpointsExist) {
 
 // === Search: crprPathPruningEnabled / setCrprpathPruningEnabled ===
 
-TEST_F(StaInitTest, R6_SearchCrprPathPruning) {
+TEST_F(StaInitTest, SearchCrprPathPruning2) {
   Search *search = sta_->search();
   bool enabled = search->crprPathPruningEnabled();
   search->setCrprpathPruningEnabled(!enabled);
@@ -9247,7 +9247,7 @@ TEST_F(StaInitTest, R6_SearchCrprPathPruning) {
 
 // === Search: crprApproxMissingRequireds ===
 
-TEST_F(StaInitTest, R6_SearchCrprApproxMissingRequireds) {
+TEST_F(StaInitTest, SearchCrprApproxMissingRequireds2) {
   Search *search = sta_->search();
   bool val = search->crprApproxMissingRequireds();
   search->setCrprApproxMissingRequireds(!val);
@@ -9257,7 +9257,7 @@ TEST_F(StaInitTest, R6_SearchCrprApproxMissingRequireds) {
 
 // === Search: unconstrainedPaths ===
 
-TEST_F(StaInitTest, R6_SearchUnconstrainedPaths) {
+TEST_F(StaInitTest, SearchUnconstrainedPaths2) {
   Search *search = sta_->search();
   bool unc = search->unconstrainedPaths();
   (void)unc;
@@ -9266,7 +9266,7 @@ TEST_F(StaInitTest, R6_SearchUnconstrainedPaths) {
 
 // === Search: deletePathGroups ===
 
-TEST_F(StaInitTest, R6_SearchDeletePathGroups) {
+TEST_F(StaInitTest, SearchDeletePathGroups3) {
   Search *search = sta_->search();
   search->deletePathGroups();
   EXPECT_FALSE(search->havePathGroups());
@@ -9274,7 +9274,7 @@ TEST_F(StaInitTest, R6_SearchDeletePathGroups) {
 
 // === Search: deleteFilter ===
 
-TEST_F(StaInitTest, R6_SearchDeleteFilter) {
+TEST_F(StaInitTest, SearchDeleteFilter3) {
   Search *search = sta_->search();
   search->deleteFilter();
   EXPECT_EQ(search->filter(), nullptr);
@@ -9282,14 +9282,14 @@ TEST_F(StaInitTest, R6_SearchDeleteFilter) {
 
 // === Search: arrivalIterator and requiredIterator ===
 
-TEST_F(StaInitTest, R6_SearchArrivalIterator) {
+TEST_F(StaInitTest, SearchArrivalIterator) {
   Search *search = sta_->search();
   BfsFwdIterator *iter = search->arrivalIterator();
   (void)iter;
   SUCCEED();
 }
 
-TEST_F(StaInitTest, R6_SearchRequiredIterator) {
+TEST_F(StaInitTest, SearchRequiredIterator) {
   Search *search = sta_->search();
   BfsBkwdIterator *iter = search->requiredIterator();
   (void)iter;
@@ -9298,14 +9298,14 @@ TEST_F(StaInitTest, R6_SearchRequiredIterator) {
 
 // === Search: evalPred and searchAdj ===
 
-TEST_F(StaInitTest, R6_SearchEvalPred) {
+TEST_F(StaInitTest, SearchEvalPred2) {
   Search *search = sta_->search();
   EvalPred *pred = search->evalPred();
   (void)pred;
   SUCCEED();
 }
 
-TEST_F(StaInitTest, R6_SearchSearchAdj) {
+TEST_F(StaInitTest, SearchSearchAdj2) {
   Search *search = sta_->search();
   SearchPred *adj = search->searchAdj();
   (void)adj;
@@ -9314,21 +9314,21 @@ TEST_F(StaInitTest, R6_SearchSearchAdj) {
 
 // === Sta: isClock(Net*) ===
 
-TEST_F(StaInitTest, R6_StaIsClockNetExists) {
+TEST_F(StaInitTest, StaIsClockNetExists3) {
   auto fn = static_cast<bool (Sta::*)(const Net*) const>(&Sta::isClock);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pins(Clock*) ===
 
-TEST_F(StaInitTest, R6_StaPinsOfClockExists) {
+TEST_F(StaInitTest, StaPinsOfClockExists) {
   auto fn = static_cast<const PinSet* (Sta::*)(const Clock*)>(&Sta::pins);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: setCmdNamespace ===
 
-TEST_F(StaInitTest, R6_StaSetCmdNamespace) {
+TEST_F(StaInitTest, StaSetCmdNamespace2) {
   sta_->setCmdNamespace(CmdNamespace::sdc);
   sta_->setCmdNamespace(CmdNamespace::sta);
   SUCCEED();
@@ -9336,7 +9336,7 @@ TEST_F(StaInitTest, R6_StaSetCmdNamespace) {
 
 // === Sta: vertexArrival(Vertex*, MinMax*) ===
 
-TEST_F(StaInitTest, R6_StaVertexArrivalMinMaxExists) {
+TEST_F(StaInitTest, StaVertexArrivalMinMaxExists3) {
   auto fn = static_cast<Arrival (Sta::*)(Vertex*, const MinMax*)>(
     &Sta::vertexArrival);
   EXPECT_NE(fn, nullptr);
@@ -9344,7 +9344,7 @@ TEST_F(StaInitTest, R6_StaVertexArrivalMinMaxExists) {
 
 // === Sta: vertexArrival(Vertex*, RiseFall*, PathAnalysisPt*) ===
 
-TEST_F(StaInitTest, R6_StaVertexArrivalRfApExists) {
+TEST_F(StaInitTest, StaVertexArrivalRfApExists2) {
   auto fn = static_cast<Arrival (Sta::*)(Vertex*, const RiseFall*, const PathAnalysisPt*)>(
     &Sta::vertexArrival);
   EXPECT_NE(fn, nullptr);
@@ -9352,7 +9352,7 @@ TEST_F(StaInitTest, R6_StaVertexArrivalRfApExists) {
 
 // === Sta: vertexRequired(Vertex*, MinMax*) ===
 
-TEST_F(StaInitTest, R6_StaVertexRequiredMinMaxExists) {
+TEST_F(StaInitTest, StaVertexRequiredMinMaxExists3) {
   auto fn = static_cast<Required (Sta::*)(Vertex*, const MinMax*)>(
     &Sta::vertexRequired);
   EXPECT_NE(fn, nullptr);
@@ -9360,7 +9360,7 @@ TEST_F(StaInitTest, R6_StaVertexRequiredMinMaxExists) {
 
 // === Sta: vertexRequired(Vertex*, RiseFall*, MinMax*) ===
 
-TEST_F(StaInitTest, R6_StaVertexRequiredRfMinMaxExists) {
+TEST_F(StaInitTest, StaVertexRequiredRfMinMaxExists2) {
   auto fn = static_cast<Required (Sta::*)(Vertex*, const RiseFall*, const MinMax*)>(
     &Sta::vertexRequired);
   EXPECT_NE(fn, nullptr);
@@ -9368,7 +9368,7 @@ TEST_F(StaInitTest, R6_StaVertexRequiredRfMinMaxExists) {
 
 // === Sta: vertexRequired(Vertex*, RiseFall*, PathAnalysisPt*) ===
 
-TEST_F(StaInitTest, R6_StaVertexRequiredRfApExists) {
+TEST_F(StaInitTest, StaVertexRequiredRfApExists2) {
   auto fn = static_cast<Required (Sta::*)(Vertex*, const RiseFall*, const PathAnalysisPt*)>(
     &Sta::vertexRequired);
   EXPECT_NE(fn, nullptr);
@@ -9376,7 +9376,7 @@ TEST_F(StaInitTest, R6_StaVertexRequiredRfApExists) {
 
 // === Sta: vertexSlack(Vertex*, RiseFall*, PathAnalysisPt*) ===
 
-TEST_F(StaInitTest, R6_StaVertexSlackRfApExists) {
+TEST_F(StaInitTest, StaVertexSlackRfApExists2) {
   auto fn = static_cast<Slack (Sta::*)(Vertex*, const RiseFall*, const PathAnalysisPt*)>(
     &Sta::vertexSlack);
   EXPECT_NE(fn, nullptr);
@@ -9384,14 +9384,14 @@ TEST_F(StaInitTest, R6_StaVertexSlackRfApExists) {
 
 // === Sta: vertexSlacks(Vertex*, array) ===
 
-TEST_F(StaInitTest, R6_StaVertexSlacksExists) {
+TEST_F(StaInitTest, StaVertexSlacksExists3) {
   auto fn = &Sta::vertexSlacks;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexSlew(Vertex*, RiseFall*, Corner*, MinMax*) ===
 
-TEST_F(StaInitTest, R6_StaVertexSlewCornerExists) {
+TEST_F(StaInitTest, StaVertexSlewCornerExists) {
   auto fn = static_cast<Slew (Sta::*)(Vertex*, const RiseFall*, const Corner*, const MinMax*)>(
     &Sta::vertexSlew);
   EXPECT_NE(fn, nullptr);
@@ -9399,7 +9399,7 @@ TEST_F(StaInitTest, R6_StaVertexSlewCornerExists) {
 
 // === Sta: vertexSlew(Vertex*, RiseFall*, DcalcAnalysisPt*) ===
 
-TEST_F(StaInitTest, R6_StaVertexSlewDcalcApExists) {
+TEST_F(StaInitTest, StaVertexSlewDcalcApExists) {
   auto fn = static_cast<Slew (Sta::*)(Vertex*, const RiseFall*, const DcalcAnalysisPt*)>(
     &Sta::vertexSlew);
   EXPECT_NE(fn, nullptr);
@@ -9407,7 +9407,7 @@ TEST_F(StaInitTest, R6_StaVertexSlewDcalcApExists) {
 
 // === Sta: vertexPathIterator(Vertex*, RiseFall*, PathAnalysisPt*) ===
 
-TEST_F(StaInitTest, R6_StaVertexPathIteratorRfApExists) {
+TEST_F(StaInitTest, StaVertexPathIteratorRfApExists) {
   auto fn = static_cast<VertexPathIterator* (Sta::*)(Vertex*, const RiseFall*, const PathAnalysisPt*)>(
     &Sta::vertexPathIterator);
   EXPECT_NE(fn, nullptr);
@@ -9415,7 +9415,7 @@ TEST_F(StaInitTest, R6_StaVertexPathIteratorRfApExists) {
 
 // === Sta: vertexWorstRequiredPath(Vertex*, MinMax*) ===
 
-TEST_F(StaInitTest, R6_StaVertexWorstRequiredPathMinMaxExists) {
+TEST_F(StaInitTest, StaVertexWorstRequiredPathMinMaxExists2) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const MinMax*)>(
     &Sta::vertexWorstRequiredPath);
   EXPECT_NE(fn, nullptr);
@@ -9423,7 +9423,7 @@ TEST_F(StaInitTest, R6_StaVertexWorstRequiredPathMinMaxExists) {
 
 // === Sta: vertexWorstRequiredPath(Vertex*, RiseFall*, MinMax*) ===
 
-TEST_F(StaInitTest, R6_StaVertexWorstRequiredPathRfMinMaxExists) {
+TEST_F(StaInitTest, StaVertexWorstRequiredPathRfMinMaxExists2) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const RiseFall*, const MinMax*)>(
     &Sta::vertexWorstRequiredPath);
   EXPECT_NE(fn, nullptr);
@@ -9431,21 +9431,21 @@ TEST_F(StaInitTest, R6_StaVertexWorstRequiredPathRfMinMaxExists) {
 
 // === Sta: setArcDelayAnnotated ===
 
-TEST_F(StaInitTest, R6_StaSetArcDelayAnnotatedExists) {
+TEST_F(StaInitTest, StaSetArcDelayAnnotatedExists2) {
   auto fn = &Sta::setArcDelayAnnotated;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pathAnalysisPt(Path*) ===
 
-TEST_F(StaInitTest, R6_StaPathAnalysisPtExists) {
+TEST_F(StaInitTest, StaPathAnalysisPtExists2) {
   auto fn = &Sta::pathAnalysisPt;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pathDcalcAnalysisPt(Path*) ===
 
-TEST_F(StaInitTest, R6_StaPathDcalcAnalysisPtExists) {
+TEST_F(StaInitTest, StaPathDcalcAnalysisPtExists2) {
   auto fn = &Sta::pathDcalcAnalysisPt;
   EXPECT_NE(fn, nullptr);
 }
@@ -9453,20 +9453,20 @@ TEST_F(StaInitTest, R6_StaPathDcalcAnalysisPtExists) {
 // === Sta: maxPathCountVertex ===
 
 // Sta::maxPathCountVertex segfaults without graph - use fn pointer
-TEST_F(StaInitTest, R6_StaMaxPathCountVertexExists) {
+TEST_F(StaInitTest, StaMaxPathCountVertexExists2) {
   auto fn = &Sta::maxPathCountVertex;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: tagCount, tagGroupCount ===
 
-TEST_F(StaInitTest, R6_StaTagCount) {
+TEST_F(StaInitTest, StaTagCount3) {
   TagIndex count = sta_->tagCount();
   (void)count;
   SUCCEED();
 }
 
-TEST_F(StaInitTest, R6_StaTagGroupCount) {
+TEST_F(StaInitTest, StaTagGroupCount3) {
   TagGroupIndex count = sta_->tagGroupCount();
   (void)count;
   SUCCEED();
@@ -9474,63 +9474,63 @@ TEST_F(StaInitTest, R6_StaTagGroupCount) {
 
 // === Sta: clkInfoCount ===
 
-TEST_F(StaInitTest, R6_StaClkInfoCount) {
+TEST_F(StaInitTest, StaClkInfoCount3) {
   int count = sta_->clkInfoCount();
   EXPECT_EQ(count, 0);
 }
 
 // === Sta: findDelays ===
 
-TEST_F(StaInitTest, R6_StaFindDelaysExists) {
+TEST_F(StaInitTest, StaFindDelaysExists) {
   auto fn = static_cast<void (Sta::*)()>(&Sta::findDelays);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: reportCheck(MaxSkewCheck*, bool) ===
 
-TEST_F(StaInitTest, R6_StaReportCheckMaxSkewExists) {
+TEST_F(StaInitTest, StaReportCheckMaxSkewExists2) {
   auto fn = static_cast<void (Sta::*)(MaxSkewCheck*, bool)>(&Sta::reportCheck);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkSlew ===
 
-TEST_F(StaInitTest, R6_StaCheckSlewExists) {
+TEST_F(StaInitTest, StaCheckSlewExists2) {
   auto fn = &Sta::checkSlew;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: findSlewLimit ===
 
-TEST_F(StaInitTest, R6_StaFindSlewLimitExists) {
+TEST_F(StaInitTest, StaFindSlewLimitExists2) {
   auto fn = &Sta::findSlewLimit;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkFanout ===
 
-TEST_F(StaInitTest, R6_StaCheckFanoutExists) {
+TEST_F(StaInitTest, StaCheckFanoutExists2) {
   auto fn = &Sta::checkFanout;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkCapacitance ===
 
-TEST_F(StaInitTest, R6_StaCheckCapacitanceExists) {
+TEST_F(StaInitTest, StaCheckCapacitanceExists2) {
   auto fn = &Sta::checkCapacitance;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pvt ===
 
-TEST_F(StaInitTest, R6_StaPvtExists) {
+TEST_F(StaInitTest, StaPvtExists2) {
   auto fn = &Sta::pvt;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: setPvt ===
 
-TEST_F(StaInitTest, R6_StaSetPvtExists) {
+TEST_F(StaInitTest, StaSetPvtExists2) {
   auto fn = static_cast<void (Sta::*)(Instance*, const MinMaxAll*, float, float, float)>(
     &Sta::setPvt);
   EXPECT_NE(fn, nullptr);
@@ -9538,7 +9538,7 @@ TEST_F(StaInitTest, R6_StaSetPvtExists) {
 
 // === Sta: connectPin ===
 
-TEST_F(StaInitTest, R6_StaConnectPinExists) {
+TEST_F(StaInitTest, StaConnectPinExists2) {
   auto fn = static_cast<void (Sta::*)(Instance*, LibertyPort*, Net*)>(
     &Sta::connectPin);
   EXPECT_NE(fn, nullptr);
@@ -9546,28 +9546,28 @@ TEST_F(StaInitTest, R6_StaConnectPinExists) {
 
 // === Sta: makePortPinAfter ===
 
-TEST_F(StaInitTest, R6_StaMakePortPinAfterExists) {
+TEST_F(StaInitTest, StaMakePortPinAfterExists2) {
   auto fn = &Sta::makePortPinAfter;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: replaceCellExists ===
 
-TEST_F(StaInitTest, R6_StaReplaceCellExists) {
+TEST_F(StaInitTest, StaReplaceCellExists3) {
   auto fn = static_cast<void (Sta::*)(Instance*, Cell*)>(&Sta::replaceCell);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: makeParasiticNetwork ===
 
-TEST_F(StaInitTest, R6_StaMakeParasiticNetworkExists) {
+TEST_F(StaInitTest, StaMakeParasiticNetworkExists2) {
   auto fn = &Sta::makeParasiticNetwork;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: disable/removeDisable for LibertyPort ===
 
-TEST_F(StaInitTest, R6_StaDisableLibertyPortExists) {
+TEST_F(StaInitTest, StaDisableLibertyPortExists2) {
   auto fn_dis = static_cast<void (Sta::*)(LibertyPort*)>(&Sta::disable);
   auto fn_rem = static_cast<void (Sta::*)(LibertyPort*)>(&Sta::removeDisable);
   EXPECT_NE(fn_dis, nullptr);
@@ -9576,7 +9576,7 @@ TEST_F(StaInitTest, R6_StaDisableLibertyPortExists) {
 
 // === Sta: disable/removeDisable for Edge ===
 
-TEST_F(StaInitTest, R6_StaDisableEdgeExists) {
+TEST_F(StaInitTest, StaDisableEdgeExists2) {
   auto fn_dis = static_cast<void (Sta::*)(Edge*)>(&Sta::disable);
   auto fn_rem = static_cast<void (Sta::*)(Edge*)>(&Sta::removeDisable);
   EXPECT_NE(fn_dis, nullptr);
@@ -9585,7 +9585,7 @@ TEST_F(StaInitTest, R6_StaDisableEdgeExists) {
 
 // === Sta: disable/removeDisable for TimingArcSet ===
 
-TEST_F(StaInitTest, R6_StaDisableTimingArcSetExists) {
+TEST_F(StaInitTest, StaDisableTimingArcSetExists2) {
   auto fn_dis = static_cast<void (Sta::*)(TimingArcSet*)>(&Sta::disable);
   auto fn_rem = static_cast<void (Sta::*)(TimingArcSet*)>(&Sta::removeDisable);
   EXPECT_NE(fn_dis, nullptr);
@@ -9594,7 +9594,7 @@ TEST_F(StaInitTest, R6_StaDisableTimingArcSetExists) {
 
 // === Sta: disableClockGatingCheck/removeDisableClockGatingCheck for Pin ===
 
-TEST_F(StaInitTest, R6_StaDisableClockGatingCheckPinExists) {
+TEST_F(StaInitTest, StaDisableClockGatingCheckPinExists) {
   auto fn_dis = static_cast<void (Sta::*)(Pin*)>(&Sta::disableClockGatingCheck);
   auto fn_rem = static_cast<void (Sta::*)(Pin*)>(&Sta::removeDisableClockGatingCheck);
   EXPECT_NE(fn_dis, nullptr);
@@ -9603,21 +9603,21 @@ TEST_F(StaInitTest, R6_StaDisableClockGatingCheckPinExists) {
 
 // === Sta: removeDataCheck ===
 
-TEST_F(StaInitTest, R6_StaRemoveDataCheckExists) {
+TEST_F(StaInitTest, StaRemoveDataCheckExists2) {
   auto fn = &Sta::removeDataCheck;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: clockDomains ===
 
-TEST_F(StaInitTest, R6_StaClockDomainsExists) {
+TEST_F(StaInitTest, StaClockDomainsExists) {
   auto fn = static_cast<ClockSet (Sta::*)(const Pin*)>(&Sta::clockDomains);
   EXPECT_NE(fn, nullptr);
 }
 
 // === ReportPath: reportJsonHeader ===
 
-TEST_F(StaInitTest, R6_ReportPathReportJsonHeader) {
+TEST_F(StaInitTest, ReportPathReportJsonHeader) {
   ReportPath *rpt = sta_->reportPath();
   EXPECT_NE(rpt, nullptr);
   rpt->reportJsonHeader();
@@ -9626,7 +9626,7 @@ TEST_F(StaInitTest, R6_ReportPathReportJsonHeader) {
 
 // === ReportPath: reportPeriodHeaderShort ===
 
-TEST_F(StaInitTest, R6_ReportPathReportPeriodHeaderShort) {
+TEST_F(StaInitTest, ReportPathReportPeriodHeaderShort) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportPeriodHeaderShort();
   SUCCEED();
@@ -9634,7 +9634,7 @@ TEST_F(StaInitTest, R6_ReportPathReportPeriodHeaderShort) {
 
 // === ReportPath: reportMaxSkewHeaderShort ===
 
-TEST_F(StaInitTest, R6_ReportPathReportMaxSkewHeaderShort) {
+TEST_F(StaInitTest, ReportPathReportMaxSkewHeaderShort) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportMaxSkewHeaderShort();
   SUCCEED();
@@ -9642,7 +9642,7 @@ TEST_F(StaInitTest, R6_ReportPathReportMaxSkewHeaderShort) {
 
 // === ReportPath: reportMpwHeaderShort ===
 
-TEST_F(StaInitTest, R6_ReportPathReportMpwHeaderShort) {
+TEST_F(StaInitTest, ReportPathReportMpwHeaderShort) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportMpwHeaderShort();
   SUCCEED();
@@ -9650,7 +9650,7 @@ TEST_F(StaInitTest, R6_ReportPathReportMpwHeaderShort) {
 
 // === ReportPath: reportPathEndHeader ===
 
-TEST_F(StaInitTest, R6_ReportPathReportPathEndHeader) {
+TEST_F(StaInitTest, ReportPathReportPathEndHeader) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportPathEndHeader();
   SUCCEED();
@@ -9658,7 +9658,7 @@ TEST_F(StaInitTest, R6_ReportPathReportPathEndHeader) {
 
 // === ReportPath: reportPathEndFooter ===
 
-TEST_F(StaInitTest, R6_ReportPathReportPathEndFooter) {
+TEST_F(StaInitTest, ReportPathReportPathEndFooter) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportPathEndFooter();
   SUCCEED();
@@ -9666,7 +9666,7 @@ TEST_F(StaInitTest, R6_ReportPathReportPathEndFooter) {
 
 // === ReportPath: reportJsonFooter ===
 
-TEST_F(StaInitTest, R6_ReportPathReportJsonFooter) {
+TEST_F(StaInitTest, ReportPathReportJsonFooter) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportJsonFooter();
   SUCCEED();
@@ -9674,7 +9674,7 @@ TEST_F(StaInitTest, R6_ReportPathReportJsonFooter) {
 
 // === ReportPath: setPathFormat ===
 
-TEST_F(StaInitTest, R6_ReportPathSetPathFormat) {
+TEST_F(StaInitTest, ReportPathSetPathFormat2) {
   ReportPath *rpt = sta_->reportPath();
   ReportPathFormat fmt = rpt->pathFormat();
   rpt->setPathFormat(fmt);
@@ -9683,7 +9683,7 @@ TEST_F(StaInitTest, R6_ReportPathSetPathFormat) {
 
 // === ReportPath: setDigits ===
 
-TEST_F(StaInitTest, R6_ReportPathSetDigits) {
+TEST_F(StaInitTest, ReportPathSetDigits2) {
   ReportPath *rpt = sta_->reportPath();
   int digits = rpt->digits();
   rpt->setDigits(4);
@@ -9693,7 +9693,7 @@ TEST_F(StaInitTest, R6_ReportPathSetDigits) {
 
 // === ReportPath: setNoSplit ===
 
-TEST_F(StaInitTest, R6_ReportPathSetNoSplit) {
+TEST_F(StaInitTest, ReportPathSetNoSplit2) {
   ReportPath *rpt = sta_->reportPath();
   rpt->setNoSplit(true);
   rpt->setNoSplit(false);
@@ -9702,7 +9702,7 @@ TEST_F(StaInitTest, R6_ReportPathSetNoSplit) {
 
 // === ReportPath: setReportSigmas ===
 
-TEST_F(StaInitTest, R6_ReportPathSetReportSigmas) {
+TEST_F(StaInitTest, ReportPathSetReportSigmas2) {
   ReportPath *rpt = sta_->reportPath();
   bool sigmas = rpt->reportSigmas();
   rpt->setReportSigmas(!sigmas);
@@ -9712,7 +9712,7 @@ TEST_F(StaInitTest, R6_ReportPathSetReportSigmas) {
 
 // === ReportPath: findField ===
 
-TEST_F(StaInitTest, R6_ReportPathFindField) {
+TEST_F(StaInitTest, ReportPathFindField2) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *f = rpt->findField("nonexistent_field_xyz");
   EXPECT_EQ(f, nullptr);
@@ -9720,7 +9720,7 @@ TEST_F(StaInitTest, R6_ReportPathFindField) {
 
 // === ReportPath: fieldSlew/fieldFanout/fieldCapacitance ===
 
-TEST_F(StaInitTest, R6_ReportPathFieldAccessors) {
+TEST_F(StaInitTest, ReportPathFieldAccessors) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *slew = rpt->fieldSlew();
   ReportField *fanout = rpt->fieldFanout();
@@ -9735,7 +9735,7 @@ TEST_F(StaInitTest, R6_ReportPathFieldAccessors) {
 
 // === ReportPath: reportEndHeader ===
 
-TEST_F(StaInitTest, R6_ReportPathReportEndHeader) {
+TEST_F(StaInitTest, ReportPathReportEndHeader) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportEndHeader();
   SUCCEED();
@@ -9743,7 +9743,7 @@ TEST_F(StaInitTest, R6_ReportPathReportEndHeader) {
 
 // === ReportPath: reportSummaryHeader ===
 
-TEST_F(StaInitTest, R6_ReportPathReportSummaryHeader) {
+TEST_F(StaInitTest, ReportPathReportSummaryHeader) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportSummaryHeader();
   SUCCEED();
@@ -9751,7 +9751,7 @@ TEST_F(StaInitTest, R6_ReportPathReportSummaryHeader) {
 
 // === ReportPath: reportSlackOnlyHeader ===
 
-TEST_F(StaInitTest, R6_ReportPathReportSlackOnlyHeader) {
+TEST_F(StaInitTest, ReportPathReportSlackOnlyHeader) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportSlackOnlyHeader();
   SUCCEED();
@@ -9759,22 +9759,22 @@ TEST_F(StaInitTest, R6_ReportPathReportSlackOnlyHeader) {
 
 // === PathGroups: static group name accessors ===
 
-TEST_F(StaInitTest, R6_PathGroupsAsyncGroupName) {
+TEST_F(StaInitTest, PathGroupsAsyncGroupName2) {
   const char *name = PathGroups::asyncPathGroupName();
   EXPECT_NE(name, nullptr);
 }
 
-TEST_F(StaInitTest, R6_PathGroupsPathDelayGroupName) {
+TEST_F(StaInitTest, PathGroupsPathDelayGroupName2) {
   const char *name = PathGroups::pathDelayGroupName();
   EXPECT_NE(name, nullptr);
 }
 
-TEST_F(StaInitTest, R6_PathGroupsGatedClkGroupName) {
+TEST_F(StaInitTest, PathGroupsGatedClkGroupName2) {
   const char *name = PathGroups::gatedClkGroupName();
   EXPECT_NE(name, nullptr);
 }
 
-TEST_F(StaInitTest, R6_PathGroupsUnconstrainedGroupName) {
+TEST_F(StaInitTest, PathGroupsUnconstrainedGroupName2) {
   const char *name = PathGroups::unconstrainedGroupName();
   EXPECT_NE(name, nullptr);
 }
@@ -9784,7 +9784,7 @@ TEST_F(StaInitTest, R6_PathGroupsUnconstrainedGroupName) {
 
 // === Corners: parasiticAnalysisPtCount ===
 
-TEST_F(StaInitTest, R6_CornersParasiticAnalysisPtCount) {
+TEST_F(StaInitTest, CornersParasiticAnalysisPtCount2) {
   Corners *corners = sta_->corners();
   int count = corners->parasiticAnalysisPtCount();
   (void)count;
@@ -9793,21 +9793,21 @@ TEST_F(StaInitTest, R6_CornersParasiticAnalysisPtCount) {
 
 // === ClkNetwork: isClock(Net*) ===
 
-TEST_F(StaInitTest, R6_ClkNetworkIsClockNetExists) {
+TEST_F(StaInitTest, ClkNetworkIsClockNetExists) {
   auto fn = static_cast<bool (ClkNetwork::*)(const Net*) const>(&ClkNetwork::isClock);
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkNetwork: clocks(Pin*) ===
 
-TEST_F(StaInitTest, R6_ClkNetworkClocksExists) {
+TEST_F(StaInitTest, ClkNetworkClocksExists2) {
   auto fn = &ClkNetwork::clocks;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkNetwork: pins(Clock*) ===
 
-TEST_F(StaInitTest, R6_ClkNetworkPinsExists) {
+TEST_F(StaInitTest, ClkNetworkPinsExists2) {
   auto fn = &ClkNetwork::pins;
   EXPECT_NE(fn, nullptr);
 }
@@ -9816,14 +9816,14 @@ TEST_F(StaInitTest, R6_ClkNetworkPinsExists) {
 
 // === BfsIterator: checkInQueue ===
 
-TEST_F(StaInitTest, R6_BfsIteratorCheckInQueueExists) {
+TEST_F(StaInitTest, BfsIteratorCheckInQueueExists) {
   auto fn = &BfsIterator::checkInQueue;
   EXPECT_NE(fn, nullptr);
 }
 
 // === BfsIterator: enqueueAdjacentVertices with level ===
 
-TEST_F(StaInitTest, R6_BfsIteratorEnqueueAdjacentVerticesLevelExists) {
+TEST_F(StaInitTest, BfsIteratorEnqueueAdjacentVerticesLevelExists) {
   auto fn = static_cast<void (BfsIterator::*)(Vertex*, Level)>(
     &BfsIterator::enqueueAdjacentVertices);
   EXPECT_NE(fn, nullptr);
@@ -9831,7 +9831,7 @@ TEST_F(StaInitTest, R6_BfsIteratorEnqueueAdjacentVerticesLevelExists) {
 
 // === Levelize: checkLevels ===
 
-TEST_F(StaInitTest, R6_LevelizeCheckLevelsExists) {
+TEST_F(StaInitTest, LevelizeCheckLevelsExists2) {
   auto fn = &Levelize::checkLevels;
   EXPECT_NE(fn, nullptr);
 }
@@ -9840,19 +9840,19 @@ TEST_F(StaInitTest, R6_LevelizeCheckLevelsExists) {
 
 // === Path: init overloads ===
 
-TEST_F(StaInitTest, R6_PathInitVertexFloatExists) {
+TEST_F(StaInitTest, PathInitVertexFloatExists) {
   auto fn = static_cast<void (Path::*)(Vertex*, float, const StaState*)>(
     &Path::init);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_PathInitVertexTagExists) {
+TEST_F(StaInitTest, PathInitVertexTagExists) {
   auto fn = static_cast<void (Path::*)(Vertex*, Tag*, const StaState*)>(
     &Path::init);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_PathInitVertexTagFloatExists) {
+TEST_F(StaInitTest, PathInitVertexTagFloatExists) {
   auto fn = static_cast<void (Path::*)(Vertex*, Tag*, float, const StaState*)>(
     &Path::init);
   EXPECT_NE(fn, nullptr);
@@ -9860,7 +9860,7 @@ TEST_F(StaInitTest, R6_PathInitVertexTagFloatExists) {
 
 // === Path: constructor with Vertex*, Tag*, StaState* ===
 
-TEST_F(StaInitTest, R6_PathCtorVertexTagStaExists) {
+TEST_F(StaInitTest, PathCtorVertexTagStaExists) {
   auto fn = [](Vertex *v, Tag *t, const StaState *s) {
     Path p(v, t, s);
     (void)p;
@@ -9870,19 +9870,19 @@ TEST_F(StaInitTest, R6_PathCtorVertexTagStaExists) {
 
 // === PathEnd: less and cmpNoCrpr ===
 
-TEST_F(StaInitTest, R6_PathEndLessExists) {
+TEST_F(StaInitTest, PathEndLessExists) {
   auto fn = &PathEnd::less;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_PathEndCmpNoCrprExists) {
+TEST_F(StaInitTest, PathEndCmpNoCrprExists) {
   auto fn = &PathEnd::cmpNoCrpr;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Tag: equal and match static methods ===
 
-TEST_F(StaInitTest, R6_TagEqualStaticExists) {
+TEST_F(StaInitTest, TagEqualStaticExists) {
   auto fn = &Tag::equal;
   EXPECT_NE(fn, nullptr);
 }
@@ -9891,14 +9891,14 @@ TEST_F(StaInitTest, R6_TagEqualStaticExists) {
 
 // === ClkInfo: equal static method ===
 
-TEST_F(StaInitTest, R6_ClkInfoEqualStaticExists) {
+TEST_F(StaInitTest, ClkInfoEqualStaticExists) {
   auto fn = &ClkInfo::equal;
   EXPECT_NE(fn, nullptr);
 }
 
 // === ClkInfo: crprClkPath ===
 
-TEST_F(StaInitTest, R6_ClkInfoCrprClkPathExists) {
+TEST_F(StaInitTest, ClkInfoCrprClkPathExists) {
   auto fn = static_cast<Path* (ClkInfo::*)(const StaState*)>(
     &ClkInfo::crprClkPath);
   EXPECT_NE(fn, nullptr);
@@ -9908,42 +9908,42 @@ TEST_F(StaInitTest, R6_ClkInfoCrprClkPathExists) {
 
 // === Sim: findLogicConstants ===
 
-TEST_F(StaInitTest, R6_SimFindLogicConstantsExists) {
+TEST_F(StaInitTest, SimFindLogicConstantsExists2) {
   auto fn = &Sim::findLogicConstants;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sim: makePinAfter ===
 
-TEST_F(StaInitTest, R6_SimMakePinAfterFnExists) {
+TEST_F(StaInitTest, SimMakePinAfterFnExists) {
   auto fn = &Sim::makePinAfter;
   EXPECT_NE(fn, nullptr);
 }
 
 // === GatedClk: gatedClkEnables ===
 
-TEST_F(StaInitTest, R6_GatedClkGatedClkEnablesExists) {
+TEST_F(StaInitTest, GatedClkGatedClkEnablesExists) {
   auto fn = &GatedClk::gatedClkEnables;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: pathClkPathArrival1 (protected, use fn pointer) ===
 
-TEST_F(StaInitTest, R6_SearchPathClkPathArrival1Exists) {
+TEST_F(StaInitTest, SearchPathClkPathArrival1Exists) {
   auto fn = &Search::pathClkPathArrival;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: visitStartpoints ===
 
-TEST_F(StaInitTest, R6_SearchVisitStartpointsExists) {
+TEST_F(StaInitTest, SearchVisitStartpointsExists) {
   auto fn = &Search::visitStartpoints;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: reportTagGroups ===
 
-TEST_F(StaInitTest, R6_SearchReportTagGroups) {
+TEST_F(StaInitTest, SearchReportTagGroups2) {
   Search *search = sta_->search();
   search->reportTagGroups();
   SUCCEED();
@@ -9952,14 +9952,14 @@ TEST_F(StaInitTest, R6_SearchReportTagGroups) {
 // === Search: reportPathCountHistogram ===
 
 // Search::reportPathCountHistogram segfaults without graph - use fn pointer
-TEST_F(StaInitTest, R6_SearchReportPathCountHistogramExists) {
+TEST_F(StaInitTest, SearchReportPathCountHistogramExists) {
   auto fn = &Search::reportPathCountHistogram;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: arrivalsInvalid ===
 
-TEST_F(StaInitTest, R6_SearchArrivalsInvalid) {
+TEST_F(StaInitTest, SearchArrivalsInvalid3) {
   Search *search = sta_->search();
   search->arrivalsInvalid();
   SUCCEED();
@@ -9967,7 +9967,7 @@ TEST_F(StaInitTest, R6_SearchArrivalsInvalid) {
 
 // === Search: requiredsInvalid ===
 
-TEST_F(StaInitTest, R6_SearchRequiredsInvalid) {
+TEST_F(StaInitTest, SearchRequiredsInvalid3) {
   Search *search = sta_->search();
   search->requiredsInvalid();
   SUCCEED();
@@ -9975,7 +9975,7 @@ TEST_F(StaInitTest, R6_SearchRequiredsInvalid) {
 
 // === Search: endpointsInvalid ===
 
-TEST_F(StaInitTest, R6_SearchEndpointsInvalid) {
+TEST_F(StaInitTest, SearchEndpointsInvalid3) {
   Search *search = sta_->search();
   search->endpointsInvalid();
   SUCCEED();
@@ -9983,56 +9983,56 @@ TEST_F(StaInitTest, R6_SearchEndpointsInvalid) {
 
 // === Search: copyState ===
 
-TEST_F(StaInitTest, R6_SearchCopyStateExists) {
+TEST_F(StaInitTest, SearchCopyStateExists) {
   auto fn = &Search::copyState;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: isEndpoint ===
 
-TEST_F(StaInitTest, R6_SearchIsEndpointExists) {
+TEST_F(StaInitTest, SearchIsEndpointExists) {
   auto fn = static_cast<bool (Search::*)(Vertex*) const>(&Search::isEndpoint);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: seedArrival ===
 
-TEST_F(StaInitTest, R6_SearchSeedArrivalExists) {
+TEST_F(StaInitTest, SearchSeedArrivalExists) {
   auto fn = &Search::seedArrival;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: enqueueLatchOutput ===
 
-TEST_F(StaInitTest, R6_SearchEnqueueLatchOutputExists) {
+TEST_F(StaInitTest, SearchEnqueueLatchOutputExists) {
   auto fn = &Search::enqueueLatchOutput;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: isSegmentStart ===
 
-TEST_F(StaInitTest, R6_SearchIsSegmentStartExists) {
+TEST_F(StaInitTest, SearchIsSegmentStartExists) {
   auto fn = &Search::isSegmentStart;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: seedRequiredEnqueueFanin ===
 
-TEST_F(StaInitTest, R6_SearchSeedRequiredEnqueueFaninExists) {
+TEST_F(StaInitTest, SearchSeedRequiredEnqueueFaninExists) {
   auto fn = &Search::seedRequiredEnqueueFanin;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: saveEnumPath ===
 
-TEST_F(StaInitTest, R6_SearchSaveEnumPathExists) {
+TEST_F(StaInitTest, SearchSaveEnumPathExists2) {
   auto fn = &Search::saveEnumPath;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: graphLoops ===
 
-TEST_F(StaInitTest, R6_StaGraphLoopsExists) {
+TEST_F(StaInitTest, StaGraphLoopsExists) {
   auto fn = &Sta::graphLoops;
   EXPECT_NE(fn, nullptr);
 }
@@ -10040,66 +10040,66 @@ TEST_F(StaInitTest, R6_StaGraphLoopsExists) {
 // === Sta: pathCount ===
 
 // Sta::pathCount segfaults without graph - use fn pointer
-TEST_F(StaInitTest, R6_StaPathCountExists) {
+TEST_F(StaInitTest, StaPathCountExists) {
   auto fn = &Sta::pathCount;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: findAllArrivals ===
 
-TEST_F(StaInitTest, R6_StaFindAllArrivalsExists) {
+TEST_F(StaInitTest, StaFindAllArrivalsExists) {
   auto fn = static_cast<void (Search::*)()>(&Search::findAllArrivals);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: findArrivals ===
 
-TEST_F(StaInitTest, R6_SearchFindArrivalsExists) {
+TEST_F(StaInitTest, SearchFindArrivalsExists) {
   auto fn = static_cast<void (Search::*)()>(&Search::findArrivals);
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: findRequireds ===
 
-TEST_F(StaInitTest, R6_SearchFindRequiredsExists) {
+TEST_F(StaInitTest, SearchFindRequiredsExists) {
   auto fn = static_cast<void (Search::*)()>(&Search::findRequireds);
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathEnd: type names for subclass function pointers ===
 
-TEST_F(StaInitTest, R6_PathEndPathDelayTypeExists) {
+TEST_F(StaInitTest, PathEndPathDelayTypeExists) {
   auto fn = &PathEndPathDelay::type;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_PathEndPathDelayTypeNameExists) {
+TEST_F(StaInitTest, PathEndPathDelayTypeNameExists) {
   auto fn = &PathEndPathDelay::typeName;
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathEndUnconstrained: reportShort and requiredTime ===
 
-TEST_F(StaInitTest, R6_PathEndUnconstrainedReportShortExists) {
+TEST_F(StaInitTest, PathEndUnconstrainedReportShortExists) {
   auto fn = &PathEndUnconstrained::reportShort;
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_PathEndUnconstrainedRequiredTimeExists) {
+TEST_F(StaInitTest, PathEndUnconstrainedRequiredTimeExists) {
   auto fn = &PathEndUnconstrained::requiredTime;
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathEnum destructor ===
 
-TEST_F(StaInitTest, R6_PathEnumCtorDtor) {
+TEST_F(StaInitTest, PathEnumCtorDtor) {
   PathEnum pe(10, 5, false, false, true, sta_);
   SUCCEED();
 }
 
 // === DiversionGreater ===
 
-TEST_F(StaInitTest, R6_DiversionGreaterStateCtor) {
+TEST_F(StaInitTest, DiversionGreaterStateCtor) {
   DiversionGreater dg(sta_);
   (void)dg;
   SUCCEED();
@@ -10107,14 +10107,14 @@ TEST_F(StaInitTest, R6_DiversionGreaterStateCtor) {
 
 // === TagGroup: report function pointer ===
 
-TEST_F(StaInitTest, R6_TagGroupReportExists) {
+TEST_F(StaInitTest, TagGroupReportExists) {
   auto fn = &TagGroup::report;
   EXPECT_NE(fn, nullptr);
 }
 
 // === TagGroupBldr: reportArrivalEntries ===
 
-TEST_F(StaInitTest, R6_TagGroupBldrReportArrivalEntriesExists) {
+TEST_F(StaInitTest, TagGroupBldrReportArrivalEntriesExists) {
   auto fn = &TagGroupBldr::reportArrivalEntries;
   EXPECT_NE(fn, nullptr);
 }
@@ -10122,7 +10122,7 @@ TEST_F(StaInitTest, R6_TagGroupBldrReportArrivalEntriesExists) {
 // === VertexPinCollector: copy ===
 
 // VertexPinCollector::copy() throws "not supported" - skipped
-TEST_F(StaInitTest, R6_VertexPinCollectorCopyExists) {
+TEST_F(StaInitTest, VertexPinCollectorCopyExists) {
   auto fn = &VertexPinCollector::copy;
   EXPECT_NE(fn, nullptr);
 }
@@ -10133,7 +10133,7 @@ TEST_F(StaInitTest, R6_VertexPinCollectorCopyExists) {
 
 // === Genclks: findLatchFdbkEdges overloads ===
 
-TEST_F(StaInitTest, R6_GenclksFindLatchFdbkEdges1ArgExists) {
+TEST_F(StaInitTest, GenclksFindLatchFdbkEdges1ArgExists) {
   auto fn = static_cast<void (Genclks::*)(const Clock*)>(
     &Genclks::findLatchFdbkEdges);
   EXPECT_NE(fn, nullptr);
@@ -10141,27 +10141,27 @@ TEST_F(StaInitTest, R6_GenclksFindLatchFdbkEdges1ArgExists) {
 
 // === Sta: simLogicValue ===
 
-TEST_F(StaInitTest, R6_StaSimLogicValueExists) {
+TEST_F(StaInitTest, StaSimLogicValueExists) {
   auto fn = &Sta::simLogicValue;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: netSlack ===
 
-TEST_F(StaInitTest, R6_StaNetSlackExists) {
+TEST_F(StaInitTest, StaNetSlackExists) {
   auto fn = &Sta::netSlack;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: pinSlack overloads ===
 
-TEST_F(StaInitTest, R6_StaPinSlackRfExists) {
+TEST_F(StaInitTest, StaPinSlackRfExists) {
   auto fn = static_cast<Slack (Sta::*)(const Pin*, const RiseFall*, const MinMax*)>(
     &Sta::pinSlack);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_StaPinSlackMinMaxExists) {
+TEST_F(StaInitTest, StaPinSlackMinMaxExists) {
   auto fn = static_cast<Slack (Sta::*)(const Pin*, const MinMax*)>(
     &Sta::pinSlack);
   EXPECT_NE(fn, nullptr);
@@ -10169,62 +10169,62 @@ TEST_F(StaInitTest, R6_StaPinSlackMinMaxExists) {
 
 // === Sta: pinArrival ===
 
-TEST_F(StaInitTest, R6_StaPinArrivalExists) {
+TEST_F(StaInitTest, StaPinArrivalExists) {
   auto fn = &Sta::pinArrival;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexLevel ===
 
-TEST_F(StaInitTest, R6_StaVertexLevelExists) {
+TEST_F(StaInitTest, StaVertexLevelExists) {
   auto fn = &Sta::vertexLevel;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexPathCount ===
 
-TEST_F(StaInitTest, R6_StaVertexPathCountExists) {
+TEST_F(StaInitTest, StaVertexPathCountExists2) {
   auto fn = &Sta::vertexPathCount;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: endpointSlack ===
 
-TEST_F(StaInitTest, R6_StaEndpointSlackExists) {
+TEST_F(StaInitTest, StaEndpointSlackExists) {
   auto fn = &Sta::endpointSlack;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: arcDelay ===
 
-TEST_F(StaInitTest, R6_StaArcDelayExists) {
+TEST_F(StaInitTest, StaArcDelayExists) {
   auto fn = &Sta::arcDelay;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: arcDelayAnnotated ===
 
-TEST_F(StaInitTest, R6_StaArcDelayAnnotatedExists) {
+TEST_F(StaInitTest, StaArcDelayAnnotatedExists) {
   auto fn = &Sta::arcDelayAnnotated;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: findClkMinPeriod ===
 
-TEST_F(StaInitTest, R6_StaFindClkMinPeriodExists) {
+TEST_F(StaInitTest, StaFindClkMinPeriodExists) {
   auto fn = &Sta::findClkMinPeriod;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: vertexWorstArrivalPath ===
 
-TEST_F(StaInitTest, R6_StaVertexWorstArrivalPathExists) {
+TEST_F(StaInitTest, StaVertexWorstArrivalPathExists2) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const MinMax*)>(
     &Sta::vertexWorstArrivalPath);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_StaVertexWorstArrivalPathRfExists) {
+TEST_F(StaInitTest, StaVertexWorstArrivalPathRfExists) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const RiseFall*, const MinMax*)>(
     &Sta::vertexWorstArrivalPath);
   EXPECT_NE(fn, nullptr);
@@ -10232,13 +10232,13 @@ TEST_F(StaInitTest, R6_StaVertexWorstArrivalPathRfExists) {
 
 // === Sta: vertexWorstSlackPath ===
 
-TEST_F(StaInitTest, R6_StaVertexWorstSlackPathExists) {
+TEST_F(StaInitTest, StaVertexWorstSlackPathExists2) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const MinMax*)>(
     &Sta::vertexWorstSlackPath);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_StaVertexWorstSlackPathRfExists) {
+TEST_F(StaInitTest, StaVertexWorstSlackPathRfExists) {
   auto fn = static_cast<Path* (Sta::*)(Vertex*, const RiseFall*, const MinMax*)>(
     &Sta::vertexWorstSlackPath);
   EXPECT_NE(fn, nullptr);
@@ -10246,13 +10246,13 @@ TEST_F(StaInitTest, R6_StaVertexWorstSlackPathRfExists) {
 
 // === Sta: vertexSlew more overloads ===
 
-TEST_F(StaInitTest, R6_StaVertexSlewMinMaxExists) {
+TEST_F(StaInitTest, StaVertexSlewMinMaxExists2) {
   auto fn = static_cast<Slew (Sta::*)(Vertex*, const RiseFall*, const MinMax*)>(
     &Sta::vertexSlew);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_StaVertexSlewMinMaxOnlyExists) {
+TEST_F(StaInitTest, StaVertexSlewMinMaxOnlyExists) {
   auto fn = static_cast<Slew (Sta::*)(Vertex*, const MinMax*)>(
     &Sta::vertexSlew);
   EXPECT_NE(fn, nullptr);
@@ -10260,7 +10260,7 @@ TEST_F(StaInitTest, R6_StaVertexSlewMinMaxOnlyExists) {
 
 // === Sta: vertexPathIterator(Vertex*, RiseFall*, MinMax*) ===
 
-TEST_F(StaInitTest, R6_StaVertexPathIteratorRfMinMaxExists) {
+TEST_F(StaInitTest, StaVertexPathIteratorRfMinMaxExists) {
   auto fn = static_cast<VertexPathIterator* (Sta::*)(Vertex*, const RiseFall*, const MinMax*)>(
     &Sta::vertexPathIterator);
   EXPECT_NE(fn, nullptr);
@@ -10268,12 +10268,12 @@ TEST_F(StaInitTest, R6_StaVertexPathIteratorRfMinMaxExists) {
 
 // === Sta: totalNegativeSlack ===
 
-TEST_F(StaInitTest, R6_StaTotalNegativeSlackExists) {
+TEST_F(StaInitTest, StaTotalNegativeSlackExists) {
   auto fn = static_cast<Slack (Sta::*)(const MinMax*)>(&Sta::totalNegativeSlack);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_StaTotalNegativeSlackCornerExists) {
+TEST_F(StaInitTest, StaTotalNegativeSlackCornerExists) {
   auto fn = static_cast<Slack (Sta::*)(const Corner*, const MinMax*)>(
     &Sta::totalNegativeSlack);
   EXPECT_NE(fn, nullptr);
@@ -10281,13 +10281,13 @@ TEST_F(StaInitTest, R6_StaTotalNegativeSlackCornerExists) {
 
 // === Sta: worstSlack ===
 
-TEST_F(StaInitTest, R6_StaWorstSlackExists) {
+TEST_F(StaInitTest, StaWorstSlackExists) {
   auto fn = static_cast<void (Sta::*)(const MinMax*, Slack&, Vertex*&)>(
     &Sta::worstSlack);
   EXPECT_NE(fn, nullptr);
 }
 
-TEST_F(StaInitTest, R6_StaWorstSlackCornerExists) {
+TEST_F(StaInitTest, StaWorstSlackCornerExists) {
   auto fn = static_cast<void (Sta::*)(const Corner*, const MinMax*, Slack&, Vertex*&)>(
     &Sta::worstSlack);
   EXPECT_NE(fn, nullptr);
@@ -10295,14 +10295,14 @@ TEST_F(StaInitTest, R6_StaWorstSlackCornerExists) {
 
 // === Sta: updateTiming ===
 
-TEST_F(StaInitTest, R6_StaUpdateTimingExists) {
+TEST_F(StaInitTest, StaUpdateTimingExists) {
   auto fn = &Sta::updateTiming;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: clkPathArrival ===
 
-TEST_F(StaInitTest, R6_SearchClkPathArrival1ArgExists) {
+TEST_F(StaInitTest, SearchClkPathArrival1ArgExists) {
   auto fn = static_cast<Arrival (Search::*)(const Path*) const>(
     &Search::clkPathArrival);
   EXPECT_NE(fn, nullptr);
@@ -10312,14 +10312,14 @@ TEST_F(StaInitTest, R6_SearchClkPathArrival1ArgExists) {
 
 // === Sta: disconnectPin ===
 
-TEST_F(StaInitTest, R6_StaDisconnectPinExists) {
+TEST_F(StaInitTest, StaDisconnectPinExists2) {
   auto fn = &Sta::disconnectPin;
   EXPECT_NE(fn, nullptr);
 }
 
 // === PathExpandedCtorGenClks ===
 
-TEST_F(StaInitTest, R6_PathExpandedCtorGenClksExists) {
+TEST_F(StaInitTest, PathExpandedCtorGenClksExists) {
   // Constructor: PathExpanded(const Path*, bool, const StaState*)
   Path nullPath;
   // We can't call this with a null path without crashing,
@@ -10333,7 +10333,7 @@ TEST_F(StaInitTest, R6_PathExpandedCtorGenClksExists) {
 
 // === Search: deleteFilteredArrivals ===
 
-TEST_F(StaInitTest, R6_SearchDeleteFilteredArrivals) {
+TEST_F(StaInitTest, SearchDeleteFilteredArrivals) {
   Search *search = sta_->search();
   search->deleteFilteredArrivals();
   SUCCEED();
@@ -10341,105 +10341,105 @@ TEST_F(StaInitTest, R6_SearchDeleteFilteredArrivals) {
 
 // === Sta: checkSlewLimitPreamble ===
 
-TEST_F(StaInitTest, R6_StaCheckSlewLimitPreambleExists) {
+TEST_F(StaInitTest, StaCheckSlewLimitPreambleExists) {
   auto fn = &Sta::checkSlewLimitPreamble;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkFanoutLimitPreamble ===
 
-TEST_F(StaInitTest, R6_StaCheckFanoutLimitPreambleExists) {
+TEST_F(StaInitTest, StaCheckFanoutLimitPreambleExists) {
   auto fn = &Sta::checkFanoutLimitPreamble;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkCapacitanceLimitPreamble ===
 
-TEST_F(StaInitTest, R6_StaCheckCapacitanceLimitPreambleExists) {
+TEST_F(StaInitTest, StaCheckCapacitanceLimitPreambleExists) {
   auto fn = &Sta::checkCapacitanceLimitPreamble;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkSlewLimits(Net*,...) ===
 
-TEST_F(StaInitTest, R6_StaCheckSlewLimitsExists) {
+TEST_F(StaInitTest, StaCheckSlewLimitsExists) {
   auto fn = &Sta::checkSlewLimits;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkFanoutLimits(Net*,...) ===
 
-TEST_F(StaInitTest, R6_StaCheckFanoutLimitsExists) {
+TEST_F(StaInitTest, StaCheckFanoutLimitsExists) {
   auto fn = &Sta::checkFanoutLimits;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: checkCapacitanceLimits(Net*,...) ===
 
-TEST_F(StaInitTest, R6_StaCheckCapacitanceLimitsExists) {
+TEST_F(StaInitTest, StaCheckCapacitanceLimitsExists) {
   auto fn = &Sta::checkCapacitanceLimits;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: seedInputSegmentArrival ===
 
-TEST_F(StaInitTest, R6_SearchSeedInputSegmentArrivalExists) {
+TEST_F(StaInitTest, SearchSeedInputSegmentArrivalExists) {
   auto fn = &Search::seedInputSegmentArrival;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: enqueueLatchDataOutputs ===
 
-TEST_F(StaInitTest, R6_SearchEnqueueLatchDataOutputsExists) {
+TEST_F(StaInitTest, SearchEnqueueLatchDataOutputsExists) {
   auto fn = &Search::enqueueLatchDataOutputs;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: seedRequired ===
 
-TEST_F(StaInitTest, R6_SearchSeedRequiredExists) {
+TEST_F(StaInitTest, SearchSeedRequiredExists) {
   auto fn = &Search::seedRequired;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: findClkArrivals ===
 
-TEST_F(StaInitTest, R6_SearchFindClkArrivalsExists) {
+TEST_F(StaInitTest, SearchFindClkArrivalsExists) {
   auto fn = &Search::findClkArrivals;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: tnsInvalid ===
 
-TEST_F(StaInitTest, R6_SearchTnsInvalidExists) {
+TEST_F(StaInitTest, SearchTnsInvalidExists) {
   auto fn = &Search::tnsInvalid;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: endpointInvalid ===
 
-TEST_F(StaInitTest, R6_SearchEndpointInvalidExists) {
+TEST_F(StaInitTest, SearchEndpointInvalidExists) {
   auto fn = &Search::endpointInvalid;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Search: makePathGroups ===
 
-TEST_F(StaInitTest, R6_SearchMakePathGroupsExists) {
+TEST_F(StaInitTest, SearchMakePathGroupsExists) {
   auto fn = &Search::makePathGroups;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: isIdealClock ===
 
-TEST_F(StaInitTest, R6_StaIsIdealClockExists) {
+TEST_F(StaInitTest, StaIsIdealClockExists2) {
   auto fn = &Sta::isIdealClock;
   EXPECT_NE(fn, nullptr);
 }
 
 // === Sta: isPropagatedClock ===
 
-TEST_F(StaInitTest, R6_StaIsPropagatedClockExists) {
+TEST_F(StaInitTest, StaIsPropagatedClockExists2) {
   auto fn = &Sta::isPropagatedClock;
   EXPECT_NE(fn, nullptr);
 }
@@ -10544,14 +10544,14 @@ protected:
 
 // --- vertexArrival overloads ---
 
-TEST_F(StaDesignTest, R8_VertexArrivalMinMax) {
+TEST_F(StaDesignTest, VertexArrivalMinMax) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Arrival arr = sta_->vertexArrival(v, MinMax::max());
   (void)arr;
 }
 
-TEST_F(StaDesignTest, R8_VertexArrivalRfPathAP) {
+TEST_F(StaDesignTest, VertexArrivalRfPathAP) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -10563,21 +10563,21 @@ TEST_F(StaDesignTest, R8_VertexArrivalRfPathAP) {
 
 // --- vertexRequired overloads ---
 
-TEST_F(StaDesignTest, R8_VertexRequiredMinMax) {
+TEST_F(StaDesignTest, VertexRequiredMinMax) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Required req = sta_->vertexRequired(v, MinMax::max());
   (void)req;
 }
 
-TEST_F(StaDesignTest, R8_VertexRequiredRfMinMax) {
+TEST_F(StaDesignTest, VertexRequiredRfMinMax) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Required req = sta_->vertexRequired(v, RiseFall::rise(), MinMax::max());
   (void)req;
 }
 
-TEST_F(StaDesignTest, R8_VertexRequiredRfPathAP) {
+TEST_F(StaDesignTest, VertexRequiredRfPathAP) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -10589,14 +10589,14 @@ TEST_F(StaDesignTest, R8_VertexRequiredRfPathAP) {
 
 // --- vertexSlack overloads ---
 
-TEST_F(StaDesignTest, R8_VertexSlackMinMax) {
+TEST_F(StaDesignTest, VertexSlackMinMax) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Slack slk = sta_->vertexSlack(v, MinMax::max());
   (void)slk;
 }
 
-TEST_F(StaDesignTest, R8_VertexSlackRfPathAP) {
+TEST_F(StaDesignTest, VertexSlackRfPathAP) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -10608,7 +10608,7 @@ TEST_F(StaDesignTest, R8_VertexSlackRfPathAP) {
 
 // --- vertexSlacks ---
 
-TEST_F(StaDesignTest, R8_VertexSlacks) {
+TEST_F(StaDesignTest, VertexSlacks) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Slack slacks[RiseFall::index_count][MinMax::index_count];
@@ -10618,7 +10618,7 @@ TEST_F(StaDesignTest, R8_VertexSlacks) {
 
 // --- vertexSlew overloads ---
 
-TEST_F(StaDesignTest, R8_VertexSlewRfCornerMinMax) {
+TEST_F(StaDesignTest, VertexSlewRfCornerMinMax) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -10626,7 +10626,7 @@ TEST_F(StaDesignTest, R8_VertexSlewRfCornerMinMax) {
   (void)slew;
 }
 
-TEST_F(StaDesignTest, R8_VertexSlewRfDcalcAP) {
+TEST_F(StaDesignTest, VertexSlewRfDcalcAP) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -10638,7 +10638,7 @@ TEST_F(StaDesignTest, R8_VertexSlewRfDcalcAP) {
 
 // --- vertexWorstRequiredPath ---
 
-TEST_F(StaDesignTest, R8_VertexWorstRequiredPath) {
+TEST_F(StaDesignTest, VertexWorstRequiredPath) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstRequiredPath(v, MinMax::max());
@@ -10646,7 +10646,7 @@ TEST_F(StaDesignTest, R8_VertexWorstRequiredPath) {
   (void)path;
 }
 
-TEST_F(StaDesignTest, R8_VertexWorstRequiredPathRf) {
+TEST_F(StaDesignTest, VertexWorstRequiredPathRf) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstRequiredPath(v, RiseFall::rise(), MinMax::max());
@@ -10655,7 +10655,7 @@ TEST_F(StaDesignTest, R8_VertexWorstRequiredPathRf) {
 
 // --- vertexPathIterator ---
 
-TEST_F(StaDesignTest, R8_VertexPathIteratorRfPathAP) {
+TEST_F(StaDesignTest, VertexPathIteratorRfPathAP) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -10668,14 +10668,14 @@ TEST_F(StaDesignTest, R8_VertexPathIteratorRfPathAP) {
 
 // --- checkSlewLimits ---
 
-TEST_F(StaDesignTest, R8_CheckSlewLimitPreambleAndLimits) {
+TEST_F(StaDesignTest, CheckSlewLimitPreambleAndLimits) {
   sta_->checkSlewLimitPreamble();
   PinSeq pins = sta_->checkSlewLimits(nullptr, false,
                                        sta_->cmdCorner(), MinMax::max());
   // May be empty; just check no crash
 }
 
-TEST_F(StaDesignTest, R8_CheckSlewViolators) {
+TEST_F(StaDesignTest, CheckSlewViolators) {
   sta_->checkSlewLimitPreamble();
   PinSeq pins = sta_->checkSlewLimits(nullptr, true,
                                        sta_->cmdCorner(), MinMax::max());
@@ -10683,7 +10683,7 @@ TEST_F(StaDesignTest, R8_CheckSlewViolators) {
 
 // --- checkSlew (single pin) ---
 
-TEST_F(StaDesignTest, R8_CheckSlew) {
+TEST_F(StaDesignTest, CheckSlew) {
   sta_->checkSlewLimitPreamble();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
@@ -10697,7 +10697,7 @@ TEST_F(StaDesignTest, R8_CheckSlew) {
 
 // --- findSlewLimit ---
 
-TEST_F(StaDesignTest, R8_FindSlewLimit) {
+TEST_F(StaDesignTest, FindSlewLimit) {
   sta_->checkSlewLimitPreamble();
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -10711,19 +10711,19 @@ TEST_F(StaDesignTest, R8_FindSlewLimit) {
 
 // --- checkFanoutLimits ---
 
-TEST_F(StaDesignTest, R8_CheckFanoutLimits) {
+TEST_F(StaDesignTest, CheckFanoutLimits) {
   sta_->checkFanoutLimitPreamble();
   PinSeq pins = sta_->checkFanoutLimits(nullptr, false, MinMax::max());
 }
 
-TEST_F(StaDesignTest, R8_CheckFanoutViolators) {
+TEST_F(StaDesignTest, CheckFanoutViolators) {
   sta_->checkFanoutLimitPreamble();
   PinSeq pins = sta_->checkFanoutLimits(nullptr, true, MinMax::max());
 }
 
 // --- checkFanout (single pin) ---
 
-TEST_F(StaDesignTest, R8_CheckFanout) {
+TEST_F(StaDesignTest, CheckFanout) {
   sta_->checkFanoutLimitPreamble();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
@@ -10733,13 +10733,13 @@ TEST_F(StaDesignTest, R8_CheckFanout) {
 
 // --- checkCapacitanceLimits ---
 
-TEST_F(StaDesignTest, R8_CheckCapacitanceLimits) {
+TEST_F(StaDesignTest, CheckCapacitanceLimits) {
   sta_->checkCapacitanceLimitPreamble();
   PinSeq pins = sta_->checkCapacitanceLimits(nullptr, false,
                                               sta_->cmdCorner(), MinMax::max());
 }
 
-TEST_F(StaDesignTest, R8_CheckCapacitanceViolators) {
+TEST_F(StaDesignTest, CheckCapacitanceViolators) {
   sta_->checkCapacitanceLimitPreamble();
   PinSeq pins = sta_->checkCapacitanceLimits(nullptr, true,
                                               sta_->cmdCorner(), MinMax::max());
@@ -10747,7 +10747,7 @@ TEST_F(StaDesignTest, R8_CheckCapacitanceViolators) {
 
 // --- checkCapacitance (single pin) ---
 
-TEST_F(StaDesignTest, R8_CheckCapacitance) {
+TEST_F(StaDesignTest, CheckCapacitance) {
   sta_->checkCapacitanceLimitPreamble();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
@@ -10760,7 +10760,7 @@ TEST_F(StaDesignTest, R8_CheckCapacitance) {
 
 // --- minPulseWidthSlack ---
 
-TEST_F(StaDesignTest, R8_MinPulseWidthSlack) {
+TEST_F(StaDesignTest, MinPulseWidthSlack) {
   MinPulseWidthCheck *check = sta_->minPulseWidthSlack(nullptr);
   // May be nullptr; just don't crash
   (void)check;
@@ -10768,49 +10768,49 @@ TEST_F(StaDesignTest, R8_MinPulseWidthSlack) {
 
 // --- minPulseWidthViolations ---
 
-TEST_F(StaDesignTest, R8_MinPulseWidthViolations) {
+TEST_F(StaDesignTest, MinPulseWidthViolations) {
   MinPulseWidthCheckSeq &violations = sta_->minPulseWidthViolations(nullptr);
   (void)violations;
 }
 
 // --- minPulseWidthChecks (all) ---
 
-TEST_F(StaDesignTest, R8_MinPulseWidthChecksAll) {
+TEST_F(StaDesignTest, MinPulseWidthChecksAll) {
   MinPulseWidthCheckSeq &checks = sta_->minPulseWidthChecks(nullptr);
   (void)checks;
 }
 
 // --- minPeriodSlack ---
 
-TEST_F(StaDesignTest, R8_MinPeriodSlack) {
+TEST_F(StaDesignTest, MinPeriodSlack) {
   MinPeriodCheck *check = sta_->minPeriodSlack();
   (void)check;
 }
 
 // --- minPeriodViolations ---
 
-TEST_F(StaDesignTest, R8_MinPeriodViolations) {
+TEST_F(StaDesignTest, MinPeriodViolations) {
   MinPeriodCheckSeq &violations = sta_->minPeriodViolations();
   (void)violations;
 }
 
 // --- maxSkewSlack ---
 
-TEST_F(StaDesignTest, R8_MaxSkewSlack) {
+TEST_F(StaDesignTest, MaxSkewSlack) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   (void)check;
 }
 
 // --- maxSkewViolations ---
 
-TEST_F(StaDesignTest, R8_MaxSkewViolations) {
+TEST_F(StaDesignTest, MaxSkewViolations) {
   MaxSkewCheckSeq &violations = sta_->maxSkewViolations();
   (void)violations;
 }
 
 // --- reportCheck (MaxSkewCheck) ---
 
-TEST_F(StaDesignTest, R8_ReportCheckMaxSkew) {
+TEST_F(StaDesignTest, ReportCheckMaxSkew) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   if (check) {
     sta_->reportCheck(check, false);
@@ -10820,7 +10820,7 @@ TEST_F(StaDesignTest, R8_ReportCheckMaxSkew) {
 
 // --- reportCheck (MinPeriodCheck) ---
 
-TEST_F(StaDesignTest, R8_ReportCheckMinPeriod) {
+TEST_F(StaDesignTest, ReportCheckMinPeriod) {
   MinPeriodCheck *check = sta_->minPeriodSlack();
   if (check) {
     sta_->reportCheck(check, false);
@@ -10830,7 +10830,7 @@ TEST_F(StaDesignTest, R8_ReportCheckMinPeriod) {
 
 // --- reportMpwCheck ---
 
-TEST_F(StaDesignTest, R8_ReportMpwCheck) {
+TEST_F(StaDesignTest, ReportMpwCheck) {
   MinPulseWidthCheck *check = sta_->minPulseWidthSlack(nullptr);
   if (check) {
     sta_->reportMpwCheck(check, false);
@@ -10840,7 +10840,7 @@ TEST_F(StaDesignTest, R8_ReportMpwCheck) {
 
 // --- findPathEnds ---
 
-TEST_F(StaDesignTest, R8_FindPathEnds) {
+TEST_F(StaDesignTest, FindPathEnds) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false,           // unconstrained
@@ -10865,7 +10865,7 @@ TEST_F(StaDesignTest, R8_FindPathEnds) {
 
 // --- reportPathEndHeader / Footer ---
 
-TEST_F(StaDesignTest, R8_ReportPathEndHeaderFooter) {
+TEST_F(StaDesignTest, ReportPathEndHeaderFooter) {
   sta_->setReportPathFormat(ReportPathFormat::full);
   sta_->reportPathEndHeader();
   sta_->reportPathEndFooter();
@@ -10873,7 +10873,7 @@ TEST_F(StaDesignTest, R8_ReportPathEndHeaderFooter) {
 
 // --- reportPathEnd ---
 
-TEST_F(StaDesignTest, R8_ReportPathEnd) {
+TEST_F(StaDesignTest, ReportPathEnd) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -10886,7 +10886,7 @@ TEST_F(StaDesignTest, R8_ReportPathEnd) {
 
 // --- reportPathEnds ---
 
-TEST_F(StaDesignTest, R8_ReportPathEnds) {
+TEST_F(StaDesignTest, ReportPathEnds) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -10897,7 +10897,7 @@ TEST_F(StaDesignTest, R8_ReportPathEnds) {
 
 // --- reportClkSkew ---
 
-TEST_F(StaDesignTest, R8_ReportClkSkew) {
+TEST_F(StaDesignTest, ReportClkSkew) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ConstClockSeq clks;
@@ -10907,7 +10907,7 @@ TEST_F(StaDesignTest, R8_ReportClkSkew) {
 
 // --- isClock(Net*) ---
 
-TEST_F(StaDesignTest, R8_IsClockNet) {
+TEST_F(StaDesignTest, IsClockNet) {
   sta_->ensureClkNetwork();
   Network *network = sta_->cmdNetwork();
   Pin *clk1_pin = findPin("clk1");
@@ -10921,7 +10921,7 @@ TEST_F(StaDesignTest, R8_IsClockNet) {
 
 // --- pins(Clock*) ---
 
-TEST_F(StaDesignTest, R8_ClockPins) {
+TEST_F(StaDesignTest, ClockPins) {
   sta_->ensureClkNetwork();
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
@@ -10934,7 +10934,7 @@ TEST_F(StaDesignTest, R8_ClockPins) {
 
 // --- pvt / setPvt ---
 
-TEST_F(StaDesignTest, R8_PvtGetSet) {
+TEST_F(StaDesignTest, PvtGetSet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   const Pvt *p = sta_->pvt(top, MinMax::max());
@@ -10946,29 +10946,29 @@ TEST_F(StaDesignTest, R8_PvtGetSet) {
 
 // --- findDelays(int) ---
 
-TEST_F(StaDesignTest, R8_FindDelaysLevel) {
+TEST_F(StaDesignTest, FindDelaysLevel) {
   sta_->findDelays(0);
 }
 
 // --- findDelays (no arg - public) ---
 
-TEST_F(StaDesignTest, R8_FindDelays) {
+TEST_F(StaDesignTest, FindDelays) {
   sta_->findDelays();
 }
 
 // --- arrivalsInvalid / delaysInvalid ---
 
-TEST_F(StaDesignTest, R8_ArrivalsInvalid) {
+TEST_F(StaDesignTest, ArrivalsInvalid) {
   sta_->arrivalsInvalid();
 }
 
-TEST_F(StaDesignTest, R8_DelaysInvalid) {
+TEST_F(StaDesignTest, DelaysInvalid) {
   sta_->delaysInvalid();
 }
 
 // --- makeEquivCells ---
 
-TEST_F(StaDesignTest, R8_MakeEquivCells) {
+TEST_F(StaDesignTest, MakeEquivCells) {
   LibertyLibrarySeq *equiv_libs = new LibertyLibrarySeq;
   equiv_libs->push_back(lib_);
   LibertyLibrarySeq *map_libs = new LibertyLibrarySeq;
@@ -10984,7 +10984,7 @@ TEST_F(StaDesignTest, R8_MakeEquivCells) {
 
 // --- maxPathCountVertex ---
 
-TEST_F(StaDesignTest, R8_MaxPathCountVertex) {
+TEST_F(StaDesignTest, MaxPathCountVertex) {
   Vertex *v = sta_->maxPathCountVertex();
   // May be nullptr; just don't crash
   (void)v;
@@ -10992,21 +10992,21 @@ TEST_F(StaDesignTest, R8_MaxPathCountVertex) {
 
 // --- makeParasiticAnalysisPts ---
 
-TEST_F(StaDesignTest, R8_MakeParasiticAnalysisPts) {
+TEST_F(StaDesignTest, MakeParasiticAnalysisPts) {
   sta_->setParasiticAnalysisPts(false);
   // Ensures parasitic analysis points are set up
 }
 
 // --- findLogicConstants (Sim) ---
 
-TEST_F(StaDesignTest, R8_FindLogicConstants) {
+TEST_F(StaDesignTest, FindLogicConstants) {
   sta_->findLogicConstants();
   sta_->clearLogicConstants();
 }
 
 // --- checkTiming ---
 
-TEST_F(StaDesignTest, R8_CheckTiming) {
+TEST_F(StaDesignTest, CheckTiming) {
   CheckErrorSeq &errors = sta_->checkTiming(
     true,   // no_input_delay
     true,   // no_output_delay
@@ -11020,7 +11020,7 @@ TEST_F(StaDesignTest, R8_CheckTiming) {
 
 // --- Property methods ---
 
-TEST_F(StaDesignTest, R8_PropertyGetPinArrival) {
+TEST_F(StaDesignTest, PropertyGetPinArrival) {
   Properties &props = sta_->properties();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
@@ -11028,7 +11028,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPinArrival) {
   (void)pv;
 }
 
-TEST_F(StaDesignTest, R8_PropertyGetPinSlack) {
+TEST_F(StaDesignTest, PropertyGetPinSlack) {
   Properties &props = sta_->properties();
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
@@ -11036,7 +11036,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPinSlack) {
   (void)pv;
 }
 
-TEST_F(StaDesignTest, R8_PropertyGetPinSlew) {
+TEST_F(StaDesignTest, PropertyGetPinSlew) {
   Properties &props = sta_->properties();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
@@ -11044,7 +11044,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPinSlew) {
   (void)pv;
 }
 
-TEST_F(StaDesignTest, R8_PropertyGetPinArrivalFall) {
+TEST_F(StaDesignTest, PropertyGetPinArrivalFall) {
   Properties &props = sta_->properties();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
@@ -11052,7 +11052,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPinArrivalFall) {
   (void)pv;
 }
 
-TEST_F(StaDesignTest, R8_PropertyGetInstanceName) {
+TEST_F(StaDesignTest, PropertyGetInstanceName) {
   Properties &props = sta_->properties();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
@@ -11062,7 +11062,7 @@ TEST_F(StaDesignTest, R8_PropertyGetInstanceName) {
   (void)pv;
 }
 
-TEST_F(StaDesignTest, R8_PropertyGetNetName) {
+TEST_F(StaDesignTest, PropertyGetNetName) {
   Properties &props = sta_->properties();
   Network *network = sta_->cmdNetwork();
   Pin *pin = findPin("u1/Z");
@@ -11076,13 +11076,13 @@ TEST_F(StaDesignTest, R8_PropertyGetNetName) {
 
 // --- Search methods ---
 
-TEST_F(StaDesignTest, R8_SearchCopyState) {
+TEST_F(StaDesignTest, SearchCopyState) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   search->copyState(sta_);
 }
 
-TEST_F(StaDesignTest, R8_SearchFindPathGroupByName) {
+TEST_F(StaDesignTest, SearchFindPathGroupByName) {
   Search *search = sta_->search();
   // First ensure path groups exist
   sta_->findPathEnds(nullptr, nullptr, nullptr,
@@ -11094,7 +11094,7 @@ TEST_F(StaDesignTest, R8_SearchFindPathGroupByName) {
   (void)pg;
 }
 
-TEST_F(StaDesignTest, R8_SearchFindPathGroupByClock) {
+TEST_F(StaDesignTest, SearchFindPathGroupByClock) {
   Search *search = sta_->search();
   sta_->findPathEnds(nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -11106,12 +11106,12 @@ TEST_F(StaDesignTest, R8_SearchFindPathGroupByClock) {
   (void)pg;
 }
 
-TEST_F(StaDesignTest, R8_SearchReportTagGroups) {
+TEST_F(StaDesignTest, SearchReportTagGroups) {
   Search *search = sta_->search();
   search->reportTagGroups();
 }
 
-TEST_F(StaDesignTest, R8_SearchDeletePathGroups) {
+TEST_F(StaDesignTest, SearchDeletePathGroups) {
   Search *search = sta_->search();
   // Ensure path groups exist first
   sta_->findPathEnds(nullptr, nullptr, nullptr,
@@ -11121,7 +11121,7 @@ TEST_F(StaDesignTest, R8_SearchDeletePathGroups) {
   search->deletePathGroups();
 }
 
-TEST_F(StaDesignTest, R8_SearchVisitEndpoints) {
+TEST_F(StaDesignTest, SearchVisitEndpoints) {
   Search *search = sta_->search();
   Network *network = sta_->cmdNetwork();
   PinSet pins(network);
@@ -11131,7 +11131,7 @@ TEST_F(StaDesignTest, R8_SearchVisitEndpoints) {
 
 // --- Search: visitStartpoints ---
 
-TEST_F(StaDesignTest, R8_SearchVisitStartpoints) {
+TEST_F(StaDesignTest, SearchVisitStartpoints) {
   Search *search = sta_->search();
   Network *network = sta_->cmdNetwork();
   PinSet pins(network);
@@ -11139,7 +11139,7 @@ TEST_F(StaDesignTest, R8_SearchVisitStartpoints) {
   search->visitStartpoints(&collector);
 }
 
-TEST_F(StaDesignTest, R8_SearchTagGroup) {
+TEST_F(StaDesignTest, SearchTagGroup) {
   Search *search = sta_->search();
   // Tag group index 0 may or may not exist; just don't crash
   if (search->tagGroupCount() > 0) {
@@ -11148,7 +11148,7 @@ TEST_F(StaDesignTest, R8_SearchTagGroup) {
   }
 }
 
-TEST_F(StaDesignTest, R8_SearchClockDomainsVertex) {
+TEST_F(StaDesignTest, SearchClockDomainsVertex) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/CK");
   if (v) {
@@ -11157,7 +11157,7 @@ TEST_F(StaDesignTest, R8_SearchClockDomainsVertex) {
   }
 }
 
-TEST_F(StaDesignTest, R8_SearchIsGenClkSrc) {
+TEST_F(StaDesignTest, SearchIsGenClkSrc) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   if (v) {
@@ -11166,7 +11166,7 @@ TEST_F(StaDesignTest, R8_SearchIsGenClkSrc) {
   }
 }
 
-TEST_F(StaDesignTest, R8_SearchPathGroups) {
+TEST_F(StaDesignTest, SearchPathGroups) {
   // Get a path end to query its path groups
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -11180,7 +11180,7 @@ TEST_F(StaDesignTest, R8_SearchPathGroups) {
   }
 }
 
-TEST_F(StaDesignTest, R8_SearchPathClkPathArrival) {
+TEST_F(StaDesignTest, SearchPathClkPathArrival) {
   Search *search = sta_->search();
   // Get a path from a vertex
   Vertex *v = findVertex("r1/Q");
@@ -11196,7 +11196,7 @@ TEST_F(StaDesignTest, R8_SearchPathClkPathArrival) {
 
 // --- ReportPath: reportFull exercised through reportPathEnd (full format) ---
 
-TEST_F(StaDesignTest, R8_ReportPathFullClockFormat) {
+TEST_F(StaDesignTest, ReportPathFullClockFormat) {
   sta_->setReportPathFormat(ReportPathFormat::full_clock);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -11208,7 +11208,7 @@ TEST_F(StaDesignTest, R8_ReportPathFullClockFormat) {
   }
 }
 
-TEST_F(StaDesignTest, R8_ReportPathFullClockExpandedFormat) {
+TEST_F(StaDesignTest, ReportPathFullClockExpandedFormat) {
   sta_->setReportPathFormat(ReportPathFormat::full_clock_expanded);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -11220,7 +11220,7 @@ TEST_F(StaDesignTest, R8_ReportPathFullClockExpandedFormat) {
   }
 }
 
-TEST_F(StaDesignTest, R8_ReportPathShorterFormat) {
+TEST_F(StaDesignTest, ReportPathShorterFormat) {
   sta_->setReportPathFormat(ReportPathFormat::shorter);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -11232,7 +11232,7 @@ TEST_F(StaDesignTest, R8_ReportPathShorterFormat) {
   }
 }
 
-TEST_F(StaDesignTest, R8_ReportPathJsonFormat) {
+TEST_F(StaDesignTest, ReportPathJsonFormat) {
   sta_->setReportPathFormat(ReportPathFormat::json);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -11244,7 +11244,7 @@ TEST_F(StaDesignTest, R8_ReportPathJsonFormat) {
   }
 }
 
-TEST_F(StaDesignTest, R8_ReportPathShortMpw) {
+TEST_F(StaDesignTest, ReportPathShortMpw) {
   MinPulseWidthCheck *check = sta_->minPulseWidthSlack(nullptr);
   if (check) {
     ReportPath *rpt = sta_->reportPath();
@@ -11252,7 +11252,7 @@ TEST_F(StaDesignTest, R8_ReportPathShortMpw) {
   }
 }
 
-TEST_F(StaDesignTest, R8_ReportPathVerboseMpw) {
+TEST_F(StaDesignTest, ReportPathVerboseMpw) {
   MinPulseWidthCheck *check = sta_->minPulseWidthSlack(nullptr);
   if (check) {
     ReportPath *rpt = sta_->reportPath();
@@ -11262,14 +11262,14 @@ TEST_F(StaDesignTest, R8_ReportPathVerboseMpw) {
 
 // --- ReportPath: reportJson ---
 
-TEST_F(StaDesignTest, R8_ReportJsonHeaderFooter) {
+TEST_F(StaDesignTest, ReportJsonHeaderFooter) {
   ReportPath *rpt = sta_->reportPath();
   ASSERT_NE(rpt, nullptr);
   rpt->reportJsonHeader();
   rpt->reportJsonFooter();
 }
 
-TEST_F(StaDesignTest, R8_ReportJsonPathEnd) {
+TEST_F(StaDesignTest, ReportJsonPathEnd) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -11285,7 +11285,7 @@ TEST_F(StaDesignTest, R8_ReportJsonPathEnd) {
 
 // --- disable / removeDisable ---
 
-TEST_F(StaDesignTest, R8_DisableEnableLibertyPort) {
+TEST_F(StaDesignTest, DisableEnableLibertyPort) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *port_a = buf->findLibertyPort("A");
@@ -11294,7 +11294,7 @@ TEST_F(StaDesignTest, R8_DisableEnableLibertyPort) {
   sta_->removeDisable(port_a);
 }
 
-TEST_F(StaDesignTest, R8_DisableEnableTimingArcSet) {
+TEST_F(StaDesignTest, DisableEnableTimingArcSet) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const TimingArcSetSeq &arc_sets = buf->timingArcSets();
@@ -11303,7 +11303,7 @@ TEST_F(StaDesignTest, R8_DisableEnableTimingArcSet) {
   sta_->removeDisable(arc_sets[0]);
 }
 
-TEST_F(StaDesignTest, R8_DisableEnableEdge) {
+TEST_F(StaDesignTest, DisableEnableEdge) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   // Get an edge from this vertex
@@ -11317,7 +11317,7 @@ TEST_F(StaDesignTest, R8_DisableEnableEdge) {
 
 // --- disableClockGatingCheck / removeDisableClockGatingCheck ---
 
-TEST_F(StaDesignTest, R8_DisableClockGatingCheckPin) {
+TEST_F(StaDesignTest, DisableClockGatingCheckPin) {
   Pin *pin = findPin("r1/CK");
   ASSERT_NE(pin, nullptr);
   sta_->disableClockGatingCheck(pin);
@@ -11326,7 +11326,7 @@ TEST_F(StaDesignTest, R8_DisableClockGatingCheckPin) {
 
 // --- setCmdNamespace1 (Sta internal) ---
 
-TEST_F(StaDesignTest, R8_SetCmdNamespace1) {
+TEST_F(StaDesignTest, SetCmdNamespace1) {
   sta_->setCmdNamespace(CmdNamespace::sdc);
   EXPECT_EQ(sta_->cmdNamespace(), CmdNamespace::sdc);
   sta_->setCmdNamespace(CmdNamespace::sta);
@@ -11335,7 +11335,7 @@ TEST_F(StaDesignTest, R8_SetCmdNamespace1) {
 
 // --- delaysInvalidFromFanin ---
 
-TEST_F(StaDesignTest, R8_DelaysInvalidFromFaninPin) {
+TEST_F(StaDesignTest, DelaysInvalidFromFaninPin) {
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
   sta_->delaysInvalidFromFanin(pin);
@@ -11343,7 +11343,7 @@ TEST_F(StaDesignTest, R8_DelaysInvalidFromFaninPin) {
 
 // --- setArcDelayAnnotated ---
 
-TEST_F(StaDesignTest, R8_SetArcDelayAnnotated) {
+TEST_F(StaDesignTest, SetArcDelayAnnotated) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   VertexInEdgeIterator edge_iter(v, sta_->graph());
@@ -11364,7 +11364,7 @@ TEST_F(StaDesignTest, R8_SetArcDelayAnnotated) {
 
 // --- pathAnalysisPt / pathDcalcAnalysisPt ---
 
-TEST_F(StaDesignTest, R8_PathAnalysisPt) {
+TEST_F(StaDesignTest, PathAnalysisPt) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -11378,14 +11378,14 @@ TEST_F(StaDesignTest, R8_PathAnalysisPt) {
 
 // --- worstSlack / totalNegativeSlack ---
 
-TEST_F(StaDesignTest, R8_WorstSlack) {
+TEST_F(StaDesignTest, WorstSlack) {
   Slack worst;
   Vertex *worst_vertex = nullptr;
   sta_->worstSlack(MinMax::max(), worst, worst_vertex);
   (void)worst;
 }
 
-TEST_F(StaDesignTest, R8_WorstSlackCorner) {
+TEST_F(StaDesignTest, WorstSlackCorner) {
   Slack worst;
   Vertex *worst_vertex = nullptr;
   Corner *corner = sta_->cmdCorner();
@@ -11393,12 +11393,12 @@ TEST_F(StaDesignTest, R8_WorstSlackCorner) {
   (void)worst;
 }
 
-TEST_F(StaDesignTest, R8_TotalNegativeSlack) {
+TEST_F(StaDesignTest, TotalNegativeSlack) {
   Slack tns = sta_->totalNegativeSlack(MinMax::max());
   (void)tns;
 }
 
-TEST_F(StaDesignTest, R8_TotalNegativeSlackCorner) {
+TEST_F(StaDesignTest, TotalNegativeSlackCorner) {
   Corner *corner = sta_->cmdCorner();
   Slack tns = sta_->totalNegativeSlack(corner, MinMax::max());
   (void)tns;
@@ -11406,25 +11406,25 @@ TEST_F(StaDesignTest, R8_TotalNegativeSlackCorner) {
 
 // --- endpoints / endpointViolationCount ---
 
-TEST_F(StaDesignTest, R8_Endpoints) {
+TEST_F(StaDesignTest, Endpoints) {
   VertexSet *eps = sta_->endpoints();
   EXPECT_NE(eps, nullptr);
 }
 
-TEST_F(StaDesignTest, R8_EndpointViolationCount) {
+TEST_F(StaDesignTest, EndpointViolationCount) {
   int count = sta_->endpointViolationCount(MinMax::max());
   (void)count;
 }
 
 // --- findRequireds ---
 
-TEST_F(StaDesignTest, R8_FindRequireds) {
+TEST_F(StaDesignTest, FindRequireds) {
   sta_->findRequireds();
 }
 
 // --- Search: tag(0) ---
 
-TEST_F(StaDesignTest, R8_SearchTag) {
+TEST_F(StaDesignTest, SearchTag) {
   Search *search = sta_->search();
   if (search->tagCount() > 0) {
     Tag *t = search->tag(0);
@@ -11434,14 +11434,14 @@ TEST_F(StaDesignTest, R8_SearchTag) {
 
 // --- Levelize: checkLevels ---
 
-TEST_F(StaDesignTest, R8_GraphLoops) {
+TEST_F(StaDesignTest, GraphLoops) {
   GraphLoopSeq &loops = sta_->graphLoops();
   (void)loops;
 }
 
 // --- reportPath (Path*) ---
 
-TEST_F(StaDesignTest, R8_ReportPath) {
+TEST_F(StaDesignTest, ReportPath) {
   Vertex *v = findVertex("u2/ZN");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -11452,7 +11452,7 @@ TEST_F(StaDesignTest, R8_ReportPath) {
 
 // --- ClkNetwork: clocks(Pin*) ---
 
-TEST_F(StaDesignTest, R8_ClkNetworkClocksPinDirect) {
+TEST_F(StaDesignTest, ClkNetworkClocksPinDirect) {
   sta_->ensureClkNetwork();
   ClkNetwork *clk_net = sta_->clkNetwork();
   ASSERT_NE(clk_net, nullptr);
@@ -11464,7 +11464,7 @@ TEST_F(StaDesignTest, R8_ClkNetworkClocksPinDirect) {
 
 // --- ClkNetwork: pins(Clock*) ---
 
-TEST_F(StaDesignTest, R8_ClkNetworkPins) {
+TEST_F(StaDesignTest, ClkNetworkPins) {
   sta_->ensureClkNetwork();
   ClkNetwork *clk_net = sta_->clkNetwork();
   ASSERT_NE(clk_net, nullptr);
@@ -11476,7 +11476,7 @@ TEST_F(StaDesignTest, R8_ClkNetworkPins) {
 
 // --- ClkNetwork: isClock(Net*) ---
 
-TEST_F(StaDesignTest, R8_ClkNetworkIsClockNet) {
+TEST_F(StaDesignTest, ClkNetworkIsClockNet) {
   sta_->ensureClkNetwork();
   ClkNetwork *clk_net = sta_->clkNetwork();
   ASSERT_NE(clk_net, nullptr);
@@ -11492,7 +11492,7 @@ TEST_F(StaDesignTest, R8_ClkNetworkIsClockNet) {
 
 // --- ClkInfo accessors ---
 
-TEST_F(StaDesignTest, R8_ClkInfoAccessors) {
+TEST_F(StaDesignTest, ClkInfoAccessors) {
   Search *search = sta_->search();
   if (search->tagCount() > 0) {
     Tag *tag = search->tag(0);
@@ -11512,7 +11512,7 @@ TEST_F(StaDesignTest, R8_ClkInfoAccessors) {
 
 // --- Tag accessors ---
 
-TEST_F(StaDesignTest, R8_TagAccessors) {
+TEST_F(StaDesignTest, TagAccessors) {
   Search *search = sta_->search();
   if (search->tagCount() > 0) {
     Tag *tag = search->tag(0);
@@ -11527,7 +11527,7 @@ TEST_F(StaDesignTest, R8_TagAccessors) {
 
 // --- TagGroup::report ---
 
-TEST_F(StaDesignTest, R8_TagGroupReport) {
+TEST_F(StaDesignTest, TagGroupReport) {
   Search *search = sta_->search();
   if (search->tagGroupCount() > 0) {
     TagGroup *tg = search->tagGroup(0);
@@ -11539,7 +11539,7 @@ TEST_F(StaDesignTest, R8_TagGroupReport) {
 
 // --- BfsIterator ---
 
-TEST_F(StaDesignTest, R8_BfsIteratorInit) {
+TEST_F(StaDesignTest, BfsIteratorInit) {
   BfsFwdIterator *iter = sta_->search()->arrivalIterator();
   ASSERT_NE(iter, nullptr);
   // Just verify the iterator exists - init is called internally
@@ -11547,7 +11547,7 @@ TEST_F(StaDesignTest, R8_BfsIteratorInit) {
 
 // --- SearchPredNonReg2 ---
 
-TEST_F(StaDesignTest, R8_SearchPredNonReg2SearchThru) {
+TEST_F(StaDesignTest, SearchPredNonReg2SearchThru) {
   SearchPredNonReg2 pred(sta_);
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
@@ -11561,7 +11561,7 @@ TEST_F(StaDesignTest, R8_SearchPredNonReg2SearchThru) {
 
 // --- PathExpanded ---
 
-TEST_F(StaDesignTest, R8_PathExpanded) {
+TEST_F(StaDesignTest, PathExpanded) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -11577,7 +11577,7 @@ TEST_F(StaDesignTest, R8_PathExpanded) {
 
 // --- Search: endpoints ---
 
-TEST_F(StaDesignTest, R8_SearchEndpoints) {
+TEST_F(StaDesignTest, SearchEndpoints) {
   Search *search = sta_->search();
   VertexSet *eps = search->endpoints();
   EXPECT_NE(eps, nullptr);
@@ -11585,7 +11585,7 @@ TEST_F(StaDesignTest, R8_SearchEndpoints) {
 
 // --- FindRegister (findRegs) ---
 
-TEST_F(StaDesignTest, R8_FindRegPins) {
+TEST_F(StaDesignTest, FindRegPins) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ClockSet clk_set;
@@ -11595,25 +11595,25 @@ TEST_F(StaDesignTest, R8_FindRegPins) {
   (void)reg_clk_pins;
 }
 
-TEST_F(StaDesignTest, R8_FindRegDataPins) {
+TEST_F(StaDesignTest, FindRegDataPins) {
   PinSet reg_data_pins = sta_->findRegisterDataPins(nullptr,
     RiseFallBoth::riseFall(), false, false);
   (void)reg_data_pins;
 }
 
-TEST_F(StaDesignTest, R8_FindRegOutputPins) {
+TEST_F(StaDesignTest, FindRegOutputPins) {
   PinSet reg_out_pins = sta_->findRegisterOutputPins(nullptr,
     RiseFallBoth::riseFall(), false, false);
   (void)reg_out_pins;
 }
 
-TEST_F(StaDesignTest, R8_FindRegAsyncPins) {
+TEST_F(StaDesignTest, FindRegAsyncPins) {
   PinSet reg_async_pins = sta_->findRegisterAsyncPins(nullptr,
     RiseFallBoth::riseFall(), false, false);
   (void)reg_async_pins;
 }
 
-TEST_F(StaDesignTest, R8_FindRegInstances) {
+TEST_F(StaDesignTest, FindRegInstances) {
   InstanceSet reg_insts = sta_->findRegisterInstances(nullptr,
     RiseFallBoth::riseFall(), false, false);
   (void)reg_insts;
@@ -11621,7 +11621,7 @@ TEST_F(StaDesignTest, R8_FindRegInstances) {
 
 // --- Sim::findLogicConstants ---
 
-TEST_F(StaDesignTest, R8_SimFindLogicConstants) {
+TEST_F(StaDesignTest, SimFindLogicConstants) {
   Sim *sim = sta_->sim();
   ASSERT_NE(sim, nullptr);
   sim->findLogicConstants();
@@ -11629,25 +11629,25 @@ TEST_F(StaDesignTest, R8_SimFindLogicConstants) {
 
 // --- reportSlewLimitShortHeader ---
 
-TEST_F(StaDesignTest, R8_ReportSlewLimitShortHeader) {
+TEST_F(StaDesignTest, ReportSlewLimitShortHeader) {
   sta_->reportSlewLimitShortHeader();
 }
 
 // --- reportFanoutLimitShortHeader ---
 
-TEST_F(StaDesignTest, R8_ReportFanoutLimitShortHeader) {
+TEST_F(StaDesignTest, ReportFanoutLimitShortHeader) {
   sta_->reportFanoutLimitShortHeader();
 }
 
 // --- reportCapacitanceLimitShortHeader ---
 
-TEST_F(StaDesignTest, R8_ReportCapacitanceLimitShortHeader) {
+TEST_F(StaDesignTest, ReportCapacitanceLimitShortHeader) {
   sta_->reportCapacitanceLimitShortHeader();
 }
 
 // --- Path methods ---
 
-TEST_F(StaDesignTest, R8_PathTransition) {
+TEST_F(StaDesignTest, PathTransition) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -11659,7 +11659,7 @@ TEST_F(StaDesignTest, R8_PathTransition) {
 
 // --- endpointSlack ---
 
-TEST_F(StaDesignTest, R8_EndpointSlack) {
+TEST_F(StaDesignTest, EndpointSlack) {
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
   Slack slk = sta_->endpointSlack(pin, "clk", MinMax::max());
@@ -11668,7 +11668,7 @@ TEST_F(StaDesignTest, R8_EndpointSlack) {
 
 // --- replaceCell ---
 
-TEST_F(StaDesignTest, R8_ReplaceCell) {
+TEST_F(StaDesignTest, ReplaceCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   // Find instance u1 (BUF_X1)
@@ -11687,7 +11687,7 @@ TEST_F(StaDesignTest, R8_ReplaceCell) {
 
 // --- reportPathEnd with prev_end ---
 
-TEST_F(StaDesignTest, R8_ReportPathEndWithPrev) {
+TEST_F(StaDesignTest, ReportPathEndWithPrev) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -11700,7 +11700,7 @@ TEST_F(StaDesignTest, R8_ReportPathEndWithPrev) {
 
 // --- PathEnd static methods ---
 
-TEST_F(StaDesignTest, R8_PathEndLess) {
+TEST_F(StaDesignTest, PathEndLess) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -11716,7 +11716,7 @@ TEST_F(StaDesignTest, R8_PathEndLess) {
 
 // --- PathEnd accessors on real path ends ---
 
-TEST_F(StaDesignTest, R8_PathEndAccessors) {
+TEST_F(StaDesignTest, PathEndAccessors) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -11757,7 +11757,7 @@ TEST_F(StaDesignTest, R8_PathEndAccessors) {
 
 // --- ReportPath: reportShort for MinPeriodCheck ---
 
-TEST_F(StaDesignTest, R8_ReportPathShortMinPeriod) {
+TEST_F(StaDesignTest, ReportPathShortMinPeriod) {
   MinPeriodCheck *check = sta_->minPeriodSlack();
   if (check) {
     ReportPath *rpt = sta_->reportPath();
@@ -11767,7 +11767,7 @@ TEST_F(StaDesignTest, R8_ReportPathShortMinPeriod) {
 
 // --- ReportPath: reportShort for MaxSkewCheck ---
 
-TEST_F(StaDesignTest, R8_ReportPathShortMaxSkew) {
+TEST_F(StaDesignTest, ReportPathShortMaxSkew) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   if (check) {
     ReportPath *rpt = sta_->reportPath();
@@ -11777,7 +11777,7 @@ TEST_F(StaDesignTest, R8_ReportPathShortMaxSkew) {
 
 // --- ReportPath: reportCheck for MaxSkewCheck ---
 
-TEST_F(StaDesignTest, R8_ReportPathCheckMaxSkew) {
+TEST_F(StaDesignTest, ReportPathCheckMaxSkew) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   if (check) {
     ReportPath *rpt = sta_->reportPath();
@@ -11788,7 +11788,7 @@ TEST_F(StaDesignTest, R8_ReportPathCheckMaxSkew) {
 
 // --- ReportPath: reportVerbose for MaxSkewCheck ---
 
-TEST_F(StaDesignTest, R8_ReportPathVerboseMaxSkew) {
+TEST_F(StaDesignTest, ReportPathVerboseMaxSkew) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   if (check) {
     ReportPath *rpt = sta_->reportPath();
@@ -11798,7 +11798,7 @@ TEST_F(StaDesignTest, R8_ReportPathVerboseMaxSkew) {
 
 // --- ReportPath: reportMpwChecks (covers mpwCheckHiLow internally) ---
 
-TEST_F(StaDesignTest, R8_ReportMpwChecks) {
+TEST_F(StaDesignTest, ReportMpwChecks) {
   MinPulseWidthCheckSeq &checks = sta_->minPulseWidthChecks(nullptr);
   if (!checks.empty()) {
     ReportPath *rpt = sta_->reportPath();
@@ -11809,7 +11809,7 @@ TEST_F(StaDesignTest, R8_ReportMpwChecks) {
 
 // --- findClkMinPeriod ---
 
-TEST_F(StaDesignTest, R8_FindClkMinPeriod) {
+TEST_F(StaDesignTest, FindClkMinPeriod) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   float min_period = sta_->findClkMinPeriod(clk, false);
@@ -11818,14 +11818,14 @@ TEST_F(StaDesignTest, R8_FindClkMinPeriod) {
 
 // --- slowDrivers ---
 
-TEST_F(StaDesignTest, R8_SlowDrivers) {
+TEST_F(StaDesignTest, SlowDrivers) {
   InstanceSeq slow = sta_->slowDrivers(5);
   (void)slow;
 }
 
 // --- vertexLevel ---
 
-TEST_F(StaDesignTest, R8_VertexLevel) {
+TEST_F(StaDesignTest, VertexLevel) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Level lvl = sta_->vertexLevel(v);
@@ -11834,7 +11834,7 @@ TEST_F(StaDesignTest, R8_VertexLevel) {
 
 // --- simLogicValue ---
 
-TEST_F(StaDesignTest, R8_SimLogicValue) {
+TEST_F(StaDesignTest, SimLogicValue) {
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
   LogicValue val = sta_->simLogicValue(pin);
@@ -11843,7 +11843,7 @@ TEST_F(StaDesignTest, R8_SimLogicValue) {
 
 // --- Search: clear (exercises initVars internally) ---
 
-TEST_F(StaDesignTest, R8_SearchClear) {
+TEST_F(StaDesignTest, SearchClear) {
   Search *search = sta_->search();
   // clear() calls initVars() internally
   search->clear();
@@ -11852,7 +11852,7 @@ TEST_F(StaDesignTest, R8_SearchClear) {
 // --- readLibertyFile (protected, call through public readLiberty) ---
 // This tests readLibertyFile indirectly
 
-TEST_F(StaDesignTest, R8_ReadLibertyFile) {
+TEST_F(StaDesignTest, ReadLibertyFile) {
   Corner *corner = sta_->cmdCorner();
   LibertyLibrary *lib = sta_->readLiberty(
     "test/nangate45/Nangate45_slow.lib", corner, MinMaxAll::min(), false);
@@ -11862,7 +11862,7 @@ TEST_F(StaDesignTest, R8_ReadLibertyFile) {
 
 // --- Property: getProperty on LibertyLibrary ---
 
-TEST_F(StaDesignTest, R8_PropertyGetPropertyLibertyLibrary) {
+TEST_F(StaDesignTest, PropertyGetPropertyLibertyLibrary) {
   Properties &props = sta_->properties();
   ASSERT_NE(lib_, nullptr);
   PropertyValue pv = props.getProperty(lib_, "name");
@@ -11871,7 +11871,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPropertyLibertyLibrary) {
 
 // --- Property: getProperty on LibertyCell ---
 
-TEST_F(StaDesignTest, R8_PropertyGetPropertyLibertyCell) {
+TEST_F(StaDesignTest, PropertyGetPropertyLibertyCell) {
   Properties &props = sta_->properties();
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -11881,7 +11881,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPropertyLibertyCell) {
 
 // --- findPathEnds with unconstrained ---
 
-TEST_F(StaDesignTest, R8_FindPathEndsUnconstrained) {
+TEST_F(StaDesignTest, FindPathEndsUnconstrained) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     true,            // unconstrained
@@ -11894,7 +11894,7 @@ TEST_F(StaDesignTest, R8_FindPathEndsUnconstrained) {
 
 // --- findPathEnds with hold ---
 
-TEST_F(StaDesignTest, R8_FindPathEndsHold) {
+TEST_F(StaDesignTest, FindPathEndsHold) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::min(),
@@ -11905,14 +11905,14 @@ TEST_F(StaDesignTest, R8_FindPathEndsHold) {
 
 // --- Search: findAllArrivals ---
 
-TEST_F(StaDesignTest, R8_SearchFindAllArrivals) {
+TEST_F(StaDesignTest, SearchFindAllArrivals) {
   Search *search = sta_->search();
   search->findAllArrivals();
 }
 
 // --- Search: findArrivals / findRequireds ---
 
-TEST_F(StaDesignTest, R8_SearchFindArrivalsRequireds) {
+TEST_F(StaDesignTest, SearchFindArrivalsRequireds) {
   Search *search = sta_->search();
   search->findArrivals();
   search->findRequireds();
@@ -11920,7 +11920,7 @@ TEST_F(StaDesignTest, R8_SearchFindArrivalsRequireds) {
 
 // --- Search: clocks for vertex ---
 
-TEST_F(StaDesignTest, R8_SearchClocksVertex) {
+TEST_F(StaDesignTest, SearchClocksVertex) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/CK");
   if (v) {
@@ -11931,7 +11931,7 @@ TEST_F(StaDesignTest, R8_SearchClocksVertex) {
 
 // --- Search: wnsSlack ---
 
-TEST_F(StaDesignTest, R8_SearchWnsSlack) {
+TEST_F(StaDesignTest, SearchWnsSlack) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
@@ -11941,7 +11941,7 @@ TEST_F(StaDesignTest, R8_SearchWnsSlack) {
 
 // --- Search: isEndpoint ---
 
-TEST_F(StaDesignTest, R8_SearchIsEndpoint) {
+TEST_F(StaDesignTest, SearchIsEndpoint) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
@@ -11951,13 +11951,13 @@ TEST_F(StaDesignTest, R8_SearchIsEndpoint) {
 
 // --- reportParasiticAnnotation ---
 
-TEST_F(StaDesignTest, R8_ReportParasiticAnnotation) {
+TEST_F(StaDesignTest, ReportParasiticAnnotation) {
   sta_->reportParasiticAnnotation(false, sta_->cmdCorner());
 }
 
 // --- findClkDelays ---
 
-TEST_F(StaDesignTest, R8_FindClkDelays) {
+TEST_F(StaDesignTest, FindClkDelays) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ClkDelays delays = sta_->findClkDelays(clk, false);
@@ -11966,7 +11966,7 @@ TEST_F(StaDesignTest, R8_FindClkDelays) {
 
 // --- reportClkLatency ---
 
-TEST_F(StaDesignTest, R8_ReportClkLatency) {
+TEST_F(StaDesignTest, ReportClkLatency) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ConstClockSeq clks;
@@ -11976,14 +11976,14 @@ TEST_F(StaDesignTest, R8_ReportClkLatency) {
 
 // --- findWorstClkSkew ---
 
-TEST_F(StaDesignTest, R8_FindWorstClkSkew) {
+TEST_F(StaDesignTest, FindWorstClkSkew) {
   float worst = sta_->findWorstClkSkew(SetupHold::max(), false);
   (void)worst;
 }
 
 // --- ReportPath: reportJson on a Path ---
 
-TEST_F(StaDesignTest, R8_ReportJsonPath) {
+TEST_F(StaDesignTest, ReportJsonPath) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -11995,7 +11995,7 @@ TEST_F(StaDesignTest, R8_ReportJsonPath) {
 
 // --- reportEndHeader / reportEndLine ---
 
-TEST_F(StaDesignTest, R8_ReportEndHeaderLine) {
+TEST_F(StaDesignTest, ReportEndHeaderLine) {
   sta_->setReportPathFormat(ReportPathFormat::endpoint);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -12011,7 +12011,7 @@ TEST_F(StaDesignTest, R8_ReportEndHeaderLine) {
 
 // --- reportSummaryHeader / reportSummaryLine ---
 
-TEST_F(StaDesignTest, R8_ReportSummaryHeaderLine) {
+TEST_F(StaDesignTest, ReportSummaryHeaderLine) {
   sta_->setReportPathFormat(ReportPathFormat::summary);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -12027,7 +12027,7 @@ TEST_F(StaDesignTest, R8_ReportSummaryHeaderLine) {
 
 // --- reportSlackOnlyHeader / reportSlackOnly ---
 
-TEST_F(StaDesignTest, R8_ReportSlackOnly) {
+TEST_F(StaDesignTest, ReportSlackOnly) {
   sta_->setReportPathFormat(ReportPathFormat::slack_only);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -12043,7 +12043,7 @@ TEST_F(StaDesignTest, R8_ReportSlackOnly) {
 
 // --- Search: reportArrivals ---
 
-TEST_F(StaDesignTest, R8_SearchReportArrivals) {
+TEST_F(StaDesignTest, SearchReportArrivals) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
@@ -12052,34 +12052,34 @@ TEST_F(StaDesignTest, R8_SearchReportArrivals) {
 
 // --- Search: reportPathCountHistogram ---
 
-TEST_F(StaDesignTest, R8_SearchReportPathCountHistogram) {
+TEST_F(StaDesignTest, SearchReportPathCountHistogram) {
   Search *search = sta_->search();
   search->reportPathCountHistogram();
 }
 
 // --- Search: reportTags ---
 
-TEST_F(StaDesignTest, R8_SearchReportTags) {
+TEST_F(StaDesignTest, SearchReportTags) {
   Search *search = sta_->search();
   search->reportTags();
 }
 
 // --- Search: reportClkInfos ---
 
-TEST_F(StaDesignTest, R8_SearchReportClkInfos) {
+TEST_F(StaDesignTest, SearchReportClkInfos) {
   Search *search = sta_->search();
   search->reportClkInfos();
 }
 
 // --- setReportPathFields ---
 
-TEST_F(StaDesignTest, R8_SetReportPathFields) {
+TEST_F(StaDesignTest, SetReportPathFields) {
   sta_->setReportPathFields(true, true, true, true, true, true, true);
 }
 
 // --- setReportPathFieldOrder ---
 
-TEST_F(StaDesignTest, R8_SetReportPathFieldOrder) {
+TEST_F(StaDesignTest, SetReportPathFieldOrder) {
   StringSeq *fields = new StringSeq;
   fields->push_back("Fanout");
   fields->push_back("Cap");
@@ -12089,14 +12089,14 @@ TEST_F(StaDesignTest, R8_SetReportPathFieldOrder) {
 // --- Search: saveEnumPath ---
 // (This is complex - need a valid enumerated path. Test existence.)
 
-TEST_F(StaDesignTest, R8_SearchSaveEnumPathExists) {
+TEST_F(StaDesignTest, SearchSaveEnumPathExists) {
   auto fn = &Search::saveEnumPath;
   EXPECT_NE(fn, nullptr);
 }
 
 // --- vertexPathCount ---
 
-TEST_F(StaDesignTest, R8_VertexPathCount) {
+TEST_F(StaDesignTest, VertexPathCount) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   int count = sta_->vertexPathCount(v);
@@ -12105,20 +12105,20 @@ TEST_F(StaDesignTest, R8_VertexPathCount) {
 
 // --- pathCount ---
 
-TEST_F(StaDesignTest, R8_PathCount) {
+TEST_F(StaDesignTest, PathCount) {
   int count = sta_->pathCount();
   EXPECT_GE(count, 0);
 }
 
 // --- writeSdc ---
 
-TEST_F(StaDesignTest, R8_WriteSdc) {
+TEST_F(StaDesignTest, WriteSdc) {
   sta_->writeSdc("/dev/null", false, false, 4, false, true);
 }
 
 // --- ReportPath: reportFull for PathEndCheck ---
 
-TEST_F(StaDesignTest, R8_ReportPathFullPathEnd) {
+TEST_F(StaDesignTest, ReportPathFullPathEnd) {
   sta_->setReportPathFormat(ReportPathFormat::full);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -12133,14 +12133,14 @@ TEST_F(StaDesignTest, R8_ReportPathFullPathEnd) {
 
 // --- Search: ensureDownstreamClkPins ---
 
-TEST_F(StaDesignTest, R8_SearchEnsureDownstreamClkPins) {
+TEST_F(StaDesignTest, SearchEnsureDownstreamClkPins) {
   Search *search = sta_->search();
   search->ensureDownstreamClkPins();
 }
 
 // --- Genclks ---
 
-TEST_F(StaDesignTest, R8_GenclksAccessor) {
+TEST_F(StaDesignTest, GenclksAccessor) {
   Search *search = sta_->search();
   Genclks *genclks = search->genclks();
   EXPECT_NE(genclks, nullptr);
@@ -12148,7 +12148,7 @@ TEST_F(StaDesignTest, R8_GenclksAccessor) {
 
 // --- CheckCrpr accessor ---
 
-TEST_F(StaDesignTest, R8_CheckCrprAccessor) {
+TEST_F(StaDesignTest, CheckCrprAccessor) {
   Search *search = sta_->search();
   CheckCrpr *crpr = search->checkCrpr();
   EXPECT_NE(crpr, nullptr);
@@ -12156,7 +12156,7 @@ TEST_F(StaDesignTest, R8_CheckCrprAccessor) {
 
 // --- GatedClk accessor ---
 
-TEST_F(StaDesignTest, R8_GatedClkAccessor) {
+TEST_F(StaDesignTest, GatedClkAccessor) {
   Search *search = sta_->search();
   GatedClk *gated = search->gatedClk();
   EXPECT_NE(gated, nullptr);
@@ -12164,7 +12164,7 @@ TEST_F(StaDesignTest, R8_GatedClkAccessor) {
 
 // --- VisitPathEnds accessor ---
 
-TEST_F(StaDesignTest, R8_VisitPathEndsAccessor) {
+TEST_F(StaDesignTest, VisitPathEndsAccessor) {
   Search *search = sta_->search();
   VisitPathEnds *vpe = search->visitPathEnds();
   EXPECT_NE(vpe, nullptr);
@@ -12176,7 +12176,7 @@ TEST_F(StaDesignTest, R8_VisitPathEndsAccessor) {
 
 // --- Search: worstSlack (triggers WorstSlack methods) ---
 
-TEST_F(StaDesignTest, R8_SearchWorstSlackMinMax) {
+TEST_F(StaDesignTest, SearchWorstSlackMinMax) {
   Search *search = sta_->search();
   Slack worst;
   Vertex *worst_vertex = nullptr;
@@ -12184,7 +12184,7 @@ TEST_F(StaDesignTest, R8_SearchWorstSlackMinMax) {
   (void)worst;
 }
 
-TEST_F(StaDesignTest, R8_SearchWorstSlackCorner) {
+TEST_F(StaDesignTest, SearchWorstSlackCorner) {
   Search *search = sta_->search();
   Corner *corner = sta_->cmdCorner();
   Slack worst;
@@ -12195,13 +12195,13 @@ TEST_F(StaDesignTest, R8_SearchWorstSlackCorner) {
 
 // --- Search: totalNegativeSlack ---
 
-TEST_F(StaDesignTest, R8_SearchTotalNegativeSlack) {
+TEST_F(StaDesignTest, SearchTotalNegativeSlack) {
   Search *search = sta_->search();
   Slack tns = search->totalNegativeSlack(MinMax::max());
   (void)tns;
 }
 
-TEST_F(StaDesignTest, R8_SearchTotalNegativeSlackCorner) {
+TEST_F(StaDesignTest, SearchTotalNegativeSlackCorner) {
   Search *search = sta_->search();
   Corner *corner = sta_->cmdCorner();
   Slack tns = search->totalNegativeSlack(corner, MinMax::max());
@@ -12210,7 +12210,7 @@ TEST_F(StaDesignTest, R8_SearchTotalNegativeSlackCorner) {
 
 // --- Property: getProperty on Edge ---
 
-TEST_F(StaDesignTest, R8_PropertyGetEdge) {
+TEST_F(StaDesignTest, PropertyGetEdge) {
   Properties &props = sta_->properties();
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
@@ -12224,7 +12224,7 @@ TEST_F(StaDesignTest, R8_PropertyGetEdge) {
 
 // --- Property: getProperty on Clock ---
 
-TEST_F(StaDesignTest, R8_PropertyGetClock) {
+TEST_F(StaDesignTest, PropertyGetClock) {
   Properties &props = sta_->properties();
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
@@ -12234,7 +12234,7 @@ TEST_F(StaDesignTest, R8_PropertyGetClock) {
 
 // --- Property: getProperty on LibertyPort ---
 
-TEST_F(StaDesignTest, R8_PropertyGetLibertyPort) {
+TEST_F(StaDesignTest, PropertyGetLibertyPort) {
   Properties &props = sta_->properties();
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -12246,7 +12246,7 @@ TEST_F(StaDesignTest, R8_PropertyGetLibertyPort) {
 
 // --- Property: getProperty on Port ---
 
-TEST_F(StaDesignTest, R8_PropertyGetPort) {
+TEST_F(StaDesignTest, PropertyGetPort) {
   Properties &props = sta_->properties();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
@@ -12261,7 +12261,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPort) {
 
 // --- Sta: makeInstance / deleteInstance ---
 
-TEST_F(StaDesignTest, R8_MakeDeleteInstance) {
+TEST_F(StaDesignTest, MakeDeleteInstance) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   Network *network = sta_->cmdNetwork();
@@ -12273,7 +12273,7 @@ TEST_F(StaDesignTest, R8_MakeDeleteInstance) {
 
 // --- Sta: makeNet / deleteNet ---
 
-TEST_F(StaDesignTest, R8_MakeDeleteNet) {
+TEST_F(StaDesignTest, MakeDeleteNet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Net *new_net = sta_->makeNet("test_net", top);
@@ -12283,7 +12283,7 @@ TEST_F(StaDesignTest, R8_MakeDeleteNet) {
 
 // --- Sta: connectPin / disconnectPin ---
 
-TEST_F(StaDesignTest, R8_ConnectDisconnectPin) {
+TEST_F(StaDesignTest, ConnectDisconnectPin) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *port_a = buf->findLibertyPort("A");
@@ -12305,21 +12305,21 @@ TEST_F(StaDesignTest, R8_ConnectDisconnectPin) {
 
 // --- Sta: endpointPins ---
 
-TEST_F(StaDesignTest, R8_EndpointPins) {
+TEST_F(StaDesignTest, EndpointPins) {
   PinSet eps = sta_->endpointPins();
   EXPECT_GT(eps.size(), 0u);
 }
 
 // --- Sta: startpointPins ---
 
-TEST_F(StaDesignTest, R8_StartpointPins) {
+TEST_F(StaDesignTest, StartpointPins) {
   PinSet sps = sta_->startpointPins();
   EXPECT_GT(sps.size(), 0u);
 }
 
 // --- Search: arrivalsValid ---
 
-TEST_F(StaDesignTest, R8_SearchArrivalsValidDesign) {
+TEST_F(StaDesignTest, SearchArrivalsValidDesign) {
   Search *search = sta_->search();
   bool valid = search->arrivalsValid();
   EXPECT_TRUE(valid);
@@ -12327,7 +12327,7 @@ TEST_F(StaDesignTest, R8_SearchArrivalsValidDesign) {
 
 // --- Sta: netSlack ---
 
-TEST_F(StaDesignTest, R8_NetSlack) {
+TEST_F(StaDesignTest, NetSlack) {
   Network *network = sta_->cmdNetwork();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
@@ -12340,14 +12340,14 @@ TEST_F(StaDesignTest, R8_NetSlack) {
 
 // --- Sta: pinSlack ---
 
-TEST_F(StaDesignTest, R8_PinSlackMinMax) {
+TEST_F(StaDesignTest, PinSlackMinMax) {
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
   Slack slk = sta_->pinSlack(pin, MinMax::max());
   (void)slk;
 }
 
-TEST_F(StaDesignTest, R8_PinSlackRfMinMax) {
+TEST_F(StaDesignTest, PinSlackRfMinMax) {
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
   Slack slk = sta_->pinSlack(pin, RiseFall::rise(), MinMax::max());
@@ -12356,7 +12356,7 @@ TEST_F(StaDesignTest, R8_PinSlackRfMinMax) {
 
 // --- Sta: pinArrival ---
 
-TEST_F(StaDesignTest, R8_PinArrival) {
+TEST_F(StaDesignTest, PinArrival) {
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
   Arrival arr = sta_->pinArrival(pin, RiseFall::rise(), MinMax::max());
@@ -12365,14 +12365,14 @@ TEST_F(StaDesignTest, R8_PinArrival) {
 
 // --- Sta: clocks / clockDomains ---
 
-TEST_F(StaDesignTest, R8_ClocksOnPin) {
+TEST_F(StaDesignTest, ClocksOnPin) {
   Pin *pin = findPin("clk1");
   ASSERT_NE(pin, nullptr);
   ClockSet clks = sta_->clocks(pin);
   (void)clks;
 }
 
-TEST_F(StaDesignTest, R8_ClockDomainsOnPin) {
+TEST_F(StaDesignTest, ClockDomainsOnPin) {
   Pin *pin = findPin("r1/CK");
   ASSERT_NE(pin, nullptr);
   ClockSet domains = sta_->clockDomains(pin);
@@ -12381,14 +12381,14 @@ TEST_F(StaDesignTest, R8_ClockDomainsOnPin) {
 
 // --- Sta: vertexWorstArrivalPath (both overloads) ---
 
-TEST_F(StaDesignTest, R8_VertexWorstArrivalPathMinMax) {
+TEST_F(StaDesignTest, VertexWorstArrivalPathMinMax) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
   (void)path;
 }
 
-TEST_F(StaDesignTest, R8_VertexWorstArrivalPathRf) {
+TEST_F(StaDesignTest, VertexWorstArrivalPathRf) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, RiseFall::rise(), MinMax::max());
@@ -12397,14 +12397,14 @@ TEST_F(StaDesignTest, R8_VertexWorstArrivalPathRf) {
 
 // --- Sta: vertexWorstSlackPath ---
 
-TEST_F(StaDesignTest, R8_VertexWorstSlackPath) {
+TEST_F(StaDesignTest, VertexWorstSlackPath) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstSlackPath(v, MinMax::max());
   (void)path;
 }
 
-TEST_F(StaDesignTest, R8_VertexWorstSlackPathRf) {
+TEST_F(StaDesignTest, VertexWorstSlackPathRf) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstSlackPath(v, RiseFall::rise(), MinMax::max());
@@ -12413,7 +12413,7 @@ TEST_F(StaDesignTest, R8_VertexWorstSlackPathRf) {
 
 // --- Search: isClock on clock vertex ---
 
-TEST_F(StaDesignTest, R8_SearchIsClockVertex) {
+TEST_F(StaDesignTest, SearchIsClockVertex) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/CK");
   ASSERT_NE(v, nullptr);
@@ -12423,7 +12423,7 @@ TEST_F(StaDesignTest, R8_SearchIsClockVertex) {
 
 // --- Search: clkPathArrival ---
 
-TEST_F(StaDesignTest, R8_SearchClkPathArrival) {
+TEST_F(StaDesignTest, SearchClkPathArrival) {
   Search *search = sta_->search();
   // Need a clock path
   Vertex *v = findVertex("r1/CK");
@@ -12437,45 +12437,45 @@ TEST_F(StaDesignTest, R8_SearchClkPathArrival) {
 
 // --- Sta: removeDelaySlewAnnotations ---
 
-TEST_F(StaDesignTest, R8_RemoveDelaySlewAnnotations) {
+TEST_F(StaDesignTest, RemoveDelaySlewAnnotations) {
   sta_->removeDelaySlewAnnotations();
 }
 
 // --- Sta: deleteParasitics ---
 
-TEST_F(StaDesignTest, R8_DeleteParasitics) {
+TEST_F(StaDesignTest, DeleteParasitics) {
   sta_->deleteParasitics();
 }
 
 // --- Sta: constraintsChanged ---
 
-TEST_F(StaDesignTest, R8_ConstraintsChanged) {
+TEST_F(StaDesignTest, ConstraintsChanged) {
   sta_->constraintsChanged();
 }
 
 // --- Sta: networkChanged ---
 
-TEST_F(StaDesignTest, R8_NetworkChanged) {
+TEST_F(StaDesignTest, NetworkChanged) {
   sta_->networkChanged();
 }
 
 // --- Search: endpointsInvalid ---
 
-TEST_F(StaDesignTest, R8_EndpointsInvalid) {
+TEST_F(StaDesignTest, EndpointsInvalid) {
   Search *search = sta_->search();
   search->endpointsInvalid();
 }
 
 // --- Search: requiredsInvalid ---
 
-TEST_F(StaDesignTest, R8_RequiredsInvalid) {
+TEST_F(StaDesignTest, RequiredsInvalid) {
   Search *search = sta_->search();
   search->requiredsInvalid();
 }
 
 // --- Search: deleteFilter / filteredEndpoints ---
 
-TEST_F(StaDesignTest, R8_SearchDeleteFilter) {
+TEST_F(StaDesignTest, SearchDeleteFilter) {
   Search *search = sta_->search();
   // No filter set, but calling is safe
   search->deleteFilter();
@@ -12483,7 +12483,7 @@ TEST_F(StaDesignTest, R8_SearchDeleteFilter) {
 
 // --- Sta: reportDelayCalc ---
 
-TEST_F(StaDesignTest, R8_ReportDelayCalc) {
+TEST_F(StaDesignTest, ReportDelayCalc) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   VertexInEdgeIterator edge_iter(v, sta_->graph());
@@ -12501,7 +12501,7 @@ TEST_F(StaDesignTest, R8_ReportDelayCalc) {
 
 // --- Sta: arcDelay ---
 
-TEST_F(StaDesignTest, R8_ArcDelay) {
+TEST_F(StaDesignTest, ArcDelay) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   VertexInEdgeIterator edge_iter(v, sta_->graph());
@@ -12519,7 +12519,7 @@ TEST_F(StaDesignTest, R8_ArcDelay) {
 
 // --- Sta: arcDelayAnnotated ---
 
-TEST_F(StaDesignTest, R8_ArcDelayAnnotated) {
+TEST_F(StaDesignTest, ArcDelayAnnotated) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   VertexInEdgeIterator edge_iter(v, sta_->graph());
@@ -12537,14 +12537,14 @@ TEST_F(StaDesignTest, R8_ArcDelayAnnotated) {
 
 // --- Sta: findReportPathField ---
 
-TEST_F(StaDesignTest, R8_FindReportPathField) {
+TEST_F(StaDesignTest, FindReportPathField) {
   ReportField *field = sta_->findReportPathField("Fanout");
   (void)field;
 }
 
 // --- Search: arrivalInvalid on a vertex ---
 
-TEST_F(StaDesignTest, R8_SearchArrivalInvalid) {
+TEST_F(StaDesignTest, SearchArrivalInvalid) {
   Search *search = sta_->search();
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
@@ -12553,7 +12553,7 @@ TEST_F(StaDesignTest, R8_SearchArrivalInvalid) {
 
 // --- Search: requiredInvalid on a vertex ---
 
-TEST_F(StaDesignTest, R8_SearchRequiredInvalid) {
+TEST_F(StaDesignTest, SearchRequiredInvalid) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
@@ -12562,7 +12562,7 @@ TEST_F(StaDesignTest, R8_SearchRequiredInvalid) {
 
 // --- Search: isSegmentStart ---
 
-TEST_F(StaDesignTest, R8_SearchIsSegmentStart) {
+TEST_F(StaDesignTest, SearchIsSegmentStart) {
   Search *search = sta_->search();
   Pin *pin = findPin("in1");
   ASSERT_NE(pin, nullptr);
@@ -12572,7 +12572,7 @@ TEST_F(StaDesignTest, R8_SearchIsSegmentStart) {
 
 // --- Search: isInputArrivalSrchStart ---
 
-TEST_F(StaDesignTest, R8_SearchIsInputArrivalSrchStart) {
+TEST_F(StaDesignTest, SearchIsInputArrivalSrchStart) {
   Search *search = sta_->search();
   Vertex *v = findVertex("in1");
   ASSERT_NE(v, nullptr);
@@ -12582,20 +12582,20 @@ TEST_F(StaDesignTest, R8_SearchIsInputArrivalSrchStart) {
 
 // --- Sta: operatingConditions ---
 
-TEST_F(StaDesignTest, R8_OperatingConditions) {
+TEST_F(StaDesignTest, OperatingConditions) {
   OperatingConditions *op = sta_->operatingConditions(MinMax::max());
   (void)op;
 }
 
 // --- Search: evalPred / searchAdj ---
 
-TEST_F(StaDesignTest, R8_SearchEvalPred) {
+TEST_F(StaDesignTest, SearchEvalPred) {
   Search *search = sta_->search();
   EvalPred *ep = search->evalPred();
   EXPECT_NE(ep, nullptr);
 }
 
-TEST_F(StaDesignTest, R8_SearchSearchAdj) {
+TEST_F(StaDesignTest, SearchSearchAdj) {
   Search *search = sta_->search();
   SearchPred *sp = search->searchAdj();
   EXPECT_NE(sp, nullptr);
@@ -12603,7 +12603,7 @@ TEST_F(StaDesignTest, R8_SearchSearchAdj) {
 
 // --- Search: endpointInvalid ---
 
-TEST_F(StaDesignTest, R8_SearchEndpointInvalid) {
+TEST_F(StaDesignTest, SearchEndpointInvalid) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
@@ -12612,7 +12612,7 @@ TEST_F(StaDesignTest, R8_SearchEndpointInvalid) {
 
 // --- Search: tnsInvalid ---
 
-TEST_F(StaDesignTest, R8_SearchTnsInvalid) {
+TEST_F(StaDesignTest, SearchTnsInvalid) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
@@ -12621,13 +12621,13 @@ TEST_F(StaDesignTest, R8_SearchTnsInvalid) {
 
 // --- Sta: unsetTimingDerate ---
 
-TEST_F(StaDesignTest, R8_UnsetTimingDerate) {
+TEST_F(StaDesignTest, UnsetTimingDerate) {
   sta_->unsetTimingDerate();
 }
 
 // --- Sta: setAnnotatedSlew ---
 
-TEST_F(StaDesignTest, R8_SetAnnotatedSlew) {
+TEST_F(StaDesignTest, SetAnnotatedSlew) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -12637,7 +12637,7 @@ TEST_F(StaDesignTest, R8_SetAnnotatedSlew) {
 
 // --- Sta: vertexPathIterator with MinMax ---
 
-TEST_F(StaDesignTest, R8_VertexPathIteratorMinMax) {
+TEST_F(StaDesignTest, VertexPathIteratorMinMax) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   VertexPathIterator *iter = sta_->vertexPathIterator(v, RiseFall::rise(), MinMax::max());
@@ -12652,7 +12652,7 @@ TEST_F(StaDesignTest, R8_VertexPathIteratorMinMax) {
 
 // --- Tag comparison operations (exercised through timing) ---
 
-TEST_F(StaDesignTest, R8_TagOperations) {
+TEST_F(StaDesignTest, TagOperations) {
   Search *search = sta_->search();
   TagIndex count = search->tagCount();
   if (count >= 2) {
@@ -12676,7 +12676,7 @@ TEST_F(StaDesignTest, R8_TagOperations) {
 
 // --- PathEnd::cmp ---
 
-TEST_F(StaDesignTest, R8_PathEndCmp) {
+TEST_F(StaDesignTest, PathEndCmp) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -12694,7 +12694,7 @@ TEST_F(StaDesignTest, R8_PathEndCmp) {
 
 // --- PathEnd: various accessors on specific PathEnd types ---
 
-TEST_F(StaDesignTest, R8_PathEndSlackNoCrpr) {
+TEST_F(StaDesignTest, PathEndSlackNoCrpr) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -12723,7 +12723,7 @@ TEST_F(StaDesignTest, R8_PathEndSlackNoCrpr) {
 
 // --- PathEnd: reportShort ---
 
-TEST_F(StaDesignTest, R8_PathEndReportShort) {
+TEST_F(StaDesignTest, PathEndReportShort) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -12737,7 +12737,7 @@ TEST_F(StaDesignTest, R8_PathEndReportShort) {
 
 // --- PathEnd: copy ---
 
-TEST_F(StaDesignTest, R8_PathEndCopy) {
+TEST_F(StaDesignTest, PathEndCopy) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -12752,7 +12752,7 @@ TEST_F(StaDesignTest, R8_PathEndCopy) {
 
 // --- Search: tagGroup for a vertex ---
 
-TEST_F(StaDesignTest, R8_SearchTagGroupForVertex) {
+TEST_F(StaDesignTest, SearchTagGroupForVertex) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
@@ -12762,7 +12762,7 @@ TEST_F(StaDesignTest, R8_SearchTagGroupForVertex) {
 
 // --- Sta: findFaninPins / findFanoutPins ---
 
-TEST_F(StaDesignTest, R8_FindFaninPins) {
+TEST_F(StaDesignTest, FindFaninPins) {
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
   PinSeq to_pins;
@@ -12771,7 +12771,7 @@ TEST_F(StaDesignTest, R8_FindFaninPins) {
   (void)fanin;
 }
 
-TEST_F(StaDesignTest, R8_FindFanoutPins) {
+TEST_F(StaDesignTest, FindFanoutPins) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
   PinSeq from_pins;
@@ -12782,7 +12782,7 @@ TEST_F(StaDesignTest, R8_FindFanoutPins) {
 
 // --- Sta: findFaninInstances / findFanoutInstances ---
 
-TEST_F(StaDesignTest, R8_FindFaninInstances) {
+TEST_F(StaDesignTest, FindFaninInstances) {
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
   PinSeq to_pins;
@@ -12793,13 +12793,13 @@ TEST_F(StaDesignTest, R8_FindFaninInstances) {
 
 // --- Sta: setVoltage ---
 
-TEST_F(StaDesignTest, R8_SetVoltage) {
+TEST_F(StaDesignTest, SetVoltage) {
   sta_->setVoltage(MinMax::max(), 1.1f);
 }
 
 // --- Sta: removeConstraints ---
 
-TEST_F(StaDesignTest, R8_RemoveConstraints) {
+TEST_F(StaDesignTest, RemoveConstraints) {
   // This is a destructive operation, so call it but re-create constraints after
   // Just verifying it doesn't crash
   sta_->removeConstraints();
@@ -12807,7 +12807,7 @@ TEST_F(StaDesignTest, R8_RemoveConstraints) {
 
 // --- Search: filter ---
 
-TEST_F(StaDesignTest, R8_SearchFilter) {
+TEST_F(StaDesignTest, SearchFilter) {
   Search *search = sta_->search();
   FilterPath *filter = search->filter();
   // filter should be null since we haven't set one
@@ -12816,7 +12816,7 @@ TEST_F(StaDesignTest, R8_SearchFilter) {
 
 // --- PathExpanded: path(i) and pathsIndex ---
 
-TEST_F(StaDesignTest, R8_PathExpandedPaths) {
+TEST_F(StaDesignTest, PathExpandedPaths) {
   Vertex *v = findVertex("u2/ZN");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -12831,7 +12831,7 @@ TEST_F(StaDesignTest, R8_PathExpandedPaths) {
 
 // --- Sta: setOutputDelay ---
 
-TEST_F(StaDesignTest, R8_SetOutputDelay) {
+TEST_F(StaDesignTest, SetOutputDelay) {
   Pin *out = findPin("out");
   ASSERT_NE(out, nullptr);
   Clock *clk = sta_->sdc()->findClock("clk");
@@ -12843,7 +12843,7 @@ TEST_F(StaDesignTest, R8_SetOutputDelay) {
 
 // --- Sta: findPathEnds with setup+hold ---
 
-TEST_F(StaDesignTest, R8_FindPathEndsSetupHold) {
+TEST_F(StaDesignTest, FindPathEndsSetupHold) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::all(),
@@ -12854,7 +12854,7 @@ TEST_F(StaDesignTest, R8_FindPathEndsSetupHold) {
 
 // --- Sta: findPathEnds unique_pins ---
 
-TEST_F(StaDesignTest, R8_FindPathEndsUniquePins) {
+TEST_F(StaDesignTest, FindPathEndsUniquePins) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -12865,7 +12865,7 @@ TEST_F(StaDesignTest, R8_FindPathEndsUniquePins) {
 
 // --- Sta: findPathEnds sort_by_slack ---
 
-TEST_F(StaDesignTest, R8_FindPathEndsSortBySlack) {
+TEST_F(StaDesignTest, FindPathEndsSortBySlack) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -12876,7 +12876,7 @@ TEST_F(StaDesignTest, R8_FindPathEndsSortBySlack) {
 
 // --- Sta: reportChecks for MinPeriod ---
 
-TEST_F(StaDesignTest, R8_ReportChecksMinPeriod) {
+TEST_F(StaDesignTest, ReportChecksMinPeriod) {
   MinPeriodCheckSeq &checks = sta_->minPeriodViolations();
   sta_->reportChecks(&checks, false);
   sta_->reportChecks(&checks, true);
@@ -12884,7 +12884,7 @@ TEST_F(StaDesignTest, R8_ReportChecksMinPeriod) {
 
 // --- Sta: reportChecks for MaxSkew ---
 
-TEST_F(StaDesignTest, R8_ReportChecksMaxSkew) {
+TEST_F(StaDesignTest, ReportChecksMaxSkew) {
   MaxSkewCheckSeq &checks = sta_->maxSkewViolations();
   sta_->reportChecks(&checks, false);
   sta_->reportChecks(&checks, true);
@@ -12892,21 +12892,21 @@ TEST_F(StaDesignTest, R8_ReportChecksMaxSkew) {
 
 // --- ReportPath: reportPeriodHeaderShort ---
 
-TEST_F(StaDesignTest, R8_ReportPeriodHeaderShort) {
+TEST_F(StaDesignTest, ReportPeriodHeaderShort) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportPeriodHeaderShort();
 }
 
 // --- ReportPath: reportMpwHeaderShort ---
 
-TEST_F(StaDesignTest, R8_ReportMpwHeaderShort) {
+TEST_F(StaDesignTest, ReportMpwHeaderShort) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportMpwHeaderShort();
 }
 
 // --- Sta: maxSlewCheck ---
 
-TEST_F(StaDesignTest, R8_MaxSlewCheck) {
+TEST_F(StaDesignTest, MaxSlewCheck) {
   sta_->checkSlewLimitPreamble();
   const Pin *pin = nullptr;
   Slew slew;
@@ -12917,7 +12917,7 @@ TEST_F(StaDesignTest, R8_MaxSlewCheck) {
 
 // --- Sta: maxFanoutCheck ---
 
-TEST_F(StaDesignTest, R8_MaxFanoutCheck) {
+TEST_F(StaDesignTest, MaxFanoutCheck) {
   sta_->checkFanoutLimitPreamble();
   const Pin *pin = nullptr;
   float fanout, slack, limit;
@@ -12926,7 +12926,7 @@ TEST_F(StaDesignTest, R8_MaxFanoutCheck) {
 
 // --- Sta: maxCapacitanceCheck ---
 
-TEST_F(StaDesignTest, R8_MaxCapacitanceCheck) {
+TEST_F(StaDesignTest, MaxCapacitanceCheck) {
   sta_->checkCapacitanceLimitPreamble();
   const Pin *pin = nullptr;
   float cap, slack, limit;
@@ -12935,7 +12935,7 @@ TEST_F(StaDesignTest, R8_MaxCapacitanceCheck) {
 
 // --- Sta: vertexSlack with RiseFall + MinMax ---
 
-TEST_F(StaDesignTest, R8_VertexSlackRfMinMax) {
+TEST_F(StaDesignTest, VertexSlackRfMinMax) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Slack slk = sta_->vertexSlack(v, RiseFall::rise(), MinMax::max());
@@ -12944,7 +12944,7 @@ TEST_F(StaDesignTest, R8_VertexSlackRfMinMax) {
 
 // --- Sta: vertexSlew with MinMax only ---
 
-TEST_F(StaDesignTest, R8_VertexSlewMinMax) {
+TEST_F(StaDesignTest, VertexSlewMinMax) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Slew slew = sta_->vertexSlew(v, MinMax::max());
@@ -12953,7 +12953,7 @@ TEST_F(StaDesignTest, R8_VertexSlewMinMax) {
 
 // --- Sta: setReportPathFormat to each format and report ---
 
-TEST_F(StaDesignTest, R8_ReportPathEndpointFormat) {
+TEST_F(StaDesignTest, ReportPathEndpointFormat) {
   sta_->setReportPathFormat(ReportPathFormat::endpoint);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -12968,7 +12968,7 @@ TEST_F(StaDesignTest, R8_ReportPathEndpointFormat) {
 
 // --- Search: findClkVertexPins ---
 
-TEST_F(StaDesignTest, R8_SearchFindClkVertexPins) {
+TEST_F(StaDesignTest, SearchFindClkVertexPins) {
   Search *search = sta_->search();
   PinSet clk_pins(sta_->cmdNetwork());
   search->findClkVertexPins(clk_pins);
@@ -12977,7 +12977,7 @@ TEST_F(StaDesignTest, R8_SearchFindClkVertexPins) {
 
 // --- Property: getProperty on PathEnd ---
 
-TEST_F(StaDesignTest, R8_PropertyGetPathEnd) {
+TEST_F(StaDesignTest, PropertyGetPathEnd) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -12992,7 +12992,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPathEnd) {
 
 // --- Property: getProperty on Path ---
 
-TEST_F(StaDesignTest, R8_PropertyGetPath) {
+TEST_F(StaDesignTest, PropertyGetPath) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -13005,7 +13005,7 @@ TEST_F(StaDesignTest, R8_PropertyGetPath) {
 
 // --- Property: getProperty on TimingArcSet ---
 
-TEST_F(StaDesignTest, R8_PropertyGetTimingArcSet) {
+TEST_F(StaDesignTest, PropertyGetTimingArcSet) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   VertexInEdgeIterator edge_iter(v, sta_->graph());
@@ -13024,7 +13024,7 @@ TEST_F(StaDesignTest, R8_PropertyGetTimingArcSet) {
 
 // --- Sta: setParasiticAnalysisPts per_corner ---
 
-TEST_F(StaDesignTest, R8_SetParasiticAnalysisPtsPerCorner) {
+TEST_F(StaDesignTest, SetParasiticAnalysisPtsPerCorner) {
   sta_->setParasiticAnalysisPts(true);
 }
 
@@ -13034,7 +13034,7 @@ TEST_F(StaDesignTest, R8_SetParasiticAnalysisPtsPerCorner) {
 
 // --- FindRegister tests ---
 
-TEST_F(StaDesignTest, R9_FindRegisterInstances) {
+TEST_F(StaDesignTest, FindRegisterInstances) {
   ClockSet *clks = nullptr;
   InstanceSet reg_insts = sta_->findRegisterInstances(clks,
     RiseFallBoth::riseFall(), true, false);
@@ -13042,21 +13042,21 @@ TEST_F(StaDesignTest, R9_FindRegisterInstances) {
   EXPECT_GE(reg_insts.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterDataPins) {
+TEST_F(StaDesignTest, FindRegisterDataPins) {
   ClockSet *clks = nullptr;
   PinSet data_pins = sta_->findRegisterDataPins(clks,
     RiseFallBoth::riseFall(), true, false);
   EXPECT_GE(data_pins.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterClkPins) {
+TEST_F(StaDesignTest, FindRegisterClkPins) {
   ClockSet *clks = nullptr;
   PinSet clk_pins = sta_->findRegisterClkPins(clks,
     RiseFallBoth::riseFall(), true, false);
   EXPECT_GE(clk_pins.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterAsyncPins) {
+TEST_F(StaDesignTest, FindRegisterAsyncPins) {
   ClockSet *clks = nullptr;
   PinSet async_pins = sta_->findRegisterAsyncPins(clks,
     RiseFallBoth::riseFall(), true, false);
@@ -13064,14 +13064,14 @@ TEST_F(StaDesignTest, R9_FindRegisterAsyncPins) {
   (void)async_pins;
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterOutputPins) {
+TEST_F(StaDesignTest, FindRegisterOutputPins) {
   ClockSet *clks = nullptr;
   PinSet out_pins = sta_->findRegisterOutputPins(clks,
     RiseFallBoth::riseFall(), true, false);
   EXPECT_GE(out_pins.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterInstancesWithClock) {
+TEST_F(StaDesignTest, FindRegisterInstancesWithClock) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ClockSet *clks = new ClockSet;
@@ -13081,7 +13081,7 @@ TEST_F(StaDesignTest, R9_FindRegisterInstancesWithClock) {
   EXPECT_GE(reg_insts.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterDataPinsWithClock) {
+TEST_F(StaDesignTest, FindRegisterDataPinsWithClock) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ClockSet *clks = new ClockSet;
@@ -13091,7 +13091,7 @@ TEST_F(StaDesignTest, R9_FindRegisterDataPinsWithClock) {
   EXPECT_GE(data_pins.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterClkPinsWithClock) {
+TEST_F(StaDesignTest, FindRegisterClkPinsWithClock) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ClockSet *clks = new ClockSet;
@@ -13101,7 +13101,7 @@ TEST_F(StaDesignTest, R9_FindRegisterClkPinsWithClock) {
   EXPECT_GE(clk_pins.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterOutputPinsWithClock) {
+TEST_F(StaDesignTest, FindRegisterOutputPinsWithClock) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ClockSet *clks = new ClockSet;
@@ -13111,21 +13111,21 @@ TEST_F(StaDesignTest, R9_FindRegisterOutputPinsWithClock) {
   EXPECT_GE(out_pins.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterRiseOnly) {
+TEST_F(StaDesignTest, FindRegisterRiseOnly) {
   ClockSet *clks = nullptr;
   PinSet clk_pins = sta_->findRegisterClkPins(clks,
     RiseFallBoth::rise(), true, false);
   (void)clk_pins;
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterFallOnly) {
+TEST_F(StaDesignTest, FindRegisterFallOnly) {
   ClockSet *clks = nullptr;
   PinSet clk_pins = sta_->findRegisterClkPins(clks,
     RiseFallBoth::fall(), true, false);
   (void)clk_pins;
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterLatches) {
+TEST_F(StaDesignTest, FindRegisterLatches) {
   ClockSet *clks = nullptr;
   InstanceSet insts = sta_->findRegisterInstances(clks,
     RiseFallBoth::riseFall(), false, true);
@@ -13133,14 +13133,14 @@ TEST_F(StaDesignTest, R9_FindRegisterLatches) {
   (void)insts;
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterBothEdgeAndLatch) {
+TEST_F(StaDesignTest, FindRegisterBothEdgeAndLatch) {
   ClockSet *clks = nullptr;
   InstanceSet insts = sta_->findRegisterInstances(clks,
     RiseFallBoth::riseFall(), true, true);
   EXPECT_GE(insts.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_FindRegisterAsyncPinsWithClock) {
+TEST_F(StaDesignTest, FindRegisterAsyncPinsWithClock) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ClockSet *clks = new ClockSet;
@@ -13152,7 +13152,7 @@ TEST_F(StaDesignTest, R9_FindRegisterAsyncPinsWithClock) {
 
 // --- PathEnd: detailed accessors ---
 
-TEST_F(StaDesignTest, R9_PathEndType) {
+TEST_F(StaDesignTest, PathEndType) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13166,7 +13166,7 @@ TEST_F(StaDesignTest, R9_PathEndType) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndCheckRole) {
+TEST_F(StaDesignTest, PathEndCheckRole) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13180,7 +13180,7 @@ TEST_F(StaDesignTest, R9_PathEndCheckRole) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndVertex) {
+TEST_F(StaDesignTest, PathEndVertex) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13192,7 +13192,7 @@ TEST_F(StaDesignTest, R9_PathEndVertex) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndMinMax) {
+TEST_F(StaDesignTest, PathEndMinMax) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13206,7 +13206,7 @@ TEST_F(StaDesignTest, R9_PathEndMinMax) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndTransition) {
+TEST_F(StaDesignTest, PathEndTransition) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13218,7 +13218,7 @@ TEST_F(StaDesignTest, R9_PathEndTransition) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndPathAnalysisPt) {
+TEST_F(StaDesignTest, PathEndPathAnalysisPt) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13232,7 +13232,7 @@ TEST_F(StaDesignTest, R9_PathEndPathAnalysisPt) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndTargetClkAccessors) {
+TEST_F(StaDesignTest, PathEndTargetClkAccessors) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13256,7 +13256,7 @@ TEST_F(StaDesignTest, R9_PathEndTargetClkAccessors) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndTargetClkUncertainty) {
+TEST_F(StaDesignTest, PathEndTargetClkUncertainty) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13274,7 +13274,7 @@ TEST_F(StaDesignTest, R9_PathEndTargetClkUncertainty) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndClkEarlyLate) {
+TEST_F(StaDesignTest, PathEndClkEarlyLate) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13286,7 +13286,7 @@ TEST_F(StaDesignTest, R9_PathEndClkEarlyLate) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndIsTypePredicates) {
+TEST_F(StaDesignTest, PathEndIsTypePredicates) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13307,7 +13307,7 @@ TEST_F(StaDesignTest, R9_PathEndIsTypePredicates) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndCrpr) {
+TEST_F(StaDesignTest, PathEndCrpr) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13321,7 +13321,7 @@ TEST_F(StaDesignTest, R9_PathEndCrpr) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndClkSkew) {
+TEST_F(StaDesignTest, PathEndClkSkew) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13333,7 +13333,7 @@ TEST_F(StaDesignTest, R9_PathEndClkSkew) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndBorrow) {
+TEST_F(StaDesignTest, PathEndBorrow) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13345,7 +13345,7 @@ TEST_F(StaDesignTest, R9_PathEndBorrow) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndSourceClkInsertionDelay) {
+TEST_F(StaDesignTest, PathEndSourceClkInsertionDelay) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13357,7 +13357,7 @@ TEST_F(StaDesignTest, R9_PathEndSourceClkInsertionDelay) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndTargetClkPath) {
+TEST_F(StaDesignTest, PathEndTargetClkPath) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13371,7 +13371,7 @@ TEST_F(StaDesignTest, R9_PathEndTargetClkPath) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndTargetClkEndTrans) {
+TEST_F(StaDesignTest, PathEndTargetClkEndTrans) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13383,7 +13383,7 @@ TEST_F(StaDesignTest, R9_PathEndTargetClkEndTrans) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndExceptPathCmp) {
+TEST_F(StaDesignTest, PathEndExceptPathCmp) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13395,7 +13395,7 @@ TEST_F(StaDesignTest, R9_PathEndExceptPathCmp) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndDataArrivalTimeOffset) {
+TEST_F(StaDesignTest, PathEndDataArrivalTimeOffset) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13407,7 +13407,7 @@ TEST_F(StaDesignTest, R9_PathEndDataArrivalTimeOffset) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndRequiredTimeOffset) {
+TEST_F(StaDesignTest, PathEndRequiredTimeOffset) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13419,7 +13419,7 @@ TEST_F(StaDesignTest, R9_PathEndRequiredTimeOffset) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndMultiCyclePath) {
+TEST_F(StaDesignTest, PathEndMultiCyclePath) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13433,7 +13433,7 @@ TEST_F(StaDesignTest, R9_PathEndMultiCyclePath) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndCmpNoCrpr) {
+TEST_F(StaDesignTest, PathEndCmpNoCrpr) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13445,7 +13445,7 @@ TEST_F(StaDesignTest, R9_PathEndCmpNoCrpr) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndLess) {
+TEST_F(StaDesignTest, PathEndLess2) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13457,7 +13457,7 @@ TEST_F(StaDesignTest, R9_PathEndLess) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathEndMacroClkTreeDelay) {
+TEST_F(StaDesignTest, PathEndMacroClkTreeDelay) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13471,7 +13471,7 @@ TEST_F(StaDesignTest, R9_PathEndMacroClkTreeDelay) {
 
 // --- PathEnd: hold check ---
 
-TEST_F(StaDesignTest, R9_FindPathEndsHold) {
+TEST_F(StaDesignTest, FindPathEndsHold2) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::min(),
@@ -13480,7 +13480,7 @@ TEST_F(StaDesignTest, R9_FindPathEndsHold) {
   (void)ends;
 }
 
-TEST_F(StaDesignTest, R9_FindPathEndsHoldAccessors) {
+TEST_F(StaDesignTest, FindPathEndsHoldAccessors) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::min(),
@@ -13498,7 +13498,7 @@ TEST_F(StaDesignTest, R9_FindPathEndsHoldAccessors) {
 
 // --- PathEnd: unconstrained ---
 
-TEST_F(StaDesignTest, R9_FindPathEndsUnconstrained) {
+TEST_F(StaDesignTest, FindPathEndsUnconstrained2) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     true, nullptr, MinMaxAll::max(),
@@ -13515,15 +13515,15 @@ TEST_F(StaDesignTest, R9_FindPathEndsUnconstrained) {
 
 // --- ReportPath: various report functions ---
 
-TEST_F(StaDesignTest, R9_ReportPathEndHeader) {
+TEST_F(StaDesignTest, ReportPathEndHeader) {
   sta_->reportPathEndHeader();
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEndFooter) {
+TEST_F(StaDesignTest, ReportPathEndFooter) {
   sta_->reportPathEndFooter();
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEnd) {
+TEST_F(StaDesignTest, ReportPathEnd2) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13534,7 +13534,7 @@ TEST_F(StaDesignTest, R9_ReportPathEnd) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEnds) {
+TEST_F(StaDesignTest, ReportPathEnds2) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13543,7 +13543,7 @@ TEST_F(StaDesignTest, R9_ReportPathEnds) {
   sta_->reportPathEnds(&ends);
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEndFull) {
+TEST_F(StaDesignTest, ReportPathEndFull) {
   sta_->setReportPathFormat(ReportPathFormat::full);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -13555,7 +13555,7 @@ TEST_F(StaDesignTest, R9_ReportPathEndFull) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEndFullClkPath) {
+TEST_F(StaDesignTest, ReportPathEndFullClkPath) {
   sta_->setReportPathFormat(ReportPathFormat::full_clock);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -13567,7 +13567,7 @@ TEST_F(StaDesignTest, R9_ReportPathEndFullClkPath) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEndFullClkExpanded) {
+TEST_F(StaDesignTest, ReportPathEndFullClkExpanded) {
   sta_->setReportPathFormat(ReportPathFormat::full_clock_expanded);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -13579,7 +13579,7 @@ TEST_F(StaDesignTest, R9_ReportPathEndFullClkExpanded) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEndShortFormat) {
+TEST_F(StaDesignTest, ReportPathEndShortFormat) {
   sta_->setReportPathFormat(ReportPathFormat::shorter);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -13591,7 +13591,7 @@ TEST_F(StaDesignTest, R9_ReportPathEndShortFormat) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEndSummary) {
+TEST_F(StaDesignTest, ReportPathEndSummary) {
   sta_->setReportPathFormat(ReportPathFormat::summary);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -13603,7 +13603,7 @@ TEST_F(StaDesignTest, R9_ReportPathEndSummary) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEndSlackOnly) {
+TEST_F(StaDesignTest, ReportPathEndSlackOnly) {
   sta_->setReportPathFormat(ReportPathFormat::slack_only);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -13615,7 +13615,7 @@ TEST_F(StaDesignTest, R9_ReportPathEndSlackOnly) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathEndJson) {
+TEST_F(StaDesignTest, ReportPathEndJson) {
   sta_->setReportPathFormat(ReportPathFormat::json);
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -13627,7 +13627,7 @@ TEST_F(StaDesignTest, R9_ReportPathEndJson) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathFromVertex) {
+TEST_F(StaDesignTest, ReportPathFromVertex) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -13636,7 +13636,7 @@ TEST_F(StaDesignTest, R9_ReportPathFromVertex) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathFullWithPrevEnd) {
+TEST_F(StaDesignTest, ReportPathFullWithPrevEnd) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13649,7 +13649,7 @@ TEST_F(StaDesignTest, R9_ReportPathFullWithPrevEnd) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportPathFieldOrder) {
+TEST_F(StaDesignTest, ReportPathFieldOrder) {
   StringSeq *field_names = new StringSeq;
   field_names->push_back("fanout");
   field_names->push_back("capacitance");
@@ -13657,23 +13657,23 @@ TEST_F(StaDesignTest, R9_ReportPathFieldOrder) {
   sta_->setReportPathFieldOrder(field_names);
 }
 
-TEST_F(StaDesignTest, R9_ReportPathFields) {
+TEST_F(StaDesignTest, ReportPathFields) {
   sta_->setReportPathFields(true, true, true, true, true, true, true);
 }
 
-TEST_F(StaDesignTest, R9_ReportPathDigits) {
+TEST_F(StaDesignTest, ReportPathDigits) {
   sta_->setReportPathDigits(4);
 }
 
-TEST_F(StaDesignTest, R9_ReportPathNoSplit) {
+TEST_F(StaDesignTest, ReportPathNoSplit) {
   sta_->setReportPathNoSplit(true);
 }
 
-TEST_F(StaDesignTest, R9_ReportPathSigmas) {
+TEST_F(StaDesignTest, ReportPathSigmas) {
   sta_->setReportPathSigmas(true);
 }
 
-TEST_F(StaDesignTest, R9_FindReportPathField) {
+TEST_F(StaDesignTest, FindReportPathField2) {
   ReportField *field = sta_->findReportPathField("fanout");
   EXPECT_NE(field, nullptr);
   field = sta_->findReportPathField("capacitance");
@@ -13682,7 +13682,7 @@ TEST_F(StaDesignTest, R9_FindReportPathField) {
   EXPECT_NE(field, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_ReportPathFieldAccessors) {
+TEST_F(StaDesignTest, ReportPathFieldAccessors) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *slew = rpt->fieldSlew();
   EXPECT_NE(slew, nullptr);
@@ -13694,23 +13694,23 @@ TEST_F(StaDesignTest, R9_ReportPathFieldAccessors) {
 
 // --- ReportPath: MinPulseWidth check ---
 
-TEST_F(StaDesignTest, R9_MinPulseWidthSlack) {
+TEST_F(StaDesignTest, MinPulseWidthSlack2) {
   MinPulseWidthCheck *check = sta_->minPulseWidthSlack(nullptr);
   (void)check;
 }
 
-TEST_F(StaDesignTest, R9_MinPulseWidthViolations) {
+TEST_F(StaDesignTest, MinPulseWidthViolations2) {
   MinPulseWidthCheckSeq &viols = sta_->minPulseWidthViolations(nullptr);
   (void)viols;
 }
 
-TEST_F(StaDesignTest, R9_MinPulseWidthChecksAll) {
+TEST_F(StaDesignTest, MinPulseWidthChecksAll2) {
   MinPulseWidthCheckSeq &checks = sta_->minPulseWidthChecks(nullptr);
   sta_->reportMpwChecks(&checks, false);
   sta_->reportMpwChecks(&checks, true);
 }
 
-TEST_F(StaDesignTest, R9_MinPulseWidthCheckForPin) {
+TEST_F(StaDesignTest, MinPulseWidthCheckForPin) {
   Pin *pin = findPin("r1/CK");
   if (pin) {
     PinSeq pins;
@@ -13722,17 +13722,17 @@ TEST_F(StaDesignTest, R9_MinPulseWidthCheckForPin) {
 
 // --- ReportPath: MinPeriod ---
 
-TEST_F(StaDesignTest, R9_MinPeriodSlack) {
+TEST_F(StaDesignTest, MinPeriodSlack2) {
   MinPeriodCheck *check = sta_->minPeriodSlack();
   (void)check;
 }
 
-TEST_F(StaDesignTest, R9_MinPeriodViolations) {
+TEST_F(StaDesignTest, MinPeriodViolations2) {
   MinPeriodCheckSeq &viols = sta_->minPeriodViolations();
   (void)viols;
 }
 
-TEST_F(StaDesignTest, R9_MinPeriodCheckVerbose) {
+TEST_F(StaDesignTest, MinPeriodCheckVerbose) {
   MinPeriodCheck *check = sta_->minPeriodSlack();
   if (check) {
     sta_->reportCheck(check, false);
@@ -13742,17 +13742,17 @@ TEST_F(StaDesignTest, R9_MinPeriodCheckVerbose) {
 
 // --- ReportPath: MaxSkew ---
 
-TEST_F(StaDesignTest, R9_MaxSkewSlack) {
+TEST_F(StaDesignTest, MaxSkewSlack2) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   (void)check;
 }
 
-TEST_F(StaDesignTest, R9_MaxSkewViolations) {
+TEST_F(StaDesignTest, MaxSkewViolations2) {
   MaxSkewCheckSeq &viols = sta_->maxSkewViolations();
   (void)viols;
 }
 
-TEST_F(StaDesignTest, R9_MaxSkewCheckVerbose) {
+TEST_F(StaDesignTest, MaxSkewCheckVerbose) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   if (check) {
     sta_->reportCheck(check, false);
@@ -13760,14 +13760,14 @@ TEST_F(StaDesignTest, R9_MaxSkewCheckVerbose) {
   }
 }
 
-TEST_F(StaDesignTest, R9_ReportMaxSkewHeaderShort) {
+TEST_F(StaDesignTest, ReportMaxSkewHeaderShort) {
   ReportPath *rpt = sta_->reportPath();
   rpt->reportMaxSkewHeaderShort();
 }
 
 // --- ClkSkew / ClkLatency ---
 
-TEST_F(StaDesignTest, R9_ReportClkSkewSetup) {
+TEST_F(StaDesignTest, ReportClkSkewSetup) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ConstClockSeq clks;
@@ -13775,7 +13775,7 @@ TEST_F(StaDesignTest, R9_ReportClkSkewSetup) {
   sta_->reportClkSkew(clks, nullptr, SetupHold::max(), false, 3);
 }
 
-TEST_F(StaDesignTest, R9_ReportClkSkewHold) {
+TEST_F(StaDesignTest, ReportClkSkewHold) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ConstClockSeq clks;
@@ -13783,7 +13783,7 @@ TEST_F(StaDesignTest, R9_ReportClkSkewHold) {
   sta_->reportClkSkew(clks, nullptr, SetupHold::min(), false, 3);
 }
 
-TEST_F(StaDesignTest, R9_ReportClkSkewWithInternalLatency) {
+TEST_F(StaDesignTest, ReportClkSkewWithInternalLatency) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ConstClockSeq clks;
@@ -13791,12 +13791,12 @@ TEST_F(StaDesignTest, R9_ReportClkSkewWithInternalLatency) {
   sta_->reportClkSkew(clks, nullptr, SetupHold::max(), true, 3);
 }
 
-TEST_F(StaDesignTest, R9_FindWorstClkSkew) {
+TEST_F(StaDesignTest, FindWorstClkSkew2) {
   float worst = sta_->findWorstClkSkew(SetupHold::max(), false);
   (void)worst;
 }
 
-TEST_F(StaDesignTest, R9_ReportClkLatency) {
+TEST_F(StaDesignTest, ReportClkLatency2) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ConstClockSeq clks;
@@ -13804,7 +13804,7 @@ TEST_F(StaDesignTest, R9_ReportClkLatency) {
   sta_->reportClkLatency(clks, nullptr, false, 3);
 }
 
-TEST_F(StaDesignTest, R9_ReportClkLatencyWithInternal) {
+TEST_F(StaDesignTest, ReportClkLatencyWithInternal) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ConstClockSeq clks;
@@ -13812,21 +13812,21 @@ TEST_F(StaDesignTest, R9_ReportClkLatencyWithInternal) {
   sta_->reportClkLatency(clks, nullptr, true, 3);
 }
 
-TEST_F(StaDesignTest, R9_FindClkDelays) {
+TEST_F(StaDesignTest, FindClkDelays2) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   ClkDelays delays = sta_->findClkDelays(clk, false);
   (void)delays;
 }
 
-TEST_F(StaDesignTest, R9_FindClkMinPeriod) {
+TEST_F(StaDesignTest, FindClkMinPeriod2) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   float min_period = sta_->findClkMinPeriod(clk, false);
   (void)min_period;
 }
 
-TEST_F(StaDesignTest, R9_FindClkMinPeriodWithPorts) {
+TEST_F(StaDesignTest, FindClkMinPeriodWithPorts) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   float min_period = sta_->findClkMinPeriod(clk, true);
@@ -13835,7 +13835,7 @@ TEST_F(StaDesignTest, R9_FindClkMinPeriodWithPorts) {
 
 // --- Property tests ---
 
-TEST_F(StaDesignTest, R9_PropertyGetLibrary) {
+TEST_F(StaDesignTest, PropertyGetLibrary) {
   Network *network = sta_->cmdNetwork();
   LibraryIterator *lib_iter = network->libraryIterator();
   if (lib_iter->hasNext()) {
@@ -13847,7 +13847,7 @@ TEST_F(StaDesignTest, R9_PropertyGetLibrary) {
   delete lib_iter;
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetCell) {
+TEST_F(StaDesignTest, PropertyGetCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Cell *cell = network->cell(top);
@@ -13858,13 +13858,13 @@ TEST_F(StaDesignTest, R9_PropertyGetCell) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetLibertyLibrary) {
+TEST_F(StaDesignTest, PropertyGetLibertyLibrary) {
   Properties &props = sta_->properties();
   PropertyValue pv = props.getProperty(lib_, "name");
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetLibertyCell) {
+TEST_F(StaDesignTest, PropertyGetLibertyCell) {
   LibertyCell *cell = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(cell, nullptr);
   Properties &props = sta_->properties();
@@ -13872,7 +13872,7 @@ TEST_F(StaDesignTest, R9_PropertyGetLibertyCell) {
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetLibertyPort) {
+TEST_F(StaDesignTest, PropertyGetLibertyPort2) {
   LibertyCell *cell = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(cell, nullptr);
   LibertyPort *port = cell->findLibertyPort("D");
@@ -13882,7 +13882,7 @@ TEST_F(StaDesignTest, R9_PropertyGetLibertyPort) {
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetInstance) {
+TEST_F(StaDesignTest, PropertyGetInstance) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *child_iter = network->childIterator(top);
@@ -13895,7 +13895,7 @@ TEST_F(StaDesignTest, R9_PropertyGetInstance) {
   delete child_iter;
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetPin) {
+TEST_F(StaDesignTest, PropertyGetPin) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
   Properties &props = sta_->properties();
@@ -13903,7 +13903,7 @@ TEST_F(StaDesignTest, R9_PropertyGetPin) {
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetPinDirection) {
+TEST_F(StaDesignTest, PropertyGetPinDirection) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
   Properties &props = sta_->properties();
@@ -13911,7 +13911,7 @@ TEST_F(StaDesignTest, R9_PropertyGetPinDirection) {
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetNet) {
+TEST_F(StaDesignTest, PropertyGetNet) {
   Network *network = sta_->cmdNetwork();
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
@@ -13923,7 +13923,7 @@ TEST_F(StaDesignTest, R9_PropertyGetNet) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetClock) {
+TEST_F(StaDesignTest, PropertyGetClock2) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   Properties &props = sta_->properties();
@@ -13931,7 +13931,7 @@ TEST_F(StaDesignTest, R9_PropertyGetClock) {
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetClockPeriod) {
+TEST_F(StaDesignTest, PropertyGetClockPeriod) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   Properties &props = sta_->properties();
@@ -13939,7 +13939,7 @@ TEST_F(StaDesignTest, R9_PropertyGetClockPeriod) {
   EXPECT_EQ(pv.type(), PropertyValue::type_float);
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetPort) {
+TEST_F(StaDesignTest, PropertyGetPort2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Cell *cell = network->cell(top);
@@ -13953,7 +13953,7 @@ TEST_F(StaDesignTest, R9_PropertyGetPort) {
   delete port_iter;
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetEdge) {
+TEST_F(StaDesignTest, PropertyGetEdge2) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   VertexInEdgeIterator edge_iter(v, sta_->graph());
@@ -13965,7 +13965,7 @@ TEST_F(StaDesignTest, R9_PropertyGetEdge) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetPathEndSlack) {
+TEST_F(StaDesignTest, PropertyGetPathEndSlack) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13980,7 +13980,7 @@ TEST_F(StaDesignTest, R9_PropertyGetPathEndSlack) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PropertyGetPathEndMore) {
+TEST_F(StaDesignTest, PropertyGetPathEndMore) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -13999,14 +13999,14 @@ TEST_F(StaDesignTest, R9_PropertyGetPathEndMore) {
 
 // --- Property: pin arrival/slack ---
 
-TEST_F(StaDesignTest, R9_PinArrival) {
+TEST_F(StaDesignTest, PinArrival2) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
   Arrival arr = sta_->pinArrival(pin, RiseFall::rise(), MinMax::max());
   (void)arr;
 }
 
-TEST_F(StaDesignTest, R9_PinSlack) {
+TEST_F(StaDesignTest, PinSlack) {
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
   Slack slk = sta_->pinSlack(pin, MinMax::max());
@@ -14015,7 +14015,7 @@ TEST_F(StaDesignTest, R9_PinSlack) {
   (void)slk_rf;
 }
 
-TEST_F(StaDesignTest, R9_NetSlack) {
+TEST_F(StaDesignTest, NetSlack2) {
   Network *network = sta_->cmdNetwork();
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
@@ -14028,7 +14028,7 @@ TEST_F(StaDesignTest, R9_NetSlack) {
 
 // --- Search: various methods ---
 
-TEST_F(StaDesignTest, R9_SearchIsClock) {
+TEST_F(StaDesignTest, SearchIsClock) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/CK");
   if (v) {
@@ -14037,7 +14037,7 @@ TEST_F(StaDesignTest, R9_SearchIsClock) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchIsGenClkSrc) {
+TEST_F(StaDesignTest, SearchIsGenClkSrc2) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
@@ -14045,7 +14045,7 @@ TEST_F(StaDesignTest, R9_SearchIsGenClkSrc) {
   (void)is_gen;
 }
 
-TEST_F(StaDesignTest, R9_SearchClocks) {
+TEST_F(StaDesignTest, SearchClocks) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/CK");
   if (v) {
@@ -14054,7 +14054,7 @@ TEST_F(StaDesignTest, R9_SearchClocks) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchClockDomains) {
+TEST_F(StaDesignTest, SearchClockDomains) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
@@ -14062,7 +14062,7 @@ TEST_F(StaDesignTest, R9_SearchClockDomains) {
   (void)domains;
 }
 
-TEST_F(StaDesignTest, R9_SearchClockDomainsPin) {
+TEST_F(StaDesignTest, SearchClockDomainsPin) {
   Search *search = sta_->search();
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
@@ -14070,7 +14070,7 @@ TEST_F(StaDesignTest, R9_SearchClockDomainsPin) {
   (void)domains;
 }
 
-TEST_F(StaDesignTest, R9_SearchClocksPin) {
+TEST_F(StaDesignTest, SearchClocksPin) {
   Search *search = sta_->search();
   Pin *pin = findPin("r1/CK");
   if (pin) {
@@ -14079,7 +14079,7 @@ TEST_F(StaDesignTest, R9_SearchClocksPin) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchIsEndpoint) {
+TEST_F(StaDesignTest, SearchIsEndpoint2) {
   Search *search = sta_->search();
   Vertex *v_data = findVertex("r3/D");
   if (v_data) {
@@ -14093,13 +14093,13 @@ TEST_F(StaDesignTest, R9_SearchIsEndpoint) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchHavePathGroups) {
+TEST_F(StaDesignTest, SearchHavePathGroups) {
   Search *search = sta_->search();
   bool have = search->havePathGroups();
   (void)have;
 }
 
-TEST_F(StaDesignTest, R9_SearchFindPathGroup) {
+TEST_F(StaDesignTest, SearchFindPathGroup) {
   Search *search = sta_->search();
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
@@ -14107,19 +14107,19 @@ TEST_F(StaDesignTest, R9_SearchFindPathGroup) {
   (void)pg;
 }
 
-TEST_F(StaDesignTest, R9_SearchClkInfoCount) {
+TEST_F(StaDesignTest, SearchClkInfoCount) {
   Search *search = sta_->search();
   int count = search->clkInfoCount();
   EXPECT_GE(count, 0);
 }
 
-TEST_F(StaDesignTest, R9_SearchTagGroupCount) {
+TEST_F(StaDesignTest, SearchTagGroupCount) {
   Search *search = sta_->search();
   TagGroupIndex count = search->tagGroupCount();
   EXPECT_GE(count, 0u);
 }
 
-TEST_F(StaDesignTest, R9_SearchTagGroupByIndex) {
+TEST_F(StaDesignTest, SearchTagGroupByIndex) {
   Search *search = sta_->search();
   TagGroupIndex count = search->tagGroupCount();
   if (count > 0) {
@@ -14128,12 +14128,12 @@ TEST_F(StaDesignTest, R9_SearchTagGroupByIndex) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchReportTagGroups) {
+TEST_F(StaDesignTest, SearchReportTagGroups2) {
   Search *search = sta_->search();
   search->reportTagGroups();
 }
 
-TEST_F(StaDesignTest, R9_SearchReportArrivals) {
+TEST_F(StaDesignTest, SearchReportArrivals2) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
@@ -14141,7 +14141,7 @@ TEST_F(StaDesignTest, R9_SearchReportArrivals) {
   search->reportArrivals(v, true);
 }
 
-TEST_F(StaDesignTest, R9_SearchSeedArrival) {
+TEST_F(StaDesignTest, SearchSeedArrival) {
   Search *search = sta_->search();
   Vertex *v = findVertex("in1");
   if (v) {
@@ -14149,7 +14149,7 @@ TEST_F(StaDesignTest, R9_SearchSeedArrival) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchPathClkPathArrival) {
+TEST_F(StaDesignTest, SearchPathClkPathArrival2) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
@@ -14160,43 +14160,43 @@ TEST_F(StaDesignTest, R9_SearchPathClkPathArrival) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchFindClkArrivals) {
+TEST_F(StaDesignTest, SearchFindClkArrivals) {
   Search *search = sta_->search();
   search->findClkArrivals();
 }
 
-TEST_F(StaDesignTest, R9_SearchFindRequireds) {
+TEST_F(StaDesignTest, SearchFindRequireds) {
   Search *search = sta_->search();
   search->findRequireds();
   EXPECT_TRUE(search->requiredsExist());
 }
 
-TEST_F(StaDesignTest, R9_SearchRequiredsSeeded) {
+TEST_F(StaDesignTest, SearchRequiredsSeeded) {
   sta_->findRequireds();
   Search *search = sta_->search();
   bool seeded = search->requiredsSeeded();
   (void)seeded;
 }
 
-TEST_F(StaDesignTest, R9_SearchArrivalsAtEndpoints) {
+TEST_F(StaDesignTest, SearchArrivalsAtEndpoints) {
   Search *search = sta_->search();
   bool exist = search->arrivalsAtEndpointsExist();
   (void)exist;
 }
 
-TEST_F(StaDesignTest, R9_SearchArrivalIterator) {
+TEST_F(StaDesignTest, SearchArrivalIterator) {
   Search *search = sta_->search();
   BfsFwdIterator *fwd = search->arrivalIterator();
   EXPECT_NE(fwd, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_SearchRequiredIterator) {
+TEST_F(StaDesignTest, SearchRequiredIterator) {
   Search *search = sta_->search();
   BfsBkwdIterator *bkwd = search->requiredIterator();
   EXPECT_NE(bkwd, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_SearchWnsSlack) {
+TEST_F(StaDesignTest, SearchWnsSlack2) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r3/D");
   if (v) {
@@ -14205,7 +14205,7 @@ TEST_F(StaDesignTest, R9_SearchWnsSlack) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchDeratedDelay) {
+TEST_F(StaDesignTest, SearchDeratedDelay) {
   Search *search = sta_->search();
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
@@ -14224,7 +14224,7 @@ TEST_F(StaDesignTest, R9_SearchDeratedDelay) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchMatchesFilter) {
+TEST_F(StaDesignTest, SearchMatchesFilter) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
@@ -14235,30 +14235,30 @@ TEST_F(StaDesignTest, R9_SearchMatchesFilter) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SearchEnsureDownstreamClkPins) {
+TEST_F(StaDesignTest, SearchEnsureDownstreamClkPins2) {
   Search *search = sta_->search();
   search->ensureDownstreamClkPins();
 }
 
-TEST_F(StaDesignTest, R9_SearchVisitPathEnds) {
+TEST_F(StaDesignTest, SearchVisitPathEnds) {
   Search *search = sta_->search();
   VisitPathEnds *vpe = search->visitPathEnds();
   EXPECT_NE(vpe, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_SearchGatedClk) {
+TEST_F(StaDesignTest, SearchGatedClk) {
   Search *search = sta_->search();
   GatedClk *gc = search->gatedClk();
   EXPECT_NE(gc, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_SearchGenclks) {
+TEST_F(StaDesignTest, SearchGenclks) {
   Search *search = sta_->search();
   Genclks *gen = search->genclks();
   EXPECT_NE(gen, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_SearchCheckCrpr) {
+TEST_F(StaDesignTest, SearchCheckCrpr) {
   Search *search = sta_->search();
   CheckCrpr *crpr = search->checkCrpr();
   EXPECT_NE(crpr, nullptr);
@@ -14266,7 +14266,7 @@ TEST_F(StaDesignTest, R9_SearchCheckCrpr) {
 
 // --- Sta: various methods ---
 
-TEST_F(StaDesignTest, R9_StaIsClock) {
+TEST_F(StaDesignTest, StaIsClock) {
   sta_->ensureClkNetwork();
   Pin *clk_pin = findPin("r1/CK");
   if (clk_pin) {
@@ -14275,7 +14275,7 @@ TEST_F(StaDesignTest, R9_StaIsClock) {
   }
 }
 
-TEST_F(StaDesignTest, R9_StaIsClockNet) {
+TEST_F(StaDesignTest, StaIsClockNet) {
   Network *network = sta_->cmdNetwork();
   sta_->ensureClkNetwork();
   Pin *clk_pin = findPin("r1/CK");
@@ -14288,7 +14288,7 @@ TEST_F(StaDesignTest, R9_StaIsClockNet) {
   }
 }
 
-TEST_F(StaDesignTest, R9_StaIsIdealClock) {
+TEST_F(StaDesignTest, StaIsIdealClock) {
   sta_->ensureClkNetwork();
   Pin *clk_pin = findPin("r1/CK");
   if (clk_pin) {
@@ -14297,7 +14297,7 @@ TEST_F(StaDesignTest, R9_StaIsIdealClock) {
   }
 }
 
-TEST_F(StaDesignTest, R9_StaIsPropagatedClock) {
+TEST_F(StaDesignTest, StaIsPropagatedClock) {
   sta_->ensureClkNetwork();
   Pin *clk_pin = findPin("r1/CK");
   if (clk_pin) {
@@ -14306,7 +14306,7 @@ TEST_F(StaDesignTest, R9_StaIsPropagatedClock) {
   }
 }
 
-TEST_F(StaDesignTest, R9_StaPins) {
+TEST_F(StaDesignTest, StaPins) {
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   sta_->ensureClkNetwork();
@@ -14314,44 +14314,44 @@ TEST_F(StaDesignTest, R9_StaPins) {
   (void)pins;
 }
 
-TEST_F(StaDesignTest, R9_StaStartpointPins) {
+TEST_F(StaDesignTest, StaStartpointPins) {
   PinSet startpoints = sta_->startpointPins();
   EXPECT_GE(startpoints.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_StaEndpointPins) {
+TEST_F(StaDesignTest, StaEndpointPins) {
   PinSet endpoints = sta_->endpointPins();
   EXPECT_GE(endpoints.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_StaEndpoints) {
+TEST_F(StaDesignTest, StaEndpoints) {
   VertexSet *endpoints = sta_->endpoints();
   EXPECT_NE(endpoints, nullptr);
   EXPECT_GE(endpoints->size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_StaEndpointViolationCount) {
+TEST_F(StaDesignTest, StaEndpointViolationCount) {
   int count = sta_->endpointViolationCount(MinMax::max());
   (void)count;
 }
 
-TEST_F(StaDesignTest, R9_StaTotalNegativeSlack) {
+TEST_F(StaDesignTest, StaTotalNegativeSlack) {
   Slack tns = sta_->totalNegativeSlack(MinMax::max());
   (void)tns;
 }
 
-TEST_F(StaDesignTest, R9_StaTotalNegativeSlackCorner) {
+TEST_F(StaDesignTest, StaTotalNegativeSlackCorner) {
   Corner *corner = sta_->cmdCorner();
   Slack tns = sta_->totalNegativeSlack(corner, MinMax::max());
   (void)tns;
 }
 
-TEST_F(StaDesignTest, R9_StaWorstSlack) {
+TEST_F(StaDesignTest, StaWorstSlack) {
   Slack wns = sta_->worstSlack(MinMax::max());
   (void)wns;
 }
 
-TEST_F(StaDesignTest, R9_StaWorstSlackVertex) {
+TEST_F(StaDesignTest, StaWorstSlackVertex) {
   Slack worst_slack;
   Vertex *worst_vertex;
   sta_->worstSlack(MinMax::max(), worst_slack, worst_vertex);
@@ -14359,7 +14359,7 @@ TEST_F(StaDesignTest, R9_StaWorstSlackVertex) {
   (void)worst_vertex;
 }
 
-TEST_F(StaDesignTest, R9_StaWorstSlackCornerVertex) {
+TEST_F(StaDesignTest, StaWorstSlackCornerVertex) {
   Corner *corner = sta_->cmdCorner();
   Slack worst_slack;
   Vertex *worst_vertex;
@@ -14368,42 +14368,42 @@ TEST_F(StaDesignTest, R9_StaWorstSlackCornerVertex) {
   (void)worst_vertex;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexWorstSlackPath) {
+TEST_F(StaDesignTest, StaVertexWorstSlackPath) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstSlackPath(v, MinMax::max());
   (void)path;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexWorstSlackPathRf) {
+TEST_F(StaDesignTest, StaVertexWorstSlackPathRf) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstSlackPath(v, RiseFall::rise(), MinMax::max());
   (void)path;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexWorstRequiredPath) {
+TEST_F(StaDesignTest, StaVertexWorstRequiredPath) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstRequiredPath(v, MinMax::max());
   (void)path;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexWorstRequiredPathRf) {
+TEST_F(StaDesignTest, StaVertexWorstRequiredPathRf) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstRequiredPath(v, RiseFall::rise(), MinMax::max());
   (void)path;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexWorstArrivalPathRf) {
+TEST_F(StaDesignTest, StaVertexWorstArrivalPathRf) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, RiseFall::rise(), MinMax::max());
   (void)path;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexSlacks) {
+TEST_F(StaDesignTest, StaVertexSlacks) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Slack slacks[RiseFall::index_count][MinMax::index_count];
@@ -14411,7 +14411,7 @@ TEST_F(StaDesignTest, R9_StaVertexSlacks) {
   // slacks should be populated
 }
 
-TEST_F(StaDesignTest, R9_StaVertexSlewRfCorner) {
+TEST_F(StaDesignTest, StaVertexSlewRfCorner) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -14419,14 +14419,14 @@ TEST_F(StaDesignTest, R9_StaVertexSlewRfCorner) {
   (void)slew;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexSlewRfMinMax) {
+TEST_F(StaDesignTest, StaVertexSlewRfMinMax) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Slew slew = sta_->vertexSlew(v, RiseFall::rise(), MinMax::max());
   (void)slew;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexRequiredRfPathAP) {
+TEST_F(StaDesignTest, StaVertexRequiredRfPathAP) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -14435,7 +14435,7 @@ TEST_F(StaDesignTest, R9_StaVertexRequiredRfPathAP) {
   (void)req;
 }
 
-TEST_F(StaDesignTest, R9_StaVertexArrivalClkEdge) {
+TEST_F(StaDesignTest, StaVertexArrivalClkEdge) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Clock *clk = sta_->sdc()->findClock("clk");
@@ -14449,31 +14449,31 @@ TEST_F(StaDesignTest, R9_StaVertexArrivalClkEdge) {
 
 // --- Sta: CheckTiming ---
 
-TEST_F(StaDesignTest, R9_CheckTiming) {
+TEST_F(StaDesignTest, CheckTiming2) {
   CheckErrorSeq &errors = sta_->checkTiming(
     true, true, true, true, true, true, true);
   (void)errors;
 }
 
-TEST_F(StaDesignTest, R9_CheckTimingNoInputDelay) {
+TEST_F(StaDesignTest, CheckTimingNoInputDelay) {
   CheckErrorSeq &errors = sta_->checkTiming(
     true, false, false, false, false, false, false);
   (void)errors;
 }
 
-TEST_F(StaDesignTest, R9_CheckTimingNoOutputDelay) {
+TEST_F(StaDesignTest, CheckTimingNoOutputDelay) {
   CheckErrorSeq &errors = sta_->checkTiming(
     false, true, false, false, false, false, false);
   (void)errors;
 }
 
-TEST_F(StaDesignTest, R9_CheckTimingUnconstrained) {
+TEST_F(StaDesignTest, CheckTimingUnconstrained) {
   CheckErrorSeq &errors = sta_->checkTiming(
     false, false, false, false, true, false, false);
   (void)errors;
 }
 
-TEST_F(StaDesignTest, R9_CheckTimingLoops) {
+TEST_F(StaDesignTest, CheckTimingLoops) {
   CheckErrorSeq &errors = sta_->checkTiming(
     false, false, false, false, false, true, false);
   (void)errors;
@@ -14481,7 +14481,7 @@ TEST_F(StaDesignTest, R9_CheckTimingLoops) {
 
 // --- Sta: delay calc ---
 
-TEST_F(StaDesignTest, R9_ReportDelayCalc) {
+TEST_F(StaDesignTest, ReportDelayCalc2) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -14499,7 +14499,7 @@ TEST_F(StaDesignTest, R9_ReportDelayCalc) {
 
 // --- Sta: CRPR settings ---
 
-TEST_F(StaDesignTest, R9_CrprEnabled) {
+TEST_F(StaDesignTest, CrprEnabled) {
   bool enabled = sta_->crprEnabled();
   (void)enabled;
   sta_->setCrprEnabled(true);
@@ -14507,7 +14507,7 @@ TEST_F(StaDesignTest, R9_CrprEnabled) {
   sta_->setCrprEnabled(false);
 }
 
-TEST_F(StaDesignTest, R9_CrprMode) {
+TEST_F(StaDesignTest, CrprMode) {
   CrprMode mode = sta_->crprMode();
   (void)mode;
   sta_->setCrprMode(CrprMode::same_pin);
@@ -14516,7 +14516,7 @@ TEST_F(StaDesignTest, R9_CrprMode) {
 
 // --- Sta: propagateGatedClockEnable ---
 
-TEST_F(StaDesignTest, R9_PropagateGatedClockEnable) {
+TEST_F(StaDesignTest, PropagateGatedClockEnable) {
   bool prop = sta_->propagateGatedClockEnable();
   (void)prop;
   sta_->setPropagateGatedClockEnable(true);
@@ -14526,29 +14526,29 @@ TEST_F(StaDesignTest, R9_PropagateGatedClockEnable) {
 
 // --- Sta: analysis mode ---
 
-TEST_F(StaDesignTest, R9_CmdNamespace) {
+TEST_F(StaDesignTest, CmdNamespace) {
   CmdNamespace ns = sta_->cmdNamespace();
   (void)ns;
 }
 
-TEST_F(StaDesignTest, R9_CmdCorner) {
+TEST_F(StaDesignTest, CmdCorner) {
   Corner *corner = sta_->cmdCorner();
   EXPECT_NE(corner, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_FindCorner) {
+TEST_F(StaDesignTest, FindCorner) {
   Corner *corner = sta_->findCorner("default");
   (void)corner;
 }
 
-TEST_F(StaDesignTest, R9_MultiCorner) {
+TEST_F(StaDesignTest, MultiCorner) {
   bool multi = sta_->multiCorner();
   (void)multi;
 }
 
 // --- PathExpanded: detailed accessors ---
 
-TEST_F(StaDesignTest, R9_PathExpandedSize) {
+TEST_F(StaDesignTest, PathExpandedSize) {
   Vertex *v = findVertex("u2/ZN");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -14558,7 +14558,7 @@ TEST_F(StaDesignTest, R9_PathExpandedSize) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathExpandedStartPath) {
+TEST_F(StaDesignTest, PathExpandedStartPath) {
   Vertex *v = findVertex("u2/ZN");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -14573,7 +14573,7 @@ TEST_F(StaDesignTest, R9_PathExpandedStartPath) {
 
 // --- Sta: Timing derate ---
 
-TEST_F(StaDesignTest, R9_SetTimingDerate) {
+TEST_F(StaDesignTest, SetTimingDerate) {
   sta_->setTimingDerate(TimingDerateType::cell_delay,
     PathClkOrData::clk, RiseFallBoth::riseFall(),
     EarlyLate::early(), 0.95f);
@@ -14582,7 +14582,7 @@ TEST_F(StaDesignTest, R9_SetTimingDerate) {
 
 // --- Sta: setArcDelay ---
 
-TEST_F(StaDesignTest, R9_SetArcDelay) {
+TEST_F(StaDesignTest, SetArcDelay) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -14599,13 +14599,13 @@ TEST_F(StaDesignTest, R9_SetArcDelay) {
 
 // --- Sta: removeDelaySlewAnnotations ---
 
-TEST_F(StaDesignTest, R9_RemoveDelaySlewAnnotations) {
+TEST_F(StaDesignTest, RemoveDelaySlewAnnotations2) {
   sta_->removeDelaySlewAnnotations();
 }
 
 // --- Sta: endpoint slack ---
 
-TEST_F(StaDesignTest, R9_EndpointSlack) {
+TEST_F(StaDesignTest, EndpointSlack2) {
   Pin *pin = findPin("r3/D");
   if (pin) {
     Slack slk = sta_->endpointSlack(pin, "clk", MinMax::max());
@@ -14615,24 +14615,24 @@ TEST_F(StaDesignTest, R9_EndpointSlack) {
 
 // --- Sta: delaysInvalid/arrivalsInvalid ---
 
-TEST_F(StaDesignTest, R9_DelaysInvalid) {
+TEST_F(StaDesignTest, DelaysInvalid2) {
   sta_->delaysInvalid();
   sta_->updateTiming(true);
 }
 
-TEST_F(StaDesignTest, R9_ArrivalsInvalid) {
+TEST_F(StaDesignTest, ArrivalsInvalid2) {
   sta_->arrivalsInvalid();
   sta_->updateTiming(true);
 }
 
-TEST_F(StaDesignTest, R9_DelaysInvalidFrom) {
+TEST_F(StaDesignTest, DelaysInvalidFrom) {
   Pin *pin = findPin("u1/Z");
   if (pin) {
     sta_->delaysInvalidFrom(pin);
   }
 }
 
-TEST_F(StaDesignTest, R9_DelaysInvalidFromFanin) {
+TEST_F(StaDesignTest, DelaysInvalidFromFanin) {
   Pin *pin = findPin("r3/D");
   if (pin) {
     sta_->delaysInvalidFromFanin(pin);
@@ -14641,48 +14641,48 @@ TEST_F(StaDesignTest, R9_DelaysInvalidFromFanin) {
 
 // --- Sta: searchPreamble ---
 
-TEST_F(StaDesignTest, R9_SearchPreamble) {
+TEST_F(StaDesignTest, SearchPreamble) {
   sta_->searchPreamble();
 }
 
 // --- Sta: ensureLevelized / ensureGraph / ensureLinked ---
 
-TEST_F(StaDesignTest, R9_EnsureLevelized) {
+TEST_F(StaDesignTest, EnsureLevelized) {
   sta_->ensureLevelized();
 }
 
-TEST_F(StaDesignTest, R9_EnsureGraph) {
+TEST_F(StaDesignTest, EnsureGraph) {
   Graph *graph = sta_->ensureGraph();
   EXPECT_NE(graph, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_EnsureLinked) {
+TEST_F(StaDesignTest, EnsureLinked) {
   Network *network = sta_->ensureLinked();
   EXPECT_NE(network, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_EnsureLibLinked) {
+TEST_F(StaDesignTest, EnsureLibLinked) {
   Network *network = sta_->ensureLibLinked();
   EXPECT_NE(network, nullptr);
 }
 
-TEST_F(StaDesignTest, R9_EnsureClkArrivals) {
+TEST_F(StaDesignTest, EnsureClkArrivals) {
   sta_->ensureClkArrivals();
 }
 
-TEST_F(StaDesignTest, R9_EnsureClkNetwork) {
+TEST_F(StaDesignTest, EnsureClkNetwork) {
   sta_->ensureClkNetwork();
 }
 
 // --- Sta: findDelays ---
 
-TEST_F(StaDesignTest, R9_FindDelays) {
+TEST_F(StaDesignTest, FindDelays2) {
   sta_->findDelays();
 }
 
 // --- Sta: setVoltage for net ---
 
-TEST_F(StaDesignTest, R9_SetVoltageNet) {
+TEST_F(StaDesignTest, SetVoltageNet) {
   Network *network = sta_->cmdNetwork();
   Pin *pin = findPin("r1/Q");
   if (pin) {
@@ -14695,7 +14695,7 @@ TEST_F(StaDesignTest, R9_SetVoltageNet) {
 
 // --- Sta: PVT ---
 
-TEST_F(StaDesignTest, R9_GetPvt) {
+TEST_F(StaDesignTest, GetPvt) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   const Pvt *pvt = sta_->pvt(top, MinMax::max());
@@ -14704,7 +14704,7 @@ TEST_F(StaDesignTest, R9_GetPvt) {
 
 // --- ClkNetwork ---
 
-TEST_F(StaDesignTest, R9_ClkNetworkIsClock) {
+TEST_F(StaDesignTest, ClkNetworkIsClock) {
   ClkNetwork *clk_network = sta_->search()->clkNetwork();
   if (clk_network) {
     Pin *clk_pin = findPin("r1/CK");
@@ -14717,7 +14717,7 @@ TEST_F(StaDesignTest, R9_ClkNetworkIsClock) {
 
 // --- Tag operations ---
 
-TEST_F(StaDesignTest, R9_TagPathAPIndex) {
+TEST_F(StaDesignTest, TagPathAPIndex) {
   Search *search = sta_->search();
   TagIndex count = search->tagCount();
   if (count > 0) {
@@ -14729,7 +14729,7 @@ TEST_F(StaDesignTest, R9_TagPathAPIndex) {
   }
 }
 
-TEST_F(StaDesignTest, R9_TagCmp) {
+TEST_F(StaDesignTest, TagCmp) {
   Search *search = sta_->search();
   TagIndex count = search->tagCount();
   if (count >= 2) {
@@ -14744,7 +14744,7 @@ TEST_F(StaDesignTest, R9_TagCmp) {
   }
 }
 
-TEST_F(StaDesignTest, R9_TagHash) {
+TEST_F(StaDesignTest, TagHash) {
   Search *search = sta_->search();
   TagIndex count = search->tagCount();
   if (count > 0) {
@@ -14758,7 +14758,7 @@ TEST_F(StaDesignTest, R9_TagHash) {
   }
 }
 
-TEST_F(StaDesignTest, R9_TagMatchHashEqual) {
+TEST_F(StaDesignTest, TagMatchHashEqual) {
   Search *search = sta_->search();
   TagIndex count = search->tagCount();
   if (count >= 2) {
@@ -14779,7 +14779,7 @@ TEST_F(StaDesignTest, R9_TagMatchHashEqual) {
 
 // --- ClkInfo operations ---
 
-TEST_F(StaDesignTest, R9_ClkInfoAccessors) {
+TEST_F(StaDesignTest, ClkInfoAccessors2) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   VertexPathIterator *iter = sta_->vertexPathIterator(v, RiseFall::rise(), MinMax::max());
@@ -14805,7 +14805,7 @@ TEST_F(StaDesignTest, R9_ClkInfoAccessors) {
 
 // --- Sim ---
 
-TEST_F(StaDesignTest, R9_SimLogicValue) {
+TEST_F(StaDesignTest, SimLogicValue2) {
   Sim *sim = sta_->sim();
   ASSERT_NE(sim, nullptr);
   Pin *pin = findPin("r1/D");
@@ -14815,7 +14815,7 @@ TEST_F(StaDesignTest, R9_SimLogicValue) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SimLogicZeroOne) {
+TEST_F(StaDesignTest, SimLogicZeroOne) {
   Sim *sim = sta_->sim();
   ASSERT_NE(sim, nullptr);
   Pin *pin = findPin("r1/D");
@@ -14825,13 +14825,13 @@ TEST_F(StaDesignTest, R9_SimLogicZeroOne) {
   }
 }
 
-TEST_F(StaDesignTest, R9_SimEnsureConstantsPropagated) {
+TEST_F(StaDesignTest, SimEnsureConstantsPropagated) {
   Sim *sim = sta_->sim();
   ASSERT_NE(sim, nullptr);
   sim->ensureConstantsPropagated();
 }
 
-TEST_F(StaDesignTest, R9_SimFunctionSense) {
+TEST_F(StaDesignTest, SimFunctionSense) {
   Sim *sim = sta_->sim();
   ASSERT_NE(sim, nullptr);
   // Use u1 (BUF_X1) which has known input A and output Z
@@ -14850,14 +14850,14 @@ TEST_F(StaDesignTest, R9_SimFunctionSense) {
 
 // --- Levelize ---
 
-TEST_F(StaDesignTest, R9_LevelizeMaxLevel) {
+TEST_F(StaDesignTest, LevelizeMaxLevel) {
   Levelize *lev = sta_->levelize();
   ASSERT_NE(lev, nullptr);
   Level max_level = lev->maxLevel();
   EXPECT_GT(max_level, 0);
 }
 
-TEST_F(StaDesignTest, R9_LevelizeLevelized) {
+TEST_F(StaDesignTest, LevelizeLevelized) {
   Levelize *lev = sta_->levelize();
   ASSERT_NE(lev, nullptr);
   bool is_levelized = lev->levelized();
@@ -14866,7 +14866,7 @@ TEST_F(StaDesignTest, R9_LevelizeLevelized) {
 
 // --- Sta: makeParasiticNetwork ---
 
-TEST_F(StaDesignTest, R9_MakeParasiticNetwork) {
+TEST_F(StaDesignTest, MakeParasiticNetwork) {
   Network *network = sta_->cmdNetwork();
   Pin *pin = findPin("r1/Q");
   if (pin) {
@@ -14884,12 +14884,12 @@ TEST_F(StaDesignTest, R9_MakeParasiticNetwork) {
 
 // --- Path: operations on actual paths ---
 
-TEST_F(StaDesignTest, R9_PathIsNull) {
+TEST_F(StaDesignTest, PathIsNull) {
   Path path;
   EXPECT_TRUE(path.isNull());
 }
 
-TEST_F(StaDesignTest, R9_PathFromVertex) {
+TEST_F(StaDesignTest, PathFromVertex) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -14907,7 +14907,7 @@ TEST_F(StaDesignTest, R9_PathFromVertex) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathPrevPath) {
+TEST_F(StaDesignTest, PathPrevPath) {
   Vertex *v = findVertex("u2/ZN");
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
@@ -14923,7 +14923,7 @@ TEST_F(StaDesignTest, R9_PathPrevPath) {
 
 // --- PathExpanded: with clk path ---
 
-TEST_F(StaDesignTest, R9_PathExpandedWithClk) {
+TEST_F(StaDesignTest, PathExpandedWithClk) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -14943,7 +14943,7 @@ TEST_F(StaDesignTest, R9_PathExpandedWithClk) {
 
 // --- GatedClk ---
 
-TEST_F(StaDesignTest, R9_GatedClkIsEnable) {
+TEST_F(StaDesignTest, GatedClkIsEnable) {
   GatedClk *gc = sta_->search()->gatedClk();
   Vertex *v = findVertex("u1/Z");
   if (v) {
@@ -14952,7 +14952,7 @@ TEST_F(StaDesignTest, R9_GatedClkIsEnable) {
   }
 }
 
-TEST_F(StaDesignTest, R9_GatedClkEnables) {
+TEST_F(StaDesignTest, GatedClkEnables) {
   GatedClk *gc = sta_->search()->gatedClk();
   Vertex *v = findVertex("r1/CK");
   if (v) {
@@ -14964,7 +14964,7 @@ TEST_F(StaDesignTest, R9_GatedClkEnables) {
 
 // --- Genclks ---
 
-TEST_F(StaDesignTest, R9_GenclksClear) {
+TEST_F(StaDesignTest, GenclksClear) {
   Genclks *gen = sta_->search()->genclks();
   // Clear should not crash on design without generated clocks
   gen->clear();
@@ -14972,7 +14972,7 @@ TEST_F(StaDesignTest, R9_GenclksClear) {
 
 // --- Search: visitStartpoints/visitEndpoints ---
 
-TEST_F(StaDesignTest, R9_SearchVisitEndpoints) {
+TEST_F(StaDesignTest, SearchVisitEndpoints2) {
   Search *search = sta_->search();
   PinSet pins(sta_->network());
   VertexPinCollector collector(pins);
@@ -14980,7 +14980,7 @@ TEST_F(StaDesignTest, R9_SearchVisitEndpoints) {
   EXPECT_GE(pins.size(), 1u);
 }
 
-TEST_F(StaDesignTest, R9_SearchVisitStartpoints) {
+TEST_F(StaDesignTest, SearchVisitStartpoints2) {
   Search *search = sta_->search();
   PinSet pins(sta_->network());
   VertexPinCollector collector(pins);
@@ -14990,7 +14990,7 @@ TEST_F(StaDesignTest, R9_SearchVisitStartpoints) {
 
 // --- PathGroup ---
 
-TEST_F(StaDesignTest, R9_PathGroupFindByName) {
+TEST_F(StaDesignTest, PathGroupFindByName) {
   Search *search = sta_->search();
   // After findPathEnds, path groups should exist
   PathEndSeq ends = sta_->findPathEnds(
@@ -15007,7 +15007,7 @@ TEST_F(StaDesignTest, R9_PathGroupFindByName) {
   }
 }
 
-TEST_F(StaDesignTest, R9_PathGroups) {
+TEST_F(StaDesignTest, PathGroups) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -15022,7 +15022,7 @@ TEST_F(StaDesignTest, R9_PathGroups) {
 
 // --- VertexPathIterator with PathAnalysisPt ---
 
-TEST_F(StaDesignTest, R9_VertexPathIteratorPathAP) {
+TEST_F(StaDesignTest, VertexPathIteratorPathAP) {
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -15038,7 +15038,7 @@ TEST_F(StaDesignTest, R9_VertexPathIteratorPathAP) {
 
 // --- Sta: setOutputDelay and find unconstrained ---
 
-TEST_F(StaDesignTest, R9_SetOutputDelayAndCheck) {
+TEST_F(StaDesignTest, SetOutputDelayAndCheck) {
   Pin *out = findPin("out");
   ASSERT_NE(out, nullptr);
   Clock *clk = sta_->sdc()->findClock("clk");
@@ -15059,7 +15059,7 @@ TEST_F(StaDesignTest, R9_SetOutputDelayAndCheck) {
 
 // --- Sta: unique_edges findPathEnds ---
 
-TEST_F(StaDesignTest, R9_FindPathEndsUniqueEdges) {
+TEST_F(StaDesignTest, FindPathEndsUniqueEdges) {
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
     false, nullptr, MinMaxAll::max(),
@@ -15070,7 +15070,7 @@ TEST_F(StaDesignTest, R9_FindPathEndsUniqueEdges) {
 
 // --- Sta: corner path analysis pt ---
 
-TEST_F(StaDesignTest, R9_CornerPathAnalysisPt) {
+TEST_F(StaDesignTest, CornerPathAnalysisPt) {
   Corner *corner = sta_->cmdCorner();
   ASSERT_NE(corner, nullptr);
   const PathAnalysisPt *max_ap = corner->findPathAnalysisPt(MinMax::max());
@@ -15081,20 +15081,20 @@ TEST_F(StaDesignTest, R9_CornerPathAnalysisPt) {
 
 // --- Sta: incrementalDelayTolerance ---
 
-TEST_F(StaDesignTest, R9_IncrementalDelayTolerance) {
+TEST_F(StaDesignTest, IncrementalDelayTolerance) {
   sta_->setIncrementalDelayTolerance(0.01f);
 }
 
 // --- Sta: pocvEnabled ---
 
-TEST_F(StaDesignTest, R9_PocvEnabled) {
+TEST_F(StaDesignTest, PocvEnabled) {
   bool enabled = sta_->pocvEnabled();
   (void)enabled;
 }
 
 // --- Sta: makePiElmore ---
 
-TEST_F(StaDesignTest, R9_MakePiElmore) {
+TEST_F(StaDesignTest, MakePiElmore) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
   sta_->makePiElmore(pin, RiseFall::rise(), MinMaxAll::all(),
@@ -15110,13 +15110,13 @@ TEST_F(StaDesignTest, R9_MakePiElmore) {
 
 // --- Sta: deleteParasitics ---
 
-TEST_F(StaDesignTest, R9_DeleteParasitics) {
+TEST_F(StaDesignTest, DeleteParasitics2) {
   sta_->deleteParasitics();
 }
 
 // --- Search: arrivalsChanged ---
 
-TEST_F(StaDesignTest, R9_SearchArrivalsVertexData) {
+TEST_F(StaDesignTest, SearchArrivalsVertexData) {
   // Verify arrivals exist through the Sta API
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
@@ -15128,7 +15128,7 @@ TEST_F(StaDesignTest, R9_SearchArrivalsVertexData) {
 
 // --- Sta: activity ---
 
-TEST_F(StaDesignTest, R9_PinActivity) {
+TEST_F(StaDesignTest, PinActivity) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
   PwrActivity act = sta_->activity(pin);
@@ -15137,7 +15137,7 @@ TEST_F(StaDesignTest, R9_PinActivity) {
 
 // --- Search: isInputArrivalSrchStart ---
 
-TEST_F(StaDesignTest, R9_IsInputArrivalSrchStart) {
+TEST_F(StaDesignTest, IsInputArrivalSrchStart) {
   Search *search = sta_->search();
   Vertex *v = findVertex("in1");
   if (v) {
@@ -15146,7 +15146,7 @@ TEST_F(StaDesignTest, R9_IsInputArrivalSrchStart) {
   }
 }
 
-TEST_F(StaDesignTest, R9_IsSegmentStart) {
+TEST_F(StaDesignTest, IsSegmentStart) {
   Search *search = sta_->search();
   Pin *pin = findPin("in1");
   if (pin) {
@@ -15157,7 +15157,7 @@ TEST_F(StaDesignTest, R9_IsSegmentStart) {
 
 // --- Search: clockInsertion ---
 
-TEST_F(StaDesignTest, R9_ClockInsertion) {
+TEST_F(StaDesignTest, ClockInsertion) {
   Search *search = sta_->search();
   Clock *clk = sta_->sdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
@@ -15173,7 +15173,7 @@ TEST_F(StaDesignTest, R9_ClockInsertion) {
 
 // --- Levelize: edges ---
 
-TEST_F(StaDesignTest, R9_LevelizeLevelsValid) {
+TEST_F(StaDesignTest, LevelizeLevelsValid) {
   Levelize *lev = sta_->levelize();
   ASSERT_NE(lev, nullptr);
   bool valid = lev->levelized();
@@ -15182,24 +15182,24 @@ TEST_F(StaDesignTest, R9_LevelizeLevelsValid) {
 
 // --- Search: reporting ---
 
-TEST_F(StaDesignTest, R9_SearchReportPathCountHistogram) {
+TEST_F(StaDesignTest, SearchReportPathCountHistogram2) {
   Search *search = sta_->search();
   search->reportPathCountHistogram();
 }
 
-TEST_F(StaDesignTest, R9_SearchReportTags) {
+TEST_F(StaDesignTest, SearchReportTags2) {
   Search *search = sta_->search();
   search->reportTags();
 }
 
-TEST_F(StaDesignTest, R9_SearchReportClkInfos) {
+TEST_F(StaDesignTest, SearchReportClkInfos2) {
   Search *search = sta_->search();
   search->reportClkInfos();
 }
 
 // --- Search: filteredEndpoints ---
 
-TEST_F(StaDesignTest, R9_SearchFilteredEndpoints) {
+TEST_F(StaDesignTest, SearchFilteredEndpoints) {
   Search *search = sta_->search();
   VertexSeq endpoints = search->filteredEndpoints();
   (void)endpoints;
@@ -15207,7 +15207,7 @@ TEST_F(StaDesignTest, R9_SearchFilteredEndpoints) {
 
 // --- Sta: findFanoutInstances ---
 
-TEST_F(StaDesignTest, R9_FindFanoutInstances) {
+TEST_F(StaDesignTest, FindFanoutInstances) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
   PinSeq from_pins;
@@ -15218,32 +15218,32 @@ TEST_F(StaDesignTest, R9_FindFanoutInstances) {
 
 // --- Sta: search endpointsInvalid ---
 
-TEST_F(StaDesignTest, R9_EndpointsInvalid) {
+TEST_F(StaDesignTest, EndpointsInvalid2) {
   Search *search = sta_->search();
   search->endpointsInvalid();
 }
 
 // --- Sta: constraintsChanged ---
 
-TEST_F(StaDesignTest, R9_ConstraintsChanged) {
+TEST_F(StaDesignTest, ConstraintsChanged2) {
   sta_->constraintsChanged();
 }
 
 // --- Sta: networkChanged ---
 
-TEST_F(StaDesignTest, R9_NetworkChanged) {
+TEST_F(StaDesignTest, NetworkChanged2) {
   sta_->networkChanged();
 }
 
 // --- Sta: clkPinsInvalid ---
 
-TEST_F(StaDesignTest, R9_ClkPinsInvalid) {
+TEST_F(StaDesignTest, ClkPinsInvalid) {
   sta_->clkPinsInvalid();
 }
 
 // --- PropertyValue constructors and types ---
 
-TEST_F(StaDesignTest, R9_PropertyValueConstructors) {
+TEST_F(StaDesignTest, PropertyValueConstructors) {
   PropertyValue pv1;
   EXPECT_EQ(pv1.type(), PropertyValue::type_none);
 
@@ -15266,7 +15266,7 @@ TEST_F(StaDesignTest, R9_PropertyValueConstructors) {
 
 // --- Sta: setPvt ---
 
-TEST_F(StaDesignTest, R9_SetPvt) {
+TEST_F(StaDesignTest, SetPvt) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   sta_->setPvt(top, MinMaxAll::all(), 1.0f, 1.1f, 25.0f);
@@ -15276,7 +15276,7 @@ TEST_F(StaDesignTest, R9_SetPvt) {
 
 // --- Search: propagateClkSense ---
 
-TEST_F(StaDesignTest, R9_SearchClkPathArrival) {
+TEST_F(StaDesignTest, SearchClkPathArrival2) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/CK");
   if (v) {
@@ -15296,7 +15296,7 @@ TEST_F(StaDesignTest, R9_SearchClkPathArrival) {
 
 // --- Properties: pinArrival, pinSlack via Properties ---
 
-TEST_F(StaDesignTest, R10_PropertyPinArrivalRf) {
+TEST_F(StaDesignTest, PropertyPinArrivalRf) {
   // Cover Properties::pinArrival(pin, rf, min_max)
   Properties &props = sta_->properties();
   Pin *pin = findPin("r1/D");
@@ -15308,7 +15308,7 @@ TEST_F(StaDesignTest, R10_PropertyPinArrivalRf) {
   }
 }
 
-TEST_F(StaDesignTest, R10_PropertyPinSlackMinMax) {
+TEST_F(StaDesignTest, PropertyPinSlackMinMax) {
   // Cover Properties::pinSlack(pin, min_max)
   Properties &props = sta_->properties();
   Pin *pin = findPin("r1/D");
@@ -15320,7 +15320,7 @@ TEST_F(StaDesignTest, R10_PropertyPinSlackMinMax) {
   }
 }
 
-TEST_F(StaDesignTest, R10_PropertyPinSlackRf) {
+TEST_F(StaDesignTest, PropertyPinSlackRf) {
   // Cover Properties::pinSlack(pin, rf, min_max)
   Properties &props = sta_->properties();
   Pin *pin = findPin("r1/D");
@@ -15332,7 +15332,7 @@ TEST_F(StaDesignTest, R10_PropertyPinSlackRf) {
   }
 }
 
-TEST_F(StaDesignTest, R10_PropertyDelayPropertyValue) {
+TEST_F(StaDesignTest, PropertyDelayPropertyValue) {
   // Cover Properties::delayPropertyValue, resistancePropertyValue, capacitancePropertyValue
   Properties &props = sta_->properties();
   Graph *graph = sta_->graph();
@@ -15347,7 +15347,7 @@ TEST_F(StaDesignTest, R10_PropertyDelayPropertyValue) {
   }
 }
 
-TEST_F(StaDesignTest, R10_PropertyGetCellAndLibrary) {
+TEST_F(StaDesignTest, PropertyGetCellAndLibrary) {
   // Cover PropertyRegistry<Cell*>::getProperty, PropertyRegistry<Library*>::getProperty
   Properties &props = sta_->properties();
   Network *network = sta_->cmdNetwork();
@@ -15364,7 +15364,7 @@ TEST_F(StaDesignTest, R10_PropertyGetCellAndLibrary) {
   }
 }
 
-TEST_F(StaDesignTest, R10_PropertyUnknownException) {
+TEST_F(StaDesignTest, PropertyUnknownException) {
   // Cover PropertyUnknown constructor and what()
   Properties &props = sta_->properties();
   Pin *pin = findPin("r1/D");
@@ -15379,7 +15379,7 @@ TEST_F(StaDesignTest, R10_PropertyUnknownException) {
   }
 }
 
-TEST_F(StaDesignTest, R10_PropertyTypeWrongException) {
+TEST_F(StaDesignTest, PropertyTypeWrongException) {
   // Cover PropertyTypeWrong constructor and what()
   PropertyValue pv("test_string");
   EXPECT_EQ(pv.type(), PropertyValue::type_string);
@@ -15394,7 +15394,7 @@ TEST_F(StaDesignTest, R10_PropertyTypeWrongException) {
 
 // --- CheckTiming: hasClkedCheck, clear ---
 
-TEST_F(StaDesignTest, R10_CheckTimingClear) {
+TEST_F(StaDesignTest, CheckTimingClear) {
   CheckErrorSeq &errors = sta_->checkTiming(true, true, true, true, true, true, true);
   (void)errors;
   CheckErrorSeq &errors2 = sta_->checkTiming(true, true, true, true, true, true, true);
@@ -15403,7 +15403,7 @@ TEST_F(StaDesignTest, R10_CheckTimingClear) {
 
 // --- BfsIterator: init, destructor, enqueueAdjacentVertices ---
 
-TEST_F(StaDesignTest, R10_BfsIterator) {
+TEST_F(StaDesignTest, BfsIterator) {
   Graph *graph = sta_->graph();
   if (graph) {
     SearchPred1 pred(sta_);
@@ -15422,7 +15422,7 @@ TEST_F(StaDesignTest, R10_BfsIterator) {
 
 // --- ClkInfo accessors ---
 
-TEST_F(StaDesignTest, R10_ClkInfoAccessors) {
+TEST_F(StaDesignTest, ClkInfoAccessors3) {
   Pin *clk_pin = findPin("r1/CK");
   if (clk_pin) {
     Vertex *v = findVertex("r1/CK");
@@ -15450,7 +15450,7 @@ TEST_F(StaDesignTest, R10_ClkInfoAccessors) {
 
 // --- Tag: pathAPIndex ---
 
-TEST_F(StaDesignTest, R10_TagPathAPIndex) {
+TEST_F(StaDesignTest, TagPathAPIndex2) {
   Vertex *v = findVertex("r1/D");
   if (v) {
     VertexPathIterator *iter = sta_->vertexPathIterator(v, RiseFall::rise(), MinMax::max());
@@ -15468,7 +15468,7 @@ TEST_F(StaDesignTest, R10_TagPathAPIndex) {
 
 // --- Path: tagIndex, prevVertex ---
 
-TEST_F(StaDesignTest, R10_PathAccessors) {
+TEST_F(StaDesignTest, PathAccessors) {
   Vertex *v = findVertex("r1/D");
   if (v) {
     VertexPathIterator *iter = sta_->vertexPathIterator(v, RiseFall::rise(), MinMax::max());
@@ -15485,7 +15485,7 @@ TEST_F(StaDesignTest, R10_PathAccessors) {
 
 // --- PathGroup constructor ---
 
-TEST_F(StaDesignTest, R10_PathGroupConstructor) {
+TEST_F(StaDesignTest, PathGroupConstructor) {
   Search *search = sta_->search();
   if (search) {
     PathGroup *pg = search->findPathGroup("clk", MinMax::max());
@@ -15497,7 +15497,7 @@ TEST_F(StaDesignTest, R10_PathGroupConstructor) {
 
 // --- PathLess ---
 
-TEST_F(StaDesignTest, R10_PathLessComparator) {
+TEST_F(StaDesignTest, PathLessComparator) {
   Vertex *v = findVertex("r1/D");
   if (v) {
     VertexPathIterator *iter = sta_->vertexPathIterator(v, RiseFall::rise(), MinMax::max());
@@ -15513,7 +15513,7 @@ TEST_F(StaDesignTest, R10_PathLessComparator) {
 
 // --- PathEnd methods on real path ends ---
 
-TEST_F(StaDesignTest, R10_PathEndTargetClkMethods) {
+TEST_F(StaDesignTest, PathEndTargetClkMethods) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   PathEndSeq ends = sta_->findPathEnds(
@@ -15540,7 +15540,7 @@ TEST_F(StaDesignTest, R10_PathEndTargetClkMethods) {
   }
 }
 
-TEST_F(StaDesignTest, R10_PathEndUnconstrainedMethods) {
+TEST_F(StaDesignTest, PathEndUnconstrainedMethods) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   PathEndSeq ends = sta_->findPathEnds(
@@ -15558,7 +15558,7 @@ TEST_F(StaDesignTest, R10_PathEndUnconstrainedMethods) {
 
 // --- PathEndPathDelay methods ---
 
-TEST_F(StaDesignTest, R10_PathEndPathDelay) {
+TEST_F(StaDesignTest, PathEndPathDelay) {
   sta_->makePathDelay(nullptr, nullptr, nullptr,
                       MinMax::max(), false, false, 5.0, nullptr);
   sta_->updateTiming(true);
@@ -15584,14 +15584,14 @@ TEST_F(StaDesignTest, R10_PathEndPathDelay) {
 
 // --- ReportPath methods via sta_ calls ---
 
-TEST_F(StaDesignTest, R10_ReportPathShortMinPeriod) {
+TEST_F(StaDesignTest, ReportPathShortMinPeriod2) {
   MinPeriodCheckSeq &checks = sta_->minPeriodViolations();
   if (!checks.empty()) {
     sta_->reportCheck(checks[0], false);
   }
 }
 
-TEST_F(StaDesignTest, R10_ReportPathCheckMaxSkew) {
+TEST_F(StaDesignTest, ReportPathCheckMaxSkew2) {
   MaxSkewCheckSeq &violations = sta_->maxSkewViolations();
   if (!violations.empty()) {
     sta_->reportCheck(violations[0], true);
@@ -15601,7 +15601,7 @@ TEST_F(StaDesignTest, R10_ReportPathCheckMaxSkew) {
 
 // --- ReportPath full report ---
 
-TEST_F(StaDesignTest, R10_ReportPathFullReport) {
+TEST_F(StaDesignTest, ReportPathFullReport) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   sta_->setReportPathFormat(ReportPathFormat::full);
@@ -15615,7 +15615,7 @@ TEST_F(StaDesignTest, R10_ReportPathFullReport) {
   }
 }
 
-TEST_F(StaDesignTest, R10_ReportPathFullClkExpanded) {
+TEST_F(StaDesignTest, ReportPathFullClkExpanded) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   sta_->setReportPathFormat(ReportPathFormat::full_clock_expanded);
@@ -15630,7 +15630,7 @@ TEST_F(StaDesignTest, R10_ReportPathFullClkExpanded) {
 
 // --- WorstSlack: worstSlack, sortQueue, checkQueue ---
 
-TEST_F(StaDesignTest, R10_WorstSlackMethods) {
+TEST_F(StaDesignTest, WorstSlackMethods) {
   Slack worst_slack;
   Vertex *worst_vertex;
   sta_->worstSlack(MinMax::max(), worst_slack, worst_vertex);
@@ -15643,7 +15643,7 @@ TEST_F(StaDesignTest, R10_WorstSlackMethods) {
 
 // --- WnsSlackLess ---
 
-TEST_F(StaDesignTest, R10_WnsSlackLess) {
+TEST_F(StaDesignTest, WnsSlackLess) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   PathAnalysisPt *path_ap = corner->findPathAnalysisPt(MinMax::max());
@@ -15660,18 +15660,18 @@ TEST_F(StaDesignTest, R10_WnsSlackLess) {
 
 // --- Search: various methods ---
 
-TEST_F(StaDesignTest, R10_SearchInitVars) {
+TEST_F(StaDesignTest, SearchInitVars) {
   Search *search = sta_->search();
   search->clear();
   sta_->updateTiming(true);
 }
 
-TEST_F(StaDesignTest, R10_SearchCheckPrevPaths) {
+TEST_F(StaDesignTest, SearchCheckPrevPaths) {
   Search *search = sta_->search();
   search->checkPrevPaths();
 }
 
-TEST_F(StaDesignTest, R10_SearchPathClkPathArrival1) {
+TEST_F(StaDesignTest, SearchPathClkPathArrival1) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/D");
   if (v) {
@@ -15687,7 +15687,7 @@ TEST_F(StaDesignTest, R10_SearchPathClkPathArrival1) {
 
 // --- Sim ---
 
-TEST_F(StaDesignTest, R10_SimMethods) {
+TEST_F(StaDesignTest, SimMethods) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *pin = network->findPin(top, "r1/D");
@@ -15700,13 +15700,13 @@ TEST_F(StaDesignTest, R10_SimMethods) {
 
 // --- Levelize ---
 
-TEST_F(StaDesignTest, R10_LevelizeCheckLevels) {
+TEST_F(StaDesignTest, LevelizeCheckLevels) {
   sta_->ensureLevelized();
 }
 
 // --- Sta: clkSkewPreamble (called by reportClkSkew) ---
 
-TEST_F(StaDesignTest, R10_ClkSkewPreamble) {
+TEST_F(StaDesignTest, ClkSkewPreamble) {
   ConstClockSeq clks;
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
@@ -15719,20 +15719,20 @@ TEST_F(StaDesignTest, R10_ClkSkewPreamble) {
 
 // --- Sta: delayCalcPreamble ---
 
-TEST_F(StaDesignTest, R10_DelayCalcPreamble) {
+TEST_F(StaDesignTest, DelayCalcPreamble) {
   sta_->findDelays();
 }
 
 // --- Sta: setCmdNamespace ---
 
-TEST_F(StaDesignTest, R10_SetCmdNamespace1) {
+TEST_F(StaDesignTest, SetCmdNamespace12) {
   sta_->setCmdNamespace(CmdNamespace::sta);
   sta_->setCmdNamespace(CmdNamespace::sdc);
 }
 
 // --- Sta: replaceCell ---
 
-TEST_F(StaDesignTest, R10_ReplaceCell) {
+TEST_F(StaDesignTest, ReplaceCell2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *inst_iter = network->childIterator(top);
@@ -15748,7 +15748,7 @@ TEST_F(StaDesignTest, R10_ReplaceCell) {
 
 // --- ClkSkew: srcInternalClkLatency, tgtInternalClkLatency ---
 
-TEST_F(StaDesignTest, R10_ClkSkewInternalLatency) {
+TEST_F(StaDesignTest, ClkSkewInternalLatency) {
   ConstClockSeq clks;
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
@@ -15761,7 +15761,7 @@ TEST_F(StaDesignTest, R10_ClkSkewInternalLatency) {
 
 // --- MaxSkewCheck accessors ---
 
-TEST_F(StaDesignTest, R10_MaxSkewCheckAccessors) {
+TEST_F(StaDesignTest, MaxSkewCheckAccessors) {
   MaxSkewCheckSeq &checks = sta_->maxSkewViolations();
   if (!checks.empty()) {
     MaxSkewCheck *c1 = checks[0];
@@ -15783,7 +15783,7 @@ TEST_F(StaDesignTest, R10_MaxSkewCheckAccessors) {
 
 // --- MinPeriodSlackLess ---
 
-TEST_F(StaDesignTest, R10_MinPeriodCheckAccessors) {
+TEST_F(StaDesignTest, MinPeriodCheckAccessors) {
   MinPeriodCheckSeq &checks = sta_->minPeriodViolations();
   if (checks.size() >= 2) {
     MinPeriodSlackLess less(sta_);
@@ -15796,7 +15796,7 @@ TEST_F(StaDesignTest, R10_MinPeriodCheckAccessors) {
 
 // --- MinPulseWidthCheck: corner ---
 
-TEST_F(StaDesignTest, R10_MinPulseWidthCheckCorner) {
+TEST_F(StaDesignTest, MinPulseWidthCheckCorner) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   MinPulseWidthCheckSeq &checks = sta_->minPulseWidthChecks(corner);
@@ -15807,7 +15807,7 @@ TEST_F(StaDesignTest, R10_MinPulseWidthCheckCorner) {
   }
 }
 
-TEST_F(StaDesignTest, R10_MinPulseWidthSlack) {
+TEST_F(StaDesignTest, MinPulseWidthSlack3) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   MinPulseWidthCheck *min_check = sta_->minPulseWidthSlack(corner);
@@ -15816,7 +15816,7 @@ TEST_F(StaDesignTest, R10_MinPulseWidthSlack) {
 
 // --- GraphLoop: report ---
 
-TEST_F(StaDesignTest, R10_GraphLoopReport) {
+TEST_F(StaDesignTest, GraphLoopReport) {
   sta_->ensureLevelized();
   GraphLoopSeq &loops = sta_->graphLoops();
   for (GraphLoop *loop : loops) {
@@ -15826,7 +15826,7 @@ TEST_F(StaDesignTest, R10_GraphLoopReport) {
 
 // --- Sta: makePortPinAfter ---
 
-TEST_F(StaDesignTest, R10_MakePortPinAfter) {
+TEST_F(StaDesignTest, MakePortPinAfter) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *pin = network->findPin(top, "clk1");
@@ -15837,7 +15837,7 @@ TEST_F(StaDesignTest, R10_MakePortPinAfter) {
 
 // --- Sta: removeDataCheck ---
 
-TEST_F(StaDesignTest, R10_RemoveDataCheck) {
+TEST_F(StaDesignTest, RemoveDataCheck) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *from_pin = network->findPin(top, "r1/D");
@@ -15854,7 +15854,7 @@ TEST_F(StaDesignTest, R10_RemoveDataCheck) {
 
 // --- PathEnum via multiple path ends ---
 
-TEST_F(StaDesignTest, R10_PathEnum) {
+TEST_F(StaDesignTest, PathEnum) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   PathEndSeq ends = sta_->findPathEnds(
@@ -15866,21 +15866,21 @@ TEST_F(StaDesignTest, R10_PathEnum) {
 
 // --- EndpointPathEndVisitor ---
 
-TEST_F(StaDesignTest, R10_EndpointPins) {
+TEST_F(StaDesignTest, EndpointPins2) {
   PinSet pins = sta_->endpointPins();
   EXPECT_GE(pins.size(), 0u);
 }
 
 // --- FindEndRequiredVisitor, RequiredCmp ---
 
-TEST_F(StaDesignTest, R10_FindRequiredsAgain) {
+TEST_F(StaDesignTest, FindRequiredsAgain) {
   sta_->findRequireds();
   sta_->findRequireds();
 }
 
 // --- FindEndSlackVisitor ---
 
-TEST_F(StaDesignTest, R10_TotalNegativeSlackBothMinMax) {
+TEST_F(StaDesignTest, TotalNegativeSlackBothMinMax) {
   Slack tns_max = sta_->totalNegativeSlack(MinMax::max());
   (void)tns_max;
   Slack tns_min = sta_->totalNegativeSlack(MinMax::min());
@@ -15889,7 +15889,7 @@ TEST_F(StaDesignTest, R10_TotalNegativeSlackBothMinMax) {
 
 // --- ReportPath: reportEndpoint for output delay ---
 
-TEST_F(StaDesignTest, R10_ReportPathOutputDelay) {
+TEST_F(StaDesignTest, ReportPathOutputDelay) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -15916,7 +15916,7 @@ TEST_F(StaDesignTest, R10_ReportPathOutputDelay) {
 
 // --- Sta: writeSdc ---
 
-TEST_F(StaDesignTest, R10_WriteSdc) {
+TEST_F(StaDesignTest, WriteSdc2) {
   const char *filename = "/tmp/test_write_sdc_r10.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -15924,7 +15924,7 @@ TEST_F(StaDesignTest, R10_WriteSdc) {
   if (f) fclose(f);
 }
 
-TEST_F(StaDesignTest, R10_WriteSdcWithConstraints) {
+TEST_F(StaDesignTest, WriteSdcWithConstraints) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -15951,7 +15951,7 @@ TEST_F(StaDesignTest, R10_WriteSdcWithConstraints) {
   if (f) fclose(f);
 }
 
-TEST_F(StaDesignTest, R10_WriteSdcNative) {
+TEST_F(StaDesignTest, WriteSdcNative) {
   const char *filename = "/tmp/test_write_sdc_r10_native.sdc";
   sta_->writeSdc(filename, false, true, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -15959,7 +15959,7 @@ TEST_F(StaDesignTest, R10_WriteSdcNative) {
   if (f) fclose(f);
 }
 
-TEST_F(StaDesignTest, R10_WriteSdcLeaf) {
+TEST_F(StaDesignTest, WriteSdcLeaf) {
   const char *filename = "/tmp/test_write_sdc_r10_leaf.sdc";
   sta_->writeSdc(filename, true, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -15969,7 +15969,7 @@ TEST_F(StaDesignTest, R10_WriteSdcLeaf) {
 
 // --- Path ends with sorting ---
 
-TEST_F(StaDesignTest, R10_SaveEnumPath) {
+TEST_F(StaDesignTest, SaveEnumPath) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   PathEndSeq ends = sta_->findPathEnds(
@@ -15979,7 +15979,7 @@ TEST_F(StaDesignTest, R10_SaveEnumPath) {
   (void)ends;
 }
 
-TEST_F(StaDesignTest, R10_ReportPathLess) {
+TEST_F(StaDesignTest, ReportPathLess) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   PathEndSeq ends = sta_->findPathEnds(
@@ -15991,7 +15991,7 @@ TEST_F(StaDesignTest, R10_ReportPathLess) {
 
 // --- ClkDelays ---
 
-TEST_F(StaDesignTest, R10_ClkDelaysDelay) {
+TEST_F(StaDesignTest, ClkDelaysDelay) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     CornerSeq &corners = sta_->corners()->corners();
@@ -16003,7 +16003,7 @@ TEST_F(StaDesignTest, R10_ClkDelaysDelay) {
 
 // --- Sta WriteSdc with Derating ---
 
-TEST_F(StaDesignTest, R10_WriteSdcDerating) {
+TEST_F(StaDesignTest, WriteSdcDerating) {
   sta_->setTimingDerate(TimingDerateType::cell_delay,
                         PathClkOrData::data,
                         RiseFallBoth::riseFall(),
@@ -16021,7 +16021,7 @@ TEST_F(StaDesignTest, R10_WriteSdcDerating) {
 
 // --- Sta WriteSdc with disable edges ---
 
-TEST_F(StaDesignTest, R10_WriteSdcDisableEdge) {
+TEST_F(StaDesignTest, WriteSdcDisableEdge) {
   Graph *graph = sta_->graph();
   Vertex *v = findVertex("r1/D");
   if (v && graph) {
@@ -16040,7 +16040,7 @@ TEST_F(StaDesignTest, R10_WriteSdcDisableEdge) {
 
 // --- ClkInfoHash, ClkInfoEqual ---
 
-TEST_F(StaDesignTest, R10_ClkInfoHashEqual) {
+TEST_F(StaDesignTest, ClkInfoHashEqual) {
   Vertex *v = findVertex("r1/CK");
   if (v) {
     VertexPathIterator *iter = sta_->vertexPathIterator(v, RiseFall::rise(), MinMax::max());
@@ -16065,7 +16065,7 @@ TEST_F(StaDesignTest, R10_ClkInfoHashEqual) {
 
 // --- Report MPW checks ---
 
-TEST_F(StaDesignTest, R10_ReportMpwChecksAll) {
+TEST_F(StaDesignTest, ReportMpwChecksAll) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   MinPulseWidthCheckSeq &checks = sta_->minPulseWidthChecks(corner);
@@ -16075,7 +16075,7 @@ TEST_F(StaDesignTest, R10_ReportMpwChecksAll) {
 
 // --- Report min period checks ---
 
-TEST_F(StaDesignTest, R10_ReportMinPeriodChecks) {
+TEST_F(StaDesignTest, ReportMinPeriodChecks) {
   MinPeriodCheckSeq &checks = sta_->minPeriodViolations();
   for (auto *check : checks) {
     sta_->reportCheck(check, false);
@@ -16085,7 +16085,7 @@ TEST_F(StaDesignTest, R10_ReportMinPeriodChecks) {
 
 // --- Endpoints hold ---
 
-TEST_F(StaDesignTest, R10_FindPathEndsHold) {
+TEST_F(StaDesignTest, FindPathEndsHold3) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   PathEndSeq ends = sta_->findPathEnds(
@@ -16102,7 +16102,7 @@ TEST_F(StaDesignTest, R10_FindPathEndsHold) {
 
 // --- Report path end as JSON ---
 
-TEST_F(StaDesignTest, R10_ReportPathEndJson) {
+TEST_F(StaDesignTest, ReportPathEndJson2) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   sta_->setReportPathFormat(ReportPathFormat::json);
@@ -16119,7 +16119,7 @@ TEST_F(StaDesignTest, R10_ReportPathEndJson) {
 
 // --- Report path end shorter ---
 
-TEST_F(StaDesignTest, R10_ReportPathEndShorter) {
+TEST_F(StaDesignTest, ReportPathEndShorter) {
   CornerSeq &corners = sta_->corners()->corners();
   Corner *corner = corners[0];
   sta_->setReportPathFormat(ReportPathFormat::shorter);
@@ -16134,7 +16134,7 @@ TEST_F(StaDesignTest, R10_ReportPathEndShorter) {
 
 // --- WriteSdc with clock groups ---
 
-TEST_F(StaDesignTest, R10_WriteSdcWithClockGroups) {
+TEST_F(StaDesignTest, WriteSdcWithClockGroups) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     ClockGroups *cg = sta_->makeClockGroups("test_group", true, false, false, false, nullptr);
@@ -16150,7 +16150,7 @@ TEST_F(StaDesignTest, R10_WriteSdcWithClockGroups) {
 
 // --- WriteSdc with inter-clock uncertainty ---
 
-TEST_F(StaDesignTest, R10_WriteSdcInterClkUncertainty) {
+TEST_F(StaDesignTest, WriteSdcInterClkUncertainty) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     sta_->setClockUncertainty(clk, RiseFallBoth::riseFall(),
@@ -16166,7 +16166,7 @@ TEST_F(StaDesignTest, R10_WriteSdcInterClkUncertainty) {
 
 // --- WriteSdc with clock latency ---
 
-TEST_F(StaDesignTest, R10_WriteSdcClockLatency) {
+TEST_F(StaDesignTest, WriteSdcClockLatency) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     sta_->setClockLatency(clk, nullptr, RiseFallBoth::riseFall(),
@@ -16184,7 +16184,7 @@ TEST_F(StaDesignTest, R10_WriteSdcClockLatency) {
 // ============================================================
 
 // --- FindRegister: find register instances ---
-TEST_F(StaDesignTest, R10_FindRegisterInstances) {
+TEST_F(StaDesignTest, FindRegisterInstances2) {
   ClockSet *clks = nullptr;  // all clocks
   InstanceSet regs = sta_->findRegisterInstances(clks, RiseFallBoth::riseFall(),
                                                   true, true);
@@ -16193,7 +16193,7 @@ TEST_F(StaDesignTest, R10_FindRegisterInstances) {
 }
 
 // --- FindRegister: data pins ---
-TEST_F(StaDesignTest, R10_FindRegisterDataPins) {
+TEST_F(StaDesignTest, FindRegisterDataPins2) {
   ClockSet *clks = nullptr;
   PinSet data_pins = sta_->findRegisterDataPins(clks, RiseFallBoth::riseFall(),
                                                  true, true);
@@ -16201,7 +16201,7 @@ TEST_F(StaDesignTest, R10_FindRegisterDataPins) {
 }
 
 // --- FindRegister: clock pins ---
-TEST_F(StaDesignTest, R10_FindRegisterClkPins) {
+TEST_F(StaDesignTest, FindRegisterClkPins2) {
   ClockSet *clks = nullptr;
   PinSet clk_pins = sta_->findRegisterClkPins(clks, RiseFallBoth::riseFall(),
                                                true, true);
@@ -16209,7 +16209,7 @@ TEST_F(StaDesignTest, R10_FindRegisterClkPins) {
 }
 
 // --- FindRegister: async pins ---
-TEST_F(StaDesignTest, R10_FindRegisterAsyncPins) {
+TEST_F(StaDesignTest, FindRegisterAsyncPins2) {
   ClockSet *clks = nullptr;
   PinSet async_pins = sta_->findRegisterAsyncPins(clks, RiseFallBoth::riseFall(),
                                                    true, true);
@@ -16218,7 +16218,7 @@ TEST_F(StaDesignTest, R10_FindRegisterAsyncPins) {
 }
 
 // --- FindRegister: output pins ---
-TEST_F(StaDesignTest, R10_FindRegisterOutputPins) {
+TEST_F(StaDesignTest, FindRegisterOutputPins2) {
   ClockSet *clks = nullptr;
   PinSet out_pins = sta_->findRegisterOutputPins(clks, RiseFallBoth::riseFall(),
                                                   true, true);
@@ -16226,7 +16226,7 @@ TEST_F(StaDesignTest, R10_FindRegisterOutputPins) {
 }
 
 // --- FindRegister: with specific clock ---
-TEST_F(StaDesignTest, R10_FindRegisterWithClock) {
+TEST_F(StaDesignTest, FindRegisterWithClock) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   ASSERT_NE(clk, nullptr);
@@ -16240,7 +16240,7 @@ TEST_F(StaDesignTest, R10_FindRegisterWithClock) {
 }
 
 // --- FindRegister: registers only (no latches) ---
-TEST_F(StaDesignTest, R10_FindRegisterRegistersOnly) {
+TEST_F(StaDesignTest, FindRegisterRegistersOnly) {
   ClockSet *clks = nullptr;
   InstanceSet regs = sta_->findRegisterInstances(clks, RiseFallBoth::riseFall(),
                                                   true, false);
@@ -16248,7 +16248,7 @@ TEST_F(StaDesignTest, R10_FindRegisterRegistersOnly) {
 }
 
 // --- FindRegister: latches only ---
-TEST_F(StaDesignTest, R10_FindRegisterLatchesOnly) {
+TEST_F(StaDesignTest, FindRegisterLatchesOnly) {
   ClockSet *clks = nullptr;
   InstanceSet latches = sta_->findRegisterInstances(clks, RiseFallBoth::riseFall(),
                                                      false, true);
@@ -16256,7 +16256,7 @@ TEST_F(StaDesignTest, R10_FindRegisterLatchesOnly) {
 }
 
 // --- FindFanin/Fanout: fanin pins ---
-TEST_F(StaDesignTest, R10_FindFaninPins) {
+TEST_F(StaDesignTest, FindFaninPins2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16270,7 +16270,7 @@ TEST_F(StaDesignTest, R10_FindFaninPins) {
 }
 
 // --- FindFanin: fanin instances ---
-TEST_F(StaDesignTest, R10_FindFaninInstances) {
+TEST_F(StaDesignTest, FindFaninInstances2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16284,7 +16284,7 @@ TEST_F(StaDesignTest, R10_FindFaninInstances) {
 }
 
 // --- FindFanout: fanout pins ---
-TEST_F(StaDesignTest, R10_FindFanoutPins) {
+TEST_F(StaDesignTest, FindFanoutPins2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -16298,7 +16298,7 @@ TEST_F(StaDesignTest, R10_FindFanoutPins) {
 }
 
 // --- FindFanout: fanout instances ---
-TEST_F(StaDesignTest, R10_FindFanoutInstances) {
+TEST_F(StaDesignTest, FindFanoutInstances2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -16312,7 +16312,7 @@ TEST_F(StaDesignTest, R10_FindFanoutInstances) {
 }
 
 // --- CmdNamespace: get and set ---
-TEST_F(StaDesignTest, R10_CmdNamespace) {
+TEST_F(StaDesignTest, CmdNamespace2) {
   CmdNamespace ns = sta_->cmdNamespace();
   // Set to STA namespace
   sta_->setCmdNamespace(CmdNamespace::sta);
@@ -16325,7 +16325,7 @@ TEST_F(StaDesignTest, R10_CmdNamespace) {
 }
 
 // --- Sta: setSlewLimit on clock ---
-TEST_F(StaDesignTest, R10_SetSlewLimitClock) {
+TEST_F(StaDesignTest, SetSlewLimitClock) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -16335,7 +16335,7 @@ TEST_F(StaDesignTest, R10_SetSlewLimitClock) {
 }
 
 // --- Sta: setSlewLimit on port ---
-TEST_F(StaDesignTest, R10_SetSlewLimitPort) {
+TEST_F(StaDesignTest, SetSlewLimitPort) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16348,7 +16348,7 @@ TEST_F(StaDesignTest, R10_SetSlewLimitPort) {
 }
 
 // --- Sta: setSlewLimit on cell ---
-TEST_F(StaDesignTest, R10_SetSlewLimitCell) {
+TEST_F(StaDesignTest, SetSlewLimitCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -16363,7 +16363,7 @@ TEST_F(StaDesignTest, R10_SetSlewLimitCell) {
 }
 
 // --- Sta: setCapacitanceLimit on cell ---
-TEST_F(StaDesignTest, R10_SetCapacitanceLimitCell) {
+TEST_F(StaDesignTest, SetCapacitanceLimitCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -16378,7 +16378,7 @@ TEST_F(StaDesignTest, R10_SetCapacitanceLimitCell) {
 }
 
 // --- Sta: setCapacitanceLimit on port ---
-TEST_F(StaDesignTest, R10_SetCapacitanceLimitPort) {
+TEST_F(StaDesignTest, SetCapacitanceLimitPort) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16391,7 +16391,7 @@ TEST_F(StaDesignTest, R10_SetCapacitanceLimitPort) {
 }
 
 // --- Sta: setCapacitanceLimit on pin ---
-TEST_F(StaDesignTest, R10_SetCapacitanceLimitPin) {
+TEST_F(StaDesignTest, SetCapacitanceLimitPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16401,7 +16401,7 @@ TEST_F(StaDesignTest, R10_SetCapacitanceLimitPin) {
 }
 
 // --- Sta: setFanoutLimit on cell ---
-TEST_F(StaDesignTest, R10_SetFanoutLimitCell) {
+TEST_F(StaDesignTest, SetFanoutLimitCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -16416,7 +16416,7 @@ TEST_F(StaDesignTest, R10_SetFanoutLimitCell) {
 }
 
 // --- Sta: setFanoutLimit on port ---
-TEST_F(StaDesignTest, R10_SetFanoutLimitPort) {
+TEST_F(StaDesignTest, SetFanoutLimitPort) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16429,12 +16429,12 @@ TEST_F(StaDesignTest, R10_SetFanoutLimitPort) {
 }
 
 // --- Sta: setMaxArea ---
-TEST_F(StaDesignTest, R10_SetMaxArea) {
+TEST_F(StaDesignTest, SetMaxArea) {
   sta_->setMaxArea(500.0f);
 }
 
 // --- Sta: setMinPulseWidth on clock ---
-TEST_F(StaDesignTest, R10_SetMinPulseWidthClock) {
+TEST_F(StaDesignTest, SetMinPulseWidthClock) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -16443,7 +16443,7 @@ TEST_F(StaDesignTest, R10_SetMinPulseWidthClock) {
 }
 
 // --- Sta: MinPeriod checks ---
-TEST_F(StaDesignTest, R10_MinPeriodSlack) {
+TEST_F(StaDesignTest, MinPeriodSlack3) {
   MinPeriodCheck *check = sta_->minPeriodSlack();
   if (check) {
     sta_->reportCheck(check, false);
@@ -16451,7 +16451,7 @@ TEST_F(StaDesignTest, R10_MinPeriodSlack) {
   }
 }
 
-TEST_F(StaDesignTest, R10_MinPeriodViolations) {
+TEST_F(StaDesignTest, MinPeriodViolations3) {
   MinPeriodCheckSeq &viols = sta_->minPeriodViolations();
   if (!viols.empty()) {
     sta_->reportChecks(&viols, false);
@@ -16460,7 +16460,7 @@ TEST_F(StaDesignTest, R10_MinPeriodViolations) {
 }
 
 // --- Sta: MaxSkew checks ---
-TEST_F(StaDesignTest, R10_MaxSkewSlack) {
+TEST_F(StaDesignTest, MaxSkewSlack3) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   if (check) {
     sta_->reportCheck(check, false);
@@ -16468,7 +16468,7 @@ TEST_F(StaDesignTest, R10_MaxSkewSlack) {
   }
 }
 
-TEST_F(StaDesignTest, R10_MaxSkewViolations) {
+TEST_F(StaDesignTest, MaxSkewViolations3) {
   MaxSkewCheckSeq &viols = sta_->maxSkewViolations();
   if (!viols.empty()) {
     sta_->reportChecks(&viols, false);
@@ -16477,7 +16477,7 @@ TEST_F(StaDesignTest, R10_MaxSkewViolations) {
 }
 
 // --- Sta: clocks arriving at pin ---
-TEST_F(StaDesignTest, R10_ClocksAtPin) {
+TEST_F(StaDesignTest, ClocksAtPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *clk1 = network->findPin(top, "clk1");
@@ -16488,7 +16488,7 @@ TEST_F(StaDesignTest, R10_ClocksAtPin) {
 }
 
 // --- Sta: isClockSrc ---
-TEST_F(StaDesignTest, R10_IsClockSrc) {
+TEST_F(StaDesignTest, IsClockSrc) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *clk1 = network->findPin(top, "clk1");
@@ -16504,7 +16504,7 @@ TEST_F(StaDesignTest, R10_IsClockSrc) {
 }
 
 // --- Sta: setPvt and pvt ---
-TEST_F(StaDesignTest, R10_SetPvt) {
+TEST_F(StaDesignTest, SetPvt2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -16517,7 +16517,7 @@ TEST_F(StaDesignTest, R10_SetPvt) {
 }
 
 // --- Property: Library and Cell properties ---
-TEST_F(StaDesignTest, R10_PropertyLibrary) {
+TEST_F(StaDesignTest, PropertyLibrary) {
   Network *network = sta_->cmdNetwork();
   Library *library = network->findLibrary("Nangate45");
   if (library) {
@@ -16526,7 +16526,7 @@ TEST_F(StaDesignTest, R10_PropertyLibrary) {
   }
 }
 
-TEST_F(StaDesignTest, R10_PropertyCell) {
+TEST_F(StaDesignTest, PropertyCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -16542,7 +16542,7 @@ TEST_F(StaDesignTest, R10_PropertyCell) {
 }
 
 // --- Property: getProperty on Clock ---
-TEST_F(StaDesignTest, R10_PropertyClock) {
+TEST_F(StaDesignTest, PropertyClock) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -16556,7 +16556,7 @@ TEST_F(StaDesignTest, R10_PropertyClock) {
 }
 
 // --- MaxSkewCheck: detailed accessors ---
-TEST_F(StaDesignTest, R10_MaxSkewCheckDetailedAccessors) {
+TEST_F(StaDesignTest, MaxSkewCheckDetailedAccessors) {
   MaxSkewCheck *check = sta_->maxSkewSlack();
   if (check) {
     const Pin *clk_pin = check->clkPin(sta_);
@@ -16571,7 +16571,7 @@ TEST_F(StaDesignTest, R10_MaxSkewCheckDetailedAccessors) {
 }
 
 // --- MinPeriodCheck: detailed accessors ---
-TEST_F(StaDesignTest, R10_MinPeriodCheckDetailedAccessors) {
+TEST_F(StaDesignTest, MinPeriodCheckDetailedAccessors) {
   MinPeriodCheck *check = sta_->minPeriodSlack();
   if (check) {
     float min_period = check->minPeriod(sta_);
@@ -16586,7 +16586,7 @@ TEST_F(StaDesignTest, R10_MinPeriodCheckDetailedAccessors) {
 }
 
 // --- Sta: WriteSdc with various limits ---
-TEST_F(StaDesignTest, R10_WriteSdcWithSlewLimit) {
+TEST_F(StaDesignTest, WriteSdcWithSlewLimit) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -16600,7 +16600,7 @@ TEST_F(StaDesignTest, R10_WriteSdcWithSlewLimit) {
   if (f) fclose(f);
 }
 
-TEST_F(StaDesignTest, R10_WriteSdcWithCapLimit) {
+TEST_F(StaDesignTest, WriteSdcWithCapLimit) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16617,7 +16617,7 @@ TEST_F(StaDesignTest, R10_WriteSdcWithCapLimit) {
   if (f) fclose(f);
 }
 
-TEST_F(StaDesignTest, R10_WriteSdcWithFanoutLimit) {
+TEST_F(StaDesignTest, WriteSdcWithFanoutLimit) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16635,7 +16635,7 @@ TEST_F(StaDesignTest, R10_WriteSdcWithFanoutLimit) {
 }
 
 // --- Sta: makeGeneratedClock and removeAllClocks ---
-TEST_F(StaDesignTest, R10_MakeGeneratedClock) {
+TEST_F(StaDesignTest, MakeGeneratedClock) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *clk2 = network->findPin(top, "clk2");
@@ -16655,7 +16655,7 @@ TEST_F(StaDesignTest, R10_MakeGeneratedClock) {
 }
 
 // --- Sta: removeAllClocks ---
-TEST_F(StaDesignTest, R10_RemoveAllClocks) {
+TEST_F(StaDesignTest, RemoveAllClocks) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   ASSERT_NE(clk, nullptr);
@@ -16665,7 +16665,7 @@ TEST_F(StaDesignTest, R10_RemoveAllClocks) {
 }
 
 // --- FindFanin: startpoints only ---
-TEST_F(StaDesignTest, R10_FindFaninStartpoints) {
+TEST_F(StaDesignTest, FindFaninStartpoints) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16679,7 +16679,7 @@ TEST_F(StaDesignTest, R10_FindFaninStartpoints) {
 }
 
 // --- FindFanout: endpoints only ---
-TEST_F(StaDesignTest, R10_FindFanoutEndpoints) {
+TEST_F(StaDesignTest, FindFanoutEndpoints) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -16693,7 +16693,7 @@ TEST_F(StaDesignTest, R10_FindFanoutEndpoints) {
 }
 
 // --- Sta: report unconstrained path ends ---
-TEST_F(StaDesignTest, R10_ReportUnconstrained) {
+TEST_F(StaDesignTest, ReportUnconstrained) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -16714,7 +16714,7 @@ TEST_F(StaDesignTest, R10_ReportUnconstrained) {
 }
 
 // --- Sta: hold path ends ---
-TEST_F(StaDesignTest, R10_FindPathEndsHoldVerbose) {
+TEST_F(StaDesignTest, FindPathEndsHoldVerbose) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -16739,7 +16739,7 @@ TEST_F(StaDesignTest, R10_FindPathEndsHoldVerbose) {
 // ============================================================
 
 // --- Sta: checkSlewLimits ---
-TEST_F(StaDesignTest, R10_CheckSlewLimits) {
+TEST_F(StaDesignTest, CheckSlewLimits) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16763,7 +16763,7 @@ TEST_F(StaDesignTest, R10_CheckSlewLimits) {
 }
 
 // --- Sta: checkSlew on specific pin ---
-TEST_F(StaDesignTest, R10_CheckSlewOnPin) {
+TEST_F(StaDesignTest, CheckSlewOnPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16783,7 +16783,7 @@ TEST_F(StaDesignTest, R10_CheckSlewOnPin) {
 }
 
 // --- Sta: checkCapacitanceLimits ---
-TEST_F(StaDesignTest, R10_CheckCapacitanceLimits) {
+TEST_F(StaDesignTest, CheckCapacitanceLimits2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16806,7 +16806,7 @@ TEST_F(StaDesignTest, R10_CheckCapacitanceLimits) {
 }
 
 // --- Sta: checkCapacitance on specific pin ---
-TEST_F(StaDesignTest, R10_CheckCapacitanceOnPin) {
+TEST_F(StaDesignTest, CheckCapacitanceOnPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16823,7 +16823,7 @@ TEST_F(StaDesignTest, R10_CheckCapacitanceOnPin) {
 }
 
 // --- Sta: checkFanoutLimits ---
-TEST_F(StaDesignTest, R10_CheckFanoutLimits) {
+TEST_F(StaDesignTest, CheckFanoutLimits2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16845,7 +16845,7 @@ TEST_F(StaDesignTest, R10_CheckFanoutLimits) {
 }
 
 // --- Sta: checkFanout on specific pin ---
-TEST_F(StaDesignTest, R10_CheckFanoutOnPin) {
+TEST_F(StaDesignTest, CheckFanoutOnPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -16860,7 +16860,7 @@ TEST_F(StaDesignTest, R10_CheckFanoutOnPin) {
 }
 
 // --- Sta: reportClkSkew ---
-TEST_F(StaDesignTest, R10_ReportClkSkew) {
+TEST_F(StaDesignTest, ReportClkSkew2) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -16873,13 +16873,13 @@ TEST_F(StaDesignTest, R10_ReportClkSkew) {
 }
 
 // --- Sta: findWorstClkSkew ---
-TEST_F(StaDesignTest, R10_FindWorstClkSkew) {
+TEST_F(StaDesignTest, FindWorstClkSkew3) {
   float worst = sta_->findWorstClkSkew(MinMax::max(), false);
   (void)worst;
 }
 
 // --- Sta: reportClkLatency ---
-TEST_F(StaDesignTest, R10_ReportClkLatency) {
+TEST_F(StaDesignTest, ReportClkLatency3) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
@@ -16891,7 +16891,7 @@ TEST_F(StaDesignTest, R10_ReportClkLatency) {
 }
 
 // --- Sta: findSlewLimit ---
-TEST_F(StaDesignTest, R10_FindSlewLimit) {
+TEST_F(StaDesignTest, FindSlewLimit2) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -16913,7 +16913,7 @@ TEST_F(StaDesignTest, R10_FindSlewLimit) {
 }
 
 // --- Sta: MinPulseWidth violations ---
-TEST_F(StaDesignTest, R10_MpwViolations) {
+TEST_F(StaDesignTest, MpwViolations) {
   Corner *corner = sta_->cmdCorner();
   MinPulseWidthCheckSeq &viols = sta_->minPulseWidthViolations(corner);
   if (!viols.empty()) {
@@ -16923,7 +16923,7 @@ TEST_F(StaDesignTest, R10_MpwViolations) {
 }
 
 // --- Sta: minPulseWidthSlack (all corners) ---
-TEST_F(StaDesignTest, R10_MpwSlackAllCorners) {
+TEST_F(StaDesignTest, MpwSlackAllCorners) {
   Corner *corner = sta_->cmdCorner();
   MinPulseWidthCheck *check = sta_->minPulseWidthSlack(corner);
   if (check) {
@@ -16933,7 +16933,7 @@ TEST_F(StaDesignTest, R10_MpwSlackAllCorners) {
 }
 
 // --- Sta: minPulseWidthChecks (all) ---
-TEST_F(StaDesignTest, R10_MpwChecksAll) {
+TEST_F(StaDesignTest, MpwChecksAll) {
   Corner *corner = sta_->cmdCorner();
   MinPulseWidthCheckSeq &checks = sta_->minPulseWidthChecks(corner);
   if (!checks.empty()) {
@@ -16942,7 +16942,7 @@ TEST_F(StaDesignTest, R10_MpwChecksAll) {
 }
 
 // --- Sta: WriteSdc with min pulse width + clock latency + all constraints ---
-TEST_F(StaDesignTest, R10_WriteSdcFullConstraints) {
+TEST_F(StaDesignTest, WriteSdcFullConstraints) {
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("clk");
   Network *network = sta_->cmdNetwork();
@@ -17000,7 +17000,7 @@ TEST_F(StaDesignTest, R10_WriteSdcFullConstraints) {
 }
 
 // --- Sta: Property getProperty on edge ---
-TEST_F(StaDesignTest, R10_PropertyEdge) {
+TEST_F(StaDesignTest, PropertyEdge) {
   Network *network = sta_->cmdNetwork();
   Graph *graph = sta_->graph();
   Instance *top = network->topInstance();
@@ -17021,7 +17021,7 @@ TEST_F(StaDesignTest, R10_PropertyEdge) {
 }
 
 // --- Sta: Property getProperty on net ---
-TEST_F(StaDesignTest, R10_PropertyNet) {
+TEST_F(StaDesignTest, PropertyNet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   NetIterator *net_iter = network->netIterator(top);
@@ -17034,7 +17034,7 @@ TEST_F(StaDesignTest, R10_PropertyNet) {
 }
 
 // --- Sta: Property getProperty on port ---
-TEST_F(StaDesignTest, R10_PropertyPort) {
+TEST_F(StaDesignTest, PropertyPort) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -17050,7 +17050,7 @@ TEST_F(StaDesignTest, R10_PropertyPort) {
 }
 
 // --- Sta: Property getProperty on LibertyCell ---
-TEST_F(StaDesignTest, R10_PropertyLibertyCell) {
+TEST_F(StaDesignTest, PropertyLibertyCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -17068,7 +17068,7 @@ TEST_F(StaDesignTest, R10_PropertyLibertyCell) {
 }
 
 // --- Sta: Property getProperty on LibertyPort ---
-TEST_F(StaDesignTest, R10_PropertyLibertyPort) {
+TEST_F(StaDesignTest, PropertyLibertyPort) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -17090,7 +17090,7 @@ TEST_F(StaDesignTest, R10_PropertyLibertyPort) {
 }
 
 // --- Sta: Property getProperty on LibertyLibrary ---
-TEST_F(StaDesignTest, R10_PropertyLibertyLibrary) {
+TEST_F(StaDesignTest, PropertyLibertyLibrary) {
   Network *network = sta_->cmdNetwork();
   LibertyLibraryIterator *lib_iter = network->libertyLibraryIterator();
   if (lib_iter->hasNext()) {
@@ -17102,7 +17102,7 @@ TEST_F(StaDesignTest, R10_PropertyLibertyLibrary) {
 }
 
 // --- Sta: Property getProperty on instance ---
-TEST_F(StaDesignTest, R10_PropertyInstance) {
+TEST_F(StaDesignTest, PropertyInstance) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -17115,7 +17115,7 @@ TEST_F(StaDesignTest, R10_PropertyInstance) {
 }
 
 // --- Sta: Property getProperty on TimingArcSet ---
-TEST_F(StaDesignTest, R10_PropertyTimingArcSet) {
+TEST_F(StaDesignTest, PropertyTimingArcSet) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -17134,7 +17134,7 @@ TEST_F(StaDesignTest, R10_PropertyTimingArcSet) {
 }
 
 // --- Sta: Property getProperty on PathEnd ---
-TEST_F(StaDesignTest, R10_PropertyPathEnd) {
+TEST_F(StaDesignTest, PropertyPathEnd) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -17155,7 +17155,7 @@ TEST_F(StaDesignTest, R10_PropertyPathEnd) {
 }
 
 // --- Sta: Property getProperty on Path ---
-TEST_F(StaDesignTest, R10_PropertyPath) {
+TEST_F(StaDesignTest, PropertyPath) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -17181,7 +17181,7 @@ TEST_F(StaDesignTest, R10_PropertyPath) {
 // ============================================================
 
 // --- Properties::getProperty on Pin: arrival, slack, slew ---
-TEST_F(StaDesignTest, R11_PropertiesGetPropertyPin) {
+TEST_F(StaDesignTest, PropertiesGetPropertyPin) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -17215,7 +17215,7 @@ TEST_F(StaDesignTest, R11_PropertiesGetPropertyPin) {
 }
 
 // --- Properties::getProperty on Cell ---
-TEST_F(StaDesignTest, R11_PropertiesGetPropertyCell) {
+TEST_F(StaDesignTest, PropertiesGetPropertyCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
@@ -17231,7 +17231,7 @@ TEST_F(StaDesignTest, R11_PropertiesGetPropertyCell) {
 }
 
 // --- Properties::getProperty on Library ---
-TEST_F(StaDesignTest, R11_PropertiesGetPropertyLibrary) {
+TEST_F(StaDesignTest, PropertiesGetPropertyLibrary) {
   Network *network = sta_->cmdNetwork();
   Library *lib = network->findLibrary("Nangate45_typ");
   if (lib) {
@@ -17241,7 +17241,7 @@ TEST_F(StaDesignTest, R11_PropertiesGetPropertyLibrary) {
 }
 
 // --- PropertyUnknown exception ---
-TEST_F(StaDesignTest, R11_PropertyUnknown) {
+TEST_F(StaDesignTest, PropertyUnknown) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -17257,7 +17257,7 @@ TEST_F(StaDesignTest, R11_PropertyUnknown) {
 }
 
 // --- Sta::reportClkSkew (triggers clkSkewPreamble) ---
-TEST_F(StaDesignTest, R11_ReportClkSkew) {
+TEST_F(StaDesignTest, ReportClkSkew3) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     ConstClockSeq clks;
@@ -17269,7 +17269,7 @@ TEST_F(StaDesignTest, R11_ReportClkSkew) {
 }
 
 // --- Sta::findWorstClkSkew ---
-TEST_F(StaDesignTest, R11_FindWorstClkSkew) {
+TEST_F(StaDesignTest, FindWorstClkSkew4) {
   float skew = sta_->findWorstClkSkew(MinMax::max(), false);
   (void)skew;
   float skew2 = sta_->findWorstClkSkew(MinMax::min(), false);
@@ -17277,7 +17277,7 @@ TEST_F(StaDesignTest, R11_FindWorstClkSkew) {
 }
 
 // --- Sta::reportClkLatency ---
-TEST_F(StaDesignTest, R11_ReportClkLatency) {
+TEST_F(StaDesignTest, ReportClkLatency4) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     ConstClockSeq clks;
@@ -17289,7 +17289,7 @@ TEST_F(StaDesignTest, R11_ReportClkLatency) {
 }
 
 // --- Sta: propagated clock detection ---
-TEST_F(StaDesignTest, R11_PropagatedClockDetection) {
+TEST_F(StaDesignTest, PropagatedClockDetection) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     bool prop = clk->isPropagated();
@@ -17298,7 +17298,7 @@ TEST_F(StaDesignTest, R11_PropagatedClockDetection) {
 }
 
 // --- Sta::removeDataCheck ---
-TEST_F(StaDesignTest, R11_StaRemoveDataCheck) {
+TEST_F(StaDesignTest, StaRemoveDataCheck) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *from_pin = network->findPin(top, "r1/D");
@@ -17315,7 +17315,7 @@ TEST_F(StaDesignTest, R11_StaRemoveDataCheck) {
 
 // --- PathEnd methods: targetClk, targetClkArrival, targetClkDelay,
 //     targetClkInsertionDelay, targetClkUncertainty, targetClkMcpAdjustment ---
-TEST_F(StaDesignTest, R11_PathEndTargetClkMethods) {
+TEST_F(StaDesignTest, PathEndTargetClkMethods2) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false, corner, MinMaxAll::max(),
@@ -17344,7 +17344,7 @@ TEST_F(StaDesignTest, R11_PathEndTargetClkMethods) {
 }
 
 // --- PathExpanded::pathsIndex ---
-TEST_F(StaDesignTest, R11_PathExpandedPathsIndex) {
+TEST_F(StaDesignTest, PathExpandedPathsIndex) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false, corner, MinMaxAll::max(),
@@ -17372,7 +17372,7 @@ TEST_F(StaDesignTest, R11_PathExpandedPathsIndex) {
 }
 
 // --- Report path end with format full_clock ---
-TEST_F(StaDesignTest, R11_ReportPathEndFullClock) {
+TEST_F(StaDesignTest, ReportPathEndFullClock) {
   Corner *corner = sta_->cmdCorner();
   sta_->setReportPathFormat(ReportPathFormat::full_clock);
   PathEndSeq ends = sta_->findPathEnds(
@@ -17387,7 +17387,7 @@ TEST_F(StaDesignTest, R11_ReportPathEndFullClock) {
 }
 
 // --- Report path end with format full_clock_expanded ---
-TEST_F(StaDesignTest, R11_ReportPathEndFullClockExpanded) {
+TEST_F(StaDesignTest, ReportPathEndFullClockExpanded) {
   Corner *corner = sta_->cmdCorner();
   sta_->setReportPathFormat(ReportPathFormat::full_clock_expanded);
   PathEndSeq ends = sta_->findPathEnds(
@@ -17402,7 +17402,7 @@ TEST_F(StaDesignTest, R11_ReportPathEndFullClockExpanded) {
 }
 
 // --- Report path end with format end ---
-TEST_F(StaDesignTest, R11_ReportPathEndEnd) {
+TEST_F(StaDesignTest, ReportPathEndEnd) {
   Corner *corner = sta_->cmdCorner();
   sta_->setReportPathFormat(ReportPathFormat::endpoint);
   PathEndSeq ends = sta_->findPathEnds(
@@ -17417,7 +17417,7 @@ TEST_F(StaDesignTest, R11_ReportPathEndEnd) {
 }
 
 // --- Report path end with format summary ---
-TEST_F(StaDesignTest, R11_ReportPathEndSummary) {
+TEST_F(StaDesignTest, ReportPathEndSummary2) {
   Corner *corner = sta_->cmdCorner();
   sta_->setReportPathFormat(ReportPathFormat::summary);
   PathEndSeq ends = sta_->findPathEnds(
@@ -17432,7 +17432,7 @@ TEST_F(StaDesignTest, R11_ReportPathEndSummary) {
 }
 
 // --- Report path end with format slack_only ---
-TEST_F(StaDesignTest, R11_ReportPathEndSlackOnly) {
+TEST_F(StaDesignTest, ReportPathEndSlackOnly2) {
   Corner *corner = sta_->cmdCorner();
   sta_->setReportPathFormat(ReportPathFormat::slack_only);
   PathEndSeq ends = sta_->findPathEnds(
@@ -17447,7 +17447,7 @@ TEST_F(StaDesignTest, R11_ReportPathEndSlackOnly) {
 }
 
 // --- Report multiple path ends ---
-TEST_F(StaDesignTest, R11_ReportPathEnds) {
+TEST_F(StaDesignTest, ReportPathEnds3) {
   Corner *corner = sta_->cmdCorner();
   sta_->setReportPathFormat(ReportPathFormat::full);
   PathEndSeq ends = sta_->findPathEnds(
@@ -17460,7 +17460,7 @@ TEST_F(StaDesignTest, R11_ReportPathEnds) {
 }
 
 // --- Sta: worstSlack ---
-TEST_F(StaDesignTest, R11_WorstSlack) {
+TEST_F(StaDesignTest, WorstSlack2) {
   Slack ws_max = sta_->worstSlack(MinMax::max());
   (void)ws_max;
   Slack ws_min = sta_->worstSlack(MinMax::min());
@@ -17468,7 +17468,7 @@ TEST_F(StaDesignTest, R11_WorstSlack) {
 }
 
 // --- Sta: worstSlack with corner ---
-TEST_F(StaDesignTest, R11_WorstSlackCorner) {
+TEST_F(StaDesignTest, WorstSlackCorner2) {
   Corner *corner = sta_->cmdCorner();
   Slack ws;
   Vertex *v;
@@ -17478,7 +17478,7 @@ TEST_F(StaDesignTest, R11_WorstSlackCorner) {
 }
 
 // --- Sta: totalNegativeSlack ---
-TEST_F(StaDesignTest, R11_TotalNegativeSlack) {
+TEST_F(StaDesignTest, TotalNegativeSlack2) {
   Slack tns = sta_->totalNegativeSlack(MinMax::max());
   (void)tns;
   Slack tns2 = sta_->totalNegativeSlack(MinMax::min());
@@ -17486,14 +17486,14 @@ TEST_F(StaDesignTest, R11_TotalNegativeSlack) {
 }
 
 // --- Sta: totalNegativeSlack with corner ---
-TEST_F(StaDesignTest, R11_TotalNegativeSlackCorner) {
+TEST_F(StaDesignTest, TotalNegativeSlackCorner2) {
   Corner *corner = sta_->cmdCorner();
   Slack tns = sta_->totalNegativeSlack(corner, MinMax::max());
   (void)tns;
 }
 
 // --- WriteSdc with many constraints from search side ---
-TEST_F(StaDesignTest, R11_WriteSdcComprehensive) {
+TEST_F(StaDesignTest, WriteSdcComprehensive) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Corner *corner = sta_->cmdCorner();
@@ -17600,7 +17600,7 @@ TEST_F(StaDesignTest, R11_WriteSdcComprehensive) {
 }
 
 // --- Sta: report path with verbose format ---
-TEST_F(StaDesignTest, R11_ReportPathVerbose) {
+TEST_F(StaDesignTest, ReportPathVerbose) {
   Corner *corner = sta_->cmdCorner();
   sta_->setReportPathFormat(ReportPathFormat::full);
   PathEndSeq ends = sta_->findPathEnds(
@@ -17615,7 +17615,7 @@ TEST_F(StaDesignTest, R11_ReportPathVerbose) {
 }
 
 // --- Sta: report path for hold (min) ---
-TEST_F(StaDesignTest, R11_ReportPathHold) {
+TEST_F(StaDesignTest, ReportPathHold) {
   Corner *corner = sta_->cmdCorner();
   sta_->setReportPathFormat(ReportPathFormat::full);
   PathEndSeq ends = sta_->findPathEnds(
@@ -17630,7 +17630,7 @@ TEST_F(StaDesignTest, R11_ReportPathHold) {
 }
 
 // --- Sta: max skew checks with report ---
-TEST_F(StaDesignTest, R11_MaxSkewChecksReport) {
+TEST_F(StaDesignTest, MaxSkewChecksReport) {
   MaxSkewCheckSeq &viols = sta_->maxSkewViolations();
   for (auto *check : viols) {
     sta_->reportCheck(check, true);
@@ -17644,7 +17644,7 @@ TEST_F(StaDesignTest, R11_MaxSkewChecksReport) {
 }
 
 // --- Sta: min period checks with report ---
-TEST_F(StaDesignTest, R11_MinPeriodChecksReport) {
+TEST_F(StaDesignTest, MinPeriodChecksReport) {
   MinPeriodCheckSeq &viols = sta_->minPeriodViolations();
   for (auto *check : viols) {
     sta_->reportCheck(check, true);
@@ -17658,7 +17658,7 @@ TEST_F(StaDesignTest, R11_MinPeriodChecksReport) {
 }
 
 // --- Sta: MPW slack check ---
-TEST_F(StaDesignTest, R11_MpwSlackCheck) {
+TEST_F(StaDesignTest, MpwSlackCheck) {
   Corner *corner = sta_->cmdCorner();
   MinPulseWidthCheck *check = sta_->minPulseWidthSlack(corner);
   if (check) {
@@ -17668,7 +17668,7 @@ TEST_F(StaDesignTest, R11_MpwSlackCheck) {
 }
 
 // --- Sta: MPW checks on all ---
-TEST_F(StaDesignTest, R11_MpwChecksAll) {
+TEST_F(StaDesignTest, MpwChecksAll2) {
   Corner *corner = sta_->cmdCorner();
   MinPulseWidthCheckSeq &checks = sta_->minPulseWidthChecks(corner);
   sta_->reportMpwChecks(&checks, false);
@@ -17676,7 +17676,7 @@ TEST_F(StaDesignTest, R11_MpwChecksAll) {
 }
 
 // --- Sta: MPW violations ---
-TEST_F(StaDesignTest, R11_MpwViolations) {
+TEST_F(StaDesignTest, MpwViolations2) {
   Corner *corner = sta_->cmdCorner();
   MinPulseWidthCheckSeq &viols = sta_->minPulseWidthViolations(corner);
   if (!viols.empty()) {
@@ -17685,13 +17685,13 @@ TEST_F(StaDesignTest, R11_MpwViolations) {
 }
 
 // --- Sta: check timing ---
-TEST_F(StaDesignTest, R11_CheckTiming) {
+TEST_F(StaDesignTest, CheckTiming3) {
   CheckErrorSeq &errors = sta_->checkTiming(true, true, true, true, true, true, true);
   (void)errors;
 }
 
 // --- Sta: find path ends with output delay ---
-TEST_F(StaDesignTest, R11_FindPathEndsWithOutputDelay) {
+TEST_F(StaDesignTest, FindPathEndsWithOutputDelay) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *out = network->findPin(top, "out");
@@ -17718,7 +17718,7 @@ TEST_F(StaDesignTest, R11_FindPathEndsWithOutputDelay) {
 }
 
 // --- PathEnd: type and typeName ---
-TEST_F(StaDesignTest, R11_PathEndTypeInfo) {
+TEST_F(StaDesignTest, PathEndTypeInfo) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false, corner, MinMaxAll::max(),
@@ -17735,7 +17735,7 @@ TEST_F(StaDesignTest, R11_PathEndTypeInfo) {
 }
 
 // --- Sta: find path ends unconstrained ---
-TEST_F(StaDesignTest, R11_FindPathEndsUnconstrained) {
+TEST_F(StaDesignTest, FindPathEndsUnconstrained3) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false, corner, MinMaxAll::max(),
@@ -17754,7 +17754,7 @@ TEST_F(StaDesignTest, R11_FindPathEndsUnconstrained) {
 }
 
 // --- Sta: find path ends with group filter ---
-TEST_F(StaDesignTest, R11_FindPathEndsGroupFilter) {
+TEST_F(StaDesignTest, FindPathEndsGroupFilter) {
   // Create a group path first
   sta_->makeGroupPath("r11_grp", false, nullptr, nullptr, nullptr, nullptr);
   Corner *corner = sta_->cmdCorner();
@@ -17766,7 +17766,7 @@ TEST_F(StaDesignTest, R11_FindPathEndsGroupFilter) {
 }
 
 // --- Sta: pathGroupNames ---
-TEST_F(StaDesignTest, R11_PathGroupNames) {
+TEST_F(StaDesignTest, PathGroupNames) {
   sta_->makeGroupPath("test_group_r11", false, nullptr, nullptr, nullptr, nullptr);
   StdStringSeq names = sta_->pathGroupNames();
   bool found = false;
@@ -17778,7 +17778,7 @@ TEST_F(StaDesignTest, R11_PathGroupNames) {
 }
 
 // --- Sta: isPathGroupName ---
-TEST_F(StaDesignTest, R11_IsPathGroupName) {
+TEST_F(StaDesignTest, IsPathGroupName) {
   sta_->makeGroupPath("test_pg_r11", false, nullptr, nullptr, nullptr, nullptr);
   bool is_group = sta_->isPathGroupName("test_pg_r11");
   EXPECT_TRUE(is_group);
@@ -17787,7 +17787,7 @@ TEST_F(StaDesignTest, R11_IsPathGroupName) {
 }
 
 // --- Sta: report path with max_delay constraint ---
-TEST_F(StaDesignTest, R11_ReportPathWithMaxDelay) {
+TEST_F(StaDesignTest, ReportPathWithMaxDelay) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -17821,7 +17821,7 @@ TEST_F(StaDesignTest, R11_ReportPathWithMaxDelay) {
 }
 
 // --- ClkInfo accessors via tag on vertex path ---
-TEST_F(StaDesignTest, R11_ClkInfoAccessors) {
+TEST_F(StaDesignTest, ClkInfoAccessors4) {
   Vertex *v = findVertex("r1/CK");
   if (v) {
     VertexPathIterator *iter = sta_->vertexPathIterator(v, RiseFall::rise(),
@@ -17848,7 +17848,7 @@ TEST_F(StaDesignTest, R11_ClkInfoAccessors) {
 }
 
 // --- Sta: WriteSdc with clock sense from search ---
-TEST_F(StaDesignTest, R11_WriteSdcClockSense) {
+TEST_F(StaDesignTest, WriteSdcClockSense) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *clk1 = network->findPin(top, "clk1");
@@ -17868,7 +17868,7 @@ TEST_F(StaDesignTest, R11_WriteSdcClockSense) {
 }
 
 // --- Sta: WriteSdc with driving cell ---
-TEST_F(StaDesignTest, R11_WriteSdcDrivingCell) {
+TEST_F(StaDesignTest, WriteSdcDrivingCell) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Pin *in1 = network->findPin(top, "in1");
@@ -17900,7 +17900,7 @@ TEST_F(StaDesignTest, R11_WriteSdcDrivingCell) {
 }
 
 // --- Sta: report path end with reportPath ---
-TEST_F(StaDesignTest, R11_ReportPath) {
+TEST_F(StaDesignTest, ReportPath2) {
   Corner *corner = sta_->cmdCorner();
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false, corner, MinMaxAll::max(),
@@ -17915,7 +17915,7 @@ TEST_F(StaDesignTest, R11_ReportPath) {
 }
 
 // --- Sta: propagated clock and report ---
-TEST_F(StaDesignTest, R11_PropagatedClockReport) {
+TEST_F(StaDesignTest, PropagatedClockReport) {
   Clock *clk = sta_->sdc()->findClock("clk");
   if (clk) {
     sta_->setPropagatedClock(clk);
@@ -17938,7 +17938,7 @@ TEST_F(StaDesignTest, R11_PropagatedClockReport) {
 }
 
 // --- Sta: setCmdNamespace to STA (covers setCmdNamespace1) ---
-TEST_F(StaDesignTest, R11_SetCmdNamespace) {
+TEST_F(StaDesignTest, SetCmdNamespace) {
   CmdNamespace orig = sta_->cmdNamespace();
   sta_->setCmdNamespace(CmdNamespace::sta);
   EXPECT_EQ(sta_->cmdNamespace(), CmdNamespace::sta);
@@ -17948,7 +17948,7 @@ TEST_F(StaDesignTest, R11_SetCmdNamespace) {
 }
 
 // --- Sta: endpoints ---
-TEST_F(StaDesignTest, R11_Endpoints) {
+TEST_F(StaDesignTest, Endpoints2) {
   VertexSet *eps = sta_->endpoints();
   EXPECT_NE(eps, nullptr);
   if (eps)
@@ -17956,7 +17956,7 @@ TEST_F(StaDesignTest, R11_Endpoints) {
 }
 
 // --- Sta: worst slack vertex ---
-TEST_F(StaDesignTest, R11_WorstSlackVertex) {
+TEST_F(StaDesignTest, WorstSlackVertex) {
   Slack ws;
   Vertex *v;
   sta_->worstSlack(MinMax::max(), ws, v);
