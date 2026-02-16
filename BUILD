@@ -296,7 +296,7 @@ cc_binary(
     deps = [
         ":opensta_lib",
         "@rules_cc//cc/runfiles",
-        "@tk_tcl//:tcl",
+        "@tcl_lang//:tcl",
     ],
 )
 
@@ -390,14 +390,17 @@ cc_library(
         "util",
         "verilog",
     ],
-    textual_hdrs = ["util/MachineLinux.cc"],
+    textual_hdrs = select({
+        "@platforms//os:osx": ["util/MachineApple.cc"],
+        "//conditions:default": ["util/MachineLinux.cc"],
+    }),
     visibility = ["//:__subpackages__"],
     deps = [
         "@cudd",
         "@eigen",
         "@openmp",
         "@rules_flex//flex:current_flex_toolchain",
-        "@tk_tcl//:tcl",
+        "@tcl_lang//:tcl",
         "@zlib",
     ],
 )
