@@ -39,7 +39,8 @@
 namespace sta {
 
 Parasitics::Parasitics(StaState *sta) :
-  StaState(sta)
+  StaState(sta),
+  coupling_cap_factor_(1.0)
 {
 }
 
