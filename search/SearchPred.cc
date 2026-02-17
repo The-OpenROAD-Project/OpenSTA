@@ -135,7 +135,7 @@ SearchPred0::searchThru(Edge *edge,
 
 bool
 SearchPred0::searchTo(const Vertex *to_vertex,
-                        const Mode *mode) const
+                      const Mode *mode) const
 {
   return !mode->sim()->isConstant(to_vertex);
 }

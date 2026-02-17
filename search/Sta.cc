@@ -173,9 +173,9 @@ StaSimObserver::valueChangeAfter(const Pin *pin)
 {
   Vertex *vertex = graph_->pinDrvrVertex(pin);
   if (vertex) {
-  search_->arrivalInvalid(vertex);
-  search_->requiredInvalid(vertex);
-  search_->endpointInvalid(vertex);
+    search_->arrivalInvalid(vertex);
+    search_->requiredInvalid(vertex);
+    search_->endpointInvalid(vertex);
   }
 }
 
@@ -545,7 +545,6 @@ void
 Sta::clearNonSdc()
 {
   // Sdc holds search filter, so clear search first.
-  search_->clear();
   levelize_->clear();
   deleteParasitics();
   graph_delay_calc_->clear();
@@ -557,8 +556,11 @@ Sta::clearNonSdc()
   clk_skews_->clear();
 
   // scenes are NOT cleared because they are used to index liberty files.
-  for (Mode *mode : modes_)
+  for (Mode *mode : modes_) {
     mode->clkNetwork()->clkPinsInvalid();
+    mode->sim()->clear();
+  }
+  search_->clear();
 
   delete graph_;
   graph_ = nullptr;
