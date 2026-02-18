@@ -388,7 +388,8 @@ VerilogWriter::writeInstBusPin(const Instance *inst,
   if (!first_port)
     fprintf(stream_, ",\n    ");
 
-  fprintf(stream_, ".%s({", network_->name(port));
+  string port_vname = portVerilogName(network_->name(port)); 
+  fprintf(stream_, ".%s({", port_vname.c_str());
   first_port = false;
   bool first_member = true;
 
