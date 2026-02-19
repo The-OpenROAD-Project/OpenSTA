@@ -231,7 +231,7 @@ endpoint_slack(const Pin *pin,
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  if (sta->isGroupPathName(path_group_name, sta->cmdSdc())) {
+  if (sta->isPathGroupName(path_group_name, sta->cmdSdc())) {
     Slack slack = sta->endpointSlack(pin, std::string(path_group_name), min_max);
     return sta->units()->timeUnit()->staToUser(delayAsFloat(slack));
   }
