@@ -35,8 +35,8 @@ class Report;
 class Stats
 {
 public:
-  explicit Stats(Debug *debug,
-                 Report *report);
+  Stats(Debug *debug,
+        Report *report);
   void report(const char *step);
 
 private:

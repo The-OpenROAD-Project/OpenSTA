@@ -26,9 +26,9 @@
 
 #include <array>
 #include <vector>
+#include <map>
 
 #include "Iterator.hh"
-#include "Map.hh"
 #include "StringUtil.hh"
 
 namespace sta {
@@ -37,7 +37,7 @@ class Transition;
 class RiseFall;
 class RiseFallBoth;
 
-typedef Map<const std::string, const Transition*> TransitionMap;
+using TransitionMap = std::map<const std::string, const Transition*>;
 
 // Rise/fall transition.
 class RiseFall
@@ -164,9 +164,9 @@ public:
 
 private:
   Transition(const char *name,
-	     const char *init_final,
-	     const RiseFall *as_rise_fall,
-	     int sdf_triple_index);
+             const char *init_final,
+             const RiseFall *as_rise_fall,
+             int sdf_triple_index);
 
   const std::string name_;
   const std::string init_final_;

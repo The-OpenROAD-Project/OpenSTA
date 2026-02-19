@@ -28,7 +28,8 @@
 
 #pragma once
 
-#include "Map.hh"
+#include <map>
+
 #include "Transition.hh"
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
@@ -39,13 +40,13 @@ namespace sta {
 
 class ConcreteParasiticNetwork;
 class ConcreteParasiticNode;
-class Corner;
+class Scene;
 
 class rcmodel;
 struct ts_edge;
 struct ts_point;
 
-typedef Map<ParasiticNode*, int> ArnolidPtMap;
+using ArnolidPtMap = std::map<ParasiticNode*, int>;
 
 class ArnoldiReduce : public StaState
 {
@@ -56,9 +57,8 @@ public:
                            const Pin *drvr_pin,
                            float coupling_cap_factor,
                            const RiseFall *rf,
-                           const Corner *corner,
-                           const MinMax *cnst_min_max,
-                           const ParasiticAnalysisPt *ap);
+                           const Scene *scene,
+                           const MinMax *min_max);
 
 protected:
   void loadWork();
@@ -73,13 +73,13 @@ protected:
   void makeRcmodelFromTs();
   rcmodel *makeRcmodelFromW();
   
+  Parasitics *parasitics_;
   ConcreteParasiticNetwork *parasitic_network_;
   const Pin *drvr_pin_;
   float coupling_cap_factor_;
   const RiseFall *rf_;
-  const Corner *corner_;
+  const Scene *scene_;
   const MinMax *min_max_;
-  const ParasiticAnalysisPt *ap_;
   // ParasiticNode -> ts_point index.
   ArnolidPtMap pt_map_;
 

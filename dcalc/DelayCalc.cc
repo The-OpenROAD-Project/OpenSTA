@@ -24,7 +24,9 @@
 
 #include "DelayCalc.hh"
 
-#include "Map.hh"
+#include <map>
+
+#include "ContainerHelpers.hh"
 #include "StringUtil.hh"
 #include "UnitDelayCalc.hh"
 #include "LumpedCapDelayCalc.hh"
@@ -35,7 +37,7 @@
 
 namespace sta {
 
-typedef Map<const char*, MakeArcDelayCalc, CharPtrLess> DelayCalcMap;
+typedef std::map<const char*, MakeArcDelayCalc, CharPtrLess> DelayCalcMap;
 
 static DelayCalcMap *delay_calcs = nullptr;
 
@@ -53,7 +55,7 @@ registerDelayCalcs()
 
 void
 registerDelayCalc(const char *name,
-		  MakeArcDelayCalc maker)
+                  MakeArcDelayCalc maker)
 {
   if (delay_calcs == nullptr)
     delay_calcs = new DelayCalcMap;
@@ -69,9 +71,9 @@ deleteDelayCalcs()
 
 ArcDelayCalc *
 makeDelayCalc(const char *name,
-	      StaState *sta)
+              StaState *sta)
 {
-  MakeArcDelayCalc maker = delay_calcs->findKey(name);
+  MakeArcDelayCalc maker = findKey(delay_calcs, name);
   if (maker)
     return maker(sta);
   else
@@ -81,7 +83,7 @@ makeDelayCalc(const char *name,
 bool
 isDelayCalcName(const char *name)
 {
-  return delay_calcs->hasKey(name);
+  return delay_calcs->contains(name);
 }
 
 StringSeq

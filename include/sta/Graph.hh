@@ -26,10 +26,9 @@
 
 #include <mutex>
 #include <atomic>
+#include <map>
 
 #include "Iterator.hh"
-#include "Map.hh"
-#include "Vector.hh"
 #include "ObjectTable.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -44,12 +43,12 @@ namespace sta {
 class MinMax;
 class Sdc;
 
-typedef ObjectTable<Vertex> VertexTable;
-typedef ObjectTable<Edge> EdgeTable;
-typedef Map<const Pin*, Vertex*> PinVertexMap;
-typedef Iterator<Edge*> VertexEdgeIterator;
-typedef Map<const Pin*, float*, PinIdLess> PeriodCheckAnnotations;
-typedef ObjectId EdgeId;
+using VertexTable = ObjectTable<Vertex>;
+using EdgeTable = ObjectTable<Edge>;
+using PinVertexMap = std::map<const Pin*, Vertex*>;
+using VertexEdgeIterator = Iterator<Edge*>;
+using PeriodCheckAnnotations = std::map<const Pin*, float*, PinIdLess>;
+using EdgeId = ObjectId;
 
 static constexpr EdgeId edge_id_null = object_id_null;
 static constexpr ObjectIdx edge_idx_null = object_id_null;
@@ -65,8 +64,8 @@ public:
   //  2 rise/fall slews
   // ap_count is the dcalc analysis point count.
   Graph(StaState *sta,
-	int slew_rf_count,
-	DcalcAPIndex ap_count);
+        int slew_rf_count,
+        DcalcAPIndex ap_count);
   void makeGraph();
   ~Graph();
 
@@ -80,13 +79,13 @@ public:
   VertexId id(const Vertex *vertex) const;
   void makePinVertices(Pin *pin);
   void makePinVertices(Pin *pin,
-		       Vertex *&vertex,
-		       Vertex *&bidir_drvr_vertex);
+                       Vertex *&vertex,
+                       Vertex *&bidir_drvr_vertex);
   // Both vertices for bidirects.
   void pinVertices(const Pin *pin,
-		   // Return values.
-		   Vertex *&vertex,
-		   Vertex *&bidirect_drvr_vertex) const;
+                   // Return values.
+                   Vertex *&vertex,
+                   Vertex *&bidirect_drvr_vertex) const;
   // Driver vertex for bidirects.
   Vertex *pinDrvrVertex(const Pin *pin) const;
   // Load vertex for bidirects.
@@ -94,10 +93,6 @@ public:
   void deleteVertex(Vertex *vertex);
   bool hasFaninOne(Vertex *vertex) const;
   VertexId vertexCount() { return vertices_->size(); }
-  Path *makePaths(Vertex *vertex,
-                  uint32_t count);
-  Path *paths(const Vertex *vertex) const;
-  void deletePaths(Vertex *vertex);
 
   // Reported slew are the same as those in the liberty tables.
   //  reported_slews = measured_slews / slew_derate_from_library
@@ -150,21 +145,19 @@ public:
                        const ArcDelay &delay);
   // Is timing arc delay annotated.
   bool arcDelayAnnotated(const Edge *edge,
-			 const TimingArc *arc,
-			 DcalcAPIndex ap_index) const;
+                         const TimingArc *arc,
+                         DcalcAPIndex ap_index) const;
   void setArcDelayAnnotated(Edge *edge,
-			    const TimingArc *arc,
-			    DcalcAPIndex ap_index,
-			    bool annotated);
+                            const TimingArc *arc,
+                            DcalcAPIndex ap_index,
+                            bool annotated);
   bool wireDelayAnnotated(const Edge *edge,
-			  const RiseFall *rf,
-			  DcalcAPIndex ap_index) const;
+                          const RiseFall *rf,
+                          DcalcAPIndex ap_index) const;
   void setWireDelayAnnotated(Edge *edge,
-			     const RiseFall *rf,
-			     DcalcAPIndex ap_index,
-			     bool annotated);
-  // True if any edge arc is annotated.
-  bool delayAnnotated(Edge *edge);
+                             const RiseFall *rf,
+                             DcalcAPIndex ap_index,
+                             bool annotated);
 
   void minPulseWidthArc(Vertex *vertex,
                         const RiseFall *hi_low,
@@ -172,23 +165,24 @@ public:
                         Edge *&edge,
                         TimingArc *&arc);
   void minPeriodArc(Vertex *vertex,
-		    const RiseFall *rf,
-		    // Return values.
-		    Edge *&edge,
-		    TimingArc *&arc);
+                    const RiseFall *rf,
+                    // Return values.
+                    Edge *&edge,
+                    TimingArc *&arc);
   // Sdf period check annotation.
   void periodCheckAnnotation(const Pin *pin,
-			     DcalcAPIndex ap_index,
-			    // Return values.
-			    float &period,
-			     bool &exists);
+                             DcalcAPIndex ap_index,
+                             // Return values.
+                             float &period,
+                             bool &exists);
   void setPeriodCheckAnnotation(const Pin *pin,
-				DcalcAPIndex ap_index,
-				float period);
+                                DcalcAPIndex ap_index,
+                                float period);
 
   // Remove all delay and slew annotations.
   void removeDelaySlewAnnotations();
-  VertexSet *regClkVertices() { return reg_clk_vertices_; }
+  VertexSet &regClkVertices() { return reg_clk_vertices_; }
+  void makeSceneAfter();
 
   static constexpr int vertex_level_bits = 24;
   static constexpr int vertex_level_max = (1<<vertex_level_bits)-1;
@@ -196,12 +190,12 @@ public:
 protected:
   void makeVerticesAndEdges();
   Vertex *makeVertex(Pin *pin,
-		     bool is_bidirect_drvr,
-		     bool is_reg_clk);
+                     bool is_bidirect_drvr,
+                     bool is_reg_clk);
   void makeEdgeArcDelays(Edge *edge);
   void makePinVertices(const Instance *inst);
   void makeWireEdgesFromPin(const Pin *drvr_pin,
-			    PinSet &visited_drvrs);
+                            PinSet &visited_drvrs);
   bool isIsolatedNet(PinSeq &drvrs,
                      PinSeq &loads) const;
   void makeWireEdges();
@@ -213,9 +207,9 @@ protected:
   void removePeriodCheckAnnotations();
   void makeVertexSlews(Vertex *vertex);
   void deleteInEdge(Vertex *vertex,
-		    Edge *edge);
+                    Edge *edge);
   void deleteOutEdge(Vertex *vertex,
-		     Edge *edge);
+                     Edge *edge);
   void initSlews();
   void initSlews(Vertex *vertex);
   void initArcDelays(Edge *edge);
@@ -233,7 +227,7 @@ protected:
   // Sdf period check annotations.
   PeriodCheckAnnotations *period_check_annotations_;
   // Register/latch clock vertices to search from.
-  VertexSet *reg_clk_vertices_;
+  VertexSet reg_clk_vertices_;
 
   friend class Vertex;
   friend class VertexIterator;
@@ -253,74 +247,62 @@ public:
   std::string to_string(const StaState *sta) const;
   // compatibility
   const char *name(const Network *network) const;
-  bool isBidirectDriver() const { return is_bidirect_drvr_; }
-  bool isDriver(const Network *network) const;
+  [[nodiscard]] bool isBidirectDriver() const { return is_bidirect_drvr_; }
+  [[nodiscard]] bool isDriver(const Network *network) const;
   Level level() const { return level_; }
   void setLevel(Level level);
-  bool visited() const { return visited1_; }
+  [[nodiscard]] bool visited() const { return visited1_; }
   void setVisited(bool visited);
-  bool visited2() const { return visited2_; }
+  [[nodiscard]] bool visited2() const { return visited2_; }
   void setVisited2(bool visited);
-  bool isRoot() const{ return level_ == 0; }
-  bool hasFanin() const;
-  bool hasFanout() const;
+  [[nodiscard]] bool isRoot() const{ return level_ == 0; }
+  [[nodiscard]] bool hasFanin() const;
+  [[nodiscard]] bool hasFanout() const;
   Slew *slews() { return slews_; }
   const Slew *slews() const { return slews_; }
   Path *paths() const { return paths_; }
+  Path *makePaths(uint32_t count);
   void setPaths(Path *paths);
+  void deletePaths();
   TagGroupIndex tagGroupIndex() const;
   void setTagGroupIndex(TagGroupIndex tag_index);
   // Slew is annotated by sdc set_annotated_transition cmd.
   bool slewAnnotated(const RiseFall *rf,
-		     const MinMax *min_max) const;
+                     const MinMax *min_max) const;
   // True if any rise/fall analysis pt slew is annotated.
   bool slewAnnotated() const;
   void setSlewAnnotated(bool annotated,
-			const RiseFall *rf,
-			DcalcAPIndex ap_index);
+                        const RiseFall *rf,
+                        DcalcAPIndex ap_index);
   void removeSlewAnnotated();
-  // Constant zero/one from simulation.
-  bool isConstant() const;
-  LogicValue simValue() const;
-  void setSimValue(LogicValue value);
-  bool isDisabledConstraint() const { return is_disabled_constraint_; }
-  void setIsDisabledConstraint(bool disabled);
   // True when vertex has timing check edges that constrain it.
-  bool hasChecks() const  { return has_checks_; }
+  [[nodiscard]] bool hasChecks() const  { return has_checks_; }
   void setHasChecks(bool has_checks);
-  bool isCheckClk() const { return is_check_clk_; }
+  [[nodiscard]] bool isCheckClk() const { return is_check_clk_; }
   void setIsCheckClk(bool is_check_clk);
-  bool isGatedClkEnable() const { return is_gated_clk_enable_; }
-  void setIsGatedClkEnable(bool enable);
-  bool hasDownstreamClkPin() const { return has_downstream_clk_pin_; }
+  [[nodiscard]] bool hasDownstreamClkPin() const { return has_downstream_clk_pin_; }
   void setHasDownstreamClkPin(bool has_clk_pin);
-  // Vertices are constrained if they have one or more of the
-  // following timing constraints:
-  //   output delay constraints
-  //   data check constraints
-  //   path delay constraints
-  bool isConstrained() const { return is_constrained_; }
-  void setIsConstrained(bool constrained);
-  bool bfsInQueue(BfsIndex index) const;
+  [[nodiscard]] bool bfsInQueue(BfsIndex index) const;
   void setBfsInQueue(BfsIndex index, bool value);
-  bool isRegClk() const { return is_reg_clk_; }
+  [[nodiscard]] bool isRegClk() const { return is_reg_clk_; }
+  // Has sim value in some mode.
+  [[nodiscard]] bool hasSimValue() const { return has_sim_value_; }
+  void setHasSimValue(bool has_sim);
   
   // ObjectTable interface.
-  ObjectIdx objectIdx() const { return object_idx_; }
+  [[nodiscard]] ObjectIdx objectIdx() const { return object_idx_; }
   void setObjectIdx(ObjectIdx idx);
-
-  static int transitionCount() { return 2; }  // rise/fall
 
 protected:
   void init(Pin *pin,
-	    bool is_bidirect_drvr,
-	    bool is_reg_clk);
+            bool is_bidirect_drvr,
+            bool is_reg_clk);
   void clear();
   void setSlews(Slew *slews);
 
   Pin *pin_;
-  EdgeId in_edges_;		// Edges to this vertex.
-  EdgeId out_edges_;		// Edges from this vertex.
+  EdgeId in_edges_;             // Edges to this vertex.
+  EdgeId out_edges_;            // Edges from this vertex.
 
   // Delay calc
   Slew *slews_;
@@ -336,23 +318,19 @@ protected:
 
   int level_:Graph::vertex_level_bits; // 24
   unsigned int slew_annotated_:slew_annotated_bits;  // 4
-  // LogicValue gcc barfs if this is dcl'd.
-  unsigned sim_value_:3;
   // Bidirect pins have two vertices.
   // This flag distinguishes the driver and load vertices.
   bool is_bidirect_drvr_:1;
 
   bool is_reg_clk_:1;
-  bool is_disabled_constraint_:1;
-  bool is_gated_clk_enable_:1;
   // Constrained by timing check edge.
   bool has_checks_:1;
   // Is the clock for a timing check.
   bool is_check_clk_:1;
-  bool is_constrained_:1;
   bool has_downstream_clk_pin_:1;
   bool visited1_:1;
   bool visited2_:1;
+  bool has_sim_value_;
 
 private:
   friend class Graph;
@@ -382,18 +360,8 @@ public:
   void setArcDelays(ArcDelay *arc_delays);
   bool delay_Annotation_Is_Incremental() const {return delay_annotation_is_incremental_;};
   void setDelayAnnotationIsIncremental(bool is_incr);
-  // Edge is disabled by set_disable_timing constraint.
-  bool isDisabledConstraint() const;
-  void setIsDisabledConstraint(bool disabled);
-  // Timing sense for the to_pin function after simplifying the
-  // function based constants on the instance pins.
-  TimingSense simTimingSense() const;
-  void setSimTimingSense(TimingSense sense);
-  // Edge is disabled by constants in condition (when) function.
-  bool isDisabledCond() const { return is_disabled_cond_; }
-  void setIsDisabledCond(bool disabled);
   // Edge is disabled to break combinational loops.
-  bool isDisabledLoop() const { return is_disabled_loop_; }
+  [[nodiscard]] bool isDisabledLoop() const { return is_disabled_loop_; }
   void setIsDisabledLoop(bool disabled);
   // Edge is disabled to prevent converging clocks from merging (Xilinx).
   bool isBidirectInstPath() const { return is_bidirect_inst_path_; }
@@ -401,6 +369,10 @@ public:
   bool isBidirectNetPath() const { return is_bidirect_net_path_; }
   void setIsBidirectNetPath(bool is_bidir);
   void removeDelayAnnotated();
+  [[nodiscard]] bool hasSimSense() const { return has_sim_sense_; }
+  void setHasSimSense(bool has_sense);
+  [[nodiscard]] bool hasDisabledCond() const { return has_disabled_cond_; }
+  void setHasDisabledCond(bool has_disabled);
 
   // ObjectTable interface.
   ObjectIdx objectIdx() const { return object_idx_; }
@@ -408,8 +380,8 @@ public:
 
 protected:
   void init(VertexId from,
-	    VertexId to,
-	    TimingArcSet *arc_set);
+            VertexId to,
+            TimingArcSet *arc_set);
   void clear();
   bool arcDelayAnnotated(const TimingArc *arc,
                          DcalcAPIndex ap_index,
@@ -423,8 +395,8 @@ protected:
   TimingArcSet *arc_set_;
   VertexId from_;
   VertexId to_;
-  EdgeId vertex_in_link_;		// Vertex in edges list.
-  EdgeId vertex_out_next_;		// Vertex out edges doubly linked list.
+  EdgeId vertex_in_link_;               // Vertex in edges list.
+  EdgeId vertex_out_next_;              // Vertex out edges doubly linked list.
   EdgeId vertex_out_prev_;
   ArcDelay *arc_delays_;
   union {
@@ -435,11 +407,9 @@ protected:
   bool delay_annotation_is_incremental_:1;
   bool is_bidirect_inst_path_:1;
   bool is_bidirect_net_path_:1;
-  // Timing sense from function and constants on edge instance.
-  unsigned sim_timing_sense_:timing_sense_bit_count;
-  bool is_disabled_constraint_:1;
-  bool is_disabled_cond_:1;
   bool is_disabled_loop_:1;
+  bool has_sim_sense_:1;
+  bool has_disabled_cond_:1;
   unsigned object_idx_:VertexTable::idx_bits;
 
 private:
@@ -456,7 +426,7 @@ private:
 class VertexIterator : public Iterator<Vertex*>
 {
 public:
-  explicit VertexIterator(Graph *graph);
+  VertexIterator(Graph *graph);
   virtual bool hasNext() { return vertex_ || bidir_vertex_; }
   virtual Vertex *next();
 
@@ -477,9 +447,9 @@ class VertexInEdgeIterator : public VertexEdgeIterator
 {
 public:
   VertexInEdgeIterator(Vertex *vertex,
-		       const Graph *graph);
+                       const Graph *graph);
   VertexInEdgeIterator(VertexId vertex_id,
-		       const Graph *graph);
+                       const Graph *graph);
   bool hasNext() { return (next_ != nullptr); }
   Edge *next();
 
@@ -492,7 +462,7 @@ class VertexOutEdgeIterator : public VertexEdgeIterator
 {
 public:
   VertexOutEdgeIterator(Vertex *vertex,
-			const Graph *graph);
+                        const Graph *graph);
   bool hasNext() { return (next_ != nullptr); }
   Edge *next();
 
@@ -506,31 +476,21 @@ class EdgesThruHierPinIterator : public Iterator<Edge*>
 {
 public:
   EdgesThruHierPinIterator(const Pin *hpin,
-			   Network *network,
-			   Graph *graph);
-  virtual bool hasNext() { return edge_iter_.hasNext(); }
-  virtual Edge *next() { return edge_iter_.next(); }
+                           Network *network,
+                           Graph *graph);
+  virtual bool hasNext();
+  virtual Edge *next();
 
 private:
   EdgeSet edges_;
-  EdgeSet::Iterator edge_iter_;
+  EdgeSet::iterator edge_iter_;
 };
 
-class VertexIdLess
+// Helper function to create a VertexSet with the comparator initialized
+inline VertexSet
+makeVertexSet(StaState *sta)
 {
-public:
-  VertexIdLess(Graph *&graph);
-  bool operator()(const Vertex *vertex1,
-		  const Vertex *vertex2) const;
-
-private:
-  Graph *&graph_;
-};
-
-class VertexSet : public Set<Vertex*, VertexIdLess>
-{
-public:
-  VertexSet(Graph *&graph);
-};
+  return VertexSet(VertexIdLess(sta->graphRef()));
+}
 
 } // namespace

@@ -43,7 +43,6 @@
 #include "Graph.hh"
 #include "Parasitics.hh"
 #include "Sdc.hh"
-#include "DcalcAnalysisPt.hh"
 #include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
 #include "LumpedCapDelayCalc.hh"
@@ -78,7 +77,7 @@ static void
 delay_work_destroy(delay_work *D);
 static double *
 delay_work_get_residues(delay_work *D,
-			int term_index);
+                        int term_index);
 
 static bool
 tridiagEV(int n,double *d,double *e,double *p,double **v);
@@ -129,17 +128,20 @@ public:
   const char *name() const override { return "arnoldi"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                              const Pin *drvr_pin,
                              const RiseFall *rf,
-                             const DcalcAnalysisPt *dcalc_ap) override;
+                             const Scene *scene,
+                             const MinMax *min_max) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
                                 const Parasitic *parasitic,
                                 const LoadPinIndexMap &load_pin_index_map,
-                                const DcalcAnalysisPt *dcalc_ap) override;
+                                const Scene *scene,
+                                const MinMax *min_max) override;
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
                            const Slew &in_slew,
@@ -147,21 +149,23 @@ public:
                            float load_cap,
                            const Parasitic *parasitic,
                            const LoadPinIndexMap &load_pin_index_map,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   string reportGateDelay(const Pin *drvr_pin,
                          const TimingArc *arc,
                          const Slew &in_slew,
                          float load_cap,
                          const Parasitic *parasitic,
                          const LoadPinIndexMap &load_pin_index_map,
-                         const DcalcAnalysisPt *dcalc_ap,
+                         const Scene *scene,
+                         const MinMax *min_max,
                          int digits) override;
   void finishDrvrPin() override;
   void delay_work_set_thresholds(delay_work *D,
-				 double lo,
-				 double hi,
-				 bool rising,
-				 double derate);
+                                 double lo,
+                                 double hi,
+                                 bool rising,
+                                 double derate);
 
 private:
   ArcDcalcResult gateDelaySlew(const LibertyCell *drvr_cell,
@@ -173,61 +177,61 @@ private:
   void ar1_ceff_delay(delay_work *D,
                       timing_table *tab,
                       arnoldi1 *mod,
-		      double *delays,
+                      double *delays,
                       double *slews);
   double ra_rdelay_1(timing_table *tab,
-		     double ctot);
+                     double ctot);
   double ra_get_r(delay_work *D,
-		  timing_table *tab,
-		  double rdelay,
-		  double ctot);
+                  timing_table *tab,
+                  double rdelay,
+                  double ctot);
   double ra_get_s(delay_work *D,
-		  timing_table *tab,
-		  double r,
-		  double c);
+                  timing_table *tab,
+                  double r,
+                  double c);
   void ra_solve_for_s(delay_work *D,
-		      double p,
-		      double tlohi,
-		      double &s);
+                      double p,
+                      double tlohi,
+                      double &s);
   // from poles and residues, solve for t20,t50,t80
   void pr_solve1(double s,
-		 int order,
-		 double *p,
-		 double *rr,
-		 double v1,
-		 double *t1);
+                 int order,
+                 double *p,
+                 double *rr,
+                 double v1,
+                 double *t1);
   void pr_solve3(double s,
-		 int order,
-		 double *p,
-		 double *rr,
-		 double vhi,
-		 double *thi,
-		 double vmid,
-		 double *tmid,
-		 double vlo,
-		 double *tlo);
+                 int order,
+                 double *p,
+                 double *rr,
+                 double vhi,
+                 double *thi,
+                 double vmid,
+                 double *tmid,
+                 double vlo,
+                 double *tlo);
 
   //
   // routines for linear drive model and ceff
   //
  double pr_ceff(double s,
-		double rdrive,
-		int order,
-		double *p,
-		double *rr,
-		double ceff_time);
+                double rdrive,
+                int order,
+                double *p,
+                double *rr,
+                double ceff_time);
   double ra_solve_for_t(double p,
-			double s,
-			double v);
+                        double s,
+                        double v);
   void ra_solve_for_pt(double ps,
-		       double v,
-		       double *pt,
-		       double *d);
+                       double v,
+                       double *pt,
+                       double *d);
   void ra_calc_c(double lo,
-		 double hi,
-		 double *c_smin,
-		 double *c_x1,
-		 double *c_y1);
+                 double hi,
+                 double *c_smin,
+                 double *c_x1,
+                 double *c_y1);
 
   rcmodel *rcmodel_;
   int _pinNmax;
@@ -272,36 +276,35 @@ ArnoldiDelayCalc::~ArnoldiDelayCalc()
 
 Parasitic *
 ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
-				const RiseFall *drvr_rf,
-				const DcalcAnalysisPt *dcalc_ap)
+                                const RiseFall *drvr_rf,
+                                const Scene *scene,
+                                const MinMax *min_max)
 {
   Parasitic *parasitic = nullptr;
-  const Corner *corner = dcalc_ap->corner();
-  // set_load net has precedence over parasitics.
-  if (sdc_->drvrPinHasWireCap(drvr_pin, corner)
+  const Sdc *sdc = scene->sdc();
+  Parasitics *parasitics = scene->parasitics(min_max);
+  if (parasitics == nullptr
+      // set_load net has precedence over parasitics.
       || network_->direction(drvr_pin)->isInternal())
     return nullptr;
-  const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
   Parasitic *parasitic_network =
-    parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-  const MinMax *min_max = dcalc_ap->constraintMinMax();
+    parasitics->findParasiticNetwork(drvr_pin);
   if (parasitic_network == nullptr) {
-    Wireload *wireload = sdc_->wireload(min_max);
+    Wireload *wireload = sdc->wireload(min_max);
     if (wireload) {
       float pin_cap, wire_cap, fanout;
       bool has_wire_cap;
-      graph_delay_calc_->netCaps(drvr_pin, drvr_rf, dcalc_ap,
+      graph_delay_calc_->netCaps(drvr_pin, drvr_rf, scene, min_max,
                                  pin_cap, wire_cap, fanout, has_wire_cap);
-      parasitic_network = parasitics_->makeWireloadNetwork(drvr_pin, wireload,
-                                                           fanout, min_max,
-                                                           parasitic_ap);
+      parasitic_network = parasitics->makeWireloadNetwork(drvr_pin, wireload,
+                                                          fanout, scene, min_max);
     }
   }
     
   if (parasitic_network) {
     rcmodel *rcmodel = reduce_->reduceToArnoldi(parasitic_network, drvr_pin,
-                                                parasitic_ap->couplingCapFactor(),
-                                                drvr_rf, corner, min_max, parasitic_ap);
+                                                parasitics->couplingCapFactor(),
+                                                drvr_rf, scene, min_max);
     // Arnoldi parasitics are their own class that are not saved in the parasitic db.
     unsaved_parasitics_.push_back(rcmodel);
     parasitic = rcmodel;
@@ -313,7 +316,8 @@ Parasitic *
 ArnoldiDelayCalc::reduceParasitic(const Parasitic *,
                                   const Pin *,
                                   const RiseFall *,
-                                  const DcalcAnalysisPt *)
+                                  const Scene *,
+                                  const MinMax *)
 {
   // Decline because reduced arnoldi parasitics are not stored in the parasitics db.
   return nullptr;
@@ -333,7 +337,8 @@ ArnoldiDelayCalc::inputPortDelay(const Pin *,
                                  const RiseFall *rf,
                                  const Parasitic *parasitic,
                                  const LoadPinIndexMap &load_pin_index_map,
-                                 const DcalcAnalysisPt *)
+                                 const Scene *,
+                                 const MinMax *)
 {
   rcmodel_ = nullptr;
   _delayV[0] = 0.0;
@@ -389,28 +394,29 @@ ArnoldiDelayCalc::gateDelay(const Pin *drvr_pin,
                             float load_cap,
                             const Parasitic *parasitic,
                             const LoadPinIndexMap &load_pin_index_map,
-                            const DcalcAnalysisPt *dcalc_ap)
+                            const Scene *scene,
+                            const MinMax *min_max)
 {
   const LibertyCell *drvr_cell = arc->from()->libertyCell();
   ConcreteParasitic *cparasitic =
     reinterpret_cast<ConcreteParasitic*>(const_cast<Parasitic*>(parasitic));
   rcmodel_ = dynamic_cast<rcmodel*>(cparasitic);
   pocv_enabled_ = variables_->pocvEnabled();
-  GateTableModel *table_model = arc->gateTableModel(dcalc_ap);
+  GateTableModel *table_model = arc->gateTableModel(scene, min_max);
   if (table_model && rcmodel_) {
-    const Pvt *pvt = pinPvt(drvr_pin, dcalc_ap);
+    const Pvt *pvt = pinPvt(drvr_pin, scene, min_max);
     return gateDelaySlew(drvr_cell, arc, table_model, in_slew, load_pin_index_map, pvt);
   }
   else
     return LumpedCapDelayCalc::gateDelay(drvr_pin, arc, in_slew, load_cap,
-                                         parasitic, load_pin_index_map, dcalc_ap);
+                                         parasitic, load_pin_index_map, scene, min_max);
 }
 
 ArcDcalcResult
 ArnoldiDelayCalc::gateDelaySlew(const LibertyCell *drvr_cell,
                                 const TimingArc *arc,
-				const GateTableModel *table_model,
-				const Slew &in_slew,
+                                const GateTableModel *table_model,
+                                const Slew &in_slew,
                                 const LoadPinIndexMap &load_pin_index_map,
                                 const Pvt *pvt)
 {
@@ -432,7 +438,7 @@ ArnoldiDelayCalc::gateDelaySlew(const LibertyCell *drvr_cell,
     double hi_thresh = drvr_library->slewUpperThreshold(rf);
     bool rising = (rf == RiseFall::rise());
     delay_work_set_thresholds(delay_work_, lo_thresh, hi_thresh, rising,
-			      slew_derate);
+                              slew_derate);
     if (rcmodel_->order > 0) {
       timing_table tab;
       tab.table = table_model;
@@ -440,7 +446,7 @@ ArnoldiDelayCalc::gateDelaySlew(const LibertyCell *drvr_cell,
       tab.pvt = pvt;
       tab.in_slew = delayAsFloat(in_slew);
       ar1_ceff_delay(delay_work_, &tab, rcmodel_,
-		     _delayV, _slewV);
+                     _delayV, _slewV);
     }
     dcalc_result.setGateDelay(_delayV[0]);
     dcalc_result.setDrvrSlew(_slewV[0]);
@@ -470,12 +476,13 @@ ArnoldiDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                   float load_cap,
                                   const Parasitic *parasitic,
                                   const LoadPinIndexMap &load_pin_index_map,
-                                  const DcalcAnalysisPt *dcalc_ap,
+                                  const Scene *scene,
+                                  const MinMax *min_max,
                                   int digits)
 {
   return LumpedCapDelayCalc::reportGateDelay(drvr_pin, arc, in_slew, load_cap,
                                              parasitic, load_pin_index_map,
-                                             dcalc_ap, digits);
+                                             scene, min_max, digits);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -560,10 +567,10 @@ delay_work_alloc(delay_work *D,int n)
 
 void
 ArnoldiDelayCalc::delay_work_set_thresholds(delay_work *D,
-					    double lo,
-					    double hi,
-					    bool rising,
-					    double derate)
+                                            double lo,
+                                            double hi,
+                                            bool rising,
+                                            double derate)
 {
   double mid = 0.5;  // 0.0:1.0
   int i = rising?1:0;
@@ -582,7 +589,7 @@ ArnoldiDelayCalc::delay_work_set_thresholds(delay_work *D,
     D->c->vmid = mid;
     D->c->vlg = log(hi/lo);
     ra_calc_c(lo,hi,
-	      &(D->c->smin), &(D->c->x1),&(D->c->y1));
+              &(D->c->smin), &(D->c->x1),&(D->c->y1));
   }
   D->lo_thresh = D->c->vlo;
   D->hi_thresh = D->c->vhi;
@@ -790,7 +797,7 @@ get_dv(double t, double s, int order, double *p, double *rr,
 
 static double
 solve_t_bracketed(double s,int order,double *p,double *rr,
-		  double val,double x1,double x2,double v1,double v2)
+                  double val,double x1,double x2,double v1,double v2)
 {
   int j;
   double df,dx,dxold,f,f2,f1;
@@ -859,17 +866,17 @@ solve_t_bracketed(double s,int order,double *p,double *rr,
 
 void
 ArnoldiDelayCalc::pr_solve1(double s,
-			    int order,
-			    double *p,
-			    double *rr,
-			    double v1,
-			    double *t1)
+                            int order,
+                            double *p,
+                            double *rr,
+                            double v1,
+                            double *t1)
 {
   double tmin = 0.0,tmax = 0.0,vmin = 0.0,vmax = 0.0;
   int h, h0 = 0;
   while (order>1
-	 && rr[order-1]<1e-8 // 1e-8V
-	 && rr[order-1]>-1e-8)
+         && rr[order-1]<1e-8 // 1e-8V
+         && rr[order-1]>-1e-8)
     order--;
   if (rr[0]<0.5) {
     for (h=1;h<order;h++) if (rr[h]>0.3 && rr[h]>rr[0]) { h0 = h; break; }
@@ -893,7 +900,7 @@ ArnoldiDelayCalc::pr_solve1(double s,
         // ignoring a typical error at drive node, that comes
         // from slight inaccuracies in rr
         if (!(rr[order-1]>1.0 && p[order-1]>500.0 && va>v1-0.002))
-	  debugPrint(debug_, "arnoldi", 1, "err, pr_solve1, va<v1");
+          debugPrint(debug_, "arnoldi", 1, "err, pr_solve1, va<v1");
       }
       tmin = ta; vmin = va;
     } else {
@@ -906,7 +913,7 @@ ArnoldiDelayCalc::pr_solve1(double s,
         pr_get_v(ta,s,order,p,rr,&va);
       }
       if (va>v1)
-	debugPrint(debug_, "arnoldi", 1, "err, pr_solve1, va>v1");
+        debugPrint(debug_, "arnoldi", 1, "err, pr_solve1, va>v1");
       tmax = ta; vmax = va;
     }
   } else {
@@ -925,15 +932,15 @@ ArnoldiDelayCalc::pr_solve1(double s,
 
 void
 ArnoldiDelayCalc::pr_solve3(double s,
-			    int order,
-			    double *p,
-			    double *rr,
-			    double vhi,
-			    double *thi,
-			    double vmid,
-			    double *tmid,
-			    double vlo,
-			    double *tlo)
+                            int order,
+                            double *p,
+                            double *rr,
+                            double vhi,
+                            double *thi,
+                            double vmid,
+                            double *tmid,
+                            double vlo,
+                            double *tlo)
 {
   // falling, thi<tmin<tlo
   double tmin2,tmax2,vmin2,vmax2;
@@ -941,8 +948,8 @@ ArnoldiDelayCalc::pr_solve3(double s,
   double tmin8,tmax8,vmin8,vmax8;
   int h, h0 = 0;
   while (order>1
-	 && rr[order-1]<1e-8 // 1e-8V
-	 && rr[order-1]>-1e-8)
+         && rr[order-1]<1e-8 // 1e-8V
+         && rr[order-1]>-1e-8)
     order--;
   if (rr[0]<0.5) {
     for (h=1;h<order;h++) if (rr[h]>0.3 && rr[h]>rr[0]) { h0 = h; break; }
@@ -1111,11 +1118,11 @@ calc_integ(double p,double s,double t)
 
 double
 ArnoldiDelayCalc::pr_ceff(double s,
-			  double rdrive,
-			  int order,
-			  double *p,
-			  double *rr,
-			  double ceff_time)
+                          double rdrive,
+                          int order,
+                          double *p,
+                          double *rr,
+                          double ceff_time)
 {
   double integi = 0.0;
   double ceff, v0;
@@ -1133,7 +1140,7 @@ ArnoldiDelayCalc::pr_ceff(double s,
 
 static double
 ra_hinv(double y,
-	Debug *debug)
+        Debug *debug)
 {
   double x;
   if (y<1.0) {
@@ -1160,8 +1167,8 @@ ra_hinv(double y,
 
 double
 ArnoldiDelayCalc::ra_solve_for_t(double p,
-				 double s,
-				 double v)
+                                 double s,
+                                 double v)
 {
   double t;
   double ps = p*s;
@@ -1180,9 +1187,9 @@ ArnoldiDelayCalc::ra_solve_for_t(double p,
 
 void
 ArnoldiDelayCalc::ra_solve_for_pt(double ps,
-				  double v,
-				  double *pt,
-				  double *d)
+                                  double v,
+                                  double *pt,
+                                  double *d)
 {
   if (ps>30.0) {
     *pt = 1.0+ps*(1.0-v);
@@ -1201,10 +1208,10 @@ ArnoldiDelayCalc::ra_solve_for_pt(double ps,
 
 void
 ArnoldiDelayCalc::ra_calc_c(double vlo,
-			    double vhi,
-			    double *c_smin,
-			    double *c_x1,
-			    double *c_y1)
+                            double vhi,
+                            double *c_smin,
+                            double *c_x1,
+                            double *c_y1)
 {
   double a = log(1.0/vhi);
   *c_smin =  a + ra_hinv((1.0-vhi)/vhi - a, debug_);
@@ -1224,9 +1231,9 @@ ArnoldiDelayCalc::ra_calc_c(double vlo,
 
 void
 ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
-				 double p,
-				 double tlohi,
-				 double &s)
+                                 double p,
+                                 double tlohi,
+                                 double &s)
 {
   delay_c *c = D->c;
   double vhi = c->vhi;
@@ -1258,28 +1265,28 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
   f = (ptlo-pthi)/p - tlohi;
   df = dlo-dhi;
   s = s - f/df;
-  if (abs(f)<.001e-12) return;	// .001ps
+  if (abs(f)<.001e-12) return;  // .001ps
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
   f = (ptlo-pthi)/p - tlohi;
   df = dlo-dhi;
   s = s - f/df;
-  if (abs(f)<.001e-12) return;	// .001ps
+  if (abs(f)<.001e-12) return;  // .001ps
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
   f = (ptlo-pthi)/p - tlohi;
   df = dlo-dhi;
   s = s - f/df;
-  if (abs(f)<.001e-12) return;	// .001ps
+  if (abs(f)<.001e-12) return;  // .001ps
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
   f = (ptlo-pthi)/p - tlohi;
   df = dlo-dhi;
   s = s - f/df;
-  if (abs(f)<.001e-12) return;	// .001ps
+  if (abs(f)<.001e-12) return;  // .001ps
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
@@ -1308,9 +1315,9 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
 // Rough translation of ra_get_r(sy_table) used by ar1_ceff_delay.
 double
 ArnoldiDelayCalc::ra_get_r(delay_work *D,
-			   timing_table *tab,
-			   double rdelay,
-			   double ctot)
+                           timing_table *tab,
+                           double rdelay,
+                           double ctot)
 {
   // find the maximum r that allows a solution for s of
   // (s,r,ctot)-> output_slew
@@ -1333,9 +1340,9 @@ ArnoldiDelayCalc::ra_get_r(delay_work *D,
 
 double
 ArnoldiDelayCalc::ra_get_s(delay_work *D,
-			   timing_table *tab,
-			   double r,
-			   double c)
+                           timing_table *tab,
+                           double r,
+                           double c)
 {
   delay_c *con = D->c;
   double slew_derate = con->slew_derate;
@@ -1367,7 +1374,7 @@ ArnoldiDelayCalc::ra_get_s(delay_work *D,
 
 double
 ArnoldiDelayCalc::ra_rdelay_1(timing_table *tab,
-			      double ctot)
+                              double ctot)
 {
   // determine the drive resistance from change in delay versus ctot
   float c1 = ctot;
@@ -1387,10 +1394,10 @@ ArnoldiDelayCalc::ra_rdelay_1(timing_table *tab,
 
 void
 ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
-				 timing_table *tab,
-				 arnoldi1 *mod,
-				 double *delays,
-				 double *slews)
+                                 timing_table *tab,
+                                 arnoldi1 *mod,
+                                 double *delays,
+                                 double *slews)
 {
   delay_c *con = D->c;
   double slew_derate = con->slew_derate;
@@ -1411,13 +1418,13 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   r = rdelay;
   r = ra_get_r(D,tab,rdelay,ctot);
   if (! (r>0.0
-	 && r<100e+3)) // 100khom
+         && r<100e+3)) // 100khom
     rdelay = 1e+3; // 1kohm
 
   bool bad = (r<rdelay);
   s = ra_get_s(D,tab,r,ctot);
   if (! (s>0.0
-	 && s<100e-9)) // 100ns
+         && s<100e-9)) // 100ns
     s = 0.5e-9; // .5ns
 
   if (debug_->check("arnoldi", 1)) {
@@ -1464,9 +1471,9 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
       ceff = pr_ceff(s,r,mod->order,p,rr,ceff_time);
 
       if ((ceff-1e-20) < 0.0) {  // 1e-8pf
-	debugPrint(debug_, "arnoldi", 1,
+        debugPrint(debug_, "arnoldi", 1,
                     "Invalid effective capacitance, using total capacitance");
-	ceff = ctot;
+        ceff = ctot;
       }
 
       // new mvs at ceff

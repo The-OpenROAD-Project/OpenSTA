@@ -1,0 +1,33 @@
+---
+description: C++ coding standards and formatting for OpenSTA
+globs: ["**/*.cc", "**/*.hh", "**/*.h"]
+alwaysApply: false
+---
+
+# C++ Coding Standards
+
+## Line Width
+
+- **Keep lines under 90 characters** to match `.clang-format` (ColumnLimit: 90).
+- Break long lines at logical points: after commas, before operators, after opening parens.
+
+## Naming Conventions
+
+- **Classes**: Upper camel case (`ClassName`)
+- **Member functions**: Lower camel case (`memberFunction`)
+- **Member variables**: Snake case with trailing underscore (`member_variable_`)
+- **Functions**: Lower camel case (`functionName`)
+- **Variables**: Snake case
+
+## Code Style
+
+- Use `#pragma once` for header guards.
+- Return type on the line before the function name; arguments on separate lines when long.
+- No braces for single-line if/for; use braces for multi-line bodies.
+- Prefer `std::string` over `char*` for string members.
+- Prefer pass-by-value and move for sink parameters (parameters that get stored).
+
+## File Extensions
+
+- C++ source: `.cc`
+- C++ headers: `.hh`

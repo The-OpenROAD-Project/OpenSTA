@@ -25,8 +25,8 @@
 #pragma once
 
 #include <functional>
+#include <map>
 
-#include "Map.hh"
 #include "StringUtil.hh"
 #include "LibertyClass.hh"
 #include "VertexId.hh"
@@ -39,12 +39,12 @@ class Report;
 class PatternMatch;
 class PinVisitor;
 
-typedef Map<const char*, LibertyLibrary*, CharPtrLess> LibertyLibraryMap;
+using LibertyLibraryMap = std::map<const char*, LibertyLibrary*, CharPtrLess>;
 // Link network function returns top level instance.
 // Return nullptr if link fails.
-typedef std::function<Instance* (const char *top_cell_name,
-                                 bool make_black_boxes)> LinkNetworkFunc;
-typedef Map<const Net*, PinSet*> NetDrvrPinsMap;
+using LinkNetworkFunc = std::function<Instance* (const char *top_cell_name,
+                                                   bool make_black_boxes)>;
+using NetDrvrPinsMap = std::map<const Net*, PinSet*>;
 
 // The Network class defines the network API used by sta.
 // The interface to a network implementation is constructed by
@@ -101,8 +101,8 @@ public:
   // linking is not necessary because the network has already been expanded.
   // Return true if successful.
   virtual bool linkNetwork(const char *top_cell_name,
-			   bool make_black_boxes,
-			   Report *report) = 0;
+                           bool make_black_boxes,
+                           Report *report) = 0;
   virtual bool isLinked() const;
   virtual bool isEditable() const { return false; }
 
@@ -117,14 +117,14 @@ public:
   // Find liberty library by filename.
   virtual LibertyLibrary *findLibertyFilename(const char *filename);
   virtual Cell *findCell(const Library *library,
-			 const char *name) const = 0;
+                         const char *name) const = 0;
   // Search the design (non-liberty) libraries for cells matching pattern.
   virtual CellSeq findCellsMatching(const Library *library,
                                     const PatternMatch *pattern) const = 0;
   // Search liberty libraries for cell name.
   virtual LibertyCell *findLibertyCell(const char *name) const;
   virtual LibertyLibrary *makeLibertyLibrary(const char *name,
-					     const char *filename) = 0;
+                                             const char *filename) = 0;
   // Hook for network after reading liberty library.
   virtual void readLibertyAfter(LibertyLibrary *library);
   // First liberty library read is used to look up defaults.
@@ -132,10 +132,10 @@ public:
   virtual LibertyLibrary *defaultLibertyLibrary() const;
   void setDefaultLibertyLibrary(LibertyLibrary *library);
   // Check liberty cells used by the network to make sure they exist
-  // for all the defined corners.
-  void checkNetworkLibertyCorners();
-  // Check liberty cells to make sure they exist for all the defined corners.
-  void checkLibertyCorners();
+  // for all the defined scenes.
+  void checkNetworkLibertyScenes();
+  // Check liberty cells to make sure they exist for all the defined scenes.
+  void checkLibertyScenes();
 
   ////////////////////////////////////////////////////////////////
   // Cell functions.
@@ -156,7 +156,7 @@ public:
   virtual const AttributeMap &attributeMap(const Cell *cell) const = 0;
   // Name can be a simple, bundle, bus, or bus bit name.
   virtual Port *findPort(const Cell *cell,
-			 const char *name) const = 0;
+                         const char *name) const = 0;
   virtual PortSeq findPortsMatching(const Cell *cell,
                                     const PatternMatch *pattern) const;
   virtual bool isLeaf(const Cell *cell) const = 0;
@@ -182,17 +182,17 @@ public:
   virtual const char *busName(const Port *port) const = 0;
   // Bus member, bus[subscript].
   virtual Port *findBusBit(const Port *port,
-			   int index) const = 0;
+                           int index) const = 0;
   virtual int fromIndex(const Port *port) const = 0;
   virtual int toIndex(const Port *port) const = 0;
   // Predicate to determine if index is within bus range.
   //     (toIndex > fromIndex) && fromIndex <= index <= toIndex
   //  || (fromIndex > toIndex) && fromIndex >= index >= toIndex
   bool busIndexInRange(const Port *port,
-		       int index);
+                       int index);
   // Find Bundle/bus member by index.
   virtual Port *findMember(const Port *port,
-			   int index) const = 0;
+                           int index) const = 0;
   // Iterate over the bits of a bus port or members of a bundle.
   // from_index -> to_index
   virtual PortMemberIterator *memberIterator(const Port *port) const = 0;
@@ -222,13 +222,13 @@ public:
   // Hierarchical path name.
   virtual const char *pathName(const Instance *instance) const;
   bool pathNameLess(const Instance *inst1,
-		    const Instance *inst2) const;
+                    const Instance *inst2) const;
   int pathNameCmp(const Instance *inst1,
-		  const Instance *inst2) const;
+                  const Instance *inst2) const;
   // Path from instance up to top level (last in the sequence).
   void path(const Instance *inst,
-	    // Return value.
-	    InstanceSeq &path) const;
+            // Return value.
+            InstanceSeq &path) const;
   virtual Cell *cell(const Instance *instance) const = 0;
   virtual const char *cellName(const Instance *instance) const;
   virtual LibertyLibrary *libertyLibrary(const Instance *instance) const;
@@ -237,14 +237,14 @@ public:
   virtual bool isLeaf(const Instance *instance) const = 0;
   virtual bool isHierarchical(const Instance *instance) const;
   virtual Instance *findChild(const Instance *parent,
-			      const char *name) const = 0;
+                              const char *name) const = 0;
   virtual void findChildrenMatching(const Instance *parent,
-				    const PatternMatch *pattern,
+                                    const PatternMatch *pattern,
                                     // Return value.
                                     InstanceSeq &matches) const;
   // Is inst inside of hier_inst?
   bool isInside(const Instance *inst,
-		const Instance *hier_inst) const;
+                const Instance *hier_inst) const;
 
   // Iterate over all of the leaf instances in the hierarchy
   // This iterator is not virtual because it can be written in terms of
@@ -274,14 +274,14 @@ public:
   virtual ObjectId id(const Pin *pin) const = 0;
   virtual Pin *findPin(const char *path_name) const;
   virtual Pin *findPin(const Instance *instance,
-		       const char *port_name) const = 0;
+                       const char *port_name) const = 0;
   virtual Pin *findPin(const Instance *instance,
-		       const Port *port) const;
+                       const Port *port) const;
   virtual Pin *findPin(const Instance *instance,
-		       const LibertyPort *port) const;
+                       const LibertyPort *port) const;
   // Find pin relative to hierarchical instance.
   Pin *findPinRelative(const Instance *inst,
-		       const char *path_name) const;
+                       const char *path_name) const;
   // Default implementation uses linear search.
   virtual PinSeq findPinsMatching(const Instance *instance,
                                   const PatternMatch *pattern) const;
@@ -293,9 +293,9 @@ public:
   // Path name is instance_name/port_name.
   virtual const char *pathName(const Pin *pin) const;
   bool pathNameLess(const Pin *pin1,
-		    const Pin *pin2) const;
+                    const Pin *pin2) const;
   int pathNameCmp(const Pin *pin1,
-		  const Pin *pin2) const;
+                  const Pin *pin2) const;
   virtual Port *port(const Pin *pin) const = 0;
   virtual LibertyPort *libertyPort(const Pin *pin) const;
   virtual Instance *instance(const Pin *pin) const = 0;
@@ -303,14 +303,14 @@ public:
   virtual Term *term(const Pin *pin) const = 0;
   virtual PortDirection *direction(const Pin *pin) const = 0;
   virtual bool isLeaf(const Pin *pin) const;
-  bool isHierarchical(const Pin *pin) const;
-  bool isTopLevelPort(const Pin *pin) const;
+  [[nodiscard]] bool isHierarchical(const Pin *pin) const;
+  [[nodiscard]] bool isTopLevelPort(const Pin *pin) const;
   // Is pin inside the instance hier_pin is attached to?
   bool isInside(const Pin *pin,
-		const Pin *hier_pin) const;
+                const Pin *hier_pin) const;
   // Is pin inside of hier_inst?
   bool isInside(const Pin *pin,
-		const Instance *hier_inst) const;
+                const Instance *hier_inst) const;
   bool isDriver(const Pin *pin) const;
   bool isLoad(const Pin *pin) const;
   // Has register/latch rise/fall edges from pin.
@@ -324,23 +324,23 @@ public:
   // hierarchical pins).
   virtual PinConnectedPinIterator *connectedPinIterator(const Pin *pin) const;
   virtual void visitConnectedPins(const Pin *pin,
-				  PinVisitor &visitor) const;
+                                  PinVisitor &visitor) const;
 
   // Find driver pins for the net connected to pin.
   // Return value is owned by the network.
   virtual PinSet *drivers(const Pin *pin);
   virtual bool pinLess(const Pin *pin1,
-		       const Pin *pin2) const;
+                       const Pin *pin2) const;
   // Return the id of the pin graph vertex.
   virtual VertexId vertexId(const Pin *pin) const = 0;
   virtual void setVertexId(Pin *pin,
-			   VertexId id) = 0;
+                           VertexId id) = 0;
   // Return the physical X/Y coordinates of the pin.
   virtual void location(const Pin *pin,
-			// Return values.
-			double &x,
-			double &y,
-			bool &exists) const;
+                        // Return values.
+                        double &x,
+                        double &y,
+                        bool &exists) const;
 
   int pinCount();
   int pinCount(Instance *inst);
@@ -369,7 +369,7 @@ public:
   virtual NetSeq findNetsMatching(const Instance *context,
                                   const PatternMatch *pattern) const;
   virtual Net *findNet(const Instance *instance,
-		       const char *net_name) const = 0;
+                       const char *net_name) const = 0;
   // Traverse the hierarchy from instance down and find nets matching
   // pattern of the form instance_name/net_name.
   virtual NetSeq findNetsHierMatching(const Instance *instance,
@@ -380,25 +380,25 @@ public:
                                     NetSeq &matches) const = 0;
   virtual const char *pathName(const Net *net) const;
   bool pathNameLess(const Net *net1,
-		    const Net *net2) const;
+                    const Net *net2) const;
   int pathNameCmp(const Net *net1,
-		  const Net *net2) const;
+                  const Net *net2) const;
   virtual Instance *instance(const Net *net) const = 0;
   // Is net inside of hier_inst?
   virtual bool isInside(const Net *net,
-			const Instance *hier_inst) const;
+                        const Instance *hier_inst) const;
   // Is pin connected to net anywhere in the hierarchy?
   virtual bool isConnected(const Net *net,
-			   const Pin *pin) const;
+                           const Pin *pin) const;
   // Is net1 connected to net2 anywhere in the hierarchy?
   virtual bool isConnected(const Net *net1,
-			   const Net *net2) const;
+                           const Net *net2) const;
   virtual Net *highestNetAbove(Net *net) const;
   virtual const Net *highestConnectedNet(Net *net) const;
   virtual void connectedNets(Net *net,
-			     NetSet *nets) const;
+                             NetSet *nets) const;
   virtual void connectedNets(const Pin *pin,
-			     NetSet *nets) const;
+                             NetSet *nets) const;
   virtual bool isPower(const Net *net) const = 0;
   virtual bool isGround(const Net *net) const = 0;
 
@@ -411,7 +411,7 @@ public:
   // hierarchical pins).
   virtual NetConnectedPinIterator *connectedPinIterator(const Net *net) const;
   virtual void visitConnectedPins(const Net *net,
-				  PinVisitor &visitor) const;
+                                  PinVisitor &visitor) const;
   // Find driver pins for net.
   // Return value is owned by the network.
   virtual PinSet *drivers(const Net *net);
@@ -427,14 +427,14 @@ public:
   // first and tail are both null if there are no dividers in path.
   // Caller must delete first and tail.
   void pathNameFirst(const char *path_name,
-		     char *&first,
-		     char *&tail) const;
+                     char *&first,
+                     char *&tail) const;
   // Parse path into head/last (last hierarchy divider separated token).
   // head and last are both null if there are no dividers in path.
   // Caller must delete head and last.
   void pathNameLast(const char *path_name,
-		    char *&head,
-		    char *&last) const;
+                    char *&head,
+                    char *&last) const;
 
   // Divider between instance names in a hierarchical path name.
   virtual char pathDivider() const { return divider_; }
@@ -445,11 +445,11 @@ public:
 
 protected:
   Pin *findPinLinear(const Instance *instance,
-		     const char *port_name) const;
+                     const char *port_name) const;
   void findInstancesMatching1(const Instance *context,
-			      size_t context_name_length,
-			      const PatternMatch *pattern,
-			      InstanceSeq &insts) const;
+                              size_t context_name_length,
+                              const PatternMatch *pattern,
+                              InstanceSeq &insts) const;
   void findInstancesHierMatching1(const Instance *instance,
                                   const PatternMatch *pattern,
                                   InstanceSeq &matches) const;
@@ -464,15 +464,15 @@ protected:
                             // Return value.
                             PinSeq &matches) const;
   bool isConnected(const Net *net,
-		   const Pin *pin,
-		   NetSet &nets) const;
+                   const Pin *pin,
+                   NetSet &nets) const;
   bool isConnected(const Net *net1,
-		   const Net *net2,
-		   NetSet &nets) const;
+                   const Net *net2,
+                   NetSet &nets) const;
   int hierarchyLevel(const Net *net) const;
   virtual void visitConnectedPins(const Net *net,
-				  PinVisitor &visitor,
-				  NetSet &visited_nets) const;
+                                  PinVisitor &visitor,
+                                  NetSet &visited_nets) const;
   // Default implementation uses linear search.
   virtual void findInstPinsMatching(const Instance *instance,
                                     const PatternMatch *pattern,
@@ -484,7 +484,7 @@ protected:
                                 PinSeq &matches) const;
   // findNet using linear search.
   Net *findNetLinear(const Instance *instance,
-		     const char *net_name) const;
+                     const char *net_name) const;
   // findNetsMatching using linear search.
   NetSeq findNetsMatchingLinear(const Instance *instance,
                                 const PatternMatch *pattern) const;
@@ -506,33 +506,33 @@ public:
   NetworkEdit();
   virtual bool isEditable() const { return true; }
   virtual Instance *makeInstance(LibertyCell *cell,
-				 const char *name,
-				 Instance *parent) = 0;
+                                 const char *name,
+                                 Instance *parent) = 0;
   virtual void makePins(Instance *inst) = 0;
   virtual void replaceCell(Instance *inst,
-			   Cell *cell) = 0;
+                           Cell *cell) = 0;
   // Deleting instance also deletes instance pins.
   virtual void deleteInstance(Instance *inst) = 0;
   // Connect the port on an instance to a net.
   virtual Pin *connect(Instance *inst,
-		       Port *port,
-		       Net *net) = 0;
+                       Port *port,
+                       Net *net) = 0;
   virtual Pin *connect(Instance *inst,
-		       LibertyPort *port,
-		       Net *net) = 0;
+                       LibertyPort *port,
+                       Net *net) = 0;
   // makePin/connectPin replaced by connect.
   // deprecated 2018-09-28
   virtual void connectPin(Pin *pin,
-			  Net *net) __attribute__ ((deprecated));
+                          Net *net) __attribute__ ((deprecated));
   // Disconnect pin from net.
   virtual void disconnectPin(Pin *pin) = 0;
   virtual void deletePin(Pin *pin) = 0;
   virtual Net *makeNet(const char *name,
-		       Instance *parent) = 0;
+                       Instance *parent) = 0;
   // Deleting net disconnects (but does not delete) net pins.
   virtual void deleteNet(Net *net) = 0;
   virtual void mergeInto(Net *net,
-			 Net *into_net) = 0;
+                         Net *into_net) = 0;
   virtual Net *mergedInto(Net *net) = 0;
 };
 
@@ -545,19 +545,19 @@ public:
   virtual void readNetlistBefore() = 0;
   virtual void setLinkFunc(LinkNetworkFunc link) = 0;
   virtual Library *makeLibrary(const char *name,
-			       const char *filename) = 0;
+                               const char *filename) = 0;
   virtual void deleteLibrary(Library *library) = 0;
   // Search the libraries in read order for a cell by name.
   virtual Cell *findAnyCell(const char *name) = 0;
   virtual Cell *makeCell(Library *library,
-			 const char *name,
-			 bool is_leaf,
-			 const char *filename) = 0;
+                         const char *name,
+                         bool is_leaf,
+                         const char *filename) = 0;
   virtual void deleteCell(Cell *cell) = 0;
   virtual void setName(Cell *cell,
-		       const char *name) = 0;
+                       const char *name) = 0;
   virtual void setIsLeaf(Cell *cell,
-			 bool is_leaf) = 0;
+                         bool is_leaf) = 0;
   virtual void setAttribute(Cell *cell,
                             const std::string &key,
                             const std::string &value) = 0;
@@ -565,42 +565,42 @@ public:
                             const std::string &key,
                             const std::string &value) = 0;
   virtual Port *makePort(Cell *cell,
-			 const char *name) = 0;
+                         const char *name) = 0;
   virtual Port *makeBusPort(Cell *cell,
-			    const char *name,
-			    int from_index,
-			    int to_index) = 0;
+                            const char *name,
+                            int from_index,
+                            int to_index) = 0;
   virtual void groupBusPorts(Cell *cell,
                              std::function<bool(const char*)> port_msb_first) = 0;
   virtual Port *makeBundlePort(Cell *cell,
-			       const char *name,
-			       PortSeq *members) = 0;
+                               const char *name,
+                               PortSeq *members) = 0;
   virtual Instance *makeInstance(Cell *cell,
-				 const char *name,
-				 Instance *parent) = 0;
+                                 const char *name,
+                                 Instance *parent) = 0;
   virtual Pin *makePin(Instance *inst,
-		       Port *port,
-		       Net *net) = 0;
+                       Port *port,
+                       Net *net) = 0;
   virtual Term *makeTerm(Pin *pin,
-			 Net *net) = 0;
+                         Net *net) = 0;
   virtual void setDirection(Port *port,
-			    PortDirection *dir) = 0;
+                            PortDirection *dir) = 0;
   // Instance is the network view for cell.
   virtual void setCellNetworkView(Cell *cell,
-				  Instance *inst) = 0;
+                                  Instance *inst) = 0;
   virtual Instance *cellNetworkView(Cell *cell) = 0;
   virtual void deleteCellNetworkViews() = 0;
   virtual void addConstantNet(Net *net,
-			      LogicValue const_value) = 0;
+                              LogicValue const_value) = 0;
 
   using NetworkEdit::makeInstance;
 };
 
 Instance *
 linkReaderNetwork(Cell *top_cell,
-		  bool make_black_boxes,
-		  Report *report,
-		  NetworkReader *network);
+                  bool make_black_boxes,
+                  Report *report,
+                  NetworkReader *network);
 
 // Abstract class for Network::constantPinIterator().
 class ConstantPinIterator
@@ -610,7 +610,7 @@ public:
   virtual ~ConstantPinIterator() {}
   virtual bool hasNext() = 0;
   virtual void next(const Pin *&pin,
-		    LogicValue &value) = 0;
+                    LogicValue &value) = 0;
 };
 
 // Implementation class for Network::constantPinIterator().
@@ -618,20 +618,20 @@ class NetworkConstantPinIterator : public ConstantPinIterator
 {
 public:
   NetworkConstantPinIterator(const Network *network,
-			      NetSet &zero_nets,
-			      NetSet &one_nets);
-  ~NetworkConstantPinIterator();
+                              NetSet &zero_nets,
+                              NetSet &one_nets);
+  virtual ~NetworkConstantPinIterator() {}
   virtual bool hasNext();
   virtual void next(const Pin *&pin, LogicValue &value);
 
 private:
   void findConstantPins(NetSet &nets,
-			PinSet &pins);
+                        PinSet &pins);
 
   const Network *network_;
   PinSet constant_pins_[2];
   LogicValue value_;
-  PinSet::Iterator *pin_iter_;
+  PinSet::iterator pin_iter_;
 };
 
 // Abstract base class for visitDrvrLoadsThruHierPin visitor.
@@ -641,7 +641,7 @@ public:
   HierPinThruVisitor() {}
   virtual ~HierPinThruVisitor() {}
   virtual void visit(const Pin *drvr,
-		     const Pin *load) = 0;
+                     const Pin *load) = 0;
 };
 
 class PinVisitor
@@ -655,10 +655,10 @@ class FindNetDrvrLoads : public PinVisitor
 {
 public:
   FindNetDrvrLoads(const Pin *drvr_pin,
-		   PinSet &visited_drvrs,
-		   PinSeq &loads,
-		   PinSeq &drvrs,
-		   const Network *network);
+                   PinSet &visited_drvrs,
+                   PinSeq &loads,
+                   PinSeq &drvrs,
+                   const Network *network);
   virtual void operator()(const Pin *pin);
 
 protected:
@@ -672,12 +672,12 @@ protected:
 // Visit driver/loads pins through a hierarcial pin.
 void
 visitDrvrLoadsThruHierPin(const Pin *hpin,
-			  const Network *network,
-			  HierPinThruVisitor *visitor);
+                          const Network *network,
+                          HierPinThruVisitor *visitor);
 void
 visitDrvrLoadsThruNet(const Net *net,
-		      const Network *network,
-		      HierPinThruVisitor *visitor);
+                      const Network *network,
+                      HierPinThruVisitor *visitor);
 
 char
 logicValueString(LogicValue value);

@@ -33,11 +33,11 @@ class ClockGroups : public SdcCmdComment
 {
 public:
   ClockGroups(const char *name,
-	      bool logically_exclusive,
-	      bool physically_exclusive,
-	      bool asynchronous,
-	      bool allow_paths,
-	      const char *comment);
+              bool logically_exclusive,
+              bool physically_exclusive,
+              bool asynchronous,
+              bool allow_paths,
+              const char *comment);
   ~ClockGroups();
   void makeClockGroup(ClockSet *clks);
   const char *name() const { return name_; }

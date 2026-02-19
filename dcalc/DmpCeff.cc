@@ -44,7 +44,6 @@
 #include "Network.hh"
 #include "Sdc.hh"
 #include "Parasitics.hh"
-#include "DcalcAnalysisPt.hh"
 #include "ArcDelayCalc.hh"
 #include "FindRoot.hh"
 #include "Variables.hh"
@@ -95,36 +94,36 @@ private:
 
 static double
 gateModelRd(const LibertyCell *cell,
-	    const GateTableModel *gate_model,
-	    const RiseFall *rf,
-	    double in_slew,
-	    double c2,
-	    double c1,
-	    const Pvt *pvt,
-	    bool pocv_enabled);
+            const GateTableModel *gate_model,
+            const RiseFall *rf,
+            double in_slew,
+            double c2,
+            double c1,
+            const Pvt *pvt,
+            bool pocv_enabled);
 static void
 newtonRaphson(const int max_iter,
-	      double x[],
-	      const int n,
-	      const double x_tol,
-	      // eval(state) is called to fill fvec and fjac.
-	      function<void ()> eval,
-	      // Temporaries supplied by caller.
-	      double *fvec,
-	      double **fjac,
-	      int *index,
-	      double *p,
-	      double *scale);
+              double x[],
+              const int n,
+              const double x_tol,
+              // eval(state) is called to fill fvec and fjac.
+              function<void ()> eval,
+              // Temporaries supplied by caller.
+              double *fvec,
+              double **fjac,
+              int *index,
+              double *p,
+              double *scale);
 static void
 luSolve(double **a,
-	const int size,
-	const int *index,
-	double b[]);
+        const int size,
+        const int *index,
+        double b[]);
 static void
 luDecomp(double **a,
-	 const int size,
-	 int *index,
-	 double *scale);
+         const int size,
+         int *index,
+         double *scale);
 
 ////////////////////////////////////////////////////////////////
 
@@ -138,23 +137,23 @@ public:
   virtual const char *name() = 0;
   // Set driver model and pi model parameters for delay calculation.
   virtual void init(const LibertyLibrary *library,
-		    const LibertyCell *drvr_cell,
-		    const Pvt *pvt,
-		    const GateTableModel *gate_model,
-		    const RiseFall *rf,
-		    double rd,
-		    double in_slew,
-		    double c2,
-		    double rpi,
-		    double c1);
+                    const LibertyCell *drvr_cell,
+                    const Pvt *pvt,
+                    const GateTableModel *gate_model,
+                    const RiseFall *rf,
+                    double rd,
+                    double in_slew,
+                    double c2,
+                    double rpi,
+                    double c1);
   virtual void gateDelaySlew(// Return values.
                              double &delay,
-			     double &slew) = 0;
+                             double &slew) = 0;
   virtual void loadDelaySlew(const Pin *load_pin,
-			     double elmore,
+                             double elmore,
                              // Return values.
-			     ArcDelay &delay,
-			     Slew &slew);
+                             ArcDelay &delay,
+                             Slew &slew);
   double ceff() { return ceff_; }
 
   // Given x_ as a vector of input parameters, fill fvec_ with the
@@ -176,32 +175,32 @@ protected:
   void findDriverParams(double ceff);
   void gateCapDelaySlew(double cl,
                         // Return values.
-			double &delay,
-			double &slew);
+                        double &delay,
+                        double &slew);
   void gateDelays(double ceff,
                   // Return values.
-		  double &t_vth,
-		  double &t_vl,
-		  double &slew);
+                  double &t_vth,
+                  double &t_vl,
+                  double &slew);
   // Partial derivatives of y(t) (jacobian).
   void dy(double t,
-	  double t0,
-	  double dt,
-	  double cl,
+          double t0,
+          double dt,
+          double cl,
           // Return values.
-	  double &dydt0,
-	  double &dyddt,
-	  double &dydcl);
+          double &dydt0,
+          double &dyddt,
+          double &dydcl);
   double y0dt(double t,
-	      double cl);
+              double cl);
   double y0dcl(double t,
-	       double cl);
+               double cl);
   void showX();
   void showFvec();
   void showJacobian();
   void findDriverDelaySlew(// Return values.
                            double &delay,
-			   double &slew);
+                           double &slew);
   double findVoCrossing(double vth,
                         double lower_bound,
                         double upper_bound);
@@ -214,12 +213,12 @@ protected:
 
   // Output response to vs(t) ramp driving capacitive load.
   double y(double t,
-	   double t0,
-	   double dt,
-	   double cl);
+           double t0,
+           double dt,
+           double cl);
   // Output response to unit ramp driving capacitive load.
   double y0(double t,
-	    double cl);
+            double cl);
   // Output response to unit ramp driving pi model load.
   virtual void V0(double t,
                   // Return values.
@@ -285,7 +284,7 @@ protected:
 };
 
 DmpAlg::DmpAlg(int nr_order,
-	       StaState *sta):
+               StaState *sta):
   StaState(sta),
   c2_(0.0),
   rpi_(0.0),
@@ -301,16 +300,16 @@ DmpAlg::~DmpAlg() = default;
 
 void
 DmpAlg::init(const LibertyLibrary *drvr_library,
-	     const LibertyCell *drvr_cell,
-	     const Pvt *pvt,
-	     const GateTableModel *gate_model,
-	     const RiseFall *rf,
-	     double rd,
-	     double in_slew,
-	     // Pi model.
-	     double c2,
-	     double rpi,
-	     double c1)
+             const LibertyCell *drvr_cell,
+             const Pvt *pvt,
+             const GateTableModel *gate_model,
+             const RiseFall *rf,
+             double rd,
+             double in_slew,
+             // Pi model.
+             double c2,
+             double rpi,
+             double c1)
 {
   drvr_library_ = drvr_library;
   drvr_cell_ = drvr_cell;
@@ -343,7 +342,7 @@ DmpAlg::findDriverParams(double ceff)
   x_[DmpParam::t0] = t0;
   newtonRaphson(100, x_, nr_order_, driver_param_tol,
                 [this] () { evalDmpEqns(); },
-		fvec_, fjac_, index_, p_, scale_);
+                fvec_, fjac_, index_, p_, scale_);
   t0_ = x_[DmpParam::t0];
   dt_ = x_[DmpParam::dt];
   debugPrint(debug_, "dmp_ceff", 3, "    t0 = %s dt = %s ceff = %s",
@@ -356,9 +355,9 @@ DmpAlg::findDriverParams(double ceff)
 
 void
 DmpAlg::gateCapDelaySlew(double ceff,
-			 // Return values.
+                         // Return values.
                          double &delay,
-			 double &slew)
+                         double &slew)
 {
   ArcDelay model_delay;
   Slew model_slew;
@@ -371,10 +370,10 @@ DmpAlg::gateCapDelaySlew(double ceff,
 
 void
 DmpAlg::gateDelays(double ceff,
-		   // Return values.
+                   // Return values.
                    double &t_vth,
-		   double &t_vl,
-		   double &slew)
+                   double &t_vl,
+                   double &slew)
 {
   double table_slew;
   gateCapDelaySlew(ceff, t_vth, table_slew);
@@ -385,9 +384,9 @@ DmpAlg::gateDelays(double ceff,
 
 double
 DmpAlg::y(double t,
-	  double t0,
-	  double dt,
-	  double cl)
+          double t0,
+          double dt,
+          double cl)
 {
   double t1 = t - t0;
   if (t1 <= 0.0)
@@ -400,20 +399,20 @@ DmpAlg::y(double t,
 
 double
 DmpAlg::y0(double t,
-	   double cl)
+           double cl)
 {
   return t - rd_ * cl * (1.0 - exp2(-t / (rd_ * cl)));
 }
 
 void
 DmpAlg::dy(double t,
-	   double t0,
-	   double dt,
-	   double cl,
-	   // Return values.
-	   double &dydt0,
-	   double &dyddt,
-	   double &dydcl)
+           double t0,
+           double dt,
+           double cl,
+           // Return values.
+           double &dydt0,
+           double &dyddt,
+           double &dydcl)
 {
   double t1 = t - t0;
   if (t1 <= 0.0)
@@ -433,14 +432,14 @@ DmpAlg::dy(double t,
 
 double
 DmpAlg::y0dt(double t,
-	     double cl)
+             double cl)
 {
   return 1.0 - exp2(-t / (rd_ * cl));
 }
 
 double
 DmpAlg::y0dcl(double t,
-	      double cl)
+              double cl)
 {
   return rd_ * ((1.0 + t / (rd_ * cl)) * exp2(-t / (rd_ * cl)) - 1);
 }
@@ -478,7 +477,7 @@ DmpAlg::showJacobian()
 void
 DmpAlg::findDriverDelaySlew(// Return values.
                             double &delay,
-			    double &slew)
+                            double &slew)
 {
   double t_upper = voCrossingUpperBound();
   delay = findVoCrossing(vth_, t0_, t_upper);
@@ -554,9 +553,9 @@ DmpAlg::showVo()
 
 void
 DmpAlg::loadDelaySlew(const Pin *,
-		      double elmore,
-		      ArcDelay &delay,
-		      Slew &slew)
+                      double elmore,
+                      ArcDelay &delay,
+                      Slew &slew)
 {
   if (!driver_valid_
       || elmore == 0.0
@@ -570,7 +569,7 @@ DmpAlg::loadDelaySlew(const Pin *,
     // convert the delay and slew to the load's thresholds.
     try {
       if (debug_->check("dmp_ceff", 4))
-	showVl();
+        showVl();
       elmore_ = elmore;
       p3_ = 1.0 / elmore;
       double t_lower = t0_;
@@ -583,17 +582,17 @@ DmpAlg::loadDelaySlew(const Pin *,
       // Convert measured slew to reported/table slew.
       double slew1 = (th - tl) / slew_derate_;
       if (delay1 < 0.0) {
-	// Only report a problem if the difference is significant.
-	if (-delay1 > vth_time_tol * vo_delay_)
-	  fail("load delay less than zero");
-	// Use elmore delay.
-	delay1 = elmore;
+        // Only report a problem if the difference is significant.
+        if (-delay1 > vth_time_tol * vo_delay_)
+          fail("load delay less than zero");
+        // Use elmore delay.
+        delay1 = elmore;
       }
       if (slew1 < drvr_slew_) {
-	// Only report a problem if the difference is significant.
-	if ((drvr_slew_ - slew1) > vth_time_tol * drvr_slew_)
-	  fail("load slew less than driver slew");
-	slew1 = drvr_slew_;
+        // Only report a problem if the difference is significant.
+        if ((drvr_slew_ - slew1) > vth_time_tol * drvr_slew_)
+          fail("load slew less than driver slew");
+        slew1 = drvr_slew_;
       }
       delay = delay1;
       slew = slew1;
@@ -735,26 +734,26 @@ DmpCap::DmpCap(StaState *sta):
 
 void
 DmpCap::init(const LibertyLibrary *drvr_library,
-	     const LibertyCell *drvr_cell,
-	     const Pvt *pvt,
-	     const GateTableModel *gate_model,
-	     const RiseFall *rf,
-	     double rd,
-	     double in_slew,
-	     double c2,
-	     double rpi,
-	     double c1)
+             const LibertyCell *drvr_cell,
+             const Pvt *pvt,
+             const GateTableModel *gate_model,
+             const RiseFall *rf,
+             double rd,
+             double in_slew,
+             double c2,
+             double rpi,
+             double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP cap");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf,
-	       rd, in_slew, c2, rpi, c1);
+               rd, in_slew, c2, rpi, c1);
   ceff_ = c1 + c2;
 }
 
 void
 DmpCap::gateDelaySlew(// Return values.
                       double &delay,
-		      double &slew)
+                      double &slew)
 {
   debugPrint(debug_, "dmp_ceff", 3, "    ceff = %s",
              units_->capacitanceUnit()->asString(ceff_));
@@ -764,9 +763,9 @@ DmpCap::gateDelaySlew(// Return values.
 
 void
 DmpCap::loadDelaySlew(const Pin *,
-		      double elmore,
-		      ArcDelay &delay,
-		      Slew &slew)
+                      double elmore,
+                      ArcDelay &delay,
+                      Slew &slew)
 {
   delay = elmore;
   slew = drvr_slew_;
@@ -830,9 +829,9 @@ public:
 private:
   void findDriverParamsPi();
   double ipiIceff(double t0,
-		  double dt,
-		  double ceff_time,
-		  double ceff);
+                  double dt,
+                  double ceff_time,
+                  double ceff);
   void V0(double t,
           // Return values.
           double &vo,
@@ -876,19 +875,19 @@ DmpPi::DmpPi(StaState *sta) :
 
 void
 DmpPi::init(const LibertyLibrary *drvr_library,
-	    const LibertyCell *drvr_cell,
-	    const Pvt *pvt,
-	    const GateTableModel *gate_model,
-	    const RiseFall *rf,
-	    double rd,
-	    double in_slew,
-	    double c2,
-	    double rpi,
-	    double c1)
+            const LibertyCell *drvr_cell,
+            const Pvt *pvt,
+            const GateTableModel *gate_model,
+            const RiseFall *rf,
+            double rd,
+            double in_slew,
+            double c2,
+            double rpi,
+            double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP Pi");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
-	       in_slew, c2, rpi, c1);
+               in_slew, c2, rpi, c1);
 
   // Find poles/zeros.
   z1_ = 1.0 / (rpi_ * c1_);
@@ -914,7 +913,7 @@ DmpPi::init(const LibertyLibrary *drvr_library,
 void
 DmpPi::gateDelaySlew(// Return values.
                      double &delay,
-		     double &slew)
+                     double &slew)
 {
   driver_valid_ = false;
   try {
@@ -1000,7 +999,7 @@ DmpPi::evalDmpEqns()
     (-A_ * dt + B_ * dt * exp_p1_dt - (2 * B_ / p1_) * (1.0 - exp_p1_dt)
      + D_ * dt * exp_p2_dt - (2 * D_ / p2_) * (1.0 - exp_p2_dt)
      + rd_ * ceff * (dt + dt * exp_dt_rd_ceff
-		     - 2 * rd_ * ceff * (1.0 - exp_dt_rd_ceff)))
+                     - 2 * rd_ * ceff * (1.0 - exp_dt_rd_ceff)))
     / (rd_ * dt * dt * dt);
   fjac_[DmpFunc::ipi][DmpParam::ceff] =
     (2 * rd_ * ceff - dt - (2 * rd_ * ceff + dt) * exp2(-dt / (rd_ * ceff)))
@@ -1027,17 +1026,17 @@ DmpPi::evalDmpEqns()
 // Eqn 13, Eqn 14.
 double
 DmpPi::ipiIceff(double, double dt,
-		double ceff_time,
-		double ceff)
+                double ceff_time,
+                double ceff)
 {
   double exp_p1_dt = exp2(-p1_ * ceff_time);
   double exp_p2_dt = exp2(-p2_ * ceff_time);
   double exp_dt_rd_ceff = exp2(-ceff_time / (rd_ * ceff));
   double ipi = (A_ * ceff_time + (B_ / p1_) * (1.0 - exp_p1_dt)
-	       + (D_ / p2_) * (1.0 - exp_p2_dt))
+               + (D_ / p2_) * (1.0 - exp_p2_dt))
     / (rd_ * ceff_time * dt);
   double iceff = (rd_ * ceff * ceff_time - (rd_ * ceff) * (rd_ * ceff)
-		  * (1.0 - exp_dt_rd_ceff))
+                  * (1.0 - exp_dt_rd_ceff))
     / (rd_ * ceff_time * dt);
   return ipi - iceff;
 }
@@ -1064,7 +1063,7 @@ DmpPi::Vl0(double t,
   double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
   double D4 = -p3_ * k0_ * k4_ / (p2_ - p3_);
   double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_)
-		    + p3_ * k4_ / (p2_ - p3_));
+                    + p3_ * k4_ / (p2_ - p3_));
   double exp_p1 = exp2(-p1_ * t);
   double exp_p2 = exp2(-p2_ * t);
   double exp_p3 = exp2(-p3_ * t);
@@ -1194,19 +1193,19 @@ DmpZeroC2::DmpZeroC2(StaState *sta) :
 
 void
 DmpZeroC2::init(const LibertyLibrary *drvr_library,
-		const LibertyCell *drvr_cell,
-		const Pvt *pvt,
-		const GateTableModel *gate_model,
-		const RiseFall *rf,
-		double rd,
-		double in_slew,
-		double c2,
-		double rpi,
-		double c1)
+                const LibertyCell *drvr_cell,
+                const Pvt *pvt,
+                const GateTableModel *gate_model,
+                const RiseFall *rf,
+                double rd,
+                double in_slew,
+                double c2,
+                double rpi,
+                double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP C2=0");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
-	       in_slew, c2, rpi, c1);
+               in_slew, c2, rpi, c1);
   ceff_ = c1;
 
   z1_ = 1.0 / (rpi_ * c1_);
@@ -1221,7 +1220,7 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
 void
 DmpZeroC2::gateDelaySlew(// Return values.
                          double &delay,
-			 double &slew)
+                         double &slew)
 {
   try {
     findDriverParams(c1_);
@@ -1280,16 +1279,16 @@ DmpZeroC2::voCrossingUpperBound()
 // Return error msg on failure.
 static void
 newtonRaphson(const int max_iter,
-	      double x[],
-	      const int size,
-	      const double x_tol,
-	      function<void ()> eval,
-	      // Temporaries supplied by caller.
-	      double *fvec,
-	      double **fjac,
-	      int *index,
-	      double *p,
-	      double *scale)
+              double x[],
+              const int size,
+              const double x_tol,
+              function<void ()> eval,
+              // Temporaries supplied by caller.
+              double *fvec,
+              double **fjac,
+              int *index,
+              double *p,
+              double *scale)
 {
   for (int k = 0; k < max_iter; k++) {
     eval();
@@ -1302,7 +1301,7 @@ newtonRaphson(const int max_iter,
     bool all_under_x_tol = true;
     for (int i = 0; i < size; i++) {
       if (abs(p[i]) > abs(x[i]) * x_tol)
-	all_under_x_tol = false;
+        all_under_x_tol = false;
       x[i] += p[i];
     }
     if (all_under_x_tol)
@@ -1325,11 +1324,11 @@ newtonRaphson(const int max_iter,
 // Return error msg on failure.
 void
 luDecomp(double **a,
-	 const int size,
-	 int *index,
-	 // Temporary supplied by caller.
-	 // scale stores the implicit scaling of each row.
-	 double *scale)
+         const int size,
+         int *index,
+         // Temporary supplied by caller.
+         // scale stores the implicit scaling of each row.
+         double *scale)
 {
   // Find implicit scaling factors.
   for (int i = 0; i < size; i++) {
@@ -1337,7 +1336,7 @@ luDecomp(double **a,
     for (int j = 0; j < size; j++) {
       double temp = abs(a[i][j]);
       if (temp > big)
-	big = temp;
+        big = temp;
     }
     if (big == 0.0)
       throw DmpError("LU decomposition: no non-zero row element");
@@ -1349,7 +1348,7 @@ luDecomp(double **a,
     for (int i = 0; i < j; i++) {
       double sum = a[i][j];
       for (int k = 0; k < i; k++)
-	sum -= a[i][k] * a[k][j];
+        sum -= a[i][k] * a[k][j];
       a[i][j] = sum;
     }
     // Run down jth subdiag to form the residuals after the elimination
@@ -1362,21 +1361,21 @@ luDecomp(double **a,
     for (int i = j; i < size; i++) {
       double sum = a[i][j];
       for (int k = 0; k < j; k++)
-	sum -= a[i][k] * a[k][j];
+        sum -= a[i][k] * a[k][j];
       a[i][j] = sum;
       double dum = scale[i] * abs(sum);
       if (dum >= big) {
-	big = dum;
-	imax = i;
+        big = dum;
+        imax = i;
       }
     }
     // Permute current row with imax.
     if (j != imax) {
       // Yes, do so...
       for (int k = 0; k < size; k++) {
-	double dum = a[imax][k];
-	a[imax][k] = a[j][k];
-	a[j][k] = dum;
+        double dum = a[imax][k];
+        a[imax][k] = a[j][k];
+        a[j][k] = dum;
       }
       scale[imax] = scale[j];
     }
@@ -1387,7 +1386,7 @@ luDecomp(double **a,
     if (j != size_1) {
       double pivot = 1.0 / a[j][j];
       for (int i = j + 1; i < size; i++)
-	a[i][j] *= pivot;
+        a[i][j] *= pivot;
     }
   }
 }
@@ -1399,9 +1398,9 @@ luDecomp(double **a,
 // a and index are not modified.
 void
 luSolve(double **a,
-	const int size,
-	const int *index,
-	double b[])
+        const int size,
+        const int *index,
+        double b[])
 {
   // Transform b allowing for leading zeros.
   int non_zero = -1;
@@ -1411,11 +1410,11 @@ luSolve(double **a,
     b[iperm] = b[i];
     if (non_zero != -1) {
       for (int j = non_zero; j <= i - 1; j++)
-	sum -= a[i][j] * b[j];
+        sum -= a[i][j] * b[j];
     }
     else {
       if (sum != 0.0)
-	non_zero = i;
+        non_zero = i;
     }
     b[i] = sum;
   }
@@ -1495,20 +1494,22 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
                             float load_cap,
                             const Parasitic *parasitic,
                             const LoadPinIndexMap &load_pin_index_map,
-                            const DcalcAnalysisPt *dcalc_ap)
+                            const Scene *scene,
+                            const MinMax *min_max)
 {
+  parasitics_ = scene->parasitics(min_max);
   const RiseFall *rf = arc->toEdge()->asRiseFall();
   const LibertyCell *drvr_cell = arc->from()->libertyCell();
   const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
 
-  GateTableModel *table_model = arc->gateTableModel(dcalc_ap);
+  GateTableModel *table_model = arc->gateTableModel(scene, min_max);
   if (table_model && parasitic) {
     float in_slew1 = delayAsFloat(in_slew);
     float c2, rpi, c1;
     parasitics_->piModel(parasitic, c2, rpi, c1);
     if (isnan(c2) || isnan(c1) || isnan(rpi))
       report_->error(1040, "parasitic Pi model has NaNs.");
-    setCeffAlgorithm(drvr_library, drvr_cell, pinPvt(drvr_pin, dcalc_ap),
+    setCeffAlgorithm(drvr_library, drvr_cell, pinPvt(drvr_pin, scene, min_max),
                      table_model, rf, in_slew1, c2, rpi, c1);
     double gate_delay, drvr_slew;
     gateDelaySlew(gate_delay, drvr_slew);
@@ -1529,12 +1530,12 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
   else {
     ArcDcalcResult dcalc_result =
       LumpedCapDelayCalc::gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
-                                    load_pin_index_map, dcalc_ap);
+                                    load_pin_index_map, scene, min_max);
     if (parasitic
-	&& !unsuppored_model_warned_) {
+        && !unsuppored_model_warned_) {
       unsuppored_model_warned_ = true;
       report_->warn(1041, "cell %s delay model not supported on SPF parasitics by DMP delay calculator",
-		    drvr_cell->name());
+                    drvr_cell->name());
     }
     return dcalc_result;
   }
@@ -1542,25 +1543,25 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
 
 void
 DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
-				   const LibertyCell *drvr_cell,
-				   const Pvt *pvt,
-				   const GateTableModel *gate_model,
-				   const RiseFall *rf,
-				   double in_slew,
-				   double c2,
-				   double rpi,
-				   double c1)
+                                   const LibertyCell *drvr_cell,
+                                   const Pvt *pvt,
+                                   const GateTableModel *gate_model,
+                                   const RiseFall *rf,
+                                   double in_slew,
+                                   double c2,
+                                   double rpi,
+                                   double c1)
 {
   double rd = 0.0;
   if (gate_model) {
     rd = gateModelRd(drvr_cell, gate_model, rf, in_slew, c2, c1,
-		     pvt, variables_->pocvEnabled());
+                     pvt, variables_->pocvEnabled());
     // Zero Rd means the table is constant and thus independent of load cap.
     if (rd < 1e-2
-	// Rpi is small compared to Rd, which makes the load capacitive.
-	|| rpi < rd * 1e-3
-	// c1/Rpi can be ignored.
-	|| (c1 == 0.0 || c1 < c2 * 1e-3 || rpi == 0.0))
+        // Rpi is small compared to Rd, which makes the load capacitive.
+        || rpi < rd * 1e-3
+        // c1/Rpi can be ignored.
+        || (c1 == 0.0 || c1 < c2 * 1e-3 || rpi == 0.0))
       dmp_alg_ = dmp_cap_;
     else if (c2 < c1 * 1e-3)
       dmp_alg_ = dmp_zero_c2_;
@@ -1571,7 +1572,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
   else
     dmp_alg_ = dmp_cap_;
   dmp_alg_->init(drvr_library, drvr_cell, pvt, gate_model,
-		 rf, rd, in_slew, c2, rpi, c1);
+                 rf, rd, in_slew, c2, rpi, c1);
   debugPrint(debug_, "dmp_ceff", 3,
              "    DMP in_slew = %s c2 = %s rpi = %s c1 = %s Rd = %s (%s alg)",
              units_->timeUnit()->asString(in_slew),
@@ -1585,16 +1586,17 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 string
 DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                   const TimingArc *arc,
-				  const Slew &in_slew,
-				  float load_cap,
-				  const Parasitic *parasitic,
+                                  const Slew &in_slew,
+                                  float load_cap,
+                                  const Parasitic *parasitic,
                                   const LoadPinIndexMap &load_pin_index_map,
-				  const DcalcAnalysisPt *dcalc_ap,
-				  int digits)
+                                  const Scene *scene,
+                                  const MinMax *min_max,
+                                  int digits)
 {
   ArcDcalcResult dcalc_result = gateDelay(drvr_pin, arc, in_slew, load_cap,
-                                          parasitic, load_pin_index_map, dcalc_ap);
-  GateTableModel *model = arc->gateTableModel(dcalc_ap);
+                                          parasitic, load_pin_index_map, scene, min_max);
+  GateTableModel *model = arc->gateTableModel(scene, min_max);
   float c_eff = 0.0;
   string result;
   const LibertyCell *drvr_cell = arc->to()->libertyCell();
@@ -1603,9 +1605,11 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
   const Unit *cap_unit = units->capacitanceUnit();
   const Unit *res_unit = units->resistanceUnit();
   if (parasitic && dmp_alg_) {
+    Parasitics *parasitics = scene->parasitics(min_max);
+
     c_eff = dmp_alg_->ceff();
     float c2, rpi, c1;
-    parasitics_->piModel(parasitic, c2, rpi, c1);
+    parasitics->piModel(parasitic, c2, rpi, c1);
     result += "Pi model C2=";
     result += cap_unit->asString(c2, digits);
     result += " Rpi=";
@@ -1621,7 +1625,8 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
   if (model) {
     const Unit *time_unit = units->timeUnit();
     float in_slew1 = delayAsFloat(in_slew);
-    result += model->reportGateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, c_eff,
+    result += model->reportGateDelay(pinPvt(drvr_pin, scene, min_max),
+                                     in_slew1, c_eff,
                                      variables_->pocvEnabled(), digits);
     result += "Driver waveform slew = ";
     float drvr_slew = delayAsFloat(dcalc_result.drvrSlew());
@@ -1633,13 +1638,13 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
 
 static double
 gateModelRd(const LibertyCell *cell,
-	    const GateTableModel *gate_model,
-	    const RiseFall *rf,
-	    double in_slew,
-	    double c2,
-	    double c1,
-	    const Pvt *pvt,
-	    bool pocv_enabled)
+            const GateTableModel *gate_model,
+            const RiseFall *rf,
+            double in_slew,
+            double c2,
+            double c1,
+            const Pvt *pvt,
+            bool pocv_enabled)
 {
   float cap1 = c1 + c2;
   float cap2 = cap1 + 1e-15;
@@ -1655,7 +1660,7 @@ gateModelRd(const LibertyCell *cell,
 void
 DmpCeffDelayCalc::gateDelaySlew(// Return values.
                                 double &delay,
-				double &slew)
+                                double &slew)
 {
   dmp_alg_->gateDelaySlew(delay, slew);
 }

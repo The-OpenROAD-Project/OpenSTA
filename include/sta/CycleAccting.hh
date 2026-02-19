@@ -24,7 +24,8 @@
 
 #pragma once
 
-#include "UnorderedSet.hh"
+#include <unordered_set>
+
 #include "MinMax.hh"
 #include "TimingRole.hh"
 #include "StaState.hh"
@@ -42,17 +43,19 @@ class CycleAcctingEqual
 {
 public:
   bool operator()(const CycleAccting *acct1,
-		  const CycleAccting *acct2) const;
+                  const CycleAccting *acct2) const;
 };
 
 class CycleAcctingLess
 {
 public:
   bool operator()(const CycleAccting *acct1,
-		  const CycleAccting *acct2) const;
+                  const CycleAccting *acct2) const;
 };
 
-typedef UnorderedSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
+using CycleAcctingSet = std::unordered_set<CycleAccting*,
+                                           CycleAcctingHash,
+                                           CycleAcctingEqual>;
 
 class CycleAcctings
 {
@@ -63,7 +66,7 @@ public:
   // Find the cycle accounting info for paths that start at src clock
   // edge and end at target clock edge.
   CycleAccting *cycleAccting(const ClockEdge *src,
-			     const ClockEdge *tgt);
+                             const ClockEdge *tgt);
   void reportClkToClkMaxCycleWarnings(Report *report);
 
 private:
@@ -75,7 +78,7 @@ class CycleAccting
 {
 public:
   CycleAccting(const ClockEdge *src,
-	       const ClockEdge *tgt);
+               const ClockEdge *tgt);
   // Fill in required times.
   void findDelays(StaState *sta);
   // Find delays when source clk edge is the default arrival clock edge
@@ -92,26 +95,26 @@ public:
 
 private:
   void setHoldAccting(int src_cycle,
-		      int tgt_cycle,
-		      float delay,
-		      float req);
+                      int tgt_cycle,
+                      float delay,
+                      float req);
   void setAccting(const TimingRole *role,
-		  int src_cycle,
-		  int tgt_cycle,
-		  float delay,
-		  float req);
+                  int src_cycle,
+                  int tgt_cycle,
+                  float delay,
+                  float req);
   void setSetupAccting(int src_cycle,
-		       int tgt_cycle,
-		       float delay,
-		       float req);
+                       int tgt_cycle,
+                       float delay,
+                       float req);
   void setDefaultSetupAccting(int src_cycle,
-			      int tgt_cycle,
-			      float delay,
-			      float req);
+                              int tgt_cycle,
+                              float delay,
+                              float req);
   void setDefaultHoldAccting(int src_cycle,
-			     int tgt_cycle,
-			     float delay,
-			     float req);
+                             int tgt_cycle,
+                             float delay,
+                             float req);
   int firstCycle(const ClockEdge *clk_edge) const;
 
   const ClockEdge *src_;

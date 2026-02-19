@@ -48,8 +48,8 @@ public:
   bool rf_path_exists[RiseFall::index_count][RiseFall::index_count];
 };
 
-typedef std::map<const ClockEdge*, RiseFallMinMax> ClockEdgeDelays;
-typedef std::map<const Pin *, OutputDelays> OutputPinDelays;
+using ClockEdgeDelays = std::map<const ClockEdge*, RiseFallMinMax>;
+using OutputPinDelays = std::map<const Pin *, OutputDelays>;
 
 class MakeTimingModel : public StaState
 {
@@ -57,7 +57,7 @@ public:
   MakeTimingModel(const char *lib_name,
                   const char *cell_name,
                   const char *filename,
-                  const Corner *corner,
+                  const Scene *scene,
                   Sta *sta);
   ~MakeTimingModel();
   LibertyLibrary *makeTimingModel();
@@ -105,14 +105,16 @@ private:
   const char *lib_name_;
   const char *cell_name_;
   const char *filename_;
-  const Corner *corner_;
+  const Scene *scene_;
+  SceneSet scenes_;
   LibertyLibrary *library_;
   LibertyCell *cell_;
   const MinMax *min_max_;
   LibertyBuilder *lib_builder_;
   // Output driver table model template to model template.
-  Map<const TableTemplate*, TableTemplate*> template_map_;
+  std::map<const TableTemplate*, TableTemplate*> template_map_;
   int tbl_template_index_;
+  Sdc *sdc_;
   Sdc *sdc_backup_;
   Sta *sta_;
 };

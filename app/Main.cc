@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <cstdlib>              // exit
+#include <filesystem>
 #include <tcl.h>
 #if TCL_READLINE
   #include <tclreadline.h>
@@ -47,7 +48,6 @@ using sta::evalTclInit;
 using sta::sourceTclFile;
 using sta::parseThreadsArg;
 using sta::tcl_inits;
-using sta::is_regular_file;
 
 // Swig uses C linkage for init functions.
 extern "C" {
@@ -60,18 +60,18 @@ static const char *init_filename = ".sta";
 
 static void
 showUsage(const char *prog,
-	  const char *init_filename);
+          const char *init_filename);
 static int
 tclAppInit(Tcl_Interp *interp);
 static int
 staTclAppInit(int argc,
-	      char *argv[],
-	      const char *init_filename,
-	      Tcl_Interp *interp);
+              char *argv[],
+              const char *init_filename,
+              Tcl_Interp *interp);
 static void
 initStaApp(int &argc,
-	   char *argv[],
-	   Tcl_Interp *interp);
+           char *argv[],
+           Tcl_Interp *interp);
 
 int
 main(int argc,
@@ -87,20 +87,11 @@ main(int argc,
   }
   else {
     // Set argc to 1 so Tcl_Main doesn't source any files.
-    // Tcl_Main never returns.
-#if 0
-    // It should be possible to pass argc/argv to staTclAppInit with
-    // a closure but I couldn't get the signature to match Tcl_AppInitProc.
-    Tcl_Main(1, argv, [=](Tcl_Interp *interp)
-		      { sta::staTclAppInit(argc, argv, interp);
-			return 1;
-		      });
-#else
-    // Workaround.
+    // Store argc and argv in static variables for tclAppInit.
     cmd_argc = argc;
     cmd_argv = argv;
+    // Tcl_Main never returns.
     Tcl_Main(1, argv, tclAppInit);
-#endif
     return 0;
   }
 }
@@ -114,9 +105,9 @@ tclAppInit(Tcl_Interp *interp)
 // Tcl init executed inside Tcl_Main.
 static int
 staTclAppInit(int argc,
-	      char *argv[],
-	      const char *init_filename,
-	      Tcl_Interp *interp)
+              char *argv[],
+              const char *init_filename,
+              Tcl_Interp *interp)
 {
   // source init.tcl
   if (Tcl_Init(interp) == TCL_ERROR)
@@ -141,7 +132,7 @@ staTclAppInit(int argc,
       string init_path = home;
       init_path += "/";
       init_path += init_filename;
-      if (is_regular_file(init_path.c_str()))
+      if (std::filesystem::is_regular_file(init_path.c_str()))
         sourceTclFile(init_path.c_str(), true, true, interp);
     }
   }
@@ -157,7 +148,7 @@ staTclAppInit(int argc,
     if (argc == 2) {
       char *cmd_file = argv[1];
       if (cmd_file) {
-	int result = sourceTclFile(cmd_file, false, false, interp);
+        int result = sourceTclFile(cmd_file, false, false, interp);
         if (exit_after_cmd_file) {
           int exit_code = (result == TCL_OK) ? EXIT_SUCCESS : EXIT_FAILURE;
           exit(exit_code);
@@ -174,8 +165,8 @@ staTclAppInit(int argc,
 
 static void
 initStaApp(int &argc,
-	   char *argv[],
-	   Tcl_Interp *interp)
+           char *argv[],
+           Tcl_Interp *interp)
 {
   initSta();
   Sta *sta = new Sta;
@@ -194,7 +185,7 @@ initStaApp(int &argc,
 
 static void
 showUsage(const char *prog,
-	  const char *init_filename)
+          const char *init_filename)
 {
   printf("Usage: %s [-help] [-version] [-no_init] [-exit] cmd_file\n", prog);
   printf("  -help              show help and exit\n");

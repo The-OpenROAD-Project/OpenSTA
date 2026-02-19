@@ -24,6 +24,7 @@
 
 #include "CheckTiming.hh"
 
+#include "ContainerHelpers.hh"
 #include "Error.hh"
 #include "TimingRole.hh"
 #include "Network.hh"
@@ -33,6 +34,7 @@
 #include "PortDelay.hh"
 #include "ExceptionPath.hh"
 #include "Sdc.hh"
+#include "Mode.hh"
 #include "SearchPred.hh"
 #include "Levelize.hh"
 #include "Bfs.hh"
@@ -40,13 +42,18 @@
 #include "Genclks.hh"
 #include "Path.hh"
 #include "Sim.hh"
+#include "ClkNetwork.hh"
 
 namespace sta {
 
 using std::string;
 
 CheckTiming::CheckTiming(StaState *sta) :
-  StaState(sta)
+  StaState(sta),
+  mode_(nullptr),
+  sdc_(nullptr),
+  sim_(nullptr),
+  clk_network_(nullptr)
 {
 }
 
@@ -58,9 +65,7 @@ CheckTiming::~CheckTiming()
 void
 CheckTiming::deleteErrors()
 {
-  CheckErrorSeq::Iterator error_iter(errors_);
-  while (error_iter.hasNext()) {
-    CheckError *error = error_iter.next();
+  for (CheckError *error : errors_) {
     deleteContents(error);
     delete error;
   }
@@ -74,15 +79,21 @@ CheckTiming::clear()
 }
 
 CheckErrorSeq &
-CheckTiming::check(bool no_input_delay,
-		   bool no_output_delay,
-		   bool reg_multiple_clks,
-		   bool reg_no_clks,
-		   bool unconstrained_endpoints,
-		   bool loops,
-		   bool generated_clks)
+CheckTiming::check(const Mode *mode,
+                   bool no_input_delay,
+                   bool no_output_delay,
+                   bool reg_multiple_clks,
+                   bool reg_no_clks,
+                   bool unconstrained_endpoints,
+                   bool loops,
+                   bool generated_clks)
 {
   clear();
+  mode_ = mode;
+  sdc_ = mode->sdc();
+  sim_ = mode->sim();
+  clk_network_ = mode->clkNetwork();
+  
   if (no_input_delay)
     checkNoInputDelay();
   if (no_output_delay)
@@ -110,14 +121,14 @@ CheckTiming::checkNoInputDelay()
     if (!sdc_->isClock(pin)) {
       PortDirection *dir = network_->direction(pin);
       if (dir->isAnyInput()
-	  && !sdc_->hasInputDelay(pin)
-          && !sim_->logicZeroOne(pin))
-	no_arrival.insert(pin);
+          && !sdc_->hasInputDelay(pin)
+          && !sim_->isConstant(pin))
+        no_arrival.insert(pin);
     }
   }
   delete pin_iter;
   pushPinErrors("Warning: There %is %d input port%s missing set_input_delay.",
-		no_arrival);
+                no_arrival);
 }
 
 void
@@ -126,7 +137,7 @@ CheckTiming::checkNoOutputDelay()
   PinSet no_departure(network_);
   checkNoOutputDelay(no_departure);
   pushPinErrors("Warning: There %is %d output port%s missing set_output_delay.",
-		no_departure);
+                no_departure);
 }
 
 void
@@ -138,8 +149,8 @@ CheckTiming::checkNoOutputDelay(PinSet &no_departure)
     const Pin *pin = pin_iter->next();
     PortDirection *dir = network_->direction(pin);
     if (dir->isAnyOutput()
-	&& !sdc_->hasOutputDelay(pin)
-        && !sim_->logicZeroOne(pin))
+        && !sdc_->hasOutputDelay(pin)
+        && !sim_->isConstant(pin))
       no_departure.insert(pin);
   }
   delete pin_iter;
@@ -152,31 +163,30 @@ CheckTiming::hasClkedCheck(Vertex *vertex)
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     if (edge->role() == TimingRole::setup()
-	&& search_->isClock(edge->from(graph_)))
+        && clk_network_->isClock(edge->from(graph_)))
       return true;
   }
   return false;
 }
 
-// Search incrementally maintains register/latch clock pins, so use it.
 void
 CheckTiming::checkRegClks(bool reg_multiple_clks,
-			  bool reg_no_clks)
+                          bool reg_no_clks)
 {
   PinSet no_clk_pins(network_);
   PinSet multiple_clk_pins(network_);
-  for (Vertex *vertex : *graph_->regClkVertices()) {
+  for (Vertex *vertex : graph_->regClkVertices()) {
     const Pin *pin = vertex->pin();
-    ClockSet clks = search_->clocks(vertex);
-    if (reg_no_clks && clks.empty())
+    const ClockSet *clks = clk_network_->clocks(pin);
+    if (reg_no_clks && clks == nullptr)
       no_clk_pins.insert(pin);
-    if (reg_multiple_clks && clks.size() > 1)
+    if (reg_multiple_clks && clks && clks->size() > 1)
       multiple_clk_pins.insert(pin);
   }
   pushPinErrors("Warning: There %is %d unclocked register/latch pin%s.",
-		no_clk_pins);
+                no_clk_pins);
   pushPinErrors("Warning: There %is %d register/latch pin%s with multiple clocks.",
-		multiple_clk_pins);
+                multiple_clk_pins);
 }
 
 void
@@ -194,23 +204,19 @@ CheckTiming::checkLoops()
   if (loop_count > 0) {
    string error_msg;
    errorMsgSubst("Warning: There %is %d combinational loop%s in the design.",
-		  loop_count, error_msg);
+                  loop_count, error_msg);
     CheckError *error = new CheckError;
     error->push_back(stringCopy(error_msg.c_str()));
 
-    GraphLoopSeq::Iterator loop_iter2(loops);
-    while (loop_iter2.hasNext()) {
-      GraphLoop *loop = loop_iter2.next();
+    for (GraphLoop *loop : loops) {
       if (loop->isCombinational()) {
-	EdgeSeq::Iterator edge_iter(loop->edges());
-	Edge *last_edge = nullptr;
-	while (edge_iter.hasNext()) {
-	  Edge *edge = edge_iter.next();
-	  Pin *pin = edge->from(graph_)->pin();
-	  const char *pin_name = stringCopy(sdc_network_->pathName(pin));
-	  error->push_back(pin_name);
-	  last_edge = edge;
-	}
+        Edge *last_edge = nullptr;
+        for (Edge *edge : *loop->edges()) {
+          Pin *pin = edge->from(graph_)->pin();
+          const char *pin_name = stringCopy(sdc_network_->pathName(pin));
+          error->push_back(pin_name);
+          last_edge = edge;
+        }
         if (last_edge) {
           error->push_back(stringCopy("| loop cut point"));
           const Pin *pin = last_edge->to(graph_)->pin();
@@ -233,7 +239,7 @@ CheckTiming::checkUnconstrainedEndpoints()
   checkUnconstrainedOutputs(unconstrained_ends);
   checkUnconstrainedSetups(unconstrained_ends);
   pushPinErrors("Warning: There %is %d unconstrained endpoint%s.",
-		unconstrained_ends);
+                unconstrained_ends);
 }
 
 void
@@ -246,10 +252,10 @@ CheckTiming::checkUnconstrainedOutputs(PinSet &unconstrained_ends)
     PortDirection *dir = network_->direction(pin);
     Vertex *vertex = graph_->pinLoadVertex(pin);
     if (dir->isAnyOutput()
-	&& !vertex->isConstant()
+        && !sim_->isConstant(pin)
         && !((hasClkedDepature(pin)
-	      && hasClkedArrival(vertex))
-	     || hasMaxDelay(pin)))
+              && hasClkedArrival(vertex))
+             || hasMaxDelay(pin)))
       unconstrained_ends.insert(pin);
   }
   delete pin_iter;
@@ -262,8 +268,8 @@ CheckTiming::hasClkedDepature(Pin *pin)
   if (output_delays) {
     for (OutputDelay *output_delay : *output_delays) {
       if (output_delay->clkEdge() != nullptr
-	  || output_delay->refPin() != nullptr)
-	return true;
+          || output_delay->refPin() != nullptr)
+        return true;
     }
   }
   return false;
@@ -273,13 +279,13 @@ CheckTiming::hasClkedDepature(Pin *pin)
 bool
 CheckTiming::hasMaxDelay(Pin *pin)
 {
-  for (ExceptionPath *exception : sdc_->exceptions()) {
+  for (const ExceptionPath *exception : sdc_->exceptions()) {
     ExceptionTo *to = exception->to();
     if (exception->isPathDelay()
-	&& exception->minMax() == MinMaxAll::max()
-	&& to
-	&& to->hasPins()
-	&& to->pins()->hasKey(pin))
+        && exception->minMax() == MinMaxAll::max()
+        && to
+        && to->hasPins()
+        && to->pins()->contains(pin))
       return true;
   }
   return false;
@@ -291,12 +297,12 @@ CheckTiming::checkUnconstrainedSetups(PinSet &unconstrained_ends)
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    if (!vertex->isConstant()) {
+    if (!sim_->isConstant(vertex)) {
       VertexInEdgeIterator edge_iter(vertex, graph_);
       while (edge_iter.hasNext()) {
         Edge *edge = edge_iter.next();
         if (edge->role() == TimingRole::setup()
-            && (!search_->isClock(edge->from(graph_))
+            && (!clk_network_->isClock(edge->from(graph_))
                 || !hasClkedArrival(edge->to(graph_)))) {
           unconstrained_ends.insert(vertex->pin());
           break;
@@ -322,26 +328,24 @@ void
 CheckTiming::checkGeneratedClocks()
 {
   ClockSet gen_clk_errors;
-  for (auto clk : sdc_->clks()) {
+  for (auto clk : sdc_->clocks()) {
     if (clk->isGenerated()) {
-      search_->genclks()->checkMaster(clk);
+      mode_->genclks()->checkMaster(clk, sdc_);
       bool found_clk = false;
-      VertexSet src_vertices(graph_);
+      VertexSet src_vertices = makeVertexSet(this);
       clk->srcPinVertices(src_vertices, network_, graph_);
-      VertexSet::Iterator vertex_iter(src_vertices);
-      while (vertex_iter.hasNext()) {
-	Vertex *vertex = vertex_iter.next();
-	if (search_->isClock(vertex)) {
-	  found_clk = true;
-	  break;
-	}
+      for (Vertex *vertex : src_vertices) {
+        if (clk_network_->isClock(vertex)) {
+          found_clk = true;
+          break;
+        }
       }
       if (!found_clk)
-	gen_clk_errors.insert(clk);
+        gen_clk_errors.insert(clk);
     }
   }
   pushClkErrors("Warning: There %is %d generated clock%s that %is not connected to a clock source.",
-		gen_clk_errors);
+                gen_clk_errors);
 }
 
 // Report the "msg" error for each pin in "pins".
@@ -354,7 +358,7 @@ CheckTiming::checkGeneratedClocks()
 // %a  - a/""
 void
 CheckTiming::pushPinErrors(const char *msg,
-			   PinSet &pins)
+                           PinSet &pins)
 {
   if (!pins.empty()) {
     CheckError *error = new CheckError;
@@ -376,7 +380,7 @@ CheckTiming::pushPinErrors(const char *msg,
 
 void
 CheckTiming::pushClkErrors(const char *msg,
-			   ClockSet &clks)
+                           ClockSet &clks)
 {
   if (!clks.empty()) {
     CheckError *error = new CheckError;
@@ -399,40 +403,40 @@ CheckTiming::pushClkErrors(const char *msg,
 // Copy msg making substitutions for singular/plurals.
 void
 CheckTiming::errorMsgSubst(const char *msg,
-			   int obj_count,
-			   string &error_msg)
+                           int obj_count,
+                           string &error_msg)
 {
   for (const char *s = msg; *s; s++) {
     char ch = *s;
     if (ch == '%') {
       char flag = s[1];
       if (flag == 'i') {
-	if (obj_count > 1)
-	  error_msg += "are";
-	else
-	  error_msg += "is";
-	s += 2;
+        if (obj_count > 1)
+          error_msg += "are";
+        else
+          error_msg += "is";
+        s += 2;
       }
       else if (flag == 'a') {
-	if (obj_count == 1) {
-	  error_msg += 'a';
-	  s++;
-	}
-	else
-	  // Skip space after %a.
-	  s += 2;
+        if (obj_count == 1) {
+          error_msg += 'a';
+          s++;
+        }
+        else
+          // Skip space after %a.
+          s += 2;
       }
       else if (flag == 's') {
-	if (obj_count > 1)
-	  error_msg += 's';
-	s++;
+        if (obj_count > 1)
+          error_msg += 's';
+        s++;
       }
       else if (flag == 'd') {
-	error_msg += std::to_string(obj_count);
-	s++;
+        error_msg += std::to_string(obj_count);
+        s++;
       }
       else
-	criticalError(245, "unknown print flag");
+        criticalError(245, "unknown print flag");
     }
     else
       error_msg += ch;

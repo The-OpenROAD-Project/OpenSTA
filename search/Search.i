@@ -24,7 +24,11 @@
 
 %module search
 
+%include "std_string.i" 
+
 %{
+
+#include <string>
 
 #include "Units.hh"
 #include "PathGroup.hh"
@@ -33,6 +37,7 @@
 #include "search/ReportPath.hh"
 #include "PathExpanded.hh"
 #include "Bfs.hh"
+#include "Scene.hh"
 #include "Sta.hh"
 
 using namespace sta;
@@ -67,35 +72,9 @@ private:
   ~PathEnd();
 };
 
-class MinPulseWidthCheck
-{
-private:
-  MinPulseWidthCheck();
-  ~MinPulseWidthCheck();
-};
-
-class MinPulseWidthCheckSeq
-{
-private:
-  MinPulseWidthCheckSeq();
-  ~MinPulseWidthCheckSeq();
-};
-
-class MinPulseWidthCheckSeqIterator
-{
-private:
-  MinPulseWidthCheckSeqIterator();
-  ~MinPulseWidthCheckSeqIterator();
-};
-
-class Corner
-{
-private:
-  Corner();
-  ~Corner();
-};
-
 %inline %{
+
+using std::string;
 
 int group_path_count_max = PathGroup::group_path_count_max;
 
@@ -159,19 +138,13 @@ arrivals_invalid()
 }
 
 PinSet
-startpoints()
-{
-  return Sta::sta()->startpointPins();
-}
-
-PinSet
 endpoints()
 {
   return Sta::sta()->endpointPins();
 }
 
 size_t
-endpoint_path_count()
+endpoint_count()
 {
   return Sta::sta()->endpointPins().size();
 }
@@ -189,10 +162,10 @@ total_negative_slack_cmd(const MinMax *min_max)
 }
 
 Slack
-total_negative_slack_corner_cmd(const Corner *corner,
-				const MinMax *min_max)
+total_negative_slack_scene_cmd(const Scene *scene,
+                               const MinMax *min_max)
 {
-  return Sta::sta()->totalNegativeSlack(corner, min_max);
+  return Sta::sta()->totalNegativeSlack(scene, min_max);
 }
 
 Slack
@@ -214,18 +187,18 @@ worst_slack_vertex(const MinMax *min_max)
 }
 
 Slack
-worst_slack_corner(const Corner *corner,
-		   const MinMax *min_max)
+worst_slack_scene(const Scene *scene,
+                   const MinMax *min_max)
 {
   Slack worst_slack;
   Vertex *worst_vertex;
-  Sta::sta()->worstSlack(corner, min_max, worst_slack, worst_vertex);
+  Sta::sta()->worstSlack(scene, min_max, worst_slack, worst_vertex);
   return worst_slack;
 }
 
 Path *
 vertex_worst_arrival_path(Vertex *vertex,
-			  const MinMax *min_max)
+                          const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
@@ -234,8 +207,8 @@ vertex_worst_arrival_path(Vertex *vertex,
 
 Path *
 vertex_worst_arrival_path_rf(Vertex *vertex,
-			     const RiseFall *rf,
-			     MinMax *min_max)
+                             const RiseFall *rf,
+                             MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
@@ -244,7 +217,7 @@ vertex_worst_arrival_path_rf(Vertex *vertex,
 
 Path *
 vertex_worst_slack_path(Vertex *vertex,
-			const MinMax *min_max)
+                        const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
@@ -253,18 +226,18 @@ vertex_worst_slack_path(Vertex *vertex,
 
 Slack
 endpoint_slack(const Pin *pin,
-	       const char *path_group_name,
-	       const MinMax *min_max)
+               const char *path_group_name,
+               const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  if (sta->isPathGroupName(path_group_name)) {
+  if (sta->isGroupPathName(path_group_name, sta->cmdSdc())) {
     Slack slack = sta->endpointSlack(pin, std::string(path_group_name), min_max);
     return sta->units()->timeUnit()->staToUser(delayAsFloat(slack));
   }
   else {
     sta->report()->error(1577, "%s is not a known path group name.",
-			 path_group_name);
+                         path_group_name);
     return INF;
   }
 }
@@ -273,7 +246,7 @@ StdStringSeq
 path_group_names()
 {
   Sta *sta = Sta::sta();
-  return sta->pathGroupNames();
+  return sta->pathGroupNames(sta->cmdSdc());
 }
 
 int
@@ -290,7 +263,7 @@ report_tag_groups()
 
 void
 report_tag_arrivals_cmd(Vertex *vertex,
-			bool report_tag_index)
+                        bool report_tag_index)
 {
   Sta::sta()->search()->reportArrivals(vertex, report_tag_index);
 }
@@ -351,7 +324,9 @@ report_loops()
 char
 pin_sim_logic_value(const Pin *pin)
 {
-  return logicValueString(Sta::sta()->simLogicValue(pin));
+  Sta *sta = Sta::sta();
+  const Mode *sdc = sta->cmdMode();
+  return logicValueString(sta->simLogicValue(pin, sdc));
 }
 
 InstanceSeq
@@ -364,38 +339,36 @@ slow_drivers(int count)
 
 PathEndSeq
 find_path_ends(ExceptionFrom *from,
-	       ExceptionThruSeq *thrus,
-	       ExceptionTo *to,
-	       bool unconstrained,
-	       Corner *corner,
-	       const MinMaxAll *delay_min_max,
-	       int group_path_count,
-	       int endpoint_path_count,
-	       bool unique_pins,
-	       bool unique_edges,
-	       float slack_min,
-	       float slack_max,
-	       bool sort_by_slack,
-	       PathGroupNameSet *groups,
-	       bool setup,
-	       bool hold,
-	       bool recovery,
-	       bool removal,
-	       bool clk_gating_setup,
-	       bool clk_gating_hold)
+               ExceptionThruSeq *thrus,
+               ExceptionTo *to,
+               bool unconstrained,
+               SceneSeq scenes,
+               const MinMaxAll *delay_min_max,
+               int group_path_count,
+               int endpoint_path_count,
+               bool unique_pins,
+               bool unique_edges,
+               float slack_min,
+               float slack_max,
+               bool sort_by_slack,
+               StdStringSeq path_groups,
+               bool setup,
+               bool hold,
+               bool recovery,
+               bool removal,
+               bool clk_gating_setup,
+               bool clk_gating_hold)
 {
   Sta *sta = Sta::sta();
   PathEndSeq ends = sta->findPathEnds(from, thrus, to, unconstrained,
-                                      corner, delay_min_max,
+                                      scenes, delay_min_max,
                                       group_path_count, endpoint_path_count,
-				      unique_pins, unique_edges,
+                                      unique_pins, unique_edges,
                                       slack_min, slack_max,
-                                      sort_by_slack,
-                                      groups->size() ? groups : nullptr,
+                                      sort_by_slack, path_groups,
                                       setup, hold,
                                       recovery, removal,
                                       clk_gating_setup, clk_gating_hold);
-  delete groups;
   return ends;
 }
 
@@ -421,7 +394,7 @@ report_path_end(PathEnd *end)
 
 void
 report_path_end2(PathEnd *end,
-		 PathEnd *prev_end,
+                 PathEnd *prev_end,
                  bool last)
 {
   Sta::sta()->reportPathEnd(end, prev_end, last);
@@ -443,26 +416,26 @@ set_report_path_field_order(StringSeq *field_names)
 void
 set_report_path_fields(bool report_input_pin,
                        bool report_hier_pins,
-		       bool report_net,
-		       bool report_cap,
-		       bool report_slew,
-		       bool report_fanout,
-		       bool report_src_attr)
+                       bool report_net,
+                       bool report_cap,
+                       bool report_slew,
+                       bool report_fanout,
+                       bool report_src_attr)
 {
   Sta::sta()->setReportPathFields(report_input_pin,
                                   report_hier_pins,
-				  report_net,
-				  report_cap,
-				  report_slew,
-				  report_fanout,
-				  report_src_attr);
+                                  report_net,
+                                  report_cap,
+                                  report_slew,
+                                  report_fanout,
+                                  report_src_attr);
 }
 
 void
 set_report_path_field_properties(const char *field_name,
-				 const char *title,
-				 int width,
-				 bool left_justify)
+                                 const char *title,
+                                 int width,
+                                 bool left_justify)
 {
   Sta *sta = Sta::sta();
   ReportField *field = sta->findReportPathField(field_name);
@@ -474,7 +447,7 @@ set_report_path_field_properties(const char *field_name,
 
 void
 set_report_path_field_width(const char *field_name,
-			    int width)
+                            int width)
 {
   Sta *sta = Sta::sta();
   ReportField *field = sta->findReportPathField(field_name);
@@ -518,23 +491,40 @@ report_path_ends(PathEndSeq *ends)
 ////////////////////////////////////////////////////////////////
 
 void
-report_clk_skew(ConstClockSeq clks,
-		const Corner *corner,
-		const SetupHold *setup_hold,
-                bool include_internal_latency,
-		int digits)
+report_arrival_wrt_clks(const Pin *pin,
+                        const Scene *scene,
+                        int digits)
 {
-  Sta::sta()->reportClkSkew(clks, corner, setup_hold,
-                            include_internal_latency, digits);
+  Sta::sta()->reportArrivalWrtClks(pin, scene, digits);
 }
 
 void
-report_clk_latency(ConstClockSeq clks,
-                   const Corner *corner,
-                   bool include_internal_latency,
-                   int digits)
+report_required_wrt_clks(const Pin *pin,
+                         const Scene *scene,
+                         int digits)
 {
-  Sta::sta()->reportClkLatency(clks, corner, include_internal_latency, digits);
+  Sta::sta()->reportRequiredWrtClks(pin, scene, digits);
+}
+
+void
+report_slack_wrt_clks(const Pin *pin,
+                      const Scene *scene,
+                      int digits)
+{
+  Sta::sta()->reportSlackWrtClks(pin, scene, digits);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+report_clk_skew(ConstClockSeq clks,
+                const SceneSeq scenes,
+                const SetupHold *setup_hold,
+                bool include_internal_latency,
+                int digits)
+{
+  Sta::sta()->reportClkSkew(clks, scenes, setup_hold,
+                            include_internal_latency, digits);
 }
 
 float
@@ -546,102 +536,50 @@ worst_clk_skew_cmd(const SetupHold *setup_hold,
 
 ////////////////////////////////////////////////////////////////
 
-MinPulseWidthCheckSeq &
-min_pulse_width_violations(const Corner *corner)
-{
-  return Sta::sta()->minPulseWidthViolations(corner);
-}
-
-MinPulseWidthCheckSeq &
-min_pulse_width_check_pins(PinSeq *pins,
-			   const Corner *corner)
-{
-  Sta *sta = Sta::sta();
-  MinPulseWidthCheckSeq &checks = sta->minPulseWidthChecks(pins, corner);
-  delete pins;
-  return checks;
-}
-
-MinPulseWidthCheckSeq &
-min_pulse_width_checks(const Corner *corner)
-{
-  return Sta::sta()->minPulseWidthChecks(corner);
-}
-
-MinPulseWidthCheck *
-min_pulse_width_check_slack(const Corner *corner)
-{
-  return Sta::sta()->minPulseWidthSlack(corner);
-}
-
 void
-report_mpw_checks(MinPulseWidthCheckSeq *checks,
-		  bool verbose)
+report_clk_latency(ConstClockSeq clks,
+                   const SceneSeq scenes,
+                   bool include_internal_latency,
+                   int digits)
 {
-  Sta::sta()->reportMpwChecks(checks, verbose);
-}
-
-void
-report_mpw_check(MinPulseWidthCheck *check,
-		 bool verbose)
-{
-  Sta::sta()->reportMpwCheck(check, verbose);
+  Sta::sta()->reportClkLatency(clks, scenes, include_internal_latency, digits);
 }
 
 ////////////////////////////////////////////////////////////////
 
-MinPeriodCheckSeq &
-min_period_violations()
-{
-  return Sta::sta()->minPeriodViolations();
-}
-
-MinPeriodCheck *
-min_period_check_slack()
-{
-  return Sta::sta()->minPeriodSlack();
-}
-
 void
-report_min_period_checks(MinPeriodCheckSeq *checks,
-			 bool verbose)
+report_min_pulse_width_checks(const Net *net,
+                              size_t max_count,
+                              bool violations,
+                              bool verbose,
+                              const SceneSeq scenes)
 {
-  Sta::sta()->reportChecks(checks, verbose);
-}
-
-void
-report_min_period_check(MinPeriodCheck *check,
-			bool verbose)
-{
-  Sta::sta()->reportCheck(check, verbose);
+  return Sta::sta()->reportMinPulseWidthChecks(net, max_count, violations,
+                                               verbose, scenes);
 }
 
 ////////////////////////////////////////////////////////////////
 
-MaxSkewCheckSeq &
-max_skew_violations()
+void
+report_min_period_checks(const Net *net,
+                         size_t max_count,
+                         bool violations,
+                         bool verbose,
+                         const SceneSeq scenes)
 {
-  return Sta::sta()->maxSkewViolations();
+  Sta::sta()->reportMinPeriodChecks(net, max_count, violations, verbose, scenes);
 }
 
-MaxSkewCheck *
-max_skew_check_slack()
-{
-  return Sta::sta()->maxSkewSlack();
-}
+////////////////////////////////////////////////////////////////
 
 void
-report_max_skew_checks(MaxSkewCheckSeq *checks,
-		       bool verbose)
+report_max_skew_checks(const Net *net,
+                       size_t max_count,
+                       bool violators,
+                       bool verbose,
+                       const SceneSeq scenes)
 {
-  Sta::sta()->reportChecks(checks, verbose);
-}
-
-void
-report_max_skew_check(MaxSkewCheck *check,
-		      bool verbose)
-{
-  Sta::sta()->reportCheck(check, verbose);
+  Sta::sta()->reportMaxSkewChecks(net, max_count, violators, verbose, scenes);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -655,19 +593,22 @@ find_clk_min_period(const Clock *clk,
 
 ////////////////////////////////////////////////////////////////
 
-PinSeq
-check_slew_limits(Net *net,
-                  bool violators,
-                  const Corner *corner,
-                  const MinMax *min_max)
+void
+report_slew_checks(const Net *net,
+                   size_t max_count,
+                   bool violators,
+                   bool verbose,
+                   const SceneSeq scenes,
+                   const MinMax *min_max)
 {
-  return Sta::sta()->checkSlewLimits(net, violators, corner, min_max);
+  return Sta::sta()->reportSlewChecks(net, max_count, violators, verbose,
+                                      scenes, min_max);
 }
 
 size_t
 max_slew_violation_count()
 {
-  return Sta::sta()->checkSlewLimits(nullptr, true, nullptr, MinMax::max()).size();
+  return Sta::sta()->maxSlewViolationCount();
 }
 
 float
@@ -694,103 +635,82 @@ max_slew_check_limit()
   return sta->units()->timeUnit()->staToUser(limit);
 }
 
-void
-report_slew_limit_short_header()
-{
-  Sta::sta()->reportSlewLimitShortHeader();
-}
-
-void
-report_slew_limit_short(Pin *pin,
-			const Corner *corner,
-			const MinMax *min_max)
-{
-  Sta::sta()->reportSlewLimitShort(pin, corner, min_max);
-}
-
-void
-report_slew_limit_verbose(Pin *pin,
-			  const Corner *corner,
-			  const MinMax *min_max)
-{
-  Sta::sta()->reportSlewLimitVerbose(pin, corner, min_max);
-}
-
 ////////////////////////////////////////////////////////////////
 
-PinSeq
-check_fanout_limits(Net *net,
-                    bool violators,
-                    const MinMax *min_max)
+void
+report_fanout_checks(const Net *net,
+                     size_t max_count,
+                     bool violators,
+                     bool verbose,
+                     const SceneSeq scenes,
+                     const MinMax *min_max)
 {
-  return Sta::sta()->checkFanoutLimits(net, violators, min_max);
+  Sta *sta = Sta::sta();
+  return sta->reportFanoutChecks(net, max_count, violators, verbose,
+                                 scenes, min_max);
 }
 
 size_t
 max_fanout_violation_count()
 {
-  return Sta::sta()->checkFanoutLimits(nullptr, true, MinMax::max()).size();
+  Sta *sta = Sta::sta();
+  return sta->fanoutViolationCount(MinMax::max(), sta->modes());
 }
 
 float
-max_fanout_check_slack()
+max_fanout_min_slack()
 {
   Sta *sta = Sta::sta();
   const Pin *pin;
-  float fanout;
-  float slack;
-  float limit;
-  sta->maxFanoutCheck(pin, fanout, slack, limit);
+  float fanout, limit, slack;
+  const Mode *mode; 
+  sta->maxFanoutMinSlackPin(sta->modes(), pin, fanout, limit, slack, mode);
   return slack;;
 }
 
+// Deprecated 11/16/2025
 float
-max_fanout_check_limit()
+max_fanout_check_slack()
+{
+  return max_fanout_min_slack();
+}
+
+float
+max_fanout_min_slack_limit()
 {
   Sta *sta = Sta::sta();
   const Pin *pin;
-  float fanout;
-  float slack;
-  float limit;
-  sta->maxFanoutCheck(pin, fanout, slack, limit);
+  float fanout, limit, slack;
+  const Mode *mode;
+  sta->maxFanoutMinSlackPin(sta->modes(), pin, fanout, limit, slack, mode);
   return limit;;
 }
 
-void
-report_fanout_limit_short_header()
+// Deprecated 11/16/2025
+float
+max_fanout_check_limit()
 {
-  Sta::sta()->reportFanoutLimitShortHeader();
-}
-
-void
-report_fanout_limit_short(Pin *pin,
-			  const MinMax *min_max)
-{
-  Sta::sta()->reportFanoutLimitShort(pin, min_max);
-}
-
-void
-report_fanout_limit_verbose(Pin *pin,
-			    const MinMax *min_max)
-{
-  Sta::sta()->reportFanoutLimitVerbose(pin, min_max);
+  return max_fanout_min_slack_limit();
 }
 
 ////////////////////////////////////////////////////////////////
 
-PinSeq
-check_capacitance_limits(Net *net,
-                         bool violators,
-                         const Corner *corner,
-                         const MinMax *min_max)
+void
+report_capacitance_checks(const Net *net,
+                          size_t max_count,
+                          bool violators,
+                          bool verbose,
+                          const SceneSeq scenes,
+                          const MinMax *min_max)
 {
-  return Sta::sta()->checkCapacitanceLimits(net, violators, corner, min_max);
+  Sta::sta()->reportCapacitanceChecks(net, max_count, violators, verbose,
+                                      scenes, min_max);
 }
 
 size_t
 max_capacitance_violation_count()
 {
-  return Sta::sta()->checkCapacitanceLimits(nullptr, true,nullptr,MinMax::max()).size();
+  return Sta::sta()->maxCapacitanceViolationCount();
 }
 
 float
@@ -817,162 +737,206 @@ max_capacitance_check_limit()
   return sta->units()->capacitanceUnit()->staToUser(limit);
 }
 
-void
-report_capacitance_limit_short_header()
-{
-  Sta::sta()->reportCapacitanceLimitShortHeader();
-}
-
-void
-report_capacitance_limit_short(Pin *pin,
-			       const Corner *corner,
-			       const MinMax *min_max)
-{
-  Sta::sta()->reportCapacitanceLimitShort(pin, corner, min_max);
-}
-
-void
-report_capacitance_limit_verbose(Pin *pin,
-				 const Corner *corner,
-				 const MinMax *min_max)
-{
-  Sta::sta()->reportCapacitanceLimitVerbose(pin, corner, min_max);
-}
-
 ////////////////////////////////////////////////////////////////
 
 void
 write_timing_model_cmd(const char *lib_name,
                        const char *cell_name,
                        const char *filename,
-                       const Corner *corner)
+                       const Scene *scene)
 {
-  Sta::sta()->writeTimingModel(lib_name, cell_name, filename, corner);
+  Sta::sta()->writeTimingModel(lib_name, cell_name, filename, scene);
 }
 
 ////////////////////////////////////////////////////////////////
 
 void
-define_corners_cmd(StringSet *corner_names)
+define_scene_cmd(const char *name,
+                 const char *mode_name,
+                 const StdStringSeq liberty_min_files,
+                 const StdStringSeq liberty_max_files,
+                 const char *spef_min_file,
+                 const char *spef_max_file)
 {
   Sta *sta = Sta::sta();
-  sta->makeCorners(corner_names);
-  delete corner_names;
-}
-
-Corner *
-cmd_corner()
-{
-  return Sta::sta()->cmdCorner();
+  sta->makeScene(name, mode_name,
+                 liberty_min_files, liberty_max_files,
+                 spef_min_file, spef_max_file);
 }
 
 void
-set_cmd_corner(Corner *corner)
+define_scenes_cmd(StringSeq *scene_names)
 {
-  Sta::sta()->setCmdCorner(corner);
+  Sta *sta = Sta::sta();
+  sta->makeScenes(scene_names);
+  delete scene_names;
 }
 
-Corner *
-find_corner(const char *corner_name)
+Scene *
+cmd_scene()
 {
-  return Sta::sta()->findCorner(corner_name);
+  return Sta::sta()->cmdScene();
 }
 
-Corners *
-corners()
+void
+set_cmd_scene(Scene *scene)
 {
-  return Sta::sta()->corners();
+  Sta::sta()->setCmdScene(scene);
+}
+
+const SceneSeq
+scenes()
+{
+  Sta *sta = Sta::sta();
+  return sta->scenes();
+}
+
+Scene *
+find_scene(const char *scene_name)
+{
+  return Sta::sta()->findScene(scene_name);
+}
+
+SceneSeq
+find_scenes_matching(std::string scene_name)
+{
+  return Sta::sta()->findScenes(scene_name);
+}
+
+SceneSeq
+find_mode_scenes_matching(std::string scene_name,
+                          ModeSeq modes)
+{
+  return Sta::sta()->findScenes(scene_name, modes);
 }
 
 bool
-multi_corner()
+multi_scene()
 {
-  return Sta::sta()->multiCorner();
+  return Sta::sta()->multiScene();
+}
+
+ClockSeq
+get_scene_clocks(SceneSeq scenes)
+{
+  ClockSeq clks;
+  ModeSet modes = Scene::modeSet(scenes);
+  for (const Mode *mode : modes) {
+    for (Clock *clk : mode->sdc()->clocks())
+      clks.push_back(clk);
+  }
+  return clks;
+}
+
+////////////////////////////////////////////////////////////////
+
+std::string
+cmd_mode_name()
+{
+  return Sta::sta()->cmdMode()->name();
+}
+
+void
+set_mode_cmd(std::string mode_name)
+{
+  Sta::sta()->setCmdMode(mode_name);
+}
+
+ModeSeq
+find_modes(std::string mode_name)
+{
+  return Sta::sta()->findModes(mode_name);
 }
 
 ////////////////////////////////////////////////////////////////
 
 CheckErrorSeq &
 check_timing_cmd(bool no_input_delay,
-		 bool no_output_delay,
-		 bool reg_multiple_clks,
-		 bool reg_no_clks,
-		 bool unconstrained_endpoints,
-		 bool loops,
-		 bool generated_clks)
+                 bool no_output_delay,
+                 bool reg_multiple_clks,
+                 bool reg_no_clks,
+                 bool unconstrained_endpoints,
+                 bool loops,
+                 bool generated_clks)
 {
-  return Sta::sta()->checkTiming(no_input_delay, no_output_delay,
-				 reg_multiple_clks, reg_no_clks,
-				 unconstrained_endpoints,
-				 loops, generated_clks);
+  Sta *sta = Sta::sta();
+  const Mode *sdc = sta->cmdMode();
+  return sta->checkTiming(sdc, no_input_delay, no_output_delay,
+                          reg_multiple_clks, reg_no_clks,
+                          unconstrained_endpoints,
+                          loops, generated_clks);
 }
 
 ////////////////////////////////////////////////////////////////
 
 PinSet
 find_fanin_pins(PinSeq *to,
-		bool flat,
-		bool startpoints_only,
-		int inst_levels,
-		int pin_levels,
-		bool thru_disabled,
-		bool thru_constants)
+                bool flat,
+                bool startpoints_only,
+                int inst_levels,
+                int pin_levels,
+                bool thru_disabled,
+                bool thru_constants)
 {
   Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
   PinSet fanin = sta->findFaninPins(to, flat, startpoints_only,
                                     inst_levels, pin_levels,
-                                    thru_disabled, thru_constants);
+                                    thru_disabled, thru_constants, mode);
   delete to;
   return fanin;
 }
 
 InstanceSet
 find_fanin_insts(PinSeq *to,
-		 bool flat,
-		 bool startpoints_only,
-		 int inst_levels,
-		 int pin_levels,
-		 bool thru_disabled,
-		 bool thru_constants)
+                 bool flat,
+                 bool startpoints_only,
+                 int inst_levels,
+                 int pin_levels,
+                 bool thru_disabled,
+                 bool thru_constants)
 {
   Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
   InstanceSet fanin = sta->findFaninInstances(to, flat, startpoints_only,
                                               inst_levels, pin_levels,
-                                              thru_disabled, thru_constants);
+                                              thru_disabled, thru_constants, mode);
   delete to;
   return fanin;
 }
 
 PinSet
 find_fanout_pins(PinSeq *from,
-		 bool flat,
-		 bool endpoints_only,
-		 int inst_levels,
-		 int pin_levels,
-		 bool thru_disabled,
-		 bool thru_constants)
+                 bool flat,
+                 bool endpoints_only,
+                 int inst_levels,
+                 int pin_levels,
+                 bool thru_disabled,
+                 bool thru_constants)
 {
   Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
   PinSet fanout = sta->findFanoutPins(from, flat, endpoints_only,
                                       inst_levels, pin_levels,
-                                      thru_disabled, thru_constants);
+                                      thru_disabled, thru_constants, mode);
   delete from;
   return fanout;
 }
 
 InstanceSet
 find_fanout_insts(PinSeq *from,
-		  bool flat,
-		  bool endpoints_only,
-		  int inst_levels,
-		  int pin_levels,
-		  bool thru_disabled,
-		  bool thru_constants)
+                  bool flat,
+                  bool endpoints_only,
+                  int inst_levels,
+                  int pin_levels,
+                  bool thru_disabled,
+                  bool thru_constants)
 {
   Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
   InstanceSet fanout = sta->findFanoutInstances(from, flat, endpoints_only,
                                                 inst_levels, pin_levels,
-                                                thru_disabled, thru_constants);
+                                                thru_disabled, thru_constants, mode);
   delete from;
   return fanout;
 }
@@ -1094,18 +1058,6 @@ void
 set_bidirect_inst_paths_enabled(bool enabled)
 {
   Sta::sta()->setBidirectInstPathsEnabled(enabled);
-}
-
-bool
-bidirect_net_paths_enabled()
-{
-  return Sta::sta()->bidirectNetPathsEnabled();
-}
-
-void
-set_bidirect_net_paths_enabled(bool enabled)
-{
-  Sta::sta()->setBidirectNetPathsEnabled(enabled);
 }
 
 bool
@@ -1270,7 +1222,7 @@ edge()
   return self->transition(Sta::sta());
 }
 
-string
+std::string
 tag()
 {
   Sta *sta = Sta::sta();
@@ -1309,14 +1261,4 @@ next()
 }
 
 void finish() { delete self; }
-}
-
-%extend MinPulseWidthCheckSeqIterator {
-bool has_next() { return self->hasNext(); }
-MinPulseWidthCheck *next() { return self->next(); }
-void finish() { delete self; }
-} // MinPulseWidthCheckSeqIterator methods
-
-%extend Corner {
-const char *name() { return self->name(); }
 }

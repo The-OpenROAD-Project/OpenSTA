@@ -36,7 +36,7 @@
       "net": "mid",
       "arrival": 3.296e-10,
       "capacitance": 1.949e-15,
-      "slew": 3.612e-11
+      "slew": 4.035e-11
     },
     {
       "instance": "_1416_[0]",
@@ -45,7 +45,7 @@
       "pin": "_1416_[0]/D",
       "net": "mid",
       "arrival": 3.296e-10,
-      "slew": 3.612e-11
+      "slew": 4.035e-11
     }
   ],
   "target_clock": "clk",
@@ -72,9 +72,9 @@
   ],
   "data_arrival_time": 3.296e-10,
   "crpr": 0.000e+00,
-  "margin": 1.207e-10,
-  "required_time": 9.879e-09,
-  "slack": 9.550e-09
+  "margin": 1.225e-10,
+  "required_time": 9.877e-09,
+  "slack": 9.548e-09
 }
 ]
 }

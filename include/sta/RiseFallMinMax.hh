@@ -35,41 +35,41 @@ class RiseFallMinMax
 public:
   RiseFallMinMax();
   RiseFallMinMax(const RiseFallMinMax *rfmm);
-  explicit RiseFallMinMax(float init_value);
+  RiseFallMinMax(float init_value);
   float value(const RiseFall *rf,
-	      const MinMax *min_max) const;
+              const MinMax *min_max) const;
   float value(const MinMax *min_max) const;
   void value(const RiseFall *rf,
-	     const MinMax *min_max,
-	     float &value,
-	     bool &exists) const;
+             const MinMax *min_max,
+             float &value,
+             bool &exists) const;
   bool hasValue() const;
   void maxValue(// Return values
-		float &max_value,
-		bool &exists) const;
-  bool empty() const;
+                float &max_value,
+                bool &exists) const;
+  [[nodiscard]] bool empty() const;
   bool hasValue(const RiseFall *rf,
-		const MinMax *min_max) const;
+                const MinMax *min_max) const;
   void setValue(const RiseFallBoth *rf,
-		const MinMaxAll *min_max,
-		float value);
+                const MinMaxAll *min_max,
+                float value);
   void setValue(const RiseFallBoth *rf,
-		const MinMax *min_max,
-		float value);
+                const MinMax *min_max,
+                float value);
   void setValue(const RiseFall *rf,
-		const MinMax *min_max, float value);
+                const MinMax *min_max, float value);
   void setValue(float value);
   void mergeValue(const RiseFallBoth *rf,
-		  const MinMaxAll *min_max,
-		  float value);
+                  const MinMaxAll *min_max,
+                  float value);
   void mergeValue(const RiseFall *rf,
-		  const MinMax *min_max,
-		  float value);
+                  const MinMax *min_max,
+                  float value);
   void setValues(RiseFallMinMax *values);
   void removeValue(const RiseFallBoth *rf,
-		   const MinMax *min_max);
+                   const MinMax *min_max);
   void removeValue(const RiseFallBoth *rf, 
-		   const MinMaxAll *min_max);
+                   const MinMaxAll *min_max);
   // Merge all values of rfmm.
   void mergeWith(RiseFallMinMax *rfmm);
   void clear();
@@ -77,8 +77,8 @@ public:
   bool isOneValue() const;
   bool isOneValue(float &value) const;
   bool isOneValue(const MinMax *min_max,
-		  // Return values.
-		  float &value) const;
+                  // Return values.
+                  float &value) const;
 
 private:
   float values_[RiseFall::index_count][MinMax::index_count];

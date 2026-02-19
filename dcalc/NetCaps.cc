@@ -31,9 +31,9 @@ NetCaps::NetCaps()
 }
 
 NetCaps::NetCaps(float pin_cap,
-		 float wire_cap,
-		 float fanout,
-		 bool has_net_load) :
+                 float wire_cap,
+                 float fanout,
+                 bool has_net_load) :
   pin_cap_(pin_cap),
   wire_cap_(wire_cap),
   fanout_(fanout),
@@ -43,9 +43,9 @@ NetCaps::NetCaps(float pin_cap,
 
 void
 NetCaps::init(float pin_cap,
-	      float wire_cap,
-	      float fanout,
-	      bool has_net_load)
+              float wire_cap,
+              float fanout,
+              bool has_net_load)
 {
   pin_cap_ = pin_cap;
   wire_cap_ = wire_cap;
