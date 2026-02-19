@@ -23,13 +23,20 @@
 # This notice may not be removed or altered from any source distribution.
 
 cmake_minimum_required (VERSION 3.10)
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-# Use standard target names
-cmake_policy(SET CMP0078 NEW)
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.12)
+  # Use <PACKAGENAME>_ROOT in find_package
+  cmake_policy(SET CMP0074 NEW)
 endif()
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
+  # Use standard target names
+  cmake_policy(SET CMP0078 NEW)
+endif()
+
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
-# Allows SWIG_MODULE_NAME to be set
-cmake_policy(SET CMP0086 NEW)
+  # Allows SWIG_MODULE_NAME to be set
+  cmake_policy(SET CMP0086 NEW)
 endif()
 
 project(STA VERSION 2.7.0
