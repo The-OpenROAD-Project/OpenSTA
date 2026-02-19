@@ -31,143 +31,114 @@ report_checks > /dev/null
 ############################################################
 puts "--- set_max_transition ---"
 set_max_transition 0.01 [current_design]
-puts "PASS: set_max_transition"
 
 puts "--- report_check_types -max_slew ---"
 report_check_types -max_slew
-puts "PASS: max_slew"
 
 puts "--- report_check_types -max_slew -verbose ---"
 report_check_types -max_slew -verbose
-puts "PASS: max_slew verbose"
 
 puts "--- report_check_types -max_slew -violators ---"
 report_check_types -max_slew -violators
-puts "PASS: max_slew violators"
 
 puts "--- report_check_types -max_slew -violators -verbose ---"
 report_check_types -max_slew -violators -verbose
-puts "PASS: max_slew violators verbose"
 
 puts "--- max_slew_violation_count ---"
 set svc [sta::max_slew_violation_count]
 puts "max slew violations: $svc"
-puts "PASS: slew violation count"
 
 puts "--- max_slew_check_slack ---"
 set ss [sta::max_slew_check_slack]
 set sl [sta::max_slew_check_limit]
 puts "max slew slack: $ss limit: $sl"
-puts "PASS: slew check slack/limit"
 
 ############################################################
 # Fanout limit checks
 ############################################################
 puts "--- set_max_fanout ---"
 set_max_fanout 2 [current_design]
-puts "PASS: set_max_fanout"
 
 puts "--- report_check_types -max_fanout ---"
 report_check_types -max_fanout
-puts "PASS: max_fanout"
 
 puts "--- report_check_types -max_fanout -verbose ---"
 report_check_types -max_fanout -verbose
-puts "PASS: max_fanout verbose"
 
 puts "--- report_check_types -max_fanout -violators ---"
 report_check_types -max_fanout -violators
-puts "PASS: max_fanout violators"
 
 puts "--- report_check_types -max_fanout -violators -verbose ---"
 report_check_types -max_fanout -violators -verbose
-puts "PASS: max_fanout violators verbose"
 
 puts "--- max_fanout_violation_count ---"
 set fvc [sta::max_fanout_violation_count]
 puts "max fanout violations: $fvc"
-puts "PASS: fanout violation count"
 
 puts "--- max_fanout_check_slack ---"
 set fs [sta::max_fanout_check_slack]
 set fl [sta::max_fanout_check_limit]
 puts "max fanout slack: $fs limit: $fl"
-puts "PASS: fanout check slack/limit"
 
 ############################################################
 # Capacitance limit checks
 ############################################################
 puts "--- set_max_capacitance ---"
 set_max_capacitance 0.001 [current_design]
-puts "PASS: set_max_capacitance"
 
 puts "--- report_check_types -max_capacitance ---"
 report_check_types -max_capacitance
-puts "PASS: max_capacitance"
 
 puts "--- report_check_types -max_capacitance -verbose ---"
 report_check_types -max_capacitance -verbose
-puts "PASS: max_capacitance verbose"
 
 puts "--- report_check_types -max_capacitance -violators ---"
 report_check_types -max_capacitance -violators
-puts "PASS: max_capacitance violators"
 
 puts "--- report_check_types -max_capacitance -violators -verbose ---"
 report_check_types -max_capacitance -violators -verbose
-puts "PASS: max_capacitance violators verbose"
 
 puts "--- max_capacitance_violation_count ---"
 set cvc [sta::max_capacitance_violation_count]
 puts "max cap violations: $cvc"
-puts "PASS: cap violation count"
 
 puts "--- max_capacitance_check_slack ---"
 set cs [sta::max_capacitance_check_slack]
 set cl [sta::max_capacitance_check_limit]
 puts "max cap slack: $cs limit: $cl"
-puts "PASS: cap check slack/limit"
 
 ############################################################
 # All check types together
 ############################################################
 puts "--- report_check_types (all) ---"
 report_check_types
-puts "PASS: all check types"
 
 puts "--- report_check_types -verbose ---"
 report_check_types -verbose
-puts "PASS: all check types verbose"
 
 puts "--- report_check_types -violators ---"
 report_check_types -violators
-puts "PASS: all check types violators"
 
 puts "--- report_check_types -violators -verbose ---"
 report_check_types -violators -verbose
-puts "PASS: all check types violators verbose"
 
 ############################################################
 # Min slew checks
 ############################################################
 puts "--- report_check_types -min_slew ---"
 report_check_types -min_slew
-puts "PASS: min_slew"
 
 puts "--- report_check_types -min_slew -verbose ---"
 report_check_types -min_slew -verbose
-puts "PASS: min_slew verbose"
 
 ############################################################
 # Min fanout / min capacitance
 ############################################################
 puts "--- report_check_types -min_fanout ---"
 report_check_types -min_fanout
-puts "PASS: min_fanout"
 
 puts "--- report_check_types -min_capacitance ---"
 report_check_types -min_capacitance
-puts "PASS: min_capacitance"
 
 ############################################################
 # check_slew_limits for specific net
@@ -181,7 +152,6 @@ foreach p $slew_pins {
   sta::report_slew_limit_short $p "NULL" max
   sta::report_slew_limit_verbose $p "NULL" max
 }
-puts "PASS: specific net slew"
 
 ############################################################
 # check_fanout_limits for specific net
@@ -194,7 +164,6 @@ foreach p $fan_pins {
   sta::report_fanout_limit_short $p max
   sta::report_fanout_limit_verbose $p max
 }
-puts "PASS: specific net fanout"
 
 ############################################################
 # check_capacitance_limits for specific net
@@ -207,45 +176,36 @@ foreach p $cap_pins {
   sta::report_capacitance_limit_short $p "NULL" max
   sta::report_capacitance_limit_verbose $p "NULL" max
 }
-puts "PASS: specific net cap"
 
 ############################################################
 # report_check_types with -format end
 ############################################################
 puts "--- report_check_types -max_delay -format end ---"
 report_check_types -max_delay -format end
-puts "PASS: check_types format end"
 
 puts "--- report_check_types -min_delay -format slack_only ---"
 report_check_types -min_delay -format slack_only
-puts "PASS: check_types format slack_only"
 
 ############################################################
 # check_setup individual flags
 ############################################################
 puts "--- check_setup -no_input_delay ---"
 check_setup -verbose -no_input_delay
-puts "PASS: check_setup no_input"
 
 puts "--- check_setup -no_output_delay ---"
 check_setup -verbose -no_output_delay
-puts "PASS: check_setup no_output"
 
 puts "--- check_setup -no_clock ---"
 check_setup -verbose -no_clock
-puts "PASS: check_setup no_clock"
 
 puts "--- check_setup -multiple_clock ---"
 check_setup -verbose -multiple_clock
-puts "PASS: check_setup multiple_clock"
 
 puts "--- check_setup -unconstrained_endpoints ---"
 check_setup -verbose -unconstrained_endpoints
-puts "PASS: check_setup unconstrained"
 
 puts "--- check_setup -loops ---"
 check_setup -verbose -loops
-puts "PASS: check_setup loops"
 
 ############################################################
 # max_slew_check_slack_limit / max_cap_check_slack_limit / etc.
@@ -263,7 +223,6 @@ catch {
   set fr [max_fanout_check_slack_limit]
   puts "fanout slack/limit: $fr"
 }
-puts "PASS: slack/limit ratios"
 
 ############################################################
 # Endpoint violation counts
@@ -271,6 +230,3 @@ puts "PASS: slack/limit ratios"
 puts "--- endpoint_violation_count ---"
 puts "max violations: [sta::endpoint_violation_count max]"
 puts "min violations: [sta::endpoint_violation_count min]"
-puts "PASS: endpoint_violation_count"
-
-puts "ALL PASSED"

@@ -1,26 +1,17 @@
 --- report_check_types -min_period with tight clock ---
-PASS: min_period check
 --- report_clock_min_period with tight clock ---
 fast_clk period_min = 0.00 fmax = inf
 fast_clk period_min = 0.11 fmax = 9067.34
 fast_clk period_min = 0.00 fmax = inf
-PASS: clock_min_period
 --- min_period_violations ---
 Min period violations: 1
-PASS: min_period_violations
 --- min_period_check_slack ---
-PASS: min_period_check_slack
 --- report_min_period_checks ---
-PASS: report_min_period_checks
 --- max_skew checks ---
-PASS: max_skew checks
 --- max_skew_violations ---
 Max skew violations: 1
-PASS: max_skew_violations
 --- max_skew_check_slack ---
-PASS: max_skew_check_slack
 --- Now with normal clock period ---
-PASS: checks with normal clock
 --- min_pulse_width checks ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -93,5 +84,3 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: min_pulse_width checks
-ALL PASSED

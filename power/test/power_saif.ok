@@ -2,11 +2,9 @@
 Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
 --- read_saif ---
 Annotated 937 pin activities.
-PASS: read_saif completed
 --- report_activity_annotation after SAIF ---
 saif          937
 unannotated     0
-PASS: report_activity_annotation after SAIF
 --- report_activity_annotation -report_annotated ---
 saif          937
 unannotated     0
@@ -948,12 +946,10 @@ Annotated pins:
  saif rebuffer9/X
  saif split1/A
  saif split1/X
-PASS: report_activity_annotation -report_annotated
 --- report_activity_annotation -report_unannotated ---
 saif          937
 unannotated     0
 Unannotated pins:
-PASS: report_activity_annotation -report_unannotated
 --- report_power with SAIF ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -966,7 +962,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.37e-04   1.37e-04   9.91e-10   5.74e-04 100.0%
                           76.1%      23.9%       0.0%
-PASS: report_power with SAIF
 --- report_power -format json ---
 {
   "Sequential": {
@@ -1006,7 +1001,6 @@ PASS: report_power with SAIF
     "total": 5.74e-04
   }
 }
-PASS: report_power json with SAIF
 --- report_power -highest_power_instances ---
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
@@ -1016,5 +1010,3 @@ PASS: report_power json with SAIF
    9.51e-06   1.09e-05   4.60e-12   2.04e-05 clkbuf_2_1__f_clk
    9.46e-06   9.73e-06   4.60e-12   1.92e-05 clkbuf_2_3__f_clk
    1.16e-05   4.86e-06   8.46e-12   1.65e-05 _430_
-PASS: report_power -highest_power_instances with SAIF
-ALL PASSED

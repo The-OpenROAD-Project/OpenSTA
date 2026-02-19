@@ -28,39 +28,30 @@ set_input_delay -clock clk1 2.0 [get_ports in2]
 set_input_delay -clock clk2 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 3.0 [get_ports out2]
-puts "PASS: setup"
 
 ############################################################
 # Disable timing on ports (exercises writeDisabledPorts)
 ############################################################
 set_disable_timing [get_ports in1]
 set_disable_timing [get_ports in2]
-puts "PASS: disable ports"
 
 # Disable timing on instances with from/to (exercises writeDisabledInstances)
 set_disable_timing [get_cells buf1]
 set_disable_timing [get_cells inv1]
-puts "PASS: disable instances"
 
 # Disable on instance with from/to pins
-catch {
-  set_disable_timing -from A -to ZN [get_cells inv1]
-  puts "PASS: disable instance from/to"
-}
+set_disable_timing -from A -to ZN [get_cells inv1]
 
 # Disable on lib cell (exercises writeDisabledCells)
 set_disable_timing [get_lib_cells NangateOpenCellLibrary/AND2_X1] -from A1 -to ZN
 set_disable_timing [get_lib_cells NangateOpenCellLibrary/OR2_X1]
-puts "PASS: disable lib cells"
 
 # Disable on pins
 set_disable_timing [get_pins nand1/A1]
-puts "PASS: disable pin"
 
 # Write with disables
 set sdc1 [make_result_file sdc_wdg1.sdc]
 write_sdc -no_timestamp $sdc1
-puts "PASS: write_sdc with disables"
 
 # Unset disables
 unset_disable_timing [get_ports in1]
@@ -70,40 +61,30 @@ unset_disable_timing [get_cells inv1]
 unset_disable_timing [get_lib_cells NangateOpenCellLibrary/AND2_X1] -from A1 -to ZN
 unset_disable_timing [get_lib_cells NangateOpenCellLibrary/OR2_X1]
 unset_disable_timing [get_pins nand1/A1]
-puts "PASS: unset all disables"
 
 ############################################################
 # Clock groups - all three types (exercises writeClockGroups)
 ############################################################
 set_clock_groups -asynchronous -name async1 -group {clk1} -group {clk2}
-puts "PASS: clock_groups async"
 
 set sdc2 [make_result_file sdc_wdg2.sdc]
 write_sdc -no_timestamp $sdc2
-puts "PASS: write with async groups"
 
 unset_clock_groups -asynchronous -name async1
-puts "PASS: unset async"
 
 set_clock_groups -logically_exclusive -name logic1 -group {clk1} -group {clk2}
-puts "PASS: clock_groups logically_exclusive"
 
 set sdc3 [make_result_file sdc_wdg3.sdc]
 write_sdc -no_timestamp $sdc3
-puts "PASS: write with logically_exclusive"
 
 unset_clock_groups -logically_exclusive -name logic1
-puts "PASS: unset logically_exclusive"
 
 set_clock_groups -physically_exclusive -name phys1 -group {clk1} -group {vclk}
-puts "PASS: clock_groups physically_exclusive"
 
 set sdc4 [make_result_file sdc_wdg4.sdc]
 write_sdc -no_timestamp $sdc4
-puts "PASS: write with physically_exclusive"
 
 unset_clock_groups -physically_exclusive -name phys1
-puts "PASS: unset physically_exclusive"
 
 ############################################################
 # Group paths - named and default (exercises writeGroupPath)
@@ -111,19 +92,16 @@ puts "PASS: unset physically_exclusive"
 group_path -name grp_reg -from [get_clocks clk1] -to [get_clocks clk1]
 group_path -name grp_cross -from [get_clocks clk1] -to [get_clocks clk2]
 group_path -default -from [get_ports in1] -to [get_ports out1]
-puts "PASS: group paths"
 
 # Group path with weight (weight is ignored but syntax is accepted)
 group_path -name grp_weighted -weight 2.0 \
   -from [get_ports in2] -to [get_ports out2]
-puts "PASS: group_path with weight"
 
 # Group path with through
 group_path -name grp_thru -from [get_ports in1] \
   -through [get_pins buf1/Z] \
   -through [get_pins and1/ZN] \
   -to [get_ports out1]
-puts "PASS: group_path with multiple through"
 
 ############################################################
 # Output drives (exercises writeOutputDrives/writeDriveResistances)
@@ -131,18 +109,15 @@ puts "PASS: group_path with multiple through"
 set_driving_cell -lib_cell BUF_X1 [get_ports in1]
 set_driving_cell -lib_cell INV_X1 -pin ZN [get_ports in2]
 set_driving_cell -lib_cell BUF_X4 [get_ports in3]
-puts "PASS: driving cells"
 
 set_drive 100 [get_ports in1]
 set_drive -rise 80 [get_ports in2]
 set_drive -fall 120 [get_ports in2]
-puts "PASS: drive resistances"
 
 # Input transition
 set_input_transition 0.15 [get_ports in1]
 set_input_transition -rise -max 0.12 [get_ports in2]
 set_input_transition -fall -min 0.08 [get_ports in2]
-puts "PASS: input transitions"
 
 ############################################################
 # Inter-clock uncertainty with all combinations
@@ -152,31 +127,21 @@ set_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup 0.3
 set_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -hold 0.15
 set_clock_uncertainty -from [get_clocks clk2] -to [get_clocks clk1] -setup 0.28
 set_clock_uncertainty -from [get_clocks clk2] -to [get_clocks clk1] -hold 0.12
-puts "PASS: inter-clock uncertainty"
 
 ############################################################
 # Min pulse width on multiple target types
 # (exercises writeMinPulseWidths)
 ############################################################
 set_min_pulse_width 0.5
-puts "PASS: min_pulse_width global"
 
 set_min_pulse_width -high 0.6 [get_clocks clk1]
 set_min_pulse_width -low 0.4 [get_clocks clk1]
-puts "PASS: min_pulse_width clock high/low"
 
 set_min_pulse_width 0.55 [get_clocks clk2]
-puts "PASS: min_pulse_width clock same"
 
-catch {
-  set_min_pulse_width 0.3 [get_pins reg1/CK]
-  puts "PASS: min_pulse_width pin"
-}
+set_min_pulse_width 0.3 [get_pins reg1/CK]
 
-catch {
-  set_min_pulse_width 0.45 [get_cells reg3]
-  puts "PASS: min_pulse_width instance"
-}
+set_min_pulse_width 0.45 [get_cells reg3]
 
 ############################################################
 # Port loads (exercises writePortLoads/writePortExtCap)
@@ -186,26 +151,22 @@ set_load -wire_load 0.02 [get_ports out1]
 set_load -pin_load -rise 0.04 [get_ports out2]
 set_load -pin_load -fall 0.045 [get_ports out2]
 set_port_fanout_number 4 [get_ports out1]
-puts "PASS: port loads"
 
 ############################################################
 # Clock sense (exercises writeClockSenses)
 ############################################################
 set_clock_sense -positive -clocks [get_clocks clk1] [get_pins buf1/Z]
 set_clock_sense -negative -clocks [get_clocks clk2] [get_pins or1/ZN]
-puts "PASS: clock sense"
 
 ############################################################
 # Propagated clocks (exercises writePropagatedClkPins)
 ############################################################
 set_propagated_clock [get_clocks clk1]
 set_propagated_clock [get_ports clk2]
-puts "PASS: propagated clocks"
 
 # Clock insertion (exercises writeClockInsertions)
 set_clock_latency -source -early 0.3 [get_clocks clk1]
 set_clock_latency -source -late 0.5 [get_clocks clk1]
-puts "PASS: clock insertion"
 
 ############################################################
 # Clock transition
@@ -213,7 +174,6 @@ puts "PASS: clock insertion"
 set_clock_transition -rise -max 0.15 [get_clocks clk1]
 set_clock_transition -fall -min 0.08 [get_clocks clk1]
 set_clock_transition 0.1 [get_clocks clk2]
-puts "PASS: clock transitions"
 
 ############################################################
 # False paths with -setup/-hold only
@@ -221,41 +181,30 @@ puts "PASS: clock transitions"
 ############################################################
 set_false_path -setup -from [get_clocks clk1] -to [get_clocks clk2]
 set_false_path -hold -from [get_clocks clk2] -to [get_clocks clk1]
-puts "PASS: false paths setup/hold only"
 
 ############################################################
 # Comprehensive write with all constraint types
 ############################################################
 set sdc5 [make_result_file sdc_wdg5.sdc]
 write_sdc -no_timestamp $sdc5
-puts "PASS: write_sdc comprehensive"
 
 set sdc6 [make_result_file sdc_wdg6.sdc]
 write_sdc -no_timestamp -compatible $sdc6
-puts "PASS: write_sdc compatible comprehensive"
 
 set sdc7 [make_result_file sdc_wdg7.sdc]
 write_sdc -no_timestamp -digits 8 $sdc7
-puts "PASS: write_sdc digits 8"
 
 set sdc8 [make_result_file sdc_wdg8.sdc]
 write_sdc -no_timestamp -map_hpins $sdc8
-puts "PASS: write_sdc map_hpins"
 
 report_checks
-puts "PASS: report checks"
 
 ############################################################
 # Read back SDC and verify roundtrip
 ############################################################
 read_sdc $sdc5
-puts "PASS: read_sdc"
 
 set sdc9 [make_result_file sdc_wdg9.sdc]
 write_sdc -no_timestamp $sdc9
-puts "PASS: write_sdc roundtrip"
 
 report_checks
-puts "PASS: final report"
-
-puts "ALL PASSED"

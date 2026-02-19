@@ -24,11 +24,9 @@ set_output_delay -clock clk 2.0 [get_ports out2]
 ############################################################
 puts "--- Latch full_clock_expanded max with all fields ---"
 report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout input_pin net src_attr}
-puts "PASS: latch full_clock_expanded max all fields"
 
 puts "--- Latch full_clock_expanded min with all fields ---"
 report_checks -path_delay min -format full_clock_expanded -fields {capacitance slew fanout input_pin net src_attr}
-puts "PASS: latch full_clock_expanded min all fields"
 
 ############################################################
 # Latch path per endpoint
@@ -36,12 +34,10 @@ puts "PASS: latch full_clock_expanded min all fields"
 puts "--- Latch report to latch output ---"
 report_checks -to [get_ports out1] -path_delay max -format full_clock_expanded -fields {capacitance slew fanout}
 report_checks -to [get_ports out1] -path_delay min -format full_clock_expanded -fields {capacitance slew fanout}
-puts "PASS: latch output endpoint"
 
 puts "--- Latch report to reg output ---"
 report_checks -to [get_ports out2] -path_delay max -format full_clock_expanded -fields {capacitance slew input_pin}
 report_checks -to [get_ports out2] -path_delay min -format full_clock_expanded -fields {capacitance slew input_pin}
-puts "PASS: reg output endpoint"
 
 ############################################################
 # Latch path report with digits
@@ -49,7 +45,6 @@ puts "PASS: reg output endpoint"
 puts "--- Latch full_clock_expanded digits 6 ---"
 report_checks -path_delay max -format full_clock_expanded -digits 6
 report_checks -path_delay min -format full_clock_expanded -digits 6
-puts "PASS: latch digits 6"
 
 ############################################################
 # Latch path report with no_line_splits
@@ -57,7 +52,6 @@ puts "PASS: latch digits 6"
 puts "--- Latch full_clock_expanded no_line_splits ---"
 report_checks -path_delay max -format full_clock_expanded -no_line_splits
 report_checks -path_delay min -format full_clock_expanded -no_line_splits
-puts "PASS: latch no_line_splits"
 
 ############################################################
 # Latch path full_clock format
@@ -65,7 +59,6 @@ puts "PASS: latch no_line_splits"
 puts "--- Latch full_clock format ---"
 report_checks -path_delay max -format full_clock -fields {capacitance slew fanout input_pin net}
 report_checks -path_delay min -format full_clock -fields {capacitance slew fanout input_pin net}
-puts "PASS: latch full_clock format"
 
 ############################################################
 # find_timing_paths and iterate latch paths
@@ -81,14 +74,12 @@ foreach pe $paths_max {
   catch { puts "  target_clk_delay: [$pe target_clk_delay]" }
   catch { puts "  target_clk_uncertainty: [$pe target_clk_uncertainty]" }
 }
-puts "PASS: latch path iteration"
 
 ############################################################
 # report_path_ends for latch paths
 ############################################################
 puts "--- report_path_ends for latch paths ---"
 sta::report_path_ends $paths_max
-puts "PASS: latch report_path_ends"
 
 ############################################################
 # Latch report in end/summary/slack_only
@@ -96,17 +87,14 @@ puts "PASS: latch report_path_ends"
 puts "--- Latch end format ---"
 report_checks -path_delay max -format end
 report_checks -path_delay min -format end
-puts "PASS: latch end format"
 
 puts "--- Latch summary format ---"
 report_checks -path_delay max -format summary
 report_checks -path_delay min -format summary
-puts "PASS: latch summary format"
 
 puts "--- Latch slack_only format ---"
 report_checks -path_delay max -format slack_only
 report_checks -path_delay min -format slack_only
-puts "PASS: latch slack_only format"
 
 ############################################################
 # set_latch_borrow_limit and report with fields
@@ -116,14 +104,12 @@ catch {
   set_latch_borrow_limit 2.5 [get_pins latch1/G]
   report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout input_pin}
 }
-puts "PASS: latch borrow limit"
 
 ############################################################
 # report_checks min_max for latch
 ############################################################
 puts "--- Latch min_max ---"
 report_checks -path_delay min_max -format full_clock_expanded
-puts "PASS: latch min_max"
 
 ############################################################
 # PathEnd properties for latch paths
@@ -151,14 +137,12 @@ foreach pe $paths_max2 {
     break
   }
 }
-puts "PASS: latch PathEnd properties"
 
 ############################################################
 # report_path_ends for latch paths
 ############################################################
 puts "--- report_path_ends latch ---"
 sta::report_path_ends $paths_max2
-puts "PASS: latch report_path_ends"
 
 ############################################################
 # Latch JSON format (must be last, sets internal json state)
@@ -166,6 +150,3 @@ puts "PASS: latch report_path_ends"
 puts "--- Latch JSON format ---"
 report_checks -path_delay max -format json
 report_checks -path_delay min -format json
-puts "PASS: latch json format"
-
-puts "ALL PASSED"

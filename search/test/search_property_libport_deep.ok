@@ -4,7 +4,6 @@ BUF_X1/Z drive_resistance_min_rise: 2.327937
 BUF_X1/Z drive_resistance_max_rise: 2.327937
 BUF_X1/Z drive_resistance_min_fall: 1.083897
 BUF_X1/Z drive_resistance_max_fall: 1.083897
-PASS: drive_resistance
 --- More drive_resistance on different cells ---
 AND2_X1/ZN drive_resistance: 2.333555
 AND2_X1/ZN drive_resistance_min_rise: 2.333449
@@ -12,26 +11,22 @@ AND2_X1/ZN drive_resistance_max_fall: 1.085789
 INV_X1/ZN drive_resistance: 2.322186
 INV_X1/ZN drive_resistance_min_rise: 2.322186
 INV_X1/ZN drive_resistance_max_fall: 1.071745
-PASS: drive_resistance multi
 --- LibertyPort intrinsic_delay properties ---
 BUF_X1/Z intrinsic_delay: 0.018876
 BUF_X1/Z intrinsic_delay_min_rise: 0.013565
 BUF_X1/Z intrinsic_delay_max_rise: 0.013565
 BUF_X1/Z intrinsic_delay_min_fall: 0.018876
 BUF_X1/Z intrinsic_delay_max_fall: 0.018876
-PASS: intrinsic_delay BUF
 --- intrinsic_delay on AND ---
 AND2_X1/ZN intrinsic_delay: 0.022618
 AND2_X1/ZN intrinsic_delay_min_rise: 0.021327
 AND2_X1/ZN intrinsic_delay_max_rise: 0.022618
 AND2_X1/ZN intrinsic_delay_min_fall: 0.020427
 AND2_X1/ZN intrinsic_delay_max_fall: 0.022613
-PASS: intrinsic_delay AND
 --- intrinsic_delay on INV ---
 INV_X1/ZN intrinsic_delay: 0.004075
 INV_X1/ZN intrinsic_delay_min_rise: 0.004075
 INV_X1/ZN intrinsic_delay_max_fall: 0.002482
-PASS: intrinsic_delay INV
 --- LibertyPort lib_cell and clock properties ---
 BUF_X1/A capacitance: 0.974659
 BUF_X1/A lib_cell: BUF_X1
@@ -44,7 +39,6 @@ DFF_X1/CK lib_cell: DFF_X1
 DFF_X1/D is_clock: 0
 DFF_X1/D is_register_clock: 0
 DFF_X1/D capacitance: 1.140290
-PASS: lib_cell/is_clock/capacitance
 --- Instance is_* properties ---
 buf1 is_buffer: 1
 buf1 is_inverter: 0
@@ -61,13 +55,11 @@ reg1 is_buffer: 0
 reg1 is_inverter: 0
 reg1 is_macro: 0
 reg1 is_memory: 0
-PASS: instance is_* properties
 --- LibertyCell area and leakage ---
 DFF_X1 area: 4.522000
 BUF_X1 area: 0.798000
 INV_X1 area: 0.532000
 AND2_X1 area: 1.064000
-PASS: cell area/leakage
 --- group_path matching ---
 --- report_checks with groups ---
 Startpoint: in2 (input port clocked by clk)
@@ -188,25 +180,20 @@ Path Type: max
            8.35   slack (MET)
 
 
-PASS: report_checks with groups
 --- find_timing_paths with group_path ---
 Found 18 paths with groups
-PASS: paths with groups
 --- find_timing_paths with min paths and groups ---
 Found 18 min paths with groups
-PASS: min paths with groups
 --- path_group_names ---
 Path group names: clk input_grp output_grp reg2reg_grp through_grp asynchronous {path delay} {gated clock} unconstrained
 input_grp is group: 1
 nonexistent is group: 0
-PASS: path_group_names
 --- TimingArcSet properties on DFF_X1 ---
 DFF_X1 arc: DFF_X1 CK -> D / DFF_X1 CK -> D
 DFF_X1 arc: DFF_X1 CK -> D / DFF_X1 CK -> D
 DFF_X1 arc: DFF_X1 CK -> CK / DFF_X1 CK -> CK
 DFF_X1 arc: DFF_X1 CK -> Q / DFF_X1 CK -> Q
 DFF_X1 arc: DFF_X1 CK -> QN / DFF_X1 CK -> QN
-PASS: DFF_X1 arc set properties
 --- TimingArcSet properties on DFFR_X1 ---
 DFFR_X1 arc: DFFR_X1 CK -> D
 DFFR_X1 arc: DFFR_X1 CK -> D
@@ -224,25 +211,19 @@ DFFR_X1 arc: DFFR_X1 RN -> QN
 DFFR_X1 arc: DFFR_X1 RN -> QN
 DFFR_X1 arc: DFFR_X1 RN -> QN
 DFFR_X1 arc: DFFR_X1 RN -> QN
-PASS: DFFR_X1 arc set properties
 --- TimingArcSet properties on OR2_X1 ---
 OR2_X1 arc: OR2_X1 A1 -> ZN / OR2_X1 A1 -> ZN
 OR2_X1 arc: OR2_X1 A2 -> ZN / OR2_X1 A2 -> ZN
-PASS: OR2_X1 arc set properties
 --- Pin is_hierarchical/is_port ---
 reg1/D is_hierarchical: 0
 reg1/D is_port: 0
-PASS: pin is_hierarchical/is_port
 --- LibertyPort direction varieties ---
 DFF_X1/Q direction: output
 DFF_X1/D direction: input
 DFF_X1/CK direction: input
-PASS: liberty port directions
 --- Unknown property errors ---
 LibertyPort unknown: Error: liberty_port objects do not have a
 Instance unknown: Error: instance objects do not have a non
 Clock unknown: Error: clock objects do not have a nonexi
 LibertyCell unknown: Error: liberty_cell objects do not have a
 Library unknown: Error: liberty_library objects do not hav
-PASS: unknown property errors
-ALL PASSED

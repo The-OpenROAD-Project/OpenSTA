@@ -32,7 +32,6 @@ puts "--- Gated clock full_clock_expanded with fields ---"
 sta::set_gated_clk_checks_enabled 1
 report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout input_pin net src_attr}
 report_checks -path_delay min -format full_clock_expanded -fields {capacitance slew fanout input_pin net src_attr}
-puts "PASS: gated clock expanded fields"
 
 ############################################################
 # Gated clock path iteration with detailed properties
@@ -44,12 +43,11 @@ foreach pe $gated_paths {
   puts "  type: is_gated=[$pe is_gated_clock] is_check=[$pe is_check] is_output=[$pe is_output_delay] is_latch=[$pe is_latch_check] is_data=[$pe is_data_check] is_path_delay=[$pe is_path_delay] is_uncon=[$pe is_unconstrained]"
   puts "    pin=[get_full_name [$pe pin]] role=[$pe check_role] slack=[$pe slack]"
   puts "    margin=[$pe margin] data_arr=[$pe data_arrival_time] data_req=[$pe data_required_time]"
-  catch { puts "    target_clk: [get_name [$pe target_clk]]" }
-  catch { puts "    target_clk_time: [$pe target_clk_time]" }
-  catch { puts "    end_transition: [$pe end_transition]" }
-  catch { puts "    min_max: [$pe min_max]" }
+  puts "    target_clk: [get_name [$pe target_clk]]"
+  puts "    target_clk_time: [$pe target_clk_time]"
+  puts "    end_transition: [$pe end_transition]"
+  puts "    min_max: [$pe min_max]"
 }
-puts "PASS: gated clock path detail"
 
 ############################################################
 # Gated clock in all report formats
@@ -62,7 +60,6 @@ report_checks -path_delay max -format end
 report_checks -path_delay max -format summary
 report_checks -path_delay max -format slack_only
 report_checks -path_delay max -format json
-puts "PASS: gated clock all formats"
 
 puts "--- Gated clock min all formats ---"
 report_checks -path_delay min -format full
@@ -71,7 +68,6 @@ report_checks -path_delay min -format short
 report_checks -path_delay min -format end
 report_checks -path_delay min -format summary
 report_checks -path_delay min -format slack_only
-puts "PASS: gated clock min formats"
 
 sta::set_gated_clk_checks_enabled 0
 
@@ -82,7 +78,6 @@ puts "--- Recovery/removal full_clock_expanded with fields ---"
 sta::set_recovery_removal_checks_enabled 1
 report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout input_pin net}
 report_checks -path_delay min -format full_clock_expanded -fields {capacitance slew fanout input_pin net}
-puts "PASS: recovery expanded fields"
 
 puts "--- Recovery/removal formats ---"
 report_checks -path_delay max -format full
@@ -91,7 +86,6 @@ report_checks -path_delay max -format short
 report_checks -path_delay max -format end
 report_checks -path_delay max -format summary
 report_checks -path_delay max -format json
-puts "PASS: recovery formats"
 
 puts "--- Recovery path iteration ---"
 set recov_paths [find_timing_paths -path_delay max -endpoint_path_count 15 -group_path_count 30]
@@ -100,7 +94,6 @@ foreach pe $recov_paths {
   set role [$pe check_role]
   puts "  role=$role is_check=[$pe is_check] pin=[get_full_name [$pe pin]] slack=[$pe slack]"
 }
-puts "PASS: recovery path iteration"
 
 sta::set_recovery_removal_checks_enabled 0
 
@@ -108,37 +101,28 @@ sta::set_recovery_removal_checks_enabled 0
 # Data check constraints with reporting
 ############################################################
 puts "--- Data check with full_clock_expanded ---"
-catch {
-  set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -setup 0.3
-  set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -hold 0.15
-  report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout}
-  report_checks -path_delay min -format full_clock_expanded -fields {capacitance slew fanout}
-  puts "data check full_clock_expanded done"
-}
-puts "PASS: data check expanded"
+set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -setup 0.3
+set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -hold 0.15
+report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout}
+report_checks -path_delay min -format full_clock_expanded -fields {capacitance slew fanout}
+puts "data check full_clock_expanded done"
 
 puts "--- Data check all formats ---"
-catch {
-  report_checks -path_delay max -format full
-  report_checks -path_delay max -format full_clock
-  report_checks -path_delay max -format short
-  report_checks -path_delay max -format end
-  report_checks -path_delay max -format summary
-  report_checks -path_delay max -format slack_only
-  report_checks -path_delay max -format json
-  puts "data check all formats done"
-}
-puts "PASS: data check formats"
+report_checks -path_delay max -format full
+report_checks -path_delay max -format full_clock
+report_checks -path_delay max -format short
+report_checks -path_delay max -format end
+report_checks -path_delay max -format summary
+report_checks -path_delay max -format slack_only
+report_checks -path_delay max -format json
+puts "data check all formats done"
 
 puts "--- Data check path iteration ---"
-catch {
-  set dc_paths [find_timing_paths -path_delay max -endpoint_path_count 10]
-  puts "Data check max paths: [llength $dc_paths]"
-  foreach pe $dc_paths {
-    puts "  is_data_check: [$pe is_data_check] role=[$pe check_role] pin=[get_full_name [$pe pin]]"
-  }
+set dc_paths [find_timing_paths -path_delay max -endpoint_path_count 10]
+puts "Data check max paths: [llength $dc_paths]"
+foreach pe $dc_paths {
+  puts "  is_data_check: [$pe is_data_check] role=[$pe check_role] pin=[get_full_name [$pe pin]]"
 }
-puts "PASS: data check iteration"
 
 ############################################################
 # Propagated gated clock enable
@@ -150,7 +134,6 @@ report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
 sta::set_propagate_gated_clock_enable 0
 sta::set_gated_clk_checks_enabled 0
-puts "PASS: propagate gated clk enable"
 
 ############################################################
 # Report with -digits and -no_line_splits
@@ -158,14 +141,12 @@ puts "PASS: propagate gated clk enable"
 puts "--- Digits and no_line_splits ---"
 report_checks -path_delay max -digits 6 -format full_clock_expanded
 report_checks -path_delay max -no_line_splits -format full_clock_expanded
-puts "PASS: digits and no_line_splits"
 
 ############################################################
 # report_checks -unconstrained
 ############################################################
 puts "--- unconstrained ---"
 report_checks -path_delay max -unconstrained
-puts "PASS: unconstrained"
 
 ############################################################
 # endpoint_violation_count
@@ -173,7 +154,6 @@ puts "PASS: unconstrained"
 puts "--- endpoint_violation_count ---"
 puts "max violations: [sta::endpoint_violation_count max]"
 puts "min violations: [sta::endpoint_violation_count min]"
-puts "PASS: endpoint_violation_count"
 
 ############################################################
 # Startpoints / endpoints
@@ -183,6 +163,3 @@ set starts [sta::startpoints]
 puts "startpoints: [llength $starts]"
 set ends [sta::endpoints]
 puts "endpoints: [llength $ends]"
-puts "PASS: startpoints/endpoints"
-
-puts "ALL PASSED"

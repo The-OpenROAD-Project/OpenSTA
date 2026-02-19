@@ -8,4 +8,3 @@ create_clock -name clk -period 10 [get_ports clk]
 
 # report_checks exercises the graph
 report_checks -from [get_ports d] -to [get_ports q]
-puts "PASS: graph created and timing reported"

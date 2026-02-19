@@ -2,7 +2,6 @@
 cells: 28
 nets: 45
 ports: 27
-PASS: read complex bus verilog
 --- Test 2: bus port queries ---
 data_a* ports: 8
 data_b* ports: 8
@@ -58,11 +57,7 @@ reg0 pins: 6
 */Q pins: 8
 */CK pins: 8
 --- Test 5: write verilog with buses ---
-PASS: write_verilog
-PASS: output file exists
 output size: 2075
-PASS: write_verilog -include_pwr_gnd
-PASS: pwr_gnd file exists
 --- Test 6: timing analysis ---
 Startpoint: data_b[7] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
@@ -93,7 +88,6 @@ Path Type: max
            7.64   slack (MET)
 
 
-PASS: report_checks
 Startpoint: data_a[0] (input port clocked by clk)
 Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -123,11 +117,8 @@ Path Type: min
           -0.13   slack (VIOLATED)
 
 
-PASS: report_checks min
 No paths found.
-PASS: data_a[0]->result[0]
 No paths found.
-PASS: data_a[7]->result[7]
 Startpoint: data_b[7] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk
@@ -157,7 +148,6 @@ Path Type: max
            7.64   slack (MET)
 
 
-PASS: ->carry
 Startpoint: data_b[6] (input port clocked by clk)
 Endpoint: overflow (output port clocked by clk)
 Path Group: clk
@@ -187,7 +177,6 @@ Path Type: max
            7.67   slack (MET)
 
 
-PASS: ->overflow
 Warning: verilog_complex_bus.tcl line 1, unknown field nets.
 Startpoint: data_b[7] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
@@ -221,7 +210,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   7.64   slack (MET)
 
 
-PASS: report with fields
 --- Test 7: report_net on bus ---
 Net stage1[0]
  Pin capacitance: 0.87-0.92
@@ -319,4 +307,3 @@ report_net internal_overflow: done
 fanin to result[0]: 3
 fanout from data_a[0]: 6
 fanin cells to carry: 7
-ALL PASSED

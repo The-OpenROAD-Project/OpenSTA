@@ -1,9 +1,4 @@
-PASS: read Sky130 library
 --- leakage power queries ---
-PASS: combinational cell leakage
-PASS: sequential cell leakage
-PASS: tristate cell leakage
-PASS: clock gate cell leakage
 --- detailed cell reports ---
 Cell sky130_fd_sc_hd__inv_1
 Library sky130_fd_sc_hd__tt_025C_1v80
@@ -14,7 +9,6 @@ File ../../test/sky130hd/sky130hd_tt.lib
  VPWR power
  A input 0.00-0.00
  Y output function=!A
-PASS: report inv_1
 Cell sky130_fd_sc_hd__nand2_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -25,7 +19,6 @@ File ../../test/sky130hd/sky130hd_tt.lib
  A input 0.00-0.00
  B input 0.00-0.00
  Y output function=!A+!B
-PASS: report nand2_1
 Cell sky130_fd_sc_hd__dfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -38,11 +31,7 @@ File ../../test/sky130hd/sky130hd_tt.lib
  CLK input 0.00-0.00
  D input 0.00-0.00
  Q output function=IQ
-PASS: report dfxtp_1
-PASS: read Nangate45
-PASS: Nangate cell leakage
 Warning: liberty_leakage_power_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
-PASS: design setup
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -54,7 +43,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.88e-06   7.80e-08   3.61e-07   2.32e-06 100.0%
                           81.1%       3.4%      15.5%
-PASS: report_power
 Group                      Internal      Switching        Leakage          Total
                               Power          Power          Power          Power (Watts)
 --------------------------------------------------------------------------------
@@ -66,53 +54,39 @@ Pad                  0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00
 --------------------------------------------------------------------------------
 Total                1.88477998e-06 7.79815039e-08 3.60756701e-07 2.32351817e-06 100.0%
                               81.1%           3.4%          15.5%
-PASS: report_power -digits 8
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    2.69e-08   1.13e-08   2.14e-08   5.96e-08 buf1
-PASS: report_power buf1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    1.68e-08   5.90e-09   1.44e-08   3.71e-08 inv1
-PASS: report_power inv1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    2.56e-08   2.00e-08   2.51e-08   7.07e-08 and1
-PASS: report_power and1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    2.59e-08   2.01e-08   2.27e-08   6.87e-08 or1
-PASS: report_power or1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    1.24e-08   6.90e-09   2.18e-08   4.11e-08 nand1
-PASS: report_power nand1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    1.46e-08   6.90e-09   1.97e-08   4.11e-08 nor1
-PASS: report_power nor1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    5.87e-07   6.90e-09   7.86e-08   6.73e-07 reg1
-PASS: report_power reg1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    5.89e-07   0.00e+00   7.84e-08   6.67e-07 reg2
-PASS: report_power reg2
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    5.87e-07   0.00e+00   7.86e-08   6.65e-07 reg3
-PASS: report_power reg3
-PASS: read IHP
-PASS: IHP leakage queries
-PASS: write_liberty sky130 with power
-ALL PASSED

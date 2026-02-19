@@ -37,7 +37,6 @@ catch {
   set in1_is_clk [sta::is_clock [get_ports in1]]
   puts "in1 port is_clock: $in1_is_clk"
 }
-puts "PASS: isClock"
 
 ############################################################
 # isIdealClock / isPropagatedClock
@@ -53,7 +52,6 @@ catch {
   puts "after propagate - clk isPropagatedClock: [sta::is_propagated_clock [get_ports clk]]"
 }
 unset_propagated_clock [get_clocks clk]
-puts "PASS: ideal/propagated clock"
 
 ############################################################
 # Logic simulation values
@@ -65,7 +63,6 @@ set sv_gated [sta::pin_sim_logic_value [get_pins clk_gate/ZN]]
 set sv_buf1 [sta::pin_sim_logic_value [get_pins buf1/Z]]
 set sv_reg1_d [sta::pin_sim_logic_value [get_pins reg1/D]]
 puts "en=$sv_en clk_gate_a1=$sv_clk gated=$sv_gated buf1=$sv_buf1 reg1/D=$sv_reg1_d"
-puts "PASS: sim logic values"
 
 ############################################################
 # Case analysis and logic simulation
@@ -76,7 +73,6 @@ set sv_gated_0 [sta::pin_sim_logic_value [get_pins clk_gate/ZN]]
 puts "en=0: gated_clk=$sv_gated_0"
 report_checks -path_delay max
 unset_case_analysis [get_ports en]
-puts "PASS: case_analysis 0 en"
 
 puts "--- case analysis 1 on en ---"
 set_case_analysis 1 [get_ports en]
@@ -84,19 +80,16 @@ set sv_gated_1 [sta::pin_sim_logic_value [get_pins clk_gate/ZN]]
 puts "en=1: gated_clk=$sv_gated_1"
 report_checks -path_delay max
 unset_case_analysis [get_ports en]
-puts "PASS: case_analysis 1 en"
 
 puts "--- case analysis rising on en ---"
 set_case_analysis rising [get_ports en]
 report_checks -path_delay max
 unset_case_analysis [get_ports en]
-puts "PASS: case_analysis rising en"
 
 puts "--- case analysis falling on en ---"
 set_case_analysis falling [get_ports en]
 report_checks -path_delay max
 unset_case_analysis [get_ports en]
-puts "PASS: case_analysis falling en"
 
 ############################################################
 # set_logic_one/zero
@@ -106,39 +99,33 @@ set_logic_zero [get_ports in1]
 set sv_buf_z [sta::pin_sim_logic_value [get_pins buf1/Z]]
 puts "in1=0: buf1/Z=$sv_buf_z"
 report_checks -path_delay max
-puts "PASS: logic_zero"
 
 puts "--- set_logic_one ---"
 set_logic_one [get_ports en]
 set sv_en_1 [sta::pin_sim_logic_value [get_pins clk_gate/A2]]
 puts "en=1: clk_gate/A2=$sv_en_1"
 report_checks -path_delay max
-puts "PASS: logic_one"
 
 ############################################################
 # findLogicConstants / clearLogicConstants
 ############################################################
 puts "--- findLogicConstants ---"
 catch { sta::find_logic_constants }
-puts "PASS: findLogicConstants"
 
 puts "--- clearLogicConstants ---"
 catch { sta::clear_logic_constants }
-puts "PASS: clearLogicConstants"
 
 ############################################################
 # Levelize and graph queries
 ############################################################
 puts "--- levelize ---"
 sta::levelize
-puts "PASS: levelize"
 
 puts "--- graphLoops ---"
 catch {
   set loops [sta::graph_loop_count]
   puts "Graph loops: $loops"
 }
-puts "PASS: graphLoops"
 
 puts "--- max_path_count_vertex ---"
 catch {
@@ -149,7 +136,6 @@ catch {
     puts "  level: [sta::vertex_level $maxv]"
   }
 }
-puts "PASS: max_path_count_vertex"
 
 ############################################################
 # Generated clock (exercises Genclks.cc)
@@ -158,16 +144,13 @@ puts "--- generated clock ---"
 create_generated_clock -name gclk -source [get_ports clk] -divide_by 2 [get_pins reg1/Q]
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: generated clock"
 
 puts "--- report_clock_properties with genclk ---"
 report_clock_properties
-puts "PASS: clock properties with genclk"
 
 puts "--- clock skew with genclk ---"
 report_clock_skew -setup
 report_clock_skew -hold
-puts "PASS: clock skew genclk"
 
 ############################################################
 # Clock min period
@@ -177,7 +160,6 @@ report_clock_min_period
 catch {
   report_clock_min_period -include_port_paths
 }
-puts "PASS: clock min period"
 
 ############################################################
 # Clock latency reporting
@@ -190,7 +172,6 @@ catch {
 }
 report_clock_latency -digits 6
 unset_propagated_clock [get_clocks clk]
-puts "PASS: clock latency report"
 
 ############################################################
 # find_timing_paths for different clk domains
@@ -201,7 +182,6 @@ puts "Max paths: [llength $paths]"
 foreach pe $paths {
   puts "  pin=[get_full_name [$pe pin]] slack=[$pe slack]"
 }
-puts "PASS: timing paths"
 
 ############################################################
 # report_checks with -through for clock gate
@@ -209,7 +189,6 @@ puts "PASS: timing paths"
 puts "--- report_checks through clock gate ---"
 report_checks -through [get_pins clk_gate/ZN] -path_delay max
 report_checks -through [get_pins clk_gate/ZN] -path_delay min
-puts "PASS: through clock gate"
 
 ############################################################
 # Various bidirectional/tristate enable flags
@@ -221,7 +200,6 @@ catch {
   sta::set_bidirect_inst_paths_enabled 0
   report_checks -path_delay max
 }
-puts "PASS: bidirect inst paths"
 
 puts "--- bidirect net paths ---"
 catch {
@@ -230,7 +208,6 @@ catch {
   sta::set_bidirect_net_paths_enabled 0
   report_checks -path_delay max
 }
-puts "PASS: bidirect net paths"
 
 puts "--- clk thru tristate ---"
 catch {
@@ -239,7 +216,6 @@ catch {
   sta::set_clk_thru_tristate_enabled 0
   report_checks -path_delay max
 }
-puts "PASS: clk thru tristate"
 
 puts "--- dynamic loop breaking ---"
 catch {
@@ -248,7 +224,6 @@ catch {
   sta::set_dynamic_loop_breaking 0
   report_checks -path_delay max
 }
-puts "PASS: dynamic loop breaking"
 
 puts "--- use default arrival clock ---"
 catch {
@@ -257,7 +232,6 @@ catch {
   sta::set_use_default_arrival_clock 0
   report_checks -path_delay max
 }
-puts "PASS: use default arrival clock"
 
 puts "--- propagate all clocks ---"
 catch {
@@ -266,6 +240,3 @@ catch {
   sta::set_propagate_all_clocks 0
   report_checks -path_delay max
 }
-puts "PASS: propagate all clocks"
-
-puts "ALL PASSED"

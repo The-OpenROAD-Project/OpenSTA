@@ -21,7 +21,6 @@ set_input_transition 0.1 [get_ports {in1 in2}]
 
 puts "--- report_checks ---"
 report_checks
-puts "PASS: timing analysis completed"
 
 # Create mock SPICE subcircuit and model files
 set spice_dir [make_result_file spice_subckt_out]
@@ -62,7 +61,6 @@ puts $subckt_fh "M1 Q D VDD VDD pmos W=1u L=100n"
 puts $subckt_fh "M2 Q D VSS VSS nmos W=1u L=100n"
 puts $subckt_fh ".ends"
 close $subckt_fh
-puts "PASS: subcircuit files created"
 
 #---------------------------------------------------------------
 # write_gate_spice with multiple gates in one call
@@ -79,10 +77,8 @@ set rc [catch {
     -ground VSS
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_gate_spice multiple gates completed"
 } else {
   puts "INFO: write_gate_spice multiple gates: $msg"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -100,10 +96,8 @@ set rc [catch {
     -ground VSS
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_gate_spice AND completed"
 } else {
   puts "INFO: write_gate_spice AND: $msg"
-  puts "PASS: AND gate code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -122,10 +116,8 @@ set rc [catch {
     -ground VSS
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice to out1 completed"
 } else {
   puts "INFO: write_path_spice to out1: $msg"
-  puts "PASS: path_spice out1 code path exercised"
 }
 
 puts "--- write_path_spice to out2 ---"
@@ -141,10 +133,8 @@ set rc [catch {
     -ground VSS
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice to out2 completed"
 } else {
   puts "INFO: write_path_spice to out2: $msg"
-  puts "PASS: path_spice out2 code path exercised"
 }
 
 puts "--- write_path_spice with ngspice ---"
@@ -161,10 +151,6 @@ set rc [catch {
     -simulator ngspice
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice ngspice completed"
 } else {
   puts "INFO: write_path_spice ngspice: $msg"
-  puts "PASS: ngspice code path exercised"
 }
-
-puts "ALL PASSED"

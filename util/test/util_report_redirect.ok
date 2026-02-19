@@ -1,19 +1,10 @@
 --- processor_count ---
-PASS: processor_count returned 64
 --- memory_usage ---
-PASS: memory_usage returned non-negative value
 --- elapsed_run_time ---
-PASS: elapsed_run_time returned non-negative value
 --- user_run_time ---
-PASS: user_run_time returned non-negative value
 --- cputime ---
-PASS: cputime returned non-negative value
 --- redirect to file ---
-PASS: redirect_file_begin/end completed
-PASS: redirect file has content
 --- redirect append to file ---
-PASS: redirect_file_append_begin/end completed
-PASS: appended redirect file has content
 --- log_begin with content ---
  time 1s
  capacitance 1F
@@ -36,18 +27,13 @@ PASS: appended redirect file has content
  current 1A
  power 1W
  distance 1m
-PASS: log_begin/log_end with reports
-PASS: log file has report content
 --- FileNotReadable error path ---
-PASS: caught expected error for nonexistent file
 --- with_output_to_variable multiple calls ---
 captured v1 length: 91
 captured v2 length: 12
 captured v3 length: 97
-PASS: multiple with_output_to_variable calls
 --- redirect_string_begin/end ---
 redirect string captured: 91 chars
-PASS: redirect_string_begin/end
 --- set_cmd_units power ---
  time 1ns
  capacitance 1pF
@@ -56,7 +42,6 @@ PASS: redirect_string_begin/end
  current 1A
  power 1W
  distance 1m
-PASS: set_cmd_units -power mW
 --- set_cmd_units all options ---
  time 1ns
  capacitance 1pF
@@ -65,41 +50,26 @@ PASS: set_cmd_units -power mW
  current 1mA
  power 1W
  distance 1um
-PASS: set_cmd_units all options
 --- set_debug commands ---
-PASS: set_debug search on/off
-PASS: set_debug graph on/off
 --- suppress/unsuppress variety ---
-PASS: suppress/unsuppress variety
 --- thread_count ---
 thread_count: 1
-PASS: thread_count
 --- fuzzy_equal ---
 fuzzy_equal(1.0, 1.0) = 1
 fuzzy_equal(1.0, 2.0) = 0
-PASS: fuzzy_equal
 --- is_object ---
 is_object(not_an_object) = 0
-PASS: is_object
 --- format_time ---
 format_time: 1.000
-PASS: format_time
 --- format_capacitance ---
 format_capacitance: 1.000
-PASS: format_capacitance
 --- format_resistance ---
 format_resistance: 1.000
-PASS: format_resistance
 --- format_voltage ---
 format_voltage: 1.100
-PASS: format_voltage
 --- format_current ---
 format_current: 1.000
-PASS: format_current
 --- format_power ---
 format_power: 0.001
-PASS: format_power
 --- format_distance ---
 format_distance: 1.000
-PASS: format_distance
-ALL PASSED

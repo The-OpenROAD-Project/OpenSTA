@@ -79,5 +79,3 @@ puts "Edge-triggered data pins on clk: [llength $et_dpins]"
 puts "--- all_registers -clock clk -level_sensitive -data_pins ---"
 set ls_dpins [all_registers -data_pins -clock clk -level_sensitive]
 puts "Level-sensitive data pins on clk: [llength $ls_dpins]"
-
-puts "ALL PASSED"

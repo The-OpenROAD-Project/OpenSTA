@@ -81,7 +81,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: logic_zero in1
 --- set_logic_zero in2 ---
 in2=0 and1/A2=0
 and1/ZN=0
@@ -166,7 +165,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: logic_zero both
 --- set_logic_one en ---
 en=1: clk_gate/A2=1
 gated_clk=X
@@ -224,7 +222,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: logic_one en
 --- set_logic_one in1 (overwrite) ---
 in1=1 and1/A1=1
 and1/ZN=0 (in1=1,in2=0 -> 0)
@@ -282,7 +279,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: logic_one overwrite
 --- case_analysis 0 on en ---
 Warning: propagated logic value 1 differs from constraint value of 0 on pin en.
 en=0: gated_clk=0
@@ -340,7 +336,6 @@ Path Type: max
            7.89   slack (MET)
 
 
-PASS: case 0 en
 --- case_analysis 1 on en ---
 en=1: gated_clk=X
 Startpoint: rst (input port clocked by clk)
@@ -397,7 +392,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: case 1 en
 --- case_analysis rising on rst ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -453,7 +447,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: case rising rst
 --- case_analysis falling on rst ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -482,7 +475,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: case falling rst
 --- Constant propagation via case_analysis ---
 Warning: propagated logic value 1 differs from constraint value of 0 on pin in1.
 in1=0,in2=0: and1/ZN=0
@@ -541,11 +533,8 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: constant propagation
 --- levelize ---
-PASS: levelize
 --- report_loops ---
-PASS: report_loops
 --- set_propagated_clock ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -601,7 +590,6 @@ Path Type: max
            7.85   slack (MET)
 
 
-PASS: propagated clock
 --- report_clock_skew after propagation ---
 Clock clk
    0.02 source latency reg1/CK ^
@@ -617,9 +605,7 @@ Clock clk
 --------------
    0.02 hold skew
 
-PASS: clock skew propagated
 --- unset_propagated_clock ---
-PASS: unset propagated
 --- set_clock_latency -source ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -675,7 +661,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: clock latency source
 --- set_clock_latency (network) ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -731,9 +716,7 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: clock latency network
 --- unset_clock_latency ---
-PASS: unset clock latency
 --- set_clock_latency -source -rise ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -789,7 +772,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: clock latency rise
 --- set_clock_latency -source -fall ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -845,9 +827,7 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: clock latency fall
 --- unset ---
-PASS: unset clock insertion
 --- set_clock_uncertainty ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -905,7 +885,6 @@ Path Type: max
            7.38   slack (MET)
 
 
-PASS: clock uncertainty
 --- set_clock_uncertainty -setup ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -963,7 +942,6 @@ Path Type: max
            7.58   slack (MET)
 
 
-PASS: clock uncertainty setup
 --- set_clock_uncertainty -hold ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -1021,9 +999,7 @@ Path Type: min
           -0.12   slack (VIOLATED)
 
 
-PASS: clock uncertainty hold
 --- unset_clock_uncertainty ---
-PASS: unset clock uncertainty
 --- set_max_time_borrow ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1079,9 +1055,7 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: max_time_borrow
 --- set_min_pulse_width ---
-PASS: set min pulse width
 --- report_pulse_width_checks after setting ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -1091,7 +1065,6 @@ reg2/CK (high)                          0.06    5.00    4.94 (MET)
 reg2/CK (low)                           0.05    5.00    4.95 (MET)
 reg1/CK (low)                           0.05    5.00    4.95 (MET)
 
-PASS: pulse width after set
 --- report_constant ---
 Warning: propagated logic value 1 differs from constraint value of 0 on pin in1.
 in1 0 case=0 logic=1
@@ -1100,7 +1073,6 @@ VSS X
 A1 0
 A2 0
 ZN 0
-PASS: report_constant
 --- set_disable_timing port ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1156,7 +1128,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: disable port
 --- set_disable_timing instance ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1266,7 +1237,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: disable instance
 --- CRPR settings ---
 crpr_enabled: 1
 crpr_mode: same_pin
@@ -1379,7 +1349,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: CRPR settings
 --- recovery/removal checks ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1433,7 +1402,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: recovery/removal
 --- gated clock checks ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1461,7 +1429,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: gated clock checks
 --- timing_derate ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1515,16 +1482,12 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: timing derate
 --- tag/group reporting ---
 tag_count: 0
 tag_group_count: 0
 clk_info_count: 0
 path_count: 0
-PASS: tag/group counts
 --- report internal ---
 Longest hash bucket length 0 hash=0
 0 clk infos
 Longest hash bucket length 0 hash=0
-PASS: internal reports
-ALL PASSED

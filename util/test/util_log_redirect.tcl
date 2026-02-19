@@ -43,7 +43,6 @@ report_checks -fields {slew cap input_pins nets fanout}
 report_units
 
 log_end
-puts "PASS: log with timing reports"
 
 # Verify log file has content
 if { [file exists $log_file1] } {
@@ -52,7 +51,6 @@ if { [file exists $log_file1] } {
   close $fh
   set len [string length $content]
   if { $len > 100 } {
-    puts "PASS: log file has $len chars"
   } else {
     puts "INFO: log file unexpectedly small: $len"
   }
@@ -80,7 +78,6 @@ sta::redirect_file_end
 report_checks -path_delay min
 
 log_end
-puts "PASS: simultaneous log and redirect"
 
 # Verify both files have content
 foreach {fname label} [list $log_file2 "log" $redir_file2 "redirect"] {
@@ -90,7 +87,6 @@ foreach {fname label} [list $log_file2 "log" $redir_file2 "redirect"] {
     close $fh
     set len [string length $content]
     if { $len > 0 } {
-      puts "PASS: $label file has $len chars"
     }
   }
 }
@@ -118,15 +114,12 @@ sta::redirect_file_append_begin $append_file
 report_checks -path_delay min
 sta::redirect_file_end
 
-puts "PASS: redirect file append (3 writes)"
-
 if { [file exists $append_file] } {
   set fh [open $append_file r]
   set content [read $fh]
   close $fh
   set len [string length $content]
   if { $len > 200 } {
-    puts "PASS: appended file has $len chars"
   }
 }
 
@@ -155,8 +148,6 @@ puts "with_output v1: [string length $v1] chars"
 with_output_to_variable v2 { report_checks; report_units; report_checks -path_delay min }
 puts "with_output v2: [string length $v2] chars"
 
-puts "PASS: redirect to string"
-
 #---------------------------------------------------------------
 # Test 5: Log + redirect string simultaneously
 # Exercises: printString with both log_stream_ and redirect_to_string_
@@ -174,7 +165,6 @@ set str3 [sta::redirect_string_end]
 log_end
 
 puts "log+string captured: [string length $str3] chars"
-puts "PASS: log + redirect string"
 
 #---------------------------------------------------------------
 # Test 6: Message suppression with warnings
@@ -186,11 +176,9 @@ suppress_msg 100 200 300
 # Trigger some warnings by reading nonexistent files
 set rc [catch { read_liberty "/nonexistent/path.lib" } msg]
 if { $rc != 0 } {
-  puts "PASS: caught error"
 }
 
 unsuppress_msg 100 200 300
-puts "PASS: suppress/unsuppress"
 
 #---------------------------------------------------------------
 # Test 7: Various report formatting
@@ -210,6 +198,3 @@ report_units
 # Reset to defaults
 set_cmd_units -time ns -capacitance pF -resistance kOhm
 report_units
-puts "PASS: report formatting"
-
-puts "ALL PASSED"

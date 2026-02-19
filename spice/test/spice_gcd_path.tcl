@@ -15,14 +15,11 @@ read_verilog ../../examples/gcd_sky130hd.v
 link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
 read_spef ../../examples/gcd_sky130hd.spef
-puts "PASS: design loaded with SPEF"
 
 # Run timing
 report_checks
-puts "PASS: timing analysis"
 
 report_checks -path_delay min
-puts "PASS: min path analysis"
 
 # Create SPICE model and subckt files covering all cell types used in GCD
 set spice_dir [make_result_file spice_gcd]
@@ -73,7 +70,6 @@ foreach cell_name $cell_names {
   } msg]
 }
 close $subckt_fh
-puts "PASS: SPICE subckt file created for [llength $cell_names] cells"
 
 #---------------------------------------------------------------
 # write_path_spice with max path (default ngspice)
@@ -93,10 +89,8 @@ set rc [catch {
     -ground VGND
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice max completed"
 } else {
   puts "INFO: write_path_spice max: $msg"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -115,10 +109,8 @@ set rc [catch {
     -ground VGND
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice min completed"
 } else {
   puts "INFO: write_path_spice min: $msg"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -139,10 +131,8 @@ set rc [catch {
     -simulator hspice
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice hspice completed"
 } else {
   puts "INFO: write_path_spice hspice: $msg"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -163,10 +153,8 @@ set rc [catch {
     -simulator xyce
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice xyce completed"
 } else {
   puts "INFO: write_path_spice xyce: $msg"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -185,10 +173,8 @@ set rc [catch {
     -ground VGND
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice specific completed"
 } else {
   puts "INFO: write_path_spice specific: $msg"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -240,14 +226,9 @@ foreach inst $gate_test_insts {
         -ground VGND
     } msg]
     if { $rc == 0 } {
-      puts "PASS: gate $cell_ref ($inst_name) rise"
     } else {
       puts "INFO: gate $cell_ref ($inst_name): $msg"
-      puts "PASS: gate code path exercised"
     }
     incr tested
   }
 }
-puts "PASS: write_gate_spice cells tested: $tested"
-
-puts "ALL PASSED"

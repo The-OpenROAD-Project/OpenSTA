@@ -29,14 +29,10 @@ puts "ports: [llength $ports]"
 
 # Verify cells
 foreach cell_name {and_const or_const buf1 inv1 reg1 reg2 reg3 reg4} {
-  catch {
-    set inst [get_cells $cell_name]
-    set ref [get_property $inst ref_name]
-    puts "$cell_name: ref=$ref"
-  } msg
+  set inst [get_cells $cell_name]
+  set ref [get_property $inst ref_name]
+  puts "$cell_name: ref=$ref"
 }
-
-puts "PASS: read verilog with constants"
 
 #---------------------------------------------------------------
 # Test 2: Timing with constant nets
@@ -48,19 +44,14 @@ set_output_delay -clock clk 0 [get_ports {out1 out2 out3 out4}]
 set_input_transition 10 {in1 in2 in3 clk}
 
 report_checks
-puts "PASS: report_checks"
 
 report_checks -path_delay min
-puts "PASS: report_checks min"
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1 (and with constant)"
 
 report_checks -from [get_ports in2] -to [get_ports out2]
-puts "PASS: in2->out2 (or with constant)"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report with fields"
 
 #---------------------------------------------------------------
 # Test 3: Write verilog
@@ -68,17 +59,13 @@ puts "PASS: report with fields"
 puts "--- Test 3: write_verilog ---"
 set out1 [make_result_file verilog_const_concat_out.v]
 write_verilog $out1
-puts "PASS: write_verilog"
 
 set out2 [make_result_file verilog_const_concat_pwr.v]
 write_verilog -include_pwr_gnd $out2
-puts "PASS: write_verilog -include_pwr_gnd"
 
 if { [file exists $out1] && [file size $out1] > 0 } {
-  puts "PASS: output file exists size=[file size $out1]"
 }
 if { [file exists $out2] && [file size $out2] > 0 } {
-  puts "PASS: pwr_gnd file exists size=[file size $out2]"
 }
 
 #---------------------------------------------------------------
@@ -86,7 +73,7 @@ if { [file exists $out2] && [file size $out2] > 0 } {
 #---------------------------------------------------------------
 puts "--- Test 4: net reports ---"
 foreach net_name {n1 n2 n3 n4} {
-  catch {report_net $net_name} msg
+  report_net $net_name
   puts "report_net $net_name: done"
 }
 
@@ -97,7 +84,6 @@ puts "--- Test 5: instance reports ---"
 foreach inst_name {and_const or_const buf1 inv1 reg1 reg2 reg3 reg4} {
   report_instance $inst_name
 }
-puts "PASS: report_instance all"
 
 #---------------------------------------------------------------
 # Test 6: Re-read same file (exercises module re-definition path)
@@ -110,7 +96,6 @@ link_design verilog_const_concat
 
 puts "re-read cells: [llength [get_cells *]]"
 puts "re-read nets: [llength [get_nets *]]"
-puts "PASS: re-read verilog (module re-definition)"
 
 #---------------------------------------------------------------
 # Test 7: Read back written verilog (roundtrip)
@@ -122,6 +107,3 @@ link_design verilog_const_concat
 
 puts "roundtrip cells: [llength [get_cells *]]"
 puts "roundtrip nets: [llength [get_nets *]]"
-puts "PASS: roundtrip"
-
-puts "ALL PASSED"

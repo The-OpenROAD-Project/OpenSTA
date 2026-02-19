@@ -25,7 +25,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: max path delay
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -55,7 +54,4 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: min path delay
 Worst slack: 7.899713772019368e-9
-PASS: worst slack computed
-ALL PASSED

@@ -19,8 +19,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 1474
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14781, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14814, timing group from output port.
 --- Reading SPEF per corner ---
-PASS: read_spef fast corner
-PASS: read_spef slow corner
 --- Fast corner timing with parasitics ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -52,7 +50,6 @@ Corner: fast
          301.74   slack (MET)
 
 
-PASS: report_checks fast corner
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -81,7 +78,6 @@ Corner: fast
          -11.46   slack (VIOLATED)
 
 
-PASS: report_checks fast min path
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -112,7 +108,6 @@ Corner: fast
          301.74   slack (MET)
 
 
-PASS: report_checks fast max path
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -147,7 +142,6 @@ Corner: fast
                          301.74   slack (MET)
 
 
-PASS: report_checks fast with fields
 --- Slow corner timing with parasitics ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -179,7 +173,6 @@ Corner: slow
          112.16   slack (MET)
 
 
-PASS: report_checks slow corner
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -208,7 +201,6 @@ Corner: slow
          -23.32   slack (VIOLATED)
 
 
-PASS: report_checks slow min path
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -239,7 +231,6 @@ Corner: slow
          112.16   slack (MET)
 
 
-PASS: report_checks slow max path
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -274,7 +265,6 @@ Corner: slow
                          112.16   slack (MET)
 
 
-PASS: report_checks slow with fields
 --- report_dcalc per corner ---
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
@@ -333,7 +323,6 @@ Driver waveform slew = 40.66
 .............................................
 
 
-PASS: report_dcalc fast BUF
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -391,7 +380,6 @@ Driver waveform slew = 84.36
 .............................................
 
 
-PASS: report_dcalc slow BUF
 Library: asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
 Cell: AND2x2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -449,7 +437,6 @@ Driver waveform slew = 45.57
 .............................................
 
 
-PASS: report_dcalc fast AND2
 Library: asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
 Cell: AND2x2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -507,7 +494,6 @@ Driver waveform slew = 84.98
 .............................................
 
 
-PASS: report_dcalc slow AND2
 Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 Cell: DFFHQx4_ASAP7_75t_R
 Arc sense: non_unate
@@ -565,7 +551,6 @@ Driver waveform slew = 19.18
 .............................................
 
 
-PASS: report_dcalc fast DFF CLK->Q
 Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 Cell: DFFHQx4_ASAP7_75t_R
 Arc sense: non_unate
@@ -623,7 +608,6 @@ Driver waveform slew = 45.42
 .............................................
 
 
-PASS: report_dcalc slow DFF CLK->Q
 --- report_net per corner ---
 Net r1q
  Pin capacitance: 0.40-0.52
@@ -640,7 +624,6 @@ Load pins
  u2/A input (AND2x2_ASAP7_75t_R) 0.40-0.52
 
 
-PASS: report_net fast r1q
 Net r1q
  Pin capacitance: 0.33-0.45
  Wire capacitance: 13.40-13.40
@@ -656,7 +639,6 @@ Load pins
  u2/A input (AND2x2_ASAP7_75t_R) 0.33-0.45
 
 
-PASS: report_net slow r1q
 Net u2z
  Pin capacitance: 0.55-0.62
  Wire capacitance: 13.40-13.40
@@ -672,7 +654,6 @@ Load pins
  r3/D input (DFFHQx4_ASAP7_75t_R) 0.55-0.62
 
 
-PASS: report_net fast u2z
 Net u2z
  Pin capacitance: 0.44-0.52
  Wire capacitance: 13.40-13.40
@@ -688,14 +669,8 @@ Load pins
  r3/D input (DFFHQx4_ASAP7_75t_R) 0.44-0.52
 
 
-PASS: report_net slow u2z
 --- Cross-corner path comparison ---
 No paths found.
-PASS: fast in1->out
 No paths found.
-PASS: slow in1->out
 No paths found.
-PASS: fast in2->out
 No paths found.
-PASS: slow in2->out
-ALL PASSED

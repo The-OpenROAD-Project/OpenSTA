@@ -53,7 +53,6 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: multi-clock max
 --- report_checks -path_delay min (multi-clock) ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -110,7 +109,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: multi-clock min
 --- report_checks -path_delay min_max (multi-clock) ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -221,7 +219,6 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: multi-clock min_max
 --- report_checks -format full_clock ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -277,7 +274,6 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: mc full_clock
 --- report_checks -format full_clock_expanded ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -333,7 +329,6 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: mc full_clock_expanded
 --- CRPR setup ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -389,7 +384,6 @@ Path Type: max
            1.85   slack (MET)
 
 
-PASS: crpr same_pin
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -444,7 +438,6 @@ Path Type: max
            1.85   slack (MET)
 
 
-PASS: crpr same_transition
 --- set_clock_groups -asynchronous ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -498,7 +491,6 @@ Path Type: max
            5.90   slack (MET)
 
 
-PASS: clock_groups async
 --- set_clock_uncertainty between clocks ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -553,7 +545,6 @@ Path Type: max
            1.58   slack (MET)
 
 
-PASS: inter_clock_uncertainty
 --- set_clock_sense ---
 Warning: search_pvt_analysis.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -608,7 +599,6 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: clock_sense
 --- timing_derate design level ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -715,7 +705,6 @@ Path Type: min
            0.07   slack (MET)
 
 
-PASS: timing_derate design
 --- timing_derate on instance ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -769,7 +758,6 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: timing_derate instance
 --- set_max_transition on clock ---
 max slew
 
@@ -777,7 +765,6 @@ Pin                                    Limit    Slew   Slack
 ------------------------------------------------------------
 reg1/QN                                 0.20    0.01    0.19 (MET)
 
-PASS: max_transition clock
 --- set_max_capacitance on port ---
 max capacitance
 
@@ -785,7 +772,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 reg2/Q                                 60.73    2.11   58.62 (MET)
 
-PASS: max_capacitance port
 --- set_load on ports ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -839,7 +825,6 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: port load
 --- set_input_transition ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -893,7 +878,6 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: input_transition
 --- set_driving_cell ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -947,9 +931,7 @@ Path Type: max
            1.88   slack (MET)
 
 
-PASS: driving_cell
 --- set_min_pulse_width on pins ---
-PASS: mpw pin
 --- report_pulse_width_checks -verbose ---
 Pin: reg3/CK
 Check: sequential_clock_pulse_width
@@ -1072,13 +1054,10 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: mpw verbose
 --- report_checks -from in1 -to out1 ---
 No paths found.
-PASS: from/to max
 --- report_checks -from in1 -to out2 (cross-domain) ---
 No paths found.
-PASS: from/to cross-domain
 --- report_checks -through buf2/Z ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -1107,7 +1086,6 @@ Path Type: max
            9.86   slack (MET)
 
 
-PASS: through
 --- set_false_path between domains ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1161,7 +1139,6 @@ Path Type: max
            5.90   slack (MET)
 
 
-PASS: false_path domain
 --- set_multicycle_path between domains ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1215,7 +1192,6 @@ Path Type: max
            5.90   slack (MET)
 
 
-PASS: multicycle domain
 --- group_path -through ---
 Startpoint: in2 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -1325,10 +1301,8 @@ Path Type: max
            8.86   slack (MET)
 
 
-PASS: group_path through
 --- find_timing_paths -path_group ---
 buf_paths group: 1 paths
-PASS: path_group filter
 --- report_clock_min_period ---
 clk1 period_min = 0.14 fmax = 7157.89
 clk2 period_min = 0.00 fmax = inf
@@ -1336,7 +1310,6 @@ clk1 period_min = 0.14 fmax = 7157.89
 clk2 period_min = 0.00 fmax = inf
 clk1 period_min = 2.10 fmax = 475.36
 clk2 period_min = 2.10 fmax = 476.11
-PASS: clock_min_period
 --- report_clock_skew ---
 Clock clk1
    0.03 source latency reg1/CK ^
@@ -1368,7 +1341,6 @@ Clock clk1
 Clock clk2
 No launch/capture paths found.
 
-PASS: clock_skew
 --- tns/wns ---
 tns max 0.00
 tns min 0.00
@@ -1376,16 +1348,10 @@ wns max 0.00
 wns min 0.00
 worst slack max 1.88
 worst slack min 0.08
-PASS: tns/wns
 --- total_negative_slack ---
 tns max: 0.0 min: 0.0
-PASS: tns
 --- worst_slack ---
 worst_slack max: 1.8811437384696397 min: 0.0776603178746245
-PASS: ws
 --- worst_negative_slack ---
 wns max: 0.0 min: 0.0
-PASS: wns
 --- write_sdc ---
-PASS: write_sdc
-ALL PASSED

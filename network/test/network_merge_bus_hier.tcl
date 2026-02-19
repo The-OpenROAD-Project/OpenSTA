@@ -17,14 +17,12 @@ source ../../test/helpers.tcl
 # Read libraries
 ############################################################
 read_liberty ../../test/nangate45/Nangate45_typ.lib
-puts "PASS: read Nangate45"
 
 ############################################################
 # Read hierarchical design
 ############################################################
 read_verilog network_hier_test.v
 link_design network_hier_test
-puts "PASS: link hierarchical design"
 
 ############################################################
 # Query hierarchical instances
@@ -36,16 +34,11 @@ set all_insts [get_cells *]
 puts "top-level cells: [llength $all_insts]"
 
 # Hierarchical instances
-catch {
-  set sub1_insts [get_cells sub1/*]
-  puts "sub1/* cells: [llength $sub1_insts]"
-}
+set sub1_insts [get_cells sub1/*]
+puts "sub1/* cells: [llength $sub1_insts]"
 
-catch {
-  set sub2_insts [get_cells sub2/*]
-  puts "sub2/* cells: [llength $sub2_insts]"
-}
-puts "PASS: hierarchical instance queries"
+set sub2_insts [get_cells sub2/*]
+puts "sub2/* cells: [llength $sub2_insts]"
 
 ############################################################
 # Query hierarchical nets
@@ -56,38 +49,26 @@ set all_nets [get_nets *]
 puts "top-level nets: [llength $all_nets]"
 
 # Net in sub-blocks
-catch {
-  set sub1_nets [get_nets sub1/*]
-  puts "sub1/* nets: [llength $sub1_nets]"
-}
+set sub1_nets [get_nets sub1/*]
+puts "sub1/* nets: [llength $sub1_nets]"
 
-catch {
-  set sub2_nets [get_nets sub2/*]
-  puts "sub2/* nets: [llength $sub2_nets]"
-}
-puts "PASS: hierarchical net queries"
+set sub2_nets [get_nets sub2/*]
+puts "sub2/* nets: [llength $sub2_nets]"
 
 ############################################################
 # Query hierarchical pins
 ############################################################
 puts "--- hierarchical pin queries ---"
 
-catch {
-  set sub1_pins [get_pins sub1/*]
-  puts "sub1/* pins: [llength $sub1_pins]"
-}
+set sub1_pins [get_pins sub1/*]
+puts "sub1/* pins: [llength $sub1_pins]"
 
-catch {
-  set sub2_pins [get_pins sub2/*]
-  puts "sub2/* pins: [llength $sub2_pins]"
-}
+set sub2_pins [get_pins sub2/*]
+puts "sub2/* pins: [llength $sub2_pins]"
 
 # Deep pin queries
-catch {
-  set sub1_and_pins [get_pins sub1/and_gate/*]
-  puts "sub1/and_gate/* pins: [llength $sub1_and_pins]"
-}
-puts "PASS: hierarchical pin queries"
+set sub1_and_pins [get_pins sub1/and_gate/*]
+puts "sub1/and_gate/* pins: [llength $sub1_and_pins]"
 
 ############################################################
 # Setup timing for SDC network adapter exercising
@@ -96,22 +77,17 @@ create_clock -name clk -period 10 [get_ports clk]
 set_input_delay -clock clk 2.0 [get_ports {in1 in2 in3}]
 set_output_delay -clock clk 3.0 [get_ports {out1 out2}]
 set_input_transition 0.1 [all_inputs]
-puts "PASS: timing setup"
 
 # Report checks through hierarchy
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1 through hierarchy"
 
 report_checks -from [get_ports in2] -to [get_ports out2]
-puts "PASS: in2->out2 through hierarchy"
 
 report_checks -from [get_ports in3] -to [get_ports out1]
-puts "PASS: in3->out1 through hierarchy"
 
 # Rise/fall through hierarchy
 report_checks -rise_from [get_ports in1] -to [get_ports out1]
 report_checks -fall_from [get_ports in1] -to [get_ports out1]
-puts "PASS: rise/fall through hierarchy"
 
 ############################################################
 # Net creation, connection, merge, and deletion
@@ -126,41 +102,35 @@ make_net merge_net_src
 make_net merge_net_dst
 
 # Connect pins to nets
-catch {connect_pin merge_net_src merge_test_a/Z}
-catch {connect_pin merge_net_src merge_test_b/A}
-catch {connect_pin merge_net_dst merge_test_c/A}
-puts "PASS: created instances and nets"
+connect_pin merge_net_src merge_test_a/Z
+connect_pin merge_net_src merge_test_b/A
+connect_pin merge_net_dst merge_test_c/A
 
 # Report nets before merge
-catch {report_net merge_net_src}
-catch {report_net merge_net_dst}
-puts "PASS: report nets before merge"
+report_net merge_net_src
+report_net merge_net_dst
 
 # Disconnect, reconnect, replace
-catch {disconnect_pin merge_net_src merge_test_b/A}
-catch {connect_pin merge_net_dst merge_test_b/A}
-puts "PASS: reconnect across nets"
+disconnect_pin merge_net_src merge_test_b/A
+connect_pin merge_net_dst merge_test_b/A
 
 # Replace cells
 replace_cell merge_test_a NangateOpenCellLibrary/BUF_X4
 replace_cell merge_test_b NangateOpenCellLibrary/BUF_X8
 replace_cell merge_test_c NangateOpenCellLibrary/INV_X2
-puts "PASS: replace cells"
 
-catch {report_net merge_net_src}
-catch {report_net merge_net_dst}
-puts "PASS: report nets after replace"
+report_net merge_net_src
+report_net merge_net_dst
 
 # Clean up
-catch {disconnect_pin merge_net_src merge_test_a/Z}
-catch {disconnect_pin merge_net_dst merge_test_b/A}
-catch {disconnect_pin merge_net_dst merge_test_c/A}
-catch {delete_instance merge_test_a}
-catch {delete_instance merge_test_b}
-catch {delete_instance merge_test_c}
-catch {delete_net merge_net_src}
-catch {delete_net merge_net_dst}
-puts "PASS: cleanup merge test"
+disconnect_pin merge_net_src merge_test_a/Z
+disconnect_pin merge_net_dst merge_test_b/A
+disconnect_pin merge_net_dst merge_test_c/A
+delete_instance merge_test_a
+delete_instance merge_test_b
+delete_instance merge_test_c
+delete_net merge_net_src
+delete_net merge_net_dst
 
 ############################################################
 # Multiple instance chain creation and modification
@@ -183,12 +153,11 @@ for {set i 0} {$i < 10} {incr i} {
     set nname "chain_net_$i"
     make_net $nname
     lappend chain_nets $nname
-    catch {connect_pin $nname chain_inst_[expr {$i-1}]/Z}
-    catch {connect_pin $nname chain_inst_[expr {$i-1}]/ZN}
-    catch {connect_pin $nname chain_inst_$i/A}
+    connect_pin $nname chain_inst_[expr {$i-1}]/Z
+    connect_pin $nname chain_inst_[expr {$i-1}]/ZN
+    connect_pin $nname chain_inst_$i/A
   }
 }
-puts "PASS: chain creation"
 
 # Replace cells in chain to different types
 for {set i 0} {$i < 10} {incr i} {
@@ -196,30 +165,24 @@ for {set i 0} {$i < 10} {incr i} {
   set size_idx [expr {$i % [llength $sizes]}]
   replace_cell chain_inst_$i NangateOpenCellLibrary/[lindex $sizes $size_idx]
 }
-puts "PASS: chain cell replacement"
 
 # Report a few chain nets
 foreach nname [lrange $chain_nets 0 3] {
-  catch {report_net $nname}
+  report_net $nname
 }
-puts "PASS: chain net reports"
 
 # Clean up chain
 foreach nname $chain_nets {
   foreach iname $chain_insts {
-    catch {disconnect_pin $nname $iname/A}
-    catch {disconnect_pin $nname $iname/Z}
-    catch {disconnect_pin $nname $iname/ZN}
+    disconnect_pin $nname $iname/A
+    disconnect_pin $nname $iname/Z
+    disconnect_pin $nname $iname/ZN
   }
 }
 foreach iname $chain_insts {catch {delete_instance $iname}}
 foreach nname $chain_nets {catch {delete_net $nname}}
-puts "PASS: chain cleanup"
 
 ############################################################
 # Final timing check
 ############################################################
 report_checks
-puts "PASS: final timing"
-
-puts "ALL PASSED"

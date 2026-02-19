@@ -31,7 +31,6 @@ set_delay_calculator dmp_ceff_elmore
 set_load 0.0001 [get_ports out1]
 set_input_transition 0.01 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: dmp_ceff_elmore tiny load"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "tiny load dcalc: $msg"
@@ -40,7 +39,6 @@ puts "tiny load dcalc: $msg"
 set_load 0.001 [get_ports out1]
 set_input_transition 0.05 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: dmp_ceff_elmore small load"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "small load dcalc: $msg"
@@ -49,7 +47,6 @@ puts "small load dcalc: $msg"
 set_load 0.01 [get_ports out1]
 set_input_transition 0.1 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: dmp_ceff_elmore medium load"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "medium load dcalc: $msg"
@@ -58,7 +55,6 @@ puts "medium load dcalc: $msg"
 set_load 0.1 [get_ports out1]
 set_input_transition 0.5 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: dmp_ceff_elmore large load"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "large load dcalc: $msg"
@@ -67,7 +63,6 @@ puts "large load dcalc: $msg"
 set_load 1.0 [get_ports out1]
 set_input_transition 1.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: dmp_ceff_elmore very large load"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "very large load dcalc: $msg"
@@ -87,7 +82,7 @@ set_delay_calculator dmp_ceff_two_pole
 foreach out_port {out1 out2 out3} {
   foreach load_val {0.001 0.01 0.05 0.1} {
     set_load $load_val [get_ports $out_port]
-    catch {report_checks -to [get_ports $out_port]} msg
+    report_checks -to [get_ports $out_port]
     puts "dmp_two_pole $out_port load=$load_val: done"
   }
   set_load 0 [get_ports $out_port]
@@ -130,9 +125,7 @@ set_delay_calculator dmp_ceff_elmore
 
 foreach slew_val {0.001 0.01 0.05 0.1 0.2 0.5 1.0} {
   set_input_transition $slew_val [get_ports {in1 in2 in3 in4 sel}]
-  catch {
-    report_checks -from [get_ports in1] -to [get_ports out1]
-  } msg
+  report_checks -from [get_ports in1] -to [get_ports out1]
   puts "slew=$slew_val: done"
 }
 set_input_transition 0.1 [get_ports {in1 in2 in3 in4 sel}]
@@ -146,7 +139,6 @@ catch {set_delay_calculator ccs_ceff} msg
 puts "set_delay_calculator ccs_ceff: $msg"
 
 report_checks
-puts "PASS: ccs_ceff on larger design"
 
 # Various loads with ccs_ceff
 foreach load_val {0.001 0.01 0.1} {
@@ -181,23 +173,17 @@ set_delay_calculator dmp_ceff_elmore
 report_checks -from [get_ports in1] -to [get_ports out3]
 set_delay_calculator dmp_ceff_two_pole
 report_checks -from [get_ports in1] -to [get_ports out3]
-catch {set_delay_calculator ccs_ceff} msg
+set_delay_calculator ccs_ceff
 report_checks -from [get_ports in1] -to [get_ports out3]
 set_delay_calculator dmp_ceff_elmore
 report_checks -from [get_ports in1] -to [get_ports out3]
-puts "PASS: rapid switching"
 
 #---------------------------------------------------------------
 # report_checks with various reporting formats
 #---------------------------------------------------------------
 puts "--- report_checks formatting ---"
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: all fields"
 
 report_checks -format full_clock
-puts "PASS: full_clock"
 
 report_checks -format full_clock_expanded
-puts "PASS: full_clock_expanded"
-
-puts "ALL PASSED"

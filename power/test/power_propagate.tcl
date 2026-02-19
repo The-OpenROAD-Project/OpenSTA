@@ -21,18 +21,14 @@ read_sdc ../../examples/gcd_sky130hd.sdc
 
 # Read VCD to seed activities
 read_vcd -scope gcd_tb/gcd1 ../../examples/gcd_sky130hd.vcd.gz
-puts "PASS: read_vcd"
 
 # Report power - exercises full power calculation pipeline
 report_power
-puts "PASS: report_power with VCD"
 
 # Report power with different digit counts
 report_power -digits 2
-puts "PASS: report_power -digits 2"
 
 report_power -digits 8
-puts "PASS: report_power -digits 8"
 
 #---------------------------------------------------------------
 # Test 2: Instance-level power for specific cells
@@ -47,7 +43,6 @@ puts "register cells: $reg_count"
 
 if { $reg_count > 0 } {
   report_power -instances [lrange $regs 0 2]
-  puts "PASS: register instance power"
 }
 
 # Get combinational cells
@@ -63,13 +58,10 @@ foreach cell $all_cells {
 
 if { [llength $combo_cells] > 0 } {
   report_power -instances $combo_cells
-  puts "PASS: combinational instance power"
 
   report_power -instances $combo_cells -format json
-  puts "PASS: combinational instance power json"
 
   report_power -instances $combo_cells -digits 6
-  puts "PASS: combinational instance power -digits 6"
 }
 
 #---------------------------------------------------------------
@@ -79,16 +71,12 @@ if { [llength $combo_cells] > 0 } {
 puts "--- Test 3: highest power instances ---"
 
 report_power -highest_power_instances 3
-puts "PASS: highest 3"
 
 report_power -highest_power_instances 10
-puts "PASS: highest 10"
 
 report_power -highest_power_instances 5 -format json
-puts "PASS: highest 5 json"
 
 report_power -highest_power_instances 3 -digits 6
-puts "PASS: highest 3 -digits 6"
 
 #---------------------------------------------------------------
 # Test 4: Activity annotation report
@@ -97,13 +85,10 @@ puts "PASS: highest 3 -digits 6"
 puts "--- Test 4: activity annotation ---"
 
 report_activity_annotation
-puts "PASS: annotation"
 
 report_activity_annotation -report_annotated
-puts "PASS: annotation -report_annotated"
 
 report_activity_annotation -report_unannotated
-puts "PASS: annotation -report_unannotated"
 
 #---------------------------------------------------------------
 # Test 5: Override VCD activities with manual settings
@@ -114,7 +99,6 @@ puts "--- Test 5: activity overrides ---"
 # Set global activity - overrides VCD
 set_power_activity -global -activity 0.5 -duty 0.5
 report_power
-puts "PASS: global override"
 
 # Unset global
 unset_power_activity -global
@@ -122,31 +106,25 @@ unset_power_activity -global
 # Set input activity
 set_power_activity -input -activity 0.3 -duty 0.4
 report_power
-puts "PASS: input override"
 unset_power_activity -input
 
 # Set per-port activity
 set_power_activity -input_ports [get_ports req_msg[0]] -activity 0.8 -duty 0.5
 report_power
-puts "PASS: per-port override"
 unset_power_activity -input_ports [get_ports req_msg[0]]
 
 # Set per-pin activity
-catch {
-  set clk_pins [get_pins */CLK]
-  if { [llength $clk_pins] > 0 } {
-    set first_clk [lindex $clk_pins 0]
-    set_power_activity -pins $first_clk -activity 1.0 -duty 0.5
-    report_power
-    puts "PASS: per-pin CLK override"
-    unset_power_activity -pins $first_clk
-  }
-} msg
+set clk_pins [get_pins */CLK]
+if { [llength $clk_pins] > 0 } {
+  set first_clk [lindex $clk_pins 0]
+  set_power_activity -pins $first_clk -activity 1.0 -duty 0.5
+  report_power
+  unset_power_activity -pins $first_clk
+}
 
 # Set density-based activity
 set_power_activity -global -density 5e8 -duty 0.5
 report_power
-puts "PASS: density-based activity"
 unset_power_activity -global
 
 #---------------------------------------------------------------
@@ -161,16 +139,12 @@ link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
 
 read_saif -scope gcd_tb/gcd1 ../../examples/gcd_sky130hd.saif.gz
-puts "PASS: read_saif"
 
 report_power
-puts "PASS: report_power with SAIF"
 
 report_power -highest_power_instances 5
-puts "PASS: highest with SAIF"
 
 report_activity_annotation
-puts "PASS: annotation with SAIF"
 
 #---------------------------------------------------------------
 # Test 7: Power with no activity data (default propagation)
@@ -184,12 +158,7 @@ read_sdc ../../examples/gcd_sky130hd.sdc
 
 # No VCD or SAIF - relies on default activity propagation
 report_power
-puts "PASS: power with default propagation"
 
 report_power -format json
-puts "PASS: power json with defaults"
 
 report_activity_annotation
-puts "PASS: annotation with defaults"
-
-puts "ALL PASSED"

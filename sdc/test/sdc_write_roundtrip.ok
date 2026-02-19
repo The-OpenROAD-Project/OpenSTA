@@ -1,42 +1,6 @@
-PASS: clocks
-PASS: generated clocks
-PASS: propagated
-PASS: clock transition
-PASS: clock latency
-PASS: clock uncertainty
-PASS: IO delays
-PASS: driving cells
-PASS: loads
-PASS: input transitions
-PASS: design limits
-PASS: false paths
-PASS: multicycle paths
-PASS: max/min delay
-PASS: group paths
-PASS: clock groups
 Warning: sdc_write_roundtrip.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock sense
-PASS: disable timing
-PASS: case analysis
-PASS: logic value
-PASS: operating conditions
-PASS: wire load
-PASS: timing derate
-PASS: min pulse width
-PASS: latch borrow
 Warning: sdc_write_roundtrip.tcl line 1, object 'sdc_test2' not found.
 Warning: sdc_write_roundtrip.tcl line 1, object 'sdc_test2' not found.
-PASS: clock gating check
-PASS: port fanout
-PASS: net resistance
-PASS: voltage
-PASS: data check
-PASS: write_sdc native
-PASS: write_sdc compatible
-PASS: write_sdc digits 2
-PASS: write_sdc digits 8
-PASS: write_sdc map_hpins
-PASS: write_sdc compatible digits 6
 Warning: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
 Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
@@ -88,8 +52,6 @@ Path Type: max
            3.37   slack (MET)
 
 
-PASS: report_checks initial
-PASS: read_sdc native
 Warning: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
 Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
@@ -141,9 +103,6 @@ Path Type: max
            3.37   slack (MET)
 
 
-PASS: report_checks after read native
-PASS: write_sdc after re-read
-PASS: read_sdc compatible
 Warning: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
 Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
@@ -195,8 +154,6 @@ Path Type: max
            3.37   slack (MET)
 
 
-PASS: report_checks after read compatible
-PASS: read_sdc digits 8
 Warning: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
 Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
@@ -248,6 +205,3 @@ Path Type: max
            3.37   slack (MET)
 
 
-PASS: report_checks after read digits 8
-PASS: final write_sdc
-ALL PASSED

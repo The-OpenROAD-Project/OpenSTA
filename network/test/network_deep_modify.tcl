@@ -23,7 +23,6 @@ set_input_transition 0.1 [all_inputs]
 
 # Force graph build
 report_checks
-puts "PASS: initial design setup"
 
 #---------------------------------------------------------------
 # Test extensive instance creation/deletion cycle
@@ -40,7 +39,6 @@ foreach cell_type $cell_types {
   lappend inst_names $inst_name
   incr idx
 }
-puts "PASS: created [llength $inst_names] instances"
 
 set all_cells [get_cells *]
 puts "total cells: [llength $all_cells]"
@@ -57,18 +55,11 @@ set net_idx 0
 foreach inst_name [lrange $inst_names 0 5] {
   set net_name "test_net_$net_idx"
   set net [make_net $net_name]
-  catch {
-    connect_pin $net_name ${inst_name}/A
-    puts "PASS: connect $net_name to ${inst_name}/A"
-  } msg
-  catch {
-    disconnect_pin $net_name ${inst_name}/A
-    puts "PASS: disconnect $net_name from ${inst_name}/A"
-  } msg
+  connect_pin $net_name ${inst_name}/A
+  disconnect_pin $net_name ${inst_name}/A
   delete_net $net_name
   incr net_idx
 }
-puts "PASS: connect/disconnect cycle"
 
 #---------------------------------------------------------------
 # Test multiple pin connections to same net
@@ -76,26 +67,16 @@ puts "PASS: connect/disconnect cycle"
 puts "--- multi-pin connections ---"
 set shared_net [make_net shared_net1]
 
-catch {
-  connect_pin shared_net1 test_inst_0/A
-  puts "PASS: connect test_inst_0/A to shared_net1"
-}
-catch {
-  connect_pin shared_net1 test_inst_1/A
-  puts "PASS: connect test_inst_1/A to shared_net1"
-}
+connect_pin shared_net1 test_inst_0/A
+connect_pin shared_net1 test_inst_1/A
 
 # Verify net has multiple pins
-catch {
-  report_net shared_net1
-  puts "PASS: report_net shared_net1"
-}
+report_net shared_net1
 
 # Disconnect all from shared net
-catch {disconnect_pin shared_net1 test_inst_0/A}
-catch {disconnect_pin shared_net1 test_inst_1/A}
+disconnect_pin shared_net1 test_inst_0/A
+disconnect_pin shared_net1 test_inst_1/A
 delete_net shared_net1
-puts "PASS: clean up shared_net1"
 
 #---------------------------------------------------------------
 # Replace cells with various types
@@ -121,20 +102,17 @@ puts "buf1 -> BUF_X16: ref=$ref4"
 
 # Restore
 replace_cell buf1 NangateOpenCellLibrary/BUF_X1
-puts "PASS: replace_cell series done"
 
 # Report after replacements
 report_checks
-puts "PASS: report_checks after replacements"
 
 #---------------------------------------------------------------
 # Delete all test instances
 #---------------------------------------------------------------
 puts "--- delete test instances ---"
 foreach inst_name $inst_names {
-  catch {delete_instance $inst_name}
+  delete_instance $inst_name
 }
-puts "PASS: deleted all test instances"
 
 set remaining [get_cells *]
 puts "remaining cells: [llength $remaining]"
@@ -149,7 +127,6 @@ for {set i 0} {$i < 20} {incr i} {
   make_net $net_name
   lappend net_names $net_name
 }
-puts "PASS: created 20 nets"
 
 set all_nets [get_nets *]
 puts "total nets with bulk: [llength $all_nets]"
@@ -160,7 +137,6 @@ puts "bulk_net_* count: [llength $bulk_nets]"
 foreach net_name $net_names {
   delete_net $net_name
 }
-puts "PASS: deleted 20 nets"
 
 set all_nets2 [get_nets *]
 puts "nets after cleanup: [llength $all_nets2]"
@@ -172,11 +148,9 @@ puts "--- various reports ---"
 report_instance buf1
 report_instance and1
 report_instance reg1
-puts "PASS: report_instance"
 
 report_net n1
 report_net n2
-puts "PASS: report_net"
 
 #---------------------------------------------------------------
 # Test all_registers
@@ -223,5 +197,3 @@ foreach net_name {n1 n2} {
   set fn [get_full_name $net]
   puts "net $net_name: name=$fn"
 }
-
-puts "ALL PASSED"

@@ -1,10 +1,6 @@
-PASS: create_clock
-PASS: set_input_delay
-PASS: set_output_delay
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk                      10.00        0.00      5.00
-PASS: report_clock_properties
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -31,5 +27,3 @@ Path Type: max
            6.92   slack (MET)
 
 
-PASS: report_checks with SDC constraints
-ALL PASSED

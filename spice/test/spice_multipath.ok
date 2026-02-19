@@ -28,7 +28,6 @@ Path Type: max
            8.86   slack (MET)
 
 
-PASS: timing with parasitics
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -58,38 +57,20 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: min path
 No paths found.
-PASS: in1->out1
 No paths found.
-PASS: in2->out2
-PASS: SPICE files created
 --- write_path_spice max ---
-PASS: write_path_spice max completed
 --- write_path_spice min ---
-PASS: write_path_spice min completed
 --- write_path_spice specific path ---
 INFO: write_path_spice specific: Error: spice_multipath.tcl line 1, No paths found for -path_args -from in1 -to out1.
-PASS: code path exercised
 --- write_path_spice hspice ---
-PASS: write_path_spice hspice completed
 --- write_path_spice xyce ---
-PASS: write_path_spice xyce completed
 --- write_gate_spice multiple cells ---
 INFO: gate BUF rise: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
 INFO: gate BUF fall: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
 INFO: gate INV rise: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
 INFO: gate AND A1 rise: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
 INFO: gate AND A2 fall: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
 INFO: gate OR rise: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
 INFO: gate INV hspice: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
 INFO: gate OR xyce: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
-ALL PASSED

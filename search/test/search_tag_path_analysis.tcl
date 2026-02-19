@@ -29,7 +29,6 @@ set_output_delay -clock clk2 3.0 [get_ports out2]
 # Force timing analysis (creates tags)
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: two clock timing"
 
 ############################################################
 # Phase 2: Exception paths create additional tag states
@@ -37,15 +36,12 @@ puts "PASS: two clock timing"
 puts "--- exception state tags ---"
 set_false_path -from [get_ports in1] -to [get_ports out2]
 report_checks -path_delay max
-puts "PASS: false_path tag state"
 
 set_multicycle_path 2 -setup -from [get_clocks clk1] -to [get_clocks clk2]
 report_checks -path_delay max
-puts "PASS: mcp tag state"
 
 set_max_delay 8.0 -from [get_ports in2] -through [get_pins and1/ZN] -to [get_ports out1]
 report_checks -path_delay max
-puts "PASS: max_delay tag state"
 
 ############################################################
 # Phase 3: Group paths exercise tag matching
@@ -55,7 +51,6 @@ group_path -name gp1 -from [get_ports in1]
 group_path -name gp2 -to [get_ports out2]
 report_checks -path_delay max -path_group gp1
 report_checks -path_delay max -path_group gp2
-puts "PASS: group_path tags"
 
 ############################################################
 # Phase 4: find_timing_paths with many endpoints
@@ -67,12 +62,10 @@ puts "multi-clock paths: [llength $paths]"
 foreach pe $paths {
   puts "  [get_full_name [$pe pin]] slack=[$pe slack]"
 }
-puts "PASS: multi-clock paths"
 
 puts "--- find_timing_paths min multi-clock ---"
 set paths_min [find_timing_paths -path_delay min -endpoint_path_count 5 -group_path_count 20]
 puts "min multi-clock: [llength $paths_min]"
-puts "PASS: min multi-clock paths"
 
 ############################################################
 # Phase 5: Slack metrics exercise tag retrieval
@@ -82,19 +75,16 @@ set tns_max [total_negative_slack -max]
 puts "tns max: $tns_max"
 set tns_min [total_negative_slack -min]
 puts "tns min: $tns_min"
-puts "PASS: tns"
 
 puts "--- worst_slack ---"
 set ws_max [worst_slack -max]
 puts "worst_slack max: $ws_max"
 set ws_min [worst_slack -min]
 puts "worst_slack min: $ws_min"
-puts "PASS: worst_slack"
 
 puts "--- worst_negative_slack ---"
 set wns [worst_negative_slack -max]
 puts "wns: $wns"
-puts "PASS: wns"
 
 ############################################################
 # Phase 6: report_check_types exercises different check roles
@@ -105,7 +95,6 @@ report_check_types -max_delay -min_delay -recovery -removal \
   -clock_gating_setup -clock_gating_hold \
   -min_pulse_width -min_period -max_skew \
   -max_slew -max_capacitance -max_fanout
-puts "PASS: report_check_types all"
 
 ############################################################
 # Phase 7: Generated clock exercises gen clk src path tags
@@ -120,15 +109,12 @@ set_output_delay -clock gen_clk 2.5 [get_ports out2]
 
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: generated clock tag states"
 
 puts "--- report_checks -format full_clock ---"
 report_checks -path_delay max -format full_clock
-puts "PASS: full_clock format with gen clk"
 
 puts "--- report_checks -format full_clock_expanded ---"
 report_checks -path_delay max -format full_clock_expanded
-puts "PASS: full_clock_expanded with gen clk"
 
 ############################################################
 # Phase 8: Clock uncertainty + latency create additional tag info
@@ -141,20 +127,18 @@ set_clock_uncertainty -hold 0.1 -from [get_clocks clk1] -to [get_clocks gen_clk]
 
 report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
-puts "PASS: latency + uncertainty tags"
 
 ############################################################
 # Phase 9: report_arrival / report_required / report_slack
 # per-pin tag queries
 ############################################################
 puts "--- per-pin tag queries ---"
-catch { report_arrival [get_pins reg1/D] }
-catch { report_required [get_pins reg1/D] }
-catch { report_slack [get_pins reg1/D] }
-catch { report_arrival [get_pins reg3/D] }
-catch { report_required [get_pins reg3/D] }
-catch { report_slack [get_pins reg3/D] }
-puts "PASS: per-pin tag queries"
+report_arrival [get_pins reg1/D]
+report_required [get_pins reg1/D]
+report_slack [get_pins reg1/D]
+report_arrival [get_pins reg3/D]
+report_required [get_pins reg3/D]
+report_slack [get_pins reg3/D]
 
 ############################################################
 # Phase 10: report_clock_skew with generated clock
@@ -162,14 +146,9 @@ puts "PASS: per-pin tag queries"
 puts "--- clock_skew with generated clock ---"
 report_clock_skew -setup
 report_clock_skew -hold
-puts "PASS: clock_skew gen_clk"
 
 puts "--- report_clock_latency with generated ---"
 report_clock_latency
-puts "PASS: clock_latency gen_clk"
 
 puts "--- report_clock_min_period ---"
 report_clock_min_period
-puts "PASS: clock_min_period gen_clk"
-
-puts "ALL PASSED"

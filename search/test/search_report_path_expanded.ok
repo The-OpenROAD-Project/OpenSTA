@@ -120,7 +120,6 @@ Path Type: min
            2.12   slack (MET)
 
 
-PASS: full_clock_expanded CRPR
 --- report_checks -to each output ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -211,7 +210,6 @@ Path Type: min
            2.16   slack (MET)
 
 
-PASS: per-output reports
 --- report_checks -from specific pins ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -277,7 +275,6 @@ Path Type: max
            8.94   slack (MET)
 
 
-PASS: from-pin reports
 --- report_checks with various fields ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -400,7 +397,6 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
                                   2.12   slack (MET)
 
 
-PASS: all fields
 --- report_checks with -no_line_splits ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -456,7 +452,6 @@ Path Type: max
            5.87   slack (MET)
 
 
-PASS: no_line_splits
 --- report_checks with digits ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -567,7 +562,6 @@ Path Type: min
                2.124222   slack (MET)
 
 
-PASS: digits 6
 --- report_checks JSON format ---
 {"checks": [
 {
@@ -1029,7 +1023,6 @@ PASS: digits 6
 }
 ]
 }
-PASS: JSON format
 --- report_checks JSON with endpoint_path_count ---
 {"checks": [
 {
@@ -1561,7 +1554,6 @@ PASS: JSON format
 }
 ]
 }
-PASS: JSON endpoint count
 --- find_timing_paths and iterate ---
 Found 10 paths
 Path 0:
@@ -1634,7 +1626,6 @@ Path 9:
   required: 0.0
   path_pins: 8
   start_path pin: reg3/Q
-PASS: path iteration
 --- report_path_end with prev_end chaining ---
 {"checks": [
 {
@@ -2811,7 +2802,6 @@ PASS: path iteration
 },
 ]
 }
-PASS: report_path_end chaining
 --- report_path_ends as sequence ---
 {"checks": [
 {
@@ -3988,7 +3978,6 @@ PASS: report_path_end chaining
 }
 ]
 }
-PASS: report_path_ends sequence
 --- set_report_path_format json then report ---
 {
 "path": [
@@ -4032,7 +4021,6 @@ PASS: report_path_ends sequence
 ]
 }
 
-PASS: report_path json format
 --- set_report_path_format full_clock_expanded ---
   Delay    Time   Description
 ---------------------------------------------------------
@@ -4045,12 +4033,10 @@ PASS: report_path json format
    0.09    0.14 ^ reg2/Q (DFF_X1)
    0.02    0.16 ^ buf3/Z (BUF_X1)
    0.00    0.16 ^ out1 (out)
-PASS: report_path full_clock_expanded format
 --- PathEnd vertex access ---
 vertex: out1
   is_clock: 0
   has_downstream_clk_pin: 0
-PASS: PathEnd vertex
 --- find_timing_paths min_max ---
 min_max paths: 10
   min_max: min slack=7.392011308615665e-11
@@ -4063,7 +4049,6 @@ min_max paths: 10
   min_max: max slack=8.941200668743932e-9
   min_max: max slack=5.8740736719187225e-9
   min_max: max slack=5.875777642216917e-9
-PASS: min_max paths
 --- report_tns/wns ---
 tns max 0.00
 wns max 0.00
@@ -4072,11 +4057,8 @@ worst slack min 0.07
 tns max 0.000000
 wns max 0.000000
 worst slack max 5.874074
-PASS: tns/wns
 --- search debug info ---
 tag_group_count: 10
 tag_count: 44
 clk_info_count: 20
 path_count: 140
-PASS: search debug
-ALL PASSED

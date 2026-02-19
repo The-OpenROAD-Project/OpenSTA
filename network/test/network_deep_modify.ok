@@ -27,28 +27,11 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: initial design setup
 --- extensive instance creation ---
-PASS: created 12 instances
 total cells: 15
 test_inst_* cells: 12
 --- connect/disconnect cycle ---
-PASS: connect test_net_0 to test_inst_0/A
-PASS: disconnect test_net_0 from test_inst_0/A
-PASS: connect test_net_1 to test_inst_1/A
-PASS: disconnect test_net_1 from test_inst_1/A
-PASS: connect test_net_2 to test_inst_2/A
-PASS: disconnect test_net_2 from test_inst_2/A
-PASS: connect test_net_3 to test_inst_3/A
-PASS: disconnect test_net_3 from test_inst_3/A
-PASS: connect test_net_4 to test_inst_4/A
-PASS: disconnect test_net_4 from test_inst_4/A
-PASS: connect test_net_5 to test_inst_5/A
-PASS: disconnect test_net_5 from test_inst_5/A
-PASS: connect/disconnect cycle
 --- multi-pin connections ---
-PASS: connect test_inst_0/A to shared_net1
-PASS: connect test_inst_1/A to shared_net1
 Net shared_net1
  Pin capacitance: 2.46-2.75
  Wire capacitance: 0.00
@@ -61,14 +44,11 @@ Load pins
  test_inst_0/A input (BUF_X1) 0.88-0.97
  test_inst_1/A input (BUF_X2) 1.59-1.78
 
-PASS: report_net shared_net1
-PASS: clean up shared_net1
 --- replace_cell tests ---
 buf1 -> BUF_X2: ref=BUF_X2
 buf1 -> BUF_X4: ref=BUF_X4
 buf1 -> BUF_X8: ref=BUF_X8
 buf1 -> BUF_X16: ref=BUF_X16
-PASS: replace_cell series done
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -98,15 +78,11 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report_checks after replacements
 --- delete test instances ---
-PASS: deleted all test instances
 remaining cells: 3
 --- net creation/deletion patterns ---
-PASS: created 20 nets
 total nets with bulk: 26
 bulk_net_* count: 20
-PASS: deleted 20 nets
 nets after cleanup: 6
 --- various reports ---
 Instance buf1
@@ -147,7 +123,6 @@ Instance reg1
   IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
-PASS: report_instance
 Net n1
  Pin capacitance: 0.87-0.92
  Wire capacitance: 0.00
@@ -176,7 +151,6 @@ Driver pins
 Load pins
  reg1/D input (DFF_X1) 1.06-1.14
 
-PASS: report_net
 all_registers: 1
 register data_pins: 1
 register clock_pins: 1
@@ -199,4 +173,3 @@ pin reg1/CK: dir=input name=reg1/CK
 pin reg1/Q: dir=output name=reg1/Q
 net n1: name=n1
 net n2: name=n2
-ALL PASSED

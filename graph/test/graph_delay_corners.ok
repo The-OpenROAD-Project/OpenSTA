@@ -32,7 +32,6 @@ Corner: fast
            8.88   slack (MET)
 
 
-PASS: fast corner
 Startpoint: en (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -62,7 +61,6 @@ Corner: fast
            1.03   slack (MET)
 
 
-PASS: fast corner min
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -96,7 +94,6 @@ Corner: fast
            8.88   slack (MET)
 
 
-PASS: fast corner max
 --- slow corner ---
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -131,7 +128,6 @@ Corner: slow
            8.38   slack (MET)
 
 
-PASS: slow corner
 Startpoint: en (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -161,7 +157,6 @@ Corner: slow
            1.10   slack (MET)
 
 
-PASS: slow corner min
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -195,7 +190,6 @@ Corner: slow
            8.38   slack (MET)
 
 
-PASS: slow corner max
 --- report_dcalc per corner ---
 Library: NangateOpenCellLibrary_fast
 Cell: BUF_X1
@@ -811,7 +805,6 @@ Check = 0.00
 .............................................
 
 slow reg1 hold: done
-PASS: report_dcalc per corner
 --- report_checks with fields ---
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -851,7 +844,6 @@ Corner: fast
                            8.88   slack (MET)
 
 
-PASS: fast fields
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -890,7 +882,6 @@ Corner: slow
                            8.38   slack (MET)
 
 
-PASS: slow fields
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -924,7 +915,6 @@ Corner: fast
            8.88   slack (MET)
 
 
-PASS: fast full_clock
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -958,20 +948,13 @@ Corner: slow
            8.38   slack (MET)
 
 
-PASS: slow full_clock
 --- multi-corner paths ---
 No paths found.
-PASS: fast d1->q1
 No paths found.
-PASS: slow d1->q1
 No paths found.
-PASS: fast d2->q2
 No paths found.
-PASS: slow d2->q2
 No paths found.
-PASS: fast en->q1
 No paths found.
-PASS: slow en->q1
 --- timing edges multi-corner ---
 and1 edges: 1
 or1 edges: 1
@@ -988,7 +971,6 @@ A1 -> ZN combinational
 A2 -> ZN combinational
   ^ -> ^ 0.01:0.02:0.06:0.06
   v -> v 0.02:0.03:0.18:0.18
-PASS: timing edges multi-corner
 --- load changes multi-corner ---
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -1023,7 +1005,6 @@ Corner: fast
            8.88   slack (MET)
 
 
-PASS: fast after load change
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -1057,7 +1038,6 @@ Corner: slow
            8.38   slack (MET)
 
 
-PASS: slow after load change
 --- unconstrained multi-corner ---
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -1092,7 +1072,6 @@ Corner: fast
            8.88   slack (MET)
 
 
-PASS: fast unconstrained
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -1126,7 +1105,6 @@ Corner: slow
            8.38   slack (MET)
 
 
-PASS: slow unconstrained
 --- disable with multi-corner ---
 Startpoint: en (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -1190,7 +1168,6 @@ Corner: slow
            8.43   slack (MET)
 
 
-PASS: disable buf1 multi-corner
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -1257,5 +1234,3 @@ Corner: slow
            8.38   slack (MET)
 
 
-PASS: enable buf1 multi-corner
-ALL PASSED

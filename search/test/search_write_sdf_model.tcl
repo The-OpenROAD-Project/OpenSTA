@@ -18,79 +18,66 @@ report_checks -path_delay max > /dev/null
 puts "--- write_sdf ---"
 set sdf_file [make_result_file "search_test1.sdf"]
 write_sdf $sdf_file
-puts "PASS: write_sdf default"
 
 puts "--- write_sdf with options ---"
 set sdf_file2 [make_result_file "search_test1_opts.sdf"]
 write_sdf -divider . -no_timestamp -no_version $sdf_file2
-puts "PASS: write_sdf with options"
 
 puts "--- write_sdf with digits ---"
 set sdf_file3 [make_result_file "search_test1_digits.sdf"]
 write_sdf -digits 6 -no_timestamp $sdf_file3
-puts "PASS: write_sdf with digits"
 
 puts "--- write_sdf with include_typ ---"
 set sdf_file4 [make_result_file "search_test1_typ.sdf"]
 write_sdf -include_typ -no_timestamp $sdf_file4
-puts "PASS: write_sdf with include_typ"
 
 puts "--- write_timing_model ---"
 set model_file [make_result_file "search_test1_model.lib"]
 write_timing_model $model_file
-puts "PASS: write_timing_model default"
 
 puts "--- write_timing_model with cell_name ---"
 set model_file2 [make_result_file "search_test1_model2.lib"]
 write_timing_model -cell_name my_custom_cell $model_file2
-puts "PASS: write_timing_model with cell_name"
 
 puts "--- write_timing_model with library_name ---"
 set model_file3 [make_result_file "search_test1_model3.lib"]
 write_timing_model -library_name my_custom_lib -cell_name my_custom_cell2 $model_file3
-puts "PASS: write_timing_model with library_name"
 
 puts "--- Network edit: make_instance ---"
 catch {
   make_instance new_buf1 [get_lib_cells NangateOpenCellLibrary/BUF_X1]
   puts "make_instance new_buf1 done"
 }
-puts "PASS: make_instance"
 
 puts "--- Network edit: make_net ---"
 catch {
   make_net new_net1
   puts "make_net new_net1 done"
 }
-puts "PASS: make_net"
 
 puts "--- Network edit: connect_pin ---"
 catch {
   connect_pin new_buf1 A [get_nets n1]
   puts "connect_pin done"
 }
-puts "PASS: connect_pin"
 
 puts "--- Network edit: disconnect_pin ---"
 catch {
   disconnect_pin new_buf1 A
   puts "disconnect_pin done"
 }
-puts "PASS: disconnect_pin"
 
 puts "--- Network edit: delete_net ---"
 catch {
   delete_net [get_nets new_net1]
   puts "delete_net done"
 }
-puts "PASS: delete_net"
 
 puts "--- Network edit: delete_instance ---"
 catch {
   delete_instance [get_cells new_buf1]
   puts "delete_instance done"
 }
-puts "PASS: delete_instance"
 
 puts "--- Network edit: replace_cell ---"
 catch {
@@ -98,21 +85,15 @@ catch {
   report_checks -path_delay max
   puts "replace_cell done"
 }
-puts "PASS: replace_cell"
 
 puts "--- report_checks after edits ---"
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: report after edits"
 
 puts "--- write_timing_model after edits ---"
 set model_file4 [make_result_file "search_test1_model_edited.lib"]
 write_timing_model -library_name edited_lib -cell_name edited_cell $model_file4
-puts "PASS: write_timing_model after edits"
 
 puts "--- write_sdf after edits ---"
 set sdf_file5 [make_result_file "search_test1_edited.sdf"]
 write_sdf -no_timestamp -no_version $sdf_file5
-puts "PASS: write_sdf after edits"
-
-puts "ALL PASSED"

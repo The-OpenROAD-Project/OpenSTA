@@ -29,11 +29,9 @@ report_checks -path_delay min > /dev/null
 puts "--- write_timing_model propagated clock ---"
 set model1 [make_result_file "model_clktree1.lib"]
 write_timing_model -library_name clktree_lib -cell_name clktree_cell $model1
-puts "PASS: write model clktree"
 
 puts "--- read back clktree model ---"
 read_liberty $model1
-puts "PASS: read model clktree"
 
 ############################################################
 # Part 2: Model with clock latency + uncertainty
@@ -58,11 +56,9 @@ report_checks -path_delay min > /dev/null
 puts "--- write_timing_model with latency + uncertainty ---"
 set model2 [make_result_file "model_clktree2.lib"]
 write_timing_model -library_name clktree2_lib -cell_name clktree2_cell $model2
-puts "PASS: write model clktree with latency"
 
 puts "--- read back clktree2 model ---"
 read_liberty $model2
-puts "PASS: read model clktree2"
 
 ############################################################
 # Part 3: Model from latch design with propagated clock
@@ -84,11 +80,9 @@ report_checks -path_delay min > /dev/null
 puts "--- write_timing_model latch with min/max ---"
 set model3 [make_result_file "model_clktree_latch.lib"]
 write_timing_model $model3
-puts "PASS: write model latch"
 
 puts "--- read back latch model ---"
 read_liberty $model3
-puts "PASS: read model latch"
 
 ############################################################
 # Part 4: Model from multicorner design with propagated clock
@@ -112,11 +106,9 @@ report_checks -path_delay min > /dev/null
 puts "--- write_timing_model multicorner propagated ---"
 set model4 [make_result_file "model_clktree_mc.lib"]
 write_timing_model -library_name mc_prop_lib -cell_name mc_prop $model4
-puts "PASS: write model multicorner propagated"
 
 puts "--- read back multicorner propagated model ---"
 read_liberty $model4
-puts "PASS: read model multicorner propagated"
 
 ############################################################
 # Part 5: Model with clock transition
@@ -140,10 +132,6 @@ report_checks -path_delay max > /dev/null
 puts "--- write_timing_model with clock transition ---"
 set model5 [make_result_file "model_clk_transition.lib"]
 write_timing_model -library_name ct_lib -cell_name ct_cell $model5
-puts "PASS: write model clock transition"
 
 puts "--- read back clock transition model ---"
 read_liberty $model5
-puts "PASS: read model clock transition"
-
-puts "ALL PASSED"

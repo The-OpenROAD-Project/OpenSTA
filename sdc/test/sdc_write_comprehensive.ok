@@ -1,35 +1,4 @@
-PASS: create_clocks
-PASS: generated clocks
-PASS: set_propagated_clock
-PASS: clock latency
-PASS: clock uncertainty
-PASS: clock transition
-PASS: input delays
-PASS: output delays
-PASS: driving cells
-PASS: set_drive
-PASS: set_load
-PASS: input transition
-PASS: design limits
-PASS: false paths
-PASS: multicycle paths
-PASS: max/min delay
-PASS: group paths
-PASS: clock groups
 Warning: sdc_write_comprehensive.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock sense
-PASS: case analysis
-PASS: operating conditions
-PASS: wire load
-PASS: timing derate
-PASS: disable timing
-PASS: min pulse width
-PASS: port fanout number
-PASS: resistance
-PASS: set_max_area
-PASS: write_sdc basic
-PASS: write_sdc -digits 6
-PASS: read_sdc
 Warning: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -109,5 +78,3 @@ Path Type: max
            3.37   slack (MET)
 
 
-PASS: report_checks after read_sdc
-ALL PASSED

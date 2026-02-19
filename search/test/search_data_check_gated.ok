@@ -161,7 +161,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: basic timing
 --- Enable gated clock checks ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -325,7 +324,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: gated clk checks enabled
 --- find_timing_paths with gated clk ---
 Found 16 max paths
   is_gated: 0 is_check: 1 pin=reg1/RN role=recovery slack=9.553728474998024e-9
@@ -344,7 +342,6 @@ Found 16 max paths
   is_gated: 0 is_check: 1 pin=reg1/D role=setup slack=8.911564819413798e-9
   is_gated: 0 is_check: 1 pin=reg2/D role=setup slack=9.865935624020494e-9
   is_gated: 0 is_check: 1 pin=reg2/D role=setup slack=9.875192219510609e-9
-PASS: gated clk paths
 --- report_checks in various formats with gated clk ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -787,7 +784,6 @@ clk                                     7.88
 }
 ]
 }
-PASS: gated clk formats
 --- propagate_gated_clock_enable ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -951,7 +947,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: propagate gated clk
 --- Enable recovery/removal checks ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1061,7 +1056,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: recovery/removal
 --- find_timing_paths with recovery/removal ---
 Found 14 paths with recovery/removal
   role=recovery is_check=1 pin=reg1/RN slack=9.553728474998024e-9
@@ -1078,7 +1072,6 @@ Found 14 paths with recovery/removal
   role=setup is_check=1 pin=reg1/D slack=8.911564819413798e-9
   role=setup is_check=1 pin=reg2/D slack=9.865935624020494e-9
   role=setup is_check=1 pin=reg2/D slack=9.875192219510609e-9
-PASS: recovery/removal paths
 --- report recovery/removal in formats ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1360,7 +1353,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: recovery/removal formats
 --- Data check constraints ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk)
@@ -1419,7 +1411,6 @@ Path Type: min
 
 
 data_check applied
-PASS: data_check
 --- find_timing_paths with data check ---
 Found 10 paths with data check
   is_data_check: 1 pin=reg2/D role=data check setup
@@ -1432,7 +1423,6 @@ Found 10 paths with data check
   is_data_check: 0 pin=out2 role=output setup
   is_data_check: 0 pin=out1 role=output setup
   is_data_check: 0 pin=out2 role=output setup
-PASS: data check paths
 --- clock skew analysis ---
 Clock clk
    0.02 source latency reg1/CK ^
@@ -1476,7 +1466,6 @@ Clock clk
 --------------
 0.024496 hold skew
 
-PASS: clock skew
 --- clock latency ---
 Clock clk
 rise -> rise
@@ -1565,13 +1554,11 @@ fall -> fall
         0.022469 skew
 
 
-PASS: clock latency
 --- worst_clk_skew_cmd ---
 Worst skew setup: 2.4496025000098065e-11
 Worst skew hold: 2.4496025000098065e-11
 Worst skew setup (int): 2.4496025000098065e-11
 Worst skew hold (int): 2.4496025000098065e-11
-PASS: worst_clk_skew
 --- report_check_types with everything ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -1669,9 +1656,7 @@ Group                                  Slack
 --------------------------------------------
 clk                                    -5.28
 
-PASS: check_types all
 --- check_setup ---
-PASS: check_setup all
 --- clock properties ---
 Clock                   Period          Waveform
 ----------------------------------------------------
@@ -1679,10 +1664,8 @@ clk                      10.00        0.00      5.00
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk                      10.00        0.00      5.00
-PASS: clock properties
 --- find_timing_paths with -through ---
 Paths through clk_gate/ZN: 0
-PASS: through paths
 --- report_checks -through ---
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -1744,7 +1727,6 @@ Path Type: max
            8.91   slack (MET)
 
 
-PASS: report through
 --- pulse width checks ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -1839,9 +1821,6 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: pulse width
 --- min period ---
 clk period_min = 0.13 fmax = 7459.11
 clk period_min = 2.12 fmax = 472.02
-PASS: min period
-ALL PASSED

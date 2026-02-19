@@ -15,7 +15,6 @@ source ../../test/helpers.tcl
 # Read Sky130 library (has scan flip-flop cells with test_cell groups)
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read Sky130 library"
 
 ############################################################
 # Query scan DFF cells - these have test_cell groups with signal_type
@@ -56,7 +55,6 @@ foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfxtp_2
     }
   }
 }
-puts "PASS: sdfxtp scan DFF queries"
 
 # sdfxbp cells are scan DFFs with complementary outputs
 foreach cell_name {sky130_fd_sc_hd__sdfxbp_1 sky130_fd_sc_hd__sdfxbp_2} {
@@ -87,7 +85,6 @@ foreach cell_name {sky130_fd_sc_hd__sdfxbp_1 sky130_fd_sc_hd__sdfxbp_2} {
     }
   }
 }
-puts "PASS: sdfxbp scan DFF queries"
 
 # sdfrtp cells are scan DFFs with async reset
 foreach cell_name {sky130_fd_sc_hd__sdfrtp_1 sky130_fd_sc_hd__sdfrtp_2
@@ -119,7 +116,6 @@ foreach cell_name {sky130_fd_sc_hd__sdfrtp_1 sky130_fd_sc_hd__sdfrtp_2
     }
   }
 }
-puts "PASS: sdfrtp scan DFF queries"
 
 # sdfstp cells are scan DFFs with async set
 foreach cell_name {sky130_fd_sc_hd__sdfstp_1 sky130_fd_sc_hd__sdfstp_2
@@ -144,7 +140,6 @@ foreach cell_name {sky130_fd_sc_hd__sdfstp_1 sky130_fd_sc_hd__sdfstp_2
     }
   }
 }
-puts "PASS: sdfstp scan DFF queries"
 
 ############################################################
 # Timing arcs on scan DFFs (exercises recovery/removal arcs)
@@ -166,13 +161,11 @@ foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfrtp_1
     }
   }
 }
-puts "PASS: scan DFF timing arcs"
 
 ############################################################
 # Read Nangate library and query scan cells there too
 ############################################################
 read_liberty ../../test/nangate45/Nangate45_typ.lib
-puts "PASS: read Nangate45"
 
 # Nangate SDFF cells
 foreach cell_name {SDFF_X1 SDFF_X2 SDFFR_X1 SDFFS_X1 SDFFRS_X1} {
@@ -195,7 +188,6 @@ foreach cell_name {SDFF_X1 SDFF_X2 SDFFR_X1 SDFFS_X1 SDFFRS_X1} {
     }
   }
 }
-puts "PASS: Nangate scan cell queries"
 
 # Nangate CLKGATETST cell (clock gate test)
 catch {
@@ -211,13 +203,11 @@ catch {
     }
   }
 }
-puts "PASS: CLKGATETST queries"
 
 ############################################################
 # Read ASAP7 SEQ for ICG (integrated clock gate) scan coverage
 ############################################################
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
-puts "PASS: read ASAP7 SEQ"
 
 # ASAP7 ICG cell has statetable (exercises clock gate paths)
 catch {
@@ -230,7 +220,6 @@ catch {
     }
   }
 }
-puts "PASS: ASAP7 ICG arcs"
 
 # ASAP7 DFFs with scan
 foreach cell_name {DFFHQNx1_ASAP7_75t_R DFFHQx1_ASAP7_75t_R
@@ -249,7 +238,6 @@ foreach cell_name {DFFHQNx1_ASAP7_75t_R DFFHQx1_ASAP7_75t_R
     }
   }
 }
-puts "PASS: ASAP7 DFF arc queries"
 
 ############################################################
 # Link design with Nangate and report checks to exercise
@@ -264,6 +252,3 @@ set_output_delay -clock clk1 3.0 [all_outputs]
 set_input_transition 0.1 [all_inputs]
 
 report_checks
-puts "PASS: report_checks with scan libraries loaded"
-
-puts "ALL PASSED"

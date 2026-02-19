@@ -27,10 +27,8 @@ set_propagated_clock {clk1 clk2 clk3}
 #---------------------------------------------------------------
 puts "--- baseline ---"
 report_checks
-puts "PASS: baseline"
 
 report_parasitic_annotation
-puts "PASS: baseline parasitic annotation"
 
 #---------------------------------------------------------------
 # Set pi model on multiple nets, with varying parameter values
@@ -80,16 +78,12 @@ puts "set_elmore r3/Q -> out: $msg"
 #---------------------------------------------------------------
 puts "--- timing with varied parasitics ---"
 report_checks
-puts "PASS: report_checks with varied parasitics"
 
 report_checks -path_delay min
-puts "PASS: min path"
 
 report_checks -path_delay max
-puts "PASS: max path"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report with fields"
 
 #---------------------------------------------------------------
 # Try different delay calculators with these parasitics
@@ -97,28 +91,25 @@ puts "PASS: report with fields"
 puts "--- arnoldi with estimated ---"
 set_delay_calculator arnoldi
 report_checks
-puts "PASS: arnoldi"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "arnoldi dcalc u1: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "arnoldi dcalc u2: done"
 
 puts "--- lumped_cap with estimated ---"
 set_delay_calculator lumped_cap
 report_checks
-puts "PASS: lumped_cap"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "lumped_cap dcalc u1: done"
 
 puts "--- dmp_ceff_two_pole with estimated ---"
 set_delay_calculator dmp_ceff_two_pole
 report_checks
-puts "PASS: dmp_ceff_two_pole"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "dmp_ceff_two_pole dcalc r1: done"
 
 #---------------------------------------------------------------
@@ -130,30 +121,25 @@ catch {sta::set_pi_model u1/Y 0.02 25.0 0.01} msg
 puts "re-set pi_model u1/Y: $msg"
 
 report_checks
-puts "PASS: report after pi_model override"
 
 #---------------------------------------------------------------
 # Now load SPEF on top to override manual (tests delete/override paths)
 #---------------------------------------------------------------
 puts "--- SPEF override ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef after manual parasitics"
 
 report_checks
-puts "PASS: report_checks after SPEF override"
 
 report_parasitic_annotation
-puts "PASS: parasitic annotation after SPEF"
 
 report_parasitic_annotation -report_unannotated
-puts "PASS: parasitic annotation unannotated after SPEF"
 
 #---------------------------------------------------------------
 # Report nets with parasitics
 #---------------------------------------------------------------
 puts "--- report_net after SPEF ---"
 foreach net_name {r1q r2q u1z u2z out in1 in2} {
-  catch {report_net -digits 4 $net_name} msg
+  report_net -digits 4 $net_name
   puts "report_net $net_name: done"
 }
 
@@ -161,16 +147,14 @@ foreach net_name {r1q r2q u1z u2z out in1 in2} {
 # Annotated delay reporting
 #---------------------------------------------------------------
 puts "--- annotated delay ---"
-catch {report_annotated_delay -cell -net} msg
+report_annotated_delay -cell -net
 puts "annotated -cell -net: done"
 
-catch {report_annotated_delay -from_in_ports -to_out_ports} msg
+report_annotated_delay -from_in_ports -to_out_ports
 puts "annotated from/to: done"
 
-catch {report_annotated_delay -report_annotated} msg
+report_annotated_delay -report_annotated
 puts "annotated -report_annotated: done"
 
-catch {report_annotated_delay -report_unannotated} msg
+report_annotated_delay -report_unannotated
 puts "annotated -report_unannotated: done"
-
-puts "ALL PASSED"

@@ -1,5 +1,4 @@
 --- read_sdf ---
-PASS: read_sdf completed
 --- report_annotated_delay (all) ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -254,4 +253,3 @@ Path Type: min
            0.10   slack (MET)
 
 
-ALL PASSED

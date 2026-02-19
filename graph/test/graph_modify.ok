@@ -58,7 +58,6 @@ Corner: fast
            4.93   slack (MET)
 
 
-PASS: fast baseline
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -118,7 +117,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: slow baseline
 Startpoint: d3 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -178,7 +176,6 @@ Corner: fast
            0.05   slack (MET)
 
 
-PASS: fast min
 Startpoint: d3 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -238,7 +235,6 @@ Corner: slow
            0.23   slack (MET)
 
 
-PASS: slow min
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -298,7 +294,6 @@ Corner: fast
            4.93   slack (MET)
 
 
-PASS: fast max
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -358,20 +353,13 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: slow max
 --- multi-corner per-path ---
 No paths found.
-PASS: fast d1->q1
 No paths found.
-PASS: slow d1->q1
 No paths found.
-PASS: fast d3->q1
 No paths found.
-PASS: slow d3->q1
 No paths found.
-PASS: fast d1->q2 (cross-clock)
 No paths found.
-PASS: slow d1->q2 (cross-clock)
 --- multi-corner report_dcalc ---
 Library: NangateOpenCellLibrary_fast
 Cell: BUF_X1
@@ -989,9 +977,6 @@ Driver waveform slew = 0.02
 slow reg3 CK->Q: done
 --- network modification and graph update ---
 Warning: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
-PASS: make_instance added_buf
-PASS: make_net added_net
-PASS: connect added_buf/A
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1051,7 +1036,6 @@ Corner: fast
            4.93   slack (MET)
 
 
-PASS: fast after add
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1111,9 +1095,7 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: slow after add
 Warning: graph_modify.tcl line 1, pin added_buf/A not found.
-PASS: cleanup added instance
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1173,7 +1155,6 @@ Corner: fast
            4.93   slack (MET)
 
 
-PASS: fast after delete
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1233,7 +1214,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: slow after delete
 --- replace_cell ---
 Warning: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
 Startpoint: d1 (input port clocked by clk1)
@@ -1295,7 +1275,6 @@ Corner: fast
            4.93   slack (MET)
 
 
-PASS: fast after buf1->BUF_X4
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1355,7 +1334,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: slow after buf1->BUF_X4
 Warning: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -1416,7 +1394,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: replaced back
 --- load changes multi-corner ---
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -1536,7 +1513,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: q1 load 0.01
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1655,7 +1631,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: q2 load 0.05
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1774,7 +1749,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: q3 load 0.1
 --- disable timing multi-corner ---
 Startpoint: d3 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -1894,7 +1868,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: disable and1
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -2013,7 +1986,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: disable and1+or1
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2132,7 +2104,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: enable all
 --- case analysis multi-corner ---
 Startpoint: d2 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -2252,7 +2223,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: d1=1 multi-corner
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2371,7 +2341,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: d1 unset multi-corner
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2490,7 +2459,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: d4=0 multi-corner
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2550,7 +2518,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: d4 unset
 --- report_slews multi-corner ---
 d1 ^ 0.10:0.10 v 0.10:0.10
 q1 ^ 0.00:0.02 v 0.00:0.01
@@ -2558,7 +2525,6 @@ q2 ^ 0.00:0.01 v 0.00:0.01
 nand1/ZN ^ 0.01:0.07 v 0.01:0.03
 nor1/ZN ^ 0.01:0.09 v 0.01:0.02
 reg3/Q ^ 0.00:0.02 v 0.00:0.02
-PASS: slews multi-corner
 --- report_edges multi-corner ---
 A1 -> ZN combinational
   ^ -> v 0.02:0.02:0.05:0.05
@@ -2584,7 +2550,6 @@ A1 -> ZN combinational
 A2 -> ZN combinational
   ^ -> ^ 0.02:0.02:0.09:0.09
   v -> v 0.02:0.02:0.16:0.16
-PASS: report_edges multi-corner
 --- fields per corner ---
 Warning: graph_modify.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
@@ -2650,7 +2615,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   4.93   slack (MET)
 
 
-PASS: fast with fields
 Warning: graph_modify.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -2715,7 +2679,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   4.61   slack (MET)
 
 
-PASS: slow with fields
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2775,7 +2738,6 @@ Corner: fast
            4.93   slack (MET)
 
 
-PASS: fast full_clock
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2835,7 +2797,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: slow full_clock
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2895,7 +2856,6 @@ Corner: fast
            4.93   slack (MET)
 
 
-PASS: fast unconstrained
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2955,7 +2915,6 @@ Corner: slow
            4.61   slack (MET)
 
 
-PASS: slow unconstrained
 Warning: graph_modify.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -3108,7 +3067,6 @@ Corner: fast
           13.94   slack (MET)
 
 
-PASS: fast group_count 3
 Warning: graph_modify.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -3377,5 +3335,3 @@ Corner: slow
           13.69   slack (MET)
 
 
-PASS: slow endpoint_count 5
-ALL PASSED

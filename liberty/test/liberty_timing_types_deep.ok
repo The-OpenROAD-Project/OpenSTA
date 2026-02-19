@@ -1,4 +1,3 @@
-PASS: read Sky130 library
 --- async reset DFF cells ---
 dfrtp_1 arc_sets = 8
   sky130_fd_sc_hd__dfrtp_1 CLK -> CLK role=width
@@ -9,7 +8,6 @@ dfrtp_1 arc_sets = 8
   sky130_fd_sc_hd__dfrtp_1 CLK -> RESET_B role=recovery
   sky130_fd_sc_hd__dfrtp_1 CLK -> RESET_B role=removal
   sky130_fd_sc_hd__dfrtp_1 RESET_B -> RESET_B role=width
-PASS: dfrtp_1 timing arcs
 dfstp_1 arc_sets = 8
   sky130_fd_sc_hd__dfstp_1 CLK -> CLK role=width
   sky130_fd_sc_hd__dfstp_1 CLK -> D role=setup
@@ -19,7 +17,6 @@ dfstp_1 arc_sets = 8
   sky130_fd_sc_hd__dfstp_1 CLK -> SET_B role=recovery
   sky130_fd_sc_hd__dfstp_1 CLK -> SET_B role=removal
   sky130_fd_sc_hd__dfstp_1 SET_B -> SET_B role=width
-PASS: dfstp_1 timing arcs
 dfbbp_1 arc_sets = 19
   sky130_fd_sc_hd__dfbbp_1 CLK -> CLK role=width
   sky130_fd_sc_hd__dfbbp_1 CLK -> D role=setup
@@ -40,7 +37,6 @@ dfbbp_1 arc_sets = 19
   sky130_fd_sc_hd__dfbbp_1 RESET_B -> SET_B role=non-sequential setup
   sky130_fd_sc_hd__dfbbp_1 SET_B -> SET_B role=width
   sky130_fd_sc_hd__dfbbp_1 RESET_B -> SET_B role=non-sequential hold
-PASS: dfbbp_1 timing arcs
 sdfrtp_1 arc_sets = 12
   sky130_fd_sc_hd__sdfrtp_1 CLK -> CLK role=width
   sky130_fd_sc_hd__sdfrtp_1 CLK -> D role=setup
@@ -54,7 +50,6 @@ sdfrtp_1 arc_sets = 12
   sky130_fd_sc_hd__sdfrtp_1 CLK -> SCD role=hold
   sky130_fd_sc_hd__sdfrtp_1 CLK -> SCE role=setup
   sky130_fd_sc_hd__sdfrtp_1 CLK -> SCE role=hold
-PASS: sdfrtp_1 timing arcs
 sdfstp_1 arc_sets = 12
   sky130_fd_sc_hd__sdfstp_1 CLK -> CLK role=width
   sky130_fd_sc_hd__sdfstp_1 CLK -> D role=setup
@@ -68,7 +63,6 @@ sdfstp_1 arc_sets = 12
   sky130_fd_sc_hd__sdfstp_1 CLK -> SET_B role=recovery
   sky130_fd_sc_hd__sdfstp_1 CLK -> SET_B role=removal
   sky130_fd_sc_hd__sdfstp_1 SET_B -> SET_B role=width
-PASS: sdfstp_1 timing arcs
 --- tristate cell timing arcs ---
 sky130_fd_sc_hd__ebufn_1 arc_sets = 3
   sky130_fd_sc_hd__ebufn_1 A -> Z role=combinational
@@ -86,7 +80,6 @@ sky130_fd_sc_hd__ebufn_8 arc_sets = 3
   sky130_fd_sc_hd__ebufn_8 A -> Z role=combinational
   sky130_fd_sc_hd__ebufn_8 TE_B -> Z role=tristate enable
   sky130_fd_sc_hd__ebufn_8 TE_B -> Z role=tristate disable
-PASS: tristate cell timing arcs
 --- clock gate cell timing arcs ---
 sky130_fd_sc_hd__dlclkp_1 arc_sets = 4
   sky130_fd_sc_hd__dlclkp_1 CLK -> CLK role=width
@@ -112,7 +105,6 @@ sky130_fd_sc_hd__sdlclkp_2 arc_sets = 6
   sky130_fd_sc_hd__sdlclkp_2 CLK -> GCLK role=combinational
   sky130_fd_sc_hd__sdlclkp_2 CLK -> SCE role=setup
   sky130_fd_sc_hd__sdlclkp_2 CLK -> SCE role=hold
-PASS: clock gate cell timing arcs
 --- latch cell timing arcs ---
 sky130_fd_sc_hd__dlxtp_1 arc_sets = 5
   sky130_fd_sc_hd__dlxtp_1 GATE -> D role=setup
@@ -142,15 +134,12 @@ sky130_fd_sc_hd__dlxbp_1 arc_sets = 7
   sky130_fd_sc_hd__dlxbp_1 GATE -> Q role=Latch En to Q
   sky130_fd_sc_hd__dlxbp_1 D -> Q_N role=Latch D to Q
   sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N role=Latch En to Q
-PASS: latch cell timing arcs
-PASS: read ASAP7 SEQ
 DFFHQNx1 arc_sets = 5
   DFFHQNx1_ASAP7_75t_R CLK -> QN role=Reg Clk to Q
   DFFHQNx1_ASAP7_75t_R CLK -> CLK role=width
   DFFHQNx1_ASAP7_75t_R CLK -> CLK role=width
   DFFHQNx1_ASAP7_75t_R CLK -> D role=hold
   DFFHQNx1_ASAP7_75t_R CLK -> D role=setup
-PASS: ASAP7 DFF arcs
 DLLx1 arc_sets = 6
   DLLx1_ASAP7_75t_R CLK -> Q role=Latch En to Q
   DLLx1_ASAP7_75t_R D -> Q role=Latch D to Q
@@ -158,7 +147,6 @@ DLLx1 arc_sets = 6
   DLLx1_ASAP7_75t_R CLK -> CLK role=width
   DLLx1_ASAP7_75t_R CLK -> D role=hold
   DLLx1_ASAP7_75t_R CLK -> D role=setup
-PASS: ASAP7 latch arcs
 ICGx1 arc_sets = 13
   ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
   ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
@@ -173,8 +161,6 @@ ICGx1 arc_sets = 13
   ICGx1_ASAP7_75t_R CLK -> SE role=hold
   ICGx1_ASAP7_75t_R CLK -> SE role=setup
   ICGx1_ASAP7_75t_R CLK -> SE role=setup
-PASS: ASAP7 ICG arcs
-PASS: read IHP
 sg13g2_dlhq_1 arc_sets = 5
   sg13g2_dlhq_1 D -> Q role=Latch D to Q
   sg13g2_dlhq_1 GATE -> Q role=Latch En to Q
@@ -182,7 +168,6 @@ sg13g2_dlhq_1 arc_sets = 5
   sg13g2_dlhq_1 GATE -> D role=setup
   sg13g2_dlhq_1 GATE -> GATE role=width
 Warning: liberty_timing_types_deep.tcl line 1, cell 'sg13g2_dllq_1' not found.
-PASS: IHP latch arcs
 sg13g2_dfrbp_1 arc_sets = 10
   sg13g2_dfrbp_1 CLK -> Q role=Reg Clk to Q
   sg13g2_dfrbp_1 RESET_B -> Q role=Reg Set/Clr
@@ -205,7 +190,6 @@ sg13g2_dfrbp_2 arc_sets = 10
   sg13g2_dfrbp_2 CLK -> RESET_B role=recovery
   sg13g2_dfrbp_2 CLK -> RESET_B role=removal
   sg13g2_dfrbp_2 RESET_B -> RESET_B role=width
-PASS: IHP async DFF arcs
 sg13g2_sdfbbp_1 arc_sets = 23
   sg13g2_sdfbbp_1 CLK -> Q role=Reg Clk to Q
   sg13g2_sdfbbp_1 CLK -> Q role=Reg Clk to Q
@@ -230,9 +214,7 @@ sg13g2_sdfbbp_1 arc_sets = 23
   sg13g2_sdfbbp_1 RESET_B -> SET_B role=non-sequential hold
   sg13g2_sdfbbp_1 RESET_B -> SET_B role=non-sequential setup
   sg13g2_sdfbbp_1 SET_B -> SET_B role=width
-PASS: IHP scan DFF arcs
 Warning: liberty_timing_types_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
-PASS: design setup
 Group                                  Slack
 --------------------------------------------
 clk1                                    2.05
@@ -240,23 +222,19 @@ clk2                                    0.08
 clk1                                    6.92
 clk2                                    9.88
 
-PASS: max/min delay
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: recovery/removal
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    5.00    4.95 (MET)
 
-PASS: min_pulse_width/min_period
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: clock_gating
 max slew
 
 Pin                                    Limit    Slew   Slack
@@ -269,10 +247,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 nor1/ZN                                 0.03    0.00    0.03 (MET)
 
-PASS: max_slew/cap/fanout
-PASS: max_skew
-PASS: read Sky130 fast corner
-PASS: read Sky130 slow corner
 Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
@@ -286,7 +260,6 @@ File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  D input 0.00-0.00
  Q output function=IQ
  RESET_B input 0.00-0.00
-PASS: fast corner dfrtp report
 Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__ss_n40C_1v40
 File ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
@@ -300,6 +273,3 @@ File ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
  D input 0.00-0.00
  Q output function=IQ
  RESET_B input 0.00-0.00
-PASS: slow corner dfrtp report
-PASS: write_liberty
-ALL PASSED

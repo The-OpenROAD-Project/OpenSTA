@@ -1,11 +1,8 @@
 --- redirect + log simultaneously ---
 redirect file size: 1961
-PASS: redirect + log simultaneously
 log file size: 1961
-PASS: log file has content
 --- gzipped liberty read ---
 Warning: ../../test/nangate45/nangate45_typ.lib.gz line 37, library NangateOpenCellLibrary already exists.
-PASS: read gzipped liberty
 --- trigger warn paths ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -33,7 +30,6 @@ Path Type: max
            9.68   slack (MET)
 
 
-PASS: report_checks with extreme load
 --- debug check path coverage ---
 Library: NangateOpenCellLibrary
 Cell: BUF_X1
@@ -96,7 +92,6 @@ Driver waveform slew = 0.01
 .............................................
 
 dcalc with debug: done
-PASS: report_dcalc with debug on
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -123,7 +118,6 @@ Path Type: max
            9.92   slack (MET)
 
 
-PASS: report_checks with levelize debug
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -150,19 +144,15 @@ Path Type: max
            9.92   slack (MET)
 
 
-PASS: report_checks with bfs debug
 --- multiple redirect cycles ---
-PASS: multiple redirect cycles
 --- string redirect cycles ---
 s1 len: 95
 s2 len: 883
 s3 len: 1866
-PASS: string redirect cycles
 --- report_line coverage ---
 
 test line 1
 test line with special chars: [ ] { }
-PASS: report_line coverage
 --- format functions edge cases ---
 format_time(0): 0.000
 format_time(-1ns): -1.000
@@ -173,7 +163,6 @@ format_resistance(0): 0.000
 format_resistance(1MOhm): 1000.000
 format_power(0): 0.000
 format_power(1W): 1000000000.000
-PASS: format functions edge cases
 --- set_cmd_units edge cases ---
  time 1ps
  capacitance 1fF
@@ -189,15 +178,4 @@ PASS: format functions edge cases
  current 1mA
  power 1nW
  distance 1um
-PASS: set_cmd_units time edge cases
-PASS: set_cmd_units capacitance edge cases
-PASS: set_cmd_units resistance edge cases
-PASS: set_cmd_units distance edge cases
-PASS: set_cmd_units power edge cases
-PASS: set_cmd_units current edge cases
-PASS: set_cmd_units voltage edge cases
 --- suppress_msg exercising suppressed check ---
-PASS: suppress_msg many IDs
-PASS: unsuppress_msg many IDs
-PASS: suppress/unsuppress single
-ALL PASSED

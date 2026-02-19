@@ -169,7 +169,6 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
                                   0.08   slack (MET)
 
 
-PASS: gated clock expanded fields
 --- Gated clock path detail ---
 Total max paths: 16
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
@@ -284,7 +283,6 @@ Total max paths: 16
     target_clk_time: 9.99999993922529e-9
     end_transition: v
     min_max: max
-PASS: gated clock path detail
 --- Gated clock all formats ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -727,7 +725,6 @@ clk                                     7.88
 }
 ]
 }
-PASS: gated clock all formats
 --- Gated clock min all formats ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -942,7 +939,6 @@ asynchronous                            0.32
 gated clock                            -4.50
 clk                                     0.08
 
-PASS: gated clock min formats
 --- Recovery/removal full_clock_expanded with fields ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1058,7 +1054,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   0.08   slack (MET)
 
 
-PASS: recovery expanded fields
 --- Recovery/removal formats ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1371,7 +1366,6 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
 }
 ]
 }
-PASS: recovery formats
 --- Recovery path iteration ---
 Recovery max paths: 14
   role=recovery is_check=1 pin=reg1/RN slack=9.553728474998024e-9
@@ -1388,7 +1382,6 @@ Recovery max paths: 14
   role=setup is_check=1 pin=reg1/D slack=8.911564819413798e-9
   role=setup is_check=1 pin=reg2/D slack=9.865935624020494e-9
   role=setup is_check=1 pin=reg2/D slack=9.875192219510609e-9
-PASS: recovery path iteration
 --- Data check with full_clock_expanded ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk)
@@ -1447,7 +1440,6 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 
 data check full_clock_expanded done
-PASS: data check expanded
 --- Data check all formats ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk)
@@ -1645,7 +1637,6 @@ clk                                    -5.38
 ]
 }
 data check all formats done
-PASS: data check formats
 --- Data check path iteration ---
 Data check max paths: 10
   is_data_check: 1 role=data check setup pin=reg2/D
@@ -1658,7 +1649,6 @@ Data check max paths: 10
   is_data_check: 0 role=output setup pin=out2
   is_data_check: 0 role=output setup pin=out1
   is_data_check: 0 role=output setup pin=out2
-PASS: data check iteration
 --- Propagate gated clock enable ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -1770,7 +1760,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: propagate gated clk enable
 --- Digits and no_line_splits ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk)
@@ -1830,7 +1819,6 @@ Path Type: max
           -5.38   slack (VIOLATED)
 
 
-PASS: digits and no_line_splits
 --- unconstrained ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk)
@@ -1859,13 +1847,9 @@ Path Type: max
           -5.38   slack (VIOLATED)
 
 
-PASS: unconstrained
 --- endpoint_violation_count ---
 max violations: 1
 min violations: 0
-PASS: endpoint_violation_count
 --- startpoints / endpoints ---
 startpoints: 7
 endpoints: 9
-PASS: startpoints/endpoints
-ALL PASSED

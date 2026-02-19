@@ -37,17 +37,13 @@ puts "data_out* ports: [llength $dout_ports]"
 
 # Query individual bus bits
 foreach i {0 1 2 3} {
-  catch {
-    set p [get_ports "data_in\[$i\]"]
-    puts "data_in\[$i\] dir=[get_property $p direction]"
-  } msg
+  set p [get_ports "data_in\[$i\]"]
+  puts "data_in\[$i\] dir=[get_property $p direction]"
 }
 
 foreach i {0 1 2 3} {
-  catch {
-    set p [get_ports "data_out\[$i\]"]
-    puts "data_out\[$i\] dir=[get_property $p direction]"
-  } msg
+  set p [get_ports "data_out\[$i\]"]
+  puts "data_out\[$i\] dir=[get_property $p direction]"
 }
 
 #---------------------------------------------------------------
@@ -60,10 +56,8 @@ set_input_delay -clock clk 0 [get_ports sel]
 set_output_delay -clock clk 0 [get_ports {data_out[0] data_out[1] data_out[2] data_out[3]}]
 
 report_checks
-puts "PASS: report_checks with bus ports"
 
 report_checks -path_delay min
-puts "PASS: report_checks min with bus ports"
 
 #---------------------------------------------------------------
 # Test get_pins with bus-style patterns
@@ -87,20 +81,16 @@ puts "reg* pins: [llength $reg_pins]"
 puts "--- write_verilog with bus ports ---"
 set outfile [make_result_file verilog_bus_out.v]
 write_verilog $outfile
-puts "PASS: write_verilog bus"
 
 if { [file exists $outfile] && [file size $outfile] > 0 } {
-  puts "PASS: output file exists"
   puts "output size: [file size $outfile]"
 }
 
 # Write with pwr_gnd to exercise pwr/gnd port direction paths
 set outfile2 [make_result_file verilog_bus_pwr.v]
 write_verilog -include_pwr_gnd $outfile2
-puts "PASS: write_verilog -include_pwr_gnd bus"
 
 if { [file exists $outfile2] && [file size $outfile2] > 0 } {
-  puts "PASS: pwr_gnd file exists"
 }
 
 #---------------------------------------------------------------
@@ -108,9 +98,8 @@ if { [file exists $outfile2] && [file size $outfile2] > 0 } {
 #---------------------------------------------------------------
 puts "--- report_net with bus nets ---"
 foreach net_name {n1[0] n1[1] n1[2] n1[3] n2[0] n2[1] n2[2] n2[3]} {
-  catch {report_net $net_name} msg
+  report_net $net_name
 }
-puts "PASS: report_net bus nets"
 
 #---------------------------------------------------------------
 # Test report_instance on cells connected to bus wires
@@ -119,25 +108,16 @@ puts "--- report_instance ---"
 foreach inst_name {buf0 buf1 and0 and1 reg0 reg1} {
   report_instance $inst_name
 }
-puts "PASS: report_instance bus cells"
 
 #---------------------------------------------------------------
 # Test get_fanin/get_fanout
 #---------------------------------------------------------------
 puts "--- fanin/fanout ---"
-catch {
-  set fi [get_fanin -to [get_ports "data_out\[0\]"] -flat]
-  puts "fanin to data_out\[0\]: [llength $fi]"
-} msg
+set fi [get_fanin -to [get_ports "data_out\[0\]"] -flat]
+puts "fanin to data_out\[0\]: [llength $fi]"
 
-catch {
-  set fo [get_fanout -from [get_ports "data_in\[0\]"] -flat]
-  puts "fanout from data_in\[0\]: [llength $fo]"
-} msg
+set fo [get_fanout -from [get_ports "data_in\[0\]"] -flat]
+puts "fanout from data_in\[0\]: [llength $fo]"
 
-catch {
-  set fi_cells [get_fanin -to [get_ports "data_out\[0\]"] -only_cells]
-  puts "fanin cells to data_out\[0\]: [llength $fi_cells]"
-} msg
-
-puts "ALL PASSED"
+set fi_cells [get_fanin -to [get_ports "data_out\[0\]"] -only_cells]
+puts "fanin cells to data_out\[0\]: [llength $fi_cells]"

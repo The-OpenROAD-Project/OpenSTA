@@ -1,4 +1,3 @@
-PASS: setup
 --- false path clock to clock ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -52,7 +51,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: false path clk1->clk2
 --- false path rise_from/fall_to ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -106,7 +104,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: false path rise_from/fall_to
 --- false path fall_from/rise_to ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -160,7 +157,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: false path fall_from/rise_to
 --- false path through single pin ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -214,7 +210,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: false path through pin
 --- false path through instance pin ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -268,7 +263,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: false path through instance pin
 --- false path through second pin ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -322,7 +316,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: false path through second pin
 --- multicycle setup ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -376,7 +369,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: multicycle setup
 --- multicycle hold ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -430,7 +422,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: multicycle hold
 --- multicycle with -start ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -484,7 +475,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: multicycle start
 --- multicycle with -end ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -541,7 +531,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: multicycle end
 --- multicycle with rise_from ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -598,7 +587,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: multicycle rise_from
 --- multicycle with fall_to ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -655,7 +643,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: multicycle fall_to
 --- max_delay ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -712,7 +699,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: max_delay
 --- min_delay ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -770,7 +756,6 @@ Path Type: min
            3.08   slack (MET)
 
 
-PASS: min_delay
 --- max_delay with through ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -827,7 +812,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: max_delay through
 --- min_delay with through ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -885,7 +869,6 @@ Path Type: min
            3.08   slack (MET)
 
 
-PASS: min_delay through
 --- max_delay rise_from ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -942,7 +925,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: max_delay rise_from
 --- group_path ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1025,14 +1007,11 @@ Path Type: max
            7.89   slack (MET)
 
 
-PASS: group_path
 --- path group names ---
 Path group names: clk1 clk2 grp1 grp2 grp3 asynchronous {path delay} {gated clock} unconstrained
-PASS: path group names
 --- is_path_group_name ---
 grp1 is group: 1
 nonexistent is group: 0
-PASS: is_path_group_name
 --- exception override: false path then max_delay ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1115,10 +1094,8 @@ Path Type: max
            7.89   slack (MET)
 
 
-PASS: exception override
 --- remove_constraints ---
 No paths found.
-PASS: remove_constraints
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: grp1
@@ -1200,11 +1177,8 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: re-add constraints
 --- write_sdc with exceptions ---
-PASS: write_sdc exceptions
 --- write_sdc compatible with exceptions ---
-PASS: write_sdc compatible
 --- read_sdc back ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1287,6 +1261,3 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: read_sdc roundtrip
-PASS: write after re-read
-ALL PASSED

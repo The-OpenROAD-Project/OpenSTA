@@ -3,7 +3,6 @@ cells: 10
 nets: 15
 ports: 9
 hierarchical cells: 13
-PASS: read verilog with preproc/param
 --- Test 2: timing ---
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
@@ -35,7 +34,6 @@ Path Type: max
            9.82   slack (MET)
 
 
-PASS: report_checks
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg4 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -64,13 +62,9 @@ Path Type: min
            0.04   slack (MET)
 
 
-PASS: min path
 No paths found.
-PASS: d1->q1
 No paths found.
-PASS: d3->q2
 No paths found.
-PASS: d1->q3 (through param_sub)
 Warning: verilog_preproc_param.tcl line 1, unknown field nets.
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
@@ -105,11 +99,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.82   slack (MET)
 
 
-PASS: report with fields
 --- Test 3: write ---
-PASS: write_verilog
-PASS: write_verilog -include_pwr_gnd
-PASS: output file non-empty size=864
 --- Test 4: reports ---
 Instance buf1
  Cell: BUF_X1
@@ -238,7 +228,6 @@ Instance ps3
   Y output n3
  Children:
   g1 (AND2_X1)
-PASS: instance reports
 Net n1
  Pin capacitance: 1.94-2.11
  Wire capacitance: 0.00
@@ -334,9 +323,6 @@ Driver pins
 Load pins
  reg3/D input (DFF_X1) 1.06-1.14
 
-PASS: net reports
 --- Test 5: re-read ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 re-read cells: 10
-PASS: re-read
-ALL PASSED

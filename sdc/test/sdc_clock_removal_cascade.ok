@@ -1,17 +1,3 @@
-PASS: base clocks
-PASS: generated clocks from clk_master
-PASS: generated clock from clk_aux
-PASS: add clock on same port
-PASS: IO delays
-PASS: clock latency
-PASS: clock uncertainty
-PASS: latch borrow + min pulse width
-PASS: clock groups
-PASS: exception paths
-PASS: propagated clock
-PASS: clock transitions
-PASS: clock gating check
-PASS: write_sdc phase 1
 Warning: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
 Warning: generated clock gclk_div4 pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg3/Q (clock source 'gclk_mul2')
@@ -123,9 +109,6 @@ Path Type: max
            6.50   slack (MET)
 
 
-PASS: report phase 1
-PASS: delete vclk1
-PASS: delete vclk2
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk_master               10.00        0.00      5.00
@@ -134,25 +117,14 @@ gclk_div2                10.00        0.00      5.00 (generated)
 gclk_div4                20.00        0.00     10.00 (generated)
 gclk_mul2                10.00        0.00      5.00 (generated)
 clk_master_alt            5.00        0.00      2.50
-PASS: report after virtual clock deletion
-PASS: write_sdc after virtual deletions
-PASS: delete gclk_div2
-PASS: delete gclk_div4
-PASS: delete gclk_mul2
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk_master               10.00        0.00      5.00
 clk_aux                  20.00        0.00     10.00
 clk_master_alt            5.00        0.00      2.50
-PASS: report after gen clock deletion
-PASS: delete clk_master_alt
-PASS: write_sdc after alt clock deletion
-PASS: delete clk_aux (master)
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk_master               10.00        0.00      5.00
-PASS: report after master deletion
-PASS: write_sdc after master deletion
 Startpoint: in1 (input port clocked by clk_master)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk_master)
 Path Group: clk_master
@@ -184,12 +156,6 @@ Path Type: max
            1.92   slack (MET)
 
 
-PASS: report checks
-PASS: recreated clocks
-PASS: recreated IO delays
-PASS: recreated groups and uncertainty
-PASS: recreated false path
-PASS: write_sdc final
 Startpoint: in1 (input port clocked by clk_master)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk_master)
 Path Group: clk_master
@@ -247,5 +213,3 @@ Path Type: max
           11.92   slack (MET)
 
 
-PASS: read_sdc + report
-ALL PASSED

@@ -16,19 +16,15 @@ source ../../test/helpers.tcl
 puts "--- unit format sequences ---"
 set_cmd_units -time ns -capacitance pF -resistance kOhm
 report_units
-puts "PASS: ns/pF/kOhm"
 
 set_cmd_units -time us -capacitance nF
 report_units
-puts "PASS: us/nF"
 
 set_cmd_units -time ps -capacitance fF -resistance Ohm
 report_units
-puts "PASS: ps/fF/Ohm"
 
 set_cmd_units -time ns -capacitance pF -resistance kOhm
 report_units
-puts "PASS: back to ns/pF/kOhm"
 
 #---------------------------------------------------------------
 # Format functions with different values
@@ -38,37 +34,30 @@ puts "format_time 0: [sta::format_time 0 3]"
 puts "format_time 1e-9: [sta::format_time 1e-9 3]"
 puts "format_time 1e-12: [sta::format_time 1e-12 6]"
 puts "format_time 1e-6: [sta::format_time 1e-6 3]"
-puts "PASS: format_time"
 
 puts "format_cap 0: [sta::format_capacitance 0 3]"
 puts "format_cap 1e-12: [sta::format_capacitance 1e-12 3]"
 puts "format_cap 1e-15: [sta::format_capacitance 1e-15 6]"
-puts "PASS: format_capacitance"
 
 puts "format_res 0: [sta::format_resistance 0 3]"
 puts "format_res 1000: [sta::format_resistance 1000 3]"
 puts "format_res 1e6: [sta::format_resistance 1e6 3]"
-puts "PASS: format_resistance"
 
 puts "format_volt 0: [sta::format_voltage 0 3]"
 puts "format_volt 1.1: [sta::format_voltage 1.1 3]"
 puts "format_volt 0.001: [sta::format_voltage 0.001 6]"
-puts "PASS: format_voltage"
 
 puts "format_curr 0: [sta::format_current 0 3]"
 puts "format_curr 1e-3: [sta::format_current 1e-3 3]"
 puts "format_curr 1e-6: [sta::format_current 1e-6 6]"
-puts "PASS: format_current"
 
 puts "format_pwr 0: [sta::format_power 0 3]"
 puts "format_pwr 1e-3: [sta::format_power 1e-3 3]"
 puts "format_pwr 1e-9: [sta::format_power 1e-9 6]"
-puts "PASS: format_power"
 
 puts "format_dist 0: [sta::format_distance 0 3]"
 puts "format_dist 1e-6: [sta::format_distance 1e-6 3]"
 puts "format_dist 1e-3: [sta::format_distance 1e-3 6]"
-puts "PASS: format_distance"
 
 #---------------------------------------------------------------
 # Multiple redirect sequences (exercises buffer management)
@@ -92,7 +81,6 @@ set_cmd_units -capacitance pF
 report_units
 set r3 [sta::redirect_string_end]
 puts "redirect string 3: [string length $r3] chars"
-puts "PASS: redirect sequences"
 
 #---------------------------------------------------------------
 # with_output_to_variable
@@ -105,7 +93,6 @@ puts "v1: [string length $v1] chars"
 puts "v2: [string length $v2] chars"
 puts "v3: [string length $v3] chars"
 set_cmd_units -time ns
-puts "PASS: with_output_to_variable"
 
 #---------------------------------------------------------------
 # Log file with multiple reports
@@ -119,13 +106,12 @@ report_units
 set_cmd_units -time ns -capacitance pF
 report_units
 log_end
-puts "PASS: log file with reports"
 
 if { [file exists $log_file] } {
   set fh [open $log_file r]
   set lc [read $fh]
   close $fh
-  if { [string length $lc] > 0 } { puts "PASS: log file has content" }
+  if { [string length $lc] > 0 } { puts "log file has content" }
 }
 
 #---------------------------------------------------------------
@@ -147,13 +133,11 @@ set_cmd_units -time ns -capacitance pF
 report_units
 sta::redirect_file_end
 
-puts "PASS: redirect file append"
-
 if { [file exists $rf] } {
   set fh [open $rf r]
   set rc [read $fh]
   close $fh
-  if { [string length $rc] > 0 } { puts "PASS: redirect file has content" }
+  if { [string length $rc] > 0 } { puts "redirect file has content" }
 }
 
 #---------------------------------------------------------------
@@ -162,12 +146,10 @@ if { [file exists $rf] } {
 puts "--- error handling ---"
 set rc [catch { read_liberty "/nonexistent/path/test.lib" } msg]
 if { $rc != 0 } {
-  puts "PASS: FileNotReadable caught"
 }
 
 set rc [catch { read_verilog "/nonexistent/path/test.v" } msg]
 if { $rc != 0 } {
-  puts "PASS: FileNotReadable for verilog caught"
 }
 
 #---------------------------------------------------------------
@@ -178,37 +160,34 @@ puts "fuzzy_equal(1.0, 1.0) = [sta::fuzzy_equal 1.0 1.0]"
 puts "fuzzy_equal(1.0, 2.0) = [sta::fuzzy_equal 1.0 2.0]"
 puts "fuzzy_equal(0.0, 0.0) = [sta::fuzzy_equal 0.0 0.0]"
 puts "fuzzy_equal(1e-15, 1e-15) = [sta::fuzzy_equal 1e-15 1e-15]"
-puts "PASS: fuzzy_equal"
 
 #---------------------------------------------------------------
 # Object type queries
 #---------------------------------------------------------------
 puts "--- is_object ---"
 puts "is_object(string) = [sta::is_object not_an_object]"
-puts "PASS: is_object"
 
 #---------------------------------------------------------------
 # Thread and system info
 #---------------------------------------------------------------
 puts "--- system info ---"
 set tc [sta::thread_count]
-if { $tc > 0 } { puts "PASS: thread_count positive" }
+if { $tc > 0 } { puts "thread_count positive" }
 
 set np [sta::processor_count]
-if { $np > 0 } { puts "PASS: processor_count positive" }
+if { $np > 0 } { puts "processor_count positive" }
 
 set mem [sta::memory_usage]
-if { $mem >= 0 } { puts "PASS: memory_usage non-negative" }
+if { $mem >= 0 } { puts "memory_usage non-negative" }
 
 set cpu [sta::cputime]
-if { $cpu >= 0 } { puts "PASS: cputime non-negative" }
+if { $cpu >= 0 } { puts "cputime non-negative" }
 
 set elapsed [elapsed_run_time]
-if { $elapsed >= 0 } { puts "PASS: elapsed non-negative" }
+if { $elapsed >= 0 } { puts "elapsed non-negative" }
 
 set utime [user_run_time]
-if { $utime >= 0 } { puts "PASS: user_run_time non-negative" }
-puts "PASS: system info"
+if { $utime >= 0 } { puts "user_run_time non-negative" }
 
 #---------------------------------------------------------------
 # Debug level
@@ -220,7 +199,6 @@ sta::set_debug "graph" 1
 sta::set_debug "graph" 0
 sta::set_debug "delay_calc" 1
 sta::set_debug "delay_calc" 0
-puts "PASS: debug level"
 
 #---------------------------------------------------------------
 # Message suppression
@@ -228,6 +206,3 @@ puts "PASS: debug level"
 puts "--- suppress ---"
 suppress_msg 100 200 300 400 500
 unsuppress_msg 100 200 300 400 500
-puts "PASS: suppress/unsuppress"
-
-puts "ALL PASSED"

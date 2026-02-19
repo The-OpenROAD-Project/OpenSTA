@@ -46,17 +46,13 @@ puts "n6 total pins: [llength $n6_all_pins]"
 
 # report_net exercises pin iteration
 report_net n1
-puts "PASS: report_net n1"
 
 report_net n6
-puts "PASS: report_net n6"
 
 # All internal nets
 foreach net_name {n1 n2 n3 n4 n5 n6 n7 n8} {
-  catch {
-    report_net $net_name
-    puts "report_net $net_name: done"
-  } msg
+  report_net $net_name
+  puts "report_net $net_name: done"
 }
 
 #---------------------------------------------------------------
@@ -67,13 +63,11 @@ puts "--- Test 2: net capacitance queries ---"
 
 # Get capacitance for nets
 foreach net_name {n1 n2 n3 n4 n5 n6 n7 n8} {
-  catch {
-    set net [get_nets $net_name]
-    set net_cap [$net capacitance [sta::cmd_corner] "max"]
-    set pin_cap [$net pin_capacitance [sta::cmd_corner] "max"]
-    set wire_cap [$net wire_capacitance [sta::cmd_corner] "max"]
-    puts "$net_name: total_cap=$net_cap pin_cap=$pin_cap wire_cap=$wire_cap"
-  } msg
+  set net [get_nets $net_name]
+  set net_cap [$net capacitance [sta::cmd_corner] "max"]
+  set pin_cap [$net pin_capacitance [sta::cmd_corner] "max"]
+  set wire_cap [$net wire_capacitance [sta::cmd_corner] "max"]
+  puts "$net_name: total_cap=$net_cap pin_cap=$pin_cap wire_cap=$wire_cap"
 }
 
 #---------------------------------------------------------------
@@ -241,13 +235,11 @@ puts "total libraries: $lib_count"
 # Find library by name
 set found_lib [sta::find_library NangateOpenCellLibrary]
 if { $found_lib != "NULL" } {
-  puts "PASS: find_library NangateOpenCellLibrary"
 }
 
 # Find cell in library
 set inv_cell [$found_lib find_cell INV_X1]
 if { $inv_cell != "NULL" } {
-  puts "PASS: find_cell INV_X1"
 }
 
 # find_cells_matching on library
@@ -264,19 +256,12 @@ puts "all cells in library: [llength $star_cells]"
 puts "--- Test 9: timing reports ---"
 
 report_checks
-puts "PASS: report_checks"
 
 report_checks -path_delay min
-puts "PASS: min path"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report_checks all fields"
 
 # Check types
 report_check_types -max_delay -min_delay
-puts "PASS: report_check_types"
 
 report_check_types -max_slew -max_capacitance -max_fanout
-puts "PASS: report_check_types slew/cap/fanout"
-
-puts "ALL PASSED"

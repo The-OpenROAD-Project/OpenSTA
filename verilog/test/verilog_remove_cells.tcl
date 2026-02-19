@@ -27,12 +27,10 @@ puts "cells: [llength $cells]"
 # Write without remove
 set out_basic [make_result_file verilog_remove_basic.v]
 write_verilog $out_basic
-puts "PASS: basic write"
 
 # Write with empty remove_cells list
 set out_empty [make_result_file verilog_remove_empty.v]
 write_verilog -remove_cells {} $out_empty
-puts "PASS: empty remove_cells"
 
 set sz_basic [file size $out_basic]
 set sz_empty [file size $out_empty]
@@ -41,19 +39,16 @@ puts "basic size=$sz_basic empty remove size=$sz_empty"
 # Write with specific cells to remove (BUF_X1)
 set out_rm_buf [make_result_file verilog_remove_buf.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/BUF_X1} $out_rm_buf
-puts "PASS: remove BUF_X1"
 
 set sz_rm_buf [file size $out_rm_buf]
 puts "remove BUF_X1 size=$sz_rm_buf"
 
 if { $sz_rm_buf < $sz_basic } {
-  puts "PASS: removing cells reduces file size"
 }
 
 # Write with DFF_X1 removed
 set out_rm_dff [make_result_file verilog_remove_dff.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/DFF_X1} $out_rm_dff
-puts "PASS: remove DFF_X1"
 
 set sz_rm_dff [file size $out_rm_dff]
 puts "remove DFF_X1 size=$sz_rm_dff"
@@ -61,19 +56,16 @@ puts "remove DFF_X1 size=$sz_rm_dff"
 # Write with both removed
 set out_rm_both [make_result_file verilog_remove_both.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/BUF_X1 NangateOpenCellLibrary/DFF_X1} $out_rm_both
-puts "PASS: remove BUF_X1+DFF_X1"
 
 set sz_rm_both [file size $out_rm_both]
 puts "remove both size=$sz_rm_both"
 
 if { $sz_rm_both <= $sz_rm_buf && $sz_rm_both <= $sz_rm_dff } {
-  puts "PASS: removing more cells produces smaller/equal file"
 }
 
 # Write with pwr_gnd and remove
 set out_rm_pwr [make_result_file verilog_remove_pwr.v]
 write_verilog -include_pwr_gnd -remove_cells {NangateOpenCellLibrary/BUF_X1} $out_rm_pwr
-puts "PASS: remove + pwr_gnd"
 
 set sz_rm_pwr [file size $out_rm_pwr]
 puts "remove+pwr size=$sz_rm_pwr"
@@ -88,22 +80,18 @@ link_design dcalc_multidriver_test
 
 set out_md_basic [make_result_file verilog_remove_md_basic.v]
 write_verilog $out_md_basic
-puts "PASS: multigate basic write"
 
 # Remove INV_X1
 set out_md_inv [make_result_file verilog_remove_md_inv.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/INV_X1} $out_md_inv
-puts "PASS: multigate remove INV_X1"
 
 # Remove AND2_X1
 set out_md_and [make_result_file verilog_remove_md_and.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/AND2_X1} $out_md_and
-puts "PASS: multigate remove AND2_X1"
 
 # Remove NAND2_X1 and NOR2_X1
 set out_md_gates [make_result_file verilog_remove_md_gates.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/NAND2_X1 NangateOpenCellLibrary/NOR2_X1} $out_md_gates
-puts "PASS: multigate remove NAND+NOR"
 
 # Compare sizes
 set sz_md [file size $out_md_basic]
@@ -157,12 +145,9 @@ puts "--- Test 4: read back removed cells ---"
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog $out_rm_buf
-catch {
-  link_design verilog_test1
-  set rt_cells [get_cells *]
-  puts "roundtrip (buf removed) cells: [llength $rt_cells]"
-} msg
-puts "PASS: read back removed BUF_X1"
+link_design verilog_test1
+set rt_cells [get_cells *]
+puts "roundtrip (buf removed) cells: [llength $rt_cells]"
 
 # Read back with all libs (should link normally)
 read_liberty ../../test/nangate45/Nangate45_typ.lib
@@ -178,7 +163,6 @@ set_input_delay -clock clk 0 [get_ports in1]
 set_output_delay -clock clk 0 [get_ports out1]
 set_input_transition 0.1 [all_inputs]
 report_checks
-puts "PASS: timing after roundtrip"
 
 #---------------------------------------------------------------
 # Test 5: Write and re-read complex bus design with removes
@@ -190,11 +174,9 @@ link_design verilog_complex_bus_test
 
 set out_cb_rm [make_result_file verilog_remove_complex_buf.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/BUF_X1} $out_cb_rm
-puts "PASS: complex bus remove BUF_X1"
 
 set out_cb_rm2 [make_result_file verilog_remove_complex_dff.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/DFF_X1} $out_cb_rm2
-puts "PASS: complex bus remove DFF_X1"
 
 set sz_cb_rm1 [file size $out_cb_rm]
 set sz_cb_rm2 [file size $out_cb_rm2]
@@ -210,11 +192,9 @@ link_design verilog_supply_tristate
 
 set out_st_rm [make_result_file verilog_remove_supply_buf.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/BUF_X1} $out_st_rm
-puts "PASS: supply/tri remove BUF_X1"
 
 set out_st_pwr [make_result_file verilog_remove_supply_pwr.v]
 write_verilog -include_pwr_gnd -remove_cells {NangateOpenCellLibrary/INV_X1} $out_st_pwr
-puts "PASS: supply/tri remove INV_X1 + pwr"
 
 # Sizes
 set sz_st_rm [file size $out_st_rm]
@@ -232,11 +212,9 @@ link_design network_hier_test
 
 set out_h_rm [make_result_file verilog_remove_hier_buf.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/BUF_X1} $out_h_rm
-puts "PASS: hier remove BUF_X1"
 
 set out_h_rm2 [make_result_file verilog_remove_hier_and.v]
 write_verilog -remove_cells {NangateOpenCellLibrary/AND2_X1 NangateOpenCellLibrary/INV_X1} $out_h_rm2
-puts "PASS: hier remove AND2+INV"
 
 set sz_h_rm [file size $out_h_rm]
 set sz_h_rm2 [file size $out_h_rm2]
@@ -252,5 +230,3 @@ puts "hier roundtrip cells: [llength $rt_h_cells]"
 
 set rt_h_hier [get_cells -hierarchical *]
 puts "hier roundtrip hier cells: [llength $rt_h_hier]"
-
-puts "ALL PASSED"

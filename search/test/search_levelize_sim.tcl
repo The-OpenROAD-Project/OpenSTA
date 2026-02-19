@@ -13,11 +13,9 @@ report_checks > /dev/null
 
 puts "--- levelize ---"
 sta::levelize
-puts "PASS: levelize"
 
 puts "--- report_loops ---"
-catch { sta::report_loops }
-puts "PASS: report_loops"
+sta::report_loops
 
 puts "--- Sim logic values ---"
 set sv_and [sta::pin_sim_logic_value [get_pins and1/ZN]]
@@ -27,7 +25,6 @@ set sv_reg_q [sta::pin_sim_logic_value [get_pins reg1/Q]]
 set sv_and_a1 [sta::pin_sim_logic_value [get_pins and1/A1]]
 set sv_and_a2 [sta::pin_sim_logic_value [get_pins and1/A2]]
 puts "and1/A1=$sv_and_a1 and1/A2=$sv_and_a2 and1/ZN=$sv_and buf1/Z=$sv_buf reg1/D=$sv_reg_d reg1/Q=$sv_reg_q"
-puts "PASS: sim logic values"
 
 puts "--- Case analysis effects on simulation ---"
 set_case_analysis 0 [get_ports in1]
@@ -57,7 +54,6 @@ set sv_and_11 [sta::pin_sim_logic_value [get_pins and1/ZN]]
 puts "in1=1,in2=1: and1/ZN=$sv_and_11"
 unset_case_analysis [get_ports in1]
 unset_case_analysis [get_ports in2]
-puts "PASS: case analysis sim"
 
 puts "--- report_constant after case analysis ---"
 set_case_analysis 0 [get_ports in1]
@@ -65,7 +61,6 @@ report_checks -path_delay max
 report_constant [get_ports in1]
 report_constant [get_cells and1]
 unset_case_analysis [get_ports in1]
-puts "PASS: report_constant"
 
 puts "--- disable_timing and re-levelize ---"
 set_disable_timing [get_cells buf1]
@@ -74,7 +69,6 @@ sta::levelize
 unset_disable_timing [get_cells buf1]
 report_checks -path_delay max
 sta::levelize
-puts "PASS: disable_timing levelize"
 
 puts "--- Timing after set_disable_timing on lib cell ---"
 set_disable_timing -from A -to Z [get_lib_cells Nangate45_typ/BUF_X1]
@@ -82,31 +76,24 @@ report_checks -path_delay max
 report_disabled_edges
 unset_disable_timing -from A -to Z [get_lib_cells Nangate45_typ/BUF_X1]
 report_checks -path_delay max
-puts "PASS: lib cell disable"
 
 puts "--- Check timing after clear/rerun ---"
 sta::find_timing_cmd 1
 report_checks -path_delay max
-puts "PASS: find_timing full"
 
 puts "--- find_timing not full ---"
 sta::arrivals_invalid
 sta::find_timing_cmd 0
 report_checks -path_delay max
-puts "PASS: find_timing incremental"
 
 puts "--- Preset/clear arcs ---"
 sta::set_preset_clr_arcs_enabled 1
 report_checks -path_delay max
 sta::set_preset_clr_arcs_enabled 0
 report_checks -path_delay max
-puts "PASS: preset_clr_arcs"
 
 puts "--- Conditional default arcs ---"
 sta::set_cond_default_arcs_enabled 1
 report_checks -path_delay max
 sta::set_cond_default_arcs_enabled 0
 report_checks -path_delay max
-puts "PASS: cond_default_arcs"
-
-puts "ALL PASSED"

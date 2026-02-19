@@ -9,7 +9,6 @@ set_output_delay -clock clk 0 [get_ports q]
 
 puts "--- read_sdf ---"
 read_sdf sdf_test1.sdf
-puts "PASS: read_sdf completed"
 
 puts "--- report_annotated_delay (all) ---"
 report_annotated_delay
@@ -79,5 +78,3 @@ report_checks -format full_clock
 
 puts "--- report_checks -path_delay min ---"
 report_checks -path_delay min
-
-puts "ALL PASSED"

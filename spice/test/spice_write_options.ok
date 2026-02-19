@@ -25,18 +25,10 @@ Path Type: max
            8.92   slack (MET)
 
 
-PASS: timing analysis completed
-PASS: mock SPICE files created
 --- write_path_spice default ---
-PASS: write_path_spice default completed
 --- write_path_spice with -simulator hspice ---
-PASS: write_path_spice hspice completed
 --- write_path_spice with -simulator xyce ---
-PASS: write_path_spice xyce completed
 --- write_gate_spice ---
 INFO: write_gate_spice: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice code path exercised
 --- write_gate_spice with -simulator hspice ---
 INFO: write_gate_spice hspice: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice hspice code path exercised
-ALL PASSED

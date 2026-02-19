@@ -31,7 +31,6 @@ write_verilog $out1
 set sz1 [file size $out1]
 puts "basic write: $sz1 bytes"
 if { $sz1 > 0 } {
-  puts "PASS: basic write non-empty"
 }
 
 # Write with -include_pwr_gnd
@@ -40,7 +39,6 @@ write_verilog -include_pwr_gnd $out2
 set sz2 [file size $out2]
 puts "pwr_gnd write: $sz2 bytes"
 if { $sz2 >= $sz1 } {
-  puts "PASS: pwr_gnd >= basic"
 }
 
 # Write with -remove_cells (remove buffer cells)
@@ -56,14 +54,12 @@ if { [file exists $out3] } {
   puts "remove_cells write: skipped ($msg)"
   set sz3 0
 }
-puts "PASS: write with remove_cells"
 
 # Write with both -include_pwr_gnd and empty remove_cells
 set out4 [make_result_file verilog_gcd_pwr_remove.v]
 write_verilog -include_pwr_gnd -remove_cells {} $out4
 set sz4 [file size $out4]
 puts "pwr+remove write: $sz4 bytes"
-puts "PASS: write with pwr + remove"
 
 #---------------------------------------------------------------
 # Test 2: Read back written verilog (roundtrip test)
@@ -83,7 +79,6 @@ set sz5 [file size $out5]
 puts "roundtrip write: $sz5 bytes"
 
 if { abs($sz5 - $sz1) < 100 } {
-  puts "PASS: roundtrip sizes similar"
 } else {
   puts "INFO: roundtrip sizes differ basic=$sz1 roundtrip=$sz5"
 }
@@ -94,13 +89,10 @@ if { abs($sz5 - $sz1) < 100 } {
 puts "--- Test 3: timing after roundtrip ---"
 read_sdc ../../examples/gcd_sky130hd.sdc
 report_checks
-puts "PASS: report_checks after roundtrip"
 
 report_checks -path_delay min
-puts "PASS: min path after roundtrip"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: fields after roundtrip"
 
 #---------------------------------------------------------------
 # Test 4: Write Nangate45 example1 (different PDK, different topology)
@@ -121,10 +113,7 @@ set sz7 [file size $out7]
 puts "verilog_test1 pwr_gnd: $sz7 bytes"
 
 if { $sz7 >= $sz6 } {
-  puts "PASS: verilog_test1 pwr_gnd >= basic"
 }
-
-puts "PASS: verilog_test1 write"
 
 #---------------------------------------------------------------
 # Test 5: Write with -sort (deprecated option coverage)
@@ -137,7 +126,6 @@ if { [file exists $out8] } {
   set sz8 [file size $out8]
   puts "sort write: $sz8 bytes"
 }
-puts "PASS: -sort option"
 
 #---------------------------------------------------------------
 # Test 6: Network modification then write
@@ -158,18 +146,14 @@ set out9 [make_result_file verilog_example1_modified.v]
 write_verilog $out9
 set sz9 [file size $out9]
 puts "modified write: $sz9 bytes"
-puts "PASS: modified write with unconnected pin"
 
 # Write with pwr_gnd to exercise power/ground direction paths
 set out10 [make_result_file verilog_example1_modified_pwr.v]
 write_verilog -include_pwr_gnd $out10
 set sz10 [file size $out10]
 puts "modified pwr_gnd write: $sz10 bytes"
-puts "PASS: modified pwr_gnd write"
 
 # Cleanup
 disconnect_pin extra_wire extra_inv/A
 delete_instance extra_inv
 delete_net extra_wire
-
-puts "ALL PASSED"

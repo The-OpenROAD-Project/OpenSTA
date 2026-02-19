@@ -1,8 +1,3 @@
-PASS: setup
-PASS: global derate
-PASS: global derate clock/data
-PASS: global derate by type
-PASS: global derate by type/clock_data/rf
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -56,10 +51,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after global derate
-PASS: lib cell derate
-PASS: instance derate
-PASS: net derate
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -113,14 +104,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after all derates
-PASS: write_sdc with derates
-PASS: unset_timing_derate
-PASS: disable lib cell all
-PASS: disable lib cell from
-PASS: disable lib cell to
-PASS: disable lib cell from/to
-PASS: disable lib cell from/to second
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -174,11 +157,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after lib cell disables
-PASS: disable instance all
-PASS: disable instance from/to
-PASS: disable instance from
-PASS: disable instance to
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -232,23 +210,9 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after instance disables
-PASS: disable pin
-PASS: disable port
-PASS: write_sdc with disables
-PASS: write_sdc compatible with disables
-PASS: unset lib cell disables
-PASS: unset instance disables
-PASS: unset pin disable
 Warning: sdc_derate_disable_deep.tcl line 1, object 'sdc_test2' not found.
 Warning: sdc_derate_disable_deep.tcl line 1, object 'sdc_test2' not found.
-PASS: clock_gating_check global
-PASS: clock_gating_check clock
-PASS: clock_gating_check instance
-PASS: clock_gating_check pin
 disabled_edges_sorted count = 1
-PASS: disabled_edges_sorted
-PASS: final write_sdc
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -302,5 +266,3 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: final report
-ALL PASSED

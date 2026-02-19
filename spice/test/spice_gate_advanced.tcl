@@ -15,7 +15,6 @@ set_input_transition 0.1 [get_ports in1]
 
 puts "--- report_checks baseline ---"
 report_checks
-puts "PASS: timing analysis completed"
 
 # Create mock SPICE files
 set spice_dir [make_result_file spice_adv_out]
@@ -46,7 +45,6 @@ puts $subckt_fh "M1 Q D VDD VDD pmos W=1u L=100n"
 puts $subckt_fh "M2 Q D VSS VSS nmos W=1u L=100n"
 puts $subckt_fh ".ends"
 close $subckt_fh
-puts "PASS: mock SPICE files created"
 
 #---------------------------------------------------------------
 # write_gate_spice - ngspice (default)
@@ -63,10 +61,8 @@ set rc1 [catch {
     -ground VSS
 } msg1]
 if { $rc1 == 0 } {
-  puts "PASS: write_gate_spice ngspice completed"
 } else {
   puts "INFO: write_gate_spice ngspice: $msg1"
-  puts "PASS: write_gate_spice ngspice code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -85,10 +81,8 @@ set rc2 [catch {
     -simulator ngspice
 } msg2]
 if { $rc2 == 0 } {
-  puts "PASS: write_gate_spice fall completed"
 } else {
   puts "INFO: write_gate_spice fall: $msg2"
-  puts "PASS: write_gate_spice fall code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -107,10 +101,8 @@ set rc3 [catch {
     -simulator xyce
 } msg3]
 if { $rc3 == 0 } {
-  puts "PASS: write_gate_spice xyce completed"
 } else {
   puts "INFO: write_gate_spice xyce: $msg3"
-  puts "PASS: write_gate_spice xyce code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -129,10 +121,8 @@ set rc4 [catch {
     -simulator hspice
 } msg4]
 if { $rc4 == 0 } {
-  puts "PASS: write_gate_spice hspice completed"
 } else {
   puts "INFO: write_gate_spice hspice: $msg4"
-  puts "PASS: write_gate_spice hspice code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -151,10 +141,8 @@ set rc5 [catch {
     -ground VSS
 } msg5]
 if { $rc5 == 0 } {
-  puts "PASS: write_path_spice max slack completed"
 } else {
   puts "INFO: write_path_spice max slack: $msg5"
-  puts "PASS: write_path_spice max code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -173,10 +161,8 @@ set rc6 [catch {
     -ground VSS
 } msg6]
 if { $rc6 == 0 } {
-  puts "PASS: write_path_spice min completed"
 } else {
   puts "INFO: write_path_spice min: $msg6"
-  puts "PASS: write_path_spice min code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -196,10 +182,8 @@ set rc7 [catch {
     -simulator hspice
 } msg7]
 if { $rc7 == 0 } {
-  puts "PASS: write_path_spice hspice completed"
 } else {
   puts "INFO: write_path_spice hspice: $msg7"
-  puts "PASS: write_path_spice hspice code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -219,10 +203,6 @@ set rc8 [catch {
     -simulator xyce
 } msg8]
 if { $rc8 == 0 } {
-  puts "PASS: write_path_spice xyce completed"
 } else {
   puts "INFO: write_path_spice xyce: $msg8"
-  puts "PASS: write_path_spice xyce code path exercised"
 }
-
-puts "ALL PASSED"

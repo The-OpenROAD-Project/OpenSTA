@@ -10,23 +10,19 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  5.49e-06   1.36e-07   9.62e-12   5.63e-06 100.0%
                           97.6%       2.4%       0.0%
-PASS: report_power baseline
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    3.87e-07   1.36e-07   1.18e-12   5.24e-07 buf1
-PASS: report_power -instances buf1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    5.11e-06   0.00e+00   8.44e-12   5.11e-06 reg1
-PASS: report_power -instances reg1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
  5.1057e-06 0.0000e+00 8.4386e-12 5.1057e-06 reg1
  3.8750e-07 1.3616e-07 1.1810e-12 5.2366e-07 buf1
-PASS: report_power -instances all -digits 4
 [
 {
   "name": "reg1",
@@ -44,7 +40,6 @@ PASS: report_power -instances all -digits 4
   "total": 5.24e-07
 }
 ]
-PASS: report_power -instances json
 [
 {
   "name": "buf1",
@@ -54,7 +49,6 @@ PASS: report_power -instances json
   "total": 5.24e-07
 }
 ]
-PASS: report_power -instances buf1 json
 --- Different activity values ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -67,7 +61,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.36e-06   2.72e-08   9.55e-12   4.38e-06 100.0%
                           99.4%       0.6%       0.0%
-PASS: report_power activity=0.1 duty=0.3
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -79,7 +72,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  6.35e-06   2.18e-07   9.57e-12   6.56e-06 100.0%
                           96.7%       3.3%       0.0%
-PASS: report_power activity=0.8 duty=0.7
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -91,10 +83,8 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  6.91e-06   2.72e-07   9.62e-12   7.19e-06 100.0%
                           96.2%       3.8%       0.0%
-PASS: report_power activity=1.0 duty=0.5
 --- Activity annotation reporting ---
 unannotated     8
-PASS: report_activity_annotation
 unannotated     8
 Unannotated pins:
  clk
@@ -105,19 +95,15 @@ Unannotated pins:
  reg1/CLK
  reg1/D
  reg1/Q
-PASS: report_activity_annotation -report_unannotated
 unannotated     8
 Annotated pins:
-PASS: report_activity_annotation -report_annotated
 --- Annotate then check annotation ---
 input           1
 unannotated     7
-PASS: report_activity_annotation after pin annotation
 input           1
 unannotated     7
 Annotated pins:
  user buf1/A
-PASS: report_activity_annotation -report_annotated after pin annotation
 input           1
 unannotated     7
 Unannotated pins:
@@ -128,7 +114,6 @@ Unannotated pins:
  reg1/CLK
  reg1/D
  reg1/Q
-PASS: report_activity_annotation -report_unannotated after pin annotation
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -140,7 +125,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.92e-06   8.17e-08   9.60e-12   5.01e-06 100.0%
                           98.4%       1.6%       0.0%
-PASS: report_power after activity annotation
 Group                    Internal    Switching      Leakage        Total
                             Power        Power        Power        Power (Watts)
 ------------------------------------------------------------------------
@@ -152,7 +136,6 @@ Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 ------------------------------------------------------------------------
 Total                4.924572e-06 8.169660e-08 9.600361e-12 5.006278e-06 100.0%
                             98.4%         1.6%         0.0%
-PASS: report_power -digits 6 after annotation
 {
   "Sequential": {
     "internal": 4.69e-06,
@@ -191,7 +174,6 @@ PASS: report_power -digits 6 after annotation
     "total": 5.01e-06
   }
 }
-PASS: report_power json after annotation
 --- Unset pin activity ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -204,7 +186,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  5.49e-06   1.36e-07   9.62e-12   5.63e-06 100.0%
                           97.6%       2.4%       0.0%
-PASS: report_power after unset pin activity
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -216,7 +197,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.36e-06   2.72e-08   9.62e-12   4.38e-06 100.0%
                           99.4%       0.6%       0.0%
-PASS: report_power after unset input activity
 --- Density-based activity ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -229,9 +209,7 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  2.84e+03   2.72e+02   9.62e-12   3.12e+03 100.0%
                           91.3%       8.7%       0.0%
-PASS: report_power with density
 unannotated     8
-PASS: annotation after density
 --- Input port activity ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -244,12 +222,10 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  5.21e-06   1.09e-07   9.61e-12   5.32e-06 100.0%
                           98.0%       2.0%       0.0%
-PASS: report_power with input_port activity
 input           1
 unannotated     7
 Annotated pins:
  user in1
-PASS: annotation after input_port activity
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -261,5 +237,3 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.36e-06   2.72e-08   9.62e-12   4.38e-06 100.0%
                           99.4%       0.6%       0.0%
-PASS: report_power after unset input_port activity
-ALL PASSED

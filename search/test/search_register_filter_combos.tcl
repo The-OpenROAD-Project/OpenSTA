@@ -30,61 +30,51 @@ puts "--- latch: all_registers default ---"
 set regs [all_registers]
 puts "all registers: [llength $regs]"
 foreach r $regs { puts "  [get_full_name $r]" }
-puts "PASS: latch all_registers"
 
 puts "--- latch: all_registers -cells ---"
 set reg_cells [all_registers -cells]
 puts "cells: [llength $reg_cells]"
 foreach c $reg_cells { puts "  [get_full_name $c]" }
-puts "PASS: latch cells"
 
 puts "--- latch: all_registers -level_sensitive ---"
 set ls [all_registers -cells -level_sensitive]
 puts "level_sensitive: [llength $ls]"
 foreach c $ls { puts "  [get_full_name $c]" }
-puts "PASS: latch level_sensitive"
 
 puts "--- latch: all_registers -edge_triggered ---"
 set et [all_registers -cells -edge_triggered]
 puts "edge_triggered: [llength $et]"
 foreach c $et { puts "  [get_full_name $c]" }
-puts "PASS: latch edge_triggered"
 
 puts "--- latch: all_registers -level_sensitive -data_pins ---"
 set ls_dp [all_registers -data_pins -level_sensitive]
 puts "level_sensitive data_pins: [llength $ls_dp]"
 foreach p $ls_dp { puts "  [get_full_name $p]" }
-puts "PASS: latch level_sensitive data_pins"
 
 puts "--- latch: all_registers -level_sensitive -clock_pins ---"
 set ls_ck [all_registers -clock_pins -level_sensitive]
 puts "level_sensitive clock_pins: [llength $ls_ck]"
 foreach p $ls_ck { puts "  [get_full_name $p]" }
-puts "PASS: latch level_sensitive clock_pins"
 
 puts "--- latch: all_registers -level_sensitive -output_pins ---"
 set ls_op [all_registers -output_pins -level_sensitive]
 puts "level_sensitive output_pins: [llength $ls_op]"
 foreach p $ls_op { puts "  [get_full_name $p]" }
-puts "PASS: latch level_sensitive output_pins"
 
 puts "--- latch: all_registers -edge_triggered -data_pins ---"
 set et_dp [all_registers -data_pins -edge_triggered]
 puts "edge_triggered data_pins: [llength $et_dp]"
 foreach p $et_dp { puts "  [get_full_name $p]" }
-puts "PASS: latch edge_triggered data_pins"
 
 puts "--- latch: all_registers -edge_triggered -clock_pins ---"
 set et_ck [all_registers -clock_pins -edge_triggered]
 puts "edge_triggered clock_pins: [llength $et_ck]"
 foreach p $et_ck { puts "  [get_full_name $p]" }
-puts "PASS: latch edge_triggered clock_pins"
 
 puts "--- latch: all_registers -edge_triggered -output_pins ---"
 set et_op [all_registers -output_pins -edge_triggered]
 puts "edge_triggered output_pins: [llength $et_op]"
 foreach p $et_op { puts "  [get_full_name $p]" }
-puts "PASS: latch edge_triggered output_pins"
 
 ############################################################
 # Rise/fall clock filtering on latches
@@ -93,63 +83,51 @@ puts "--- latch: all_registers -rise_clock ---"
 set rise_ls [all_registers -cells -rise_clock clk]
 puts "rise_clock cells: [llength $rise_ls]"
 foreach c $rise_ls { puts "  [get_full_name $c]" }
-puts "PASS: latch rise_clock"
 
 puts "--- latch: all_registers -fall_clock ---"
 set fall_ls [all_registers -cells -fall_clock clk]
 puts "fall_clock cells: [llength $fall_ls]"
 foreach c $fall_ls { puts "  [get_full_name $c]" }
-puts "PASS: latch fall_clock"
 
 puts "--- latch: all_registers -rise_clock -level_sensitive ---"
 set rise_ls_ls [all_registers -cells -rise_clock clk -level_sensitive]
 puts "rise level_sensitive: [llength $rise_ls_ls]"
-puts "PASS: latch rise level_sensitive"
 
 puts "--- latch: all_registers -fall_clock -level_sensitive ---"
 set fall_ls_ls [all_registers -cells -fall_clock clk -level_sensitive]
 puts "fall level_sensitive: [llength $fall_ls_ls]"
-puts "PASS: latch fall level_sensitive"
 
 puts "--- latch: all_registers -rise_clock -edge_triggered ---"
 set rise_et [all_registers -cells -rise_clock clk -edge_triggered]
 puts "rise edge_triggered: [llength $rise_et]"
-puts "PASS: latch rise edge_triggered"
 
 puts "--- latch: all_registers -fall_clock -edge_triggered ---"
 set fall_et [all_registers -cells -fall_clock clk -edge_triggered]
 puts "fall edge_triggered: [llength $fall_et]"
-puts "PASS: latch fall edge_triggered"
 
 puts "--- latch: all_registers -rise_clock -data_pins ---"
 set rise_dp [all_registers -data_pins -rise_clock clk]
 puts "rise data_pins: [llength $rise_dp]"
-puts "PASS: latch rise data_pins"
 
 puts "--- latch: all_registers -fall_clock -data_pins ---"
 set fall_dp [all_registers -data_pins -fall_clock clk]
 puts "fall data_pins: [llength $fall_dp]"
-puts "PASS: latch fall data_pins"
 
 puts "--- latch: all_registers -rise_clock -clock_pins ---"
 set rise_ck [all_registers -clock_pins -rise_clock clk]
 puts "rise clock_pins: [llength $rise_ck]"
-puts "PASS: latch rise clock_pins"
 
 puts "--- latch: all_registers -fall_clock -clock_pins ---"
 set fall_ck [all_registers -clock_pins -fall_clock clk]
 puts "fall clock_pins: [llength $fall_ck]"
-puts "PASS: latch fall clock_pins"
 
 puts "--- latch: all_registers -rise_clock -output_pins ---"
 set rise_op [all_registers -output_pins -rise_clock clk]
 puts "rise output_pins: [llength $rise_op]"
-puts "PASS: latch rise output_pins"
 
 puts "--- latch: all_registers -fall_clock -output_pins ---"
 set fall_op [all_registers -output_pins -fall_clock clk]
 puts "fall output_pins: [llength $fall_op]"
-puts "PASS: latch fall output_pins"
 
 ############################################################
 # Part 2: Async reset DFF design - async pin queries
@@ -172,55 +150,43 @@ puts "--- async: all_registers -async_pins ---"
 set apins [all_registers -async_pins]
 puts "async pins: [llength $apins]"
 foreach p $apins { puts "  [get_full_name $p]" }
-puts "PASS: async_pins"
 
 puts "--- async: all_registers -async_pins -clock clk ---"
 set apins_c [all_registers -async_pins -clock clk]
 puts "async pins clk: [llength $apins_c]"
 foreach p $apins_c { puts "  [get_full_name $p]" }
-puts "PASS: async_pins clock"
 
 puts "--- async: all_registers -async_pins -edge_triggered ---"
 set apins_et [all_registers -async_pins -edge_triggered]
 puts "async pins edge_triggered: [llength $apins_et]"
-puts "PASS: async_pins edge_triggered"
 
 puts "--- async: all_registers -output_pins ---"
 set opins [all_registers -output_pins]
 puts "output pins: [llength $opins]"
 foreach p $opins { puts "  [get_full_name $p]" }
-puts "PASS: output_pins async design"
 
 puts "--- async: all_registers -output_pins -edge_triggered ---"
 set opins_et [all_registers -output_pins -edge_triggered]
 puts "output pins edge_triggered: [llength $opins_et]"
 foreach p $opins_et { puts "  [get_full_name $p]" }
-puts "PASS: output_pins edge_triggered"
 
 puts "--- async: all_registers -output_pins -clock clk ---"
 set opins_c [all_registers -output_pins -clock clk]
 puts "output pins clk: [llength $opins_c]"
 foreach p $opins_c { puts "  [get_full_name $p]" }
-puts "PASS: output_pins clock"
 
 puts "--- async: all_registers -rise_clock -async_pins ---"
 set rise_ap [all_registers -async_pins -rise_clock clk]
 puts "rise async_pins: [llength $rise_ap]"
-puts "PASS: rise async_pins"
 
 puts "--- async: all_registers -fall_clock -async_pins ---"
 set fall_ap [all_registers -async_pins -fall_clock clk]
 puts "fall async_pins: [llength $fall_ap]"
-puts "PASS: fall async_pins"
 
 puts "--- async: all_registers -rise_clock -output_pins ---"
 set rise_op2 [all_registers -output_pins -rise_clock clk]
 puts "rise output_pins: [llength $rise_op2]"
-puts "PASS: rise output_pins async"
 
 puts "--- async: all_registers -fall_clock -output_pins ---"
 set fall_op2 [all_registers -output_pins -fall_clock clk]
 puts "fall output_pins: [llength $fall_op2]"
-puts "PASS: fall output_pins async"
-
-puts "ALL PASSED"

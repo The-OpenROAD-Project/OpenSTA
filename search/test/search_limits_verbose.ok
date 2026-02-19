@@ -1,5 +1,4 @@
 --- set_max_transition ---
-PASS: set_max_transition
 --- report_check_types -max_slew ---
 max slew
 
@@ -7,7 +6,6 @@ Pin                                    Limit    Slew   Slack
 ------------------------------------------------------------
 reg1/QN                                 0.01    0.01    0.00 (MET)
 
-PASS: max_slew
 --- report_check_types -max_slew -verbose ---
 max slew
 
@@ -17,19 +15,13 @@ slew        0.01
 ----------------
 Slack       0.00 (MET)
 
-PASS: max_slew verbose
 --- report_check_types -max_slew -violators ---
-PASS: max_slew violators
 --- report_check_types -max_slew -violators -verbose ---
-PASS: max_slew violators verbose
 --- max_slew_violation_count ---
 max slew violations: 0
-PASS: slew violation count
 --- max_slew_check_slack ---
 max slew slack: 0.0006258292705751956 limit: 0.010000000707805157
-PASS: slew check slack/limit
 --- set_max_fanout ---
-PASS: set_max_fanout
 --- report_check_types -max_fanout ---
 max fanout
 
@@ -37,7 +29,6 @@ Pin                                   Limit Fanout  Slack
 ---------------------------------------------------------
 inv2/ZN                                   2      3        (VIOLATED)
 
-PASS: max_fanout
 --- report_check_types -max_fanout -verbose ---
 max fanout
 
@@ -47,7 +38,6 @@ fanout          3
 -----------------
 Slack             (VIOLATED)
 
-PASS: max_fanout verbose
 --- report_check_types -max_fanout -violators ---
 max fanout
 
@@ -55,7 +45,6 @@ Pin                                   Limit Fanout  Slack
 ---------------------------------------------------------
 inv2/ZN                                   2      3        (VIOLATED)
 
-PASS: max_fanout violators
 --- report_check_types -max_fanout -violators -verbose ---
 max fanout
 
@@ -65,15 +54,11 @@ fanout          3
 -----------------
 Slack             (VIOLATED)
 
-PASS: max_fanout violators verbose
 --- max_fanout_violation_count ---
 max fanout violations: 1
-PASS: fanout violation count
 --- max_fanout_check_slack ---
 max fanout slack: -1.0 limit: 2.0
-PASS: fanout check slack/limit
 --- set_max_capacitance ---
-PASS: set_max_capacitance
 --- report_check_types -max_capacitance ---
 max capacitance
 
@@ -81,7 +66,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 inv2/ZN                                 0.00    2.92   -2.92 (VIOLATED)
 
-PASS: max_capacitance
 --- report_check_types -max_capacitance -verbose ---
 max capacitance
 
@@ -91,7 +75,6 @@ capacitance        2.92
 -----------------------
 Slack             -2.92 (VIOLATED)
 
-PASS: max_capacitance verbose
 --- report_check_types -max_capacitance -violators ---
 max capacitance
 
@@ -113,7 +96,6 @@ in4                                     0.00    0.94   -0.94 (VIOLATED)
 in1                                     0.00    0.92   -0.92 (VIOLATED)
 and1/ZN                                 0.00    0.92   -0.92 (VIOLATED)
 
-PASS: max_capacitance violators
 --- report_check_types -max_capacitance -violators -verbose ---
 max capacitance
 
@@ -207,13 +189,10 @@ capacitance        0.92
 -----------------------
 Slack             -0.92 (VIOLATED)
 
-PASS: max_capacitance violators verbose
 --- max_capacitance_violation_count ---
 max cap violations: 15
-PASS: cap violation count
 --- max_capacitance_check_slack ---
 max cap slack: -2.9229769706726074 limit: 0.0010000000474974513
-PASS: cap check slack/limit
 --- report_check_types (all) ---
 Group                                  Slack
 --------------------------------------------
@@ -243,7 +222,6 @@ Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    5.00    4.95 (MET)
 
-PASS: all check types
 --- report_check_types -verbose ---
 Startpoint: in3 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -352,7 +330,6 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: all check types verbose
 --- report_check_types -violators ---
 Group                                  Slack
 --------------------------------------------
@@ -384,7 +361,6 @@ in4                                     0.00    0.94   -0.94 (VIOLATED)
 in1                                     0.00    0.92   -0.92 (VIOLATED)
 and1/ZN                                 0.00    0.92   -0.92 (VIOLATED)
 
-PASS: all check types violators
 --- report_check_types -violators -verbose ---
 No paths found.
 max fanout
@@ -487,15 +463,10 @@ capacitance        0.92
 -----------------------
 Slack             -0.92 (VIOLATED)
 
-PASS: all check types violators verbose
 --- report_check_types -min_slew ---
-PASS: min_slew
 --- report_check_types -min_slew -verbose ---
-PASS: min_slew verbose
 --- report_check_types -min_fanout ---
-PASS: min_fanout
 --- report_check_types -min_capacitance ---
-PASS: min_capacitance
 --- check_slew_limits specific net ---
 slew limit pins for n7: 1
 Pin                                    Limit    Slew   Slack
@@ -506,7 +477,6 @@ max slew    0.01
 slew        0.01
 ----------------
 Slack       0.00 (MET)
-PASS: specific net slew
 --- check_fanout_limits specific net ---
 fanout limit pins for n7: 1
 Pin                                   Limit Fanout  Slack
@@ -517,7 +487,6 @@ max fanout      2
 fanout          3
 -----------------
 Slack             (VIOLATED)
-PASS: specific net fanout
 --- check_capacitance_limits specific net ---
 cap limit pins for n7: 1
 Pin                                    Limit     Cap   Slack
@@ -528,7 +497,6 @@ max capacitance    0.00
 capacitance        2.92
 -----------------------
 Slack             -2.92 (VIOLATED)
-PASS: specific net cap
 --- report_check_types -max_delay -format end ---
 max_delay/setup group clk
 
@@ -537,29 +505,18 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 out1 (output)                           8.00    0.10    7.90 (MET)
 
-PASS: check_types format end
 --- report_check_types -min_delay -format slack_only ---
 Group                                  Slack
 --------------------------------------------
 clk                                     1.12
 
-PASS: check_types format slack_only
 --- check_setup -no_input_delay ---
-PASS: check_setup no_input
 --- check_setup -no_output_delay ---
-PASS: check_setup no_output
 --- check_setup -no_clock ---
-PASS: check_setup no_clock
 --- check_setup -multiple_clock ---
-PASS: check_setup multiple_clock
 --- check_setup -unconstrained_endpoints ---
-PASS: check_setup unconstrained
 --- check_setup -loops ---
-PASS: check_setup loops
 --- slack/limit ratios ---
-PASS: slack/limit ratios
 --- endpoint_violation_count ---
 max violations: 0
 min violations: 0
-PASS: endpoint_violation_count
-ALL PASSED

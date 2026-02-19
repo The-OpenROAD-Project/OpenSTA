@@ -37,7 +37,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch full_clock_expanded max all fields
 --- Latch full_clock_expanded min with all fields ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -67,7 +66,6 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
                                   0.05   slack (MET)
 
 
-PASS: latch full_clock_expanded min all fields
 --- Latch report to latch output ---
 Startpoint: latch2 (positive level-sensitive latch clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -124,7 +122,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   2.07   slack (MET)
 
 
-PASS: latch output endpoint
 --- Latch report to reg output ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out2 (output port clocked by clk)
@@ -182,7 +179,6 @@ Path Type: min
                            2.10   slack (MET)
 
 
-PASS: reg output endpoint
 --- Latch full_clock_expanded digits 6 ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -248,7 +244,6 @@ Path Type: min
                0.046881   slack (MET)
 
 
-PASS: latch digits 6
 --- Latch full_clock_expanded no_line_splits ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -314,7 +309,6 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: latch no_line_splits
 --- Latch full_clock format ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -382,7 +376,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   0.05   slack (MET)
 
 
-PASS: latch full_clock format
 --- find_timing_paths latch iteration ---
 Max paths: 18
   is_latch: 1 is_check: 0 slack=0.0
@@ -493,7 +486,6 @@ Max paths: 18
   source_clk_latency: 0.0
   target_clk_delay: 0.0
   target_clk_uncertainty: -0.0
-PASS: latch path iteration
 --- report_path_ends for latch paths ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -1113,7 +1105,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.92   slack (MET)
 
 
-PASS: latch report_path_ends
 --- Latch end format ---
 max_delay/setup group clk
 
@@ -1129,7 +1120,6 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 reg1/D (DFF_X1)                         0.01    0.05    0.05 (MET)
 
-PASS: latch end format
 --- Latch summary format ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
@@ -1139,7 +1129,6 @@ Startpoint                           Endpoint                               Slac
 --------------------------------------------------------------------------------
 latch1/Q (DFF_X1)                    reg1/D (DFF_X1)                         0.05
 
-PASS: latch summary format
 --- Latch slack_only format ---
 Group                                  Slack
 --------------------------------------------
@@ -1149,9 +1138,7 @@ Group                                  Slack
 --------------------------------------------
 clk                                     0.05
 
-PASS: latch slack_only format
 --- set_latch_borrow_limit and report ---
-PASS: latch borrow limit
 --- Latch min_max ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -1217,7 +1204,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch min_max
 --- Latch PathEnd properties ---
 Latch path found:
   startpoint: latch1/Q
@@ -1226,7 +1212,6 @@ Latch path found:
   endpoint_clock: clk
   endpoint_clock_pin: latch2/G
   points: 2
-PASS: latch PathEnd properties
 --- report_path_ends latch ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -1800,7 +1785,6 @@ Path Type: max
            9.92   slack (MET)
 
 
-PASS: latch report_path_ends
 --- Latch JSON format ---
 {"checks": [
 {
@@ -1962,5 +1946,3 @@ PASS: latch report_path_ends
 }
 ]
 }
-PASS: latch json format
-ALL PASSED

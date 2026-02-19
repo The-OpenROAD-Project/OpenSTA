@@ -36,7 +36,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch max
 --- Latch timing min ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -65,7 +64,6 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: latch min
 --- report_checks to latch output ---
 Startpoint: latch2 (positive level-sensitive latch clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -122,7 +120,6 @@ Path Type: min
            2.07   slack (MET)
 
 
-PASS: latch output full_clock_expanded
 --- report_checks to reg output ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out2 (output port clocked by clk)
@@ -178,7 +175,6 @@ Path Type: min
            2.10   slack (MET)
 
 
-PASS: reg output full_clock_expanded
 --- report_checks format full_clock ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -244,7 +240,6 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: full_clock format
 --- report_checks format short ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -258,7 +253,6 @@ Path Group: clk
 Path Type: min
 
 
-PASS: short format
 --- report_checks format end ---
 max_delay/setup group clk
 
@@ -274,7 +268,6 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 reg1/D (DFF_X1)                         0.01    0.05    0.05 (MET)
 
-PASS: end format
 --- report_checks format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
@@ -284,7 +277,6 @@ Startpoint                           Endpoint                               Slac
 --------------------------------------------------------------------------------
 latch1/Q (DFF_X1)                    reg1/D (DFF_X1)                         0.05
 
-PASS: summary format
 --- report_checks format json ---
 {"checks": [
 {
@@ -446,7 +438,6 @@ PASS: summary format
 }
 ]
 }
-PASS: json format
 --- report_checks format slack_only ---
 Group                                  Slack
 --------------------------------------------
@@ -456,7 +447,6 @@ Group                                  Slack
 --------------------------------------------
 clk                                     0.05
 
-PASS: slack_only format
 --- find_timing_paths latch check ---
 Found 18 max paths
   is_latch_check: 1 is_check: 0 pin=latch2/D slack=0.0
@@ -477,7 +467,6 @@ Found 18 max paths
   is_latch_check: 0 is_check: 1 pin=reg1/D slack=8.88718165725777e-9
   is_latch_check: 0 is_check: 1 pin=reg1/D slack=9.902577424725223e-9
   is_latch_check: 0 is_check: 1 pin=reg1/D slack=9.91532278504792e-9
-PASS: find_timing_paths latch
 --- find_timing_paths min latch ---
 Found 12 min paths
   is_latch_check: 0 is_check: 1 pin=reg1/D slack=4.688082214099332e-11
@@ -492,7 +481,6 @@ Found 12 min paths
   is_latch_check: 0 is_check: 1 pin=latch1/D slack=6.034398758458792e-9
   is_latch_check: 0 is_check: 1 pin=latch1/D slack=6.034420962919285e-9
   is_latch_check: 0 is_check: 1 pin=latch1/D slack=6.036642297146955e-9
-PASS: find_timing_paths min latch
 --- Latch path reports with fields ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -560,16 +548,11 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   0.05   slack (MET)
 
 
-PASS: latch fields
 --- set_latch_borrow_limit ---
-PASS: latch_borrow_limit pin
-PASS: latch_borrow_limit inst
-PASS: latch_borrow_limit clock
 --- report_clock_properties ---
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk                      10.00        0.00      5.00
-PASS: clock_properties
 --- report_clock_skew ---
 Clock clk
    0.00 source latency latch1/G ^
@@ -585,7 +568,6 @@ Clock clk
 --------------
    0.00 hold skew
 
-PASS: clock_skew
 --- all_registers -level_sensitive ---
 Level-sensitive cells: 2
   latch1
@@ -599,11 +581,9 @@ Level-sensitive clock pins: 2
 Level-sensitive output pins: 2
   latch1/Q
   latch2/Q
-PASS: all_registers level_sensitive
 --- all_registers -edge_triggered ---
 Edge-triggered cells: 1
   reg1
-PASS: all_registers edge_triggered
 --- pulse width checks ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -698,9 +678,6 @@ Check: sequential_clock_pulse_width
            4.96   slack (MET)
 
 
-PASS: pulse_width_checks
 --- min period ---
 clk period_min = 1.15 fmax = 871.71
 clk period_min = 3.19 fmax = 313.80
-PASS: min_period
-ALL PASSED

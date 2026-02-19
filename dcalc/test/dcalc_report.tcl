@@ -9,13 +9,8 @@ set_output_delay -clock clk 0 [get_ports out1]
 
 # Force delay calculation
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: delay calculation completed"
 
 # Report arrival/required
 report_checks -path_delay min
-puts "PASS: min path delay reported"
 
 report_checks -path_delay max
-puts "PASS: max path delay reported"
-
-puts "ALL PASSED"

@@ -120,19 +120,13 @@ foreach path_end $paths {
   puts "pathend startpoint: [get_full_name $sp]"
   set ep [get_property $path_end endpoint]
   puts "pathend endpoint: [get_full_name $ep]"
-  catch {
-    set sc [get_property $path_end startpoint_clock]
-    puts "pathend startpoint_clock: [get_name $sc]"
-  }
-  catch {
-    set ec [get_property $path_end endpoint_clock]
-    puts "pathend endpoint_clock: [get_name $ec]"
-  }
+  set sc [get_property $path_end startpoint_clock]
+  puts "pathend startpoint_clock: [get_name $sc]"
+  set ec [get_property $path_end endpoint_clock]
+  puts "pathend endpoint_clock: [get_name $ec]"
   if { [$path_end is_check] } {
-    catch {
-      set ecp [get_property $path_end endpoint_clock_pin]
-      puts "pathend endpoint_clock_pin: [get_full_name $ecp]"
-    }
+    set ecp [get_property $path_end endpoint_clock_pin]
+    puts "pathend endpoint_clock_pin: [get_full_name $ecp]"
   }
   puts "pathend slack: [get_property $path_end slack]"
   break
@@ -167,5 +161,3 @@ puts "by name clock: [get_property -object_type clock clk name]"
 puts "by name lib_cell: [get_property -object_type liberty_cell NangateOpenCellLibrary/DFF_X1 name]"
 puts "by name lib_pin: [get_property -object_type liberty_port NangateOpenCellLibrary/DFF_X1/D name]"
 puts "by name library: [get_property -object_type library NangateOpenCellLibrary name]"
-
-puts "ALL PASSED"

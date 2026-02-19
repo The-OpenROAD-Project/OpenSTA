@@ -107,7 +107,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: basic timing
 --- output_delay paths ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -217,7 +216,6 @@ Path Type: max
            7.91   slack (MET)
 
 
-PASS: output_delay paths
 --- PathEnd with output delay - various formats ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -372,7 +370,6 @@ clk                                     7.88
 }
 ]
 }
-PASS: output delay formats
 --- Recovery/removal checks ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -628,7 +625,6 @@ Check: sequential_clock_pulse_width
            4.94   slack (MET)
 
 
-PASS: recovery/removal enabled
 --- find_timing_paths with recovery/removal ---
 Found 12 paths
   role=recovery pin=reg1/RN slack=9.553728474998024e-9
@@ -643,7 +639,6 @@ Found 12 paths
   role=setup pin=reg1/D slack=8.91496121369073e-9
   role=setup pin=reg1/D slack=8.922569350033882e-9
   role=setup pin=reg1/D slack=8.923859873277706e-9
-PASS: find_timing_paths recovery/removal
 --- PathEnd attribute queries ---
   is_check: 1
   is_output_delay: 0
@@ -662,10 +657,8 @@ PASS: find_timing_paths recovery/removal
   is_check: 0
   is_output_delay: 1
   path_delay_margin_is_external: 0
-PASS: PathEnd attributes
 --- set_max_delay to create path_delay PathEnd ---
 No paths found.
-PASS: path_delay PathEnd
 --- Multiple output delays on same pin ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -721,7 +714,6 @@ Path Type: min
            1.11   slack (MET)
 
 
-PASS: multiple output delays
 --- report_checks with unconstrained paths ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -831,7 +823,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: unconstrained paths
 --- Detailed path with reg-to-reg ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -887,5 +878,3 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: reg-to-reg detailed
-ALL PASSED

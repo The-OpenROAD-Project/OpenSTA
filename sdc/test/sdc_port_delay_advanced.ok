@@ -1,50 +1,5 @@
-PASS: clocks created
-PASS: basic input delay
-PASS: input delay rise/fall min/max
-PASS: input delay -clock_fall
-PASS: input delay -add_delay
-PASS: input delay -clock_fall -rise/-fall -add_delay
-PASS: basic output delay
-PASS: output delay rise/fall min/max
-PASS: output delay -clock_fall -add_delay
-PASS: source latency early/late rise/fall
-PASS: source latency on clk2
-PASS: network latency all rf/minmax
-PASS: global derate
-PASS: rise/fall derate
-PASS: clock/data derate
-PASS: cell_delay derate
-PASS: net_delay derate
-PASS: lib cell derate
-PASS: instance derate
-PASS: instance derate inv1
-PASS: disable buf1
-PASS: disable pin inv1/A
-PASS: disable lib cell arc
-PASS: disable lib cell NAND2
-PASS: data_check -setup
-PASS: data_check -hold
-PASS: case_analysis 0
-PASS: logic_one
-PASS: logic_zero
-PASS: max_time_borrow on clock
-PASS: max_time_borrow on pin
-PASS: min pulse width
 Warning: sdc_port_delay_advanced.tcl line 1, object 'sdc_test2' not found.
 Warning: sdc_port_delay_advanced.tcl line 1, object 'sdc_test2' not found.
-PASS: clock gating check
-PASS: driving cells
-PASS: set_drive
-PASS: loads
-PASS: input transitions
-PASS: port fanout number
-PASS: net resistance
-PASS: design limits
-PASS: operating conditions and wire load
-PASS: set_voltage
-PASS: write_sdc native
-PASS: write_sdc -compatible
-PASS: write_sdc -digits 8
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -98,7 +53,6 @@ Path Type: max
            9.13   slack (MET)
 
 
-PASS: report_checks
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -152,7 +106,6 @@ Path Type: min
            0.12   slack (MET)
 
 
-PASS: report_checks -path_delay min
 max slew
 
 Pin                                    Limit    Slew   Slack
@@ -171,11 +124,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 reg1/Q                                  0.20    1.45   -1.25 (VIOLATED)
 
-PASS: report_check_types
-PASS: unset_timing_derate
-PASS: unset disable
-PASS: unset case analysis
-PASS: unset clock latencies
 Startpoint: in3 (input port clocked by clk1)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk1)
 Path Group: clk1
@@ -233,5 +181,3 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: final report_checks
-ALL PASSED

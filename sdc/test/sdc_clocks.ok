@@ -1,16 +1,9 @@
-PASS: create_clock clk1
-PASS: create_clock clk2 with waveform
-PASS: create_clock virtual clock
-PASS: create_clock -add
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk1                     10.00        0.00      5.00
 clk2                     20.00        0.00     10.00
 vclk                      5.00        0.00      2.50
 clk1_fast                 5.00        0.00      2.50
-PASS: report_clock_properties
-PASS: create_generated_clock -divide_by
-PASS: create_generated_clock -multiply_by
 Warning: generated clock gen_clk_div2 pin clk1 is in the fanout of multiple clocks.
 Clock                   Period          Waveform
 ----------------------------------------------------
@@ -20,47 +13,10 @@ vclk                      5.00        0.00      2.50
 clk1_fast                 5.00        0.00      2.50
 gen_clk_div2             10.00        0.00      5.00 (generated)
 gen_clk_mul3              6.67        0.00      3.33 (generated)
-PASS: report_clock_properties after generated clocks
-PASS: set_clock_latency -source
-PASS: set_clock_latency -source -rise -max
-PASS: set_clock_latency -source -fall -min
-PASS: set_clock_latency network
-PASS: set_clock_latency -rise -max
-PASS: set_clock_latency -fall -min
-PASS: set_clock_uncertainty -setup
-PASS: set_clock_uncertainty -hold
-PASS: set_clock_uncertainty -from -to -setup
-PASS: set_clock_uncertainty -from -to -hold
-PASS: set_clock_transition -rise -max
-PASS: set_clock_transition -fall -min
-PASS: set_clock_transition
-PASS: set_propagated_clock
-PASS: set_clock_groups -logically_exclusive
-PASS: unset_clock_groups -logically_exclusive
-PASS: set_clock_groups -physically_exclusive
-PASS: unset_clock_groups -physically_exclusive
-PASS: set_clock_groups -asynchronous
-PASS: unset_clock_groups -asynchronous
 Warning: sdc_clocks.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: set_clock_sense -positive
 No paths found.
-PASS: report_checks after clock constraints
-PASS: unset_propagated_clock
-PASS: unset_clock_latency
-PASS: unset_clock_latency clk2
-PASS: unset_clock_latency -source
-PASS: unset_clock_transition
-PASS: unset_clock_uncertainty -setup
-PASS: unset_clock_uncertainty -hold
-PASS: unset_clock_uncertainty -from -to -setup
-PASS: unset_clock_uncertainty -from -to -hold
-PASS: delete_generated_clock gen_clk_div2
-PASS: delete_generated_clock gen_clk_mul3
-PASS: delete_clock vclk
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk1                     10.00        0.00      5.00
 clk2                     20.00        0.00     10.00
 clk1_fast                 5.00        0.00      2.50
-PASS: final report_clock_properties
-ALL PASSED

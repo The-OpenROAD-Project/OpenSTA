@@ -38,7 +38,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: baseline report_checks
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -66,9 +65,7 @@ Path Type: min
           -7.56   slack (VIOLATED)
 
 
-PASS: baseline min path
 --- read SPEF ---
-PASS: read_spef
 --- dmp_ceff_elmore ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -99,7 +96,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: dmp_ceff_elmore max
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -127,11 +123,8 @@ Path Type: min
          -11.46   slack (VIOLATED)
 
 
-PASS: dmp_ceff_elmore min
 No paths found.
-PASS: dmp_ceff_elmore in1->out
 No paths found.
-PASS: dmp_ceff_elmore in2->out
 Warning: parasitics_reduce_dcalc.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -164,7 +157,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                 301.74   slack (MET)
 
 
-PASS: dmp_ceff_elmore fields
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -537,7 +529,6 @@ Path Type: max
          298.15   slack (MET)
 
 
-PASS: arnoldi max
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -565,11 +556,8 @@ Path Type: min
          -11.46   slack (VIOLATED)
 
 
-PASS: arnoldi min
 No paths found.
-PASS: arnoldi in1->out
 No paths found.
-PASS: arnoldi in2->out
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -918,7 +906,6 @@ Path Type: max
          360.62   slack (MET)
 
 
-PASS: dmp_ceff_two_pole max
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -946,7 +933,6 @@ Path Type: min
           -7.56   slack (VIOLATED)
 
 
-PASS: dmp_ceff_two_pole min
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -1148,7 +1134,6 @@ Path Type: max
          348.18   slack (MET)
 
 
-PASS: lumped_cap max
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -1176,7 +1161,6 @@ Path Type: min
           -7.56   slack (VIOLATED)
 
 
-PASS: lumped_cap min
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -1312,7 +1296,6 @@ Path Type: max
                          348.18   slack (MET)
 
 
-PASS: lumped_cap fields
 --- prima ---
 set_delay_calculator prima: 
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
@@ -1344,7 +1327,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: prima max
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -1372,9 +1354,7 @@ Path Type: min
          -11.46   slack (VIOLATED)
 
 
-PASS: prima min
 No paths found.
-PASS: prima in1->out
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -1564,7 +1544,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: back to dmp_ceff_elmore
 --- report_net final ---
 Net r1q
  Pin capacitance: 0.3994-0.5226
@@ -1674,10 +1653,8 @@ report_net out: done
 --- parasitic annotation ---
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: parasitic annotation
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: parasitic annotation -report_unannotated
 --- annotated delay final ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -1709,4 +1686,3 @@ net arcs to primary outputs           1           0           1
 ----------------------------------------------------------------
                                       6           0           6
 annotated from/to ports: done
-ALL PASSED

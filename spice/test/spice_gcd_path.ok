@@ -1,5 +1,4 @@
 Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
-PASS: design loaded with SPEF
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -41,7 +40,6 @@ Path Type: max
            0.06   slack (MET)
 
 
-PASS: timing analysis
 Startpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -70,28 +68,16 @@ Path Type: min
            0.45   slack (MET)
 
 
-PASS: min path analysis
 unique cells: 57
 Warning: spice_gcd_path.tcl line 1, port '*' not found.
-PASS: SPICE subckt file created for 57 cells
 --- write_path_spice max ngspice ---
-PASS: write_path_spice max completed
 --- write_path_spice min ---
-PASS: write_path_spice min completed
 --- write_path_spice hspice ---
-PASS: write_path_spice hspice completed
 --- write_path_spice xyce ---
-PASS: write_path_spice xyce completed
 --- write_path_spice specific endpoints ---
 INFO: write_path_spice specific: Error: spice_gcd_path.tcl line 1, No paths found for -path_args -from req_msg[0] -to resp_msg[0].
-PASS: code path exercised
 --- write_gate_spice sky130hd cells ---
 Warning: spice_gcd_path.tcl line 1, instance '_300_' not found.
 INFO: gate sky130_fd_sc_hd__xnor2_1 (_197_): invalid command name "write_gate_spice_cmd"
-PASS: gate code path exercised
 INFO: gate sky130_fd_sc_hd__inv_1 (_205_): invalid command name "write_gate_spice_cmd"
-PASS: gate code path exercised
 INFO: gate sky130_fd_sc_hd__nand2_2 (_206_): invalid command name "write_gate_spice_cmd"
-PASS: gate code path exercised
-PASS: write_gate_spice cells tested: 3
-ALL PASSED

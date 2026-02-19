@@ -25,23 +25,19 @@ report_checks
 #---------------------------------------------------------------
 puts "--- make_instance using liberty cell ---"
 set new_inst [make_instance lib_buf NangateOpenCellLibrary/BUF_X2]
-puts "PASS: make_instance lib_buf BUF_X2"
 
 #---------------------------------------------------------------
 # Make nets for connections
 #---------------------------------------------------------------
 set net_a [make_net net_a]
 set net_b [make_net net_b]
-puts "PASS: made nets net_a and net_b"
 
 #---------------------------------------------------------------
 # Connect using port names
 #---------------------------------------------------------------
 connect_pin net_a lib_buf/A
-puts "PASS: connect_pin net_a lib_buf/A"
 
 connect_pin net_b lib_buf/Z
-puts "PASS: connect_pin net_b lib_buf/Z"
 
 #---------------------------------------------------------------
 # Verify connections
@@ -57,41 +53,32 @@ foreach p $lib_buf_pins {
 # Test get_fanin/get_fanout on new instances
 #---------------------------------------------------------------
 puts "--- fanin/fanout on new cells ---"
-catch {
-  set fi [get_fanin -to [get_pins lib_buf/Z] -flat]
-  puts "fanin to lib_buf/Z: [llength $fi]"
-} msg
+set fi [get_fanin -to [get_pins lib_buf/Z] -flat]
+puts "fanin to lib_buf/Z: [llength $fi]"
 
-catch {
-  set fo [get_fanout -from [get_pins lib_buf/A] -flat]
-  puts "fanout from lib_buf/A: [llength $fo]"
-} msg
+set fo [get_fanout -from [get_pins lib_buf/A] -flat]
+puts "fanout from lib_buf/A: [llength $fo]"
 
 #---------------------------------------------------------------
 # Disconnect and reconnect
 #---------------------------------------------------------------
 puts "--- disconnect and reconnect ---"
 disconnect_pin net_a lib_buf/A
-puts "PASS: disconnect_pin net_a lib_buf/A"
 
 # Reconnect to a different net
 connect_pin net_b lib_buf/A
-puts "PASS: reconnect lib_buf/A to net_b"
 
 # Disconnect everything
 disconnect_pin net_b lib_buf/A
 disconnect_pin net_b lib_buf/Z
-puts "PASS: disconnected all pins from lib_buf"
 
 #---------------------------------------------------------------
 # Delete instance and nets
 #---------------------------------------------------------------
 delete_instance lib_buf
-puts "PASS: delete_instance lib_buf"
 
 delete_net net_a
 delete_net net_b
-puts "PASS: delete_net net_a and net_b"
 
 #---------------------------------------------------------------
 # Test making multiple instances and verifying
@@ -100,7 +87,6 @@ puts "--- multiple instance creation ---"
 set inst1 [make_instance test_inv1 NangateOpenCellLibrary/INV_X1]
 set inst2 [make_instance test_inv2 NangateOpenCellLibrary/INV_X2]
 set inst3 [make_instance test_nand NangateOpenCellLibrary/NAND2_X1]
-puts "PASS: made 3 instances"
 
 set all_cells [get_cells *]
 puts "total cells after add: [llength $all_cells]"
@@ -113,7 +99,6 @@ puts "test_* cells: [llength $test_insts]"
 delete_instance test_inv1
 delete_instance test_inv2
 delete_instance test_nand
-puts "PASS: deleted all test instances"
 
 set all_cells2 [get_cells *]
 puts "total cells after delete: [llength $all_cells2]"
@@ -132,10 +117,6 @@ puts "buf1 ref after replace: $buf1_ref"
 
 # Report checks to ensure timing still works after replacement
 report_checks
-puts "PASS: report_checks after replace_cell"
 
 # Replace back
 replace_cell buf1 NangateOpenCellLibrary/BUF_X1
-puts "PASS: replace_cell buf1 back to BUF_X1"
-
-puts "ALL PASSED"

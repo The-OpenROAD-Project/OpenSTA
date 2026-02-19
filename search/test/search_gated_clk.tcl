@@ -11,14 +11,12 @@ set_output_delay -clock clk 2.0 [get_ports out1]
 puts "--- gated clk basic timing ---"
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: gated clk basic"
 
 puts "--- gated_clk_checks_enabled ---"
 sta::set_gated_clk_checks_enabled 1
 report_checks -path_delay max
 report_checks -path_delay min
 report_check_types -verbose
-puts "PASS: gated_clk_checks_enabled"
 
 puts "--- propagate_gated_clock_enable ---"
 sta::set_propagate_gated_clock_enable 1
@@ -26,13 +24,11 @@ report_checks -path_delay max
 report_checks -path_delay min
 report_check_types -verbose
 check_setup -verbose
-puts "PASS: propagate_gated_clock_enable"
 
 puts "--- Gated clk with inferred clock gating ---"
-catch { set_disable_inferred_clock_gating [get_cells clk_gate] }
+set_disable_inferred_clock_gating [get_cells clk_gate]
 report_checks -path_delay max
-catch { unset_disable_inferred_clock_gating [get_cells clk_gate] }
-puts "PASS: inferred clock gating"
+unset_disable_inferred_clock_gating [get_cells clk_gate]
 
 sta::set_gated_clk_checks_enabled 0
 sta::set_propagate_gated_clock_enable 0
@@ -41,7 +37,6 @@ puts "--- report_checks format full_clock with gated clk ---"
 report_checks -format full_clock -path_delay max
 report_checks -format full_clock_expanded -path_delay max
 report_checks -format full_clock -path_delay min
-puts "PASS: gated clk report formats"
 
 puts "--- find_timing_paths with gated clk ---"
 set paths [find_timing_paths -path_delay max -endpoint_path_count 5]
@@ -51,6 +46,3 @@ foreach pe $paths {
   puts "  is_check: [$pe is_check]"
   puts "  pin: [get_full_name [$pe pin]]"
 }
-puts "PASS: find_timing_paths gated clk"
-
-puts "ALL PASSED"

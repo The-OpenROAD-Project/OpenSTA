@@ -25,10 +25,8 @@ set_input_transition 0.1 [get_ports {in1 in2 in3 in4 sel clk}]
 #---------------------------------------------------------------
 puts "--- Test 1: baseline timing ---"
 report_checks
-puts "PASS: baseline"
 
 report_checks -path_delay min
-puts "PASS: baseline min"
 
 #---------------------------------------------------------------
 # Test 2: Set incremental delay tolerance
@@ -38,33 +36,26 @@ puts "--- Test 2: incremental delay tolerance ---"
 
 # Set large tolerance (will suppress many incremental updates)
 sta::set_delay_calc_incremental_tolerance 0.5
-puts "PASS: set tolerance 0.5"
 
 # Change input transition - large tolerance means less recalc
 set_input_transition 0.2 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: after slew change with large tolerance"
 
 # Change back
 set_input_transition 0.1 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: after slew revert with large tolerance"
 
 # Set small tolerance (will recompute more aggressively)
 sta::set_delay_calc_incremental_tolerance 0.001
-puts "PASS: set tolerance 0.001"
 
 set_input_transition 0.2 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: after slew change with small tolerance"
 
 set_input_transition 0.1 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: after slew revert with small tolerance"
 
 # Zero tolerance
 sta::set_delay_calc_incremental_tolerance 0.0
-puts "PASS: set tolerance 0.0"
 
 #---------------------------------------------------------------
 # Test 3: Incremental updates with load changes
@@ -85,7 +76,6 @@ set_load 0.01 [get_ports out1]
 set_load 0.01 [get_ports out2]
 set_load 0.01 [get_ports out3]
 report_checks
-puts "PASS: load on all outputs"
 
 set_load 0 [get_ports out1]
 set_load 0 [get_ports out2]
@@ -100,17 +90,14 @@ puts "--- Test 4: incremental slew changes ---"
 # Very fast transitions
 set_input_transition 0.001 [get_ports {in1 in2 in3 in4 sel}]
 report_checks
-puts "PASS: very fast slew"
 
 # Medium transitions
 set_input_transition 0.1 [get_ports {in1 in2 in3 in4 sel}]
 report_checks
-puts "PASS: medium slew"
 
 # Very slow transitions
 set_input_transition 2.0 [get_ports {in1 in2 in3 in4 sel}]
 report_checks
-puts "PASS: very slow slew"
 
 # Different slews on different inputs
 set_input_transition 0.01 [get_ports in1]
@@ -119,7 +106,6 @@ set_input_transition 0.001 [get_ports in3]
 set_input_transition 1.0 [get_ports in4]
 set_input_transition 0.1 [get_ports sel]
 report_checks
-puts "PASS: mixed slews"
 
 # Restore
 set_input_transition 0.1 [get_ports {in1 in2 in3 in4 sel clk}]
@@ -133,25 +119,21 @@ puts "--- Test 5: constraint changes ---"
 # Change clock period
 create_clock -name clk -period 5 [get_ports clk]
 report_checks
-puts "PASS: clock period 5"
 
 create_clock -name clk -period 20 [get_ports clk]
 report_checks
-puts "PASS: clock period 20"
 
 create_clock -name clk -period 10 [get_ports clk]
 
 # Change input delays
 set_input_delay -clock clk 2.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: input_delay 2.0"
 
 set_input_delay -clock clk 0.0 [get_ports in1]
 
 # Change output delays
 set_output_delay -clock clk 3.0 [get_ports out1]
 report_checks -to [get_ports out1]
-puts "PASS: output_delay 3.0"
 
 set_output_delay -clock clk 0.0 [get_ports out1]
 
@@ -163,27 +145,20 @@ puts "--- Test 6: network modification invalidation ---"
 
 # Add new instance
 set new_inst [make_instance extra_buf NangateOpenCellLibrary/BUF_X4]
-puts "PASS: make_instance"
 
 set new_net [make_net extra_net]
-puts "PASS: make_net"
 
 connect_pin extra_net extra_buf/A
-puts "PASS: connect_pin"
 
 report_checks
-puts "PASS: report after add"
 
 # Disconnect and delete
 disconnect_pin extra_net extra_buf/A
-puts "PASS: disconnect_pin"
 
 delete_instance extra_buf
 delete_net extra_net
-puts "PASS: cleanup"
 
 report_checks
-puts "PASS: report after cleanup"
 
 #---------------------------------------------------------------
 # Test 7: Replace cell triggers delay recalc
@@ -194,26 +169,21 @@ puts "--- Test 7: replace cell ---"
 # Replace buf1 with larger buffer
 replace_cell buf1 NangateOpenCellLibrary/BUF_X4
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: replace buf1 -> BUF_X4"
 
 replace_cell buf1 NangateOpenCellLibrary/BUF_X2
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: replace buf1 -> BUF_X2"
 
 replace_cell buf1 NangateOpenCellLibrary/BUF_X1
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: replace buf1 -> BUF_X1 (restore)"
 
 # Replace multiple cells
 replace_cell and1 NangateOpenCellLibrary/AND2_X2
 replace_cell or1 NangateOpenCellLibrary/OR2_X2
 report_checks
-puts "PASS: replace multiple cells"
 
 replace_cell and1 NangateOpenCellLibrary/AND2_X1
 replace_cell or1 NangateOpenCellLibrary/OR2_X1
 report_checks
-puts "PASS: restore cells"
 
 #---------------------------------------------------------------
 # Test 8: Tolerance with calculator switching
@@ -225,25 +195,18 @@ sta::set_delay_calc_incremental_tolerance 0.1
 
 set_delay_calculator lumped_cap
 report_checks
-puts "PASS: lumped_cap with tolerance"
 
 set_delay_calculator dmp_ceff_elmore
 report_checks
-puts "PASS: dmp_ceff_elmore with tolerance"
 
 set_delay_calculator dmp_ceff_two_pole
 report_checks
-puts "PASS: dmp_ceff_two_pole with tolerance"
 
 set_delay_calculator unit
 report_checks
-puts "PASS: unit with tolerance"
 
 # Restore
 set_delay_calculator dmp_ceff_elmore
 sta::set_delay_calc_incremental_tolerance 0.0
 
 report_checks
-puts "PASS: final report"
-
-puts "ALL PASSED"

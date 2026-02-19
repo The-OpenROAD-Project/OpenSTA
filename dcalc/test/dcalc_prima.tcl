@@ -21,7 +21,6 @@ set_propagated_clock {clk1 clk2 clk3}
 # Read SPEF parasitics
 puts "--- Reading SPEF ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef completed"
 
 #---------------------------------------------------------------
 # Test prima delay calculator
@@ -31,19 +30,14 @@ catch {set_delay_calculator prima} msg
 puts "set_delay_calculator prima: $msg"
 
 report_checks
-puts "PASS: prima report_checks"
 
 report_checks -path_delay min
-puts "PASS: prima min path"
 
 report_checks -path_delay max
-puts "PASS: prima max path"
 
 report_checks -fields {slew cap input_pins}
-puts "PASS: prima with fields"
 
 report_checks -format full_clock
-puts "PASS: prima full_clock"
 
 # report_dcalc with prima
 catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y]} msg
@@ -69,10 +63,8 @@ puts "prima dcalc r3 hold: $msg"
 
 # Report from different paths
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: prima in1->out"
 
 report_checks -from [get_ports in2] -to [get_ports out]
-puts "PASS: prima in2->out"
 
 #---------------------------------------------------------------
 # Now switch to arnoldi and compare
@@ -82,7 +74,6 @@ catch {set_delay_calculator arnoldi} msg
 puts "set_delay_calculator arnoldi: $msg"
 
 report_checks
-puts "PASS: arnoldi report_checks"
 
 catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
 puts "arnoldi dcalc u1 A->Y max: $msg"
@@ -97,7 +88,6 @@ catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -min} msg
 puts "arnoldi dcalc r1 CLK->Q min: $msg"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: arnoldi with full fields"
 
 #---------------------------------------------------------------
 # Switch to lumped_cap with parasitics
@@ -106,7 +96,6 @@ puts "--- lumped_cap with parasitics ---"
 set_delay_calculator lumped_cap
 
 report_checks
-puts "PASS: lumped_cap with parasitics"
 
 catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
 puts "lumped_cap dcalc u1: $msg"
@@ -118,13 +107,10 @@ puts "--- dmp_ceff_two_pole with parasitics ---"
 set_delay_calculator dmp_ceff_two_pole
 
 report_checks
-puts "PASS: dmp_ceff_two_pole with parasitics"
 
 report_checks -path_delay min
-puts "PASS: dmp_ceff_two_pole min"
 
 report_checks -path_delay max
-puts "PASS: dmp_ceff_two_pole max"
 
 catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
 puts "dmp_ceff_two_pole dcalc u1: $msg"
@@ -139,7 +125,6 @@ catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
 puts "dmp_ceff_two_pole dcalc r1 CLK->Q: $msg"
 
 report_checks -fields {slew cap}
-puts "PASS: dmp_ceff_two_pole with fields"
 
 #---------------------------------------------------------------
 # Switch back to default
@@ -148,6 +133,3 @@ puts "--- dmp_ceff_elmore (default) ---"
 set_delay_calculator dmp_ceff_elmore
 
 report_checks
-puts "PASS: default dcalc with parasitics"
-
-puts "ALL PASSED"

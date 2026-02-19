@@ -1,5 +1,4 @@
 --- read_sdf test2 (with timing checks/interconnects) ---
-PASS: read_sdf with timing checks
 --- report_annotated_delay -cell ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -7,7 +6,6 @@ Delay type                        Total    Annotated   Annotated
 cell arcs                             6           6           0
 ----------------------------------------------------------------
                                       6           6           0
-PASS: annotated delay -cell
 --- report_annotated_delay -net ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -15,7 +13,6 @@ Delay type                        Total    Annotated   Annotated
 internal net arcs                     3           3           0
 ----------------------------------------------------------------
                                       3           3           0
-PASS: annotated delay -net
 --- report_annotated_delay -from_in_ports ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -23,7 +20,6 @@ Delay type                        Total    Annotated   Annotated
 net arcs from primary inputs          3           0           3
 ----------------------------------------------------------------
                                       3           0           3
-PASS: annotated delay -from_in_ports
 --- report_annotated_delay -to_out_ports ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -31,7 +27,6 @@ Delay type                        Total    Annotated   Annotated
 net arcs to primary outputs           1           0           1
 ----------------------------------------------------------------
                                       1           0           1
-PASS: annotated delay -to_out_ports
 --- report_annotated_delay -cell -net combined ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -40,7 +35,6 @@ cell arcs                             6           6           0
 internal net arcs                     3           3           0
 ----------------------------------------------------------------
                                       9           9           0
-PASS: annotated delay -cell -net
 --- report_annotated_delay -report_annotated ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -62,7 +56,6 @@ Annotated Arcs
  internal net       buf2/Z -> and1/A1 
  delay              reg1/CK -> reg1/QN 
  delay              reg1/CK -> reg1/Q 
-PASS: annotated delay -report_annotated
 --- report_annotated_delay -report_unannotated ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -79,7 +72,6 @@ Unannotated Arcs
  primary input net  d -> buf1/A 
  primary input net  en -> and1/A2 
  primary output net reg1/Q -> q 
-PASS: annotated delay -report_unannotated
 --- report_annotated_delay -constant_arcs ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -94,7 +86,6 @@ net arcs to primary outputs           1           0           1
 constant arcs                                     0           0
 ----------------------------------------------------------------
                                      13           9           4
-PASS: annotated delay -constant_arcs
 --- report_annotated_delay -max_lines 2 ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -105,7 +96,6 @@ net arcs from primary inputs          3           0           3
 net arcs to primary outputs           1           0           1
 ----------------------------------------------------------------
                                      13           9           4
-PASS: annotated delay -max_lines 2
 --- report_annotated_check -setup ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -113,7 +103,6 @@ Check type                        Total    Annotated   Annotated
 cell setup arcs                       1           1           0
 ----------------------------------------------------------------
                                       1           1           0
-PASS: annotated check -setup
 --- report_annotated_check -hold ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -121,21 +110,18 @@ Check type                        Total    Annotated   Annotated
 cell hold arcs                        1           1           0
 ----------------------------------------------------------------
                                       1           1           0
-PASS: annotated check -hold
 --- report_annotated_check -recovery ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
 ----------------------------------------------------------------
                                       0           0           0
-PASS: annotated check -recovery
 --- report_annotated_check -removal ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
 ----------------------------------------------------------------
                                       0           0           0
-PASS: annotated check -removal
 --- report_annotated_check -width ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -143,28 +129,24 @@ Check type                        Total    Annotated   Annotated
 cell width arcs                       1           1           0
 ----------------------------------------------------------------
                                       1           1           0
-PASS: annotated check -width
 --- report_annotated_check -period ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
 ----------------------------------------------------------------
                                       0           0           0
-PASS: annotated check -period
 --- report_annotated_check -nochange ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
 ----------------------------------------------------------------
                                       0           0           0
-PASS: annotated check -nochange
 --- report_annotated_check -max_skew ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
 ----------------------------------------------------------------
                                       0           0           0
-PASS: annotated check -max_skew
 --- report_annotated_check -setup -report_annotated ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -175,7 +157,6 @@ cell setup arcs                       1           1           0
 
 Annotated Arcs
  setup              reg1/CK -> reg1/D 
-PASS: annotated check -setup -report_annotated
 --- report_annotated_check -setup -report_unannotated ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -185,7 +166,6 @@ cell setup arcs                       1           1           0
                                       1           1           0
 
 Unannotated Arcs
-PASS: annotated check -setup -report_unannotated
 --- report_annotated_check -setup -hold combined ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -194,7 +174,6 @@ cell setup arcs                       1           1           0
 cell hold arcs                        1           1           0
 ----------------------------------------------------------------
                                       2           2           0
-PASS: annotated check -setup -hold
 --- report_annotated_check all types ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -204,7 +183,6 @@ cell hold arcs                        1           1           0
 cell width arcs                       1           1           0
 ----------------------------------------------------------------
                                       3           3           0
-PASS: annotated check all types
 --- report_annotated_check -constant_arcs ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -217,7 +195,6 @@ cell width arcs                       1           1           0
 constant arcs                                     0           0
 ----------------------------------------------------------------
                                       3           3           0
-PASS: annotated check -constant_arcs
 --- report_annotated_check -max_lines 3 ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -227,23 +204,14 @@ cell hold arcs                        1           1           0
 cell width arcs                       1           1           0
 ----------------------------------------------------------------
                                       3           3           0
-PASS: annotated check -max_lines 3
 --- write_sdf default ---
-PASS: write_sdf default
 --- write_sdf -divider . ---
-PASS: write_sdf -divider .
 --- write_sdf -digits 6 ---
-PASS: write_sdf -digits 6
 --- write_sdf -include_typ ---
-PASS: write_sdf -include_typ
 --- write_sdf -no_timestamp ---
-PASS: write_sdf -no_timestamp
 --- write_sdf -no_version ---
-PASS: write_sdf -no_version
 --- write_sdf -gzip ---
-PASS: write_sdf -gzip
 --- write_sdf combined options ---
-PASS: write_sdf combined options
 --- report_checks (SDF annotated) ---
 Startpoint: d (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -275,7 +243,6 @@ Path Type: max
            9.45   slack (MET)
 
 
-PASS: report_checks with SDF
 Startpoint: en (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -304,7 +271,6 @@ Path Type: min
            0.00   slack (VIOLATED)
 
 
-PASS: report_checks min path with SDF
 Startpoint: d (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -335,5 +301,3 @@ Path Type: max
            9.45   slack (MET)
 
 
-PASS: report_checks full_clock with SDF
-ALL PASSED

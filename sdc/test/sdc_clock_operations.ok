@@ -55,9 +55,7 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: custom waveform clock
 --- clock with asymmetric waveform ---
-PASS: asymmetric waveform
 --- clock with -add ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_alt)
 Endpoint: out1 (output port clocked by clk1)
@@ -141,7 +139,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: clock -add
 --- generated clock divide_by ---
 Warning: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_alt)
@@ -224,7 +221,6 @@ Path Type: max
            4.97   slack (MET)
 
 
-PASS: genclk divide_by 2
 --- generated clock multiply_by ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_alt)
 Endpoint: out1 (output port clocked by clk1)
@@ -305,7 +301,6 @@ Path Type: max
            0.33   slack (MET)
 
 
-PASS: genclk multiply_by 3
 --- generated clock edges ---
 Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
@@ -385,9 +380,7 @@ Path Type: max
            0.33   slack (MET)
 
 
-PASS: genclk edges
 --- generated clock invert ---
-PASS: genclk invert
 --- set_propagated_clock ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -466,9 +459,7 @@ Path Type: max
            0.25   slack (MET)
 
 
-PASS: propagated clocks
 --- set_propagated_clock on pin ---
-PASS: propagated clock pin
 --- clock transition ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -547,7 +538,6 @@ Path Type: max
            0.25   slack (MET)
 
 
-PASS: clock transition
 --- clock latency source ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -627,7 +617,6 @@ Path Type: max
            0.25   slack (MET)
 
 
-PASS: clock latency source
 --- clock latency non-source ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -707,7 +696,6 @@ Path Type: max
            0.53   slack (MET)
 
 
-PASS: clock latency non-source
 --- clock insertion ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -786,7 +774,6 @@ Path Type: max
            0.53   slack (MET)
 
 
-PASS: clock insertion
 --- clock uncertainty ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -867,7 +854,6 @@ Path Type: max
            0.38   slack (MET)
 
 
-PASS: clock uncertainty
 --- inter-clock uncertainty ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -948,7 +934,6 @@ Path Type: max
            0.38   slack (MET)
 
 
-PASS: inter-clock uncertainty
 --- clock uncertainty on pin ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -1030,13 +1015,9 @@ Path Type: max
            0.38   slack (MET)
 
 
-PASS: clock uncertainty pin
 --- write_sdc ---
-PASS: write_sdc
 --- write_sdc compatible ---
-PASS: write_sdc compatible
 --- remove_clock ---
-PASS: remove_clock
 --- report_clock_properties ---
 Clock                   Period          Waveform
 ----------------------------------------------------
@@ -1053,7 +1034,6 @@ clk1                     10.00        0.00      5.00
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk2                     20.00        5.00     15.00
-PASS: clock properties
 --- read_sdc ---
 Warning: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
 Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
@@ -1137,7 +1117,6 @@ Path Type: max
            0.38   slack (MET)
 
 
-PASS: read_sdc
 --- unset_clock_latency ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -1219,7 +1198,6 @@ Path Type: max
            0.38   slack (MET)
 
 
-PASS: unset clock latency
 --- unset_clock_uncertainty ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -1300,7 +1278,6 @@ Path Type: max
            0.38   slack (MET)
 
 
-PASS: unset clock uncertainty
 --- unset inter-clock uncertainty ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -1381,7 +1358,6 @@ Path Type: max
            0.38   slack (MET)
 
 
-PASS: unset inter-clock uncertainty
 --- unset_propagated_clock ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
@@ -1462,6 +1438,3 @@ Path Type: max
            0.38   slack (MET)
 
 
-PASS: unset propagated clock
-PASS: final write_sdc
-ALL PASSED

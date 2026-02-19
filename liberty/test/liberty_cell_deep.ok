@@ -1,24 +1,15 @@
-PASS: read Nangate45
-PASS: read ASAP7 SEQ
-PASS: read IHP
-PASS: INV_X1/A capacitance = 1.700230
-PASS: INV_X1/ZN capacitance = 0.000000
-PASS: DFF_X1/CK capacitance = 0.949653
-PASS: DFF_X1/D capacitance = 1.140290
 INV_X1/A cap = 1.700230
 INV_X2/A cap = 3.250891
 INV_X4/A cap = 6.258425
 INV_X8/A cap = 11.810652
 INV_X16/A cap = 25.228138
 INV_X32/A cap = 49.191467
-PASS: INV capacitance sweep
 BUF_X1/A cap = 0.974659
 BUF_X2/A cap = 1.779209
 BUF_X4/A cap = 3.401892
 BUF_X8/A cap = 6.585178
 BUF_X16/A cap = 12.410827
 BUF_X32/A cap = 26.703922
-PASS: BUF capacitance sweep
 INV_X1 area = 0.532000
 INV_X2 area = 0.798000
 INV_X4 area = 1.330000
@@ -49,30 +40,19 @@ FA_X1 area = 4.256000
 HA_X1 area = 2.660000
 TINV_X1 area = 1.064000
 CLKGATETST_X1 area = 3.990000
-PASS: cell area queries
 INV_X1 dont_use = 0
 BUF_X1 dont_use = 0
 DFF_X1 dont_use = 0
 ANTENNA_X1 dont_use = 1
 FILLCELL_X1 dont_use = 1
-PASS: dont_use queries
-PASS: leakage power queries
 Warning: liberty_cell_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
-PASS: design with constraints
 No paths found.
-PASS: max path report
 No paths found.
-PASS: min path report
 No paths found.
-PASS: in2->out2 path
 No paths found.
-PASS: rise_from path
 No paths found.
-PASS: fall_from path
 No paths found.
-PASS: rise_to path
 No paths found.
-PASS: fall_to path
 Group                                  Slack
 --------------------------------------------
 clk1                                    2.05
@@ -80,7 +60,6 @@ clk2                                    0.08
 clk1                                    6.92
 clk2                                    9.88
 
-PASS: report_check_types max/min delay
 max slew
 
 Pin                                    Limit    Slew   Slack
@@ -93,24 +72,19 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 nor1/ZN                                26.70    1.14   25.56 (MET)
 
-PASS: report_check_types max_slew/cap/fanout
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: report_check_types recovery/removal
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    5.00    4.95 (MET)
 
-PASS: report_check_types min_pulse_width/min_period
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: report_check_types clock_gating
-PASS: report_check_types max_skew
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -122,7 +96,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.90e-06   7.80e-08   3.61e-07   2.33e-06 100.0%
                           81.2%       3.3%      15.5%
-PASS: report_power
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
@@ -135,8 +108,6 @@ PASS: report_power
    2.33e-08   5.90e-09   1.44e-08   4.35e-08 inv1
    1.46e-08   6.90e-09   1.97e-08   4.11e-08 nor1
    1.24e-08   6.90e-09   2.18e-08   4.11e-08 nand1
-PASS: report_power instances
-PASS: read Sky130
 Cell sky130_fd_sc_hd__ebufn_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -167,7 +138,6 @@ File ../../test/sky130hd/sky130hd_tt.lib
  A input 2.37-2.60
  TE_B input 6.26-7.48
  Z tristate enable=!TE_B function=A 5.20
-PASS: Sky130 tristate cells
 Cell sky130_fd_sc_hd__dlxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -192,7 +162,6 @@ File ../../test/sky130hd/sky130hd_tt.lib
  D input 1.70-1.89
  GATE_N input 1.66-1.82
  Q output function=IQ
-PASS: Sky130 latch cells
 Cell sky130_fd_sc_hd__sdfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -222,7 +191,6 @@ File ../../test/sky130hd/sky130hd_tt.lib
  Q_N output function=IQ_N
  SCD input 1.72-1.90
  SCE input 3.17-3.56
-PASS: Sky130 scan DFF cells
 Cell sky130_fd_sc_hd__dfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -276,7 +244,6 @@ File ../../test/sky130hd/sky130hd_tt.lib
  Q_N output function=IQ_N
  RESET_B input 1.53-1.67
  SET_B input 3.35-3.53
-PASS: Sky130 async set/reset DFF cells
 Cell sky130_fd_sc_hd__mux2_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -313,8 +280,5 @@ File ../../test/sky130hd/sky130hd_tt.lib
  S0 input 3.70-4.09
  S1 input 2.61-2.74
  X output function=((((A0*!S0)*!S1)+((A1*S0)*!S1))+((A2*!S0)*S1))+((A3*S0)*S1)
-PASS: Sky130 mux cells
-PASS: write_liberty
 Warning: /workspace/sta/OpenSTA/liberty/test/results/liberty_cell_deep_write.lib line 1, library NangateOpenCellLibrary already exists.
 INFO: roundtrip read had issue: Error: /workspace/sta/OpenSTA/liberty/test/results/liberty_cell_deep_write.lib, l
-ALL PASSED

@@ -9,7 +9,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1477
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- Test 1: set then delete manual parasitics ---
-PASS: manual parasitics set
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -39,7 +38,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report_checks with manual parasitics
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -69,8 +67,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: arnoldi with manual parasitics
-PASS: read_spef (override manual)
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -100,7 +96,6 @@ Path Type: max
          413.12   slack (MET)
 
 
-PASS: report_checks after SPEF override
 --- Test 2: SPEF re-read ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -133,7 +128,6 @@ Path Type: max
                          413.12   slack (MET)
 
 
-PASS: with fields after SPEF
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -163,7 +157,6 @@ Path Type: max
          298.15   slack (MET)
 
 
-PASS: arnoldi after SPEF
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -193,8 +186,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: dmp_ceff_two_pole after SPEF
-PASS: re-read SPEF
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -224,7 +215,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: report_checks after SPEF re-read
 --- Test 3: query parasitic state ---
 u1/Y rise max pi: 6.699999696078941e-15 2420.0 7.265281956505675e-15
 u1/Y fall max pi: 6.699999696078941e-15 2420.0 7.265708014078144e-15
@@ -234,7 +224,6 @@ elmore u1/Y->u2/A min: 0.0
 elmore u1/Y->u2/A fall: 0.0
 elmore r3/Q->u1/A (should be empty): 0.0
 --- Test 4: manual -> SPEF -> manual ---
-PASS: set manual on top of SPEF
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -264,16 +253,13 @@ Path Type: max
          344.30   slack (MET)
 
 
-PASS: report_checks after manual on top of SPEF
 u1/Y pi after re-set: 9.99999983775159e-18 20000.0 8.00000036650964e-18
 elmore u1/Y->u2/A after re-set: 9.9999998245167e-15
 --- Test 5: annotation reports ---
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: annotation
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: annotation -report_unannotated
 --- Test 6: report_net ---
 Net r1q
  Pin capacitance: 0.399352-0.522565
@@ -415,7 +401,6 @@ Driver pins
 Load pins
  r3/CLK input (DFFHQx4_ASAP7_75t_R) 0.405426-0.522765
 
-PASS: report_net all nets
 --- Test 7: dcalc reports ---
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
@@ -695,7 +680,6 @@ Driver waveform slew = 18.76
 
 .............................................
 
-PASS: dcalc reports
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -725,5 +709,3 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: final SPEF re-read
-ALL PASSED

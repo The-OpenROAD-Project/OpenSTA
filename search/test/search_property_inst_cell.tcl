@@ -40,7 +40,6 @@ set buf_lc [get_property $buf_inst liberty_cell]
 puts "buf1 liberty_cell: [get_name $buf_lc]"
 set buf_cell [get_property $buf_inst cell]
 puts "buf1 cell: [get_name $buf_cell]"
-puts "PASS: instance properties"
 
 puts "--- Instance properties for and gate ---"
 set and_inst [get_cells and1]
@@ -49,7 +48,6 @@ puts "and1 is_inverter: [get_property $and_inst is_inverter]"
 puts "and1 is_clock_gate: [get_property $and_inst is_clock_gate]"
 puts "and1 is_macro: [get_property $and_inst is_macro]"
 puts "and1 is_memory: [get_property $and_inst is_memory]"
-puts "PASS: and instance properties"
 
 puts "--- Instance properties for register ---"
 set reg_inst [get_cells reg1]
@@ -58,7 +56,6 @@ puts "reg1 is_inverter: [get_property $reg_inst is_inverter]"
 puts "reg1 is_clock_gate: [get_property $reg_inst is_clock_gate]"
 puts "reg1 is_macro: [get_property $reg_inst is_macro]"
 puts "reg1 is_memory: [get_property $reg_inst is_memory]"
-puts "PASS: reg instance properties"
 
 ############################################################
 # LibertyCell properties: is_inverter, is_memory, dont_use, area
@@ -70,7 +67,6 @@ puts "INV_X1 is_inverter: [get_property $inv_cell is_inverter]"
 puts "INV_X1 is_memory: [get_property $inv_cell is_memory]"
 puts "INV_X1 dont_use: [get_property $inv_cell dont_use]"
 puts "INV_X1 area: [get_property $inv_cell area]"
-puts "PASS: INV_X1 liberty cell properties"
 
 set buf_cell [get_lib_cells NangateOpenCellLibrary/BUF_X1]
 puts "BUF_X1 is_buffer: [get_property $buf_cell is_buffer]"
@@ -78,7 +74,6 @@ puts "BUF_X1 is_inverter: [get_property $buf_cell is_inverter]"
 puts "BUF_X1 is_memory: [get_property $buf_cell is_memory]"
 puts "BUF_X1 dont_use: [get_property $buf_cell dont_use]"
 puts "BUF_X1 area: [get_property $buf_cell area]"
-puts "PASS: BUF_X1 liberty cell properties"
 
 set dff_cell [get_lib_cells NangateOpenCellLibrary/DFF_X1]
 puts "DFF_X1 is_buffer: [get_property $dff_cell is_buffer]"
@@ -89,7 +84,6 @@ puts "DFF_X1 area: [get_property $dff_cell area]"
 puts "DFF_X1 filename: [get_property $dff_cell filename]"
 set dff_lib [get_property $dff_cell library]
 puts "DFF_X1 library: [get_name $dff_lib]"
-puts "PASS: DFF_X1 liberty cell properties"
 
 ############################################################
 # Cell properties: full_name, library, filename
@@ -101,7 +95,6 @@ puts "cell full_name: [get_property $cell_ref full_name]"
 set cell_lib [get_property $cell_ref library]
 puts "cell library: [get_name $cell_lib]"
 puts "cell filename: [get_property $cell_ref filename]"
-puts "PASS: cell properties"
 
 ############################################################
 # LibertyLibrary properties: filename
@@ -111,7 +104,6 @@ set llib [get_libs NangateOpenCellLibrary]
 puts "lib name: [get_property $llib name]"
 puts "lib full_name: [get_property $llib full_name]"
 puts "lib filename: [get_property $llib filename]"
-puts "PASS: liberty library properties"
 
 ############################################################
 # Pin properties: is_port, direction, pin_direction, is_hierarchical
@@ -130,7 +122,6 @@ set buf_z_pin [get_pins buf1/Z]
 puts "buf1/Z is_port: [get_property $buf_z_pin is_port]"
 puts "buf1/Z direction: [get_property $buf_z_pin direction]"
 puts "buf1/Z pin_direction: [get_property $buf_z_pin pin_direction]"
-puts "PASS: pin direction properties"
 
 puts "--- Pin is_clock, is_register_clock ---"
 set ck_pin [get_pins reg1/CK]
@@ -139,12 +130,10 @@ puts "reg1/CK is_register_clock: [get_property $ck_pin is_register_clock]"
 set d_pin [get_pins reg1/D]
 puts "reg1/D is_clock: [get_property $d_pin is_clock]"
 puts "reg1/D is_register_clock: [get_property $d_pin is_register_clock]"
-puts "PASS: pin clock properties"
 
 puts "--- Pin activity ---"
 set p_activity [get_property [get_pins buf1/A] activity]
 puts "buf1/A activity: $p_activity"
-puts "PASS: pin activity"
 
 ############################################################
 # Port properties: liberty_port, activity, slack/slew variants
@@ -153,12 +142,10 @@ puts "--- Port liberty_port ---"
 set in_port [get_ports in1]
 set lport [get_property $in_port liberty_port]
 puts "in1 liberty_port: $lport"
-puts "PASS: port liberty_port"
 
 puts "--- Port activity ---"
 set p_act [get_property $in_port activity]
 puts "in1 activity: $p_act"
-puts "PASS: port activity"
 
 puts "--- Port slack variants ---"
 set out_port [get_ports out1]
@@ -168,7 +155,6 @@ puts "out1 slack_max_fall: [get_property $out_port slack_max_fall]"
 puts "out1 slack_min: [get_property $out_port slack_min]"
 puts "out1 slack_min_rise: [get_property $out_port slack_min_rise]"
 puts "out1 slack_min_fall: [get_property $out_port slack_min_fall]"
-puts "PASS: port slack variants"
 
 puts "--- Port slew variants ---"
 puts "in1 slew_max: [get_property $in_port slew_max]"
@@ -177,7 +163,6 @@ puts "in1 slew_max_fall: [get_property $in_port slew_max_fall]"
 puts "in1 slew_min: [get_property $in_port slew_min]"
 puts "in1 slew_min_rise: [get_property $in_port slew_min_rise]"
 puts "in1 slew_min_fall: [get_property $in_port slew_min_fall]"
-puts "PASS: port slew variants"
 
 ############################################################
 # Clock property: is_propagated
@@ -192,14 +177,12 @@ puts "clk name: [get_property $myclk name]"
 puts "clk full_name: [get_property $myclk full_name]"
 set clk_srcs [get_property $myclk sources]
 puts "clk sources: [llength $clk_srcs]"
-puts "PASS: clock properties"
 
 puts "--- Propagated clock property ---"
 set_propagated_clock [get_clocks clk]
 report_checks -path_delay max > /dev/null
 puts "clk is_propagated (after set): [get_property [get_clocks clk] is_propagated]"
 unset_propagated_clock [get_clocks clk]
-puts "PASS: propagated clock"
 
 ############################################################
 # PathEnd property: points
@@ -215,7 +198,6 @@ foreach pe $paths {
   }
   break
 }
-puts "PASS: PathEnd points"
 
 ############################################################
 # Edge properties - is_disabled_cond checking
@@ -232,7 +214,6 @@ foreach edge $edges2 {
   puts "edge delay_max_fall: [get_property $edge delay_max_fall]"
   break
 }
-puts "PASS: edge disabled properties"
 
 ############################################################
 # LibertyPort properties: drive_resistance variants,
@@ -257,18 +238,13 @@ puts "BUF_X1/Z direction: [get_property $lp_z direction]"
 puts "BUF_X1/Z port_direction: [get_property $lp_z port_direction]"
 set lp_cell [get_property $lp_z lib_cell]
 puts "BUF_X1/Z lib_cell: [get_name $lp_cell]"
-puts "PASS: liberty port properties"
 
 puts "--- LibertyPort for clock pin ---"
 set lp_ck [get_lib_pins NangateOpenCellLibrary/DFF_X1/CK]
 puts "DFF_X1/CK is_clock: [get_property $lp_ck is_clock]"
 puts "DFF_X1/CK is_register_clock: [get_property $lp_ck is_register_clock]"
 puts "DFF_X1/CK direction: [get_property $lp_ck direction]"
-puts "PASS: DFF CK liberty port"
 
 set lp_d [get_lib_pins NangateOpenCellLibrary/DFF_X1/D]
 puts "DFF_X1/D is_clock: [get_property $lp_d is_clock]"
 puts "DFF_X1/D is_register_clock: [get_property $lp_d is_register_clock]"
-puts "PASS: DFF D liberty port"
-
-puts "ALL PASSED"

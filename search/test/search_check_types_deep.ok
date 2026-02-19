@@ -31,7 +31,6 @@ Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.06    5.00    4.94 (MET)
 
-PASS: report_check_types defaults
 --- report_check_types -verbose ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -241,7 +240,6 @@ Check: sequential_clock_pulse_width
            4.94   slack (MET)
 
 
-PASS: report_check_types verbose
 --- report_check_types -violators ---
 Group                                  Slack
 --------------------------------------------
@@ -294,19 +292,16 @@ en                                      0.00    0.97   -0.97 (VIOLATED)
 in2                                     0.00    0.97   -0.97 (VIOLATED)
 in1                                     0.00    0.92   -0.92 (VIOLATED)
 
-PASS: report_check_types violators
 --- report_check_types -max_delay ---
 Group                                  Slack
 --------------------------------------------
 clk                                     7.88
 
-PASS: max_delay
 --- report_check_types -min_delay ---
 Group                                  Slack
 --------------------------------------------
 clk                                     0.08
 
-PASS: min_delay
 --- report_check_types -max_delay -verbose ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -335,7 +330,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: max_delay verbose
 --- report_check_types -min_delay -verbose ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -364,26 +358,22 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: min_delay verbose
 --- report_check_types -max_delay -violators ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: max_delay violators
 --- report_check_types -min_delay -violators ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: min_delay violators
 --- report_check_types -max_delay -min_delay ---
 Group                                  Slack
 --------------------------------------------
 clk                                     0.08
 clk                                     7.88
 
-PASS: max_delay + min_delay
 --- report_check_types -max_delay -min_delay -verbose ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -439,25 +429,21 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: max_delay + min_delay verbose
 --- report_check_types -max_delay -min_delay -violators ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: max_delay + min_delay violators
 --- report_check_types -recovery ---
 Group                                  Slack
 --------------------------------------------
 asynchronous                            9.55
 
-PASS: recovery
 --- report_check_types -removal ---
 Group                                  Slack
 --------------------------------------------
 asynchronous                            0.32
 
-PASS: removal
 --- report_check_types -recovery -verbose ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -486,7 +472,6 @@ Path Type: max
            9.55   slack (MET)
 
 
-PASS: recovery verbose
 --- report_check_types -removal -verbose ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -515,26 +500,22 @@ Path Type: min
            0.32   slack (MET)
 
 
-PASS: removal verbose
 --- report_check_types -recovery -violators ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: recovery violators
 --- report_check_types -removal -violators ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: removal violators
 --- report_check_types -recovery -removal ---
 Group                                  Slack
 --------------------------------------------
 asynchronous                            0.32
 asynchronous                            9.55
 
-PASS: recovery + removal
 --- report_check_types -recovery -removal -verbose ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -590,19 +571,16 @@ Path Type: max
            9.55   slack (MET)
 
 
-PASS: recovery + removal verbose
 --- report_check_types -clock_gating_setup ---
 Group                                  Slack
 --------------------------------------------
 gated clock                             9.50
 
-PASS: clock_gating_setup
 --- report_check_types -clock_gating_hold ---
 Group                                  Slack
 --------------------------------------------
 gated clock                            -4.50
 
-PASS: clock_gating_hold
 --- report_check_types -clock_gating_setup -verbose ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -631,7 +609,6 @@ Path Type: max
            9.50   slack (MET)
 
 
-PASS: clock_gating_setup verbose
 --- report_check_types -clock_gating_hold -verbose ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -660,14 +637,12 @@ Path Type: min
           -4.50   slack (VIOLATED)
 
 
-PASS: clock_gating_hold verbose
 --- report_check_types -clock_gating_setup -clock_gating_hold ---
 Group                                  Slack
 --------------------------------------------
 gated clock                            -4.50
 gated clock                             9.50
 
-PASS: clock_gating_setup + hold
 --- report_check_types -max_slew ---
 max slew
 
@@ -675,7 +650,6 @@ Pin                                    Limit    Slew   Slack
 ------------------------------------------------------------
 buf2/A                                  0.00    0.01   -0.01 (VIOLATED)
 
-PASS: max_slew
 --- report_check_types -max_slew -verbose ---
 max slew
 
@@ -685,7 +659,6 @@ slew        0.01
 ----------------
 Slack      -0.01 (VIOLATED)
 
-PASS: max_slew verbose
 --- report_check_types -max_slew -violators ---
 max slew
 
@@ -712,11 +685,8 @@ buf2/Z                                  0.00    0.00   -0.00 (VIOLATED)
 out2                                    0.00    0.00   -0.00 (VIOLATED)
 buf3/Z                                  0.00    0.00   -0.00 (VIOLATED)
 
-PASS: max_slew violators
 --- report_check_types -min_slew ---
-PASS: min_slew
 --- report_check_types -min_slew -verbose ---
-PASS: min_slew verbose
 --- report_check_types -max_capacitance ---
 max capacitance
 
@@ -724,7 +694,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 rst                                     0.00    3.56   -3.56 (VIOLATED)
 
-PASS: max_capacitance
 --- report_check_types -max_capacitance -verbose ---
 max capacitance
 
@@ -734,7 +703,6 @@ capacitance        3.56
 -----------------------
 Slack             -3.56 (VIOLATED)
 
-PASS: max_capacitance verbose
 --- report_check_types -max_capacitance -violators ---
 max capacitance
 
@@ -751,11 +719,8 @@ en                                      0.00    0.97   -0.97 (VIOLATED)
 in2                                     0.00    0.97   -0.97 (VIOLATED)
 in1                                     0.00    0.92   -0.92 (VIOLATED)
 
-PASS: max_capacitance violators
 --- report_check_types -min_capacitance ---
-PASS: min_capacitance
 --- report_check_types -min_capacitance -verbose ---
-PASS: min_capacitance verbose
 --- report_check_types -max_fanout ---
 max fanout
 
@@ -763,7 +728,6 @@ Pin                                   Limit Fanout  Slack
 ---------------------------------------------------------
 reg1/Q                                    1      2        (VIOLATED)
 
-PASS: max_fanout
 --- report_check_types -max_fanout -verbose ---
 max fanout
 
@@ -773,7 +737,6 @@ fanout          2
 -----------------
 Slack             (VIOLATED)
 
-PASS: max_fanout verbose
 --- report_check_types -max_fanout -violators ---
 max fanout
 
@@ -782,18 +745,14 @@ Pin                                   Limit Fanout  Slack
 rst                                       1      2        (VIOLATED)
 reg1/Q                                    1      2        (VIOLATED)
 
-PASS: max_fanout violators
 --- report_check_types -min_fanout ---
-PASS: min_fanout
 --- report_check_types -min_fanout -verbose ---
-PASS: min_fanout verbose
 --- report_check_types -min_pulse_width ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.06    5.00    4.94 (MET)
 
-PASS: min_pulse_width
 --- report_check_types -min_pulse_width -verbose ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -817,21 +776,13 @@ Check: sequential_clock_pulse_width
            4.94   slack (MET)
 
 
-PASS: min_pulse_width verbose
 --- report_check_types -min_pulse_width -violators ---
-PASS: min_pulse_width violators
 --- report_check_types -min_period ---
-PASS: min_period
 --- report_check_types -min_period -verbose ---
-PASS: min_period verbose
 --- report_check_types -min_period -violators ---
-PASS: min_period violators
 --- report_check_types -max_skew ---
-PASS: max_skew
 --- report_check_types -max_skew -verbose ---
-PASS: max_skew verbose
 --- report_check_types -max_skew -violators ---
-PASS: max_skew violators
 --- report_check_types -max_slew -verbose -no_line_splits ---
 max slew
 
@@ -841,41 +792,33 @@ slew        0.01
 ----------------
 Slack      -0.01 (VIOLATED)
 
-PASS: max_slew verbose no_line_splits
 --- report_worst_slack ---
 worst slack max 7.88
 worst slack min -4.50
 worst slack max 7.881455
 worst slack min -4.500000
-PASS: report_worst_slack
 --- report_tns ---
 tns max 0.00
 tns min -4.50
 tns max 0.000000
 tns min -4.500000
-PASS: report_tns
 --- report_wns ---
 wns max 0.00
 wns min -4.50
 wns max 0.000000
 wns min -4.500000
-PASS: report_wns
 --- worst_slack direct ---
 worst_slack max: 7.881454822969938
 worst_slack min: -4.500000055511153
-PASS: worst_slack direct
 --- total_negative_slack direct ---
 tns max: 0.0
 tns min: -4.500000055511153
-PASS: tns direct
 --- worst_negative_slack ---
 worst_negative_slack max: 0.0
 worst_negative_slack min: -4.500000055511153
-PASS: worst_negative_slack
 --- endpoint_violation_count ---
 max violations: 0
 min violations: 1
-PASS: endpoint_violation_count
 --- report_pulse_width_checks ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -885,7 +828,6 @@ reg2/CK (high)                          0.06    5.00    4.94 (MET)
 reg2/CK (low)                           0.05    5.00    4.95 (MET)
 reg1/CK (low)                           0.05    5.00    4.95 (MET)
 
-PASS: report_pulse_width_checks
 --- report_pulse_width_checks -verbose ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -972,13 +914,10 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: report_pulse_width_checks verbose
 --- report_clock_min_period ---
 clk period_min = 0.13 fmax = 7459.11
-PASS: report_clock_min_period
 --- report_clock_min_period -include_port_paths ---
 clk period_min = 2.12 fmax = 472.02
-PASS: report_clock_min_period include_port_paths
 --- report_clock_skew ---
 Clock clk
    0.02 source latency reg1/CK ^
@@ -1022,7 +961,6 @@ Clock clk
 --------------
 0.024496 hold skew
 
-PASS: report_clock_skew
 --- Combined check types ---
 max slew
 
@@ -1113,13 +1051,9 @@ en                                      0.00    0.97   -0.97 (VIOLATED)
 in2                                     0.00    0.97   -0.97 (VIOLATED)
 in1                                     0.00    0.92   -0.92 (VIOLATED)
 
-PASS: combined check types
 --- find_timing_paths with slack_max filtering ---
 Paths with slack <= 0: 0
 Paths with slack <= 100: 3
-PASS: slack_max filtering
 --- find_timing_paths min with slack filtering ---
 Min paths with slack <= 0: 1
 Min paths with slack <= 100: 3
-PASS: min slack_max filtering
-ALL PASSED

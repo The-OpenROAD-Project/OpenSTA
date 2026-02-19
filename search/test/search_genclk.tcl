@@ -77,7 +77,6 @@ puts "Found [llength $paths] paths to out2"
 puts "--- set_clock_groups -logically_exclusive ---"
 set_clock_groups -name clk_le -logically_exclusive -group {clk} -group {div_clk}
 report_checks -path_delay max
-puts "PASS: set_clock_groups -logically_exclusive applied"
 
 puts "--- unset_clock_groups ---"
 unset_clock_groups -logically_exclusive -name clk_le
@@ -85,7 +84,6 @@ unset_clock_groups -logically_exclusive -name clk_le
 puts "--- set_clock_groups -asynchronous ---"
 set_clock_groups -name clk_async -asynchronous -group {clk} -group {div_clk}
 report_checks -path_delay max
-puts "PASS: set_clock_groups -asynchronous applied"
 
 puts "--- unset_clock_groups -asynchronous ---"
 unset_clock_groups -asynchronous -name clk_async
@@ -110,17 +108,13 @@ report_clock_min_period -clocks fast_clk
 puts "--- set_clock_uncertainty on generated clock ---"
 set_clock_uncertainty 0.1 [get_clocks fast_clk]
 report_checks -path_delay max -to [get_ports out2]
-puts "PASS: clock_uncertainty on genclk applied"
 
 puts "--- set_clock_latency -source on generated clock ---"
 set_clock_latency -source 0.15 [get_clocks fast_clk]
 report_checks -path_delay max -to [get_ports out2]
-puts "PASS: clock_latency on genclk applied"
 
 puts "--- report_pulse_width_checks ---"
 report_pulse_width_checks
 
 puts "--- report_pulse_width_checks verbose ---"
 report_pulse_width_checks -verbose
-
-puts "ALL genclk tests PASSED"

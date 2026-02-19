@@ -17,10 +17,8 @@ source ../../test/helpers.tcl
 # Read Sky130 library (has clock gate cells, level shifters, pg_pins)
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read Sky130 library"
 
 set lib [sta::find_liberty sky130_fd_sc_hd__tt_025C_1v80]
-puts "PASS: found liberty library"
 
 ############################################################
 # Voltage map / supply voltage queries
@@ -56,8 +54,6 @@ puts "VSS exists: $vss_exists"
 set fake_exists [sta::liberty_supply_exists FAKE_SUPPLY]
 puts "FAKE_SUPPLY exists: $fake_exists"
 
-puts "PASS: supply voltage queries"
-
 ############################################################
 # Clock gate cell queries (exercises clock_gating_integrated_cell)
 # dlclkp cells have latch_posedge type
@@ -78,7 +74,6 @@ foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
     }
   }
 }
-puts "PASS: dlclkp clock gate cells"
 
 # sdlclkp cells have latch_posedge_precontrol type
 foreach cell_name {sky130_fd_sc_hd__sdlclkp_1 sky130_fd_sc_hd__sdlclkp_2
@@ -101,7 +96,6 @@ foreach cell_name {sky130_fd_sc_hd__sdlclkp_1 sky130_fd_sc_hd__sdlclkp_2
     }
   }
 }
-puts "PASS: sdlclkp clock gate cells with precontrol"
 
 ############################################################
 # Level shifter cell queries
@@ -137,7 +131,6 @@ foreach cell_name {sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1
     }
   }
 }
-puts "PASS: level shifter cell queries"
 
 ############################################################
 # PG pin queries on various cells
@@ -168,7 +161,6 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
     }
   }
 }
-puts "PASS: pg_pin queries"
 
 ############################################################
 # Timing arc queries on clock gate cells
@@ -190,7 +182,6 @@ catch {
     }
   }
 }
-puts "PASS: clock gate timing arcs"
 
 catch {
   set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1]
@@ -203,7 +194,6 @@ catch {
     }
   }
 }
-puts "PASS: sdlclkp timing arcs"
 
 ############################################################
 # Timing arc queries on level shifter cells
@@ -220,7 +210,6 @@ catch {
     }
   }
 }
-puts "PASS: level shifter timing arcs"
 
 ############################################################
 # Buffer/inverter classification on Sky130 cells
@@ -242,7 +231,6 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
     }
   }
 }
-puts "PASS: cell classification"
 
 ############################################################
 # Write liberty for sky130 (exercises writer for pg_pin, level_shifter)
@@ -250,14 +238,12 @@ puts "PASS: cell classification"
 set outfile [make_result_file liberty_clkgate_lvlshift_write.lib]
 catch {
   sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile
-  puts "PASS: write_liberty sky130"
 }
 
 ############################################################
 # Read IHP library for more voltage_map / pg_pin coverage
 ############################################################
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
-puts "PASS: read IHP library"
 
 # Check supply exists after IHP
 set ihp_vdd_exists [sta::liberty_supply_exists VDD]
@@ -275,6 +261,3 @@ foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1 sg13g2_nor2_1} {
     }
   }
 }
-puts "PASS: IHP cell queries"
-
-puts "ALL PASSED"

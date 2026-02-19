@@ -484,7 +484,6 @@ Path Type: max
           18.90   slack (MET)
 
 
-PASS: set_clock_groups -logically_exclusive applied
 --- unset_clock_groups ---
 --- set_clock_groups -asynchronous ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -541,7 +540,6 @@ Path Type: max
           18.90   slack (MET)
 
 
-PASS: set_clock_groups -asynchronous applied
 --- unset_clock_groups -asynchronous ---
 --- delete generated clock and create multiply_by ---
 --- report_clock_properties after multiply_by ---
@@ -663,7 +661,6 @@ Path Type: max
            4.30   slack (MET)
 
 
-PASS: clock_uncertainty on genclk applied
 --- set_clock_latency -source on generated clock ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by fast_clk)
 Endpoint: out2 (output port clocked by fast_clk)
@@ -693,7 +690,6 @@ Path Type: max
            4.30   slack (MET)
 
 
-PASS: clock_latency on genclk applied
 --- report_pulse_width_checks ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -833,4 +829,3 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-ALL genclk tests PASSED

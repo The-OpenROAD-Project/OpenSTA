@@ -28,10 +28,6 @@ Path Type: max
 
 
 --- make_instance using liberty cell ---
-PASS: make_instance lib_buf BUF_X2
-PASS: made nets net_a and net_b
-PASS: connect_pin net_a lib_buf/A
-PASS: connect_pin net_b lib_buf/Z
 lib_buf pins: 2
   pin: lib_buf/A dir=input
   pin: lib_buf/Z dir=output
@@ -39,16 +35,9 @@ lib_buf pins: 2
 fanin to lib_buf/Z: 2
 fanout from lib_buf/A: 2
 --- disconnect and reconnect ---
-PASS: disconnect_pin net_a lib_buf/A
-PASS: reconnect lib_buf/A to net_b
-PASS: disconnected all pins from lib_buf
-PASS: delete_instance lib_buf
-PASS: delete_net net_a and net_b
 --- multiple instance creation ---
-PASS: made 3 instances
 total cells after add: 6
 test_* cells: 3
-PASS: deleted all test instances
 total cells after delete: 3
 --- replace_cell tests ---
 replace_cell buf1 -> BUF_X4: 1
@@ -79,6 +68,3 @@ Path Type: max
            9.92   slack (MET)
 
 
-PASS: report_checks after replace_cell
-PASS: replace_cell buf1 back to BUF_X1
-ALL PASSED

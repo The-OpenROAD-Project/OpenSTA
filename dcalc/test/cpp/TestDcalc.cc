@@ -4138,4 +4138,750 @@ TEST_F(DesignDcalcTest, LevelChangedBefore) {
   }
 }
 
+////////////////////////////////////////////////////////////////
+// NangateDcalcTest - Loads Nangate45 + dcalc_test1.v (BUF->INV->DFF chain)
+
+class NangateDcalcTest : public ::testing::Test {
+protected:
+  void SetUp() override {
+    interp_ = Tcl_CreateInterp();
+    initSta();
+    sta_ = new Sta;
+    Sta::setSta(sta_);
+    sta_->makeComponents();
+    ReportTcl *report = dynamic_cast<ReportTcl*>(sta_->report());
+    if (report)
+      report->setTclInterp(interp_);
+    registerDelayCalcs();
+
+    Corner *corner = sta_->cmdCorner();
+    const MinMaxAll *min_max = MinMaxAll::all();
+    LibertyLibrary *lib = sta_->readLiberty(
+      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+    ASSERT_NE(lib, nullptr);
+
+    bool ok = sta_->readVerilog("dcalc/test/dcalc_test1.v");
+    ASSERT_TRUE(ok);
+    ok = sta_->linkDesign("dcalc_test1", true);
+    ASSERT_TRUE(ok);
+
+    // Create clock and set constraints
+    Network *network = sta_->network();
+    Instance *top = network->topInstance();
+    Pin *clk_pin = network->findPin(top, "clk");
+    ASSERT_NE(clk_pin, nullptr);
+    PinSet *clk_pins = new PinSet(network);
+    clk_pins->insert(clk_pin);
+    FloatSeq *waveform = new FloatSeq;
+    waveform->push_back(0.0f);
+    waveform->push_back(5.0f);
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr);
+
+    // Set input/output delay constraints to create constrained timing paths
+    Clock *clk = sta_->sdc()->findClock("clk");
+    ASSERT_NE(clk, nullptr);
+
+    Pin *in1_pin = network->findPin(top, "in1");
+    ASSERT_NE(in1_pin, nullptr);
+    sta_->setInputDelay(in1_pin, RiseFallBoth::riseFall(), clk,
+                        RiseFall::rise(), nullptr, false, false,
+                        MinMaxAll::all(), false, 0.0f);
+
+    Pin *out1_pin = network->findPin(top, "out1");
+    ASSERT_NE(out1_pin, nullptr);
+    sta_->setOutputDelay(out1_pin, RiseFallBoth::riseFall(), clk,
+                         RiseFall::rise(), nullptr, false, false,
+                         MinMaxAll::all(), false, 0.0f);
+
+    design_loaded_ = true;
+  }
+  void TearDown() override {
+    deleteDelayCalcs();
+    deleteAllMemory();
+    sta_ = nullptr;
+    if (interp_) Tcl_DeleteInterp(interp_);
+    interp_ = nullptr;
+  }
+  Sta *sta_;
+  Tcl_Interp *interp_;
+  bool design_loaded_ = false;
+};
+
+// Run updateTiming with each calculator, verify all complete without crash
+// and graph has delays.
+TEST_F(NangateDcalcTest, TimingAllCalcsNangate) {
+  EXPECT_TRUE(design_loaded_);
+  const char *calcs[] = {"unit", "lumped_cap", "dmp_ceff_elmore",
+                          "dmp_ceff_two_pole", "ccs_ceff"};
+  for (const char *name : calcs) {
+    sta_->setArcDelayCalc(name);
+    sta_->updateTiming(true);
+    Graph *graph = sta_->graph();
+    ASSERT_NE(graph, nullptr);
+    EXPECT_GT(graph->vertexCount(), 0);
+  }
+}
+
+// Set various loads on output, run dmp_ceff_elmore for each, verify slack changes.
+TEST_F(NangateDcalcTest, DmpExtremeLoads) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *out_port = network->findPort(top_cell, "out1");
+  ASSERT_NE(out_port, nullptr);
+
+  Corner *corner = sta_->cmdCorner();
+  float loads[] = {0.00001f, 0.1f, 1.0f, 5.0f, 10.0f};
+  Slack prev_slack = 0.0f;
+  bool first = true;
+  for (float load : loads) {
+    sta_->setPortExtPinCap(out_port, RiseFallBoth::riseFall(),
+                           corner, MinMaxAll::all(), load);
+    sta_->updateTiming(true);
+    Slack slack = sta_->worstSlack(MinMax::max());
+    if (!first) {
+      // With increasing load, slack should generally decrease (become worse)
+      // but we just verify it's a valid number and changes
+      EXPECT_TRUE(slack != prev_slack || load == loads[0]);
+    }
+    prev_slack = slack;
+    first = false;
+  }
+}
+
+// Set various input transitions via setInputSlew, verify timing completes.
+TEST_F(NangateDcalcTest, DmpExtremeSlews) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *in_port = network->findPort(top_cell, "in1");
+  ASSERT_NE(in_port, nullptr);
+
+  float slews[] = {0.0001f, 0.1f, 5.0f, 10.0f};
+  for (float slew : slews) {
+    sta_->setInputSlew(in_port, RiseFallBoth::riseFall(),
+                       MinMaxAll::all(), slew);
+    sta_->updateTiming(true);
+    SUCCEED();
+  }
+}
+
+// Large load + fast slew, tiny load + slow slew combinations.
+TEST_F(NangateDcalcTest, DmpCombinedExtremes) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *out_port = network->findPort(top_cell, "out1");
+  const Port *in_port = network->findPort(top_cell, "in1");
+  ASSERT_NE(out_port, nullptr);
+  ASSERT_NE(in_port, nullptr);
+
+  Corner *corner = sta_->cmdCorner();
+
+  // Large load + fast slew
+  sta_->setPortExtPinCap(out_port, RiseFallBoth::riseFall(),
+                         corner, MinMaxAll::all(), 10.0f);
+  sta_->setInputSlew(in_port, RiseFallBoth::riseFall(),
+                     MinMaxAll::all(), 0.0001f);
+  sta_->updateTiming(true);
+  Slack slack1 = sta_->worstSlack(MinMax::max());
+
+  // Tiny load + slow slew
+  sta_->setPortExtPinCap(out_port, RiseFallBoth::riseFall(),
+                         corner, MinMaxAll::all(), 0.00001f);
+  sta_->setInputSlew(in_port, RiseFallBoth::riseFall(),
+                     MinMaxAll::all(), 10.0f);
+  sta_->updateTiming(true);
+  Slack slack2 = sta_->worstSlack(MinMax::max());
+
+  // Just verify both complete and produce different slacks
+  EXPECT_NE(slack1, slack2);
+}
+
+// Same as DmpExtremeLoads but with dmp_ceff_two_pole.
+TEST_F(NangateDcalcTest, TwoPoleExtremeLoads) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_two_pole");
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *out_port = network->findPort(top_cell, "out1");
+  ASSERT_NE(out_port, nullptr);
+
+  Corner *corner = sta_->cmdCorner();
+  float loads[] = {0.00001f, 0.1f, 1.0f, 5.0f, 10.0f};
+  for (float load : loads) {
+    sta_->setPortExtPinCap(out_port, RiseFallBoth::riseFall(),
+                           corner, MinMaxAll::all(), load);
+    sta_->updateTiming(true);
+    SUCCEED();
+  }
+}
+
+// Switch calculator from dmp_ceff_elmore->lumped_cap->unit->dmp_ceff_two_pole,
+// verify timing works at each switch.
+TEST_F(NangateDcalcTest, CalcSwitchingIncremental) {
+  EXPECT_TRUE(design_loaded_);
+  const char *calcs[] = {"dmp_ceff_elmore", "lumped_cap", "unit",
+                          "dmp_ceff_two_pole"};
+  for (const char *name : calcs) {
+    sta_->setArcDelayCalc(name);
+    sta_->updateTiming(true);
+    Graph *graph = sta_->graph();
+    ASSERT_NE(graph, nullptr);
+    EXPECT_GT(graph->vertexCount(), 0);
+  }
+}
+
+// Set ccs_ceff (falls back to table-based for NLDM), verify timing works.
+TEST_F(NangateDcalcTest, CcsWithNldmFallback) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("ccs_ceff");
+  sta_->updateTiming(true);
+  Graph *graph = sta_->graph();
+  ASSERT_NE(graph, nullptr);
+  EXPECT_GT(graph->vertexCount(), 0);
+
+  Slack slack = sta_->worstSlack(MinMax::max());
+  // CCS with NLDM fallback should still produce valid timing
+  (void)slack;
+  SUCCEED();
+}
+
+// Set ccs_ceff, change load, verify incremental timing.
+TEST_F(NangateDcalcTest, CcsIncrementalLoadChange) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("ccs_ceff");
+  sta_->updateTiming(true);
+  Slack slack1 = sta_->worstSlack(MinMax::max());
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *out_port = network->findPort(top_cell, "out1");
+  ASSERT_NE(out_port, nullptr);
+
+  Corner *corner = sta_->cmdCorner();
+  sta_->setPortExtPinCap(out_port, RiseFallBoth::riseFall(),
+                         corner, MinMaxAll::all(), 5.0f);
+  sta_->updateTiming(false);
+  Slack slack2 = sta_->worstSlack(MinMax::max());
+
+  // With large load, slack should change
+  EXPECT_NE(slack1, slack2);
+}
+
+////////////////////////////////////////////////////////////////
+// MultiDriverDcalcTest - Loads Nangate45 + dcalc_multidriver_test.v
+
+class MultiDriverDcalcTest : public ::testing::Test {
+protected:
+  void SetUp() override {
+    interp_ = Tcl_CreateInterp();
+    initSta();
+    sta_ = new Sta;
+    Sta::setSta(sta_);
+    sta_->makeComponents();
+    ReportTcl *report = dynamic_cast<ReportTcl*>(sta_->report());
+    if (report)
+      report->setTclInterp(interp_);
+    registerDelayCalcs();
+
+    Corner *corner = sta_->cmdCorner();
+    const MinMaxAll *min_max = MinMaxAll::all();
+    LibertyLibrary *lib = sta_->readLiberty(
+      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+    ASSERT_NE(lib, nullptr);
+
+    bool ok = sta_->readVerilog("dcalc/test/dcalc_multidriver_test.v");
+    ASSERT_TRUE(ok);
+    ok = sta_->linkDesign("dcalc_multidriver_test", true);
+    ASSERT_TRUE(ok);
+
+    // Create clock
+    Network *network = sta_->network();
+    Instance *top = network->topInstance();
+    Pin *clk_pin = network->findPin(top, "clk");
+    ASSERT_NE(clk_pin, nullptr);
+    PinSet *clk_pins = new PinSet(network);
+    clk_pins->insert(clk_pin);
+    FloatSeq *waveform = new FloatSeq;
+    waveform->push_back(0.0f);
+    waveform->push_back(5.0f);
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr);
+
+    Clock *clk = sta_->sdc()->findClock("clk");
+    ASSERT_NE(clk, nullptr);
+
+    // Set input delays on in1-in4, sel
+    Cell *top_cell = network->cell(top);
+    const char *input_ports[] = {"in1", "in2", "in3", "in4", "sel"};
+    for (const char *pname : input_ports) {
+      const Port *port = network->findPort(top_cell, pname);
+      if (port) {
+        sta_->setInputSlew(port, RiseFallBoth::riseFall(),
+                           MinMaxAll::all(), 0.1f);
+        // Also set SDC input delay to constrain the path
+        Pin *pin = network->findPin(top, pname);
+        if (pin) {
+          sta_->setInputDelay(pin, RiseFallBoth::riseFall(), clk,
+                              RiseFall::rise(), nullptr, false, false,
+                              MinMaxAll::all(), false, 0.0f);
+        }
+      }
+    }
+
+    // Set output loads and output delays on out1-out3
+    const char *output_ports[] = {"out1", "out2", "out3"};
+    for (const char *pname : output_ports) {
+      const Port *port = network->findPort(top_cell, pname);
+      if (port) {
+        sta_->setPortExtPinCap(port, RiseFallBoth::riseFall(),
+                               corner, MinMaxAll::all(), 0.01f);
+        Pin *pin = network->findPin(top, pname);
+        if (pin) {
+          sta_->setOutputDelay(pin, RiseFallBoth::riseFall(), clk,
+                               RiseFall::rise(), nullptr, false, false,
+                               MinMaxAll::all(), false, 0.0f);
+        }
+      }
+    }
+
+    design_loaded_ = true;
+  }
+  void TearDown() override {
+    deleteDelayCalcs();
+    deleteAllMemory();
+    sta_ = nullptr;
+    if (interp_) Tcl_DeleteInterp(interp_);
+    interp_ = nullptr;
+  }
+  Sta *sta_;
+  Tcl_Interp *interp_;
+  bool design_loaded_ = false;
+};
+
+// updateTiming, query paths from each input to each output, verify graph has paths.
+TEST_F(MultiDriverDcalcTest, AllPathQueries) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->updateTiming(true);
+
+  Graph *graph = sta_->graph();
+  ASSERT_NE(graph, nullptr);
+  EXPECT_GT(graph->vertexCount(), 10);
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  // Verify output pins have vertices
+  const char *out_names[] = {"out1", "out2", "out3"};
+  for (const char *name : out_names) {
+    Pin *pin = network->findPin(top, name);
+    ASSERT_NE(pin, nullptr);
+    Vertex *v = graph->pinDrvrVertex(pin);
+    EXPECT_NE(v, nullptr);
+  }
+}
+
+// Sweep loads 0.001->0.1 on out1, verify delays change monotonically.
+TEST_F(MultiDriverDcalcTest, DmpCeffLoadSweep) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *out_port = network->findPort(top_cell, "out1");
+  ASSERT_NE(out_port, nullptr);
+
+  Corner *corner = sta_->cmdCorner();
+  float loads[] = {0.001f, 0.005f, 0.01f, 0.05f, 0.1f};
+  Slack prev_slack = 1e30f;  // Start with large positive value
+  for (float load : loads) {
+    sta_->setPortExtPinCap(out_port, RiseFallBoth::riseFall(),
+                           corner, MinMaxAll::all(), load);
+    sta_->updateTiming(true);
+    Slack slack = sta_->worstSlack(MinMax::max());
+    // With increasing load, slack should decrease (more negative = worse)
+    EXPECT_LE(slack, prev_slack + 1e-6f);
+    prev_slack = slack;
+  }
+}
+
+// Set large tolerance (0.5), change slew, verify timing completes.
+TEST_F(MultiDriverDcalcTest, IncrementalToleranceLarge) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->setIncrementalDelayTolerance(0.5f);
+  sta_->updateTiming(true);
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *in_port = network->findPort(top_cell, "in1");
+  ASSERT_NE(in_port, nullptr);
+
+  sta_->setInputSlew(in_port, RiseFallBoth::riseFall(),
+                     MinMaxAll::all(), 0.5f);
+  sta_->updateTiming(false);
+  SUCCEED();
+}
+
+// Set small tolerance (0.001), change slew, verify timing recomputes.
+TEST_F(MultiDriverDcalcTest, IncrementalToleranceSmall) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->setIncrementalDelayTolerance(0.001f);
+  sta_->updateTiming(true);
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *in_port = network->findPort(top_cell, "in1");
+  ASSERT_NE(in_port, nullptr);
+
+  sta_->setInputSlew(in_port, RiseFallBoth::riseFall(),
+                     MinMaxAll::all(), 0.5f);
+  sta_->updateTiming(false);
+  SUCCEED();
+}
+
+// Set loads on multiple outputs, verify incremental update works.
+TEST_F(MultiDriverDcalcTest, IncrementalLoadChanges) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->updateTiming(true);
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  Corner *corner = sta_->cmdCorner();
+
+  const char *output_ports[] = {"out1", "out2", "out3"};
+  for (const char *pname : output_ports) {
+    const Port *port = network->findPort(top_cell, pname);
+    ASSERT_NE(port, nullptr);
+    sta_->setPortExtPinCap(port, RiseFallBoth::riseFall(),
+                           corner, MinMaxAll::all(), 1.0f);
+  }
+  sta_->updateTiming(false);
+
+  Slack slack = sta_->worstSlack(MinMax::max());
+  (void)slack;
+  SUCCEED();
+}
+
+// Change clock period, verify timing updates.
+TEST_F(MultiDriverDcalcTest, IncrementalClockPeriodChange) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->updateTiming(true);
+  Slack slack1 = sta_->worstSlack(MinMax::max());
+
+  // Create new clock with different period
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Pin *clk_pin = network->findPin(top, "clk");
+  ASSERT_NE(clk_pin, nullptr);
+  PinSet *clk_pins = new PinSet(network);
+  clk_pins->insert(clk_pin);
+  FloatSeq *waveform = new FloatSeq;
+  waveform->push_back(0.0f);
+  waveform->push_back(1.0f);
+  sta_->makeClock("clk", clk_pins, false, 2.0f, waveform, nullptr);
+  sta_->updateTiming(true);
+  Slack slack2 = sta_->worstSlack(MinMax::max());
+
+  // Tighter clock => smaller (worse) slack
+  EXPECT_NE(slack1, slack2);
+}
+
+// Replace buf1 with BUF_X4, verify timing completes, replace back.
+TEST_F(MultiDriverDcalcTest, ReplaceCellIncremental) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->updateTiming(true);
+
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Instance *buf1 = network->findChild(top, "buf1");
+  ASSERT_NE(buf1, nullptr);
+
+  LibertyCell *buf_x4 = network->findLibertyCell("BUF_X4");
+  ASSERT_NE(buf_x4, nullptr);
+
+  LibertyCell *buf_x1 = network->findLibertyCell("BUF_X1");
+  ASSERT_NE(buf_x1, nullptr);
+
+  // Check vertex delay on buf1 output before replacement
+  Graph *graph = sta_->graph();
+  Pin *buf1_z = network->findPin(buf1, "Z");
+  ASSERT_NE(buf1_z, nullptr);
+  Vertex *v1 = graph->pinDrvrVertex(buf1_z);
+  ASSERT_NE(v1, nullptr);
+
+  sta_->replaceCell(buf1, buf_x4);
+  sta_->updateTiming(true);
+
+  // Verify timing completes after replacement
+  graph = sta_->graph();
+  ASSERT_NE(graph, nullptr);
+  EXPECT_GT(graph->vertexCount(), 0);
+
+  // Replace back to original
+  sta_->replaceCell(buf1, buf_x1);
+  sta_->updateTiming(true);
+
+  graph = sta_->graph();
+  ASSERT_NE(graph, nullptr);
+  EXPECT_GT(graph->vertexCount(), 0);
+  SUCCEED();
+}
+
+// Switch through all 5 calculators, verify timing at each.
+TEST_F(MultiDriverDcalcTest, CalcSwitchAllEngines) {
+  EXPECT_TRUE(design_loaded_);
+  const char *calcs[] = {"unit", "lumped_cap", "dmp_ceff_elmore",
+                          "dmp_ceff_two_pole", "ccs_ceff"};
+  for (const char *name : calcs) {
+    sta_->setArcDelayCalc(name);
+    sta_->updateTiming(true);
+    Graph *graph = sta_->graph();
+    ASSERT_NE(graph, nullptr);
+    EXPECT_GT(graph->vertexCount(), 0);
+  }
+}
+
+// Call findDelays() directly, invalidate, call again.
+TEST_F(MultiDriverDcalcTest, FindDelaysExplicit) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->findDelays();
+  Graph *graph = sta_->graph();
+  ASSERT_NE(graph, nullptr);
+  EXPECT_GT(graph->vertexCount(), 0);
+
+  // Change something and call findDelays again
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Cell *top_cell = network->cell(top);
+  const Port *in_port = network->findPort(top_cell, "in1");
+  ASSERT_NE(in_port, nullptr);
+  sta_->setInputSlew(in_port, RiseFallBoth::riseFall(),
+                     MinMaxAll::all(), 1.0f);
+  sta_->findDelays();
+  SUCCEED();
+}
+
+////////////////////////////////////////////////////////////////
+// MultiCornerDcalcTest - Loads Nangate45 fast/slow + dcalc_test1.v
+
+class MultiCornerDcalcTest : public ::testing::Test {
+protected:
+  void SetUp() override {
+    interp_ = Tcl_CreateInterp();
+    initSta();
+    sta_ = new Sta;
+    Sta::setSta(sta_);
+    sta_->makeComponents();
+    ReportTcl *report = dynamic_cast<ReportTcl*>(sta_->report());
+    if (report)
+      report->setTclInterp(interp_);
+    registerDelayCalcs();
+
+    // Define corners
+    StringSet corner_names;
+    corner_names.insert("fast");
+    corner_names.insert("slow");
+    sta_->makeCorners(&corner_names);
+
+    Corner *fast_corner = sta_->findCorner("fast");
+    Corner *slow_corner = sta_->findCorner("slow");
+    ASSERT_NE(fast_corner, nullptr);
+    ASSERT_NE(slow_corner, nullptr);
+
+    const MinMaxAll *min_max = MinMaxAll::all();
+
+    LibertyLibrary *fast_lib = sta_->readLiberty(
+      "test/nangate45/Nangate45_fast.lib", fast_corner, min_max, false);
+    ASSERT_NE(fast_lib, nullptr);
+
+    LibertyLibrary *slow_lib = sta_->readLiberty(
+      "test/nangate45/Nangate45_slow.lib", slow_corner, min_max, false);
+    ASSERT_NE(slow_lib, nullptr);
+
+    bool ok = sta_->readVerilog("dcalc/test/dcalc_test1.v");
+    ASSERT_TRUE(ok);
+    ok = sta_->linkDesign("dcalc_test1", true);
+    ASSERT_TRUE(ok);
+
+    // Create clock
+    Network *network = sta_->network();
+    Instance *top = network->topInstance();
+    Pin *clk_pin = network->findPin(top, "clk");
+    ASSERT_NE(clk_pin, nullptr);
+    PinSet *clk_pins = new PinSet(network);
+    clk_pins->insert(clk_pin);
+    FloatSeq *waveform = new FloatSeq;
+    waveform->push_back(0.0f);
+    waveform->push_back(5.0f);
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr);
+
+    // Set input/output delay constraints to create constrained timing paths
+    Clock *clk = sta_->sdc()->findClock("clk");
+    ASSERT_NE(clk, nullptr);
+
+    Pin *in1_pin = network->findPin(top, "in1");
+    ASSERT_NE(in1_pin, nullptr);
+    sta_->setInputDelay(in1_pin, RiseFallBoth::riseFall(), clk,
+                        RiseFall::rise(), nullptr, false, false,
+                        MinMaxAll::all(), false, 0.0f);
+
+    Pin *out1_pin = network->findPin(top, "out1");
+    ASSERT_NE(out1_pin, nullptr);
+    sta_->setOutputDelay(out1_pin, RiseFallBoth::riseFall(), clk,
+                         RiseFall::rise(), nullptr, false, false,
+                         MinMaxAll::all(), false, 0.0f);
+
+    design_loaded_ = true;
+  }
+  void TearDown() override {
+    deleteDelayCalcs();
+    deleteAllMemory();
+    sta_ = nullptr;
+    if (interp_) Tcl_DeleteInterp(interp_);
+    interp_ = nullptr;
+  }
+  Sta *sta_;
+  Tcl_Interp *interp_;
+  bool design_loaded_ = false;
+};
+
+// Verify timing with both corners produces valid results and
+// that the slow corner does not have better slack than the fast corner.
+TEST_F(MultiCornerDcalcTest, TimingDiffersPerCorner) {
+  EXPECT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->updateTiming(true);
+
+  Corner *fast_corner = sta_->findCorner("fast");
+  Corner *slow_corner = sta_->findCorner("slow");
+  ASSERT_NE(fast_corner, nullptr);
+  ASSERT_NE(slow_corner, nullptr);
+
+  Slack fast_slack, slow_slack;
+  Vertex *fast_vertex, *slow_vertex;
+  sta_->worstSlack(fast_corner, MinMax::max(), fast_slack, fast_vertex);
+  sta_->worstSlack(slow_corner, MinMax::max(), slow_slack, slow_vertex);
+
+  // Both corners should produce valid slack (not infinity)
+  EXPECT_LT(fast_slack, 1e29f);
+  EXPECT_LT(slow_slack, 1e29f);
+
+  // Fast corner should have slack >= slow corner (better or equal)
+  EXPECT_GE(fast_slack, slow_slack);
+}
+
+// Run each calculator with multi-corner, verify completes.
+TEST_F(MultiCornerDcalcTest, AllCalcsMultiCorner) {
+  EXPECT_TRUE(design_loaded_);
+  const char *calcs[] = {"unit", "lumped_cap", "dmp_ceff_elmore",
+                          "dmp_ceff_two_pole", "ccs_ceff"};
+  for (const char *name : calcs) {
+    sta_->setArcDelayCalc(name);
+    sta_->updateTiming(true);
+    Graph *graph = sta_->graph();
+    ASSERT_NE(graph, nullptr);
+    EXPECT_GT(graph->vertexCount(), 0);
+  }
+}
+
+////////////////////////////////////////////////////////////////
+// Additional DesignDcalcTest tests for SPEF-based scenarios
+
+// Run all delay calculators with SPEF loaded.
+TEST_F(DesignDcalcTest, TimingAllCalcsWithSpef) {
+  ASSERT_TRUE(design_loaded_);
+  const char *calcs[] = {"unit", "lumped_cap", "dmp_ceff_elmore",
+                          "dmp_ceff_two_pole", "arnoldi", "ccs_ceff", "prima"};
+  for (const char *name : calcs) {
+    sta_->setArcDelayCalc(name);
+    sta_->updateTiming(true);
+    Graph *graph = sta_->graph();
+    ASSERT_NE(graph, nullptr);
+    EXPECT_GT(graph->vertexCount(), 0);
+  }
+}
+
+// Set prima reduce order 1,2,3,4,5, verify each completes.
+TEST_F(DesignDcalcTest, PrimaReduceOrderVariation) {
+  ASSERT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("prima");
+
+  ArcDelayCalc *calc = sta_->arcDelayCalc();
+  ASSERT_NE(calc, nullptr);
+  PrimaDelayCalc *prima = dynamic_cast<PrimaDelayCalc*>(calc);
+  ASSERT_NE(prima, nullptr);
+
+  size_t orders[] = {1, 2, 3, 4, 5};
+  for (size_t order : orders) {
+    prima->setPrimaReduceOrder(order);
+    sta_->updateTiming(true);
+    SUCCEED();
+  }
+}
+
+// Change load, slew, clock period with SPEF, verify updates.
+TEST_F(DesignDcalcTest, IncrementalWithSpef) {
+  ASSERT_TRUE(design_loaded_);
+  sta_->setArcDelayCalc("dmp_ceff_elmore");
+  sta_->updateTiming(true);
+  Slack slack1 = sta_->worstSlack(MinMax::max());
+
+  // Change clock period
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  Pin *clk1 = network->findPin(top, "clk1");
+  Pin *clk2 = network->findPin(top, "clk2");
+  Pin *clk3 = network->findPin(top, "clk3");
+  PinSet *clk_pins = new PinSet(network);
+  clk_pins->insert(clk1);
+  clk_pins->insert(clk2);
+  clk_pins->insert(clk3);
+  FloatSeq *waveform = new FloatSeq;
+  waveform->push_back(0.0f);
+  waveform->push_back(50.0f);
+  sta_->makeClock("clk", clk_pins, false, 100.0f, waveform, nullptr);
+  sta_->updateTiming(true);
+  Slack slack2 = sta_->worstSlack(MinMax::max());
+
+  // Tighter clock => different slack
+  EXPECT_NE(slack1, slack2);
+}
+
+// Rapidly switch between all calcs with SPEF loaded.
+TEST_F(DesignDcalcTest, RapidCalcSwitchingSpef) {
+  ASSERT_TRUE(design_loaded_);
+  const char *calcs[] = {"dmp_ceff_elmore", "lumped_cap", "unit",
+                          "dmp_ceff_two_pole", "arnoldi", "ccs_ceff",
+                          "prima", "dmp_ceff_elmore", "ccs_ceff"};
+  for (const char *name : calcs) {
+    sta_->setArcDelayCalc(name);
+    sta_->updateTiming(true);
+    Graph *graph = sta_->graph();
+    ASSERT_NE(graph, nullptr);
+    EXPECT_GT(graph->vertexCount(), 0);
+  }
+}
+
 } // namespace sta

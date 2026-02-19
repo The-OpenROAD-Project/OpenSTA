@@ -1,5 +1,3 @@
-PASS: library loaded
-PASS: INV_X1 found
 Cell INV_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -7,10 +5,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 1.55-1.70
  ZN output function=!A
-PASS: report_lib_cell INV_X1
-PASS: INV_X1 pins (2 pins)
-PASS: all INV sizes found
-PASS: BUF_X1 found
 Cell BUF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -18,10 +12,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 0.88-0.97
  Z output function=A
-PASS: report_lib_cell BUF_X1
-PASS: BUF_X1 pins (2 pins)
-PASS: all BUF sizes found
-PASS: NAND2_X1 found
 Cell NAND2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -30,10 +20,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 1.53-1.60
  A2 input 1.50-1.66
  ZN output function=!(A1*A2)
-PASS: report_lib_cell NAND2_X1
-PASS: NAND2_X1 pins (3 pins)
-PASS: all NAND variants found
-PASS: NOR2_X1 found
 Cell NOR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -42,9 +28,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 1.41-1.71
  A2 input 1.56-1.65
  ZN output function=!(A1+A2)
-PASS: report_lib_cell NOR2_X1
-PASS: all NOR variants found
-PASS: AND2_X1 found
 Cell AND2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -53,9 +36,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 0.87-0.92
  A2 input 0.89-0.97
  ZN output function=A1*A2
-PASS: report_lib_cell AND2_X1
-PASS: all AND variants found
-PASS: OR2_X1 found
 Cell OR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -64,9 +44,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 0.79-0.95
  A2 input 0.90-0.94
  ZN output function=A1+A2
-PASS: report_lib_cell OR2_X1
-PASS: all OR variants found
-PASS: MUX2_X1 found
 Cell MUX2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -76,8 +53,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B input 0.90-0.94
  S input 1.81-1.92
  Z output function=(S*B)+(A*!S)
-PASS: report_lib_cell MUX2_X1
-PASS: DFF_X1 found
 Cell DFF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -89,9 +64,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.86-0.95
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell DFF_X1
-PASS: DFF_X1 pins (6 pins)
-PASS: DFFR_X1 found
 Cell DFFR_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -104,8 +76,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.88-0.98
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell DFFR_X1
-PASS: DFFS_X1 found
 Cell DFFS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -118,8 +88,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.88-0.97
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell DFFS_X1
-PASS: DFFRS_X1 found
 Cell DFFRS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -133,8 +101,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.87-0.96
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell DFFRS_X1
-PASS: TLAT_X1 found
 Cell TLAT_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -146,7 +112,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  G input 0.92-1.02
  OE input 1.42-1.50
  Q tristate enable=OE function=IQ 0.79-0.79
-PASS: report_lib_cell TLAT_X1
 Cell AOI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -156,7 +121,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 1.45-1.65
  B2 input 1.41-1.68
  ZN output function=!(A+(B1*B2))
-PASS: report_lib_cell AOI21_X1
 Cell OAI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -166,7 +130,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 1.46-1.66
  B2 input 1.56-1.57
  ZN output function=!(A*(B1+B2))
-PASS: report_lib_cell OAI21_X1
 Cell HA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -176,7 +139,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B input 3.34-3.45
  CO output function=A*B
  S output function=A^B
-PASS: report_lib_cell HA_X1
 Cell FA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -187,14 +149,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CI input 2.66-2.76
  CO output function=(A*B)+(CI*(A+B))
  S output function=CI^(A^B)
-PASS: report_lib_cell FA_X1
-PASS: get_lib_cells INV_* (6 cells)
-PASS: get_lib_cells BUF_* (6 cells)
-PASS: get_lib_cells DFF* (8 cells)
-PASS: get_lib_cells * (134 total cells)
-PASS: get_lib_pins INV_X1/* (2 pins)
-PASS: get_lib_pins DFF_X1/* (6 pins)
-PASS: get_lib_pins specific pin (1 pins)
 Cell CLKBUF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -202,7 +156,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 0.70-0.78
  Z output function=A
-PASS: report_lib_cell CLKBUF_X1
 Cell CLKBUF_X2
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -210,5 +163,3 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 1.24-1.41
  Z output function=A
-PASS: report_lib_cell CLKBUF_X2
-ALL PASSED

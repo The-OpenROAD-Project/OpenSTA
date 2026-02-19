@@ -26,17 +26,14 @@ set_propagated_clock {clk1 clk2 clk3}
 #---------------------------------------------------------------
 puts "--- baseline without parasitics ---"
 report_checks
-puts "PASS: baseline report_checks"
 
 report_checks -path_delay min
-puts "PASS: baseline min path"
 
 #---------------------------------------------------------------
 # Read SPEF - exercises parasitic network creation and reduction
 #---------------------------------------------------------------
 puts "--- read SPEF ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef"
 
 #---------------------------------------------------------------
 # Test dmp_ceff_elmore (default)
@@ -44,37 +41,32 @@ puts "PASS: read_spef"
 #---------------------------------------------------------------
 puts "--- dmp_ceff_elmore ---"
 report_checks
-puts "PASS: dmp_ceff_elmore max"
 
 report_checks -path_delay min
-puts "PASS: dmp_ceff_elmore min"
 
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: dmp_ceff_elmore in1->out"
 
 report_checks -from [get_ports in2] -to [get_ports out]
-puts "PASS: dmp_ceff_elmore in2->out"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: dmp_ceff_elmore fields"
 
 # Detailed dcalc
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "dmp_ceff_elmore dcalc u1: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "dmp_ceff_elmore dcalc u2 A: done"
 
-catch {report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max
 puts "dmp_ceff_elmore dcalc u2 B: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "dmp_ceff_elmore dcalc r1: done"
 
-catch {report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max} msg
+report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max
 puts "dmp_ceff_elmore dcalc r2: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max
 puts "dmp_ceff_elmore dcalc r3: done"
 
 #---------------------------------------------------------------
@@ -84,33 +76,29 @@ puts "--- arnoldi ---"
 set_delay_calculator arnoldi
 
 report_checks
-puts "PASS: arnoldi max"
 
 report_checks -path_delay min
-puts "PASS: arnoldi min"
 
 report_checks -from [get_ports in1] -to [get_ports out] -fields {slew cap}
-puts "PASS: arnoldi in1->out"
 
 report_checks -from [get_ports in2] -to [get_ports out] -fields {slew cap}
-puts "PASS: arnoldi in2->out"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "arnoldi dcalc u1: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "arnoldi dcalc u2 A: done"
 
-catch {report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max
 puts "arnoldi dcalc u2 B: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "arnoldi dcalc r1: done"
 
-catch {report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max} msg
+report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max
 puts "arnoldi dcalc r2: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max
 puts "arnoldi dcalc r3: done"
 
 #---------------------------------------------------------------
@@ -120,18 +108,16 @@ puts "--- dmp_ceff_two_pole ---"
 set_delay_calculator dmp_ceff_two_pole
 
 report_checks
-puts "PASS: dmp_ceff_two_pole max"
 
 report_checks -path_delay min
-puts "PASS: dmp_ceff_two_pole min"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "dmp_ceff_two_pole dcalc u1: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "dmp_ceff_two_pole dcalc u2: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "dmp_ceff_two_pole dcalc r1: done"
 
 #---------------------------------------------------------------
@@ -141,19 +127,16 @@ puts "--- lumped_cap ---"
 set_delay_calculator lumped_cap
 
 report_checks
-puts "PASS: lumped_cap max"
 
 report_checks -path_delay min
-puts "PASS: lumped_cap min"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "lumped_cap dcalc u1: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "lumped_cap dcalc u2: done"
 
 report_checks -fields {slew cap}
-puts "PASS: lumped_cap fields"
 
 #---------------------------------------------------------------
 # Switch to prima
@@ -163,21 +146,18 @@ catch {set_delay_calculator prima} msg
 puts "set_delay_calculator prima: $msg"
 
 report_checks
-puts "PASS: prima max"
 
 report_checks -path_delay min
-puts "PASS: prima min"
 
 report_checks -from [get_ports in1] -to [get_ports out] -fields {slew cap}
-puts "PASS: prima in1->out"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "prima dcalc u1: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "prima dcalc u2: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "prima dcalc r1: done"
 
 #---------------------------------------------------------------
@@ -187,14 +167,13 @@ puts "--- back to dmp_ceff_elmore ---"
 set_delay_calculator dmp_ceff_elmore
 
 report_checks
-puts "PASS: back to dmp_ceff_elmore"
 
 #---------------------------------------------------------------
 # Report net with various parameters
 #---------------------------------------------------------------
 puts "--- report_net final ---"
 foreach net_name {r1q r2q u1z u2z in1 in2 out} {
-  catch {report_net -digits 4 $net_name} msg
+  report_net -digits 4 $net_name
   puts "report_net $net_name: done"
 }
 
@@ -203,25 +182,21 @@ foreach net_name {r1q r2q u1z u2z in1 in2 out} {
 #---------------------------------------------------------------
 puts "--- parasitic annotation ---"
 report_parasitic_annotation
-puts "PASS: parasitic annotation"
 
 report_parasitic_annotation -report_unannotated
-puts "PASS: parasitic annotation -report_unannotated"
 
 #---------------------------------------------------------------
 # Annotated delay final
 #---------------------------------------------------------------
 puts "--- annotated delay final ---"
-catch {report_annotated_delay -cell} msg
+report_annotated_delay -cell
 puts "annotated -cell: done"
 
-catch {report_annotated_delay -net} msg
+report_annotated_delay -net
 puts "annotated -net: done"
 
-catch {report_annotated_delay -cell -net} msg
+report_annotated_delay -cell -net
 puts "annotated -cell -net: done"
 
-catch {report_annotated_delay -from_in_ports -to_out_ports} msg
+report_annotated_delay -from_in_ports -to_out_ports
 puts "annotated from/to ports: done"
-
-puts "ALL PASSED"

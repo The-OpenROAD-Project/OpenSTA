@@ -25,15 +25,12 @@ create_clock -name clk -period 10 [get_ports clk]
 set_input_delay -clock clk 0 [get_ports in]
 set_input_delay -clock clk 0 [get_ports reset]
 set_output_delay -clock clk 0 [get_ports out]
-puts "PASS: clock and constraints created"
 
 puts "--- report_checks ---"
 report_checks
-puts "PASS: report_checks completed"
 
 puts "--- report_checks -path_delay min ---"
 report_checks -path_delay min
-puts "PASS: report_checks min completed"
 
 puts "--- get_cells with filter ---"
 set dff_cells [get_cells -filter "ref_name == sky130_fd_sc_hd__dfrtp_1" *]
@@ -56,5 +53,3 @@ puts "all_outputs count: [llength $outputs]"
 puts "--- all_clocks ---"
 set clocks [all_clocks]
 puts "all_clocks count: [llength $clocks]"
-
-puts "ALL PASSED"

@@ -36,7 +36,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch max
 --- report_checks min (latch paths) ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -65,7 +64,6 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: latch min
 --- report_checks -format full_clock ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -104,7 +102,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch full_clock
 --- report_checks -format full_clock_expanded ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -143,7 +140,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch full_clock_expanded
 --- report_checks -format short ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -151,7 +147,6 @@ Path Group: clk
 Path Type: max
 
 
-PASS: latch short
 --- report_checks -format end ---
 max_delay/setup group clk
 
@@ -160,19 +155,16 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 latch2/D (DLH_X1)                       1.11    1.11    0.00 (MET)
 
-PASS: latch end
 --- report_checks -format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
 latch1/Q (DLH_X1)                    latch2/D (DLH_X1)                       0.00
 
-PASS: latch summary
 --- report_checks -format slack_only ---
 Group                                  Slack
 --------------------------------------------
 clk                                     0.00
 
-PASS: latch slack_only
 --- report_checks -format json ---
 {"checks": [
 {
@@ -254,7 +246,6 @@ PASS: latch slack_only
 }
 ]
 }
-PASS: latch json
 --- PathEnd queries on latch ---
 Found 18 paths
   pin=latch2/D latch=1 check=0 output=0 slack=0.0
@@ -275,7 +266,6 @@ Found 18 paths
   pin=reg1/D latch=0 check=1 output=0 slack=8.88718165725777e-9
   pin=reg1/D latch=0 check=1 output=0 slack=9.902577424725223e-9
   pin=reg1/D latch=0 check=1 output=0 slack=9.91532278504792e-9
-PASS: latch PathEnd queries
 --- report_checks with fields for latch ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -314,7 +304,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch fields
 --- report_checks to out1 (through latch) ---
 Startpoint: latch2 (positive level-sensitive latch clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -344,7 +333,6 @@ Path Type: max
            6.81   slack (MET)
 
 
-PASS: to out1 latch
 --- report_checks to out2 (through reg) ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out2 (output port clocked by clk)
@@ -373,7 +361,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: to out2 reg
 --- report_checks -unconstrained ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -412,7 +399,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: unconstrained
 --- report_checks -unconstrained -format short ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -420,7 +406,6 @@ Path Group: clk
 Path Type: max
 
 
-PASS: unconstrained short
 --- report_checks -unconstrained -format end ---
 max_delay/setup group clk
 
@@ -429,13 +414,11 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 latch2/D (DLH_X1)                       1.11    1.11    0.00 (MET)
 
-PASS: unconstrained end
 --- report_checks -unconstrained -format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
 latch1/Q (DLH_X1)                    latch2/D (DLH_X1)                       0.00
 
-PASS: unconstrained summary
 --- set_max_time_borrow ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -471,7 +454,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: max_time_borrow
 --- Switch to genclk design ---
 --- genclk report_checks max ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -528,7 +510,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: genclk max
 --- genclk report_checks min ---
 Startpoint: div_reg (rising edge-triggered flip-flop clocked by clk)
 Endpoint: div_reg (rising edge-triggered flip-flop clocked by clk)
@@ -584,7 +565,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: genclk min
 --- genclk to div_clk domain ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
 Endpoint: out2 (output port clocked by div_clk)
@@ -613,7 +593,6 @@ Path Type: max
           18.90   slack (MET)
 
 
-PASS: genclk to out2
 --- genclk full_clock_expanded to div_clk domain ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
 Endpoint: out2 (output port clocked by div_clk)
@@ -642,7 +621,6 @@ Path Type: max
           18.90   slack (MET)
 
 
-PASS: genclk full_clock_expanded
 --- genclk full_clock to div_clk domain ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by div_clk)
 Endpoint: out2 (output port clocked by div_clk)
@@ -671,7 +649,6 @@ Path Type: max
           18.90   slack (MET)
 
 
-PASS: genclk full_clock
 --- delete_generated_clock and create multiply_by ---
 --- multiply_by clock reports ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -755,7 +732,6 @@ Path Type: max
            4.40   slack (MET)
 
 
-PASS: multiply_by genclk
 --- delete and create with -edges ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -842,7 +818,6 @@ Clock                   Period          Waveform
 ----------------------------------------------------
 clk                      10.00        0.00      5.00
 edge_clk                 10.00        0.00      5.00 (generated)
-PASS: edges genclk
 --- set_clock_groups ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -898,7 +873,6 @@ Path Type: max
            9.40   slack (MET)
 
 
-PASS: clock_groups logically_exclusive
 --- set_clock_groups -physically_exclusive ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -954,7 +928,6 @@ Path Type: max
            9.40   slack (MET)
 
 
-PASS: clock_groups physically_exclusive
 --- set_clock_groups -asynchronous ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1010,7 +983,6 @@ Path Type: max
            9.40   slack (MET)
 
 
-PASS: clock_groups asynchronous
 --- clock_latency on genclk ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by edge_clk)
 Endpoint: out2 (output port clocked by edge_clk)
@@ -1040,7 +1012,6 @@ Path Type: max
            9.30   slack (MET)
 
 
-PASS: genclk latency/uncertainty
 --- clock_skew with genclk ---
 Clock clk
    0.03 source latency div_reg/CK ^
@@ -1062,14 +1033,11 @@ Clock clk
 Clock edge_clk
 No launch/capture paths found.
 
-PASS: genclk clock_skew
 --- clock_min_period genclk ---
 clk period_min = 0.10 fmax = 9799.21
 edge_clk period_min = 0.00 fmax = inf
 edge_clk period_min = 0.00 fmax = inf
-PASS: genclk min_period
 --- check_setup genclk ---
-PASS: check_setup genclk
 --- report_check_types on genclk ---
 Startpoint: div_reg (rising edge-triggered flip-flop clocked by clk)
 Endpoint: div_reg (rising edge-triggered flip-flop clocked by clk)
@@ -1219,11 +1187,7 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: report_check_types genclk
 --- find_timing_paths -unique_edges_to_endpoint ---
 unique edge paths: 12
-PASS: unique_edges
 --- find_timing_paths min_max ---
 min_max paths: 18
-PASS: min_max paths
-ALL PASSED

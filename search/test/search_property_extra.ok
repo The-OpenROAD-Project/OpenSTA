@@ -15,13 +15,11 @@ port slew_min_rise: 0.000000
 port slew_min_fall: 0.000000
 port activity: 1.00000e+07 0.500 input
 port liberty_port: none
-PASS: port timing properties
 --- Output port properties ---
 oport slack_max: 7.899714
 oport slack_min: 2.098566
 oport slew_max: 0.003903
 oport slew_min: 0.003638
-PASS: output port properties
 --- LibertyPort extra properties ---
 lport name: ZN
 lport full_name: ZN
@@ -29,40 +27,32 @@ lport direction: output
 lport capacitance: 0.000000
 lport is_register_clock: 0
 lport is_clock: 0
-PASS: LibertyPort extra properties
 --- LibertyCell extra properties ---
 buf is_buffer: 1
 and is_buffer: 0
 dff is_buffer: 0
 dff area: 4.522000
-PASS: LibertyCell extra properties
 --- LibertyLibrary properties ---
 lib by lib type: NangateOpenCellLibrary
-PASS: LibertyLibrary properties
 --- Clock extra properties ---
 clock is_propagated: 0
-PASS: Clock extra properties
 --- TimingArcSet property via LibertyCell ---
 arc_set full_name: AND2_X1 A1 -> ZN
 arc_set name: AND2_X1 A1 -> ZN
 arc_set full_name: AND2_X1 A2 -> ZN
 arc_set name: AND2_X1 A2 -> ZN
-PASS: TimingArcSet property
 --- Edge properties on different arc types ---
 edge: reg1/CK -> reg1/QN sense=non_unate
 edge: reg1/CK -> reg1/Q sense=non_unate
 edge: reg1/CK -> reg1/CK sense=unknown
 edge: reg1/CK -> reg1/D sense=unknown
 edge: reg1/CK -> reg1/D sense=unknown
-PASS: CK edge properties
 --- Edge properties on BUF arcs ---
 buf edge: buf1/A -> buf1/Z
 buf delay_max_rise: 0.019583
 buf delay_max_fall: 0.023517
-PASS: BUF edge properties
 --- Slew check limits ---
 Slew limit violations: 0
-PASS: slew checks
 --- Cap check limits ---
 Cap limit violations: 5
 Pin                                    Limit     Cap   Slack
@@ -73,10 +63,8 @@ max capacitance    0.00
 capacitance        1.14
 -----------------------
 Slack             -1.14 (VIOLATED)
-PASS: cap checks
 --- Fanout check limits ---
 Fanout limit violations: 0
-PASS: fanout checks
 --- Slew/Cap/Fanout check slack ---
 Max slew check slack: 0.0906258299946785
 Max slew check limit: 0.09999999403953552
@@ -87,5 +75,3 @@ Max fanout check limit: 1.0
 Max slew violation count: 0
 Max cap violation count: 5
 Max fanout violation count: 0
-PASS: check slack commands
-ALL PASSED

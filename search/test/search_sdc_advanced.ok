@@ -55,7 +55,6 @@ Path Type: max
            7.40   slack (MET)
 
 
-PASS: set_clock_uncertainty applied
 --- unset_clock_uncertainty ---
 --- set_clock_latency -source ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -85,7 +84,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: set_clock_latency -source applied
 --- unset_clock_latency -source ---
 --- set_clock_latency (network) ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -115,7 +113,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: set_clock_latency applied
 --- unset_clock_latency ---
 --- set_timing_derate -early ---
 Startpoint: in1 (input port clocked by clk)
@@ -147,7 +144,6 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: set_timing_derate -early applied
 --- set_timing_derate -late ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -176,7 +172,6 @@ Path Type: max
            7.89   slack (MET)
 
 
-PASS: set_timing_derate -late applied
 --- unset_timing_derate ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -205,7 +200,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: unset_timing_derate applied
 --- set_case_analysis on port ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -235,7 +229,6 @@ Path Type: max
 
 
 in2 1 case=1
-PASS: set_case_analysis applied
 --- unset_case_analysis ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -264,7 +257,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: unset_case_analysis applied
 --- set_disable_timing on cell ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -294,7 +286,6 @@ Path Type: max
 
 
 buf1 A Z constraint
-PASS: set_disable_timing applied
 --- unset_disable_timing ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -323,7 +314,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: unset_disable_timing applied
 --- set_disable_timing with from/to on lib cell ---
 Warning: search_sdc_advanced.tcl line 1, library 'Nangate45_typ' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -353,7 +343,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: set_disable_timing from/to on lib cell applied
 --- unset lib cell disable ---
 Warning: search_sdc_advanced.tcl line 1, library 'Nangate45_typ' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -383,7 +372,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: unset lib cell disable_timing applied
 --- set_max_delay ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -410,7 +398,6 @@ Path Type: max
            3.92   slack (MET)
 
 
-PASS: set_max_delay applied
 --- remove max delay via unset_path_exceptions ---
 --- set_min_delay ---
 Startpoint: in1 (input port clocked by clk)
@@ -438,9 +425,7 @@ Path Type: min
            0.54   slack (MET)
 
 
-PASS: set_min_delay applied
 --- remove min delay via unset_path_exceptions ---
-PASS: removed delay constraints
 --- set_false_path from/to ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -469,7 +454,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: set_false_path applied
 --- remove false path via unset_path_exceptions ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -498,7 +482,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: removed false path
 --- set_false_path -through ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -527,7 +510,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: set_false_path -through applied
 --- remove false_path -through ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -556,7 +538,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: removed false path -through
 --- set_multicycle_path -setup ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -587,7 +568,6 @@ Path Type: max
           18.92   slack (MET)
 
 
-PASS: set_multicycle_path -setup applied
 --- set_multicycle_path -hold ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -618,9 +598,7 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: set_multicycle_path -hold applied
 --- remove multicycle paths ---
-PASS: removed multicycle paths
 --- group_path ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -678,7 +656,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: group_path applied
 --- group_path with -to ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -765,7 +742,6 @@ Path Type: max
            8.91   slack (MET)
 
 
-PASS: group_path -to applied
 --- report_check_types after constraints ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -976,4 +952,3 @@ Check: sequential_clock_pulse_width
 
 
 --- check_setup after all constraints ---
-ALL SDC advanced tests PASSED

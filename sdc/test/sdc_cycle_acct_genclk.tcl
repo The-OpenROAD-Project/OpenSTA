@@ -28,7 +28,6 @@ set_output_delay -clock gen_div2 3.0 [get_ports out2]
 
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: generated clock div2"
 
 ############################################################
 # Phase 2: Multicycle on generated clock paths
@@ -36,17 +35,14 @@ puts "PASS: generated clock div2"
 puts "--- mcp setup 2 master -> gen_div2 ---"
 set_multicycle_path -setup 2 -from [get_clocks master] -to [get_clocks gen_div2]
 report_checks -path_delay max -from [get_ports in1] -to [get_ports out2]
-puts "PASS: mcp master->gen setup 2"
 
 puts "--- mcp hold 1 master -> gen_div2 ---"
 set_multicycle_path -hold 1 -from [get_clocks master] -to [get_clocks gen_div2]
 report_checks -path_delay min -from [get_ports in1] -to [get_ports out2]
-puts "PASS: mcp master->gen hold 1"
 
 puts "--- mcp setup 2 gen_div2 -> master ---"
 set_multicycle_path -setup 2 -from [get_clocks gen_div2] -to [get_clocks master]
 report_checks -path_delay max -from [get_ports in3] -to [get_ports out1]
-puts "PASS: mcp gen->master setup 2"
 
 unset_path_exceptions -setup -from [get_clocks master] -to [get_clocks gen_div2]
 unset_path_exceptions -hold -from [get_clocks master] -to [get_clocks gen_div2]
@@ -71,14 +67,12 @@ set_output_delay -clock clk_p13 3.0 [get_ports out2]
 
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: odd ratio clocks 7:13"
 
 puts "--- mcp on odd ratio ---"
 set_multicycle_path -setup 3 -from [get_clocks clk_p7] -to [get_clocks clk_p13]
 set_multicycle_path -hold 2 -from [get_clocks clk_p7] -to [get_clocks clk_p13]
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: mcp odd ratio"
 
 ############################################################
 # Phase 4: Waveform with edge offset
@@ -99,14 +93,12 @@ set_output_delay -clock clk_norm 2.0 [get_ports out2]
 
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: waveform edge offset"
 
 puts "--- mcp waveform edge offset ---"
 set_multicycle_path -setup 2 -from [get_clocks clk_off] -to [get_clocks clk_norm]
 set_multicycle_path -hold 1 -from [get_clocks clk_off] -to [get_clocks clk_norm]
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: mcp waveform edge offset"
 
 ############################################################
 # Phase 5: Generated clock with multiply_by
@@ -127,12 +119,10 @@ set_output_delay -clock gen_mult 2.0 [get_ports out2]
 
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: generated multiply_by 2"
 
 puts "--- mcp base -> gen_mult ---"
 set_multicycle_path -setup 2 -from [get_clocks base] -to [get_clocks gen_mult]
 report_checks -path_delay max
-puts "PASS: mcp base->mult"
 
 ############################################################
 # Phase 6: Generated clock with edge list
@@ -153,20 +143,15 @@ set_output_delay -clock edge_clk 2.5 [get_ports out2]
 
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: generated clock edge list"
 
 ############################################################
 # Phase 7: report_clock_properties
 ############################################################
 puts "--- report_clock_properties ---"
 report_clock_properties
-puts "PASS: clock_properties"
 
 ############################################################
 # Phase 8: Write SDC roundtrip
 ############################################################
 set sdc_out [make_result_file sdc_cycle_acct_genclk.sdc]
 write_sdc -no_timestamp $sdc_out
-puts "PASS: write_sdc"
-
-puts "ALL PASSED"

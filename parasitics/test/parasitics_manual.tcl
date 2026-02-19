@@ -29,10 +29,8 @@ set_propagated_clock {clk1 clk2 clk3}
 #---------------------------------------------------------------
 puts "--- before parasitics ---"
 report_checks
-puts "PASS: report_checks without parasitics"
 
 report_parasitic_annotation
-puts "PASS: report_parasitic_annotation (empty)"
 
 #---------------------------------------------------------------
 # Set manual pi model on a driver pin
@@ -55,8 +53,6 @@ puts "set_pi_model r1/Q: $msg"
 # Set pi model on r2/Q (driver of r2q)
 catch {sta::set_pi_model r2/Q 0.001 3.0 0.001} msg
 puts "set_pi_model r2/Q: $msg"
-
-puts "PASS: set_pi_model completed"
 
 #---------------------------------------------------------------
 # Set elmore delays on load pins
@@ -83,26 +79,19 @@ puts "set_elmore r1/Q -> u1/A: $msg"
 catch {sta::set_elmore r2/Q u2/B 0.001} msg
 puts "set_elmore r2/Q -> u2/B: $msg"
 
-puts "PASS: set_elmore completed"
-
 #---------------------------------------------------------------
 # Report checks with manual parasitics
 #---------------------------------------------------------------
 puts "--- report_checks with manual parasitics ---"
 report_checks
-puts "PASS: report_checks with pi+elmore"
 
 report_checks -path_delay min
-puts "PASS: min path with manual parasitics"
 
 report_checks -path_delay max
-puts "PASS: max path with manual parasitics"
 
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: in1->out with manual parasitics"
 
 report_checks -fields {slew cap input_pins}
-puts "PASS: report_checks with fields"
 
 #---------------------------------------------------------------
 # Report net with manual parasitics
@@ -122,10 +111,8 @@ puts "report_net u2z: $msg"
 #---------------------------------------------------------------
 puts "--- report_parasitic_annotation after manual ---"
 report_parasitic_annotation
-puts "PASS: report_parasitic_annotation after manual"
 
 report_parasitic_annotation -report_unannotated
-puts "PASS: report_parasitic_annotation -report_unannotated"
 
 #---------------------------------------------------------------
 # report_dcalc with manual parasitics
@@ -146,34 +133,28 @@ puts "dcalc r1 CLK->Q: $msg"
 #---------------------------------------------------------------
 puts "--- read_spef to override manual parasitics ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef completed"
 
 report_checks
-puts "PASS: report_checks after SPEF override"
 
 report_parasitic_annotation
-puts "PASS: report_parasitic_annotation after SPEF"
 
 report_parasitic_annotation -report_unannotated
-puts "PASS: report_parasitic_annotation -report_unannotated after SPEF"
 
 #---------------------------------------------------------------
 # Test report_net after SPEF
 #---------------------------------------------------------------
 puts "--- report_net after SPEF ---"
 foreach net_name {r1q r2q u1z u2z} {
-  catch {report_net $net_name} msg
+  report_net $net_name
   puts "report_net $net_name: done"
 }
 
 # report_net with digits
-catch {report_net -digits 3 r1q} msg
+report_net -digits 3 r1q
 puts "report_net -digits 3 r1q: done"
 
-catch {report_net -digits 6 u1z} msg
+report_net -digits 6 u1z
 puts "report_net -digits 6 u1z: done"
 
-catch {report_net -digits 8 u2z} msg
+report_net -digits 8 u2z
 puts "report_net -digits 8 u2z: done"
-
-puts "ALL PASSED"

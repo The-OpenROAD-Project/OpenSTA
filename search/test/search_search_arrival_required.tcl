@@ -27,7 +27,6 @@ report_checks -path_delay max > /dev/null
 ############################################################
 puts "--- find_requireds ---"
 sta::find_requireds
-puts "PASS: find_requireds"
 
 ############################################################
 # endpoint_violation_count
@@ -35,41 +34,33 @@ puts "PASS: find_requireds"
 puts "--- endpoint_violation_count ---"
 puts "max violations: [sta::endpoint_violation_count max]"
 puts "min violations: [sta::endpoint_violation_count min]"
-puts "PASS: endpoint_violation_count"
 
 ############################################################
 # report internal structures
 ############################################################
 puts "--- report_tags ---"
-catch { sta::report_tags }
-puts "PASS: report_tags"
+sta::report_tags
 
 puts "--- report_clk_infos ---"
-catch { sta::report_clk_infos }
-puts "PASS: report_clk_infos"
+sta::report_clk_infos
 
 puts "--- report_tag_groups ---"
-catch { sta::report_tag_groups }
-puts "PASS: report_tag_groups"
+sta::report_tag_groups
 
 puts "--- report_path_count_histogram ---"
-catch { sta::report_path_count_histogram }
-puts "PASS: report_path_count_histogram"
+sta::report_path_count_histogram
 
 puts "--- report_arrival_entries ---"
-catch { sta::report_arrival_entries }
-puts "PASS: report_arrival_entries"
+sta::report_arrival_entries
 
 puts "--- report_required_entries ---"
-catch { sta::report_required_entries }
-puts "PASS: report_required_entries"
+sta::report_required_entries
 
 puts "--- counts ---"
 puts "tags: [sta::tag_count]"
 puts "tag_groups: [sta::tag_group_count]"
 puts "clk_infos: [sta::clk_info_count]"
 puts "paths: [sta::path_count]"
-puts "PASS: counts"
 
 ############################################################
 # Vertex path iteration and worst path
@@ -95,10 +86,9 @@ if { $wv != "NULL" } {
   }
 
   # report_tag_arrivals
-  catch { sta::report_tag_arrivals_cmd $wv 1 }
-  catch { sta::report_tag_arrivals_cmd $wv 0 }
+  sta::report_tag_arrivals_cmd $wv 1
+  sta::report_tag_arrivals_cmd $wv 0
 }
-puts "PASS: vertex queries"
 
 puts "--- worst_slack_vertex min ---"
 set wv_min [sta::worst_slack_vertex min]
@@ -114,7 +104,6 @@ if { $wv_min != "NULL" } {
     puts "worst_slack_path min slack: [$wslk_min slack]"
   }
 }
-puts "PASS: vertex min queries"
 
 ############################################################
 # Trigger arrivalInvalid/requiredInvalid via network edits
@@ -132,7 +121,6 @@ replace_cell buf1 NangateOpenCellLibrary/BUF_X1
 report_checks -path_delay max > /dev/null
 set ws2 [sta::worst_slack_cmd max]
 puts "Worst slack after BUF_X1: $ws2"
-puts "PASS: arrival invalidation"
 
 ############################################################
 # Network edit to trigger deleteInstanceBefore/arrivalInvalid
@@ -149,7 +137,6 @@ delete_net $new_n
 report_checks -path_delay max > /dev/null
 set ws3 [sta::worst_slack_cmd max]
 puts "Worst slack after delete: $ws3"
-puts "PASS: delete timing invalidation"
 
 ############################################################
 # Tighten constraints to create violations, then check count
@@ -161,7 +148,6 @@ puts "max violations (tight): [sta::endpoint_violation_count max]"
 set_output_delay -clock clk 2.0 [get_ports out1]
 report_checks -path_delay max > /dev/null
 puts "max violations (normal): [sta::endpoint_violation_count max]"
-puts "PASS: violation count changes"
 
 ############################################################
 # find_timing_paths with sort_by_slack
@@ -174,7 +160,6 @@ foreach pe $paths_sorted {
   set s [$pe slack]
   puts "  slack: $s pin=[get_full_name [$pe pin]]"
 }
-puts "PASS: sort_by_slack"
 
 ############################################################
 # report_checks with -slack_max and -slack_min
@@ -183,7 +168,6 @@ puts "--- report_checks slack filters ---"
 report_checks -slack_max 0 -path_delay max
 report_checks -slack_min -100 -path_delay max
 report_checks -slack_max 100 -slack_min -100 -path_delay max
-puts "PASS: slack filters"
 
 ############################################################
 # report_checks -from/-to/-through
@@ -193,7 +177,6 @@ report_checks -from [get_ports in1] -path_delay max
 report_checks -to [get_ports out1] -path_delay max
 report_checks -through [get_pins buf1/Z] -path_delay max
 report_checks -from [get_ports in1] -to [get_ports out1] -path_delay max
-puts "PASS: from/to/through"
 
 ############################################################
 # report_tns / report_wns
@@ -205,13 +188,9 @@ report_worst_slack -max
 report_worst_slack -min
 report_tns -digits 6
 report_wns -digits 6
-puts "PASS: tns/wns"
 
 ############################################################
 # levelize
 ############################################################
 puts "--- levelize ---"
 sta::levelize
-puts "PASS: levelize"
-
-puts "ALL PASSED"

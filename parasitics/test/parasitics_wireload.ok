@@ -38,7 +38,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: baseline report_checks
 --- pi model very small ---
 set_pi_model u1/Y tiny: invalid command name "set_pi_model"
 set_elmore u1/Y->u2/A tiny: invalid command name "set_elmore"
@@ -71,7 +70,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report with tiny pi
 --- pi model medium ---
 set_pi_model u2/Y medium: invalid command name "set_pi_model"
 set_elmore u2/Y->r3/D: invalid command name "set_elmore"
@@ -108,7 +106,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report with medium pi
 --- arnoldi with pi models ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -139,7 +136,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: arnoldi
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -276,7 +272,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: prima
 --- dmp_ceff_two_pole with pi models ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -307,7 +302,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: dmp_ceff_two_pole
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -448,7 +442,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: lumped_cap
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -534,7 +527,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report after pi override
 --- annotated delay ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -593,7 +585,6 @@ Unannotated Arcs
  internal net       u2/Y -> r3/D 
 annotated -report_unannotated: done
 --- SPEF override ---
-PASS: read_spef after manual parasitics
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -623,10 +614,8 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: report after SPEF override
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: parasitic annotation after SPEF
 --- report_net ---
 Net r1q
  Pin capacitance: 0.3994-0.5226
@@ -734,7 +723,6 @@ Load pins
 
 report_net in2: done
 --- re-read SPEF ---
-PASS: re-read_spef
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -764,11 +752,7 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: report after re-read SPEF
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: annotation after re-read
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: annotation unannotated after re-read
-ALL PASSED

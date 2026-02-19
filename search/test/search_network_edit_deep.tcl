@@ -30,22 +30,18 @@ report_checks -path_delay max > /dev/null
 puts "--- Non-equiv replaceCell: AND2_X1 -> OR2_X1 ---"
 replace_cell and1 NangateOpenCellLibrary/OR2_X1
 report_checks -path_delay max
-puts "PASS: non-equiv replaceCell AND->OR"
 
 puts "--- Non-equiv replaceCell: OR2_X1 -> NAND2_X1 ---"
 replace_cell and1 NangateOpenCellLibrary/NAND2_X1
 report_checks -path_delay max
-puts "PASS: non-equiv replaceCell OR->NAND"
 
 puts "--- Non-equiv replaceCell: NAND2_X1 -> NOR2_X1 ---"
 replace_cell and1 NangateOpenCellLibrary/NOR2_X1
 report_checks -path_delay max
-puts "PASS: non-equiv replaceCell NAND->NOR"
 
 puts "--- Restore to AND2_X1 ---"
 replace_cell and1 NangateOpenCellLibrary/AND2_X1
 report_checks -path_delay max
-puts "PASS: restore AND2_X1"
 
 ############################################################
 # slow_drivers with larger count
@@ -56,7 +52,6 @@ puts "slow_drivers(5): [llength $slow5]"
 foreach s $slow5 {
   catch { puts "  [get_full_name $s]" }
 }
-puts "PASS: slow_drivers 5"
 
 ############################################################
 # Bidirectional path enable/disable
@@ -71,7 +66,6 @@ sta::set_bidirect_inst_paths_enabled 1
 puts "After enable: [sta::bidirect_inst_paths_enabled]"
 report_checks -path_delay max > /dev/null
 sta::set_bidirect_inst_paths_enabled $orig_bidir_inst
-puts "PASS: bidirect_inst_paths"
 
 puts "--- bidirect_net_paths ---"
 set orig_bidir_net [sta::bidirect_net_paths_enabled]
@@ -83,7 +77,6 @@ sta::set_bidirect_net_paths_enabled 1
 puts "After enable: [sta::bidirect_net_paths_enabled]"
 report_checks -path_delay max > /dev/null
 sta::set_bidirect_net_paths_enabled $orig_bidir_net
-puts "PASS: bidirect_net_paths"
 
 ############################################################
 # Complex network edit sequence: make, connect, verify timing,
@@ -131,7 +124,6 @@ puts "Deleted net"
 
 # Verify timing still works
 report_checks -path_delay max
-puts "PASS: complex network edit"
 
 ############################################################
 # Multiple instance creation and deletion
@@ -160,7 +152,6 @@ delete_net $net1
 delete_net $net2
 
 report_checks -path_delay max
-puts "PASS: multiple instance create/delete"
 
 ############################################################
 # setPortExtPinCap with rise/fall, multiple values
@@ -176,7 +167,6 @@ puts "After pin_load 0.08"
 
 set_load -pin_load 0.0 [get_ports out1]
 report_checks -path_delay max -fields {capacitance}
-puts "PASS: port ext pin cap"
 
 ############################################################
 # setPortExtWireCap
@@ -192,7 +182,6 @@ puts "After wire_load 0.06"
 
 set_load -wire_load 0.0 [get_ports out1]
 report_checks -path_delay max -fields {capacitance}
-puts "PASS: port ext wire cap"
 
 ############################################################
 # set_port_fanout_number
@@ -202,7 +191,6 @@ set_port_fanout_number 8 [get_ports out1]
 report_checks -path_delay max
 set_port_fanout_number 1 [get_ports out1]
 report_checks -path_delay max
-puts "PASS: port fanout"
 
 ############################################################
 # report_net after edits
@@ -211,7 +199,6 @@ puts "--- report_net ---"
 report_net n1
 report_net n2
 report_net n3
-puts "PASS: report_net"
 
 ############################################################
 # Replace cell multiple times, verify incremental timing
@@ -229,7 +216,6 @@ report_checks -path_delay max
 replace_cell buf1 NangateOpenCellLibrary/BUF_X1
 replace_cell buf2 NangateOpenCellLibrary/BUF_X1
 report_checks -path_delay max
-puts "PASS: rapid replaceCell"
 
 ############################################################
 # set_case_analysis and verify timing update
@@ -239,7 +225,6 @@ set_case_analysis 1 [get_ports in2]
 report_checks -path_delay max
 unset_case_analysis [get_ports in2]
 report_checks -path_delay max
-puts "PASS: case analysis"
 
 ############################################################
 # disable_timing and verify
@@ -250,6 +235,3 @@ report_checks -path_delay max
 report_disabled_edges
 unset_disable_timing [get_lib_cells NangateOpenCellLibrary/BUF_X1] -from A -to Z
 report_checks -path_delay max
-puts "PASS: disable_timing"
-
-puts "ALL PASSED"

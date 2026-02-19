@@ -1,28 +1,18 @@
 --- report_check_types -min_period (non-verbose = short) ---
-PASS: min_period short
 --- report_check_types -min_period -verbose ---
-PASS: min_period verbose
 --- report_check_types -min_period -violators ---
-PASS: min_period violators short
 --- report_check_types -min_period -violators -verbose ---
-PASS: min_period violators verbose
 --- min_period_check_slack short ---
-PASS: min_period_check_slack short/verbose
 --- min_period_violations short/verbose ---
 Min period violations count: 1
 Violations short report done
 Violations verbose report done
-PASS: min_period_violations reports
 --- max_skew_check_slack ---
 No max skew check found (expected for Nangate45)
-PASS: max_skew_check_slack
 --- max_skew_violations ---
 Max skew violations count: 1
-PASS: max_skew_violations
 --- report_check_types -max_skew (short) ---
-PASS: max_skew short
 --- report_check_types -max_skew -verbose ---
-PASS: max_skew verbose
 --- report_check_types all with tight clock ---
 max slew
 
@@ -41,7 +31,6 @@ Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    0.02   -0.03 (VIOLATED)
 
-PASS: all check types short
 max slew
 
 Pin reg1/QN v
@@ -80,7 +69,6 @@ Check: sequential_clock_pulse_width
           -0.03   slack (VIOLATED)
 
 
-PASS: all check types verbose
 --- report_check_types -violators ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -88,15 +76,12 @@ Pin                                    Width   Width   Slack
 reg1/CK (high)                          0.05    0.02   -0.03 (VIOLATED)
 reg1/CK (low)                           0.05    0.02   -0.03 (VIOLATED)
 
-PASS: all check types violators
 --- report_clock_min_period ---
 fast_clk period_min = 0.00 fmax = inf
 fast_clk period_min = 0.00 fmax = inf
 fast_clk period_min = 0.11 fmax = 9067.34
-PASS: clock_min_period
 --- Now with normal clock period ---
 --- report_check_types with normal clock ---
-PASS: min_period with normal clock
 --- min_pulse_width short and verbose ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -174,5 +159,3 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: pulse width checks
-ALL PASSED

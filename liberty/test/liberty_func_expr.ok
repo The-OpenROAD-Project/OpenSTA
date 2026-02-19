@@ -1,6 +1,4 @@
-PASS: read Nangate45
 Warning: liberty_func_expr.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
-PASS: design setup
 Cell XOR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -9,7 +7,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A input 2.18-2.23
  B input 2.36-2.41
  Z output function=A^B
-PASS: report XOR2_X1
 Cell XOR2_X2
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -18,7 +15,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A input 4.24-4.33
  B input 4.40-4.50
  Z output function=A^B
-PASS: report XOR2_X2
 Cell XNOR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -27,7 +23,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A input 2.13-2.23
  B input 2.37-2.57
  ZN output function=!(A^B)
-PASS: report XNOR2_X1
 Cell XNOR2_X2
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -36,7 +31,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A input 3.80-4.00
  B input 4.42-4.84
  ZN output function=!(A^B)
-PASS: report XNOR2_X2
 Cell AOI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -64,7 +58,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 5.61-6.40
  B2 input 5.64-6.71
  ZN output function=!(A+(B1*B2))
-PASS: report AOI21 variants
 Cell AOI22_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -95,7 +88,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 5.98-6.09
  B2 input 6.18-6.61
  ZN output function=!((A1*A2)+(B1*B2))
-PASS: report AOI22 variants
 Cell AOI211_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -126,7 +118,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  C1 input 1.39-1.63
  C2 input 1.44-1.75
  ZN output function=!!!(((C1*C2)+B)+A)
-PASS: report AOI211 variants
 Cell OAI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -154,7 +145,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 5.56-6.35
  B2 input 6.46-6.50
  ZN output function=!(A*(B1+B2))
-PASS: report OAI21 variants
 Cell OAI22_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -185,7 +175,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 5.51-6.52
  B2 input 6.23-6.48
  ZN output function=!((A1+A2)*(B1+B2))
-PASS: report OAI22 variants
 Cell OAI211_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -216,7 +205,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  C1 input 5.61-6.21
  C2 input 6.30-6.42
  ZN output function=!(((C1+C2)*A)*B)
-PASS: report OAI211 variants
 Cell OAI33_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -229,7 +217,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B2 input 1.47-1.61
  B3 input 1.55-1.58
  ZN output function=!(((A1+A2)+A3)*((B1+B2)+B3))
-PASS: report OAI33
 Cell MUX2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -248,7 +235,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B input 1.48-1.74
  S input 2.52-2.62
  Z output function=(S*B)+(A*!S)
-PASS: report MUX2 variants
 Cell FA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -259,7 +245,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CI input 2.66-2.76
  CO output function=(A*B)+(CI*(A+B))
  S output function=CI^(A^B)
-PASS: report FA_X1 (full adder)
 Cell HA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -269,7 +254,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B input 3.34-3.45
  CO output function=A*B
  S output function=A^B
-PASS: report HA_X1 (half adder)
 Cell TINV_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -278,7 +262,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  EN input 1.64-1.75
  I input 1.38-1.44
  ZN tristate enable=!EN function=!I 0.80-0.80
-PASS: report TINV_X1 (tristate inv)
 Cell TBUF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -295,14 +278,12 @@ File ../../test/nangate45/Nangate45_typ.lib
  A input 3.11-3.33
  EN input 2.54-2.74
  Z tristate enable=!EN function=A 1.63-1.64
-PASS: report TBUF tristate buffer
 Cell ANTENNA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
  VDD power
  VSS ground
  A input 0.02-0.02
-PASS: report ANTENNA_X1
 Cell FILLCELL_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -333,7 +314,6 @@ Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
  VDD power
  VSS ground
-PASS: report FILLCELL variants
 Cell LOGIC0_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -346,7 +326,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VDD power
  VSS ground
  Z output function=1
-PASS: report tie cells
 Cell CLKGATETST_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -387,7 +366,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  E input 0.86-0.90
  SE input 0.74-0.80
  GCK output
-PASS: report clock gate cells
 Cell SDFF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -500,9 +478,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.84-0.94
  Q output function=IQ
  QN output function=IQN
-PASS: report scan DFF variants
-PASS: write_liberty (exercises FuncExpr::to_string)
-PASS: read IHP library
 Cell sg13g2_inv_1
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
@@ -569,9 +544,6 @@ Cell sg13g2_tielo
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  L_LO output function=0
-PASS: IHP cell reports
-PASS: write_liberty IHP
-PASS: read Sky130
 Cell sky130_fd_sc_hd__a21o_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -792,10 +764,5 @@ File ../../test/sky130hd/sky130hd_tt.lib
  A input 1.73-1.88
  TE_B input 2.93-3.34
  Z tristate enable=!TE_B function=A 2.26
-PASS: Sky130 complex cell reports
-PASS: write_liberty Sky130
 No paths found.
-PASS: report_checks
 No paths found.
-PASS: report_checks min delay
-ALL PASSED

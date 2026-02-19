@@ -65,7 +65,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report_checks with manual pi+elmore
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -93,11 +92,8 @@ Path Type: min
           -7.56   slack (VIOLATED)
 
 
-PASS: min path
 No paths found.
-PASS: in1->out
 No paths found.
-PASS: in2->out
 Warning: parasitics_annotation_query.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -130,11 +126,9 @@ Fanout     Cap    Slew   Delay    Time   Description
                                 419.17   slack (MET)
 
 
-PASS: with fields
 --- Test 4: parasitic annotation ---
 Found 5 unannotated drivers.
 Found 3 partially unannotated drivers.
-PASS: parasitic annotation (annotated)
 Found 5 unannotated drivers.
  clk1
  clk2
@@ -145,7 +139,6 @@ Found 3 partially unannotated drivers.
  r1/Q
  r2/Q
  u1/Y
-PASS: parasitic annotation -report_unannotated
 --- Test 5: override manual parasitics ---
 re-set pi_model u1/Y: 
 re-set pi_model u2/Y: 
@@ -180,11 +173,9 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report after override
 u1/Y rise max pi (new): 9.99999983775159e-18 20000.0 8.00000036650964e-18
 elmore u1/Y -> u2/A (new): 9.9999998245167e-15
 --- Test 6: SPEF override ---
-PASS: read_spef after manual parasitics
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -214,13 +205,10 @@ Path Type: max
          413.12   slack (MET)
 
 
-PASS: report_checks after SPEF
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: annotation after SPEF
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: annotation -report_unannotated after SPEF
 --- Test 7: query parasitics after SPEF ---
 u1/Y pi after SPEF: 9.99999983775159e-18 20000.0 8.00000036650964e-18
 u2/Y pi after SPEF: 1.999999967550318e-17 30000.0 9.99999983775159e-18
@@ -261,7 +249,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                 413.12   slack (MET)
 
 
-PASS: all fields
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -293,7 +280,6 @@ Path Type: max
          413.12   slack (MET)
 
 
-PASS: full_clock
 Net r1q
  Pin capacitance: 0.399352-0.522565
  Wire capacitance: 0.000000
@@ -666,4 +652,3 @@ Driver waveform slew = 4.60
 .............................................
 
 dcalc r3 CK->Q: done
-ALL PASSED

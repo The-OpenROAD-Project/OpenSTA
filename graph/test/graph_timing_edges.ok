@@ -38,7 +38,6 @@ reg1/Q -> D wire
   v -> v 0.00:0.00
 --- report_disabled_edges (baseline) ---
 --- set_disable_timing on instance ---
-PASS: set_disable_timing on reg1
 --- report_disabled_edges after disable ---
 reg1 CK Q constraint
 reg1 CK QN constraint
@@ -70,15 +69,12 @@ Path Type: max
 
 
 --- unset_disable_timing on instance ---
-PASS: unset_disable_timing on reg1
 --- report_disabled_edges after unset ---
 --- set_disable_timing with -from/-to on lib cell ---
-PASS: set_disable_timing -from CK -to Q
 --- report_disabled_edges after lib cell disable ---
 reg1 CK Q constraint
 reg2 CK Q constraint
 --- unset_disable_timing lib cell ---
-PASS: unset_disable_timing lib cell
 --- report_checks baseline ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -179,4 +175,3 @@ reg2 timing edges count: 1
 d ^ 0.00:0.00 v 0.00:0.00
 --- report_slews on q port ---
 q ^ 0.01:0.01 v 0.00:0.00
-ALL PASSED

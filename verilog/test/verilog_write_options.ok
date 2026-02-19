@@ -1,18 +1,11 @@
 --- write_verilog basic ---
-PASS: basic write_verilog created non-empty file
 --- write_verilog -include_pwr_gnd ---
-PASS: write_verilog -include_pwr_gnd created non-empty file
 --- write_verilog -remove_cells (empty list) ---
-PASS: write_verilog -remove_cells {} created non-empty file
 --- compare pwr_gnd vs basic output ---
 basic size: 194, pwr_gnd size: 194
-PASS: pwr_gnd output is >= basic output size
 --- compare remove_cells vs basic output ---
 basic size: 194, remove_cells size: 194
 --- write_verilog -sort (deprecated, should warn) ---
 Warning: verilog_write_options.tcl line 1, The -sort flag is ignored.
 write_verilog -sort: 
-PASS: write_verilog -sort created file (with deprecation warning)
 --- read_verilog / write_verilog roundtrip ---
-PASS: roundtrip write completed
-ALL PASSED

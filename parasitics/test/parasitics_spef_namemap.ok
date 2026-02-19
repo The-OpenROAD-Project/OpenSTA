@@ -9,7 +9,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1477
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- Test 1: basic SPEF read ---
-PASS: read_spef completed
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -39,14 +38,11 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: report_checks with SPEF
 --- Test 2: parasitic annotation ---
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation -report_unannotated
 --- Test 3: net parasitic queries ---
 Net r1q
  Pin capacitance: 0.40-0.52
@@ -306,9 +302,7 @@ Load pins
 report_net -digits 6 u1z: done
 --- Test 5: timing paths with SPEF ---
 No paths found.
-PASS: in1->out
 No paths found.
-PASS: in2->out
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -336,7 +330,6 @@ Path Type: min
          -11.46   slack (VIOLATED)
 
 
-PASS: min path
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -366,7 +359,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: max path
 Warning: parasitics_spef_namemap.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -399,7 +391,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                 301.74   slack (MET)
 
 
-PASS: report with fields
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -431,7 +422,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: full_clock_expanded
 --- Test 6: delay calculation ---
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
@@ -942,7 +932,6 @@ Path Type: max
          491.70   slack (MET)
 
 
-PASS: group_path_count 5
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -972,5 +961,3 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: sort_by_slack
-ALL PASSED

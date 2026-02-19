@@ -10,7 +10,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.36e-06   2.72e-08   9.62e-12   4.39e-06 100.0%
                           99.4%       0.6%       0.0%
-PASS: basic report_power
 --- Power with global activity ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -23,7 +22,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  5.53e-06   1.36e-07   9.62e-12   5.67e-06 100.0%
                           97.6%       2.4%       0.0%
-PASS: report_power with global activity
 --- Power with -digits 6 ---
 Group                    Internal    Switching      Leakage        Total
                             Power        Power        Power        Power (Watts)
@@ -36,7 +34,6 @@ Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 ------------------------------------------------------------------------
 Total                5.531924e-06 1.361610e-07 9.619625e-12 5.668095e-06 100.0%
                             97.6%         2.4%         0.0%
-PASS: report_power -digits 6
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -48,31 +45,26 @@ Pad                   0.000e+00  0.000e+00  0.000e+00  0.000e+00   0.0%
 ----------------------------------------------------------------
 Total                 5.532e-06  1.362e-07  9.620e-12  5.668e-06 100.0%
                           97.6%       2.4%       0.0%
-PASS: report_power -digits 3
 --- Power for specific instances ---
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    4.26e-07   1.36e-07   1.18e-12   5.62e-07 buf1
-PASS: report_power -instances buf1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    5.11e-06   0.00e+00   8.44e-12   5.11e-06 reg1
-PASS: report_power -instances reg1
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    5.11e-06   0.00e+00   8.44e-12   5.11e-06 reg1
    4.26e-07   1.36e-07   1.18e-12   5.62e-07 buf1
-PASS: report_power -instances all cells
 --- Instance power with -digits ---
      Internal    Switching      Leakage        Total
         Power        Power        Power        Power (Watts)
 ----------------------------------------------------
  5.105910e-06 0.000000e+00 8.438625e-12 5.105918e-06 reg1
  4.260146e-07 1.361610e-07 1.181000e-12 5.621768e-07 buf1
-PASS: report_power -instances -digits 6
 --- Power with pin activity ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -85,7 +77,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  5.53e-06   1.36e-07   9.62e-12   5.67e-06 100.0%
                           97.6%       2.4%       0.0%
-PASS: report_power with pin activity
 --- Power with input activity ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -98,7 +89,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  5.53e-06   1.36e-07   9.62e-12   5.67e-06 100.0%
                           97.6%       2.4%       0.0%
-PASS: report_power with input activity
 --- Power with input_port activity ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -111,7 +101,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  5.53e-06   1.36e-07   9.62e-12   5.67e-06 100.0%
                           97.6%       2.4%       0.0%
-PASS: report_power with input_port activity
 --- Unset activities ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -124,7 +113,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.66e-06   5.45e-08   9.62e-12   4.71e-06 100.0%
                           98.8%       1.2%       0.0%
-PASS: report_power after unset_power_activity -global
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -136,7 +124,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.66e-06   5.45e-08   9.62e-12   4.71e-06 100.0%
                           98.8%       1.2%       0.0%
-PASS: report_power after unset_power_activity -input
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -148,7 +135,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.36e-06   2.72e-08   9.62e-12   4.39e-06 100.0%
                           99.4%       0.6%       0.0%
-PASS: report_power after unset_power_activity -input_ports
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -160,7 +146,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.36e-06   2.72e-08   9.62e-12   4.39e-06 100.0%
                           99.4%       0.6%       0.0%
-PASS: report_power after unset_power_activity -pins
 --- Power with density ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -173,8 +158,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  2.92e+03   2.72e+02   9.62e-12   3.19e+03 100.0%
                           91.5%       8.5%       0.0%
-PASS: report_power with density
-PASS: unset after density test
 --- Power JSON format ---
 {
   "Sequential": {
@@ -214,7 +197,6 @@ PASS: unset after density test
     "total": 5.67e-06
   }
 }
-PASS: report_power -format json
 [
 {
   "name": "reg1",
@@ -232,5 +214,3 @@ PASS: report_power -format json
   "total": 5.62e-07
 }
 ]
-PASS: report_power -instances -format json
-ALL PASSED

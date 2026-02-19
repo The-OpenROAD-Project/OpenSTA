@@ -265,7 +265,6 @@ Path Type: max
            9.80   slack (MET)
 
 
-PASS: report_checks through hierarchy
 Startpoint: in3 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -296,7 +295,6 @@ Path Type: min
            0.07   slack (MET)
 
 
-PASS: min path through hierarchy
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -330,11 +328,8 @@ Path Type: max
            9.80   slack (MET)
 
 
-PASS: max path through hierarchy
 No paths found.
-PASS: in1->out1 through hierarchy
 No paths found.
-PASS: in2->out1 through hierarchy
 Startpoint: in3 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -364,7 +359,6 @@ Path Type: max
            9.89   slack (MET)
 
 
-PASS: in3->out2 through hierarchy
 Warning: network_hierarchy.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -405,7 +399,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.80   slack (MET)
 
 
-PASS: report_checks with fields
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -439,14 +432,7 @@ Path Type: max
            9.80   slack (MET)
 
 
-PASS: report_checks full_clock format
 --- network modification with hierarchy ---
-PASS: make_instance new_hier_buf
-PASS: make_net new_hier_net
-PASS: connect_pin new_hier_net new_hier_buf/A
-PASS: disconnect_pin
-PASS: delete_instance new_hier_buf
-PASS: delete_net new_hier_net
 --- registers in hierarchy ---
 all_registers: 1
 register data_pins: 1
@@ -516,5 +502,3 @@ Path Type: max
            9.80   slack (MET)
 
 
-PASS: report_check_types
-ALL PASSED

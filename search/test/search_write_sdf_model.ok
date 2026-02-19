@@ -1,35 +1,22 @@
 --- write_sdf ---
-PASS: write_sdf default
 --- write_sdf with options ---
-PASS: write_sdf with options
 --- write_sdf with digits ---
-PASS: write_sdf with digits
 --- write_sdf with include_typ ---
-PASS: write_sdf with include_typ
 --- write_timing_model ---
-PASS: write_timing_model default
 --- write_timing_model with cell_name ---
-PASS: write_timing_model with cell_name
 --- write_timing_model with library_name ---
-PASS: write_timing_model with library_name
 --- Network edit: make_instance ---
 make_instance new_buf1 done
-PASS: make_instance
 --- Network edit: make_net ---
 make_net new_net1 done
-PASS: make_net
 --- Network edit: connect_pin ---
-PASS: connect_pin
 --- Network edit: disconnect_pin ---
 Warning: search_write_sdf_model.tcl line 1, net 'new_buf1' not found.
 disconnect_pin done
-PASS: disconnect_pin
 --- Network edit: delete_net ---
 delete_net done
-PASS: delete_net
 --- Network edit: delete_instance ---
 delete_instance done
-PASS: delete_instance
 --- Network edit: replace_cell ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -59,7 +46,6 @@ Path Type: max
 
 
 replace_cell done
-PASS: replace_cell
 --- report_checks after edits ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -117,9 +103,5 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: report after edits
 --- write_timing_model after edits ---
-PASS: write_timing_model after edits
 --- write_sdf after edits ---
-PASS: write_sdf after edits
-ALL PASSED

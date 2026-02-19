@@ -1,4 +1,3 @@
-PASS: clocks different periods
 --- multicycle -setup 2 ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -55,7 +54,6 @@ Path Type: max
           10.92   slack (MET)
 
 
-PASS: mcp setup 2
 --- multicycle -hold 1 ---
 Startpoint: in2 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -114,19 +112,14 @@ Path Type: min
           -4.92   slack (VIOLATED)
 
 
-PASS: mcp hold 1
 --- multicycle -setup 3 -start ---
 No paths found.
-PASS: mcp setup 3 start
 --- multicycle -hold 2 -start ---
 No paths found.
-PASS: mcp hold 2 start
 --- multicycle -setup 4 -end ---
 No paths found.
-PASS: mcp setup 4 end
 --- multicycle -hold 3 -end ---
 No paths found.
-PASS: mcp hold 3 end
 --- unset_path_exceptions ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -184,7 +177,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: unset multicycle
 --- same domain multicycle ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -299,7 +291,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: same domain mcp
 --- reclk with non-integer ratio ---
 Startpoint: in3 (input port clocked by clk_b)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk_a)
@@ -414,7 +405,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: non-integer ratio clocks
 --- multicycle on non-integer ratio ---
 Startpoint: in3 (input port clocked by clk_b)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk_a)
@@ -471,7 +461,6 @@ Path Type: max
            7.92   slack (MET)
 
 
-PASS: mcp non-integer ratio
 --- half-period waveform ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk_half)
 Endpoint: out1 (output port clocked by clk_half)
@@ -581,7 +570,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: half-period waveform
 --- multicycle half-period ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk_half)
 Endpoint: out1 (output port clocked by clk_half)
@@ -691,12 +679,8 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: mcp half-period
-PASS: write_sdc
 --- report_clock_properties ---
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk_half                 10.00        0.00      3.00
 clk_norm                 10.00        0.00      5.00
-PASS: clock_properties
-ALL PASSED

@@ -145,5 +145,3 @@ report_path -max [get_pins reg1/D] rise
 
 puts "--- report_path -min ---"
 report_path -min [get_pins reg1/D] rise
-
-puts "ALL fanin/fanout tests PASSED"

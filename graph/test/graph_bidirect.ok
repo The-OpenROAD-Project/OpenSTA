@@ -29,7 +29,6 @@ Path Type: max
            9.83   slack (MET)
 
 
-PASS: report_checks
 Startpoint: d4 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -60,22 +59,14 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: report_checks min
 --- Test 2: path queries ---
 No paths found.
-PASS: d1->q1
 No paths found.
-PASS: d1->q2 (reconvergent)
 No paths found.
-PASS: d2->q1
 No paths found.
-PASS: d3->q3
 No paths found.
-PASS: d4->q3
 No paths found.
-PASS: d1->q4 (reconvergent)
 No paths found.
-PASS: d3->q4 (reconvergent)
 --- Test 3: report with fields ---
 Warning: graph_bidirect.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk)
@@ -111,7 +102,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.83   slack (MET)
 
 
-PASS: report with all fields
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -142,7 +132,6 @@ Path Type: max
            9.83   slack (MET)
 
 
-PASS: report full_clock
 Startpoint: d4 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -173,7 +162,6 @@ Path Type: min
                            0.05   slack (MET)
 
 
-PASS: min with slew/cap fields
 --- Test 4: fanin/fanout ---
 fanin to q2: 3
 fanout from d1: 13
@@ -716,7 +704,6 @@ Driver pins
 Load pins
  reg3/D input (DFF_X1) 1.06-1.14
 
-PASS: report_net all
 Instance buf1
  Cell: BUF_X1
  Library: NangateOpenCellLibrary
@@ -893,7 +880,6 @@ Instance reg4
   IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
-PASS: report_instance all
 --- Test 7: modify graph ---
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -925,7 +911,6 @@ Path Type: max
            9.83   slack (MET)
 
 
-PASS: report after add instance
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -956,5 +941,3 @@ Path Type: max
            9.83   slack (MET)
 
 
-PASS: report after delete instance
-ALL PASSED

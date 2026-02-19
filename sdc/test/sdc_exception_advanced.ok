@@ -1,10 +1,3 @@
-PASS: basic setup
-PASS: false_path -rise_from
-PASS: false_path -fall_from
-PASS: false_path -rise_to
-PASS: false_path -fall_to
-PASS: false_path -rise_from -fall_to
-PASS: false_path -fall_from -rise_to
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -58,30 +51,7 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after rise/fall false paths
-PASS: write_sdc after false paths
-PASS: unset all false paths
-PASS: false_path with -through pin
-PASS: false_path with multiple -through
-PASS: false_path -through to out2
-PASS: write_sdc with through paths
-PASS: unset through paths
-PASS: multicycle -rise_from
-PASS: multicycle -fall_to
-PASS: multicycle clk1->clk2
-PASS: multicycle hold clk1->clk2
-PASS: multicycle with -through
-PASS: write_sdc with multicycle
 No paths found.
-PASS: report_checks with multicycle
-PASS: unset multicycles
-PASS: max/min delay
-PASS: max_delay with -through
-PASS: max_delay -rise_from -fall_to
-PASS: write_sdc with max/min delay
-PASS: write_sdc -compatible with exceptions
-PASS: write_sdc -digits 6 with exceptions
-PASS: group_path
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: reg2reg
@@ -108,11 +78,7 @@ Path Type: max
            6.92   slack (MET)
 
 
-PASS: report_checks -path_group reg2reg
 No paths found.
-PASS: report_checks -path_group in2out
-PASS: write_sdc with group paths
-PASS: read_sdc
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
 Path Group: clk_cross
@@ -221,5 +187,3 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: report after read_sdc
-ALL PASSED

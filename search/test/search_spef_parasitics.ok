@@ -55,9 +55,7 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: baseline timing
 --- read_spef ---
-PASS: read_spef
 --- Timing after SPEF ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -115,11 +113,9 @@ Path Type: min
            1.09   slack (MET)
 
 
-PASS: timing after SPEF
 --- report_parasitic_annotation ---
 Found 5 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation
 --- report_parasitic_annotation -report_unannotated ---
 Found 5 unannotated drivers.
  clk
@@ -128,7 +124,6 @@ Found 5 unannotated drivers.
  buf2/Z
  reg1/QN
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation unannotated
 --- report_net after SPEF ---
 Net n1
  Pin capacitance: 0.88-0.97
@@ -172,7 +167,6 @@ Driver pins
 Load pins
  buf2/A input (BUF_X1) 0.88-0.97
 
-PASS: report_net after SPEF
 --- report_net -digits 6 ---
 Net n1
  Pin capacitance: 0.875250-0.974659
@@ -202,7 +196,6 @@ Driver pins
 Load pins
  reg1/D input (DFF_X1) 1.062342-1.140290
 
-PASS: report_net digits
 --- setPortExtPinCap (set_load -pin_load) ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -231,7 +224,6 @@ Path Type: max
            7.86   slack (MET)
 
 
-PASS: setPortExtPinCap
 --- setPortExtWireCap (set_load -wire_load) ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -260,7 +252,6 @@ Path Type: max
            7.86   slack (MET)
 
 
-PASS: setPortExtWireCap
 --- setPortExtFanout ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -289,7 +280,6 @@ Path Type: max
            7.86   slack (MET)
 
 
-PASS: setPortExtFanout
 --- setNetWireCap ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -318,21 +308,16 @@ Path Type: max
            7.86   slack (MET)
 
 
-PASS: setNetWireCap
 --- set_pi_model (makePiElmore) ---
 Pi model created for and1/ZN
-PASS: set_pi_model
 --- set_elmore (setElmore) ---
 Elmore delay set for and1/ZN -> buf1/A
-PASS: set_elmore
 --- find_elmore ---
 Elmore delay and1/ZN->buf1/A rise max: 4.999999841327613e-21
 Elmore delay and1/ZN->buf1/A fall max: 4.999999841327613e-21
-PASS: find_elmore
 --- find_pi_elmore ---
 Pi-elmore and1/ZN rise max: 3.0000000095132306e-30 1500000.0 2.0000000063421537e-30
 Pi-elmore and1/ZN fall max: 3.0000000095132306e-30 1500000.0 2.0000000063421537e-30
-PASS: find_pi_elmore
 --- Timing after manual parasitics ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -390,7 +375,6 @@ Path Type: min
            1.06   slack (MET)
 
 
-PASS: timing after manual parasitics
 --- re-read SPEF ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -419,7 +403,6 @@ Path Type: max
            7.86   slack (MET)
 
 
-PASS: re-read SPEF
 --- setResistance ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -448,7 +431,6 @@ Path Type: max
            7.86   slack (MET)
 
 
-PASS: setResistance
 --- SPEF with propagated clock ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -506,11 +488,8 @@ Path Type: min
            1.06   slack (MET)
 
 
-PASS: SPEF with propagated clock
 --- read_spef -min ---
-PASS: read_spef -min
 --- read_spef -max ---
-PASS: read_spef -max
 --- Report formats after SPEF ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -648,13 +627,11 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   7.86   slack (MET)
 
 
-PASS: report formats after SPEF
 --- worst_slack and tns after SPEF ---
 worst_slack max: 7.858129480652087
 worst_slack min: 1.057912121182179
 tns max: 0.0
 tns min: 0.0
-PASS: worst_slack/tns after SPEF
 --- set_load -min/-max ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -712,7 +689,6 @@ Path Type: min
            1.06   slack (MET)
 
 
-PASS: set_load -min/-max
 --- report_net -connections ---
 Warning: search_spef_parasitics.tcl line 1, report_net -connections is deprecated.
 Net n1
@@ -744,5 +720,3 @@ Driver pins
 Load pins
  reg1/D input (DFF_X1) 1.06-1.14
 
-PASS: report_net -connections
-ALL PASSED

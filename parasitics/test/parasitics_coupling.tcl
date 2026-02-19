@@ -39,13 +39,10 @@ set_propagated_clock {clk1 clk2 clk3}
 #---------------------------------------------------------------
 puts "--- before parasitics ---"
 report_checks
-puts "PASS: report_checks without parasitics"
 
 report_parasitic_annotation
-puts "PASS: report_parasitic_annotation (empty)"
 
 report_parasitic_annotation -report_unannotated
-puts "PASS: report_parasitic_annotation -report_unannotated (empty)"
 
 #---------------------------------------------------------------
 # Set manual pi models on all driver pins
@@ -73,8 +70,6 @@ puts "set_pi_model r2/Q: $msg"
 catch {sta::set_pi_model r3/Q 0.001 2.0 0.001} msg
 puts "set_pi_model r3/Q: $msg"
 
-puts "PASS: all pi models set"
-
 #---------------------------------------------------------------
 # Set elmore delays on load pins
 # set_elmore drvr_pin load_pin elmore
@@ -101,60 +96,50 @@ puts "set_elmore r2/Q -> u2/B: $msg"
 catch {sta::set_elmore r3/Q out 0.002} msg
 puts "set_elmore r3/Q -> out: $msg"
 
-puts "PASS: all elmore delays set"
-
 #---------------------------------------------------------------
 # Check timing with manual parasitics
 #---------------------------------------------------------------
 puts "--- timing with manual parasitics ---"
 report_checks
-puts "PASS: report_checks with pi+elmore"
 
 report_checks -path_delay min
-puts "PASS: min path with pi+elmore"
 
 report_checks -path_delay max
-puts "PASS: max path with pi+elmore"
 
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: in1->out"
 
 report_checks -from [get_ports in2] -to [get_ports out]
-puts "PASS: in2->out"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report with fields"
 
 #---------------------------------------------------------------
 # Report parasitic annotation
 #---------------------------------------------------------------
 puts "--- parasitic annotation with manual ---"
 report_parasitic_annotation
-puts "PASS: report_parasitic_annotation with manual"
 
 report_parasitic_annotation -report_unannotated
-puts "PASS: report_parasitic_annotation -report_unannotated"
 
 #---------------------------------------------------------------
 # Report dcalc with parasitics
 #---------------------------------------------------------------
 puts "--- dcalc with manual parasitics ---"
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "dcalc u1 A->Y: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "dcalc u2 A->Y: done"
 
-catch {report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max
 puts "dcalc u2 B->Y: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "dcalc r1 CLK->Q: done"
 
-catch {report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max} msg
+report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max
 puts "dcalc r2 CLK->Q: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max
 puts "dcalc r3 CLK->Q: done"
 
 #---------------------------------------------------------------
@@ -162,7 +147,7 @@ puts "dcalc r3 CLK->Q: done"
 #---------------------------------------------------------------
 puts "--- report_net with manual parasitics ---"
 foreach net_name {r1q r2q u1z u2z out} {
-  catch {report_net -digits 4 $net_name} msg
+  report_net -digits 4 $net_name
   puts "report_net $net_name: done"
 }
 
@@ -171,22 +156,17 @@ foreach net_name {r1q r2q u1z u2z out} {
 #---------------------------------------------------------------
 puts "--- override with SPEF ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef override"
 
 report_checks
-puts "PASS: report_checks after SPEF override"
 
 report_parasitic_annotation
-puts "PASS: report_parasitic_annotation after SPEF"
 
 #---------------------------------------------------------------
 # Report with different dcalcs after SPEF
 #---------------------------------------------------------------
 puts "--- dcalc after SPEF ---"
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "dcalc u1 after SPEF: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "dcalc u2 after SPEF: done"
-
-puts "ALL PASSED"

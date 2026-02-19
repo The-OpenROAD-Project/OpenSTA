@@ -3,12 +3,9 @@ initial thread_count: 1
 thread_count after set to 2: 2
 thread_count after set to 1: 1
 thread_count after set to 4: 4
-PASS: thread count operations
 --- processor_count ---
 processor_count: 64
-PASS: processor_count positive
 --- memory_usage ---
-PASS: memory_usage non-negative
 --- load design for parallel timing ---
 Warning: util_parallel_misc.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Startpoint: data_a[6] (input port clocked by clk)
@@ -41,7 +38,6 @@ Path Type: max
            9.84   slack (MET)
 
 
-PASS: report_checks with 1 thread
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk
@@ -72,7 +68,6 @@ Path Type: max
            9.84   slack (MET)
 
 
-PASS: report_checks with 2 threads
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk
@@ -103,19 +98,14 @@ Path Type: max
            9.84   slack (MET)
 
 
-PASS: report_checks with 4 threads
 --- buffer growth test ---
 large capture length: 4827
-PASS: buffer growth
 --- string redirect large ---
 string redirect length: 4827
-PASS: string redirect large
 --- file redirect large ---
 file redirect size: 4827
-PASS: file redirect large
 --- append cycles ---
 appended file size: 2079
-PASS: append cycles
 --- debug with threads ---
 search: find arrivals pass 1
 search: find arrivals to level 90
@@ -150,7 +140,6 @@ Path Type: max
            9.84   slack (MET)
 
 
-PASS: debug search with threads
 delay_calc: find delays to level 90
 delay_calc: found 0 delays
 Startpoint: data_a[6] (input port clocked by clk)
@@ -183,13 +172,11 @@ Path Type: max
            9.84   slack (MET)
 
 
-PASS: debug delay_calc with threads
 --- report_line coverage ---
 
 single line
 line with special: [ ] { } $ \
 very long line: abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij
-PASS: report_line coverage
 --- format extreme values ---
 format_time(1fs): 0.000000
 format_time(1ms): 1000000.062
@@ -197,7 +184,6 @@ format_capacitance(1aF): 0.001000
 format_resistance(1mOhm): 0.000000
 format_power(1pW): 0.001000
 format_distance(1nm): 0.001000
-PASS: format extreme values
 --- log with design ops ---
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
@@ -264,10 +250,4 @@ Path Type: min
  current 1mA
  power 1nW
  distance 1um
-PASS: log with design ops
 --- error paths ---
-PASS: caught nonexistent liberty error
-PASS: caught nonexistent verilog error
-PASS: caught nonexistent SPEF error
-PASS: caught nonexistent SDF error
-ALL PASSED

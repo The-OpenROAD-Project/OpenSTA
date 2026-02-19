@@ -1,22 +1,3 @@
-PASS: setup
-PASS: false_path -rise_from
-PASS: false_path -fall_from
-PASS: false_path -rise_to
-PASS: false_path -fall_to
-PASS: false_path -rise_through pin
-PASS: false_path -fall_through pin
-PASS: false_path rise_from + through + fall_to
-PASS: false_path fall_from + rise_through + to
-PASS: mcp -rise_from setup
-PASS: mcp -fall_from hold
-PASS: mcp -rise_to setup
-PASS: mcp -fall_to hold
-PASS: max_delay -rise_from
-PASS: max_delay -fall_to
-PASS: min_delay -fall_from
-PASS: min_delay -rise_to
-PASS: write_sdc
-PASS: write_sdc compatible
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -70,7 +51,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report max
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -127,7 +107,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: report min
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -158,7 +137,6 @@ Path Type: max
            7.87   slack (MET)
 
 
-PASS: report from in1
 Startpoint: in2 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -189,7 +167,6 @@ Path Type: max
            7.91   slack (MET)
 
 
-PASS: report from in2
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -219,13 +196,6 @@ Path Type: max
            7.89   slack (MET)
 
 
-PASS: report from in3
-PASS: unset rise_from
-PASS: unset fall_from
-PASS: unset rise_to
-PASS: unset fall_to
-PASS: write after unset
-PASS: read_sdc
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -279,6 +249,3 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after read
-PASS: write after read
-ALL PASSED

@@ -57,14 +57,12 @@ set_cmd_units -time ns -capacitance pF -resistance kOhm -voltage V -current mA
 report_units
 
 log_end
-puts "PASS: log file with large output"
 
 # Verify log file was created and has content
 if { [file exists $log1] } {
   set sz [file size $log1]
   puts "log file size: $sz"
   if { $sz > 1000 } {
-    puts "PASS: log file has significant content"
   }
 } else {
   puts "INFO: log file not created"
@@ -90,14 +88,12 @@ report_units
 
 sta::redirect_file_end
 log_end
-puts "PASS: simultaneous log + redirect"
 
 if { [file exists $log2] && [file exists $redir2] } {
   set sz_log [file size $log2]
   set sz_redir [file size $redir2]
   puts "log size: $sz_log, redirect size: $sz_redir"
   if { $sz_log > 0 && $sz_redir > 0 } {
-    puts "PASS: both files have content"
   }
 }
 
@@ -114,7 +110,6 @@ report_units
 set str1 [sta::redirect_string_end]
 puts "redirect string length: [string length $str1]"
 if { [string length $str1] > 100 } {
-  puts "PASS: redirect string captured large content"
 }
 
 # Multiple redirect string cycles
@@ -124,7 +119,6 @@ for {set i 0} {$i < 5} {incr i} {
   set s [sta::redirect_string_end]
   puts "cycle $i string length: [string length $s]"
 }
-puts "PASS: redirect string cycles"
 
 #---------------------------------------------------------------
 # Test 4: with_output_to_variable (exercises string redirect)
@@ -145,9 +139,7 @@ puts "v3 length: [string length $v3]"
 puts "v4 length: [string length $v4]"
 
 if { [string length $v4] >= [string length $v1] } {
-  puts "PASS: combined output >= single"
 }
-puts "PASS: with_output_to_variable"
 
 #---------------------------------------------------------------
 # Test 5: Redirect file append
@@ -172,9 +164,7 @@ sta::redirect_file_end
 set sz_after [file size $app_file]
 puts "before append: $sz_before, after append: $sz_after"
 if { $sz_after > $sz_before } {
-  puts "PASS: append grew file"
 }
-puts "PASS: redirect file append"
 
 #---------------------------------------------------------------
 # Test 6: Error handling paths
@@ -185,13 +175,11 @@ puts "--- Test 6: error paths ---"
 # FileNotReadable
 set rc1 [catch { read_liberty "/nonexistent/path/xyz.lib" } err1]
 if { $rc1 != 0 } {
-  puts "PASS: caught FileNotReadable"
 }
 
 # FileNotWritable (try writing to /dev/null/impossible)
 set rc2 [catch { write_verilog "/nonexistent/dir/xyz.v" } err2]
 if { $rc2 != 0 } {
-  puts "PASS: caught FileNotWritable"
 }
 
 # Bad verilog file
@@ -206,7 +194,6 @@ set rc3 [catch {
   link_design bad_design
 } err3]
 puts "bad verilog result: rc=$rc3"
-puts "PASS: bad verilog error path"
 
 #---------------------------------------------------------------
 # Test 7: Message suppression/unsuppression
@@ -218,20 +205,16 @@ puts "--- Test 7: message suppression ---"
 for {set id 100} {$id < 120} {incr id} {
   suppress_msg $id
 }
-puts "PASS: suppress range"
 
 # Unsuppress them
 for {set id 100} {$id < 120} {incr id} {
   unsuppress_msg $id
 }
-puts "PASS: unsuppress range"
 
 # Suppress specific warnings
 suppress_msg 1640 1641 1642 1643 1644 1645
-puts "PASS: suppress SPEF warnings"
 
 unsuppress_msg 1640 1641 1642 1643 1644 1645
-puts "PASS: unsuppress SPEF warnings"
 
 #---------------------------------------------------------------
 # Test 8: Debug level setting
@@ -243,14 +226,12 @@ foreach tag {search graph delay_calc parasitic_reduce verilog} {
   sta::set_debug $tag 1
   sta::set_debug $tag 0
 }
-puts "PASS: debug level setting"
 
 # Higher debug levels
 sta::set_debug "search" 3
 sta::set_debug "search" 0
 sta::set_debug "graph" 3
 sta::set_debug "graph" 0
-puts "PASS: higher debug levels"
 
 #---------------------------------------------------------------
 # Test 9: Format functions
@@ -281,7 +262,3 @@ foreach p {1e-3 1e-6 1e-9 5.5e-3 0.0} {
   set fp [sta::format_power $p 4]
   puts "format_power($p) = $fp"
 }
-
-puts "PASS: format functions"
-
-puts "ALL PASSED"

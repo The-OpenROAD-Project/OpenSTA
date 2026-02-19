@@ -19,32 +19,25 @@ set_timing_derate -late 1.05
 
 puts "--- CRPR with propagated clock, setup ---"
 report_checks -path_delay max -format full_clock_expanded
-puts "PASS: CRPR setup path"
 
 puts "--- CRPR with propagated clock, hold ---"
 report_checks -path_delay min -format full_clock_expanded
-puts "PASS: CRPR hold path"
 
 puts "--- report_checks full_clock ---"
 report_checks -path_delay max -format full_clock
-puts "PASS: CRPR full_clock format"
 
 puts "--- report_checks between reg1 and reg2 ---"
 report_checks -from [get_pins reg1/CK] -to [get_pins reg2/D] -path_delay max -format full_clock_expanded
-puts "PASS: CRPR reg-to-reg path"
 
 puts "--- report_checks min between reg1 and reg2 ---"
 report_checks -from [get_pins reg1/CK] -to [get_pins reg2/D] -path_delay min -format full_clock_expanded
-puts "PASS: CRPR reg-to-reg hold path"
 
 puts "--- report_clock_skew ---"
 report_clock_skew -setup
 report_clock_skew -hold
-puts "PASS: CRPR clock skew"
 
 puts "--- report_clock_latency ---"
 report_clock_latency
-puts "PASS: CRPR clock latency"
 
 puts "--- check CRPR mode settings ---"
 puts "CRPR enabled: [sta::crpr_enabled]"
@@ -56,13 +49,11 @@ report_checks -path_delay max -format full_clock_expanded
 sta::set_crpr_mode "same_transition"
 puts "CRPR mode after set: [sta::crpr_mode]"
 report_checks -path_delay max -format full_clock_expanded
-puts "PASS: CRPR mode settings"
 
 puts "--- CRPR disabled ---"
 sta::set_crpr_enabled 0
 report_checks -path_delay max -format full_clock_expanded
 sta::set_crpr_enabled 1
-puts "PASS: CRPR disable/enable"
 
 puts "--- find_timing_paths with CRPR ---"
 set paths [find_timing_paths -path_delay max -endpoint_path_count 3]
@@ -70,7 +61,6 @@ puts "Found [llength $paths] paths with CRPR"
 foreach pe $paths {
   puts "  slack=[$pe slack] crpr=[$pe check_crpr]"
 }
-puts "PASS: find_timing_paths CRPR"
 
 puts "--- find_timing_paths min with CRPR ---"
 set paths_min [find_timing_paths -path_delay min -endpoint_path_count 3]
@@ -78,10 +68,6 @@ puts "Found [llength $paths_min] hold paths with CRPR"
 foreach pe $paths_min {
   puts "  slack=[$pe slack] crpr=[$pe check_crpr]"
 }
-puts "PASS: find_timing_paths min CRPR"
 
 puts "--- report_check_types ---"
 report_check_types -verbose
-puts "PASS: check_types with CRPR"
-
-puts "ALL PASSED"

@@ -10,7 +10,6 @@ if { $lib == "" } {
   puts "FAIL: IHP library not found"
   exit 1
 }
-puts "PASS: IHP library loaded"
 
 ############################################################
 # Query various cell types
@@ -22,13 +21,10 @@ if { $inv == "" } {
   puts "FAIL: sg13g2_inv_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_inv_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_1
-puts "PASS: report_lib_cell sg13g2_inv_1"
 
 set inv_pins [get_lib_pins sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_1/*]
-puts "PASS: sg13g2_inv_1 pins ([llength $inv_pins] pins)"
 
 foreach sz {2 4 8 16} {
   set cell [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_$sz]
@@ -37,7 +33,6 @@ foreach sz {2 4 8 16} {
     exit 1
   }
 }
-puts "PASS: all INV sizes found"
 
 # Buffers
 set buf [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_buf_1]
@@ -45,10 +40,8 @@ if { $buf == "" } {
   puts "FAIL: sg13g2_buf_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_buf_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_buf_1
-puts "PASS: report_lib_cell sg13g2_buf_1"
 
 # NAND gates
 set nand2 [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_nand2_1]
@@ -56,10 +49,8 @@ if { $nand2 == "" } {
   puts "FAIL: sg13g2_nand2_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_nand2_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_nand2_1
-puts "PASS: report_lib_cell sg13g2_nand2_1"
 
 foreach cell_name {sg13g2_nand2_2 sg13g2_nand3_1 sg13g2_nand4_1} {
   set cell [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/$cell_name]
@@ -68,7 +59,6 @@ foreach cell_name {sg13g2_nand2_2 sg13g2_nand3_1 sg13g2_nand4_1} {
     exit 1
   }
 }
-puts "PASS: all NAND variants found"
 
 # NOR gates
 set nor2 [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_nor2_1]
@@ -76,10 +66,8 @@ if { $nor2 == "" } {
   puts "FAIL: sg13g2_nor2_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_nor2_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_nor2_1
-puts "PASS: report_lib_cell sg13g2_nor2_1"
 
 foreach cell_name {sg13g2_nor2_2 sg13g2_nor3_1 sg13g2_nor4_1} {
   set cell [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/$cell_name]
@@ -88,7 +76,6 @@ foreach cell_name {sg13g2_nor2_2 sg13g2_nor3_1 sg13g2_nor4_1} {
     exit 1
   }
 }
-puts "PASS: all NOR variants found"
 
 # AND gates
 set and2 [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_and2_1]
@@ -96,10 +83,8 @@ if { $and2 == "" } {
   puts "FAIL: sg13g2_and2_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_and2_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_and2_1
-puts "PASS: report_lib_cell sg13g2_and2_1"
 
 foreach cell_name {sg13g2_and2_2 sg13g2_and3_1 sg13g2_and4_1} {
   set cell [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/$cell_name]
@@ -108,7 +93,6 @@ foreach cell_name {sg13g2_and2_2 sg13g2_and3_1 sg13g2_and4_1} {
     exit 1
   }
 }
-puts "PASS: all AND variants found"
 
 # MUX cells
 set mux2 [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_mux2_1]
@@ -116,20 +100,16 @@ if { $mux2 == "" } {
   puts "FAIL: sg13g2_mux2_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_mux2_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_mux2_1
-puts "PASS: report_lib_cell sg13g2_mux2_1"
 
 set mux4 [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_mux4_1]
 if { $mux4 == "" } {
   puts "FAIL: sg13g2_mux4_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_mux4_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_mux4_1
-puts "PASS: report_lib_cell sg13g2_mux4_1"
 
 # Flip-flop cells
 set dfrbp [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_dfrbp_1]
@@ -137,13 +117,10 @@ if { $dfrbp == "" } {
   puts "FAIL: sg13g2_dfrbp_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_dfrbp_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_dfrbp_1
-puts "PASS: report_lib_cell sg13g2_dfrbp_1"
 
 set dfrbp_pins [get_lib_pins sg13g2_stdcell_typ_1p20V_25C/sg13g2_dfrbp_1/*]
-puts "PASS: sg13g2_dfrbp_1 pins ([llength $dfrbp_pins] pins)"
 
 # Latch cells
 set dlhq [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_dlhq_1]
@@ -151,10 +128,8 @@ if { $dlhq == "" } {
   puts "FAIL: sg13g2_dlhq_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_dlhq_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_dlhq_1
-puts "PASS: report_lib_cell sg13g2_dlhq_1"
 
 # Complex cells (AOI)
 set a21o [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_a21o_1]
@@ -162,10 +137,8 @@ if { $a21o == "" } {
   puts "FAIL: sg13g2_a21o_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_a21o_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_a21o_1
-puts "PASS: report_lib_cell sg13g2_a21o_1"
 
 # XOR/XNOR
 set xor [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_xor2_1]
@@ -173,20 +146,16 @@ if { $xor == "" } {
   puts "FAIL: sg13g2_xor2_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_xor2_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_xor2_1
-puts "PASS: report_lib_cell sg13g2_xor2_1"
 
 set xnor [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_xnor2_1]
 if { $xnor == "" } {
   puts "FAIL: sg13g2_xnor2_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_xnor2_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_xnor2_1
-puts "PASS: report_lib_cell sg13g2_xnor2_1"
 
 # Tri-state / enable buffers
 set ebufn [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_ebufn_2]
@@ -194,10 +163,8 @@ if { $ebufn == "" } {
   puts "FAIL: sg13g2_ebufn_2 not found"
   exit 1
 }
-puts "PASS: sg13g2_ebufn_2 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_ebufn_2
-puts "PASS: report_lib_cell sg13g2_ebufn_2"
 
 # Delay cells
 set dlygate [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_dlygate4sd1_1]
@@ -205,39 +172,29 @@ if { $dlygate == "" } {
   puts "FAIL: sg13g2_dlygate4sd1_1 not found"
   exit 1
 }
-puts "PASS: sg13g2_dlygate4sd1_1 found"
 
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_dlygate4sd1_1
-puts "PASS: report_lib_cell sg13g2_dlygate4sd1_1"
 
 ############################################################
 # Pattern matching across library
 ############################################################
 
 set all_cells [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/*]
-puts "PASS: all IHP cells: [llength $all_cells]"
 
 set all_inv [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_*]
-puts "PASS: IHP INV cells: [llength $all_inv]"
 
 set all_nand [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_nand*]
-puts "PASS: IHP NAND cells: [llength $all_nand]"
 
 ############################################################
 # Also read the 1.50V variant
 ############################################################
 
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p50V_25C.lib
-puts "PASS: read IHP 1p50V library"
 
 set lib_1p5 [get_libs sg13g2_stdcell_typ_1p50V_25C]
 if { $lib_1p5 == "" } {
   puts "FAIL: IHP 1p50V library not found"
   exit 1
 }
-puts "PASS: IHP 1p50V library loaded"
 
 set cells_1p5 [get_lib_cells sg13g2_stdcell_typ_1p50V_25C/*]
-puts "PASS: IHP 1p50V total cells: [llength $cells_1p5]"
-
-puts "ALL PASSED"

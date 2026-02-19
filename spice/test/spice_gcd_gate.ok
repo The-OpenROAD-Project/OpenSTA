@@ -39,21 +39,15 @@ Path Type: max
            0.75   slack (MET)
 
 
-PASS: baseline timing
-PASS: mock SPICE files created
 total cells: 1292
 --- write_gate_spice ngspice buf ---
 INFO: write_gate_spice ngspice buf: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice ngspice buf code path exercised
 --- write_gate_spice ngspice buf fall ---
 INFO: write_gate_spice ngspice buf fall: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice ngspice buf fall code path exercised
 --- write_gate_spice hspice buf ---
 INFO: write_gate_spice hspice buf: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice hspice buf code path exercised
 --- write_gate_spice xyce buf ---
 INFO: write_gate_spice xyce buf: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice xyce buf code path exercised
 --- write_path_spice tests ---
 INFO: write_path_spice ngspice max: Error: The subkct file /workspace/sta/OpenSTA/spice/test/results/spice_gcd_gate_out/sky130_subckt.sp is missing definitions for 
 sky130_fd_sc_hd__a21boi_2
@@ -73,12 +67,10 @@ sky130_fd_sc_hd__o311a_2
 sky130_fd_sc_hd__o311ai_4
 sky130_fd_sc_hd__or4_1
 sky130_fd_sc_hd__xnor2_2
-PASS: write_path_spice ngspice max code path exercised
 INFO: write_path_spice hspice min: Error: The subkct file /workspace/sta/OpenSTA/spice/test/results/spice_gcd_gate_out/sky130_subckt.sp is missing definitions for 
 sky130_fd_sc_hd__a32o_1
 sky130_fd_sc_hd__clkbuf_4
 sky130_fd_sc_hd__dfxtp_2
-PASS: write_path_spice hspice min code path exercised
 INFO: write_path_spice xyce: Error: The subkct file /workspace/sta/OpenSTA/spice/test/results/spice_gcd_gate_out/sky130_subckt.sp is missing definitions for 
 sky130_fd_sc_hd__a21boi_2
 sky130_fd_sc_hd__a311oi_4
@@ -97,5 +89,3 @@ sky130_fd_sc_hd__o311a_2
 sky130_fd_sc_hd__o311ai_4
 sky130_fd_sc_hd__or4_1
 sky130_fd_sc_hd__xnor2_2
-PASS: write_path_spice xyce code path exercised
-ALL PASSED

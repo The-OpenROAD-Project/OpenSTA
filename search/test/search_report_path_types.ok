@@ -53,7 +53,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: format full
 --- report_checks -format full_clock ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -109,7 +108,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: format full_clock
 --- report_checks -format full_clock_expanded ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -165,7 +163,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: format full_clock_expanded
 --- report_checks -format end ---
 max_delay/setup group asynchronous
 
@@ -181,14 +178,12 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 out1 (output)                           8.00    0.12    7.88 (MET)
 
-PASS: format end
 --- report_checks -format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
 rst (input)                          reg1/RN (DFFR_X1)                       9.54
 reg1/Q (search_path_end_types)       out1 (output)                           7.88
 
-PASS: format summary
 --- report_checks min -format full ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -244,7 +239,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: min format full
 --- report_checks min -format full_clock ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -300,7 +294,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: min format full_clock
 --- report_checks min -format full_clock_expanded ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -356,7 +349,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: min format full_clock_expanded
 --- report_checks min -format end ---
 min_delay/hold group asynchronous
 
@@ -372,14 +364,12 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 reg2/D (DFFR_X1)                        0.00    0.08    0.08 (MET)
 
-PASS: min format end
 --- report_checks min -format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
 rst (input)                          reg1/RN (DFFR_X1)                       0.19
 reg1/Q (DFFR_X1)                     reg2/D (DFFR_X1)                        0.08
 
-PASS: min format summary
 --- report_checks -fields slew ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -435,7 +425,6 @@ Path Type: max
                    7.88   slack (MET)
 
 
-PASS: fields slew
 --- report_checks -fields cap ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -491,7 +480,6 @@ Path Type: max
                    7.88   slack (MET)
 
 
-PASS: fields cap
 --- report_checks -fields input_pins ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -548,7 +536,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: fields input_pins
 --- report_checks -fields nets ---
 Warning: search_report_path_types.tcl line 1, unknown field nets.
 Startpoint: rst (input port clocked by clk)
@@ -605,7 +592,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: fields nets
 --- report_checks -fields fanout ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -661,7 +647,6 @@ Fanout   Delay    Time   Description
                   7.88   slack (MET)
 
 
-PASS: fields fanout
 --- report_checks -fields all ---
 Warning: search_report_path_types.tcl line 1, unknown field nets.
 Startpoint: rst (input port clocked by clk)
@@ -719,7 +704,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   7.88   slack (MET)
 
 
-PASS: fields all
 --- report_checks min -fields all ---
 Warning: search_report_path_types.tcl line 1, unknown field nets.
 Startpoint: rst (input port clocked by clk)
@@ -776,7 +760,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   0.08   slack (MET)
 
 
-PASS: min fields all
 --- report_checks -digits 2 ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -832,7 +815,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: digits 2
 --- report_checks -digits 6 ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -888,19 +870,16 @@ Path Type: max
                7.881455   slack (MET)
 
 
-PASS: digits 6
 --- report_checks recovery ---
 Group                                  Slack
 --------------------------------------------
 asynchronous                            9.54
 
-PASS: recovery report
 --- report_checks removal ---
 Group                                  Slack
 --------------------------------------------
 asynchronous                            0.19
 
-PASS: removal report
 --- report_checks recovery -verbose ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -929,7 +908,6 @@ Path Type: max
            9.54   slack (MET)
 
 
-PASS: recovery verbose
 --- report_checks removal -verbose ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -958,18 +936,14 @@ Path Type: min
            0.19   slack (MET)
 
 
-PASS: removal verbose
 --- report_check_types -min_period ---
-PASS: min_period report
 --- report_check_types -min_period -verbose ---
-PASS: min_period verbose
 --- report_check_types -min_pulse_width ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.06    5.00    4.94 (MET)
 
-PASS: mpw report
 --- report_check_types -min_pulse_width -verbose ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -993,7 +967,6 @@ Check: sequential_clock_pulse_width
            4.94   slack (MET)
 
 
-PASS: mpw verbose
 --- report_check_types -max_slew ---
 max slew
 
@@ -1001,7 +974,6 @@ Pin                                    Limit    Slew   Slack
 ------------------------------------------------------------
 reg1/Q                                  0.20    0.01    0.19 (MET)
 
-PASS: max_slew report
 --- report_check_types -max_slew -verbose ---
 max slew
 
@@ -1011,7 +983,6 @@ slew        0.01
 ----------------
 Slack       0.19 (MET)
 
-PASS: max_slew verbose
 --- report_check_types -max_capacitance ---
 max capacitance
 
@@ -1019,7 +990,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 reg1/Q                                 60.58    2.10   58.47 (MET)
 
-PASS: max_cap report
 --- report_check_types -max_capacitance -verbose ---
 max capacitance
 
@@ -1029,42 +999,32 @@ capacitance        2.10
 -----------------------
 Slack             58.47 (MET)
 
-PASS: max_cap verbose
 --- report_check_types -max_fanout ---
-PASS: max_fanout report
 --- report_check_types -max_fanout -verbose ---
-PASS: max_fanout verbose
 --- report_check_types -max_skew ---
-PASS: max_skew report
 --- report_check_types -max_skew -verbose ---
-PASS: max_skew verbose
 --- report_check_types -violators ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: violators
 --- report_check_types -violators -verbose ---
 No paths found.
-PASS: violators verbose
 --- report_check_types -clock_gating_setup ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: clk_gating_setup
 --- report_check_types -clock_gating_hold ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: clk_gating_hold
 --- report_check_types both ---
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: clk_gating both
 --- report_checks -unconstrained ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1120,7 +1080,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: unconstrained
 --- report_checks -format json ---
 {"checks": [
 {
@@ -1256,5 +1215,3 @@ PASS: unconstrained
 }
 ]
 }
-PASS: json format
-ALL PASSED

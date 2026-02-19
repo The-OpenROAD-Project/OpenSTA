@@ -15,7 +15,6 @@ outbus[0] dir=output
 outbus[1] dir=output
 outbus[2] dir=output
 outbus[3] dir=output
-PASS: supply/tri read completed
 --- Test 2: timing with supply/tri ---
 Startpoint: in3 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
@@ -44,7 +43,6 @@ Path Type: max
            6.97   slack (MET)
 
 
-PASS: report_checks with supply/tri
 Startpoint: in3 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -72,9 +70,7 @@ Path Type: min
           -9.01   slack (VIOLATED)
 
 
-PASS: report_checks min
 No paths found.
-PASS: in1->out1
 Startpoint: in3 (input port clocked by clk)
 Endpoint: out3 (output port clocked by clk)
 Path Group: clk
@@ -104,9 +100,7 @@ Path Type: max
            8.31   slack (MET)
 
 
-PASS: in3->out3 (through assign)
 No paths found.
-PASS: in3->outbus[0] (through wire assign)
 Warning: verilog_supply_tristate.tcl line 1, unknown field nets.
 Startpoint: in3 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
@@ -135,7 +129,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   6.97   slack (MET)
 
 
-PASS: report with all fields
 --- Test 3: report_net ---
 Net n1
  Pin capacitance: 1.94-2.06
@@ -345,20 +338,13 @@ Instance reg3
   IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
-PASS: report_instance all
 --- Test 4: write_verilog ---
-PASS: write_verilog basic
-PASS: output file size=911
-PASS: write_verilog -include_pwr_gnd
-PASS: pwr_gnd file size=941
 --- Test 5: re-read verilog ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 re-read cells: 12
 re-read nets: 25
-PASS: re-read verilog
 --- Test 6: fanin/fanout ---
 fanin to out1: 3
 fanout from in1: 13
 fanin cells to out1: 2
 fanout cells from in1: 8
-ALL PASSED

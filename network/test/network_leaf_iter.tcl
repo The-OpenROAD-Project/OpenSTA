@@ -28,7 +28,6 @@ set_input_transition 0.1 [all_inputs]
 
 # Build the timing graph
 report_checks
-puts "PASS: initial timing"
 
 #---------------------------------------------------------------
 # Leaf instance queries
@@ -46,14 +45,11 @@ puts "hierarchical cells: [llength $all_hier]"
 
 # Check specific instances
 foreach inst_name {buf_in sub1 sub2 inv1 reg1 buf_out1 buf_out2} {
-  catch {
-    set inst [get_cells $inst_name]
-    set ref [get_property $inst ref_name]
-    set fn [get_full_name $inst]
-    puts "inst $inst_name: ref=$ref full=$fn"
-  } msg
+  set inst [get_cells $inst_name]
+  set ref [get_property $inst ref_name]
+  set fn [get_full_name $inst]
+  puts "inst $inst_name: ref=$ref full=$fn"
 }
-puts "PASS: instance queries"
 
 #---------------------------------------------------------------
 # Test hierarchical instance path traversal
@@ -67,13 +63,10 @@ puts "deep *gate* cells: [llength $deep_cells]"
 
 # Instance names at various depths
 foreach cell $all_hier {
-  catch {
-    set fn [get_full_name $cell]
-    set ref [get_property $cell ref_name]
-    puts "  hier: $fn ref=$ref"
-  }
+  set fn [get_full_name $cell]
+  set ref [get_property $cell ref_name]
+  puts "  hier: $fn ref=$ref"
 }
-puts "PASS: hierarchical path traversal"
 
 #---------------------------------------------------------------
 # Test port queries and bus handling
@@ -99,7 +92,6 @@ foreach port_name {clk in1 in2 in3 out1 out2} {
   set fn [get_full_name $p]
   puts "port $port_name: dir=$dir name=$fn"
 }
-puts "PASS: port queries"
 
 #---------------------------------------------------------------
 # Test pin queries at various levels
@@ -136,7 +128,6 @@ puts "sub1/* hier pins: [llength $sub1_pins]"
 
 set sub2_pins [get_pins -hierarchical sub2/*]
 puts "sub2/* hier pins: [llength $sub2_pins]"
-puts "PASS: pin queries"
 
 #---------------------------------------------------------------
 # Test net queries at various levels
@@ -159,13 +150,10 @@ puts "w* hier nets: [llength $hier_w_nets]"
 
 # Specific net properties
 foreach net_name {w1 w2 w3 w4 w5} {
-  catch {
-    set net [get_nets $net_name]
-    set fn [get_full_name $net]
-    puts "net $net_name: name=$fn"
-  }
+  set net [get_nets $net_name]
+  set fn [get_full_name $net]
+  puts "net $net_name: name=$fn"
 }
-puts "PASS: net queries"
 
 #---------------------------------------------------------------
 # Fanin/fanout traversal through hierarchy
@@ -213,7 +201,6 @@ puts "fanout timing: [llength $fo_timing]"
 
 set fo_all [get_fanout -from [get_ports in1] -flat -trace_arcs all]
 puts "fanout all: [llength $fo_all]"
-puts "PASS: fanin/fanout traversal"
 
 #---------------------------------------------------------------
 # Detailed timing through hierarchy
@@ -225,18 +212,15 @@ report_checks -from [get_ports in2] -to [get_ports out1]
 report_checks -from [get_ports in3] -to [get_ports out2]
 report_checks -path_delay min
 report_checks -path_delay max
-puts "PASS: timing reports"
 
 # Detailed reports with various fields
 report_checks -fields {slew cap input_pins nets fanout}
 report_checks -format full_clock
 report_checks -format full_clock_expanded
-puts "PASS: detailed report formats"
 
 # Reports with endpoint/group counts
 report_checks -endpoint_count 3
 report_checks -group_count 2
-puts "PASS: endpoint/group reports"
 
 #---------------------------------------------------------------
 # Network modification in hierarchical context
@@ -246,26 +230,22 @@ set new_buf [make_instance hier_test_buf NangateOpenCellLibrary/BUF_X1]
 set new_inv [make_instance hier_test_inv NangateOpenCellLibrary/INV_X1]
 set new_net1 [make_net hier_test_net1]
 set new_net2 [make_net hier_test_net2]
-puts "PASS: create instances and nets"
 
 # Connect new instances
 connect_pin hier_test_net1 hier_test_buf/A
 connect_pin hier_test_net2 hier_test_buf/Z
 connect_pin hier_test_net2 hier_test_inv/A
-puts "PASS: connect new instances"
 
 # Disconnect
 disconnect_pin hier_test_net1 hier_test_buf/A
 disconnect_pin hier_test_net2 hier_test_buf/Z
 disconnect_pin hier_test_net2 hier_test_inv/A
-puts "PASS: disconnect new instances"
 
 # Clean up
 delete_instance hier_test_buf
 delete_instance hier_test_inv
 delete_net hier_test_net1
 delete_net hier_test_net2
-puts "PASS: cleanup"
 
 #---------------------------------------------------------------
 # Register queries
@@ -282,6 +262,3 @@ puts "clock_pins: [llength $reg_clk]"
 
 set reg_out [all_registers -output_pins]
 puts "output_pins: [llength $reg_out]"
-puts "PASS: register queries"
-
-puts "ALL PASSED"

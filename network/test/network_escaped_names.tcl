@@ -20,7 +20,6 @@ set_output_delay -clock clk 0 [get_ports out1]
 set_input_transition 0.1 [all_inputs]
 
 report_checks
-puts "PASS: initial setup"
 
 #---------------------------------------------------------------
 # Test various pattern matching
@@ -37,10 +36,8 @@ set q_cells [get_cells ???1]
 puts "cells ???1: [llength $q_cells]"
 
 # Prefix pattern
-catch {
-  set prefix_cells [get_cells {b*}]
-  puts "cells b*: [llength $prefix_cells]"
-}
+set prefix_cells [get_cells {b*}]
+puts "cells b*: [llength $prefix_cells]"
 
 # Specific prefix
 set buf_cells [get_cells buf*]
@@ -53,11 +50,8 @@ set reg_cells [get_cells reg*]
 puts "cells reg*: [llength $reg_cells]"
 
 # Non-matching pattern
-catch {
-  set x_cells [get_cells nonexistent_*]
-  puts "cells nonexistent_*: [llength $x_cells]"
-} msg
-puts "PASS: pattern matching"
+set x_cells [get_cells nonexistent_*]
+puts "cells nonexistent_*: [llength $x_cells]"
 
 #---------------------------------------------------------------
 # Test get_pins with various patterns
@@ -87,8 +81,6 @@ puts "hier pins: [llength $hier_pins]"
 set star_a_pins [get_pins */*1]
 puts "*/*1 pins: [llength $star_a_pins]"
 
-puts "PASS: pin pattern matching"
-
 #---------------------------------------------------------------
 # Test get_nets with patterns
 # Exercises: findNetsMatching
@@ -103,8 +95,6 @@ puts "n* nets: [llength $n_nets]"
 
 set hier_nets [get_nets -hierarchical *]
 puts "hier nets: [llength $hier_nets]"
-
-puts "PASS: net pattern matching"
 
 #---------------------------------------------------------------
 # Test get_ports patterns
@@ -127,8 +117,6 @@ puts "clk* ports: [llength $c_ports]"
 # Pattern with ? wildcard
 set q_ports [get_ports {?n?}]
 puts "?n? ports: [llength $q_ports]"
-
-puts "PASS: port pattern matching"
 
 #---------------------------------------------------------------
 # Test get_lib_cells with patterns across libraries
@@ -183,8 +171,6 @@ puts "*/TLAT* lib cells: [llength $star_tlat]"
 set star_tinv [get_lib_cells */TINV*]
 puts "*/TINV* lib cells: [llength $star_tinv]"
 
-puts "PASS: lib cell pattern matching"
-
 #---------------------------------------------------------------
 # Test get_lib_pins patterns
 # Exercises: findLibPinsMatching
@@ -215,8 +201,6 @@ puts "CLKGATETST_X1/* lib pins: [llength $clkgate_lib_pins]"
 set fa_lib_pins [get_lib_pins NangateOpenCellLibrary/FA_X1/*]
 puts "FA_X1/* lib pins: [llength $fa_lib_pins]"
 
-puts "PASS: lib pin pattern matching"
-
 #---------------------------------------------------------------
 # Test current_design
 #---------------------------------------------------------------
@@ -239,7 +223,6 @@ report_checks -rise_from [get_ports in1]
 report_checks -fall_from [get_ports in1]
 report_checks -rise_to [get_ports out1]
 report_checks -fall_to [get_ports out1]
-puts "PASS: timing reports"
 
 # Various report formats
 report_checks -fields {slew cap input_pins nets fanout}
@@ -247,17 +230,10 @@ report_checks -format full_clock
 report_checks -format full_clock_expanded
 report_checks -digits 6
 report_checks -no_line_splits
-puts "PASS: report formats"
 
 # Check types
 report_check_types -max_delay -min_delay
 report_check_types -max_slew -max_capacitance -max_fanout
-puts "PASS: report_check_types"
 
 # Report power
-catch {
-  report_power
-  puts "PASS: report_power"
-}
-
-puts "ALL PASSED"
+report_power

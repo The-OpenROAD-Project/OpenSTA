@@ -90,4 +90,3 @@ CK -> D hold
   ^ -> v 0.00:0.00
 --- report_path for a pin ---
 --- report_path -min ---
-ALL fanin/fanout tests PASSED

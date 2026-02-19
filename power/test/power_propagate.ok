@@ -1,7 +1,6 @@
 --- Test 1: GCD power with VCD ---
 Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
 Annotated 937 pin activities.
-PASS: read_vcd
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -13,7 +12,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.50e-04   1.50e-04   9.91e-10   6.01e-04 100.0%
                           75.0%      25.0%       0.0%
-PASS: report_power with VCD
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -25,7 +23,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.50e-04   1.50e-04   9.91e-10   6.01e-04 100.0%
                           75.0%      25.0%       0.0%
-PASS: report_power -digits 2
 Group                      Internal      Switching        Leakage          Total
                               Power          Power          Power          Power (Watts)
 --------------------------------------------------------------------------------
@@ -37,7 +34,6 @@ Pad                  0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00
 --------------------------------------------------------------------------------
 Total                4.50450607e-04 1.50352484e-04 9.90521443e-10 6.00804051e-04 100.0%
                               75.0%          25.0%           0.0%
-PASS: report_power -digits 8
 --- Test 2: instance-level power ---
 register cells: 35
    Internal  Switching    Leakage      Total
@@ -46,7 +42,6 @@ register cells: 35
    9.02e-06   6.47e-06   8.93e-12   1.55e-05 _411_
    9.02e-06   2.49e-06   8.63e-12   1.15e-05 _413_
    8.92e-06   2.29e-07   8.18e-12   9.15e-06 _412_
-PASS: register instance power
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
@@ -55,7 +50,6 @@ PASS: register instance power
    6.06e-08   6.24e-08   3.91e-12   1.23e-07 _198_
    5.13e-08   6.09e-08   4.80e-13   1.12e-07 _201_
    5.10e-08   4.53e-08   4.80e-13   9.64e-08 _197_
-PASS: combinational instance power
 [
 {
   "name": "_199_",
@@ -97,7 +91,6 @@ PASS: combinational instance power
   "total": 9.64e-08
 }
 ]
-PASS: combinational instance power json
      Internal    Switching      Leakage        Total
         Power        Power        Power        Power (Watts)
 ----------------------------------------------------
@@ -106,7 +99,6 @@ PASS: combinational instance power json
  6.059145e-08 6.238944e-08 3.907500e-12 1.229848e-07 _198_
  5.130727e-08 6.089903e-08 4.804000e-13 1.122068e-07 _201_
  5.104085e-08 4.532760e-08 4.804000e-13 9.636894e-08 _197_
-PASS: combinational instance power -digits 6
 --- Test 3: highest power instances ---
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
@@ -114,7 +106,6 @@ PASS: combinational instance power -digits 6
    9.52e-06   1.09e-05   4.60e-12   2.05e-05 clkbuf_2_2__f_clk
    9.51e-06   1.09e-05   4.60e-12   2.04e-05 clkbuf_2_0__f_clk
    9.51e-06   1.09e-05   4.60e-12   2.04e-05 clkbuf_2_1__f_clk
-PASS: highest 3
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
@@ -128,7 +119,6 @@ PASS: highest 3
    9.02e-06   2.49e-06   8.63e-12   1.15e-05 _413_
    1.02e-05   1.05e-06   8.33e-12   1.12e-05 _434_
    9.83e-06   1.17e-06   8.45e-12   1.10e-05 _432_
-PASS: highest 10
 [
 {
   "name": "clkbuf_2_2__f_clk",
@@ -170,18 +160,15 @@ PASS: highest 10
   "total": 1.68e-05
 }
 ]
-PASS: highest 5 json
      Internal    Switching      Leakage        Total
         Power        Power        Power        Power (Watts)
 ----------------------------------------------------
  9.515052e-06 1.094666e-05 4.600750e-12 2.046172e-05 clkbuf_2_2__f_clk
  9.514861e-06 1.092787e-05 4.600750e-12 2.044274e-05 clkbuf_2_0__f_clk
  9.514670e-06 1.090908e-05 4.600750e-12 2.042375e-05 clkbuf_2_1__f_clk
-PASS: highest 3 -digits 6
 --- Test 4: activity annotation ---
 vcd           937
 unannotated     0
-PASS: annotation
 vcd           937
 unannotated     0
 Annotated pins:
@@ -1122,11 +1109,9 @@ Annotated pins:
   vcd rebuffer9/X
   vcd split1/A
   vcd split1/X
-PASS: annotation -report_annotated
 vcd           937
 unannotated     0
 Unannotated pins:
-PASS: annotation -report_unannotated
 --- Test 5: activity overrides ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -1139,7 +1124,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  6.79e-04   3.76e-04   9.94e-10   1.05e-03 100.0%
                           64.3%      35.7%       0.0%
-PASS: global override
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -1151,7 +1135,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.50e-04   1.50e-04   9.91e-10   6.01e-04 100.0%
                           75.0%      25.0%       0.0%
-PASS: input override
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -1163,7 +1146,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.50e-04   1.50e-04   9.91e-10   6.01e-04 100.0%
                           75.0%      25.0%       0.0%
-PASS: per-port override
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -1175,7 +1157,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.50e-04   1.50e-04   9.91e-10   6.01e-04 100.0%
                           75.0%      25.0%       0.0%
-PASS: per-pin CLK override
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -1187,11 +1168,9 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.74e+06   1.64e+06   9.94e-10   3.38e+06 100.0%
                           51.5%      48.5%       0.0%
-PASS: density-based activity
 --- Test 6: SAIF power ---
 Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Annotated 937 pin activities.
-PASS: read_saif
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -1203,7 +1182,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.37e-04   1.37e-04   9.91e-10   5.74e-04 100.0%
                           76.1%      23.9%       0.0%
-PASS: report_power with SAIF
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
@@ -1212,10 +1190,8 @@ PASS: report_power with SAIF
    9.51e-06   1.09e-05   4.60e-12   2.04e-05 clkbuf_2_1__f_clk
    9.46e-06   9.73e-06   4.60e-12   1.92e-05 clkbuf_2_3__f_clk
    1.16e-05   4.86e-06   8.46e-12   1.65e-05 _430_
-PASS: highest with SAIF
 saif          937
 unannotated     0
-PASS: annotation with SAIF
 --- Test 7: power with defaults ---
 Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Group                  Internal  Switching    Leakage      Total
@@ -1229,7 +1205,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  7.08e-04   3.29e-04   1.00e-09   1.04e-03 100.0%
                           68.3%      31.7%       0.0%
-PASS: power with default propagation
 {
   "Sequential": {
     "internal": 3.44e-04,
@@ -1268,7 +1243,4 @@ PASS: power with default propagation
     "total": 1.04e-03
   }
 }
-PASS: power json with defaults
 unannotated   937
-PASS: annotation with defaults
-ALL PASSED

@@ -41,7 +41,6 @@ puts "clk is_propagated: [get_property $mclk is_propagated]"
 set clk_srcs [get_property $mclk sources]
 puts "clk sources: [llength $clk_srcs]"
 foreach s $clk_srcs { puts "  src: [get_full_name $s]" }
-puts "PASS: master clock properties"
 
 puts "--- Generated clock properties ---"
 set gclk [get_clocks div_clk]
@@ -54,7 +53,6 @@ puts "div_clk is_propagated: [get_property $gclk is_propagated]"
 set gsrc [get_property $gclk sources]
 puts "div_clk sources: [llength $gsrc]"
 foreach s $gsrc { puts "  src: [get_full_name $s]" }
-puts "PASS: generated clock properties"
 
 ############################################################
 # Propagated clock property change
@@ -66,7 +64,6 @@ puts "div_clk is_propagated (after set): [get_property [get_clocks div_clk] is_p
 report_checks -path_delay max > /dev/null
 unset_propagated_clock [get_clocks clk]
 puts "clk is_propagated (after unset): [get_property [get_clocks clk] is_propagated]"
-puts "PASS: propagated toggle"
 
 ############################################################
 # Virtual clock
@@ -79,7 +76,6 @@ puts "vclk is_generated: [get_property $vclk is_generated]"
 puts "vclk period: [get_property $vclk period]"
 set vsrc [get_property $vclk sources]
 puts "vclk sources: [llength $vsrc]"
-puts "PASS: virtual clock"
 
 ############################################################
 # Pin clocks / clock_domains
@@ -106,26 +102,21 @@ puts "reg1/D clocks: [llength $dclks]"
 set q_pin [get_pins reg1/Q]
 set qclks [get_property $q_pin clocks]
 puts "reg1/Q clocks: [llength $qclks]"
-puts "PASS: pin clocks/clock_domains"
 
 ############################################################
 # Report with generated clock paths: full_clock_expanded
 ############################################################
 puts "--- GenClk full_clock_expanded max ---"
 report_checks -to [get_ports out2] -path_delay max -format full_clock_expanded -fields {capacitance slew fanout input_pin net}
-puts "PASS: genclk full_clock_expanded max"
 
 puts "--- GenClk full_clock_expanded min ---"
 report_checks -to [get_ports out2] -path_delay min -format full_clock_expanded -fields {capacitance slew fanout input_pin net}
-puts "PASS: genclk full_clock_expanded min"
 
 puts "--- GenClk full_clock max ---"
 report_checks -to [get_ports out2] -path_delay max -format full_clock -fields {capacitance slew fanout}
-puts "PASS: genclk full_clock"
 
 puts "--- GenClk full max ---"
 report_checks -to [get_ports out2] -path_delay max -format full -fields {capacitance slew fanout}
-puts "PASS: genclk full"
 
 ############################################################
 # Report genclk paths in all formats
@@ -136,7 +127,6 @@ report_checks -to [get_ports out2] -path_delay max -format end
 report_checks -to [get_ports out2] -path_delay max -format summary
 report_checks -to [get_ports out2] -path_delay max -format slack_only
 report_checks -to [get_ports out2] -path_delay max -format json
-puts "PASS: genclk all formats"
 
 ############################################################
 # GenClk with propagated + full_clock_expanded
@@ -146,7 +136,6 @@ set_propagated_clock [get_clocks clk]
 report_checks -to [get_ports out2] -path_delay max -format full_clock_expanded -fields {capacitance slew fanout input_pin}
 report_checks -to [get_ports out2] -path_delay min -format full_clock_expanded -fields {capacitance slew fanout input_pin}
 unset_propagated_clock [get_clocks clk]
-puts "PASS: genclk propagated expanded"
 
 ############################################################
 # find_timing_paths for genclk domain
@@ -157,13 +146,12 @@ puts "GenClk max paths: [llength $paths_gc]"
 foreach pe $paths_gc {
   puts "  pin=[get_full_name [$pe pin]] slack=[$pe slack]"
   puts "    is_check: [$pe is_check] is_output: [$pe is_output_delay]"
-  catch { puts "    target_clk: [get_name [$pe target_clk]]" }
-  catch { puts "    startpoint_clock: [get_name [get_property $pe startpoint_clock]]" }
-  catch { puts "    endpoint_clock: [get_name [get_property $pe endpoint_clock]]" }
+  puts "    target_clk: [get_name [$pe target_clk]]"
+  puts "    startpoint_clock: [get_name [get_property $pe startpoint_clock]]"
+  puts "    endpoint_clock: [get_name [get_property $pe endpoint_clock]]"
   set pts [get_property $pe points]
   puts "    points: [llength $pts]"
 }
-puts "PASS: genclk paths"
 
 ############################################################
 # report_path_cmd with genclk path
@@ -176,21 +164,18 @@ foreach pe $paths_gc {
   sta::set_report_path_format full
   break
 }
-puts "PASS: genclk report_path_cmd"
 
 ############################################################
 # report_path_ends for genclk paths
 ############################################################
 puts "--- report_path_ends genclk ---"
 sta::report_path_ends $paths_gc
-puts "PASS: genclk report_path_ends"
 
 ############################################################
 # report_clock_properties
 ############################################################
 puts "--- report_clock_properties ---"
 report_clock_properties
-puts "PASS: clock_properties"
 
 ############################################################
 # report_clock_skew
@@ -198,7 +183,6 @@ puts "PASS: clock_properties"
 puts "--- report_clock_skew ---"
 report_clock_skew -setup
 report_clock_skew -hold
-puts "PASS: clock_skew"
 
 ############################################################
 # All reports with digits
@@ -206,7 +190,6 @@ puts "PASS: clock_skew"
 puts "--- GenClk digits ---"
 report_checks -to [get_ports out2] -path_delay max -format full_clock_expanded -digits 6
 report_checks -to [get_ports out2] -path_delay max -format full_clock_expanded -digits 2
-puts "PASS: genclk digits"
 
 ############################################################
 # report_tns/wns
@@ -216,6 +199,3 @@ report_tns
 report_wns
 report_worst_slack -max
 report_worst_slack -min
-puts "PASS: tns/wns"
-
-puts "ALL PASSED"

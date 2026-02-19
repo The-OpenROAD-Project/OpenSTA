@@ -26,7 +26,6 @@ set_input_transition 0.1 [all_inputs]
 
 # Build timing graph
 report_checks
-puts "PASS: initial design"
 
 #---------------------------------------------------------------
 # Exercise connected pin queries
@@ -36,10 +35,8 @@ puts "--- connected pin queries ---"
 
 # Report net n1 to exercise connected pin iteration
 report_net n1
-puts "PASS: report_net n1"
 
 report_net n2
-puts "PASS: report_net n2"
 
 # Report all nets to iterate all connected pins
 foreach net_name {n1 n2} {
@@ -47,7 +44,6 @@ foreach net_name {n1 n2} {
   set pins_on_net [get_pins -of_objects $net]
   puts "net $net_name pins: [llength $pins_on_net]"
 }
-puts "PASS: connected pin queries"
 
 #---------------------------------------------------------------
 # Exercise instance creation, pin connection, cell replacement
@@ -92,7 +88,7 @@ catch {connect_pin lifecycle_net_2 lifecycle_inst_3/ZN} msg
 puts "connect lifecycle_inst_3/ZN: $msg"
 
 # Report net with connected pins (exercises connectedPinIterator)
-catch {report_net lifecycle_net_1} msg
+report_net lifecycle_net_1
 puts "report_net lifecycle_net_1: done"
 
 # Replace cell: BUF_X1 -> BUF_X2 (compatible ports A, Z)
@@ -112,7 +108,6 @@ puts "replace BUF_X1->BUF_X4: ref=$ref_x4"
 
 # Incremental timing after modifications
 report_checks
-puts "PASS: timing after modifications"
 
 #---------------------------------------------------------------
 # Disconnect and delete
@@ -121,29 +116,25 @@ puts "PASS: timing after modifications"
 puts "--- disconnect and delete ---"
 
 # Disconnect all connected pins
-catch {disconnect_pin lifecycle_net_0 lifecycle_inst_0/A}
-catch {disconnect_pin lifecycle_net_1 lifecycle_inst_0/Z}
-catch {disconnect_pin lifecycle_net_1 lifecycle_inst_3/A}
-catch {disconnect_pin lifecycle_net_2 lifecycle_inst_3/ZN}
-puts "PASS: all pins disconnected"
+disconnect_pin lifecycle_net_0 lifecycle_inst_0/A
+disconnect_pin lifecycle_net_1 lifecycle_inst_0/Z
+disconnect_pin lifecycle_net_1 lifecycle_inst_3/A
+disconnect_pin lifecycle_net_2 lifecycle_inst_3/ZN
 
 # Delete all lifecycle instances
 foreach iname $inst_list {
-  catch {delete_instance $iname}
+  delete_instance $iname
 }
-puts "PASS: all lifecycle instances deleted"
 
 # Delete all lifecycle nets
 foreach nname $net_list {
-  catch {delete_net $nname}
+  delete_net $nname
 }
-puts "PASS: all lifecycle nets deleted"
 
 # Verify design still works
 set final_cells [get_cells *]
 puts "final cells: [llength $final_cells]"
 report_checks
-puts "PASS: timing after cleanup"
 
 #---------------------------------------------------------------
 # Exercise various property queries
@@ -169,7 +160,6 @@ foreach pin_path {buf1/A buf1/Z and1/A1 and1/A2 and1/ZN reg1/D reg1/CK reg1/Q} {
   set dir [get_property $pin direction]
   puts "$pin_path: dir=$dir"
 }
-puts "PASS: property queries"
 
 #---------------------------------------------------------------
 # Multiple replace_cell on the original design instances
@@ -184,12 +174,10 @@ puts "and1 -> AND2_X2: $ref"
 
 # Report checks to force delay recalculation
 report_checks
-puts "PASS: timing after and1 replace"
 
 # Replace and1 back
 replace_cell and1 NangateOpenCellLibrary/AND2_X1
 report_checks
-puts "PASS: timing after and1 restore"
 
 # Replace buf1 through multiple sizes
 foreach size {X2 X4 X8 X16 X32} {
@@ -200,6 +188,3 @@ foreach size {X2 X4 X8 X16 X32} {
 # Replace back
 replace_cell buf1 NangateOpenCellLibrary/BUF_X1
 report_checks
-puts "PASS: buf1 multi-replace cycle"
-
-puts "ALL PASSED"

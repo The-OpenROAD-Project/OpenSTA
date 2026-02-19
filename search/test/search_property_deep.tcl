@@ -35,7 +35,6 @@ puts "gen clock is_generated: [get_property $gclk is_generated]"
 puts "gen clock is_virtual: [get_property $gclk is_virtual]"
 set gsrc [get_property $gclk sources]
 puts "gen clock sources: [llength $gsrc]"
-puts "PASS: gen clock properties"
 
 ############################################################
 # Pin properties on clock pins
@@ -48,7 +47,6 @@ set cks [get_property $ck_pin clocks]
 puts "div_reg/CK clocks: [llength $cks]"
 set cdoms [get_property $ck_pin clock_domains]
 puts "div_reg/CK clock_domains: [llength $cdoms]"
-puts "PASS: clock pin properties"
 
 ############################################################
 # Pin timing properties - arrival, slew, slack variants
@@ -71,7 +69,6 @@ puts "slew_max_fall: [get_property $dpin slew_max_fall]"
 puts "slew_min: [get_property $dpin slew_min]"
 puts "slew_min_rise: [get_property $dpin slew_min_rise]"
 puts "slew_min_fall: [get_property $dpin slew_min_fall]"
-puts "PASS: pin timing properties"
 
 ############################################################
 # Port properties
@@ -84,7 +81,6 @@ set out_port [get_ports out1]
 puts "out port direction: [get_property $out_port direction]"
 set clk_port [get_ports clk]
 puts "clk port direction: [get_property $clk_port direction]"
-puts "PASS: port properties"
 
 ############################################################
 # Net properties
@@ -93,7 +89,6 @@ puts "--- Net properties ---"
 set net1 [get_nets n1]
 puts "net name: [get_property $net1 name]"
 puts "net full_name: [get_property $net1 full_name]"
-puts "PASS: net properties"
 
 ############################################################
 # Instance properties
@@ -105,7 +100,6 @@ puts "inst full_name: [get_property $inst1 full_name]"
 puts "inst ref_name: [get_property $inst1 ref_name]"
 set icell [get_property $inst1 cell]
 puts "inst cell: [get_name $icell]"
-puts "PASS: instance properties"
 
 ############################################################
 # LibertyCell properties
@@ -119,7 +113,6 @@ puts "lib_cell filename: [get_property $lc filename]"
 puts "lib_cell is_buffer: [get_property $lc is_buffer]"
 set lib_ref [get_property $lc library]
 puts "lib_cell library: [get_name $lib_ref]"
-puts "PASS: liberty cell properties"
 
 ############################################################
 # LibertyPort properties
@@ -129,7 +122,6 @@ set lp [get_lib_pins NangateOpenCellLibrary/AND2_X1/ZN]
 puts "lib_port name: [get_property $lp name]"
 puts "lib_port full_name: [get_property $lp full_name]"
 puts "lib_port direction: [get_property $lp direction]"
-puts "PASS: liberty port properties"
 
 ############################################################
 # Library properties
@@ -138,7 +130,6 @@ puts "--- Library properties ---"
 set lib [get_libs NangateOpenCellLibrary]
 puts "lib name: [get_property $lib name]"
 puts "lib full_name: [get_property $lib full_name]"
-puts "PASS: library properties"
 
 ############################################################
 # Edge properties with timing arc details
@@ -158,7 +149,6 @@ foreach edge $edges {
   puts "edge to_pin: [get_full_name $etp]"
   break
 }
-puts "PASS: edge properties deep"
 
 ############################################################
 # PathEnd properties deep
@@ -171,19 +161,13 @@ foreach pe $paths {
   set ep [get_property $pe endpoint]
   puts "endpoint: [get_full_name $ep]"
   puts "slack: [get_property $pe slack]"
-  catch {
-    set sc [get_property $pe startpoint_clock]
-    puts "startpoint_clock: [get_name $sc]"
-  }
-  catch {
-    set ec [get_property $pe endpoint_clock]
-    puts "endpoint_clock: [get_name $ec]"
-  }
+  set sc [get_property $pe startpoint_clock]
+  puts "startpoint_clock: [get_name $sc]"
+  set ec [get_property $pe endpoint_clock]
+  puts "endpoint_clock: [get_name $ec]"
   if { [$pe is_check] } {
-    catch {
-      set ecp [get_property $pe endpoint_clock_pin]
-      puts "endpoint_clock_pin: [get_full_name $ecp]"
-    }
+    set ecp [get_property $pe endpoint_clock_pin]
+    puts "endpoint_clock_pin: [get_full_name $ecp]"
   }
   # PathEnd methods
   puts "  is_check: [$pe is_check]"
@@ -196,25 +180,24 @@ foreach pe $paths {
   puts "  margin: [$pe margin]"
   puts "  data_required_time: [$pe data_required_time]"
   puts "  data_arrival_time: [$pe data_arrival_time]"
-  catch { puts "  source_clk_offset: [$pe source_clk_offset]" }
-  catch { puts "  source_clk_latency: [$pe source_clk_latency]" }
-  catch { puts "  source_clk_insertion_delay: [$pe source_clk_insertion_delay]" }
-  catch { puts "  target_clk: [get_name [$pe target_clk]]" }
-  catch { puts "  target_clk_time: [$pe target_clk_time]" }
-  catch { puts "  target_clk_offset: [$pe target_clk_offset]" }
-  catch { puts "  target_clk_delay: [$pe target_clk_delay]" }
-  catch { puts "  target_clk_insertion_delay: [$pe target_clk_insertion_delay]" }
-  catch { puts "  target_clk_uncertainty: [$pe target_clk_uncertainty]" }
-  catch { puts "  target_clk_arrival: [$pe target_clk_arrival]" }
-  catch { puts "  inter_clk_uncertainty: [$pe inter_clk_uncertainty]" }
-  catch { puts "  check_crpr: [$pe check_crpr]" }
-  catch { puts "  clk_skew: [$pe clk_skew]" }
-  catch { puts "  min_max: [$pe min_max]" }
-  catch { puts "  end_transition: [$pe end_transition]" }
-  catch { puts "  check_role: [$pe check_role]" }
+  puts "  source_clk_offset: [$pe source_clk_offset]"
+  puts "  source_clk_latency: [$pe source_clk_latency]"
+  puts "  source_clk_insertion_delay: [$pe source_clk_insertion_delay]"
+  puts "  target_clk: [get_name [$pe target_clk]]"
+  puts "  target_clk_time: [$pe target_clk_time]"
+  puts "  target_clk_offset: [$pe target_clk_offset]"
+  puts "  target_clk_delay: [$pe target_clk_delay]"
+  puts "  target_clk_insertion_delay: [$pe target_clk_insertion_delay]"
+  puts "  target_clk_uncertainty: [$pe target_clk_uncertainty]"
+  puts "  target_clk_arrival: [$pe target_clk_arrival]"
+  puts "  inter_clk_uncertainty: [$pe inter_clk_uncertainty]"
+  puts "  check_crpr: [$pe check_crpr]"
+  puts "  clk_skew: [$pe clk_skew]"
+  puts "  min_max: [$pe min_max]"
+  puts "  end_transition: [$pe end_transition]"
+  puts "  check_role: [$pe check_role]"
   break
 }
-puts "PASS: PathEnd properties deep"
 
 ############################################################
 # Path properties
@@ -231,42 +214,33 @@ foreach pe $paths {
   puts "path pins count: [llength $ppins]"
   break
 }
-puts "PASS: path properties deep"
 
 ############################################################
 # Report checks in all format variants
 ############################################################
 puts "--- report_checks -format full ---"
 report_checks -path_delay max -format full
-puts "PASS: format full"
 
 puts "--- report_checks -format full_clock ---"
 report_checks -path_delay max -format full_clock
-puts "PASS: format full_clock"
 
 puts "--- report_checks -format full_clock_expanded ---"
 report_checks -path_delay max -format full_clock_expanded
-puts "PASS: format full_clock_expanded"
 
 puts "--- report_checks -format short ---"
 report_checks -path_delay max -format short
-puts "PASS: format short"
 
 puts "--- report_checks -format end ---"
 report_checks -path_delay max -format end
-puts "PASS: format end"
 
 puts "--- report_checks -format slack_only ---"
 report_checks -path_delay max -format slack_only
-puts "PASS: format slack_only"
 
 puts "--- report_checks -format summary ---"
 report_checks -path_delay max -format summary
-puts "PASS: format summary"
 
 puts "--- report_checks -format json ---"
 report_checks -path_delay max -format json
-puts "PASS: format json"
 
 ############################################################
 # Report checks with different -fields
@@ -275,35 +249,30 @@ puts "--- report_checks with -fields combinations ---"
 report_checks -path_delay max -fields {capacitance slew fanout}
 report_checks -path_delay max -fields {input_pin net}
 report_checks -path_delay max -fields {capacitance slew fanout input_pin net src_attr}
-puts "PASS: field combinations"
 
 ############################################################
 # report_checks with -digits
 ############################################################
 puts "--- report_checks -digits 6 ---"
 report_checks -path_delay max -digits 6
-puts "PASS: digits 6"
 
 ############################################################
 # report_checks -no_line_splits
 ############################################################
 puts "--- report_checks -no_line_splits ---"
 report_checks -path_delay max -no_line_splits
-puts "PASS: no_line_splits"
 
 ############################################################
 # report_checks to generated clock domain
 ############################################################
 puts "--- report_checks to div_clk domain ---"
 report_checks -to [get_ports out2] -format full_clock_expanded
-puts "PASS: genclk domain report"
 
 ############################################################
 # report_checks -unconstrained
 ############################################################
 puts "--- report_checks -unconstrained ---"
 report_checks -path_delay max -unconstrained
-puts "PASS: unconstrained"
 
 ############################################################
 # get_property -object_type
@@ -317,6 +286,3 @@ puts "clock: [get_property -object_type clock clk name]"
 puts "lib_cell: [get_property -object_type liberty_cell NangateOpenCellLibrary/AND2_X1 name]"
 puts "lib_pin: [get_property -object_type liberty_port NangateOpenCellLibrary/AND2_X1/ZN name]"
 puts "library: [get_property -object_type library NangateOpenCellLibrary name]"
-puts "PASS: object_type properties"
-
-puts "ALL PASSED"

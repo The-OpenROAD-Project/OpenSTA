@@ -12,25 +12,14 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1483
 cells: 5
 nets: 10
 ports: 6
-PASS: basic write_verilog
-PASS: write_verilog -include_pwr_gnd
-PASS: write_verilog -remove_cells {}
 basic size: 496
 pwr_gnd size: 496
 remove_cells size: 496
-PASS: pwr_gnd >= basic
 --- Test 2: Write after modification ---
 Warning: verilog_writer_advanced.tcl line 1, library 'asap7sc7p5t_INVBUF_RVT' not found.
-PASS: write_verilog after adding instance
 modified size: 513
-PASS: modified output is larger
 Warning: verilog_writer_advanced.tcl line 1, pin extra_buf/A not found.
 --- Test 3: Sky130 with attributes ---
-PASS: write_verilog sky130 attribute
-PASS: write_verilog sky130 attribute -include_pwr_gnd
 sky130 basic: 313, pwr_gnd: 313
 --- Test 4: Nangate45 write ---
-PASS: write_verilog nangate45
-PASS: write_verilog nangate45 -include_pwr_gnd
 nangate45 basic: 194, pwr_gnd: 194
-ALL PASSED

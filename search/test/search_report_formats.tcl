@@ -124,5 +124,3 @@ report_checks -slack_max 100
 
 puts "--- report_checks -slack_min 0 ---"
 report_checks -slack_min 0
-
-puts "ALL report_checks format tests PASSED"

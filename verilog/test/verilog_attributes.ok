@@ -58,7 +58,6 @@ Path Type: max
            9.55   slack (MET)
 
 
-PASS: report_checks with attributes
 Startpoint: reset (input port clocked by clk)
 Endpoint: _1415_ (removal check against rising-edge clock clk)
 Path Group: asynchronous
@@ -113,7 +112,6 @@ Path Type: min
            0.03   slack (MET)
 
 
-PASS: report_checks min with attributes
 Startpoint: reset (input port clocked by clk)
 Endpoint: _1415_ (recovery check against rising-edge clock clk)
 Path Group: asynchronous
@@ -168,10 +166,4 @@ Path Type: max
                            9.55   slack (MET)
 
 
-PASS: report_checks with fields
 --- write_verilog and read back ---
-PASS: write_verilog
-PASS: output file exists and non-empty
-PASS: write_verilog -include_pwr_gnd
-PASS: pwr_gnd file exists and non-empty
-ALL PASSED

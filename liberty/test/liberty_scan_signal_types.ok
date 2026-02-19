@@ -1,6 +1,4 @@
-PASS: read Sky130 library
 --- scan DFF cell queries ---
-PASS: sdfxtp scan DFF queries
 sky130_fd_sc_hd__sdfxbp_1 area=30.028799
   has test_cell: yes
   IQ dir=internal scan_type=none
@@ -21,7 +19,6 @@ sky130_fd_sc_hd__sdfxbp_2 area=32.531200
   Q_N dir=output scan_type=output_inverted
   SCD dir=input scan_type=input
   SCE dir=input scan_type=enable
-PASS: sdfxbp scan DFF queries
 sky130_fd_sc_hd__sdfrtp_1 area=31.280001
   has test_cell: yes
   IQ dir=internal scan_type=none
@@ -52,7 +49,6 @@ sky130_fd_sc_hd__sdfrtp_4 area=35.033600
   RESET_B dir=input scan_type=none
   SCD dir=input scan_type=input
   SCE dir=input scan_type=enable
-PASS: sdfrtp scan DFF queries
 sky130_fd_sc_hd__sdfstp_1 area=33.782398
   IQ dir=internal scan_type=none
   IQ_N dir=internal scan_type=none
@@ -80,29 +76,21 @@ sky130_fd_sc_hd__sdfstp_4 area=37.535999
   SCD dir=input scan_type=input
   SCE dir=input scan_type=enable
   SET_B dir=input scan_type=none
-PASS: sdfstp scan DFF queries
 --- scan DFF timing arcs ---
 sky130_fd_sc_hd__sdfxtp_1 arc_sets = 8
 sky130_fd_sc_hd__sdfrtp_1 arc_sets = 12
 sky130_fd_sc_hd__sdfstp_1 arc_sets = 12
-PASS: scan DFF timing arcs
-PASS: read Nangate45
 SDFF_X1 test_cell=no
 SDFF_X2 test_cell=no
 SDFFR_X1 test_cell=no
 SDFFS_X1 test_cell=no
 SDFFRS_X1 test_cell=no
-PASS: Nangate scan cell queries
 CLKGATETST_X1 area=3.990000 test_cell=no
-PASS: CLKGATETST queries
-PASS: read ASAP7 SEQ
 ASAP7 ICGx1 arc_sets = 13
-PASS: ASAP7 ICG arcs
 DFFHQNx1_ASAP7_75t_R arcs=5
 Warning: liberty_scan_signal_types.tcl line 1, cell 'DFFHQx1_ASAP7_75t_R' not found.
 DFFHQNx2_ASAP7_75t_R arcs=5
 Warning: liberty_scan_signal_types.tcl line 1, cell 'DFFHQx2_ASAP7_75t_R' not found.
-PASS: ASAP7 DFF arc queries
 Warning: liberty_scan_signal_types.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -157,5 +145,3 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report_checks with scan libraries loaded
-ALL PASSED

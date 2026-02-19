@@ -3,74 +3,58 @@ total registers: 3
   latch1
   latch2
   reg1
-PASS: all_registers
 --- all_registers -cells ---
 register cells: 3
   latch1
   latch2
   reg1
-PASS: cells
 --- all_registers -level_sensitive ---
 level-sensitive: 2
   latch1
   latch2
-PASS: level_sensitive
 --- all_registers -edge_triggered ---
 edge-triggered: 1
   reg1
-PASS: edge_triggered
 --- all_registers -data_pins ---
 data pins: 3
   latch1/D
   latch2/D
   reg1/D
-PASS: data_pins
 --- all_registers -clock_pins ---
 clock pins: 3
   latch1/G
   latch2/G
   reg1/CK
-PASS: clock_pins
 --- all_registers -output_pins ---
 output pins: 4
   latch1/Q
   latch2/Q
   reg1/Q
   reg1/QN
-PASS: output_pins
 --- all_registers -async_pins ---
 async pins: 0
-PASS: async_pins
 --- all_registers -clock clk -cells ---
 cells on clk: 3
   latch1
   latch2
   reg1
-PASS: clock filter cells
 --- all_registers -clock clk -level_sensitive ---
 level-sensitive on clk: 2
   latch1
   latch2
-PASS: clock filter level_sensitive
 --- all_registers -clock clk -edge_triggered ---
 edge-triggered on clk: 1
   reg1
-PASS: clock filter edge_triggered
 --- all_registers -clock clk -data_pins ---
 data pins on clk: 3
-PASS: clock filter data_pins
 --- all_registers -clock clk -clock_pins ---
 clock pins on clk: 3
-PASS: clock filter clock_pins
 --- all_registers -clock clk -output_pins ---
 output pins on clk: 4
-PASS: clock filter output_pins
 --- all_registers -rise_clock ---
 rise clk cells: 3
-PASS: rise_clock
 --- all_registers -fall_clock ---
 fall clk cells: 0
-PASS: fall_clock
 --- sim: constant propagation ---
 in1=0: and1/A1=0
 and1/ZN=0
@@ -110,7 +94,6 @@ actual time borrow                      0.06
 --------------------------------------------
 
 
-PASS: case 0 in1
 in1=1: and1/A1=1
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -149,7 +132,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: case 1 in1
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
 Path Group: clk
@@ -186,7 +168,6 @@ actual time borrow                      0.06
 --------------------------------------------
 
 
-PASS: case 0 in2
 --- sim: both inputs zero ---
 in1=0,in2=0: and1/ZN=0
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
@@ -225,7 +206,6 @@ actual time borrow                      0.06
 --------------------------------------------
 
 
-PASS: both zero
 --- sim: both inputs one ---
 in1=1,in2=1: and1/ZN=1
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
@@ -264,7 +244,6 @@ actual time borrow                      0.06
 --------------------------------------------
 
 
-PASS: both one
 --- set_logic_zero ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -302,7 +281,6 @@ actual time borrow                      0.06
 --------------------------------------------
 
 
-PASS: logic_zero in1
 --- set_logic_one ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -340,7 +318,6 @@ actual time borrow                      0.06
 --------------------------------------------
 
 
-PASS: logic_one in2
 --- report_constant ---
 in1 0 logic=0
 VDD X
@@ -352,9 +329,7 @@ VDD X
 VSS X
 A 0
 Z 0
-PASS: report_constant
 --- slow_drivers ---
-PASS: slow_drivers
 --- latch timing ---
 No paths found.
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
@@ -421,7 +396,6 @@ Path Type: max
            7.86   slack (MET)
 
 
-PASS: latch timing paths
 --- report_checks -format full_clock_expanded ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -486,5 +460,3 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: full_clock_expanded
-ALL PASSED

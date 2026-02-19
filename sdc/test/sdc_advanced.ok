@@ -1,12 +1,3 @@
-PASS: basic setup
-PASS: global timing derate
-PASS: rise/fall timing derate
-PASS: data path derate
-PASS: clock path derate
-PASS: cell_delay derate
-PASS: net_delay derate
-PASS: cell-specific derate
-PASS: instance-specific derate
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -60,9 +51,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report_checks after derate
-PASS: unset_timing_derate
-PASS: disable timing instance buf1
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -116,52 +104,8 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after disable buf1
-PASS: unset_disable_timing buf1
-PASS: disable timing pin buf1/A
-PASS: unset disable pin buf1/A
-PASS: disable lib cell from/to
-PASS: unset disable lib cell from/to
-PASS: disable lib cell all arcs
-PASS: unset disable lib cell all arcs
-PASS: set_driving_cell BUF_X1
-PASS: set_driving_cell INV_X1 -pin ZN
-PASS: set_driving_cell -rise
-PASS: set_driving_cell -fall
-PASS: set_drive 100
-PASS: set_drive -rise 80
-PASS: set_drive -fall 120
-PASS: set_drive 0 (ideal)
-PASS: input transitions
-PASS: clock insertion (source latency)
-PASS: clock insertion -rise -max
-PASS: clock insertion -fall -min
-PASS: clock insertion -rise -min
-PASS: clock insertion -fall -max
-PASS: clock insertion -early
-PASS: clock insertion -late
-PASS: source latency with all corners
-PASS: network latency with all corners
-PASS: set_load various options
-PASS: set_resistance
-PASS: clock gating check on clock
 Warning: sdc_advanced.tcl line 1, object 'sdc_test2' not found.
 Warning: sdc_advanced.tcl line 1, object 'sdc_test2' not found.
-PASS: clock gating check on design
-PASS: set_max_time_borrow clock
-PASS: set_max_time_borrow pin
-PASS: set_data_check -setup
-PASS: set_data_check -hold
-PASS: set_ideal_network
-PASS: set_ideal_transition
-PASS: set_wire_load_mode top
-PASS: set_wire_load_mode enclosed
-PASS: set_wire_load_mode segmented
-PASS: set_wire_load_model 1K
-PASS: set_wire_load_model 5K
-PASS: set_min_pulse_width clock
-PASS: set_min_pulse_width -high
-PASS: set_min_pulse_width -low
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk1)
 Path Group: clk1
@@ -220,7 +164,6 @@ Path Type: max
            9.18   slack (MET)
 
 
-PASS: final report_checks
 max slew
 
 Pin                                    Limit    Slew   Slack
@@ -233,5 +176,3 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 nor1/ZN                                26.70    1.45   25.25 (MET)
 
-PASS: report_check_types
-ALL PASSED

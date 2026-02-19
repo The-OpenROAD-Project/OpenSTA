@@ -29,17 +29,14 @@ puts "ports: [llength [get_ports *]]"
 # Write basic
 set out1 [make_result_file verilog_advanced_out1.v]
 write_verilog $out1
-puts "PASS: basic write_verilog"
 
 # Write with pwr_gnd
 set out2 [make_result_file verilog_advanced_out2.v]
 write_verilog -include_pwr_gnd $out2
-puts "PASS: write_verilog -include_pwr_gnd"
 
 # Write with remove_cells
 set out3 [make_result_file verilog_advanced_out3.v]
 write_verilog -remove_cells {} $out3
-puts "PASS: write_verilog -remove_cells {}"
 
 # Compare sizes
 set sz1 [file size $out1]
@@ -50,7 +47,6 @@ puts "pwr_gnd size: $sz2"
 puts "remove_cells size: $sz3"
 
 if { $sz2 >= $sz1 } {
-  puts "PASS: pwr_gnd >= basic"
 }
 
 #---------------------------------------------------------------
@@ -65,12 +61,10 @@ connect_pin extra_net extra_buf/A
 
 set out4 [make_result_file verilog_advanced_out4.v]
 write_verilog $out4
-puts "PASS: write_verilog after adding instance"
 
 set sz4 [file size $out4]
 puts "modified size: $sz4"
 if { $sz4 > $sz1 } {
-  puts "PASS: modified output is larger"
 }
 
 # Disconnect and delete
@@ -89,11 +83,9 @@ link_design counter
 
 set out5 [make_result_file verilog_advanced_out5.v]
 write_verilog $out5
-puts "PASS: write_verilog sky130 attribute"
 
 set out6 [make_result_file verilog_advanced_out6.v]
 write_verilog -include_pwr_gnd $out6
-puts "PASS: write_verilog sky130 attribute -include_pwr_gnd"
 
 set sz5 [file size $out5]
 set sz6 [file size $out6]
@@ -109,14 +101,10 @@ link_design verilog_test1
 
 set out7 [make_result_file verilog_advanced_out7.v]
 write_verilog $out7
-puts "PASS: write_verilog nangate45"
 
 set out8 [make_result_file verilog_advanced_out8.v]
 write_verilog -include_pwr_gnd $out8
-puts "PASS: write_verilog nangate45 -include_pwr_gnd"
 
 set sz7 [file size $out7]
 set sz8 [file size $out8]
 puts "nangate45 basic: $sz7, pwr_gnd: $sz8"
-
-puts "ALL PASSED"

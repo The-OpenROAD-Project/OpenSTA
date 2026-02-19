@@ -6,7 +6,6 @@ Clock clk
 --------------
   -0.03 setup skew
 
-PASS: clock_skew setup
 --- report_clock_skew -hold ---
 Clock clk
    0.05 source latency reg1/CK ^
@@ -15,7 +14,6 @@ Clock clk
 --------------
   -0.03 hold skew
 
-PASS: clock_skew hold
 --- report_clock_skew -clock clk ---
 Clock clk
    0.05 source latency reg1/CK ^
@@ -24,7 +22,6 @@ Clock clk
 --------------
   -0.03 setup skew
 
-PASS: clock_skew named
 --- report_clock_skew -digits 6 ---
 Clock clk
 0.051447 source latency reg1/CK ^
@@ -33,7 +30,6 @@ Clock clk
 --------------
 -0.027789 setup skew
 
-PASS: clock_skew digits
 --- report_clock_skew -include_internal_latency setup ---
 Clock clk
    0.05 source latency reg1/CK ^
@@ -42,7 +38,6 @@ Clock clk
 --------------
   -0.03 setup skew
 
-PASS: clock_skew internal_latency setup
 --- report_clock_skew -include_internal_latency hold ---
 Clock clk
    0.05 source latency reg1/CK ^
@@ -51,7 +46,6 @@ Clock clk
 --------------
   -0.03 hold skew
 
-PASS: clock_skew internal_latency hold
 --- report_clock_skew -digits 6 -include_internal_latency ---
 Clock clk
 0.051447 source latency reg1/CK ^
@@ -60,7 +54,6 @@ Clock clk
 --------------
 -0.027789 setup skew
 
-PASS: clock_skew digits + internal
 --- clock_latency + uncertainty ---
 Clock clk
    0.35 source latency reg1/CK ^
@@ -86,7 +79,6 @@ Clock clk
 --------------
  0.1722 setup skew
 
-PASS: latency + uncertainty skew
 --- report_clock_latency ---
 Clock clk
 rise -> rise
@@ -108,7 +100,6 @@ fall -> fall
            0.03 skew
 
 
-PASS: clock_latency
 --- report_clock_latency -include_internal_latency ---
 Clock clk
 rise -> rise
@@ -130,7 +121,6 @@ fall -> fall
            0.03 skew
 
 
-PASS: clock_latency internal
 --- report_clock_latency -clock clk ---
 Clock clk
 rise -> rise
@@ -152,7 +142,6 @@ fall -> fall
            0.03 skew
 
 
-PASS: clock_latency named
 --- report_clock_latency -digits 6 ---
 Clock clk
 rise -> rise
@@ -174,20 +163,15 @@ fall -> fall
         0.027370 skew
 
 
-PASS: clock_latency digits
 --- report_clock_min_period ---
 clk period_min = 0.31 fmax = 3177.18
-PASS: clock_min_period
 --- report_clock_min_period -clocks clk ---
 clk period_min = 0.31 fmax = 3177.18
-PASS: clock_min_period named
 --- report_clock_min_period -include_port_paths ---
 clk period_min = 1.36 fmax = 733.42
-PASS: clock_min_period port_paths
 --- find_clk_min_period ---
 clk min_period: 3.147446747675531e-10
 clk min_period (port): 1.3634764428616108e-9
-PASS: find_clk_min_period
 --- add multicycle ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -245,7 +229,6 @@ Path Type: min
           -0.03   slack (VIOLATED)
 
 
-PASS: multicycle
 --- skew after multicycle ---
 Clock clk
    0.35 source latency reg1/CK ^
@@ -263,7 +246,6 @@ Clock clk
 --------------
   -0.13 hold skew
 
-PASS: skew after multicycle
 --- set_clock_transition ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -295,7 +277,6 @@ Path Type: max
           18.64   slack (MET)
 
 
-PASS: clock transitions
 --- report_checks -format full_clock ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -327,7 +308,6 @@ Path Type: max
           18.64   slack (MET)
 
 
-PASS: full_clock
 --- report_checks -format full_clock_expanded ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -363,7 +343,6 @@ Path Type: min
           -0.03   slack (VIOLATED)
 
 
-PASS: full_clock_expanded min
 --- inter-clock uncertainty ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -395,12 +374,7 @@ Path Type: max
           18.69   slack (MET)
 
 
-PASS: inter_clock_uncertainty
 --- report_pulse_width_checks ---
-PASS: pulse_width_checks
 --- report_pulse_width_checks -verbose ---
-PASS: pulse_width_checks verbose
 --- report_clock_min_period after multicycle ---
 clk period_min = 0.00 fmax = inf
-PASS: clock_min_period after multicycle
-ALL PASSED

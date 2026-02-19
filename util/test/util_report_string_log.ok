@@ -311,47 +311,28 @@ Path Type: max
  current 1mA
  power 1nW
  distance 1um
-PASS: log file with large output
 log file size: 10600
-PASS: log file has significant content
 --- Test 2: log + redirect simultaneous ---
-PASS: simultaneous log + redirect
 log size: 3326, redirect size: 3326
-PASS: both files have content
 --- Test 3: redirect string ---
 redirect string length: 2002
-PASS: redirect string captured large content
 cycle 0 string length: 95
 cycle 1 string length: 95
 cycle 2 string length: 95
 cycle 3 string length: 95
 cycle 4 string length: 95
-PASS: redirect string cycles
 --- Test 4: with_output_to_variable ---
 v1 length: 994
 v2 length: 913
 v3 length: 95
 v4 length: 2002
-PASS: combined output >= single
-PASS: with_output_to_variable
 --- Test 5: redirect file append ---
 before append: 95, after append: 1089
-PASS: append grew file
-PASS: redirect file append
 --- Test 6: error paths ---
-PASS: caught FileNotReadable
-PASS: caught FileNotWritable
 Warning: /workspace/sta/OpenSTA/util/test/results/bad_verilog.v line 2, module NONEXISTENT_CELL not found. Creating black box for u1.
 bad verilog result: rc=0
-PASS: bad verilog error path
 --- Test 7: message suppression ---
-PASS: suppress range
-PASS: unsuppress range
-PASS: suppress SPEF warnings
-PASS: unsuppress SPEF warnings
 --- Test 8: debug levels ---
-PASS: debug level setting
-PASS: higher debug levels
 --- Test 9: format functions ---
 format_time(1e-9) = 1.0000
 format_time(1e-10) = 0.1000
@@ -375,5 +356,3 @@ format_power(1e-6) = 1000.0000
 format_power(1e-9) = 1.0000
 format_power(5.5e-3) = 5500000.0000
 format_power(0.0) = 0.0000
-PASS: format functions
-ALL PASSED

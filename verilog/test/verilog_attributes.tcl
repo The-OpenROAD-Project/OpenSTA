@@ -40,13 +40,10 @@ set_input_delay -clock clk 0 [get_ports reset]
 set_output_delay -clock clk 0 [get_ports out]
 
 report_checks
-puts "PASS: report_checks with attributes"
 
 report_checks -path_delay min
-puts "PASS: report_checks min with attributes"
 
 report_checks -fields {slew cap input_pins}
-puts "PASS: report_checks with fields"
 
 #---------------------------------------------------------------
 # Write verilog and read back
@@ -54,10 +51,8 @@ puts "PASS: report_checks with fields"
 puts "--- write_verilog and read back ---"
 set outfile [make_result_file verilog_attr_out.v]
 write_verilog $outfile
-puts "PASS: write_verilog"
 
 if { [file exists $outfile] && [file size $outfile] > 0 } {
-  puts "PASS: output file exists and non-empty"
 } else {
   puts "FAIL: output file issue"
 }
@@ -65,10 +60,6 @@ if { [file exists $outfile] && [file size $outfile] > 0 } {
 # Write with include_pwr_gnd
 set outfile2 [make_result_file verilog_attr_pwr.v]
 write_verilog -include_pwr_gnd $outfile2
-puts "PASS: write_verilog -include_pwr_gnd"
 
 if { [file exists $outfile2] && [file size $outfile2] > 0 } {
-  puts "PASS: pwr_gnd file exists and non-empty"
 }
-
-puts "ALL PASSED"

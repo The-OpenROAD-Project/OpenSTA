@@ -14,7 +14,6 @@ puts "current_design: $design"
 puts "--- make_net new_net1 ---"
 set new_net [make_net new_net1]
 if { $new_net != 0 } {
-  puts "PASS: make_net created new_net1"
 } else {
   puts "FAIL: make_net returned 0"
 }
@@ -22,7 +21,6 @@ if { $new_net != 0 } {
 puts "--- verify new net exists ---"
 set found_net [get_nets new_net1]
 if { [llength $found_net] > 0 } {
-  puts "PASS: new_net1 found"
 } else {
   puts "FAIL: new_net1 not found"
 }
@@ -30,7 +28,6 @@ if { [llength $found_net] > 0 } {
 puts "--- make_instance new_buf BUF_X1 ---"
 set new_inst [make_instance new_buf NangateOpenCellLibrary/BUF_X1]
 if { $new_inst != 0 } {
-  puts "PASS: make_instance created new_buf"
 } else {
   puts "FAIL: make_instance returned 0"
 }
@@ -38,7 +35,6 @@ if { $new_inst != 0 } {
 puts "--- verify new instance exists ---"
 set found_inst [get_cells new_buf]
 if { [llength $found_inst] > 0 } {
-  puts "PASS: new_buf found"
 } else {
   puts "FAIL: new_buf not found"
 }
@@ -81,7 +77,6 @@ puts "disconnect new_buf/Z: $msg_disc2"
 
 puts "--- delete_instance new_buf ---"
 delete_instance new_buf
-puts "PASS: delete_instance new_buf"
 
 puts "--- verify new_buf removed ---"
 set rc5 [catch {get_cells new_buf} msg]
@@ -93,18 +88,14 @@ puts "cells after delete_instance: [llength $cells]"
 
 puts "--- delete_net new_net1 ---"
 delete_net new_net1
-puts "PASS: delete_net new_net1"
 
 puts "--- delete_net new_net2 ---"
 delete_net new_net2
-puts "PASS: delete_net new_net2"
 
 puts "--- make another instance and delete by object ---"
 set inst2 [make_instance temp_buf NangateOpenCellLibrary/BUF_X1]
 if { $inst2 != 0 } {
-  puts "PASS: make_instance temp_buf"
   delete_instance $inst2
-  puts "PASS: delete_instance by object"
 } else {
   puts "FAIL: make_instance temp_buf"
 }
@@ -112,9 +103,7 @@ if { $inst2 != 0 } {
 puts "--- make and delete net by object ---"
 set net3 [make_net temp_net]
 if { $net3 != 0 } {
-  puts "PASS: make_net temp_net"
   delete_net $net3
-  puts "PASS: delete_net by object"
 } else {
   puts "FAIL: make_net temp_net"
 }
@@ -122,5 +111,3 @@ if { $net3 != 0 } {
 puts "--- current_design with name ---"
 set design2 [current_design network_test1]
 puts "current_design with name: $design2"
-
-puts "ALL PASSED"

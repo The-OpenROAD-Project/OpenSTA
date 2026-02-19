@@ -41,19 +41,15 @@ puts "result* ports: [llength $result_ports]"
 #---------------------------------------------------------------
 puts "--- individual bus bit queries ---"
 foreach i {0 1 2 3 4 5 6 7} {
-  catch {
-    set p [get_ports "data_a\[$i\]"]
-    set dir [get_property $p direction]
-    puts "data_a\[$i\] direction: $dir"
-  } msg
+  set p [get_ports "data_a\[$i\]"]
+  set dir [get_property $p direction]
+  puts "data_a\[$i\] direction: $dir"
 }
 
 foreach i {0 1 2 3 4 5 6 7} {
-  catch {
-    set p [get_ports "result\[$i\]"]
-    set dir [get_property $p direction]
-    puts "result\[$i\] direction: $dir"
-  } msg
+  set p [get_ports "result\[$i\]"]
+  set dir [get_property $p direction]
+  puts "result\[$i\] direction: $dir"
 }
 
 #---------------------------------------------------------------
@@ -137,7 +133,7 @@ puts "hierarchical pins: [llength $hier_pins]"
 #---------------------------------------------------------------
 puts "--- report_net on bus nets ---"
 foreach net {stage1[0] stage1[7] stage2[0] stage2[7]} {
-  catch {report_net $net} msg
+  report_net $net
   puts "report_net $net: done"
 }
 
@@ -178,5 +174,3 @@ report_checks
 report_checks -path_delay min
 report_checks -from [get_ports {data_a[0]}] -to [get_ports {result[0]}]
 report_checks -fields {slew cap input_pins nets fanout}
-
-puts "ALL PASSED"

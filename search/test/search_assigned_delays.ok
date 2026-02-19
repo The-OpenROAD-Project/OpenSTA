@@ -107,7 +107,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: baseline
 --- set_assigned_delay -cell for combinational arc ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -163,7 +162,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_delay -cell and1
 --- set_assigned_delay -cell -rise ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -219,7 +217,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_delay -cell -rise
 --- set_assigned_delay -cell -fall ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -275,7 +272,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_delay -cell -fall
 --- set_assigned_delay -cell -min ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -331,7 +327,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: set_assigned_delay -cell -min
 --- set_assigned_delay -cell -max ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -387,7 +382,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_delay -cell -max
 --- set_assigned_delay -net ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -443,7 +437,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_delay -net
 --- set_assigned_delay -net -rise -max ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -499,7 +492,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_delay -net rise max
 --- set_assigned_check -setup ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -555,7 +547,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_check -setup
 --- set_assigned_check -hold ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -611,7 +602,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: set_assigned_check -hold
 --- set_assigned_check -setup on reg2 ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -667,7 +657,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_check -setup reg2
 --- set_assigned_check -hold on reg2 ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -723,7 +712,6 @@ Path Type: min
            0.07   slack (MET)
 
 
-PASS: set_assigned_check -hold reg2
 --- set_assigned_check -recovery ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -779,7 +767,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_check -recovery
 --- set_assigned_check -removal ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg2 (removal check against rising-edge clock clk)
@@ -835,7 +822,6 @@ Path Type: min
            0.07   slack (MET)
 
 
-PASS: set_assigned_check -removal
 --- set_assigned_check -setup -rise ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -891,7 +877,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_check -setup -rise
 --- set_assigned_check -setup -fall ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -947,7 +932,6 @@ Path Type: max
            7.88   slack (MET)
 
 
-PASS: set_assigned_check -setup -fall
 --- set_assigned_transition ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1003,7 +987,6 @@ Path Type: max
                    7.88   slack (MET)
 
 
-PASS: set_assigned_transition in1
 --- set_assigned_transition -rise ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1059,7 +1042,6 @@ Path Type: max
                    7.88   slack (MET)
 
 
-PASS: set_assigned_transition -rise
 --- set_assigned_transition -fall ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1115,7 +1097,6 @@ Path Type: max
                    7.88   slack (MET)
 
 
-PASS: set_assigned_transition -fall
 --- set_assigned_transition -min ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg2 (removal check against rising-edge clock clk)
@@ -1171,7 +1152,6 @@ Path Type: min
                    0.07   slack (MET)
 
 
-PASS: set_assigned_transition -min
 --- set_assigned_transition -max ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1227,7 +1207,6 @@ Path Type: max
                    7.88   slack (MET)
 
 
-PASS: set_assigned_transition -max
 --- set_assigned_transition on internal pin ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1283,7 +1262,6 @@ Path Type: max
                    7.88   slack (MET)
 
 
-PASS: set_assigned_transition internal
 --- report_annotated_delay ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -1294,7 +1272,6 @@ net arcs from primary inputs          6           0           6
 net arcs to primary outputs           3           0           3
 ----------------------------------------------------------------
                                      41           4          37
-PASS: report_annotated_delay
 --- report_annotated_delay -list_annotated ---
 Warning: search_assigned_delays.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
                                                           Not   
@@ -1312,7 +1289,6 @@ Annotated Arcs
  delay              and1/A2 -> and1/ZN 
  internal net       and1/ZN -> buf1/A 
  delay              buf1/A -> buf1/Z 
-PASS: report_annotated_delay list_annotated
 --- report_annotated_delay -list_not_annotated ---
 Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
@@ -1363,7 +1339,6 @@ Unannotated Arcs
  delay              reg2/RN -> reg2/Q (CK == 1'b1) && (D == 1'b0)
  delay              reg2/RN -> reg2/Q (CK == 1'b0) && (D == 1'b1)
  delay              reg2/RN -> reg2/Q (CK == 1'b0) && (D == 1'b0)
-PASS: report_annotated_delay list_not_annotated
 --- report_annotated_delay -max_lines 5 ---
 Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
@@ -1382,7 +1357,6 @@ Unannotated Arcs
  primary input net  in1 -> and1/A1 
  primary input net  in2 -> and1/A2 
  primary input net  rst -> reg1/RN 
-PASS: report_annotated_delay max_lines
 --- report_annotated_check ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -1394,7 +1368,6 @@ cell removal arcs                     2           1           1
 cell width arcs                       4           0           4
 ----------------------------------------------------------------
                                      12           6           6
-PASS: report_annotated_check
 --- report_annotated_check -list_annotated ---
 Warning: search_assigned_delays.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
                                                           Not   
@@ -1415,7 +1388,6 @@ Annotated Arcs
  hold               reg1/CK -> reg1/D RN === 1'b1
  setup              reg2/CK -> reg2/D RN === 1'b1
  hold               reg2/CK -> reg2/D RN === 1'b1
-PASS: report_annotated_check list_annotated
 --- report_annotated_check -list_not_annotated ---
 Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
@@ -1436,7 +1408,6 @@ Unannotated Arcs
  removal            reg2/CK -> reg2/RN 
  recovery           reg2/CK -> reg2/RN 
  width              reg2/RN -> reg2/RN 
-PASS: report_annotated_check list_not_annotated
 --- report_annotated_check -setup ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -1444,7 +1415,6 @@ Check type                        Total    Annotated   Annotated
 cell setup arcs                       2           2           0
 ----------------------------------------------------------------
                                       2           2           0
-PASS: report_annotated_check setup
 --- report_annotated_check -hold ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -1452,7 +1422,6 @@ Check type                        Total    Annotated   Annotated
 cell hold arcs                        2           2           0
 ----------------------------------------------------------------
                                       2           2           0
-PASS: report_annotated_check hold
 --- Final timing after all annotations ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1562,15 +1531,11 @@ Path Type: min
            0.07   slack (MET)
 
 
-PASS: final timing
 --- worst_slack min ---
 worst_slack min: 0.0698775432295878
 worst_slack max: 7.881454822969938
-PASS: worst_slack
 --- report_wns/report_tns ---
 wns max 0.00
 wns min 0.00
 tns max 0.00
 tns min 0.00
-PASS: report_wns/report_tns
-ALL PASSED

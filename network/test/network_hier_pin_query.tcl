@@ -25,7 +25,6 @@ set_input_transition 0.1 [all_inputs]
 
 # Build timing graph
 report_checks
-puts "PASS: initial design setup"
 
 #---------------------------------------------------------------
 # Test 1: Flat pin queries by hierarchical path
@@ -43,7 +42,6 @@ foreach pin_path {buf_in/A buf_in/Z inv1/A inv1/ZN
   set fn [get_full_name $pin]
   puts "$pin_path: dir=$dir full_name=$fn"
 }
-puts "PASS: flat pin queries"
 
 # Hierarchical pins through sub1 and sub2
 foreach pin_path {sub1/and_gate/A1 sub1/and_gate/A2 sub1/and_gate/ZN
@@ -55,7 +53,6 @@ foreach pin_path {sub1/and_gate/A1 sub1/and_gate/A2 sub1/and_gate/ZN
   set fn [get_full_name $pin]
   puts "$pin_path: dir=$dir full_name=$fn"
 }
-puts "PASS: hierarchical pin queries through sub-blocks"
 
 #---------------------------------------------------------------
 # Test 2: Pin type classification
@@ -71,7 +68,6 @@ foreach pin_path {buf_in/Z inv1/ZN reg1/Q buf_out1/Z buf_out2/Z} {
   set is_leaf [$pin is_leaf]
   puts "$pin_path: is_driver=$is_drv is_load=$is_ld is_leaf=$is_leaf"
 }
-puts "PASS: driver pin classification"
 
 # Input pins are loads
 foreach pin_path {buf_in/A inv1/A reg1/D reg1/CK buf_out1/A buf_out2/A} {
@@ -81,7 +77,6 @@ foreach pin_path {buf_in/A inv1/A reg1/D reg1/CK buf_out1/A buf_out2/A} {
   set is_leaf [$pin is_leaf]
   puts "$pin_path: is_driver=$is_drv is_load=$is_ld is_leaf=$is_leaf"
 }
-puts "PASS: load pin classification"
 
 # Hierarchical sub-block leaf pins
 foreach pin_path {sub1/and_gate/A1 sub1/and_gate/ZN sub1/buf_gate/Z
@@ -91,7 +86,6 @@ foreach pin_path {sub1/and_gate/A1 sub1/and_gate/ZN sub1/buf_gate/Z
   set is_ld [$pin is_load]
   puts "$pin_path: is_driver=$is_drv is_load=$is_ld"
 }
-puts "PASS: hierarchical leaf pin classification"
 
 # Top-level ports
 foreach port_name {clk in1 in2 in3 out1 out2} {
@@ -99,7 +93,6 @@ foreach port_name {clk in1 in2 in3 out1 out2} {
   set dir [get_property $p direction]
   puts "port $port_name: dir=$dir"
 }
-puts "PASS: top-level port queries"
 
 #---------------------------------------------------------------
 # Test 3: Instance hierarchy queries
@@ -114,7 +107,6 @@ foreach inst_name {buf_in sub1 sub2 inv1 reg1 buf_out1 buf_out2} {
   set fn [get_full_name $inst]
   puts "inst $inst_name: ref=$ref full_name=$fn"
 }
-puts "PASS: top-level instance queries"
 
 # Hierarchical instances
 foreach inst_name {sub1/and_gate sub1/buf_gate sub2/and_gate sub2/buf_gate} {
@@ -123,7 +115,6 @@ foreach inst_name {sub1/and_gate sub1/buf_gate sub2/and_gate sub2/buf_gate} {
   set fn [get_full_name $inst]
   puts "inst $inst_name: ref=$ref full_name=$fn"
 }
-puts "PASS: hierarchical instance queries"
 
 # Instance properties
 foreach inst_name {buf_in inv1 reg1 sub1 sub2} {
@@ -143,7 +134,6 @@ foreach net_name {w1 w2 w3 w4 w5} {
   set fn [get_full_name $net]
   puts "net $net_name: full_name=$fn"
 }
-puts "PASS: top-level net queries"
 
 # Hierarchical nets
 set hier_nets [get_nets -hierarchical *]
@@ -155,7 +145,6 @@ puts "sub1/* nets: [llength $sub_nets]"
 
 set sub2_nets [get_nets -hierarchical sub2/*]
 puts "sub2/* nets: [llength $sub2_nets]"
-puts "PASS: hierarchical net queries"
 
 #---------------------------------------------------------------
 # Test 5: Connected pin iteration at hierarchy boundary
@@ -168,13 +157,11 @@ foreach net_name {w1 w2 w3 w4 w5} {
   set pins_on_net [get_pins -of_objects $net]
   puts "net $net_name has [llength $pins_on_net] pins"
 }
-puts "PASS: connected pins count"
 
 # Report nets to exercise detailed connected pin traversal
 report_net w1
 report_net w2
 report_net w3
-puts "PASS: report_net across hierarchy"
 
 #---------------------------------------------------------------
 # Test 6: Hierarchical pin pattern matching
@@ -199,7 +186,6 @@ puts "hier *and*/* pins: [llength $and_pins]"
 
 set buf_pins [get_pins -hierarchical *buf*/*]
 puts "hier *buf*/* pins: [llength $buf_pins]"
-puts "PASS: pin pattern matching"
 
 #---------------------------------------------------------------
 # Test 7: Timing through hierarchy
@@ -208,20 +194,15 @@ puts "PASS: pin pattern matching"
 puts "--- Test 7: timing through hierarchy ---"
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1 timing"
 
 report_checks -from [get_ports in2] -to [get_ports out1]
-puts "PASS: in2->out1 timing"
 
 report_checks -from [get_ports in3] -to [get_ports out2]
-puts "PASS: in3->out2 timing"
 
 report_checks -from [get_ports in1] -to [get_ports out2]
-puts "PASS: in1->out2 timing"
 
 # Min path
 report_checks -path_delay min -from [get_ports in1] -to [get_ports out1]
-puts "PASS: min path in1->out1"
 
 #---------------------------------------------------------------
 # Test 8: Fanin/fanout through hierarchy
@@ -246,7 +227,3 @@ puts "fanin to out2 flat: [llength $fi2]"
 
 set fo2 [get_fanout -from [get_ports in3] -flat]
 puts "fanout from in3 flat: [llength $fo2]"
-
-puts "PASS: fanin/fanout queries"
-
-puts "ALL PASSED"

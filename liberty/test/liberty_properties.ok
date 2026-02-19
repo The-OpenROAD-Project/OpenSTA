@@ -1,6 +1,3 @@
-PASS: library found
-PASS: liberty_library_iterator
-PASS: find_liberty NangateOpenCellLibrary
 Cell INV_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -8,7 +5,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 1.55-1.70
  ZN output function=!A
-PASS: report_lib_cell INV_X1
 Cell BUF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -16,7 +12,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 0.88-0.97
  Z output function=A
-PASS: report_lib_cell BUF_X1
 Cell DFF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -28,7 +23,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.86-0.95
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell DFF_X1
 Cell DFFR_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -41,7 +35,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.88-0.98
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell DFFR_X1
 Cell DFFS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -54,7 +47,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.88-0.97
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell DFFS_X1
 Cell DFFRS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -68,7 +60,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.87-0.96
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell DFFRS_X1
 Cell TLAT_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -80,7 +71,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  G input 0.92-1.02
  OE input 1.42-1.50
  Q tristate enable=OE function=IQ 0.79-0.79
-PASS: report_lib_cell TLAT_X1
 Cell AOI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -419,22 +409,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.86-0.95
  Q output function=IQ
  QN output function=IQN
-PASS: report_lib_cell various complex cells
-PASS: liberty_port_direction queries
-PASS: get_lib_cells * = 134
-PASS: get_lib_cells INV_* = 6
-PASS: get_lib_cells DFF* = 8
-PASS: get_lib_cells SDFF* = 8
-PASS: get_lib_pins INV_X1/* = 2
-PASS: get_lib_pins DFF_X1/* = 6
-PASS: get_lib_pins DFFR_X1/* = 7
-PASS: get_lib_pins AOI21_X1/* = 4
-PASS: get_lib_pins FA_X1/* = 5
-PASS: get_lib_pins CLKGATETST_X1/* = 5
-PASS: liberty_supply_exists VDD = 1
-PASS: liberty_supply_exists VSS = 1
-PASS: liberty_supply_exists NONEXISTENT = 0
-PASS: read ASAP7 SEQ
 Cell DFFHQNx1_ASAP7_75t_R
 Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
@@ -445,8 +419,6 @@ File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
  D input 0.55-0.62
  IQN internal
  IQNN internal
-PASS: ASAP7 DFF cell
-PASS: ASAP7 DFF pins (5)
 Cell ICGx1_ASAP7_75t_R
 Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
@@ -457,15 +429,12 @@ File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
  CLK input 1.63-2.39
  ENA input 0.33-0.47
  SE input 0.39-0.47
-PASS: ASAP7 ICG cell
-PASS: read IHP library
 Cell sg13g2_ebufn_2
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  Z tristate enable=!TE_B function=A 4.51-7.42
  A input 2.58-2.66
  TE_B input 6.21-6.60
-PASS: IHP tristate buffer cell
 Cell sg13g2_sdfbbp_1
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
@@ -479,8 +448,6 @@ File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  SET_B input 5.25
  IQ internal
  IQN internal
-PASS: IHP scan DFF cell
-PASS: read Sky130 library
 Cell sky130_fd_sc_hd__inv_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -490,7 +457,3 @@ File ../../test/sky130hd/sky130hd_tt.lib
  VPWR power
  A input 2.21-2.39
  Y output function=!A
-PASS: Sky130 inv cell
-PASS: Sky130 total cells: 428
-PASS: write_liberty
-ALL PASSED

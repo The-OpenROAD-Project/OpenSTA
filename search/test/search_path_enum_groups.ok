@@ -1,5 +1,4 @@
 --- group_path -name with -from and -to ---
-PASS: group_path setup
 --- report_checks with groups ---
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -111,7 +110,6 @@ Path Type: max
            9.55   slack (MET)
 
 
-PASS: report_checks with groups
 --- find_timing_paths with large group and endpoint counts ---
 Found 14 paths (max)
   reg1/D slack=8.91273987946306e-9 role=setup
@@ -128,7 +126,6 @@ Found 14 paths (max)
   reg2/D slack=9.875192219510609e-9 role=setup
   reg1/RN slack=9.553728474998024e-9 role=recovery
   reg2/RN slack=9.553728474998024e-9 role=recovery
-PASS: large path count
 --- find_timing_paths with min paths ---
 Found 14 paths (min)
   reg1/D slack=1.0395115879191508e-9
@@ -145,31 +142,23 @@ Found 14 paths (min)
   reg2/D slack=9.451981558550315e-11
   reg1/RN slack=3.1855806881253557e-10
   reg2/RN slack=3.1855806881253557e-10
-PASS: min path enum
 --- find_timing_paths -sort_by_slack ---
 Found 14 sorted paths
 Sort order correct: 0
-PASS: sort_by_slack
 --- find_timing_paths -unique_paths_to_endpoint ---
 Found 8 unique paths
-PASS: unique paths
 --- find_timing_paths -slack_max filtering ---
 Paths with slack <= 0: 0
 Paths with slack <= 100: 4
-PASS: slack_max filtering
 --- find_timing_paths -slack_min filtering ---
 Paths with slack >= -100: 4
-PASS: slack_min filtering
 --- path_group_names ---
 Path group names: clk input_paths output_paths reg2reg_paths asynchronous {path delay} {gated clock} unconstrained
-PASS: path_group_names
 --- is_path_group_name ---
 clk is group: 1
 input_paths is group: 1
 nonexistent is group: 0
-PASS: is_path_group_name
 --- group_path -default ---
-PASS: group_path default
 --- report_path_ends ---
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -530,7 +519,6 @@ Path Type: max
            9.55   slack (MET)
 
 
-PASS: report_path_ends
 --- PathEnd type queries on all paths ---
   type: check=1 out=0 unconst=0 pd=0 latch=0 data=0 gated=0
   type: check=1 out=0 unconst=0 pd=0 latch=0 data=0 gated=0
@@ -545,7 +533,6 @@ PASS: report_path_ends
   type: check=1 out=0 unconst=0 pd=0 latch=0 data=0 gated=0
   type: check=1 out=0 unconst=0 pd=0 latch=0 data=0 gated=0
   type: check=1 out=0 unconst=0 pd=0 latch=0 data=0 gated=0
-PASS: PathEnd type queries
 --- report_checks -format end with groups ---
 max_delay/setup group input_paths
 
@@ -603,7 +590,6 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 reg1/RN (DFFR_X1)                       0.18    0.50    0.32 (MET)
 
-PASS: end format
 --- report_checks -format summary with groups ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
@@ -619,7 +605,6 @@ reg1/QN (search_path_end_types)      out3 (output)                           2.0
 reg1/Q (DFFR_X1)                     reg2/D (DFFR_X1)                        0.08
 rst (input)                          reg1/RN (DFFR_X1)                       0.32
 
-PASS: summary format
 --- report_checks -format slack_only with groups ---
 Group                                  Slack
 --------------------------------------------
@@ -635,13 +620,9 @@ output_paths                            2.08
 reg2reg_paths                           0.08
 asynchronous                            0.32
 
-PASS: slack_only format
 --- endpoint_violation_count ---
 max violations: 0
 min violations: 0
-PASS: endpoint_violation_count
 --- startpoints / endpoints ---
 Startpoints: 6
 Endpoints: 8
-PASS: startpoints/endpoints
-ALL PASSED

@@ -5,7 +5,6 @@ No launch/capture paths found.
 Clock clk2
 No launch/capture paths found.
 
-PASS: clock_skew setup all
 --- report_clock_skew -hold (all clocks) ---
 Clock clk1
 No launch/capture paths found.
@@ -13,27 +12,22 @@ No launch/capture paths found.
 Clock clk2
 No launch/capture paths found.
 
-PASS: clock_skew hold all
 --- report_clock_skew -clock clk1 -setup ---
 Clock clk1
 No launch/capture paths found.
 
-PASS: clock_skew setup clk1
 --- report_clock_skew -clock clk2 -setup ---
 Clock clk2
 No launch/capture paths found.
 
-PASS: clock_skew setup clk2
 --- report_clock_skew -clock clk1 -hold ---
 Clock clk1
 No launch/capture paths found.
 
-PASS: clock_skew hold clk1
 --- report_clock_skew -clock clk2 -hold ---
 Clock clk2
 No launch/capture paths found.
 
-PASS: clock_skew hold clk2
 --- report_clock_skew -digits 6 ---
 Clock clk1
 No launch/capture paths found.
@@ -41,7 +35,6 @@ No launch/capture paths found.
 Clock clk2
 No launch/capture paths found.
 
-PASS: clock_skew digits 6
 --- report_clock_skew -include_internal_latency ---
 Clock clk1
 No launch/capture paths found.
@@ -49,7 +42,6 @@ No launch/capture paths found.
 Clock clk2
 No launch/capture paths found.
 
-PASS: clock_skew internal_latency
 --- report_clock_skew -hold -include_internal_latency ---
 Clock clk1
 No launch/capture paths found.
@@ -57,7 +49,6 @@ No launch/capture paths found.
 Clock clk2
 No launch/capture paths found.
 
-PASS: clock_skew hold internal_latency
 --- report_clock_latency (all clocks) ---
 Clock clk1
 rise -> rise
@@ -99,7 +90,6 @@ fall -> fall
            0.00 skew
 
 
-PASS: clock_latency all
 --- report_clock_latency -clock clk1 ---
 Clock clk1
 rise -> rise
@@ -121,7 +111,6 @@ fall -> fall
            0.00 skew
 
 
-PASS: clock_latency clk1
 --- report_clock_latency -clock clk2 ---
 Clock clk2
 rise -> rise
@@ -143,7 +132,6 @@ fall -> fall
            0.00 skew
 
 
-PASS: clock_latency clk2
 --- report_clock_latency -include_internal_latency ---
 Clock clk1
 rise -> rise
@@ -185,7 +173,6 @@ fall -> fall
            0.00 skew
 
 
-PASS: clock_latency internal
 --- report_clock_latency -digits 6 ---
 Clock clk1
 rise -> rise
@@ -227,29 +214,22 @@ fall -> fall
         0.000000 skew
 
 
-PASS: clock_latency digits 6
 --- report_clock_min_period (all clocks) ---
 clk1 period_min = 0.00 fmax = inf
 clk2 period_min = 0.00 fmax = inf
-PASS: clock_min_period all
 --- report_clock_min_period -clocks clk1 ---
 clk1 period_min = 0.00 fmax = inf
-PASS: clock_min_period clk1
 --- report_clock_min_period -clocks clk2 ---
 clk2 period_min = 0.00 fmax = inf
-PASS: clock_min_period clk2
 --- report_clock_min_period -include_port_paths ---
 clk1 period_min = 2.08 fmax = 480.43
 clk2 period_min = 3.08 fmax = 324.52
-PASS: clock_min_period port_paths
 --- find_clk_min_period clk1 ---
 clk1 min_period: 0.0
 clk1 min_period (port): 2.0814878709529694e-9
-PASS: find_clk_min_period clk1
 --- find_clk_min_period clk2 ---
 clk2 min_period: 0.0
 clk2 min_period (port): 3.0814879536933404e-9
-PASS: find_clk_min_period clk2
 --- clock latency + uncertainty ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -366,7 +346,6 @@ Path Type: min
           -0.22   slack (VIOLATED)
 
 
-PASS: inter-clock latency+uncertainty timing
 --- clock skew after latency+uncertainty ---
 Clock clk1
 No launch/capture paths found.
@@ -380,7 +359,6 @@ No launch/capture paths found.
 Clock clk2
 No launch/capture paths found.
 
-PASS: skew after latency+uncertainty
 --- clock_groups ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -440,7 +418,6 @@ No launch/capture paths found.
 Clock clk2
 No launch/capture paths found.
 
-PASS: async clock groups skew
 --- remove clock_groups ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -499,7 +476,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: remove clock_groups
 --- report_pulse_width_checks multi-clock ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -511,7 +487,6 @@ reg2/CK (low)                           0.05    5.00    4.95 (MET)
 reg3/CK (high)                          0.05    7.50    7.45 (MET)
 reg3/CK (low)                           0.05    7.50    7.45 (MET)
 
-PASS: pulse_width multi-clock
 --- report_pulse_width_checks -verbose multi-clock ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -640,11 +615,8 @@ Check: sequential_clock_pulse_width
            7.45   slack (MET)
 
 
-PASS: pulse_width verbose multi-clock
 --- report_clock_properties ---
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk1                     10.00        0.00      5.00
 clk2                     15.00        0.00      7.50
-PASS: clock_properties
-ALL PASSED

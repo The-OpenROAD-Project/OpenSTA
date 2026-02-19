@@ -1,46 +1,3 @@
-PASS: clocks created
-PASS: input delay -source_latency_included
-PASS: input delay -network_latency_included
-PASS: input delay -source_latency_included -network_latency_included
-PASS: input delay -clock_fall -source_latency_included -add_delay
-PASS: input delay rise/fall with latency flags
-PASS: output delay -source_latency_included
-PASS: output delay -network_latency_included
-PASS: output delay -clock_fall -source_latency_included -add_delay
-PASS: output delay -clock_fall -network_latency_included -add_delay
-PASS: output delay 4-way rise/fall min/max
-PASS: set_propagated_clock clk1
-PASS: clock latency (removes propagation)
-PASS: set_propagated_clock on pin clk2
-PASS: clock latency on pin (removes propagation)
-PASS: max_time_borrow on clocks
-PASS: max_time_borrow on pins
-PASS: max_time_borrow on instance
-PASS: max_time_borrow on instance reg3
-PASS: min_pulse_width global
-PASS: min_pulse_width clock high != low
-PASS: min_pulse_width clock same
-PASS: min_pulse_width pin
-PASS: min_pulse_width pin high/low
-PASS: min_pulse_width instance
-PASS: set_max_area
-PASS: group_path -default
-PASS: group_path named with -through
-PASS: group_path named clk-to-clk
-PASS: group_path duplicate
-PASS: clock_groups -logically_exclusive
-PASS: false_path -setup
-PASS: false_path -hold
-PASS: multicycle -setup -start
-PASS: multicycle -hold -end
-PASS: max_delay -ignore_clock_latency
-PASS: min_delay
-PASS: write_sdc
-PASS: write_sdc -compatible
-PASS: write_sdc -digits 8
-PASS: unset_input_delay
-PASS: unset_output_delay
-PASS: unset false paths
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -93,6 +50,3 @@ Path Type: max
            6.92   slack (MET)
 
 
-PASS: read_sdc + report
-PASS: write_sdc after re-read
-ALL PASSED

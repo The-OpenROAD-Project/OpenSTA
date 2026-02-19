@@ -7,7 +7,6 @@
    0.08    0.08 ^ reg1/Q (DFF_X1)
    0.02    0.10 ^ buf2/Z (BUF_X1)
    0.00    0.10 ^ out1 (out)
-PASS: report_path_cmd
 --- report_path with json format ---
 {
 "path": [
@@ -51,10 +50,8 @@ PASS: report_path_cmd
 ]
 }
 
-PASS: report_path json
 --- worstSlack single-arg form ---
 worst_slack: 7.899713772019368e-9
-PASS: worst_slack
 --- checkFanout via report_check_types ---
 max fanout
 
@@ -64,7 +61,6 @@ fanout          1
 -----------------
 Slack           1 (MET)
 
-PASS: checkFanout
 --- report_checks with -fields and various combos ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -196,7 +192,6 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 out1 (output)                           8.00    0.10    7.90 (MET)
 
-PASS: report_checks fields combos
 --- report_checks with -slack_min and -slack_max ---
 No paths found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -253,7 +248,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: slack_min/max filters
 --- set_report_path_field_properties ---
 Warning: unknown report path field delay
 Warning: unknown report path field delay
@@ -284,7 +278,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: field properties
 --- set_report_path_sigmas ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -313,10 +306,8 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: report_path sigmas
 --- find_timing_paths with recovery/removal/gating_setup/gating_hold ---
 Paths: 5
-PASS: recovery/gating paths
 --- report_annotated_delay ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -327,7 +318,6 @@ net arcs from primary inputs          3           0           3
 net arcs to primary outputs           1           0           1
 ----------------------------------------------------------------
                                      13           0          13
-PASS: report_annotated_delay
 --- report_annotated_check ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -337,7 +327,6 @@ cell hold arcs                        1           0           1
 cell width arcs                       1           0           1
 ----------------------------------------------------------------
                                       3           0           3
-PASS: report_annotated_check
 --- report_checks with -path_delay max_rise/max_fall/min_rise/min_fall ---
 max_delay/setup group clk
 
@@ -367,7 +356,6 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 reg1/D (DFF_X1)                         0.00    1.05    1.04 (MET)
 
-PASS: rise/fall delay variants
 --- report_checks with -corner ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -396,7 +384,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: report_checks corner
 --- set_report_path_no_split ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -425,7 +412,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: no_split
 --- Edge detailed methods ---
 sim_timing_sense: positive_unate
 cond: 
@@ -442,36 +428,25 @@ disabled_constant_pins count: 0
 arc_delays count: 2
 arc_delay_strings count: 2
 delay_annotated: 0
-PASS: edge detailed methods
 --- Vertex methods via worst_slack_vertex ---
 worst_slack_vertex is_clock: 0
 worst_slack_vertex has_downstream_clk_pin: 0
 worst_slack_vertex is_disabled_constraint: 0
-PASS: vertex methods
 --- Vertex from PathEnd ---
 pathend vertex is_clock: 0
 pathend vertex has_downstream_clk_pin: 0
-PASS: vertex from PathEnd
 --- vertex_worst_arrival_path ---
 worst_arrival_path pin: out1
-PASS: vertex_worst_arrival_path
 --- vertex_worst_slack_path ---
 worst_slack_path pin: out1
-PASS: vertex_worst_slack_path
 --- report_path_end with prev_end ---
-PASS: report_path_end with prev
 --- make_instance ---
 make_instance: done
-PASS: make_instance
 --- pocv_enabled ---
 pocv_enabled: 0
-PASS: pocv_enabled
 --- report_checks -summary format ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
 reg1/Q (search_test1)                out1 (output)                           7.90
 
-PASS: summary format
 --- clear_sta ---
-PASS: clear_sta
-ALL PASSED

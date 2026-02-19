@@ -23,52 +23,40 @@ set_input_transition 0.1 [get_ports {d1 d2 en}]
 #---------------------------------------------------------------
 puts "--- baseline report_checks ---"
 report_checks
-puts "PASS: baseline report_checks"
 
 report_checks -path_delay min
-puts "PASS: baseline min"
 
 report_checks -path_delay max
-puts "PASS: baseline max"
 
 #---------------------------------------------------------------
 # Multiple paths through design
 #---------------------------------------------------------------
 puts "--- multiple paths ---"
 report_checks -from [get_ports d1] -to [get_ports q1]
-puts "PASS: d1->q1"
 
 report_checks -from [get_ports d1] -to [get_ports q2]
-puts "PASS: d1->q2"
 
 report_checks -from [get_ports d2] -to [get_ports q2]
-puts "PASS: d2->q2"
 
 report_checks -from [get_ports en] -to [get_ports q1]
-puts "PASS: en->q1"
 
 report_checks -from [get_ports en] -to [get_ports q2]
-puts "PASS: en->q2"
 
 #---------------------------------------------------------------
 # -through paths (exercises graph traversal)
 #---------------------------------------------------------------
 puts "--- through paths ---"
-catch { report_checks -through [get_pins inv1/ZN] } msg
+report_checks -through [get_pins inv1/ZN]
 puts "through inv1/ZN: done"
-puts "PASS: through inv1/ZN"
 
-catch { report_checks -through [get_pins and1/ZN] } msg
+report_checks -through [get_pins and1/ZN]
 puts "through and1/ZN: done"
-puts "PASS: through and1/ZN"
 
-catch { report_checks -through [get_pins or1/ZN] } msg
+report_checks -through [get_pins or1/ZN]
 puts "through or1/ZN: done"
-puts "PASS: through or1/ZN"
 
-catch { report_checks -through [get_pins buf3/Z] } msg
+report_checks -through [get_pins buf3/Z]
 puts "through buf3/Z: done"
-puts "PASS: through buf3/Z"
 
 #---------------------------------------------------------------
 # Timing edge queries for multi-input cells
@@ -96,29 +84,21 @@ puts "and1 A2->ZN edges: [llength $edges_ft2]"
 set edges_ft3 [get_timing_edges -from [get_pins or1/A1] -to [get_pins or1/ZN]]
 puts "or1 A1->ZN edges: [llength $edges_ft3]"
 
-puts "PASS: timing edge queries"
-
 #---------------------------------------------------------------
 # report_edges for various pin combinations
 #---------------------------------------------------------------
 puts "--- report_edges ---"
 report_edges -from [get_pins buf1/A] -to [get_pins buf1/Z]
-puts "PASS: report_edges buf1"
 
 report_edges -from [get_pins inv1/A] -to [get_pins inv1/ZN]
-puts "PASS: report_edges inv1"
 
 report_edges -from [get_pins and1/A1]
-puts "PASS: report_edges from and1/A1"
 
 report_edges -to [get_pins and1/ZN]
-puts "PASS: report_edges to and1/ZN"
 
 report_edges -from [get_ports d1]
-puts "PASS: report_edges from port d1"
 
 report_edges -to [get_ports q2]
-puts "PASS: report_edges to port q2"
 
 #---------------------------------------------------------------
 # Constant propagation via set_case_analysis
@@ -126,20 +106,16 @@ puts "PASS: report_edges to port q2"
 puts "--- set_case_analysis ---"
 set_case_analysis 1 [get_ports en]
 report_checks
-puts "PASS: report_checks en=1"
 
 report_checks -from [get_ports d1] -to [get_ports q1]
-puts "PASS: d1->q1 with en=1"
 
 # Change constant value
 set_case_analysis 0 [get_ports en]
 report_checks
-puts "PASS: report_checks en=0"
 
 # Remove case analysis
 unset_case_analysis [get_ports en]
 report_checks
-puts "PASS: report_checks after unset_case_analysis"
 
 #---------------------------------------------------------------
 # Disable/enable timing with multiple cells
@@ -147,43 +123,34 @@ puts "PASS: report_checks after unset_case_analysis"
 puts "--- disable/enable timing multiple cells ---"
 set_disable_timing [get_cells buf1]
 report_checks
-puts "PASS: disable buf1"
 
 set_disable_timing [get_cells inv1]
 report_checks
-puts "PASS: disable buf1+inv1"
 
 unset_disable_timing [get_cells buf1]
 report_checks
-puts "PASS: enable buf1"
 
 unset_disable_timing [get_cells inv1]
 report_checks
-puts "PASS: enable inv1"
 
 # Disable specific lib cell arc
 set_disable_timing -from A -to Z [get_lib_cells NangateOpenCellLibrary/BUF_X1]
 report_disabled_edges
 report_checks
-puts "PASS: disable lib cell arc"
 
 unset_disable_timing -from A -to Z [get_lib_cells NangateOpenCellLibrary/BUF_X1]
 report_disabled_edges
 report_checks
-puts "PASS: unset lib cell arc"
 
 #---------------------------------------------------------------
 # report_check_types
 #---------------------------------------------------------------
 puts "--- report_check_types ---"
 report_check_types -max_delay -verbose
-puts "PASS: report_check_types max_delay"
 
 report_check_types -min_delay -verbose
-puts "PASS: report_check_types min_delay"
 
 report_check_types -max_delay -min_delay -verbose
-puts "PASS: report_check_types max+min"
 
 #---------------------------------------------------------------
 # Report slews for various pins
@@ -200,26 +167,19 @@ report_slews [get_pins and1/ZN]
 report_slews [get_pins or1/ZN]
 report_slews [get_pins reg1/Q]
 report_slews [get_pins reg2/Q]
-puts "PASS: report_slews various pins"
 
 #---------------------------------------------------------------
 # report_checks with -unconstrained
 #---------------------------------------------------------------
 puts "--- report_checks -unconstrained ---"
 report_checks -unconstrained
-puts "PASS: report_checks unconstrained"
 
 #---------------------------------------------------------------
 # report_checks with group_count and endpoint_count
 #---------------------------------------------------------------
 puts "--- report_checks counts ---"
 report_checks -group_count 3
-puts "PASS: group_count 3"
 
 report_checks -endpoint_count 3
-puts "PASS: endpoint_count 3"
 
 report_checks -endpoint_count 5 -path_delay min
-puts "PASS: endpoint_count 5 min"
-
-puts "ALL PASSED"

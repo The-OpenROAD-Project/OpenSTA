@@ -221,5 +221,3 @@ report_checks -from [get_ports in2]
 report_checks -to [get_ports out1]
 report_checks -from [get_pins buf1/A] -to [get_pins reg1/D]
 report_checks -through [get_pins and1/ZN]
-
-puts "ALL PASSED"

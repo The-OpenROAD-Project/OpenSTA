@@ -56,7 +56,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: baseline report_checks
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -114,7 +113,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: baseline min
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -172,7 +170,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: baseline max
 --- all path combinations ---
 No paths found.
 d1->q1: done
@@ -531,59 +528,45 @@ reg3 CK->Q: 1
 A -> Z combinational
   ^ -> ^ 0.04:0.04
   v -> v 0.06:0.06
-PASS: report_edges buf1
 A -> ZN combinational
   ^ -> v 0.01:0.01
   v -> ^ 0.04:0.04
-PASS: report_edges inv1
 A1 -> ZN combinational
   ^ -> ^ 0.03:0.03
   v -> v 0.03:0.03
-PASS: report_edges and1 A1
 A2 -> ZN combinational
   ^ -> ^ 0.03:0.03
   v -> v 0.03:0.03
-PASS: report_edges and1 A2
 A1 -> ZN combinational
   ^ -> ^ 0.03:0.03
   v -> v 0.05:0.05
-PASS: report_edges or1 A1
 A1 -> ZN combinational
   ^ -> v 0.02:0.02
   v -> ^ 0.03:0.03
-PASS: report_edges nand1 A1
 A1 -> ZN combinational
   ^ -> v 0.01:0.01
   v -> ^ 0.03:0.03
-PASS: report_edges nor1 A1
 CK -> Q Reg Clk to Q
   ^ -> ^ 0.08:0.08
   ^ -> v 0.08:0.08
-PASS: report_edges reg1 CK->Q
 CK -> Q Reg Clk to Q
   ^ -> ^ 0.08:0.08
   ^ -> v 0.08:0.08
-PASS: report_edges reg3 CK->Q
 d1 -> buf1/A wire
   ^ -> ^ 0.00:0.00
   v -> v 0.00:0.00
-PASS: report_edges from d1
 d3 -> inv1/A wire
   ^ -> ^ 0.00:0.00
   v -> v 0.00:0.00
-PASS: report_edges from d3
 reg2/Q -> q1 wire
   ^ -> ^ 0.00:0.00
   v -> v 0.00:0.00
-PASS: report_edges to q1
 buf3/Z -> q2 wire
   ^ -> ^ 0.00:0.00
   v -> v 0.00:0.00
-PASS: report_edges to q2
 buf4/Z -> q3 wire
   ^ -> ^ 0.00:0.00
   v -> v 0.00:0.00
-PASS: report_edges to q3
 --- disable/enable timing ---
 Startpoint: d2 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -642,7 +625,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: disable buf1
 Startpoint: d2 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -700,7 +682,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: disable buf1+inv1
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: q1 (output port clocked by clk1)
 Path Group: clk1
@@ -754,7 +735,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: disable buf1+inv1+nand1
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -812,7 +792,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: enable buf1
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -870,7 +849,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: enable inv1
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -928,7 +906,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: enable nand1
 and1 A1 ZN constraint
 Startpoint: d2 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -987,7 +964,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: disable and1 A1->ZN arc
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1045,7 +1021,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: enable and1 A1->ZN arc
 Startpoint: d3 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1103,7 +1078,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: disable nand1 A1 arc
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1161,7 +1135,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: enable nand1 A1 arc
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1219,7 +1192,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: disable nor1 A1 arc
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1277,7 +1249,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: enable nor1 A1 arc
 --- case analysis ---
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -1336,7 +1307,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: rst=1
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1394,7 +1364,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: rst=0
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1452,7 +1421,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: rst unset
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1510,7 +1478,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: d3=1
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1568,7 +1535,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: d3 unset
 --- report_slews ---
 d1 ^ 0.10:0.10 v 0.10:0.10
 d2 ^ 0.10:0.10 v 0.10:0.10
@@ -1588,7 +1554,6 @@ or2/ZN ^ 0.01:0.01 v 0.01:0.01
 reg1/Q ^ 0.01:0.01 v 0.01:0.01
 reg2/Q ^ 0.01:0.01 v 0.00:0.00
 reg3/Q ^ 0.01:0.01 v 0.01:0.01
-PASS: report_slews all pins
 --- report_check_types ---
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -1647,7 +1612,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: check_types max
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -1705,7 +1669,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: check_types min
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1
@@ -1820,7 +1783,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: check_types max+min
 --- report_checks options ---
 Warning: graph_operations.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
@@ -1884,7 +1846,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   4.88   slack (MET)
 
 
-PASS: all fields
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1942,7 +1903,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: full_clock
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2000,7 +1960,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: unconstrained
 Warning: graph_operations.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -2148,7 +2107,6 @@ Path Type: max
           13.90   slack (MET)
 
 
-PASS: group_count 3
 Warning: graph_operations.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
@@ -2408,7 +2366,6 @@ Path Type: max
           13.90   slack (MET)
 
 
-PASS: endpoint_count 5
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
 Path Group: clk2
@@ -2466,7 +2423,6 @@ Path Type: max
            7.87   slack (MET)
 
 
-PASS: sort_by_slack
 Warning: graph_operations.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -2635,5 +2591,3 @@ Path Type: min
            1.10   slack (MET)
 
 
-PASS: min endpoint_count 3
-ALL PASSED

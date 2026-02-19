@@ -62,11 +62,46 @@ add_test(
 set_tests_properties(tcl.verilog.complex_bus PROPERTIES LABELS "tcl;module_verilog")
 
 add_test(
-  NAME tcl.verilog.write_types
-  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> verilog_write_types
+  NAME tcl.verilog.write_nangate
+  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> verilog_write_nangate
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-set_tests_properties(tcl.verilog.write_types PROPERTIES LABELS "tcl;module_verilog")
+set_tests_properties(tcl.verilog.write_nangate PROPERTIES LABELS "tcl;module_verilog")
+
+add_test(
+  NAME tcl.verilog.write_bus_types
+  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> verilog_write_bus_types
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+set_tests_properties(tcl.verilog.write_bus_types PROPERTIES LABELS "tcl;module_verilog")
+
+add_test(
+  NAME tcl.verilog.write_assign_types
+  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> verilog_write_assign_types
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+set_tests_properties(tcl.verilog.write_assign_types PROPERTIES LABELS "tcl;module_verilog")
+
+add_test(
+  NAME tcl.verilog.write_sky130
+  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> verilog_write_sky130
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+set_tests_properties(tcl.verilog.write_sky130 PROPERTIES LABELS "tcl;module_verilog")
+
+add_test(
+  NAME tcl.verilog.write_asap7
+  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> verilog_write_asap7
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+set_tests_properties(tcl.verilog.write_asap7 PROPERTIES LABELS "tcl;module_verilog")
+
+add_test(
+  NAME tcl.verilog.write_complex_bus_types
+  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> verilog_write_complex_bus_types
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+set_tests_properties(tcl.verilog.write_complex_bus_types PROPERTIES LABELS "tcl;module_verilog")
 
 add_test(
   NAME tcl.verilog.hier_write

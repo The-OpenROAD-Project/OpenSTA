@@ -31,7 +31,6 @@ Path Type: max
            9.80   slack (MET)
 
 
-PASS: initial timing
 --- leaf instance queries ---
 flat cells: 7
 hierarchical cells: 11
@@ -42,7 +41,6 @@ inst inv1: ref=INV_X1 full=inv1
 inst reg1: ref=DFF_X1 full=reg1
 inst buf_out1: ref=BUF_X2 full=buf_out1
 inst buf_out2: ref=BUF_X1 full=buf_out2
-PASS: instance queries
 --- path traversal ---
 deep *gate* cells: 4
   hier: buf_in ref=BUF_X1
@@ -56,7 +54,6 @@ deep *gate* cells: 4
   hier: sub2 ref=sub_block
   hier: sub2/and_gate ref=AND2_X1
   hier: sub2/buf_gate ref=BUF_X1
-PASS: hierarchical path traversal
 --- port queries ---
 total ports: 6
 input ports: 4
@@ -67,7 +64,6 @@ port in2: dir=input name=in2
 port in3: dir=input name=in3
 port out1: dir=output name=out1
 port out2: dir=output name=out2
-PASS: port queries
 --- pin queries ---
 flat pins: 20
 all hierarchical pins: 30
@@ -78,7 +74,6 @@ all hierarchical pins: 30
 sub*/* hier pins: 6
 sub1/* hier pins: 3
 sub2/* hier pins: 3
-PASS: pin queries
 --- net queries ---
 flat nets: 11
 hierarchical nets: 19
@@ -89,7 +84,6 @@ net w2: name=w2
 net w3: name=w3
 net w4: name=w4
 net w5: name=w5
-PASS: net queries
 --- fanin/fanout traversal ---
 fanin to out1 flat: 5
 fanin to out1 cells: 3
@@ -104,7 +98,6 @@ fanin timing: 5
 fanin all: 5
 fanout timing: 17
 fanout all: 17
-PASS: fanin/fanout traversal
 --- timing reports ---
 No paths found.
 No paths found.
@@ -200,7 +193,6 @@ Path Type: max
            9.80   slack (MET)
 
 
-PASS: timing reports
 Warning: network_leaf_iter.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -307,7 +299,6 @@ Path Type: max
            9.80   slack (MET)
 
 
-PASS: detailed report formats
 Warning: network_leaf_iter.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -472,16 +463,9 @@ Path Type: max
            9.82   slack (MET)
 
 
-PASS: endpoint/group reports
 --- network modify in hierarchy ---
-PASS: create instances and nets
-PASS: connect new instances
-PASS: disconnect new instances
-PASS: cleanup
 --- register queries ---
 all_registers: 1
 data_pins: 1
 clock_pins: 1
 output_pins: 2
-PASS: register queries
-ALL PASSED

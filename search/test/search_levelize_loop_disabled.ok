@@ -108,7 +108,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: initial timing
 --- disable_timing ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -164,7 +163,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: disable_timing
 --- enable_timing ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -220,7 +218,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: enable_timing
 --- disable lib cell arcs ---
 Warning: search_levelize_loop_disabled.tcl line 1, library 'Nangate45' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -277,7 +274,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: disable lib cell arcs
 --- re-enable lib cell arcs ---
 Warning: search_levelize_loop_disabled.tcl line 1, library 'Nangate45' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -334,7 +330,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: re-enable lib cell arcs
 --- set_case_analysis ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -390,7 +385,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: case_analysis
 --- remove case_analysis ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -446,15 +440,12 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: remove case_analysis
 --- check_setup ---
 Warning: There is 1 output port missing set_output_delay.
   out_unconst
 Warning: There is 1 unconstrained endpoint.
   out_unconst
-PASS: check_setup verbose
 --- report_disabled_edges ---
-PASS: report_disabled_edges
 --- inter-clock uncertainty ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -567,7 +558,6 @@ Path Type: min
           -0.12   slack (VIOLATED)
 
 
-PASS: inter-clock uncertainty
 --- disable_timing whole instance ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -624,7 +614,6 @@ Path Type: max
            4.38   slack (MET)
 
 
-PASS: disable whole instance
 --- enable_timing whole instance ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -681,9 +670,7 @@ Path Type: max
            4.38   slack (MET)
 
 
-PASS: enable whole instance
 --- check_setup -loops ---
-PASS: loop check
 --- multiple re-levelize triggers ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -849,7 +836,6 @@ Path Type: max
           11.90   slack (MET)
 
 
-PASS: multiple re-levelize
 --- disable timing on port ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -905,7 +891,6 @@ Path Type: max
           11.90   slack (MET)
 
 
-PASS: disable port
 --- enable timing on port ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -961,7 +946,6 @@ Path Type: max
           11.90   slack (MET)
 
 
-PASS: enable port
 --- set_case_analysis 0 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1017,7 +1001,6 @@ Path Type: max
           11.90   slack (MET)
 
 
-PASS: case_analysis 0
 --- remove case_analysis 0 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1073,7 +1056,6 @@ Path Type: max
           11.90   slack (MET)
 
 
-PASS: remove case_analysis 0
 --- add constraints and re-analyze ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1185,5 +1167,3 @@ Path Type: min
          -15.30   slack (VIOLATED)
 
 
-PASS: multi-constraint re-analysis
-ALL PASSED

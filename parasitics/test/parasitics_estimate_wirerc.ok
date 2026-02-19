@@ -38,10 +38,8 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: baseline
 Found 10 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: baseline parasitic annotation
 --- set_pi_model with varied parameters ---
 set_pi_model u1/Y (small): 
 set_pi_model u2/Y (medium): 
@@ -84,7 +82,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report_checks with varied parasitics
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -112,7 +109,6 @@ Path Type: min
           -7.56   slack (VIOLATED)
 
 
-PASS: min path
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -142,7 +138,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: max path
 Warning: parasitics_estimate_wirerc.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -175,7 +170,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                 419.17   slack (MET)
 
 
-PASS: report with fields
 --- arnoldi with estimated ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -206,7 +200,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: arnoldi
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -343,7 +336,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: lumped_cap
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -427,7 +419,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: dmp_ceff_two_pole
 Library: asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 Cell: DFFHQx4_ASAP7_75t_R
 Arc sense: non_unate
@@ -514,9 +505,7 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report after pi_model override
 --- SPEF override ---
-PASS: read_spef after manual parasitics
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -546,13 +535,10 @@ Path Type: max
          413.12   slack (MET)
 
 
-PASS: report_checks after SPEF override
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: parasitic annotation after SPEF
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: parasitic annotation unannotated after SPEF
 --- report_net after SPEF ---
 Net r1q
  Pin capacitance: 0.3994-0.5226
@@ -716,4 +702,3 @@ Unannotated Arcs
  delay              u2/B -> u2/Y 
  internal net       u2/Y -> r3/D 
 annotated -report_unannotated: done
-ALL PASSED

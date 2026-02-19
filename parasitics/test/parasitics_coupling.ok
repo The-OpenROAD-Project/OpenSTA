@@ -38,10 +38,8 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report_checks without parasitics
 Found 10 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation (empty)
 Found 10 unannotated drivers.
  clk1
  clk2
@@ -54,21 +52,18 @@ Found 10 unannotated drivers.
  u1/Y
  u2/Y
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation -report_unannotated (empty)
 --- set_pi_model on drivers ---
 set_pi_model u1/Y: 
 set_pi_model u2/Y: 
 set_pi_model r1/Q: 
 set_pi_model r2/Q: 
 set_pi_model r3/Q: 
-PASS: all pi models set
 --- set_elmore on loads ---
 set_elmore u1/Y -> u2/A: 
 set_elmore u2/Y -> r3/D: 
 set_elmore r1/Q -> u1/A: 
 set_elmore r2/Q -> u2/B: 
 set_elmore r3/Q -> out: 
-PASS: all elmore delays set
 --- timing with manual parasitics ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -99,7 +94,6 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: report_checks with pi+elmore
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -127,7 +121,6 @@ Path Type: min
           -7.56   slack (VIOLATED)
 
 
-PASS: min path with pi+elmore
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -157,11 +150,8 @@ Path Type: max
          419.17   slack (MET)
 
 
-PASS: max path with pi+elmore
 No paths found.
-PASS: in1->out
 No paths found.
-PASS: in2->out
 Warning: parasitics_coupling.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -194,11 +184,9 @@ Fanout     Cap    Slew   Delay    Time   Description
                                 419.17   slack (MET)
 
 
-PASS: report with fields
 --- parasitic annotation with manual ---
 Found 5 unannotated drivers.
 Found 3 partially unannotated drivers.
-PASS: report_parasitic_annotation with manual
 Found 5 unannotated drivers.
  clk1
  clk2
@@ -209,7 +197,6 @@ Found 3 partially unannotated drivers.
  r1/Q
  r2/Q
  u1/Y
-PASS: report_parasitic_annotation -report_unannotated
 --- dcalc with manual parasitics ---
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
@@ -620,7 +607,6 @@ Load pins
 
 report_net out: done
 --- override with SPEF ---
-PASS: read_spef override
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -650,10 +636,8 @@ Path Type: max
          413.12   slack (MET)
 
 
-PASS: report_checks after SPEF override
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation after SPEF
 --- dcalc after SPEF ---
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
@@ -765,4 +749,3 @@ Driver waveform slew = 6.03
 .............................................
 
 dcalc u2 after SPEF: done
-ALL PASSED

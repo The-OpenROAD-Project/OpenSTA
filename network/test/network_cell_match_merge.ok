@@ -1,4 +1,3 @@
-PASS: read libraries
 --- cell pattern matching ---
 INV_* matches: 6
 BUF_* matches: 6
@@ -13,7 +12,6 @@ regexp BUF_X#: 6
 regexp DFF(R|S|RS)_X(1|2): 8
 nocase nand*: 0
 nocase buf_*: 0
-PASS: Nangate cell pattern matching
 sky inv* matches: 30
 sky buf* matches: 46
 sky dfxtp* matches: 10
@@ -22,7 +20,6 @@ sky dlx* matches: 7
 sky dlclkp* matches: 6
 sky lsbuf* matches: 7
 sky all cells: 428
-PASS: Sky130 cell pattern matching
 --- port pattern matching ---
 DFF_X1 all ports: 8
 DFF_X1 Q* ports: 2
@@ -30,7 +27,6 @@ DFFR_X1 all ports: 9
 DFFRS_X1 all ports: 10
 DFFRS_X1 S* ports: 1
 DFFRS_X1 R* ports: 1
-PASS: port pattern matching
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -60,7 +56,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: design setup
 --- instance pattern matching ---
 all cells: 3
 buf* cells: 1
@@ -72,19 +67,15 @@ Warning: network_cell_match_merge.tcl line 1, instance 'or*' not found.
 or* cells: 0
 Warning: network_cell_match_merge.tcl line 1, instance 'n*' not found.
 n* cells: 0
-PASS: instance pattern matching
 --- net pattern matching ---
 all nets: 6
 n* nets: 2
-PASS: net pattern matching
 --- net merge operations ---
 merge_net_1 exists, merge_net_2 exists
 merge_buf_a -> BUF_X2: ref=BUF_X2
 merge_buf_b -> BUF_X4: ref=BUF_X4
 merge_buf_b -> INV_X1: ref=BUF_X4
-PASS: net merge / replace cleanup
 --- multi-cell connection patterns ---
-PASS: created buffer chain
 Net chain_net_1
  Pin capacitance: 0.88-0.97
  Wire capacitance: 0.00
@@ -127,9 +118,6 @@ Driver pins
 Load pins
  chain_buf_3/A input (BUF_X1) 0.88-0.97
 
-PASS: report chain nets
-PASS: replace chain cells
-PASS: cleanup chain
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -159,5 +147,3 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: final timing check
-ALL PASSED

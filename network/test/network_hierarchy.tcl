@@ -132,12 +132,10 @@ puts "output ports: [llength $out_ports]"
 #---------------------------------------------------------------
 puts "--- instance properties ---"
 foreach inst_name {buf_in sub1 sub2 inv1 reg1 buf_out1 buf_out2} {
-  catch {
-    set inst [get_cells $inst_name]
-    set ref [get_property $inst ref_name]
-    set full [get_full_name $inst]
-    puts "$inst_name: ref=$ref full=$full"
-  } msg
+  set inst [get_cells $inst_name]
+  set ref [get_property $inst ref_name]
+  set full [get_full_name $inst]
+  puts "$inst_name: ref=$ref full=$full"
 }
 
 #---------------------------------------------------------------
@@ -146,7 +144,7 @@ foreach inst_name {buf_in sub1 sub2 inv1 reg1 buf_out1 buf_out2} {
 #---------------------------------------------------------------
 puts "--- report_instance hierarchy ---"
 foreach inst_name {buf_in sub1 sub2 inv1 reg1 buf_out1 buf_out2} {
-  catch {report_instance $inst_name} msg
+  report_instance $inst_name
   puts "report_instance $inst_name: done"
 }
 
@@ -156,7 +154,7 @@ foreach inst_name {buf_in sub1 sub2 inv1 reg1 buf_out1 buf_out2} {
 #---------------------------------------------------------------
 puts "--- report_net internal ---"
 foreach net_name {w1 w2 w3 w4 w5} {
-  catch {report_net $net_name} msg
+  report_net $net_name
   puts "report_net $net_name: done"
 }
 
@@ -209,28 +207,20 @@ puts "fanout from in1 levels=1: [llength $fo_lev1]"
 #---------------------------------------------------------------
 puts "--- timing through hierarchy ---"
 report_checks
-puts "PASS: report_checks through hierarchy"
 
 report_checks -path_delay min
-puts "PASS: min path through hierarchy"
 
 report_checks -path_delay max
-puts "PASS: max path through hierarchy"
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1 through hierarchy"
 
 report_checks -from [get_ports in2] -to [get_ports out1]
-puts "PASS: in2->out1 through hierarchy"
 
 report_checks -from [get_ports in3] -to [get_ports out2]
-puts "PASS: in3->out2 through hierarchy"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report_checks with fields"
 
 report_checks -format full_clock
-puts "PASS: report_checks full_clock format"
 
 #---------------------------------------------------------------
 # Test network modification in hierarchical context
@@ -239,22 +229,16 @@ puts "PASS: report_checks full_clock format"
 #---------------------------------------------------------------
 puts "--- network modification with hierarchy ---"
 set new_buf [make_instance new_hier_buf NangateOpenCellLibrary/BUF_X1]
-puts "PASS: make_instance new_hier_buf"
 
 set new_net [make_net new_hier_net]
-puts "PASS: make_net new_hier_net"
 
 connect_pin new_hier_net new_hier_buf/A
-puts "PASS: connect_pin new_hier_net new_hier_buf/A"
 
 disconnect_pin new_hier_net new_hier_buf/A
-puts "PASS: disconnect_pin"
 
 delete_instance new_hier_buf
-puts "PASS: delete_instance new_hier_buf"
 
 delete_net new_hier_net
-puts "PASS: delete_net new_hier_net"
 
 #---------------------------------------------------------------
 # Test all_registers in hierarchical context
@@ -277,6 +261,3 @@ puts "register output_pins: [llength $reg_out]"
 #---------------------------------------------------------------
 puts "--- report_check_types ---"
 report_check_types -max_delay -min_delay -verbose
-puts "PASS: report_check_types"
-
-puts "ALL PASSED"

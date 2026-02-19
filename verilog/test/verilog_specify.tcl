@@ -22,18 +22,12 @@ puts "nets: [llength $nets]"
 set ports [get_ports *]
 puts "ports: [llength $ports]"
 
-puts "PASS: read_verilog with specify/parameter"
-
 #---------------------------------------------------------------
 # Write and verify
 #---------------------------------------------------------------
 puts "--- write_verilog ---"
 set outfile [make_result_file verilog_specify_out.v]
 write_verilog $outfile
-puts "PASS: write_verilog after specify"
 
 if { [file exists $outfile] && [file size $outfile] > 0 } {
-  puts "PASS: output file is non-empty"
 }
-
-puts "ALL PASSED"

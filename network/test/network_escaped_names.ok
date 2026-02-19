@@ -27,7 +27,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: initial setup
 --- pattern matching ---
 cells *: 3
 cells ???1: 3
@@ -37,7 +36,6 @@ cells and*: 1
 cells reg*: 1
 Warning: network_escaped_names.tcl line 1, instance 'nonexistent_*' not found.
 cells nonexistent_*: 0
-PASS: pattern matching
 --- pin pattern matching ---
 buf1/* pins: 2
 */A pins: 1
@@ -46,19 +44,16 @@ buf1/* pins: 2
 */CK pins: 1
 hier pins: 11
 */*1 pins: 1
-PASS: pin pattern matching
 --- net pattern matching ---
 all nets: 6
 n* nets: 2
 hier nets: 6
-PASS: net pattern matching
 --- port pattern matching ---
 all ports: 4
 in* ports: 2
 out* ports: 1
 clk* ports: 1
 ?n? ports: 2
-PASS: port pattern matching
 --- lib cell pattern matching ---
 all lib cells: 134
 INV* lib cells: 6
@@ -75,7 +70,6 @@ NAND* lib cells: 9
 */CLKGATE* lib cells: 8
 */TLAT* lib cells: 1
 */TINV* lib cells: 1
-PASS: lib cell pattern matching
 --- lib pin pattern matching ---
 INV_X1/* lib pins: 2
 BUF_X1/* lib pins: 2
@@ -85,7 +79,6 @@ AOI21_X1/* lib pins: 4
 SDFF_X1/* lib pins: 8
 CLKGATETST_X1/* lib pins: 5
 FA_X1/* lib pins: 5
-PASS: lib pin pattern matching
 --- current_design ---
 current_design: network_test1
 --- timing reports ---
@@ -368,7 +361,6 @@ Path Type: max
            9.92   slack (MET)
 
 
-PASS: timing reports
 Warning: network_escaped_names.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -517,7 +509,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report formats
 Group                                  Slack
 --------------------------------------------
 clk                                     0.04
@@ -535,7 +526,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 and1/ZN                                60.58    1.14   59.44 (MET)
 
-PASS: report_check_types
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -547,5 +537,3 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  5.97e-07   1.25e-08   1.25e-07   7.35e-07 100.0%
                           81.3%       1.7%      17.0%
-PASS: report_power
-ALL PASSED

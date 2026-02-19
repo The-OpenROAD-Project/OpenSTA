@@ -31,25 +31,18 @@ set_propagated_clock {clk1 clk2 clk3}
 puts "--- Test 1: arnoldi + SPEF ---"
 read_spef ../../test/reg1_asap7.spef
 set_delay_calculator arnoldi
-puts "PASS: set arnoldi"
 
 report_checks
-puts "PASS: report_checks"
 
 report_checks -path_delay min
-puts "PASS: min path"
 
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: in1->out"
 
 report_checks -from [get_ports in2] -to [get_ports out]
-puts "PASS: in2->out"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: with fields"
 
 report_checks -format full_clock
-puts "PASS: full_clock"
 
 #---------------------------------------------------------------
 # Test 2: report_dcalc for all cell arcs
@@ -57,47 +50,45 @@ puts "PASS: full_clock"
 #---------------------------------------------------------------
 puts "--- Test 2: report_dcalc ---"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "dcalc u1 A->Y max: done"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -min} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -min
 puts "dcalc u1 A->Y min: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "dcalc u2 A->Y: done"
 
-catch {report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max
 puts "dcalc u2 B->Y: done"
 
-catch {report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -min} msg
+report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -min
 puts "dcalc u2 B->Y min: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "dcalc r1 CLK->Q max: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -min} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -min
 puts "dcalc r1 CLK->Q min: done"
 
-catch {report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max} msg
+report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max
 puts "dcalc r2 CLK->Q: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max
 puts "dcalc r3 CLK->Q: done"
 
 # Setup/hold check arcs
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/D] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/D] -max
 puts "dcalc r1 setup: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/D] -min} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/D] -min
 puts "dcalc r1 hold: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/D] -max} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/D] -max
 puts "dcalc r3 setup: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/D] -min} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/D] -min
 puts "dcalc r3 hold: done"
-
-puts "PASS: dcalc reports"
 
 #---------------------------------------------------------------
 # Test 3: Vary input slew with arnoldi
@@ -111,7 +102,6 @@ foreach slew_val {0.1 1 5 10 25 50 100 200 500} {
   puts "arnoldi slew=$slew_val: done"
 }
 set_input_transition 10 {in1 in2 clk1 clk2 clk3}
-puts "PASS: varying slew"
 
 #---------------------------------------------------------------
 # Test 4: Vary output load with arnoldi
@@ -125,7 +115,6 @@ foreach load_val {0.00001 0.0001 0.001 0.005 0.01 0.05 0.1} {
   puts "arnoldi load=$load_val: done"
 }
 set_load 0 [get_ports out]
-puts "PASS: varying load"
 
 #---------------------------------------------------------------
 # Test 5: Arnoldi after re-read SPEF
@@ -134,7 +123,6 @@ puts "PASS: varying load"
 puts "--- Test 5: re-read SPEF ---"
 read_spef ../../test/reg1_asap7.spef
 report_checks
-puts "PASS: arnoldi after re-read"
 
 #---------------------------------------------------------------
 # Test 6: Switch engines while arnoldi active
@@ -144,31 +132,22 @@ puts "--- Test 6: engine switch from arnoldi ---"
 
 set_delay_calculator dmp_ceff_elmore
 report_checks
-puts "PASS: switch to dmp_ceff_elmore"
 
 set_delay_calculator arnoldi
 report_checks
-puts "PASS: back to arnoldi"
 
 set_delay_calculator lumped_cap
 report_checks
-puts "PASS: switch to lumped_cap"
 
 set_delay_calculator arnoldi
 report_checks
-puts "PASS: back to arnoldi again"
 
 #---------------------------------------------------------------
 # Test 7: Arnoldi with digits and endpoint count
 #---------------------------------------------------------------
 puts "--- Test 7: format options ---"
 report_checks -digits 6
-puts "PASS: 6 digits"
 
 report_checks -endpoint_count 3
-puts "PASS: endpoint_count 3"
 
 report_checks -group_count 2
-puts "PASS: group_count 2"
-
-puts "ALL PASSED"

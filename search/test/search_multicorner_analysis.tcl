@@ -24,14 +24,12 @@ catch {
   set_operating_conditions -analysis_type bc_wc
 }
 report_checks -path_delay max > /dev/null
-puts "PASS: analysis_type bc_wc"
 
 puts "--- set_analysis_type single ---"
 catch {
   set_operating_conditions -analysis_type single
 }
 report_checks -path_delay max > /dev/null
-puts "PASS: analysis_type single"
 
 puts "--- set_analysis_type on_chip_variation ---"
 catch {
@@ -39,7 +37,6 @@ catch {
 }
 report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
-puts "PASS: analysis_type on_chip_variation"
 
 puts "--- set_voltage ---"
 catch {
@@ -47,7 +44,6 @@ catch {
   set_voltage 1.1 -min 0.9
   report_checks -path_delay max > /dev/null
 }
-puts "PASS: set_voltage"
 
 puts "--- set_voltage on net ---"
 catch {
@@ -55,34 +51,29 @@ catch {
   set_voltage 1.2 -min 1.0 -object_list [get_nets n1]
   report_checks -path_delay max > /dev/null
 }
-puts "PASS: set_voltage on net"
 
 puts "--- set_load (port external pin cap) ---"
 set_load 0.05 [get_ports out1]
 set_load 0.03 [get_ports out2]
 report_checks -path_delay max
-puts "PASS: set_load"
 
 puts "--- set_load with -min/-max ---"
 set_load -min 0.02 [get_ports out1]
 set_load -max 0.08 [get_ports out1]
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: set_load min/max"
 
 puts "--- set_load -wire_load ---"
 catch {
   set_load -wire_load 0.01 [get_ports out1]
   report_checks -path_delay max > /dev/null
 }
-puts "PASS: set_load wire"
 
 puts "--- set_fanout_load ---"
 catch {
   set_fanout_load 4 [get_ports out1]
   report_checks -path_delay max > /dev/null
 }
-puts "PASS: set_fanout_load"
 
 puts "--- Net capacitance ---"
 catch {
@@ -94,18 +85,15 @@ catch {
   set wire_cap [[get_nets n1] wire_capacitance $corner max]
   puts "Net n1 wire_cap: $wire_cap"
 }
-puts "PASS: net capacitance"
 
 puts "--- set_wire_load_mode ---"
 catch {
   set_wire_load_mode enclosed
 }
-puts "PASS: set_wire_load_mode"
 
 puts "--- report_checks with various fields after load changes ---"
 report_checks -fields {capacitance slew fanout} -path_delay max
 report_checks -fields {capacitance slew fanout} -path_delay min
-puts "PASS: report_checks fields after load"
 
 puts "--- set_input_transition ---"
 set_input_transition 0.5 [get_ports in1]
@@ -113,19 +101,16 @@ set_input_transition 0.3 [get_ports in2]
 set_input_transition 0.4 [get_ports in3]
 report_checks -path_delay max -fields {slew}
 report_checks -path_delay min -fields {slew}
-puts "PASS: set_input_transition"
 
 puts "--- set_drive on port ---"
 set_drive 100 [get_ports in1]
 report_checks -path_delay max > /dev/null
-puts "PASS: set_drive"
 
 puts "--- set_driving_cell ---"
 catch {
   set_driving_cell -lib_cell BUF_X1 -library NangateOpenCellLibrary [get_ports in1]
   report_checks -path_delay max -from [get_ports in1]
 }
-puts "PASS: set_driving_cell"
 
 puts "--- Timing derate with cell-level ---"
 set_timing_derate -early 0.95
@@ -142,41 +127,32 @@ catch {
   report_checks -path_delay max > /dev/null
 }
 unset_timing_derate
-puts "PASS: timing derate cell/net"
 
 puts "--- report_checks after all modifications ---"
 report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
 report_checks -path_delay max -format json
-puts "PASS: final report"
 
 puts "--- report_check_types verbose after modifications ---"
 report_check_types -verbose
-puts "PASS: check_types"
 
 puts "--- write_sdc ---"
 set sdc_file [make_result_file "search_multicorner_analysis.sdc"]
 write_sdc $sdc_file
-puts "PASS: write_sdc"
 
 puts "--- set_resistance on net ---"
 catch {
   set_resistance 100 [get_nets n1]
   report_checks -path_delay max > /dev/null
 }
-puts "PASS: set_resistance"
 
 puts "--- set_max_area ---"
 catch {
   set_max_area 1000
 }
-puts "PASS: set_max_area"
 
 puts "--- isClock / isPropagatedClock queries ---"
 catch {
   set clk_pin [get_pins ckbuf/Z]
   puts "isClock ckbuf/Z: [sta::is_clock_pin $clk_pin]"
 }
-puts "PASS: isClock queries"
-
-puts "ALL PASSED"

@@ -1,4 +1,3 @@
-PASS: basic setup
 --- set net wire cap ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -53,7 +52,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: net wire cap
 --- port loads ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -108,7 +106,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: port loads
 --- port fanout ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -163,7 +160,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: port fanout
 --- net resistance ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -218,7 +214,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: net resistance
 --- voltage ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -273,7 +268,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: voltage global
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -327,7 +321,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: voltage on net
 --- timing derate global ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -382,7 +375,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: global derating
 --- timing derate lib cell ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -437,7 +429,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: lib cell derating
 --- timing derate instance ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -492,7 +483,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: instance derating
 --- timing derate net ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -547,13 +537,9 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: net derating
 --- write_sdc native ---
-PASS: write_sdc native
 --- write_sdc compatible ---
-PASS: write_sdc compatible
 --- write_sdc digits 8 ---
-PASS: write_sdc digits 8
 --- read_sdc back ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -608,8 +594,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: read_sdc roundtrip
-PASS: write_sdc after re-read
 --- reset deratings ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -664,6 +648,3 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: reset deratings
-PASS: write after clear deratings
-ALL PASSED

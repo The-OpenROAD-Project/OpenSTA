@@ -84,12 +84,10 @@ puts "result\[*\] ports: [llength $wild_r]"
 puts "--- individual bit queries ---"
 foreach bus {data_a data_b result} {
   foreach i {0 1 3 5 7} {
-    catch {
-      set p [get_ports "${bus}\[$i\]"]
-      set dir [get_property $p direction]
-      set fn [get_full_name $p]
-      puts "${bus}\[$i\]: dir=$dir name=$fn"
-    } msg
+    set p [get_ports "${bus}\[$i\]"]
+    set dir [get_property $p direction]
+    set fn [get_full_name $p]
+    puts "${bus}\[$i\]: dir=$dir name=$fn"
   }
 }
 
@@ -217,20 +215,16 @@ puts "DFF_X1 cells: [llength $dff_cells]"
 #---------------------------------------------------------------
 puts "--- report_net on bus nets ---"
 foreach idx {0 3 7} {
-  catch {
-    report_net "stage1\[$idx\]"
-    puts "report_net stage1\[$idx\]: done"
-  } msg
-  catch {
-    report_net "stage2\[$idx\]"
-    puts "report_net stage2\[$idx\]: done"
-  } msg
+  report_net "stage1\[$idx\]"
+  puts "report_net stage1\[$idx\]: done"
+  report_net "stage2\[$idx\]"
+  puts "report_net stage2\[$idx\]: done"
 }
 
 # Non-bus internal nets
-catch {report_net internal_carry} msg
+report_net internal_carry
 puts "report_net internal_carry: done"
-catch {report_net internal_overflow} msg
+report_net internal_overflow
 puts "report_net internal_overflow: done"
 
 #---------------------------------------------------------------
@@ -239,7 +233,7 @@ puts "report_net internal_overflow: done"
 #---------------------------------------------------------------
 puts "--- report_instance on bus cells ---"
 foreach inst {buf_a0 buf_a7 and0 and7 reg0 reg7 or_carry and_ovfl buf_carry buf_ovfl} {
-  catch {report_instance $inst} msg
+  report_instance $inst
   puts "report_instance $inst: done"
 }
 
@@ -294,30 +288,19 @@ puts "register output_pins: [llength $reg_out]"
 #---------------------------------------------------------------
 puts "--- timing analysis ---"
 report_checks
-puts "PASS: report_checks"
 
 report_checks -path_delay min
-puts "PASS: min path"
 
 report_checks -from [get_ports {data_a[0]}] -to [get_ports {result[0]}]
-puts "PASS: data_a[0]->result[0]"
 
 report_checks -from [get_ports {data_a[7]}] -to [get_ports {result[7]}]
-puts "PASS: data_a[7]->result[7]"
 
 report_checks -from [get_ports {data_a[7]}] -to [get_ports carry]
-puts "PASS: data_a[7]->carry"
 
 report_checks -from [get_ports {data_b[6]}] -to [get_ports overflow]
-puts "PASS: data_b[6]->overflow"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report_checks with fields"
 
 report_checks -endpoint_count 5
-puts "PASS: report_checks endpoint_count 5"
 
 report_checks -group_count 3
-puts "PASS: report_checks group_count 3"
-
-puts "ALL PASSED"

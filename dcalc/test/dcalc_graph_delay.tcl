@@ -24,60 +24,44 @@ set_input_transition 0.1 [get_ports {in1 in2 in3 in4 sel clk}]
 #---------------------------------------------------------------
 puts "--- baseline timing ---"
 report_checks
-puts "PASS: baseline report_checks"
 
 report_checks -path_delay min
-puts "PASS: baseline min path"
 
 report_checks -path_delay max
-puts "PASS: baseline max path"
 
 #---------------------------------------------------------------
 # Multiple from/to path queries (exercises findVertexDelay for many paths)
 #---------------------------------------------------------------
 puts "--- multiple path queries ---"
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1"
 
 report_checks -from [get_ports in1] -to [get_ports out2]
-puts "PASS: in1->out2"
 
 report_checks -from [get_ports in1] -to [get_ports out3]
-puts "PASS: in1->out3"
 
 report_checks -from [get_ports in2] -to [get_ports out1]
-puts "PASS: in2->out1"
 
 report_checks -from [get_ports in2] -to [get_ports out2]
-puts "PASS: in2->out2"
 
 report_checks -from [get_ports in3] -to [get_ports out1]
-puts "PASS: in3->out1"
 
 report_checks -from [get_ports in4] -to [get_ports out2]
-puts "PASS: in4->out2"
 
 report_checks -from [get_ports sel] -to [get_ports out1]
-puts "PASS: sel->out1"
 
 #---------------------------------------------------------------
 # Through pin queries (exercises more graph traversal)
 #---------------------------------------------------------------
 puts "--- through pin queries ---"
-catch {report_checks -through [get_pins or1/ZN]} msg
-puts "PASS: through or1/ZN"
+report_checks -through [get_pins or1/ZN]
 
-catch {report_checks -through [get_pins nand1/ZN]} msg
-puts "PASS: through nand1/ZN"
+report_checks -through [get_pins nand1/ZN]
 
-catch {report_checks -through [get_pins nor1/ZN]} msg
-puts "PASS: through nor1/ZN"
+report_checks -through [get_pins nor1/ZN]
 
-catch {report_checks -through [get_pins and1/ZN]} msg
-puts "PASS: through and1/ZN"
+report_checks -through [get_pins and1/ZN]
 
-catch {report_checks -through [get_pins inv1/ZN]} msg
-puts "PASS: through inv1/ZN"
+report_checks -through [get_pins inv1/ZN]
 
 #---------------------------------------------------------------
 # report_dcalc for all arc types in design
@@ -163,19 +147,15 @@ puts "--- incremental delay calculation ---"
 # Change loads
 set_load 0.001 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: incremental after set_load 0.001 on out1"
 
 set_load 0.01 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: incremental after set_load 0.01 on out1"
 
 set_load 0.1 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: incremental after set_load 0.1 on out1"
 
 set_load 0.05 [get_ports out2]
 report_checks -from [get_ports in4] -to [get_ports out2]
-puts "PASS: incremental after set_load 0.05 on out2"
 
 # Reset loads
 set_load 0 [get_ports out1]
@@ -184,27 +164,22 @@ set_load 0 [get_ports out2]
 # Change input transitions
 set_input_transition 0.01 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: incremental after slew 0.01 on in1"
 
 set_input_transition 1.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: incremental after slew 1.0 on in1"
 
 set_input_transition 0.1 [get_ports in1]
 
 # Change clock period
 create_clock -name clk -period 5 [get_ports clk]
 report_checks
-puts "PASS: incremental after clock period change to 5"
 
 # Change input/output delays
 set_input_delay -clock clk 1.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: incremental after input_delay 1.0"
 
 set_output_delay -clock clk 2.0 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: incremental after output_delay 2.0"
 
 #---------------------------------------------------------------
 # Test various delay calculators on larger design
@@ -214,23 +189,18 @@ puts "--- calculator switching ---"
 
 set_delay_calculator unit
 report_checks
-puts "PASS: unit on large design"
 
 set_delay_calculator lumped_cap
 report_checks
-puts "PASS: lumped_cap on large design"
 
 set_delay_calculator dmp_ceff_elmore
 report_checks
-puts "PASS: dmp_ceff_elmore on large design"
 
 set_delay_calculator dmp_ceff_two_pole
 report_checks
-puts "PASS: dmp_ceff_two_pole on large design"
 
-catch {set_delay_calculator ccs_ceff} msg
+set_delay_calculator ccs_ceff
 report_checks
-puts "PASS: ccs_ceff on large design"
 
 # Switch back to default
 set_delay_calculator dmp_ceff_elmore
@@ -240,37 +210,25 @@ set_delay_calculator dmp_ceff_elmore
 #---------------------------------------------------------------
 puts "--- report_checks formatting ---"
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report_checks with all fields"
 
 report_checks -format full_clock
-puts "PASS: report_checks full_clock"
 
 report_checks -format full_clock_expanded
-puts "PASS: report_checks full_clock_expanded"
 
 report_checks -endpoint_count 3
-puts "PASS: report_checks endpoint_count 3"
 
 report_checks -group_count 5
-puts "PASS: report_checks group_count 5"
 
 report_checks -unconstrained
-puts "PASS: report_checks unconstrained"
 
 report_checks -sort_by_slack
-puts "PASS: report_checks sort_by_slack"
 
 #---------------------------------------------------------------
 # report_check_types
 #---------------------------------------------------------------
 puts "--- report_check_types ---"
 report_check_types -max_delay -verbose
-puts "PASS: report_check_types max"
 
 report_check_types -min_delay -verbose
-puts "PASS: report_check_types min"
 
 report_check_types -max_delay -min_delay -verbose
-puts "PASS: report_check_types max+min"
-
-puts "ALL PASSED"

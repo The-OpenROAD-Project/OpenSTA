@@ -27,7 +27,6 @@ set_propagated_clock {clk1 clk2 clk3}
 # Read SPEF parasitics
 puts "--- Reading SPEF ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef completed"
 
 #---------------------------------------------------------------
 # Prima delay calculator with various input transition values
@@ -111,23 +110,17 @@ puts "prima u1 8 digits: $msg"
 
 # Prima with fields
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: prima with all fields"
 
 report_checks -format full_clock
-puts "PASS: prima full_clock"
 
 # Prima specific paths
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: prima in1->out"
 
 report_checks -from [get_ports in2] -to [get_ports out]
-puts "PASS: prima in2->out"
 
 report_checks -path_delay min
-puts "PASS: prima min path"
 
 report_checks -path_delay max
-puts "PASS: prima max path"
 
 #---------------------------------------------------------------
 # Arnoldi delay calculator with same variations
@@ -193,10 +186,8 @@ puts "arnoldi r3 hold: $msg"
 
 # Arnoldi with fields
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: arnoldi with all fields"
 
 report_checks -format full_clock
-puts "PASS: arnoldi full_clock"
 
 #---------------------------------------------------------------
 # Switching between parasitic calculators to exercise reinit paths
@@ -204,27 +195,21 @@ puts "PASS: arnoldi full_clock"
 puts "--- switching parasitic calculators ---"
 set_delay_calculator dmp_ceff_elmore
 report_checks
-puts "PASS: dmp_ceff_elmore with parasitics"
 
 set_delay_calculator dmp_ceff_two_pole
 report_checks
-puts "PASS: dmp_ceff_two_pole with parasitics"
 
-catch {set_delay_calculator ccs_ceff} msg
+set_delay_calculator ccs_ceff
 report_checks
-puts "PASS: ccs_ceff with parasitics"
 
 set_delay_calculator lumped_cap
 report_checks
-puts "PASS: lumped_cap with parasitics"
 
-catch {set_delay_calculator prima} msg
+set_delay_calculator prima
 report_checks
-puts "PASS: prima after switching"
 
-catch {set_delay_calculator arnoldi} msg
+set_delay_calculator arnoldi
 report_checks
-puts "PASS: arnoldi after switching"
 
 #---------------------------------------------------------------
 # Incremental updates with parasitics
@@ -235,19 +220,14 @@ set_delay_calculator dmp_ceff_elmore
 
 set_load 0.001 [get_ports out]
 report_checks
-puts "PASS: incremental parasitics after set_load"
 
 set_input_transition 50 {in1 in2}
 report_checks
-puts "PASS: incremental parasitics after set_input_transition"
 
 create_clock -name clk -period 200 {clk1 clk2 clk3}
 report_checks
-puts "PASS: incremental parasitics after clock change"
 
 # Restore
 set_load 0 [get_ports out]
 set_input_transition 10 {in1 in2 clk1 clk2 clk3}
 create_clock -name clk -period 500 {clk1 clk2 clk3}
-
-puts "ALL PASSED"

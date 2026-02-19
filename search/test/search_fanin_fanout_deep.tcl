@@ -28,73 +28,61 @@ puts "--- get_fanin of register ---"
 set fanin_pins [get_fanin -to [get_pins reg1/D]]
 puts "Fanin pins of reg1/D: [llength $fanin_pins]"
 foreach p $fanin_pins { puts "  [get_full_name $p]" }
-puts "PASS: fanin pins"
 
 puts "--- get_fanin -flat ---"
 set fanin_flat [get_fanin -to [get_pins reg1/D] -flat]
 puts "Fanin flat of reg1/D: [llength $fanin_flat]"
 foreach p $fanin_flat { puts "  [get_full_name $p]" }
-puts "PASS: fanin flat"
 
 puts "--- get_fanin -startpoints_only ---"
 set fanin_start [get_fanin -to [get_pins reg1/D] -startpoints_only]
 puts "Fanin startpoints of reg1/D: [llength $fanin_start]"
 foreach p $fanin_start { puts "  [get_full_name $p]" }
-puts "PASS: fanin startpoints"
 
 puts "--- get_fanin -only_cells ---"
 set fanin_cells [get_fanin -to [get_pins reg1/D] -only_cells]
 puts "Fanin cells of reg1/D: [llength $fanin_cells]"
 foreach c $fanin_cells { puts "  [get_full_name $c]" }
-puts "PASS: fanin cells"
 
 puts "--- get_fanin with -pin_levels ---"
 set fanin_lev [get_fanin -to [get_pins reg1/D] -pin_levels 2]
 puts "Fanin 2 levels of reg1/D: [llength $fanin_lev]"
 foreach p $fanin_lev { puts "  [get_full_name $p]" }
-puts "PASS: fanin pin_levels"
 
 puts "--- get_fanin with -levels ---"
 set fanin_inst_lev [get_fanin -to [get_pins reg1/D] -levels 2]
 puts "Fanin 2 inst levels of reg1/D: [llength $fanin_inst_lev]"
 foreach p $fanin_inst_lev { puts "  [get_full_name $p]" }
-puts "PASS: fanin levels"
 
 puts "--- get_fanout of driver pin ---"
 set fanout_pins [get_fanout -from [get_pins inv2/ZN]]
 puts "Fanout pins of inv2/ZN: [llength $fanout_pins]"
 foreach p $fanout_pins { puts "  [get_full_name $p]" }
-puts "PASS: fanout pins"
 
 puts "--- get_fanout -flat ---"
 set fanout_flat [get_fanout -from [get_pins and2/ZN] -flat]
 puts "Fanout flat of and2/ZN: [llength $fanout_flat]"
 foreach p $fanout_flat { puts "  [get_full_name $p]" }
-puts "PASS: fanout flat"
 
 puts "--- get_fanout -endpoints_only ---"
 set fanout_end [get_fanout -from [get_pins and2/ZN] -endpoints_only]
 puts "Fanout endpoints of and2/ZN: [llength $fanout_end]"
 foreach p $fanout_end { puts "  [get_full_name $p]" }
-puts "PASS: fanout endpoints"
 
 puts "--- get_fanout -only_cells ---"
 set fanout_cells [get_fanout -from [get_pins inv2/ZN] -only_cells]
 puts "Fanout cells of inv2/ZN: [llength $fanout_cells]"
 foreach c $fanout_cells { puts "  [get_full_name $c]" }
-puts "PASS: fanout cells"
 
 puts "--- get_fanout with -pin_levels ---"
 set fanout_lev [get_fanout -from [get_pins and2/ZN] -pin_levels 2]
 puts "Fanout 2 levels of and2/ZN: [llength $fanout_lev]"
 foreach p $fanout_lev { puts "  [get_full_name $p]" }
-puts "PASS: fanout pin_levels"
 
 puts "--- get_fanout with -levels ---"
 set fanout_inst_lev [get_fanout -from [get_pins and2/ZN] -levels 2]
 puts "Fanout 2 inst levels of and2/ZN: [llength $fanout_inst_lev]"
 foreach p $fanout_inst_lev { puts "  [get_full_name $p]" }
-puts "PASS: fanout levels"
 
 puts "=== VERTEX/PIN QUERIES ==="
 
@@ -104,17 +92,14 @@ report_arrival [get_pins reg1/Q]
 report_arrival [get_pins and1/ZN]
 report_arrival [get_ports in1]
 report_arrival [get_ports out1]
-puts "PASS: pin arrival"
 
 puts "--- Pin required ---"
 report_required [get_pins reg1/D]
 report_required [get_ports out1]
-puts "PASS: pin required"
 
 puts "--- Pin slack ---"
 report_slack [get_pins reg1/D]
 report_slack [get_ports out1]
-puts "PASS: pin slack"
 
 puts "--- Pin slack various ---"
 catch {
@@ -125,7 +110,6 @@ catch {
   set ps2 [sta::pin_slack [get_pins inv2/ZN] min fall]
   puts "inv2/ZN min fall slack: $ps2"
 }
-puts "PASS: pin slack various"
 
 puts "=== PATH QUERY ==="
 
@@ -145,7 +129,6 @@ foreach pe $paths {
     puts "    start_pin: [get_full_name [$sp pin]]"
   }
 }
-puts "PASS: path details"
 
 puts "--- worst_slack_vertex ---"
 set wv [sta::worst_slack_vertex max]
@@ -160,11 +143,9 @@ if { $wv != "NULL" } {
     puts "  slack: [$wslk slack]"
   }
 }
-puts "PASS: worst_slack_vertex"
 
 puts "--- find_requireds ---"
 sta::find_requireds
-puts "PASS: find_requireds"
 
 puts "=== REPORT DEBUG ==="
 
@@ -175,7 +156,6 @@ puts "clk_info_count: [sta::clk_info_count]"
 puts "path_count: [sta::path_count]"
 puts "endpoint_violation_count max: [sta::endpoint_violation_count max]"
 puts "endpoint_violation_count min: [sta::endpoint_violation_count min]"
-puts "PASS: debug counts"
 
 puts "--- report_path_cmd ---"
 set paths2 [find_timing_paths -path_delay max]
@@ -184,28 +164,24 @@ foreach pe $paths2 {
   sta::report_path_cmd $p
   break
 }
-puts "PASS: report_path_cmd"
 
 puts "--- get_fanin with -trace_arcs all (thru disabled/constants) ---"
 catch {
   set fanin_thru [get_fanin -to [get_pins reg1/D] -trace_arcs all]
   puts "Fanin trace_arcs all: [llength $fanin_thru]"
 }
-puts "PASS: trace_arcs all"
 
 puts "--- get_fanin with -trace_arcs timing ---"
 catch {
   set fanin_timing [get_fanin -to [get_pins reg1/D] -trace_arcs timing]
   puts "Fanin trace_arcs timing: [llength $fanin_timing]"
 }
-puts "PASS: trace_arcs timing"
 
 puts "--- get_fanin with -trace_arcs enabled ---"
 catch {
   set fanin_enabled [get_fanin -to [get_pins reg1/D] -trace_arcs enabled]
   puts "Fanin trace_arcs enabled: [llength $fanin_enabled]"
 }
-puts "PASS: trace_arcs enabled"
 
 puts "--- get_fanin thru constants ---"
 set_case_analysis 1 [get_ports in1]
@@ -214,6 +190,3 @@ catch {
   puts "Fanin with constants: [llength $fanin_const]"
 }
 unset_case_analysis [get_ports in1]
-puts "PASS: thru_constants"
-
-puts "ALL PASSED"

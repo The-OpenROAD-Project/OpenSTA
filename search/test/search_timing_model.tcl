@@ -16,16 +16,11 @@ report_checks -path_delay max > /dev/null
 puts "--- write_timing_model ---"
 set model_file [make_result_file "search_test1_model.lib"]
 write_timing_model $model_file
-puts "PASS: write_timing_model default"
 
 puts "--- write_timing_model with cell_name ---"
 set model_file2 [make_result_file "search_test1_model2.lib"]
 write_timing_model -cell_name my_cell $model_file2
-puts "PASS: write_timing_model with cell_name"
 
 puts "--- write_timing_model with library_name ---"
 set model_file3 [make_result_file "search_test1_model3.lib"]
 write_timing_model -library_name my_lib -cell_name my_cell $model_file3
-puts "PASS: write_timing_model with library_name"
-
-puts "ALL PASSED"

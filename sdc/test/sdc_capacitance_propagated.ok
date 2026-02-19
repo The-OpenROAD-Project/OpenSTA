@@ -1,41 +1,3 @@
-PASS: setup
-PASS: set_load basic
-PASS: set_load -pin_load
-PASS: set_load -wire_load
-PASS: set_load out2 pin
-PASS: set_load rise/fall
-PASS: set_load wire rise/fall
-PASS: set_load min/max
-PASS: set_load pin min/max
-PASS: port fanout
-PASS: set_load on nets
-PASS: max_capacitance design
-PASS: max_capacitance ports
-PASS: min_capacitance ports
-PASS: max_capacitance pin
-PASS: max_transition
-PASS: max_fanout
-PASS: max_area
-PASS: write_sdc with loads
-PASS: set_propagated_clock clk1
-PASS: set_propagated_clock port clk2
-PASS: write_sdc with propagated
-PASS: unset_propagated_clock clk1
-PASS: unset_propagated_clock port clk2
-PASS: write_sdc after unset propagated
-PASS: case_analysis 0
-PASS: case_analysis 1
-PASS: case_analysis rising
-PASS: write_sdc with case analysis
-PASS: unset case_analysis in1
-PASS: unset case_analysis in2
-PASS: unset case_analysis in3
-PASS: case_analysis falling
-PASS: write_sdc with falling
-PASS: unset falling
-PASS: logic values
-PASS: write_sdc with logic values
-PASS: read_sdc
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -89,10 +51,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after read
-PASS: write_sdc roundtrip
-PASS: read_sdc propagated
-PASS: write_sdc compatible roundtrip
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -146,5 +104,3 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: final report
-ALL PASSED

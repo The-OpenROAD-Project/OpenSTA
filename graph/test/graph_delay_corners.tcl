@@ -29,104 +29,86 @@ set_input_transition 0.1 [get_ports {d1 d2 en}]
 #---------------------------------------------------------------
 puts "--- fast corner ---"
 report_checks -corner fast
-puts "PASS: fast corner"
 
 report_checks -corner fast -path_delay min
-puts "PASS: fast corner min"
 
 report_checks -corner fast -path_delay max
-puts "PASS: fast corner max"
 
 puts "--- slow corner ---"
 report_checks -corner slow
-puts "PASS: slow corner"
 
 report_checks -corner slow -path_delay min
-puts "PASS: slow corner min"
 
 report_checks -corner slow -path_delay max
-puts "PASS: slow corner max"
 
 #---------------------------------------------------------------
 # Multi-corner report_dcalc (exercises delay subtraction/comparison)
 #---------------------------------------------------------------
 puts "--- report_dcalc per corner ---"
-catch {report_dcalc -corner fast -from [get_pins buf1/A] -to [get_pins buf1/Z]} msg
+report_dcalc -corner fast -from [get_pins buf1/A] -to [get_pins buf1/Z]
 puts "fast buf1 dcalc: done"
 
-catch {report_dcalc -corner slow -from [get_pins buf1/A] -to [get_pins buf1/Z]} msg
+report_dcalc -corner slow -from [get_pins buf1/A] -to [get_pins buf1/Z]
 puts "slow buf1 dcalc: done"
 
-catch {report_dcalc -corner fast -from [get_pins inv1/A] -to [get_pins inv1/ZN]} msg
+report_dcalc -corner fast -from [get_pins inv1/A] -to [get_pins inv1/ZN]
 puts "fast inv1 dcalc: done"
 
-catch {report_dcalc -corner slow -from [get_pins inv1/A] -to [get_pins inv1/ZN]} msg
+report_dcalc -corner slow -from [get_pins inv1/A] -to [get_pins inv1/ZN]
 puts "slow inv1 dcalc: done"
 
-catch {report_dcalc -corner fast -from [get_pins and1/A1] -to [get_pins and1/ZN]} msg
+report_dcalc -corner fast -from [get_pins and1/A1] -to [get_pins and1/ZN]
 puts "fast and1 A1 dcalc: done"
 
-catch {report_dcalc -corner slow -from [get_pins and1/A1] -to [get_pins and1/ZN]} msg
+report_dcalc -corner slow -from [get_pins and1/A1] -to [get_pins and1/ZN]
 puts "slow and1 A1 dcalc: done"
 
-catch {report_dcalc -corner fast -from [get_pins or1/A1] -to [get_pins or1/ZN]} msg
+report_dcalc -corner fast -from [get_pins or1/A1] -to [get_pins or1/ZN]
 puts "fast or1 A1 dcalc: done"
 
-catch {report_dcalc -corner slow -from [get_pins or1/A1] -to [get_pins or1/ZN]} msg
+report_dcalc -corner slow -from [get_pins or1/A1] -to [get_pins or1/ZN]
 puts "slow or1 A1 dcalc: done"
 
 # DFF arcs
-catch {report_dcalc -corner fast -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max} msg
+report_dcalc -corner fast -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max
 puts "fast reg1 CK->Q: done"
 
-catch {report_dcalc -corner slow -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max} msg
+report_dcalc -corner slow -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max
 puts "slow reg1 CK->Q: done"
 
-catch {report_dcalc -corner fast -from [get_pins reg1/CK] -to [get_pins reg1/D] -max} msg
+report_dcalc -corner fast -from [get_pins reg1/CK] -to [get_pins reg1/D] -max
 puts "fast reg1 setup: done"
 
-catch {report_dcalc -corner slow -from [get_pins reg1/CK] -to [get_pins reg1/D] -min} msg
+report_dcalc -corner slow -from [get_pins reg1/CK] -to [get_pins reg1/D] -min
 puts "slow reg1 hold: done"
-
-puts "PASS: report_dcalc per corner"
 
 #---------------------------------------------------------------
 # report_checks with fields across corners (exercises graph slew access)
 #---------------------------------------------------------------
 puts "--- report_checks with fields ---"
 report_checks -corner fast -fields {slew cap input_pins}
-puts "PASS: fast fields"
 
 report_checks -corner slow -fields {slew cap input_pins}
-puts "PASS: slow fields"
 
 report_checks -corner fast -format full_clock
-puts "PASS: fast full_clock"
 
 report_checks -corner slow -format full_clock
-puts "PASS: slow full_clock"
 
 #---------------------------------------------------------------
 # Multi-corner paths (different paths in fast vs slow)
 #---------------------------------------------------------------
 puts "--- multi-corner paths ---"
 report_checks -corner fast -from [get_ports d1] -to [get_ports q1]
-puts "PASS: fast d1->q1"
 
 report_checks -corner slow -from [get_ports d1] -to [get_ports q1]
-puts "PASS: slow d1->q1"
 
 report_checks -corner fast -from [get_ports d2] -to [get_ports q2]
-puts "PASS: fast d2->q2"
 
 report_checks -corner slow -from [get_ports d2] -to [get_ports q2]
-puts "PASS: slow d2->q2"
 
 report_checks -corner fast -from [get_ports en] -to [get_ports q1]
-puts "PASS: fast en->q1"
 
 report_checks -corner slow -from [get_ports en] -to [get_ports q1]
-puts "PASS: slow en->q1"
 
 #---------------------------------------------------------------
 # Edge queries with multi-corner
@@ -145,7 +127,6 @@ report_edges -from [get_pins and1/A1] -to [get_pins and1/ZN]
 report_edges -from [get_pins and1/A2] -to [get_pins and1/ZN]
 report_edges -from [get_pins or1/A1] -to [get_pins or1/ZN]
 report_edges -from [get_pins or1/A2] -to [get_pins or1/ZN]
-puts "PASS: timing edges multi-corner"
 
 #---------------------------------------------------------------
 # Load changes with multi-corner (exercises delay recomputation)
@@ -155,10 +136,8 @@ set_load 0.01 [get_ports q1]
 set_load 0.05 [get_ports q2]
 
 report_checks -corner fast
-puts "PASS: fast after load change"
 
 report_checks -corner slow
-puts "PASS: slow after load change"
 
 set_load 0 [get_ports q1]
 set_load 0 [get_ports q2]
@@ -168,10 +147,8 @@ set_load 0 [get_ports q2]
 #---------------------------------------------------------------
 puts "--- unconstrained multi-corner ---"
 report_checks -corner fast -unconstrained
-puts "PASS: fast unconstrained"
 
 report_checks -corner slow -unconstrained
-puts "PASS: slow unconstrained"
 
 #---------------------------------------------------------------
 # Disable/enable with multi-corner
@@ -180,11 +157,7 @@ puts "--- disable with multi-corner ---"
 set_disable_timing [get_cells buf1]
 report_checks -corner fast
 report_checks -corner slow
-puts "PASS: disable buf1 multi-corner"
 
 unset_disable_timing [get_cells buf1]
 report_checks -corner fast
 report_checks -corner slow
-puts "PASS: enable buf1 multi-corner"
-
-puts "ALL PASSED"

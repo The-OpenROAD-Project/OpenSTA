@@ -33,8 +33,6 @@ puts "ports: [llength $ports]"
 set hier_cells [get_cells -hierarchical *]
 puts "hierarchical cells: [llength $hier_cells]"
 
-puts "PASS: read verilog with preproc/param"
-
 #---------------------------------------------------------------
 # Test 2: Timing analysis
 #---------------------------------------------------------------
@@ -45,22 +43,16 @@ set_output_delay -clock clk 0 [get_ports {q1 q2 q3 q4}]
 set_input_transition 0.1 [all_inputs]
 
 report_checks
-puts "PASS: report_checks"
 
 report_checks -path_delay min
-puts "PASS: min path"
 
 report_checks -from [get_ports d1] -to [get_ports q1]
-puts "PASS: d1->q1"
 
 report_checks -from [get_ports d3] -to [get_ports q2]
-puts "PASS: d3->q2"
 
 report_checks -from [get_ports d1] -to [get_ports q3]
-puts "PASS: d1->q3 (through param_sub)"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report with fields"
 
 #---------------------------------------------------------------
 # Test 3: Write verilog and verify
@@ -68,14 +60,11 @@ puts "PASS: report with fields"
 puts "--- Test 3: write ---"
 set out1 [make_result_file verilog_preproc_param_out.v]
 write_verilog $out1
-puts "PASS: write_verilog"
 
 set out2 [make_result_file verilog_preproc_param_pwr.v]
 write_verilog -include_pwr_gnd $out2
-puts "PASS: write_verilog -include_pwr_gnd"
 
 if { [file exists $out1] && [file size $out1] > 0 } {
-  puts "PASS: output file non-empty size=[file size $out1]"
 }
 
 #---------------------------------------------------------------
@@ -83,14 +72,12 @@ if { [file exists $out1] && [file size $out1] > 0 } {
 #---------------------------------------------------------------
 puts "--- Test 4: reports ---"
 foreach inst {buf1 inv1 or1 reg1 reg2 reg3 reg4 ps1 ps2 ps3} {
-  catch {report_instance $inst} msg
+  report_instance $inst
 }
-puts "PASS: instance reports"
 
 foreach net_name {n1 n2 n3 n4 n5 n6} {
-  catch {report_net $net_name} msg
+  report_net $net_name
 }
-puts "PASS: net reports"
 
 #---------------------------------------------------------------
 # Test 5: Re-read to exercise module re-definition paths
@@ -100,6 +87,3 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog verilog_preproc_param.v
 link_design verilog_preproc_param
 puts "re-read cells: [llength [get_cells *]]"
-puts "PASS: re-read"
-
-puts "ALL PASSED"

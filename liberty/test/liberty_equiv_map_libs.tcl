@@ -12,7 +12,6 @@ source ../../test/helpers.tcl
 # Test 1: Nangate45 pairwise
 ############################################################
 read_liberty ../../test/nangate45/Nangate45_typ.lib
-puts "PASS: read Nangate45"
 
 set ng_lib [lindex [get_libs NangateOpenCellLibrary] 0]
 sta::make_equiv_cells $ng_lib
@@ -61,7 +60,6 @@ foreach cell_name {INV_X1 INV_X2 INV_X4 INV_X8 INV_X16 INV_X32
     }
   }
 }
-puts "PASS: Nangate45 find_equiv_cells"
 
 # Extensive pairwise comparisons
 set inv_x1 [get_lib_cell NangateOpenCellLibrary/INV_X1]
@@ -116,7 +114,6 @@ puts "arcs DFF_X1 DFF_X2 = [sta::equiv_cell_timing_arcs $dff_x1 $dff_x2]"
 puts "arcs DFF DFFR = [sta::equiv_cell_timing_arcs $dff_x1 $dffr_x1]"
 puts "arcs NAND2_X1 NAND2_X2 = [sta::equiv_cell_timing_arcs $nand2_x1 $nand2_x2]"
 puts "arcs NAND2 NOR2 = [sta::equiv_cell_timing_arcs $nand2_x1 $nor2_x1]"
-puts "PASS: Nangate45 pairwise"
 
 set ng_bufs [sta::find_library_buffers $ng_lib]
 puts "Nangate45 buffers = [llength $ng_bufs]"
@@ -125,7 +122,6 @@ puts "Nangate45 buffers = [llength $ng_bufs]"
 # Test 2: Sky130 families
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read Sky130"
 
 set sky_lib [lindex [get_libs sky130_fd_sc_hd__tt_025C_1v80] 0]
 sta::make_equiv_cells $sky_lib
@@ -151,7 +147,6 @@ foreach cell_name {
     }
   }
 }
-puts "PASS: Sky130 find_equiv_cells"
 
 set sky_bufs [sta::find_library_buffers $sky_lib]
 puts "Sky130 buffers = [llength $sky_bufs]"
@@ -160,7 +155,6 @@ puts "Sky130 buffers = [llength $sky_bufs]"
 # Test 3: IHP cell families
 ############################################################
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
-puts "PASS: read IHP"
 
 set ihp_lib [lindex [get_libs sg13g2_stdcell_typ_1p20V_25C] 0]
 sta::make_equiv_cells $ihp_lib
@@ -183,9 +177,6 @@ foreach cell_name {
     }
   }
 }
-puts "PASS: IHP find_equiv_cells"
 
 set ihp_bufs [sta::find_library_buffers $ihp_lib]
 puts "IHP buffers = [llength $ihp_bufs]"
-
-puts "ALL PASSED"

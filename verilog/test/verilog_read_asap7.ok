@@ -7,7 +7,6 @@ pins count: 12
 --- query ports ---
 ports count: 4
 --- create_clock ---
-PASS: clock and constraints created
 --- report_checks ---
 Startpoint: reset (input port clocked by clk)
 Endpoint: _1415_ (recovery check against rising-edge clock clk)
@@ -63,7 +62,6 @@ Path Type: max
            9.55   slack (MET)
 
 
-PASS: report_checks completed
 --- report_checks -path_delay min ---
 Startpoint: reset (input port clocked by clk)
 Endpoint: _1415_ (removal check against rising-edge clock clk)
@@ -119,7 +117,6 @@ Path Type: min
            0.03   slack (MET)
 
 
-PASS: report_checks min completed
 --- get_cells with filter ---
 dfrtp cells count: 2
 --- report_instance for first cell ---
@@ -161,4 +158,3 @@ all_inputs count: 3
 all_outputs count: 1
 --- all_clocks ---
 all_clocks count: 1
-ALL PASSED

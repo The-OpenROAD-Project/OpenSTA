@@ -37,7 +37,6 @@ report_disabled_edges
 
 puts "--- set_disable_timing on instance ---"
 set_disable_timing [get_cells reg1]
-puts "PASS: set_disable_timing on reg1"
 
 puts "--- report_disabled_edges after disable ---"
 report_disabled_edges
@@ -47,21 +46,18 @@ report_checks
 
 puts "--- unset_disable_timing on instance ---"
 unset_disable_timing [get_cells reg1]
-puts "PASS: unset_disable_timing on reg1"
 
 puts "--- report_disabled_edges after unset ---"
 report_disabled_edges
 
 puts "--- set_disable_timing with -from/-to on lib cell ---"
 set_disable_timing -from CK -to Q [get_lib_cells NangateOpenCellLibrary/DFF_X1]
-puts "PASS: set_disable_timing -from CK -to Q"
 
 puts "--- report_disabled_edges after lib cell disable ---"
 report_disabled_edges
 
 puts "--- unset_disable_timing lib cell ---"
 unset_disable_timing -from CK -to Q [get_lib_cells NangateOpenCellLibrary/DFF_X1]
-puts "PASS: unset_disable_timing lib cell"
 
 puts "--- report_checks baseline ---"
 report_checks
@@ -90,5 +86,3 @@ report_slews [get_ports d]
 
 puts "--- report_slews on q port ---"
 report_slews [get_ports q]
-
-puts "ALL PASSED"

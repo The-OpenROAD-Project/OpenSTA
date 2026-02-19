@@ -22,7 +22,6 @@ set_input_delay -clock clk1 2.0 [get_ports in2]
 set_input_delay -clock clk2 3.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 4.0 [get_ports out2]
-puts "PASS: clocks different periods"
 
 ############################################################
 # Phase 2: Multicycle path -setup (default -end)
@@ -30,12 +29,10 @@ puts "PASS: clocks different periods"
 puts "--- multicycle -setup 2 ---"
 set_multicycle_path -setup 2 -from [get_clocks clk1] -to [get_clocks clk2]
 report_checks -path_delay max
-puts "PASS: mcp setup 2"
 
 puts "--- multicycle -hold 1 ---"
 set_multicycle_path -hold 1 -from [get_clocks clk1] -to [get_clocks clk2]
 report_checks -path_delay min
-puts "PASS: mcp hold 1"
 
 ############################################################
 # Phase 3: Multicycle with -start
@@ -43,12 +40,10 @@ puts "PASS: mcp hold 1"
 puts "--- multicycle -setup 3 -start ---"
 set_multicycle_path -setup 3 -start -from [get_clocks clk1] -to [get_clocks clk2]
 report_checks -path_delay max -from [get_ports in1] -to [get_ports out2]
-puts "PASS: mcp setup 3 start"
 
 puts "--- multicycle -hold 2 -start ---"
 set_multicycle_path -hold 2 -start -from [get_clocks clk1] -to [get_clocks clk2]
 report_checks -path_delay min -from [get_ports in1] -to [get_ports out2]
-puts "PASS: mcp hold 2 start"
 
 ############################################################
 # Phase 4: Multicycle with -end
@@ -56,12 +51,10 @@ puts "PASS: mcp hold 2 start"
 puts "--- multicycle -setup 4 -end ---"
 set_multicycle_path -setup 4 -end -from [get_clocks clk2] -to [get_clocks clk1]
 report_checks -path_delay max -from [get_ports in3] -to [get_ports out1]
-puts "PASS: mcp setup 4 end"
 
 puts "--- multicycle -hold 3 -end ---"
 set_multicycle_path -hold 3 -end -from [get_clocks clk2] -to [get_clocks clk1]
 report_checks -path_delay min -from [get_ports in3] -to [get_ports out1]
-puts "PASS: mcp hold 3 end"
 
 ############################################################
 # Phase 5: Unset and re-do multicycle
@@ -72,7 +65,6 @@ unset_path_exceptions -hold -from [get_clocks clk1] -to [get_clocks clk2]
 unset_path_exceptions -setup -from [get_clocks clk2] -to [get_clocks clk1]
 unset_path_exceptions -hold -from [get_clocks clk2] -to [get_clocks clk1]
 report_checks -path_delay max
-puts "PASS: unset multicycle"
 
 ############################################################
 # Phase 6: Same clock domain multicycle
@@ -82,7 +74,6 @@ set_multicycle_path -setup 2 -from [get_clocks clk1] -to [get_clocks clk1]
 set_multicycle_path -hold 1 -from [get_clocks clk1] -to [get_clocks clk1]
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: same domain mcp"
 
 ############################################################
 # Phase 7: Re-create clocks with non-integer ratio periods
@@ -102,12 +93,10 @@ set_output_delay -clock clk_b 3.0 [get_ports out2]
 
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: non-integer ratio clocks"
 
 puts "--- multicycle on non-integer ratio ---"
 set_multicycle_path -setup 2 -from [get_clocks clk_a] -to [get_clocks clk_b]
 report_checks -path_delay max
-puts "PASS: mcp non-integer ratio"
 
 ############################################################
 # Phase 8: Half-period clock (waveform test)
@@ -127,27 +116,21 @@ set_output_delay -clock clk_norm 2.0 [get_ports out2]
 
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: half-period waveform"
 
 puts "--- multicycle half-period ---"
 set_multicycle_path -setup 2 -from [get_clocks clk_half] -to [get_clocks clk_norm]
 set_multicycle_path -hold 1 -from [get_clocks clk_half] -to [get_clocks clk_norm]
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: mcp half-period"
 
 ############################################################
 # Phase 9: Write SDC
 ############################################################
 set sdc_out [make_result_file sdc_cycle_acct.sdc]
 write_sdc -no_timestamp $sdc_out
-puts "PASS: write_sdc"
 
 ############################################################
 # Phase 10: report_clock_properties
 ############################################################
 puts "--- report_clock_properties ---"
 report_clock_properties
-puts "PASS: clock_properties"
-
-puts "ALL PASSED"

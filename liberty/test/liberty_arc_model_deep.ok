@@ -1,69 +1,44 @@
-PASS: read Nangate45
-PASS: find_liberty_cells_matching INV_* (6 cells)
-PASS: find_liberty_cells_matching regexp BUF (6 cells)
-PASS: find_liberty_cells_matching nocase nand2 (0 cells)
 INV_X1 is_leaf = 1
 INV_X1 is_buffer = 0
 INV_X1 is_inverter = 1
-PASS: INV_X1 classification
 BUF_X1 is_leaf = 1
 BUF_X1 is_buffer = 1
 BUF_X1 is_inverter = 0
-PASS: BUF_X1 classification
 NAND2_X1 is_leaf = 1
 NAND2_X1 is_buffer = 0
 NAND2_X1 is_inverter = 0
-PASS: NAND2_X1 classification
 DFF_X1 is_leaf = 1
 DFF_X1 is_buffer = 0
 DFF_X1 is_inverter = 0
-PASS: DFF_X1 classification
 INV_X1 lib name = NangateOpenCellLibrary
-PASS: cell liberty_library
 SDFF_X1 has test_cell
-PASS: test_cell query
 INV_X1/A function = 
 INV_X1/ZN function = !A
-PASS: port function
 TINV_X1/EN function = 
 TINV_X1/ZN tristate_enable = !EN
-PASS: tristate_enable
 INV_X1/A bus_name = A
-PASS: bus_name
 INV_X1/A is_bus = 0
 INV_X1/A is_bus_bit = 0
 INV_X1/A is_bundle = 0
 INV_X1/A is_bundle_member = 0
 INV_X1/A has_members = 0
-PASS: port bus/bundle queries
 INV_X1/A is_pwr_gnd = 0
-PASS: is_pwr_gnd
 INV_X1/A scan_signal_type = none
-PASS: scan_signal_type
 SDFF_X1/SI scan_signal_type = none
 SDFF_X1/SI is_bus = 0
-PASS: scan port queries
 INV_X1 all ports = 4
-PASS: find_liberty_ports_matching *
 NAND2_X1 A* ports = 2
-PASS: find_liberty_ports_matching A*
 NAND2_X1 regexp ports = 2
-PASS: find_liberty_ports_matching regexp
 NAND2_X1 nocase zn ports = 0
-PASS: find_liberty_ports_matching nocase
 INV_X1 ports via iterator = 4
-PASS: LibertyCellPortIterator
 AOI21_X1 ports via iterator = 6
-PASS: AOI21_X1 port iterator
 Arc: INV_X1 A -> ZN role=combinational is_check=0
   sdf_cond=
-PASS: INV_X1 timing arc sets
 DFF Arc: DFF_X1 CK -> D role=hold is_check=1
 DFF Arc: DFF_X1 CK -> D role=setup is_check=1
 DFF Arc: DFF_X1 CK -> CK role=width is_check=1
 DFF Arc: DFF_X1 CK -> Q role=Reg Clk to Q is_check=0
 DFF Arc: DFF_X1 CK -> QN role=Reg Clk to Q is_check=0
-PASS: DFF_X1 timing arc sets
 DFFR Arc: DFFR_X1 CK -> D role=hold is_check=1
 DFFR Arc: DFFR_X1 CK -> D role=setup is_check=1
 DFFR Arc: DFFR_X1 CK -> RN role=recovery is_check=1
@@ -80,10 +55,8 @@ DFFR Arc: DFFR_X1 RN -> QN role=Reg Set/Clr is_check=0
 DFFR Arc: DFFR_X1 RN -> QN role=Reg Set/Clr is_check=0
 DFFR Arc: DFFR_X1 RN -> QN role=Reg Set/Clr is_check=0
 DFFR Arc: DFFR_X1 RN -> QN role=Reg Set/Clr is_check=0
-PASS: DFFR_X1 timing arc sets
   Arc detail: A rise -> ZN fall role=combinational
   Arc detail: A fall -> ZN rise role=combinational
-PASS: timing arc details
   DFF arc: rise -> rise role=hold
   DFF arc: rise -> fall role=hold
   DFF arc: rise -> rise role=setup
@@ -94,27 +67,19 @@ PASS: timing arc details
   DFF arc: rise -> fall role=Reg Clk to Q
   DFF arc: rise -> rise role=Reg Clk to Q
   DFF arc: rise -> fall role=Reg Clk to Q
-PASS: DFF arc edge details
 Default opcond process = 1.0
 Default opcond voltage = 1.100000023841858
 Default opcond temperature = 25.0
-PASS: operating conditions
 Typical opcond process = 1.0
 Typical opcond voltage = 1.100000023841858
 Typical opcond temperature = 25.0
-PASS: named operating conditions
 Found wireload 5K_hvratio_1_1
-PASS: find_wireload
 Found wireload selection
-PASS: find_wireload_selection
 Library: NangateOpenCellLibrary
-PASS: liberty_library_iterator (1 libraries)
 INV_X1/A cap max = 1.700229965024007e-15
 INV_X1/A cap min = 1.5493600563490969e-15
-PASS: port capacitance with corner
   PwrGnd port: VDD dir=power
   PwrGnd port: VSS dir=ground
-PASS: pwr_gnd port queries
   FA_X1 port: VDD dir=power is_bus=0
   FA_X1 port: VSS dir=ground is_bus=0
   FA_X1 port: A dir=input is_bus=0
@@ -122,5 +87,3 @@ PASS: pwr_gnd port queries
   FA_X1 port: CI dir=input is_bus=0
   FA_X1 port: CO dir=output is_bus=0
   FA_X1 port: S dir=output is_bus=0
-PASS: FA_X1 port iterator
-ALL PASSED

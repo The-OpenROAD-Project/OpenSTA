@@ -160,7 +160,6 @@
 }
 ]
 }
-PASS: latch json
 --- Latch report -format full_clock_expanded ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -226,7 +225,6 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: latch full_clock_expanded
 --- Latch report -format full_clock ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -292,7 +290,6 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: latch full_clock
 --- Latch report -format full ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -331,7 +328,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch full
 --- Latch report -format short ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -339,7 +335,6 @@ Path Group: clk
 Path Type: max
 
 
-PASS: latch short
 --- Latch report -format end ---
 max_delay/setup group clk
 
@@ -355,7 +350,6 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 reg1/D (DFF_X1)                         0.01    0.05    0.05 (MET)
 
-PASS: latch end
 --- Latch report -format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
@@ -365,7 +359,6 @@ Startpoint                           Endpoint                               Slac
 --------------------------------------------------------------------------------
 latch1/Q (DFF_X1)                    reg1/D (DFF_X1)                         0.05
 
-PASS: latch summary
 --- Latch report -format slack_only ---
 Group                                  Slack
 --------------------------------------------
@@ -375,7 +368,6 @@ Group                                  Slack
 --------------------------------------------
 clk                                     0.05
 
-PASS: latch slack_only
 --- Latch find_timing_paths PathEnd queries ---
 Found 10 max paths
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
@@ -478,7 +470,6 @@ Found 10 max paths
   inter_clk_uncertainty=0.0
   check_crpr=0.0
   clk_skew=0.0
-PASS: latch PathEnd queries
 --- Latch report with fields ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -517,7 +508,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: latch fields
 --- Latch to specific endpoints ---
 Startpoint: latch2 (positive level-sensitive latch clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -574,7 +564,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: latch to endpoints
 === Part 2: Gated clock paths ===
 --- Gated clock report -format json ---
 {"checks": [
@@ -883,7 +872,6 @@ PASS: latch to endpoints
 }
 ]
 }
-PASS: gated json
 --- Gated clock report -format full_clock_expanded ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -994,7 +982,6 @@ Path Type: min
            1.01   slack (MET)
 
 
-PASS: gated full_clock_expanded
 --- Gated clock find_timing_paths ---
 Found 6 gated paths
   gated=1 check=0 role=clock gating setup slack=9.499999897855105e-9
@@ -1021,7 +1008,6 @@ Found 6 gated paths
   margin=3.072002721649092e-11
   target_clk_delay=0.0
   target_clk_insertion_delay=0.0
-PASS: gated PathEnd queries
 --- Gated clock report all formats ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -1113,7 +1099,6 @@ Group                                  Slack
 gated clock                             9.50
 clk                                     7.90
 
-PASS: gated all formats
 === Part 3: Output delay paths ===
 --- Output delay report -format json ---
 {"checks": [
@@ -1272,7 +1257,6 @@ PASS: gated all formats
 }
 ]
 }
-PASS: output delay json
 --- Output delay report -format full_clock_expanded ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1328,7 +1312,6 @@ Path Type: min
            8.10   slack (MET)
 
 
-PASS: output delay full_clock_expanded
 --- Output delay find_timing_paths ---
 Found 2 output delay paths
   out=1 check=0 role=output setup slack=1.8997141637555615e-9
@@ -1341,7 +1324,6 @@ Found 2 output delay paths
   target_clk_delay=0.0
   target_clk_insertion_delay=0.0
   target_clk_uncertainty=-0.0
-PASS: output delay PathEnd queries
 --- Output delay report all formats ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1418,7 +1400,6 @@ Group                                  Slack
 --------------------------------------------
 clk                                     1.90
 
-PASS: output delay all formats
 === Part 4: Data check paths ===
 --- Data check report -format json ---
 {"checks": [
@@ -1788,7 +1769,6 @@ PASS: output delay all formats
 }
 ]
 }
-PASS: data check json
 --- Data check report -format full_clock_expanded ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -1900,7 +1880,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: data check full_clock_expanded
 --- Data check find_timing_paths ---
 Found 20 data check paths
   data=0 check=1 role=recovery slack=9.553728474998024e-9
@@ -1983,7 +1962,6 @@ Found 20 data check paths
   margin=3.9929969053442704e-11
   target_clk_delay=0.0
   target_clk_uncertainty=-0.0
-PASS: data check PathEnd queries
 --- Data check report all formats ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -2131,7 +2109,6 @@ Group                                  Slack
 asynchronous                            9.55
 clk                                    -5.28
 
-PASS: data check all formats
 --- Data check with -digits 6 ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -2189,7 +2166,6 @@ Path Type: max
               -5.278120   slack (VIOLATED)
 
 
-PASS: data check digits 6
 --- Data check with -no_line_splits ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -2245,7 +2221,6 @@ Path Type: max
           -5.28   slack (VIOLATED)
 
 
-PASS: data check no_line_splits
 === Part 5: Unconstrained JSON ===
 {"checks": [
 {
@@ -2338,5 +2313,3 @@ Group                                  Slack
 --------------------------------------------
 unconstrained                           0.10
 
-PASS: unconstrained all formats
-ALL PASSED

@@ -51,7 +51,7 @@ foreach pin_path {u1/A u1/Y u2/A u2/B u2/Y r1/CLK r1/D r1/Q} {
     set pin [get_pins $pin_path]
     set dir [get_property $pin direction]
     set net_name ""
-    catch {set net_name [get_property $pin net_name]}
+    set net_name [get_property $pin net_name]
     puts "$pin_path: dir=$dir net=$net_name"
   } msg
   if {$msg ne ""} {
@@ -81,8 +81,7 @@ foreach net_name {r1q r2q u1z u2z in1 in2 out clk1 clk2 clk3} {
 #---------------------------------------------------------------
 puts "--- report_net for various nets ---"
 foreach net_name {r1q u1z u2z} {
-  catch {report_net $net_name} msg
-  puts "PASS: report_net $net_name"
+  report_net $net_name
 }
 
 #---------------------------------------------------------------
@@ -90,8 +89,7 @@ foreach net_name {r1q u1z u2z} {
 #---------------------------------------------------------------
 puts "--- report_instance ---"
 foreach inst_name {u1 u2 r1 r2 r3} {
-  catch {report_instance $inst_name} msg
-  puts "PASS: report_instance $inst_name"
+  report_instance $inst_name
 }
 
 #---------------------------------------------------------------
@@ -144,11 +142,9 @@ set all_ports [get_ports *]
 puts "total ports: [llength $all_ports]"
 
 foreach port_name {in1 in2 out clk1 clk2 clk3} {
-  catch {
-    set p [get_ports $port_name]
-    set dir [get_property $p direction]
-    puts "port $port_name: direction=$dir"
-  } msg
+  set p [get_ports $port_name]
+  set dir [get_property $p direction]
+  puts "port $port_name: direction=$dir"
 }
 
 #---------------------------------------------------------------
@@ -166,20 +162,14 @@ foreach lib $libs {
 # Test get_lib_cells with patterns
 #---------------------------------------------------------------
 puts "--- lib cell pattern queries ---"
-catch {
-  set all_lib_cells [get_lib_cells */*]
-  puts "all lib cells: [llength $all_lib_cells]"
-} msg
+set all_lib_cells [get_lib_cells */*]
+puts "all lib cells: [llength $all_lib_cells]"
 
-catch {
-  set buf_lib_cells [get_lib_cells */BUF*]
-  puts "BUF* lib cells: [llength $buf_lib_cells]"
-} msg
+set buf_lib_cells [get_lib_cells */BUF*]
+puts "BUF* lib cells: [llength $buf_lib_cells]"
 
-catch {
-  set inv_lib_cells [get_lib_cells */INV*]
-  puts "INV* lib cells: [llength $inv_lib_cells]"
-} msg
+set inv_lib_cells [get_lib_cells */INV*]
+puts "INV* lib cells: [llength $inv_lib_cells]"
 
 #---------------------------------------------------------------
 # Test all_inputs / all_outputs / all_clocks / all_registers
@@ -213,5 +203,3 @@ puts "--- timing analysis ---"
 report_checks
 report_checks -path_delay min
 report_checks -fields {slew cap input_pins nets fanout}
-
-puts "ALL PASSED"

@@ -1,7 +1,6 @@
 --- Corner commands ---
 Corner name: default
 Multi corner: 0
-PASS: corner commands
 --- ClkSkew report with propagated clock ---
 Clock clk
    0.03 source latency reg1/CK ^
@@ -31,7 +30,6 @@ Clock clk
 --------------
   -0.03 hold skew
 
-PASS: clock skew propagated
 --- ClkSkew with digits ---
 Clock clk
 0.025477 source latency reg1/CK ^
@@ -47,7 +45,6 @@ Clock clk
 --------------
 -0.026131 hold skew
 
-PASS: clock skew digits
 --- report_clock_latency ---
 Clock clk
 rise -> rise
@@ -109,26 +106,20 @@ fall -> fall
         0.025572 skew
 
 
-PASS: clock latency
 --- worst_slack corner-specific ---
 Worst slack corner max: 7.864159989878772e-9
 Worst slack corner min: 7.392011308615665e-11
-PASS: worst_slack corner
 --- total_negative_slack corner ---
 TNS corner max: 0.0
 TNS corner min: 0.0
-PASS: tns corner
 --- worst_slack_vertex ---
 Worst vertex pin: out1
-PASS: worst_slack_vertex
 --- vertex_worst_arrival_path ---
 Worst arrival path pin: out1
 Worst arrival: 1.358400475437449e-10
-PASS: vertex_worst_arrival_path
 --- vertex_worst_slack_path ---
 Worst slack path pin: out1
 Worst slack: 7.864159989878772e-9
-PASS: vertex_worst_slack_path
 --- set_case_analysis and sim ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -158,7 +149,6 @@ Path Type: max
 
 Sim value and1/A2: 0
 in2 0 case=0
-PASS: case_analysis sim
 --- set_case_analysis 1 ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -187,7 +177,6 @@ Path Type: max
 
 
 Sim value and1/A1: 1
-PASS: case_analysis 1
 --- report with clock_uncertainty ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -269,7 +258,6 @@ Clock clk
 --------------
   -0.13 hold skew
 
-PASS: clock uncertainty
 --- report with set_inter_clock_uncertainty ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -301,9 +289,6 @@ Path Type: max
            7.71   slack (MET)
 
 
-PASS: inter_clock_uncertainty
 --- find_clk_min_period ---
 Min period: 1.1478817896204419e-10
 Min period (with port paths): 2.1358399493465186e-9
-PASS: find_clk_min_period
-ALL PASSED

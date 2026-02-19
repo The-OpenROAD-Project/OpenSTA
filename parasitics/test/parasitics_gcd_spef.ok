@@ -39,7 +39,6 @@ Path Type: max
            0.75   slack (MET)
 
 
-PASS: baseline report_checks
 Startpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -68,9 +67,7 @@ Path Type: min
            0.43   slack (MET)
 
 
-PASS: baseline min path
 --- read_spef GCD ---
-PASS: read_spef GCD
 --- timing with SPEF ---
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
@@ -113,7 +110,6 @@ Path Type: max
            0.06   slack (MET)
 
 
-PASS: report_checks with SPEF
 Startpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -142,7 +138,6 @@ Path Type: min
            0.45   slack (MET)
 
 
-PASS: min path with SPEF
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -184,7 +179,6 @@ Path Type: max
            0.06   slack (MET)
 
 
-PASS: max path with SPEF
 Warning: parasitics_gcd_spef.tcl line 1, unknown field nets.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
@@ -241,7 +235,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   0.06   slack (MET)
 
 
-PASS: report with fields
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -283,7 +276,6 @@ Path Type: max
            0.06   slack (MET)
 
 
-PASS: full_clock format
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -325,11 +317,9 @@ Path Type: max
            0.06   slack (MET)
 
 
-PASS: sort_by_slack
 --- parasitic annotation ---
 Found 0 unannotated drivers.
 Found 3 partially unannotated drivers.
-PASS: parasitic annotation
 Found 0 unannotated drivers.
 Found 3 partially unannotated drivers.
  _206_/Y
@@ -338,7 +328,6 @@ Found 3 partially unannotated drivers.
   _218_/B
  _418_/Q
   _218_/A
-PASS: parasitic annotation unannotated
 --- report_net ---
 Net clk
  Pin capacitance: 0.00-0.00
@@ -477,7 +466,6 @@ Path Type: max
            0.05   slack (MET)
 
 
-PASS: arnoldi report_checks
 Startpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -506,7 +494,6 @@ Path Type: min
            0.46   slack (MET)
 
 
-PASS: arnoldi min
 --- lumped_cap ---
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
@@ -549,7 +536,6 @@ Path Type: max
            0.05   slack (MET)
 
 
-PASS: lumped_cap report_checks
 --- dmp_ceff_two_pole ---
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
@@ -592,7 +578,6 @@ Path Type: max
            0.08   slack (MET)
 
 
-PASS: dmp_ceff_two_pole report_checks
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -634,7 +619,6 @@ Path Type: max
            0.06   slack (MET)
 
 
-PASS: back to default
 --- annotated delay ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -1997,4 +1981,3 @@ Unannotated Arcs
  internal net       split1/X -> _341_/B 
  internal net       split1/X -> _342_/A1 
 annotated -report_unannotated: done
-ALL PASSED

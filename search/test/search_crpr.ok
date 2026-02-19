@@ -29,7 +29,6 @@ Path Type: max
            7.36   slack (MET)
 
 
-PASS: CRPR setup path
 --- CRPR with propagated clock, hold ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -65,7 +64,6 @@ Path Type: min
           -0.23   slack (VIOLATED)
 
 
-PASS: CRPR hold path
 --- report_checks full_clock ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -97,7 +95,6 @@ Path Type: max
            7.36   slack (MET)
 
 
-PASS: CRPR full_clock format
 --- report_checks between reg1 and reg2 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -133,7 +130,6 @@ Path Type: max
            9.38   slack (MET)
 
 
-PASS: CRPR reg-to-reg path
 --- report_checks min between reg1 and reg2 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -169,7 +165,6 @@ Path Type: min
           -0.23   slack (VIOLATED)
 
 
-PASS: CRPR reg-to-reg hold path
 --- report_clock_skew ---
 Clock clk
    0.03 source latency reg1/CK ^
@@ -187,7 +182,6 @@ Clock clk
 --------------
   -0.33 hold skew
 
-PASS: CRPR clock skew
 --- report_clock_latency ---
 Clock clk
 rise -> rise
@@ -209,7 +203,6 @@ fall -> fall
            0.03 skew
 
 
-PASS: CRPR clock latency
 --- check CRPR mode settings ---
 CRPR enabled: 1
 CRPR mode: same_pin
@@ -275,7 +268,6 @@ Path Type: max
            7.36   slack (MET)
 
 
-PASS: CRPR mode settings
 --- CRPR disabled ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -306,19 +298,16 @@ Path Type: max
            7.36   slack (MET)
 
 
-PASS: CRPR disable/enable
 --- find_timing_paths with CRPR ---
 Found 3 paths with CRPR
   slack=7.3573676040439295e-9 crpr=0.0
   slack=7.363725185172143e-9 crpr=0.0
   slack=8.43751646328883e-9 crpr=0.0
-PASS: find_timing_paths CRPR
 --- find_timing_paths min with CRPR ---
 Found 3 hold paths with CRPR
   slack=-2.327258247225572e-10 crpr=-2.547686020482054e-12
   slack=-2.3130949933225509e-10 crpr=-2.547686020482054e-12
   slack=7.07958414114529e-10 crpr=-0.0
-PASS: find_timing_paths min CRPR
 --- report_check_types ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -414,5 +403,3 @@ Check: sequential_clock_pulse_width
            4.94   slack (MET)
 
 
-PASS: check_types with CRPR
-ALL PASSED

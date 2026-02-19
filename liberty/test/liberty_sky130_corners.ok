@@ -1,9 +1,4 @@
-PASS: read sky130hd tt
-PASS: read sky130hd ff
-PASS: read sky130hd ss
-PASS: read sky130hs tt
 Warning: ../../test/sky130hs/sky130_fd_sc_hs__tt_025C_1v80.lib line 1, library sky130_fd_sc_hs__tt_025C_1v80 already exists.
-PASS: read sky130hs full
 Cell sky130_fd_sc_hd__inv_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -566,8 +561,6 @@ File ../../test/sky130hd/sky130hd_tt.lib
  VPWR power
  DIODE input 0.00-0.00
 Warning: liberty_sky130_corners.tcl line 1, liberty cell 'sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__fill_1' not found.
-PASS: sky130hd comprehensive cell reports
-PASS: sky130 cell properties
 sky130_fd_sc_hd__inv_1/A: cap=0.002390 dir=input
 sky130_fd_sc_hd__inv_1/Y: cap=0.000000 dir=output
 sky130_fd_sc_hd__buf_1/A: cap=0.002191 dir=input
@@ -582,13 +575,6 @@ sky130_fd_sc_hd__dfrtp_1/CLK: cap=0.001871 dir=input
 sky130_fd_sc_hd__dfrtp_1/D: cap=0.002006 dir=input
 sky130_fd_sc_hd__dfrtp_1/RESET_B: cap=0.003632 dir=input
 sky130_fd_sc_hd__dfrtp_1/Q: cap=0.000000 dir=output
-PASS: sky130 pin capacitances
-PASS: write sky130hd tt
-PASS: write sky130hs tt
-PASS: read ASAP7 AO LVT
-PASS: read ASAP7 AO SLVT
-PASS: read ASAP7 OA LVT
-PASS: read ASAP7 OA SLVT
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13189, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13222, timing group from output port.
@@ -599,7 +585,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 1335
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14748, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14781, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14814, timing group from output port.
-PASS: read ASAP7 SIMPLE LVT
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13189, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13222, timing group from output port.
@@ -610,13 +595,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 133
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14748, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14781, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14814, timing group from output port.
-PASS: read ASAP7 SIMPLE SLVT
-PASS: read ASAP7 INVBUF LVT TT
-PASS: read ASAP7 INVBUF SLVT TT
-PASS: read ASAP7 INVBUF RVT TT
-PASS: read ASAP7 INVBUF RVT SS
-PASS: read ASAP7 AO RVT SS
-PASS: read ASAP7 OA RVT SS
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13189, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13222, timing group from output port.
@@ -627,6 +605,3 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 1335
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14748, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14781, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14814, timing group from output port.
-PASS: read ASAP7 SIMPLE RVT SS
-PASS: read ASAP7 SRAM macro
-ALL PASSED

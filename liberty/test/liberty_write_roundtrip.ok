@@ -1,12 +1,3 @@
-PASS: read Nangate45 original
-PASS: write Nangate45
-PASS: Nangate45 output file has 3598559 bytes
-PASS: read Sky130
-PASS: write Sky130
-PASS: Sky130 output file has 4746895 bytes
-PASS: read IHP
-PASS: write IHP
-PASS: IHP output file has 752459 bytes
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
@@ -17,35 +8,7 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1337
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-PASS: read ASAP7 SIMPLE compressed
-PASS: write ASAP7 SIMPLE
-PASS: ASAP7 SIMPLE output file has 795590 bytes
-PASS: read ASAP7 SEQ
-PASS: write ASAP7 SEQ
-PASS: ASAP7 SEQ output file has 718373 bytes
-PASS: read ASAP7 INVBUF compressed
-PASS: write ASAP7 INVBUF
-PASS: ASAP7 INVBUF output file has 147219 bytes
-PASS: read ASAP7 AO
-PASS: write ASAP7 AO
-PASS: read ASAP7 OA
-PASS: write ASAP7 OA
-PASS: read fakeram7_256x32
-PASS: write fakeram7_256x32
-PASS: fakeram output file has 78058 bytes
 Warning: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
-PASS: read fake_macros
-PASS: write fake_macros
-PASS: read Nangate45 fast
-PASS: write Nangate45 fast
-PASS: read Nangate45 slow
-PASS: write Nangate45 slow
-PASS: read Nangate45 LVT
-PASS: write Nangate45 LVT
-PASS: read fakeram45_256x16
-PASS: write fakeram45_256x16
-PASS: read fakeram45_64x32
-PASS: write fakeram45_64x32
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13189, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13222, timing group from output port.
@@ -56,10 +19,3 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 1335
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14748, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14781, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14814, timing group from output port.
-PASS: read ASAP7 SIMPLE SS
-PASS: write ASAP7 SIMPLE SS
-PASS: read Sky130 FF
-PASS: write Sky130 FF
-PASS: read Sky130 SS
-PASS: write Sky130 SS
-ALL PASSED

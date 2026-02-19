@@ -32,7 +32,6 @@ puts "thread_count after set to 4: $tc4"
 
 # Reset to 1
 sta::set_thread_count 1
-puts "PASS: thread count operations"
 
 #---------------------------------------------------------------
 # Processor count
@@ -41,7 +40,6 @@ puts "--- processor_count ---"
 set nproc [sta::processor_count]
 puts "processor_count: $nproc"
 if { $nproc > 0 } {
-  puts "PASS: processor_count positive"
 } else {
   puts "FAIL: processor_count non-positive"
 }
@@ -52,7 +50,6 @@ if { $nproc > 0 } {
 puts "--- memory_usage ---"
 set mem [sta::memory_usage]
 if { $mem >= 0 } {
-  puts "PASS: memory_usage non-negative"
 } else {
   puts "FAIL: memory_usage negative"
 }
@@ -73,17 +70,14 @@ set_input_transition 0.1 [all_inputs]
 # Run timing with 1 thread
 sta::set_thread_count 1
 report_checks
-puts "PASS: report_checks with 1 thread"
 
 # Run timing with 2 threads to exercise dispatch queue
 sta::set_thread_count 2
 report_checks
-puts "PASS: report_checks with 2 threads"
 
 # Run timing with 4 threads
 sta::set_thread_count 4
 report_checks
-puts "PASS: report_checks with 4 threads"
 
 # Back to 1
 sta::set_thread_count 1
@@ -100,7 +94,6 @@ with_output_to_variable v1 {
   report_checks -fields {slew cap input_pins nets fanout}
 }
 puts "large capture length: [string length $v1]"
-puts "PASS: buffer growth"
 
 #---------------------------------------------------------------
 # String redirect with large content
@@ -113,7 +106,6 @@ report_checks -path_delay max
 report_checks -fields {slew cap input_pins nets fanout}
 set s1 [sta::redirect_string_end]
 puts "string redirect length: [string length $s1]"
-puts "PASS: string redirect large"
 
 #---------------------------------------------------------------
 # Report to file with large content
@@ -131,7 +123,6 @@ if { [file exists $rfile] } {
   set content [read $fh]
   close $fh
   puts "file redirect size: [string length $content]"
-  puts "PASS: file redirect large"
 } else {
   puts "INFO: file not created"
 }
@@ -158,7 +149,6 @@ if { [file exists $afile] } {
   set content [read $fh]
   close $fh
   puts "appended file size: [string length $content]"
-  puts "PASS: append cycles"
 } else {
   puts "INFO: append file not created"
 }
@@ -171,12 +161,10 @@ sta::set_thread_count 2
 sta::set_debug "search" 1
 report_checks
 sta::set_debug "search" 0
-puts "PASS: debug search with threads"
 
 sta::set_debug "delay_calc" 1
 report_checks
 sta::set_debug "delay_calc" 0
-puts "PASS: debug delay_calc with threads"
 
 sta::set_thread_count 1
 
@@ -188,7 +176,6 @@ sta::report_line ""
 sta::report_line "single line"
 sta::report_line "line with special: \[ \] \{ \} \$ \\"
 sta::report_line "very long line: [string repeat "abcdefghij" 50]"
-puts "PASS: report_line coverage"
 
 #---------------------------------------------------------------
 # Format functions with extreme values
@@ -212,8 +199,6 @@ puts "format_power(1pW): $fp_tiny"
 set fd_tiny [sta::format_distance "1e-9" 6]
 puts "format_distance(1nm): $fd_tiny"
 
-puts "PASS: format extreme values"
-
 #---------------------------------------------------------------
 # Log file with design operations
 #---------------------------------------------------------------
@@ -225,7 +210,6 @@ report_checks -path_delay min
 report_units
 log_end
 if { [file exists $lfile] } {
-  puts "PASS: log with design ops"
 } else {
   puts "INFO: log file not created"
 }
@@ -236,22 +220,16 @@ if { [file exists $lfile] } {
 puts "--- error paths ---"
 set rc [catch { read_liberty "/nonexistent/path/file.lib" } msg]
 if { $rc != 0 } {
-  puts "PASS: caught nonexistent liberty error"
 }
 
 set rc [catch { read_verilog "/nonexistent/path/file.v" } msg]
 if { $rc != 0 } {
-  puts "PASS: caught nonexistent verilog error"
 }
 
 set rc [catch { read_spef "/nonexistent/path/file.spef" } msg]
 if { $rc != 0 } {
-  puts "PASS: caught nonexistent SPEF error"
 }
 
 set rc [catch { read_sdf "/nonexistent/path/file.sdf" } msg]
 if { $rc != 0 } {
-  puts "PASS: caught nonexistent SDF error"
 }
-
-puts "ALL PASSED"

@@ -9,14 +9,11 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1477
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- Reading SPEF ---
-PASS: read_spef completed
 --- Parasitic annotation ---
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation -report_unannotated
 --- Annotated delay reporting ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -26,7 +23,6 @@ internal net arcs                     4           0           4
 ----------------------------------------------------------------
                                      10           0          10
 
-PASS: report_annotated_delay -cell -net
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -35,7 +31,6 @@ net arcs to primary outputs           1           0           1
 ----------------------------------------------------------------
                                       6           0           6
 
-PASS: report_annotated_delay -from_in_ports -to_out_ports
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -43,7 +38,6 @@ cell arcs                             6           0           6
 ----------------------------------------------------------------
                                       6           0           6
 
-PASS: report_annotated_delay -cell
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -51,7 +45,6 @@ internal net arcs                     4           0           4
 ----------------------------------------------------------------
                                       4           0           4
 
-PASS: report_annotated_delay -net
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -64,7 +57,6 @@ net arcs to primary outputs           1           0           1
 
 Annotated Arcs
 
-PASS: report_annotated_delay -report_annotated
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -93,7 +85,6 @@ Unannotated Arcs
  delay              u2/B -> u2/Y 
  internal net       u2/Y -> r3/D 
 
-PASS: report_annotated_delay -report_unannotated
 --- Timing with parasitics ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -124,7 +115,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: report_checks with parasitics
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -152,7 +142,6 @@ Path Type: min
          -11.46   slack (VIOLATED)
 
 
-PASS: report_checks min path
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -182,7 +171,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: report_checks max path
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -210,7 +198,6 @@ Path Type: max
                          491.70   slack (MET)
 
 
-PASS: report_checks from in1 with fields
 Startpoint: in2 (input port clocked by clk)
 Endpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -238,7 +225,6 @@ Path Type: max
                          491.70   slack (MET)
 
 
-PASS: report_checks from in2 with fields
 --- report_net ---
 Net r1q
  Pin capacitance: 0.40-0.52
@@ -255,7 +241,6 @@ Load pins
  u2/A input (AND2x2_ASAP7_75t_R) 0.40-0.52
 
 
-PASS: report_net r1q
 Net r2q
  Pin capacitance: 0.44-0.58
  Wire capacitance: 13.40-13.40
@@ -271,7 +256,6 @@ Load pins
  u1/A input (BUFx2_ASAP7_75t_R) 0.44-0.58
 
 
-PASS: report_net r2q
 Net u1z
  Pin capacitance: 0.32-0.57
  Wire capacitance: 13.40-13.40
@@ -287,7 +271,6 @@ Load pins
  u2/B input (AND2x2_ASAP7_75t_R) 0.32-0.57
 
 
-PASS: report_net u1z
 Net u2z
  Pin capacitance: 0.55-0.62
  Wire capacitance: 13.40-13.40
@@ -303,7 +286,6 @@ Load pins
  r3/D input (DFFHQx4_ASAP7_75t_R) 0.55-0.62
 
 
-PASS: report_net u2z
 Net out
  Pin capacitance: 0.00
  Wire capacitance: 13.40
@@ -319,7 +301,6 @@ Load pins
  out output port
 
 
-PASS: report_net out
 Net in1
  Pin capacitance: 0.55-0.62
  Wire capacitance: 13.40-13.40
@@ -335,7 +316,6 @@ Load pins
  r1/D input (DFFHQx4_ASAP7_75t_R) 0.55-0.62
 
 
-PASS: report_net in1
 Net r1q
  Pin capacitance: 0.399352-0.522565
  Wire capacitance: 13.399999-13.400000
@@ -351,12 +331,9 @@ Load pins
  u2/A input (AND2x2_ASAP7_75t_R) 0.399352-0.522565
 
 
-PASS: report_net -digits 6
 --- Manual parasitic models ---
 
-PASS: set_pi_model
 
-PASS: set_elmore
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -386,5 +363,3 @@ Path Type: max
          344.30   slack (MET)
 
 
-PASS: report_checks after manual parasitics
-ALL PASSED

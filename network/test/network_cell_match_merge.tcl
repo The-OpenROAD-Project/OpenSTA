@@ -16,7 +16,6 @@ source ../../test/helpers.tcl
 ############################################################
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read libraries"
 
 ############################################################
 # Cell pattern matching on libraries
@@ -69,8 +68,6 @@ puts "nocase nand*: [llength $nc_nand]"
 set nc_buf [$ng_lib find_liberty_cells_matching "buf_*" 0 1]
 puts "nocase buf_*: [llength $nc_buf]"
 
-puts "PASS: Nangate cell pattern matching"
-
 # Sky130 pattern matching
 set sky_lib [sta::find_liberty sky130_fd_sc_hd__tt_025C_1v80]
 
@@ -97,8 +94,6 @@ puts "sky lsbuf* matches: [llength $sky_lvlshift]"
 
 set sky_all [$sky_lib find_liberty_cells_matching "*" 0 0]
 puts "sky all cells: [llength $sky_all]"
-
-puts "PASS: Sky130 cell pattern matching"
 
 ############################################################
 # Port matching on cells
@@ -128,8 +123,6 @@ puts "DFFRS_X1 S* ports: [llength $dffrs_s]"
 set dffrs_r [$dffrs_cell find_liberty_ports_matching "R*" 0 0]
 puts "DFFRS_X1 R* ports: [llength $dffrs_r]"
 
-puts "PASS: port pattern matching"
-
 ############################################################
 # Load a design and exercise network-level pattern matching
 ############################################################
@@ -142,7 +135,6 @@ set_input_delay -clock clk 0 [get_ports in2]
 set_output_delay -clock clk 0 [get_ports out1]
 set_input_transition 0.1 [all_inputs]
 report_checks
-puts "PASS: design setup"
 
 ############################################################
 # Instance pattern matching
@@ -170,8 +162,6 @@ puts "or* cells: [llength $or_insts]"
 set n_insts [get_cells n*]
 puts "n* cells: [llength $n_insts]"
 
-puts "PASS: instance pattern matching"
-
 ############################################################
 # Net pattern matching
 ############################################################
@@ -182,8 +172,6 @@ puts "all nets: [llength $all_nets]"
 
 set n_nets [get_nets n*]
 puts "n* nets: [llength $n_nets]"
-
-puts "PASS: net pattern matching"
 
 ############################################################
 # Create instances and exercise net merging
@@ -197,15 +185,13 @@ set inst_b [make_instance merge_buf_b NangateOpenCellLibrary/BUF_X1]
 make_net merge_net_1
 make_net merge_net_2
 
-catch {connect_pin merge_net_1 merge_buf_a/Z}
-catch {connect_pin merge_net_2 merge_buf_b/A}
+connect_pin merge_net_1 merge_buf_a/Z
+connect_pin merge_net_2 merge_buf_b/A
 
 # Verify both nets exist
-catch {
-  set mn1 [get_nets merge_net_1]
-  set mn2 [get_nets merge_net_2]
-  puts "merge_net_1 exists, merge_net_2 exists"
-}
+set mn1 [get_nets merge_net_1]
+set mn2 [get_nets merge_net_2]
+puts "merge_net_1 exists, merge_net_2 exists"
 
 # Now do a cell replacement to exercise mergeInto path
 # Replace buf_a with BUF_X2
@@ -223,13 +209,12 @@ set ref [get_property [get_cells merge_buf_b] ref_name]
 puts "merge_buf_b -> INV_X1: ref=$ref"
 
 # Disconnect and clean up
-catch {disconnect_pin merge_net_1 merge_buf_a/Z}
-catch {disconnect_pin merge_net_2 merge_buf_b/A}
-catch {delete_instance merge_buf_a}
-catch {delete_instance merge_buf_b}
-catch {delete_net merge_net_1}
-catch {delete_net merge_net_2}
-puts "PASS: net merge / replace cleanup"
+disconnect_pin merge_net_1 merge_buf_a/Z
+disconnect_pin merge_net_2 merge_buf_b/A
+delete_instance merge_buf_a
+delete_instance merge_buf_b
+delete_net merge_net_1
+delete_net merge_net_2
 
 ############################################################
 # Exercise multiple cell creation and connection patterns
@@ -248,17 +233,15 @@ for {set i 0} {$i < 8} {incr i} {
     set nname "chain_net_$i"
     make_net $nname
     lappend chain_nets $nname
-    catch {connect_pin $nname chain_buf_[expr {$i-1}]/Z}
-    catch {connect_pin $nname chain_buf_$i/A}
+    connect_pin $nname chain_buf_[expr {$i-1}]/Z
+    connect_pin $nname chain_buf_$i/A
   }
 }
-puts "PASS: created buffer chain"
 
 # Report some nets in the chain
 foreach nname [lrange $chain_nets 0 2] {
-  catch {report_net $nname}
+  report_net $nname
 }
-puts "PASS: report chain nets"
 
 # Replace cells in chain
 for {set i 0} {$i < 8} {incr i} {
@@ -266,21 +249,16 @@ for {set i 0} {$i < 8} {incr i} {
   set size_idx [expr {$i % 3}]
   replace_cell chain_buf_$i NangateOpenCellLibrary/[lindex $sizes $size_idx]
 }
-puts "PASS: replace chain cells"
 
 # Clean up chain
 foreach nname $chain_nets {
   foreach iname $chain_insts {
-    catch {disconnect_pin $nname $iname/A}
-    catch {disconnect_pin $nname $iname/Z}
+    disconnect_pin $nname $iname/A
+    disconnect_pin $nname $iname/Z
   }
 }
 foreach iname $chain_insts {catch {delete_instance $iname}}
 foreach nname $chain_nets {catch {delete_net $nname}}
-puts "PASS: cleanup chain"
 
 # Final timing check
 report_checks
-puts "PASS: final timing check"
-
-puts "ALL PASSED"

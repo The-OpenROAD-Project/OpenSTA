@@ -1,58 +1,31 @@
-PASS: setup
 all_inputs count = 5
-PASS: all_inputs
 all_inputs -no_clocks count = 3
-PASS: all_inputs -no_clocks
 all_outputs count = 2
-PASS: all_outputs
 find_clocks_matching clk* = 2
-PASS: find_clocks_matching glob
 find_clocks_matching regexp = 2
-PASS: find_clocks_matching regexp
 find_clocks_matching nocase = 0
-PASS: find_clocks_matching nocase
 clk1 is_clock_src = 1
 clk1 is_clock = 0
 clk1 is_ideal_clock = 0
-PASS: clock pin queries
 in1 is_clock_src = 0
 in1 is_clock = 0
-PASS: non-clock pin queries
 default_arrival_clock exists
-PASS: default_arrival_clock
 clk_thru_tristate_enabled = 0
 clk_thru_tristate_enabled after set = 1
-PASS: clk_thru_tristate
 pin clk1 constrained = 1
 pin in1 constrained = 1
 instance buf1 constrained = 0
 net n1 constrained = 0
-PASS: constrained queries
 in1 case_logic_value = 0
 in1 logic_value = X
 in3 logic_value = 0
-PASS: case/logic value queries
 group_path_names = grp_io grp_reg2reg
-PASS: group_path_names
 is_path_group_name grp_reg2reg = 1
 is_path_group_name nonexistent = 0
-PASS: is_path_group_name
 filter_ports direction == input: 5
-PASS: filter_ports
 filter_clocks period == 10: 0
-PASS: filter_clocks
 filter_lib_cells is_buffer: 9
-PASS: filter_lib_cells
 filter_insts ref_name =~ BUF*: 1
-PASS: filter_insts
 filter_pins direction == input: 1
-PASS: filter_pins
 filter_nets full_name =~ n*: 7
-PASS: filter_nets
-PASS: write_sdc
-PASS: unset case analysis
-PASS: remove_constraints
 No paths found.
-PASS: report after remove_constraints
-PASS: write_sdc after re-constrain
-ALL PASSED

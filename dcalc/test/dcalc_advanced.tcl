@@ -21,15 +21,12 @@ set_output_delay -clock clk 0 [get_ports out1]
 puts "--- set_load variations ---"
 set_load 0.001 [get_ports out1]
 report_checks
-puts "PASS: report_checks with 1fF load"
 
 set_load 0.1 [get_ports out1]
 report_checks
-puts "PASS: report_checks with 100fF load"
 
 set_load 1.0 [get_ports out1]
 report_checks
-puts "PASS: report_checks with 1pF load"
 
 # Reset load
 set_load 0 [get_ports out1]
@@ -40,11 +37,9 @@ set_load 0 [get_ports out1]
 puts "--- set_input_transition ---"
 set_input_transition 0.01 [get_ports in1]
 report_checks
-puts "PASS: report_checks with 10ps input transition"
 
 set_input_transition 0.5 [get_ports in1]
 report_checks
-puts "PASS: report_checks with 500ps input transition"
 
 set_input_transition 0.1 [get_ports in1]
 
@@ -92,13 +87,10 @@ puts "--- unit delay calculator ---"
 set_delay_calculator unit
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: unit report_checks"
 
 report_checks -path_delay min
-puts "PASS: unit min path"
 
 report_checks -path_delay max
-puts "PASS: unit max path"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z]} msg
 puts "unit dcalc buf1: $msg"
@@ -113,7 +105,6 @@ catch {report_dcalc -from [get_pins reg1/CK] -to [get_pins reg1/D]} msg
 puts "unit dcalc reg1 setup: $msg"
 
 report_checks -fields {slew cap}
-puts "PASS: unit with fields"
 
 #---------------------------------------------------------------
 # lumped_cap delay calculator
@@ -122,7 +113,6 @@ puts "--- lumped_cap delay calculator ---"
 set_delay_calculator lumped_cap
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: lumped_cap report_checks"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "lumped_cap dcalc buf1: $msg"
@@ -134,7 +124,6 @@ catch {report_dcalc -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max} msg
 puts "lumped_cap dcalc reg1: $msg"
 
 report_checks -fields {slew cap input_pins}
-puts "PASS: lumped_cap with fields"
 
 #---------------------------------------------------------------
 # dmp_ceff_elmore (default) delay calculator
@@ -143,7 +132,6 @@ puts "--- dmp_ceff_elmore delay calculator ---"
 set_delay_calculator dmp_ceff_elmore
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: dmp_ceff_elmore report_checks"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z]} msg
 puts "dmp_ceff_elmore dcalc buf1: $msg"
@@ -155,13 +143,10 @@ puts "--- dmp_ceff_two_pole delay calculator ---"
 set_delay_calculator dmp_ceff_two_pole
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: dmp_ceff_two_pole report_checks"
 
 report_checks -path_delay min
-puts "PASS: dmp_ceff_two_pole min path"
 
 report_checks -path_delay max
-puts "PASS: dmp_ceff_two_pole max path"
 
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "dmp_ceff_two_pole dcalc buf1 max: $msg"
@@ -179,6 +164,3 @@ catch {report_dcalc -from [get_pins reg1/CK] -to [get_pins reg1/D] -max} msg
 puts "dmp_ceff_two_pole dcalc reg1 setup: $msg"
 
 report_checks -fields {slew cap input_pins}
-puts "PASS: dmp_ceff_two_pole with fields"
-
-puts "ALL PASSED"

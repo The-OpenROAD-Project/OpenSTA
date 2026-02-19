@@ -772,7 +772,6 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
                                   1.85   slack (MET)
 
 
-PASS: full + field combos
 --- format full_clock + fields ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -994,7 +993,6 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
                                   1.85   slack (MET)
 
 
-PASS: full_clock + fields
 --- format full_clock_expanded + fields ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1301,7 +1299,6 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
                                   0.11   slack (MET)
 
 
-PASS: full_clock_expanded + fields
 --- format short + fields ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1339,7 +1336,6 @@ Path Group: clk2
 Path Type: max
 
 
-PASS: short + fields
 --- format end ---
 max_delay/setup group clk1
 
@@ -1369,7 +1365,6 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 reg3/D (DFF_X1)                         0.03    0.13    0.11 (MET)
 
-PASS: end format
 --- format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
@@ -1381,7 +1376,6 @@ Startpoint                           Endpoint                               Slac
 reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         0.07
 reg2/Q (DFF_X1)                      reg3/D (DFF_X1)                         0.11
 
-PASS: summary format
 --- format slack_only ---
 Group                                  Slack
 --------------------------------------------
@@ -1393,7 +1387,6 @@ Group                                  Slack
 clk1                                    0.07
 clk2                                    0.11
 
-PASS: slack_only format
 --- report_path_cmd with formats ---
   Delay    Time   Description
 ---------------------------------------------------------
@@ -1467,7 +1460,6 @@ PASS: slack_only format
 ]
 }
 
-PASS: report_path_cmd formats
 --- field properties ---
 Warning: unknown report path field delay
 Warning: unknown report path field delay
@@ -1525,7 +1517,6 @@ Path Type: max
            1.85   slack (MET)
 
 
-PASS: field properties
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -1580,7 +1571,6 @@ Path Type: max
            1.85   slack (MET)
 
 
-PASS: total field
 --- report_path_sigmas ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1690,7 +1680,6 @@ Path Type: max
            1.85   slack (MET)
 
 
-PASS: sigmas
 --- report_path_no_split ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1746,7 +1735,6 @@ Fanout     Cap    Slew   Delay   Total   Description
                                   1.85   slack (MET)
 
 
-PASS: no_split
 --- digits ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -1910,7 +1898,6 @@ Path Type: max
                1.851429   slack (MET)
 
 
-PASS: digits
 --- per-endpoint ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -2044,7 +2031,6 @@ Fanout     Cap    Slew   Delay   Total   Description
                                   2.12   slack (MET)
 
 
-PASS: per-endpoint
 --- from pins ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -2110,7 +2096,6 @@ Fanout    Slew   Delay   Total   Description
                           8.94   slack (MET)
 
 
-PASS: from pins
 --- min_max ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -2239,7 +2224,6 @@ Fanout     Cap    Slew   Delay   Total   Description
                                   1.85   slack (MET)
 
 
-PASS: min_max
 --- JSON endpoint count ---
 {"checks": [
 {
@@ -4369,7 +4353,6 @@ PASS: min_max
 }
 ]
 }
-PASS: JSON endpoint count
 --- corner ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -4433,7 +4416,6 @@ Path Type: max
                            1.85   slack (MET)
 
 
-PASS: corner
 --- input_transition in report ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -4466,7 +4448,6 @@ Path Type: max
                    8.90   slack (MET)
 
 
-PASS: input_transition report
 --- driving_cell in report ---
 Startpoint: in2 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -4499,7 +4480,6 @@ Path Type: max
                            8.94   slack (MET)
 
 
-PASS: driving_cell report
 --- report_path_end min ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -4782,5 +4762,3 @@ Path Type: min
                            2.13   slack (MET)
 
 
-PASS: report_path_end min
-ALL PASSED

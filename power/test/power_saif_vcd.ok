@@ -2,11 +2,9 @@
 Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
 --- read_vcd ---
 Annotated 937 pin activities.
-PASS: read_vcd completed
 --- report_activity_annotation after VCD ---
 vcd           937
 unannotated     0
-PASS: report_activity_annotation after VCD
 --- report_activity_annotation -report_annotated ---
 vcd           937
 unannotated     0
@@ -948,12 +946,10 @@ Annotated pins:
   vcd rebuffer9/X
   vcd split1/A
   vcd split1/X
-PASS: report_activity_annotation -report_annotated
 --- report_activity_annotation -report_unannotated ---
 vcd           937
 unannotated     0
 Unannotated pins:
-PASS: report_activity_annotation -report_unannotated
 --- report_power with VCD ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -966,7 +962,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  4.50e-04   1.50e-04   9.91e-10   6.01e-04 100.0%
                           75.0%      25.0%       0.0%
-PASS: report_power with VCD
 --- report_power -digits 5 ---
 Group                   Internal   Switching     Leakage       Total
                            Power       Power       Power       Power (Watts)
@@ -979,7 +974,6 @@ Pad                  0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00   0.0%
 --------------------------------------------------------------------
 Total                4.50451e-04 1.50352e-04 9.90521e-10 6.00804e-04 100.0%
                            75.0%       25.0%        0.0%
-PASS: report_power -digits 5
 --- report_power -format json ---
 {
   "Sequential": {
@@ -1019,7 +1013,6 @@ PASS: report_power -digits 5
     "total": 6.01e-04
   }
 }
-PASS: report_power json with VCD
 --- highest_power_instances ---
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
@@ -1029,7 +1022,6 @@ PASS: report_power json with VCD
    9.51e-06   1.09e-05   4.60e-12   2.04e-05 clkbuf_2_1__f_clk
    9.46e-06   9.73e-06   4.60e-12   1.92e-05 clkbuf_2_3__f_clk
    1.17e-05   5.01e-06   8.46e-12   1.68e-05 _430_
-PASS: report_power -highest_power_instances 5
 [
 {
   "name": "clkbuf_2_2__f_clk",
@@ -1055,7 +1047,6 @@ PASS: report_power -highest_power_instances 5
   "total": 2.04e-05
 }
 ]
-PASS: report_power -highest_power_instances json
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
@@ -1069,7 +1060,6 @@ PASS: report_power -highest_power_instances json
  9.0156e-06 2.4862e-06 8.6267e-12 1.1502e-05 _413_
  1.0169e-05 1.0497e-06 8.3267e-12 1.1218e-05 _434_
  9.8284e-06 1.1731e-06 8.4484e-12 1.1002e-05 _432_
-PASS: report_power -highest_power_instances -digits 4
 --- instance power with VCD ---
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
@@ -1311,5 +1301,3 @@ PASS: report_power -highest_power_instances -digits 4
    1.73e-08   0.00e+00   7.79e-14   1.73e-08 _320_
    1.73e-08   0.00e+00   7.79e-14   1.73e-08 _323_
    1.73e-08   0.00e+00   7.79e-14   1.73e-08 _346_
-PASS: report_power -instances with VCD
-ALL PASSED

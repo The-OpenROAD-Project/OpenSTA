@@ -31,7 +31,6 @@ set_input_transition 0.1 [all_inputs]
 
 # Force timing graph construction
 report_checks
-puts "PASS: initial timing"
 
 #---------------------------------------------------------------
 # Test pin direction queries: isDriver, isLoad, isRegClkPin
@@ -64,7 +63,6 @@ foreach pin_path {buf_in/A buf_in/Z inv1/A inv1/ZN buf_out1/A buf_out1/Z buf_out
   set dir [get_property $pin direction]
   puts "pin $pin_path: dir=$dir"
 }
-puts "PASS: pin direction queries"
 
 #---------------------------------------------------------------
 # Test hierarchical instance/pin queries
@@ -90,8 +88,6 @@ puts "sub* hierarchical cells: [llength $sub_cells]"
 # Find instances matching pattern
 set buf_cells [get_cells -hierarchical buf*]
 puts "buf* hierarchical cells: [llength $buf_cells]"
-
-puts "PASS: hierarchical queries"
 
 #---------------------------------------------------------------
 # Test get_fanin and get_fanout with various options
@@ -181,17 +177,14 @@ puts "fanout flat from in2: [llength $fo_in2]"
 set fo_in3 [get_fanout -from [get_ports in3] -flat]
 puts "fanout flat from in3: [llength $fo_in3]"
 
-puts "PASS: fanin/fanout variants"
-
 #---------------------------------------------------------------
 # Test report_net for all internal nets
 #---------------------------------------------------------------
 puts "--- report_net all ---"
 foreach net_name {w1 w2 w3 w4 w5} {
-  catch {report_net $net_name} msg
+  report_net $net_name
   puts "report_net $net_name: done"
 }
-puts "PASS: report_net"
 
 #---------------------------------------------------------------
 # Test report_instance for all instances including hierarchical
@@ -200,7 +193,6 @@ puts "--- report_instance all ---"
 foreach inst_name {buf_in sub1 sub2 inv1 reg1 buf_out1 buf_out2} {
   report_instance $inst_name
 }
-puts "PASS: report_instance"
 
 #---------------------------------------------------------------
 # Test all_registers variants (exercises isRegClkPin paths)
@@ -218,8 +210,6 @@ puts "register clock_pins: [llength $reg_clk]"
 set reg_out [all_registers -output_pins]
 puts "register output_pins: [llength $reg_out]"
 
-puts "PASS: all_registers"
-
 #---------------------------------------------------------------
 # Test get_ports with direction filter
 # Exercises hasDirection paths
@@ -230,8 +220,6 @@ puts "input ports: [llength $in_ports]"
 
 set out_ports [get_ports -filter "direction == output"]
 puts "output ports: [llength $out_ports]"
-
-puts "PASS: port direction filters"
 
 #---------------------------------------------------------------
 # Test get_cells with ref_name filter
@@ -246,8 +234,6 @@ puts "DFF_X1: [llength $dff_cells]"
 set inv_cells [get_cells -filter "ref_name == INV_X1" *]
 puts "INV_X1: [llength $inv_cells]"
 
-puts "PASS: cell ref_name filters"
-
 #---------------------------------------------------------------
 # Instance count and pin count queries
 #---------------------------------------------------------------
@@ -255,6 +241,3 @@ puts "--- instance/pin/net count queries ---"
 puts "top level cells: [llength [get_cells *]]"
 puts "top level nets: [llength [get_nets *]]"
 puts "top level pins: [llength [get_pins */*]]"
-puts "PASS: count queries"
-
-puts "ALL PASSED"

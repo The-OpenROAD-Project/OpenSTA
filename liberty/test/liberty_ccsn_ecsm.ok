@@ -1,5 +1,3 @@
-PASS: read ASAP7 CCSN library
-PASS: CCSN lib cells total: 1
 Cell A2O1A1Ixp33_ASAP7_75t_L
 Library asap7sc7p5t_AO_LVT_FF_ccsn_211120
 File ../../test/asap7_ccsn.lib.gz
@@ -10,9 +8,6 @@ File ../../test/asap7_ccsn.lib.gz
  A2 input 0.53-0.63
  B input 0.47-0.66
  C input 0.36-0.63
-PASS: reported all CCSN cells
-PASS: read ASAP7 SEQ RVT FF
-PASS: ASAP7 DFF* cells: 9
 Cell DFFHQNx1_ASAP7_75t_R
 Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
@@ -23,7 +18,6 @@ File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
  D input 0.55-0.62
  IQN internal
  IQNN internal
-PASS: ASAP7 DFF cell report
 Cell DFFHQNx2_ASAP7_75t_R
 Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
@@ -34,11 +28,8 @@ File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
  D input 0.55-0.62
  IQN internal
  IQNN internal
-PASS: ASAP7 DFF x2 cell report
 Warning: liberty_ccsn_ecsm.tcl line 1, liberty cell 'asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx1_ASAP7_75t_R' not found.
-PASS: ASAP7 SDFF cell report
 Warning: liberty_ccsn_ecsm.tcl line 1, liberty cell 'asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx2_ASAP7_75t_R' not found.
-PASS: ASAP7 SDFF x2 cell report
 Cell ICGx1_ASAP7_75t_R
 Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
@@ -49,7 +40,6 @@ File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
  CLK input 1.63-2.39
  ENA input 0.33-0.47
  SE input 0.39-0.47
-PASS: ASAP7 ICG cell report
 Cell ICGx2_ASAP7_75t_R
 Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
@@ -60,10 +50,6 @@ File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
  CLK input 1.63-2.39
  ENA input 0.33-0.47
  SE input 0.39-0.47
-PASS: ASAP7 ICG x2 cell report
-PASS: ASAP7 ASYNC cells: 0
-PASS: ASAP7 DFFR cells reported
-PASS: read ASAP7 SEQ SS
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
@@ -74,21 +60,12 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1337
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-PASS: read ASAP7 SIMPLE
-PASS: ASAP7 SIMPLE cells: 56
-PASS: read ASAP7 AO
-PASS: ASAP7 AO* cells: 40
-PASS: read ASAP7 OA
-PASS: ASAP7 OA* cells: 32
-PASS: read ASAP7 INVBUF
-PASS: read IHP sg13g2
 Cell sg13g2_ebufn_2
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  Z tristate enable=!TE_B function=A 4.51-7.42
  A input 2.58-2.66
  TE_B input 6.21-6.60
-PASS: IHP tristate buffer report
 Cell sg13g2_sdfbbp_1
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
@@ -102,7 +79,6 @@ File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  SET_B input 5.25
  IQ internal
  IQN internal
-PASS: IHP scan DFF report
 Cell sg13g2_dlhq_1
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
@@ -111,7 +87,6 @@ File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  GATE input 1.69-2.58
  IQ internal
  IQN internal
-PASS: IHP latch report
 Cell sg13g2_mux2_1
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
@@ -119,20 +94,5 @@ File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  A0 input 0.38-3.63
  A1 input 0.52-3.70
  S input 5.00-5.09
-PASS: IHP mux report
-PASS: read IHP 1.5V
-PASS: read latch3 library
-PASS: read backslash_eol library
-PASS: read float_as_str library
 Warning: ../../test/liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
-PASS: read arcs_one2one_1 library
 Warning: ../../test/liberty_arcs_one2one_2.lib line 48, timing port A and related port Y are different sizes.
-PASS: read arcs_one2one_2 library
-PASS: read gf180mcu SRAM library
-PASS: read ASAP7 SEQ LVT
-PASS: read ASAP7 SEQ SLVT
-PASS: read ASAP7 INVBUF LVT
-PASS: read ASAP7 INVBUF SLVT
-PASS: write_liberty ASAP7 SEQ
-PASS: write_liberty IHP
-ALL PASSED

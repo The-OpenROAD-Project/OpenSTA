@@ -15,22 +15,17 @@ source ../../test/helpers.tcl
 # Read Sky130HD all corners
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read sky130hd tt"
 
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
-puts "PASS: read sky130hd ff"
 
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
-puts "PASS: read sky130hd ss"
 
 ############################################################
 # Read Sky130HS
 ############################################################
 read_liberty ../../test/sky130hs/sky130hs_tt.lib
-puts "PASS: read sky130hs tt"
 
 read_liberty ../../test/sky130hs/sky130_fd_sc_hs__tt_025C_1v80.lib
-puts "PASS: read sky130hs full"
 
 ############################################################
 # Comprehensive cell reports across PDKs
@@ -69,7 +64,6 @@ foreach cell_name $sky130_cells_to_report {
     report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name
   }
 }
-puts "PASS: sky130hd comprehensive cell reports"
 
 ############################################################
 # Cell property queries on Sky130
@@ -86,7 +80,6 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
     puts "$cell_name: area=$area dont_use=$du leakage=$lp"
   }
 }
-puts "PASS: sky130 cell properties"
 
 ############################################################
 # Pin capacitance queries on Sky130
@@ -114,65 +107,46 @@ foreach {cell_name pin_name} {
     puts "$cell_name/$pin_name: cap=$cap dir=$dir"
   }
 }
-puts "PASS: sky130 pin capacitances"
 
 ############################################################
 # Write all libraries to exercise all writer paths
 ############################################################
 set outfile1 [make_result_file liberty_sky130_hd_tt.lib]
 sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile1
-puts "PASS: write sky130hd tt"
 
 catch {
   set outfile2 [make_result_file liberty_sky130_hs_tt.lib]
   sta::write_liberty sky130_fd_sc_hs__tt_025C_1v80 $outfile2
-  puts "PASS: write sky130hs tt"
 }
 
 ############################################################
 # Read ASAP7 with various Vt combos to stress LibertyReader
 ############################################################
 read_liberty ../../test/asap7/asap7sc7p5t_AO_LVT_FF_nldm_211120.lib.gz
-puts "PASS: read ASAP7 AO LVT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_AO_SLVT_FF_nldm_211120.lib.gz
-puts "PASS: read ASAP7 AO SLVT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_OA_LVT_FF_nldm_211120.lib.gz
-puts "PASS: read ASAP7 OA LVT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_OA_SLVT_FF_nldm_211120.lib.gz
-puts "PASS: read ASAP7 OA SLVT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz
-puts "PASS: read ASAP7 SIMPLE LVT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz
-puts "PASS: read ASAP7 SIMPLE SLVT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_LVT_TT_nldm_220122.lib.gz
-puts "PASS: read ASAP7 INVBUF LVT TT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_SLVT_TT_nldm_220122.lib.gz
-puts "PASS: read ASAP7 INVBUF SLVT TT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_RVT_TT_nldm_220122.lib.gz
-puts "PASS: read ASAP7 INVBUF RVT TT"
 
 read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_RVT_SS_nldm_220122.lib.gz
-puts "PASS: read ASAP7 INVBUF RVT SS"
 
 read_liberty ../../test/asap7/asap7sc7p5t_AO_RVT_SS_nldm_211120.lib.gz
-puts "PASS: read ASAP7 AO RVT SS"
 
 read_liberty ../../test/asap7/asap7sc7p5t_OA_RVT_SS_nldm_211120.lib.gz
-puts "PASS: read ASAP7 OA RVT SS"
 
 read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz
-puts "PASS: read ASAP7 SIMPLE RVT SS"
 
 # SRAM macro
 read_liberty ../../test/asap7/fakeram7_256x32.lib
-puts "PASS: read ASAP7 SRAM macro"
-
-puts "ALL PASSED"

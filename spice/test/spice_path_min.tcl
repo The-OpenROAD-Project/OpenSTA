@@ -17,26 +17,19 @@ set_input_transition 0.1 [get_ports {in1 in2}]
 
 puts "--- report_checks baseline ---"
 report_checks
-puts "PASS: timing analysis completed"
 
 report_checks -path_delay min
-puts "PASS: min path analysis"
 
 report_checks -path_delay max
-puts "PASS: max path analysis"
 
 # Multiple paths
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1"
 
 report_checks -from [get_ports in2] -to [get_ports out1]
-puts "PASS: in2->out1"
 
 report_checks -from [get_ports in1] -to [get_ports out2]
-puts "PASS: in1->out2"
 
 report_checks -from [get_ports in2] -to [get_ports out2]
-puts "PASS: in2->out2"
 
 # Create mock SPICE files with more cell types
 set spice_dir [make_result_file spice_path_min]
@@ -77,7 +70,6 @@ puts $subckt_fh "M1 Q D VDD VDD pmos W=1u L=100n"
 puts $subckt_fh "M2 Q D VSS VSS nmos W=1u L=100n"
 puts $subckt_fh ".ends"
 close $subckt_fh
-puts "PASS: mock SPICE files created"
 
 #---------------------------------------------------------------
 # write_path_spice - min path
@@ -95,10 +87,8 @@ set rc1 [catch {
     -ground VSS
 } msg1]
 if { $rc1 == 0 } {
-  puts "PASS: write_path_spice min completed"
 } else {
   puts "INFO: write_path_spice min: $msg1"
-  puts "PASS: write_path_spice min code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -117,10 +107,8 @@ set rc2 [catch {
     -ground VSS
 } msg2]
 if { $rc2 == 0 } {
-  puts "PASS: write_path_spice max completed"
 } else {
   puts "INFO: write_path_spice max: $msg2"
-  puts "PASS: write_path_spice max code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -140,10 +128,8 @@ set rc3 [catch {
     -simulator hspice
 } msg3]
 if { $rc3 == 0 } {
-  puts "PASS: write_path_spice hspice completed"
 } else {
   puts "INFO: write_path_spice hspice: $msg3"
-  puts "PASS: write_path_spice hspice code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -163,10 +149,8 @@ set rc4 [catch {
     -simulator xyce
 } msg4]
 if { $rc4 == 0 } {
-  puts "PASS: write_path_spice xyce completed"
 } else {
   puts "INFO: write_path_spice xyce: $msg4"
-  puts "PASS: write_path_spice xyce code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -185,10 +169,6 @@ set rc5 [catch {
     -ground VSS
 } msg5]
 if { $rc5 == 0 } {
-  puts "PASS: write_path_spice specific path completed"
 } else {
   puts "INFO: write_path_spice specific: $msg5"
-  puts "PASS: write_path_spice specific code path exercised"
 }
-
-puts "ALL PASSED"

@@ -92,4 +92,3 @@ by name clock: clk
 by name lib_cell: DFF_X1
 by name lib_pin: D
 by name library: NangateOpenCellLibrary
-ALL PASSED

@@ -1,23 +1,16 @@
-PASS: read Nangate45
-PASS: link hierarchical design
 --- hierarchical instance queries ---
 top-level cells: 7
 sub1/* cells: 2
 sub2/* cells: 2
-PASS: hierarchical instance queries
 --- hierarchical net queries ---
 top-level nets: 11
 sub1/* nets: 4
 sub2/* nets: 4
-PASS: hierarchical net queries
 --- hierarchical pin queries ---
 sub1/* pins: 3
 sub2/* pins: 3
 sub1/and_gate/* pins: 3
-PASS: hierarchical pin queries
-PASS: timing setup
 No paths found.
-PASS: in1->out1 through hierarchy
 Startpoint: in2 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -49,14 +42,10 @@ Path Type: max
            4.84   slack (MET)
 
 
-PASS: in2->out2 through hierarchy
-No paths found.
-PASS: in3->out1 through hierarchy
 No paths found.
 No paths found.
-PASS: rise/fall through hierarchy
+No paths found.
 --- net merge operations ---
-PASS: created instances and nets
 Net merge_net_src
  Pin capacitance: 1.59-1.78
  Wire capacitance: 0.00
@@ -82,9 +71,6 @@ Net merge_net_dst
 Load pins
  merge_test_c/A input (INV_X1) 1.55-1.70
 
-PASS: report nets before merge
-PASS: reconnect across nets
-PASS: replace cells
 Net merge_net_src
  Pin capacitance: 0.00
  Wire capacitance: 0.00
@@ -108,11 +94,7 @@ Load pins
  merge_test_b/A input (BUF_X8) 5.81-6.59
  merge_test_c/A input (INV_X2) 2.94-3.25
 
-PASS: report nets after replace
-PASS: cleanup merge test
 --- chain creation ---
-PASS: chain creation
-PASS: chain cell replacement
 Net chain_net_1
  Pin capacitance: 1.55-1.70
  Wire capacitance: 0.00
@@ -169,7 +151,6 @@ Driver pins
 Load pins
  chain_inst_4/A input (INV_X1) 1.55-1.70
 
-PASS: chain net reports
 Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_0/ZN not found.
 Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_1/Z not found.
 Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_2/ZN not found.
@@ -260,7 +241,6 @@ Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_6/ZN not found.
 Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_7/Z not found.
 Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_8/ZN not found.
 Warning: network_merge_bus_hier.tcl line 1, pin chain_inst_9/ZN not found.
-PASS: chain cleanup
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -293,5 +273,3 @@ Path Type: max
            4.82   slack (MET)
 
 
-PASS: final timing
-ALL PASSED

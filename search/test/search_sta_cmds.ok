@@ -7,15 +7,12 @@
  (clk ^) r 1.04:1.05 f 1.05:1.05
  (clk ^) r 1.00:1.00 f 1.00:1.00
  (clk ^) r 0.10:0.10 f 0.10:0.10
-PASS: report_arrival
 --- report_required on various pins ---
  (clk ^) r 0.00:9.97 f 0.00:9.96
  (clk ^) r -2.00:8.00 f -2.00:8.00
-PASS: report_required
 --- report_slack on various pins ---
  (clk ^) r 1.04:8.92 f 1.04:8.91
  (clk ^) r 2.10:7.90 f 2.10:7.90
-PASS: report_slack
 --- worst_slack and TNS for each corner ---
 Worst slack max: 7.899713995438537
 Worst slack min: 1.0391781063125174
@@ -23,16 +20,13 @@ TNS max: 0.0
 TNS min: 0.0
 WNS max: 0.0
 WNS min: 0.0
-PASS: worst slack and TNS
 --- report_checks with set_max_delay path ---
 No paths found.
 No paths found.
 No paths found.
-PASS: set_max_delay path
 --- report_checks with set_min_delay path ---
 No paths found.
 No paths found.
-PASS: set_min_delay path
 --- report_checks with set_false_path ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -61,7 +55,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: set_false_path
 --- report_checks with multicycle path ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -121,10 +114,8 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: multicycle path
 --- report_disabled_edges ---
 buf1 A Z constraint
-PASS: report_disabled_edges
 --- report_constant ---
 in2 1 case=1
 VDD X
@@ -133,7 +124,6 @@ A1 X
 A2 1
 ZN X
 A2 1
-PASS: report_constant
 --- set_clock_uncertainty setup/hold ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -193,7 +183,6 @@ Path Type: min
            0.94   slack (MET)
 
 
-PASS: clock_uncertainty setup/hold
 --- set_clock_latency ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -251,7 +240,6 @@ Path Type: min
            0.89   slack (MET)
 
 
-PASS: clock_latency
 --- timing derate ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -309,7 +297,6 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: timing derate
 --- report_checks -format json ---
 {"checks": [
 {
@@ -389,7 +376,6 @@ PASS: timing derate
 }
 ]
 }
-PASS: json format
 --- report_checks -format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
@@ -399,7 +385,6 @@ Startpoint                           Endpoint                               Slac
 --------------------------------------------------------------------------------
 in1 (input)                          reg1/D (DFF_X1)                         1.04
 
-PASS: summary format
 --- report_checks -format slack_only ---
 Group                                  Slack
 --------------------------------------------
@@ -409,7 +394,6 @@ Group                                  Slack
 --------------------------------------------
 clk                                     1.04
 
-PASS: slack_only format
 --- report_checks -format end ---
 max_delay/setup group clk
 
@@ -439,7 +423,6 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 out1 (output)                           8.00    0.10    7.90 (MET)
 
-PASS: end format
 --- report_checks -format short ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -453,16 +436,13 @@ Path Group: clk
 Path Type: min
 
 
-PASS: short format
 --- pin_sim_logic_value ---
 sim logic value: X
-PASS: pin_sim_logic_value
 --- worst_clk_skew ---
 Worst clk skew setup: 0.0
 Worst clk skew hold: 0.0
 Worst clk skew setup (int): 0.0
 Worst clk skew hold (int): 0.0
-PASS: worst_clk_skew
 --- report_clock_skew with include_internal_latency ---
 Clock clk
 No launch/capture paths found.
@@ -470,7 +450,6 @@ No launch/capture paths found.
 Clock clk
 No launch/capture paths found.
 
-PASS: clock_skew internal_latency
 --- report_clock_latency with include_internal_latency ---
 Clock clk
 rise -> rise
@@ -492,5 +471,3 @@ fall -> fall
            0.00 skew
 
 
-PASS: clock_latency internal_latency
-ALL PASSED

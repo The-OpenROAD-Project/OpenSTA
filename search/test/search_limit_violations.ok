@@ -8,7 +8,6 @@ slew        0.01
 ----------------
 Slack      -0.01 (VIOLATED)
 
-PASS: tight slew limit verbose
 --- report_check_types -max_slew only ---
 max slew
 
@@ -16,7 +15,6 @@ Pin                                    Limit    Slew   Slack
 ------------------------------------------------------------
 reg1/QN                                 0.00    0.01   -0.01 (VIOLATED)
 
-PASS: slew limit short
 --- report_check_types -max_slew -violators ---
 max slew
 
@@ -56,7 +54,6 @@ inv1/ZN                                 0.00    0.00   -0.00 (VIOLATED)
 out1                                    0.00    0.00   -0.00 (VIOLATED)
 buf6/Z                                  0.00    0.00   -0.00 (VIOLATED)
 
-PASS: slew violators
 --- set_max_transition on clock ---
 max slew
 
@@ -66,7 +63,6 @@ slew        0.01
 ----------------
 Slack      -0.01 (VIOLATED)
 
-PASS: clock slew limit
 --- set_max_transition on port ---
 max slew
 
@@ -76,7 +72,6 @@ slew        0.01
 ----------------
 Slack      -0.01 (VIOLATED)
 
-PASS: port slew limit
 === CAPACITANCE LIMIT CHECKS ===
 --- set_max_capacitance tight limit ---
 max capacitance
@@ -87,7 +82,6 @@ capacitance        2.92
 -----------------------
 Slack             -2.92 (VIOLATED)
 
-PASS: tight cap limit verbose
 --- report_check_types -max_capacitance only ---
 max capacitance
 
@@ -95,7 +89,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 inv2/ZN                                 0.00    2.92   -2.92 (VIOLATED)
 
-PASS: cap limit short
 --- report_check_types -max_capacitance -violators ---
 max capacitance
 
@@ -117,7 +110,6 @@ in4                                     0.00    0.94   -0.94 (VIOLATED)
 in1                                     0.00    0.92   -0.92 (VIOLATED)
 and1/ZN                                 0.00    0.92   -0.92 (VIOLATED)
 
-PASS: cap violators
 --- set_max_capacitance on port ---
 max capacitance
 
@@ -127,7 +119,6 @@ capacitance        2.92
 -----------------------
 Slack             -2.92 (VIOLATED)
 
-PASS: port cap limit
 === FANOUT LIMIT CHECKS ===
 --- set_max_fanout tight limit ---
 max fanout
@@ -138,7 +129,6 @@ fanout          3
 -----------------
 Slack          -2 (VIOLATED)
 
-PASS: tight fanout limit verbose
 --- report_check_types -max_fanout only ---
 max fanout
 
@@ -146,7 +136,6 @@ Pin                                   Limit Fanout  Slack
 ---------------------------------------------------------
 inv2/ZN                                   1      3     -2 (VIOLATED)
 
-PASS: fanout limit short
 --- report_check_types -max_fanout -violators ---
 max fanout
 
@@ -154,7 +143,6 @@ Pin                                   Limit Fanout  Slack
 ---------------------------------------------------------
 inv2/ZN                                   1      3     -2 (VIOLATED)
 
-PASS: fanout violators
 --- set_max_fanout on port ---
 max fanout
 
@@ -164,7 +152,6 @@ fanout          3
 -----------------
 Slack          -2 (VIOLATED)
 
-PASS: port fanout limit
 === PULSE WIDTH CHECKS ===
 --- report_pulse_width_checks ---
                                      Required  Actual
@@ -177,7 +164,6 @@ reg1/CK (low)                           0.05    5.00    4.95 (MET)
 reg2/CK (low)                           0.05    5.00    4.95 (MET)
 reg3/CK (low)                           0.05    5.00    4.95 (MET)
 
-PASS: pulse_width default
 --- report_pulse_width_checks -verbose ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -306,7 +292,6 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: pulse_width verbose
 --- report_pulse_width_checks on specific pin ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -320,7 +305,6 @@ Pin                                    Width   Width   Slack
 reg2/CK (high)                          0.05    5.00    4.95 (MET)
 reg2/CK (low)                           0.05    5.00    4.95 (MET)
 
-PASS: pulse_width specific pins
 --- set_min_pulse_width ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -449,14 +433,12 @@ Check: sequential_clock_pulse_width
            0.00   slack (MET)
 
 
-PASS: min_pulse_width on clock
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          4.00    5.00    1.00 (MET)
 reg1/CK (low)                           0.05    5.00    4.95 (MET)
 
-PASS: min_pulse_width on pin
 Pin: reg2/CK
 Check: sequential_clock_pulse_width
 
@@ -584,7 +566,6 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: min_pulse_width on instance
 --- report_check_types -min_pulse_width ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
@@ -613,25 +594,18 @@ Check: sequential_clock_pulse_width
            0.00   slack (MET)
 
 
-PASS: check_types pulse_width
 === MIN PERIOD CHECKS ===
 --- report_clock_min_period ---
 clk period_min = 0.00 fmax = inf
-PASS: min_period
 --- report_clock_min_period -include_port_paths ---
 clk period_min = 2.10 fmax = 476.13
-PASS: min_period with port paths
 --- report_clock_min_period -clocks ---
 clk period_min = 0.00 fmax = inf
-PASS: min_period specific clock
 --- Tight clock period for min_period violations ---
-PASS: min_period violations
 --- report_clock_min_period with violation ---
 clk period_min = 0.00 fmax = inf
-PASS: clock_min_period with violation
 === MAX SKEW CHECKS ===
 --- report_check_types -max_skew ---
-PASS: max_skew
 === COMBINED CHECKS ===
 --- report_check_types -violators (all) ---
 Group                                  Slack
@@ -717,7 +691,6 @@ reg3/CK (low)                           5.00    0.01   -4.99 (VIOLATED)
 reg1/CK (high)                          4.00    0.01   -3.99 (VIOLATED)
 reg1/CK (low)                           0.05    0.01   -0.05 (VIOLATED)
 
-PASS: all violators
 --- report_check_types verbose (all) ---
 Startpoint: in3 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -826,5 +799,3 @@ Check: sequential_clock_pulse_width
           -4.99   slack (VIOLATED)
 
 
-PASS: all verbose
-ALL PASSED

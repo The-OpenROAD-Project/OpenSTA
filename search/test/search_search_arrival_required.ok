@@ -1,9 +1,7 @@
 --- find_requireds ---
-PASS: find_requireds
 --- endpoint_violation_count ---
 max violations: 0
 min violations: 0
-PASS: endpoint_violation_count
 --- report_tags ---
 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
 1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
@@ -22,14 +20,12 @@ PASS: endpoint_violation_count
 14 v min/0 clk ^ clk_src clk crpr_pin null
 15 v max/1 clk ^ clk_src clk crpr_pin null
 Longest hash bucket length 1 hash=15
-PASS: report_tags
 --- report_clk_infos ---
 min/0 clk ^ clk_src clk
 max/1 clk ^ clk_src clk
 min/0 clk v clk_src clk
 max/1 clk v clk_src clk
 4 clk infos
-PASS: report_clk_infos
 --- report_tag_groups ---
 Group    0 hash = 17966705655932391860 ( 134)
   0 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
@@ -50,20 +46,15 @@ Group    2 hash = 17969741592058791410 (  82)
   3 15 v max/1 clk ^ clk_src clk crpr_pin null
 
 Longest hash bucket length 1 hash=82
-PASS: report_tag_groups
 --- report_path_count_histogram ---
      4     15
-PASS: report_path_count_histogram
 --- report_arrival_entries ---
-PASS: report_arrival_entries
 --- report_required_entries ---
-PASS: report_required_entries
 --- counts ---
 tags: 16
 tag_groups: 3
 clk_infos: 4
 paths: 60
-PASS: counts
 --- vertex queries ---
 worst_slack_vertex pin: out1
 worst_slack_vertex level: 50
@@ -82,24 +73,19 @@ Vertex out1
  v min 0.099 / -2.000  clk ^ clk_src clk crpr_pin null prev buf2/Z v min/0 14 buf2/Z v -> out1 v
  ^ max 0.100 / 8.000  clk ^ clk_src clk crpr_pin null prev buf2/Z ^ max/1 13 buf2/Z ^ -> out1 ^
  v max 0.099 / 8.000  clk ^ clk_src clk crpr_pin null prev buf2/Z v max/1 15 buf2/Z v -> out1 v
-PASS: vertex queries
 --- worst_slack_vertex min ---
 worst_slack_vertex min pin: reg1/D
 worst_arrival_path min pin: reg1/D
 worst_slack_path min pin: reg1/D
 worst_slack_path min slack: 1.0391780769225534e-9
-PASS: vertex min queries
 --- Arrival invalidation via network edit ---
 Worst slack after BUF_X2: 7.899713772019368e-9
 Worst slack after BUF_X1: 7.899713772019368e-9
-PASS: arrival invalidation
 --- Delete instance timing invalidation ---
 Worst slack after delete: 7.899713772019368e-9
-PASS: delete timing invalidation
 --- Create violations ---
 max violations (tight): 0
 max violations (normal): 0
-PASS: violation count changes
 --- find_timing_paths sort_by_slack ---
 Sorted paths: 6
   slack: 7.899713772019368e-9 pin=out1
@@ -108,7 +94,6 @@ Sorted paths: 6
   slack: 8.915245430785035e-9 pin=reg1/D
   slack: 8.923905170377111e-9 pin=reg1/D
   slack: 8.925195693620935e-9 pin=reg1/D
-PASS: sort_by_slack
 --- report_checks slack filters ---
 No paths found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -165,7 +150,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: slack filters
 --- report_checks from/to/through ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -253,7 +237,6 @@ Path Type: max
 
 
 No paths found.
-PASS: from/to/through
 --- report_tns/wns ---
 tns max 0.00
 wns max 0.00
@@ -261,7 +244,4 @@ worst slack max 7.90
 worst slack min 1.04
 tns max 0.000000
 wns max 0.000000
-PASS: tns/wns
 --- levelize ---
-PASS: levelize
-ALL PASSED

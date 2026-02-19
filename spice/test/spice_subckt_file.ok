@@ -28,18 +28,10 @@ Path Type: max
            8.86   slack (MET)
 
 
-PASS: timing analysis completed
-PASS: subcircuit files created
 --- write_gate_spice multiple gates ---
 INFO: write_gate_spice multiple gates: invalid command name "write_gate_spice_cmd"
-PASS: code path exercised
 --- write_gate_spice AND gate ---
 INFO: write_gate_spice AND: invalid command name "write_gate_spice_cmd"
-PASS: AND gate code path exercised
 --- write_path_spice to out1 ---
-PASS: write_path_spice to out1 completed
 --- write_path_spice to out2 ---
-PASS: write_path_spice to out2 completed
 --- write_path_spice with ngspice ---
-PASS: write_path_spice ngspice completed
-ALL PASSED

@@ -21,7 +21,6 @@ read_sdc ../../examples/gcd_sky130hd.sdc
 
 puts "--- baseline timing ---"
 report_checks
-puts "PASS: baseline timing"
 
 # Create mock SPICE subckt and model files for sky130 cells
 set spice_dir [make_result_file spice_gcd_gate_out]
@@ -69,7 +68,6 @@ foreach cell_def {
   puts $sfh ""
 }
 close $sfh
-puts "PASS: mock SPICE files created"
 
 #---------------------------------------------------------------
 # write_gate_spice with different gate types and simulators
@@ -89,13 +87,11 @@ proc test_gate_spice {label gates filename subckt model sim} {
       -simulator $sim
   } msg]
   if { $rc == 0 } {
-    puts "PASS: write_gate_spice $label completed"
     if { [file exists $filename] } {
       puts "  file size: [file size $filename]"
     }
   } else {
     puts "INFO: write_gate_spice $label: $msg"
-    puts "PASS: write_gate_spice $label code path exercised"
   }
 }
 
@@ -137,10 +133,8 @@ set rc1 [catch {
     -simulator ngspice
 } msg1]
 if { $rc1 == 0 } {
-  puts "PASS: write_path_spice ngspice max"
 } else {
   puts "INFO: write_path_spice ngspice max: $msg1"
-  puts "PASS: write_path_spice ngspice max code path exercised"
 }
 
 # Min path with hspice
@@ -157,10 +151,8 @@ set rc2 [catch {
     -simulator hspice
 } msg2]
 if { $rc2 == 0 } {
-  puts "PASS: write_path_spice hspice min"
 } else {
   puts "INFO: write_path_spice hspice min: $msg2"
-  puts "PASS: write_path_spice hspice min code path exercised"
 }
 
 # Path with xyce
@@ -177,10 +169,6 @@ set rc3 [catch {
     -simulator xyce
 } msg3]
 if { $rc3 == 0 } {
-  puts "PASS: write_path_spice xyce"
 } else {
   puts "INFO: write_path_spice xyce: $msg3"
-  puts "PASS: write_path_spice xyce code path exercised"
 }
-
-puts "ALL PASSED"

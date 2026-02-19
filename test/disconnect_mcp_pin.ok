@@ -1,7 +1,7 @@
-Warning: disconnect_mcp_pin.tcl line 15, 'u0/A' is not a valid endpoint.
-Warning: disconnect_mcp_pin.tcl line 16, 'u1/A' is not a valid endpoint.
-Warning: disconnect_mcp_pin.tcl line 17, 'u0/A' is not a valid endpoint.
-Warning: disconnect_mcp_pin.tcl line 18, 'u1/A' is not a valid endpoint.
+Warning: /workspace/sta/OpenSTA/test/disconnect_mcp_pin.tcl line 1, 'u0/A' is not a valid endpoint.
+Warning: /workspace/sta/OpenSTA/test/disconnect_mcp_pin.tcl line 1, 'u1/A' is not a valid endpoint.
+Warning: /workspace/sta/OpenSTA/test/disconnect_mcp_pin.tcl line 1, 'u0/A' is not a valid endpoint.
+Warning: /workspace/sta/OpenSTA/test/disconnect_mcp_pin.tcl line 1, 'u1/A' is not a valid endpoint.
 Startpoint: data_in[1] (input port clocked by clk)
 Endpoint: u1 (falling edge-triggered data to data check clocked by clk)
 Path Group: clk

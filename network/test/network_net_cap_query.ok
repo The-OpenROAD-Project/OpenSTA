@@ -18,7 +18,6 @@ Driver pins
 Load pins
  inv1/A input (INV_X1) 1.55-1.70
 
-PASS: report_net n1
 Net n6
  Pin capacitance: 3.82-4.29
  Wire capacitance: 0.00
@@ -35,7 +34,6 @@ Load pins
  nand1/A1 input (NAND2_X1) 1.53-1.60
  nor1/A1 input (NOR2_X1) 1.41-1.71
 
-PASS: report_net n6
 Net n1
  Pin capacitance: 1.55-1.70
  Wire capacitance: 0.00
@@ -206,8 +204,6 @@ leaf instances list: 11
 library: NangateOpenCellLibrary
 library: verilog
 total libraries: 2
-PASS: find_library NangateOpenCellLibrary
-PASS: find_cell INV_X1
 BUF* cells in library: 6
 all cells in library: 134
 --- Test 9: timing reports ---
@@ -242,7 +238,6 @@ Path Type: max
            9.81   slack (MET)
 
 
-PASS: report_checks
 Startpoint: in4 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -271,7 +266,6 @@ Path Type: min
            0.01   slack (MET)
 
 
-PASS: min path
 Warning: network_net_cap_query.tcl line 1, unknown field nets.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -308,13 +302,11 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.81   slack (MET)
 
 
-PASS: report_checks all fields
 Group                                  Slack
 --------------------------------------------
 clk                                     0.01
 clk                                     9.81
 
-PASS: report_check_types
 max slew
 
 Pin                                    Limit    Slew   Slack
@@ -327,5 +319,3 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 nor1/ZN                                26.70    1.14   25.56 (MET)
 
-PASS: report_check_types slew/cap/fanout
-ALL PASSED

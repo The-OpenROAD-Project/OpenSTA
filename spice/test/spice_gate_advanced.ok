@@ -27,26 +27,15 @@ Path Type: max
            8.90   slack (MET)
 
 
-PASS: timing analysis completed
-PASS: mock SPICE files created
 --- write_gate_spice ngspice ---
 INFO: write_gate_spice ngspice: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice ngspice code path exercised
 --- write_gate_spice fall ---
 INFO: write_gate_spice fall: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice fall code path exercised
 --- write_gate_spice xyce ---
 INFO: write_gate_spice xyce: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice xyce code path exercised
 --- write_gate_spice hspice ---
 INFO: write_gate_spice hspice: invalid command name "write_gate_spice_cmd"
-PASS: write_gate_spice hspice code path exercised
 --- write_path_spice max slack ---
-PASS: write_path_spice max slack completed
 --- write_path_spice min path ---
-PASS: write_path_spice min completed
 --- write_path_spice hspice ---
-PASS: write_path_spice hspice completed
 --- write_path_spice xyce ---
-PASS: write_path_spice xyce completed
-ALL PASSED

@@ -33,42 +33,34 @@ report_checks -path_delay max > /dev/null
 puts "--- replaceCell equiv: BUF_X1 -> BUF_X2 ---"
 replace_cell buf1 NangateOpenCellLibrary/BUF_X2
 report_checks -path_delay max
-puts "PASS: replaceCell equiv BUF_X1->BUF_X2"
 
 puts "--- replaceCell equiv: BUF_X2 -> BUF_X4 ---"
 replace_cell buf1 NangateOpenCellLibrary/BUF_X4
 report_checks -path_delay max
-puts "PASS: replaceCell equiv BUF_X2->BUF_X4"
 
 puts "--- replaceCell equiv: BUF_X4 -> BUF_X8 ---"
 replace_cell buf1 NangateOpenCellLibrary/BUF_X8
 report_checks -path_delay max
-puts "PASS: replaceCell equiv BUF_X4->BUF_X8"
 
 puts "--- replaceCell back: BUF_X8 -> BUF_X1 ---"
 replace_cell buf1 NangateOpenCellLibrary/BUF_X1
 report_checks -path_delay max
-puts "PASS: replaceCell equiv BUF_X8->BUF_X1"
 
 puts "--- replaceCell equiv: AND2_X1 -> AND2_X2 ---"
 replace_cell and1 NangateOpenCellLibrary/AND2_X2
 report_checks -path_delay max
-puts "PASS: replaceCell equiv AND2_X1->AND2_X2"
 
 puts "--- replaceCell equiv: AND2_X2 -> AND2_X4 ---"
 replace_cell and1 NangateOpenCellLibrary/AND2_X4
 report_checks -path_delay max
-puts "PASS: replaceCell equiv AND2_X2->AND2_X4"
 
 puts "--- replaceCell back: AND2_X4 -> AND2_X1 ---"
 replace_cell and1 NangateOpenCellLibrary/AND2_X1
 report_checks -path_delay max
-puts "PASS: replaceCell equiv AND2_X4->AND2_X1"
 
 puts "--- replaceCell equiv buf2: BUF_X1 -> BUF_X2 ---"
 replace_cell buf2 NangateOpenCellLibrary/BUF_X2
 report_checks -path_delay max
-puts "PASS: replaceCell equiv buf2"
 
 ############################################################
 # replaceCell with propagated clock
@@ -81,7 +73,6 @@ report_checks -path_delay max
 replace_cell buf1 NangateOpenCellLibrary/BUF_X1
 report_checks -path_delay max
 unset_propagated_clock [get_clocks clk]
-puts "PASS: replaceCell with propagated clock"
 
 ############################################################
 # Port ext pin cap, wire cap, fanout
@@ -89,22 +80,18 @@ puts "PASS: replaceCell with propagated clock"
 puts "--- setPortExtPinCap ---"
 set_load -pin_load 0.05 [get_ports out1]
 report_checks -path_delay max
-puts "PASS: setPortExtPinCap"
 
 puts "--- setPortExtWireCap ---"
 set_load -wire_load 0.03 [get_ports out1]
 report_checks -path_delay max
-puts "PASS: setPortExtWireCap"
 
 puts "--- setPortExtFanout ---"
 set_port_fanout_number 4 [get_ports out1]
 report_checks -path_delay max
-puts "PASS: setPortExtFanout"
 
 puts "--- set_load with rise/fall ---"
 set_load -pin_load 0.04 [get_ports out1]
 report_checks -path_delay max
-puts "PASS: set_load rise/fall"
 
 ############################################################
 # connectedCap and report_net
@@ -113,54 +100,44 @@ puts "--- report_net ---"
 report_net n1
 report_net n2
 report_net n3
-puts "PASS: report_net"
 
 ############################################################
 # setNetWireCap
 ############################################################
 puts "--- setNetWireCap ---"
-catch {
-  set_load 0.01 [get_nets n1]
-  report_checks -path_delay max
-}
-puts "PASS: setNetWireCap"
+set_load 0.01 [get_nets n1]
+report_checks -path_delay max
 
 ############################################################
 # Network edits: complex sequence
 ############################################################
 puts "--- Network edit: make_instance + connect + replace ---"
-catch {
-  make_instance new_inv1 NangateOpenCellLibrary/INV_X1
-  make_net test_net1
-  connect_pin test_net1 new_inv1/A
-  report_checks -path_delay max
-  disconnect_pin test_net1 new_inv1/A
-  delete_net test_net1
-  delete_instance new_inv1
-}
-puts "PASS: complex network edit"
+make_instance new_inv1 NangateOpenCellLibrary/INV_X1
+make_net test_net1
+connect_pin test_net1 new_inv1/A
+report_checks -path_delay max
+disconnect_pin test_net1 new_inv1/A
+delete_net test_net1
+delete_instance new_inv1
 
 puts "--- Network edit: make multiple instances ---"
-catch {
-  make_instance extra_buf1 NangateOpenCellLibrary/BUF_X1
-  make_instance extra_buf2 NangateOpenCellLibrary/BUF_X2
-  make_instance extra_inv1 NangateOpenCellLibrary/INV_X1
-  make_net extra_net1
-  make_net extra_net2
-  connect_pin extra_net1 extra_buf1/A
-  connect_pin extra_net1 extra_buf2/A
-  connect_pin extra_net2 extra_inv1/A
-  report_checks -path_delay max
-  disconnect_pin extra_net1 extra_buf1/A
-  disconnect_pin extra_net1 extra_buf2/A
-  disconnect_pin extra_net2 extra_inv1/A
-  delete_net extra_net1
-  delete_net extra_net2
-  delete_instance extra_buf1
-  delete_instance extra_buf2
-  delete_instance extra_inv1
-}
-puts "PASS: multiple network edits"
+make_instance extra_buf1 NangateOpenCellLibrary/BUF_X1
+make_instance extra_buf2 NangateOpenCellLibrary/BUF_X2
+make_instance extra_inv1 NangateOpenCellLibrary/INV_X1
+make_net extra_net1
+make_net extra_net2
+connect_pin extra_net1 extra_buf1/A
+connect_pin extra_net1 extra_buf2/A
+connect_pin extra_net2 extra_inv1/A
+report_checks -path_delay max
+disconnect_pin extra_net1 extra_buf1/A
+disconnect_pin extra_net1 extra_buf2/A
+disconnect_pin extra_net2 extra_inv1/A
+delete_net extra_net1
+delete_net extra_net2
+delete_instance extra_buf1
+delete_instance extra_buf2
+delete_instance extra_inv1
 
 ############################################################
 # Incremental timing after replacing multiple cells
@@ -171,14 +148,12 @@ replace_cell buf2 NangateOpenCellLibrary/BUF_X4
 replace_cell and1 NangateOpenCellLibrary/AND2_X4
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: multiple replaceCell"
 
 # Replace back
 replace_cell buf1 NangateOpenCellLibrary/BUF_X1
 replace_cell buf2 NangateOpenCellLibrary/BUF_X1
 replace_cell and1 NangateOpenCellLibrary/AND2_X1
 report_checks -path_delay max
-puts "PASS: replaceCell restore"
 
 ############################################################
 # Report timing with fields after edits
@@ -186,6 +161,3 @@ puts "PASS: replaceCell restore"
 puts "--- report_checks with fields after edits ---"
 report_checks -path_delay max -fields {capacitance slew fanout}
 report_checks -path_delay min -fields {capacitance slew fanout}
-puts "PASS: report with fields after edits"
-
-puts "ALL PASSED"

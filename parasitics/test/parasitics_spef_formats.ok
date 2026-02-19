@@ -16,7 +16,6 @@ Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
 Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
 Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
-PASS: read coupling SPEF
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -46,7 +45,6 @@ Path Type: max
          314.41   slack (MET)
 
 
-PASS: report_checks
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -74,7 +72,6 @@ Path Type: min
          -13.41   slack (VIOLATED)
 
 
-PASS: min path
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -106,7 +103,6 @@ Path Type: max
          314.41   slack (MET)
 
 
-PASS: full_clock format
 --- Test 2: coupling factor variations ---
 Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
@@ -144,7 +140,6 @@ Path Type: max
          327.98   slack (MET)
 
 
-PASS: factor 0.0
 Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
 Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
@@ -181,7 +176,6 @@ Path Type: max
          324.64   slack (MET)
 
 
-PASS: factor 0.25
 Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
 Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
@@ -218,7 +212,6 @@ Path Type: max
          317.87   slack (MET)
 
 
-PASS: factor 0.75
 Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
 Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
@@ -255,7 +248,6 @@ Path Type: max
          314.41   slack (MET)
 
 
-PASS: factor 1.0
 --- Test 3: SPEF with -reduce ---
 Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
@@ -264,7 +256,6 @@ Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
 Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
 Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
-PASS: read_spef -reduce coupling
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -294,8 +285,6 @@ Path Type: max
          314.41   slack (MET)
 
 
-PASS: report after reduce
-PASS: read_spef -reduce normal
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -325,10 +314,8 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: report after reduce normal
 --- Test 4: GCD sky130 SPEF ---
 Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
-PASS: read GCD SPEF
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -370,7 +357,6 @@ Path Type: max
         -4930.21   slack (VIOLATED)
 
 
-PASS: GCD report_checks
 Startpoint: reset (input port clocked by clk)
 Endpoint: _413_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -399,7 +385,6 @@ Path Type: min
           94.69   slack (MET)
 
 
-PASS: GCD min path
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -441,7 +426,6 @@ Path Type: max
         -4930.21   slack (VIOLATED)
 
 
-PASS: GCD sort_by_slack
 --- Test 5: GCD delay calculators ---
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
@@ -484,7 +468,6 @@ Path Type: max
         -4917.21   slack (VIOLATED)
 
 
-PASS: GCD dmp_ceff_two_pole
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -526,7 +509,6 @@ Path Type: max
         -4948.27   slack (VIOLATED)
 
 
-PASS: GCD arnoldi
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -568,7 +550,6 @@ Path Type: max
         -4944.23   slack (VIOLATED)
 
 
-PASS: GCD lumped_cap
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -610,9 +591,7 @@ Path Type: max
         -4930.21   slack (VIOLATED)
 
 
-PASS: GCD back to default
 --- Test 6: GCD re-read with reduce ---
-PASS: GCD re-read reduce
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -654,17 +633,14 @@ Path Type: max
         -4930.21   slack (VIOLATED)
 
 
-PASS: GCD report after re-read
 --- Test 7: GCD annotation ---
 Found 0 unannotated drivers.
 Found 3 partially unannotated drivers.
-PASS: GCD annotation
 Found 0 unannotated drivers.
 Found 3 partially unannotated drivers.
  _206_/Y
  _210_/Y
  _418_/Q
-PASS: GCD annotation unannotated
 --- Test 8: GCD net reports ---
 Net clk
  Pin capacitance: 1.98-2.23
@@ -745,7 +721,6 @@ Load pins
  resp_val output port
 
 report_net resp_val: done
-PASS: GCD net reports
 --- Test 9: GCD annotated delay ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -2088,4 +2063,3 @@ Unannotated Arcs
  internal net       split1/X -> _341_/B 
  internal net       split1/X -> _342_/A1 
 annotated -report_unannotated: done
-ALL PASSED

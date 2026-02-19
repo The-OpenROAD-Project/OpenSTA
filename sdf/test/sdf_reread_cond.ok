@@ -1,5 +1,4 @@
 --- first read_sdf ---
-PASS: first read_sdf
 Startpoint: d (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -30,7 +29,6 @@ Path Type: max
            9.45   slack (MET)
 
 
-PASS: report_checks after first read
 --- report_annotated before re-read ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -46,7 +44,6 @@ Annotated Arcs
  delay              buf2/A -> buf2/Z 
  delay              reg1/CK -> reg1/QN 
  delay              reg1/CK -> reg1/Q 
-PASS: annotated delay before re-read
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -56,7 +53,6 @@ cell setup arcs                       1           1           0
 
 Annotated Arcs
  setup              reg1/CK -> reg1/D 
-PASS: annotated check before re-read
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -72,7 +68,6 @@ Unannotated Arcs
  primary input net  d -> buf1/A 
  primary input net  en -> and1/A2 
  primary output net reg1/Q -> q 
-PASS: unannotated delay before re-read
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -83,12 +78,8 @@ cell width arcs                       1           1           0
                                       3           3           0
 
 Unannotated Arcs
-PASS: unannotated check before re-read
 --- write_sdf before re-read ---
-PASS: write_sdf before re-read
-PASS: write_sdf include_typ before re-read
 --- re-read_sdf ---
-PASS: re-read_sdf
 Startpoint: d (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -119,7 +110,6 @@ Path Type: max
            9.45   slack (MET)
 
 
-PASS: report_checks after re-read
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -129,7 +119,6 @@ net arcs from primary inputs          3           0           3
 net arcs to primary outputs           1           0           1
 ----------------------------------------------------------------
                                      13           9           4
-PASS: annotated delay after re-read
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -138,10 +127,7 @@ cell hold arcs                        1           1           0
 cell width arcs                       1           1           0
 ----------------------------------------------------------------
                                       3           3           0
-PASS: annotated check after re-read
 --- write-read roundtrip ---
-PASS: write_sdf for roundtrip
-PASS: read back written SDF
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: q (output port clocked by clk)
 Path Group: clk
@@ -168,14 +154,12 @@ Path Type: max
            2.65   slack (MET)
 
 
-PASS: report_checks after roundtrip
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
 cell arcs                             6           6           0
 ----------------------------------------------------------------
                                       6           6           0
-PASS: annotated delay after roundtrip
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -183,9 +167,7 @@ cell setup arcs                       1           1           0
 cell hold arcs                        1           1           0
 ----------------------------------------------------------------
                                       2           2           0
-PASS: annotated check after roundtrip
 --- write with dot divider ---
-PASS: write_sdf with dot divider
 --- report_annotated_delay max_lines variations ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -196,7 +178,6 @@ net arcs from primary inputs          3           3           0
 net arcs to primary outputs           1           1           0
 ----------------------------------------------------------------
                                      13          13           0
-PASS: max_lines 1
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -206,7 +187,6 @@ net arcs from primary inputs          3           3           0
 net arcs to primary outputs           1           1           0
 ----------------------------------------------------------------
                                      13          13           0
-PASS: max_lines 5
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -216,7 +196,6 @@ net arcs from primary inputs          3           3           0
 net arcs to primary outputs           1           1           0
 ----------------------------------------------------------------
                                      13          13           0
-PASS: max_lines 10
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -226,7 +205,6 @@ net arcs from primary inputs          3           3           0
 net arcs to primary outputs           1           1           0
 ----------------------------------------------------------------
                                      13          13           0
-PASS: max_lines 100
 --- report_annotated_check max_lines variations ---
                                                           Not   
 Check type                        Total    Annotated   Annotated
@@ -236,7 +214,6 @@ cell hold arcs                        1           1           0
 cell width arcs                       1           1           0
 ----------------------------------------------------------------
                                       3           3           0
-PASS: check max_lines 1
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -245,10 +222,7 @@ cell hold arcs                        1           1           0
 cell width arcs                       1           1           0
 ----------------------------------------------------------------
                                       3           3           0
-PASS: check max_lines 5
 --- gzip write-read roundtrip ---
-PASS: write_sdf gzip
-PASS: read gzip SDF
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: q (output port clocked by clk)
 Path Group: clk
@@ -275,5 +249,3 @@ Path Type: max
            2.65   slack (MET)
 
 
-PASS: report_checks after gzip roundtrip
-ALL PASSED

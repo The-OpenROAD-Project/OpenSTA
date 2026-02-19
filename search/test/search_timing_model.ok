@@ -1,7 +1,3 @@
 --- write_timing_model ---
-PASS: write_timing_model default
 --- write_timing_model with cell_name ---
-PASS: write_timing_model with cell_name
 --- write_timing_model with library_name ---
-PASS: write_timing_model with library_name
-ALL PASSED

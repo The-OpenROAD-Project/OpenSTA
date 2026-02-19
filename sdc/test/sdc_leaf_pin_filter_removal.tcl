@@ -36,7 +36,6 @@ foreach n $nets {
     puts "  net $name: is_power=$is_pwr is_ground=$is_gnd"
   }
 }
-puts "PASS: net properties"
 
 ############################################################
 # Pin/port properties
@@ -51,7 +50,6 @@ foreach p $ports {
     puts "  port $name: direction=$dir is_clock=$is_clk"
   }
 }
-puts "PASS: port properties"
 
 ############################################################
 # Instance properties
@@ -66,7 +64,6 @@ foreach i $insts {
     puts "  inst $name: ref=$ref lib=$lib_name"
   }
 }
-puts "PASS: instance properties"
 
 ############################################################
 # Pin properties (timing arc set disabled)
@@ -80,7 +77,6 @@ foreach p [get_pins buf1/*] {
     puts "  pin $name: direction=$dir is_clock=$is_clk"
   }
 }
-puts "PASS: pin properties"
 
 ############################################################
 # Disable timing on arc and check property
@@ -88,12 +84,10 @@ puts "PASS: pin properties"
 puts "--- disable timing arc ---"
 set_disable_timing -from A1 -to ZN [get_cells and1]
 report_checks -through [get_pins and1/ZN]
-puts "PASS: disable arc"
 
 puts "--- re-enable timing arc ---"
 unset_disable_timing -from A1 -to ZN [get_cells and1]
 report_checks -through [get_pins and1/ZN]
-puts "PASS: re-enable arc"
 
 ############################################################
 # Constraint removal cascades: add many constraints then remove
@@ -106,37 +100,29 @@ set_min_delay -from [get_ports in2] -to [get_ports out1] 0.5
 set_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup 0.3
 set_clock_groups -asynchronous -name grp1 \
   -group {clk1} -group {clk2}
-puts "PASS: constraint setup"
 
 puts "--- write_sdc before removal ---"
 set sdc1 [make_result_file sdc_leaf_pin1.sdc]
 write_sdc -no_timestamp $sdc1
-puts "PASS: write before removal"
 
 puts "--- remove false_path ---"
 unset_path_exceptions -from [get_clocks clk1] -to [get_clocks clk2]
-puts "PASS: remove false path"
 
 puts "--- remove multicycle ---"
 unset_path_exceptions -setup -from [get_ports in1] -to [get_ports out1]
-puts "PASS: remove multicycle"
 
 puts "--- remove max/min delay ---"
 unset_path_exceptions -from [get_ports in2] -to [get_ports out1]
-puts "PASS: remove max/min delay"
 
 puts "--- remove clock_groups ---"
 unset_clock_groups -asynchronous -name grp1
-puts "PASS: remove clock_groups"
 
 puts "--- remove clock_uncertainty ---"
 unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup
-puts "PASS: remove clock_uncertainty"
 
 puts "--- write_sdc after removal ---"
 set sdc2 [make_result_file sdc_leaf_pin2.sdc]
 write_sdc -no_timestamp $sdc2
-puts "PASS: write after removal"
 
 ############################################################
 # Filter queries: get_* with -filter
@@ -145,19 +131,15 @@ puts "--- filter queries ---"
 
 set bufs [get_cells -filter "ref_name == BUF_X1"]
 puts "BUF_X1 cells: [llength $bufs]"
-puts "PASS: filter ref_name"
 
 set dffs [get_cells -filter "ref_name == DFF_X1"]
 puts "DFF_X1 cells: [llength $dffs]"
-puts "PASS: filter DFF"
 
 set in_ports [get_ports -filter "direction == input"]
 puts "input ports: [llength $in_ports]"
-puts "PASS: filter input ports"
 
 set out_ports [get_ports -filter "direction == output"]
 puts "output ports: [llength $out_ports]"
-puts "PASS: filter output ports"
 
 ############################################################
 # findLeafLoadPins / findLeafDriverPins via reporting
@@ -168,7 +150,6 @@ catch {
     report_net [get_full_name $n]
   }
 }
-puts "PASS: report_net"
 
 ############################################################
 # Delete clocks and re-create constraints
@@ -176,16 +157,11 @@ puts "PASS: report_net"
 puts "--- delete clocks and rebuild ---"
 delete_clock [get_clocks clk2]
 delete_clock [get_clocks clk1]
-puts "PASS: delete clocks"
 
 create_clock -name clk_new -period 8 [get_ports clk1]
 set_input_delay -clock clk_new 1.0 [get_ports in1]
 set_output_delay -clock clk_new 2.0 [get_ports out1]
 report_checks
-puts "PASS: rebuilt constraints"
 
 set sdc3 [make_result_file sdc_leaf_pin3.sdc]
 write_sdc -no_timestamp $sdc3
-puts "PASS: write after rebuild"
-
-puts "ALL PASSED"

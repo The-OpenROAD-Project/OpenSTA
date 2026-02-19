@@ -49,4 +49,3 @@ Output pins on clk: 4
 Edge-triggered data pins on clk: 1
 --- all_registers -clock clk -level_sensitive -data_pins ---
 Level-sensitive data pins on clk: 2
-ALL PASSED

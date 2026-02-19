@@ -1,30 +1,19 @@
 --- write_timing_model propagated clock ---
-PASS: write model clktree
 --- read back clktree model ---
 Warning: /workspace/sta/OpenSTA/search/test/results/model_clktree1.lib line 1, library clktree_lib already exists.
-PASS: read model clktree
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 --- write_timing_model with latency + uncertainty ---
-PASS: write model clktree with latency
 --- read back clktree2 model ---
 Warning: /workspace/sta/OpenSTA/search/test/results/model_clktree2.lib line 1, library clktree2_lib already exists.
-PASS: read model clktree2
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 --- write_timing_model latch with min/max ---
-PASS: write model latch
 --- read back latch model ---
 Warning: /workspace/sta/OpenSTA/search/test/results/model_clktree_latch.lib line 1, library search_latch already exists.
-PASS: read model latch
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 --- write_timing_model multicorner propagated ---
-PASS: write model multicorner propagated
 --- read back multicorner propagated model ---
 Warning: /workspace/sta/OpenSTA/search/test/results/model_clktree_mc.lib line 1, library mc_prop_lib already exists.
-PASS: read model multicorner propagated
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 --- write_timing_model with clock transition ---
-PASS: write model clock transition
 --- read back clock transition model ---
 Warning: /workspace/sta/OpenSTA/search/test/results/model_clk_transition.lib line 1, library ct_lib already exists.
-PASS: read model clock transition
-ALL PASSED

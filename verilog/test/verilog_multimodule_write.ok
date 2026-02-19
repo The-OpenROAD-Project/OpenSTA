@@ -1,25 +1,17 @@
 --- Test 1: Nangate examples ---
-PASS: link top (example1)
 cells: 5
-PASS: write default
-PASS: write -include_pwr_gnd
 Warning: verilog_multimodule_write.tcl line 1, The -sort flag is ignored.
-PASS: write -sort
 Warning: verilog_multimodule_write.tcl line 1, The -sort flag is ignored.
-PASS: write -include_pwr_gnd -sort
   /workspace/sta/OpenSTA/verilog/test/results/verilog_mm_default.v OK
   /workspace/sta/OpenSTA/verilog/test/results/verilog_mm_pwr.v OK
   /workspace/sta/OpenSTA/verilog/test/results/verilog_mm_sort.v OK
   /workspace/sta/OpenSTA/verilog/test/results/verilog_mm_pwr_sort.v OK
-PASS: output files
 --- Test 2: re-read default ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 re-read cells: 5
-PASS: re-read default
 --- Test 3: re-read pwr ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 re-read pwr cells: 5
-PASS: re-read pwr
 --- Test 4: timing after re-read ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -50,7 +42,6 @@ Path Type: max
            9.83   slack (MET)
 
 
-PASS: report_checks
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -78,7 +69,6 @@ Path Type: min
           -0.05   slack (VIOLATED)
 
 
-PASS: min path
 Warning: verilog_multimodule_write.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -111,14 +101,12 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.83   slack (MET)
 
 
-PASS: fields
 --- Test 5: queries ---
 r1 ref=DFF_X1
 r2 ref=DFF_X1
 r3 ref=DFF_X1
 u1 ref=BUF_X1
 u2 ref=AND2_X1
-PASS: instance queries
 Net r1q
  Pin capacitance: 0.87-0.92
  Wire capacitance: 0.00
@@ -175,7 +163,6 @@ Driver pins
 Load pins
  r3/D input (DFF_X1) 1.06-1.14
 
-PASS: net queries
 --- Test 6: sorted re-read ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 sorted cells: 5
@@ -208,7 +195,6 @@ Path Type: max
            9.83   slack (MET)
 
 
-PASS: sorted re-read timing
 --- Test 7: ASAP7 design ---
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
@@ -220,9 +206,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1337
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-PASS: link reg1_asap7
-PASS: write ASAP7
-PASS: write ASAP7 -include_pwr_gnd
 Warning: ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib line 35, library asap7sc7p5t_SEQ_RVT_FF_nldm_220123 already exists.
 Warning: ../../test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz line 34, library asap7sc7p5t_INVBUF_RVT_FF_nldm_211120 already exists.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 34, library asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120 already exists.
@@ -239,7 +222,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1483
 Warning: ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz line 34, library asap7sc7p5t_OA_RVT_FF_nldm_211120 already exists.
 Warning: ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz line 34, library asap7sc7p5t_AO_RVT_FF_nldm_211120 already exists.
 re-read ASAP7 cells: 5
-PASS: re-read ASAP7
 Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out (output port clocked by clk)
 Path Group: clk
@@ -266,5 +248,3 @@ Path Type: max
          498.96   slack (MET)
 
 
-PASS: ASAP7 timing
-ALL PASSED

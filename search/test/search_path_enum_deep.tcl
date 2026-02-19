@@ -33,12 +33,10 @@ puts "epc 5 paths: [llength $paths]"
 foreach pe $paths {
   puts "  [get_full_name [$pe pin]] slack=[$pe slack]"
 }
-puts "PASS: endpoint_path_count 5"
 
 puts "--- find_timing_paths endpoint_path_count 3 group_path_count 10 ---"
 set paths2 [find_timing_paths -path_delay max -endpoint_path_count 3 -group_path_count 10]
 puts "epc 3 gpc 10: [llength $paths2]"
-puts "PASS: epc 3 gpc 10"
 
 puts "--- find_timing_paths min endpoint_path_count 5 ---"
 set paths_min [find_timing_paths -path_delay min -endpoint_path_count 5 -group_path_count 20]
@@ -46,7 +44,6 @@ puts "min epc 5: [llength $paths_min]"
 foreach pe $paths_min {
   puts "  [get_full_name [$pe pin]] slack=[$pe slack]"
 }
-puts "PASS: min epc 5"
 
 ############################################################
 # Path enumeration with endpoint_path_count 1 (default)
@@ -54,7 +51,6 @@ puts "PASS: min epc 5"
 puts "--- find_timing_paths endpoint_path_count 1 ---"
 set paths3 [find_timing_paths -path_delay max -endpoint_path_count 1 -group_path_count 20]
 puts "epc 1: [llength $paths3]"
-puts "PASS: epc 1"
 
 ############################################################
 # Unique paths to endpoint with multiple paths
@@ -62,12 +58,10 @@ puts "PASS: epc 1"
 puts "--- -unique_paths_to_endpoint epc 3 ---"
 set paths_u [find_timing_paths -path_delay max -endpoint_path_count 3 -group_path_count 15 -unique_paths_to_endpoint]
 puts "unique epc 3: [llength $paths_u]"
-puts "PASS: unique epc"
 
 puts "--- -unique_edges_to_endpoint epc 3 ---"
 set paths_ue [find_timing_paths -path_delay max -endpoint_path_count 3 -group_path_count 15 -unique_edges_to_endpoint]
 puts "unique_edges epc 3: [llength $paths_ue]"
-puts "PASS: unique_edges epc"
 
 ############################################################
 # Sort by slack with multiple paths
@@ -83,49 +77,40 @@ foreach pe $paths_s {
   set prev_slack $s
 }
 puts "Sorted correctly: $ok"
-puts "PASS: sort_by_slack epc"
 
 ############################################################
 # Group paths + enumeration
 ############################################################
 group_path -name in_grp -from [get_ports {in1 in2}]
 group_path -name out_grp -to [get_ports {out1 out2 out3}]
-puts "PASS: group_path setup"
 
 puts "--- find_timing_paths grouped epc 5 ---"
 set paths_g [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 15]
 puts "grouped epc 5: [llength $paths_g]"
-puts "PASS: grouped epc"
 
 ############################################################
 # report_checks with endpoint_path_count (text output)
 ############################################################
 puts "--- report_checks epc 3 -fields ---"
 report_checks -path_delay max -endpoint_path_count 3 -fields {slew cap input_pins nets fanout}
-puts "PASS: report epc fields"
 
 puts "--- report_checks epc 3 -format end ---"
 report_checks -path_delay max -endpoint_path_count 3 -format end
-puts "PASS: report epc end"
 
 puts "--- report_checks epc 3 -format summary ---"
 report_checks -path_delay max -endpoint_path_count 3 -format summary
-puts "PASS: report epc summary"
 
 puts "--- report_checks min epc 3 ---"
 report_checks -path_delay min -endpoint_path_count 3 -fields {slew cap}
-puts "PASS: min epc report"
 
 ############################################################
 # report_checks with -from/-to + endpoint_path_count
 ############################################################
 puts "--- report_checks epc 3 -from -to ---"
 report_checks -path_delay max -endpoint_path_count 3 -from [get_ports in1] -to [get_pins reg1/D]
-puts "PASS: epc from/to"
 
 puts "--- report_checks epc 3 -through ---"
 report_checks -path_delay max -endpoint_path_count 3 -through [get_pins and1/ZN]
-puts "PASS: epc through"
 
 ############################################################
 # Path delay variants: max_rise, max_fall, min_rise, min_fall
@@ -133,27 +118,22 @@ puts "PASS: epc through"
 puts "--- find_timing_paths -path_delay max_rise ---"
 set pr [find_timing_paths -path_delay max_rise -endpoint_path_count 3]
 puts "max_rise paths: [llength $pr]"
-puts "PASS: max_rise"
 
 puts "--- find_timing_paths -path_delay max_fall ---"
 set pf [find_timing_paths -path_delay max_fall -endpoint_path_count 3]
 puts "max_fall paths: [llength $pf]"
-puts "PASS: max_fall"
 
 puts "--- find_timing_paths -path_delay min_rise ---"
 set pmr [find_timing_paths -path_delay min_rise -endpoint_path_count 3]
 puts "min_rise paths: [llength $pmr]"
-puts "PASS: min_rise"
 
 puts "--- find_timing_paths -path_delay min_fall ---"
 set pmf [find_timing_paths -path_delay min_fall -endpoint_path_count 3]
 puts "min_fall paths: [llength $pmf]"
-puts "PASS: min_fall"
 
 puts "--- find_timing_paths -path_delay min_max ---"
 set pmm [find_timing_paths -path_delay min_max -endpoint_path_count 3]
 puts "min_max paths: [llength $pmm]"
-puts "PASS: min_max"
 
 ############################################################
 # Large endpoint_path_count to exercise limits
@@ -161,7 +141,6 @@ puts "PASS: min_max"
 puts "--- find_timing_paths epc 10 gpc 50 ---"
 set paths_big [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 50]
 puts "big epc: [llength $paths_big]"
-puts "PASS: big epc"
 
 ############################################################
 # Slack filtering
@@ -171,11 +150,7 @@ set ps1 [find_timing_paths -path_delay max -slack_max 0.0]
 puts "slack <= 0: [llength $ps1]"
 set ps2 [find_timing_paths -path_delay max -slack_max 100.0 -endpoint_path_count 5]
 puts "slack <= 100: [llength $ps2]"
-puts "PASS: slack_max"
 
 puts "--- slack_min filtering ---"
 set ps3 [find_timing_paths -path_delay max -slack_min -100.0 -endpoint_path_count 5]
 puts "slack >= -100: [llength $ps3]"
-puts "PASS: slack_min"
-
-puts "ALL PASSED"

@@ -20,16 +20,12 @@ source ../../test/helpers.tcl
 # Read libraries with pg_pin info (Sky130 has pg_pin groups)
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read sky130hd"
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
-puts "PASS: read Nangate45"
 
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
-puts "PASS: read ASAP7 SEQ"
 
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
-puts "PASS: read IHP"
 
 ############################################################
 # Cell classification queries on Nangate45
@@ -67,8 +63,6 @@ catch {
   puts "SDFF_X1 test_cell = $tc"
 }
 
-puts "PASS: Nangate45 classification"
-
 ############################################################
 # Port function queries (exercises FuncExpr::to_string)
 ############################################################
@@ -105,7 +99,6 @@ foreach {lib_name cell_name} {
   }
   $port_iter finish
 }
-puts "PASS: port function queries"
 
 ############################################################
 # Bus port and member iteration
@@ -136,7 +129,6 @@ foreach cell_obj $asap7_cells {
   }
   $port_iter finish
 }
-puts "PASS: bus port member iteration"
 
 ############################################################
 # Port capacitance with corner/min_max
@@ -161,7 +153,6 @@ foreach cell_name {INV_X1 INV_X4 INV_X16 BUF_X1 BUF_X8 NAND2_X1 DFF_X1} {
   }
   $port_iter finish
 }
-puts "PASS: port capacitance corner"
 
 ############################################################
 # Timing arc set queries
@@ -188,7 +179,6 @@ foreach cell_name {INV_X1 BUF_X1 DFF_X1 DFFR_X1 NAND2_X1 AOI21_X1 MUX2_X1 SDFF_X
     }
   }
 }
-puts "PASS: timing arc sets"
 
 ############################################################
 # Sky130 cell queries (has pg_pin groups, different features)
@@ -220,7 +210,6 @@ foreach cell_name {
     $port_iter finish
   }
 }
-puts "PASS: Sky130 cell queries"
 
 ############################################################
 # Operating conditions (exercises find_operating_conditions)
@@ -231,7 +220,6 @@ set default_oc [$sky_lib default_operating_conditions]
 if {$default_oc != "NULL"} {
   puts "Sky130 default OC process=[$default_oc process] voltage=[$default_oc voltage] temp=[$default_oc temperature]"
 }
-puts "PASS: operating conditions"
 
 ############################################################
 # IHP cell queries (different vendor, might have different features)
@@ -252,7 +240,6 @@ foreach cell_name {
     puts "  arc_sets=[llength $arc_sets]"
   }
 }
-puts "PASS: IHP cell queries"
 
 ############################################################
 # Ensure voltage waveforms (exercises ensureVoltageWaveforms)
@@ -261,15 +248,12 @@ puts "--- ensure voltage waveforms ---"
 catch {
   set inv [get_lib_cell NangateOpenCellLibrary/INV_X1]
   $inv ensure_voltage_waveforms
-  puts "PASS: INV_X1 ensure_voltage_waveforms"
 }
 
 catch {
   set dff [get_lib_cell NangateOpenCellLibrary/DFF_X1]
   $dff ensure_voltage_waveforms
-  puts "PASS: DFF_X1 ensure_voltage_waveforms"
 }
-puts "PASS: ensure voltage waveforms"
 
 ############################################################
 # Liberty cell matching with regex patterns
@@ -296,6 +280,3 @@ puts "INV_X1 port * matches = [llength $port_matches]"
 
 set port_matches [$inv find_liberty_ports_matching "A" 0 0]
 puts "INV_X1 port A matches = [llength $port_matches]"
-puts "PASS: liberty cell matching"
-
-puts "ALL PASSED"

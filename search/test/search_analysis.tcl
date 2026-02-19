@@ -188,5 +188,3 @@ puts "TNS (max): $tns_val"
 puts "--- worst_negative_slack hidden cmd ---"
 set wns_val [worst_negative_slack -max]
 puts "WNS (max): $wns_val"
-
-puts "ALL analysis tests PASSED"

@@ -35,27 +35,19 @@ puts "ports: [llength $ports]"
 
 # Query individual ports
 foreach pname {clk in1 in2 in3 en out1 out2 out3} {
-  catch {
-    set p [get_ports $pname]
-    puts "$pname dir=[get_property $p direction]"
-  } msg
+  set p [get_ports $pname]
+  puts "$pname dir=[get_property $p direction]"
 }
 
 # Query bus ports
-catch {
-  set bus_ports [get_ports outbus*]
-  puts "outbus* ports: [llength $bus_ports]"
-} msg
+set bus_ports [get_ports outbus*]
+puts "outbus* ports: [llength $bus_ports]"
 
 # Query individual bus bits
 foreach i {0 1 2 3} {
-  catch {
-    set p [get_ports "outbus\[$i\]"]
-    puts "outbus\[$i\] dir=[get_property $p direction]"
-  } msg
+  set p [get_ports "outbus\[$i\]"]
+  puts "outbus\[$i\] dir=[get_property $p direction]"
 }
-
-puts "PASS: supply/tri read completed"
 
 #---------------------------------------------------------------
 # Test 2: Set up timing and exercise assign connectivity
@@ -68,30 +60,24 @@ set_output_delay -clock clk 0 [get_ports {outbus[0] outbus[1] outbus[2] outbus[3
 set_input_transition 10 {in1 in2 in3 en clk}
 
 report_checks
-puts "PASS: report_checks with supply/tri"
 
 report_checks -path_delay min
-puts "PASS: report_checks min"
 
 # Paths through assign
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1"
 
 report_checks -from [get_ports in3] -to [get_ports out3]
-puts "PASS: in3->out3 (through assign)"
 
 report_checks -from [get_ports in3] -to [get_ports {outbus[0]}]
-puts "PASS: in3->outbus[0] (through wire assign)"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report with all fields"
 
 #---------------------------------------------------------------
 # Test 3: report_net for assign-related nets
 #---------------------------------------------------------------
 puts "--- Test 3: report_net ---"
 foreach net_name {n1 n2 n3 n4 n5 n6} {
-  catch {report_net $net_name} msg
+  report_net $net_name
   puts "report_net $net_name: done"
 }
 
@@ -99,7 +85,6 @@ foreach net_name {n1 n2 n3 n4 n5 n6} {
 foreach inst_name {buf1 buf2 inv1 and1 or1 buf3 reg1 reg2 reg3} {
   report_instance $inst_name
 }
-puts "PASS: report_instance all"
 
 #---------------------------------------------------------------
 # Test 4: write_verilog exercises writer paths
@@ -107,18 +92,14 @@ puts "PASS: report_instance all"
 puts "--- Test 4: write_verilog ---"
 set out1 [make_result_file verilog_supply_tri_out.v]
 write_verilog $out1
-puts "PASS: write_verilog basic"
 
 if { [file exists $out1] && [file size $out1] > 0 } {
-  puts "PASS: output file size=[file size $out1]"
 }
 
 set out2 [make_result_file verilog_supply_tri_pwr.v]
 write_verilog -include_pwr_gnd $out2
-puts "PASS: write_verilog -include_pwr_gnd"
 
 if { [file exists $out2] && [file size $out2] > 0 } {
-  puts "PASS: pwr_gnd file size=[file size $out2]"
 }
 
 #---------------------------------------------------------------
@@ -135,30 +116,18 @@ puts "re-read cells: [llength $cells2]"
 set nets2 [get_nets *]
 puts "re-read nets: [llength $nets2]"
 
-puts "PASS: re-read verilog"
-
 #---------------------------------------------------------------
 # Test 6: Read verilog with constants (1'b0, 1'b1)
 #---------------------------------------------------------------
 puts "--- Test 6: fanin/fanout ---"
-catch {
-  set fi [get_fanin -to [get_ports out1] -flat]
-  puts "fanin to out1: [llength $fi]"
-} msg
+set fi [get_fanin -to [get_ports out1] -flat]
+puts "fanin to out1: [llength $fi]"
 
-catch {
-  set fo [get_fanout -from [get_ports in1] -flat]
-  puts "fanout from in1: [llength $fo]"
-} msg
+set fo [get_fanout -from [get_ports in1] -flat]
+puts "fanout from in1: [llength $fo]"
 
-catch {
-  set fi_cells [get_fanin -to [get_ports out1] -only_cells]
-  puts "fanin cells to out1: [llength $fi_cells]"
-} msg
+set fi_cells [get_fanin -to [get_ports out1] -only_cells]
+puts "fanin cells to out1: [llength $fi_cells]"
 
-catch {
-  set fo_cells [get_fanout -from [get_ports in1] -only_cells]
-  puts "fanout cells from in1: [llength $fo_cells]"
-} msg
-
-puts "ALL PASSED"
+set fo_cells [get_fanout -from [get_ports in1] -only_cells]
+puts "fanout cells from in1: [llength $fo_cells]"

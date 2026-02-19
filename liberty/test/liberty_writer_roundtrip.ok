@@ -1,10 +1,5 @@
-PASS: read Nangate45
-PASS: write_liberty first
 Warning: /workspace/sta/OpenSTA/liberty/test/results/liberty_writer_rt1.lib line 1, library NangateOpenCellLibrary already exists.
 INFO: read-back note: Error: /workspace/sta/OpenSTA/liberty/test/results/liberty_writer_rt1.lib, line 2
-PASS: write/read roundtrip attempted
-PASS: read Sky130
-PASS: write Sky130 liberty
 Warning: /workspace/sta/OpenSTA/liberty/test/results/liberty_writer_rt_sky.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
 Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
@@ -470,8 +465,6 @@ Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ n
 Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
 Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
 Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
-PASS: read back Sky130 written liberty
-PASS: read IHP
 INV_X1: 1 arc sets
   rise->fall
   fall->rise
@@ -596,13 +589,11 @@ HA_X1: 6 arc sets
   fall->fall
   rise->fall
   fall->rise
-PASS: combinational cell arc enumeration
 DFF_X1: 5 arc sets
 DFF_X2: 5 arc sets
 DFFR_X1: 16 arc sets
 DFFS_X1: 16 arc sets
 DFFRS_X1: 35 arc sets
-PASS: sequential cell arc enumeration
 TINV_X1: 3 arc sets
   role=tristate disable
   role=tristate enable
@@ -615,12 +606,10 @@ TBUF_X2: 3 arc sets
   role=combinational
   role=tristate disable
   role=tristate enable
-PASS: tristate cell arc enumeration
 SDFF_X1: 9 arc sets
 SDFFR_X1: 44 arc sets
 SDFFS_X1: 44 arc sets
 SDFFRS_X1: 111 arc sets
-PASS: scan cell arc enumeration
 CLKGATETST_X1: 9 arc sets
   role=width
   role=hold
@@ -651,7 +640,6 @@ CLKGATETST_X4: 9 arc sets
   role=combinational
   role=combinational
   role=combinational
-PASS: clock gate cell arc enumeration
 TLAT_X1: 7 arc sets
   role=hold
   role=setup
@@ -660,7 +648,3 @@ TLAT_X1: 7 arc sets
   role=Latch En to Q
   role=tristate disable
   role=tristate enable
-PASS: latch cell arc enumeration
-PASS: read ASAP7 SEQ
-PASS: write ASAP7 SEQ liberty
-ALL PASSED

@@ -1,7 +1,5 @@
 --- set_analysis_type bc_wc ---
-PASS: analysis_type bc_wc
 --- set_analysis_type single ---
-PASS: analysis_type single
 --- set_analysis_type on_chip_variation ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -57,11 +55,8 @@ Path Type: min
            0.11   slack (MET)
 
 
-PASS: analysis_type on_chip_variation
 --- set_voltage ---
-PASS: set_voltage
 --- set_voltage on net ---
-PASS: set_voltage on net
 --- set_load (port external pin cap) ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -89,7 +84,6 @@ Path Type: max
            7.92   slack (MET)
 
 
-PASS: set_load
 --- set_load with -min/-max ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -145,19 +139,14 @@ Path Type: min
            0.11   slack (MET)
 
 
-PASS: set_load min/max
 --- set_load -wire_load ---
-PASS: set_load wire
 --- set_fanout_load ---
 Warning: search_multicorner_analysis.tcl line 1, set_fanout_load not supported.
-PASS: set_fanout_load
 --- Net capacitance ---
 Net n1 capacitance: 9.46813957836449e-16
 Net n1 pin_cap: 9.46813957836449e-16
 Net n1 wire_cap: 0.0
-PASS: net capacitance
 --- set_wire_load_mode ---
-PASS: set_wire_load_mode
 --- report_checks with various fields after load changes ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -213,7 +202,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   0.11   slack (MET)
 
 
-PASS: report_checks fields after load
 --- set_input_transition ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -269,9 +257,7 @@ Path Type: min
                    0.11   slack (MET)
 
 
-PASS: set_input_transition
 --- set_drive on port ---
-PASS: set_drive
 --- set_driving_cell ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -305,9 +291,7 @@ Path Type: max
            8.84   slack (MET)
 
 
-PASS: set_driving_cell
 --- Timing derate with cell-level ---
-PASS: timing derate cell/net
 --- report_checks after all modifications ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -441,7 +425,6 @@ Path Type: min
 }
 ]
 }
-PASS: final report
 --- report_check_types verbose after modifications ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -535,13 +518,7 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: check_types
 --- write_sdc ---
-PASS: write_sdc
 --- set_resistance on net ---
-PASS: set_resistance
 --- set_max_area ---
-PASS: set_max_area
 --- isClock / isPropagatedClock queries ---
-PASS: isClock queries
-ALL PASSED

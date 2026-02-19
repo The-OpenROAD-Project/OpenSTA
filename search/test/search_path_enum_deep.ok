@@ -14,10 +14,8 @@ epc 5 paths: 14
   reg1/D slack=8.923859873277706e-9
   reg2/D slack=9.865935624020494e-9
   reg2/D slack=9.875192219510609e-9
-PASS: endpoint_path_count 5
 --- find_timing_paths endpoint_path_count 3 group_path_count 10 ---
 epc 3 gpc 10: 12
-PASS: epc 3 gpc 10
 --- find_timing_paths min endpoint_path_count 5 ---
 min epc 5: 14
   reg1/RN slack=3.1855806881253557e-10
@@ -34,24 +32,17 @@ min epc 5: 14
   out1 slack=2.107002128326485e-9
   out2 slack=2.114403319097846e-9
   out1 slack=2.118544895068908e-9
-PASS: min epc 5
 --- find_timing_paths endpoint_path_count 1 ---
 epc 1: 7
-PASS: epc 1
 --- -unique_paths_to_endpoint epc 3 ---
 unique epc 3: 8
-PASS: unique epc
 --- -unique_edges_to_endpoint epc 3 ---
 unique_edges epc 3: 13
-PASS: unique_edges epc
 --- -sort_by_slack endpoint_path_count 5 ---
 sorted epc 5: 14
 Sorted correctly: 0
-PASS: sort_by_slack epc
-PASS: group_path setup
 --- find_timing_paths grouped epc 5 ---
 grouped epc 5: 14
-PASS: grouped epc
 --- report_checks epc 3 -fields ---
 Warning: search_path_enum_deep.tcl line 1, unknown field nets.
 Startpoint: in2 (input port clocked by clk)
@@ -339,7 +330,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.88   slack (MET)
 
 
-PASS: report epc fields
 --- report_checks epc 3 -format end ---
 max_delay/setup group in_grp
 
@@ -375,7 +365,6 @@ Endpoint                               Delay   Delay   Slack
 reg2/D (DFFR_X1)                        9.97    0.10    9.87 (MET)
 reg2/D (DFFR_X1)                        9.96    0.08    9.88 (MET)
 
-PASS: report epc end
 --- report_checks epc 3 -format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
@@ -390,7 +379,6 @@ rst (input)                          reg2/RN (DFFR_X1)                       9.5
 reg1/Q (DFFR_X1)                     reg2/D (DFFR_X1)                        9.87
 reg1/Q (DFFR_X1)                     reg2/D (DFFR_X1)                        9.88
 
-PASS: report epc summary
 --- report_checks min epc 3 ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -668,7 +656,6 @@ Path Type: min
                            0.09   slack (MET)
 
 
-PASS: min epc report
 --- report_checks epc 3 -from -to ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -728,7 +715,6 @@ Path Type: max
            8.92   slack (MET)
 
 
-PASS: epc from/to
 --- report_checks epc 3 -through ---
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -817,30 +803,20 @@ Path Type: max
            8.92   slack (MET)
 
 
-PASS: epc through
 --- find_timing_paths -path_delay max_rise ---
 max_rise paths: 8
-PASS: max_rise
 --- find_timing_paths -path_delay max_fall ---
 max_fall paths: 6
-PASS: max_fall
 --- find_timing_paths -path_delay min_rise ---
 min_rise paths: 8
-PASS: min_rise
 --- find_timing_paths -path_delay min_fall ---
 min_fall paths: 6
-PASS: min_fall
 --- find_timing_paths -path_delay min_max ---
 min_max paths: 20
-PASS: min_max
 --- find_timing_paths epc 10 gpc 50 ---
 big epc: 14
-PASS: big epc
 --- slack_max filtering ---
 slack <= 0: 0
 slack <= 100: 13
-PASS: slack_max
 --- slack_min filtering ---
 slack >= -100: 13
-PASS: slack_min
-ALL PASSED

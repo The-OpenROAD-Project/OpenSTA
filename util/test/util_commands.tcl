@@ -1,29 +1,24 @@
 # Test utility commands
 puts "--- set_cmd_units -time ns -capacitance pF -resistance kOhm ---"
 set_cmd_units -time ns -capacitance pF -resistance kOhm
-puts "PASS: set_cmd_units ns/pF/kOhm"
 
 puts "--- report_units ---"
 report_units
 
 puts "--- set_cmd_units -time ps -capacitance fF ---"
 set_cmd_units -time ps -capacitance fF
-puts "PASS: set_cmd_units ps/fF"
 
 puts "--- report_units after change ---"
 report_units
 
 puts "--- set_cmd_units -voltage mV ---"
 set_cmd_units -voltage mV
-puts "PASS: set_cmd_units -voltage mV"
 
 puts "--- set_cmd_units -current uA ---"
 set_cmd_units -current uA
-puts "PASS: set_cmd_units -current uA"
 
 puts "--- set_cmd_units -distance um ---"
 set_cmd_units -distance um
-puts "PASS: set_cmd_units -distance um"
 
 puts "--- report_units after all changes ---"
 report_units
@@ -31,7 +26,6 @@ report_units
 puts "--- elapsed_run_time ---"
 set elapsed [elapsed_run_time]
 if { $elapsed >= 0 } {
-  puts "PASS: elapsed_run_time returned non-negative value"
 } else {
   puts "FAIL: elapsed_run_time returned negative"
 }
@@ -39,7 +33,6 @@ if { $elapsed >= 0 } {
 puts "--- user_run_time ---"
 set user_time [user_run_time]
 if { $user_time >= 0 } {
-  puts "PASS: user_run_time returned non-negative value"
 } else {
   puts "FAIL: user_run_time returned negative"
 }
@@ -49,7 +42,6 @@ set log_file "/tmp/sta_test_log_[pid].txt"
 log_begin $log_file
 puts "test log entry from util_commands"
 log_end
-puts "PASS: log_begin/log_end completed"
 
 # Verify log file was created and has content
 if { [file exists $log_file] } {
@@ -58,7 +50,6 @@ if { [file exists $log_file] } {
   close $fh
   file delete $log_file
   if { [string length $log_content] > 0 } {
-    puts "PASS: log file has content"
   } else {
     puts "INFO: log file was empty"
   }
@@ -68,29 +59,21 @@ if { [file exists $log_file] } {
 
 puts "--- suppress_msg / unsuppress_msg ---"
 suppress_msg 100 200 300
-puts "PASS: suppress_msg 100 200 300"
 
 unsuppress_msg 100 200 300
-puts "PASS: unsuppress_msg 100 200 300"
 
 puts "--- suppress_msg single ---"
 suppress_msg 999
-puts "PASS: suppress_msg 999"
 
 unsuppress_msg 999
-puts "PASS: unsuppress_msg 999"
 
 puts "--- with_output_to_variable ---"
 with_output_to_variable result { report_units }
 puts "captured output length: [string length $result]"
 if { [string length $result] > 0 } {
-  puts "PASS: with_output_to_variable captured output"
 } else {
   puts "FAIL: with_output_to_variable captured empty output"
 }
 
 puts "--- with_output_to_variable second call ---"
 with_output_to_variable result2 { puts "hello from with_output_to_variable" }
-puts "PASS: with_output_to_variable second call"
-
-puts "ALL PASSED"

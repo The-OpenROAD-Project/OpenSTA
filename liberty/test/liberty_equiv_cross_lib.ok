@@ -1,7 +1,3 @@
-PASS: read ASAP7 INVBUF RVT
-PASS: read ASAP7 INVBUF LVT
-PASS: read ASAP7 INVBUF SLVT
-PASS: make_equiv_cells ASAP7 RVT INVBUF
 INVx1_ASAP7_75t_R equiv count = 21
 INVx2_ASAP7_75t_R equiv count = 21
 INVx3_ASAP7_75t_R equiv count = 21
@@ -20,9 +16,6 @@ BUFx8_ASAP7_75t_R equiv count = 16
 Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx11_ASAP7_75t_R' not found.
 Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx13_ASAP7_75t_R' not found.
 Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx16_ASAP7_75t_R' not found.
-PASS: ASAP7 RVT INVBUF equiv cells
-PASS: ASAP7 RVT buffers = 16
-PASS: make_equiv_cells ASAP7 LVT INVBUF
 LVT INVx1_ASAP7_75t_L equiv count = 21
 LVT INVx2_ASAP7_75t_L equiv count = 21
 LVT INVx4_ASAP7_75t_L equiv count = 21
@@ -31,33 +24,19 @@ Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx1_ASAP7_75t_L' not found.
 LVT BUFx2_ASAP7_75t_L equiv count = 16
 LVT BUFx4_ASAP7_75t_L equiv count = 16
 LVT BUFx8_ASAP7_75t_L equiv count = 16
-PASS: ASAP7 LVT INVBUF equiv cells
-PASS: ASAP7 LVT buffers = 16
-PASS: make_equiv_cells ASAP7 SLVT INVBUF
-PASS: ASAP7 SLVT buffers = 16
 --- cross-Vt equiv comparisons ---
 equiv RVT/LVT INVx1 = 1
 port_equiv RVT/LVT INVx1 = 1
 arc_equiv RVT/LVT INVx1 = 1
-PASS: cross-Vt comparisons
-PASS: read ASAP7 SEQ RVT + LVT
-PASS: make_equiv_cells SEQ RVT
 SEQ RVT DFFHQNx1 equiv count = 3
   equiv: DFFHQNx1_ASAP7_75t_R
   equiv: DFFHQNx2_ASAP7_75t_R
   equiv: DFFHQNx3_ASAP7_75t_R
-PASS: SEQ RVT DFF equiv
 SEQ RVT ICGx1 equiv count = 10
-PASS: SEQ RVT ICG equiv
 SEQ RVT DLLx1 equiv count = 3
-PASS: SEQ RVT latch equiv
 Warning: liberty_equiv_cross_lib.tcl line 1, cell 'SDFHQNx1_ASAP7_75t_R' not found.
-PASS: SEQ RVT SDFF equiv
 equiv SEQ RVT/LVT DFFHQNx1 = 1
 port_equiv SEQ RVT/LVT DFFHQNx1 = 1
-PASS: cross-lib SEQ comparisons
-PASS: read Sky130
-PASS: make_equiv_cells Sky130
 Sky130 inv_1 equiv count = 16
   equiv: sky130_fd_sc_hd__clkinvlp_2
   equiv: sky130_fd_sc_hd__inv_1
@@ -75,11 +54,7 @@ Sky130 inv_1 equiv count = 16
   equiv: sky130_fd_sc_hd__bufinv_16
   equiv: sky130_fd_sc_hd__inv_16
   equiv: sky130_fd_sc_hd__clkinv_16
-PASS: Sky130 inv equiv
 Sky130 dfxtp_1 equiv count = 3
   equiv: sky130_fd_sc_hd__dfxtp_1
   equiv: sky130_fd_sc_hd__dfxtp_2
   equiv: sky130_fd_sc_hd__dfxtp_4
-PASS: Sky130 DFF equiv
-PASS: Sky130 buffers = 35
-ALL PASSED

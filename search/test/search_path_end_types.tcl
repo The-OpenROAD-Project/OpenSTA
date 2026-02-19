@@ -14,14 +14,12 @@ set_output_delay -clock clk 2.0 [get_ports out3]
 puts "--- Basic timing ---"
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: basic timing"
 
 puts "--- output_delay paths ---"
 report_checks -to [get_ports out1] -path_delay max -format full_clock_expanded
 report_checks -to [get_ports out1] -path_delay min -format full_clock_expanded
 report_checks -to [get_ports out2] -path_delay max -format full_clock_expanded
 report_checks -to [get_ports out3] -path_delay max -format full_clock_expanded
-puts "PASS: output_delay paths"
 
 puts "--- PathEnd with output delay - various formats ---"
 report_checks -to [get_ports out1] -format full
@@ -31,14 +29,12 @@ report_checks -to [get_ports out1] -format end
 report_checks -to [get_ports out1] -format summary
 report_checks -to [get_ports out1] -format slack_only
 report_checks -to [get_ports out1] -format json
-puts "PASS: output delay formats"
 
 puts "--- Recovery/removal checks ---"
 sta::set_recovery_removal_checks_enabled 1
 report_checks -path_delay max
 report_checks -path_delay min
 report_check_types -verbose
-puts "PASS: recovery/removal enabled"
 
 puts "--- find_timing_paths with recovery/removal ---"
 set paths [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 10]
@@ -49,7 +45,6 @@ foreach pe $paths {
     puts "  role=$role pin=[get_full_name [$pe pin]] slack=[$pe slack]"
   }
 }
-puts "PASS: find_timing_paths recovery/removal"
 
 puts "--- PathEnd attribute queries ---"
 set paths [find_timing_paths -path_delay max -endpoint_path_count 3]
@@ -62,7 +57,6 @@ foreach pe $paths {
     puts "  target_clk_path pin: [get_full_name [$tclkp pin]]"
   }
 }
-puts "PASS: PathEnd attributes"
 
 puts "--- set_max_delay to create path_delay PathEnd ---"
 set_max_delay 3 -from [get_ports in1] -to [get_ports out1]
@@ -73,24 +67,19 @@ foreach pe $paths_pd {
   puts "  path_delay_margin_is_external: [$pe path_delay_margin_is_external]"
 }
 unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
-puts "PASS: path_delay PathEnd"
 
 puts "--- Multiple output delays on same pin ---"
 set_output_delay -clock clk -min 1.0 [get_ports out1]
 set_output_delay -clock clk -max 3.0 [get_ports out1]
 report_checks -to [get_ports out1] -path_delay max -format full_clock_expanded
 report_checks -to [get_ports out1] -path_delay min -format full_clock_expanded
-puts "PASS: multiple output delays"
 
 puts "--- report_checks with unconstrained paths ---"
 report_checks -unconstrained -path_delay max
 report_checks -unconstrained -path_delay min
-puts "PASS: unconstrained paths"
 
 puts "--- Detailed path with reg-to-reg ---"
 report_checks -from [get_pins reg1/CK] -to [get_pins reg2/D] -path_delay max -format full_clock_expanded
 report_checks -from [get_pins reg1/CK] -to [get_pins reg2/D] -path_delay min -format full_clock_expanded
-puts "PASS: reg-to-reg detailed"
 
 sta::set_recovery_removal_checks_enabled 0
-puts "ALL PASSED"

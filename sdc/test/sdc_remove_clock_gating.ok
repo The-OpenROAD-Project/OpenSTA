@@ -1,14 +1,3 @@
-PASS: clocks created
-PASS: generated clocks
-PASS: IO delays
-PASS: clock latency
-PASS: clock insertion
-PASS: clock uncertainty
-PASS: latch borrow
-PASS: min pulse width
-PASS: clock groups
-PASS: exception paths
-PASS: write_sdc phase 1
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -60,33 +49,11 @@ Path Type: max
            0.03   slack (MET)
 
 
-PASS: report phase 1
 Warning: sdc_remove_clock_gating.tcl line 1, object 'sdc_test2' not found.
 Warning: sdc_remove_clock_gating.tcl line 1, object 'sdc_test2' not found.
-PASS: clock_gating_check design
-PASS: clock_gating_check clock
-PASS: clock_gating_check instance
-PASS: clock_gating_check pin
-PASS: write_sdc with clock gating
-PASS: max_capacitance ports
-PASS: min_capacitance port
-PASS: max_capacitance pin
-PASS: max_capacitance design
-PASS: set_load pin and wire
-PASS: set_load rise/fall
-PASS: set_load min/max
-PASS: port fanout
-PASS: write_sdc with loads
-PASS: write_sdc compatible with loads
-PASS: delete gclk1
-PASS: delete gclk2
-PASS: delete vclk
-PASS: delete clk2
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk1                     10.00        0.00      5.00
-PASS: report after clock deletions
-PASS: write_sdc after clock deletions
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -114,10 +81,6 @@ Path Type: max
            6.37   slack (MET)
 
 
-PASS: report after deletions
-PASS: recreated clk2
-PASS: new inter-clock uncertainty
-PASS: write_sdc final
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -171,5 +134,3 @@ Path Type: max
           12.42   slack (MET)
 
 
-PASS: read_sdc + report
-ALL PASSED

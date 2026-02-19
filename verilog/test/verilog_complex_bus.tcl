@@ -32,8 +32,6 @@ puts "nets: [llength $nets]"
 set ports [get_ports *]
 puts "ports: [llength $ports]"
 
-puts "PASS: read complex bus verilog"
-
 #---------------------------------------------------------------
 # Test 2: Query 8-bit bus ports
 #---------------------------------------------------------------
@@ -51,17 +49,13 @@ puts "result* ports: [llength $result_ports]"
 
 # Query individual bits
 foreach i {0 1 2 3 4 5 6 7} {
-  catch {
-    set p [get_ports "data_a\[$i\]"]
-    puts "data_a\[$i\]: [get_property $p direction]"
-  } msg
+  set p [get_ports "data_a\[$i\]"]
+  puts "data_a\[$i\]: [get_property $p direction]"
 }
 
 foreach i {0 1 2 3 4 5 6 7} {
-  catch {
-    set p [get_ports "result\[$i\]"]
-    puts "result\[$i\]: [get_property $p direction]"
-  } msg
+  set p [get_ports "result\[$i\]"]
+  puts "result\[$i\]: [get_property $p direction]"
 }
 
 # Scalar ports
@@ -84,14 +78,10 @@ puts "stage2* nets: [llength $stage2_nets]"
 
 # Query individual wire bits
 foreach i {0 1 7} {
-  catch {
-    set n [get_nets "stage1\[$i\]"]
-    puts "stage1\[$i\]: [get_full_name $n]"
-  } msg
-  catch {
-    set n [get_nets "stage2\[$i\]"]
-    puts "stage2\[$i\]: [get_full_name $n]"
-  } msg
+  set n [get_nets "stage1\[$i\]"]
+  puts "stage1\[$i\]: [get_full_name $n]"
+  set n [get_nets "stage2\[$i\]"]
+  puts "stage2\[$i\]: [get_full_name $n]"
 }
 
 # Wildcard bus queries
@@ -154,19 +144,15 @@ puts "--- Test 5: write verilog with buses ---"
 
 set outfile [make_result_file verilog_complex_bus_out.v]
 write_verilog $outfile
-puts "PASS: write_verilog"
 
 if { [file exists $outfile] && [file size $outfile] > 0 } {
-  puts "PASS: output file exists"
   puts "output size: [file size $outfile]"
 }
 
 set outfile2 [make_result_file verilog_complex_bus_pwr.v]
 write_verilog -include_pwr_gnd $outfile2
-puts "PASS: write_verilog -include_pwr_gnd"
 
 if { [file exists $outfile2] && [file size $outfile2] > 0 } {
-  puts "PASS: pwr_gnd file exists"
 }
 
 #---------------------------------------------------------------
@@ -182,33 +168,26 @@ set_output_delay -clock clk 0 [get_ports overflow]
 set_input_transition 10 [all_inputs]
 
 report_checks
-puts "PASS: report_checks"
 
 report_checks -path_delay min
-puts "PASS: report_checks min"
 
 # Specific paths through bus
 report_checks -from [get_ports {data_a[0]}] -to [get_ports {result[0]}]
-puts "PASS: data_a[0]->result[0]"
 
 report_checks -from [get_ports {data_a[7]}] -to [get_ports {result[7]}]
-puts "PASS: data_a[7]->result[7]"
 
 report_checks -to [get_ports carry]
-puts "PASS: ->carry"
 
 report_checks -to [get_ports overflow]
-puts "PASS: ->overflow"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: report with fields"
 
 #---------------------------------------------------------------
 # Test 7: Report nets on bus nets
 #---------------------------------------------------------------
 puts "--- Test 7: report_net on bus ---"
 foreach net {stage1[0] stage1[7] stage2[0] stage2[7] internal_carry internal_overflow} {
-  catch {report_net $net} msg
+  report_net $net
   puts "report_net $net: done"
 }
 
@@ -216,19 +195,11 @@ foreach net {stage1[0] stage1[7] stage2[0] stage2[7] internal_carry internal_ove
 # Test 8: Fanin/fanout through bus
 #---------------------------------------------------------------
 puts "--- Test 8: fanin/fanout ---"
-catch {
-  set fi [get_fanin -to [get_ports {result[0]}] -flat]
-  puts "fanin to result[0]: [llength $fi]"
-} msg
+set fi [get_fanin -to [get_ports {result[0]}] -flat]
+puts "fanin to result[0]: [llength $fi]"
 
-catch {
-  set fo [get_fanout -from [get_ports {data_a[0]}] -flat]
-  puts "fanout from data_a[0]: [llength $fo]"
-} msg
+set fo [get_fanout -from [get_ports {data_a[0]}] -flat]
+puts "fanout from data_a[0]: [llength $fo]"
 
-catch {
-  set fi_cells [get_fanin -to [get_ports carry] -only_cells]
-  puts "fanin cells to carry: [llength $fi_cells]"
-} msg
-
-puts "ALL PASSED"
+set fi_cells [get_fanin -to [get_ports carry] -only_cells]
+puts "fanin cells to carry: [llength $fi_cells]"

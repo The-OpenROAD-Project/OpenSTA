@@ -1,46 +1,30 @@
 --- get_cells with wildcard * ---
 buf* cells: 1
-PASS: get_cells wildcard *
 --- get_cells with ? wildcard ---
 buf? cells: 1
-PASS: get_cells wildcard ?
 --- get_cells exact match ---
 buf1 cells: 1
-PASS: get_cells exact match
 --- get_cells * ---
 * cells: 3
-PASS: get_cells *
 --- get_pins with wildcards ---
 buf1/* pins: 2
-PASS: get_pins wildcard
 buf1/? pins: 2
-PASS: get_pins ? wildcard
 */* pins: 10
-PASS: get_pins */*
 --- get_ports with wildcards ---
 *1 ports: 2
-PASS: get_ports wildcard
 * ports: 3
-PASS: get_ports *
 --- get_nets with wildcards ---
 n* nets: 2
-PASS: get_nets wildcard
 --- non-matching patterns ---
 Warning: util_pattern_string.tcl line 1, instance 'zzz_nonexistent' not found.
 get_cells nonexistent: rc=0
-PASS: non-matching pattern
 Warning: util_pattern_string.tcl line 1, pin 'zzz_nonexistent/*' not found.
 get_pins nonexistent: rc=0
-PASS: non-matching pin pattern
 --- get_lib_cells with wildcards ---
 BUF* lib_cells: 6
-PASS: get_lib_cells wildcard
 DFF_X? lib_cells: 2
-PASS: get_lib_cells ? wildcard
 * lib_cells: 134
-PASS: get_lib_cells *
 --- set_debug with level > 0 ---
-PASS: set_debug multiple modules
 delay_calc: delays invalid
 delay_calc: find delays to level 50
 delay_calc: found 9 delays
@@ -267,11 +251,7 @@ Path Type: max
            9.92   slack (MET)
 
 
-PASS: report_checks with debug on
-PASS: set_debug all off
 --- FileNotWritable error path ---
-PASS: caught FileNotWritable for bad path
-PASS: caught error for unwritable log path
 --- report_checks with rise/fall fields ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -302,7 +282,6 @@ Path Type: max
                            9.89   slack (MET)
 
 
-PASS: report_checks with rise/fall transitions
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -334,7 +313,6 @@ Path Type: min
                            0.04   slack (MET)
 
 
-PASS: report_checks min with fields
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -366,7 +344,6 @@ Path Type: max
                            9.89   slack (MET)
 
 
-PASS: report_checks max with fields
 --- set_load rise/fall ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -397,7 +374,6 @@ Path Type: max
            9.89   slack (MET)
 
 
-PASS: report_checks with min/max loads
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -427,13 +403,8 @@ Path Type: max
            9.89   slack (MET)
 
 
-PASS: report_checks with rise/fall min/max loads
 --- with_output_to_variable nesting ---
 v1 captured 984 chars
-PASS: with_output_to_variable
 v2 captured 1967 chars
-PASS: with_output_to_variable multiple reports
 --- redirect_string with reports ---
 redirect string: 1414 chars
-PASS: redirect_string with full report
-ALL PASSED

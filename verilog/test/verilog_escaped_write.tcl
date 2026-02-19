@@ -33,26 +33,21 @@ puts "ports: [llength $ports]"
 # Write basic
 set out1 [make_result_file verilog_escaped_bus.v]
 write_verilog $out1
-puts "PASS: write_verilog bus design"
 
 if { [file exists $out1] && [file size $out1] > 0 } {
-  puts "PASS: bus output size=[file size $out1]"
 }
 
 # Write with pwr_gnd
 set out2 [make_result_file verilog_escaped_bus_pwr.v]
 write_verilog -include_pwr_gnd $out2
-puts "PASS: write_verilog bus -include_pwr_gnd"
 
 if { [file exists $out2] && [file size $out2] > 0 } {
-  puts "PASS: bus pwr output size=[file size $out2]"
 }
 
 # pwr_gnd should be larger
 set sz1 [file size $out1]
 set sz2 [file size $out2]
 if { $sz2 >= $sz1 } {
-  puts "PASS: pwr_gnd >= basic"
 }
 
 #---------------------------------------------------------------
@@ -86,7 +81,6 @@ set_input_delay -clock clk 0 [get_ports {data_in[*]}]
 set_output_delay -clock clk 0 [get_ports {data_out[*]}]
 set_input_transition 0.1 [all_inputs]
 report_checks
-puts "PASS: timing after roundtrip"
 
 #---------------------------------------------------------------
 # Test 3: Write complex bus design
@@ -99,18 +93,14 @@ link_design verilog_complex_bus_test
 
 set out3 [make_result_file verilog_escaped_complex.v]
 write_verilog $out3
-puts "PASS: write_verilog complex bus"
 
 if { [file exists $out3] && [file size $out3] > 0 } {
-  puts "PASS: complex output size=[file size $out3]"
 }
 
 set out4 [make_result_file verilog_escaped_complex_pwr.v]
 write_verilog -include_pwr_gnd $out4
-puts "PASS: write_verilog complex -include_pwr_gnd"
 
 if { [file exists $out4] && [file size $out4] > 0 } {
-  puts "PASS: complex pwr output size=[file size $out4]"
 }
 
 # Read back complex bus design
@@ -144,7 +134,6 @@ set_output_delay -clock clk 0 [get_ports carry]
 set_output_delay -clock clk 0 [get_ports overflow]
 set_input_transition 0.1 [all_inputs]
 report_checks
-puts "PASS: timing after complex roundtrip"
 
 #---------------------------------------------------------------
 # Test 4: Write hierarchical design
@@ -158,18 +147,14 @@ link_design network_hier_test
 
 set out5 [make_result_file verilog_escaped_hier.v]
 write_verilog $out5
-puts "PASS: write_verilog hier"
 
 if { [file exists $out5] && [file size $out5] > 0 } {
-  puts "PASS: hier output size=[file size $out5]"
 }
 
 set out6 [make_result_file verilog_escaped_hier_pwr.v]
 write_verilog -include_pwr_gnd $out6
-puts "PASS: write_verilog hier -include_pwr_gnd"
 
 if { [file exists $out6] && [file size $out6] > 0 } {
-  puts "PASS: hier pwr output size=[file size $out6]"
 }
 
 # Roundtrip hierarchical
@@ -192,7 +177,6 @@ set_input_delay -clock clk 0 [get_ports {in1 in2 in3}]
 set_output_delay -clock clk 0 [get_ports {out1 out2}]
 set_input_transition 0.1 [all_inputs]
 report_checks
-puts "PASS: timing after hier roundtrip"
 
 #---------------------------------------------------------------
 # Test 5: Write supply/tristate design (special port directions)
@@ -206,18 +190,14 @@ link_design verilog_supply_tristate
 
 set out7 [make_result_file verilog_escaped_supply.v]
 write_verilog $out7
-puts "PASS: write_verilog supply/tri"
 
 if { [file exists $out7] && [file size $out7] > 0 } {
-  puts "PASS: supply output size=[file size $out7]"
 }
 
 set out8 [make_result_file verilog_escaped_supply_pwr.v]
 write_verilog -include_pwr_gnd $out8
-puts "PASS: write_verilog supply -include_pwr_gnd"
 
 if { [file exists $out8] && [file size $out8] > 0 } {
-  puts "PASS: supply pwr output size=[file size $out8]"
 }
 
 #---------------------------------------------------------------
@@ -231,18 +211,14 @@ link_design verilog_const_concat
 
 set out9 [make_result_file verilog_escaped_const.v]
 write_verilog $out9
-puts "PASS: write_verilog const/concat"
 
 if { [file exists $out9] && [file size $out9] > 0 } {
-  puts "PASS: const output size=[file size $out9]"
 }
 
 set out10 [make_result_file verilog_escaped_const_pwr.v]
 write_verilog -include_pwr_gnd $out10
-puts "PASS: write_verilog const -include_pwr_gnd"
 
 if { [file exists $out10] && [file size $out10] > 0 } {
-  puts "PASS: const pwr output size=[file size $out10]"
 }
 
 # Roundtrip constant design
@@ -255,7 +231,3 @@ puts "const roundtrip cells: [llength $rt4_cells]"
 
 set rt4_nets [get_nets *]
 puts "const roundtrip nets: [llength $rt4_nets]"
-
-puts "PASS: const roundtrip"
-
-puts "ALL PASSED"

@@ -14,13 +14,10 @@ epc 8 gpc 30: 14
   reg1/D slack=8.923859873277706e-9
   reg2/D slack=9.865935624020494e-9
   reg2/D slack=9.875192219510609e-9
-PASS: epc 8 gpc 30
 --- find_timing_paths epc 15 gpc 50 ---
 epc 15 gpc 50: 14
-PASS: epc 15 gpc 50
 --- find_timing_paths epc 20 gpc 100 ---
 epc 20 gpc 100: 14
-PASS: epc 20 gpc 100
 --- find_timing_paths min epc 8 gpc 30 ---
 min epc 8 gpc 30: 14
   reg1/RN slack=3.1855806881253557e-10
@@ -37,20 +34,15 @@ min epc 8 gpc 30: 14
   out1 slack=2.107002128326485e-9
   out2 slack=2.114403319097846e-9
   out1 slack=2.118544895068908e-9
-PASS: min epc 8 gpc 30
 --- find_timing_paths min epc 15 gpc 50 ---
 min epc 15 gpc 50: 14
-PASS: min epc 15 gpc 50
 --- unique_paths_to_endpoint epc 10 ---
 unique epc 10: 8
-PASS: unique epc 10
 --- unique_edges_to_endpoint epc 10 ---
 unique_edges epc 10: 14
-PASS: unique_edges epc 10
 --- sort_by_slack epc 10 gpc 30 ---
 sorted epc 10: 14
 Sorted correctly: 0
-PASS: sort_by_slack epc 10
 --- report_checks epc 8 -format full ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
@@ -326,7 +318,6 @@ Path Type: max
            8.91   slack (MET)
 
 
-PASS: report epc 8 full
 --- report_checks epc 8 -format end ---
 max_delay/setup group asynchronous
 
@@ -350,7 +341,6 @@ out3 (output)                           8.00    0.08    7.92 (MET)
 reg1/D (DFFR_X1)                        9.96    1.05    8.91 (MET)
 reg1/D (DFFR_X1)                        9.96    1.05    8.91 (MET)
 
-PASS: report epc 8 end
 --- report_checks epc 8 -format summary ---
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
@@ -365,7 +355,6 @@ reg1/QN (search_path_end_types)      out3 (output)                           7.9
 in2 (input)                          reg1/D (DFFR_X1)                        8.91
 in1 (input)                          reg1/D (DFFR_X1)                        8.91
 
-PASS: report epc 8 summary
 --- report_checks min epc 8 ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
@@ -645,31 +634,22 @@ Path Type: min
            2.09   slack (MET)
 
 
-PASS: report min epc 8
 --- slack_max with epc 10 ---
 slack<=100 epc 10: 12
-PASS: slack_max epc 10
 --- slack_min with epc 10 ---
 slack>=-100 epc 10: 12
-PASS: slack_min epc 10
 --- max_rise epc 8 ---
 max_rise epc 8: 8
-PASS: max_rise epc 8
 --- max_fall epc 8 ---
 max_fall epc 8: 6
-PASS: max_fall epc 8
 --- min_rise epc 8 ---
 min_rise epc 8: 8
-PASS: min_rise epc 8
 --- min_fall epc 8 ---
 min_fall epc 8: 6
-PASS: min_fall epc 8
 --- min_max epc 8 ---
 min_max epc 8: 20
-PASS: min_max epc 8
 --- group_path + epc 10 ---
 grouped epc 10: 14
-PASS: group epc 10
 --- epc 8 -from -to ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -729,7 +709,6 @@ Path Type: max
            8.92   slack (MET)
 
 
-PASS: epc 8 from/to
 --- epc 8 -through ---
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -847,17 +826,11 @@ Path Type: max
            8.92   slack (MET)
 
 
-PASS: epc 8 through
 --- epc 8 -rise_from ---
 epc 8 rise_from: 1
-PASS: epc 8 rise_from
 --- epc 8 -fall_to ---
 epc 8 fall_to: 2
-PASS: epc 8 fall_to
 --- epc 8 -rise_through ---
 epc 8 rise_through: 2
-PASS: epc 8 rise_through
 --- epc 8 -fall_through ---
 epc 8 fall_through: 2
-PASS: epc 8 fall_through
-ALL PASSED

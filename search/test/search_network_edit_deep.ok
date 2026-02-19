@@ -26,7 +26,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: non-equiv replaceCell AND->OR
 --- Non-equiv replaceCell: OR2_X1 -> NAND2_X1 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -55,7 +54,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: non-equiv replaceCell OR->NAND
 --- Non-equiv replaceCell: NAND2_X1 -> NOR2_X1 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -84,7 +82,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: non-equiv replaceCell NAND->NOR
 --- Restore to AND2_X1 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -113,24 +110,20 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: restore AND2_X1
 --- slow_drivers 5 ---
 slow_drivers(5): 5
   reg1
   and1
   buf1
   buf2
-PASS: slow_drivers 5
 --- bidirect_inst_paths ---
 bidirect_inst_paths_enabled: 0
 After disable: 0
 After enable: 1
-PASS: bidirect_inst_paths
 --- bidirect_net_paths ---
 bidirect_net_paths_enabled: 0
 After disable: 0
 After enable: 1
-PASS: bidirect_net_paths
 --- Complex network edit with timing ---
 Created: extra_buf
 Created net: extra_net
@@ -169,7 +162,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: complex network edit
 --- Multiple instance create/delete ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -198,7 +190,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: multiple instance create/delete
 --- setPortExtPinCap multiple ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -283,7 +274,6 @@ Path Type: max
                    7.90   slack (MET)
 
 
-PASS: port ext pin cap
 --- setPortExtWireCap ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -368,7 +358,6 @@ Path Type: max
                    7.90   slack (MET)
 
 
-PASS: port ext wire cap
 --- set_port_fanout_number ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -424,7 +413,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: port fanout
 --- report_net ---
 Net n1
  Pin capacitance: 0.88-0.97
@@ -468,7 +456,6 @@ Driver pins
 Load pins
  buf2/A input (BUF_X1) 0.88-0.97
 
-PASS: report_net
 --- Rapid replaceCell sequence ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -524,7 +511,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: rapid replaceCell
 --- set_case_analysis ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -580,7 +566,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: case analysis
 --- disable_timing ---
 No paths found.
 buf1 A Z constraint
@@ -612,5 +597,3 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: disable_timing
-ALL PASSED

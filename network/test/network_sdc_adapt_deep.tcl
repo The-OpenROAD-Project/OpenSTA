@@ -24,7 +24,6 @@ set_output_delay -clock clk 0 [get_ports {out1 out2}]
 set_input_transition 0.1 [all_inputs]
 
 report_checks
-puts "PASS: initial design"
 
 #---------------------------------------------------------------
 # Test 1: SDC namespace queries on hierarchical design
@@ -90,16 +89,12 @@ puts "sdc hier sub*/* nets: [llength $sdc_hier_sub_nets]"
 
 # Timing reports in SDC namespace
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: sdc in1->out1"
 
 report_checks -from [get_ports in2] -to [get_ports out2]
-puts "PASS: sdc in2->out2"
 
 report_checks -path_delay min
-puts "PASS: sdc min path"
 
 sta::set_cmd_namespace sta
-puts "PASS: back to STA namespace"
 
 #---------------------------------------------------------------
 # Test 2: All registers queries through SdcNetwork
@@ -120,8 +115,6 @@ puts "register output_pins: [llength $reg_out]"
 
 set reg_async [all_registers -async_pins]
 puts "register async_pins: [llength $reg_async]"
-
-puts "PASS: register queries"
 
 #---------------------------------------------------------------
 # Test 3: Fanin/fanout in SDC namespace
@@ -160,7 +153,6 @@ set fo_ep_in3 [get_fanout -from [get_ports in3] -endpoints_only]
 puts "sdc fanout endpoints from in3: [llength $fo_ep_in3]"
 
 sta::set_cmd_namespace sta
-puts "PASS: SDC fanin/fanout"
 
 #---------------------------------------------------------------
 # Test 4: Switch namespaces repeatedly and verify consistency
@@ -176,7 +168,6 @@ for {set i 0} {$i < 3} {incr i} {
 
   puts "iteration $i: sdc_cells=$sdc_n sta_cells=$sta_n"
 }
-puts "PASS: namespace switching consistency"
 
 #---------------------------------------------------------------
 # Test 5: Query specific pins in SDC namespace
@@ -202,7 +193,6 @@ foreach pin_path {sub1/and_gate/A1 sub1/and_gate/ZN sub1/buf_gate/Z
 }
 
 sta::set_cmd_namespace sta
-puts "PASS: SDC pin queries"
 
 #---------------------------------------------------------------
 # Test 6: Load bus design and exercise SDC with bus ports
@@ -232,11 +222,9 @@ puts "sdc data_out[*]: [llength $sdc_bus_out]"
 
 # Individual bus bits
 foreach i {0 1 2 3} {
-  catch {
-    set p [get_ports "data_in\[$i\]"]
-    set dir [get_property $p direction]
-    puts "sdc data_in\[$i\]: dir=$dir"
-  }
+  set p [get_ports "data_in\[$i\]"]
+  set dir [get_property $p direction]
+  puts "sdc data_in\[$i\]: dir=$dir"
 }
 
 set sdc_cells [get_cells *]
@@ -246,9 +234,5 @@ set sdc_nets [get_nets *]
 puts "sdc bus design nets: [llength $sdc_nets]"
 
 report_checks
-puts "PASS: SDC bus design report_checks"
 
 sta::set_cmd_namespace sta
-puts "PASS: SDC bus design queries"
-
-puts "ALL PASSED"

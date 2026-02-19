@@ -9,7 +9,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1477
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- Test 1: SPEF with dmp_ceff_two_pole reduction ---
-PASS: read_spef
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -39,7 +38,6 @@ Path Type: max
          302.89   slack (MET)
 
 
-PASS: dmp_ceff_two_pole report_checks
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -67,11 +65,8 @@ Path Type: min
          -11.43   slack (VIOLATED)
 
 
-PASS: dmp_ceff_two_pole min path
 No paths found.
-PASS: dmp_ceff_two_pole in1->out
 No paths found.
-PASS: dmp_ceff_two_pole in2->out
 Warning: parasitics_pi_pole_residue.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -104,14 +99,12 @@ Fanout     Cap    Slew   Delay    Time   Description
                                 302.89   slack (MET)
 
 
-PASS: dmp_ceff_two_pole with fields
 --- Test 2: query pi_pole_residue ---
 find_pi_pole_residue u1/Y rise max: done (invalid command name "sta::find_pi_pole_residue")
 find_pi_pole_residue u1/Y fall max: done (invalid command name "sta::find_pi_pole_residue")
 find_pi_pole_residue u2/Y rise max: done (invalid command name "sta::find_pi_pole_residue")
 find_pi_pole_residue r1/Q rise max: done (invalid command name "sta::find_pi_pole_residue")
 find_pi_pole_residue r2/Q fall min: done (invalid command name "sta::find_pi_pole_residue")
-PASS: pi_pole_residue queries
 --- Test 3: dcalc with two-pole ---
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
@@ -512,7 +505,6 @@ Driver waveform slew = 18.76
 .............................................
 
 dcalc r3 CLK->Q max: done
-PASS: dcalc reports with two-pole
 --- Test 4: switch delay calculators ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -543,7 +535,6 @@ Path Type: max
          298.15   slack (MET)
 
 
-PASS: arnoldi after two-pole
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -679,7 +670,6 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: back to elmore
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -709,7 +699,6 @@ Path Type: max
          360.62   slack (MET)
 
 
-PASS: two-pole again
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -739,7 +728,6 @@ Path Type: max
          348.18   slack (MET)
 
 
-PASS: lumped_cap
 --- Test 5: coupling + two-pole ---
 Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
@@ -748,7 +736,6 @@ Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
 Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
 Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
 Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
-PASS: read_spef with coupling
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -778,7 +765,6 @@ Path Type: max
          315.53   slack (MET)
 
 
-PASS: two-pole with coupling
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -806,7 +792,6 @@ Path Type: min
          -13.38   slack (VIOLATED)
 
 
-PASS: two-pole min with coupling
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -836,7 +821,6 @@ Path Type: max
                          315.53   slack (MET)
 
 
-PASS: two-pole fields with coupling
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -866,7 +850,6 @@ Path Type: max
          314.41   slack (MET)
 
 
-PASS: elmore with coupling
 --- Test 6: re-read SPEF ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -897,7 +880,6 @@ Path Type: max
          302.89   slack (MET)
 
 
-PASS: re-read without coupling
 Net r1q
  Pin capacitance: 0.3994-0.5226
  Wire capacitance: 13.4000-13.4129
@@ -973,14 +955,11 @@ Load pins
  out output port
 
 report_net out: done
-PASS: net reports
 --- Test 7: annotation ---
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: annotation
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: annotation unannotated
 --- Test 8: manual pi + elmore then query ---
 set_pi_model u1/Y: 
 set_elmore u1/Y->u2/B: 
@@ -1013,7 +992,6 @@ Path Type: max
          344.30   slack (MET)
 
 
-PASS: elmore with manual pi
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -1043,7 +1021,6 @@ Path Type: max
          384.92   slack (MET)
 
 
-PASS: two-pole with manual pi
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -1073,5 +1050,3 @@ Path Type: max
          376.70   slack (MET)
 
 
-PASS: lumped_cap with manual pi
-ALL PASSED

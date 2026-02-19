@@ -1,13 +1,9 @@
 --- net properties ---
-PASS: net properties
 --- port properties ---
-PASS: port properties
 --- instance properties ---
-PASS: instance properties
 --- pin properties ---
   pin buf1/A: direction=input is_clock=0
   pin buf1/Z: direction=output is_clock=0
-PASS: pin properties
 --- disable timing arc ---
 Startpoint: in2 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -39,7 +35,6 @@ Path Type: max
            7.91   slack (MET)
 
 
-PASS: disable arc
 --- re-enable timing arc ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -71,32 +66,19 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: re-enable arc
 --- constraint setup ---
-PASS: constraint setup
 --- write_sdc before removal ---
-PASS: write before removal
 --- remove false_path ---
-PASS: remove false path
 --- remove multicycle ---
-PASS: remove multicycle
 --- remove max/min delay ---
-PASS: remove max/min delay
 --- remove clock_groups ---
-PASS: remove clock_groups
 --- remove clock_uncertainty ---
-PASS: remove clock_uncertainty
 --- write_sdc after removal ---
-PASS: write after removal
 --- filter queries ---
 BUF_X1 cells: 1
-PASS: filter ref_name
 DFF_X1 cells: 3
-PASS: filter DFF
 input ports: 5
-PASS: filter input ports
 output ports: 2
-PASS: filter output ports
 --- report_net_load ---
 Net clk1
  Pin capacitance: 1.71-1.90
@@ -298,9 +280,7 @@ Driver pins
 Load pins
  out2 output port
 
-PASS: report_net
 --- delete clocks and rebuild ---
-PASS: delete clocks
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk_new)
 Endpoint: out1 (output port clocked by clk_new)
 Path Group: clk_new
@@ -327,6 +307,3 @@ Path Type: max
            5.92   slack (MET)
 
 
-PASS: rebuilt constraints
-PASS: write after rebuild
-ALL PASSED

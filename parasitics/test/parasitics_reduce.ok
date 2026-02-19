@@ -9,7 +9,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1477
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- read_spef with reduction ---
-PASS: read_spef (with default reduction)
 --- dmp_ceff_elmore with reduced parasitics ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -40,11 +39,8 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: dmp_ceff_elmore report_checks
 No paths found.
-PASS: dmp_ceff_elmore in1->out
 No paths found.
-PASS: dmp_ceff_elmore in2->out
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -76,7 +72,6 @@ Path Type: max
                          301.74   slack (MET)
 
 
-PASS: dmp_ceff_elmore with fields
 --- arnoldi with parasitics (reduction) ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -107,11 +102,8 @@ Path Type: max
          298.15   slack (MET)
 
 
-PASS: arnoldi report_checks
 No paths found.
-PASS: arnoldi in1->out with fields
 No paths found.
-PASS: arnoldi in2->out with fields
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -461,9 +453,7 @@ Path Type: max
          301.74   slack (MET)
 
 
-PASS: prima report_checks
 No paths found.
-PASS: prima in1->out with fields
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -653,7 +643,6 @@ Path Type: max
          360.62   slack (MET)
 
 
-PASS: dmp_ceff_two_pole report_checks
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -681,7 +670,6 @@ Path Type: min
           -7.56   slack (VIOLATED)
 
 
-PASS: dmp_ceff_two_pole min path
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -883,7 +871,6 @@ Path Type: max
          348.18   slack (MET)
 
 
-PASS: lumped_cap report_checks
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
@@ -966,7 +953,6 @@ Path Type: max
                          348.18   slack (MET)
 
 
-PASS: lumped_cap with fields
 --- annotated delay reporting ---
                                                           Not   
 Delay type                        Total    Annotated   Annotated
@@ -1144,4 +1130,3 @@ Load pins
  r2/D input (DFFHQx4_ASAP7_75t_R) 0.5479-0.6212
 
 report_net in2: done
-ALL PASSED

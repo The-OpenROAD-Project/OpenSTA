@@ -1,5 +1,3 @@
-PASS: read Nangate45
-PASS: basic setup
 Cell INV_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -7,7 +5,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 1.55-1.70
  ZN output function=!A
-PASS: report INV_X1
 Cell BUF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -15,7 +12,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 0.88-0.97
  Z output function=A
-PASS: report BUF_X1
 Cell NAND2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -24,7 +20,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 1.53-1.60
  A2 input 1.50-1.66
  ZN output function=!(A1*A2)
-PASS: report NAND2_X1
 Cell NOR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -33,7 +28,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 1.41-1.71
  A2 input 1.56-1.65
  ZN output function=!(A1+A2)
-PASS: report NOR2_X1
 Cell AOI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -43,7 +37,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 1.45-1.65
  B2 input 1.41-1.68
  ZN output function=!(A+(B1*B2))
-PASS: report AOI21_X1
 Cell OAI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -53,7 +46,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 1.46-1.66
  B2 input 1.56-1.57
  ZN output function=!(A*(B1+B2))
-PASS: report OAI21_X1
 Cell AND2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -62,7 +54,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 0.87-0.92
  A2 input 0.89-0.97
  ZN output function=A1*A2
-PASS: report AND2_X1
 Cell OR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -71,7 +62,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 0.79-0.95
  A2 input 0.90-0.94
  ZN output function=A1+A2
-PASS: report OR2_X1
 Cell XOR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -80,7 +70,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A input 2.18-2.23
  B input 2.36-2.41
  Z output function=A^B
-PASS: report XOR2_X1
 Cell XNOR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -89,7 +78,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A input 2.13-2.23
  B input 2.37-2.57
  ZN output function=!(A^B)
-PASS: report XNOR2_X1
 Cell FA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -100,7 +88,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CI input 2.66-2.76
  CO output function=(A*B)+(CI*(A+B))
  S output function=CI^(A^B)
-PASS: report FA_X1
 Cell HA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -110,7 +97,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B input 3.34-3.45
  CO output function=A*B
  S output function=A^B
-PASS: report HA_X1
 Cell MUX2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -120,7 +106,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  B input 0.90-0.94
  S input 1.81-1.92
  Z output function=(S*B)+(A*!S)
-PASS: report MUX2_X1
 Cell TINV_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -129,7 +114,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  EN input 1.64-1.75
  I input 1.38-1.44
  ZN tristate enable=!EN function=!I 0.80-0.80
-PASS: report TINV_X1
 Cell DFF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -141,7 +125,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.86-0.95
  Q output function=IQ
  QN output function=IQN
-PASS: report DFF_X1
 Cell DFF_X2
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -153,7 +136,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.84-0.93
  Q output function=IQ
  QN output function=IQN
-PASS: report DFF_X2
 Cell DFFR_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -166,7 +148,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.88-0.98
  Q output function=IQ
  QN output function=IQN
-PASS: report DFFR_X1
 Cell DFFS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -179,7 +160,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.88-0.97
  Q output function=IQ
  QN output function=IQN
-PASS: report DFFS_X1
 Cell DFFRS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -193,7 +173,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.87-0.96
  Q output function=IQ
  QN output function=IQN
-PASS: report DFFRS_X1
 Cell SDFF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -207,7 +186,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.87-0.96
  Q output function=IQ
  QN output function=IQN
-PASS: report SDFF_X1
 Cell SDFFR_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -222,7 +200,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.94-1.03
  Q output function=IQ
  QN output function=IQN
-PASS: report SDFFR_X1
 Cell SDFFS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -237,7 +214,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.89-0.98
  Q output function=IQ
  QN output function=IQN
-PASS: report SDFFS_X1
 Cell SDFFRS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -253,7 +229,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.86-0.95
  Q output function=IQ
  QN output function=IQN
-PASS: report SDFFRS_X1
 Cell TLAT_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -265,7 +240,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  G input 0.92-1.02
  OE input 1.42-1.50
  Q tristate enable=OE function=IQ 0.79-0.79
-PASS: report TLAT_X1
 Cell CLKGATETST_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -276,7 +250,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  E input 0.84-0.88
  SE input 0.72-0.78
  GCK output
-PASS: report CLKGATETST_X1
 Cell CLKGATETST_X2
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -287,19 +260,12 @@ File ../../test/nangate45/Nangate45_typ.lib
  E input 0.84-0.87
  SE input 0.75-0.81
  GCK output
-PASS: report CLKGATETST_X2
 No paths found.
-PASS: report_checks path 1
 No paths found.
-PASS: report_checks path 2
 No paths found.
-PASS: report_checks path 3
 No paths found.
-PASS: report_checks min path
 No paths found.
-PASS: report_checks rise_to
 No paths found.
-PASS: report_checks fall_to
 Cell INV_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -342,7 +308,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 44.92-49.19
  ZN output function=!A
-PASS: INV drive strengths
 Cell BUF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -385,7 +350,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 23.57-26.70
  Z output function=A
-PASS: BUF drive strengths
 Cell NAND2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -548,10 +512,6 @@ File ../../test/nangate45/Nangate45_typ.lib
  A3 input 5.45-6.08
  A4 input 5.80-6.03
  ZN output function=!(((A1+A2)+A3)+A4)
-PASS: NAND/NOR drive strengths
-PASS: write_liberty timing models
-PASS: read CCSN library
-PASS: read latch library
 max slew
 
 Pin                                    Limit    Slew   Slack
@@ -564,7 +524,6 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 nor1/ZN                                26.70    1.14   25.56 (MET)
 
-PASS: report_check_types
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
@@ -575,7 +534,3 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1337
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-PASS: read ASAP7 SIMPLE
-PASS: read ASAP7 AO
-PASS: read ASAP7 OA
-ALL PASSED

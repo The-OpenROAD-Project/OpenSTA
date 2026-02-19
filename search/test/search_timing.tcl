@@ -10,11 +10,9 @@ set_output_delay -clock clk 2.0 [get_ports out1]
 
 # Setup analysis
 report_checks -path_delay max
-puts "PASS: max path delay"
 
 # Hold analysis
 report_checks -path_delay min
-puts "PASS: min path delay"
 
 # Check worst slack
 set slack [sta::worst_slack_cmd "max"]
@@ -23,6 +21,3 @@ if { $slack == "" } {
   puts "FAIL: no slack found"
   exit 1
 }
-puts "PASS: worst slack computed"
-
-puts "ALL PASSED"

@@ -24,7 +24,6 @@ source ../../test/helpers.tcl
 # Read Sky130 library (has test_cell, scan, tristate, latch cells)
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read Sky130 library"
 
 ############################################################
 # Query scan flip-flop cells (exercises test_cell path in reader)
@@ -37,9 +36,7 @@ puts "sdfxtp_1 area = $sdf_area"
 # Check test_cell exists
 set tc [$sdf_cell test_cell]
 if {$tc != "NULL"} {
-  puts "PASS: sdfxtp_1 has test_cell"
 } else {
-  puts "PASS: sdfxtp_1 test_cell is null (ok)"
 }
 
 # Query scan ports
@@ -52,7 +49,6 @@ foreach port_name {SCD SCE CLK D Q} {
     }
   }
 }
-puts "PASS: scan cell port queries"
 
 # Another scan cell
 catch {
@@ -60,7 +56,6 @@ catch {
   set area2 [get_property $sdf_cell2 area]
   puts "sdfxbp_1 area = $area2"
 }
-puts "PASS: second scan cell"
 
 ############################################################
 # Query tristate buffer cells (exercises three_state parsing)
@@ -79,7 +74,6 @@ foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
     }
   }
 }
-puts "PASS: tristate cell queries"
 
 ############################################################
 # Query latch cells (exercises latch sequential parsing)
@@ -94,7 +88,6 @@ foreach cell_name {sky130_fd_sc_hd__dlxtp_1 sky130_fd_sc_hd__dlxtn_1
     }
   }
 }
-puts "PASS: latch cell queries"
 
 ############################################################
 # Query DFF cells with async set/clear (exercises recovery/removal arcs)
@@ -111,7 +104,6 @@ foreach cell_name {sky130_fd_sc_hd__dfrtp_1 sky130_fd_sc_hd__dfstp_1
     }
   }
 }
-puts "PASS: DFF with async set/clear"
 
 ############################################################
 # Internal power queries on various cells
@@ -127,7 +119,6 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
     }
   }
 }
-puts "PASS: internal power queries"
 
 ############################################################
 # Port function and direction queries (exercises setFunction)
@@ -151,13 +142,11 @@ foreach cell_name {sky130_fd_sc_hd__and2_1 sky130_fd_sc_hd__or2_1
     }
   }
 }
-puts "PASS: port function queries"
 
 ############################################################
 # Read Nangate library for more queries
 ############################################################
 read_liberty ../../test/nangate45/Nangate45_typ.lib
-puts "PASS: read Nangate45"
 
 ############################################################
 # Port capacitance and drive resistance
@@ -178,7 +167,6 @@ foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
     $port_iter finish
   }
 }
-puts "PASS: port capacitance queries"
 
 ############################################################
 # Timing arc set queries (exercises makeTimingArcMap paths)
@@ -199,13 +187,11 @@ foreach cell_name {DFF_X1 DFFR_X1 DFFS_X1 DFFRS_X1} {
     }
   }
 }
-puts "PASS: timing arc queries"
 
 ############################################################
 # Read bus-port library (exercises bus port parsing)
 ############################################################
 read_liberty ../../test/nangate45/fakeram45_64x7.lib
-puts "PASS: read fakeram library (bus ports)"
 
 # Query bus ports
 catch {
@@ -234,13 +220,11 @@ catch {
     $port_iter finish
   }
 }
-puts "PASS: bus port queries"
 
 ############################################################
 # Read ASAP7 SEQ for statetable/latch coverage
 ############################################################
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
-puts "PASS: read ASAP7 SEQ (latch + statetable)"
 
 # Query ASAP7 latch cells
 catch {
@@ -254,7 +238,6 @@ catch {
     }
   }
 }
-puts "PASS: ASAP7 latch cell arcs"
 
 # Query ICG (Integrated Clock Gate) cell with statetable
 catch {
@@ -268,7 +251,6 @@ catch {
     }
   }
 }
-puts "PASS: ASAP7 ICG cell arcs"
 
 ############################################################
 # Link a design and run timing to exercise more Liberty.cc paths
@@ -283,14 +265,11 @@ set_input_delay -clock clk2 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 3.0 [get_ports out2]
 set_input_transition 0.1 [all_inputs]
-puts "PASS: design setup"
 
 report_checks
-puts "PASS: report_checks"
 
 # Report power to exercise internal power models
 report_power
-puts "PASS: report_power"
 
 ############################################################
 # Write liberty roundtrip
@@ -298,7 +277,4 @@ puts "PASS: report_power"
 set outfile [make_result_file liberty_seq_scan_bus_write.lib]
 catch {
   sta::write_liberty NangateOpenCellLibrary $outfile
-  puts "PASS: write_liberty"
 }
-
-puts "ALL PASSED"

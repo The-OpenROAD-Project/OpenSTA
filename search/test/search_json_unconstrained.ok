@@ -434,7 +434,6 @@
 }
 ]
 }
-PASS: json format multi-endpoint
 --- report_checks -format json min ---
 {"checks": [
 {
@@ -533,7 +532,6 @@ PASS: json format multi-endpoint
 }
 ]
 }
-PASS: json format min
 --- report_checks -format json min_max ---
 {"checks": [
 {
@@ -707,7 +705,6 @@ PASS: json format min
 }
 ]
 }
-PASS: json format min_max
 --- report_checks -format json to specific pin ---
 {"checks": [
 {
@@ -806,7 +803,6 @@ PASS: json format min_max
 }
 ]
 }
-PASS: json format to specific pin
 --- report_checks -format json from specific port ---
 {"checks": [
 {
@@ -905,7 +901,6 @@ PASS: json format to specific pin
 }
 ]
 }
-PASS: json format from port
 --- report_checks -format json through pin ---
 {"checks": [
 {
@@ -1004,7 +999,6 @@ PASS: json format from port
 }
 ]
 }
-PASS: json format through pin
 --- report_checks -unconstrained format full ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1033,7 +1027,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: unconstrained full format
 --- report_checks -unconstrained format short ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1041,7 +1034,6 @@ Path Group: clk
 Path Type: max
 
 
-PASS: unconstrained short format
 --- report_checks -unconstrained format end ---
 max_delay/setup group clk
 
@@ -1050,13 +1042,11 @@ Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
 out1 (output)                           8.00    0.10    7.90 (MET)
 
-PASS: unconstrained end format
 --- report_checks -unconstrained format slack_only ---
 Group                                  Slack
 --------------------------------------------
 clk                                     7.90
 
-PASS: unconstrained slack_only format
 --- report_path on individual path (json format) ---
 {
 "path": [
@@ -1203,9 +1193,7 @@ PASS: unconstrained slack_only format
 ]
 }
 
-PASS: report_path_cmd json multi
 --- reportPathFull on a single path ---
-PASS: report_path full
 --- json report with full_clock format (for source clock paths) ---
 {"checks": [
 {
@@ -1285,7 +1273,6 @@ PASS: report_path full
 }
 ]
 }
-PASS: json with clock info
 --- report_checks -format json -sort_by_slack ---
 {"checks": [
 {
@@ -1365,7 +1352,6 @@ PASS: json with clock info
 }
 ]
 }
-PASS: json sort_by_slack
 --- report_checks min with fields ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -1401,7 +1387,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   1.04   slack (MET)
 
 
-PASS: min with all fields
 --- report_checks with -digits ---
 {"checks": [
 {
@@ -1481,5 +1466,3 @@ PASS: min with all fields
 }
 ]
 }
-PASS: json digits 6
-ALL PASSED

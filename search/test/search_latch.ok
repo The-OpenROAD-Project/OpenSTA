@@ -36,7 +36,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: max path delay with latch
 --- report_checks min through latch ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -65,7 +64,6 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: min path delay with latch
 --- report_checks min_max ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -131,7 +129,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: min_max path delay with latch
 --- report_checks full_clock through latch ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -170,7 +167,6 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: full_clock format with latch
 --- report_checks full_clock_expanded through latch ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -209,10 +205,8 @@ actual time borrow                      1.11
 --------------------------------------------
 
 
-PASS: full_clock_expanded with latch
 --- report_checks to latch output ---
 No paths found.
-PASS: path to latch output
 --- report_checks from latch output ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -250,7 +244,6 @@ actual time borrow                      0.06
 --------------------------------------------
 
 
-PASS: path from latch output
 --- report_check_types with latch ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -354,9 +347,7 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: check_types with latch
 --- check_setup with latch ---
-PASS: check_setup with latch
 --- report_clock_skew ---
 Clock clk
    0.00 source latency latch1/G ^
@@ -372,7 +363,6 @@ Clock clk
 --------------
    0.00 hold skew
 
-PASS: clock_skew with latch
 --- report_clock_latency ---
 Clock clk
 rise -> rise
@@ -394,7 +384,6 @@ fall -> fall
            0.00 skew
 
 
-PASS: clock_latency with latch
 --- report_pulse_width_checks ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -481,7 +470,6 @@ Check: sequential_clock_pulse_width
            4.96   slack (MET)
 
 
-PASS: pulse_width_checks with latch
 --- find_timing_paths through latch ---
 Found 5 paths
   path to latch2/D slack=0.0
@@ -489,7 +477,6 @@ Found 5 paths
   path to latch1/D slack=0.0
   path to latch1/D slack=0.0
   path to latch1/D slack=0.0
-PASS: find_timing_paths with latch
 --- all_registers with latch ---
 Register cells: 3
   latch1
@@ -500,11 +487,8 @@ Edge-triggered cells: 1
 Data pins: 3
 Clock pins: 3
 Output pins: 4
-PASS: all_registers with latch
 --- report_tns/report_wns with latch ---
 tns max 0.00
 wns max 0.00
 worst slack max 0.00
 worst slack min 0.05
-PASS: tns/wns with latch
-ALL PASSED

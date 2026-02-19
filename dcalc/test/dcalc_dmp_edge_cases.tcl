@@ -30,14 +30,12 @@ set_input_transition 0.1 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "elmore zero load: $msg"
-puts "PASS: elmore zero load"
 
 # Tiny load
 set_load 0.00001 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "elmore tiny load: $msg"
-puts "PASS: elmore tiny load"
 
 # Very large load (potential overflow path)
 set_load 5.0 [get_ports out1]
@@ -45,14 +43,12 @@ set_input_transition 0.1 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "elmore large load: $msg"
-puts "PASS: elmore large load"
 
 # Huge load
 set_load 10.0 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "elmore huge load: $msg"
-puts "PASS: elmore huge load"
 
 set_load 0 [get_ports out1]
 
@@ -66,21 +62,18 @@ set_input_transition 0.0001 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "elmore fast transition: $msg"
-puts "PASS: elmore fast transition"
 
 # Very slow transition
 set_input_transition 5.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "elmore slow transition: $msg"
-puts "PASS: elmore slow transition"
 
 # Extreme slow
 set_input_transition 10.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "elmore extreme slow: $msg"
-puts "PASS: elmore extreme slow"
 
 set_input_transition 0.1 [get_ports in1]
 
@@ -92,17 +85,14 @@ puts "--- dmp_ceff_elmore combined extremes ---"
 set_load 5.0 [get_ports out1]
 set_input_transition 0.001 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: elmore extreme: large load + fast slew"
 
 set_load 0.0001 [get_ports out1]
 set_input_transition 5.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: elmore extreme: small load + slow slew"
 
 set_load 5.0 [get_ports out1]
 set_input_transition 5.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: elmore extreme: large load + slow slew"
 
 set_load 0 [get_ports out1]
 set_input_transition 0.1 [get_ports in1]
@@ -115,19 +105,15 @@ set_delay_calculator dmp_ceff_two_pole
 
 set_load 0 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: two_pole zero load"
 
 set_load 0.00001 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: two_pole tiny load"
 
 set_load 5.0 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: two_pole large load"
 
 set_load 10.0 [get_ports out1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: two_pole huge load"
 
 set_load 0 [get_ports out1]
 
@@ -135,11 +121,9 @@ puts "--- dmp_ceff_two_pole extreme transitions ---"
 
 set_input_transition 0.0001 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: two_pole fast transition"
 
 set_input_transition 5.0 [get_ports in1]
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: two_pole slow transition"
 
 set_input_transition 0.1 [get_ports in1]
 
@@ -174,8 +158,6 @@ puts "dcalc reg1 setup: $msg"
 catch {report_dcalc -from [get_pins reg1/CK] -to [get_pins reg1/D] -min} msg
 puts "dcalc reg1 hold: $msg"
 
-puts "PASS: report_dcalc all arcs"
-
 ############################################################
 # report_dcalc with various digit counts
 ############################################################
@@ -188,7 +170,6 @@ catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -digits 6} msg
 puts "6 digits: $msg"
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -digits 10} msg
 puts "10 digits: $msg"
-puts "PASS: dcalc digits"
 
 ############################################################
 # Sweep load/slew matrix for convergence coverage
@@ -200,13 +181,12 @@ foreach calc {dmp_ceff_elmore dmp_ceff_two_pole} {
     foreach slew {0.01 0.05 0.1 0.5 1.0} {
       set_load $load [get_ports out1]
       set_input_transition $slew [get_ports in1]
-      catch { report_checks -from [get_ports in1] -to [get_ports out1] > /dev/null }
+      report_checks -from [get_ports in1] -to [get_ports out1] > /dev/null
     }
   }
 }
 set_load 0 [get_ports out1]
 set_input_transition 0.1 [get_ports in1]
-puts "PASS: load/slew sweep"
 
 ############################################################
 # Unit delay calculator
@@ -216,7 +196,6 @@ set_delay_calculator unit
 report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "unit dcalc buf1: $msg"
-puts "PASS: unit calculator"
 
 ############################################################
 # Lumped cap calculator
@@ -228,9 +207,6 @@ report_checks -from [get_ports in1] -to [get_ports out1]
 catch {report_dcalc -from [get_pins buf1/A] -to [get_pins buf1/Z] -max} msg
 puts "lumped_cap dcalc buf1: $msg"
 set_load 0 [get_ports out1]
-puts "PASS: lumped_cap calculator"
 
 # Restore default
 set_delay_calculator dmp_ceff_elmore
-
-puts "ALL PASSED"

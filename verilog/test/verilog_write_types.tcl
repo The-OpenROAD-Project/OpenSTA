@@ -47,19 +47,15 @@ puts "nets after additions: [llength [get_nets *]]"
 # Write basic verilog
 set out1 [make_result_file verilog_types_out1.v]
 write_verilog $out1
-puts "PASS: write_verilog with multiple types"
 
 if { [file exists $out1] && [file size $out1] > 0 } {
-  puts "PASS: output file 1 exists, size: [file size $out1]"
 }
 
 # Write with pwr_gnd
 set out2 [make_result_file verilog_types_out2.v]
 write_verilog -include_pwr_gnd $out2
-puts "PASS: write_verilog -include_pwr_gnd multi-type"
 
 if { [file exists $out2] && [file size $out2] > 0 } {
-  puts "PASS: output file 2 exists, size: [file size $out2]"
 }
 
 # Cleanup added instances/nets
@@ -76,7 +72,6 @@ delete_net wire_b
 delete_net wire_c
 delete_net wire_d
 delete_net wire_e
-puts "PASS: cleanup"
 
 #---------------------------------------------------------------
 # Test 2: Write bus design (exercises writeInstBusPin)
@@ -88,15 +83,12 @@ link_design verilog_bus_test
 
 set out3 [make_result_file verilog_types_bus.v]
 write_verilog $out3
-puts "PASS: write_verilog bus design"
 
 if { [file exists $out3] && [file size $out3] > 0 } {
-  puts "PASS: bus output exists, size: [file size $out3]"
 }
 
 set out4 [make_result_file verilog_types_bus_pwr.v]
 write_verilog -include_pwr_gnd $out4
-puts "PASS: write_verilog bus -include_pwr_gnd"
 
 #---------------------------------------------------------------
 # Test 3: Write assign design
@@ -108,10 +100,8 @@ link_design verilog_assign_test
 
 set out5 [make_result_file verilog_types_assign.v]
 write_verilog $out5
-puts "PASS: write_verilog assign design"
 
 if { [file exists $out5] && [file size $out5] > 0 } {
-  puts "PASS: assign output exists, size: [file size $out5]"
 }
 
 #---------------------------------------------------------------
@@ -124,18 +114,14 @@ link_design counter
 
 set out6 [make_result_file verilog_types_attr.v]
 write_verilog $out6
-puts "PASS: write_verilog attribute design"
 
 if { [file exists $out6] && [file size $out6] > 0 } {
-  puts "PASS: attribute output exists, size: [file size $out6]"
 }
 
 set out7 [make_result_file verilog_types_attr_pwr.v]
 write_verilog -include_pwr_gnd $out7
-puts "PASS: write_verilog attribute -include_pwr_gnd"
 
 if { [file exists $out7] && [file size $out7] > 0 } {
-  puts "PASS: attr pwr output exists, size: [file size $out7]"
 }
 
 #---------------------------------------------------------------
@@ -153,20 +139,16 @@ link_design top
 
 set out8 [make_result_file verilog_types_asap7.v]
 write_verilog $out8
-puts "PASS: write_verilog ASAP7"
 
 if { [file exists $out8] && [file size $out8] > 0 } {
-  puts "PASS: ASAP7 output exists, size: [file size $out8]"
 }
 
 set out9 [make_result_file verilog_types_asap7_pwr.v]
 write_verilog -include_pwr_gnd $out9
-puts "PASS: write_verilog ASAP7 -include_pwr_gnd"
 
 # Write with remove_cells
 set out10 [make_result_file verilog_types_asap7_remove.v]
 write_verilog -remove_cells {} $out10
-puts "PASS: write_verilog ASAP7 -remove_cells {}"
 
 # Compare sizes
 set sz8 [file size $out8]
@@ -184,14 +166,9 @@ link_design verilog_complex_bus_test
 
 set out11 [make_result_file verilog_types_complex_bus.v]
 write_verilog $out11
-puts "PASS: write_verilog complex bus"
 
 if { [file exists $out11] && [file size $out11] > 0 } {
-  puts "PASS: complex bus output exists, size: [file size $out11]"
 }
 
 set out12 [make_result_file verilog_types_complex_bus_pwr.v]
 write_verilog -include_pwr_gnd $out12
-puts "PASS: write_verilog complex bus -include_pwr_gnd"
-
-puts "ALL PASSED"

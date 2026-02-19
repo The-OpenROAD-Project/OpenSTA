@@ -29,7 +29,6 @@ Path Type: max
            8.87   slack (MET)
 
 
-PASS: false_path rise_from
 --- set_false_path -fall_from ---
 Startpoint: in2 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -61,9 +60,7 @@ Path Type: max
            8.91   slack (MET)
 
 
-PASS: false_path fall_from
 --- unset rise/fall from ---
-PASS: unset rise/fall from
 --- set_false_path -rise_to ---
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
@@ -91,7 +88,6 @@ Path Type: max
            7.92   slack (MET)
 
 
-PASS: false_path rise_to
 --- set_false_path -fall_to ---
 Startpoint: in2 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -123,9 +119,7 @@ Path Type: max
            8.91   slack (MET)
 
 
-PASS: false_path fall_to
 --- unset rise/fall to ---
-PASS: unset rise/fall to
 --- set_false_path -rise_through ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -183,7 +177,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: false_path rise_through
 --- set_false_path -fall_through ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -241,20 +234,14 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: false_path fall_through
 --- unset rise/fall through ---
-PASS: unset rise/fall through
 --- priority: broad false_path ---
 No paths found.
-PASS: broad false_path
 --- priority: narrower multicycle overriding false_path ---
 No paths found.
-PASS: narrower mcp overrides
 --- priority: most specific max_delay ---
 No paths found.
-PASS: most specific max_delay
 --- unset all ---
-PASS: unset all priority
 --- false_path from clock ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -311,7 +298,6 @@ Path Type: max
           11.92   slack (MET)
 
 
-PASS: false_path clk1->clk2
 --- unset clock false_path ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -369,7 +355,6 @@ Path Type: max
            4.88   slack (MET)
 
 
-PASS: unset clock false_path
 --- false_path -rise_from clock ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -426,9 +411,7 @@ Path Type: max
           11.92   slack (MET)
 
 
-PASS: false_path rise_from clock
 --- unset rise_from clock ---
-PASS: unset rise_from clock
 --- overlapping exceptions ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -485,7 +468,6 @@ Path Type: max
           11.92   slack (MET)
 
 
-PASS: overlapping exceptions
 --- unset overlapping ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -542,7 +524,6 @@ Path Type: max
           11.92   slack (MET)
 
 
-PASS: unset overlapping
 --- mcp -start -rise_from ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -599,7 +580,6 @@ Path Type: max
           11.92   slack (MET)
 
 
-PASS: mcp start rise_from
 --- mcp -end -fall_to ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -656,9 +636,7 @@ Path Type: max
           11.92   slack (MET)
 
 
-PASS: mcp end fall_to
 --- unset mcp ---
-PASS: unset mcp
 --- max_delay -rise_from -to ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -715,7 +693,6 @@ Path Type: max
           11.92   slack (MET)
 
 
-PASS: max_delay rise_from
 --- min_delay -from -fall_to ---
 Startpoint: in2 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -773,11 +750,4 @@ Path Type: min
            3.08   slack (MET)
 
 
-PASS: min_delay fall_to
 --- unset max/min delays ---
-PASS: unset max/min delays
-PASS: write_sdc exceptions
-PASS: write_sdc compatible
-PASS: read_sdc exceptions
-PASS: write_sdc after read
-ALL PASSED

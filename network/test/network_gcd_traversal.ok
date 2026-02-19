@@ -1,7 +1,4 @@
-PASS: read sky130hd
 Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
-PASS: link gcd
-PASS: SDC
 Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: resp_msg[15] (output port clocked by clk)
@@ -42,7 +39,6 @@ Path Type: max
            0.75   slack (MET)
 
 
-PASS: initial timing
 --- design counts ---
 cells: 1292
 nets: 288
@@ -56,7 +52,6 @@ glob nand* = 22
 regex inv = 7
 regex *_1 = 148
 nocase INV_* = 0
-PASS: cell matching
 --- net connectivity ---
 net _036_ pins=4
 net _037_ pins=4
@@ -78,7 +73,6 @@ net _111_ pins=11
 net _113_ pins=12
 net _115_ pins=17
 net _116_ pins=28
-PASS: net connectivity (20 nets)
 Net _000_
  Pin capacitance: 0.0015-0.0016
  Wire capacitance: 0.0000
@@ -289,7 +283,6 @@ Driver pins
 Load pins
  _425_/D input (sky130_fd_sc_hd__dfxtp_2) 0.0017-0.0017
 
-PASS: report_net sample
 --- instance properties ---
 TAP_0 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_0
 TAP_1 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1
@@ -311,7 +304,6 @@ TAP_1011 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1011
 TAP_1012 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1012
 TAP_1013 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1013
 TAP_1014 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1014
-PASS: instance properties
 --- pin properties ---
 Warning: network_gcd_traversal.tcl line 1, pin 'TAP_0/*' not found.
 Warning: network_gcd_traversal.tcl line 1, pin 'TAP_1/*' not found.
@@ -1394,7 +1386,6 @@ Warning: network_gcd_traversal.tcl line 1, pin 'TAP_999/*' not found.
   _211_/Y dir=output
   _212_/A dir=input
   _212_/Y dir=output
-PASS: pin properties (41 pins)
 --- port properties ---
 port clk dir=input
 port req_rdy dir=output
@@ -1450,16 +1441,13 @@ port resp_msg[3] dir=output
 port resp_msg[2] dir=output
 port resp_msg[1] dir=output
 port resp_msg[0] dir=output
-PASS: port properties
 --- library queries ---
 find_library: sky130_fd_sc_hd__tt_025C_1v80
 library: sky130_fd_sc_hd__tt_025C_1v80
 library: verilog
-PASS: library queries
 --- timing path traversal ---
 Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 No paths found.
-PASS: from clk
 Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reset (input port clocked by clk)
 Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
@@ -1548,7 +1536,6 @@ Path Type: max
            3.64   slack (MET)
 
 
-PASS: from reset
 Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: req_val (input port clocked by clk)
 Endpoint: _413_ (rising edge-triggered flip-flop clocked by clk)
@@ -1636,7 +1623,6 @@ Path Type: max
            3.78   slack (MET)
 
 
-PASS: from req_val
 Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: _411_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: resp_val (output port clocked by clk)
@@ -1722,18 +1708,12 @@ Path Type: max
            3.34   slack (MET)
 
 
-PASS: to resp_val
 Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 No paths found.
-PASS: to resp_rdy
 No paths found.
 No paths found.
 No paths found.
 No paths found.
 No paths found.
 No paths found.
-PASS: input-to-output paths
 --- namespace ---
-PASS: set namespace sdc
-PASS: set namespace sta
-ALL PASSED

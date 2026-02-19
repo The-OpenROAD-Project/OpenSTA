@@ -141,5 +141,3 @@ puts "DFF_X1 cells count: [llength $dff_cells]"
 
 puts "--- report_checks to verify timing graph ---"
 report_checks
-
-puts "ALL PASSED"

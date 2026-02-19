@@ -98,8 +98,6 @@ Fanout     Cap    Slew   Delay    Time   Description
  current 1mA
  power 1nW
  distance 1um
-PASS: log with timing reports
-PASS: log file has 3404 chars
 --- Test 2: simultaneous log and redirect ---
 Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -129,24 +127,15 @@ Path Type: min
            0.05   slack (MET)
 
 
-PASS: simultaneous log and redirect
-PASS: log file has 2022 chars
-PASS: redirect file has 997 chars
 --- Test 3: redirect file append ---
-PASS: redirect file append (3 writes)
-PASS: appended file has 2022 chars
 --- Test 4: redirect to string ---
 captured string 1: 902 chars
 captured string 2: 1120 chars
 with_output v1: 902 chars
 with_output v2: 2022 chars
-PASS: redirect to string
 --- Test 5: log + redirect string ---
 log+string captured: 997 chars
-PASS: log + redirect string
 --- Test 6: message suppression ---
-PASS: caught error
-PASS: suppress/unsuppress
 --- Test 7: report formatting ---
  time 1ps
  capacitance 1fF
@@ -176,5 +165,3 @@ PASS: suppress/unsuppress
  current 1mA
  power 1nW
  distance 1um
-PASS: report formatting
-ALL PASSED

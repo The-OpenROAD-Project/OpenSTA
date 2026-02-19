@@ -26,7 +26,6 @@ set_propagated_clock {clk1 clk2 clk3}
 #---------------------------------------------------------------
 puts "--- read_spef with reduction ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef (with default reduction)"
 
 #---------------------------------------------------------------
 # Run timing with different delay calculators to exercise
@@ -36,29 +35,22 @@ puts "PASS: read_spef (with default reduction)"
 # Default (dmp_ceff_elmore) - exercises reduce for Pi/Elmore
 puts "--- dmp_ceff_elmore with reduced parasitics ---"
 report_checks
-puts "PASS: dmp_ceff_elmore report_checks"
 
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: dmp_ceff_elmore in1->out"
 
 report_checks -from [get_ports in2] -to [get_ports out]
-puts "PASS: dmp_ceff_elmore in2->out"
 
 report_checks -fields {slew cap input_pins}
-puts "PASS: dmp_ceff_elmore with fields"
 
 # Arnoldi - exercises arnoldi reduction
 puts "--- arnoldi with parasitics (reduction) ---"
 set_delay_calculator arnoldi
 
 report_checks
-puts "PASS: arnoldi report_checks"
 
 report_checks -from [get_ports in1] -to [get_ports out] -fields {slew cap}
-puts "PASS: arnoldi in1->out with fields"
 
 report_checks -from [get_ports in2] -to [get_ports out] -fields {slew cap}
-puts "PASS: arnoldi in2->out with fields"
 
 # More detailed report_dcalc to exercise parasitic queries
 catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
@@ -85,10 +77,8 @@ catch {set_delay_calculator prima} msg
 puts "set_delay_calculator prima: $msg"
 
 report_checks
-puts "PASS: prima report_checks"
 
 report_checks -from [get_ports in1] -to [get_ports out] -fields {slew cap}
-puts "PASS: prima in1->out with fields"
 
 catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
 puts "prima dcalc u1: $msg"
@@ -104,10 +94,8 @@ puts "--- dmp_ceff_two_pole with parasitics ---"
 set_delay_calculator dmp_ceff_two_pole
 
 report_checks
-puts "PASS: dmp_ceff_two_pole report_checks"
 
 report_checks -path_delay min
-puts "PASS: dmp_ceff_two_pole min path"
 
 catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
 puts "dmp_ceff_two_pole dcalc u1: $msg"
@@ -125,13 +113,11 @@ puts "--- lumped_cap with parasitics ---"
 set_delay_calculator lumped_cap
 
 report_checks
-puts "PASS: lumped_cap report_checks"
 
 catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
 puts "lumped_cap dcalc u1: $msg"
 
 report_checks -fields {slew cap}
-puts "PASS: lumped_cap with fields"
 
 #---------------------------------------------------------------
 # Annotated delay reporting
@@ -162,8 +148,6 @@ puts "annotated_delay -report_unannotated: $msg"
 #---------------------------------------------------------------
 puts "--- report_net with various nets ---"
 foreach net_name {r1q r2q u1z u2z out in1 in2} {
-  catch {report_net -digits 4 $net_name} msg
+  report_net -digits 4 $net_name
   puts "report_net $net_name: done"
 }
-
-puts "ALL PASSED"

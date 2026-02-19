@@ -51,19 +51,14 @@ puts "is_delay_calc_name nonexistent: $invalid"
 #---------------------------------------------------------------
 puts "--- Test 2: SPEF with default calc ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef"
 
 report_checks
-puts "PASS: default calc with SPEF"
 
 report_checks -path_delay min
-puts "PASS: default min with SPEF"
 
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: in1->out with SPEF"
 
 report_checks -from [get_ports in2] -to [get_ports out]
-puts "PASS: in2->out with SPEF"
 
 #---------------------------------------------------------------
 # Test 3: Prima with varying reduce order
@@ -75,52 +70,46 @@ puts "set prima: $msg"
 
 # Default prima
 report_checks
-puts "PASS: prima default order"
 
 # Prima reduce order 1 (minimal)
 catch {sta::set_prima_reduce_order 1} msg
 puts "set_prima_reduce_order 1: $msg"
 report_checks
-puts "PASS: prima order 1"
 
 # Prima reduce order 2
 catch {sta::set_prima_reduce_order 2} msg
 puts "set_prima_reduce_order 2: $msg"
 report_checks
-puts "PASS: prima order 2"
 
 # Prima reduce order 3
 catch {sta::set_prima_reduce_order 3} msg
 puts "set_prima_reduce_order 3: $msg"
 report_checks
-puts "PASS: prima order 3"
 
 # Prima reduce order 5 (higher order)
 catch {sta::set_prima_reduce_order 5} msg
 puts "set_prima_reduce_order 5: $msg"
 report_checks
-puts "PASS: prima order 5"
 
 # report_dcalc with different orders
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "prima dcalc u1 order=5: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "prima dcalc u2 order=5: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "prima dcalc r1 order=5: done"
 
 # Switch back to lower order
-catch {sta::set_prima_reduce_order 2} msg
+sta::set_prima_reduce_order 2
 report_checks
-puts "PASS: prima order back to 2"
 
 # report_dcalc at order 2
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "prima dcalc u1 order=2: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max
 puts "prima dcalc r3 order=2: done"
 
 # Various slew values with prima
@@ -140,10 +129,8 @@ catch {set_delay_calculator arnoldi} msg
 puts "set arnoldi: $msg"
 
 report_checks
-puts "PASS: arnoldi with SPEF"
 
 report_checks -path_delay min
-puts "PASS: arnoldi min"
 
 # Various slew values with arnoldi
 foreach slew_val {1 10 50 100} {
@@ -162,29 +149,29 @@ foreach load_val {0.0001 0.001 0.01 0.05} {
 set_load 0 [get_ports out]
 
 # report_dcalc with arnoldi
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max
 puts "arnoldi dcalc u1: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max
 puts "arnoldi dcalc u2 A: done"
 
-catch {report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max} msg
+report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max
 puts "arnoldi dcalc u2 B: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "arnoldi dcalc r1: done"
 
-catch {report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -min} msg
+report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -min
 puts "arnoldi dcalc r2 min: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max
 puts "arnoldi dcalc r3: done"
 
 # DFF check arcs
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/D] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/D] -max
 puts "arnoldi r1 setup: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/D] -min} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/D] -min
 puts "arnoldi r1 hold: done"
 
 #---------------------------------------------------------------
@@ -195,31 +182,24 @@ puts "--- Test 5: rapid engine switching ---"
 
 set_delay_calculator lumped_cap
 report_checks
-puts "PASS: lumped_cap"
 
 set_delay_calculator dmp_ceff_elmore
 report_checks
-puts "PASS: dmp_ceff_elmore"
 
 set_delay_calculator dmp_ceff_two_pole
 report_checks
-puts "PASS: dmp_ceff_two_pole"
 
-catch {set_delay_calculator prima} msg
+set_delay_calculator prima
 report_checks
-puts "PASS: prima"
 
-catch {set_delay_calculator arnoldi} msg
+set_delay_calculator arnoldi
 report_checks
-puts "PASS: arnoldi"
 
 set_delay_calculator unit
 report_checks
-puts "PASS: unit"
 
 set_delay_calculator dmp_ceff_elmore
 report_checks
-puts "PASS: back to dmp_ceff_elmore"
 
 #---------------------------------------------------------------
 # Test 6: find_delays explicit call
@@ -228,11 +208,9 @@ puts "PASS: back to dmp_ceff_elmore"
 puts "--- Test 6: find_delays ---"
 
 sta::find_delays
-puts "PASS: find_delays"
 
 sta::delays_invalid
 sta::find_delays
-puts "PASS: delays_invalid + find_delays"
 
 #---------------------------------------------------------------
 # Test 7: Detailed report_checks with various formats after SPEF
@@ -240,21 +218,13 @@ puts "PASS: delays_invalid + find_delays"
 puts "--- Test 7: report formats ---"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: all fields"
 
 report_checks -format full_clock
-puts "PASS: full_clock"
 
 report_checks -format full_clock_expanded
-puts "PASS: full_clock_expanded"
 
 report_checks -endpoint_count 3
-puts "PASS: endpoint_count"
 
 report_checks -group_count 2
-puts "PASS: group_count"
 
 report_checks -digits 6
-puts "PASS: 6 digits"
-
-puts "ALL PASSED"

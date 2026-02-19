@@ -1,6 +1,3 @@
-PASS: read libraries
-PASS: link design
-PASS: SDC setup
 --- instance pattern matching ---
 all cells: 7
 buf* cells: 3
@@ -9,27 +6,23 @@ reg* cells: 1
 sub* cells: 2
 *1 cells: 4
 *out* cells: 2
-PASS: instance wildcard matching
 --- hierarchical instance matching ---
 sub1/* = 2
 sub2/* = 2
 sub1/and_gate found: 1
 sub1/buf_gate found: 1
 sub2/and_gate found: 1
-PASS: hierarchical instance matching
 --- net pattern matching ---
 all nets: 11
 w* nets: 5
 sub1/* nets: 4
 sub2/* nets: 4
-PASS: net pattern matching
 --- pin pattern matching ---
 buf_in/* pins: 2
 reg1/* pins: 6
 inv1/* pins: 2
 sub1/* pins: 3
 sub1/and_gate/* pins: 3
-PASS: pin pattern matching
 --- port name queries ---
 clk dir=input
 in1 dir=input
@@ -37,7 +30,6 @@ in2 dir=input
 in3 dir=input
 out1 dir=output
 out2 dir=output
-PASS: port name queries
 --- timing analysis through SDC ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
@@ -71,7 +63,6 @@ Path Type: max
            6.82   slack (MET)
 
 
-PASS: report_checks
 Startpoint: in3 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -102,7 +93,6 @@ Path Type: min
            1.07   slack (MET)
 
 
-PASS: min path
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -135,7 +125,6 @@ Path Type: max
            6.85   slack (MET)
 
 
-PASS: rise_from in1
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -168,7 +157,6 @@ Path Type: max
            6.82   slack (MET)
 
 
-PASS: fall_from in1
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -196,7 +184,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: to out1
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -229,7 +216,6 @@ Path Type: max
            6.82   slack (MET)
 
 
-PASS: to out2
 Warning: network_sdc_pattern_deep.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
@@ -269,7 +255,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   6.82   slack (MET)
 
 
-PASS: with fields
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -302,7 +287,6 @@ Path Type: max
            6.82   slack (MET)
 
 
-PASS: full_clock
 Warning: network_sdc_pattern_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
@@ -459,7 +443,6 @@ Path Type: max
            6.89   slack (MET)
 
 
-PASS: endpoint count 5
 Warning: network_sdc_pattern_deep.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
@@ -553,12 +536,9 @@ Path Type: max
            8.80   slack (MET)
 
 
-PASS: group count 3
 --- SDC operations ---
 No paths found.
-PASS: false path
 No paths found.
-PASS: multicycle path
 Startpoint: in2 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -587,7 +567,6 @@ Path Type: max
            1.84   slack (MET)
 
 
-PASS: max delay constraint
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -615,18 +594,15 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: disable_timing
 --- property queries ---
 buf_in ref=BUF_X1
 reg1 ref=DFF_X1
 sub1 ref=sub_block
-PASS: property queries
 Group                                  Slack
 --------------------------------------------
 clk                                     2.10
 clk                                     7.90
 
-PASS: check types max/min
 max slew
 
 Pin                                    Limit    Slew   Slack
@@ -639,16 +615,12 @@ Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 sub2/buf_gate/Z                        60.65    2.67   57.98 (MET)
 
-PASS: check types slew/cap/fanout
 Group                                  Slack
 --------------------------------------------
 No paths found.
 
-PASS: check types recovery/removal
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    5.00    4.95 (MET)
 
-PASS: check types pulse/period
-ALL PASSED

@@ -35,23 +35,19 @@ Path Type: max
          497.91   slack (MET)
 
 
-PASS: report_checks without parasitics
 Found 10 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation (empty)
 --- set_pi_model ---
 set_pi_model u1/Y: 
 set_pi_model u2/Y: 
 set_pi_model r1/Q: 
 set_pi_model r2/Q: 
-PASS: set_pi_model completed
 --- set_elmore ---
 set_elmore u1/Y -> u2/A: 
 set_elmore u1/Y -> u2/B: 
 set_elmore u2/Y -> r3/D: 
 set_elmore r1/Q -> u1/A: 
 set_elmore r2/Q -> u2/B: 
-PASS: set_elmore completed
 --- report_checks with manual parasitics ---
 Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out (output port clocked by clk)
@@ -79,7 +75,6 @@ Path Type: max
          497.91   slack (MET)
 
 
-PASS: report_checks with pi+elmore
 Startpoint: in1 (input port clocked by clk)
 Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -107,7 +102,6 @@ Path Type: min
          -60.38   slack (VIOLATED)
 
 
-PASS: min path with manual parasitics
 Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out (output port clocked by clk)
 Path Group: clk
@@ -134,9 +128,7 @@ Path Type: max
          497.91   slack (MET)
 
 
-PASS: max path with manual parasitics
 No paths found.
-PASS: in1->out with manual parasitics
 Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out (output port clocked by clk)
 Path Group: clk
@@ -163,7 +155,6 @@ Path Type: max
                          497.91   slack (MET)
 
 
-PASS: report_checks with fields
 --- report_net with manual parasitics ---
 Net r1q
  Pin capacitance: 0.40-0.52
@@ -213,7 +204,6 @@ report_net u2z:
 --- report_parasitic_annotation after manual ---
 Found 6 unannotated drivers.
 Found 2 partially unannotated drivers.
-PASS: report_parasitic_annotation after manual
 Found 6 unannotated drivers.
  clk1
  clk2
@@ -224,7 +214,6 @@ Found 6 unannotated drivers.
 Found 2 partially unannotated drivers.
  r1/Q
  r2/Q
-PASS: report_parasitic_annotation -report_unannotated
 --- report_dcalc with manual parasitics ---
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R
@@ -392,7 +381,6 @@ Driver waveform slew = 4.86
 
 dcalc r1 CLK->Q: 
 --- read_spef to override manual parasitics ---
-PASS: read_spef completed
 Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out (output port clocked by clk)
 Path Group: clk
@@ -419,13 +407,10 @@ Path Type: max
          497.88   slack (MET)
 
 
-PASS: report_checks after SPEF override
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation after SPEF
 Found 0 unannotated drivers.
 Found 0 partially unannotated drivers.
-PASS: report_parasitic_annotation -report_unannotated after SPEF
 --- report_net after SPEF ---
 Net r1q
  Pin capacitance: 0.40-0.52
@@ -532,4 +517,3 @@ Load pins
  r3/D input (DFFHQx4_ASAP7_75t_R) 0.54794598-0.62121701
 
 report_net -digits 8 u2z: done
-ALL PASSED

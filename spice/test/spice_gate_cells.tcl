@@ -19,7 +19,6 @@ set_input_transition 0.1 [get_ports {in1 in2}]
 
 puts "--- report_checks baseline ---"
 report_checks
-puts "PASS: timing analysis completed"
 
 # Create mock SPICE files
 set spice_dir [make_result_file spice_gate_cells]
@@ -60,7 +59,6 @@ puts $subckt_fh "M1 Q D VDD VDD pmos W=1u L=100n"
 puts $subckt_fh "M2 Q D VSS VSS nmos W=1u L=100n"
 puts $subckt_fh ".ends"
 close $subckt_fh
-puts "PASS: mock SPICE files created"
 
 #---------------------------------------------------------------
 # write_gate_spice - BUF_X1 rise (ngspice)
@@ -77,10 +75,8 @@ set rc1 [catch {
     -ground VSS
 } msg1]
 if { $rc1 == 0 } {
-  puts "PASS: write_gate_spice BUF rise completed"
 } else {
   puts "INFO: write_gate_spice BUF rise: $msg1"
-  puts "PASS: write_gate_spice BUF rise code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -98,10 +94,8 @@ set rc2 [catch {
     -ground VSS
 } msg2]
 if { $rc2 == 0 } {
-  puts "PASS: write_gate_spice BUF fall completed"
 } else {
   puts "INFO: write_gate_spice BUF fall: $msg2"
-  puts "PASS: write_gate_spice BUF fall code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -119,10 +113,8 @@ set rc3 [catch {
     -ground VSS
 } msg3]
 if { $rc3 == 0 } {
-  puts "PASS: write_gate_spice INV rise completed"
 } else {
   puts "INFO: write_gate_spice INV rise: $msg3"
-  puts "PASS: write_gate_spice INV rise code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -140,10 +132,8 @@ set rc4 [catch {
     -ground VSS
 } msg4]
 if { $rc4 == 0 } {
-  puts "PASS: write_gate_spice INV fall completed"
 } else {
   puts "INFO: write_gate_spice INV fall: $msg4"
-  puts "PASS: write_gate_spice INV fall code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -161,10 +151,8 @@ set rc5 [catch {
     -ground VSS
 } msg5]
 if { $rc5 == 0 } {
-  puts "PASS: write_gate_spice AND rise completed"
 } else {
   puts "INFO: write_gate_spice AND rise: $msg5"
-  puts "PASS: write_gate_spice AND rise code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -182,10 +170,8 @@ set rc5b [catch {
     -ground VSS
 } msg5b]
 if { $rc5b == 0 } {
-  puts "PASS: write_gate_spice AND A2 completed"
 } else {
   puts "INFO: write_gate_spice AND A2: $msg5b"
-  puts "PASS: write_gate_spice AND A2 code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -203,10 +189,8 @@ set rc6 [catch {
     -ground VSS
 } msg6]
 if { $rc6 == 0 } {
-  puts "PASS: write_gate_spice OR rise completed"
 } else {
   puts "INFO: write_gate_spice OR rise: $msg6"
-  puts "PASS: write_gate_spice OR rise code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -225,10 +209,8 @@ set rc7 [catch {
     -simulator hspice
 } msg7]
 if { $rc7 == 0 } {
-  puts "PASS: write_gate_spice hspice completed"
 } else {
   puts "INFO: write_gate_spice hspice: $msg7"
-  puts "PASS: write_gate_spice hspice code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -247,10 +229,8 @@ set rc8 [catch {
     -simulator xyce
 } msg8]
 if { $rc8 == 0 } {
-  puts "PASS: write_gate_spice xyce completed"
 } else {
   puts "INFO: write_gate_spice xyce: $msg8"
-  puts "PASS: write_gate_spice xyce code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -269,10 +249,8 @@ set rc9 [catch {
     -simulator xyce
 } msg9]
 if { $rc9 == 0 } {
-  puts "PASS: write_gate_spice xyce INV completed"
 } else {
   puts "INFO: write_gate_spice xyce INV: $msg9"
-  puts "PASS: write_gate_spice xyce INV code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -291,10 +269,6 @@ set rc10 [catch {
     -simulator hspice
 } msg10]
 if { $rc10 == 0 } {
-  puts "PASS: write_gate_spice hspice AND completed"
 } else {
   puts "INFO: write_gate_spice hspice AND: $msg10"
-  puts "PASS: write_gate_spice hspice AND code path exercised"
 }
-
-puts "ALL PASSED"

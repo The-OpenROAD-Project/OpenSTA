@@ -21,7 +21,6 @@ create_clock -name clk -period 10 [get_ports clk]
 set_input_delay -clock clk 1.0 [get_ports {in1 in2}]
 set_output_delay -clock clk 2.0 [get_ports out1]
 set_input_transition 0.1 [all_inputs]
-puts "PASS: design setup"
 
 ############################################################
 # Test 1: Manual pi model with dmp_ceff_elmore on all outputs
@@ -33,30 +32,24 @@ set_delay_calculator dmp_ceff_elmore
 set all_cells [get_cells *]
 foreach cell_obj $all_cells {
   set cname [get_name $cell_obj]
-  catch {
-    set ref [get_property $cell_obj ref_name]
-    # Try to set pi model on output pins
-    set pins [get_pins $cname/*]
-    foreach pin $pins {
-      catch {
-        set dir [get_property $pin direction]
-        if {$dir == "output"} {
-          catch {sta::set_pi_model [get_name $pin] 0.003 8.0 0.002}
-        }
+  set ref [get_property $cell_obj ref_name]
+  # Try to set pi model on output pins
+  set pins [get_pins $cname/*]
+  foreach pin $pins {
+    catch {
+      set dir [get_property $pin direction]
+      if {$dir == "output"} {
+        catch {sta::set_pi_model [get_name $pin] 0.003 8.0 0.002}
       }
     }
   }
 }
-puts "PASS: set pi models"
 
 report_checks
-puts "PASS: dmp_ceff_elmore with pi"
 
 report_checks -path_delay min
-puts "PASS: min with pi"
 
 report_checks -path_delay max
-puts "PASS: max with pi"
 
 ############################################################
 # Test 2: Extreme pi model values (very small)
@@ -65,20 +58,17 @@ puts "--- Test 2: tiny pi model ---"
 
 foreach cell_obj [lrange $all_cells 0 4] {
   set cname [get_name $cell_obj]
-  catch {
-    set pins [get_pins $cname/*]
-    foreach pin $pins {
-      catch {
-        set dir [get_property $pin direction]
-        if {$dir == "output"} {
-          catch {sta::set_pi_model [get_name $pin] 0.00001 0.01 0.000005}
-        }
+  set pins [get_pins $cname/*]
+  foreach pin $pins {
+    catch {
+      set dir [get_property $pin direction]
+      if {$dir == "output"} {
+        catch {sta::set_pi_model [get_name $pin] 0.00001 0.01 0.000005}
       }
     }
   }
 }
 report_checks
-puts "PASS: tiny pi model"
 
 ############################################################
 # Test 3: Large pi model values
@@ -87,20 +77,17 @@ puts "--- Test 3: large pi model ---"
 
 foreach cell_obj [lrange $all_cells 0 4] {
   set cname [get_name $cell_obj]
-  catch {
-    set pins [get_pins $cname/*]
-    foreach pin $pins {
-      catch {
-        set dir [get_property $pin direction]
-        if {$dir == "output"} {
-          catch {sta::set_pi_model [get_name $pin] 0.1 200.0 0.05}
-        }
+  set pins [get_pins $cname/*]
+  foreach pin $pins {
+    catch {
+      set dir [get_property $pin direction]
+      if {$dir == "output"} {
+        catch {sta::set_pi_model [get_name $pin] 0.1 200.0 0.05}
       }
     }
   }
 }
 report_checks
-puts "PASS: large pi model"
 
 ############################################################
 # Test 4: dmp_ceff_two_pole with manual pi models
@@ -109,10 +96,8 @@ puts "--- Test 4: dmp_ceff_two_pole ---"
 set_delay_calculator dmp_ceff_two_pole
 
 report_checks
-puts "PASS: two_pole with pi"
 
 report_checks -path_delay min
-puts "PASS: two_pole min"
 
 # Vary slew
 foreach slew_val {0.01 0.1 0.5 1.0 5.0} {
@@ -121,7 +106,6 @@ foreach slew_val {0.01 0.1 0.5 1.0 5.0} {
   puts "two_pole slew=$slew_val: done"
 }
 set_input_transition 0.1 [all_inputs]
-puts "PASS: two_pole varying slew"
 
 ############################################################
 # Test 5: SPEF then manual pi model override
@@ -130,28 +114,23 @@ puts "--- Test 5: SPEF then pi override ---"
 
 set_delay_calculator dmp_ceff_elmore
 read_spef ../../search/test/search_test1.spef
-puts "PASS: read SPEF"
 
 report_checks
-puts "PASS: dmp with SPEF"
 
 # Override with manual pi models
 foreach cell_obj [lrange $all_cells 0 2] {
   set cname [get_name $cell_obj]
-  catch {
-    set pins [get_pins $cname/*]
-    foreach pin $pins {
-      catch {
-        set dir [get_property $pin direction]
-        if {$dir == "output"} {
-          catch {sta::set_pi_model [get_name $pin] 0.005 10.0 0.003}
-        }
+  set pins [get_pins $cname/*]
+  foreach pin $pins {
+    catch {
+      set dir [get_property $pin direction]
+      if {$dir == "output"} {
+        catch {sta::set_pi_model [get_name $pin] 0.005 10.0 0.003}
       }
     }
   }
 }
 report_checks
-puts "PASS: pi override after SPEF"
 
 ############################################################
 # Test 6: report_dcalc with dmp calculators and pi models
@@ -161,31 +140,25 @@ puts "--- Test 6: report_dcalc ---"
 set_delay_calculator dmp_ceff_elmore
 foreach cell_obj [lrange $all_cells 0 5] {
   set cname [get_name $cell_obj]
-  catch {
-    set pins [get_pins $cname/*]
-    if {[llength $pins] >= 2} {
-      set in_pin [lindex $pins 0]
-      set out_pin [lindex $pins end]
-      catch {report_dcalc -from $in_pin -to $out_pin -max}
-      catch {report_dcalc -from $in_pin -to $out_pin -min}
-    }
+  set pins [get_pins $cname/*]
+  if {[llength $pins] >= 2} {
+    set in_pin [lindex $pins 0]
+    set out_pin [lindex $pins end]
+    catch {report_dcalc -from $in_pin -to $out_pin -max}
+    catch {report_dcalc -from $in_pin -to $out_pin -min}
   }
 }
-puts "PASS: dmp_ceff_elmore dcalc"
 
 set_delay_calculator dmp_ceff_two_pole
 foreach cell_obj [lrange $all_cells 0 5] {
   set cname [get_name $cell_obj]
-  catch {
-    set pins [get_pins $cname/*]
-    if {[llength $pins] >= 2} {
-      set in_pin [lindex $pins 0]
-      set out_pin [lindex $pins end]
-      catch {report_dcalc -from $in_pin -to $out_pin -max -digits 6}
-    }
+  set pins [get_pins $cname/*]
+  if {[llength $pins] >= 2} {
+    set in_pin [lindex $pins 0]
+    set out_pin [lindex $pins end]
+    catch {report_dcalc -from $in_pin -to $out_pin -max -digits 6}
   }
 }
-puts "PASS: dmp_ceff_two_pole dcalc"
 
 ############################################################
 # Test 7: Incremental updates with pi models
@@ -197,46 +170,35 @@ set_delay_calculator dmp_ceff_elmore
 # Load change triggers incremental
 set_load 0.001 [get_ports out1]
 report_checks
-puts "PASS: incremental load out1"
 
 set_load 0.005 [get_ports out1]
 report_checks
-puts "PASS: incremental load out1 (2)"
 
 # Slew change triggers incremental
 set_input_transition 0.5 [all_inputs]
 report_checks
-puts "PASS: incremental slew 0.5"
 
 set_input_transition 2.0 [all_inputs]
 report_checks
-puts "PASS: incremental slew 2.0"
 
 # Clock change triggers incremental
 create_clock -name clk -period 5 [get_ports clk]
 report_checks
-puts "PASS: incremental clock 5"
 
 create_clock -name clk -period 2 [get_ports clk]
 report_checks
-puts "PASS: incremental clock 2"
 
 ############################################################
 # Test 8: find_delays and invalidation
 ############################################################
 puts "--- Test 8: find_delays ---"
 sta::find_delays
-puts "PASS: find_delays"
 
 sta::delays_invalid
 sta::find_delays
-puts "PASS: invalidate + find_delays"
 
 # Multiple invalidation cycles
 for {set i 0} {$i < 3} {incr i} {
   sta::delays_invalid
   sta::find_delays
 }
-puts "PASS: multiple invalidation cycles"
-
-puts "ALL PASSED"

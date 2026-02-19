@@ -1,14 +1,10 @@
 --- isClock queries ---
-PASS: isClock
 --- ideal/propagated clock queries ---
-PASS: ideal/propagated clock
 --- sim logic values ---
 en=X clk_gate_a1=X gated=X buf1=X reg1/D=X
-PASS: sim logic values
 --- case analysis 0 on en ---
 en=0: gated_clk=0
 No paths found.
-PASS: case_analysis 0 en
 --- case analysis 1 on en ---
 en=1: gated_clk=X
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -38,7 +34,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: case_analysis 1 en
 --- case analysis rising on en ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -94,7 +89,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: case_analysis rising en
 --- case analysis falling on en ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -150,7 +144,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: case_analysis falling en
 --- set_logic_zero ---
 in1=0: buf1/Z=0
 Startpoint: en (input port clocked by clk)
@@ -207,7 +200,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: logic_zero
 --- set_logic_one ---
 en=1: clk_gate/A2=1
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -237,17 +229,11 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: logic_one
 --- findLogicConstants ---
-PASS: findLogicConstants
 --- clearLogicConstants ---
-PASS: clearLogicConstants
 --- levelize ---
-PASS: levelize
 --- graphLoops ---
-PASS: graphLoops
 --- max_path_count_vertex ---
-PASS: max_path_count_vertex
 --- generated clock ---
 Startpoint: reg1/Q (clock source 'gclk')
 Endpoint: out1 (output port clocked by clk)
@@ -297,13 +283,11 @@ Path Type: min
            2.02   slack (MET)
 
 
-PASS: generated clock
 --- report_clock_properties with genclk ---
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk                      10.00        0.00      5.00
 gclk                     20.00        0.00     10.00 (generated)
-PASS: clock properties with genclk
 --- clock skew with genclk ---
 Clock clk
 No launch/capture paths found.
@@ -317,13 +301,11 @@ No launch/capture paths found.
 Clock gclk
 No launch/capture paths found.
 
-PASS: clock skew genclk
 --- clock min period ---
 clk period_min = 0.00 fmax = inf
 gclk period_min = 0.00 fmax = inf
 clk period_min = 0.00 fmax = inf
 gclk period_min = 0.00 fmax = inf
-PASS: clock min period
 --- clock latency report ---
 Clock clk
 rise -> rise
@@ -391,16 +373,13 @@ fall -> fall
 
 Clock gclk
 
-PASS: clock latency report
 --- find_timing_paths for clock groups ---
 Max paths: 2
   pin=out1 slack=7.978649740891797e-9
   pin=out1 slack=7.983420147184006e-9
-PASS: timing paths
 --- report_checks through clock gate ---
 No paths found.
 No paths found.
-PASS: through clock gate
 --- bidirect inst paths ---
 Startpoint: reg1/Q (clock source 'gclk')
 Endpoint: out1 (output port clocked by clk)
@@ -450,7 +429,6 @@ Path Type: max
            7.98   slack (MET)
 
 
-PASS: bidirect inst paths
 --- bidirect net paths ---
 Startpoint: reg1/Q (clock source 'gclk')
 Endpoint: out1 (output port clocked by clk)
@@ -500,7 +478,6 @@ Path Type: max
            7.98   slack (MET)
 
 
-PASS: bidirect net paths
 --- clk thru tristate ---
 Startpoint: reg1/Q (clock source 'gclk')
 Endpoint: out1 (output port clocked by clk)
@@ -550,7 +527,6 @@ Path Type: max
            7.98   slack (MET)
 
 
-PASS: clk thru tristate
 --- dynamic loop breaking ---
 Startpoint: reg1/Q (clock source 'gclk')
 Endpoint: out1 (output port clocked by clk)
@@ -600,7 +576,6 @@ Path Type: max
            7.98   slack (MET)
 
 
-PASS: dynamic loop breaking
 --- use default arrival clock ---
 Startpoint: reg1/Q (clock source 'gclk')
 Endpoint: out1 (output port clocked by clk)
@@ -650,7 +625,6 @@ Path Type: max
            7.98   slack (MET)
 
 
-PASS: use default arrival clock
 --- propagate all clocks ---
 Startpoint: reg1/Q (clock source 'gclk')
 Endpoint: out1 (output port clocked by clk)
@@ -700,5 +674,3 @@ Path Type: max
            7.98   slack (MET)
 
 
-PASS: propagate all clocks
-ALL PASSED

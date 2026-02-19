@@ -154,19 +154,14 @@ catch {
 puts "--- Test 3: timing with manual parasitics ---"
 
 report_checks
-puts "PASS: report_checks with manual pi+elmore"
 
 report_checks -path_delay min
-puts "PASS: min path"
 
 report_checks -from [get_ports in1] -to [get_ports out]
-puts "PASS: in1->out"
 
 report_checks -from [get_ports in2] -to [get_ports out]
-puts "PASS: in2->out"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: with fields"
 
 #---------------------------------------------------------------
 # Test 4: Report parasitic annotation
@@ -175,10 +170,8 @@ puts "PASS: with fields"
 puts "--- Test 4: parasitic annotation ---"
 
 report_parasitic_annotation
-puts "PASS: parasitic annotation (annotated)"
 
 report_parasitic_annotation -report_unannotated
-puts "PASS: parasitic annotation -report_unannotated"
 
 #---------------------------------------------------------------
 # Test 5: Override manual with different values
@@ -201,7 +194,6 @@ catch {sta::set_elmore u2/Y r3/D 0.02} msg
 puts "re-set elmore u2/Y -> r3/D: $msg"
 
 report_checks
-puts "PASS: report after override"
 
 # Query overridden values
 catch {
@@ -220,16 +212,12 @@ catch {
 #---------------------------------------------------------------
 puts "--- Test 6: SPEF override ---"
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef after manual parasitics"
 
 report_checks
-puts "PASS: report_checks after SPEF"
 
 report_parasitic_annotation
-puts "PASS: annotation after SPEF"
 
 report_parasitic_annotation -report_unannotated
-puts "PASS: annotation -report_unannotated after SPEF"
 
 #---------------------------------------------------------------
 # Test 7: query parasitics after SPEF read
@@ -273,10 +261,8 @@ catch {
 puts "--- Test 8: detailed reports ---"
 
 report_checks -fields {slew cap input_pins nets fanout}
-puts "PASS: all fields"
 
 report_checks -format full_clock
-puts "PASS: full_clock"
 
 # report_net with SPEF parasitics
 foreach net_name {r1q r2q u1z u2z out in1 in2 clk1 clk2 clk3} {
@@ -296,5 +282,3 @@ puts "dcalc r1 CK->Q: done"
 
 catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
 puts "dcalc r3 CK->Q: done"
-
-puts "ALL PASSED"

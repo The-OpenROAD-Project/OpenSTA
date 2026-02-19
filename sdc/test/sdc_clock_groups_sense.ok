@@ -1,8 +1,3 @@
-PASS: clocks created
-PASS: generated clocks
-PASS: IO delays
-PASS: clock_groups -asynchronous
-PASS: write_sdc with async groups
 Warning: generated clock gclk1 pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
@@ -84,16 +79,6 @@ Path Type: max
            2.00   slack (MET)
 
 
-PASS: report_checks after async groups
-PASS: unset_clock_groups async
-PASS: clock_groups -logically_exclusive
-PASS: write_sdc with logical groups
-PASS: unset logically_exclusive
-PASS: clock_groups -physically_exclusive
-PASS: write_sdc with physical groups
-PASS: unset physically_exclusive
-PASS: multiple clock groups simultaneously
-PASS: write_sdc with multiple groups
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -174,18 +159,9 @@ Path Type: max
            2.00   slack (MET)
 
 
-PASS: report_checks after multiple groups
-PASS: unset multiple groups
-PASS: clock_groups -allow_paths
-PASS: write_sdc with -allow_paths
-PASS: unset -allow_paths groups
 Warning: sdc_clock_groups_sense.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock_sense -positive
 Warning: sdc_clock_groups_sense.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock_sense -negative
 Warning: sdc_clock_groups_sense.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock_sense -stop_propagation
-PASS: write_sdc with clock sense
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -266,18 +242,6 @@ Path Type: max
            2.00   slack (MET)
 
 
-PASS: report_checks after clock sense
-PASS: clock_groups without name (auto-named)
-PASS: unset_clock_groups -all
-PASS: set_propagated_clock
-PASS: unset_propagated_clock
-PASS: clock_uncertainty on pin
-PASS: clock_uncertainty on reg2/CK
-PASS: inter-clock uncertainty
-PASS: write_sdc with uncertainty
-PASS: unset inter-clock uncertainty
-PASS: unset pin uncertainty
-PASS: final write_sdc
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -359,5 +323,3 @@ Path Type: max
            1.92   slack (MET)
 
 
-PASS: final report_checks
-ALL PASSED

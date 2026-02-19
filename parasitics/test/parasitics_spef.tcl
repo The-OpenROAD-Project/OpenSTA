@@ -13,9 +13,5 @@ create_clock -name clk1 -period 10 [get_ports clk1]
 
 # Read SPEF
 read_spef ../../test/reg1_asap7.spef
-puts "PASS: read_spef completed"
 
 report_checks
-puts "PASS: report_checks with parasitics"
-
-puts "ALL PASSED"

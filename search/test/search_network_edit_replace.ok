@@ -26,7 +26,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell equiv BUF_X1->BUF_X2
 --- replaceCell equiv: BUF_X2 -> BUF_X4 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -55,7 +54,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell equiv BUF_X2->BUF_X4
 --- replaceCell equiv: BUF_X4 -> BUF_X8 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -84,7 +82,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell equiv BUF_X4->BUF_X8
 --- replaceCell back: BUF_X8 -> BUF_X1 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -113,7 +110,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell equiv BUF_X8->BUF_X1
 --- replaceCell equiv: AND2_X1 -> AND2_X2 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -142,7 +138,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell equiv AND2_X1->AND2_X2
 --- replaceCell equiv: AND2_X2 -> AND2_X4 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -171,7 +166,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell equiv AND2_X2->AND2_X4
 --- replaceCell back: AND2_X4 -> AND2_X1 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -200,7 +194,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell equiv AND2_X4->AND2_X1
 --- replaceCell equiv buf2: BUF_X1 -> BUF_X2 ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -229,7 +222,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell equiv buf2
 --- replaceCell with propagated clock ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -285,7 +277,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell with propagated clock
 --- setPortExtPinCap ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -314,7 +305,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: setPortExtPinCap
 --- setPortExtWireCap ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -343,7 +333,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: setPortExtWireCap
 --- setPortExtFanout ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -372,7 +361,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: setPortExtFanout
 --- set_load with rise/fall ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -401,7 +389,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: set_load rise/fall
 --- report_net ---
 Net n1
  Pin capacitance: 0.88-0.97
@@ -445,7 +432,6 @@ Driver pins
 Load pins
  buf2/A input (BUF_X2) 1.59-1.78
 
-PASS: report_net
 --- setNetWireCap ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -474,7 +460,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: setNetWireCap
 --- Network edit: make_instance + connect + replace ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -503,7 +488,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: complex network edit
 --- Network edit: make multiple instances ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -532,7 +516,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: multiple network edits
 --- Multiple replaceCell + timing ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -590,7 +573,6 @@ Path Type: min
            1.03   slack (MET)
 
 
-PASS: multiple replaceCell
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -618,7 +600,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: replaceCell restore
 --- report_checks with fields after edits ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -676,5 +657,3 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   1.04   slack (MET)
 
 
-PASS: report with fields after edits
-ALL PASSED

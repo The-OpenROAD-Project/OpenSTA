@@ -18,7 +18,6 @@ source ../../test/helpers.tcl
 # Read Sky130 library (has pg_pin, voltage_map extensively)
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read Sky130 library"
 
 set sky_lib [sta::find_liberty sky130_fd_sc_hd__tt_025C_1v80]
 
@@ -42,7 +41,6 @@ puts "VNB exists = $vbn_exists"
 
 set nonexist [sta::liberty_supply_exists "BOGUS_SUPPLY"]
 puts "BOGUS_SUPPLY exists = $nonexist"
-puts "PASS: supply voltage existence"
 
 ############################################################
 # Query PG pin ports (power/ground pins)
@@ -62,7 +60,6 @@ while {[$port_iter has_next]} {
   }
 }
 $port_iter finish
-puts "PASS: inv pg pin queries"
 
 # Query PG pins on various cell types
 foreach cell_name {sky130_fd_sc_hd__buf_1 sky130_fd_sc_hd__nand2_1
@@ -85,7 +82,6 @@ foreach cell_name {sky130_fd_sc_hd__buf_1 sky130_fd_sc_hd__nand2_1
     }
   }
 }
-puts "PASS: cell pg pin counts"
 
 ############################################################
 # Leakage power with when conditions per state
@@ -116,7 +112,6 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
     }
   }
 }
-puts "PASS: combinational leakage with when"
 
 # Sequential cells with more leakage states
 foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
@@ -138,7 +133,6 @@ foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
     }
   }
 }
-puts "PASS: sequential leakage with when"
 
 ############################################################
 # Report cells to exercise detailed pg_pin/power writer paths
@@ -150,13 +144,11 @@ catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1}
 catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1}
 catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_1}
 catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1}
-puts "PASS: detailed reports"
 
 ############################################################
 # Read IHP library (different voltage/supply naming)
 ############################################################
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
-puts "PASS: read IHP"
 
 foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
                    sg13g2_nor2_1 sg13g2_and2_1 sg13g2_or2_1
@@ -181,13 +173,11 @@ foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
     }
   }
 }
-puts "PASS: IHP pg pin and leakage"
 
 ############################################################
 # Read IHP second corner
 ############################################################
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p50V_25C.lib
-puts "PASS: read IHP 1.5V"
 
 ############################################################
 # Link design and run power analysis
@@ -203,25 +193,19 @@ set_output_delay -clock clk1 3.0 [all_outputs]
 set_input_transition 0.1 [all_inputs]
 
 report_power
-puts "PASS: report_power"
 
 report_power -digits 6
-puts "PASS: report_power digits 6"
 
 ############################################################
 # Write liberty roundtrip for Sky130 (with pg_pin groups)
 ############################################################
 set outfile [make_result_file liberty_pgpin_voltage_write.lib]
 sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile
-puts "PASS: write_liberty sky130"
 
 # Read back the written library to verify
 catch {
   read_liberty $outfile
-  puts "PASS: read roundtrip library"
 } msg
 if {[string match "Error*" $msg]} {
   puts "INFO: roundtrip issue: [string range $msg 0 80]"
 }
-
-puts "ALL PASSED"

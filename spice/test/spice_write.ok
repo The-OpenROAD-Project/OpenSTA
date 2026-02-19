@@ -24,8 +24,4 @@ Path Type: max
            9.92   slack (MET)
 
 
-PASS: timing analysis completed for spice
-PASS: mock SPICE files created
-PASS: write_path_spice completed successfully
 No differences found.
-ALL PASSED

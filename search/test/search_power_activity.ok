@@ -10,7 +10,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.67e-06   3.20e-07   4.08e-07   2.40e-06 100.0%
                           69.6%      13.3%      17.0%
-PASS: report_power
 --- report_power -instances ---
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
@@ -19,7 +18,6 @@ PASS: report_power
    5.00e-07   0.00e+00   7.92e-08   5.79e-07 reg2
    2.81e-08   1.29e-08   2.09e-08   6.18e-08 buf1
    2.42e-08   5.73e-09   2.51e-08   5.50e-08 and1
-PASS: report_power instances
 --- report_power -digits 6 ---
 Group                    Internal    Switching      Leakage        Total
                             Power        Power        Power        Power (Watts)
@@ -32,11 +30,8 @@ Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 ------------------------------------------------------------------------
 Total                1.669393e-06 3.195729e-07 4.083089e-07 2.397274e-06 100.0%
                             69.6%        13.3%        17.0%
-PASS: report_power digits
 --- Pin activity ---
-PASS: pin activity
 --- set_power_activity on pins ---
-PASS: set_power_activity pins
 --- set_power_activity on global ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -49,7 +44,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.94e-06   3.76e-07   4.04e-07   2.72e-06 100.0%
                           71.3%      13.8%      14.9%
-PASS: set_power_activity global
 --- set_power_activity on input_ports ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -62,7 +56,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.94e-06   3.76e-07   4.04e-07   2.72e-06 100.0%
                           71.3%      13.8%      14.9%
-PASS: set_power_activity input_ports
 --- report_power with clock propagation ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -75,9 +68,7 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.94e-06   3.76e-07   4.04e-07   2.72e-06 100.0%
                           71.3%      13.8%      14.9%
-PASS: report_power propagated
 --- isClock queries ---
-PASS: isClock queries
 --- report with timing derate after power ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -90,7 +81,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.94e-06   3.76e-07   4.04e-07   2.72e-06 100.0%
                           71.3%      13.8%      14.9%
-PASS: power with derate
 --- Slew limit checking after power ---
 max slew
 
@@ -100,7 +90,6 @@ slew        0.01
 ----------------
 Slack       0.18 (MET)
 
-PASS: slew limits
 --- Capacitance limit checking ---
 max capacitance
 
@@ -110,7 +99,6 @@ capacitance        4.38
 -----------------------
 Slack             -4.33 (VIOLATED)
 
-PASS: cap limits
 --- Fanout limit checking ---
 max fanout
 
@@ -120,7 +108,6 @@ fanout          2
 -----------------
 Slack           8 (MET)
 
-PASS: fanout limits
 --- Tight limits to create violations ---
 max slew
 
@@ -159,7 +146,6 @@ reg1/D                                  0.00    0.00   -0.00 (VIOLATED)
 out2                                    0.00    0.00   -0.00 (VIOLATED)
 buf4/Z                                  0.00    0.00   -0.00 (VIOLATED)
 
-PASS: slew violations
 max capacitance
 
 Pin reg1/Q ^
@@ -185,7 +171,6 @@ in3                                     0.00    0.94   -0.94 (VIOLATED)
 in1                                     0.00    0.92   -0.92 (VIOLATED)
 clk                                     0.00    0.78   -0.78 (VIOLATED)
 
-PASS: cap violations
 max fanout
 
 Pin ckbuf/Z  
@@ -201,5 +186,3 @@ Pin                                   Limit Fanout  Slack
 ckbuf/Z                                   1      2        (VIOLATED)
 reg1/Q                                    1      2        (VIOLATED)
 
-PASS: fanout violations
-ALL PASSED

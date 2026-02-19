@@ -31,7 +31,6 @@ set_input_transition 0.1 [all_inputs]
 
 # Switch to SDC namespace
 sta::set_cmd_namespace sdc
-puts "PASS: set_cmd_namespace sdc"
 
 # Query in SDC namespace - exercises SdcNetwork name adapter path
 set sdc_ports [get_ports *]
@@ -52,11 +51,9 @@ puts "sdc data_out[*]: [llength $sdc_bus_out]"
 
 # Individual bit queries in SDC namespace
 foreach i {0 1 2 3} {
-  catch {
-    set p [get_ports "data_in\[$i\]"]
-    set dir [get_property $p direction]
-    puts "sdc data_in\[$i\]: dir=$dir"
-  } msg
+  set p [get_ports "data_in\[$i\]"]
+  set dir [get_property $p direction]
+  puts "sdc data_in\[$i\]: dir=$dir"
 }
 
 # Pin queries in SDC namespace
@@ -89,14 +86,11 @@ puts "sdc hier cells: [llength $sdc_hier_cells]"
 
 # report_checks in SDC namespace
 report_checks
-puts "PASS: sdc namespace report_checks"
 
 report_checks -path_delay min
-puts "PASS: sdc namespace min path"
 
 # Switch back to STA namespace
 sta::set_cmd_namespace sta
-puts "PASS: sta::set_cmd_namespace sta"
 
 # Verify queries still work after switching back
 set sta_ports [get_ports *]
@@ -109,7 +103,6 @@ set sta_nets [get_nets *]
 puts "sta nets: [llength $sta_nets]"
 
 report_checks
-puts "PASS: sta namespace report_checks"
 
 #---------------------------------------------------------------
 # Test 2: Namespace with hierarchical design
@@ -146,26 +139,21 @@ puts "sdc hier sub*: [llength $sdc_h_sub]"
 
 # Port queries in SDC namespace with hierarchy
 foreach pname {clk in1 in2 in3 out1 out2} {
-  catch {
-    set p [get_ports $pname]
-    set dir [get_property $p direction]
-    puts "sdc port $pname: dir=$dir"
-  } msg
+  set p [get_ports $pname]
+  set dir [get_property $p direction]
+  puts "sdc port $pname: dir=$dir"
 }
 
 # Timing reports in SDC namespace
 report_checks
-puts "PASS: sdc hier report_checks"
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: sdc hier in1->out1"
 
 # Switch back to STA namespace
 sta::set_cmd_namespace sta
 
 # Verify after switching
 report_checks
-puts "PASS: sta hier report_checks after switch"
 
 #---------------------------------------------------------------
 # Test 3: Path divider operations
@@ -201,13 +189,10 @@ puts "hier all nets: [llength $hier_all_nets]"
 
 # Timing through hierarchy
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1"
 
 report_checks -from [get_ports in2] -to [get_ports out2]
-puts "PASS: in2->out2"
 
 report_checks -from [get_ports in3] -to [get_ports out2]
-puts "PASS: in3->out2"
 
 # Fanin/fanout queries exercise SdcNetwork delegation
 set fi [get_fanin -to [get_ports out1] -flat]
@@ -240,5 +225,3 @@ puts "register output_pins: [llength $reg_out]"
 
 set reg_async [all_registers -async_pins]
 puts "register async_pins: [llength $reg_async]"
-
-puts "ALL PASSED"

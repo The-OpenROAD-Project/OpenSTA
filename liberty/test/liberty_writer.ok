@@ -1,7 +1,3 @@
-PASS: read Nangate45
-PASS: write_liberty Nangate45
-PASS: read ASAP7 SEQ
-PASS: write_liberty ASAP7 SEQ
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
@@ -12,31 +8,9 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1337
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-PASS: read ASAP7 SIMPLE
-PASS: write_liberty ASAP7 SIMPLE
-PASS: read IHP
-PASS: write_liberty IHP
-PASS: read Sky130
-PASS: read CCSN library
-PASS: read latch library
-PASS: read fakeram ASAP7
-PASS: read fakeram Nangate45
 Warning: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
-PASS: read fake_macros
-PASS: read liberty_float_as_str
-PASS: read liberty_backslash_eol
 Warning: ../../test/liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
-PASS: read liberty_arcs_one2one_1
 Warning: ../../test/liberty_arcs_one2one_2.lib line 48, timing port A and related port Y are different sizes.
-PASS: read liberty_arcs_one2one_2
-PASS: read ASAP7 SEQ LVT FF
-PASS: read ASAP7 SEQ SLVT FF
-PASS: read ASAP7 INVBUF LVT FF
-PASS: read ASAP7 INVBUF SLVT FF
-PASS: read ASAP7 AO LVT FF
-PASS: read ASAP7 AO SLVT FF
-PASS: read ASAP7 OA LVT FF
-PASS: read ASAP7 OA SLVT FF
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13189, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13222, timing group from output port.
@@ -47,7 +21,6 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 1335
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14748, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14781, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 14814, timing group from output port.
-PASS: read ASAP7 SIMPLE LVT FF
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13189, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 13222, timing group from output port.
@@ -58,16 +31,4 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 133
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14748, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14781, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14814, timing group from output port.
-PASS: read ASAP7 SIMPLE SLVT FF
-PASS: read ASAP7 INVBUF RVT TT
-PASS: read ASAP7 INVBUF LVT TT
-PASS: read ASAP7 INVBUF SLVT TT
-PASS: read ASAP7 AO RVT SS
-PASS: read ASAP7 OA RVT SS
-PASS: read Sky130 FF
-PASS: read Sky130 SS
 Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
-PASS: read Sky130 TT
-PASS: read Sky130HS TT
-PASS: read gf180mcu_sram
-ALL PASSED

@@ -18,7 +18,6 @@ source ../../test/helpers.tcl
 # Read Sky130 library (has leakage_power groups with when conditions)
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read Sky130 library"
 
 ############################################################
 # Query leakage power on various cell types
@@ -44,7 +43,6 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
     }
   }
 }
-puts "PASS: combinational cell leakage"
 
 # Sequential cells (these have more leakage states)
 foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
@@ -61,7 +59,6 @@ foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
     }
   }
 }
-puts "PASS: sequential cell leakage"
 
 # Tristate cells
 foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
@@ -74,7 +71,6 @@ foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
     }
   }
 }
-puts "PASS: tristate cell leakage"
 
 # Clock gate cells
 foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
@@ -87,7 +83,6 @@ foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
     }
   }
 }
-puts "PASS: clock gate cell leakage"
 
 ############################################################
 # Report lib cells to exercise detailed leakage/power info
@@ -95,19 +90,15 @@ puts "PASS: clock gate cell leakage"
 puts "--- detailed cell reports ---"
 
 catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1}
-puts "PASS: report inv_1"
 
 catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__nand2_1}
-puts "PASS: report nand2_1"
 
 catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1}
-puts "PASS: report dfxtp_1"
 
 ############################################################
 # Read Nangate library for internal power with when conditions
 ############################################################
 read_liberty ../../test/nangate45/Nangate45_typ.lib
-puts "PASS: read Nangate45"
 
 # Query Nangate cell leakage
 foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
@@ -124,7 +115,6 @@ foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
     }
   }
 }
-puts "PASS: Nangate cell leakage"
 
 ############################################################
 # Link design and run power analysis to exercise internal power
@@ -137,20 +127,16 @@ create_clock -name clk2 -period 20 [get_ports clk2]
 set_input_delay -clock clk1 2.0 [all_inputs]
 set_output_delay -clock clk1 3.0 [all_outputs]
 set_input_transition 0.1 [all_inputs]
-puts "PASS: design setup"
 
 # Power reports exercise internal power evaluation
 report_power
-puts "PASS: report_power"
 
 report_power -digits 8
-puts "PASS: report_power -digits 8"
 
 # Per-instance power
 foreach inst_name {buf1 inv1 and1 or1 nand1 nor1 reg1 reg2 reg3} {
   catch {
     report_power -instances [get_cells $inst_name]
-    puts "PASS: report_power $inst_name"
   }
 }
 
@@ -158,7 +144,6 @@ foreach inst_name {buf1 inv1 and1 or1 nand1 nor1 reg1 reg2 reg3} {
 # Read IHP library for different power model format
 ############################################################
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
-puts "PASS: read IHP"
 
 foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
                    sg13g2_nor2_1 sg13g2_and2_1 sg13g2_or2_1} {
@@ -171,7 +156,6 @@ foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
     }
   }
 }
-puts "PASS: IHP leakage queries"
 
 ############################################################
 # Write liberty roundtrip for Sky130 (exercises power writer)
@@ -179,7 +163,4 @@ puts "PASS: IHP leakage queries"
 set outfile [make_result_file liberty_leakage_power_deep_write.lib]
 catch {
   sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile
-  puts "PASS: write_liberty sky130 with power"
 }
-
-puts "ALL PASSED"

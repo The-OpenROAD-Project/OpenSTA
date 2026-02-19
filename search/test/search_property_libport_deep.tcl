@@ -39,7 +39,6 @@ puts "BUF_X1/Z drive_resistance_min_rise: [get_property $buf_out drive_resistanc
 puts "BUF_X1/Z drive_resistance_max_rise: [get_property $buf_out drive_resistance_max_rise]"
 puts "BUF_X1/Z drive_resistance_min_fall: [get_property $buf_out drive_resistance_min_fall]"
 puts "BUF_X1/Z drive_resistance_max_fall: [get_property $buf_out drive_resistance_max_fall]"
-puts "PASS: drive_resistance"
 
 puts "--- More drive_resistance on different cells ---"
 set and_out [get_lib_pins NangateOpenCellLibrary/AND2_X1/ZN]
@@ -51,7 +50,6 @@ set inv_out [get_lib_pins NangateOpenCellLibrary/INV_X1/ZN]
 puts "INV_X1/ZN drive_resistance: [get_property $inv_out drive_resistance]"
 puts "INV_X1/ZN drive_resistance_min_rise: [get_property $inv_out drive_resistance_min_rise]"
 puts "INV_X1/ZN drive_resistance_max_fall: [get_property $inv_out drive_resistance_max_fall]"
-puts "PASS: drive_resistance multi"
 
 ############################################################
 # LibertyPort intrinsic_delay properties
@@ -62,7 +60,6 @@ puts "BUF_X1/Z intrinsic_delay_min_rise: [get_property $buf_out intrinsic_delay_
 puts "BUF_X1/Z intrinsic_delay_max_rise: [get_property $buf_out intrinsic_delay_max_rise]"
 puts "BUF_X1/Z intrinsic_delay_min_fall: [get_property $buf_out intrinsic_delay_min_fall]"
 puts "BUF_X1/Z intrinsic_delay_max_fall: [get_property $buf_out intrinsic_delay_max_fall]"
-puts "PASS: intrinsic_delay BUF"
 
 puts "--- intrinsic_delay on AND ---"
 puts "AND2_X1/ZN intrinsic_delay: [get_property $and_out intrinsic_delay]"
@@ -70,13 +67,11 @@ puts "AND2_X1/ZN intrinsic_delay_min_rise: [get_property $and_out intrinsic_dela
 puts "AND2_X1/ZN intrinsic_delay_max_rise: [get_property $and_out intrinsic_delay_max_rise]"
 puts "AND2_X1/ZN intrinsic_delay_min_fall: [get_property $and_out intrinsic_delay_min_fall]"
 puts "AND2_X1/ZN intrinsic_delay_max_fall: [get_property $and_out intrinsic_delay_max_fall]"
-puts "PASS: intrinsic_delay AND"
 
 puts "--- intrinsic_delay on INV ---"
 puts "INV_X1/ZN intrinsic_delay: [get_property $inv_out intrinsic_delay]"
 puts "INV_X1/ZN intrinsic_delay_min_rise: [get_property $inv_out intrinsic_delay_min_rise]"
 puts "INV_X1/ZN intrinsic_delay_max_fall: [get_property $inv_out intrinsic_delay_max_fall]"
-puts "PASS: intrinsic_delay INV"
 
 ############################################################
 # LibertyPort lib_cell, is_clock, is_register_clock, capacitance
@@ -100,7 +95,6 @@ set dff_d [get_lib_pins NangateOpenCellLibrary/DFF_X1/D]
 puts "DFF_X1/D is_clock: [get_property $dff_d is_clock]"
 puts "DFF_X1/D is_register_clock: [get_property $dff_d is_register_clock]"
 puts "DFF_X1/D capacitance: [get_property $dff_d capacitance]"
-puts "PASS: lib_cell/is_clock/capacitance"
 
 ############################################################
 # Instance is_* properties
@@ -128,7 +122,6 @@ puts "reg1 is_buffer: [get_property $reg_inst is_buffer]"
 puts "reg1 is_inverter: [get_property $reg_inst is_inverter]"
 puts "reg1 is_macro: [get_property $reg_inst is_macro]"
 puts "reg1 is_memory: [get_property $reg_inst is_memory]"
-puts "PASS: instance is_* properties"
 
 ############################################################
 # LibertyCell area and leakage power
@@ -144,7 +137,6 @@ set inv_cell [get_lib_cells NangateOpenCellLibrary/INV_X1]
 catch { puts "INV_X1 area: [get_property $inv_cell area]" }
 set and_cell [get_lib_cells NangateOpenCellLibrary/AND2_X1]
 catch { puts "AND2_X1 area: [get_property $and_cell area]" }
-puts "PASS: cell area/leakage"
 
 ############################################################
 # Path group matching: group_path -name with -from and -through
@@ -158,7 +150,6 @@ group_path -name through_grp -through [get_pins inv1/ZN]
 
 puts "--- report_checks with groups ---"
 report_checks -path_delay max
-puts "PASS: report_checks with groups"
 
 puts "--- find_timing_paths with group_path ---"
 set paths [find_timing_paths -path_delay max -group_path_count 20 -endpoint_path_count 10]
@@ -169,7 +160,6 @@ foreach pe $paths {
     puts "  [get_full_name [$pe pin]] group=[$pg name] slack=[$pe slack]"
   }
 }
-puts "PASS: paths with groups"
 
 puts "--- find_timing_paths with min paths and groups ---"
 set paths_min [find_timing_paths -path_delay min -group_path_count 20 -endpoint_path_count 10]
@@ -180,7 +170,6 @@ foreach pe $paths_min {
     puts "  [get_full_name [$pe pin]] group=[$pg name] slack=[$pe slack]"
   }
 }
-puts "PASS: min paths with groups"
 
 ############################################################
 # path_group_names and is_path_group_name
@@ -190,7 +179,6 @@ set group_names [sta::path_group_names]
 puts "Path group names: $group_names"
 catch { puts "input_grp is group: [sta::is_path_group_name input_grp]" }
 catch { puts "nonexistent is group: [sta::is_path_group_name nonexistent_grp]" }
-puts "PASS: path_group_names"
 
 ############################################################
 # TimingArcSet properties on different cell types
@@ -203,7 +191,6 @@ foreach arcset $arcsets {
   set arcname2 [sta::timing_arc_property $arcset name]
   puts "DFF_X1 arc: $arcname / $arcname2"
 }
-puts "PASS: DFF_X1 arc set properties"
 
 puts "--- TimingArcSet properties on DFFR_X1 ---"
 set dffr_cell [get_lib_cells NangateOpenCellLibrary/DFFR_X1]
@@ -212,7 +199,6 @@ foreach arcset $arcsets_r {
   set arcname [sta::timing_arc_property $arcset full_name]
   puts "DFFR_X1 arc: $arcname"
 }
-puts "PASS: DFFR_X1 arc set properties"
 
 puts "--- TimingArcSet properties on OR2_X1 ---"
 set or_cell [get_lib_cells NangateOpenCellLibrary/OR2_X1]
@@ -222,7 +208,6 @@ foreach arcset $arcsets_o {
   set arcname2 [sta::timing_arc_property $arcset name]
   puts "OR2_X1 arc: $arcname / $arcname2"
 }
-puts "PASS: OR2_X1 arc set properties"
 
 ############################################################
 # Pin property: is_hierarchical, is_port
@@ -231,7 +216,6 @@ puts "--- Pin is_hierarchical/is_port ---"
 set p1 [get_pins reg1/D]
 puts "reg1/D is_hierarchical: [get_property $p1 is_hierarchical]"
 puts "reg1/D is_port: [get_property $p1 is_port]"
-puts "PASS: pin is_hierarchical/is_port"
 
 ############################################################
 # LibertyPort direction on different port types
@@ -243,7 +227,6 @@ set dff_d_lp [get_lib_pins NangateOpenCellLibrary/DFF_X1/D]
 puts "DFF_X1/D direction: [get_property $dff_d_lp direction]"
 set dff_ck_lp [get_lib_pins NangateOpenCellLibrary/DFF_X1/CK]
 puts "DFF_X1/CK direction: [get_property $dff_ck_lp direction]"
-puts "PASS: liberty port directions"
 
 ############################################################
 # Unknown property error handling for various types
@@ -259,6 +242,3 @@ catch { get_property [get_lib_cells NangateOpenCellLibrary/BUF_X1] nonexistent_p
 puts "LibertyCell unknown: [string range $err4 0 40]"
 catch { get_property [get_libs NangateOpenCellLibrary] nonexistent_prop } err5
 puts "Library unknown: [string range $err5 0 40]"
-puts "PASS: unknown property errors"
-
-puts "ALL PASSED"

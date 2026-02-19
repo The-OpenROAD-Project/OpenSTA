@@ -16,25 +16,21 @@ puts "--- Corner commands ---"
 set corner [sta::cmd_corner]
 puts "Corner name: [$corner name]"
 puts "Multi corner: [sta::multi_corner]"
-puts "PASS: corner commands"
 
 puts "--- ClkSkew report with propagated clock ---"
 report_clock_skew -setup
 report_clock_skew -hold
 report_clock_skew -setup -include_internal_latency
 report_clock_skew -hold -include_internal_latency
-puts "PASS: clock skew propagated"
 
 puts "--- ClkSkew with digits ---"
 report_clock_skew -setup -digits 6
 report_clock_skew -hold -digits 6
-puts "PASS: clock skew digits"
 
 puts "--- report_clock_latency ---"
 report_clock_latency
 report_clock_latency -include_internal_latency
 report_clock_latency -digits 6
-puts "PASS: clock latency"
 
 puts "--- worst_slack corner-specific ---"
 set corner [sta::cmd_corner]
@@ -42,21 +38,18 @@ set ws_corner [sta::worst_slack_corner $corner max]
 puts "Worst slack corner max: $ws_corner"
 set ws_corner_min [sta::worst_slack_corner $corner min]
 puts "Worst slack corner min: $ws_corner_min"
-puts "PASS: worst_slack corner"
 
 puts "--- total_negative_slack corner ---"
 set tns_corner [sta::total_negative_slack_corner_cmd $corner max]
 puts "TNS corner max: $tns_corner"
 set tns_corner_min [sta::total_negative_slack_corner_cmd $corner min]
 puts "TNS corner min: $tns_corner_min"
-puts "PASS: tns corner"
 
 puts "--- worst_slack_vertex ---"
 set wv [sta::worst_slack_vertex max]
 if { $wv != "NULL" } {
   puts "Worst vertex pin: [get_full_name [$wv pin]]"
 }
-puts "PASS: worst_slack_vertex"
 
 puts "--- vertex_worst_arrival_path ---"
 set wv [sta::worst_slack_vertex max]
@@ -67,7 +60,6 @@ if { $wv != "NULL" } {
     puts "Worst arrival: [$wpath arrival]"
   }
 }
-puts "PASS: vertex_worst_arrival_path"
 
 puts "--- vertex_worst_slack_path ---"
 set wv [sta::worst_slack_vertex max]
@@ -78,7 +70,6 @@ if { $wv != "NULL" } {
     puts "Worst slack: [$wspath slack]"
   }
 }
-puts "PASS: vertex_worst_slack_path"
 
 puts "--- set_case_analysis and sim ---"
 set_case_analysis 0 [get_ports in2]
@@ -87,7 +78,6 @@ set sv [sta::pin_sim_logic_value [get_pins and1/A2]]
 puts "Sim value and1/A2: $sv"
 report_constant [get_ports in2]
 unset_case_analysis [get_ports in2]
-puts "PASS: case_analysis sim"
 
 puts "--- set_case_analysis 1 ---"
 set_case_analysis 1 [get_ports in1]
@@ -95,7 +85,6 @@ report_checks -path_delay max
 set sv1 [sta::pin_sim_logic_value [get_pins and1/A1]]
 puts "Sim value and1/A1: $sv1"
 unset_case_analysis [get_ports in1]
-puts "PASS: case_analysis 1"
 
 puts "--- report with clock_uncertainty ---"
 set_clock_uncertainty 0.3 -setup [get_clocks clk]
@@ -106,19 +95,14 @@ report_clock_skew -setup
 report_clock_skew -hold
 unset_clock_uncertainty -setup [get_clocks clk]
 unset_clock_uncertainty -hold [get_clocks clk]
-puts "PASS: clock uncertainty"
 
 puts "--- report with set_inter_clock_uncertainty ---"
 set_clock_uncertainty -from [get_clocks clk] -to [get_clocks clk] -setup 0.15
 report_checks -path_delay max -format full_clock_expanded
 unset_clock_uncertainty -from [get_clocks clk] -to [get_clocks clk] -setup
-puts "PASS: inter_clock_uncertainty"
 
 puts "--- find_clk_min_period ---"
 set min_period [sta::find_clk_min_period [get_clocks clk] 0]
 puts "Min period: $min_period"
 set min_period_port [sta::find_clk_min_period [get_clocks clk] 1]
 puts "Min period (with port paths): $min_period_port"
-puts "PASS: find_clk_min_period"
-
-puts "ALL PASSED"

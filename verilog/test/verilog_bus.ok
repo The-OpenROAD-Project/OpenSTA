@@ -42,7 +42,6 @@ Path Type: max
            9.92   slack (MET)
 
 
-PASS: report_checks with bus ports
 Startpoint: enable (input port clocked by clk)
 Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -71,18 +70,13 @@ Path Type: min
            0.02   slack (MET)
 
 
-PASS: report_checks min with bus ports
 --- pin queries with bus patterns ---
 all pins: 44
 buf* pins: 8
 and* pins: 12
 reg* pins: 24
 --- write_verilog with bus ports ---
-PASS: write_verilog bus
-PASS: output file exists
 output size: 880
-PASS: write_verilog -include_pwr_gnd bus
-PASS: pwr_gnd file exists
 --- report_net with bus nets ---
 Net n1[0]
  Pin capacitance: 0.87-0.92
@@ -196,7 +190,6 @@ Driver pins
 Load pins
  reg3/D input (DFF_X1) 1.06-1.14
 
-PASS: report_net bus nets
 --- report_instance ---
 Instance buf0
  Cell: BUF_X1
@@ -274,9 +267,7 @@ Instance reg1
   IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
-PASS: report_instance bus cells
 --- fanin/fanout ---
 fanin to data_out[0]: 3
 fanout from data_in[0]: 6
 fanin cells to data_out[0]: 2
-ALL PASSED

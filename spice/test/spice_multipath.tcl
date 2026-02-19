@@ -21,32 +21,28 @@ set_input_transition 0.1 [get_ports {in1 in2}]
 
 # Read SPEF for parasitics (exercises parasitic path in spice write)
 # Use manual parasitics since we don't have matching SPEF
-catch {sta::set_pi_model buf1/Z 0.002 5.0 0.001} msg
-catch {sta::set_elmore buf1/Z and1/A1 0.001} msg
-catch {sta::set_elmore buf1/Z or1/A1 0.001} msg
+sta::set_pi_model buf1/Z 0.002 5.0 0.001
+sta::set_elmore buf1/Z and1/A1 0.001
+sta::set_elmore buf1/Z or1/A1 0.001
 
-catch {sta::set_pi_model inv1/ZN 0.002 5.0 0.001} msg
-catch {sta::set_elmore inv1/ZN and1/A2 0.001} msg
-catch {sta::set_elmore inv1/ZN or1/A2 0.001} msg
+sta::set_pi_model inv1/ZN 0.002 5.0 0.001
+sta::set_elmore inv1/ZN and1/A2 0.001
+sta::set_elmore inv1/ZN or1/A2 0.001
 
-catch {sta::set_pi_model and1/ZN 0.001 3.0 0.0005} msg
-catch {sta::set_elmore and1/ZN reg1/D 0.001} msg
+sta::set_pi_model and1/ZN 0.001 3.0 0.0005
+sta::set_elmore and1/ZN reg1/D 0.001
 
-catch {sta::set_pi_model or1/ZN 0.001 3.0 0.0005} msg
-catch {sta::set_elmore or1/ZN reg2/D 0.001} msg
+sta::set_pi_model or1/ZN 0.001 3.0 0.0005
+sta::set_elmore or1/ZN reg2/D 0.001
 
 puts "--- report_checks ---"
 report_checks
-puts "PASS: timing with parasitics"
 
 report_checks -path_delay min
-puts "PASS: min path"
 
 report_checks -from [get_ports in1] -to [get_ports out1]
-puts "PASS: in1->out1"
 
 report_checks -from [get_ports in2] -to [get_ports out2]
-puts "PASS: in2->out2"
 
 # Create comprehensive mock SPICE files
 set spice_dir [make_result_file spice_multipath]
@@ -101,7 +97,6 @@ puts $subckt_fh "M1 Q D VDD VDD pmos W=0.4u L=0.1u"
 puts $subckt_fh "M2 Q D VSS VSS nmos W=0.2u L=0.1u"
 puts $subckt_fh ".ends"
 close $subckt_fh
-puts "PASS: SPICE files created"
 
 #---------------------------------------------------------------
 # write_path_spice with max path (default)
@@ -119,10 +114,8 @@ set rc1 [catch {
     -ground VSS
 } msg1]
 if { $rc1 == 0 } {
-  puts "PASS: write_path_spice max completed"
 } else {
   puts "INFO: write_path_spice max: $msg1"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -141,10 +134,8 @@ set rc2 [catch {
     -ground VSS
 } msg2]
 if { $rc2 == 0 } {
-  puts "PASS: write_path_spice min completed"
 } else {
   puts "INFO: write_path_spice min: $msg2"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -163,10 +154,8 @@ set rc3 [catch {
     -ground VSS
 } msg3]
 if { $rc3 == 0 } {
-  puts "PASS: write_path_spice specific completed"
 } else {
   puts "INFO: write_path_spice specific: $msg3"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -186,10 +175,8 @@ set rc4 [catch {
     -simulator hspice
 } msg4]
 if { $rc4 == 0 } {
-  puts "PASS: write_path_spice hspice completed"
 } else {
   puts "INFO: write_path_spice hspice: $msg4"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -209,10 +196,8 @@ set rc5 [catch {
     -simulator xyce
 } msg5]
 if { $rc5 == 0 } {
-  puts "PASS: write_path_spice xyce completed"
 } else {
   puts "INFO: write_path_spice xyce: $msg5"
-  puts "PASS: code path exercised"
 }
 
 #---------------------------------------------------------------
@@ -227,7 +212,7 @@ set rc [catch {
     -lib_subckt_file $subckt_file -model_file $model_file \
     -power VDD -ground VSS
 } msg]
-if { $rc == 0 } { puts "PASS: gate BUF rise" } else { puts "INFO: gate BUF rise: $msg"; puts "PASS: code path exercised" }
+if { $rc == 0 } { puts "gate BUF rise" } else { puts "INFO: gate BUF rise: $msg" }
 
 # BUF fall
 set gf2 [file join $spice_dir gate_buf_fall.sp]
@@ -236,7 +221,7 @@ set rc [catch {
     -lib_subckt_file $subckt_file -model_file $model_file \
     -power VDD -ground VSS
 } msg]
-if { $rc == 0 } { puts "PASS: gate BUF fall" } else { puts "INFO: gate BUF fall: $msg"; puts "PASS: code path exercised" }
+if { $rc == 0 } { puts "gate BUF fall" } else { puts "INFO: gate BUF fall: $msg" }
 
 # INV rise
 set gf3 [file join $spice_dir gate_inv_rise.sp]
@@ -245,7 +230,7 @@ set rc [catch {
     -lib_subckt_file $subckt_file -model_file $model_file \
     -power VDD -ground VSS
 } msg]
-if { $rc == 0 } { puts "PASS: gate INV rise" } else { puts "INFO: gate INV rise: $msg"; puts "PASS: code path exercised" }
+if { $rc == 0 } { puts "gate INV rise" } else { puts "INFO: gate INV rise: $msg" }
 
 # AND rise from A1
 set gf4 [file join $spice_dir gate_and_a1_rise.sp]
@@ -254,7 +239,7 @@ set rc [catch {
     -lib_subckt_file $subckt_file -model_file $model_file \
     -power VDD -ground VSS
 } msg]
-if { $rc == 0 } { puts "PASS: gate AND A1 rise" } else { puts "INFO: gate AND A1 rise: $msg"; puts "PASS: code path exercised" }
+if { $rc == 0 } { puts "gate AND A1 rise" } else { puts "INFO: gate AND A1 rise: $msg" }
 
 # AND fall from A2
 set gf5 [file join $spice_dir gate_and_a2_fall.sp]
@@ -263,7 +248,7 @@ set rc [catch {
     -lib_subckt_file $subckt_file -model_file $model_file \
     -power VDD -ground VSS
 } msg]
-if { $rc == 0 } { puts "PASS: gate AND A2 fall" } else { puts "INFO: gate AND A2 fall: $msg"; puts "PASS: code path exercised" }
+if { $rc == 0 } { puts "gate AND A2 fall" } else { puts "INFO: gate AND A2 fall: $msg" }
 
 # OR rise
 set gf6 [file join $spice_dir gate_or_rise.sp]
@@ -272,7 +257,7 @@ set rc [catch {
     -lib_subckt_file $subckt_file -model_file $model_file \
     -power VDD -ground VSS
 } msg]
-if { $rc == 0 } { puts "PASS: gate OR rise" } else { puts "INFO: gate OR rise: $msg"; puts "PASS: code path exercised" }
+if { $rc == 0 } { puts "gate OR rise" } else { puts "INFO: gate OR rise: $msg" }
 
 # Hspice simulator variants
 set gf7 [file join $spice_dir gate_inv_hspice.sp]
@@ -281,7 +266,7 @@ set rc [catch {
     -lib_subckt_file $subckt_file -model_file $model_file \
     -power VDD -ground VSS -simulator hspice
 } msg]
-if { $rc == 0 } { puts "PASS: gate INV hspice" } else { puts "INFO: gate INV hspice: $msg"; puts "PASS: code path exercised" }
+if { $rc == 0 } { puts "gate INV hspice" } else { puts "INFO: gate INV hspice: $msg" }
 
 # Xyce simulator variants
 set gf8 [file join $spice_dir gate_or_xyce.sp]
@@ -290,6 +275,4 @@ set rc [catch {
     -lib_subckt_file $subckt_file -model_file $model_file \
     -power VDD -ground VSS -simulator xyce
 } msg]
-if { $rc == 0 } { puts "PASS: gate OR xyce" } else { puts "INFO: gate OR xyce: $msg"; puts "PASS: code path exercised" }
-
-puts "ALL PASSED"
+if { $rc == 0 } { puts "gate OR xyce" } else { puts "INFO: gate OR xyce: $msg" }

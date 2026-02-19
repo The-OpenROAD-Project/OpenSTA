@@ -31,7 +31,6 @@ Path Type: max
            9.80   slack (MET)
 
 
-PASS: initial timing
 --- pin direction queries ---
 in1 is input port
 out1 is output port
@@ -46,14 +45,12 @@ pin buf_out1/A: dir=input
 pin buf_out1/Z: dir=output
 pin buf_out2/A: dir=input
 pin buf_out2/Z: dir=output
-PASS: pin direction queries
 --- hierarchical queries ---
 hierarchical cells: 11
 hierarchical pins: 30
 hierarchical nets: 19
 sub* hierarchical cells: 2
 buf* hierarchical cells: 5
-PASS: hierarchical queries
 --- fanin/fanout variants ---
 fanin flat to out1: 5
 fanin cells to out1: 3
@@ -78,7 +75,6 @@ fanin flat to out2: 18
 fanin cells to out2: 2
 fanout flat from in2: 15
 fanout flat from in3: 11
-PASS: fanin/fanout variants
 --- report_net all ---
 Net w1
  Pin capacitance: 0.87-0.92
@@ -166,7 +162,6 @@ Load pins
  buf_out1/A input (BUF_X2) 1.59-1.78
 
 report_net w5: done
-PASS: report_net
 --- report_instance all ---
 Instance buf_in
  Cell: BUF_X1
@@ -251,25 +246,19 @@ Instance buf_out2
  Other pins:
   VDD power (unconnected)
   VSS ground (unconnected)
-PASS: report_instance
 --- all_registers ---
 all_registers: 1
 register data_pins: 1
 register clock_pins: 1
 register output_pins: 2
-PASS: all_registers
 --- port direction filters ---
 input ports: 4
 output ports: 2
-PASS: port direction filters
 --- cell ref_name filters ---
 BUF_X1: 2
 DFF_X1: 1
 INV_X1: 1
-PASS: cell ref_name filters
 --- instance/pin/net count queries ---
 top level cells: 7
 top level nets: 11
 top level pins: 20
-PASS: count queries
-ALL PASSED

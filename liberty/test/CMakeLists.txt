@@ -104,11 +104,11 @@ add_test(
 set_tests_properties(tcl.liberty.opcond_scale PROPERTIES LABELS "tcl;module_liberty")
 
 add_test(
-  NAME tcl.liberty.ccsn_ecsm
-  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> liberty_ccsn_ecsm
+  NAME tcl.liberty.ccsn
+  COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> liberty_ccsn
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-set_tests_properties(tcl.liberty.ccsn_ecsm PROPERTIES LABELS "tcl;module_liberty")
+set_tests_properties(tcl.liberty.ccsn PROPERTIES LABELS "tcl;module_liberty")
 
 add_test(
   NAME tcl.liberty.cell_deep

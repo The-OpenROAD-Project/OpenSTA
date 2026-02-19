@@ -3,8 +3,4 @@ Warning: verilog_specify.tcl line 1, instance '*' not found.
 cells: 0
 nets: 4
 ports: 4
-PASS: read_verilog with specify/parameter
 --- write_verilog ---
-PASS: write_verilog after specify
-PASS: output file is non-empty
-ALL PASSED

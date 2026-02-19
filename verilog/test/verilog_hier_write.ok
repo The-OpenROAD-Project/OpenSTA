@@ -12,18 +12,13 @@ req_rdy dir=output
 resp_val dir=output
 resp_rdy dir=input
 --- Test 2: write_verilog basic ---
-PASS: basic write_verilog size=74836
 --- Test 3: write_verilog -include_pwr_gnd ---
-PASS: pwr_gnd write_verilog size=74836
-PASS: pwr_gnd output >= basic output
 --- Test 4: write_verilog -remove_cells ---
-PASS: remove_cells write_verilog size=74836
 --- Test 5: read back written verilog ---
 Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 roundtrip cells: 1292
 roundtrip nets: 288
 roundtrip ports: 54
-PASS: roundtrip write_verilog size=74836
 --- Test 6: timing with bus ports ---
 Warning: verilog_hier_write.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
@@ -66,7 +61,6 @@ Path Type: max
            5.91   slack (MET)
 
 
-PASS: report_checks GCD
 Startpoint: reset (input port clocked by clk)
 Endpoint: _413_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -95,7 +89,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-PASS: report_checks min GCD
 Warning: verilog_hier_write.tcl line 1, unknown field nets.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _424_ (rising edge-triggered flip-flop clocked by clk)
@@ -150,8 +143,4 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   5.91   slack (MET)
 
 
-PASS: report_checks with fields GCD
 --- Test 7: write after timing setup ---
-PASS: post-timing write_verilog size=74836
-PASS: post-timing pwr write_verilog size=74836
-ALL PASSED

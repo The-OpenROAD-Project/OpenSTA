@@ -1,40 +1,4 @@
-PASS: clocks created
-PASS: generated clocks
-PASS: clock latency
-PASS: clock uncertainty
-PASS: clock transition
-PASS: propagated clock
-PASS: clock groups
 Warning: sdc_write_options.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock sense
-PASS: input delays
-PASS: output delays
-PASS: driving cells
-PASS: set_drive
-PASS: loads
-PASS: input transitions
-PASS: design limits
-PASS: exception paths
-PASS: disable timing
-PASS: case analysis
-PASS: operating conditions
-PASS: wire load
-PASS: timing derate
-PASS: min pulse width
-PASS: port fanout
-PASS: resistance
-PASS: max area
-PASS: logic one
-PASS: max time borrow
-PASS: clock gating check
-PASS: voltage
-PASS: write_sdc basic
-PASS: write_sdc -compatible
-PASS: write_sdc -digits 2
-PASS: write_sdc -digits 8
-PASS: write_sdc -compatible -digits 6
-PASS: write_sdc -map_hpins
-PASS: read_sdc basic
 Warning: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
 Warning: generated clock gen_edges pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gen_edges')
@@ -86,8 +50,6 @@ Path Type: max
            3.37   slack (MET)
 
 
-PASS: report_checks after read_sdc
-PASS: read_sdc compatible
 Warning: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
 Warning: generated clock gen_edges pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gen_edges')
@@ -139,5 +101,3 @@ Path Type: max
            3.37   slack (MET)
 
 
-PASS: report_checks after read_sdc compatible
-ALL PASSED

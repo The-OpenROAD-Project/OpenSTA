@@ -22,29 +22,22 @@ report_checks -path_delay max > /dev/null
 puts "--- Baseline timing (no parasitics) ---"
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: baseline timing"
 
 ############################################################
 # Read SPEF
 ############################################################
 puts "--- read_spef ---"
 read_spef search_test1.spef
-puts "PASS: read_spef"
 
 puts "--- Timing after SPEF ---"
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: timing after SPEF"
 
 puts "--- report_parasitic_annotation ---"
 report_parasitic_annotation
-puts "PASS: report_parasitic_annotation"
 
 puts "--- report_parasitic_annotation -report_unannotated ---"
-catch {
-  report_parasitic_annotation -report_unannotated
-}
-puts "PASS: report_parasitic_annotation unannotated"
+report_parasitic_annotation -report_unannotated
 
 ############################################################
 # connectedCap via report_net (exercises connectedCap)
@@ -53,12 +46,10 @@ puts "--- report_net after SPEF ---"
 report_net n1
 report_net n2
 report_net n3
-puts "PASS: report_net after SPEF"
 
 puts "--- report_net -digits 6 ---"
 report_net -digits 6 n1
 report_net -digits 6 n2
-puts "PASS: report_net digits"
 
 ############################################################
 # Port ext caps: set_load exercises setPortExtPinCap
@@ -66,69 +57,48 @@ puts "PASS: report_net digits"
 puts "--- setPortExtPinCap (set_load -pin_load) ---"
 set_load -pin_load 0.05 [get_ports out1]
 report_checks -path_delay max
-puts "PASS: setPortExtPinCap"
 
 puts "--- setPortExtWireCap (set_load -wire_load) ---"
-catch {
-  set_load -wire_load 0.03 [get_ports out1]
-  report_checks -path_delay max
-}
-puts "PASS: setPortExtWireCap"
+set_load -wire_load 0.03 [get_ports out1]
+report_checks -path_delay max
 
 puts "--- setPortExtFanout ---"
 set_port_fanout_number 4 [get_ports out1]
 report_checks -path_delay max
-puts "PASS: setPortExtFanout"
 
 ############################################################
 # setNetWireCap - exercises Sta::setNetWireCap
 ############################################################
 puts "--- setNetWireCap ---"
-catch {
-  set_load 0.02 [get_nets n1]
-  report_checks -path_delay max
-}
-puts "PASS: setNetWireCap"
+set_load 0.02 [get_nets n1]
+report_checks -path_delay max
 
 ############################################################
 # Pi-elmore model: makePiElmore, findPiElmore, setElmore, findElmore
 ############################################################
 puts "--- set_pi_model (makePiElmore) ---"
-catch {
-  sta::set_pi_model and1/ZN 3.0e-15 1500.0 2.0e-15
-  puts "Pi model created for and1/ZN"
-}
-puts "PASS: set_pi_model"
+sta::set_pi_model and1/ZN 3.0e-15 1500.0 2.0e-15
+puts "Pi model created for and1/ZN"
 
 puts "--- set_elmore (setElmore) ---"
-catch {
-  sta::set_elmore and1/ZN buf1/A 5.0e-12
-  puts "Elmore delay set for and1/ZN -> buf1/A"
-}
-puts "PASS: set_elmore"
+sta::set_elmore and1/ZN buf1/A 5.0e-12
+puts "Elmore delay set for and1/ZN -> buf1/A"
 
 puts "--- find_elmore ---"
-catch {
-  set elm [sta::find_elmore [get_pins and1/ZN] [get_pins buf1/A] "rise" "max"]
-  puts "Elmore delay and1/ZN->buf1/A rise max: $elm"
-  set elm2 [sta::find_elmore [get_pins and1/ZN] [get_pins buf1/A] "fall" "max"]
-  puts "Elmore delay and1/ZN->buf1/A fall max: $elm2"
-}
-puts "PASS: find_elmore"
+set elm [sta::find_elmore [get_pins and1/ZN] [get_pins buf1/A] "rise" "max"]
+puts "Elmore delay and1/ZN->buf1/A rise max: $elm"
+set elm2 [sta::find_elmore [get_pins and1/ZN] [get_pins buf1/A] "fall" "max"]
+puts "Elmore delay and1/ZN->buf1/A fall max: $elm2"
 
 puts "--- find_pi_elmore ---"
-catch {
-  set pi [sta::find_pi_elmore [get_pins and1/ZN] "rise" "max"]
-  puts "Pi-elmore and1/ZN rise max: $pi"
-  set pi2 [sta::find_pi_elmore [get_pins and1/ZN] "fall" "max"]
-  puts "Pi-elmore and1/ZN fall max: $pi2"
-}
-puts "PASS: find_pi_elmore"
+set pi [sta::find_pi_elmore [get_pins and1/ZN] "rise" "max"]
+puts "Pi-elmore and1/ZN rise max: $pi"
+set pi2 [sta::find_pi_elmore [get_pins and1/ZN] "fall" "max"]
+puts "Pi-elmore and1/ZN fall max: $pi2"
 
 puts "--- Timing after manual parasitics ---"
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: timing after manual parasitics"
 
 ############################################################
 # Re-read SPEF (exercises setParasiticAnalysisPts path)
@@ -136,17 +106,13 @@ puts "PASS: timing after manual parasitics"
 puts "--- re-read SPEF ---"
 read_spef search_test1.spef
 report_checks -path_delay max
-puts "PASS: re-read SPEF"
 
 ############################################################
 # setResistance on net
 ############################################################
 puts "--- setResistance ---"
-catch {
-  set_resistance 100.0 [get_nets n1]
-  report_checks -path_delay max
-}
-puts "PASS: setResistance"
+set_resistance 100.0 [get_nets n1]
+report_checks -path_delay max
 
 ############################################################
 # Timing with propagated clock + SPEF
@@ -156,22 +122,15 @@ set_propagated_clock [get_clocks clk]
 report_checks -path_delay max
 report_checks -path_delay min
 unset_propagated_clock [get_clocks clk]
-puts "PASS: SPEF with propagated clock"
 
 ############################################################
 # read_spef with -min and -max flags
 ############################################################
 puts "--- read_spef -min ---"
-catch {
-  read_spef -min search_test1.spef
-}
-puts "PASS: read_spef -min"
+read_spef -min search_test1.spef
 
 puts "--- read_spef -max ---"
-catch {
-  read_spef -max search_test1.spef
-}
-puts "PASS: read_spef -max"
+read_spef -max search_test1.spef
 
 ############################################################
 # Report formats after SPEF loading
@@ -181,7 +140,6 @@ report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay max -format json
 report_checks -path_delay max -format summary
 report_checks -path_delay max -fields {capacitance slew fanout}
-puts "PASS: report formats after SPEF"
 
 ############################################################
 # worst_slack and tns with parasitics
@@ -195,7 +153,6 @@ set tns_max [total_negative_slack -max]
 puts "tns max: $tns_max"
 set tns_min [total_negative_slack -min]
 puts "tns min: $tns_min"
-puts "PASS: worst_slack/tns after SPEF"
 
 ############################################################
 # set_load with -min/-max flags (exercises setPortExtPinCap with min_max)
@@ -205,16 +162,10 @@ set_load -min 0.02 [get_ports out1]
 set_load -max 0.08 [get_ports out1]
 report_checks -path_delay max
 report_checks -path_delay min
-puts "PASS: set_load -min/-max"
 
 ############################################################
 # report_net with -connections (exercises connectedCap and net printing)
 ############################################################
 puts "--- report_net -connections ---"
-catch {
-  report_net -connections n1
-  report_net -connections n2
-}
-puts "PASS: report_net -connections"
-
-puts "ALL PASSED"
+report_net -connections n1
+report_net -connections n2

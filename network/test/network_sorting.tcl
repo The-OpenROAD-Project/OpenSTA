@@ -112,9 +112,9 @@ report_net n1
 report_net n2
 
 # Report with different digit precision
-catch {report_net -digits 2 n1} msg
-catch {report_net -digits 4 n2} msg
-catch {report_net -digits 6 n1} msg
+report_net -digits 2 n1
+report_net -digits 4 n2
+report_net -digits 6 n1
 
 #---------------------------------------------------------------
 # Test report_instance for cells in sorted order
@@ -154,5 +154,3 @@ puts "libraries: [llength $libs]"
 foreach lib $libs {
   puts "  lib: [get_name $lib]"
 }
-
-puts "ALL PASSED"

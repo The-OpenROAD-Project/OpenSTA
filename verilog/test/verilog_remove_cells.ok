@@ -1,32 +1,21 @@
 --- Test 1: write with -remove_cells ---
 cells: 2
-PASS: basic write
-PASS: empty remove_cells
 basic size=194 empty remove size=194
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
-PASS: remove BUF_X1
 remove BUF_X1 size=194
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/DFF_X1' not found.
-PASS: remove DFF_X1
 remove DFF_X1 size=194
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/DFF_X1' not found.
-PASS: remove BUF_X1+DFF_X1
 remove both size=194
-PASS: removing more cells produces smaller/equal file
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
-PASS: remove + pwr_gnd
 remove+pwr size=194
 --- Test 2: remove_cells on multi-gate design ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
-PASS: multigate basic write
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/INV_X1' not found.
-PASS: multigate remove INV_X1
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/AND2_X1' not found.
-PASS: multigate remove AND2_X1
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/NAND2_X1' not found.
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/NOR2_X1' not found.
-PASS: multigate remove NAND+NOR
 multigate sizes: basic=810 inv=810 and=810 gates=810
 --- Test 3: multiple re-reads ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
@@ -39,7 +28,6 @@ re-read3 bus cells: 12
 --- Test 4: read back removed cells ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 roundtrip (buf removed) cells: 2
-PASS: read back removed BUF_X1
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 roundtrip basic cells: 2
 Startpoint: in1 (input port clocked by clk)
@@ -70,30 +58,22 @@ Path Type: max
            9.90   slack (MET)
 
 
-PASS: timing after roundtrip
 --- Test 5: complex bus with removes ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
-PASS: complex bus remove BUF_X1
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/DFF_X1' not found.
-PASS: complex bus remove DFF_X1
 complex remove sizes: buf=2075 dff=2075
 --- Test 6: supply/tristate with removes ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
-PASS: supply/tri remove BUF_X1
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/INV_X1' not found.
-PASS: supply/tri remove INV_X1 + pwr
 supply remove sizes: buf=911 inv_pwr=941
 --- Test 7: hierarchical with removes ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
-PASS: hier remove BUF_X1
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/AND2_X1' not found.
 Warning: verilog_remove_cells.tcl line 1, object 'NangateOpenCellLibrary/INV_X1' not found.
-PASS: hier remove AND2+INV
 hier remove sizes: buf=704 and_inv=704
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 hier roundtrip cells: 7
 hier roundtrip hier cells: 11
-ALL PASSED

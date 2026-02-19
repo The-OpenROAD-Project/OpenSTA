@@ -12,7 +12,6 @@ set_output_delay -clock clk 0 [get_ports out1]
 
 # Run timing analysis (needed before write_path_spice)
 report_checks
-puts "PASS: timing analysis completed for spice"
 
 # Create mock SPICE model and subckt files for write_path_spice
 set spice_dir [make_result_file spice_out]
@@ -38,7 +37,6 @@ puts $subckt_fh "M1 Q D VDD VDD pmos W=1u L=100n"
 puts $subckt_fh "M2 Q D VSS VSS nmos W=1u L=100n"
 puts $subckt_fh ".ends"
 close $subckt_fh
-puts "PASS: mock SPICE files created"
 
 # Attempt write_path_spice - exercises the Tcl command parsing and
 # C++ WritePathSpice code paths. Catch errors since subckt definitions
@@ -53,10 +51,7 @@ set rc [catch {
     -ground VSS
 } msg]
 if { $rc == 0 } {
-  puts "PASS: write_path_spice completed successfully"
   diff_files $test_name.spok [file join $spice_dir path_1.sp]
 } else {
   puts "FAIL: write_path_spice returned error: $msg"
 }
-
-puts "ALL PASSED"

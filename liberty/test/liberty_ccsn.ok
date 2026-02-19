@@ -1,0 +1,922 @@
+Cell A2O1A1Ixp33_ASAP7_75t_L
+Library asap7sc7p5t_AO_LVT_FF_ccsn_211120
+File ../../test/asap7_ccsn.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!B)+(!A2*!B))+!C
+ A1 input 0.49-0.63
+ A2 input 0.53-0.63
+ B input 0.47-0.66
+ C input 0.36-0.63
+Cell DFFHQNx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ QN output function=IQN
+ CLK input 0.40-0.52
+ D input 0.55-0.62
+ IQN internal
+ IQNN internal
+Cell DFFHQNx2_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ QN output function=IQN
+ CLK input 0.40-0.52
+ D input 0.55-0.62
+ IQN internal
+ IQNN internal
+Warning: liberty_ccsn.tcl line 1, liberty cell 'asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx1_ASAP7_75t_R' not found.
+Warning: liberty_ccsn.tcl line 1, liberty cell 'asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx2_ASAP7_75t_R' not found.
+Cell ICGx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ IQ internal
+ GCLK output
+ CLK input 1.63-2.39
+ ENA input 0.33-0.47
+ SE input 0.39-0.47
+Cell ICGx2_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ IQ internal
+ GCLK output
+ CLK input 1.63-2.39
+ ENA input 0.33-0.47
+ SE input 0.39-0.47
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Cell AO211x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*A2)+B)+C
+ A1 input 0.77-1.00
+ A2 input 0.84-0.95
+ B input 0.70-0.90
+ C input 0.51-0.94
+Cell AO21x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(A1*A2)+B
+ A1 input 0.46-0.62
+ A2 input 0.38-0.63
+ B input 0.50-0.63
+Cell AO21x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(A1*A2)+B
+ A1 input 0.46-0.62
+ A2 input 0.38-0.64
+ B input 0.50-0.64
+Cell AO221x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*A2)+(B1*B2))+C
+ A1 input 0.40-0.52
+ A2 input 0.43-0.49
+ B1 input 0.33-0.57
+ B2 input 0.37-0.54
+ C input 0.41-0.53
+Cell AO221x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*A2)+(B1*B2))+C
+ A1 input 0.40-0.52
+ A2 input 0.43-0.49
+ B1 input 0.33-0.57
+ B2 input 0.37-0.54
+ C input 0.41-0.53
+Cell AO222x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*A2)+(B1*B2))+(C1*C2)
+ A1 input 0.45-0.61
+ A2 input 0.50-0.58
+ B1 input 0.45-0.61
+ B2 input 0.46-0.56
+ C1 input 0.39-0.65
+ C2 input 0.43-0.61
+Cell AO22x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(A1*A2)+(B1*B2)
+ A1 input 0.37-0.42
+ A2 input 0.34-0.45
+ B1 input 0.32-0.44
+ B2 input 0.28-0.47
+Cell AO22x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(A1*A2)+(B1*B2)
+ A1 input 0.51-0.57
+ A2 input 0.46-0.62
+ B1 input 0.45-0.61
+ B2 input 0.38-0.65
+Cell AO31x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*A2)*A3)+B
+ A1 input 0.90-1.24
+ A2 input 0.98-1.16
+ A3 input 1.02-1.15
+ B input 0.56-1.00
+Cell AO322x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((A1*A2)*A3)+(B1*B2))+(C1*C2)
+ A1 input 0.45-0.63
+ A2 input 0.47-0.56
+ A3 input 0.49-0.56
+ B1 input 0.41-0.54
+ B2 input 0.43-0.51
+ C1 input 0.34-0.57
+ C2 input 0.37-0.54
+Cell AO32x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*A2)*A3)+(B1*B2)
+ A1 input 0.38-0.56
+ A2 input 0.39-0.47
+ A3 input 0.45-0.52
+ B1 input 0.30-0.49
+ B2 input 0.33-0.44
+Cell AO32x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*A2)*A3)+(B1*B2)
+ A1 input 0.39-0.56
+ A2 input 0.39-0.47
+ A3 input 0.45-0.52
+ B1 input 0.30-0.49
+ B2 input 0.33-0.44
+Cell AO331x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((A1*A2)*A3)+((B1*B2)*B3))+C
+ A1 input 0.44-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.57
+ B1 input 0.43-0.61
+ B2 input 0.45-0.54
+ B3 input 0.47-0.56
+ C input 0.41-0.67
+Cell AO331x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((A1*A2)*A3)+((B1*B2)*B3))+C
+ A1 input 0.44-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.57
+ B1 input 0.43-0.61
+ B2 input 0.45-0.54
+ B3 input 0.47-0.56
+ C input 0.41-0.67
+Cell AO332x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((A1*A2)*A3)+((B1*B2)*B3))+(C1*C2)
+ A1 input 0.43-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.57
+ B1 input 0.43-0.61
+ B2 input 0.44-0.54
+ B3 input 0.46-0.56
+ C1 input 0.39-0.65
+ C2 input 0.43-0.61
+Cell AO332x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((A1*A2)*A3)+((B1*B2)*B3))+(C1*C2)
+ A1 input 0.43-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.57
+ B1 input 0.43-0.61
+ B2 input 0.45-0.54
+ B3 input 0.46-0.56
+ C1 input 0.39-0.65
+ C2 input 0.43-0.61
+Cell AO333x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((A1*A2)*A3)+((B1*B2)*B3))+((C1*C2)*C3)
+ A1 input 0.43-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.57
+ B1 input 0.46-0.56
+ B2 input 0.44-0.54
+ B3 input 0.43-0.61
+ C1 input 0.38-0.65
+ C2 input 0.42-0.59
+ C3 input 0.43-0.61
+Cell AO333x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((A1*A2)*A3)+((B1*B2)*B3))+((C1*C2)*C3)
+ A1 input 0.43-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.58
+ B1 input 0.46-0.56
+ B2 input 0.44-0.54
+ B3 input 0.43-0.61
+ C1 input 0.38-0.65
+ C2 input 0.42-0.59
+ C3 input 0.43-0.61
+Cell AO33x2_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*A2)*A3)+((B1*B2)*B3)
+ A1 input 0.38-0.55
+ A2 input 0.40-0.48
+ A3 input 0.45-0.51
+ B1 input 0.36-0.58
+ B2 input 0.39-0.52
+ B3 input 0.41-0.54
+Cell AOI211x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!B)*!C)+((!A2*!B)*!C)
+ A1 input 0.81-0.92
+ A2 input 0.76-1.00
+ B input 0.77-0.98
+ C input 0.61-1.06
+Cell AOI211xp5_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!B)*!C)+((!A2*!B)*!C)
+ A1 input 0.37-0.54
+ A2 input 0.34-0.57
+ B input 0.31-0.52
+ C input 0.41-0.52
+Cell AOI21x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!B)+(!A2*!B)
+ A1 input 0.88-1.24
+ A2 input 0.96-1.09
+ B input 0.74-1.24
+Cell AOI21xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!B)+(!A2*!B)
+ A1 input 0.33-0.44
+ A2 input 0.37-0.41
+ B input 0.30-0.49
+Cell AOI21xp5_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!B)+(!A2*!B)
+ A1 input 0.43-0.60
+ A2 input 0.50-0.57
+ B input 0.35-0.60
+Cell AOI221x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((!A1*!B1)*!C)+((!A1*!B2)*!C))+((!A2*!B1)*!C))+((!A2*!B2)*!C)
+ A1 input 0.77-0.98
+ A2 input 0.83-0.93
+ B1 input 0.77-0.98
+ B2 input 0.78-0.94
+ C input 0.53-0.95
+Cell AOI221xp5_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((!A1*!B1)*!C)+((!A1*!B2)*!C))+((!A2*!B1)*!C))+((!A2*!B2)*!C)
+ A1 input 0.40-0.52
+ A2 input 0.43-0.49
+ B1 input 0.33-0.57
+ B2 input 0.36-0.54
+ C input 0.41-0.53
+Cell AOI222xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((((!A1*!B1)*!C1)+((!A1*!B1)*!C2))+((!A1*!B2)*!C1))+((!A1*!B2)*!C2))+((!A2*!B1)*!C1))+((!A2*!B1)*!C2))+((!A2*!B2)*!C1))+((!A2*!B2)*!C2)
+ A1 input 0.33-0.57
+ A2 input 0.36-0.54
+ B1 input 0.39-0.52
+ B2 input 0.40-0.49
+ C1 input 0.40-0.53
+ C2 input 0.44-0.49
+Cell AOI22x1_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!B1)+(!A1*!B2))+(!A2*!B1))+(!A2*!B2)
+ A1 input 0.87-1.20
+ A2 input 0.78-1.33
+ B1 input 0.98-1.10
+ B2 input 0.90-1.25
+Cell AOI22xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!B1)+(!A1*!B2))+(!A2*!B1))+(!A2*!B2)
+ A1 input 0.37-0.41
+ A2 input 0.32-0.44
+ B1 input 0.32-0.44
+ B2 input 0.28-0.47
+Cell AOI22xp5_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!B1)+(!A1*!B2))+(!A2*!B1))+(!A2*!B2)
+ A1 input 0.51-0.57
+ A2 input 0.44-0.62
+ B1 input 0.44-0.61
+ B2 input 0.38-0.65
+Cell AOI311xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!B)*!C)+((!A2*!B)*!C))+((!A3*!B)*!C)
+ A1 input 0.43-0.62
+ A2 input 0.45-0.54
+ A3 input 0.51-0.57
+ B input 0.42-0.54
+ C input 0.32-0.57
+Cell AOI31xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!B)+(!A2*!B))+(!A3*!B)
+ A1 input 0.37-0.55
+ A2 input 0.39-0.47
+ A3 input 0.43-0.48
+ B input 0.32-0.51
+Cell AOI31xp67_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!B)+(!A2*!B))+(!A3*!B)
+ A1 input 0.89-1.25
+ A2 input 0.97-1.15
+ A3 input 1.02-1.15
+ B input 0.56-0.99
+Cell AOI321xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((!A1*!B1)*!C)+((!A1*!B2)*!C))+((!A2*!B1)*!C))+((!A2*!B2)*!C))+((!A3*!B1)*!C))+((!A3*!B2)*!C)
+ A1 input 0.42-0.61
+ A2 input 0.45-0.54
+ A3 input 0.51-0.57
+ B1 input 0.37-0.53
+ B2 input 0.33-0.56
+ C input 0.44-0.58
+Cell AOI322xp5_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((((((((!A1*!B1)*!C1)+((!A1*!B1)*!C2))+((!A1*!B2)*!C1))+((!A1*!B2)*!C2))+((!A2*!B1)*!C1))+((!A2*!B1)*!C2))+((!A2*!B2)*!C1))+((!A2*!B2)*!C2))+((!A3*!B1)*!C1))+((!A3*!B1)*!C2))+((!A3*!B2)*!C1))+((!A3*!B2)*!C2)
+ A1 input 0.42-0.61
+ A2 input 0.44-0.54
+ A3 input 0.46-0.56
+ B1 input 0.42-0.56
+ B2 input 0.44-0.49
+ C1 input 0.34-0.57
+ C2 input 0.39-0.56
+Cell AOI32xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((((!A1*!B1)+(!A1*!B2))+(!A2*!B1))+(!A2*!B2))+(!A3*!B1))+(!A3*!B2)
+ A1 input 0.37-0.55
+ A2 input 0.40-0.48
+ A3 input 0.45-0.51
+ B1 input 0.33-0.45
+ B2 input 0.29-0.47
+Cell AOI331xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((((((((!A1*!B1)*!C1)+((!A1*!B2)*!C1))+((!A1*!B3)*!C1))+((!A2*!B1)*!C1))+((!A2*!B2)*!C1))+((!A2*!B3)*!C1))+((!A3*!B1)*!C1))+((!A3*!B2)*!C1))+((!A3*!B3)*!C1)
+ A1 input 0.43-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.56
+ B1 input 0.42-0.61
+ B2 input 0.45-0.54
+ B3 input 0.47-0.56
+ C1 input 0.41-0.67
+Cell AOI332xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((((((((((((((!A1*!B1)*!C1)+((!A1*!B1)*!C2))+((!A1*!B2)*!C1))+((!A1*!B2)*!C2))+((!A1*!B3)*!C1))+((!A1*!B3)*!C2))+((!A2*!B1)*!C1))+((!A2*!B1)*!C2))+((!A2*!B2)*!C1))+((!A2*!B2)*!C2))+((!A2*!B3)*!C1))+((!A2*!B3)*!C2))+((!A3*!B1)*!C1))+((!A3*!B1)*!C2))+((!A3*!B2)*!C1))+((!A3*!B2)*!C2))+((!A3*!B3)*!C1))+((!A3*!B3)*!C2)
+ A1 input 0.42-0.61
+ A2 input 0.46-0.54
+ A3 input 0.50-0.56
+ B1 input 0.42-0.61
+ B2 input 0.44-0.54
+ B3 input 0.46-0.56
+ C1 input 0.39-0.65
+ C2 input 0.43-0.61
+Cell AOI333xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((((((((((((((((((((((((((!A1*!B1)*!C1)+((!A1*!B1)*!C2))+((!A1*!B1)*!C3))+((!A1*!B2)*!C1))+((!A1*!B2)*!C2))+((!A1*!B2)*!C3))+((!A1*!B3)*!C1))+((!A1*!B3)*!C2))+((!A1*!B3)*!C3))+((!A2*!B1)*!C1))+((!A2*!B1)*!C2))+((!A2*!B1)*!C3))+((!A2*!B2)*!C1))+((!A2*!B2)*!C2))+((!A2*!B2)*!C3))+((!A2*!B3)*!C1))+((!A2*!B3)*!C2))+((!A2*!B3)*!C3))+((!A3*!B1)*!C1))+((!A3*!B1)*!C2))+((!A3*!B1)*!C3))+((!A3*!B2)*!C1))+((!A3*!B2)*!C2))+((!A3*!B2)*!C3))+((!A3*!B3)*!C1))+((!A3*!B3)*!C2))+((!A3*!B3)*!C3)
+ A1 input 0.38-0.65
+ A2 input 0.41-0.59
+ A3 input 0.43-0.61
+ B1 input 0.42-0.61
+ B2 input 0.44-0.54
+ B3 input 0.46-0.56
+ C1 input 0.42-0.61
+ C2 input 0.46-0.54
+ C3 input 0.50-0.56
+Cell AOI33xp33_ASAP7_75t_R
+Library asap7sc7p5t_AO_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((((!A1*!B1)+(!A1*!B2))+(!A1*!B3))+(!A2*!B1))+(!A2*!B2))+(!A2*!B3))+(!A3*!B1))+(!A3*!B2))+(!A3*!B3)
+ A1 input 0.43-0.48
+ A2 input 0.39-0.47
+ A3 input 0.36-0.53
+ B1 input 0.34-0.56
+ B2 input 0.37-0.50
+ B3 input 0.39-0.52
+Cell OA211x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*B)*C)+((A2*B)*C)
+ A1 input 0.37-0.54
+ A2 input 0.34-0.57
+ B input 0.34-0.44
+ C input 0.37-0.45
+Cell OA21x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(A1*B)+(A2*B)
+ A1 input 0.46-0.62
+ A2 input 0.38-0.65
+ B input 0.50-0.64
+Cell OA221x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((A1*B1)*C)+((A1*B2)*C))+((A2*B1)*C))+((A2*B2)*C)
+ A1 input 0.85-0.96
+ A2 input 0.78-1.03
+ B1 input 0.79-0.94
+ B2 input 0.76-1.01
+ C input 0.53-0.99
+Cell OA222x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((((A1*B1)*C1)+((A1*B1)*C2))+((A1*B2)*C1))+((A1*B2)*C2))+((A2*B1)*C1))+((A2*B1)*C2))+((A2*B2)*C1))+((A2*B2)*C2)
+ A1 input 0.38-0.65
+ A2 input 0.44-0.61
+ B1 input 0.44-0.61
+ B2 input 0.46-0.56
+ C1 input 0.45-0.61
+ C2 input 0.50-0.58
+Cell OA22x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((A1*B1)+(A1*B2))+(A2*B1))+(A2*B2)
+ A1 input 0.44-0.61
+ A2 input 0.39-0.65
+ B1 input 0.50-0.56
+ B2 input 0.46-0.62
+Cell OA31x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((A1*B1)+(A2*B1))+(A3*B1)
+ A1 input 0.79-0.98
+ A2 input 0.71-0.98
+ A3 input 0.71-1.16
+ B1 input 0.44-0.56
+Cell OA331x1_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((((((((A1*B1)*C1)+((A1*B2)*C1))+((A1*B3)*C1))+((A2*B1)*C1))+((A2*B2)*C1))+((A2*B3)*C1))+((A3*B1)*C1))+((A3*B2)*C1))+((A3*B3)*C1)
+ A1 input 0.43-0.61
+ A2 input 0.45-0.54
+ A3 input 0.50-0.57
+ B1 input 0.43-0.61
+ B2 input 0.45-0.54
+ B3 input 0.47-0.56
+ C1 input 0.41-0.67
+Cell OA331x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((((((((A1*B1)*C1)+((A1*B2)*C1))+((A1*B3)*C1))+((A2*B1)*C1))+((A2*B2)*C1))+((A2*B3)*C1))+((A3*B1)*C1))+((A3*B2)*C1))+((A3*B3)*C1)
+ A1 input 0.43-0.61
+ A2 input 0.45-0.54
+ A3 input 0.50-0.57
+ B1 input 0.43-0.61
+ B2 input 0.45-0.54
+ B3 input 0.47-0.56
+ C1 input 0.41-0.67
+Cell OA332x1_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((((((((((((((A1*B1)*C1)+((A1*B1)*C2))+((A1*B2)*C1))+((A1*B2)*C2))+((A1*B3)*C1))+((A1*B3)*C2))+((A2*B1)*C1))+((A2*B1)*C2))+((A2*B2)*C1))+((A2*B2)*C2))+((A2*B3)*C1))+((A2*B3)*C2))+((A3*B1)*C1))+((A3*B1)*C2))+((A3*B2)*C1))+((A3*B2)*C2))+((A3*B3)*C1))+((A3*B3)*C2)
+ A1 input 0.43-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.57
+ B1 input 0.43-0.61
+ B2 input 0.45-0.54
+ B3 input 0.46-0.56
+ C1 input 0.38-0.65
+ C2 input 0.44-0.61
+Cell OA332x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((((((((((((((A1*B1)*C1)+((A1*B1)*C2))+((A1*B2)*C1))+((A1*B2)*C2))+((A1*B3)*C1))+((A1*B3)*C2))+((A2*B1)*C1))+((A2*B1)*C2))+((A2*B2)*C1))+((A2*B2)*C2))+((A2*B3)*C1))+((A2*B3)*C2))+((A3*B1)*C1))+((A3*B1)*C2))+((A3*B2)*C1))+((A3*B2)*C2))+((A3*B3)*C1))+((A3*B3)*C2)
+ A1 input 0.43-0.61
+ A2 input 0.46-0.55
+ A3 input 0.50-0.57
+ B1 input 0.43-0.61
+ B2 input 0.45-0.54
+ B3 input 0.46-0.56
+ C1 input 0.38-0.65
+ C2 input 0.44-0.61
+Cell OA333x1_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((((((((((((((((((((((((((A1*B1)*C1)+((A1*B1)*C2))+((A1*B1)*C3))+((A1*B2)*C1))+((A1*B2)*C2))+((A1*B2)*C3))+((A1*B3)*C1))+((A1*B3)*C2))+((A1*B3)*C3))+((A2*B1)*C1))+((A2*B1)*C2))+((A2*B1)*C3))+((A2*B2)*C1))+((A2*B2)*C2))+((A2*B2)*C3))+((A2*B3)*C1))+((A2*B3)*C2))+((A2*B3)*C3))+((A3*B1)*C1))+((A3*B1)*C2))+((A3*B1)*C3))+((A3*B2)*C1))+((A3*B2)*C2))+((A3*B2)*C3))+((A3*B3)*C1))+((A3*B3)*C2))+((A3*B3)*C3)
+ A1 input 0.38-0.65
+ A2 input 0.37-0.59
+ A3 input 0.44-0.61
+ B1 input 0.43-0.61
+ B2 input 0.44-0.55
+ B3 input 0.46-0.56
+ C1 input 0.43-0.61
+ C2 input 0.46-0.55
+ C3 input 0.50-0.57
+Cell OA333x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((((((((((((((((((((((((((A1*B1)*C1)+((A1*B1)*C2))+((A1*B1)*C3))+((A1*B2)*C1))+((A1*B2)*C2))+((A1*B2)*C3))+((A1*B3)*C1))+((A1*B3)*C2))+((A1*B3)*C3))+((A2*B1)*C1))+((A2*B1)*C2))+((A2*B1)*C3))+((A2*B2)*C1))+((A2*B2)*C2))+((A2*B2)*C3))+((A2*B3)*C1))+((A2*B3)*C2))+((A2*B3)*C3))+((A3*B1)*C1))+((A3*B1)*C2))+((A3*B1)*C3))+((A3*B2)*C1))+((A3*B2)*C2))+((A3*B2)*C3))+((A3*B3)*C1))+((A3*B3)*C2))+((A3*B3)*C3)
+ A1 input 0.39-0.65
+ A2 input 0.37-0.59
+ A3 input 0.44-0.61
+ B1 input 0.43-0.61
+ B2 input 0.44-0.54
+ B3 input 0.46-0.56
+ C1 input 0.43-0.61
+ C2 input 0.46-0.55
+ C3 input 0.50-0.57
+Cell OA33x2_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((((((((A1*B1)+(A1*B2))+(A1*B3))+(A2*B1))+(A2*B2))+(A2*B3))+(A3*B1))+(A3*B2))+(A3*B3)
+ A1 input 0.50-0.58
+ A2 input 0.46-0.55
+ A3 input 0.43-0.61
+ B1 input 0.45-0.61
+ B2 input 0.37-0.59
+ B3 input 0.39-0.65
+Cell OAI211xp5_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!A2)+!B)+!C
+ A1 input 0.36-0.54
+ A2 input 0.34-0.57
+ B input 0.39-0.52
+ C input 0.41-0.52
+Cell OAI21x1_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!A2)+!B
+ A1 input 0.89-1.24
+ A2 input 0.95-1.08
+ B input 0.85-1.38
+Cell OAI21xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!A2)+!B
+ A1 input 0.33-0.44
+ A2 input 0.28-0.47
+ B input 0.36-0.46
+Cell OAI21xp5_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!A2)+!B
+ A1 input 0.45-0.62
+ A2 input 0.38-0.65
+ B input 0.49-0.62
+Cell OAI221xp5_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!A2)+(!B1*!B2))+!C
+ A1 input 0.40-0.52
+ A2 input 0.43-0.49
+ B1 input 0.33-0.57
+ B2 input 0.36-0.54
+ C input 0.41-0.53
+Cell OAI222xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!A2)+(!B1*!B2))+(!C1*!C2)
+ A1 input 0.38-0.65
+ A2 input 0.43-0.61
+ B1 input 0.43-0.61
+ B2 input 0.46-0.56
+ C1 input 0.44-0.61
+ C2 input 0.50-0.57
+Cell OAI22x1_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!A2)+(!B1*!B2)
+ A1 input 0.86-1.20
+ A2 input 0.79-1.34
+ B1 input 0.97-1.10
+ B2 input 0.90-1.25
+Cell OAI22xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!A2)+(!B1*!B2)
+ A1 input 0.34-0.47
+ A2 input 0.30-0.49
+ B1 input 0.38-0.42
+ B2 input 0.34-0.46
+Cell OAI22xp5_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(!A1*!A2)+(!B1*!B2)
+ A1 input 0.44-0.61
+ A2 input 0.38-0.65
+ B1 input 0.50-0.57
+ B2 input 0.44-0.61
+Cell OAI311xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!A2)*!A3)+!B1)+!C1
+ A1 input 0.43-0.62
+ A2 input 0.45-0.54
+ A3 input 0.51-0.57
+ B1 input 0.41-0.54
+ C1 input 0.32-0.56
+Cell OAI31xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!A2)*!A3)+!B
+ A1 input 0.38-0.55
+ A2 input 0.39-0.47
+ A3 input 0.43-0.49
+ B input 0.32-0.51
+Cell OAI31xp67_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!A2)*!A3)+!B
+ A1 input 0.87-1.24
+ A2 input 0.96-1.14
+ A3 input 1.01-1.14
+ B input 0.54-0.98
+Cell OAI321xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!A2)*!A3)+(!B1*!B2))+!C
+ A1 input 0.42-0.61
+ A2 input 0.45-0.54
+ A3 input 0.51-0.57
+ B1 input 0.36-0.53
+ B2 input 0.34-0.56
+ C input 0.44-0.58
+Cell OAI322xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!A2)*!A3)+(!B1*!B2))+(!C1*!C2)
+ A1 input 0.42-0.61
+ A2 input 0.44-0.54
+ A3 input 0.46-0.56
+ B1 input 0.42-0.56
+ B2 input 0.43-0.49
+ C1 input 0.34-0.57
+ C2 input 0.39-0.56
+Cell OAI32xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!A2)*!A3)+(!B1*!B2)
+ A1 input 0.36-0.53
+ A2 input 0.39-0.47
+ A3 input 0.45-0.51
+ B1 input 0.33-0.45
+ B2 input 0.29-0.47
+Cell OAI331xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!A2)*!A3)+((!B1*!B2)*!B3))+!C1
+ A1 input 0.42-0.61
+ A2 input 0.46-0.54
+ A3 input 0.50-0.56
+ B1 input 0.42-0.61
+ B2 input 0.45-0.54
+ B3 input 0.47-0.56
+ C1 input 0.41-0.67
+Cell OAI332xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!A2)*!A3)+((!B1*!B2)*!B3))+(!C1*!C2)
+ A1 input 0.42-0.61
+ A2 input 0.46-0.54
+ A3 input 0.50-0.56
+ B1 input 0.42-0.61
+ B2 input 0.44-0.54
+ B3 input 0.46-0.56
+ C1 input 0.38-0.65
+ C2 input 0.43-0.61
+Cell OAI333xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=(((!A1*!A2)*!A3)+((!B1*!B2)*!B3))+((!C1*!C2)*!C3)
+ A1 input 0.38-0.65
+ A2 input 0.37-0.59
+ A3 input 0.42-0.61
+ B1 input 0.42-0.61
+ B2 input 0.44-0.54
+ B3 input 0.46-0.56
+ C1 input 0.42-0.61
+ C2 input 0.46-0.54
+ C3 input 0.50-0.56
+Cell OAI33xp33_ASAP7_75t_R
+Library asap7sc7p5t_OA_RVT_FF_nldm_211120
+File ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz
+ VDD power
+ VSS ground
+ Y output function=((!A1*!A2)*!A3)+((!B1*!B2)*!B3)
+ A1 input 0.43-0.48
+ A2 input 0.39-0.47
+ A3 input 0.36-0.53
+ B1 input 0.34-0.56
+ B2 input 0.33-0.50
+ B3 input 0.39-0.52
+Cell sg13g2_ebufn_2
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Z tristate enable=!TE_B function=A 4.51-7.42
+ A input 2.58-2.66
+ TE_B input 6.21-6.60
+Cell sg13g2_sdfbbp_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Q output function=IQ
+ Q_N output function=IQN
+ CLK input 2.97-3.06
+ D input 1.95-2.01
+ RESET_B input 1.74
+ SCD input 1.96-2.00
+ SCE input 3.18-3.92
+ SET_B input 5.25
+ IQ internal
+ IQN internal
+Cell sg13g2_dlhq_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Q output function=IQ
+ D input 2.26-2.31
+ GATE input 1.69-2.58
+ IQ internal
+ IQN internal
+Cell sg13g2_mux2_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ X output function=(!S*A0)+(S*A1)
+ A0 input 0.38-3.63
+ A1 input 0.52-3.70
+ S input 5.00-5.09
+Warning: ../../test/liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
+Warning: ../../test/liberty_arcs_one2one_2.lib line 48, timing port A and related port Y are different sizes.

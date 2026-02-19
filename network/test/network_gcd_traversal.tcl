@@ -18,18 +18,14 @@ source ../../test/helpers.tcl
 # Read Sky130 library and GCD design
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-puts "PASS: read sky130hd"
 
 read_verilog ../../examples/gcd_sky130hd.v
 link_design gcd
-puts "PASS: link gcd"
 
 source ../../examples/gcd_sky130hd.sdc
-puts "PASS: SDC"
 
 # Build timing graph
 report_checks -endpoint_count 1
-puts "PASS: initial timing"
 
 ############################################################
 # Instance and net counts (exercises leafInstanceCount, etc.)
@@ -75,8 +71,6 @@ puts "regex *_1 = [llength $matches]"
 set matches [sta::find_cells_matching "SKY130_FD_SC_HD__INV_*" 0 1]
 puts "nocase INV_* = [llength $matches]"
 
-puts "PASS: cell matching"
-
 ############################################################
 # Net connectivity queries (exercises connectedPinIterator,
 # visitConnectedPins, drivers)
@@ -93,18 +87,14 @@ foreach net_obj [get_nets *] {
     if {$net_count >= 20} break
   }
 }
-puts "PASS: net connectivity ($net_count nets)"
 
 # Report nets to exercise pin iteration
 set sample_count 0
 foreach net_obj [get_nets *] {
-  catch {
-    report_net -digits 4 [get_name $net_obj]
-  }
+  report_net -digits 4 [get_name $net_obj]
   incr sample_count
   if {$sample_count >= 15} break
 }
-puts "PASS: report_net sample"
 
 ############################################################
 # Instance property queries
@@ -119,7 +109,6 @@ foreach inst_obj [get_cells *] {
   incr inst_count
   if {$inst_count >= 20} break
 }
-puts "PASS: instance properties"
 
 ############################################################
 # Pin direction and property queries
@@ -137,7 +126,6 @@ foreach inst_obj [get_cells *] {
   }
   if {$pin_count >= 40} break
 }
-puts "PASS: pin properties ($pin_count pins)"
 
 ############################################################
 # Port direction queries
@@ -148,7 +136,6 @@ foreach port_obj [get_ports *] {
   set dir [get_property $port_obj direction]
   puts "port $pname dir=$dir"
 }
-puts "PASS: port properties"
 
 ############################################################
 # Library queries (exercises find_library, library_iterator)
@@ -163,49 +150,32 @@ while {[$lib_iter has_next]} {
   puts "library: [$lib name]"
 }
 $lib_iter finish
-puts "PASS: library queries"
 
 ############################################################
 # Connected pin traversal via timing paths
 ############################################################
 puts "--- timing path traversal ---"
 report_checks -from [get_ports clk] -endpoint_count 3
-puts "PASS: from clk"
 
 report_checks -from [get_ports reset] -endpoint_count 3
-puts "PASS: from reset"
 
 report_checks -from [get_ports req_val] -endpoint_count 3
-puts "PASS: from req_val"
 
-catch {
-  report_checks -to [get_ports resp_val] -endpoint_count 3
-  puts "PASS: to resp_val"
-}
+report_checks -to [get_ports resp_val] -endpoint_count 3
 
-catch {
-  report_checks -to [get_ports resp_rdy] -endpoint_count 3
-  puts "PASS: to resp_rdy"
-}
+report_checks -to [get_ports resp_rdy] -endpoint_count 3
 
 # Path from specific inputs to outputs
 foreach in_port {req_val reset req_rdy} {
   foreach out_port {resp_val resp_rdy} {
-    catch {
-      report_checks -from [get_ports $in_port] -to [get_ports $out_port]
-    }
+    report_checks -from [get_ports $in_port] -to [get_ports $out_port]
   }
 }
-puts "PASS: input-to-output paths"
 
 ############################################################
 # Namespace commands
 ############################################################
 puts "--- namespace ---"
 sta::set_cmd_namespace_cmd "sdc"
-puts "PASS: set namespace sdc"
 
 sta::set_cmd_namespace_cmd "sta"
-puts "PASS: set namespace sta"
-
-puts "ALL PASSED"

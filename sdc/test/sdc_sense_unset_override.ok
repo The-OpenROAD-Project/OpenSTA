@@ -1,17 +1,9 @@
-PASS: setup
 Warning: sdc_sense_unset_override.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock_sense positive with clock
 Warning: sdc_sense_unset_override.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock_sense negative with clock
 Warning: sdc_sense_unset_override.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock_sense stop with clock
 Warning: sdc_sense_unset_override.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock_sense positive without clock
 Warning: sdc_sense_unset_override.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock_sense negative without clock
-PASS: write_sdc with clock senses
 Warning: sdc_sense_unset_override.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: overwrite clock_sense positive with negative
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -65,12 +57,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: report after sense changes
-PASS: clock uncertainty
-PASS: inter-clock uncertainty
-PASS: write_sdc with uncertainties
-PASS: unset clock uncertainty
-PASS: unset inter-clock uncertainty
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -125,28 +111,6 @@ Path Type: max
            9.58   slack (MET)
 
 
-PASS: report after uncertainty unset
-PASS: clock insertion
-PASS: unset clock insertion
-PASS: clock_groups asynchronous
-PASS: unset clock_groups async
-PASS: clock_groups logically_exclusive
-PASS: unset clock_groups logically_exclusive
-PASS: clock_groups physically_exclusive
-PASS: write_sdc with clock groups
-PASS: unset clock_groups physically_exclusive
-PASS: max_delay
-PASS: false_path overrides max_delay
-PASS: false_path with rise_to and fall_to
-PASS: false_path with rise_from and fall_from
-PASS: multicycle setup + hold same path
-PASS: multicycle between clocks
-PASS: max/min delay with through
-PASS: group_path multi from/to
-PASS: write_sdc with all exceptions
-PASS: write_sdc compatible
-PASS: unset false_path
-PASS: unset rise/fall false_paths
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: grp_multi
@@ -230,7 +194,6 @@ Path Type: max
           16.62   slack (MET)
 
 
-PASS: final report
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: grp_multi
@@ -314,5 +277,3 @@ Path Type: max
           16.62   slack (MET)
 
 
-PASS: read_sdc + report
-ALL PASSED

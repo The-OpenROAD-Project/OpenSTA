@@ -1,57 +1,8 @@
-PASS: read Nangate45_typ
-PASS: find_operating_conditions typical found
-PASS: default_operating_conditions found
 Warning: liberty_opcond_scale.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
-PASS: basic design setup
-PASS: set_operating_conditions typical
 No paths found.
-PASS: report_checks with operating conditions
-PASS: find_liberty_cell INV_X1
-PASS: find_liberty_cell BUF_X1
-PASS: INV_X1 is_inverter = 1
-PASS: INV_X1 is_buffer = 0
-PASS: BUF_X1 is_buffer = 1
-PASS: BUF_X1 is_inverter = 0
-PASS: DFF_X1 is_leaf = 1
-PASS: liberty_library from cell: NangateOpenCellLibrary
-PASS: find_liberty_cells_matching INV* = 6
-PASS: find_liberty_cells_matching BUF* = 6
-PASS: find_liberty_cells_matching DFF* = 8
-PASS: find_liberty_cells_matching SDFF* = 8
-PASS: find_liberty_cells_matching * = 134
-PASS: find_liberty_ports_matching INV_X1/* = 4
-PASS: find_liberty_ports_matching DFF_X1/* = 8
-PASS: INV_X1 timing_arc_sets count = 1
-PASS: DFF_X1 timing_arc_sets count = 5
-PASS: CLKGATETST_X1 timing_arc_sets count = 9
-PASS: find_liberty_port INV_X1/A
-PASS: find_liberty_port INV_X1/ZN
-PASS: find_liberty_port DFF_X1/CK
-PASS: find_liberty_port DFF_X1/D
-PASS: find_liberty_port DFF_X1/Q
-PASS: liberty_port_iterator INV_X1 ports = 4
-PASS: liberty_port_iterator DFF_X1 ports = 8
-PASS: find_wireload 1K_hvratio_1_1
 INFO: wireload selection not found
-PASS: read sky130
-PASS: sky130 find_operating_conditions
-PASS: sky130 default_operating_conditions
-PASS: read Nangate45_fast
-PASS: read sky130 ff
-PASS: read sky130 ss
 No paths found.
-PASS: report_checks multi-library
-PASS: set_timing_derate
 No paths found.
-PASS: report_checks with derate
-PASS: write_liberty NangateOpenCellLibrary
-PASS: write_liberty sky130
-PASS: make_equiv_cells lib1
-PASS: make_equiv_cells lib2
-PASS: equiv_cells typ vs fast INV_X1 = 1
-PASS: equiv_cells typ vs fast BUF_X1 = 1
-PASS: equiv_cell_ports typ vs fast = 1
-PASS: equiv_cell_timing_arcs typ vs fast = 1
 max slew
 
 Pin inv1/ZN ^
@@ -68,5 +19,3 @@ capacitance        1.16
 -----------------------
 Slack             25.55 (MET)
 
-PASS: report_check_types verbose
-ALL PASSED

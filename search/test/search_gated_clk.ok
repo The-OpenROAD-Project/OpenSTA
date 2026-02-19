@@ -108,7 +108,6 @@ Path Type: min
            1.01   slack (MET)
 
 
-PASS: gated clk basic
 --- gated_clk_checks_enabled ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -366,7 +365,6 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: gated_clk_checks_enabled
 --- propagate_gated_clock_enable ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -624,7 +622,6 @@ Check: sequential_clock_pulse_width
            4.95   slack (MET)
 
 
-PASS: propagate_gated_clock_enable
 --- Gated clk with inferred clock gating ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -653,7 +650,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: inferred clock gating
 --- report_checks format full_clock with gated clk ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -737,7 +733,6 @@ Path Type: min
            1.01   slack (MET)
 
 
-PASS: gated clk report formats
 --- find_timing_paths with gated clk ---
 Found 4 paths
   is_gated_clock: 0
@@ -752,5 +747,3 @@ Found 4 paths
   is_gated_clock: 0
   is_check: 1
   pin: reg1/D
-PASS: find_timing_paths gated clk
-ALL PASSED

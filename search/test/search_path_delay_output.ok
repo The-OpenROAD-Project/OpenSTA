@@ -179,7 +179,6 @@ clk                                     7.90
 }
 ]
 }
-PASS: output delay formats
 --- Output delay min formats ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -353,7 +352,6 @@ out1 (output)                          -2.00    0.10    2.10 (MET)
 }
 ]
 }
-PASS: output delay min formats
 --- Output delay with fields ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -415,7 +413,6 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
                                   2.10   slack (MET)
 
 
-PASS: output delay fields
 --- set_max_delay ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -623,7 +620,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   7.90   slack (MET)
 
 
-PASS: set_max_delay
 --- set_min_delay ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -851,7 +847,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   1.04   slack (MET)
 
 
-PASS: set_min_delay
 --- find_timing_paths with path delay ---
 Max paths: 6
   is_path_delay: 0 is_output: 1 is_check: 0 pin=out1 slack=7.899713772019368e-9
@@ -860,7 +855,6 @@ Max paths: 6
   is_path_delay: 0 is_output: 0 is_check: 1 pin=reg1/D slack=8.915245430785035e-9
   is_path_delay: 0 is_output: 0 is_check: 1 pin=reg1/D slack=8.923905170377111e-9
   is_path_delay: 0 is_output: 0 is_check: 1 pin=reg1/D slack=8.925195693620935e-9
-PASS: path delay paths
 --- find_timing_paths min with path delay ---
 Min paths: 6
   is_path_delay: 0 is_output: 0 pin=reg1/D slack=1.0391780769225534e-9
@@ -869,7 +863,6 @@ Min paths: 6
   is_path_delay: 0 is_output: 0 pin=reg1/D slack=1.0464580313396254e-9
   is_path_delay: 0 is_output: 1 pin=out1 slack=2.0985655435623585e-9
   is_path_delay: 0 is_output: 1 pin=out1 slack=2.1002859451613176e-9
-PASS: path delay min paths
 --- Remove path delay ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -898,7 +891,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: remove path delay
 --- set_false_path ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -954,7 +946,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: false_path
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -982,7 +973,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: reset false_path
 --- set_multicycle_path ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1011,7 +1001,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: multicycle setup
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -1041,7 +1030,6 @@ Path Type: min
            1.04   slack (MET)
 
 
-PASS: multicycle hold
 --- Propagated clock output delay ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1099,12 +1087,10 @@ Path Type: min
                            2.10   slack (MET)
 
 
-PASS: propagated output delay
 --- Output delay variation ---
 output_delay 1.0: worst_slack=8.899713854759739e-9
 output_delay 5.0: worst_slack=4.899713967887465e-9
 output_delay 9.0: worst_slack=8.997141365263417e-10
-PASS: output delay variation
 --- Output delay digits/no_split ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1160,7 +1146,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: output digits/no_split
 --- PathEnd detail for output delay ---
 is_output_delay: 1
 is_check: 0
@@ -1171,5 +1156,3 @@ data_required: 7.999999773744548e-9
 source_clk_offset: 0.0
 target_clk: clk
 target_clk_time: 9.99999993922529e-9
-PASS: PathEnd output detail
-ALL PASSED

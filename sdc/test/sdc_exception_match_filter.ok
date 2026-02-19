@@ -1,8 +1,6 @@
 --- multi-thru state matching ---
 No paths found.
-PASS: 2-thru pin-pin
 No paths found.
-PASS: 2-thru pin-pin #2
 --- unset multi-thru ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -60,7 +58,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: unset multi-thru
 --- exception filter matching ---
 --- report_checks -from in1 ---
 Startpoint: in1 (input port clocked by clk1)
@@ -93,7 +90,6 @@ Path Type: max
            8.87   slack (MET)
 
 
-PASS: filter from in1
 --- report_checks -to out2 ---
 Startpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
 Endpoint: out2 (output port clocked by clk2)
@@ -121,10 +117,8 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: filter to out2
 --- report_checks -from in3 -to out2 ---
 No paths found.
-PASS: filter from/to
 --- report_checks -through pin ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -156,7 +150,6 @@ Path Type: max
            8.87   slack (MET)
 
 
-PASS: filter through pin
 --- report_checks -through instance ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -188,7 +181,6 @@ Path Type: max
            8.90   slack (MET)
 
 
-PASS: filter through instance
 --- unset all exceptions ---
 Startpoint: in3 (input port clocked by clk2)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -246,7 +238,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: unset all exceptions
 --- group_path filter ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -334,7 +325,6 @@ Path Type: max
            8.90   slack (MET)
 
 
-PASS: group_path filters
 --- from instance ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -478,8 +468,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: from instance
-PASS: unset from instance
 --- to instance ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
@@ -623,8 +611,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: to instance
-PASS: unset to instance
 --- from clock ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -768,8 +754,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: from clock
-PASS: unset from clock
 --- rise_through ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -913,8 +897,6 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: rise_through
-PASS: unset rise_through
 --- fall_through ---
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
@@ -1058,9 +1040,3 @@ Path Type: max
            9.88   slack (MET)
 
 
-PASS: fall_through
-PASS: unset fall_through
-PASS: write_sdc complex
-PASS: read_sdc roundtrip
-PASS: write_sdc after roundtrip
-ALL PASSED

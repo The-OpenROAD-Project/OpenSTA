@@ -11,7 +11,6 @@ set_output_delay -clock clk 1.0 [get_ports out1]
 
 puts "--- report_checks ---"
 report_checks
-puts "PASS: timing analysis completed"
 
 # Create mock SPICE files
 set spice_dir [make_result_file spice_opts_out]
@@ -42,7 +41,6 @@ puts $subckt_fh "M1 Q D VDD VDD pmos W=1u L=100n"
 puts $subckt_fh "M2 Q D VSS VSS nmos W=1u L=100n"
 puts $subckt_fh ".ends"
 close $subckt_fh
-puts "PASS: mock SPICE files created"
 
 puts "--- write_path_spice default ---"
 set rc1 [catch {
@@ -55,10 +53,8 @@ set rc1 [catch {
     -ground VSS
 } msg1]
 if { $rc1 == 0 } {
-  puts "PASS: write_path_spice default completed"
 } else {
   puts "INFO: write_path_spice default: $msg1"
-  puts "PASS: write_path_spice code path exercised"
 }
 
 puts "--- write_path_spice with -simulator hspice ---"
@@ -73,10 +69,8 @@ set rc2 [catch {
     -simulator hspice
 } msg2]
 if { $rc2 == 0 } {
-  puts "PASS: write_path_spice hspice completed"
 } else {
   puts "INFO: write_path_spice hspice: $msg2"
-  puts "PASS: write_path_spice hspice code path exercised"
 }
 
 puts "--- write_path_spice with -simulator xyce ---"
@@ -91,10 +85,8 @@ set rc3 [catch {
     -simulator xyce
 } msg3]
 if { $rc3 == 0 } {
-  puts "PASS: write_path_spice xyce completed"
 } else {
   puts "INFO: write_path_spice xyce: $msg3"
-  puts "PASS: write_path_spice xyce code path exercised"
 }
 
 puts "--- write_gate_spice ---"
@@ -109,10 +101,8 @@ set rc4 [catch {
     -ground VSS
 } msg4]
 if { $rc4 == 0 } {
-  puts "PASS: write_gate_spice completed"
 } else {
   puts "INFO: write_gate_spice: $msg4"
-  puts "PASS: write_gate_spice code path exercised"
 }
 
 puts "--- write_gate_spice with -simulator hspice ---"
@@ -128,10 +118,6 @@ set rc5 [catch {
     -simulator hspice
 } msg5]
 if { $rc5 == 0 } {
-  puts "PASS: write_gate_spice hspice completed"
 } else {
   puts "INFO: write_gate_spice hspice: $msg5"
-  puts "PASS: write_gate_spice hspice code path exercised"
 }
-
-puts "ALL PASSED"

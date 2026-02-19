@@ -1,44 +1,5 @@
-PASS: setup
-PASS: disable ports
-PASS: disable instances
-PASS: disable instance from/to
-PASS: disable lib cells
-PASS: disable pin
-PASS: write_sdc with disables
-PASS: unset all disables
-PASS: clock_groups async
-PASS: write with async groups
-PASS: unset async
-PASS: clock_groups logically_exclusive
-PASS: write with logically_exclusive
-PASS: unset logically_exclusive
-PASS: clock_groups physically_exclusive
-PASS: write with physically_exclusive
-PASS: unset physically_exclusive
-PASS: group paths
-PASS: group_path with weight
-PASS: group_path with multiple through
-PASS: driving cells
-PASS: drive resistances
-PASS: input transitions
-PASS: inter-clock uncertainty
-PASS: min_pulse_width global
-PASS: min_pulse_width clock high/low
-PASS: min_pulse_width clock same
-PASS: min_pulse_width pin
-PASS: min_pulse_width instance
-PASS: port loads
 Warning: sdc_write_disabled_groups.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
 Warning: sdc_write_disabled_groups.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-PASS: clock sense
-PASS: propagated clocks
-PASS: clock insertion
-PASS: clock transitions
-PASS: false paths setup/hold only
-PASS: write_sdc comprehensive
-PASS: write_sdc compatible comprehensive
-PASS: write_sdc digits 8
-PASS: write_sdc map_hpins
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: grp_reg
@@ -121,9 +82,6 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: report checks
-PASS: read_sdc
-PASS: write_sdc roundtrip
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: grp_reg
@@ -206,5 +164,3 @@ Path Type: max
           16.92   slack (MET)
 
 
-PASS: final report
-ALL PASSED

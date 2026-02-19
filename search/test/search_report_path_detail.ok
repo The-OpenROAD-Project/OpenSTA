@@ -1,15 +1,9 @@
 --- report_path on specific pin/transition ---
-PASS: report_path max/min rise/fall
 --- report_path on output pin ---
-PASS: report_path output pin
 --- report_path with -all flag ---
-PASS: report_path -all
 --- report_path with -tags flag ---
-PASS: report_path -tags
 --- report_path with -all -tags combined ---
-PASS: report_path -all -tags
 --- report_path with various formats ---
-PASS: report_path various formats
 --- report_checks with -fields src_attr ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -38,7 +32,6 @@ Path Type: max
            7.90   slack (MET)
 
 
-PASS: report_checks src_attr
 --- report_checks with -fields all combined ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -70,7 +63,6 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
                                   7.90   slack (MET)
 
 
-PASS: report_checks all fields
 --- PathEnd methods ---
   is_unconstrained: 0
   is_check: 0
@@ -103,7 +95,6 @@ PASS: report_checks all fields
   check_crpr: 0.0
   target_clk_end_trans: ^
   clk_skew: 0.0
-PASS: PathEnd methods
 --- Path methods ---
   arrival: 1.0028596009181712e-10
   required: 0.0
@@ -113,7 +104,6 @@ PASS: PathEnd methods
   tag: 13 ^ max/1 clk ^ clk_src clk crpr_pin null
   path pins: 6
   start_path pin: reg1/Q
-PASS: Path methods
 --- group_path with various options ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -200,13 +190,10 @@ Path Type: max
            8.91   slack (MET)
 
 
-PASS: group_path
 --- find_timing_paths with path groups ---
 Found 6 paths
-PASS: find_timing_paths with groups
 --- find_timing_paths unique paths ---
 Found 3 unique paths
-PASS: unique paths
 --- Search internal commands ---
 tag_group_count: 6
 tag_count: 20
@@ -214,19 +201,14 @@ clk_info_count: 4
 path_count: 76
 endpoint_violation_count max: 0
 endpoint_violation_count min: 0
-PASS: search internal commands
 --- Startpoints and endpoints ---
 Startpoints: 4
 Endpoints: 3
 Endpoint count: 3
-PASS: startpoints/endpoints
 --- Path group names ---
 Path group names: clk out_group reg_group asynchronous {path delay} {gated clock} unconstrained
-PASS: path group names
 --- Endpoint slack ---
-PASS: endpoint slack
 --- find_requireds ---
-PASS: find_requireds
 --- report internal debug ---
 Group    0 hash = 17966705655932391860 ( 134)
   0 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
@@ -297,7 +279,6 @@ max/1 clk v clk_src clk
 4 clk infos
      4     11
      8      4
-PASS: internal debug commands
 --- report_path_end header/footer ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -384,10 +365,6 @@ Path Type: max
            8.91   slack (MET)
 
 
-PASS: report_path_end header/footer
 --- slow_drivers ---
 Slow drivers: 3
-PASS: slow_drivers
 --- levelize ---
-PASS: levelize
-ALL PASSED

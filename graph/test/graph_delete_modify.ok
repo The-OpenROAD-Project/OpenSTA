@@ -29,7 +29,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: baseline max
 Startpoint: d3 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -59,7 +58,6 @@ Path Type: min
            1.03   slack (MET)
 
 
-PASS: baseline min
 Warning: graph_delete_modify.tcl line 1, unknown field nets.
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -94,9 +92,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   8.85   slack (MET)
 
 
-PASS: baseline fields
 --- Test 2: add/delete multiple instances ---
-PASS: added buffer chain
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -127,7 +123,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: timing after add chain
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -158,7 +153,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: timing after partial disconnect
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -189,8 +183,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: timing after reconnect
-PASS: full cleanup
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -221,7 +213,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: timing after full cleanup
 --- Test 3: replace_cell ---
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -256,7 +247,6 @@ Path Type: max
 A -> Z combinational
   ^ -> ^ 0.03:0.03
   v -> v 0.05:0.05
-PASS: buf1 -> BUF_X4
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -287,7 +277,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: buf1 -> BUF_X2
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -318,7 +307,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: buf1 restored
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -349,7 +337,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: and1 -> AND2_X2
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -380,7 +367,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: and1 restored
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -411,7 +397,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: inv1 -> INV_X2
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -442,7 +427,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: inv1 restored
 --- Test 4: add/delete register ---
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -474,8 +458,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: timing with added register
-PASS: register removed
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -506,7 +488,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: timing after register removal
 --- Test 5: rapid connect/disconnect ---
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -601,7 +582,6 @@ Path Type: max
 
 
 cycle 3 done
-PASS: rapid cycles
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -632,7 +612,6 @@ Path Type: max
            8.85   slack (MET)
 
 
-PASS: timing after rapid cycles
 --- Test 6: edge queries ---
 buf1 edges: 1
 buf2 edges: 1
@@ -645,14 +624,12 @@ reg1 edges: 1
 reg2 edges: 1
 reg3 edges: 1
 reg4 edges: 1
-PASS: edge queries
 d1 ^ 0.10:0.10 v 0.10:0.10
 d2 ^ 0.10:0.10 v 0.10:0.10
 d3 ^ 0.10:0.10 v 0.10:0.10
 buf1/Z ^ 0.01:0.01 v 0.01:0.01
 and1/ZN ^ 0.01:0.01 v 0.01:0.01
 reg1/Q ^ 0.01:0.01 v 0.00:0.00
-PASS: slew queries
 --- Test 7: through pins ---
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -747,5 +724,3 @@ Path Type: max
 
 
 through and1: done
-PASS: through pin queries
-ALL PASSED
