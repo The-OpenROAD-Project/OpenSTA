@@ -42,4 +42,10 @@ for arg in "$@"; do
 done
 
 cd "${build_dir}"
-ctest -L "module_${module}" "${args[@]}"
+
+# The top-level test/ directory uses label "tcl" (not "module_test").
+if [ "$module" = "test" ]; then
+  ctest -L "tcl" "${args[@]}"
+else
+  ctest -L "module_${module}" "${args[@]}"
+fi

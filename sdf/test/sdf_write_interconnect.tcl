@@ -35,8 +35,6 @@ report_checks
 puts "--- write_sdf with interconnect ---"
 set sdf_out1 [make_result_file "${test_name}_default.sdf"]
 write_sdf $sdf_out1
-if { [file exists $sdf_out1] && [file size $sdf_out1] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Write SDF with -include_typ (triple values)
@@ -44,8 +42,6 @@ if { [file exists $sdf_out1] && [file size $sdf_out1] > 0 } {
 puts "--- write_sdf -include_typ ---"
 set sdf_out2 [make_result_file "${test_name}_typ.sdf"]
 write_sdf -include_typ $sdf_out2
-if { [file exists $sdf_out2] && [file size $sdf_out2] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Write SDF with -divider .
@@ -53,8 +49,6 @@ if { [file exists $sdf_out2] && [file size $sdf_out2] > 0 } {
 puts "--- write_sdf -divider . ---"
 set sdf_out3 [make_result_file "${test_name}_dot.sdf"]
 write_sdf -divider . $sdf_out3
-if { [file exists $sdf_out3] && [file size $sdf_out3] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Write SDF with various digit counts
@@ -63,8 +57,6 @@ puts "--- write_sdf -digits ---"
 foreach digits {2 4 6 8} {
   set sdf_d [make_result_file "${test_name}_d${digits}.sdf"]
   write_sdf -digits $digits $sdf_d
-  if { [file exists $sdf_d] && [file size $sdf_d] > 0 } {
-  }
 }
 
 #---------------------------------------------------------------
@@ -73,8 +65,6 @@ foreach digits {2 4 6 8} {
 puts "--- write_sdf -no_timestamp -no_version ---"
 set sdf_out4 [make_result_file "${test_name}_clean.sdf"]
 write_sdf -no_timestamp -no_version $sdf_out4
-if { [file exists $sdf_out4] && [file size $sdf_out4] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Write SDF gzip
@@ -82,8 +72,6 @@ if { [file exists $sdf_out4] && [file size $sdf_out4] > 0 } {
 puts "--- write_sdf -gzip ---"
 set sdf_out5 [make_result_file "${test_name}_gz.sdf.gz"]
 write_sdf -gzip $sdf_out5
-if { [file exists $sdf_out5] && [file size $sdf_out5] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Write SDF with all options combined
@@ -91,8 +79,6 @@ if { [file exists $sdf_out5] && [file size $sdf_out5] > 0 } {
 puts "--- write_sdf all options ---"
 set sdf_out6 [make_result_file "${test_name}_all.sdf"]
 write_sdf -digits 4 -include_typ -no_timestamp -no_version -divider . $sdf_out6
-if { [file exists $sdf_out6] && [file size $sdf_out6] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Read SDF back and annotate (roundtrip test)
@@ -158,5 +144,3 @@ report_annotated_check -setup -hold
 puts "--- write SDF after SDF annotation ---"
 set sdf_out7 [make_result_file "${test_name}_annotated.sdf"]
 write_sdf -no_timestamp -no_version $sdf_out7
-if { [file exists $sdf_out7] && [file size $sdf_out7] > 0 } {
-}

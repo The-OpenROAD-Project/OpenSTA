@@ -1,17 +1,4 @@
 # Test network comparison and sorting operations
-# Targets: NetworkCmp.cc uncovered functions:
-#   InstancePathNameLess (line 71-81, hit=0)
-#   NetPathNameLess::operator() (line 65-68, hit=0)
-#   PortNameLess::operator() (line 41-44, hit=0)
-#   sortByPathName(InstanceSet) (line 108-116, hit=0)
-#   sortByPathName(NetSet) (line 119-127, hit=0)
-# Also targets: Network.cc
-#   pathNameLess(Instance) (line 287, hit=0), pathNameCmp(Instance) (line 294)
-#   pathNameLess(Net) (line 486, hit=0), pathNameCmp(Net) (line 493, hit=0)
-#   instanceCount, pinCount, netCount, leafInstanceCount, leafPinCount
-#   setPathDivider (line 1213, hit=0), setPathEscape (line 1219, hit=0)
-#   leafInstanceIterator(Instance) (line 1297, hit=0)
-
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog network_test1.v
 link_design network_test1

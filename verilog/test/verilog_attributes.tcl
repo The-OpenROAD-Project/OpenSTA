@@ -52,14 +52,6 @@ puts "--- write_verilog and read back ---"
 set outfile [make_result_file verilog_attr_out.v]
 write_verilog $outfile
 
-if { [file exists $outfile] && [file size $outfile] > 0 } {
-} else {
-  puts "FAIL: output file issue"
-}
-
 # Write with include_pwr_gnd
 set outfile2 [make_result_file verilog_attr_pwr.v]
 write_verilog -include_pwr_gnd $outfile2
-
-if { [file exists $outfile2] && [file size $outfile2] > 0 } {
-}

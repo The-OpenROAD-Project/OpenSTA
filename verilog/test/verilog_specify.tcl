@@ -28,6 +28,3 @@ puts "ports: [llength $ports]"
 puts "--- write_verilog ---"
 set outfile [make_result_file verilog_specify_out.v]
 write_verilog $outfile
-
-if { [file exists $outfile] && [file size $outfile] > 0 } {
-}

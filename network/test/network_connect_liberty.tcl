@@ -1,13 +1,4 @@
 # Test network modify operations using liberty cell references
-# Targets: ConcreteNetwork.cc uncovered functions:
-#   - connect(Instance, LibertyPort, Net) - line 1367 hit=0
-#   - mergeInto(Net, Net) - line 1203 hit=0
-#   - addConstantNet - line 1541 hit=0
-#   - clearConstantNets - line 1534 hit=0
-#   - clear - line 273 hit=0
-# Also tests: Network.cc (findInstancesMatching, findNetsMatchingLinear,
-#   findPinsMatching, leafInstanceIterator(inst), etc.)
-
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog network_test1.v
 link_design network_test1

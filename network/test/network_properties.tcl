@@ -1,10 +1,4 @@
 # Test network property queries and edge cases for coverage improvement
-# Targets: ConcreteNetwork.cc (getAttribute, attributeMap, bus ports, cell properties,
-#   id, groupBusPorts, isBundle, portBitCount, fromIndex/toIndex, filename, setName, etc.)
-# Targets: Network.cc (instanceCount, pinCount, netCount, leafInstanceCount,
-#   leafPinCount, connectedNets, isInside, pathNameNet, pathNameTerm, etc.)
-# Targets: SdcNetwork.cc (findNet, busName, various uncovered adapter functions)
-
 #---------------------------------------------------------------
 # Use ASAP7 design which has bus ports for bus coverage
 #---------------------------------------------------------------

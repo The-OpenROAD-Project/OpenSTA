@@ -34,15 +34,9 @@ puts "ports: [llength $ports]"
 set out1 [make_result_file verilog_escaped_bus.v]
 write_verilog $out1
 
-if { [file exists $out1] && [file size $out1] > 0 } {
-}
-
 # Write with pwr_gnd
 set out2 [make_result_file verilog_escaped_bus_pwr.v]
 write_verilog -include_pwr_gnd $out2
-
-if { [file exists $out2] && [file size $out2] > 0 } {
-}
 
 # pwr_gnd should be larger
 set sz1 [file size $out1]
@@ -94,14 +88,8 @@ link_design verilog_complex_bus_test
 set out3 [make_result_file verilog_escaped_complex.v]
 write_verilog $out3
 
-if { [file exists $out3] && [file size $out3] > 0 } {
-}
-
 set out4 [make_result_file verilog_escaped_complex_pwr.v]
 write_verilog -include_pwr_gnd $out4
-
-if { [file exists $out4] && [file size $out4] > 0 } {
-}
 
 # Read back complex bus design
 puts "--- roundtrip complex bus ---"
@@ -148,14 +136,8 @@ link_design network_hier_test
 set out5 [make_result_file verilog_escaped_hier.v]
 write_verilog $out5
 
-if { [file exists $out5] && [file size $out5] > 0 } {
-}
-
 set out6 [make_result_file verilog_escaped_hier_pwr.v]
 write_verilog -include_pwr_gnd $out6
-
-if { [file exists $out6] && [file size $out6] > 0 } {
-}
 
 # Roundtrip hierarchical
 read_liberty ../../test/nangate45/Nangate45_typ.lib
@@ -191,14 +173,8 @@ link_design verilog_supply_tristate
 set out7 [make_result_file verilog_escaped_supply.v]
 write_verilog $out7
 
-if { [file exists $out7] && [file size $out7] > 0 } {
-}
-
 set out8 [make_result_file verilog_escaped_supply_pwr.v]
 write_verilog -include_pwr_gnd $out8
-
-if { [file exists $out8] && [file size $out8] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Test 6: Write constant/concat design
@@ -212,14 +188,8 @@ link_design verilog_const_concat
 set out9 [make_result_file verilog_escaped_const.v]
 write_verilog $out9
 
-if { [file exists $out9] && [file size $out9] > 0 } {
-}
-
 set out10 [make_result_file verilog_escaped_const_pwr.v]
 write_verilog -include_pwr_gnd $out10
-
-if { [file exists $out10] && [file size $out10] > 0 } {
-}
 
 # Roundtrip constant design
 read_liberty ../../test/nangate45/Nangate45_typ.lib

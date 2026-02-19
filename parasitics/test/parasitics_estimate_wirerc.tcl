@@ -1,10 +1,4 @@
 # Test parasitic estimation with set_wire_rc and wireload models
-# Targets: EstimateParasitics.cc (estimatePiElmore, wireload-based estimation)
-#   ConcreteParasitics.cc (makeParasiticPi, makeParasiticPiElmore, setPiModel,
-#     setElmore, findPiElmore, findElmore, delete operations)
-#   ReduceParasitics.cc (parasitic reduction with estimated parasitics)
-#   Parasitics.cc (estimate operations, delete parasitics, find parasitics)
-#   SpefReader.cc (additional format coverage)
 
 # Read ASAP7 libraries
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib

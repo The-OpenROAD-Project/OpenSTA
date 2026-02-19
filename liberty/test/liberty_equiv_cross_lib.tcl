@@ -1,14 +1,5 @@
 # Test equivalent cells across multiple libraries from different PDKs,
 # exercising mapEquivCells and cross-library equivalence hashing.
-# Targets:
-#   EquivCells.cc: EquivCells constructor with map_libs (mapEquivCells),
-#     findEquivCells, hashCell, hashCellPorts, hashCellSequentials,
-#     hashSequential, hashFuncExpr, hashPort, hashStatetable,
-#     hashStatetableRow, equivCells, equivCellPorts, equivCellFuncs,
-#     equivCellSequentials, equivCellStatetables, equivCellTimingArcSets,
-#     equivCellsArcs, cellHasFuncs, cellDriveResistance,
-#     CellDriveResistanceGreater
-#   Liberty.cc: buffers(), portCount, findLibertyPort, driveResistance
 source ../../test/helpers.tcl
 
 ############################################################

@@ -1,13 +1,4 @@
 # Test power propagation, per-instance power breakdown, and activity querying.
-# Targets: Power.cc uncovered functions:
-#   ensureActivities, propagateActivities, seedActivities,
-#   findActivityPeriod, annotateActivities,
-#   internalPower, switchingPower, leakagePower per-instance,
-#   power for different cell types (sequential, combinational, clock, macro),
-#   evalActivity, evalBddDuty, evalBddActivity, evalDiffDuty,
-#   findSeqActivity, clockGatePins, inClockNetwork,
-#   powerInside, highestPowerInstances, ensureInstPowers
-
 source ../../test/helpers.tcl
 
 #---------------------------------------------------------------

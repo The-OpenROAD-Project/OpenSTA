@@ -1,7 +1,4 @@
 # Test wire load model handling for code coverage
-# Targets: Wireload.cc (WireloadSelection, wireloadTreeString, wireloadModeString),
-#          LibertyReader.cc (wireload parsing), Liberty.cc (wireload queries),
-#          LibertyWriter.cc (wireload writing)
 source ../../test/helpers.tcl
 
 ############################################################

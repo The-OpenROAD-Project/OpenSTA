@@ -1,14 +1,4 @@
 # Test multi-corner library reading and Sky130HS features.
-# Targets:
-#   LibertyReader.cc: different lib format features per PDK,
-#     define_cell_area, leakage_power parsing, internal_power parsing,
-#     max_capacitance/max_transition on pins, pg_pin groups,
-#     voltage_map parsing, various attribute visitors
-#   Liberty.cc: makeCornerMap, checkCorners, LibertyPort driveResistance,
-#     maxCapacitance, maxFanout, maxSlew on ports,
-#     bufferPorts, addSupplyVoltage, supplyVoltage
-#   LibertyWriter.cc: write different lib formats
-#   TableModel.cc: table lookup, axis variable handling
 source ../../test/helpers.tcl
 
 ############################################################

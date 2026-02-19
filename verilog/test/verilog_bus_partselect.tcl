@@ -1,19 +1,6 @@
 # Test VerilogReader and VerilogWriter with bus part-select, bit-select,
 # concatenation expressions, hierarchical sub-modules with bus ports,
 # and write_verilog roundtrip of bus designs.
-# Targets: VerilogReader.cc uncovered:
-#   net_part_select_count_ (part-select parsing, line ~209)
-#   net_bit_select_count_ (bit-select, line ~207)
-#   net_port_ref_bit_count_ / net_port_ref_part_count_ (port ref bus)
-#   concat_count_ (concatenation expression, line ~214)
-#   makeCellPorts bus port handling
-#   makeModule with port_dcls (bus declarations)
-#   linkNetwork with hierarchical bus connections
-# Also targets: VerilogWriter.cc:
-#   writeInstBusPin / writeInstBusPinBit (bus port writing)
-#   writeWireDcls (bus wire declaration, parseBusName)
-#   findHierChildren (hierarchical child discovery)
-#   writeModule for hierarchical modules
 
 source ../../test/helpers.tcl
 

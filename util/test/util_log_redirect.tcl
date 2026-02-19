@@ -1,14 +1,5 @@
 # Test Report.cc log + redirect interaction, buffer growth, and
 # simultaneous log+console output.
-# Targets: Report.cc uncovered functions:
-#   logBegin/logEnd with real report output,
-#   redirectFileAppendBegin with log active,
-#   redirectStringBegin/End with log active,
-#   printString with log_stream_ active (both redirect and log paths),
-#   printLine, printConsole, reportLine, reportLineString,
-#   buffer growth (printToBufferAppend with oversized strings),
-#   warn/fileWarn with suppressed IDs
-
 source ../../test/helpers.tcl
 
 #---------------------------------------------------------------

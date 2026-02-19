@@ -1,22 +1,4 @@
 # Test manual parasitic creation with coupling caps
-# Targets: ConcreteParasitics.cc uncovered functions:
-#   makeCapacitor (coupling cap, line 1389, hit=0)
-#   ConcretePi constructor (line 138, hit=0), setPiModel (line 155, hit=0)
-#   ConcretePiElmore constructor (line 182, hit=0)
-#   ConcreteParasitic::setPiModel (line 92, hit=0)
-#   ConcreteParasitic::setElmore (line 118, hit=0)
-#   ConcreteParasitic::setIsReduced (line 105, hit=0)
-#   ConcretePi::setIsReduced (line 175, hit=0)
-#   ConcreteParasitics::setPiModel (line 1050, hit=0)
-#   deleteParasitics(Pin) (line 824, hit=0)
-#   deleteParasitics(Pin, AnalysisPt) (line 810, hit=0)
-#   deleteParasitics(Net, AnalysisPt) (line 838, hit=0)
-#   deleteParasiticNetworks (line 1305, hit=0)
-#   deletePinBefore (line 897, hit=0)
-#   makePiPoleResidue (line 1112, hit=0)
-#   setPoleResidue (line 1160, hit=0)
-# Also targets: Parasitics.cc, ReduceParasitics.cc
-#   ReportParasiticAnnotation.cc
 
 # Read ASAP7 libraries
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib

@@ -1,13 +1,5 @@
 # Test SPEF reader with different SPEF formats, port sections, design flow,
 # RSPF sections, and varied scale factors.
-# Targets: SpefReader.cc uncovered:
-#   portDirection (I, O, B variants), rspfBegin/rspfFinish/rspfDrvrBegin/rspfLoad,
-#   dspfBegin/dspfFinish, findParasiticNode (port path, net:subnode path),
-#   setDesignFlow, RSPF parsing vs DSPF, findPin (port-only name path),
-#   findNetRelative (sdc_network fallback), different scale factors
-# Also targets: ConcreteParasitics.cc: makeParasiticNetwork, parasitic network
-#   node/resistor/capacitor creation, deleteParasiticNetworks on re-read
-
 source ../../test/helpers.tcl
 
 #---------------------------------------------------------------

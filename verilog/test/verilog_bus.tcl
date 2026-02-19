@@ -82,16 +82,11 @@ puts "--- write_verilog with bus ports ---"
 set outfile [make_result_file verilog_bus_out.v]
 write_verilog $outfile
 
-if { [file exists $outfile] && [file size $outfile] > 0 } {
-  puts "output size: [file size $outfile]"
-}
+puts "output size: [file size $outfile]"
 
 # Write with pwr_gnd to exercise pwr/gnd port direction paths
 set outfile2 [make_result_file verilog_bus_pwr.v]
 write_verilog -include_pwr_gnd $outfile2
-
-if { [file exists $outfile2] && [file size $outfile2] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Test report_net with bus nets

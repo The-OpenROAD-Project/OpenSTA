@@ -1,12 +1,4 @@
 # Test verilog with net constants (1'b0, 1'b1), concatenation and part selects.
-# Targets VerilogReader.cc uncovered paths:
-#   makeNetConstant (line 478)
-#   VerilogNetConstant constructor/parsing
-#   constant net binding (ensureNetBinding with zero_/one_ net names)
-#   addConstantNet paths (lines 2190-2192)
-#   Multiple design link_design calls (exercises linkNetwork paths)
-# Also targets VerilogWriter.cc:
-#   writeAssigns, writeChildren with constant connections
 
 source ../../test/helpers.tcl
 
@@ -62,11 +54,6 @@ write_verilog $out1
 
 set out2 [make_result_file verilog_const_concat_pwr.v]
 write_verilog -include_pwr_gnd $out2
-
-if { [file exists $out1] && [file size $out1] > 0 } {
-}
-if { [file exists $out2] && [file size $out2] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Test 4: report_net for constant-related nets

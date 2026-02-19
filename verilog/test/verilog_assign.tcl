@@ -1,14 +1,4 @@
 # Test verilog with assign statements and continuous assignments
-# Targets: VerilogReader.cc uncovered functions:
-#   makeAssign (line 510, hit=0), VerilogAssign constructor (line 1061, hit=0)
-#   mergeAssignNet (line 2102, hit=0)
-#   makeDclArg with VerilogAssign (line 454, hit=0)
-#   makeNetConstant (line 477, hit=0)
-#   VerilogDcl constructor (line 963, hit=0)
-#   VerilogDclBus constructor (line 1006, 1018, hit=0)
-# Also exercises: VerilogLex.ll (assign keyword lexing)
-#   VerilogParse.yy (assign statement parsing)
-#   VerilogWriter.cc (writeAssigns, line 439)
 
 source ../../test/helpers.tcl
 
@@ -97,16 +87,11 @@ puts "--- Test 4: write verilog ---"
 set outfile [make_result_file verilog_assign_out.v]
 write_verilog $outfile
 
-if { [file exists $outfile] && [file size $outfile] > 0 } {
-  puts "output size: [file size $outfile]"
-}
+puts "output size: [file size $outfile]"
 
 # Write with pwr_gnd
 set outfile2 [make_result_file verilog_assign_pwr.v]
 write_verilog -include_pwr_gnd $outfile2
-
-if { [file exists $outfile2] && [file size $outfile2] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Test 5: Get fanin/fanout through assign

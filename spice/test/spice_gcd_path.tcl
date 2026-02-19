@@ -1,13 +1,4 @@
 # Test SPICE writing with the GCD sky130hd design (larger design with many cell types).
-# Targets: WriteSpice.cc uncovered functions:
-#   writeSubckts (line 199+, parsing subckt definitions for many cell types),
-#   writeHeader, writePrintStmt, findCellSubckts, recordSpicePortNames,
-#   writeGnuplotFile, replaceFileExt, initPowerGnd,
-#   writeStageInstances, writeDcSweep, writeMeasure
-# WritePathSpice.cc uncovered functions:
-#   writePathSpice with multi-stage paths, writePathStage,
-#   pathStagePins, writePowerBusConnect
-
 source ../../test/helpers.tcl
 
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib

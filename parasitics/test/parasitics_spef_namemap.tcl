@@ -1,16 +1,4 @@
 # Test SPEF reader with different name mapping styles and corner handling
-# Targets: SpefReader.cc uncovered functions:
-#   findPinRelative (line 176, hit=0)
-#   findPortPinRelative (line 182, hit=0)
-#   findInstanceRelative (line 159, hit=0)
-#   setDesignFlow (line 300)
-#   setDivider, setDelimiter, setBusBrackets
-#   setCapScale, setResScale, setTimeScale, setInductScale
-# Also targets: SpefParse.yy (more parser paths)
-#   SpefLex.ll (more lexer paths)
-#   ConcreteParasitics.cc (parasitic network creation/query paths)
-#   Parasitics.cc (findParasiticNetwork, makeParasiticNetwork)
-
 # Read ASAP7 libraries
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz

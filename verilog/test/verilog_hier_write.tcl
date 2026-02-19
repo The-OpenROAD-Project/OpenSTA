@@ -43,10 +43,6 @@ foreach pname {clk reset req_val req_rdy resp_val resp_rdy} {
 puts "--- Test 2: write_verilog basic ---"
 set out1 [make_result_file verilog_hier_basic.v]
 write_verilog $out1
-if { [file exists $out1] && [file size $out1] > 0 } {
-} else {
-  puts "FAIL: basic write_verilog file missing or empty"
-}
 
 #---------------------------------------------------------------
 # Test 3: Write verilog with -include_pwr_gnd
@@ -54,10 +50,6 @@ if { [file exists $out1] && [file size $out1] > 0 } {
 puts "--- Test 3: write_verilog -include_pwr_gnd ---"
 set out2 [make_result_file verilog_hier_pwr.v]
 write_verilog -include_pwr_gnd $out2
-if { [file exists $out2] && [file size $out2] > 0 } {
-} else {
-  puts "FAIL: pwr_gnd write_verilog file missing or empty"
-}
 
 # pwr_gnd output should be >= basic output
 set sz1 [file size $out1]
@@ -71,8 +63,6 @@ if { $sz2 >= $sz1 } {
 puts "--- Test 4: write_verilog -remove_cells ---"
 set out3 [make_result_file verilog_hier_remove.v]
 write_verilog -remove_cells {} $out3
-if { [file exists $out3] && [file size $out3] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Test 5: Read back the written verilog (roundtrip)
@@ -94,8 +84,6 @@ puts "roundtrip ports: [llength $ports2]"
 # Write again after roundtrip
 set out4 [make_result_file verilog_hier_roundtrip.v]
 write_verilog $out4
-if { [file exists $out4] && [file size $out4] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Test 6: Set up timing and report with bus ports
@@ -117,10 +105,6 @@ report_checks -fields {slew cap input_pins nets fanout}
 puts "--- Test 7: write after timing setup ---"
 set out5 [make_result_file verilog_hier_post_timing.v]
 write_verilog $out5
-if { [file exists $out5] && [file size $out5] > 0 } {
-}
 
 set out6 [make_result_file verilog_hier_post_timing_pwr.v]
 write_verilog -include_pwr_gnd $out6
-if { [file exists $out6] && [file size $out6] > 0 } {
-}

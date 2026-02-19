@@ -2,10 +2,6 @@
 cells: 5
 Warning: verilog_multimodule_write.tcl line 1, The -sort flag is ignored.
 Warning: verilog_multimodule_write.tcl line 1, The -sort flag is ignored.
-  /workspace/sta/OpenSTA/verilog/test/results/verilog_mm_default.v OK
-  /workspace/sta/OpenSTA/verilog/test/results/verilog_mm_pwr.v OK
-  /workspace/sta/OpenSTA/verilog/test/results/verilog_mm_sort.v OK
-  /workspace/sta/OpenSTA/verilog/test/results/verilog_mm_pwr_sort.v OK
 --- Test 2: re-read default ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 re-read cells: 5

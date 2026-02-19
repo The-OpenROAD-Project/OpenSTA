@@ -1,10 +1,4 @@
 # Test parasitic estimation with pi model / elmore, deletion, and override paths.
-# Targets: ConcreteParasitics.cc (makePiElmore, findElmore, deletePiElmore,
-#     isPiElmore, isPiModel, piModel, setPiModel, setElmore paths,
-#     delete operations, cap calculation)
-# Targets: ReduceParasitics.cc (reduction with various pi models)
-# Targets: Parasitics.cc (set/get/delete parasitic operations)
-# Targets: EstimateParasitics.cc (estimatePiElmore tree cases)
 
 source ../../test/helpers.tcl
 

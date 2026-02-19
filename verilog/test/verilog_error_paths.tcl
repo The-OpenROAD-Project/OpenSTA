@@ -117,11 +117,6 @@ write_verilog $out1
 set out2 [make_result_file verilog_error_paths_pwr.v]
 write_verilog -include_pwr_gnd $out2
 
-if { [file exists $out1] && [file size $out1] > 0 } {
-}
-if { [file exists $out2] && [file size $out2] > 0 } {
-}
-
 #---------------------------------------------------------------
 # Test 5: Report net for bus and assign-related nets
 #---------------------------------------------------------------

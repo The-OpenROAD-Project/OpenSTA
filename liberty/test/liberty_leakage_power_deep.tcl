@@ -1,17 +1,5 @@
 # Test deep leakage power groups with when conditions, internal power
 # with related_pg_pin, and power attribute parsing across PDKs.
-# Targets:
-#   LibertyReader.cc: beginLeakagePower, endLeakagePower, makeLeakagePowers,
-#     visitLeakagePowerValue, visitLeakagePowerWhen, visitRelatedPgPin,
-#     beginInternalPower, endInternalPower, visitCellLeakagePower,
-#     visitPowerUnit, beginPgPin, endPgPin, visitPgType, visitVoltageName,
-#     visitWhen (power context), visitRelatedBiasPin
-#   LeakagePower.cc: LeakagePower construction, LeakagePowerGroup,
-#     setRelatedPgPin, when condition parsing
-#   InternalPower.cc: InternalPowerAttrs, setRelatedPgPin,
-#     InternalPower construction
-#   Liberty.cc: addLeakagePower, leakagePower, addInternalPower,
-#     internalPowers, hasInternalPower
 source ../../test/helpers.tcl
 
 ############################################################

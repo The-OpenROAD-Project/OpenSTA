@@ -1,13 +1,4 @@
 # Test parasitic deletion, network cleanup, and re-read flows.
-# Targets: ConcreteParasitics.cc uncovered functions:
-#   deleteParasitics(Pin), deleteParasitics(Pin, AnalysisPt),
-#   deleteParasitics(Net, AnalysisPt), deleteReducedParasitics,
-#   deleteDrvrReducedParasitics, disconnectPinBefore,
-#   isPiElmore, isPiModel, isPiPoleResidue, isReducedParasiticNetwork,
-#   capacitance, hasParasiticNetwork, findParasiticNetwork,
-#   makeParasiticNetwork, deleteParasiticNetworks
-# Also targets: Parasitics.cc, ReduceParasitics.cc
-
 source ../../test/helpers.tcl
 
 # Read ASAP7 libraries

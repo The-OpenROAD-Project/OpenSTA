@@ -52,13 +52,9 @@ write_verilog -include_pwr_gnd $out2
 set out3 [make_result_file verilog_gcd_large_sort.v]
 write_verilog -sort $out3
 
-# Verify files are non-empty
+# Print file sizes
 foreach outf [list $out1 $out2 $out3] {
-  if {[file exists $outf] && [file size $outf] > 0} {
-    puts "  $outf size=[file size $outf]"
-  } else {
-    puts "  WARNING: $outf missing or empty"
-  }
+  puts "  $outf size=[file size $outf]"
 }
 
 ############################################################
@@ -90,13 +86,7 @@ report_checks -format full_clock
 puts "--- Test 5: write with remove ---"
 
 set out4 [make_result_file verilog_gcd_large_remove.v]
-catch {
-  write_verilog -remove_cells {sky130_fd_sc_hd__fill_1 sky130_fd_sc_hd__fill_2} $out4
-} msg
-if {[string match "*Error*" $msg]} {
-  # If -remove_cells is not supported, try without it
-  write_verilog $out4
-}
+write_verilog -remove_cells {sky130_fd_sc_hd__fill_1 sky130_fd_sc_hd__fill_2} $out4
 
 ############################################################
 # Test 6: Instance and net reports

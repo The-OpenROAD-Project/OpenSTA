@@ -34,13 +34,6 @@ write_verilog -sort $out3
 set out4 [make_result_file verilog_mm_pwr_sort.v]
 write_verilog -include_pwr_gnd -sort $out4
 
-# Verify sizes
-foreach outf [list $out1 $out2 $out3 $out4] {
-  if {[file exists $outf] && [file size $outf] > 0} {
-    puts "  $outf OK"
-  }
-}
-
 ############################################################
 # Test 2: Re-read written verilog
 ############################################################

@@ -1,12 +1,4 @@
-# Test advanced verilog writer options for coverage improvement
-# Targets: VerilogWriter.cc (67.0% coverage)
-#   - writeModules hierarchy paths
-#   - writeInstBusPin / writeInstBusPinBit
-#   - writeWireDcls
-#   - writeAssigns
-#   - findUnconnectedNetCount / findChildNCcount / findPortNCcount
-#   - verilogPortDir for various directions
-
+# Test advanced verilog writer options
 source ../../test/helpers.tcl
 
 #---------------------------------------------------------------
@@ -46,9 +38,6 @@ puts "basic size: $sz1"
 puts "pwr_gnd size: $sz2"
 puts "remove_cells size: $sz3"
 
-if { $sz2 >= $sz1 } {
-}
-
 #---------------------------------------------------------------
 # Test 2: Write after network modification
 #---------------------------------------------------------------
@@ -64,9 +53,6 @@ write_verilog $out4
 
 set sz4 [file size $out4]
 puts "modified size: $sz4"
-if { $sz4 > $sz1 } {
-}
-
 # Disconnect and delete
 disconnect_pin extra_net extra_buf/A
 delete_instance extra_buf

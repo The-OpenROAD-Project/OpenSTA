@@ -1,19 +1,6 @@
 # Test cell classification (isBuffer, isInverter, isClockGate, etc.),
 # pg_pin iteration, bus port member iteration, internal power queries,
 # and port function queries across multiple PDKs.
-# Targets:
-#   Liberty.cc: LibertyCell isBuffer, isInverter, isClockGate,
-#     isClockGateLatchPosedge, isClockGateLatchNegedge, isMacro, isPad,
-#     isMemory, hasInternalPower, internalPowers, addInternalPower,
-#     leakagePower, leakagePowers, cellPortBitCount, busPorts,
-#     isDisabledConstraint, pgPins, testCell, setDontUse, dontUse,
-#     LibertyPort isBus, isBusBit, isBundle, hasMembers, bundlePort,
-#     LibertyPortMemberIterator, findLibertyMember,
-#     LibertyLibrary findOperatingConditions, defaultOperatingConditions,
-#     supplyExists, findWireload, findWireloadSelection
-#   FuncExpr.cc: to_string, portTimingSense
-#   InternalPower.cc: InternalPower accessors
-#   LeakagePower.cc: LeakagePower accessors
 source ../../test/helpers.tcl
 
 ############################################################

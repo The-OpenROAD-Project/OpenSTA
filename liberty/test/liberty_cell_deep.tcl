@@ -1,19 +1,5 @@
 # Deep cell property queries: timing arc traversal, port capacitance,
 # sequential elements, leakage/internal power, and cell classification.
-# Targets:
-#   Liberty.cc: hasTimingArcs, timingArcSets (from, to, from+to),
-#     outputPortSequential, hasSequentials, makeTimingArcMap,
-#     findDefaultCondArcs, translatePresetClrCheckRoles,
-#     addInternalPower, internalPowers, addLeakagePower, leakagePower,
-#     LibertyPort capacitance, driveResistance, fanoutLoad,
-#     minPulseWidth, setFunction, tristateEnable,
-#     isClockGate, isClockGateLatchPosedge, isMacro, isMemory, isPad,
-#     LibertyCell area, footprint, setDontUse, dontUse,
-#     LibertyPortMemberIterator, bundlePort, findLibertyMember
-#   TimingArc.cc: TimingArcSet role, sense, cond, timingType,
-#     fromEdge, toEdge, arcCount, TimingArc equiv, isRisingFallingEdge
-#   LibertyBuilder.cc: build different cell structures (tri-state, scan)
-#   FuncExpr.cc: portTimingSense, hasPort, equiv, bitSubExpr
 source ../../test/helpers.tcl
 
 ############################################################

@@ -1,9 +1,4 @@
 # Test manual parasitic model setting and parasitic reduction
-# Targets: ConcreteParasitics.cc (Pi/Elmore model creation, parasitic queries)
-#   Parasitics.cc (makePiElmore, setElmore, findPiElmore, findElmore)
-#   ReduceParasitics.cc (parasitic reduction paths)
-#   EstimateParasitics.cc (estimated parasitic paths)
-#   ReportParasiticAnnotation.cc
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog ../../test/reg1_asap7.v

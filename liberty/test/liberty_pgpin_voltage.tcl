@@ -1,17 +1,4 @@
 # Test pg_pin, voltage_map, supply voltage, and power group parsing.
-# Targets:
-#   LibertyReader.cc: beginPgPin, endPgPin, visitPgType, visitVoltageName,
-#     visitVoltageMap, visitRelatedPgPin, visitRelatedBiasPin,
-#     visitCellLeakagePower, beginLeakagePower, endLeakagePower,
-#     visitLeakagePowerValue, visitLeakagePowerWhen,
-#     beginInternalPower, endInternalPower (power with when conditions),
-#     visitPowerUnit, beginOperatingConditions, endOperatingConditions,
-#     visitProcessScaleFactor, visitVoltScaleFactor, visitTempScaleFactor,
-#     liberty_supply_exists
-#   Liberty.cc: LibertyCell::pgPorts, LibertyPort::isPwrGnd,
-#     addLeakagePower, leakagePower, internalPowers, hasInternalPower,
-#     supplyExists, supplyVoltage
-#   InternalPower.cc: InternalPowerAttrs, setRelatedPgPin
 source ../../test/helpers.tcl
 
 ############################################################

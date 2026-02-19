@@ -1,12 +1,5 @@
 # Test verilog writer with GCD sky130 design (large design with bus nets,
 # unconnected pins, many cell types, power/ground nets).
-# Targets: VerilogWriter.cc uncovered:
-#   writeInstBusPin / writeInstBusPinBit (bus port handling)
-#   writeWireDcls (bus wire declarations, isBusName, parseBusName paths)
-#   findUnconnectedNetCount / findChildNCcount / findPortNCcount
-#   writeAssigns (assign statements from net connections)
-#   verilogPortDir for power/ground ports with -include_pwr_gnd
-# Also targets: VerilogReader.cc paths from re-reading written output
 
 source ../../test/helpers.tcl
 

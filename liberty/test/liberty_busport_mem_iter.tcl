@@ -1,18 +1,5 @@
 # Test bus port member iteration, bundle ports, port functions,
 # tristate enable, sequential queries, and diverse cell classification.
-# Targets:
-#   Liberty.cc: LibertyPort::isBus, isBundle, isBusBit, isBundleMember,
-#     hasMembers, bundlePort, findLibertyMember,
-#     LibertyPortMemberIterator iteration,
-#     LibertyCell::portCount, isBuffer, isInverter, isClockGate,
-#     isClockGateLatchPosedge, isMacro, isMemory, isPad, isLeaf,
-#     testCell, hasSequentials, timingArcSetCount, findTimingArcSet,
-#     area, footprint, dontUse, setDontUse,
-#     driveResistance, fanoutLoad, capacitanceIsOneValue
-#   LibertyReader.cc: bus port definitions, three_state enable parsing,
-#     test_cell/scan signal parsing, function/tristate_enable visitors,
-#     beginBusPort, endBusPort
-#   LibertyBuilder.cc: cell construction for bus/tristate/sequential
 source ../../test/helpers.tcl
 
 ############################################################

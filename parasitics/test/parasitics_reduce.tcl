@@ -1,9 +1,4 @@
 # Test parasitic reduction and various delay calculators with parasitics
-# Targets: ReduceParasitics.cc (parasitic reduction - 43.5% coverage)
-#   ConcreteParasitics.cc (48.2% coverage, parasitic operations)
-#   Parasitics.cc (43.0% coverage)
-#   SpefReader.cc (68.6% coverage, more SPEF paths)
-#   EstimateParasitics.cc (68.7% coverage)
 
 # Read ASAP7 libraries
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib

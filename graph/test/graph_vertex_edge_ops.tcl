@@ -1,18 +1,6 @@
 # Test graph vertex and edge operations in depth: makeVertex, deleteVertex,
 # makeEdge, deleteEdge, edge arc queries, bidirectional pin handling,
 # hasFaninOne, vertex iteration, edge linking.
-# Targets: Graph.cc uncovered:
-#   deleteVertex: edge cleanup during vertex deletion
-#   deleteInEdge / deleteOutEdge: linked list manipulation for edges
-#   hasFaninOne: single fanin check
-#   pinDrvrVertex / pinLoadVertex: bidirect driver vertex lookup
-#   gateEdgeArc: arc lookup by rise/fall
-#   makePaths / paths / deletePaths: vertex path management
-#   slew / setSlew: slew value access
-#   makeWireEdgesToPin: create wire edges to a pin
-#   isIsolatedNet: isolated net detection
-#   arcDelay / setArcDelay: edge arc delay access
-
 source ../../test/helpers.tcl
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib

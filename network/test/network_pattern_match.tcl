@@ -1,20 +1,4 @@
 # Test pattern matching functions for coverage improvement
-# Targets: Network.cc uncovered functions:
-#   findNetsMatching (line 914, hit=0), findNetsMatchingLinear (line 977, hit=0),
-#   findPinsMatching (line 992, hit=0), findInstPinsMatching (line 1066, hit=0),
-#   findInstancesMatching (line 724, hit=0), findInstancesMatching1 (line 744, hit=0),
-#   findNetLinear (line 898, hit=0), findPinLinear (line 839, hit=0),
-#   connectedNets(Pin) (line 580, hit=0),
-#   pathNameLess(Instance) (line 287, hit=0), pathNameLess(Net) (line 486, hit=0),
-#   pathNameCmp(Net) (line 493, hit=0),
-#   isInside(Instance) (line 344, hit=0), isInside(Net) (line 416, hit=0),
-#   isInside(Pin, Instance) (line 448, hit=0), isInside(Pin, Pin) (line 441, hit=0),
-#   instanceCount (line 1098, 1111, hit=0), pinCount (line 1117, 1137, hit=0),
-#   netCount (line 1143, 1163, hit=0), leafInstanceCount (line 1169, hit=0),
-#   leafPinCount (line 1182, hit=0)
-# Also targets: SdcNetwork.cc (findNet, busName)
-#   NetworkCmp.cc (InstancePathNameLess, NetPathNameLess, sortByPathName for Instances/Nets)
-
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog network_test1.v
 link_design network_test1

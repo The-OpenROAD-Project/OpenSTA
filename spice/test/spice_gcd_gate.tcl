@@ -1,17 +1,6 @@
 # Test write_gate_spice and write_path_spice with GCD sky130 design.
 # Uses a larger design to exercise different cell type handling,
 # multi-input gates, and varied simulator outputs.
-# Targets: WriteSpice.cc uncovered:
-#   writeHeader: hspice ".options nomod" path
-#   writePrintStmt: xyce csv/gnuplot file generation path
-#   writeSubckts: subckt file parsing, cell matching
-#   recordSpicePortNames: port name extraction
-#   findCellSubckts: nested subckt discovery
-#   writeGnuplotFile: gnuplot command file generation
-#   replaceFileExt: filename extension replacement
-#   initPowerGnd: supply voltage lookup paths
-# Also targets: WritePathSpice.cc path SPICE writing
-
 source ../../test/helpers.tcl
 
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib

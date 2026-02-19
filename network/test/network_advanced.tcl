@@ -1,9 +1,4 @@
 # Test advanced network operations for coverage improvement
-# Targets: Network.cc uncovered functions (instanceCount, pinCount, netCount,
-#   leafInstanceCount, leafPinCount, leafInstances, setPathDivider, setPathEscape,
-#   findNet, findPin, pathNameTerm, checkLibertyCells, connectedNets, isInside, etc.)
-# Also targets: NetworkCmp.cc (sortByPathName for instances/nets), PortDirection.cc
-
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog network_test1.v
 link_design network_test1

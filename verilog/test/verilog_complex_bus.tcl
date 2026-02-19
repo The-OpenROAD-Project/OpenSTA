@@ -1,17 +1,4 @@
 # Test verilog with complex bus/range constructs
-# Targets: VerilogReader.cc uncovered functions:
-#   makeNetBitSelect (line 497, hit=0)
-#   makeNetPartSelect (line 461, hit=0)
-#   makeNetConcat (line 699, hit=0)
-#   makeNetNamedPortRefBit (line 671, hit=0)
-#   makeNetNamedPortRefPart (line 684, hit=0)
-#   makeNetNamedPortRefScalar (line 658, hit=0)
-#   VerilogDclBus constructor (line 1006, 1018, hit=0)
-#   makeNamedPortRefCellPorts (line 333, hit=0)
-# Also exercises: VerilogLex.ll (bus index/range lexing)
-#   VerilogParse.yy (bus port, wire, range parsing)
-#   VerilogWriter.cc (writeInstBusPin, writeInstBusPinBit)
-#   ConcreteNetwork.cc (bus port operations)
 
 source ../../test/helpers.tcl
 
@@ -145,15 +132,10 @@ puts "--- Test 5: write verilog with buses ---"
 set outfile [make_result_file verilog_complex_bus_out.v]
 write_verilog $outfile
 
-if { [file exists $outfile] && [file size $outfile] > 0 } {
-  puts "output size: [file size $outfile]"
-}
+puts "output size: [file size $outfile]"
 
 set outfile2 [make_result_file verilog_complex_bus_pwr.v]
 write_verilog -include_pwr_gnd $outfile2
-
-if { [file exists $outfile2] && [file size $outfile2] > 0 } {
-}
 
 #---------------------------------------------------------------
 # Test 6: Timing analysis on bus design

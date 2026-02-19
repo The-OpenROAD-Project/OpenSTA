@@ -1,13 +1,4 @@
 # Test pi_pole_residue parasitic model creation and query.
-# Targets: ConcreteParasitics.cc uncovered:
-#   ConcretePiPoleResidue constructor (line 309), isPiPoleResidue,
-#   ConcretePiPoleResidue::piModel, setPiModel, capacitance,
-#   findPoleResidue, setPoleResidue, deleteLoad,
-#   ConcretePoleResidue constructor, poleResidue, poleResidueCount,
-#   unannotatedLoads
-# Also targets: Parasitics.cc: makePiPoleResidue, setPoleResidue, findPiPoleResidue
-#   ReduceParasitics.cc: reduceToPiPoleResidue, arnoldi reduction with pole/residue
-#   ConcreteParasitics.cc: isPiModel vs isPiPoleResidue branching
 
 source ../../test/helpers.tcl
 

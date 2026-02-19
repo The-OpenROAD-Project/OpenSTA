@@ -1,13 +1,4 @@
-# Deep write_liberty test exercising all LibertyWriter.cc paths:
-# writeHeader, writeTableTemplates, writeTableTemplate, writeBusDcls,
-# writeCells, writeCell, writePort, writeBusPort, writePwrGndPort,
-# writePortAttrs, writeTimingArcSet, writeTimingModels,
-# writeTableModel (0/1/2 axis), writeTableAxis4/10,
-# timingTypeString (combinational, rising_edge, falling_edge,
-# setup_rising, setup_falling, hold_rising, hold_falling,
-# three_state_enable, three_state_disable, preset, clear,
-# min_pulse_width, min_clock_tree_path, max_clock_tree_path),
-# asString for PortDirection, isAutoWidthArc
+# Deep write_liberty test exercising all LibertyWriter.cc paths.
 source ../../test/helpers.tcl
 
 ############################################################

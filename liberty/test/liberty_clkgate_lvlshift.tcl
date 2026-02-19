@@ -1,16 +1,5 @@
 # Test clock gating cells, level shifter cells, pg_pin attributes,
 # voltage_map/supply_voltage queries, and related cell classification.
-# Targets:
-#   LibertyReader.cc: visitClockGatingIntegratedCell (latch_posedge,
-#     latch_posedge_precontrol), visitIsLevelShifter, visitLevelShifterType,
-#     visitLevelShifterDataPin, beginPgPin, endPgPin, visitPgType,
-#     visitVoltageName, visitVoltageMap, visitRelatedBiasPin,
-#     visitClockGateClockPin, visitClockGateEnablePin, visitClockGateOutPin,
-#     visitInputVoltageRange, visitOutputVoltageRange
-#   Liberty.cc: isClockGate, isClockGateLatchPosedge, isClockGateLatchNegedge,
-#     isClockGateOther, isLevelShifter, addSupplyVoltage, supplyVoltage,
-#     supplyExists, LibertyPort::isPwrGnd
-#   LibertyBuilder.cc: clock gate cell construction
 source ../../test/helpers.tcl
 
 ############################################################

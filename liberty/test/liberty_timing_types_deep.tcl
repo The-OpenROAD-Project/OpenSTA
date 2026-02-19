@@ -1,17 +1,4 @@
 # Deep timing type and timing arc attribute testing across diverse PDKs.
-# Targets:
-#   LibertyReader.cc: timing_type attribute handler (clear, preset,
-#     recovery_rising, recovery_falling, removal_rising, removal_falling,
-#     min_pulse_width, min_period, three_state_enable,
-#     three_state_disable, rising_edge, falling_edge, preset, clear,
-#     hold_rising, hold_falling, setup_rising, setup_falling,
-#     clock_gating_setup, clock_gating_hold),
-#     visitClear, visitPreset, visitClrPresetVar1, visitClrPresetVar2,
-#     visitMinPeriod, visitMinPulseWidthLow, visitMinPulseWidthHigh,
-#     beginPgPin, endPgPin, visitVoltageMap
-#   Liberty.cc: timingArcSets traversal, timing type query, hasSequentials,
-#     translatePresetClrCheckRoles
-#   TimingArc.cc: TimingArcSet::role, timingType, full_name
 source ../../test/helpers.tcl
 
 ############################################################

@@ -1,16 +1,5 @@
 # Test parasitic annotation queries, find_pi_elmore, find_elmore, and
 # detailed SPEF operations for coverage improvement.
-# Targets:
-#   ConcreteParasitics.cc: findPiElmore, findElmore, setPiModel, setElmore,
-#     makeParasiticPi, makeParasiticPiElmore, deleteParasitics(Pin),
-#     deleteParasitics(Net), isReduced, setIsReduced, capacitance,
-#     findParasitic, piModel, elmore, deletePinBefore
-#   ReduceParasitics.cc: parasitic reduction, reduceToPiElmore,
-#     reduceToPi, arnoldiPole
-#   SpefReader.cc: SPEF parsing detailed paths, name mapping,
-#     D_NET/R_NET parsing, *CONN/*CAP/*RES sections
-#   Parasitics.cc: find/make/delete parasitic operations
-#   ReportParasiticAnnotation.cc: report annotation with various flags
 
 source ../../test/helpers.tcl
 

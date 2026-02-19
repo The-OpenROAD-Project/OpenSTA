@@ -1,17 +1,5 @@
 # Test graph construction with bidirectional pins, reconvergent paths,
 # and various edge/vertex operations.
-# Targets: Graph.cc uncovered paths:
-#   makePinVertices for bidirect pins
-#   pinVertices for bidirect direction
-#   pinDrvrVertex for bidirect
-#   makePortInstanceEdges: bidirect from_bidirect_drvr_vertex path
-#   makeWireEdgesFromPin with multiple drivers
-#   hasFaninOne
-#   gateEdgeArc
-#   deleteVertex via delete operations
-#   isIsolatedNet
-#   vertex/edge iterators
-
 source ../../test/helpers.tcl
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib

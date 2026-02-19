@@ -64,9 +64,6 @@ write_verilog $out1
 set out2 [make_result_file verilog_preproc_param_pwr.v]
 write_verilog -include_pwr_gnd $out2
 
-if { [file exists $out1] && [file size $out1] > 0 } {
-}
-
 #---------------------------------------------------------------
 # Test 4: Instance and net reports
 #---------------------------------------------------------------

@@ -1,22 +1,4 @@
 # Test Report.cc string output, log file, and buffer growth paths.
-# Targets: Report.cc uncovered:
-#   reportBlankLine (line 102-105)
-#   reportLineString (const char*) (line 108-111)
-#   reportLineString (const std::string&) (line 114-117)
-#   printToBuffer (non-varargs, line 122-129)
-#   printToBufferAppend: buffer growth path (line 158-168)
-#   printBufferLine (line 172-175)
-#   vwarn (line 196-206): va_list warn variant
-#   vfileWarn (line 227-239): va_list file warn variant
-#   verror (line 256-263): va_list error variant
-#   fileError (line 266-279)
-#   vfileError (line 282-292)
-#   logBegin / logEnd (line 348-362)
-#   redirectFileBegin / redirectFileEnd (line 365-386)
-#   redirectFileAppendBegin (line 373-378)
-#   redirectStringBegin / redirectStringEnd / redirectStringPrint
-# Also targets: Debug.cc, PatternMatch.cc, StringUtil.cc
-
 source ../../test/helpers.tcl
 
 #---------------------------------------------------------------

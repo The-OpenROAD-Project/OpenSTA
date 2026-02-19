@@ -1,23 +1,6 @@
 # Test liberty reading and querying of sequential cells (latch, ff, statetable),
 # test_cell/scan definitions, bus/bundle ports, tristate outputs,
 # internal power, and scaled cells through multi-corner.
-# Targets:
-#   Liberty.cc: makeScaledCell, makeCornerMap, scalePorts,
-#     LibertyCell::makeSequential (ff, latch), hasSequentials,
-#     outputPortSequential, setTestCell, testCell,
-#     addInternalPower, internalPowers, hasInternalPower,
-#     LibertyPort::tristateEnable, setTristateEnable,
-#     LibertyPort::bundlePort, findLibertyMember, isBus, isBundle,
-#     LibertyPort::capacitanceIsOneValue, driveResistance,
-#     LibertyPort::fanoutLoad, setFanoutLoad,
-#     LibertyCell::isBuffer, isInverter, isClockGate,
-#     LibertyCell::area, footprint, setDontUse, dontUse,
-#     makeTimingArcMap, findDefaultCondArcs
-#   LibertyReader.cc: sequential cell attributes (latch, ff, statetable),
-#     test_cell/scan signal parsing, bus port definitions,
-#     three_state enable parsing, internal_power group,
-#     operating conditions, scaling factors
-#   LibertyBuilder.cc: cell construction for scan/tristate/sequential
 source ../../test/helpers.tcl
 
 ############################################################

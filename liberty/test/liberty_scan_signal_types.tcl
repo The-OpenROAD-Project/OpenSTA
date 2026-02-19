@@ -1,14 +1,5 @@
 # Test scan signal_type parsing, test_cell construction, and
 # scan-related port attributes across multiple PDKs.
-# Targets:
-#   LibertyReader.cc: visitSignalType (test_scan_enable, test_scan_in,
-#     test_scan_out, test_scan_clock), beginTestCell, endTestCell,
-#     test_cell pin parsing, signal_type enumeration paths,
-#     scan-related sequential construction
-#   Liberty.cc: LibertyCell::testCell, LibertyPort::setScanSignalType,
-#     scanSignalType, scanSignalTypeName,
-#     LibertyPort::function, tristateEnable
-#   LibertyBuilder.cc: test_cell cell build
 source ../../test/helpers.tcl
 
 ############################################################

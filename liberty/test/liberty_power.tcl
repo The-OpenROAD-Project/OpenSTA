@@ -1,6 +1,4 @@
 # Test internal power, leakage power, and power reporting for code coverage
-# Targets: InternalPower.cc, LeakagePower.cc, Liberty.cc (power paths),
-#          LibertyReader.cc (power group parsing), LibertyWriter.cc (power writing)
 source ../../test/helpers.tcl
 
 ############################################################

@@ -1,9 +1,4 @@
 # Test parasitic reduction with different delay calculators
-# Targets: ReduceParasitics.cc (parasitic reduction algorithms)
-#   ConcreteParasitics.cc (parasitic network operations, node/resistor/cap creation)
-#   Parasitics.cc (parasitic find/make/delete operations)
-#   SpefReader.cc (SPEF parsing with parasitic network)
-#   EstimateParasitics.cc (estimated parasitic paths)
 
 # Read ASAP7 libraries
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib

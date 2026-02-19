@@ -1,8 +1,4 @@
 # Test advanced port delay, derating, data check, and misc SDC features
-# Targets: PortDelay.cc, DeratingFactors.cc, DataCheck.cc, Clock.cc,
-#          ClockInsertion.cc, ClockLatency.cc, DisabledPorts.cc,
-#          WriteSdc.cc (writePortDelay, writeDeratingFactors, writeDataCheck,
-#                       writeConstants, writeDisabled*, writeClockInsertion)
 source ../../test/helpers.tcl
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
