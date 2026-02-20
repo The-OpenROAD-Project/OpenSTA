@@ -69,14 +69,6 @@ foreach cell_name {INV_X1 BUF_X1 DFF_X1 ANTENNA_X1 FILLCELL_X1} {
 ############################################################
 # Leakage power queries
 ############################################################
-foreach cell_name {INV_X1 BUF_X1 DFF_X1 NAND2_X1 NOR2_X1 AOI21_X1} {
-  # catch: cell_leakage_power is not a supported get_property property
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set lp [get_property $cell cell_leakage_power]
-    puts "$cell_name leakage_power = $lp"
-  }
-}
 
 ############################################################
 # Timing arc property queries
@@ -165,8 +157,8 @@ report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__mux4_1
 set outfile [make_result_file liberty_cell_deep_write.lib]
 sta::write_liberty NangateOpenCellLibrary $outfile
 
-# Read back and verify roundtrip (may have minor syntax issues)
-# catch: roundtrip read-back of written liberty may produce parser warnings
+# Read back and verify roundtrip
+# TODO: write_liberty produces liberty with syntax errors. Need to debug.
 catch {
   read_liberty $outfile
 } msg

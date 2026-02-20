@@ -931,7 +931,6 @@ Path Type: max
            1.88   slack (MET)
 
 
---- set_min_pulse_width on pins ---
 --- report_pulse_width_checks -verbose ---
 Pin: reg3/CK
 Check: sequential_clock_pulse_width

@@ -51,17 +51,13 @@ puts "--- clock gate cell queries ---"
 
 foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
                    sky130_fd_sc_hd__dlclkp_4} {
-  # catch: clock gate cell variant may not exist in loaded library
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set area [get_property $cell area]
-      set lp [get_property $cell cell_leakage_power]
-      puts "$cell_name area=$area leakage=$lp"
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    puts "$cell_name area=$area"
 
-      # Report the cell to exercise arc enumeration
-      report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name
-    }
+    # Report the cell to exercise arc enumeration
+    report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name
   }
 }
 
@@ -98,26 +94,22 @@ foreach cell_name {sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1
                    sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_1
                    sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_2
                    sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_4} {
-  # catch: level shifter cell variant may not exist in loaded library
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set area [get_property $cell area]
-      set lp [get_property $cell cell_leakage_power]
-      puts "$cell_name area=$area leakage=$lp"
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    puts "$cell_name area=$area"
 
-      # Iterate ports
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set dir [sta::liberty_port_direction $port]
-        set is_pwr [$port is_pwr_gnd]
-        if {!$is_pwr} {
-          puts "  [get_name $port] dir=$dir"
-        }
+    # Iterate ports
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set dir [sta::liberty_port_direction $port]
+      set is_pwr [$port is_pwr_gnd]
+      if {!$is_pwr} {
+        puts "  [get_name $port] dir=$dir"
       }
-      $port_iter finish
     }
+    $port_iter finish
   }
 }
 
@@ -155,32 +147,29 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
 ############################################################
 puts "--- clock gate timing arcs ---"
 
-# catch: dlclkp_1 cell may not exist in library
-catch {
-  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1]
-  if {$cell != "NULL" && $cell ne ""} {
-    set arcs [$cell timing_arc_sets]
-    set arc_count [llength $arcs]
-    puts "dlclkp_1 arc_sets = $arc_count"
-    foreach arc $arcs {
-      set from_port [$arc from]
-      set to_port [$arc to]
-      set role [$arc role]
-      puts "  [$arc full_name] role=[$role name]"
-    }
+set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1]
+if {$cell != "NULL" && $cell ne ""} {
+  set arcs [$cell timing_arc_sets]
+  set arc_count [llength $arcs]
+  puts "dlclkp_1 arc_sets = $arc_count"
+  foreach arc $arcs {
+    set from_port [$arc from]
+    set to_port [$arc to]
+    set role [$arc role]
+    puts "  [$from_port bus_name] -> [$to_port bus_name] role=$role"
   }
 }
 
-# catch: sdlclkp_1 cell may not exist in library
-catch {
-  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1]
-  if {$cell != "NULL" && $cell ne ""} {
-    set arcs [$cell timing_arc_sets]
-    set arc_count [llength $arcs]
-    puts "sdlclkp_1 arc_sets = $arc_count"
-    foreach arc $arcs {
-      puts "  [$arc full_name] role=[$role name]"
-    }
+set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1]
+if {$cell != "NULL" && $cell ne ""} {
+  set arcs [$cell timing_arc_sets]
+  set arc_count [llength $arcs]
+  puts "sdlclkp_1 arc_sets = $arc_count"
+  foreach arc $arcs {
+    set from_port [$arc from]
+    set to_port [$arc to]
+    set role [$arc role]
+    puts "  [$from_port bus_name] -> [$to_port bus_name] role=$role"
   }
 }
 
@@ -189,15 +178,15 @@ catch {
 ############################################################
 puts "--- level shifter timing arcs ---"
 
-# catch: lsbuf level shifter cell may not exist in library
-catch {
-  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1]
-  if {$cell != "NULL" && $cell ne ""} {
-    set arcs [$cell timing_arc_sets]
-    puts "lsbuf_lh_hl_isowell_tap_1 arcs = [llength $arcs]"
-    foreach arc $arcs {
-      puts "  [$arc full_name] role=[[$arc role] name]"
-    }
+set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1]
+if {$cell != "NULL" && $cell ne ""} {
+  set arcs [$cell timing_arc_sets]
+  puts "lsbuf_lh_hl_isowell_tap_1 arcs = [llength $arcs]"
+  foreach arc $arcs {
+    set from_port [$arc from]
+    set to_port [$arc to]
+    set role [$arc role]
+    puts "  [$from_port bus_name] -> [$to_port bus_name] role=$role"
   }
 }
 

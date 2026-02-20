@@ -207,7 +207,6 @@ Endpoints: 3
 Endpoint count: 3
 --- Path group names ---
 Path group names: clk out_group reg_group asynchronous {path delay} {gated clock} unconstrained
---- Endpoint slack ---
 --- find_requireds ---
 --- report internal debug ---
 Group    0 hash = 17966705655932391860 ( 134)

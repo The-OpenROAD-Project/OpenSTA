@@ -79,7 +79,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
 Total                  1.94e-06   3.76e-07   4.04e-07   2.72e-06 100.0%
                           71.3%      13.8%      14.9%
---- isClock queries ---
 --- report with timing derate after power ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)

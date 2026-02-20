@@ -139,16 +139,6 @@ puts "--- set_driving_cell ---"
 set_driving_cell -lib_cell BUF_X2 -pin Z [get_ports in1]
 report_checks -path_delay max
 
-############################################################
-# Min pulse width on pins/instances
-############################################################
-puts "--- set_min_pulse_width on pins ---"
-# catch: set_min_pulse_width does not accept port objects
-catch {
-  set_min_pulse_width 0.5 [get_ports clk1]
-  report_pulse_width_checks
-}
-
 puts "--- report_pulse_width_checks -verbose ---"
 report_pulse_width_checks -verbose
 

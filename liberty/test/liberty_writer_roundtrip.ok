@@ -481,6 +481,11 @@ NOR2_X1: 2 arc sets
   fall->rise
   rise->fall
   fall->rise
+AND2_X1: 2 arc sets
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
 OR2_X1: 2 arc sets
   rise->rise
   fall->fall

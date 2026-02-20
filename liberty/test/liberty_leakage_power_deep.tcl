@@ -13,68 +13,8 @@ read_liberty ../../test/sky130hd/sky130hd_tt.lib
 ############################################################
 puts "--- leakage power queries ---"
 
-# Combinational cells
-foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
-                   sky130_fd_sc_hd__buf_1 sky130_fd_sc_hd__buf_2
-                   sky130_fd_sc_hd__nand2_1 sky130_fd_sc_hd__nand3_1
-                   sky130_fd_sc_hd__nor2_1 sky130_fd_sc_hd__nor3_1
-                   sky130_fd_sc_hd__and2_1 sky130_fd_sc_hd__or2_1
-                   sky130_fd_sc_hd__xor2_1 sky130_fd_sc_hd__xnor2_1
-                   sky130_fd_sc_hd__a21o_1 sky130_fd_sc_hd__a21oi_1
-                   sky130_fd_sc_hd__o21a_1 sky130_fd_sc_hd__o21ai_0
-                   sky130_fd_sc_hd__mux2_1 sky130_fd_sc_hd__mux2i_1} {
-  # catch: cell may not exist or cell_leakage_power property is not supported
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set lp [get_property $cell cell_leakage_power]
-      puts "$cell_name leakage=$lp"
-    }
-  }
-}
-
-# Sequential cells (these have more leakage states)
-foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
-                   sky130_fd_sc_hd__dfrtp_1 sky130_fd_sc_hd__dfstp_1
-                   sky130_fd_sc_hd__dlxtp_1 sky130_fd_sc_hd__dlxtn_1
-                   sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfrtp_1
-                   sky130_fd_sc_hd__sdfstp_1 sky130_fd_sc_hd__dfbbp_1} {
-  # catch: cell may not exist or cell_leakage_power property is not supported
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set lp [get_property $cell cell_leakage_power]
-      set area [get_property $cell area]
-      puts "$cell_name leakage=$lp area=$area"
-    }
-  }
-}
-
-# Tristate cells
-foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
-                   sky130_fd_sc_hd__ebufn_4 sky130_fd_sc_hd__ebufn_8} {
-  # catch: cell may not exist or cell_leakage_power property is not supported
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set lp [get_property $cell cell_leakage_power]
-      puts "$cell_name leakage=$lp"
-    }
-  }
-}
-
-# Clock gate cells
-foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
-                   sky130_fd_sc_hd__sdlclkp_1} {
-  # catch: cell may not exist or cell_leakage_power property is not supported
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set lp [get_property $cell cell_leakage_power]
-      puts "$cell_name leakage=$lp"
-    }
-  }
-}
+# Note: cell_leakage_power is not a supported get_property property.
+# Leakage power is exercised through report_power and report_lib_cell below.
 
 ############################################################
 # Report lib cells to exercise detailed leakage/power info
@@ -91,23 +31,6 @@ report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1
 # Read Nangate library for internal power with when conditions
 ############################################################
 read_liberty ../../test/nangate45/Nangate45_typ.lib
-
-# Query Nangate cell leakage
-foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
-                   NAND2_X1 NOR2_X1 AND2_X1 OR2_X1 XOR2_X1
-                   AOI21_X1 OAI21_X1 MUX2_X1 HA_X1 FA_X1
-                   DFF_X1 DFF_X2 DFFR_X1 DFFS_X1 DFFRS_X1
-                   SDFF_X1 SDFFR_X1 SDFFRS_X1
-                   TINV_X1 TLAT_X1 CLKGATETST_X1} {
-  # catch: cell_leakage_power property is not supported via get_property
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set lp [get_property $cell cell_leakage_power]
-      puts "$cell_name leakage=$lp"
-    }
-  }
-}
 
 ############################################################
 # Link design and run power analysis to exercise internal power
@@ -135,19 +58,6 @@ foreach inst_name {buf1 inv1 and1 or1 nand1 nor1 reg1 reg2 reg3} {
 # Read IHP library for different power model format
 ############################################################
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
-
-foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
-                   sg13g2_nor2_1 sg13g2_and2_1 sg13g2_or2_1} {
-  # catch: IHP cell may not exist or may not have leakage data
-  catch {
-    set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set lp [get_property $cell cell_leakage_power]
-      set area [get_property $cell area]
-      puts "IHP $cell_name leakage=$lp area=$area"
-    }
-  }
-}
 
 ############################################################
 # Write liberty roundtrip for Sky130 (exercises power writer)

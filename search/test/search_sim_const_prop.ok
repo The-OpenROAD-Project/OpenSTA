@@ -1055,8 +1055,6 @@ Path Type: max
            7.88   slack (MET)
 
 
---- set_min_pulse_width ---
---- report_pulse_width_checks after setting ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------

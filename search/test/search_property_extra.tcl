@@ -46,13 +46,7 @@ set lport [get_lib_pins NangateOpenCellLibrary/AND2_X1/ZN]
 puts "lport name: [get_property $lport name]"
 puts "lport full_name: [get_property $lport full_name]"
 puts "lport direction: [get_property $lport direction]"
-# catch: 'function' is not a get_property property (use $port function method instead)
-catch { puts "lport function: [get_property $lport function]" }
 puts "lport capacitance: [get_property $lport capacitance]"
-# catch: 'max_capacitance' is not a supported get_property property
-catch { puts "lport max_capacitance: [get_property $lport max_capacitance]" }
-# catch: 'max_transition' is not a supported get_property property
-catch { puts "lport max_transition: [get_property $lport max_transition]" }
 puts "lport is_register_clock: [get_property $lport is_register_clock]"
 puts "lport is_clock: [get_property $lport is_clock]"
 
@@ -64,8 +58,6 @@ puts "and is_buffer: [get_property $and_cell is_buffer]"
 set dff_cell [get_lib_cells NangateOpenCellLibrary/DFF_X1]
 puts "dff is_buffer: [get_property $dff_cell is_buffer]"
 puts "dff area: [get_property $dff_cell area]"
-# catch: 'cell_leakage_power' is not a supported get_property property
-catch { puts "dff cell_leakage_power: [get_property $dff_cell cell_leakage_power]" }
 
 puts "--- LibertyLibrary properties ---"
 set lib [get_libs NangateOpenCellLibrary]

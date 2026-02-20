@@ -159,10 +159,8 @@ set_min_delay -from [get_ports in3] -to [get_ports out2] 0.5
 ############################################################
 # Min fanout limit (covers setMinFanout through set_min_fanout if available)
 ############################################################
-# catch: set_min_fanout is not a valid SDC command in OpenSTA
-catch {
-  set_min_fanout 2 [current_design]
-}
+# set_min_fanout is not a valid SDC command in OpenSTA
+# set_min_fanout 2 [current_design]
 
 ############################################################
 # Write SDC

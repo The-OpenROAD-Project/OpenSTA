@@ -242,10 +242,4 @@ set outfile [make_result_file liberty_busport_mem_iter_write.lib]
 sta::write_liberty fakeram45_64x7 $outfile
 
 # Read back
-# catch: roundtrip read-back of written liberty may produce parser warnings
-catch {
-  read_liberty $outfile
-} msg
-if {[string match "Error*" $msg]} {
-  puts "INFO: roundtrip issue: [string range $msg 0 80]"
-}
+read_liberty $outfile

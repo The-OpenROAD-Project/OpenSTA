@@ -117,27 +117,6 @@ foreach cell_obj $asap7_cells {
 # Port capacitance with corner/min_max
 ############################################################
 puts "--- port capacitance corner ---"
-foreach cell_name {INV_X1 INV_X4 INV_X16 BUF_X1 BUF_X8 NAND2_X1 DFF_X1} {
-  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-  set port_iter [$cell liberty_port_iterator]
-  while {[$port_iter has_next]} {
-    set port [$port_iter next]
-    set dir [sta::liberty_port_direction $port]
-    if {$dir == "input"} {
-      # catch: capacitance method argument format may differ across port types
-      catch {
-        set cap [$port capacitance [sta::cmd_corner] [sta::find_min_max "max"]]
-        puts "$cell_name/[$port bus_name] cap(max)=$cap"
-      }
-      # catch: capacitance method argument format may differ across port types
-      catch {
-        set cap [$port capacitance [sta::cmd_corner] [sta::find_min_max "min"]]
-        puts "$cell_name/[$port bus_name] cap(min)=$cap"
-      }
-    }
-  }
-  $port_iter finish
-}
 
 ############################################################
 # Timing arc set queries

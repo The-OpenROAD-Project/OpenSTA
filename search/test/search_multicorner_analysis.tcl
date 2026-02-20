@@ -124,8 +124,3 @@ puts "--- set_max_area ---"
 set_max_area 1000
 
 puts "--- isClock / isPropagatedClock queries ---"
-# catch: sta::is_clock_pin is not exposed as Tcl command
-catch {
-  set clk_pin [get_pins ckbuf/Z]
-  puts "isClock ckbuf/Z: [sta::is_clock_pin $clk_pin]"
-}

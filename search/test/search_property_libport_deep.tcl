@@ -129,12 +129,8 @@ puts "reg1 is_memory: [get_property $reg_inst is_memory]"
 puts "--- LibertyCell area and leakage ---"
 set dff_cell [get_lib_cells NangateOpenCellLibrary/DFF_X1]
 puts "DFF_X1 area: [get_property $dff_cell area]"
-# catch: 'cell_leakage_power' is not a supported get_property property
-catch { puts "DFF_X1 cell_leakage_power: [get_property $dff_cell cell_leakage_power]" }
 set buf_cell [get_lib_cells NangateOpenCellLibrary/BUF_X1]
 puts "BUF_X1 area: [get_property $buf_cell area]"
-# catch: 'cell_leakage_power' is not a supported get_property property
-catch { puts "BUF_X1 cell_leakage_power: [get_property $buf_cell cell_leakage_power]" }
 set inv_cell [get_lib_cells NangateOpenCellLibrary/INV_X1]
 puts "INV_X1 area: [get_property $inv_cell area]"
 set and_cell [get_lib_cells NangateOpenCellLibrary/AND2_X1]
@@ -156,24 +152,10 @@ report_checks -path_delay max
 puts "--- find_timing_paths with group_path ---"
 set paths [find_timing_paths -path_delay max -group_path_count 20 -endpoint_path_count 10]
 puts "Found [llength $paths] paths with groups"
-foreach pe $paths {
-  # catch: PathEnd does not have a path_group method
-  catch {
-    set pg [$pe path_group]
-    puts "  [get_full_name [$pe pin]] group=[$pg name] slack=[$pe slack]"
-  }
-}
 
 puts "--- find_timing_paths with min paths and groups ---"
 set paths_min [find_timing_paths -path_delay min -group_path_count 20 -endpoint_path_count 10]
 puts "Found [llength $paths_min] min paths with groups"
-foreach pe $paths_min {
-  # catch: PathEnd does not have a path_group method
-  catch {
-    set pg [$pe path_group]
-    puts "  [get_full_name [$pe pin]] group=[$pg name] slack=[$pe slack]"
-  }
-}
 
 ############################################################
 # path_group_names and is_path_group_name

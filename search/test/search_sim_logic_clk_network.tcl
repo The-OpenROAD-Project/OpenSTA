@@ -100,37 +100,11 @@ report_checks -path_delay max
 ############################################################
 # findLogicConstants / clearLogicConstants
 ############################################################
-puts "--- findLogicConstants ---"
-# catch: sta::find_logic_constants is not exposed as Tcl command
-catch { sta::find_logic_constants }
-
-puts "--- clearLogicConstants ---"
-# catch: sta::clear_logic_constants is not exposed as Tcl command
-catch { sta::clear_logic_constants }
-
 ############################################################
 # Levelize and graph queries
 ############################################################
 puts "--- levelize ---"
 sta::levelize
-
-puts "--- graphLoops ---"
-# catch: sta::graph_loop_count is not exposed as Tcl command
-catch {
-  set loops [sta::graph_loop_count]
-  puts "Graph loops: $loops"
-}
-
-puts "--- max_path_count_vertex ---"
-# catch: sta::max_path_count_vertex is not exposed as Tcl command
-catch {
-  set maxv [sta::max_path_count_vertex]
-  if { $maxv != "NULL" } {
-    puts "max_path_count vertex: [get_full_name [$maxv pin]]"
-    puts "  path_count: [sta::vertex_path_count $maxv]"
-    puts "  level: [sta::vertex_level $maxv]"
-  }
-}
 
 ############################################################
 # Generated clock (exercises Genclks.cc)

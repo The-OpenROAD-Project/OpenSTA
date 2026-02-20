@@ -233,11 +233,7 @@ Path Type: max
            7.90   slack (MET)
 
 
---- findLogicConstants ---
---- clearLogicConstants ---
 --- levelize ---
---- graphLoops ---
---- max_path_count_vertex ---
 --- generated clock ---
 Startpoint: reg1/Q (clock source 'gclk')
 Endpoint: out1 (output port clocked by clk)

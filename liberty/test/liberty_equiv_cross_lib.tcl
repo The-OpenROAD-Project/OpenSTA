@@ -20,17 +20,14 @@ sta::make_equiv_cells $rvt_lib
 # Find equiv cells in ASAP7 RVT
 foreach cell_prefix {INVx BUFx} {
   foreach size {1 2 3 4 5 8 11 13 16} {
-    # catch: cell with specific size variant may not exist in library
-    catch {
-      set cell_name "${cell_prefix}${size}_ASAP7_75t_R"
-      set cell [get_lib_cell asap7sc7p5t_INVBUF_RVT_FF_nldm_211120/$cell_name]
-      if {$cell != "NULL" && $cell ne ""} {
-        set equivs [sta::find_equiv_cells $cell]
-        if {$equivs != ""} {
-          puts "$cell_name equiv count = [llength $equivs]"
-        } else {
-          puts "$cell_name equiv count = 0"
-        }
+    set cell_name "${cell_prefix}${size}_ASAP7_75t_R"
+    set cell [get_lib_cell asap7sc7p5t_INVBUF_RVT_FF_nldm_211120/$cell_name]
+    if {$cell != "NULL" && $cell ne ""} {
+      set equivs [sta::find_equiv_cells $cell]
+      if {$equivs != ""} {
+        puts "$cell_name equiv count = [llength $equivs]"
+      } else {
+        puts "$cell_name equiv count = 0"
       }
     }
   }
@@ -47,17 +44,14 @@ sta::make_equiv_cells $lvt_lib
 
 foreach cell_prefix {INVx BUFx} {
   foreach size {1 2 4 8} {
-    # catch: cell with specific size variant may not exist in library
-    catch {
-      set cell_name "${cell_prefix}${size}_ASAP7_75t_L"
-      set cell [get_lib_cell asap7sc7p5t_INVBUF_LVT_FF_nldm_211120/$cell_name]
-      if {$cell != "NULL" && $cell ne ""} {
-        set equivs [sta::find_equiv_cells $cell]
-        if {$equivs != ""} {
-          puts "LVT $cell_name equiv count = [llength $equivs]"
-        } else {
-          puts "LVT $cell_name equiv count = 0"
-        }
+    set cell_name "${cell_prefix}${size}_ASAP7_75t_L"
+    set cell [get_lib_cell asap7sc7p5t_INVBUF_LVT_FF_nldm_211120/$cell_name]
+    if {$cell != "NULL" && $cell ne ""} {
+      set equivs [sta::find_equiv_cells $cell]
+      if {$equivs != ""} {
+        puts "LVT $cell_name equiv count = [llength $equivs]"
+      } else {
+        puts "LVT $cell_name equiv count = 0"
       }
     }
   }
@@ -98,9 +92,8 @@ set seq_rvt_lib [lindex [get_libs asap7sc7p5t_SEQ_RVT_FF_nldm_220123] 0]
 sta::make_equiv_cells $seq_rvt_lib
 
 # Find equiv cells for DFF cells
-# catch: ASAP7 DFFHQNx1 cell may not exist
-catch {
-  set dff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_R]
+set dff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_R]
+if {$dff != "NULL" && $dff ne ""} {
   set equivs [sta::find_equiv_cells $dff]
   if {$equivs != ""} {
     puts "SEQ RVT DFFHQNx1 equiv count = [llength $equivs]"
@@ -113,9 +106,8 @@ catch {
 }
 
 # ICG equiv cells
-# catch: ASAP7 ICGx1 cell may not exist
-catch {
-  set icg [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
+set icg [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
+if {$icg != "NULL" && $icg ne ""} {
   set equivs [sta::find_equiv_cells $icg]
   if {$equivs != ""} {
     puts "SEQ RVT ICGx1 equiv count = [llength $equivs]"
@@ -125,9 +117,8 @@ catch {
 }
 
 # Latch equiv cells
-# catch: ASAP7 DLLx1 cell may not exist
-catch {
-  set dll [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DLLx1_ASAP7_75t_R]
+set dll [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DLLx1_ASAP7_75t_R]
+if {$dll != "NULL" && $dll ne ""} {
   set equivs [sta::find_equiv_cells $dll]
   if {$equivs != ""} {
     puts "SEQ RVT DLLx1 equiv count = [llength $equivs]"
@@ -137,9 +128,8 @@ catch {
 }
 
 # SDFF equiv cells
-# catch: ASAP7 SDFHQNx1 cell may not exist
-catch {
-  set sdff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx1_ASAP7_75t_R]
+set sdff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx1_ASAP7_75t_R]
+if {$sdff != "NULL" && $sdff ne ""} {
   set equivs [sta::find_equiv_cells $sdff]
   if {$equivs != ""} {
     puts "SEQ RVT SDFHQNx1 equiv count = [llength $equivs]"
@@ -167,9 +157,8 @@ set sky_lib [lindex [get_libs sky130_fd_sc_hd__tt_025C_1v80] 0]
 sta::make_equiv_cells $sky_lib
 
 # Find equiv cells for Sky130 inverters
-# catch: find_equiv_cells may fail if equivalence mapping is not configured
-catch {
-  set sky_inv [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1]
+set sky_inv [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1]
+if {$sky_inv != "NULL" && $sky_inv ne ""} {
   set equivs [sta::find_equiv_cells $sky_inv]
   if {$equivs != ""} {
     puts "Sky130 inv_1 equiv count = [llength $equivs]"
@@ -182,9 +171,8 @@ catch {
 }
 
 # Find equiv for Sky130 DFF
-# catch: find_equiv_cells may fail if equivalence mapping is not configured
-catch {
-  set sky_dff [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1]
+set sky_dff [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1]
+if {$sky_dff != "NULL" && $sky_dff ne ""} {
   set equivs [sta::find_equiv_cells $sky_dff]
   if {$equivs != ""} {
     puts "Sky130 dfxtp_1 equiv count = [llength $equivs]"

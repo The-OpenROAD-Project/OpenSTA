@@ -51,20 +51,11 @@ report_power -instances [get_cells {buf1 inv1 and1 or1 nand1 nor1 reg1 reg2 reg3
 ############################################################
 
 set inv_cell [get_lib_cell NangateOpenCellLibrary/INV_X1]
-# catch: cell_leakage_power is not a supported get_property property
-catch { puts "INV_X1 leakage_power: [get_property $inv_cell cell_leakage_power]" }
-
 set buf_cell [get_lib_cell NangateOpenCellLibrary/BUF_X1]
-# catch: cell_leakage_power is not a supported get_property property
-catch { puts "BUF_X1 leakage_power: [get_property $buf_cell cell_leakage_power]" }
 
 set dff_cell [get_lib_cell NangateOpenCellLibrary/DFF_X1]
-# catch: cell_leakage_power is not a supported get_property property
-catch { puts "DFF_X1 leakage_power: [get_property $dff_cell cell_leakage_power]" }
 
 set nand_cell [get_lib_cell NangateOpenCellLibrary/NAND2_X1]
-# catch: cell_leakage_power is not a supported get_property property
-catch { puts "NAND2_X1 leakage_power: [get_property $nand_cell cell_leakage_power]" }
 
 # Area property
 puts "INV_X1 area: [get_property $inv_cell area]"
@@ -80,8 +71,6 @@ puts "INV_X1 is_buffer: [get_property $inv_cell is_buffer]"
 puts "BUF_X1 is_buffer: [get_property $buf_cell is_buffer]"
 puts "BUF_X1 is_inverter: [get_property $buf_cell is_inverter]"
 puts "DFF_X1 is_buffer: [get_property $dff_cell is_buffer]"
-# catch: is_register is not a supported get_property property for LibertyCell
-catch { puts "DFF_X1 is_register: [get_property $dff_cell is_register]" }
 
 ############################################################
 # Write liberty and re-read (exercises writer power paths)
@@ -98,8 +87,6 @@ read_liberty ../../test/sky130hd/sky130hd_tt.lib
 
 # Query sky130 cell leakage powers
 set sky_inv [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1]
-# catch: cell_leakage_power is not a supported get_property property
-catch { puts "sky130 inv leakage: [get_property $sky_inv cell_leakage_power]" }
 puts "sky130 inv area: [get_property $sky_inv area]"
 
 # Write sky130 liberty
@@ -113,8 +100,6 @@ sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile2
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
 
 set ihp_inv [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_1]
-# catch: cell_leakage_power is not a supported get_property property
-catch { puts "IHP inv leakage: [get_property $ihp_inv cell_leakage_power]" }
 puts "IHP inv area: [get_property $ihp_inv area]"
 
 ############################################################
@@ -124,10 +109,7 @@ puts "IHP inv area: [get_property $ihp_inv area]"
 read_liberty ../../test/asap7_ccsn.lib.gz
 
 set outfile3 [make_result_file liberty_power_write_ccsn.lib]
-# catch: CCSN library name may not match after loading
-catch {
-  sta::write_liberty asap7_ccsn $outfile3
-}
+sta::write_liberty asap7sc7p5t_AO_LVT_FF_ccsn_211120 $outfile3
 
 ############################################################
 # Read ASAP7 SEQ for power on sequential cells
@@ -136,6 +118,4 @@ catch {
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 
 set asap7_dff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_R]
-# catch: cell_leakage_power is not a supported get_property property
-catch { puts "ASAP7 DFF leakage: [get_property $asap7_dff cell_leakage_power]" }
 puts "ASAP7 DFF area: [get_property $asap7_dff area]"

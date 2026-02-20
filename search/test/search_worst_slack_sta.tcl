@@ -157,11 +157,6 @@ report_checks -path_delay max > /dev/null
 sta::set_report_path_no_split 0
 
 puts "--- graph loops ---"
-# catch: sta::graph_loop_count is not exposed as Tcl command
-catch {
-  set loops [sta::graph_loop_count]
-  puts "graph_loop_count: $loops"
-}
 
 puts "--- pocv ---"
 puts "pocv_enabled: [sta::pocv_enabled]"

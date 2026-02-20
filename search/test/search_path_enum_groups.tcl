@@ -79,11 +79,7 @@ puts "input_paths is group: [sta::is_path_group_name input_paths]"
 puts "nonexistent is group: [sta::is_path_group_name nonexistent_group]"
 
 puts "--- group_path -default ---"
-# catch: group_path -name and -default are mutually exclusive; -default also requires path args
-catch {
-  group_path -name default_group -default
-  report_checks -path_delay max
-}
+# group_path -name and -default are mutually exclusive; removed
 
 puts "--- report_path_ends ---"
 set pe_list [find_timing_paths -path_delay max -endpoint_path_count 5]

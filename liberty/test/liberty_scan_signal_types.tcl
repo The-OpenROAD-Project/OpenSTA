@@ -15,124 +15,111 @@ puts "--- scan DFF cell queries ---"
 # sdfxtp cells are scan DFFs
 foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfxtp_2
                    sky130_fd_sc_hd__sdfxtp_4} {
-  # catch: scan cell variant may not exist in this library version
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set area [get_property $cell area]
-      set lp [get_property $cell cell_leakage_power]
-      puts "$cell_name area=$area leakage=$lp"
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    puts "$cell_name area=$area"
 
-      # Check test_cell
-      set tc [$cell test_cell]
-      if {$tc != "NULL" && $tc ne ""} {
-        puts "  has test_cell: yes"
-      } else {
-        puts "  has test_cell: no"
-      }
-
-      # Iterate ports and check scan_signal_type
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set dir [sta::liberty_port_direction $port]
-        set is_pwr [$port is_pwr_gnd]
-        if {!$is_pwr} {
-          set sst [$port scan_signal_type]
-          set func [$port function]
-          puts "  [get_name $port] dir=$dir scan_type=$sst func=$func"
-        }
-      }
-      $port_iter finish
+    # Check test_cell
+    set tc [$cell test_cell]
+    if {$tc != "NULL" && $tc ne ""} {
+      puts "  has test_cell: yes"
+    } else {
+      puts "  has test_cell: no"
     }
+
+    # Iterate ports and check scan_signal_type
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set dir [sta::liberty_port_direction $port]
+      set is_pwr [$port is_pwr_gnd]
+      if {!$is_pwr} {
+        set sst [$port scan_signal_type]
+        set func [$port function]
+        puts "  [get_name $port] dir=$dir scan_type=$sst func=$func"
+      }
+    }
+    $port_iter finish
   }
 }
 
 # sdfxbp cells are scan DFFs with complementary outputs
 foreach cell_name {sky130_fd_sc_hd__sdfxbp_1 sky130_fd_sc_hd__sdfxbp_2} {
-  # catch: scan cell variant may not exist in this library version
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set area [get_property $cell area]
-      puts "$cell_name area=$area"
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    puts "$cell_name area=$area"
 
-      set tc [$cell test_cell]
-      if {$tc != "NULL" && $tc ne ""} {
-        puts "  has test_cell: yes"
-      } else {
-        puts "  has test_cell: no"
-      }
-
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set is_pwr [$port is_pwr_gnd]
-        if {!$is_pwr} {
-          set dir [sta::liberty_port_direction $port]
-          set sst [$port scan_signal_type]
-          puts "  [get_name $port] dir=$dir scan_type=$sst"
-        }
-      }
-      $port_iter finish
+    set tc [$cell test_cell]
+    if {$tc != "NULL" && $tc ne ""} {
+      puts "  has test_cell: yes"
+    } else {
+      puts "  has test_cell: no"
     }
+
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set is_pwr [$port is_pwr_gnd]
+      if {!$is_pwr} {
+        set dir [sta::liberty_port_direction $port]
+        set sst [$port scan_signal_type]
+        puts "  [get_name $port] dir=$dir scan_type=$sst"
+      }
+    }
+    $port_iter finish
   }
 }
 
 # sdfrtp cells are scan DFFs with async reset
 foreach cell_name {sky130_fd_sc_hd__sdfrtp_1 sky130_fd_sc_hd__sdfrtp_2
                    sky130_fd_sc_hd__sdfrtp_4} {
-  # catch: scan cell variant may not exist in this library version
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set area [get_property $cell area]
-      puts "$cell_name area=$area"
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    puts "$cell_name area=$area"
 
-      set tc [$cell test_cell]
-      if {$tc != "NULL" && $tc ne ""} {
-        puts "  has test_cell: yes"
-      } else {
-        puts "  has test_cell: no"
-      }
-
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set is_pwr [$port is_pwr_gnd]
-        if {!$is_pwr} {
-          set dir [sta::liberty_port_direction $port]
-          set sst [$port scan_signal_type]
-          puts "  [get_name $port] dir=$dir scan_type=$sst"
-        }
-      }
-      $port_iter finish
+    set tc [$cell test_cell]
+    if {$tc != "NULL" && $tc ne ""} {
+      puts "  has test_cell: yes"
+    } else {
+      puts "  has test_cell: no"
     }
+
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set is_pwr [$port is_pwr_gnd]
+      if {!$is_pwr} {
+        set dir [sta::liberty_port_direction $port]
+        set sst [$port scan_signal_type]
+        puts "  [get_name $port] dir=$dir scan_type=$sst"
+      }
+    }
+    $port_iter finish
   }
 }
 
 # sdfstp cells are scan DFFs with async set
 foreach cell_name {sky130_fd_sc_hd__sdfstp_1 sky130_fd_sc_hd__sdfstp_2
                    sky130_fd_sc_hd__sdfstp_4} {
-  # catch: scan cell variant may not exist in this library version
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set area [get_property $cell area]
-      puts "$cell_name area=$area"
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    puts "$cell_name area=$area"
 
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set is_pwr [$port is_pwr_gnd]
-        if {!$is_pwr} {
-          set dir [sta::liberty_port_direction $port]
-          set sst [$port scan_signal_type]
-          puts "  [get_name $port] dir=$dir scan_type=$sst"
-        }
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set is_pwr [$port is_pwr_gnd]
+      if {!$is_pwr} {
+        set dir [sta::liberty_port_direction $port]
+        set sst [$port scan_signal_type]
+        puts "  [get_name $port] dir=$dir scan_type=$sst"
       }
-      $port_iter finish
     }
+    $port_iter finish
   }
 }
 
@@ -143,17 +130,14 @@ puts "--- scan DFF timing arcs ---"
 
 foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfrtp_1
                    sky130_fd_sc_hd__sdfstp_1} {
-  # catch: cell may not exist; timing arc iteration may fail
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set arcs [$cell timing_arc_sets]
-      set arc_count [llength $arcs]
-      puts "$cell_name arc_sets = $arc_count"
-      foreach arc $arcs {
-        set role [$arc role]
-        puts "  [$arc full_name] role=[$role name]"
-      }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set arcs [$cell timing_arc_sets]
+    set arc_count [llength $arcs]
+    puts "$cell_name arc_sets = $arc_count"
+    foreach arc $arcs {
+      set role [$arc role]
+      puts "  [$arc full_name] role=$role"
     }
   }
 }
@@ -165,40 +149,34 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 
 # Nangate SDFF cells
 foreach cell_name {SDFF_X1 SDFF_X2 SDFFR_X1 SDFFS_X1 SDFFRS_X1} {
-  # catch: SDFF cell variant may not exist in NangateOpenCellLibrary
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set tc [$cell test_cell]
-      puts "$cell_name test_cell=[expr {$tc != "NULL" ? "yes" : "no"}]"
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set tc [$cell test_cell]
+    puts "$cell_name test_cell=[expr {$tc != "NULL" ? "yes" : "no"}]"
 
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set dir [sta::liberty_port_direction $port]
-        set sst [$port scan_signal_type]
-        if {$sst != "none"} {
-          puts "  [get_name $port] dir=$dir scan_type=$sst"
-        }
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set dir [sta::liberty_port_direction $port]
+      set sst [$port scan_signal_type]
+      if {$sst != "none"} {
+        puts "  [get_name $port] dir=$dir scan_type=$sst"
       }
-      $port_iter finish
     }
+    $port_iter finish
   }
 }
 
 # Nangate CLKGATETST cell (clock gate test)
-# catch: CLKGATETST_X1 may not have test_cell attribute
-catch {
-  set cell [get_lib_cell NangateOpenCellLibrary/CLKGATETST_X1]
-  if {$cell != "NULL" && $cell ne ""} {
-    set tc [$cell test_cell]
-    set area [get_property $cell area]
-    puts "CLKGATETST_X1 area=$area test_cell=[expr {$tc != "NULL" ? "yes" : "no"}]"
+set cell [get_lib_cell NangateOpenCellLibrary/CLKGATETST_X1]
+if {$cell != "NULL" && $cell ne ""} {
+  set tc [$cell test_cell]
+  set area [get_property $cell area]
+  puts "CLKGATETST_X1 area=$area test_cell=[expr {$tc != "NULL" ? "yes" : "no"}]"
 
-    set arcs [$cell timing_arc_sets]
-    foreach arc $arcs {
-      puts "  [$arc full_name] role=[[$arc role] name]"
-    }
+  set arcs [$cell timing_arc_sets]
+  foreach arc $arcs {
+    puts "  [$arc full_name] role=[$arc role]"
   }
 }
 
@@ -208,32 +186,26 @@ catch {
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 
 # ASAP7 ICG cell has statetable (exercises clock gate paths)
-# catch: ASAP7 ICG cell may not exist in loaded library
-catch {
-  set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
-  if {$cell != "NULL" && $cell ne ""} {
-    set arcs [$cell timing_arc_sets]
-    puts "ASAP7 ICGx1 arc_sets = [llength $arcs]"
-    foreach arc $arcs {
-      puts "  [$arc full_name] role=[[$arc role] name]"
-    }
+set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
+if {$cell != "NULL" && $cell ne ""} {
+  set arcs [$cell timing_arc_sets]
+  puts "ASAP7 ICGx1 arc_sets = [llength $arcs]"
+  foreach arc $arcs {
+    puts "  [$arc full_name] role=[$arc role]"
   }
 }
 
 # ASAP7 DFFs with scan
 foreach cell_name {DFFHQNx1_ASAP7_75t_R DFFHQx1_ASAP7_75t_R
                    DFFHQNx2_ASAP7_75t_R DFFHQx2_ASAP7_75t_R} {
-  # catch: ASAP7 DFF cell name variant may not match
-  catch {
-    set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/$cell_name]
-    if {$cell != "NULL" && $cell ne ""} {
-      set arcs [$cell timing_arc_sets]
-      puts "$cell_name arcs=[llength $arcs]"
-      foreach arc $arcs {
-        set role [$arc role]
-        if {[$role name] != "combinational"} {
-          puts "  [$arc full_name] role=[$role name]"
-        }
+  set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set arcs [$cell timing_arc_sets]
+    puts "$cell_name arcs=[llength $arcs]"
+    foreach arc $arcs {
+      set role [$arc role]
+      if {$role != "combinational"} {
+        puts "  [$arc full_name] role=$role"
       }
     }
   }

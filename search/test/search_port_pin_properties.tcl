@@ -137,8 +137,6 @@ puts "DFF_X1 is_buffer: [get_property $dff_cell is_buffer]"
 set dff_lib [get_property $dff_cell library]
 puts "DFF_X1 library: [get_name $dff_lib]"
 puts "DFF_X1 area: [get_property $dff_cell area]"
-# catch: 'cell_leakage_power' is not a supported get_property property
-catch { puts "DFF_X1 leakage: [get_property $dff_cell cell_leakage_power]" }
 
 puts "--- LibertyPort properties ---"
 set lp_d [get_lib_pins NangateOpenCellLibrary/DFF_X1/D]
@@ -147,12 +145,10 @@ puts "DFF_X1/D full_name: [get_property $lp_d full_name]"
 puts "DFF_X1/D direction: [get_property $lp_d direction]"
 puts "DFF_X1/D capacitance: [get_property $lp_d capacitance]"
 puts "DFF_X1/D is_clock: [get_property $lp_d is_clock]"
-# catch: 'is_register_clock' property may not be valid for data pins
-catch { puts "DFF_X1/D is_register_clock: [get_property $lp_d is_register_clock]" }
+puts "DFF_X1/D is_register_clock: [get_property $lp_d is_register_clock]"
 set lp_ck [get_lib_pins NangateOpenCellLibrary/DFF_X1/CK]
 puts "DFF_X1/CK is_clock: [get_property $lp_ck is_clock]"
-# catch: 'is_register_clock' property may not be valid for clock pins
-catch { puts "DFF_X1/CK is_register_clock: [get_property $lp_ck is_register_clock]" }
+puts "DFF_X1/CK is_register_clock: [get_property $lp_ck is_register_clock]"
 
 puts "--- Library properties ---"
 set lib [get_libs NangateOpenCellLibrary]
