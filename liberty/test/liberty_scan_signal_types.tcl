@@ -15,6 +15,7 @@ puts "--- scan DFF cell queries ---"
 # sdfxtp cells are scan DFFs
 foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfxtp_2
                    sky130_fd_sc_hd__sdfxtp_4} {
+  # catch: scan cell variant may not exist in this library version
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -49,6 +50,7 @@ foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfxtp_2
 
 # sdfxbp cells are scan DFFs with complementary outputs
 foreach cell_name {sky130_fd_sc_hd__sdfxbp_1 sky130_fd_sc_hd__sdfxbp_2} {
+  # catch: scan cell variant may not exist in this library version
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -80,6 +82,7 @@ foreach cell_name {sky130_fd_sc_hd__sdfxbp_1 sky130_fd_sc_hd__sdfxbp_2} {
 # sdfrtp cells are scan DFFs with async reset
 foreach cell_name {sky130_fd_sc_hd__sdfrtp_1 sky130_fd_sc_hd__sdfrtp_2
                    sky130_fd_sc_hd__sdfrtp_4} {
+  # catch: scan cell variant may not exist in this library version
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -111,6 +114,7 @@ foreach cell_name {sky130_fd_sc_hd__sdfrtp_1 sky130_fd_sc_hd__sdfrtp_2
 # sdfstp cells are scan DFFs with async set
 foreach cell_name {sky130_fd_sc_hd__sdfstp_1 sky130_fd_sc_hd__sdfstp_2
                    sky130_fd_sc_hd__sdfstp_4} {
+  # catch: scan cell variant may not exist in this library version
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -139,6 +143,7 @@ puts "--- scan DFF timing arcs ---"
 
 foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfrtp_1
                    sky130_fd_sc_hd__sdfstp_1} {
+  # catch: cell may not exist; timing arc iteration may fail
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -160,6 +165,7 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 
 # Nangate SDFF cells
 foreach cell_name {SDFF_X1 SDFF_X2 SDFFR_X1 SDFFS_X1 SDFFRS_X1} {
+  # catch: SDFF cell variant may not exist in NangateOpenCellLibrary
   catch {
     set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -181,6 +187,7 @@ foreach cell_name {SDFF_X1 SDFF_X2 SDFFR_X1 SDFFS_X1 SDFFRS_X1} {
 }
 
 # Nangate CLKGATETST cell (clock gate test)
+# catch: CLKGATETST_X1 may not have test_cell attribute
 catch {
   set cell [get_lib_cell NangateOpenCellLibrary/CLKGATETST_X1]
   if {$cell != "NULL" && $cell ne ""} {
@@ -201,6 +208,7 @@ catch {
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 
 # ASAP7 ICG cell has statetable (exercises clock gate paths)
+# catch: ASAP7 ICG cell may not exist in loaded library
 catch {
   set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
   if {$cell != "NULL" && $cell ne ""} {
@@ -215,6 +223,7 @@ catch {
 # ASAP7 DFFs with scan
 foreach cell_name {DFFHQNx1_ASAP7_75t_R DFFHQx1_ASAP7_75t_R
                    DFFHQNx2_ASAP7_75t_R DFFHQx2_ASAP7_75t_R} {
+  # catch: ASAP7 DFF cell name variant may not match
   catch {
     set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {

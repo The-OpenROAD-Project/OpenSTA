@@ -190,6 +190,7 @@ report_checks -path_delay max
 # Min pulse width
 ############################################################
 puts "--- set_min_pulse_width ---"
+# catch: set_min_pulse_width does not accept [all_inputs] as argument
 catch {
   set_min_pulse_width 0.5 [all_inputs]
 }

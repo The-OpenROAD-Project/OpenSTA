@@ -73,6 +73,7 @@ write_path_spice \
 
 puts "--- write_gate_spice ---"
 set gate_spice_file [file join $spice_dir gate_test.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc4 [catch {
   write_gate_spice \
     -gates {{buf1 A Z rise}} \
@@ -89,6 +90,7 @@ if { $rc4 == 0 } {
 
 puts "--- write_gate_spice with -simulator hspice ---"
 set gate_spice_file2 [file join $spice_dir gate_test2.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc5 [catch {
   write_gate_spice \
     -gates {{buf1 A Z rise}} \

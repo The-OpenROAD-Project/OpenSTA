@@ -144,10 +144,12 @@ if { [file exists $rf] } {
 # Error handling paths
 #---------------------------------------------------------------
 puts "--- error handling ---"
+# catch: intentionally testing error for nonexistent liberty file
 set rc [catch { read_liberty "/nonexistent/path/test.lib" } msg]
 if { $rc != 0 } {
 }
 
+# catch: intentionally testing error for nonexistent verilog file
 set rc [catch { read_verilog "/nonexistent/path/test.v" } msg]
 if { $rc != 0 } {
 }

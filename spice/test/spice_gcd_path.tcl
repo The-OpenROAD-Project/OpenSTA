@@ -43,6 +43,7 @@ puts "unique cells: [llength $cell_names]"
 
 # Write generic subckts for each cell type
 foreach cell_name $cell_names {
+  # catch: get_lib_pins may fail for some cell types
   set rc [catch {
     set lib_pins [get_lib_pins */${cell_name}/*]
     if { [llength $lib_pins] == 0 } { continue }
@@ -130,6 +131,7 @@ write_path_spice \
 puts "--- write_path_spice specific endpoints ---"
 set dir5 [make_result_file spice_gcd_specific]
 file mkdir $dir5
+# catch: write_path_spice may fail if subckt is missing for cells on path
 set rc [catch {
   write_path_spice \
     -path_args {-from req_msg[0] -to resp_msg[0]} \
@@ -153,6 +155,7 @@ puts "--- write_gate_spice sky130hd cells ---"
 # Find some instances for gate spice using known patterns
 set gate_test_insts [list]
 foreach pat {_197_ _205_ _206_ _300_} {
+  # catch: cell pattern may not match any instances
   set rc [catch { set c [get_cells $pat] } msg]
   if { $rc == 0 && [llength $c] > 0 } {
     lappend gate_test_insts [lindex $c 0]
@@ -167,6 +170,7 @@ foreach inst $gate_test_insts {
   # Get input/output pins from the lib cell
   set in_pin ""
   set out_pin ""
+  # catch: get_lib_pins may fail for some cell types
   set rc [catch {
     set cell_pins [get_lib_pins */${cell_ref}/*]
     foreach lp $cell_pins {
@@ -183,6 +187,7 @@ foreach inst $gate_test_insts {
 
   if { $in_pin ne "" && $out_pin ne "" } {
     set gf [file join $spice_dir "gate_${inst_name}.sp"]
+    # catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
     set rc [catch {
       write_gate_spice \
         -gates [list [list $inst_name $in_pin $out_pin rise]] \

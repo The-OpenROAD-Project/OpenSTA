@@ -89,6 +89,7 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
                    sky130_fd_sc_hd__mux2_1 sky130_fd_sc_hd__mux2i_1
                    sky130_fd_sc_hd__mux4_1 sky130_fd_sc_hd__ha_1
                    sky130_fd_sc_hd__fa_1} {
+  # catch: cell may not exist or cell_leakage_power is not supported
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -109,6 +110,7 @@ foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
                    sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfxtp_2
                    sky130_fd_sc_hd__sdfrtp_1 sky130_fd_sc_hd__sdfstp_1
                    sky130_fd_sc_hd__sdlclkp_1 sky130_fd_sc_hd__dlclkp_1} {
+  # catch: cell may not exist or cell_leakage_power is not supported
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -138,6 +140,7 @@ read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
 foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
                    sg13g2_nor2_1 sg13g2_and2_1 sg13g2_or2_1
                    sg13g2_dfrbp_1 sg13g2_dlhq_1} {
+  # catch: IHP cell may not exist in loaded library
   catch {
     set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -188,6 +191,7 @@ set outfile [make_result_file liberty_pgpin_voltage_write.lib]
 sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile
 
 # Read back the written library to verify
+# catch: roundtrip read-back of written liberty may produce parser warnings
 catch {
   read_liberty $outfile
 } msg

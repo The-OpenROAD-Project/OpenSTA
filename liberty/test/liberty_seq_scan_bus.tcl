@@ -41,6 +41,7 @@ puts "sdfxbp_1 area = $area2"
 ############################################################
 foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
                    sky130_fd_sc_hd__ebufn_4 sky130_fd_sc_hd__ebufn_8} {
+  # catch: sky130 tristate cell may not exist or tristate_enable may be unsupported
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     set area [get_property $cell area]
@@ -86,6 +87,7 @@ foreach cell_name {sky130_fd_sc_hd__dfrtp_1 sky130_fd_sc_hd__dfstp_1
 foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
                    sky130_fd_sc_hd__nand2_1 sky130_fd_sc_hd__nor2_1
                    sky130_fd_sc_hd__dfxtp_1} {
+  # catch: cell_leakage_power is not a supported get_property property
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -143,6 +145,7 @@ foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
 # Timing arc set queries (exercises makeTimingArcMap paths)
 ############################################################
 foreach cell_name {DFF_X1 DFFR_X1 DFFS_X1 DFFRS_X1} {
+  # catch: cell may not exist in this library version
   catch {
     set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -165,6 +168,7 @@ foreach cell_name {DFF_X1 DFFR_X1 DFFS_X1 DFFRS_X1} {
 read_liberty ../../test/nangate45/fakeram45_64x7.lib
 
 # Query bus ports
+# catch: bus port iteration format may differ across library versions
 catch {
   set cell [get_lib_cell fakeram45_64x7/fakeram45_64x7]
   if {$cell != "NULL" && $cell ne ""} {
@@ -198,6 +202,7 @@ catch {
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 
 # Query ASAP7 latch cells
+# catch: ASAP7 DLLx1 latch cell may not exist
 catch {
   set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DLLx1_ASAP7_75t_R]
   if {$cell != "NULL" && $cell ne ""} {
@@ -211,6 +216,7 @@ catch {
 }
 
 # Query ICG (Integrated Clock Gate) cell with statetable
+# catch: ASAP7 ICGx1 clock gate cell may not exist
 catch {
   set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
   if {$cell != "NULL" && $cell ne ""} {

@@ -65,6 +65,7 @@ close $sfh
 # Helper proc to test write_gate_spice
 proc test_gate_spice {label gates filename subckt model sim} {
   puts "--- write_gate_spice $label ---"
+  # catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
   set rc [catch {
     write_gate_spice \
       -gates $gates \
@@ -111,6 +112,7 @@ puts "--- write_path_spice tests ---"
 # Max path with ngspice
 set pdir1 [make_result_file spice_gcd_path_ng]
 file mkdir $pdir1
+# catch: write_path_spice may fail if subckt is missing for cells on path
 set rc1 [catch {
   write_path_spice \
     -path_args {-sort_by_slack -path_delay max} \
@@ -129,6 +131,7 @@ if { $rc1 == 0 } {
 # Min path with hspice
 set pdir2 [make_result_file spice_gcd_path_hs]
 file mkdir $pdir2
+# catch: write_path_spice may fail if subckt is missing for cells on path
 set rc2 [catch {
   write_path_spice \
     -path_args {-path_delay min} \
@@ -147,6 +150,7 @@ if { $rc2 == 0 } {
 # Path with xyce
 set pdir3 [make_result_file spice_gcd_path_xy]
 file mkdir $pdir3
+# catch: write_path_spice may fail if subckt is missing for cells on path
 set rc3 [catch {
   write_path_spice \
     -path_args {-sort_by_slack} \

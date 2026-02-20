@@ -23,6 +23,7 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
                    sky130_fd_sc_hd__a21o_1 sky130_fd_sc_hd__a21oi_1
                    sky130_fd_sc_hd__o21a_1 sky130_fd_sc_hd__o21ai_0
                    sky130_fd_sc_hd__mux2_1 sky130_fd_sc_hd__mux2i_1} {
+  # catch: cell may not exist or cell_leakage_power property is not supported
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -38,6 +39,7 @@ foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
                    sky130_fd_sc_hd__dlxtp_1 sky130_fd_sc_hd__dlxtn_1
                    sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfrtp_1
                    sky130_fd_sc_hd__sdfstp_1 sky130_fd_sc_hd__dfbbp_1} {
+  # catch: cell may not exist or cell_leakage_power property is not supported
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -51,6 +53,7 @@ foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
 # Tristate cells
 foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
                    sky130_fd_sc_hd__ebufn_4 sky130_fd_sc_hd__ebufn_8} {
+  # catch: cell may not exist or cell_leakage_power property is not supported
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -63,6 +66,7 @@ foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
 # Clock gate cells
 foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
                    sky130_fd_sc_hd__sdlclkp_1} {
+  # catch: cell may not exist or cell_leakage_power property is not supported
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -95,6 +99,7 @@ foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
                    DFF_X1 DFF_X2 DFFR_X1 DFFS_X1 DFFRS_X1
                    SDFF_X1 SDFFR_X1 SDFFRS_X1
                    TINV_X1 TLAT_X1 CLKGATETST_X1} {
+  # catch: cell_leakage_power property is not supported via get_property
   catch {
     set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -133,6 +138,7 @@ read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
 
 foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
                    sg13g2_nor2_1 sg13g2_and2_1 sg13g2_or2_1} {
+  # catch: IHP cell may not exist or may not have leakage data
   catch {
     set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {

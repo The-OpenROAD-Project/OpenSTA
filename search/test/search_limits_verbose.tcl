@@ -211,14 +211,17 @@ check_setup -verbose -loops
 # max_slew_check_slack_limit / max_cap_check_slack_limit / etc.
 ############################################################
 puts "--- slack/limit ratios ---"
+# catch: max_slew_check_slack_limit is not exposed as Tcl command
 catch {
   set sr [max_slew_check_slack_limit]
   puts "slew slack/limit: $sr"
 }
+# catch: max_capacitance_check_slack_limit is not exposed as Tcl command
 catch {
   set cr [max_capacitance_check_slack_limit]
   puts "cap slack/limit: $cr"
 }
+# catch: max_fanout_check_slack_limit is not exposed as Tcl command
 catch {
   set fr [max_fanout_check_slack_limit]
   puts "fanout slack/limit: $fr"

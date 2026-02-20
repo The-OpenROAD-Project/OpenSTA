@@ -218,18 +218,22 @@ if { [file exists $lfile] } {
 # Error paths (run last since they may affect design state)
 #---------------------------------------------------------------
 puts "--- error paths ---"
+# catch: intentionally testing error for nonexistent liberty file
 set rc [catch { read_liberty "/nonexistent/path/file.lib" } msg]
 if { $rc != 0 } {
 }
 
+# catch: intentionally testing error for nonexistent verilog file
 set rc [catch { read_verilog "/nonexistent/path/file.v" } msg]
 if { $rc != 0 } {
 }
 
+# catch: intentionally testing error for nonexistent SPEF file
 set rc [catch { read_spef "/nonexistent/path/file.spef" } msg]
 if { $rc != 0 } {
 }
 
+# catch: intentionally testing error for nonexistent SDF file
 set rc [catch { read_sdf "/nonexistent/path/file.sdf" } msg]
 if { $rc != 0 } {
 }

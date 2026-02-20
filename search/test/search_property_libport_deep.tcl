@@ -129,9 +129,11 @@ puts "reg1 is_memory: [get_property $reg_inst is_memory]"
 puts "--- LibertyCell area and leakage ---"
 set dff_cell [get_lib_cells NangateOpenCellLibrary/DFF_X1]
 puts "DFF_X1 area: [get_property $dff_cell area]"
+# catch: 'cell_leakage_power' is not a supported get_property property
 catch { puts "DFF_X1 cell_leakage_power: [get_property $dff_cell cell_leakage_power]" }
 set buf_cell [get_lib_cells NangateOpenCellLibrary/BUF_X1]
 puts "BUF_X1 area: [get_property $buf_cell area]"
+# catch: 'cell_leakage_power' is not a supported get_property property
 catch { puts "BUF_X1 cell_leakage_power: [get_property $buf_cell cell_leakage_power]" }
 set inv_cell [get_lib_cells NangateOpenCellLibrary/INV_X1]
 puts "INV_X1 area: [get_property $inv_cell area]"
@@ -155,6 +157,7 @@ puts "--- find_timing_paths with group_path ---"
 set paths [find_timing_paths -path_delay max -group_path_count 20 -endpoint_path_count 10]
 puts "Found [llength $paths] paths with groups"
 foreach pe $paths {
+  # catch: PathEnd does not have a path_group method
   catch {
     set pg [$pe path_group]
     puts "  [get_full_name [$pe pin]] group=[$pg name] slack=[$pe slack]"
@@ -165,6 +168,7 @@ puts "--- find_timing_paths with min paths and groups ---"
 set paths_min [find_timing_paths -path_delay min -group_path_count 20 -endpoint_path_count 10]
 puts "Found [llength $paths_min] min paths with groups"
 foreach pe $paths_min {
+  # catch: PathEnd does not have a path_group method
   catch {
     set pg [$pe path_group]
     puts "  [get_full_name [$pe pin]] group=[$pg name] slack=[$pe slack]"
@@ -232,13 +236,18 @@ puts "DFF_X1/CK direction: [get_property $dff_ck_lp direction]"
 # Unknown property error handling for various types
 ############################################################
 puts "--- Unknown property errors ---"
+# catch: intentionally testing error for nonexistent property on LibertyPort
 catch { get_property [get_lib_pins NangateOpenCellLibrary/BUF_X1/Z] nonexistent_prop } err1
 puts "LibertyPort unknown: [string range $err1 0 40]"
+# catch: intentionally testing error for nonexistent property on Instance
 catch { get_property [get_cells reg1] nonexistent_prop } err2
 puts "Instance unknown: [string range $err2 0 40]"
+# catch: intentionally testing error for nonexistent property on Clock
 catch { get_property [get_clocks clk] nonexistent_prop } err3
 puts "Clock unknown: [string range $err3 0 40]"
+# catch: intentionally testing error for nonexistent property on LibertyCell
 catch { get_property [get_lib_cells NangateOpenCellLibrary/BUF_X1] nonexistent_prop } err4
 puts "LibertyCell unknown: [string range $err4 0 40]"
+# catch: intentionally testing error for nonexistent property on Library
 catch { get_property [get_libs NangateOpenCellLibrary] nonexistent_prop } err5
 puts "Library unknown: [string range $err5 0 40]"

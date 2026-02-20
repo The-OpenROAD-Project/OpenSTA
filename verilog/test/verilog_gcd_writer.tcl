@@ -36,6 +36,7 @@ if { $sz2 >= $sz1 } {
 
 # Write with -remove_cells (remove buffer cells)
 set out3 [make_result_file verilog_gcd_remove.v]
+# catch: write_verilog -remove_cells option may not be supported
 catch {
   set bufs [get_lib_cells sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__buf_1]
   write_verilog -remove_cells $bufs $out3

@@ -65,6 +65,7 @@ close $subckt_fh
 #---------------------------------------------------------------
 puts "--- write_gate_spice BUF_X1 rise ngspice ---"
 set gate_f1 [file join $spice_dir gate_buf_rise.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc1 [catch {
   write_gate_spice \
     -gates {{buf1 A Z rise}} \
@@ -84,6 +85,7 @@ if { $rc1 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice BUF_X1 fall ---"
 set gate_f2 [file join $spice_dir gate_buf_fall.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc2 [catch {
   write_gate_spice \
     -gates {{buf1 A Z fall}} \
@@ -103,6 +105,7 @@ if { $rc2 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice INV_X1 rise ---"
 set gate_f3 [file join $spice_dir gate_inv_rise.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc3 [catch {
   write_gate_spice \
     -gates {{inv1 A ZN rise}} \
@@ -122,6 +125,7 @@ if { $rc3 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice INV_X1 fall ---"
 set gate_f4 [file join $spice_dir gate_inv_fall.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc4 [catch {
   write_gate_spice \
     -gates {{inv1 A ZN fall}} \
@@ -141,6 +145,7 @@ if { $rc4 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice AND2_X1 rise ---"
 set gate_f5 [file join $spice_dir gate_and_rise.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc5 [catch {
   write_gate_spice \
     -gates {{and1 A1 ZN rise}} \
@@ -160,6 +165,7 @@ if { $rc5 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice AND2_X1 A2 ---"
 set gate_f5b [file join $spice_dir gate_and_a2.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc5b [catch {
   write_gate_spice \
     -gates {{and1 A2 ZN rise}} \
@@ -179,6 +185,7 @@ if { $rc5b == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice OR2_X1 rise ---"
 set gate_f6 [file join $spice_dir gate_or_rise.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc6 [catch {
   write_gate_spice \
     -gates {{or1 A1 ZN rise}} \
@@ -198,6 +205,7 @@ if { $rc6 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice hspice ---"
 set gate_f7 [file join $spice_dir gate_hspice.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc7 [catch {
   write_gate_spice \
     -gates {{buf1 A Z rise}} \
@@ -218,6 +226,7 @@ if { $rc7 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice xyce ---"
 set gate_f8 [file join $spice_dir gate_xyce.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc8 [catch {
   write_gate_spice \
     -gates {{buf1 A Z rise}} \
@@ -238,6 +247,7 @@ if { $rc8 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice xyce INV ---"
 set gate_f9 [file join $spice_dir gate_xyce_inv.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc9 [catch {
   write_gate_spice \
     -gates {{inv1 A ZN fall}} \
@@ -258,6 +268,7 @@ if { $rc9 == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice hspice AND ---"
 set gate_f10 [file join $spice_dir gate_hspice_and.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc10 [catch {
   write_gate_spice \
     -gates {{and1 A1 ZN fall}} \

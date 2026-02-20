@@ -16,6 +16,7 @@ set outfile1 [make_result_file liberty_writer_rt1.lib]
 sta::write_liberty $lib $outfile1
 
 # Read back the written liberty (may have warnings/errors - that's ok)
+# catch: roundtrip read-back of written liberty may produce parser warnings
 catch {
   read_liberty $outfile1
 } msg
@@ -29,13 +30,14 @@ if {$msg ne ""} {
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
 
+# catch: library name may not match exactly after loading
 catch {
   set sky_lib [sta::find_liberty "sky130_fd_sc_hd__tt_025C_1v80"]
   if {$sky_lib ne ""} {
     set outfile3 [make_result_file liberty_writer_rt_sky.lib]
     sta::write_liberty $sky_lib $outfile3
 
-    # Read back Sky130 written liberty
+    # catch: roundtrip read-back of written liberty may produce parser warnings
     catch {
       read_liberty $outfile3
     }
@@ -47,6 +49,7 @@ catch {
 ############################################################
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
 
+# catch: IHP library name may not match exactly
 catch {
   set ihp_lib [sta::find_liberty "sg13g2_stdcell"]
   if {$ihp_lib ne ""} {
@@ -65,6 +68,7 @@ catch {
 foreach cell_name {INV_X1 BUF_X1 NAND2_X1 NOR2_X1 AND2_X1 OR2_X1
                    XOR2_X1 XNOR2_X1 AOI21_X1 OAI21_X1 MUX2_X1
                    FA_X1 HA_X1} {
+  # catch: some cells (e.g. FA_X1, HA_X1) may not exist in all library versions
   catch {
     set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
     set arc_sets [$cell timing_arc_sets]
@@ -132,6 +136,7 @@ foreach cell_name {TLAT_X1} {
 ############################################################
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 
+# catch: ASAP7 library name may not match exactly
 catch {
   set asap7_lib [sta::find_liberty "asap7sc7p5t_SEQ_RVT_FF_nldm_220123"]
   if {$asap7_lib ne ""} {

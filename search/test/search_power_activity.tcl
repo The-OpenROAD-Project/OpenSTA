@@ -27,14 +27,17 @@ puts "--- report_power -digits 6 ---"
 report_power -digits 6
 
 puts "--- Pin activity ---"
+# catch: sta::pin_activity is not exposed as Tcl command
 catch {
   set act1 [sta::pin_activity [get_pins and1/ZN]]
   puts "and1/ZN activity: $act1"
 }
+# catch: sta::pin_activity is not exposed as Tcl command
 catch {
   set act2 [sta::pin_activity [get_pins reg1/Q]]
   puts "reg1/Q activity: $act2"
 }
+# catch: sta::pin_activity is not exposed as Tcl command
 catch {
   set act3 [sta::pin_activity [get_pins buf1/Z]]
   puts "buf1/Z activity: $act3"
@@ -59,6 +62,7 @@ set_propagated_clock [get_clocks clk]
 report_power
 
 puts "--- isClock queries ---"
+# catch: ckbuf instance may not exist in this design
 catch {
   puts "ckbuf/A is_clock: [sta::is_clock_pin [get_pins ckbuf/A]]"
   puts "ckbuf/Z is_clock: [sta::is_clock_pin [get_pins ckbuf/Z]]"

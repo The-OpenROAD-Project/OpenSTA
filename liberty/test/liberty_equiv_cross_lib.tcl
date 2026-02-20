@@ -20,6 +20,7 @@ sta::make_equiv_cells $rvt_lib
 # Find equiv cells in ASAP7 RVT
 foreach cell_prefix {INVx BUFx} {
   foreach size {1 2 3 4 5 8 11 13 16} {
+    # catch: cell with specific size variant may not exist in library
     catch {
       set cell_name "${cell_prefix}${size}_ASAP7_75t_R"
       set cell [get_lib_cell asap7sc7p5t_INVBUF_RVT_FF_nldm_211120/$cell_name]
@@ -46,6 +47,7 @@ sta::make_equiv_cells $lvt_lib
 
 foreach cell_prefix {INVx BUFx} {
   foreach size {1 2 4 8} {
+    # catch: cell with specific size variant may not exist in library
     catch {
       set cell_name "${cell_prefix}${size}_ASAP7_75t_L"
       set cell [get_lib_cell asap7sc7p5t_INVBUF_LVT_FF_nldm_211120/$cell_name]
@@ -96,6 +98,7 @@ set seq_rvt_lib [lindex [get_libs asap7sc7p5t_SEQ_RVT_FF_nldm_220123] 0]
 sta::make_equiv_cells $seq_rvt_lib
 
 # Find equiv cells for DFF cells
+# catch: ASAP7 DFFHQNx1 cell may not exist
 catch {
   set dff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_R]
   set equivs [sta::find_equiv_cells $dff]
@@ -110,6 +113,7 @@ catch {
 }
 
 # ICG equiv cells
+# catch: ASAP7 ICGx1 cell may not exist
 catch {
   set icg [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
   set equivs [sta::find_equiv_cells $icg]
@@ -121,6 +125,7 @@ catch {
 }
 
 # Latch equiv cells
+# catch: ASAP7 DLLx1 cell may not exist
 catch {
   set dll [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DLLx1_ASAP7_75t_R]
   set equivs [sta::find_equiv_cells $dll]
@@ -132,6 +137,7 @@ catch {
 }
 
 # SDFF equiv cells
+# catch: ASAP7 SDFHQNx1 cell may not exist
 catch {
   set sdff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx1_ASAP7_75t_R]
   set equivs [sta::find_equiv_cells $sdff]
@@ -161,6 +167,7 @@ set sky_lib [lindex [get_libs sky130_fd_sc_hd__tt_025C_1v80] 0]
 sta::make_equiv_cells $sky_lib
 
 # Find equiv cells for Sky130 inverters
+# catch: find_equiv_cells may fail if equivalence mapping is not configured
 catch {
   set sky_inv [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1]
   set equivs [sta::find_equiv_cells $sky_inv]
@@ -175,6 +182,7 @@ catch {
 }
 
 # Find equiv for Sky130 DFF
+# catch: find_equiv_cells may fail if equivalence mapping is not configured
 catch {
   set sky_dff [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1]
   set equivs [sta::find_equiv_cells $sky_dff]

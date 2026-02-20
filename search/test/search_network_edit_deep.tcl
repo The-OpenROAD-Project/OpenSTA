@@ -50,6 +50,7 @@ puts "--- slow_drivers 5 ---"
 set slow5 [sta::slow_drivers 5]
 puts "slow_drivers(5): [llength $slow5]"
 foreach s $slow5 {
+  # catch: slow_drivers may return objects that don't support get_full_name
   catch { puts "  [get_full_name $s]" }
 }
 

@@ -135,6 +135,7 @@ write_path_spice \
 puts "--- write_path_spice specific path ---"
 set spice_dir_sp [make_result_file spice_specific_out]
 file mkdir $spice_dir_sp
+# catch: write_path_spice may fail if subckt is missing for cells on path
 set rc5 [catch {
   write_path_spice \
     -path_args {-from in1 -to out2} \

@@ -67,9 +67,11 @@ puts "n* nets: [llength $nets_star]"
 
 # Pattern that matches nothing
 puts "--- non-matching patterns ---"
+# catch: intentionally testing pattern match for nonexistent cell
 set rc [catch {get_cells zzz_nonexistent} msg]
 puts "get_cells nonexistent: rc=$rc"
 
+# catch: intentionally testing pattern match for nonexistent pin
 set rc [catch {get_pins zzz_nonexistent/*} msg]
 puts "get_pins nonexistent: rc=$rc"
 
@@ -106,6 +108,7 @@ sta::set_debug "delay_calc" 0
 # Error.cc: FileNotWritable path
 #---------------------------------------------------------------
 puts "--- FileNotWritable error path ---"
+# catch: intentionally testing FileNotWritable error for nonexistent directory
 set rc [catch { write_sdf "/nonexistent_dir/no_write.sdf" } msg]
 if { $rc != 0 } {
 } else {
@@ -113,6 +116,7 @@ if { $rc != 0 } {
 }
 
 # Try write to read-only path
+# catch: intentionally testing FileNotWritable error for /proc path
 set rc [catch { log_begin "/proc/nonexistent_log" } msg]
 if { $rc != 0 } {
 } else {

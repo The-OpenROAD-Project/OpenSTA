@@ -141,6 +141,7 @@ puts "Path group names: $group_names"
 
 puts "--- Endpoint slack ---"
 set pin [get_pins reg1/D]
+# catch: sta::endpoint_slack may fail if path group "reg_to_reg" does not exist
 catch {
   set eslack [sta::endpoint_slack $pin "reg_to_reg" max]
   puts "Endpoint slack: $eslack"

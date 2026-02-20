@@ -41,6 +41,7 @@ puts "--- group_path with -weight ---"
 group_path -name weighted_group -from [get_ports in1] -weight 2.0
 
 puts "--- group_path with -default ---"
+# catch: group_path -name and -default are mutually exclusive; -default also requires path args
 catch { group_path -name default_group -default }
 
 puts "--- report_checks with -group filter ---"

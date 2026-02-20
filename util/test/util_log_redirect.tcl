@@ -165,6 +165,7 @@ puts "--- Test 6: message suppression ---"
 
 suppress_msg 100 200 300
 # Trigger some warnings by reading nonexistent files
+# catch: intentionally testing error handling for nonexistent file path
 set rc [catch { read_liberty "/nonexistent/path.lib" } msg]
 if { $rc != 0 } {
 }

@@ -51,6 +51,7 @@ puts "--- clock gate cell queries ---"
 
 foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
                    sky130_fd_sc_hd__dlclkp_4} {
+  # catch: clock gate cell variant may not exist in loaded library
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -97,6 +98,7 @@ foreach cell_name {sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1
                    sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_1
                    sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_2
                    sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_4} {
+  # catch: level shifter cell variant may not exist in loaded library
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
     if {$cell != "NULL" && $cell ne ""} {
@@ -153,6 +155,7 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
 ############################################################
 puts "--- clock gate timing arcs ---"
 
+# catch: dlclkp_1 cell may not exist in library
 catch {
   set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1]
   if {$cell != "NULL" && $cell ne ""} {
@@ -168,6 +171,7 @@ catch {
   }
 }
 
+# catch: sdlclkp_1 cell may not exist in library
 catch {
   set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1]
   if {$cell != "NULL" && $cell ne ""} {
@@ -185,6 +189,7 @@ catch {
 ############################################################
 puts "--- level shifter timing arcs ---"
 
+# catch: lsbuf level shifter cell may not exist in library
 catch {
   set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1]
   if {$cell != "NULL" && $cell ne ""} {

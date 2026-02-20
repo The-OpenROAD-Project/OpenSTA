@@ -67,6 +67,7 @@ close $subckt_fh
 #---------------------------------------------------------------
 puts "--- write_gate_spice multiple gates ---"
 set gate_file [file join $spice_dir gates_multi.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc [catch {
   write_gate_spice \
     -gates {{buf1 A Z rise} {inv1 A ZN fall}} \
@@ -86,6 +87,7 @@ if { $rc == 0 } {
 #---------------------------------------------------------------
 puts "--- write_gate_spice AND gate ---"
 set gate_file2 [file join $spice_dir gate_and.sp]
+# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
 set rc [catch {
   write_gate_spice \
     -gates {{and1 A1 ZN rise}} \

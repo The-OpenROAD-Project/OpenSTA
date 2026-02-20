@@ -55,6 +55,7 @@ create_generated_clock -name gclk_edge -source [get_ports clk1] -edges {1 3 5} [
 report_checks
 
 puts "--- generated clock invert ---"
+# catch: -invert with -divide_by 1 and -add may conflict with existing clock on this pin
 catch {
   create_generated_clock -name gclk_inv -source [get_ports clk1] -divide_by 1 -invert [get_pins reg1/Q] -add
   report_checks

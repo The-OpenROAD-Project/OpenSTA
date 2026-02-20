@@ -155,11 +155,13 @@ if { $sz_after > $sz_before } {
 puts "--- Test 6: error paths ---"
 
 # FileNotReadable
+# catch: intentionally testing FileNotReadable error for nonexistent liberty file
 set rc1 [catch { read_liberty "/nonexistent/path/xyz.lib" } err1]
 if { $rc1 != 0 } {
 }
 
 # FileNotWritable (try writing to /dev/null/impossible)
+# catch: intentionally testing FileNotWritable error for nonexistent directory
 set rc2 [catch { write_verilog "/nonexistent/dir/xyz.v" } err2]
 if { $rc2 != 0 } {
 }
@@ -171,6 +173,7 @@ puts $fh "module bad_design (input a, output b);"
 puts $fh "  NONEXISTENT_CELL u1 (.A(a), .Z(b));"
 puts $fh "endmodule"
 close $fh
+# catch: intentionally testing error with bad verilog containing nonexistent cell
 set rc3 [catch {
   read_verilog $bad_v
   link_design bad_design

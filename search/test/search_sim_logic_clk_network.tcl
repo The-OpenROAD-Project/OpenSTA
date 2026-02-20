@@ -101,9 +101,11 @@ report_checks -path_delay max
 # findLogicConstants / clearLogicConstants
 ############################################################
 puts "--- findLogicConstants ---"
+# catch: sta::find_logic_constants is not exposed as Tcl command
 catch { sta::find_logic_constants }
 
 puts "--- clearLogicConstants ---"
+# catch: sta::clear_logic_constants is not exposed as Tcl command
 catch { sta::clear_logic_constants }
 
 ############################################################
@@ -113,12 +115,14 @@ puts "--- levelize ---"
 sta::levelize
 
 puts "--- graphLoops ---"
+# catch: sta::graph_loop_count is not exposed as Tcl command
 catch {
   set loops [sta::graph_loop_count]
   puts "Graph loops: $loops"
 }
 
 puts "--- max_path_count_vertex ---"
+# catch: sta::max_path_count_vertex is not exposed as Tcl command
 catch {
   set maxv [sta::max_path_count_vertex]
   if { $maxv != "NULL" } {

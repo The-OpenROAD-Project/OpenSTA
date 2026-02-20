@@ -79,6 +79,7 @@ puts "--- delete_instance new_buf ---"
 delete_instance new_buf
 
 puts "--- verify new_buf removed ---"
+# catch: intentionally verifying get_cells fails after instance deletion
 set rc5 [catch {get_cells new_buf} msg]
 puts "get_cells new_buf after delete: $msg"
 
