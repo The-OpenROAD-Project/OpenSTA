@@ -10,6 +10,7 @@ make_instance new_buf1 done
 --- Network edit: make_net ---
 make_net new_net1 done
 --- Network edit: connect_pin ---
+connect_pin done
 --- Network edit: disconnect_pin ---
 Warning: search_write_sdf_model.tcl line 1, net 'new_buf1' not found.
 disconnect_pin done

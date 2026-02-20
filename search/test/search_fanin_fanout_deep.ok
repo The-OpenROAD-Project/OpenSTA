@@ -153,6 +153,8 @@ Fanout 2 inst levels of and2/ZN: 5
  (clk ^) r 1.12:8.83 f 1.13:8.80
  (clk ^) r 2.10:7.90 f 2.10:7.90
 --- Pin slack various ---
+and1/ZN max rise slack: 8.831884
+inv2/ZN min fall slack: 1.130790
 === PATH QUERY ===
 --- find_timing_paths and path details ---
 Found 10 paths
@@ -171,25 +173,25 @@ Found 10 paths
   endpoint: out2
     slack: 7.918512068272321e-9
     arrival: 8.148756669434931e-11
-    required: 0.0
+    required: 7.999999773744548e-9
     path_pins: 4
     start_pin: reg2/Q
   endpoint: out3
     slack: 7.918512068272321e-9
     arrival: 8.148756669434931e-11
-    required: 0.0
+    required: 7.999999773744548e-9
     path_pins: 4
     start_pin: reg3/Q
   endpoint: out2
     slack: 7.924581879592552e-9
     arrival: 7.541753332951373e-11
-    required: 0.0
+    required: 7.999999773744548e-9
     path_pins: 4
     start_pin: reg2/Q
   endpoint: out3
     slack: 7.924581879592552e-9
     arrival: 7.541753332951373e-11
-    required: 0.0
+    required: 7.999999773744548e-9
     path_pins: 4
     start_pin: reg3/Q
   endpoint: reg1/D
@@ -201,13 +203,13 @@ Found 10 paths
   endpoint: reg2/D
     slack: 8.803825224390494e-9
     arrival: 1.1573944025400351e-9
-    required: 0.0
+    required: 9.961219404885924e-9
     path_pins: 16
     start_pin: in4
   endpoint: reg3/D
     slack: 8.803825224390494e-9
     arrival: 1.1573944025400351e-9
-    required: 0.0
+    required: 9.961219404885924e-9
     path_pins: 16
     start_pin: in4
   endpoint: reg1/D

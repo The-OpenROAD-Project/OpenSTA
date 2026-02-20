@@ -122,7 +122,7 @@ set paths [find_timing_paths -path_delay max -endpoint_path_count 5]
 set prev_end ""
 foreach pe $paths {
   if { $prev_end != "" } {
-    catch { sta::report_path_end $pe $prev_end 0 }
+    sta::report_path_end2 $pe $prev_end 0
   }
   set prev_end $pe
 }
@@ -137,10 +137,8 @@ report_checks -path_delay max -corner [$corner name]
 report_checks -path_delay min -corner [$corner name]
 
 puts "--- design_power ---"
-catch {
-  set pwr [sta::design_power "NULL" "NULL"]
-  puts "design_power: $pwr"
-}
+set pwr [sta::design_power [sta::cmd_corner]]
+puts "design_power: $pwr"
 
 puts "--- set_report_path_field_properties ---"
 sta::set_report_path_field_properties "delay" "Dly" 10 0

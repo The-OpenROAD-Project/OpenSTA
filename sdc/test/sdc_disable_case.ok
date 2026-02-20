@@ -212,34 +212,30 @@ Path Type: max
 
 Warning: sdc_disable_case.tcl line 1, object 'sdc_test2' not found.
 Warning: sdc_disable_case.tcl line 1, object 'sdc_test2' not found.
-Startpoint: in3 (input port clocked by clk2)
-Endpoint: reg2 (rising edge-triggered data to data check clocked by clk1)
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
 Path Type: max
 
   Delay    Time   Description
 ---------------------------------------------------------
-   0.00    0.00   clock clk2 (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   2.00    2.00 v input external delay
-   0.00    2.00 v in3 (in)
-   0.05    2.05 v or1/ZN (OR2_X1)
-   0.03    2.07 ^ nor1/ZN (NOR2_X1)
-   0.00    2.07 ^ reg2/D (DFF_X1)
-           2.07   data arrival time
-
    0.00    0.00   clock clk1 (rise edge)
-   0.00    0.00   clock network delay (propagated)
-   0.00    0.00   clock reconvergence pessimism
-           0.00 ^ reg1/CK (DFF_X1)
-   0.08    0.08 ^ reg1/Q (DFF_X1)
-  -0.60   -0.52   data check setup time
-          -0.52   data required time
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
 ---------------------------------------------------------
-          -0.52   data required time
-          -2.07   data arrival time
+           7.00   data required time
+          -0.08   data arrival time
 ---------------------------------------------------------
-          -2.59   slack (VIOLATED)
+           6.92   slack (MET)
 
 
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)

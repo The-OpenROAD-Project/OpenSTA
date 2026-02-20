@@ -141,13 +141,9 @@ set sdc_file5 [make_result_file sdc_datacheck1.sdc]
 write_sdc -no_timestamp $sdc_file5
 
 # Remove data checks
-catch {
-  remove_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -setup
-}
+unset_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -setup
 
-catch {
-  remove_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -hold
-}
+unset_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -hold
 
 ############################################################
 # Clock gating check (exercises clockGatingMargin paths)

@@ -41,12 +41,10 @@ catch {
 }
 
 puts "--- set_power_activity on pins ---"
-catch {
-  set_power_activity -activity 0.5 -duty 0.5 [get_ports in1]
-  set_power_activity -activity 0.3 -duty 0.4 [get_ports in2]
-  set_power_activity -activity 0.8 -duty 0.6 [get_ports in3]
-  report_power
-}
+set_power_activity -input_ports [get_ports in1] -activity 0.5 -duty 0.5
+set_power_activity -input_ports [get_ports in2] -activity 0.3 -duty 0.4
+set_power_activity -input_ports [get_ports in3] -activity 0.8 -duty 0.6
+report_power
 
 puts "--- set_power_activity on global ---"
 set_power_activity -global -activity 0.2 -duty 0.5

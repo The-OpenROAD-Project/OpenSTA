@@ -32,6 +32,17 @@ Total                1.669393e-06 3.195729e-07 4.083089e-07 2.397274e-06 100.0%
                             69.6%        13.3%        17.0%
 --- Pin activity ---
 --- set_power_activity on pins ---
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             2.28e-06   2.07e-07   1.58e-07   2.65e-06  48.1%
+Combinational          1.64e-06   3.38e-07   2.39e-07   2.22e-06  40.3%
+Clock                  3.96e-07   2.30e-07   1.12e-08   6.37e-07  11.6%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  4.32e-06   7.74e-07   4.08e-07   5.50e-06 100.0%
+                          78.5%      14.1%       7.4%
 --- set_power_activity on global ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)

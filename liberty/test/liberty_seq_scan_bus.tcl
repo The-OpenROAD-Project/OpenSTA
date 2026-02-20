@@ -246,6 +246,4 @@ report_power
 # Write liberty roundtrip
 ############################################################
 set outfile [make_result_file liberty_seq_scan_bus_write.lib]
-catch {
-  sta::write_liberty NangateOpenCellLibrary $outfile
-}
+sta::write_liberty NangateOpenCellLibrary $outfile

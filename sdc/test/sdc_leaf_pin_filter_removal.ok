@@ -1,6 +1,36 @@
 --- net properties ---
+  net clk1: is_power=0 is_ground=0
+  net clk2: is_power=0 is_ground=0
+  net in1: is_power=0 is_ground=0
+  net in2: is_power=0 is_ground=0
+  net in3: is_power=0 is_ground=0
+  net n1: is_power=0 is_ground=0
+  net n2: is_power=0 is_ground=0
+  net n3: is_power=0 is_ground=0
+  net n4: is_power=0 is_ground=0
+  net n5: is_power=0 is_ground=0
+  net n6: is_power=0 is_ground=0
+  net n7: is_power=0 is_ground=0
+  net out1: is_power=0 is_ground=0
+  net out2: is_power=0 is_ground=0
 --- port properties ---
+  port clk1: direction=input is_clock=1
+  port clk2: direction=input is_clock=1
+  port in1: direction=input is_clock=0
+  port in2: direction=input is_clock=0
+  port in3: direction=input is_clock=0
+  port out1: direction=output is_clock=0
+  port out2: direction=output is_clock=0
 --- instance properties ---
+  inst and1: ref=AND2_X1 lib=NangateOpenCellLibrary
+  inst buf1: ref=BUF_X1 lib=NangateOpenCellLibrary
+  inst inv1: ref=INV_X1 lib=NangateOpenCellLibrary
+  inst nand1: ref=NAND2_X1 lib=NangateOpenCellLibrary
+  inst nor1: ref=NOR2_X1 lib=NangateOpenCellLibrary
+  inst or1: ref=OR2_X1 lib=NangateOpenCellLibrary
+  inst reg1: ref=DFF_X1 lib=NangateOpenCellLibrary
+  inst reg2: ref=DFF_X1 lib=NangateOpenCellLibrary
+  inst reg3: ref=DFF_X1 lib=NangateOpenCellLibrary
 --- pin properties ---
   pin buf1/A: direction=input is_clock=0
   pin buf1/Z: direction=output is_clock=0

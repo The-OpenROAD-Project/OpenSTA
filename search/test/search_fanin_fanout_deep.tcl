@@ -102,14 +102,10 @@ report_slack [get_pins reg1/D]
 report_slack [get_ports out1]
 
 puts "--- Pin slack various ---"
-catch {
-  set ps1 [sta::pin_slack [get_pins and1/ZN] max rise]
-  puts "and1/ZN max rise slack: $ps1"
-}
-catch {
-  set ps2 [sta::pin_slack [get_pins inv2/ZN] min fall]
-  puts "inv2/ZN min fall slack: $ps2"
-}
+set ps1 [get_property [get_pins and1/ZN] slack_max_rise]
+puts "and1/ZN max rise slack: $ps1"
+set ps2 [get_property [get_pins inv2/ZN] slack_min_fall]
+puts "inv2/ZN min fall slack: $ps2"
 
 puts "=== PATH QUERY ==="
 

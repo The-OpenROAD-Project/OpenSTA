@@ -1194,6 +1194,14 @@ clk                                     7.90
 }
 
 --- reportPathFull on a single path ---
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
 --- json report with full_clock format (for source clock paths) ---
 {"checks": [
 {

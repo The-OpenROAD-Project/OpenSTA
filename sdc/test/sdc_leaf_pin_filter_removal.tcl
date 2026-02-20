@@ -30,11 +30,9 @@ puts "--- net properties ---"
 set nets [get_nets *]
 foreach n $nets {
   set name [get_full_name $n]
-  catch {
-    set is_pwr [get_property $n is_power]
-    set is_gnd [get_property $n is_ground]
-    puts "  net $name: is_power=$is_pwr is_ground=$is_gnd"
-  }
+  set is_pwr [$n is_power]
+  set is_gnd [$n is_ground]
+  puts "  net $name: is_power=$is_pwr is_ground=$is_gnd"
 }
 
 ############################################################
@@ -44,11 +42,10 @@ puts "--- port properties ---"
 set ports [get_ports *]
 foreach p $ports {
   set name [get_full_name $p]
-  catch {
-    set dir [get_property $p direction]
-    set is_clk [get_property $p is_clock]
-    puts "  port $name: direction=$dir is_clock=$is_clk"
-  }
+  set dir [get_property $p direction]
+  set pin [sta::get_port_pin $p]
+  set is_clk [sta::is_clock $pin]
+  puts "  port $name: direction=$dir is_clock=$is_clk"
 }
 
 ############################################################
@@ -58,11 +55,14 @@ puts "--- instance properties ---"
 set insts [get_cells *]
 foreach i $insts {
   set name [get_full_name $i]
-  catch {
-    set ref [get_property $i ref_name]
-    set lib_name [get_property $i liberty_cell_name]
-    puts "  inst $name: ref=$ref lib=$lib_name"
+  set ref [get_property $i ref_name]
+  set lib_cell [get_property $i liberty_cell]
+  if { $lib_cell != "NULL" && $lib_cell ne "" } {
+    set lib_name [get_name [$lib_cell liberty_library]]
+  } else {
+    set lib_name ""
   }
+  puts "  inst $name: ref=$ref lib=$lib_name"
 }
 
 ############################################################

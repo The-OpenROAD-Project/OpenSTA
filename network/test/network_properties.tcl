@@ -24,16 +24,16 @@ set all_cells [get_cells *]
 puts "total cells: [llength $all_cells]"
 
 foreach cell_name {u1 u2 r1 r2 r3} {
-  catch {
-    set inst [get_cells $cell_name]
-    set ref [get_property $inst ref_name]
-    set lib [get_property $inst lib_name]
-    set full [get_full_name $inst]
-    puts "$cell_name: ref=$ref lib=$lib full=$full"
-  } msg
-  if {$msg ne ""} {
-    puts "  ($cell_name: $msg)"
+  set inst [get_cells $cell_name]
+  set ref [get_property $inst ref_name]
+  set lib_cell [get_property $inst liberty_cell]
+  if { $lib_cell != "NULL" && $lib_cell ne "" } {
+    set lib [get_name [$lib_cell liberty_library]]
+  } else {
+    set lib ""
   }
+  set full [get_full_name $inst]
+  puts "$cell_name: ref=$ref lib=$lib full=$full"
 }
 
 #---------------------------------------------------------------
@@ -41,16 +41,15 @@ foreach cell_name {u1 u2 r1 r2 r3} {
 #---------------------------------------------------------------
 puts "--- pin direction / connectivity ---"
 foreach pin_path {u1/A u1/Y u2/A u2/B u2/Y r1/CLK r1/D r1/Q} {
-  catch {
-    set pin [get_pins $pin_path]
-    set dir [get_property $pin direction]
+  set pin [get_pins $pin_path]
+  set dir [get_property $pin direction]
+  set net [$pin net]
+  if { $net != "NULL" && $net ne "" } {
+    set net_name [get_full_name $net]
+  } else {
     set net_name ""
-    set net_name [get_property $pin net_name]
-    puts "$pin_path: dir=$dir net=$net_name"
-  } msg
-  if {$msg ne ""} {
-    puts "  ($pin_path: $msg)"
   }
+  puts "$pin_path: dir=$dir net=$net_name"
 }
 
 #---------------------------------------------------------------

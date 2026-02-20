@@ -168,10 +168,8 @@ report_constant [get_cells buf1]
 # Slow driver analysis
 ############################################################
 puts "--- slow_drivers ---"
-catch {
-  set slow [sta::slow_drivers_cmd 5]
-  puts "slow drivers: [llength $slow]"
-}
+set slow [sta::slow_drivers 5]
+puts "slow drivers: [llength $slow]"
 
 ############################################################
 # Latch timing paths

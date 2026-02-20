@@ -153,10 +153,8 @@ puts "--- set_data_check ---"
 set_data_check -from [get_pins reg1/CK] -to [get_pins reg1/D] -setup 0.5
 report_checks -path_delay max
 
-puts "--- remove_data_check ---"
-catch {
-  remove_data_check -from [get_pins reg1/CK] -to [get_pins reg1/D] -setup
-}
+puts "--- unset_data_check ---"
+unset_data_check -from [get_pins reg1/CK] -to [get_pins reg1/D] -setup
 
 ############################################################
 # set_clock_gating_check

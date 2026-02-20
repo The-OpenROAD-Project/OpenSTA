@@ -1138,7 +1138,44 @@ Group                                  Slack
 --------------------------------------------
 clk                                     0.05
 
---- set_latch_borrow_limit and report ---
+--- set_max_time_borrow and report ---
+Startpoint: latch1 (positive level-sensitive latch clocked by clk)
+Endpoint: latch2 (positive level-sensitive latch clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          1.05    1.05   time given to startpoint
+                  0.00    0.00    1.05 v latch1/D (DLH_X1)
+     2    1.93    0.01    0.06    1.11 v latch1/Q (DLH_X1)
+                  0.01    0.00    1.11 v latch2/D (DLH_X1)
+                                  1.11   data arrival time
+
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00   clock reconvergence pessimism
+                                  0.00 ^ latch2/G (DLH_X1)
+                          1.11    1.11   time borrowed from endpoint
+                                  1.11   data required time
+-----------------------------------------------------------------------------
+                                  1.11   data required time
+                                 -1.11   data arrival time
+-----------------------------------------------------------------------------
+                                  0.00   slack (MET)
+
+Time Borrowing Information
+--------------------------------------------
+clk pulse width                         5.00
+library setup time                     -0.05
+--------------------------------------------
+max time borrow                         4.95
+actual time borrow                      1.11
+--------------------------------------------
+
+
 --- Latch min_max ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -1317,10 +1354,7 @@ Path Type: max
 
 Time Borrowing Information
 --------------------------------------------
-clk pulse width                         5.00
-library setup time                     -0.05
---------------------------------------------
-max time borrow                         4.95
+user max time borrow                    2.50
 actual time borrow                      1.05
 --------------------------------------------
 
@@ -1355,10 +1389,7 @@ Path Type: max
 
 Time Borrowing Information
 --------------------------------------------
-clk pulse width                         5.00
-library setup time                     -0.05
---------------------------------------------
-max time borrow                         4.95
+user max time borrow                    2.50
 actual time borrow                      1.05
 --------------------------------------------
 
@@ -1393,10 +1424,7 @@ Path Type: max
 
 Time Borrowing Information
 --------------------------------------------
-clk pulse width                         5.00
-library setup time                     -0.02
---------------------------------------------
-max time borrow                         4.98
+user max time borrow                    2.50
 actual time borrow                      1.04
 --------------------------------------------
 
@@ -1431,10 +1459,7 @@ Path Type: max
 
 Time Borrowing Information
 --------------------------------------------
-clk pulse width                         5.00
-library setup time                     -0.02
---------------------------------------------
-max time borrow                         4.98
+user max time borrow                    2.50
 actual time borrow                      1.04
 --------------------------------------------
 

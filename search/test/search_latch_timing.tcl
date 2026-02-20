@@ -70,21 +70,15 @@ puts "--- Latch path reports with fields ---"
 report_checks -path_delay max -fields {capacitance slew fanout input_pin net}
 report_checks -path_delay min -fields {capacitance slew fanout input_pin net}
 
-puts "--- set_latch_borrow_limit ---"
-catch {
-  set_latch_borrow_limit 2.0 [get_pins latch1/G]
-  report_checks -path_delay max -format full_clock_expanded
-}
+puts "--- set_max_time_borrow ---"
+set_max_time_borrow 2.0 [get_pins latch1/G]
+report_checks -path_delay max -format full_clock_expanded
 
-catch {
-  set_latch_borrow_limit 3.0 [get_cells latch1]
-  report_checks -path_delay max -format full_clock_expanded
-}
+set_max_time_borrow 3.0 [get_cells latch1]
+report_checks -path_delay max -format full_clock_expanded
 
-catch {
-  set_latch_borrow_limit 4.0 [get_clocks clk]
-  report_checks -path_delay max -format full_clock_expanded
-}
+set_max_time_borrow 4.0 [get_clocks clk]
+report_checks -path_delay max -format full_clock_expanded
 
 puts "--- report_clock_properties ---"
 report_clock_properties

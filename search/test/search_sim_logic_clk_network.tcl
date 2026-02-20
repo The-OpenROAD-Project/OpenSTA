@@ -29,28 +29,19 @@ report_checks -path_delay max > /dev/null
 # isClock queries
 ############################################################
 puts "--- isClock queries ---"
-catch {
-  set clk_pin_is_clk [sta::is_clock [get_ports clk]]
-  puts "clk port is_clock: $clk_pin_is_clk"
-}
-catch {
-  set in1_is_clk [sta::is_clock [get_ports in1]]
-  puts "in1 port is_clock: $in1_is_clk"
-}
+set clk_pin_is_clk [sta::is_clock [sta::get_port_pin [get_ports clk]]]
+puts "clk port is_clock: $clk_pin_is_clk"
+set in1_is_clk [sta::is_clock [sta::get_port_pin [get_ports in1]]]
+puts "in1 port is_clock: $in1_is_clk"
 
 ############################################################
 # isIdealClock / isPropagatedClock
 ############################################################
 puts "--- ideal/propagated clock queries ---"
-catch {
-  puts "clk isIdealClock: [sta::is_ideal_clock [get_ports clk]]"
-  puts "clk isPropagatedClock: [sta::is_propagated_clock [get_ports clk]]"
-}
+set clk_pin [sta::get_port_pin [get_ports clk]]
+puts "clk isIdealClock: [sta::is_ideal_clock $clk_pin]"
 set_propagated_clock [get_clocks clk]
-catch {
-  puts "after propagate - clk isIdealClock: [sta::is_ideal_clock [get_ports clk]]"
-  puts "after propagate - clk isPropagatedClock: [sta::is_propagated_clock [get_ports clk]]"
-}
+puts "after propagate - clk isIdealClock: [sta::is_ideal_clock $clk_pin]"
 unset_propagated_clock [get_clocks clk]
 
 ############################################################

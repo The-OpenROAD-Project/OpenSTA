@@ -330,6 +330,7 @@ VSS X
 A 0
 Z 0
 --- slow_drivers ---
+slow drivers: 5
 --- latch timing ---
 No paths found.
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)

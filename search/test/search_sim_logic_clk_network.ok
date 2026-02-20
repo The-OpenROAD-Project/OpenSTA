@@ -1,5 +1,9 @@
 --- isClock queries ---
+clk port is_clock: 1
+in1 port is_clock: 0
 --- ideal/propagated clock queries ---
+clk isIdealClock: 1
+after propagate - clk isIdealClock: 1
 --- sim logic values ---
 en=X clk_gate_a1=X gated=X buf1=X reg1/D=X
 --- case analysis 0 on en ---

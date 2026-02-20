@@ -150,11 +150,9 @@ write_sdc -no_timestamp -compatible $sdc2
 ############################################################
 # Remove clock and re-create
 ############################################################
-puts "--- remove_clock ---"
-catch {
-  remove_clock vclk1
-  report_checks
-}
+puts "--- delete_clock ---"
+delete_clock [get_clocks vclk1]
+report_checks
 
 ############################################################
 # Clock properties reporting

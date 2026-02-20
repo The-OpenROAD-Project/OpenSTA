@@ -52,10 +52,8 @@ make_net new_net1
 puts "make_net new_net1 done"
 
 puts "--- Network edit: connect_pin ---"
-catch {
-  connect_pin new_buf1 A [get_nets n1]
-  puts "connect_pin done"
-}
+connect_pin n1 new_buf1/A
+puts "connect_pin done"
 
 puts "--- Network edit: disconnect_pin ---"
 disconnect_pin new_buf1 A

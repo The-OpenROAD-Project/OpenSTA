@@ -219,9 +219,7 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
 # Write liberty for sky130 (exercises writer for pg_pin, level_shifter)
 ############################################################
 set outfile [make_result_file liberty_clkgate_lvlshift_write.lib]
-catch {
-  sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile
-}
+sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile
 
 ############################################################
 # Read IHP library for more voltage_map / pg_pin coverage

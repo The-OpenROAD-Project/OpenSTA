@@ -97,7 +97,7 @@ foreach pe $paths_pd_min {
 # Remove path delay constraints
 ############################################################
 puts "--- Remove path delay ---"
-catch { reset_path -from [get_ports in1] -to [get_ports out1] }
+unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 report_checks -path_delay max
 
 ############################################################
@@ -108,7 +108,7 @@ set_false_path -from [get_ports in1] -to [get_ports out1]
 report_checks -path_delay max
 report_checks -path_delay max -unconstrained
 
-catch { reset_path -from [get_ports in1] -to [get_ports out1] }
+unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 report_checks -path_delay max
 
 ############################################################
@@ -121,7 +121,7 @@ report_checks -path_delay max -format full_clock_expanded
 set_multicycle_path 1 -hold -from [get_ports in1] -to [get_ports out1]
 report_checks -path_delay min -format full_clock_expanded
 
-catch { reset_path -from [get_ports in1] -to [get_ports out1] }
+unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 
 ############################################################
 # Propagated clock with output delay

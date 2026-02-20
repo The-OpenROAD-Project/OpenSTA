@@ -58,7 +58,7 @@ puts "--- reportPathFull on a single path ---"
 set paths_f [find_timing_paths -path_delay max]
 foreach pe $paths_f {
   set p [$pe path]
-  catch { report_path $p }
+  sta::report_path_cmd $p
   break
 }
 

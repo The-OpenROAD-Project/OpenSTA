@@ -151,7 +151,7 @@ set paths3 [find_timing_paths -path_delay max -endpoint_path_count 3]
 set prev_end ""
 foreach pe $paths3 {
   if { $prev_end != "" } {
-    catch { sta::report_path_end $pe $prev_end 0 }
+    sta::report_path_end2 $pe $prev_end 0
   }
   set prev_end $pe
 }

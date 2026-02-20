@@ -99,11 +99,9 @@ report_checks -path_delay min -format slack_only
 ############################################################
 # set_latch_borrow_limit and report with fields
 ############################################################
-puts "--- set_latch_borrow_limit and report ---"
-catch {
-  set_latch_borrow_limit 2.5 [get_pins latch1/G]
-  report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout input_pin}
-}
+puts "--- set_max_time_borrow and report ---"
+set_max_time_borrow 2.5 [get_pins latch1/G]
+report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout input_pin}
 
 ############################################################
 # report_checks min_max for latch

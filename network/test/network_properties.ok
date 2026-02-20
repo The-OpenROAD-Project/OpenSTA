@@ -10,20 +10,20 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1480
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- cell property queries ---
 total cells: 5
-  (u1: Error: instance objects do not have a lib_name property.)
-  (u2: Error: instance objects do not have a lib_name property.)
-  (r1: Error: instance objects do not have a lib_name property.)
-  (r2: Error: instance objects do not have a lib_name property.)
-  (r3: Error: instance objects do not have a lib_name property.)
+u1: ref=BUFx2_ASAP7_75t_R lib=asap7sc7p5t_INVBUF_RVT_FF_nldm_211120 full=u1
+u2: ref=AND2x2_ASAP7_75t_R lib=asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120 full=u2
+r1: ref=DFFHQx4_ASAP7_75t_R lib=asap7sc7p5t_SEQ_RVT_FF_nldm_220123 full=r1
+r2: ref=DFFHQx4_ASAP7_75t_R lib=asap7sc7p5t_SEQ_RVT_FF_nldm_220123 full=r2
+r3: ref=DFFHQx4_ASAP7_75t_R lib=asap7sc7p5t_SEQ_RVT_FF_nldm_220123 full=r3
 --- pin direction / connectivity ---
-  (u1/A: Error: pin objects do not have a net_name property.)
-  (u1/Y: Error: pin objects do not have a net_name property.)
-  (u2/A: Error: pin objects do not have a net_name property.)
-  (u2/B: Error: pin objects do not have a net_name property.)
-  (u2/Y: Error: pin objects do not have a net_name property.)
-  (r1/CLK: Error: pin objects do not have a net_name property.)
-  (r1/D: Error: pin objects do not have a net_name property.)
-  (r1/Q: Error: pin objects do not have a net_name property.)
+u1/A: dir=input net=r2q
+u1/Y: dir=output net=u1z
+u2/A: dir=input net=r1q
+u2/B: dir=input net=u1z
+u2/Y: dir=output net=u2z
+r1/CLK: dir=input net=clk1
+r1/D: dir=input net=in1
+r1/Q: dir=output net=r1q
 --- net queries ---
 total nets: 10
 net r1q: r1q
