@@ -53,18 +53,12 @@ set_max_capacitance 0.1 [get_ports out1]
 set_max_capacitance 0.15 [get_ports out2]
 
 # Pin-level cap limits
-catch {
-  set_max_capacitance 0.08 [get_pins reg1/Q]
-}
+set_max_capacitance 0.08 [get_pins reg1/Q]
 
 # Min capacitance
-catch {
-  set_min_capacitance 0.001 [current_design]
-}
+set_min_capacitance 0.001 [current_design]
 
-catch {
-  set_min_capacitance 0.0005 [get_ports out1]
-}
+set_min_capacitance 0.0005 [get_ports out1]
 
 ############################################################
 # Max/min fanout limits
@@ -99,16 +93,12 @@ set_min_pulse_width -low 0.4 [get_clocks clk1]
 set_min_pulse_width 0.7 [get_clocks clk2]
 
 # Pin min pulse width
-catch {
-  set_min_pulse_width 0.3 [get_pins reg1/CK]
-  set_min_pulse_width -high 0.35 [get_pins reg2/CK]
-  set_min_pulse_width -low 0.25 [get_pins reg2/CK]
-}
+set_min_pulse_width 0.3 [get_pins reg1/CK]
+set_min_pulse_width -high 0.35 [get_pins reg2/CK]
+set_min_pulse_width -low 0.25 [get_pins reg2/CK]
 
 # Instance min pulse width
-catch {
-  set_min_pulse_width 0.45 [get_cells reg3]
-}
+set_min_pulse_width 0.45 [get_cells reg3]
 
 ############################################################
 # Latch borrow limits
@@ -118,9 +108,7 @@ set_max_time_borrow 1.5 [get_clocks clk2]
 
 set_max_time_borrow 1.0 [get_pins reg1/D]
 
-catch {
-  set_max_time_borrow 1.2 [get_cells reg2]
-}
+set_max_time_borrow 1.2 [get_cells reg2]
 
 ############################################################
 # Port slew limits

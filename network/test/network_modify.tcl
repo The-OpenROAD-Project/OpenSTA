@@ -72,7 +72,7 @@ set ref [get_property $buf1_inst ref_name]
 puts "buf1 ref_name after replace: $ref"
 
 puts "--- disconnect remaining new_buf pins ---"
-catch {disconnect_pin new_net2 new_buf/Z} msg_disc2
+set msg_disc2 [disconnect_pin new_net2 new_buf/Z]
 puts "disconnect new_buf/Z: $msg_disc2"
 
 puts "--- delete_instance new_buf ---"

@@ -21,14 +21,10 @@ puts "--- report_power ---"
 report_power
 
 puts "--- report_power -instances ---"
-catch {
-  report_power -instances [get_cells {reg1 reg2 and1 buf1}]
-}
+report_power -instances [get_cells {reg1 reg2 and1 buf1}]
 
 puts "--- report_power -digits 6 ---"
-catch {
-  report_power -digits 6
-}
+report_power -digits 6
 
 puts "--- Pin activity ---"
 catch {
@@ -53,22 +49,16 @@ catch {
 }
 
 puts "--- set_power_activity on global ---"
-catch {
-  set_power_activity -global -activity 0.2 -duty 0.5
-  report_power
-}
+set_power_activity -global -activity 0.2 -duty 0.5
+report_power
 
 puts "--- set_power_activity on input_ports ---"
-catch {
-  set_power_activity -input -activity 0.4 -duty 0.5
-  report_power
-}
+set_power_activity -input -activity 0.4 -duty 0.5
+report_power
 
 puts "--- report_power with clock propagation ---"
 set_propagated_clock [get_clocks clk]
-catch {
-  report_power
-}
+report_power
 
 puts "--- isClock queries ---"
 catch {
@@ -81,9 +71,7 @@ catch {
 puts "--- report with timing derate after power ---"
 set_timing_derate -early 0.95
 set_timing_derate -late 1.05
-catch {
-  report_power
-}
+report_power
 unset_timing_derate
 
 puts "--- Slew limit checking after power ---"

@@ -30,21 +30,21 @@ report_parasitic_annotation
 puts "--- set_pi_model with varied parameters ---"
 
 # Very small parasitics
-catch {sta::set_pi_model u1/Y 0.0001 0.1 0.00005} msg
+set msg [sta::set_pi_model u1/Y 0.0001 0.1 0.00005]
 puts "set_pi_model u1/Y (small): $msg"
 
 # Medium parasitics
-catch {sta::set_pi_model u2/Y 0.01 20.0 0.005} msg
+set msg [sta::set_pi_model u2/Y 0.01 20.0 0.005]
 puts "set_pi_model u2/Y (medium): $msg"
 
 # Large parasitics
-catch {sta::set_pi_model r1/Q 0.05 50.0 0.02} msg
+set msg [sta::set_pi_model r1/Q 0.05 50.0 0.02]
 puts "set_pi_model r1/Q (large): $msg"
 
-catch {sta::set_pi_model r2/Q 0.03 30.0 0.01} msg
+set msg [sta::set_pi_model r2/Q 0.03 30.0 0.01]
 puts "set_pi_model r2/Q: $msg"
 
-catch {sta::set_pi_model r3/Q 0.001 2.0 0.001} msg
+set msg [sta::set_pi_model r3/Q 0.001 2.0 0.001]
 puts "set_pi_model r3/Q: $msg"
 
 #---------------------------------------------------------------
@@ -52,19 +52,19 @@ puts "set_pi_model r3/Q: $msg"
 #---------------------------------------------------------------
 puts "--- set_elmore varied ---"
 
-catch {sta::set_elmore u1/Y u2/A 0.0001} msg
+set msg [sta::set_elmore u1/Y u2/A 0.0001]
 puts "set_elmore u1/Y -> u2/A (small): $msg"
 
-catch {sta::set_elmore u2/Y r3/D 0.01} msg
+set msg [sta::set_elmore u2/Y r3/D 0.01]
 puts "set_elmore u2/Y -> r3/D (medium): $msg"
 
-catch {sta::set_elmore r1/Q u1/A 0.05} msg
+set msg [sta::set_elmore r1/Q u1/A 0.05]
 puts "set_elmore r1/Q -> u1/A (large): $msg"
 
-catch {sta::set_elmore r2/Q u2/B 0.02} msg
+set msg [sta::set_elmore r2/Q u2/B 0.02]
 puts "set_elmore r2/Q -> u2/B: $msg"
 
-catch {sta::set_elmore r3/Q out 0.001} msg
+set msg [sta::set_elmore r3/Q out 0.001]
 puts "set_elmore r3/Q -> out: $msg"
 
 #---------------------------------------------------------------
@@ -111,7 +111,7 @@ puts "dmp_ceff_two_pole dcalc r1: done"
 #---------------------------------------------------------------
 puts "--- override pi model ---"
 set_delay_calculator dmp_ceff_elmore
-catch {sta::set_pi_model u1/Y 0.02 25.0 0.01} msg
+set msg [sta::set_pi_model u1/Y 0.02 25.0 0.01]
 puts "re-set pi_model u1/Y: $msg"
 
 report_checks

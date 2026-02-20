@@ -116,9 +116,7 @@ set_logic_zero [get_ports in1]
 set_logic_one [get_ports in2]
 
 # set_logic_dc (don't care)
-catch {
-  set_logic_dc [get_ports in3]
-}
+set_logic_dc [get_ports in3]
 
 # Write SDC with logic values (exercises writeConstants)
 set sdc_file4 [make_result_file sdc_logic1.sdc]
@@ -130,21 +128,13 @@ report_checks
 # Data checks
 ############################################################
 
-catch {
-  set_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -setup 0.5
-}
+set_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -setup 0.5
 
-catch {
-  set_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -hold 0.3
-}
+set_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -hold 0.3
 
-catch {
-  set_data_check -rise_from [get_pins reg1/Q] -to [get_pins reg2/D] -setup 0.6
-}
+set_data_check -rise_from [get_pins reg1/Q] -to [get_pins reg2/D] -setup 0.6
 
-catch {
-  set_data_check -from [get_pins reg1/Q] -fall_to [get_pins reg2/D] -hold 0.25
-}
+set_data_check -from [get_pins reg1/Q] -fall_to [get_pins reg2/D] -hold 0.25
 
 # Write with data checks
 set sdc_file5 [make_result_file sdc_datacheck1.sdc]
@@ -174,16 +164,12 @@ set_clock_gating_check -setup 0.35 [get_clocks clk2]
 set_clock_gating_check -hold 0.15 [get_clocks clk2]
 
 # Instance-level
-catch {
-  set_clock_gating_check -setup 0.3 [get_cells reg1]
-  set_clock_gating_check -hold 0.1 [get_cells reg1]
-}
+set_clock_gating_check -setup 0.3 [get_cells reg1]
+set_clock_gating_check -hold 0.1 [get_cells reg1]
 
 # Pin-level
-catch {
-  set_clock_gating_check -setup 0.25 [get_pins reg1/CK]
-  set_clock_gating_check -hold 0.08 [get_pins reg1/CK]
-}
+set_clock_gating_check -setup 0.25 [get_pins reg1/CK]
+set_clock_gating_check -hold 0.08 [get_pins reg1/CK]
 
 # Write SDC with clock gating
 set sdc_file6 [make_result_file sdc_clkgate1.sdc]
@@ -196,10 +182,8 @@ write_sdc -no_timestamp $sdc_file6
 set_ideal_network [get_ports clk1]
 set_ideal_network [get_ports clk2]
 
-catch {
-  set_ideal_transition 0.0 [get_ports clk1]
-  set_ideal_transition 0.05 [get_ports clk2]
-}
+set_ideal_transition 0.0 [get_ports clk1]
+set_ideal_transition 0.05 [get_ports clk2]
 
 ############################################################
 # Min pulse width on various objects
@@ -211,13 +195,9 @@ set_min_pulse_width -low 0.4 [get_clocks clk1]
 
 set_min_pulse_width 0.8 [get_clocks clk2]
 
-catch {
-  set_min_pulse_width 0.5 [get_pins reg1/CK]
-}
+set_min_pulse_width 0.5 [get_pins reg1/CK]
 
-catch {
-  set_min_pulse_width 0.6 [get_cells reg1]
-}
+set_min_pulse_width 0.6 [get_cells reg1]
 
 ############################################################
 # Latch borrow limits on various objects
@@ -228,9 +208,7 @@ set_max_time_borrow 1.5 [get_clocks clk2]
 
 set_max_time_borrow 1.0 [get_pins reg1/D]
 
-catch {
-  set_max_time_borrow 1.2 [get_cells reg2]
-}
+set_max_time_borrow 1.2 [get_cells reg2]
 
 ############################################################
 # Comprehensive write with all constraints

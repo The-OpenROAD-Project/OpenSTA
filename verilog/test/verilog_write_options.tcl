@@ -32,7 +32,7 @@ puts "basic size: $sz1, remove_cells size: $sz3"
 
 puts "--- write_verilog -sort (deprecated, should warn) ---"
 set out4 [make_result_file verilog_write_options_out4.v]
-catch {write_verilog -sort $out4} msg_sort
+set msg_sort [write_verilog -sort $out4]
 puts "write_verilog -sort: $msg_sort"
 puts "--- read_verilog / write_verilog roundtrip ---"
 # Read back the written verilog to exercise reader code paths

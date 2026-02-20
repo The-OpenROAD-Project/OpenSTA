@@ -162,10 +162,8 @@ catch {
 # set_clock_gating_check
 ############################################################
 puts "--- set_clock_gating_check ---"
-catch {
-  set_clock_gating_check -setup 0.5 [get_cells clk_gate]
-  report_checks -path_delay max
-}
+set_clock_gating_check -setup 0.5 [get_cells clk_gate]
+report_checks -path_delay max
 
 ############################################################
 # write_sdc

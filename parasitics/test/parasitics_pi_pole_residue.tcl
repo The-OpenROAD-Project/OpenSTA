@@ -174,10 +174,10 @@ report_parasitic_annotation -report_unannotated
 # Exercises: the type-checking branches in ConcreteParasitics
 #---------------------------------------------------------------
 puts "--- Test 8: manual pi + elmore then query ---"
-catch {sta::set_pi_model u1/Y 0.005 10.0 0.003} msg
+set msg [sta::set_pi_model u1/Y 0.005 10.0 0.003]
 puts "set_pi_model u1/Y: $msg"
 
-catch {sta::set_elmore u1/Y u2/B 0.005} msg
+set msg [sta::set_elmore u1/Y u2/B 0.005]
 puts "set_elmore u1/Y->u2/B: $msg"
 
 # Run timing with different calculators to force re-reduction

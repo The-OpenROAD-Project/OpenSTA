@@ -71,29 +71,11 @@ set some_cells [get_cells _*_]
 set cell_count [llength $some_cells]
 puts "cells for instance power: $cell_count"
 
-set rc [catch {
-  report_power -instances $some_cells
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: report_power -instances: $msg"
-}
+report_power -instances $some_cells
 
-set rc [catch {
-  report_power -instances $some_cells -format json
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: report_power -instances json: $msg"
-}
+report_power -instances $some_cells -format json
 
-set rc [catch {
-  report_power -instances $some_cells -digits 6
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: report_power -instances -digits 6: $msg"
-}
+report_power -instances $some_cells -digits 6
 
 #---------------------------------------------------------------
 # Test 6: Override VCD with manual activity

@@ -73,18 +73,18 @@ for {set i 0} {$i < 6} {incr i} {
 puts "created [llength $net_list] nets"
 
 # Connect BUF_X1 input
-catch {connect_pin lifecycle_net_0 lifecycle_inst_0/A} msg
+set msg [connect_pin lifecycle_net_0 lifecycle_inst_0/A]
 puts "connect lifecycle_inst_0/A: $msg"
 
 # Connect BUF_X1 output
-catch {connect_pin lifecycle_net_1 lifecycle_inst_0/Z} msg
+set msg [connect_pin lifecycle_net_1 lifecycle_inst_0/Z]
 puts "connect lifecycle_inst_0/Z: $msg"
 
 # Connect INV_X1 input/output
-catch {connect_pin lifecycle_net_1 lifecycle_inst_3/A} msg
+set msg [connect_pin lifecycle_net_1 lifecycle_inst_3/A]
 puts "connect lifecycle_inst_3/A: $msg"
 
-catch {connect_pin lifecycle_net_2 lifecycle_inst_3/ZN} msg
+set msg [connect_pin lifecycle_net_2 lifecycle_inst_3/ZN]
 puts "connect lifecycle_inst_3/ZN: $msg"
 
 # Report net with connected pins (exercises connectedPinIterator)

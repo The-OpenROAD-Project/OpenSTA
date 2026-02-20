@@ -70,13 +70,8 @@ set sub2_hier_pins [get_pins -hierarchical sub2/*]
 puts "sub2/* pins (hier): [llength $sub2_hier_pins]"
 
 # Query specific pin paths through hierarchy
-catch {
-  set sub1_and [get_pins sub1/and_gate/A1]
-  puts "sub1/and_gate/A1: [get_full_name $sub1_and]"
-} msg
-if {[string match "*Error*" $msg] || [string match "*not found*" $msg]} {
-  puts "sub1/and_gate/A1: not accessible (flat network)"
-}
+set sub1_and [get_pins sub1/and_gate/A1]
+puts "sub1/and_gate/A1: [get_full_name $sub1_and]"
 
 # Top-level instance pins (port pins)
 set port_pins_in [get_pins -hierarchical */A]

@@ -36,22 +36,22 @@ report_parasitic_annotation -report_unannotated
 #---------------------------------------------------------------
 puts "--- Annotated delay reporting ---"
 
-catch {report_annotated_delay -cell -net} msg
+set msg [report_annotated_delay -cell -net]
 puts $msg
 
-catch {report_annotated_delay -from_in_ports -to_out_ports} msg
+set msg [report_annotated_delay -from_in_ports -to_out_ports]
 puts $msg
 
-catch {report_annotated_delay -cell} msg
+set msg [report_annotated_delay -cell]
 puts $msg
 
-catch {report_annotated_delay -net} msg
+set msg [report_annotated_delay -net]
 puts $msg
 
-catch {report_annotated_delay -report_annotated} msg
+set msg [report_annotated_delay -report_annotated]
 puts $msg
 
-catch {report_annotated_delay -report_unannotated} msg
+set msg [report_annotated_delay -report_unannotated]
 puts $msg
 
 #---------------------------------------------------------------
@@ -73,26 +73,26 @@ report_checks -from [get_ports in2] -fields {slew cap}
 #---------------------------------------------------------------
 puts "--- report_net ---"
 
-catch {report_net r1q} msg
+set msg [report_net r1q]
 puts $msg
 
-catch {report_net r2q} msg
+set msg [report_net r2q]
 puts $msg
 
-catch {report_net u1z} msg
+set msg [report_net u1z]
 puts $msg
 
-catch {report_net u2z} msg
+set msg [report_net u2z]
 puts $msg
 
-catch {report_net out} msg
+set msg [report_net out]
 puts $msg
 
-catch {report_net in1} msg
+set msg [report_net in1]
 puts $msg
 
 # report_net with -digits
-catch {report_net -digits 6 r1q} msg
+set msg [report_net -digits 6 r1q]
 puts $msg
 
 #---------------------------------------------------------------
@@ -100,10 +100,10 @@ puts $msg
 #---------------------------------------------------------------
 puts "--- Manual parasitic models ---"
 
-catch {sta::set_pi_model u1/Y 0.005 1.0 0.003} msg
+set msg [sta::set_pi_model u1/Y 0.005 1.0 0.003]
 puts $msg
 
-catch {sta::set_elmore u1/Y u2/B 0.005} msg
+set msg [sta::set_elmore u1/Y u2/B 0.005]
 puts $msg
 
 report_checks

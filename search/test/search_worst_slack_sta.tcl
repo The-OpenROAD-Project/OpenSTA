@@ -73,23 +73,19 @@ if { $wv_min != "NULL" } {
 
 puts "--- vertex_worst_arrival_path ---"
 if { $wv_max != "NULL" } {
-  catch {
-    set warr [sta::vertex_worst_arrival_path $wv_max max]
-    if { $warr != "NULL" } {
-      puts "worst_arrival_path pin: [get_full_name [$warr pin]]"
-      puts "worst_arrival_path arrival: [$warr arrival]"
-    }
+  set warr [sta::vertex_worst_arrival_path $wv_max max]
+  if { $warr != "NULL" } {
+    puts "worst_arrival_path pin: [get_full_name [$warr pin]]"
+    puts "worst_arrival_path arrival: [$warr arrival]"
   }
 }
 
 puts "--- vertex_worst_slack_path ---"
 if { $wv_max != "NULL" } {
-  catch {
-    set wslk [sta::vertex_worst_slack_path $wv_max max]
-    if { $wslk != "NULL" } {
-      puts "worst_slack_path pin: [get_full_name [$wslk pin]]"
-      puts "worst_slack_path slack: [$wslk slack]"
-    }
+  set wslk [sta::vertex_worst_slack_path $wv_max max]
+  if { $wslk != "NULL" } {
+    puts "worst_slack_path pin: [get_full_name [$wslk pin]]"
+    puts "worst_slack_path slack: [$wslk slack]"
   }
 }
 
@@ -147,15 +143,15 @@ catch {
 }
 
 puts "--- set_report_path_field_properties ---"
-catch { sta::set_report_path_field_properties "delay" "Dly" 10 0 }
+sta::set_report_path_field_properties "delay" "Dly" 10 0
 report_checks -path_delay max > /dev/null
-catch { sta::set_report_path_field_width "delay" 12 }
+sta::set_report_path_field_width "delay" 12
 report_checks -path_delay max > /dev/null
 
 puts "--- set_report_path_sigmas ---"
-catch { sta::set_report_path_sigmas 1 }
+sta::set_report_path_sigmas 1
 report_checks -path_delay max > /dev/null
-catch { sta::set_report_path_sigmas 0 }
+sta::set_report_path_sigmas 0
 
 puts "--- set_report_path_no_split ---"
 sta::set_report_path_no_split 1
@@ -169,10 +165,10 @@ catch {
 }
 
 puts "--- pocv ---"
-catch { puts "pocv_enabled: [sta::pocv_enabled]" }
+puts "pocv_enabled: [sta::pocv_enabled]"
 
 puts "--- report_annotated_delay ---"
-catch { report_annotated_delay }
+report_annotated_delay
 
 puts "--- report_annotated_check ---"
-catch { report_annotated_check }
+report_annotated_check

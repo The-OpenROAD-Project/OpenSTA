@@ -63,9 +63,9 @@ set nand_cell [get_lib_cell NangateOpenCellLibrary/NAND2_X1]
 catch { puts "NAND2_X1 leakage_power: [get_property $nand_cell cell_leakage_power]" }
 
 # Area property
-catch { puts "INV_X1 area: [get_property $inv_cell area]" }
-catch { puts "BUF_X1 area: [get_property $buf_cell area]" }
-catch { puts "DFF_X1 area: [get_property $dff_cell area]" }
+puts "INV_X1 area: [get_property $inv_cell area]"
+puts "BUF_X1 area: [get_property $buf_cell area]"
+puts "DFF_X1 area: [get_property $dff_cell area]"
 
 ############################################################
 # Cell properties - is_buffer, is_inverter, etc.
@@ -94,7 +94,7 @@ read_liberty ../../test/sky130hd/sky130hd_tt.lib
 # Query sky130 cell leakage powers
 set sky_inv [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1]
 catch { puts "sky130 inv leakage: [get_property $sky_inv cell_leakage_power]" }
-catch { puts "sky130 inv area: [get_property $sky_inv area]" }
+puts "sky130 inv area: [get_property $sky_inv area]"
 
 # Write sky130 liberty
 set outfile2 [make_result_file liberty_power_write_sky130.lib]
@@ -108,7 +108,7 @@ read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
 
 set ihp_inv [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_1]
 catch { puts "IHP inv leakage: [get_property $ihp_inv cell_leakage_power]" }
-catch { puts "IHP inv area: [get_property $ihp_inv area]" }
+puts "IHP inv area: [get_property $ihp_inv area]"
 
 ############################################################
 # Read ASAP7 CCSN library (CCS timing + power models)
@@ -129,4 +129,4 @@ read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 
 set asap7_dff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_R]
 catch { puts "ASAP7 DFF leakage: [get_property $asap7_dff cell_leakage_power]" }
-catch { puts "ASAP7 DFF area: [get_property $asap7_dff area]" }
+puts "ASAP7 DFF area: [get_property $asap7_dff area]"

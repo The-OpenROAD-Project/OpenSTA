@@ -70,9 +70,9 @@ foreach pe $paths_max {
   puts "  is_latch: [$pe is_latch_check] is_check: [$pe is_check] slack=[$pe slack]"
   puts "  data_arrival: [$pe data_arrival_time] data_required: [$pe data_required_time]"
   puts "  margin: [$pe margin]"
-  catch { puts "  source_clk_latency: [$pe source_clk_latency]" }
-  catch { puts "  target_clk_delay: [$pe target_clk_delay]" }
-  catch { puts "  target_clk_uncertainty: [$pe target_clk_uncertainty]" }
+  puts "  source_clk_latency: [$pe source_clk_latency]"
+  puts "  target_clk_delay: [$pe target_clk_delay]"
+  puts "  target_clk_uncertainty: [$pe target_clk_uncertainty]"
 }
 
 ############################################################
@@ -124,14 +124,10 @@ foreach pe $paths_max2 {
     set ep [get_property $pe endpoint]
     puts "  endpoint: [get_full_name $ep]"
     puts "  slack: [get_property $pe slack]"
-    catch {
-      set ec [get_property $pe endpoint_clock]
-      puts "  endpoint_clock: [get_name $ec]"
-    }
-    catch {
-      set ecp [get_property $pe endpoint_clock_pin]
-      puts "  endpoint_clock_pin: [get_full_name $ecp]"
-    }
+    set ec [get_property $pe endpoint_clock]
+    puts "  endpoint_clock: [get_name $ec]"
+    set ecp [get_property $pe endpoint_clock_pin]
+    puts "  endpoint_clock_pin: [get_full_name $ecp]"
     set points [get_property $pe points]
     puts "  points: [llength $points]"
     break

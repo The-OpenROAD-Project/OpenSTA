@@ -30,38 +30,18 @@ set_input_transition 0.1 [get_ports {data_a[*] data_b[*] clk}]
 puts "--- bus range queries ---"
 
 # Query using range notation
-catch {
-  set range_ports [get_ports {data_a[0:3]}]
-  puts "data_a\[0:3\] ports: [llength $range_ports]"
-} msg
-if {[string match "*Error*" $msg]} {
-  puts "data_a\[0:3\]: $msg"
-}
+set range_ports [get_ports {data_a[0:3]}]
+puts "data_a\[0:3\] ports: [llength $range_ports]"
 
-catch {
-  set range_ports2 [get_ports {data_a[4:7]}]
-  puts "data_a\[4:7\] ports: [llength $range_ports2]"
-} msg
-if {[string match "*Error*" $msg]} {
-  puts "data_a\[4:7\]: $msg"
-}
+set range_ports2 [get_ports {data_a[4:7]}]
+puts "data_a\[4:7\] ports: [llength $range_ports2]"
 
-catch {
-  set range_ports3 [get_ports {result[0:3]}]
-  puts "result\[0:3\] ports: [llength $range_ports3]"
-} msg
-if {[string match "*Error*" $msg]} {
-  puts "result\[0:3\]: $msg"
-}
+set range_ports3 [get_ports {result[0:3]}]
+puts "result\[0:3\] ports: [llength $range_ports3]"
 
 # Reverse range (exercises from > to swap in findPortsMatching)
-catch {
-  set rev_range [get_ports {data_b[7:0]}]
-  puts "data_b\[7:0\] ports: [llength $rev_range]"
-} msg
-if {[string match "*Error*" $msg]} {
-  puts "data_b\[7:0\]: $msg"
-}
+set rev_range [get_ports {data_b[7:0]}]
+puts "data_b\[7:0\] ports: [llength $rev_range]"
 
 #---------------------------------------------------------------
 # Test wildcard subscript queries

@@ -38,23 +38,19 @@ foreach arc $arcs {
 }
 
 # sdfrtp has scan + async reset
-catch {
-  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1]
-  set arcs [$cell timing_arc_sets]
-  puts "sdfrtp_1 arc_sets = [llength $arcs]"
-  foreach arc $arcs {
-    puts "  [$arc full_name] role=[$arc role]"
-  }
+set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1]
+set arcs [$cell timing_arc_sets]
+puts "sdfrtp_1 arc_sets = [llength $arcs]"
+foreach arc $arcs {
+  puts "  [$arc full_name] role=[$arc role]"
 }
 
 # sdfstp has scan + async set
-catch {
-  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1]
-  set arcs [$cell timing_arc_sets]
-  puts "sdfstp_1 arc_sets = [llength $arcs]"
-  foreach arc $arcs {
-    puts "  [$arc full_name] role=[$arc role]"
-  }
+set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1]
+set arcs [$cell timing_arc_sets]
+puts "sdfstp_1 arc_sets = [llength $arcs]"
+foreach arc $arcs {
+  puts "  [$arc full_name] role=[$arc role]"
 }
 
 ############################################################
@@ -64,13 +60,11 @@ puts "--- tristate cell timing arcs ---"
 
 foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
                    sky130_fd_sc_hd__ebufn_4 sky130_fd_sc_hd__ebufn_8} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    set arcs [$cell timing_arc_sets]
-    puts "$cell_name arc_sets = [llength $arcs]"
-    foreach arc $arcs {
-      puts "  [$arc full_name] role=[$arc role]"
-    }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  set arcs [$cell timing_arc_sets]
+  puts "$cell_name arc_sets = [llength $arcs]"
+  foreach arc $arcs {
+    puts "  [$arc full_name] role=[$arc role]"
   }
 }
 
@@ -81,14 +75,12 @@ puts "--- clock gate cell timing arcs ---"
 
 foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
                    sky130_fd_sc_hd__sdlclkp_1 sky130_fd_sc_hd__sdlclkp_2} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set arcs [$cell timing_arc_sets]
-      puts "$cell_name arc_sets = [llength $arcs]"
-      foreach arc $arcs {
-        puts "  [$arc full_name] role=[$arc role]"
-      }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set arcs [$cell timing_arc_sets]
+    puts "$cell_name arc_sets = [llength $arcs]"
+    foreach arc $arcs {
+      puts "  [$arc full_name] role=[$arc role]"
     }
   }
 }
@@ -100,14 +92,12 @@ puts "--- latch cell timing arcs ---"
 
 foreach cell_name {sky130_fd_sc_hd__dlxtp_1 sky130_fd_sc_hd__dlxtn_1
                    sky130_fd_sc_hd__dlxbn_1 sky130_fd_sc_hd__dlxbp_1} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set arcs [$cell timing_arc_sets]
-      puts "$cell_name arc_sets = [llength $arcs]"
-      foreach arc $arcs {
-        puts "  [$arc full_name] role=[$arc role]"
-      }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set arcs [$cell timing_arc_sets]
+    puts "$cell_name arc_sets = [llength $arcs]"
+    foreach arc $arcs {
+      puts "  [$arc full_name] role=[$arc role]"
     }
   }
 }
@@ -117,31 +107,25 @@ foreach cell_name {sky130_fd_sc_hd__dlxtp_1 sky130_fd_sc_hd__dlxtn_1
 ############################################################
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 
-catch {
-  set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_R]
-  set arcs [$cell timing_arc_sets]
-  puts "DFFHQNx1 arc_sets = [llength $arcs]"
-  foreach arc $arcs {
-    puts "  [$arc full_name] role=[$arc role]"
-  }
+set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_R]
+set arcs [$cell timing_arc_sets]
+puts "DFFHQNx1 arc_sets = [llength $arcs]"
+foreach arc $arcs {
+  puts "  [$arc full_name] role=[$arc role]"
 }
 
-catch {
-  set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DLLx1_ASAP7_75t_R]
-  set arcs [$cell timing_arc_sets]
-  puts "DLLx1 arc_sets = [llength $arcs]"
-  foreach arc $arcs {
-    puts "  [$arc full_name] role=[$arc role]"
-  }
+set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DLLx1_ASAP7_75t_R]
+set arcs [$cell timing_arc_sets]
+puts "DLLx1 arc_sets = [llength $arcs]"
+foreach arc $arcs {
+  puts "  [$arc full_name] role=[$arc role]"
 }
 
-catch {
-  set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
-  set arcs [$cell timing_arc_sets]
-  puts "ICGx1 arc_sets = [llength $arcs]"
-  foreach arc $arcs {
-    puts "  [$arc full_name] role=[$arc role]"
-  }
+set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
+set arcs [$cell timing_arc_sets]
+puts "ICGx1 arc_sets = [llength $arcs]"
+foreach arc $arcs {
+  puts "  [$arc full_name] role=[$arc role]"
 }
 
 ############################################################
@@ -150,40 +134,34 @@ catch {
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
 
 foreach cell_name {sg13g2_dlhq_1 sg13g2_dllq_1} {
-  catch {
-    set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
-    if {$cell != "NULL"} {
-      set arcs [$cell timing_arc_sets]
-      puts "$cell_name arc_sets = [llength $arcs]"
-      foreach arc $arcs {
-        puts "  [$arc full_name] role=[$arc role]"
-      }
+  set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set arcs [$cell timing_arc_sets]
+    puts "$cell_name arc_sets = [llength $arcs]"
+    foreach arc $arcs {
+      puts "  [$arc full_name] role=[$arc role]"
     }
   }
 }
 
 foreach cell_name {sg13g2_dfrbp_1 sg13g2_dfrbp_2} {
-  catch {
-    set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
-    if {$cell != "NULL"} {
-      set arcs [$cell timing_arc_sets]
-      puts "$cell_name arc_sets = [llength $arcs]"
-      foreach arc $arcs {
-        puts "  [$arc full_name] role=[$arc role]"
-      }
+  set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set arcs [$cell timing_arc_sets]
+    puts "$cell_name arc_sets = [llength $arcs]"
+    foreach arc $arcs {
+      puts "  [$arc full_name] role=[$arc role]"
     }
   }
 }
 
 foreach cell_name {sg13g2_sdfbbp_1} {
-  catch {
-    set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
-    if {$cell != "NULL"} {
-      set arcs [$cell timing_arc_sets]
-      puts "$cell_name arc_sets = [llength $arcs]"
-      foreach arc $arcs {
-        puts "  [$arc full_name] role=[$arc role]"
-      }
+  set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set arcs [$cell timing_arc_sets]
+    puts "$cell_name arc_sets = [llength $arcs]"
+    foreach arc $arcs {
+      puts "  [$arc full_name] role=[$arc role]"
     }
   }
 }
@@ -220,13 +198,9 @@ read_liberty ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
 
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
 
-catch {
-  report_lib_cell sky130_fd_sc_hd__ff_n40C_1v95/sky130_fd_sc_hd__dfrtp_1
-}
+report_lib_cell sky130_fd_sc_hd__ff_n40C_1v95/sky130_fd_sc_hd__dfrtp_1
 
-catch {
-  report_lib_cell sky130_fd_sc_hd__ss_n40C_1v40/sky130_fd_sc_hd__dfrtp_1
-}
+report_lib_cell sky130_fd_sc_hd__ss_n40C_1v40/sky130_fd_sc_hd__dfrtp_1
 
 ############################################################
 # Write liberty

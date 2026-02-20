@@ -183,10 +183,8 @@ unset_clock_uncertainty [get_clocks clk]
 # Latch borrow limit
 ############################################################
 puts "--- set_max_time_borrow ---"
-catch {
-  set_max_time_borrow 1.0 [get_clocks clk]
-  report_checks -path_delay max
-}
+set_max_time_borrow 1.0 [get_clocks clk]
+report_checks -path_delay max
 
 ############################################################
 # Min pulse width
@@ -212,11 +210,9 @@ unset_case_analysis [get_ports in1]
 # Disable timing on various targets
 ############################################################
 puts "--- set_disable_timing port ---"
-catch {
-  set_disable_timing [get_ports in1]
-  report_checks -path_delay max
-  unset_disable_timing [get_ports in1]
-}
+set_disable_timing [get_ports in1]
+report_checks -path_delay max
+unset_disable_timing [get_ports in1]
 
 puts "--- set_disable_timing instance ---"
 set_disable_timing [get_cells buf1]
@@ -270,14 +266,12 @@ unset_timing_derate
 # Tag/group reporting (for Tag.cc coverage)
 ############################################################
 puts "--- tag/group reporting ---"
-catch {
-  puts "tag_count: [sta::tag_count]"
-  puts "tag_group_count: [sta::tag_group_count]"
-  puts "clk_info_count: [sta::clk_info_count]"
-  puts "path_count: [sta::path_count]"
-}
+puts "tag_count: [sta::tag_count]"
+puts "tag_group_count: [sta::tag_group_count]"
+puts "clk_info_count: [sta::clk_info_count]"
+puts "path_count: [sta::path_count]"
 
 puts "--- report internal ---"
-catch { sta::report_tags }
-catch { sta::report_clk_infos }
-catch { sta::report_tag_groups }
+sta::report_tags
+sta::report_clk_infos
+sta::report_tag_groups

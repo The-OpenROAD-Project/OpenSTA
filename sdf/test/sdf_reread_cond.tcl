@@ -111,10 +111,6 @@ set sdf_gz [make_result_file "${test_name}_gz.sdf.gz"]
 write_sdf -gzip -no_timestamp $sdf_gz
 
 # Read gzip SDF
-set rc [catch { read_sdf $sdf_gz } msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: read gzip SDF: $msg"
-}
+read_sdf $sdf_gz
 
 report_checks

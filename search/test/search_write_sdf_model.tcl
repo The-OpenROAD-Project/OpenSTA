@@ -44,16 +44,12 @@ set model_file3 [make_result_file "search_test1_model3.lib"]
 write_timing_model -library_name my_custom_lib -cell_name my_custom_cell2 $model_file3
 
 puts "--- Network edit: make_instance ---"
-catch {
-  make_instance new_buf1 [get_lib_cells NangateOpenCellLibrary/BUF_X1]
-  puts "make_instance new_buf1 done"
-}
+make_instance new_buf1 [get_lib_cells NangateOpenCellLibrary/BUF_X1]
+puts "make_instance new_buf1 done"
 
 puts "--- Network edit: make_net ---"
-catch {
-  make_net new_net1
-  puts "make_net new_net1 done"
-}
+make_net new_net1
+puts "make_net new_net1 done"
 
 puts "--- Network edit: connect_pin ---"
 catch {
@@ -68,23 +64,17 @@ catch {
 }
 
 puts "--- Network edit: delete_net ---"
-catch {
-  delete_net [get_nets new_net1]
-  puts "delete_net done"
-}
+delete_net [get_nets new_net1]
+puts "delete_net done"
 
 puts "--- Network edit: delete_instance ---"
-catch {
-  delete_instance [get_cells new_buf1]
-  puts "delete_instance done"
-}
+delete_instance [get_cells new_buf1]
+puts "delete_instance done"
 
 puts "--- Network edit: replace_cell ---"
-catch {
-  replace_cell [get_cells buf1] [get_lib_cells NangateOpenCellLibrary/BUF_X2]
-  report_checks -path_delay max
-  puts "replace_cell done"
-}
+replace_cell [get_cells buf1] [get_lib_cells NangateOpenCellLibrary/BUF_X2]
+report_checks -path_delay max
+puts "replace_cell done"
 
 puts "--- report_checks after edits ---"
 report_checks -path_delay max

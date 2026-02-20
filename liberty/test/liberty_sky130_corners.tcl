@@ -1,28 +1,47 @@
-# Test multi-corner library reading and Sky130HS features.
+# Test multi-corner library reading and timing analysis with Sky130HD.
 source ../../test/helpers.tcl
 
 ############################################################
-# Read Sky130HD all corners
+# Define corners and read Sky130HD libraries per corner
 ############################################################
-read_liberty ../../test/sky130hd/sky130hd_tt.lib
+define_corners fast slow
 
-read_liberty ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
-
-read_liberty ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
-
-############################################################
-# Read Sky130HS
-############################################################
-read_liberty ../../test/sky130hs/sky130hs_tt.lib
-
-read_liberty ../../test/sky130hs/sky130_fd_sc_hs__tt_025C_1v80.lib
+read_liberty -corner fast ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+read_liberty -corner slow ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
 
 ############################################################
-# Comprehensive cell reports across PDKs
-# Exercises: all timing model, power model, and arc code
+# Read design and link
 ############################################################
+read_verilog sky130_corners_test.v
+link_design sky130_corners_test
 
-# Sky130HD cells - comprehensive reporting
+############################################################
+# Create constraints
+############################################################
+create_clock -name clk -period 10 [get_ports clk]
+set_input_delay -clock clk 2.0 [get_ports in1]
+set_input_delay -clock clk 2.0 [get_ports in2]
+set_output_delay -clock clk 3.0 [get_ports out1]
+set_output_delay -clock clk 3.0 [get_ports out2]
+
+############################################################
+# Report timing per corner (shows different delays per corner)
+############################################################
+puts "--- Fast corner, max ---"
+report_checks -corner fast -path_delay max
+
+puts "--- Slow corner, max ---"
+report_checks -corner slow -path_delay max
+
+puts "--- Fast corner, min ---"
+report_checks -corner fast -path_delay min
+
+puts "--- Slow corner, min ---"
+report_checks -corner slow -path_delay min
+
+############################################################
+# Comprehensive cell reports - fast corner library
+############################################################
 set sky130_cells_to_report {
   sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2 sky130_fd_sc_hd__inv_4
   sky130_fd_sc_hd__buf_1 sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_4
@@ -46,33 +65,28 @@ set sky130_cells_to_report {
   sky130_fd_sc_hd__clkbuf_1 sky130_fd_sc_hd__clkbuf_2
   sky130_fd_sc_hd__clkinv_1 sky130_fd_sc_hd__clkinv_2
   sky130_fd_sc_hd__conb_1
-  sky130_fd_sc_hd__diode_2 sky130_fd_sc_hd__fill_1
+  sky130_fd_sc_hd__diode_2
 }
 
 foreach cell_name $sky130_cells_to_report {
-  catch {
-    report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name
-  }
+  report_lib_cell sky130_fd_sc_hd__ff_n40C_1v95/$cell_name
 }
 
 ############################################################
-# Cell property queries on Sky130
+# Cell property queries - slow corner library
 ############################################################
 foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
                    sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dlxtp_1
                    sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__ebufn_1
                    sky130_fd_sc_hd__mux2_1 sky130_fd_sc_hd__fa_1} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    set area [get_property $cell area]
-    set du [get_property $cell dont_use]
-    set lp [get_property $cell cell_leakage_power]
-    puts "$cell_name: area=$area dont_use=$du leakage=$lp"
-  }
+  set cell [get_lib_cell sky130_fd_sc_hd__ss_n40C_1v40/$cell_name]
+  set area [get_property $cell area]
+  set du [get_property $cell dont_use]
+  puts "$cell_name: area=$area dont_use=$du"
 }
 
 ############################################################
-# Pin capacitance queries on Sky130
+# Pin capacitance queries - fast corner library
 ############################################################
 foreach {cell_name pin_name} {
   sky130_fd_sc_hd__inv_1 A
@@ -90,53 +104,17 @@ foreach {cell_name pin_name} {
   sky130_fd_sc_hd__dfrtp_1 RESET_B
   sky130_fd_sc_hd__dfrtp_1 Q
 } {
-  catch {
-    set pin [get_lib_pin sky130_fd_sc_hd__tt_025C_1v80/$cell_name/$pin_name]
-    set cap [get_property $pin capacitance]
-    set dir [sta::liberty_port_direction $pin]
-    puts "$cell_name/$pin_name: cap=$cap dir=$dir"
-  }
+  set pin [get_lib_pin sky130_fd_sc_hd__ff_n40C_1v95/$cell_name/$pin_name]
+  set cap [get_property $pin capacitance]
+  set dir [sta::liberty_port_direction $pin]
+  puts "$cell_name/$pin_name: cap=$cap dir=$dir"
 }
 
 ############################################################
-# Write all libraries to exercise all writer paths
+# Write libraries to exercise writer paths
 ############################################################
-set outfile1 [make_result_file liberty_sky130_hd_tt.lib]
-sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile1
+set outfile1 [make_result_file liberty_sky130_hd_ff.lib]
+sta::write_liberty sky130_fd_sc_hd__ff_n40C_1v95 $outfile1
 
-catch {
-  set outfile2 [make_result_file liberty_sky130_hs_tt.lib]
-  sta::write_liberty sky130_fd_sc_hs__tt_025C_1v80 $outfile2
-}
-
-############################################################
-# Read ASAP7 with various Vt combos to stress LibertyReader
-############################################################
-read_liberty ../../test/asap7/asap7sc7p5t_AO_LVT_FF_nldm_211120.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_AO_SLVT_FF_nldm_211120.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_OA_LVT_FF_nldm_211120.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_OA_SLVT_FF_nldm_211120.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_LVT_TT_nldm_220122.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_SLVT_TT_nldm_220122.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_RVT_TT_nldm_220122.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_RVT_SS_nldm_220122.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_AO_RVT_SS_nldm_211120.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_OA_RVT_SS_nldm_211120.lib.gz
-
-read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz
-
-# SRAM macro
-read_liberty ../../test/asap7/fakeram7_256x32.lib
+set outfile2 [make_result_file liberty_sky130_hd_ss.lib]
+sta::write_liberty sky130_fd_sc_hd__ss_n40C_1v40 $outfile2

@@ -33,11 +33,7 @@ puts "--- report_checks -from/-to ---"
 report_checks -from [get_ports d] -to [get_ports q]
 
 puts "--- report_checks -through ---"
-set rc [catch { report_checks -through [get_pins reg1/Q] } msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: report_checks -through: $msg"
-}
+report_checks -through [get_pins reg1/Q]
 
 #---------------------------------------------------------------
 # Edge queries (Graph.cc edge functions)

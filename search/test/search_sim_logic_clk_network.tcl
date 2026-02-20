@@ -157,9 +157,7 @@ report_clock_skew -hold
 ############################################################
 puts "--- clock min period ---"
 report_clock_min_period
-catch {
-  report_clock_min_period -include_port_paths
-}
+report_clock_min_period -include_port_paths
 
 ############################################################
 # Clock latency reporting
@@ -167,9 +165,7 @@ catch {
 puts "--- clock latency report ---"
 set_propagated_clock [get_clocks clk]
 report_clock_latency
-catch {
-  report_clock_latency -include_internal_latency
-}
+report_clock_latency -include_internal_latency
 report_clock_latency -digits 6
 unset_propagated_clock [get_clocks clk]
 
@@ -194,49 +190,37 @@ report_checks -through [get_pins clk_gate/ZN] -path_delay min
 # Various bidirectional/tristate enable flags
 ############################################################
 puts "--- bidirect inst paths ---"
-catch {
-  sta::set_bidirect_inst_paths_enabled 1
-  report_checks -path_delay max
-  sta::set_bidirect_inst_paths_enabled 0
-  report_checks -path_delay max
-}
+sta::set_bidirect_inst_paths_enabled 1
+report_checks -path_delay max
+sta::set_bidirect_inst_paths_enabled 0
+report_checks -path_delay max
 
 puts "--- bidirect net paths ---"
-catch {
-  sta::set_bidirect_net_paths_enabled 1
-  report_checks -path_delay max
-  sta::set_bidirect_net_paths_enabled 0
-  report_checks -path_delay max
-}
+sta::set_bidirect_net_paths_enabled 1
+report_checks -path_delay max
+sta::set_bidirect_net_paths_enabled 0
+report_checks -path_delay max
 
 puts "--- clk thru tristate ---"
-catch {
-  sta::set_clk_thru_tristate_enabled 1
-  report_checks -path_delay max
-  sta::set_clk_thru_tristate_enabled 0
-  report_checks -path_delay max
-}
+sta::set_clk_thru_tristate_enabled 1
+report_checks -path_delay max
+sta::set_clk_thru_tristate_enabled 0
+report_checks -path_delay max
 
 puts "--- dynamic loop breaking ---"
-catch {
-  sta::set_dynamic_loop_breaking 1
-  report_checks -path_delay max
-  sta::set_dynamic_loop_breaking 0
-  report_checks -path_delay max
-}
+sta::set_dynamic_loop_breaking 1
+report_checks -path_delay max
+sta::set_dynamic_loop_breaking 0
+report_checks -path_delay max
 
 puts "--- use default arrival clock ---"
-catch {
-  sta::set_use_default_arrival_clock 1
-  report_checks -path_delay max
-  sta::set_use_default_arrival_clock 0
-  report_checks -path_delay max
-}
+sta::set_use_default_arrival_clock 1
+report_checks -path_delay max
+sta::set_use_default_arrival_clock 0
+report_checks -path_delay max
 
 puts "--- propagate all clocks ---"
-catch {
-  sta::set_propagate_all_clocks 1
-  report_checks -path_delay max
-  sta::set_propagate_all_clocks 0
-  report_checks -path_delay max
-}
+sta::set_propagate_all_clocks 1
+report_checks -path_delay max
+sta::set_propagate_all_clocks 0
+report_checks -path_delay max

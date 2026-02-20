@@ -84,12 +84,8 @@ foreach cell_obj [get_cells *] {
     }
   }
   if {[llength $in_pins] > 0 && [llength $out_pins] > 0} {
-    catch {
-      report_dcalc -from [lindex $in_pins 0] -to [lindex $out_pins 0] -max
-    }
-    catch {
-      report_dcalc -from [lindex $in_pins 0] -to [lindex $out_pins 0] -min
-    }
+    report_dcalc -from [lindex $in_pins 0] -to [lindex $out_pins 0] -max
+    report_dcalc -from [lindex $in_pins 0] -to [lindex $out_pins 0] -min
     incr cell_count
     if {$cell_count >= 20} break
   }

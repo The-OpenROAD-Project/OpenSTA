@@ -17,14 +17,14 @@ foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfxtp_2
                    sky130_fd_sc_hd__sdfxtp_4} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set area [get_property $cell area]
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name area=$area leakage=$lp"
 
       # Check test_cell
       set tc [$cell test_cell]
-      if {$tc != "NULL"} {
+      if {$tc != "NULL" && $tc ne ""} {
         puts "  has test_cell: yes"
       } else {
         puts "  has test_cell: no"
@@ -51,12 +51,12 @@ foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfxtp_2
 foreach cell_name {sky130_fd_sc_hd__sdfxbp_1 sky130_fd_sc_hd__sdfxbp_2} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set area [get_property $cell area]
       puts "$cell_name area=$area"
 
       set tc [$cell test_cell]
-      if {$tc != "NULL"} {
+      if {$tc != "NULL" && $tc ne ""} {
         puts "  has test_cell: yes"
       } else {
         puts "  has test_cell: no"
@@ -82,12 +82,12 @@ foreach cell_name {sky130_fd_sc_hd__sdfrtp_1 sky130_fd_sc_hd__sdfrtp_2
                    sky130_fd_sc_hd__sdfrtp_4} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set area [get_property $cell area]
       puts "$cell_name area=$area"
 
       set tc [$cell test_cell]
-      if {$tc != "NULL"} {
+      if {$tc != "NULL" && $tc ne ""} {
         puts "  has test_cell: yes"
       } else {
         puts "  has test_cell: no"
@@ -113,7 +113,7 @@ foreach cell_name {sky130_fd_sc_hd__sdfstp_1 sky130_fd_sc_hd__sdfstp_2
                    sky130_fd_sc_hd__sdfstp_4} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set area [get_property $cell area]
       puts "$cell_name area=$area"
 
@@ -141,7 +141,7 @@ foreach cell_name {sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__sdfrtp_1
                    sky130_fd_sc_hd__sdfstp_1} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set arcs [$cell timing_arc_sets]
       set arc_count [llength $arcs]
       puts "$cell_name arc_sets = $arc_count"
@@ -162,7 +162,7 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 foreach cell_name {SDFF_X1 SDFF_X2 SDFFR_X1 SDFFS_X1 SDFFRS_X1} {
   catch {
     set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set tc [$cell test_cell]
       puts "$cell_name test_cell=[expr {$tc != "NULL" ? "yes" : "no"}]"
 
@@ -183,7 +183,7 @@ foreach cell_name {SDFF_X1 SDFF_X2 SDFFR_X1 SDFFS_X1 SDFFRS_X1} {
 # Nangate CLKGATETST cell (clock gate test)
 catch {
   set cell [get_lib_cell NangateOpenCellLibrary/CLKGATETST_X1]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set tc [$cell test_cell]
     set area [get_property $cell area]
     puts "CLKGATETST_X1 area=$area test_cell=[expr {$tc != "NULL" ? "yes" : "no"}]"
@@ -203,7 +203,7 @@ read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 # ASAP7 ICG cell has statetable (exercises clock gate paths)
 catch {
   set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set arcs [$cell timing_arc_sets]
     puts "ASAP7 ICGx1 arc_sets = [llength $arcs]"
     foreach arc $arcs {
@@ -217,7 +217,7 @@ foreach cell_name {DFFHQNx1_ASAP7_75t_R DFFHQx1_ASAP7_75t_R
                    DFFHQNx2_ASAP7_75t_R DFFHQx2_ASAP7_75t_R} {
   catch {
     set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set arcs [$cell timing_arc_sets]
       puts "$cell_name arcs=[llength $arcs]"
       foreach arc $arcs {

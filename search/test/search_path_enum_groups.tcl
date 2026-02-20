@@ -74,11 +74,9 @@ set group_names [sta::path_group_names]
 puts "Path group names: $group_names"
 
 puts "--- is_path_group_name ---"
-catch {
-  puts "clk is group: [sta::is_path_group_name clk]"
-  puts "input_paths is group: [sta::is_path_group_name input_paths]"
-  puts "nonexistent is group: [sta::is_path_group_name nonexistent_group]"
-}
+puts "clk is group: [sta::is_path_group_name clk]"
+puts "input_paths is group: [sta::is_path_group_name input_paths]"
+puts "nonexistent is group: [sta::is_path_group_name nonexistent_group]"
 
 puts "--- group_path -default ---"
 catch {

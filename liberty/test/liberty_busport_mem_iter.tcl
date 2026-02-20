@@ -50,7 +50,7 @@ foreach lib_name {fakeram45_64x32 fakeram45_256x16 fakeram45_512x64
                   fakeram45_1024x32 fakeram45_64x96} {
   read_liberty ../../test/nangate45/${lib_name}.lib
   set cell [get_lib_cell ${lib_name}/${lib_name}]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set port_iter [$cell liberty_port_iterator]
     set bus_count 0
     set bit_count 0
@@ -109,7 +109,7 @@ foreach cell_name {INV_X1 INV_X2 BUF_X1 BUF_X2 CLKBUF_X1
                    TINV_X1 CLKGATETST_X1 HA_X1 FA_X1
                    ANTENNA_X1 FILLCELL_X1 FILLCELL_X2 LOGIC0_X1 LOGIC1_X1} {
   set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set is_leaf [$cell is_leaf]
     set is_buf [$cell is_buffer]
     set is_inv [$cell is_inverter]
@@ -129,7 +129,7 @@ puts "--- test_cell / scan queries ---"
 # SDFF has test_cell
 set sdff [get_lib_cell NangateOpenCellLibrary/SDFF_X1]
 set tc [$sdff test_cell]
-if {$tc != "NULL"} {
+if {$tc != "NULL" && $tc ne ""} {
   puts "SDFF_X1 has test_cell"
 } else {
   puts "SDFF_X1 test_cell is null"
@@ -137,7 +137,7 @@ if {$tc != "NULL"} {
 
 set sdffr [get_lib_cell NangateOpenCellLibrary/SDFFR_X1]
 set tc [$sdffr test_cell]
-if {$tc != "NULL"} {
+if {$tc != "NULL" && $tc ne ""} {
   puts "SDFFR_X1 has test_cell"
 } else {
   puts "SDFFR_X1 test_cell is null"
@@ -145,7 +145,7 @@ if {$tc != "NULL"} {
 
 set sdffrs [get_lib_cell NangateOpenCellLibrary/SDFFRS_X1]
 set tc [$sdffrs test_cell]
-if {$tc != "NULL"} {
+if {$tc != "NULL" && $tc ne ""} {
   puts "SDFFRS_X1 has test_cell"
 } else {
   puts "SDFFRS_X1 test_cell is null"
@@ -154,7 +154,7 @@ if {$tc != "NULL"} {
 # Regular DFF should NOT have test_cell
 set dff [get_lib_cell NangateOpenCellLibrary/DFF_X1]
 set tc [$dff test_cell]
-if {$tc != "NULL"} {
+if {$tc != "NULL" && $tc ne ""} {
   puts "DFF_X1 has test_cell (unexpected)"
 } else {
   puts "DFF_X1 has no test_cell (expected)"

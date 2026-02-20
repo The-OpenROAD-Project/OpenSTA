@@ -29,10 +29,8 @@ foreach pe $paths2 {
 sta::set_report_path_format full
 
 puts "--- worstSlack single-arg form ---"
-catch {
-  set ws [sta::worst_slack_cmd max]
-  puts "worst_slack: $ws"
-}
+set ws [sta::worst_slack_cmd max]
+puts "worst_slack: $ws"
 
 puts "--- checkFanout via report_check_types ---"
 set_max_fanout 2 [current_design]
@@ -52,30 +50,28 @@ report_checks -slack_min -10 -path_delay max
 report_checks -slack_max 100 -slack_min -100 -path_delay max
 
 puts "--- set_report_path_field_properties ---"
-catch { sta::set_report_path_field_properties "delay" "Delay" 10 0 }
-catch { sta::set_report_path_field_width "delay" 12 }
+sta::set_report_path_field_properties "delay" "Delay" 10 0
+sta::set_report_path_field_width "delay" 12
 report_checks -path_delay max
 
 puts "--- set_report_path_sigmas ---"
-catch { sta::set_report_path_sigmas 1 }
+sta::set_report_path_sigmas 1
 report_checks -path_delay max
-catch { sta::set_report_path_sigmas 0 }
+sta::set_report_path_sigmas 0
 
 puts "--- find_timing_paths with recovery/removal/gating_setup/gating_hold ---"
-catch {
-  sta::set_recovery_removal_checks_enabled 1
-  sta::set_gated_clk_checks_enabled 1
-  set paths_all [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 5]
-  puts "Paths: [llength $paths_all]"
-  sta::set_recovery_removal_checks_enabled 0
-  sta::set_gated_clk_checks_enabled 0
-}
+sta::set_recovery_removal_checks_enabled 1
+sta::set_gated_clk_checks_enabled 1
+set paths_all [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 5]
+puts "Paths: [llength $paths_all]"
+sta::set_recovery_removal_checks_enabled 0
+sta::set_gated_clk_checks_enabled 0
 
 puts "--- report_annotated_delay ---"
-catch { report_annotated_delay }
+report_annotated_delay
 
 puts "--- report_annotated_check ---"
-catch { report_annotated_check }
+report_annotated_check
 
 puts "--- report_checks with -path_delay max_rise/max_fall/min_rise/min_fall ---"
 report_checks -path_delay max_rise -format end
@@ -139,19 +135,15 @@ foreach pe $paths_v {
 }
 
 puts "--- vertex_worst_arrival_path ---"
-catch {
-  set warr [sta::vertex_worst_arrival_path $wv max]
-  if { $warr != "NULL" } {
-    puts "worst_arrival_path pin: [get_full_name [$warr pin]]"
-  }
+set warr [sta::vertex_worst_arrival_path $wv max]
+if { $warr != "NULL" } {
+  puts "worst_arrival_path pin: [get_full_name [$warr pin]]"
 }
 
 puts "--- vertex_worst_slack_path ---"
-catch {
-  set wslk [sta::vertex_worst_slack_path $wv max]
-  if { $wslk != "NULL" } {
-    puts "worst_slack_path pin: [get_full_name [$wslk pin]]"
-  }
+set wslk [sta::vertex_worst_slack_path $wv max]
+if { $wslk != "NULL" } {
+  puts "worst_slack_path pin: [get_full_name [$wslk pin]]"
 }
 
 puts "--- report_path_end with prev_end ---"
@@ -165,17 +157,15 @@ foreach pe $paths3 {
 }
 
 puts "--- make_instance ---"
-catch {
-  set and_cell2 [get_lib_cells NangateOpenCellLibrary/AND2_X1]
-  sta::make_instance new_inst $and_cell2
-  puts "make_instance: done"
-}
+set and_cell2 [get_lib_cells NangateOpenCellLibrary/AND2_X1]
+sta::make_instance new_inst $and_cell2
+puts "make_instance: done"
 
 puts "--- pocv_enabled ---"
-catch { puts "pocv_enabled: [sta::pocv_enabled]" }
+puts "pocv_enabled: [sta::pocv_enabled]"
 
 puts "--- report_checks -summary format ---"
 report_checks -path_delay max -format summary
 
 puts "--- clear_sta ---"
-catch { sta::clear_sta }
+sta::clear_sta

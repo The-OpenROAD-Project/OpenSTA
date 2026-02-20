@@ -136,7 +136,7 @@ puts "DFF_X1 base_name: [get_property $dff_cell base_name]"
 puts "DFF_X1 is_buffer: [get_property $dff_cell is_buffer]"
 set dff_lib [get_property $dff_cell library]
 puts "DFF_X1 library: [get_name $dff_lib]"
-catch { puts "DFF_X1 area: [get_property $dff_cell area]" }
+puts "DFF_X1 area: [get_property $dff_cell area]"
 catch { puts "DFF_X1 leakage: [get_property $dff_cell cell_leakage_power]" }
 
 puts "--- LibertyPort properties ---"
@@ -144,7 +144,7 @@ set lp_d [get_lib_pins NangateOpenCellLibrary/DFF_X1/D]
 puts "DFF_X1/D name: [get_property $lp_d name]"
 puts "DFF_X1/D full_name: [get_property $lp_d full_name]"
 puts "DFF_X1/D direction: [get_property $lp_d direction]"
-catch { puts "DFF_X1/D capacitance: [get_property $lp_d capacitance]" }
+puts "DFF_X1/D capacitance: [get_property $lp_d capacitance]"
 catch { puts "DFF_X1/D is_clock: [get_property $lp_d is_clock]" }
 catch { puts "DFF_X1/D is_register_clock: [get_property $lp_d is_register_clock]" }
 set lp_ck [get_lib_pins NangateOpenCellLibrary/DFF_X1/CK]
@@ -190,19 +190,13 @@ foreach pe $path_ends {
   puts "pathend startpoint: [get_full_name $sp]"
   set ep [get_property $pe endpoint]
   puts "pathend endpoint: [get_full_name $ep]"
-  catch {
-    set sc [get_property $pe startpoint_clock]
-    puts "pathend startpoint_clock: [get_name $sc]"
-  }
-  catch {
-    set ec [get_property $pe endpoint_clock]
-    puts "pathend endpoint_clock: [get_name $ec]"
-  }
+  set sc [get_property $pe startpoint_clock]
+  puts "pathend startpoint_clock: [get_name $sc]"
+  set ec [get_property $pe endpoint_clock]
+  puts "pathend endpoint_clock: [get_name $ec]"
   puts "pathend slack: [get_property $pe slack]"
-  catch {
-    set pts [get_property $pe points]
-    puts "pathend points count: [llength $pts]"
-  }
+  set pts [get_property $pe points]
+  puts "pathend points count: [llength $pts]"
   break
 }
 

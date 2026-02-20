@@ -87,13 +87,9 @@ set_max_time_borrow 1.5 [get_clocks clk2]
 set_max_time_borrow 1.0 [get_pins reg1/D]
 set_max_time_borrow 0.8 [get_pins reg2/D]
 
-catch {
-  set_max_time_borrow 1.2 [get_cells reg1]
-}
+set_max_time_borrow 1.2 [get_cells reg1]
 
-catch {
-  set_max_time_borrow 0.9 [get_cells reg3]
-}
+set_max_time_borrow 0.9 [get_cells reg3]
 
 ############################################################
 # Min pulse width on all targets
@@ -109,19 +105,13 @@ set_min_pulse_width -low 0.4 [get_clocks clk1]
 set_min_pulse_width 0.55 [get_clocks clk2]
 
 # Pin
-catch {
-  set_min_pulse_width 0.3 [get_pins reg1/CK]
-}
+set_min_pulse_width 0.3 [get_pins reg1/CK]
 
-catch {
-  set_min_pulse_width -high 0.35 [get_pins reg2/CK]
-  set_min_pulse_width -low 0.25 [get_pins reg2/CK]
-}
+set_min_pulse_width -high 0.35 [get_pins reg2/CK]
+set_min_pulse_width -low 0.25 [get_pins reg2/CK]
 
 # Instance
-catch {
-  set_min_pulse_width 0.45 [get_cells reg3]
-}
+set_min_pulse_width 0.45 [get_cells reg3]
 
 ############################################################
 # set_max_area

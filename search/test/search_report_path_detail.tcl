@@ -150,12 +150,12 @@ puts "--- find_requireds ---"
 sta::find_requireds
 
 puts "--- report internal debug ---"
-catch { sta::report_tag_groups }
-catch { sta::report_tags }
-catch { sta::report_clk_infos }
-catch { sta::report_arrival_entries }
-catch { sta::report_required_entries }
-catch { sta::report_path_count_histogram }
+sta::report_tag_groups
+sta::report_tags
+sta::report_clk_infos
+sta::report_arrival_entries
+sta::report_required_entries
+sta::report_path_count_histogram
 
 puts "--- report_path_end header/footer ---"
 set pe_for_report [find_timing_paths -path_delay max -endpoint_path_count 1]

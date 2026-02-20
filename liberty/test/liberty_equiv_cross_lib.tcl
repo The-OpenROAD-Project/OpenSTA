@@ -23,7 +23,7 @@ foreach cell_prefix {INVx BUFx} {
     catch {
       set cell_name "${cell_prefix}${size}_ASAP7_75t_R"
       set cell [get_lib_cell asap7sc7p5t_INVBUF_RVT_FF_nldm_211120/$cell_name]
-      if {$cell != "NULL"} {
+      if {$cell != "NULL" && $cell ne ""} {
         set equivs [sta::find_equiv_cells $cell]
         if {$equivs != ""} {
           puts "$cell_name equiv count = [llength $equivs]"
@@ -49,7 +49,7 @@ foreach cell_prefix {INVx BUFx} {
     catch {
       set cell_name "${cell_prefix}${size}_ASAP7_75t_L"
       set cell [get_lib_cell asap7sc7p5t_INVBUF_LVT_FF_nldm_211120/$cell_name]
-      if {$cell != "NULL"} {
+      if {$cell != "NULL" && $cell ne ""} {
         set equivs [sta::find_equiv_cells $cell]
         if {$equivs != ""} {
           puts "LVT $cell_name equiv count = [llength $equivs]"

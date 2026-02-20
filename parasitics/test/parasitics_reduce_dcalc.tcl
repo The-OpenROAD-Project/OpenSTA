@@ -137,7 +137,7 @@ report_checks -fields {slew cap}
 # Switch to prima
 #---------------------------------------------------------------
 puts "--- prima ---"
-catch {set_delay_calculator prima} msg
+set msg [set_delay_calculator prima]
 puts "set_delay_calculator prima: $msg"
 
 report_checks

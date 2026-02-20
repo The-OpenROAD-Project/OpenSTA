@@ -48,40 +48,40 @@ report_checks -from [get_ports in1] -to [get_ports out] -fields {slew cap}
 report_checks -from [get_ports in2] -to [get_ports out] -fields {slew cap}
 
 # More detailed report_dcalc to exercise parasitic queries
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+set msg [report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max]
 puts "arnoldi dcalc u1: $msg"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+set msg [report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max]
 puts "arnoldi dcalc u2 A->Y: $msg"
 
-catch {report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max} msg
+set msg [report_dcalc -from [get_pins u2/B] -to [get_pins u2/Y] -max]
 puts "arnoldi dcalc u2 B->Y: $msg"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+set msg [report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max]
 puts "arnoldi dcalc r1 CLK->Q: $msg"
 
-catch {report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max} msg
+set msg [report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max]
 puts "arnoldi dcalc r2 CLK->Q: $msg"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
+set msg [report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max]
 puts "arnoldi dcalc r3 CLK->Q: $msg"
 
 # Prima - exercises prima reduction paths
 puts "--- prima with parasitics ---"
-catch {set_delay_calculator prima} msg
+set msg [set_delay_calculator prima]
 puts "set_delay_calculator prima: $msg"
 
 report_checks
 
 report_checks -from [get_ports in1] -to [get_ports out] -fields {slew cap}
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+set msg [report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max]
 puts "prima dcalc u1: $msg"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+set msg [report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max]
 puts "prima dcalc u2: $msg"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+set msg [report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max]
 puts "prima dcalc r1: $msg"
 
 # dmp_ceff_two_pole - exercises two_pole reduction
@@ -92,13 +92,13 @@ report_checks
 
 report_checks -path_delay min
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+set msg [report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max]
 puts "dmp_ceff_two_pole dcalc u1: $msg"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+set msg [report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max]
 puts "dmp_ceff_two_pole dcalc u2: $msg"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+set msg [report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max]
 puts "dmp_ceff_two_pole dcalc r1: $msg"
 
 #---------------------------------------------------------------
@@ -109,7 +109,7 @@ set_delay_calculator lumped_cap
 
 report_checks
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+set msg [report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max]
 puts "lumped_cap dcalc u1: $msg"
 
 report_checks -fields {slew cap}
@@ -120,22 +120,22 @@ report_checks -fields {slew cap}
 puts "--- annotated delay reporting ---"
 set_delay_calculator dmp_ceff_elmore
 
-catch {report_annotated_delay -cell -net} msg
+set msg [report_annotated_delay -cell -net]
 puts "annotated_delay -cell -net: $msg"
 
-catch {report_annotated_delay -from_in_ports -to_out_ports} msg
+set msg [report_annotated_delay -from_in_ports -to_out_ports]
 puts "annotated_delay -from_in_ports -to_out_ports: $msg"
 
-catch {report_annotated_delay -cell} msg
+set msg [report_annotated_delay -cell]
 puts "annotated_delay -cell: $msg"
 
-catch {report_annotated_delay -net} msg
+set msg [report_annotated_delay -net]
 puts "annotated_delay -net: $msg"
 
-catch {report_annotated_delay -report_annotated} msg
+set msg [report_annotated_delay -report_annotated]
 puts "annotated_delay -report_annotated: $msg"
 
-catch {report_annotated_delay -report_unannotated} msg
+set msg [report_annotated_delay -report_unannotated]
 puts "annotated_delay -report_unannotated: $msg"
 
 #---------------------------------------------------------------

@@ -18,27 +18,23 @@ puts "sdfxtp_1 area = $sdf_area"
 
 # Check test_cell exists
 set tc [$sdf_cell test_cell]
-if {$tc != "NULL"} {
+if {$tc != "NULL" && $tc ne ""} {
 } else {
 }
 
 # Query scan ports
 foreach port_name {SCD SCE CLK D Q} {
-  catch {
-    set port [$sdf_cell find_liberty_port $port_name]
-    if {$port != "NULL"} {
-      set dir [sta::liberty_port_direction $port]
-      puts "sdfxtp_1/$port_name dir=$dir"
-    }
+  set port [$sdf_cell find_liberty_port $port_name]
+  if {$port != "NULL" && $port ne ""} {
+    set dir [sta::liberty_port_direction $port]
+    puts "sdfxtp_1/$port_name dir=$dir"
   }
 }
 
 # Another scan cell
-catch {
-  set sdf_cell2 [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1]
-  set area2 [get_property $sdf_cell2 area]
-  puts "sdfxbp_1 area = $area2"
-}
+set sdf_cell2 [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1]
+set area2 [get_property $sdf_cell2 area]
+puts "sdfxbp_1 area = $area2"
 
 ############################################################
 # Query tristate buffer cells (exercises three_state parsing)
@@ -51,7 +47,7 @@ foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
     puts "$cell_name area = $area"
     # Query tristate enable function
     set z_port [$cell find_liberty_port "Z"]
-    if {$z_port != "NULL"} {
+    if {$z_port != "NULL" && $z_port ne ""} {
       set tri_en [$z_port tristate_enable]
       puts "$cell_name Z tristate_enable = $tri_en"
     }
@@ -63,12 +59,10 @@ foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
 ############################################################
 foreach cell_name {sky130_fd_sc_hd__dlxtp_1 sky130_fd_sc_hd__dlxtn_1
                    sky130_fd_sc_hd__dlxbn_1 sky130_fd_sc_hd__dlxbp_1} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set area [get_property $cell area]
-      puts "$cell_name area = $area"
-    }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    puts "$cell_name area = $area"
   }
 }
 
@@ -77,14 +71,12 @@ foreach cell_name {sky130_fd_sc_hd__dlxtp_1 sky130_fd_sc_hd__dlxtn_1
 ############################################################
 foreach cell_name {sky130_fd_sc_hd__dfrtp_1 sky130_fd_sc_hd__dfstp_1
                    sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfbbp_1} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set area [get_property $cell area]
-      set is_buf [$cell is_buffer]
-      set is_inv [$cell is_inverter]
-      puts "$cell_name area=$area is_buf=$is_buf is_inv=$is_inv"
-    }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    set is_buf [$cell is_buffer]
+    set is_inv [$cell is_inverter]
+    puts "$cell_name area=$area is_buf=$is_buf is_inv=$is_inv"
   }
 }
 
@@ -96,7 +88,7 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
                    sky130_fd_sc_hd__dfxtp_1} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name leakage = $lp"
     }
@@ -109,20 +101,18 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
 foreach cell_name {sky130_fd_sc_hd__and2_1 sky130_fd_sc_hd__or2_1
                    sky130_fd_sc_hd__xor2_1 sky130_fd_sc_hd__xnor2_1
                    sky130_fd_sc_hd__mux2_1} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set dir [sta::liberty_port_direction $port]
-        set func [$port function]
-        if {$func != ""} {
-          puts "$cell_name/[get_name $port] dir=$dir func=$func"
-        }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set dir [sta::liberty_port_direction $port]
+      set func [$port function]
+      if {$func != ""} {
+        puts "$cell_name/[get_name $port] dir=$dir func=$func"
       }
-      $port_iter finish
     }
+    $port_iter finish
   }
 }
 
@@ -136,19 +126,17 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 ############################################################
 foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
                    NAND2_X1 NOR2_X1 AOI21_X1 OAI21_X1} {
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set port_iter [$cell liberty_port_iterator]
-    while {[$port_iter has_next]} {
-      set port [$port_iter next]
-      set dir [sta::liberty_port_direction $port]
-      if {$dir == "input"} {
-        set cap [get_property $port capacitance]
-        puts "$cell_name/[get_name $port] cap=$cap"
-      }
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  set port_iter [$cell liberty_port_iterator]
+  while {[$port_iter has_next]} {
+    set port [$port_iter next]
+    set dir [sta::liberty_port_direction $port]
+    if {$dir == "input"} {
+      set cap [get_property $port capacitance]
+      puts "$cell_name/[get_name $port] cap=$cap"
     }
-    $port_iter finish
   }
+  $port_iter finish
 }
 
 ############################################################
@@ -157,7 +145,7 @@ foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
 foreach cell_name {DFF_X1 DFFR_X1 DFFS_X1 DFFRS_X1} {
   catch {
     set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set arcs [$cell timing_arc_sets]
       set arc_count [llength $arcs]
       puts "$cell_name arc_sets = $arc_count"
@@ -179,7 +167,7 @@ read_liberty ../../test/nangate45/fakeram45_64x7.lib
 # Query bus ports
 catch {
   set cell [get_lib_cell fakeram45_64x7/fakeram45_64x7]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set port_iter [$cell liberty_port_iterator]
     while {[$port_iter has_next]} {
       set port [$port_iter next]
@@ -212,7 +200,7 @@ read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 # Query ASAP7 latch cells
 catch {
   set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DLLx1_ASAP7_75t_R]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set arcs [$cell timing_arc_sets]
     set arc_count [llength $arcs]
     puts "DLLx1 arc_sets = $arc_count"
@@ -225,7 +213,7 @@ catch {
 # Query ICG (Integrated Clock Gate) cell with statetable
 catch {
   set cell [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/ICGx1_ASAP7_75t_R]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set arcs [$cell timing_arc_sets]
     set arc_count [llength $arcs]
     puts "ICGx1 arc_sets = $arc_count"

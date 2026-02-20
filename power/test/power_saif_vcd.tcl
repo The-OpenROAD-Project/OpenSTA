@@ -50,10 +50,4 @@ report_power -highest_power_instances 10 -digits 4
 #---------------------------------------------------------------
 puts "--- instance power with VCD ---"
 set some_cells [get_cells _*_]
-set rc [catch {
-  report_power -instances $some_cells
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: report_power -instances: $msg"
-}
+report_power -instances $some_cells

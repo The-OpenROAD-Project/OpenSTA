@@ -26,19 +26,19 @@ set_propagated_clock {clk1 clk2 clk3}
 puts "--- Test 1: set and query pi model ---"
 
 # Set pi models on driver pins (both rise and fall)
-catch {sta::set_pi_model u1/Y 0.005 10.0 0.003} msg
+set msg [sta::set_pi_model u1/Y 0.005 10.0 0.003]
 puts "set_pi_model u1/Y: $msg"
 
-catch {sta::set_pi_model u2/Y 0.008 15.0 0.005} msg
+set msg [sta::set_pi_model u2/Y 0.008 15.0 0.005]
 puts "set_pi_model u2/Y: $msg"
 
-catch {sta::set_pi_model r1/Q 0.002 5.0 0.001} msg
+set msg [sta::set_pi_model r1/Q 0.002 5.0 0.001]
 puts "set_pi_model r1/Q: $msg"
 
-catch {sta::set_pi_model r2/Q 0.003 6.0 0.002} msg
+set msg [sta::set_pi_model r2/Q 0.003 6.0 0.002]
 puts "set_pi_model r2/Q: $msg"
 
-catch {sta::set_pi_model r3/Q 0.001 2.0 0.001} msg
+set msg [sta::set_pi_model r3/Q 0.001 2.0 0.001]
 puts "set_pi_model r3/Q: $msg"
 
 # Query pi models back using find_pi_elmore
@@ -85,19 +85,19 @@ catch {
 #---------------------------------------------------------------
 puts "--- Test 2: set and query elmore ---"
 
-catch {sta::set_elmore u1/Y u2/A 0.005} msg
+set msg [sta::set_elmore u1/Y u2/A 0.005]
 puts "set_elmore u1/Y -> u2/A: $msg"
 
-catch {sta::set_elmore u2/Y r3/D 0.008} msg
+set msg [sta::set_elmore u2/Y r3/D 0.008]
 puts "set_elmore u2/Y -> r3/D: $msg"
 
-catch {sta::set_elmore r1/Q u1/A 0.003} msg
+set msg [sta::set_elmore r1/Q u1/A 0.003]
 puts "set_elmore r1/Q -> u1/A: $msg"
 
-catch {sta::set_elmore r2/Q u2/B 0.004} msg
+set msg [sta::set_elmore r2/Q u2/B 0.004]
 puts "set_elmore r2/Q -> u2/B: $msg"
 
-catch {sta::set_elmore r3/Q out 0.002} msg
+set msg [sta::set_elmore r3/Q out 0.002]
 puts "set_elmore r3/Q -> out: $msg"
 
 # Query elmore values back
@@ -169,17 +169,17 @@ report_parasitic_annotation -report_unannotated
 puts "--- Test 5: override manual parasitics ---"
 
 # Re-set pi model with different values
-catch {sta::set_pi_model u1/Y 0.01 20.0 0.008} msg
+set msg [sta::set_pi_model u1/Y 0.01 20.0 0.008]
 puts "re-set pi_model u1/Y: $msg"
 
-catch {sta::set_pi_model u2/Y 0.02 30.0 0.01} msg
+set msg [sta::set_pi_model u2/Y 0.02 30.0 0.01]
 puts "re-set pi_model u2/Y: $msg"
 
 # Re-set elmore with different values
-catch {sta::set_elmore u1/Y u2/A 0.01} msg
+set msg [sta::set_elmore u1/Y u2/A 0.01]
 puts "re-set elmore u1/Y -> u2/A: $msg"
 
-catch {sta::set_elmore u2/Y r3/D 0.02} msg
+set msg [sta::set_elmore u2/Y r3/D 0.02]
 puts "re-set elmore u2/Y -> r3/D: $msg"
 
 report_checks
@@ -255,19 +255,19 @@ report_checks -format full_clock
 
 # report_net with SPEF parasitics
 foreach net_name {r1q r2q u1z u2z out in1 in2 clk1 clk2 clk3} {
-  catch {report_net -digits 6 $net_name} msg
+  report_net -digits 6 $net_name
   puts "report_net $net_name: done"
 }
 
 # Dcalc reports
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max -digits 6} msg
+report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max -digits 6
 puts "dcalc u1 6 digits: done"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max -digits 4} msg
+report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max -digits 4
 puts "dcalc u2 4 digits: done"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 puts "dcalc r1 CK->Q: done"
 
-catch {report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max} msg
+report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max
 puts "dcalc r3 CK->Q: done"

@@ -31,19 +31,15 @@ set cap_d [get_property $dff_d capacitance]
 
 # Larger drive strengths have different capacitances
 foreach size {1 2 4 8 16 32} {
-  catch {
-    set pin [get_lib_pin NangateOpenCellLibrary/INV_X${size}/A]
-    set cap [get_property $pin capacitance]
-    puts "INV_X${size}/A cap = $cap"
-  }
+  set pin [get_lib_pin NangateOpenCellLibrary/INV_X${size}/A]
+  set cap [get_property $pin capacitance]
+  puts "INV_X${size}/A cap = $cap"
 }
 
 foreach size {1 2 4 8 16 32} {
-  catch {
-    set pin [get_lib_pin NangateOpenCellLibrary/BUF_X${size}/A]
-    set cap [get_property $pin capacitance]
-    puts "BUF_X${size}/A cap = $cap"
-  }
+  set pin [get_lib_pin NangateOpenCellLibrary/BUF_X${size}/A]
+  set cap [get_property $pin capacitance]
+  puts "BUF_X${size}/A cap = $cap"
 }
 
 ############################################################
@@ -56,22 +52,18 @@ foreach cell_name {INV_X1 INV_X2 INV_X4 INV_X8 INV_X16 INV_X32
                    NOR2_X1 NOR2_X2 NOR2_X4
                    AOI21_X1 OAI21_X1 MUX2_X1 FA_X1 HA_X1
                    TINV_X1 CLKGATETST_X1} {
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set area [get_property $cell area]
-    puts "$cell_name area = $area"
-  }
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  set area [get_property $cell area]
+  puts "$cell_name area = $area"
 }
 
 ############################################################
 # Cell dont_use, is_macro, is_memory queries
 ############################################################
 foreach cell_name {INV_X1 BUF_X1 DFF_X1 ANTENNA_X1 FILLCELL_X1} {
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set du [get_property $cell dont_use]
-    puts "$cell_name dont_use = $du"
-  }
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  set du [get_property $cell dont_use]
+  puts "$cell_name dont_use = $du"
 }
 
 ############################################################
@@ -135,9 +127,7 @@ report_check_types -max_skew
 ############################################################
 report_power
 
-catch {
-  report_power -instances [get_cells *]
-}
+report_power -instances [get_cells *]
 
 ############################################################
 # Sky130 cells - different tristate and latch cells
@@ -145,28 +135,28 @@ catch {
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
 
 # Tristate buffer
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_2}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_4}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_2
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_4
 
 # Latch cells
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1
 
 # Scan flip-flops
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1
 
 # DFF with async set/clear (exercises recovery/removal)
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1
 
 # Mux cells
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__mux2_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__mux2i_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__mux4_1}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__mux2_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__mux2i_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__mux4_1
 
 ############################################################
 # Write roundtrip to exercise all writer cell/arc/model paths

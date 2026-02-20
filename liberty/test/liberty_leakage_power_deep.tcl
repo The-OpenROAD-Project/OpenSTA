@@ -25,7 +25,7 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
                    sky130_fd_sc_hd__mux2_1 sky130_fd_sc_hd__mux2i_1} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name leakage=$lp"
     }
@@ -40,7 +40,7 @@ foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
                    sky130_fd_sc_hd__sdfstp_1 sky130_fd_sc_hd__dfbbp_1} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       set area [get_property $cell area]
       puts "$cell_name leakage=$lp area=$area"
@@ -53,7 +53,7 @@ foreach cell_name {sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__ebufn_2
                    sky130_fd_sc_hd__ebufn_4 sky130_fd_sc_hd__ebufn_8} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name leakage=$lp"
     }
@@ -65,7 +65,7 @@ foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
                    sky130_fd_sc_hd__sdlclkp_1} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name leakage=$lp"
     }
@@ -77,11 +77,11 @@ foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
 ############################################################
 puts "--- detailed cell reports ---"
 
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1
 
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__nand2_1}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__nand2_1
 
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1
 
 ############################################################
 # Read Nangate library for internal power with when conditions
@@ -97,7 +97,7 @@ foreach cell_name {INV_X1 INV_X2 INV_X4 BUF_X1 BUF_X2 BUF_X4
                    TINV_X1 TLAT_X1 CLKGATETST_X1} {
   catch {
     set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name leakage=$lp"
     }
@@ -123,9 +123,7 @@ report_power -digits 8
 
 # Per-instance power
 foreach inst_name {buf1 inv1 and1 or1 nand1 nor1 reg1 reg2 reg3} {
-  catch {
-    report_power -instances [get_cells $inst_name]
-  }
+  report_power -instances [get_cells $inst_name]
 }
 
 ############################################################
@@ -137,7 +135,7 @@ foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
                    sg13g2_nor2_1 sg13g2_and2_1 sg13g2_or2_1} {
   catch {
     set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       set area [get_property $cell area]
       puts "IHP $cell_name leakage=$lp area=$area"

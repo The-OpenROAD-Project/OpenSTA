@@ -53,7 +53,7 @@ foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
                    sky130_fd_sc_hd__dlclkp_4} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set area [get_property $cell area]
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name area=$area leakage=$lp"
@@ -67,22 +67,20 @@ foreach cell_name {sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__dlclkp_2
 # sdlclkp cells have latch_posedge_precontrol type
 foreach cell_name {sky130_fd_sc_hd__sdlclkp_1 sky130_fd_sc_hd__sdlclkp_2
                    sky130_fd_sc_hd__sdlclkp_4} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set area [get_property $cell area]
-      puts "$cell_name area=$area"
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    puts "$cell_name area=$area"
 
-      # Iterate ports to check clock_gate_* pin attributes
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set dir [sta::liberty_port_direction $port]
-        set func [$port function]
-        puts "  [get_name $port] dir=$dir func=$func"
-      }
-      $port_iter finish
+    # Iterate ports to check clock_gate_* pin attributes
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set dir [sta::liberty_port_direction $port]
+      set func [$port function]
+      puts "  [get_name $port] dir=$dir func=$func"
     }
+    $port_iter finish
   }
 }
 
@@ -101,7 +99,7 @@ foreach cell_name {sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1
                    sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_4} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set area [get_property $cell area]
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name area=$area leakage=$lp"
@@ -130,24 +128,22 @@ puts "--- pg_pin queries ---"
 foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
                    sky130_fd_sc_hd__nand2_1 sky130_fd_sc_hd__dfxtp_1
                    sky130_fd_sc_hd__dlclkp_1 sky130_fd_sc_hd__sdfxtp_1} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set pwr_count 0
-      set sig_count 0
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        set is_pwr [$port is_pwr_gnd]
-        if {$is_pwr} {
-          incr pwr_count
-        } else {
-          incr sig_count
-        }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set pwr_count 0
+    set sig_count 0
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      set is_pwr [$port is_pwr_gnd]
+      if {$is_pwr} {
+        incr pwr_count
+      } else {
+        incr sig_count
       }
-      $port_iter finish
-      puts "$cell_name: pwr_pins=$pwr_count signal_pins=$sig_count"
     }
+    $port_iter finish
+    puts "$cell_name: pwr_pins=$pwr_count signal_pins=$sig_count"
   }
 }
 
@@ -159,7 +155,7 @@ puts "--- clock gate timing arcs ---"
 
 catch {
   set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set arcs [$cell timing_arc_sets]
     set arc_count [llength $arcs]
     puts "dlclkp_1 arc_sets = $arc_count"
@@ -174,7 +170,7 @@ catch {
 
 catch {
   set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set arcs [$cell timing_arc_sets]
     set arc_count [llength $arcs]
     puts "sdlclkp_1 arc_sets = $arc_count"
@@ -191,7 +187,7 @@ puts "--- level shifter timing arcs ---"
 
 catch {
   set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1]
-  if {$cell != "NULL"} {
+  if {$cell != "NULL" && $cell ne ""} {
     set arcs [$cell timing_arc_sets]
     puts "lsbuf_lh_hl_isowell_tap_1 arcs = [llength $arcs]"
     foreach arc $arcs {
@@ -210,14 +206,12 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
                    sky130_fd_sc_hd__clkinv_1 sky130_fd_sc_hd__clkbuf_1
                    sky130_fd_sc_hd__nand2_1 sky130_fd_sc_hd__nor2_1
                    sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dlclkp_1} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set is_buf [$cell is_buffer]
-      set is_inv [$cell is_inverter]
-      set is_leaf [$cell is_leaf]
-      puts "$cell_name: is_buffer=$is_buf is_inverter=$is_inv is_leaf=$is_leaf"
-    }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set is_buf [$cell is_buffer]
+    set is_inv [$cell is_inverter]
+    set is_leaf [$cell is_leaf]
+    puts "$cell_name: is_buffer=$is_buf is_inverter=$is_inv is_leaf=$is_leaf"
   }
 }
 
@@ -240,13 +234,11 @@ puts "IHP VDD exists: $ihp_vdd_exists"
 
 # Query IHP cells
 foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1 sg13g2_nor2_1} {
-  catch {
-    set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
-    if {$cell != "NULL"} {
-      set area [get_property $cell area]
-      set is_buf [$cell is_buffer]
-      set is_inv [$cell is_inverter]
-      puts "IHP $cell_name: area=$area buf=$is_buf inv=$is_inv"
-    }
+  set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set area [get_property $cell area]
+    set is_buf [$cell is_buffer]
+    set is_inv [$cell is_inverter]
+    puts "IHP $cell_name: area=$area buf=$is_buf inv=$is_inv"
   }
 }

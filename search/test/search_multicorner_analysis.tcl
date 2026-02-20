@@ -20,37 +20,27 @@ set_output_delay -clock clk 1.5 [get_ports out2]
 report_checks > /dev/null
 
 puts "--- set_analysis_type bc_wc ---"
-catch {
-  set_operating_conditions -analysis_type bc_wc
-}
+set_operating_conditions -analysis_type bc_wc
 report_checks -path_delay max > /dev/null
 
 puts "--- set_analysis_type single ---"
-catch {
-  set_operating_conditions -analysis_type single
-}
+set_operating_conditions -analysis_type single
 report_checks -path_delay max > /dev/null
 
 puts "--- set_analysis_type on_chip_variation ---"
-catch {
-  set_operating_conditions -analysis_type on_chip_variation
-}
+set_operating_conditions -analysis_type on_chip_variation
 report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
 
 puts "--- set_voltage ---"
-catch {
-  set_voltage 1.1
-  set_voltage 1.1 -min 0.9
-  report_checks -path_delay max > /dev/null
-}
+set_voltage 1.1
+set_voltage 1.1 -min 0.9
+report_checks -path_delay max > /dev/null
 
 puts "--- set_voltage on net ---"
-catch {
-  set_voltage 1.2 -object_list [get_nets n1]
-  set_voltage 1.2 -min 1.0 -object_list [get_nets n1]
-  report_checks -path_delay max > /dev/null
-}
+set_voltage 1.2 -object_list [get_nets n1]
+set_voltage 1.2 -min 1.0 -object_list [get_nets n1]
+report_checks -path_delay max > /dev/null
 
 puts "--- set_load (port external pin cap) ---"
 set_load 0.05 [get_ports out1]
@@ -64,32 +54,24 @@ report_checks -path_delay max
 report_checks -path_delay min
 
 puts "--- set_load -wire_load ---"
-catch {
-  set_load -wire_load 0.01 [get_ports out1]
-  report_checks -path_delay max > /dev/null
-}
+set_load -wire_load 0.01 [get_ports out1]
+report_checks -path_delay max > /dev/null
 
 puts "--- set_fanout_load ---"
-catch {
-  set_fanout_load 4 [get_ports out1]
-  report_checks -path_delay max > /dev/null
-}
+set_fanout_load 4 [get_ports out1]
+report_checks -path_delay max > /dev/null
 
 puts "--- Net capacitance ---"
-catch {
-  set corner [sta::cmd_corner]
-  set net_cap [[get_nets n1] capacitance $corner max]
-  puts "Net n1 capacitance: $net_cap"
-  set pin_cap [[get_nets n1] pin_capacitance $corner max]
-  puts "Net n1 pin_cap: $pin_cap"
-  set wire_cap [[get_nets n1] wire_capacitance $corner max]
-  puts "Net n1 wire_cap: $wire_cap"
-}
+set corner [sta::cmd_corner]
+set net_cap [[get_nets n1] capacitance $corner max]
+puts "Net n1 capacitance: $net_cap"
+set pin_cap [[get_nets n1] pin_capacitance $corner max]
+puts "Net n1 pin_cap: $pin_cap"
+set wire_cap [[get_nets n1] wire_capacitance $corner max]
+puts "Net n1 wire_cap: $wire_cap"
 
 puts "--- set_wire_load_mode ---"
-catch {
-  set_wire_load_mode enclosed
-}
+set_wire_load_mode enclosed
 
 puts "--- report_checks with various fields after load changes ---"
 report_checks -fields {capacitance slew fanout} -path_delay max
@@ -107,25 +89,19 @@ set_drive 100 [get_ports in1]
 report_checks -path_delay max > /dev/null
 
 puts "--- set_driving_cell ---"
-catch {
-  set_driving_cell -lib_cell BUF_X1 -library NangateOpenCellLibrary [get_ports in1]
-  report_checks -path_delay max -from [get_ports in1]
-}
+set_driving_cell -lib_cell BUF_X1 -library NangateOpenCellLibrary [get_ports in1]
+report_checks -path_delay max -from [get_ports in1]
 
 puts "--- Timing derate with cell-level ---"
 set_timing_derate -early 0.95
 set_timing_derate -late 1.05
 report_checks -path_delay max > /dev/null
-catch {
-  set_timing_derate -early -cell_delay 0.93
-  set_timing_derate -late -cell_delay 1.07
-  report_checks -path_delay max > /dev/null
-}
-catch {
-  set_timing_derate -early -net_delay 0.96
-  set_timing_derate -late -net_delay 1.04
-  report_checks -path_delay max > /dev/null
-}
+set_timing_derate -early -cell_delay 0.93
+set_timing_derate -late -cell_delay 1.07
+report_checks -path_delay max > /dev/null
+set_timing_derate -early -net_delay 0.96
+set_timing_derate -late -net_delay 1.04
+report_checks -path_delay max > /dev/null
 unset_timing_derate
 
 puts "--- report_checks after all modifications ---"
@@ -141,15 +117,11 @@ set sdc_file [make_result_file "search_multicorner_analysis.sdc"]
 write_sdc $sdc_file
 
 puts "--- set_resistance on net ---"
-catch {
-  set_resistance 100 [get_nets n1]
-  report_checks -path_delay max > /dev/null
-}
+set_resistance 100 [get_nets n1]
+report_checks -path_delay max > /dev/null
 
 puts "--- set_max_area ---"
-catch {
-  set_max_area 1000
-}
+set_max_area 1000
 
 puts "--- isClock / isPropagatedClock queries ---"
 catch {

@@ -34,19 +34,19 @@ report_parasitic_annotation
 puts "--- set_pi_model ---"
 
 # Set pi model on u1/Y (driver of net u1z)
-catch {sta::set_pi_model u1/Y 0.002 5.0 0.001} msg
+set msg [sta::set_pi_model u1/Y 0.002 5.0 0.001]
 puts "set_pi_model u1/Y: $msg"
 
 # Set pi model on u2/Y (driver of net u2z)
-catch {sta::set_pi_model u2/Y 0.003 8.0 0.002} msg
+set msg [sta::set_pi_model u2/Y 0.003 8.0 0.002]
 puts "set_pi_model u2/Y: $msg"
 
 # Set pi model on r1/Q (driver of r1q)
-catch {sta::set_pi_model r1/Q 0.001 3.0 0.001} msg
+set msg [sta::set_pi_model r1/Q 0.001 3.0 0.001]
 puts "set_pi_model r1/Q: $msg"
 
 # Set pi model on r2/Q (driver of r2q)
-catch {sta::set_pi_model r2/Q 0.001 3.0 0.001} msg
+set msg [sta::set_pi_model r2/Q 0.001 3.0 0.001]
 puts "set_pi_model r2/Q: $msg"
 
 #---------------------------------------------------------------
@@ -56,22 +56,22 @@ puts "set_pi_model r2/Q: $msg"
 puts "--- set_elmore ---"
 
 # Elmore delays from u1/Y to its loads
-catch {sta::set_elmore u1/Y u2/A 0.002} msg
+set msg [sta::set_elmore u1/Y u2/A 0.002]
 puts "set_elmore u1/Y -> u2/A: $msg"
 
-catch {sta::set_elmore u1/Y u2/B 0.003} msg
+set msg [sta::set_elmore u1/Y u2/B 0.003]
 puts "set_elmore u1/Y -> u2/B: $msg"
 
 # Elmore delays from u2/Y to its loads
-catch {sta::set_elmore u2/Y r3/D 0.004} msg
+set msg [sta::set_elmore u2/Y r3/D 0.004]
 puts "set_elmore u2/Y -> r3/D: $msg"
 
 # Elmore delays from r1/Q to loads
-catch {sta::set_elmore r1/Q u1/A 0.001} msg
+set msg [sta::set_elmore r1/Q u1/A 0.001]
 puts "set_elmore r1/Q -> u1/A: $msg"
 
 # Elmore delays from r2/Q to loads
-catch {sta::set_elmore r2/Q u2/B 0.001} msg
+set msg [sta::set_elmore r2/Q u2/B 0.001]
 puts "set_elmore r2/Q -> u2/B: $msg"
 
 #---------------------------------------------------------------
@@ -92,13 +92,13 @@ report_checks -fields {slew cap input_pins}
 # Report net with manual parasitics
 #---------------------------------------------------------------
 puts "--- report_net with manual parasitics ---"
-catch {report_net r1q} msg
+set msg [report_net r1q]
 puts "report_net r1q: $msg"
 
-catch {report_net u1z} msg
+set msg [report_net u1z]
 puts "report_net u1z: $msg"
 
-catch {report_net u2z} msg
+set msg [report_net u2z]
 puts "report_net u2z: $msg"
 
 #---------------------------------------------------------------
@@ -114,13 +114,13 @@ report_parasitic_annotation -report_unannotated
 #---------------------------------------------------------------
 puts "--- report_dcalc with manual parasitics ---"
 
-catch {report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max} msg
+set msg [report_dcalc -from [get_pins u1/A] -to [get_pins u1/Y] -max]
 puts "dcalc u1 A->Y: $msg"
 
-catch {report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max} msg
+set msg [report_dcalc -from [get_pins u2/A] -to [get_pins u2/Y] -max]
 puts "dcalc u2 A->Y: $msg"
 
-catch {report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max} msg
+set msg [report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max]
 puts "dcalc r1 CLK->Q: $msg"
 
 #---------------------------------------------------------------

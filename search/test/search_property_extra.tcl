@@ -47,7 +47,7 @@ puts "lport name: [get_property $lport name]"
 puts "lport full_name: [get_property $lport full_name]"
 puts "lport direction: [get_property $lport direction]"
 catch { puts "lport function: [get_property $lport function]" }
-catch { puts "lport capacitance: [get_property $lport capacitance]" }
+puts "lport capacitance: [get_property $lport capacitance]"
 catch { puts "lport max_capacitance: [get_property $lport max_capacitance]" }
 catch { puts "lport max_transition: [get_property $lport max_transition]" }
 catch { puts "lport is_register_clock: [get_property $lport is_register_clock]" }
@@ -60,15 +60,13 @@ set and_cell [get_lib_cells NangateOpenCellLibrary/AND2_X1]
 puts "and is_buffer: [get_property $and_cell is_buffer]"
 set dff_cell [get_lib_cells NangateOpenCellLibrary/DFF_X1]
 puts "dff is_buffer: [get_property $dff_cell is_buffer]"
-catch { puts "dff area: [get_property $dff_cell area]" }
+puts "dff area: [get_property $dff_cell area]"
 catch { puts "dff cell_leakage_power: [get_property $dff_cell cell_leakage_power]" }
 
 puts "--- LibertyLibrary properties ---"
 set lib [get_libs NangateOpenCellLibrary]
-catch {
-  set lib_cell_property [get_property -object_type lib $lib name]
-  puts "lib by lib type: $lib_cell_property"
-}
+set lib_cell_property [get_property -object_type lib $lib name]
+puts "lib by lib type: $lib_cell_property"
 
 puts "--- Clock extra properties ---"
 set clk_obj [get_clocks clk]
@@ -133,20 +131,12 @@ foreach p $fan_pins {
 }
 
 puts "--- Slew/Cap/Fanout check slack ---"
-catch {
-  puts "Max slew check slack: [sta::max_slew_check_slack]"
-  puts "Max slew check limit: [sta::max_slew_check_limit]"
-}
-catch {
-  puts "Max cap check slack: [sta::max_capacitance_check_slack]"
-  puts "Max cap check limit: [sta::max_capacitance_check_limit]"
-}
-catch {
-  puts "Max fanout check slack: [sta::max_fanout_check_slack]"
-  puts "Max fanout check limit: [sta::max_fanout_check_limit]"
-}
-catch {
-  puts "Max slew violation count: [sta::max_slew_violation_count]"
-  puts "Max cap violation count: [sta::max_capacitance_violation_count]"
-  puts "Max fanout violation count: [sta::max_fanout_violation_count]"
-}
+puts "Max slew check slack: [sta::max_slew_check_slack]"
+puts "Max slew check limit: [sta::max_slew_check_limit]"
+puts "Max cap check slack: [sta::max_capacitance_check_slack]"
+puts "Max cap check limit: [sta::max_capacitance_check_limit]"
+puts "Max fanout check slack: [sta::max_fanout_check_slack]"
+puts "Max fanout check limit: [sta::max_fanout_check_limit]"
+puts "Max slew violation count: [sta::max_slew_violation_count]"
+puts "Max cap violation count: [sta::max_capacitance_violation_count]"
+puts "Max fanout violation count: [sta::max_fanout_violation_count]"

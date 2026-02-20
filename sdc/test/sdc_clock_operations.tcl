@@ -69,9 +69,7 @@ set_propagated_clock [get_clocks clk2]
 report_checks
 
 puts "--- set_propagated_clock on pin ---"
-catch {
-  set_propagated_clock [get_ports clk1]
-}
+set_propagated_clock [get_ports clk1]
 
 ############################################################
 # Clock slew/transition
@@ -105,12 +103,10 @@ report_checks
 # Clock insertion
 ############################################################
 puts "--- clock insertion ---"
-catch {
-  set_clock_latency -source -rise -early 0.1 [get_clocks clk1]
-  set_clock_latency -source -rise -late 0.3 [get_clocks clk1]
-  set_clock_latency -source -fall -early 0.15 [get_clocks clk1]
-  set_clock_latency -source -fall -late 0.35 [get_clocks clk1]
-}
+set_clock_latency -source -rise -early 0.1 [get_clocks clk1]
+set_clock_latency -source -rise -late 0.3 [get_clocks clk1]
+set_clock_latency -source -fall -early 0.15 [get_clocks clk1]
+set_clock_latency -source -fall -late 0.35 [get_clocks clk1]
 report_checks
 
 ############################################################
@@ -136,10 +132,8 @@ report_checks
 # Clock uncertainty on pin
 ############################################################
 puts "--- clock uncertainty on pin ---"
-catch {
-  set_clock_uncertainty -setup 0.25 [get_ports clk1]
-  set_clock_uncertainty -hold 0.08 [get_ports clk1]
-}
+set_clock_uncertainty -setup 0.25 [get_ports clk1]
+set_clock_uncertainty -hold 0.08 [get_ports clk1]
 report_checks
 
 ############################################################
@@ -181,40 +175,32 @@ report_checks
 # Remove clock latency
 ############################################################
 puts "--- unset_clock_latency ---"
-catch {
-  unset_clock_latency -source [get_clocks clk1]
-  report_checks
-}
+unset_clock_latency -source [get_clocks clk1]
+report_checks
 
 ############################################################
 # Remove clock uncertainty
 ############################################################
 puts "--- unset_clock_uncertainty ---"
-catch {
-  unset_clock_uncertainty -setup [get_clocks clk1]
-  unset_clock_uncertainty -hold [get_clocks clk1]
-  report_checks
-}
+unset_clock_uncertainty -setup [get_clocks clk1]
+unset_clock_uncertainty -hold [get_clocks clk1]
+report_checks
 
 ############################################################
 # Remove inter-clock uncertainty
 ############################################################
 puts "--- unset inter-clock uncertainty ---"
-catch {
-  unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup
-  unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -hold
-  report_checks
-}
+unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup
+unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -hold
+report_checks
 
 ############################################################
 # Remove propagated clock
 ############################################################
 puts "--- unset_propagated_clock ---"
-catch {
-  unset_propagated_clock [get_clocks clk1]
-  unset_propagated_clock [get_clocks clk2]
-  report_checks
-}
+unset_propagated_clock [get_clocks clk1]
+unset_propagated_clock [get_clocks clk2]
+report_checks
 
 ############################################################
 # Final write

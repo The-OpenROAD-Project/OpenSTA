@@ -128,15 +128,15 @@ puts "reg1 is_memory: [get_property $reg_inst is_memory]"
 ############################################################
 puts "--- LibertyCell area and leakage ---"
 set dff_cell [get_lib_cells NangateOpenCellLibrary/DFF_X1]
-catch { puts "DFF_X1 area: [get_property $dff_cell area]" }
+puts "DFF_X1 area: [get_property $dff_cell area]"
 catch { puts "DFF_X1 cell_leakage_power: [get_property $dff_cell cell_leakage_power]" }
 set buf_cell [get_lib_cells NangateOpenCellLibrary/BUF_X1]
-catch { puts "BUF_X1 area: [get_property $buf_cell area]" }
+puts "BUF_X1 area: [get_property $buf_cell area]"
 catch { puts "BUF_X1 cell_leakage_power: [get_property $buf_cell cell_leakage_power]" }
 set inv_cell [get_lib_cells NangateOpenCellLibrary/INV_X1]
-catch { puts "INV_X1 area: [get_property $inv_cell area]" }
+puts "INV_X1 area: [get_property $inv_cell area]"
 set and_cell [get_lib_cells NangateOpenCellLibrary/AND2_X1]
-catch { puts "AND2_X1 area: [get_property $and_cell area]" }
+puts "AND2_X1 area: [get_property $and_cell area]"
 
 ############################################################
 # Path group matching: group_path -name with -from and -through
@@ -177,8 +177,8 @@ foreach pe $paths_min {
 puts "--- path_group_names ---"
 set group_names [sta::path_group_names]
 puts "Path group names: $group_names"
-catch { puts "input_grp is group: [sta::is_path_group_name input_grp]" }
-catch { puts "nonexistent is group: [sta::is_path_group_name nonexistent_grp]" }
+puts "input_grp is group: [sta::is_path_group_name input_grp]"
+puts "nonexistent is group: [sta::is_path_group_name nonexistent_grp]"
 
 ############################################################
 # TimingArcSet properties on different cell types

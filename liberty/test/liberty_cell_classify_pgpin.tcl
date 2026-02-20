@@ -31,11 +31,9 @@ puts "INV_X1 is_buffer = [$inv_x1 is_buffer]"
 puts "INV_X1 is_inverter = [$inv_x1 is_inverter]"
 
 # Clock gate cells
-catch {
-  set clkgate [get_lib_cell NangateOpenCellLibrary/CLKGATETST_X1]
-  puts "CLKGATETST_X1 is_buffer = [$clkgate is_buffer]"
-  puts "CLKGATETST_X1 is_inverter = [$clkgate is_inverter]"
-}
+set clkgate [get_lib_cell NangateOpenCellLibrary/CLKGATETST_X1]
+puts "CLKGATETST_X1 is_buffer = [$clkgate is_buffer]"
+puts "CLKGATETST_X1 is_inverter = [$clkgate is_inverter]"
 
 # DFF
 set dff [get_lib_cell NangateOpenCellLibrary/DFF_X1]
@@ -44,11 +42,9 @@ puts "DFF_X1 is_inverter = [$dff is_inverter]"
 puts "DFF_X1 is_leaf = [$dff is_leaf]"
 
 # Test cell for scan DFF
-catch {
-  set sdff [get_lib_cell NangateOpenCellLibrary/SDFF_X1]
-  set tc [$sdff test_cell]
-  puts "SDFF_X1 test_cell = $tc"
-}
+set sdff [get_lib_cell NangateOpenCellLibrary/SDFF_X1]
+set tc [$sdff test_cell]
+puts "SDFF_X1 test_cell = $tc"
 
 ############################################################
 # Port function queries (exercises FuncExpr::to_string)
@@ -181,21 +177,19 @@ foreach cell_name {
   sky130_fd_sc_hd__dlxtp_1
   sky130_fd_sc_hd__ebufn_1
 } {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    puts "$cell_name is_buffer=[$cell is_buffer] is_inverter=[$cell is_inverter]"
-    set port_iter [$cell liberty_port_iterator]
-    while {[$port_iter has_next]} {
-      set port [$port_iter next]
-      set func [$port function]
-      set dir [sta::liberty_port_direction $port]
-      set pwr [$port is_pwr_gnd]
-      if {$pwr} {
-        puts "  [$port bus_name] pwr_gnd=1"
-      }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  puts "$cell_name is_buffer=[$cell is_buffer] is_inverter=[$cell is_inverter]"
+  set port_iter [$cell liberty_port_iterator]
+  while {[$port_iter has_next]} {
+    set port [$port_iter next]
+    set func [$port function]
+    set dir [sta::liberty_port_direction $port]
+    set pwr [$port is_pwr_gnd]
+    if {$pwr} {
+      puts "  [$port bus_name] pwr_gnd=1"
     }
-    $port_iter finish
   }
+  $port_iter finish
 }
 
 ############################################################
@@ -204,7 +198,7 @@ foreach cell_name {
 puts "--- operating conditions ---"
 set sky_lib [lindex [get_libs sky130_fd_sc_hd__tt_025C_1v80] 0]
 set default_oc [$sky_lib default_operating_conditions]
-if {$default_oc != "NULL"} {
+if {$default_oc != "NULL" && $default_oc ne ""} {
   puts "Sky130 default OC process=[$default_oc process] voltage=[$default_oc voltage] temp=[$default_oc temperature]"
 }
 
@@ -220,27 +214,21 @@ foreach cell_name {
   sg13g2_dfrbp_1 sg13g2_dfrbp_2
   sg13g2_ebufn_2
 } {
-  catch {
-    set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
-    puts "$cell_name is_buffer=[$cell is_buffer] is_inverter=[$cell is_inverter]"
-    set arc_sets [$cell timing_arc_sets]
-    puts "  arc_sets=[llength $arc_sets]"
-  }
+  set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
+  puts "$cell_name is_buffer=[$cell is_buffer] is_inverter=[$cell is_inverter]"
+  set arc_sets [$cell timing_arc_sets]
+  puts "  arc_sets=[llength $arc_sets]"
 }
 
 ############################################################
 # Ensure voltage waveforms (exercises ensureVoltageWaveforms)
 ############################################################
 puts "--- ensure voltage waveforms ---"
-catch {
-  set inv [get_lib_cell NangateOpenCellLibrary/INV_X1]
-  $inv ensure_voltage_waveforms
-}
+set inv [get_lib_cell NangateOpenCellLibrary/INV_X1]
+$inv ensure_voltage_waveforms
 
-catch {
-  set dff [get_lib_cell NangateOpenCellLibrary/DFF_X1]
-  $dff ensure_voltage_waveforms
-}
+set dff [get_lib_cell NangateOpenCellLibrary/DFF_X1]
+$dff ensure_voltage_waveforms
 
 ############################################################
 # Liberty cell matching with regex patterns

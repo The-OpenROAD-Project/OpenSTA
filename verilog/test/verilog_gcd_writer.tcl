@@ -113,7 +113,7 @@ if { $sz7 >= $sz6 } {
 #---------------------------------------------------------------
 puts "--- Test 5: -sort option ---"
 set out8 [make_result_file verilog_gcd_sort.v]
-catch {write_verilog -sort $out8} msg_sort
+set msg_sort [write_verilog -sort $out8]
 puts "write_verilog -sort: $msg_sort"
 if { [file exists $out8] } {
   set sz8 [file size $out8]

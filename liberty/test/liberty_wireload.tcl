@@ -12,41 +12,7 @@ read_verilog ../../sdc/test/sdc_test2.v
 link_design sdc_test2
 
 ############################################################
-# Wire load model queries
-############################################################
-
-# Set various wire load models (Nangate has multiple)
-# Nangate has 1K, 3K, 5K wireload models with different h/v ratios
-set_wire_load_model -name "1K_hvratio_1_1"
-
-set_wire_load_model -name "1K_hvratio_1_2"
-
-set_wire_load_model -name "1K_hvratio_1_4"
-
-set_wire_load_model -name "3K_hvratio_1_1"
-
-set_wire_load_model -name "3K_hvratio_1_2"
-
-set_wire_load_model -name "3K_hvratio_1_4"
-
-set_wire_load_model -name "5K_hvratio_1_1"
-
-set_wire_load_model -name "5K_hvratio_1_2"
-
-set_wire_load_model -name "5K_hvratio_1_4"
-
-############################################################
-# Wire load mode switching (exercises wireloadModeString)
-############################################################
-
-set_wire_load_mode top
-
-set_wire_load_mode enclosed
-
-set_wire_load_mode segmented
-
-############################################################
-# Setup constraints and report
+# Setup constraints (needed before report_checks)
 ############################################################
 
 create_clock -name clk1 -period 10 [get_ports clk1]
@@ -56,8 +22,49 @@ set_input_delay -clock clk1 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk1 3.0 [get_ports out2]
 
-# Report checks with wire load
-report_checks -from [get_ports in1] -to [get_ports out1]
+############################################################
+# Wire load model queries - report_checks after each to show timing impact
+############################################################
+
+set_wire_load_model -name "1K_hvratio_1_1"
+report_checks
+
+set_wire_load_model -name "1K_hvratio_1_2"
+report_checks
+
+set_wire_load_model -name "1K_hvratio_1_4"
+report_checks
+
+set_wire_load_model -name "3K_hvratio_1_1"
+report_checks
+
+set_wire_load_model -name "3K_hvratio_1_2"
+report_checks
+
+set_wire_load_model -name "3K_hvratio_1_4"
+report_checks
+
+set_wire_load_model -name "5K_hvratio_1_1"
+report_checks
+
+set_wire_load_model -name "5K_hvratio_1_2"
+report_checks
+
+set_wire_load_model -name "5K_hvratio_1_4"
+report_checks
+
+############################################################
+# Wire load mode switching (exercises wireloadModeString)
+############################################################
+
+set_wire_load_mode top
+report_checks
+
+set_wire_load_mode enclosed
+report_checks
+
+set_wire_load_mode segmented
+report_checks
 
 ############################################################
 # Write SDC with wireload info
@@ -105,4 +112,4 @@ sta::write_liberty sg13g2_stdcell_typ_1p20V_25C $outfile3
 
 set_operating_conditions typical
 
-report_checks -from [get_ports in1] -to [get_ports out1]
+report_checks

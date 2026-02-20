@@ -33,23 +33,23 @@ report_parasitic_annotation -report_unannotated
 puts "--- set_pi_model on drivers ---"
 
 # Set pi model on u1/Y (driver of net u1z)
-catch {sta::set_pi_model u1/Y 0.005 10.0 0.003} msg
+set msg [sta::set_pi_model u1/Y 0.005 10.0 0.003]
 puts "set_pi_model u1/Y: $msg"
 
 # Set pi model on u2/Y (driver of net u2z)
-catch {sta::set_pi_model u2/Y 0.008 15.0 0.005} msg
+set msg [sta::set_pi_model u2/Y 0.008 15.0 0.005]
 puts "set_pi_model u2/Y: $msg"
 
 # Set pi model on r1/Q (driver of r1q)
-catch {sta::set_pi_model r1/Q 0.002 5.0 0.001} msg
+set msg [sta::set_pi_model r1/Q 0.002 5.0 0.001]
 puts "set_pi_model r1/Q: $msg"
 
 # Set pi model on r2/Q (driver of r2q)
-catch {sta::set_pi_model r2/Q 0.002 5.0 0.001} msg
+set msg [sta::set_pi_model r2/Q 0.002 5.0 0.001]
 puts "set_pi_model r2/Q: $msg"
 
 # Set pi model on r3/Q (driver of out)
-catch {sta::set_pi_model r3/Q 0.001 2.0 0.001} msg
+set msg [sta::set_pi_model r3/Q 0.001 2.0 0.001]
 puts "set_pi_model r3/Q: $msg"
 
 #---------------------------------------------------------------
@@ -59,23 +59,23 @@ puts "set_pi_model r3/Q: $msg"
 puts "--- set_elmore on loads ---"
 
 # Elmore delays from u1/Y to its loads
-catch {sta::set_elmore u1/Y u2/A 0.005} msg
+set msg [sta::set_elmore u1/Y u2/A 0.005]
 puts "set_elmore u1/Y -> u2/A: $msg"
 
 # Elmore delays from u2/Y to its loads
-catch {sta::set_elmore u2/Y r3/D 0.008} msg
+set msg [sta::set_elmore u2/Y r3/D 0.008]
 puts "set_elmore u2/Y -> r3/D: $msg"
 
 # Elmore delays from r1/Q to loads
-catch {sta::set_elmore r1/Q u1/A 0.003} msg
+set msg [sta::set_elmore r1/Q u1/A 0.003]
 puts "set_elmore r1/Q -> u1/A: $msg"
 
 # Elmore delays from r2/Q to loads
-catch {sta::set_elmore r2/Q u2/B 0.003} msg
+set msg [sta::set_elmore r2/Q u2/B 0.003]
 puts "set_elmore r2/Q -> u2/B: $msg"
 
 # Elmore delays from r3/Q to out port
-catch {sta::set_elmore r3/Q out 0.002} msg
+set msg [sta::set_elmore r3/Q out 0.002]
 puts "set_elmore r3/Q -> out: $msg"
 
 #---------------------------------------------------------------

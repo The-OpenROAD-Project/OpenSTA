@@ -99,30 +99,24 @@ unset_timing_derate
 # Timing derate on instance
 ############################################################
 puts "--- timing_derate on instance ---"
-catch {
-  set_timing_derate -early 0.9 [get_cells reg1]
-  set_timing_derate -late 1.1 [get_cells reg1]
-  report_checks -path_delay max
-  unset_timing_derate
-}
+set_timing_derate -early 0.9 [get_cells reg1]
+set_timing_derate -late 1.1 [get_cells reg1]
+report_checks -path_delay max
+unset_timing_derate
 
 ############################################################
 # Set slew limit on clock
 ############################################################
 puts "--- set_max_transition on clock ---"
-catch {
-  set_max_transition 0.5 -clock_path [get_clocks clk1]
-  report_check_types -max_slew
-}
+set_max_transition 0.5 -clock_path [get_clocks clk1]
+report_check_types -max_slew
 
 ############################################################
 # Set capacitance limit on port
 ############################################################
 puts "--- set_max_capacitance on port ---"
-catch {
-  set_max_capacitance 0.1 [get_ports out1]
-  report_check_types -max_capacitance
-}
+set_max_capacitance 0.1 [get_ports out1]
+report_check_types -max_capacitance
 
 ############################################################
 # Port loading

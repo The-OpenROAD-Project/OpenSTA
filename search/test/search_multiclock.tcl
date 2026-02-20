@@ -38,15 +38,13 @@ report_checks -path_delay max
 report_checks -path_delay min
 
 puts "--- group_path with -weight ---"
-catch { group_path -name weighted_group -from [get_ports in1] -weight 2.0 }
+group_path -name weighted_group -from [get_ports in1] -weight 2.0
 
 puts "--- group_path with -default ---"
 catch { group_path -name default_group -default }
 
 puts "--- report_checks with -group filter ---"
-catch {
-  report_checks -path_delay max -group_path_count 3
-}
+report_checks -path_delay max -group_path_count 3
 
 puts "--- report_path_end with specific endpoints ---"
 set pe_list [find_timing_paths -path_delay max -endpoint_path_count 3]
@@ -71,15 +69,13 @@ set paths_mm [find_timing_paths -path_delay min_max -endpoint_path_count 3]
 puts "Min_max paths: [llength $paths_mm]"
 
 puts "--- find_timing_paths with unique_edges ---"
-catch {
-  set paths_ue [find_timing_paths -path_delay max -endpoint_path_count 5 -unique_paths_to_endpoint]
-  puts "Unique edge paths: [llength $paths_ue]"
-}
+set paths_ue [find_timing_paths -path_delay max -endpoint_path_count 5 -unique_paths_to_endpoint]
+puts "Unique edge paths: [llength $paths_ue]"
 
 puts "--- set_clock_sense ---"
-catch { set_clock_sense -positive [get_pins ckbuf1/Z] -clocks clk }
+set_clock_sense -positive [get_pins ckbuf1/Z] -clocks clk
 report_checks -path_delay max
-catch { set_clock_sense -stop [get_pins ckbuf2/Z] -clocks clk }
+set_clock_sense -stop [get_pins ckbuf2/Z] -clocks clk
 report_checks -path_delay max
 
 puts "--- report_check_types ---"

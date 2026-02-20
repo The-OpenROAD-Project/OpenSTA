@@ -166,27 +166,19 @@ foreach pe $paths2 {
 }
 
 puts "--- get_fanin with -trace_arcs all (thru disabled/constants) ---"
-catch {
-  set fanin_thru [get_fanin -to [get_pins reg1/D] -trace_arcs all]
-  puts "Fanin trace_arcs all: [llength $fanin_thru]"
-}
+set fanin_thru [get_fanin -to [get_pins reg1/D] -trace_arcs all]
+puts "Fanin trace_arcs all: [llength $fanin_thru]"
 
 puts "--- get_fanin with -trace_arcs timing ---"
-catch {
-  set fanin_timing [get_fanin -to [get_pins reg1/D] -trace_arcs timing]
-  puts "Fanin trace_arcs timing: [llength $fanin_timing]"
-}
+set fanin_timing [get_fanin -to [get_pins reg1/D] -trace_arcs timing]
+puts "Fanin trace_arcs timing: [llength $fanin_timing]"
 
 puts "--- get_fanin with -trace_arcs enabled ---"
-catch {
-  set fanin_enabled [get_fanin -to [get_pins reg1/D] -trace_arcs enabled]
-  puts "Fanin trace_arcs enabled: [llength $fanin_enabled]"
-}
+set fanin_enabled [get_fanin -to [get_pins reg1/D] -trace_arcs enabled]
+puts "Fanin trace_arcs enabled: [llength $fanin_enabled]"
 
 puts "--- get_fanin thru constants ---"
 set_case_analysis 1 [get_ports in1]
-catch {
-  set fanin_const [get_fanin -to [get_pins reg1/D] -trace_arcs all]
-  puts "Fanin with constants: [llength $fanin_const]"
-}
+set fanin_const [get_fanin -to [get_pins reg1/D] -trace_arcs all]
+puts "Fanin with constants: [llength $fanin_const]"
 unset_case_analysis [get_ports in1]

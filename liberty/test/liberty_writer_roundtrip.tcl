@@ -82,58 +82,48 @@ foreach cell_name {INV_X1 BUF_X1 NAND2_X1 NOR2_X1 AND2_X1 OR2_X1
 
 # Sequential cells (rising_edge, setup_rising, hold_rising, etc.)
 foreach cell_name {DFF_X1 DFF_X2 DFFR_X1 DFFS_X1 DFFRS_X1} {
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set arc_sets [$cell timing_arc_sets]
-    puts "$cell_name: [llength $arc_sets] arc sets"
-  }
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  set arc_sets [$cell timing_arc_sets]
+  puts "$cell_name: [llength $arc_sets] arc sets"
 }
 
 # Tristate cells (three_state_enable, three_state_disable)
 foreach cell_name {TINV_X1 TBUF_X1 TBUF_X2} {
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set arc_sets [$cell timing_arc_sets]
-    puts "$cell_name: [llength $arc_sets] arc sets"
-    foreach arc_set $arc_sets {
-      set role [$arc_set role]
-      puts "  role=$role"
-    }
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  set arc_sets [$cell timing_arc_sets]
+  puts "$cell_name: [llength $arc_sets] arc sets"
+  foreach arc_set $arc_sets {
+    set role [$arc_set role]
+    puts "  role=$role"
   }
 }
 
 # Scan cells (exercises test_cell and scan paths)
 foreach cell_name {SDFF_X1 SDFFR_X1 SDFFS_X1 SDFFRS_X1} {
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set arc_sets [$cell timing_arc_sets]
-    puts "$cell_name: [llength $arc_sets] arc sets"
-  }
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  set arc_sets [$cell timing_arc_sets]
+  puts "$cell_name: [llength $arc_sets] arc sets"
 }
 
 # Clock gate cell (may have min_pulse_width arcs)
 foreach cell_name {CLKGATETST_X1 CLKGATETST_X2 CLKGATETST_X4} {
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set arc_sets [$cell timing_arc_sets]
-    puts "$cell_name: [llength $arc_sets] arc sets"
-    foreach arc_set $arc_sets {
-      set role [$arc_set role]
-      puts "  role=$role"
-    }
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  set arc_sets [$cell timing_arc_sets]
+  puts "$cell_name: [llength $arc_sets] arc sets"
+  foreach arc_set $arc_sets {
+    set role [$arc_set role]
+    puts "  role=$role"
   }
 }
 
 # Latch cells (latch_enable, latch_d_to_q)
 foreach cell_name {TLAT_X1} {
-  catch {
-    set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
-    set arc_sets [$cell timing_arc_sets]
-    puts "$cell_name: [llength $arc_sets] arc sets"
-    foreach arc_set $arc_sets {
-      set role [$arc_set role]
-      puts "  role=$role"
-    }
+  set cell [get_lib_cell NangateOpenCellLibrary/$cell_name]
+  set arc_sets [$cell timing_arc_sets]
+  puts "$cell_name: [llength $arc_sets] arc sets"
+  foreach arc_set $arc_sets {
+    set role [$arc_set role]
+    puts "  role=$role"
   }
 }
 

@@ -53,20 +53,18 @@ foreach cell_name {sky130_fd_sc_hd__buf_1 sky130_fd_sc_hd__nand2_1
                    sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfrtp_1
                    sky130_fd_sc_hd__ebufn_1 sky130_fd_sc_hd__dlclkp_1
                    sky130_fd_sc_hd__mux2_1 sky130_fd_sc_hd__sdfxtp_1} {
-  catch {
-    set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
-      set pg_count 0
-      set port_iter [$cell liberty_port_iterator]
-      while {[$port_iter has_next]} {
-        set port [$port_iter next]
-        if {[$port is_pwr_gnd]} {
-          incr pg_count
-        }
+  set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
+  if {$cell != "NULL" && $cell ne ""} {
+    set pg_count 0
+    set port_iter [$cell liberty_port_iterator]
+    while {[$port_iter has_next]} {
+      set port [$port_iter next]
+      if {[$port is_pwr_gnd]} {
+        incr pg_count
       }
-      $port_iter finish
-      puts "$cell_name pg_pin_count=$pg_count"
     }
+    $port_iter finish
+    puts "$cell_name pg_pin_count=$pg_count"
   }
 }
 
@@ -93,7 +91,7 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_2
                    sky130_fd_sc_hd__fa_1} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       puts "$cell_name leakage=$lp"
     }
@@ -113,7 +111,7 @@ foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
                    sky130_fd_sc_hd__sdlclkp_1 sky130_fd_sc_hd__dlclkp_1} {
   catch {
     set cell [get_lib_cell sky130_fd_sc_hd__tt_025C_1v80/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       set area [get_property $cell area]
       puts "$cell_name leakage=$lp area=$area"
@@ -126,11 +124,11 @@ foreach cell_name {sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dfxtp_2
 ############################################################
 puts "--- detailed cell reports with pg_pin ---"
 
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_1}
-catch {report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1}
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__inv_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__ebufn_1
+report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1
 
 ############################################################
 # Read IHP library (different voltage/supply naming)
@@ -142,7 +140,7 @@ foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
                    sg13g2_dfrbp_1 sg13g2_dlhq_1} {
   catch {
     set cell [get_lib_cell sg13g2_stdcell_typ_1p20V_25C/$cell_name]
-    if {$cell != "NULL"} {
+    if {$cell != "NULL" && $cell ne ""} {
       set lp [get_property $cell cell_leakage_power]
       set area [get_property $cell area]
       puts "IHP $cell_name leakage=$lp area=$area"

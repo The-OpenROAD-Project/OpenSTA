@@ -59,22 +59,22 @@ report_checks -corner slow -fields {slew cap input_pins} -format full_clock
 #---------------------------------------------------------------
 puts "--- report_dcalc per corner ---"
 
-catch {report_dcalc -corner fast -from [get_pins u1/A] -to [get_pins u1/Y]} msg
+set msg [report_dcalc -corner fast -from [get_pins u1/A] -to [get_pins u1/Y]]
 puts $msg
 
-catch {report_dcalc -corner slow -from [get_pins u1/A] -to [get_pins u1/Y]} msg
+set msg [report_dcalc -corner slow -from [get_pins u1/A] -to [get_pins u1/Y]]
 puts $msg
 
-catch {report_dcalc -corner fast -from [get_pins u2/A] -to [get_pins u2/Y]} msg
+set msg [report_dcalc -corner fast -from [get_pins u2/A] -to [get_pins u2/Y]]
 puts $msg
 
-catch {report_dcalc -corner slow -from [get_pins u2/A] -to [get_pins u2/Y]} msg
+set msg [report_dcalc -corner slow -from [get_pins u2/A] -to [get_pins u2/Y]]
 puts $msg
 
-catch {report_dcalc -corner fast -from [get_pins r1/CLK] -to [get_pins r1/Q]} msg
+set msg [report_dcalc -corner fast -from [get_pins r1/CLK] -to [get_pins r1/Q]]
 puts $msg
 
-catch {report_dcalc -corner slow -from [get_pins r1/CLK] -to [get_pins r1/Q]} msg
+set msg [report_dcalc -corner slow -from [get_pins r1/CLK] -to [get_pins r1/Q]]
 puts $msg
 
 #---------------------------------------------------------------
@@ -82,16 +82,16 @@ puts $msg
 #---------------------------------------------------------------
 puts "--- report_net per corner ---"
 
-catch {report_net -corner fast r1q} msg
+set msg [report_net -corner fast r1q]
 puts $msg
 
-catch {report_net -corner slow r1q} msg
+set msg [report_net -corner slow r1q]
 puts $msg
 
-catch {report_net -corner fast u2z} msg
+set msg [report_net -corner fast u2z]
 puts $msg
 
-catch {report_net -corner slow u2z} msg
+set msg [report_net -corner slow u2z]
 puts $msg
 
 #---------------------------------------------------------------
