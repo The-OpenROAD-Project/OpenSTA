@@ -77,7 +77,6 @@ set slvt_buffers [sta::find_library_buffers $slvt_lib]
 puts "--- cross-Vt equiv comparisons ---"
 
 # RVT vs LVT (different cell name suffix -> not equiv)
-catch {
   set rvt_inv [get_lib_cell asap7sc7p5t_INVBUF_RVT_FF_nldm_211120/INVx1_ASAP7_75t_R]
   set lvt_inv [get_lib_cell asap7sc7p5t_INVBUF_LVT_FF_nldm_211120/INVx1_ASAP7_75t_L]
   set result [sta::equiv_cells $rvt_inv $lvt_inv]
@@ -86,7 +85,6 @@ catch {
   puts "port_equiv RVT/LVT INVx1 = $result"
   set result [sta::equiv_cell_timing_arcs $rvt_inv $lvt_inv]
   puts "arc_equiv RVT/LVT INVx1 = $result"
-}
 
 ############################################################
 # Read ASAP7 SEQ libraries for sequential equiv
@@ -147,14 +145,12 @@ catch {
 ############################################################
 # Cross-library comparisons of DFF cells
 ############################################################
-catch {
   set rvt_dff [get_lib_cell asap7sc7p5t_SEQ_RVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_R]
   set lvt_dff [get_lib_cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DFFHQNx1_ASAP7_75t_L]
   set result [sta::equiv_cells $rvt_dff $lvt_dff]
   puts "equiv SEQ RVT/LVT DFFHQNx1 = $result"
   set result [sta::equiv_cell_ports $rvt_dff $lvt_dff]
   puts "port_equiv SEQ RVT/LVT DFFHQNx1 = $result"
-}
 
 ############################################################
 # Read Sky130 and make equiv cells for a very different PDK

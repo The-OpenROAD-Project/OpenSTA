@@ -74,16 +74,14 @@ puts "--- set_clock_uncertainty between clocks ---"
 set_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup 0.3
 report_checks -path_delay max
 
-catch { unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup }
+unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup
 
 ############################################################
 # Clock sense
 ############################################################
 puts "--- set_clock_sense ---"
-catch {
-  set_clock_sense -positive [get_pins ck1buf1/Z] -clocks [get_clocks clk1]
-  report_checks -path_delay max
-}
+set_clock_sense -positive [get_pins ck1buf1/Z] -clocks [get_clocks clk1]
+report_checks -path_delay max
 
 ############################################################
 # Timing derate -early/-late on design level

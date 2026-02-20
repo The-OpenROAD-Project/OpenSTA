@@ -44,40 +44,26 @@ puts "set_pi_model r3/Q: $msg"
 # Query pi models back using find_pi_elmore
 # find_pi_elmore returns {c2 rpi c1} or empty list
 puts "--- query pi_elmore ---"
-catch {
-  set pi_u1 [sta::find_pi_elmore [get_pins u1/Y] "rise" "max"]
-  puts "u1/Y rise max pi: $pi_u1"
-} msg
+set pi_u1 [sta::find_pi_elmore [get_pins u1/Y] "rise" "max"]
+puts "u1/Y rise max pi: $pi_u1"
 
-catch {
-  set pi_u1_f [sta::find_pi_elmore [get_pins u1/Y] "fall" "max"]
-  puts "u1/Y fall max pi: $pi_u1_f"
-} msg
+set pi_u1_f [sta::find_pi_elmore [get_pins u1/Y] "fall" "max"]
+puts "u1/Y fall max pi: $pi_u1_f"
 
-catch {
-  set pi_u2 [sta::find_pi_elmore [get_pins u2/Y] "rise" "max"]
-  puts "u2/Y rise max pi: $pi_u2"
-} msg
+set pi_u2 [sta::find_pi_elmore [get_pins u2/Y] "rise" "max"]
+puts "u2/Y rise max pi: $pi_u2"
 
-catch {
-  set pi_r1 [sta::find_pi_elmore [get_pins r1/Q] "rise" "max"]
-  puts "r1/Q rise max pi: $pi_r1"
-} msg
+set pi_r1 [sta::find_pi_elmore [get_pins r1/Q] "rise" "max"]
+puts "r1/Q rise max pi: $pi_r1"
 
-catch {
-  set pi_r1_min [sta::find_pi_elmore [get_pins r1/Q] "rise" "min"]
-  puts "r1/Q rise min pi: $pi_r1_min"
-} msg
+set pi_r1_min [sta::find_pi_elmore [get_pins r1/Q] "rise" "min"]
+puts "r1/Q rise min pi: $pi_r1_min"
 
-catch {
-  set pi_r2 [sta::find_pi_elmore [get_pins r2/Q] "fall" "max"]
-  puts "r2/Q fall max pi: $pi_r2"
-} msg
+set pi_r2 [sta::find_pi_elmore [get_pins r2/Q] "fall" "max"]
+puts "r2/Q fall max pi: $pi_r2"
 
-catch {
-  set pi_r3 [sta::find_pi_elmore [get_pins r3/Q] "rise" "max"]
-  puts "r3/Q rise max pi: $pi_r3"
-} msg
+set pi_r3 [sta::find_pi_elmore [get_pins r3/Q] "rise" "max"]
+puts "r3/Q rise max pi: $pi_r3"
 
 #---------------------------------------------------------------
 # Test 2: Set elmore delays and query back
@@ -101,30 +87,20 @@ set msg [sta::set_elmore r3/Q out 0.002]
 puts "set_elmore r3/Q -> out: $msg"
 
 # Query elmore values back
-catch {
-  set elm_u1 [sta::find_elmore [get_pins u1/Y] [get_pins u2/A] "rise" "max"]
-  puts "elmore u1/Y -> u2/A rise max: $elm_u1"
-} msg
+set elm_u1 [sta::find_elmore [get_pins u1/Y] [get_pins u2/A] "rise" "max"]
+puts "elmore u1/Y -> u2/A rise max: $elm_u1"
 
-catch {
-  set elm_u2 [sta::find_elmore [get_pins u2/Y] [get_pins r3/D] "rise" "max"]
-  puts "elmore u2/Y -> r3/D rise max: $elm_u2"
-} msg
+set elm_u2 [sta::find_elmore [get_pins u2/Y] [get_pins r3/D] "rise" "max"]
+puts "elmore u2/Y -> r3/D rise max: $elm_u2"
 
-catch {
-  set elm_r1 [sta::find_elmore [get_pins r1/Q] [get_pins u1/A] "rise" "max"]
-  puts "elmore r1/Q -> u1/A rise max: $elm_r1"
-} msg
+set elm_r1 [sta::find_elmore [get_pins r1/Q] [get_pins u1/A] "rise" "max"]
+puts "elmore r1/Q -> u1/A rise max: $elm_r1"
 
-catch {
-  set elm_r1f [sta::find_elmore [get_pins r1/Q] [get_pins u1/A] "fall" "max"]
-  puts "elmore r1/Q -> u1/A fall max: $elm_r1f"
-} msg
+set elm_r1f [sta::find_elmore [get_pins r1/Q] [get_pins u1/A] "fall" "max"]
+puts "elmore r1/Q -> u1/A fall max: $elm_r1f"
 
-catch {
-  set elm_r2 [sta::find_elmore [get_pins r2/Q] [get_pins u2/B] "rise" "max"]
-  puts "elmore r2/Q -> u2/B rise max: $elm_r2"
-} msg
+set elm_r2 [sta::find_elmore [get_pins r2/Q] [get_pins u2/B] "rise" "max"]
+puts "elmore r2/Q -> u2/B rise max: $elm_r2"
 
 catch {
   set elm_r3 [sta::find_elmore [get_pins r3/Q] [get_pins out] "rise" "max"]
@@ -185,15 +161,11 @@ puts "re-set elmore u2/Y -> r3/D: $msg"
 report_checks
 
 # Query overridden values
-catch {
-  set pi_u1_new [sta::find_pi_elmore [get_pins u1/Y] "rise" "max"]
-  puts "u1/Y rise max pi (new): $pi_u1_new"
-} msg
+set pi_u1_new [sta::find_pi_elmore [get_pins u1/Y] "rise" "max"]
+puts "u1/Y rise max pi (new): $pi_u1_new"
 
-catch {
-  set elm_u1_new [sta::find_elmore [get_pins u1/Y] [get_pins u2/A] "rise" "max"]
-  puts "elmore u1/Y -> u2/A (new): $elm_u1_new"
-} msg
+set elm_u1_new [sta::find_elmore [get_pins u1/Y] [get_pins u2/A] "rise" "max"]
+puts "elmore u1/Y -> u2/A (new): $elm_u1_new"
 
 #---------------------------------------------------------------
 # Test 6: Now override with SPEF
@@ -214,30 +186,20 @@ report_parasitic_annotation -report_unannotated
 #---------------------------------------------------------------
 puts "--- Test 7: query parasitics after SPEF ---"
 
-catch {
-  set pi_u1_spef [sta::find_pi_elmore [get_pins u1/Y] "rise" "max"]
-  puts "u1/Y pi after SPEF: $pi_u1_spef"
-} msg
+set pi_u1_spef [sta::find_pi_elmore [get_pins u1/Y] "rise" "max"]
+puts "u1/Y pi after SPEF: $pi_u1_spef"
 
-catch {
-  set pi_u2_spef [sta::find_pi_elmore [get_pins u2/Y] "rise" "max"]
-  puts "u2/Y pi after SPEF: $pi_u2_spef"
-} msg
+set pi_u2_spef [sta::find_pi_elmore [get_pins u2/Y] "rise" "max"]
+puts "u2/Y pi after SPEF: $pi_u2_spef"
 
-catch {
-  set pi_r1_spef [sta::find_pi_elmore [get_pins r1/Q] "rise" "max"]
-  puts "r1/Q pi after SPEF: $pi_r1_spef"
-} msg
+set pi_r1_spef [sta::find_pi_elmore [get_pins r1/Q] "rise" "max"]
+puts "r1/Q pi after SPEF: $pi_r1_spef"
 
-catch {
-  set elm_u1_spef [sta::find_elmore [get_pins u1/Y] [get_pins u2/A] "rise" "max"]
-  puts "elmore u1/Y->u2/A after SPEF: $elm_u1_spef"
-} msg
+set elm_u1_spef [sta::find_elmore [get_pins u1/Y] [get_pins u2/A] "rise" "max"]
+puts "elmore u1/Y->u2/A after SPEF: $elm_u1_spef"
 
-catch {
-  set elm_r1_spef [sta::find_elmore [get_pins r1/Q] [get_pins u1/A] "rise" "max"]
-  puts "elmore r1/Q->u1/A after SPEF: $elm_r1_spef"
-} msg
+set elm_r1_spef [sta::find_elmore [get_pins r1/Q] [get_pins u1/A] "rise" "max"]
+puts "elmore r1/Q->u1/A after SPEF: $elm_r1_spef"
 
 catch {
   set elm_r3_spef [sta::find_elmore [get_pins r3/Q] [get_pins out] "rise" "max"]

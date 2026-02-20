@@ -147,6 +147,4 @@ foreach cell_name {sg13g2_inv_1 sg13g2_buf_1 sg13g2_nand2_1
 # Write liberty roundtrip for Sky130 (exercises power writer)
 ############################################################
 set outfile [make_result_file liberty_leakage_power_deep_write.lib]
-catch {
   sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile
-}

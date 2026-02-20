@@ -58,10 +58,8 @@ catch {
 }
 
 puts "--- Network edit: disconnect_pin ---"
-catch {
-  disconnect_pin new_buf1 A
-  puts "disconnect_pin done"
-}
+disconnect_pin new_buf1 A
+puts "disconnect_pin done"
 
 puts "--- Network edit: delete_net ---"
 delete_net [get_nets new_net1]

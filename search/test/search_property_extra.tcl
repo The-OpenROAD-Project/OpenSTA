@@ -50,8 +50,8 @@ catch { puts "lport function: [get_property $lport function]" }
 puts "lport capacitance: [get_property $lport capacitance]"
 catch { puts "lport max_capacitance: [get_property $lport max_capacitance]" }
 catch { puts "lport max_transition: [get_property $lport max_transition]" }
-catch { puts "lport is_register_clock: [get_property $lport is_register_clock]" }
-catch { puts "lport is_clock: [get_property $lport is_clock]" }
+puts "lport is_register_clock: [get_property $lport is_register_clock]"
+puts "lport is_clock: [get_property $lport is_clock]"
 
 puts "--- LibertyCell extra properties ---"
 set buf_cell [get_lib_cells NangateOpenCellLibrary/BUF_X1]

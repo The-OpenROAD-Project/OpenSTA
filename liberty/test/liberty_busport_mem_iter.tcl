@@ -80,7 +80,6 @@ set gf_cells [get_lib_cells gf180mcu_fd_ip_sram__sram256x8m8wm1/*]
 puts "gf180mcu cells: [llength $gf_cells]"
 foreach cell_obj $gf_cells {
   set cname [get_full_name $cell_obj]
-  catch {
     set cell [get_lib_cell $cname]
     set port_iter [$cell liberty_port_iterator]
     set bus_count 0
@@ -88,7 +87,6 @@ foreach cell_obj $gf_cells {
       set port [$port_iter next]
       if {[$port is_bus] || [$port has_members]} {
         incr bus_count
-      }
     }
     $port_iter finish
     puts "  [get_name $cell_obj]: bus_ports=$bus_count"

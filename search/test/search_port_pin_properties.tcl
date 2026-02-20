@@ -145,10 +145,10 @@ puts "DFF_X1/D name: [get_property $lp_d name]"
 puts "DFF_X1/D full_name: [get_property $lp_d full_name]"
 puts "DFF_X1/D direction: [get_property $lp_d direction]"
 puts "DFF_X1/D capacitance: [get_property $lp_d capacitance]"
-catch { puts "DFF_X1/D is_clock: [get_property $lp_d is_clock]" }
+puts "DFF_X1/D is_clock: [get_property $lp_d is_clock]"
 catch { puts "DFF_X1/D is_register_clock: [get_property $lp_d is_register_clock]" }
 set lp_ck [get_lib_pins NangateOpenCellLibrary/DFF_X1/CK]
-catch { puts "DFF_X1/CK is_clock: [get_property $lp_ck is_clock]" }
+puts "DFF_X1/CK is_clock: [get_property $lp_ck is_clock]"
 catch { puts "DFF_X1/CK is_register_clock: [get_property $lp_ck is_register_clock]" }
 
 puts "--- Library properties ---"
