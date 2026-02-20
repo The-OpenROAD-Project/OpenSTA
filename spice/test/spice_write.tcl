@@ -38,20 +38,13 @@ puts $subckt_fh "M2 Q D VSS VSS nmos W=1u L=100n"
 puts $subckt_fh ".ends"
 close $subckt_fh
 
-# Attempt write_path_spice - exercises the Tcl command parsing and
-# C++ WritePathSpice code paths. Catch errors since subckt definitions
-# may not perfectly match, but the code path is exercised for coverage.
-set rc [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $spice_dir \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg]
-if { $rc == 0 } {
-  diff_files $test_name.spok [file join $spice_dir path_1.sp]
-} else {
-  puts "FAIL: write_path_spice returned error: $msg"
-}
+# write_path_spice - exercises the Tcl command parsing and
+# C++ WritePathSpice code paths.
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $spice_dir \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS
+diff_files $test_name.spok [file join $spice_dir path_1.sp]

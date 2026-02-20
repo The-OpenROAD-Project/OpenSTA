@@ -104,19 +104,13 @@ close $subckt_fh
 puts "--- write_path_spice max ---"
 set spice_dir1 [make_result_file spice_mp_max]
 file mkdir $spice_dir1
-set rc1 [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $spice_dir1 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg1]
-if { $rc1 == 0 } {
-} else {
-  puts "INFO: write_path_spice max: $msg1"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $spice_dir1 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS
 
 #---------------------------------------------------------------
 # write_path_spice with min path
@@ -124,19 +118,13 @@ if { $rc1 == 0 } {
 puts "--- write_path_spice min ---"
 set spice_dir2 [make_result_file spice_mp_min]
 file mkdir $spice_dir2
-set rc2 [catch {
-  write_path_spice \
-    -path_args {-path_delay min} \
-    -spice_directory $spice_dir2 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg2]
-if { $rc2 == 0 } {
-} else {
-  puts "INFO: write_path_spice min: $msg2"
-}
+write_path_spice \
+  -path_args {-path_delay min} \
+  -spice_directory $spice_dir2 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS
 
 #---------------------------------------------------------------
 # write_path_spice with specific from/to
@@ -164,20 +152,14 @@ if { $rc3 == 0 } {
 puts "--- write_path_spice hspice ---"
 set spice_dir4 [make_result_file spice_mp_hspice]
 file mkdir $spice_dir4
-set rc4 [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $spice_dir4 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS \
-    -simulator hspice
-} msg4]
-if { $rc4 == 0 } {
-} else {
-  puts "INFO: write_path_spice hspice: $msg4"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $spice_dir4 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS \
+  -simulator hspice
 
 #---------------------------------------------------------------
 # write_path_spice with xyce
@@ -185,20 +167,14 @@ if { $rc4 == 0 } {
 puts "--- write_path_spice xyce ---"
 set spice_dir5 [make_result_file spice_mp_xyce]
 file mkdir $spice_dir5
-set rc5 [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $spice_dir5 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS \
-    -simulator xyce
-} msg5]
-if { $rc5 == 0 } {
-} else {
-  puts "INFO: write_path_spice xyce: $msg5"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $spice_dir5 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS \
+  -simulator xyce
 
 #---------------------------------------------------------------
 # write_gate_spice with multiple cells and transitions

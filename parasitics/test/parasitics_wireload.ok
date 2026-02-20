@@ -39,8 +39,8 @@ Path Type: max
 
 
 --- pi model very small ---
-set_pi_model u1/Y tiny: invalid command name "set_pi_model"
-set_elmore u1/Y->u2/A tiny: invalid command name "set_elmore"
+set_pi_model u1/Y tiny: done
+set_elmore u1/Y->u2/A tiny: done
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -71,12 +71,12 @@ Path Type: max
 
 
 --- pi model medium ---
-set_pi_model u2/Y medium: invalid command name "set_pi_model"
-set_elmore u2/Y->r3/D: invalid command name "set_elmore"
-set_pi_model r1/Q large: invalid command name "set_pi_model"
-set_elmore r1/Q->u1/A: invalid command name "set_elmore"
-set_pi_model r2/Q: invalid command name "set_pi_model"
-set_elmore r2/Q->u2/B: invalid command name "set_elmore"
+set_pi_model u2/Y medium: done
+set_elmore u2/Y->r3/D: done
+set_pi_model r1/Q large: done
+set_elmore r1/Q->u1/A: done
+set_pi_model r2/Q: done
+set_elmore r2/Q->u2/B: done
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -253,23 +253,23 @@ Path Type: max
    0.00    0.00   clock clk (rise edge)
    0.00    0.00   clock network delay (propagated)
    0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  48.40   48.40 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  11.77   60.17 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  14.88   75.04 ^ u2/Y (AND2x2_ASAP7_75t_R)
-   0.00   75.04 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-          75.04   data arrival time
+  47.84   47.84 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  10.64   58.48 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  13.12   71.60 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.01   71.61 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          71.61   data arrival time
 
  500.00  500.00   clock clk (rise edge)
    0.00  500.00   clock network delay (propagated)
    0.00  500.00   clock reconvergence pessimism
          500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-  -5.78  494.22   library setup time
-         494.22   data required time
+  -5.56  494.44   library setup time
+         494.44   data required time
 ---------------------------------------------------------
-         494.22   data required time
-         -75.04   data arrival time
+         494.44   data required time
+         -71.61   data arrival time
 ---------------------------------------------------------
-         419.17   slack (MET)
+         422.83   slack (MET)
 
 
 --- dmp_ceff_two_pole with pi models ---
@@ -496,8 +496,8 @@ Slew = 4.92
 
 lumped dcalc u1: done
 --- override pi model ---
-re-set u1/Y: invalid command name "set_pi_model"
-re-set u2/Y: invalid command name "set_pi_model"
+re-set u1/Y: done
+re-set u2/Y: done
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -585,8 +585,8 @@ Unannotated Arcs
  internal net       u2/Y -> r3/D 
 annotated -report_unannotated: done
 --- SPEF override ---
-Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
-Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out (output port clocked by clk)
 Path Group: clk
 Path Type: max
 
@@ -594,24 +594,21 @@ Path Type: max
 ---------------------------------------------------------
    0.00    0.00   clock clk (rise edge)
   12.11   12.11   clock network delay (propagated)
-   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  49.30  124.92 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  61.03  185.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
-  15.77  201.72 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-         201.72   data arrival time
+   0.00   12.11 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  63.46   75.57 ^ r3/Q (DFFHQx4_ASAP7_75t_R)
+  13.15   88.72 ^ out (out)
+          88.72   data arrival time
 
  500.00  500.00   clock clk (rise edge)
-  11.92  511.92   clock network delay (propagated)
-   0.00  511.92   clock reconvergence pessimism
-         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-  -8.46  503.46   library setup time
-         503.46   data required time
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+  -1.00  499.00   output external delay
+         499.00   data required time
 ---------------------------------------------------------
-         503.46   data required time
-        -201.72   data arrival time
+         499.00   data required time
+         -88.72   data arrival time
 ---------------------------------------------------------
-         301.74   slack (MET)
+         410.28   slack (MET)
 
 
 Found 0 unannotated drivers.
@@ -619,8 +616,8 @@ Found 0 partially unannotated drivers.
 --- report_net ---
 Net r1q
  Pin capacitance: 0.3994-0.5226
- Wire capacitance: 13.4000-13.4000
- Total capacitance: 13.7994-13.9226
+ Wire capacitance: 0.0000
+ Total capacitance: 0.3994-0.5226
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -634,8 +631,8 @@ Load pins
 report_net r1q: done
 Net r2q
  Pin capacitance: 0.4414-0.5770
- Wire capacitance: 13.4000-13.4000
- Total capacitance: 13.8414-13.9770
+ Wire capacitance: 0.0000
+ Total capacitance: 0.4414-0.5770
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -649,8 +646,8 @@ Load pins
 report_net r2q: done
 Net u1z
  Pin capacitance: 0.3171-0.5657
- Wire capacitance: 13.4000-13.4000
- Total capacitance: 13.7171-13.9657
+ Wire capacitance: 0.0000
+ Total capacitance: 0.3171-0.5657
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -664,8 +661,8 @@ Load pins
 report_net u1z: done
 Net u2z
  Pin capacitance: 0.5479-0.6212
- Wire capacitance: 13.4000-13.4000
- Total capacitance: 13.9479-14.0212
+ Wire capacitance: 0.0000
+ Total capacitance: 0.5479-0.6212
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2

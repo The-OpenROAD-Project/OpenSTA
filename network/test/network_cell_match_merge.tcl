@@ -257,8 +257,8 @@ foreach nname $chain_nets {
     disconnect_pin $nname $iname/Z
   }
 }
-foreach iname $chain_insts {catch {delete_instance $iname}}
-foreach nname $chain_nets {catch {delete_net $nname}}
+foreach iname $chain_insts {delete_instance $iname}
+foreach nname $chain_nets {delete_net $nname}
 
 # Final timing check
 report_checks

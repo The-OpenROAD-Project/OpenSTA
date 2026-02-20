@@ -106,51 +106,33 @@ if { $rc == 0 } {
 puts "--- write_path_spice to out1 ---"
 set spice_dir2 [file join $spice_dir path_out1]
 file mkdir $spice_dir2
-set rc [catch {
-  write_path_spice \
-    -path_args {-to out1 -path_delay max} \
-    -spice_directory $spice_dir2 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_path_spice to out1: $msg"
-}
+write_path_spice \
+  -path_args {-to out1 -path_delay max} \
+  -spice_directory $spice_dir2 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS
 
 puts "--- write_path_spice to out2 ---"
 set spice_dir3 [file join $spice_dir path_out2]
 file mkdir $spice_dir3
-set rc [catch {
-  write_path_spice \
-    -path_args {-to out2 -path_delay max} \
-    -spice_directory $spice_dir3 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_path_spice to out2: $msg"
-}
+write_path_spice \
+  -path_args {-to out2 -path_delay max} \
+  -spice_directory $spice_dir3 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS
 
 puts "--- write_path_spice with ngspice ---"
 set spice_dir4 [file join $spice_dir path_ng]
 file mkdir $spice_dir4
-set rc [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $spice_dir4 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS \
-    -simulator ngspice
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_path_spice ngspice: $msg"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $spice_dir4 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS \
+  -simulator ngspice

@@ -54,11 +54,7 @@ if { [file exists $log_file] } {
 # gzstream: Read/write gzipped liberty
 #---------------------------------------------------------------
 puts "--- gzipped liberty read ---"
-set rc [catch { read_liberty ../../test/nangate45/nangate45_typ.lib.gz } msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: gzipped liberty read: $msg"
-}
+read_liberty ../../test/nangate45/nangate45_typ.lib.gz
 
 #---------------------------------------------------------------
 # Report warn path (triggered by warnings in design analysis)

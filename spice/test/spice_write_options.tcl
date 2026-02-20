@@ -43,51 +43,33 @@ puts $subckt_fh ".ends"
 close $subckt_fh
 
 puts "--- write_path_spice default ---"
-set rc1 [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $spice_dir \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg1]
-if { $rc1 == 0 } {
-} else {
-  puts "INFO: write_path_spice default: $msg1"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $spice_dir \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS
 
 puts "--- write_path_spice with -simulator hspice ---"
-set rc2 [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $spice_dir \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS \
-    -simulator hspice
-} msg2]
-if { $rc2 == 0 } {
-} else {
-  puts "INFO: write_path_spice hspice: $msg2"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $spice_dir \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS \
+  -simulator hspice
 
 puts "--- write_path_spice with -simulator xyce ---"
-set rc3 [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $spice_dir \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS \
-    -simulator xyce
-} msg3]
-if { $rc3 == 0 } {
-} else {
-  puts "INFO: write_path_spice xyce: $msg3"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $spice_dir \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS \
+  -simulator xyce
 
 puts "--- write_gate_spice ---"
 set gate_spice_file [file join $spice_dir gate_test.sp]

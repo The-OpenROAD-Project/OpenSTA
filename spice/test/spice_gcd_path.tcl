@@ -70,19 +70,13 @@ close $subckt_fh
 puts "--- write_path_spice max ngspice ---"
 set dir1 [make_result_file spice_gcd_max]
 file mkdir $dir1
-set rc [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $dir1 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VPWR \
-    -ground VGND
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_path_spice max: $msg"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $dir1 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VPWR \
+  -ground VGND
 
 #---------------------------------------------------------------
 # write_path_spice with min path
@@ -90,19 +84,13 @@ if { $rc == 0 } {
 puts "--- write_path_spice min ---"
 set dir2 [make_result_file spice_gcd_min]
 file mkdir $dir2
-set rc [catch {
-  write_path_spice \
-    -path_args {-path_delay min} \
-    -spice_directory $dir2 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VPWR \
-    -ground VGND
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_path_spice min: $msg"
-}
+write_path_spice \
+  -path_args {-path_delay min} \
+  -spice_directory $dir2 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VPWR \
+  -ground VGND
 
 #---------------------------------------------------------------
 # write_path_spice with hspice
@@ -111,20 +99,14 @@ if { $rc == 0 } {
 puts "--- write_path_spice hspice ---"
 set dir3 [make_result_file spice_gcd_hspice]
 file mkdir $dir3
-set rc [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $dir3 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VPWR \
-    -ground VGND \
-    -simulator hspice
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_path_spice hspice: $msg"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $dir3 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VPWR \
+  -ground VGND \
+  -simulator hspice
 
 #---------------------------------------------------------------
 # write_path_spice with xyce
@@ -133,20 +115,14 @@ if { $rc == 0 } {
 puts "--- write_path_spice xyce ---"
 set dir4 [make_result_file spice_gcd_xyce]
 file mkdir $dir4
-set rc [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $dir4 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VPWR \
-    -ground VGND \
-    -simulator xyce
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_path_spice xyce: $msg"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $dir4 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VPWR \
+  -ground VGND \
+  -simulator xyce
 
 #---------------------------------------------------------------
 # write_path_spice with specific from/to

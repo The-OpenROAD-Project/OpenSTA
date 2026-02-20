@@ -61,13 +61,8 @@ set all_nets [get_nets *]
 puts "total nets: [llength $all_nets]"
 
 foreach net_name {r1q r2q u1z u2z in1 in2 out clk1 clk2 clk3} {
-  catch {
-    set net [get_nets $net_name]
-    puts "net $net_name: [get_full_name $net]"
-  } msg
-  if {$msg ne ""} {
-    puts "  (net $net_name: $msg)"
-  }
+  set net [get_nets $net_name]
+  puts "net $net_name: [get_full_name $net]"
 }
 
 #---------------------------------------------------------------

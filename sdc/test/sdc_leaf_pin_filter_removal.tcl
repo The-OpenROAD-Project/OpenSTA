@@ -71,11 +71,9 @@ foreach i $insts {
 puts "--- pin properties ---"
 foreach p [get_pins buf1/*] {
   set name [get_full_name $p]
-  catch {
-    set dir [get_property $p direction]
-    set is_clk [get_property $p is_clock]
-    puts "  pin $name: direction=$dir is_clock=$is_clk"
-  }
+  set dir [get_property $p direction]
+  set is_clk [get_property $p is_clock]
+  puts "  pin $name: direction=$dir is_clock=$is_clk"
 }
 
 ############################################################
@@ -145,10 +143,8 @@ puts "output ports: [llength $out_ports]"
 # findLeafLoadPins / findLeafDriverPins via reporting
 ############################################################
 puts "--- report_net_load ---"
-catch {
-  foreach n [get_nets *] {
-    report_net [get_full_name $n]
-  }
+foreach n [get_nets *] {
+  report_net [get_full_name $n]
 }
 
 ############################################################

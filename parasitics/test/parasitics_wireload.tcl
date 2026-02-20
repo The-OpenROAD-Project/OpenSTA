@@ -28,11 +28,11 @@ report_checks
 # Set pi model with very small values
 #---------------------------------------------------------------
 puts "--- pi model very small ---"
-catch {set_pi_model u1/Y 0.00001 0.01 0.000005} msg
-puts "set_pi_model u1/Y tiny: $msg"
+sta::set_pi_model u1/Y 0.00001 0.01 0.000005
+puts "set_pi_model u1/Y tiny: done"
 
-catch {set_elmore u1/Y u2/A 0.00001} msg
-puts "set_elmore u1/Y->u2/A tiny: $msg"
+sta::set_elmore u1/Y u2/A 0.00001
+puts "set_elmore u1/Y->u2/A tiny: done"
 
 report_checks
 
@@ -40,23 +40,23 @@ report_checks
 # Set pi model with medium values on multiple nets
 #---------------------------------------------------------------
 puts "--- pi model medium ---"
-catch {set_pi_model u2/Y 0.01 20.0 0.005} msg
-puts "set_pi_model u2/Y medium: $msg"
+sta::set_pi_model u2/Y 0.01 20.0 0.005
+puts "set_pi_model u2/Y medium: done"
 
-catch {set_elmore u2/Y r3/D 0.01} msg
-puts "set_elmore u2/Y->r3/D: $msg"
+sta::set_elmore u2/Y r3/D 0.01
+puts "set_elmore u2/Y->r3/D: done"
 
-catch {set_pi_model r1/Q 0.05 50.0 0.02} msg
-puts "set_pi_model r1/Q large: $msg"
+sta::set_pi_model r1/Q 0.05 50.0 0.02
+puts "set_pi_model r1/Q large: done"
 
-catch {set_elmore r1/Q u1/A 0.05} msg
-puts "set_elmore r1/Q->u1/A: $msg"
+sta::set_elmore r1/Q u1/A 0.05
+puts "set_elmore r1/Q->u1/A: done"
 
-catch {set_pi_model r2/Q 0.03 30.0 0.01} msg
-puts "set_pi_model r2/Q: $msg"
+sta::set_pi_model r2/Q 0.03 30.0 0.01
+puts "set_pi_model r2/Q: done"
 
-catch {set_elmore r2/Q u2/B 0.02} msg
-puts "set_elmore r2/Q->u2/B: $msg"
+sta::set_elmore r2/Q u2/B 0.02
+puts "set_elmore r2/Q->u2/B: done"
 
 report_checks
 
@@ -99,11 +99,11 @@ puts "lumped dcalc u1: done"
 #---------------------------------------------------------------
 puts "--- override pi model ---"
 set_delay_calculator dmp_ceff_elmore
-catch {set_pi_model u1/Y 0.02 25.0 0.01} msg
-puts "re-set u1/Y: $msg"
+sta::set_pi_model u1/Y 0.02 25.0 0.01
+puts "re-set u1/Y: done"
 
-catch {set_pi_model u2/Y 0.005 10.0 0.002} msg
-puts "re-set u2/Y: $msg"
+sta::set_pi_model u2/Y 0.005 10.0 0.002
+puts "re-set u2/Y: done"
 
 report_checks
 
