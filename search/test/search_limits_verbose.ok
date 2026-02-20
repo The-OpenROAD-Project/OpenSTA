@@ -516,7 +516,6 @@ clk                                     1.12
 --- check_setup -multiple_clock ---
 --- check_setup -unconstrained_endpoints ---
 --- check_setup -loops ---
---- slack/limit ratios ---
 --- endpoint_violation_count ---
 max violations: 0
 min violations: 0

@@ -46,17 +46,6 @@ create_generated_clock -name gclk_mul2 -source [get_ports clk1] -multiply_by 2 [
 # Generated clocks - edges
 ############################################################
 
-# Edge-based generated clock
-# Commented out: -add requires -master_clock when multiple clocks drive this pin
-# create_generated_clock -name gclk_edge -source [get_ports clk1] -edges {1 3 5} [get_pins reg1/Q] -add
-
-############################################################
-# Generated clock - edge shift
-############################################################
-
-# Commented out: -add requires -master_clock when multiple clocks drive this pin
-# create_generated_clock -name gclk_shift -source [get_ports clk2] -edges {1 3 5} -edge_shift {0.0 0.5 1.0} [get_pins reg3/Q] -add
-
 ############################################################
 # Report clock properties after generated clocks
 ############################################################

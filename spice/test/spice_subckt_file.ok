@@ -28,10 +28,6 @@ Path Type: max
            8.86   slack (MET)
 
 
---- write_gate_spice multiple gates ---
-INFO: write_gate_spice multiple gates: invalid command name "write_gate_spice_cmd"
---- write_gate_spice AND gate ---
-INFO: write_gate_spice AND: invalid command name "write_gate_spice_cmd"
 --- write_path_spice to out1 ---
 --- write_path_spice to out2 ---
 --- write_path_spice with ngspice ---

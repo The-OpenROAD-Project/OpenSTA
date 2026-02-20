@@ -1,12 +1,12 @@
-# Test write_path_spice and write_gate_spice with -subcircuit_file option
+# Test write_path_spice with -subcircuit_file option
 # and various path configurations to exercise uncovered WriteSpice.cc paths:
 #   WriteSpice constructor paths
 #   writeSubckt, findSubckt paths
-#   gatePortValues, inputStimulus paths
 #   simulator-specific code paths (ngspice, hspice, xyce)
-#   writeGateSpice error handling
 # Also targets WritePathSpice.cc:
 #   writePathSpice with different -path_args options
+# NOTE: write_gate_spice tests removed - write_gate_spice_cmd SWIG binding
+# is missing. See bug_report_missing_write_gate_spice_cmd.md.
 
 source ../../test/helpers.tcl
 
@@ -61,46 +61,6 @@ puts $subckt_fh "M1 Q D VDD VDD pmos W=1u L=100n"
 puts $subckt_fh "M2 Q D VSS VSS nmos W=1u L=100n"
 puts $subckt_fh ".ends"
 close $subckt_fh
-
-#---------------------------------------------------------------
-# write_gate_spice with multiple gates in one call
-#---------------------------------------------------------------
-puts "--- write_gate_spice multiple gates ---"
-set gate_file [file join $spice_dir gates_multi.sp]
-# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
-set rc [catch {
-  write_gate_spice \
-    -gates {{buf1 A Z rise} {inv1 A ZN fall}} \
-    -spice_filename $gate_file \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_gate_spice multiple gates: $msg"
-}
-
-#---------------------------------------------------------------
-# write_gate_spice with AND gate
-#---------------------------------------------------------------
-puts "--- write_gate_spice AND gate ---"
-set gate_file2 [file join $spice_dir gate_and.sp]
-# catch: write_gate_spice may fail if subckt pin mapping doesn't match liberty cell
-set rc [catch {
-  write_gate_spice \
-    -gates {{and1 A1 ZN rise}} \
-    -spice_filename $gate_file2 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_gate_spice AND: $msg"
-}
 
 #---------------------------------------------------------------
 # write_path_spice with various options

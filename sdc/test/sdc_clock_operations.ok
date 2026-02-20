@@ -380,7 +380,6 @@ Path Type: max
            0.33   slack (MET)
 
 
---- generated clock invert ---
 --- set_propagated_clock ---
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)

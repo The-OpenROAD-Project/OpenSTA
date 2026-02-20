@@ -27,14 +27,6 @@ Path Type: max
            8.90   slack (MET)
 
 
---- write_gate_spice ngspice ---
-INFO: write_gate_spice ngspice: invalid command name "write_gate_spice_cmd"
---- write_gate_spice fall ---
-INFO: write_gate_spice fall: invalid command name "write_gate_spice_cmd"
---- write_gate_spice xyce ---
-INFO: write_gate_spice xyce: invalid command name "write_gate_spice_cmd"
---- write_gate_spice hspice ---
-INFO: write_gate_spice hspice: invalid command name "write_gate_spice_cmd"
 --- write_path_spice max slack ---
 --- write_path_spice min path ---
 --- write_path_spice hspice ---

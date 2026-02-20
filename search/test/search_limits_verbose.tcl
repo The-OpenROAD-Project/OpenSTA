@@ -208,14 +208,6 @@ puts "--- check_setup -loops ---"
 check_setup -verbose -loops
 
 ############################################################
-# max_slew_check_slack_limit / max_cap_check_slack_limit / etc.
-############################################################
-puts "--- slack/limit ratios ---"
-# max_slew_check_slack_limit is not exposed as Tcl command; removed
-# max_capacitance_check_slack_limit is not exposed as Tcl command; removed
-# max_fanout_check_slack_limit is not exposed as Tcl command; removed
-
-############################################################
 # Endpoint violation counts
 ############################################################
 puts "--- endpoint_violation_count ---"

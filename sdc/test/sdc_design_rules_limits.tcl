@@ -68,10 +68,6 @@ set_max_fanout 20 [current_design]
 set_max_fanout 10 [get_ports in1]
 set_max_fanout 15 [get_ports in2]
 
-# Cell-level fanout limit
-# set_max_fanout on a liberty cell object is not supported in OpenSTA
-# set_max_fanout 8 [get_lib_cells NangateOpenCellLibrary/INV_X1]
-
 ############################################################
 # Max area
 ############################################################

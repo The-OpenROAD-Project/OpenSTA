@@ -54,12 +54,6 @@ puts "--- generated clock edges ---"
 create_generated_clock -name gclk_edge -source [get_ports clk1] -edges {1 3 5} [get_pins reg2/Q]
 report_checks
 
-puts "--- generated clock invert ---"
-# -invert with -divide_by 1 and -add on a pin that already has a generated clock
-# Commented out: -add requires -master_clock when multiple clocks drive this pin
-# create_generated_clock -name gclk_inv -source [get_ports clk1] -divide_by 1 -invert [get_pins reg1/Q] -add
-# report_checks
-
 ############################################################
 # Propagated clock
 ############################################################

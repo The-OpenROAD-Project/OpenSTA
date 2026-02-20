@@ -134,9 +134,6 @@ set_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -setup 0.5
 
 set_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -hold 0.3
 
-# -clock_fall is not a valid option for set_data_check
-# set_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -setup 0.6 -clock_fall
-
 ############################################################
 # Case analysis and logic values (Constants)
 ############################################################

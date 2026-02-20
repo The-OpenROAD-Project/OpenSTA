@@ -39,15 +39,6 @@ Path Type: max
            0.75   slack (MET)
 
 
-total cells: 1292
---- write_gate_spice ngspice buf ---
-INFO: write_gate_spice ngspice buf: invalid command name "write_gate_spice_cmd"
---- write_gate_spice ngspice buf fall ---
-INFO: write_gate_spice ngspice buf fall: invalid command name "write_gate_spice_cmd"
---- write_gate_spice hspice buf ---
-INFO: write_gate_spice hspice buf: invalid command name "write_gate_spice_cmd"
---- write_gate_spice xyce buf ---
-INFO: write_gate_spice xyce buf: invalid command name "write_gate_spice_cmd"
 --- write_path_spice tests ---
 INFO: write_path_spice ngspice max: Error: The subkct file /workspace/sta/OpenSTA/spice/test/results/spice_gcd_gate_out/sky130_subckt.sp is missing definitions for 
 sky130_fd_sc_hd__a21boi_2

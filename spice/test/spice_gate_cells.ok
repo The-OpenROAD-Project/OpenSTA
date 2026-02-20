@@ -28,25 +28,3 @@ Path Type: max
            8.86   slack (MET)
 
 
---- write_gate_spice BUF_X1 rise ngspice ---
-INFO: write_gate_spice BUF rise: invalid command name "write_gate_spice_cmd"
---- write_gate_spice BUF_X1 fall ---
-INFO: write_gate_spice BUF fall: invalid command name "write_gate_spice_cmd"
---- write_gate_spice INV_X1 rise ---
-INFO: write_gate_spice INV rise: invalid command name "write_gate_spice_cmd"
---- write_gate_spice INV_X1 fall ---
-INFO: write_gate_spice INV fall: invalid command name "write_gate_spice_cmd"
---- write_gate_spice AND2_X1 rise ---
-INFO: write_gate_spice AND rise: invalid command name "write_gate_spice_cmd"
---- write_gate_spice AND2_X1 A2 ---
-INFO: write_gate_spice AND A2: invalid command name "write_gate_spice_cmd"
---- write_gate_spice OR2_X1 rise ---
-INFO: write_gate_spice OR rise: invalid command name "write_gate_spice_cmd"
---- write_gate_spice hspice ---
-INFO: write_gate_spice hspice: invalid command name "write_gate_spice_cmd"
---- write_gate_spice xyce ---
-INFO: write_gate_spice xyce: invalid command name "write_gate_spice_cmd"
---- write_gate_spice xyce INV ---
-INFO: write_gate_spice xyce INV: invalid command name "write_gate_spice_cmd"
---- write_gate_spice hspice AND ---
-INFO: write_gate_spice hspice AND: invalid command name "write_gate_spice_cmd"

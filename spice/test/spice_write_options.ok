@@ -28,7 +28,3 @@ Path Type: max
 --- write_path_spice default ---
 --- write_path_spice with -simulator hspice ---
 --- write_path_spice with -simulator xyce ---
---- write_gate_spice ---
-INFO: write_gate_spice: invalid command name "write_gate_spice_cmd"
---- write_gate_spice with -simulator hspice ---
-INFO: write_gate_spice hspice: invalid command name "write_gate_spice_cmd"

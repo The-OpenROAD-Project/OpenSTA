@@ -38,47 +38,6 @@ report_checks -from [get_ports in2] -to [get_ports out]
 report_checks -fields {slew cap input_pins nets fanout}
 
 #---------------------------------------------------------------
-# Test 2: Query pi_pole_residue model values
-# Exercises: findPiPoleResidue, poleResidueCount, poleResidue
-#---------------------------------------------------------------
-puts "--- Test 2: query pi_pole_residue ---"
-
-# catch: sta::find_pi_pole_residue is not exposed as Tcl command
-catch {
-  set ppr [sta::find_pi_pole_residue [get_pins u1/Y] "rise" "max"]
-  puts "u1/Y rise max pi_pole_residue: $ppr"
-} msg
-puts "find_pi_pole_residue u1/Y rise max: done ($msg)"
-
-# catch: sta::find_pi_pole_residue is not exposed as Tcl command
-catch {
-  set ppr [sta::find_pi_pole_residue [get_pins u1/Y] "fall" "max"]
-  puts "u1/Y fall max pi_pole_residue: $ppr"
-} msg
-puts "find_pi_pole_residue u1/Y fall max: done ($msg)"
-
-# catch: sta::find_pi_pole_residue is not exposed as Tcl command
-catch {
-  set ppr [sta::find_pi_pole_residue [get_pins u2/Y] "rise" "max"]
-  puts "u2/Y rise max pi_pole_residue: $ppr"
-} msg
-puts "find_pi_pole_residue u2/Y rise max: done ($msg)"
-
-# catch: sta::find_pi_pole_residue is not exposed as Tcl command
-catch {
-  set ppr [sta::find_pi_pole_residue [get_pins r1/Q] "rise" "max"]
-  puts "r1/Q rise max pi_pole_residue: $ppr"
-} msg
-puts "find_pi_pole_residue r1/Q rise max: done ($msg)"
-
-# catch: sta::find_pi_pole_residue is not exposed as Tcl command
-catch {
-  set ppr [sta::find_pi_pole_residue [get_pins r2/Q] "fall" "min"]
-  puts "r2/Q fall min pi_pole_residue: $ppr"
-} msg
-puts "find_pi_pole_residue r2/Q fall min: done ($msg)"
-
-#---------------------------------------------------------------
 # Test 3: Delay calc reports with two-pole model
 # Exercises: parasitic access through dcalc for pole/residue
 #---------------------------------------------------------------

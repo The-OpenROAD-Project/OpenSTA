@@ -157,12 +157,6 @@ set_max_delay -from [get_ports in3] -to [get_ports out2] -ignore_clock_latency 7
 set_min_delay -from [get_ports in3] -to [get_ports out2] 0.5
 
 ############################################################
-# Min fanout limit (covers setMinFanout through set_min_fanout if available)
-############################################################
-# set_min_fanout is not a valid SDC command in OpenSTA
-# set_min_fanout 2 [current_design]
-
-############################################################
 # Write SDC
 ############################################################
 set sdc1 [make_result_file sdc_delay_borrow_group1.sdc]

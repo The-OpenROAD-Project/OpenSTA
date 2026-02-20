@@ -158,7 +158,6 @@ Path group names: clk input_paths output_paths reg2reg_paths asynchronous {path 
 clk is group: 1
 input_paths is group: 1
 nonexistent is group: 0
---- group_path -default ---
 --- report_path_ends ---
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)

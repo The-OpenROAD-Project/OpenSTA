@@ -99,12 +99,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                 302.89   slack (MET)
 
 
---- Test 2: query pi_pole_residue ---
-find_pi_pole_residue u1/Y rise max: done (invalid command name "sta::find_pi_pole_residue")
-find_pi_pole_residue u1/Y fall max: done (invalid command name "sta::find_pi_pole_residue")
-find_pi_pole_residue u2/Y rise max: done (invalid command name "sta::find_pi_pole_residue")
-find_pi_pole_residue r1/Q rise max: done (invalid command name "sta::find_pi_pole_residue")
-find_pi_pole_residue r2/Q fall min: done (invalid command name "sta::find_pi_pole_residue")
 --- Test 3: dcalc with two-pole ---
 Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 Cell: BUFx2_ASAP7_75t_R

@@ -65,12 +65,3 @@ No paths found.
 INFO: write_path_spice specific: Error: spice_multipath.tcl line 1, No paths found for -path_args -from in1 -to out1.
 --- write_path_spice hspice ---
 --- write_path_spice xyce ---
---- write_gate_spice multiple cells ---
-INFO: gate BUF rise: invalid command name "write_gate_spice_cmd"
-INFO: gate BUF fall: invalid command name "write_gate_spice_cmd"
-INFO: gate INV rise: invalid command name "write_gate_spice_cmd"
-INFO: gate AND A1 rise: invalid command name "write_gate_spice_cmd"
-INFO: gate AND A2 fall: invalid command name "write_gate_spice_cmd"
-INFO: gate OR rise: invalid command name "write_gate_spice_cmd"
-INFO: gate INV hspice: invalid command name "write_gate_spice_cmd"
-INFO: gate OR xyce: invalid command name "write_gate_spice_cmd"

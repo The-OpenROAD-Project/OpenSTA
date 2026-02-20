@@ -141,16 +141,6 @@ set ::sta_propagate_gated_clock_enable 0
 set val $::sta_propagate_gated_clock_enable
 
 ############################################################
-# POCV enabled (may require SSTA compilation, use catch)
-############################################################
-
-# POCV variables may not exist if SSTA is not compiled in
-# Commented out: POCV support requires compilation with SSTA=1
-# set ::sta_pocv_enabled 1
-# set ::sta_pocv_enabled 0
-# set val $::sta_pocv_enabled
-
-############################################################
 # Report default digits
 ############################################################
 
