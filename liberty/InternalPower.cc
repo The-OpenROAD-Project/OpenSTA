@@ -24,6 +24,8 @@
 
 #include "InternalPower.hh"
 
+#include <memory>
+
 #include "FuncExpr.hh"
 #include "TableModel.hh"
 #include "Liberty.hh"
@@ -31,79 +33,17 @@
 
 namespace sta {
 
-using std::string;
-
-InternalPowerAttrs::InternalPowerAttrs() :
-  when_(nullptr),
-  models_{nullptr, nullptr},
-  related_pg_pin_(nullptr)
-{
-}
-
-InternalPowerAttrs::~InternalPowerAttrs()
-{
-}
-
-void
-InternalPowerAttrs::deleteContents()
-{
-  InternalPowerModel *rise_model = models_[RiseFall::riseIndex()];
-  InternalPowerModel *fall_model = models_[RiseFall::fallIndex()];
-  delete rise_model;
-  if (fall_model != rise_model)
-    delete fall_model;
-  if (when_)
-    when_->deleteSubexprs();
-  stringDelete(related_pg_pin_);
-}
-
-InternalPowerModel *
-InternalPowerAttrs::model(const RiseFall *rf) const
-{
-  return models_[rf->index()];
-}
-
-void
-InternalPowerAttrs::setWhen(FuncExpr *when)
-{
-  when_ = when;
-}
-
-void
-InternalPowerAttrs::setModel(const RiseFall *rf,
-			     InternalPowerModel *model)
-{
-  models_[rf->index()] = model;
-}
-
-void
-InternalPowerAttrs::setRelatedPgPin(const char *related_pg_pin)
-{
-  stringDelete(related_pg_pin_);
-  related_pg_pin_ = stringCopy(related_pg_pin);
-}
-
-////////////////////////////////////////////////////////////////
-
-InternalPower::InternalPower(LibertyCell *cell,
-			     LibertyPort *port,
-			     LibertyPort *related_port,
-			     InternalPowerAttrs *attrs) :
+InternalPower::InternalPower(LibertyPort *port,
+                             LibertyPort *related_port,
+                             LibertyPort *related_pg_pin,
+                             const std::shared_ptr<FuncExpr> &when,
+                             InternalPowerModels &models) :
   port_(port),
   related_port_(related_port),
-  when_(attrs->when()),
-  related_pg_pin_(attrs->relatedPgPin())
+  related_pg_pin_(related_pg_pin),
+  when_(when),
+  models_(models)
 {
-  for (auto rf : RiseFall::range()) {
-    int rf_index = rf->index();
-    models_[rf_index] = attrs->model(rf);
-  }
-  cell->addInternalPower(this);
-}
-
-InternalPower::~InternalPower()
-{
-  // models_, when_ and related_pg_pin_ are owned by InternalPowerAttrs.
 }
 
 LibertyCell *
@@ -114,15 +54,22 @@ InternalPower::libertyCell() const
 
 float
 InternalPower::power(const RiseFall *rf,
-		     const Pvt *pvt,
-		     float in_slew,
-		     float load_cap)
+                     const Pvt *pvt,
+                     float in_slew,
+                     float load_cap) const
 {
-  InternalPowerModel *model = models_[rf->index()];
+  const std::shared_ptr<InternalPowerModel> &model = models_[rf->index()];
   if (model)
     return model->power(libertyCell(), pvt, in_slew, load_cap);
   else
     return 0.0;
+}
+
+const InternalPowerModel *
+InternalPower::model(const RiseFall *rf) const
+{
+  const std::shared_ptr<InternalPowerModel> &m = models_[rf->index()];
+  return m.get();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -139,31 +86,31 @@ InternalPowerModel::~InternalPowerModel()
 
 float
 InternalPowerModel::power(const LibertyCell *cell,
-			  const Pvt *pvt,
-			  float in_slew,
-			  float load_cap) const
+                          const Pvt *pvt,
+                          float in_slew,
+                          float load_cap) const
 {
   if (model_) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(in_slew, load_cap,
-		   axis_value1, axis_value2, axis_value3);
+                   axis_value1, axis_value2, axis_value3);
     return model_->findValue(cell, pvt, axis_value1, axis_value2, axis_value3);
   }
   else
     return 0.0;
 }
 
-string
+std::string
 InternalPowerModel::reportPower(const LibertyCell *cell,
-				const Pvt *pvt,
-				float in_slew,
-				float load_cap,
-				int digits) const
+                                const Pvt *pvt,
+                                float in_slew,
+                                float load_cap,
+                                int digits) const
 {
   if (model_) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(in_slew, load_cap,
-		   axis_value1, axis_value2, axis_value3);
+                   axis_value1, axis_value2, axis_value3);
     const LibertyLibrary *library = cell->libertyLibrary();
     return model_->reportValue("Power", cell, pvt, axis_value1, nullptr,
                                axis_value2, axis_value3,
@@ -174,11 +121,11 @@ InternalPowerModel::reportPower(const LibertyCell *cell,
 
 void
 InternalPowerModel::findAxisValues(float in_slew,
-				   float load_cap,
-				   // Return values.
-				   float &axis_value1,
-				   float &axis_value2,
-				   float &axis_value3) const
+                                   float load_cap,
+                                   // Return values.
+                                   float &axis_value1,
+                                   float &axis_value2,
+                                   float &axis_value3) const
 {
   switch (model_->order()) {
   case 0:
@@ -211,8 +158,8 @@ InternalPowerModel::findAxisValues(float in_slew,
 
 float
 InternalPowerModel::axisValue(const TableAxis *axis,
-			      float in_slew,
-			      float load_cap) const
+                              float in_slew,
+                              float load_cap) const
 {
   TableAxisVariable var = axis->variable();
   if (var == TableAxisVariable::input_transition_time)

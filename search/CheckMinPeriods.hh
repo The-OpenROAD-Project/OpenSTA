@@ -30,37 +30,31 @@
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
+#include "BoundedHeap.hh"
 
 namespace sta {
 
-class MinPeriodCheckVisitor;
-
-class CheckMinPeriods
+class MinPeriodSlackLess
 {
 public:
-  CheckMinPeriods(StaState *sta);
-  ~CheckMinPeriods();
-  void clear();
-  MinPeriodCheckSeq &violations(const Corner *corner);
-  // Min period check with the least slack.
-  MinPeriodCheck *minSlackCheck(const Corner *corner);
+  MinPeriodSlackLess(const StaState *sta);
+  bool operator()(const MinPeriodCheck &check1,
+                  const MinPeriodCheck &check2) const;
 
-protected:
-  void visitMinPeriodChecks(MinPeriodCheckVisitor *visitor);
-  void visitMinPeriodChecks(Vertex *vertex,
-			    MinPeriodCheckVisitor *visitor);
-
-  MinPeriodCheckSeq checks_;
-  StaState *sta_;
+private:
+  const StaState *sta_;
 };
+
+using MinPeriodHeap = BoundedHeap<MinPeriodCheck, MinPeriodSlackLess>;
 
 class MinPeriodCheck
 {
 public:
+  MinPeriodCheck();
   MinPeriodCheck(Pin *pin,
-		 Clock *clk,
-		 const Corner *corner);
-  MinPeriodCheck *copy();
+                 Clock *clk,
+                 const Scene *scene);
+  bool isNull() { return pin_ == nullptr; }
   Pin *pin() const { return pin_; }
   Clock *clk() const { return clk_; }
   float period() const;
@@ -70,18 +64,36 @@ public:
 private:
   Pin *pin_;
   Clock *clk_;
-  const Corner *corner_;
+  const Scene *scene_;
 };
 
-class MinPeriodSlackLess
+using MinPeriodCheckSeq = std::vector<MinPeriodCheck>;
+
+class CheckMinPeriods
 {
 public:
-  MinPeriodSlackLess(StaState *sta);
-  bool operator()(const MinPeriodCheck *check1,
-		  const MinPeriodCheck *check2) const;
+  CheckMinPeriods(StaState *sta);
+  void clear();
+  MinPeriodCheckSeq &check(const Net *net,
+                           size_t max_count,
+                           bool violators,
+                           const SceneSeq &scenes);
 
-private:
-  const StaState *sta_;
+protected:
+  void checkNet(const Net *net,
+                bool violators,
+                const SceneSeq &scenes);
+  void checkAll(bool violators,
+              const SceneSeq &scenes);
+  void checkVertex(Vertex *vertex,
+                   bool violators,
+                   const SceneSeq &scenes);
+  MinPeriodCheck check(Vertex *vertex,
+                       const SceneSeq &scenes);
+
+  MinPeriodCheckSeq checks_;
+  MinPeriodHeap heap_;
+  StaState *sta_;
 };
 
 } // namespace

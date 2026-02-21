@@ -63,7 +63,7 @@ SaifReader::SaifReader(const char *filename,
   scope_(scope),
   divider_('/'),
   escape_('\\'),
-  timescale_(1.0E-9F),		// default units of ns
+  timescale_(1.0E-9F),          // default units of ns
   duration_(0.0),
   in_scope_level_(0),
   power_(sta->power())
@@ -173,7 +173,7 @@ SaifReader::setNetDurations(const char *net_name,
       if (pin
           && !sdc_network_->isHierarchical(pin)
           && !sdc_network_->direction(pin)->isInternal()
-	  && !(liberty_port && liberty_port->isPwrGnd())) {
+          && !(liberty_port && liberty_port->isPwrGnd())) {
         double t1 = durations[static_cast<int>(SaifState::T1)];
         float duty = t1 / duration_;
         double tc = durations[static_cast<int>(SaifState::TC)];

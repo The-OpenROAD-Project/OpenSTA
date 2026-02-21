@@ -54,7 +54,7 @@ RiseFallValues::setValue(float value)
 
 void
 RiseFallValues::setValue(const RiseFallBoth *rf,
-			 float value)
+                         float value)
 {
   for (auto rf_index : rf->rangeIndex()) {
     values_[rf_index] = value;
@@ -64,7 +64,7 @@ RiseFallValues::setValue(const RiseFallBoth *rf,
 
 void
 RiseFallValues::setValue(const RiseFall *rf,
-			 float value)
+                         float value)
 {
   int rf_index = rf->index();
   values_[rf_index] = value;
@@ -82,7 +82,7 @@ RiseFallValues::setValues(RiseFallValues *values)
 
 void
 RiseFallValues::value(const RiseFall *rf,
-		      float &value, bool &exists) const
+                      float &value, bool &exists) const
 {
   int rf_index = rf->index();
   exists = exists_[rf_index];

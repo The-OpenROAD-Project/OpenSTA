@@ -24,16 +24,17 @@
 
 #include "ClockGroups.hh"
 
+#include "ContainerHelpers.hh"
 #include "StringUtil.hh"
 
 namespace sta {
 
 ClockGroups::ClockGroups(const char *name,
-			 bool logically_exclusive,
-			 bool physically_exclusive,
-			 bool asynchronous,
-			 bool allow_paths,
-			 const char *comment) :
+                         bool logically_exclusive,
+                         bool physically_exclusive,
+                         bool asynchronous,
+                         bool allow_paths,
+                         const char *comment) :
   SdcCmdComment(comment),
   name_(stringCopy(name)),
   logically_exclusive_(logically_exclusive),
@@ -46,7 +47,7 @@ ClockGroups::ClockGroups(const char *name,
 ClockGroups::~ClockGroups()
 {
   stringDelete(name_);
-  groups_.deleteContentsClear();
+  deleteContents(groups_);
 }
 
 void

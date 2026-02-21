@@ -37,29 +37,29 @@ class DataCheck
 {
 public:
   DataCheck(Pin *from,
-	    Pin *to,
-	    Clock *clk);
+            Pin *to,
+            Clock *clk);
   Pin *from() const { return from_; }
   Pin *to() const { return to_; }
   Clock *clk() const { return clk_; }
   void margin(const RiseFall *from_rf,
-	      const RiseFall *to_rf,
-	      const SetupHold *setup_hold,
-	      // Return values.
-	      float &margin,
-	      bool &exists) const;
+              const RiseFall *to_rf,
+              const SetupHold *setup_hold,
+              // Return values.
+              float &margin,
+              bool &exists) const;
   void setMargin(const RiseFallBoth *from_rf,
-		 const RiseFallBoth *to_rf,
-		 const SetupHoldAll *setup_hold,
-		 float margin);
+                 const RiseFallBoth *to_rf,
+                 const SetupHoldAll *setup_hold,
+                 float margin);
   void removeMargin(const RiseFallBoth *from_rf,
-		    const RiseFallBoth *to_rf,
-		    const SetupHoldAll *setup_hold);
-  bool empty() const;
+                    const RiseFallBoth *to_rf,
+                    const SetupHoldAll *setup_hold);
+  [[nodiscard]] bool empty() const;
   void marginIsOneValue(const SetupHold *setup_hold,
-			// Return values.
-			float &value,
-			bool &one_value) const;
+                        // Return values.
+                        float &value,
+                        bool &one_value) const;
 
 private:
   Pin *from_;
@@ -73,7 +73,7 @@ class DataCheckLess
 public:
   DataCheckLess(const Network *network);
   bool operator()(const DataCheck *check1,
-		  const DataCheck *check2) const;
+                  const DataCheck *check2) const;
 
 private:
   const Network *network_;

@@ -56,7 +56,7 @@ class ExceptionLine : public Exception
 {
 public:
   ExceptionLine(const char *filename,
-		int line);
+                int line);
 
 protected:
   const char *filename_;
@@ -67,7 +67,7 @@ protected:
 class FileNotReadable : public Exception
 {
 public:
-  explicit FileNotReadable(const char *filename);
+  FileNotReadable(const char *filename);
   virtual const char *what() const noexcept;
 
 protected:
@@ -78,7 +78,7 @@ protected:
 class FileNotWritable : public Exception
 {
 public:
-  explicit FileNotWritable(const char *filename);
+  FileNotWritable(const char *filename);
   virtual const char *what() const noexcept;
 
 protected:

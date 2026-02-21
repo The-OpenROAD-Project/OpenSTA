@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "Map.hh"
-#include "Set.hh"
+#include <map>
+
 #include "StaState.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
@@ -33,31 +33,34 @@
 
 namespace sta {
 
-typedef Map<const Pin*, ClockSet> PinClksMap;
-typedef Map<const Clock *, PinSet*> ClkPinsMap;
+using PinClksMap = std::map<const Pin*, ClockSet>;
+using ClkPinsMap = std::map<const Clock *, PinSet*>;
 
 class Sta;
 
 // Find clock network pins.
-// This is not as reliable as Search::isClock but is much cheaper.
 class ClkNetwork : public StaState
 {
 public:
-  ClkNetwork(StaState *sta);
+  ClkNetwork(Mode *mode,
+             StaState *sta);
   ~ClkNetwork();
   void ensureClkNetwork();
   void clear();
   bool isClock(const Pin *pin) const;
+  bool isClock(const Vertex *vertex) const;
   bool isClock(const Net *net) const;
   bool isIdealClock(const Pin *pin) const;
+  bool isIdealClock(const Vertex *vertex) const;
   bool isPropagatedClock(const Pin *pin) const;
-  const ClockSet *clocks(const Pin *pin);
-  const ClockSet *idealClocks(const Pin *pin);
+  const ClockSet *clocks(const Pin *pin) const;
+  const ClockSet *clocks(const Vertex *vertex) const;
+  const ClockSet *idealClocks(const Pin *pin) const;
   const PinSet *pins(const Clock *clk);
   void clkPinsInvalid();
   float idealClkSlew(const Pin *pin,
                      const RiseFall *rf,
-                     const MinMax *min_max);
+                     const MinMax *min_max) const;
 
 protected:
   void deletePinBefore(const Pin *pin);
@@ -66,9 +69,11 @@ protected:
   friend class Sta;
 
 private:
+  Mode *mode_;
+
   void findClkPins();
   void findClkPins(bool ideal_only,
-		   PinClksMap &clk_pin_map);
+                   PinClksMap &clk_pin_map);
 
   bool clk_pins_valid_;
   // pin -> clks

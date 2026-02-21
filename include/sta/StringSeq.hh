@@ -24,12 +24,14 @@
 
 #pragma once
 
+#include <vector>
+
 #include "StringUtil.hh"
-#include "Vector.hh"
 
 namespace sta {
 
-typedef Vector<const char*> StringSeq;
+using StringSeq = std::vector<const char*>;
+using StdStringSeq = std::vector<std::string>;
 
 void
 deleteContents(StringSeq *strings);

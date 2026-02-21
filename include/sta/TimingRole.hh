@@ -33,7 +33,7 @@ namespace sta {
 
 class TimingRole;
 
-typedef std::map<std::string, const TimingRole*> TimingRoleMap;
+using TimingRoleMap = std::map<std::string, const TimingRole*>;
 
 class TimingRole
 {
@@ -74,10 +74,10 @@ public:
   bool isTimingCheck() const { return is_timing_check_; }
   // TIming check but not width or period.
   bool isTimingCheckBetween() const;
-  bool isAsyncTimingCheck() const;
-  bool isNonSeqTimingCheck() const { return is_non_seq_check_; }
-  bool isDataCheck() const;
-  bool isLatchDtoQ() const;
+  [[nodiscard]] bool isAsyncTimingCheck() const;
+  [[nodiscard]] bool isNonSeqTimingCheck() const { return is_non_seq_check_; }
+  [[nodiscard]] bool isDataCheck() const;
+  [[nodiscard]] bool isLatchDtoQ() const;
   const TimingRole *genericRole() const;
   const TimingRole *sdfRole() const;
   // Timing check data path min/max.
@@ -88,18 +88,18 @@ public:
   // Pseudo role to match sdf IOPATH.
   static const TimingRole *sdfIopath() { return &sdf_iopath_; }
   static bool less(const TimingRole *role1,
-		   const TimingRole *role2);
+                   const TimingRole *role2);
   static const int index_max = 26;
 
 private:
   TimingRole(const char *name,
-	     bool is_sdf_iopath,
-	     bool is_timing_check,
- 	     bool is_non_seq_check,
-	     const MinMax *path_min_max,
-	     // generic_type = nullptr means type is the same as this.
-	     const TimingRole *generic_role,
-	     int index);
+             bool is_sdf_iopath,
+             bool is_timing_check,
+             bool is_non_seq_check,
+             const MinMax *path_min_max,
+             // generic_type = nullptr means type is the same as this.
+             const TimingRole *generic_role,
+             int index);
 
   const std::string name_;
   bool is_timing_check_;

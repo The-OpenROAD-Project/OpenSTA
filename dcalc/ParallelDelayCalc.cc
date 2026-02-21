@@ -25,7 +25,7 @@
 #include "ParallelDelayCalc.hh"
 
 #include "TimingArc.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Network.hh"
 #include "Graph.hh"
 #include "Sdc.hh"
@@ -44,25 +44,28 @@ ParallelDelayCalc::ParallelDelayCalc(StaState *sta):
 ArcDcalcResultSeq
 ParallelDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
                               const LoadPinIndexMap &load_pin_index_map,
-                              const DcalcAnalysisPt *dcalc_ap)
+                              const Scene *scene,
+                              const MinMax *min_max)
 {
   if (dcalc_args.size() == 1) {
     ArcDcalcArg &dcalc_arg = dcalc_args[0];
     ArcDcalcResult dcalc_result =  gateDelay(dcalc_arg.drvrPin(), dcalc_arg.arc(),
                                              dcalc_arg.inSlew(), dcalc_arg.loadCap(),
                                              dcalc_arg.parasitic(),
-                                             load_pin_index_map, dcalc_ap);
+                                             load_pin_index_map,
+                                             scene, min_max);
     ArcDcalcResultSeq dcalc_results;
     dcalc_results.push_back(dcalc_result);
     return dcalc_results;
   }
-  return gateDelaysParallel(dcalc_args, load_pin_index_map, dcalc_ap);
+  return gateDelaysParallel(dcalc_args, load_pin_index_map, scene, min_max);
 }
 
 ArcDcalcResultSeq
 ParallelDelayCalc::gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
                                       const LoadPinIndexMap &load_pin_index_map,
-                                      const DcalcAnalysisPt *dcalc_ap)
+                                      const Scene *scene,
+                                      const MinMax *min_max)
 {
   size_t drvr_count = dcalc_args.size();
   ArcDcalcResultSeq dcalc_results(drvr_count);
@@ -75,16 +78,16 @@ ParallelDelayCalc::gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
     ArcDcalcResult &dcalc_result = dcalc_results[drvr_idx];
     const Pin *drvr_pin = dcalc_arg.drvrPin();
     const TimingArc *arc = dcalc_arg.arc();
-    Slew in_slew = dcalc_arg.inSlew();
+    const Slew &in_slew = dcalc_arg.inSlew();
 
     ArcDcalcResult intrinsic_result = gateDelay(drvr_pin, arc, in_slew, 0.0, nullptr,
-                                                load_pin_index_map, dcalc_ap);
+                                                load_pin_index_map, scene, min_max);
     ArcDelay intrinsic_delay = intrinsic_result.gateDelay();
     intrinsic_delays[drvr_idx] = intrinsic_result.gateDelay();
 
     ArcDcalcResult gate_result = gateDelay(drvr_pin, arc, in_slew, dcalc_arg.loadCap(),
                                            dcalc_arg.parasitic(),
-                                           load_pin_index_map, dcalc_ap);
+                                           load_pin_index_map, scene, min_max);
     ArcDelay gate_delay = gate_result.gateDelay();
     Slew drvr_slew = gate_result.drvrSlew();
     ArcDelay load_delay = gate_delay - intrinsic_delay;

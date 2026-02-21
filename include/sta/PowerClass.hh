@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <vector>
+#include <utility>
+
 namespace sta {
 
 class Power;
@@ -47,8 +50,8 @@ class PwrActivity
 public:
   PwrActivity();
   PwrActivity(float density,
-	      float duty,
-	      PwrActivityOrigin origin);
+              float duty,
+              PwrActivityOrigin origin);
   void init();
   float density() const { return density_; }
   void setDensity(float density);
@@ -58,8 +61,8 @@ public:
   void setOrigin(PwrActivityOrigin origin);
   const char *originName() const;
   void set(float density,
-	   float duty,
-	   PwrActivityOrigin origin);
+           float duty,
+           PwrActivityOrigin origin);
   bool isSet() const;
 
 private:
@@ -91,5 +94,8 @@ private:
   float switching_;
   float leakage_;
 };
+
+using InstPower = std::pair<const Instance*, PowerResult>;
+using InstPowers = std::vector<InstPower>;
 
 } // namespace

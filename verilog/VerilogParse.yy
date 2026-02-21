@@ -223,9 +223,8 @@ stmts:
 	{ if ($2) $1->push_back($2); }
 |	stmts stmt_seq
 	// Append stmt_seq to stmts.
-	{ sta::VerilogStmtSeq::Iterator iter($2);
-	  while (iter.hasNext())
-	    $1->push_back(iter.next());
+	{ for (sta::VerilogStmt *stmt : *$2)
+	    $1->push_back(stmt);
 	  delete $2;
 	}
 	;

@@ -27,22 +27,21 @@
 #include "Report.hh"
 #include "Debug.hh"
 #include "Graph.hh"
-#include "PathAnalysisPt.hh"
 #include "ClkInfo.hh"
 #include "Tag.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Search.hh"
 #include "Path.hh"
 
 namespace sta {
 
 TagGroup::TagGroup(TagGroupIndex index,
-		   PathIndexMap *path_index_map,
-		   bool has_clk_tag,
-		   bool has_genclk_src_tag,
-		   bool has_filter_tag,
-		   bool has_loop_tag,
-		   const StaState *sta) :
+                   PathIndexMap *path_index_map,
+                   bool has_clk_tag,
+                   bool has_genclk_src_tag,
+                   bool has_filter_tag,
+                   bool has_loop_tag,
+                   const StaState *sta) :
   path_index_map_(path_index_map),
   hash_(hash(path_index_map, sta)),
   ref_count_(0),
@@ -56,7 +55,7 @@ TagGroup::TagGroup(TagGroupIndex index,
 }
 
 TagGroup::TagGroup(TagGroupBldr *tag_bldr,
-		   const StaState *sta) :
+                   const StaState *sta) :
   path_index_map_(&tag_bldr->pathIndexMap()),
   hash_(hash(path_index_map_, sta)),
   ref_count_(0),
@@ -84,28 +83,30 @@ TagGroup::decrRefCount()
 
 size_t
 TagGroup::hash(PathIndexMap *path_index_map,
-	       const StaState *sta)
+               const StaState *sta)
 {
-  bool crpr_on = sta->crprActive();
   size_t hash = 0;
   for (auto const [tag, path_index] : *path_index_map)
-    hash += tag->hash(crpr_on, sta);
+    hash += tag->hash(true, sta);
   return hash;
 }
 
 bool
 TagGroup::hasTag(Tag *tag) const
 {
-  return path_index_map_->hasKey(tag);
+  return path_index_map_->contains(tag);
 }
 
 size_t
 TagGroup::pathIndex(Tag *tag) const
 {
-  size_t path_index = 0;
+  size_t path_index;
   bool exists;
-  pathIndex(tag, path_index, exists);
-  return path_index;
+  findKeyValue(path_index_map_, tag, path_index, exists);
+  if (exists)
+    return path_index;
+  else
+    return 0;
 }
 
 void
@@ -113,7 +114,7 @@ TagGroup::pathIndex(Tag *tag,
                     size_t &path_index,
                     bool &exists) const
 {
-  path_index_map_->findKey(tag, path_index, exists);
+  findKeyValue(path_index_map_, tag, path_index, exists);
 }
 
 void
@@ -145,8 +146,8 @@ pathIndexMapReport(const PathIndexMap *path_index_map,
 ////////////////////////////////////////////////////////////////
 
 TagGroupBldr::TagGroupBldr(bool match_crpr_clk_pin,
-			   const StaState *sta) :
-  default_path_count_(sta->corners()->count()
+                           const StaState *sta) :
+  default_path_count_(sta->scenes().size()
                       * RiseFall::index_count
                       * MinMax::index_count),
   path_index_map_(TagMatchLess(match_crpr_clk_pin, sta)),
@@ -203,8 +204,7 @@ TagGroupBldr::tagMatchPath(Tag *tag,
   // Match is not necessarily equal to original tag because it
   // must only satisfy tagMatch.
   bool exists;
-  Tag *tag_match;
-  path_index_map_.findKey(tag, tag_match, path_index, exists);
+  findKeyValue(path_index_map_, tag, path_index, exists);
   if (exists)
     match = &paths_[path_index];
   else {
@@ -221,7 +221,7 @@ TagGroupBldr::arrival(size_t path_index) const
 
 void
 TagGroupBldr::setArrival(Tag *tag,
-			 const Arrival &arrival)
+                         const Arrival &arrival)
 {
   // Find matching group tag (not necessarily equal to original tag).
   Path *match;
@@ -245,7 +245,7 @@ TagGroupBldr::setMatchPath(Path *match,
     if (tag_match != tag) {
       // Replace tag in arrival map.
       path_index_map_.erase(tag_match);
-      path_index_map_.insert(tag, path_index);
+      path_index_map_[tag] = path_index;
     }
     paths_[path_index].init(vertex_, tag, arrival, prev_path,
                             prev_edge, prev_arc, sta_);
@@ -263,7 +263,7 @@ TagGroupBldr::insertPath(Tag *tag,
 
 {
   size_t path_index = paths_.size();
-  path_index_map_.insert(tag, path_index);
+  path_index_map_[tag] = path_index;
   paths_.emplace_back(vertex_, tag, arrival, prev_path,
                       prev_edge, prev_arc, sta_);
 
@@ -289,11 +289,11 @@ TagGroupBldr::insertPath(const Path &path)
 
 TagGroup *
 TagGroupBldr::makeTagGroup(TagGroupIndex index,
-			   const StaState *sta)
+                           const StaState *sta)
 {
   return new TagGroup(index, makePathIndexMap(sta),
-		      has_clk_tag_, has_genclk_src_tag_, has_filter_tag_,
-		      has_loop_tag_, sta);
+                      has_clk_tag_, has_genclk_src_tag_, has_filter_tag_,
+                      has_loop_tag_, sta);
 
 }
 
@@ -301,10 +301,9 @@ PathIndexMap *
 TagGroupBldr::makePathIndexMap(const StaState *sta)
 {
   PathIndexMap *path_index_map = new PathIndexMap(TagMatchLess(true, sta));
-
   size_t path_index = 0;
   for (auto const [tag, path_index1] : path_index_map_) {
-    path_index_map->insert(tag, path_index);
+    (*path_index_map)[tag] = path_index;
     path_index++;
   }
   return path_index_map;
@@ -339,12 +338,8 @@ pathIndexMapEqual(const PathIndexMap *path_index_map1,
 {
   if (path_index_map1->size() == path_index_map2->size()) {
     for (auto const [tag1, path_index1] : *path_index_map1) {
-      Tag *tag2;
-      size_t path_index2;
-      bool exists2;
-      path_index_map2->findKey(tag1, tag2, path_index2, exists2);
-      if (!exists2)
-	return false;
+      if (!path_index_map2->contains(tag1))
+        return false;
     }
     return true;
   }
@@ -354,11 +349,11 @@ pathIndexMapEqual(const PathIndexMap *path_index_map1,
 
 bool
 TagGroupEqual::operator()(const TagGroup *tag_group1,
-			  const TagGroup *tag_group2) const
+                          const TagGroup *tag_group2) const
 {
   return tag_group1 == tag_group2
     || (tag_group1->hash() == tag_group2->hash()
-	&& pathIndexMapEqual(tag_group1->pathIndexMap(),
+        && pathIndexMapEqual(tag_group1->pathIndexMap(),
                              tag_group2->pathIndexMap()));
 }
 

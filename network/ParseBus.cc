@@ -36,9 +36,9 @@ using std::string;
 
 bool
 isBusName(const char *name,
-	  const char brkt_left,
-	  const char brkt_right,
-	  char escape)
+          const char brkt_left,
+          const char brkt_right,
+          char escape)
 {
   size_t len = strlen(name);
   // Shortest bus name is a[0].
@@ -55,13 +55,13 @@ isBusName(const char *name,
 
 void
 parseBusName(const char *name,
-	     const char brkt_left,
-	     const char brkt_right,
-	     const char escape,
-	     // Return values.
-	     bool &is_bus,
-	     string &bus_name,
-	     int &index)
+             const char brkt_left,
+             const char brkt_right,
+             const char escape,
+             // Return values.
+             bool &is_bus,
+             string &bus_name,
+             int &index)
 {
   const char brkts_left[2] = {brkt_left, '\0'};
   const char brkts_right[2] = {brkt_right, '\0'};
@@ -71,13 +71,13 @@ parseBusName(const char *name,
 
 void
 parseBusName(const char *name,
-	     const char *brkts_left,
-	     const char *brkts_right,
-	     char escape,
-	     // Return values.
-	     bool &is_bus,
-	     string &bus_name,
-	     int &index)
+             const char *brkts_left,
+             const char *brkts_right,
+             char escape,
+             // Return values.
+             bool &is_bus,
+             string &bus_name,
+             int &index)
 {
   is_bus = false;
   size_t len = strlen(name);
@@ -93,10 +93,10 @@ parseBusName(const char *name,
       const char *left = strrchr(name, brkt_left);
       if (left) {
         is_bus = true;
-	size_t bus_name_len = left - name;
-	bus_name.append(name, bus_name_len);
-	// Simple bus subscript.
-	index = atoi(left + 1);
+        size_t bus_name_len = left - name;
+        bus_name.append(name, bus_name_len);
+        // Simple bus subscript.
+        index = atoi(left + 1);
       }
     }
   }
@@ -150,20 +150,20 @@ parseBusName(const char *name,
       const char *left = strrchr(name, brkt_left);
       if (left) {
         is_bus = true;
-	// Check for bus range.
-	const char range_sep = ':';
-	const char *range = strchr(name, range_sep);
-	if (range) {
+        // Check for bus range.
+        const char range_sep = ':';
+        const char *range = strchr(name, range_sep);
+        if (range) {
           is_range = true;
           bus_name.append(name, left - name);
-	  // No need to terminate bus subscript because atoi stops
-	  // scanning at first non-digit character.
-	  from = atoi(left + 1);
-	  to = atoi(range + 1);
-	}
+          // No need to terminate bus subscript because atoi stops
+          // scanning at first non-digit character.
+          from = atoi(left + 1);
+          to = atoi(range + 1);
+        }
         else {
           bus_name.append(name, left - name);
-	  if (left[1] == '*')
+          if (left[1] == '*')
             subscript_wild = true;
           else
             from = to = atoi(left + 1);
@@ -175,9 +175,9 @@ parseBusName(const char *name,
 
 string
 escapeChars(const char *token,
-	    const char ch1,
-	    const char ch2,
-	    const char escape)
+            const char ch1,
+            const char ch2,
+            const char escape)
 {
   string escaped;
   for (const char *s = token; *s; s++) {

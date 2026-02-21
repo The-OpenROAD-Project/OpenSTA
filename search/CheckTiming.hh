@@ -24,7 +24,8 @@
 
 #pragma once
 
-#include "Vector.hh"
+#include <vector>
+
 #include "StringSeq.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
@@ -33,21 +34,24 @@
 
 namespace sta {
 
-typedef StringSeq CheckError;
-typedef Vector<CheckError*> CheckErrorSeq;
+class ClkNetwork;
+
+using CheckError = StringSeq;
+using CheckErrorSeq = std::vector<CheckError*>;
 
 class CheckTiming : public StaState
 {
 public:
-  explicit CheckTiming(StaState *sta);
+  CheckTiming(StaState *sta);
   ~CheckTiming();
-  CheckErrorSeq &check(bool no_input_delay,
-		       bool no_output_delay,
-		       bool reg_multiple_clks,
-		       bool reg_no_clks,
-		       bool unconstrained_endpoints,
-		       bool loops,
-		       bool generated_clks);
+  CheckErrorSeq &check(const Mode *sdc,
+                       bool no_input_delay,
+                       bool no_output_delay,
+                       bool reg_multiple_clks,
+                       bool reg_no_clks,
+                       bool unconstrained_endpoints,
+                       bool loops,
+                       bool generated_clks);
 
 protected:
   void clear();
@@ -55,7 +59,7 @@ protected:
   void checkNoInputDelay();
   void checkNoOutputDelay();
   void checkRegClks(bool reg_multiple_clks,
-		    bool reg_no_clks);
+                    bool reg_no_clks);
   void checkUnconstrainedEndpoints();
   bool hasClkedArrival(Vertex *vertex);
   void checkNoOutputDelay(PinSet &ends);
@@ -67,14 +71,18 @@ protected:
   bool hasMaxDelay(Pin *pin);
   void checkGeneratedClocks();
   void pushPinErrors(const char *msg,
-		     PinSet &pins);
+                     PinSet &pins);
   void pushClkErrors(const char *msg,
-		     ClockSet &clks);
+                     ClockSet &clks);
   void errorMsgSubst(const char *msg,
-		     int count,
-		     std::string &error_msg);
+                     int count,
+                     std::string &error_msg);
 
   CheckErrorSeq errors_;
+  const Mode *mode_;
+  const Sdc *sdc_;
+  const Sim *sim_;
+  const ClkNetwork *clk_network_;
 };
 
 } // namespace

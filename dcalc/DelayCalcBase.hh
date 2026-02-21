@@ -34,23 +34,26 @@ class GateTableModel;
 class DelayCalcBase : public ArcDelayCalc
 {
 public:
-  explicit DelayCalcBase(StaState *sta);
+  DelayCalcBase(StaState *sta);
   void finishDrvrPin() override;
 
   void reduceParasitic(const Parasitic *parasitic_network,
                        const Net *net,
-                       const Corner *corner,
+                       const Scene *scene,
                        const MinMaxAll *min_max) override;
   void setDcalcArgParasiticSlew(ArcDcalcArg &gate,
-                                const DcalcAnalysisPt *dcalc_ap) override;
+                                const Scene *scene,
+                                const MinMax *min_max) override;
   void setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
-                                const DcalcAnalysisPt *dcalc_ap) override;
+                                const Scene *scene,
+                                const MinMax *min_max) override;
   ArcDelay checkDelay(const Pin *check_pin,
                       const TimingArc *arc,
                       const Slew &from_slew,
                       const Slew &to_slew,
                       float related_out_cap,
-                      const DcalcAnalysisPt *dcalc_ap) override;
+                      const Scene *scene,
+                      const MinMax *min_max) override;
   
   std::string reportCheckDelay(const Pin *check_pin,
                                const TimingArc *arc,
@@ -58,7 +61,8 @@ public:
                                const char *from_slew_annotation,
                                const Slew &to_slew,
                                float related_out_cap,
-                               const DcalcAnalysisPt *dcalc_ap,
+                               const Scene *scene,
+                               const MinMax *min_max,
                                int digits) override;
 
 protected:
@@ -68,18 +72,19 @@ protected:
   void thresholdAdjust(const Pin *load_pin,
                        const LibertyLibrary *drvr_library,
                        const RiseFall *rf,
-		       ArcDelay &load_delay,
-		       Slew &load_slew);
+                       ArcDelay &load_delay,
+                       Slew &load_slew);
   // Helper function for input ports driving dspf parasitic.
   void dspfWireDelaySlew(const Pin *load_pin,
-			 const RiseFall *rf,
+                         const RiseFall *rf,
                          Slew drvr_slew,
                          float elmore,
                          // Return values.
-			 ArcDelay &wire_delay,
-			 Slew &load_slew);
+                         ArcDelay &wire_delay,
+                         Slew &load_slew);
   const Pvt *pinPvt(const Pin *pin,
-                    const DcalcAnalysisPt *dcalc_ap);
+                    const Scene *scene,
+                    const MinMax *min_max);
 
   using ArcDelayCalc::reduceParasitic;
 };

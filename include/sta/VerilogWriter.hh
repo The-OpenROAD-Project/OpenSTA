@@ -30,8 +30,8 @@ namespace sta {
 
 void
 writeVerilog(const char *filename,
-	     bool include_pwr_gnd,
-	     CellSeq *remove_cells,
-	     Network *network);
+             bool include_pwr_gnd,
+             CellSeq *remove_cells,
+             Network *network);
 
 } // namespace

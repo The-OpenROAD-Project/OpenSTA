@@ -34,9 +34,9 @@ namespace sta {
 class PortNameLess
 {
 public:
-  explicit PortNameLess(const Network *network);
+  PortNameLess(const Network *network);
   bool operator()(const Port *port1,
-		  const Port *port2) const;
+                  const Port *port2) const;
 
 private:
   const Network *network_;
@@ -45,9 +45,9 @@ private:
 class PinPathNameLess
 {
 public:
-  explicit PinPathNameLess(const Network *network);
+  PinPathNameLess(const Network *network);
   bool operator()(const Pin *pin1,
-		  const Pin *pin2) const;
+                  const Pin *pin2) const;
 
 private:
   const Network *network_;
@@ -56,9 +56,9 @@ private:
 class InstancePathNameLess
 {
 public:
-  explicit InstancePathNameLess(const Network *network);
+  InstancePathNameLess(const Network *network);
   bool operator()(const Instance *inst1,
-		  const Instance *inst2) const;
+                  const Instance *inst2) const;
 
 private:
   const Network *network_;
@@ -67,9 +67,9 @@ private:
 class NetPathNameLess
 {
 public:
-  explicit NetPathNameLess(const Network *network);
+  NetPathNameLess(const Network *network);
   bool operator()(const Net *net1,
-		  const Net *net2) const;
+                  const Net *net2) const;
 
 private:
   const Network *network_;
@@ -77,6 +77,9 @@ private:
 
 PinSeq
 sortByPathName(const PinSet *set,
+               const Network *network);
+PinSeq
+sortByPathName(const PinUnorderedSet *set,
                const Network *network);
 PortSeq
 sortByName(const PortSet *set,

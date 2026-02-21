@@ -31,9 +31,9 @@ namespace sta {
 // Return true if name is a bus.
 bool
 isBusName(const char *name,
-	  const char brkt_left,
-	  const char brkt_right,
-	  char escape);
+          const char brkt_left,
+          const char brkt_right,
+          char escape);
 
 // Parse name as a bus.
 // signal
@@ -44,23 +44,23 @@ isBusName(const char *name,
 // Caller must delete returned bus_name string.
 void
 parseBusName(const char *name,
-	     const char brkt_left,
-	     const char brkt_right,
-	     char escape,
-	     // Return values.
-	     bool &is_bus,
+             const char brkt_left,
+             const char brkt_right,
+             char escape,
+             // Return values.
+             bool &is_bus,
              std::string &bus_name,
-	     int &index);
+             int &index);
 // Allow multiple different left/right bus brackets.
 void
 parseBusName(const char *name,
-	     const char *brkts_left,
-	     const char *brkts_right,
-	     char escape,
-	     // Return values.
-	     bool &is_bus,
-	     std::string &bus_name,
-	     int &index);
+             const char *brkts_left,
+             const char *brkts_right,
+             char escape,
+             // Return values.
+             bool &is_bus,
+             std::string &bus_name,
+             int &index);
 
 // Parse a bus range, such as BUS[4:0].
 // bus_name is set to null if name is not a range.
@@ -96,8 +96,8 @@ parseBusName(const char *name,
 // Insert escapes before ch1 and ch2 in token.
 std::string
 escapeChars(const char *token,
-	    const char ch1,
-	    const char ch2,
-	    const char escape);
+            const char ch1,
+            const char ch2,
+            const char escape);
 
 } // namespace

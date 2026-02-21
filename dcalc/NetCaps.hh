@@ -32,13 +32,13 @@ class NetCaps
 public:
   NetCaps();
   NetCaps(float pin_cap,
-	  float wire_cap,
-	  float fanout,
-	  bool has_net_load);
+          float wire_cap,
+          float fanout,
+          bool has_net_load);
   void init(float pin_cap,
-	    float wire_cap,
-	    float fanout,
-	    bool has_net_load);
+            float wire_cap,
+            float fanout,
+            bool has_net_load);
   float pinCap() const { return pin_cap_; }
   float wireCap() const{ return wire_cap_; }
   float fanout() const{ return fanout_; }

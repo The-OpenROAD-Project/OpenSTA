@@ -30,8 +30,8 @@
 namespace sta {
 
 DataCheck::DataCheck(Pin *from,
-		     Pin *to,
-		     Clock *clk) :
+                     Pin *to,
+                     Clock *clk) :
   from_(from),
   to_(to),
   clk_(clk)
@@ -40,21 +40,21 @@ DataCheck::DataCheck(Pin *from,
 
 void
 DataCheck::margin(const RiseFall *from_rf,
-		  const RiseFall *to_rf,
-		  const SetupHold *setup_hold,
-		  // Return values.
-		  float &margin,
-		  bool &exists) const
+                  const RiseFall *to_rf,
+                  const SetupHold *setup_hold,
+                  // Return values.
+                  float &margin,
+                  bool &exists) const
 {
   return margins_[from_rf->index()].value(to_rf, setup_hold,
-					  margin, exists);
+                                          margin, exists);
 }
 
 void
 DataCheck::setMargin(const RiseFallBoth *from_rf,
-		     const RiseFallBoth *to_rf,
-		     const SetupHoldAll *setup_hold,
-		     float margin)
+                     const RiseFallBoth *to_rf,
+                     const SetupHoldAll *setup_hold,
+                     float margin)
 {
   for (auto from_rf_index : from_rf->rangeIndex())
     margins_[from_rf_index].setValue(to_rf, setup_hold, margin);
@@ -62,8 +62,8 @@ DataCheck::setMargin(const RiseFallBoth *from_rf,
 
 void
 DataCheck::removeMargin(const RiseFallBoth *from_rf,
-			const RiseFallBoth *to_rf,
-			const SetupHoldAll *setup_hold)
+                        const RiseFallBoth *to_rf,
+                        const SetupHoldAll *setup_hold)
 {
   for (int from_rf_index : from_rf->rangeIndex())
     margins_[from_rf_index].removeValue(to_rf, setup_hold);
@@ -81,9 +81,9 @@ DataCheck::empty() const
 
 void
 DataCheck::marginIsOneValue(const SetupHold *setup_hold,
-			    // Return values.
-			    float &value,
-			    bool &one_value) const
+                            // Return values.
+                            float &value,
+                            bool &one_value) const
 {
   float value1, value2;
   if (margins_[RiseFall::riseIndex()].isOneValue(setup_hold, value1)
@@ -105,7 +105,7 @@ DataCheckLess::DataCheckLess(const Network *network) :
 
 bool
 DataCheckLess::operator()(const DataCheck *check1,
-			  const DataCheck *check2) const
+                          const DataCheck *check2) const
 {
   const Pin *from1 = check1->from();
   const Pin *from2 = check2->from();
@@ -115,9 +115,9 @@ DataCheckLess::operator()(const DataCheck *check1,
   const Clock *clk2 = check2->clk();
   return network_->id(from1) < network_->id(from2)
     || (from1 == from2
-	&& (network_->id(to1) < network_->id(to2)
-	    || (to1 == to2
-		&& clkCmp(clk1, clk2) < 0)));
+        && (network_->id(to1) < network_->id(to2)
+            || (to1 == to2
+                && clkCmp(clk1, clk2) < 0)));
 }
 
 } // namespace

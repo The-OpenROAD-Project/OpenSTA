@@ -33,7 +33,7 @@ using std::string;
 
 GateLinearModel::GateLinearModel(LibertyCell *cell,
                                  float intrinsic,
-				 float resistance) :
+                                 float resistance) :
   GateTimingModel(cell),
   intrinsic_(intrinsic),
   resistance_(resistance)
@@ -42,12 +42,12 @@ GateLinearModel::GateLinearModel(LibertyCell *cell,
 
 void
 GateLinearModel::gateDelay(const Pvt *,
-			   float,
-			   float load_cap,
-			   bool,
-			   // return values
-			   ArcDelay &gate_delay,
-			   Slew &drvr_slew) const
+                           float,
+                           float load_cap,
+                           bool,
+                           // return values
+                           ArcDelay &gate_delay,
+                           Slew &drvr_slew) const
 {
   gate_delay = intrinsic_ + resistance_ * load_cap;
   drvr_slew = 0.0;
@@ -55,10 +55,10 @@ GateLinearModel::gateDelay(const Pvt *,
 
 string
 GateLinearModel::reportGateDelay(const Pvt *,
-				 float,
-				 float load_cap,
-				 bool,
-				 int digits) const
+                                 float,
+                                 float load_cap,
+                                 bool,
+                                 int digits) const
 {
   const LibertyLibrary *library = cell_->libertyLibrary();
   const Units *units = library->units();
@@ -97,22 +97,22 @@ CheckLinearModel::CheckLinearModel(LibertyCell *cell,
 
 ArcDelay
 CheckLinearModel::checkDelay(const Pvt *,
-			     float,
-			     float,
-			     float,
-			     bool) const
+                             float,
+                             float,
+                             float,
+                             bool) const
 {
   return intrinsic_;
 }
 
 string
 CheckLinearModel::reportCheckDelay(const Pvt *,
-				   float,
-				   const char *,
-				   float,
-				   float,
-				   bool,
-				   int digits) const
+                                   float,
+                                   const char *,
+                                   float,
+                                   float,
+                                   bool,
+                                   int digits) const
 {
   const LibertyLibrary *library = cell_->libertyLibrary();
   const Units *units = library->units();

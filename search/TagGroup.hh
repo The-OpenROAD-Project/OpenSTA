@@ -26,9 +26,6 @@
 
 #include <atomic>
 
-#include "Vector.hh"
-#include "Map.hh"
-#include "Iterator.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
 #include "GraphClass.hh"
@@ -43,15 +40,15 @@ class TagGroup
 {
 public:
   TagGroup(TagGroupIndex index,
-	   PathIndexMap *path_index_map,
-	   bool has_clk_tag,
-	   bool has_genclk_src_tag,
-	   bool has_filter_tag,
-	   bool has_loop_tag,
-	   const StaState *sta);
+           PathIndexMap *path_index_map,
+           bool has_clk_tag,
+           bool has_genclk_src_tag,
+           bool has_filter_tag,
+           bool has_loop_tag,
+           const StaState *sta);
   // For Search::findTagGroup to probe.
   TagGroup(TagGroupBldr *tag_bldr,
-	   const StaState *sta);
+           const StaState *sta);
   ~TagGroup();
   TagGroupIndex index() const { return index_; }
   size_t hash() const { return hash_; }
@@ -75,7 +72,7 @@ public:
 
 protected:
   static size_t hash(PathIndexMap *path_index_map,
-		     const StaState *sta);
+                     const StaState *sta);
 
   // tag -> path index
   PathIndexMap *path_index_map_;
@@ -99,7 +96,7 @@ class TagGroupEqual
 {
 public:
   bool operator()(const TagGroup *group1,
-		  const TagGroup *group2) const;
+                  const TagGroup *group2) const;
 };
 
 // Incremental tag group used to build tag group and associated
@@ -108,12 +105,12 @@ class TagGroupBldr
 {
 public:
   TagGroupBldr(bool match_crpr_clk_pin,
-	       const StaState *sta);
+               const StaState *sta);
   void init(Vertex *vertex);
   bool empty();
   void reportArrivalEntries() const;
   TagGroup *makeTagGroup(TagGroupIndex index,
-			 const StaState *sta);
+                         const StaState *sta);
   size_t pathCount() const { return path_index_map_.size();; }
   bool hasClkTag() const { return has_clk_tag_; }
   bool hasGenClkSrcTag() const { return has_genclk_src_tag_; }
@@ -128,7 +125,7 @@ public:
   Arrival arrival(size_t path_index) const;
   // prev_path == hull
   void setArrival(Tag *tag,
-		  const Arrival &arrival);
+                  const Arrival &arrival);
   void setMatchPath(Path *match,
                     size_t path_index,
                     Tag *tag,

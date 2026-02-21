@@ -41,7 +41,7 @@ public:
   Delay(const DelayDbl &delay);
   Delay(float mean);
   Delay(float mean,
-	float sigma2);
+        float sigma2);
   float mean() const { return mean_; }
   float sigma() const;
   // sigma^2
@@ -95,27 +95,27 @@ initDelayConstants();
 
 const char *
 delayAsString(const Delay &delay,
-	      const StaState *sta);
+              const StaState *sta);
 const char *
 delayAsString(const Delay &delay,
-	      const StaState *sta,
-	      int digits);
+              const StaState *sta,
+              int digits);
 const char *
 delayAsString(const Delay &delay,
-	      const EarlyLate *early_late,
-	      const StaState *sta,
-	      int digits);
+              const EarlyLate *early_late,
+              const StaState *sta,
+              int digits);
 
 Delay
 makeDelay(float delay,
-	  float sigma_early,
-	  float sigma_late);
+          float sigma_early,
+          float sigma_late);
 
 Delay
 makeDelay2(float delay,
-	   // sigma^2
-	   float sigma_early,
-	   float sigma_late);
+           // sigma^2
+           float sigma_early,
+           float sigma_late);
 
 inline float
 delayAsFloat(const Delay &delay)
@@ -126,78 +126,78 @@ delayAsFloat(const Delay &delay)
 // mean late+/early- sigma
 float
 delayAsFloat(const Delay &delay,
-	     const EarlyLate *early_late,
-	     const StaState *sta);
+             const EarlyLate *early_late,
+             const StaState *sta);
 float
 delaySigma2(const Delay &delay,
-	    const EarlyLate *early_late);
+            const EarlyLate *early_late);
 const Delay &
 delayInitValue(const MinMax *min_max);
 bool
 delayIsInitValue(const Delay &delay,
-		 const MinMax *min_max);
+                 const MinMax *min_max);
 bool
 delayZero(const Delay &delay);
 bool
 delayInf(const Delay &delay);
 bool
 delayEqual(const Delay &delay1,
-	   const Delay &delay2);
+           const Delay &delay2);
 bool
 delayLess(const Delay &delay1,
-	  const Delay &delay2,
-	  const StaState *sta);
+          const Delay &delay2,
+          const StaState *sta);
 bool
 delayLess(const Delay &delay1,
-	  const Delay &delay2,
-	  const MinMax *min_max,
-	  const StaState *sta);
+          const Delay &delay2,
+          const MinMax *min_max,
+          const StaState *sta);
 bool
 delayLessEqual(const Delay &delay1,
-	       const Delay &delay2,
-	       const StaState *sta);
+               const Delay &delay2,
+               const StaState *sta);
 bool
 delayLessEqual(const Delay &delay1,
-	       const Delay &delay2,
-	       const MinMax *min_max,
-	       const StaState *sta);
+               const Delay &delay2,
+               const MinMax *min_max,
+               const StaState *sta);
 bool
 delayGreater(const Delay &delay1,
-	     const Delay &delay2,
-	     const StaState *sta);
+             const Delay &delay2,
+             const StaState *sta);
 bool
 delayGreaterEqual(const Delay &delay1,
-		  const Delay &delay2,
-		  const StaState *sta);
+                  const Delay &delay2,
+                  const StaState *sta);
 bool
 delayGreaterEqual(const Delay &delay1,
-		  const Delay &delay2,
-		  const MinMax *min_max,
-		  const StaState *sta);
+                  const Delay &delay2,
+                  const MinMax *min_max,
+                  const StaState *sta);
 bool
 delayGreater(const Delay &delay1,
-	     const Delay &delay2,
-	     const MinMax *min_max,
-	     const StaState *sta);
+             const Delay &delay2,
+             const MinMax *min_max,
+             const StaState *sta);
 
 // delay1-delay2 subtracting sigma instead of addiing.
 Delay delayRemove(const Delay &delay1,
-		  const Delay &delay2);
+                  const Delay &delay2);
 float
 delayRatio(const Delay &delay1,
-	   const Delay &delay2);
+           const Delay &delay2);
 
 // Most non-operator functions on Delay are not defined as member
 // functions so they can be defined on floats, where there is no class
 // to define them.
 
 Delay operator+(float delay1,
-		const Delay &delay2);
+                const Delay &delay2);
 // Used for parallel gate delay calc.
 Delay operator/(float delay1,
-		const Delay &delay2);
+                const Delay &delay2);
 // Used for parallel gate delay calc.
 Delay operator*(const Delay &delay1,
-		float delay2);
+                float delay2);
 
 } // namespace

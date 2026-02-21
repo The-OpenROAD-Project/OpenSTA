@@ -37,20 +37,20 @@ proc report_edges { args } {
     set to_pin [get_port_pin_error "to_pin" $keys(-to)]
     foreach from_vertex [$from_pin vertices] {
       foreach to_vertex [$to_pin vertices] {
-	report_edges_between_ $from_vertex $to_vertex
+        report_edges_between_ $from_vertex $to_vertex
       }
     }
   } elseif [info exists keys(-from)] {
     set from_pin [get_port_pin_error "from_pin" $keys(-from)]
     foreach from_vertex [$from_pin vertices] {
       report_edges_ $from_vertex out_edge_iterator \
-	vertex_port_name vertex_path_name
+        vertex_port_name vertex_path_name
     }
   } elseif [info exists keys(-to)] {
     set to_pin [get_port_pin_error "to_pin" $keys(-to)]
     foreach to_vertex [$to_pin vertices] {
       report_edges_ $to_vertex in_edge_iterator \
-	vertex_path_name vertex_port_name
+        vertex_path_name vertex_port_name
     }
   }
 }
@@ -61,9 +61,9 @@ proc report_edges_between_ { from_vertex to_vertex } {
     set edge [$iter next]
     if { [$edge to] == $to_vertex } {
       if { [$edge role] == "wire" } {
-	report_edge_ $edge vertex_path_name vertex_path_name
+        report_edge_ $edge vertex_path_name vertex_path_name
       } else {
-	report_edge_ $edge vertex_port_name vertex_port_name
+        report_edge_ $edge vertex_port_name vertex_port_name
       }
     }
   }
@@ -78,11 +78,11 @@ proc report_edges_ { vertex iter_proc wire_from_name_proc wire_to_name_proc } {
     set edge [$iter next]
     if { [$edge role] != "wire" } {
       if { !$device_header } {
-	set pin [$vertex pin]
-	if { ![$pin is_top_level_port] } {
-	  set inst [$pin instance]
-	}
-	set device_header 1
+        set pin [$vertex pin]
+        if { ![$pin is_top_level_port] } {
+          set inst [$pin instance]
+        }
+        set device_header 1
       }
       report_edge_ $edge vertex_port_name vertex_port_name
     }
@@ -180,10 +180,6 @@ proc edge_disable_reason { edge } {
     if { $disables != "" } { append disables ", " }
     append disables "bidirect instance path"
   }
-  if [$edge is_disabled_bidirect_net_path] {
-    if { $disables != "" } { append disables ", " }
-    append disables "bidirect net path"
-  }
   if { [$edge is_disabled_preset_clear] } {
     if { $disables != "" } { append disables ", " }
     append disables "sta_preset_clear_arcs_enabled"
@@ -252,7 +248,7 @@ proc_redirect report_disabled_edges {
       set to_port_name [get_name [$to_pin port]]
       set cond [$edge cond]
       if { $cond != "" } {
-	set when " when: $cond"
+        set when " when: $cond"
       } else {
         set when ""
       }
@@ -295,28 +291,6 @@ proc edge_disable_reason_verbose { edge } {
   return $disables
 }
 
-################################################################
-
-define_cmd_args "report_slews" {[-corner corner] pin}
-
-proc report_slews { args } {
-  global sta_report_default_digits
-
-  parse_key_args "report_slews" args keys {-corner} flags {}
-  check_argc_eq1 "report_slews" $args
-
-  set corner [parse_corner_or_all keys]
-  set pin [get_port_pin_error "pin" [lindex $args 0]]
-  set digits $sta_report_default_digits
-  foreach vertex [$pin vertices] {
-    if { $corner == "NULL" } {
-      report_line "[vertex_path_name $vertex] [rise_short_name] [format_time [$vertex slew rise min] $digits]:[format_time [$vertex slew rise max] $digits] [fall_short_name] [format_time [$vertex slew fall min] $digits]:[format_time [$vertex slew fall max] $digits]"
-    } else {
-      report_line "[vertex_path_name $vertex] [rise_short_name] [format_time [$vertex slew_corner rise $corner min] $digits]:[format_time [$vertex slew_corner rise $corner max] $digits] [fall_short_name] [format_time [$vertex slew_corner fall $corner min] $digits]:[format_time [$vertex slew_corner fall $corner max] $digits]"
-    }
-  }
-}
-
 proc vertex_path_name { vertex } {
   set pin [$vertex pin]
   set pin_name [get_full_name $pin]
@@ -348,8 +322,8 @@ proc hier_pins_crossed_by_edge { edge } {
   set to_pins [hier_pins_above [[$edge to] pin]]
   foreach p $to_pins { report_line [$p path_name] }
   while { [llength $from_pins] > 0 \
-	    && [llength $to_pins] > 0 \
-	      && [lindex $from_pins 0] == [lindex $to_pins 0] } {
+            && [llength $to_pins] > 0 \
+              && [lindex $from_pins 0] == [lindex $to_pins 0] } {
     set from_pins [lrange $from_pins 1 end]
     set to_pins [lrange $to_pins 1 end]
   }
@@ -367,9 +341,9 @@ proc hier_pins_above { pin } {
     while {[$parent_pin_iter has_next]} {
       set parent_pin [$parent_pin_iter next]
       if {[$parent_pin net] == $net} {
-	set pins_above [concat [list $parent_pin] $pins_above]
-	set found 1
-	break
+        set pins_above [concat [list $parent_pin] $pins_above]
+        set found 1
+        break
       }
     }
     $parent_pin_iter finish

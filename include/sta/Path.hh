@@ -35,8 +35,6 @@
 
 namespace sta {
 
-class DcalcAnalysisPt;
-
 class Path
 {
 public:
@@ -60,7 +58,6 @@ public:
        TimingArc *prev_arc,
        bool is_enum,
        const StaState *sta);
-  ~Path();
   std::string to_string(const StaState *sta) const;
   bool isNull() const;
   // prev_path null 
@@ -86,6 +83,9 @@ public:
   VertexId vertexId(const StaState *sta) const;
   Pin *pin(const StaState *sta) const;
   Tag *tag(const StaState *sta) const;
+  Scene *scene(const StaState *sta) const;
+  Mode *mode(const StaState *sta) const;
+  Sdc *sdc(const StaState *sta) const;
   TagIndex tagIndex(const StaState *sta) const;
   void setTag(Tag *tag);
   size_t pathIndex(const StaState *sta) const;
@@ -96,9 +96,8 @@ public:
   const RiseFall *transition(const StaState *sta) const;
   int rfIndex(const StaState *sta) const;
   const MinMax *minMax(const StaState *sta) const;
-  PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
   PathAPIndex pathAnalysisPtIndex(const StaState *sta) const;
-  DcalcAnalysisPt *dcalcAnalysisPt(const StaState *sta) const;
+  DcalcAPIndex dcalcAnalysisPtIndex(const StaState *sta) const;
   Arrival &arrival() { return arrival_; }
   const Arrival &arrival() const { return arrival_; }
   void setArrival(Arrival arrival);
@@ -121,6 +120,8 @@ public:
   void setIsEnum(bool is_enum);
   void checkPrevPath(const StaState *sta) const;
 
+  const MinMax *tgtClkMinMax(const StaState *sta) const;
+
   static Path *vertexPath(const Path *path,
                           const StaState *sta);
   static Path *vertexPath(const Path &path,
@@ -130,34 +131,34 @@ public:
                           const StaState *sta);
 
   static bool less(const Path *path1,
-		   const Path *path2,
-		   const StaState *sta);
+                   const Path *path2,
+                   const StaState *sta);
   static int cmp(const Path *path1,
-		 const Path *path2,
-		 const StaState *sta);
+                 const Path *path2,
+                 const StaState *sta);
   // Compare all path attributes (vertex, transition, tag, analysis point).
   static bool equal(const Path *path1,
-		    const Path *path2,
-		    const StaState *sta);
+                    const Path *path2,
+                    const StaState *sta);
   // Compare pin name and transition and source clock edge.
   static int cmpPinTrClk(const Path *path1,
-			 const Path *path2,
-			 const StaState *sta);
+                         const Path *path2,
+                         const StaState *sta);
   // Compare source clock edge.
   static int cmpClk(const Path *path1,
-		    const Path *path2,
-		    const StaState *sta);
+                    const Path *path2,
+                    const StaState *sta);
   // Compare vertex, transition, path ap and tag without crpr clk pin.
   static int cmpNoCrpr(const Path *path1,
-		       const Path *path2,
-		       const StaState *sta);
+                       const Path *path2,
+                       const StaState *sta);
   // Search back on each path until finding a difference.
   static int cmpAll(const Path *path1,
-		    const Path *path2,
-		    const StaState *sta);
+                    const Path *path2,
+                    const StaState *sta);
   static bool lessAll(const Path *path1,
-		      const Path *path2,
-		      const StaState *sta);
+                      const Path *path2,
+                      const StaState *sta);
 
 protected:
   Path *prev_path_;
@@ -176,9 +177,9 @@ protected:
 class PathLess
 {
 public:
-  explicit PathLess(const StaState *sta);
+  PathLess(const StaState *sta);
   bool operator()(const Path *path1,
-		  const Path *path2) const;
+                  const Path *path2) const;
 
 protected:
   const StaState *sta_;
@@ -190,22 +191,16 @@ class VertexPathIterator : public Iterator<Path*>
 public:
   // Iterate over all vertex paths.
   VertexPathIterator(Vertex *vertex,
-		     const StaState *sta);
-  // Iterate over vertex paths with the same transition and
-  // analysis pt but different tags.
+                     const StaState *sta);
   VertexPathIterator(Vertex *vertex,
-		     const RiseFall *rf,
-		     const PathAnalysisPt *path_ap,
-		     const StaState *sta);
+                     const Scene *scene,
+                     const MinMax *min_max,
+                     const RiseFall *rf,
+                     const StaState *sta);
   // Iterate over vertex paths with the same transition and
   // analysis pt min/max but different tags.
   VertexPathIterator(Vertex *vertex,
-		     const RiseFall *rf,
-		     const MinMax *min_max,
-		     const StaState *sta);
-  VertexPathIterator(Vertex *vertex,
                      const RiseFall *rf,
-                     const PathAnalysisPt *path_ap,
                      const MinMax *min_max,
                      const StaState *sta);
   virtual ~VertexPathIterator();
@@ -216,10 +211,10 @@ private:
   void findNext();
 
   const Search *search_;
-  bool filtered_;
-  const RiseFall *rf_;
-  const PathAnalysisPt *path_ap_;
+  const Scene *scene_;
   const MinMax *min_max_;
+  const RiseFall *rf_;
+  bool filtered_;
   Path *paths_;
   size_t path_count_;
   size_t path_index_;

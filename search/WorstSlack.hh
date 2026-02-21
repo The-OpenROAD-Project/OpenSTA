@@ -25,9 +25,9 @@
 #pragma once
 
 #include <mutex>
+#include <vector>
 
 #include "MinMax.hh"
-#include "Vector.hh"
 #include "GraphClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
@@ -38,23 +38,23 @@ class StaState;
 class WorstSlack;
 class WnsSlackLess;
 
-typedef Vector<WorstSlack> WorstSlackSeq;
+using WorstSlackSeq = std::vector<WorstSlack>;
 
 class WorstSlacks
 {
 public:
   WorstSlacks(StaState *sta);
   void worstSlack(const MinMax *min_max,
-		  // Return values.
-		  Slack &worst_slack,
-		  Vertex *&worst_vertex);
-  void worstSlack(const Corner *corner,
-		  const MinMax *min_max,
-		  // Return values.
-		  Slack &worst_slack,
-		  Vertex *&worst_vertex);
+                  // Return values.
+                  Slack &worst_slack,
+                  Vertex *&worst_vertex);
+  void worstSlack(const Scene *scene,
+                  const MinMax *min_max,
+                  // Return values.
+                  Slack &worst_slack,
+                  Vertex *&worst_vertex);
   void updateWorstSlacks(Vertex *vertex,
-			 SlackSeq &slacks);
+                         SlackSeq &slacks);
   void worstSlackNotifyBefore(Vertex *vertex);
 
 protected:
@@ -66,9 +66,9 @@ class WnsSlackLess
 {
 public:
   WnsSlackLess(PathAPIndex path_ap_index,
-	       const StaState *sta);
+               const StaState *sta);
   bool operator()(Vertex *vertex1,
-		  Vertex *vertex2);
+                  Vertex *vertex2);
 
 private:
   PathAPIndex path_ap_index_;
@@ -82,12 +82,12 @@ public:
   ~WorstSlack();
   WorstSlack(const WorstSlack &);
   void worstSlack(PathAPIndex path_ap_index,
-		  // Return values.
-		  Slack &worst_slack,
-		  Vertex *&worst_vertex);
+                  // Return values.
+                  Slack &worst_slack,
+                  Vertex *&worst_vertex);
   void updateWorstSlack(Vertex *vertex,
-			SlackSeq &slacks,
-			PathAPIndex path_ap_index);
+                        SlackSeq &slacks,
+                        PathAPIndex path_ap_index);
   void deleteVertexBefore(Vertex *vertex);
 
 protected:
@@ -95,7 +95,7 @@ protected:
   void initQueue(PathAPIndex path_ap_index);
   void findWorstInQueue(PathAPIndex path_ap_index);
   void setWorstSlack(Vertex *vertex,
-		     Slack slack);
+                     Slack slack);
   void sortQueue(PathAPIndex path_ap_index);
   void checkQueue(PathAPIndex path_ap_index);
 

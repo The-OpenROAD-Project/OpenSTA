@@ -26,6 +26,7 @@
 
 #include <algorithm>
 
+#include "ContainerHelpers.hh"
 #include "Report.hh"
 #include "Debug.hh"
 #include "Units.hh"
@@ -36,7 +37,6 @@
 #include "Path.hh"
 #include "StaState.hh"
 #include "Search.hh"
-#include "PathAnalysisPt.hh"
 #include "ClkInfo.hh"
 
 namespace sta {
@@ -48,29 +48,32 @@ ClkLatency::ClkLatency(StaState *sta) :
 
 ClkDelays
 ClkLatency::findClkDelays(const Clock *clk,
-                          const Corner *corner,
+                          const Scene *scene,
                           bool include_internal_latency)
 {
   ConstClockSeq clks;
   clks.push_back(clk);
-  ClkDelayMap clk_delay_map = findClkDelays(clks, corner,
+  SceneSet scenes;
+  scenes.insert(scene);
+  ClkDelayMap clk_delay_map = findClkDelays(clks, scenes,
                                             include_internal_latency);
   return clk_delay_map[clk];
 }
 
 void
 ClkLatency::reportClkLatency(ConstClockSeq &clks,
-                             const Corner *corner,
+                             const SceneSeq &scenes,
                              bool include_internal_latency,
                              int digits)
 {
-  ClkDelayMap clk_delay_map = findClkDelays(clks, corner, include_internal_latency);
+  const SceneSet scenes1 = Scene::sceneSet(scenes);
+  ClkDelayMap clk_delay_map = findClkDelays(clks, scenes1, include_internal_latency);
 
   // Sort the clocks to report in a stable order.
   ConstClockSeq sorted_clks;
   for (const Clock *clk : clks)
     sorted_clks.push_back(clk);
-  std::sort(sorted_clks.begin(), sorted_clks.end(), ClkNameLess());
+  sort(sorted_clks, ClkNameLess());
 
   for (const Clock *clk : sorted_clks) {
     ClkDelays clk_delays = clk_delay_map[clk];
@@ -143,22 +146,27 @@ ClkLatency::reportClkLatency(const Clock *clk,
 
 ClkDelayMap
 ClkLatency::findClkDelays(ConstClockSeq &clks,
-                          const Corner *corner,
+                          const SceneSet &scenes,
                           bool include_internal_latency)
 {
+  ConstClockSet clk_set;
+  for (const Clock *clk : clks)
+    clk_set.insert(clk);
+
   ClkDelayMap clk_delay_map;
   // Make entries for the relevant clocks to filter path clocks.
   for (const Clock *clk : clks)
     clk_delay_map[clk];
-  for (Vertex *clk_vertex : *graph_->regClkVertices()) {
+
+  for (Vertex *clk_vertex : graph_->regClkVertices()) {
     VertexPathIterator path_iter(clk_vertex, this);
     while (path_iter.hasNext()) {
       Path *path = path_iter.next();
       const ClockEdge *path_clk_edge = path->clkEdge(this);
-      const PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
+      const Scene *path_scene = path->scene(this);
       if (path_clk_edge
-          && (corner == nullptr
-              || path_ap->corner() == corner)) {
+          && scenes.contains(path_scene)
+          && clk_set.contains(path_clk_edge->clock())) {
         const Clock *path_clk = path_clk_edge->clock();
         auto delays_itr = clk_delay_map.find(path_clk);
         if (delays_itr != clk_delay_map.end()) {
@@ -295,10 +303,10 @@ ClkDelays::insertionDelay(Path *clk_path,
   const RiseFall *clk_rf = clk_edge->transition();
   const ClkInfo *clk_info = clk_path->clkInfo(sta);
   const Pin *src_pin = clk_info->clkSrc();
-  const PathAnalysisPt *path_ap = clk_path->pathAnalysisPt(sta);
   const MinMax *min_max = clk_path->minMax(sta);
+  const Mode *mode = clk_path->mode(sta);
   return delayAsFloat(sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max,
-                                                    min_max, path_ap));
+                                                    min_max, mode));
 }
 
 float

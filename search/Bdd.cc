@@ -49,17 +49,17 @@ Bdd::funcBdd(const FuncExpr *expr)
   DdNode *right = nullptr;
   DdNode *result = nullptr;
   switch (expr->op()) {
-  case FuncExpr::op_port: {
+  case FuncExpr::Op::port: {
     LibertyPort *port = expr->port();
     result = ensureNode(port);
     break;
   }
-  case FuncExpr::op_not:
+  case FuncExpr::Op::not_:
     left = funcBdd(expr->left());
     if (left)
       result = Cudd_Not(left);
     break;
-  case FuncExpr::op_or:
+  case FuncExpr::Op::or_:
     left = funcBdd(expr->left());
     right = funcBdd(expr->right());
     if (left && right)
@@ -69,7 +69,7 @@ Bdd::funcBdd(const FuncExpr *expr)
     else if (right)
       result = right;
     break;
-  case FuncExpr::op_and:
+  case FuncExpr::Op::and_:
     left = funcBdd(expr->left());
     right = funcBdd(expr->right());
     if (left && right)
@@ -79,7 +79,7 @@ Bdd::funcBdd(const FuncExpr *expr)
     else if (right)
       result = right;
     break;
-  case FuncExpr::op_xor:
+  case FuncExpr::Op::xor_:
     left = funcBdd(expr->left());
     right = funcBdd(expr->right());
     if (left && right)
@@ -89,10 +89,10 @@ Bdd::funcBdd(const FuncExpr *expr)
     else if (right)
       result = right;
     break;
-  case FuncExpr::op_one:
+  case FuncExpr::Op::one:
     result = Cudd_ReadOne(cudd_mgr_);
     break;
-  case FuncExpr::op_zero:
+  case FuncExpr::Op::zero:
     result = Cudd_ReadLogicZero(cudd_mgr_);
     break;
   default:

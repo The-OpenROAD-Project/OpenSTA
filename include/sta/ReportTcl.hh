@@ -62,8 +62,8 @@ protected:
 
 private:
   Tcl_ChannelType *makeEncapChannelType(Tcl_Channel channel,
-					char *channel_name,
-					Tcl_DriverOutputProc output_proc);
+                                        char *channel_name,
+                                        Tcl_DriverOutputProc output_proc);
   size_t printTcl(Tcl_Channel channel,
                   const char *buffer,
                   size_t length);

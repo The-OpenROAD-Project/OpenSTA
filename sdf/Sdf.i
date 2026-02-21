@@ -53,7 +53,7 @@ using sta::reportAnnotatedCheck;
 bool
 read_sdf_file(const char *filename,
               const char *path,
-              Corner *corner,
+              Scene *scene,
               bool unescaped_dividers,
               bool incremental_only,
               MinMaxAllNull *cond_use)
@@ -63,70 +63,74 @@ read_sdf_file(const char *filename,
   sta->ensureGraph();
   if (stringEq(path, ""))
     path = NULL;
-  bool success = readSdf(filename, path, corner, unescaped_dividers, incremental_only,
-                         cond_use, sta);
+  bool success = readSdf(filename, path, scene, unescaped_dividers,
+                         incremental_only, cond_use, sta);
   sta->search()->arrivalsInvalid();
   return success;
 }
 
 void
-report_annotated_delay_cmd(bool report_cells,
-			   bool report_nets,
-			   bool report_in_ports,
-			   bool report_out_ports,
-			   unsigned max_lines,
-			   bool list_annotated,
-			   bool list_not_annotated,
-			   bool report_constant_arcs)
+report_annotated_delay_cmd(const Scene *scene,
+                           bool report_cells,
+                           bool report_nets,
+                           bool report_in_ports,
+                           bool report_out_ports,
+                           unsigned max_lines,
+                           bool report_annotated,
+                           bool report_not_annotated,
+                           bool report_constant_arcs)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
   sta->ensureGraph();
-  reportAnnotatedDelay(report_cells, report_nets,
-		       report_in_ports, report_out_ports,
-		       max_lines, list_annotated, list_not_annotated,
-		       report_constant_arcs, sta);
+  reportAnnotatedDelay(scene, report_cells, report_nets,
+                       report_in_ports, report_out_ports,
+                       max_lines, report_annotated,
+                       report_not_annotated,
+                       report_constant_arcs, sta);
 }
 
 void
-report_annotated_check_cmd(bool report_setup,
-			   bool report_hold,
-			   bool report_recovery,
-			   bool report_removal,
-			   bool report_nochange,
-			   bool report_width,
-			   bool report_period,
-			   bool report_max_skew,
-			   unsigned max_lines,
-			   bool list_annotated,
-			   bool list_not_annotated,
-			   bool report_constant_arcs)
+report_annotated_check_cmd(const Scene *scene,
+                           bool report_setup,
+                           bool report_hold,
+                           bool report_recovery,
+                           bool report_removal,
+                           bool report_nochange,
+                           bool report_width,
+                           bool report_period,
+                           bool report_max_skew,
+                           unsigned max_lines,
+                           bool report_annotated,
+                           bool report_not_annotated,
+                           bool report_constant_arcs)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
   sta->ensureGraph();
-  reportAnnotatedCheck(report_setup, report_hold,
-		       report_recovery, report_removal,
-		       report_nochange, report_width,
-		       report_period,  report_max_skew,
-		       max_lines, list_annotated, list_not_annotated,
-		       report_constant_arcs, sta);
+  reportAnnotatedCheck(scene, report_setup, report_hold,
+                       report_recovery, report_removal,
+                       report_nochange, report_width,
+                       report_period,  report_max_skew,
+                       max_lines, report_annotated,
+                       report_not_annotated,
+                       report_constant_arcs, sta);
 }
 
 void
 write_sdf_cmd(char *filename,
-	      Corner *corner,
-	      char divider,
-	      bool include_typ,
+              Scene *scene,
+              char divider,
+              bool include_typ,
               int digits,
-	      bool gzip,
-	      bool no_timestamp,
-	      bool no_version)
+              bool gzip,
+              bool no_timestamp,
+              bool no_version)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  sta->writeSdf(filename, corner, divider, include_typ, digits, gzip,
-		no_timestamp, no_version);
+  sta->writeSdf(filename, scene, divider, include_typ, digits, gzip,
+                no_timestamp, no_version);
 }
 
 %} // inline

@@ -24,59 +24,45 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+#include <functional>
+
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
 #include "Path.hh"
+#include "BoundedHeap.hh"
 
 namespace sta {
 
 class RiseFall;
-class MinPulseWidthCheck;
-class MinPulseWidthCheckVisitor;
 
-class CheckMinPulseWidths
+class MinPulseWidthSlackLess
 {
 public:
-  CheckMinPulseWidths(StaState *sta);
-  ~CheckMinPulseWidths();
-  void clear();
-  // Min pulse width checks for pins.
-  // corner=nullptr checks all corners.
-  MinPulseWidthCheckSeq &check(PinSeq *pins,
-			       const Corner *corner);
-  // All min pulse width checks.
-  // corner=nullptr checks all corners.
-  MinPulseWidthCheckSeq &check(const Corner *corner);
-  // All violating min pulse width checks.
-  // corner=nullptr checks all corners.
-  MinPulseWidthCheckSeq &violations(const Corner *corner);
-  // Min pulse width check with the least slack.
-  // corner=nullptr checks all corners.
-  MinPulseWidthCheck *minSlackCheck(const Corner *corner);
+  MinPulseWidthSlackLess(const StaState *sta);
+  bool operator()(const MinPulseWidthCheck &check1,
+                  const MinPulseWidthCheck &check2) const;
 
-protected:
-  void visitMinPulseWidthChecks(MinPulseWidthCheckVisitor *visitor);
-  void visitMinPulseWidthChecks(Vertex *vertex,
-				MinPulseWidthCheckVisitor *visitor);
-
-  MinPulseWidthCheckSeq checks_;
-  StaState *sta_;
+private:
+  const StaState *sta_;
 };
 
 class MinPulseWidthCheck
 {
 public:
-  explicit MinPulseWidthCheck();
+  MinPulseWidthCheck();
   MinPulseWidthCheck(Path *open_path);
-  MinPulseWidthCheck *copy();
+  std::string to_string(const StaState *sta);
+  bool isNull() const { return open_path_ == nullptr; }
   Pin *pin(const StaState *sta) const;
   const RiseFall *openTransition(const StaState *sta) const;
   Arrival width(const StaState *sta) const;
   float minWidth(const StaState *sta) const;
   Slack slack(const StaState *sta) const;
   Path *openPath() { return open_path_; }
-  Corner *corner(const StaState *sta) const;
+  Scene *scene(const StaState *sta) const;
   const Path *openPath() const { return open_path_; }
   Arrival openArrival(const StaState *sta) const;
   Path *closePath(const StaState *sta) const;
@@ -93,15 +79,32 @@ protected:
   Path *open_path_;
 };
 
-class MinPulseWidthSlackLess
+using MinPulseWidthCheckSeq = std::vector<MinPulseWidthCheck>;
+using MinPulseWidthCheckHeap = BoundedHeap<MinPulseWidthCheck, MinPulseWidthSlackLess>;
+
+class CheckMinPulseWidths
 {
 public:
-  MinPulseWidthSlackLess(const StaState *sta);
-  bool operator()(const MinPulseWidthCheck *check1,
-		  const MinPulseWidthCheck *check2) const;
+  CheckMinPulseWidths(StaState *sta);
+  void clear();
+  MinPulseWidthCheckSeq &check(const Net *net,
+                               size_t max_count,
+                               bool violators,
+                               const SceneSeq &scenes);
 
-private:
-  const StaState *sta_;
+protected:
+  void checkNet(const Net *net,
+                bool violators,
+                const SceneSeq &scenes);
+  void checkAll(bool violators,
+                const SceneSeq &scenes);
+  void checkVertex(Vertex *vertex,
+                   bool violators,
+                   const SceneSeq &scenes);
+
+  MinPulseWidthCheckSeq checks_;
+  MinPulseWidthCheckHeap heap_;
+  StaState *sta_;
 };
 
 } // namespace

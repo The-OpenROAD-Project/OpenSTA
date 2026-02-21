@@ -35,22 +35,22 @@ class LibExprReader
 {
 public:
   LibExprReader(const char *func,
-		LibertyCell *cell,
-		const char *error_msg,
-		Report *report);
+                LibertyCell *cell,
+                const char *error_msg,
+                Report *report);
   FuncExpr *makeFuncExprPort(const char *port_name);
   FuncExpr *makeFuncExprOr(FuncExpr *arg1,
-			   FuncExpr *arg2);
+                           FuncExpr *arg2);
   FuncExpr *makeFuncExprAnd(FuncExpr *arg1,
-			    FuncExpr *arg2);
+                            FuncExpr *arg2);
   FuncExpr *makeFuncExprXor(FuncExpr *arg1,
-			    FuncExpr *arg2);
+                            FuncExpr *arg2);
   FuncExpr *makeFuncExprNot(FuncExpr *arg);
   void setResult(FuncExpr *result);
   FuncExpr *result() { return result_; }
   void parseError(const char *msg);
   size_t copyInput(char *buf,
-		   size_t max_size);
+                   size_t max_size);
   Report *report() const { return report_; }
 
 private:

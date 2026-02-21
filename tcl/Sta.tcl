@@ -30,6 +30,122 @@ namespace eval sta {
 #
 ################################################################
 
+define_cmd_args "define_scene" {name -mode mode_name\
+                                  -liberty liberty_files \
+                                  | -liberty_min liberty_min_files -liberty_max liberty_max_files\
+                                  [-spef spef_file | -spef_min spef_min_file -spef_max spef_max_file]}
+
+proc define_scene { args } {
+  parse_key_args "define_scene" args \
+    keys {-mode -liberty -liberty_min -liberty_max \
+          -spef -spef_min -spef_max} \
+  flags {}
+
+  check_argc_eq1 "define_scene" $args
+  set name [lindex $args 0]
+
+  if { [info exists keys(-mode)] } {
+    set mode_name $keys(-mode)
+  } else {
+    set mode_name [sta::cmd_mode_name]
+  }
+
+  set liberty_min_files {}
+  set liberty_max_files {}
+  if { [info exists keys(-liberty)] } {
+    set liberty_files $keys(-liberty)
+    set liberty_min_files $liberty_files
+    set liberty_max_files $liberty_files
+  } else {
+    if { [info exists keys(-liberty_min)] && [info exists keys(-liberty_max)] } {
+      set liberty_min_files $keys(-liberty_min)
+      set liberty_max_files $keys(-liberty_max)
+    } else {
+      sta_error 483 "-liberty or -liberty_min and -liberty_max are required arguments."
+    }
+  }
+
+  set spef_min_file ""
+  set spef_max_file ""
+  if { [info exists keys(-spef)] } {
+    set spef_file $keys(-spef)
+    set spef_min_file $spef_file
+    set spef_max_file $spef_file
+  } elseif { [info exists keys(-spef_min)] && [info exists keys(-spef_max)] } {
+    set spef_min_file $keys(-spef_min)
+    set spef_max_file $keys(-spef_max)
+  } elseif { [info exists keys(-spef_min)] ||[info exists keys(-spef_max)] } {
+    sta_error 484 "-spef_min and -spef_max are required arguments."
+  }
+
+  define_scene_cmd $name $mode_name \
+    $liberty_min_files $liberty_max_files \
+    $spef_min_file $spef_max_file
+}
+
+# deprecated 11/22/2025
+define_cmd_args "define_corners" { corner1 [corner2]... }
+
+proc define_corners { args } {
+  if { [get_libs -quiet *] != {} } {
+    sta_error 482 "define_corners must be called before read_liberty."
+  }
+  if { [llength $args] == 0 } { 
+    sta_error 577 "define_corners must define at least one corner."
+  }
+  define_scenes_cmd $args
+}
+
+################################################################
+
+define_cmd_args "set_scene" {scene_name}
+
+proc set_scene { args } {
+  check_argc_eq1 "set_scene" $args
+  set_scene_cmd [lindex $args 0]
+}
+
+################################################################
+
+define_cmd_args "get_scenes" {[-modes mode_names] scene_names}
+
+proc get_scenes { args } {
+  parse_key_args "get_scenes" args keys {-modes} flags {}
+  check_argc_eq0or1 "get_scenes" $args
+
+  if { [llength $args] == 0 } {
+    set scene_name "*"
+  } else {
+    set scene_name [lindex $args 0]
+  }
+  set mode_names {}
+  if { [info exists keys(-modes)] } {
+    set mode_names $keys(-modes)
+    return [find_mode_scenes_matching $scene_name $mode_names]
+  } else {
+    return [find_scenes_matching $scene_name]
+  }
+}
+
+################################################################
+
+define_cmd_args "get_modes" {mode_name}
+
+proc get_modes { args } {
+  return [find_modes [lindex $args 0]]
+}
+
+################################################################
+
+define_cmd_args "set_mode" {mode_name}
+
+proc set_mode { args } {
+  check_argc_eq1 "set_mode" $args
+  set_mode_cmd [lindex $args 0]
+}
+
+################################################################
+
 define_cmd_args "get_fanin" \
   {-to sink_list [-flat] [-only_cells] [-startpoints_only]\
      [-levels level_count] [-pin_levels pin_count]\
@@ -85,10 +201,10 @@ proc get_fanin { args } {
   }
   if { $only_insts } {
     return [find_fanin_insts $pins $flat $startpoints_only \
-	      $inst_levels $pin_levels $thru_disabled $thru_constants]
+              $inst_levels $pin_levels $thru_disabled $thru_constants]
  } else {
     return [find_fanin_pins $pins $flat $startpoints_only \
-	      $inst_levels $pin_levels $thru_disabled $thru_constants]
+              $inst_levels $pin_levels $thru_disabled $thru_constants]
   }
 }
 
@@ -143,10 +259,10 @@ proc get_fanout { args } {
   }
   if { $only_insts } {
     return [find_fanout_insts $pins $flat $endpoints_only \
-	      $inst_levels $pin_levels $thru_disabled $thru_constants]
+              $inst_levels $pin_levels $thru_disabled $thru_constants]
   } else {
     return [find_fanout_pins $pins $flat $endpoints_only \
-	      $inst_levels $pin_levels $thru_disabled $thru_constants]
+              $inst_levels $pin_levels $thru_disabled $thru_constants]
   }
 }
 
@@ -167,15 +283,15 @@ proc get_timing_edges_cmd { cmd cmd_args } {
   set arcs {}
   if { [info exists keys(-of_objects)] } {
     if { [info exists keys(-from)] \
-	   || [info exists keys(-from)] } {
+           || [info exists keys(-from)] } {
       sta_error 540 "-from/-to arguments not supported with -of_objects."
     }
     set arcs [get_timing_arcs_objects $keys(-of_objects)]
   } elseif { [info exists keys(-from)] \
-	   && [info exists keys(-to)] } {
+           && [info exists keys(-to)] } {
     set arcs [get_timing_arcs_from_to \
-	      [get_port_pin_error "from" $keys(-from)] \
-	      [get_port_pin_error "to" $keys(-to)]]
+              [get_port_pin_error "from" $keys(-from)] \
+              [get_port_pin_error "to" $keys(-to)]]
   } elseif { [info exists keys(-from)] } {
     set arcs [get_timing_arcs_from $keys(-from)]
   } elseif { [info exists keys(-to)] } {
@@ -214,10 +330,10 @@ proc instance_edges { inst } {
     foreach vertex [$pin vertices] {
       set edge_iter [$vertex out_edge_iterator]
       while {[$edge_iter has_next]} {
-	set edge [$edge_iter next]
-	if { [$edge role] != "wire" } {
-	  lappend edges $edge
-	}
+        set edge [$edge_iter next]
+        if { [$edge role] != "wire" } {
+          lappend edges $edge
+        }
       }
       $edge_iter finish
     }
@@ -234,10 +350,10 @@ proc get_timing_arcs_from_to { from_pin_arg to_pin_arg } {
     foreach to_vertex [$to_pin vertices] {
       set edge_iter [$from_vertex out_edge_iterator]
       while {[$edge_iter has_next]} {
-	set edge [$edge_iter next]
-	if { [$edge to] == $to_vertex } {
-	  lappend edges $edge
-	}
+        set edge [$edge_iter next]
+        if { [$edge to] == $to_vertex } {
+          lappend edges $edge
+        }
       }
       $edge_iter finish
     }
@@ -304,7 +420,7 @@ proc report_clock1 { clk } {
     } else {
       set wave ""
       foreach edge $waveform {
-	set wave "$wave[format "%10s" [format_time $edge $digits]]"
+        set wave "$wave[format %10s [format_time $edge $digits]]"
       }
     }
     if {[$clk is_generated]} {

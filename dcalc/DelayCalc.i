@@ -32,8 +32,6 @@
 #include "dcalc/PrimaDelayCalc.hh"
 #include "Sta.hh"
 
-using std::string;
-
 %}
 
 %inline %{
@@ -62,15 +60,15 @@ set_delay_calc_incremental_tolerance(float tol)
   Sta::sta()->setIncrementalDelayTolerance(tol);
 }
 
-string
+std::string
 report_delay_calc_cmd(Edge *edge,
-		      TimingArc *arc,
-		      const Corner *corner,
-		      const MinMax *min_max,
-		      int digits)
+                      TimingArc *arc,
+                      const Scene *scene,
+                      const MinMax *min_max,
+                      int digits)
 {
   Sta *sta = Sta::sta();
-  return sta->reportDelayCalc(edge, arc, corner, min_max, digits);
+  return sta->reportDelayCalc(edge, arc, scene, min_max, digits);
 }
 
 void

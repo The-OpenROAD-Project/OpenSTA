@@ -46,14 +46,15 @@ ArcDelayCalc::gateDelay(const TimingArc *arc,
                         const Parasitic *parasitic,
                         float,
                         const Pvt *,
-                        const DcalcAnalysisPt *dcalc_ap,
+                        const Scene *scene,
+                        const MinMax *min_max,
                         // Return values.
                         ArcDelay &gate_delay,
                         Slew &drvr_slew)
 {
   LoadPinIndexMap load_pin_index_map(network_);
   ArcDcalcResult dcalc_result = gateDelay(nullptr, arc, in_slew, load_cap, parasitic,
-                                          load_pin_index_map, dcalc_ap);
+                                          load_pin_index_map, scene, min_max);
   gate_delay = dcalc_result.gateDelay();
   drvr_slew = dcalc_result.drvrSlew();
 }

@@ -25,19 +25,22 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "StringSeq.hh"
 #include "SearchClass.hh"
 #include "PathEnd.hh"
+#include "CheckMinPulseWidths.hh"
+#include "CheckMinPeriods.hh"
+#include "CheckMaxSkews.hh"
 
 namespace sta {
 
-class Corner;
-class DcalcAnalysisPt;
+class Scene;
 class PathExpanded;
 class ReportField;
 
-typedef Vector<ReportField*> ReportFieldSeq;
+using ReportFieldSeq = std::vector<ReportField*>;
 
 class ReportPath : public StaState
 {
@@ -49,11 +52,11 @@ public:
   void setReportFieldOrder(StringSeq *field_names);
   void setReportFields(bool report_input_pin,
                        bool report_hier_pins,
-		       bool report_net,
-		       bool report_cap,
-		       bool report_slew,
-		       bool report_fanout,
-		       bool report_src_attr);
+                       bool report_net,
+                       bool report_cap,
+                       bool report_slew,
+                       bool report_fanout,
+                       bool report_src_attr);
   int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);
@@ -70,7 +73,7 @@ public:
   //   Previous path end is used to detect path group changes
   //   so headers are reported by group.
   void reportPathEnd(const PathEnd *end,
-		     const PathEnd *prev_end,
+                     const PathEnd *prev_end,
                      bool last) const;
   void reportPathEnds(const PathEndSeq *ends) const;
   void reportPath(const Path *path) const;
@@ -116,44 +119,42 @@ public:
   void reportSlackOnlyHeader() const;
   void reportSlackOnly(const PathEnd *end) const;
 
-  void reportMpwCheck(const MinPulseWidthCheck *check,
-		      bool verbose) const;
-  void reportMpwChecks(const MinPulseWidthCheckSeq *checks,
-		       bool verbose) const;
+  void reportMpwCheck(const MinPulseWidthCheck &check,
+                      bool verbose) const;
+  void reportMpwChecks(const MinPulseWidthCheckSeq &checks,
+                       bool verbose) const;
   void reportMpwHeaderShort() const;
-  void reportShort(const MinPulseWidthCheck *check) const;
-  void reportVerbose(const MinPulseWidthCheck *check) const;
+  void reportShort(const MinPulseWidthCheck &check) const;
+  void reportVerbose(const MinPulseWidthCheck &check) const;
 
-  void reportCheck(const MinPeriodCheck *check,
-		   bool verbose) const;
-  void reportChecks(const MinPeriodCheckSeq *checks,
-		    bool verbose) const;
+  void reportCheck(const MinPeriodCheck &check,
+                   bool verbose) const;
+  void reportChecks(const MinPeriodCheckSeq &checks,
+                    bool verbose) const;
   void reportPeriodHeaderShort() const;
-  void reportShort(const MinPeriodCheck *check) const;
-  void reportVerbose(const MinPeriodCheck *check) const;
+  void reportShort(const MinPeriodCheck &check) const;
+  void reportVerbose(const MinPeriodCheck &check) const;
 
-  void reportCheck(const MaxSkewCheck *check,
-		   bool verbose) const;
-  void reportChecks(const MaxSkewCheckSeq *checks,
-		    bool verbose) const;
+  void reportChecks(const MaxSkewCheckSeq &checks,
+                    bool verbose) const;
   void reportMaxSkewHeaderShort() const;
-  void reportShort(const MaxSkewCheck *check) const;
-  void reportVerbose(const MaxSkewCheck *check) const;
+  void reportShort(const MaxSkewCheck &check) const;
+  void reportVerbose(const MaxSkewCheck &check) const;
 
   void reportLimitShortHeader(const ReportField *field) const;
   void reportLimitShort(const ReportField *field,
-			Pin *pin,
-			float value,
-			float limit,
-			float slack) const;
+                        const Pin *pin,
+                        float value,
+                        float limit,
+                        float slack) const;
   void reportLimitVerbose(const ReportField *field,
-			  Pin *pin,
-			  const RiseFall *rf,
-			  float value,
-			  float limit,
-			  float slack,
-                          const Corner *corner,
-			  const MinMax *min_max) const;
+                          const Pin *pin,
+                          const RiseFall *rf,
+                          float value,
+                          float limit,
+                          float slack,
+                          const Scene *scene,
+                          const MinMax *min_max) const;
   ReportField *fieldSlew() const { return field_slew_; }
   ReportField *fieldFanout() const { return field_fanout_; }
   ReportField *fieldCapacitance() const { return field_capacitance_; }
@@ -162,27 +163,27 @@ public:
 protected:
   void makeFields();
   ReportField *makeField(const char *name,
-			 const char *title,
-			 int width,
-			 bool left_justify,
-			 Unit *unit,
-			 bool enabled);
+                         const char *title,
+                         int width,
+                         bool left_justify,
+                         Unit *unit,
+                         bool enabled);
   void reportEndpointHeader(const PathEnd *end,
-			    const PathEnd *prev_end) const;
+                            const PathEnd *prev_end) const;
   void reportShort(const PathEndUnconstrained *end,
-		   const PathExpanded &expanded) const;
+                   const PathExpanded &expanded) const;
   void reportShort(const PathEndCheck *end,
-		   const PathExpanded &expanded) const;
+                   const PathExpanded &expanded) const;
   void reportShort(const PathEndLatchCheck *end,
-		   const PathExpanded &expanded) const;
+                   const PathExpanded &expanded) const;
   void reportShort(const PathEndPathDelay *end,
-		   const PathExpanded &expanded) const;
+                   const PathExpanded &expanded) const;
   void reportShort(const PathEndOutputDelay *end,
-		   const PathExpanded &expanded) const;
+                   const PathExpanded &expanded) const;
   void reportShort(const PathEndGatedClock *end,
-		   const PathExpanded &expanded) const;
+                   const PathExpanded &expanded) const;
   void reportShort(const PathEndDataCheck *end,
-		   const PathExpanded &expanded) const;
+                   const PathExpanded &expanded) const;
   void reportEndpoint(const PathEndOutputDelay *end) const;
   void reportEndpointOutputDelay(const PathEndClkConstrained *end) const;
   void reportEndpoint(const PathEndPathDelay *end) const;
@@ -191,8 +192,8 @@ protected:
   std::string pathStartpoint(const PathEnd *end,
                              const PathExpanded &expanded) const;
   void reportBorrowing(const PathEndLatchCheck *end,
-		       Arrival &borrow,
-		       Arrival &time_given_to_startpoint) const;
+                       Arrival &borrow,
+                       Arrival &time_given_to_startpoint) const;
   void reportEndpoint(const PathEndDataCheck *end) const;
   const char *clkNetworkDelayIdealProp(bool is_ideal) const;
 
@@ -200,90 +201,92 @@ protected:
   std::string checkRoleString(const PathEnd *end) const;
   virtual void reportGroup(const PathEnd *end) const;
   void reportStartpoint(const PathEnd *end,
-			const PathExpanded &expanded) const;
+                        const PathExpanded &expanded) const;
   void reportUnclockedEndpoint(const PathEnd *end,
-			       const char *default_reason) const;
+                               const char *default_reason) const;
   void reportEndpoint(const PathEndCheck *end) const;
   void reportEndpoint(const PathEndLatchCheck *end) const;
   const char *latchDesc(const PathEndLatchCheck *end) const;
   void reportStartpoint(const char *start,
-			const std::string reason) const;
+                        const std::string reason) const;
   void reportEndpoint(const char *end,
-		      const std::string reason) const;
+                      const std::string reason) const;
   void reportStartEndPoint(const char *pt,
-			   const std::string reason,
-			   const char *key) const;
+                           const std::string reason,
+                           const char *key) const;
   std::string tgtClkName(const PathEnd *end) const;
   const char *clkRegLatchDesc(const PathEnd *end) const;
   void reportSrcPath(const PathEnd *end,
-		     const PathExpanded &expanded) const;
+                     const PathExpanded &expanded) const;
   void reportTgtClk(const PathEnd *end) const;
   void reportTgtClk(const PathEnd *end,
-		    float prev_time) const;
+                    float prev_time) const;
   void reportTgtClk(const PathEnd *end,
-		    float prev_time,
-		    bool is_prop) const;
+                    float prev_time,
+                    bool is_prop) const;
   void reportTgtClk(const PathEnd *end,
                     float prev_time,
                     float src_offset,
                     bool is_prop) const;
   bool pathFromGenPropClk(const Path *clk_path,
-			  const EarlyLate *early_late) const;
+                          const EarlyLate *early_late) const;
   bool isGenPropClk(const Clock *clk,
-		    const RiseFall *clk_rf,
-		    const MinMax *min_max,
-		    const EarlyLate *early_late) const;
+                    const RiseFall *clk_rf,
+                    const MinMax *min_max,
+                    const EarlyLate *early_late,
+                    const Sdc *sdc) const;
   void reportSrcClkAndPath(const Path *path,
-			   const PathExpanded &expanded,
-			   float time_offset,
-			   Arrival clk_insertion,
-			   Arrival clk_latency,
-			   bool is_path_delay) const;
+                           const PathExpanded &expanded,
+                           float time_offset,
+                           Arrival clk_insertion,
+                           Arrival clk_latency,
+                           bool is_path_delay) const;
   bool reportGenClkSrcPath(const Path *clk_path,
                            const Clock *clk,
-			   const RiseFall *clk_rf,
-			   const MinMax *min_max,
-			   const EarlyLate *early_late) const;
+                           const RiseFall *clk_rf,
+                           const MinMax *min_max,
+                           const EarlyLate *early_late,
+                           const Sdc *sdc) const;
   void reportGenClkSrcAndPath(const Path *path,
-			      const Clock *clk,
-			      const RiseFall *clk_rf,
-			      const EarlyLate *early_late,
-			      const PathAnalysisPt *path_ap,
-			      float time_offset,
-			      float path_time_offset,
-			      bool clk_used_as_data) const;
+                              const Clock *clk,
+                              const RiseFall *clk_rf,
+                              const EarlyLate *early_late,
+                              float time_offset,
+                              float path_time_offset,
+                              bool clk_used_as_data,
+                              const Mode *mode) const;
   bool reportGenClkSrcPath1(const Clock *clk,
-			    const Pin *clk_pin,
-			    const RiseFall *clk_rf,
-			    const EarlyLate *early_late,
-			    const PathAnalysisPt *path_ap,
-			    float gclk_time,
-			    float time_offset,
-			    bool clk_used_as_data) const;
+                            const Pin *clk_pin,
+                            const RiseFall *clk_rf,
+                            const EarlyLate *early_late,
+                            float gclk_time,
+                            float time_offset,
+                            bool clk_used_as_data,
+                            const Mode *mode) const;
   void reportClkSrcLatency(Arrival insertion,
-			   float clk_time,
-			   const EarlyLate *early_late) const;
+                           float clk_time,
+                           const EarlyLate *early_late) const;
   void reportPathLine(const Path *path,
-		      Delay incr,
-		      Arrival time,
-		      const char *line_case) const;
+                      Delay incr,
+                      Arrival time,
+                      const char *line_case) const;
   void reportCommonClkPessimism(const PathEnd *end,
-				Arrival &clk_arrival) const ;
+                                Arrival &clk_arrival) const ;
   void reportClkUncertainty(const PathEnd *end,
-			    Arrival &clk_arrival) const ;
+                            Arrival &clk_arrival) const ;
   void reportClkLine(const Clock *clk,
-		     const char *clk_name,
-		     const RiseFall *clk_rf,
-		     Arrival clk_time,
-		     const MinMax *min_max) const ;
+                     const char *clk_name,
+                     const RiseFall *clk_rf,
+                     Arrival clk_time,
+                     const MinMax *min_max) const ;
   void reportClkLine(const Clock *clk,
-		     const char *clk_name,
-		     const RiseFall *clk_rf,
-		     Arrival prev_time,
-		     Arrival clk_time,
-		     const MinMax *min_max) const ;
+                     const char *clk_name,
+                     const RiseFall *clk_rf,
+                     Arrival prev_time,
+                     Arrival clk_time,
+                     const MinMax *min_max) const ;
   void reportRequired(const PathEnd *end,
-		      std::string margin_msg) const ;
+                      std::string margin_msg) const ;
   void reportSlack(const PathEnd *end) const ;
   void reportSlack(Slack slack) const ;
   void reportSpaceSlack(const PathEnd *end,
@@ -291,125 +294,125 @@ protected:
   void reportSpaceSlack(Slack slack,
                         std::string &line) const ;
   void reportSrcPathArrival(const PathEnd *end,
-			    const PathExpanded &expanded) const ;
+                            const PathExpanded &expanded) const ;
   void reportPath(const PathEnd *end,
-		  const PathExpanded &expanded) const;
+                  const PathExpanded &expanded) const;
   void reportPathFull(const Path *path) const;
   void reportPathHeader() const;
   void reportPath1(const Path *path,
-		   const PathExpanded &expanded,
-		   bool clk_used_as_data,
-		   float time_offset) const;
+                   const PathExpanded &expanded,
+                   bool clk_used_as_data,
+                   float time_offset) const;
   void reportPath2(const Path *path,
-		   const PathExpanded &expanded,
-		   bool skip_first_path,
-		   bool clk_used_as_data,
-		   float time_offset) const;
+                   const PathExpanded &expanded,
+                   bool skip_first_path,
+                   bool clk_used_as_data,
+                   float time_offset) const;
   void  reportPath3(const Path *path,
-		    const PathExpanded &expanded,
-		    bool report_clk_path,
-		    float time_offset) const;
+                    const PathExpanded &expanded,
+                    bool report_clk_path,
+                    float time_offset) const;
   void reportPath4(const Path *path,
-		   const PathExpanded &expanded,
-		   bool skip_first_path,
-		   bool propagated_clk,
-		   bool report_clk_path,
-		   float time_offset) const;
+                   const PathExpanded &expanded,
+                   bool skip_first_path,
+                   bool propagated_clk,
+                   bool report_clk_path,
+                   float time_offset) const;
   void reportPath5(const Path *path,
-		   const PathExpanded &expanded,
-		   bool skip_first_path,
-		   bool propagated_clk,
-		   bool report_clk_path,
-		   float time_offset) const;
+                   const PathExpanded &expanded,
+                   bool skip_first_path,
+                   bool propagated_clk,
+                   bool report_clk_path,
+                   float time_offset) const;
   void reportPath6(const Path *path,
-		   const PathExpanded &expanded,
-		   size_t path_first_index,
-		   bool propagated_clk,
-		   bool report_clk_path,
-		   Arrival prev_time,
-		   float time_offset) const;
+                   const PathExpanded &expanded,
+                   size_t path_first_index,
+                   bool propagated_clk,
+                   bool report_clk_path,
+                   Arrival prev_time,
+                   float time_offset) const;
   void reportHierPinsThru(const Path *path) const;
   void reportInputExternalDelay(const Path *path,
-				float time_offset) const;
+                                float time_offset) const;
   void reportLine(const char *what,
-		  Delay total,
-		  const EarlyLate *early_late) const;
+                  Delay total,
+                  const EarlyLate *early_late) const;
   void reportLineNegative(const char *what,
-			  Delay total,
-			  const EarlyLate *early_late) const;
+                          Delay total,
+                          const EarlyLate *early_late) const;
   void reportLine(const char *what,
-		  Delay total,
-		  const EarlyLate *early_late,
-		  const RiseFall *rf) const;
+                  Delay total,
+                  const EarlyLate *early_late,
+                  const RiseFall *rf) const;
   void reportLine(const char *what,
-		  Delay incr,
-		  Delay total,
-		  const EarlyLate *early_late) const;
+                  Delay incr,
+                  Delay total,
+                  const EarlyLate *early_late) const;
   void reportLine(const char *what,
-		  Delay incr,
-		  Delay total,
-		  const EarlyLate *early_late,
-		  const RiseFall *rf) const;
+                  Delay incr,
+                  Delay total,
+                  const EarlyLate *early_late,
+                  const RiseFall *rf) const;
   void reportLine(const char *what,
-		  Slew slew,
-		  Delay incr,
-		  Delay total,
-		  const EarlyLate *early_late) const;
+                  Slew slew,
+                  Delay incr,
+                  Delay total,
+                  const EarlyLate *early_late) const;
   void reportLine(const char *what,
-		  float cap,
-		  Slew slew,
-		  float fanout,
-		  Delay incr,
-		  Delay total,
-		  bool total_with_minus,
-		  const EarlyLate *early_late,
-		  const RiseFall *rf,
-		  std::string src_attr,
-		  const char *line_case) const;
+                  float cap,
+                  Slew slew,
+                  float fanout,
+                  Delay incr,
+                  Delay total,
+                  bool total_with_minus,
+                  const EarlyLate *early_late,
+                  const RiseFall *rf,
+                  std::string src_attr,
+                  const char *line_case) const;
   void reportLineTotal(const char *what,
-		       Delay incr,
-		       const EarlyLate *early_late) const;
+                       Delay incr,
+                       const EarlyLate *early_late) const;
   void reportLineTotalMinus(const char *what,
-			    Delay decr,
-			    const EarlyLate *early_late) const;
+                            Delay decr,
+                            const EarlyLate *early_late) const;
   void reportLineTotal1(const char *what,
-			Delay incr,
-			bool incr_with_minus,
-			const EarlyLate *early_late) const;
+                        Delay incr,
+                        bool incr_with_minus,
+                        const EarlyLate *early_late) const;
   void reportDashLineTotal() const;
   void reportDescription(const char *what,
                          std::string &result) const;
   void reportDescription(const char *what,
-			 bool first_field,
-			 bool last_field,
+                         bool first_field,
+                         bool last_field,
                          std::string &result) const;
   void reportFieldTime(float value,
-		       ReportField *field,
-		       std::string &result) const;
+                       ReportField *field,
+                       std::string &result) const;
   void reportSpaceFieldTime(float value,
-			    std::string &result) const;
+                            std::string &result) const;
   void reportSpaceFieldDelay(Delay value,
-			     const EarlyLate *early_late,
-			     std::string &result) const;
+                             const EarlyLate *early_late,
+                             std::string &result) const;
   void reportFieldDelayMinus(Delay value,
-			     const EarlyLate *early_late,
-			     const ReportField *field,
-			     std::string &result) const;
+                             const EarlyLate *early_late,
+                             const ReportField *field,
+                             std::string &result) const;
   void reportTotalDelay(Delay value,
-			const EarlyLate *early_late,
-			std::string &result) const;
+                        const EarlyLate *early_late,
+                        std::string &result) const;
   void reportFieldDelay(Delay value,
-			const EarlyLate *early_late,
-			const ReportField *field,
-			std::string &result) const;
+                        const EarlyLate *early_late,
+                        const ReportField *field,
+                        std::string &result) const;
   void reportField(float value,
-		   const ReportField *field,
-		   std::string &result) const;
+                   const ReportField *field,
+                   std::string &result) const;
   void reportField(const char *value,
-		   const ReportField *field,
-		   std::string &result) const;
+                   const ReportField *field,
+                   std::string &result) const;
   void reportFieldBlank(const ReportField *field,
-			std::string &result) const;
+                        std::string &result) const;
   void reportDashLine() const;
   void reportDashLine(int line_width) const;
   void reportBlankLine() const;
@@ -420,51 +423,51 @@ protected:
   std::string clkName(const Clock *clk,
                       bool inverted) const;
   bool hasExtInputDriver(const Pin *pin,
-			 const RiseFall *rf,
-			 const MinMax *min_max) const;
+                         const RiseFall *rf,
+                         const MinMax *min_max,
+                         const Sdc *sdc) const;
   float drvrFanout(Vertex *drvr,
-                   const Corner *corner,
-		   const MinMax *min_max) const;
-  const char *mpwCheckHiLow(const MinPulseWidthCheck *check) const;
+                   const Scene *scene,
+                   const MinMax *min_max) const;
+  const char *mpwCheckHiLow(const MinPulseWidthCheck &check) const;
   void reportSkewClkPath(const char *arrival_msg,
-			 const Path *clk_path) const;
+                         const Path *clk_path) const;
   const char *edgeRegLatchDesc(const Edge *edge,
-			       const TimingArc *arc) const;
+                               const TimingArc *arc) const;
   const char *checkRegLatchDesc(const TimingRole *role,
-				const RiseFall *clk_rf) const;
+                                const RiseFall *clk_rf) const;
   const char *regDesc(const RiseFall *clk_rf) const;
   const char *latchDesc(const RiseFall *clk_rf) const;
   void pathClkPath(const Path *path,
-		   const Path &clk_path) const;
+                   const Path &clk_path) const;
   bool isPropagated(const Path *clk_path) const;
   bool isPropagated(const Path *clk_path,
-		    const Clock *clk) const;
+                    const Clock *clk) const;
   bool pathFromClkPin(const PathExpanded &expanded) const;
   bool pathFromClkPin(const Path *path,
-		      const Pin *start_pin) const;
+                      const Pin *start_pin) const;
   void latchPaths(const Path *path,
                   // Return values.
                   Path &d_path,
-		  Path &q_path,
-		  Edge *&d_q_edge) const;
+                  Path &q_path,
+                  Edge *&d_q_edge) const;
   bool nextArcAnnotated(const Path *next_path,
-			size_t next_index,
-			const PathExpanded &expanded,
-			DcalcAPIndex ap_index) const;
+                        size_t next_index,
+                        const PathExpanded &expanded,
+                        DcalcAPIndex ap_index) const;
   float tgtClkInsertionOffet(const Path *clk_path,
-			     const EarlyLate *early_late,
-			     const PathAnalysisPt *path_ap) const;
+                             const EarlyLate *early_late) const;
   // InputDelay used to seed path root.
   InputDelay *pathInputDelay(const Path *path) const;
   void pathInputDelayRefPath(const Path *path,
-			     const InputDelay *input_delay,
-			     // Return value.
-			     Path &ref_path) const;
+                             const InputDelay *input_delay,
+                             // Return value.
+                             Path &ref_path) const;
   const char *asRisingFalling(const RiseFall *rf) const;
   const char *asRiseFall(const RiseFall *rf) const;
   Delay delayIncr(Delay time,
-		  Delay prev,
-		  const MinMax *min_max) const;
+                  Delay prev,
+                  const MinMax *min_max) const;
 
   // Path options.
   ReportPathFormat format_;
@@ -499,15 +502,15 @@ class ReportField
 {
 public:
   ReportField(const char *name,
-	      const char *title,
-	      int width,
-	      bool left_justify,
-	      Unit *unit,
-	      bool enabled);
+              const char *title,
+              int width,
+              bool left_justify,
+              Unit *unit,
+              bool enabled);
   ~ReportField();
   void setProperties(const char *title,
-		     int width,
-		     bool left_justify);
+                     int width,
+                     bool left_justify);
   const char *name() const { return name_; }
   const char *title() const { return title_; }
   int width() const { return width_; }

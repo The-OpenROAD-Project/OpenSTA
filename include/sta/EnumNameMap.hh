@@ -37,11 +37,11 @@ public:
   EnumNameMap(std::initializer_list<std::pair<const ENUM, std::string>> enum_names);
   const char *find(ENUM key) const;
   ENUM find(std::string name,
-	    ENUM unknown_key) const;
+            ENUM unknown_key) const;
   void find(std::string name,
-	    // Return values.
-	    ENUM &key,
-	    bool &exists) const;
+            // Return values.
+            ENUM &key,
+            bool &exists) const;
   
 private:
   std::map<ENUM, std::string> enum_map_;
@@ -70,9 +70,9 @@ EnumNameMap<ENUM>::find(ENUM key) const
 template <class ENUM>
 void
 EnumNameMap<ENUM>::find(std::string name,
-			// Return values.
-			ENUM &key,
-			bool &exists) const
+                        // Return values.
+                        ENUM &key,
+                        bool &exists) const
 {
   auto find_iter = name_map_.find(name);
   if (find_iter != name_map_.end()) {
@@ -86,7 +86,7 @@ EnumNameMap<ENUM>::find(std::string name,
 template <class ENUM>
 ENUM
 EnumNameMap<ENUM>::find(std::string name,
-			ENUM unknown_key) const
+                        ENUM unknown_key) const
 {
   auto find_iter = name_map_.find(name);
   if (find_iter != name_map_.end())

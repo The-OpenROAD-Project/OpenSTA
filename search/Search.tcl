@@ -54,7 +54,7 @@ proc check_setup_cmd { cmd cmd_args } {
   } else {
     parse_key_args $cmd cmd_args keys {} \
       flags {-no_input_delay -no_output_delay -multiple_clock -no_clock \
-	        -unconstrained_endpoints -loops -generated_clocks}
+                -unconstrained_endpoints -loops -generated_clocks}
     set no_input_delay [info exists flags(-no_input_delay)]
     set no_output_delay [info exists flags(-no_output_delay)]
     set multiple_clock [info exists flags(-multiple_clock)]
@@ -65,15 +65,15 @@ proc check_setup_cmd { cmd cmd_args } {
   }
   set verbose [info exists flags(-verbose)]
   set errors [check_timing_cmd $no_input_delay $no_output_delay \
-		$multiple_clock $no_clock \
-		$unconstrained_endpoints $loops \
-		$generated_clocks]
+                $multiple_clock $no_clock \
+                $unconstrained_endpoints $loops \
+                $generated_clocks]
   foreach error $errors {
     # First line is the error msg.
     report_line [lindex $error 0]
     if { $verbose } {
       foreach obj [lrange $error 1 end] {
-	report_line "  $obj"
+        report_line "  $obj"
       }
     }
   }
@@ -98,7 +98,7 @@ define_cmd_args "find_timing_paths" \
      [-to to_list|-rise_to to_list|-fall_to to_list]\
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
      [-unconstrained]
-     [-corner corner]\
+     [-scenes scenes]\
      [-group_path_count path_count] \
      [-endpoint_path_count path_count]\
      [-unique_paths_to_endpoint]\
@@ -119,12 +119,12 @@ proc find_timing_paths_cmd { cmd args_var } {
 
   parse_key_args $cmd args \
     keys {-from -rise_from -fall_from -to -rise_to -fall_to \
-	    -path_delay -corner -group_count -endpoint_count \
-	    -group_path_count -endpoint_path_count \
-	    -slack_max -slack_min -path_group} \
+            -path_delay -corner -scenes -group_count -endpoint_count \
+            -group_path_count -endpoint_path_count \
+            -slack_max -slack_min -path_group} \
     flags {-unconstrained -sort_by_slack \
-	     -unique_paths_to_endpoint \
-	     -unique_edges_to_endpoint} 0
+             -unique_paths_to_endpoint \
+             -unique_edges_to_endpoint} 0
 
   set min_max "max"
   set end_rf "rise_fall"
@@ -168,7 +168,7 @@ proc find_timing_paths_cmd { cmd args_var } {
     set unconstrained 0
   }
 
-  set corner [parse_corner_or_all keys]
+  set scenes [parse_scenes_or_all keys]
 
   set endpoint_path_count 1
   if { [info exists keys(-endpoint_count)] } {
@@ -232,111 +232,20 @@ proc find_timing_paths_cmd { cmd args_var } {
   }
 
   set path_ends [find_path_ends $from $thrus $to $unconstrained \
-		   $corner $min_max \
-		   $group_path_count $endpoint_path_count \
-		   $unique_pins $unique_edges \
-		   $slack_min $slack_max \
-		   $sort_by_slack $groups \
-		   1 1 1 1 1 1]
+                   $scenes $min_max \
+                   $group_path_count $endpoint_path_count \
+                   $unique_pins $unique_edges \
+                   $slack_min $slack_max \
+                   $sort_by_slack $groups \
+                   1 1 1 1 1 1]
   return $path_ends
 }
 
 ################################################################
 
-define_cmd_args "report_arrival" {pin}
-
-proc report_arrival { pin } {
-  report_delays_wrt_clks $pin "arrivals_clk_delays"
-}
-
-proc report_delays_wrt_clks { pin_arg what } {
-  set pin [get_port_pin_error "pin" $pin_arg]
-  foreach vertex [$pin vertices] {
-    if { $vertex != "NULL" } {
-      report_delays_wrt_clk $vertex $what "NULL" "rise"
-      report_delays_wrt_clk $vertex $what [default_arrival_clock] "rise"
-      foreach clk [all_clocks] {
-	report_delays_wrt_clk $vertex $what $clk "rise"
-	report_delays_wrt_clk $vertex $what $clk "fall"
-      }
-    }
-  }
-}
-
-proc report_delays_wrt_clk { vertex what clk clk_rf } {
-  global sta_report_default_digits
-
-  set rise [$vertex $what rise $clk $clk_rf $sta_report_default_digits]
-  set fall [$vertex $what fall $clk $clk_rf $sta_report_default_digits]
-  # Filter INF/-INF arrivals.
-  if { !([delays_are_inf $rise] && [delays_are_inf $fall]) } {
-    set rise_fmt [format_delays $rise]
-    set fall_fmt [format_delays $fall]
-    if {$clk != "NULL"} {
-      set clk_str " ([get_name $clk] [rf_short_name $clk_rf])"
-    } else {
-      set clk_str ""
-    }
-    report_line "$clk_str r $rise_fmt f $fall_fmt"
-  }
-}
-
-proc report_wrt_clks { pin_arg what } {
-  set pin [get_port_pin_error "pin" $pin_arg]
-  foreach vertex [$pin vertices] {
-    if { $vertex != "NULL" } {
-      report_wrt_clk $vertex $what "NULL" "rise"
-      report_wrt_clk $vertex $what [default_arrival_clock] "rise"
-      foreach clk [all_clocks] {
-	report_wrt_clk $vertex $what $clk "rise"
-	report_wrt_clk $vertex $what $clk "fall"
-      }
-    }
-  }
-}
-
-proc report_wrt_clk { vertex what clk clk_rf } {
-  global sta_report_default_digits
-
-  set rise [$vertex $what rise $clk $clk_rf]
-  set fall [$vertex $what fall $clk $clk_rf]
-  # Filter INF/-INF arrivals.
-  if { !([times_are_inf $rise] && [times_are_inf $fall]) } {
-    set rise_fmt [format_times $rise $sta_report_default_digits]
-    set fall_fmt [format_times $fall $sta_report_default_digits]
-    if {$clk != "NULL"} {
-      set clk_str " ([get_name $clk] [rf_short_name $clk_rf])"
-    } else {
-      set clk_str ""
-    }
-    report_line "$clk_str r $rise_fmt f $fall_fmt"
-  }
-}
-
-proc times_are_inf { times } {
-  foreach time $times {
-    if { $time < 1e+10 && $time > -1e+10 } {
-      return 0
-    }
-  }
-  return 1
-}
-
-proc delays_are_inf { delays } {
-  foreach delay $delays {
-    if { !([string match "INF*" $delay] \
-	     || [string match "-INF*" $delay]) } {
-      return 0
-    }
-  }
-  return 1
-}
-
-################################################################
-
 define_cmd_args "report_clock_skew" {[-setup|-hold]\
-                                       [-clock clocks]\
-                                       [-corner corner]\
+                                       [-clocks clocks]\
+                                       [-scenes scenes]\
                                        [-include_internal_latency]
                                        [-digits digits]}
 
@@ -344,7 +253,7 @@ proc_redirect report_clock_skew {
   global sta_report_default_digits
 
   parse_key_args "report_clock_skew" args \
-    keys {-clock -corner -digits} \
+    keys {-clocks -corner -scenes -digits} \
     flags {-setup -hold -include_internal_latency}
   check_argc_eq0 "report_clock_skew" $args
 
@@ -358,12 +267,13 @@ proc_redirect report_clock_skew {
     set setup_hold "setup"
   }
 
-  if [info exists keys(-clock)] {
-    set clks [get_clocks_warn "-clocks" $keys(-clock)]
+  set scenes [parse_scenes_or_all keys]
+  if [info exists keys(-clocks)] {
+    puts "clks1 = [get_object_names $clks]"
   } else {
-    set clks [all_clocks]
+    set clks [get_scene_clocks $scenes]
   }
-  set corner [parse_corner_or_all keys]
+
   set include_internal_latency [info exists flags(-include_internal_latency)]
   if [info exists keys(-digits)] {
     set digits $keys(-digits)
@@ -372,14 +282,14 @@ proc_redirect report_clock_skew {
     set digits $sta_report_default_digits
   }
   if { $clks != {} } {
-    report_clk_skew $clks $corner $setup_hold $include_internal_latency $digits
+    report_clk_skew $clks $scenes $setup_hold $include_internal_latency $digits
   }
 }
 
 ################################################################
 
-define_cmd_args "report_clock_latency" {[-clock clocks]\
-                                          [-corner corner]\
+define_cmd_args "report_clock_latency" {[-clocks clocks]\
+                                          [-scenes scene]\
                                           [-include_internal_latency]
                                           [-digits digits]}
 
@@ -387,16 +297,16 @@ proc_redirect report_clock_latency {
   global sta_report_default_digits
 
   parse_key_args "report_clock_" args \
-    keys {-clock -corner -digits} \
+    keys {-clocks -scenes -digits} \
     flags {-include_internal_latency}
   check_argc_eq0 "report_clock_latency" $args
 
-  if [info exists keys(-clock)] {
-    set clks [get_clocks_warn "-clocks" $keys(-clock)]
+  set scenes [parse_scenes_or_all keys]
+  if [info exists keys(-clocks)] {
+    set clks [get_clocks_warn "-clocks" $keys(-clocks)]
   } else {
-    set clks [all_clocks]
+    set clks [get_scene_clocks $scenes]
   }
-  set corner [parse_corner_or_all keys]
   set include_internal_latency [info exists flags(-include_internal_latency)]
   if [info exists keys(-digits)] {
     set digits $keys(-digits)
@@ -405,7 +315,7 @@ proc_redirect report_clock_latency {
     set digits $sta_report_default_digits
   }
   if { $clks != {} } {
-    report_clk_latency $clks $corner $include_internal_latency $digits
+    report_clk_latency $clks $scenes $include_internal_latency $digits
   }
 }
 
@@ -417,7 +327,7 @@ define_cmd_args "report_checks" \
      [-to to_list|-rise_to to_list|-fall_to to_list]\
      [-unconstrained]\
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
-     [-corner corner]\
+     [-scenes scenes]\
      [-group_path_count path_count] \
      [-endpoint_path_count path_count]\
      [-unique_paths_to_endpoint]\
@@ -441,8 +351,7 @@ proc_redirect report_checks {
 ################################################################
 
 define_cmd_args "report_check_types" \
-  {[-violators] [-verbose]\
-     [-corner corner]\
+  {[-scenes scenes] [-violators] [-verbose]\
      [-format slack_only|end]\
      [-max_delay] [-min_delay]\
      [-recovery] [-removal]\
@@ -452,13 +361,15 @@ define_cmd_args "report_check_types" \
      [-max_capacitance] [-min_capacitance]\
      [-min_pulse_width] [-min_period] [-max_skew]\
      [-net net]\
+     [-max_count max_count]\
      [-digits digits] [-no_line_splits]\
      [> filename] [>> filename]}
 
 proc_redirect report_check_types {
   variable path_options
 
-  parse_key_args "report_check_types" args keys {-net -corner}\
+  parse_key_args "report_check_types" args \
+    keys {-scenes -corner -net -max_count}\
     flags {-violators -verbose -no_line_splits} 0
 
   set violators [info exists flags(-violators)]
@@ -477,11 +388,15 @@ proc_redirect report_check_types {
     set min_max "max"
   }
 
-  set corner [parse_corner_or_all keys]
-
   set net "NULL"
   if { [info exists keys(-net)] } {
     set net [get_net_arg "-net" $keys(-net)]
+  }
+
+  set max_count 1
+  if { [info exists keys(-max_count)] } {
+    set max_count $keys(-max_count)
+    check_positive_integer "-max_count" $max_count
   }
 
   if { $args == {} } {
@@ -522,12 +437,12 @@ proc_redirect report_check_types {
   } else {
     parse_key_args "report_check_types" args keys {} \
       flags {-max_delay -min_delay -recovery -removal \
-	       -clock_gating_setup -clock_gating_hold \
-	       -max_slew -min_slew \
-	       -max_fanout -min_fanout \
-	       -max_capacitance -min_capacitance \
-	       -min_pulse_width \
-	       -min_period -max_skew} 1
+               -clock_gating_setup -clock_gating_hold \
+               -max_slew -min_slew \
+               -max_fanout -min_fanout \
+               -max_capacitance -min_capacitance \
+               -min_pulse_width \
+               -min_period -max_skew} 1
 
     set setup [info exists flags(-max_delay)]
     set hold [info exists flags(-min_delay)]
@@ -545,24 +460,23 @@ proc_redirect report_check_types {
     set min_period [info exists flags(-min_period)]
     set max_skew [info exists flags(-max_skew)]
     if { [operating_condition_analysis_type] == "single" \
-	   && (($setup && $hold) \
-		 || ($recovery && $removal) \
-		 || ($clk_gating_setup && $clk_gating_hold)) } {
+           && (($setup && $hold) \
+                 || ($recovery && $removal) \
+                 || ($clk_gating_setup && $clk_gating_hold)) } {
       sta_error 520 "analysis type single is not consistent with doing both setup/max and hold/min checks."
     }
   }
+  set scenes [parse_scenes_or_all keys]
 
   if { $args != {} } {
     sta_error 521 "positional arguments not supported."
   }
 
-  set corner [parse_corner_or_all keys]
-
   if { $setup || $hold || $recovery || $removal \
-	 || $clk_gating_setup || $clk_gating_hold } {
+         || $clk_gating_setup || $clk_gating_hold } {
     if { ($setup && $hold) \
-	   || ($recovery && $removal) \
-	   || ($clk_gating_setup && $clk_gating_hold) } {
+           || ($recovery && $removal) \
+           || ($clk_gating_setup && $clk_gating_hold) } {
       set path_min_max "min_max"
     } elseif { $setup || $recovery || $clk_gating_setup } {
       set path_min_max "max"
@@ -578,126 +492,43 @@ proc_redirect report_check_types {
       set slack_min [expr -$sta::float_inf]
       set slack_max $sta::float_inf
     }
+
     set path_ends [find_path_ends "NULL" {} "NULL" 0 \
-		     $corner $path_min_max $group_path_count 1 1 0 \
-		     $slack_min $slack_max \
-		     0 {} \
-		     $setup $hold \
-		     $recovery $removal \
-		     $clk_gating_setup $clk_gating_hold]
+                     $scenes $path_min_max $group_path_count 1 1 0 \
+                     $slack_min $slack_max \
+                     0 {} \
+                     $setup $hold \
+                     $recovery $removal \
+                     $clk_gating_setup $clk_gating_hold]
     report_path_ends $path_ends
   }
 
   if { $max_slew } {
-    report_slew_limits $net $corner "max" $violators $verbose $nosplit
+    report_slew_checks $net $max_count $violators $verbose $scenes "max"
   }
   if { $min_slew } {
-    report_slew_limits $net $corner "min" $violators $verbose $nosplit
+    report_slew_checks $net $max_count $violators $verbose $scenes "min"
   }
   if { $max_fanout } {
-    report_fanout_limits $net "max" $violators $verbose $nosplit
+    report_fanout_checks $net $max_count $violators $verbose $scenes "max"
   }
   if { $min_fanout } {
-    report_fanout_limits $net "min" $violators $verbose $nosplit
+    report_fanout_checks $net $max_count $violators $verbose $scenes "min"
   }
   if { $max_capacitance } {
-    report_capacitance_limits $net $corner "max" $violators $verbose $nosplit
+    report_capacitance_checks $net $max_count $violators $verbose $scenes "max"
   }
   if { $min_capacitance } {
-    report_capacitance_limits $net $corner "min" $violators $verbose $nosplit
+    report_capacitance_checks $net $max_count $violators $verbose $scenes "min"
   }
   if { $min_pulse_width } {
-    if { $violators } {
-      set checks [min_pulse_width_violations $corner]
-      report_mpw_checks $checks $verbose
-    } else {
-      set check [min_pulse_width_check_slack $corner]
-      if { $check != "NULL" } {
-	report_mpw_check $check $verbose
-      }
-    }
+    report_min_pulse_width_checks $net $max_count $violators $verbose $scenes
   }
   if { $min_period } {
-    if { $violators } {
-      set checks [min_period_violations]
-      report_min_period_checks $checks $verbose
-    } else {
-      set check [min_period_check_slack]
-      if { $check != "NULL" } {
-	report_min_period_check $check $verbose
-      }
-    }
+    report_min_period_checks $net $max_count $violators $verbose $scenes
   }
   if { $max_skew } {
-    if { $violators } {
-      set checks [max_skew_violations]
-      report_max_skew_checks $checks $verbose
-    } else {
-      set check [max_skew_check_slack]
-      if { $check != "NULL" } {
-	report_max_skew_check $check $verbose
-      }
-    }
-  }
-}
-
-proc report_slew_limits { net corner min_max violators verbose nosplit } {
-  set pins [check_slew_limits $net $violators $corner $min_max]
-  if { $pins != {} } {
-    report_line "${min_max} slew"
-    report_line ""
-    if { $verbose } {
-      foreach pin $pins {
-        report_slew_limit_verbose $pin $corner $min_max
-        report_line ""
-      }
-    } else {
-      report_slew_limit_short_header
-      foreach pin $pins {
-        report_slew_limit_short $pin $corner $min_max
-      }
-      report_line ""
-    }
-  }
-}
-
-proc report_fanout_limits { net min_max violators verbose nosplit } {
-  set pins [check_fanout_limits $net $violators $min_max]
-  if { $pins != {} } {
-    report_line "${min_max} fanout"
-    report_line ""
-    if { $verbose } {
-      foreach pin $pins {
-        report_fanout_limit_verbose $pin $min_max
-        report_line ""
-      }
-    } else {
-      report_fanout_limit_short_header
-      foreach pin $pins {
-        report_fanout_limit_short $pin $min_max
-      }
-      report_line ""
-    }
-  }
-}
-
-proc report_capacitance_limits { net corner min_max violators verbose nosplit } {
-  set pins [check_capacitance_limits $net $violators $corner $min_max]
-  if { $pins != {} } {
-    report_line "${min_max} capacitance"
-    report_line ""
-    if { $verbose } {
-      foreach pin $pins {
-        report_capacitance_limit_verbose $pin $corner $min_max
-        report_line ""
-      }
-    } else {
-      report_capacitance_limit_short_header
-      foreach pin $pins {
-        report_capacitance_limit_short $pin $corner $min_max
-      }
-      report_line ""
-    }
+    report_max_skew_checks $net $max_count $violators $verbose $scenes
   }
 }
 
@@ -780,33 +611,6 @@ proc_redirect report_worst_slack {
 
 ################################################################
 
-define_cmd_args "report_pulse_width_checks" \
-  {[-verbose] [-corner corner] [-digits digits] [-no_line_splits] [pins]\
-     [> filename] [>> filename]}
-
-proc_redirect report_pulse_width_checks {
-  variable path_options
-
-  parse_key_args "report_pulse_width_checks" args keys {-corner} \
-    flags {-verbose} 0
-  # Only -digits and -no_line_splits are respected.
-  parse_report_path_options "report_pulse_width_checks" args "full" 0
-  check_argc_eq0or1 "report_pulse_width_checks" $args
-  set corner [parse_corner_or_all keys]
-  set verbose [info exists flags(-verbose)]
-  if { [llength $args] == 1 } {
-    set pins [get_port_pins_error "pins" [lindex $args 0]]
-    set checks [min_pulse_width_check_pins $pins $corner]
-  } else {
-    set checks [min_pulse_width_checks $corner]
-  }
-  if { $checks != {} } {
-    report_mpw_checks $checks $verbose
-  }
-}
-
-################################################################
-
 # Note that -all and -tags are intentionally "hidden".
 define_cmd_args "report_path" \
   {[-min|-max]\
@@ -845,39 +649,39 @@ proc_redirect report_path {
   } else {
     foreach vertex [$pin vertices] {
       if { $vertex != "NULL" } {
-	if { $report_all } {
-	  set first 1
-	  set path_iter [$vertex path_iterator $rf $min_max]
-	  while {[$path_iter has_next]} {
-	    set path [$path_iter next]
-	    if { $first }  {
-	      report_line "Tag group: [$vertex tag_group_index]"
-	    } else {
-	      report_line ""
-	    }
-	    if { $report_tags } {
-	      report_line "Tag: [$path tag]"
-	    }
-	    report_path_cmd $path
-	    set first 0
-	  }
-	  $path_iter finish
-	} else {
-	  set worst_path [vertex_worst_arrival_path_rf $vertex $rf $min_max]
-	  if { $worst_path != "NULL" } {
-	    if { $report_tags } {
-	      report_line "Tag: [$worst_path tag]"
-	    }
-	    report_path_cmd $worst_path
-	  }
-	}
+        if { $report_all } {
+          set first 1
+          set path_iter [$vertex path_iterator $rf $min_max]
+          while {[$path_iter has_next]} {
+            set path [$path_iter next]
+            if { $first }  {
+              report_line "Tag group: [$vertex tag_group_index]"
+            } else {
+              report_line ""
+            }
+            if { $report_tags } {
+              report_line "Tag: [$path tag]"
+            }
+            report_path_cmd $path
+            set first 0
+          }
+          $path_iter finish
+        } else {
+          set worst_path [vertex_worst_arrival_path_rf $vertex $rf $min_max]
+          if { $worst_path != "NULL" } {
+            if { $report_tags } {
+              report_line "Tag: [$worst_path tag]"
+            }
+            report_path_cmd $worst_path
+          }
+        }
       }
     }
   }
 }
 
 proc parse_report_path_options { cmd args_var default_format
-				 unknown_key_is_error } {
+                                 unknown_key_is_error } {
   variable path_options
   variable report_path_field_width_extra
   global sta_report_default_digits
@@ -893,7 +697,7 @@ proc parse_report_path_options { cmd args_var default_format
   if [info exists path_options(-format)] {
     set format $path_options(-format)
     set formats {full full_clock full_clock_expanded short \
-		   end slack_only summary json}
+                   end slack_only summary json}
     if { [lsearch $formats $format] == -1 } {
       sta_error 524 "-format $format not recognized."
     }
@@ -963,18 +767,65 @@ proc parse_report_path_options { cmd args_var default_format
 
 ################################################################
 
-define_cmd_args "report_required" {pin}
+define_cmd_args "report_arrival" {[-scene scene] [-digits digits] pin}
 
-proc report_required { pin } {
-  report_delays_wrt_clks $pin "requireds_clk_delays"
+proc report_arrival { args } {
+  global sta_report_default_digits
+
+  parse_key_args "report_arrival" args keys {-scene -digits} flags {}
+  check_argc_eq1 "report_arrival" $args
+
+  set pin [get_port_pin_error "pin" [lindex $args 0]]
+  set scene [parse_scene keys]
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+  report_arrival_wrt_clks $pin $scene $digits
 }
 
 ################################################################
 
-define_cmd_args "report_slack" {pin}
+define_cmd_args "report_required" {[-scene scene] [-digits digits] pin}
 
-proc report_slack { pin } {
-  report_delays_wrt_clks $pin "slacks_clk_delays"
+proc report_required { args } {
+  global sta_report_default_digits
+
+  parse_key_args "report_required" args keys {-scene -digits} flags {}
+  check_argc_eq1 "report_required" $args
+
+  set pin [get_port_pin_error "pin" [lindex $args 0]]
+  set scene [parse_scene keys]
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+  report_required_wrt_clks $pin $scene $digits
+}
+
+################################################################
+
+define_cmd_args "report_slack" {[-scene scene] [-digits digits] pin}
+
+proc report_slack { args } {
+  global sta_report_default_digits
+
+  parse_key_args "report_slack" args keys {-scene -digits} flags {}
+  check_argc_eq1 "report_slack" $args
+
+  set pin [get_port_pin_error "pin" [lindex $args 0]]
+  set scene [parse_scene keys]
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+  report_slack_wrt_clks $pin $scene $digits
 }
 
 ################################################################
@@ -990,16 +841,17 @@ proc report_tag_arrivals { pin } {
 ################################################################
 
 define_hidden_cmd_args "total_negative_slack" \
-  {[-corner corner] [-min]|[-max]}
+  {[-scene scene] [-min]|[-max]}
 
 proc total_negative_slack { args } {
   parse_key_args "total_negative_slack" args \
-    keys {-corner} flags {-min -max}
+    keys {-scene -corner} flags {-min -max}
   check_argc_eq0 "total_negative_slack" $args
   set min_max [parse_min_max_flags flags]
-  if { [info exists keys(-corner)] } {
-    set corner [parse_corner_required keys]
-    set tns [total_negative_slack_corner_cmd $corner $min_max]
+  # compabibility 05/29/2025
+  if { [info exists keys(-scene)] || [info exists keys(-corner)]} {
+    set scene [parse_scene_required keys]
+    set tns [total_negative_slack_scene_cmd $scene $min_max]
   } else {
     set tns [total_negative_slack_cmd $min_max]
   }
@@ -1009,7 +861,7 @@ proc total_negative_slack { args } {
 ################################################################
 
 define_hidden_cmd_args "worst_negative_slack" \
-  {[-corner corner] [-min]|[-max]}
+  {[-scene scene] [-min]|[-max]}
 
 proc worst_negative_slack { args } {
   set worst_slack [worst_slack1 "worst_negative_slack" $args]
@@ -1023,7 +875,7 @@ proc worst_negative_slack { args } {
 ################################################################
 
 define_hidden_cmd_args "worst_slack" \
-  {[-corner corner] [-min]|[-max]}
+  {[-scene scene] [-min]|[-max]}
 
 proc worst_slack { args } {
   return [worst_slack1 "worst_slack" $args]
@@ -1032,12 +884,13 @@ proc worst_slack { args } {
 # arg parsing common to worst_slack/worst_negative_slack
 proc worst_slack1 { cmd args1 } {
   parse_key_args $cmd args1 \
-    keys {-corner} flags {-min -max}
+    keys {-corner -scene} flags {-min -max}
   check_argc_eq0 $cmd $args1
   set min_max [parse_min_max_flags flags]
-  if { [info exists keys(-corner)] } {
-    set corner [parse_corner_required keys]
-    set worst_slack [worst_slack_corner $corner $min_max]
+  # compabibility 05/29/2025
+  if { [info exists keys(-scene)] || [info exists keys(-corner)]} {
+    set scene [parse_scene_required keys]
+    set worst_slack [worst_slack_scene $scene $min_max]
   } else {
     set worst_slack [worst_slack_cmd $min_max]
   }
@@ -1067,14 +920,14 @@ proc worst_clock_skew { args } {
 
 ################################################################
 
-define_cmd_args "write_timing_model" {[-corner corner] \
+define_cmd_args "write_timing_model" {[-scene scene] \
                                         [-library_name lib_name]\
                                         [-cell_name cell_name]\
                                         filename}
 
 proc write_timing_model { args } {
   parse_key_args "write_timing_model" args \
-    keys {-library_name -cell_name -corner} flags {}
+    keys {-library_name -cell_name -scene} flags {}
   check_argc_eq1 "write_timing_model" $args
 
   set filename [file nativename [lindex $args 0]]
@@ -1088,8 +941,8 @@ proc write_timing_model { args } {
   } else {
     set lib_name $cell_name
   }
-  set corner [parse_corner keys]
-  write_timing_model_cmd $lib_name $cell_name $filename $corner
+  set scene [parse_scene keys]
+  write_timing_model_cmd $lib_name $cell_name $filename $scene
     
 }
 

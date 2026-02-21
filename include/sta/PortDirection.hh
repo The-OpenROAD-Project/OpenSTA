@@ -64,7 +64,7 @@ public:
 
 private:
   PortDirection(const char *name,
-		int index);
+                int index);
 
   const char *name_;
   int index_;

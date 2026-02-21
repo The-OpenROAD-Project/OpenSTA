@@ -24,7 +24,9 @@
 
 #pragma once
 
-#include "Map.hh"
+#include <set>
+#include <vector>
+
 #include "NetworkClass.hh"
 #include "LibertyClass.hh"
 #include "SdcClass.hh"
@@ -35,10 +37,10 @@ class TimingRole;
 class DisabledCellPorts;
 class DisabledInstancePorts;
 
-typedef Vector<DisabledInstancePorts*> DisabledInstancePortsSeq;
-typedef Vector<DisabledCellPorts*> DisabledCellPortsSeq;
-typedef Vector<LibertyPortPair> LibertyPortPairSeq;
-typedef Set<TimingArcSet*> TimingArcSetSet;
+using DisabledInstancePortsSeq = std::vector<DisabledInstancePorts*>;
+using DisabledCellPortsSeq = std::vector<DisabledCellPorts*>;
+using LibertyPortPairSeq = std::vector<LibertyPortPair>;
+using TimingArcSetSet = std::set<TimingArcSet*, TimingArcSetLess>;
 
 // Base class for disabled cell and instance ports.
 class DisabledPorts
@@ -56,13 +58,13 @@ public:
                          LibertyPort *to);
   void removeDisabledFromTo(LibertyPort *from,
                             LibertyPort *to);
-  bool isDisabled(LibertyPort *from,
-                  LibertyPort *to,
-                  const TimingRole *role);
+  [[nodiscard]] bool isDisabled(LibertyPort *from,
+                                 LibertyPort *to,
+                                 const TimingRole *role);
   LibertyPortPairSet *fromTo() const { return from_to_; }
   LibertyPortSet *from() const { return from_; }
   LibertyPortSet *to() const { return to_; }
-  bool all() const { return all_; }
+  [[nodiscard]] bool all() const { return all_; }
 
 private:
   bool all_;
@@ -80,7 +82,7 @@ public:
   LibertyCell *cell() const { return cell_; }
   void setDisabled(TimingArcSet *arc_set);
   void removeDisabled(TimingArcSet *arc_set);
-  bool isDisabled(TimingArcSet *arc_set) const;
+  [[nodiscard]] bool isDisabled(TimingArcSet *arc_set) const;
   TimingArcSetSet *timingArcSets() const { return arc_sets_; }
 
   using DisabledPorts::isDisabled;
@@ -102,7 +104,7 @@ private:
 };
 
 DisabledCellPortsSeq
-sortByName(DisabledCellPortsMap *cell_map);
+sortByName(const DisabledCellPortsMap *cell_map);
 DisabledInstancePortsSeq
 sortByPathName(const DisabledInstancePortsMap *inst_map,
                const Network *network);

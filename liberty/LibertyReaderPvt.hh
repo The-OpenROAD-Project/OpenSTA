@@ -25,10 +25,10 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <vector>
+#include <unordered_map>
 
-#include "Vector.hh"
-#include "Map.hh"
 #include "StringSeq.hh"
 #include "MinMax.hh"
 #include "NetworkClass.hh"
@@ -60,20 +60,20 @@ class TimingArcBuilder;
 class LibertyAttr;
 class OutputWaveform;
 
-typedef void (LibertyReader::*LibraryAttrVisitor)(LibertyAttr *attr);
-typedef void (LibertyReader::*LibraryGroupVisitor)(LibertyGroup *group);
-typedef Map<std::string, LibraryAttrVisitor> LibraryAttrMap;
-typedef Map<std::string ,LibraryGroupVisitor> LibraryGroupMap;
-typedef Vector<PortGroup*> PortGroupSeq;
-typedef Vector<SequentialGroup*> SequentialGroupSeq;
-typedef Vector<LibertyFunc*> LibertyFuncSeq;
-typedef Vector<TimingGroup*> TimingGroupSeq;
-typedef Vector<InternalPowerGroup*> InternalPowerGroupSeq;
-typedef Vector<LeakagePowerGroup*> LeakagePowerGroupSeq;
-typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
-typedef Vector<OutputWaveform*> OutputWaveformSeq;
-typedef std::vector<std::string> StdStringSeq;
-typedef std::function<void (FuncExpr *expr)> LibertySetFunc;
+using LibraryAttrVisitor = void (LibertyReader::*)(LibertyAttr *attr);
+using LibraryGroupVisitor = void (LibertyReader::*)(LibertyGroup *group);
+using LibraryAttrMap = std::unordered_map<std::string, LibraryAttrVisitor>;
+using LibraryGroupMap = std::unordered_map<std::string, LibraryGroupVisitor>;
+using PortGroupSeq = std::vector<PortGroup*>;
+using SequentialGroupSeq = std::vector<SequentialGroup*>;
+using LibertyFuncSeq = std::vector<LibertyFunc*>;
+using TimingGroupSeq = std::vector<TimingGroup*>;
+using InternalPowerGroupSeq = std::vector<InternalPowerGroup*>;
+using LeakagePowerGroupSeq = std::vector<LeakagePowerGroup*>;
+using LibertyPortBoolSetter = void (LibertyPort::*)(bool value);
+using OutputWaveformSeq = std::vector<OutputWaveform*>;
+using StdStringSeq = std::vector<std::string>;
+using LibertySetFunc = std::function<void (FuncExpr *expr)>;
 
 class LibertyReader : public LibertyGroupVisitor
 {
@@ -83,10 +83,12 @@ public:
                 Network *network);
   virtual ~LibertyReader();
   virtual LibertyLibrary *readLibertyFile(const char *filename);
+  LibertyLibrary *library() { return library_; }
+  const LibertyLibrary *library() const { return library_; }
+
   virtual void init(const char *filename,
                     bool infer_latches,
                     Network *network);
-  LibertyLibrary *library() const { return library_; }
   virtual bool save(LibertyGroup *) { return false; }
   virtual bool save(LibertyAttr *) { return false; }
   virtual bool save(LibertyVariable *) { return false; }
@@ -104,9 +106,9 @@ public:
   virtual void visitPowerUnit(LibertyAttr *attr);
   virtual void visitDistanceUnit(LibertyAttr *attr);
   virtual void parseUnits(LibertyAttr *attr,
-			  const char *suffix,
-			  float &scale_var,
-			  Unit *unit_suffix);
+                          const char *suffix,
+                          float &scale_var,
+                          Unit *unit_suffix);
   virtual void visitDelayModel(LibertyAttr *attr);
   virtual void visitVoltageMap(LibertyAttr *attr);
   virtual void visitBusStyle(LibertyAttr *attr);
@@ -121,15 +123,15 @@ public:
   virtual void visitDefaultIntrinsicRise(LibertyAttr *attr);
   virtual void visitDefaultIntrinsicFall(LibertyAttr *attr);
   virtual void visitDefaultIntrinsic(LibertyAttr *attr,
-				     const RiseFall *rf);
+                                     const RiseFall *rf);
   virtual void visitDefaultInoutPinRiseRes(LibertyAttr *attr);
   virtual void visitDefaultInoutPinFallRes(LibertyAttr *attr);
   virtual void visitDefaultInoutPinRes(LibertyAttr *attr,
-				       const RiseFall *rf);
+                                       const RiseFall *rf);
   virtual void visitDefaultOutputPinRiseRes(LibertyAttr *attr);
   virtual void visitDefaultOutputPinFallRes(LibertyAttr *attr);
   virtual void visitDefaultOutputPinRes(LibertyAttr *attr,
-					const RiseFall *rf);
+                                        const RiseFall *rf);
   virtual void visitDefaultFanoutLoad(LibertyAttr *attr);
   virtual void visitDefaultWireLoad(LibertyAttr *attr);
   virtual void visitDefaultWireLoadMode(LibertyAttr *attr);
@@ -138,19 +140,19 @@ public:
   virtual void visitInputThresholdPctFall(LibertyAttr *attr);
   virtual void visitInputThresholdPctRise(LibertyAttr *attr);
   virtual void visitInputThresholdPct(LibertyAttr *attr,
-				      const RiseFall *rf);
+                                      const RiseFall *rf);
   virtual void visitOutputThresholdPctFall(LibertyAttr *attr);
   virtual void visitOutputThresholdPctRise(LibertyAttr *attr);
   virtual void visitOutputThresholdPct(LibertyAttr *attr,
-				       const RiseFall *rf);
+                                       const RiseFall *rf);
   virtual void visitSlewLowerThresholdPctFall(LibertyAttr *attr);
   virtual void visitSlewLowerThresholdPctRise(LibertyAttr *attr);
   virtual void visitSlewLowerThresholdPct(LibertyAttr *attr,
-					  const RiseFall *rf);
+                                          const RiseFall *rf);
   virtual void visitSlewUpperThresholdPctFall(LibertyAttr *attr);
   virtual void visitSlewUpperThresholdPctRise(LibertyAttr *attr);
   virtual void visitSlewUpperThresholdPct(LibertyAttr *attr,
-					  const RiseFall *rf);
+                                          const RiseFall *rf);
   virtual void visitSlewDerateFromLibrary(LibertyAttr *attr);
 
   virtual void beginTechnology(LibertyGroup *group);
@@ -158,7 +160,7 @@ public:
   virtual void beginTableTemplateDelay(LibertyGroup *group);
   virtual void beginTableTemplateOutputCurrent(LibertyGroup *group);
   virtual void beginTableTemplate(LibertyGroup *group,
-				  TableTemplateType type);
+                                  TableTemplateType type);
   virtual void endTableTemplate(LibertyGroup *group);
   virtual void visitVariable1(LibertyAttr *attr);
   virtual void visitVariable2(LibertyAttr *attr);
@@ -179,7 +181,7 @@ public:
   virtual void checkScaledCell(LibertyGroup *group);
   virtual void finishPortGroups();
   virtual void checkPort(LibertyPort *port,
-			 int line);
+                         int line);
   virtual void makeTimingArcs(PortGroup *port_group);
   virtual void makeInternalPowers(PortGroup *port_group);
   virtual void makeCellSequentials();
@@ -189,19 +191,19 @@ public:
   virtual void parseCellFuncs();
   virtual void makeLibertyFunc(const char *expr,
                                LibertySetFunc set_func,
-			       bool invert,
-			       const char *attr_name,
-			       LibertyStmt *stmt);
+                               bool invert,
+                               const char *attr_name,
+                               LibertyStmt *stmt);
   virtual void makeTimingArcs(LibertyPort *to_port,
-			      TimingGroup *timing);
+                              TimingGroup *timing);
   virtual void makeTimingArcs(const char *from_port_name,
-			      PortNameBitIterator &from_port_iter,
-			      LibertyPort *to_port,
-			      LibertyPort *related_out_port,
-			      TimingGroup *timing);
+                              PortNameBitIterator &from_port_iter,
+                              LibertyPort *to_port,
+                              LibertyPort *related_out_port,
+                              TimingGroup *timing);
   virtual void makeTimingArcs(LibertyPort *to_port,
                               LibertyPort *related_out_port,
-			      TimingGroup *timing);
+                              TimingGroup *timing);
 
   virtual void visitClockGatingIntegratedCell(LibertyAttr *attr);
   virtual void visitArea(LibertyAttr *attr);
@@ -246,20 +248,20 @@ public:
   virtual void visitMaxFanout(LibertyAttr *attr);
   virtual void visitMinFanout(LibertyAttr *attr);
   virtual void visitFanout(LibertyAttr *attr,
-			   const MinMax *min_max);
+                           const MinMax *min_max);
   virtual void visitMaxTransition(LibertyAttr *attr);
   virtual void visitMinTransition(LibertyAttr *attr);
   virtual void visitMinMaxTransition(LibertyAttr *attr,
-				     const MinMax *min_max);
+                                     const MinMax *min_max);
   virtual void visitMaxCapacitance(LibertyAttr *attr);
   virtual void visitMinCapacitance(LibertyAttr *attr);
   virtual void visitMinMaxCapacitance(LibertyAttr *attr,
-				      const MinMax *min_max);
+                                      const MinMax *min_max);
   virtual void visitMinPeriod(LibertyAttr *attr);
   virtual void visitMinPulseWidthLow(LibertyAttr *attr);
   virtual void visitMinPulseWidthHigh(LibertyAttr *attr);
   virtual void visitMinPulseWidth(LibertyAttr *attr,
-				  const RiseFall *rf);
+                                  const RiseFall *rf);
   virtual void visitPulseClock(LibertyAttr *attr);
   virtual void visitClockGateClockPin(LibertyAttr *attr);
   virtual void visitClockGateEnablePin(LibertyAttr *attr);
@@ -312,15 +314,15 @@ public:
   virtual void beginLatchBank(LibertyGroup *group);
   virtual void endLatchBank(LibertyGroup *group);
   virtual void beginSequential(LibertyGroup *group,
-			       bool is_register,
-			       bool is_bank);
+                               bool is_register,
+                               bool is_bank);
   virtual void seqPortNames(LibertyGroup *group,
-			    const char *&out_name,
-			    const char *&out_inv_name,
-			    bool &has_size,
-			    int &size);
+                            const char *&out_name,
+                            const char *&out_inv_name,
+                            bool &has_size,
+                            int &size);
   virtual void checkLatchEnableSense(FuncExpr *enable_func,
-				     int line);
+                                     int line);
   virtual void visitClockedOn(LibertyAttr *attr);
   virtual void visitDataIn(LibertyAttr *attr);
   virtual void visitClear(LibertyAttr *attr);
@@ -336,10 +338,10 @@ public:
   virtual void endTiming(LibertyGroup *group);
   virtual void visitRelatedPin(LibertyAttr *attr);
   virtual void visitRelatedPin(LibertyAttr *attr,
-			       RelatedPortGroup *group);
+                               RelatedPortGroup *group);
   virtual void visitRelatedBusPins(LibertyAttr *attr);
   virtual void visitRelatedBusPins(LibertyAttr *attr,
-				   RelatedPortGroup *group);
+                                   RelatedPortGroup *group);
   virtual void visitRelatedOutputPin(LibertyAttr *attr);
   virtual void visitTimingType(LibertyAttr *attr);
   virtual void visitTimingSense(LibertyAttr *attr);
@@ -349,11 +351,11 @@ public:
   virtual void visitIntrinsicRise(LibertyAttr *attr);
   virtual void visitIntrinsicFall(LibertyAttr *attr);
   virtual void visitIntrinsic(LibertyAttr *attr,
-			      const RiseFall *rf);
+                              const RiseFall *rf);
   virtual void visitRiseResistance(LibertyAttr *attr);
   virtual void visitFallResistance(LibertyAttr *attr);
   virtual void visitRiseFallResistance(LibertyAttr *attr,
-				       const RiseFall *rf);
+                                       const RiseFall *rf);
   virtual void visitValue(LibertyAttr *attr);
   virtual void visitValues(LibertyAttr *attr);
   virtual void beginCellRise(LibertyGroup *group);
@@ -371,24 +373,24 @@ public:
   virtual void endRiseFallTransitionDegredation(LibertyGroup *group);
 
   virtual void beginTableModel(LibertyGroup *group,
-			       TableTemplateType type,
-			       const RiseFall *rf,
-			       float scale,
-			       ScaleFactorType scale_factor_type);
+                               TableTemplateType type,
+                               const RiseFall *rf,
+                               float scale,
+                               ScaleFactorType scale_factor_type);
   virtual void endTableModel();
   virtual void beginTimingTableModel(LibertyGroup *group,
-				     const RiseFall *rf,
-				     ScaleFactorType scale_factor_type);
+                                     const RiseFall *rf,
+                                     ScaleFactorType scale_factor_type);
   virtual void beginTable(LibertyGroup *group,
-			  TableTemplateType type,
-			  float scale);
+                          TableTemplateType type,
+                          float scale);
   virtual void endTable();
   virtual void makeTable(LibertyAttr *attr,
-			 float scale);
-  virtual FloatTable *makeFloatTable(LibertyAttr *attr,
-				     size_t rows,
-				     size_t cols,
-				     float scale);
+                         float scale);
+  virtual FloatTable makeFloatTable(LibertyAttr *attr,
+                                    size_t rows,
+                                    size_t cols,
+                                    float scale);
 
   virtual void beginLut(LibertyGroup *group);
   virtual void endLut(LibertyGroup *group);
@@ -409,7 +411,6 @@ public:
   virtual void endLeakagePower(LibertyGroup *group);
   virtual void beginInternalPower(LibertyGroup *group);
   virtual void endInternalPower(LibertyGroup *group);
-  virtual InternalPowerGroup *makeInternalPowerGroup(int line);
   virtual void beginFallPower(LibertyGroup *group);
   virtual void beginRisePower(LibertyGroup *group);
   virtual void endRiseFallPower(LibertyGroup *group);
@@ -418,11 +419,12 @@ public:
   virtual void visitRelatedPowerPin(LibertyAttr *attr);
   virtual void visitRelatedPgPin(LibertyAttr *attr);
   virtual void makeInternalPowers(LibertyPort *port,
-				  InternalPowerGroup *power_group);
+                                  InternalPowerGroup *power_group);
   virtual void makeInternalPowers(LibertyPort *port,
-				  const char *related_port_name,
-				  PortNameBitIterator &related_port_iter,
-				  InternalPowerGroup *power_group);
+                                  const char *related_port_name,
+                                  PortNameBitIterator &related_port_iter,
+                                  LibertyPort *related_pg_pin,
+                                  InternalPowerGroup *power_group);
 
   // AOCV attributes.
   virtual void beginTableTemplateOcv(LibertyGroup *group);
@@ -496,7 +498,9 @@ public:
   void beginEcsmWaveform(LibertyGroup *group);
   void endEcsmWaveform(LibertyGroup *group);
   LibertyPort *findPort(LibertyCell *cell,
-			const char *port_name);
+                        const char *port_name);
+  virtual void begin(LibertyGroup *group);
+  virtual void end(LibertyGroup *group);
 
 protected:
   LibertyPort *makePort(LibertyCell *cell,
@@ -514,13 +518,11 @@ protected:
                              int line);
   void setEnergyScale();
   void defineVisitors();
-  virtual void begin(LibertyGroup *group);
-  virtual void end(LibertyGroup *group);
   void defineGroupVisitor(const char *type,
-			  LibraryGroupVisitor begin_visitor,
-			  LibraryGroupVisitor end_visitor);
+                          LibraryGroupVisitor begin_visitor,
+                          LibraryGroupVisitor end_visitor);
   void defineAttrVisitor(const char *attr_name,
-			 LibraryAttrVisitor visitor);
+                         LibraryAttrVisitor visitor);
   void parseNames(const char *name_str);
   void clearAxisValues();
   void makeTableAxis(int index,
@@ -540,59 +542,58 @@ protected:
 
   const char *getAttrString(LibertyAttr *attr);
   void getAttrInt(LibertyAttr *attr,
-		  // Return values.
-		  int &value,
-		  bool &exists);
+                  // Return values.
+                  int &value,
+                  bool &exists);
   void getAttrFloat(LibertyAttr *attr,
-		    // Return values.
-		    float &value,
-		    bool &valid);
+                    // Return values.
+                    float &value,
+                    bool &valid);
   void getAttrFloat(LibertyAttr *attr,
-		    LibertyAttrValue *attr_value,
-		    // Return values.
-		    float &value,
-		    bool &valid);
+                    LibertyAttrValue *attr_value,
+                    // Return values.
+                    float &value,
+                    bool &valid);
   void getAttrFloat2(LibertyAttr *attr,
-		     // Return values.
-		     float &value1,
-		     float &value2,
-		     bool &exists);
-  void parseStringFloatList(const char *float_list,
-			    float scale,
-			    FloatSeq *values,
-			    LibertyAttr *attr);
+                     // Return values.
+                     float &value1,
+                     float &value2,
+                     bool &exists);
+  FloatSeq parseStringFloatList(const std::string &float_list,
+                                float scale,
+                                LibertyAttr *attr);
   LogicValue getAttrLogicValue(LibertyAttr *attr);
   void getAttrBool(LibertyAttr *attr,
-		   // Return values.
-		   bool &value,
-		   bool &exists);
+                   // Return values.
+                   bool &value,
+                   bool &exists);
   void visitVariable(int index,
-		     LibertyAttr *attr);
+                     LibertyAttr *attr);
   void visitIndex(int index,
-		  LibertyAttr *attr);
+                  LibertyAttr *attr);
   TableAxisPtr makeAxis(int index,
                         LibertyGroup *group);
-  FloatSeq *readFloatSeq(LibertyAttr *attr,
-			 float scale);
+  FloatSeq readFloatSeq(LibertyAttr *attr,
+                        float scale);
   void variableValue(const char *var,
-		     float &value,
-		     bool &exists);
+                     float &value,
+                     bool &exists);
   FuncExpr *parseFunc(const char *func,
-		      const char *attr_name,
-		      int line);
+                      const char *attr_name,
+                      int line);
   void libWarn(int id,
                LibertyStmt *stmt,
-	       const char *fmt,
-	       ...)
+               const char *fmt,
+               ...)
     __attribute__((format (printf, 4, 5)));
   void libWarn(int id,
                int line,
-	       const char *fmt,
-	       ...)
+               const char *fmt,
+               ...)
     __attribute__((format (printf, 4, 5)));
   void libError(int id,
                 LibertyStmt *stmt,
-		const char *fmt, ...)
+                const char *fmt, ...)
     __attribute__((format (printf, 4, 5)));
 
   const char *filename_;
@@ -634,7 +635,7 @@ protected:
   bool in_ccsn_;
   bool in_ecsm_waveform_;
   TableAxisVariable axis_var_[3];
-  FloatSeq *axis_values_[3];
+  FloatSeq axis_values_[3];
   int type_bit_from_;
   bool type_bit_from_exists_;
   int type_bit_to_;
@@ -699,9 +700,9 @@ class LibertyFunc
 public:
   LibertyFunc(const char *expr,
               LibertySetFunc set_func,
-	      bool invert,
-	      const char *attr_name,
-	      int line);
+              bool invert,
+              const char *attr_name,
+              int line);
   ~LibertyFunc();
   const char *expr() const { return expr_; }
   LibertySetFunc setFunc() const { return set_func_; }
@@ -724,7 +725,7 @@ class PortGroup
 {
 public:
   PortGroup(LibertyPortSeq *ports,
-	    int line);
+            int line);
   ~PortGroup();
   LibertyPortSeq *ports() const { return ports_; }
   TimingGroupSeq &timingGroups() { return timings_; }
@@ -747,7 +748,7 @@ private:
 class RelatedPortGroup
 {
 public:
-  explicit RelatedPortGroup(int line);
+  RelatedPortGroup(int line);
   virtual ~RelatedPortGroup();
   int line() const { return line_; }
   StringSeq *relatedPortNames() const { return related_port_names_; }
@@ -765,11 +766,11 @@ class SequentialGroup
 {
 public:
   SequentialGroup(bool is_register,
-		  bool is_bank,
-		  LibertyPort *out_port,
-		  LibertyPort *out_inv_port,
-		  int size,
-		  int line);
+                  bool is_bank,
+                  LibertyPort *out_port,
+                  LibertyPort *out_inv_port,
+                  int size,
+                  int line);
   ~SequentialGroup();
   LibertyPort *outPort() const { return out_port_; }
   LibertyPort *outInvPort() const { return out_inv_port_; }
@@ -829,43 +830,43 @@ private:
 class TimingGroup : public RelatedPortGroup
 {
 public:
-  explicit TimingGroup(int line);
+  TimingGroup(int line);
   virtual ~TimingGroup();
   TimingArcAttrsPtr attrs() { return attrs_; }
   const char *relatedOutputPortName()const {return related_output_port_name_;}
   void setRelatedOutputPortName(const char *name);
   void intrinsic(const RiseFall *rf,
-		 // Return values.
-		 float &value,
-		 bool &exists);
+                 // Return values.
+                 float &value,
+                 bool &exists);
   void setIntrinsic(const RiseFall *rf,
-		    float value);
+                    float value);
   void resistance(const RiseFall *rf,
-		  // Return values.
-		  float &value,
-		  bool &exists);
+                  // Return values.
+                  float &value,
+                  bool &exists);
   void setResistance(const RiseFall *rf,
-		     float value);
+                     float value);
   TableModel *cell(const RiseFall *rf);
   void setCell(const RiseFall *rf,
-	       TableModel *model);
+               TableModel *model);
   TableModel *constraint(const RiseFall *rf);
   void setConstraint(const RiseFall *rf,
-		     TableModel *model);
+                     TableModel *model);
   TableModel *transition(const RiseFall *rf);
   void setTransition(const RiseFall *rf,
-		     TableModel *model);
+                     TableModel *model);
   void makeTimingModels(LibertyCell *cell,
-			LibertyReader *visitor);
+                        LibertyReader *visitor);
   void setDelaySigma(const RiseFall *rf,
-		     const EarlyLate *early_late,
-		     TableModel *model);
+                     const EarlyLate *early_late,
+                     TableModel *model);
   void setSlewSigma(const RiseFall *rf,
-		    const EarlyLate *early_late,
-		    TableModel *model);
+                    const EarlyLate *early_late,
+                    TableModel *model);
   void setConstraintSigma(const RiseFall *rf,
-			  const EarlyLate *early_late,
-			  TableModel *model);
+                          const EarlyLate *early_late,
+                          TableModel *model);
   void setReceiverModel(ReceiverModelPtr receiver_model);
   OutputWaveforms *outputWaveforms(const RiseFall *rf);
   void setOutputWaveforms(const RiseFall *rf,
@@ -892,11 +893,22 @@ protected:
   ReceiverModelPtr receiver_model_;
 };
 
-class InternalPowerGroup : public InternalPowerAttrs, public RelatedPortGroup
+class InternalPowerGroup : public RelatedPortGroup
 {
 public:
-  explicit InternalPowerGroup(int line);
-  virtual ~InternalPowerGroup();
+  InternalPowerGroup(int line);
+  const std::string &relatedPgPin() const { return related_pg_pin_; }
+  void setRelatedPgPin(std::string related_pg_pin);
+  const std::shared_ptr<FuncExpr> &when() const { return when_; }
+  void setWhen(std::shared_ptr<FuncExpr> when);
+  void setModel(const RiseFall *rf,
+                std::shared_ptr<InternalPowerModel> model);
+  InternalPowerModels &models() { return models_; }
+
+private:
+  std::string related_pg_pin_;
+  std::shared_ptr<FuncExpr> when_;
+  InternalPowerModels models_;
 };
 
 class LeakagePowerGroup
@@ -925,9 +937,9 @@ class PortNameBitIterator : public Iterator<LibertyPort*>
 {
 public:
   PortNameBitIterator(LibertyCell *cell,
-		      const char *port_name,
-		      LibertyReader *visitor,
-		      int line);
+                      const char *port_name,
+                      LibertyReader *visitor,
+                      int line);
   ~PortNameBitIterator();
   virtual bool hasNext();
   virtual LibertyPort *next();
@@ -956,19 +968,19 @@ class OutputWaveform
 public:
   OutputWaveform(float axis_value1,
                  float axis_value2,
-                 Table1 *currents,
+                 Table *currents,
                  float reference_time);
   ~OutputWaveform();
   float slew() const { return slew_; }
   float cap() const { return cap_; }
-  Table1 *currents() const { return currents_; }
-  Table1 *stealCurrents();
+  Table *currents() const { return currents_; }
+  Table *stealCurrents();
   float referenceTime() { return reference_time_; }
 
 private:
   float slew_;
   float cap_;
-  Table1 *currents_;
+  Table *currents_;
   float reference_time_;
 };
 

@@ -61,13 +61,18 @@ class BigcoCell : public LibertyCell
 public:
   BigcoCell(LibertyLibrary *library, const char *name, const char *filename);
   void setThingy(const char *thingy);
+  TimingArcSet *makeTimingArcSet(LibertyPort *from,
+                                 LibertyPort *to,
+                                 LibertyPort *related_out,
+                                 const TimingRole *role,
+                                 TimingArcAttrsPtr attrs) override;
 
 protected:
   const char *thingy_;
 };
 
 BigcoCell::BigcoCell(LibertyLibrary *library, const char *name, 
-		     const char *filename) :
+                     const char *filename) :
   LibertyCell(library, name, filename),
   thingy_(0)
 {
@@ -77,6 +82,28 @@ void
 BigcoCell::setThingy(const char *thingy)
 {
   thingy_ = thingy;
+}
+
+TimingArcSet *
+BigcoCell::makeTimingArcSet(LibertyPort *from,
+                            LibertyPort *to,
+                            LibertyPort *related_out,
+                            const TimingRole *role,
+                            TimingArcAttrsPtr attrs)
+{
+  size_t set_index = timing_arc_sets_.size();
+  TimingArcSet *arc_set = new BigcoTimingArcSet(this, from, to, related_out,
+                                                role, attrs, set_index);
+  timing_arc_sets_.push_back(arc_set);
+
+  if (role == TimingRole::regClkToQ()
+      || role == TimingRole::latchEnToQ()) {
+    from->setIsRegClk(true);
+    to->setIsRegOutput(true);
+  }
+  if (role->isTimingCheck())
+    from->setIsCheckClk(true);
+  return arc_set;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -109,21 +136,22 @@ BigcoTimingGroup::setFrob(const char *frob)
 class BigcoTimingArcSet : public TimingArcSet
 {
 public:
-  BigcoTimingArcSet(LibertyCell *cell, LibertyPort *from, LibertyPort *to, 
-		    LibertyPort *related_out, TimingRole *role, 
-		    TimingArcAttrs *attrs);
+  BigcoTimingArcSet(LibertyCell *cell, LibertyPort *from, LibertyPort *to,
+                    LibertyPort *related_out, const TimingRole *role,
+                    TimingArcAttrsPtr attrs, size_t index);
 
 protected:
   const char *frob_;
 };
 
-BigcoTimingArcSet::BigcoTimingArcSet(LibertyCell *cell, LibertyPort *from, 
-				     LibertyPort *to, 
-				     LibertyPort *related_out, TimingRole *role, 
-				     TimingArcAttrs *attrs) :
-  TimingArcSet(cell, from, to, related_out, role, attrs)
+BigcoTimingArcSet::BigcoTimingArcSet(LibertyCell *cell, LibertyPort *from,
+                                     LibertyPort *to,
+                                     LibertyPort *related_out,
+                                     const TimingRole *role,
+                                     TimingArcAttrsPtr attrs, size_t index) :
+  TimingArcSet(cell, from, to, related_out, role, attrs, index)
 {
-  const char *frob = static_cast<BigcoTimingGroup*>(attrs)->frob();
+  const char *frob = static_cast<BigcoTimingGroup*>(attrs.get())->frob();
   if (frob)
     frob_ = stringCopy(frob);
 }
@@ -135,19 +163,19 @@ class BigcoLibertyBuilder : public LibertyBuilder
 {
 public:
   virtual LibertyCell *makeCell(LibertyLibrary *library, const char *name,
-				const char *filename);
+                                const char *filename);
 
 protected:
-  virtual TimingArcSet *makeTimingArcSet(LibertyCell *cell, LibertyPort *from, 
-					 LibertyPort *to, 
-					 LibertyPort *related_out,
-					 TimingRole *role,
-					 TimingArcAttrs *attrs);
+  virtual TimingArcSet *makeTimingArcSet(LibertyCell *cell, LibertyPort *from,
+                                         LibertyPort *to,
+                                         LibertyPort *related_out,
+                                         const TimingRole *role,
+                                         TimingArcAttrsPtr attrs) override;
 };
 
 LibertyCell *
 BigcoLibertyBuilder::makeCell(LibertyLibrary *library, const char *name,
-			      const char *filename)
+                              const char *filename)
 {
   LibertyCell *cell = new BigcoCell(library, name, filename);
   library->addCell(cell);
@@ -155,13 +183,13 @@ BigcoLibertyBuilder::makeCell(LibertyLibrary *library, const char *name,
 }
 
 TimingArcSet *
-BigcoLibertyBuilder::makeTimingArcSet(LibertyCell *cell, LibertyPort *from, 
-				      LibertyPort *to, 
-				      LibertyPort *related_out,
-				      TimingRole *role,
-				      TimingArcAttrs *attrs)
+BigcoLibertyBuilder::makeTimingArcSet(LibertyCell *cell, LibertyPort *from,
+                                      LibertyPort *to,
+                                      LibertyPort *related_out,
+                                      const TimingRole *role,
+                                      TimingArcAttrsPtr attrs)
 {
-  return new BigcoTimingArcSet(cell, from, to, related_out, role, attrs);
+  return cell->makeTimingArcSet(from, to, related_out, role, attrs);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -255,8 +283,8 @@ public:
 
 protected:
   virtual LibertyLibrary *readLibertyFile(const char *filename, 
-					  bool infer_latches,
-					  Network *network);
+                                          bool infer_latches,
+                                          Network *network);
 };
 
 BigcoSta::BigcoSta() :
@@ -267,8 +295,8 @@ BigcoSta::BigcoSta() :
 // Replace Sta liberty file reader with Bigco's very own.
 LibertyLibrary *
 Sta::readLibertyFile(const char *filename,
-		bool infer_latches,
-		     Network *network)
+                bool infer_latches,
+                     Network *network)
 {
   BigcoLibertyBuilder builder;
   BigcoLibertyReader reader(&builder);

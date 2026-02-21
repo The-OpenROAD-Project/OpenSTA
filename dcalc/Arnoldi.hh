@@ -66,7 +66,7 @@ public:
 // n is the number of terms
 // The vectors U[j] are of size n
 class rcmodel : public ConcreteParasitic,
-		public arnoldi1
+                public arnoldi1
 {
 public:
   rcmodel();

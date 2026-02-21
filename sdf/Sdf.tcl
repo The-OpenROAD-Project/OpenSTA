@@ -25,13 +25,13 @@
 namespace eval sta {
 
 define_cmd_args "read_sdf" \
-  {[-path path] [-corner corner]\
+  {[-path path] [-scene scene]\
      [-cond_use min|max|min_max]\
      [-unescaped_dividers] filename}
 
 proc_redirect read_sdf {
   parse_key_args "read_sdf" args \
-    keys {-path -corner -cond_use -analysis_type} \
+    keys {-path -corner -scene -cond_use -analysis_type} \
     flags {-unescaped_dividers -incremental_only}
 
   check_argc_eq1 "read_sdf" $args
@@ -40,7 +40,7 @@ proc_redirect read_sdf {
   if [info exists keys(-path)] {
     set path $keys(-path)
   }
-  set corner [parse_corner keys]
+  set scene [parse_scene keys]
 
   set cond_use "NULL"
   if [info exists keys(-cond_use)] {
@@ -50,31 +50,32 @@ proc_redirect read_sdf {
       set cond_use "NULL"
     }
     if { $cond_use == "min_max" \
-	   && { [operating_condition_analysis_type] == "single" }} {
+           && { [operating_condition_analysis_type] == "single" }} {
       sta_error 621 "-cond_use min_max cannot be used with analysis type single."
     }
   }
 
   set unescaped_dividers [info exists flags(-unescaped_dividers)]
   set incremental_only [info exists flags(-incremental_only)]
-  read_sdf_file $filename $path $corner $unescaped_dividers \
+  read_sdf_file $filename $path $scene $unescaped_dividers \
     $incremental_only $cond_use
 }
 
 ################################################################
 
 define_cmd_args "report_annotated_delay" \
-  {[-cell] [-net] [-from_in_ports] [-to_out_ports] [-max_lines lines]\
+  {[-cell] [-net] [-from_in_ports] [-to_out_ports]\
+     [-scene scene] [-max_lines lines]\
      [-report_annotated] [-report_unannotated] [-constant_arcs]}
 
 proc_redirect report_annotated_delay {
-  parse_key_args "report_annotated_delay" args keys {-max_lines} \
+  parse_key_args "report_annotated_delay" args keys {-scene -corner -max_lines} \
     flags {-cell -net -from_in_ports -to_out_ports  \
              -report_annotated -report_unannotated -constant_arcs \
              -list_not_annotated -list_annotated}
   if { [info exists flags(-cell)] || [info exists flags(-net)] \
-	 || [info exists flags(-from_in_ports)] \
-	 || [info exists flags(-to_out_ports)] } {
+         || [info exists flags(-from_in_ports)] \
+         || [info exists flags(-to_out_ports)] } {
     set report_cells [info exists flags(-cell)]
     set report_nets [info exists flags(-net)]
     set report_in_nets [info exists flags(-from_in_ports)]
@@ -86,6 +87,7 @@ proc_redirect report_annotated_delay {
     set report_out_nets 1
   }
 
+  set scene [parse_scene keys]
   set max_lines 0
   if { [info exists keys(-max_lines)] } {
     set max_lines $keys(-max_lines)
@@ -105,26 +107,27 @@ proc_redirect report_annotated_delay {
     set report_unannotated 1
   }
 
-  report_annotated_delay_cmd $report_cells $report_nets \
+  report_annotated_delay_cmd $scene $report_cells $report_nets \
     $report_in_nets $report_out_nets \
     $max_lines $report_annotated $report_unannotated \
     [info exists flags(-constant_arcs)]
 }
 
 define_cmd_args "report_annotated_check" \
-  {[-setup] [-hold] [-recovery] [-removal] [-nochange] [-width] [-period]\
-     [-max_skew] [-max_lines lines] [-report_annotated] [-report_unannotated]\
-     [-constant_arcs]}
+  {[-setup] [-hold] [-recovery] [-removal] [-nochange]\
+     [-width] [-period] [-max_skew]\
+     [-scene scene] [-max_lines lines]\
+     [-report_annotated] [-report_unannotated] [-constant_arcs]}
 
 proc_redirect report_annotated_check {
-  parse_key_args "report_annotated_check" args keys {-max_lines} \
+  parse_key_args "report_annotated_check" args keys {-scene -max_lines} \
     flags {-setup -hold -recovery -removal -nochange -width -period \
-	     -max_skew -report_annotated -report_unannotated -constant_arcs \
+             -max_skew -report_annotated -report_unannotated -constant_arcs \
              -list_annotated -list_not_annotated}
   if { [info exists flags(-setup)] || [info exists flags(-hold)] \
-	 || [info exists flags(-recovery)] || [info exists flags(-removal)] \
-	 || [info exists flags(-nochange)] || [info exists flags(-width)] \
-	 || [info exists flags(-period)] || [info exists flags(-max_skew)] } {
+         || [info exists flags(-recovery)] || [info exists flags(-removal)] \
+         || [info exists flags(-nochange)] || [info exists flags(-width)] \
+         || [info exists flags(-period)] || [info exists flags(-max_skew)] } {
     set report_setup [info exists flags(-setup)]
     set report_hold [info exists flags(-hold)]
     set report_recovery [info exists flags(-recovery)]
@@ -144,6 +147,7 @@ proc_redirect report_annotated_check {
     set report_max_skew 1
   }
 
+  set scene [parse_scene keys]
   set max_lines 0
   if { [info exists keys(-max_lines)] } {
     set max_lines $keys(-max_lines)
@@ -163,7 +167,7 @@ proc_redirect report_annotated_check {
     set report_unannotated 1
   }
 
-  report_annotated_check_cmd $report_setup $report_hold \
+  report_annotated_check_cmd $scene $report_setup $report_hold \
     $report_recovery $report_removal $report_nochange \
     $report_width $report_period $report_max_skew \
     $max_lines $report_annotated $report_unannotated \
@@ -171,15 +175,15 @@ proc_redirect report_annotated_check {
 }
 
 define_cmd_args "write_sdf" \
-  {[-corner corner] [-divider /|.] [-include_typ]\
+  {[-scene scene] [-divider /|.] [-include_typ]\
      [-digits digits] [-gzip] [-no_timestamp] [-no_version] filename}
 
 proc_redirect write_sdf {
   parse_key_args "write_sdf" args \
-    keys {-corner -divider -digits -significant_digits} \
+    keys {-corner -scene -divider -digits -significant_digits} \
     flags {-include_typ -gzip -no_timestamp -no_version}
   check_argc_eq1 "write_sdf" $args
-  set corner [parse_corner keys]
+  set scene [parse_scene keys]
   set filename [file nativename [lindex $args 0]]
   set divider "/"
   if [info exists keys(-divider)] {
@@ -198,7 +202,7 @@ proc_redirect write_sdf {
   set no_timestamp [info exists flags(-no_timestamp)]
   set no_version [info exists flags(-no_version)]
   set gzip [info exists flags(-gzip)]
-  write_sdf_cmd $filename $corner $divider $include_typ $digits $gzip \
+  write_sdf_cmd $filename $scene $divider $include_typ $digits $gzip \
     $no_timestamp $no_version
 }
 

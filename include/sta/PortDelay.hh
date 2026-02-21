@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "RiseFallMinMax.hh"
 #include "SdcClass.hh"
 
@@ -31,7 +33,7 @@ namespace sta {
 
 class PortDelay;
 
-typedef Vector<PortDelay*> PortDelaySeq;
+using PortDelaySeq = std::vector<PortDelay*>;
 
 // set_input_delay arrival, set_output_delay departure
 class PortDelay
@@ -52,7 +54,7 @@ public:
 
 protected:
   PortDelay(const Pin *pin,
-	    const ClockEdge *clk_edge,
+            const ClockEdge *clk_edge,
             const Network *network);
 
   const Pin *pin_;
@@ -71,9 +73,9 @@ public:
 
 protected:
   InputDelay(const Pin *pin,
-	     const ClockEdge *clk_edge,
-	     int index,
-	     const Network *network);
+             const ClockEdge *clk_edge,
+             int index,
+             const Network *network);
 
 private:
   int index_;
@@ -87,8 +89,8 @@ public:
 
 protected:
   OutputDelay(const Pin *pin,
-	      const ClockEdge *clk_edge,
-	      const Network *network);
+              const ClockEdge *clk_edge,
+              const Network *network);
 
 private:
   friend class Sdc;
@@ -98,9 +100,9 @@ private:
 class PortDelayLess
 {
 public:
-  explicit PortDelayLess(const Network *network);
+  PortDelayLess(const Network *network);
   bool operator()(const PortDelay *delay1,
-		  const PortDelay *delay2) const;
+                  const PortDelay *delay2) const;
 
 private:
   const Network *network_;

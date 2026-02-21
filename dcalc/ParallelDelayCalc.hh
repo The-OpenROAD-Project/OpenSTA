@@ -38,11 +38,13 @@ public:
   ParallelDelayCalc(StaState *sta);
   ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &dcalc_args,
                                const LoadPinIndexMap &load_pin_index_map,
-                               const DcalcAnalysisPt *dcalc_ap) override;
+                               const Scene *scene,
+                               const MinMax *min_max) override;
 protected:
   ArcDcalcResultSeq gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
                                        const LoadPinIndexMap &load_pin_index_map,
-                                       const DcalcAnalysisPt *dcalc_ap);
+                                       const Scene *scene,
+                                       const MinMax *min_max);
 };
 
 } // namespace

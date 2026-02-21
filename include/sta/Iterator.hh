@@ -40,4 +40,80 @@ public:
   virtual OBJ next() = 0;
 };
 
+template <typename VECTOR_TYPE, typename OBJ_TYPE>
+class VectorIterator : public Iterator<OBJ_TYPE>
+{
+public:
+  VectorIterator(const VECTOR_TYPE *seq) :
+    seq_(seq)
+  {
+    if (seq_)
+      itr_ = seq_->begin();
+  }
+  VectorIterator(const VECTOR_TYPE &seq) :
+    seq_(&seq),
+    itr_(seq.begin())
+  {
+  }
+
+  bool hasNext() { return seq_  && itr_ != seq_->end(); }
+  OBJ_TYPE next() { return *itr_++; }
+
+protected:
+  const VECTOR_TYPE *seq_;
+  VECTOR_TYPE::const_iterator itr_;
+};
+
+template <typename MAP_TYPE, typename OBJ_TYPE>
+class MapIterator : public Iterator<OBJ_TYPE>
+{
+public:
+  MapIterator(const MAP_TYPE *map) :
+    map_(map)
+  {
+    if (map)
+      itr_ = map->begin();
+  }
+  MapIterator(const MAP_TYPE &map) :
+    map_(&map),
+    itr_(map.begin())
+  {
+  }
+
+  bool hasNext() { return map_ && itr_ != map_->end(); }
+  OBJ_TYPE next() {
+    OBJ_TYPE next = itr_->second;
+    itr_++;
+    return next;
+  }
+
+protected:
+  const MAP_TYPE *map_;
+  MAP_TYPE::const_iterator itr_;
+};
+
+template <typename SET_TYPE, typename OBJ_TYPE>
+class SetIterator : public Iterator<OBJ_TYPE>
+{
+public:
+  SetIterator(const SET_TYPE *set) :
+    set_(set)
+  {
+    if (set)
+      itr_ = set->begin();
+  }
+  SetIterator(const SET_TYPE &set) :
+    set_(&set),
+    itr_(set.begin())
+  {
+  }
+
+  bool hasNext() { return set_ && itr_ != set_->end(); }
+  OBJ_TYPE next() { return *itr_++; }
+
+protected:
+  const SET_TYPE *set_;
+  SET_TYPE::const_iterator itr_;
+};
+
 } // namespace

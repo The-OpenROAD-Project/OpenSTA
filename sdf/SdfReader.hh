@@ -27,7 +27,7 @@
 namespace sta {
 
 class MinMaxAll;
-class Corner;
+class Scene;
 class StaState;
 
 // If unescaped_dividers is true, path names in the SDF do not have to
@@ -54,7 +54,7 @@ class StaState;
 bool
 readSdf(const char *filename,
         const char *path,
-        Corner *corner,
+        Scene *scene,
         bool unescaped_dividers,
         bool incremental_only,
         MinMaxAll *cond_use,

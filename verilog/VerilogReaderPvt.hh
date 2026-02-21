@@ -25,16 +25,16 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <map>
 
-#include "Map.hh"
-#include "Vector.hh"
 #include "StringSeq.hh"
 
 namespace sta {
 
-typedef Map<std::string, VerilogDcl*> VerilogDclMap;
-typedef Vector<bool> VerilogConstantValue;
-typedef std::vector<std::string> StdStringSeq;
+using VerilogDclMap = std::map<std::string, VerilogDcl*>;
+using VerilogConstantValue = std::vector<bool>;
+using StdStringSeq = std::vector<std::string>;
 
 class VerilogStmt
 {
@@ -71,13 +71,13 @@ public:
   VerilogStmtSeq *stmts() { return stmts_; }
   VerilogDclMap *declarationMap() { return &dcl_map_; }
   void parseDcl(VerilogDcl *dcl,
-		VerilogReader *reader);
+                VerilogReader *reader);
 
 private:
   void parseStmts(VerilogReader *reader);
   void checkInstanceName(VerilogInst *inst,
-			 StdStringSet &inst_names,
-			 VerilogReader *reader);
+                         StdStringSet &inst_names,
+                         VerilogReader *reader);
 
   std::string name_;
   std::string filename_;
@@ -160,8 +160,8 @@ class VerilogAssign : public VerilogStmt
 {
 public:
   VerilogAssign(VerilogNet *lhs,
-		VerilogNet *rhs,
-		int line);
+                VerilogNet *rhs,
+                int line);
   virtual ~VerilogAssign();
   virtual bool isAssign() const { return true; }
   VerilogNet *lhs() const { return lhs_; }
@@ -241,7 +241,7 @@ public:
   virtual bool isNamedPortRefScalarNet() const { return false; }
   virtual int size(VerilogModule *module) = 0;
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-					       VerilogReader *reader) = 0;
+                                               VerilogReader *reader) = 0;
 };
 
 class VerilogNetUnnamed : public VerilogNet
@@ -276,19 +276,19 @@ public:
   virtual bool isScalar() const { return true; }
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-					       VerilogReader *reader);
+                                               VerilogReader *reader);
 };
 
 class VerilogNetBitSelect : public VerilogNetNamed
 {
 public:
   VerilogNetBitSelect(const std::string &name,
-		      int index);
+                      int index);
   int index() { return index_; }
   virtual bool isScalar() const { return false; }
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-					       VerilogReader *reader);
+                                               VerilogReader *reader);
 private:
   int index_;
 };
@@ -297,12 +297,12 @@ class VerilogNetPartSelect : public VerilogNetNamed
 {
 public:
   VerilogNetPartSelect(const std::string &name,
-		       int from_index,
-		       int to_index);
+                       int from_index,
+                       int to_index);
   virtual bool isScalar() const { return false; }
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-					       VerilogReader *reader);
+                                               VerilogReader *reader);
   int fromIndex() const { return from_index_; }
   int toIndex() const { return to_index_; }
 
@@ -315,24 +315,24 @@ class VerilogNetConstant : public VerilogNetUnnamed
 {
 public:
   VerilogNetConstant(const std::string *constant,
-		     VerilogReader *reader,
+                     VerilogReader *reader,
                      int line);
   virtual ~VerilogNetConstant();
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-					       VerilogReader *reader);
+                                               VerilogReader *reader);
 
 private:
   void parseConstant(const std::string *constant,
-		     VerilogReader *reader,
+                     VerilogReader *reader,
                      int line);
   void parseConstant(const std::string *constant,
-		     size_t base_idx,
-		     int base,
-		     int digit_bit_count);
+                     size_t base_idx,
+                     int base,
+                     int digit_bit_count);
   void parseConstant10(const std::string *constant,
                        size_t base_idx,
-		       VerilogReader *reader,
+                       VerilogReader *reader,
                        int line);
 
   VerilogConstantValue *value_;
@@ -345,7 +345,7 @@ public:
   virtual ~VerilogNetConcat();
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-					       VerilogReader *reader);
+                                               VerilogReader *reader);
 
 private:
   VerilogNetSeq *nets_;
@@ -369,12 +369,12 @@ class VerilogNetPortRefScalarNet : public VerilogNetPortRef
 public:
   VerilogNetPortRefScalarNet(const std::string &name);
   VerilogNetPortRefScalarNet(const std::string &name,
-			     const std::string &net_name);
+                             const std::string &net_name);
   virtual bool isScalar() const { return true; }
   virtual bool isNamedPortRefScalarNet() const { return true; }
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-					       VerilogReader *reader);
+                                               VerilogReader *reader);
   virtual bool hasNet() { return !net_name_.empty(); }
   const std::string &netName() const { return net_name_; }
   void setNetName(const std::string &net_name) { net_name_ = net_name; }
@@ -387,12 +387,12 @@ class VerilogNetPortRefScalar : public VerilogNetPortRef
 {
 public:
   VerilogNetPortRefScalar(const std::string &name,
-			  VerilogNet *net);
+                          VerilogNet *net);
   virtual ~VerilogNetPortRefScalar();
   virtual bool isScalar() const { return true; }
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-					       VerilogReader *reader);
+                                               VerilogReader *reader);
   virtual bool hasNet() { return net_ != nullptr; }
 
 private:
@@ -403,8 +403,8 @@ class VerilogNetPortRefBit : public VerilogNetPortRefScalar
 {
 public:
   VerilogNetPortRefBit(const std::string &name,
-		       int index,
-		       VerilogNet *net);
+                       int index,
+                       VerilogNet *net);
   const std::string &name() const override { return bit_name_; }
 
 private:
@@ -415,9 +415,9 @@ class VerilogNetPortRefPart : public VerilogNetPortRefBit
 {
 public:
   VerilogNetPortRefPart(const std::string &name,
-			int from_index,
-			int to_index,
-			VerilogNet *net);
+                        int from_index,
+                        int to_index,
+                        VerilogNet *net);
   const std::string &name() const override;
   int toIndex() const { return to_index_; }
 

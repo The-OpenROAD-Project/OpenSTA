@@ -39,8 +39,8 @@ read_verilog_cmd(const char *filename)
 
 void
 write_verilog_cmd(const char *filename,
-		  bool include_pwr_gnd,
-		  CellSeq *remove_cells)
+                  bool include_pwr_gnd,
+                  CellSeq *remove_cells)
 {
   // This does NOT want the SDC (cmd) network because it wants
   // to see the sta internal names.

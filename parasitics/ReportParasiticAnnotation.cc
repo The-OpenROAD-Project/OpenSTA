@@ -24,14 +24,14 @@
 
 #include "ReportParasiticAnnotation.hh"
 
+#include "ContainerHelpers.hh"
 #include "Report.hh"
 #include "Network.hh"
 #include "NetworkCmp.hh"
 #include "PortDirection.hh"
 #include "Graph.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Parasitics.hh"
-#include "DcalcAnalysisPt.hh"
 #include "ArcDelayCalc.hh"
 
 namespace sta {
@@ -39,8 +39,9 @@ namespace sta {
 class ReportParasiticAnnotation : public StaState
 {
 public:
-  ReportParasiticAnnotation(bool report_unannotated,
-                            const Corner *corner,
+  ReportParasiticAnnotation(Parasitics *parasitics,
+                            bool report_unannotated,
+                            const Scene *scene,
                             StaState *sta);
   void report();
 
@@ -50,31 +51,34 @@ private:
   void findCounts(Instance *inst);
   void findCounts(Net *net);
 
+  Parasitics *parasitics_;
   bool report_unannotated_;
-  const Corner *corner_;
+  const Scene *scene_;
   const MinMax *min_max_;
-  const ParasiticAnalysisPt *parasitic_ap_;
   PinSeq unannotated_;
   PinSeq partially_annotated_;
 };
 
 void
-reportParasiticAnnotation(bool report_unannotated,
-                          const Corner *corner,
+reportParasiticAnnotation(Parasitics *parasitics,
+                          bool report_unannotated,
+                          const Scene *scene,
                           StaState *sta)
 {
-  ReportParasiticAnnotation report_annotation(report_unannotated, corner, sta);
+  ReportParasiticAnnotation report_annotation(parasitics, report_unannotated,
+                                              scene, sta);
   report_annotation.report();
 }
 
-ReportParasiticAnnotation::ReportParasiticAnnotation(bool report_unannotated,
-                                                     const Corner *corner,
+ReportParasiticAnnotation::ReportParasiticAnnotation(Parasitics *parasitics,
+                                                     bool report_unannotated,
+                                                     const Scene *scene,
                                                      StaState *sta) :
   StaState(sta),
+  parasitics_(parasitics),
   report_unannotated_(report_unannotated),
-  corner_(corner),
-  min_max_(MinMax::max()),
-  parasitic_ap_(corner_->findParasiticAnalysisPt(min_max_))
+  scene_(scene),
+  min_max_(MinMax::max())
 {
 }
 
@@ -102,7 +106,7 @@ ReportParasiticAnnotation::reportAnnotationCounts()
     for (const Pin *drvr_pin : partially_annotated_) {
       report_->reportLine(" %s", network_->pathName(drvr_pin));
 
-      Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap_);
+      Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin);
       if (parasitic) {
         PinSet unannotated_loads = parasitics_->unannotatedLoads(parasitic, drvr_pin);
         for (const Pin *load_pin : unannotated_loads)
@@ -115,7 +119,6 @@ ReportParasiticAnnotation::reportAnnotationCounts()
 void
 ReportParasiticAnnotation::findCounts()
 {
-  DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
@@ -123,9 +126,10 @@ ReportParasiticAnnotation::findCounts()
     PortDirection *dir = network_->direction(pin);
     if (vertex->isDriver(network_)
         && !dir->isInternal()) {
-      Parasitic *parasitic = parasitics_->findParasiticNetwork(pin, parasitic_ap_);
+      Parasitic *parasitic = parasitics_->findParasiticNetwork(pin);
       if (parasitic == nullptr)
-        parasitic = arc_delay_calc_->findParasitic(pin, RiseFall::rise(), dcalc_ap);
+        parasitic = arc_delay_calc_->findParasitic(pin, RiseFall::rise(),
+                                                   scene_, min_max_);
       if (parasitic) {
         PinSet unannotated_loads = parasitics_->unannotatedLoads(parasitic, pin);
         if (unannotated_loads.size() > 0)

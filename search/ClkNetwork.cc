@@ -29,20 +29,23 @@
 #include "Graph.hh"
 #include "Bfs.hh"
 #include "Sdc.hh"
+#include "Mode.hh"
 #include "SearchPred.hh"
 #include "Search.hh"
 
 namespace sta {
 
-ClkNetwork::ClkNetwork(StaState *sta) :
+ClkNetwork::ClkNetwork(Mode *mode,
+                       StaState *sta) :
   StaState(sta),
+  mode_(mode),
   clk_pins_valid_(false)
 {
 }
 
 ClkNetwork::~ClkNetwork()
 {
-  clk_pins_map_.deleteContentsClear();
+  deleteContents(clk_pins_map_);
 }
 
 void
@@ -57,7 +60,7 @@ ClkNetwork::clear()
 {
   clk_pins_valid_ = false;
   pin_clks_map_.clear();
-  clk_pins_map_.deleteContentsClear();
+  deleteContents(clk_pins_map_);
   pin_ideal_clks_map_.clear();
 }
 
@@ -85,7 +88,7 @@ ClkNetwork::disconnectPinBefore(const Pin *pin)
 void
 ClkNetwork::connectPinAfter(const Pin *pin)
 {
-  if (isClock(pin))
+  if (network_->isRegClkPin(pin))
     clkPinsInvalid();
 }
 
@@ -93,7 +96,8 @@ class ClkSearchPred : public ClkTreeSearchPred
 {
 public:
   ClkSearchPred(const StaState *sta);
-  virtual bool searchTo(const Vertex *to);
+  bool searchTo(const Vertex *to,
+                const Mode *mode) const override;
 };
 
 ClkSearchPred::ClkSearchPred(const StaState *sta) :
@@ -102,10 +106,10 @@ ClkSearchPred::ClkSearchPred(const StaState *sta) :
 }
 
 bool
-ClkSearchPred::searchTo(const Vertex *to)
+ClkSearchPred::searchTo(const Vertex *to,
+                        const Mode *mode) const
 {
-  const Sdc *sdc = sta_->sdc();
-  return !sdc->isLeafPinClock(to->pin());
+  return !mode->sdc()->isLeafPinClock(to->pin());
 }
 
 void
@@ -120,38 +124,39 @@ ClkNetwork::findClkPins()
 
 void
 ClkNetwork::findClkPins(bool ideal_only,
-			PinClksMap &pin_clks_map)
+                        PinClksMap &pin_clks_map)
 {
+  const Sdc *sdc = mode_->sdc();
   ClkSearchPred srch_pred(this);
   BfsFwdIterator bfs(BfsIndex::other, &srch_pred, this);
-  for (Clock *clk : sdc_->clks()) {
+  for (Clock *clk : sdc->clocks()) {
     if (!ideal_only
-	|| !clk->isPropagated()) {
+        || !clk->isPropagated()) {
       PinSet *clk_pins = clk_pins_map_[clk];
       if (clk_pins == nullptr) {
         clk_pins = new PinSet(network_);
         clk_pins_map_[clk] = clk_pins;
       }
       for (const Pin *pin : clk->leafPins()) {
-	if (!ideal_only
-	    || !sdc_->isPropagatedClock(pin)) {
-	  Vertex *vertex, *bidirect_drvr_vertex;
-	  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-	  bfs.enqueue(vertex);
-	  if (bidirect_drvr_vertex)
-	    bfs.enqueue(bidirect_drvr_vertex);
-	}
+        if (!ideal_only
+            || !sdc->isPropagatedClock(pin)) {
+          Vertex *vertex, *bidirect_drvr_vertex;
+          graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+          bfs.enqueue(vertex);
+          if (bidirect_drvr_vertex)
+            bfs.enqueue(bidirect_drvr_vertex);
+        }
       }
       while (bfs.hasNext()) {
-	Vertex *vertex = bfs.next();
-	const Pin *pin = vertex->pin();
-	if (!ideal_only
-	    || !sdc_->isPropagatedClock(pin)) {
-	  clk_pins->insert(pin);
-	  ClockSet &pin_clks = pin_clks_map[pin];
+        Vertex *vertex = bfs.next();
+        const Pin *pin = vertex->pin();
+        if (!ideal_only
+            || !sdc->isPropagatedClock(pin)) {
+          clk_pins->insert(pin);
+          ClockSet &pin_clks = pin_clks_map[pin];
           pin_clks.insert(clk);
-	  bfs.enqueueAdjacentVertices(vertex);
-	}
+          bfs.enqueueAdjacentVertices(vertex);
+        }
       }
     }
   }
@@ -160,8 +165,13 @@ ClkNetwork::findClkPins(bool ideal_only,
 bool
 ClkNetwork::isClock(const Pin *pin) const
 {
-  return network_->isRegClkPin(pin)
-    || pin_clks_map_.hasKey(pin);
+  return pin_clks_map_.contains(pin);
+}
+
+bool
+ClkNetwork::isClock(const Vertex *vertex) const
+{
+  return isClock(vertex->pin());
 }
 
 bool
@@ -183,30 +193,45 @@ ClkNetwork::isClock(const Net *net) const
 bool
 ClkNetwork::isIdealClock(const Pin *pin) const
 {
-  return pin_ideal_clks_map_.hasKey(pin);
+  return pin_ideal_clks_map_.contains(pin);
+}
+
+bool
+ClkNetwork::isIdealClock(const Vertex *vertex) const
+{
+  return isIdealClock(vertex->pin());
 }
 
 bool
 ClkNetwork::isPropagatedClock(const Pin *pin) const
 {
-  return pin_clks_map_.hasKey(pin)
-    && !pin_ideal_clks_map_.hasKey(pin);
+  return pin_clks_map_.contains(pin)
+    && !pin_ideal_clks_map_.contains(pin);
 }
 
 const ClockSet *
-ClkNetwork::clocks(const Pin *pin)
+ClkNetwork::clocks(const Pin *pin) const
 {
-  if (pin_clks_map_.hasKey(pin))
-    return &pin_clks_map_[pin];
+  auto itr = pin_clks_map_.find(pin);
+  if (itr != pin_clks_map_.end())
+    return &itr->second;
   else
     return nullptr;
 }
 
+
 const ClockSet *
-ClkNetwork::idealClocks(const Pin *pin)
+ClkNetwork::clocks(const Vertex *vertex) const
 {
-  if (pin_ideal_clks_map_.hasKey(pin))
-    return &pin_ideal_clks_map_[pin];
+  return clocks(vertex->pin());
+}
+
+const ClockSet *
+ClkNetwork::idealClocks(const Pin *pin) const
+{
+  auto itr = pin_ideal_clks_map_.find(pin);
+  if (itr != pin_ideal_clks_map_.end())
+    return &itr->second;
   else
     return nullptr;
 }
@@ -214,7 +239,7 @@ ClkNetwork::idealClocks(const Pin *pin)
 const PinSet *
 ClkNetwork::pins(const Clock *clk)
 {
-  if (clk_pins_map_.hasKey(clk))
+  if (clk_pins_map_.contains(clk))
     return clk_pins_map_[clk];
   else
     return nullptr;
@@ -223,14 +248,12 @@ ClkNetwork::pins(const Clock *clk)
 float
 ClkNetwork::idealClkSlew(const Pin *pin,
                          const RiseFall *rf,
-                         const MinMax *min_max)
+                         const MinMax *min_max) const
 {
-  const ClockSet *clks = clk_network_->idealClocks(pin);
+  const ClockSet *clks = idealClocks(pin);
   if (clks && !clks->empty()) {
     float slew = min_max->initValue();
-    ClockSet::ConstIterator clk_iter(clks);
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
+    for (Clock *clk : *clks) {
       float clk_slew = clk->slew(rf, min_max);
       if (min_max->compare(clk_slew, slew))
         slew = clk_slew;

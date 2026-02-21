@@ -27,6 +27,7 @@
 // https://davidkebo.com/cudd
 #include "cudd.h"
 
+#include "ContainerHelpers.hh"
 #include "Error.hh"
 #include "Mutex.hh"
 #include "Debug.hh"
@@ -41,6 +42,7 @@
 #include "Network.hh"
 #include "Sdc.hh"
 #include "Graph.hh"
+#include "Mode.hh"
 
 namespace sta {
 
@@ -48,10 +50,11 @@ static LogicValue
 logicNot(LogicValue value);
 static const Pin *
 findDrvrPin(const Pin *pin,
-	    Network *network);
+            Network *network);
 
 Sim::Sim(StaState *sta) :
   StaState(sta),
+  mode_(nullptr),
   observer_(nullptr),
   valid_(false),
   incremental_(false),
@@ -60,7 +63,6 @@ Sim::Sim(StaState *sta) :
   invalid_insts_(network_),
   invalid_drvr_pins_(network_),
   invalid_load_pins_(network_),
-  instances_with_const_pins_(network_),
   instances_to_annotate_(network_),
   bdd_(sta)
 {
@@ -71,10 +73,24 @@ Sim::~Sim()
   delete observer_;
 }
 
+void
+Sim::copyState(const StaState *sta)
+{
+  StaState::copyState(sta);
+  // Notify sub-components.
+  observer_->copyState(sta);
+}
+
+void
+Sim::setMode(Mode *mode)
+{
+  mode_ = mode;
+}
+
 TimingSense
 Sim::functionSense(const FuncExpr *expr,
-		   const Pin *input_pin,
-		   const Instance *inst)
+                   const Pin *input_pin,
+                   const Instance *inst)
 {
   debugPrint(debug_, "sim", 4, "find sense pin %s %s",
              network_->pathName(input_pin),
@@ -88,9 +104,9 @@ Sim::functionSense(const FuncExpr *expr,
     DdNode *input_node = bdd_.ensureNode(input_port);
     unsigned int input_index = Cudd_NodeReadIndex(input_node);
     increasing = (Cudd_Increasing(cudd_mgr, bdd, input_index)
-		  == Cudd_ReadOne(cudd_mgr));
+                  == Cudd_ReadOne(cudd_mgr));
     decreasing = (Cudd_Decreasing(cudd_mgr, bdd, input_index)
-		  == Cudd_ReadOne(cudd_mgr));
+                  == Cudd_ReadOne(cudd_mgr));
     Cudd_RecursiveDeref(cudd_mgr, bdd);
     bdd_.clearVarMap();
   }
@@ -109,7 +125,7 @@ Sim::functionSense(const FuncExpr *expr,
 
 LogicValue
 Sim::evalExpr(const FuncExpr *expr,
-	      const Instance *inst)
+              const Instance *inst)
 {
   LockGuard lock(bdd_lock_);
   DdNode *bdd = funcBddSim(expr, inst);
@@ -140,7 +156,7 @@ Sim::funcBddSim(const FuncExpr *expr,
     const LibertyPort *port = network_->libertyPort(pin);
     DdNode *port_node = bdd_.findNode(port);
     if (port_node) {
-      LogicValue value = logicValue(pin);
+      LogicValue value = simValue(pin);
       int var_index = Cudd_NodeReadIndex(port_node);
       switch (value) {
       case LogicValue::zero:
@@ -164,8 +180,8 @@ static LogicValue
 logicNot(LogicValue value)
 {
   static LogicValue logic_not[5] = {LogicValue::one, LogicValue::zero,
-				    LogicValue::unknown, LogicValue::unknown,
-				    LogicValue::unknown};
+                                    LogicValue::unknown, LogicValue::unknown,
+                                    LogicValue::unknown};
   return logic_not[int(value)];
 }
 
@@ -176,11 +192,11 @@ Sim::clear()
   incremental_ = false;
   const_func_pins_.clear();
   const_func_pins_valid_ = false;
-  instances_with_const_pins_.clear();
   instances_to_annotate_.clear();
   invalid_insts_.clear();
   invalid_drvr_pins_.clear();
   invalid_load_pins_.clear();
+  clearSimValues();
 }
 
 void
@@ -189,6 +205,89 @@ Sim::setObserver(SimObserver *observer)
   delete observer_;
   observer_ = observer;
 }
+
+SimObserver::SimObserver(StaState *sta) :
+  StaState(sta)
+{
+}
+
+LogicValue
+Sim::simValue(const Vertex *vertex) const
+{
+  if (vertex->hasSimValue()) {
+    LogicValue value;
+    bool exists;
+    findKeyValue(sim_value_map_, vertex->pin(), value, exists);
+    if (exists)
+      return value;
+  }
+  return LogicValue::unknown;
+}
+
+LogicValue
+Sim::simValue(const Pin *pin) const
+{
+  Vertex *vertex = graph_->pinLoadVertex(pin);
+  if (vertex)
+    return simValue(vertex);
+  LogicValue value;
+  bool exists;
+  findKeyValue(sim_value_map_, pin, value, exists);
+  if (exists)
+    return value;
+  else
+    return LogicValue::unknown;
+}
+
+bool
+Sim::isConstant(const Vertex *vertex) const
+{
+  LogicValue value = simValue(vertex);
+  return value == LogicValue::zero
+    || value == LogicValue::one;
+}
+
+bool
+Sim::isConstant(const Pin *pin) const
+{
+  LogicValue value = simValue(pin);
+  return value == LogicValue::zero
+    || value == LogicValue::one;
+}
+
+TimingSense
+Sim::simTimingSense(const Edge *edge) const
+{
+  if (edge->hasSimSense()) {
+    TimingSense sense;
+    bool exists;
+    findKeyValue(edge_timing_sense_map_, edge, sense, exists);
+    if (exists)
+      return sense;
+  }
+  return TimingSense::unknown;
+}
+
+void
+Sim::setSimTimingSense(Edge *edge,
+                       TimingSense sense)
+{
+  if (sense == TimingSense::unknown)
+    edge_timing_sense_map_.erase(edge);
+  else {
+    edge_timing_sense_map_[edge] = sense;
+    edge->setHasSimSense(true);
+  }
+}
+
+bool
+Sim::isDisabledCond(const Edge *edge) const
+{
+  return edge->hasDisabledCond()
+    && edge_disabled_cond_set_.contains(edge);
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 Sim::ensureConstantsPropagated()
@@ -208,7 +307,7 @@ Sim::ensureConstantsPropagated()
     }
     invalid_insts_.clear();
     propagateConstants(false);
-    annotateGraphEdges();
+    findDisabledEdges();
     valid_ = true;
     incremental_ = true;
 
@@ -246,7 +345,7 @@ Sim::propagateToInvalidLoads()
     else {
       const Pin *drvr_pin = findDrvrPin(load_pin, network_);
       if (drvr_pin)
-	propagateDrvrToLoad(drvr_pin, load_pin);
+        propagateDrvrToLoad(drvr_pin, load_pin);
     }
   }
   invalid_load_pins_.clear();
@@ -256,15 +355,15 @@ void
 Sim::propagateFromInvalidDrvrsToLoads()
 {
   for (const Pin *drvr_pin : invalid_drvr_pins_) {
-    LogicValue value = const_func_pins_.hasKey(drvr_pin)
+    LogicValue value = const_func_pins_.contains(drvr_pin)
       ? pinConstFuncValue(drvr_pin)
-      : logicValue(drvr_pin);
+      : simValue(drvr_pin);
     PinConnectedPinIterator *load_iter=network_->connectedPinIterator(drvr_pin);
     while (load_iter->hasNext()) {
       const Pin *load_pin = load_iter->next();
       if (load_pin != drvr_pin
-	  && network_->isLoad(load_pin))
-	setPinValue(load_pin, value);
+          && network_->isLoad(load_pin))
+        setPinValue(load_pin, value);
     }
     delete load_iter;
   }
@@ -273,9 +372,9 @@ Sim::propagateFromInvalidDrvrsToLoads()
 
 void
 Sim::propagateDrvrToLoad(const Pin *drvr_pin,
-			 const Pin *load_pin)
+                         const Pin *load_pin)
 {
-  LogicValue value = logicValue(drvr_pin);
+  LogicValue value = simValue(drvr_pin);
   setPinValue(load_pin, value);
 }
 
@@ -295,8 +394,8 @@ Sim::ensureConstantFuncPins()
       Instance *inst = inst_iter->next();
       InstancePinIterator *pin_iter = network_->pinIterator(inst);
       while (pin_iter->hasNext()) {
-	const Pin *pin = pin_iter->next();
-	recordConstPinFunc(pin);
+        const Pin *pin = pin_iter->next();
+        recordConstPinFunc(pin);
       }
       delete pin_iter;
     }
@@ -312,10 +411,10 @@ Sim::recordConstPinFunc(const Pin *pin)
   if (port) {
     FuncExpr *expr = port->function();
     if (expr
-	// Tristate outputs do not force the output to be constant.
-	&& port->tristateEnable() == nullptr
-	&& (expr->op() == FuncExpr::op_zero
-	    || expr->op() == FuncExpr::op_one))
+        // Tristate outputs do not force the output to be constant.
+        && port->tristateEnable() == nullptr
+        && (expr->op() == FuncExpr::Op::zero
+            || expr->op() == FuncExpr::Op::one))
       const_func_pins_.insert(pin);
   }
 }
@@ -323,7 +422,6 @@ Sim::recordConstPinFunc(const Pin *pin)
 void
 Sim::deleteInstanceBefore(const Instance *inst)
 {
-  instances_with_const_pins_.erase(inst);
   invalid_insts_.erase(inst);
 }
 
@@ -337,6 +435,7 @@ Sim::makePinAfter(const Pin *pin)
 void
 Sim::deletePinBefore(const Pin *pin)
 {
+  sim_value_map_.erase(pin);
   // Incrementally update const_func_pins_.
   const_func_pins_.erase(pin);
   invalid_load_pins_.erase(pin);
@@ -373,12 +472,8 @@ Sim::disconnectPinBefore(const Pin *pin)
 void
 Sim::pinSetFuncAfter(const Pin *pin)
 {
-  if (incremental_) {
-    Instance *inst = network_->instance(pin);
-    if (instances_with_const_pins_.hasKey(inst))
-      invalid_insts_.insert(inst);
+  if (incremental_)
     valid_ = false;
-  }
   // Incrementally update const_func_pins_.
   const_func_pins_.erase(pin);
   recordConstPinFunc(pin);
@@ -387,12 +482,13 @@ Sim::pinSetFuncAfter(const Pin *pin)
 void
 Sim::seedConstants()
 {
+  const Sdc *sdc = mode_->sdc();
   // Propagate constants from inputs tied hi/low in the network.
   enqueueConstantPinInputs();
-  // Propagate set_LogicValue::zero, set_LogicValue::one, set_logic_dc constants.
-  setConstraintConstPins(sdc_->logicValues());
+  // Propagate set_logic_zero/one/dc constants.
+  setConstraintConstPins(sdc->logicValues());
   // Propagate set_case_analysis constants.
-  setConstraintConstPins(sdc_->caseLogicValues());
+  setConstraintConstPins(sdc->caseLogicValues());
   // Propagate 0/1 constant functions.
   setConstFuncPins();
 }
@@ -408,7 +504,7 @@ Sim::propagateConstants(bool thru_sequentials)
 }
 
 void
-Sim::setConstraintConstPins(LogicValueMap &value_map)
+Sim::setConstraintConstPins(const LogicValueMap &value_map)
 {
   for (const auto [pin, value] : value_map) {
     debugPrint(debug_, "sim", 2, "case pin %s = %c",
@@ -419,12 +515,12 @@ Sim::setConstraintConstPins(LogicValueMap &value_map)
       bool pin_is_output = network_->direction(pin)->isAnyOutput();
       PinConnectedPinIterator *pin_iter=network_->connectedPinIterator(pin);
       while (pin_iter->hasNext()) {
-	const Pin *pin1 = pin_iter->next();
-	if (network_->isLeaf(pin1)
-	    && network_->direction(pin1)->isAnyInput()
-	    && ((pin_is_output && !network_->isInside(pin1, pin))
-		|| (!pin_is_output && network_->isInside(pin1, pin))))
-	  setPinValue(pin1, value);
+        const Pin *pin1 = pin_iter->next();
+        if (network_->isLeaf(pin1)
+            && network_->direction(pin1)->isAnyInput()
+            && ((pin_is_output && !network_->isInside(pin1, pin))
+                || (!pin_is_output && network_->isInside(pin1, pin))))
+          setPinValue(pin1, value);
       }
       delete pin_iter;
     }
@@ -453,9 +549,9 @@ Sim::pinConstFuncValue(const Pin *pin)
   LibertyPort *port = network_->libertyPort(pin);
   if (port) {
     FuncExpr *expr = port->function();
-    if (expr->op() == FuncExpr::op_zero)
+    if (expr->op() == FuncExpr::Op::zero)
       return LogicValue::zero;
-    else if (expr->op() == FuncExpr::op_one)
+    else if (expr->op() == FuncExpr::Op::one)
       return LogicValue::one;
   }
   return LogicValue::unknown;
@@ -481,66 +577,50 @@ void
 Sim::removePropagatedValue(const Pin *pin)
 {
   Instance *inst = network_->instance(pin);
-  if (instances_with_const_pins_.hasKey(inst)) {
-    invalid_insts_.insert(inst);
-    valid_ = false;
+  invalid_insts_.insert(inst);
+  valid_ = false;
 
-    LogicValue constraint_value;
-    bool exists;
-    sdc_->caseLogicValue(pin, constraint_value, exists);
+  const Sdc *sdc = mode_->sdc();
+  LogicValue constraint_value;
+  bool exists;
+  sdc->caseLogicValue(pin, constraint_value, exists);
+  if (!exists) {
+    sdc->logicValue(pin, constraint_value, exists);
     if (!exists) {
-      sdc_->logicValue(pin, constraint_value, exists);
-      if (!exists) {
-	debugPrint(debug_, "sim", 2, "pin %s remove prop constant",
-                   network_->pathName(pin));
-	Vertex *vertex, *bidirect_drvr_vertex;
-	graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-	if (vertex)
-	  setSimValue(vertex, LogicValue::unknown);
-	if (bidirect_drvr_vertex)
-	  setSimValue(bidirect_drvr_vertex, LogicValue::unknown);
-      }
+      debugPrint(debug_, "sim", 2, "pin %s remove prop constant",
+                 network_->pathName(pin));
+      setSimValue(pin, LogicValue::unknown);
     }
   }
 }
 
 void
 Sim::setPinValue(const Pin *pin,
-		 LogicValue value)
+                 LogicValue value)
 {
+  const Sdc *sdc = mode_->sdc();
   LogicValue constraint_value;
   bool exists;
-  sdc_->caseLogicValue(pin, constraint_value, exists);
+  sdc->caseLogicValue(pin, constraint_value, exists);
   if (!exists)
-    sdc_->logicValue(pin, constraint_value, exists);
+    sdc->logicValue(pin, constraint_value, exists);
   if (exists
       && value != constraint_value) {
     if (value != LogicValue::unknown)
       report_->warn(1521, "propagated logic value %c differs from constraint value of %c on pin %s.",
-		    logicValueString(value),
-		    logicValueString(constraint_value),
-		    sdc_network_->pathName(pin));
+                    logicValueString(value),
+                    logicValueString(constraint_value),
+                    sdc_network_->pathName(pin));
   }
   else {
     debugPrint(debug_, "sim", 3, "pin %s = %c",
                network_->pathName(pin),
                logicValueString(value));
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    // Set vertex constant flags.
     bool value_changed = false;
-    if (vertex) {
-      value_changed |= value != vertex->simValue();
-      setSimValue(vertex, value);
-    }
-    if (bidirect_drvr_vertex) {
-      value_changed |= value != bidirect_drvr_vertex->simValue();
-      setSimValue(bidirect_drvr_vertex, value);
-    }
+    value_changed |= value != simValue(pin);
+    setSimValue(pin, value);
     if (value_changed) {
       Instance *inst = network_->instance(pin);
-      if (logicValueZeroOne(value))
-        instances_with_const_pins_.insert(inst);
       instances_to_annotate_.insert(inst);
 
       if (network_->isLeaf(inst)
@@ -577,9 +657,9 @@ Sim::evalInstance(const Instance *inst,
       PortDirection *dir = port->direction();
       if (dir->isAnyOutput()) {
         LogicValue value = LogicValue::unknown;
-	FuncExpr *expr = port->function();
+        FuncExpr *expr = port->function();
         LibertyCell *cell = port->libertyCell();
-	if (expr) {
+        if (expr) {
           FuncExpr *tri_en_expr = port->tristateEnable();
           if (tri_en_expr) {
             if (evalExpr(tri_en_expr, inst) == LogicValue::one) {
@@ -619,7 +699,7 @@ Sim::evalInstance(const Instance *inst,
                      port->name(),
                      logicValueString(value));
         }
-        if (value != logicValue(pin))
+        if (value != simValue(pin))
           setPinValue(pin, value);
       }
     }
@@ -637,33 +717,41 @@ Sim::clockGateOutValue(const Instance *inst)
     if (port->isClockGateClock()
         || port->isClockGateEnable()) {
       Pin *gclk_pin = network_->findPin(inst, port);
-      if (gclk_pin) {
-        Vertex *gclk_vertex = graph_->pinLoadVertex(gclk_pin);
-        if (gclk_vertex->simValue() == LogicValue::zero)
-          return LogicValue::zero;
-      }
+      if (gclk_pin
+          && simValue(gclk_pin) == LogicValue::zero)
+        return LogicValue::zero;
     }
   }
   return LogicValue::unknown;
 }
 
 void
-Sim::setSimValue(Vertex *vertex,
-		 LogicValue value)
+Sim::setSimValue(const Pin *pin,
+                 LogicValue value)
 {
-  if (value != vertex->simValue()) {
-    vertex->setSimValue(value);
+  if (value != simValue(pin)) {
+    if (value == LogicValue::unknown)
+      sim_value_map_.erase(pin);
+    else {
+      sim_value_map_[pin] = value;
+      Vertex *vertex, *bidirect_drvr_vertex;
+      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+      if (vertex)
+        vertex->setHasSimValue(true);
+      if (bidirect_drvr_vertex)
+        bidirect_drvr_vertex->setHasSimValue(true);
+    }
     if (observer_)
-      observer_->valueChangeAfter(vertex);
+      observer_->valueChangeAfter(pin);
   }
 }
 
 TimingSense
 Sim::functionSense(const Instance *inst,
-		   const Pin *from_pin,
-		   const Pin *to_pin)
+                   const Pin *from_pin,
+                   const Pin *to_pin)
 {
-  if (logicZeroOne(from_pin))
+  if (isConstant((from_pin)))
     return TimingSense::none;
   else {
     LibertyPort *from_port = network_->libertyPort(from_pin);
@@ -671,144 +759,202 @@ Sim::functionSense(const Instance *inst,
     if (to_port) {
       const FuncExpr *func = to_port->function();
       if (func) {
-	PortDirection *to_dir = to_port->direction();
-	if (to_dir->isAnyTristate()) {
-	  FuncExpr *tri_func = to_port->tristateEnable();
-	  if (tri_func) {
-	    if (func->hasPort(from_port)) {
-	      // from_pin is an input to the to_pin function.
-	      LogicValue tri_enable = evalExpr(tri_func, inst);
-	      if (tri_enable == LogicValue::zero)
-		// Tristate is disabled.
-		return TimingSense::none;
-	      else
-		return functionSense(func, from_pin, inst);
-	    }
-	  }
-	  else {
-	    // Missing tristate enable function.
-	    if (func->hasPort(from_port))
-	      // from_pin is an input to the to_pin function.
-	      return functionSense(func, from_pin, inst);
-	  }
-	}
-	else {
-	  if (func->hasPort(from_port))
-	    // from_pin is an input to the to_pin function.
-	    return functionSense(func, from_pin, inst);
-	}
+        PortDirection *to_dir = to_port->direction();
+        if (to_dir->isAnyTristate()) {
+          FuncExpr *tri_func = to_port->tristateEnable();
+          if (tri_func) {
+            if (func->hasPort(from_port)) {
+              // from_pin is an input to the to_pin function.
+              LogicValue tri_enable = evalExpr(tri_func, inst);
+              if (tri_enable == LogicValue::zero)
+                // Tristate is disabled.
+                return TimingSense::none;
+              else
+                return functionSense(func, from_pin, inst);
+            }
+          }
+          else {
+            // Missing tristate enable function.
+            if (func->hasPort(from_port))
+              // from_pin is an input to the to_pin function.
+              return functionSense(func, from_pin, inst);
+          }
+        }
+        else {
+          if (func->hasPort(from_port))
+            // from_pin is an input to the to_pin function.
+            return functionSense(func, from_pin, inst);
+        }
       }
     }
     return TimingSense::unknown;
   }
 }
 
-LogicValue
-Sim::logicValue(const Pin *pin) const
-{
-  Vertex *vertex = graph_->pinLoadVertex(pin);
-  if (vertex)
-    return vertex->simValue();
-  else {
-    if (network_->isHierarchical(pin)) {
-      const Pin *drvr_pin = findDrvrPin(pin, network_);
-      if (drvr_pin)
-	return logicValue(drvr_pin);
-    }
-    return LogicValue::unknown;
-  }
-}
-
 static const Pin *
 findDrvrPin(const Pin *pin,
-	    Network *network)
+            Network *network)
 {
   PinSet *drvrs = network->drivers(pin);
-  if (drvrs) {
-    PinSet::Iterator drvr_iter(drvrs);
-    if (drvr_iter.hasNext())
-      return drvr_iter.next();
-  }
-  return nullptr;
-}
-
-bool
-logicValueZeroOne(LogicValue value)
-{
-  return value == LogicValue::zero || value == LogicValue::one;
-}
-
-bool
-Sim::logicZeroOne(const Pin *pin) const
-{
-  return logicValueZeroOne(logicValue(pin));
-}
-
-bool
-Sim::logicZeroOne(const Vertex *vertex) const
-{
-  return logicValueZeroOne(vertex->simValue());
+  if (drvrs && !drvrs->empty())
+    return *drvrs->begin();
+  else
+    return nullptr;
 }
 
 void
 Sim::clearSimValues()
 {
-  for (const Instance *inst : instances_with_const_pins_) {
-    // Clear sim values on all pins before evaling functions.
-    clearInstSimValues(inst);
-    annotateVertexEdges(inst, false);
+  for (auto const [pin, value] : sim_value_map_)
+    observer_->valueChangeAfter(pin);
+  sim_value_map_.clear();
+  edge_timing_sense_map_.clear();
+  edge_disabled_cond_set_.clear();
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Sim::setIsDisabledCond(Edge *edge,
+                       bool disabled)
+{
+  if (!disabled)
+    edge_disabled_cond_set_.erase(edge);
+  else {
+    edge_disabled_cond_set_.insert(edge);
+    edge->setHasDisabledCond(true);
   }
-  instances_with_const_pins_.clear();
+}
+
+bool
+Sim::isDisabledCond(Edge *edge,
+                    const Instance *inst,
+                    const Pin *from_pin,
+                    const Pin *to_pin)
+{
+  bool is_disabled;
+  FuncExpr *disable_cond;
+  isDisabledCond(edge, inst, from_pin, to_pin, is_disabled, disable_cond);
+  return is_disabled;
 }
 
 void
-Sim::clearInstSimValues(const Instance *inst)
+Sim::isDisabledCond(Edge *edge,
+                    const Instance *inst,
+                    const Pin *from_pin,
+                    const Pin *to_pin,
+                    // Return values.
+                    bool &is_disabled,
+                    FuncExpr *&disable_cond)
 {
-  debugPrint(debug_, "sim", 4, "clear %s",
-             network_->pathName(inst));
-  InstancePinIterator *pin_iter = network_->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    if (vertex)
-      setSimValue(vertex, LogicValue::unknown);
-    if (bidirect_drvr_vertex)
-      setSimValue(bidirect_drvr_vertex, LogicValue::unknown);
+  TimingArcSet *arc_set = edge->timingArcSet();
+  FuncExpr *cond = arc_set->cond();
+  if (cond) {
+    LogicValue cond_value = evalExpr(cond, inst);
+    disable_cond = cond;
+    is_disabled = (cond_value == LogicValue::zero);
   }
-  delete pin_iter;
+  else {
+    // Unconditional "default" arc set is disabled if another
+    // conditional arc from/to the same pins is enabled (condition
+    // evals to logic one).
+    LibertyCell *cell = network_->libertyCell(inst);
+    LibertyPort *from_port = network_->libertyPort(from_pin);
+    LibertyPort *to_port = network_->libertyPort(to_pin);
+    is_disabled = false;
+    for (TimingArcSet *cond_set : cell->timingArcSets(from_port, to_port)) {
+      FuncExpr *cond = cond_set->cond();
+      if (cond && evalExpr(cond, inst) == LogicValue::one) {
+        disable_cond = cond;
+        is_disabled = true;
+        break;
+      }
+    }
+  }
 }
 
-// Annotate graph edges disabled by constant values.
-void
-Sim::annotateGraphEdges()
+bool
+Sim::isDisabledMode(Edge *edge,
+                    const Instance *inst)
 {
-  for (const Instance *inst : instances_to_annotate_)
-    annotateVertexEdges(inst, true);
+  bool is_disabled;
+  FuncExpr *disable_cond;
+  isDisabledMode(edge, inst, is_disabled, disable_cond);
+  return is_disabled;
 }
 
 void
-Sim::annotateVertexEdges(const Instance *inst,
-			 bool annotate)
+Sim::isDisabledMode(Edge *edge,
+                    const Instance *inst,
+                    // Return values.
+                    bool &is_disabled,
+                    FuncExpr *&disable_cond)
 {
-  debugPrint(debug_, "sim", 4, "annotate %s %s",
-             network_->pathName(inst),
-             annotate ? "true" : "false");
+  // Default values.
+  is_disabled = false;
+  disable_cond = 0;
+  TimingArcSet *arc_set = edge->timingArcSet();
+  const std::string &mode_name = arc_set->modeName();
+  const std::string &mode_value = arc_set->modeValue();
+  if (!mode_name.empty() && !mode_value.empty()) {
+    LibertyCell *cell = network_->libertyCell(inst);
+    const ModeDef *mode_def = cell->findModeDef(mode_name.c_str());
+    if (mode_def) {
+      const ModeValueDef *value_def = mode_def->findValueDef(mode_value.c_str());
+      if (value_def) {
+        FuncExpr *cond = value_def->cond();
+        if (cond) {
+          LogicValue cond_value = evalExpr(cond, inst);
+          if (cond_value == LogicValue::zero) {
+            // For a mode value to be disabled by having a value of
+            // logic zero one mode value must logic one.
+            for (const auto &[name, value_def] : *mode_def->values()) {
+              FuncExpr *cond1 = value_def.cond();
+              if (cond1) {
+                LogicValue cond_value1 = evalExpr(cond1, inst);
+                if (cond_value1 == LogicValue::one) {
+                  disable_cond = cond;
+                  is_disabled = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////
+
+// Find graph edges disabled by constant values.
+void
+Sim::findDisabledEdges()
+{
+   for (const Instance *inst : instances_to_annotate_)
+     findDisabledEdges(inst);
+   instances_to_annotate_.clear();
+}
+
+void
+Sim::findDisabledEdges(const Instance *inst)
+{
+  debugPrint(debug_, "sim", 4, "annotate %s", network_->pathName(inst));
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     Vertex *vertex = graph_->pinDrvrVertex(pin);
     if (vertex)
-      annotateVertexEdges(inst, pin, vertex, annotate);
+      findDisabledEdges(inst, pin, vertex);
   }
   delete pin_iter;
 }
 
 void
-Sim::annotateVertexEdges(const Instance *inst,
-			 const Pin *pin,
-			 Vertex *vertex,
-			 bool annotate)
+Sim::findDisabledEdges(const Instance *inst,
+                       const Pin *pin,
+                       Vertex *vertex)
 {
   bool fanin_disables_changed = false;
   VertexInEdgeIterator edge_iter(vertex, graph_);
@@ -819,148 +965,36 @@ Sim::annotateVertexEdges(const Instance *inst,
       Pin *from_pin = from_vertex->pin();
       TimingSense sense = TimingSense::unknown;
       bool is_disabled_cond = false;
-      if (annotate) {
-	// Set timing sense on edges in instances that have constant pins.
-  	if (logicZeroOne(from_vertex))
-  	  sense = TimingSense::none;
- 	else
-	  sense = functionSense(inst, from_pin, pin);
+      // Set timing sense on edges in instances that have constant pins.
+      if (isConstant(from_vertex))
+        sense = TimingSense::none;
+      else
+        sense = functionSense(inst, from_pin, pin);
 
-	if (sense != TimingSense::none)
-	  // Disable conditional timing edges based on constant pins.
-	  is_disabled_cond = isCondDisabled(edge, inst, from_pin, 
-					    pin, network_,sim_)
-	    // Disable mode conditional timing
-	    // edges based on constant pins.
-	    || isModeDisabled(edge,inst,network_,sim_);
-      }
+      if (sense != TimingSense::none)
+        // Disable conditional timing edges based on constant pins.
+        is_disabled_cond = isDisabledCond(edge, inst, from_pin, pin)
+          // Disable mode conditional timing
+          // edges based on constant pins.
+          || isDisabledMode(edge,inst);
+
       bool disables_changed = false;
-      if (sense != edge->simTimingSense()) {
-	edge->setSimTimingSense(sense);
-	disables_changed = true;
-	fanin_disables_changed = true;
+      if (sense != simTimingSense(edge)) {
+        setSimTimingSense(edge, sense);
+        disables_changed = true;
+        fanin_disables_changed = true;
       }
-      if (is_disabled_cond != edge->isDisabledCond()) {
-	edge->setIsDisabledCond(is_disabled_cond);
-	disables_changed = true;
-	fanin_disables_changed = true;
+      if (is_disabled_cond != isDisabledCond(edge)) {
+        setIsDisabledCond(edge, is_disabled_cond);
+        disables_changed = true;
+        fanin_disables_changed = true;
       }
       if (observer_ && disables_changed)
-	observer_->fanoutEdgesChangeAfter(from_vertex);
+        observer_->fanoutEdgesChangeAfter(from_vertex->pin());
     }
   }
   if (observer_ && fanin_disables_changed)
-    observer_->faninEdgesChangeAfter(vertex);
-}
-
-bool
-isCondDisabled(Edge *edge,
-	       const Instance *inst,
-	       const Pin *from_pin,
-	       const Pin *to_pin,
-	       const Network *network,
-	       Sim *sim)
-{
-  bool is_disabled;
-  FuncExpr *disable_cond;
-  isCondDisabled(edge, inst, from_pin, to_pin, network, sim,
-		 is_disabled, disable_cond);
-  return is_disabled;
-}
-
-void
-isCondDisabled(Edge *edge,
-	       const Instance *inst,
-	       const Pin *from_pin,
-	       const Pin *to_pin,
-	       const Network *network,
-	       Sim *sim,
-	       bool &is_disabled,
-	       FuncExpr *&disable_cond)
-{
-  TimingArcSet *arc_set = edge->timingArcSet();
-  FuncExpr *cond = arc_set->cond();
-  if (cond) {
-    LogicValue cond_value = sim->evalExpr(cond, inst);
-    disable_cond = cond;
-    is_disabled = (cond_value == LogicValue::zero);
-  }
-  else {
-    // Unconditional "default" arc set is disabled if another
-    // conditional arc from/to the same pins is enabled (condition
-    // evals to logic one).
-    LibertyCell *cell = network->libertyCell(inst);
-    LibertyPort *from_port = network->libertyPort(from_pin);
-    LibertyPort *to_port = network->libertyPort(to_pin);
-    is_disabled = false;
-    for (TimingArcSet *cond_set : cell->timingArcSets(from_port, to_port)) {
-      FuncExpr *cond = cond_set->cond();
-      if (cond && sim->evalExpr(cond, inst) == LogicValue::one) {
-	disable_cond = cond;
-	is_disabled = true;
-	break;
-      }
-    }
-  }
-}
-
-bool
-isModeDisabled(Edge *edge,
-	       const Instance *inst,
-	       const Network *network,
-	       Sim *sim)
-{
-  bool is_disabled;
-  FuncExpr *disable_cond;
-  isModeDisabled(edge, inst, network, sim,
-		 is_disabled, disable_cond);
-  return is_disabled;
-}
-
-void
-isModeDisabled(Edge *edge,
-	       const Instance *inst,
-	       const Network *network,
-	       Sim *sim,
-	       bool &is_disabled,
-	       FuncExpr *&disable_cond)
-{
-  // Default values.
-  is_disabled = false;
-  disable_cond = 0;
-  TimingArcSet *arc_set = edge->timingArcSet();
-  const char *mode_name = arc_set->modeName();
-  const char *mode_value = arc_set->modeValue();
-  if (mode_name && mode_value) {
-    LibertyCell *cell = network->libertyCell(inst);
-    ModeDef *mode_def = cell->findModeDef(mode_name);
-    if (mode_def) {
-      ModeValueDef *value_def = mode_def->findValueDef(mode_value);
-      if (value_def) {
-	FuncExpr *cond = value_def->cond();
-	if (cond) {
-	  LogicValue cond_value = sim->evalExpr(cond, inst);
-	  if (cond_value == LogicValue::zero) {
-	    // For a mode value to be disabled by having a value of
-	    // logic zero one mode value must logic one.
-	    for (const auto [name, value_def] : *mode_def->values()) {
-	      if (value_def) {
-		FuncExpr *cond1 = value_def->cond();
-		if (cond1) {
-		  LogicValue cond_value1 = sim->evalExpr(cond1, inst);
-		  if (cond_value1 == LogicValue::one) {
-		    disable_cond = cond;
-		    is_disabled = true;
-		    break;
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
+    observer_->faninEdgesChangeAfter(vertex->pin());
 }
 
 } // namespace

@@ -26,12 +26,12 @@
 #include <set>
 
 #include "StringUtil.hh"
-#include "Set.hh"
 
 namespace sta {
 
-typedef Set<const char*, CharPtrLess> StringSet;
-typedef std::set<std::string> StdStringSet;
+using StringSet = std::set<const char*, CharPtrLess>;
+using StdStringSet = std::set<std::string>;
+using StdStringSeq = std::vector<std::string>;
 
 void
 deleteContents(StringSet *strings);

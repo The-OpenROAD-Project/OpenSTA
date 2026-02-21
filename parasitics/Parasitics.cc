@@ -32,14 +32,15 @@
 #include "Network.hh"
 #include "PortDirection.hh"
 #include "Sdc.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "ReduceParasitics.hh"
 #include "EstimateParasitics.hh"
 
 namespace sta {
 
 Parasitics::Parasitics(StaState *sta) :
-  StaState(sta)
+  StaState(sta),
+  coupling_cap_factor_(1.0)
 {
 }
 
@@ -182,26 +183,24 @@ Parasitic *
 Parasitics::reduceToPiElmore(const Parasitic *parasitic,
                              const Pin *drvr_pin,
                              const RiseFall *rf,
-                             const Corner *corner,
-                             const MinMax *cnst_min_max,
-                             const ParasiticAnalysisPt *ap)
+                             const Scene *scene,
+                             const MinMax *min_max)
 {
-  return sta::reduceToPiElmore(parasitic, drvr_pin, rf, ap->couplingCapFactor(),
-                               corner, cnst_min_max, ap, this);
+  return sta::reduceToPiElmore(parasitic, drvr_pin, rf,
+                               coupling_cap_factor_,
+                               scene, min_max, this);
 }
 
 Parasitic *
 Parasitics::reduceToPiPoleResidue2(const Parasitic *parasitic,
                                    const Pin *drvr_pin,
                                    const RiseFall *rf,
-                                   const Corner *corner,
-                                   const MinMax *cnst_min_max,
-                                   const ParasiticAnalysisPt *ap)
+                                   const Scene *scene,
+                                   const MinMax *min_max)
 {
   return sta::reduceToPiPoleResidue2(parasitic, drvr_pin, rf,
-                                     ap->couplingCapFactor(),
-                                     corner, cnst_min_max,
-                                     ap, this);
+                                     coupling_cap_factor_,
+                                     scene, min_max, this);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -212,27 +211,27 @@ Parasitics::estimatePiElmore(const Pin *drvr_pin,
                              const Wireload *wireload,
                              float fanout,
                              float net_pin_cap,
-                             const Corner *corner,
+                             const Scene *scene,
                              const MinMax *min_max)
 {
   EstimateParasitics estimate(this);
   float c2, rpi, c1, elmore_res, elmore_cap;
   bool elmore_use_load_cap;
   estimate.estimatePiElmore(drvr_pin, rf, wireload, fanout, net_pin_cap,
-                            corner, min_max,
+                            scene, min_max,
                             c2, rpi, c1,
                             elmore_res, elmore_cap, elmore_use_load_cap);
 
   if (c1 > 0.0 || c2 > 0.0) {
-    ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
-    Parasitic *parasitic = makePiElmore(drvr_pin, rf, ap, c2, rpi, c1);
+    Parasitic *parasitic = makePiElmore(drvr_pin, rf, min_max, c2, rpi, c1);
+    const Sdc *sdc = scene->sdc();
     NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
       if (network_->isLoad(pin)) {
         float load_cap = 0.0;
         if (elmore_use_load_cap)
-          load_cap = sdc_->pinCapacitance(pin, rf, corner, min_max);
+          load_cap = sdc->pinCapacitance(pin, rf, scene, min_max);
         float elmore = elmore_res * (elmore_cap + load_cap);
         setElmore(parasitic, pin, elmore);
       }
@@ -248,16 +247,17 @@ Parasitics::estimatePiElmore(const Pin *drvr_pin,
 
 Parasitic *
 Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
-				const Wireload *wireload,
-				float fanout,
-                                const MinMax *min_max,
-				const ParasiticAnalysisPt *ap)
+                                const Wireload *wireload,
+                                float fanout,
+                                const Scene *scene,
+                                const MinMax *min_max)
 {
   Parasitic *parasitic = nullptr;
   const Net *net = findParasiticNet(drvr_pin);
   if (net) {
-    parasitic = makeParasiticNetwork(net, false, ap);
-    const OperatingConditions *op_cond = sdc_->operatingConditions(min_max);
+    parasitic = makeParasiticNetwork(net, false);
+    const Sdc *sdc = scene->sdc();
+    const OperatingConditions *op_cond = sdc->operatingConditions(min_max);
     float wireload_cap, wireload_res;
     wireload->findWireload(fanout, op_cond, wireload_cap, wireload_res);
 
@@ -287,23 +287,23 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
 // the resistor.
 void
 Parasitics::makeWireloadNetworkWorst(Parasitic *parasitic,
-				     const Pin *drvr_pin,
+                                     const Pin *drvr_pin,
                                      const Net *net,
-				     float wireload_cap,
-				     float wireload_res,
-				     float /* fanout */)
+                                     float wireload_cap,
+                                     float wireload_res,
+                                     float /* fanout */)
 {
   ParasiticNode *drvr_node = ensureParasiticNode(parasitic, drvr_pin, network_);
   size_t resistor_index = 1;
   ParasiticNode *load_node = ensureParasiticNode(parasitic, net, 0, network_);
   makeResistor(parasitic, resistor_index++, wireload_res, drvr_node, load_node);
-  parasitics_->incrCap(load_node, wireload_cap);
+  incrCap(load_node, wireload_cap);
   PinConnectedPinIterator *load_iter =
     network_->connectedPinIterator(drvr_pin);
   while (load_iter->hasNext()) {
     const Pin *load_pin = load_iter->next();
     if (load_pin != drvr_pin
-	&& network_->isLoad(load_pin)) {
+        && network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin, network_);
       makeResistor(parasitic, resistor_index++, 0.0, load_node, load_node1);
     }
@@ -313,20 +313,20 @@ Parasitics::makeWireloadNetworkWorst(Parasitic *parasitic,
 // No wire resistance, so load is lumped capacitance.
 void
 Parasitics::makeWireloadNetworkBest(Parasitic *parasitic,
-				    const Pin *drvr_pin,
-				    float wireload_cap,
-				    float /* wireload_res */,
-				    float /* fanout */)
+                                    const Pin *drvr_pin,
+                                    float wireload_cap,
+                                    float /* wireload_res */,
+                                    float /* fanout */)
 {
   ParasiticNode *drvr_node = ensureParasiticNode(parasitic, drvr_pin, network_);
-  parasitics_->incrCap(drvr_node, wireload_cap);
+  incrCap(drvr_node, wireload_cap);
   PinConnectedPinIterator *load_iter =
     network_->connectedPinIterator(drvr_pin);
   size_t resistor_index = 1;
   while (load_iter->hasNext()) {
     const Pin *load_pin = load_iter->next();
     if (load_pin != drvr_pin
-	&& network_->isLoad(load_pin)) {
+        && network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin, network_);
       makeResistor(parasitic, resistor_index++, 0.0, drvr_node, load_node1);
     }
@@ -337,10 +337,10 @@ Parasitics::makeWireloadNetworkBest(Parasitic *parasitic,
 // connecting it to the driver.
 void
 Parasitics::makeWireloadNetworkBalanced(Parasitic *parasitic,
-					const Pin *drvr_pin,
-					float wireload_cap,
-					float wireload_res,
-					float fanout)
+                                        const Pin *drvr_pin,
+                                        float wireload_cap,
+                                        float wireload_res,
+                                        float fanout)
 {
   float fanout_cap = wireload_cap / fanout;
   float fanout_res = wireload_res / fanout;
@@ -351,44 +351,32 @@ Parasitics::makeWireloadNetworkBalanced(Parasitic *parasitic,
   while (load_iter->hasNext()) {
     const Pin *load_pin = load_iter->next();
     if (load_pin != drvr_pin
-	&& network_->isLoad(load_pin)) {
+        && network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin, network_);
       makeResistor(parasitic, resistor_index++, fanout_res, drvr_node, load_node1);    
-      parasitics_->incrCap(load_node1, fanout_cap);
+      incrCap(load_node1, fanout_cap);
     }
   }
 }
 
-////////////////////////////////////////////////////////////////
-
-ParasiticAnalysisPt::ParasiticAnalysisPt(const char *name,
-					 int index,
-                                         int index_max) :
-  name_(name),
-  index_(index),
-  index_max_(index_max),
-  coupling_cap_factor_(1.0)
-{
-}
-
 void
-ParasiticAnalysisPt::setCouplingCapFactor(float factor)
+Parasitics::setCouplingCapFactor(float factor)
 {
   coupling_cap_factor_ = factor;
 }
 
 ////////////////////////////////////////////////////////////////
 
+ParasiticNodeLess::ParasiticNodeLess() :
+  parasitics_(nullptr),
+  network_(nullptr)
+{
+}
+
 ParasiticNodeLess::ParasiticNodeLess(const Parasitics *parasitics,
                                      const Network *network) :
   parasitics_(parasitics),
   network_(network)
-{
-}
-
-ParasiticNodeLess::ParasiticNodeLess(const ParasiticNodeLess &less) :
-  parasitics_(less.parasitics_),
-  network_(less.network_)
 {
 }
 

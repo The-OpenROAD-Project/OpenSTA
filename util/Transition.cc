@@ -24,6 +24,8 @@
 
 #include "Transition.hh"
 
+#include "ContainerHelpers.hh"
+
 namespace sta {
 
 using std::max;
@@ -157,9 +159,9 @@ RiseFallBoth::matches(const Transition *tr) const
 {
   return this == &rise_fall_
     || (this == &rise_
-	&& tr == Transition::rise())
+        && tr == Transition::rise())
     || (this == &fall_
-	&& tr == Transition::fall());
+        && tr == Transition::fall());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -183,9 +185,9 @@ const Transition Transition::tr_ZX_{"ZX", "ZX", nullptr,          11};
 const Transition Transition::rise_fall_{"*", "**", nullptr,       -1};
 
 Transition::Transition(const char *name,
-		       const char *init_final,
-		       const RiseFall *as_rise_fall,
-		       int sdf_triple_index) :
+                       const char *init_final,
+                       const RiseFall *as_rise_fall,
+                       int sdf_triple_index) :
   name_(name),
   init_final_(init_final),
   as_rise_fall_(as_rise_fall),
@@ -205,7 +207,7 @@ Transition::matches(const Transition *tr) const
 const Transition *
 Transition::find(const char *tr_str)
 {
-  return transition_map_.findKey(tr_str);
+  return findKey(transition_map_, tr_str);
 }
 
 const RiseFallBoth *

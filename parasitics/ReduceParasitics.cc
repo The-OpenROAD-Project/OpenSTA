@@ -24,23 +24,26 @@
 
 #include "ReduceParasitics.hh"
 
+#include <map>
+#include <set>
+
 #include "Error.hh"
 #include "Debug.hh"
 #include "MinMax.hh"
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Sdc.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Parasitics.hh"
 
 namespace sta {
 
 using std::max;
 
-typedef Map<ParasiticNode*, double> ParasiticNodeValueMap;
-typedef Map<ParasiticResistor*, double> ResistorCurrentMap;
-typedef Set<ParasiticResistor*> ParasiticResistorSet;
-typedef Set<ParasiticNode*> ParasiticNodeSet;
+typedef std::map<ParasiticNode*, double> ParasiticNodeValueMap;
+typedef std::map<ParasiticResistor*, double> ResistorCurrentMap;
+typedef std::set<ParasiticResistor*> ParasiticResistorSet;
+typedef std::set<ParasiticNode*> ParasiticNodeSet;
 
 class ReduceToPi : public StaState
 {
@@ -48,43 +51,42 @@ public:
   ReduceToPi(StaState *sta);
   void reduceToPi(const Parasitic *parasitic_network,
                   const Pin *drvr_pin,
-		  ParasiticNode *drvr_node,
-		  float coupling_cap_factor,
-		  const RiseFall *rf,
-		  const Corner *corner,
-		  const MinMax *min_max,
-		  const ParasiticAnalysisPt *ap,
-		  float &c2,
-		  float &rpi,
-		  float &c1);
+                  ParasiticNode *drvr_node,
+                  float coupling_cap_factor,
+                  const RiseFall *rf,
+                  const Scene *scene,
+                  const MinMax *min_max,
+                  float &c2,
+                  float &rpi,
+                  float &c1);
   bool pinCapsOneValue() { return pin_caps_one_value_; }
 
 protected:
   void reducePiDfs(const Pin *drvr_pin,
-		   ParasiticNode *node,
-		   ParasiticResistor *from_res,
+                   ParasiticNode *node,
+                   ParasiticResistor *from_res,
                    double src_resistance,
-		   double &y1,
-		   double &y2,
-		   double &y3,
-		   double &dwn_cap,
+                   double &y1,
+                   double &y2,
+                   double &y3,
+                   double &dwn_cap,
                    double &max_resistance);
   void visit(ParasiticNode *node);
   bool isVisited(ParasiticNode *node);
   void leave(ParasiticNode *node);
   void setDownstreamCap(ParasiticNode *node,
-			float cap);
+                        float cap);
   float downstreamCap(ParasiticNode *node);
   float pinCapacitance(ParasiticNode *node);
   bool isLoopResistor(ParasiticResistor *resistor);
   void markLoopResistor(ParasiticResistor *resistor);
 
+  Parasitics *parasitics_;
   bool includes_pin_caps_;
   float coupling_cap_multiplier_;
   const RiseFall *rf_;
-  const Corner *corner_;
+  const Scene *scene_;
   const MinMax *min_max_;
-  const ParasiticAnalysisPt *ap_;
   ParasiticNodeResistorMap resistor_map_;
   ParasiticNodeCapacitorMap capacitor_map_;
 
@@ -98,7 +100,7 @@ ReduceToPi::ReduceToPi(StaState *sta) :
   StaState(sta),
   coupling_cap_multiplier_(1.0),
   rf_(nullptr),
-  corner_(nullptr),
+  scene_(nullptr),
   min_max_(nullptr),
   pin_caps_one_value_(true)
 {
@@ -111,22 +113,21 @@ ReduceToPi::ReduceToPi(StaState *sta) :
 void
 ReduceToPi::reduceToPi(const Parasitic *parasitic_network,
                        const Pin *drvr_pin,
-		       ParasiticNode *drvr_node,
-		       float coupling_cap_factor,
-		       const RiseFall *rf,
-		       const Corner *corner,
-		       const MinMax *min_max,
-		       const ParasiticAnalysisPt *ap,
-		       float &c2,
-		       float &rpi,
-		       float &c1)
+                       ParasiticNode *drvr_node,
+                       float coupling_cap_factor,
+                       const RiseFall *rf,
+                       const Scene *scene,
+                       const MinMax *min_max,
+                       float &c2,
+                       float &rpi,
+                       float &c1)
 {
-  includes_pin_caps_ = parasitics_->includesPinCaps(parasitic_network),
   coupling_cap_multiplier_ = coupling_cap_factor;
   rf_ = rf;
-  corner_ = corner;
+  scene_ = scene;
   min_max_ = min_max;
-  ap_ = ap;
+  parasitics_ = scene_->parasitics(min_max);
+  includes_pin_caps_ = parasitics_->includesPinCaps(parasitic_network),
   resistor_map_ = parasitics_->parasiticNodeResistorMap(parasitic_network);
   capacitor_map_ = parasitics_->parasiticNodeCapacitorMap(parasitic_network);
 
@@ -154,13 +155,13 @@ ReduceToPi::reduceToPi(const Parasitic *parasitic_network,
 // Find admittance moments.
 void
 ReduceToPi::reducePiDfs(const Pin *drvr_pin,
-			ParasiticNode *node,
-			ParasiticResistor *from_res,
-			double src_resistance,
-			double &y1,
-			double &y2,
-			double &y3,
-			double &dwn_cap,
+                        ParasiticNode *node,
+                        ParasiticResistor *from_res,
+                        double src_resistance,
+                        double &y1,
+                        double &y2,
+                        double &y3,
+                        double &dwn_cap,
                         double &max_resistance)
 {
   double coupling_cap = 0.0;
@@ -220,14 +221,15 @@ ReduceToPi::pinCapacitance(ParasiticNode *node)
   if (pin) {
     Port *port = network_->port(pin);
     LibertyPort *lib_port = network_->libertyPort(port);
+    const Sdc *sdc = scene_->sdc();
     if (lib_port) {
       if (!includes_pin_caps_) {
-	pin_cap = sdc_->pinCapacitance(pin, rf_, corner_, min_max_);
-	pin_caps_one_value_ &= lib_port->capacitanceIsOneValue();
+        pin_cap = sdc->pinCapacitance(pin, rf_, scene_, min_max_);
+        pin_caps_one_value_ &= lib_port->capacitanceIsOneValue();
       }
     }
     else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc_->portExtCap(port, rf_, corner_, min_max_);
+      pin_cap = sdc->portExtCap(port, rf_, min_max_);
   }
   return pin_cap;
 }
@@ -241,7 +243,7 @@ ReduceToPi::visit(ParasiticNode *node)
 bool
 ReduceToPi::isVisited(ParasiticNode *node)
 {
-  return visited_nodes_.hasKey(node);
+  return visited_nodes_.contains(node);
 }
 
 void
@@ -253,7 +255,7 @@ ReduceToPi::leave(ParasiticNode *node)
 bool
 ReduceToPi::isLoopResistor(ParasiticResistor *resistor)
 {
-  return loop_resistors_.hasKey(resistor);
+  return loop_resistors_.contains(resistor);
 }
 
 void
@@ -264,7 +266,7 @@ ReduceToPi::markLoopResistor(ParasiticResistor *resistor)
 
 void
 ReduceToPi::setDownstreamCap(ParasiticNode *node,
-			     float cap)
+                             float cap)
 {
   node_values_[node] = cap;
 }
@@ -286,27 +288,25 @@ public:
                           ParasiticNode *drvr_node,
                           float coupling_cap_factor,
                           const RiseFall *rf,
-                          const Corner *corner,
-                          const MinMax *min_max,
-                          const ParasiticAnalysisPt *ap);
+                          const Scene *scene,
+                          const MinMax *min_max);
   void reduceElmoreDfs(const Pin *drvr_pin,
-		       ParasiticNode *node,
-		       ParasiticResistor *from_res,
-		       double elmore,
-		       Parasitic *pi_elmore);
+                       ParasiticNode *node,
+                       ParasiticResistor *from_res,
+                       double elmore,
+                       Parasitic *pi_elmore);
 };
 
 Parasitic *
 reduceToPiElmore(const Parasitic *parasitic_network,
-		 const Pin *drvr_pin,
+                 const Pin *drvr_pin,
                  const RiseFall *rf,
                  float coupling_cap_factor,
-		 const Corner *corner,
-		 const MinMax *min_max,
-		 const ParasiticAnalysisPt *ap,
-		 StaState *sta)
+                 const Scene *scene,
+                 const MinMax *min_max,
+                 StaState *sta)
 {
-  Parasitics *parasitics = sta->parasitics();
+  Parasitics *parasitics = scene->parasitics(min_max);
   ParasiticNode *drvr_node =
     parasitics->findParasiticNode(parasitic_network, drvr_pin);
   if (drvr_node) {
@@ -316,8 +316,7 @@ reduceToPiElmore(const Parasitic *parasitic_network,
                min_max->to_string().c_str());
     ReduceToPiElmore reducer(sta);
     return reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
-                                coupling_cap_factor, rf, corner,
-                                min_max, ap);
+                                coupling_cap_factor, rf, scene, min_max);
   }
   return nullptr;
 }
@@ -329,19 +328,18 @@ ReduceToPiElmore::ReduceToPiElmore(StaState *sta) :
 
 Parasitic *
 ReduceToPiElmore::makePiElmore(const Parasitic *parasitic_network,
-			       const Pin *drvr_pin,
-			       ParasiticNode *drvr_node,
-			       float coupling_cap_factor,
-			       const RiseFall *rf,
-			       const Corner *corner,
-			       const MinMax *min_max,
-			       const ParasiticAnalysisPt *ap)
+                               const Pin *drvr_pin,
+                               ParasiticNode *drvr_node,
+                               float coupling_cap_factor,
+                               const RiseFall *rf,
+                               const Scene *scene,
+                               const MinMax *min_max)
 {
   float c2, rpi, c1;
   reduceToPi(parasitic_network, drvr_pin, drvr_node, coupling_cap_factor,
-             rf, corner, min_max, ap, c2, rpi, c1);
-  Parasitic *pi_elmore = parasitics_->makePiElmore(drvr_pin, rf, ap,
-						   c2, rpi, c1);
+             rf, scene, min_max, c2, rpi, c1);
+  Parasitic *pi_elmore = parasitics_->makePiElmore(drvr_pin, rf, min_max,
+                                                   c2, rpi, c1);
   parasitics_->setIsReducedParasiticNetwork(pi_elmore, true);
   reduceElmoreDfs(drvr_pin, drvr_node, 0, 0.0, pi_elmore);
   return pi_elmore;
@@ -351,10 +349,10 @@ ReduceToPiElmore::makePiElmore(const Parasitic *parasitic_network,
 // set by reducePiDfs.
 void
 ReduceToPiElmore::reduceElmoreDfs(const Pin *drvr_pin,
-				  ParasiticNode *node,
-				  ParasiticResistor *from_res,
-				  double elmore,
-				  Parasitic *pi_elmore)
+                                  ParasiticNode *node,
+                                  ParasiticResistor *from_res,
+                                  double elmore,
+                                  Parasitic *pi_elmore)
 {
   const Pin *pin = parasitics_->pin(node);
   if (from_res && pin) {
@@ -389,42 +387,41 @@ public:
   ~ReduceToPiPoleResidue2();
   void findPolesResidues(const Parasitic *parasitic_network,
                          Parasitic *pi_pole_residue,
-			 const Pin *drvr_pin,
-			 ParasiticNode *drvr_node);
+                         const Pin *drvr_pin,
+                         ParasiticNode *drvr_node);
   Parasitic *makePiPoleResidue2(const Parasitic *parasitic_network,
                                 const Pin *drvr_pin,
                                 ParasiticNode *drvr_node,
                                 float coupling_cap_factor,
                                 const RiseFall *rf,
-                                const Corner *corner,
-                                const MinMax *min_max,
-                                const ParasiticAnalysisPt *ap);
+                                const Scene *scene,
+                                const MinMax *min_max);
 
 private:
   void findMoments(const Pin *drvr_pin,
-		   ParasiticNode *drvr_node,
-		   int moment_count);
+                   ParasiticNode *drvr_node,
+                   int moment_count);
   void findMoments(const Pin *drvr_pin,
-		   ParasiticNode *node,
-		   double from_volt,
-		   ParasiticResistor *from_res,
-		   int moment_index);
+                   ParasiticNode *node,
+                   double from_volt,
+                   ParasiticResistor *from_res,
+                   int moment_index);
   double findBranchCurrents(const Pin *drvr_pin,
-			    ParasiticNode *node,
-			    ParasiticResistor *from_res,
-			    int moment_index);
+                            ParasiticNode *node,
+                            ParasiticResistor *from_res,
+                            int moment_index);
   double moment(ParasiticNode *node,
-		int moment_index);
+                int moment_index);
   void setMoment(ParasiticNode *node,
-		 double moment,
-		 int moment_index);
+                 double moment,
+                 int moment_index);
   double current(ParasiticResistor *res);
   void setCurrent(ParasiticResistor *res,
-		  double i);
+                  double i);
   void findPolesResidues(Parasitic *pi_pole_residue,
-			 const Pin *drvr_pin,
-			 const Pin *load_pin,
-			 ParasiticNode *load_node);
+                         const Pin *drvr_pin,
+                         const Pin *load_pin,
+                         ParasiticNode *load_node);
 
   // Resistor/capacitor currents.
   ResistorCurrentMap currents_;
@@ -449,15 +446,14 @@ ReduceToPiPoleResidue2::ReduceToPiPoleResidue2(StaState *sta) :
 // Design Automation Conference, 1996, pg 611-616.
 Parasitic *
 reduceToPiPoleResidue2(const Parasitic *parasitic_network,
-		       const Pin *drvr_pin,
+                       const Pin *drvr_pin,
                        const RiseFall *rf,
-		       float coupling_cap_factor,
-		       const Corner *corner,
-		       const MinMax *min_max,
-		       const ParasiticAnalysisPt *ap,
-		       StaState *sta)
+                       float coupling_cap_factor,
+                       const Scene *scene,
+                       const MinMax *min_max,
+                       StaState *sta)
 {
-  Parasitics *parasitics = sta->parasitics();
+  Parasitics *parasitics = scene->parasitics(min_max);
   ParasiticNode *drvr_node =
     parasitics->findParasiticNode(parasitic_network, drvr_pin);
   if (drvr_node) {
@@ -466,28 +462,27 @@ reduceToPiPoleResidue2(const Parasitic *parasitic_network,
     ReduceToPiPoleResidue2 reducer(sta);
     return reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
                                       coupling_cap_factor, rf,
-                                      corner, min_max, ap);
+                                      scene, min_max);
   }
   return nullptr;
 }
 
 Parasitic *
 ReduceToPiPoleResidue2::makePiPoleResidue2(const Parasitic *parasitic_network,
-					   const Pin *drvr_pin,
-					   ParasiticNode *drvr_node,
-					   float coupling_cap_factor,
-					   const RiseFall *rf,
-					   const Corner *corner,
-					   const MinMax *min_max,
-					   const ParasiticAnalysisPt *ap)
+                                           const Pin *drvr_pin,
+                                           ParasiticNode *drvr_node,
+                                           float coupling_cap_factor,
+                                           const RiseFall *rf,
+                                           const Scene *scene,
+                                           const MinMax *min_max)
 {
   float c2, rpi, c1;
   reduceToPi(parasitic_network, drvr_pin, drvr_node,
-	     coupling_cap_factor, rf, corner, min_max, ap,
-	     c2, rpi, c1);
+             coupling_cap_factor, rf, scene, min_max,
+             c2, rpi, c1);
   Parasitic *pi_pole_residue = parasitics_->makePiPoleResidue(drvr_pin,
-							      rf, ap,
-							      c2, rpi, c1);
+                                                              rf, min_max,
+                                                              c2, rpi, c1);
   parasitics_->setIsReducedParasiticNetwork(pi_pole_residue, true);
   findPolesResidues(parasitic_network, pi_pole_residue, drvr_pin, drvr_node);
   return pi_pole_residue;
@@ -501,8 +496,8 @@ ReduceToPiPoleResidue2::~ReduceToPiPoleResidue2()
 void
 ReduceToPiPoleResidue2::findPolesResidues(const Parasitic *parasitic_network,
                                           Parasitic *pi_pole_residue,
-					  const Pin *drvr_pin,
-					  ParasiticNode *drvr_node)
+                                          const Pin *drvr_pin,
+                                          ParasiticNode *drvr_node)
 {
   moments_ = new ParasiticNodeValueMap[4];
   findMoments(drvr_pin, drvr_node, 4);
@@ -514,7 +509,7 @@ ReduceToPiPoleResidue2::findPolesResidues(const Parasitic *parasitic_network,
       ParasiticNode *load_node =
         parasitics_->findParasiticNode(parasitic_network, pin);
       if (load_node) {
-	findPolesResidues(pi_pole_residue, drvr_pin, pin, load_node);
+        findPolesResidues(pi_pole_residue, drvr_pin, pin, load_node);
       }
     }
   }
@@ -523,8 +518,8 @@ ReduceToPiPoleResidue2::findPolesResidues(const Parasitic *parasitic_network,
 
 void
 ReduceToPiPoleResidue2::findMoments(const Pin *drvr_pin,
-				    ParasiticNode *drvr_node,
-				    int moment_count)
+                                    ParasiticNode *drvr_node,
+                                    int moment_count)
 {
   // Driver model thevenin resistance.
   double rd = 0.0;
@@ -541,9 +536,9 @@ ReduceToPiPoleResidue2::findMoments(const Pin *drvr_pin,
 
 double
 ReduceToPiPoleResidue2::findBranchCurrents(const Pin *drvr_pin,
-					   ParasiticNode *node,
-					   ParasiticResistor *from_res,
-					   int moment_index)
+                                           ParasiticNode *node,
+                                           ParasiticResistor *from_res,
+                                           int moment_index)
 {
   visit(node);
   double branch_i = 0.0;
@@ -577,10 +572,10 @@ ReduceToPiPoleResidue2::findBranchCurrents(const Pin *drvr_pin,
 
 void
 ReduceToPiPoleResidue2::findMoments(const Pin *drvr_pin,
-				    ParasiticNode *node,
-				    double from_volt,
-				    ParasiticResistor *from_res,
-				    int moment_index)
+                                    ParasiticNode *node,
+                                    double from_volt,
+                                    ParasiticResistor *from_res,
+                                    int moment_index)
 {
   visit(node);
   ParasiticResistorSeq &resistors = resistor_map_[node];
@@ -607,7 +602,7 @@ ReduceToPiPoleResidue2::findMoments(const Pin *drvr_pin,
 
 double
 ReduceToPiPoleResidue2::moment(ParasiticNode *node,
-			       int moment_index)
+                               int moment_index)
 {
   // Zero'th moments are all 1.
   if (moment_index == 0)
@@ -620,8 +615,8 @@ ReduceToPiPoleResidue2::moment(ParasiticNode *node,
 
 void
 ReduceToPiPoleResidue2::setMoment(ParasiticNode *node,
-				  double moment,
-				  int moment_index)
+                                  double moment,
+                                  int moment_index)
 {
   // Zero'th moments are all 1.
   if (moment_index > 0) {
@@ -638,16 +633,16 @@ ReduceToPiPoleResidue2::current(ParasiticResistor *res)
 
 void
 ReduceToPiPoleResidue2::setCurrent(ParasiticResistor *res,
-				   double i)
+                                   double i)
 {
   currents_[res] = i;
 }
 
 void
 ReduceToPiPoleResidue2::findPolesResidues(Parasitic *pi_pole_residue,
-					  const Pin *,
-					  const Pin *load_pin,
-					  ParasiticNode *load_node)
+                                          const Pin *,
+                                          const Pin *load_pin,
+                                          ParasiticNode *load_node)
 {
   double m1 = moment(load_node, 1);
   double m2 = moment(load_node, 2);

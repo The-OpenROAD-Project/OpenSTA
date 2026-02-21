@@ -34,7 +34,7 @@ const size_t hash_init_value = 5381;
 // Dan Bernstein, comp.lang.c.
 inline size_t
 hashSum(size_t hash,
-	size_t add)
+        size_t add)
 {
   // hash * 31 ^ add.
   return ((hash << 5) + hash) ^ add;
@@ -42,7 +42,7 @@ hashSum(size_t hash,
 
 inline void
 hashIncr(size_t &hash,
-	 size_t add)
+         size_t add)
 {
   // hash * 31 ^ add.
   hash = ((hash << 5) + hash) ^ add;

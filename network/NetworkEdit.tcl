@@ -35,11 +35,11 @@ proc make_instance { inst_path lib_cell } {
     if {[regexp $path_regexp $inst_path ignore path_name inst_name]} {
       set parent [find_instance $path_name]
       if { $parent == "NULL" } {
-	# Parent instance not found.  This could be a typo, but since
-	# SDC does not escape hierarchy dividers it can also be
-	# an escaped name.
-	set inst_name $inst_path
-	set parent [top_instance]
+        # Parent instance not found.  This could be a typo, but since
+        # SDC does not escape hierarchy dividers it can also be
+        # an escaped name.
+        set inst_name $inst_path
+        set parent [top_instance]
       }
     } else {
       set inst_name $inst_path
@@ -118,7 +118,7 @@ proc parse_connect_pin { arg } {
     if {[regexp $path_regexp $arg ignore path_name port_name]} {
       set inst [find_instance $path_name]
       if { $inst == "NULL" } {
-	return 0
+        return 0
       }
     } else {
       set inst [top_instance]
@@ -134,8 +134,8 @@ proc parse_connect_pin { arg } {
   
   # Make sure the pin is not currently connected to a net.
   if { $pin != "NULL" \
-	 && ![$pin is_hierarchical] \
-	 && [$pin net] != "NULL" } {
+         && ![$pin is_hierarchical] \
+         && [$pin net] != "NULL" } {
     return 0
   }
   return [list $inst $port]
@@ -217,7 +217,7 @@ proc replace_cell { instance lib_cell } {
     set inst [get_instance_error "instance" $instance]
     set inst_cell [$inst liberty_cell]
     if { $inst_cell == "NULL" \
-	   || ![equiv_cell_ports $inst_cell $cell] } {
+           || ![equiv_cell_ports $inst_cell $cell] } {
       return 0
     }
     replace_cell_cmd $inst $cell

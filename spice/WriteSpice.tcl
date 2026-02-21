@@ -25,17 +25,17 @@
 namespace eval sta {
 
 define_cmd_args "write_path_spice" { -path_args path_args\
-				       -spice_directory spice_directory\
-				       -lib_subckt_file lib_subckts_file\
-				       -model_file model_file\
-				       -power power\
-				       -ground ground\
+                                       -spice_directory spice_directory\
+                                       -lib_subckt_file lib_subckts_file\
+                                       -model_file model_file\
+                                       -power power\
+                                       -ground ground\
                                        [-simulator hspice|ngspice|xyce]}
 
 proc write_path_spice { args } {
   parse_key_args "write_path_spice" args \
     keys {-spice_directory -lib_subckt_file -model_file \
-	    -power -ground -path_args -simulator} \
+            -power -ground -path_args -simulator} \
     flags {}
 
   if { [info exists keys(-spice_directory)] } {
@@ -100,7 +100,7 @@ proc write_path_spice { args } {
       set spice_file [file join $spice_dir "$path_name.sp"]
       set subckt_file [file join $spice_dir "$path_name.subckt"]
       write_path_spice_cmd $path $spice_file $subckt_file \
-	$lib_subckt_file $model_file $power $ground $ckt_sim
+        $lib_subckt_file $model_file $power $ground $ckt_sim
       incr path_index
     }
   }
@@ -132,13 +132,13 @@ define_cmd_args "write_gate_spice" \
       -power power\
       -ground ground\
       [-simulator hspice|ngspice|xyce]\
-      [-corner corner]\
+      [-scene scene]\
       [-min] [-max]}
 
 proc write_gate_spice { args } {
   parse_key_args "write_gate_spice" args \
     keys {-gates -spice_filename -lib_subckt_file -model_file \
-            -power -ground -simulator -corner}\
+            -power -ground -simulator -scene -corner}\
     flags {-measure_stmts -min -max}
 
   if { [info exists keys(-gates)] } {
@@ -188,7 +188,7 @@ proc write_gate_spice { args } {
 
   set ckt_sim [parse_ckt_sim_key keys]
 
-  set corner [parse_corner keys]
+  set scene [parse_scene keys]
   set min_max [parse_min_max_flags flags]
   check_argc_eq0 "write_gate_spice" $args
 
@@ -197,7 +197,7 @@ proc write_gate_spice { args } {
   set subckt_file [file join $spice_dir "$spice_root.subckt"]
   write_gate_spice_cmd $gates $spice_file $subckt_file \
     $lib_subckt_file $model_file $power $ground $ckt_sim \
-    $corner $min_max
+    $scene $min_max
 }
 
 ################################################################
@@ -207,11 +207,11 @@ define_cmd_args "write_gate_gnuplot" \
   { -gates {{instance input_port driver_port edge [delay]}...}\
       -plot_pins plot_pins\
       -plot_basename plot_basename\
-      [-corner corner] [-min] [-max]}
+      [-scene scene] [-min] [-max]}
 
 proc write_gate_gnuplot { args } {
   parse_key_args "write_gate_gnuplot" args \
-    keys {-gates -plot_pins -plot_basename -spice_waveforms -corner} \
+    keys {-gates -plot_pins -plot_basename -spice_waveforms -corner -scene} \
     flags {-min -max}
 
   if { [info exists keys(-gates)] } {
@@ -262,11 +262,11 @@ proc write_gate_gnuplot { args } {
     set sim_wave_filename $keys(-spice_waveforms)
   }
 
-  set corner [parse_corner keys]
+  set scene [parse_scene keys]
   set min_max [parse_min_max_flags flags]
 
   write_gate_gnuplot_cmd $gates $plot_pins $sim_wave_filename \
-    $gnuplot_filename $csv_filename $corner $min_max
+    $gnuplot_filename $csv_filename $scene $min_max
 }
 
 proc parse_gate_drvr_pin { gate_arg } {

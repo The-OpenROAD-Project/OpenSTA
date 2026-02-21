@@ -34,12 +34,12 @@
 
 void
 write_path_spice_cmd(Path *path,
-		     const char *spice_filename,
-		     const char *subckt_filename,
-		     const char *lib_subckt_filename,
-		     const char *model_filename,
-		     const char *power_name,
-		     const char *gnd_name,
+                     const char *spice_filename,
+                     const char *subckt_filename,
+                     const char *lib_subckt_filename,
+                     const char *model_filename,
+                     const char *power_name,
+                     const char *gnd_name,
                      CircuitSim ckt_sim)
 {
   Sta *sta = Sta::sta();

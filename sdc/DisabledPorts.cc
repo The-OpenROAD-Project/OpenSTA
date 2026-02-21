@@ -113,14 +113,14 @@ DisabledPorts::removeDisabledFromTo(LibertyPort *from,
 bool
 DisabledPorts::isDisabled(LibertyPort *from,
                           LibertyPort *to,
-			  const TimingRole *role)
+                          const TimingRole *role)
 {
   LibertyPortPair from_to(from, to);
   // set_disable_timing instance does not disable timing checks.
   return (all_ && !role->isTimingCheck())
-    || (from_ && from_->hasKey(from))
-    || (to_ && to_->hasKey(to))
-    || (from_to_ && from_to_->hasKey(from_to));
+    || (from_ && from_->contains(from))
+    || (to_ && to_->contains(to))
+    || (from_to_ && from_to_->contains(from_to));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ bool
 DisabledCellPorts::isDisabled(TimingArcSet *arc_set) const
 {
   return arc_sets_
-    && arc_sets_->hasKey(arc_set);
+    && arc_sets_->contains(arc_set);
 }
 
 class DisabledCellPortsLess
@@ -165,7 +165,7 @@ class DisabledCellPortsLess
 public:
   DisabledCellPortsLess();
   bool operator()(const DisabledCellPorts *disable1,
-		  const DisabledCellPorts *disable2);
+                  const DisabledCellPorts *disable2);
 };
 
 DisabledCellPortsLess::DisabledCellPortsLess()
@@ -174,14 +174,14 @@ DisabledCellPortsLess::DisabledCellPortsLess()
 
 bool
 DisabledCellPortsLess::operator()(const DisabledCellPorts *disable1,
-				  const DisabledCellPorts *disable2)
+                                  const DisabledCellPorts *disable2)
 {
   return stringLess(disable1->cell()->name(),
-		    disable2->cell()->name());
+                    disable2->cell()->name());
 }
 
 DisabledCellPortsSeq
-sortByName(DisabledCellPortsMap *cell_map)
+sortByName(const DisabledCellPortsMap *cell_map)
 {
   DisabledCellPortsSeq disables;
   for (auto cell_disable : *cell_map) {
@@ -203,9 +203,9 @@ DisabledInstancePorts::DisabledInstancePorts(Instance *inst) :
 class DisabledInstPortsLess
 {
 public:
-  explicit DisabledInstPortsLess(const Network *network);
+  DisabledInstPortsLess(const Network *network);
   bool operator()(const DisabledInstancePorts *disable1,
-		  const DisabledInstancePorts *disable2);
+                  const DisabledInstancePorts *disable2);
 
 private:
   const Network *network_;
@@ -221,7 +221,7 @@ DisabledInstPortsLess::operator()(const DisabledInstancePorts *disable1,
                                   const DisabledInstancePorts *disable2)
 {
   return stringLess(network_->pathName(disable1->instance()),
-		    network_->pathName(disable2->instance()));
+                    network_->pathName(disable2->instance()));
 }
 
 DisabledInstancePortsSeq
@@ -243,12 +243,12 @@ class LibertyPortPairNameLess
 {
 public:
   bool operator()(const LibertyPortPair &pair1,
-		  const LibertyPortPair &pair2);
+                  const LibertyPortPair &pair2);
 };
 
 bool
 LibertyPortPairNameLess::operator()(const LibertyPortPair &pair1,
-				    const LibertyPortPair &pair2)
+                                    const LibertyPortPair &pair2)
 {
   const char *from1 = pair1.first->name();
   const char *from2 = pair2.first->name();

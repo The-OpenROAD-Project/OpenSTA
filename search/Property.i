@@ -37,7 +37,7 @@ using namespace sta;
 
 PropertyValue
 library_property(const Library *lib,
-		 const char *property)
+                 const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(lib, property);
@@ -45,7 +45,7 @@ library_property(const Library *lib,
 
 PropertyValue
 liberty_library_property(const LibertyLibrary *lib,
-			 const char *property)
+                         const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(lib, property);
@@ -53,7 +53,7 @@ liberty_library_property(const LibertyLibrary *lib,
 
 PropertyValue
 cell_property(const Cell *cell,
-	      const char *property)
+              const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(cell, property);
@@ -61,7 +61,7 @@ cell_property(const Cell *cell,
 
 PropertyValue
 liberty_cell_property(const LibertyCell *cell,
-		      const char *property)
+                      const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(cell, property);
@@ -69,7 +69,7 @@ liberty_cell_property(const LibertyCell *cell,
 
 PropertyValue
 port_property(const Port *port,
-	      const char *property)
+              const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(port, property);
@@ -77,7 +77,7 @@ port_property(const Port *port,
 
 PropertyValue
 liberty_port_property(const LibertyPort *port,
-		      const char *property)
+                      const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(port, property);
@@ -85,7 +85,7 @@ liberty_port_property(const LibertyPort *port,
 
 PropertyValue
 instance_property(const Instance *inst,
-		  const char *property)
+                  const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(inst, property);
@@ -93,7 +93,7 @@ instance_property(const Instance *inst,
 
 PropertyValue
 pin_property(const Pin *pin,
-	     const char *property)
+             const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(pin, property);
@@ -101,7 +101,7 @@ pin_property(const Pin *pin,
 
 PropertyValue
 net_property(const Net *net,
-	     const char *property)
+             const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(net, property);
@@ -109,7 +109,7 @@ net_property(const Net *net,
 
 PropertyValue
 edge_property(Edge *edge,
-	      const char *property)
+              const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(edge, property);
@@ -117,7 +117,7 @@ edge_property(Edge *edge,
 
 PropertyValue
 clock_property(Clock *clk,
-	       const char *property)
+               const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(clk, property);
@@ -125,7 +125,7 @@ clock_property(Clock *clk,
 
 PropertyValue
 path_end_property(PathEnd *end,
-		  const char *property)
+                  const char *property)
 {
   Properties &properties = Sta::sta()->properties();
   return properties.getProperty(end, property);

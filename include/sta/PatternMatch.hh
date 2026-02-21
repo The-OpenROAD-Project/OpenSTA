@@ -29,8 +29,8 @@
 #include "Error.hh"
 
 // Don't require all of tcl.h.
-typedef struct Tcl_RegExp_ *Tcl_RegExp;
-typedef struct Tcl_Interp Tcl_Interp;
+using Tcl_RegExp = struct Tcl_RegExp_ *;
+using Tcl_Interp = struct Tcl_Interp;
 
 namespace sta {
 
@@ -46,15 +46,15 @@ public:
   // If nocase is true, ignore case in the pattern.
   // Tcl_Interp is optional for reporting regexp compile errors.
   PatternMatch(const char *pattern,
-	       bool is_regexp,
-	       bool nocase,
-	       Tcl_Interp *interp);
+               bool is_regexp,
+               bool nocase,
+               Tcl_Interp *interp);
   // Use unix glob style matching.
   PatternMatch(const char *pattern);
   PatternMatch(const char *pattern,
-	       const PatternMatch *inherit_from);
+               const PatternMatch *inherit_from);
   PatternMatch(const std::string &pattern,
-	       const PatternMatch *inherit_from);
+               const PatternMatch *inherit_from);
   bool match(const char *str) const;
   bool match(const std::string &str) const;
   bool matchNoCase(const char *str) const;
@@ -78,7 +78,7 @@ private:
 class RegexpCompileError : public Exception
 {
 public:
-  explicit RegexpCompileError(const char *pattern);
+  RegexpCompileError(const char *pattern);
   virtual ~RegexpCompileError() noexcept {}
   virtual const char *what() const noexcept;
 
@@ -91,11 +91,11 @@ private:
 // '?' matches any character
 bool
 patternMatch(const char *pattern,
-	     const char *str);
+             const char *str);
 bool
 patternMatchNoCase(const char *pattern,
-		   const char *str,
-		   bool nocase);
+                   const char *str,
+                   bool nocase);
 // Predicate to find out if there are wildcard characters in the pattern.
 bool
 patternWildcards(const char *pattern);

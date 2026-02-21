@@ -24,10 +24,11 @@
 
 #pragma once
 
+#include <string>
 #include <cstdarg>
+#include <map>
 #include <mutex>
 
-#include "Map.hh"
 #include "StringUtil.hh"
 
 namespace sta {
@@ -35,18 +36,17 @@ namespace sta {
 class Report;
 class Pin;
 
-typedef Map<const char *, int, CharPtrLess> DebugMap;
+using DebugMap = std::map<std::string, int>;
 
 class Debug
 {
 public:
-  explicit Debug(Report *report);
-  ~Debug();
+  Debug(Report *report);
   int level(const char *what);
   void setLevel(const char *what,
-		int level);
+                int level);
   bool check(const char *what,
-	     int level) const;
+             int level) const;
   int statsLevel() const { return stats_level_; }
   void reportLine(const char *what,
                   const char *fmt,
@@ -57,18 +57,15 @@ protected:
   Report *report_;
   std::mutex buffer_lock_;
   bool debug_on_;
-  DebugMap *debug_map_;
+  DebugMap debug_map_;
   int stats_level_;
 };
 
 // Inlining a varargs function would eval the args, which can
 // be expensive, so use a macro.
-// Note that "##__VA_ARGS__" is a gcc extension to support zero arguments (no comma).
-// clang -Wno-gnu-zero-variadic-macro-arguments suppresses the warning.
-// c++20 has "__VA_OPT__" to deal with the zero arg case so this is temporary.
 #define debugPrint(debug, what, level, ...) \
   if (debug->check(what, level)) {  \
-    debug->reportLine(what, ##__VA_ARGS__); \
+    debug->reportLine(what __VA_OPT__(,) __VA_ARGS__); \
   }
 
 } // namespace

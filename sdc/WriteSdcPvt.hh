@@ -36,13 +36,13 @@ class WriteSdcObject;
 class WriteSdc : public StaState
 {
 public:
-  WriteSdc(Instance *instance,
-	   const char *creator,
-	   bool map_hpins,
-	   bool native,
-	   int digits,
-	   bool no_timestamp,
-	   Sdc *sdc);
+  WriteSdc(const Sdc *sdc,
+           Instance *instance,
+           const char *creator,
+           bool map_hpins,
+           bool native,
+           int digits,
+           bool no_timestamp);
   virtual ~WriteSdc();
   void write(const char *filename,
              bool gzip);
@@ -61,49 +61,49 @@ public:
   void writeDisabledEdges() const;
   void writeDisabledEdge(Edge *edge) const;
   void findMatchingEdges(Edge *edge,
-			 EdgeSet &matches) const;
+                         EdgeSet &matches) const;
   bool edgeSenseIsUnique(Edge *edge,
-			 EdgeSet &matches) const;
+                         EdgeSet &matches) const;
   void writeDisabledEdgeSense(Edge *edge) const;
   void writeClocks() const;
   void writeClock(Clock *clk) const;
   void writeGeneratedClock(Clock *clk) const;
   void writeClockPins(const Clock *clk) const;
   void writeFloatSeq(FloatSeq *floats,
-		     float scale) const;
+                     float scale) const;
   void writeIntSeq(IntSeq *ints) const;
   void writeClockSlews(const Clock *clk) const;
   void writeClockUncertainty(const Clock *clk) const;
   void writeClockUncertainty(const Clock *clk,
-			     const char *setup_hold,
-			     float value) const;
+                             const char *setup_hold,
+                             float value) const;
   void writeClockUncertaintyPins() const;
   void writeClockUncertaintyPin(const Pin *pin,
-				ClockUncertainties *uncertainties) const;
+                                ClockUncertainties *uncertainties) const;
   void writeClockUncertaintyPin(const Pin *pin,
-				const char *setup_hold,
-				float value) const;
+                                const char *setup_hold,
+                                float value) const;
   void writeClockLatencies() const;
   void writeClockInsertions() const;
   void writeClockInsertion(ClockInsertion *insert,
-			   WriteSdcObject &write_obj) const;
+                           WriteSdcObject &write_obj) const;
   void writeInterClockUncertainties() const;
   void writeInterClockUncertainty(InterClockUncertainty *uncertainty) const;
   void writePropagatedClkPins() const;
   void writeInputDelays() const;
   void writeOutputDelays() const;
   void writePortDelay(PortDelay *port_delay,
-		      bool is_input_delay,
-		      const char *sdc_cmd) const;
+                      bool is_input_delay,
+                      const char *sdc_cmd) const;
   void writePortDelay(PortDelay *port_delay,
-		      bool is_input_delay,
-		      float delay,
-		      const RiseFallBoth *rf,
-		      const MinMaxAll *min_max,
-		      const char *sdc_cmd) const;
+                      bool is_input_delay,
+                      float delay,
+                      const RiseFallBoth *rf,
+                      const MinMaxAll *min_max,
+                      const char *sdc_cmd) const;
   void writeClockSenses() const;
   void writeClockSense(PinClockPair &pin_clk,
-		       ClockSense sense) const;
+                       ClockSense sense) const;
   void writeClockGroups() const;
   void writeClockGroups(ClockGroups *clk_groups) const;
   void writeExceptions() const;
@@ -113,25 +113,25 @@ public:
   void writeExceptionFrom(ExceptionFrom *from) const;
   void writeExceptionTo(ExceptionTo *to) const;
   void writeExceptionFromTo(ExceptionFromTo *from_to,
-			    const char *from_to_key,
-			    bool map_hpin_to_drvr) const;
+                            const char *from_to_key,
+                            bool map_hpin_to_drvr) const;
   void writeExceptionThru(ExceptionThru *thru) const;
   void mapThruHpins(ExceptionThru *thru,
-		    PinSeq &pins) const;
+                    PinSeq &pins) const;
   void writeDataChecks() const;
   void writeDataCheck(DataCheck *check) const;
   void writeDataCheck(DataCheck *check,
-		      const RiseFallBoth *from_rf,
-		      const RiseFallBoth *to_rf,
-		      const SetupHold *setup_hold,
-		      float margin) const;
+                      const RiseFallBoth *from_rf,
+                      const RiseFallBoth *to_rf,
+                      const SetupHold *setup_hold,
+                      float margin) const;
   void writeEnvironment() const;
   void writeOperatingConditions() const;
   void writeWireload() const;
   virtual void writeNetLoads() const;
   void writeNetLoad(const Net *net,
-		    const MinMaxAll *min_max,
-		    float cap) const;
+                    const MinMaxAll *min_max,
+                    float cap) const;
   void writePortLoads() const;
   void writePortLoads(const Port *port) const;
   void writePortFanout(const Port *port) const;
@@ -139,45 +139,45 @@ public:
   void writeDrivingCells() const;
   void writeInputTransitions() const;
   void writeDrivingCell(Port *port,
-			InputDriveCell *drive_cell,
-			const RiseFall *rf,
-			const MinMax *min_max) const;
+                        InputDriveCell *drive_cell,
+                        const RiseFall *rf,
+                        const MinMax *min_max) const;
   void writeConstants() const;
   virtual void writeConstant(const Pin *pin) const;
   const char *setConstantCmd(const Pin *pin) const;
   void writeCaseAnalysis() const;
   virtual void writeCaseAnalysis(const Pin *pin) const;
   const char *caseAnalysisValueStr(const Pin *pin) const;
-  void sortedLogicValuePins(LogicValueMap &value_map,
-			    PinSeq &pins) const;
+  void sortedLogicValuePins(const LogicValueMap &value_map,
+                            PinSeq &pins) const;
   void writeNetResistances() const;
   void writeNetResistance(const Net *net,
-			  const MinMaxAll *min_max,
-			  float res) const;
+                          const MinMaxAll *min_max,
+                          float res) const;
   void writeDesignRules() const;
   void writeMinPulseWidths() const;
   void writeMinPulseWidths(RiseFallValues *min_widths,
-			   WriteSdcObject &write_obj) const;
+                           WriteSdcObject &write_obj) const;
   void writeMinPulseWidth(const char *hi_low,
-			  float value,
-			  WriteSdcObject &write_obj) const;
+                          float value,
+                          WriteSdcObject &write_obj) const;
   void writeSlewLimits() const;
   void writeCapLimits() const;
   void writeCapLimits(const MinMax *min_max,
-		      const char *cmd) const;
+                      const char *cmd) const;
   void writeMaxArea() const;
   void writeFanoutLimits() const;
   void writeFanoutLimits(const MinMax *min_max,
-			 const char *cmd) const;
+                         const char *cmd) const;
   void writeLatchBorowLimits() const;
   void writeDeratings() const;
   void writeDerating(DeratingFactorsGlobal *factors) const;
   void writeDerating(DeratingFactorsCell *factors,
-		     WriteSdcObject *write_obj) const;
+                     WriteSdcObject *write_obj) const;
   void writeDerating(DeratingFactors *factors,
-		     TimingDerateType type,
-		     const MinMax *early_late,
-		     WriteSdcObject *write_obj) const;
+                     TimingDerateType type,
+                     const MinMax *early_late,
+                     WriteSdcObject *write_obj) const;
   void writeVoltages() const;
 
   const char *pathName(const Pin *pin) const;
@@ -189,23 +189,23 @@ public:
   void writeGetTimingArcsOfOjbects(const LibertyCell *cell) const;
   void writeGetTimingArcs(Edge *edge) const;
   void writeGetTimingArcs(Edge *edge,
-			  const char *filter) const;
+                          const char *filter) const;
   const char *getTimingArcsCmd() const;
   void writeGetLibCell(const LibertyCell *cell) const;
   void writeGetLibPin(const LibertyPort *port) const;
   void writeGetClock(const Clock *clk) const;
   void writeGetClocks(ClockSet *clks) const;
   void writeGetClocks(ClockSet *clks,
-		      bool multiple,
-		      bool &first) const;
+                      bool multiple,
+                      bool &first) const;
   virtual void writeGetPort(const Port *port) const;
   virtual void writeGetNet(const Net *net) const;
   virtual void writeGetInstance(const Instance *inst) const;
   virtual void writeGetPin(const Pin *pin) const;
   void writeGetPin(const Pin *pin,
-		   bool map_hpin_to_drvr) const;
+                   bool map_hpin_to_drvr) const;
   void writeGetPins(const PinSet *pins,
-		    bool map_hpin_to_drvr) const;
+                    bool map_hpin_to_drvr) const;
   void writeGetPins1(PinSeq *pins) const;
   void writeClockKey(const Clock *clk) const;
   float scaleTime(float time) const;
@@ -218,41 +218,41 @@ public:
 
   void writeClkSlewLimits() const;
   void writeClkSlewLimit(const char *clk_data,
-			 const char *rise_fall,
-			 const Clock *clk,
-			 float limit) const;
+                         const char *rise_fall,
+                         const Clock *clk,
+                         float limit) const;
   void writeRiseFallMinMaxTimeCmd(const char *sdc_cmd,
-				  const RiseFallMinMax *values,
-				  WriteSdcObject &write_object) const;
+                                  const RiseFallMinMax *values,
+                                  WriteSdcObject &write_object) const;
   void writeRiseFallMinMaxCapCmd(const char *sdc_cmd,
-				 const RiseFallMinMax *values,
-				 WriteSdcObject &write_object) const;
+                                 const RiseFallMinMax *values,
+                                 WriteSdcObject &write_object) const;
   void writeRiseFallMinMaxCmd(const char *sdc_cmd,
-			      const RiseFallMinMax *values,
-			      float scale,
-			      WriteSdcObject &write_object) const;
+                              const RiseFallMinMax *values,
+                              float scale,
+                              WriteSdcObject &write_object) const;
   void writeRiseFallMinMaxCmd(const char *sdc_cmd,
-			      float value,
-			      float scale,
-			      const RiseFallBoth *rf,
-			      const MinMaxAll *min_max,
-			      WriteSdcObject &write_object) const;
+                              float value,
+                              float scale,
+                              const RiseFallBoth *rf,
+                              const MinMaxAll *min_max,
+                              WriteSdcObject &write_object) const;
   void writeMinMaxFloatValuesCmd(const char *sdc_cmd,
-				 MinMaxFloatValues *values,
-				 float scale,
-				 WriteSdcObject &write_object) const;
+                                 const MinMaxFloatValues *values,
+                                 float scale,
+                                 WriteSdcObject &write_object) const;
   void writeMinMaxFloatCmd(const char *sdc_cmd,
-			   float value,
-			   float scale,
-			   const MinMaxAll *min_max,
-			   WriteSdcObject &write_object) const;
+                           float value,
+                           float scale,
+                           const MinMaxAll *min_max,
+                           WriteSdcObject &write_object) const;
   void writeMinMaxIntValuesCmd(const char *sdc_cmd,
-			       MinMaxIntValues *values,
-			       WriteSdcObject &write_object) const;
+                               const MinMaxIntValues *values,
+                               WriteSdcObject &write_object) const;
   void writeMinMaxIntCmd(const char *sdc_cmd,
-			 int value,
-			 const MinMaxAll *min_max,
-			 WriteSdcObject &write_object) const;
+                         int value,
+                         const MinMaxAll *min_max,
+                         WriteSdcObject &write_object) const;
   void writeSetupHoldFlag(const MinMaxAll *min_max) const;
   void writeVariables() const;
   void writeCmdComment(SdcCmdComment *cmd) const;
@@ -260,6 +260,7 @@ public:
   gzFile stream() const { return stream_; }
 
 protected:
+  const Sdc *sdc_;
   Instance *instance_;
   const char *creator_;
   bool map_hpins_;

@@ -26,6 +26,7 @@
 
 #include <algorithm>
 
+#include "ContainerHelpers.hh"
 #include "Error.hh"
 #include "StringUtil.hh"
 #include "MinMax.hh"
@@ -41,7 +42,7 @@ static bool
 isPowerOfTwo(int i);
 
 Clock::Clock(const char *name,
-	     int index,
+             int index,
              const Network *network) :
   name_(stringCopy(name)),
   pins_(network),
@@ -71,11 +72,11 @@ Clock::Clock(const char *name,
 
 void
 Clock::initClk(PinSet *pins,
-	       bool add_to_pins,
-	       float period,
-	       FloatSeq *waveform,
-	       const char *comment,
-	       const Network *network)
+               bool add_to_pins,
+               float period,
+               FloatSeq *waveform,
+               const char *comment,
+               const Network *network)
 {
   is_generated_ = false;
   setPins(pins, network);
@@ -96,7 +97,7 @@ Clock::isVirtual() const
 
 void
 Clock::setPins(PinSet *pins,
-	       const Network *network)
+               const Network *network)
 {
   if (pins)
     pins_ = *pins;
@@ -108,11 +109,8 @@ void
 Clock::makeLeafPins(const Network *network)
 {
   leaf_pins_.clear();
-  PinSet::Iterator pin_iter(pins_);
-  while (pin_iter.hasNext()) {
-    const Pin *pin = pin_iter.next();
+  for (const Pin *pin : pins_)
     findLeafDriverPins(pin, network, &leaf_pins_);
-  }
 }
 
 void
@@ -181,9 +179,9 @@ Clock::setClkEdgeTime(const RiseFall *rf)
 const Pin *
 Clock::defaultPin() const
 {
-  PinSet::ConstIterator pin_iter(leaf_pins_);
-  if (pin_iter.hasNext())
-    return pin_iter.next();
+  auto itr = leaf_pins_.begin();
+  if (itr != leaf_pins_.end())
+    return *itr;
   else
     return nullptr;
 }
@@ -202,17 +200,17 @@ Clock::setIsPropagated(bool propagated)
 
 void
 Clock::slew(const RiseFall *rf,
-	    const MinMax *min_max,
-	    // Return values.
-	    float &slew,
-	    bool &exists) const
+            const MinMax *min_max,
+            // Return values.
+            float &slew,
+            bool &exists) const
 {
   slews_.value(rf, min_max, slew, exists);
 }
 
 float
 Clock::slew(const RiseFall *rf,
-	    const MinMax *min_max) const
+            const MinMax *min_max) const
 {
   float slew;
   bool exists;
@@ -224,16 +222,16 @@ Clock::slew(const RiseFall *rf,
 
 void
 Clock::setSlew(const RiseFallBoth *rf,
-	       const MinMaxAll *min_max,
-	       float slew)
+               const MinMaxAll *min_max,
+               float slew)
 {
   slews_.setValue(rf, min_max, slew);
 }
 
 void
 Clock::setSlew(const RiseFall *rf,
-	       const MinMax *min_max,
-	       float slew)
+               const MinMax *min_max,
+               float slew)
 {
   slews_.setValue(rf, min_max, slew);
 }
@@ -246,29 +244,29 @@ Clock::removeSlew()
 
 void
 Clock::setSlewLimit(const RiseFallBoth *rf,
-		    const PathClkOrData clk_data,
-		    const MinMax *min_max,
-		    float slew)
+                    const PathClkOrData clk_data,
+                    const MinMax *min_max,
+                    float slew)
 {
   slew_limits_[int(clk_data)].setValue(rf, min_max, slew);
 }
 
 void
 Clock::slewLimit(const RiseFall *rf,
-		 const PathClkOrData clk_data,
-		 const MinMax *min_max,
-		 // Return values.
-		 float &slew,
-		 bool &exists) const
+                 const PathClkOrData clk_data,
+                 const MinMax *min_max,
+                 // Return values.
+                 float &slew,
+                 bool &exists) const
 {
   slew_limits_[int(clk_data)].value(rf, min_max, slew, exists);
 }
 
 void
 Clock::uncertainty(const SetupHold *setup_hold,
-		   // Return values.
-		   float &uncertainty,
-		   bool &exists) const
+                   // Return values.
+                   float &uncertainty,
+                   bool &exists) const
 {
   if (uncertainties_)
     uncertainties_->value(setup_hold, uncertainty, exists);
@@ -280,7 +278,7 @@ Clock::uncertainty(const SetupHold *setup_hold,
 
 void
 Clock::setUncertainty(const SetupHoldAll *setup_hold,
-		      float uncertainty)
+                      float uncertainty)
 {
   if (uncertainties_ == nullptr)
     uncertainties_ = new ClockUncertainties;
@@ -289,7 +287,7 @@ Clock::setUncertainty(const SetupHoldAll *setup_hold,
 
 void
 Clock::setUncertainty(const SetupHold *setup_hold,
-		      float uncertainty)
+                      float uncertainty)
 {
   if (uncertainties_ == nullptr)
     uncertainties_ = new ClockUncertainties;
@@ -318,19 +316,19 @@ Clock::waveformInvalid()
 
 void
 Clock::initGeneratedClk(PinSet *pins,
-			bool add_to_pins,
-			Pin *src_pin,
-			Clock *master_clk,
-			int divide_by,
-			int multiply_by,
-			float duty_cycle,
-			bool invert,
-			bool combinational,
-			IntSeq *edges,
-			FloatSeq *edge_shifts,
-			bool is_propagated,
-			const char *comment,
-			const Network *network)
+                        bool add_to_pins,
+                        Pin *src_pin,
+                        Clock *master_clk,
+                        int divide_by,
+                        int multiply_by,
+                        float duty_cycle,
+                        bool invert,
+                        bool combinational,
+                        IntSeq *edges,
+                        FloatSeq *edge_shifts,
+                        bool is_propagated,
+                        const char *comment,
+                        const Network *network)
 {
   is_generated_ = true;
   setPins(pins, network);
@@ -431,7 +429,7 @@ Clock::generate(const Clock *src_clk)
 
 void
 Clock::generateScaledClk(const Clock *src_clk,
-			 float scale)
+                         float scale)
 {
   period_ = src_clk->period() * scale;
   if (duty_cycle_ != 0.0) {
@@ -440,11 +438,8 @@ Clock::generateScaledClk(const Clock *src_clk,
     waveform_->push_back(rise + period_ * duty_cycle_ / 100.0F);
   }
   else {
-    FloatSeq::ConstIterator wave_iter(src_clk->waveform());
-    while (wave_iter.hasNext()) {
-      float time = wave_iter.next();
+    for (float time : *src_clk->waveform())
       waveform_->push_back(time * scale);
-    }
   }
 }
 
@@ -499,22 +494,20 @@ Clock::masterClkEdgeTr(const RiseFall *rf) const
 
 void
 Clock::srcPinVertices(VertexSet &src_vertices,
-		      const Network *network,
-		      Graph *graph)
+                      const Network *network,
+                      Graph *graph)
 {
   if (network->isHierarchical(src_pin_)) {
     // Use the clocks on a non-hierarchical pin on the same net.
     PinSet leaf_pins(network);
     findLeafDriverPins(src_pin_, network, &leaf_pins);
-    PinSet::Iterator pin_iter(leaf_pins);
-    while (pin_iter.hasNext()) {
-      const Pin *pin = pin_iter.next();
+    for (const Pin *pin : leaf_pins) {
       Vertex *vertex, *bidirect_drvr_vertex;
       graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
       if (vertex)
-	src_vertices.insert(vertex);
+        src_vertices.insert(vertex);
       if (bidirect_drvr_vertex)
-	src_vertices.insert(bidirect_drvr_vertex);
+        src_vertices.insert(bidirect_drvr_vertex);
     }
   }
   else {
@@ -535,7 +528,7 @@ Clock::isDivideByOneCombinational() const
 ////////////////////////////////////////////////////////////////
 
 ClockEdge::ClockEdge(Clock *clock,
-		     const RiseFall *rf) :
+                     const RiseFall *rf) :
   clock_(clock),
   rf_(rf),
   name_(stringPrint("%s %s", clock_->name(), rf_->to_string().c_str())),
@@ -597,7 +590,7 @@ clkCmp(const Clock *clk1,
 
 int
 clkEdgeCmp(const ClockEdge *clk_edge1,
-	   const ClockEdge *clk_edge2)
+           const ClockEdge *clk_edge2)
 {
   if (clk_edge1 == nullptr && clk_edge2)
     return -1;
@@ -619,7 +612,7 @@ clkEdgeCmp(const ClockEdge *clk_edge1,
 
 bool
 clkEdgeLess(const ClockEdge *clk_edge1,
-	    const ClockEdge *clk_edge2)
+            const ClockEdge *clk_edge2)
 {
   return clkEdgeCmp(clk_edge1, clk_edge2) < 0;
 }
@@ -627,7 +620,7 @@ clkEdgeLess(const ClockEdge *clk_edge1,
 ////////////////////////////////////////////////////////////////
 
 InterClockUncertainty::InterClockUncertainty(const Clock *src,
-					     const Clock *target) :
+                                             const Clock *target) :
   src_(src),
   target_(target)
 {
@@ -642,20 +635,20 @@ InterClockUncertainty::empty() const
 
 void
 InterClockUncertainty::uncertainty(const RiseFall *src_rf,
-				   const RiseFall *tgt_rf,
-				   const SetupHold *setup_hold,
-				   float &uncertainty,
-				   bool &exists) const
+                                   const RiseFall *tgt_rf,
+                                   const SetupHold *setup_hold,
+                                   float &uncertainty,
+                                   bool &exists) const
 {
   uncertainties_[src_rf->index()].value(tgt_rf, setup_hold,
-					uncertainty, exists);
+                                        uncertainty, exists);
 }
 
 void
 InterClockUncertainty::setUncertainty(const RiseFallBoth *src_rf,
-				      const RiseFallBoth *tgt_rf,
-				      const SetupHoldAll *setup_hold,
-				      float uncertainty)
+                                      const RiseFallBoth *tgt_rf,
+                                      const SetupHoldAll *setup_hold,
+                                      float uncertainty)
 {
   for (auto src_rf_index : src_rf->rangeIndex())
     uncertainties_[src_rf_index].setValue(tgt_rf, setup_hold, uncertainty);
@@ -663,8 +656,8 @@ InterClockUncertainty::setUncertainty(const RiseFallBoth *src_rf,
 
 void
 InterClockUncertainty::removeUncertainty(const RiseFallBoth *src_rf,
-					 const RiseFallBoth *tgt_rf,
-					 const SetupHoldAll *setup_hold)
+                                         const RiseFallBoth *tgt_rf,
+                                         const SetupHoldAll *setup_hold)
 {
   for (auto src_rf_index : src_rf->rangeIndex())
     uncertainties_[src_rf_index].removeValue(tgt_rf, setup_hold);
@@ -678,18 +671,18 @@ InterClockUncertainty::uncertainties(const RiseFall *src_rf) const
 
 bool
 InterClockUncertaintyLess::operator()(const InterClockUncertainty *inter1,
-				      const InterClockUncertainty *inter2)const
+                                      const InterClockUncertainty *inter2)const
 {
   return inter1->src()->index() < inter2->src()->index()
     || (inter1->src() == inter2->src()
-	&& inter1->target()->index() < inter2->target()->index());
+        && inter1->target()->index() < inter2->target()->index());
 }
 
 ////////////////////////////////////////////////////////////////
 
 bool
 ClockNameLess::operator()(const Clock *clk1,
-			  const Clock *clk2)
+                          const Clock *clk2)
 {
   return stringLess(clk1->name(), clk2->name());
 }
@@ -727,26 +720,7 @@ int
 compare(const ClockSet *set1,
         const ClockSet *set2)
 {
-  size_t size1 = set1 ? set1->size() : 0;
-  size_t size2 = set2 ? set2->size() : 0;
-  if (size1 == size2) {
-    ClockSet::ConstIterator iter1(set1);
-    ClockSet::ConstIterator iter2(set2);
-    while (iter1.hasNext() && iter2.hasNext()) {
-      Clock *clk1 = iter1.next();
-      Clock *clk2 = iter2.next();
-      int id1 = clk1->index();
-      int id2 = clk2->index();
-      if (id1 < id2)
-        return -1;
-      else if (id1 > id2)
-        return 1;
-    }
-    // Sets are equal.
-    return 0;
-  }
-  else
-    return (size1 > size2) ? 1 : -1;
+  return sta::compare(set1, set2, ClockIndexLess());
 }
 
 } // namespace

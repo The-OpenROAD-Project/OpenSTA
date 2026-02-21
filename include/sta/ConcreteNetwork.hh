@@ -25,9 +25,10 @@
 #pragma once
 
 #include <functional>
+#include <vector>
+#include <map>
+#include <set>
 
-#include "Map.hh"
-#include "Set.hh"
 #include "StringUtil.hh"
 #include "Network.hh"
 #include "LibertyClass.hh"
@@ -45,16 +46,14 @@ class ConcretePort;
 class ConcreteBindingTbl;
 class ConcreteLibertyLibraryIterator;
 
-typedef Vector<ConcreteLibrary*> ConcreteLibrarySeq;
-typedef Map<const char*, ConcreteLibrary*, CharPtrLess> ConcreteLibraryMap;
-typedef ConcreteLibrarySeq::ConstIterator ConcreteLibraryIterator;
-typedef Map<const char *, ConcreteInstance*,
-	    CharPtrLess> ConcreteInstanceChildMap;
-typedef Map<const char *, ConcreteNet*, CharPtrLess> ConcreteInstanceNetMap;
-typedef Vector<ConcreteNet*> ConcreteNetSeq;
-typedef Vector<ConcretePin*> ConcretePinSeq;
-typedef Map<Cell*, Instance*> CellNetworkViewMap;
-typedef Set<const ConcreteNet*> ConcreteNetSet;
+using ConcreteLibrarySeq = std::vector<ConcreteLibrary*>;
+using ConcreteLibraryMap = std::map<const char*, ConcreteLibrary*, CharPtrLess>;
+using ConcreteInstanceChildMap = std::map<const char *, ConcreteInstance*, CharPtrLess>;
+using ConcreteInstanceNetMap = std::map<const char *, ConcreteNet*, CharPtrLess>;
+using ConcreteNetSeq = std::vector<ConcreteNet*>;
+using ConcretePinSeq = std::vector<ConcretePin*>;
+using CellNetworkViewMap = std::map<Cell*, Instance*>;
+using ConcreteNetSet = std::set<const ConcreteNet*>;
 
 // This adapter implements the network api for the concrete network.
 // A superset of the Network api methods are implemented in the interface.
@@ -172,7 +171,7 @@ public:
 
   ConstantPinIterator *constantPinIterator() override;
   void addConstantNet(Net *net,
-		      LogicValue value) override;
+                      LogicValue value) override;
 
   // Edit methods.
   Library *makeLibrary(const char *name,
@@ -270,12 +269,12 @@ protected:
                           PinVisitor &visitor,
                           NetSet &visited_nets) const override;
   Instance *makeConcreteInstance(ConcreteCell *cell,
-				 const char *name,
-				 Instance *parent);
+                                 const char *name,
+                                 Instance *parent);
   void disconnectNetPin(ConcreteNet *cnet,
-			ConcretePin *cpin);
+                        ConcretePin *cpin);
   void connectNetPin(ConcreteNet *cnet,
-		     ConcretePin *cpin);
+                     ConcretePin *cpin);
 
   // Cell lookup search order sequence.
   ConcreteLibrarySeq library_seq_;
@@ -315,14 +314,14 @@ public:
   void deletePin(ConcretePin *pin);
   void addNet(ConcreteNet *net);
   void addNet(const char *name,
-	      ConcreteNet *net);
+              ConcreteNet *net);
   void deleteNet(ConcreteNet *net);
   void setCell(ConcreteCell *cell);
   void initPins();
 
 protected:
   ConcreteInstance(const char *name,
-		   ConcreteCell *cell,
+                   ConcreteCell *cell,
                    ConcreteInstance *parent);
   ~ConcreteInstance();
 
@@ -356,8 +355,8 @@ public:
 protected:
   ~ConcretePin() {}
   ConcretePin(ConcreteInstance *instance,
-	      ConcretePort *port,
-	      ConcreteNet *net);
+              ConcretePort *port,
+              ConcreteNet *net);
 
   ConcreteInstance *instance_;
   ConcretePort *port_;
@@ -386,7 +385,7 @@ public:
 protected:
   ~ConcreteTerm() {}
   ConcreteTerm(ConcretePin *pin,
-	       ConcreteNet *net);
+               ConcreteNet *net);
 
   ConcretePin *pin_;
   ConcreteNet *net_;
@@ -415,7 +414,7 @@ public:
 
 protected:
   ConcreteNet(const char *name,
-	      ConcreteInstance *instance);
+              ConcreteInstance *instance);
   ~ConcreteNet();
   const char *name_;
   ObjectId id_;

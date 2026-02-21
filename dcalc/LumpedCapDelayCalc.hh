@@ -38,32 +38,37 @@ public:
   const char *name() const override { return "lumped_cap"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   bool reduceSupported() const override { return true; }
   Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                              const Pin *drvr_pin,
                              const RiseFall *rf,
-                             const DcalcAnalysisPt *dcalc_ap) override;
+                             const Scene *scene,
+                             const MinMax *min_max) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
                                 const Parasitic *parasitic,
                                 const LoadPinIndexMap &load_pin_index_map,
-                                const DcalcAnalysisPt *dcalc_ap) override;
+                                const Scene *scene,
+                                const MinMax *min_max) override;
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
                            const Slew &in_slew,
                            float load_cap,
                            const Parasitic *parasitic,
                            const LoadPinIndexMap &load_pin_index_map,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   std::string reportGateDelay(const Pin *drvr_pin,
                               const TimingArc *arc,
                               const Slew &in_slew,
                               float load_cap,
                               const Parasitic *parasitic,
                               const LoadPinIndexMap &load_pin_index_map,
-                              const DcalcAnalysisPt *dcalc_ap,
+                              const Scene *scene,
+                              const MinMax *min_max,
                               int digits) override;
 
 protected:

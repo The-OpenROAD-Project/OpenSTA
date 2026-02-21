@@ -26,7 +26,8 @@
 
 #include <map>
 
-#include "UnorderedSet.hh"
+#include <unordered_set>
+
 #include "SdcClass.hh"
 #include "StaState.hh"
 #include "Transition.hh"
@@ -72,13 +73,15 @@ private:
   float skew_;
 };
 
-typedef std::map<const Clock*, ClkSkew[SetupHold::index_count]> ClkSkewMap;
+using ClkSkewMap = std::map<const Clock*, ClkSkew[SetupHold::index_count]>;
 
 class FanOutSrchPred : public SearchPred1
 {
 public:
   FanOutSrchPred(const StaState *sta);
-  virtual bool searchThru(Edge *edge);
+  bool searchThru(Edge *edge,
+                  const Mode *mode) const override;
+  using SearchPred1::searchThru;
 };
 
 // Find and report clock skews between source/target registers.
@@ -89,41 +92,42 @@ public:
   void clear();
   // Report clk skews for clks.
   void reportClkSkew(ConstClockSeq &clks,
-		     const Corner *corner,
-		     const SetupHold *setup_hold,
+                     const SceneSeq &scenes,
+                     const SetupHold *setup_hold,
                      bool include_internal_latency,
-		     int digits);
+                     int digits);
   // Find worst clock skew between src/target registers.
-  float findWorstClkSkew(const Corner *corner,
+  float findWorstClkSkew(const SceneSeq &scenes,
                          const SetupHold *setup_hold,
                          bool include_internal_latency);
   
 protected:
   void findClkSkew(ConstClockSeq &clks,
-                   const Corner *corner,
+                   const SceneSeq &scenes,
                    bool include_internal_latency);
   bool hasClkPaths(Vertex *vertex);
   void findClkSkewFrom(Vertex *src_vertex,
-		       ClkSkewMap &skews);
+                       ClkSkewMap &skews);
   void findClkSkewFrom(Vertex *src_vertex,
-		       Vertex *q_vertex,
-		       const RiseFallBoth *src_rf,
-		       ClkSkewMap &skews);
+                       Vertex *q_vertex,
+                       const RiseFallBoth *src_rf,
+                       ClkSkewMap &skews);
   void findClkSkew(Vertex *src_vertex,
-		   const RiseFallBoth *src_rf,
-		   Vertex *tgt_vertex,
-		   const RiseFallBoth *tgt_rf,
-		   ClkSkewMap &skews);
+                   const RiseFallBoth *src_rf,
+                   Vertex *tgt_vertex,
+                   const RiseFallBoth *tgt_rf,
+                   ClkSkewMap &skews);
   VertexSet findFanout(Vertex *from);
   void findFanout1(Vertex *from,
-                   UnorderedSet<Vertex*> &visited,
+                   std::unordered_set<Vertex*> &visited,
                    VertexSet &endpoints);
   void reportClkSkew(ClkSkew &clk_skew,
                      int digits);
 
+  // Node StaState scenes_ and modes_ are reused there.
   ConstClockSeq clks_;
   ConstClockSet clk_set_;
-  const Corner *corner_;
+  SceneSet scenes_set_;
   bool include_internal_latency_;
   FanOutSrchPred fanout_pred_;
   ClkSkewMap skews_;

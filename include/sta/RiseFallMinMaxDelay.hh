@@ -24,9 +24,29 @@
 
 #pragma once
 
+#include "MinMax.hh"
+#include "Transition.hh"
+#include "Delay.hh"
+
 namespace sta {
 
-Parasitics *
-makeConcreteParasitics(StaState *sta);
+class RiseFallMinMaxDelay
+{
+public:
+  RiseFallMinMaxDelay();
+  [[nodiscard]] bool empty() const;
+  void value(const RiseFall *rf,
+             const MinMax *min_max,
+             Delay &value,
+             bool &exists) const;
+  void mergeValue(const RiseFall *rf,
+                  const MinMax *min_max,
+                  Delay &value,
+                  const StaState *sta);
+
+private:
+  Delay values_[RiseFall::index_count][MinMax::index_count];
+  bool exists_[RiseFall::index_count][MinMax::index_count];
+};
 
 } // namespace

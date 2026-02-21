@@ -72,7 +72,7 @@
   #define vsnprint vsnprintf
 #endif
 
-#include <cstddef>		// size_t
+#include <cstddef>              // size_t
 
 namespace sta {
 

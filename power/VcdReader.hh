@@ -24,13 +24,16 @@
 
 #pragma once
 
+#include <string>
+
 namespace sta {
 
 class Sta;
 
 void
-readVcdActivities(const char *filename,
-                  const char *scope,
+readVcdActivities(const std::string &filename,
+                  const std::string &scope,
+                  const std::string &mode_name,
                   Sta *sta);
 
 } // namespace

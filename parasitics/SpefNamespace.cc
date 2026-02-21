@@ -32,7 +32,7 @@ namespace sta {
 char *
 spefToSta(const char *token,
           char spef_divider,
-	  char path_divider,
+          char path_divider,
           char path_escape)
 {
   const char spef_escape = '\\';
@@ -44,21 +44,21 @@ spefToSta(const char *token,
     if (ch == spef_escape) {
       char next_ch = s[1];
       if (next_ch == spef_divider) {
-	// Translate spef escape to network escape.
-	*t++ = path_escape;
-	// Translate spef divider to network divider.
-	*t++ = path_divider;
+        // Translate spef escape to network escape.
+        *t++ = path_escape;
+        // Translate spef divider to network divider.
+        *t++ = path_divider;
       }
       else if (next_ch == '['
-	       || next_ch == ']'
-	       || next_ch == spef_escape) {
-	// Translate spef escape to network escape.
-	*t++ = path_escape;
-	*t++ = next_ch;
+               || next_ch == ']'
+               || next_ch == spef_escape) {
+        // Translate spef escape to network escape.
+        *t++ = path_escape;
+        *t++ = next_ch;
       }
       else
-	// No need to escape other characters.
-	*t++ = next_ch;
+        // No need to escape other characters.
+        *t++ = next_ch;
       s++;
     }
     else if (ch == spef_divider)
@@ -75,7 +75,7 @@ spefToSta(const char *token,
 char *
 staToSpef(const char *token,
           char spef_divider,
-	  char path_divider,
+          char path_divider,
           char path_escape)
 {
   const char spef_escape = '\\';
@@ -87,20 +87,20 @@ staToSpef(const char *token,
     if (ch == path_escape) {
       char next_ch = s[1];
       if (next_ch == path_divider) {
-	// Translate network escape to spef escape.
-	*t++ = spef_escape;
-	// Translate network divider to spef divider.
-	*t++ = spef_divider;
+        // Translate network escape to spef escape.
+        *t++ = spef_escape;
+        // Translate network divider to spef divider.
+        *t++ = spef_divider;
       }
       else if (next_ch == '['
-	       || next_ch == ']') {
-	// Translate network escape to spef escape.
-	*t++ = spef_escape;
-	*t++ = next_ch;
+               || next_ch == ']') {
+        // Translate network escape to spef escape.
+        *t++ = spef_escape;
+        *t++ = next_ch;
       }
       else
-	// No need to escape other characters.
-	*t++ = next_ch;
+        // No need to escape other characters.
+        *t++ = next_ch;
       s++;
     }
     else if (ch == path_divider)

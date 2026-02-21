@@ -29,7 +29,7 @@
 
 namespace sta {
 
-typedef std::map<const Pin*, FloatSeq, PinIdLess> WatchPinValuesMap;
+using WatchPinValuesMap = std::map<const Pin*, FloatSeq, PinIdLess>;
 
 ArcDelayCalc *
 makeCcsCeffDelayCalc(StaState *sta);
@@ -49,14 +49,16 @@ public:
                            float load_cap,
                            const Parasitic *parasitic,
                            const LoadPinIndexMap &load_pin_index_map,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   std::string reportGateDelay(const Pin *drvr_pin,
                               const TimingArc *arc,
                               const Slew &in_slew,
                               float load_cap,
                               const Parasitic *parasitic,
                               const LoadPinIndexMap &load_pin_index_map,
-                              const DcalcAnalysisPt *dcalc_ap,
+                              const Scene *scene,
+                              const MinMax *min_max,
                               int digits) override;
 
   // Record waveform for drvr/load pin.
@@ -100,7 +102,7 @@ protected:
                             const RiseFall *in_rf,
                             const Pin *drvr_pin,
                             const RiseFall *drvr_rf,
-                            const Corner *corner,
+                            const Scene *scene,
                             const MinMax *min_max);
   Waveform drvrWaveform();
   Waveform loadWaveform(const Pin *load_pin);
@@ -109,7 +111,7 @@ protected:
                             const Pin *drvr_pin,
                             const RiseFall *drvr_rf,
                             const Pin *load_pin,
-                            const Corner *corner,
+                            const Scene *scene,
                             const MinMax *min_max);
   void vl(double t,
           double elmore,
@@ -124,6 +126,7 @@ protected:
   const RiseFall *drvr_rf_;
   double in_slew_;
   double load_cap_;
+  Parasitics *parasitics_;
   const Parasitic *parasitic_;
 
   OutputWaveforms *output_waveforms_;

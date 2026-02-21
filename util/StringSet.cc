@@ -29,11 +29,8 @@ namespace sta {
 void
 deleteContents(StringSet *strings)
 {
-  StringSet::Iterator iter(strings);
-  while (iter.hasNext()) {
-    const char *string = iter.next();
+  for (const char *string : *strings)
     stringDelete(string);
-  }
 }
 
 } // namespace

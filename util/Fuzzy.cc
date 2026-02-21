@@ -38,7 +38,7 @@ constexpr static float float_equal_tolerance = 1E-15F;
 
 bool
 fuzzyEqual(float v1,
-	   float v2)
+           float v2)
 {
   if (v1 == v2)
     return true;
@@ -59,28 +59,28 @@ fuzzyZero(float v)
 
 bool
 fuzzyLess(float v1,
-	  float v2)
+          float v2)
 {
   return v1 < v2 && !fuzzyEqual(v1, v2);
 }
 
 bool
 fuzzyLessEqual(float v1,
-	       float v2)
+               float v2)
 {
   return v1 < v2 || fuzzyEqual(v1, v2);
 }
 
 bool
 fuzzyGreater(float v1,
-	     float v2)
+             float v2)
 {
   return v1 > v2 && !fuzzyEqual(v1, v2);
 }
 
 bool
 fuzzyGreaterEqual(float v1,
-		  float v2)
+                  float v2)
 {
   return v1 > v2 || fuzzyEqual(v1, v2);
 }

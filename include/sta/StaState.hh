@@ -24,6 +24,10 @@
 
 #pragma once
 
+#include <vector>
+
+#include "Scene.hh"
+
 namespace sta {
 
 class Report;
@@ -32,8 +36,6 @@ class Units;
 class Network;
 class NetworkEdit;
 class NetworkReader;
-class Sdc;
-class Corners;
 class Graph;
 class Edge;
 class Levelize;
@@ -43,9 +45,11 @@ class Parasitics;
 class ArcDelayCalc;
 class GraphDelayCalc;
 class Latches;
-class ClkNetwork;
 class DispatchQueue;
 class Variables;
+
+using ModeSeq = std::vector<Mode*>;
+using ModeSet = std::set<Mode*>;
 
 // Most STA components use functionality in other components.
 // This class simplifies the process of copying pointers to the
@@ -81,35 +85,38 @@ public:
   // Command network uses the SDC namespace.
   Network *cmdNetwork() { return cmd_network_; }
   Network *cmdNetwork() const { return cmd_network_; }
-  Sdc *sdc() { return sdc_; }
-  Sdc *sdc() const { return sdc_; }
-  Corners *corners() { return corners_; }
-  Corners *corners() const { return corners_; }
   Graph *graph() { return graph_; }
   Graph *graph() const { return graph_; }
+  Graph *&graphRef() { return graph_; }
   Levelize *levelize() { return levelize_; }
   Levelize *levelize() const { return levelize_; }
-  Parasitics *parasitics() { return parasitics_; }
-  Parasitics *parasitics() const { return parasitics_; }
   ArcDelayCalc *arcDelayCalc() { return arc_delay_calc_; }
   ArcDelayCalc *arcDelayCalc() const { return arc_delay_calc_; }
   GraphDelayCalc *graphDelayCalc() { return graph_delay_calc_; }
   GraphDelayCalc *graphDelayCalc() const { return graph_delay_calc_; }
-  Sim *sim() { return sim_; }
-  Sim *sim() const { return sim_; }
   Search *search() { return search_; }
   Search *search() const { return search_; }
   Latches *latches() { return latches_; }
   Latches *latches() const { return latches_; }
-  ClkNetwork *clkNetwork() { return clk_network_; }
-  ClkNetwork *clkNetwork() const { return clk_network_; }
   unsigned threadCount() const { return thread_count_; }
   float sigmaFactor() const { return sigma_factor_; }
-  bool crprActive() const;
+  bool crprActive(const Mode *mode) const;
   Variables *variables() { return variables_; }
   const Variables *variables() const { return variables_; }
   // Edge is default cond disabled by timing_disable_cond_default_arcs var.
-  bool isDisabledCondDefault(Edge *edge) const;
+  [[nodiscard]] bool isDisabledCondDefault(const Edge *edge) const;
+
+  const SceneSeq &scenes() { return scenes_; }
+  const SceneSeq &scenes() const { return scenes_; }
+  bool multiScene() const { return scenes_.size() > 1; }
+  size_t scenePathCount() const;
+  DcalcAPIndex dcalcAnalysisPtCount() const;
+
+  const SceneSet scenesSet();
+
+  ModeSeq &modes() { return modes_; }
+  const ModeSeq &modes() const { return modes_; }
+  bool multiMode() const { return modes_.size() > 1; }
 
 protected:
   Report *report_;
@@ -119,17 +126,14 @@ protected:
   Network *sdc_network_;
   // Network used by command interpreter (SdcNetwork).
   Network *cmd_network_;
-  Sdc *sdc_;
-  Corners *corners_;
+  SceneSeq scenes_;
+  ModeSeq modes_;
   Graph *graph_;
   Levelize *levelize_;
-  Parasitics *parasitics_;
   ArcDelayCalc *arc_delay_calc_;
   GraphDelayCalc *graph_delay_calc_;
-  Sim *sim_;
   Search *search_;
   Latches *latches_;
-  ClkNetwork *clk_network_;
   Variables *variables_;
   int thread_count_;
   DispatchQueue *dispatch_queue_;

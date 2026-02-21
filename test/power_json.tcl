@@ -1,4 +1,4 @@
-# report_power reg1_asap7
+# report_power json
 read_liberty asap7_small.lib.gz
 read_verilog reg1_asap7.v
 link_design top

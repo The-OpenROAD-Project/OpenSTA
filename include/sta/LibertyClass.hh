@@ -25,10 +25,9 @@
 #pragma once
 
 #include <memory>
-
-#include "Vector.hh"
-#include "Map.hh"
-#include "Set.hh"
+#include <vector>
+#include <map>
+#include <set>
 
 namespace sta {
 
@@ -67,19 +66,19 @@ class ReceiverModel;
 class Statetable;
 class StatetableRow;
 
-typedef Vector<LibertyLibrary*> LibertyLibrarySeq;
-typedef Vector<LibertyCell*> LibertyCellSeq;
-typedef Vector<Sequential*> SequentialSeq;
-typedef Map<LibertyCell*, LibertyCellSeq*> LibertyCellEquivMap;
-typedef Vector<LibertyPort*> LibertyPortSeq;
-typedef Set<LibertyPort*> LibertyPortSet;
-typedef std::pair<const LibertyPort*,const LibertyPort*> LibertyPortPair;
-typedef Set<LibertyCell*> LibertyCellSet;
-typedef std::shared_ptr<Table> TablePtr;
-typedef std::shared_ptr<TimingArcAttrs> TimingArcAttrsPtr;
-typedef std::shared_ptr<TableAxis> TableAxisPtr;
-typedef std::shared_ptr<ReceiverModel> ReceiverModelPtr;
-typedef std::vector<StatetableRow> StatetableRows;
+using LibertyLibrarySeq = std::vector<LibertyLibrary*>;
+using LibertyCellSeq = std::vector<LibertyCell*>;
+using SequentialSeq = std::vector<Sequential>;
+using LibertyCellEquivMap = std::map<LibertyCell*, LibertyCellSeq*>;
+using LibertyPortSeq = std::vector<LibertyPort*>;
+using LibertyPortSet = std::set<LibertyPort*>;
+using LibertyPortPair = std::pair<const LibertyPort*,const LibertyPort*>;
+using LibertyCellSet = std::set<LibertyCell*>;
+using TablePtr = std::shared_ptr<Table>;
+using TimingArcAttrsPtr = std::shared_ptr<TimingArcAttrs>;
+using TableAxisPtr = std::shared_ptr<TableAxis>;
+using ReceiverModelPtr = std::shared_ptr<ReceiverModel>;
+using StatetableRows = std::vector<StatetableRow>;
 
 enum class ScaleFactorType : unsigned {
   pin_cap,
@@ -161,19 +160,19 @@ class LibertyPortPairLess
 {
 public:
   bool operator()(const LibertyPortPair &pair1,
-		  const LibertyPortPair &pair2) const;
+                  const LibertyPortPair &pair2) const;
 };
 
 bool
 timingArcSetLess(const TimingArcSet *set1,
-		 const TimingArcSet *set2);
+                 const TimingArcSet *set2);
 
 class TimingArcSetLess
 {
 public:
   bool
   operator()(const TimingArcSet *set1,
-	     const TimingArcSet *set2) const
+             const TimingArcSet *set2) const
   {
     return timingArcSetLess(set1, set2);
   }

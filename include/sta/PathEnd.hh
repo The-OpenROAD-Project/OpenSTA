@@ -59,13 +59,13 @@ class ReportPath;
 class PathEnd
 {
 public:
-  enum Type { unconstrained,
-	      check,
-	      data_check,
-	      latch_check,
-	      output_delay,
-	      gated_clk,
-	      path_delay
+  enum class Type { unconstrained,
+                    check,
+                    data_check,
+                    latch_check,
+                    output_delay,
+                    gated_clk,
+                    path_delay
   };
 
   virtual PathEnd *copy() const = 0;
@@ -80,8 +80,6 @@ public:
   const EarlyLate *pathEarlyLate(const StaState *sta) const;
   virtual const EarlyLate *clkEarlyLate(const StaState *sta) const;
   const RiseFall *transition(const StaState *sta) const;
-  PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
-  PathAPIndex pathIndex(const StaState *sta) const;
   virtual void reportShort(const ReportPath *report) const = 0;
   virtual void reportFull(const ReportPath *report) const = 0;
   PathGroup *pathGroup() const { return path_group_; }
@@ -89,17 +87,17 @@ public:
 
   // Predicates for PathEnd type.
   // Default methods overridden by respective types.
-  virtual bool isUnconstrained() const { return false; }
-  virtual bool isCheck() const { return false; }
-  virtual bool isDataCheck() const { return false; }
-  virtual bool isLatchCheck() const { return false; }
-  virtual bool isOutputDelay() const { return false; }
-  virtual bool isGatedClock() const { return false; }
-  virtual bool isPathDelay() const { return false; }
+  [[nodiscard]] virtual bool isUnconstrained() const { return false; }
+  [[nodiscard]] virtual bool isCheck() const { return false; }
+  [[nodiscard]] virtual bool isDataCheck() const { return false; }
+  [[nodiscard]] virtual bool isLatchCheck() const { return false; }
+  [[nodiscard]] virtual bool isOutputDelay() const { return false; }
+  [[nodiscard]] virtual bool isGatedClock() const { return false; }
+  [[nodiscard]] virtual bool isPathDelay() const { return false; }
   virtual Type type() const = 0;
   virtual const char *typeName() const = 0;
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
+                            const StaState *sta) const;
   virtual Arrival dataArrivalTime(const StaState *sta) const;
   // Arrival time with source clock offset.
   Arrival dataArrivalTimeOffset(const StaState *sta) const;
@@ -154,20 +152,20 @@ public:
   virtual bool ignoreClkLatency(const StaState * /* sta */) const { return false; }
 
   static bool less(const PathEnd *path_end1,
-		   const PathEnd *path_end2,
-		   const StaState *sta);
+                   const PathEnd *path_end2,
+                   const StaState *sta);
   static int cmp(const PathEnd *path_end1,
-		 const PathEnd *path_end2,
-		 const StaState *sta);
+                 const PathEnd *path_end2,
+                 const StaState *sta);
   static int cmpSlack(const PathEnd *path_end1,
-		      const PathEnd *path_end2,
-		      const StaState *sta);
+                      const PathEnd *path_end2,
+                      const StaState *sta);
   static int cmpArrival(const PathEnd *path_end1,
-			const PathEnd *path_end2,
-			const StaState *sta);
+                        const PathEnd *path_end2,
+                        const StaState *sta);
   static int cmpNoCrpr(const PathEnd *path_end1,
-		       const PathEnd *path_end2,
-		       const StaState *sta);
+                       const PathEnd *path_end2,
+                       const StaState *sta);
 
   // Helper common to multiple PathEnd classes and used
   // externally.
@@ -177,43 +175,43 @@ public:
                                 const TimingRole *check_role,
                                 const StaState *sta);
   static void checkTgtClkDelay(const Path *tgt_clk_path,
-			       const ClockEdge *tgt_clk_edge,
-			       const TimingRole *check_role,
-			       const StaState *sta,
-			       // Return values.
-			       Delay &insertion,
-			       Delay &latency);
+                               const ClockEdge *tgt_clk_edge,
+                               const TimingRole *check_role,
+                               const StaState *sta,
+                               // Return values.
+                               Delay &insertion,
+                               Delay &latency);
   static float checkClkUncertainty(const ClockEdge *src_clk_edge,
-				   const ClockEdge *tgt_clk_edge,
-				   const Path *tgt_clk_path,
-				   const TimingRole *check_role,
-				   const StaState *sta);
+                                   const ClockEdge *tgt_clk_edge,
+                                   const Path *tgt_clk_path,
+                                   const TimingRole *check_role,
+                                   const Sdc *sdc);
   // Non inter-clock uncertainty.
   static float checkTgtClkUncertainty(const Path *tgt_clk_path,
                                       const ClockEdge *tgt_clk_edge,
                                       const TimingRole *check_role,
                                       const StaState *sta);
   static float checkSetupMcpAdjustment(const ClockEdge *src_clk_edge,
-				       const ClockEdge *tgt_clk_edge,
-				       const MultiCyclePath *mcp,
-				       int default_cycles,
-				       Sdc *sdc);
+                                       const ClockEdge *tgt_clk_edge,
+                                       const MultiCyclePath *mcp,
+                                       int default_cycles,
+                                       Sdc *sdc);
 
 protected:
   PathEnd(Path *path);
   static void checkInterClkUncertainty(const ClockEdge *src_clk_edge,
-				       const ClockEdge *tgt_clk_edge,
-				       const TimingRole *check_role,
-				       const StaState *sta,
-				       float &uncertainty,
-				       bool &exists);
+                                       const ClockEdge *tgt_clk_edge,
+                                       const TimingRole *check_role,
+                                       const Sdc *sdc,
+                                       float &uncertainty,
+                                       bool &exists);
   static float outputDelayMargin(OutputDelay *output_delay,
-				 const Path *path,
-				 const StaState *sta);
+                                 const Path *path,
+                                 const StaState *sta);
   static float pathDelaySrcClkOffset(const Path *path,
-				     PathDelay *path_delay,
-				     Arrival src_clk_arrival,
-				     const StaState *sta);
+                                     PathDelay *path_delay,
+                                     Arrival src_clk_arrival,
+                                     const StaState *sta);
   static bool ignoreClkLatency(const Path *path,
                                PathDelay *path_delay,
                                const StaState *sta);
@@ -224,7 +222,7 @@ protected:
 class PathEndUnconstrained : public PathEnd
 {
 public:
-  explicit PathEndUnconstrained(Path *path);
+  PathEndUnconstrained(Path *path);
   virtual Type type() const;
   virtual const char *typeName() const;
   virtual PathEnd *copy() const;
@@ -262,21 +260,21 @@ public:
   virtual Slack slack(const StaState *sta) const;
   virtual Slack slackNoCrpr(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
+                            const StaState *sta) const;
   virtual void setPath(Path *path);
 
 protected:
   PathEndClkConstrained(Path *path,
-			Path *clk_path);
+                        Path *clk_path);
   PathEndClkConstrained(Path *path,
-			Path *clk_path,
-			Crpr crpr,
-			bool crpr_valid);
+                        Path *clk_path,
+                        Crpr crpr,
+                        bool crpr_valid);
 
   float sourceClkOffset(const ClockEdge *src_clk_edge,
-			const ClockEdge *tgt_clk_edge,
-			const TimingRole *check_role,
-			const StaState *sta) const;
+                        const ClockEdge *tgt_clk_edge,
+                        const TimingRole *check_role,
+                        const StaState *sta) const;
   // Internal to slackNoCrpr.
   virtual Arrival targetClkArrivalNoCrpr(const StaState *sta) const;
   virtual Required requiredTimeNoCrpr(const StaState *sta) const;
@@ -292,24 +290,24 @@ public:
   virtual MultiCyclePath *multiCyclePath() const { return mcp_; }
   virtual float targetClkMcpAdjustment(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
+                            const StaState *sta) const;
 
 protected:
   PathEndClkConstrainedMcp(Path *path,
-			   Path *clk_path,
-			   MultiCyclePath *mcp);
+                           Path *clk_path,
+                           MultiCyclePath *mcp);
   PathEndClkConstrainedMcp(Path *path,
-			   Path *clk_path,
-			   MultiCyclePath *mcp,
-			   Crpr crpr,
-			   bool crpr_valid);
+                           Path *clk_path,
+                           MultiCyclePath *mcp,
+                           Crpr crpr,
+                           bool crpr_valid);
   float checkMcpAdjustment(const Path *path,
-			   const ClockEdge *tgt_clk_edge,
-			   const StaState *sta) const;
+                           const ClockEdge *tgt_clk_edge,
+                           const StaState *sta) const;
   void findHoldMcps(const ClockEdge *tgt_clk_edge,
-		    const MultiCyclePath *&setup_mcp,
-		    const MultiCyclePath *&hold_mcp,
-		    const StaState *sta) const;
+                    const MultiCyclePath *&setup_mcp,
+                    const MultiCyclePath *&hold_mcp,
+                    const StaState *sta) const;
 
   MultiCyclePath *mcp_;
 };
@@ -319,11 +317,11 @@ class PathEndCheck : public PathEndClkConstrainedMcp
 {
 public:
   PathEndCheck(Path *path,
-	       TimingArc *check_arc,
-	       Edge *check_edge,
-	       Path *clk_path,
-	       MultiCyclePath *mcp,
-	       const StaState *sta);
+               TimingArc *check_arc,
+               Edge *check_edge,
+               Path *clk_path,
+               MultiCyclePath *mcp,
+               const StaState *sta);
   virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
@@ -335,17 +333,17 @@ public:
   virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual TimingArc *checkArc() const { return check_arc_; }
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
+                            const StaState *sta) const;
   virtual Delay clkSkew(const StaState *sta);
 
 protected:
   PathEndCheck(Path *path,
-	       TimingArc *check_arc,
-	       Edge *check_edge,
-	       Path *clk_path,
-	       MultiCyclePath *mcp,
-	       Crpr crpr,
-	       bool crpr_valid);
+               TimingArc *check_arc,
+               Edge *check_edge,
+               Path *clk_path,
+               MultiCyclePath *mcp,
+               Crpr crpr,
+               bool crpr_valid);
   Delay sourceClkDelay(const StaState *sta) const;
   virtual Required requiredTimeNoCrpr(const StaState *sta) const;
 
@@ -358,12 +356,12 @@ class PathEndLatchCheck : public PathEndCheck
 {
 public:
   PathEndLatchCheck(Path *path,
-		    TimingArc *check_arc,
-		    Edge *check_edge,
-		    Path *disable_path,
-		    MultiCyclePath *mcp,
-		    PathDelay *path_delay,
-		    const StaState *sta);
+                    TimingArc *check_arc,
+                    Edge *check_edge,
+                    Path *disable_path,
+                    MultiCyclePath *mcp,
+                    PathDelay *path_delay,
+                    const StaState *sta);
   virtual Type type() const;
   virtual const char *typeName() const;
   virtual float sourceClkOffset(const StaState *sta) const;
@@ -382,36 +380,36 @@ public:
   virtual float targetClkOffset(const StaState *sta) const;
   Arrival targetClkWidth(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
+                            const StaState *sta) const;
   void latchRequired(const StaState *sta,
-		     // Return values.
-		     Required &required,
-		     Delay &borrow,
-		     Arrival &adjusted_data_arrival,
-		     Delay &time_given_to_startpoint) const;
+                     // Return values.
+                     Required &required,
+                     Delay &borrow,
+                     Arrival &adjusted_data_arrival,
+                     Delay &time_given_to_startpoint) const;
   void latchBorrowInfo(const StaState *sta,
-		       // Return values.
-		       float &nom_pulse_width,
-		       Delay &open_latency,
-		       Delay &latency_diff,
-		       float &open_uncertainty,
-		       Crpr &open_crpr,
-		       Crpr &crpr_diff,
-		       Delay &max_borrow,
-		       bool &borrow_limit_exists) const;  
+                       // Return values.
+                       float &nom_pulse_width,
+                       Delay &open_latency,
+                       Delay &latency_diff,
+                       float &open_uncertainty,
+                       Crpr &open_crpr,
+                       Crpr &crpr_diff,
+                       Delay &max_borrow,
+                       bool &borrow_limit_exists) const;  
   virtual bool ignoreClkLatency(const StaState *sta) const;
 
 protected:
   PathEndLatchCheck(Path *path,
-		    TimingArc *check_arc,
-		    Edge *check_edge,
-		    Path *clk_path,
-		    Path *disable,
-		    MultiCyclePath *mcp,
-		    PathDelay *path_delay,
-		    Delay src_clk_arrival,
-		    Crpr crpr,
-		    bool crpr_valid);
+                    TimingArc *check_arc,
+                    Edge *check_edge,
+                    Path *clk_path,
+                    Path *disable,
+                    MultiCyclePath *mcp,
+                    PathDelay *path_delay,
+                    Delay src_clk_arrival,
+                    Crpr crpr,
+                    bool crpr_valid);
 
 private:
   Path *disable_path_;
@@ -427,10 +425,10 @@ class PathEndOutputDelay : public PathEndClkConstrainedMcp
 {
 public:
   PathEndOutputDelay(OutputDelay *output_delay,
-		     Path *path,
-		     Path *clk_path,
-		     MultiCyclePath *mcp,
-		     const StaState *sta);
+                     Path *path,
+                     Path *clk_path,
+                     MultiCyclePath *mcp,
+                     const StaState *sta);
   virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
@@ -445,24 +443,24 @@ public:
   virtual Delay targetClkInsertionDelay(const StaState *sta) const;
   virtual Crpr crpr(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
+                            const StaState *sta) const;
 
 protected:
   PathEndOutputDelay(OutputDelay *output_delay,
-		     Path *path,
-		     Path *clk_path,
-		     MultiCyclePath *mcp,
-		     Crpr crpr,
-		     bool crpr_valid);
+                     Path *path,
+                     Path *clk_path,
+                     MultiCyclePath *mcp,
+                     Crpr crpr,
+                     bool crpr_valid);
   Arrival tgtClkDelay(const ClockEdge *tgt_clk_edge,
-		      const TimingRole *check_role,
-		      const StaState *sta) const;
+                      const TimingRole *check_role,
+                      const StaState *sta) const;
   void tgtClkDelay(const ClockEdge *tgt_clk_edge,
-		   const TimingRole *check_role,
-		   const StaState *sta,
-		   // Return values.
-		   Arrival &insertion,
-		   Arrival &latency) const;
+                   const TimingRole *check_role,
+                   const StaState *sta,
+                   // Return values.
+                   Arrival &insertion,
+                   Arrival &latency) const;
 
   OutputDelay *output_delay_;
 };
@@ -472,11 +470,11 @@ class PathEndGatedClock : public PathEndClkConstrainedMcp
 {
 public:
   PathEndGatedClock(Path *gating_ref,
-		    Path *clk_path,
-		    const TimingRole *check_role,
-		    MultiCyclePath *mcp,
-		    ArcDelay margin,
-		    const StaState *sta);
+                    Path *clk_path,
+                    const TimingRole *check_role,
+                    MultiCyclePath *mcp,
+                    ArcDelay margin,
+                    const StaState *sta);
   virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
@@ -486,16 +484,16 @@ public:
   virtual ArcDelay margin(const StaState *) const { return margin_; }
   virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
+                            const StaState *sta) const;
 
 protected:
   PathEndGatedClock(Path *gating_ref,
-		    Path *clk_path,
-		    const TimingRole *check_role,
-		    MultiCyclePath *mcp,
-		    ArcDelay margin,
-		    Crpr crpr,
-		    bool crpr_valid);
+                    Path *clk_path,
+                    const TimingRole *check_role,
+                    MultiCyclePath *mcp,
+                    ArcDelay margin,
+                    Crpr crpr,
+                    bool crpr_valid);
 
   const TimingRole *check_role_;
   ArcDelay margin_;
@@ -505,10 +503,10 @@ class PathEndDataCheck : public PathEndClkConstrainedMcp
 {
 public:
   PathEndDataCheck(DataCheck *check,
-		   Path *data_path,
-		   Path *data_clk_path,
-		   MultiCyclePath *mcp,
-		   const StaState *sta);
+                   Path *data_path,
+                   Path *data_clk_path,
+                   MultiCyclePath *mcp,
+                   const StaState *sta);
   virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
@@ -519,17 +517,17 @@ public:
   virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual ArcDelay margin(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
+                            const StaState *sta) const;
   virtual const Path *dataClkPath() const { return data_clk_path_; }
 
 protected:
   PathEndDataCheck(DataCheck *check,
-		   Path *data_path,
-		   Path *data_clk_path,
-		   Path *clk_path,
-		   MultiCyclePath *mcp,
-		   Crpr crpr,
-		   bool crpr_valid);
+                   Path *data_path,
+                   Path *data_clk_path,
+                   Path *clk_path,
+                   MultiCyclePath *mcp,
+                   Crpr crpr,
+                   bool crpr_valid);
   Path *clkPath(Path *path,
                 const StaState *sta);
   Arrival requiredTimeNoCrpr(const StaState *sta) const;
@@ -549,20 +547,20 @@ class PathEndPathDelay : public PathEndClkConstrained
 public:
   // Vanilla path delay.
   PathEndPathDelay(PathDelay *path_delay,
-		   Path *path,
-		   const StaState *sta);
+                   Path *path,
+                   const StaState *sta);
   // Path delay to timing check.
   PathEndPathDelay(PathDelay *path_delay,
-		   Path *path,
-		   Path *clk_path,
-		   TimingArc *check_arc,
-		   Edge *check_edge,
-		   const StaState *sta);
+                   Path *path,
+                   Path *clk_path,
+                   TimingArc *check_arc,
+                   Edge *check_edge,
+                   const StaState *sta);
   // Path delay to output with set_output_delay.
   PathEndPathDelay(PathDelay *path_delay,
-		   Path *path,
-		   OutputDelay *output_delay,
-		   const StaState *sta);
+                   Path *path,
+                   OutputDelay *output_delay,
+                   const StaState *sta);
   virtual PathEnd *copy() const;
   virtual Type type() const;
   virtual const char *typeName() const;
@@ -581,20 +579,20 @@ public:
   virtual TimingArc *checkArc() const { return check_arc_; }
   virtual Required requiredTime(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
-			    const StaState *sta) const;
-  bool hasOutputDelay() const { return output_delay_ != nullptr; }
+                            const StaState *sta) const;
+  [[nodiscard]] bool hasOutputDelay() const { return output_delay_ != nullptr; }
   virtual bool ignoreClkLatency(const StaState *sta) const;
 
 protected:
   PathEndPathDelay(PathDelay *path_delay,
-		   Path *path,
-		   Path *clk_path,
-		   TimingArc *check_arc,
-		   Edge *check_edge,
-		   OutputDelay *output_delay,
-		   Arrival src_clk_arrival,
-		   Crpr crpr,
-		   bool crpr_valid);
+                   Path *path,
+                   Path *clk_path,
+                   TimingArc *check_arc,
+                   Edge *check_edge,
+                   OutputDelay *output_delay,
+                   Arrival src_clk_arrival,
+                   Crpr crpr,
+                   bool crpr_valid);
   void findSrcClkArrival(const StaState *sta);
 
   PathDelay *path_delay_;
@@ -613,9 +611,9 @@ protected:
 class PathEndLess
 {
 public:
-  explicit PathEndLess(const StaState *sta);
+  PathEndLess(const StaState *sta);
   bool operator()(const PathEnd *path_end1,
-		  const PathEnd *path_end2) const;
+                  const PathEnd *path_end2) const;
 
 protected:
   const StaState *sta_;
@@ -625,9 +623,9 @@ protected:
 class PathEndSlackLess
 {
 public:
-  explicit PathEndSlackLess(const StaState *sta);
+  PathEndSlackLess(const StaState *sta);
   bool operator()(const PathEnd *path_end1,
-		  const PathEnd *path_end2) const;
+                  const PathEnd *path_end2) const;
 
 protected:
   const StaState *sta_;
@@ -636,9 +634,9 @@ protected:
 class PathEndNoCrprLess
 {
 public:
-  explicit PathEndNoCrprLess(const StaState *sta);
+  PathEndNoCrprLess(const StaState *sta);
   bool operator()(const PathEnd *path_end1,
-		  const PathEnd *path_end2) const;
+                  const PathEnd *path_end2) const;
 
 protected:
   const StaState *sta_;

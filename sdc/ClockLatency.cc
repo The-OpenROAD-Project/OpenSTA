@@ -27,7 +27,7 @@
 namespace sta {
 
 ClockLatency::ClockLatency(const Clock *clk,
-			   const Pin *pin) :
+                           const Pin *pin) :
   clk_(clk),
   pin_(pin)
 {
@@ -35,15 +35,15 @@ ClockLatency::ClockLatency(const Clock *clk,
 
 void
 ClockLatency::setDelay(const RiseFallBoth *rf,
-		       const MinMaxAll *min_max,
-		       float delay)
+                       const MinMaxAll *min_max,
+                       float delay)
 {
   delays_.setValue(rf, min_max, delay);
 }
 
 float
 ClockLatency::delay(const RiseFall *rf,
-		    const MinMax *min_max)
+                    const MinMax *min_max)
 {
   float latency;
   bool exists;
@@ -56,10 +56,10 @@ ClockLatency::delay(const RiseFall *rf,
 
 void
 ClockLatency::delay(const RiseFall *rf,
-		    const MinMax *min_max,
-		    // Return values.
-		    float &latency,
-		    bool &exists)
+                    const MinMax *min_max,
+                    // Return values.
+                    float &latency,
+                    bool &exists)
 
 {
   delays_.value(rf, min_max, latency, exists);
@@ -69,8 +69,8 @@ ClockLatency::delay(const RiseFall *rf,
 
 void
 ClockLatency::setDelay(const RiseFall *rf,
-		       const MinMax *min_max,
-		       float delay)
+                       const MinMax *min_max,
+                       float delay)
 {
   delays_.setValue(rf, min_max, delay);
 }

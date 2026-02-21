@@ -58,8 +58,8 @@ protected:
 class CheckLinearModel : public CheckTimingModel
 {
 public:
-  explicit CheckLinearModel(LibertyCell *cell,
-                            float intrinsic);
+  CheckLinearModel(LibertyCell *cell,
+                   float intrinsic);
   ArcDelay checkDelay(const Pvt *pvt,
                       float from_slew,
                       float to_slew,

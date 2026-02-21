@@ -28,28 +28,28 @@
 
 namespace sta {
 
-typedef const std::function<void (double x,
-                                  // Return values.
-                                  double &y,
-                                  double &dy)> FindRootFunc;
+using FindRootFunc = const std::function<void (double x,
+                                                 // Return values.
+                                                 double &y,
+                                                 double &dy)>;
 
 double
 findRoot(FindRootFunc func,
-	 double x1,
-	 double x2,
-	 double x_tol,
-	 int max_iter,
+         double x1,
+         double x2,
+         double x_tol,
+         int max_iter,
          // Return value.
          bool &fail);
 
 double
 findRoot(FindRootFunc func,
-	 double x1,
-	 double y1,
+         double x1,
+         double y1,
          double x2,
-	 double y2,
-	 double x_tol,
-	 int max_iter,
+         double y2,
+         double x_tol,
+         int max_iter,
          // Return value.
          bool &fail);
 

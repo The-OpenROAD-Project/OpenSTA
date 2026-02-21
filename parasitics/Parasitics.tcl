@@ -25,7 +25,8 @@
 namespace eval sta {
 
 define_cmd_args "read_spef" \
-  {[-corner corner]\
+  {[-name spef_name]
+   [-corner corner]\
      [-min]\
      [-max]\
      [-path path]\
@@ -33,16 +34,19 @@ define_cmd_args "read_spef" \
      [-keep_capacitive_coupling]\
      [-coupling_reduction_factor factor]\
      [-reduce]\
-     [-delete_after_reduce]\
      filename}
 
+# -scene/-min/-max are for compatibilty, Deprecated 11/21/2025
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
-    keys {-path -coupling_reduction_factor -corner -name} \
+    keys {-name -path -coupling_reduction_factor -corner} \
     flags {-min -max -increment -pin_cap_included -keep_capacitive_coupling -reduce}
-  check_argc_eq1 "read_spef" $args
 
-  set reduce [info exists flags(-reduce)]
+  check_argc_eq1 "read_spef" $args
+  set name ""
+  if [info exists keys(-name)] {
+    set name $keys(-name)
+  }
   set instance [top_instance]
   if [info exists keys(-path)] {
     set path $keys(-path)
@@ -51,7 +55,7 @@ proc_redirect read_spef {
       sta_error 276 "path instance '$path' not found."
     }
   }
-  set corner [parse_corner_or_all keys]
+  set scene [parse_scene_or_null keys]
   set min_max [parse_min_max_all_flags flags]
   set coupling_reduction_factor 1.0
   if [info exists keys(-coupling_reduction_factor)] {
@@ -60,22 +64,28 @@ proc_redirect read_spef {
   }
   set keep_coupling_caps [info exists flags(-keep_capacitive_coupling)]
   set pin_cap_included [info exists flags(-pin_cap_included)]
+  set reduce [info exists flags(-reduce)]
 
   set filename [file nativename [lindex $args 0]]
-  return [read_spef_cmd $filename $instance $corner $min_max \
-	    $pin_cap_included $keep_coupling_caps \
+  return [read_spef_cmd $name $filename $instance $scene $min_max \
+            $pin_cap_included $keep_coupling_caps \
             $coupling_reduction_factor $reduce]
 }
 
-define_cmd_args "report_parasitic_annotation" {[-report_unannotated]}
+define_cmd_args "report_parasitic_annotation" {[-name spef_name]\
+                                               [-report_unannotated]}
 
 proc_redirect report_parasitic_annotation {
   parse_key_args "report_parasitic_annotation" args \
-    keys {} flags {-report_unannotated}
+    keys {-name} flags {-report_unannotated}
   check_argc_eq0 "report_parasitic_annotation" $args
 
+  set spef_name ""
+  if { [info exists keys(-name)] } {
+    set spef_name $keys(-name)
+  }
   set report_unannotated [info exists flags(-report_unannotated)]
-  report_parasitic_annotation_cmd $report_unannotated [sta::cmd_corner]
+  report_parasitic_annotation_cmd $spef_name $report_unannotated
 }
 
 # set_pi_model [-min] [-max] drvr_pin c2 rpi c1

@@ -37,26 +37,31 @@ public:
   const char *name() const override { return "unit"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   bool reduceSupported() const override { return false; }
   Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                              const Pin *drvr_pin,
                              const RiseFall *rf,
-                             const DcalcAnalysisPt *dcalc_ap) override;
+                             const Scene *scene,
+                             const MinMax *min_max) override;
   void reduceParasitic(const Parasitic *parasitic_network,
                        const Net *net,
-                       const Corner *corner,
+                       const Scene *scene,
                        const MinMaxAll *min_max) override;
   void setDcalcArgParasiticSlew(ArcDcalcArg &gate,
-                                const DcalcAnalysisPt *dcalc_ap) override;
+                                const Scene *scene,
+                                const MinMax *min_max) override;
   void setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
-                                const DcalcAnalysisPt *dcalc_ap) override;
+                                const Scene *scene,
+                                const MinMax *min_max) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
                                 const Parasitic *parasitic,
                                 const LoadPinIndexMap &load_pin_index_map,
-                                const DcalcAnalysisPt *dcalc_ap) override;
+                                const Scene *scene,
+                const MinMax *min_max) override;
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
                            const Slew &in_slew,
@@ -64,23 +69,27 @@ public:
                            float load_cap,
                            const Parasitic *parasitic,
                            const LoadPinIndexMap &load_pin_index_map,
-                           const DcalcAnalysisPt *dcalc_ap) override;
+                           const Scene *scene,
+                           const MinMax *min_max) override;
   ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &args,
                                const LoadPinIndexMap &load_pin_index_map,
-                               const DcalcAnalysisPt *dcalc_ap) override;
+                               const Scene *scene,
+                               const MinMax *min_max) override;
   ArcDelay checkDelay(const Pin *check_pin,
                       const TimingArc *arc,
                       const Slew &from_slew,
                       const Slew &to_slew,
                       float related_out_cap,
-                      const DcalcAnalysisPt *dcalc_ap) override;
+                      const Scene *scene,
+                      const MinMax *min_max) override;
   std::string reportGateDelay(const Pin *drvr_pin,
                               const TimingArc *arc,
                               const Slew &in_slew,
                               float load_cap,
                               const Parasitic *parasitic,
                               const LoadPinIndexMap &load_pin_index_map,
-                              const DcalcAnalysisPt *dcalc_ap,
+                              const Scene *scene,
+                              const MinMax *min_max,
                               int digits) override;
   std::string reportCheckDelay(const Pin *check_pin,
                                const TimingArc *arc,
@@ -88,7 +97,8 @@ public:
                                const char *from_slew_annotation,
                                const Slew &to_slew,
                                float related_out_cap,
-                               const DcalcAnalysisPt *dcalc_ap,
+                               const Scene *scene,
+                               const MinMax *min_max,
                                int digits) override;
   void finishDrvrPin() override;
 

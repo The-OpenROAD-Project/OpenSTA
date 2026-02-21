@@ -46,25 +46,25 @@ InputDrive::~InputDrive()
 
 void
 InputDrive::setSlew(const RiseFallBoth *rf,
-		    const MinMaxAll *min_max,
-		    float slew)
+                    const MinMaxAll *min_max,
+                    float slew)
 {
   slews_.setValue(rf, min_max, slew);
 }
 
 void
 InputDrive::setDriveResistance(const RiseFallBoth *rf,
-			       const MinMaxAll *min_max,
-			       float res)
+                               const MinMaxAll *min_max,
+                               float res)
 {
   drive_resistances_.setValue(rf, min_max, res);
 }
 
 void
 InputDrive::driveResistance(const RiseFall *rf,
-			    const MinMax *min_max,
-			    float &res,
-			    bool &exists) const
+                            const MinMax *min_max,
+                            float &res,
+                            bool &exists) const
 {
   drive_resistances_.value(rf, min_max, res, exists);
 }
@@ -88,27 +88,27 @@ InputDrive::driveResistanceMinMaxEqual(const RiseFall *rf) const
 
 void
 InputDrive::setDriveCell(const LibertyLibrary *library,
-			 const LibertyCell *cell,
-			 const LibertyPort *from_port,
-			 float *from_slews,
-			 const LibertyPort *to_port,
-			 const RiseFallBoth *rf,
-			 const MinMaxAll *min_max)
+                         const LibertyCell *cell,
+                         const LibertyPort *from_port,
+                         float *from_slews,
+                         const LibertyPort *to_port,
+                         const RiseFallBoth *rf,
+                         const MinMaxAll *min_max)
 {
   for (auto rf_index : rf->rangeIndex()) {
     for (auto mm_index : min_max->rangeIndex()) {
       InputDriveCell *drive = drive_cells_[rf_index][mm_index];
       if (drive) {
-	drive->setLibrary(library);
-	drive->setCell(cell);
-	drive->setFromPort(from_port);
-	drive->setFromSlews(from_slews);
-	drive->setToPort(to_port);
+        drive->setLibrary(library);
+        drive->setCell(cell);
+        drive->setFromPort(from_port);
+        drive->setFromSlews(from_slews);
+        drive->setToPort(to_port);
       }
       else {
-	drive = new InputDriveCell(library, cell, from_port,
-				   from_slews, to_port);
-	drive_cells_[rf_index][mm_index] = drive;
+        drive = new InputDriveCell(library, cell, from_port,
+                                   from_slews, to_port);
+        drive_cells_[rf_index][mm_index] = drive;
       }
     }
   }
@@ -116,12 +116,12 @@ InputDrive::setDriveCell(const LibertyLibrary *library,
 
 void
 InputDrive::driveCell(const RiseFall *rf,
-		      const MinMax *min_max,
+                      const MinMax *min_max,
                       // Return values.
-		      const LibertyCell *&cell,
-		      const LibertyPort *&from_port,
-		      float *&from_slews,
-		      const LibertyPort *&to_port) const
+                      const LibertyCell *&cell,
+                      const LibertyPort *&from_port,
+                      float *&from_slews,
+                      const LibertyPort *&to_port) const
 {
   InputDriveCell *drive = drive_cells_[rf->index()][min_max->index()];
   if (drive) {
@@ -140,14 +140,14 @@ InputDrive::driveCell(const RiseFall *rf,
 
 InputDriveCell *
 InputDrive::driveCell(const RiseFall *rf,
-		      const MinMax *min_max) const
+                      const MinMax *min_max) const
 {
   return drive_cells_[rf->index()][min_max->index()];
 }
 
 bool
 InputDrive::hasDriveCell(const RiseFall *rf,
-			 const MinMax *min_max) const
+                         const MinMax *min_max) const
 {
   return drive_cells_[rf->index()][min_max->index()] != nullptr;
 }
@@ -170,9 +170,9 @@ InputDrive::driveCellsEqual() const
 
 void
 InputDrive::slew(const RiseFall *rf,
-		 const MinMax *min_max,
-		 float &slew,
-		 bool &exists) const
+                 const MinMax *min_max,
+                 float &slew,
+                 bool &exists) const
 {
   slews_.value(rf, min_max, slew, exists);
 }
@@ -180,10 +180,10 @@ InputDrive::slew(const RiseFall *rf,
 ////////////////////////////////////////////////////////////////
 
 InputDriveCell::InputDriveCell(const LibertyLibrary *library,
-			       const LibertyCell *cell,
-			       const LibertyPort *from_port,
-			       float *from_slews,
-			       const LibertyPort *to_port) :
+                               const LibertyCell *cell,
+                               const LibertyPort *from_port,
+                               float *from_slews,
+                               const LibertyPort *to_port) :
   library_(library),
   cell_(cell),
   from_port_(from_port),

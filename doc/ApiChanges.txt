@@ -24,6 +24,44 @@
 
 This file summarizes STA API changes for each release.
 
+Release 3.0.0 2025/01/03
+------------------------
+
+OpenSTA now requires c++ 20.
+
+Corner replaced by Scene
+ mode()
+ parasitics(min_max)
+DcalcAnalysisPt replaced by scene/min_min
+PathAnalysisPt replaced by scene/min_min
+StaState::sdc_ moved to Mode
+StaState::sim_ moved to Mode
+StaState::clk_network__ moved to Mode
+StaState::parasitics_  moved to Scene
+
+Sta::findPathEnds group_paths arg has been changed from PathGroupNameSet*
+to StdStringSeq&.
+
+Sta::isClock has been removed. Use mode->clkNetwork()->isClock instead.
+
+Sta::vertexSlew renamed to slew
+Sta::vertexSlack renamed to slack
+Sta::vertexSlacks renamed to slacks
+Sta::vertexArrival renamed to arrival
+Sta::vertexRequired renamed to required
+Sta::pinSlack renamed to slack
+Sta::pinArrival renamed to arrival
+
+FuncExpr::Operator::op_* renamed to FuncExpr::Op::*
+FuncExprPortIterator has been removed. Use FuncExpr::ports().
+
+Sdc::clocks() now returns ClockSeq&.
+Sdc::clks() has been removed.
+
+The Vector/Map/Set/UnorderedSet classes have been removed and replaced by
+the std containers. The member functions are now templated functions found
+in ContainerHelpers.hh.
+
 Release 2.6.2 2025/03/30
 ------------------------
 

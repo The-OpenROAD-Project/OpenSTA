@@ -25,9 +25,9 @@
 #pragma once
 
 #include <mutex>
+#include <array>
+#include <map>
 
-#include "Map.hh"
-#include "Set.hh"
 #include "MinMax.hh"
 #include "Parasitics.hh"
 
@@ -36,24 +36,31 @@ namespace sta {
 class ConcreteParasitic;
 class ConcreteParasiticNetwork;
 
-typedef Map<const Pin*, ConcreteParasitic**> ConcreteParasiticMap;
-typedef Map<const Net*, ConcreteParasiticNetwork**> ConcreteParasiticNetworkMap;
+constexpr size_t min_max_rise_fall_count = MinMax::index_count * RiseFall::index_count;
+// Min/maxrise/fall reduced parasitics for each driver pin.
+// When min parastitic network != max parasitic network only
+// the min values are populated for the min parasitics and
+// max values for max parasitics.
+using MinMaxRiseFallParasitics = std::array<ConcreteParasitic*, min_max_rise_fall_count>;
+using ConcreteParasiticMap = std::map<const Pin*, MinMaxRiseFallParasitics>;
+using ConcreteParasiticNetworkMap = std::map<const Net*, ConcreteParasiticNetwork>;
 
 // This class acts as a BUILDER for parasitics.
 class ConcreteParasitics : public Parasitics
 {
 public:
-  ConcreteParasitics(StaState *sta);
+  ConcreteParasitics(std::string name,
+                     std::string filename,
+                     StaState *sta);
   virtual ~ConcreteParasitics();
+  const std::string &name() const override { return name_; };
+  const std::string &filename() const override { return filename_; };
   bool haveParasitics() override;
   void clear() override;
 
   void deleteParasitics() override;
-  void deleteParasitics(const Net *net,
-                        const ParasiticAnalysisPt *ap) override;
-  void deleteParasitics(const Pin *drvr_pin,
-                        const ParasiticAnalysisPt *ap) override;
-  void deleteParasitics(const Pin *drvr_pin);
+  void deleteParasitics(const Net *net) override;
+  void deleteParasitics(const Pin *drvr_pin) override;
 
   bool isReducedParasiticNetwork(const Parasitic *parasitic) const override;
   void setIsReducedParasiticNetwork(Parasitic *parasitic,
@@ -64,10 +71,10 @@ public:
   bool isPiElmore(const Parasitic *parasitic) const override;
   Parasitic *findPiElmore(const Pin *drvr_pin,
                           const RiseFall *rf,
-                          const ParasiticAnalysisPt *ap) const override;
+                          const MinMax *min_max) const override;
   Parasitic *makePiElmore(const Pin *drvr_pin,
                           const RiseFall *rf,
-                          const ParasiticAnalysisPt *ap,
+                          const MinMax *min_max,
                           float c2,
                           float rpi,
                           float c1) override;
@@ -93,13 +100,15 @@ public:
   bool isPiPoleResidue(const Parasitic* parasitic) const override;
   Parasitic *findPiPoleResidue(const Pin *drvr_pin,
                                const RiseFall *rf,
-                               const ParasiticAnalysisPt *ap) const override;
+                               const MinMax *min_max) const override;
   Parasitic *findPoleResidue(const Parasitic *parasitic,
                              const Pin *load_pin) const override;
   Parasitic *makePiPoleResidue(const Pin *drvr_pin,
                                const RiseFall *rf,
-                               const ParasiticAnalysisPt *ap,
-                               float c2, float rpi, float c1) override;
+                               const MinMax *min_max,
+                               float c2,
+                               float rpi,
+                               float c1) override;
   void setPoleResidue(Parasitic *parasitic, const Pin *load_pin,
                       ComplexFloatSeq *poles,
                       ComplexFloatSeq *residues) override;
@@ -111,16 +120,11 @@ public:
                    ComplexFloat &residue) const override;
 
   bool isParasiticNetwork(const Parasitic *parasitic) const override;
-  Parasitic *findParasiticNetwork(const Net *net,
-                                  const ParasiticAnalysisPt *ap) const override;
-  Parasitic *findParasiticNetwork(const Pin *pin,
-                                  const ParasiticAnalysisPt *ap) const override;
+  Parasitic *findParasiticNetwork(const Net *net) override;
+  Parasitic *findParasiticNetwork(const Pin *pin)  override;
   Parasitic *makeParasiticNetwork(const Net *net,
-                                  bool includes_pin_caps,
-                                  const ParasiticAnalysisPt *ap) override;
-  void deleteParasiticNetwork(const Net *net,
-                              const ParasiticAnalysisPt *ap) override;
-  void deleteParasiticNetworks(const Net *net) override;
+                                  bool includes_pin_caps) override;
+  void deleteParasiticNetwork(const Net *net) override;
   const Net *net(const Parasitic *parasitic) const override;
   bool includesPinCaps(const Parasitic *parasitic) const override;
   ParasiticNode *findParasiticNode(Parasitic *parasitic,
@@ -171,23 +175,20 @@ public:
   PinSet unannotatedLoads(const Parasitic *parasitic,
                           const Pin *drvr_pin) const override;
 
-  void disconnectPinBefore(const Pin *pin,
-                           const Network *network) override;
+  void disconnectPinBefore(const Pin *pin) override;
   void deletePinBefore(const Pin *pin) override;
   void loadPinCapacitanceChanged(const Pin *pin) override;
 
-  void deleteReducedParasitics(const Net *net,
-                               const ParasiticAnalysisPt *ap) override;
+  void deleteReducedParasitics(const Net *net) override;
   void deleteDrvrReducedParasitics(const Pin *drvr_pin) override;
 
 protected:
-  int parasiticAnalysisPtIndex(const ParasiticAnalysisPt *ap,
-			       const RiseFall *rf) const;
   Parasitic *ensureRspf(const Pin *drvr_pin);
   void makeAnalysisPtAfter();
   void deleteReducedParasitics(const Pin *pin);
-  void deleteDrvrReducedParasitics(const Pin *drvr_pin,
-                                   const ParasiticAnalysisPt *ap);
+
+  std::string name_;
+  std::string filename_;
 
   // Driver pin to array of parasitics indexed by analysis pt index
   // and transition.

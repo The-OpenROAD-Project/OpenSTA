@@ -32,7 +32,6 @@ Variables::Variables() :
   propagate_gated_clock_enable_(true),
   preset_clr_arcs_enabled_(false),
   cond_default_arcs_enabled_(true),
-  bidirect_net_paths_enabled_(false),
   bidirect_inst_paths_enabled_(false),
   recovery_removal_checks_enabled_(true),
   gated_clk_checks_enabled_(true),
@@ -78,12 +77,6 @@ void
 Variables::setBidirectInstPathsEnabled(bool enabled)
 {
   bidirect_inst_paths_enabled_ = enabled;
-}
-
-void
-Variables::setBidirectNetPathsEnabled(bool enabled)
-{
-  bidirect_net_paths_enabled_ = enabled;
 }
 
 void

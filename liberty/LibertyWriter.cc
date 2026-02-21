@@ -218,7 +218,7 @@ LibertyWriter::writeTableTemplate(const TableTemplate *tbl_template)
   const TableAxis *axis3 = tbl_template->axis3();
   // skip scalar templates
   if (axis1) {
-    fprintf(stream_, "  lu_table_template(%s) {\n", tbl_template->name());
+    fprintf(stream_, "  lu_table_template(%s) {\n", tbl_template->name().c_str());
     fprintf(stream_, "    variable_1 : %s;\n",
             tableVariableString(axis1->variable()));
     if (axis2)
@@ -227,11 +227,11 @@ LibertyWriter::writeTableTemplate(const TableTemplate *tbl_template)
     if (axis3)
       fprintf(stream_, "    variable_3 : %s;\n",
               tableVariableString(axis3->variable()));
-    if (axis1 && axis1->values())
+    if (axis1 && !axis1->values().empty())
       writeTableAxis4(axis1, 1);
-    if (axis2 && axis2->values())
+    if (axis2 && !axis2->values().empty())
       writeTableAxis4(axis2, 2);
-    if (axis3 && axis3->values())
+    if (axis3 && !axis3->values().empty())
       writeTableAxis4(axis3, 3);
     fprintf(stream_, "  }\n");
   }
@@ -268,7 +268,7 @@ LibertyWriter::writeBusDcls()
 {
   BusDclSeq dcls = library_->busDcls();
   for (BusDcl *dcl : dcls) {
-    fprintf(stream_, "  type (\"%s\") {\n", dcl->name());
+    fprintf(stream_, "  type (\"%s\") {\n", dcl->name().c_str());
     fprintf(stream_, "    base_type : array;\n");
     fprintf(stream_, "    data_type : bit;\n");
     fprintf(stream_, "    bit_width : %d;\n", abs(dcl->from() - dcl->to() + 1));
@@ -312,7 +312,7 @@ LibertyWriter::writeCell(const LibertyCell *cell)
     const LibertyPort *port = port_iter.next();
     if (!port->direction()->isInternal()) {
       if (port->isPwrGnd())
-	writePwrGndPort(port);
+        writePwrGndPort(port);
       else if (port->isBus())
         writeBusPort(port);
       else if (port->isBundle())
@@ -333,7 +333,7 @@ LibertyWriter::writeBusPort(const LibertyPort *port)
 {
   fprintf(stream_, "    bus(\"%s\") {\n", port->name());
   if (port->busDcl())
-    fprintf(stream_, "      bus_type : %s;\n", port->busDcl()->name());
+    fprintf(stream_, "      bus_type : %s;\n", port->busDcl()->name().c_str());
   writePortAttrs(port);
 
   LibertyPortMemberIterator member_iter(port);
@@ -364,15 +364,16 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
     fprintf(stream_, "      function : \"%s\";\n", func->to_string().c_str());
   auto tristate_enable = port->tristateEnable();
   if (tristate_enable) {
-    if (tristate_enable->op() == FuncExpr::op_not) {
+    if (tristate_enable->op() == FuncExpr::Op::not_) {
       FuncExpr *three_state = tristate_enable->left();
       fprintf(stream_, "      three_state : \"%s\";\n",
               three_state->to_string().c_str());
     }
     else {
-      FuncExpr three_state(FuncExpr::op_not, tristate_enable, nullptr, nullptr);
+      FuncExpr *three_state = tristate_enable->copy()->invert();
       fprintf(stream_, "      three_state : \"%s\";\n",
-              three_state.to_string().c_str());
+              three_state->to_string().c_str());
+      delete three_state;
     }
   }
   if (port->isClock())
@@ -391,7 +392,7 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
     fprintf(stream_, "      max_capacitance : %s;\n",
             cap_unit_->asString(limit, 3));
 
-  for (TimingArcSet *arc_set : port->libertyCell()->timingArcSets(nullptr,port)) {
+  for (TimingArcSet *arc_set : port->libertyCell()->timingArcSetsTo(port)) {
     if (!isAutoWidthArc(port, arc_set))
       writeTimingArcSet(arc_set);
   }
@@ -459,25 +460,25 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
   const CheckTableModel *check_model = dynamic_cast<CheckTableModel*>(model);
   if (gate_model) {
     const TableModel *delay_model = gate_model->delayModel();
-    const char *template_name = delay_model->tblTemplate()->name();
-    fprintf(stream_, "	cell_%s(%s) {\n", rf->name(), template_name);
+    const std::string &template_name = delay_model->tblTemplate()->name();
+    fprintf(stream_, "        cell_%s(%s) {\n", rf->name(), template_name.c_str());
     writeTableModel(delay_model);
-    fprintf(stream_, "	}\n");
+    fprintf(stream_, "        }\n");
 
     const TableModel *slew_model = gate_model->slewModel();
     if (slew_model) {
-      template_name = slew_model->tblTemplate()->name();
-      fprintf(stream_, "	%s_transition(%s) {\n", rf->name(), template_name);
+      const std::string &slew_template_name = slew_model->tblTemplate()->name();
+      fprintf(stream_, "        %s_transition(%s) {\n", rf->name(), slew_template_name.c_str());
       writeTableModel(slew_model);
-      fprintf(stream_, "	}\n");
+      fprintf(stream_, "        }\n");
     }
   }
   else if (check_model) {
     const TableModel *model = check_model->model();
-    const char *template_name = model->tblTemplate()->name();
-    fprintf(stream_, "	%s_constraint(%s) {\n", rf->name(), template_name);
+    const std::string &template_name = model->tblTemplate()->name();
+    fprintf(stream_, "        %s_constraint(%s) {\n", rf->name(), template_name.c_str());
     writeTableModel(model);
-    fprintf(stream_, "	}\n");
+    fprintf(stream_, "        }\n");
   }
   else
     report_->error(1341, "%s/%s/%s timing model not supported.",

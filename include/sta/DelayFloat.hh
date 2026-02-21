@@ -32,9 +32,9 @@ namespace sta {
 
 class StaState;
 
-typedef float Delay;
+using Delay = float;
 // Delay double for accumulating Delays.
-typedef double DelayDbl;
+using DelayDbl = double;
 
 const Delay delay_zero = 0.0;
 
@@ -43,29 +43,29 @@ initDelayConstants();
 
 const char *
 delayAsString(const Delay &delay,
-	      const StaState *sta);
+              const StaState *sta);
 const char *
 delayAsString(const Delay &delay,
-	      const StaState *sta,
-	      int digits);
+              const StaState *sta,
+              int digits);
 const char *
 delayAsString(const Delay &delay,
-	      const EarlyLate *early_late,
-	      const StaState *sta,
-	      int digits);
+              const EarlyLate *early_late,
+              const StaState *sta,
+              int digits);
 
 inline Delay
 makeDelay(float delay,
-	  float,
-	  float)
+          float,
+          float)
 {
   return delay;
 }
 
 inline Delay
 makeDelay2(float delay,
-	   float,
-	   float)
+           float,
+           float)
 {
   return delay;
 }
@@ -79,15 +79,15 @@ delayAsFloat(const Delay &delay)
 // mean late+/early- sigma
 inline float
 delayAsFloat(const Delay &delay,
-	     const EarlyLate *,
-	     const StaState *)
+             const EarlyLate *,
+             const StaState *)
 {
   return delay;
 }
 
 inline float
 delaySigma2(const Delay &,
-	    const EarlyLate *)
+            const EarlyLate *)
 {
   return 0.0;
 }
@@ -96,57 +96,57 @@ const Delay &
 delayInitValue(const MinMax *min_max);
 bool
 delayIsInitValue(const Delay &delay,
-		 const MinMax *min_max);
+                 const MinMax *min_max);
 bool
 delayZero(const Delay &delay);
 bool
 delayInf(const Delay &delay);
 bool
 delayEqual(const Delay &delay1,
-	   const Delay &delay2);
+           const Delay &delay2);
 bool
 delayLess(const Delay &delay1,
-	  const Delay &delay2,
-	  const StaState *sta);
+          const Delay &delay2,
+          const StaState *sta);
 bool
 delayLess(const Delay &delay1,
-	  const Delay &delay2,
-	  const MinMax *min_max,
-	  const StaState *sta);
+          const Delay &delay2,
+          const MinMax *min_max,
+          const StaState *sta);
 bool
 delayLessEqual(const Delay &delay1,
-	       const Delay &delay2,
-	       const StaState *sta);
+               const Delay &delay2,
+               const StaState *sta);
 bool
 delayLessEqual(const Delay &delay1,
-	       const Delay &delay2,
-	       const MinMax *min_max,
-	       const StaState *sta);
+               const Delay &delay2,
+               const MinMax *min_max,
+               const StaState *sta);
 bool
 delayGreater(const Delay &delay1,
-	     const Delay &delay2,
-	     const StaState *sta);
+             const Delay &delay2,
+             const StaState *sta);
 bool
 delayGreaterEqual(const Delay &delay1,
-		  const Delay &delay2,
-		  const StaState *sta);
+                  const Delay &delay2,
+                  const StaState *sta);
 bool
 delayGreaterEqual(const Delay &delay1,
-		  const Delay &delay2,
-		  const MinMax *min_max,
-		  const StaState *sta);
+                  const Delay &delay2,
+                  const MinMax *min_max,
+                  const StaState *sta);
 bool
 delayGreater(const Delay &delay1,
-	     const Delay &delay2,
-	     const MinMax *min_max,
-	     const StaState *sta);
+             const Delay &delay2,
+             const MinMax *min_max,
+             const StaState *sta);
 
 // delay1-delay2 subtracting sigma instead of addiing.
 Delay
 delayRemove(const Delay &delay1,
-	    const Delay &delay2);
+            const Delay &delay2);
 float
 delayRatio(const Delay &delay1,
-	   const Delay &delay2);
+           const Delay &delay2);
 
 } // namespace

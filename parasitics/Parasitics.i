@@ -38,31 +38,33 @@ using sta::Pin;
 %inline %{
 
 bool
-read_spef_cmd(const char *filename,
-	      Instance *instance,
-	      const Corner *corner,
+read_spef_cmd(const char *name,
+              const char *filename,
+              Instance *instance,
+              Scene *scene,
               const MinMaxAll *min_max,
-	      bool pin_cap_included,
-	      bool keep_coupling_caps,
-	      float coupling_cap_factor,
-	      bool reduce)
+              bool pin_cap_included,
+              bool keep_coupling_caps,
+              float coupling_cap_factor,
+              bool reduce)
 {
-  return Sta::sta()->readSpef(filename, instance, corner, min_max,
-			      pin_cap_included, keep_coupling_caps,
+  return Sta::sta()->readSpef(name, filename, instance,
+                              scene, min_max,
+                              pin_cap_included, keep_coupling_caps,
                               coupling_cap_factor, reduce);
 }
 
 void
-report_parasitic_annotation_cmd(bool report_unannotated,
-                                const Corner *corner)
+report_parasitic_annotation_cmd(const char *spef_name,
+                                bool report_unannotated)
 {
-  Sta::sta()->reportParasiticAnnotation(report_unannotated, corner);
+  Sta::sta()->reportParasiticAnnotation(spef_name, report_unannotated);
 }
 
 FloatSeq
 find_pi_elmore(Pin *drvr_pin,
-	       RiseFall *rf,
-	       MinMax *min_max)
+               RiseFall *rf,
+               MinMax *min_max)
 {
   float c2, rpi, c1;
   bool exists;
@@ -78,9 +80,9 @@ find_pi_elmore(Pin *drvr_pin,
 
 float
 find_elmore(Pin *drvr_pin,
-	    Pin *load_pin,
-	    RiseFall *rf,
-	    MinMax *min_max)
+            Pin *load_pin,
+            RiseFall *rf,
+            MinMax *min_max)
 {
   float elmore = 0.0;
   bool exists;
@@ -90,21 +92,21 @@ find_elmore(Pin *drvr_pin,
 
 void
 set_pi_model_cmd(Pin *drvr_pin,
-		 RiseFall *rf,
-		 MinMaxAll *min_max,
-		 float c2,
-		 float rpi,
-		 float c1)
+                 RiseFall *rf,
+                 MinMaxAll *min_max,
+                 float c2,
+                 float rpi,
+                 float c1)
 {
   Sta::sta()->makePiElmore(drvr_pin, rf, min_max, c2, rpi, c1);
 }
 
 void
 set_elmore_cmd(Pin *drvr_pin,
-	       Pin *load_pin,
-	       RiseFall *rf,
-	       MinMaxAll *min_max,
-	       float elmore)
+               Pin *load_pin,
+               RiseFall *rf,
+               MinMaxAll *min_max,
+               float elmore)
 {
   Sta::sta()->setElmore(drvr_pin, load_pin, rf, min_max, elmore);
 }

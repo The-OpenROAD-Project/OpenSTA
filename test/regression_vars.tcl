@@ -56,10 +56,6 @@ if { [exec "uname"] == "Darwin" } {
   append valgrind_options " --dsymutil=yes"
 }
 
-proc cleanse_logfile { test log_file } {
-  # Nothing to be done here.
-}
-
 ################################################################
 
 # Record a test in the regression suite.
@@ -136,6 +132,7 @@ proc record_example_tests { tests } {
 record_example_tests {
   delay_calc
   min_max_delays
+  mcmm3
   multi_corner
   power
   power_vcd
