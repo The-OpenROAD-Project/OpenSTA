@@ -164,10 +164,10 @@ ClkLatency::findClkDelays(ConstClockSeq &clks,
       Path *path = path_iter.next();
       const ClockEdge *path_clk_edge = path->clkEdge(this);
       const Scene *path_scene = path->scene(this);
-      const Clock *path_clk = path_clk_edge->clock();
       if (path_clk_edge
           && scenes.contains(path_scene)
-          && clk_set.contains(path_clk)) {
+          && clk_set.contains(path_clk_edge->clock())) {
+        const Clock *path_clk = path_clk_edge->clock();
         auto delays_itr = clk_delay_map.find(path_clk);
         if (delays_itr != clk_delay_map.end()) {
           ClkDelays &clk_delays = delays_itr->second;
