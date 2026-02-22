@@ -2,6 +2,29 @@
 # Targets: LibertyWriter.cc, LibertyReader.cc (more paths), LibertyBuilder.cc
 source ../../test/helpers.tcl
 
+proc assert_written_liberty {path lib_name} {
+  if {![file exists $path]} {
+    error "missing written liberty file: $path"
+  }
+  if {[file size $path] <= 0} {
+    error "written liberty file is empty: $path"
+  }
+
+  set in [open $path r]
+  set text [read $in]
+  close $in
+
+  if {[string first "library (" $text] < 0} {
+    error "written liberty file has no library block: $path"
+  }
+  if {[string first $lib_name $text] < 0} {
+    error "written liberty file does not contain library name '$lib_name': $path"
+  }
+  if {![regexp {cell[[:space:]]*\(} $text]} {
+    error "written liberty file has no cell blocks: $path"
+  }
+}
+
 ############################################################
 # Read and write various libraries
 ############################################################
@@ -11,24 +34,28 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 
 set outfile1 [make_result_file liberty_write_nangate.lib]
 sta::write_liberty NangateOpenCellLibrary $outfile1
+assert_written_liberty $outfile1 NangateOpenCellLibrary
 
 # Read ASAP7 SEQ (exercises different cell types)
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 
 set outfile2 [make_result_file liberty_write_asap7_seq.lib]
 sta::write_liberty asap7sc7p5t_SEQ_RVT_FF_nldm_220123 $outfile2
+assert_written_liberty $outfile2 asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 
 # Read ASAP7 SIMPLE (combinational cells)
 read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz
 
 set outfile3 [make_result_file liberty_write_asap7_simple.lib]
 sta::write_liberty asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120 $outfile3
+assert_written_liberty $outfile3 asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
 
 # Read IHP library
 read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
 
 set outfile4 [make_result_file liberty_write_ihp.lib]
 sta::write_liberty sg13g2_stdcell_typ_1p20V_25C $outfile4
+assert_written_liberty $outfile4 sg13g2_stdcell_typ_1p20V_25C
 
 # Read Sky130 library
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
@@ -114,3 +141,7 @@ read_liberty ../../test/sky130hs/sky130_fd_sc_hs__tt_025C_1v80.lib
 
 # GF180MCU SRAM
 read_liberty ../../test/gf180mcu_sram.lib.gz
+
+if {[llength [get_libs *]] < 20} {
+  error "expected to load many liberty libraries, but got [llength [get_libs *]]"
+}

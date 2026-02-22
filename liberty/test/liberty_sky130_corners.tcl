@@ -2,12 +2,14 @@
 source ../../test/helpers.tcl
 
 ############################################################
-# Define corners and read Sky130HD libraries per corner
+# Define corners and read Sky130HD libraries with explicit -max/-min views
 ############################################################
 define_corners fast slow
 
-read_liberty -corner fast ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
-read_liberty -corner slow ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
+read_liberty -corner fast -max ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+read_liberty -corner fast -min ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+read_liberty -corner slow -min ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
+read_liberty -corner slow -max ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
 
 ############################################################
 # Read design and link
@@ -38,6 +40,22 @@ report_checks -corner fast -path_delay min
 
 puts "--- Slow corner, min ---"
 report_checks -corner slow -path_delay min
+
+# Additional non-printing checks ensure report_checks emits corner-specific paths
+# for both max and min views loaded with -max/-min.
+with_output_to_variable fast_max_rep {
+  report_checks -corner fast -path_delay max
+}
+if {![regexp {Corner:\s+fast} $fast_max_rep] || ![regexp {Path Type:\s+max} $fast_max_rep]} {
+  error "fast corner max report did not include expected corner/path markers"
+}
+
+with_output_to_variable slow_min_rep {
+  report_checks -corner slow -path_delay min
+}
+if {![regexp {Corner:\s+slow} $slow_min_rep] || ![regexp {Path Type:\s+min} $slow_min_rep]} {
+  error "slow corner min report did not include expected corner/path markers"
+}
 
 ############################################################
 # Comprehensive cell reports - fast corner library
@@ -79,7 +97,7 @@ foreach cell_name {sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__buf_1
                    sky130_fd_sc_hd__dfxtp_1 sky130_fd_sc_hd__dlxtp_1
                    sky130_fd_sc_hd__sdfxtp_1 sky130_fd_sc_hd__ebufn_1
                    sky130_fd_sc_hd__mux2_1 sky130_fd_sc_hd__fa_1} {
-  set cell [get_lib_cell sky130_fd_sc_hd__ss_n40C_1v40/$cell_name]
+  set cell [lindex [get_lib_cell sky130_fd_sc_hd__ss_n40C_1v40/$cell_name] 0]
   set area [get_property $cell area]
   set du [get_property $cell dont_use]
   puts "$cell_name: area=$area dont_use=$du"
@@ -104,7 +122,7 @@ foreach {cell_name pin_name} {
   sky130_fd_sc_hd__dfrtp_1 RESET_B
   sky130_fd_sc_hd__dfrtp_1 Q
 } {
-  set pin [get_lib_pin sky130_fd_sc_hd__ff_n40C_1v95/$cell_name/$pin_name]
+  set pin [lindex [get_lib_pin sky130_fd_sc_hd__ff_n40C_1v95/$cell_name/$pin_name] 0]
   set cap [get_property $pin capacitance]
   set dir [sta::liberty_port_direction $pin]
   puts "$cell_name/$pin_name: cap=$cap dir=$dir"

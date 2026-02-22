@@ -1,4 +1,3 @@
 --- Test 5: complex bus with removes ---
-Warning: verilog_remove_cells_complex.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
-Warning: verilog_remove_cells_complex.tcl line 1, object 'NangateOpenCellLibrary/DFF_X1' not found.
-complex remove sizes: buf=2075 dff=2075
+complex remove sizes: buf=1552 dff=1571
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
