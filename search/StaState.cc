@@ -26,6 +26,7 @@
 
 #include <limits>
 
+#include "ContainerHelpers.hh"
 #include "DispatchQueue.hh"
 #include "Units.hh"
 #include "Network.hh"
@@ -33,6 +34,8 @@
 #include "Sdc.hh"
 #include "Graph.hh"
 #include "TimingArc.hh"
+#include "Mode.hh"
+#include "Scene.hh"
 
 namespace sta {
 
@@ -41,17 +44,12 @@ StaState::StaState() :
   debug_(nullptr),
   units_(nullptr),
   network_(nullptr),
-  sdc_(nullptr),
-  corners_(nullptr),
   graph_(nullptr),
   levelize_(nullptr),
-  parasitics_(nullptr),
   arc_delay_calc_(nullptr),
   graph_delay_calc_(nullptr),
-  sim_(nullptr),
   search_(nullptr),
   latches_(nullptr),
-  clk_network_(nullptr),
   variables_(nullptr),
   thread_count_(1),
   dispatch_queue_(nullptr),
@@ -113,17 +111,60 @@ StaState::setDebug(Debug *debug)
 }
 
 bool
-StaState::crprActive() const
+StaState::crprActive(const Mode *mode) const
 {
-  return sdc_->analysisType() == AnalysisType::ocv
+  return mode->sdc()->analysisType() == AnalysisType::ocv
     && variables_->crprEnabled();
 }
 
 bool
-StaState::isDisabledCondDefault(Edge *edge) const
+StaState::isDisabledCondDefault(const Edge *edge) const
 {
   return !variables_->condDefaultArcsEnabled()
     && edge->timingArcSet()->isCondDefault();
 }
+
+////////////////////////////////////////////////////////////////
+
+size_t
+StaState::scenePathCount() const
+{
+  return scenes_.size() * MinMax::index_count;
+}
+
+// The clock insertion delay (source latency) required for setup and
+// hold checks is:
+//
+// hold check
+// report_timing -delay_type min
+//          path insertion pll_delay
+//  src clk  min   early    max
+//  tgt clk  max   late     min
+//
+// setup check
+// report_timing -delay_type max
+//          path insertion pll_delay
+//  src clk  max   late     min
+//  tgt clk  min   early    max
+//
+// For analysis type single or bc_wc only one path is required, but as
+// shown above both early and late insertion delays are required.
+// To find propagated generated clock insertion delays both early and
+// late clock network paths are required. Thus, analysis type single
+// makes min and max analysis points.
+// Only one of them is enabled to "report paths".
+
+DcalcAPIndex
+StaState::dcalcAnalysisPtCount() const
+{
+  return MinMax::index_count * scenes_.size();
+}
+
+const SceneSet
+StaState::scenesSet()
+{
+  return Scene::sceneSet(scenes_);
+}
+
 
 } // namespace

@@ -36,6 +36,7 @@ public:
                LibertyPort *related_pg_port,
                FuncExpr *when,
                float power);
+  LeakagePower(LeakagePower &&other) noexcept;
   ~LeakagePower();
   LibertyCell *libertyCell() const { return cell_; }
   LibertyPort *relatedPgPort() const { return related_pg_port_; }

@@ -32,39 +32,42 @@
 
 namespace sta {
 
-typedef MinMaxIntValues FanoutValues;
+using FanoutValues = MinMaxIntValues;
 
 // Port external pin and wire capacitance (set_load -pin_load -wire_load).
 class PortExtCap
 {
 public:
-  PortExtCap(const Port *port);
+  PortExtCap();
   const Port *port() { return port_; }
   void pinCap(const RiseFall *rf,
-	      const MinMax *min_max,
-	      // Return values.
-	      float &cap,
-              bool &exists);
-  RiseFallMinMax *pinCap() { return &pin_cap_; }
-  void setPinCap(float cap,
-		 const RiseFall *rf,
-		 const MinMax *min_max);
+              const MinMax *min_max,
+              // Return values.
+              float &cap,
+              bool &exists) const;
+  const RiseFallMinMax *pinCap() const { return &pin_cap_; }
+  void setPinCap(const Port *port,
+                 float cap,
+                 const RiseFall *rf,
+                 const MinMax *min_max);
   void wireCap(const RiseFall *rf,
-	       const MinMax *min_max,
-	       // Return values.
-	       float &cap,
-               bool &exists);
-  RiseFallMinMax *wireCap() { return &wire_cap_; }
-  void setWireCap(float cap,
-		  const RiseFall *rf,
-		  const MinMax *min_max);
-  void setFanout(int fanout,
-		 const MinMax *min_max);
+               const MinMax *min_max,
+               // Return values.
+               float &cap,
+               bool &exists) const;
+  const RiseFallMinMax *wireCap() const { return &wire_cap_; }
+  void setWireCap(const Port *port,
+                  float cap,
+                  const RiseFall *rf,
+                  const MinMax *min_max);
+  void setFanout(const Port *port,
+                 int fanout,
+                 const MinMax *min_max);
   void fanout(const MinMax *min_max,
-	      // Return values.
-	      int &fanout,
-	      bool &exists);
-  FanoutValues *fanout() { return &fanout_; }
+              // Return values.
+              int &fanout,
+              bool &exists) const;
+  const FanoutValues *fanout() const { return &fanout_; }
 
 private:
   const Port *port_;

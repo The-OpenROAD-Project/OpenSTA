@@ -30,8 +30,7 @@
 #include "TimingArc.hh"
 #include "Network.hh"
 #include "Graph.hh"
-#include "Corner.hh"
-#include "DcalcAnalysisPt.hh"
+#include "Scene.hh"
 #include "Parasitics.hh"
 #include "GraphDelayCalc.hh"
 #include "DmpDelayCalc.hh"
@@ -86,17 +85,20 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
                             float load_cap,
                             const Parasitic *parasitic,
                             const LoadPinIndexMap &load_pin_index_map,
-                            const DcalcAnalysisPt *dcalc_ap)
+                            const Scene *scene,
+                            const MinMax *min_max)
 {
   in_slew_ = delayAsFloat(in_slew);
   load_cap_ = load_cap;
+  parasitics_ = scene->parasitics(min_max);
   parasitic_ = parasitic;
   output_waveforms_ = nullptr;
 
-  GateTableModel *table_model = arc->gateTableModel(dcalc_ap);
+  GateTableModel *table_model = arc->gateTableModel(scene, min_max);
   if (table_model && parasitic) {
     OutputWaveforms *output_waveforms = table_model->outputWaveforms();
-    parasitics_->piModel(parasitic, c2_, rpi_, c1_);
+    Parasitics *parasitics = scene->parasitics(min_max);
+    parasitics->piModel(parasitic, c2_, rpi_, c1_);
     if (output_waveforms
         && rpi_ > 0.0 && c1_ > 0.0
         // Bounds check because extrapolating waveforms does not work for shit.
@@ -114,8 +116,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
       vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
       vh_ = drvr_library->slewUpperThreshold(drvr_rf_) * vdd_;
 
-      const DcalcAnalysisPtSeq &dcalc_aps = corners_->dcalcAnalysisPts();
-      drvr_cell->ensureVoltageWaveforms(dcalc_aps);
+      drvr_cell->ensureVoltageWaveforms(scenes_);
       in_slew_ = delayAsFloat(in_slew);
       output_waveforms_ = output_waveforms;
       ref_time_ = output_waveforms_->referenceTime(in_slew_);
@@ -129,7 +130,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
     }
   }
   return table_dcalc_->gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
-                                 load_pin_index_map, dcalc_ap);
+                                 load_pin_index_map, scene, min_max);
 }
 
 void
@@ -529,12 +530,13 @@ CcsCeffDelayCalc::drvrWaveform()
       }
     }
     TableAxisPtr drvr_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                         drvr_times);
-    Table1 drvr_table(drvr_volts, drvr_time_axis);
+                                                         std::move(*drvr_times));
+    delete drvr_times;
+    Table drvr_table(drvr_volts, drvr_time_axis);
     return drvr_table;
   }
   else
-    return Table1();
+    return Table();
 }
 
 Waveform
@@ -560,12 +562,13 @@ CcsCeffDelayCalc::loadWaveform(const Pin *load_pin)
         load_volts->push_back(v1);
       }
       TableAxisPtr load_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                           load_times);
-      Table1 load_table(load_volts, load_time_axis);
+                                                           std::move(*load_times));
+      delete load_times;
+      Table load_table(load_volts, load_time_axis);
       return load_table;
     }
   }
-  return Table1();
+  return Table();
 }
 
 Waveform
@@ -574,7 +577,7 @@ CcsCeffDelayCalc::drvrRampWaveform(const Pin *in_pin,
                                    const Pin *drvr_pin,
                                    const RiseFall *drvr_rf,
                                    const Pin *load_pin,
-                                   const Corner *corner,
+                                   const Scene *scene,
                                    const MinMax *min_max)
 {
   bool elmore_exists = false;
@@ -582,7 +585,7 @@ CcsCeffDelayCalc::drvrRampWaveform(const Pin *in_pin,
   if (parasitic_) {
     parasitics_->findElmore(parasitic_, load_pin, elmore, elmore_exists);
     bool dcalc_success = makeWaveformPreamble(in_pin, in_rf, drvr_pin,
-                                              drvr_rf, corner, min_max);
+                                              drvr_rf, scene, min_max);
     if (dcalc_success
         && elmore_exists) {
       FloatSeq *load_times = new FloatSeq;
@@ -604,12 +607,13 @@ CcsCeffDelayCalc::drvrRampWaveform(const Pin *in_pin,
         load_volts->push_back(v1);
       }
       TableAxisPtr load_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                           load_times);
-      Table1 load_table(load_volts, load_time_axis);
+                                                           std::move(*load_times));
+      delete load_times;
+      Table load_table(load_volts, load_time_axis);
       return load_table;
     }
   }
-  return Table1();
+  return Table();
 }
 
 bool
@@ -617,7 +621,7 @@ CcsCeffDelayCalc::makeWaveformPreamble(const Pin *in_pin,
                                        const RiseFall *in_rf,
                                        const Pin *drvr_pin,
                                        const RiseFall *drvr_rf,
-                                       const Corner *corner,
+                                       const Scene *scene,
                                        const MinMax *min_max)
 {
   Vertex *in_vertex = graph_->pinLoadVertex(in_pin);
@@ -641,15 +645,15 @@ CcsCeffDelayCalc::makeWaveformPreamble(const Pin *in_pin,
       }
     }
     if (arc) {
-      DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-      const Slew &in_slew = graph_->slew(in_vertex, in_rf, dcalc_ap->index());
-      parasitic_ = arc_delay_calc_->findParasitic(drvr_pin, drvr_rf, dcalc_ap);
+      DcalcAPIndex slew_index = scene->dcalcAnalysisPtIndex(min_max);
+      const Slew &in_slew = graph_->slew(in_vertex, in_rf, slew_index);
+      parasitic_ = arc_delay_calc_->findParasitic(drvr_pin, drvr_rf, scene, min_max);
       if (parasitic_) {
         parasitics_->piModel(parasitic_, c2_, rpi_, c1_);
         LoadPinIndexMap load_pin_index_map =
           graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
         gateDelay(drvr_pin, arc, in_slew, load_cap_, parasitic_,
-                  load_pin_index_map, dcalc_ap);
+                  load_pin_index_map, scene, min_max);
         return true;
       }
     }
@@ -666,20 +670,19 @@ CcsCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                   float load_cap,
                                   const Parasitic *parasitic,
                                   const LoadPinIndexMap &load_pin_index_map,
-                                  const DcalcAnalysisPt *dcalc_ap,
+                                  const Scene *scene,
+                                  const MinMax *min_max,
                                   int digits)
 {
   Parasitic *pi_elmore = nullptr;
   const RiseFall *rf = arc->toEdge()->asRiseFall();
   if (parasitic && !parasitics_->isPiElmore(parasitic)) {
-    const ParasiticAnalysisPt *ap = dcalc_ap->parasiticAnalysisPt();
     pi_elmore = parasitics_->reduceToPiElmore(parasitic, drvr_pin_, rf,
-                                               dcalc_ap->corner(),
-                                               dcalc_ap->constraintMinMax(), ap);
+                                               scene, min_max);
   }
   string report = table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap,
                                                 pi_elmore, load_pin_index_map,
-                                                dcalc_ap, digits);
+                                                scene, min_max, digits);
   parasitics_->deleteDrvrReducedParasitics(drvr_pin);
   return report;
 }

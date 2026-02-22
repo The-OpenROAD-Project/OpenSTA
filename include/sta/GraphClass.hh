@@ -25,10 +25,10 @@
 #pragma once
 
 #include <limits>
+#include <vector>
+#include <set>
 
 #include "ObjectId.hh"
-#include "Set.hh"
-#include "Vector.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
 #include "Delay.hh"
@@ -42,19 +42,29 @@ class Edge;
 class VertexIterator;
 class VertexInEdgeIterator;
 class VertexOutEdgeIterator;
-class GraphLoop;
-class VertexSet;
 
-typedef ObjectId VertexId;
-typedef ObjectId EdgeId;
-typedef Vector<Vertex*> VertexSeq;
-typedef Vector<Edge*> EdgeSeq;
-typedef Set<Edge*> EdgeSet;
-typedef int Level;
-typedef int DcalcAPIndex;
-typedef int TagGroupIndex;
-typedef Vector<GraphLoop*> GraphLoopSeq;
-typedef std::vector<Slew> SlewSeq;
+class VertexIdLess
+{
+public:
+  VertexIdLess() = delete;
+  VertexIdLess(Graph *&graph);
+  bool operator()(const Vertex *vertex1,
+                  const Vertex *vertex2) const;
+
+private:
+  Graph *&graph_;
+};
+
+using VertexId = ObjectId;
+using EdgeId = ObjectId;
+using VertexSeq = std::vector<Vertex*>;
+using VertexSet = std::set<Vertex*, VertexIdLess>;
+using EdgeSeq = std::vector<Edge*>;
+using EdgeSet = std::set<Edge*>;
+using Level = int;
+using DcalcAPIndex = int;
+using TagGroupIndex = int;
+using SlewSeq = std::vector<Slew>;
 
 static constexpr int level_max = std::numeric_limits<Level>::max();
 

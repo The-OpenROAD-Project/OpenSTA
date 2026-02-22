@@ -24,7 +24,8 @@
 
 #pragma once
 
-#include "Vector.hh"
+#include <vector>
+
 #include "TimingRole.hh"
 #include "Transition.hh"
 #include "LibertyClass.hh"
@@ -40,20 +41,20 @@ class SdfTriple;
 class SdfPortSpec;
 class SdfScanner;
 
-typedef Vector<SdfTriple*> SdfTripleSeq;
+using SdfTripleSeq = std::vector<SdfTriple*>;
 
 class SdfReader : public StaState
 {
 public:
   SdfReader(const char *filename,
-	    const char *path,
-	    int arc_min_index,
-	    int arc_max_index,
-	    AnalysisType analysis_type,
-	    bool unescaped_dividers,
-	    bool is_incremental_only,
+            const char *path,
+            int arc_min_index,
+            int arc_max_index,
+            AnalysisType analysis_type,
+            bool unescaped_dividers,
+            bool is_incremental_only,
             MinMaxAll *cond_use,
-	    StaState *sta);
+            StaState *sta);
   ~SdfReader();
   bool read();
 
@@ -61,53 +62,53 @@ public:
   void setTimescale(float multiplier,
                     const std::string *units);
   void setPortDeviceDelay(Edge *edge,
-			  SdfTripleSeq *triples,
-			  bool from_trans);
+                          SdfTripleSeq *triples,
+                          bool from_trans);
   void setEdgeArcDelays(Edge *edge,
-			TimingArc *arc,
-			SdfTriple *triple);
+                        TimingArc *arc,
+                        SdfTriple *triple);
   void setEdgeArcDelays(Edge *edge,
-			TimingArc *arc,
-			SdfTriple *triple,
-			int triple_index,
-			int arc_delay_index);
+                        TimingArc *arc,
+                        SdfTriple *triple,
+                        int triple_index,
+                        int arc_delay_index);
   void setEdgeArcDelaysCondUse(Edge *edge,
-			       TimingArc *arc,
-			       SdfTriple *triple);
+                               TimingArc *arc,
+                               SdfTriple *triple);
   void setEdgeArcDelaysCondUse(Edge *edge,
-			       TimingArc *arc,
-			       float *value,
-			       int triple_index,
-			       int arc_delay_index,
-			       const MinMax *min_max);
+                               TimingArc *arc,
+                               float *value,
+                               int triple_index,
+                               int arc_delay_index,
+                               const MinMax *min_max);
   void setInstance(const std::string *instance_name);
   void setInstanceWildcard();
   void cellFinish();
   void setCell(const std::string *cell_name);
   void interconnect(const std::string *from_pin_name,
-		    const std::string *to_pin_name,
-		    SdfTripleSeq *triples);
+                    const std::string *to_pin_name,
+                    SdfTripleSeq *triples);
   void iopath(SdfPortSpec *from_edge,
-	      const std::string *to_port_name,
-	      SdfTripleSeq *triples,
-	      const std::string *cond,
-	      bool condelse);
+              const std::string *to_port_name,
+              SdfTripleSeq *triples,
+              const std::string *cond,
+              bool condelse);
   void timingCheck(const TimingRole *role,
-		   SdfPortSpec *data_edge,
-		   SdfPortSpec *clk_edge,
-		   SdfTriple *triple);
+                   SdfPortSpec *data_edge,
+                   SdfPortSpec *clk_edge,
+                   SdfTriple *triple);
   void timingCheckWidth(SdfPortSpec *edge,
-			SdfTriple *triple);
+                        SdfTriple *triple);
   void timingCheckPeriod(SdfPortSpec *edge,
-			 SdfTriple *triple);
+                         SdfTriple *triple);
   void timingCheckSetupHold(SdfPortSpec *data_edge,
-			    SdfPortSpec *clk_edge,
-			    SdfTriple *setup_triple,
-			    SdfTriple *hold_triple);
+                            SdfPortSpec *clk_edge,
+                            SdfTriple *setup_triple,
+                            SdfTriple *hold_triple);
   void timingCheckRecRem(SdfPortSpec *data_edge,
-			 SdfPortSpec *clk_edge,
-			 SdfTriple *rec_triple,
-			 SdfTriple *rem_triple);
+                         SdfPortSpec *clk_edge,
+                         SdfTriple *rec_triple,
+                         SdfTriple *rem_triple);
   void timingCheckSetupHold1(SdfPortSpec *data_edge,
                              SdfPortSpec *clk_edge,
                              SdfTriple *setup_triple,
@@ -115,26 +116,26 @@ public:
                              const TimingRole *setup_role,
                              const TimingRole *hold_role);
   void timingCheckNochange(SdfPortSpec *data_edge,
-			   SdfPortSpec *clk_edge,
-			   SdfTriple *before_triple,
-			   SdfTriple *after_triple);
+                           SdfPortSpec *clk_edge,
+                           SdfTriple *before_triple,
+                           SdfTriple *after_triple);
   void port(const std::string *to_pin_name,
-	    SdfTripleSeq *triples);
+            SdfTripleSeq *triples);
   void device(SdfTripleSeq *triples);
   void device(const std::string *to_pin_name,
-	      SdfTripleSeq *triples);
+              SdfTripleSeq *triples);
 
   SdfTriple *makeTriple();
   SdfTriple *makeTriple(float value);
   SdfTriple *makeTriple(float *min,
-			float *typ,
-			float *max);
+                        float *typ,
+                        float *max);
   void deleteTriple(SdfTriple *triple);
   SdfTripleSeq *makeTripleSeq();
   void deleteTripleSeq(SdfTripleSeq *triples);
   SdfPortSpec *makePortSpec(const Transition *tr,
-			    const std::string *port,
-			    const std::string *cond);
+                            const std::string *port,
+                            const std::string *cond);
   SdfPortSpec *makeCondPortSpec(const std::string *cond_port);
   std::string *unescaped(const std::string *token);
   std::string *makePath(const std::string *head,
@@ -156,17 +157,17 @@ public:
 
 private:
   int readSdfFile1(Network *network,
-		   Graph *graph,
-		   const char *filename);
+                   Graph *graph,
+                   const char *filename);
   Edge *findCheckEdge(Pin *from_pin,
-		      Pin *to_pin,
-		      const TimingRole *sdf_role,
-		      const std::string *cond_start,
-		      const std::string *cond_end);
+                      Pin *to_pin,
+                      const TimingRole *sdf_role,
+                      const std::string *cond_start,
+                      const std::string *cond_end);
   Edge *findWireEdge(Pin *from_pin,
-		     Pin *to_pin);
+                     Pin *to_pin);
   bool condMatch(const std::string *sdf_cond,
-		 const char *lib_cond);
+                 const std::string &lib_cond);
   void timingCheck1(const TimingRole *role,
                     Port *data_port,
                     SdfPortSpec *data_edge,
@@ -174,19 +175,19 @@ private:
                     SdfPortSpec *clk_edge,
                     SdfTriple *triple);
   bool annotateCheckEdges(Pin *data_pin,
-			  SdfPortSpec *data_edge,
-			  Pin *clk_pin,
-			  SdfPortSpec *clk_edge,
-			  const TimingRole *sdf_role,
-			  SdfTriple *triple,
-			  bool match_generic);
+                          SdfPortSpec *data_edge,
+                          Pin *clk_pin,
+                          SdfPortSpec *clk_edge,
+                          const TimingRole *sdf_role,
+                          SdfTriple *triple,
+                          bool match_generic);
   Pin *findPin(const std::string *name);
   Instance *findInstance(const std::string *name);
   void setEdgeDelays(Edge *edge,
-		     SdfTripleSeq *triples,
-		     const char *sdf_cmd);
+                     SdfTripleSeq *triples,
+                     const char *sdf_cmd);
   void setDevicePinDelays(Pin *to_pin,
-			  SdfTripleSeq *triples);
+                          SdfTripleSeq *triples);
   Port *findPort(const Cell *cell,
                  const std::string *port_name);
 

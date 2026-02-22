@@ -27,17 +27,17 @@
 namespace sta {
 
 class StaState;
-class Corner;
+class Scene;
 
 void
 writeSdf(const char *filename,
-	 const Corner *corner,
-	 char divider,
+         const Scene *scene,
+         char divider,
          bool include_typ,
-	 int digits,
-	 bool gzip,
-	 bool no_timestamp,
-	 bool no_version,
-	 StaState *sta);
+         int digits,
+         bool gzip,
+         bool no_timestamp,
+         bool no_version,
+         StaState *sta);
 
 } // namespace

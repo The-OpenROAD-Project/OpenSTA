@@ -82,7 +82,7 @@ public:
 
   void
   setValue(const MinMaxAll *min_max,
-	   TYPE value)
+           TYPE value)
   {
     for (auto mm_index : min_max->rangeIndex()) {
       values_[mm_index] = value;
@@ -92,7 +92,7 @@ public:
 
   void
   setValue(const MinMax *min_max,
-	   TYPE value)
+           TYPE value)
   {
     int mm_index = min_max->index();
     values_[mm_index] = value;
@@ -101,11 +101,11 @@ public:
 
   void
   mergeValue(const MinMax *min_max,
-	     TYPE value)
+             TYPE value)
   {
     int mm_index = min_max->index();
     if (!exists_[mm_index]
-	|| min_max->compare(value, values_[mm_index])) {
+        || min_max->compare(value, values_[mm_index])) {
       values_[mm_index] = value;
       exists_[mm_index] = true;
     }
@@ -126,9 +126,9 @@ public:
 
   void
   value(const MinMax *min_max,
-	// Return values.
-	TYPE &value,
-	bool &exists) const
+        // Return values.
+        TYPE &value,
+        bool &exists) const
   {
     int mm_index = min_max->index();
     exists = exists_[mm_index];
@@ -150,36 +150,36 @@ public:
   }
 
   static bool equal(const MinMaxValues *values1,
-		    const MinMaxValues *values2)
+                    const MinMaxValues *values2)
   {
     return ((!values1->exists_[MinMax::minIndex()]
-	     && !values2->exists_[MinMax::minIndex()])
-	    || (values1->exists_[MinMax::minIndex()]
-		&& values2->exists_[MinMax::minIndex()]
-		&& values1->values_[MinMax::minIndex()] 
-		== values2->values_[MinMax::minIndex()]))
+             && !values2->exists_[MinMax::minIndex()])
+            || (values1->exists_[MinMax::minIndex()]
+                && values2->exists_[MinMax::minIndex()]
+                && values1->values_[MinMax::minIndex()] 
+                == values2->values_[MinMax::minIndex()]))
       && ((!values1->exists_[MinMax::maxIndex()]
-	   && !values2->exists_[MinMax::maxIndex()])
-	 || (values1->exists_[MinMax::maxIndex()]
-	     && values2->exists_[MinMax::maxIndex()]
-	     && values1->values_[MinMax::maxIndex()] 
-	     == values2->values_[MinMax::maxIndex()]));
+           && !values2->exists_[MinMax::maxIndex()])
+         || (values1->exists_[MinMax::maxIndex()]
+             && values2->exists_[MinMax::maxIndex()]
+             && values1->values_[MinMax::maxIndex()] 
+             == values2->values_[MinMax::maxIndex()]));
   }
 
   static int cmp(const MinMaxValues *values1,
-		 const MinMaxValues *values2)
+                 const MinMaxValues *values2)
   {
     if (!values1->exists_[MinMax::minIndex()]
-	&& values2->exists_[MinMax::minIndex()])
+        && values2->exists_[MinMax::minIndex()])
       return -1;
     if (values1->exists_[MinMax::minIndex()]
-	&& !values2->exists_[MinMax::minIndex()])
+        && !values2->exists_[MinMax::minIndex()])
       return 1;
     if (!values1->exists_[MinMax::maxIndex()]
-	&& values2->exists_[MinMax::maxIndex()])
+        && values2->exists_[MinMax::maxIndex()])
       return -1;
     if (values1->exists_[MinMax::maxIndex()]
-	&& !values2->exists_[MinMax::maxIndex()])
+        && !values2->exists_[MinMax::maxIndex()])
       return 1;
     if (values1->values_[MinMax::minIndex()] < values2->values_[MinMax::minIndex()])
       return -1;
@@ -197,7 +197,7 @@ private:
   bool exists_[MinMax::index_count];
 };
 
-typedef MinMaxValues<float> MinMaxFloatValues;
-typedef MinMaxValues<int> MinMaxIntValues;
+using MinMaxFloatValues = MinMaxValues<float>;
+using MinMaxIntValues = MinMaxValues<int>;
 
 } // namespace

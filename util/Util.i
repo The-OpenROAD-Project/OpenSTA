@@ -226,7 +226,7 @@ log_end()
 
 void
 set_debug(const char *what,
-	  int level)
+          int level)
 {
   Sta::sta()->setDebugLevel(what, level);
 }
@@ -264,7 +264,7 @@ object_type(const char *obj)
 
 bool
 is_object_list(const char *list,
-	       const char *type)
+               const char *type)
 {
   const char *s = list;
   while (s) {
@@ -390,7 +390,7 @@ area_sta_ui(double value)
 
 void
 set_cmd_unit_scale(const char *unit_name,
-		   float scale)
+                   float scale)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit)
@@ -399,7 +399,7 @@ set_cmd_unit_scale(const char *unit_name,
 
 void
 set_cmd_unit_digits(const char *unit_name,
-		    int digits)
+                    int digits)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit)
@@ -408,7 +408,7 @@ set_cmd_unit_digits(const char *unit_name,
 
 void
 set_cmd_unit_suffix(const char *unit_name,
-		    const char *suffix)
+                    const char *suffix)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit) {
@@ -473,7 +473,7 @@ unit_scale(const char *unit_name)
 // Pass value arg as string to support NaNs.
 const char *
 format_time(const char *value,
-	    int digits)
+            int digits)
 {
   float value1 = strtof(value, nullptr);
   return Sta::sta()->units()->timeUnit()->asString(value1, digits);
@@ -481,7 +481,7 @@ format_time(const char *value,
 
 const char *
 format_capacitance(const char *value,
-		   int digits)
+                   int digits)
 {
   float value1 = strtof(value, nullptr);
   return Sta::sta()->units()->capacitanceUnit()->asString(value1, digits);
@@ -489,7 +489,7 @@ format_capacitance(const char *value,
 
 const char *
 format_resistance(const char *value,
-		  int digits)
+                  int digits)
 {
   float value1 = strtof(value, nullptr);
   return Sta::sta()->units()->resistanceUnit()->asString(value1, digits);
@@ -497,7 +497,7 @@ format_resistance(const char *value,
 
 const char *
 format_voltage(const char *value,
-	       int digits)
+               int digits)
 {
   float value1 = strtof(value, nullptr);
   return Sta::sta()->units()->voltageUnit()->asString(value1, digits);
@@ -505,7 +505,7 @@ format_voltage(const char *value,
 
 const char *
 format_current(const char *value,
-	       int digits)
+               int digits)
 {
   float value1 = strtof(value, nullptr);
   return Sta::sta()->units()->currentUnit()->asString(value1, digits);
@@ -513,7 +513,7 @@ format_current(const char *value,
 
 const char *
 format_power(const char *value,
-	     int digits)
+             int digits)
 {
   float value1 = strtof(value, nullptr);
   return Sta::sta()->units()->powerUnit()->asString(value1, digits);
@@ -521,7 +521,7 @@ format_power(const char *value,
 
 const char *
 format_distance(const char *value,
-		int digits)
+                int digits)
 {
   float value1 = strtof(value, nullptr);
   Unit *dist_unit = Sta::sta()->units()->distanceUnit();
@@ -530,7 +530,7 @@ format_distance(const char *value,
 
 const char *
 format_area(const char *value,
-	    int digits)
+            int digits)
 {
   float value1 = strtof(value, nullptr);
   Unit *dist_unit = Sta::sta()->units()->distanceUnit();
@@ -555,7 +555,7 @@ fall_short_name()
 
 bool
 fuzzy_equal(float value1,
-	    float value2)
+            float value2)
 {
   return fuzzyEqual(value1, value2);
 }

@@ -65,15 +65,15 @@ proc show_cmd_args { cmd } {
   # Break the arglist up into max_col length lines.
   while {1} {
     if {[regexp {(^[\n ]*)([a-zA-Z0-9_\\\|\-]+|\[[^\[]+\])(.*)} \
-	   $arglist ignore space arg rest]} {
+           $arglist ignore space arg rest]} {
       set arg_length [string length $arg]
       if { $col + $arg_length < $max_col } {
-	set line "$line $arg"
-	set col [expr $col + $arg_length + 1]
+        set line "$line $arg"
+        set col [expr $col + $arg_length + 1]
       } else {
         report_line $line
-	set line "$indent_str $arg"
-	set col [expr $indent + $arg_length + 1]
+        set line "$indent_str $arg"
+        set col [expr $indent + $arg_length + 1]
       }
       set arglist $rest
     } else {
@@ -147,7 +147,7 @@ define_cmd_args "set_cmd_units" \
 proc set_cmd_units { args } {
   parse_key_args "set_cmd_units" args \
     keys {-capacitance -resistance -time -voltage -current -power \
-	    -distance -digits -suffix} \
+            -distance -digits -suffix} \
     flags {}
 
   check_argc_eq0 "set_cmd_units" $args
@@ -207,25 +207,25 @@ proc delete_objects_from_list_cmd { list objects } {
     # type.
     if {$list_is_object && ![is_object $obj]} {
       if {$list_type == "Clock"} {
-	set obj [find_clock $obj]
+        set obj [find_clock $obj]
       } elseif {$list_type == "Port"} {
-	set top_instance [top_instance]
-	set top_cell [$top_instance cell]
-	set obj [$top_cell find_port $obj]
+        set top_instance [top_instance]
+        set top_cell [$top_instance cell]
+        set obj [$top_cell find_port $obj]
       } elseif {$list_type == "Pin"} {
-	set obj [find_pin $obj]
+        set obj [find_pin $obj]
       } elseif {$list_type == "Instance"} {
-	set obj [find_instance $obj]
+        set obj [find_instance $obj]
       } elseif {$list_type == "Net"} {
-	set obj [find_net $obj]
+        set obj [find_net $obj]
       } elseif {$list_type == "LibertyLibrary"} {
-	set obj [find_liberty $obj]
+        set obj [find_liberty $obj]
       } elseif {$list_type == "LibertyCell"} {
-	set obj [find_liberty_cell $obj]
+        set obj [find_liberty_cell $obj]
       } elseif {$list_type == "LibertyPort"} {
-	set obj [get_lib_pins $obj]
+        set obj [get_lib_pins $obj]
       } else {
-	sta_error 164 "unsupported object type $list_type."
+        sta_error 164 "unsupported object type $list_type."
       }
     }
     set index [lsearch $list $obj]

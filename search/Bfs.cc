@@ -123,21 +123,14 @@ BfsIterator::empty() const
 void
 BfsIterator::enqueueAdjacentVertices(Vertex *vertex)
 {
-  enqueueAdjacentVertices(vertex, search_pred_, level_max_);
+  enqueueAdjacentVertices(vertex, search_pred_);
 }
 
 void
 BfsIterator::enqueueAdjacentVertices(Vertex *vertex,
-				     SearchPred *search_pred)
+                                     const Mode *mode)
 {
-  enqueueAdjacentVertices(vertex, search_pred, level_max_);
-}
-
-void
-BfsIterator::enqueueAdjacentVertices(Vertex *vertex,
-				     Level to_level)
-{
-  enqueueAdjacentVertices(vertex, search_pred_, to_level);
+  enqueueAdjacentVertices(vertex, search_pred_, mode);
 }
 
 int
@@ -396,18 +389,33 @@ BfsFwdIterator::levelLess(Level level1,
 
 void
 BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
-					SearchPred *search_pred,
-					Level to_level)
+                                        SearchPred *search_pred)
 {
   if (search_pred->searchFrom(vertex)) {
     VertexOutEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
-      if (to_vertex->level() <= to_level
-	  && search_pred->searchThru(edge)
+      if (search_pred->searchThru(edge)
 	  && search_pred->searchTo(to_vertex))
 	enqueue(to_vertex);
+    }
+  }
+}
+
+void
+BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
+                                        SearchPred *search_pred,
+                                        const Mode *mode)
+{
+  if (search_pred->searchFrom(vertex, mode)) {
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      if (search_pred->searchThru(edge, mode)
+          && search_pred->searchTo(to_vertex, mode))
+        enqueue(to_vertex);
     }
   }
 }
@@ -450,18 +458,33 @@ BfsBkwdIterator::levelLess(Level level1,
 
 void
 BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
-					 SearchPred *search_pred,
-					 Level to_level)
+                                         SearchPred *search_pred)
 {
   if (search_pred->searchTo(vertex)) {
     VertexInEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *from_vertex = edge->from(graph_);
-      if (from_vertex->level() >= to_level
-	  && search_pred->searchFrom(from_vertex)
+      if (search_pred->searchFrom(from_vertex)
 	  && search_pred->searchThru(edge))
 	enqueue(from_vertex);
+    }
+  }
+}
+
+void
+BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
+                                         SearchPred *search_pred,
+                                         const Mode *mode)
+{
+  if (search_pred->searchTo(vertex, mode)) {
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *from_vertex = edge->from(graph_);
+      if (search_pred->searchFrom(from_vertex, mode)
+          && search_pred->searchThru(edge, mode))
+        enqueue(from_vertex);
     }
   }
 }

@@ -35,26 +35,27 @@ class ConcretePoleResidue;
 class ConcreteParasiticDevice;
 class ConcreteParasiticNode;
 
-typedef std::pair<const Net*, int> NetIdPair;
+using NetIdPair = std::pair<const Net*, int>;
+
 class NetIdPairLess
 {
 public:
   NetIdPairLess(const Network *network);
   bool operator()(const NetIdPair &net_id1,
-		  const NetIdPair &net_id2) const;
+                  const NetIdPair &net_id2) const;
 
 private:
   const NetIdLess net_less_;
 };
 
-typedef std::map<const Pin*, float> ConcreteElmoreLoadMap;
-typedef std::map<const Pin*, ConcretePoleResidue> ConcretePoleResidueMap;
-typedef std::map<NetIdPair,ConcreteParasiticNode*,
-                 NetIdPairLess> ConcreteParasiticSubNodeMap;
-typedef std::map<const Pin*,ConcreteParasiticNode*,PinIdLess> ConcreteParasiticPinNodeMap;
-typedef std::set<ParasiticNode*> ParasiticNodeSet;
-typedef std::set<ParasiticResistor*> ParasiticResistorSet;
-typedef std::vector<ParasiticResistor*> ParasiticResistorSeq;
+using ConcreteElmoreLoadMap = std::map<const Pin*, float>;
+using ConcretePoleResidueMap = std::map<const Pin*, ConcretePoleResidue>;
+using ConcreteParasiticSubNodeMap = std::map<NetIdPair,ConcreteParasiticNode*,
+                                               NetIdPairLess>;
+using ConcreteParasiticPinNodeMap = std::map<const Pin*,ConcreteParasiticNode*,PinIdLess>;
+using ParasiticNodeSet = std::set<ParasiticNode*>;
+using ParasiticResistorSet = std::set<ParasiticResistor*>;
+using ParasiticResistorSeq = std::vector<ParasiticResistor*>;
 
 // Empty base class definitions so casts are not required on returned
 // objects.
@@ -76,22 +77,22 @@ public:
   virtual bool isPoleResidue() const;
   virtual bool isParasiticNetwork() const;
   virtual void piModel(float &c2,
-		       float &rpi,
-		       float &c1) const;
+                       float &rpi,
+                       float &c1) const;
   virtual void setPiModel(float c2,
-			  float rpi,
-			  float c1);
+                          float rpi,
+                          float c1);
   virtual bool isReducedParasiticNetwork() const;
   virtual void setIsReduced(bool reduced);
   virtual void findElmore(const Pin *load_pin,
-			  float &elmore,
-			  bool &exists) const;
+                          float &elmore,
+                          bool &exists) const;
   virtual void setElmore(const Pin *load_pin,
-			 float elmore);
+                         float elmore);
   virtual Parasitic *findPoleResidue(const Pin *load_pin) const;
   virtual void setPoleResidue(const Pin *load_pin,
-			      ComplexFloatSeq *poles,
-			      ComplexFloatSeq *residues);
+                              ComplexFloatSeq *poles,
+                              ComplexFloatSeq *residues);
   virtual PinSet unannotatedLoads(const Pin *drvr_pin,
                                   const Parasitics *parasitics) const = 0;
 };
@@ -101,15 +102,15 @@ class ConcretePi
 {
 public:
   ConcretePi(float c2,
-	     float rpi,
-	     float c1);
+             float rpi,
+             float c1);
   float capacitance() const;
   void piModel(float &c2,
-	       float &rpi,
-	       float &c1) const;
+               float &rpi,
+               float &c1) const;
   void setPiModel(float c2,
-		  float rpi,
-		  float c1);
+                  float rpi,
+                  float c1);
   bool isReducedParasiticNetwork() const { return is_reduced_; }
   void setIsReduced(bool reduced);
 
@@ -122,12 +123,12 @@ protected:
 
 // Pi model for a driver pin and the elmore delay to each load.
 class ConcretePiElmore : public ConcretePi,
-			 public ConcreteParasitic
+                         public ConcreteParasitic
 {
 public:
   ConcretePiElmore(float c2,
-		   float rpi,
-		   float c1);
+                   float rpi,
+                   float c1);
   bool isPiElmore() const override { return true; }
   bool isPiModel() const override { return true; }
   float capacitance() const override;
@@ -147,6 +148,7 @@ public:
   PinSet unannotatedLoads(const Pin *drvr_pin,
                           const Parasitics *parasitics) const override;
   void deleteLoad(const Pin *load_pin);
+  ConcreteElmoreLoadMap &loads() { return loads_; }
 
 private:
   ConcreteElmoreLoadMap loads_;
@@ -177,42 +179,44 @@ private:
 
 // Pi model for a driver pin and the pole/residues to each load.
 class ConcretePiPoleResidue : public ConcretePi,
-			      public ConcreteParasitic
+                              public ConcreteParasitic
 {
 public:
   ConcretePiPoleResidue(float c2,
-			float rpi,
-			float c1);
+                        float rpi,
+                        float c1);
   virtual bool isPiPoleResidue() const override { return true; }
   virtual bool isPiModel() const override { return true; }
   virtual float capacitance() const override;
   virtual void piModel(float &c2,
-		       float &rpi,
-		       float &c1) const override;
+                       float &rpi,
+                       float &c1) const override;
   virtual void setPiModel(float c2,
-			  float rpi,
-			  float c1) override;
+                          float rpi,
+                          float c1) override;
   virtual bool isReducedParasiticNetwork() const override;
   virtual void setIsReduced(bool reduced) override;
   virtual Parasitic *findPoleResidue(const Pin *load_pin) const override;
   virtual void setPoleResidue(const Pin *load_pin,
-			      ComplexFloatSeq *poles,
-			      ComplexFloatSeq *residues) override;
+                              ComplexFloatSeq *poles,
+                              ComplexFloatSeq *residues) override;
   virtual PinSet unannotatedLoads(const Pin *drvr_pin,
                                   const Parasitics *parasitics) const override;
   void deleteLoad(const Pin *load_pin);
+  ConcretePoleResidueMap &loadResidues() { return load_pole_residue_; }
 
 private:
   ConcretePoleResidueMap load_pole_residue_;
 };
 
 class ConcreteParasiticNetwork : public ParasiticNetwork,
-				 public ConcreteParasitic
+                                 public ConcreteParasitic
 {
 public:
   ConcreteParasiticNetwork(const Net *net,
                            bool includes_pin_caps,
                            const Network *network);
+  ConcreteParasiticNetwork(ConcreteParasiticNetwork &&parasitic);
   virtual ~ConcreteParasiticNetwork();
   virtual bool isParasiticNetwork() const { return true; }
   const Net *net() const { return net_; }
@@ -221,7 +225,7 @@ public:
                                            int id,
                                            const Network *network) const;
   ConcreteParasiticNode *ensureParasiticNode(const Net *net,
-					     int id,
+                                             int id,
                                              const Network *network);
   ConcreteParasiticNode *findParasiticNode(const Pin *pin) const;
   ConcreteParasiticNode *ensureParasiticNode(const Pin *pin,
@@ -229,7 +233,7 @@ public:
   virtual float capacitance() const;
   ParasiticNodeSeq nodes() const;
   void disconnectPin(const Pin *pin,
-		     const Net *net,
+                     const Net *net,
                      const Network *network);
   ParasiticResistorSeq resistors() const { return resistors_; }
   void addResistor(ParasiticResistor *resistor);

@@ -41,7 +41,7 @@ proc trace_report_default_digits { name1 name2 op } {
 
   if { $op == "w" } {
     if { !([string is integer $sta_report_default_digits] \
-	   && $sta_report_default_digits >= 0) } {
+           && $sta_report_default_digits >= 0) } {
       sta_error 590 "sta_report_default_digits must be a positive integer."
     }
   }
@@ -94,14 +94,6 @@ trace variable ::sta_internal_bidirect_instance_paths_enabled "rw" \
 proc trace_internal_bidirect_instance_paths_enabled { name1 name2 op } {
   trace_boolean_var $op ::sta_internal_bidirect_instance_paths_enabled \
     bidirect_inst_paths_enabled set_bidirect_inst_paths_enabled
-}
-
-trace variable ::sta_bidirect_net_paths_enabled "rw" \
-  sta::trace_bidirect_net_paths_enabled
-
-proc trace_bidirect_net_paths_enabled { name1 name2 op } {
-  trace_boolean_var $op ::sta_bidirect_net_paths_enabled \
-    bidirect_net_paths_enabled set_bidirect_net_paths_enabled
 }
 
 trace variable ::sta_clock_through_tristate_enabled "rw" \

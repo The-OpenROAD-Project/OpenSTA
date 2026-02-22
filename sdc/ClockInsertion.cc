@@ -27,7 +27,7 @@
 namespace sta {
 
 ClockInsertion::ClockInsertion(const Clock *clk,
-			       const Pin *pin) :
+                               const Pin *pin) :
   clk_(clk),
   pin_(pin)
 {
@@ -35,9 +35,9 @@ ClockInsertion::ClockInsertion(const Clock *clk,
 
 void
 ClockInsertion::setDelay(const RiseFallBoth *rf,
-			 const MinMaxAll *min_max,
-			 const EarlyLateAll *early_late,
-			 float delay)
+                         const MinMaxAll *min_max,
+                         const EarlyLateAll *early_late,
+                         float delay)
 {
   for (auto el_index : early_late->rangeIndex())
     delays_[el_index].setValue(rf, min_max, delay);
@@ -45,8 +45,8 @@ ClockInsertion::setDelay(const RiseFallBoth *rf,
 
 float
 ClockInsertion::delay(const RiseFall *rf,
-		      const MinMax *min_max,
-		      const EarlyLate *early_late)
+                      const MinMax *min_max,
+                      const EarlyLate *early_late)
 {
   float insertion;
   bool exists;
@@ -59,11 +59,11 @@ ClockInsertion::delay(const RiseFall *rf,
 
 void
 ClockInsertion::delay(const RiseFall *rf,
-		      const MinMax *min_max,
-		      const EarlyLate *early_late,
-		      // Return values.
-		      float &insertion,
-		      bool &exists)
+                      const MinMax *min_max,
+                      const EarlyLate *early_late,
+                      // Return values.
+                      float &insertion,
+                      bool &exists)
 
 {
   delays_[early_late->index()].value(rf, min_max, insertion, exists);
@@ -73,9 +73,9 @@ ClockInsertion::delay(const RiseFall *rf,
 
 void
 ClockInsertion::setDelay(const RiseFall *rf,
-			 const MinMax *min_max,
-			 const EarlyLate *early_late,
-			 float delay)
+                         const MinMax *min_max,
+                         const EarlyLate *early_late,
+                         float delay)
 {
   delays_[early_late->index()].setValue(rf, min_max, delay);
 }

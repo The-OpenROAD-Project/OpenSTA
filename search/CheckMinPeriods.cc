@@ -29,184 +29,134 @@
 #include "Sdc.hh"
 #include "Clock.hh"
 #include "Graph.hh"
-#include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "Search.hh"
 
 namespace sta {
 
-// Abstract base class.
-class MinPeriodCheckVisitor
-{
-public:
-  MinPeriodCheckVisitor(const Corner *corner);
-  virtual ~MinPeriodCheckVisitor() {}
-  virtual void visit(MinPeriodCheck &check,
-		     StaState *sta) = 0;
-  const Corner *corner() { return corner_; }
-
-protected:
-  const Corner *corner_;
-};
-
-MinPeriodCheckVisitor::MinPeriodCheckVisitor(const Corner *corner) :
-  corner_(corner)
-{
-}
-
 CheckMinPeriods::CheckMinPeriods(StaState *sta) :
+  heap_(0, MinPeriodSlackLess(sta)),
   sta_(sta)
 {
-}
-
-CheckMinPeriods::~CheckMinPeriods()
-{
-  checks_.deleteContents();
 }
 
 void
 CheckMinPeriods::clear()
 {
-  checks_.deleteContentsClear();
-}
-
-class MinPeriodViolatorsVisitor : public MinPeriodCheckVisitor
-{
-public:
-  MinPeriodViolatorsVisitor(const Corner *corner,
-			    MinPeriodCheckSeq &checks);
-  virtual void visit(MinPeriodCheck &check,
-		     StaState *sta);
-
-private:
-  MinPeriodCheckSeq &checks_;
-};
-
-MinPeriodViolatorsVisitor::MinPeriodViolatorsVisitor(const Corner *corner,
-						     MinPeriodCheckSeq &checks):
-  MinPeriodCheckVisitor(corner),
-  checks_(checks)
-{
-}
-
-void
-MinPeriodViolatorsVisitor::visit(MinPeriodCheck &check,
-				 StaState *sta)
-{
-  if (delayLess(check.slack(sta), 0.0, sta))
-    checks_.push_back(check.copy());
+  checks_.clear();
+  heap_.clear();
 }
 
 MinPeriodCheckSeq &
-CheckMinPeriods::violations(const Corner *corner)
+CheckMinPeriods::check(const Net *net,
+                       size_t max_count,
+                       bool violators,
+                       const SceneSeq &scenes)
 {
   clear();
-  MinPeriodViolatorsVisitor visitor(corner, checks_);
-  visitMinPeriodChecks(&visitor);
-  sort(checks_, MinPeriodSlackLess(sta_));
+  if (!violators)
+    heap_.setMaxSize(max_count);
+
+  if (net)
+    checkNet(net, violators, scenes);
+  else
+    checkAll(violators, scenes);
+
+  if (violators)
+    sort(checks_, MinPeriodSlackLess(sta_));
+  else
+    checks_ = heap_.extract();
   return checks_;
 }
 
 void
-CheckMinPeriods::visitMinPeriodChecks(MinPeriodCheckVisitor *visitor)
+CheckMinPeriods::checkNet(const Net *net,
+                          bool violators,
+                          const SceneSeq &scenes)
+{
+  Graph *graph = sta_->graph();
+  NetPinIterator *pin_iter = sta_->network()->pinIterator(net);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    Vertex *vertex = graph->pinLoadVertex(pin);
+    checkVertex(vertex, violators, scenes);
+  }
+  delete pin_iter;
+}
+
+void
+CheckMinPeriods::checkAll(bool violators,
+                          const SceneSeq &scenes)
 {
   Graph *graph = sta_->graph();
   VertexIterator vertex_iter(graph);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    if (isClkEnd(vertex, graph))
-      visitMinPeriodChecks(vertex, visitor);
+    checkVertex(vertex, violators, scenes);
   }
 }
 
 void
-CheckMinPeriods::visitMinPeriodChecks(Vertex *vertex,
-				      MinPeriodCheckVisitor *visitor)
+CheckMinPeriods::checkVertex(Vertex *vertex,
+                             bool violators,
+                             const SceneSeq &scenes)
+{
+  MinPeriodCheck min_check = check(vertex, scenes);
+  if (!min_check.isNull()) {
+    if (violators) {
+      if (delayLess(min_check.slack(sta_), 0.0, sta_))
+        checks_.push_back(min_check);
+    }
+    else
+      heap_.insert(min_check);
+  }
+}
+
+MinPeriodCheck
+CheckMinPeriods::check(Vertex *vertex,
+                       const SceneSeq &scenes)
 {
   Search *search = sta_->search();
   GraphDelayCalc *graph_dcalc = sta_->graphDelayCalc();
-  const Corner *corner = visitor->corner();
+  MinPeriodCheck min_slack_check;
   Pin *pin = vertex->pin();
-  float min_period;
-  bool exists;
-  graph_dcalc->minPeriod(pin, corner, min_period, exists);
-  if (exists) {
-    const ClockSet clks = search->clocks(vertex);
-    ClockSet::ConstIterator clk_iter(clks);
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
-      MinPeriodCheck check(pin, clk, corner);
-      visitor->visit(check, sta_);
+  for (const Scene *scene : scenes) {
+    const Mode *mode = scene->mode();
+    if (isClkEnd(vertex, mode)) {
+      float min_period;
+      bool exists;
+      graph_dcalc->minPeriod(pin, scene, min_period, exists);
+      if (exists) {
+        const ClockSet clks = search->clocks(vertex, mode);
+        for (Clock *clk : clks) {
+          MinPeriodCheck check(pin, clk, scene);
+          Slack slack = check.slack(sta_);
+          if (min_slack_check.isNull()
+              || delayLess(slack, min_slack_check.slack(sta_), sta_))
+            min_slack_check = check;
+        }
+      }
     }
   }
-}
-
-////////////////////////////////////////////////////////////////
-
-class MinPeriodSlackVisitor : public MinPeriodCheckVisitor
-{
-public:
-  MinPeriodSlackVisitor(const Corner *corner);
-  void visit(MinPeriodCheck &check,
-	     StaState *sta) override;
-  MinPeriodCheck *minSlackCheck();
-
-private:
-  MinPeriodCheck *min_slack_check_;
-};
-
-MinPeriodSlackVisitor::MinPeriodSlackVisitor(const Corner *corner) :
-  MinPeriodCheckVisitor(corner),
-  min_slack_check_(nullptr)
-{
-}
-
-void
-MinPeriodSlackVisitor::visit(MinPeriodCheck &check,
-			     StaState *sta)
-{
-  MinPeriodSlackLess slack_less(sta);
-  if (min_slack_check_ == nullptr)
-    min_slack_check_ = check.copy();
-  else if (slack_less(&check, min_slack_check_)) {
-    delete min_slack_check_;
-    min_slack_check_ = check.copy();
-  }
-}
-
-MinPeriodCheck *
-MinPeriodSlackVisitor::minSlackCheck()
-{
-  return min_slack_check_;
-}
-
-MinPeriodCheck *
-CheckMinPeriods::minSlackCheck(const Corner *corner)
-{
-  clear();
-  MinPeriodSlackVisitor visitor(corner);
-  visitMinPeriodChecks(&visitor);
-  MinPeriodCheck *check = visitor.minSlackCheck();
-  // Save check for cleanup.
-  checks_.push_back(check);
-  return check;
+  return min_slack_check;
 }
 
 ////////////////////////////////////////////////////////////////
 
 MinPeriodCheck::MinPeriodCheck(Pin *pin,
-			       Clock *clk,
-			       const Corner *corner) :
+                               Clock *clk,
+                               const Scene *scene) :
   pin_(pin),
   clk_(clk),
-  corner_(corner)
+  scene_(scene)
 {
 }
 
-MinPeriodCheck *
-MinPeriodCheck::copy()
+MinPeriodCheck::MinPeriodCheck() :
+  pin_(nullptr),
+  clk_(nullptr),
+  scene_(nullptr)
 {
-  return new MinPeriodCheck(pin_, clk_, corner_);
 }
 
 float
@@ -221,7 +171,7 @@ MinPeriodCheck::minPeriod(const StaState *sta) const
   GraphDelayCalc *graph_dcalc = sta->graphDelayCalc();
   float min_period;
   bool exists;
-  graph_dcalc->minPeriod(pin_, corner_, min_period, exists);
+  graph_dcalc->minPeriod(pin_, scene_, min_period, exists);
   return min_period;
 }
 
@@ -233,26 +183,26 @@ MinPeriodCheck::slack(const StaState *sta) const
 
 ////////////////////////////////////////////////////////////////
 
-MinPeriodSlackLess::MinPeriodSlackLess(StaState *sta) :
+MinPeriodSlackLess::MinPeriodSlackLess(const StaState *sta) :
   sta_(sta)
 {
 }
 
 bool
-MinPeriodSlackLess::operator()(const MinPeriodCheck *check1,
-			       const MinPeriodCheck *check2) const
+MinPeriodSlackLess::operator()(const MinPeriodCheck &check1,
+                               const MinPeriodCheck &check2) const
 {
-  Slack slack1 = check1->slack(sta_);
-  Slack slack2 = check2->slack(sta_);
-  const Pin *pin1 = check1->pin();
-  const Pin *pin2 = check2->pin();
+  Slack slack1 = check1.slack(sta_);
+  Slack slack2 = check2.slack(sta_);
+  const Pin *pin1 = check1.pin();
+  const Pin *pin2 = check2.pin();
   return delayLess(slack1, slack2, sta_)
     // Break ties based on pin and clock names.
     || (delayEqual(slack1, slack2)
-	&& (sta_->network()->pinLess(pin1, pin2)
-	    || (pin1 == pin2
-		&& ClockNameLess()(check1->clk(),
-				   check2->clk()))));
+        && (sta_->network()->pinLess(pin1, pin2)
+            || (pin1 == pin2
+                && ClockNameLess()(check1.clk(),
+                                   check2.clk()))));
 }
 
 } // namespace

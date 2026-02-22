@@ -36,8 +36,8 @@ class MinMax;
 class MinMaxAll;
 
 // Use typedefs to make early/late functional equivalents to min/max.
-typedef MinMax EarlyLate;
-typedef MinMaxAll EarlyLateAll;
+using EarlyLate = MinMax;
+using EarlyLateAll = MinMaxAll;
 
 // Large value used for min/max initial values.
 extern const float INF;
@@ -62,10 +62,10 @@ public:
   int initValueInt() const { return init_value_int_; }
   // Max value1 > value2, Min value1 < value2.
   bool compare(float value1,
-	       float value2) const;
+               float value2) const;
   // min/max(value1, value2)
   float minMax(float value1,
-	       float value2) const;
+               float value2) const;
   const MinMaxAll *asMinMaxAll() const;
   const MinMax *opposite() const;
   // for range support.
@@ -83,18 +83,18 @@ public:
 
 private:
   MinMax(const char *name,
-	 int index,
-	 float init_value,
+         int index,
+         float init_value,
          int init_value_int,
-	 bool (*compare)(float value1,
-			 float value2));
+         bool (*compare)(float value1,
+                         float value2));
 
   const std::string name_;
   int index_;
   float init_value_;
   int init_value_int_;
   bool (*compare_)(float value1,
-		   float value2);
+                   float value2);
 
   static const MinMax min_;
   static const MinMax max_;
@@ -112,6 +112,7 @@ public:
   static const MinMaxAll *max() { return &max_; }
   static const MinMaxAll *late() { return &max_; }
   static const MinMaxAll *all() { return &all_; }
+  static const MinMaxAll *minMax() { return &all_; }
   const std::string &to_string() const { return name_; }
   int index() const { return index_; }
   const MinMax *asMinMax() const;
@@ -125,9 +126,9 @@ public:
 
 private:
   MinMaxAll(const char *name,
-	    int index,
-	    std::vector<const MinMax*> range,
-	    std::vector<int> range_index);
+            int index,
+            std::vector<const MinMax*> range,
+            std::vector<int> range_index);
 
   const std::string name_;
   int index_;

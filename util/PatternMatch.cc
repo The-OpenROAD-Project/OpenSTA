@@ -31,9 +31,9 @@ namespace sta {
 using std::string;
 
 PatternMatch::PatternMatch(const char *pattern,
-			   bool is_regexp,
-			   bool nocase,
-			   Tcl_Interp *interp) :
+                           bool is_regexp,
+                           bool nocase,
+                           Tcl_Interp *interp) :
   pattern_(pattern),
   is_regexp_(is_regexp),
   nocase_(nocase),
@@ -54,7 +54,7 @@ PatternMatch::PatternMatch(const char *pattern) :
 }
 
 PatternMatch::PatternMatch(const char *pattern,
-			   const PatternMatch *inherit_from) :
+                           const PatternMatch *inherit_from) :
   pattern_(pattern),
   is_regexp_(inherit_from->is_regexp_),
   nocase_(inherit_from->nocase_),
@@ -66,7 +66,7 @@ PatternMatch::PatternMatch(const char *pattern,
 }
 
 PatternMatch::PatternMatch(const string &pattern,
-			   const PatternMatch *inherit_from) :
+                           const PatternMatch *inherit_from) :
   pattern_(pattern.c_str()),
   is_regexp_(inherit_from->is_regexp_),
   nocase_(inherit_from->nocase_),
@@ -88,7 +88,7 @@ PatternMatch::compileRegexp()
   anchored_pattern += pattern_;
   anchored_pattern += '$';
   Tcl_Obj *pattern_obj = Tcl_NewStringObj(anchored_pattern.c_str(),
-					  anchored_pattern.size());
+                                          anchored_pattern.size());
   Tcl_IncrRefCount(pattern_obj);
   regexp_ = Tcl_GetRegExpFromObj(interp_, pattern_obj, flags);
   Tcl_DecrRefCount(pattern_obj);
@@ -155,7 +155,7 @@ RegexpCompileError::what() const noexcept
 
 bool
 patternMatch(const char *pattern,
-	     const char *str)
+             const char *str)
 {
   const char *p = pattern;
   const char *s = str;
@@ -171,7 +171,7 @@ patternMatch(const char *pattern,
       return true;
     while (*s) {
       if (patternMatch(p + 1, s))
-	return true;
+        return true;
       s++;
     }
   }
@@ -180,8 +180,8 @@ patternMatch(const char *pattern,
 
 inline
 bool equalCase(char s,
-	       char p,
-	       bool nocase)
+               char p,
+               bool nocase)
 {
   return nocase
     ? tolower(s) == tolower(p)
@@ -190,8 +190,8 @@ bool equalCase(char s,
 
 bool
 patternMatchNoCase(const char *pattern,
-		   const char *str,
-		   bool nocase)
+                   const char *str,
+                   bool nocase)
 {
   const char *p = pattern;
   const char *s = str;
@@ -207,7 +207,7 @@ patternMatchNoCase(const char *pattern,
       return true;
     while (*s) {
       if (patternMatchNoCase(p + 1, s, nocase))
-	return true;
+        return true;
       s++;
     }
   }

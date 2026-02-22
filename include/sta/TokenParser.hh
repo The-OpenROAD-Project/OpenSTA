@@ -37,7 +37,7 @@ class TokenParser
 {
 public:
   TokenParser(const char *str,
-	      const char *delimiters);
+              const char *delimiters);
   bool hasNext();
   char *next();
 

@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <map>
+
 #include "MinMax.hh"
 #include "RiseFallMinMax.hh"
 #include "SdcClass.hh"
@@ -32,7 +34,7 @@
 
 namespace sta {
 
-typedef Map<Pin*, PinSet*> ClkHpinEdgeMap;
+using ClkHpinEdgeMap = std::map<Pin*, PinSet*>;
 
 class Clock : public SdcCmdComment
 {
@@ -63,40 +65,40 @@ public:
   bool isIdeal() const { return !is_propagated_; }
   // Ideal clock slew.
   void slew(const RiseFall *rf,
-	    const MinMax *min_max,
-	    // Return values.
-	    float &slew,
-	    bool &exists) const;
+            const MinMax *min_max,
+            // Return values.
+            float &slew,
+            bool &exists) const;
   // Return zero (default) if no slew exists.
   float slew(const RiseFall *rf,
-	     const MinMax *min_max) const;
+             const MinMax *min_max) const;
   void setSlew(const RiseFall *rf,
-	       const MinMax *min_max,
-	       float slew);
+               const MinMax *min_max,
+               float slew);
   void setSlew(const RiseFallBoth *rf,
-	       const MinMaxAll *min_max,
-	       float slew);
+               const MinMaxAll *min_max,
+               float slew);
   void removeSlew();
   const RiseFallMinMax &slews() const { return slews_; }
   void setSlewLimit(const RiseFallBoth *rf,
-		    const PathClkOrData clk_data,
-		    const MinMax *min_max,
-		    float slew);
+                    const PathClkOrData clk_data,
+                    const MinMax *min_max,
+                    float slew);
   void slewLimit(const RiseFall *rf,
-		 const PathClkOrData clk_data,
-		 const MinMax *min_max,
-		 // Return values.
-		 float &slew,
-		 bool &exists) const;
+                 const PathClkOrData clk_data,
+                 const MinMax *min_max,
+                 // Return values.
+                 float &slew,
+                 bool &exists) const;
   ClockUncertainties *uncertainties() const { return uncertainties_; }
   void uncertainty(const SetupHold *setup_hold,
-		   // Return values.
-		   float &uncertainty,
-		   bool &exists) const;
+                   // Return values.
+                   float &uncertainty,
+                   bool &exists) const;
   void setUncertainty(const SetupHoldAll *setup_hold,
-		      float uncertainty);
+                      float uncertainty);
   void setUncertainty(const SetupHold *setup_hold,
-		      float uncertainty);
+                      float uncertainty);
   void removeUncertainty(const SetupHoldAll *setup_hold);
 
   void setPeriod(float period);
@@ -124,8 +126,8 @@ public:
   bool isDivideByOneCombinational() const;
   bool generatedUpToDate() const;
   void srcPinVertices(VertexSet &src_vertices,
-		      const Network *network,
-		      Graph *graph);
+                      const Network *network,
+                      Graph *graph);
   // True if the generated clock waveform is up to date.
   bool waveformValid() const { return waveform_valid_; }
   void waveformInvalid();
@@ -133,36 +135,36 @@ public:
 protected:
   // Private to Sdc::makeClock.
   Clock(const char *name,
-	int index,
+        int index,
         const Network *network);
   void initClk(PinSet *pins,
-	       bool add_to_pins,
-	       float period,
-	       FloatSeq *waveform,
-	       const char *comment,
-	       const Network *network);
+               bool add_to_pins,
+               float period,
+               FloatSeq *waveform,
+               const char *comment,
+               const Network *network);
   void initGeneratedClk(PinSet *pins,
-			bool add_to_pins,
-			Pin *src_pin,
-			Clock *master_clk,
-			int divide_by,
-			int multiply_by,
-			float duty_cycle,
-			bool invert,
-			bool combinational,
-			IntSeq *edges,
-			FloatSeq *edge_shifts,
-			bool is_propagated,
-			const char *comment,
-			const Network *network);
+                        bool add_to_pins,
+                        Pin *src_pin,
+                        Clock *master_clk,
+                        int divide_by,
+                        int multiply_by,
+                        float duty_cycle,
+                        bool invert,
+                        bool combinational,
+                        IntSeq *edges,
+                        FloatSeq *edge_shifts,
+                        bool is_propagated,
+                        const char *comment,
+                        const Network *network);
   void setPins(PinSet *pins,
-	       const Network *network);
+               const Network *network);
   void setMasterClk(Clock *master);
   void makeClkEdges();
   void setClkEdgeTimes();
   void setClkEdgeTime(const RiseFall *rf);
   void generateScaledClk(const Clock *src_clk,
-			 float scale);
+                         float scale);
   void generateEdgesClk(const Clock *src_clk);
 
   const char *name_;
@@ -229,10 +231,10 @@ clkCmp(const Clock *clk1,
        const Clock *clk2);
 int
 clkEdgeCmp(const ClockEdge *clk_edge1,
-	   const ClockEdge *clk_edge2);
+           const ClockEdge *clk_edge2);
 bool
 clkEdgeLess(const ClockEdge *clk_edge1,
-	    const ClockEdge *clk_edge2);
+            const ClockEdge *clk_edge2);
 
 class ClockNameLess
 {
@@ -247,24 +249,24 @@ class InterClockUncertainty
 {
 public:
   InterClockUncertainty(const Clock *src,
-			const Clock *target);
+                        const Clock *target);
   const Clock *src() const { return src_; }
   const Clock *target() const { return target_; }
   void uncertainty(const RiseFall *src_rf,
-		   const RiseFall *tgt_rf,
-		   const SetupHold *setup_hold,
-		   // Return values.
-		   float &uncertainty,
-		   bool &exists) const;
+                   const RiseFall *tgt_rf,
+                   const SetupHold *setup_hold,
+                   // Return values.
+                   float &uncertainty,
+                   bool &exists) const;
   void setUncertainty(const RiseFallBoth *src_rf,
-		      const RiseFallBoth *tgt_rf,
-		      const SetupHoldAll *setup_hold,
-		      float uncertainty);
+                      const RiseFallBoth *tgt_rf,
+                      const SetupHoldAll *setup_hold,
+                      float uncertainty);
   void removeUncertainty(const RiseFallBoth *src_rf,
-			 const RiseFallBoth *tgt_rf,
-			 const SetupHoldAll *setup_hold);
+                         const RiseFallBoth *tgt_rf,
+                         const SetupHoldAll *setup_hold);
   const RiseFallMinMax *uncertainties(const RiseFall *src_rf) const;
-  bool empty() const;
+  [[nodiscard]] bool empty() const;
 
 private:
   const Clock *src_;
@@ -276,14 +278,14 @@ class InterClockUncertaintyLess
 {
 public:
   bool operator()(const InterClockUncertainty *inter1,
-		  const InterClockUncertainty *inter2) const;
+                  const InterClockUncertainty *inter2) const;
 };
 
 class ClkNameLess
 {
 public:
   bool operator()(const Clock *clk1,
-		  const Clock *clk2) const
+                  const Clock *clk2) const
   {
     return stringLess(clk1->name(), clk2->name());
   }

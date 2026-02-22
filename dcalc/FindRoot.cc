@@ -32,10 +32,10 @@ using std::abs;
 
 double
 findRoot(FindRootFunc func,
-	 double x1,
-	 double x2,
-	 double x_tol,
-	 int max_iter,
+         double x1,
+         double x2,
+         double x_tol,
+         int max_iter,
          // Return value.
          bool &fail)
 {
@@ -47,12 +47,12 @@ findRoot(FindRootFunc func,
 
 double
 findRoot(FindRootFunc func,
-	 double x1,
-	 double y1,
+         double x1,
+         double y1,
          double x2,
-	 double y2,
+         double y2,
          double x_tol,
-	 int max_iter,
+         int max_iter,
          // Return value.
          bool &fail)
 {
@@ -83,8 +83,8 @@ findRoot(FindRootFunc func,
   for (int iter = 0; iter < max_iter; iter++) {
     // Newton/raphson out of range.
     if ((((root - x2) * dy - y) * ((root - x1) * dy - y) > 0.0)
-	// Not decreasing fast enough.
-	|| (abs(2.0 * y) > abs(dx_prev * dy))) {
+        // Not decreasing fast enough.
+        || (abs(2.0 * y) > abs(dx_prev * dy))) {
       // Bisect x1/x2 interval.
       dx_prev = dx;
       dx = (x2 - x1) * 0.5;

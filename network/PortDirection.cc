@@ -72,7 +72,7 @@ PortDirection::destroy()
 }
 
 PortDirection::PortDirection(const char *name,
-			     int index) :
+                             int index) :
   name_(name),
   index_(index)
 {

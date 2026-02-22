@@ -36,9 +36,11 @@ namespace sta {
 
 class SearchPred;
 class LevelizeObserver;
+class GraphLoop;
 
-typedef std::pair<Vertex*,VertexOutEdgeIterator*> VertexEdgeIterPair;
-typedef std::stack<VertexEdgeIterPair> FindBackEdgesStack;
+using VertexEdgeIterPair = std::pair<Vertex*,VertexOutEdgeIterator*>;
+using FindBackEdgesStack = std::stack<VertexEdgeIterPair>;
+using GraphLoopSeq = std::vector<GraphLoop*>;
 
 class Levelize : public StaState
 {
@@ -52,7 +54,6 @@ public:
   void ensureLevelized();
   void invalid();
   // Levels downstream from vertex are invalid.
-  void invalidFrom(Vertex *vertex);
   void relevelizeFrom(Vertex *vertex);
   void deleteVertexBefore(Vertex *vertex);
   void deleteEdgeBefore(Edge *edge);
@@ -61,6 +62,7 @@ public:
   VertexSet &roots() { return roots_; }
   bool isRoot(Vertex *vertex);
   bool hasFanout(Vertex *vertex);
+  bool searchThru(Edge *edge);
   // Reset to virgin state.
   void clear();
   // Edge is disabled to break combinational loops.
@@ -96,14 +98,13 @@ protected:
              VertexSet &path_vertices,
              EdgeSeq &path);
   void setLevel(Vertex  *vertex,
-		Level level);
+                Level level);
   void setLevelIncr(Vertex  *vertex,
                     Level level);
   void clearLoopEdges();
   void deleteLoops();
   void reportPath(EdgeSeq &path) const;
 
-  SearchPredNonLatch2 search_pred_;
   bool levelized_;
   bool levels_valid_;
   Level max_level_;
@@ -123,7 +124,7 @@ protected:
 class GraphLoop
 {
 public:
-  explicit GraphLoop(EdgeSeq *edges);
+  GraphLoop(EdgeSeq *edges);
   ~GraphLoop();
   EdgeSeq *edges() { return edges_; }
   bool isCombinational() const;

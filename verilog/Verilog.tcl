@@ -32,7 +32,7 @@ proc_redirect read_verilog {
 }
 
 define_cmd_args "write_verilog" {[-include_pwr_gnd]\
-				   [-remove_cells cells] filename}
+                                   [-remove_cells cells] filename}
 
 proc write_verilog { args } {
   # -sort deprecated 12/12/2025

@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string>
+
 #include "Zlib.hh"
 #include "MinMax.hh"
 #include "ParasiticsClass.hh"
@@ -32,25 +34,24 @@ namespace sta {
 
 class ParasiticAnalysisPt;
 class Instance;
-class Corner;
+class Scene;
 class OperatingConditions;
 class StaState;
 
 // Read a file single value parasitics into analysis point ap.
 // In a Spef file with triplet values the first value is used.
-// Constraint min/max cnst_min_max and operating condition op_cond
-// are used for parasitic network reduction.
+// Min/max and operating condition op_cond are used for parasitic network reduction.
 // Return true if successful.
 bool
-readSpefFile(const char *filename,
-	     Instance *instance,
-	     ParasiticAnalysisPt *ap,
-	     bool pin_cap_included,
-	     bool keep_coupling_caps,
-	     float coupling_cap_factor,
-	     bool reduce,
-	     const Corner *corner,
-	     const MinMaxAll *min_max,
-	     StaState *sta);
+readSpefFile(const std::string &filename,
+             Instance *instance,
+             bool pin_cap_included,
+             bool keep_coupling_caps,
+             float coupling_cap_factor,
+             bool reduce,
+             const Scene *scene,
+             const MinMaxAll *min_max,
+             Parasitics *parasirics,
+             StaState *sta);
 
 } // namespace

@@ -36,15 +36,21 @@ namespace sta {
 
 StringSet *
 tclListSetConstChar(Tcl_Obj *const source,
-		    Tcl_Interp *interp);
+                    Tcl_Interp *interp);
 
 StringSeq *
 tclListSeqConstChar(Tcl_Obj *const source,
-		    Tcl_Interp *interp);
+                    Tcl_Interp *interp);
 
+StdStringSeq
+tclListSeqStdString(Tcl_Obj *const source,
+                    Tcl_Interp *interp);
+StdStringSeq *
+tclListSeqStdStringPtr(Tcl_Obj *const source,
+                       Tcl_Interp *interp);
 StdStringSet *
 tclListSetStdString(Tcl_Obj *const source,
-		    Tcl_Interp *interp);
+                    Tcl_Interp *interp);
 
 void
 tclArgError(Tcl_Interp *interp,
@@ -54,10 +60,10 @@ tclArgError(Tcl_Interp *interp,
 
 void
 objectListNext(const char *list,
-	       const char *type,
-	       // Return values.
-	       bool &type_match,
-	       const char *&next);
+               const char *type,
+               // Return values.
+               bool &type_match,
+               const char *&next);
 
 Tcl_Obj *
 tclArcDcalcArg(ArcDcalcArg &gate,

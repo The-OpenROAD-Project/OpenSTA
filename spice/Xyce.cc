@@ -74,7 +74,7 @@ readXyceCsv(const char *csv_filename,
     }
     file.close();
     TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                    new FloatSeq(values[0]));
+                                                    std::move(values[0]));
     for (size_t var = 1; var < values.size(); var++)
       waveforms.emplace_back(new FloatSeq(values[var]), time_axis);
   }
