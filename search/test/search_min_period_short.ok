@@ -5,10 +5,7 @@
 --- min_period_check_slack short ---
 --- min_period_violations short/verbose ---
 Min period violations count: 1
-Violations short report done
-Violations verbose report done
 --- max_skew_check_slack ---
-No max skew check found (expected for Nangate45)
 --- max_skew_violations ---
 Max skew violations count: 1
 --- report_check_types -max_skew (short) ---

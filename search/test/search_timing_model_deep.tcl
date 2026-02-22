@@ -63,7 +63,6 @@ set mpc [sta::min_period_check_slack]
 if { $mpc != "NULL" } {
   sta::report_min_period_check $mpc 0
   sta::report_min_period_check $mpc 1
-} else {
 }
 
 puts "--- report_min_period_checks ---"
@@ -83,7 +82,6 @@ set msc [sta::max_skew_check_slack]
 if { $msc != "NULL" } {
   sta::report_max_skew_check $msc 0
   sta::report_max_skew_check $msc 1
-} else {
 }
 
 ############################################################
@@ -163,7 +161,6 @@ set mpws [sta::min_pulse_width_check_slack "NULL"]
 if { $mpws != "NULL" } {
   sta::report_mpw_check $mpws 0
   sta::report_mpw_check $mpws 1
-} else {
 }
 
 ############################################################

@@ -40,7 +40,13 @@ puts "--- Gated clock path detail ---"
 set gated_paths [find_timing_paths -path_delay max -endpoint_path_count 15 -group_path_count 30]
 puts "Total max paths: [llength $gated_paths]"
 foreach pe $gated_paths {
-  puts "  type: is_gated=[$pe is_gated_clock] is_check=[$pe is_check] is_output=[$pe is_output_delay] is_latch=[$pe is_latch_check] is_data=[$pe is_data_check] is_path_delay=[$pe is_path_delay] is_uncon=[$pe is_unconstrained]"
+  puts "  type: is_gated=[$pe is_gated_clock]\
+    is_check=[$pe is_check]\
+    is_output=[$pe is_output_delay]\
+    is_latch=[$pe is_latch_check]\
+    is_data=[$pe is_data_check]\
+    is_path_delay=[$pe is_path_delay]\
+    is_uncon=[$pe is_unconstrained]"
   puts "    pin=[get_full_name [$pe pin]] role=[$pe check_role] slack=[$pe slack]"
   puts "    margin=[$pe margin] data_arr=[$pe data_arrival_time] data_req=[$pe data_required_time]"
   puts "    target_clk: [get_name [$pe target_clk]]"
@@ -105,7 +111,6 @@ set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -setup 0.3
 set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -hold 0.15
 report_checks -path_delay max -format full_clock_expanded -fields {capacitance slew fanout}
 report_checks -path_delay min -format full_clock_expanded -fields {capacitance slew fanout}
-puts "data check full_clock_expanded done"
 
 puts "--- Data check all formats ---"
 report_checks -path_delay max -format full
@@ -115,7 +120,6 @@ report_checks -path_delay max -format end
 report_checks -path_delay max -format summary
 report_checks -path_delay max -format slack_only
 report_checks -path_delay max -format json
-puts "data check all formats done"
 
 puts "--- Data check path iteration ---"
 set dc_paths [find_timing_paths -path_delay max -endpoint_path_count 10]

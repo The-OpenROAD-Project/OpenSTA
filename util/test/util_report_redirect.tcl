@@ -56,8 +56,7 @@ if { [file exists $redir_file] } {
   set fh [open $redir_file r]
   set content [read $fh]
   close $fh
-  if { [string length $content] > 0 } {
-  } else {
+  if { [string length $content] <= 0 } {
     puts "INFO: redirect file was empty"
   }
 } else {
@@ -81,8 +80,7 @@ if { [file exists $append_file] } {
   set fh [open $append_file r]
   set content [read $fh]
   close $fh
-  if { [string length $content] > 0 } {
-  } else {
+  if { [string length $content] <= 0 } {
     puts "INFO: appended redirect file was empty"
   }
 } else {
@@ -106,8 +104,7 @@ if { [file exists $log_file2] } {
   set fh [open $log_file2 r]
   set log_content [read $fh]
   close $fh
-  if { [string length $log_content] > 0 } {
-  } else {
+  if { [string length $log_content] <= 0 } {
     puts "INFO: log file was empty (may be expected)"
   }
 } else {
@@ -119,8 +116,7 @@ if { [file exists $log_file2] } {
 #---------------------------------------------------------------
 puts "--- FileNotReadable error path ---"
 set rc [catch { read_liberty "/nonexistent/file/path.lib" } msg]
-if { $rc != 0 } {
-} else {
+if { $rc == 0 } {
   puts "INFO: no error for nonexistent file"
 }
 

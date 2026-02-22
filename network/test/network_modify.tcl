@@ -13,29 +13,25 @@ puts "current_design: $design"
 
 puts "--- make_net new_net1 ---"
 set new_net [make_net new_net1]
-if { $new_net != 0 } {
-} else {
+if { $new_net == 0 } {
   puts "FAIL: make_net returned 0"
 }
 
 puts "--- verify new net exists ---"
 set found_net [get_nets new_net1]
-if { [llength $found_net] > 0 } {
-} else {
+if { [llength $found_net] <= 0 } {
   puts "FAIL: new_net1 not found"
 }
 
 puts "--- make_instance new_buf BUF_X1 ---"
 set new_inst [make_instance new_buf NangateOpenCellLibrary/BUF_X1]
-if { $new_inst != 0 } {
-} else {
+if { $new_inst == 0 } {
   puts "FAIL: make_instance returned 0"
 }
 
 puts "--- verify new instance exists ---"
 set found_inst [get_cells new_buf]
-if { [llength $found_inst] > 0 } {
-} else {
+if { [llength $found_inst] <= 0 } {
   puts "FAIL: new_buf not found"
 }
 

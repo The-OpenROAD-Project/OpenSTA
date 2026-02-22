@@ -27,7 +27,6 @@ puts "--- min_period_check_slack ---"
 set min_period_slack_check [sta::min_period_check_slack]
 if { $min_period_slack_check != "NULL" } {
   sta::report_min_period_check $min_period_slack_check 1
-  puts "Min period slack check reported"
 }
 
 puts "--- report_min_period_checks ---"

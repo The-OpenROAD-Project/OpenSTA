@@ -36,10 +36,8 @@ if { $min_check != "NULL" } {
   # Short report (verbose=0) triggers reportCheck(check, false)
   # which calls reportPeriodHeaderShort + reportShort
   sta::report_min_period_check $min_check 0
-  puts "Min period short report done"
   # Verbose report (verbose=1)
   sta::report_min_period_check $min_check 1
-  puts "Min period verbose report done"
 }
 
 puts "--- min_period_violations short/verbose ---"
@@ -48,10 +46,8 @@ puts "Min period violations count: [llength $viols]"
 if { [llength $viols] > 0 } {
   # Short report: triggers reportChecks(checks, false)
   sta::report_min_period_checks $viols 0
-  puts "Violations short report done"
   # Verbose report: triggers reportChecks(checks, true)
   sta::report_min_period_checks $viols 1
-  puts "Violations verbose report done"
 }
 
 puts "--- max_skew_check_slack ---"
@@ -60,8 +56,6 @@ if { $max_skew_slack != "NULL" } {
   sta::report_max_skew_check $max_skew_slack 0
   sta::report_max_skew_check $max_skew_slack 1
   puts "Max skew check reported"
-} else {
-  puts "No max skew check found (expected for Nangate45)"
 }
 
 puts "--- max_skew_violations ---"

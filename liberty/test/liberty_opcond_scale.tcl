@@ -23,14 +23,12 @@ set lib [sta::find_liberty NangateOpenCellLibrary]
 # Operating conditions queries
 ############################################################
 set op_cond [$lib find_operating_conditions typical]
-if { $op_cond != "NULL" } {
-} else {
+if { $op_cond == "NULL" } {
   puts "INFO: no operating_conditions named typical"
 }
 
 set def_op [$lib default_operating_conditions]
-if { $def_op != "NULL" } {
-} else {
+if { $def_op == "NULL" } {
   puts "INFO: no default operating conditions"
 }
 
@@ -143,14 +141,12 @@ $port_iter2 finish
 # Exercises: findWireload, findWireloadSelection
 ############################################################
 set wl [$lib find_wireload "1K_hvratio_1_1"]
-if { $wl != "NULL" } {
-} else {
+if { $wl == "NULL" } {
   puts "INFO: wireload not found"
 }
 
 set wls [$lib find_wireload_selection "WireloadSelection"]
-if { $wls != "NULL" } {
-} else {
+if { $wls == "NULL" } {
   puts "INFO: wireload selection not found"
 }
 
@@ -162,14 +158,12 @@ read_liberty ../../test/sky130hd/sky130hd_tt.lib
 set sky_lib [sta::find_liberty sky130_fd_sc_hd__tt_025C_1v80]
 
 set sky_op [$sky_lib find_operating_conditions "tt_025C_1v80"]
-if { $sky_op != "NULL" } {
-} else {
+if { $sky_op == "NULL" } {
   puts "INFO: sky130 no named operating conditions"
 }
 
 set sky_def_op [$sky_lib default_operating_conditions]
-if { $sky_def_op != "NULL" } {
-} else {
+if { $sky_def_op == "NULL" } {
   puts "INFO: sky130 no default operating conditions"
 }
 

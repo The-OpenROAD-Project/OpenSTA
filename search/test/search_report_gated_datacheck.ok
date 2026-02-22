@@ -1439,7 +1439,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   0.08   slack (MET)
 
 
-data check full_clock_expanded done
 --- Data check all formats ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk)
@@ -1636,7 +1635,6 @@ clk                                    -5.38
 }
 ]
 }
-data check all formats done
 --- Data check path iteration ---
 Data check max paths: 10
   is_data_check: 1 role=data check setup pin=reg2/D

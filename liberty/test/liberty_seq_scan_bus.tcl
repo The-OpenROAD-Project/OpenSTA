@@ -18,9 +18,6 @@ puts "sdfxtp_1 area = $sdf_area"
 
 # Check test_cell exists
 set tc [$sdf_cell test_cell]
-if {$tc != "NULL" && $tc ne ""} {
-} else {
-}
 
 # Query scan ports
 foreach port_name {SCD SCE CLK D Q} {

@@ -35,16 +35,10 @@ if { $ng_lib != "NULL" } {
 }
 
 set ng_fast [sta::find_liberty NangateOpenCellLibrary_fast]
-if { $ng_fast != "NULL" } {
-}
 
 set sky_lib [sta::find_liberty sky130_fd_sc_hd__tt_025C_1v80]
-if { $sky_lib != "NULL" } {
-}
 
 set ihp_lib [sta::find_liberty sg13g2_stdcell_typ_1p20V_25C]
-if { $ihp_lib != "NULL" } {
-}
 
 # Liberty library iterator
 set lib_iter [sta::liberty_library_iterator]

@@ -1410,7 +1410,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-data_check applied
 --- find_timing_paths with data check ---
 Found 10 paths with data check
   is_data_check: 1 pin=reg2/D role=data check setup

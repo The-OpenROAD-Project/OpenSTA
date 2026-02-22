@@ -49,8 +49,7 @@ if { $nproc > 0 } {
 #---------------------------------------------------------------
 puts "--- memory_usage ---"
 set mem [sta::memory_usage]
-if { $mem >= 0 } {
-} else {
+if { $mem < 0 } {
   puts "FAIL: memory_usage negative"
 }
 
@@ -209,8 +208,7 @@ report_checks
 report_checks -path_delay min
 report_units
 log_end
-if { [file exists $lfile] } {
-} else {
+if { [file exists $lfile] == 0 } {
   puts "INFO: log file not created"
 }
 
@@ -220,20 +218,12 @@ if { [file exists $lfile] } {
 puts "--- error paths ---"
 # catch: intentionally testing error for nonexistent liberty file
 set rc [catch { read_liberty "/nonexistent/path/file.lib" } msg]
-if { $rc != 0 } {
-}
 
 # catch: intentionally testing error for nonexistent verilog file
 set rc [catch { read_verilog "/nonexistent/path/file.v" } msg]
-if { $rc != 0 } {
-}
 
 # catch: intentionally testing error for nonexistent SPEF file
 set rc [catch { read_spef "/nonexistent/path/file.spef" } msg]
-if { $rc != 0 } {
-}
 
 # catch: intentionally testing error for nonexistent SDF file
 set rc [catch { read_sdf "/nonexistent/path/file.sdf" } msg]
-if { $rc != 0 } {
-}

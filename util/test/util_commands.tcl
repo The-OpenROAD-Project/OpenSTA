@@ -25,15 +25,13 @@ report_units
 
 puts "--- elapsed_run_time ---"
 set elapsed [elapsed_run_time]
-if { $elapsed >= 0 } {
-} else {
+if { $elapsed < 0 } {
   puts "FAIL: elapsed_run_time returned negative"
 }
 
 puts "--- user_run_time ---"
 set user_time [user_run_time]
-if { $user_time >= 0 } {
-} else {
+if { $user_time < 0 } {
   puts "FAIL: user_run_time returned negative"
 }
 
@@ -49,8 +47,7 @@ if { [file exists $log_file] } {
   set log_content [read $fh]
   close $fh
   file delete $log_file
-  if { [string length $log_content] > 0 } {
-  } else {
+  if { [string length $log_content] <= 0 } {
     puts "INFO: log file was empty"
   }
 } else {
@@ -70,8 +67,7 @@ unsuppress_msg 999
 puts "--- with_output_to_variable ---"
 with_output_to_variable result { report_units }
 puts "captured output length: [string length $result]"
-if { [string length $result] > 0 } {
-} else {
+if { [string length $result] <= 0 } {
   puts "FAIL: with_output_to_variable captured empty output"
 }
 

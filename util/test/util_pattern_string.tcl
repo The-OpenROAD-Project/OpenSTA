@@ -110,16 +110,14 @@ sta::set_debug "delay_calc" 0
 puts "--- FileNotWritable error path ---"
 # catch: intentionally testing FileNotWritable error for nonexistent directory
 set rc [catch { write_sdf "/nonexistent_dir/no_write.sdf" } msg]
-if { $rc != 0 } {
-} else {
+if { $rc == 0 } {
   puts "INFO: no error for bad write path"
 }
 
 # Try write to read-only path
 # catch: intentionally testing FileNotWritable error for /proc path
 set rc [catch { log_begin "/proc/nonexistent_log" } msg]
-if { $rc != 0 } {
-} else {
+if { $rc == 0 } {
   log_end
   puts "INFO: log_begin succeeded on /proc path"
 }

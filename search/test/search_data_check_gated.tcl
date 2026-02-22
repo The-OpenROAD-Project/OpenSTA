@@ -76,8 +76,6 @@ set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -setup 0.2
 set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -hold 0.1
 report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
-puts "data_check applied"
-
 puts "--- find_timing_paths with data check ---"
 set paths_dc [find_timing_paths -path_delay max -endpoint_path_count 10]
 puts "Found [llength $paths_dc] paths with data check"

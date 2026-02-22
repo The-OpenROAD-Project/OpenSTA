@@ -41,8 +41,7 @@ if { [file exists $log_file1] } {
   set content [read $fh]
   close $fh
   set len [string length $content]
-  if { $len > 100 } {
-  } else {
+  if { $len <= 100 } {
     puts "INFO: log file unexpectedly small: $len"
   }
 } else {
@@ -77,8 +76,6 @@ foreach {fname label} [list $log_file2 "log" $redir_file2 "redirect"] {
     set content [read $fh]
     close $fh
     set len [string length $content]
-    if { $len > 0 } {
-    }
   }
 }
 
@@ -110,8 +107,6 @@ if { [file exists $append_file] } {
   set content [read $fh]
   close $fh
   set len [string length $content]
-  if { $len > 200 } {
-  }
 }
 
 #---------------------------------------------------------------
@@ -167,9 +162,6 @@ suppress_msg 100 200 300
 # Trigger some warnings by reading nonexistent files
 # catch: intentionally testing error handling for nonexistent file path
 set rc [catch { read_liberty "/nonexistent/path.lib" } msg]
-if { $rc != 0 } {
-}
-
 unsuppress_msg 100 200 300
 
 #---------------------------------------------------------------
