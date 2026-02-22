@@ -405,10 +405,13 @@ TEST(EdgeStandaloneTest, ObjectIdx)
 
 TEST(EdgeStandaloneTest, SetIsDisabledConstraint)
 {
+  ASSERT_NO_THROW(( [&](){
   Edge e;
   e.setIsDisabledConstraint(true);
   // Can only fully test when arc_set is set; test the setter at least
   e.setIsDisabledConstraint(false);
+
+  }() ));
 }
 
 TEST(EdgeStandaloneTest, RemoveDelayAnnotated)

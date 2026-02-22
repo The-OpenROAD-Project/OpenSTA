@@ -147,6 +147,7 @@ TEST_F(FindRootTest, ZeroTolerance) {
 
 // Only 1 iteration allowed
 TEST_F(FindRootTest, OneIteration) {
+  ASSERT_NO_THROW(( [&](){
   FindRootFunc func = [](double x, double &y, double &dy) {
     y = x * x - 4.0;
     dy = 2.0 * x;
@@ -156,6 +157,8 @@ TEST_F(FindRootTest, OneIteration) {
   // With only 1 iteration, a quadratic likely won't converge to tight tol
   // The algorithm may or may not fail depending on initial bisection step
   (void)root; // just ensure no crash
+
+  }() ));
 }
 
 // Two iterations

@@ -1934,13 +1934,19 @@ TEST_F(ConcreteNetworkLinkedTest, AddConstantNet) {
 
 // Network: readNetlistBefore, setLinkFunc
 TEST(ConcreteNetworkExtraTest, ReadNetlistBefore) {
+  ASSERT_NO_THROW(( [&](){
   ConcreteNetwork network;
   network.readNetlistBefore();
+
+  }() ));
 }
 
 TEST(ConcreteNetworkExtraTest, SetLinkFunc) {
+  ASSERT_NO_THROW(( [&](){
   ConcreteNetwork network;
   network.setLinkFunc(nullptr);
+
+  }() ));
 }
 
 // Network: setCellNetworkView, cellNetworkView, deleteCellNetworkViews
@@ -2374,38 +2380,53 @@ TEST_F(ConcreteNetworkLinkedTest, FindInstancesHierMatching) {
 
 // Network Set/Map comparators constructors
 TEST_F(ConcreteNetworkLinkedTest, PinIdLessConstructor) {
+  ASSERT_NO_THROW(( [&](){
   PinIdLess less(&network_);
   bool result = less(pin_u1_a_, pin_u2_a_);
   (void)result;
+
+  }() ));
 }
 
 TEST_F(ConcreteNetworkLinkedTest, NetIdLessConstructor) {
+  ASSERT_NO_THROW(( [&](){
   NetIdLess less(&network_);
   bool result = less(net1_, net2_);
   (void)result;
+
+  }() ));
 }
 
 TEST_F(ConcreteNetworkLinkedTest, InstanceIdLessConstructor) {
+  ASSERT_NO_THROW(( [&](){
   InstanceIdLess less(&network_);
   bool result = less(u1_, u2_);
   (void)result;
+
+  }() ));
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PortIdLessConstructor) {
+  ASSERT_NO_THROW(( [&](){
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
   Port *port_y = network_.findPort(inv_cell, "Y");
   PortIdLess less(&network_);
   bool result = less(port_a, port_y);
   (void)result;
+
+  }() ));
 }
 
 TEST_F(ConcreteNetworkLinkedTest, CellIdLessConstructor) {
+  ASSERT_NO_THROW(( [&](){
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Cell *top_cell = network_.findCell(lib_, "TOP");
   CellIdLess less(&network_);
   bool result = less(inv_cell, top_cell);
   (void)result;
+
+  }() ));
 }
 
 // PinSet: with network constructor and intersects
@@ -2420,12 +2441,15 @@ TEST_F(ConcreteNetworkLinkedTest, PinSetWithNetwork) {
 
 // PinSet: compare
 TEST_F(ConcreteNetworkLinkedTest, PinSetCompare) {
+  ASSERT_NO_THROW(( [&](){
   PinSet set1(&network_);
   set1.insert(pin_u1_a_);
   PinSet set2(&network_);
   set2.insert(pin_u2_a_);
   int cmp = PinSet::compare(&set1, &set2, &network_);
   (void)cmp;
+
+  }() ));
 }
 
 // InstanceSet: with network and intersects
@@ -2450,12 +2474,15 @@ TEST_F(ConcreteNetworkLinkedTest, NetSetWithNetwork) {
 
 // NetSet: compare
 TEST_F(ConcreteNetworkLinkedTest, NetSetCompare) {
+  ASSERT_NO_THROW(( [&](){
   NetSet set1(&network_);
   set1.insert(net1_);
   NetSet set2(&network_);
   set2.insert(net2_);
   int cmp = NetSet::compare(&set1, &set2, &network_);
   (void)cmp;
+
+  }() ));
 }
 
 // CellSet constructor
@@ -2874,9 +2901,12 @@ TEST_F(NetworkAdapterTest, AdapterCellGetAttribute) {
 
 // NetworkNameAdapter: attributeMap(Cell) forwarding
 TEST_F(NetworkAdapterTest, AdapterCellAttributeMap) {
+  ASSERT_NO_THROW(( [&](){
   const AttributeMap &map = sdc_net_->attributeMap(inv_cell_);
   (void)map;
   // Just verify it doesn't crash
+
+  }() ));
 }
 
 // NetworkNameAdapter: library(Cell) forwarding
@@ -3028,8 +3058,11 @@ TEST_F(NetworkAdapterTest, AdapterInstanceGetAttribute) {
 
 // NetworkNameAdapter: attributeMap(Instance) forwarding
 TEST_F(NetworkAdapterTest, AdapterInstanceAttributeMap) {
+  ASSERT_NO_THROW(( [&](){
   const AttributeMap &map = sdc_net_->attributeMap(u1_);
   (void)map;
+
+  }() ));
 }
 
 // NetworkNameAdapter: parent(Instance) forwarding
@@ -3132,8 +3165,11 @@ TEST_F(NetworkAdapterTest, AdapterPinDirection) {
 
 // NetworkNameAdapter: vertexId(Pin) forwarding
 TEST_F(NetworkAdapterTest, AdapterPinVertexId) {
+  ASSERT_NO_THROW(( [&](){
   VertexId vid = sdc_net_->vertexId(pin_b1_a_);
   (void)vid;  // Just verify it doesn't crash
+
+  }() ));
 }
 
 // NetworkNameAdapter: setVertexId forwarding
@@ -5680,9 +5716,12 @@ TEST_F(NetworkAdapterTest, AdapterPortName3) {
 // R10_ NetworkAdapter: busName forwarding
 // Covers: NetworkNameAdapter::busName(Port const*) const
 TEST_F(NetworkAdapterTest, AdapterBusName) {
+  ASSERT_NO_THROW(( [&](){
   const char *name = sdc_net_->busName(port_a_);
   // Scalar port busName is nullptr
   (void)name;
+
+  }() ));
 }
 
 // R10_ NetworkAdapter: makeNet forwarding

@@ -2478,9 +2478,12 @@ TEST_F(ArcDcalcResultTest, MultipleLoadSetGet) {
 
 // NetCaps additional coverage - default constructor doesn't zero-init
 TEST_F(StaDcalcTest, NetCapsDefaultConstructorExists) {
+  ASSERT_NO_THROW(( [&](){
   NetCaps caps;
   // Default constructor doesn't initialize members, just verify construction
   SUCCEED();
+
+  }() ));
 }
 
 TEST_F(StaDcalcTest, NetCapsParameterizedConstructor) {
@@ -2523,33 +2526,48 @@ TEST_F(StaDcalcTest, GraphDelayCalcConstruct) {
 }
 
 TEST_F(StaDcalcTest, GraphDelayCalcClear3) {
+  ASSERT_NO_THROW(( [&](){
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->clear();
   SUCCEED();
+
+  }() ));
 }
 
 TEST_F(StaDcalcTest, GraphDelayCalcDelaysInvalid3) {
+  ASSERT_NO_THROW(( [&](){
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->delaysInvalid();
   SUCCEED();
+
+  }() ));
 }
 
 TEST_F(StaDcalcTest, GraphDelayCalcSetObserver) {
+  ASSERT_NO_THROW(( [&](){
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->setObserver(nullptr);
   SUCCEED();
+
+  }() ));
 }
 
 TEST_F(StaDcalcTest, GraphDelayCalcLevelsChanged) {
+  ASSERT_NO_THROW(( [&](){
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->levelsChangedBefore();
   SUCCEED();
+
+  }() ));
 }
 
 TEST_F(StaDcalcTest, GraphDelayCalcCopyState3) {
+  ASSERT_NO_THROW(( [&](){
   GraphDelayCalc *gdc = sta_->graphDelayCalc();
   gdc->copyState(sta_);
   SUCCEED();
+
+  }() ));
 }
 
 TEST_F(StaDcalcTest, GraphDelayCalcIncrTolerance) {

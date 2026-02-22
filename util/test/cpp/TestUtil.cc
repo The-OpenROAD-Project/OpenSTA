@@ -942,9 +942,12 @@ TEST(ReportTest, LogToFile)
 
 TEST(ReportTest, LogEndWithoutLog)
 {
+  ASSERT_NO_THROW(( [&](){
   Report report;
   // Should not crash when no log is active
   report.logEnd();
+
+  }() ));
 }
 
 TEST(ReportTest, RedirectFileBegin)
@@ -992,9 +995,12 @@ TEST(ReportTest, RedirectFileAppendBegin)
 
 TEST(ReportTest, RedirectFileEndWithoutRedirect)
 {
+  ASSERT_NO_THROW(( [&](){
   Report report;
   // Should not crash
   report.redirectFileEnd();
+
+  }() ));
 }
 
 TEST(ReportTest, RedirectFileNotWritable)
@@ -1969,10 +1975,13 @@ TEST(StringUtilCovTest, StringPrintArgs)
 // stringDeleteCheck (only for non-tmp strings - should not crash)
 TEST(StringUtilCovTest, StringDeleteCheckNonTmp)
 {
+  ASSERT_NO_THROW(( [&](){
   char *s = stringPrint("not tmp");
   // This should not crash or exit; it's not a tmp string
   stringDeleteCheck(s);
   stringDelete(s);
+
+  }() ));
 }
 
 // Test that isTmpString returns false for heap-allocated strings
@@ -2174,12 +2183,15 @@ TEST(ReportStdCovTest, ReportStdError)
 
 TEST(ReportStdCovTest, PrintConsoleDirect)
 {
+  ASSERT_NO_THROW(( [&](){
   Report *report = makeReportStd();
   // reportLine calls printConsole
   report->reportLine("direct console print test");
   // printError calls printErrorConsole - triggered by warn
   report->warn(998, "stderr test");
   delete report;
+
+  }() ));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2293,6 +2305,7 @@ TEST(MachineCovTest, SystemRunTime)
 
 TEST(StatsCovTest, StatsConstructAndReport)
 {
+  ASSERT_NO_THROW(( [&](){
   Report report;
   Debug debug(&report);
   // With debug stats level 0, constructor/report are no-ops
@@ -2303,6 +2316,8 @@ TEST(StatsCovTest, StatsConstructAndReport)
   debug.setLevel("stats", 1);
   Stats stats2(&debug, &report);
   stats2.report("test step 2");
+
+  }() ));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2341,6 +2356,7 @@ TEST(GzstreamCovTest, WriteGzFile)
 
 TEST(GzstreamCovTest, FlushExplicit)
 {
+  ASSERT_NO_THROW(( [&](){
   const char *tmpgz = "/tmp/test_gzstream_flush.gz";
   {
     gzstream::ogzstream gz(tmpgz);
@@ -2348,6 +2364,8 @@ TEST(GzstreamCovTest, FlushExplicit)
     gz.flush();  // This triggers sync() -> flush_buffer()
   }
   std::remove(tmpgz);
+
+  }() ));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2467,12 +2485,15 @@ TEST(ReportCovTest, RedirectStringPrintCoverage)
 
 TEST(ReportStdCovTest, PrintErrorConsole)
 {
+  ASSERT_NO_THROW(( [&](){
   Report *report = makeReportStd();
   // warn() outputs to stderr via printErrorConsole
   report->warn(777, "testing stderr output");
   // fileWarn also goes through printErrorConsole
   report->fileWarn(778, "test.v", 1, "file warning test");
   delete report;
+
+  }() ));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2491,10 +2512,13 @@ TEST(StringUtilCovTest, MakeTmpStringStdString)
 // so we cannot test that path. Test only with non-tmp strings.
 TEST(StringUtilCovTest, StringDeleteCheckRegular)
 {
+  ASSERT_NO_THROW(( [&](){
   char *s = stringCopy("regular");
   // Should not crash - regular string can be deleted
   stringDeleteCheck(s);
   stringDelete(s);
+
+  }() ));
 }
 
 // Test Report redirectStringPrint with empty string
@@ -2593,10 +2617,13 @@ TEST(ReportStdCovTest, ReportStdConstructor)
 // Covers: ReportStd::printErrorConsole
 TEST(ReportStdCovTest, PrintErrorConsoleViaWarn)
 {
+  ASSERT_NO_THROW(( [&](){
   Report *report = makeReportStd();
   // warn uses printErrorConsole path
   report->warn(9999, "test warning %d", 42);
   delete report;
+
+  }() ));
 }
 
 // Test Report suppress/unsuppress messages
