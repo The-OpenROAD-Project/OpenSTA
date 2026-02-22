@@ -1965,8 +1965,14 @@ TEST_F(StaInitTest, WorstSlackNoDesign) {
 }
 
 TEST_F(StaInitTest, ClearNoDesign) {
-  // clear should not crash on empty design
+  ASSERT_NE(sta_->network(), nullptr);
+  ASSERT_NE(sta_->sdc(), nullptr);
   sta_->clear();
+  EXPECT_NE(sta_->network(), nullptr);
+  EXPECT_NE(sta_->sdc(), nullptr);
+  EXPECT_NE(sta_->search(), nullptr);
+  EXPECT_EQ(sta_->graph(), nullptr);
+  EXPECT_NE(sta_->sdc()->defaultArrivalClock(), nullptr);
 }
 
 TEST_F(StaInitTest, SdcAnalysisType) {
@@ -2111,18 +2117,33 @@ TEST_F(StaInitTest, UseDefaultArrivalClock) {
 
 // Report path format settings - exercise ReportPath.cc
 TEST_F(StaInitTest, SetReportPathFormat) {
+  ReportPath *rpt = sta_->reportPath();
+  ASSERT_NE(rpt, nullptr);
+
   sta_->setReportPathFormat(ReportPathFormat::full);
+  EXPECT_EQ(rpt->pathFormat(), ReportPathFormat::full);
   sta_->setReportPathFormat(ReportPathFormat::full_clock);
+  EXPECT_EQ(rpt->pathFormat(), ReportPathFormat::full_clock);
   sta_->setReportPathFormat(ReportPathFormat::full_clock_expanded);
+  EXPECT_EQ(rpt->pathFormat(), ReportPathFormat::full_clock_expanded);
   sta_->setReportPathFormat(ReportPathFormat::endpoint);
+  EXPECT_EQ(rpt->pathFormat(), ReportPathFormat::endpoint);
   sta_->setReportPathFormat(ReportPathFormat::summary);
+  EXPECT_EQ(rpt->pathFormat(), ReportPathFormat::summary);
   sta_->setReportPathFormat(ReportPathFormat::slack_only);
+  EXPECT_EQ(rpt->pathFormat(), ReportPathFormat::slack_only);
   sta_->setReportPathFormat(ReportPathFormat::json);
+  EXPECT_EQ(rpt->pathFormat(), ReportPathFormat::json);
 }
 
 TEST_F(StaInitTest, SetReportPathDigits) {
+  ReportPath *rpt = sta_->reportPath();
+  ASSERT_NE(rpt, nullptr);
+
   sta_->setReportPathDigits(4);
+  EXPECT_EQ(rpt->digits(), 4);
   sta_->setReportPathDigits(2);
+  EXPECT_EQ(rpt->digits(), 2);
 }
 
 TEST_F(StaInitTest, SetReportPathNoSplit) {
@@ -2131,8 +2152,13 @@ TEST_F(StaInitTest, SetReportPathNoSplit) {
 }
 
 TEST_F(StaInitTest, SetReportPathSigmas) {
+  ReportPath *rpt = sta_->reportPath();
+  ASSERT_NE(rpt, nullptr);
+
   sta_->setReportPathSigmas(true);
+  EXPECT_TRUE(rpt->reportSigmas());
   sta_->setReportPathSigmas(false);
+  EXPECT_FALSE(rpt->reportSigmas());
 }
 
 TEST_F(StaInitTest, SetReportPathFields) {
@@ -2179,7 +2205,14 @@ TEST_F(StaInitTest, MakeCorners) {
 
 // SDC operations via Sta
 TEST_F(StaInitTest, SdcRemoveConstraints) {
+  Sdc *sdc = sta_->sdc();
+  ASSERT_NE(sdc, nullptr);
+  sdc->setAnalysisType(AnalysisType::bc_wc);
   sta_->removeConstraints();
+  EXPECT_EQ(sdc->analysisType(), AnalysisType::bc_wc);
+  EXPECT_NE(sdc->defaultArrivalClock(), nullptr);
+  EXPECT_NE(sdc->defaultArrivalClockEdge(), nullptr);
+  EXPECT_TRUE(sdc->clks().empty());
 }
 
 TEST_F(StaInitTest, SdcConstraintsChanged) {
@@ -3062,7 +3095,7 @@ TEST_F(StaInitTest, SearchDeleteFilter) {
 TEST_F(StaInitTest, SearchDeletePathGroups) {
   Search *search = sta_->search();
   search->deletePathGroups();
-  // No crash
+  EXPECT_FALSE(search->havePathGroups());
 }
 
 TEST_F(StaInitTest, SearchHavePathGroups) {
@@ -3072,8 +3105,9 @@ TEST_F(StaInitTest, SearchHavePathGroups) {
 
 TEST_F(StaInitTest, SearchEndpoints) {
   Search *search = sta_->search();
-  // Without graph, endpoints may be null
-  // Just exercise the call
+  ASSERT_NE(search, nullptr);
+  EXPECT_EQ(sta_->graph(), nullptr);
+  EXPECT_THROW(sta_->ensureGraph(), std::exception);
 }
 
 TEST_F(StaInitTest, SearchRequiredsSeeded) {
@@ -3094,30 +3128,31 @@ TEST_F(StaInitTest, SearchArrivalsAtEndpointsExist) {
 TEST_F(StaInitTest, SearchTagCount) {
   Search *search = sta_->search();
   TagIndex count = search->tagCount();
-  EXPECT_GE(count, 0u);
+  EXPECT_EQ(count, 0u);
 }
 
 TEST_F(StaInitTest, SearchTagGroupCount) {
   Search *search = sta_->search();
   TagGroupIndex count = search->tagGroupCount();
-  EXPECT_GE(count, 0u);
+  EXPECT_EQ(count, 0u);
 }
 
 TEST_F(StaInitTest, SearchClkInfoCount) {
   Search *search = sta_->search();
   int count = search->clkInfoCount();
-  EXPECT_GE(count, 0);
+  EXPECT_EQ(count, 0);
 }
 
 TEST_F(StaInitTest, SearchEvalPred) {
   Search *search = sta_->search();
-  // evalPred should exist after makeComponents
-  // (may be null without graph though)
+  ASSERT_NE(search, nullptr);
+  EXPECT_NE(search->evalPred(), nullptr);
 }
 
 TEST_F(StaInitTest, SearchSearchAdj) {
   Search *search = sta_->search();
-  // searchAdj may be null without graph
+  ASSERT_NE(search, nullptr);
+  EXPECT_NE(search->searchAdj(), nullptr);
 }
 
 TEST_F(StaInitTest, SearchClear) {

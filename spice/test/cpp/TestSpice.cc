@@ -1775,8 +1775,10 @@ TEST_F(SpiceDesignTest, HoldTimingPaths) {
     10, 1, false, false, -INF, INF, false, nullptr,
     false, true, false, false, false, false
   );
-  // Hold paths should exist for the constrained design
-  EXPECT_GE(path_ends.size(), 0u);
+  // Hold paths should exist for the constrained design.
+  ASSERT_FALSE(path_ends.empty());
+  ASSERT_NE(path_ends[0], nullptr);
+  EXPECT_NE(path_ends[0]->path(), nullptr);
 }
 
 // Verify clock can be found for SPICE waveform generation

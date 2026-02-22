@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include <tcl.h>
+#include <fstream>
+#include <iterator>
+#include <string>
 #include "Transition.hh"
 #include "MinMax.hh"
 #include "ExceptionPath.hh"
@@ -31,6 +34,16 @@
 #include "PortDirection.hh"
 
 namespace sta {
+
+static std::string
+readTextFile(const char *filename)
+{
+  std::ifstream in(filename);
+  if (!in.is_open())
+    return "";
+  return std::string((std::istreambuf_iterator<char>(in)),
+                     std::istreambuf_iterator<char>());
+}
 
 // RiseFall tests
 class RiseFallTest : public ::testing::Test {};
@@ -10215,9 +10228,10 @@ TEST_F(SdcDesignTest, WriteSdcLatchBorrowClock) {
   }
   const char *filename = "/tmp/test_sdc_r11_latchborrowclk.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
-  FILE *f = fopen(filename, "r");
-  EXPECT_NE(f, nullptr);
-  if (f) fclose(f);
+  std::string text = readTextFile(filename);
+  ASSERT_FALSE(text.empty());
+  EXPECT_NE(text.find("set_max_time_borrow"), std::string::npos);
+  EXPECT_NE(text.find("[get_clocks {clk}]"), std::string::npos);
 }
 
 // --- WriteSdc with derating on cell, instance, net ---
@@ -10259,9 +10273,14 @@ TEST_F(SdcDesignTest, WriteSdcDeratingCellInstNet) {
 
   const char *filename = "/tmp/test_sdc_r11_derate_all.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
-  FILE *f = fopen(filename, "r");
-  EXPECT_NE(f, nullptr);
-  if (f) fclose(f);
+  std::string text = readTextFile(filename);
+  ASSERT_FALSE(text.empty());
+  EXPECT_NE(text.find("set_timing_derate -net_delay -early -data"),
+            std::string::npos);
+  EXPECT_NE(text.find("set_timing_derate -cell_delay -late -data"),
+            std::string::npos);
+  EXPECT_NE(text.find("set_timing_derate -cell_delay -early -data"),
+            std::string::npos);
 }
 
 // --- Sdc: capacitanceLimit on pin ---
@@ -10286,9 +10305,9 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathHold) {
   sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::min(), nullptr);
   const char *filename = "/tmp/test_sdc_r11_fp_hold.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
-  FILE *f = fopen(filename, "r");
-  EXPECT_NE(f, nullptr);
-  if (f) fclose(f);
+  std::string text = readTextFile(filename);
+  ASSERT_FALSE(text.empty());
+  EXPECT_NE(text.find("set_false_path -hold"), std::string::npos);
 }
 
 // --- WriteSdc with set_false_path -setup only
@@ -10297,9 +10316,9 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathSetup) {
   sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::max(), nullptr);
   const char *filename = "/tmp/test_sdc_r11_fp_setup.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
-  FILE *f = fopen(filename, "r");
-  EXPECT_NE(f, nullptr);
-  if (f) fclose(f);
+  std::string text = readTextFile(filename);
+  ASSERT_FALSE(text.empty());
+  EXPECT_NE(text.find("set_false_path -setup"), std::string::npos);
 }
 
 // --- WriteSdc with exception -through with rise_through
@@ -10319,9 +10338,10 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathRiseThru) {
   }
   const char *filename = "/tmp/test_sdc_r11_fp_risethru.sdc";
   sta_->writeSdc(filename, false, false, 4, false, true);
-  FILE *f = fopen(filename, "r");
-  EXPECT_NE(f, nullptr);
-  if (f) fclose(f);
+  std::string text = readTextFile(filename);
+  ASSERT_FALSE(text.empty());
+  EXPECT_NE(text.find("set_false_path"), std::string::npos);
+  EXPECT_NE(text.find("-rise_through [get_ports {in1}]"), std::string::npos);
 }
 
 } // namespace sta
