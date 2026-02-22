@@ -39,44 +39,5 @@ Path Type: max
            0.75   slack (MET)
 
 
+Warning: spice_gcd_gate.tcl line 1, port '*' not found.
 --- write_path_spice tests ---
-INFO: write_path_spice ngspice max: Error: The subkct file /workspace/sta/OpenSTA/spice/test/results/spice_gcd_gate_out/sky130_subckt.sp is missing definitions for 
-sky130_fd_sc_hd__a21boi_2
-sky130_fd_sc_hd__a311oi_4
-sky130_fd_sc_hd__a31o_2
-sky130_fd_sc_hd__clkbuf_4
-sky130_fd_sc_hd__dfxtp_2
-sky130_fd_sc_hd__dfxtp_4
-sky130_fd_sc_hd__dlygate4sd1_1
-sky130_fd_sc_hd__maj3_2
-sky130_fd_sc_hd__nor2_2
-sky130_fd_sc_hd__nor2b_4
-sky130_fd_sc_hd__nor3_1
-sky130_fd_sc_hd__o211ai_4
-sky130_fd_sc_hd__o21a_1
-sky130_fd_sc_hd__o311a_2
-sky130_fd_sc_hd__o311ai_4
-sky130_fd_sc_hd__or4_1
-sky130_fd_sc_hd__xnor2_2
-INFO: write_path_spice hspice min: Error: The subkct file /workspace/sta/OpenSTA/spice/test/results/spice_gcd_gate_out/sky130_subckt.sp is missing definitions for 
-sky130_fd_sc_hd__a32o_1
-sky130_fd_sc_hd__clkbuf_4
-sky130_fd_sc_hd__dfxtp_2
-INFO: write_path_spice xyce: Error: The subkct file /workspace/sta/OpenSTA/spice/test/results/spice_gcd_gate_out/sky130_subckt.sp is missing definitions for 
-sky130_fd_sc_hd__a21boi_2
-sky130_fd_sc_hd__a311oi_4
-sky130_fd_sc_hd__a31o_2
-sky130_fd_sc_hd__clkbuf_4
-sky130_fd_sc_hd__dfxtp_2
-sky130_fd_sc_hd__dfxtp_4
-sky130_fd_sc_hd__dlygate4sd1_1
-sky130_fd_sc_hd__maj3_2
-sky130_fd_sc_hd__nor2_2
-sky130_fd_sc_hd__nor2b_4
-sky130_fd_sc_hd__nor3_1
-sky130_fd_sc_hd__o211ai_4
-sky130_fd_sc_hd__o21a_1
-sky130_fd_sc_hd__o311a_2
-sky130_fd_sc_hd__o311ai_4
-sky130_fd_sc_hd__or4_1
-sky130_fd_sc_hd__xnor2_2

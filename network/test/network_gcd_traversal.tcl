@@ -116,8 +116,8 @@ foreach inst_obj [get_cells *] {
 puts "--- pin properties ---"
 set pin_count 0
 foreach inst_obj [get_cells *] {
-  set iname [get_name $inst_obj]
-  set pins [get_pins $iname/*]
+  # Query pins by object to avoid name-pattern misses on escaped names.
+  set pins [get_pins -of_objects $inst_obj]
   foreach p $pins {
     set dir [get_property $p direction]
     set pname [get_full_name $p]

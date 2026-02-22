@@ -1,0 +1,8 @@
+--- Test 7: hierarchical with removes ---
+Warning: verilog_remove_cells_hier.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
+Warning: verilog_remove_cells_hier.tcl line 1, object 'NangateOpenCellLibrary/AND2_X1' not found.
+Warning: verilog_remove_cells_hier.tcl line 1, object 'NangateOpenCellLibrary/INV_X1' not found.
+hier remove sizes: buf=704 and_inv=704
+Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+hier roundtrip cells: 7
+hier roundtrip hier cells: 11

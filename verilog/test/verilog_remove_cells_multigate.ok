@@ -1,0 +1,6 @@
+--- Test 2: remove_cells on multi-gate design ---
+Warning: verilog_remove_cells_multigate.tcl line 1, object 'NangateOpenCellLibrary/INV_X1' not found.
+Warning: verilog_remove_cells_multigate.tcl line 1, object 'NangateOpenCellLibrary/AND2_X1' not found.
+Warning: verilog_remove_cells_multigate.tcl line 1, object 'NangateOpenCellLibrary/NAND2_X1' not found.
+Warning: verilog_remove_cells_multigate.tcl line 1, object 'NangateOpenCellLibrary/NOR2_X1' not found.
+multigate sizes: basic=810 inv=810 and=810 gates=810

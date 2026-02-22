@@ -43,23 +43,20 @@ puts "unique cells: [llength $cell_names]"
 
 # Write generic subckts for each cell type
 foreach cell_name $cell_names {
-  # catch: get_lib_pins may fail for some cell types
-  set rc [catch {
-    set lib_pins [get_lib_pins */${cell_name}/*]
-    if { [llength $lib_pins] == 0 } { continue }
-    set ports [list]
-    foreach lp $lib_pins {
-      lappend ports [get_property $lp name]
-    }
-    if { [llength $ports] >= 2 } {
-      puts $subckt_fh ".subckt $cell_name [join $ports " "] VPWR VGND"
-      puts $subckt_fh "* placeholder transistors"
-      puts $subckt_fh "M1 [lindex $ports 0] [lindex $ports end] VPWR VPWR pmos W=0.4u L=0.15u"
-      puts $subckt_fh "M2 [lindex $ports 0] [lindex $ports end] VGND VGND nmos W=0.2u L=0.15u"
-      puts $subckt_fh ".ends"
-      puts $subckt_fh ""
-    }
-  } msg]
+  set lib_pins [get_lib_pins */${cell_name}/*]
+  if { [llength $lib_pins] == 0 } { continue }
+  set ports [list]
+  foreach lp $lib_pins {
+    lappend ports [get_property $lp name]
+  }
+  if { [llength $ports] >= 2 } {
+    puts $subckt_fh ".subckt $cell_name [join $ports " "] VPWR VGND"
+    puts $subckt_fh "* placeholder transistors"
+    puts $subckt_fh "M1 [lindex $ports 0] [lindex $ports end] VPWR VPWR pmos W=0.4u L=0.15u"
+    puts $subckt_fh "M2 [lindex $ports 0] [lindex $ports end] VGND VGND nmos W=0.2u L=0.15u"
+    puts $subckt_fh ".ends"
+    puts $subckt_fh ""
+  }
 }
 close $subckt_fh
 
@@ -127,21 +124,15 @@ write_path_spice \
 
 #---------------------------------------------------------------
 # write_path_spice with specific from/to
+# Use valid register-to-output path (req_msg[0] -> resp_msg[13])
 #---------------------------------------------------------------
 puts "--- write_path_spice specific endpoints ---"
 set dir5 [make_result_file spice_gcd_specific]
 file mkdir $dir5
-# catch: write_path_spice may fail if subckt is missing for cells on path
-set rc [catch {
-  write_path_spice \
-    -path_args {-from req_msg[0] -to resp_msg[0]} \
-    -spice_directory $dir5 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VPWR \
-    -ground VGND
-} msg]
-if { $rc == 0 } {
-} else {
-  puts "INFO: write_path_spice specific: $msg"
-}
+write_path_spice \
+  -path_args {-from req_msg[0]} \
+  -spice_directory $dir5 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VPWR \
+  -ground VGND

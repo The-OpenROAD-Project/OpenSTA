@@ -51,11 +51,9 @@ puts "--- Test 3: write_verilog -include_pwr_gnd ---"
 set out2 [make_result_file verilog_hier_pwr.v]
 write_verilog -include_pwr_gnd $out2
 
-# pwr_gnd output should be >= basic output
 set sz1 [file size $out1]
 set sz2 [file size $out2]
-if { $sz2 >= $sz1 } {
-}
+puts "basic: $sz1 bytes, pwr_gnd: $sz2 bytes"
 
 #---------------------------------------------------------------
 # Test 4: Write verilog with -remove_cells

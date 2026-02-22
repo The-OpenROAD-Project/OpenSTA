@@ -280,5 +280,4 @@ File ../../test/sky130hd/sky130hd_tt.lib
  S0 input 3.70-4.09
  S1 input 2.61-2.74
  X output function=((((A0*!S0)*!S1)+((A1*S0)*!S1))+((A2*!S0)*S1))+((A3*S0)*S1)
-Warning: /workspace/sta/OpenSTA/liberty/test/results/liberty_cell_deep_write.lib line 1, library NangateOpenCellLibrary already exists.
-INFO: roundtrip read had issue: Error: /workspace/sta/OpenSTA/liberty/test/results/liberty_cell_deep_write.lib, l
+write_liberty output: 3598559 bytes

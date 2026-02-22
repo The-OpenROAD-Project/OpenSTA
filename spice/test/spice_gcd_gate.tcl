@@ -24,39 +24,34 @@ puts $mfh ".model nfet_01v8 nmos level=1 VTO=0.4 KP=200u"
 puts $mfh ".model pfet_01v8 pmos level=1 VTO=-0.4 KP=100u"
 close $mfh
 
-# Get the cell names used in the design for subckt file
+# Dynamically generate subckts for all cell types used in the design
 set subckt_file [file join $spice_dir sky130_subckt.sp]
 set sfh [open $subckt_file w]
 puts $sfh "* Sky130 mock subckt file"
 
-# Write subckts for common sky130 cells
-foreach cell_def {
-  {sky130_fd_sc_hd__and2_1 A B X VPWR VGND}
-  {sky130_fd_sc_hd__and2_2 A B X VPWR VGND}
-  {sky130_fd_sc_hd__buf_1 A X VPWR VGND}
-  {sky130_fd_sc_hd__buf_2 A X VPWR VGND}
-  {sky130_fd_sc_hd__clkbuf_1 A X VPWR VGND}
-  {sky130_fd_sc_hd__clkbuf_2 A X VPWR VGND}
-  {sky130_fd_sc_hd__dfxtp_1 CLK D Q VPWR VGND}
-  {sky130_fd_sc_hd__inv_1 A Y VPWR VGND}
-  {sky130_fd_sc_hd__inv_2 A Y VPWR VGND}
-  {sky130_fd_sc_hd__nand2_1 A B Y VPWR VGND}
-  {sky130_fd_sc_hd__nor2_1 A B Y VPWR VGND}
-  {sky130_fd_sc_hd__or2_1 A B X VPWR VGND}
-  {sky130_fd_sc_hd__xnor2_1 A B Y VPWR VGND}
-  {sky130_fd_sc_hd__xor2_1 A B X VPWR VGND}
-  {sky130_fd_sc_hd__mux2_1 A0 A1 S X VPWR VGND}
-  {sky130_fd_sc_hd__a21oi_1 A1 A2 B1 Y VPWR VGND}
-  {sky130_fd_sc_hd__o21ai_0 A1 A2 B1 Y VPWR VGND}
-  {sky130_fd_sc_hd__a22o_1 A1 A2 B1 B2 X VPWR VGND}
-} {
-  set name [lindex $cell_def 0]
-  set ports [lrange $cell_def 1 end]
-  puts $sfh ".subckt $name [join $ports]"
-  puts $sfh "* mock transistor netlist"
-  puts $sfh "R1 [lindex $ports 0] [lindex $ports 1] 1k"
-  puts $sfh ".ends"
-  puts $sfh ""
+set cell_names [list]
+set all_insts [get_cells *]
+foreach inst $all_insts {
+  set cell_ref [get_property $inst ref_name]
+  if { [lsearch -exact $cell_names $cell_ref] == -1 } {
+    lappend cell_names $cell_ref
+  }
+}
+
+foreach cell_name $cell_names {
+  set lib_pins [get_lib_pins */${cell_name}/*]
+  if { [llength $lib_pins] == 0 } { continue }
+  set ports [list]
+  foreach lp $lib_pins {
+    lappend ports [get_property $lp name]
+  }
+  if { [llength $ports] >= 2 } {
+    puts $sfh ".subckt $cell_name [join $ports " "] VPWR VGND"
+    puts $sfh "* mock transistor netlist"
+    puts $sfh "R1 [lindex $ports 0] [lindex $ports 1] 1k"
+    puts $sfh ".ends"
+    puts $sfh ""
+  }
 }
 close $sfh
 
@@ -68,56 +63,35 @@ puts "--- write_path_spice tests ---"
 # Max path with ngspice
 set pdir1 [make_result_file spice_gcd_path_ng]
 file mkdir $pdir1
-# catch: write_path_spice may fail if subckt is missing for cells on path
-set rc1 [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack -path_delay max} \
-    -spice_directory $pdir1 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VPWR \
-    -ground VGND \
-    -simulator ngspice
-} msg1]
-if { $rc1 == 0 } {
-} else {
-  puts "INFO: write_path_spice ngspice max: $msg1"
-}
+write_path_spice \
+  -path_args {-sort_by_slack -path_delay max} \
+  -spice_directory $pdir1 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VPWR \
+  -ground VGND \
+  -simulator ngspice
 
 # Min path with hspice
 set pdir2 [make_result_file spice_gcd_path_hs]
 file mkdir $pdir2
-# catch: write_path_spice may fail if subckt is missing for cells on path
-set rc2 [catch {
-  write_path_spice \
-    -path_args {-path_delay min} \
-    -spice_directory $pdir2 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VPWR \
-    -ground VGND \
-    -simulator hspice
-} msg2]
-if { $rc2 == 0 } {
-} else {
-  puts "INFO: write_path_spice hspice min: $msg2"
-}
+write_path_spice \
+  -path_args {-path_delay min} \
+  -spice_directory $pdir2 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VPWR \
+  -ground VGND \
+  -simulator hspice
 
 # Path with xyce
 set pdir3 [make_result_file spice_gcd_path_xy]
 file mkdir $pdir3
-# catch: write_path_spice may fail if subckt is missing for cells on path
-set rc3 [catch {
-  write_path_spice \
-    -path_args {-sort_by_slack} \
-    -spice_directory $pdir3 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VPWR \
-    -ground VGND \
-    -simulator xyce
-} msg3]
-if { $rc3 == 0 } {
-} else {
-  puts "INFO: write_path_spice xyce: $msg3"
-}
+write_path_spice \
+  -path_args {-sort_by_slack} \
+  -spice_directory $pdir3 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VPWR \
+  -ground VGND \
+  -simulator xyce

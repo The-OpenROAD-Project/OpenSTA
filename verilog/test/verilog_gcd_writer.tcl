@@ -23,31 +23,18 @@ set out1 [make_result_file verilog_gcd_basic.v]
 write_verilog $out1
 set sz1 [file size $out1]
 puts "basic write: $sz1 bytes"
-if { $sz1 > 0 } {
-}
 
 # Write with -include_pwr_gnd
 set out2 [make_result_file verilog_gcd_pwr.v]
 write_verilog -include_pwr_gnd $out2
 set sz2 [file size $out2]
 puts "pwr_gnd write: $sz2 bytes"
-if { $sz2 >= $sz1 } {
-}
 
 # Write with -remove_cells (remove buffer cells)
 set out3 [make_result_file verilog_gcd_remove.v]
-# catch: write_verilog -remove_cells option may not be supported
-catch {
-  set bufs [get_lib_cells sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__buf_1]
-  write_verilog -remove_cells $bufs $out3
-} msg
-if { [file exists $out3] } {
-  set sz3 [file size $out3]
-  puts "remove_cells write: $sz3 bytes"
-} else {
-  puts "remove_cells write: skipped ($msg)"
-  set sz3 0
-}
+write_verilog -remove_cells {sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__buf_1} $out3
+set sz3 [file size $out3]
+puts "remove_cells write: $sz3 bytes"
 
 # Write with both -include_pwr_gnd and empty remove_cells
 set out4 [make_result_file verilog_gcd_pwr_remove.v]
@@ -72,10 +59,6 @@ write_verilog $out5
 set sz5 [file size $out5]
 puts "roundtrip write: $sz5 bytes"
 
-if { abs($sz5 - $sz1) < 100 } {
-} else {
-  puts "INFO: roundtrip sizes differ basic=$sz1 roundtrip=$sz5"
-}
 
 #---------------------------------------------------------------
 # Test 3: Timing analysis after roundtrip
@@ -105,9 +88,6 @@ set out7 [make_result_file verilog_test1_pwr.v]
 write_verilog -include_pwr_gnd $out7
 set sz7 [file size $out7]
 puts "verilog_test1 pwr_gnd: $sz7 bytes"
-
-if { $sz7 >= $sz6 } {
-}
 
 #---------------------------------------------------------------
 # Test 5: Write with -sort (deprecated option coverage)

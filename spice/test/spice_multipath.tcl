@@ -128,24 +128,18 @@ write_path_spice \
 
 #---------------------------------------------------------------
 # write_path_spice with specific from/to
+# Use valid input-to-register path (in1 drives buf1 -> and1/or1 -> reg1/reg2)
 #---------------------------------------------------------------
 puts "--- write_path_spice specific path ---"
 set spice_dir3 [make_result_file spice_mp_specific]
 file mkdir $spice_dir3
-# catch: write_path_spice may fail if subckt is missing for cells on path
-set rc3 [catch {
-  write_path_spice \
-    -path_args {-from in1 -to out1} \
-    -spice_directory $spice_dir3 \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg3]
-if { $rc3 == 0 } {
-} else {
-  puts "INFO: write_path_spice specific: $msg3"
-}
+write_path_spice \
+  -path_args {-from in1} \
+  -spice_directory $spice_dir3 \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS
 
 #---------------------------------------------------------------
 # write_path_spice with hspice

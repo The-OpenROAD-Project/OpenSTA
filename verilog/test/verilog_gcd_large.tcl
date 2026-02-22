@@ -54,7 +54,7 @@ write_verilog -sort $out3
 
 # Print file sizes
 foreach outf [list $out1 $out2 $out3] {
-  puts "  $outf size=[file size $outf]"
+  puts "  [file tail $outf] size=[file size $outf]"
 }
 
 ############################################################

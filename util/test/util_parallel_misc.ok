@@ -4,7 +4,7 @@ thread_count after set to 2: 2
 thread_count after set to 1: 1
 thread_count after set to 4: 4
 --- processor_count ---
-processor_count: 64
+processor_count positive
 --- memory_usage ---
 --- load design for parallel timing ---
 Warning: util_parallel_misc.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.

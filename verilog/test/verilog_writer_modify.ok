@@ -1,0 +1,4 @@
+--- Test 2: Write after modification ---
+Warning: verilog_writer_modify.tcl line 1, library 'asap7sc7p5t_INVBUF_RVT' not found.
+modified size: 211
+Warning: verilog_writer_modify.tcl line 1, pin extra_buf/A not found.

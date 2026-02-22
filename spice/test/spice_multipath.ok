@@ -62,6 +62,5 @@ No paths found.
 --- write_path_spice max ---
 --- write_path_spice min ---
 --- write_path_spice specific path ---
-INFO: write_path_spice specific: Error: spice_multipath.tcl line 1, No paths found for -path_args -from in1 -to out1.
 --- write_path_spice hspice ---
 --- write_path_spice xyce ---

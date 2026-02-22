@@ -38,8 +38,8 @@ sta::set_thread_count 1
 #---------------------------------------------------------------
 puts "--- processor_count ---"
 set nproc [sta::processor_count]
-puts "processor_count: $nproc"
 if { $nproc > 0 } {
+  puts "processor_count positive"
 } else {
   puts "FAIL: processor_count non-positive"
 }

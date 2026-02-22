@@ -5,7 +5,8 @@ nets: 288
 ports: 54
 basic write: 74836 bytes
 pwr_gnd write: 74836 bytes
-remove_cells write: skipped (Error: verilog_gcd_writer.tcl line 1, unsupported object type LibertyCell.)
+Warning: verilog_gcd_writer.tcl line 1, object 'sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__buf_1' not found.
+remove_cells write: 74836 bytes
 pwr+remove write: 74836 bytes
 --- Test 2: roundtrip ---
 Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.

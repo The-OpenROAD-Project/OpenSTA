@@ -63,8 +63,6 @@ set out2 [make_result_file verilog_bus_ps_pwr.v]
 write_verilog -include_pwr_gnd $out2
 set sz2 [file size $out2]
 puts "pwr_gnd write: $sz2 bytes"
-if { $sz2 >= $sz1 } {
-}
 
 # With remove_cells (empty)
 set out3 [make_result_file verilog_bus_ps_remove.v]

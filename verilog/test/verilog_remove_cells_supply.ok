@@ -1,0 +1,4 @@
+--- Test 6: supply/tristate with removes ---
+Warning: verilog_remove_cells_supply.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
+Warning: verilog_remove_cells_supply.tcl line 1, object 'NangateOpenCellLibrary/INV_X1' not found.
+supply remove sizes: buf=911 inv_pwr=941

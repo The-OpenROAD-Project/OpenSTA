@@ -44,8 +44,6 @@ log_end
 if { [file exists $log1] } {
   set sz [file size $log1]
   puts "log file size: $sz"
-  if { $sz > 1000 } {
-  }
 } else {
   puts "INFO: log file not created"
 }
@@ -75,8 +73,6 @@ if { [file exists $log2] && [file exists $redir2] } {
   set sz_log [file size $log2]
   set sz_redir [file size $redir2]
   puts "log size: $sz_log, redirect size: $sz_redir"
-  if { $sz_log > 0 && $sz_redir > 0 } {
-  }
 }
 
 #---------------------------------------------------------------
@@ -91,8 +87,6 @@ report_checks -path_delay min
 report_units
 set str1 [sta::redirect_string_end]
 puts "redirect string length: [string length $str1]"
-if { [string length $str1] > 100 } {
-}
 
 # Multiple redirect string cycles
 for {set i 0} {$i < 5} {incr i} {
@@ -120,9 +114,6 @@ puts "v2 length: [string length $v2]"
 puts "v3 length: [string length $v3]"
 puts "v4 length: [string length $v4]"
 
-if { [string length $v4] >= [string length $v1] } {
-}
-
 #---------------------------------------------------------------
 # Test 5: Redirect file append
 # Exercises: redirectFileAppendBegin
@@ -145,8 +136,6 @@ sta::redirect_file_end
 
 set sz_after [file size $app_file]
 puts "before append: $sz_before, after append: $sz_after"
-if { $sz_after > $sz_before } {
-}
 
 #---------------------------------------------------------------
 # Test 6: Error handling paths
@@ -157,14 +146,10 @@ puts "--- Test 6: error paths ---"
 # FileNotReadable
 # catch: intentionally testing FileNotReadable error for nonexistent liberty file
 set rc1 [catch { read_liberty "/nonexistent/path/xyz.lib" } err1]
-if { $rc1 != 0 } {
-}
 
 # FileNotWritable (try writing to /dev/null/impossible)
 # catch: intentionally testing FileNotWritable error for nonexistent directory
 set rc2 [catch { write_verilog "/nonexistent/dir/xyz.v" } err2]
-if { $rc2 != 0 } {
-}
 
 # Bad verilog file
 set bad_v [make_result_file "bad_verilog.v"]

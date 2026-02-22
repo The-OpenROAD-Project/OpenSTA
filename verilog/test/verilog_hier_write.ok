@@ -13,6 +13,7 @@ resp_val dir=output
 resp_rdy dir=input
 --- Test 2: write_verilog basic ---
 --- Test 3: write_verilog -include_pwr_gnd ---
+basic: 74836 bytes, pwr_gnd: 74836 bytes
 --- Test 4: write_verilog -remove_cells ---
 --- Test 5: read back written verilog ---
 Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.

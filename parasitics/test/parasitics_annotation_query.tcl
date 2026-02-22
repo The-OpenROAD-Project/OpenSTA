@@ -102,18 +102,13 @@ puts "elmore r1/Q -> u1/A fall max: $elm_r1f"
 set elm_r2 [sta::find_elmore [get_pins r2/Q] [get_pins u2/B] "rise" "max"]
 puts "elmore r2/Q -> u2/B rise max: $elm_r2"
 
-# catch: sta::find_elmore with port name 'out' via get_pins may fail (use get_port_pin for ports)
-catch {
-  set elm_r3 [sta::find_elmore [get_pins r3/Q] [get_pins out] "rise" "max"]
-  puts "elmore r3/Q -> out rise max: $elm_r3"
-} msg
+set out_pin [sta::get_port_pin_error "pin" out]
+set elm_r3 [sta::find_elmore [get_pins r3/Q] $out_pin "rise" "max"]
+puts "elmore r3/Q -> out rise max: $elm_r3"
 
 # Query min as well
-# catch: sta::find_elmore with port name 'out' via get_pins may fail (use get_port_pin for ports)
-catch {
-  set elm_r3_min [sta::find_elmore [get_pins r3/Q] [get_pins out] "rise" "min"]
-  puts "elmore r3/Q -> out rise min: $elm_r3_min"
-} msg
+set elm_r3_min [sta::find_elmore [get_pins r3/Q] $out_pin "rise" "min"]
+puts "elmore r3/Q -> out rise min: $elm_r3_min"
 
 #---------------------------------------------------------------
 # Test 3: Report timing with manual parasitics
@@ -203,11 +198,8 @@ puts "elmore u1/Y->u2/A after SPEF: $elm_u1_spef"
 set elm_r1_spef [sta::find_elmore [get_pins r1/Q] [get_pins u1/A] "rise" "max"]
 puts "elmore r1/Q->u1/A after SPEF: $elm_r1_spef"
 
-# catch: sta::find_elmore with port name 'out' via get_pins may fail (use get_port_pin for ports)
-catch {
-  set elm_r3_spef [sta::find_elmore [get_pins r3/Q] [get_pins out] "rise" "max"]
-  puts "elmore r3/Q->out after SPEF: $elm_r3_spef"
-} msg
+set elm_r3_spef [sta::find_elmore [get_pins r3/Q] $out_pin "rise" "max"]
+puts "elmore r3/Q->out after SPEF: $elm_r3_spef"
 
 #---------------------------------------------------------------
 # Test 8: Detailed report with various formats

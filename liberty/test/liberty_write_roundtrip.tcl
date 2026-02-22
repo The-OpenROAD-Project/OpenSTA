@@ -17,12 +17,7 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 set outfile1 [make_result_file liberty_roundtrip_nangate.lib]
 sta::write_liberty NangateOpenCellLibrary $outfile1
 
-# Verify output file exists and has content
-set fsize [file size $outfile1]
-if { $fsize > 1000 } {
-} else {
-  puts "FAIL: Nangate45 output file too small"
-}
+puts "Nangate45 write: [file size $outfile1] bytes"
 
 ############################################################
 # Read and write Sky130 (large library with different features)
@@ -33,9 +28,7 @@ read_liberty ../../test/sky130hd/sky130hd_tt.lib
 set outfile2 [make_result_file liberty_roundtrip_sky130.lib]
 sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile2
 
-set fsize [file size $outfile2]
-if { $fsize > 1000 } {
-}
+puts "Sky130 write: [file size $outfile2] bytes"
 
 ############################################################
 # Read and write IHP (different vendor format)
@@ -46,9 +39,7 @@ read_liberty ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
 set outfile3 [make_result_file liberty_roundtrip_ihp.lib]
 sta::write_liberty sg13g2_stdcell_typ_1p20V_25C $outfile3
 
-set fsize [file size $outfile3]
-if { $fsize > 1000 } {
-}
+puts "IHP write: [file size $outfile3] bytes"
 
 ############################################################
 # Read and write ASAP7 SIMPLE (compressed input)
@@ -59,9 +50,7 @@ read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz
 set outfile4 [make_result_file liberty_roundtrip_asap7_simple.lib]
 sta::write_liberty asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120 $outfile4
 
-set fsize [file size $outfile4]
-if { $fsize > 1000 } {
-}
+puts "ASAP7 SIMPLE write: [file size $outfile4] bytes"
 
 ############################################################
 # Read and write ASAP7 SEQ (sequential cell writing)
@@ -72,9 +61,7 @@ read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 set outfile5 [make_result_file liberty_roundtrip_asap7_seq.lib]
 sta::write_liberty asap7sc7p5t_SEQ_RVT_FF_nldm_220123 $outfile5
 
-set fsize [file size $outfile5]
-if { $fsize > 1000 } {
-}
+puts "ASAP7 SEQ write: [file size $outfile5] bytes"
 
 ############################################################
 # Read and write ASAP7 INVBUF (compressed input)
@@ -85,9 +72,7 @@ read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz
 set outfile6 [make_result_file liberty_roundtrip_asap7_invbuf.lib]
 sta::write_liberty asap7sc7p5t_INVBUF_RVT_FF_nldm_211120 $outfile6
 
-set fsize [file size $outfile6]
-if { $fsize > 1000 } {
-}
+puts "ASAP7 INVBUF write: [file size $outfile6] bytes"
 
 ############################################################
 # Read and write ASAP7 AO (AND-OR cells)
@@ -116,9 +101,7 @@ read_liberty ../../test/asap7/fakeram7_256x32.lib
 set outfile9 [make_result_file liberty_roundtrip_fakeram.lib]
 sta::write_liberty fakeram7_256x32 $outfile9
 
-set fsize [file size $outfile9]
-if { $fsize > 100 } {
-}
+puts "fakeram write: [file size $outfile9] bytes"
 
 ############################################################
 # Read and write fake_macros

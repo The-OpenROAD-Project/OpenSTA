@@ -95,4 +95,3 @@ No paths found.
 --- write_path_spice hspice ---
 --- write_path_spice xyce ---
 --- write_path_spice specific path ---
-INFO: write_path_spice specific: Error: spice_path_min.tcl line 1, No paths found for -path_args -from in1 -to out2.

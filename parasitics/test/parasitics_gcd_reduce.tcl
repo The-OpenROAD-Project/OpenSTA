@@ -71,8 +71,8 @@ report_checks -endpoint_count 2
 puts "--- Test 4: report_dcalc on large nets ---"
 set cell_count 0
 foreach cell_obj [get_cells *] {
-  set cname [get_name $cell_obj]
-  set pins [get_pins $cname/*]
+  # Query pins by object to avoid name-pattern misses on escaped names.
+  set pins [get_pins -of_objects $cell_obj]
   set in_pins {}
   set out_pins {}
   foreach p $pins {

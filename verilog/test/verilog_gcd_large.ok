@@ -7,9 +7,9 @@ bus req_msg: 32 bits
 bus resp_msg: 16 bits
 --- Test 2: write verilog ---
 Warning: verilog_gcd_large.tcl line 1, The -sort flag is ignored.
-  /workspace/sta/OpenSTA/verilog/test/results/verilog_gcd_large_out.v size=74836
-  /workspace/sta/OpenSTA/verilog/test/results/verilog_gcd_large_pwr.v size=74836
-  /workspace/sta/OpenSTA/verilog/test/results/verilog_gcd_large_sort.v size=74836
+  verilog_gcd_large_out.v size=74836
+  verilog_gcd_large_pwr.v size=74836
+  verilog_gcd_large_sort.v size=74836
 --- Test 3: re-read ---
 Warning: ../../test/sky130hd/sky130hd_tt.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 re-read cells: 1292

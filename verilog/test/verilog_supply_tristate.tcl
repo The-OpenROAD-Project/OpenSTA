@@ -1,13 +1,13 @@
 # Test verilog with supply0, supply1, tri-state, wire assign in decl,
 # net constants, part selects, and multiple reads.
 # Targets VerilogReader.cc uncovered paths:
-#   supply0/supply1 dcl (lines 839-845)
-#   tri dcl as modifier for output (lines 832-837)
+#   supply0/supply1 dcl
+#   tri dcl as modifier for output
 #   wire assign in declaration (makeDclArg with assign)
 #   VerilogNetConstant (makeNetConstant)
 #   makeNetPartSelect paths
-#   linkNetwork: supply0/supply1 constant net paths (lines 1779-1785)
-#   mergeAssignNet path (lines 2102-2125)
+#   linkNetwork: supply0/supply1 constant net paths
+#   mergeAssignNet path
 # Also targets VerilogWriter.cc:
 #   verilogPortDir for tristate direction
 #   writeAssigns path

@@ -75,4 +75,3 @@ Warning: spice_gcd_path.tcl line 1, port '*' not found.
 --- write_path_spice hspice ---
 --- write_path_spice xyce ---
 --- write_path_spice specific endpoints ---
-INFO: write_path_spice specific: Error: spice_gcd_path.tcl line 1, No paths found for -path_args -from req_msg[0] -to resp_msg[0].

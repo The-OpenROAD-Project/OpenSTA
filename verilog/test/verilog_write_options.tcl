@@ -21,10 +21,6 @@ puts "--- compare pwr_gnd vs basic output ---"
 set sz1 [file size $out1]
 set sz2 [file size $out2]
 puts "basic size: $sz1, pwr_gnd size: $sz2"
-if { $sz2 >= $sz1 } {
-} else {
-  puts "INFO: pwr_gnd output is smaller (unexpected but not fatal)"
-}
 
 puts "--- compare remove_cells vs basic output ---"
 set sz3 [file size $out3]

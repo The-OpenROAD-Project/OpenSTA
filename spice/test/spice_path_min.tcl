@@ -131,21 +131,15 @@ write_path_spice \
 
 #---------------------------------------------------------------
 # write_path_spice with different -from/-to constraints
+# Use valid input-to-register path (in1 drives buf1 -> and1/or1 -> reg1/reg2)
 #---------------------------------------------------------------
 puts "--- write_path_spice specific path ---"
 set spice_dir_sp [make_result_file spice_specific_out]
 file mkdir $spice_dir_sp
-# catch: write_path_spice may fail if subckt is missing for cells on path
-set rc5 [catch {
-  write_path_spice \
-    -path_args {-from in1 -to out2} \
-    -spice_directory $spice_dir_sp \
-    -lib_subckt_file $subckt_file \
-    -model_file $model_file \
-    -power VDD \
-    -ground VSS
-} msg5]
-if { $rc5 == 0 } {
-} else {
-  puts "INFO: write_path_spice specific: $msg5"
-}
+write_path_spice \
+  -path_args {-from in1} \
+  -spice_directory $spice_dir_sp \
+  -lib_subckt_file $subckt_file \
+  -model_file $model_file \
+  -power VDD \
+  -ground VSS
