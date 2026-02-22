@@ -1,14 +1,9 @@
---- Test 1: Nangate examples ---
+--- Nangate write options ---
 cells: 5
 Warning: verilog_multimodule_write.tcl line 1, The -sort flag is ignored.
 Warning: verilog_multimodule_write.tcl line 1, The -sort flag is ignored.
---- Test 2: re-read default ---
-Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
-re-read cells: 5
---- Test 3: re-read pwr ---
-Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
-re-read pwr cells: 5
---- Test 4: timing after re-read ---
+--- Nangate default roundtrip ---
+re-read default cells: 5
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -65,7 +60,6 @@ Path Type: min
           -0.05   slack (VIOLATED)
 
 
-Warning: verilog_multimodule_write.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -97,7 +91,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.83   slack (MET)
 
 
---- Test 5: queries ---
 r1 ref=DFF_X1
 r2 ref=DFF_X1
 r3 ref=DFF_X1
@@ -159,9 +152,10 @@ Driver pins
 Load pins
  r3/D input (DFF_X1) 1.06-1.14
 
---- Test 6: sorted re-read ---
-Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
-sorted cells: 5
+--- Nangate pwr roundtrip ---
+re-read pwr cells: 5
+--- Nangate sorted roundtrip ---
+re-read sorted cells: 5
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -191,7 +185,7 @@ Path Type: max
            9.83   slack (MET)
 
 
---- Test 7: ASAP7 design ---
+--- ASAP7 write options ---
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
@@ -202,22 +196,7 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1337
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib line 35, library asap7sc7p5t_SEQ_RVT_FF_nldm_220123 already exists.
-Warning: ../../test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz line 34, library asap7sc7p5t_INVBUF_RVT_FF_nldm_211120 already exists.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 34, library asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120 already exists.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz line 34, library asap7sc7p5t_OA_RVT_FF_nldm_211120 already exists.
-Warning: ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz line 34, library asap7sc7p5t_AO_RVT_FF_nldm_211120 already exists.
-re-read ASAP7 cells: 5
+asap7 cells: 5
 Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out (output port clocked by clk)
 Path Group: clk

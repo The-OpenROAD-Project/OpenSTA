@@ -2147,8 +2147,9 @@ TEST_F(StaInitTest, SetReportPathDigits) {
 }
 
 TEST_F(StaInitTest, SetReportPathNoSplit) {
-  sta_->setReportPathNoSplit(true);
-  sta_->setReportPathNoSplit(false);
+  ASSERT_NE(sta_->reportPath(), nullptr);
+  ASSERT_NO_THROW(sta_->setReportPathNoSplit(true));
+  ASSERT_NO_THROW(sta_->setReportPathNoSplit(false));
 }
 
 TEST_F(StaInitTest, SetReportPathSigmas) {
@@ -2162,8 +2163,28 @@ TEST_F(StaInitTest, SetReportPathSigmas) {
 }
 
 TEST_F(StaInitTest, SetReportPathFields) {
+  ReportPath *rpt = sta_->reportPath();
+  ASSERT_NE(rpt, nullptr);
+  ReportField *cap_field = rpt->findField("capacitance");
+  ReportField *slew_field = rpt->findField("slew");
+  ReportField *fanout_field = rpt->findField("fanout");
+  ReportField *src_attr_field = rpt->findField("src_attr");
+  ASSERT_NE(cap_field, nullptr);
+  ASSERT_NE(slew_field, nullptr);
+  ASSERT_NE(fanout_field, nullptr);
+  ASSERT_NE(src_attr_field, nullptr);
+
   sta_->setReportPathFields(true, true, true, true, true, true, true);
+  EXPECT_TRUE(cap_field->enabled());
+  EXPECT_TRUE(slew_field->enabled());
+  EXPECT_TRUE(fanout_field->enabled());
+  EXPECT_TRUE(src_attr_field->enabled());
+
   sta_->setReportPathFields(false, false, false, false, false, false, false);
+  EXPECT_FALSE(cap_field->enabled());
+  EXPECT_FALSE(slew_field->enabled());
+  EXPECT_FALSE(fanout_field->enabled());
+  EXPECT_FALSE(src_attr_field->enabled());
 }
 
 // Corner operations
@@ -2216,15 +2237,22 @@ TEST_F(StaInitTest, SdcRemoveConstraints) {
 }
 
 TEST_F(StaInitTest, SdcConstraintsChanged) {
-  sta_->constraintsChanged();
+  Sdc *sdc = sta_->sdc();
+  ASSERT_NE(sdc, nullptr);
+  ASSERT_NO_THROW(sta_->constraintsChanged());
+  EXPECT_NE(sta_->search(), nullptr);
 }
 
 TEST_F(StaInitTest, UnsetTimingDerate) {
-  sta_->unsetTimingDerate();
+  ASSERT_NO_THROW(sta_->unsetTimingDerate());
+  EXPECT_NE(sta_->sdc(), nullptr);
 }
 
 TEST_F(StaInitTest, SetMaxArea) {
+  Sdc *sdc = sta_->sdc();
+  ASSERT_NE(sdc, nullptr);
   sta_->setMaxArea(100.0);
+  EXPECT_FLOAT_EQ(sdc->maxArea(), 100.0f);
 }
 
 // Test Sdc clock operations directly

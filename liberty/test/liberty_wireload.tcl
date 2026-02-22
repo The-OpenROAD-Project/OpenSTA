@@ -88,7 +88,9 @@ read_liberty ../../test/sky130hd/sky130hd_tt.lib
 
 # Try Sky130 wire load models
 set_wire_load_model -name "Small"
+report_checks
 set_wire_load_model -name "Medium"
+report_checks
 
 ############################################################
 # Write liberty for sky130 (different wireload format)

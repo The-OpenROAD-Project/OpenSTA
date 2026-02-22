@@ -1584,16 +1584,36 @@ protected:
 // Sdc clear operations
 TEST_F(SdcInitTest, SdcClearAfterConstraints) {
   Sdc *sdc = sta_->sdc();
+  ASSERT_NE(sdc, nullptr);
   // Set some constraints then clear
   sdc->setMinPulseWidth(RiseFallBoth::rise(), 0.5);
   sdc->setMaxArea(100.0);
   sdc->setWireloadMode(WireloadMode::top);
+  EXPECT_FLOAT_EQ(sdc->maxArea(), 100.0f);
+  EXPECT_EQ(sdc->wireloadMode(), WireloadMode::top);
   sdc->clear();
+  // clear() resets constraints but keeps environment-style knobs.
+  EXPECT_FLOAT_EQ(sdc->maxArea(), 100.0f);
+  EXPECT_EQ(sdc->wireloadMode(), WireloadMode::top);
+  EXPECT_NE(sdc->defaultArrivalClock(), nullptr);
+  EXPECT_NE(sdc->defaultArrivalClockEdge(), nullptr);
 }
 
 // Sdc remove constraints
 TEST_F(SdcInitTest, SdcRemoveConstraints) {
+  Sdc *sdc = sta_->sdc();
+  ASSERT_NE(sdc, nullptr);
+  sdc->setMaxArea(200.0f);
+  sdc->setWireloadMode(WireloadMode::segmented);
+  EXPECT_FLOAT_EQ(sdc->maxArea(), 200.0f);
+  EXPECT_EQ(sdc->wireloadMode(), WireloadMode::segmented);
   sta_->removeConstraints();
+  // removeConstraints() also preserves these global settings.
+  EXPECT_FLOAT_EQ(sdc->maxArea(), 200.0f);
+  EXPECT_EQ(sdc->wireloadMode(), WireloadMode::segmented);
+  EXPECT_TRUE(sdc->clks().empty());
+  EXPECT_NE(sdc->defaultArrivalClock(), nullptr);
+  EXPECT_NE(sdc->defaultArrivalClockEdge(), nullptr);
 }
 
 // Clock creation and queries
