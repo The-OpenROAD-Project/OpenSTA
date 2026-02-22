@@ -1578,6 +1578,12 @@ TEST(TimingArcAttrsTest, DestructorCleanup) {
   attrs->setSdfCondEnd("end");
   attrs->setModeName("mode1");
   attrs->setModeValue("val1");
+  EXPECT_EQ(attrs->cond(), cond);
+  EXPECT_NE(attrs->sdfCond(), nullptr);
+  EXPECT_NE(attrs->sdfCondStart(), nullptr);
+  EXPECT_NE(attrs->sdfCondEnd(), nullptr);
+  EXPECT_STREQ(attrs->modeName(), "mode1");
+  EXPECT_STREQ(attrs->modeValue(), "val1");
   // Destructor should clean up cond, sdf strings, mode strings
   delete attrs;
   // If we get here without crash, cleanup succeeded

@@ -35,6 +35,8 @@
 #include "Bfs.hh"
 #include "search/WorstSlack.hh"
 #include "search/ReportPath.hh"
+#include "GraphDelayCalc.hh"
+#include "Debug.hh"
 #include "PowerClass.hh"
 #include "search/CheckCapacitanceLimits.hh"
 #include "search/CheckSlewLimits.hh"
@@ -2328,9 +2330,7 @@ TEST_F(StaInitTest, MakeExceptionToNull) {
 // Path group names
 TEST_F(StaInitTest, PathGroupNames) {
   StdStringSeq names = sta_->pathGroupNames();
-  // Default path groups exist even without design
-  // (may include "**default**" and similar)
-  (void)names; // Just ensure no crash
+  EXPECT_FALSE(names.empty());
 }
 
 TEST_F(StaInitTest, IsPathGroupName) {
@@ -2340,26 +2340,33 @@ TEST_F(StaInitTest, IsPathGroupName) {
 // Debug level
 TEST_F(StaInitTest, SetDebugLevel) {
   sta_->setDebugLevel("search", 0);
+  EXPECT_EQ(sta_->debug()->level("search"), 0);
   sta_->setDebugLevel("search", 1);
+  EXPECT_EQ(sta_->debug()->level("search"), 1);
   sta_->setDebugLevel("search", 0);
+  EXPECT_EQ(sta_->debug()->level("search"), 0);
 }
 
 // Incremental delay tolerance
 TEST_F(StaInitTest, IncrementalDelayTolerance) {
+  GraphDelayCalc *gdc = sta_->graphDelayCalc();
+  ASSERT_NE(gdc, nullptr);
   sta_->setIncrementalDelayTolerance(0.0);
+  EXPECT_FLOAT_EQ(gdc->incrementalDelayTolerance(), 0.0f);
   sta_->setIncrementalDelayTolerance(0.01);
+  EXPECT_FLOAT_EQ(gdc->incrementalDelayTolerance(), 0.01f);
 }
 
 // Sigma factor for statistical timing
 TEST_F(StaInitTest, SigmaFactor) {
-  sta_->setSigmaFactor(3.0);
+  ASSERT_NO_THROW(sta_->setSigmaFactor(3.0));
 }
 
 // Properties
 TEST_F(StaInitTest, PropertiesAccess) {
   Properties &props = sta_->properties();
-  // Properties object should exist
-  (void)props;
+  Properties &props2 = sta_->properties();
+  EXPECT_EQ(&props, &props2);
 }
 
 // TclInterp

@@ -8,6 +8,18 @@
 #   OutputDelays::timingSense, makeInputOutputTimingArcs
 source ../../test/helpers.tcl
 
+proc rename_timing_model_library {lib_file new_lib_name} {
+  set in [open $lib_file r]
+  set lib_text [read $in]
+  close $in
+
+  regsub {library[[:space:]]*\([^)]+\)} $lib_text "library ($new_lib_name)" lib_text
+
+  set out [open $lib_file w]
+  puts -nonewline $out $lib_text
+  close $out
+}
+
 ############################################################
 # Part 1: Propagated clock model with clock tree buffers
 ############################################################
@@ -29,6 +41,7 @@ report_checks -path_delay min > /dev/null
 puts "--- write_timing_model propagated clock ---"
 set model1 [make_result_file "model_clktree1.lib"]
 write_timing_model -library_name clktree_lib -cell_name clktree_cell $model1
+rename_timing_model_library $model1 clktree_lib_readback
 
 puts "--- read back clktree model ---"
 read_liberty $model1
@@ -36,7 +49,6 @@ read_liberty $model1
 ############################################################
 # Part 2: Model with clock latency + uncertainty
 ############################################################
-read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog search_crpr.v
 link_design search_crpr
 
@@ -56,6 +68,7 @@ report_checks -path_delay min > /dev/null
 puts "--- write_timing_model with latency + uncertainty ---"
 set model2 [make_result_file "model_clktree2.lib"]
 write_timing_model -library_name clktree2_lib -cell_name clktree2_cell $model2
+rename_timing_model_library $model2 clktree2_lib_readback
 
 puts "--- read back clktree2 model ---"
 read_liberty $model2
@@ -63,7 +76,6 @@ read_liberty $model2
 ############################################################
 # Part 3: Model from latch design with propagated clock
 ############################################################
-read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog search_latch.v
 link_design search_latch
 
@@ -80,6 +92,7 @@ report_checks -path_delay min > /dev/null
 puts "--- write_timing_model latch with min/max ---"
 set model3 [make_result_file "model_clktree_latch.lib"]
 write_timing_model $model3
+rename_timing_model_library $model3 clktree_latch_lib_readback
 
 puts "--- read back latch model ---"
 read_liberty $model3
@@ -87,7 +100,6 @@ read_liberty $model3
 ############################################################
 # Part 4: Model from multicorner design with propagated clock
 ############################################################
-read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog search_multicorner_analysis.v
 link_design search_multicorner_analysis
 
@@ -106,6 +118,7 @@ report_checks -path_delay min > /dev/null
 puts "--- write_timing_model multicorner propagated ---"
 set model4 [make_result_file "model_clktree_mc.lib"]
 write_timing_model -library_name mc_prop_lib -cell_name mc_prop $model4
+rename_timing_model_library $model4 mc_prop_lib_readback
 
 puts "--- read back multicorner propagated model ---"
 read_liberty $model4
@@ -113,7 +126,6 @@ read_liberty $model4
 ############################################################
 # Part 5: Model with clock transition
 ############################################################
-read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog search_path_end_types.v
 link_design search_path_end_types
 
@@ -132,6 +144,7 @@ report_checks -path_delay max > /dev/null
 puts "--- write_timing_model with clock transition ---"
 set model5 [make_result_file "model_clk_transition.lib"]
 write_timing_model -library_name ct_lib -cell_name ct_cell $model5
+rename_timing_model_library $model5 ct_lib_readback
 
 puts "--- read back clock transition model ---"
 read_liberty $model5

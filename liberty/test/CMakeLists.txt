@@ -6,6 +6,7 @@ sta_module_tests("liberty"
     cell_classify_pgpin
     cell_deep
     clkgate_lvlshift
+    ecsm
     equiv_cells
     equiv_cross_lib
     equiv_deep

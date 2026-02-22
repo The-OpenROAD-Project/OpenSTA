@@ -45,6 +45,21 @@ readTextFile(const char *filename)
                      std::istreambuf_iterator<char>());
 }
 
+static size_t
+countSubstring(const std::string &text,
+               const std::string &needle)
+{
+  if (needle.empty())
+    return 0;
+  size_t count = 0;
+  size_t pos = 0;
+  while ((pos = text.find(needle, pos)) != std::string::npos) {
+    ++count;
+    pos += needle.size();
+  }
+  return count;
+}
+
 // RiseFall tests
 class RiseFallTest : public ::testing::Test {};
 
@@ -981,8 +996,16 @@ class DeratingFactorsGlobalTest : public ::testing::Test {};
 
 TEST_F(DeratingFactorsGlobalTest, DefaultConstruction) {
   DeratingFactorsGlobal dfg;
-  // Should be constructible and clearable
+  float factor = 0.0f;
+  bool exists = true;
+  dfg.factor(TimingDerateType::cell_delay, PathClkOrData::data,
+             RiseFall::rise(), MinMax::max(), factor, exists);
+  EXPECT_FALSE(exists);
   dfg.clear();
+  exists = true;
+  dfg.factor(TimingDerateType::cell_delay, PathClkOrData::data,
+             RiseFall::rise(), MinMax::max(), factor, exists);
+  EXPECT_FALSE(exists);
 }
 
 TEST_F(DeratingFactorsGlobalTest, SetFactorCellDelay) {
@@ -1685,8 +1708,16 @@ TEST_F(SdcInitTest, ClockSlew) {
 
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("slew_clk");
+  ASSERT_NE(clk, nullptr);
   sta_->setClockSlew(clk, RiseFallBoth::riseFall(), MinMaxAll::all(), 0.5);
+  float slew = 0.0f;
+  bool exists = false;
+  clk->slew(RiseFall::rise(), MinMax::max(), slew, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(slew, 0.5f);
   sta_->removeClockSlew(clk);
+  clk->slew(RiseFall::rise(), MinMax::max(), slew, exists);
+  EXPECT_FALSE(exists);
 }
 
 // Clock latency with clock
@@ -1698,9 +1729,17 @@ TEST_F(SdcInitTest, ClockLatencyOnClock) {
 
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("lat_clk");
+  ASSERT_NE(clk, nullptr);
   sta_->setClockLatency(clk, nullptr, RiseFallBoth::riseFall(),
                         MinMaxAll::all(), 1.0);
+  float latency = 0.0f;
+  bool exists = false;
+  sdc->clockLatency(clk, RiseFall::rise(), MinMax::max(), latency, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(latency, 1.0f);
   sta_->removeClockLatency(clk, nullptr);
+  sdc->clockLatency(clk, RiseFall::rise(), MinMax::max(), latency, exists);
+  EXPECT_FALSE(exists);
 }
 
 // Clock insertion delay
@@ -1712,9 +1751,19 @@ TEST_F(SdcInitTest, ClockInsertionOnClock) {
 
   Sdc *sdc = sta_->sdc();
   Clock *clk = sdc->findClock("ins_clk");
+  ASSERT_NE(clk, nullptr);
   sta_->setClockInsertion(clk, nullptr, RiseFallBoth::riseFall(),
                           MinMaxAll::all(), EarlyLateAll::all(), 0.5);
+  float insertion = 0.0f;
+  bool exists = false;
+  sdc->clockInsertion(clk, nullptr, RiseFall::rise(), MinMax::max(),
+                      EarlyLate::early(), insertion, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(insertion, 0.5f);
   sta_->removeClockInsertion(clk, nullptr);
+  sdc->clockInsertion(clk, nullptr, RiseFall::rise(), MinMax::max(),
+                      EarlyLate::early(), insertion, exists);
+  EXPECT_FALSE(exists);
 }
 
 // Clock uncertainty
@@ -10207,34 +10256,48 @@ TEST_F(SdcDesignTest, DisabledInstancePortsDisable) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   InstanceChildIterator *iter = network->childIterator(top);
-  if (iter->hasNext()) {
-    Instance *inst = iter->next();
-    LibertyCell *lib_cell = network->libertyCell(inst);
-    if (lib_cell) {
-      LibertyPort *in_port = nullptr;
-      LibertyPort *out_port = nullptr;
-      LibertyCellPortIterator port_iter(lib_cell);
-      while (port_iter.hasNext()) {
-        LibertyPort *port = port_iter.next();
-        if (port->direction()->isInput() && !in_port)
-          in_port = port;
-        else if (port->direction()->isOutput() && !out_port)
-          out_port = port;
-      }
-      if (in_port && out_port) {
-        // Disable on instance with from/to
-        sta_->disable(inst, in_port, out_port);
-        // Write SDC to exercise the disabled instance path
-        const char *filename = "/tmp/test_sdc_r11_disinstports.sdc";
-        sta_->writeSdc(filename, false, false, 4, false, true);
-        FILE *f = fopen(filename, "r");
-        EXPECT_NE(f, nullptr);
-        if (f) fclose(f);
-        // Remove the disable
-        sta_->removeDisable(inst, in_port, out_port);
-      }
-    }
+  ASSERT_TRUE(iter->hasNext());
+  Instance *inst = iter->next();
+  ASSERT_NE(inst, nullptr);
+  LibertyCell *lib_cell = network->libertyCell(inst);
+  ASSERT_NE(lib_cell, nullptr);
+
+  LibertyPort *in_port = nullptr;
+  LibertyPort *out_port = nullptr;
+  LibertyCellPortIterator port_iter(lib_cell);
+  while (port_iter.hasNext()) {
+    LibertyPort *port = port_iter.next();
+    if (port->direction()->isInput() && !in_port)
+      in_port = port;
+    else if (port->direction()->isOutput() && !out_port)
+      out_port = port;
   }
+  ASSERT_NE(in_port, nullptr);
+  ASSERT_NE(out_port, nullptr);
+
+  // Compare emitted SDC before/after disabling this specific arc.
+  const char *filename = "/tmp/test_sdc_r11_disinstports.sdc";
+  sta_->writeSdc(filename, false, false, 4, false, true);
+  std::string before = readTextFile(filename);
+  ASSERT_FALSE(before.empty());
+  size_t before_disable_cnt = countSubstring(before, "set_disable_timing");
+
+  sta_->disable(inst, in_port, out_port);
+  sta_->writeSdc(filename, false, false, 4, false, true);
+  std::string after_disable = readTextFile(filename);
+  ASSERT_FALSE(after_disable.empty());
+  size_t after_disable_cnt = countSubstring(after_disable, "set_disable_timing");
+  EXPECT_GT(after_disable_cnt, before_disable_cnt);
+  EXPECT_NE(after_disable.find("-from"), std::string::npos);
+  EXPECT_NE(after_disable.find("-to"), std::string::npos);
+
+  sta_->removeDisable(inst, in_port, out_port);
+  sta_->writeSdc(filename, false, false, 4, false, true);
+  std::string after_remove = readTextFile(filename);
+  ASSERT_FALSE(after_remove.empty());
+  size_t after_remove_cnt = countSubstring(after_remove, "set_disable_timing");
+  EXPECT_EQ(after_remove_cnt, before_disable_cnt);
+
   delete iter;
 }
 
