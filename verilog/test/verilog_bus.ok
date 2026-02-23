@@ -76,7 +76,7 @@ buf* pins: 8
 and* pins: 12
 reg* pins: 24
 --- write_verilog with bus ports ---
-output size: 880
+No differences found.
 --- report_net with bus nets ---
 Net n1[0]
  Pin capacitance: 0.87-0.92

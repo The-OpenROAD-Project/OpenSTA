@@ -27,9 +27,8 @@ write_verilog $out1
 set out2 [make_result_file verilog_escaped_bus_pwr.v]
 write_verilog -include_pwr_gnd $out2
 
-set sz1 [file size $out1]
-set sz2 [file size $out2]
-puts "basic: $sz1 bytes, pwr_gnd: $sz2 bytes"
+diff_files verilog_escaped_bus.vok $out1
+diff_files verilog_escaped_bus_pwr.vok $out2
 
 #---------------------------------------------------------------
 # Test 2: Read back written bus verilog (roundtrip)

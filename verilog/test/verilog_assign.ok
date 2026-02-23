@@ -68,7 +68,6 @@ Path Type: min
 No paths found.
 No paths found.
 No paths found.
-Warning: verilog_assign.tcl line 1, unknown field nets.
 Startpoint: in3 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -232,7 +231,7 @@ Instance reg2
   VSS ground (unconnected)
 report_instance reg2: done
 --- Test 4: write verilog ---
-output size: 606
+No differences found.
 --- Test 5: fanin/fanout through assign ---
 fanin to out2: 3
 fanout from in3: 5

@@ -1,0 +1,28 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.0000 [get_ports {clk1}]
+create_clock -name clk2 -period 20.0000 [get_ports {clk2}]
+create_clock -name vclk1 -period 8.0000 
+create_clock -name vclk2 -period 12.0000 
+create_clock -name clk1_2x -add -period 5.0000 [get_ports {clk1}]
+create_generated_clock -name gclk1 -source [get_ports {clk1}] -divide_by 2 [get_pins {reg1/Q}]
+create_generated_clock -name gclk2 -source [get_ports {clk2}] -multiply_by 2 [get_pins {reg3/Q}]
+set_clock_groups -name phys_group1 -physically_exclusive \
+ -group [get_clocks {clk1}]\
+ -group [get_clocks {clk1_2x}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in2}]
+set_input_delay 2.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {in3}]
+set_output_delay 3.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {out1}]
+set_output_delay 3.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {out2}]
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################

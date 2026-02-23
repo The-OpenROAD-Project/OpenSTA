@@ -46,7 +46,7 @@ report_checks -from [get_ports {data_in[4]}] -to [get_ports {data_out[4]}]
 
 report_checks -from [get_ports sel] -to [get_ports valid]
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 
 #---------------------------------------------------------------
 # Test 3: Write verilog with bus nets (exercises bus wire dcls)
@@ -55,20 +55,17 @@ puts "--- Test 3: write verilog ---"
 
 set out1 [make_result_file verilog_bus_ps_basic.v]
 write_verilog $out1
-set sz1 [file size $out1]
-puts "basic write: $sz1 bytes"
+diff_files verilog_bus_ps_basic.vok $out1
 
 # With power/ground
 set out2 [make_result_file verilog_bus_ps_pwr.v]
 write_verilog -include_pwr_gnd $out2
-set sz2 [file size $out2]
-puts "pwr_gnd write: $sz2 bytes"
+diff_files verilog_bus_ps_pwr.vok $out2
 
 # With remove_cells (empty)
 set out3 [make_result_file verilog_bus_ps_remove.v]
 write_verilog -remove_cells {} $out3
-set sz3 [file size $out3]
-puts "remove_cells write: $sz3 bytes"
+diff_files verilog_bus_ps_remove.vok $out3
 
 #---------------------------------------------------------------
 # Test 4: Read back written verilog (roundtrip)
@@ -83,17 +80,16 @@ set cells2 [get_cells *]
 puts "roundtrip cells: [llength $cells2]"
 
 create_clock -name clk -period 10 [get_ports clk]
-set_input_delay -clock clk 0 [all_inputs]
+set_input_delay -clock clk 0 [get_ports {data_in* sel}]
 set_output_delay -clock clk 0 [all_outputs]
-set_input_transition 0.1 [all_inputs]
+set_input_transition 0.1 [get_ports {data_in* sel}]
 
 report_checks
 
 # Write again to see if sizes match
 set out4 [make_result_file verilog_bus_ps_roundtrip2.v]
 write_verilog $out4
-set sz4 [file size $out4]
-puts "roundtrip2 write: $sz4 bytes"
+diff_files verilog_bus_ps_roundtrip2.vok $out4
 
 #---------------------------------------------------------------
 # Test 5: Instance and net reports for bus design
@@ -139,8 +135,7 @@ connect_pin extra_bus_wire extra_buf_bus/A
 
 set out5 [make_result_file verilog_bus_ps_modified.v]
 write_verilog $out5
-set sz5 [file size $out5]
-puts "modified write: $sz5 bytes"
+diff_files verilog_bus_ps_modified.vok $out5
 
 disconnect_pin extra_bus_wire extra_buf_bus/A
 delete_instance extra_buf_bus

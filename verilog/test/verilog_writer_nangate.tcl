@@ -2,7 +2,13 @@
 source ../../test/helpers.tcl
 
 proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
+  if {![file exists $path]} {
+    error "expected non-empty file: $path"
+  }
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if {[string length $text] <= 0} {
     error "expected non-empty file: $path"
   }
 }
@@ -27,17 +33,15 @@ link_design verilog_test1
 set out7 [make_result_file verilog_advanced_out7.v]
 write_verilog $out7
 assert_file_nonempty $out7
+diff_files verilog_advanced_out7.vok $out7
 assert_file_contains $out7 "module verilog_test1"
 assert_file_contains $out7 "BUF_X1"
 
 set out8 [make_result_file verilog_advanced_out8.v]
 write_verilog -include_pwr_gnd $out8
 assert_file_nonempty $out8
+diff_files verilog_advanced_out8.vok $out8
 assert_file_contains $out8 "module verilog_test1"
-
-set sz7 [file size $out7]
-set sz8 [file size $out8]
-puts "nangate45 basic: $sz7, pwr_gnd: $sz8"
 
 create_clock -name clk -period 10 [get_ports clk]
 set_input_delay -clock clk 0 [get_ports in1]

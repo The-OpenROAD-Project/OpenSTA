@@ -3,7 +3,13 @@
 source ../../test/helpers.tcl
 
 proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
+  if {![file exists $path]} {
+    error "expected non-empty file: $path"
+  }
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if {[string length $text] <= 0} {
     error "expected non-empty file: $path"
   }
 }
@@ -48,9 +54,8 @@ assert_file_contains $out_h_rm2 "module network_hier_test"
 assert_file_not_contains $out_h_rm2 "AND2_X1"
 assert_file_not_contains $out_h_rm2 "INV_X1"
 
-set sz_h_rm [file size $out_h_rm]
-set sz_h_rm2 [file size $out_h_rm2]
-puts "hier remove sizes: buf=$sz_h_rm and_inv=$sz_h_rm2"
+diff_files verilog_remove_hier_buf.vok $out_h_rm
+diff_files verilog_remove_hier_and.vok $out_h_rm2
 
 # Read back hierarchical with removes
 read_liberty ../../test/nangate45/Nangate45_typ.lib

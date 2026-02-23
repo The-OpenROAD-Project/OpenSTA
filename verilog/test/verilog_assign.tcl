@@ -51,7 +51,7 @@ report_checks -from [get_ports in3] -to [get_ports out2]
 report_checks -from [get_ports in3] -to [get_ports out3]
 
 # Report with various fields
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 
 #---------------------------------------------------------------
 # Test 3: Query objects related to assign
@@ -87,7 +87,7 @@ puts "--- Test 4: write verilog ---"
 set outfile [make_result_file verilog_assign_out.v]
 write_verilog $outfile
 
-puts "output size: [file size $outfile]"
+diff_files verilog_assign_out.vok $outfile
 
 # Write with pwr_gnd
 set outfile2 [make_result_file verilog_assign_pwr.v]

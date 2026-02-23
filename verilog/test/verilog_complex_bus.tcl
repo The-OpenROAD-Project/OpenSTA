@@ -132,7 +132,7 @@ puts "--- Test 5: write verilog with buses ---"
 set outfile [make_result_file verilog_complex_bus_out.v]
 write_verilog $outfile
 
-puts "output size: [file size $outfile]"
+diff_files verilog_complex_bus_out.vok $outfile
 
 set outfile2 [make_result_file verilog_complex_bus_pwr.v]
 write_verilog -include_pwr_gnd $outfile2
@@ -162,7 +162,7 @@ report_checks -to [get_ports carry]
 
 report_checks -to [get_ports overflow]
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 
 #---------------------------------------------------------------
 # Test 7: Report nets on bus nets

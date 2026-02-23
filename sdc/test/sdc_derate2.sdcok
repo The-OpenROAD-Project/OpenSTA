@@ -1,0 +1,32 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.0000 [get_ports {clk1}]
+create_clock -name clk2 -period 20.0000 [get_ports {clk2}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in2}]
+set_input_delay 2.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {in3}]
+set_output_delay 3.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {out1}]
+set_output_delay 3.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {out2}]
+set_disable_timing [get_lib_cells {NangateOpenCellLibrary/BUF_X1}]
+set_disable_timing -from {A} [get_lib_cells {NangateOpenCellLibrary/INV_X1}]
+set_disable_timing -to {ZN} [get_lib_cells {NangateOpenCellLibrary/NAND2_X1}]
+set_disable_timing -from {A1} -to {ZN} [get_lib_cells {NangateOpenCellLibrary/NOR2_X1}]
+set_disable_timing -from {A2} -to {ZN} [get_lib_cells {NangateOpenCellLibrary/NOR2_X1}]
+set_disable_timing [get_ports {in1}]
+set_disable_timing -from {A1} -to {ZN} [get_cells {and1}]
+set_disable_timing -from {A2} -to {ZN} [get_cells {and1}]
+set_disable_timing [get_cells {buf1}]
+set_disable_timing -to {ZN} [get_cells {nand1}]
+set_disable_timing -from {A1} [get_cells {or1}]
+set_disable_timing [get_pins {inv1/A}]
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################

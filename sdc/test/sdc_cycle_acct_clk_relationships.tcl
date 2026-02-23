@@ -128,6 +128,7 @@ report_checks -path_delay min
 ############################################################
 set sdc_out [make_result_file sdc_cycle_acct.sdc]
 write_sdc -no_timestamp $sdc_out
+diff_files sdc_cycle_acct.sdcok $sdc_out
 
 ############################################################
 # Phase 10: report_clock_properties

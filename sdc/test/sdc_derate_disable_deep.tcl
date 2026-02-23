@@ -87,6 +87,7 @@ report_checks
 ############################################################
 set sdc1 [make_result_file sdc_derate1.sdc]
 write_sdc -no_timestamp $sdc1
+diff_files_sorted sdc_derate1.sdcok $sdc1
 
 ############################################################
 # Reset deratings
@@ -148,9 +149,11 @@ set_disable_timing [get_ports in1]
 ############################################################
 set sdc2 [make_result_file sdc_derate2.sdc]
 write_sdc -no_timestamp $sdc2
+diff_files sdc_derate2.sdcok $sdc2
 
 set sdc3 [make_result_file sdc_derate3.sdc]
 write_sdc -no_timestamp -compatible $sdc3
+diff_files sdc_derate3.sdcok $sdc3
 
 ############################################################
 # Unset all disables
@@ -172,8 +175,8 @@ unset_disable_timing [get_pins inv1/A]
 ############################################################
 # Clock gating check - global/clock/instance/pin
 ############################################################
-set_clock_gating_check -setup 0.5 [current_design]
-set_clock_gating_check -hold 0.3 [current_design]
+set_clock_gating_check -setup 0.5
+set_clock_gating_check -hold 0.3
 
 set_clock_gating_check -setup 0.4 [get_clocks clk1]
 set_clock_gating_check -hold 0.2 [get_clocks clk1]
@@ -195,5 +198,6 @@ puts "disabled_edges_sorted count = [llength $disabled]"
 ############################################################
 set sdc4 [make_result_file sdc_derate4.sdc]
 write_sdc -no_timestamp $sdc4
+diff_files sdc_derate4.sdcok $sdc4
 
 report_checks

@@ -80,7 +80,7 @@ read_verilog ../../sdc/test/sdc_test2.v
 link_design sdc_test2
 create_clock -name clk1 -period 10 [get_ports clk1]
 create_clock -name clk2 -period 20 [get_ports clk2]
-set_input_delay -clock clk1 2.0 [all_inputs]
+set_input_delay -clock clk1 2.0 [get_ports {in1 in2 in3}]
 set_output_delay -clock clk1 3.0 [all_outputs]
 set_input_transition 0.1 [all_inputs]
 
@@ -157,5 +157,5 @@ report_lib_cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__mux4_1
 set outfile [make_result_file liberty_cell_deep_write.lib]
 sta::write_liberty NangateOpenCellLibrary $outfile
 
-# Verify file was written
-puts "write_liberty output: [file size $outfile] bytes"
+# Verify file contents against static golden.
+diff_files liberty_cell_deep_write.libok $outfile

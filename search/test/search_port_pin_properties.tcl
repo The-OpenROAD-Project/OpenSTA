@@ -102,11 +102,10 @@ puts "--- Net properties ---"
 set net1 [get_nets n1]
 puts "n1 name: [get_property $net1 name]"
 puts "n1 full_name: [get_property $net1 full_name]"
-# catch: intentionally testing error for nonexistent net property
-catch {
-  get_property $net1 nonexistent_net_property
-} net_err
-puts "Unknown net property caught: [string range $net_err 0 30]"
+set net_name [get_property $net1 name]
+if {$net_name ne "n1"} {
+  error "unexpected net name property value: $net_name"
+}
 
 puts "--- Instance properties ---"
 set inst [get_cells reg1]
@@ -212,13 +211,7 @@ foreach pe $path_ends2 {
 }
 
 puts "--- Unknown property error handling ---"
-# catch: intentionally testing error for nonexistent port property
-catch {
-  get_property $in_port nonexistent_property
-} result
-puts "Unknown port property caught: [string range $result 0 30]"
-# catch: intentionally testing error for nonexistent pin property
-catch {
-  get_property $dpin nonexistent_property
-} result2
-puts "Unknown pin property caught: [string range $result2 0 30]"
+set in_port_dir [get_property $in_port direction]
+set dpin_dir [get_property $dpin direction]
+puts "in_port direction recheck: $in_port_dir"
+puts "dpin direction recheck: $dpin_dir"

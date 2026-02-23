@@ -28,4 +28,6 @@ filter_lib_cells is_buffer: 9
 filter_insts ref_name =~ BUF*: 1
 filter_pins direction == input: 1
 filter_nets full_name =~ n*: 7
+No differences found.
 No paths found.
+No differences found.

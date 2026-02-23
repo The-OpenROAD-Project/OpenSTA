@@ -167,8 +167,8 @@ set_min_pulse_width 0.8 [get_clocks clk2]
 
 set_clock_gating_check -setup 0.5 [get_clocks clk1]
 set_clock_gating_check -hold 0.3 [get_clocks clk1]
-set_clock_gating_check -setup 0.4 [current_design]
-set_clock_gating_check -hold 0.2 [current_design]
+set_clock_gating_check -setup 0.4
+set_clock_gating_check -hold 0.2
 
 ############################################################
 # Driving cells with various options
@@ -241,12 +241,15 @@ set_voltage 1.1 -min 0.9
 
 set sdc_file1 [make_result_file sdc_port_delay_adv1.sdc]
 write_sdc -no_timestamp $sdc_file1
+diff_files_sorted sdc_port_delay_adv1.sdcok $sdc_file1
 
 set sdc_file2 [make_result_file sdc_port_delay_adv2.sdc]
 write_sdc -no_timestamp -compatible $sdc_file2
+diff_files_sorted sdc_port_delay_adv2.sdcok $sdc_file2
 
 set sdc_file3 [make_result_file sdc_port_delay_adv3.sdc]
 write_sdc -no_timestamp -digits 8 $sdc_file3
+diff_files_sorted sdc_port_delay_adv3.sdcok $sdc_file3
 
 ############################################################
 # Report checks to verify

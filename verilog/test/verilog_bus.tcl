@@ -82,7 +82,7 @@ puts "--- write_verilog with bus ports ---"
 set outfile [make_result_file verilog_bus_out.v]
 write_verilog $outfile
 
-puts "output size: [file size $outfile]"
+diff_files verilog_bus_out.vok $outfile
 
 # Write with pwr_gnd to exercise pwr/gnd port direction paths
 set outfile2 [make_result_file verilog_bus_pwr.v]

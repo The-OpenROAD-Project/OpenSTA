@@ -80,6 +80,7 @@ set_propagated_clock [get_clocks clk1]
 
 set sdc_file [make_result_file sdc_write_read.sdc]
 write_sdc -no_timestamp $sdc_file
+diff_files sdc_write_read.sdcok $sdc_file
 
 ############################################################
 # Clear and read back

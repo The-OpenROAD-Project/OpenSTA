@@ -70,6 +70,7 @@ set_false_path -setup -from [list [get_clocks clk1] [get_ports in3]] \
 ############################################################
 set sdc1 [make_result_file sdc_exception_thru1.sdc]
 write_sdc -no_timestamp $sdc1
+diff_files sdc_exception_thru1.sdcok $sdc1
 
 ############################################################
 # Unset all false paths and create new ones
@@ -114,9 +115,11 @@ group_path -name grp_thru -from [get_ports in2] -through [get_pins and1/ZN] -to 
 ############################################################
 set sdc2 [make_result_file sdc_exception_thru2.sdc]
 write_sdc -no_timestamp $sdc2
+diff_files sdc_exception_thru2.sdcok $sdc2
 
 set sdc3 [make_result_file sdc_exception_thru3.sdc]
 write_sdc -no_timestamp -compatible $sdc3
+diff_files sdc_exception_thru3.sdcok $sdc3
 
 ############################################################
 # Group path names query

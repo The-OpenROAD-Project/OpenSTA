@@ -18,6 +18,9 @@ clk_asym                 12.00        0.00      3.00
 gclk_div2                10.00        0.00      5.00 (generated)
 gclk_div3                36.00        0.00      9.00 (generated)
 gclk_mul2                 2.50        0.00      1.25 (generated)
+No differences found.
+No differences found.
+No differences found.
 No paths found.
 No paths found.
 Clock                   Period          Waveform

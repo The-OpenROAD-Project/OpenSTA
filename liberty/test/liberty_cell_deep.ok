@@ -45,7 +45,6 @@ BUF_X1 dont_use = 0
 DFF_X1 dont_use = 0
 ANTENNA_X1 dont_use = 1
 FILLCELL_X1 dont_use = 1
-Warning: liberty_cell_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 No paths found.
 No paths found.
 No paths found.
@@ -88,20 +87,20 @@ No paths found.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
-Sequential             1.76e-06   6.90e-09   2.36e-07   2.01e-06  85.9%
-Combinational          1.33e-07   7.11e-08   1.25e-07   3.29e-07  14.1%
+Sequential             1.52e-06   6.90e-09   2.36e-07   1.76e-06  84.2%
+Combinational          1.33e-07   7.11e-08   1.25e-07   3.29e-07  15.8%
 Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
-Total                  1.90e-06   7.80e-08   3.61e-07   2.33e-06 100.0%
-                          81.2%       3.3%      15.5%
+Total                  1.65e-06   7.80e-08   3.61e-07   2.09e-06 100.0%
+                          79.0%       3.7%      17.3%
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
    5.87e-07   6.90e-09   7.86e-08   6.73e-07 reg1
    5.89e-07   0.00e+00   7.84e-08   6.67e-07 reg2
-   5.87e-07   0.00e+00   7.86e-08   6.65e-07 reg3
+   3.41e-07   0.00e+00   7.86e-08   4.20e-07 reg3
    2.56e-08   2.00e-08   2.51e-08   7.07e-08 and1
    2.70e-08   2.01e-08   2.27e-08   6.98e-08 or1
    3.04e-08   1.13e-08   2.14e-08   6.31e-08 buf1
@@ -280,4 +279,4 @@ File ../../test/sky130hd/sky130hd_tt.lib
  S0 input 3.70-4.09
  S1 input 2.61-2.74
  X output function=((((A0*!S0)*!S1)+((A1*S0)*!S1))+((A2*!S0)*S1))+((A3*S0)*S1)
-write_liberty output: 3598559 bytes
+No differences found.

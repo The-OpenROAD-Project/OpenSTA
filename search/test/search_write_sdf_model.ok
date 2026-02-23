@@ -1,7 +1,11 @@
 --- write_sdf ---
+No differences found.
 --- write_sdf with options ---
+No differences found.
 --- write_sdf with digits ---
+No differences found.
 --- write_sdf with include_typ ---
+No differences found.
 --- write_timing_model ---
 --- write_timing_model with cell_name ---
 --- write_timing_model with library_name ---
@@ -12,7 +16,6 @@ make_net new_net1 done
 --- Network edit: connect_pin ---
 connect_pin done
 --- Network edit: disconnect_pin ---
-Warning: search_write_sdf_model.tcl line 1, net 'new_buf1' not found.
 disconnect_pin done
 --- Network edit: delete_net ---
 delete_net done
@@ -106,3 +109,4 @@ Path Type: min
 
 --- write_timing_model after edits ---
 --- write_sdf after edits ---
+No differences found.

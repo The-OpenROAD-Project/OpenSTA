@@ -1,5 +1,5 @@
-write_liberty rt1: 3598559 bytes
-write_liberty sky130: 4746895 bytes
+No differences found.
+No differences found.
 INV_X1: 1 arc sets
   rise->fall
   fall->rise

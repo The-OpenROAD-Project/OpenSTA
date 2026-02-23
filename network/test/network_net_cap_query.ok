@@ -204,6 +204,8 @@ leaf instances list: 11
 library: NangateOpenCellLibrary
 library: verilog
 total libraries: 2
+found library: NangateOpenCellLibrary
+found INV_X1 in NangateOpenCellLibrary
 BUF* cells in library: 6
 all cells in library: 134
 --- Test 9: timing reports ---
@@ -266,7 +268,6 @@ Path Type: min
            0.01   slack (MET)
 
 
-Warning: network_net_cap_query.tcl line 1, unknown field nets.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

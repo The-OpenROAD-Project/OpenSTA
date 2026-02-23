@@ -67,6 +67,7 @@ set_disable_timing [get_lib_cells NangateOpenCellLibrary/AND2_X1] -from A1 -to Z
 # Write SDC with disable timing
 set sdc_file1 [make_result_file sdc_disable1.sdc]
 write_sdc -no_timestamp $sdc_file1
+diff_files sdc_disable1.sdcok $sdc_file1
 
 # Unset all lib cell disables
 unset_disable_timing [get_lib_cells NangateOpenCellLibrary/BUF_X1]
@@ -93,6 +94,7 @@ report_checks
 # Write SDC with case analysis (exercises writeCaseAnalysis)
 set sdc_file2 [make_result_file sdc_case1.sdc]
 write_sdc -no_timestamp $sdc_file2
+diff_files sdc_case1.sdcok $sdc_file2
 
 # Unset case analysis
 unset_case_analysis [get_ports in1]
@@ -104,6 +106,7 @@ set_case_analysis falling [get_ports in1]
 
 set sdc_file3 [make_result_file sdc_case2.sdc]
 write_sdc -no_timestamp $sdc_file3
+diff_files sdc_case2.sdcok $sdc_file3
 
 unset_case_analysis [get_ports in1]
 
@@ -121,6 +124,7 @@ set_logic_dc [get_ports in3]
 # Write SDC with logic values (exercises writeConstants)
 set sdc_file4 [make_result_file sdc_logic1.sdc]
 write_sdc -no_timestamp $sdc_file4
+diff_files sdc_logic1.sdcok $sdc_file4
 
 report_checks
 
@@ -139,6 +143,7 @@ set_data_check -from [get_pins reg1/Q] -fall_to [get_pins reg2/D] -hold 0.25
 # Write with data checks
 set sdc_file5 [make_result_file sdc_datacheck1.sdc]
 write_sdc -no_timestamp $sdc_file5
+diff_files sdc_datacheck1.sdcok $sdc_file5
 
 # Remove data checks
 unset_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -setup
@@ -150,8 +155,8 @@ unset_data_check -from [get_pins reg1/Q] -to [get_pins reg2/D] -hold
 ############################################################
 
 # Design-level
-set_clock_gating_check -setup 0.5 [current_design]
-set_clock_gating_check -hold 0.3 [current_design]
+set_clock_gating_check -setup 0.5
+set_clock_gating_check -hold 0.3
 
 # Clock-level
 set_clock_gating_check -setup 0.4 [get_clocks clk1]
@@ -170,6 +175,7 @@ set_clock_gating_check -hold 0.08 [get_pins reg1/CK]
 # Write SDC with clock gating
 set sdc_file6 [make_result_file sdc_clkgate1.sdc]
 write_sdc -no_timestamp $sdc_file6
+diff_files sdc_clkgate1.sdcok $sdc_file6
 
 ############################################################
 # set_ideal_network / set_ideal_transition
@@ -212,11 +218,14 @@ set_max_time_borrow 1.2 [get_cells reg2]
 
 set sdc_final [make_result_file sdc_disable_case_final.sdc]
 write_sdc -no_timestamp $sdc_final
+diff_files sdc_disable_case_final.sdcok $sdc_final
 
 set sdc_compat [make_result_file sdc_disable_case_compat.sdc]
 write_sdc -no_timestamp -compatible $sdc_compat
+diff_files sdc_disable_case_compat.sdcok $sdc_compat
 
 set sdc_d6 [make_result_file sdc_disable_case_d6.sdc]
 write_sdc -no_timestamp -digits 6 $sdc_d6
+diff_files sdc_disable_case_d6.sdcok $sdc_d6
 
 report_checks

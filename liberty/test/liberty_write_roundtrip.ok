@@ -1,6 +1,6 @@
-Nangate45 write: 3598559 bytes
-Sky130 write: 4746895 bytes
-IHP write: 752459 bytes
+No differences found.
+No differences found.
+No differences found.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
@@ -11,10 +11,10 @@ Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 1337
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-ASAP7 SIMPLE write: 795590 bytes
-ASAP7 SEQ write: 718373 bytes
-ASAP7 INVBUF write: 147219 bytes
-fakeram write: 78058 bytes
+No differences found.
+No differences found.
+No differences found.
+No differences found.
 Warning: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13189, timing group from output port.

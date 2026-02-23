@@ -467,12 +467,11 @@ protected:
 };
 
 TEST_F(CycleAcctingTest, CycleAcctingHashAndEqual) {
-  // Test the hash and equal functors with placeholder data
   CycleAcctingHash hasher;
   CycleAcctingEqual equal;
-  // These work on CycleAccting pointers but we can verify the functors exist
-  // by testing that they compile and are callable
-  EXPECT_TRUE(true); // Compilation test
+  (void)hasher;
+  (void)equal;
+  EXPECT_TRUE(true);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -565,12 +564,13 @@ protected:
 // (actual Clock objects require Sdc which requires full setup)
 TEST_F(ClockCmpTest, ClkNameLessInstantiation) {
   ClkNameLess less;
-  // Just verify it compiles
+  (void)less;
   EXPECT_TRUE(true);
 }
 
 TEST_F(ClockCmpTest, ClockNameLessInstantiation) {
   ClockNameLess less;
+  (void)less;
   EXPECT_TRUE(true);
 }
 
@@ -2981,10 +2981,23 @@ TEST_F(SdcInitTest, SdcRemoveNetLoadCaps) {
 
 // CycleAccting hash and equal functors
 TEST_F(SdcInitTest, CycleAcctingFunctorsCompile) {
+  FloatSeq *wave = new FloatSeq;
+  wave->push_back(0.0);
+  wave->push_back(4.0);
+  sta_->makeClock("cycle_functor_clk", nullptr, false, 8.0, wave, nullptr);
+  Sdc *sdc = sta_->sdc();
+  Clock *clk = sdc->findClock("cycle_functor_clk");
+  ASSERT_NE(clk, nullptr);
+  ClockEdge *rise = clk->edge(RiseFall::rise());
+  ClockEdge *fall = clk->edge(RiseFall::fall());
+  ASSERT_NE(rise, nullptr);
+  ASSERT_NE(fall, nullptr);
+  CycleAccting ca(rise, fall);
+
   CycleAcctingHash hasher;
   CycleAcctingEqual equal;
-  // Just verify they compile and can be instantiated
-  EXPECT_TRUE(true);
+  EXPECT_EQ(hasher(&ca), hasher(&ca));
+  EXPECT_TRUE(equal(&ca, &ca));
 }
 
 // clkCmp, clkEdgeCmp, clkEdgeLess
@@ -3232,10 +3245,9 @@ TEST_F(SdcInitTest, ClkEdgeCmpLess) {
   ClockEdge *e1 = clk1->edge(RiseFall::rise());
   ClockEdge *e2 = clk2->edge(RiseFall::rise());
   int cmp_result = clkEdgeCmp(e1, e2);
-  // Just verify it doesn't crash and returns a value
-  (void)cmp_result;
   bool less_result = clkEdgeLess(e1, e2);
-  (void)less_result;
+  EXPECT_NE(cmp_result, 0);
+  EXPECT_EQ(less_result, cmp_result < 0);
 
   }() ));
 }
@@ -3319,7 +3331,8 @@ TEST_F(SdcInitTest, ClockIndexLessComparator) {
   Clock *clk2 = sdc->findClock("idx_clk2");
   ClockIndexLess idx_less;
   bool result = idx_less(clk1, clk2);
-  (void)result;
+  bool reverse = idx_less(clk2, clk1);
+  EXPECT_NE(result, reverse);
 
   }() ));
 }
@@ -3353,11 +3366,13 @@ TEST_F(SdcInitTest, DeratingFactorsIsOneValue) {
   DeratingFactors factors;
   factors.setFactor(PathClkOrData::clk,
                     RiseFallBoth::riseFall(), EarlyLate::early(), 1.0f);
+  factors.setFactor(PathClkOrData::data,
+                    RiseFallBoth::riseFall(), EarlyLate::early(), 1.0f);
   bool is_one;
   float value;
   factors.isOneValue(EarlyLate::early(), is_one, value);
-  (void)is_one;
-  (void)value;
+  EXPECT_TRUE(is_one);
+  EXPECT_FLOAT_EQ(value, 1.0f);
 
   }() ));
 }
@@ -3371,8 +3386,8 @@ TEST_F(SdcInitTest, DeratingFactorsIsOneValueClkData) {
   bool is_one;
   float value;
   factors.isOneValue(PathClkOrData::clk, EarlyLate::early(), is_one, value);
-  (void)is_one;
-  (void)value;
+  EXPECT_TRUE(is_one);
+  EXPECT_FLOAT_EQ(value, 1.0f);
 
   }() ));
 }
@@ -3422,11 +3437,17 @@ TEST_F(SdcInitTest, DeratingFactorsCellIsOneValue) {
   DeratingFactorsCell factors;
   factors.setFactor(TimingDerateCellType::cell_delay, PathClkOrData::clk,
                     RiseFallBoth::riseFall(), EarlyLate::early(), 1.0f);
+  factors.setFactor(TimingDerateCellType::cell_delay, PathClkOrData::data,
+                    RiseFallBoth::riseFall(), EarlyLate::early(), 1.0f);
+  factors.setFactor(TimingDerateCellType::cell_check, PathClkOrData::clk,
+                    RiseFallBoth::riseFall(), EarlyLate::early(), 1.0f);
+  factors.setFactor(TimingDerateCellType::cell_check, PathClkOrData::data,
+                    RiseFallBoth::riseFall(), EarlyLate::early(), 1.0f);
   bool is_one;
   float value;
   factors.isOneValue(EarlyLate::early(), is_one, value);
-  (void)is_one;
-  (void)value;
+  EXPECT_TRUE(is_one);
+  EXPECT_FLOAT_EQ(value, 1.0f);
 
   }() ));
 }
@@ -3498,12 +3519,14 @@ TEST_F(SdcInitTest, CycleAcctingHashEqualLess) {
   CycleAcctingHash hash;
   size_t h1 = hash(&ca1);
   size_t h2 = hash(&ca2);
-  (void)h1; (void)h2;
+  EXPECT_NE(h1, h2);
+  EXPECT_EQ(h1, hash(&ca1));
   CycleAcctingEqual eq;
   EXPECT_TRUE(eq(&ca1, &ca1));
   CycleAcctingLess less;
   bool r = less(&ca1, &ca2);
-  (void)r;
+  bool r2 = less(&ca2, &ca1);
+  EXPECT_NE(r, r2);
 }
 
 // DisabledPorts constructors and methods
@@ -3641,12 +3664,12 @@ TEST_F(SdcInitTest, SdcUnsetTimingDerate) {
 
 // PinPairLess
 TEST_F(SdcInitTest, PinPairLessConstruct) {
-  ASSERT_NO_THROW(( [&](){
   Network *network = sta_->cmdNetwork();
+  ASSERT_NE(network, nullptr);
   PinPairLess less(network);
-  // Just construction
-
-  }() ));
+  PinPair p1(nullptr, nullptr);
+  PinPair p2(nullptr, nullptr);
+  EXPECT_FALSE(less(p1, p2));
 }
 
 // PinPairSet with network
@@ -3658,12 +3681,10 @@ TEST_F(SdcInitTest, PinPairSetConstruct) {
 
 // PinPairHash with network
 TEST_F(SdcInitTest, PinPairHashConstruct) {
-  ASSERT_NO_THROW(( [&](){
   Network *network = sta_->cmdNetwork();
+  ASSERT_NE(network, nullptr);
   PinPairHash hash(network);
-  // Just construction
-
-  }() ));
+  (void)hash;
 }
 
 // Sdc: dataChecksFrom/dataChecksTo (need Pin* arg)
@@ -3978,7 +3999,7 @@ TEST_F(SdcInitTest, ClockDefaultPin) {
   Clock *clk = sdc->findClock("dp_clk");
   const Pin *dp = clk->defaultPin();
   // No default pin for virtual clock
-  (void)dp;
+  EXPECT_EQ(dp, nullptr);
 
   }() ));
 }

@@ -66,7 +66,6 @@ Path Type: min
 No paths found.
 No paths found.
 No paths found.
-Warning: verilog_bus_partselect.tcl line 1, unknown field nets.
 Startpoint: data_in[4] (input port clocked by clk)
 Endpoint: reg4 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -103,13 +102,12 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 
 --- Test 3: write verilog ---
-basic write: 3096 bytes
-pwr_gnd write: 3096 bytes
-remove_cells write: 3096 bytes
+No differences found.
+No differences found.
+No differences found.
 --- Test 4: roundtrip ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 roundtrip cells: 38
-Warning: verilog_bus_partselect.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Startpoint: data_in[4] (input port clocked by clk)
 Endpoint: reg4 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -141,7 +139,7 @@ Path Type: max
            9.83   slack (MET)
 
 
-roundtrip2 write: 3096 bytes
+No differences found.
 --- Test 5: reports ---
 Net buf_out[0]
  Pin capacitance: 1.55-1.70
@@ -458,4 +456,4 @@ Path Type: max
 
 through mux_lo0/ZN: done
 --- Test 7: modify bus design ---
-modified write: 3162 bytes
+No differences found.

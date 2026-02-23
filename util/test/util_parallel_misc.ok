@@ -7,7 +7,6 @@ thread_count after set to 4: 4
 processor_count positive
 --- memory_usage ---
 --- load design for parallel timing ---
-Warning: util_parallel_misc.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk
@@ -99,13 +98,13 @@ Path Type: max
 
 
 --- buffer growth test ---
-large capture length: 4827
+large capture length: 4767
 --- string redirect large ---
-string redirect length: 4827
+string redirect length: 4767
 --- file redirect large ---
-file redirect size: 4827
+file redirect size: 4767
 --- append cycles ---
-appended file size: 2079
+No differences found.
 --- debug with threads ---
 search: find arrivals pass 1
 search: find arrivals to level 90

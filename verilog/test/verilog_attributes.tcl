@@ -1,8 +1,5 @@
-# Test verilog reader with attributes and complex constructs
-# Targets: VerilogReader.cc (attribute handling paths - 52.7% coverage)
-#   VerilogReaderPvt.hh (61.0% coverage)
-#   VerilogLex.ll (54.7% coverage - lexer paths)
-#   VerilogParse.yy (41.9% coverage - parser paths)
+# Test verilog reader with attributes and complex constructs.
+# Targets VerilogReader/VerilogLex/VerilogParse attribute parsing paths.
 
 source ../../test/helpers.tcl
 

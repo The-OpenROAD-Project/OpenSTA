@@ -2,7 +2,13 @@
 source ../../test/helpers.tcl
 
 proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
+  if {![file exists $path]} {
+    error "expected non-empty file: $path"
+  }
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if {[string length $text] <= 0} {
     error "expected non-empty file: $path"
   }
 }
@@ -45,9 +51,8 @@ assert_file_nonempty $out_cb_rm2
 assert_file_contains $out_cb_rm2 "module verilog_complex_bus_test"
 assert_file_not_contains $out_cb_rm2 " DFF_X1 "
 
-set sz_cb_rm1 [file size $out_cb_rm]
-set sz_cb_rm2 [file size $out_cb_rm2]
-puts "complex remove sizes: buf=$sz_cb_rm1 dff=$sz_cb_rm2"
+diff_files verilog_remove_complex_buf.vok $out_cb_rm
+diff_files verilog_remove_complex_dff.vok $out_cb_rm2
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog $out_cb_rm

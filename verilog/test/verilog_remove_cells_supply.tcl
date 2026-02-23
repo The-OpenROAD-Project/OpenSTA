@@ -2,7 +2,13 @@
 source ../../test/helpers.tcl
 
 proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
+  if {![file exists $path]} {
+    error "expected non-empty file: $path"
+  }
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if {[string length $text] <= 0} {
     error "expected non-empty file: $path"
   }
 }
@@ -46,10 +52,8 @@ assert_file_contains $out_st_pwr "module verilog_supply_tristate"
 assert_file_not_contains $out_st_pwr "INV_X1"
 assert_file_contains $out_st_pwr "wire gnd_net;"
 
-# Sizes
-set sz_st_rm [file size $out_st_rm]
-set sz_st_pwr [file size $out_st_pwr]
-puts "supply remove sizes: buf=$sz_st_rm inv_pwr=$sz_st_pwr"
+diff_files verilog_remove_supply_buf.vok $out_st_rm
+diff_files verilog_remove_supply_pwr.vok $out_st_pwr
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog $out_st_rm

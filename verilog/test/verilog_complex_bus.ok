@@ -57,7 +57,7 @@ reg0 pins: 6
 */Q pins: 8
 */CK pins: 8
 --- Test 5: write verilog with buses ---
-output size: 2075
+No differences found.
 --- Test 6: timing analysis ---
 Startpoint: data_b[7] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
@@ -177,7 +177,6 @@ Path Type: max
            7.67   slack (MET)
 
 
-Warning: verilog_complex_bus.tcl line 1, unknown field nets.
 Startpoint: data_b[7] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk

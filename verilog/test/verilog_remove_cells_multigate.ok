@@ -1,3 +1,6 @@
 --- Test 2: remove_cells on multi-gate design ---
-multigate sizes: basic=810 inv=774 and=758 gates=704
+No differences found.
+No differences found.
+No differences found.
+No differences found.
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.

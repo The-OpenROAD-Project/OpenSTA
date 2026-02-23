@@ -1,15 +1,16 @@
 --- Test 1: write with -remove_cells ---
 cells: 2
-basic size=194 empty remove size=194
+No differences found.
+No differences found.
 Warning: verilog_remove_cells_basic.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
-remove BUF_X1 size=194
+No differences found.
 Warning: verilog_remove_cells_basic.tcl line 1, object 'NangateOpenCellLibrary/DFF_X1' not found.
-remove DFF_X1 size=194
+No differences found.
 Warning: verilog_remove_cells_basic.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
 Warning: verilog_remove_cells_basic.tcl line 1, object 'NangateOpenCellLibrary/DFF_X1' not found.
-remove both size=194
+No differences found.
 Warning: verilog_remove_cells_basic.tcl line 1, object 'NangateOpenCellLibrary/BUF_X1' not found.
-remove+pwr size=194
+No differences found.
 --- Test 4: read back removed cells ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 roundtrip (buf removed) cells: 2

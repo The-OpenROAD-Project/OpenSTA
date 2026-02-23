@@ -853,3 +853,4 @@ Clock                   Period          Waveform
 ----------------------------------------------------
 mclk                     10.00        0.00      5.00
 edge_clk                 20.00        0.00     10.00 (generated)
+No differences found.

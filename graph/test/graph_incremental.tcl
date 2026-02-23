@@ -1,8 +1,5 @@
 # Test graph incremental changes, constant propagation, and level reporting.
-# Targets: Graph.cc (71.2% -> constant propagation, remove/add edges,
-#   setSlew, pinDrvrVertex, pinLoadVertex, hasDownstreamClkPin, etc.)
-#   GraphCmp.cc (90.5% -> EdgeLess, sortEdges, VertexNameLess)
-#   DelayFloat.cc (87.8% -> delayLess with min_max, delayGreater, etc.)
+# Targets: Graph.cc/GraphCmp.cc/DelayFloat.cc graph update and traversal paths.
 
 source ../../test/helpers.tcl
 

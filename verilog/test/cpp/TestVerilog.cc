@@ -1830,8 +1830,10 @@ TEST_F(VerilogTest, EmptyNames) {
   std::string inst = instanceVerilogName("");
   std::string net = netVerilogName("");
   std::string port = portVerilogName("");
-  // All should at least not crash
-  EXPECT_TRUE(true);
+  EXPECT_EQ(cell, "");
+  EXPECT_EQ(inst, "");
+  EXPECT_EQ(net, "");
+  EXPECT_EQ(port, "");
 }
 
 // Test bus name from verilog to sta conversion
@@ -2065,8 +2067,16 @@ TEST_F(VerilogDesignTest, WriteReadVerilogRoundTrip) {
   ASSERT_NE(f, nullptr);
   fclose(f);
 
+  // Re-read writer output to verify parser/writer roundtrip compatibility.
+  bool reread_ok = sta_->readVerilog(tmpfile);
+  EXPECT_TRUE(reread_ok);
+  bool relink_ok = sta_->linkDesign("top", true);
+  EXPECT_TRUE(relink_ok);
+  Network *roundtrip_network = sta_->network();
+  ASSERT_NE(roundtrip_network, nullptr);
+  ASSERT_NE(roundtrip_network->topInstance(), nullptr);
+
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // Test readVerilog with nonexistent file throws FileNotReadable

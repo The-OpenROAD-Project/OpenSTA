@@ -16,10 +16,8 @@ buf1/? pins: 2
 --- get_nets with wildcards ---
 n* nets: 2
 --- non-matching patterns ---
-Warning: util_pattern_string.tcl line 1, instance 'zzz_nonexistent' not found.
-get_cells nonexistent: rc=0
-Warning: util_pattern_string.tcl line 1, pin 'zzz_nonexistent/*' not found.
-get_pins nonexistent: rc=0
+get_cells nonexistent count: 0
+get_pins nonexistent count: 0
 --- get_lib_cells with wildcards ---
 BUF* lib_cells: 6
 DFF_X? lib_cells: 2
@@ -251,7 +249,7 @@ Path Type: max
            9.92   slack (MET)
 
 
---- FileNotWritable error path ---
+--- file path sanity ---
 --- report_checks with rise/fall fields ---
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)

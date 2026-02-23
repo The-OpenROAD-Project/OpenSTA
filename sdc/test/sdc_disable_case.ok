@@ -104,6 +104,7 @@ Path Type: max
            9.88   slack (MET)
 
 
+No differences found.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -157,6 +158,9 @@ Path Type: max
            9.88   slack (MET)
 
 
+No differences found.
+No differences found.
+No differences found.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -210,8 +214,11 @@ Path Type: max
            9.88   slack (MET)
 
 
-Warning: sdc_disable_case.tcl line 1, object 'sdc_test2' not found.
-Warning: sdc_disable_case.tcl line 1, object 'sdc_test2' not found.
+No differences found.
+No differences found.
+No differences found.
+No differences found.
+No differences found.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1

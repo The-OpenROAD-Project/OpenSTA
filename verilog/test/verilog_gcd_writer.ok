@@ -3,15 +3,15 @@ Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwr
 cells: 1292
 nets: 288
 ports: 54
-basic write: 74836 bytes
-pwr_gnd write: 74836 bytes
+No differences found.
+No differences found.
 Warning: verilog_gcd_writer.tcl line 1, object 'sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__buf_1' not found.
-remove_cells write: 74836 bytes
-pwr+remove write: 74836 bytes
+No differences found.
+No differences found.
 --- Test 2: roundtrip ---
 Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 roundtrip cells: 1292
-roundtrip write: 74836 bytes
+No differences found.
 --- Test 3: timing after roundtrip ---
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: resp_msg[15] (output port clocked by clk)
@@ -80,7 +80,6 @@ Path Type: min
            0.43   slack (MET)
 
 
-Warning: verilog_gcd_writer.tcl line 1, unknown field nets.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: resp_msg[15] (output port clocked by clk)
 Path Group: clk
@@ -134,13 +133,11 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 
 --- Test 4: Nangate45 verilog_test1 ---
-verilog_test1 basic: 194 bytes
-verilog_test1 pwr_gnd: 194 bytes
---- Test 5: -sort option ---
-Warning: verilog_gcd_writer.tcl line 1, The -sort flag is ignored.
-write_verilog -sort: 
-sort write: 194 bytes
+No differences found.
+No differences found.
+--- Test 5: additional write option ---
+No differences found.
 --- Test 6: modify then write ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
-modified write: 248 bytes
-modified pwr_gnd write: 248 bytes
+No differences found.
+No differences found.

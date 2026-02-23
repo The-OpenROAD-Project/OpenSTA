@@ -1,0 +1,2536 @@
+library (fakeram7_256x32) {
+  comment                        : "";
+  delay_model                    : table_lookup;
+  simulation                     : false;
+  capacitive_load_unit (1,pF);
+  leakage_power_unit             : 1pW;
+  current_unit                   : "1uA";
+  pulling_resistance_unit        : "1kohm";
+  time_unit                      : "1ns";
+  voltage_unit                   : "1v";
+  library_features(report_delay_calculation);
+
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_rise : 20;
+  slew_lower_threshold_pct_fall : 20;
+  slew_upper_threshold_pct_rise : 80;
+  slew_upper_threshold_pct_fall : 80;
+  slew_derate_from_library : 1.0;
+
+  default_max_fanout             : 1;
+  default_max_transition         : 0.227;
+  default_fanout_load            : 1.00;
+
+  nom_process                    : 1.0;
+  nom_temperature                : 25.0;
+  nom_voltage                    : 0.70;
+
+  lu_table_template(fakeram7_256x32_constraint_template) {
+    variable_1 : related_pin_transition;
+    variable_2 : constrained_pin_transition;
+    index_1("1000.00000,  1001.00000");
+    index_2("1000.00000,  1001.00000");
+  }
+  lu_table_template(fakeram7_256x32_mem_out_delay_template) {
+    variable_1 : input_net_transition;
+    variable_2 : total_output_net_capacitance;
+    index_1("1000.00000,  1001.00000");
+    index_2("1000.00000,  1000.99994");
+  }
+  lu_table_template(fakeram7_256x32_mem_out_slew_template) {
+    variable_1 : total_output_net_capacitance;
+    index_1("1000.00000,  1000.99994");
+  }
+  lu_table_template(fakeram7_256x32_energy_template_clkslew) {
+    variable_1 : input_transition_time;
+    index_1("1000.00000,  1001.00000");
+  }
+  lu_table_template(fakeram7_256x32_energy_template_sigslew) {
+    variable_1 : input_transition_time;
+    index_1("1000.00000,  1001.00000");
+  }
+  type ("fakeram7_256x32_ADDRESS") {
+    base_type : array;
+    data_type : bit;
+    bit_width : 8;
+    bit_from : 7;
+    bit_to : 0;
+  }
+  type ("fakeram7_256x32_DATA") {
+    base_type : array;
+    data_type : bit;
+    bit_width : 32;
+    bit_from : 31;
+    bit_to : 0;
+  }
+
+  cell ("fakeram7_256x32") {
+    area : 343.985 
+    interface_timing : true;
+    pin("clk") {
+      direction : input;
+      clock : true;
+      capacitance : 0.0250;
+    }
+    bus("rd_out") {
+      bus_type : fakeram7_256x32_DATA;
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+    pin("rd_out[31]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[30]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[29]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[28]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[27]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[26]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[25]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[24]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[23]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[22]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[21]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[20]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[19]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[18]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[17]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[16]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[15]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[14]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[13]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[12]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[11]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[10]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[9]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[8]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[7]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[6]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[5]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[4]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[3]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[2]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[1]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    pin("rd_out[0]") {
+      direction : output;
+      capacitance : 0.0000;
+      max_capacitance : 0.500;
+      timing() {
+        related_pin : "clk";
+        timing_type : rising_edge;
+	cell_rise(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	rise_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+	cell_fall(fakeram7_256x32_mem_out_delay_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00500,  0.50000");
+          values("0.21800,0.21800"\
+                 "0.21800,0.21800");
+	}
+	fall_transition(fakeram7_256x32_mem_out_slew_template) {
+          index_1("0.00500,  0.50000");
+          values("0.00900,0.22700");
+	}
+      }
+    }
+    }
+    pin("we_in") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("ce_in") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    bus("addr_in") {
+      bus_type : fakeram7_256x32_ADDRESS;
+      direction : input;
+      capacitance : 0.0050;
+    pin("addr_in[7]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("addr_in[6]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("addr_in[5]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("addr_in[4]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("addr_in[3]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("addr_in[2]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("addr_in[1]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("addr_in[0]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    }
+    bus("wd_in") {
+      bus_type : fakeram7_256x32_DATA;
+      direction : input;
+      capacitance : 0.0050;
+    pin("wd_in[31]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[30]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[29]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[28]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[27]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[26]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[25]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[24]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[23]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[22]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[21]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[20]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[19]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[18]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[17]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[16]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[15]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[14]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[13]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[12]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[11]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[10]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[9]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[8]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[7]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[6]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[5]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[4]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[3]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[2]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[1]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    pin("wd_in[0]") {
+      direction : input;
+      capacitance : 0.0050;
+      timing() {
+        related_pin : "clk";
+        timing_type : setup_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+      timing() {
+        related_pin : "clk";
+        timing_type : hold_rising;
+	rise_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+	fall_constraint(fakeram7_256x32_constraint_template) {
+          index_1("0.00900,  0.22700");
+          index_2("0.00900,  0.22700");
+          values("0.05000,0.05000"\
+                 "0.05000,0.05000");
+	}
+      }
+    }
+    }
+  }
+
+}

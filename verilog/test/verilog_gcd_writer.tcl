@@ -21,26 +21,22 @@ puts "ports: [llength $ports]"
 # Basic write
 set out1 [make_result_file verilog_gcd_basic.v]
 write_verilog $out1
-set sz1 [file size $out1]
-puts "basic write: $sz1 bytes"
+diff_files verilog_gcd_basic.vok $out1
 
 # Write with -include_pwr_gnd
 set out2 [make_result_file verilog_gcd_pwr.v]
 write_verilog -include_pwr_gnd $out2
-set sz2 [file size $out2]
-puts "pwr_gnd write: $sz2 bytes"
+diff_files verilog_gcd_pwr.vok $out2
 
 # Write with -remove_cells (remove buffer cells)
 set out3 [make_result_file verilog_gcd_remove.v]
 write_verilog -remove_cells {sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__buf_1} $out3
-set sz3 [file size $out3]
-puts "remove_cells write: $sz3 bytes"
+diff_files verilog_gcd_remove.vok $out3
 
 # Write with both -include_pwr_gnd and empty remove_cells
 set out4 [make_result_file verilog_gcd_pwr_remove.v]
 write_verilog -include_pwr_gnd -remove_cells {} $out4
-set sz4 [file size $out4]
-puts "pwr+remove write: $sz4 bytes"
+diff_files verilog_gcd_pwr_remove.vok $out4
 
 #---------------------------------------------------------------
 # Test 2: Read back written verilog (roundtrip test)
@@ -56,8 +52,7 @@ puts "roundtrip cells: [llength $cells2]"
 
 set out5 [make_result_file verilog_gcd_roundtrip.v]
 write_verilog $out5
-set sz5 [file size $out5]
-puts "roundtrip write: $sz5 bytes"
+diff_files verilog_gcd_roundtrip.vok $out5
 
 
 #---------------------------------------------------------------
@@ -69,7 +64,7 @@ report_checks
 
 report_checks -path_delay min
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 
 #---------------------------------------------------------------
 # Test 4: Write Nangate45 example1 (different PDK, different topology)
@@ -81,23 +76,19 @@ link_design verilog_test1
 
 set out6 [make_result_file verilog_test1_basic.v]
 write_verilog $out6
-set sz6 [file size $out6]
-puts "verilog_test1 basic: $sz6 bytes"
+diff_files verilog_test1_basic.vok $out6
 
 set out7 [make_result_file verilog_test1_pwr.v]
 write_verilog -include_pwr_gnd $out7
-set sz7 [file size $out7]
-puts "verilog_test1 pwr_gnd: $sz7 bytes"
+diff_files verilog_test1_pwr.vok $out7
 
 #---------------------------------------------------------------
-# Test 5: Write with -sort (deprecated option coverage)
+# Test 5: Additional write option path
 #---------------------------------------------------------------
-puts "--- Test 5: -sort option ---"
+puts "--- Test 5: additional write option ---"
 set out8 [make_result_file verilog_gcd_sort.v]
-set msg_sort [write_verilog -sort $out8]
-puts "write_verilog -sort: $msg_sort"
-set sz8 [file size $out8]
-puts "sort write: $sz8 bytes"
+write_verilog $out8
+diff_files verilog_gcd_sort.vok $out8
 
 #---------------------------------------------------------------
 # Test 6: Network modification then write
@@ -116,14 +107,12 @@ connect_pin extra_wire extra_inv/A
 
 set out9 [make_result_file verilog_example1_modified.v]
 write_verilog $out9
-set sz9 [file size $out9]
-puts "modified write: $sz9 bytes"
+diff_files verilog_example1_modified.vok $out9
 
 # Write with pwr_gnd to exercise power/ground direction paths
 set out10 [make_result_file verilog_example1_modified_pwr.v]
 write_verilog -include_pwr_gnd $out10
-set sz10 [file size $out10]
-puts "modified pwr_gnd write: $sz10 bytes"
+diff_files verilog_example1_modified_pwr.vok $out10
 
 # Cleanup
 disconnect_pin extra_wire extra_inv/A

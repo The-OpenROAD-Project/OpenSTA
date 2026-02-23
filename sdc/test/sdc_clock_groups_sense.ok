@@ -1,3 +1,4 @@
+No differences found.
 Warning: generated clock gclk1 pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
@@ -79,6 +80,9 @@ Path Type: max
            2.00   slack (MET)
 
 
+No differences found.
+No differences found.
+No differences found.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -159,9 +163,8 @@ Path Type: max
            2.00   slack (MET)
 
 
-Warning: sdc_clock_groups_sense.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-Warning: sdc_clock_groups_sense.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-Warning: sdc_clock_groups_sense.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+No differences found.
+No differences found.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -242,6 +245,8 @@ Path Type: max
            2.00   slack (MET)
 
 
+No differences found.
+No differences found.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1

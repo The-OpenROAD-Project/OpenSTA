@@ -2,7 +2,8 @@
 cells: 12
 nets: 19
 ports: 11
-basic: 880 bytes, pwr_gnd: 880 bytes
+No differences found.
+No differences found.
 --- Test 2: roundtrip bus design ---
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 roundtrip cells: 12

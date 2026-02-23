@@ -1,9 +1,5 @@
 # Test graph delay value comparison and multi-corner graph operations.
-# Targets: DelayFloat.cc (87.8% -> delayLess with min_max, delayGreater,
-#   delayGreaterEqual, delayLessEqual, delayRemove, delayRatio, delayZero,
-#   delayInf, delayInitValue, delayIsInitValue)
-#   Graph.cc (71.2% -> multi-corner vertex/edge access, clock vertices)
-#   GraphCmp.cc (90.5% -> sortEdges with multiple edges)
+# Targets: DelayFloat.cc/Graph.cc/GraphCmp.cc multi-corner delay paths.
 
 source ../../test/helpers.tcl
 

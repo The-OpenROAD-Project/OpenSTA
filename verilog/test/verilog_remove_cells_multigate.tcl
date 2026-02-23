@@ -2,7 +2,13 @@
 source ../../test/helpers.tcl
 
 proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
+  if {![file exists $path]} {
+    error "expected non-empty file: $path"
+  }
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if {[string length $text] <= 0} {
     error "expected non-empty file: $path"
   }
 }
@@ -59,12 +65,10 @@ assert_file_not_has_cell $out_md_gates NAND2_X1
 assert_file_not_has_cell $out_md_gates NOR2_X1
 assert_file_contains $out_md_gates "module dcalc_multidriver_test"
 
-# Compare sizes
-set sz_md [file size $out_md_basic]
-set sz_md_inv [file size $out_md_inv]
-set sz_md_and [file size $out_md_and]
-set sz_md_gates [file size $out_md_gates]
-puts "multigate sizes: basic=$sz_md inv=$sz_md_inv and=$sz_md_and gates=$sz_md_gates"
+diff_files verilog_remove_md_basic.vok $out_md_basic
+diff_files verilog_remove_md_inv.vok $out_md_inv
+diff_files verilog_remove_md_and.vok $out_md_and
+diff_files verilog_remove_md_gates.vok $out_md_gates
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog $out_md_inv

@@ -1,11 +1,10 @@
 --- write_verilog basic ---
+No differences found.
 --- write_verilog -include_pwr_gnd ---
+No differences found.
 --- write_verilog -remove_cells (empty list) ---
---- compare pwr_gnd vs basic output ---
-basic size: 194, pwr_gnd size: 194
---- compare remove_cells vs basic output ---
-basic size: 194, remove_cells size: 194
---- write_verilog -sort (deprecated, should warn) ---
-Warning: verilog_write_options.tcl line 1, The -sort flag is ignored.
-write_verilog -sort: 
+No differences found.
+--- write_verilog additional option path ---
+No differences found.
 --- read_verilog / write_verilog roundtrip ---
+No differences found.

@@ -3,7 +3,13 @@
 source ../../test/helpers.tcl
 
 proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
+  if {![file exists $path]} {
+    error "expected non-empty file: $path"
+  }
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if {[string length $text] <= 0} {
     error "expected non-empty file: $path"
   }
 }
@@ -43,11 +49,9 @@ write_verilog -remove_cells {} $out3
 assert_file_nonempty $out3
 assert_file_contains $out3 "module top"
 
-# Compare sizes
-set sz1 [file size $out1]
-set sz2 [file size $out2]
-set sz3 [file size $out3]
-puts "ASAP7 basic: $sz1, pwr_gnd: $sz2, remove_cells: $sz3"
+diff_files verilog_write_asap7.vok $out1
+diff_files verilog_write_asap7_pwr.vok $out2
+diff_files verilog_write_asap7_remove.vok $out3
 
 set in1 [open $out1 r]
 set txt1 [read $in1]

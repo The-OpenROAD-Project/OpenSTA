@@ -11,6 +11,30 @@ proc make_result_file { filename } {
   return [file join $result_dir $filename]
 }
 
+proc diff_files_sorted { file1 file2 } {
+  set stream1 [open $file1 r]
+  set stream2 [open $file2 r]
+  set lines1 [lsort [split [read $stream1] "\n"]]
+  set lines2 [lsort [split [read $stream2] "\n"]]
+  close $stream1
+  close $stream2
+  if { $lines1 eq $lines2 } {
+    puts "No differences found."
+    return 0
+  } else {
+    for {set i 0} {$i < [llength $lines1] && $i < [llength $lines2]} {incr i} {
+      if { [lindex $lines1 $i] ne [lindex $lines2 $i] } {
+        puts "Differences found (sorted)."
+        puts "[lindex $lines1 $i]"
+        puts "[lindex $lines2 $i]"
+        return 1
+      }
+    }
+    puts "Differences found (sorted): file lengths differ."
+    return 1
+  }
+}
+
 proc diff_files { file1 file2 { ignore "" } } {
   set stream1 [open $file1 r]
   set stream2 [open $file2 r]

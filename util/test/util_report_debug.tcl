@@ -1,15 +1,9 @@
-# Test Report.cc formatting edge cases, Debug.cc check paths,
-# and various report output destinations.
-# Targets: Report.cc (69.8% -> warn, fileWarn, printToBufferAppend grow)
-#   ReportTcl.cc (69.4% -> Tcl-specific report paths)
-#   Debug.cc (43.5% -> debug check/level, reportLine)
-#   StringUtil.cc (84.6% -> trimRight, stringPrint, etc.)
-#   MinMax.cc (83.9% -> min/max index operations)
-#   gzstream.hh (77.9% -> gz read/write operations)
+# Test Report/Debug formatting and output destination edge cases.
+# Targets Report.cc, ReportTcl.cc, Debug.cc, StringUtil.cc, MinMax.cc, gzstream.
 
 source ../../test/helpers.tcl
 
-read_liberty ../../test/nangate45/Nangate45_typ.lib
+read_liberty ../../test/nangate45/nangate45_typ.lib.gz
 read_verilog ../../dcalc/test/dcalc_test1.v
 link_design dcalc_test1
 
@@ -32,29 +26,14 @@ report_units
 sta::redirect_file_end
 log_end
 
-if { [file exists $redir_file] } {
-  set fh [open $redir_file r]
-  set content [read $fh]
-  close $fh
-  puts "redirect file size: [string length $content]"
-} else {
-  puts "INFO: redirect file not created"
-}
-
-if { [file exists $log_file] } {
-  set fh [open $log_file r]
-  set content [read $fh]
-  close $fh
-  puts "log file size: [string length $content]"
-} else {
-  puts "INFO: log file not created"
-}
+diff_files util_debug_redir.txtok $redir_file
+diff_files util_debug_log.txtok $log_file
 
 #---------------------------------------------------------------
 # gzstream: Read/write gzipped liberty
 #---------------------------------------------------------------
 puts "--- gzipped liberty read ---"
-read_liberty ../../test/nangate45/nangate45_typ.lib.gz
+# Already loaded above from gzipped file.
 
 #---------------------------------------------------------------
 # Report warn path (triggered by warnings in design analysis)

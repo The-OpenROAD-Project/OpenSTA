@@ -51,9 +51,8 @@ puts "--- Test 3: write_verilog -include_pwr_gnd ---"
 set out2 [make_result_file verilog_hier_pwr.v]
 write_verilog -include_pwr_gnd $out2
 
-set sz1 [file size $out1]
-set sz2 [file size $out2]
-puts "basic: $sz1 bytes, pwr_gnd: $sz2 bytes"
+diff_files verilog_hier_basic.vok $out1
+diff_files verilog_hier_pwr.vok $out2
 
 #---------------------------------------------------------------
 # Test 4: Write verilog with -remove_cells
@@ -88,14 +87,14 @@ write_verilog $out4
 #---------------------------------------------------------------
 puts "--- Test 6: timing with bus ports ---"
 create_clock -name clk -period 10 [get_ports clk]
-set_input_delay -clock clk 0 [all_inputs]
+set_input_delay -clock clk 0 [get_ports {reset req_val req_msg* resp_rdy}]
 set_output_delay -clock clk 0 [all_outputs]
 
 report_checks
 
 report_checks -path_delay min
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 
 #---------------------------------------------------------------
 # Test 7: Write verilog after timing setup (tests more writer paths)

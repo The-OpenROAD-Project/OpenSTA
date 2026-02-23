@@ -41,6 +41,7 @@ set_clock_groups -asynchronous -name async_group1 \
 # Write SDC with async groups
 set sdc_file1 [make_result_file sdc_clk_grp_async.sdc]
 write_sdc -no_timestamp $sdc_file1
+diff_files sdc_clk_grp_async.sdcok $sdc_file1
 
 report_checks
 
@@ -58,6 +59,7 @@ set_clock_groups -logically_exclusive -name logical_group1 \
 # Write SDC with logically exclusive groups
 set sdc_file2 [make_result_file sdc_clk_grp_logical.sdc]
 write_sdc -no_timestamp $sdc_file2
+diff_files sdc_clk_grp_logical.sdcok $sdc_file2
 
 # Remove logically exclusive
 unset_clock_groups -logically_exclusive -name logical_group1
@@ -73,6 +75,7 @@ set_clock_groups -physically_exclusive -name phys_group1 \
 # Write SDC
 set sdc_file3 [make_result_file sdc_clk_grp_phys.sdc]
 write_sdc -no_timestamp $sdc_file3
+diff_files sdc_clk_grp_phys.sdcok $sdc_file3
 
 # Remove physically exclusive
 unset_clock_groups -physically_exclusive -name phys_group1
@@ -92,6 +95,7 @@ set_clock_groups -logically_exclusive -name mixed2 \
 # Write SDC with multiple groups
 set sdc_file4 [make_result_file sdc_clk_grp_multi.sdc]
 write_sdc -no_timestamp $sdc_file4
+diff_files sdc_clk_grp_multi.sdcok $sdc_file4
 
 report_checks
 
@@ -110,6 +114,7 @@ set_clock_groups -asynchronous -name allow_grp \
 
 set sdc_file5 [make_result_file sdc_clk_grp_allow.sdc]
 write_sdc -no_timestamp $sdc_file5
+diff_files sdc_clk_grp_allow.sdcok $sdc_file5
 
 unset_clock_groups -asynchronous -name allow_grp
 
@@ -118,17 +123,18 @@ unset_clock_groups -asynchronous -name allow_grp
 ############################################################
 
 # Positive sense
-set_clock_sense -positive -clocks [get_clocks clk1] [get_pins buf1/Z]
+set_sense -type clock -positive -clocks [get_clocks clk1] [get_pins buf1/Z]
 
 # Negative sense
-set_clock_sense -negative -clocks [get_clocks clk2] [get_pins inv1/ZN]
+set_sense -type clock -negative -clocks [get_clocks clk2] [get_pins inv1/ZN]
 
 # Stop propagation
-set_clock_sense -stop_propagation -clocks [get_clocks clk1] [get_pins and1/ZN]
+set_sense -type clock -stop_propagation -clocks [get_clocks clk1] [get_pins and1/ZN]
 
 # Write SDC with clock sense
 set sdc_file6 [make_result_file sdc_clk_sense.sdc]
 write_sdc -no_timestamp $sdc_file6
+diff_files sdc_clk_sense.sdcok $sdc_file6
 
 report_checks
 
@@ -171,6 +177,7 @@ set_clock_uncertainty -from [get_clocks clk2] -to [get_clocks clk1] -hold 0.12
 # Write SDC with all uncertainty
 set sdc_file7 [make_result_file sdc_clk_uncert.sdc]
 write_sdc -no_timestamp $sdc_file7
+diff_files sdc_clk_uncert.sdcok $sdc_file7
 
 # Remove inter-clock uncertainty
 unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup
@@ -186,5 +193,6 @@ unset_clock_uncertainty -hold [get_pins reg1/CK]
 
 set sdc_final [make_result_file sdc_clk_grp_final.sdc]
 write_sdc -no_timestamp $sdc_final
+diff_files sdc_clk_grp_final.sdcok $sdc_final
 
 report_checks

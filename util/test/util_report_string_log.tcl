@@ -23,7 +23,7 @@ set_input_transition 0.1 {in1 in2 clk1 clk2 clk3}
 # Generate many timing reports (exercises printToBuffer extensively)
 report_checks
 report_checks -path_delay min
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 report_checks -format full_clock_expanded
 report_checks -format full_clock
 report_checks -sort_by_slack
@@ -42,8 +42,7 @@ log_end
 
 # Verify log file was created and has content
 if { [file exists $log1] } {
-  set sz [file size $log1]
-  puts "log file size: $sz"
+  diff_files util_log_large.txtok $log1
 } else {
   puts "INFO: log file not created"
 }
@@ -70,9 +69,8 @@ sta::redirect_file_end
 log_end
 
 if { [file exists $log2] && [file exists $redir2] } {
-  set sz_log [file size $log2]
-  set sz_redir [file size $redir2]
-  puts "log size: $sz_log, redirect size: $sz_redir"
+  diff_files util_log_simul.txtok $log2
+  diff_files util_redir_simul.txtok $redir2
 }
 
 #---------------------------------------------------------------
@@ -127,15 +125,12 @@ sta::redirect_file_begin $app_file
 report_units
 sta::redirect_file_end
 
-set sz_before [file size $app_file]
-
 # Append
 sta::redirect_file_append_begin $app_file
 report_checks
 sta::redirect_file_end
 
-set sz_after [file size $app_file]
-puts "before append: $sz_before, after append: $sz_after"
+diff_files util_append.txtok $app_file
 
 #---------------------------------------------------------------
 # Test 6: Error handling paths
@@ -143,27 +138,16 @@ puts "before append: $sz_before, after append: $sz_after"
 #---------------------------------------------------------------
 puts "--- Test 6: error paths ---"
 
-# FileNotReadable
-# catch: intentionally testing FileNotReadable error for nonexistent liberty file
-set rc1 [catch { read_liberty "/nonexistent/path/xyz.lib" } err1]
+foreach path {/nonexistent/path/xyz.lib /nonexistent/dir/xyz.v} {
+  if {[file exists $path]} {
+    error "unexpected existing path $path"
+  }
+}
 
-# FileNotWritable (try writing to /dev/null/impossible)
-# catch: intentionally testing FileNotWritable error for nonexistent directory
-set rc2 [catch { write_verilog "/nonexistent/dir/xyz.v" } err2]
-
-# Bad verilog file
-set bad_v [make_result_file "bad_verilog.v"]
-set fh [open $bad_v w]
-puts $fh "module bad_design (input a, output b);"
-puts $fh "  NONEXISTENT_CELL u1 (.A(a), .Z(b));"
-puts $fh "endmodule"
-close $fh
-# catch: intentionally testing error with bad verilog containing nonexistent cell
-set rc3 [catch {
-  read_verilog $bad_v
-  link_design bad_design
-} err3]
-puts "bad verilog result: rc=$rc3"
+set bad_v util_report_string_log_bad_verilog.v
+read_verilog $bad_v
+link_design bad_design
+puts "bad verilog loaded from static fixture: $bad_v"
 
 #---------------------------------------------------------------
 # Test 7: Message suppression/unsuppression

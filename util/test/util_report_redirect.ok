@@ -27,7 +27,7 @@
  current 1A
  power 1W
  distance 1m
---- FileNotReadable error path ---
+--- file path sanity ---
 --- with_output_to_variable multiple calls ---
 captured v1 length: 91
 captured v2 length: 12

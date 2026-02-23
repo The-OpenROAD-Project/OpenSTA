@@ -25,6 +25,9 @@ if { $inv == "" } {
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_1
 
 set inv_pins [get_lib_pins sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_1/*]
+if { [llength $inv_pins] != 2 } {
+  error "expected 2 pins on sg13g2_inv_1, found [llength $inv_pins]"
+}
 
 foreach sz {2 4 8 16} {
   set cell [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_$sz]
@@ -121,6 +124,9 @@ if { $dfrbp == "" } {
 report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_dfrbp_1
 
 set dfrbp_pins [get_lib_pins sg13g2_stdcell_typ_1p20V_25C/sg13g2_dfrbp_1/*]
+if { [llength $dfrbp_pins] < 4 } {
+  error "expected dfrbp_1 to have at least 4 pins, found [llength $dfrbp_pins]"
+}
 
 # Latch cells
 set dlhq [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_dlhq_1]
@@ -180,10 +186,19 @@ report_lib_cell sg13g2_stdcell_typ_1p20V_25C/sg13g2_dlygate4sd1_1
 ############################################################
 
 set all_cells [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/*]
+if { [llength $all_cells] < 70 } {
+  error "expected broad sg13g2 1p20V cell set, found [llength $all_cells]"
+}
 
 set all_inv [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_inv_*]
+if { [llength $all_inv] < 4 } {
+  error "expected sg13g2 inverter variants, found [llength $all_inv]"
+}
 
 set all_nand [get_lib_cells sg13g2_stdcell_typ_1p20V_25C/sg13g2_nand*]
+if { [llength $all_nand] < 3 } {
+  error "expected sg13g2 nand variants, found [llength $all_nand]"
+}
 
 ############################################################
 # Also read the 1.50V variant
@@ -198,3 +213,6 @@ if { $lib_1p5 == "" } {
 }
 
 set cells_1p5 [get_lib_cells sg13g2_stdcell_typ_1p50V_25C/*]
+if { [llength $cells_1p5] < 70 } {
+  error "expected broad sg13g2 1p50V cell set, found [llength $cells_1p5]"
+}

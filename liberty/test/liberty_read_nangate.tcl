@@ -24,6 +24,9 @@ if { $inv1 == "" } {
 report_lib_cell NangateOpenCellLibrary/INV_X1
 
 set inv_pins [get_lib_pins NangateOpenCellLibrary/INV_X1/*]
+if { [llength $inv_pins] != 2 } {
+  error "expected 2 pins on INV_X1, found [llength $inv_pins]"
+}
 
 # Other inverter sizes
 foreach sz {X2 X4 X8 X16 X32} {
@@ -47,6 +50,9 @@ if { $buf1 == "" } {
 report_lib_cell NangateOpenCellLibrary/BUF_X1
 
 set buf_pins [get_lib_pins NangateOpenCellLibrary/BUF_X1/*]
+if { [llength $buf_pins] != 2 } {
+  error "expected 2 pins on BUF_X1, found [llength $buf_pins]"
+}
 
 foreach sz {X2 X4 X8 X16 X32} {
   set cell [get_lib_cells NangateOpenCellLibrary/BUF_$sz]
@@ -69,6 +75,9 @@ if { $nand2 == "" } {
 report_lib_cell NangateOpenCellLibrary/NAND2_X1
 
 set nand_pins [get_lib_pins NangateOpenCellLibrary/NAND2_X1/*]
+if { [llength $nand_pins] != 3 } {
+  error "expected 3 pins on NAND2_X1, found [llength $nand_pins]"
+}
 
 foreach cell_name {NAND2_X2 NAND2_X4 NAND3_X1 NAND3_X2 NAND4_X1} {
   set cell [get_lib_cells NangateOpenCellLibrary/$cell_name]
@@ -220,22 +229,43 @@ report_lib_cell NangateOpenCellLibrary/FA_X1
 ############################################################
 
 set all_inv [get_lib_cells NangateOpenCellLibrary/INV_*]
+if { [llength $all_inv] < 6 } {
+  error "expected multiple INV_* cells, found [llength $all_inv]"
+}
 
 set all_buf [get_lib_cells NangateOpenCellLibrary/BUF_*]
+if { [llength $all_buf] < 6 } {
+  error "expected multiple BUF_* cells, found [llength $all_buf]"
+}
 
 set all_dff [get_lib_cells NangateOpenCellLibrary/DFF*]
+if { [llength $all_dff] < 4 } {
+  error "expected multiple DFF* cells, found [llength $all_dff]"
+}
 
 set all_cells [get_lib_cells NangateOpenCellLibrary/*]
+if { [llength $all_cells] < 100 } {
+  error "expected full Nangate library cell list, found [llength $all_cells]"
+}
 
 ############################################################
 # get_lib_pins with patterns
 ############################################################
 
 set all_inv_pins [get_lib_pins NangateOpenCellLibrary/INV_X1/*]
+if { [llength $all_inv_pins] != 2 } {
+  error "expected 2 INV_X1 pins from wildcard, found [llength $all_inv_pins]"
+}
 
 set all_dff_pins [get_lib_pins NangateOpenCellLibrary/DFF_X1/*]
+if { [llength $all_dff_pins] < 4 } {
+  error "expected DFF_X1 pins to include D/CK/Q(+variants), found [llength $all_dff_pins]"
+}
 
 set nand_a1 [get_lib_pins NangateOpenCellLibrary/NAND2_X1/A1]
+if { [llength $nand_a1] != 1 } {
+  error "expected single NAND2_X1/A1 pin match"
+}
 
 ############################################################
 # Clock buffer

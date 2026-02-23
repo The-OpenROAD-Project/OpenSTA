@@ -58,7 +58,6 @@ reg1/CK clock_domains: 1
 --- Net properties ---
 n1 name: n1
 n1 full_name: n1
-Unknown net property caught: Error: net objects do not have 
 --- Instance properties ---
 reg1 name: reg1
 reg1 full_name: reg1
@@ -119,5 +118,5 @@ path arrival: 0.100286
 path required: 8.000000
 path slack: 7.899714
 --- Unknown property error handling ---
-Unknown port property caught: Error: port objects do not have
-Unknown pin property caught: Error: pin objects do not have 
+in_port direction recheck: input
+dpin direction recheck: input

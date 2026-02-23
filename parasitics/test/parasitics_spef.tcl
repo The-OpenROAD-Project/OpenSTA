@@ -14,4 +14,16 @@ create_clock -name clk1 -period 10 [get_ports clk1]
 # Read SPEF
 read_spef ../../test/reg1_asap7.spef
 
-report_checks
+set corner [sta::cmd_corner]
+foreach net_name {r1q r2q u1z u2z} {
+  set net [get_nets $net_name]
+  set total_cap [$net capacitance $corner "max"]
+  set pin_cap [$net pin_capacitance $corner "max"]
+  set wire_cap [$net wire_capacitance $corner "max"]
+  puts "$net_name total_cap=$total_cap pin_cap=$pin_cap wire_cap=$wire_cap"
+  if {$total_cap <= 0.0} {
+    error "expected positive capacitance on net $net_name after SPEF read"
+  }
+}
+
+report_checks -fields {slew cap input_pins fanout}

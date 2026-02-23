@@ -98,12 +98,14 @@ Path Type: max
 
 --- constraint setup ---
 --- write_sdc before removal ---
+No differences found.
 --- remove false_path ---
 --- remove multicycle ---
 --- remove max/min delay ---
 --- remove clock_groups ---
 --- remove clock_uncertainty ---
 --- write_sdc after removal ---
+No differences found.
 --- filter queries ---
 BUF_X1 cells: 1
 DFF_X1 cells: 3
@@ -337,3 +339,4 @@ Path Type: max
            5.92   slack (MET)
 
 
+No differences found.

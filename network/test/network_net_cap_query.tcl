@@ -235,11 +235,17 @@ puts "total libraries: $lib_count"
 # Find library by name
 set found_lib [sta::find_library NangateOpenCellLibrary]
 if { $found_lib != "NULL" } {
+  puts "found library: [$found_lib name]"
+} else {
+  error "expected NangateOpenCellLibrary to exist"
 }
 
 # Find cell in library
 set inv_cell [$found_lib find_cell INV_X1]
 if { $inv_cell != "NULL" } {
+  puts "found INV_X1 in NangateOpenCellLibrary"
+} else {
+  error "expected INV_X1 cell in NangateOpenCellLibrary"
 }
 
 # find_cells_matching on library
@@ -259,7 +265,7 @@ report_checks
 
 report_checks -path_delay min
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 
 # Check types
 report_check_types -max_delay -min_delay

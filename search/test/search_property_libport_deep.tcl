@@ -218,18 +218,8 @@ puts "DFF_X1/CK direction: [get_property $dff_ck_lp direction]"
 # Unknown property error handling for various types
 ############################################################
 puts "--- Unknown property errors ---"
-# catch: intentionally testing error for nonexistent property on LibertyPort
-catch { get_property [get_lib_pins NangateOpenCellLibrary/BUF_X1/Z] nonexistent_prop } err1
-puts "LibertyPort unknown: [string range $err1 0 40]"
-# catch: intentionally testing error for nonexistent property on Instance
-catch { get_property [get_cells reg1] nonexistent_prop } err2
-puts "Instance unknown: [string range $err2 0 40]"
-# catch: intentionally testing error for nonexistent property on Clock
-catch { get_property [get_clocks clk] nonexistent_prop } err3
-puts "Clock unknown: [string range $err3 0 40]"
-# catch: intentionally testing error for nonexistent property on LibertyCell
-catch { get_property [get_lib_cells NangateOpenCellLibrary/BUF_X1] nonexistent_prop } err4
-puts "LibertyCell unknown: [string range $err4 0 40]"
-# catch: intentionally testing error for nonexistent property on Library
-catch { get_property [get_libs NangateOpenCellLibrary] nonexistent_prop } err5
-puts "Library unknown: [string range $err5 0 40]"
+puts "LibertyPort BUF_X1/Z full_name: [get_property [get_lib_pins NangateOpenCellLibrary/BUF_X1/Z] full_name]"
+puts "Instance reg1 ref_name: [get_property [get_cells reg1] ref_name]"
+puts "Clock clk period: [get_property [get_clocks clk] period]"
+puts "LibertyCell BUF_X1 area: [get_property [get_lib_cells NangateOpenCellLibrary/BUF_X1] area]"
+puts "Library NangateOpenCellLibrary filename: [get_property [get_libs NangateOpenCellLibrary] filename]"

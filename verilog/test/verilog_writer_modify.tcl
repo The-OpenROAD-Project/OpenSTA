@@ -2,7 +2,13 @@
 source ../../test/helpers.tcl
 
 proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
+  if {![file exists $path]} {
+    error "expected non-empty file: $path"
+  }
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if {[string length $text] <= 0} {
     error "expected non-empty file: $path"
   }
 }
@@ -47,11 +53,9 @@ if {![regexp {Path Type:\s+max} $mod_rep]} {
 set out4 [make_result_file verilog_advanced_out4.v]
 write_verilog $out4
 assert_file_nonempty $out4
+diff_files verilog_advanced_out4.vok $out4
 assert_file_contains $out4 "module verilog_test1"
 assert_file_contains $out4 "extra_buf"
-
-set sz4 [file size $out4]
-puts "modified size: $sz4"
 # Disconnect and delete
 disconnect_pin extra_net extra_buf/A
 delete_instance extra_buf

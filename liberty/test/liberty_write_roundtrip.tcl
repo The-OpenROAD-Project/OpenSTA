@@ -11,13 +11,12 @@ proc assert_written_liberty {path lib_name} {
   if {![file exists $path]} {
     error "missing written liberty file: $path"
   }
-  if {[file size $path] <= 0} {
-    error "written liberty file is empty: $path"
-  }
-
   set in [open $path r]
   set text [read $in]
   close $in
+  if {[string length $text] <= 0} {
+    error "written liberty file is empty: $path"
+  }
 
   if {[string first "library (" $text] < 0} {
     error "written liberty file has no library block: $path"
@@ -41,7 +40,7 @@ set outfile1 [make_result_file liberty_roundtrip_nangate.lib]
 sta::write_liberty NangateOpenCellLibrary $outfile1
 assert_written_liberty $outfile1 NangateOpenCellLibrary
 
-puts "Nangate45 write: [file size $outfile1] bytes"
+diff_files liberty_roundtrip_nangate.libok $outfile1
 
 ############################################################
 # Read and write Sky130 (large library with different features)
@@ -53,7 +52,7 @@ set outfile2 [make_result_file liberty_roundtrip_sky130.lib]
 sta::write_liberty sky130_fd_sc_hd__tt_025C_1v80 $outfile2
 assert_written_liberty $outfile2 sky130_fd_sc_hd__tt_025C_1v80
 
-puts "Sky130 write: [file size $outfile2] bytes"
+diff_files liberty_roundtrip_sky130.libok $outfile2
 
 ############################################################
 # Read and write IHP (different vendor format)
@@ -65,7 +64,7 @@ set outfile3 [make_result_file liberty_roundtrip_ihp.lib]
 sta::write_liberty sg13g2_stdcell_typ_1p20V_25C $outfile3
 assert_written_liberty $outfile3 sg13g2_stdcell_typ_1p20V_25C
 
-puts "IHP write: [file size $outfile3] bytes"
+diff_files liberty_roundtrip_ihp.libok $outfile3
 
 ############################################################
 # Read and write ASAP7 SIMPLE (compressed input)
@@ -77,7 +76,7 @@ set outfile4 [make_result_file liberty_roundtrip_asap7_simple.lib]
 sta::write_liberty asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120 $outfile4
 assert_written_liberty $outfile4 asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120
 
-puts "ASAP7 SIMPLE write: [file size $outfile4] bytes"
+diff_files liberty_roundtrip_asap7_simple.libok $outfile4
 
 ############################################################
 # Read and write ASAP7 SEQ (sequential cell writing)
@@ -89,7 +88,7 @@ set outfile5 [make_result_file liberty_roundtrip_asap7_seq.lib]
 sta::write_liberty asap7sc7p5t_SEQ_RVT_FF_nldm_220123 $outfile5
 assert_written_liberty $outfile5 asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 
-puts "ASAP7 SEQ write: [file size $outfile5] bytes"
+diff_files liberty_roundtrip_asap7_seq.libok $outfile5
 
 ############################################################
 # Read and write ASAP7 INVBUF (compressed input)
@@ -101,7 +100,7 @@ set outfile6 [make_result_file liberty_roundtrip_asap7_invbuf.lib]
 sta::write_liberty asap7sc7p5t_INVBUF_RVT_FF_nldm_211120 $outfile6
 assert_written_liberty $outfile6 asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
 
-puts "ASAP7 INVBUF write: [file size $outfile6] bytes"
+diff_files liberty_roundtrip_asap7_invbuf.libok $outfile6
 
 ############################################################
 # Read and write ASAP7 AO (AND-OR cells)
@@ -133,7 +132,7 @@ set outfile9 [make_result_file liberty_roundtrip_fakeram.lib]
 sta::write_liberty fakeram7_256x32 $outfile9
 assert_written_liberty $outfile9 fakeram7_256x32
 
-puts "fakeram write: [file size $outfile9] bytes"
+diff_files liberty_roundtrip_fakeram.libok $outfile9
 
 ############################################################
 # Read and write fake_macros

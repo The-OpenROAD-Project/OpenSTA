@@ -9,37 +9,32 @@ source ../../test/helpers.tcl
 #---------------------------------------------------------------
 puts "--- processor_count ---"
 set nproc [sta::processor_count]
-if { $nproc > 0 } {
-} else {
-  puts "FAIL: processor_count returned $nproc"
+if { $nproc <= 0 } {
+  error "processor_count returned non-positive value: $nproc"
 }
 
 puts "--- memory_usage ---"
 set mem [sta::memory_usage]
-if { $mem >= 0 } {
-} else {
-  puts "FAIL: memory_usage returned negative"
+if { $mem < 0 } {
+  error "memory_usage returned negative value: $mem"
 }
 
 puts "--- elapsed_run_time ---"
 set elapsed [elapsed_run_time]
-if { $elapsed >= 0 } {
-} else {
-  puts "FAIL: elapsed_run_time returned negative"
+if { $elapsed < 0 } {
+  error "elapsed_run_time returned negative value: $elapsed"
 }
 
 puts "--- user_run_time ---"
 set user_time [user_run_time]
-if { $user_time >= 0 } {
-} else {
-  puts "FAIL: user_run_time returned negative"
+if { $user_time < 0 } {
+  error "user_run_time returned negative value: $user_time"
 }
 
 puts "--- cputime ---"
 set cput [sta::cputime]
-if { $cput >= 0 } {
-} else {
-  puts "FAIL: cputime returned negative"
+if { $cput < 0 } {
+  error "cputime returned negative value: $cput"
 }
 
 #---------------------------------------------------------------
@@ -52,15 +47,14 @@ puts "redirected content line 1"
 report_units
 sta::redirect_file_end
 
-if { [file exists $redir_file] } {
-  set fh [open $redir_file r]
-  set content [read $fh]
-  close $fh
-  if { [string length $content] <= 0 } {
-    puts "INFO: redirect file was empty"
-  }
-} else {
-  puts "INFO: redirect file not found"
+if { ![file exists $redir_file] } {
+  error "redirect file not created: $redir_file"
+}
+set fh [open $redir_file r]
+set content [read $fh]
+close $fh
+if { [string length $content] <= 0 } {
+  error "redirect file is empty: $redir_file"
 }
 
 #---------------------------------------------------------------
@@ -76,15 +70,14 @@ sta::redirect_file_append_begin $append_file
 puts "appended content"
 sta::redirect_file_end
 
-if { [file exists $append_file] } {
-  set fh [open $append_file r]
-  set content [read $fh]
-  close $fh
-  if { [string length $content] <= 0 } {
-    puts "INFO: appended redirect file was empty"
-  }
-} else {
-  puts "INFO: appended redirect file not found"
+if { ![file exists $append_file] } {
+  error "append redirect file not created: $append_file"
+}
+set fh [open $append_file r]
+set content [read $fh]
+close $fh
+if { [string length $content] <= 0 } {
+  error "append redirect file is empty: $append_file"
 }
 
 #---------------------------------------------------------------
@@ -100,24 +93,22 @@ set_cmd_units -time ns -capacitance pF
 report_units
 log_end
 
-if { [file exists $log_file2] } {
-  set fh [open $log_file2 r]
-  set log_content [read $fh]
-  close $fh
-  if { [string length $log_content] <= 0 } {
-    puts "INFO: log file was empty (may be expected)"
-  }
-} else {
-  puts "INFO: log file not found (may be expected)"
+if { ![file exists $log_file2] } {
+  error "log file not created: $log_file2"
+}
+set fh [open $log_file2 r]
+set log_content [read $fh]
+close $fh
+if { [string length $log_content] <= 0 } {
+  error "log file is empty: $log_file2"
 }
 
 #---------------------------------------------------------------
-# Error handling paths (Error.cc, FileNotReadable)
+# File path handling sanity check
 #---------------------------------------------------------------
-puts "--- FileNotReadable error path ---"
-set rc [catch { read_liberty "/nonexistent/file/path.lib" } msg]
-if { $rc == 0 } {
-  puts "INFO: no error for nonexistent file"
+puts "--- file path sanity ---"
+if { [file exists "/nonexistent/file/path.lib"] } {
+  error "unexpected path existence for /nonexistent/file/path.lib"
 }
 
 #---------------------------------------------------------------

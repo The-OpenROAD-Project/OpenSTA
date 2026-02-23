@@ -15,7 +15,7 @@ set lib [lindex [get_libs NangateOpenCellLibrary] 0]
 set outfile1 [make_result_file liberty_writer_rt1.lib]
 sta::write_liberty $lib $outfile1
 
-puts "write_liberty rt1: [file size $outfile1] bytes"
+diff_files liberty_writer_rt1.libok $outfile1
 
 ############################################################
 # Read Sky130 which has tristate, latch, and async cells
@@ -27,7 +27,7 @@ set sky_lib [sta::find_liberty "sky130_fd_sc_hd__tt_025C_1v80"]
 if {$sky_lib ne "NULL" && $sky_lib ne ""} {
   set outfile3 [make_result_file liberty_writer_rt_sky.lib]
   sta::write_liberty $sky_lib $outfile3
-  puts "write_liberty sky130: [file size $outfile3] bytes"
+  diff_files liberty_writer_rt_sky.libok $outfile3
 }
 
 

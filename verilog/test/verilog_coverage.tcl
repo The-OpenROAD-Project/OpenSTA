@@ -20,16 +20,16 @@ puts "ports: [llength $ports]"
 
 puts "--- Test 2: Timing ---"
 create_clock -name clk -period 10 [get_ports clk]
-set_input_delay -clock clk 0 [all_inputs]
+set_input_delay -clock clk 0 [get_ports {data_in[*] ctrl[*]}]
 set_output_delay -clock clk 0 [all_outputs]
-set_input_transition 0.1 [all_inputs]
+set_input_transition 0.1 [get_ports {data_in[*] ctrl[*]}]
 
 report_checks
 
 puts "--- Test 3: Write verilog ---"
 set outfile [make_result_file verilog_coverage_out.v]
 write_verilog $outfile
-puts "output size: [file size $outfile]"
+diff_files verilog_coverage_out.vok $outfile
 
 puts "--- Test 4: Hierarchical queries ---"
 set hier [get_cells -hierarchical *]

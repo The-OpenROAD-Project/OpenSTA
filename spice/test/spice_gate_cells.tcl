@@ -18,4 +18,25 @@ set_output_delay -clock clk 1.0 [get_ports out2]
 set_input_transition 0.1 [get_ports {in1 in2}]
 
 puts "--- report_checks baseline ---"
-report_checks
+with_output_to_variable rpt_max { report_checks -path_delay max }
+if {![regexp {Path Type:\s+max} $rpt_max]} {
+  error "baseline max timing report missing expected path header"
+}
+
+with_output_to_variable rpt_min { report_checks -path_delay min }
+if {![regexp {Path Type:\s+min} $rpt_min]} {
+  error "baseline min timing report missing expected path header"
+}
+
+set cell_count [llength [get_cells *]]
+set net_count [llength [get_nets *]]
+puts "cells=$cell_count nets=$net_count"
+if {$cell_count < 4} {
+  error "unexpectedly small cell count in spice_gate_cells test"
+}
+if {$net_count < 4} {
+  error "unexpectedly small net count in spice_gate_cells test"
+}
+
+report_checks -from [get_ports in1] -to [get_ports out1]
+report_checks -from [get_ports in2] -to [get_ports out2]

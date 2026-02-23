@@ -1,5 +1,6 @@
 --- Test 7: hierarchical with removes ---
-hier remove sizes: buf=587 and_inv=615
+No differences found.
+No differences found.
 Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 hier roundtrip cells: 5
 hier roundtrip hier cells: 7

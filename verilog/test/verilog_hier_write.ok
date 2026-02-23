@@ -13,7 +13,8 @@ resp_val dir=output
 resp_rdy dir=input
 --- Test 2: write_verilog basic ---
 --- Test 3: write_verilog -include_pwr_gnd ---
-basic: 74836 bytes, pwr_gnd: 74836 bytes
+No differences found.
+No differences found.
 --- Test 4: write_verilog -remove_cells ---
 --- Test 5: read back written verilog ---
 Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
@@ -21,7 +22,6 @@ roundtrip cells: 1292
 roundtrip nets: 288
 roundtrip ports: 54
 --- Test 6: timing with bus ports ---
-Warning: verilog_hier_write.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _424_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -90,7 +90,6 @@ Path Type: min
            0.08   slack (MET)
 
 
-Warning: verilog_hier_write.tcl line 1, unknown field nets.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _424_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

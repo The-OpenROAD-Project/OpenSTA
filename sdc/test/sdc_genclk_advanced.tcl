@@ -110,12 +110,15 @@ set_multicycle_path -setup 3 -from [get_clocks clk1] -to [get_clocks gclk_div2]
 
 set sdc_file1 [make_result_file sdc_genclk_native.sdc]
 write_sdc -no_timestamp $sdc_file1
+diff_files sdc_genclk_native.sdcok $sdc_file1
 
 set sdc_file2 [make_result_file sdc_genclk_compat.sdc]
 write_sdc -no_timestamp -compatible $sdc_file2
+diff_files sdc_genclk_compat.sdcok $sdc_file2
 
 set sdc_file3 [make_result_file sdc_genclk_d6.sdc]
 write_sdc -no_timestamp -digits 6 $sdc_file3
+diff_files sdc_genclk_d6.sdcok $sdc_file3
 
 ############################################################
 # Report checks

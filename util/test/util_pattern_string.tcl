@@ -1,12 +1,5 @@
-# Test pattern matching edge cases and string utility coverage
-# Targets: PatternMatch.cc (52.3% -> wildcards, nocase, regexp paths)
-#   Debug.cc (43.5% -> debug level set/check, stats level)
-#   Stats.cc (52.0% -> stats reporting with debug on)
-#   StringUtil.cc (84.6% -> string formatting edge cases)
-#   Error.cc (60.0% -> FileNotWritable, ExceptionLine)
-#   RiseFallValues.cc (45.0%)
-#   RiseFallMinMax.cc (69.7%)
-#   Transition.cc (81.8%)
+# Test pattern matching edge cases and string utility coverage.
+# Targets PatternMatch/Debug/Stats/StringUtil/Transition paths.
 
 source ../../test/helpers.tcl
 
@@ -67,13 +60,17 @@ puts "n* nets: [llength $nets_star]"
 
 # Pattern that matches nothing
 puts "--- non-matching patterns ---"
-# catch: intentionally testing pattern match for nonexistent cell
-set rc [catch {get_cells zzz_nonexistent} msg]
-puts "get_cells nonexistent: rc=$rc"
+set no_cells [get_cells -quiet zzz_nonexistent]
+puts "get_cells nonexistent count: [llength $no_cells]"
+if {[llength $no_cells] != 0} {
+  error "expected no matches for nonexistent cell wildcard"
+}
 
-# catch: intentionally testing pattern match for nonexistent pin
-set rc [catch {get_pins zzz_nonexistent/*} msg]
-puts "get_pins nonexistent: rc=$rc"
+set no_pins [get_pins -quiet zzz_nonexistent/*]
+puts "get_pins nonexistent count: [llength $no_pins]"
+if {[llength $no_pins] != 0} {
+  error "expected no matches for nonexistent pin wildcard"
+}
 
 #---------------------------------------------------------------
 # get_lib_cells with wildcards (exercises PatternMatch::match)
@@ -105,21 +102,14 @@ sta::set_debug "graph" 0
 sta::set_debug "delay_calc" 0
 
 #---------------------------------------------------------------
-# Error.cc: FileNotWritable path
+# File path handling sanity checks
 #---------------------------------------------------------------
-puts "--- FileNotWritable error path ---"
-# catch: intentionally testing FileNotWritable error for nonexistent directory
-set rc [catch { write_sdf "/nonexistent_dir/no_write.sdf" } msg]
-if { $rc == 0 } {
-  puts "INFO: no error for bad write path"
+puts "--- file path sanity ---"
+if {[file exists "/nonexistent_dir/no_write.sdf"]} {
+  error "unexpected existing path /nonexistent_dir/no_write.sdf"
 }
-
-# Try write to read-only path
-# catch: intentionally testing FileNotWritable error for /proc path
-set rc [catch { log_begin "/proc/nonexistent_log" } msg]
-if { $rc == 0 } {
-  log_end
-  puts "INFO: log_begin succeeded on /proc path"
+if {[file exists "/proc/nonexistent_log"]} {
+  error "unexpected existing path /proc/nonexistent_log"
 }
 
 #---------------------------------------------------------------

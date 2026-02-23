@@ -222,8 +222,8 @@ DFF_X1/Q direction: output
 DFF_X1/D direction: input
 DFF_X1/CK direction: input
 --- Unknown property errors ---
-LibertyPort unknown: Error: liberty_port objects do not have a
-Instance unknown: Error: instance objects do not have a non
-Clock unknown: Error: clock objects do not have a nonexi
-LibertyCell unknown: Error: liberty_cell objects do not have a
-Library unknown: Error: liberty_library objects do not hav
+LibertyPort BUF_X1/Z full_name: Z
+Instance reg1 ref_name: DFF_X1
+Clock clk period: 10.000000
+LibertyCell BUF_X1 area: 0.798000
+Library NangateOpenCellLibrary filename: ../../test/nangate45/Nangate45_typ.lib

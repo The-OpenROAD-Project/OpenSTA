@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: ./make_coverage_report.sh [--tcl_only] [--O0]
+# Usage: ./make_coverage_report.sh [-B] [--tcl_only] [--O0]
 # Generates an lcov/genhtml coverage report for OpenSTA tests.
 #   --O0       Disable optimizations for accurate coverage (no inlining)
 #   --tcl_only Run only Tcl tests (skip C++ unit tests)
@@ -13,6 +13,7 @@ usage() {
   echo "an lcov/genhtml coverage report."
   echo ""
   echo "Options:"
+  echo "  -B          Clean rebuild (remove build directory before building)"
   echo "  --O0        Disable optimizations (-O0) for accurate coverage measurement"
   echo "  --tcl_only  Run only Tcl tests (skip C++ unit tests)"
   echo "  -h, --help  Show this help message"
@@ -23,11 +24,13 @@ usage() {
   exit 0
 }
 
+CLEAN_BUILD=0
 TCL_ONLY=0
 OPT_LEVEL=""
 for arg in "$@"; do
   case "$arg" in
     -h|--help) usage ;;
+    -B) CLEAN_BUILD=1 ;;
     --tcl_only) TCL_ONLY=1 ;;
     --O0) OPT_LEVEL="-O0" ;;
     *) echo "Unknown argument: $arg"; echo "Run '$0 --help' for usage."; exit 1 ;;
@@ -47,10 +50,15 @@ LCOV_IGNORE="--ignore-errors mismatch,mismatch,gcov,gcov,source,source"
 echo "=== OpenSTA Coverage Report ==="
 echo "Build directory: $BUILD_DIR"
 echo "Report directory: $REPORT_DIR"
+echo "Clean build: $CLEAN_BUILD"
 echo "TCL only: $TCL_ONLY"
 echo "Optimization: ${OPT_LEVEL:-default}"
 
 # Step 1: Configure
+if [ "$CLEAN_BUILD" -eq 1 ] && [ -d "$BUILD_DIR" ]; then
+  echo "Removing $BUILD_DIR for clean rebuild..."
+  rm -rf "$BUILD_DIR"
+fi
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
@@ -62,6 +70,11 @@ cmake .. \
 
 # Step 2: Build
 make -j$(nproc)
+
+# Step 2.5: Clear stale coverage data before test execution.
+# Old .gcda files from previous builds can cause gcov checksum mismatch noise
+# that pollutes test logs and leads to false regression diffs.
+find . -name '*.gcda' -delete
 
 # Step 3: Run tests
 if [ "$TCL_ONLY" -eq 1 ]; then

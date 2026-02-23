@@ -3,7 +3,6 @@ cells: 13
 nets: 40
 ports: 22
 --- Test 2: Timing ---
-Warning: verilog_coverage.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Startpoint: data_in[0] (input port clocked by clk)
 Endpoint: valid (output port clocked by clk)
 Path Group: clk
@@ -35,6 +34,6 @@ Path Type: max
 
 
 --- Test 3: Write verilog ---
-output size: 1608
+No differences found.
 --- Test 4: Hierarchical queries ---
 hierarchical cells: 21

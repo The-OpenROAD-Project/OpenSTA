@@ -174,6 +174,7 @@ puts "filter_nets full_name =~ n*: [llength $filtered]"
 ############################################################
 set sdc1 [make_result_file sdc_filter_query1.sdc]
 write_sdc -no_timestamp $sdc1
+diff_files sdc_filter_query1.sdcok $sdc1
 
 ############################################################
 # Unset case analysis
@@ -198,3 +199,4 @@ set_output_delay -clock clk1 3.0 [get_ports out1]
 
 set sdc2 [make_result_file sdc_filter_query2.sdc]
 write_sdc -no_timestamp $sdc2
+diff_files sdc_filter_query2.sdcok $sdc2

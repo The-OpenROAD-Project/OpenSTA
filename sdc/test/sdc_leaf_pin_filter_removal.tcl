@@ -102,6 +102,7 @@ set_clock_groups -asynchronous -name grp1 \
 puts "--- write_sdc before removal ---"
 set sdc1 [make_result_file sdc_leaf_pin1.sdc]
 write_sdc -no_timestamp $sdc1
+diff_files sdc_leaf_pin1.sdcok $sdc1
 
 puts "--- remove false_path ---"
 unset_path_exceptions -from [get_clocks clk1] -to [get_clocks clk2]
@@ -121,6 +122,7 @@ unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup
 puts "--- write_sdc after removal ---"
 set sdc2 [make_result_file sdc_leaf_pin2.sdc]
 write_sdc -no_timestamp $sdc2
+diff_files sdc_leaf_pin2.sdcok $sdc2
 
 ############################################################
 # Filter queries: get_* with -filter
@@ -161,3 +163,4 @@ report_checks
 
 set sdc3 [make_result_file sdc_leaf_pin3.sdc]
 write_sdc -no_timestamp $sdc3
+diff_files sdc_leaf_pin3.sdcok $sdc3

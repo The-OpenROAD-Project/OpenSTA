@@ -155,3 +155,4 @@ report_clock_properties
 ############################################################
 set sdc_out [make_result_file sdc_cycle_acct_genclk.sdc]
 write_sdc -no_timestamp $sdc_out
+diff_files sdc_cycle_acct_genclk.sdcok $sdc_out

@@ -1,8 +1,7 @@
 --- redirect + log simultaneously ---
-redirect file size: 1961
-log file size: 1961
+No differences found.
+No differences found.
 --- gzipped liberty read ---
-Warning: ../../test/nangate45/nangate45_typ.lib.gz line 37, library NangateOpenCellLibrary already exists.
 --- trigger warn paths ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)

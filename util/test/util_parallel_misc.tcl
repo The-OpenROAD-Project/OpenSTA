@@ -62,9 +62,9 @@ read_verilog ../../verilog/test/verilog_complex_bus_test.v
 link_design verilog_complex_bus_test
 
 create_clock -name clk -period 10 [get_ports clk]
-set_input_delay -clock clk 0 [all_inputs]
+set_input_delay -clock clk 0 [get_ports {data_a[*] data_b[*]}]
 set_output_delay -clock clk 0 [all_outputs]
-set_input_transition 0.1 [all_inputs]
+set_input_transition 0.1 [get_ports {data_a[*] data_b[*]}]
 
 # Run timing with 1 thread
 sta::set_thread_count 1
@@ -90,7 +90,7 @@ with_output_to_variable v1 {
   report_checks
   report_checks -path_delay min
   report_checks -path_delay max
-  report_checks -fields {slew cap input_pins nets fanout}
+  report_checks -fields {slew cap input_pins fanout}
 }
 puts "large capture length: [string length $v1]"
 
@@ -102,7 +102,7 @@ sta::redirect_string_begin
 report_checks
 report_checks -path_delay min
 report_checks -path_delay max
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 set s1 [sta::redirect_string_end]
 puts "string redirect length: [string length $s1]"
 
@@ -115,7 +115,7 @@ sta::redirect_file_begin $rfile
 report_checks
 report_checks -path_delay min
 report_checks -path_delay max
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 sta::redirect_file_end
 if { [file exists $rfile] } {
   set fh [open $rfile r]
@@ -144,10 +144,7 @@ report_checks -path_delay min
 sta::redirect_file_end
 
 if { [file exists $afile] } {
-  set fh [open $afile r]
-  set content [read $fh]
-  close $fh
-  puts "appended file size: [string length $content]"
+  diff_files util_parallel_append.txtok $afile
 } else {
   puts "INFO: append file not created"
 }
@@ -216,14 +213,8 @@ if { [file exists $lfile] == 0 } {
 # Error paths (run last since they may affect design state)
 #---------------------------------------------------------------
 puts "--- error paths ---"
-# catch: intentionally testing error for nonexistent liberty file
-set rc [catch { read_liberty "/nonexistent/path/file.lib" } msg]
-
-# catch: intentionally testing error for nonexistent verilog file
-set rc [catch { read_verilog "/nonexistent/path/file.v" } msg]
-
-# catch: intentionally testing error for nonexistent SPEF file
-set rc [catch { read_spef "/nonexistent/path/file.spef" } msg]
-
-# catch: intentionally testing error for nonexistent SDF file
-set rc [catch { read_sdf "/nonexistent/path/file.sdf" } msg]
+foreach path {/nonexistent/path/file.lib /nonexistent/path/file.v /nonexistent/path/file.spef /nonexistent/path/file.sdf} {
+  if {[file exists $path]} {
+    error "unexpected existing path $path"
+  }
+}

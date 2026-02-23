@@ -50,12 +50,11 @@ set out2 [make_result_file verilog_gcd_large_pwr.v]
 write_verilog -include_pwr_gnd $out2
 
 set out3 [make_result_file verilog_gcd_large_sort.v]
-write_verilog -sort $out3
+write_verilog $out3
 
-# Print file sizes
-foreach outf [list $out1 $out2 $out3] {
-  puts "  [file tail $outf] size=[file size $outf]"
-}
+diff_files verilog_gcd_large_out.vok $out1
+diff_files verilog_gcd_large_pwr.vok $out2
+diff_files verilog_gcd_large_sort.vok $out3
 
 ############################################################
 # Test 3: Re-read written verilog
@@ -76,7 +75,7 @@ report_checks -endpoint_count 3
 
 report_checks -path_delay min -endpoint_count 3
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins fanout}
 
 report_checks -format full_clock
 

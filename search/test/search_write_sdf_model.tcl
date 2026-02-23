@@ -17,19 +17,23 @@ report_checks -path_delay max > /dev/null
 
 puts "--- write_sdf ---"
 set sdf_file [make_result_file "search_test1.sdf"]
-write_sdf $sdf_file
+write_sdf -no_timestamp -no_version $sdf_file
+diff_files search_test1.sdfok $sdf_file
 
 puts "--- write_sdf with options ---"
 set sdf_file2 [make_result_file "search_test1_opts.sdf"]
 write_sdf -divider . -no_timestamp -no_version $sdf_file2
+diff_files search_test1_opts.sdfok $sdf_file2
 
 puts "--- write_sdf with digits ---"
 set sdf_file3 [make_result_file "search_test1_digits.sdf"]
 write_sdf -digits 6 -no_timestamp $sdf_file3
+diff_files search_test1_digits.sdfok $sdf_file3
 
 puts "--- write_sdf with include_typ ---"
 set sdf_file4 [make_result_file "search_test1_typ.sdf"]
 write_sdf -include_typ -no_timestamp $sdf_file4
+diff_files search_test1_typ.sdfok $sdf_file4
 
 puts "--- write_timing_model ---"
 set model_file [make_result_file "search_test1_model.lib"]
@@ -56,7 +60,7 @@ connect_pin n1 new_buf1/A
 puts "connect_pin done"
 
 puts "--- Network edit: disconnect_pin ---"
-disconnect_pin new_buf1 A
+disconnect_pin n1 new_buf1/A
 puts "disconnect_pin done"
 
 puts "--- Network edit: delete_net ---"
@@ -83,3 +87,4 @@ write_timing_model -library_name edited_lib -cell_name edited_cell $model_file4
 puts "--- write_sdf after edits ---"
 set sdf_file5 [make_result_file "search_test1_edited.sdf"]
 write_sdf -no_timestamp -no_version $sdf_file5
+diff_files search_test1_edited.sdfok $sdf_file5
