@@ -390,7 +390,7 @@ cc_library(
         "util",
         "verilog",
     ],
-    textual_hdrs = ["util/MachineLinux.cc"],
+    textual_hdrs = ["util/MachineLinux.cc", "util/MachineApple.cc"],
     visibility = ["//:__subpackages__"],
     deps = [
         "@cudd",
