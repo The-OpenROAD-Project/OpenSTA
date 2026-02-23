@@ -197,18 +197,23 @@ set_timing_derate -late -clock 1.03
 ############################################################
 set sdc_native [make_result_file sdc_wrt_full_native.sdc]
 write_sdc -no_timestamp $sdc_native
+diff_files sdc_wrt_full_native.sdcok $sdc_native
 
 set sdc_compat [make_result_file sdc_wrt_full_compat.sdc]
 write_sdc -no_timestamp -compatible $sdc_compat
+diff_files sdc_wrt_full_compat.sdcok $sdc_compat
 
 set sdc_d2 [make_result_file sdc_wrt_full_d2.sdc]
 write_sdc -no_timestamp -digits 2 $sdc_d2
+diff_files sdc_wrt_full_d2.sdcok $sdc_d2
 
 set sdc_d8 [make_result_file sdc_wrt_full_d8.sdc]
 write_sdc -no_timestamp -digits 8 $sdc_d8
+diff_files sdc_wrt_full_d8.sdcok $sdc_d8
 
 set sdc_hpins [make_result_file sdc_wrt_full_hpins.sdc]
 write_sdc -no_timestamp -map_hpins $sdc_hpins
+diff_files sdc_wrt_full_hpins.sdcok $sdc_hpins
 
 ############################################################
 # Read back native and re-write
@@ -217,6 +222,7 @@ read_sdc $sdc_native
 
 set sdc_rewrite [make_result_file sdc_wrt_full_rewrite.sdc]
 write_sdc -no_timestamp $sdc_rewrite
+diff_files sdc_wrt_full_rewrite.sdcok $sdc_rewrite
 
 ############################################################
 # Read compatible and verify
@@ -225,3 +231,4 @@ read_sdc $sdc_compat
 
 set sdc_final [make_result_file sdc_wrt_full_final.sdc]
 write_sdc -no_timestamp $sdc_final
+diff_files sdc_wrt_full_final.sdcok $sdc_final

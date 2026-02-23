@@ -170,12 +170,15 @@ set_false_path -hold -from [get_clocks clk2] -to [get_clocks clk1]
 ############################################################
 set sdc1 [make_result_file sdc_exc_override1.sdc]
 write_sdc -no_timestamp $sdc1
+diff_files sdc_exc_override1.sdcok $sdc1
 
 set sdc2 [make_result_file sdc_exc_override2.sdc]
 write_sdc -no_timestamp -compatible $sdc2
+diff_files sdc_exc_override2.sdcok $sdc2
 
 set sdc3 [make_result_file sdc_exc_override3.sdc]
 write_sdc -no_timestamp -digits 6 $sdc3
+diff_files sdc_exc_override3.sdcok $sdc3
 
 ############################################################
 # Unset some exceptions and verify
@@ -188,6 +191,7 @@ unset_path_exceptions -from [get_ports in2] -fall_to [get_ports out2]
 # Write after unset to exercise writing with reduced exceptions
 set sdc_unset [make_result_file sdc_exc_override_unset.sdc]
 write_sdc -no_timestamp $sdc_unset
+diff_files sdc_exc_override_unset.sdcok $sdc_unset
 
 ############################################################
 # Read back and verify roundtrip
@@ -196,3 +200,4 @@ read_sdc $sdc1
 
 set sdc4 [make_result_file sdc_exc_override4.sdc]
 write_sdc -no_timestamp $sdc4
+diff_files sdc_exc_override4.sdcok $sdc4

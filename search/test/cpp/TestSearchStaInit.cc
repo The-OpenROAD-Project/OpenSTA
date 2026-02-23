@@ -80,7 +80,6 @@ static void expectStaCoreState(Sta *sta)
   EXPECT_NE(sta->cmdCorner(), nullptr);
 }
 
-
 ////////////////////////////////////////////////////////////////
 // Sta initialization tests - exercises Sta.cc and StaState.cc
 ////////////////////////////////////////////////////////////////
@@ -1873,10 +1872,8 @@ TEST_F(StaInitTest, PropertyValuePinSetRef) {
 // Properties class tests (exercise getProperty for different types)
 TEST_F(StaInitTest, PropertiesExist) {
   ASSERT_NO_THROW(( [&](){
-  Properties &props = sta_->properties();
+  sta_->properties();
   // Just access it
-  (void)props;
-
   }() ));
 }
 
@@ -2524,10 +2521,7 @@ TEST_F(StaInitTest, StaOperatingConditions) {
   ASSERT_NO_THROW(( [&](){
   const OperatingConditions *op = sta_->operatingConditions(MinMax::min());
   // May be null without a liberty lib
-  const OperatingConditions *op_max = sta_->operatingConditions(MinMax::max());
-  (void)op;
-  (void)op_max;
-
+  sta_->operatingConditions(MinMax::max());
   }() ));
 }
 
@@ -3145,9 +3139,7 @@ TEST_F(StaInitTest, StaSetCrprEnabled) {
 
 TEST_F(StaInitTest, StaCrprModeAccess) {
   ASSERT_NO_THROW(( [&](){
-  CrprMode mode = sta_->crprMode();
-  (void)mode;
-
+  sta_->crprMode();
   }() ));
 }
 
@@ -3158,9 +3150,7 @@ TEST_F(StaInitTest, StaSetCrprModeVal) {
 
 TEST_F(StaInitTest, StaPocvEnabledAccess) {
   ASSERT_NO_THROW(( [&](){
-  bool pocv = sta_->pocvEnabled();
-  (void)pocv;
-
+  sta_->pocvEnabled();
   }() ));
 }
 
@@ -3180,9 +3170,7 @@ TEST_F(StaInitTest, StaSetSigmaFactor) {
 
 TEST_F(StaInitTest, StaPropagateGatedClockEnable) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->propagateGatedClockEnable();
-  (void)val;
-
+  sta_->propagateGatedClockEnable();
   }() ));
 }
 
@@ -3194,9 +3182,7 @@ TEST_F(StaInitTest, StaSetPropagateGatedClockEnable) {
 
 TEST_F(StaInitTest, StaPresetClrArcsEnabled) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->presetClrArcsEnabled();
-  (void)val;
-
+  sta_->presetClrArcsEnabled();
   }() ));
 }
 
@@ -3207,9 +3193,7 @@ TEST_F(StaInitTest, StaSetPresetClrArcsEnabled) {
 
 TEST_F(StaInitTest, StaCondDefaultArcsEnabled) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->condDefaultArcsEnabled();
-  (void)val;
-
+  sta_->condDefaultArcsEnabled();
   }() ));
 }
 
@@ -3220,9 +3204,7 @@ TEST_F(StaInitTest, StaSetCondDefaultArcsEnabled) {
 
 TEST_F(StaInitTest, StaBidirectInstPathsEnabled) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->bidirectInstPathsEnabled();
-  (void)val;
-
+  sta_->bidirectInstPathsEnabled();
   }() ));
 }
 
@@ -3233,9 +3215,7 @@ TEST_F(StaInitTest, StaSetBidirectInstPathsEnabled) {
 
 TEST_F(StaInitTest, StaBidirectNetPathsEnabled) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->bidirectNetPathsEnabled();
-  (void)val;
-
+  sta_->bidirectNetPathsEnabled();
   }() ));
 }
 
@@ -3246,9 +3226,7 @@ TEST_F(StaInitTest, StaSetBidirectNetPathsEnabled) {
 
 TEST_F(StaInitTest, StaRecoveryRemovalChecksEnabled) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->recoveryRemovalChecksEnabled();
-  (void)val;
-
+  sta_->recoveryRemovalChecksEnabled();
   }() ));
 }
 
@@ -3259,9 +3237,7 @@ TEST_F(StaInitTest, StaSetRecoveryRemovalChecksEnabled) {
 
 TEST_F(StaInitTest, StaGatedClkChecksEnabled) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->gatedClkChecksEnabled();
-  (void)val;
-
+  sta_->gatedClkChecksEnabled();
   }() ));
 }
 
@@ -3272,9 +3248,7 @@ TEST_F(StaInitTest, StaSetGatedClkChecksEnabled) {
 
 TEST_F(StaInitTest, StaPropagateAllClocks) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->propagateAllClocks();
-  (void)val;
-
+  sta_->propagateAllClocks();
   }() ));
 }
 
@@ -3285,9 +3259,7 @@ TEST_F(StaInitTest, StaSetPropagateAllClocks) {
 
 TEST_F(StaInitTest, StaClkThruTristateEnabled) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->clkThruTristateEnabled();
-  (void)val;
-
+  sta_->clkThruTristateEnabled();
   }() ));
 }
 
@@ -3310,9 +3282,7 @@ TEST_F(StaInitTest, StaSetCmdCorner) {
 
 TEST_F(StaInitTest, StaMultiCorner) {
   ASSERT_NO_THROW(( [&](){
-  bool mc = sta_->multiCorner();
-  (void)mc;
-
+  sta_->multiCorner();
   }() ));
 }
 
@@ -3640,8 +3610,7 @@ TEST_F(StaInitTest, StaClkPinsInvalid2) {
 // --- Sta.cc: STA misc functions ---
 TEST_F(StaInitTest, StaCurrentInstance) {
   ASSERT_NO_THROW(( [&](){
-  Instance *inst = sta_->currentInstance();
-  (void)inst;
+  sta_->currentInstance();
 
   }() ));
 }
@@ -3952,7 +3921,7 @@ TEST_F(StaInitTest, ReportPathFieldOrderSet) {
   ASSERT_NO_THROW(( [&](){
   // reportPath() is overloaded; just verify we can call it
   ReportPath *rp = sta_->reportPath();
-  (void)rp;
+  EXPECT_NE(rp, nullptr);
 
   }() ));
 }
@@ -3979,9 +3948,7 @@ TEST_F(StaInitTest, StaTclInterpAccess) {
 
 TEST_F(StaInitTest, StaCmdNamespace) {
   ASSERT_NO_THROW(( [&](){
-  CmdNamespace ns = sta_->cmdNamespace();
-  (void)ns;
-
+  sta_->cmdNamespace();
   }() ));
 }
 
@@ -4118,7 +4085,7 @@ TEST_F(StaInitTest, PathAnalysisPtInsertionAP) {
   PathAnalysisPt *ap = corner->findPathAnalysisPt(MinMax::max());
   if (ap) {
     const PathAnalysisPt *ins = ap->insertionAnalysisPt(MinMax::max());
-    (void)ins;
+    EXPECT_NE(ins, nullptr);
   }
 
   }() ));
@@ -4152,9 +4119,7 @@ TEST_F(StaInitTest, GraphLoopEmpty) {
   // GraphLoop requires edges vector
   Vector<Edge*> *edges = new Vector<Edge*>;
   GraphLoop loop(edges);
-  bool combo = loop.isCombinational();
-  (void)combo;
-
+  loop.isCombinational();
   }() ));
 }
 
@@ -4544,9 +4509,7 @@ TEST_F(StaInitTest, PathCheckPrevPathExists) {
 TEST_F(StaInitTest, PropertiesGetPropertyLibraryExists) {
   ASSERT_NO_THROW(( [&](){
   // getProperty(Library*) segfaults on nullptr - verify Properties can be constructed
-  Properties props(sta_);
-  (void)props;
-
+  Properties{sta_};
   }() ));
 }
 
@@ -4578,25 +4541,19 @@ TEST_F(StaInitTest, StaArrivalsInvalid2) {
 
 TEST_F(StaInitTest, StaBidirectInstPathsEnabled2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->bidirectInstPathsEnabled();
-  (void)val;
-
+  sta_->bidirectInstPathsEnabled();
   }() ));
 }
 
 TEST_F(StaInitTest, StaBidirectNetPathsEnabled2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->bidirectNetPathsEnabled();
-  (void)val;
-
+  sta_->bidirectNetPathsEnabled();
   }() ));
 }
 
 TEST_F(StaInitTest, StaClkThruTristateEnabled2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->clkThruTristateEnabled();
-  (void)val;
-
+  sta_->clkThruTristateEnabled();
   }() ));
 }
 
@@ -4608,41 +4565,31 @@ TEST_F(StaInitTest, StaCmdCornerConst) {
 
 TEST_F(StaInitTest, StaCmdNamespace2) {
   ASSERT_NO_THROW(( [&](){
-  CmdNamespace ns = sta_->cmdNamespace();
-  (void)ns;
-
+  sta_->cmdNamespace();
   }() ));
 }
 
 TEST_F(StaInitTest, StaCondDefaultArcsEnabled2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->condDefaultArcsEnabled();
-  (void)val;
-
+  sta_->condDefaultArcsEnabled();
   }() ));
 }
 
 TEST_F(StaInitTest, StaCrprEnabled2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->crprEnabled();
-  (void)val;
-
+  sta_->crprEnabled();
   }() ));
 }
 
 TEST_F(StaInitTest, StaCrprMode) {
   ASSERT_NO_THROW(( [&](){
-  CrprMode mode = sta_->crprMode();
-  (void)mode;
-
+  sta_->crprMode();
   }() ));
 }
 
 TEST_F(StaInitTest, StaCurrentInstance2) {
   ASSERT_NO_THROW(( [&](){
-  Instance *inst = sta_->currentInstance();
-  // Without network linked, returns nullptr
-  (void)inst;
+  sta_->currentInstance();
 
   }() ));
 }
@@ -4661,80 +4608,62 @@ TEST_F(StaInitTest, StaDelaysInvalid2) {
 
 TEST_F(StaInitTest, StaDynamicLoopBreaking) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->dynamicLoopBreaking();
-  (void)val;
-
+  sta_->dynamicLoopBreaking();
   }() ));
 }
 
 TEST_F(StaInitTest, StaGatedClkChecksEnabled2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->gatedClkChecksEnabled();
-  (void)val;
-
+  sta_->gatedClkChecksEnabled();
   }() ));
 }
 
 TEST_F(StaInitTest, StaMultiCorner2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->multiCorner();
-  (void)val;
-
+  sta_->multiCorner();
   }() ));
 }
 
 TEST_F(StaInitTest, StaPocvEnabled) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->pocvEnabled();
-  (void)val;
-
+  sta_->pocvEnabled();
   }() ));
 }
 
 TEST_F(StaInitTest, StaPresetClrArcsEnabled2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->presetClrArcsEnabled();
-  (void)val;
-
+  sta_->presetClrArcsEnabled();
   }() ));
 }
 
 TEST_F(StaInitTest, StaPropagateAllClocks2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->propagateAllClocks();
-  (void)val;
-
+  sta_->propagateAllClocks();
   }() ));
 }
 
 TEST_F(StaInitTest, StaPropagateGatedClockEnable2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->propagateGatedClockEnable();
-  (void)val;
-
+  sta_->propagateGatedClockEnable();
   }() ));
 }
 
 TEST_F(StaInitTest, StaRecoveryRemovalChecksEnabled2) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->recoveryRemovalChecksEnabled();
-  (void)val;
-
+  sta_->recoveryRemovalChecksEnabled();
   }() ));
 }
 
 TEST_F(StaInitTest, StaUseDefaultArrivalClock) {
   ASSERT_NO_THROW(( [&](){
-  bool val = sta_->useDefaultArrivalClock();
-  (void)val;
-
+  sta_->useDefaultArrivalClock();
   }() ));
 }
 
 TEST_F(StaInitTest, StaTagCount2) {
   ASSERT_NO_THROW(( [&](){
   int tc = sta_->tagCount();
-  (void)tc;
+  EXPECT_GE(tc, 0);
 
   }() ));
 }
@@ -4742,7 +4671,7 @@ TEST_F(StaInitTest, StaTagCount2) {
 TEST_F(StaInitTest, StaTagGroupCount2) {
   ASSERT_NO_THROW(( [&](){
   int tgc = sta_->tagGroupCount();
-  (void)tgc;
+  EXPECT_GE(tgc, 0);
 
   }() ));
 }
@@ -4750,7 +4679,7 @@ TEST_F(StaInitTest, StaTagGroupCount2) {
 TEST_F(StaInitTest, StaClkInfoCount2) {
   ASSERT_NO_THROW(( [&](){
   int cnt = sta_->clkInfoCount();
-  (void)cnt;
+  EXPECT_GE(cnt, 0);
 
   }() ));
 }

@@ -3391,7 +3391,7 @@ library(test_r11_parser) {
         }
         if (val->isFloat()) {
           EXPECT_FALSE(val->isString());
-          (void)val->floatValue();
+          EXPECT_FALSE(std::isinf(val->floatValue()));
         }
       }
     }
@@ -3402,7 +3402,7 @@ library(test_r11_parser) {
       EXPECT_FALSE(variable->isAttribute());
       EXPECT_FALSE(variable->isDefine());
       EXPECT_NE(variable->variable(), nullptr);
-      (void)variable->value();
+      EXPECT_FALSE(std::isinf(variable->value()));
     }
     bool save(LibertyGroup *) override { return false; }
     bool save(LibertyAttr *) override { return false; }
@@ -3700,7 +3700,7 @@ TEST_F(StaLibertyTest, TimingArcSetTraversal) {
       arc_count++;
       EXPECT_NE(arc->fromEdge(), nullptr);
       EXPECT_NE(arc->toEdge(), nullptr);
-      (void)arc->index();
+      EXPECT_GE(arc->index(), 0);
     }
   }
   EXPECT_GT(arc_set_count, 0);

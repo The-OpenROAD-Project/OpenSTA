@@ -21,6 +21,7 @@ sta_cpp_test(TestSearchClasses)
 sta_cpp_test(TestSearchStaInit)
 sta_cpp_test(TestSearchStaInitB)
 sta_cpp_test(TestSearchStaDesign)
+sta_cpp_test(TestSearchStaDesignB)
 sta_cpp_test(TestSearchIncremental)
 
 # Compatibility aggregate target for legacy scripts that still build TestSearch.
@@ -30,5 +31,6 @@ add_custom_target(TestSearch
     TestSearchStaInit
     TestSearchStaInitB
     TestSearchStaDesign
+    TestSearchStaDesignB
     TestSearchIncremental
 )

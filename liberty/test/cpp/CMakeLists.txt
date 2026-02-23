@@ -19,6 +19,7 @@ endmacro()
 
 sta_cpp_test(TestLibertyClasses)
 sta_cpp_test(TestLibertyStaBasics)
+sta_cpp_test(TestLibertyStaBasicsB)
 sta_cpp_test(TestLibertyStaCallbacks)
 
 # Compatibility aggregate target for legacy scripts that still build TestLiberty.
@@ -26,5 +27,6 @@ add_custom_target(TestLiberty
   DEPENDS
     TestLibertyClasses
     TestLibertyStaBasics
+    TestLibertyStaBasicsB
     TestLibertyStaCallbacks
 )

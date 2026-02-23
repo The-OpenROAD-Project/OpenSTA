@@ -986,7 +986,7 @@ TEST(ReportTest, RedirectFileAppendBegin)
   ASSERT_NE(f, nullptr);
   char content[512] = {};
   size_t bytes_read = fread(content, 1, sizeof(content) - 1, f);
-  (void)bytes_read;
+  EXPECT_GT(bytes_read, 0u);
   fclose(f);
   EXPECT_NE(strstr(content, "first"), nullptr);
   EXPECT_NE(strstr(content, "second"), nullptr);

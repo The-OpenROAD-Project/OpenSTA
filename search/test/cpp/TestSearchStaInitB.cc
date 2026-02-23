@@ -54,7 +54,6 @@
 #include "Liberty.hh"
 #include "Network.hh"
 
-
 namespace sta {
 
 template <typename FnPtr>
@@ -68,7 +67,6 @@ static void expectCallablePointerUsable(FnPtr fn) {
 }
 
 static void expectStaCoreState(Sta *sta);
-
 
 class StaInitTest : public ::testing::Test {
 protected:
@@ -222,36 +220,31 @@ TEST_F(StaInitTest, StaUpdateTiming2) {
 
 TEST_F(StaInitTest, StaReportPathEndHeader2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->reportPathEndHeader();
-
+    sta_->reportPathEndHeader();
   }() ));
 }
 
 TEST_F(StaInitTest, StaReportPathEndFooter2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->reportPathEndFooter();
-
+    sta_->reportPathEndFooter();
   }() ));
 }
 
 TEST_F(StaInitTest, StaReportSlewLimitShortHeader) {
   ASSERT_NO_THROW(( [&](){
-  sta_->reportSlewLimitShortHeader();
-
+    sta_->reportSlewLimitShortHeader();
   }() ));
 }
 
 TEST_F(StaInitTest, StaReportFanoutLimitShortHeader) {
   ASSERT_NO_THROW(( [&](){
-  sta_->reportFanoutLimitShortHeader();
-
+    sta_->reportFanoutLimitShortHeader();
   }() ));
 }
 
 TEST_F(StaInitTest, StaReportCapacitanceLimitShortHeader) {
   ASSERT_NO_THROW(( [&](){
-  sta_->reportCapacitanceLimitShortHeader();
-
+    sta_->reportCapacitanceLimitShortHeader();
   }() ));
 }
 
@@ -328,11 +321,9 @@ TEST_F(StaInitTest, StaDeleteNetExists) {
 
 // === Sta.cc: check/violation preambles ===
 
-
 TEST_F(StaInitTest, StaSetParasiticAnalysisPts) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setParasiticAnalysisPts(false);
-
+    sta_->setParasiticAnalysisPts(false);
   }() ));
 }
 
@@ -340,8 +331,7 @@ TEST_F(StaInitTest, StaSetParasiticAnalysisPts) {
 
 TEST_F(StaInitTest, StaSetReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setReportPathFields(true, true, true, true, true, true, true);
-
+    sta_->setReportPathFields(true, true, true, true, true, true, true);
   }() ));
 }
 
@@ -349,22 +339,19 @@ TEST_F(StaInitTest, StaSetReportPathFields) {
 
 TEST_F(StaInitTest, StaDeleteExceptionFrom) {
   ASSERT_NO_THROW(( [&](){
-  sta_->deleteExceptionFrom(nullptr);
-
+    sta_->deleteExceptionFrom(nullptr);
   }() ));
 }
 
 TEST_F(StaInitTest, StaDeleteExceptionThru) {
   ASSERT_NO_THROW(( [&](){
-  sta_->deleteExceptionThru(nullptr);
-
+    sta_->deleteExceptionThru(nullptr);
   }() ));
 }
 
 TEST_F(StaInitTest, StaDeleteExceptionTo) {
   ASSERT_NO_THROW(( [&](){
-  sta_->deleteExceptionTo(nullptr);
-
+    sta_->deleteExceptionTo(nullptr);
   }() ));
 }
 
@@ -372,8 +359,7 @@ TEST_F(StaInitTest, StaDeleteExceptionTo) {
 
 TEST_F(StaInitTest, StaReadNetlistBefore) {
   ASSERT_NO_THROW(( [&](){
-  sta_->readNetlistBefore();
-
+    sta_->readNetlistBefore();
   }() ));
 }
 
@@ -383,9 +369,7 @@ TEST_F(StaInitTest, StaReadNetlistBefore) {
 
 TEST_F(StaInitTest, StaOperatingConditions2) {
   ASSERT_NO_THROW(( [&](){
-  auto oc = sta_->operatingConditions(MinMax::max());
-  (void)oc;
-
+    sta_->operatingConditions(MinMax::max());
   }() ));
 }
 
@@ -393,8 +377,7 @@ TEST_F(StaInitTest, StaOperatingConditions2) {
 
 TEST_F(StaInitTest, StaRemoveConstraints2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->removeConstraints();
-
+    sta_->removeConstraints();
   }() ));
 }
 
@@ -414,10 +397,7 @@ TEST_F(StaInitTest, StaDisabledEdgesThrows) {
 
 TEST_F(StaInitTest, StaFindReportPathField) {
   ASSERT_NO_THROW(( [&](){
-  auto field = sta_->findReportPathField("delay");
-  // May or may not find it
-  (void)field;
-
+    sta_->findReportPathField("delay");
   }() ));
 }
 
@@ -425,13 +405,11 @@ TEST_F(StaInitTest, StaFindReportPathField) {
 
 TEST_F(StaInitTest, StaFindCornerByName) {
   ASSERT_NO_THROW(( [&](){
-  auto corner = sta_->findCorner("default");
-  // May or may not exist
-  (void)corner;
-
+    auto corner = sta_->findCorner("default");
+    // May or may not exist
+    EXPECT_NE(corner, nullptr);
   }() ));
 }
-
 
 // === Sta.cc: totalNegativeSlack ===
 
@@ -449,8 +427,7 @@ TEST_F(StaInitTest, StaWorstSlackThrows) {
 
 TEST_F(StaInitTest, StaSetArcDelayCalc) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setArcDelayCalc("unit");
-
+    sta_->setArcDelayCalc("unit");
   }() ));
 }
 
@@ -458,8 +435,7 @@ TEST_F(StaInitTest, StaSetArcDelayCalc) {
 
 TEST_F(StaInitTest, StaSetAnalysisType) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setAnalysisType(AnalysisType::ocv);
-
+    sta_->setAnalysisType(AnalysisType::ocv);
   }() ));
 }
 
@@ -467,9 +443,8 @@ TEST_F(StaInitTest, StaSetAnalysisType) {
 
 TEST_F(StaInitTest, StaSetTimingDerate) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setTimingDerate(TimingDerateType::cell_delay, PathClkOrData::clk,
-                        RiseFallBoth::riseFall(), MinMax::max(), 1.05f);
-
+    sta_->setTimingDerate(TimingDerateType::cell_delay, PathClkOrData::clk,
+                          RiseFallBoth::riseFall(), MinMax::max(), 1.05f);
   }() ));
 }
 
@@ -477,8 +452,7 @@ TEST_F(StaInitTest, StaSetTimingDerate) {
 
 TEST_F(StaInitTest, StaSetVoltage) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setVoltage(MinMax::max(), 1.0f);
-
+    sta_->setVoltage(MinMax::max(), 1.0f);
   }() ));
 }
 
@@ -489,118 +463,107 @@ TEST_F(StaInitTest, StaSetReportPathFieldOrderExists) {
   expectCallablePointerUsable(fn);
 }
 
-
 // === Sta.cc: clear ===
 
 // === Property.cc: defineProperty overloads ===
 
 TEST_F(StaInitTest, PropertiesDefineLibrary) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_lib_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const Library*>::PropertyHandler(
-      [](const Library*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_lib_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const Library*>::PropertyHandler(
+        [](const Library*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefineLibertyLibrary) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_liblib_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const LibertyLibrary*>::PropertyHandler(
-      [](const LibertyLibrary*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_liblib_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const LibertyLibrary*>::PropertyHandler(
+        [](const LibertyLibrary*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefineCell) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_cell_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const Cell*>::PropertyHandler(
-      [](const Cell*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_cell_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const Cell*>::PropertyHandler(
+        [](const Cell*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefineLibertyCell) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_libcell_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const LibertyCell*>::PropertyHandler(
-      [](const LibertyCell*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_libcell_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const LibertyCell*>::PropertyHandler(
+        [](const LibertyCell*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefinePort) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_port_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const Port*>::PropertyHandler(
-      [](const Port*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_port_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const Port*>::PropertyHandler(
+        [](const Port*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefineLibertyPort) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_libport_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const LibertyPort*>::PropertyHandler(
-      [](const LibertyPort*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_libport_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const LibertyPort*>::PropertyHandler(
+        [](const LibertyPort*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefineInstance) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_inst_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const Instance*>::PropertyHandler(
-      [](const Instance*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_inst_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const Instance*>::PropertyHandler(
+        [](const Instance*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefinePin) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_pin_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const Pin*>::PropertyHandler(
-      [](const Pin*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_pin_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const Pin*>::PropertyHandler(
+        [](const Pin*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefineNet) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_net_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const Net*>::PropertyHandler(
-      [](const Net*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_net_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const Net*>::PropertyHandler(
+        [](const Net*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
 TEST_F(StaInitTest, PropertiesDefineClock) {
   ASSERT_NO_THROW(( [&](){
-  Properties props(sta_);
-  std::string prop_name("test_clk_prop");
-  props.defineProperty(prop_name,
-    PropertyRegistry<const Clock*>::PropertyHandler(
-      [](const Clock*, Sta*) -> PropertyValue { return PropertyValue(); }));
-
+    Properties props(sta_);
+    std::string prop_name("test_clk_prop");
+    props.defineProperty(prop_name,
+      PropertyRegistry<const Clock*>::PropertyHandler(
+        [](const Clock*, Sta*) -> PropertyValue { return PropertyValue(); }));
   }() ));
 }
 
@@ -608,9 +571,7 @@ TEST_F(StaInitTest, PropertiesDefineClock) {
 
 TEST_F(StaInitTest, RequiredCmpConstruct) {
   ASSERT_NO_THROW(( [&](){
-  RequiredCmp cmp;
-  (void)cmp;
-
+    RequiredCmp cmp;
   }() ));
 }
 
@@ -618,20 +579,15 @@ TEST_F(StaInitTest, RequiredCmpConstruct) {
 
 TEST_F(StaInitTest, EvalPredConstruct) {
   ASSERT_NO_THROW(( [&](){
-  EvalPred pred(sta_);
-  (void)pred;
-
+    EvalPred pred(sta_);
   }() ));
 }
-
 
 // === Search.cc: ClkArrivalSearchPred ===
 
 TEST_F(StaInitTest, ClkArrivalSearchPredConstruct) {
   ASSERT_NO_THROW(( [&](){
-  ClkArrivalSearchPred pred(sta_);
-  (void)pred;
-
+    ClkArrivalSearchPred pred(sta_);
   }() ));
 }
 
@@ -641,21 +597,21 @@ TEST_F(StaInitTest, SearchTagCount2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   int tc = search->tagCount();
-  (void)tc;
+  EXPECT_GE(tc, 0);
 }
 
 TEST_F(StaInitTest, SearchTagGroupCount2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   int tgc = search->tagGroupCount();
-  (void)tgc;
+  EXPECT_GE(tgc, 0);
 }
 
 TEST_F(StaInitTest, SearchClkInfoCount2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
   int cnt = search->clkInfoCount();
-  (void)cnt;
+  EXPECT_GE(cnt, 0);
 }
 
 TEST_F(StaInitTest, SearchArrivalsInvalid2) {
@@ -685,22 +641,19 @@ TEST_F(StaInitTest, SearchClear2) {
 TEST_F(StaInitTest, SearchHavePathGroups2) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
-  bool val = search->havePathGroups();
-  (void)val;
+  search->havePathGroups();
 }
 
 TEST_F(StaInitTest, SearchCrprPathPruningEnabled) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
-  bool val = search->crprPathPruningEnabled();
-  (void)val;
+  search->crprPathPruningEnabled();
 }
 
 TEST_F(StaInitTest, SearchCrprApproxMissingRequireds) {
   Search *search = sta_->search();
   ASSERT_NE(search, nullptr);
-  bool val = search->crprApproxMissingRequireds();
-  (void)val;
+  search->crprApproxMissingRequireds();
 }
 
 TEST_F(StaInitTest, SearchSetCrprpathPruningEnabled) {
@@ -863,31 +816,23 @@ TEST_F(StaInitTest, PathEndCheckCopy) {
 
 // === PathEnd.cc: PathEndLatchCheck constructor/type ===
 
-
 // === PathEnd.cc: PathEndPathDelay constructor/type ===
 
-
 // === PathEnd.cc: PathEnd comparison statics ===
-
-
 
 // === Bfs.cc: BfsFwdIterator/BfsBkwdIterator ===
 
 TEST_F(StaInitTest, BfsFwdIteratorConstruct) {
   ASSERT_NO_THROW(( [&](){
-  BfsFwdIterator iter(BfsIndex::other, nullptr, sta_);
-  bool has = iter.hasNext();
-  (void)has;
-
+    BfsFwdIterator iter(BfsIndex::other, nullptr, sta_);
+    iter.hasNext();
   }() ));
 }
 
 TEST_F(StaInitTest, BfsBkwdIteratorConstruct) {
   ASSERT_NO_THROW(( [&](){
-  BfsBkwdIterator iter(BfsIndex::other, nullptr, sta_);
-  bool has = iter.hasNext();
-  (void)has;
-
+    BfsBkwdIterator iter(BfsIndex::other, nullptr, sta_);
+    iter.hasNext();
   }() ));
 }
 
@@ -895,11 +840,10 @@ TEST_F(StaInitTest, BfsBkwdIteratorConstruct) {
 
 TEST_F(StaInitTest, ClkNetworkAccessors) {
   ASSERT_NO_THROW(( [&](){
-  ClkNetwork *clk_net = sta_->clkNetwork();
-  if (clk_net) {
-    clk_net->clear();
-  }
-
+    ClkNetwork *clk_net = sta_->clkNetwork();
+    if (clk_net) {
+      clk_net->clear();
+    }
   }() ));
 }
 
@@ -909,9 +853,9 @@ TEST_F(StaInitTest, CornerAccessors) {
   Corner *corner = sta_->cmdCorner();
   ASSERT_NE(corner, nullptr);
   int idx = corner->index();
-  (void)idx;
+  EXPECT_GE(idx, 0);
   const char *name = corner->name();
-  (void)name;
+  EXPECT_NE(name, nullptr);
 }
 
 // === WorstSlack.cc: function exists ===
@@ -1036,14 +980,11 @@ TEST_F(StaInitTest, StaFindRegisterAsyncPinsThrows2) {
   EXPECT_THROW(sta_->findRegisterAsyncPins(nullptr, RiseFallBoth::riseFall(), false, false), Exception);
 }
 
-
-
 // === Sta.cc: Sta::setCurrentInstance ===
 
 TEST_F(StaInitTest, StaSetCurrentInstanceNull) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setCurrentInstance(nullptr);
-
+    sta_->setCurrentInstance(nullptr);
   }() ));
 }
 
@@ -1051,9 +992,7 @@ TEST_F(StaInitTest, StaSetCurrentInstanceNull) {
 
 TEST_F(StaInitTest, StaPathGroupNames) {
   ASSERT_NO_THROW(( [&](){
-  auto names = sta_->pathGroupNames();
-  (void)names;
-
+    sta_->pathGroupNames();
   }() ));
 }
 
@@ -1068,22 +1007,19 @@ TEST_F(StaInitTest, StaIsPathGroupName) {
 
 TEST_F(StaInitTest, StaRemoveClockGroupsLogicallyExclusive2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->removeClockGroupsLogicallyExclusive("test");
-
+    sta_->removeClockGroupsLogicallyExclusive("test");
   }() ));
 }
 
 TEST_F(StaInitTest, StaRemoveClockGroupsPhysicallyExclusive2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->removeClockGroupsPhysicallyExclusive("test");
-
+    sta_->removeClockGroupsPhysicallyExclusive("test");
   }() ));
 }
 
 TEST_F(StaInitTest, StaRemoveClockGroupsAsynchronous2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->removeClockGroupsAsynchronous("test");
-
+    sta_->removeClockGroupsAsynchronous("test");
   }() ));
 }
 
@@ -1091,8 +1027,7 @@ TEST_F(StaInitTest, StaRemoveClockGroupsAsynchronous2) {
 
 TEST_F(StaInitTest, StaSetDebugLevel) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setDebugLevel("search", 0);
-
+    sta_->setDebugLevel("search", 0);
   }() ));
 }
 
@@ -1102,13 +1037,11 @@ TEST_F(StaInitTest, StaSlowDriversThrows) {
   EXPECT_THROW(sta_->slowDrivers(10), Exception);
 }
 
-
 // === Sta.cc: Sta::setMinPulseWidth ===
 
 TEST_F(StaInitTest, StaSetMinPulseWidth) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setMinPulseWidth(RiseFallBoth::riseFall(), 0.1f);
-
+    sta_->setMinPulseWidth(RiseFallBoth::riseFall(), 0.1f);
   }() ));
 }
 
@@ -1116,8 +1049,7 @@ TEST_F(StaInitTest, StaSetMinPulseWidth) {
 
 TEST_F(StaInitTest, StaSetClockGatingCheckGlobal2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setClockGatingCheck(RiseFallBoth::riseFall(), MinMax::max(), 0.1f);
-
+    sta_->setClockGatingCheck(RiseFallBoth::riseFall(), MinMax::max(), 0.1f);
   }() ));
 }
 
@@ -1125,30 +1057,27 @@ TEST_F(StaInitTest, StaSetClockGatingCheckGlobal2) {
 
 TEST_F(StaInitTest, StaMakeExceptionFrom2) {
   ASSERT_NO_THROW(( [&](){
-  ExceptionFrom *from = sta_->makeExceptionFrom(nullptr, nullptr, nullptr,
-                                                  RiseFallBoth::riseFall());
-  // Returns a valid ExceptionFrom even with null args
-  if (from) sta_->deleteExceptionFrom(from);
-
+    ExceptionFrom *from = sta_->makeExceptionFrom(nullptr, nullptr, nullptr,
+                                                    RiseFallBoth::riseFall());
+    // Returns a valid ExceptionFrom even with null args
+    if (from) sta_->deleteExceptionFrom(from);
   }() ));
 }
 
 TEST_F(StaInitTest, StaMakeExceptionThru2) {
   ASSERT_NO_THROW(( [&](){
-  ExceptionThru *thru = sta_->makeExceptionThru(nullptr, nullptr, nullptr,
-                                                  RiseFallBoth::riseFall());
-  if (thru) sta_->deleteExceptionThru(thru);
-
+    ExceptionThru *thru = sta_->makeExceptionThru(nullptr, nullptr, nullptr,
+                                                    RiseFallBoth::riseFall());
+    if (thru) sta_->deleteExceptionThru(thru);
   }() ));
 }
 
 TEST_F(StaInitTest, StaMakeExceptionTo2) {
   ASSERT_NO_THROW(( [&](){
-  ExceptionTo *to = sta_->makeExceptionTo(nullptr, nullptr, nullptr,
-                                            RiseFallBoth::riseFall(),
-                                            RiseFallBoth::riseFall());
-  if (to) sta_->deleteExceptionTo(to);
-
+    ExceptionTo *to = sta_->makeExceptionTo(nullptr, nullptr, nullptr,
+                                              RiseFallBoth::riseFall(),
+                                              RiseFallBoth::riseFall());
+    if (to) sta_->deleteExceptionTo(to);
   }() ));
 }
 
@@ -1205,8 +1134,7 @@ TEST_F(StaInitTest, StaPortExtCapsExists) {
 
 TEST_F(StaInitTest, StaSetOperatingConditions2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setOperatingConditions(nullptr, MinMaxAll::all());
-
+    sta_->setOperatingConditions(nullptr, MinMaxAll::all());
   }() ));
 }
 
@@ -1261,11 +1189,9 @@ TEST_F(StaInitTest, DeleteAllMemoryExists) {
 
 TEST_F(StaInitTest, PathEndSlack) {
   ASSERT_NO_THROW(( [&](){
-  Path *p = new Path();
-  PathEndUnconstrained pe(p);
-  Slack s = pe.slack(sta_);
-  (void)s;
-
+    Path *p = new Path();
+    PathEndUnconstrained pe(p);
+    pe.slack(sta_);
   }() ));
 }
 
@@ -1332,8 +1258,7 @@ TEST_F(StaInitTest, StaFindPathEndsExists) {
 
 TEST_F(StaInitTest, StaMakeClockGroups) {
   ASSERT_NO_THROW(( [&](){
-  sta_->makeClockGroups("test_grp", false, false, false, false, nullptr);
-
+    sta_->makeClockGroups("test_grp", false, false, false, false, nullptr);
   }() ));
 }
 
@@ -1347,9 +1272,8 @@ TEST_F(StaInitTest, StaMakeClockGroups) {
 
 TEST_F(StaInitTest, CheckMaxSkewsCtorDtorClear) {
   ASSERT_NO_THROW(( [&](){
-  CheckMaxSkews checker(sta_);
-  checker.clear();
-
+    CheckMaxSkews checker(sta_);
+    checker.clear();
   }() ));
 }
 
@@ -1357,9 +1281,8 @@ TEST_F(StaInitTest, CheckMaxSkewsCtorDtorClear) {
 
 TEST_F(StaInitTest, CheckMinPeriodsCtorDtorClear) {
   ASSERT_NO_THROW(( [&](){
-  CheckMinPeriods checker(sta_);
-  checker.clear();
-
+    CheckMinPeriods checker(sta_);
+    checker.clear();
   }() ));
 }
 
@@ -1367,9 +1290,8 @@ TEST_F(StaInitTest, CheckMinPeriodsCtorDtorClear) {
 
 TEST_F(StaInitTest, CheckMinPulseWidthsCtorDtorClear) {
   ASSERT_NO_THROW(( [&](){
-  CheckMinPulseWidths checker(sta_);
-  checker.clear();
-
+    CheckMinPulseWidths checker(sta_);
+    checker.clear();
   }() ));
 }
 
@@ -1410,9 +1332,7 @@ TEST_F(StaInitTest, MinPeriodCheckCopy) {
 
 TEST_F(StaInitTest, MaxSkewSlackLessCtor) {
   ASSERT_NO_THROW(( [&](){
-  MaxSkewSlackLess less(sta_);
-  (void)less;
-
+    MaxSkewSlackLess less(sta_);
   }() ));
 }
 
@@ -1420,9 +1340,7 @@ TEST_F(StaInitTest, MaxSkewSlackLessCtor) {
 
 TEST_F(StaInitTest, MinPeriodSlackLessCtor) {
   ASSERT_NO_THROW(( [&](){
-  MinPeriodSlackLess less(sta_);
-  (void)less;
-
+    MinPeriodSlackLess less(sta_);
   }() ));
 }
 
@@ -1430,9 +1348,7 @@ TEST_F(StaInitTest, MinPeriodSlackLessCtor) {
 
 TEST_F(StaInitTest, MinPulseWidthSlackLessCtor) {
   ASSERT_NO_THROW(( [&](){
-  MinPulseWidthSlackLess less(sta_);
-  (void)less;
-
+    MinPulseWidthSlackLess less(sta_);
   }() ));
 }
 
@@ -1493,9 +1409,7 @@ TEST_F(StaInitTest, PathSetPrevPath2) {
 
 TEST_F(StaInitTest, PathLessCtor) {
   ASSERT_NO_THROW(( [&](){
-  PathLess less(sta_);
-  (void)less;
-
+    PathLess less(sta_);
   }() ));
 }
 
@@ -1530,14 +1444,11 @@ TEST_F(StaInitTest, ClkSkewAssignment2) {
 
 // (Protected ReportPath methods removed - only public API tested)
 
-
 // === ClkInfoLess: constructor ===
 
 TEST_F(StaInitTest, ClkInfoLessCtor) {
   ASSERT_NO_THROW(( [&](){
-  ClkInfoLess less(sta_);
-  (void)less;
-
+    ClkInfoLess less(sta_);
   }() ));
 }
 
@@ -1545,9 +1456,7 @@ TEST_F(StaInitTest, ClkInfoLessCtor) {
 
 TEST_F(StaInitTest, ClkInfoEqualCtor) {
   ASSERT_NO_THROW(( [&](){
-  ClkInfoEqual eq(sta_);
-  (void)eq;
-
+    ClkInfoEqual eq(sta_);
   }() ));
 }
 
@@ -1555,9 +1464,7 @@ TEST_F(StaInitTest, ClkInfoEqualCtor) {
 
 TEST_F(StaInitTest, ClkInfoHashExists) {
   ASSERT_NO_THROW(( [&](){
-  ClkInfoHash hash;
-  (void)hash;
-
+    ClkInfoHash hash;
   }() ));
 }
 
@@ -1565,9 +1472,7 @@ TEST_F(StaInitTest, ClkInfoHashExists) {
 
 TEST_F(StaInitTest, TagLessCtor) {
   ASSERT_NO_THROW(( [&](){
-  TagLess less(sta_);
-  (void)less;
-
+    TagLess less(sta_);
   }() ));
 }
 
@@ -1575,9 +1480,7 @@ TEST_F(StaInitTest, TagLessCtor) {
 
 TEST_F(StaInitTest, TagIndexLessExists) {
   ASSERT_NO_THROW(( [&](){
-  TagIndexLess less;
-  (void)less;
-
+    TagIndexLess less;
   }() ));
 }
 
@@ -1585,9 +1488,7 @@ TEST_F(StaInitTest, TagIndexLessExists) {
 
 TEST_F(StaInitTest, TagHashCtor) {
   ASSERT_NO_THROW(( [&](){
-  TagHash hash(sta_);
-  (void)hash;
-
+    TagHash hash(sta_);
   }() ));
 }
 
@@ -1595,9 +1496,7 @@ TEST_F(StaInitTest, TagHashCtor) {
 
 TEST_F(StaInitTest, TagEqualCtor) {
   ASSERT_NO_THROW(( [&](){
-  TagEqual eq(sta_);
-  (void)eq;
-
+    TagEqual eq(sta_);
   }() ));
 }
 
@@ -1605,11 +1504,8 @@ TEST_F(StaInitTest, TagEqualCtor) {
 
 TEST_F(StaInitTest, TagMatchLessCtor) {
   ASSERT_NO_THROW(( [&](){
-  TagMatchLess less(true, sta_);
-  (void)less;
-  TagMatchLess less2(false, sta_);
-  (void)less2;
-
+    TagMatchLess less(true, sta_);
+    TagMatchLess less2(false, sta_);
   }() ));
 }
 
@@ -1617,11 +1513,8 @@ TEST_F(StaInitTest, TagMatchLessCtor) {
 
 TEST_F(StaInitTest, TagMatchHashCtor) {
   ASSERT_NO_THROW(( [&](){
-  TagMatchHash hash(true, sta_);
-  (void)hash;
-  TagMatchHash hash2(false, sta_);
-  (void)hash2;
-
+    TagMatchHash hash(true, sta_);
+    TagMatchHash hash2(false, sta_);
   }() ));
 }
 
@@ -1629,32 +1522,24 @@ TEST_F(StaInitTest, TagMatchHashCtor) {
 
 TEST_F(StaInitTest, TagMatchEqualCtor) {
   ASSERT_NO_THROW(( [&](){
-  TagMatchEqual eq(true, sta_);
-  (void)eq;
-  TagMatchEqual eq2(false, sta_);
-  (void)eq2;
-
+    TagMatchEqual eq(true, sta_);
+    TagMatchEqual eq2(false, sta_);
   }() ));
 }
 
 // (TagGroupBldr/Hash/Equal are incomplete types - skipped)
 
-
 // === DiversionGreater: constructors ===
 
 TEST_F(StaInitTest, DiversionGreaterDefaultCtor) {
   ASSERT_NO_THROW(( [&](){
-  DiversionGreater greater;
-  (void)greater;
-
+    DiversionGreater greater;
   }() ));
 }
 
 TEST_F(StaInitTest, DiversionGreaterStaCtor) {
   ASSERT_NO_THROW(( [&](){
-  DiversionGreater greater(sta_);
-  (void)greater;
-
+    DiversionGreater greater(sta_);
   }() ));
 }
 
@@ -1662,9 +1547,8 @@ TEST_F(StaInitTest, DiversionGreaterStaCtor) {
 
 TEST_F(StaInitTest, ClkSkewsCtorClear) {
   ASSERT_NO_THROW(( [&](){
-  ClkSkews skews(sta_);
-  skews.clear();
-
+    ClkSkews skews(sta_);
+    skews.clear();
   }() ));
 }
 
@@ -1672,9 +1556,8 @@ TEST_F(StaInitTest, ClkSkewsCtorClear) {
 
 TEST_F(StaInitTest, GenclksCtorDtorClear) {
   ASSERT_NO_THROW(( [&](){
-  Genclks genclks(sta_);
-  genclks.clear();
-
+    Genclks genclks(sta_);
+    genclks.clear();
   }() ));
 }
 
@@ -1682,11 +1565,9 @@ TEST_F(StaInitTest, GenclksCtorDtorClear) {
 
 TEST_F(StaInitTest, ClockPinPairLessExists) {
   ASSERT_NO_THROW(( [&](){
-  // ClockPinPairLess comparison dereferences Clock*, so just test existence
-  ClockPinPairLess less;
-  (void)less;
-  expectStaCoreState(sta_);
-
+    // ClockPinPairLess comparison dereferences Clock*, so just test existence
+    ClockPinPairLess less;
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -1694,9 +1575,8 @@ TEST_F(StaInitTest, ClockPinPairLessExists) {
 
 TEST_F(StaInitTest, LevelizeSetLevelSpace2) {
   ASSERT_NO_THROW(( [&](){
-  Levelize *levelize = sta_->levelize();
-  levelize->setLevelSpace(5);
-
+    Levelize *levelize = sta_->levelize();
+    levelize->setLevelSpace(5);
   }() ));
 }
 
@@ -1712,9 +1592,8 @@ TEST_F(StaInitTest, LevelizeMaxLevel2) {
 
 TEST_F(StaInitTest, LevelizeClear2) {
   ASSERT_NO_THROW(( [&](){
-  Levelize *levelize = sta_->levelize();
-  levelize->clear();
-
+    Levelize *levelize = sta_->levelize();
+    levelize->clear();
   }() ));
 }
 
@@ -1722,9 +1601,7 @@ TEST_F(StaInitTest, LevelizeClear2) {
 
 TEST_F(StaInitTest, SearchPred0Ctor) {
   ASSERT_NO_THROW(( [&](){
-  SearchPred0 pred(sta_);
-  (void)pred;
-
+    SearchPred0 pred(sta_);
   }() ));
 }
 
@@ -1732,9 +1609,7 @@ TEST_F(StaInitTest, SearchPred0Ctor) {
 
 TEST_F(StaInitTest, SearchPred1Ctor) {
   ASSERT_NO_THROW(( [&](){
-  SearchPred1 pred(sta_);
-  (void)pred;
-
+    SearchPred1 pred(sta_);
   }() ));
 }
 
@@ -1742,9 +1617,7 @@ TEST_F(StaInitTest, SearchPred1Ctor) {
 
 TEST_F(StaInitTest, SearchPred2Ctor) {
   ASSERT_NO_THROW(( [&](){
-  SearchPred2 pred(sta_);
-  (void)pred;
-
+    SearchPred2 pred(sta_);
   }() ));
 }
 
@@ -1752,9 +1625,7 @@ TEST_F(StaInitTest, SearchPred2Ctor) {
 
 TEST_F(StaInitTest, SearchPredNonLatch2Ctor) {
   ASSERT_NO_THROW(( [&](){
-  SearchPredNonLatch2 pred(sta_);
-  (void)pred;
-
+    SearchPredNonLatch2 pred(sta_);
   }() ));
 }
 
@@ -1762,9 +1633,7 @@ TEST_F(StaInitTest, SearchPredNonLatch2Ctor) {
 
 TEST_F(StaInitTest, SearchPredNonReg2Ctor) {
   ASSERT_NO_THROW(( [&](){
-  SearchPredNonReg2 pred(sta_);
-  (void)pred;
-
+    SearchPredNonReg2 pred(sta_);
   }() ));
 }
 
@@ -1772,9 +1641,7 @@ TEST_F(StaInitTest, SearchPredNonReg2Ctor) {
 
 TEST_F(StaInitTest, ClkTreeSearchPredCtor) {
   ASSERT_NO_THROW(( [&](){
-  ClkTreeSearchPred pred(sta_);
-  (void)pred;
-
+    ClkTreeSearchPred pred(sta_);
   }() ));
 }
 
@@ -1782,9 +1649,7 @@ TEST_F(StaInitTest, ClkTreeSearchPredCtor) {
 
 TEST_F(StaInitTest, FanOutSrchPredCtor) {
   ASSERT_NO_THROW(( [&](){
-  FanOutSrchPred pred(sta_);
-  (void)pred;
-
+    FanOutSrchPred pred(sta_);
   }() ));
 }
 
@@ -1792,9 +1657,7 @@ TEST_F(StaInitTest, FanOutSrchPredCtor) {
 
 TEST_F(StaInitTest, WorstSlackCtorDtor) {
   ASSERT_NO_THROW(( [&](){
-  WorstSlack ws(sta_);
-  (void)ws;
-
+    WorstSlack ws(sta_);
   }() ));
 }
 
@@ -1802,10 +1665,8 @@ TEST_F(StaInitTest, WorstSlackCtorDtor) {
 
 TEST_F(StaInitTest, WorstSlackCopyCtor) {
   ASSERT_NO_THROW(( [&](){
-  WorstSlack ws1(sta_);
-  WorstSlack ws2(ws1);
-  (void)ws2;
-
+    WorstSlack ws1(sta_);
+    WorstSlack ws2(ws1);
   }() ));
 }
 
@@ -1813,9 +1674,7 @@ TEST_F(StaInitTest, WorstSlackCopyCtor) {
 
 TEST_F(StaInitTest, WorstSlacksCtorDtor) {
   ASSERT_NO_THROW(( [&](){
-  WorstSlacks wslacks(sta_);
-  (void)wslacks;
-
+    WorstSlacks wslacks(sta_);
   }() ));
 }
 
@@ -1823,9 +1682,8 @@ TEST_F(StaInitTest, WorstSlacksCtorDtor) {
 
 TEST_F(StaInitTest, SimClear2) {
   ASSERT_NO_THROW(( [&](){
-  Sim *sim = sta_->sim();
-  sim->clear();
-
+    Sim *sim = sta_->sim();
+    sim->clear();
   }() ));
 }
 
@@ -1833,9 +1691,8 @@ TEST_F(StaInitTest, SimClear2) {
 
 TEST_F(StaInitTest, StaStateCopyUnits3) {
   ASSERT_NO_THROW(( [&](){
-  Units *units = sta_->units();
-  sta_->copyUnits(units);
-
+    Units *units = sta_->units();
+    sta_->copyUnits(units);
   }() ));
 }
 
@@ -1989,7 +1846,6 @@ TEST_F(StaInitTest, PropertyValueClockCtor) {
 }
 
 // (Properties protected methods and Sta protected methods skipped)
-
 
 // === Sta: maxPathCountVertex ===
 
@@ -2237,10 +2093,8 @@ TEST_F(StaInitTest, StaSetPvtExists) {
 
 TEST_F(StaInitTest, SearchArrivalsValid) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  bool valid = search->arrivalsValid();
-  (void)valid;
-
+    Search *search = sta_->search();
+    search->arrivalsValid();
   }() ));
 }
 
@@ -2290,11 +2144,9 @@ TEST_F(StaInitTest, ReportFieldSetEnabled2) {
 
 TEST_F(StaInitTest, ReportFieldLeftJustify) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  ReportField *field = rpt->fieldSlew();
-  bool lj = field->leftJustify();
-  (void)lj;
-
+    ReportPath *rpt = sta_->reportPath();
+    ReportField *field = rpt->fieldSlew();
+    field->leftJustify();
   }() ));
 }
 
@@ -2302,11 +2154,10 @@ TEST_F(StaInitTest, ReportFieldLeftJustify) {
 
 TEST_F(StaInitTest, ReportFieldUnit) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  ReportField *field = rpt->fieldSlew();
-  Unit *u = field->unit();
-  (void)u;
-
+    ReportPath *rpt = sta_->reportPath();
+    ReportField *field = rpt->fieldSlew();
+    Unit *u = field->unit();
+    EXPECT_NE(u, nullptr);
   }() ));
 }
 
@@ -2448,10 +2299,9 @@ TEST_F(StaInitTest, SearchClassConstants2) {
 
 TEST_F(StaInitTest, ReportPathSetReportFields2) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->setReportFields(true, true, true, true, true, true, true);
-  rpt->setReportFields(false, false, false, false, false, false, false);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->setReportFields(true, true, true, true, true, true, true);
+    rpt->setReportFields(false, false, false, false, false, false, false);
   }() ));
 }
 
@@ -2630,33 +2480,29 @@ TEST_F(StaInitTest, ReportPathFindFieldNonexistent) {
 
 TEST_F(StaInitTest, ReportPathSetNoSplit) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->setNoSplit(true);
-  rpt->setNoSplit(false);
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->setNoSplit(true);
+    rpt->setNoSplit(false);
+    expectStaCoreState(sta_);
   }() ));
 }
 
 TEST_F(StaInitTest, ReportPathFieldSrcAttr) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  ReportField *src = rpt->fieldSrcAttr();
-  // src_attr field may or may not exist
-  (void)src;
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    ReportField *src = rpt->fieldSrcAttr();
+    // src_attr field may or may not exist
+    expectStaCoreState(sta_);
   }() ));
 }
 
 TEST_F(StaInitTest, ReportPathSetReportFieldsPublic) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  // Call setReportFields with various combinations
-  rpt->setReportFields(true, false, false, false, true, false, false);
-  rpt->setReportFields(true, true, true, true, true, true, true);
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    // Call setReportFields with various combinations
+    rpt->setReportFields(true, false, false, false, true, false, false);
+    rpt->setReportFields(true, true, true, true, true, true, true);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -2919,9 +2765,8 @@ TEST_F(StaInitTest, ReportFieldSetProperties2) {
 
 TEST_F(StaInitTest, CheckCapacitanceLimitsCtorDtor) {
   ASSERT_NO_THROW(( [&](){
-  CheckCapacitanceLimits checker(sta_);
-  expectStaCoreState(sta_);
-
+    CheckCapacitanceLimits checker(sta_);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -2929,9 +2774,8 @@ TEST_F(StaInitTest, CheckCapacitanceLimitsCtorDtor) {
 
 TEST_F(StaInitTest, CheckSlewLimitsCtorDtor) {
   ASSERT_NO_THROW(( [&](){
-  CheckSlewLimits checker(sta_);
-  expectStaCoreState(sta_);
-
+    CheckSlewLimits checker(sta_);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -2939,9 +2783,8 @@ TEST_F(StaInitTest, CheckSlewLimitsCtorDtor) {
 
 TEST_F(StaInitTest, CheckFanoutLimitsCtorDtor) {
   ASSERT_NO_THROW(( [&](){
-  CheckFanoutLimits checker(sta_);
-  expectStaCoreState(sta_);
-
+    CheckFanoutLimits checker(sta_);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3017,9 +2860,8 @@ TEST_F(StaInitTest, PathGroupClear) {
 
 TEST_F(StaInitTest, CheckCrprCtor) {
   ASSERT_NO_THROW(( [&](){
-  CheckCrpr crpr(sta_);
-  expectStaCoreState(sta_);
-
+    CheckCrpr crpr(sta_);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3027,9 +2869,8 @@ TEST_F(StaInitTest, CheckCrprCtor) {
 
 TEST_F(StaInitTest, GatedClkCtor) {
   ASSERT_NO_THROW(( [&](){
-  GatedClk gclk(sta_);
-  expectStaCoreState(sta_);
-
+    GatedClk gclk(sta_);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3037,9 +2878,8 @@ TEST_F(StaInitTest, GatedClkCtor) {
 
 TEST_F(StaInitTest, ClkLatencyCtor) {
   ASSERT_NO_THROW(( [&](){
-  ClkLatency lat(sta_);
-  expectStaCoreState(sta_);
-
+    ClkLatency lat(sta_);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3097,11 +2937,9 @@ TEST_F(StaInitTest, LevelizeCheckLevelsExists) {
 
 TEST_F(StaInitTest, LevelizeLevelized) {
   ASSERT_NO_THROW(( [&](){
-  Levelize *levelize = sta_->levelize();
-  bool lev = levelize->levelized();
-  (void)lev;
-  expectStaCoreState(sta_);
-
+    Levelize *levelize = sta_->levelize();
+    levelize->levelized();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3124,11 +2962,10 @@ TEST_F(StaInitTest, CornersIteration) {
 
 TEST_F(StaInitTest, CornerFindName) {
   ASSERT_NO_THROW(( [&](){
-  Corners *corners = sta_->corners();
-  Corner *corner = corners->findCorner("default");
-  (void)corner;
-  expectStaCoreState(sta_);
-
+    Corners *corners = sta_->corners();
+    Corner *corner = corners->findCorner("default");
+    EXPECT_NE(corner, nullptr);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3493,11 +3330,9 @@ TEST_F(StaInitTest, InitPathSenseThruExists) {
 
 TEST_F(StaInitTest, OutputDelaysCtorAndTimingSense) {
   ASSERT_NO_THROW(( [&](){
-  OutputDelays od;
-  TimingSense sense = od.timingSense();
-  (void)sense;
-  expectStaCoreState(sta_);
-
+    OutputDelays od;
+    od.timingSense();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3524,10 +3359,9 @@ TEST_F(StaInitTest, ClkDelaysLatencyStatic) {
 
 TEST_F(StaInitTest, BddCtorDtor) {
   ASSERT_NO_THROW(( [&](){
-  Bdd bdd(sta_);
-  // Just constructing and destructing exercises the vtable
-  expectStaCoreState(sta_);
-
+    Bdd bdd(sta_);
+    // Just constructing and destructing exercises the vtable
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3573,12 +3407,11 @@ TEST_F(StaInitTest, SearchFindPathGroupByClock) {
 
 TEST_F(StaInitTest, SearchTagZero) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  // tagCount should be 0 initially
-  TagIndex count = search->tagCount();
-  (void)count;
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    // tagCount should be 0 initially
+    TagIndex count = search->tagCount();
+    EXPECT_GE(count, 0);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3586,11 +3419,10 @@ TEST_F(StaInitTest, SearchTagZero) {
 
 TEST_F(StaInitTest, SearchTagGroupCount3) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  TagGroupIndex count = search->tagGroupCount();
-  (void)count;
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    TagGroupIndex count = search->tagGroupCount();
+    EXPECT_GE(count, 0);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3606,10 +3438,9 @@ TEST_F(StaInitTest, SearchClkInfoCount3) {
 
 TEST_F(StaInitTest, SearchClear3) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  search->clear();
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    search->clear();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3624,11 +3455,9 @@ TEST_F(StaInitTest, SearchCheckPrevPathsExists2) {
 
 TEST_F(StaInitTest, SearchArrivalsValid2) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  bool valid = search->arrivalsValid();
-  (void)valid;
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    search->arrivalsValid();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3691,11 +3520,9 @@ TEST_F(StaInitTest, SearchCrprApproxMissingRequireds2) {
 
 TEST_F(StaInitTest, SearchUnconstrainedPaths2) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  bool unc = search->unconstrainedPaths();
-  (void)unc;
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    search->unconstrainedPaths();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3719,21 +3546,19 @@ TEST_F(StaInitTest, SearchDeleteFilter3) {
 
 TEST_F(StaInitTest, SearchArrivalIterator) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  BfsFwdIterator *iter = search->arrivalIterator();
-  (void)iter;
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    BfsFwdIterator *iter = search->arrivalIterator();
+    EXPECT_NE(iter, nullptr);
+    expectStaCoreState(sta_);
   }() ));
 }
 
 TEST_F(StaInitTest, SearchRequiredIterator) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  BfsBkwdIterator *iter = search->requiredIterator();
-  (void)iter;
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    BfsBkwdIterator *iter = search->requiredIterator();
+    EXPECT_NE(iter, nullptr);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3741,21 +3566,19 @@ TEST_F(StaInitTest, SearchRequiredIterator) {
 
 TEST_F(StaInitTest, SearchEvalPred2) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  EvalPred *pred = search->evalPred();
-  (void)pred;
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    EvalPred *pred = search->evalPred();
+    EXPECT_NE(pred, nullptr);
+    expectStaCoreState(sta_);
   }() ));
 }
 
 TEST_F(StaInitTest, SearchSearchAdj2) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  SearchPred *adj = search->searchAdj();
-  (void)adj;
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    SearchPred *adj = search->searchAdj();
+    EXPECT_NE(adj, nullptr);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3777,10 +3600,9 @@ TEST_F(StaInitTest, StaPinsOfClockExists) {
 
 TEST_F(StaInitTest, StaSetCmdNamespace2) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setCmdNamespace(CmdNamespace::sdc);
-  sta_->setCmdNamespace(CmdNamespace::sta);
-  expectStaCoreState(sta_);
-
+    sta_->setCmdNamespace(CmdNamespace::sdc);
+    sta_->setCmdNamespace(CmdNamespace::sta);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -3912,19 +3734,17 @@ TEST_F(StaInitTest, StaMaxPathCountVertexExists2) {
 
 TEST_F(StaInitTest, StaTagCount3) {
   ASSERT_NO_THROW(( [&](){
-  TagIndex count = sta_->tagCount();
-  (void)count;
-  expectStaCoreState(sta_);
-
+    TagIndex count = sta_->tagCount();
+    EXPECT_GE(count, 0);
+    expectStaCoreState(sta_);
   }() ));
 }
 
 TEST_F(StaInitTest, StaTagGroupCount3) {
   ASSERT_NO_THROW(( [&](){
-  TagGroupIndex count = sta_->tagGroupCount();
-  (void)count;
-  expectStaCoreState(sta_);
-
+    TagGroupIndex count = sta_->tagGroupCount();
+    EXPECT_GE(count, 0);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4084,10 +3904,9 @@ TEST_F(StaInitTest, ReportPathReportJsonHeader) {
 
 TEST_F(StaInitTest, ReportPathReportPeriodHeaderShort) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportPeriodHeaderShort();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportPeriodHeaderShort();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4095,10 +3914,9 @@ TEST_F(StaInitTest, ReportPathReportPeriodHeaderShort) {
 
 TEST_F(StaInitTest, ReportPathReportMaxSkewHeaderShort) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportMaxSkewHeaderShort();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportMaxSkewHeaderShort();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4106,10 +3924,9 @@ TEST_F(StaInitTest, ReportPathReportMaxSkewHeaderShort) {
 
 TEST_F(StaInitTest, ReportPathReportMpwHeaderShort) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportMpwHeaderShort();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportMpwHeaderShort();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4117,10 +3934,9 @@ TEST_F(StaInitTest, ReportPathReportMpwHeaderShort) {
 
 TEST_F(StaInitTest, ReportPathReportPathEndHeader) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportPathEndHeader();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportPathEndHeader();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4128,10 +3944,9 @@ TEST_F(StaInitTest, ReportPathReportPathEndHeader) {
 
 TEST_F(StaInitTest, ReportPathReportPathEndFooter) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportPathEndFooter();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportPathEndFooter();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4139,10 +3954,9 @@ TEST_F(StaInitTest, ReportPathReportPathEndFooter) {
 
 TEST_F(StaInitTest, ReportPathReportJsonFooter) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportJsonFooter();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportJsonFooter();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4169,11 +3983,10 @@ TEST_F(StaInitTest, ReportPathSetDigits2) {
 
 TEST_F(StaInitTest, ReportPathSetNoSplit2) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->setNoSplit(true);
-  rpt->setNoSplit(false);
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->setNoSplit(true);
+    rpt->setNoSplit(false);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4206,7 +4019,7 @@ TEST_F(StaInitTest, ReportPathFieldAccessors) {
   EXPECT_NE(slew, nullptr);
   EXPECT_NE(fanout, nullptr);
   EXPECT_NE(cap, nullptr);
-  (void)src;
+  EXPECT_NE(src, nullptr);
   expectStaCoreState(sta_);
 }
 
@@ -4214,10 +4027,9 @@ TEST_F(StaInitTest, ReportPathFieldAccessors) {
 
 TEST_F(StaInitTest, ReportPathReportEndHeader) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportEndHeader();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportEndHeader();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4225,10 +4037,9 @@ TEST_F(StaInitTest, ReportPathReportEndHeader) {
 
 TEST_F(StaInitTest, ReportPathReportSummaryHeader) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportSummaryHeader();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportSummaryHeader();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4236,10 +4047,9 @@ TEST_F(StaInitTest, ReportPathReportSummaryHeader) {
 
 TEST_F(StaInitTest, ReportPathReportSlackOnlyHeader) {
   ASSERT_NO_THROW(( [&](){
-  ReportPath *rpt = sta_->reportPath();
-  rpt->reportSlackOnlyHeader();
-  expectStaCoreState(sta_);
-
+    ReportPath *rpt = sta_->reportPath();
+    rpt->reportSlackOnlyHeader();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4272,11 +4082,10 @@ TEST_F(StaInitTest, PathGroupsUnconstrainedGroupName2) {
 
 TEST_F(StaInitTest, CornersParasiticAnalysisPtCount2) {
   ASSERT_NO_THROW(( [&](){
-  Corners *corners = sta_->corners();
-  int count = corners->parasiticAnalysisPtCount();
-  (void)count;
-  expectStaCoreState(sta_);
-
+    Corners *corners = sta_->corners();
+    int count = corners->parasiticAnalysisPtCount();
+    EXPECT_GE(count, 0);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4353,7 +4162,7 @@ TEST_F(StaInitTest, PathCtorVertexTagStaExists) {
   using PathCtorProbe = void (*)(Vertex *, Tag *, const StaState *);
   PathCtorProbe fn = [](Vertex *v, Tag *t, const StaState *s) {
     Path p(v, t, s);
-    (void)p;
+    EXPECT_NE(&p, nullptr);
   };
   expectCallablePointerUsable(fn);
 }
@@ -4435,10 +4244,9 @@ TEST_F(StaInitTest, SearchVisitStartpointsExists) {
 
 TEST_F(StaInitTest, SearchReportTagGroups2) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  search->reportTagGroups();
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    search->reportTagGroups();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4454,10 +4262,9 @@ TEST_F(StaInitTest, SearchReportPathCountHistogramExists) {
 
 TEST_F(StaInitTest, SearchArrivalsInvalid3) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  search->arrivalsInvalid();
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    search->arrivalsInvalid();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4465,10 +4272,9 @@ TEST_F(StaInitTest, SearchArrivalsInvalid3) {
 
 TEST_F(StaInitTest, SearchRequiredsInvalid3) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  search->requiredsInvalid();
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    search->requiredsInvalid();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4476,10 +4282,9 @@ TEST_F(StaInitTest, SearchRequiredsInvalid3) {
 
 TEST_F(StaInitTest, SearchEndpointsInvalid3) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  search->endpointsInvalid();
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    search->endpointsInvalid();
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4596,9 +4401,8 @@ TEST_F(StaInitTest, PathEndUnconstrainedRequiredTimeExists) {
 
 TEST_F(StaInitTest, PathEnumCtorDtor) {
   ASSERT_NO_THROW(( [&](){
-  PathEnum pe(10, 5, false, false, true, sta_);
-  expectStaCoreState(sta_);
-
+    PathEnum pe(10, 5, false, false, true, sta_);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4606,10 +4410,9 @@ TEST_F(StaInitTest, PathEnumCtorDtor) {
 
 TEST_F(StaInitTest, DiversionGreaterStateCtor) {
   ASSERT_NO_THROW(( [&](){
-  DiversionGreater dg(sta_);
-  (void)dg;
-  expectStaCoreState(sta_);
-
+    DiversionGreater dg(sta_);
+    EXPECT_NE(&dg, nullptr);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4829,16 +4632,15 @@ TEST_F(StaInitTest, StaDisconnectPinExists2) {
 
 TEST_F(StaInitTest, PathExpandedCtorGenClksExists) {
   ASSERT_NO_THROW(( [&](){
-  // Constructor: PathExpanded(const Path*, bool, const StaState*)
-  Path nullPath;
-  // We can't call this with a null path without crashing,
-  // but we can verify the overload exists.
-  auto ctor_test = [](const Path *p, bool b, const StaState *s) {
-    (void)p; (void)b; (void)s;
-  };
-  (void)ctor_test;
-  expectStaCoreState(sta_);
-
+    // Constructor: PathExpanded(const Path*, bool, const StaState*)
+    Path nullPath;
+    // We can't call this with a null path without crashing,
+    // but we can verify the overload exists.
+    auto ctor_test = [](const Path *p, bool b, const StaState *s) {
+      (void)p; (void)b; (void)s;
+    };
+    EXPECT_NE(ctor_test, nullptr);
+    expectStaCoreState(sta_);
   }() ));
 }
 
@@ -4846,53 +4648,67 @@ TEST_F(StaInitTest, PathExpandedCtorGenClksExists) {
 
 TEST_F(StaInitTest, SearchDeleteFilteredArrivals) {
   ASSERT_NO_THROW(( [&](){
-  Search *search = sta_->search();
-  search->deleteFilteredArrivals();
-  expectStaCoreState(sta_);
-
+    Search *search = sta_->search();
+    search->deleteFilteredArrivals();
+    expectStaCoreState(sta_);
   }() ));
 }
 
 // === Sta: checkSlewLimitPreamble ===
 
-TEST_F(StaInitTest, StaCheckSlewLimitPreambleExists) {
+TEST_F(StaInitTest, StaCheckSlewLimitPreambleThrowsViaPointer) {
   auto fn = &Sta::checkSlewLimitPreamble;
   expectCallablePointerUsable(fn);
+  EXPECT_THROW((sta_->*fn)(), Exception);
+  expectStaCoreState(sta_);
 }
 
 // === Sta: checkFanoutLimitPreamble ===
 
-TEST_F(StaInitTest, StaCheckFanoutLimitPreambleExists) {
+TEST_F(StaInitTest, StaCheckFanoutLimitPreambleThrowsViaPointer) {
   auto fn = &Sta::checkFanoutLimitPreamble;
   expectCallablePointerUsable(fn);
+  EXPECT_THROW((sta_->*fn)(), Exception);
+  expectStaCoreState(sta_);
 }
 
 // === Sta: checkCapacitanceLimitPreamble ===
 
-TEST_F(StaInitTest, StaCheckCapacitanceLimitPreambleExists) {
+TEST_F(StaInitTest, StaCheckCapacitanceLimitPreambleThrowsViaPointer) {
   auto fn = &Sta::checkCapacitanceLimitPreamble;
   expectCallablePointerUsable(fn);
+  EXPECT_THROW((sta_->*fn)(), Exception);
+  expectStaCoreState(sta_);
 }
 
 // === Sta: checkSlewLimits(Net*,...) ===
 
-TEST_F(StaInitTest, StaCheckSlewLimitsExists) {
+TEST_F(StaInitTest, StaCheckSlewLimitsThrowsViaPointer) {
   auto fn = &Sta::checkSlewLimits;
   expectCallablePointerUsable(fn);
+  EXPECT_THROW((sta_->*fn)(nullptr, false, nullptr, MinMax::max()), Exception);
+  EXPECT_THROW((sta_->*fn)(nullptr, true, nullptr, MinMax::max()), Exception);
+  expectStaCoreState(sta_);
 }
 
 // === Sta: checkFanoutLimits(Net*,...) ===
 
-TEST_F(StaInitTest, StaCheckFanoutLimitsExists) {
+TEST_F(StaInitTest, StaCheckFanoutLimitsThrowsViaPointer) {
   auto fn = &Sta::checkFanoutLimits;
   expectCallablePointerUsable(fn);
+  EXPECT_THROW((sta_->*fn)(nullptr, false, MinMax::max()), Exception);
+  EXPECT_THROW((sta_->*fn)(nullptr, true, MinMax::max()), Exception);
+  expectStaCoreState(sta_);
 }
 
 // === Sta: checkCapacitanceLimits(Net*,...) ===
 
-TEST_F(StaInitTest, StaCheckCapacitanceLimitsExists) {
+TEST_F(StaInitTest, StaCheckCapacitanceLimitsThrowsViaPointer) {
   auto fn = &Sta::checkCapacitanceLimits;
   expectCallablePointerUsable(fn);
+  EXPECT_THROW((sta_->*fn)(nullptr, false, nullptr, MinMax::max()), Exception);
+  EXPECT_THROW((sta_->*fn)(nullptr, true, nullptr, MinMax::max()), Exception);
+  expectStaCoreState(sta_);
 }
 
 // === Search: seedInputSegmentArrival ===
@@ -4957,6 +4773,5 @@ TEST_F(StaInitTest, StaIsPropagatedClockExists2) {
   auto fn = &Sta::isPropagatedClock;
   expectCallablePointerUsable(fn);
 }
-
 
 } // namespace sta

@@ -1161,7 +1161,6 @@ TEST_F(VerilogTest, StmtDestructor) {
   VerilogStmt *stmt = new VerilogAssign(lhs, rhs, 42);
   EXPECT_EQ(stmt->line(), 42);
   delete stmt;
-  SUCCEED();
 }
 
 // VerilogInst: constructor and destructor
@@ -1691,7 +1690,6 @@ TEST_F(VerilogTest, InstDestructor) {
     "INV", "u_inv", pins, new VerilogAttrStmtSeq, 1);
   EXPECT_TRUE(inst->isInstance());
   delete inst;
-  SUCCEED();
 }
 
 // VerilogStmt: line accessor

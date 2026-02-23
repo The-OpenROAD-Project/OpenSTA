@@ -1,0 +1,65 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.0000 [get_ports {clk1}]
+create_clock -name clk2 -period 20.0000 [get_ports {clk2}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in2}]
+set_input_delay 2.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {in3}]
+set_output_delay 3.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {out1}]
+set_output_delay 3.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {out2}]
+group_path -name grp_net\
+    -from [get_ports {in1}]\
+    -through [get_nets {n1}]\
+    -to [get_ports {out1}]
+group_path -name grp_inst\
+    -from [get_ports {in2}]\
+    -through [get_cells {and1}]\
+    -to [get_ports {out1}]
+group_path -default\
+    -from [get_ports {in3}]\
+    -to [get_ports {out2}]
+set_multicycle_path -hold\
+    -from [get_ports {in1}]\
+    -to [get_ports {out1}] 1
+set_multicycle_path -hold\
+    -from [get_ports {in2}]\
+    -to [get_ports {out2}] 0
+set_multicycle_path -setup\
+    -from [get_ports {in1}]\
+    -to [get_ports {out1}] 2
+set_multicycle_path -setup\
+    -from [get_ports {in2}]\
+    -to [get_ports {out2}] 3
+set_min_delay\
+    -from [get_ports {in1}]\
+    -to [get_ports {out2}] 0.5000
+set_min_delay\
+    -from [get_ports {in2}]\
+    -to [get_ports {out2}] 0.3000
+set_max_delay\
+    -from [get_ports {in1}]\
+    -to [get_ports {out2}] 7.0000
+set_max_delay\
+    -from [get_ports {in2}]\
+    -to [get_ports {out2}] 6.0000
+set_false_path -hold\
+    -from [get_clocks {clk2}]\
+    -to [get_clocks {clk1}]
+set_false_path -setup\
+    -from [get_clocks {clk1}]\
+    -to [get_clocks {clk2}]
+set_false_path\
+    -from [list [get_ports {in1}]\
+           [get_ports {in2}]]\
+    -to [get_ports {out1}]
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################

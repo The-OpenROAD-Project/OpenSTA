@@ -156,7 +156,9 @@ TEST_F(FindRootTest, OneIteration) {
   double root = findRoot(func, 1.0, 3.0, 1e-10, 1, fail);
   // With only 1 iteration, a quadratic likely won't converge to tight tol
   // The algorithm may or may not fail depending on initial bisection step
-  (void)root; // just ensure no crash
+  // Root should still be a finite number within the bracket
+  EXPECT_GE(root, 1.0);
+  EXPECT_LE(root, 3.0);
 
   }() ));
 }

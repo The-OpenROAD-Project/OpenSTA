@@ -68,6 +68,7 @@ set_false_path -from [get_ports in1] \
 ############################################################
 set sdc1 [make_result_file sdc_exception_int1.sdc]
 write_sdc -no_timestamp $sdc1
+diff_files sdc_exception_int1.sdcok $sdc1
 
 ############################################################
 # Unset all paths and create new set for merging tests
@@ -127,12 +128,15 @@ group_path -name grp_inst \
 ############################################################
 set sdc2 [make_result_file sdc_exception_int2.sdc]
 write_sdc -no_timestamp $sdc2
+diff_files sdc_exception_int2.sdcok $sdc2
 
 set sdc3 [make_result_file sdc_exception_int3.sdc]
 write_sdc -no_timestamp -compatible $sdc3
+diff_files sdc_exception_int3.sdcok $sdc3
 
 set sdc4 [make_result_file sdc_exception_int4.sdc]
 write_sdc -no_timestamp -digits 6 $sdc4
+diff_files sdc_exception_int4.sdcok $sdc4
 
 ############################################################
 # Read back SDC
@@ -142,3 +146,4 @@ read_sdc $sdc2
 # Re-write to verify roundtrip
 set sdc5 [make_result_file sdc_exception_int5.sdc]
 write_sdc -no_timestamp $sdc5
+diff_files sdc_exception_int5.sdcok $sdc5

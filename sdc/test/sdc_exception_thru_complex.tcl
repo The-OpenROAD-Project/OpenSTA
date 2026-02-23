@@ -152,12 +152,15 @@ group_path -default -from [get_ports in1] -to [get_ports out2]
 ############################################################
 set sdc1 [make_result_file sdc_exc_thru_complex1.sdc]
 write_sdc -no_timestamp $sdc1
+diff_files sdc_exc_thru_complex1.sdcok $sdc1
 
 set sdc2 [make_result_file sdc_exc_thru_complex2.sdc]
 write_sdc -no_timestamp -compatible $sdc2
+diff_files sdc_exc_thru_complex2.sdcok $sdc2
 
 set sdc3 [make_result_file sdc_exc_thru_complex3.sdc]
 write_sdc -no_timestamp -digits 6 $sdc3
+diff_files sdc_exc_thru_complex3.sdcok $sdc3
 
 ############################################################
 # Unset and verify
@@ -172,6 +175,7 @@ unset_path_exceptions -from [get_ports in2] -through [get_cells and1] -to [get_p
 # Write after unset to verify reduced constraints
 set sdc_unset [make_result_file sdc_exc_thru_complex_unset.sdc]
 write_sdc -no_timestamp $sdc_unset
+diff_files sdc_exc_thru_complex_unset.sdcok $sdc_unset
 
 ############################################################
 # Read back SDC and verify roundtrip
@@ -180,3 +184,4 @@ read_sdc $sdc1
 
 set sdc4 [make_result_file sdc_exc_thru_complex4.sdc]
 write_sdc -no_timestamp $sdc4
+diff_files sdc_exc_thru_complex4.sdcok $sdc4

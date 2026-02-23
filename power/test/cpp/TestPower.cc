@@ -906,8 +906,8 @@ TEST_F(PowerDesignTest, PinActivityQuery) {
     // Use Sta::activity which internally calls Power::activity/hasActivity
     PwrActivity act = sta_->activity(pin);
     // Activity origin might be unknown if not set
-    (void)act.density();
-    (void)act.duty();
+    EXPECT_GE(act.density(), 0.0);
+    EXPECT_GE(act.duty(), 0.0);
     count++;
   }
   delete pin_iter;

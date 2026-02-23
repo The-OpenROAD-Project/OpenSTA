@@ -997,7 +997,6 @@ TEST_F(SdfDesignTest, WriteThenReadSdf) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // Test readSdf with unescaped_dividers option
@@ -1017,7 +1016,6 @@ TEST_F(SdfDesignTest, ReadSdfUnescapedDividers) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // Test readSdf with incremental_only option
@@ -1037,7 +1035,6 @@ TEST_F(SdfDesignTest, ReadSdfIncrementalOnly) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // Test readSdf with cond_use min
@@ -1057,7 +1054,6 @@ TEST_F(SdfDesignTest, ReadSdfCondUseMin) {
           const_cast<MinMaxAll*>(MinMaxAll::min()), sta_);
 
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // Test readSdf with cond_use max
@@ -1077,7 +1073,6 @@ TEST_F(SdfDesignTest, ReadSdfCondUseMax) {
           const_cast<MinMaxAll*>(MinMaxAll::max()), sta_);
 
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // Test writeSdf then read with both unescaped and incremental
@@ -1097,7 +1092,6 @@ TEST_F(SdfDesignTest, ReadSdfCombinedOptions) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // Test writeSdf with low precision (1 digit)
@@ -1139,7 +1133,6 @@ TEST_F(SdfDesignTest, WriteSdfGzipThenRead) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // Test writeSdf with no_timestamp and no_timescale
@@ -1371,7 +1364,6 @@ TEST_F(SdfDesignTest, ReadSdfWithPath) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
-  SUCCEED();
 }
 
 // R11_2: Read a hand-crafted SDF with specific constructs to exercise
@@ -1412,7 +1404,6 @@ TEST_F(SdfDesignTest, ReadHandCraftedSdf) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
-  SUCCEED();
 }
 
 // R11_3: Read SDF with edge-specific IOPATH (posedge, negedge)
@@ -1449,7 +1440,6 @@ TEST_F(SdfDesignTest, ReadSdfEdgeIopath) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
-  SUCCEED();
 }
 
 // R11_4: Read SDF with SETUPHOLD combined check
@@ -1483,7 +1473,6 @@ TEST_F(SdfDesignTest, ReadSdfSetupHold) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
-  SUCCEED();
 }
 
 // R11_5: Read SDF with RECREM combined check
@@ -1517,7 +1506,6 @@ TEST_F(SdfDesignTest, ReadSdfRecRem) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
-  SUCCEED();
 }
 
 // R11_6: Read SDF with WIDTH check
@@ -1551,7 +1539,6 @@ TEST_F(SdfDesignTest, ReadSdfWidth) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
-  SUCCEED();
 }
 
 // R11_7: Read SDF with PERIOD check
@@ -1585,7 +1572,6 @@ TEST_F(SdfDesignTest, ReadSdfPeriod) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
-  SUCCEED();
 }
 
 // R11_8: Read SDF with NOCHANGE check
@@ -1659,7 +1645,6 @@ TEST_F(SdfDesignTest, ReadSdfInterconnect) {
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
-  SUCCEED();
 }
 
 // R11_10: WriteSdf with include_typ=true and no_version=false to cover

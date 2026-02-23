@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <cmath>
 #include <fstream>
 #include <cstdio>
 #include <unistd.h>
@@ -1794,7 +1795,7 @@ TEST_F(SpiceDesignTest, VertexArrivalForSpice) {
   ASSERT_NE(v, nullptr);
   Arrival arr = sta_->vertexArrival(v, MinMax::max());
   // Arrival should be finite (not INF)
-  (void)arr;
+  EXPECT_FALSE(std::isinf(delayAsFloat(arr)));
 }
 
 // Verify PathExpanded works on timing paths (used in SPICE path writing)

@@ -1,0 +1,158 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.00 [get_ports {clk1}]
+set_clock_transition -rise -max 0.15 [get_clocks {clk1}]
+set_clock_transition -fall -min 0.08 [get_clocks {clk1}]
+set_clock_uncertainty -setup 0.20 clk1
+set_clock_uncertainty -hold 0.10 clk1
+set_propagated_clock [get_clocks {clk1}]
+create_clock -name clk2 -period 20.00 [get_ports {clk2}]
+set_clock_transition 0.10 [get_clocks {clk2}]
+create_clock -name vclk -period 8.00 
+create_generated_clock -name gclk_div -source [get_ports {clk1}] -divide_by 2 [get_pins {reg1/Q}]
+set_clock_latency 0.20 [get_clocks {clk2}]
+set_clock_uncertainty -rise_from [get_clocks {clk1}] -rise_to [get_clocks {clk2}]  -hold 0.15
+set_clock_uncertainty -rise_from [get_clocks {clk1}] -rise_to [get_clocks {clk2}]  -setup 0.30
+set_clock_uncertainty -rise_from [get_clocks {clk1}] -fall_to [get_clocks {clk2}]  -hold 0.15
+set_clock_uncertainty -rise_from [get_clocks {clk1}] -fall_to [get_clocks {clk2}]  -setup 0.30
+set_clock_uncertainty -fall_from [get_clocks {clk1}] -rise_to [get_clocks {clk2}]  -hold 0.15
+set_clock_uncertainty -fall_from [get_clocks {clk1}] -rise_to [get_clocks {clk2}]  -setup 0.30
+set_clock_uncertainty -fall_from [get_clocks {clk1}] -fall_to [get_clocks {clk2}]  -hold 0.15
+set_clock_uncertainty -fall_from [get_clocks {clk1}] -fall_to [get_clocks {clk2}]  -setup 0.30
+set_clock_uncertainty -rise_from [get_clocks {clk2}] -rise_to [get_clocks {clk1}]  -hold 0.12
+set_clock_uncertainty -rise_from [get_clocks {clk2}] -rise_to [get_clocks {clk1}]  -setup 0.28
+set_clock_uncertainty -rise_from [get_clocks {clk2}] -fall_to [get_clocks {clk1}]  -hold 0.12
+set_clock_uncertainty -rise_from [get_clocks {clk2}] -fall_to [get_clocks {clk1}]  -setup 0.28
+set_clock_uncertainty -fall_from [get_clocks {clk2}] -rise_to [get_clocks {clk1}]  -hold 0.12
+set_clock_uncertainty -fall_from [get_clocks {clk2}] -rise_to [get_clocks {clk1}]  -setup 0.28
+set_clock_uncertainty -fall_from [get_clocks {clk2}] -fall_to [get_clocks {clk1}]  -hold 0.12
+set_clock_uncertainty -fall_from [get_clocks {clk2}] -fall_to [get_clocks {clk1}]  -setup 0.28
+set_sense -type clock -positive -clock [get_clocks {clk1}] [get_pins {buf1/Z}]
+set_clock_groups -name async1 -asynchronous \
+ -group [get_clocks {clk2}]\
+ -group [list [get_clocks {clk1}]\
+           [get_clocks {gclk_div}]]
+set_input_delay 2.00 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
+set_input_delay 2.50 -clock [get_clocks {clk1}] -rise -max -add_delay [get_ports {in2}]
+set_input_delay 1.00 -clock [get_clocks {clk1}] -fall -min -add_delay [get_ports {in2}]
+set_input_delay 1.50 -clock [get_clocks {clk1}] -clock_fall -add_delay [get_ports {in3}]
+set_input_delay 1.80 -clock [get_clocks {clk2}] -add_delay [get_ports {in3}]
+set_output_delay 3.00 -clock [get_clocks {clk1}] -add_delay [get_ports {out1}]
+set_output_delay 3.50 -clock [get_clocks {clk2}] -rise -max -add_delay [get_ports {out2}]
+set_output_delay 1.50 -clock [get_clocks {clk2}] -fall -min -add_delay [get_ports {out2}]
+set_disable_timing -from {A1} -to {ZN} [get_lib_cells {NangateOpenCellLibrary/AND2_X1}]
+set_disable_timing [get_lib_cells {NangateOpenCellLibrary/NOR2_X1}]
+set_disable_timing [get_cells {buf1}]
+group_path -name grp_clk1\
+    -from [get_clocks {clk1}]
+group_path -name grp_io\
+    -from [get_ports {in1}]\
+    -to [get_ports {out1}]
+group_path -name grp_thru\
+    -from [get_ports {in2}]\
+    -through [get_nets {n2}]\
+    -to [get_ports {out1}]
+group_path -default\
+    -from [get_ports {in3}]\
+    -to [get_ports {out2}]
+set_multicycle_path -hold\
+    -from [get_ports {in1}]\
+    -to [get_ports {out1}] 1
+set_multicycle_path -hold -end\
+    -from [get_ports {in2}]\
+    -to [get_ports {out2}] 1
+set_multicycle_path -setup\
+    -from [get_ports {in1}]\
+    -to [get_ports {out1}] 2
+set_multicycle_path -setup -start\
+    -from [get_ports {in2}]\
+    -to [get_ports {out2}] 3
+set_min_delay\
+    -from [get_ports {in2}]\
+    -to [get_ports {out1}] 1.00
+set_max_delay\
+    -from [get_ports {in2}]\
+    -to [get_ports {out1}] 8.00
+set_max_delay\
+    -from [get_ports {in3}]\
+    -through [get_cells {or1}]\
+    -to [get_ports {out2}] 7.00
+set_false_path -hold\
+    -from [get_clocks {vclk}]\
+    -to [get_clocks {clk1}]
+set_false_path -setup\
+    -from [get_clocks {clk1}]\
+    -to [get_clocks {vclk}]
+set_false_path\
+    -from [get_clocks {clk1}]\
+    -to [get_clocks {clk2}]
+set_false_path\
+    -from [get_ports {in1}]\
+    -through [get_pins {and1/ZN}]\
+    -to [get_ports {out1}]
+set_false_path\
+    -from [get_ports {in2}]\
+    -rise_through [get_pins {buf1/Z}]\
+    -fall_through [get_nets {n3}]\
+    -to [get_ports {out1}]
+set_false_path\
+    -rise_from [get_ports {in3}]\
+    -fall_to [get_ports {out2}]
+set_data_check -from [get_pins {reg1/Q}] -to [get_pins {reg2/D}] -hold 0.30
+set_data_check -from [get_pins {reg1/Q}] -to [get_pins {reg2/D}] -setup 0.50
+###############################################################################
+# Environment
+###############################################################################
+set_operating_conditions typical
+set_wire_load_mode "enclosed"
+set_load -pin_load -min 0.01 [get_ports {out1}]
+set_load -pin_load -max 0.06 [get_ports {out1}]
+set_load -wire_load 0.02 [get_ports {out1}]
+set_port_fanout_number 4 [get_ports {out1}]
+set_load -pin_load -rise 0.04 [get_ports {out2}]
+set_load -pin_load -fall 0.05 [get_ports {out2}]
+set_load  0.01 [get_nets {n1}]
+set_load  0.02 [get_nets {n2}]
+set_drive -rise 100.00 [get_ports {in1}]
+set_drive -fall 100.00 [get_ports {in1}]
+set_drive -rise 80.00 [get_ports {in2}]
+set_drive -fall 120.00 [get_ports {in2}]
+set_driving_cell -lib_cell BUF_X1 -pin {Z} -input_transition_rise 0.00 -input_transition_fall 0.00 [get_ports {in1}]
+set_driving_cell -lib_cell INV_X1 -pin {ZN} -input_transition_rise 0.00 -input_transition_fall 0.00 [get_ports {in2}]
+set_driving_cell -lib_cell BUF_X4 -pin {Z} -input_transition_rise 0.00 -input_transition_fall 0.00 [get_ports {in3}]
+set_input_transition 0.15 [get_ports {in1}]
+set_input_transition -rise -max 0.12 [get_ports {in2}]
+set_input_transition -fall -min 0.08 [get_ports {in2}]
+set_resistance 10.00 -min [get_nets {n1}]
+set_resistance 20.00 -max [get_nets {n1}]
+set_logic_one [get_ports {in2}]
+set_case_analysis 0 [get_ports {in3}]
+set_timing_derate -cell_delay -early -clock 0.97
+set_timing_derate -cell_delay -early -data 0.95
+set_timing_derate -net_delay -early -clock 0.97
+set_timing_derate -net_delay -early -data 0.95
+set_timing_derate -cell_delay -late -clock 1.03
+set_timing_derate -cell_delay -late -data 1.05
+set_timing_derate -net_delay -late -clock 1.03
+set_timing_derate -net_delay -late -data 1.05
+###############################################################################
+# Design Rules
+###############################################################################
+set_min_pulse_width 0.55 [get_clocks {clk2}]
+set_min_pulse_width -high 0.60 [get_clocks {clk1}]
+set_min_pulse_width -low 0.40 [get_clocks {clk1}]
+set_max_time_borrow 1.50 [get_pins {reg1/D}]
+set_max_time_borrow 2.00 [get_clocks {clk1}]
+set_max_transition 0.50 [current_design]
+set_max_transition 0.30 [get_ports {out1}]
+set_max_transition -clock_path 0.20 [get_clocks {clk1}]
+set_max_transition -data_path 0.40 [get_clocks {clk1}]
+set_max_capacitance 0.20 [current_design]
+set_max_capacitance 0.10 [get_ports {out1}]
+set_max_fanout 20.00 [current_design]
+set_max_area 100.00
