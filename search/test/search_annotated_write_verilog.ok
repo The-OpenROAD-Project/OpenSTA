@@ -9,7 +9,7 @@ net arcs to primary outputs           1           0           1
 ----------------------------------------------------------------
                                      13           0          13
 --- report_annotated_delay -list_annotated ---
-Warning: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+Warning 624: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -22,7 +22,7 @@ net arcs to primary outputs           1           0           1
 
 Annotated Arcs
 --- report_annotated_delay -list_not_annotated ---
-Warning: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+Warning 625: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -48,7 +48,7 @@ Unannotated Arcs
  delay              reg1/CK -> reg1/Q 
  internal net       reg1/Q -> buf2/A 
 --- report_annotated_delay -list_not_annotated -max_lines 5 ---
-Warning: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+Warning 625: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -111,7 +111,7 @@ cell hold arcs                        1           0           1
 ----------------------------------------------------------------
                                       2           0           2
 --- report_annotated_check -list_annotated ---
-Warning: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+Warning 626: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -123,7 +123,7 @@ cell width arcs                       1           0           1
 
 Annotated Arcs
 --- report_annotated_check -list_not_annotated ---
-Warning: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+Warning 627: search_annotated_write_verilog.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -245,7 +245,7 @@ Path Type: max
 
 
 --- report_annotated_delay after read_sdf ---
-Warning: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+Warning 624: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -271,7 +271,7 @@ Annotated Arcs
  delay              reg1/CK -> reg1/Q 
  internal net       reg1/Q -> buf2/A 
 --- report_annotated_check after read_sdf ---
-Warning: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+Warning 626: search_annotated_write_verilog.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------

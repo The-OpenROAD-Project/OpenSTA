@@ -53,14 +53,14 @@ report_checks -path_delay max -format slack_only
 report_checks -path_delay min -format slack_only
 
 puts "--- find_timing_paths latch check ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 20]
+set paths [find_timing_paths -path_delay max -endpoint_count 10 -group_path_count 20]
 puts "Found [llength $paths] max paths"
 foreach pe $paths {
   puts "  is_latch_check: [$pe is_latch_check] is_check: [$pe is_check] pin=[get_full_name [$pe pin]] slack=[$pe slack]"
 }
 
 puts "--- find_timing_paths min latch ---"
-set paths_min [find_timing_paths -path_delay min -endpoint_path_count 10 -group_path_count 20]
+set paths_min [find_timing_paths -path_delay min -endpoint_count 10 -group_path_count 20]
 puts "Found [llength $paths_min] min paths"
 foreach pe $paths_min {
   puts "  is_latch_check: [$pe is_latch_check] is_check: [$pe is_check] pin=[get_full_name [$pe pin]] slack=[$pe slack]"
@@ -110,8 +110,8 @@ puts "Edge-triggered cells: [llength $et_cells]"
 foreach c $et_cells { puts "  [get_full_name $c]" }
 
 puts "--- pulse width checks ---"
-report_pulse_width_checks
-report_pulse_width_checks -verbose
+report_check_types -min_pulse_width
+report_check_types -min_pulse_width -verbose
 
 puts "--- min period ---"
 report_clock_min_period

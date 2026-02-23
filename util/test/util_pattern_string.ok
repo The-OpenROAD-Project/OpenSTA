@@ -28,198 +28,202 @@ delay_calc: find delays to level 50
 delay_calc: found 9 delays
 search: find arrivals pass 1
 search: find arrivals to level 50
-search: arrival seed clk clk pin clk
+search: find arrivals in1
 search: arrival seed input arrival in1
-search: find arrivals buf1/A
-search:  in1
-search:   ^ -> ^ min
-search:   from tag: 4 ^ min/0 clk ^ clk_src clk crpr_pin null input in1
-search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
-search:    0.000 + 0.000 = 0.000 < MIA
-search:  in1
-search:   ^ -> ^ max
-search:   from tag: 6 ^ max/1 clk ^ clk_src clk crpr_pin null input in1
-search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
-search:    0.000 + 0.000 = 0.000 > MIA
-search:  in1
-search:   v -> v min
-search:   from tag: 5 v min/0 clk ^ clk_src clk crpr_pin null input in1
-search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
-search:    0.000 + 0.000 = 0.000 < MIA
-search:  in1
-search:   v -> v max
-search:   from tag: 7 v max/1 clk ^ clk_src clk crpr_pin null input in1
-search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
-search:    0.000 + 0.000 = 0.000 > MIA
+search: find arrivals clk
+search: arrival seed clk default/clk pin clk
+search: find arrivals reg1/IQN
+search: find arrivals reg1/IQ
 search: find arrivals reg1/CK
 search:  clk
 search:   ^ -> ^ min
-search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   from tag: 4 default ^ min clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 4 default ^ min clk ^ (clock ideal) clk_src clk crpr_pin null
 search:    0.000 + 0.000 = 0.000 < MIA
 search:  clk
 search:   ^ -> ^ max
-search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   from tag: 8 default ^ max clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 8 default ^ max clk ^ (clock ideal) clk_src clk crpr_pin null
 search:    0.000 + 0.000 = 0.000 > MIA
 search:  clk
 search:   v -> v min
-search:   from tag: 1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
+search:   from tag: 7 default v min clk v (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 7 default v min clk v (clock ideal) clk_src clk crpr_pin null
 search:    5.000 + 0.000 = 5.000 < MIA
 search:  clk
 search:   v -> v max
-search:   from tag: 3 v max/1 clk v (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 3 v max/1 clk v (clock ideal) clk_src clk crpr_pin null
+search:   from tag: 11 default v max clk v (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 11 default v max clk v (clock ideal) clk_src clk crpr_pin null
 search:    5.000 + 0.000 = 5.000 > MIA
+search: find arrivals buf1/A
+search:  in1
+search:   ^ -> ^ min
+search:   from tag: 0 default ^ min clk ^ clk_src clk crpr_pin null input in1
+search:   to tag  : 12 default ^ min clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 < MIA
+search:  in1
+search:   ^ -> ^ max
+search:   from tag: 2 default ^ max clk ^ clk_src clk crpr_pin null input in1
+search:   to tag  : 14 default ^ max clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 > MIA
+search:  in1
+search:   v -> v min
+search:   from tag: 1 default v min clk ^ clk_src clk crpr_pin null input in1
+search:   to tag  : 13 default v min clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 < MIA
+search:  in1
+search:   v -> v max
+search:   from tag: 3 default v max clk ^ clk_src clk crpr_pin null input in1
+search:   to tag  : 15 default v max clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.000 = 0.000 > MIA
+search: find arrivals buf1/Z
+search:  buf1/A
+search:   ^ -> ^ min
+search:   from tag: 12 default ^ min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 12 default ^ min clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.018 = 0.018 < MIA
+search:  buf1/A
+search:   ^ -> ^ max
+search:   from tag: 14 default ^ max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 14 default ^ max clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.018 = 0.018 > MIA
+search:  buf1/A
+search:   v -> v min
+search:   from tag: 13 default v min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 13 default v min clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.022 = 0.022 < MIA
+search:  buf1/A
+search:   v -> v max
+search:   from tag: 15 default v max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 15 default v max clk ^ clk_src clk crpr_pin null
+search:    0.000 + 0.022 = 0.022 > MIA
 search: find arrivals reg1/Q
 search:  reg1/CK
 search:   ^ -> ^ min
-search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 4 default ^ min clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 12 default ^ min clk ^ clk_src clk crpr_pin null
 search:    0.000 + 0.081 = 0.081 < MIA
 search:  reg1/CK
 search:   ^ -> v min
-search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 4 default ^ min clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 13 default v min clk ^ clk_src clk crpr_pin null
 search:    0.000 + 0.075 = 0.075 < MIA
 search:  reg1/CK
 search:   ^ -> ^ max
-search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 8 default ^ max clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 14 default ^ max clk ^ clk_src clk crpr_pin null
 search:    0.000 + 0.081 = 0.081 > MIA
 search:  reg1/CK
 search:   ^ -> v max
-search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 8 default ^ max clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 15 default v max clk ^ clk_src clk crpr_pin null
 search:    0.000 + 0.075 = 0.075 > MIA
 search: find arrivals reg1/QN
 search:  reg1/CK
 search:   ^ -> ^ min
-search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 4 default ^ min clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 12 default ^ min clk ^ clk_src clk crpr_pin null
 search:    0.000 + 0.056 = 0.056 < MIA
 search:  reg1/CK
 search:   ^ -> v min
-search:   from tag: 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 4 default ^ min clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 13 default v min clk ^ clk_src clk crpr_pin null
 search:    0.000 + 0.057 = 0.057 < MIA
 search:  reg1/CK
 search:   ^ -> ^ max
-search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 8 default ^ max clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 14 default ^ max clk ^ clk_src clk crpr_pin null
 search:    0.000 + 0.056 = 0.056 > MIA
 search:  reg1/CK
 search:   ^ -> v max
-search:   from tag: 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
-search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 8 default ^ max clk ^ (clock ideal) clk_src clk crpr_pin null
+search:   to tag  : 15 default v max clk ^ clk_src clk crpr_pin null
 search:    0.000 + 0.057 = 0.057 > MIA
-search: find arrivals buf1/Z
-search:  buf1/A
-search:   ^ -> ^ min
-search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
-search:    0.000 + 0.018 = 0.018 < MIA
-search:  buf1/A
-search:   ^ -> ^ max
-search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
-search:    0.000 + 0.018 = 0.018 > MIA
-search:  buf1/A
-search:   v -> v min
-search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
-search:    0.000 + 0.022 = 0.022 < MIA
-search:  buf1/A
-search:   v -> v max
-search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
-search:    0.000 + 0.022 = 0.022 > MIA
-search: find arrivals inv1/A
-search:  buf1/Z
-search:   ^ -> ^ min
-search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
-search:    0.018 + 0.000 = 0.018 < MIA
-search:  buf1/Z
-search:   ^ -> ^ max
-search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
-search:    0.018 + 0.000 = 0.018 > MIA
-search:  buf1/Z
-search:   v -> v min
-search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
-search:    0.022 + 0.000 = 0.022 < MIA
-search:  buf1/Z
-search:   v -> v max
-search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
-search:    0.022 + 0.000 = 0.022 > MIA
 search: find arrivals out1
 search:  reg1/Q
 search:   ^ -> ^ min
-search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 12 default ^ min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 12 default ^ min clk ^ clk_src clk crpr_pin null
 search:    0.081 + 0.000 = 0.081 < MIA
 search:  reg1/Q
 search:   ^ -> ^ max
-search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 14 default ^ max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 14 default ^ max clk ^ clk_src clk crpr_pin null
 search:    0.081 + 0.000 = 0.081 > MIA
 search:  reg1/Q
 search:   v -> v min
-search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 13 default v min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 13 default v min clk ^ clk_src clk crpr_pin null
 search:    0.075 + 0.000 = 0.075 < MIA
 search:  reg1/Q
 search:   v -> v max
-search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 15 default v max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 15 default v max clk ^ clk_src clk crpr_pin null
 search:    0.075 + 0.000 = 0.075 > MIA
+search: find arrivals inv1/A
+search:  buf1/Z
+search:   ^ -> ^ min
+search:   from tag: 12 default ^ min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 12 default ^ min clk ^ clk_src clk crpr_pin null
+search:    0.018 + 0.000 = 0.018 < MIA
+search:  buf1/Z
+search:   ^ -> ^ max
+search:   from tag: 14 default ^ max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 14 default ^ max clk ^ clk_src clk crpr_pin null
+search:    0.018 + 0.000 = 0.018 > MIA
+search:  buf1/Z
+search:   v -> v min
+search:   from tag: 13 default v min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 13 default v min clk ^ clk_src clk crpr_pin null
+search:    0.022 + 0.000 = 0.022 < MIA
+search:  buf1/Z
+search:   v -> v max
+search:   from tag: 15 default v max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 15 default v max clk ^ clk_src clk crpr_pin null
+search:    0.022 + 0.000 = 0.022 > MIA
 search: find arrivals inv1/ZN
 search:  inv1/A
 search:   ^ -> v min
-search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 12 default ^ min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 13 default v min clk ^ clk_src clk crpr_pin null
 search:    0.018 + 0.006 = 0.024 < MIA
 search:  inv1/A
 search:   ^ -> v max
-search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 14 default ^ max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 15 default v max clk ^ clk_src clk crpr_pin null
 search:    0.018 + 0.006 = 0.024 > MIA
 search:  inv1/A
 search:   v -> ^ min
-search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 13 default v min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 12 default ^ min clk ^ clk_src clk crpr_pin null
 search:    0.022 + 0.010 = 0.032 < MIA
 search:  inv1/A
 search:   v -> ^ max
-search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 15 default v max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 14 default ^ max clk ^ clk_src clk crpr_pin null
 search:    0.022 + 0.010 = 0.032 > MIA
 search: find arrivals reg1/D
 search:  inv1/ZN
 search:   ^ -> ^ min
-search:   from tag: 8 ^ min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 8 ^ min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 12 default ^ min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 12 default ^ min clk ^ clk_src clk crpr_pin null
 search:    0.032 + 0.000 = 0.032 < MIA
 search:  inv1/ZN
 search:   ^ -> ^ max
-search:   from tag: 9 ^ max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 9 ^ max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 14 default ^ max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 14 default ^ max clk ^ clk_src clk crpr_pin null
 search:    0.032 + 0.000 = 0.032 > MIA
 search:  inv1/ZN
 search:   v -> v min
-search:   from tag: 10 v min/0 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 10 v min/0 clk ^ clk_src clk crpr_pin null
+search:   from tag: 13 default v min clk ^ clk_src clk crpr_pin null
+search:   to tag  : 13 default v min clk ^ clk_src clk crpr_pin null
 search:    0.024 + 0.000 = 0.024 < MIA
 search:  inv1/ZN
 search:   v -> v max
-search:   from tag: 11 v max/1 clk ^ clk_src clk crpr_pin null
-search:   to tag  : 11 v max/1 clk ^ clk_src clk crpr_pin null
+search:   from tag: 15 default v max clk ^ clk_src clk crpr_pin null
+search:   to tag  : 15 default v max clk ^ clk_src clk crpr_pin null
 search:    0.024 + 0.000 = 0.024 > MIA
-search: found 9 arrivals
+search: found 13 arrivals
 search: find end slack reg1/D
 search: find end slack reg1/QN
 search: find end slack out1

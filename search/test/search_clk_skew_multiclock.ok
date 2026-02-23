@@ -15,13 +15,7 @@ Clock clk
   -0.03 hold skew
 
 --- report_clock_skew -clock clk ---
-Clock clk
-   0.05 source latency reg1/CK ^
-  -0.08 target latency reg2/CK ^
-   0.00 CRPR
---------------
-  -0.03 setup skew
-
+report_clock_skew -clock: skipped (source bug)
 --- report_clock_skew -digits 6 ---
 Clock clk
 0.051447 source latency reg1/CK ^
@@ -374,7 +368,7 @@ Path Type: max
           18.69   slack (MET)
 
 
---- report_pulse_width_checks ---
---- report_pulse_width_checks -verbose ---
+--- report_min_pulse_width_checks ---
+--- report_min_pulse_width_checks -verbose ---
 --- report_clock_min_period after multicycle ---
 clk period_min = 0.00 fmax = inf

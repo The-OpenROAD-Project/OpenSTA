@@ -189,7 +189,7 @@ report_checks -path_delay max
 ############################################################
 # Min pulse width
 ############################################################
-report_pulse_width_checks
+report_check_types -min_pulse_width
 
 ############################################################
 # report_constant

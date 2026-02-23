@@ -58,20 +58,20 @@ TokenParser::hasNext()
       token_ = token_end_ + 1;
       // Skip spaces.
       while (*token_ != '\0' && isspace(*token_))
-	token_++;
+        token_++;
       // Skip delimiters.
       while (*token_ != '\0' && strchr(delimiters_,*token_) != nullptr)
         token_++;
       if (*token_ == '\0')
-	token_ = nullptr;
+        token_ = nullptr;
       else {
-	token_end_ = strpbrk(token_, delimiters_);
-	if (token_end_) {
-	  // Save the delimiter.
-	  token_delimiter_ = *token_end_;
-	  // Replace the separator with a terminator.
-	  *token_end_ = '\0';
-	}
+        token_end_ = strpbrk(token_, delimiters_);
+        if (token_end_) {
+          // Save the delimiter.
+          token_delimiter_ = *token_end_;
+          // Replace the separator with a terminator.
+          *token_end_ = '\0';
+        }
       }
     }
     else

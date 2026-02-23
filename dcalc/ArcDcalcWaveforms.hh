@@ -31,8 +31,7 @@
 namespace sta {
 
 class StaState;
-class Corner;
-class DcalcAnalysisPt;
+class Scene;
 class ArcDcalcArg;
 
 // Abstract class for delay calculation waveforms for ploting.
@@ -47,7 +46,8 @@ public:
 
 protected:
   Waveform inputWaveform(ArcDcalcArg &dcalc_arg,
-                         const DcalcAnalysisPt *dcalc_ap,
+                         const Scene *scene,
+                         const MinMax *min_max,
                          const StaState *sta);
 };
 

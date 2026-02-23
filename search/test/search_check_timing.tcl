@@ -110,9 +110,9 @@ sta::set_bidirect_inst_paths_enabled 1
 puts "bidirect_inst: [sta::bidirect_inst_paths_enabled]"
 sta::set_bidirect_inst_paths_enabled 0
 
-sta::set_bidirect_net_paths_enabled 1
-puts "bidirect_net: [sta::bidirect_net_paths_enabled]"
-sta::set_bidirect_net_paths_enabled 0
+sta::set_bidirect_inst_paths_enabled 1
+puts "bidirect_net: [sta::bidirect_inst_paths_enabled]"
+sta::set_bidirect_inst_paths_enabled 0
 
 sta::set_dynamic_loop_breaking 1
 puts "dynamic_loop: [sta::dynamic_loop_breaking]"

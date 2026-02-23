@@ -28,7 +28,7 @@ report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
 
 puts "--- find_timing_paths with gated clk ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 20]
+set paths [find_timing_paths -path_delay max -endpoint_count 10 -group_path_count 20]
 puts "Found [llength $paths] max paths"
 foreach pe $paths {
   puts "  is_gated: [$pe is_gated_clock] is_check: [$pe is_check] pin=[get_full_name [$pe pin]] role=[$pe check_role] slack=[$pe slack]"
@@ -57,7 +57,7 @@ report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
 
 puts "--- find_timing_paths with recovery/removal ---"
-set paths_rr [find_timing_paths -path_delay max -endpoint_path_count 15 -group_path_count 30]
+set paths_rr [find_timing_paths -path_delay max -endpoint_count 15 -group_path_count 30]
 puts "Found [llength $paths_rr] paths with recovery/removal"
 foreach pe $paths_rr {
   set role [$pe check_role]
@@ -77,7 +77,7 @@ set_data_check -from [get_pins reg1/CK] -to [get_pins reg2/D] -hold 0.1
 report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
 puts "--- find_timing_paths with data check ---"
-set paths_dc [find_timing_paths -path_delay max -endpoint_path_count 10]
+set paths_dc [find_timing_paths -path_delay max -endpoint_count 10]
 puts "Found [llength $paths_dc] paths with data check"
 foreach pe $paths_dc {
   puts "  is_data_check: [$pe is_data_check] pin=[get_full_name [$pe pin]] role=[$pe check_role]"
@@ -132,8 +132,8 @@ report_checks -through [get_pins buf1/Z] -path_delay max
 report_checks -through [get_pins inv1/ZN] -path_delay max
 
 puts "--- pulse width checks ---"
-report_pulse_width_checks
-report_pulse_width_checks -verbose
+report_check_types -min_pulse_width
+report_check_types -min_pulse_width -verbose
 
 puts "--- min period ---"
 report_clock_min_period

@@ -57,14 +57,14 @@ report_checks -path_delay max -path_group gp2
 # exercises tag comparison/sorting
 ############################################################
 puts "--- find_timing_paths multi-clock ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 20]
+set paths [find_timing_paths -path_delay max -endpoint_count 5 -group_path_count 20]
 puts "multi-clock paths: [llength $paths]"
 foreach pe $paths {
   puts "  [get_full_name [$pe pin]] slack=[$pe slack]"
 }
 
 puts "--- find_timing_paths min multi-clock ---"
-set paths_min [find_timing_paths -path_delay min -endpoint_path_count 5 -group_path_count 20]
+set paths_min [find_timing_paths -path_delay min -endpoint_count 5 -group_path_count 20]
 puts "min multi-clock: [llength $paths_min]"
 
 ############################################################

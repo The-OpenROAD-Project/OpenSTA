@@ -33,8 +33,8 @@ Path Type: max
 wire_load 0.01 worst_slack: 7.899686238488357e-9
 wire_load 0.05 worst_slack: 7.899576992542734e-9
 --- fanout_load ---
-Warning: search_sta_bidirect_extcap.tcl line 1, set_fanout_load not supported.
-Warning: search_sta_bidirect_extcap.tcl line 1, set_fanout_load not supported.
+Warning 461: search_sta_bidirect_extcap.tcl line 1, set_fanout_load not supported.
+Warning 461: search_sta_bidirect_extcap.tcl line 1, set_fanout_load not supported.
 --- port_fanout_number ---
 --- input_transition ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
@@ -222,7 +222,7 @@ Driver pins
 Load pins
  buf2/A input (BUF_X1) 0.88-0.97
 
-Warning: search_sta_bidirect_extcap.tcl line 1, report_net -connections is deprecated.
+Warning 235: search_sta_bidirect_extcap.tcl line 1, report_net -connections is deprecated.
 Net n1
  Pin capacitance: 0.88-0.97
  Wire capacitance: 0.00
@@ -237,7 +237,7 @@ Driver pins
 Load pins
  buf1/A input (BUF_X1) 0.88-0.97
 
-Warning: search_sta_bidirect_extcap.tcl line 1, report_net -verbose is deprecated.
+Warning 236: search_sta_bidirect_extcap.tcl line 1, report_net -verbose is deprecated.
 Net n1
  Pin capacitance: 0.88-0.97
  Wire capacitance: 0.00
@@ -252,8 +252,8 @@ Driver pins
 Load pins
  buf1/A input (BUF_X1) 0.88-0.97
 
-Warning: search_sta_bidirect_extcap.tcl line 1, report_net -connections is deprecated.
-Warning: search_sta_bidirect_extcap.tcl line 1, report_net -verbose is deprecated.
+Warning 235: search_sta_bidirect_extcap.tcl line 1, report_net -connections is deprecated.
+Warning 236: search_sta_bidirect_extcap.tcl line 1, report_net -verbose is deprecated.
 Net n1
  Pin capacitance: 0.88-0.97
  Wire capacitance: 0.00
@@ -332,7 +332,7 @@ Path Type: max
 --- set_max_fanout ---
 max fanout
 
-Pin and1/ZN  
+Pin in1  
 max fanout      2
 fanout          1
 -----------------
@@ -455,7 +455,11 @@ slow_drivers(4): 4
   buf1
   buf2
 --- find_timing_paths combos ---
+Warning 502: search_sta_bidirect_extcap.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 1 path: 1
+Warning 502: search_sta_bidirect_extcap.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 5 paths: 6
+Warning 502: search_sta_bidirect_extcap.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min paths: 5
+Warning 502: search_sta_bidirect_extcap.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_max paths: 6

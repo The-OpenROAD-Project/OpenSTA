@@ -110,7 +110,7 @@ puts "inv2/ZN min fall slack: $ps2"
 puts "=== PATH QUERY ==="
 
 puts "--- find_timing_paths and path details ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 10]
+set paths [find_timing_paths -path_delay max -endpoint_count 5 -group_path_count 10]
 puts "Found [llength $paths] paths"
 foreach pe $paths {
   set p [$pe path]

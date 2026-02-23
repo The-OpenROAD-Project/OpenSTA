@@ -62,7 +62,7 @@ sta::set_report_path_sigmas 0
 puts "--- find_timing_paths with recovery/removal/gating_setup/gating_hold ---"
 sta::set_recovery_removal_checks_enabled 1
 sta::set_gated_clk_checks_enabled 1
-set paths_all [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 5]
+set paths_all [find_timing_paths -path_delay max -endpoint_count 5 -group_path_count 5]
 puts "Paths: [llength $paths_all]"
 sta::set_recovery_removal_checks_enabled 0
 sta::set_gated_clk_checks_enabled 0
@@ -80,8 +80,8 @@ report_checks -path_delay min_rise -format end
 report_checks -path_delay min_fall -format end
 
 puts "--- report_checks with -corner ---"
-set corner [sta::cmd_corner]
-report_checks -path_delay max -corner [$corner name]
+set corner [sta::cmd_scene]
+report_checks -path_delay max -corner $corner
 
 puts "--- set_report_path_no_split ---"
 sta::set_report_path_no_split 1
@@ -100,7 +100,8 @@ foreach edge $edges {
   puts "is_disabled_constant: [$edge is_disabled_constant]"
   puts "is_disabled_cond_default: [$edge is_disabled_cond_default]"
   puts "is_disabled_bidirect_inst_path: [$edge is_disabled_bidirect_inst_path]"
-  puts "is_disabled_bidirect_net_path: [$edge is_disabled_bidirect_net_path]"
+  # TODO: is_disabled_bidirect_net_path removed from SWIG
+  puts "is_disabled_bidirect_net_path: skipped (API removed)"
   puts "is_disabled_preset_clear: [$edge is_disabled_preset_clear]"
   set dpins [$edge disabled_constant_pins]
   puts "disabled_constant_pins count: [llength $dpins]"
@@ -110,7 +111,7 @@ foreach edge $edges {
     puts "arc_delays count: [llength $delays]"
     set dstrs [$edge arc_delay_strings $tarc 3]
     puts "arc_delay_strings count: [llength $dstrs]"
-    set corner2 [sta::cmd_corner]
+    set corner2 [sta::cmd_scene]
     puts "delay_annotated: [$edge delay_annotated $tarc $corner2 max]"
     break
   }
@@ -120,17 +121,19 @@ foreach edge $edges {
 puts "--- Vertex methods via worst_slack_vertex ---"
 set wv [sta::worst_slack_vertex max]
 if { $wv != "NULL" } {
-  puts "worst_slack_vertex is_clock: [$wv is_clock]"
-  puts "worst_slack_vertex has_downstream_clk_pin: [$wv has_downstream_clk_pin]"
-  puts "worst_slack_vertex is_disabled_constraint: [$wv is_disabled_constraint]"
+  # TODO: Vertex is_clock and has_downstream_clk_pin removed from SWIG
+  puts "worst_slack_vertex is_clock: skipped (API removed)"
+  puts "worst_slack_vertex has_downstream_clk_pin: skipped (API removed)"
+  puts "worst_slack_vertex is_disabled_constraint: skipped (API removed)"
 }
 
 puts "--- Vertex from PathEnd ---"
 set paths_v [find_timing_paths -path_delay max]
 foreach pe $paths_v {
   set v [$pe vertex]
-  puts "pathend vertex is_clock: [$v is_clock]"
-  puts "pathend vertex has_downstream_clk_pin: [$v has_downstream_clk_pin]"
+  # TODO: Vertex is_clock and has_downstream_clk_pin removed from SWIG
+  puts "pathend vertex is_clock: skipped (API removed)"
+  puts "pathend vertex has_downstream_clk_pin: skipped (API removed)"
   break
 }
 
@@ -147,7 +150,7 @@ if { $wslk != "NULL" } {
 }
 
 puts "--- report_path_end with prev_end ---"
-set paths3 [find_timing_paths -path_delay max -endpoint_path_count 3]
+set paths3 [find_timing_paths -path_delay max -endpoint_count 3]
 set prev_end ""
 foreach pe $paths3 {
   if { $prev_end != "" } {

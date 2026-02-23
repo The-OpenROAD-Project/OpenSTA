@@ -64,9 +64,9 @@ puts "--- Test 2: net capacitance queries ---"
 # Get capacitance for nets
 foreach net_name {n1 n2 n3 n4 n5 n6 n7 n8} {
   set net [get_nets $net_name]
-  set net_cap [$net capacitance [sta::cmd_corner] "max"]
-  set pin_cap [$net pin_capacitance [sta::cmd_corner] "max"]
-  set wire_cap [$net wire_capacitance [sta::cmd_corner] "max"]
+  set net_cap [$net capacitance [sta::cmd_scene] "max"]
+  set pin_cap [$net pin_capacitance [sta::cmd_scene] "max"]
+  set wire_cap [$net wire_capacitance [sta::cmd_scene] "max"]
   puts "$net_name: total_cap=$net_cap pin_cap=$pin_cap wire_cap=$wire_cap"
 }
 

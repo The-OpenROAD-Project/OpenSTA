@@ -140,7 +140,7 @@ Path Type: max
 
 
 --- generated clock divide_by ---
-Warning: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_alt)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -302,7 +302,7 @@ Path Type: max
 
 
 --- generated clock edges ---
-Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -1113,8 +1113,8 @@ Clock                   Period          Waveform
 ----------------------------------------------------
 clk2                     20.00        5.00     15.00
 --- read_sdc ---
-Warning: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1

@@ -331,7 +331,7 @@ v4 length: 2002
 --- Test 5: redirect file append ---
 No differences found.
 --- Test 6: error paths ---
-Warning: util_report_string_log_bad_verilog.v line 2, module NONEXISTENT_CELL not found. Creating black box for u1.
+Warning 198: util_report_string_log_bad_verilog.v line 2, module NONEXISTENT_CELL not found. Creating black box for u1.
 bad verilog loaded from static fixture: util_report_string_log_bad_verilog.v
 --- Test 7: message suppression ---
 --- Test 8: debug levels ---

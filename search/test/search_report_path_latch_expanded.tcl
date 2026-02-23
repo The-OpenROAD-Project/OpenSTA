@@ -64,7 +64,7 @@ report_checks -path_delay min -format full_clock -fields {capacitance slew fanou
 # find_timing_paths and iterate latch paths
 ############################################################
 puts "--- find_timing_paths latch iteration ---"
-set paths_max [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 20]
+set paths_max [find_timing_paths -path_delay max -endpoint_count 10 -group_path_count 20]
 puts "Max paths: [llength $paths_max]"
 foreach pe $paths_max {
   puts "  is_latch: [$pe is_latch_check] is_check: [$pe is_check] slack=[$pe slack]"
@@ -113,7 +113,7 @@ report_checks -path_delay min_max -format full_clock_expanded
 # PathEnd properties for latch paths
 ############################################################
 puts "--- Latch PathEnd properties ---"
-set paths_max2 [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 20]
+set paths_max2 [find_timing_paths -path_delay max -endpoint_count 10 -group_path_count 20]
 foreach pe $paths_max2 {
   if { [$pe is_latch_check] } {
     puts "Latch path found:"

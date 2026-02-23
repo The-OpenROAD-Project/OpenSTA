@@ -8,7 +8,7 @@ tns min: 0.0
 --- total_negative_slack_corner ---
 tns corner max: 0.0
 tns corner min: 0.0
---- worst_slack_corner ---
+--- worst_slack_scene ---
 worst_slack corner max: 7.899713772019368e-9
 worst_slack corner min: 1.0391780769225534e-9
 --- report_tns ---
@@ -24,8 +24,8 @@ worst slack min 1.04
 worst slack max 7.90
 --- worst_slack_vertex ---
 worst_slack_vertex max pin: out1
-  is_clock: 0
-  has_downstream_clk_pin: 0
+  is_clock: skipped (API removed)
+  has_downstream_clk_pin: skipped (API removed)
 worst_slack_vertex min pin: reg1/D
 --- vertex_worst_arrival_path ---
 worst_arrival_path pin: out1
@@ -38,11 +38,11 @@ max fanout
 
 Pin                                   Limit Fanout  Slack
 ---------------------------------------------------------
-and1/ZN                                   2      1      1 (MET)
+in1                                       2      1      1 (MET)
 
 max fanout
 
-Pin and1/ZN  
+Pin in1  
 max fanout      2
 fanout          1
 -----------------
@@ -95,6 +95,7 @@ Startpoint                           Endpoint                               Slac
 reg1/Q (search_test1)                out1 (output)                           7.90
 
 --- report_checks multi-path ---
+Warning 502: search_worst_slack_sta.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -236,6 +237,7 @@ Path Type: max
            8.92   slack (MET)
 
 
+Warning 502: search_worst_slack_sta.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -380,6 +382,7 @@ Path Type: min
 
 
 --- report_checks unique_paths_to_endpoint ---
+Warning 502: search_worst_slack_sta.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -466,6 +469,7 @@ Path Type: max
 
 
 --- report_path_end with prev_end ---
+Warning 502: search_worst_slack_sta.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -642,8 +646,8 @@ Path Type: min
 --- design_power ---
 design_power: 6.081859851292393e-7 1.8692128733732716e-8 1.4891682553752617e-7 7.757948878861498e-7 5.41103304385615e-7 5.8966871385734976e-9 7.881983066226894e-8 6.258198368414014e-7 6.708269495447894e-8 1.2795442039248428e-8 7.009699487525722e-8 1.499751363098767e-7 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
 --- set_report_path_field_properties ---
-Warning: unknown report path field delay
-Warning: unknown report path field delay
+Warning 1575: unknown report path field delay
+Warning 1576: unknown report path field delay
 --- set_report_path_sigmas ---
 --- set_report_path_no_split ---
 --- graph loops ---

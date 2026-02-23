@@ -321,6 +321,7 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 
 --- find_timing_paths genclk domain ---
+Warning 502: search_genclk_property_report.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 GenClk max paths: 2
   pin=out2 slack=1.889971379398503e-8
     is_check: 0 is_output: 1

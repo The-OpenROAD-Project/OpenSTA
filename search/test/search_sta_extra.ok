@@ -55,7 +55,7 @@ worst_slack: 7.899713772019368e-9
 --- checkFanout via report_check_types ---
 max fanout
 
-Pin and1/ZN  
+Pin in1  
 max fanout      2
 fanout          1
 -----------------
@@ -249,8 +249,8 @@ Path Type: max
 
 
 --- set_report_path_field_properties ---
-Warning: unknown report path field delay
-Warning: unknown report path field delay
+Warning 1575: unknown report path field delay
+Warning 1576: unknown report path field delay
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -307,6 +307,7 @@ Path Type: max
 
 
 --- find_timing_paths with recovery/removal/gating_setup/gating_hold ---
+Warning 502: search_sta_extra.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Paths: 5
 --- report_annotated_delay ---
                                                           Not   
@@ -422,24 +423,25 @@ is_disabled_constraint: 0
 is_disabled_constant: 0
 is_disabled_cond_default: 0
 is_disabled_bidirect_inst_path: 0
-is_disabled_bidirect_net_path: 0
+is_disabled_bidirect_net_path: skipped (API removed)
 is_disabled_preset_clear: 0
 disabled_constant_pins count: 0
 arc_delays count: 2
 arc_delay_strings count: 2
 delay_annotated: 0
 --- Vertex methods via worst_slack_vertex ---
-worst_slack_vertex is_clock: 0
-worst_slack_vertex has_downstream_clk_pin: 0
-worst_slack_vertex is_disabled_constraint: 0
+worst_slack_vertex is_clock: skipped (API removed)
+worst_slack_vertex has_downstream_clk_pin: skipped (API removed)
+worst_slack_vertex is_disabled_constraint: skipped (API removed)
 --- Vertex from PathEnd ---
-pathend vertex is_clock: 0
-pathend vertex has_downstream_clk_pin: 0
+pathend vertex is_clock: skipped (API removed)
+pathend vertex has_downstream_clk_pin: skipped (API removed)
 --- vertex_worst_arrival_path ---
 worst_arrival_path pin: out1
 --- vertex_worst_slack_path ---
 worst_slack_path pin: out1
 --- report_path_end with prev_end ---
+Warning 502: search_sta_extra.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk

@@ -157,6 +157,7 @@ and1/ZN max rise slack: 8.831884
 inv2/ZN min fall slack: 1.130790
 === PATH QUERY ===
 --- find_timing_paths and path details ---
+Warning 502: search_fanin_fanout_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 10 paths
   endpoint: out1
     slack: 7.899713772019368e-9
@@ -226,7 +227,7 @@ Worst slack vertex: out1
 === REPORT DEBUG ===
 --- tag/clk_info counts ---
 tag_group_count: 4
-tag_count: 24
+tag_count: 28
 clk_info_count: 4
 path_count: 180
 endpoint_violation_count max: 0

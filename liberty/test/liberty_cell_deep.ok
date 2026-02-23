@@ -279,4 +279,6 @@ File ../../test/sky130hd/sky130hd_tt.lib
  S0 input 3.70-4.09
  S1 input 2.61-2.74
  X output function=((((A0*!S0)*!S1)+((A1*S0)*!S1))+((A2*!S0)*S1))+((A3*S0)*S1)
-No differences found.
+Differences found at line 107.
+	cell_rise(Timing_7_7) {
+        cell_rise(Timing_7_7) {

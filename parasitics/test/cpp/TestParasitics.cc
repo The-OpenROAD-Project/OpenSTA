@@ -584,38 +584,13 @@ TEST_F(ConcreteParasiticBaseTest, BaseElmoreNotFound) {
   EXPECT_FALSE(exists);
 }
 
-////////////////////////////////////////////////////////////////
-// ParasiticAnalysisPt tests
+// ParasiticAnalysisPt class was removed from the API.
 
 } // namespace sta
 
 #include "Parasitics.hh"
 
 namespace sta {
-
-class ParasiticAnalysisPtTest : public ::testing::Test {};
-
-TEST_F(ParasiticAnalysisPtTest, Construction) {
-  ParasiticAnalysisPt apt("test_ap", 0, 0);
-  EXPECT_STREQ(apt.name(), "test_ap");
-  EXPECT_EQ(apt.index(), 0);
-  EXPECT_EQ(apt.indexMax(), 0);
-  EXPECT_FLOAT_EQ(apt.couplingCapFactor(), 1.0f);
-}
-
-TEST_F(ParasiticAnalysisPtTest, SetCouplingCapFactor) {
-  ParasiticAnalysisPt apt("test", 1, 2);
-  apt.setCouplingCapFactor(0.5f);
-  EXPECT_FLOAT_EQ(apt.couplingCapFactor(), 0.5f);
-  apt.setCouplingCapFactor(2.0f);
-  EXPECT_FLOAT_EQ(apt.couplingCapFactor(), 2.0f);
-}
-
-TEST_F(ParasiticAnalysisPtTest, IndexMax) {
-  ParasiticAnalysisPt apt("test", 3, 5);
-  EXPECT_EQ(apt.index(), 3);
-  EXPECT_EQ(apt.indexMax(), 5);
-}
 
 ////////////////////////////////////////////////////////////////
 // ConcreteParasitic base class virtual method coverage
@@ -966,9 +941,9 @@ TEST_F(ConcreteParasiticBaseVirtualTest, PiPoleResidueZero) {
 #include <tcl.h>
 #include "Sta.hh"
 #include "ReportTcl.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "parasitics/ConcreteParasitics.hh"
-#include "MakeConcreteParasitics.hh"
+// MakeConcreteParasitics.hh removed - makeConcreteParasitics is now a Sta method
 
 namespace sta {
 
@@ -997,105 +972,105 @@ protected:
 
 // Test ConcreteParasitics haveParasitics initially false
 TEST_F(StaParasiticsTest, HaveParasiticsInitiallyFalse) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ASSERT_NE(parasitics, nullptr);
   EXPECT_FALSE(parasitics->haveParasitics());
 }
 
 // Test ConcreteParasitics clear does not crash when empty
 TEST_F(StaParasiticsTest, ClearEmpty) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   parasitics->clear();
   EXPECT_FALSE(parasitics->haveParasitics());
 }
 
 // Test ConcreteParasitics deleteParasitics does not crash when empty
 TEST_F(StaParasiticsTest, DeleteParasiticsEmpty) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   parasitics->deleteParasitics();
   EXPECT_FALSE(parasitics->haveParasitics());
 }
 
 // Test isPiElmore with nullptr returns false
 TEST_F(StaParasiticsTest, IsPiElmoreNull) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   EXPECT_TRUE(parasitics->isPiElmore(&pe));
 }
 
 // Test isPiElmore with ConcretePoleResidue returns false
 TEST_F(StaParasiticsTest, IsPiElmorePoleResidue) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePoleResidue pr;
   EXPECT_FALSE(parasitics->isPiElmore(&pr));
 }
 
 // Test isPiModel with pi elmore
 TEST_F(StaParasiticsTest, IsPiModelPiElmore) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   EXPECT_TRUE(parasitics->isPiModel(&pe));
 }
 
 // Test isPiModel with pole residue (not a pi model)
 TEST_F(StaParasiticsTest, IsPiModelPoleResidue) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePoleResidue pr;
   EXPECT_FALSE(parasitics->isPiModel(&pr));
 }
 
 // Test isPiPoleResidue
 TEST_F(StaParasiticsTest, IsPiPoleResidue) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiPoleResidue pipr(1e-12f, 100.0f, 2e-12f);
   EXPECT_TRUE(parasitics->isPiPoleResidue(&pipr));
 }
 
 // Test isPiPoleResidue with pi elmore (false)
 TEST_F(StaParasiticsTest, IsPiPoleResidueElmore) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   EXPECT_FALSE(parasitics->isPiPoleResidue(&pe));
 }
 
 // Test isPoleResidue
 TEST_F(StaParasiticsTest, IsPoleResidue) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePoleResidue pr;
   EXPECT_TRUE(parasitics->isPoleResidue(&pr));
 }
 
 // Test isPoleResidue with PiElmore (false)
 TEST_F(StaParasiticsTest, IsPoleResiduePiElmore) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   EXPECT_FALSE(parasitics->isPoleResidue(&pe));
 }
 
 // Test isParasiticNetwork with pi elmore (false)
 TEST_F(StaParasiticsTest, IsParasiticNetworkPiElmore) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   EXPECT_FALSE(parasitics->isParasiticNetwork(&pe));
 }
 
 // Test capacitance through parasitics API
 TEST_F(StaParasiticsTest, CapacitancePiElmore) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(3e-12f, 100.0f, 7e-12f);
   EXPECT_FLOAT_EQ(parasitics->capacitance(&pe), 10e-12f);
 }
 
 // Test capacitance through parasitics API for PiPoleResidue
 TEST_F(StaParasiticsTest, CapacitancePiPoleResidue) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiPoleResidue pipr(5e-12f, 200.0f, 3e-12f);
   EXPECT_FLOAT_EQ(parasitics->capacitance(&pipr), 8e-12f);
 }
 
 // Test piModel through parasitics API
 TEST_F(StaParasiticsTest, PiModelApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 50.0f, 2e-12f);
   float c2, rpi, c1;
   parasitics->piModel(&pe, c2, rpi, c1);
@@ -1106,7 +1081,7 @@ TEST_F(StaParasiticsTest, PiModelApi) {
 
 // Test setPiModel through parasitics API
 TEST_F(StaParasiticsTest, SetPiModelApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(0.0f, 0.0f, 0.0f);
   parasitics->setPiModel(&pe, 5e-12f, 200.0f, 3e-12f);
   float c2, rpi, c1;
@@ -1118,7 +1093,7 @@ TEST_F(StaParasiticsTest, SetPiModelApi) {
 
 // Test findElmore/setElmore through parasitics API
 TEST_F(StaParasiticsTest, ElmoreApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   int dummy = 1;
   const Pin *pin = reinterpret_cast<const Pin*>(&dummy);
@@ -1136,7 +1111,7 @@ TEST_F(StaParasiticsTest, ElmoreApi) {
 
 // Test isReducedParasiticNetwork / setIsReducedParasiticNetwork
 TEST_F(StaParasiticsTest, IsReducedApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   EXPECT_FALSE(parasitics->isReducedParasiticNetwork(&pe));
   parasitics->setIsReducedParasiticNetwork(&pe, true);
@@ -1147,7 +1122,7 @@ TEST_F(StaParasiticsTest, IsReducedApi) {
 
 // Test findPoleResidue through parasitics API
 TEST_F(StaParasiticsTest, FindPoleResidueApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiPoleResidue pipr(1e-12f, 100.0f, 2e-12f);
   int dummy = 1;
   const Pin *pin = reinterpret_cast<const Pin*>(&dummy);
@@ -1166,7 +1141,7 @@ TEST_F(StaParasiticsTest, FindPoleResidueApi) {
 
 // Test poleResidueCount through parasitics API
 TEST_F(StaParasiticsTest, PoleResidueCountApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePoleResidue pr;
   ComplexFloatSeq *poles = new ComplexFloatSeq;
   ComplexFloatSeq *residues = new ComplexFloatSeq;
@@ -1180,7 +1155,7 @@ TEST_F(StaParasiticsTest, PoleResidueCountApi) {
 
 // Test poleResidue through parasitics API
 TEST_F(StaParasiticsTest, PoleResidueApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePoleResidue pr;
   ComplexFloatSeq *poles = new ComplexFloatSeq;
   ComplexFloatSeq *residues = new ComplexFloatSeq;
@@ -1198,35 +1173,31 @@ TEST_F(StaParasiticsTest, PoleResidueApi) {
 
 // Test findParasiticNetwork with no networks returns nullptr
 TEST_F(StaParasiticsTest, FindParasiticNetworkEmpty) {
-  Parasitics *parasitics = sta_->parasitics();
-  ParasiticAnalysisPt apt("test", 0, 0);
-  EXPECT_EQ(parasitics->findParasiticNetwork(static_cast<const Net*>(nullptr), &apt), nullptr);
+  Parasitics *parasitics = sta_->findParasitics("default");
+  EXPECT_EQ(parasitics->findParasiticNetwork(static_cast<const Net*>(nullptr)), nullptr);
 }
 
 // Test findParasiticNetwork (pin version) with no networks returns nullptr
 TEST_F(StaParasiticsTest, FindParasiticNetworkPinEmpty) {
-  Parasitics *parasitics = sta_->parasitics();
-  ParasiticAnalysisPt apt("test", 0, 0);
-  EXPECT_EQ(parasitics->findParasiticNetwork(static_cast<const Pin*>(nullptr), &apt), nullptr);
+  Parasitics *parasitics = sta_->findParasitics("default");
+  EXPECT_EQ(parasitics->findParasiticNetwork(static_cast<const Pin*>(nullptr)), nullptr);
 }
 
 // Test findPiElmore with no parasitics returns nullptr
 TEST_F(StaParasiticsTest, FindPiElmoreEmpty) {
-  Parasitics *parasitics = sta_->parasitics();
-  ParasiticAnalysisPt apt("test", 0, 0);
-  EXPECT_EQ(parasitics->findPiElmore(nullptr, RiseFall::rise(), &apt), nullptr);
+  Parasitics *parasitics = sta_->findParasitics("default");
+  EXPECT_EQ(parasitics->findPiElmore(nullptr, RiseFall::rise(), MinMax::max()), nullptr);
 }
 
 // Test findPiPoleResidue with no parasitics returns nullptr
 TEST_F(StaParasiticsTest, FindPiPoleResidueEmpty) {
-  Parasitics *parasitics = sta_->parasitics();
-  ParasiticAnalysisPt apt("test", 0, 0);
-  EXPECT_EQ(parasitics->findPiPoleResidue(nullptr, RiseFall::rise(), &apt), nullptr);
+  Parasitics *parasitics = sta_->findParasitics("default");
+  EXPECT_EQ(parasitics->findPiPoleResidue(nullptr, RiseFall::rise(), MinMax::max()), nullptr);
 }
 
 // Test ConcreteParasiticNode accessor for net-based node
 TEST_F(StaParasiticsTest, NodeAccessorNetBased) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasiticNode node(static_cast<const Net*>(nullptr), 5, false);
   ParasiticNode *pnode = &node;
 
@@ -1239,7 +1210,7 @@ TEST_F(StaParasiticsTest, NodeAccessorNetBased) {
 
 // Test ConcreteParasiticNode accessor for external node
 TEST_F(StaParasiticsTest, NodeAccessorExternal) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasiticNode node(static_cast<const Net*>(nullptr), 10, true);
   ParasiticNode *pnode = &node;
   EXPECT_TRUE(parasitics->isExternal(pnode));
@@ -1248,7 +1219,7 @@ TEST_F(StaParasiticsTest, NodeAccessorExternal) {
 
 // Test incrCap through parasitics API
 TEST_F(StaParasiticsTest, IncrCapApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasiticNode node(static_cast<const Net*>(nullptr), 0, false);
   ParasiticNode *pnode = &node;
   parasitics->incrCap(pnode, 5e-15f);
@@ -1259,7 +1230,7 @@ TEST_F(StaParasiticsTest, IncrCapApi) {
 
 // Test ConcreteParasiticResistor accessors through parasitics API
 TEST_F(StaParasiticsTest, ResistorAccessorsApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
   ConcreteParasiticResistor res(7, 500.0f, &node1, &node2);
@@ -1273,7 +1244,7 @@ TEST_F(StaParasiticsTest, ResistorAccessorsApi) {
 
 // Test ConcreteParasiticCapacitor accessors through parasitics API
 TEST_F(StaParasiticsTest, CapacitorAccessorsApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
   ConcreteParasiticCapacitor cap(3, 1e-15f, &node1, &node2);
@@ -1287,7 +1258,7 @@ TEST_F(StaParasiticsTest, CapacitorAccessorsApi) {
 
 // Test otherNode for resistors
 TEST_F(StaParasiticsTest, OtherNodeResistor) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
   ConcreteParasiticNode node3(static_cast<const Net*>(nullptr), 3, false);
@@ -1301,7 +1272,7 @@ TEST_F(StaParasiticsTest, OtherNodeResistor) {
 
 // Test otherNode for capacitors
 TEST_F(StaParasiticsTest, OtherNodeCapacitor) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
   ConcreteParasiticNode node3(static_cast<const Net*>(nullptr), 3, false);
@@ -1315,7 +1286,7 @@ TEST_F(StaParasiticsTest, OtherNodeCapacitor) {
 
 // Test parasiticNodeResistorMap
 TEST_F(StaParasiticsTest, ParasiticNodeResistorMap) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   // Create a simple parasitic network structure using ConcreteParasiticNetwork
   // For this we can create devices manually and query the map
 
@@ -1333,7 +1304,7 @@ TEST_F(StaParasiticsTest, ParasiticNodeResistorMap) {
 // Test findNode (deprecated) - delegates to findParasiticNode
 TEST_F(StaParasiticsTest, FindNodeDeprecated) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   // findNode on non-network parasitic should work but return nullptr
   // since it's not a parasitic network
@@ -1346,7 +1317,7 @@ TEST_F(StaParasiticsTest, FindNodeDeprecated) {
 // Test unannotatedLoads through parasitics API with PiElmore
 TEST_F(StaParasiticsTest, UnannotatedLoadsPiElmore) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   // With no network loads, should just return what parasitics->loads returns
   // which needs a connected pin. With nullptr pin, this will likely crash
@@ -1357,7 +1328,7 @@ TEST_F(StaParasiticsTest, UnannotatedLoadsPiElmore) {
 
 // Test ConcreteParasiticNode with pin-based construction
 TEST_F(StaParasiticsTest, NodePinAccessor) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   int dummy = 42;
   const Pin *pin = reinterpret_cast<const Pin*>(&dummy);
   ConcreteParasiticNode node(pin, true);
@@ -1368,23 +1339,7 @@ TEST_F(StaParasiticsTest, NodePinAccessor) {
   EXPECT_EQ(parasitics->netId(pnode), 0u);
 }
 
-// Test ParasiticAnalysisPt name with special characters
-TEST_F(StaParasiticsTest, ParasiticAnalysisPtSpecialName) {
-  ParasiticAnalysisPt apt("test/special:name", 2, 4);
-  EXPECT_STREQ(apt.name(), "test/special:name");
-  EXPECT_EQ(apt.index(), 2);
-  EXPECT_EQ(apt.indexMax(), 4);
-}
-
-// Test multiple setCouplingCapFactor calls
-TEST_F(StaParasiticsTest, CouplingCapFactorMultiple) {
-  ParasiticAnalysisPt apt("test", 0, 0);
-  EXPECT_FLOAT_EQ(apt.couplingCapFactor(), 1.0f);
-  apt.setCouplingCapFactor(0.0f);
-  EXPECT_FLOAT_EQ(apt.couplingCapFactor(), 0.0f);
-  apt.setCouplingCapFactor(3.14f);
-  EXPECT_FLOAT_EQ(apt.couplingCapFactor(), 3.14f);
-}
+// ParasiticAnalysisPt tests removed - class no longer exists.
 
 // Test ConcreteParasiticNetwork nodes() with no nodes
 TEST_F(StaParasiticsTest, ParasiticNetworkEmptyNodes) {
@@ -1475,7 +1430,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkFindPinNodeNotFound) {
 
 // Test ConcreteParasitics net() on parasitic network
 TEST_F(StaParasiticsTest, ConcreteParasiticsNetOnNetwork) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   // net() on isParasiticNetwork returns the net
@@ -1485,7 +1440,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsNetOnNetwork) {
 
 // Test ConcreteParasitics includesPinCaps
 TEST_F(StaParasiticsTest, ConcreteParasiticsIncludesPinCaps) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, true, network);
   EXPECT_TRUE(parasitics->includesPinCaps(static_cast<Parasitic*>(&pnet)));
@@ -1493,7 +1448,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsIncludesPinCaps) {
 
 // Test ConcreteParasitics nodes
 TEST_F(StaParasiticsTest, ConcreteParasiticsNodes) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   ParasiticNodeSeq nodes = parasitics->nodes(static_cast<Parasitic*>(&pnet));
@@ -1502,7 +1457,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsNodes) {
 
 // Test ConcreteParasitics resistors
 TEST_F(StaParasiticsTest, ConcreteParasiticsResistors) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   ParasiticResistorSeq res = parasitics->resistors(static_cast<Parasitic*>(&pnet));
@@ -1511,7 +1466,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsResistors) {
 
 // Test ConcreteParasitics capacitors
 TEST_F(StaParasiticsTest, ConcreteParasiticsCapacitors) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   ParasiticCapacitorSeq caps = parasitics->capacitors(static_cast<Parasitic*>(&pnet));
@@ -1520,7 +1475,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsCapacitors) {
 
 // Test findParasiticNode (net,id) on ConcreteParasiticNetwork
 TEST_F(StaParasiticsTest, FindParasiticNodeNetId) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   // Nothing in the network, so findParasiticNode should return nullptr
@@ -1530,7 +1485,7 @@ TEST_F(StaParasiticsTest, FindParasiticNodeNetId) {
 
 // Test findParasiticNode (pin) on ConcreteParasiticNetwork
 TEST_F(StaParasiticsTest, FindParasiticNodePin) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   EXPECT_EQ(parasitics->findParasiticNode(static_cast<const Parasitic*>(&pnet),
@@ -1539,7 +1494,7 @@ TEST_F(StaParasiticsTest, FindParasiticNodePin) {
 
 // Test makeResistor/makeCapacitor through ConcreteParasitics API
 TEST_F(StaParasiticsTest, MakeResistorCapacitorApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   Parasitic *ppnet = static_cast<Parasitic*>(&pnet);
@@ -1571,7 +1526,7 @@ TEST_F(StaParasiticsTest, MakeResistorCapacitorApi) {
 
 // Test parasiticNodeResistorMap
 TEST_F(StaParasiticsTest, ParasiticNodeResistorMapApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   Parasitic *ppnet = static_cast<Parasitic*>(&pnet);
@@ -1598,7 +1553,7 @@ TEST_F(StaParasiticsTest, ParasiticNodeResistorMapApi) {
 
 // Test parasiticNodeCapacitorMap
 TEST_F(StaParasiticsTest, ParasiticNodeCapacitorMapApi) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   Parasitic *ppnet = static_cast<Parasitic*>(&pnet);
@@ -1619,14 +1574,14 @@ TEST_F(StaParasiticsTest, ParasiticNodeCapacitorMapApi) {
 
 // Test ConcretePoleResidue::capacitance() returns 0
 TEST_F(StaParasiticsTest, PoleResidueCapacitance) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePoleResidue pr;
   EXPECT_FLOAT_EQ(parasitics->capacitance(&pr), 0.0f);
 }
 
 // Test ConcretePiPoleResidue::isPiModel()
 TEST_F(StaParasiticsTest, PiPoleResidueIsPiModel) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiPoleResidue pipr(1e-12f, 100.0f, 2e-12f);
   EXPECT_TRUE(parasitics->isPiModel(&pipr));
 }
@@ -1634,7 +1589,7 @@ TEST_F(StaParasiticsTest, PiPoleResidueIsPiModel) {
 // Test Parasitics::report() on PiElmore
 TEST_F(StaParasiticsTest, ReportPiElmore) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   // report() is a base class no-op, should not crash
   parasitics->report(&pe);
@@ -1656,10 +1611,9 @@ TEST_F(StaParasiticsTest, NetworkDisconnectPin) {
 // Test ConcreteParasitics deleteParasitics (Pin overload)
 TEST_F(StaParasiticsTest, DeleteParasiticsPin) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   // Should not crash with nullptr
-  parasitics->deleteParasitics(static_cast<const Pin*>(nullptr),
-                                static_cast<const ParasiticAnalysisPt*>(nullptr));
+  parasitics->deleteParasitics(static_cast<const Pin*>(nullptr));
 
   }() ));
 }
@@ -1667,10 +1621,10 @@ TEST_F(StaParasiticsTest, DeleteParasiticsPin) {
 // Test ConcreteParasitics deleteParasiticNetworks
 TEST_F(StaParasiticsTest, DeleteParasiticNetworks) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasitics *concrete = dynamic_cast<ConcreteParasitics*>(parasitics);
   if (concrete) {
-    concrete->deleteParasiticNetworks(nullptr);
+    concrete->deleteParasiticNetwork(nullptr);
   }
 
   }() ));
@@ -1679,7 +1633,7 @@ TEST_F(StaParasiticsTest, DeleteParasiticNetworks) {
 // Test ConcreteParasitics deletePinBefore
 TEST_F(StaParasiticsTest, DeletePinBefore) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasitics *concrete = dynamic_cast<ConcreteParasitics*>(parasitics);
   if (concrete) {
     concrete->deletePinBefore(nullptr);
@@ -1804,7 +1758,6 @@ protected:
 TEST_F(ReduceParasiticsTest, ReduceNoDrvrNode) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
-  ParasiticAnalysisPt apt("test", 0, 0);
 
   // No driver node in the network, so reduction returns nullptr
   Parasitic *result = reduceToPiElmore(
@@ -1812,9 +1765,8 @@ TEST_F(ReduceParasiticsTest, ReduceNoDrvrNode) {
     nullptr,  // drvr_pin
     RiseFall::rise(),
     1.0f,  // coupling_cap_factor
-    nullptr,  // corner
+    sta_->cmdScene(),  // scene
     MinMax::max(),
-    &apt,
     sta_);
   EXPECT_EQ(result, nullptr);
 }
@@ -1827,16 +1779,14 @@ TEST_F(ReduceParasiticsTest, ReduceNoDrvrNode) {
 TEST_F(ReduceParasiticsTest, ReducePoleResidue2NoDrvrNode) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
-  ParasiticAnalysisPt apt("test", 0, 0);
 
   Parasitic *result = reduceToPiPoleResidue2(
     static_cast<const Parasitic*>(&pnet),
     nullptr,
     RiseFall::rise(),
     1.0f,
-    nullptr,
+    sta_->cmdScene(),  // scene
     MinMax::max(),
-    &apt,
     sta_);
   EXPECT_EQ(result, nullptr);
 }
@@ -1881,22 +1831,19 @@ TEST_F(ReduceParasiticsTest, ConcreteParasiticDeleteViaBasePtr) {
   delete cp;  // triggers ConcreteParasitic D0 destructor through virtual dispatch
 }
 
-// Test parasiticAnalysisPtIndex is protected - test indirectly through
-// the public API that uses it (e.g., deleteParasitics with Pin/apt)
-TEST_F(ReduceParasiticsTest, ParasiticAnalysisPtViaDeleteParasiticsPin) {
+// Test deleteParasitics with Pin - no longer takes ParasiticAnalysisPt
+TEST_F(ReduceParasiticsTest, DeleteParasiticsPin) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->parasitics();
-  ParasiticAnalysisPt apt("test", 0, 0);
-  // deleteParasitics(Pin*, apt*) internally calls parasiticAnalysisPtIndex
-  // With nullptr pin, it creates an entry in the map but finds no parasitics
-  parasitics->deleteParasitics(static_cast<const Pin*>(nullptr), &apt);
+  Parasitics *parasitics = sta_->findParasitics("default");
+  // deleteParasitics(Pin*) - With nullptr pin should not crash
+  parasitics->deleteParasitics(static_cast<const Pin*>(nullptr));
 
   }() ));
 }
 
 // Test Parasitics::findNode(Parasitic, Pin) base class implementation
 TEST_F(ReduceParasiticsTest, FindNodePinBase) {
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(nullptr, false, network);
   // findNode with nullptr pin on empty network (suppress deprecation warning)
@@ -1940,7 +1887,7 @@ TEST_F(ReduceParasiticsTest, RspfPiSingleValues) {
 // This is a no-op when net is nullptr because drivers() returns empty
 TEST_F(ReduceParasiticsTest, DeleteParasiticsNetApt) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasitics *concrete = dynamic_cast<ConcreteParasitics*>(parasitics);
   if (concrete) {
     // This would normally require a real net with drivers
@@ -1981,7 +1928,7 @@ protected:
       report->setTclInterp(interp_);
 
     // Read ASAP7 liberty files (need at least SEQ, INVBUF, SIMPLE, OA, AO)
-    Corner *corner = sta_->cmdCorner();
+    Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     bool infer_latches = false;
 
@@ -2036,8 +1983,9 @@ protected:
 // Test reading SPEF with reduction (exercises ReduceToPiElmore, ReduceToPi methods)
 TEST_F(DesignParasiticsTest, ReadSpefWithReduction) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
+  Scene *corner = sta_->cmdScene();
   bool success = sta_->readSpef(
+    "",
     "test/reg1_asap7.spef",
     sta_->network()->topInstance(), // instance
     corner,          // corner
@@ -2049,15 +1997,16 @@ TEST_F(DesignParasiticsTest, ReadSpefWithReduction) {
   EXPECT_TRUE(success);
 
   // Parasitics should now be loaded
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   EXPECT_TRUE(parasitics->haveParasitics());
 }
 
 // Test reading SPEF without reduction (keeps parasitic networks)
 TEST_F(DesignParasiticsTest, ReadSpefNoReduction) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
+  Scene *corner = sta_->cmdScene();
   bool success = sta_->readSpef(
+    "",
     "test/reg1_asap7.spef",
     sta_->network()->topInstance(),
     corner,
@@ -2067,27 +2016,27 @@ TEST_F(DesignParasiticsTest, ReadSpefNoReduction) {
     1.0f,
     false);          // no reduction - keeps networks
   EXPECT_TRUE(success);
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   EXPECT_TRUE(parasitics->haveParasitics());
 }
 
 // Test reportParasiticAnnotation (exercises ReportParasiticAnnotation class)
 TEST_F(DesignParasiticsTest, ReportParasiticAnnotation) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, true);
   // Report annotated - exercises ReportParasiticAnnotation::report()
-  sta_->reportParasiticAnnotation(false, corner);
+  sta_->reportParasiticAnnotation("", false);
   // Report unannotated
-  sta_->reportParasiticAnnotation(true, corner);
+  sta_->reportParasiticAnnotation("", true);
 }
 
 // Test that after reading SPEF with reduce, findPiElmore returns results
 TEST_F(DesignParasiticsTest, FindPiElmoreAfterReduce) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, true);
 
   // Find a driver pin and query its reduced parasitic
@@ -2115,11 +2064,11 @@ TEST_F(DesignParasiticsTest, FindPiElmoreAfterReduce) {
 // Test deleteParasitics(Net*, apt*) after loading design
 TEST_F(DesignParasiticsTest, DeleteParasiticsNet) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, true);
 
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasitics *concrete = dynamic_cast<ConcreteParasitics*>(parasitics);
   ASSERT_NE(concrete, nullptr);
 
@@ -2132,12 +2081,8 @@ TEST_F(DesignParasiticsTest, DeleteParasiticsNet) {
     if (y_pin) {
       const Net *net = network->net(y_pin);
       if (net) {
-        const MinMax *mm = MinMax::max();
-        const Corner *c = sta_->cmdCorner();
-        ParasiticAnalysisPt *ap = c->findParasiticAnalysisPt(mm);
-        // This exercises deleteParasitics(Net*, ParasiticAnalysisPt*)
-        // which calls network_->drivers(net) and parasiticAnalysisPtIndex
-        concrete->deleteParasitics(net, ap);
+        // deleteParasitics(Net*) no longer takes ParasiticAnalysisPt
+        concrete->deleteParasitics(net);
       }
     }
   }
@@ -2146,13 +2091,13 @@ TEST_F(DesignParasiticsTest, DeleteParasiticsNet) {
 // Test ConcretePiPoleResidue::unannotatedLoads with real design
 TEST_F(DesignParasiticsTest, UnannotatedLoadsWithDesign) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, true);
 
   // ConcretePiPoleResidue::unannotatedLoads requires real pins
   // Build a pipr and check unannotatedLoads with real parasitics API
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiPoleResidue pipr(1e-12f, 100.0f, 2e-12f);
 
   // Get a real pin from the design
@@ -2172,8 +2117,8 @@ TEST_F(DesignParasiticsTest, UnannotatedLoadsWithDesign) {
 // Test reading SPEF and then running timing to exercise parasitic queries
 TEST_F(DesignParasiticsTest, TimingWithParasitics) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, true);
 
   // Create clock and set constraints via C++ API
@@ -2194,7 +2139,8 @@ TEST_F(DesignParasiticsTest, TimingWithParasitics) {
     waveform->push_back(0.0f);
     waveform->push_back(250.0f);
 
-    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, nullptr);
+    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, nullptr,
+                    sta_->cmdMode());
 
     // Run timing update to exercise delay calculation with parasitics
     sta_->updateTiming(true);
@@ -2204,8 +2150,9 @@ TEST_F(DesignParasiticsTest, TimingWithParasitics) {
 // Test SPEF reduction with coupling cap factor
 TEST_F(DesignParasiticsTest, ReadSpefWithCouplingCapFactor) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
+  Scene *corner = sta_->cmdScene();
   bool success = sta_->readSpef(
+    "",
     "test/reg1_asap7.spef",
     sta_->network()->topInstance(),
     corner,
@@ -2220,8 +2167,9 @@ TEST_F(DesignParasiticsTest, ReadSpefWithCouplingCapFactor) {
 // Test reading SPEF with pin_cap_included
 TEST_F(DesignParasiticsTest, ReadSpefPinCapIncluded) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
+  Scene *corner = sta_->cmdScene();
   bool success = sta_->readSpef(
+    "",
     "test/reg1_asap7.spef",
     sta_->network()->topInstance(),
     corner,
@@ -2236,12 +2184,12 @@ TEST_F(DesignParasiticsTest, ReadSpefPinCapIncluded) {
 // Test reduceToPiElmore with a real driver pin from the design
 TEST_F(DesignParasiticsTest, ReduceWithRealDriver) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
+  Scene *corner = sta_->cmdScene();
   // Read SPEF WITHOUT reduction to keep the networks
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, false);
 
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   Network *network = sta_->network();
   Instance *top = network->topInstance();
 
@@ -2251,15 +2199,14 @@ TEST_F(DesignParasiticsTest, ReduceWithRealDriver) {
     Pin *y_pin = network->findPin(u1, "Y");
     if (y_pin) {
       const MinMax *mm = MinMax::max();
-      ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
       const Net *net = network->net(y_pin);
       if (net) {
-        Parasitic *pnet = parasitics->findParasiticNetwork(net, ap);
+        Parasitic *pnet = parasitics->findParasiticNetwork(net);
         if (pnet) {
           // Reduce this network - exercises ReduceToPi and ReduceToPiElmore
           Parasitic *reduced = reduceToPiElmore(
             pnet, y_pin, RiseFall::rise(), 1.0f,
-            corner, mm, ap, sta_);
+            corner, mm, sta_);
           if (reduced) {
             // Verify we got a valid reduced model
             float c2, rpi, c1;
@@ -2275,11 +2222,11 @@ TEST_F(DesignParasiticsTest, ReduceWithRealDriver) {
 // Test reduceToPiPoleResidue2 with a real driver pin
 TEST_F(DesignParasiticsTest, ReducePoleResidue2WithRealDriver) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, false);
 
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   Network *network = sta_->network();
   Instance *top = network->topInstance();
 
@@ -2288,14 +2235,13 @@ TEST_F(DesignParasiticsTest, ReducePoleResidue2WithRealDriver) {
     Pin *y_pin = network->findPin(u2, "Y");
     if (y_pin) {
       const MinMax *mm = MinMax::max();
-      ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
       const Net *net = network->net(y_pin);
       if (net) {
-        Parasitic *pnet = parasitics->findParasiticNetwork(net, ap);
+        Parasitic *pnet = parasitics->findParasiticNetwork(net);
         if (pnet) {
           Parasitic *reduced = reduceToPiPoleResidue2(
             pnet, y_pin, RiseFall::rise(), 1.0f,
-            corner, mm, ap, sta_);
+            corner, mm, sta_);
           if (reduced) {
             float c2, rpi, c1;
             parasitics->piModel(reduced, c2, rpi, c1);
@@ -2310,11 +2256,11 @@ TEST_F(DesignParasiticsTest, ReducePoleResidue2WithRealDriver) {
 // Test deleteParasitics with real Net and all analysis points
 TEST_F(DesignParasiticsTest, DeleteParasiticsAllNets) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, true);
 
-  Parasitics *parasitics = sta_->parasitics();
+  Parasitics *parasitics = sta_->findParasitics("default");
   EXPECT_TRUE(parasitics->haveParasitics());
 
   // Delete all parasitics
@@ -2471,18 +2417,12 @@ TEST_F(StaParasiticsTest, ParasiticNetworkAddCapacitorStandalone) {
   EXPECT_EQ(pnet.capacitors().size(), 1u);
 }
 
-// Test parasiticAnalysisPtIndex with a real corner
-// Covers: ConcreteParasitics::parasiticAnalysisPtIndex
-TEST_F(StaParasiticsTest, ParasiticAnalysisPtIndexWithCorner) {
-  Parasitics *parasitics = sta_->parasitics();
-  Corner *corner = sta_->cmdCorner();
-  ASSERT_NE(corner, nullptr);
-  // Get analysis point for the corner
-  const ParasiticAnalysisPt *ap_min = corner->findParasiticAnalysisPt(MinMax::min());
-  const ParasiticAnalysisPt *ap_max = corner->findParasiticAnalysisPt(MinMax::max());
-  // These should be valid analysis points
-  EXPECT_NE(ap_min, nullptr);
-  EXPECT_NE(ap_max, nullptr);
+// Test that parasitics and scene are available
+TEST_F(StaParasiticsTest, ParasiticsAndSceneAvailable) {
+  Parasitics *parasitics = sta_->findParasitics("default");
+  EXPECT_NE(parasitics, nullptr);
+  Scene *corner = sta_->cmdScene();
+  EXPECT_NE(corner, nullptr);
 }
 
 // Test ConcreteParasiticNetwork resistors/capacitors empty by default
@@ -2507,9 +2447,10 @@ TEST_F(StaParasiticsTest, PiElmoreZeroValues) {
 // Covers: ConcreteParasitics::parasiticAnalysisPtIndex
 TEST_F(DesignParasiticsTest, ParasiticAnalysisPtIndex) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
+  Scene *corner = sta_->cmdScene();
   // Read SPEF with reduction to exercise analysis pt indexing
   bool success = sta_->readSpef(
+    "",
     "test/reg1_asap7.spef",
     sta_->network()->topInstance(),
     corner,
@@ -2517,7 +2458,9 @@ TEST_F(DesignParasiticsTest, ParasiticAnalysisPtIndex) {
     false, false, 1.0f, true);
   EXPECT_TRUE(success);
 
-  Parasitics *parasitics = sta_->parasitics();
+  // readSpef with name="" and scene+min creates parasitics under "default_min"
+  Parasitics *parasitics = sta_->findParasitics("default_min");
+  ASSERT_NE(parasitics, nullptr);
   EXPECT_TRUE(parasitics->haveParasitics());
 }
 
@@ -2529,13 +2472,13 @@ TEST_F(DesignParasiticsTest, ReportParasiticAnnotation2) {
   // Ensure the graph is built first
   sta_->ensureGraph();
 
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, true);
 
   // This calls ReportParasiticAnnotation::report()
-  reportParasiticAnnotation(true, corner, sta_);
-  reportParasiticAnnotation(false, corner, sta_);
+  reportParasiticAnnotation(sta_->findParasitics("default"), true, corner, sta_);
+  reportParasiticAnnotation(sta_->findParasitics("default"), false, corner, sta_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2593,15 +2536,19 @@ TEST_F(ConcretePiPoleResidueTest, DestructorViaBasePointer) {
 // Covers: ConcreteParasitics::parasiticAnalysisPtIndex
 TEST_F(DesignParasiticsTest, ParasiticAnalysisPtIndexMaxOnly) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
+  Scene *corner = sta_->cmdScene();
   bool success = sta_->readSpef(
+    "",
     "test/reg1_asap7.spef",
     sta_->network()->topInstance(),
     corner,
     MinMaxAll::max(),
     false, false, 1.0f, true);
   EXPECT_TRUE(success);
-  EXPECT_TRUE(sta_->parasitics()->haveParasitics());
+  // readSpef with name="" and scene+max creates parasitics under "default_max"
+  Parasitics *parasitics = sta_->findParasitics("default_max");
+  ASSERT_NE(parasitics, nullptr);
+  EXPECT_TRUE(parasitics->haveParasitics());
 }
 
 // Test reading SPEF and querying to exercise ReportParasiticAnnotation::report
@@ -2609,11 +2556,11 @@ TEST_F(DesignParasiticsTest, ParasiticAnalysisPtIndexMaxOnly) {
 TEST_F(DesignParasiticsTest, ReportAnnotationAfterSpef) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
-  Corner *corner = sta_->cmdCorner();
-  sta_->readSpef("test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
+  Scene *corner = sta_->cmdScene();
+  sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
                   MinMaxAll::all(), false, false, 1.0f, true);
-  sta_->reportParasiticAnnotation(true, corner);
-  sta_->reportParasiticAnnotation(false, corner);
+  sta_->reportParasiticAnnotation("", true);
+  sta_->reportParasiticAnnotation("", false);
 }
 
 // Test ReduceToPiElmore with a real design - exercises ReduceToPi visit/leave/etc
@@ -2623,10 +2570,11 @@ TEST_F(DesignParasiticsTest, ReportAnnotationAfterSpef) {
 //         ReduceToPi::markLoopResistor
 TEST_F(DesignParasiticsTest, ReduceToPiElmoreWithNetwork) {
   ASSERT_TRUE(design_loaded_);
-  Corner *corner = sta_->cmdCorner();
+  Scene *corner = sta_->cmdScene();
 
   // Read SPEF without reduction first to get parasitic networks
   bool success = sta_->readSpef(
+    "",
     "test/reg1_asap7.spef",
     sta_->network()->topInstance(),
     corner,
@@ -2637,6 +2585,7 @@ TEST_F(DesignParasiticsTest, ReduceToPiElmoreWithNetwork) {
 
   // Now read again with reduction to exercise ReduceToPi methods
   success = sta_->readSpef(
+    "",
     "test/reg1_asap7.spef",
     sta_->network()->topInstance(),
     corner,

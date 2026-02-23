@@ -5,7 +5,7 @@
 --- write_timing_model for latch design ---
 --- read back latch model ---
 --- write_timing_model default ---
---- write_timing_model with corner ---
+--- write_timing_model with scene ---
 --- read back and use as block ---
 --- write_timing_model for multicorner analysis ---
 --- read back multicorner model ---

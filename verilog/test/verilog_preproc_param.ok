@@ -65,7 +65,7 @@ Path Type: min
 No paths found.
 No paths found.
 No paths found.
-Warning: verilog_preproc_param.tcl line 1, unknown field nets.
+Warning 168: verilog_preproc_param.tcl line 1, unknown field nets.
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -324,5 +324,5 @@ Load pins
  reg3/D input (DFF_X1) 1.06-1.14
 
 --- Test 5: re-read ---
-Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+Warning 1140: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 re-read cells: 10

@@ -31,7 +31,7 @@ File ../../test/sky130hd/sky130hd_tt.lib
  CLK input 0.00-0.00
  D input 0.00-0.00
  Q output function=IQ
-Warning: liberty_leakage_power_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Warning 441: liberty_leakage_power_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------

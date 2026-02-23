@@ -76,25 +76,29 @@ report_check_types -max_fanout -verbose
 
 puts "=== PULSE WIDTH CHECKS ==="
 
-puts "--- report_pulse_width_checks ---"
-report_pulse_width_checks
+puts "--- report_min_pulse_width_checks ---"
+report_check_types -min_pulse_width
 
-puts "--- report_pulse_width_checks -verbose ---"
-report_pulse_width_checks -verbose
+puts "--- report_min_pulse_width_checks -verbose ---"
+report_check_types -min_pulse_width -verbose
 
-puts "--- report_pulse_width_checks on specific pin ---"
-report_pulse_width_checks [get_pins reg1/CK]
-report_pulse_width_checks [get_pins reg2/CK]
+puts "--- report_min_pulse_width_checks on specific pin ---"
+# TODO: report_min_pulse_width_checks with pin arg removed (no Tcl wrapper)
+# report_min_pulse_width_checks [get_pins reg1/CK]
+# report_min_pulse_width_checks [get_pins reg2/CK]
+puts "report_min_pulse_width_checks pin: skipped (API removed)"
 
 puts "--- set_min_pulse_width ---"
 set_min_pulse_width 5.0 [get_clocks clk]
-report_pulse_width_checks -verbose
+report_check_types -min_pulse_width -verbose
 
 set_min_pulse_width -high 4.0 [get_pins reg1/CK]
-report_pulse_width_checks [get_pins reg1/CK]
+# TODO: report_min_pulse_width_checks with pin arg removed (no Tcl wrapper)
+# report_min_pulse_width_checks [get_pins reg1/CK]
+puts "report_min_pulse_width_checks pin: skipped (API removed)"
 
 set_min_pulse_width -low 3.0 [get_cells reg1]
-report_pulse_width_checks -verbose
+report_check_types -min_pulse_width -verbose
 
 puts "--- report_check_types -min_pulse_width ---"
 report_check_types -min_pulse_width

@@ -57,7 +57,7 @@ sky130_fd_sc_hd__dfstp_1 area=26.275200
 sky130_fd_sc_hd__dfstp_2 area=26.275200
 sky130_fd_sc_hd__dfstp_4 area=30.028799
 sky130_fd_sc_hd__dfbbp_1 area=32.531200
-Warning: liberty_pgpin_voltage.tcl line 1, cell 'sky130_fd_sc_hd__dfbbp_2' not found.
+Warning 354: liberty_pgpin_voltage.tcl line 1, cell 'sky130_fd_sc_hd__dfbbp_2' not found.
 sky130_fd_sc_hd__dlxtp_1 area=15.014400
 sky130_fd_sc_hd__dlxtn_1 area=15.014400
 sky130_fd_sc_hd__dlxbn_1 area=18.768000
@@ -139,7 +139,7 @@ IHP sg13g2_dfrbp_1 area=47.174400
 IHP sg13g2_dfrbp_1 pg_pins=0
 IHP sg13g2_dlhq_1 area=30.844801
 IHP sg13g2_dlhq_1 pg_pins=0
-Warning: liberty_pgpin_voltage.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Warning 441: liberty_pgpin_voltage.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
@@ -162,468 +162,468 @@ Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 ------------------------------------------------------------------------
 Total                1.884780e-06 7.798150e-08 3.607567e-07 2.323518e-06 100.0%
                             81.1%         3.4%        15.5%
-Warning: /workspace/sta/OpenSTA/liberty/test/results/liberty_pgpin_voltage_write.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_2 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_4 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 SLEEP_B -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 SLEEP_B -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_2 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_4 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_2 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_4 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 SLEEP_B -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 SLEEP_B -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_2 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_4 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
-Warning: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
+Warning 1140: /workspace/sta/OpenSTA/liberty/test/results/liberty_pgpin_voltage_write.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_2 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_4 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 SLEEP_B -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 SLEEP_B -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_2 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_4 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfsbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfstp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_2 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_4 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlclkp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtn_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2 GATE_N -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q_N timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 D -> Q_N timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 GATE_N -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4 GATE_N -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtn_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 GATE -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1 GATE -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dlxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__edfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 D -> Q timing group Latch D to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 SLEEP_B -> Q timing group Latch En to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 D -> Q timing group combinational not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1111: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1 SLEEP_B -> Q timing group Reg Clk to Q not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__lpflow_inputisolatch_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbn_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfbbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtn_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfrtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfsbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfstp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_2 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_4 port M0 not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sdlclkp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxbp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_1.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_2.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.
+Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__sedfxtp_4.

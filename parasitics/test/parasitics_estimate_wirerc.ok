@@ -1,13 +1,13 @@
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- baseline ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -138,7 +138,7 @@ Path Type: max
          419.17   slack (MET)
 
 
-Warning: parasitics_estimate_wirerc.tcl line 1, unknown field nets.
+Warning 168: parasitics_estimate_wirerc.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -516,23 +516,23 @@ Path Type: max
    0.00    0.00   clock clk (rise edge)
   12.11   12.11   clock network delay (propagated)
    0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
-   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-          94.93   data arrival time
+  63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  124.92 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  185.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  201.72 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         201.72   data arrival time
 
  500.00  500.00   clock clk (rise edge)
   11.92  511.92   clock network delay (propagated)
    0.00  511.92   clock reconvergence pessimism
          511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-  -3.87  508.05   library setup time
-         508.05   data required time
+  -8.46  503.46   library setup time
+         503.46   data required time
 ---------------------------------------------------------
-         508.05   data required time
-         -94.93   data arrival time
+         503.46   data required time
+        -201.72   data arrival time
 ---------------------------------------------------------
-         413.12   slack (MET)
+         301.74   slack (MET)
 
 
 Found 0 unannotated drivers.
@@ -542,8 +542,8 @@ Found 0 partially unannotated drivers.
 --- report_net after SPEF ---
 Net r1q
  Pin capacitance: 0.3994-0.5226
- Wire capacitance: 0.0000
- Total capacitance: 0.3994-0.5226
+ Wire capacitance: 13.4000-13.4000
+ Total capacitance: 13.7994-13.9226
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -557,8 +557,8 @@ Load pins
 report_net r1q: done
 Net r2q
  Pin capacitance: 0.4414-0.5770
- Wire capacitance: 0.0000
- Total capacitance: 0.4414-0.5770
+ Wire capacitance: 13.4000-13.4000
+ Total capacitance: 13.8414-13.9770
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -572,8 +572,8 @@ Load pins
 report_net r2q: done
 Net u1z
  Pin capacitance: 0.3171-0.5657
- Wire capacitance: 0.0000
- Total capacitance: 0.3171-0.5657
+ Wire capacitance: 13.4000-13.4000
+ Total capacitance: 13.7171-13.9657
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -587,8 +587,8 @@ Load pins
 report_net u1z: done
 Net u2z
  Pin capacitance: 0.5479-0.6212
- Wire capacitance: 0.0000
- Total capacitance: 0.5479-0.6212
+ Wire capacitance: 13.4000-13.4000
+ Total capacitance: 13.9479-14.0212
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -602,8 +602,8 @@ Load pins
 report_net u2z: done
 Net out
  Pin capacitance: 0.0000
- Wire capacitance: 0.0020
- Total capacitance: 0.0020
+ Wire capacitance: 13.4000
+ Total capacitance: 13.4000
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2

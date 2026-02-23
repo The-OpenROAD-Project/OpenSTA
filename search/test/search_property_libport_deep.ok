@@ -181,8 +181,10 @@ Path Type: max
 
 
 --- find_timing_paths with group_path ---
+Warning 502: search_property_libport_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 18 paths with groups
 --- find_timing_paths with min paths and groups ---
+Warning 502: search_property_libport_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 18 min paths with groups
 --- path_group_names ---
 Path group names: clk input_grp output_grp reg2reg_grp through_grp asynchronous {path delay} {gated clock} unconstrained

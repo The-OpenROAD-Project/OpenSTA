@@ -114,7 +114,7 @@ foreach edge $edges {
 }
 
 puts "--- PathEnd properties ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 5]
+set paths [find_timing_paths -path_delay max -endpoint_count 5]
 foreach path_end $paths {
   set sp [get_property $path_end startpoint]
   puts "pathend startpoint: [get_full_name $sp]"

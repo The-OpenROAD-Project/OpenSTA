@@ -195,11 +195,11 @@ foreach s $slow {
 # find_timing_paths with many combinations
 ############################################################
 puts "--- find_timing_paths combos ---"
-set p1 [find_timing_paths -path_delay max -endpoint_path_count 1]
+set p1 [find_timing_paths -path_delay max -endpoint_count 1]
 puts "1 path: [llength $p1]"
-set p5 [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 10]
+set p5 [find_timing_paths -path_delay max -endpoint_count 5 -group_path_count 10]
 puts "5 paths: [llength $p5]"
-set p_min [find_timing_paths -path_delay min -endpoint_path_count 5]
+set p_min [find_timing_paths -path_delay min -endpoint_count 5]
 puts "min paths: [llength $p_min]"
-set p_mm [find_timing_paths -path_delay min_max -endpoint_path_count 3]
+set p_mm [find_timing_paths -path_delay min_max -endpoint_count 3]
 puts "min_max paths: [llength $p_mm]"

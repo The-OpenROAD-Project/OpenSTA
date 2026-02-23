@@ -188,7 +188,7 @@ unset_propagated_clock [get_clocks clk]
 # PathEnd property: points
 ############################################################
 puts "--- PathEnd points property ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 3]
+set paths [find_timing_paths -path_delay max -endpoint_count 3]
 foreach pe $paths {
   set points [get_property $pe points]
   puts "PathEnd points count: [llength $points]"

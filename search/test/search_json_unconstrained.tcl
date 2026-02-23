@@ -16,7 +16,7 @@ set_output_delay -clock clk 2.0 [get_ports out1]
 report_checks > /dev/null
 
 puts "--- report_checks -format json (multiple endpoints) ---"
-report_checks -format json -path_delay max -endpoint_path_count 3 -group_path_count 5
+report_checks -format json -path_delay max -endpoint_count 3 -group_path_count 5
 
 puts "--- report_checks -format json min ---"
 report_checks -format json -path_delay min
@@ -47,7 +47,7 @@ report_checks -unconstrained -format slack_only
 
 puts "--- report_path on individual path (json format) ---"
 sta::set_report_path_format json
-set paths_j [find_timing_paths -path_delay max -endpoint_path_count 3]
+set paths_j [find_timing_paths -path_delay max -endpoint_count 3]
 foreach pe $paths_j {
   set p [$pe path]
   sta::report_path_cmd $p

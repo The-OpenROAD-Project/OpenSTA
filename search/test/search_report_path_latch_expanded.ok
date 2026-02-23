@@ -377,6 +377,7 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 
 --- find_timing_paths latch iteration ---
+Warning 502: search_report_path_latch_expanded.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Max paths: 18
   is_latch: 1 is_check: 0 slack=0.0
   data_arrival: 1.106064906331028e-9 data_required: 1.106064906331028e-9
@@ -1242,6 +1243,7 @@ actual time borrow                      1.11
 
 
 --- Latch PathEnd properties ---
+Warning 502: search_report_path_latch_expanded.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Latch path found:
   startpoint: latch1/Q
   endpoint: latch2/D

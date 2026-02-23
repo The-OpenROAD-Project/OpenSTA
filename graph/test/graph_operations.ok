@@ -1784,7 +1784,7 @@ Path Type: max
 
 
 --- report_checks options ---
-Warning: graph_operations.tcl line 1, unknown field nets.
+Warning 168: graph_operations.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1960,7 +1960,7 @@ Path Type: max
            4.88   slack (MET)
 
 
-Warning: graph_operations.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Warning 503: graph_operations.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2107,7 +2107,7 @@ Path Type: max
           13.90   slack (MET)
 
 
-Warning: graph_operations.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: graph_operations.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2423,7 +2423,7 @@ Path Type: max
            7.87   slack (MET)
 
 
-Warning: graph_operations.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: graph_operations.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1

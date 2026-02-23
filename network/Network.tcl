@@ -87,8 +87,8 @@ proc report_instance_pins1 {instance header header_optional dirs} {
     set dir [pin_direction $pin]
     if { [lsearch $dirs $dir] !=  -1 } {
       if { !$header_shown } {
-	report_line $header
-	set header_shown 1
+        report_line $header
+        set header_shown 1
       }
       report_instance_pin $pin
     }
@@ -140,14 +140,14 @@ proc instance_sorted_children { instance } {
 
 ################################################################
 
-define_cmd_args "report_net" {[-corner corner] [-digits digits]\
+define_cmd_args "report_net" {[-scene scene] [-digits digits]\
                                 net_path [> filename] [>> filename]}
 
 # -hpins to show hierarchical pins
 proc_redirect report_net {
   global sta_report_default_digits
 
-  parse_key_args "report_net" args keys {-corner -digits} \
+  parse_key_args "report_net" args keys {-corner -scene -digits} \
     flags {-connections -verbose -hier_pins}
   check_argc_eq1 "report_net" $args
 
@@ -164,7 +164,7 @@ proc_redirect report_net {
     sta_warn 237 "report_net -hier_pins is deprecated."
   }
 
-  set corner [parse_corner_or_all keys]
+  set scene [parse_scene_or_default keys]
   set digits $sta_report_default_digits
   if { [info exists keys(-digits)] } {
       set digits $keys(-digits)
@@ -173,15 +173,15 @@ proc_redirect report_net {
   set net_path [lindex $args 0]
   set net [find_net $net_path]
   if { $net != "NULL" } {
-    report_net1 $net $corner $digits
+    report_net1 $net $scene $digits
   } else {
     set pin [find_pin $net_path]
     if { $pin != "NULL" } {
       set net [$pin net]
       if { $net != "NULL" } {
-	report_net1 $net $corner $digits
+        report_net1 $net $scene $digits
       } else {
-	sta_error 231 "net $net_path not found."
+        sta_error 231 "net $net_path not found."
       }
     } else {
       sta_error 232 "net $net_path not found."
@@ -189,14 +189,14 @@ proc_redirect report_net {
   }
 }
 
-proc report_net1 { net corner digits } {
+proc report_net1 { net scene digits } {
   report_line "Net [get_full_name $net]"
   set pins [net_connected_pins_sorted $net]
-  report_net_caps $net $pins $corner $digits
-  report_net_pins $pins "Driver pins" "is_driver" $corner $digits
-  report_net_pins $pins "Load pins" "is_load" $corner $digits
-  report_net_pins $pins "Hierarchical pins" "is_hierarchical" $corner $digits
-  report_net_other_pins $pins $corner $digits
+  report_net_caps $net $pins $scene $digits
+  report_net_pins $pins "Driver pins" "is_driver" $scene $digits
+  report_net_pins $pins "Load pins" "is_load" $scene $digits
+  report_net_pins $pins "Hierarchical pins" "is_hierarchical" $scene $digits
+  report_net_other_pins $pins $scene $digits
 }
 
 proc net_connected_pins_sorted { net } {
@@ -211,10 +211,10 @@ proc net_connected_pins_sorted { net } {
   return $pins
 }
 
-proc report_net_caps { net pins corner digits } {
-  report_net_cap $net "Pin" "pin_capacitance" $corner $digits
-  report_net_cap $net "Wire" "wire_capacitance" $corner $digits
-  report_net_cap $net "Total" "capacitance" $corner $digits
+proc report_net_caps { net pins scene digits } {
+  report_net_cap $net "Pin" "pin_capacitance" $scene $digits
+  report_net_cap $net "Wire" "wire_capacitance" $scene $digits
+  report_net_cap $net "Total" "capacitance" $scene $digits
 
   set pin_count 0
   set driver_count 0
@@ -236,13 +236,13 @@ proc report_net_caps { net pins corner digits } {
   report_line ""
 }
 
-proc report_net_cap { net caption cap_msg corner digits } {
-  set cap_min [$net $cap_msg $corner "min"]
-  set cap_max [$net $cap_msg $corner "max"]
+proc report_net_cap { net caption cap_msg scene digits } {
+  set cap_min [$net $cap_msg $scene "min"]
+  set cap_max [$net $cap_msg $scene "max"]
   report_line " $caption capacitance: [capacitance_range_str $cap_min $cap_max $digits]"
 }
 
-proc report_net_pins { pins header pin_pred corner digits } {
+proc report_net_pins { pins header pin_pred scene digits } {
   set found 0
   foreach pin $pins {
     if {[$pin $pin_pred]} {
@@ -250,7 +250,7 @@ proc report_net_pins { pins header pin_pred corner digits } {
         report_line $header
         set found 1
       }
-      report_net_pin $pin $corner $digits
+      report_net_pin $pin $scene $digits
     }
   }
   if { $found } {
@@ -258,43 +258,42 @@ proc report_net_pins { pins header pin_pred corner digits } {
   }
 }
 
-proc report_net_other_pins { pins corner digits } {
+proc report_net_other_pins { pins scene digits } {
   set header 0
   foreach pin $pins {
     if { !([$pin is_driver] || [$pin is_load] || [$pin is_hierarchical]) } {
       if { !$header } {
-	report_line ""
-	report_line "Other pins"
-	set header 1
+        report_line ""
+        report_line "Other pins"
+        set header 1
       }
-      report_net_pin $pin $corner $digits
+      report_net_pin $pin $scene $digits
     }
   }
 }
 
-proc report_net_pin { pin corner digits } {
+proc report_net_pin { pin scene digits } {
   if [$pin is_leaf] {
     set cell_name [get_name [[$pin instance] cell]]
     set cap ""
     set liberty_port [$pin liberty_port]
     if { $liberty_port != "NULL" } {
-      set cap [port_capacitance_str $liberty_port $corner $digits]
+      set cap [port_capacitance_str $liberty_port $scene $digits]
     }
     report_line " [get_full_name $pin] [pin_direction $pin] ($cell_name)$cap[pin_location_str $pin]"
   } elseif [$pin is_top_level_port] {
     set wire_cap ""
     set pin_cap ""
-    set corner [sta::cmd_corner]
 
     set port [$pin port]
-    set cap_min [port_ext_wire_cap $port $corner "min"]
-    set cap_max [port_ext_wire_cap $port $corner "max"]
+    set cap_min [port_ext_wire_cap $port "min"]
+    set cap_max [port_ext_wire_cap $port "max"]
     if { $cap_min > 0 || $cap_max > 0 } {
       set wire_cap " wire [capacitance_range_str $cap_min $cap_max $digits]"
     }
 
-    set cap_min [port_ext_pin_cap $port $corner "min"]
-    set cap_max [port_ext_pin_cap $port $corner "max"]
+    set cap_min [port_ext_pin_cap $port "min"]
+    set cap_max [port_ext_pin_cap $port "max"]
     if { $cap_min > 0 || $cap_max > 0} {
       set pin_cap " pin [capacitance_range_str $cap_min $cap_max $digits]"
     }
@@ -317,10 +316,10 @@ proc pin_location_str { pin } {
 
 ################################################################
 
-proc report_pin_ { pin corner digits } {
+proc report_pin_ { pin scene digits } {
   set liberty_port [$pin liberty_port]
   if { $liberty_port != "NULL" } {
-    set cap [port_capacitance_str $liberty_port $corner $digits]
+    set cap [port_capacitance_str $liberty_port $scene $digits]
   } else {
     set cap ""
   }
@@ -354,9 +353,9 @@ proc pin_direction_desc { pin } {
 }
 
 # Do not preceed this field by a space in the caller.
-proc port_capacitance_str { liberty_port corner digits } {
-  set cap_min [$liberty_port capacitance $corner "min"]
-  set cap_max [$liberty_port capacitance $corner "max"]
+proc port_capacitance_str { liberty_port scene digits } {
+  set cap_min [$liberty_port capacitance $scene "min"]
+  set cap_max [$liberty_port capacitance $scene "max"]
   if { $cap_min > 0 || $cap_max > 0 } {
     return " [capacitance_range_str $cap_min $cap_max $digits]"
   } else {
@@ -374,13 +373,13 @@ proc capacitance_range_str { cap_min cap_max digits } {
 
 proc capacitances_str { cap_r_min cap_r_max cap_f_min cap_f_max digits } {
   if { $cap_r_min == $cap_r_max \
-	 && $cap_f_min == $cap_f_max \
-	 && $cap_r_max == $cap_f_max } {
+         && $cap_f_min == $cap_f_max \
+         && $cap_r_max == $cap_f_max } {
     # All 4 values are the same.
     set cap $cap_r_min
     return "[format_capacitance $cap $digits]"
   } elseif { $cap_r_min == $cap_r_max \
-	       && $cap_f_min == $cap_f_max } {
+               && $cap_f_min == $cap_f_max } {
     # Mins equal maxes.
     return "r [format_capacitance $cap_r_min $digits] f [format_capacitance $cap_f_min $digits]"
   } else {

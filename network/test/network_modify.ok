@@ -24,7 +24,7 @@ buf1 ref_name after replace: BUF_X2
 disconnect new_buf/Z: 1
 --- delete_instance new_buf ---
 --- verify new_buf removed ---
-Warning: network_modify.tcl line 1, instance 'new_buf' not found.
+Warning 349: network_modify.tcl line 1, instance 'new_buf' not found.
 get_cells new_buf after delete: 
 --- cell count after delete ---
 cells after delete_instance: 3

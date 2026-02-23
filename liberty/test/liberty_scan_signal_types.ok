@@ -174,15 +174,15 @@ DFFHQNx1_ASAP7_75t_R arcs=5
   DFFHQNx1_ASAP7_75t_R CLK -> CLK role=width
   DFFHQNx1_ASAP7_75t_R CLK -> D role=hold
   DFFHQNx1_ASAP7_75t_R CLK -> D role=setup
-Warning: liberty_scan_signal_types.tcl line 1, cell 'DFFHQx1_ASAP7_75t_R' not found.
+Warning 354: liberty_scan_signal_types.tcl line 1, cell 'DFFHQx1_ASAP7_75t_R' not found.
 DFFHQNx2_ASAP7_75t_R arcs=5
   DFFHQNx2_ASAP7_75t_R CLK -> QN role=Reg Clk to Q
   DFFHQNx2_ASAP7_75t_R CLK -> CLK role=width
   DFFHQNx2_ASAP7_75t_R CLK -> CLK role=width
   DFFHQNx2_ASAP7_75t_R CLK -> D role=hold
   DFFHQNx2_ASAP7_75t_R CLK -> D role=setup
-Warning: liberty_scan_signal_types.tcl line 1, cell 'DFFHQx2_ASAP7_75t_R' not found.
-Warning: liberty_scan_signal_types.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Warning 354: liberty_scan_signal_types.tcl line 1, cell 'DFFHQx2_ASAP7_75t_R' not found.
+Warning 441: liberty_scan_signal_types.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1

@@ -238,11 +238,11 @@ Path Type: max
 
 --- write_sdc ---
 --- startpoints ---
-startpoints: 7
+startpoints: skipped (API removed)
 --- endpoints ---
 endpoints: 9
---- endpoint_path_count ---
-endpoint_path_count: 9
+--- endpoint_count ---
+endpoint_count: 9
 --- find_timing_paths -from -to ---
 paths from/to: 1
 --- find_timing_paths -through ---

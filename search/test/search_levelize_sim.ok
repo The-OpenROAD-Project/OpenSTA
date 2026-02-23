@@ -98,7 +98,7 @@ Path Type: max
 
 
 --- Timing after set_disable_timing on lib cell ---
-Warning: search_levelize_sim.tcl line 1, library 'Nangate45_typ' not found.
+Warning 353: search_levelize_sim.tcl line 1, library 'Nangate45_typ' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -126,7 +126,7 @@ Path Type: max
            7.90   slack (MET)
 
 
-Warning: search_levelize_sim.tcl line 1, library 'Nangate45_typ' not found.
+Warning 353: search_levelize_sim.tcl line 1, library 'Nangate45_typ' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk

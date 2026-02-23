@@ -62,7 +62,7 @@ set_fanout_load 4 [get_ports out1]
 report_checks -path_delay max > /dev/null
 
 puts "--- Net capacitance ---"
-set corner [sta::cmd_corner]
+set corner [sta::cmd_scene]
 set net_cap [[get_nets n1] capacitance $corner max]
 puts "Net n1 capacitance: $net_cap"
 set pin_cap [[get_nets n1] pin_capacitance $corner max]

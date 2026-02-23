@@ -111,6 +111,7 @@ Path Type: max
 
 
 --- find_timing_paths with large group and endpoint counts ---
+Warning 502: search_path_enum_groups.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 14 paths (max)
   reg1/D slack=8.91273987946306e-9 role=setup
   reg1/D slack=8.91496121369073e-9 role=setup
@@ -127,6 +128,7 @@ Found 14 paths (max)
   reg1/RN slack=9.553728474998024e-9 role=recovery
   reg2/RN slack=9.553728474998024e-9 role=recovery
 --- find_timing_paths with min paths ---
+Warning 502: search_path_enum_groups.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 14 paths (min)
   reg1/D slack=1.0395115879191508e-9
   reg1/D slack=1.0408024442298824e-9
@@ -143,9 +145,11 @@ Found 14 paths (min)
   reg1/RN slack=3.1855806881253557e-10
   reg2/RN slack=3.1855806881253557e-10
 --- find_timing_paths -sort_by_slack ---
+Warning 502: search_path_enum_groups.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 14 sorted paths
 Sort order correct: 0
 --- find_timing_paths -unique_paths_to_endpoint ---
+Warning 502: search_path_enum_groups.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 8 unique paths
 --- find_timing_paths -slack_max filtering ---
 Paths with slack <= 0: 0
@@ -159,6 +163,7 @@ clk is group: 1
 input_paths is group: 1
 nonexistent is group: 0
 --- report_path_ends ---
+Warning 502: search_path_enum_groups.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: input_paths
@@ -623,5 +628,5 @@ asynchronous                            0.32
 max violations: 0
 min violations: 0
 --- startpoints / endpoints ---
-Startpoints: 6
+Startpoints: skipped (API removed)
 Endpoints: 8

@@ -267,13 +267,13 @@ puts "max violations: [sta::endpoint_violation_count max]"
 puts "min violations: [sta::endpoint_violation_count min]"
 
 ############################################################
-# report_pulse_width_checks and report_clock_min_period with verbosity
+# report_min_pulse_width_checks and report_clock_min_period with verbosity
 ############################################################
-puts "--- report_pulse_width_checks ---"
-report_pulse_width_checks
+puts "--- report_min_pulse_width_checks ---"
+report_check_types -min_pulse_width
 
-puts "--- report_pulse_width_checks -verbose ---"
-report_pulse_width_checks -verbose
+puts "--- report_min_pulse_width_checks -verbose ---"
+report_check_types -min_pulse_width -verbose
 
 puts "--- report_clock_min_period ---"
 report_clock_min_period
@@ -301,7 +301,7 @@ report_check_types -max_slew -max_capacitance -max_fanout -verbose
 report_check_types -max_slew -max_capacitance -max_fanout -violators
 
 ############################################################
-# report_checks with -group_path_count and -endpoint_path_count
+# report_checks with -group_path_count and -endpoint_count
 ############################################################
 puts "--- find_timing_paths with slack_max filtering ---"
 set paths_neg [find_timing_paths -path_delay max -slack_max 0.0]

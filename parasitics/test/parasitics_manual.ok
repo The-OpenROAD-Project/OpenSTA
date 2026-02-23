@@ -1,13 +1,13 @@
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- before parasitics ---
 Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out (output port clocked by clk)
@@ -414,8 +414,8 @@ Found 0 partially unannotated drivers.
 --- report_net after SPEF ---
 Net r1q
  Pin capacitance: 0.40-0.52
- Wire capacitance: 0.00
- Total capacitance: 0.40-0.52
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.80-13.92
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -429,8 +429,8 @@ Load pins
 report_net r1q: done
 Net r2q
  Pin capacitance: 0.44-0.58
- Wire capacitance: 0.00
- Total capacitance: 0.44-0.58
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.84-13.98
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -444,8 +444,8 @@ Load pins
 report_net r2q: done
 Net u1z
  Pin capacitance: 0.32-0.57
- Wire capacitance: 0.00
- Total capacitance: 0.32-0.57
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.72-13.97
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -459,8 +459,8 @@ Load pins
 report_net u1z: done
 Net u2z
  Pin capacitance: 0.55-0.62
- Wire capacitance: 0.00
- Total capacitance: 0.55-0.62
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.95-14.02
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -474,8 +474,8 @@ Load pins
 report_net u2z: done
 Net r1q
  Pin capacitance: 0.399-0.523
- Wire capacitance: 0.000
- Total capacitance: 0.399-0.523
+ Wire capacitance: 13.400-13.400
+ Total capacitance: 13.799-13.923
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -489,8 +489,8 @@ Load pins
 report_net -digits 3 r1q: done
 Net u1z
  Pin capacitance: 0.317075-0.565708
- Wire capacitance: 0.000000
- Total capacitance: 0.317075-0.565708
+ Wire capacitance: 13.400000-13.400001
+ Total capacitance: 13.717074-13.965708
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2
@@ -504,8 +504,8 @@ Load pins
 report_net -digits 6 u1z: done
 Net u2z
  Pin capacitance: 0.54794598-0.62121701
- Wire capacitance: 0.00000000
- Total capacitance: 0.54794598-0.62121701
+ Wire capacitance: 13.39999962-13.39999866
+ Total capacitance: 13.94794464-14.02121544
  Number of drivers: 1
  Number of loads: 1
  Number of pins: 2

@@ -33,16 +33,16 @@ set tns_min [sta::total_negative_slack_cmd min]
 puts "tns min: $tns_min"
 
 puts "--- total_negative_slack_corner ---"
-set corner [sta::cmd_corner]
-set tns_corner [sta::total_negative_slack_corner_cmd $corner max]
+set corner [sta::cmd_scene]
+set tns_corner [sta::total_negative_slack_scene_cmd $corner max]
 puts "tns corner max: $tns_corner"
-set tns_corner_min [sta::total_negative_slack_corner_cmd $corner min]
+set tns_corner_min [sta::total_negative_slack_scene_cmd $corner min]
 puts "tns corner min: $tns_corner_min"
 
-puts "--- worst_slack_corner ---"
-set ws_corner_max [sta::worst_slack_corner $corner max]
+puts "--- worst_slack_scene ---"
+set ws_corner_max [sta::worst_slack_scene $corner max]
 puts "worst_slack corner max: $ws_corner_max"
-set ws_corner_min [sta::worst_slack_corner $corner min]
+set ws_corner_min [sta::worst_slack_scene $corner min]
 puts "worst_slack corner min: $ws_corner_min"
 
 puts "--- report_tns ---"
@@ -63,8 +63,9 @@ puts "--- worst_slack_vertex ---"
 set wv_max [sta::worst_slack_vertex max]
 if { $wv_max != "NULL" } {
   puts "worst_slack_vertex max pin: [get_full_name [$wv_max pin]]"
-  puts "  is_clock: [$wv_max is_clock]"
-  puts "  has_downstream_clk_pin: [$wv_max has_downstream_clk_pin]"
+  # TODO: Vertex is_clock and has_downstream_clk_pin removed from SWIG
+  puts "  is_clock: skipped (API removed)"
+  puts "  has_downstream_clk_pin: skipped (API removed)"
 }
 set wv_min [sta::worst_slack_vertex min]
 if { $wv_min != "NULL" } {
@@ -111,14 +112,14 @@ report_checks -sort_by_slack -format slack_only
 report_checks -sort_by_slack -format summary
 
 puts "--- report_checks multi-path ---"
-report_checks -path_delay max -endpoint_path_count 5 -group_path_count 5
-report_checks -path_delay min -endpoint_path_count 5 -group_path_count 5
+report_checks -path_delay max -endpoint_count 5 -group_path_count 5
+report_checks -path_delay min -endpoint_count 5 -group_path_count 5
 
 puts "--- report_checks unique_paths_to_endpoint ---"
-report_checks -path_delay max -endpoint_path_count 3 -unique_paths_to_endpoint
+report_checks -path_delay max -endpoint_count 3 -unique_paths_to_endpoint
 
 puts "--- report_path_end with prev_end ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 5]
+set paths [find_timing_paths -path_delay max -endpoint_count 5]
 set prev_end ""
 foreach pe $paths {
   if { $prev_end != "" } {
@@ -132,12 +133,12 @@ set groups [sta::path_group_names]
 puts "path groups: $groups"
 
 puts "--- report_checks with -corner ---"
-set corner [sta::cmd_corner]
-report_checks -path_delay max -corner [$corner name]
-report_checks -path_delay min -corner [$corner name]
+set corner [sta::cmd_scene]
+report_checks -path_delay max -corner $corner
+report_checks -path_delay min -corner $corner
 
 puts "--- design_power ---"
-set pwr [sta::design_power [sta::cmd_corner]]
+set pwr [sta::design_power [sta::cmd_scene]]
 puts "design_power: $pwr"
 
 puts "--- set_report_path_field_properties ---"

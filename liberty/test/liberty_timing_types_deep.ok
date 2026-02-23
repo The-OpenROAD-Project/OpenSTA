@@ -167,7 +167,7 @@ sg13g2_dlhq_1 arc_sets = 5
   sg13g2_dlhq_1 GATE -> D role=hold
   sg13g2_dlhq_1 GATE -> D role=setup
   sg13g2_dlhq_1 GATE -> GATE role=width
-Warning: liberty_timing_types_deep.tcl line 1, cell 'sg13g2_dllq_1' not found.
+Warning 354: liberty_timing_types_deep.tcl line 1, cell 'sg13g2_dllq_1' not found.
 sg13g2_dfrbp_1 arc_sets = 10
   sg13g2_dfrbp_1 CLK -> Q role=Reg Clk to Q
   sg13g2_dfrbp_1 RESET_B -> Q role=Reg Set/Clr
@@ -214,7 +214,7 @@ sg13g2_sdfbbp_1 arc_sets = 23
   sg13g2_sdfbbp_1 RESET_B -> SET_B role=non-sequential hold
   sg13g2_sdfbbp_1 RESET_B -> SET_B role=non-sequential setup
   sg13g2_sdfbbp_1 SET_B -> SET_B role=width
-Warning: liberty_timing_types_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Warning 441: liberty_timing_types_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Group                                  Slack
 --------------------------------------------
 clk1                                    2.05

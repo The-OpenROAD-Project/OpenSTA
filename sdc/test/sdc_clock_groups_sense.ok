@@ -1,5 +1,5 @@
 No differences found.
-Warning: generated clock gclk1 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk1 pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1_2x)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1

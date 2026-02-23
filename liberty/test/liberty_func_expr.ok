@@ -1,4 +1,4 @@
-Warning: liberty_func_expr.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Warning 441: liberty_func_expr.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Cell XOR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -535,7 +535,7 @@ File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  Z tristate enable=!TE_B function=A 4.51-7.42
  A input 2.58-2.66
  TE_B input 6.21-6.60
-Warning: liberty_func_expr.tcl line 1, liberty cell 'sg13g2_stdcell_typ_1p20V_25C/sg13g2_antn' not found.
+Warning 117: liberty_func_expr.tcl line 1, liberty cell 'sg13g2_stdcell_typ_1p20V_25C/sg13g2_antn' not found.
 Cell sg13g2_tiehi
 Library sg13g2_stdcell_typ_1p20V_25C
 File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib

@@ -27,7 +27,7 @@ fakeram45_256x16: bus_ports=4 total_bits=56
 fakeram45_512x64: bus_ports=4 total_bits=201
 fakeram45_1024x32: bus_ports=4 total_bits=106
 fakeram45_64x96: bus_ports=4 total_bits=294
-Warning: liberty_busport_mem_iter.tcl line 1, library 'gf180mcu_fd_ip_sram__sram256x8m8wm1' not found.
+Warning 353: liberty_busport_mem_iter.tcl line 1, library 'gf180mcu_fd_ip_sram__sram256x8m8wm1' not found.
 gf180mcu cells: 0
 INV_X1 leaf=1 buf=0 inv=1 area=0.532000 du=0 arcs=1
 INV_X2 leaf=1 buf=0 inv=1 area=0.798000 du=0 arcs=1
@@ -101,5 +101,5 @@ sky130_fd_sc_hd__ebufn_1/Z dir=tristate func="A" tri="!TE_B"
 sky130_fd_sc_hd__ebufn_2/A dir=input func="" tri=""
 sky130_fd_sc_hd__ebufn_2/TE_B dir=input func="" tri=""
 sky130_fd_sc_hd__ebufn_2/Z dir=tristate func="A" tri="!TE_B"
-Warning: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
-Warning: /workspace/sta/OpenSTA/liberty/test/results/liberty_busport_mem_iter_write.lib line 1, library fakeram45_64x7 already exists.
+Warning 1171: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
+Warning 1140: /workspace/sta/OpenSTA/liberty/test/results/liberty_busport_mem_iter_write.lib line 1, library fakeram45_64x7 already exists.

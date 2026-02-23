@@ -111,7 +111,7 @@ max slew
 
 Pin                                    Limit    Slew   Slack
 ------------------------------------------------------------
-reg1/QN                                 0.20    0.01    0.19 (MET)
+nor1/ZN                                 0.20    0.01    0.18 (MET)
 
 max fanout
 

@@ -52,7 +52,7 @@ sdc sub2/* pins: 3
 sdc nets: 11
 sdc w* nets: 5
 sdc hier nets: 19
-Warning: network_sdc_adapt_deep.tcl line 1, net 'sub*/*' not found.
+Warning 361: network_sdc_adapt_deep.tcl line 1, net 'sub*/*' not found.
 sdc hier sub*/* nets: 0
 No paths found.
 Startpoint: in2 (input port clocked by clk)
@@ -150,7 +150,7 @@ sdc deep pin sub1/buf_gate/Z: dir=output
 sdc deep pin sub2/and_gate/A1: dir=input
 sdc deep pin sub2/buf_gate/Z: dir=output
 --- Test 6: SDC with bus design ---
-Warning: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
+Warning 1140: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 sdc bus design ports: 11
 sdc data_in[*]: 4
 sdc data_out[*]: 4

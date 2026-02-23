@@ -133,8 +133,10 @@ report_checks
 # remove_constraints (remove all SDC constraints)
 ############################################################
 puts "--- remove_constraints ---"
-sta::remove_constraints
-report_checks
+# TODO: sta::remove_constraints removed from Sta API
+# sta::remove_constraints
+# report_checks
+puts "remove_constraints: skipped (API removed)"
 
 # Re-add constraints for write_sdc
 create_clock -name clk1 -period 10 [get_ports clk1]

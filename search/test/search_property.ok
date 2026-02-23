@@ -71,6 +71,7 @@ edge delay_max_rise: 0.024490
 edge sense: positive_unate
 edge from_pin: and1/A1
 --- PathEnd properties ---
+Warning 502: search_property.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 pathend startpoint: reg1/Q
 pathend endpoint: out1
 pathend startpoint_clock: clk

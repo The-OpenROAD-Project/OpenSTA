@@ -39,7 +39,7 @@ report_checks -format full_clock_expanded -path_delay max
 report_checks -format full_clock -path_delay min
 
 puts "--- find_timing_paths with gated clk ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 5]
+set paths [find_timing_paths -path_delay max -endpoint_count 5]
 puts "Found [llength $paths] paths"
 foreach pe $paths {
   puts "  is_gated_clock: [$pe is_gated_clock]"

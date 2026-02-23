@@ -1,5 +1,5 @@
-Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
-Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 198: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: resp_msg[15] (output port clocked by clk)
 Path Group: clk
@@ -406,9 +406,9 @@ find_library: sky130_fd_sc_hd__tt_025C_1v80
 library: sky130_fd_sc_hd__tt_025C_1v80
 library: verilog
 --- timing path traversal ---
-Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 No paths found.
-Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reset (input port clocked by clk)
 Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -496,7 +496,7 @@ Path Type: max
            3.64   slack (MET)
 
 
-Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: req_val (input port clocked by clk)
 Endpoint: _413_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -583,7 +583,7 @@ Path Type: max
            3.78   slack (MET)
 
 
-Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: _411_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: resp_val (output port clocked by clk)
 Path Group: clk
@@ -668,7 +668,7 @@ Path Type: max
            3.34   slack (MET)
 
 
-Warning: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 No paths found.
 No paths found.
 No paths found.

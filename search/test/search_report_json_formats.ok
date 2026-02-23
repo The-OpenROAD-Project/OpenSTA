@@ -369,6 +369,7 @@ Group                                  Slack
 clk                                     0.05
 
 --- Latch find_timing_paths PathEnd queries ---
+Warning 502: search_report_json_formats.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 10 max paths
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=5.49663405069456e-11 req=1.106064906331028e-9 arr=1.106064906331028e-9
@@ -983,6 +984,7 @@ Path Type: min
 
 
 --- Gated clock find_timing_paths ---
+Warning 502: search_report_json_formats.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 6 gated paths
   gated=1 check=0 role=clock gating setup slack=9.499999897855105e-9
   margin=0.0
@@ -1313,6 +1315,7 @@ Path Type: min
 
 
 --- Output delay find_timing_paths ---
+Warning 502: search_report_json_formats.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 2 output delay paths
   out=1 check=0 role=output setup slack=1.8997141637555615e-9
   margin=7.999999773744548e-9 req=2.000000165480742e-9
@@ -1881,6 +1884,7 @@ Path Type: min
 
 
 --- Data check find_timing_paths ---
+Warning 502: search_report_json_formats.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 20 data check paths
   data=0 check=1 role=recovery slack=9.553728474998024e-9
   margin=-5.372824407601229e-11

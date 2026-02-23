@@ -95,20 +95,16 @@ max capacitance
 Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 inv2/ZN                                 0.00    2.92   -2.92 (VIOLATED)
+
 buf1/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf2/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf3/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf4/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf5/Z                                  0.00    1.14   -1.14 (VIOLATED)
-and2/ZN                                 0.00    0.97   -0.97 (VIOLATED)
-inv1/ZN                                 0.00    0.97   -0.97 (VIOLATED)
-reg1/Q                                  0.00    0.97   -0.97 (VIOLATED)
-in2                                     0.00    0.97   -0.97 (VIOLATED)
-or1/ZN                                  0.00    0.97   -0.97 (VIOLATED)
-in3                                     0.00    0.95   -0.95 (VIOLATED)
-in4                                     0.00    0.94   -0.94 (VIOLATED)
-in1                                     0.00    0.92   -0.92 (VIOLATED)
-and1/ZN                                 0.00    0.92   -0.92 (VIOLATED)
 
 --- set_max_capacitance on port ---
 max capacitance
@@ -153,18 +149,13 @@ fanout          3
 Slack          -2 (VIOLATED)
 
 === PULSE WIDTH CHECKS ===
---- report_pulse_width_checks ---
+--- report_min_pulse_width_checks ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    5.00    4.95 (MET)
-reg2/CK (high)                          0.05    5.00    4.95 (MET)
-reg3/CK (high)                          0.05    5.00    4.95 (MET)
-reg1/CK (low)                           0.05    5.00    4.95 (MET)
-reg2/CK (low)                           0.05    5.00    4.95 (MET)
-reg3/CK (low)                           0.05    5.00    4.95 (MET)
 
---- report_pulse_width_checks -verbose ---
+--- report_min_pulse_width_checks -verbose ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
 
@@ -186,125 +177,9 @@ Check: sequential_clock_pulse_width
 ---------------------------------------------------------
            4.95   slack (MET)
 
-Pin: reg2/CK
-Check: sequential_clock_pulse_width
 
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   0.00    0.00   reg2/CK
-           0.00   open edge arrival time
-
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg2/CK
-   0.00    5.00   clock reconvergence pessimism
-           5.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: reg3/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   0.00    0.00   reg3/CK
-           0.00   open edge arrival time
-
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg3/CK
-   0.00    5.00   clock reconvergence pessimism
-           5.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg1/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg1/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: reg2/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg2/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg2/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: reg3/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg3/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg3/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-
---- report_pulse_width_checks on specific pin ---
-                                     Required  Actual
-Pin                                    Width   Width   Slack
-------------------------------------------------------------
-reg1/CK (high)                          0.05    5.00    4.95 (MET)
-reg1/CK (low)                           0.05    5.00    4.95 (MET)
-
-                                     Required  Actual
-Pin                                    Width   Width   Slack
-------------------------------------------------------------
-reg2/CK (high)                          0.05    5.00    4.95 (MET)
-reg2/CK (low)                           0.05    5.00    4.95 (MET)
-
+--- report_min_pulse_width_checks on specific pin ---
+report_min_pulse_width_checks pin: skipped (API removed)
 --- set_min_pulse_width ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -327,27 +202,8 @@ Check: sequential_clock_pulse_width
 ---------------------------------------------------------
            0.00   slack (MET)
 
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
 
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg1/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg1/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           5.00   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           0.00   slack (MET)
-
+report_min_pulse_width_checks pin: skipped (API removed)
 Pin: reg2/CK
 Check: sequential_clock_pulse_width
 
@@ -368,202 +224,6 @@ Check: sequential_clock_pulse_width
            5.00   actual pulse width
 ---------------------------------------------------------
            0.00   slack (MET)
-
-Pin: reg2/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg2/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg2/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           5.00   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           0.00   slack (MET)
-
-Pin: reg3/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   0.00    0.00   reg3/CK
-           0.00   open edge arrival time
-
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg3/CK
-   0.00    5.00   clock reconvergence pessimism
-           5.00   close edge arrival time
----------------------------------------------------------
-           5.00   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           0.00   slack (MET)
-
-Pin: reg3/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg3/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg3/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           5.00   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           0.00   slack (MET)
-
-
-                                     Required  Actual
-Pin                                    Width   Width   Slack
-------------------------------------------------------------
-reg1/CK (high)                          4.00    5.00    1.00 (MET)
-reg1/CK (low)                           0.05    5.00    4.95 (MET)
-
-Pin: reg2/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   0.00    0.00   reg2/CK
-           0.00   open edge arrival time
-
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg2/CK
-   0.00    5.00   clock reconvergence pessimism
-           5.00   close edge arrival time
----------------------------------------------------------
-           5.00   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           0.00   slack (MET)
-
-Pin: reg2/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg2/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg2/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           5.00   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           0.00   slack (MET)
-
-Pin: reg3/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   0.00    0.00   reg3/CK
-           0.00   open edge arrival time
-
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg3/CK
-   0.00    5.00   clock reconvergence pessimism
-           5.00   close edge arrival time
----------------------------------------------------------
-           5.00   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           0.00   slack (MET)
-
-Pin: reg3/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg3/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg3/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           5.00   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           0.00   slack (MET)
-
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   0.00    0.00   reg1/CK
-           0.00   open edge arrival time
-
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg1/CK
-   0.00    5.00   clock reconvergence pessimism
-           5.00   close edge arrival time
----------------------------------------------------------
-           4.00   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           1.00   slack (MET)
-
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg1/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg1/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
 
 
 --- report_check_types -min_pulse_width ---
@@ -666,20 +326,16 @@ max capacitance
 Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 inv2/ZN                                 0.00    2.92   -2.92 (VIOLATED)
+
 buf1/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf2/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf3/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf4/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf5/Z                                  0.00    1.14   -1.14 (VIOLATED)
-and2/ZN                                 0.00    0.97   -0.97 (VIOLATED)
-inv1/ZN                                 0.00    0.97   -0.97 (VIOLATED)
-reg1/Q                                  0.00    0.97   -0.97 (VIOLATED)
-in2                                     0.00    0.97   -0.97 (VIOLATED)
-or1/ZN                                  0.00    0.97   -0.97 (VIOLATED)
-in3                                     0.00    0.95   -0.95 (VIOLATED)
-in4                                     0.00    0.94   -0.94 (VIOLATED)
-in1                                     0.00    0.92   -0.92 (VIOLATED)
-and1/ZN                                 0.00    0.92   -0.92 (VIOLATED)
 
                                      Required  Actual
 Pin                                    Width   Width   Slack

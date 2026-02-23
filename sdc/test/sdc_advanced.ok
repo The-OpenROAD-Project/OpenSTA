@@ -104,8 +104,8 @@ Path Type: max
            9.88   slack (MET)
 
 
-Warning: sdc_advanced.tcl line 1, object 'sdc_test2' not found.
-Warning: sdc_advanced.tcl line 1, object 'sdc_test2' not found.
+Warning 101: sdc_advanced.tcl line 1, object 'sdc_test2' not found.
+Warning 101: sdc_advanced.tcl line 1, object 'sdc_test2' not found.
 Startpoint: in1 (input port clocked by clk1)
 Endpoint: reg2 (falling edge-triggered data to data check clocked by clk1)
 Path Group: clk1

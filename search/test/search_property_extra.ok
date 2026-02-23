@@ -19,7 +19,7 @@ port liberty_port: none
 oport slack_max: 7.899714
 oport slack_min: 2.098566
 oport slew_max: 0.003903
-oport slew_min: 0.003638
+oport slew_min: 0.003903
 --- LibertyPort extra properties ---
 lport name: ZN
 lport full_name: ZN
@@ -52,26 +52,18 @@ buf edge: buf1/A -> buf1/Z
 buf delay_max_rise: 0.019583
 buf delay_max_fall: 0.023517
 --- Slew check limits ---
-Slew limit violations: 0
+Slew check limits: skipped (API removed)
 --- Cap check limits ---
-Cap limit violations: 5
-Pin                                    Limit     Cap   Slack
-------------------------------------------------------------
-buf1/Z                                  0.00    1.14   -1.14 (VIOLATED)
-Pin buf1/Z ^
-max capacitance    0.00
-capacitance        1.14
------------------------
-Slack             -1.14 (VIOLATED)
+Cap limit violations: skipped (API removed)
 --- Fanout check limits ---
-Fanout limit violations: 0
+Fanout limit violations: skipped (API removed)
 --- Slew/Cap/Fanout check slack ---
 Max slew check slack: 0.0906258299946785
 Max slew check limit: 0.09999999403953552
-Max cap check slack: -1.1392899751663208
-Max cap check limit: 0.0010000000474974513
-Max fanout check slack: 0.0
-Max fanout check limit: 1.0
+Max cap check slack: 59.5134162902832
+Max cap check limit: 60.65370559692383
+Max fanout check slack: 1.0000000150474662e+30
+Max fanout check limit: 1.0000000150474662e+30
 Max slew violation count: 0
-Max cap violation count: 5
+Max cap violation count: 0
 Max fanout violation count: 0

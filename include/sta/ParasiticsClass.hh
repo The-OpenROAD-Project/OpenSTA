@@ -29,7 +29,6 @@ namespace sta {
 class Parasitics;
 class Parasitic;
 class ParasiticNode;
-class ParasiticAnalysisPt;
 class ParasiticResistor;
 class ParasiticCapacitor;
 

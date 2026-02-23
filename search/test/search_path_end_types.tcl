@@ -37,7 +37,7 @@ report_checks -path_delay min
 report_check_types -verbose
 
 puts "--- find_timing_paths with recovery/removal ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 10]
+set paths [find_timing_paths -path_delay max -endpoint_count 10 -group_path_count 10]
 puts "Found [llength $paths] paths"
 foreach pe $paths {
   set role [$pe check_role]
@@ -47,7 +47,7 @@ foreach pe $paths {
 }
 
 puts "--- PathEnd attribute queries ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 3]
+set paths [find_timing_paths -path_delay max -endpoint_count 3]
 foreach pe $paths {
   puts "  is_check: [$pe is_check]"
   puts "  is_output_delay: [$pe is_output_delay]"

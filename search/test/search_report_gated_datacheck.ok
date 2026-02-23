@@ -170,6 +170,7 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
 
 
 --- Gated clock path detail ---
+Warning 502: search_report_gated_datacheck.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Total max paths: 16
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=reg1/RN role=recovery slack=9.553728474998024e-9
@@ -1367,6 +1368,7 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
 ]
 }
 --- Recovery path iteration ---
+Warning 502: search_report_gated_datacheck.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Recovery max paths: 14
   role=recovery is_check=1 pin=reg1/RN slack=9.553728474998024e-9
   role=recovery is_check=1 pin=reg2/RN slack=9.553728474998024e-9
@@ -1636,6 +1638,7 @@ clk                                    -5.38
 ]
 }
 --- Data check path iteration ---
+Warning 502: search_report_gated_datacheck.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Data check max paths: 10
   is_data_check: 1 role=data check setup pin=reg2/D
   is_data_check: 1 role=data check setup pin=reg2/D
@@ -1849,5 +1852,5 @@ Path Type: max
 max violations: 1
 min violations: 0
 --- startpoints / endpoints ---
-startpoints: 7
+startpoints: skipped (API removed)
 endpoints: 9

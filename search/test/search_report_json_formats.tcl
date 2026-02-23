@@ -58,7 +58,7 @@ report_checks -path_delay max -format slack_only
 report_checks -path_delay min -format slack_only
 
 puts "--- Latch find_timing_paths PathEnd queries ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 10]
+set paths [find_timing_paths -path_delay max -endpoint_count 10]
 puts "Found [llength $paths] max paths"
 foreach pe $paths {
   puts "  check=[$pe is_check] latch=[$pe is_latch_check] out=[$pe is_output_delay] gated=[$pe is_gated_clock] data=[$pe is_data_check] unconst=[$pe is_unconstrained] role=[$pe check_role]"
@@ -105,7 +105,7 @@ report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
 
 puts "--- Gated clock find_timing_paths ---"
-set paths_g [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 20]
+set paths_g [find_timing_paths -path_delay max -endpoint_count 10 -group_path_count 20]
 puts "Found [llength $paths_g] gated paths"
 foreach pe $paths_g {
   puts "  gated=[$pe is_gated_clock] check=[$pe is_check] role=[$pe check_role] slack=[$pe slack]"
@@ -146,7 +146,7 @@ report_checks -to [get_ports out1] -path_delay max -format full_clock_expanded
 report_checks -to [get_ports out1] -path_delay min -format full_clock_expanded
 
 puts "--- Output delay find_timing_paths ---"
-set paths_od [find_timing_paths -to [get_ports out1] -path_delay max -endpoint_path_count 5]
+set paths_od [find_timing_paths -to [get_ports out1] -path_delay max -endpoint_count 5]
 puts "Found [llength $paths_od] output delay paths"
 foreach pe $paths_od {
   puts "  out=[$pe is_output_delay] check=[$pe is_check] role=[$pe check_role] slack=[$pe slack]"
@@ -195,7 +195,7 @@ report_checks -path_delay max -format full_clock_expanded
 report_checks -path_delay min -format full_clock_expanded
 
 puts "--- Data check find_timing_paths ---"
-set paths_dc [find_timing_paths -path_delay max -endpoint_path_count 15 -group_path_count 30]
+set paths_dc [find_timing_paths -path_delay max -endpoint_count 15 -group_path_count 30]
 puts "Found [llength $paths_dc] data check paths"
 foreach pe $paths_dc {
   puts "  data=[$pe is_data_check] check=[$pe is_check] role=[$pe check_role] slack=[$pe slack]"

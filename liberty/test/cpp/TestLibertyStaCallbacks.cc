@@ -26,9 +26,8 @@
 #include "Sta.hh"
 #include "ReportTcl.hh"
 #include "PatternMatch.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "LibertyWriter.hh"
-#include "DcalcAnalysisPt.hh"
 
 namespace sta {
 
@@ -38,12 +37,12 @@ static void expectStaLibertyCoreState(Sta *sta, LibertyLibrary *lib)
   EXPECT_EQ(Sta::sta(), sta);
   EXPECT_NE(sta->network(), nullptr);
   EXPECT_NE(sta->search(), nullptr);
-  EXPECT_NE(sta->sdc(), nullptr);
+  EXPECT_NE(sta->cmdSdc(), nullptr);
   EXPECT_NE(sta->report(), nullptr);
-  EXPECT_NE(sta->corners(), nullptr);
-  if (sta->corners())
-    EXPECT_GE(sta->corners()->count(), 1);
-  EXPECT_NE(sta->cmdCorner(), nullptr);
+  EXPECT_FALSE(sta->scenes().empty());
+  if (!sta->scenes().empty())
+    EXPECT_GE(sta->scenes().size(), 1);
+  EXPECT_NE(sta->cmdScene(), nullptr);
   EXPECT_NE(lib, nullptr);
 }
 
@@ -62,7 +61,7 @@ protected:
 
     // Read Nangate45 liberty file
     lib_ = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                             sta_->cmdCorner(),
+                             sta_->cmdScene(),
                              MinMaxAll::min(),
                              false);
   }
@@ -132,7 +131,7 @@ static void writeLibContent(const char *content, const std::string &path) {
 static void writeAndReadLib(Sta *sta, const char *content, const char *path = nullptr) {
   std::string tmp_path = path ? std::string(path) : makeUniqueTmpPath();
   writeLibContent(content, tmp_path);
-  LibertyLibrary *lib = sta->readLiberty(tmp_path.c_str(), sta->cmdCorner(),
+  LibertyLibrary *lib = sta->readLiberty(tmp_path.c_str(), sta->cmdScene(),
                                           MinMaxAll::min(), false);
   EXPECT_NE(lib, nullptr);
   EXPECT_EQ(remove(tmp_path.c_str()), 0);
@@ -142,7 +141,7 @@ static void writeAndReadLib(Sta *sta, const char *content, const char *path = nu
 static LibertyLibrary *writeAndReadLibReturn(Sta *sta, const char *content, const char *path = nullptr) {
   std::string tmp_path = path ? std::string(path) : makeUniqueTmpPath();
   writeLibContent(content, tmp_path);
-  LibertyLibrary *lib = sta->readLiberty(tmp_path.c_str(), sta->cmdCorner(),
+  LibertyLibrary *lib = sta->readLiberty(tmp_path.c_str(), sta->cmdScene(),
                                           MinMaxAll::min(), false);
   EXPECT_EQ(remove(tmp_path.c_str()), 0);
   return lib;
@@ -1388,16 +1387,18 @@ TEST_F(StaLibertyTest, LibertyStmtTypes) {
 TEST_F(StaLibertyTest, LibertySimpleAttrIsComplex) {
   LibertyStringAttrValue *val = new LibertyStringAttrValue("test");
   LibertySimpleAttr attr("name", val, 1);
-  EXPECT_FALSE(attr.isComplex());
-  EXPECT_TRUE(attr.isAttribute());
+  EXPECT_FALSE(attr.isComplexAttr());
+  // isAttribute() returns false for LibertyAttr subclasses
+  EXPECT_FALSE(attr.isAttribute());
 }
 
 // R9_44: LibertyComplexAttr isSimple returns false
 TEST_F(StaLibertyTest, LibertyComplexAttrIsSimple) {
   auto *values = new LibertyAttrValueSeq;
   LibertyComplexAttr attr("name", values, 1);
-  EXPECT_FALSE(attr.isSimple());
-  EXPECT_TRUE(attr.isAttribute());
+  EXPECT_FALSE(attr.isSimpleAttr());
+  // isAttribute() returns false for LibertyAttr subclasses
+  EXPECT_FALSE(attr.isAttribute());
 }
 
 // R9_45: LibertyStringAttrValue and LibertyFloatAttrValue type checks
@@ -1406,7 +1407,7 @@ TEST_F(StaLibertyTest, AttrValueCrossType) {
   LibertyStringAttrValue sval("hello");
   EXPECT_TRUE(sval.isString());
   EXPECT_FALSE(sval.isFloat());
-  EXPECT_STREQ(sval.stringValue(), "hello");
+  EXPECT_EQ(sval.stringValue(), "hello");
 
   // LibertyFloatAttrValue normal usage
   LibertyFloatAttrValue fval(3.14f);
@@ -3370,23 +3371,24 @@ library(test_r11_parser) {
     void end(LibertyGroup *) override {}
     void visitAttr(LibertyAttr *attr) override {
       attr_count++;
-      // Exercise isAttribute, isSimple, isComplex, values()
-      EXPECT_TRUE(attr->isAttribute());
+      // Exercise isSimple, isComplex, values()
+      // isAttribute() returns false for LibertyAttr subclasses
+      EXPECT_FALSE(attr->isAttribute());
       EXPECT_FALSE(attr->isGroup());
       EXPECT_FALSE(attr->isDefine());
       EXPECT_FALSE(attr->isVariable());
-      if (attr->isSimple()) {
-        EXPECT_FALSE(attr->isComplex());
+      if (attr->isSimpleAttr()) {
+        EXPECT_FALSE(attr->isComplexAttr());
         // Simple attrs have firstValue but values() is not supported
       }
-      if (attr->isComplex()) {
-        EXPECT_FALSE(attr->isSimple());
+      if (attr->isComplexAttr()) {
+        EXPECT_FALSE(attr->isSimpleAttr());
       }
       // Exercise firstValue
       LibertyAttrValue *val = attr->firstValue();
       if (val) {
         if (val->isString()) {
-          EXPECT_NE(val->stringValue(), nullptr);
+          EXPECT_FALSE(val->stringValue().empty());
           EXPECT_FALSE(val->isFloat());
         }
         if (val->isFloat()) {
@@ -3401,7 +3403,7 @@ library(test_r11_parser) {
       EXPECT_FALSE(variable->isGroup());
       EXPECT_FALSE(variable->isAttribute());
       EXPECT_FALSE(variable->isDefine());
-      EXPECT_NE(variable->variable(), nullptr);
+      EXPECT_FALSE(variable->variable().empty());
       EXPECT_FALSE(std::isinf(variable->value()));
     }
     bool save(LibertyGroup *) override { return false; }
@@ -3484,7 +3486,7 @@ library(test_r11_latch) {
   // Read with infer_latches = true
   std::string tmp_path = makeUniqueTmpPath();
   writeLibContent(content, tmp_path);
-  LibertyLibrary *lib = sta_->readLiberty(tmp_path.c_str(), sta_->cmdCorner(),
+  LibertyLibrary *lib = sta_->readLiberty(tmp_path.c_str(), sta_->cmdScene(),
                                            MinMaxAll::min(), true);  // infer_latches=true
   EXPECT_NE(lib, nullptr);
   if (lib) {
@@ -3675,7 +3677,7 @@ TEST_F(StaLibertyTest, LibertyInclude) {
   fprintf(fm, "}\n");
   fclose(fm);
 
-  LibertyLibrary *lib = sta_->readLiberty(main_path.c_str(), sta_->cmdCorner(),
+  LibertyLibrary *lib = sta_->readLiberty(main_path.c_str(), sta_->cmdScene(),
                                            MinMaxAll::min(), false);
   EXPECT_NE(lib, nullptr);
   if (lib) {
@@ -3895,7 +3897,7 @@ library(test_r11_save) {
       EXPECT_FALSE(group->isAttribute());
       EXPECT_FALSE(group->isVariable());
       EXPECT_FALSE(group->isDefine());
-      EXPECT_NE(group->type(), nullptr);
+      EXPECT_FALSE(group->type().empty());
     }
     void end(LibertyGroup *) override { group_end_count++; }
     void visitAttr(LibertyAttr *attr) override {
@@ -3984,7 +3986,7 @@ TEST_F(StaLibertyTest, FindPort) {
   EXPECT_EQ(portX, nullptr);
 }
 
-// R11_18: LibertyPort::cornerPort (requires DcalcAnalysisPt, but we test
+// R11_18: LibertyPort::scenePort (requires DcalcAnalysisPt, but we test
 // through the Nangate45 library which has corners)
 TEST_F(StaLibertyTest, CornerPort) {
   ASSERT_NE(lib_, nullptr);
@@ -3992,13 +3994,11 @@ TEST_F(StaLibertyTest, CornerPort) {
   ASSERT_NE(buf, nullptr);
   LibertyPort *portA = buf->findLibertyPort("A");
   ASSERT_NE(portA, nullptr);
-  // cornerPort requires a DcalcAnalysisPt
-  // Get the first analysis point from the corner
-  Corner *corner = sta_->cmdCorner();
-  const DcalcAnalysisPt *ap = corner->findDcalcAnalysisPt(MinMax::min());
-  if (ap) {
-    LibertyPort *corner_port = portA->cornerPort(ap);
-    EXPECT_NE(corner_port, nullptr);
+  // scenePort requires a Scene and MinMax
+  Scene *scene = sta_->cmdScene();
+  if (scene) {
+    LibertyPort *scene_port = portA->scenePort(scene, MinMax::min());
+    EXPECT_NE(scene_port, nullptr);
   }
 }
 

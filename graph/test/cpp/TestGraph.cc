@@ -125,12 +125,9 @@ TEST(VertexStandaloneTest, DefaultConstructor)
   EXPECT_FALSE(v.visited());
   EXPECT_FALSE(v.visited2());
   EXPECT_FALSE(v.isRegClk());
-  EXPECT_FALSE(v.isDisabledConstraint());
   EXPECT_FALSE(v.hasChecks());
   EXPECT_FALSE(v.isCheckClk());
-  EXPECT_FALSE(v.isGatedClkEnable());
   EXPECT_FALSE(v.hasDownstreamClkPin());
-  EXPECT_FALSE(v.isConstrained());
   EXPECT_FALSE(v.slewAnnotated());
 }
 
@@ -163,15 +160,6 @@ TEST(VertexStandaloneTest, SetVisited2)
   EXPECT_FALSE(v.visited2());
 }
 
-TEST(VertexStandaloneTest, SetIsDisabledConstraint)
-{
-  Vertex v;
-  v.setIsDisabledConstraint(true);
-  EXPECT_TRUE(v.isDisabledConstraint());
-  v.setIsDisabledConstraint(false);
-  EXPECT_FALSE(v.isDisabledConstraint());
-}
-
 TEST(VertexStandaloneTest, SetHasChecks)
 {
   Vertex v;
@@ -190,15 +178,6 @@ TEST(VertexStandaloneTest, SetIsCheckClk)
   EXPECT_FALSE(v.isCheckClk());
 }
 
-TEST(VertexStandaloneTest, SetIsGatedClkEnable)
-{
-  Vertex v;
-  v.setIsGatedClkEnable(true);
-  EXPECT_TRUE(v.isGatedClkEnable());
-  v.setIsGatedClkEnable(false);
-  EXPECT_FALSE(v.isGatedClkEnable());
-}
-
 TEST(VertexStandaloneTest, SetHasDownstreamClkPin)
 {
   Vertex v;
@@ -208,31 +187,16 @@ TEST(VertexStandaloneTest, SetHasDownstreamClkPin)
   EXPECT_FALSE(v.hasDownstreamClkPin());
 }
 
-TEST(VertexStandaloneTest, SetIsConstrained)
+TEST(VertexStandaloneTest, HasSimValue)
 {
   Vertex v;
-  v.setIsConstrained(true);
-  EXPECT_TRUE(v.isConstrained());
-  v.setIsConstrained(false);
-  EXPECT_FALSE(v.isConstrained());
-}
+  EXPECT_FALSE(v.hasSimValue());
 
-TEST(VertexStandaloneTest, SimValue)
-{
-  Vertex v;
-  EXPECT_EQ(v.simValue(), LogicValue::unknown);
-  EXPECT_FALSE(v.isConstant());
+  v.setHasSimValue(true);
+  EXPECT_TRUE(v.hasSimValue());
 
-  v.setSimValue(LogicValue::zero);
-  EXPECT_EQ(v.simValue(), LogicValue::zero);
-  EXPECT_TRUE(v.isConstant());
-
-  v.setSimValue(LogicValue::one);
-  EXPECT_EQ(v.simValue(), LogicValue::one);
-  EXPECT_TRUE(v.isConstant());
-
-  v.setSimValue(LogicValue::unknown);
-  EXPECT_FALSE(v.isConstant());
+  v.setHasSimValue(false);
+  EXPECT_FALSE(v.hasSimValue());
 }
 
 TEST(VertexStandaloneTest, TagGroupIndex)
@@ -256,10 +220,7 @@ TEST(VertexStandaloneTest, BfsInQueue)
   EXPECT_FALSE(v.bfsInQueue(BfsIndex::dcalc));
 }
 
-TEST(VertexStandaloneTest, TransitionCount)
-{
-  EXPECT_EQ(Vertex::transitionCount(), 2);
-}
+// Vertex::transitionCount() was removed from upstream API
 
 TEST(VertexStandaloneTest, ObjectIdx)
 {
@@ -332,7 +293,7 @@ TEST(EdgeStandaloneTest, DefaultConstructor)
   EXPECT_FALSE(e.delay_Annotation_Is_Incremental());
   EXPECT_FALSE(e.isBidirectInstPath());
   EXPECT_FALSE(e.isBidirectNetPath());
-  EXPECT_FALSE(e.isDisabledCond());
+  EXPECT_FALSE(e.hasDisabledCond());
   EXPECT_FALSE(e.isDisabledLoop());
 }
 
@@ -366,10 +327,10 @@ TEST(EdgeStandaloneTest, SetIsBidirectNetPath)
 TEST(EdgeStandaloneTest, SetIsDisabledCond)
 {
   Edge e;
-  e.setIsDisabledCond(true);
-  EXPECT_TRUE(e.isDisabledCond());
-  e.setIsDisabledCond(false);
-  EXPECT_FALSE(e.isDisabledCond());
+  e.setHasDisabledCond(true);
+  EXPECT_TRUE(e.hasDisabledCond());
+  e.setHasDisabledCond(false);
+  EXPECT_FALSE(e.hasDisabledCond());
 }
 
 TEST(EdgeStandaloneTest, SetIsDisabledLoop)
@@ -381,37 +342,11 @@ TEST(EdgeStandaloneTest, SetIsDisabledLoop)
   EXPECT_FALSE(e.isDisabledLoop());
 }
 
-TEST(EdgeStandaloneTest, SimTimingSense)
-{
-  Edge e;
-  EXPECT_EQ(e.simTimingSense(), TimingSense::unknown);
-
-  e.setSimTimingSense(TimingSense::positive_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::positive_unate);
-
-  e.setSimTimingSense(TimingSense::negative_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::negative_unate);
-
-  e.setSimTimingSense(TimingSense::non_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::non_unate);
-}
-
 TEST(EdgeStandaloneTest, ObjectIdx)
 {
   Edge e;
   e.setObjectIdx(77);
   EXPECT_EQ(e.objectIdx(), 77u);
-}
-
-TEST(EdgeStandaloneTest, SetIsDisabledConstraint)
-{
-  ASSERT_NO_THROW(( [&](){
-  Edge e;
-  e.setIsDisabledConstraint(true);
-  // Can only fully test when arc_set is set; test the setter at least
-  e.setIsDisabledConstraint(false);
-
-  }() ));
 }
 
 TEST(EdgeStandaloneTest, RemoveDelayAnnotated)
@@ -532,20 +467,6 @@ TEST(VertexStandaloneTest, SetPaths)
   // setPaths is public
   v.setPaths(nullptr);
   EXPECT_EQ(v.paths(), nullptr);
-}
-
-// Test Edge timing sense combinations
-TEST(EdgeStandaloneTest, SimTimingSenseCombinations)
-{
-  Edge e;
-  e.setSimTimingSense(TimingSense::positive_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::positive_unate);
-  e.setSimTimingSense(TimingSense::negative_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::negative_unate);
-  e.setSimTimingSense(TimingSense::non_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::non_unate);
-  e.setSimTimingSense(TimingSense::unknown);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::unknown);
 }
 
 // Test multiple BFS queue indices
@@ -683,39 +604,32 @@ TEST(VertexStandaloneTest, BfsAllIndices)
   EXPECT_FALSE(v.bfsInQueue(BfsIndex::other));
 }
 
-// Test Vertex SimValue with all LogicValues
-// Covers: Vertex::setSimValue, Vertex::simValue, Vertex::isConstant
-TEST(VertexStandaloneTest, SimValueAllStates)
+// Test Vertex hasSimValue flag
+// Covers: Vertex::setHasSimValue, Vertex::hasSimValue
+TEST(VertexStandaloneTest, HasSimValueToggle)
 {
   Vertex v;
-  v.setSimValue(LogicValue::zero);
-  EXPECT_EQ(v.simValue(), LogicValue::zero);
-  EXPECT_TRUE(v.isConstant());
+  EXPECT_FALSE(v.hasSimValue());
 
-  v.setSimValue(LogicValue::one);
-  EXPECT_EQ(v.simValue(), LogicValue::one);
-  EXPECT_TRUE(v.isConstant());
+  v.setHasSimValue(true);
+  EXPECT_TRUE(v.hasSimValue());
 
-  v.setSimValue(LogicValue::unknown);
-  EXPECT_EQ(v.simValue(), LogicValue::unknown);
-  EXPECT_FALSE(v.isConstant());
+  v.setHasSimValue(false);
+  EXPECT_FALSE(v.hasSimValue());
 }
 
-// Test Edge simTimingSense all values
-// Covers: Edge::setSimTimingSense, Edge::simTimingSense
-TEST(EdgeStandaloneTest, SimTimingSenseAllValues)
+// Test Edge hasSimSense flag
+// Covers: Edge::setHasSimSense, Edge::hasSimSense
+TEST(EdgeStandaloneTest, HasSimSenseAllValues)
 {
   Edge e;
-  e.setSimTimingSense(TimingSense::unknown);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::unknown);
-  e.setSimTimingSense(TimingSense::positive_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::positive_unate);
-  e.setSimTimingSense(TimingSense::negative_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::negative_unate);
-  e.setSimTimingSense(TimingSense::non_unate);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::non_unate);
-  e.setSimTimingSense(TimingSense::unknown);
-  EXPECT_EQ(e.simTimingSense(), TimingSense::unknown);
+  EXPECT_FALSE(e.hasSimSense());
+
+  e.setHasSimSense(true);
+  EXPECT_TRUE(e.hasSimSense());
+
+  e.setHasSimSense(false);
+  EXPECT_FALSE(e.hasSimSense());
 }
 
 // Test Vertex slewAnnotated with all rf/mm combinations
@@ -798,40 +712,28 @@ TEST(VertexStandaloneTest, MultipleFlagCombinations)
 {
   Vertex v;
   // Set multiple flags and verify they don't interfere
-  v.setIsDisabledConstraint(true);
   v.setHasChecks(true);
   v.setIsCheckClk(true);
-  v.setIsGatedClkEnable(true);
   v.setHasDownstreamClkPin(true);
-  v.setIsConstrained(true);
   v.setVisited(true);
   v.setVisited2(true);
 
-  EXPECT_TRUE(v.isDisabledConstraint());
   EXPECT_TRUE(v.hasChecks());
   EXPECT_TRUE(v.isCheckClk());
-  EXPECT_TRUE(v.isGatedClkEnable());
   EXPECT_TRUE(v.hasDownstreamClkPin());
-  EXPECT_TRUE(v.isConstrained());
   EXPECT_TRUE(v.visited());
   EXPECT_TRUE(v.visited2());
 
   // Clear all
-  v.setIsDisabledConstraint(false);
   v.setHasChecks(false);
   v.setIsCheckClk(false);
-  v.setIsGatedClkEnable(false);
   v.setHasDownstreamClkPin(false);
-  v.setIsConstrained(false);
   v.setVisited(false);
   v.setVisited2(false);
 
-  EXPECT_FALSE(v.isDisabledConstraint());
   EXPECT_FALSE(v.hasChecks());
   EXPECT_FALSE(v.isCheckClk());
-  EXPECT_FALSE(v.isGatedClkEnable());
   EXPECT_FALSE(v.hasDownstreamClkPin());
-  EXPECT_FALSE(v.isConstrained());
   EXPECT_FALSE(v.visited());
   EXPECT_FALSE(v.visited2());
 }
@@ -843,25 +745,25 @@ TEST(EdgeStandaloneTest, MultipleFlagCombinations)
   Edge e;
   e.setIsBidirectInstPath(true);
   e.setIsBidirectNetPath(true);
-  e.setIsDisabledCond(true);
+  e.setHasDisabledCond(true);
   e.setIsDisabledLoop(true);
   e.setDelayAnnotationIsIncremental(true);
 
   EXPECT_TRUE(e.isBidirectInstPath());
   EXPECT_TRUE(e.isBidirectNetPath());
-  EXPECT_TRUE(e.isDisabledCond());
+  EXPECT_TRUE(e.hasDisabledCond());
   EXPECT_TRUE(e.isDisabledLoop());
   EXPECT_TRUE(e.delay_Annotation_Is_Incremental());
 
   e.setIsBidirectInstPath(false);
   e.setIsBidirectNetPath(false);
-  e.setIsDisabledCond(false);
+  e.setHasDisabledCond(false);
   e.setIsDisabledLoop(false);
   e.setDelayAnnotationIsIncremental(false);
 
   EXPECT_FALSE(e.isBidirectInstPath());
   EXPECT_FALSE(e.isBidirectNetPath());
-  EXPECT_FALSE(e.isDisabledCond());
+  EXPECT_FALSE(e.hasDisabledCond());
   EXPECT_FALSE(e.isDisabledLoop());
   EXPECT_FALSE(e.delay_Annotation_Is_Incremental());
 }
@@ -903,27 +805,23 @@ TEST(VertexStandaloneTest, MultipleFlagInteraction)
   Vertex v;
   v.setHasChecks(true);
   v.setIsCheckClk(true);
-  v.setIsGatedClkEnable(true);
   v.setHasDownstreamClkPin(true);
-  v.setIsConstrained(true);
   v.setVisited(true);
   v.setVisited2(true);
-  v.setIsDisabledConstraint(true);
+  v.setHasSimValue(true);
 
   EXPECT_TRUE(v.hasChecks());
   EXPECT_TRUE(v.isCheckClk());
-  EXPECT_TRUE(v.isGatedClkEnable());
   EXPECT_TRUE(v.hasDownstreamClkPin());
-  EXPECT_TRUE(v.isConstrained());
   EXPECT_TRUE(v.visited());
   EXPECT_TRUE(v.visited2());
-  EXPECT_TRUE(v.isDisabledConstraint());
+  EXPECT_TRUE(v.hasSimValue());
 
   // Clear each individually and verify others unaffected
   v.setHasChecks(false);
   EXPECT_FALSE(v.hasChecks());
   EXPECT_TRUE(v.isCheckClk());
-  EXPECT_TRUE(v.isConstrained());
+  EXPECT_TRUE(v.hasSimValue());
 }
 
 // Test Edge multiple flag combinations
@@ -933,13 +831,13 @@ TEST(EdgeStandaloneTest, MultipleFlagInteraction)
   Edge e;
   e.setIsBidirectInstPath(true);
   e.setIsBidirectNetPath(true);
-  e.setIsDisabledCond(true);
+  e.setHasDisabledCond(true);
   e.setIsDisabledLoop(true);
   e.setDelayAnnotationIsIncremental(true);
 
   EXPECT_TRUE(e.isBidirectInstPath());
   EXPECT_TRUE(e.isBidirectNetPath());
-  EXPECT_TRUE(e.isDisabledCond());
+  EXPECT_TRUE(e.hasDisabledCond());
   EXPECT_TRUE(e.isDisabledLoop());
   EXPECT_TRUE(e.delay_Annotation_Is_Incremental());
 
@@ -956,11 +854,10 @@ TEST(EdgeStandaloneTest, MultipleFlagInteraction)
 #include "Network.hh"
 #include "Liberty.hh"
 #include "ReportTcl.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Search.hh"
 #include "TimingArc.hh"
 #include "PortDirection.hh"
-#include "DcalcAnalysisPt.hh"
 
 namespace sta {
 
@@ -976,7 +873,7 @@ protected:
     if (report)
       report->setTclInterp(interp_);
 
-    Corner *corner = sta_->cmdCorner();
+    Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     bool infer_latches = false;
 
@@ -1151,7 +1048,7 @@ protected:
     if (report)
       report->setTclInterp(interp_);
 
-    Corner *corner = sta_->cmdCorner();
+    Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
       "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
@@ -1172,28 +1069,28 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr);
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
 
-    Clock *clk = sta_->sdc()->findClock("clk");
+    Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);
 
     Pin *d1_pin = network->findPin(top, "d1");
     ASSERT_NE(d1_pin, nullptr);
     sta_->setInputDelay(d1_pin, RiseFallBoth::riseFall(), clk,
                         RiseFall::rise(), nullptr, false, false,
-                        MinMaxAll::all(), false, 1.0f);
+                        MinMaxAll::all(), false, 1.0f, sta_->cmdSdc());
 
     Pin *d2_pin = network->findPin(top, "d2");
     ASSERT_NE(d2_pin, nullptr);
     sta_->setInputDelay(d2_pin, RiseFallBoth::riseFall(), clk,
                         RiseFall::rise(), nullptr, false, false,
-                        MinMaxAll::all(), false, 1.0f);
+                        MinMaxAll::all(), false, 1.0f, sta_->cmdSdc());
 
     Pin *en_pin = network->findPin(top, "en");
     ASSERT_NE(en_pin, nullptr);
     sta_->setInputDelay(en_pin, RiseFallBoth::riseFall(), clk,
                         RiseFall::rise(), nullptr, false, false,
-                        MinMaxAll::all(), false, 1.0f);
+                        MinMaxAll::all(), false, 1.0f, sta_->cmdSdc());
 
     design_loaded_ = true;
   }
@@ -1530,7 +1427,7 @@ protected:
     if (report)
       report->setTclInterp(interp_);
 
-    Corner *corner = sta_->cmdCorner();
+    Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
       "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
@@ -1552,7 +1449,7 @@ protected:
     FloatSeq *wave1 = new FloatSeq;
     wave1->push_back(0.0f);
     wave1->push_back(5.0f);
-    sta_->makeClock("clk1", clk1_pins, false, 10.0f, wave1, nullptr);
+    sta_->makeClock("clk1", clk1_pins, false, 10.0f, wave1, nullptr, sta_->cmdMode());
 
     // Create clock2
     Pin *clk2_pin = network->findPin(top, "clk2");
@@ -1562,10 +1459,10 @@ protected:
     FloatSeq *wave2 = new FloatSeq;
     wave2->push_back(0.0f);
     wave2->push_back(2.5f);
-    sta_->makeClock("clk2", clk2_pins, false, 5.0f, wave2, nullptr);
+    sta_->makeClock("clk2", clk2_pins, false, 5.0f, wave2, nullptr, sta_->cmdMode());
 
     // Input delays
-    Clock *clk1 = sta_->sdc()->findClock("clk1");
+    Clock *clk1 = sta_->cmdSdc()->findClock("clk1");
     ASSERT_NE(clk1, nullptr);
     const char *inputs[] = {"d1", "d2", "d3", "d4"};
     for (const char *name : inputs) {
@@ -1573,7 +1470,7 @@ protected:
       ASSERT_NE(pin, nullptr);
       sta_->setInputDelay(pin, RiseFallBoth::riseFall(), clk1,
                           RiseFall::rise(), nullptr, false, false,
-                          MinMaxAll::all(), false, 1.0f);
+                          MinMaxAll::all(), false, 1.0f, sta_->cmdSdc());
     }
 
     design_loaded_ = true;
@@ -1741,7 +1638,7 @@ protected:
     if (report)
       report->setTclInterp(interp_);
 
-    Corner *corner = sta_->cmdCorner();
+    Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
       "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
@@ -1761,22 +1658,22 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr);
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
 
-    Clock *clk = sta_->sdc()->findClock("clk");
+    Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);
 
     Pin *d1_pin = network->findPin(top, "d1");
     ASSERT_NE(d1_pin, nullptr);
     sta_->setInputDelay(d1_pin, RiseFallBoth::riseFall(), clk,
                         RiseFall::rise(), nullptr, false, false,
-                        MinMaxAll::all(), false, 1.0f);
+                        MinMaxAll::all(), false, 1.0f, sta_->cmdSdc());
 
     Pin *d2_pin = network->findPin(top, "d2");
     ASSERT_NE(d2_pin, nullptr);
     sta_->setInputDelay(d2_pin, RiseFallBoth::riseFall(), clk,
                         RiseFall::rise(), nullptr, false, false,
-                        MinMaxAll::all(), false, 1.0f);
+                        MinMaxAll::all(), false, 1.0f, sta_->cmdSdc());
 
     design_loaded_ = true;
   }
@@ -1992,13 +1889,13 @@ protected:
       report->setTclInterp(interp_);
 
     // Define two corners
-    StringSet corner_names;
-    corner_names.insert("fast");
-    corner_names.insert("slow");
-    sta_->makeCorners(&corner_names);
+    StringSeq scene_names;
+    scene_names.push_back("fast");
+    scene_names.push_back("slow");
+    sta_->makeScenes(&scene_names);
 
-    Corner *fast_corner = sta_->findCorner("fast");
-    Corner *slow_corner = sta_->findCorner("slow");
+    Scene *fast_corner = sta_->findScene("fast");
+    Scene *slow_corner = sta_->findScene("slow");
     ASSERT_NE(fast_corner, nullptr);
     ASSERT_NE(slow_corner, nullptr);
 
@@ -2026,16 +1923,16 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr);
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
 
-    Clock *clk = sta_->sdc()->findClock("clk");
+    Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);
 
     Pin *d1_pin = network->findPin(top, "d1");
     ASSERT_NE(d1_pin, nullptr);
     sta_->setInputDelay(d1_pin, RiseFallBoth::riseFall(), clk,
                         RiseFall::rise(), nullptr, false, false,
-                        MinMaxAll::all(), false, 1.0f);
+                        MinMaxAll::all(), false, 1.0f, sta_->cmdSdc());
 
     fast_corner_ = fast_corner;
     slow_corner_ = slow_corner;
@@ -2051,8 +1948,8 @@ protected:
 
   Sta *sta_;
   Tcl_Interp *interp_;
-  Corner *fast_corner_ = nullptr;
-  Corner *slow_corner_ = nullptr;
+  Scene *fast_corner_ = nullptr;
+  Scene *slow_corner_ = nullptr;
   bool design_loaded_ = false;
 };
 
@@ -2078,8 +1975,8 @@ TEST_F(GraphMultiCornerTest, DelaysDifferByCorner) {
   ASSERT_NE(arc, nullptr);
 
   // Get delay for each corner
-  DcalcAPIndex fast_idx = fast_corner_->findDcalcAnalysisPt(MinMax::max())->index();
-  DcalcAPIndex slow_idx = slow_corner_->findDcalcAnalysisPt(MinMax::max())->index();
+  DcalcAPIndex fast_idx = fast_corner_->dcalcAnalysisPtIndex(MinMax::max());
+  DcalcAPIndex slow_idx = slow_corner_->dcalcAnalysisPtIndex(MinMax::max());
   ArcDelay fast_delay = graph->arcDelay(edge, arc, fast_idx);
   ArcDelay slow_delay = graph->arcDelay(edge, arc, slow_idx);
 
@@ -2101,8 +1998,8 @@ TEST_F(GraphMultiCornerTest, SlewsDifferByCorner) {
   Vertex *v = graph->pinDrvrVertex(buf1_z);
   ASSERT_NE(v, nullptr);
 
-  DcalcAPIndex fast_idx = fast_corner_->findDcalcAnalysisPt(MinMax::max())->index();
-  DcalcAPIndex slow_idx = slow_corner_->findDcalcAnalysisPt(MinMax::max())->index();
+  DcalcAPIndex fast_idx = fast_corner_->dcalcAnalysisPtIndex(MinMax::max());
+  DcalcAPIndex slow_idx = slow_corner_->dcalcAnalysisPtIndex(MinMax::max());
   const Slew &fast_slew = graph->slew(v, RiseFall::rise(), fast_idx);
   const Slew &slow_slew = graph->slew(v, RiseFall::rise(), slow_idx);
 

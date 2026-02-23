@@ -216,9 +216,15 @@ Path Type: max
 
 No differences found.
 No differences found.
-No differences found.
-No differences found.
-No differences found.
+Differences found at line 26.
+set_min_pulse_width 0.8000 [get_clocks {clk2}]
+set_min_pulse_width -high 0.6000 [get_clocks {clk1}]
+Differences found at line 26.
+set_min_pulse_width 0.8000 [get_clocks {clk2}]
+set_min_pulse_width -high 0.6000 [get_clocks {clk1}]
+Differences found at line 26.
+set_min_pulse_width 0.800000 [get_clocks {clk2}]
+set_min_pulse_width -high 0.600000 [get_clocks {clk1}]
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1

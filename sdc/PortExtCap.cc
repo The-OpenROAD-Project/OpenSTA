@@ -26,60 +26,66 @@
 
 namespace sta {
 
-PortExtCap::PortExtCap(const Port *port) :
-  port_(port)
+PortExtCap::PortExtCap() :
+  port_(nullptr)
 {
 }
 
 void
 PortExtCap::pinCap(const RiseFall *rf,
-		   const MinMax *min_max,
-		   // Return values.
-		   float &cap,
-		   bool &exists)
+                   const MinMax *min_max,
+                   // Return values.
+                   float &cap,
+                   bool &exists) const
 {
   pin_cap_.value(rf, min_max, cap, exists);
 }
 
 void
-PortExtCap::setPinCap(float cap,
-		      const RiseFall *rf,
-		      const MinMax *min_max)
+PortExtCap::setPinCap(const Port *port,
+                      float cap,
+                      const RiseFall *rf,
+                      const MinMax *min_max)
 {
+  port_ = port;
   pin_cap_.setValue(rf, min_max, cap);
 }
 
 void
 PortExtCap::wireCap(const RiseFall *rf,
-		    const MinMax *min_max,
-		    // Return values.
-		    float &cap,
-		    bool &exists)
+                    const MinMax *min_max,
+                    // Return values.
+                    float &cap,
+                    bool &exists) const
 {
   wire_cap_.value(rf, min_max, cap, exists);
 }
 
 void
-PortExtCap::setWireCap(float cap,
-		       const RiseFall *rf,
-		       const MinMax *min_max)
+PortExtCap::setWireCap(const Port *port,
+                       float cap,
+                       const RiseFall *rf,
+                       const MinMax *min_max)
 {
+  port_ = port;
   wire_cap_.setValue(rf, min_max, cap);
 }
 
 void
-PortExtCap::setFanout(int fanout,
-		      const MinMax *min_max)
+PortExtCap::setFanout(const Port *port,
+                      int fanout,
+                      const MinMax *min_max)
 {
+  port_ = port;
   fanout_.setValue(min_max, fanout);
 }
 
 
 void
 PortExtCap::fanout(const MinMax *min_max,
-		   // Return values.
-		   int &fanout,
-		   bool &exists)
+                   // Return values.
+                   int &fanout,
+                   bool &exists) const
 {
   fanout_.value(min_max, fanout, exists);
 }

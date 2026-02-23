@@ -690,7 +690,7 @@ Path Type: min
 
 
 --- report_net -connections ---
-Warning: search_spef_parasitics.tcl line 1, report_net -connections is deprecated.
+Warning 235: search_spef_parasitics.tcl line 1, report_net -connections is deprecated.
 Net n1
  Pin capacitance: 0.88-0.97
  Wire capacitance: 0.02
@@ -705,7 +705,7 @@ Driver pins
 Load pins
  buf1/A input (BUF_X1) 0.88-0.97
 
-Warning: search_spef_parasitics.tcl line 1, report_net -connections is deprecated.
+Warning 235: search_spef_parasitics.tcl line 1, report_net -connections is deprecated.
 Net n2
  Pin capacitance: 1.06-1.14
  Wire capacitance: 8.00

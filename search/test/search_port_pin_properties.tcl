@@ -182,7 +182,7 @@ foreach arcset $arcsets {
 }
 
 puts "--- PathEnd properties ---"
-set path_ends [find_timing_paths -path_delay max -endpoint_path_count 5]
+set path_ends [find_timing_paths -path_delay max -endpoint_count 5]
 foreach pe $path_ends {
   set sp [get_property $pe startpoint]
   puts "pathend startpoint: [get_full_name $sp]"

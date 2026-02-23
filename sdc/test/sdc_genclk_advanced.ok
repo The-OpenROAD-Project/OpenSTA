@@ -5,9 +5,9 @@ clk2                     20.00        0.00     10.00
 vclk                      8.00        0.00      4.00
 clk1_2x                   5.00        0.00      2.50
 clk_asym                 12.00        0.00      3.00
-Warning: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gclk_div3 pin clk2 is in the fanout of multiple clocks.
-Warning: generated clock gclk_mul2 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div3 pin clk2 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_mul2 pin clk1 is in the fanout of multiple clocks.
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk1                     10.00        0.00      5.00

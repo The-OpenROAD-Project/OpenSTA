@@ -68,7 +68,7 @@ buf1 pins: 2
 and1 pins: 3
 reg1 pins: 6
 --- timing report sorting ---
-Warning: network_sorting.tcl line 1, unknown field nets.
+Warning 168: network_sorting.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -100,7 +100,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   7.74   slack (MET)
 
 
-Warning: network_sorting.tcl line 1, unknown field nets.
+Warning 168: network_sorting.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

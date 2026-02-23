@@ -32,8 +32,7 @@
 #include "Parasitics.hh"
 #include "Graph.hh"
 #include "Sdc.hh"
-#include "Corner.hh"
-#include "DcalcAnalysisPt.hh"
+#include "Scene.hh"
 #include "GraphDelayCalc.hh"
 #include "Variables.hh"
 
@@ -50,7 +49,7 @@ DelayCalcBase::DelayCalcBase(StaState *sta) :
 void
 DelayCalcBase::reduceParasitic(const Parasitic *parasitic_network,
                                const Net *net,
-                               const Corner *corner,
+                               const Scene *scene,
                                const MinMaxAll *min_max)
 {
   NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
@@ -59,16 +58,12 @@ DelayCalcBase::reduceParasitic(const Parasitic *parasitic_network,
     if (network_->isDriver(pin)) {
       for (const RiseFall *rf : RiseFall::range()) {
         for (const MinMax *min_max : min_max->range()) {
-          if (corner == nullptr) {
-            for (const Corner *corner1 : *corners_) {
-              DcalcAnalysisPt *dcalc_ap = corner1->findDcalcAnalysisPt(min_max);
-              reduceParasitic(parasitic_network, pin, rf, dcalc_ap);
-            }
+          if (scene == nullptr) {
+            for (const Scene *scene1 : scenes_)
+              reduceParasitic(parasitic_network, pin, rf, scene1, min_max);
           }
-          else {
-            DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-            reduceParasitic(parasitic_network, pin, rf, dcalc_ap);
-          }
+          else
+            reduceParasitic(parasitic_network, pin, rf, scene, min_max);
         }
       }
     }
@@ -136,7 +131,7 @@ DelayCalcBase::thresholdAdjust(const Pin *load_pin,
     float drvr_slew_derate = drvr_library->slewDerateFromLibrary();
     float load_slew_derate = load_library->slewDerateFromLibrary();
     load_slew = load_slew * ((load_slew_delta / load_slew_derate)
-			     / (drvr_slew_delta / drvr_slew_derate));
+                             / (drvr_slew_delta / drvr_slew_derate));
   }
 }
 
@@ -162,13 +157,15 @@ DelayCalcBase::checkDelay(const Pin *check_pin,
                           const Slew &from_slew,
                           const Slew &to_slew,
                           float related_out_cap,
-                          const DcalcAnalysisPt *dcalc_ap)
+                          const Scene *scene,
+                          const MinMax *min_max)
 {
-  CheckTimingModel *model = arc->checkModel(dcalc_ap);
+  CheckTimingModel *model = arc->checkModel(scene, min_max);
   if (model) {
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
-    return model->checkDelay(pinPvt(check_pin, dcalc_ap), from_slew1, to_slew1,
+    return model->checkDelay(pinPvt(check_pin, scene, min_max),
+                             from_slew1, to_slew1,
                              related_out_cap,
                              variables_->pocvEnabled());
   }
@@ -183,40 +180,46 @@ DelayCalcBase::reportCheckDelay(const Pin *check_pin,
                                 const char *from_slew_annotation,
                                 const Slew &to_slew,
                                 float related_out_cap,
-                                const DcalcAnalysisPt *dcalc_ap,
+                                const Scene *scene,
+                                const MinMax *min_max,
                                 int digits)
 {
-  CheckTimingModel *model = arc->checkModel(dcalc_ap);
+  CheckTimingModel *model = arc->checkModel(scene, min_max);
   if (model) {
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
-    return model->reportCheckDelay(pinPvt(check_pin, dcalc_ap), from_slew1,
-                                   from_slew_annotation, to_slew1,
-                                   related_out_cap, false, digits);
+    return model->reportCheckDelay(pinPvt(check_pin, scene, min_max),
+                                   from_slew1, from_slew_annotation,
+                                   to_slew1, related_out_cap, false,
+                                   digits);
   }
   return "";
 }
 
 const Pvt *
 DelayCalcBase::pinPvt(const Pin *pin,
-                      const DcalcAnalysisPt *dcalc_ap)
+                      const Scene *scene,
+                      const MinMax *min_max)
 {
   const Instance *drvr_inst = network_->instance(pin);
-  const Pvt *pvt = sdc_->pvt(drvr_inst, dcalc_ap->constraintMinMax());
+  const Sdc *sdc = scene->sdc();
+  const Pvt *pvt = sdc->pvt(drvr_inst, min_max);
   if (pvt == nullptr)
-    pvt = dcalc_ap->operatingConditions();
+    pvt = sdc->operatingConditions(min_max);
   return pvt;
 }
 
 void
 DelayCalcBase::setDcalcArgParasiticSlew(ArcDcalcArg &gate,
-                                        const DcalcAnalysisPt *dcalc_ap)
+                                        const Scene *scene,
+                                        const MinMax *min_max)
 {
   const Pin *drvr_pin = gate.drvrPin();
   if (drvr_pin) {
     const Parasitic *parasitic;
     float load_cap;
-    graph_delay_calc_->parasiticLoad(drvr_pin, gate.drvrEdge(), dcalc_ap,
+    graph_delay_calc_->parasiticLoad(drvr_pin, gate.drvrEdge(),
+                                     scene, min_max,
                                      nullptr, this, load_cap,
                                      parasitic);
     gate.setLoadCap(load_cap);
@@ -224,17 +227,19 @@ DelayCalcBase::setDcalcArgParasiticSlew(ArcDcalcArg &gate,
     const Pin *in_pin = gate.inPin();
     const Vertex *in_vertex = graph_->pinLoadVertex(in_pin);
     const Slew &in_slew = graph_delay_calc_->edgeFromSlew(in_vertex, gate.inEdge(),
-                                                          gate.edge(), dcalc_ap);
+                                                          gate.edge(),
+                                                          scene, min_max);
     gate.setInSlew(in_slew);
   }
 }
 
 void
 DelayCalcBase::setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
-                                        const DcalcAnalysisPt *dcalc_ap)
+                                        const Scene *scene,
+                                        const MinMax *min_max)
 {
   for (ArcDcalcArg &gate : gates)
-    setDcalcArgParasiticSlew(gate, dcalc_ap);
+    setDcalcArgParasiticSlew(gate, scene, min_max);
 }
 
 } // namespace

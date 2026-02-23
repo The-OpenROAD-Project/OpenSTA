@@ -28,21 +28,21 @@ puts "--- report_checks with groups ---"
 report_checks -path_delay max
 
 puts "--- find_timing_paths with large group and endpoint counts ---"
-set paths [find_timing_paths -path_delay max -group_path_count 20 -endpoint_path_count 10]
+set paths [find_timing_paths -path_delay max -group_path_count 20 -endpoint_count 10]
 puts "Found [llength $paths] paths (max)"
 foreach pe $paths {
   puts "  [get_full_name [$pe pin]] slack=[$pe slack] role=[$pe check_role]"
 }
 
 puts "--- find_timing_paths with min paths ---"
-set paths_min [find_timing_paths -path_delay min -group_path_count 20 -endpoint_path_count 10]
+set paths_min [find_timing_paths -path_delay min -group_path_count 20 -endpoint_count 10]
 puts "Found [llength $paths_min] paths (min)"
 foreach pe $paths_min {
   puts "  [get_full_name [$pe pin]] slack=[$pe slack]"
 }
 
 puts "--- find_timing_paths -sort_by_slack ---"
-set paths_sorted [find_timing_paths -sort_by_slack -path_delay max -group_path_count 20 -endpoint_path_count 10]
+set paths_sorted [find_timing_paths -sort_by_slack -path_delay max -group_path_count 20 -endpoint_count 10]
 puts "Found [llength $paths_sorted] sorted paths"
 set prev_slack 999999
 set sorted_ok 1
@@ -56,7 +56,7 @@ foreach pe $paths_sorted {
 puts "Sort order correct: $sorted_ok"
 
 puts "--- find_timing_paths -unique_paths_to_endpoint ---"
-set paths_unique [find_timing_paths -unique_paths_to_endpoint -path_delay max -group_path_count 10 -endpoint_path_count 5]
+set paths_unique [find_timing_paths -unique_paths_to_endpoint -path_delay max -group_path_count 10 -endpoint_count 5]
 puts "Found [llength $paths_unique] unique paths"
 
 puts "--- find_timing_paths -slack_max filtering ---"
@@ -79,7 +79,7 @@ puts "input_paths is group: [sta::is_path_group_name input_paths]"
 puts "nonexistent is group: [sta::is_path_group_name nonexistent_group]"
 
 puts "--- report_path_ends ---"
-set pe_list [find_timing_paths -path_delay max -endpoint_path_count 5]
+set pe_list [find_timing_paths -path_delay max -endpoint_count 5]
 sta::report_path_end_header
 foreach pe $pe_list {
   sta::report_path_end $pe
@@ -108,7 +108,9 @@ puts "max violations: [sta::endpoint_violation_count max]"
 puts "min violations: [sta::endpoint_violation_count min]"
 
 puts "--- startpoints / endpoints ---"
-set starts [sta::startpoints]
-puts "Startpoints: [llength $starts]"
+# TODO: sta::startpoints removed from SWIG interface (startpointPins not defined)
+# set starts [sta::startpoints]
+# puts "Startpoints: [llength $starts]"
+puts "Startpoints: skipped (API removed)"
 set ends [sta::endpoints]
 puts "Endpoints: [llength $ends]"

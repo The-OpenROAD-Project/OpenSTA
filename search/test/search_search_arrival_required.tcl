@@ -153,7 +153,7 @@ puts "max violations (normal): [sta::endpoint_violation_count max]"
 # find_timing_paths with sort_by_slack
 ############################################################
 puts "--- find_timing_paths sort_by_slack ---"
-set paths_sorted [find_timing_paths -path_delay max -sort_by_slack -endpoint_path_count 5 -group_path_count 10]
+set paths_sorted [find_timing_paths -path_delay max -sort_by_slack -endpoint_count 5 -group_path_count 10]
 puts "Sorted paths: [llength $paths_sorted]"
 set prev_slack 999999
 foreach pe $paths_sorted {

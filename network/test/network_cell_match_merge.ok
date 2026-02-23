@@ -61,11 +61,11 @@ all cells: 3
 buf* cells: 1
 reg* cells: 1
 and* cells: 1
-Warning: network_cell_match_merge.tcl line 1, instance 'inv*' not found.
+Warning 349: network_cell_match_merge.tcl line 1, instance 'inv*' not found.
 inv* cells: 0
-Warning: network_cell_match_merge.tcl line 1, instance 'or*' not found.
+Warning 349: network_cell_match_merge.tcl line 1, instance 'or*' not found.
 or* cells: 0
-Warning: network_cell_match_merge.tcl line 1, instance 'n*' not found.
+Warning 349: network_cell_match_merge.tcl line 1, instance 'n*' not found.
 n* cells: 0
 --- net pattern matching ---
 all nets: 6

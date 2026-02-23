@@ -27,6 +27,9 @@
 #include <algorithm> // swap
 #include <filesystem>
 
+#include "cudd.h"
+
+#include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Units.hh"
 #include "TableModel.hh"
@@ -41,9 +44,9 @@
 #include "search/Sim.hh"
 #include "Clock.hh"
 #include "Path.hh"
-#include "DcalcAnalysisPt.hh"
 #include "Bdd.hh"
-#include "cudd.h"
+#include "Sdc.hh"
+#include "Mode.hh"
 
 namespace sta {
 
@@ -93,7 +96,8 @@ WriteSpice::WriteSpice(const char *spice_filename,
                        const char *power_name,
                        const char *gnd_name,
                        CircuitSim ckt_sim,
-                       const DcalcAnalysisPt *dcalc_ap,
+                       const Scene *scene,
+                       const MinMax *min_max,
                        const StaState *sta) :
   StaState(sta),
   spice_filename_(spice_filename),
@@ -103,13 +107,15 @@ WriteSpice::WriteSpice(const char *spice_filename,
   power_name_(power_name),
   gnd_name_(gnd_name),
   ckt_sim_(ckt_sim),
-  dcalc_ap_(dcalc_ap),
+  scene_(scene),
+  min_max_(min_max),
   default_library_(network_->defaultLibertyLibrary()),
   short_ckt_resistance_(.0001),
   cap_index_(1),
   res_index_(1),
   volt_index_(1),
-  bdd_(sta)
+  bdd_(sta),
+  parasitics_(scene->parasitics(min_max))
 {
 }
 
@@ -119,7 +125,8 @@ WriteSpice::initPowerGnd()
   bool exists = false;
   default_library_->supplyVoltage(power_name_, power_voltage_, exists);
   if (!exists) {
-    const OperatingConditions *op_cond = dcalc_ap_->operatingConditions();
+    const OperatingConditions *op_cond =
+      scene_->sdc()->operatingConditions(min_max_);
     if (op_cond == nullptr)
       op_cond = network_->defaultLibertyLibrary()->defaultOperatingConditions();
     power_voltage_ = op_cond->voltage();
@@ -211,7 +218,7 @@ WriteSpice::writeSubckts(StdStringSet &cell_names)
 	if (tokens.size() >= 2
 	    && stringEqual(tokens[0].c_str(), ".subckt")) {
 	  const char *cell_name = tokens[1].c_str();
-	  if (cell_names.find(cell_name) != cell_names.end()) {
+          if (cell_names.contains(cell_name)) {
 	    subckts_stream << line << "\n";
 	    bool found_ends = false;
 	    while (getline(lib_subckts_stream, line)) {
@@ -288,7 +295,7 @@ WriteSpice::findCellSubckts(StdStringSet &cell_names)
       if (tokens.size() >= 2
           && stringEqual(tokens[0].c_str(), ".subckt")) {
         const char *cell_name = tokens[1].c_str();
-        if (cell_names.find(cell_name) != cell_names.end()) {
+        if (cell_names.contains(cell_name)) {
           // Scan the subckt definition for subckt calls.
           string stmt;
           while (getline(lib_subckts_stream, line)) {
@@ -370,15 +377,15 @@ WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
     else if (stringEq(subckt_port_name, gnd_name_))
       writeVoltageSource(inst_name, subckt_port_name, gnd_voltage_);
     else if (port
-             && excluded_input_pins.find(pin) == excluded_input_pins.end()
+             && !excluded_input_pins.contains(pin)
              && port->direction()->isAnyInput()) {
       // Input voltage to sensitize path from gate input to output.
       // Look for tie high/low or propagated constant values.
-      LogicValue port_value = sim_->logicValue(pin);
+      LogicValue port_value = scene_->mode()->sim()->simValue(pin);
       if (port_value == LogicValue::unknown) {
         bool has_value;
         LogicValue value;
-        port_values.findKey(port, value, has_value);
+        findKeyValue(port_values, port, value, has_value);
         if (has_value)
           port_value = value;
       }
@@ -468,7 +475,8 @@ WriteSpice::findSlew(Vertex *vertex,
                      const RiseFall *rf,
                      const TimingArc *next_arc)
 {
-  float slew = delayAsFloat(graph_->slew(vertex, rf, dcalc_ap_->index()));
+  DcalcAPIndex ap_index = scene_->dcalcAnalysisPtIndex(min_max_);
+  float slew = delayAsFloat(graph_->slew(vertex, rf, ap_index));
   if (slew == 0.0 && next_arc)
     slew = slewAxisMinValue(next_arc);
   if (slew == 0.0)
@@ -480,7 +488,7 @@ WriteSpice::findSlew(Vertex *vertex,
 float
 WriteSpice::slewAxisMinValue(const TimingArc *arc)
 {
-  GateTableModel *gate_model = arc->gateTableModel(dcalc_ap_);
+  GateTableModel *gate_model = arc->gateTableModel(scene_, min_max_);
   if (gate_model) {
     const TableModel *model = gate_model->delayModel();
     const TableAxis *axis1 = model->axis1();
@@ -533,8 +541,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
   set<const Pin*> reachable_pins;
   // Sort resistors for consistent regression results.
   ParasiticResistorSeq resistors = parasitics_->resistors(parasitic);
-  sort(resistors.begin(), resistors.end(),
-       [this] (const ParasiticResistor *r1,
+  sort(resistors, [this] (const ParasiticResistor *r1,
                const ParasiticResistor *r2) {
          return parasitics_->id(r1) < parasitics_->id(r2);
        });
@@ -564,7 +571,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
     if (pin != drvr_pin
 	&& network_->isLoad(pin)
 	&& !network_->isHierarchical(pin)
-	&& reachable_pins.find(pin) == reachable_pins.end()) {
+        && !reachable_pins.contains(pin)) {
       streamPrint(spice_stream_, "R%d %s %s %.3e\n",
 		  res_index_++,
 		  network_->pathName(drvr_pin),
@@ -577,8 +584,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
   // Grounded node capacitors.
   // Sort nodes for consistent regression results.
   ParasiticNodeSeq nodes = parasitics_->nodes(parasitic);
-  sort(nodes.begin(), nodes.end(),
-       [this] (const ParasiticNode *node1,
+  sort(nodes, [this] (const ParasiticNode *node1,
                const ParasiticNode *node2) {
          const char *name1 = parasitics_->name(node1);
          const char *name2 = parasitics_->name(node2);
@@ -598,8 +604,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
 
   // Sort coupling capacitors for consistent regression results.
   ParasiticCapacitorSeq capacitors = parasitics_->capacitors(parasitic);
-  sort(capacitors.begin(), capacitors.end(),
-       [this] (const ParasiticCapacitor *c1,
+  sort(capacitors, [this] (const ParasiticCapacitor *c1,
                const ParasiticCapacitor *c2) {
          return parasitics_->id(c1) < parasitics_->id(c2);
        });
@@ -614,7 +619,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
       swap(net1, net2);
       swap(node1, node2);
     }
-    if (net2 && coupling_nets.hasKey(net2))
+    if (net2 && coupling_nets.contains(net2))
       // Write half the capacitance because the coupled net will do the same.
       streamPrint(spice_stream_, "C%d %s %s %.3e\n",
                   cap_index_++,
@@ -755,7 +760,7 @@ WriteSpice::writeWaveformVoltSource(const Pin *pin,
 	      volt_index_++,
 	      network_->pathName(pin));
   streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
-  Table1 waveform = drvr_waveform->waveform(slew);
+  Table waveform = drvr_waveform->waveform(slew);
   const TableAxis *time_axis = waveform.axis1();
   for (size_t time_index = 0; time_index <  time_axis->size(); time_index++) {
     float time = delay + time_axis->axisValue(time_index);
@@ -867,9 +872,8 @@ WriteSpice::gatePortValues(const Instance *,
   CUDD_VALUE_TYPE value;
   DdGen *cube_gen = Cudd_FirstCube(cudd_mgr, diff, &cube, &value);
 
-  FuncExprPortIterator port_iter(expr);
-  while (port_iter.hasNext()) {
-    const LibertyPort *port = port_iter.next();
+  LibertyPortSet ports = expr->ports();
+  for (const LibertyPort *port : ports) {
     if (port != input_port) {
       DdNode *port_node = bdd_.findNode(port);
       int var_index = Cudd_NodeReadIndex(port_node);
@@ -965,19 +969,19 @@ WriteSpice::onePort(FuncExpr *expr)
   FuncExpr *right = expr->right();
   LibertyPort *port;
   switch (expr->op()) {
-  case FuncExpr::op_port:
+  case FuncExpr::Op::port:
     return expr->port();
-  case FuncExpr::op_not:
+  case FuncExpr::Op::not_:
     return onePort(left);
-  case FuncExpr::op_or:
-  case FuncExpr::op_and:
-  case FuncExpr::op_xor:
+  case FuncExpr::Op::or_:
+  case FuncExpr::Op::and_:
+  case FuncExpr::Op::xor_:
     port = onePort(left);
     if (port == nullptr)
       port = onePort(right);
     return port;
-  case FuncExpr::op_one:
-  case FuncExpr::op_zero:
+  case FuncExpr::Op::one:
+  case FuncExpr::Op::zero:
   default:
     return nullptr;
   }
@@ -1018,7 +1022,7 @@ WriteSpice::writeSubcktInstLoads(const Pin *drvr_pin,
 	&& network_->direction(load_pin)->isAnyInput()
 	&& !network_->isHierarchical(load_pin)
 	&& !network_->isTopLevelPort(load_pin)
-        && !written_insts.hasKey(load_inst)) {
+        && !written_insts.contains(load_inst)) {
       writeSubcktInst(load_inst);
       writeSubcktInstVoltSrcs(load_inst, port_values, excluded_input_pins);
       streamPrint(spice_stream_, "\n");

@@ -1388,6 +1388,7 @@ clk1                                    0.07
 clk2                                    0.11
 
 --- report_path_cmd with formats ---
+Warning 502: search_report_fields_formats.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
   Delay    Time   Description
 ---------------------------------------------------------
    0.00    0.00   clock clk1 (rise edge)
@@ -1461,8 +1462,8 @@ clk2                                    0.11
 }
 
 --- field properties ---
-Warning: unknown report path field delay
-Warning: unknown report path field delay
+Warning 1575: unknown report path field delay
+Warning 1576: unknown report path field delay
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -2225,6 +2226,7 @@ Fanout     Cap    Slew   Delay   Total   Description
 
 
 --- JSON endpoint count ---
+Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 {"checks": [
 {
   "type": "output_delay",
@@ -3249,6 +3251,7 @@ Fanout     Cap    Slew   Delay   Total   Description
 }
 ]
 }
+Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 {"checks": [
 {
   "type": "check",
@@ -4481,6 +4484,7 @@ Path Type: max
 
 
 --- report_path_end min ---
+Warning 502: search_report_fields_formats.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Path Group: clk1

@@ -93,6 +93,7 @@ clk sources: 1
 --- Propagated clock property ---
 clk is_propagated (after set): 1
 --- PathEnd points property ---
+Warning 502: search_property_inst_cell.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 PathEnd points count: 4
   point pin: reg1/Q
   point arrival: 0.083707

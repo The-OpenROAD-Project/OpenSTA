@@ -1023,7 +1023,8 @@ Path Type: min
 }
 ]
 }
---- report_checks JSON with endpoint_path_count ---
+--- report_checks JSON with endpoint_count ---
+Warning 502: search_report_path_expanded.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 {"checks": [
 {
   "type": "output_delay",
@@ -1555,6 +1556,7 @@ Path Type: min
 ]
 }
 --- find_timing_paths and iterate ---
+Warning 502: search_report_path_expanded.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 10 paths
 Path 0:
   pin: out1
@@ -3979,6 +3981,7 @@ Path 9:
 ]
 }
 --- set_report_path_format json then report ---
+Warning 502: search_report_path_expanded.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 {
 "path": [
   {
@@ -4034,10 +4037,12 @@ Path 9:
    0.02    0.16 ^ buf3/Z (BUF_X1)
    0.00    0.16 ^ out1 (out)
 --- PathEnd vertex access ---
+Warning 502: search_report_path_expanded.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 vertex: out1
-  is_clock: 0
-  has_downstream_clk_pin: 0
+  is_clock: skipped (API removed)
+  has_downstream_clk_pin: skipped (API removed)
 --- find_timing_paths min_max ---
+Warning 502: search_report_path_expanded.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_max paths: 10
   min_max: min slack=7.392011308615665e-11
   min_max: min slack=7.521362005435961e-11
@@ -4059,6 +4064,6 @@ wns max 0.000000
 worst slack max 5.874074
 --- search debug info ---
 tag_group_count: 10
-tag_count: 44
+tag_count: 64
 clk_info_count: 20
 path_count: 140

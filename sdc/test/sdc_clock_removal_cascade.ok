@@ -1,5 +1,5 @@
-Warning: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gclk_div4 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div2 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div4 pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg3/Q (clock source 'gclk_mul2')
 Endpoint: out2 (output port clocked by clk_aux)
 Path Group: clk_aux

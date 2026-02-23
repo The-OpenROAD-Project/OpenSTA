@@ -34,7 +34,7 @@ cells b*: 1
 cells buf*: 1
 cells and*: 1
 cells reg*: 1
-Warning: network_escaped_names.tcl line 1, instance 'nonexistent_*' not found.
+Warning 349: network_escaped_names.tcl line 1, instance 'nonexistent_*' not found.
 cells nonexistent_*: 0
 --- pin pattern matching ---
 buf1/* pins: 2
@@ -361,7 +361,7 @@ Path Type: max
            9.92   slack (MET)
 
 
-Warning: network_escaped_names.tcl line 1, unknown field nets.
+Warning 168: network_escaped_names.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

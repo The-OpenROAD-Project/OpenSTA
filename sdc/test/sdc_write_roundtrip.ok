@@ -1,8 +1,8 @@
-Warning: sdc_write_roundtrip.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-Warning: sdc_write_roundtrip.tcl line 1, object 'sdc_test2' not found.
-Warning: sdc_write_roundtrip.tcl line 1, object 'sdc_test2' not found.
-Warning: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Warning 415: sdc_write_roundtrip.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Warning 101: sdc_write_roundtrip.tcl line 1, object 'sdc_test2' not found.
+Warning 101: sdc_write_roundtrip.tcl line 1, object 'sdc_test2' not found.
+Warning 1061: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -52,8 +52,8 @@ Path Type: max
            3.37   slack (MET)
 
 
-Warning: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -103,8 +103,8 @@ Path Type: max
            3.37   slack (MET)
 
 
-Warning: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -154,8 +154,8 @@ Path Type: max
            3.37   slack (MET)
 
 
-Warning: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gclk_edge')
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1

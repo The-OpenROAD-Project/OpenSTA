@@ -1,5 +1,5 @@
 --- Test 1: read_sdf ---
-Warning: sdf_cond_pathpulse.sdf line 97, cell DFF_X1 CK -> D skew check not found.
+Warning 192: sdf_cond_pathpulse.sdf line 97, cell DFF_X1 CK -> D skew check not found.
 --- Test 2: timing paths ---
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
@@ -289,7 +289,7 @@ Unannotated Arcs
  width              reg2/CK -> reg2/CK 
 --- Test 5: write SDF ---
 --- Test 6: detailed reports ---
-Warning: sdf_cond_pathpulse.tcl line 1, unknown field nets.
+Warning 168: sdf_cond_pathpulse.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -447,7 +447,7 @@ Pin: reg1/CK
 
 
 --- Test 7: re-read SDF ---
-Warning: sdf_cond_pathpulse.sdf line 97, cell DFF_X1 CK -> D skew check not found.
+Warning 192: sdf_cond_pathpulse.sdf line 97, cell DFF_X1 CK -> D skew check not found.
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

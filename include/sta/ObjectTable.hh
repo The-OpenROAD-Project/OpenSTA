@@ -24,7 +24,9 @@
 
 #pragma once
 
-#include "Vector.hh"
+#include <vector>
+
+#include "ContainerHelpers.hh"
 #include "Error.hh"
 #include "ObjectId.hh"
 
@@ -66,12 +68,12 @@ public:
 private:
   void makeBlock();
   void freePush(TYPE *object,
-		ObjectId id);
+                ObjectId id);
 
   size_t size_;
   // Object ID of next free object.
   ObjectId free_;
-  Vector<TableBlock<TYPE>*> blocks_;
+  std::vector<TableBlock<TYPE>*> blocks_;
   static constexpr ObjectId idx_mask_ = block_object_count - 1;
 };
 
@@ -85,7 +87,7 @@ ObjectTable<TYPE>::ObjectTable() :
 template <class TYPE>
 ObjectTable<TYPE>::~ObjectTable()
 {
-  blocks_.deleteContents();
+  deleteContents(blocks_);
 }
 
 template <class TYPE>
@@ -106,7 +108,7 @@ ObjectTable<TYPE>::make()
 template <class TYPE>
 void
 ObjectTable<TYPE>::freePush(TYPE *object,
-			    ObjectId id)
+                            ObjectId id)
 {
   // Link free objects into a list linked by Object ID.
   ObjectId *free_next = reinterpret_cast<ObjectId*>(object);
@@ -181,7 +183,7 @@ template <class TYPE>
 void
 ObjectTable<TYPE>::clear()
 {
-  blocks_.deleteContentsClear();
+  deleteContents(blocks_);;
   size_ = 0;
 }
 
@@ -192,7 +194,7 @@ class TableBlock
 {
 public:
   TableBlock(BlockIdx block_idx,
-	     ObjectTable<TYPE> *table);
+             ObjectTable<TYPE> *table);
   BlockIdx index() const { return block_idx_; }
   TYPE &ref(ObjectIdx idx) { return objects_[idx]; }
   TYPE *pointer(ObjectIdx idx) { return &objects_[idx]; }
@@ -205,7 +207,7 @@ private:
 
 template <class TYPE>
 TableBlock<TYPE>::TableBlock(BlockIdx block_idx,
-			     ObjectTable<TYPE> *table) :
+                             ObjectTable<TYPE> *table) :
   block_idx_(block_idx),
   table_(table)
 {

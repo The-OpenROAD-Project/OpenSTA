@@ -239,7 +239,7 @@ Path Type: min
 
 
 No paths found.
-Warning: network_bus_parse.tcl line 1, unknown field nets.
+Warning 168: network_bus_parse.tcl line 1, unknown field nets.
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk

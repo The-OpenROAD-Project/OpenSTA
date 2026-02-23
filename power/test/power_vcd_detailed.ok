@@ -1,5 +1,5 @@
 --- Test 1: VCD power full report ---
-Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+Warning 198: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
 Annotated 937 pin activities.
 vcd           937
 unannotated     0
@@ -1096,31 +1096,7 @@ Total                4.50450607e-04 1.50352484e-04 9.90521443e-10 6.00804051e-04
    9.02e-06   2.49e-06   8.63e-12   1.15e-05 _413_
    1.02e-05   1.05e-06   8.33e-12   1.12e-05 _434_
    9.83e-06   1.17e-06   8.45e-12   1.10e-05 _432_
-[
-{
-  "name": "clkbuf_2_2__f_clk",
-  "internal": 9.52e-06,
-  "switching": 1.09e-05,
-  "leakage": 4.60e-12,
-  "total": 2.05e-05
-}
-,
-{
-  "name": "clkbuf_2_0__f_clk",
-  "internal": 9.51e-06,
-  "switching": 1.09e-05,
-  "leakage": 4.60e-12,
-  "total": 2.04e-05
-}
-,
-{
-  "name": "clkbuf_2_1__f_clk",
-  "internal": 9.51e-06,
-  "switching": 1.09e-05,
-  "leakage": 4.60e-12,
-  "total": 2.04e-05
-}
-]
+highest_power_instances json: skipped (API removed)
    Internal  Switching    Leakage      Total
       Power      Power      Power      Power (Watts)
 --------------------------------------------
@@ -1129,47 +1105,7 @@ Total                4.50450607e-04 1.50352484e-04 9.90521443e-10 6.00804051e-04
  9.5147e-06 1.0909e-05 4.6007e-12 2.0424e-05 clkbuf_2_1__f_clk
  9.4550e-06 9.7304e-06 4.6007e-12 1.9185e-05 clkbuf_2_3__f_clk
  1.1744e-05 5.0113e-06 8.4636e-12 1.6756e-05 _430_
-[
-{
-  "name": "clkbuf_2_2__f_clk",
-  "internal": 9.515052e-06,
-  "switching": 1.094666e-05,
-  "leakage": 4.600750e-12,
-  "total": 2.046172e-05
-}
-,
-{
-  "name": "clkbuf_2_0__f_clk",
-  "internal": 9.514861e-06,
-  "switching": 1.092787e-05,
-  "leakage": 4.600750e-12,
-  "total": 2.044274e-05
-}
-,
-{
-  "name": "clkbuf_2_1__f_clk",
-  "internal": 9.514670e-06,
-  "switching": 1.090908e-05,
-  "leakage": 4.600750e-12,
-  "total": 2.042375e-05
-}
-,
-{
-  "name": "clkbuf_2_3__f_clk",
-  "internal": 9.455012e-06,
-  "switching": 9.730366e-06,
-  "leakage": 4.600750e-12,
-  "total": 1.918539e-05
-}
-,
-{
-  "name": "_430_",
-  "internal": 1.174424e-05,
-  "switching": 5.011340e-06,
-  "leakage": 8.463559e-12,
-  "total": 1.675559e-05
-}
-]
+highest_power_instances json digits 6: skipped (API removed)
 --- Test 5: instance power ---
 cells for instance power: 237
    Internal  Switching    Leakage      Total
@@ -1319,11 +1255,11 @@ cells for instance power: 237
    1.23e-07   1.62e-07   4.10e-12   2.85e-07 _203_
    1.42e-07   1.42e-07   8.05e-13   2.85e-07 _407_
    1.65e-07   1.20e-07   3.15e-12   2.85e-07 _309_
+   1.42e-07   1.41e-07   8.05e-13   2.84e-07 _398_
    1.42e-07   1.41e-07   8.05e-13   2.84e-07 _378_
    1.42e-07   1.41e-07   8.05e-13   2.84e-07 _390_
-   1.42e-07   1.41e-07   8.05e-13   2.84e-07 _394_
-   1.42e-07   1.41e-07   8.05e-13   2.84e-07 _398_
    1.42e-07   1.41e-07   8.05e-13   2.84e-07 _402_
+   1.42e-07   1.41e-07   8.05e-13   2.84e-07 _394_
    1.94e-07   8.05e-08   7.65e-13   2.75e-07 _376_
    1.41e-07   1.30e-07   2.49e-13   2.71e-07 _282_
    1.88e-07   8.08e-08   1.24e-12   2.69e-07 _373_
@@ -1398,8 +1334,8 @@ cells for instance power: 237
    1.70e-08   1.09e-08   7.73e-12   2.79e-08 _325_
    1.70e-08   1.09e-08   7.73e-12   2.79e-08 _336_
    1.70e-08   1.09e-08   7.73e-12   2.79e-08 _322_
-   1.70e-08   1.09e-08   7.73e-12   2.79e-08 _345_
    1.70e-08   1.09e-08   7.73e-12   2.79e-08 _348_
+   1.70e-08   1.09e-08   7.73e-12   2.79e-08 _345_
    1.20e-08   1.54e-08   5.00e-14   2.73e-08 _406_
    1.19e-08   1.54e-08   1.90e-13   2.73e-08 _337_
    1.57e-08   1.09e-08   7.52e-12   2.66e-08 _339_
@@ -1409,9 +1345,9 @@ cells for instance power: 237
    1.18e-08   1.10e-08   1.90e-13   2.28e-08 _330_
    1.18e-08   1.10e-08   1.90e-13   2.28e-08 _341_
    1.18e-08   1.10e-08   1.90e-13   2.28e-08 _327_
-   1.73e-08   0.00e+00   7.79e-14   1.73e-08 _320_
-   1.73e-08   0.00e+00   7.79e-14   1.73e-08 _323_
    1.73e-08   0.00e+00   7.79e-14   1.73e-08 _346_
+   1.73e-08   0.00e+00   7.79e-14   1.73e-08 _323_
+   1.73e-08   0.00e+00   7.79e-14   1.73e-08 _320_
 [
 {
   "name": "_430_",
@@ -2566,6 +2502,14 @@ cells for instance power: 237
 }
 ,
 {
+  "name": "_398_",
+  "internal": 1.42e-07,
+  "switching": 1.41e-07,
+  "leakage": 8.05e-13,
+  "total": 2.84e-07
+}
+,
+{
   "name": "_378_",
   "internal": 1.42e-07,
   "switching": 1.41e-07,
@@ -2582,23 +2526,15 @@ cells for instance power: 237
 }
 ,
 {
-  "name": "_394_",
-  "internal": 1.42e-07,
-  "switching": 1.41e-07,
-  "leakage": 8.05e-13,
-  "total": 2.84e-07
-}
-,
-{
-  "name": "_398_",
-  "internal": 1.42e-07,
-  "switching": 1.41e-07,
-  "leakage": 8.05e-13,
-  "total": 2.84e-07
-}
-,
-{
   "name": "_402_",
+  "internal": 1.42e-07,
+  "switching": 1.41e-07,
+  "leakage": 8.05e-13,
+  "total": 2.84e-07
+}
+,
+{
+  "name": "_394_",
   "internal": 1.42e-07,
   "switching": 1.41e-07,
   "leakage": 8.05e-13,
@@ -3198,7 +3134,7 @@ cells for instance power: 237
 }
 ,
 {
-  "name": "_345_",
+  "name": "_348_",
   "internal": 1.70e-08,
   "switching": 1.09e-08,
   "leakage": 7.73e-12,
@@ -3206,7 +3142,7 @@ cells for instance power: 237
 }
 ,
 {
-  "name": "_348_",
+  "name": "_345_",
   "internal": 1.70e-08,
   "switching": 1.09e-08,
   "leakage": 7.73e-12,
@@ -3286,7 +3222,7 @@ cells for instance power: 237
 }
 ,
 {
-  "name": "_320_",
+  "name": "_346_",
   "internal": 1.73e-08,
   "switching": 0.00e+00,
   "leakage": 7.79e-14,
@@ -3302,7 +3238,7 @@ cells for instance power: 237
 }
 ,
 {
-  "name": "_346_",
+  "name": "_320_",
   "internal": 1.73e-08,
   "switching": 0.00e+00,
   "leakage": 7.79e-14,
@@ -3456,11 +3392,11 @@ cells for instance power: 237
  1.234460e-07 1.616047e-07 4.104700e-12 2.850548e-07 _203_
  1.421931e-07 1.423591e-07 8.049465e-13 2.845530e-07 _407_
  1.647064e-07 1.198217e-07 3.154478e-12 2.845312e-07 _309_
+ 1.421689e-07 1.414843e-07 8.049465e-13 2.836540e-07 _398_
  1.421689e-07 1.414843e-07 8.049465e-13 2.836540e-07 _378_
  1.421689e-07 1.414843e-07 8.049465e-13 2.836540e-07 _390_
- 1.421689e-07 1.414843e-07 8.049465e-13 2.836540e-07 _394_
- 1.421689e-07 1.414843e-07 8.049465e-13 2.836540e-07 _398_
  1.421689e-07 1.414843e-07 8.049465e-13 2.836540e-07 _402_
+ 1.421689e-07 1.414843e-07 8.049465e-13 2.836540e-07 _394_
  1.943990e-07 8.051400e-08 7.653893e-13 2.749138e-07 _376_
  1.407337e-07 1.298592e-07 2.485149e-13 2.705932e-07 _282_
  1.882026e-07 8.083799e-08 1.241435e-12 2.690418e-07 _373_
@@ -3535,8 +3471,8 @@ cells for instance power: 237
  1.702990e-08 1.089288e-08 7.726073e-12 2.793051e-08 _325_
  1.702989e-08 1.089288e-08 7.726073e-12 2.793050e-08 _336_
  1.702988e-08 1.089288e-08 7.726073e-12 2.793049e-08 _322_
- 1.702988e-08 1.089288e-08 7.726073e-12 2.793049e-08 _345_
  1.702988e-08 1.089288e-08 7.726073e-12 2.793049e-08 _348_
+ 1.702988e-08 1.089288e-08 7.726073e-12 2.793049e-08 _345_
  1.195568e-08 1.535760e-08 5.002208e-14 2.731333e-08 _406_
  1.190535e-08 1.539000e-08 1.897652e-13 2.729553e-08 _337_
  1.569015e-08 1.089288e-08 7.517376e-12 2.659054e-08 _339_
@@ -3546,9 +3482,9 @@ cells for instance power: 237
  1.182871e-08 1.098360e-08 1.897652e-13 2.281250e-08 _330_
  1.182565e-08 1.098360e-08 1.897652e-13 2.280944e-08 _341_
  1.180448e-08 1.098360e-08 1.897652e-13 2.278827e-08 _327_
- 1.726436e-08 0.000000e+00 7.789877e-14 1.726444e-08 _320_
- 1.726436e-08 0.000000e+00 7.789877e-14 1.726444e-08 _323_
  1.726436e-08 0.000000e+00 7.789877e-14 1.726444e-08 _346_
+ 1.726436e-08 0.000000e+00 7.789877e-14 1.726444e-08 _323_
+ 1.726436e-08 0.000000e+00 7.789877e-14 1.726444e-08 _320_
 --- Test 6: manual activity override ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -3595,7 +3531,7 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Total                  4.50e-04   1.50e-04   9.91e-10   6.01e-04 100.0%
                           75.0%      25.0%       0.0%
 --- Test 7: pin-level activity ---
-Warning: power_vcd_detailed.tcl line 1, pin '*/_clk_/CLK' not found.
+Warning 363: power_vcd_detailed.tcl line 1, pin '*/_clk_/CLK' not found.
 --- Test 8: density activity ---
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -3647,7 +3583,7 @@ Total                  3.48e+05   3.28e+05   9.94e-10   6.76e+05 100.0%
   }
 }
 --- Test 9: SAIF power ---
-Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
+Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Annotated 937 pin activities.
 saif          937
 unannotated     0

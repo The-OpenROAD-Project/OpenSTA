@@ -537,7 +537,7 @@ Path Type: max
 
 
 --- report_checks -fields nets ---
-Warning: search_report_path_types.tcl line 1, unknown field nets.
+Warning 168: search_report_path_types.tcl line 1, unknown field nets.
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
 Path Group: asynchronous
@@ -648,7 +648,7 @@ Fanout   Delay    Time   Description
 
 
 --- report_checks -fields all ---
-Warning: search_report_path_types.tcl line 1, unknown field nets.
+Warning 168: search_report_path_types.tcl line 1, unknown field nets.
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
 Path Group: asynchronous
@@ -705,7 +705,7 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 
 --- report_checks min -fields all ---
-Warning: search_report_path_types.tcl line 1, unknown field nets.
+Warning 168: search_report_path_types.tcl line 1, unknown field nets.
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
 Path Group: asynchronous

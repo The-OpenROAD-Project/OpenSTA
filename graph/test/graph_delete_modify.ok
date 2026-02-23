@@ -58,7 +58,7 @@ Path Type: min
            1.03   slack (MET)
 
 
-Warning: graph_delete_modify.tcl line 1, unknown field nets.
+Warning 168: graph_delete_modify.tcl line 1, unknown field nets.
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

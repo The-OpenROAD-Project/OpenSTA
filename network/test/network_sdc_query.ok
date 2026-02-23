@@ -448,7 +448,7 @@ Path Type: max
            9.88   slack (MET)
 
 
-Warning: network_sdc_query.tcl line 1, unknown field nets.
+Warning 168: network_sdc_query.tcl line 1, unknown field nets.
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk
@@ -483,7 +483,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   9.84   slack (MET)
 
 
-Warning: network_sdc_query.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: network_sdc_query.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk
@@ -633,7 +633,7 @@ Path Type: max
            9.86   slack (MET)
 
 
-Warning: network_sdc_query.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Warning 503: network_sdc_query.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)
 Path Group: clk

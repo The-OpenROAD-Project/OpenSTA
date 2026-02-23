@@ -64,6 +64,7 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
 
 
 --- PathEnd methods ---
+Warning 502: search_report_path_detail.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
   is_unconstrained: 0
   is_check: 0
   is_latch_check: 0
@@ -101,7 +102,7 @@ Fanout     Cap    Slew   Delay    Time   Description                          Sr
   slack: -1.0028596009181712e-10
   pin: out1
   edge: ^
-  tag: 13 ^ max/1 clk ^ clk_src clk crpr_pin null
+  tag: 18 default ^ max clk ^ clk_src clk crpr_pin null
   path pins: 6
   start_path pin: reg1/Q
 --- group_path with various options ---
@@ -191,94 +192,101 @@ Path Type: max
 
 
 --- find_timing_paths with path groups ---
+Warning 502: search_report_path_detail.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 6 paths
 --- find_timing_paths unique paths ---
+Warning 502: search_report_path_detail.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 3 unique paths
 --- Search internal commands ---
 tag_group_count: 6
-tag_count: 20
+tag_count: 24
 clk_info_count: 4
 path_count: 76
 endpoint_violation_count max: 0
 endpoint_violation_count min: 0
 --- Startpoints and endpoints ---
-Startpoints: 4
+Startpoints: skipped (API removed)
 Endpoints: 3
 Endpoint count: 3
 --- Path group names ---
 Path group names: clk out_group reg_group asynchronous {path delay} {gated clock} unconstrained
 --- find_requireds ---
 --- report internal debug ---
-Group    0 hash = 17966705655932391860 ( 134)
-  0 0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
-  1 2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
-  2 1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
-  3 3 v max/1 clk v (clock ideal) clk_src clk crpr_pin null
+Group    0 hash = 2697898004198490802 (  79)
+  0 0 default ^ min clk ^ clk_src clk crpr_pin null input in2
+  1 2 default ^ max clk ^ clk_src clk crpr_pin null input in2
+  2 1 default v min clk ^ clk_src clk crpr_pin null input in2
+  3 3 default v max clk ^ clk_src clk crpr_pin null input in2
 
-Group    1 hash = 2697892853488099690 (  11)
-  0 4 ^ min/0 clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
-  1 6 ^ max/1 clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
-  2 5 v min/0 clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
-  3 7 v max/1 clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
+Group    1 hash = 1860950969858666218 ( 107)
+  0 4 default ^ min clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
+  1 6 default ^ max clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
+  2 5 default v min clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
+  3 7 default v max clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
 
-Group    2 hash = 2705662179234464818 ( 101)
-  0 8 ^ min/0 clk ^ clk_src clk crpr_pin null input in2
-  1 10 ^ max/1 clk ^ clk_src clk crpr_pin null input in2
-  2 9 v min/0 clk ^ clk_src clk crpr_pin null input in2
-  3 11 v max/1 clk ^ clk_src clk crpr_pin null input in2
+Group    2 hash = 17966741373156438452 (  88)
+  0 8 default ^ min clk ^ (clock ideal) clk_src clk crpr_pin null
+  1 12 default ^ max clk ^ (clock ideal) clk_src clk crpr_pin null
+  2 11 default v min clk v (clock ideal) clk_src clk crpr_pin null
+  3 15 default v max clk v (clock ideal) clk_src clk crpr_pin null
 
-Group    3 hash = 17969741592058791410 (  82)
-  0 12 ^ min/0 clk ^ clk_src clk crpr_pin null
-  1 13 ^ max/1 clk ^ clk_src clk crpr_pin null
-  2 14 v min/0 clk ^ clk_src clk crpr_pin null
-  3 15 v max/1 clk ^ clk_src clk crpr_pin null
+Group    3 hash = 17944144282683767210 ( 132)
+  0 16 default ^ min clk ^ clk_src clk crpr_pin null Group -from {in1}
+  1 18 default ^ max clk ^ clk_src clk crpr_pin null Group -from {in1}
+  2 17 default v min clk ^ clk_src clk crpr_pin null Group -from {in1}
+  3 19 default v max clk ^ clk_src clk crpr_pin null Group -from {in1}
 
-Group    4 hash = 17969506157945265194 (  17)
-  0 16 ^ min/0 clk ^ clk_src clk crpr_pin null Group -from {in1}
-  1 17 ^ max/1 clk ^ clk_src clk crpr_pin null Group -from {in1}
-  2 18 v min/0 clk ^ clk_src clk crpr_pin null Group -from {in1}
-  3 19 v max/1 clk ^ clk_src clk crpr_pin null Group -from {in1}
+Group    4 hash = 17969506314027398258 ( 127)
+  0 20 default ^ min clk ^ clk_src clk crpr_pin null
+  1 22 default ^ max clk ^ clk_src clk crpr_pin null
+  2 21 default v min clk ^ clk_src clk crpr_pin null
+  3 23 default v max clk ^ clk_src clk crpr_pin null
 
-Group    5 hash = 17492503676294504988 (  39)
-  0 12 ^ min/0 clk ^ clk_src clk crpr_pin null
-  1 16 ^ min/0 clk ^ clk_src clk crpr_pin null Group -from {in1}
-  2 13 ^ max/1 clk ^ clk_src clk crpr_pin null
-  3 17 ^ max/1 clk ^ clk_src clk crpr_pin null Group -from {in1}
-  4 14 v min/0 clk ^ clk_src clk crpr_pin null
-  5 18 v min/0 clk ^ clk_src clk crpr_pin null Group -from {in1}
-  6 15 v max/1 clk ^ clk_src clk crpr_pin null
-  7 19 v max/1 clk ^ clk_src clk crpr_pin null Group -from {in1}
+Group    5 hash = 17466906523001613852 (  62)
+  0 20 default ^ min clk ^ clk_src clk crpr_pin null
+  1 16 default ^ min clk ^ clk_src clk crpr_pin null Group -from {in1}
+  2 22 default ^ max clk ^ clk_src clk crpr_pin null
+  3 18 default ^ max clk ^ clk_src clk crpr_pin null Group -from {in1}
+  4 21 default v min clk ^ clk_src clk crpr_pin null
+  5 17 default v min clk ^ clk_src clk crpr_pin null Group -from {in1}
+  6 23 default v max clk ^ clk_src clk crpr_pin null
+  7 19 default v max clk ^ clk_src clk crpr_pin null Group -from {in1}
 
-Longest hash bucket length 1 hash=11
-0 ^ min/0 clk ^ (clock ideal) clk_src clk crpr_pin null
-1 v min/0 clk v (clock ideal) clk_src clk crpr_pin null
-2 ^ max/1 clk ^ (clock ideal) clk_src clk crpr_pin null
-3 v max/1 clk v (clock ideal) clk_src clk crpr_pin null
-4 ^ min/0 clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
-5 v min/0 clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
-6 ^ max/1 clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
-7 v max/1 clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
-8 ^ min/0 clk ^ clk_src clk crpr_pin null input in2
-9 v min/0 clk ^ clk_src clk crpr_pin null input in2
-10 ^ max/1 clk ^ clk_src clk crpr_pin null input in2
-11 v max/1 clk ^ clk_src clk crpr_pin null input in2
-12 ^ min/0 clk ^ clk_src clk crpr_pin null
-13 ^ max/1 clk ^ clk_src clk crpr_pin null
-14 v min/0 clk ^ clk_src clk crpr_pin null
-15 v max/1 clk ^ clk_src clk crpr_pin null
-16 ^ min/0 clk ^ clk_src clk crpr_pin null Group -from {in1}
-17 ^ max/1 clk ^ clk_src clk crpr_pin null Group -from {in1}
-18 v min/0 clk ^ clk_src clk crpr_pin null Group -from {in1}
-19 v max/1 clk ^ clk_src clk crpr_pin null Group -from {in1}
-Longest hash bucket length 1 hash=15
-min/0 clk ^ clk_src clk
-max/1 clk ^ clk_src clk
-min/0 clk v clk_src clk
-max/1 clk v clk_src clk
+Longest hash bucket length 1 hash=62
+0 default ^ min clk ^ clk_src clk crpr_pin null input in2
+1 default v min clk ^ clk_src clk crpr_pin null input in2
+2 default ^ max clk ^ clk_src clk crpr_pin null input in2
+3 default v max clk ^ clk_src clk crpr_pin null input in2
+4 default ^ min clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
+5 default v min clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
+6 default ^ max clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
+7 default v max clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
+8 default ^ min clk ^ (clock ideal) clk_src clk crpr_pin null
+9 default v min clk ^ (clock ideal) clk_src clk crpr_pin null
+10 default ^ min clk v (clock ideal) clk_src clk crpr_pin null
+11 default v min clk v (clock ideal) clk_src clk crpr_pin null
+12 default ^ max clk ^ (clock ideal) clk_src clk crpr_pin null
+13 default v max clk ^ (clock ideal) clk_src clk crpr_pin null
+14 default ^ max clk v (clock ideal) clk_src clk crpr_pin null
+15 default v max clk v (clock ideal) clk_src clk crpr_pin null
+16 default ^ min clk ^ clk_src clk crpr_pin null Group -from {in1}
+17 default v min clk ^ clk_src clk crpr_pin null Group -from {in1}
+18 default ^ max clk ^ clk_src clk crpr_pin null Group -from {in1}
+19 default v max clk ^ clk_src clk crpr_pin null Group -from {in1}
+20 default ^ min clk ^ clk_src clk crpr_pin null
+21 default v min clk ^ clk_src clk crpr_pin null
+22 default ^ max clk ^ clk_src clk crpr_pin null
+23 default v max clk ^ clk_src clk crpr_pin null
+Longest hash bucket length 1 hash=6
+default/min clk ^ clk_src clk
+default/max clk ^ clk_src clk
+default/min clk v clk_src clk
+default/max clk v clk_src clk
 4 clk infos
      4     11
      8      4
 --- report_path_end header/footer ---
+Warning 502: search_report_path_detail.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: out_group

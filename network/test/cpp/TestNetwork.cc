@@ -9,6 +9,7 @@
 #include "PatternMatch.hh"
 #include "NetworkCmp.hh"
 #include "SdcNetwork.hh"
+#include "ContainerHelpers.hh"
 
 namespace sta {
 
@@ -2427,7 +2428,7 @@ TEST_F(ConcreteNetworkLinkedTest, PinSetWithNetwork) {
   set1.insert(pin_u1_y_);
   PinSet set2(&network_);
   set2.insert(pin_u1_a_);
-  EXPECT_TRUE(PinSet::intersects(&set1, &set2, &network_));
+  EXPECT_TRUE(intersects(&set1, &set2, &network_));
 }
 
 // PinSet: compare
@@ -2436,7 +2437,7 @@ TEST_F(ConcreteNetworkLinkedTest, PinSetCompare) {
   set1.insert(pin_u1_a_);
   PinSet set2(&network_);
   set2.insert(pin_u2_a_);
-  int cmp = PinSet::compare(&set1, &set2, &network_);
+  int cmp = compare(&set1, &set2, &network_);
   // Different sets should not compare equal
   EXPECT_NE(cmp, 0);
 }
@@ -2448,7 +2449,7 @@ TEST_F(ConcreteNetworkLinkedTest, InstanceSetWithNetwork) {
   set1.insert(u2_);
   InstanceSet set2(&network_);
   set2.insert(u1_);
-  EXPECT_TRUE(InstanceSet::intersects(&set1, &set2, &network_));
+  EXPECT_TRUE(intersects(&set1, &set2, &network_));
 }
 
 // NetSet: with network and intersects
@@ -2458,7 +2459,7 @@ TEST_F(ConcreteNetworkLinkedTest, NetSetWithNetwork) {
   set1.insert(net2_);
   NetSet set2(&network_);
   set2.insert(net1_);
-  EXPECT_TRUE(NetSet::intersects(&set1, &set2, &network_));
+  EXPECT_TRUE(intersects(&set1, &set2, &network_));
 }
 
 // NetSet: compare
@@ -2467,7 +2468,7 @@ TEST_F(ConcreteNetworkLinkedTest, NetSetCompare) {
   set1.insert(net1_);
   NetSet set2(&network_);
   set2.insert(net2_);
-  int cmp = NetSet::compare(&set1, &set2, &network_);
+  int cmp = compare(&set1, &set2, &network_);
   // Different sets should not compare equal
   EXPECT_NE(cmp, 0);
 }

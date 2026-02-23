@@ -215,14 +215,13 @@ clk                      10.00        0.00      5.00
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk                      10.00        0.00      5.00
---- report_pulse_width_checks ---
+--- report_min_pulse_width_checks ---
                                      Required  Actual
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    5.00    4.95 (MET)
-reg1/CK (low)                           0.05    5.00    4.95 (MET)
 
---- report_pulse_width_checks verbose ---
+--- report_min_pulse_width_checks verbose ---
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
 
@@ -244,35 +243,9 @@ Check: sequential_clock_pulse_width
 ---------------------------------------------------------
            4.95   slack (MET)
 
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
 
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg1/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg1/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-
---- report_pulse_width_checks on pin ---
-                                     Required  Actual
-Pin                                    Width   Width   Slack
-------------------------------------------------------------
-reg1/CK (high)                          0.05    5.00    4.95 (MET)
-reg1/CK (low)                           0.05    5.00    4.95 (MET)
-
+--- report_min_pulse_width_checks on pin ---
+report_min_pulse_width_checks pin: skipped (API removed)
 --- report_disabled_edges ---
 --- report_constant on instance ---
 VDD X
@@ -290,13 +263,17 @@ Found 1 min paths
 Found 2 min_max paths
 --- find_timing_paths with constraints ---
 Found 1 paths from in1
---- find_timing_paths -endpoint_path_count ---
-Found 3 paths with endpoint_path_count 3
+--- find_timing_paths -endpoint_count ---
+Warning 502: search_analysis.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Found 3 paths with endpoint_count 3
 --- find_timing_paths -group_path_count ---
+Warning 502: search_analysis.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 5 paths with group_path_count 5
 --- find_timing_paths -sort_by_slack ---
+Warning 502: search_analysis.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 3 sorted paths
 --- find_timing_paths -unique_paths_to_endpoint ---
+Warning 502: search_analysis.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 3 unique paths
 --- find_timing_paths -slack_max ---
 Found 1 paths with slack_max 100

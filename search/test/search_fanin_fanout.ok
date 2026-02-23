@@ -51,7 +51,7 @@ Edges to buf1/Z: 1 edges
 --- get_timing_edges -of_objects instance ---
 Edges of and1: 1 edges
 --- get_timing_edges -of_objects lib_cell ---
-Warning: search_fanin_fanout.tcl line 1, library 'Nangate45_typ' not found.
+Warning 353: search_fanin_fanout.tcl line 1, library 'Nangate45_typ' not found.
 Edges of AND2_X1 lib cell: 0 edges
 --- report_edges -from ---
 A1 -> ZN combinational

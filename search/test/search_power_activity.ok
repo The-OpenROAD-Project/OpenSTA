@@ -169,17 +169,16 @@ max capacitance
 Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 reg1/Q                                  0.00    4.38   -4.38 (VIOLATED)
+
 ckbuf/Z                                 0.00    1.90   -1.90 (VIOLATED)
+
 inv1/ZN                                 0.00    1.78   -1.78 (VIOLATED)
+
 buf1/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf2/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf3/Z                                  0.00    1.14   -1.14 (VIOLATED)
-or1/ZN                                  0.00    0.97   -0.97 (VIOLATED)
-in2                                     0.00    0.97   -0.97 (VIOLATED)
-and1/ZN                                 0.00    0.95   -0.95 (VIOLATED)
-in3                                     0.00    0.94   -0.94 (VIOLATED)
-in1                                     0.00    0.92   -0.92 (VIOLATED)
-clk                                     0.00    0.78   -0.78 (VIOLATED)
 
 max fanout
 

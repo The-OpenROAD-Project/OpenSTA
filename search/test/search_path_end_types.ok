@@ -626,6 +626,7 @@ Check: sequential_clock_pulse_width
 
 
 --- find_timing_paths with recovery/removal ---
+Warning 502: search_path_end_types.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 12 paths
   role=recovery pin=reg1/RN slack=9.553728474998024e-9
   role=recovery pin=reg2/RN slack=9.553728474998024e-9
@@ -640,6 +641,7 @@ Found 12 paths
   role=setup pin=reg1/D slack=8.922569350033882e-9
   role=setup pin=reg1/D slack=8.923859873277706e-9
 --- PathEnd attribute queries ---
+Warning 502: search_path_end_types.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
   is_check: 1
   is_output_delay: 0
   path_delay_margin_is_external: 0

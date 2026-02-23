@@ -336,6 +336,7 @@ Path Type: max
 
 
 --- find_timing_paths multi-clock ---
+Warning 502: search_tag_path_analysis.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 multi-clock paths: 22
   reg2/D slack=8.872357071254555e-9
   reg1/D slack=8.883310975704717e-9
@@ -360,6 +361,7 @@ multi-clock paths: 22
   reg3/D slack=1.9883289681388305e-8
   reg3/D slack=1.988473030678506e-8
 --- find_timing_paths min multi-clock ---
+Warning 502: search_tag_path_analysis.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min multi-clock: 22
 --- total_negative_slack ---
 tns max: 0.0
@@ -1071,7 +1073,7 @@ Path Type: min
  (gen_clk ^) r 2.07:2.07 f 2.04:2.04
  (clk1 ^) r 0.31:10.27 f 0.30:10.26
  (gen_clk ^) r 0.31:10.27 f 0.30:10.26
- (clk1 ^) r 1.04:8.88 f 1.05:8.90
+ (clk1 ^) r 1.04:8.92 f 1.05:8.91
  (gen_clk ^) r 1.76:8.20 f 1.74:8.22
  (clk1 ^) r 0.38:0.38 f 0.38:0.38
  (clk1 ^) r 0.61:10.27 f 0.60:10.26

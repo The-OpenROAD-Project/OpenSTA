@@ -1,4 +1,5 @@
---- find_timing_paths endpoint_path_count 5 ---
+--- find_timing_paths endpoint_count 5 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 5 paths: 14
   reg1/RN slack=9.553728474998024e-9
   reg2/RN slack=9.553728474998024e-9
@@ -14,9 +15,11 @@ epc 5 paths: 14
   reg1/D slack=8.923859873277706e-9
   reg2/D slack=9.865935624020494e-9
   reg2/D slack=9.875192219510609e-9
---- find_timing_paths endpoint_path_count 3 group_path_count 10 ---
+--- find_timing_paths endpoint_count 3 group_path_count 10 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 3 gpc 10: 12
---- find_timing_paths min endpoint_path_count 5 ---
+--- find_timing_paths min endpoint_count 5 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min epc 5: 14
   reg1/RN slack=3.1855806881253557e-10
   reg2/RN slack=3.1855806881253557e-10
@@ -32,19 +35,25 @@ min epc 5: 14
   out1 slack=2.107002128326485e-9
   out2 slack=2.114403319097846e-9
   out1 slack=2.118544895068908e-9
---- find_timing_paths endpoint_path_count 1 ---
+--- find_timing_paths endpoint_count 1 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 1: 7
 --- -unique_paths_to_endpoint epc 3 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 unique epc 3: 8
 --- -unique_edges_to_endpoint epc 3 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 unique_edges epc 3: 13
---- -sort_by_slack endpoint_path_count 5 ---
+--- -sort_by_slack endpoint_count 5 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 sorted epc 5: 14
 Sorted correctly: 0
 --- find_timing_paths grouped epc 5 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 grouped epc 5: 14
 --- report_checks epc 3 -fields ---
-Warning: search_path_enum_deep.tcl line 1, unknown field nets.
+Warning 168: search_path_enum_deep.tcl line 1, unknown field nets.
+Warning 502: search_path_enum_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: in_grp
@@ -331,6 +340,7 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 
 --- report_checks epc 3 -format end ---
+Warning 502: search_path_enum_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 max_delay/setup group in_grp
 
                                      Required  Actual
@@ -366,6 +376,7 @@ reg2/D (DFFR_X1)                        9.97    0.10    9.87 (MET)
 reg2/D (DFFR_X1)                        9.96    0.08    9.88 (MET)
 
 --- report_checks epc 3 -format summary ---
+Warning 502: search_path_enum_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
 in2 (input)                          reg1/D (DFFR_X1)                        8.91
@@ -380,6 +391,7 @@ reg1/Q (DFFR_X1)                     reg2/D (DFFR_X1)                        9.8
 reg1/Q (DFFR_X1)                     reg2/D (DFFR_X1)                        9.88
 
 --- report_checks min epc 3 ---
+Warning 502: search_path_enum_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: in_grp
@@ -657,6 +669,7 @@ Path Type: min
 
 
 --- report_checks epc 3 -from -to ---
+Warning 502: search_path_enum_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: in_grp
@@ -716,6 +729,7 @@ Path Type: max
 
 
 --- report_checks epc 3 -through ---
+Warning 502: search_path_enum_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: in_grp
@@ -804,19 +818,27 @@ Path Type: max
 
 
 --- find_timing_paths -path_delay max_rise ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 max_rise paths: 8
 --- find_timing_paths -path_delay max_fall ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 max_fall paths: 6
 --- find_timing_paths -path_delay min_rise ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_rise paths: 8
 --- find_timing_paths -path_delay min_fall ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_fall paths: 6
 --- find_timing_paths -path_delay min_max ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_max paths: 20
 --- find_timing_paths epc 10 gpc 50 ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 big epc: 14
 --- slack_max filtering ---
 slack <= 0: 0
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 slack <= 100: 13
 --- slack_min filtering ---
+Warning 502: search_path_enum_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 slack >= -100: 13

@@ -1,5 +1,5 @@
 --- Test 1: GCD power with VCD ---
-Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+Warning 198: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
 Annotated 937 pin activities.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -119,47 +119,7 @@ register cells: 35
    9.02e-06   2.49e-06   8.63e-12   1.15e-05 _413_
    1.02e-05   1.05e-06   8.33e-12   1.12e-05 _434_
    9.83e-06   1.17e-06   8.45e-12   1.10e-05 _432_
-[
-{
-  "name": "clkbuf_2_2__f_clk",
-  "internal": 9.52e-06,
-  "switching": 1.09e-05,
-  "leakage": 4.60e-12,
-  "total": 2.05e-05
-}
-,
-{
-  "name": "clkbuf_2_0__f_clk",
-  "internal": 9.51e-06,
-  "switching": 1.09e-05,
-  "leakage": 4.60e-12,
-  "total": 2.04e-05
-}
-,
-{
-  "name": "clkbuf_2_1__f_clk",
-  "internal": 9.51e-06,
-  "switching": 1.09e-05,
-  "leakage": 4.60e-12,
-  "total": 2.04e-05
-}
-,
-{
-  "name": "clkbuf_2_3__f_clk",
-  "internal": 9.46e-06,
-  "switching": 9.73e-06,
-  "leakage": 4.60e-12,
-  "total": 1.92e-05
-}
-,
-{
-  "name": "_430_",
-  "internal": 1.17e-05,
-  "switching": 5.01e-06,
-  "leakage": 8.46e-12,
-  "total": 1.68e-05
-}
-]
+highest_power_instances json: skipped (API removed)
      Internal    Switching      Leakage        Total
         Power        Power        Power        Power (Watts)
 ----------------------------------------------------
@@ -1169,7 +1129,7 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Total                  1.74e+06   1.64e+06   9.94e-10   3.38e+06 100.0%
                           51.5%      48.5%       0.0%
 --- Test 6: SAIF power ---
-Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
+Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Annotated 937 pin activities.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -1193,30 +1153,30 @@ Total                  4.37e-04   1.37e-04   9.91e-10   5.74e-04 100.0%
 saif          937
 unannotated     0
 --- Test 7: power with defaults ---
-Warning: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
+Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
-Sequential             3.44e-04   6.22e-05   2.96e-10   4.06e-04  39.2%
-Combinational          3.17e-04   2.18e-04   6.86e-10   5.35e-04  51.6%
-Clock                  4.71e-05   4.83e-05   2.30e-11   9.54e-05   9.2%
+Sequential             3.42e-04   6.07e-05   2.96e-10   4.03e-04  39.6%
+Combinational          3.08e-04   2.12e-04   6.86e-10   5.20e-04  51.1%
+Clock                  4.71e-05   4.83e-05   2.30e-11   9.54e-05   9.4%
 Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
-Total                  7.08e-04   3.29e-04   1.00e-09   1.04e-03 100.0%
-                          68.3%      31.7%       0.0%
+Total                  6.97e-04   3.21e-04   1.00e-09   1.02e-03 100.0%
+                          68.5%      31.5%       0.0%
 {
   "Sequential": {
-    "internal": 3.44e-04,
-    "switching": 6.22e-05,
+    "internal": 3.42e-04,
+    "switching": 6.07e-05,
     "leakage": 2.96e-10,
-    "total": 4.06e-04
+    "total": 4.03e-04
   },
   "Combinational": {
-    "internal": 3.17e-04,
-    "switching": 2.18e-04,
+    "internal": 3.08e-04,
+    "switching": 2.12e-04,
     "leakage": 6.86e-10,
-    "total": 5.35e-04
+    "total": 5.20e-04
   },
   "Clock": {
     "internal": 4.71e-05,
@@ -1237,10 +1197,10 @@ Total                  7.08e-04   3.29e-04   1.00e-09   1.04e-03 100.0%
     "total": 0.00e+00
   },
   "Total": {
-    "internal": 7.08e-04,
-    "switching": 3.29e-04,
+    "internal": 6.97e-04,
+    "switching": 3.21e-04,
     "leakage": 1.00e-09,
-    "total": 1.04e-03
+    "total": 1.02e-03
   }
 }
 unannotated   937

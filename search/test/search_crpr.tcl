@@ -56,14 +56,14 @@ report_checks -path_delay max -format full_clock_expanded
 sta::set_crpr_enabled 1
 
 puts "--- find_timing_paths with CRPR ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 3]
+set paths [find_timing_paths -path_delay max -endpoint_count 3]
 puts "Found [llength $paths] paths with CRPR"
 foreach pe $paths {
   puts "  slack=[$pe slack] crpr=[$pe check_crpr]"
 }
 
 puts "--- find_timing_paths min with CRPR ---"
-set paths_min [find_timing_paths -path_delay min -endpoint_path_count 3]
+set paths_min [find_timing_paths -path_delay min -endpoint_count 3]
 puts "Found [llength $paths_min] hold paths with CRPR"
 foreach pe $paths_min {
   puts "  slack=[$pe slack] crpr=[$pe check_crpr]"

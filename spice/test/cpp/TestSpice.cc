@@ -10,14 +10,12 @@
 #include "Sta.hh"
 #include "Network.hh"
 #include "ReportTcl.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Liberty.hh"
 #include "Sdc.hh"
 #include "Graph.hh"
 #include "PathEnd.hh"
 #include "PathExpanded.hh"
-#include "PathAnalysisPt.hh"
-#include "DcalcAnalysisPt.hh"
 #include "Search.hh"
 #include "CircuitSim.hh"
 #include "spice/Xyce.hh"
@@ -1399,7 +1397,7 @@ protected:
     if (report)
       report->setTclInterp(interp_);
 
-    Corner *corner = sta_->cmdCorner();
+    Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
       "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
@@ -1421,18 +1419,20 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr);
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr,
+                    sta_->cmdMode());
 
     Pin *in1 = network->findPin(top, "in1");
     Pin *in2 = network->findPin(top, "in2");
     Pin *out1 = network->findPin(top, "out1");
-    Clock *clk = sta_->sdc()->findClock("clk");
+    Clock *clk = sta_->cmdSdc()->findClock("clk");
+    Sdc *sdc = sta_->cmdSdc();
     sta_->setInputDelay(in1, RiseFallBoth::riseFall(), clk, RiseFall::rise(),
-                        nullptr, false, false, MinMaxAll::all(), false, 0.5f);
+                        nullptr, false, false, MinMaxAll::all(), false, 0.5f, sdc);
     sta_->setInputDelay(in2, RiseFallBoth::riseFall(), clk, RiseFall::rise(),
-                        nullptr, false, false, MinMaxAll::all(), false, 0.5f);
+                        nullptr, false, false, MinMaxAll::all(), false, 0.5f, sdc);
     sta_->setOutputDelay(out1, RiseFallBoth::riseFall(), clk, RiseFall::rise(),
-                         nullptr, false, false, MinMaxAll::all(), false, 0.5f);
+                         nullptr, false, false, MinMaxAll::all(), false, 0.5f, sdc);
     sta_->updateTiming(true);
     design_loaded_ = true;
   }
@@ -1597,12 +1597,13 @@ TEST_F(SpiceDesignTest, GraphVertexAccess) {
 
 // Verify timing paths exist after analysis (prerequisite for writePathSpice)
 TEST_F(SpiceDesignTest, TimingPathExists) {
+  StdStringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr,       // from
     nullptr,       // thrus
     nullptr,       // to
     false,         // unconstrained
-    sta_->cmdCorner(),
+    sta_->makeSceneSeq(sta_->cmdScene()),
     MinMaxAll::max(),
     10,            // group_path_count
     1,             // endpoint_path_count
@@ -1611,7 +1612,7 @@ TEST_F(SpiceDesignTest, TimingPathExists) {
     -INF,          // slack_min
     INF,           // slack_max
     false,         // sort_by_slack
-    nullptr,       // group_names
+    group_names,   // group_names
     true,          // setup
     false,         // hold
     false,         // recovery
@@ -1625,10 +1626,11 @@ TEST_F(SpiceDesignTest, TimingPathExists) {
 
 // Verify path end has a valid path object for SPICE writing
 TEST_F(SpiceDesignTest, PathEndHasPath) {
+  StdStringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
-    sta_->cmdCorner(), MinMaxAll::max(),
-    10, 1, false, false, -INF, INF, false, nullptr,
+    sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::max(),
+    10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false
   );
   ASSERT_GT(path_ends.size(), 0u);
@@ -1647,20 +1649,21 @@ TEST_F(SpiceDesignTest, WorstSlackComputation) {
   EXPECT_NE(worst_vertex, nullptr);
 }
 
-// Verify DcalcAnalysisPt access (needed for WriteSpice constructor)
+// Verify DcalcAnalysisPt index access (needed for WriteSpice constructor)
 TEST_F(SpiceDesignTest, DcalcAnalysisPtAccess) {
-  Corner *corner = sta_->cmdCorner();
-  ASSERT_NE(corner, nullptr);
-  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
-  ASSERT_NE(dcalc_ap, nullptr);
+  Scene *scene = sta_->cmdScene();
+  ASSERT_NE(scene, nullptr);
+  DcalcAPIndex dcalc_idx = scene->dcalcAnalysisPtIndex(MinMax::max());
+  EXPECT_GE(dcalc_idx, 0);
 }
 
 // Verify SPICE file can be written for a timing path
 TEST_F(SpiceDesignTest, WriteSpicePathFile) {
+  StdStringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
-    sta_->cmdCorner(), MinMaxAll::max(),
-    10, 1, false, false, -INF, INF, false, nullptr,
+    sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::max(),
+    10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false
   );
   ASSERT_GT(path_ends.size(), 0u);
@@ -1684,9 +1687,9 @@ TEST_F(SpiceDesignTest, WriteSpicePathFile) {
   // verify the path is valid and the API is callable. The actual file write
   // would fail without proper SPICE models, so we just verify the path
   // and analysis point are properly formed.
-  Corner *corner = sta_->cmdCorner();
-  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
-  EXPECT_NE(dcalc_ap, nullptr);
+  Scene *scene = sta_->cmdScene();
+  DcalcAPIndex dcalc_idx = scene->dcalcAnalysisPtIndex(MinMax::max());
+  EXPECT_GE(dcalc_idx, 0);
 
   // Clean up temp files
   std::remove(spice_tmpl);
@@ -1695,10 +1698,11 @@ TEST_F(SpiceDesignTest, WriteSpicePathFile) {
 
 // Verify multiple timing paths are found (SPICE multi-path analysis)
 TEST_F(SpiceDesignTest, MultipleTimingPaths) {
+  StdStringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
-    sta_->cmdCorner(), MinMaxAll::max(),
-    10, 10, false, false, -INF, INF, false, nullptr,
+    sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::max(),
+    10, 10, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false
   );
   // The design has multiple paths through and1/buf1/reg1/buf2
@@ -1770,10 +1774,11 @@ TEST_F(SpiceDesignTest, NetNamesForSpice) {
 
 // Verify hold timing paths (for SPICE min-delay analysis)
 TEST_F(SpiceDesignTest, HoldTimingPaths) {
+  StdStringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
-    sta_->cmdCorner(), MinMaxAll::min(),
-    10, 1, false, false, -INF, INF, false, nullptr,
+    sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::min(),
+    10, 1, false, false, -INF, INF, false, group_names,
     false, true, false, false, false, false
   );
   // Hold paths should exist for the constrained design.
@@ -1784,26 +1789,27 @@ TEST_F(SpiceDesignTest, HoldTimingPaths) {
 
 // Verify clock can be found for SPICE waveform generation
 TEST_F(SpiceDesignTest, ClockAccessForSpice) {
-  Clock *clk = sta_->sdc()->findClock("clk");
+  Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   EXPECT_FLOAT_EQ(clk->period(), 10.0f);
 }
 
-// Verify vertex arrival times are computed (used in SPICE timing correlation)
+// Verify vertex arrival paths are computed (used in SPICE timing correlation)
 TEST_F(SpiceDesignTest, VertexArrivalForSpice) {
   Vertex *v = findVertex("buf1/Z");
   ASSERT_NE(v, nullptr);
-  Arrival arr = sta_->vertexArrival(v, MinMax::max());
-  // Arrival should be finite (not INF)
-  EXPECT_FALSE(std::isinf(delayAsFloat(arr)));
+  Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
+  // The vertex should have a valid arrival path
+  EXPECT_NE(path, nullptr);
 }
 
 // Verify PathExpanded works on timing paths (used in SPICE path writing)
 TEST_F(SpiceDesignTest, PathExpandedAccess) {
+  StdStringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
-    sta_->cmdCorner(), MinMaxAll::max(),
-    10, 1, false, false, -INF, INF, false, nullptr,
+    sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::max(),
+    10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false
   );
   ASSERT_GT(path_ends.size(), 0u);

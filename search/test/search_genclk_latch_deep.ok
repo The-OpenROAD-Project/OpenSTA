@@ -247,6 +247,7 @@ clk                                     0.00
 ]
 }
 --- PathEnd queries on latch ---
+Warning 502: search_genclk_latch_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 18 paths
   pin=latch2/D latch=1 check=0 output=0 slack=0.0
   pin=latch2/D latch=1 check=0 output=0 slack=0.0
@@ -1188,6 +1189,8 @@ Check: sequential_clock_pulse_width
 
 
 --- find_timing_paths -unique_edges_to_endpoint ---
+Warning 502: search_genclk_latch_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 unique edge paths: 12
 --- find_timing_paths min_max ---
+Warning 502: search_genclk_latch_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_max paths: 18

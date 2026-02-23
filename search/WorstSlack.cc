@@ -24,38 +24,38 @@
 
 #include "WorstSlack.hh"
 
+#include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Report.hh"
 #include "Mutex.hh"
 #include "Graph.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Search.hh"
-#include "PathAnalysisPt.hh"
 
 namespace sta {
 
 using std::min;
 
 WorstSlacks::WorstSlacks(StaState *sta) :
-  worst_slacks_(sta->corners()->pathAnalysisPtCount(), sta),
+  worst_slacks_(sta->scenePathCount(), sta),
   sta_(sta)
 {
 }
 
 void
 WorstSlacks::worstSlack(const MinMax *min_max,
-			// Return values.
-			Slack &worst_slack,
-			Vertex *&worst_vertex)
+                        // Return values.
+                        Slack &worst_slack,
+                        Vertex *&worst_vertex)
 {
   worst_slack = MinMax::min()->initValue();
   worst_vertex = nullptr;
-  for (auto corner : *sta_->corners()) {
-    PathAPIndex path_ap_index = corner->findPathAnalysisPt(min_max)->index();
+  for (Scene *scene : sta_->scenes()) {
+    PathAPIndex path_ap_index = scene->pathIndex(min_max);
     Slack worst_slack1;
     Vertex *worst_vertex1;
     worst_slacks_[path_ap_index].worstSlack(path_ap_index,
-					    worst_slack1, worst_vertex1);
+                                            worst_slack1, worst_vertex1);
     if (delayLess(worst_slack1, worst_slack, sta_)) {
       worst_slack = worst_slack1;
       worst_vertex = worst_vertex1;
@@ -64,22 +64,22 @@ WorstSlacks::worstSlack(const MinMax *min_max,
 }
 
 void
-WorstSlacks::worstSlack(const Corner *corner,
-			const MinMax *min_max,
-			// Return values.
-			Slack &worst_slack,
-			Vertex *&worst_vertex)
+WorstSlacks::worstSlack(const Scene *scene,
+                        const MinMax *min_max,
+                        // Return values.
+                        Slack &worst_slack,
+                        Vertex *&worst_vertex)
 {
-  PathAPIndex path_ap_index = corner->findPathAnalysisPt(min_max)->index();
+  PathAPIndex path_ap_index = scene->pathIndex(min_max);
   worst_slacks_[path_ap_index].worstSlack(path_ap_index,
-					  worst_slack, worst_vertex);
+                                          worst_slack, worst_vertex);
 }
 
 void
 WorstSlacks::updateWorstSlacks(Vertex *vertex,
-			       SlackSeq &slacks)
+                               SlackSeq &slacks)
 {
-  PathAPIndex path_ap_count = sta_->corners()->pathAnalysisPtCount();
+  PathAPIndex path_ap_count = sta_->scenePathCount();
   for (PathAPIndex i = 0; i < path_ap_count; i++)
     worst_slacks_[i].updateWorstSlack(vertex, slacks, i);
 }
@@ -87,11 +87,8 @@ WorstSlacks::updateWorstSlacks(Vertex *vertex,
 void
 WorstSlacks::worstSlackNotifyBefore(Vertex *vertex)
 {
-  WorstSlackSeq::Iterator worst_iter(worst_slacks_);
-  while (worst_iter.hasNext()) {
-    WorstSlack &worst_slack = worst_iter.next();
+  for (WorstSlack &worst_slack : worst_slacks_)
     worst_slack.deleteVertexBefore(vertex);
-  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -102,7 +99,7 @@ WorstSlack::WorstSlack(StaState *sta) :
   worst_vertex_(nullptr),
   worst_slack_(slack_init_),
   slack_threshold_(slack_init_),
-  queue_(new VertexSet(graph_)),
+  queue_(new VertexSet(VertexIdLess(graph_))),
   min_queue_size_(10),
   max_queue_size_(20)
 {
@@ -119,7 +116,7 @@ WorstSlack::WorstSlack(const WorstSlack &worst_slack) :
   worst_vertex_(nullptr),
   worst_slack_(slack_init_),
   slack_threshold_(slack_init_),
-  queue_(new VertexSet(graph_)),
+  queue_(new VertexSet(VertexIdLess(graph_))),
   min_queue_size_(10),
   max_queue_size_(20)
 {
@@ -138,9 +135,9 @@ WorstSlack::deleteVertexBefore(Vertex *vertex)
 
 void
 WorstSlack::worstSlack(PathAPIndex path_ap_index,
-		       // Return values.
-		       Slack &worst_slack,
-		       Vertex *&worst_vertex)
+                       // Return values.
+                       Slack &worst_slack,
+                       Vertex *&worst_vertex)
 {
   findWorstSlack(path_ap_index);
   worst_slack = worst_slack_;
@@ -167,16 +164,16 @@ WorstSlack::initQueue(PathAPIndex path_ap_index)
   worst_vertex_ = nullptr;
   worst_slack_ = slack_init_;
   slack_threshold_ = slack_init_;
-  for(Vertex *vertex : *search_->endpoints()) {
+  for(Vertex *vertex : search_->endpoints()) {
     Slack slack = search_->wnsSlack(vertex, path_ap_index);
     if (!delayEqual(slack, slack_init_)) {
       if (delayLess(slack, worst_slack_, this))
-	setWorstSlack(vertex, slack);
+        setWorstSlack(vertex, slack);
       if (delayLessEqual(slack, slack_threshold_, this))
-	queue_->insert(vertex);
+        queue_->insert(vertex);
       int queue_size = queue_->size();
       if (queue_size >= max_queue_size_)
-	sortQueue(path_ap_index);
+        sortQueue(path_ap_index);
     }
   }
   debugPrint(debug_, "wns", 3, "threshold %s",
@@ -206,12 +203,10 @@ WorstSlack::sortQueue(PathAPIndex path_ap_index)
 
     // Reinsert vertices with slack < threshold.
     queue_->clear();
-    VertexSeq::Iterator queue_iter2(vertices);
-    while (queue_iter2.hasNext()) {
-      Vertex *vertex = queue_iter2.next();
+    for (Vertex *vertex : vertices) {
       Slack slack = search_->wnsSlack(vertex, path_ap_index);
       if (delayGreater(slack, slack_threshold_, this))
-	break;
+        break;
       queue_->insert(vertex);
     }
     max_queue_size_ = queue_->size() * 2;
@@ -239,20 +234,20 @@ void
 WorstSlack::checkQueue(PathAPIndex path_ap_index)
 {
   VertexSeq ends;
-  for(Vertex *end : *search_->endpoints()) {
+  for(Vertex *end : search_->endpoints()) {
     if (delayLessEqual(search_->wnsSlack(end, path_ap_index),
-		       slack_threshold_, this))
+                       slack_threshold_, this))
       ends.push_back(end);
   }
   WnsSlackLess slack_less(path_ap_index, this);
   sort(ends, slack_less);
 
-  VertexSet end_set(graph_);
+  VertexSet end_set = makeVertexSet(this);
   for (Vertex *end : ends) {
     end_set.insert(end);
-    if (!queue_->hasKey(end)
-	&& delayLessEqual(search_->wnsSlack(end, path_ap_index),
-			  slack_threshold_, this))
+    if (!queue_->contains(end)
+        && delayLessEqual(search_->wnsSlack(end, path_ap_index),
+                          slack_threshold_, this))
       report_->reportLine("WorstSlack queue missing %s %s < %s",
                           end->to_string(this).c_str(),
                           delayAsString(search_->wnsSlack(end, path_ap_index), this),
@@ -260,7 +255,7 @@ WorstSlack::checkQueue(PathAPIndex path_ap_index)
   }
 
   for (Vertex *end : *queue_) {
-    if (!end_set.hasKey(end))
+    if (!end_set.contains(end))
       report_->reportLine("WorstSlack queue extra %s %s > %s",
                           end->to_string(this).c_str(),
                           delayAsString(search_->wnsSlack(end, path_ap_index), this),
@@ -270,8 +265,8 @@ WorstSlack::checkQueue(PathAPIndex path_ap_index)
 
 void
 WorstSlack::updateWorstSlack(Vertex *vertex,
-			     SlackSeq &slacks,
-			     PathAPIndex path_ap_index)
+                             SlackSeq &slacks,
+                             PathAPIndex path_ap_index)
 {
   // Do not touch the state unless queue has been initialized
   if (!queue_->empty()) {
@@ -305,7 +300,7 @@ WorstSlack::updateWorstSlack(Vertex *vertex,
 
 void
 WorstSlack::setWorstSlack(Vertex *vertex,
-			  Slack slack)
+                          Slack slack)
 {
   debugPrint(debug_, "wns", 3, "%s %s",
              vertex->to_string(this).c_str(),
@@ -317,7 +312,7 @@ WorstSlack::setWorstSlack(Vertex *vertex,
 ////////////////////////////////////////////////////////////////
 
 WnsSlackLess::WnsSlackLess(PathAPIndex path_ap_index,
-			   const StaState *sta) :
+                           const StaState *sta) :
   path_ap_index_(path_ap_index),
   search_(sta->search())
 {
@@ -325,11 +320,11 @@ WnsSlackLess::WnsSlackLess(PathAPIndex path_ap_index,
 
 bool
 WnsSlackLess::operator()(Vertex *vertex1,
-			 Vertex *vertex2)
+                         Vertex *vertex2)
 {
   return delayLess(search_->wnsSlack(vertex1, path_ap_index_),
-		   search_->wnsSlack(vertex2, path_ap_index_),
-		   search_);
+                   search_->wnsSlack(vertex2, path_ap_index_),
+                   search_);
 }
 
 } // namespace

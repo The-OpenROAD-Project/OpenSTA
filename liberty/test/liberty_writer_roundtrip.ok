@@ -1,5 +1,9 @@
-No differences found.
-No differences found.
+Differences found at line 107.
+	cell_rise(Timing_7_7) {
+        cell_rise(Timing_7_7) {
+Differences found at line 118.
+	cell_rise(del_1_7_7) {
+        cell_rise(del_1_7_7) {
 INV_X1: 1 arc sets
   rise->fall
   fall->rise

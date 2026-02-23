@@ -24,6 +24,7 @@
 
 #include "CheckMinPulseWidths.hh"
 
+#include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "TimingRole.hh"
 #include "Liberty.hh"
@@ -31,13 +32,11 @@
 #include "Graph.hh"
 #include "Clock.hh"
 #include "Sdc.hh"
-#include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "ClkInfo.hh"
 #include "Tag.hh"
 #include "Path.hh"
-#include "Corner.hh"
-#include "PathAnalysisPt.hh"
+#include "Scene.hh"
 #include "SearchPred.hh"
 #include "PathEnd.hh"
 #include "Search.hh"
@@ -47,238 +46,111 @@ namespace sta {
 
 static void
 minPulseWidth(const Path *path,
-	      const StaState *sta,
-	      // Return values.
-	      float &min_width,
-	      bool &exists);
-
-// Abstract base class.
-class MinPulseWidthCheckVisitor
-{
-public:
-  MinPulseWidthCheckVisitor() {}
-  virtual ~MinPulseWidthCheckVisitor() {}
-  virtual void visit(MinPulseWidthCheck &check,
-		     const StaState *sta) = 0;
-};
+              const StaState *sta,
+              // Return values.
+              float &min_width,
+              bool &exists);
 
 CheckMinPulseWidths::CheckMinPulseWidths(StaState *sta) :
+  heap_(0, MinPulseWidthSlackLess(sta)),
   sta_(sta)
 {
-}
-
-CheckMinPulseWidths::~CheckMinPulseWidths()
-{
-  checks_.deleteContents();
 }
 
 void
 CheckMinPulseWidths::clear()
 {
-  checks_.deleteContentsClear();
-}
-
-////////////////////////////////////////////////////////////////
-
-class MinPulseWidthChecksVisitor : public MinPulseWidthCheckVisitor
-{
-public:
-  explicit MinPulseWidthChecksVisitor(const Corner *corner,
-				      MinPulseWidthCheckSeq &checks);
-  virtual void visit(MinPulseWidthCheck &check,
-		     const StaState *sta);
-
-private:
-  const Corner *corner_;
-  MinPulseWidthCheckSeq &checks_;
-};
-
-MinPulseWidthChecksVisitor::
-MinPulseWidthChecksVisitor(const Corner *corner,
-			   MinPulseWidthCheckSeq &checks) :
-  corner_(corner),
-  checks_(checks)
-{
-}
-
-void
-MinPulseWidthChecksVisitor::visit(MinPulseWidthCheck &check,
-				  const StaState *sta)
-{
-  if (corner_ == nullptr
-      || check.corner(sta) == corner_) {
-    MinPulseWidthCheck *copy = new MinPulseWidthCheck(check.openPath());
-    checks_.push_back(copy);
-  }
+  checks_.clear();
+  heap_.clear();
 }
 
 MinPulseWidthCheckSeq &
-CheckMinPulseWidths::check(const Corner *corner)
+CheckMinPulseWidths::check(const Net *net,
+                           size_t max_count,
+                           bool violators,
+                           const SceneSeq &scenes)
 {
   clear();
-  MinPulseWidthChecksVisitor visitor(corner, checks_);
-  visitMinPulseWidthChecks(&visitor);
-  sort(checks_, MinPulseWidthSlackLess(sta_));
+  if (!violators)
+    heap_.setMaxSize(max_count);
+
+  if (net)
+    checkNet(net, violators, scenes);
+  else
+    checkAll(violators, scenes);
+
+  if (violators)
+    sort(checks_, MinPulseWidthSlackLess(sta_));
+  else
+    checks_ = heap_.extract();
   return checks_;
 }
 
-MinPulseWidthCheckSeq &
-CheckMinPulseWidths::check(PinSeq *pins,
-			   const Corner *corner)
+void
+CheckMinPulseWidths::checkNet(const Net *net,
+                              bool violators,
+                              const SceneSeq &scenes)
 {
-  clear();
   Graph *graph = sta_->graph();
-  MinPulseWidthChecksVisitor visitor(corner, checks_);
-  PinSeq::Iterator pin_iter(pins);
-  while (pin_iter.hasNext()) {
-    const Pin *pin = pin_iter.next();
+  NetPinIterator *pin_iter = sta_->network()->pinIterator(net);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
     Vertex *vertex = graph->pinLoadVertex(pin);
-    visitMinPulseWidthChecks(vertex, &visitor);
+    checkVertex(vertex, violators, scenes);
   }
-  sort(checks_, MinPulseWidthSlackLess(sta_));
-  return checks_;
-}
-
-////////////////////////////////////////////////////////////////
-
-class MinPulseWidthViolatorsVisitor : public MinPulseWidthCheckVisitor
-{
-public:
-  explicit MinPulseWidthViolatorsVisitor(const Corner *corner,
-					 MinPulseWidthCheckSeq &checks);
-  virtual void visit(MinPulseWidthCheck &check,
-		     const StaState *sta);
-
-private:
-  const Corner *corner_;
-  MinPulseWidthCheckSeq &checks_;
-};
-
-MinPulseWidthViolatorsVisitor::
-MinPulseWidthViolatorsVisitor(const Corner *corner,
-			      MinPulseWidthCheckSeq &checks) :
-  corner_(corner),
-  checks_(checks)
-{
+  delete pin_iter;
 }
 
 void
-MinPulseWidthViolatorsVisitor::visit(MinPulseWidthCheck &check,
-				     const StaState *sta)
-{
-  if (delayLess(check.slack(sta), 0.0, sta)
-      && (corner_ == nullptr
-	  || check.corner(sta) == corner_)) {
-    MinPulseWidthCheck *copy = new MinPulseWidthCheck(check.openPath());
-    checks_.push_back(copy);
-  }
-}
-
-MinPulseWidthCheckSeq &
-CheckMinPulseWidths::violations(const Corner *corner)
-{
-  clear();
-  MinPulseWidthViolatorsVisitor visitor(corner, checks_);
-  visitMinPulseWidthChecks(&visitor);
-  sort(checks_, MinPulseWidthSlackLess(sta_));
-  return checks_;
-}
-
-////////////////////////////////////////////////////////////////
-
-class MinPulseWidthSlackVisitor : public MinPulseWidthCheckVisitor
-{
-public:
-  MinPulseWidthSlackVisitor(const Corner *corner);
-  virtual void visit(MinPulseWidthCheck &check,
-		     const StaState *sta);
-  MinPulseWidthCheck *minSlackCheck();
-
-private:
-  const Corner *corner_;
-  MinPulseWidthCheck *min_slack_check_;
-};
-
-MinPulseWidthSlackVisitor::MinPulseWidthSlackVisitor(const Corner *corner) :
-  corner_(corner),
-  min_slack_check_(nullptr)
-{
-}
-
-void
-MinPulseWidthSlackVisitor::visit(MinPulseWidthCheck &check,
-				 const StaState *sta)
-{
-  MinPulseWidthSlackLess slack_less(sta);
-  if (corner_ == nullptr
-      || check.corner(sta) == corner_) {
-    if (min_slack_check_ == nullptr)
-      min_slack_check_ = check.copy();
-    else if (slack_less(&check, min_slack_check_)) {
-      delete min_slack_check_;
-      min_slack_check_ = check.copy();
-    }
-  }
-}
-
-MinPulseWidthCheck *
-MinPulseWidthSlackVisitor::minSlackCheck()
-{
-  return min_slack_check_;
-}
-
-MinPulseWidthCheck *
-CheckMinPulseWidths::minSlackCheck(const Corner *corner)
-{
-  clear();
-  MinPulseWidthSlackVisitor visitor(corner);
-  visitMinPulseWidthChecks(&visitor);
-  MinPulseWidthCheck *check = visitor.minSlackCheck();
-  // Save check for cleanup.
-  checks_.push_back(check);
-  return check;
-}
-
-void
-CheckMinPulseWidths::
-visitMinPulseWidthChecks(MinPulseWidthCheckVisitor *visitor)
+CheckMinPulseWidths::checkAll(bool violators,
+                              const SceneSeq &scenes)
 {
   Graph *graph = sta_->graph();
-  Debug *debug = sta_->debug();
   VertexIterator vertex_iter(graph);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    if (isClkEnd(vertex, graph)) {
-      debugPrint(debug, "mpw", 1, "check mpw %s",
-                 vertex->to_string(sta_).c_str());
-      visitMinPulseWidthChecks(vertex, visitor);
-    }
+    checkVertex(vertex, violators, scenes);
   }
 }
 
 void
-CheckMinPulseWidths::
-visitMinPulseWidthChecks(Vertex *vertex,
-			 MinPulseWidthCheckVisitor *visitor)
+CheckMinPulseWidths::checkVertex(Vertex *vertex,
+                                 bool violators,
+                                 const SceneSeq &scenes)
 {
   Search *search = sta_->search();
+  Debug *debug = sta_->debug();
   const MinMax *min_max = MinMax::max();
+  SceneSet scene_set = Scene::sceneSet(scenes);
   VertexPathIterator path_iter(vertex, search);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
-    if (path->isClock(search)
-	&& !path->tag(sta_)->clkInfo()->isGenClkSrcPath()) {
-      if (path->minMax(sta_) == min_max) {
-	float min_width;
-	bool exists;
-	minPulseWidth(path, sta_, min_width, exists);
-	if (exists) {
-	  MinPulseWidthCheck check(path);
-	  Path *close_path = check.closePath(sta_);
-	  // Don't bother visiting if nobody is home.
-	  if (close_path)
-	    visitor->visit(check, sta_);
-	}
+    Vertex *path_vertex = path->vertex(sta_);
+    const Mode *mode = path->mode(sta_);
+    if (isClkEnd(path_vertex, mode)
+        && path->isClock(search)
+        && !path->tag(sta_)->clkInfo()->isGenClkSrcPath()
+        && scene_set.find(path->scene(sta_)) != scene_set.end()
+        && path->minMax(sta_) == min_max) {
+      float min_width;
+      bool exists;
+      minPulseWidth(path, sta_, min_width, exists);
+      if (exists) {
+        MinPulseWidthCheck check(path);
+        Path *close_path = check.closePath(sta_);
+        // Don't bother visiting if nobody is home.
+        if (close_path) {
+          debugPrint(debug, "mpw", 2, "%s %s %s",
+                     path_vertex->to_string(sta_).c_str(),
+                     path->transition(sta_) == RiseFall::rise() ? "(high)" : "(low)",
+                     delayAsString(check.slack(sta_), sta_));
+          if (violators) {
+            if (delayLess(check.slack(sta_), 0.0, sta_))
+              checks_.push_back(check);
+          }
+          else
+            heap_.insert(check);
+        }
       }
     }
   }
@@ -296,10 +168,13 @@ MinPulseWidthCheck::MinPulseWidthCheck(Path *open_path) :
 {
 }
 
-MinPulseWidthCheck *
-MinPulseWidthCheck::copy()
+std::string
+MinPulseWidthCheck::to_string(const StaState *sta)
 {
-  return new MinPulseWidthCheck(open_path_);
+  std::string result = sta->network()->pathName(pin(sta));
+  result += " ";
+  result += (openTransition(sta) == RiseFall::rise()) ? "(high)" : "(low)";
+  return result;
 }
 
 Pin *
@@ -317,37 +192,39 @@ MinPulseWidthCheck::openTransition(const StaState *sta) const
 Path *
 MinPulseWidthCheck::closePath(const StaState *sta) const
 {
-  PathAnalysisPt *open_ap = open_path_->pathAnalysisPt(sta);
-  PathAnalysisPt *close_ap = open_ap->tgtClkAnalysisPt();
+  Scene *scene = open_path_->scene(sta);
+  const MinMax *close_min_max = open_path_->tgtClkMinMax(sta);
   const RiseFall *open_rf = open_path_->transition(sta);
   const RiseFall *close_rf = open_rf->opposite();
   Tag *open_tag = open_path_->tag(sta);
   const ClkInfo *open_clk_info = open_tag->clkInfo();
-  const ClkInfo close_clk_info(open_clk_info->clkEdge()->opposite(),
-			       open_clk_info->clkSrc(),
-			       open_clk_info->isPropagated(),
-			       open_clk_info->genClkSrc(),
-			       open_clk_info->isGenClkSrcPath(),
-			       open_clk_info->pulseClkSense(),
-			       delay_zero, 0.0, nullptr,
-			       open_clk_info->pathAPIndex(),
-			       open_clk_info->crprClkPath(sta),
-			       sta);
-  Tag close_tag(0,
-		close_rf->index(),
-		close_ap->index(),
-		&close_clk_info,
-		open_tag->isClock(),
-		open_tag->inputDelay(),
-		open_tag->isSegmentStart(),
-		open_tag->states(),
-		false, sta);
+  const ClkInfo close_clk_info(scene,
+                               open_clk_info->clkEdge()->opposite(),
+                               open_clk_info->clkSrc(),
+                               open_clk_info->isPropagated(),
+                               open_clk_info->genClkSrc(),
+                               open_clk_info->isGenClkSrcPath(),
+                               open_clk_info->pulseClkSense(),
+                               delay_zero, 0.0, nullptr,
+                               open_clk_info->minMax(),
+                               open_clk_info->crprClkPath(sta),
+                               sta);
+  Tag close_tag(scene,
+                0,
+                close_rf,
+                close_min_max,
+                &close_clk_info,
+                open_tag->isClock(),
+                open_tag->inputDelay(),
+                open_tag->isSegmentStart(),
+                open_tag->states(),
+                false);
   debugPrint(sta->debug(), "mpw", 3, " open  %s",
              open_tag->to_string(sta).c_str());
   debugPrint(sta->debug(), "mpw", 3, " close %s",
              close_tag.to_string(sta).c_str());
-  VertexPathIterator close_iter(open_path_->vertex(sta), close_rf,
-				close_ap, sta);
+  VertexPathIterator close_iter(open_path_->vertex(sta), scene, close_min_max,
+                                close_rf, sta);
   while (close_iter.hasNext()) {
     Path *close_path = close_iter.next();
     if (Tag::matchNoPathAp(close_path->tag(sta), &close_tag)) {
@@ -434,27 +311,26 @@ MinPulseWidthCheck::minWidth(const StaState *sta) const
 //    min_pulse_width timing group
 static void
 minPulseWidth(const Path *path,
-	      const StaState *sta,
-	      // Return values.
-	      float &min_width,
-	      bool &exists)
+              const StaState *sta,
+              // Return values.
+              float &min_width,
+              bool &exists)
 {
   Pin *pin = path->pin(sta);
   const Clock *clk = path->clock(sta);
   const RiseFall *rf = path->transition(sta);
-  Sdc *sdc = sta->sdc();
+  const Sdc *sdc = path->sdc(sta);
   // set_min_pulse_width command.
   sdc->minPulseWidth(pin, clk, rf, min_width, exists);
   if (!exists) {
-    const PathAnalysisPt *path_ap = path->pathAnalysisPt(sta);
-    const DcalcAnalysisPt *dcalc_ap = path_ap->dcalcAnalysisPt();
+    DcalcAPIndex dcalc_ap = path->dcalcAnalysisPtIndex(sta);
     Vertex *vertex = path->vertex(sta);
     Graph *graph = sta->graph();
     Edge *edge;
     TimingArc *arc;
     graph->minPulseWidthArc(vertex, rf, edge, arc);
     if (edge) {
-      min_width = delayAsFloat(graph->arcDelay(edge, arc, dcalc_ap->index()));
+      min_width = delayAsFloat(graph->arcDelay(edge, arc, dcalc_ap));
       exists = true;
     }
   }
@@ -477,10 +353,10 @@ MinPulseWidthCheck::slack(const StaState *sta) const
   return width(sta) - minWidth(sta);
 }
 
-Corner *
-MinPulseWidthCheck::corner(const StaState *sta) const
+Scene *
+MinPulseWidthCheck::scene(const StaState *sta) const
 {
-  return open_path_->pathAnalysisPt(sta)->corner();
+  return open_path_->scene(sta);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -491,20 +367,20 @@ MinPulseWidthSlackLess::MinPulseWidthSlackLess(const StaState *sta) :
 }
 
 bool
-MinPulseWidthSlackLess::operator()(const MinPulseWidthCheck *check1,
-				   const MinPulseWidthCheck *check2) const
+MinPulseWidthSlackLess::operator()(const MinPulseWidthCheck &check1,
+                                   const MinPulseWidthCheck &check2) const
 {
-  Slack slack1 = check1->slack(sta_);
-  Slack slack2 = check2->slack(sta_);
-  const Pin *pin1 = check1->pin(sta_);
-  const Pin *pin2 = check2->pin(sta_);
+  Slack slack1 = check1.slack(sta_);
+  Slack slack2 = check2.slack(sta_);
+  const Pin *pin1 = check1.pin(sta_);
+  const Pin *pin2 = check2.pin(sta_);
   return delayLess(slack1, slack2, sta_)
     || (delayEqual(slack1, slack2)
-	// Break ties for the sake of regression stability.
-	&& (sta_->network()->pinLess(pin1, pin2)
-	    || (pin1 == pin2
-		&& check1->openPath()->rfIndex(sta_)
-		< check2->openPath()->rfIndex(sta_))));
+        // Break ties for the sake of regression stability.
+        && (sta_->network()->pinLess(pin1, pin2)
+            || (pin1 == pin2
+                && check1.openPath()->rfIndex(sta_)
+                < check2.openPath()->rfIndex(sta_))));
 }
 
 } // namespace

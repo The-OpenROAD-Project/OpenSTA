@@ -1,6 +1,6 @@
-Warning: sdc_write_options.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-Warning: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gen_edges pin clk1 is in the fanout of multiple clocks.
+Warning 415: sdc_write_options.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Warning 1061: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gen_edges pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gen_edges')
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -50,8 +50,8 @@ Path Type: max
            3.37   slack (MET)
 
 
-Warning: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
-Warning: generated clock gen_edges pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gen_div2 pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gen_edges pin clk1 is in the fanout of multiple clocks.
 Startpoint: reg2/Q (clock source 'gen_edges')
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1

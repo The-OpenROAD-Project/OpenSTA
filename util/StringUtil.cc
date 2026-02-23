@@ -41,14 +41,14 @@ using std::string;
 
 static void
 stringPrintTmp(const char *fmt,
-	       va_list args,
-	       // Return values.
-	       char *&str,
-	       size_t &length);
+               va_list args,
+               // Return values.
+               char *&str,
+               size_t &length);
 static void
 getTmpString(// Return values.
-	     char *&str,
-	     size_t &length);
+             char *&str,
+             size_t &length);
 
 char *
 stringCopy(const char *str)
@@ -77,8 +77,8 @@ isDigits(const char *str)
 // print for c++ strings.
 void
 stringPrint(string &str,
-	    const char *fmt,
-	    ...)
+            const char *fmt,
+            ...)
 {
   va_list args;
   va_start(args, fmt);
@@ -105,7 +105,7 @@ stringAppend(string &str,
 
 string
 stdstrPrint(const char *fmt,
-	    ...)
+            ...)
 {
   va_list args;
   va_start(args, fmt);
@@ -118,7 +118,7 @@ stdstrPrint(const char *fmt,
 
 char *
 stringPrint(const char *fmt,
-	    ...)
+            ...)
 {
   va_list args;
   va_start(args, fmt);
@@ -129,7 +129,7 @@ stringPrint(const char *fmt,
 
 char *
 stringPrintArgs(const char *fmt,
-		va_list args)
+                va_list args)
 {
   char *tmp;
   size_t tmp_length;
@@ -141,7 +141,7 @@ stringPrintArgs(const char *fmt,
 
 char *
 stringPrintTmp(const char *fmt,
-	       ...)
+               ...)
 {
   va_list args;
   va_start(args, fmt);
@@ -154,11 +154,11 @@ stringPrintTmp(const char *fmt,
 
 static void
 stringPrintTmp(const char *fmt,
-	       va_list args,
-	       // Return values.
-	       char *&tmp,
-	       // strlen(tmp), not including terminating '\0'.
-	       size_t &tmp_length)
+               va_list args,
+               // Return values.
+               char *&tmp,
+               // strlen(tmp), not including terminating '\0'.
+               size_t &tmp_length)
 {
   size_t tmp_length1;
   getTmpString(tmp, tmp_length1);
@@ -186,10 +186,21 @@ thread_local static std::array<char*, tmp_string_count> tmp_strings;
 thread_local static std::array<size_t, tmp_string_count> tmp_string_lengths;
 thread_local static int tmp_string_next = 0;
 
+void
+deleteTmpStrings()
+{
+  for (size_t i = 0; i < tmp_string_count; i++) {
+    stringDelete(tmp_strings[i]);
+    tmp_string_lengths[i] = 0;
+    tmp_strings[i] = nullptr;
+  }
+  tmp_string_next = 0;
+}
+
 static void
 getTmpString(// Return values.
-	     char *&str,
-	     size_t &length)
+             char *&str,
+             size_t &length)
 {
   if (tmp_string_next == tmp_string_count)
     tmp_string_next = 0;

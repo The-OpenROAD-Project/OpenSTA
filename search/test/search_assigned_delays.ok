@@ -1273,7 +1273,7 @@ net arcs to primary outputs           3           0           3
 ----------------------------------------------------------------
                                      41           4          37
 --- report_annotated_delay -list_annotated ---
-Warning: search_assigned_delays.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+Warning 624: search_assigned_delays.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -1290,7 +1290,7 @@ Annotated Arcs
  internal net       and1/ZN -> buf1/A 
  delay              buf1/A -> buf1/Z 
 --- report_annotated_delay -list_not_annotated ---
-Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+Warning 625: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -1340,7 +1340,7 @@ Unannotated Arcs
  delay              reg2/RN -> reg2/Q (CK == 1'b0) && (D == 1'b1)
  delay              reg2/RN -> reg2/Q (CK == 1'b0) && (D == 1'b0)
 --- report_annotated_delay -max_lines 5 ---
-Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+Warning 625: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
 Delay type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -1369,7 +1369,7 @@ cell width arcs                       4           0           4
 ----------------------------------------------------------------
                                      12           6           6
 --- report_annotated_check -list_annotated ---
-Warning: search_assigned_delays.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
+Warning 626: search_assigned_delays.tcl line 1, -list_annotated is deprecated. Use -report_annotated.
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------
@@ -1389,7 +1389,7 @@ Annotated Arcs
  setup              reg2/CK -> reg2/D RN === 1'b1
  hold               reg2/CK -> reg2/D RN === 1'b1
 --- report_annotated_check -list_not_annotated ---
-Warning: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
+Warning 627: search_assigned_delays.tcl line 1, -list_not_annotated is deprecated. Use -report_unannotated.
                                                           Not   
 Check type                        Total    Annotated   Annotated
 ----------------------------------------------------------------

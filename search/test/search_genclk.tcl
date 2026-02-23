@@ -113,8 +113,8 @@ puts "--- set_clock_latency -source on generated clock ---"
 set_clock_latency -source 0.15 [get_clocks fast_clk]
 report_checks -path_delay max -to [get_ports out2]
 
-puts "--- report_pulse_width_checks ---"
-report_pulse_width_checks
+puts "--- report_min_pulse_width_checks ---"
+report_check_types -min_pulse_width
 
-puts "--- report_pulse_width_checks verbose ---"
-report_pulse_width_checks -verbose
+puts "--- report_min_pulse_width_checks verbose ---"
+report_check_types -min_pulse_width -verbose

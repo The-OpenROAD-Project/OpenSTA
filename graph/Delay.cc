@@ -32,7 +32,7 @@ namespace sta {
 
 const char *
 delayAsString(const Delay &delay,
-	      const StaState *sta)
+              const StaState *sta)
 {
   return delayAsString(delay, sta, sta->units()->timeUnit()->digits());
 }

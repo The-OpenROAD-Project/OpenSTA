@@ -80,14 +80,14 @@ report_checks -path_delay min -fields {capacitance slew fanout}
 # find_timing_paths with path delay constraints
 ############################################################
 puts "--- find_timing_paths with path delay ---"
-set paths_pd [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 20]
+set paths_pd [find_timing_paths -path_delay max -endpoint_count 10 -group_path_count 20]
 puts "Max paths: [llength $paths_pd]"
 foreach pe $paths_pd {
   puts "  is_path_delay: [$pe is_path_delay] is_output: [$pe is_output_delay] is_check: [$pe is_check] pin=[get_full_name [$pe pin]] slack=[$pe slack]"
 }
 
 puts "--- find_timing_paths min with path delay ---"
-set paths_pd_min [find_timing_paths -path_delay min -endpoint_path_count 10]
+set paths_pd_min [find_timing_paths -path_delay min -endpoint_count 10]
 puts "Min paths: [llength $paths_pd_min]"
 foreach pe $paths_pd_min {
   puts "  is_path_delay: [$pe is_path_delay] is_output: [$pe is_output_delay] pin=[get_full_name [$pe pin]] slack=[$pe slack]"

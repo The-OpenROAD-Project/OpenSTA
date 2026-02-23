@@ -6,15 +6,13 @@
 #include "Property.hh"
 #include "ExceptionPath.hh"
 #include "TimingRole.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Sta.hh"
 #include "Sdc.hh"
 #include "ReportTcl.hh"
 #include "RiseFallMinMax.hh"
 #include "Variables.hh"
 #include "LibertyClass.hh"
-#include "PathAnalysisPt.hh"
-#include "DcalcAnalysisPt.hh"
 #include "Search.hh"
 #include "Path.hh"
 #include "PathGroup.hh"
@@ -39,9 +37,9 @@
 #include "GraphDelayCalc.hh"
 #include "Debug.hh"
 #include "PowerClass.hh"
-#include "search/CheckCapacitanceLimits.hh"
-#include "search/CheckSlewLimits.hh"
-#include "search/CheckFanoutLimits.hh"
+#include "search/CheckCapacitances.hh"
+#include "search/CheckSlews.hh"
+#include "search/CheckFanouts.hh"
 #include "search/Crpr.hh"
 #include "search/GatedClk.hh"
 #include "search/ClkLatency.hh"
@@ -166,38 +164,38 @@ class PropertyValueTest : public ::testing::Test {};
 
 TEST_F(PropertyValueTest, DefaultConstructor) {
   PropertyValue pv;
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_none);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::none);
 }
 
 TEST_F(PropertyValueTest, StringConstructor) {
   PropertyValue pv("hello");
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_string);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   EXPECT_STREQ(pv.stringValue(), "hello");
 }
 
 TEST_F(PropertyValueTest, StdStringConstructor) {
   std::string s("world");
   PropertyValue pv(s);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_string);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   EXPECT_STREQ(pv.stringValue(), "world");
 }
 
 TEST_F(PropertyValueTest, BoolConstructorTrue) {
   PropertyValue pv(true);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_bool);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::bool_);
   EXPECT_TRUE(pv.boolValue());
 }
 
 TEST_F(PropertyValueTest, BoolConstructorFalse) {
   PropertyValue pv(false);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_bool);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::bool_);
   EXPECT_FALSE(pv.boolValue());
 }
 
 TEST_F(PropertyValueTest, FloatConstructor) {
   Unit time_unit(1.0f, "s", 3);
   PropertyValue pv(3.14f, &time_unit);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_float);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::float_);
   EXPECT_FLOAT_EQ(pv.floatValue(), 3.14f);
   std::string value_text = pv.to_string(nullptr);
   EXPECT_FALSE(value_text.empty());
@@ -206,105 +204,105 @@ TEST_F(PropertyValueTest, FloatConstructor) {
 TEST_F(PropertyValueTest, NullPinConstructor) {
   const Pin *pin = nullptr;
   PropertyValue pv(pin);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_pin);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::pin);
   EXPECT_EQ(pv.pin(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullNetConstructor) {
   const Net *net = nullptr;
   PropertyValue pv(net);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_net);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::net);
   EXPECT_EQ(pv.net(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullInstanceConstructor) {
   const Instance *inst = nullptr;
   PropertyValue pv(inst);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_instance);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::instance);
   EXPECT_EQ(pv.instance(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullCellConstructor) {
   const Cell *cell = nullptr;
   PropertyValue pv(cell);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_cell);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::cell);
   EXPECT_EQ(pv.cell(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullPortConstructor) {
   const Port *port = nullptr;
   PropertyValue pv(port);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_port);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::port);
   EXPECT_EQ(pv.port(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullLibraryConstructor) {
   const Library *lib = nullptr;
   PropertyValue pv(lib);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_library);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::library);
   EXPECT_EQ(pv.library(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullLibertyLibraryConstructor) {
   const LibertyLibrary *lib = nullptr;
   PropertyValue pv(lib);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_liberty_library);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::liberty_library);
   EXPECT_EQ(pv.libertyLibrary(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullLibertyCellConstructor) {
   const LibertyCell *cell = nullptr;
   PropertyValue pv(cell);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_liberty_cell);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::liberty_cell);
   EXPECT_EQ(pv.libertyCell(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullLibertyPortConstructor) {
   const LibertyPort *port = nullptr;
   PropertyValue pv(port);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_liberty_port);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::liberty_port);
   EXPECT_EQ(pv.libertyPort(), nullptr);
 }
 
 TEST_F(PropertyValueTest, NullClockConstructor) {
   const Clock *clk = nullptr;
   PropertyValue pv(clk);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_clk);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::clk);
   EXPECT_EQ(pv.clock(), nullptr);
 }
 
 TEST_F(PropertyValueTest, CopyConstructorString) {
   PropertyValue pv1("copy_test");
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_string);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
   EXPECT_STREQ(pv2.stringValue(), "copy_test");
 }
 
 TEST_F(PropertyValueTest, CopyConstructorFloat) {
   PropertyValue pv1(2.718f, nullptr);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_float);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::float_);
   EXPECT_FLOAT_EQ(pv2.floatValue(), 2.718f);
 }
 
 TEST_F(PropertyValueTest, CopyConstructorBool) {
   PropertyValue pv1(true);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_bool);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::bool_);
   EXPECT_TRUE(pv2.boolValue());
 }
 
 TEST_F(PropertyValueTest, CopyConstructorNone) {
   PropertyValue pv1;
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_none);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::none);
 }
 
 TEST_F(PropertyValueTest, CopyConstructorLibrary) {
   const Library *lib = nullptr;
   PropertyValue pv1(lib);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_library);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::library);
   EXPECT_EQ(pv2.library(), nullptr);
 }
 
@@ -312,7 +310,7 @@ TEST_F(PropertyValueTest, CopyConstructorCell) {
   const Cell *cell = nullptr;
   PropertyValue pv1(cell);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_cell);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::cell);
   EXPECT_EQ(pv2.cell(), nullptr);
 }
 
@@ -320,7 +318,7 @@ TEST_F(PropertyValueTest, CopyConstructorPort) {
   const Port *port = nullptr;
   PropertyValue pv1(port);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_port);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::port);
   EXPECT_EQ(pv2.port(), nullptr);
 }
 
@@ -328,7 +326,7 @@ TEST_F(PropertyValueTest, CopyConstructorLibertyLibrary) {
   const LibertyLibrary *lib = nullptr;
   PropertyValue pv1(lib);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_library);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_library);
   EXPECT_EQ(pv2.libertyLibrary(), nullptr);
 }
 
@@ -336,7 +334,7 @@ TEST_F(PropertyValueTest, CopyConstructorLibertyCell) {
   const LibertyCell *cell = nullptr;
   PropertyValue pv1(cell);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_cell);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_cell);
   EXPECT_EQ(pv2.libertyCell(), nullptr);
 }
 
@@ -344,7 +342,7 @@ TEST_F(PropertyValueTest, CopyConstructorLibertyPort) {
   const LibertyPort *port = nullptr;
   PropertyValue pv1(port);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_port);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_port);
   EXPECT_EQ(pv2.libertyPort(), nullptr);
 }
 
@@ -352,7 +350,7 @@ TEST_F(PropertyValueTest, CopyConstructorInstance) {
   const Instance *inst = nullptr;
   PropertyValue pv1(inst);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_instance);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::instance);
   EXPECT_EQ(pv2.instance(), nullptr);
 }
 
@@ -360,7 +358,7 @@ TEST_F(PropertyValueTest, CopyConstructorPin) {
   const Pin *pin = nullptr;
   PropertyValue pv1(pin);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pin);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pin);
   EXPECT_EQ(pv2.pin(), nullptr);
 }
 
@@ -368,7 +366,7 @@ TEST_F(PropertyValueTest, CopyConstructorNet) {
   const Net *net = nullptr;
   PropertyValue pv1(net);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_net);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::net);
   EXPECT_EQ(pv2.net(), nullptr);
 }
 
@@ -376,112 +374,112 @@ TEST_F(PropertyValueTest, CopyConstructorClock) {
   const Clock *clk = nullptr;
   PropertyValue pv1(clk);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_clk);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::clk);
   EXPECT_EQ(pv2.clock(), nullptr);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorString) {
   PropertyValue pv1("move_test");
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_string);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
   EXPECT_STREQ(pv2.stringValue(), "move_test");
 }
 
 TEST_F(PropertyValueTest, MoveConstructorFloat) {
   PropertyValue pv1(1.414f, nullptr);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_float);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::float_);
   EXPECT_FLOAT_EQ(pv2.floatValue(), 1.414f);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorBool) {
   PropertyValue pv1(false);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_bool);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::bool_);
   EXPECT_FALSE(pv2.boolValue());
 }
 
 TEST_F(PropertyValueTest, MoveConstructorNone) {
   PropertyValue pv1;
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_none);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::none);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorLibrary) {
   const Library *lib = nullptr;
   PropertyValue pv1(lib);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_library);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::library);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorCell) {
   const Cell *cell = nullptr;
   PropertyValue pv1(cell);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_cell);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::cell);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorPort) {
   const Port *port = nullptr;
   PropertyValue pv1(port);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_port);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::port);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorLibertyLibrary) {
   const LibertyLibrary *lib = nullptr;
   PropertyValue pv1(lib);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_library);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_library);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorLibertyCell) {
   const LibertyCell *cell = nullptr;
   PropertyValue pv1(cell);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_cell);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_cell);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorLibertyPort) {
   const LibertyPort *port = nullptr;
   PropertyValue pv1(port);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_port);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_port);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorInstance) {
   const Instance *inst = nullptr;
   PropertyValue pv1(inst);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_instance);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::instance);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorPin) {
   const Pin *pin = nullptr;
   PropertyValue pv1(pin);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pin);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pin);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorNet) {
   const Net *net = nullptr;
   PropertyValue pv1(net);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_net);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::net);
 }
 
 TEST_F(PropertyValueTest, MoveConstructorClock) {
   const Clock *clk = nullptr;
   PropertyValue pv1(clk);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_clk);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::clk);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentString) {
   PropertyValue pv1("assign_test");
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_string);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
   EXPECT_STREQ(pv2.stringValue(), "assign_test");
 }
 
@@ -489,7 +487,7 @@ TEST_F(PropertyValueTest, CopyAssignmentFloat) {
   PropertyValue pv1(9.81f, nullptr);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_float);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::float_);
   EXPECT_FLOAT_EQ(pv2.floatValue(), 9.81f);
 }
 
@@ -497,7 +495,7 @@ TEST_F(PropertyValueTest, CopyAssignmentBool) {
   PropertyValue pv1(true);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_bool);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::bool_);
   EXPECT_TRUE(pv2.boolValue());
 }
 
@@ -505,7 +503,7 @@ TEST_F(PropertyValueTest, CopyAssignmentNone) {
   PropertyValue pv1;
   PropertyValue pv2("replace_me");
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_none);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::none);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentLibrary) {
@@ -513,7 +511,7 @@ TEST_F(PropertyValueTest, CopyAssignmentLibrary) {
   PropertyValue pv1(lib);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_library);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::library);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentCell) {
@@ -521,7 +519,7 @@ TEST_F(PropertyValueTest, CopyAssignmentCell) {
   PropertyValue pv1(cell);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_cell);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::cell);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentPort) {
@@ -529,7 +527,7 @@ TEST_F(PropertyValueTest, CopyAssignmentPort) {
   PropertyValue pv1(port);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_port);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::port);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentLibertyLibrary) {
@@ -537,7 +535,7 @@ TEST_F(PropertyValueTest, CopyAssignmentLibertyLibrary) {
   PropertyValue pv1(lib);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_library);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_library);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentLibertyCell) {
@@ -545,7 +543,7 @@ TEST_F(PropertyValueTest, CopyAssignmentLibertyCell) {
   PropertyValue pv1(cell);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_cell);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_cell);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentLibertyPort) {
@@ -553,7 +551,7 @@ TEST_F(PropertyValueTest, CopyAssignmentLibertyPort) {
   PropertyValue pv1(port);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_port);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_port);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentInstance) {
@@ -561,7 +559,7 @@ TEST_F(PropertyValueTest, CopyAssignmentInstance) {
   PropertyValue pv1(inst);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_instance);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::instance);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentPin) {
@@ -569,7 +567,7 @@ TEST_F(PropertyValueTest, CopyAssignmentPin) {
   PropertyValue pv1(pin);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pin);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pin);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentNet) {
@@ -577,7 +575,7 @@ TEST_F(PropertyValueTest, CopyAssignmentNet) {
   PropertyValue pv1(net);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_net);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::net);
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentClock) {
@@ -585,14 +583,14 @@ TEST_F(PropertyValueTest, CopyAssignmentClock) {
   PropertyValue pv1(clk);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_clk);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::clk);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentString) {
   PropertyValue pv1("move_assign");
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_string);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
   EXPECT_STREQ(pv2.stringValue(), "move_assign");
 }
 
@@ -600,7 +598,7 @@ TEST_F(PropertyValueTest, MoveAssignmentFloat) {
   PropertyValue pv1(6.28f, nullptr);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_float);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::float_);
   EXPECT_FLOAT_EQ(pv2.floatValue(), 6.28f);
 }
 
@@ -608,7 +606,7 @@ TEST_F(PropertyValueTest, MoveAssignmentBool) {
   PropertyValue pv1(false);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_bool);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::bool_);
   EXPECT_FALSE(pv2.boolValue());
 }
 
@@ -616,7 +614,7 @@ TEST_F(PropertyValueTest, MoveAssignmentNone) {
   PropertyValue pv1;
   PropertyValue pv2("stuff");
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_none);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::none);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentLibrary) {
@@ -624,7 +622,7 @@ TEST_F(PropertyValueTest, MoveAssignmentLibrary) {
   PropertyValue pv1(lib);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_library);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::library);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentCell) {
@@ -632,7 +630,7 @@ TEST_F(PropertyValueTest, MoveAssignmentCell) {
   PropertyValue pv1(cell);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_cell);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::cell);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentPort) {
@@ -640,7 +638,7 @@ TEST_F(PropertyValueTest, MoveAssignmentPort) {
   PropertyValue pv1(port);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_port);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::port);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentLibertyLibrary) {
@@ -648,7 +646,7 @@ TEST_F(PropertyValueTest, MoveAssignmentLibertyLibrary) {
   PropertyValue pv1(lib);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_library);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_library);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentLibertyCell) {
@@ -656,7 +654,7 @@ TEST_F(PropertyValueTest, MoveAssignmentLibertyCell) {
   PropertyValue pv1(cell);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_cell);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_cell);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentLibertyPort) {
@@ -664,7 +662,7 @@ TEST_F(PropertyValueTest, MoveAssignmentLibertyPort) {
   PropertyValue pv1(port);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_liberty_port);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::liberty_port);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentInstance) {
@@ -672,7 +670,7 @@ TEST_F(PropertyValueTest, MoveAssignmentInstance) {
   PropertyValue pv1(inst);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_instance);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::instance);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentPin) {
@@ -680,7 +678,7 @@ TEST_F(PropertyValueTest, MoveAssignmentPin) {
   PropertyValue pv1(pin);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pin);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pin);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentNet) {
@@ -688,7 +686,7 @@ TEST_F(PropertyValueTest, MoveAssignmentNet) {
   PropertyValue pv1(net);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_net);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::net);
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentClock) {
@@ -696,7 +694,7 @@ TEST_F(PropertyValueTest, MoveAssignmentClock) {
   PropertyValue pv1(clk);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_clk);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::clk);
 }
 
 // Test type-checking exceptions
@@ -719,7 +717,7 @@ TEST_F(PropertyValueTest, BoolValueThrowsOnWrongType) {
 TEST_F(PropertyValueTest, PinSeqConstructor) {
   PinSeq *pins = new PinSeq;
   PropertyValue pv(pins);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_pins);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::pins);
   EXPECT_EQ(pv.pins(), pins);
 }
 
@@ -727,7 +725,7 @@ TEST_F(PropertyValueTest, PinSeqConstructor) {
 TEST_F(PropertyValueTest, ClockSeqConstructor) {
   ClockSeq *clks = new ClockSeq;
   PropertyValue pv(clks);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_clks);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::clks);
   EXPECT_NE(pv.clocks(), nullptr);
 }
 
@@ -735,7 +733,7 @@ TEST_F(PropertyValueTest, ClockSeqConstructor) {
 TEST_F(PropertyValueTest, ConstPathSeqConstructor) {
   ConstPathSeq *paths = new ConstPathSeq;
   PropertyValue pv(paths);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_paths);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::paths);
   EXPECT_NE(pv.paths(), nullptr);
 }
 
@@ -743,7 +741,7 @@ TEST_F(PropertyValueTest, ConstPathSeqConstructor) {
 TEST_F(PropertyValueTest, PwrActivityConstructor) {
   PwrActivity activity;
   PropertyValue pv(&activity);
-  EXPECT_EQ(pv.type(), PropertyValue::Type::type_pwr_activity);
+  EXPECT_EQ(pv.type(), PropertyValue::Type::pwr_activity);
 }
 
 // Copy constructor for pins
@@ -751,7 +749,7 @@ TEST_F(PropertyValueTest, CopyConstructorPins) {
   PinSeq *pins = new PinSeq;
   PropertyValue pv1(pins);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pins);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pins);
   // Should be a separate copy
   EXPECT_NE(pv2.pins(), pv1.pins());
 }
@@ -761,7 +759,7 @@ TEST_F(PropertyValueTest, CopyConstructorClocks) {
   ClockSeq *clks = new ClockSeq;
   PropertyValue pv1(clks);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_clks);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::clks);
   EXPECT_NE(pv2.clocks(), pv1.clocks());
 }
 
@@ -770,7 +768,7 @@ TEST_F(PropertyValueTest, CopyConstructorPaths) {
   ConstPathSeq *paths = new ConstPathSeq;
   PropertyValue pv1(paths);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_paths);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::paths);
   EXPECT_NE(pv2.paths(), pv1.paths());
 }
 
@@ -779,7 +777,7 @@ TEST_F(PropertyValueTest, CopyConstructorPwrActivity) {
   PwrActivity activity;
   PropertyValue pv1(&activity);
   PropertyValue pv2(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pwr_activity);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pwr_activity);
 }
 
 // Move constructor for pins
@@ -788,7 +786,7 @@ TEST_F(PropertyValueTest, MoveConstructorPins) {
   PropertyValue pv1(pins);
   PinSeq *orig_pins = pv1.pins();
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pins);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pins);
   EXPECT_EQ(pv2.pins(), orig_pins);
 }
 
@@ -798,7 +796,7 @@ TEST_F(PropertyValueTest, MoveConstructorClocks) {
   PropertyValue pv1(clks);
   ClockSeq *orig_clks = pv1.clocks();
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_clks);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::clks);
   EXPECT_EQ(pv2.clocks(), orig_clks);
 }
 
@@ -808,7 +806,7 @@ TEST_F(PropertyValueTest, MoveConstructorPaths) {
   PropertyValue pv1(paths);
   ConstPathSeq *orig_paths = pv1.paths();
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_paths);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::paths);
   EXPECT_EQ(pv2.paths(), orig_paths);
 }
 
@@ -817,7 +815,7 @@ TEST_F(PropertyValueTest, MoveConstructorPwrActivity) {
   PwrActivity activity;
   PropertyValue pv1(&activity);
   PropertyValue pv2(std::move(pv1));
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pwr_activity);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pwr_activity);
 }
 
 // Copy assignment for pins
@@ -826,7 +824,7 @@ TEST_F(PropertyValueTest, CopyAssignmentPins) {
   PropertyValue pv1(pins);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pins);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pins);
 }
 
 // Copy assignment for clocks
@@ -835,7 +833,7 @@ TEST_F(PropertyValueTest, CopyAssignmentClocks) {
   PropertyValue pv1(clks);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_clks);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::clks);
 }
 
 // Copy assignment for paths
@@ -844,7 +842,7 @@ TEST_F(PropertyValueTest, CopyAssignmentPaths) {
   PropertyValue pv1(paths);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_paths);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::paths);
 }
 
 // Copy assignment for PwrActivity
@@ -853,7 +851,7 @@ TEST_F(PropertyValueTest, CopyAssignmentPwrActivity) {
   PropertyValue pv1(&activity);
   PropertyValue pv2;
   pv2 = pv1;
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pwr_activity);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pwr_activity);
 }
 
 // Move assignment for pins
@@ -862,7 +860,7 @@ TEST_F(PropertyValueTest, MoveAssignmentPins) {
   PropertyValue pv1(pins);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pins);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pins);
 }
 
 // Move assignment for clocks
@@ -871,7 +869,7 @@ TEST_F(PropertyValueTest, MoveAssignmentClocks) {
   PropertyValue pv1(clks);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_clks);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::clks);
 }
 
 // Move assignment for paths
@@ -880,7 +878,7 @@ TEST_F(PropertyValueTest, MoveAssignmentPaths) {
   PropertyValue pv1(paths);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_paths);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::paths);
 }
 
 // Move assignment for PwrActivity
@@ -889,7 +887,7 @@ TEST_F(PropertyValueTest, MoveAssignmentPwrActivity) {
   PropertyValue pv1(&activity);
   PropertyValue pv2;
   pv2 = std::move(pv1);
-  EXPECT_EQ(pv2.type(), PropertyValue::Type::type_pwr_activity);
+  EXPECT_EQ(pv2.type(), PropertyValue::Type::pwr_activity);
 }
 
 // to_string for bool values
@@ -1350,8 +1348,9 @@ TEST_F(ExceptionPathTest, ExceptionStateLess) {
   ExceptionState *s1 = fp1.firstState();
   ExceptionState *s2 = fp2.firstState();
   // state1 with lower id should be less
-  EXPECT_TRUE(exceptionStateLess(s1, s2));
-  EXPECT_FALSE(exceptionStateLess(s2, s1));
+  ExceptionStateLess less;
+  EXPECT_TRUE(less(s1, s2));
+  EXPECT_FALSE(less(s2, s1));
 }
 
 // EmptyExceptionPt
@@ -1805,21 +1804,21 @@ TEST_F(RiseFallMinMaxTest, IsOneValueMinMaxPartialExists) {
 }
 
 ////////////////////////////////////////////////////////////////
-// Corner tests
+// Scene tests (Corner was renamed to Scene)
 ////////////////////////////////////////////////////////////////
 
-class CornerTest : public ::testing::Test {};
+class SceneTest : public ::testing::Test {};
 
-TEST_F(CornerTest, BasicConstruction) {
-  Corner corner("default", 0);
-  EXPECT_STREQ(corner.name(), "default");
-  EXPECT_EQ(corner.index(), 0);
+TEST_F(SceneTest, BasicConstruction) {
+  Scene scene("default", 0, nullptr, nullptr);
+  EXPECT_EQ(scene.name(), "default");
+  EXPECT_EQ(scene.index(), 0u);
 }
 
-TEST_F(CornerTest, DifferentIndex) {
-  Corner corner("fast", 1);
-  EXPECT_STREQ(corner.name(), "fast");
-  EXPECT_EQ(corner.index(), 1);
+TEST_F(SceneTest, DifferentIndex) {
+  Scene scene("fast", 1, nullptr, nullptr);
+  EXPECT_EQ(scene.name(), "fast");
+  EXPECT_EQ(scene.index(), 1u);
 }
 
 } // namespace sta

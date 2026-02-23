@@ -81,20 +81,16 @@ max capacitance
 Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 inv2/ZN                                 0.00    2.92   -2.92 (VIOLATED)
+
 buf1/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf2/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf3/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf4/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf5/Z                                  0.00    1.14   -1.14 (VIOLATED)
-and2/ZN                                 0.00    0.97   -0.97 (VIOLATED)
-inv1/ZN                                 0.00    0.97   -0.97 (VIOLATED)
-reg1/Q                                  0.00    0.97   -0.97 (VIOLATED)
-in2                                     0.00    0.97   -0.97 (VIOLATED)
-or1/ZN                                  0.00    0.97   -0.97 (VIOLATED)
-in3                                     0.00    0.95   -0.95 (VIOLATED)
-in4                                     0.00    0.94   -0.94 (VIOLATED)
-in1                                     0.00    0.92   -0.92 (VIOLATED)
-and1/ZN                                 0.00    0.92   -0.92 (VIOLATED)
 
 --- report_check_types -max_capacitance -violators -verbose ---
 max capacitance
@@ -135,62 +131,8 @@ capacitance        1.14
 -----------------------
 Slack             -1.14 (VIOLATED)
 
-Pin and2/ZN ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin inv1/ZN ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin reg1/Q ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin in2 ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin or1/ZN ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin in3 ^
-max capacitance    0.00
-capacitance        0.95
------------------------
-Slack             -0.95 (VIOLATED)
-
-Pin in4 ^
-max capacitance    0.00
-capacitance        0.94
------------------------
-Slack             -0.94 (VIOLATED)
-
-Pin in1 ^
-max capacitance    0.00
-capacitance        0.92
------------------------
-Slack             -0.92 (VIOLATED)
-
-Pin and1/ZN ^
-max capacitance    0.00
-capacitance        0.92
------------------------
-Slack             -0.92 (VIOLATED)
-
 --- max_capacitance_violation_count ---
-max cap violations: 15
+max cap violations: 6
 --- max_capacitance_check_slack ---
 max cap slack: -2.9229769706726074 limit: 0.0010000000474974513
 --- report_check_types (all) ---
@@ -346,20 +288,16 @@ max capacitance
 Pin                                    Limit     Cap   Slack
 ------------------------------------------------------------
 inv2/ZN                                 0.00    2.92   -2.92 (VIOLATED)
+
 buf1/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf2/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
 buf3/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf4/Z                                  0.00    1.14   -1.14 (VIOLATED)
+
 buf5/Z                                  0.00    1.14   -1.14 (VIOLATED)
-and2/ZN                                 0.00    0.97   -0.97 (VIOLATED)
-inv1/ZN                                 0.00    0.97   -0.97 (VIOLATED)
-reg1/Q                                  0.00    0.97   -0.97 (VIOLATED)
-in2                                     0.00    0.97   -0.97 (VIOLATED)
-or1/ZN                                  0.00    0.97   -0.97 (VIOLATED)
-in3                                     0.00    0.95   -0.95 (VIOLATED)
-in4                                     0.00    0.94   -0.94 (VIOLATED)
-in1                                     0.00    0.92   -0.92 (VIOLATED)
-and1/ZN                                 0.00    0.92   -0.92 (VIOLATED)
 
 --- report_check_types -violators -verbose ---
 No paths found.
@@ -409,94 +347,16 @@ capacitance        1.14
 -----------------------
 Slack             -1.14 (VIOLATED)
 
-Pin and2/ZN ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin inv1/ZN ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin reg1/Q ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin in2 ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin or1/ZN ^
-max capacitance    0.00
-capacitance        0.97
------------------------
-Slack             -0.97 (VIOLATED)
-
-Pin in3 ^
-max capacitance    0.00
-capacitance        0.95
------------------------
-Slack             -0.95 (VIOLATED)
-
-Pin in4 ^
-max capacitance    0.00
-capacitance        0.94
------------------------
-Slack             -0.94 (VIOLATED)
-
-Pin in1 ^
-max capacitance    0.00
-capacitance        0.92
------------------------
-Slack             -0.92 (VIOLATED)
-
-Pin and1/ZN ^
-max capacitance    0.00
-capacitance        0.92
------------------------
-Slack             -0.92 (VIOLATED)
-
 --- report_check_types -min_slew ---
 --- report_check_types -min_slew -verbose ---
 --- report_check_types -min_fanout ---
 --- report_check_types -min_capacitance ---
 --- check_slew_limits specific net ---
-slew limit pins for n7: 1
-Pin                                    Limit    Slew   Slack
-------------------------------------------------------------
-buf5/A                                  0.01    0.01    0.00 (MET)
-Pin buf5/A ^
-max slew    0.01
-slew        0.01
-----------------
-Slack       0.00 (MET)
+check_slew_limits: skipped (API removed)
 --- check_fanout_limits specific net ---
-fanout limit pins for n7: 1
-Pin                                   Limit Fanout  Slack
----------------------------------------------------------
-inv2/ZN                                   2      3        (VIOLATED)
-Pin inv2/ZN  
-max fanout      2
-fanout          3
------------------
-Slack             (VIOLATED)
+check_fanout_limits: skipped (API removed)
 --- check_capacitance_limits specific net ---
-cap limit pins for n7: 1
-Pin                                    Limit     Cap   Slack
-------------------------------------------------------------
-inv2/ZN                                 0.00    2.92   -2.92 (VIOLATED)
-Pin inv2/ZN ^
-max capacitance    0.00
-capacitance        2.92
------------------------
-Slack             -2.92 (VIOLATED)
+check_capacitance_limits: skipped (API removed)
 --- report_check_types -max_delay -format end ---
 max_delay/setup group clk
 

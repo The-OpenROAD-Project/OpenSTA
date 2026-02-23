@@ -14,13 +14,13 @@ report_checks -path_delay max
 report_checks -path_delay min
 
 puts "--- find_timing_paths with various filters ---"
-set paths_max [find_timing_paths -path_delay max -sort_by_slack -endpoint_path_count 5 -group_path_count 10]
+set paths_max [find_timing_paths -path_delay max -sort_by_slack -endpoint_count 5 -group_path_count 10]
 puts "Max paths: [llength $paths_max]"
 foreach pe $paths_max {
   puts "  [get_full_name [$pe pin]] slack=[$pe slack]"
 }
 
-set paths_min [find_timing_paths -path_delay min -sort_by_slack -endpoint_path_count 5 -group_path_count 10]
+set paths_min [find_timing_paths -path_delay min -sort_by_slack -endpoint_count 5 -group_path_count 10]
 puts "Min paths: [llength $paths_min]"
 foreach pe $paths_min {
   puts "  [get_full_name [$pe pin]] slack=[$pe slack]"
@@ -46,7 +46,7 @@ puts "--- report_checks with -group filter ---"
 report_checks -path_delay max -group_path_count 3
 
 puts "--- report_path_end with specific endpoints ---"
-set pe_list [find_timing_paths -path_delay max -endpoint_path_count 3]
+set pe_list [find_timing_paths -path_delay max -endpoint_count 3]
 foreach pe $pe_list {
   sta::report_path_end $pe
 }
@@ -64,11 +64,11 @@ foreach pe $pe_list {
 }
 
 puts "--- find_timing_paths min_max ---"
-set paths_mm [find_timing_paths -path_delay min_max -endpoint_path_count 3]
+set paths_mm [find_timing_paths -path_delay min_max -endpoint_count 3]
 puts "Min_max paths: [llength $paths_mm]"
 
 puts "--- find_timing_paths with unique_edges ---"
-set paths_ue [find_timing_paths -path_delay max -endpoint_path_count 5 -unique_paths_to_endpoint]
+set paths_ue [find_timing_paths -path_delay max -endpoint_count 5 -unique_paths_to_endpoint]
 puts "Unique edge paths: [llength $paths_ue]"
 
 puts "--- set_clock_sense ---"

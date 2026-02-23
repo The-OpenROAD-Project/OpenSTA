@@ -1,4 +1,4 @@
-Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+Warning 198: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -69,7 +69,7 @@ Path Type: min
 
 
 unique cells: 57
-Warning: spice_gcd_path.tcl line 1, port '*' not found.
+Warning 356: spice_gcd_path.tcl line 1, port '*' not found.
 --- write_path_spice max ngspice ---
 --- write_path_spice min ---
 --- write_path_spice hspice ---

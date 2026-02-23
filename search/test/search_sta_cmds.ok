@@ -1,8 +1,8 @@
 --- report_arrival on various pins ---
  (clk ^) r 1.04:1.05 f 1.05:1.05
  (clk ^) r 0.08:0.08 f 0.08:0.08
- (clk ^) r 0.00:0.00 f INF:-INF
- (clk v) r INF:-INF f 5.00:5.00
+ (clk ^) r 0.00:0.00 f ---:---
+ (clk v) r ---:--- f 5.00:5.00
  (clk ^) r 1.02:1.03 f 1.02:1.02
  (clk ^) r 1.04:1.05 f 1.05:1.05
  (clk ^) r 1.00:1.00 f 1.00:1.00

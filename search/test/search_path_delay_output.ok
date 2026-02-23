@@ -848,6 +848,7 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 
 --- find_timing_paths with path delay ---
+Warning 502: search_path_delay_output.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Max paths: 6
   is_path_delay: 0 is_output: 1 is_check: 0 pin=out1 slack=7.899713772019368e-9
   is_path_delay: 0 is_output: 1 is_check: 0 pin=out1 slack=7.901434173618327e-9
@@ -856,6 +857,7 @@ Max paths: 6
   is_path_delay: 0 is_output: 0 is_check: 1 pin=reg1/D slack=8.923905170377111e-9
   is_path_delay: 0 is_output: 0 is_check: 1 pin=reg1/D slack=8.925195693620935e-9
 --- find_timing_paths min with path delay ---
+Warning 502: search_path_delay_output.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Min paths: 6
   is_path_delay: 0 is_output: 0 pin=reg1/D slack=1.0391780769225534e-9
   is_path_delay: 0 is_output: 0 pin=reg1/D slack=1.040468933233285e-9

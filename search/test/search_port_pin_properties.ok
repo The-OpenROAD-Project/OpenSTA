@@ -20,7 +20,7 @@ out1 slack_min: 2.098566
 out1 slack_min_rise: 2.100286
 out1 slack_min_fall: 2.098566
 out1 slew_max: 0.003903
-out1 slew_min: 0.003638
+out1 slew_min: 0.003903
 --- Port direction and liberty_port ---
 in1 direction: input
 in1 port_direction: input
@@ -106,6 +106,7 @@ arc_set name: AND2_X1 A1 -> ZN
 arc_set full_name: AND2_X1 A2 -> ZN
 arc_set name: AND2_X1 A2 -> ZN
 --- PathEnd properties ---
+Warning 502: search_port_pin_properties.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 pathend startpoint: reg1/Q
 pathend endpoint: out1
 pathend startpoint_clock: clk

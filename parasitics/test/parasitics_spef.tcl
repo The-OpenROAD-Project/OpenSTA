@@ -14,7 +14,7 @@ create_clock -name clk1 -period 10 [get_ports clk1]
 # Read SPEF
 read_spef ../../test/reg1_asap7.spef
 
-set corner [sta::cmd_corner]
+set corner [sta::cmd_scene]
 foreach net_name {r1q r2q u1z u2z} {
   set net [get_nets $net_name]
   set total_cap [$net capacitance $corner "max"]

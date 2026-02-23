@@ -208,7 +208,7 @@ if { $wv != "NULL" } {
 ############################################################
 puts "--- report_path_end header/footer ---"
 sta::report_path_end_header
-set pes [find_timing_paths -path_delay max -endpoint_path_count 3]
+set pes [find_timing_paths -path_delay max -endpoint_count 3]
 set prev ""
 set last 0
 set idx 0

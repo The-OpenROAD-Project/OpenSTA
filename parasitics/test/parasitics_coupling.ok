@@ -1,13 +1,13 @@
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- before parasitics ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -152,7 +152,7 @@ Path Type: max
 
 No paths found.
 No paths found.
-Warning: parasitics_coupling.tcl line 1, unknown field nets.
+Warning 168: parasitics_coupling.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -617,23 +617,23 @@ Path Type: max
    0.00    0.00   clock clk (rise edge)
   12.11   12.11   clock network delay (propagated)
    0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
-   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-          94.93   data arrival time
+  63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  124.92 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  185.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  201.72 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         201.72   data arrival time
 
  500.00  500.00   clock clk (rise edge)
   11.92  511.92   clock network delay (propagated)
    0.00  511.92   clock reconvergence pessimism
          511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-  -3.87  508.05   library setup time
-         508.05   data required time
+  -8.46  503.46   library setup time
+         503.46   data required time
 ---------------------------------------------------------
-         508.05   data required time
-         -94.93   data arrival time
+         503.46   data required time
+        -201.72   data arrival time
 ---------------------------------------------------------
-         413.12   slack (MET)
+         301.74   slack (MET)
 
 
 Found 0 unannotated drivers.
@@ -644,52 +644,54 @@ Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
 Arc type: combinational
 A ^ -> Y ^
+Pi model C2=6.70 Rpi=2.42 C1=7.27, Ceff=10.50
 P = 1.00 V = 0.77 T = 0.00
-------- input_net_transition = 6.09
-|       total_output_net_capacitance = 0.57
-|        1.44     2.88
+------- input_net_transition = 50.73
+|       total_output_net_capacitance = 10.50
+|        5.76     11.52
 v      --------------------
-5.00 | 12.83     15.15
-10.00 | 14.38     16.68
-Table value = 11.77
+40.00 | 27.29     35.12
+80.00 | 32.30     40.08
+Table value = 35.06
 PVT scale factor = 1.00
-Delay = 11.77
+Delay = 35.06
 
-------- input_net_transition = 6.09
-|       total_output_net_capacitance = 0.57
-|        1.44     2.88
+------- input_net_transition = 50.73
+|       total_output_net_capacitance = 10.50
+|        5.76     11.52
 v      --------------------
-5.00 | 7.61     11.68
-10.00 | 7.63     11.70
-Table value = 5.15
+40.00 | 20.70     37.28
+80.00 | 21.40     38.13
+Table value = 34.55
 PVT scale factor = 1.00
-Slew = 5.15
-Driver waveform slew = 5.15
+Slew = 34.55
+Driver waveform slew = 47.36
 
 .............................................
 
 A v -> Y v
+Pi model C2=6.70 Rpi=2.42 C1=7.27, Ceff=10.09
 P = 1.00 V = 0.77 T = 0.00
-------- input_net_transition = 5.28
-|       total_output_net_capacitance = 0.57
-|        1.44     2.88
+------- input_net_transition = 48.75
+|       total_output_net_capacitance = 10.09
+|        5.76     11.52
 v      --------------------
-5.00 | 13.40     15.61
-10.00 | 15.03     17.25
-Table value = 12.14
+40.00 | 29.18     36.17
+80.00 | 36.09     43.28
+Table value = 35.98
 PVT scale factor = 1.00
-Delay = 12.14
+Delay = 35.98
 
-------- input_net_transition = 5.28
-|       total_output_net_capacitance = 0.57
-|        1.44     2.88
+------- input_net_transition = 48.75
+|       total_output_net_capacitance = 10.09
+|        5.76     11.52
 v      --------------------
-5.00 | 7.00     10.43
-10.00 | 7.02     10.45
-Table value = 4.92
+40.00 | 18.15     31.72
+80.00 | 19.36     32.63
+Table value = 28.57
 PVT scale factor = 1.00
-Slew = 4.92
-Driver waveform slew = 4.92
+Slew = 28.57
+Driver waveform slew = 40.66
 
 .............................................
 
@@ -699,52 +701,54 @@ Cell: AND2x2_ASAP7_75t_R
 Arc sense: positive_unate
 Arc type: combinational
 A ^ -> Y ^
+Pi model C2=6.70 Rpi=2.42 C1=7.32, Ceff=10.90
 P = 1.00 V = 0.70 T = 25.00
-------- input_net_transition = 6.02
-|       total_output_net_capacitance = 0.62
-|        1.44     2.88
+------- input_net_transition = 50.41
+|       total_output_net_capacitance = 10.90
+|        5.76     11.52
 v      --------------------
-5.00 | 16.66     19.55
-10.00 | 17.80     20.69
-Table value = 15.25
+40.00 | 31.28     40.48
+80.00 | 36.30     45.47
+Table value = 40.79
 PVT scale factor = 1.00
-Delay = 15.25
+Delay = 40.79
 
-------- input_net_transition = 6.02
-|       total_output_net_capacitance = 0.62
-|        1.44     2.88
+------- input_net_transition = 50.41
+|       total_output_net_capacitance = 10.90
+|        5.76     11.52
 v      --------------------
-5.00 | 9.68     14.48
-10.00 | 9.68     14.48
-Table value = 6.96
+40.00 | 24.52     43.68
+80.00 | 25.29     44.42
+Table value = 41.80
 PVT scale factor = 1.00
-Slew = 6.96
-Driver waveform slew = 6.96
+Slew = 41.80
+Driver waveform slew = 55.90
 
 .............................................
 
 A v -> Y v
+Pi model C2=6.70 Rpi=2.42 C1=7.32, Ceff=10.35
 P = 1.00 V = 0.70 T = 25.00
-------- input_net_transition = 5.20
-|       total_output_net_capacitance = 0.62
-|        1.44     2.88
+------- input_net_transition = 48.36
+|       total_output_net_capacitance = 10.35
+|        5.76     11.52
 v      --------------------
-5.00 | 16.72     19.23
-10.00 | 18.41     20.93
-Table value = 15.36
+40.00 | 35.35     43.09
+80.00 | 44.73     52.65
+Table value = 43.51
 PVT scale factor = 1.00
-Delay = 15.36
+Delay = 43.51
 
-------- input_net_transition = 5.20
-|       total_output_net_capacitance = 0.62
-|        1.44     2.88
+------- input_net_transition = 48.36
+|       total_output_net_capacitance = 10.35
+|        5.76     11.52
 v      --------------------
-5.00 | 8.19     11.99
-10.00 | 8.20     11.97
-Table value = 6.03
+40.00 | 20.09     35.08
+80.00 | 21.45     36.06
+Table value = 32.26
 PVT scale factor = 1.00
-Slew = 6.03
-Driver waveform slew = 6.03
+Slew = 32.26
+Driver waveform slew = 45.57
 
 .............................................
 

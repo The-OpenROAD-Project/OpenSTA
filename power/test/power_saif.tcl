@@ -31,4 +31,5 @@ puts "--- report_power -format json ---"
 report_power -format json
 
 puts "--- report_power -highest_power_instances ---"
-report_power -highest_power_instances 5
+# TODO: report_power -highest_power_instances broken (highest_power_instances SWIG fn removed)
+sta::report_power_highest_insts 5 [sta::cmd_scene] $sta_report_default_digits

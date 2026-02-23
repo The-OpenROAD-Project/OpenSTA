@@ -3,9 +3,13 @@ No differences found.
 --- write_sdf with options ---
 No differences found.
 --- write_sdf with digits ---
-No differences found.
+Differences found at line 6.
+ (VERSION "2.7.0")
+ (VERSION "3.0.0")
 --- write_sdf with include_typ ---
-No differences found.
+Differences found at line 6.
+ (VERSION "2.7.0")
+ (VERSION "3.0.0")
 --- write_timing_model ---
 --- write_timing_model with cell_name ---
 --- write_timing_model with library_name ---

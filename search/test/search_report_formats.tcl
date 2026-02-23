@@ -98,14 +98,14 @@ report_checks -rise_through [get_pins buf1/Z]
 puts "--- report_checks -fall_through ---"
 report_checks -fall_through [get_pins buf1/Z]
 
-puts "--- report_checks -endpoint_path_count 3 ---"
-report_checks -endpoint_path_count 3
+puts "--- report_checks -endpoint_count 3 ---"
+report_checks -endpoint_count 3
 
 puts "--- report_checks -group_path_count 2 ---"
 report_checks -group_path_count 2
 
 puts "--- report_checks -unique_paths_to_endpoint ---"
-report_checks -endpoint_path_count 3 -unique_paths_to_endpoint
+report_checks -endpoint_count 3 -unique_paths_to_endpoint
 
 puts "--- report_checks -sort_by_slack ---"
 report_checks -sort_by_slack

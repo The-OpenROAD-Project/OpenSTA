@@ -111,10 +111,10 @@ set model4 [make_result_file "model_simple.lib"]
 write_timing_model $model4
 rename_timing_model_library $model4 model_simple_readback
 
-puts "--- write_timing_model with corner ---"
-set corner [sta::cmd_corner]
+puts "--- write_timing_model with scene ---"
+set corner [sta::cmd_scene]
 set model5 [make_result_file "model_simple_corner.lib"]
-write_timing_model -corner [$corner name] $model5
+write_timing_model -scene $corner $model5
 rename_timing_model_library $model5 model_simple_corner_readback
 
 # Read model back and use it as a block

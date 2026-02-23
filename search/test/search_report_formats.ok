@@ -855,7 +855,8 @@ Path Type: max
            8.91   slack (MET)
 
 
---- report_checks -endpoint_path_count 3 ---
+--- report_checks -endpoint_count 3 ---
+Warning 502: search_report_formats.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -997,6 +998,7 @@ Path Type: max
 
 
 --- report_checks -unique_paths_to_endpoint ---
+Warning 502: search_report_formats.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk

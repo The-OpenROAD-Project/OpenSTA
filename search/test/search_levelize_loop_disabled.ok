@@ -219,7 +219,7 @@ Path Type: max
 
 
 --- disable lib cell arcs ---
-Warning: search_levelize_loop_disabled.tcl line 1, library 'Nangate45' not found.
+Warning 353: search_levelize_loop_disabled.tcl line 1, library 'Nangate45' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -275,7 +275,7 @@ Path Type: max
 
 
 --- re-enable lib cell arcs ---
-Warning: search_levelize_loop_disabled.tcl line 1, library 'Nangate45' not found.
+Warning 353: search_levelize_loop_disabled.tcl line 1, library 'Nangate45' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk

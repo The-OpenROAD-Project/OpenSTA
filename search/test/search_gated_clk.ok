@@ -734,6 +734,7 @@ Path Type: min
 
 
 --- find_timing_paths with gated clk ---
+Warning 502: search_gated_clk.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 4 paths
   is_gated_clock: 0
   is_check: 0

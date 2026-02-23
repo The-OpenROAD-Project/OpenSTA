@@ -448,6 +448,7 @@ Group                                  Slack
 clk                                     0.05
 
 --- find_timing_paths latch check ---
+Warning 502: search_latch_timing.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 18 max paths
   is_latch_check: 1 is_check: 0 pin=latch2/D slack=0.0
   is_latch_check: 1 is_check: 0 pin=latch2/D slack=0.0
@@ -468,6 +469,7 @@ Found 18 max paths
   is_latch_check: 0 is_check: 1 pin=reg1/D slack=9.902577424725223e-9
   is_latch_check: 0 is_check: 1 pin=reg1/D slack=9.91532278504792e-9
 --- find_timing_paths min latch ---
+Warning 502: search_latch_timing.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 12 min paths
   is_latch_check: 0 is_check: 1 pin=reg1/D slack=4.688082214099332e-11
   is_latch_check: 0 is_check: 1 pin=reg1/D slack=5.435544375709256e-11
@@ -697,9 +699,6 @@ Edge-triggered cells: 1
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    5.00    4.95 (MET)
-reg1/CK (low)                           0.05    5.00    4.95 (MET)
-latch1/G (high)                         0.04    5.00    4.96 (MET)
-latch2/G (high)                         0.04    5.00    4.96 (MET)
 
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -721,69 +720,6 @@ Check: sequential_clock_pulse_width
            5.00   actual pulse width
 ---------------------------------------------------------
            4.95   slack (MET)
-
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg1/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg1/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: latch1/G
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   0.00    0.00   latch1/G
-           0.00   open edge arrival time
-
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   latch1/G
-   0.00    5.00   clock reconvergence pessimism
-           5.00   close edge arrival time
----------------------------------------------------------
-           0.04   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.96   slack (MET)
-
-Pin: latch2/G
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk (rise edge)
-   0.00    0.00   clock network delay (ideal)
-   0.00    0.00   latch2/G
-           0.00   open edge arrival time
-
-   5.00    5.00   clock clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   latch2/G
-   0.00    5.00   clock reconvergence pessimism
-           5.00   close edge arrival time
----------------------------------------------------------
-           0.04   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.96   slack (MET)
 
 
 --- min period ---

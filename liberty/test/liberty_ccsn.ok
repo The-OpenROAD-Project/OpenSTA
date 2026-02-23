@@ -28,8 +28,8 @@ File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
  D input 0.55-0.62
  IQN internal
  IQNN internal
-Warning: liberty_ccsn.tcl line 1, liberty cell 'asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx1_ASAP7_75t_R' not found.
-Warning: liberty_ccsn.tcl line 1, liberty cell 'asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx2_ASAP7_75t_R' not found.
+Warning 117: liberty_ccsn.tcl line 1, liberty cell 'asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx1_ASAP7_75t_R' not found.
+Warning 117: liberty_ccsn.tcl line 1, liberty cell 'asap7sc7p5t_SEQ_RVT_FF_nldm_220123/SDFHQNx2_ASAP7_75t_R' not found.
 Cell ICGx1_ASAP7_75t_R
 Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
 File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
@@ -50,16 +50,16 @@ File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
  CLK input 1.63-2.39
  ENA input 0.33-0.47
  SE input 0.39-0.47
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 Cell AO211x2_ASAP7_75t_R
 Library asap7sc7p5t_AO_RVT_FF_nldm_211120
 File ../../test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz
@@ -918,5 +918,5 @@ File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
  A0 input 0.38-3.63
  A1 input 0.52-3.70
  S input 5.00-5.09
-Warning: ../../test/liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
-Warning: ../../test/liberty_arcs_one2one_2.lib line 48, timing port A and related port Y are different sizes.
+Warning 1216: ../../test/liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
+Warning 1216: ../../test/liberty_arcs_one2one_2.lib line 48, timing port A and related port Y are different sizes.

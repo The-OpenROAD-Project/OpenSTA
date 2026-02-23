@@ -150,11 +150,11 @@ puts "--- report_checks with groups ---"
 report_checks -path_delay max
 
 puts "--- find_timing_paths with group_path ---"
-set paths [find_timing_paths -path_delay max -group_path_count 20 -endpoint_path_count 10]
+set paths [find_timing_paths -path_delay max -group_path_count 20 -endpoint_count 10]
 puts "Found [llength $paths] paths with groups"
 
 puts "--- find_timing_paths with min paths and groups ---"
-set paths_min [find_timing_paths -path_delay min -group_path_count 20 -endpoint_path_count 10]
+set paths_min [find_timing_paths -path_delay min -group_path_count 20 -endpoint_count 10]
 puts "Found [llength $paths_min] min paths with groups"
 
 ############################################################

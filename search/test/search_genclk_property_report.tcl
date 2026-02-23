@@ -141,7 +141,7 @@ unset_propagated_clock [get_clocks clk]
 # find_timing_paths for genclk domain
 ############################################################
 puts "--- find_timing_paths genclk domain ---"
-set paths_gc [find_timing_paths -to [get_ports out2] -path_delay max -endpoint_path_count 5]
+set paths_gc [find_timing_paths -to [get_ports out2] -path_delay max -endpoint_count 5]
 puts "GenClk max paths: [llength $paths_gc]"
 foreach pe $paths_gc {
   puts "  pin=[get_full_name [$pe pin]] slack=[$pe slack]"

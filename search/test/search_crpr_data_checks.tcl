@@ -61,14 +61,14 @@ puts "--- report_clock_latency ---"
 report_clock_latency
 
 puts "--- find_timing_paths with CRPR ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 5]
+set paths [find_timing_paths -path_delay max -endpoint_count 5]
 puts "Found [llength $paths] paths"
 foreach pe $paths {
   puts "  slack=[$pe slack] crpr=[$pe check_crpr] pin=[get_full_name [$pe pin]]"
 }
 
 puts "--- find_timing_paths min with CRPR ---"
-set paths_min [find_timing_paths -path_delay min -endpoint_path_count 5]
+set paths_min [find_timing_paths -path_delay min -endpoint_count 5]
 puts "Found [llength $paths_min] hold paths"
 foreach pe $paths_min {
   puts "  slack=[$pe slack] crpr=[$pe check_crpr]"
@@ -140,4 +140,4 @@ report_clock_min_period
 puts "--- pulse width checks ---"
 report_check_types -min_pulse_width
 report_check_types -min_pulse_width -verbose
-report_pulse_width_checks
+report_check_types -min_pulse_width

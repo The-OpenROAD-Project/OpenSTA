@@ -49,8 +49,8 @@ Path Type: max
            0.03   slack (MET)
 
 
-Warning: sdc_remove_clock_gating.tcl line 1, object 'sdc_test2' not found.
-Warning: sdc_remove_clock_gating.tcl line 1, object 'sdc_test2' not found.
+Warning 101: sdc_remove_clock_gating.tcl line 1, object 'sdc_test2' not found.
+Warning 101: sdc_remove_clock_gating.tcl line 1, object 'sdc_test2' not found.
 Clock                   Period          Waveform
 ----------------------------------------------------
 clk1                     10.00        0.00      5.00

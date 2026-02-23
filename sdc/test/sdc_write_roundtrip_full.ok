@@ -1,8 +1,22 @@
-Warning: sdc_write_roundtrip_full.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-No differences found.
-No differences found.
-No differences found.
-No differences found.
-No differences found.
-No differences found.
-No differences found.
+Warning 415: sdc_write_roundtrip_full.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Differences found at line 146.
+set_min_pulse_width 0.5500 [get_clocks {clk2}]
+set_min_pulse_width -high 0.6000 [get_clocks {clk1}]
+Differences found at line 146.
+set_min_pulse_width 0.5500 [get_clocks {clk2}]
+set_min_pulse_width -high 0.6000 [get_clocks {clk1}]
+Differences found at line 146.
+set_min_pulse_width 0.55 [get_clocks {clk2}]
+set_min_pulse_width -high 0.60 [get_clocks {clk1}]
+Differences found at line 146.
+set_min_pulse_width 0.55000001 [get_clocks {clk2}]
+set_min_pulse_width -high 0.60000002 [get_clocks {clk1}]
+Differences found at line 146.
+set_min_pulse_width 0.5500 [get_clocks {clk2}]
+set_min_pulse_width -high 0.6000 [get_clocks {clk1}]
+Differences found at line 146.
+set_min_pulse_width 0.5500 [get_clocks {clk2}]
+set_min_pulse_width -high 0.6000 [get_clocks {clk1}]
+Differences found at line 146.
+set_min_pulse_width 0.5500 [get_clocks {clk2}]
+set_min_pulse_width -high 0.6000 [get_clocks {clk1}]

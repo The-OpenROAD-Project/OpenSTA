@@ -1,13 +1,13 @@
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 --- Test 1: set then delete manual parasitics ---
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
@@ -77,23 +77,23 @@ Path Type: max
    0.00    0.00   clock clk (rise edge)
   12.11   12.11   clock network delay (propagated)
    0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
-   0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-          94.93   data arrival time
+  63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  124.92 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  185.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  201.72 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         201.72   data arrival time
 
  500.00  500.00   clock clk (rise edge)
   11.92  511.92   clock network delay (propagated)
    0.00  511.92   clock reconvergence pessimism
          511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-  -3.87  508.05   library setup time
-         508.05   data required time
+  -8.46  503.46   library setup time
+         503.46   data required time
 ---------------------------------------------------------
-         508.05   data required time
-         -94.93   data arrival time
+         503.46   data required time
+        -201.72   data arrival time
 ---------------------------------------------------------
-         413.12   slack (MET)
+         301.74   slack (MET)
 
 
 --- Test 2: SPEF re-read ---
@@ -107,25 +107,25 @@ Path Type: max
            0.00    0.00    0.00   clock clk (rise edge)
                   12.11   12.11   clock network delay (propagated)
           48.38    0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-   0.58    6.09   56.18   68.29 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-           6.09    0.00   68.29 ^ u1/A (BUFx2_ASAP7_75t_R)
-   0.57    5.15   11.77   80.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
-           5.15    0.00   80.05 ^ u2/B (AND2x2_ASAP7_75t_R)
-   0.62    6.96   14.88   94.93 ^ u2/Y (AND2x2_ASAP7_75t_R)
-           6.96    0.00   94.93 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-                          94.93   data arrival time
+  13.98   22.89   63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+          50.73   14.24   89.86 ^ u1/A (BUFx2_ASAP7_75t_R)
+  13.97   47.36   35.06  124.92 ^ u1/Y (BUFx2_ASAP7_75t_R)
+          66.26   15.35  140.27 ^ u2/B (AND2x2_ASAP7_75t_R)
+  14.02   56.47   45.68  185.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+          73.39   15.77  201.72 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+                         201.72   data arrival time
 
            0.00  500.00  500.00   clock clk (rise edge)
                   11.92  511.92   clock network delay (propagated)
                    0.00  511.92   clock reconvergence pessimism
                          511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-                  -3.87  508.05   library setup time
-                         508.05   data required time
+                  -8.46  503.46   library setup time
+                         503.46   data required time
 -----------------------------------------------------------------------
-                         508.05   data required time
-                         -94.93   data arrival time
+                         503.46   data required time
+                        -201.72   data arrival time
 -----------------------------------------------------------------------
-                         413.12   slack (MET)
+                         301.74   slack (MET)
 
 
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
@@ -167,23 +167,23 @@ Path Type: max
    0.00    0.00   clock clk (rise edge)
    0.00    0.00   clock network delay (propagated)
    0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  48.40   48.40 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  11.77   60.17 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  14.88   75.04 ^ u2/Y (AND2x2_ASAP7_75t_R)
-   0.00   75.04 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-          75.04   data arrival time
+  55.73   55.73 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  30.36   86.09 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  42.76  128.85 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00  128.85 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         128.85   data arrival time
 
  500.00  500.00   clock clk (rise edge)
    0.00  500.00   clock network delay (propagated)
    0.00  500.00   clock reconvergence pessimism
          500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-  -5.78  494.22   library setup time
-         494.22   data required time
+ -10.53  489.47   library setup time
+         489.47   data required time
 ---------------------------------------------------------
-         494.22   data required time
-         -75.04   data arrival time
+         489.47   data required time
+        -128.85   data arrival time
 ---------------------------------------------------------
-         419.17   slack (MET)
+         360.62   slack (MET)
 
 
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)

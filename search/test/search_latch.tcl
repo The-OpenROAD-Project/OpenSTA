@@ -43,11 +43,11 @@ report_clock_skew -hold
 puts "--- report_clock_latency ---"
 report_clock_latency
 
-puts "--- report_pulse_width_checks ---"
-report_pulse_width_checks -verbose
+puts "--- report_min_pulse_width_checks ---"
+report_check_types -min_pulse_width -verbose
 
 puts "--- find_timing_paths through latch ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 5]
+set paths [find_timing_paths -path_delay max -endpoint_count 5]
 puts "Found [llength $paths] paths"
 foreach pe $paths {
   puts "  path to [get_full_name [$pe pin]] slack=[$pe slack]"

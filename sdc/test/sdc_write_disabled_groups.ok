@@ -1,5 +1,5 @@
-Warning: sdc_write_disabled_groups.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
-Warning: sdc_write_disabled_groups.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Warning 415: sdc_write_disabled_groups.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Warning 415: sdc_write_disabled_groups.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: grp_reg

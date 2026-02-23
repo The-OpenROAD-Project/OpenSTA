@@ -1031,7 +1031,7 @@ TEST(ReportTest, WarnBasic)
   report.warn(100, "something bad %d", 42);
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 100:"), std::string::npos);
   EXPECT_NE(s.find("something bad 42"), std::string::npos);
 }
 
@@ -1042,7 +1042,7 @@ TEST(ReportTest, FileWarn)
   report.fileWarn(101, "test.v", 10, "missing %s", "semicolon");
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 101:"), std::string::npos);
   EXPECT_NE(s.find("test.v"), std::string::npos);
   EXPECT_NE(s.find("line 10"), std::string::npos);
   EXPECT_NE(s.find("missing semicolon"), std::string::npos);
@@ -1056,7 +1056,7 @@ TEST(ReportTest, VwarnBasic)
   report.warn(102, "vwarn test %s", "value");
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 102:"), std::string::npos);
 }
 
 TEST(ReportTest, ErrorThrows)
@@ -1566,7 +1566,7 @@ TEST(ReportVaTest, VwarnBasic)
   callVwarn(report, 300, "vwarn message %d", 42);
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 300:"), std::string::npos);
   EXPECT_NE(s.find("vwarn message 42"), std::string::npos);
 }
 
@@ -1588,7 +1588,7 @@ TEST(ReportVaTest, VfileWarnBasic)
   callVfileWarn(report, 301, "test.v", 15, "vfile warn msg %s", "detail");
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 301:"), std::string::npos);
   EXPECT_NE(s.find("test.v"), std::string::npos);
   EXPECT_NE(s.find("line 15"), std::string::npos);
   EXPECT_NE(s.find("vfile warn msg detail"), std::string::npos);
@@ -1665,7 +1665,7 @@ TEST(ReportTest, LongWarnLine)
   report.warn(500, "%s", long_str.c_str());
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 500:"), std::string::npos);
   EXPECT_NE(s.find(long_str), std::string::npos);
 }
 
@@ -2097,7 +2097,7 @@ TEST(ReportCovTest, WarnWithLongMessage)
   report.warn(999, "prefix %s suffix", long_msg.c_str());
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 999:"), std::string::npos);
   EXPECT_NE(s.find("prefix"), std::string::npos);
   EXPECT_NE(s.find("suffix"), std::string::npos);
 }
@@ -2111,7 +2111,7 @@ TEST(ReportCovTest, FileWarnLongMessage)
   report.fileWarn(998, "bigfile.v", 100, "detail: %s", long_msg.c_str());
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 998:"), std::string::npos);
   EXPECT_NE(s.find("bigfile.v"), std::string::npos);
   EXPECT_NE(s.find("line 100"), std::string::npos);
 }
@@ -2837,7 +2837,7 @@ TEST(ReportCovTest, ReportStdWarn)
   report->warn(700, "reportstd warn test %d", 99);
   const char *result = report->redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 700:"), std::string::npos);
   EXPECT_NE(s.find("reportstd warn test 99"), std::string::npos);
   delete report;
 }
@@ -2942,7 +2942,7 @@ TEST(ReportCovTest, WarnLongMessage)
   report.warn(800, "%s", long_msg.c_str());
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 800:"), std::string::npos);
   EXPECT_NE(s.find(long_msg), std::string::npos);
 }
 
@@ -2956,7 +2956,7 @@ TEST(ReportCovTest, FileWarnLongMessage2)
   report.fileWarn(801, "long_file.v", 999, "%s", long_msg.c_str());
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_NE(s.find("Warning:"), std::string::npos);
+  EXPECT_NE(s.find("Warning 801:"), std::string::npos);
   EXPECT_NE(s.find("long_file.v"), std::string::npos);
   EXPECT_NE(s.find(long_msg), std::string::npos);
 }

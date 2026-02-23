@@ -26,9 +26,8 @@
 #include "Sta.hh"
 #include "ReportTcl.hh"
 #include "PatternMatch.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "LibertyWriter.hh"
-#include "DcalcAnalysisPt.hh"
 
 namespace sta {
 
@@ -38,12 +37,12 @@ static void expectStaLibertyCoreState(Sta *sta, LibertyLibrary *lib)
   EXPECT_EQ(Sta::sta(), sta);
   EXPECT_NE(sta->network(), nullptr);
   EXPECT_NE(sta->search(), nullptr);
-  EXPECT_NE(sta->sdc(), nullptr);
+  EXPECT_NE(sta->cmdSdc(), nullptr);
   EXPECT_NE(sta->report(), nullptr);
-  EXPECT_NE(sta->corners(), nullptr);
-  if (sta->corners())
-    EXPECT_GE(sta->corners()->count(), 1);
-  EXPECT_NE(sta->cmdCorner(), nullptr);
+  EXPECT_FALSE(sta->scenes().empty());
+  if (!sta->scenes().empty())
+    EXPECT_GE(sta->scenes().size(), 1);
+  EXPECT_NE(sta->cmdScene(), nullptr);
   EXPECT_NE(lib, nullptr);
 }
 
@@ -57,11 +56,11 @@ protected:
 class Table1Test : public ::testing::Test {
 protected:
   TableAxisPtr makeAxis(std::initializer_list<float> vals) {
-    FloatSeq *values = new FloatSeq;
+    FloatSeq values;
     for (float v : vals)
-      values->push_back(v);
+      values.push_back(v);
     return std::make_shared<TableAxis>(
-      TableAxisVariable::total_output_net_capacitance, values);
+      TableAxisVariable::total_output_net_capacitance, std::move(values));
   }
 };
 
@@ -93,7 +92,7 @@ protected:
 
     // Read Nangate45 liberty file
     lib_ = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                             sta_->cmdCorner(),
+                             sta_->cmdScene(),
                              MinMaxAll::min(),
                              false);
   }
@@ -226,7 +225,6 @@ TEST_F(StaLibertyTest, TimingArcSetProperties) {
   EXPECT_GE(static_cast<int>(sense), 0);
   EXPECT_GT(arcset->arcCount(), 0u);
   EXPECT_GE(arcset->index(), 0u);
-  EXPECT_FALSE(arcset->isDisabledConstraint());
   EXPECT_EQ(arcset->libertyCell(), buf);
 }
 
@@ -314,17 +312,17 @@ TEST_F(StaLibertyTest, TimingArcSetSdfCond) {
   auto &arcsets = buf->timingArcSets();
   ASSERT_GT(arcsets.size(), 0u);
   TimingArcSet *arcset = arcsets[0];
-  // SDF condition getters - may be null
-  const char *sdf_cond = arcset->sdfCond();
-  const char *sdf_start = arcset->sdfCondStart();
-  const char *sdf_end = arcset->sdfCondEnd();
-  const char *mode_name = arcset->modeName();
-  const char *mode_value = arcset->modeValue();
-  // sdf_cond may be null for simple arcs
-  // sdf_start may be null for simple arcs
-  // sdf_end may be null for simple arcs
-  // mode_name may be null for simple arcs
-  // mode_value may be null for simple arcs
+  // SDF condition getters - may be empty for simple arcs
+  const std::string &sdf_cond = arcset->sdfCond();
+  const std::string &sdf_start = arcset->sdfCondStart();
+  const std::string &sdf_end = arcset->sdfCondEnd();
+  const std::string &mode_name = arcset->modeName();
+  const std::string &mode_value = arcset->modeValue();
+  // sdf_cond may be empty for simple arcs
+  // sdf_start may be empty for simple arcs
+  // sdf_end may be empty for simple arcs
+  // mode_name may be empty for simple arcs
+  // mode_value may be empty for simple arcs
 }
 
 TEST_F(StaLibertyTest, TimingArcProperties) {
@@ -593,7 +591,6 @@ TEST_F(StaLibertyTest, PortBoolFlags) {
   EXPECT_FALSE(a->levelShifterData());
   EXPECT_FALSE(a->isSwitch());
   EXPECT_FALSE(a->isLatchData());
-  EXPECT_FALSE(a->isDisabledConstraint());
   EXPECT_FALSE(a->isPad());
 }
 
@@ -650,21 +647,20 @@ TEST_F(StaLibertyTest, CellInternalPowers) {
   auto &powers = buf->internalPowers();
   EXPECT_GT(powers.size(), 0u);
   if (powers.size() > 0) {
-    InternalPower *pwr = powers[0];
-    EXPECT_NE(pwr, nullptr);
-    EXPECT_NE(pwr->port(), nullptr);
+    const InternalPower &pwr = powers[0];
+    EXPECT_NE(pwr.port(), nullptr);
     // relatedPort may be nullptr
-    LibertyPort *rp = pwr->relatedPort();
+    LibertyPort *rp = pwr.relatedPort();
     EXPECT_NE(rp, nullptr);
     // when is null for unconditional internal power groups
-    FuncExpr *when = pwr->when();
+    FuncExpr *when = pwr.when();
     if (when) {
-      EXPECT_NE(when->op(), FuncExpr::op_zero);
+      EXPECT_NE(when->op(), FuncExpr::Op::zero);
     }
     // relatedPgPin may be nullptr
-    const char *pgpin = pwr->relatedPgPin();
+    LibertyPort *pgpin = pwr.relatedPgPin();
     // pgpin may be null for simple arcs
-    EXPECT_EQ(pwr->libertyCell(), buf);
+    EXPECT_EQ(pwr.libertyCell(), buf);
   }
 }
 
@@ -673,7 +669,7 @@ TEST_F(StaLibertyTest, CellInternalPowersByPort) {
   ASSERT_NE(buf, nullptr);
   LibertyPort *z = buf->findLibertyPort("Z");
   if (z) {
-    auto &powers = buf->internalPowers(z);
+    InternalPowerPtrSeq powers = buf->internalPowers(z);
     // May or may not have internal powers for this port
     EXPECT_GE(powers.size(), 0u);
   }
@@ -836,7 +832,7 @@ TEST_F(StaLibertyTest, CellFindTimingArcSet) {
   auto &arcsets = buf->timingArcSets();
   ASSERT_GT(arcsets.size(), 0u);
   // Find by index
-  TimingArcSet *found = buf->findTimingArcSet(unsigned(0));
+  TimingArcSet *found = buf->findTimingArcSet(static_cast<size_t>(0));
   EXPECT_NE(found, nullptr);
 }
 
@@ -879,9 +875,9 @@ TEST_F(StaLibertyTest, InternalPowerCompute) {
   ASSERT_NE(inv, nullptr);
   auto &powers = inv->internalPowers();
   if (powers.size() > 0) {
-    InternalPower *pwr = powers[0];
+    const InternalPower &pwr = powers[0];
     // Compute power with some slew and cap values
-    float power_val = pwr->power(RiseFall::rise(), nullptr, 0.1f, 0.01f);
+    float power_val = pwr.power(RiseFall::rise(), nullptr, 0.1f, 0.01f);
     // Power value can be negative depending on library data
     EXPECT_FALSE(std::isinf(power_val));
   }
@@ -1064,6 +1060,13 @@ TEST_F(StaLibertyTest, LibraryOcvDerate) {
 // Helper to create FloatSeq from initializer list
 ////////////////////////////////////////////////////////////////
 
+static FloatSeq makeFloatSeqVal(std::initializer_list<float> vals) {
+  FloatSeq seq;
+  for (float v : vals)
+    seq.push_back(v);
+  return seq;
+}
+
 static FloatSeq *makeFloatSeq(std::initializer_list<float> vals) {
   FloatSeq *seq = new FloatSeq;
   for (float v : vals)
@@ -1073,8 +1076,8 @@ static FloatSeq *makeFloatSeq(std::initializer_list<float> vals) {
 
 static TableAxisPtr makeTestAxis(TableAxisVariable var,
                                  std::initializer_list<float> vals) {
-  FloatSeq *values = makeFloatSeq(vals);
-  return std::make_shared<TableAxis>(var, values);
+  FloatSeq values = makeFloatSeqVal(vals);
+  return std::make_shared<TableAxis>(var, std::move(values));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1082,7 +1085,7 @@ static TableAxisPtr makeTestAxis(TableAxisVariable var,
 ////////////////////////////////////////////////////////////////
 
 TEST(TableVirtualTest, Table0Order) {
-  Table0 t(1.5f);
+  Table t(1.5f);
   EXPECT_EQ(t.order(), 0);
   // Table base class axis1/axis2 return nullptr
   EXPECT_EQ(t.axis1(), nullptr);
@@ -1092,21 +1095,19 @@ TEST(TableVirtualTest, Table0Order) {
 TEST(TableVirtualTest, Table1OrderAndAxis) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
-  Table1 t(vals, axis);
+  Table t(vals, axis);
   EXPECT_EQ(t.order(), 1);
   EXPECT_NE(t.axis1(), nullptr);
   EXPECT_EQ(t.axis2(), nullptr);
 }
 
 TEST(TableVirtualTest, Table2OrderAndAxes) {
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
-  Table2 t(vals, ax1, ax2);
+  Table t(std::move(vals), ax1, ax2);
   EXPECT_EQ(t.order(), 2);
   EXPECT_NE(t.axis1(), nullptr);
   EXPECT_NE(t.axis2(), nullptr);
@@ -1114,15 +1115,13 @@ TEST(TableVirtualTest, Table2OrderAndAxes) {
 }
 
 TEST(TableVirtualTest, Table3OrderAndAxes) {
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
   auto ax3 = makeTestAxis(TableAxisVariable::related_out_total_output_net_capacitance, {1.0f});
-  Table3 t(vals, ax1, ax2, ax3);
+  Table t(std::move(vals), ax1, ax2, ax3);
   EXPECT_EQ(t.order(), 3);
   EXPECT_NE(t.axis1(), nullptr);
   EXPECT_NE(t.axis2(), nullptr);
@@ -1134,7 +1133,7 @@ TEST(TableVirtualTest, Table3OrderAndAxes) {
 ////////////////////////////////////////////////////////////////
 
 TEST(TableReportTest, Table0ReportValue) {
-  Table0 t(42.0f);
+  Table t(42.0f);
   Unit unit(1e-9f, "s", 3);
   std::string rv = t.reportValue("delay", nullptr, nullptr,
                                   0.0f, nullptr, 0.0f, 0.0f,
@@ -1153,35 +1152,33 @@ TEST(TableDestructTest, Table1Destruct) {
   ASSERT_NO_THROW(( [&](){
   FloatSeq *vals = makeFloatSeq({1.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f});
-  Table1 *t = new Table1(vals, axis);
-  delete t; // covers Table1::~Table1
+  Table *t = new Table(vals, axis);
+  delete t; // covers Table::~Table (order 1)
 
   }() ));
 }
 
 TEST(TableDestructTest, Table2Destruct) {
   ASSERT_NO_THROW(( [&](){
-  FloatSeq *row0 = makeFloatSeq({1.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
+  FloatTable vals;
+  vals.push_back({1.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f});
-  Table2 *t = new Table2(vals, ax1, ax2);
-  delete t; // covers Table2::~Table2
+  Table *t = new Table(std::move(vals), ax1, ax2);
+  delete t; // covers Table::~Table (order 2)
 
   }() ));
 }
 
 TEST(TableDestructTest, Table3Destruct) {
   ASSERT_NO_THROW(( [&](){
-  FloatSeq *row0 = makeFloatSeq({1.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
+  FloatTable vals;
+  vals.push_back({1.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f});
   auto ax3 = makeTestAxis(TableAxisVariable::related_out_total_output_net_capacitance, {1.0f});
-  Table3 *t = new Table3(vals, ax1, ax2, ax3);
-  delete t; // covers Table3::~Table3
+  Table *t = new Table(std::move(vals), ax1, ax2, ax3);
+  delete t; // covers Table::~Table (order 3)
 
   }() ));
 }
@@ -1191,7 +1188,7 @@ TEST(TableDestructTest, Table3Destruct) {
 ////////////////////////////////////////////////////////////////
 
 TEST(TableModelValueTest, ValueByIndex) {
-  Table0 *tbl = new Table0(5.5f);
+  Table *tbl = new Table(5.5f);
   TablePtr table_ptr(tbl);
   TableTemplate *tmpl = new TableTemplate("test_tmpl");
   TableModel model(table_ptr, tmpl, ScaleFactorType::cell, RiseFall::rise());
@@ -1232,62 +1229,58 @@ TEST(ScaleFactorsPrintTest, Print) {
 ////////////////////////////////////////////////////////////////
 
 TEST(GateTableModelCheckAxesTest, ValidAxes) {
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
-  TablePtr tbl = std::make_shared<Table2>(vals, ax1, ax2);
+  TablePtr tbl = std::make_shared<Table>(std::move(vals), ax1, ax2);
   EXPECT_TRUE(GateTableModel::checkAxes(tbl));
 }
 
 TEST(GateTableModelCheckAxesTest, InvalidAxis) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::constrained_pin_transition, {0.01f, 0.02f});
-  TablePtr tbl = std::make_shared<Table1>(vals, axis);
+  TablePtr tbl = std::make_shared<Table>(vals, axis);
   EXPECT_FALSE(GateTableModel::checkAxes(tbl));
 }
 
 TEST(GateTableModelCheckAxesTest, Table0NoAxes) {
-  TablePtr tbl = std::make_shared<Table0>(1.0f);
+  TablePtr tbl = std::make_shared<Table>(1.0f);
   EXPECT_TRUE(GateTableModel::checkAxes(tbl));
 }
 
 TEST(CheckTableModelCheckAxesTest, ValidAxes) {
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::related_pin_transition, {0.01f, 0.02f});
   auto ax2 = makeTestAxis(TableAxisVariable::constrained_pin_transition, {0.1f, 0.2f});
-  TablePtr tbl = std::make_shared<Table2>(vals, ax1, ax2);
+  TablePtr tbl = std::make_shared<Table>(std::move(vals), ax1, ax2);
   EXPECT_TRUE(CheckTableModel::checkAxes(tbl));
 }
 
 TEST(CheckTableModelCheckAxesTest, InvalidAxis) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
-  TablePtr tbl = std::make_shared<Table1>(vals, axis);
+  TablePtr tbl = std::make_shared<Table>(vals, axis);
   EXPECT_FALSE(CheckTableModel::checkAxes(tbl));
 }
 
 TEST(CheckTableModelCheckAxesTest, Table0NoAxes) {
-  TablePtr tbl = std::make_shared<Table0>(1.0f);
+  TablePtr tbl = std::make_shared<Table>(1.0f);
   EXPECT_TRUE(CheckTableModel::checkAxes(tbl));
 }
 
 TEST(ReceiverModelCheckAxesTest, ValidAxes) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
-  TablePtr tbl = std::make_shared<Table1>(vals, axis);
+  TablePtr tbl = std::make_shared<Table>(vals, axis);
   EXPECT_TRUE(ReceiverModel::checkAxes(tbl));
 }
 
 TEST(ReceiverModelCheckAxesTest, Table0NoAxis) {
-  TablePtr tbl = std::make_shared<Table0>(1.0f);
+  TablePtr tbl = std::make_shared<Table>(1.0f);
   EXPECT_FALSE(ReceiverModel::checkAxes(tbl));
 }
 
@@ -1296,38 +1289,22 @@ TEST(ReceiverModelCheckAxesTest, Table0NoAxis) {
 ////////////////////////////////////////////////////////////////
 
 TEST(DriverWaveformTest, CreateAndName) {
-  // DriverWaveform::waveform() expects a Table2 with axis1=slew, axis2=voltage
-  FloatSeq *row0 = makeFloatSeq({0.0f, 1.0f});
-  FloatSeq *row1 = makeFloatSeq({0.5f, 1.5f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  // DriverWaveform::waveform() expects a Table with axis1=slew, axis2=voltage (order 2)
+  FloatTable vals;
+  vals.push_back({0.0f, 1.0f});
+  vals.push_back({0.5f, 1.5f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.1f, 0.2f});
   auto ax2 = makeTestAxis(TableAxisVariable::normalized_voltage, {0.0f, 1.0f});
-  TablePtr tbl = std::make_shared<Table2>(vals, ax1, ax2);
+  TablePtr tbl = std::make_shared<Table>(std::move(vals), ax1, ax2);
   DriverWaveform *dw = new DriverWaveform("test_driver_waveform", tbl);
   EXPECT_STREQ(dw->name(), "test_driver_waveform");
-  Table1 wf = dw->waveform(0.15f);
+  Table wf = dw->waveform(0.15f);
   // Waveform accessor exercised; axis may be null for simple waveforms
   EXPECT_EQ(wf.order(), 1);
   delete dw;
 }
 
-////////////////////////////////////////////////////////////////
-// InternalPowerAttrs destructor
-////////////////////////////////////////////////////////////////
-
-TEST(InternalPowerAttrsTest, CreateAndDestroy) {
-  InternalPowerAttrs *attrs = new InternalPowerAttrs();
-  EXPECT_EQ(attrs->when(), nullptr);
-  EXPECT_EQ(attrs->model(RiseFall::rise()), nullptr);
-  EXPECT_EQ(attrs->model(RiseFall::fall()), nullptr);
-  EXPECT_EQ(attrs->relatedPgPin(), nullptr);
-  attrs->setRelatedPgPin("VDD");
-  EXPECT_STREQ(attrs->relatedPgPin(), "VDD");
-  attrs->deleteContents();
-  delete attrs; // covers InternalPowerAttrs::~InternalPowerAttrs
-}
+// InternalPowerAttrs has been removed in MCMM update
 
 ////////////////////////////////////////////////////////////////
 // LibertyCellPortBitIterator destructor coverage
@@ -1455,9 +1432,11 @@ TEST_F(StaLibertyTest, PortCornerPort) {
   ASSERT_NE(buf, nullptr);
   LibertyPort *port = buf->findLibertyPort("A");
   ASSERT_NE(port, nullptr);
-  LibertyPort *cp = port->cornerPort(0);
+  Scene *scene = sta_->cmdScene();
+  ASSERT_NE(scene, nullptr);
+  LibertyPort *cp = port->scenePort(scene, MinMax::min());
   EXPECT_NE(cp, nullptr);
-  const LibertyPort *ccp = static_cast<const LibertyPort*>(port)->cornerPort(0);
+  const LibertyPort *ccp = static_cast<const LibertyPort*>(port)->scenePort(scene, MinMax::min());
   EXPECT_NE(ccp, nullptr);
 }
 
@@ -1483,10 +1462,10 @@ TEST_F(StaLibertyTest, ModeValueDefSetSdfCond) {
   ASSERT_NE(mode_def, nullptr);
   ModeValueDef *val_def = mode_def->defineValue("val1", nullptr, "orig_sdf_cond");
   ASSERT_NE(val_def, nullptr);
-  EXPECT_STREQ(val_def->value(), "val1");
-  EXPECT_STREQ(val_def->sdfCond(), "orig_sdf_cond");
+  EXPECT_EQ(val_def->value(), "val1");
+  EXPECT_EQ(val_def->sdfCond(), "orig_sdf_cond");
   val_def->setSdfCond("new_sdf_cond");
-  EXPECT_STREQ(val_def->sdfCond(), "new_sdf_cond");
+  EXPECT_EQ(val_def->sdfCond(), "new_sdf_cond");
 }
 
 TEST_F(StaLibertyTest, ModeValueDefSetCond) {
@@ -1519,13 +1498,13 @@ TEST_F(StaLibertyTest, CellLatchCheckEnableEdgeWithDFF) {
 }
 
 ////////////////////////////////////////////////////////////////
-// LibertyCell::cornerCell
+// LibertyCell::sceneCell
 ////////////////////////////////////////////////////////////////
 
 TEST_F(StaLibertyTest, CellCornerCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  LibertyCell *cc = buf->cornerCell(0);
+  LibertyCell *cc = buf->sceneCell(0);
   EXPECT_NE(cc, nullptr);
 }
 
@@ -1548,7 +1527,7 @@ TEST_F(StaLibertyTest, TimingArcSetLessStatic) {
 }
 
 ////////////////////////////////////////////////////////////////
-// TimingArc::cornerArc
+// TimingArc::sceneArc
 ////////////////////////////////////////////////////////////////
 
 TEST_F(StaLibertyTest, TimingArcCornerArc) {
@@ -1558,7 +1537,7 @@ TEST_F(StaLibertyTest, TimingArcCornerArc) {
   ASSERT_GT(arcsets.size(), 0u);
   auto &arcs = arcsets[0]->arcs();
   ASSERT_GT(arcs.size(), 0u);
-  const TimingArc *corner = arcs[0]->cornerArc(0);
+  const TimingArc *corner = arcs[0]->sceneArc(0);
   EXPECT_NE(corner, nullptr);
 }
 
@@ -1590,17 +1569,7 @@ TEST_F(StaLibertyTest, TimingArcSetSetIsCondDefaultExplicit) {
   set->setIsCondDefault(orig);
 }
 
-TEST_F(StaLibertyTest, TimingArcSetSetIsDisabledConstraintExplicit) {
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  auto &arcsets = buf->timingArcSets();
-  ASSERT_GT(arcsets.size(), 0u);
-  TimingArcSet *set = arcsets[0];
-  bool orig = set->isDisabledConstraint();
-  set->setIsDisabledConstraint(true);
-  EXPECT_TRUE(set->isDisabledConstraint());
-  set->setIsDisabledConstraint(orig);
-}
+// isDisabledConstraint/setIsDisabledConstraint removed from TimingArcSet
 
 ////////////////////////////////////////////////////////////////
 // GateTableModel::gateDelay deprecated 7-arg version
@@ -1659,12 +1628,12 @@ TEST_F(StaLibertyTest, CheckTableModelCheckDelay) {
 // Library addDriverWaveform / findDriverWaveform
 ////////////////////////////////////////////////////////////////
 
-TEST_F(StaLibertyTest, LibraryAddAndFindDriverWaveform) {
+TEST_F(StaLibertyTest, LibraryMakeAndFindDriverWaveform) {
   FloatSeq *vals = makeFloatSeq({0.0f, 1.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.0f, 1.0f});
-  TablePtr tbl = std::make_shared<Table1>(vals, axis);
-  DriverWaveform *dw = new DriverWaveform("my_driver_wf", tbl);
-  lib_->addDriverWaveform(dw);
+  TablePtr tbl = std::make_shared<Table>(vals, axis);
+  DriverWaveform *dw = lib_->makeDriverWaveform("my_driver_wf", tbl);
+  ASSERT_NE(dw, nullptr);
   DriverWaveform *found = lib_->findDriverWaveform("my_driver_wf");
   EXPECT_EQ(found, dw);
   EXPECT_STREQ(found->name(), "my_driver_wf");
@@ -1689,9 +1658,8 @@ TEST_F(StaLibertyTest, PortSetDriverWaveform) {
   ASSERT_NE(port, nullptr);
   FloatSeq *vals = makeFloatSeq({0.0f, 1.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.0f, 1.0f});
-  TablePtr tbl = std::make_shared<Table1>(vals, axis);
-  DriverWaveform *dw = new DriverWaveform("port_dw", tbl);
-  lib_->addDriverWaveform(dw);
+  TablePtr tbl = std::make_shared<Table>(vals, axis);
+  DriverWaveform *dw = lib_->makeDriverWaveform("port_dw", tbl);
   port->setDriverWaveform(dw, RiseFall::rise());
   DriverWaveform *got = port->driverWaveform(RiseFall::rise());
   EXPECT_EQ(got, dw);
@@ -1714,11 +1682,11 @@ TEST_F(StaLibertyTest, CellSetTestCell) {
 TEST_F(StaLibertyTest, CellFindModeDef) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  ModeDef *md = buf->findModeDef("nonexistent_mode");
+  const ModeDef *md = buf->findModeDef("nonexistent_mode");
   EXPECT_EQ(md, nullptr);
   ModeDef *created = buf->makeModeDef("my_mode");
   ASSERT_NE(created, nullptr);
-  ModeDef *found = buf->findModeDef("my_mode");
+  const ModeDef *found = buf->findModeDef("my_mode");
   EXPECT_EQ(found, created);
 }
 
@@ -1728,7 +1696,7 @@ TEST_F(StaLibertyTest, CellFindModeDef) {
 
 TEST_F(StaLibertyTest, LibraryWireloadDefaults) {
   ASSERT_NO_THROW(( [&](){
-  Wireload *wl = lib_->defaultWireload();
+  const Wireload *wl = lib_->defaultWireload();
   EXPECT_NE(wl, nullptr);
   WireloadMode mode = lib_->defaultWireloadMode();
   EXPECT_GE(static_cast<int>(mode), 0);
@@ -1744,9 +1712,9 @@ TEST_F(StaLibertyTest, GateTableModelWithTable0Delay) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
 
-  Table0 *delay_tbl = new Table0(1.0e-10f);
+  Table *delay_tbl = new Table(1.0e-10f);
   TablePtr delay_ptr(delay_tbl);
-  Table0 *slew_tbl = new Table0(2.0e-10f);
+  Table *slew_tbl = new Table(2.0e-10f);
   TablePtr slew_ptr(slew_tbl);
   TableTemplate *tmpl = new TableTemplate("test_tmpl2");
 
@@ -1780,7 +1748,7 @@ TEST_F(StaLibertyTest, CheckTableModelDirect) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
 
-  Table0 *check_tbl = new Table0(5.0e-11f);
+  Table *check_tbl = new Table(5.0e-11f);
   TablePtr check_ptr(check_tbl);
   TableTemplate *tmpl = new TableTemplate("check_tmpl");
 
@@ -1806,7 +1774,7 @@ TEST_F(StaLibertyTest, CheckTableModelDirect) {
 ////////////////////////////////////////////////////////////////
 
 TEST(TableLookupTest, Table0FindValue) {
-  Table0 t(7.5f);
+  Table t(7.5f);
   float v = t.findValue(0.0f, 0.0f, 0.0f);
   EXPECT_FLOAT_EQ(v, 7.5f);
   float v2 = t.value(0, 0, 0);
@@ -1816,7 +1784,7 @@ TEST(TableLookupTest, Table0FindValue) {
 TEST(TableLookupTest, Table1FindValue) {
   FloatSeq *vals = makeFloatSeq({10.0f, 20.0f, 30.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {1.0f, 2.0f, 3.0f});
-  Table1 t(vals, axis);
+  Table t(vals, axis);
   float v = t.findValue(1.0f, 0.0f, 0.0f);
   EXPECT_FLOAT_EQ(v, 10.0f);
   float v2 = t.findValue(1.5f, 0.0f, 0.0f);
@@ -1824,28 +1792,24 @@ TEST(TableLookupTest, Table1FindValue) {
 }
 
 TEST(TableLookupTest, Table2FindValue) {
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {1.0f, 2.0f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {10.0f, 20.0f});
-  Table2 t(vals, ax1, ax2);
+  Table t(std::move(vals), ax1, ax2);
   float v = t.findValue(1.0f, 10.0f, 0.0f);
   EXPECT_FLOAT_EQ(v, 1.0f);
 }
 
 TEST(TableLookupTest, Table3Value) {
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
   auto ax3 = makeTestAxis(TableAxisVariable::related_out_total_output_net_capacitance, {1.0f});
-  Table3 t(vals, ax1, ax2, ax3);
+  Table t(std::move(vals), ax1, ax2, ax3);
   float v = t.value(0, 0, 0);
   EXPECT_FLOAT_EQ(v, 1.0f);
 }
@@ -1919,13 +1883,7 @@ TEST_F(StaLibertyTest, CellSetOcvArcDepth) {
   EXPECT_FLOAT_EQ(buf->ocvArcDepth(), 0.5f);
 }
 
-TEST_F(StaLibertyTest, CellSetIsDisabledConstraint) {
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  buf->setIsDisabledConstraint(true);
-  EXPECT_TRUE(buf->isDisabledConstraint());
-  buf->setIsDisabledConstraint(false);
-}
+// isDisabledConstraint/setIsDisabledConstraint removed from LibertyCell
 
 TEST_F(StaLibertyTest, CellSetScaleFactors) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
@@ -1945,8 +1903,8 @@ TEST_F(StaLibertyTest, CellSetHasInferedRegTimingArcs) {
 TEST_F(StaLibertyTest, CellAddBusDcl) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  BusDcl *bd = new BusDcl("test_bus", 0, 3);
-  buf->addBusDcl(bd);
+  BusDcl *bd = buf->makeBusDcl("test_bus", 0, 3);
+  EXPECT_NE(bd, nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1955,7 +1913,7 @@ TEST_F(StaLibertyTest, CellAddBusDcl) {
 
 TEST(TableTemplateExtraTest, SetAxes) {
   TableTemplate tmpl("my_template");
-  EXPECT_STREQ(tmpl.name(), "my_template");
+  EXPECT_EQ(tmpl.name(), "my_template");
   EXPECT_EQ(tmpl.axis1(), nullptr);
   EXPECT_EQ(tmpl.axis2(), nullptr);
   EXPECT_EQ(tmpl.axis3(), nullptr);
@@ -1973,7 +1931,7 @@ TEST(TableTemplateExtraTest, SetAxes) {
   EXPECT_NE(tmpl.axis3(), nullptr);
 
   tmpl.setName("renamed");
-  EXPECT_STREQ(tmpl.name(), "renamed");
+  EXPECT_EQ(tmpl.name(), "renamed");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1981,8 +1939,8 @@ TEST(TableTemplateExtraTest, SetAxes) {
 ////////////////////////////////////////////////////////////////
 
 TEST(OcvDerateTest, CreateAndAccess) {
-  OcvDerate *derate = new OcvDerate(stringCopy("test_derate"));
-  EXPECT_STREQ(derate->name(), "test_derate");
+  OcvDerate *derate = new OcvDerate("test_derate");
+  EXPECT_EQ(derate->name(), "test_derate");
   const Table *tbl = derate->derateTable(RiseFall::rise(), EarlyLate::early(),
                                           PathType::clk);
   EXPECT_EQ(tbl, nullptr);
@@ -1998,7 +1956,7 @@ TEST(OcvDerateTest, CreateAndAccess) {
 
 TEST(BusDclTest, Create) {
   BusDcl bd("test_bus", 0, 7);
-  EXPECT_STREQ(bd.name(), "test_bus");
+  EXPECT_EQ(bd.name(), "test_bus");
   EXPECT_EQ(bd.from(), 0);
   EXPECT_EQ(bd.to(), 7);
 }
@@ -2025,7 +1983,7 @@ TEST(OperatingConditionsTest, Create) {
 TEST(Table1SpecificTest, FindValueClip) {
   FloatSeq *vals = makeFloatSeq({10.0f, 20.0f, 30.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {1.0f, 2.0f, 3.0f});
-  Table1 t(vals, axis);
+  Table t(vals, axis);
   // Below range -> returns 0.0
   float clipped_lo = t.findValueClip(0.5f);
   EXPECT_FLOAT_EQ(clipped_lo, 0.0f);
@@ -2040,7 +1998,7 @@ TEST(Table1SpecificTest, FindValueClip) {
 TEST(Table1SpecificTest, SingleArgFindValue) {
   FloatSeq *vals = makeFloatSeq({5.0f, 15.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {1.0f, 3.0f});
-  Table1 t(vals, axis);
+  Table t(vals, axis);
   float v = t.findValue(2.0f);
   EXPECT_NEAR(v, 10.0f, 0.1f);
 }
@@ -2048,7 +2006,7 @@ TEST(Table1SpecificTest, SingleArgFindValue) {
 TEST(Table1SpecificTest, ValueByIndex) {
   FloatSeq *vals = makeFloatSeq({100.0f, 200.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {1.0f, 2.0f});
-  Table1 t(vals, axis);
+  Table t(vals, axis);
   EXPECT_FLOAT_EQ(t.value(0), 100.0f);
   EXPECT_FLOAT_EQ(t.value(1), 200.0f);
 }
@@ -2058,14 +2016,12 @@ TEST(Table1SpecificTest, ValueByIndex) {
 ////////////////////////////////////////////////////////////////
 
 TEST(Table2SpecificTest, ValueByTwoIndices) {
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {1.0f, 2.0f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {10.0f, 20.0f});
-  Table2 t(vals, ax1, ax2);
+  Table t(std::move(vals), ax1, ax2);
   EXPECT_FLOAT_EQ(t.value(0, 0), 1.0f);
   EXPECT_FLOAT_EQ(t.value(0, 1), 2.0f);
   EXPECT_FLOAT_EQ(t.value(1, 0), 3.0f);
@@ -2081,8 +2037,8 @@ TEST(Table2SpecificTest, ValueByTwoIndices) {
 TEST(Table1MoveTest, MoveConstruct) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
-  Table1 t1(vals, axis);
-  Table1 t2(std::move(t1));
+  Table t1(vals, axis);
+  Table t2(std::move(t1));
   EXPECT_EQ(t2.order(), 1);
   EXPECT_NE(t2.axis1(), nullptr);
 }
@@ -2090,8 +2046,8 @@ TEST(Table1MoveTest, MoveConstruct) {
 TEST(Table1MoveTest, CopyConstruct) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
-  Table1 t1(vals, axis);
-  Table1 t2(t1);
+  Table t1(vals, axis);
+  Table t2(t1);
   EXPECT_EQ(t2.order(), 1);
   EXPECT_NE(t2.axis1(), nullptr);
 }
@@ -2099,11 +2055,11 @@ TEST(Table1MoveTest, CopyConstruct) {
 TEST(Table1MoveTest, MoveAssign) {
   FloatSeq *vals1 = makeFloatSeq({1.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f});
-  Table1 t1(vals1, ax1);
+  Table t1(vals1, ax1);
 
   FloatSeq *vals2 = makeFloatSeq({2.0f, 3.0f});
   auto ax2 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
-  Table1 t2(vals2, ax2);
+  Table t2(vals2, ax2);
   t2 = std::move(t1);
   EXPECT_EQ(t2.order(), 1);
 }
@@ -2114,7 +2070,7 @@ TEST(Table1MoveTest, MoveAssign) {
 
 TEST(TableModelSetterTest, SetScaleFactorType) {
   ASSERT_NO_THROW(( [&](){
-  Table0 *tbl = new Table0(1.0f);
+  Table *tbl = new Table(1.0f);
   TablePtr tp(tbl);
   TableTemplate *tmpl = new TableTemplate("tmpl");
   TableModel model(tp, tmpl, ScaleFactorType::cell, RiseFall::rise());
@@ -2126,7 +2082,7 @@ TEST(TableModelSetterTest, SetScaleFactorType) {
 
 TEST(TableModelSetterTest, SetIsScaled) {
   ASSERT_NO_THROW(( [&](){
-  Table0 *tbl = new Table0(1.0f);
+  Table *tbl = new Table(1.0f);
   TablePtr tp(tbl);
   TableTemplate *tmpl = new TableTemplate("tmpl2");
   TableModel model(tp, tmpl, ScaleFactorType::cell, RiseFall::rise());
@@ -2180,15 +2136,8 @@ TEST_F(StaLibertyTest, PortSetRelatedPowerPin) {
   EXPECT_STREQ(port->relatedPowerPin(), "VDD");
 }
 
-TEST_F(StaLibertyTest, PortIsDisabledConstraint) {
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  LibertyPort *port = buf->findLibertyPort("A");
-  ASSERT_NE(port, nullptr);
-  port->setIsDisabledConstraint(true);
-  EXPECT_TRUE(port->isDisabledConstraint());
-  port->setIsDisabledConstraint(false);
-}
+// isDisabledConstraint has been moved from LibertyPort to Sdc.
+// This test is no longer applicable.
 
 TEST_F(StaLibertyTest, PortRegClkAndOutput) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
@@ -2278,8 +2227,8 @@ TEST_F(StaLibertyTest, CellSetLeakagePower) {
 TEST_F(StaLibertyTest, CellSetCornerCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  buf->setCornerCell(buf, 0);
-  LibertyCell *cc = buf->cornerCell(0);
+  buf->setSceneCell(buf, 0);
+  LibertyCell *cc = buf->sceneCell(0);
   EXPECT_EQ(cc, buf);
 }
 
@@ -2297,17 +2246,7 @@ TEST_F(StaLibertyTest, LibraryTableTemplates) {
   EXPECT_GT(templates.size(), 0u);
 }
 
-////////////////////////////////////////////////////////////////
-// InternalPowerAttrs model setters
-////////////////////////////////////////////////////////////////
-
-TEST(InternalPowerAttrsModelTest, SetModel) {
-  InternalPowerAttrs attrs;
-  EXPECT_EQ(attrs.model(RiseFall::rise()), nullptr);
-  EXPECT_EQ(attrs.model(RiseFall::fall()), nullptr);
-  attrs.setWhen(nullptr);
-  EXPECT_EQ(attrs.when(), nullptr);
-}
+// InternalPowerAttrs has been removed from the API.
 
 ////////////////////////////////////////////////////////////////
 // LibertyCell misc
@@ -2331,8 +2270,8 @@ TEST_F(StaLibertyTest, CellClockGateLatch) {
 TEST_F(StaLibertyTest, CellAddOcvDerate) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  OcvDerate *derate = new OcvDerate(stringCopy("my_derate"));
-  buf->addOcvDerate(derate);
+  OcvDerate *derate = buf->makeOcvDerate("my_derate");
+  EXPECT_NE(derate, nullptr);
   buf->setOcvDerate(derate);
   OcvDerate *got = buf->ocvDerate();
   EXPECT_EQ(got, derate);
@@ -2347,20 +2286,14 @@ TEST_F(StaLibertyTest, PortSetReceiverModel) {
   EXPECT_EQ(port->receiverModel(), nullptr);
 }
 
-TEST_F(StaLibertyTest, PortSetClkTreeDelay) {
+TEST_F(StaLibertyTest, PortClkTreeDelay2) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
   LibertyPort *clk = dff->findLibertyPort("CK");
   ASSERT_NE(clk, nullptr);
-  Table0 *tbl = new Table0(1.0e-10f);
-  TablePtr tp(tbl);
-  TableTemplate *tmpl = new TableTemplate("clk_tree_tmpl");
-  TableModel *model = new TableModel(tp, tmpl, ScaleFactorType::cell,
-                                      RiseFall::rise());
-  clk->setClkTreeDelay(model, RiseFall::rise(), RiseFall::rise(), MinMax::max());
+  // setClkTreeDelay has been removed; just exercise the getter.
   float d = clk->clkTreeDelay(0.0f, RiseFall::rise(), RiseFall::rise(), MinMax::max());
   EXPECT_GE(d, 0.0f);
-  // The template is leaked intentionally - the TableModel takes no ownership of it
 }
 
 TEST_F(StaLibertyTest, PortClkTreeDelaysDeprecated) {
@@ -2377,23 +2310,17 @@ TEST_F(StaLibertyTest, PortClkTreeDelaysDeprecated) {
 #pragma GCC diagnostic pop
 }
 
-TEST_F(StaLibertyTest, CellAddInternalPowerAttrs) {
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  InternalPowerAttrs *attrs = new InternalPowerAttrs();
-  buf->addInternalPowerAttrs(attrs);
-}
+// addInternalPowerAttrs has been removed from the API.
 
 ////////////////////////////////////////////////////////////////
 // TableAxis values()
 ////////////////////////////////////////////////////////////////
 
 TEST(TableAxisExtTest, AxisValues) {
-  FloatSeq *vals = makeFloatSeq({0.01f, 0.02f, 0.03f});
-  TableAxis axis(TableAxisVariable::input_net_transition, vals);
-  FloatSeq *v = axis.values();
-  EXPECT_NE(v, nullptr);
-  EXPECT_EQ(v->size(), 3u);
+  FloatSeq vals = makeFloatSeqVal({0.01f, 0.02f, 0.03f});
+  TableAxis axis(TableAxisVariable::input_net_transition, std::move(vals));
+  const FloatSeq &v = axis.values();
+  EXPECT_EQ(v.size(), 3u);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2401,8 +2328,9 @@ TEST(TableAxisExtTest, AxisValues) {
 ////////////////////////////////////////////////////////////////
 
 TEST_F(StaLibertyTest, LibraryAddTableTemplate) {
-  TableTemplate *tmpl = new TableTemplate("my_custom_template");
-  lib_->addTableTemplate(tmpl, TableTemplateType::delay);
+  TableTemplate *tmpl = lib_->makeTableTemplate("my_custom_template",
+                                                 TableTemplateType::delay);
+  EXPECT_NE(tmpl, nullptr);
   TableTemplateSeq templates = lib_->tableTemplates();
   EXPECT_GT(templates.size(), 0u);
 }
@@ -2511,7 +2439,7 @@ TEST_F(StaLibertyTest, PortCornerPortConst) {
   ASSERT_NE(buf, nullptr);
   const LibertyPort *port_a = buf->findLibertyPort("A");
   ASSERT_NE(port_a, nullptr);
-  const LibertyPort *cp = port_a->cornerPort(0);
+  const LibertyPort *cp = port_a->scenePort(0);
   EXPECT_NE(cp, nullptr);
 }
 
@@ -2649,15 +2577,14 @@ TEST_F(StaLibertyTest, PortEquivDifferentCells) {
 TEST_F(StaLibertyTest, CellLeakagePowerExists) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  LeakagePowerSeq *lps = buf->leakagePowers();
-  ASSERT_NE(lps, nullptr);
+  const LeakagePowerSeq &lps = buf->leakagePowers();
   // Just check the count - LeakagePower header not included
-  size_t count = lps->size();
+  size_t count = lps.size();
   EXPECT_GE(count, 0u);
 }
 
 ////////////////////////////////////////////////////////////////
-// LibertyCell::setCornerCell with different cells
+// LibertyCell::setSceneCell with different cells
 ////////////////////////////////////////////////////////////////
 
 TEST_F(StaLibertyTest, CellSetCornerCellDiff) {
@@ -2665,11 +2592,11 @@ TEST_F(StaLibertyTest, CellSetCornerCellDiff) {
   LibertyCell *buf2 = lib_->findLibertyCell("BUF_X2");
   ASSERT_NE(buf, nullptr);
   ASSERT_NE(buf2, nullptr);
-  buf->setCornerCell(buf2, 0);
-  LibertyCell *cc = buf->cornerCell(0);
+  buf->setSceneCell(buf2, 0);
+  LibertyCell *cc = buf->sceneCell(0);
   EXPECT_EQ(cc, buf2);
   // Restore
-  buf->setCornerCell(buf, 0);
+  buf->setSceneCell(buf, 0);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2678,7 +2605,7 @@ TEST_F(StaLibertyTest, CellSetCornerCellDiff) {
 
 TEST_F(StaLibertyTest, Table0Report) {
   ASSERT_NO_THROW(( [&](){
-  Table0 t(42.0f);
+  Table t(42.0f);
   const Units *units = lib_->units();
   Report *report = sta_->report();
   t.report(units, report); // covers Table0::report
@@ -2690,7 +2617,7 @@ TEST_F(StaLibertyTest, Table1Report) {
   ASSERT_NO_THROW(( [&](){
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f, 3.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f, 0.03f});
-  Table1 t(vals, axis);
+  Table t(vals, axis);
   const Units *units = lib_->units();
   Report *report = sta_->report();
   t.report(units, report); // covers Table1::report
@@ -2700,14 +2627,12 @@ TEST_F(StaLibertyTest, Table1Report) {
 
 TEST_F(StaLibertyTest, Table2Report) {
   ASSERT_NO_THROW(( [&](){
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
-  Table2 t(vals, ax1, ax2);
+  Table t(std::move(vals), ax1, ax2);
   const Units *units = lib_->units();
   Report *report = sta_->report();
   t.report(units, report); // covers Table2::report
@@ -2717,15 +2642,13 @@ TEST_F(StaLibertyTest, Table2Report) {
 
 TEST_F(StaLibertyTest, Table3Report) {
   ASSERT_NO_THROW(( [&](){
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
   auto ax3 = makeTestAxis(TableAxisVariable::related_out_total_output_net_capacitance, {1.0f});
-  Table3 t(vals, ax1, ax2, ax3);
+  Table t(std::move(vals), ax1, ax2, ax3);
   const Units *units = lib_->units();
   Report *report = sta_->report();
   t.report(units, report); // covers Table3::report
@@ -2742,7 +2665,7 @@ TEST_F(StaLibertyTest, Table1ReportValueWithCell) {
   ASSERT_NE(buf, nullptr);
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f, 3.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f, 0.03f});
-  Table1 t(vals, axis);
+  Table t(vals, axis);
   Unit unit(1e-9f, "s", 3);
   std::string rv = t.reportValue("delay", buf, nullptr,
                                   0.015f, "slew", 0.0f, 0.0f,
@@ -2753,14 +2676,12 @@ TEST_F(StaLibertyTest, Table1ReportValueWithCell) {
 TEST_F(StaLibertyTest, Table2ReportValueWithCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
-  Table2 t(vals, ax1, ax2);
+  Table t(std::move(vals), ax1, ax2);
   Unit unit(1e-9f, "s", 3);
   std::string rv = t.reportValue("delay", buf, nullptr,
                                   0.015f, "slew", 0.15f, 0.0f,
@@ -2771,15 +2692,13 @@ TEST_F(StaLibertyTest, Table2ReportValueWithCell) {
 TEST_F(StaLibertyTest, Table3ReportValueWithCell) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  FloatSeq *row0 = makeFloatSeq({1.0f, 2.0f});
-  FloatSeq *row1 = makeFloatSeq({3.0f, 4.0f});
-  FloatTable *vals = new FloatTable;
-  vals->push_back(row0);
-  vals->push_back(row1);
+  FloatTable vals;
+  vals.push_back({1.0f, 2.0f});
+  vals.push_back({3.0f, 4.0f});
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
   auto ax3 = makeTestAxis(TableAxisVariable::related_out_total_output_net_capacitance, {1.0f});
-  Table3 t(vals, ax1, ax2, ax3);
+  Table t(std::move(vals), ax1, ax2, ax3);
   Unit unit(1e-9f, "s", 3);
   std::string rv = t.reportValue("delay", buf, nullptr,
                                   0.01f, "slew", 0.15f, 1.0f,
@@ -2923,11 +2842,11 @@ TEST(TimingArcTest, TimingArcAttrsDefault) {
   EXPECT_EQ(attrs.timingType(), TimingType::combinational);
   EXPECT_EQ(attrs.timingSense(), TimingSense::unknown);
   EXPECT_EQ(attrs.cond(), nullptr);
-  EXPECT_EQ(attrs.sdfCond(), nullptr);
-  EXPECT_EQ(attrs.sdfCondStart(), nullptr);
-  EXPECT_EQ(attrs.sdfCondEnd(), nullptr);
-  EXPECT_EQ(attrs.modeName(), nullptr);
-  EXPECT_EQ(attrs.modeValue(), nullptr);
+  EXPECT_TRUE(attrs.sdfCond().empty());
+  EXPECT_TRUE(attrs.sdfCondStart().empty());
+  EXPECT_TRUE(attrs.sdfCondEnd().empty());
+  EXPECT_TRUE(attrs.modeName().empty());
+  EXPECT_TRUE(attrs.modeValue().empty());
 }
 
 // TimingArcAttrs with sense constructor
@@ -3009,7 +2928,7 @@ TEST(LibertyTest, ScaleFactorTypeFlags) {
 // BusDcl
 TEST(LibertyTest, BusDcl) {
   BusDcl dcl("data", 7, 0);
-  EXPECT_STREQ(dcl.name(), "data");
+  EXPECT_EQ(dcl.name(), "data");
   EXPECT_EQ(dcl.from(), 7);
   EXPECT_EQ(dcl.to(), 0);
 }
@@ -3052,7 +2971,7 @@ TEST(LibertyTest, OperatingConditionsSetWireloadTree) {
 // TableTemplate
 TEST(LibertyTest, TableTemplate) {
   TableTemplate tt("my_template");
-  EXPECT_STREQ(tt.name(), "my_template");
+  EXPECT_EQ(tt.name(), "my_template");
   EXPECT_EQ(tt.axis1(), nullptr);
   EXPECT_EQ(tt.axis2(), nullptr);
   EXPECT_EQ(tt.axis3(), nullptr);
@@ -3061,17 +2980,14 @@ TEST(LibertyTest, TableTemplate) {
 TEST(LibertyTest, TableTemplateSetName) {
   TableTemplate tt("old");
   tt.setName("new_name");
-  EXPECT_STREQ(tt.name(), "new_name");
+  EXPECT_EQ(tt.name(), "new_name");
 }
 
 // TableAxis
 TEST_F(Table1Test, TableAxisBasic) {
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(0.1f);
-  vals->push_back(0.5f);
-  vals->push_back(1.0f);
+  FloatSeq vals({0.1f, 0.5f, 1.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, vals);
+    TableAxisVariable::total_output_net_capacitance, std::move(vals));
   EXPECT_EQ(axis->variable(), TableAxisVariable::total_output_net_capacitance);
   EXPECT_EQ(axis->size(), 3u);
   EXPECT_FLOAT_EQ(axis->axisValue(0), 0.1f);
@@ -3081,44 +2997,35 @@ TEST_F(Table1Test, TableAxisBasic) {
 }
 
 TEST_F(Table1Test, TableAxisInBounds) {
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(0.0f);
-  vals->push_back(1.0f);
+  FloatSeq vals({0.0f, 1.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, vals);
+    TableAxisVariable::input_net_transition, std::move(vals));
   EXPECT_TRUE(axis->inBounds(0.5f));
   EXPECT_FALSE(axis->inBounds(1.5f));
   EXPECT_FALSE(axis->inBounds(-0.1f));
 }
 
 TEST_F(Table1Test, TableAxisFindIndex) {
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(0.0f);
-  vals->push_back(0.5f);
-  vals->push_back(1.0f);
+  FloatSeq vals({0.0f, 0.5f, 1.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, vals);
+    TableAxisVariable::input_net_transition, std::move(vals));
   EXPECT_EQ(axis->findAxisIndex(0.3f), 0u);
   EXPECT_EQ(axis->findAxisIndex(0.7f), 1u);
 }
 
 TEST_F(Table1Test, TableAxisFindClosestIndex) {
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(0.0f);
-  vals->push_back(0.5f);
-  vals->push_back(1.0f);
+  FloatSeq vals({0.0f, 0.5f, 1.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, vals);
+    TableAxisVariable::input_net_transition, std::move(vals));
   EXPECT_EQ(axis->findAxisClosestIndex(0.4f), 1u);
   EXPECT_EQ(axis->findAxisClosestIndex(0.1f), 0u);
   EXPECT_EQ(axis->findAxisClosestIndex(0.9f), 2u);
 }
 
 TEST_F(Table1Test, TableAxisVariableString) {
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(0.0f);
+  FloatSeq vals({0.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, vals);
+    TableAxisVariable::total_output_net_capacitance, std::move(vals));
   EXPECT_NE(axis->variableString(), nullptr);
 }
 
@@ -3141,16 +3048,16 @@ TEST_F(Table1Test, StringTableAxisVariable) {
 
 // Table0
 TEST_F(Table1Test, Table0) {
-  Table0 t(42.0f);
+  Table t(42.0f);
   EXPECT_EQ(t.order(), 0);
   EXPECT_FLOAT_EQ(t.value(0, 0, 0), 42.0f);
   EXPECT_FLOAT_EQ(t.findValue(0.0f, 0.0f, 0.0f), 42.0f);
 }
 
-// Table1 default constructor
-TEST_F(Table1Test, Table1Default) {
-  Table1 t;
-  EXPECT_EQ(t.order(), 1);
+// Table default constructor
+TEST_F(Table1Test, TableDefault) {
+  Table t;
+  EXPECT_EQ(t.order(), 0);
   EXPECT_EQ(t.axis1(), nullptr);
 }
 
@@ -3159,13 +3066,11 @@ TEST_F(Table1Test, Table1Copy) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(1.0f);
   vals->push_back(2.0f);
-  FloatSeq *axis_vals = new FloatSeq;
-  axis_vals->push_back(0.0f);
-  axis_vals->push_back(1.0f);
+  FloatSeq axis_vals({0.0f, 1.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_vals);
-  Table1 t1(vals, axis);
-  Table1 t2(t1);
+    TableAxisVariable::input_net_transition, std::move(axis_vals));
+  Table t1(vals, axis);
+  Table t2(t1);
   EXPECT_EQ(t2.order(), 1);
   EXPECT_FLOAT_EQ(t2.value(0), 1.0f);
   EXPECT_FLOAT_EQ(t2.value(1), 2.0f);
@@ -3176,13 +3081,11 @@ TEST_F(Table1Test, Table1Move) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(3.0f);
   vals->push_back(4.0f);
-  FloatSeq *axis_vals = new FloatSeq;
-  axis_vals->push_back(0.0f);
-  axis_vals->push_back(1.0f);
+  FloatSeq axis_vals({0.0f, 1.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_vals);
-  Table1 t1(vals, axis);
-  Table1 t2(std::move(t1));
+    TableAxisVariable::input_net_transition, std::move(axis_vals));
+  Table t1(vals, axis);
+  Table t2(std::move(t1));
   EXPECT_EQ(t2.order(), 1);
   EXPECT_FLOAT_EQ(t2.value(0), 3.0f);
 }
@@ -3192,12 +3095,10 @@ TEST_F(Table1Test, Table1FindValueSingle) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(1.0f);
   vals->push_back(2.0f);
-  FloatSeq *axis_vals = new FloatSeq;
-  axis_vals->push_back(0.0f);
-  axis_vals->push_back(1.0f);
+  FloatSeq axis_vals({0.0f, 1.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_vals);
-  Table1 t1(vals, axis);
+    TableAxisVariable::input_net_transition, std::move(axis_vals));
+  Table t1(vals, axis);
   float value = t1.findValue(0.5f);
   EXPECT_FLOAT_EQ(value, 1.5f);
 }
@@ -3207,12 +3108,10 @@ TEST_F(Table1Test, Table1FindValueClip) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(10.0f);
   vals->push_back(20.0f);
-  FloatSeq *axis_vals = new FloatSeq;
-  axis_vals->push_back(0.0f);
-  axis_vals->push_back(1.0f);
+  FloatSeq axis_vals({0.0f, 1.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_vals);
-  Table1 t1(vals, axis);
+    TableAxisVariable::input_net_transition, std::move(axis_vals));
+  Table t1(vals, axis);
   EXPECT_FLOAT_EQ(t1.findValueClip(0.5f), 15.0f);
   // findValueClip exercises the clipping path
   float clipped_low = t1.findValueClip(-1.0f);
@@ -3225,12 +3124,11 @@ TEST_F(Table1Test, Table1FindValueClip) {
 TEST_F(Table1Test, Table1MoveAssign) {
   FloatSeq *vals = new FloatSeq;
   vals->push_back(5.0f);
-  FloatSeq *axis_vals = new FloatSeq;
-  axis_vals->push_back(0.0f);
+  FloatSeq axis_vals({0.0f});
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_vals);
-  Table1 t1(vals, axis);
-  Table1 t2;
+    TableAxisVariable::input_net_transition, std::move(axis_vals));
+  Table t1(vals, axis);
+  Table t2;
   t2 = std::move(t1);
   EXPECT_FLOAT_EQ(t2.value(0), 5.0f);
 }
@@ -3264,7 +3162,7 @@ TEST_F(Table1Test, TableVariableUnit) {
 
 // TableModel with Table0
 TEST_F(Table1Test, TableModel0) {
-  auto tbl = std::make_shared<Table0>(1.5f);
+  auto tbl = std::make_shared<Table>(1.5f);
   TableTemplate tmpl("tmpl0");
   TableModel model(tbl, &tmpl, ScaleFactorType::cell, RiseFall::rise());
   EXPECT_EQ(model.order(), 0);
@@ -3394,11 +3292,7 @@ TEST_F(StaLibertyTest, CellAlwaysOn) {
   EXPECT_FALSE(buf->alwaysOn());
 }
 
-TEST_F(StaLibertyTest, CellIsDisabledConstraint) {
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  EXPECT_FALSE(buf->isDisabledConstraint());
-}
+// isDisabledConstraint has been moved from LibertyCell to Sdc.
 
 TEST_F(StaLibertyTest, CellHasInternalPorts2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");

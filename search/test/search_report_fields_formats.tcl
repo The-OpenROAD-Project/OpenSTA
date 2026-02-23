@@ -77,7 +77,7 @@ report_checks -path_delay min -format slack_only
 # report_path_cmd with different internal formats
 ############################################################
 puts "--- report_path_cmd with formats ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 3]
+set paths [find_timing_paths -path_delay max -endpoint_count 3]
 foreach pe $paths {
   set p [$pe path]
 
@@ -161,18 +161,18 @@ puts "--- min_max ---"
 report_checks -path_delay min_max -format full_clock_expanded -fields {capacitance slew fanout}
 
 ############################################################
-# report_checks JSON with endpoint_path_count
+# report_checks JSON with endpoint_count
 ############################################################
 puts "--- JSON endpoint count ---"
-report_checks -path_delay max -format json -endpoint_path_count 5
-report_checks -path_delay min -format json -endpoint_path_count 5
+report_checks -path_delay max -format json -endpoint_count 5
+report_checks -path_delay min -format json -endpoint_count 5
 
 ############################################################
 # report_checks with -corner
 ############################################################
 puts "--- corner ---"
-set corner [sta::cmd_corner]
-report_checks -path_delay max -corner [$corner name] -format full_clock_expanded -fields {capacitance slew}
+set corner [sta::cmd_scene]
+report_checks -path_delay max -corner $corner -format full_clock_expanded -fields {capacitance slew}
 
 ############################################################
 # set_input_transition and verify report includes it
@@ -193,7 +193,7 @@ report_checks -from [get_ports in2] -path_delay max -format full_clock_expanded 
 ############################################################
 puts "--- report_path_end min ---"
 sta::report_path_end_header
-set min_paths [find_timing_paths -path_delay min -endpoint_path_count 5]
+set min_paths [find_timing_paths -path_delay min -endpoint_count 5]
 set prev ""
 foreach pe $min_paths {
   if { $prev != "" } {

@@ -141,7 +141,7 @@ Path Type: min
 
 --- set_load -wire_load ---
 --- set_fanout_load ---
-Warning: search_multicorner_analysis.tcl line 1, set_fanout_load not supported.
+Warning 461: search_multicorner_analysis.tcl line 1, set_fanout_load not supported.
 --- Net capacitance ---
 Net n1 capacitance: 9.46813957836449e-16
 Net n1 pin_cap: 9.46813957836449e-16

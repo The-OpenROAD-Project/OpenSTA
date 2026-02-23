@@ -23,16 +23,23 @@
 # This notice may not be removed or altered from any source distribution.
 
 cmake_minimum_required (VERSION 3.10)
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-# Use standard target names
-cmake_policy(SET CMP0078 NEW)
-endif()
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
-# Allows SWIG_MODULE_NAME to be set
-cmake_policy(SET CMP0086 NEW)
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.12)
+  # Use <PACKAGENAME>_ROOT in find_package
+  cmake_policy(SET CMP0074 NEW)
 endif()
 
-project(STA VERSION 2.7.0
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
+  # Use standard target names
+  cmake_policy(SET CMP0078 NEW)
+endif()
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
+  # Allows SWIG_MODULE_NAME to be set
+  cmake_policy(SET CMP0086 NEW)
+endif()
+
+project(STA VERSION 3.0.0
   LANGUAGES CXX
 )
 
@@ -63,6 +70,16 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Build CXX_FLAGS: ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
+# Enable Link-Time Optimization (LTO) for Release builds.
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+if(ipo_supported)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+  message(STATUS "IPO/LTO: enabled for Release builds")
+else()
+  message(STATUS "IPO/LTO: not supported - ${ipo_error}")
+endif()
+
 ################################################################
 #
 # Source files.
@@ -77,7 +94,6 @@ set(STA_SOURCE
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
   dcalc/CcsCeffDelayCalc.cc
-  dcalc/DcalcAnalysisPt.cc
   dcalc/DelayCalc.cc
   dcalc/DelayCalcBase.cc
   dcalc/DmpCeff.cc
@@ -135,6 +151,7 @@ set(STA_SOURCE
   parasitics/SpefReaderPvt.hh
 
   power/Power.cc
+  power/ReportPower.cc
   power/VcdReader.cc
   power/SaifReader.cc
   power/VcdParse.cc
@@ -154,7 +171,6 @@ set(STA_SOURCE
   sdc/PortDelay.cc
   sdc/PortExtCap.cc
   sdc/Sdc.cc
-  sdc/SdcGraph.cc
   sdc/SdcCmdComment.cc
   sdc/Variables.cc
   sdc/WriteSdc.cc
@@ -168,15 +184,14 @@ set(STA_SOURCE
   search/CheckMaxSkews.cc
   search/CheckMinPeriods.cc
   search/CheckMinPulseWidths.cc
-  search/CheckCapacitanceLimits.cc
-  search/CheckFanoutLimits.cc
-  search/CheckSlewLimits.cc
+  search/CheckCapacitances.cc
+  search/CheckFanouts.cc
+  search/CheckSlews.cc
   search/CheckTiming.cc
   search/ClkInfo.cc
   search/ClkLatency.cc
   search/ClkNetwork.cc
   search/ClkSkew.cc
-  search/Corner.cc
   search/Crpr.cc
   search/FindRegister.cc
   search/GatedClk.cc
@@ -184,8 +199,8 @@ set(STA_SOURCE
   search/Latches.cc
   search/Levelize.cc
   search/MakeTimingModel.cc
+  search/Mode.cc
   search/Path.cc
-  search/PathAnalysisPt.cc
   search/Path.cc
   search/PathEnd.cc
   search/PathEnum.cc
@@ -195,6 +210,7 @@ set(STA_SOURCE
   search/ReportPath.cc
   search/Search.cc
   search/SearchPred.cc
+  search/Scene.cc
   search/Sim.cc
   search/Sta.cc
   search/StaState.cc
@@ -222,6 +238,7 @@ set(STA_SOURCE
   util/ReportStd.cc
   util/ReportTcl.cc
   util/RiseFallMinMax.cc
+  util/RiseFallMinMaxDelay.cc
   util/RiseFallValues.cc
   util/Stats.cc
   util/StringSeq.cc
@@ -311,6 +328,20 @@ flex_target(SaifLex ${STA_HOME}/power/SaifLex.ll
 bison_target(SaifParse ${STA_HOME}/power/SaifParse.yy
   ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc)
 add_flex_bison_dependency(SaifLex SaifParse)
+
+# Suppress -Wsign-compare in flex-generated code (yyleng vs int loop counter).
+# Only needed with older GCC (e.g. CentOS 7 stock 4.8.5); newer GCC/flex handle it.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_source_files_properties(
+    ${FLEX_VerilogLex_OUTPUTS}
+    ${FLEX_LibertyLex_OUTPUTS}
+    ${FLEX_LibExprLex_OUTPUTS}
+    ${FLEX_SdfLex_OUTPUTS}
+    ${FLEX_SpefLex_OUTPUTS}
+    ${FLEX_SaifLex_OUTPUTS}
+    PROPERTIES COMPILE_FLAGS "-Wno-sign-compare"
+  )
+endif()
 
 ################################################################
 
@@ -549,14 +580,14 @@ endif()
 
 target_compile_options(OpenSTA
   PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:${CXX_FLAGS}>
+  $<$<CXX_COMPILER_ID:GNU>:${CXX_FLAGS} -Wno-format-zero-length>
   $<$<CXX_COMPILER_ID:Clang>:${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   $<$<CXX_COMPILER_ID:AppleClang>:${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   )
 
 # Disable compiler specific extensions like gnu++11.
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
-target_compile_features(OpenSTA PUBLIC cxx_std_17)
+target_compile_features(OpenSTA PUBLIC cxx_std_20)
 
 message(STATUS "STA library: ${CMAKE_BINARY_DIR}/libOpenSTA.a")
 

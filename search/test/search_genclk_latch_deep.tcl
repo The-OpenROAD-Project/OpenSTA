@@ -58,7 +58,7 @@ report_checks -path_delay max -format json
 # PathEnd type queries on latch paths
 ############################################################
 puts "--- PathEnd queries on latch ---"
-set paths_latch [find_timing_paths -path_delay max -endpoint_path_count 10 -group_path_count 20]
+set paths_latch [find_timing_paths -path_delay max -endpoint_count 10 -group_path_count 20]
 puts "Found [llength $paths_latch] paths"
 foreach pe $paths_latch {
   set is_latch [$pe is_latch_check]
@@ -220,9 +220,9 @@ report_check_types -verbose
 # find_timing_paths with various options
 ############################################################
 puts "--- find_timing_paths -unique_edges_to_endpoint ---"
-set ue_paths [find_timing_paths -unique_edges_to_endpoint -path_delay max -group_path_count 10 -endpoint_path_count 5]
+set ue_paths [find_timing_paths -unique_edges_to_endpoint -path_delay max -group_path_count 10 -endpoint_count 5]
 puts "unique edge paths: [llength $ue_paths]"
 
 puts "--- find_timing_paths min_max ---"
-set mm_paths [find_timing_paths -path_delay min_max -group_path_count 5 -endpoint_path_count 3]
+set mm_paths [find_timing_paths -path_delay min_max -group_path_count 5 -endpoint_count 3]
 puts "min_max paths: [llength $mm_paths]"

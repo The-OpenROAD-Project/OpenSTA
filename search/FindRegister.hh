@@ -32,20 +32,40 @@
 namespace sta {
 
 InstanceSet
-findRegInstances(ClockSet *clks, const RiseFallBoth *clk_rf,
-		 bool edge_triggered, bool latches, StaState *sta);
+findRegInstances(ClockSet *clks,
+                 const RiseFallBoth *clk_rf,
+                 bool edge_triggered,
+                 bool latches,
+                 const Mode *mode,
+                 const StaState *sta);
 PinSet
-findRegDataPins(ClockSet *clks, const RiseFallBoth *clk_rf,
-		bool edge_triggered, bool latches, StaState *sta);
+findRegDataPins(ClockSet *clks,
+                const RiseFallBoth *clk_rf,
+                bool edge_triggered,
+                bool latches,
+                const Mode *mode,
+                const StaState *sta);
 PinSet
-findRegClkPins(ClockSet *clks, const RiseFallBoth *clk_rf,
-	       bool edge_triggered, bool latches, StaState *sta);
+findRegClkPins(ClockSet *clks,
+               const RiseFallBoth *clk_rf,
+               bool edge_triggered,
+               bool latches,
+               const Mode *mode,
+               const StaState *sta);
 PinSet
-findRegAsyncPins(ClockSet *clks, const RiseFallBoth *clk_rf,
-		 bool edge_triggered, bool latches, StaState *sta);
+findRegAsyncPins(ClockSet *clks,
+                 const RiseFallBoth *clk_rf,
+                 bool edge_triggered,
+                 bool latches,
+                 const Mode *mode,
+                 const StaState *sta);
 PinSet
-findRegOutputPins(ClockSet *clks, const RiseFallBoth *clk_rf,
-		  bool edge_triggered, bool latches, StaState *sta);
+findRegOutputPins(ClockSet *clks,
+                  const RiseFallBoth *clk_rf,
+                  bool edge_triggered,
+                  bool latches,
+                  const Mode *mode,
+                  const StaState *sta);
 
 void
 initPathSenseThru();

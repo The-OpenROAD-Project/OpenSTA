@@ -63,6 +63,7 @@ edge sense: positive_unate
 edge from_pin: and1/A1
 edge to_pin: and1/ZN
 --- PathEnd properties deep ---
+Warning 502: search_property_deep.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 startpoint: reg1/Q
 endpoint: out1
 slack: 7.896380

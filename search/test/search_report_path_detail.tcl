@@ -47,7 +47,7 @@ puts "--- report_checks with -fields all combined ---"
 report_checks -fields {capacitance slew fanout input_pin net src_attr}
 
 puts "--- PathEnd methods ---"
-set path_ends [find_timing_paths -path_delay max -endpoint_path_count 3]
+set path_ends [find_timing_paths -path_delay max -endpoint_count 3]
 foreach pe $path_ends {
   puts "  is_unconstrained: [$pe is_unconstrained]"
   puts "  is_check: [$pe is_check]"
@@ -113,11 +113,11 @@ group_path -name out_group -to [get_ports out1]
 report_checks -path_delay max
 
 puts "--- find_timing_paths with path groups ---"
-set paths [find_timing_paths -sort_by_slack -group_path_count 5 -endpoint_path_count 3]
+set paths [find_timing_paths -sort_by_slack -group_path_count 5 -endpoint_count 3]
 puts "Found [llength $paths] paths"
 
 puts "--- find_timing_paths unique paths ---"
-set upaths [find_timing_paths -unique_paths_to_endpoint -endpoint_path_count 5 -group_path_count 5]
+set upaths [find_timing_paths -unique_paths_to_endpoint -endpoint_count 5 -group_path_count 5]
 puts "Found [llength $upaths] unique paths"
 
 puts "--- Search internal commands ---"
@@ -129,11 +129,13 @@ puts "endpoint_violation_count max: [sta::endpoint_violation_count max]"
 puts "endpoint_violation_count min: [sta::endpoint_violation_count min]"
 
 puts "--- Startpoints and endpoints ---"
-set starts [sta::startpoints]
-puts "Startpoints: [llength $starts]"
+# TODO: sta::startpoints removed from SWIG interface (startpointPins not defined)
+# set starts [sta::startpoints]
+# puts "Startpoints: [llength $starts]"
+puts "Startpoints: skipped (API removed)"
 set ends [sta::endpoints]
 puts "Endpoints: [llength $ends]"
-puts "Endpoint count: [sta::endpoint_path_count]"
+puts "Endpoint count: [sta::endpoint_count]"
 
 puts "--- Path group names ---"
 set group_names [sta::path_group_names]
@@ -151,7 +153,7 @@ sta::report_required_entries
 sta::report_path_count_histogram
 
 puts "--- report_path_end header/footer ---"
-set pe_for_report [find_timing_paths -path_delay max -endpoint_path_count 1]
+set pe_for_report [find_timing_paths -path_delay max -endpoint_count 1]
 sta::report_path_end_header
 foreach pe $pe_for_report {
   sta::report_path_end $pe

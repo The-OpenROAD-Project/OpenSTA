@@ -264,7 +264,7 @@ $lib_iter finish
 ############################################################
 # Port capacitance with corner/min_max
 ############################################################
-set corner [lindex [sta::corners] 0]
+set corner [lindex [sta::scenes] 0]
 set inv_a_port [$inv_cell find_liberty_port A]
 set cap_max [$inv_a_port capacitance $corner "max"]
 puts "INV_X1/A cap max = $cap_max"

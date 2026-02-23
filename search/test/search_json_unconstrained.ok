@@ -1,4 +1,5 @@
 --- report_checks -format json (multiple endpoints) ---
+Warning 502: search_json_unconstrained.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 {"checks": [
 {
   "type": "output_delay",
@@ -1048,6 +1049,7 @@ Group                                  Slack
 clk                                     7.90
 
 --- report_path on individual path (json format) ---
+Warning 502: search_json_unconstrained.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 {
 "path": [
   {

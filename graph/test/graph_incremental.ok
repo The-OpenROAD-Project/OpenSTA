@@ -706,7 +706,7 @@ Path Type: max
 
 
 --- report_checks counts ---
-Warning: graph_incremental.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Warning 503: graph_incremental.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -795,7 +795,7 @@ Path Type: max
            8.92   slack (MET)
 
 
-Warning: graph_incremental.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: graph_incremental.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -890,7 +890,7 @@ Path Type: max
            8.84   slack (MET)
 
 
-Warning: graph_incremental.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: graph_incremental.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: en (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

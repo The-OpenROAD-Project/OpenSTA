@@ -123,21 +123,21 @@ report_checks -path_delay min -format json
 # find_timing_paths with various filters
 ############################################################
 puts "--- find_timing_paths max ---"
-set paths_max [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 10]
+set paths_max [find_timing_paths -path_delay max -endpoint_count 5 -group_path_count 10]
 puts "Found [llength $paths_max] max paths"
 foreach pe $paths_max {
   puts "  pin=[get_full_name [$pe pin]] slack=[$pe slack] is_check=[$pe is_check]"
 }
 
 puts "--- find_timing_paths min ---"
-set paths_min [find_timing_paths -path_delay min -endpoint_path_count 5 -group_path_count 10]
+set paths_min [find_timing_paths -path_delay min -endpoint_count 5 -group_path_count 10]
 puts "Found [llength $paths_min] min paths"
 foreach pe $paths_min {
   puts "  pin=[get_full_name [$pe pin]] slack=[$pe slack] is_check=[$pe is_check]"
 }
 
 puts "--- find_timing_paths min_max ---"
-set paths_mm [find_timing_paths -path_delay min_max -endpoint_path_count 3]
+set paths_mm [find_timing_paths -path_delay min_max -endpoint_count 3]
 puts "Found [llength $paths_mm] min_max paths"
 foreach pe $paths_mm {
   puts "  min_max=[$pe min_max] slack=[$pe slack]"
@@ -149,10 +149,12 @@ foreach pe $paths_mm {
 puts "--- endpoint/startpoint pins ---"
 set ep [sta::endpoints]
 puts "Endpoints: [llength $ep]"
-set sp [sta::startpoints]
-puts "Startpoints: [llength $sp]"
-set ep_count [sta::endpoint_path_count]
-puts "Endpoint path count: $ep_count"
+# TODO: sta::startpoints removed from SWIG interface (startpointPins not defined)
+# set sp [sta::startpoints]
+# puts "Startpoints: [llength $sp]"
+puts "Startpoints: skipped (API removed)"
+set ep_count [sta::endpoint_count]
+puts "Endpoint count: $ep_count"
 
 ############################################################
 # Endpoint violation count

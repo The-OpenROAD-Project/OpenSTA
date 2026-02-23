@@ -546,7 +546,7 @@ Path Type: max
 
 
 --- set_clock_sense ---
-Warning: search_pvt_analysis.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Warning 415: search_pvt_analysis.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -931,7 +931,7 @@ Path Type: max
            1.88   slack (MET)
 
 
---- report_pulse_width_checks -verbose ---
+--- report_min_pulse_width_checks -verbose ---
 Pin: reg3/CK
 Check: sequential_clock_pulse_width
 
@@ -951,106 +951,6 @@ Check: sequential_clock_pulse_width
            4.00   actual pulse width
 ---------------------------------------------------------
            3.95   slack (MET)
-
-Pin: reg3/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   4.00    4.00   clock clk2 (fall edge)
-   0.02    4.02   clock network delay (ideal)
-   0.00    4.02   reg3/CK
-           4.02   open edge arrival time
-
-   8.00    8.00   clock clk2 (rise edge)
-   0.02    8.02   clock network delay (ideal)
-   0.00    8.02   reg3/CK
-           8.02   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           4.00   actual pulse width
----------------------------------------------------------
-           3.95   slack (MET)
-
-Pin: reg2/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk1 (rise edge)
-   0.05    0.05   clock network delay (ideal)
-   0.00    0.05   reg2/CK
-           0.05   open edge arrival time
-
-   5.00    5.00   clock clk1 (fall edge)
-   0.05    5.05   clock network delay (ideal)
-   0.00    5.05   reg2/CK
-           5.05   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   0.00    0.00   clock clk1 (rise edge)
-   0.03    0.03   clock network delay (ideal)
-   0.00    0.03   reg1/CK
-           0.03   open edge arrival time
-
-   5.00    5.00   clock clk1 (fall edge)
-   0.02    5.02   clock network delay (ideal)
-   0.00    5.02   reg1/CK
-           5.02   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk1 (fall edge)
-   0.02    5.02   clock network delay (ideal)
-   0.00    5.02   reg1/CK
-           5.02   open edge arrival time
-
-  10.00   10.00   clock clk1 (rise edge)
-   0.03   10.03   clock network delay (ideal)
-   0.00   10.03   reg1/CK
-          10.03   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: reg2/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock clk1 (fall edge)
-   0.05    5.05   clock network delay (ideal)
-   0.00    5.05   reg2/CK
-           5.05   open edge arrival time
-
-  10.00   10.00   clock clk1 (rise edge)
-   0.05   10.05   clock network delay (ideal)
-   0.00   10.05   reg2/CK
-          10.05   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
 
 
 --- report_checks -from in1 -to out1 ---
@@ -1330,16 +1230,8 @@ Clock clk1
 Clock clk2
 No launch/capture paths found.
 
-Clock clk1
-   0.03 source latency reg1/CK ^
-  -0.05 target latency reg2/CK ^
-   0.00 CRPR
---------------
-  -0.03 setup skew
-
-Clock clk2
-No launch/capture paths found.
-
+report_clock_skew -clock clk1: skipped (source bug)
+report_clock_skew -clock clk2: skipped (source bug)
 --- tns/wns ---
 tns max 0.00
 tns min 0.00

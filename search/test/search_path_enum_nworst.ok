@@ -1,4 +1,5 @@
 --- find_timing_paths epc 8 gpc 30 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 8 gpc 30: 14
   reg1/RN slack=9.553728474998024e-9
   reg2/RN slack=9.553728474998024e-9
@@ -15,10 +16,13 @@ epc 8 gpc 30: 14
   reg2/D slack=9.865935624020494e-9
   reg2/D slack=9.875192219510609e-9
 --- find_timing_paths epc 15 gpc 50 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 15 gpc 50: 14
 --- find_timing_paths epc 20 gpc 100 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 20 gpc 100: 14
 --- find_timing_paths min epc 8 gpc 30 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min epc 8 gpc 30: 14
   reg1/RN slack=3.1855806881253557e-10
   reg2/RN slack=3.1855806881253557e-10
@@ -35,15 +39,20 @@ min epc 8 gpc 30: 14
   out2 slack=2.114403319097846e-9
   out1 slack=2.118544895068908e-9
 --- find_timing_paths min epc 15 gpc 50 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min epc 15 gpc 50: 14
 --- unique_paths_to_endpoint epc 10 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 unique epc 10: 8
 --- unique_edges_to_endpoint epc 10 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 unique_edges epc 10: 14
 --- sort_by_slack epc 10 gpc 30 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 sorted epc 10: 14
 Sorted correctly: 0
 --- report_checks epc 8 -format full ---
+Warning 502: search_path_enum_nworst.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)
 Path Group: asynchronous
@@ -319,6 +328,7 @@ Path Type: max
 
 
 --- report_checks epc 8 -format end ---
+Warning 502: search_path_enum_nworst.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 max_delay/setup group asynchronous
 
                                      Required  Actual
@@ -342,6 +352,7 @@ reg1/D (DFFR_X1)                        9.96    1.05    8.91 (MET)
 reg1/D (DFFR_X1)                        9.96    1.05    8.91 (MET)
 
 --- report_checks epc 8 -format summary ---
+Warning 502: search_path_enum_nworst.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint                           Endpoint                               Slack
 --------------------------------------------------------------------------------
 rst (input)                          reg1/RN (DFFR_X1)                       9.55
@@ -356,6 +367,7 @@ in2 (input)                          reg1/D (DFFR_X1)                        8.9
 in1 (input)                          reg1/D (DFFR_X1)                        8.91
 
 --- report_checks min epc 8 ---
+Warning 502: search_path_enum_nworst.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (removal check against rising-edge clock clk)
 Path Group: asynchronous
@@ -635,22 +647,31 @@ Path Type: min
 
 
 --- slack_max with epc 10 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 slack<=100 epc 10: 12
 --- slack_min with epc 10 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 slack>=-100 epc 10: 12
 --- max_rise epc 8 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 max_rise epc 8: 8
 --- max_fall epc 8 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 max_fall epc 8: 6
 --- min_rise epc 8 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_rise epc 8: 8
 --- min_fall epc 8 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_fall epc 8: 6
 --- min_max epc 8 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 min_max epc 8: 20
 --- group_path + epc 10 ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 grouped epc 10: 14
 --- epc 8 -from -to ---
+Warning 502: search_path_enum_nworst.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: gp_in
@@ -710,6 +731,7 @@ Path Type: max
 
 
 --- epc 8 -through ---
+Warning 502: search_path_enum_nworst.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: gp_in
@@ -827,10 +849,14 @@ Path Type: max
 
 
 --- epc 8 -rise_from ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 8 rise_from: 1
 --- epc 8 -fall_to ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 8 fall_to: 2
 --- epc 8 -rise_through ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 8 rise_through: 2
 --- epc 8 -fall_through ---
+Warning 502: search_path_enum_nworst.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 epc 8 fall_through: 2

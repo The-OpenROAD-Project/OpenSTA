@@ -100,9 +100,9 @@ net w3: full_name=w3
 net w4: full_name=w4
 net w5: full_name=w5
 total hierarchical nets: 19
-Warning: network_hier_pin_query.tcl line 1, net 'sub1/*' not found.
+Warning 361: network_hier_pin_query.tcl line 1, net 'sub1/*' not found.
 sub1/* nets: 0
-Warning: network_hier_pin_query.tcl line 1, net 'sub2/*' not found.
+Warning 361: network_hier_pin_query.tcl line 1, net 'sub2/*' not found.
 sub2/* nets: 0
 --- Test 5: connected pins across hierarchy ---
 net w1 has 2 pins

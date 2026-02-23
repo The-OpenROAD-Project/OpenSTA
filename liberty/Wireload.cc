@@ -32,7 +32,7 @@
 namespace sta {
 
 Wireload::Wireload(const char *name,
-		   LibertyLibrary *library) :
+                   LibertyLibrary *library) :
   name_(stringCopy(name)),
   library_(library),
   area_(0.0F),
@@ -43,11 +43,11 @@ Wireload::Wireload(const char *name,
 }
 
 Wireload::Wireload(const char *name,
-		   LibertyLibrary *library,
-		   float area,
-		   float resistance,
-		   float capacitance,
-		   float slope) :
+                   LibertyLibrary *library,
+                   float area,
+                   float resistance,
+                   float capacitance,
+                   float slope) :
   name_(stringCopy(name)),
   library_(library),
   area_(area),
@@ -59,7 +59,7 @@ Wireload::Wireload(const char *name,
 
 Wireload::~Wireload()
 {
-  fanout_lengths_.deleteContents();
+  deleteContents(fanout_lengths_);
   stringDelete(name_);
 }
 
@@ -90,7 +90,7 @@ Wireload::setSlope(float slope)
 struct FanoutLess
 {
   bool operator()(FanoutLength *fanout1,
-		  FanoutLength *fanout2) const
+                  FanoutLength *fanout2) const
   {
     return fanout1->first < fanout2->first;
   }
@@ -98,7 +98,7 @@ struct FanoutLess
 
 void
 Wireload::addFanoutLength(float fanout,
-			  float length)
+                          float length)
 {
   FanoutLength *fanout_length = new FanoutLength(fanout, length);
   fanout_lengths_.push_back(fanout_length);
@@ -110,9 +110,9 @@ Wireload::addFanoutLength(float fanout,
 
 void
 Wireload::findWireload(float fanout,
-		       const OperatingConditions *op_cond,
-		       float &cap,
-		       float &res) const
+                       const OperatingConditions *op_cond,
+                       float &cap,
+                       float &res) const
 {
   size_t size = fanout_lengths_.size();
   float length;
@@ -126,7 +126,7 @@ Wireload::findWireload(float fanout,
       // Extrapolate from lowest fanout entry.
       length = fanout_lengths_[0]->second - (fanout0 - fanout) * slope_;
       if (length < 0)
-	length = 0;
+        length = 0;
     }
     else if (fanout == fanout0)
       length = fanout_lengths_[0]->second;
@@ -138,11 +138,11 @@ Wireload::findWireload(float fanout,
       int lower = -1;
       int upper = size;
       while (upper - lower > 1) {
-	int mid = (upper + lower) >> 1;
-	if (fanout >= fanout_lengths_[mid]->first)
-	  lower = mid;
-	else
-	  upper = mid;
+        int mid = (upper + lower) >> 1;
+        if (fanout >= fanout_lengths_[mid]->first)
+          lower = mid;
+        else
+          upper = mid;
       }
       // Interpolate between lower and lower+1 entries.
       float fanout1 = fanout_lengths_[lower]->first;
@@ -165,8 +165,8 @@ class WireloadForArea
 {
 public:
   WireloadForArea(float min_area,
-		  float max_area,
-		  const Wireload *wireload);
+                  float max_area,
+                  const Wireload *wireload);
   float minArea() const { return min_area_; }
   float maxArea() const { return max_area_; }
   const Wireload *wireload() const { return wireload_; }
@@ -178,8 +178,8 @@ private:
 };
 
 WireloadForArea::WireloadForArea(float min_area,
-				 float max_area,
-				 const Wireload *wireload) :
+                                 float max_area,
+                                 const Wireload *wireload) :
   min_area_(min_area),
   max_area_(max_area),
   wireload_(wireload)
@@ -193,14 +193,14 @@ WireloadSelection::WireloadSelection(const char *name) :
 
 WireloadSelection::~WireloadSelection()
 {
-  wireloads_.deleteContents();
+  deleteContents(wireloads_);
   stringDelete(name_);
 }
 
 struct WireloadForAreaMinLess
 {
   bool operator()(WireloadForArea *wireload1,
-		  WireloadForArea *wireload2) const
+                  WireloadForArea *wireload2) const
   {
     return wireload1->minArea() < wireload2->minArea();
   }
@@ -208,11 +208,11 @@ struct WireloadForAreaMinLess
 
 void
 WireloadSelection::addWireloadFromArea(float min_area,
-				       float max_area,
-				       const Wireload *wireload)
+                                       float max_area,
+                                       const Wireload *wireload)
 {
   WireloadForArea *wireload_area = new WireloadForArea(min_area, max_area,
-						       wireload);
+                                                       wireload);
   wireloads_.push_back(wireload_area);
   // Keep wireloads sorted by area for lookup.
   if (wireloads_.size() > 1

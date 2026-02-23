@@ -209,7 +209,7 @@ TEST(WireloadStringTest, StringToWireloadMode) {
 TEST(FuncExprTest, MakeZero) {
   FuncExpr *zero = FuncExpr::makeZero();
   EXPECT_NE(zero, nullptr);
-  EXPECT_EQ(zero->op(), FuncExpr::op_zero);
+  EXPECT_EQ(zero->op(), FuncExpr::Op::zero);
   EXPECT_EQ(zero->left(), nullptr);
   EXPECT_EQ(zero->right(), nullptr);
   EXPECT_EQ(zero->port(), nullptr);
@@ -220,7 +220,7 @@ TEST(FuncExprTest, MakeZero) {
 TEST(FuncExprTest, MakeOne) {
   FuncExpr *one = FuncExpr::makeOne();
   EXPECT_NE(one, nullptr);
-  EXPECT_EQ(one->op(), FuncExpr::op_one);
+  EXPECT_EQ(one->op(), FuncExpr::Op::one);
   EXPECT_EQ(one->to_string(), "1");
   delete one;
 }
@@ -229,11 +229,11 @@ TEST(FuncExprTest, MakeNot) {
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *not_one = FuncExpr::makeNot(one);
   EXPECT_NE(not_one, nullptr);
-  EXPECT_EQ(not_one->op(), FuncExpr::op_not);
+  EXPECT_EQ(not_one->op(), FuncExpr::Op::not_);
   EXPECT_EQ(not_one->left(), one);
   EXPECT_EQ(not_one->right(), nullptr);
   EXPECT_EQ(not_one->to_string(), "!1");
-  not_one->deleteSubexprs();
+  delete not_one;
 }
 
 TEST(FuncExprTest, MakeAnd) {
@@ -241,12 +241,12 @@ TEST(FuncExprTest, MakeAnd) {
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *and_expr = FuncExpr::makeAnd(zero, one);
   EXPECT_NE(and_expr, nullptr);
-  EXPECT_EQ(and_expr->op(), FuncExpr::op_and);
+  EXPECT_EQ(and_expr->op(), FuncExpr::Op::and_);
   EXPECT_EQ(and_expr->left(), zero);
   EXPECT_EQ(and_expr->right(), one);
   std::string str = and_expr->to_string();
   EXPECT_EQ(str, "0*1");
-  and_expr->deleteSubexprs();
+  delete and_expr;
 }
 
 TEST(FuncExprTest, MakeOr) {
@@ -254,10 +254,10 @@ TEST(FuncExprTest, MakeOr) {
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *or_expr = FuncExpr::makeOr(zero, one);
   EXPECT_NE(or_expr, nullptr);
-  EXPECT_EQ(or_expr->op(), FuncExpr::op_or);
+  EXPECT_EQ(or_expr->op(), FuncExpr::Op::or_);
   std::string str = or_expr->to_string();
   EXPECT_EQ(str, "0+1");
-  or_expr->deleteSubexprs();
+  delete or_expr;
 }
 
 TEST(FuncExprTest, MakeXor) {
@@ -265,10 +265,10 @@ TEST(FuncExprTest, MakeXor) {
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *xor_expr = FuncExpr::makeXor(zero, one);
   EXPECT_NE(xor_expr, nullptr);
-  EXPECT_EQ(xor_expr->op(), FuncExpr::op_xor);
+  EXPECT_EQ(xor_expr->op(), FuncExpr::Op::xor_);
   std::string str = xor_expr->to_string();
   EXPECT_EQ(str, "0^1");
-  xor_expr->deleteSubexprs();
+  delete xor_expr;
 }
 
 TEST(FuncExprTest, Copy) {
@@ -276,12 +276,12 @@ TEST(FuncExprTest, Copy) {
   FuncExpr *not_one = FuncExpr::makeNot(one);
   FuncExpr *copy = not_one->copy();
   EXPECT_NE(copy, nullptr);
-  EXPECT_EQ(copy->op(), FuncExpr::op_not);
+  EXPECT_EQ(copy->op(), FuncExpr::Op::not_);
   EXPECT_NE(copy, not_one);
   EXPECT_NE(copy->left(), one);  // should be deep copy
-  EXPECT_EQ(copy->left()->op(), FuncExpr::op_one);
-  not_one->deleteSubexprs();
-  copy->deleteSubexprs();
+  EXPECT_EQ(copy->left()->op(), FuncExpr::Op::one);
+  delete not_one;
+  delete copy;
 }
 
 TEST(FuncExprTest, EquivBothNull) {
@@ -320,8 +320,8 @@ TEST(FuncExprTest, EquivNotExprs) {
   FuncExpr *one2 = FuncExpr::makeOne();
   FuncExpr *not2 = FuncExpr::makeNot(one2);
   EXPECT_TRUE(FuncExpr::equiv(not1, not2));
-  not1->deleteSubexprs();
-  not2->deleteSubexprs();
+  delete not1;
+  delete not2;
 }
 
 TEST(FuncExprTest, LessBothNull) {
@@ -345,8 +345,8 @@ TEST(FuncExprTest, LessDifferentOps) {
   // op_not=1, op_or=2, so not_one < or_expr
   EXPECT_TRUE(FuncExpr::less(not_one, or_expr));
   EXPECT_FALSE(FuncExpr::less(or_expr, not_one));
-  not_one->deleteSubexprs();
-  or_expr->deleteSubexprs();
+  delete not_one;
+  delete or_expr;
 }
 
 TEST(FuncExprTest, HasPortNoPort) {
@@ -365,7 +365,7 @@ TEST(FuncExprTest, HasPortNot) {
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *not_one = FuncExpr::makeNot(one);
   EXPECT_FALSE(not_one->hasPort(nullptr));
-  not_one->deleteSubexprs();
+  delete not_one;
 }
 
 TEST(FuncExprTest, HasPortAndOrXor) {
@@ -373,25 +373,25 @@ TEST(FuncExprTest, HasPortAndOrXor) {
   FuncExpr *zero = FuncExpr::makeZero();
   FuncExpr *and_expr = FuncExpr::makeAnd(one, zero);
   EXPECT_FALSE(and_expr->hasPort(nullptr));
-  and_expr->deleteSubexprs();
+  delete and_expr;
 }
 
-TEST(FuncExprTest, FuncExprNotDoubleNegation) {
-  // funcExprNot on a NOT expression should unwrap it
+TEST(FuncExprTest, InvertDoubleNegation) {
+  // invert() on a NOT expression should unwrap it
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *not_one = FuncExpr::makeNot(one);
-  FuncExpr *result = funcExprNot(not_one);
+  FuncExpr *result = not_one->invert();
   // Should return 'one' directly and delete the not wrapper
-  EXPECT_EQ(result->op(), FuncExpr::op_one);
+  EXPECT_EQ(result->op(), FuncExpr::Op::one);
   delete result;
 }
 
-TEST(FuncExprTest, FuncExprNotNonNot) {
-  // funcExprNot on non-NOT expression should create NOT wrapper
+TEST(FuncExprTest, InvertNonNot) {
+  // invert() on non-NOT expression should create NOT wrapper
   FuncExpr *one = FuncExpr::makeOne();
-  FuncExpr *result = funcExprNot(one);
-  EXPECT_EQ(result->op(), FuncExpr::op_not);
-  result->deleteSubexprs();
+  FuncExpr *result = one->invert();
+  EXPECT_EQ(result->op(), FuncExpr::Op::not_);
+  delete result;
 }
 
 TEST(FuncExprTest, PortTimingSenseOne) {
@@ -411,7 +411,7 @@ TEST(FuncExprTest, PortTimingSenseNotOfOne) {
   FuncExpr *not_one = FuncExpr::makeNot(one);
   // not of constant -> none sense
   EXPECT_EQ(not_one->portTimingSense(nullptr), TimingSense::none);
-  not_one->deleteSubexprs();
+  delete not_one;
 }
 
 TEST(FuncExprTest, PortTimingSenseAndBothNone) {
@@ -420,7 +420,7 @@ TEST(FuncExprTest, PortTimingSenseAndBothNone) {
   FuncExpr *and_expr = FuncExpr::makeAnd(one, zero);
   // Both have none sense for nullptr port -> returns none
   EXPECT_EQ(and_expr->portTimingSense(nullptr), TimingSense::none);
-  and_expr->deleteSubexprs();
+  delete and_expr;
 }
 
 TEST(FuncExprTest, PortTimingSenseXorNone) {
@@ -431,7 +431,7 @@ TEST(FuncExprTest, PortTimingSenseXorNone) {
   TimingSense sense = xor_expr->portTimingSense(nullptr);
   // Both children return none -> falls to else -> unknown
   EXPECT_EQ(sense, TimingSense::unknown);
-  xor_expr->deleteSubexprs();
+  delete xor_expr;
 }
 
 TEST(FuncExprTest, CheckSizeOne) {
@@ -451,7 +451,7 @@ TEST(FuncExprTest, CheckSizeNot) {
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *not_one = FuncExpr::makeNot(one);
   EXPECT_FALSE(not_one->checkSize(1));
-  not_one->deleteSubexprs();
+  delete not_one;
 }
 
 TEST(FuncExprTest, CheckSizeAndOrXor) {
@@ -459,20 +459,24 @@ TEST(FuncExprTest, CheckSizeAndOrXor) {
   FuncExpr *zero = FuncExpr::makeZero();
   FuncExpr *and_expr = FuncExpr::makeAnd(one, zero);
   EXPECT_FALSE(and_expr->checkSize(1));
-  and_expr->deleteSubexprs();
+  delete and_expr;
 }
 
 TEST(FuncExprTest, BitSubExprOne) {
   FuncExpr *one = FuncExpr::makeOne();
   FuncExpr *sub = one->bitSubExpr(0);
-  EXPECT_EQ(sub, one);  // op_one returns this
+  EXPECT_NE(sub, nullptr);
+  EXPECT_EQ(sub->op(), FuncExpr::Op::one);  // op_one returns a new makeOne()
+  delete sub;
   delete one;
 }
 
 TEST(FuncExprTest, BitSubExprZero) {
   FuncExpr *zero = FuncExpr::makeZero();
   FuncExpr *sub = zero->bitSubExpr(0);
-  EXPECT_EQ(sub, zero);  // op_zero returns this
+  EXPECT_NE(sub, nullptr);
+  EXPECT_EQ(sub->op(), FuncExpr::Op::zero);  // op_zero returns a new makeZero()
+  delete sub;
   delete zero;
 }
 
@@ -481,9 +485,9 @@ TEST(FuncExprTest, BitSubExprNot) {
   FuncExpr *not_one = FuncExpr::makeNot(one);
   FuncExpr *sub = not_one->bitSubExpr(0);
   EXPECT_NE(sub, nullptr);
-  EXPECT_EQ(sub->op(), FuncExpr::op_not);
+  EXPECT_EQ(sub->op(), FuncExpr::Op::not_);
   // Clean up: sub wraps the original one, so delete sub
-  sub->deleteSubexprs();
+  delete sub;
   // not_one's left was consumed by bitSubExpr
   delete not_one;
 }
@@ -494,8 +498,8 @@ TEST(FuncExprTest, BitSubExprOr) {
   FuncExpr *or_expr = FuncExpr::makeOr(one, zero);
   FuncExpr *sub = or_expr->bitSubExpr(0);
   EXPECT_NE(sub, nullptr);
-  EXPECT_EQ(sub->op(), FuncExpr::op_or);
-  sub->deleteSubexprs();
+  EXPECT_EQ(sub->op(), FuncExpr::Op::or_);
+  delete sub;
   delete or_expr;
 }
 
@@ -505,8 +509,8 @@ TEST(FuncExprTest, BitSubExprAnd) {
   FuncExpr *and_expr = FuncExpr::makeAnd(one, zero);
   FuncExpr *sub = and_expr->bitSubExpr(0);
   EXPECT_NE(sub, nullptr);
-  EXPECT_EQ(sub->op(), FuncExpr::op_and);
-  sub->deleteSubexprs();
+  EXPECT_EQ(sub->op(), FuncExpr::Op::and_);
+  delete sub;
   delete and_expr;
 }
 
@@ -516,8 +520,8 @@ TEST(FuncExprTest, BitSubExprXor) {
   FuncExpr *xor_expr = FuncExpr::makeXor(one, zero);
   FuncExpr *sub = xor_expr->bitSubExpr(0);
   EXPECT_NE(sub, nullptr);
-  EXPECT_EQ(sub->op(), FuncExpr::op_xor);
-  sub->deleteSubexprs();
+  EXPECT_EQ(sub->op(), FuncExpr::Op::xor_);
+  delete sub;
   delete xor_expr;
 }
 
@@ -529,8 +533,8 @@ TEST(FuncExprTest, LessNotExprs) {
   // Same structure -> not less
   EXPECT_FALSE(FuncExpr::less(not1, not2));
   EXPECT_FALSE(FuncExpr::less(not2, not1));
-  not1->deleteSubexprs();
-  not2->deleteSubexprs();
+  delete not1;
+  delete not2;
 }
 
 TEST(FuncExprTest, LessDefaultBranch) {
@@ -548,8 +552,8 @@ TEST(FuncExprTest, LessDefaultBranch) {
   EXPECT_FALSE(FuncExpr::less(and1, and2));
   EXPECT_TRUE(FuncExpr::less(and2, and1));
 
-  and1->deleteSubexprs();
-  and2->deleteSubexprs();
+  delete and1;
+  delete and2;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -561,10 +565,10 @@ class TableAxisTest : public ::testing::Test {
 protected:
   TableAxisPtr makeAxis(TableAxisVariable var,
                         std::initializer_list<float> vals) {
-    FloatSeq *values = new FloatSeq;
+    FloatSeq values;
     for (float v : vals)
-      values->push_back(v);
-    return std::make_shared<TableAxis>(var, values);
+      values.push_back(std::move(v));
+    return std::make_shared<TableAxis>(var, std::move(values));
   }
 };
 
@@ -817,7 +821,7 @@ TEST(TableVariableTest, TableVariableUnit) {
 ////////////////////////////////////////////////////////////////
 
 TEST(Table0Test, BasicValue) {
-  Table0 table(42.0f);
+  Table table(42.0f);
   EXPECT_EQ(table.order(), 0);
   EXPECT_FLOAT_EQ(table.value(0, 0, 0), 42.0f);
   EXPECT_FLOAT_EQ(table.findValue(0.0f, 0.0f, 0.0f), 42.0f);
@@ -834,26 +838,27 @@ TEST(Table0Test, BasicValue) {
 class Table1Test : public ::testing::Test {
 protected:
   TableAxisPtr makeAxis(std::initializer_list<float> vals) {
-    FloatSeq *values = new FloatSeq;
+    FloatSeq values;
     for (float v : vals)
-      values->push_back(v);
+      values.push_back(std::move(v));
     return std::make_shared<TableAxis>(
-      TableAxisVariable::total_output_net_capacitance, values);
+      TableAxisVariable::total_output_net_capacitance, std::move(values));
   }
 };
 
 TEST_F(Table1Test, DefaultConstructor) {
-  Table1 table;
-  EXPECT_EQ(table.order(), 1);
+  Table table;
+  // Unified Table default constructor creates order 0
+  EXPECT_EQ(table.order(), 0);
 }
 
 TEST_F(Table1Test, ValueLookup) {
   auto axis = makeAxis({1.0f, 2.0f, 4.0f});
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(10.0f);
-  vals->push_back(20.0f);
-  vals->push_back(40.0f);
-  Table1 table(vals, axis);
+  FloatSeq vals;
+  vals.push_back(10.0f);
+  vals.push_back(20.0f);
+  vals.push_back(40.0f);
+  Table table(std::move(vals), axis);
   EXPECT_EQ(table.order(), 1);
   EXPECT_FLOAT_EQ(table.value(0), 10.0f);
   EXPECT_FLOAT_EQ(table.value(1), 20.0f);
@@ -863,10 +868,10 @@ TEST_F(Table1Test, ValueLookup) {
 
 TEST_F(Table1Test, FindValueInterpolation) {
   auto axis = makeAxis({0.0f, 1.0f});
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(0.0f);
-  vals->push_back(10.0f);
-  Table1 table(vals, axis);
+  FloatSeq vals;
+  vals.push_back(0.0f);
+  vals.push_back(10.0f);
+  Table table(std::move(vals), axis);
   // Exact match at lower bound
   EXPECT_FLOAT_EQ(table.findValue(0.0f), 0.0f);
   // Midpoint
@@ -879,10 +884,10 @@ TEST_F(Table1Test, FindValueInterpolation) {
 
 TEST_F(Table1Test, FindValueClip) {
   auto axis = makeAxis({1.0f, 3.0f});
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(10.0f);
-  vals->push_back(30.0f);
-  Table1 table(vals, axis);
+  FloatSeq vals;
+  vals.push_back(10.0f);
+  vals.push_back(30.0f);
+  Table table(std::move(vals), axis);
   // Below range -> clip to 0
   EXPECT_FLOAT_EQ(table.findValueClip(0.0f), 0.0f);
   // In range
@@ -893,9 +898,9 @@ TEST_F(Table1Test, FindValueClip) {
 
 TEST_F(Table1Test, FindValueSingleElement) {
   auto axis = makeAxis({5.0f});
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(42.0f);
-  Table1 table(vals, axis);
+  FloatSeq vals;
+  vals.push_back(42.0f);
+  Table table(std::move(vals), axis);
   // Single element: findValue(float) -> value(size_t(float))
   // Only index 0 is valid, so pass 0.0f which converts to index 0.
   EXPECT_FLOAT_EQ(table.findValue(0.0f), 42.0f);
@@ -905,38 +910,38 @@ TEST_F(Table1Test, FindValueSingleElement) {
 
 TEST_F(Table1Test, CopyConstructor) {
   auto axis = makeAxis({1.0f, 2.0f});
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(10.0f);
-  vals->push_back(20.0f);
-  Table1 table(vals, axis);
-  Table1 copy(table);
+  FloatSeq vals;
+  vals.push_back(10.0f);
+  vals.push_back(20.0f);
+  Table table(std::move(vals), axis);
+  Table copy(table);
   EXPECT_FLOAT_EQ(copy.value(0), 10.0f);
   EXPECT_FLOAT_EQ(copy.value(1), 20.0f);
 }
 
 TEST_F(Table1Test, MoveConstructor) {
   auto axis = makeAxis({1.0f, 2.0f});
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(10.0f);
-  vals->push_back(20.0f);
-  Table1 table(vals, axis);
-  Table1 moved(std::move(table));
+  FloatSeq vals;
+  vals.push_back(10.0f);
+  vals.push_back(20.0f);
+  Table table(std::move(vals), axis);
+  Table moved(std::move(table));
   EXPECT_FLOAT_EQ(moved.value(0), 10.0f);
   EXPECT_FLOAT_EQ(moved.value(1), 20.0f);
 }
 
 TEST_F(Table1Test, MoveAssignment) {
   auto axis1 = makeAxis({1.0f, 2.0f});
-  FloatSeq *vals1 = new FloatSeq;
-  vals1->push_back(10.0f);
-  vals1->push_back(20.0f);
-  Table1 table1(vals1, axis1);
+  FloatSeq vals1;
+  vals1.push_back(10.0f);
+  vals1.push_back(20.0f);
+  Table table1(std::move(vals1), axis1);
 
   auto axis2 = makeAxis({3.0f, 4.0f});
-  FloatSeq *vals2 = new FloatSeq;
-  vals2->push_back(30.0f);
-  vals2->push_back(40.0f);
-  Table1 table2(vals2, axis2);
+  FloatSeq vals2;
+  vals2.push_back(30.0f);
+  vals2.push_back(40.0f);
+  Table table2(std::move(vals2), axis2);
 
   table2 = std::move(table1);
   EXPECT_FLOAT_EQ(table2.value(0), 10.0f);
@@ -945,10 +950,10 @@ TEST_F(Table1Test, MoveAssignment) {
 
 TEST_F(Table1Test, ValueViaThreeArgs) {
   auto axis = makeAxis({1.0f, 3.0f});
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(10.0f);
-  vals->push_back(30.0f);
-  Table1 table(vals, axis);
+  FloatSeq vals;
+  vals.push_back(10.0f);
+  vals.push_back(30.0f);
+  Table table(std::move(vals), axis);
 
   // The three-arg findValue just uses the first arg
   EXPECT_NEAR(table.findValue(2.0f, 0.0f, 0.0f), 20.0f, 0.01f);
@@ -964,29 +969,29 @@ TEST_F(Table1Test, ValueViaThreeArgs) {
 ////////////////////////////////////////////////////////////////
 
 TEST(Table2Test, BilinearInterpolation) {
-  FloatSeq *axis1_vals = new FloatSeq;
-  axis1_vals->push_back(0.0f);
-  axis1_vals->push_back(2.0f);
+  FloatSeq axis1_vals;
+  axis1_vals.push_back(0.0f);
+  axis1_vals.push_back(2.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis1_vals);
+    TableAxisVariable::input_net_transition, std::move(axis1_vals));
 
-  FloatSeq *axis2_vals = new FloatSeq;
-  axis2_vals->push_back(0.0f);
-  axis2_vals->push_back(4.0f);
+  FloatSeq axis2_vals;
+  axis2_vals.push_back(0.0f);
+  axis2_vals.push_back(4.0f);
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, axis2_vals);
+    TableAxisVariable::total_output_net_capacitance, std::move(axis2_vals));
 
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq;
-  row0->push_back(0.0f);
-  row0->push_back(4.0f);
-  values->push_back(row0);
-  FloatSeq *row1 = new FloatSeq;
-  row1->push_back(2.0f);
-  row1->push_back(6.0f);
-  values->push_back(row1);
+  FloatTable values;
+  FloatSeq row0;
+  row0.push_back(0.0f);
+  row0.push_back(4.0f);
+  values.push_back(std::move(row0));
+  FloatSeq row1;
+  row1.push_back(2.0f);
+  row1.push_back(6.0f);
+  values.push_back(std::move(row1));
 
-  Table2 table(values, axis1, axis2);
+  Table table(std::move(values), axis1, axis2);
   EXPECT_EQ(table.order(), 2);
 
   // Corner values
@@ -1000,70 +1005,70 @@ TEST(Table2Test, BilinearInterpolation) {
 }
 
 TEST(Table2Test, SingleRowInterpolation) {
-  FloatSeq *axis1_vals = new FloatSeq;
-  axis1_vals->push_back(0.0f);
+  FloatSeq axis1_vals;
+  axis1_vals.push_back(0.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis1_vals);
+    TableAxisVariable::input_net_transition, std::move(axis1_vals));
 
-  FloatSeq *axis2_vals = new FloatSeq;
-  axis2_vals->push_back(0.0f);
-  axis2_vals->push_back(4.0f);
+  FloatSeq axis2_vals;
+  axis2_vals.push_back(0.0f);
+  axis2_vals.push_back(4.0f);
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, axis2_vals);
+    TableAxisVariable::total_output_net_capacitance, std::move(axis2_vals));
 
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq;
-  row0->push_back(10.0f);
-  row0->push_back(30.0f);
-  values->push_back(row0);
+  FloatTable values;
+  FloatSeq row0;
+  row0.push_back(10.0f);
+  row0.push_back(30.0f);
+  values.push_back(std::move(row0));
 
-  Table2 table(values, axis1, axis2);
+  Table table(std::move(values), axis1, axis2);
   // Size1==1, so use axis2 only interpolation
   EXPECT_NEAR(table.findValue(0.0f, 2.0f, 0.0f), 20.0f, 0.01f);
 }
 
 TEST(Table2Test, SingleColumnInterpolation) {
-  FloatSeq *axis1_vals = new FloatSeq;
-  axis1_vals->push_back(0.0f);
-  axis1_vals->push_back(4.0f);
+  FloatSeq axis1_vals;
+  axis1_vals.push_back(0.0f);
+  axis1_vals.push_back(4.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis1_vals);
+    TableAxisVariable::input_net_transition, std::move(axis1_vals));
 
-  FloatSeq *axis2_vals = new FloatSeq;
-  axis2_vals->push_back(0.0f);
+  FloatSeq axis2_vals;
+  axis2_vals.push_back(0.0f);
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, axis2_vals);
+    TableAxisVariable::total_output_net_capacitance, std::move(axis2_vals));
 
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq;
-  row0->push_back(10.0f);
-  values->push_back(row0);
-  FloatSeq *row1 = new FloatSeq;
-  row1->push_back(30.0f);
-  values->push_back(row1);
+  FloatTable values;
+  FloatSeq row0;
+  row0.push_back(10.0f);
+  values.push_back(std::move(row0));
+  FloatSeq row1;
+  row1.push_back(30.0f);
+  values.push_back(std::move(row1));
 
-  Table2 table(values, axis1, axis2);
+  Table table(std::move(values), axis1, axis2);
   // Size2==1, so use axis1 only interpolation
   EXPECT_NEAR(table.findValue(2.0f, 0.0f, 0.0f), 20.0f, 0.01f);
 }
 
 TEST(Table2Test, SingleCellValue) {
-  FloatSeq *axis1_vals = new FloatSeq;
-  axis1_vals->push_back(0.0f);
+  FloatSeq axis1_vals;
+  axis1_vals.push_back(0.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis1_vals);
+    TableAxisVariable::input_net_transition, std::move(axis1_vals));
 
-  FloatSeq *axis2_vals = new FloatSeq;
-  axis2_vals->push_back(0.0f);
+  FloatSeq axis2_vals;
+  axis2_vals.push_back(0.0f);
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, axis2_vals);
+    TableAxisVariable::total_output_net_capacitance, std::move(axis2_vals));
 
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq;
-  row0->push_back(42.0f);
-  values->push_back(row0);
+  FloatTable values;
+  FloatSeq row0;
+  row0.push_back(42.0f);
+  values.push_back(std::move(row0));
 
-  Table2 table(values, axis1, axis2);
+  Table table(std::move(values), axis1, axis2);
   EXPECT_FLOAT_EQ(table.findValue(0.0f, 0.0f, 0.0f), 42.0f);
 }
 
@@ -1253,33 +1258,18 @@ TEST(RiseFallValuesTest, Clear) {
 }
 
 ////////////////////////////////////////////////////////////////
-// InternalPowerAttrs tests
+// InternalPower tests (InternalPowerAttrs removed in MCMM update)
 ////////////////////////////////////////////////////////////////
 
-TEST(InternalPowerAttrsTest, DefaultConstructor) {
-  InternalPowerAttrs attrs;
-  EXPECT_EQ(attrs.when(), nullptr);
-  EXPECT_EQ(attrs.relatedPgPin(), nullptr);
-  EXPECT_EQ(attrs.model(RiseFall::rise()), nullptr);
-  EXPECT_EQ(attrs.model(RiseFall::fall()), nullptr);
-}
-
-TEST(InternalPowerAttrsTest, SetWhen) {
-  InternalPowerAttrs attrs;
-  FuncExpr *expr = FuncExpr::makeOne();
-  attrs.setWhen(expr);
-  EXPECT_EQ(attrs.when(), expr);
-  // Don't call deleteContents - test just checks setter
-  delete expr;
-}
-
-TEST(InternalPowerAttrsTest, SetRelatedPgPin) {
-  InternalPowerAttrs attrs;
-  attrs.setRelatedPgPin("VDD");
-  EXPECT_STREQ(attrs.relatedPgPin(), "VDD");
-  attrs.setRelatedPgPin("VSS");
-  EXPECT_STREQ(attrs.relatedPgPin(), "VSS");
-  attrs.deleteContents();
+TEST(InternalPowerTest, DirectConstruction) {
+  // InternalPower is now constructed directly
+  InternalPowerModels models{};
+  std::shared_ptr<FuncExpr> when_expr(FuncExpr::makeOne());
+  InternalPower pwr(nullptr, nullptr, nullptr, when_expr, models);
+  EXPECT_EQ(pwr.when(), when_expr.get());
+  EXPECT_EQ(pwr.relatedPgPin(), nullptr);
+  EXPECT_EQ(pwr.model(RiseFall::rise()), nullptr);
+  EXPECT_EQ(pwr.model(RiseFall::fall()), nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1291,11 +1281,11 @@ TEST(TimingArcAttrsTest, DefaultConstructor) {
   EXPECT_EQ(attrs.timingType(), TimingType::combinational);
   EXPECT_EQ(attrs.timingSense(), TimingSense::unknown);
   EXPECT_EQ(attrs.cond(), nullptr);
-  EXPECT_EQ(attrs.sdfCond(), nullptr);
-  EXPECT_EQ(attrs.sdfCondStart(), nullptr);
-  EXPECT_EQ(attrs.sdfCondEnd(), nullptr);
-  EXPECT_EQ(attrs.modeName(), nullptr);
-  EXPECT_EQ(attrs.modeValue(), nullptr);
+  EXPECT_TRUE(attrs.sdfCond().empty());
+  EXPECT_TRUE(attrs.sdfCondStart().empty());
+  EXPECT_TRUE(attrs.sdfCondEnd().empty());
+  EXPECT_TRUE(attrs.modeName().empty());
+  EXPECT_TRUE(attrs.modeValue().empty());
   EXPECT_FLOAT_EQ(attrs.ocvArcDepth(), 0.0f);
   EXPECT_EQ(attrs.model(RiseFall::rise()), nullptr);
   EXPECT_EQ(attrs.model(RiseFall::fall()), nullptr);
@@ -1328,32 +1318,32 @@ TEST(TimingArcAttrsTest, SetOcvArcDepth) {
 TEST(TimingArcAttrsTest, SetModeName) {
   TimingArcAttrs attrs;
   attrs.setModeName("test_mode");
-  EXPECT_STREQ(attrs.modeName(), "test_mode");
+  EXPECT_EQ(attrs.modeName(), "test_mode");
   attrs.setModeName("another_mode");
-  EXPECT_STREQ(attrs.modeName(), "another_mode");
+  EXPECT_EQ(attrs.modeName(), "another_mode");
 }
 
 TEST(TimingArcAttrsTest, SetModeValue) {
   TimingArcAttrs attrs;
   attrs.setModeValue("mode_val");
-  EXPECT_STREQ(attrs.modeValue(), "mode_val");
+  EXPECT_EQ(attrs.modeValue(), "mode_val");
 }
 
 TEST(TimingArcAttrsTest, SetSdfCond) {
   TimingArcAttrs attrs;
   attrs.setSdfCond("A==1");
-  EXPECT_STREQ(attrs.sdfCond(), "A==1");
+  EXPECT_EQ(attrs.sdfCond(), "A==1");
   // After setSdfCond, sdfCondStart and sdfCondEnd point to same string
-  EXPECT_STREQ(attrs.sdfCondStart(), "A==1");
-  EXPECT_STREQ(attrs.sdfCondEnd(), "A==1");
+  EXPECT_EQ(attrs.sdfCondStart(), "A==1");
+  EXPECT_EQ(attrs.sdfCondEnd(), "A==1");
 }
 
 TEST(TimingArcAttrsTest, SetSdfCondStartEnd) {
   TimingArcAttrs attrs;
   attrs.setSdfCondStart("start_cond");
-  EXPECT_STREQ(attrs.sdfCondStart(), "start_cond");
+  EXPECT_EQ(attrs.sdfCondStart(), "start_cond");
   attrs.setSdfCondEnd("end_cond");
-  EXPECT_STREQ(attrs.sdfCondEnd(), "end_cond");
+  EXPECT_EQ(attrs.sdfCondEnd(), "end_cond");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1509,45 +1499,30 @@ TEST_F(LinearModelTest, CheckLinearModelReportCheckDelay) {
 }
 
 ////////////////////////////////////////////////////////////////
-// InternalPowerAttrs additional coverage
+// InternalPower additional coverage
 ////////////////////////////////////////////////////////////////
 
-TEST(InternalPowerAttrsTest, ModelAccess) {
-  InternalPowerAttrs attrs;
+TEST(InternalPowerTest, ModelAccess) {
+  InternalPowerModels models{};
+  InternalPower pwr(nullptr, nullptr, nullptr, nullptr, models);
   // Initially models should be nullptr
-  EXPECT_EQ(attrs.model(RiseFall::rise()), nullptr);
-  EXPECT_EQ(attrs.model(RiseFall::fall()), nullptr);
+  EXPECT_EQ(pwr.model(RiseFall::rise()), nullptr);
+  EXPECT_EQ(pwr.model(RiseFall::fall()), nullptr);
 }
 
-TEST(InternalPowerAttrsTest, SetModel) {
-  InternalPowerAttrs attrs;
-  // Create a minimal model: Table0 -> TableModel -> InternalPowerModel
-  TablePtr tbl = std::make_shared<Table0>(1.0f);
+TEST(InternalPowerTest, WithModel) {
+  // Create a minimal model: Table -> TableModel -> InternalPowerModel
+  TablePtr tbl = std::make_shared<Table>(1.0f);
   TableModel *table_model = new TableModel(tbl, nullptr,
                                            ScaleFactorType::internal_power,
                                            RiseFall::rise());
-  InternalPowerModel *power_model = new InternalPowerModel(table_model);
+  auto power_model = std::make_shared<InternalPowerModel>(table_model);
 
-  attrs.setModel(RiseFall::rise(), power_model);
-  EXPECT_EQ(attrs.model(RiseFall::rise()), power_model);
-  EXPECT_EQ(attrs.model(RiseFall::fall()), nullptr);
-
-  // Set same model for fall
-  attrs.setModel(RiseFall::fall(), power_model);
-  EXPECT_EQ(attrs.model(RiseFall::fall()), power_model);
-
-  // deleteContents handles the cleanup when rise==fall model
-  attrs.deleteContents();
-}
-
-TEST(InternalPowerAttrsTest, DeleteContentsWithWhen) {
-  InternalPowerAttrs attrs;
-  // When expr is a simple zero expression
-  FuncExpr *when = FuncExpr::makeZero();
-  attrs.setWhen(when);
-  EXPECT_EQ(attrs.when(), when);
-  // deleteContents should clean up when expr
-  attrs.deleteContents();
+  InternalPowerModels models{};
+  models[RiseFall::riseIndex()] = power_model;
+  InternalPower pwr(nullptr, nullptr, nullptr, nullptr, models);
+  EXPECT_EQ(pwr.model(RiseFall::rise()), power_model.get());
+  EXPECT_EQ(pwr.model(RiseFall::fall()), nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1580,11 +1555,11 @@ TEST(TimingArcAttrsTest, DestructorCleanup) {
   attrs->setModeName("mode1");
   attrs->setModeValue("val1");
   EXPECT_EQ(attrs->cond(), cond);
-  EXPECT_NE(attrs->sdfCond(), nullptr);
-  EXPECT_NE(attrs->sdfCondStart(), nullptr);
-  EXPECT_NE(attrs->sdfCondEnd(), nullptr);
-  EXPECT_STREQ(attrs->modeName(), "mode1");
-  EXPECT_STREQ(attrs->modeValue(), "val1");
+  EXPECT_FALSE(attrs->sdfCond().empty());
+  EXPECT_FALSE(attrs->sdfCondStart().empty());
+  EXPECT_FALSE(attrs->sdfCondEnd().empty());
+  EXPECT_EQ(attrs->modeName(), "mode1");
+  EXPECT_EQ(attrs->modeValue(), "val1");
   // Destructor should clean up cond, sdf strings, mode strings
   delete attrs;
   // If we get here without crash, cleanup succeeded
@@ -1598,27 +1573,27 @@ TEST(Table3Test, BasicConstruction) {
   // Table3 extends Table2: values_ is FloatTable* (Vector<FloatSeq*>)
   // Layout: values_[axis1_idx * axis2_size + axis2_idx][axis3_idx]
   // For a 2x2x2 table: 4 rows of 2 elements each
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.1f); ax1_vals->push_back(0.5f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(1.0f); ax2_vals->push_back(2.0f);
-  FloatSeq *ax3_vals = new FloatSeq;
-  ax3_vals->push_back(10.0f); ax3_vals->push_back(20.0f);
-  auto axis1 = std::make_shared<TableAxis>(TableAxisVariable::input_transition_time, ax1_vals);
-  auto axis2 = std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance, ax2_vals);
-  auto axis3 = std::make_shared<TableAxis>(TableAxisVariable::related_pin_transition, ax3_vals);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.1f); ax1_vals.push_back(0.5f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(1.0f); ax2_vals.push_back(2.0f);
+  FloatSeq ax3_vals;
+  ax3_vals.push_back(10.0f); ax3_vals.push_back(20.0f);
+  auto axis1 = std::make_shared<TableAxis>(TableAxisVariable::input_transition_time, std::move(ax1_vals));
+  auto axis2 = std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
+  auto axis3 = std::make_shared<TableAxis>(TableAxisVariable::related_pin_transition, std::move(ax3_vals));
 
   // 2x2x2: values_[axis1*axis2_size + axis2][axis3]
   // row0 = (0,0) -> {1,2}, row1 = (0,1) -> {3,4}, row2 = (1,0) -> {5,6}, row3 = (1,1) -> {7,8}
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(2.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(3.0f); row1->push_back(4.0f);
-  FloatSeq *row2 = new FloatSeq; row2->push_back(5.0f); row2->push_back(6.0f);
-  FloatSeq *row3 = new FloatSeq; row3->push_back(7.0f); row3->push_back(8.0f);
-  values->push_back(row0); values->push_back(row1);
-  values->push_back(row2); values->push_back(row3);
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(2.0f);
+  FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
+  FloatSeq row2; row2.push_back(5.0f); row2.push_back(6.0f);
+  FloatSeq row3; row3.push_back(7.0f); row3.push_back(8.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  values.push_back(std::move(row2)); values.push_back(std::move(row3));
 
-  Table3 tbl(values, axis1, axis2, axis3);
+  Table tbl(std::move(values), axis1, axis2, axis3);
 
   EXPECT_EQ(tbl.order(), 3);
   EXPECT_NE(tbl.axis1(), nullptr);
@@ -1631,25 +1606,25 @@ TEST(Table3Test, BasicConstruction) {
 }
 
 TEST(Table3Test, FindValue) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.1f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.1f); ax2_vals->push_back(1.0f);
-  FloatSeq *ax3_vals = new FloatSeq;
-  ax3_vals->push_back(0.1f); ax3_vals->push_back(1.0f);
-  auto axis1 = std::make_shared<TableAxis>(TableAxisVariable::input_transition_time, ax1_vals);
-  auto axis2 = std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance, ax2_vals);
-  auto axis3 = std::make_shared<TableAxis>(TableAxisVariable::related_pin_transition, ax3_vals);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.1f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.1f); ax2_vals.push_back(1.0f);
+  FloatSeq ax3_vals;
+  ax3_vals.push_back(0.1f); ax3_vals.push_back(1.0f);
+  auto axis1 = std::make_shared<TableAxis>(TableAxisVariable::input_transition_time, std::move(ax1_vals));
+  auto axis2 = std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
+  auto axis3 = std::make_shared<TableAxis>(TableAxisVariable::related_pin_transition, std::move(ax3_vals));
 
   // All values 1.0 in a 2x2x2 table (4 rows of 2)
-  FloatTable *values = new FloatTable;
+  FloatTable values;
   for (int i = 0; i < 4; i++) {
-    FloatSeq *row = new FloatSeq;
-    row->push_back(1.0f); row->push_back(1.0f);
-    values->push_back(row);
+    FloatSeq row;
+    row.push_back(1.0f); row.push_back(1.0f);
+    values.push_back(std::move(row));
   }
 
-  Table3 tbl(values, axis1, axis2, axis3);
+  Table tbl(std::move(values), axis1, axis2, axis3);
 
   // All values are 1.0, so any lookup should return ~1.0
   float result = tbl.findValue(0.5f, 0.5f, 0.5f);
@@ -1661,18 +1636,18 @@ TEST(Table3Test, FindValue) {
 ////////////////////////////////////////////////////////////////
 
 TEST(TableModelTest, Order0) {
-  TablePtr tbl = std::make_shared<Table0>(42.0f);
+  TablePtr tbl = std::make_shared<Table>(42.0f);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
   EXPECT_EQ(model.order(), 0);
 }
 
 TEST(TableModelTest, Order1) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
-  auto axis = std::make_shared<TableAxis>(TableAxisVariable::input_transition_time, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f); values->push_back(2.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
+  auto axis = std::make_shared<TableAxis>(TableAxisVariable::input_transition_time, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f); values.push_back(2.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
   EXPECT_EQ(model.order(), 1);
   EXPECT_NE(model.axis1(), nullptr);
@@ -1681,17 +1656,17 @@ TEST(TableModelTest, Order1) {
 }
 
 TEST(TableModelTest, Order2) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.1f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.1f); ax2_vals->push_back(1.0f);
-  auto axis1 = std::make_shared<TableAxis>(TableAxisVariable::input_transition_time, ax1_vals);
-  auto axis2 = std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(2.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(3.0f); row1->push_back(4.0f);
-  values->push_back(row0); values->push_back(row1);
-  TablePtr tbl = std::make_shared<Table2>(values, axis1, axis2);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.1f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.1f); ax2_vals.push_back(1.0f);
+  auto axis1 = std::make_shared<TableAxis>(TableAxisVariable::input_transition_time, std::move(ax1_vals));
+  auto axis2 = std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(2.0f);
+  FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
   EXPECT_EQ(model.order(), 2);
   EXPECT_NE(model.axis1(), nullptr);
@@ -1786,7 +1761,7 @@ TEST(FuncExprTest, PortTimingSensePositiveUnate) {
   TimingSense sense = port_expr->portTimingSense(port);
   EXPECT_EQ(sense, TimingSense::positive_unate);
 
-  port_expr->deleteSubexprs();
+  delete port_expr;
 }
 
 TEST(FuncExprTest, NotTimingSenseNegativeUnate) {
@@ -1801,7 +1776,7 @@ TEST(FuncExprTest, NotTimingSenseNegativeUnate) {
   TimingSense sense = not_expr->portTimingSense(port);
   EXPECT_EQ(sense, TimingSense::negative_unate);
 
-  not_expr->deleteSubexprs();
+  delete not_expr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1881,7 +1856,7 @@ TEST(LibertyLibraryTest, WireSlewDegradationTable) {
   EXPECT_EQ(lib.wireSlewDegradationTable(RiseFall::fall()), nullptr);
 
   // Set a simple order-0 table (scalar)
-  TablePtr tbl = std::make_shared<Table0>(0.1f);
+  TablePtr tbl = std::make_shared<Table>(0.1f);
   TableModel *model = new TableModel(tbl, nullptr,
                                      ScaleFactorType::transition,
                                      RiseFall::rise());
@@ -1900,15 +1875,15 @@ TEST(LibertyLibraryTest, WireSlewDegradationTable) {
 TEST(LibertyLibraryTest, WireSlewDegradationOrder1) {
   LibertyLibrary lib("test_lib", "test.lib");
   // Create order-1 table with output_pin_transition axis
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f);
-  axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f);
+  axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::output_pin_transition, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(0.1f);
-  values->push_back(1.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::output_pin_transition, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(0.1f);
+  values.push_back(1.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   TableModel *model = new TableModel(tbl, nullptr,
                                      ScaleFactorType::transition,
                                      RiseFall::rise());
@@ -1934,7 +1909,7 @@ TEST(LibertyLibraryTest, Units) {
 ////////////////////////////////////////////////////////////////
 
 TEST_F(LinearModelTest, Table0ReportValue) {
-  Table0 tbl(42.0f);
+  Table tbl(42.0f);
   const Units *units = lib_->units();
   std::string report = tbl.reportValue("Delay", cell_, nullptr,
                                         0.0f, nullptr, 0.0f, 0.0f,
@@ -1944,15 +1919,15 @@ TEST_F(LinearModelTest, Table0ReportValue) {
 }
 
 TEST_F(LinearModelTest, Table1ReportValue) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f);
-  axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f);
+  axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f);
-  values->push_back(2.0f);
-  Table1 tbl(values, axis);
+    TableAxisVariable::input_transition_time, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f);
+  values.push_back(2.0f);
+  Table tbl(std::move(values), axis);
 
   const Units *units = lib_->units();
   std::string report = tbl.reportValue("Delay", cell_, nullptr,
@@ -1963,19 +1938,19 @@ TEST_F(LinearModelTest, Table1ReportValue) {
 }
 
 TEST_F(LinearModelTest, Table2ReportValue) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.1f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.1f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.1f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.1f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, ax1_vals);
+    TableAxisVariable::input_transition_time, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(2.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(3.0f); row1->push_back(4.0f);
-  values->push_back(row0); values->push_back(row1);
-  Table2 tbl(values, axis1, axis2);
+    TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(2.0f);
+  FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  Table tbl(std::move(values), axis1, axis2);
 
   const Units *units = lib_->units();
   std::string report = tbl.reportValue("Delay", cell_, nullptr,
@@ -1986,26 +1961,26 @@ TEST_F(LinearModelTest, Table2ReportValue) {
 }
 
 TEST_F(LinearModelTest, Table3ReportValue) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.1f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.1f); ax2_vals->push_back(1.0f);
-  FloatSeq *ax3_vals = new FloatSeq;
-  ax3_vals->push_back(0.1f); ax3_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.1f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.1f); ax2_vals.push_back(1.0f);
+  FloatSeq ax3_vals;
+  ax3_vals.push_back(0.1f); ax3_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, ax1_vals);
+    TableAxisVariable::input_transition_time, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, ax2_vals);
+    TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
   auto axis3 = std::make_shared<TableAxis>(
-    TableAxisVariable::related_pin_transition, ax3_vals);
+    TableAxisVariable::related_pin_transition, std::move(ax3_vals));
 
-  FloatTable *values = new FloatTable;
+  FloatTable values;
   for (int i = 0; i < 4; i++) {
-    FloatSeq *row = new FloatSeq;
-    row->push_back(1.0f + i); row->push_back(2.0f + i);
-    values->push_back(row);
+    FloatSeq row;
+    row.push_back(1.0f + i); row.push_back(2.0f + i);
+    values.push_back(std::move(row));
   }
-  Table3 tbl(values, axis1, axis2, axis3);
+  Table tbl(std::move(values), axis1, axis2, axis3);
 
   const Units *units = lib_->units();
   std::string report = tbl.reportValue("Delay", cell_, nullptr,
@@ -2016,7 +1991,7 @@ TEST_F(LinearModelTest, Table3ReportValue) {
 }
 
 TEST_F(LinearModelTest, TableModelReport) {
-  TablePtr tbl = std::make_shared<Table0>(42.0f);
+  TablePtr tbl = std::make_shared<Table>(42.0f);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
   const Units *units = lib_->units();
   Report *report_obj = nullptr;
@@ -2028,15 +2003,15 @@ TEST_F(LinearModelTest, TableModelReport) {
 }
 
 TEST_F(LinearModelTest, TableModelFindValue) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f);
-  axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f);
+  axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(10.0f);
-  values->push_back(20.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::input_transition_time, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(10.0f);
+  values.push_back(20.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
 
   float result = model.findValue(0.5f, 0.0f, 0.0f);
@@ -2045,15 +2020,15 @@ TEST_F(LinearModelTest, TableModelFindValue) {
 }
 
 TEST_F(LinearModelTest, TableModelReportValue) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f);
-  axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f);
+  axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(10.0f);
-  values->push_back(20.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::input_transition_time, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(10.0f);
+  values.push_back(20.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
 
   const Units *units = lib_->units();
@@ -2083,7 +2058,7 @@ TEST(FuncExprTest, AndTimingSense) {
   TimingSense sense = and_expr->portTimingSense(port_a);
   EXPECT_EQ(sense, TimingSense::positive_unate);
 
-  and_expr->deleteSubexprs();
+  delete and_expr;
 }
 
 TEST(FuncExprTest, OrTimingSense) {
@@ -2100,7 +2075,7 @@ TEST(FuncExprTest, OrTimingSense) {
   TimingSense sense = or_expr->portTimingSense(port_a);
   EXPECT_EQ(sense, TimingSense::positive_unate);
 
-  or_expr->deleteSubexprs();
+  delete or_expr;
 }
 
 TEST(FuncExprTest, XorTimingSense) {
@@ -2118,7 +2093,7 @@ TEST(FuncExprTest, XorTimingSense) {
   TimingSense sense = xor_expr->portTimingSense(port_a);
   EXPECT_EQ(sense, TimingSense::non_unate);
 
-  xor_expr->deleteSubexprs();
+  delete xor_expr;
 }
 
 TEST(FuncExprTest, ZeroOneExpressions) {
@@ -2126,8 +2101,8 @@ TEST(FuncExprTest, ZeroOneExpressions) {
   FuncExpr *one = FuncExpr::makeOne();
   EXPECT_NE(zero, nullptr);
   EXPECT_NE(one, nullptr);
-  zero->deleteSubexprs();
-  one->deleteSubexprs();
+  delete zero;
+  delete one;
 }
 
 
@@ -2214,11 +2189,11 @@ TEST(TableUtilTest, StringWireloadMode) {
 // LibertyLibrary wireload & operating conditions tests
 ////////////////////////////////////////////////////////////////
 
-TEST(LibertyLibraryTest, AddAndFindWireload) {
+TEST(LibertyLibraryTest, MakeAndFindWireload) {
   LibertyLibrary lib("test_lib", "test.lib");
-  Wireload *wl = new Wireload("test_wl", &lib, 0.0f, 1.0f, 1.0f, 0.5f);
-  lib.addWireload(wl);
-  Wireload *found = lib.findWireload("test_wl");
+  Wireload *wl = lib.makeWireload("test_wl");
+  EXPECT_NE(wl, nullptr);
+  const Wireload *found = lib.findWireload("test_wl");
   EXPECT_EQ(found, wl);
   EXPECT_EQ(lib.findWireload("nonexistent"), nullptr);
 }
@@ -2226,15 +2201,15 @@ TEST(LibertyLibraryTest, AddAndFindWireload) {
 TEST(LibertyLibraryTest, DefaultWireload) {
   LibertyLibrary lib("test_lib", "test.lib");
   EXPECT_EQ(lib.defaultWireload(), nullptr);
-  Wireload *wl = new Wireload("default_wl", &lib);
+  Wireload *wl = lib.makeWireload("default_wl");
   lib.setDefaultWireload(wl);
   EXPECT_EQ(lib.defaultWireload(), wl);
 }
 
 TEST(LibertyLibraryTest, WireloadSelection) {
   LibertyLibrary lib("test_lib", "test.lib");
-  WireloadSelection *sel = new WireloadSelection("test_sel");
-  lib.addWireloadSelection(sel);
+  WireloadSelection *sel = lib.makeWireloadSelection("test_sel");
+  EXPECT_NE(sel, nullptr);
   EXPECT_EQ(lib.findWireloadSelection("test_sel"), sel);
   EXPECT_EQ(lib.findWireloadSelection("nonexistent"), nullptr);
 }
@@ -2242,7 +2217,7 @@ TEST(LibertyLibraryTest, WireloadSelection) {
 TEST(LibertyLibraryTest, DefaultWireloadSelection) {
   LibertyLibrary lib("test_lib", "test.lib");
   EXPECT_EQ(lib.defaultWireloadSelection(), nullptr);
-  WireloadSelection *sel = new WireloadSelection("test_sel");
+  WireloadSelection *sel = lib.makeWireloadSelection("test_sel");
   lib.setDefaultWireloadSelection(sel);
   EXPECT_EQ(lib.defaultWireloadSelection(), sel);
 }
@@ -2341,10 +2316,11 @@ TEST(LibertyLibraryTest, DefaultMaxFanout) {
 // LibertyLibrary table template and bus type management
 ////////////////////////////////////////////////////////////////
 
-TEST(LibertyLibraryTest, AddAndFindTableTemplate) {
+TEST(LibertyLibraryTest, MakeAndFindTableTemplate) {
   LibertyLibrary lib("test_lib", "test.lib");
-  TableTemplate *tmpl = new TableTemplate("delay_template");
-  lib.addTableTemplate(tmpl, TableTemplateType::delay);
+  TableTemplate *tmpl = lib.makeTableTemplate("delay_template",
+                                              TableTemplateType::delay);
+  EXPECT_NE(tmpl, nullptr);
   TableTemplate *found = lib.findTableTemplate("delay_template",
                                                TableTemplateType::delay);
   EXPECT_EQ(found, tmpl);
@@ -2352,10 +2328,10 @@ TEST(LibertyLibraryTest, AddAndFindTableTemplate) {
             nullptr);
 }
 
-TEST(LibertyLibraryTest, AddAndFindBusDcl) {
+TEST(LibertyLibraryTest, MakeAndFindBusDcl) {
   LibertyLibrary lib("test_lib", "test.lib");
-  BusDcl *bus = new BusDcl("data_bus", 7, 0);
-  lib.addBusDcl(bus);
+  BusDcl *bus = lib.makeBusDcl("data_bus", 7, 0);
+  EXPECT_NE(bus, nullptr);
   BusDcl *found = lib.findBusDcl("data_bus");
   EXPECT_EQ(found, bus);
   EXPECT_EQ(lib.findBusDcl("nonexistent"), nullptr);
@@ -2366,20 +2342,20 @@ TEST(LibertyLibraryTest, AddAndFindBusDcl) {
 ////////////////////////////////////////////////////////////////
 
 TEST(Table2Test, FindValueInterpolation) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.0f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.0f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.0f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.0f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, ax1_vals);
+    TableAxisVariable::input_transition_time, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, ax2_vals);
+    TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
 
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(3.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(5.0f); row1->push_back(7.0f);
-  values->push_back(row0); values->push_back(row1);
-  Table2 tbl(values, axis1, axis2);
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(3.0f);
+  FloatSeq row1; row1.push_back(5.0f); row1.push_back(7.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  Table tbl(std::move(values), axis1, axis2);
 
   // Center should be average of all corners: (1+3+5+7)/4 = 4
   float center = tbl.findValue(0.5f, 0.5f, 0.0f);
@@ -2395,35 +2371,35 @@ TEST(Table2Test, FindValueInterpolation) {
 ////////////////////////////////////////////////////////////////
 
 TEST(GateTableModelTest, CheckAxesOrder0) {
-  TablePtr tbl = std::make_shared<Table0>(1.0f);
+  TablePtr tbl = std::make_shared<Table>(1.0f);
   EXPECT_TRUE(GateTableModel::checkAxes(tbl));
 }
 
 TEST(GateTableModelTest, CheckAxesOrder1) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f); values->push_back(2.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::input_transition_time, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f); values.push_back(2.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   EXPECT_TRUE(GateTableModel::checkAxes(tbl));
 }
 
 TEST(GateTableModelTest, CheckAxesOrder2) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.1f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.1f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.1f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.1f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, ax1_vals);
+    TableAxisVariable::input_transition_time, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(2.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(3.0f); row1->push_back(4.0f);
-  values->push_back(row0); values->push_back(row1);
-  TablePtr tbl = std::make_shared<Table2>(values, axis1, axis2);
+    TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(2.0f);
+  FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
   EXPECT_TRUE(GateTableModel::checkAxes(tbl));
 }
 
@@ -2432,18 +2408,18 @@ TEST(GateTableModelTest, CheckAxesOrder2) {
 ////////////////////////////////////////////////////////////////
 
 TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder0) {
-  TablePtr tbl = std::make_shared<Table0>(1.0f);
+  TablePtr tbl = std::make_shared<Table>(1.0f);
   EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(tbl));
 }
 
 TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder1) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::output_pin_transition, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(0.1f); values->push_back(1.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::output_pin_transition, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(0.1f); values.push_back(1.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(tbl));
 }
 
@@ -2451,15 +2427,11 @@ TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder1) {
 // InternalPower additional
 ////////////////////////////////////////////////////////////////
 
-TEST(InternalPowerAttrsTest, SetRelatedPgPinMultiple) {
-  InternalPowerAttrs attrs;
-  EXPECT_EQ(attrs.relatedPgPin(), nullptr);
-  attrs.setRelatedPgPin("VDD");
-  EXPECT_STREQ(attrs.relatedPgPin(), "VDD");
-  // Override with a different pin
-  attrs.setRelatedPgPin("VSS");
-  EXPECT_STREQ(attrs.relatedPgPin(), "VSS");
-  attrs.deleteContents();
+TEST(InternalPowerTest, RelatedPgPinViaConstruction) {
+  InternalPowerModels models{};
+  // relatedPgPin is now set via constructor
+  InternalPower pwr(nullptr, nullptr, nullptr, nullptr, models);
+  EXPECT_EQ(pwr.relatedPgPin(), nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2469,19 +2441,19 @@ TEST(InternalPowerAttrsTest, SetRelatedPgPinMultiple) {
 TEST(TimingArcAttrsTest, SdfCondStrings) {
   TimingArcAttrs attrs;
   attrs.setSdfCond("A==1'b1");
-  EXPECT_STREQ(attrs.sdfCond(), "A==1'b1");
+  EXPECT_EQ(attrs.sdfCond(), "A==1'b1");
   attrs.setSdfCondStart("start_val");
-  EXPECT_STREQ(attrs.sdfCondStart(), "start_val");
+  EXPECT_EQ(attrs.sdfCondStart(), "start_val");
   attrs.setSdfCondEnd("end_val");
-  EXPECT_STREQ(attrs.sdfCondEnd(), "end_val");
+  EXPECT_EQ(attrs.sdfCondEnd(), "end_val");
 }
 
 TEST(TimingArcAttrsTest, ModeNameValue) {
   TimingArcAttrs attrs;
   attrs.setModeName("test_mode");
-  EXPECT_STREQ(attrs.modeName(), "test_mode");
+  EXPECT_EQ(attrs.modeName(), "test_mode");
   attrs.setModeValue("mode_val");
-  EXPECT_STREQ(attrs.modeValue(), "mode_val");
+  EXPECT_EQ(attrs.modeValue(), "mode_val");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2489,7 +2461,7 @@ TEST(TimingArcAttrsTest, ModeNameValue) {
 ////////////////////////////////////////////////////////////////
 
 TEST(Table0Test, ValueAccess) {
-  Table0 tbl(42.5f);
+  Table tbl(42.5f);
   EXPECT_FLOAT_EQ(tbl.value(0, 0, 0), 42.5f);
   EXPECT_FLOAT_EQ(tbl.value(1, 2, 3), 42.5f);
   EXPECT_FLOAT_EQ(tbl.findValue(0.0f, 0.0f, 0.0f), 42.5f);
@@ -2502,19 +2474,19 @@ TEST(Table0Test, ValueAccess) {
 ////////////////////////////////////////////////////////////////
 
 TEST(TableModelTest, FindValueOrder2) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.0f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.0f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.0f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.0f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, ax1_vals);
+    TableAxisVariable::input_transition_time, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(3.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(5.0f); row1->push_back(7.0f);
-  values->push_back(row0); values->push_back(row1);
-  TablePtr tbl = std::make_shared<Table2>(values, axis1, axis2);
+    TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(3.0f);
+  FloatSeq row1; row1.push_back(5.0f); row1.push_back(7.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
 
   float center = model.findValue(0.5f, 0.5f, 0.0f);
@@ -2562,12 +2534,12 @@ TEST(ScaleFactorsTest, SetAndGetWithoutRiseFall) {
 
 TEST(OcvDerateTest, BasicConstruction) {
   OcvDerate derate(stringCopy("test_ocv"));
-  EXPECT_STREQ(derate.name(), "test_ocv");
+  EXPECT_EQ(derate.name(), "test_ocv");
 }
 
 TEST(OcvDerateTest, SetAndGetDerateTable) {
   OcvDerate derate(stringCopy("ocv1"));
-  TablePtr tbl = std::make_shared<Table0>(0.95f);
+  TablePtr tbl = std::make_shared<Table>(0.95f);
   derate.setDerateTable(RiseFall::rise(), EarlyLate::early(),
                         PathType::data, tbl);
   const Table *found = derate.derateTable(RiseFall::rise(), EarlyLate::early(),
@@ -2600,10 +2572,10 @@ TEST(LibertyLibraryTest, DefaultOcvDerate) {
   EXPECT_EQ(lib.defaultOcvDerate(), derate);
 }
 
-TEST(LibertyLibraryTest, AddAndFindOcvDerate) {
+TEST(LibertyLibraryTest, MakeAndFindOcvDerate) {
   LibertyLibrary lib("test_lib", "test.lib");
-  OcvDerate *derate = new OcvDerate(stringCopy("cell_ocv"));
-  lib.addOcvDerate(derate);
+  OcvDerate *derate = lib.makeOcvDerate("cell_ocv");
+  EXPECT_NE(derate, nullptr);
   OcvDerate *found = lib.findOcvDerate("cell_ocv");
   EXPECT_EQ(found, derate);
   EXPECT_EQ(lib.findOcvDerate("nonexistent"), nullptr);
@@ -2624,10 +2596,10 @@ TEST(LibertyLibraryTest, SupplyVoltage) {
   EXPECT_FALSE(lib.supplyExists("VSS"));
 }
 
-TEST(LibertyLibraryTest, AddAndFindScaleFactors) {
+TEST(LibertyLibraryTest, MakeAndFindScaleFactors) {
   LibertyLibrary lib("test_lib", "test.lib");
-  ScaleFactors *sf = new ScaleFactors("k_process");
-  lib.addScaleFactors(sf);
+  ScaleFactors *sf = lib.makeScaleFactors("k_process");
+  EXPECT_NE(sf, nullptr);
   ScaleFactors *found = lib.findScaleFactors("k_process");
   EXPECT_EQ(found, sf);
 }
@@ -2673,10 +2645,8 @@ TEST(LibertyLibraryTest, DefaultPinResistanceWithDirection) {
 
 TEST(LibertyLibraryTest, TableTemplates) {
   LibertyLibrary lib("test_lib", "test.lib");
-  TableTemplate *tmpl1 = new TableTemplate("tmpl1");
-  TableTemplate *tmpl2 = new TableTemplate("tmpl2");
-  lib.addTableTemplate(tmpl1, TableTemplateType::delay);
-  lib.addTableTemplate(tmpl2, TableTemplateType::power);
+  lib.makeTableTemplate("tmpl1", TableTemplateType::delay);
+  lib.makeTableTemplate("tmpl2", TableTemplateType::power);
   auto tbl_tmpls = lib.tableTemplates();
   EXPECT_GE(tbl_tmpls.size(), 2u);
 }
@@ -2796,8 +2766,8 @@ TEST(TestCellTest, ModeDef) {
   TestCell cell(&lib, "CELL1", "test.lib");
   ModeDef *mode = cell.makeModeDef("test_mode");
   EXPECT_NE(mode, nullptr);
-  EXPECT_STREQ(mode->name(), "test_mode");
-  ModeDef *found = cell.findModeDef("test_mode");
+  EXPECT_EQ(mode->name(), "test_mode");
+  const ModeDef *found = cell.findModeDef("test_mode");
   EXPECT_EQ(found, mode);
   EXPECT_EQ(cell.findModeDef("nonexistent"), nullptr);
 }
@@ -2816,8 +2786,7 @@ TEST(TestCellTest, CellScaleFactors) {
 TEST(TestCellTest, CellBusDcl) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
-  BusDcl *bus = new BusDcl("data", 7, 0);
-  cell.addBusDcl(bus);
+  BusDcl *bus = cell.makeBusDcl("data", 7, 0);
   BusDcl *found = cell.findBusDcl("data");
   EXPECT_EQ(found, bus);
   EXPECT_EQ(cell.findBusDcl("nonexistent"), nullptr);
@@ -2865,8 +2834,7 @@ TEST(TestCellTest, CellOcvDerate) {
 TEST(TestCellTest, CellAddFindOcvDerate) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
-  OcvDerate *derate = new OcvDerate(stringCopy("named_ocv"));
-  cell.addOcvDerate(derate);
+  OcvDerate *derate = cell.makeOcvDerate("named_ocv");
   OcvDerate *found = cell.findOcvDerate("named_ocv");
   EXPECT_EQ(found, derate);
   EXPECT_EQ(cell.findOcvDerate("nonexistent"), nullptr);
@@ -2916,36 +2884,36 @@ TEST(LibertyCellIteratorTest, EmptyLibrary) {
 ////////////////////////////////////////////////////////////////
 
 TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder2) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.0f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.0f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.0f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.0f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::output_pin_transition, ax1_vals);
+    TableAxisVariable::output_pin_transition, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::connect_delay, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(0.1f); row0->push_back(0.2f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(0.3f); row1->push_back(0.4f);
-  values->push_back(row0); values->push_back(row1);
-  TablePtr tbl = std::make_shared<Table2>(values, axis1, axis2);
+    TableAxisVariable::connect_delay, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(0.1f); row0.push_back(0.2f);
+  FloatSeq row1; row1.push_back(0.3f); row1.push_back(0.4f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
   EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(tbl));
 }
 
 TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder2Reversed) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.0f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.0f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.0f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.0f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::connect_delay, ax1_vals);
+    TableAxisVariable::connect_delay, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::output_pin_transition, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(0.1f); row0->push_back(0.2f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(0.3f); row1->push_back(0.4f);
-  values->push_back(row0); values->push_back(row1);
-  TablePtr tbl = std::make_shared<Table2>(values, axis1, axis2);
+    TableAxisVariable::output_pin_transition, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(0.1f); row0.push_back(0.2f);
+  FloatSeq row1; row1.push_back(0.3f); row1.push_back(0.4f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
   EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(tbl));
 }
 
@@ -2955,23 +2923,23 @@ TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder2Reversed) {
 
 TEST(TableTemplateTest, BasicConstruction) {
   TableTemplate tmpl("delay_tmpl");
-  EXPECT_STREQ(tmpl.name(), "delay_tmpl");
+  EXPECT_EQ(tmpl.name(), "delay_tmpl");
   EXPECT_EQ(tmpl.axis1(), nullptr);
   EXPECT_EQ(tmpl.axis2(), nullptr);
   EXPECT_EQ(tmpl.axis3(), nullptr);
 }
 
 TEST(TableTemplateTest, ConstructionWithAxes) {
-  FloatSeq *vals1 = new FloatSeq;
-  vals1->push_back(0.1f); vals1->push_back(1.0f);
-  FloatSeq *vals2 = new FloatSeq;
-  vals2->push_back(0.01f); vals2->push_back(0.1f);
+  FloatSeq vals1;
+  vals1.push_back(0.1f); vals1.push_back(1.0f);
+  FloatSeq vals2;
+  vals2.push_back(0.01f); vals2.push_back(0.1f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, vals1);
+    TableAxisVariable::input_transition_time, std::move(vals1));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, vals2);
+    TableAxisVariable::total_output_net_capacitance, std::move(vals2));
   TableTemplate tmpl("delay_2d", axis1, axis2, nullptr);
-  EXPECT_STREQ(tmpl.name(), "delay_2d");
+  EXPECT_EQ(tmpl.name(), "delay_2d");
   EXPECT_NE(tmpl.axis1(), nullptr);
   EXPECT_NE(tmpl.axis2(), nullptr);
   EXPECT_EQ(tmpl.axis3(), nullptr);
@@ -2979,10 +2947,10 @@ TEST(TableTemplateTest, ConstructionWithAxes) {
 
 TEST(TableTemplateTest, SetAxes) {
   TableTemplate tmpl("tmpl_set");
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(0.0f);
+  FloatSeq vals;
+  vals.push_back(0.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, vals);
+    TableAxisVariable::input_transition_time, std::move(vals));
   tmpl.setAxis1(axis);
   EXPECT_NE(tmpl.axis1(), nullptr);
   tmpl.setAxis2(axis);
@@ -3146,11 +3114,10 @@ TEST(OperatingConditionsTest, SetWireloadTree) {
 // LibertyLibrary OperatingConditions tests
 ////////////////////////////////////////////////////////////////
 
-TEST(LibertyLibraryTest, AddAndFindOperatingConditions) {
+TEST(LibertyLibraryTest, MakeAndFindOperatingConditions) {
   LibertyLibrary lib("test_lib", "test.lib");
-  OperatingConditions *opcond = new OperatingConditions("typical", 1.0f, 1.1f, 25.0f,
-                                                        WireloadTree::balanced);
-  lib.addOperatingConditions(opcond);
+  OperatingConditions *opcond = lib.makeOperatingConditions("typical");
+  EXPECT_NE(opcond, nullptr);
   OperatingConditions *found = lib.findOperatingConditions("typical");
   EXPECT_EQ(found, opcond);
   EXPECT_EQ(lib.findOperatingConditions("nonexistent"), nullptr);
@@ -3159,7 +3126,7 @@ TEST(LibertyLibraryTest, AddAndFindOperatingConditions) {
 TEST(LibertyLibraryTest, DefaultOperatingConditions) {
   LibertyLibrary lib("test_lib", "test.lib");
   EXPECT_EQ(lib.defaultOperatingConditions(), nullptr);
-  OperatingConditions *opcond = new OperatingConditions("typical");
+  OperatingConditions *opcond = lib.makeOperatingConditions("typical");
   lib.setDefaultOperatingConditions(opcond);
   EXPECT_EQ(lib.defaultOperatingConditions(), opcond);
 }
@@ -3201,8 +3168,7 @@ TEST(LibertyLibraryTest, FindLibertyCell) {
 
 TEST(LibertyLibraryTest, BusDcls) {
   LibertyLibrary lib("test_lib", "test.lib");
-  BusDcl *bus = new BusDcl("d_bus", 7, 0);
-  lib.addBusDcl(bus);
+  lib.makeBusDcl("d_bus", 7, 0);
   auto dcls = lib.busDcls();
   EXPECT_GE(dcls.size(), 1u);
 }
@@ -3213,7 +3179,7 @@ TEST(LibertyLibraryTest, BusDcls) {
 
 TEST(BusDclTest, Properties) {
   BusDcl dcl("data_bus", 15, 0);
-  EXPECT_STREQ(dcl.name(), "data_bus");
+  EXPECT_EQ(dcl.name(), "data_bus");
   EXPECT_EQ(dcl.from(), 15);
   EXPECT_EQ(dcl.to(), 0);
 }
@@ -3231,15 +3197,15 @@ TEST(ModeDefTest, DefineAndFindValue) {
   FuncExpr *cond = FuncExpr::makeOne();
   ModeValueDef *valdef = mode->defineValue("test_value", cond, "A==1");
   EXPECT_NE(valdef, nullptr);
-  EXPECT_STREQ(valdef->value(), "test_value");
+  EXPECT_EQ(valdef->value(), "test_value");
   EXPECT_EQ(valdef->cond(), cond);
-  EXPECT_STREQ(valdef->sdfCond(), "A==1");
+  EXPECT_EQ(valdef->sdfCond(), "A==1");
 
-  ModeValueDef *found = mode->findValueDef("test_value");
+  const ModeValueDef *found = mode->findValueDef("test_value");
   EXPECT_EQ(found, valdef);
   EXPECT_EQ(mode->findValueDef("nonexistent"), nullptr);
 
-  ModeValueMap *vals = mode->values();
+  const ModeValueMap *vals = mode->values();
   EXPECT_NE(vals, nullptr);
 }
 
@@ -3247,13 +3213,7 @@ TEST(ModeDefTest, DefineAndFindValue) {
 // LibertyCell additional getters
 ////////////////////////////////////////////////////////////////
 
-TEST(TestCellTest, SetIsDisabledConstraint) {
-  LibertyLibrary lib("test_lib", "test.lib");
-  TestCell cell(&lib, "CELL1", "test.lib");
-  EXPECT_FALSE(cell.isDisabledConstraint());
-  cell.setIsDisabledConstraint(true);
-  EXPECT_TRUE(cell.isDisabledConstraint());
-}
+// isDisabledConstraint / setIsDisabledConstraint removed in MCMM update
 
 TEST(TestCellTest, HasInferedRegTimingArcs) {
   LibertyLibrary lib("test_lib", "test.lib");
@@ -3300,9 +3260,8 @@ TEST(TestCellTest, InternalPowersEmpty) {
 TEST(TestCellTest, LeakagePowersEmpty) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
-  auto *leak_powers = cell.leakagePowers();
-  EXPECT_NE(leak_powers, nullptr);
-  EXPECT_EQ(leak_powers->size(), 0u);
+  const auto &leak_powers = cell.leakagePowers();
+  EXPECT_EQ(leak_powers.size(), 0u);
 }
 
 TEST(TestCellTest, StatetableNull) {
@@ -3324,7 +3283,7 @@ TEST(TestCellTest, FootprintDefault) {
   const char *fp = cell.footprint();
   // Empty string or nullptr for default
   if (fp)
-    EXPECT_STREQ(fp, "");
+    EXPECT_EQ(fp, "");
 }
 
 TEST(TestCellTest, SetFootprint) {
@@ -3339,7 +3298,7 @@ TEST(TestCellTest, UserFunctionClassDefault) {
   TestCell cell(&lib, "CELL1", "test.lib");
   const char *ufc = cell.userFunctionClass();
   if (ufc)
-    EXPECT_STREQ(ufc, "");
+    EXPECT_EQ(ufc, "");
 }
 
 TEST(TestCellTest, SetUserFunctionClass) {
@@ -3510,7 +3469,7 @@ TEST(LibertyUtilTest, PortLibertyToStaWithBrackets) {
 ////////////////////////////////////////////////////////////////
 
 TEST(InternalPowerModelTest, PowerLookupOrder0) {
-  TablePtr tbl = std::make_shared<Table0>(5.0f);
+  TablePtr tbl = std::make_shared<Table>(5.0f);
   TableModel *table_model = new TableModel(tbl, nullptr,
                                            ScaleFactorType::internal_power,
                                            RiseFall::rise());
@@ -3522,7 +3481,7 @@ TEST(InternalPowerModelTest, PowerLookupOrder0) {
 }
 
 TEST(InternalPowerModelTest, ReportPowerOrder0) {
-  TablePtr tbl = std::make_shared<Table0>(3.0f);
+  TablePtr tbl = std::make_shared<Table>(3.0f);
   TableModel *table_model = new TableModel(tbl, nullptr,
                                            ScaleFactorType::internal_power,
                                            RiseFall::rise());
@@ -3534,15 +3493,15 @@ TEST(InternalPowerModelTest, ReportPowerOrder0) {
 }
 
 TEST(InternalPowerModelTest, PowerLookupOrder1) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.0f);
-  axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.0f);
+  axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f);
-  values->push_back(3.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::input_transition_time, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f);
+  values.push_back(3.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   TableModel *table_model = new TableModel(tbl, nullptr,
                                            ScaleFactorType::internal_power,
                                            RiseFall::rise());
@@ -3554,19 +3513,19 @@ TEST(InternalPowerModelTest, PowerLookupOrder1) {
 }
 
 TEST(InternalPowerModelTest, PowerLookupOrder2) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.0f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.0f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.0f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.0f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, ax1_vals);
+    TableAxisVariable::input_transition_time, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(2.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(3.0f); row1->push_back(4.0f);
-  values->push_back(row0); values->push_back(row1);
-  TablePtr tbl = std::make_shared<Table2>(values, axis1, axis2);
+    TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(2.0f);
+  FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
   TableModel *table_model = new TableModel(tbl, nullptr,
                                            ScaleFactorType::internal_power,
                                            RiseFall::rise());
@@ -3582,31 +3541,31 @@ TEST(InternalPowerModelTest, PowerLookupOrder2) {
 ////////////////////////////////////////////////////////////////
 
 TEST(GateTableModelTest, CheckAxesOrder1BadAxis) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
   // path_depth is not a valid gate model axis
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::path_depth, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f); values->push_back(2.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::path_depth, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f); values.push_back(2.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   EXPECT_FALSE(GateTableModel::checkAxes(tbl));
 }
 
 TEST(GateTableModelTest, CheckAxesOrder2BadAxis) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.1f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.1f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.1f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.1f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, ax1_vals);
+    TableAxisVariable::input_transition_time, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::path_depth, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(2.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(3.0f); row1->push_back(4.0f);
-  values->push_back(row0); values->push_back(row1);
-  TablePtr tbl = std::make_shared<Table2>(values, axis1, axis2);
+    TableAxisVariable::path_depth, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(2.0f);
+  FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
   EXPECT_FALSE(GateTableModel::checkAxes(tbl));
 }
 
@@ -3615,29 +3574,29 @@ TEST(GateTableModelTest, CheckAxesOrder2BadAxis) {
 ////////////////////////////////////////////////////////////////
 
 TEST(CheckTableModelTest, CheckAxesOrder0) {
-  TablePtr tbl = std::make_shared<Table0>(1.0f);
+  TablePtr tbl = std::make_shared<Table>(1.0f);
   EXPECT_TRUE(CheckTableModel::checkAxes(tbl));
 }
 
 TEST(CheckTableModelTest, CheckAxesOrder1) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::related_pin_transition, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f); values->push_back(2.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::related_pin_transition, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f); values.push_back(2.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   EXPECT_TRUE(CheckTableModel::checkAxes(tbl));
 }
 
 TEST(CheckTableModelTest, CheckAxesOrder1BadAxis) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::path_depth, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f); values->push_back(2.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::path_depth, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f); values.push_back(2.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   EXPECT_FALSE(CheckTableModel::checkAxes(tbl));
 }
 
@@ -3647,29 +3606,29 @@ TEST(CheckTableModelTest, CheckAxesOrder1BadAxis) {
 
 TEST(ReceiverModelTest, CheckAxesOrder0False) {
   // Table0 has no axes, ReceiverModel requires input_net_transition axis
-  TablePtr tbl = std::make_shared<Table0>(1.0f);
+  TablePtr tbl = std::make_shared<Table>(1.0f);
   EXPECT_FALSE(ReceiverModel::checkAxes(tbl));
 }
 
 TEST(ReceiverModelTest, CheckAxesOrder1Valid) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f); values->push_back(2.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::input_net_transition, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f); values.push_back(2.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   EXPECT_TRUE(ReceiverModel::checkAxes(tbl));
 }
 
 TEST(ReceiverModelTest, CheckAxesOrder1BadAxis) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::path_depth, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(1.0f); values->push_back(2.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::path_depth, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(1.0f); values.push_back(2.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   EXPECT_FALSE(ReceiverModel::checkAxes(tbl));
 }
 
@@ -3678,13 +3637,13 @@ TEST(ReceiverModelTest, CheckAxesOrder1BadAxis) {
 ////////////////////////////////////////////////////////////////
 
 TEST(LibertyLibraryTest, CheckSlewDegradationAxesBadAxis) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.1f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.1f); axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::path_depth, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(0.1f); values->push_back(1.0f);
-  TablePtr tbl = std::make_shared<Table1>(values, axis);
+    TableAxisVariable::path_depth, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(0.1f); values.push_back(1.0f);
+  TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
   EXPECT_FALSE(LibertyLibrary::checkSlewDegradationAxes(tbl));
 }
 
@@ -3694,7 +3653,7 @@ TEST(LibertyLibraryTest, CheckSlewDegradationAxesBadAxis) {
 ////////////////////////////////////////////////////////////////
 
 TEST(Table0Test, ReportValue) {
-  Table0 tbl(42.0f);
+  Table tbl(42.0f);
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "INV", "test.lib");
   const Units *units = lib.units();
@@ -3709,7 +3668,7 @@ TEST(Table0Test, ReportValue) {
 ////////////////////////////////////////////////////////////////
 
 TEST(TableModelTest, FindValueWithPvtScaling) {
-  TablePtr tbl = std::make_shared<Table0>(10.0f);
+  TablePtr tbl = std::make_shared<Table>(10.0f);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "INV", "test.lib");
@@ -3719,7 +3678,7 @@ TEST(TableModelTest, FindValueWithPvtScaling) {
 }
 
 TEST(TableModelTest, SetScaleFactorType) {
-  TablePtr tbl = std::make_shared<Table0>(10.0f);
+  TablePtr tbl = std::make_shared<Table>(10.0f);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
   model.setScaleFactorType(ScaleFactorType::hold);
   // Just verify it doesn't crash
@@ -3727,7 +3686,7 @@ TEST(TableModelTest, SetScaleFactorType) {
 }
 
 TEST(TableModelTest, SetIsScaled) {
-  TablePtr tbl = std::make_shared<Table0>(10.0f);
+  TablePtr tbl = std::make_shared<Table>(10.0f);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
   model.setIsScaled(true);
   // Verify it doesn't crash
@@ -3739,15 +3698,15 @@ TEST(TableModelTest, SetIsScaled) {
 ////////////////////////////////////////////////////////////////
 
 TEST(Table1ExtraTest, FindValueWithExtrapolation) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.0f);
-  axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.0f);
+  axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_values);
-  FloatSeq *values = new FloatSeq;
-  values->push_back(10.0f);
-  values->push_back(20.0f);
-  Table1 tbl(values, axis);
+    TableAxisVariable::input_net_transition, std::move(axis_values));
+  FloatSeq values;
+  values.push_back(10.0f);
+  values.push_back(20.0f);
+  Table tbl(std::move(values), axis);
 
   // In bounds - single arg findValue
   float result_in = tbl.findValue(0.5f);
@@ -3770,26 +3729,26 @@ TEST(Table1ExtraTest, FindValueWithExtrapolation) {
 }
 
 TEST(Table1ExtraTest, ValuesPointer) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.0f); axis_values->push_back(1.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.0f); axis_values.push_back(1.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_values);
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(10.0f); vals->push_back(20.0f);
-  Table1 tbl(vals, axis);
+    TableAxisVariable::input_net_transition, std::move(axis_values));
+  FloatSeq vals;
+  vals.push_back(10.0f); vals.push_back(20.0f);
+  Table tbl(std::move(vals), axis);
   FloatSeq *v = tbl.values();
   EXPECT_NE(v, nullptr);
   EXPECT_EQ(v->size(), 2u);
 }
 
 TEST(Table1ExtraTest, Axis1ptr) {
-  FloatSeq *axis_values = new FloatSeq;
-  axis_values->push_back(0.0f);
+  FloatSeq axis_values;
+  axis_values.push_back(0.0f);
   auto axis = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, axis_values);
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(10.0f);
-  Table1 tbl(vals, axis);
+    TableAxisVariable::input_net_transition, std::move(axis_values));
+  FloatSeq vals;
+  vals.push_back(10.0f);
+  Table tbl(std::move(vals), axis);
   auto aptr = tbl.axis1ptr();
   EXPECT_NE(aptr, nullptr);
 }
@@ -3799,19 +3758,19 @@ TEST(Table1ExtraTest, Axis1ptr) {
 ////////////////////////////////////////////////////////////////
 
 TEST(Table2Test, Values3Pointer) {
-  FloatSeq *ax1_vals = new FloatSeq;
-  ax1_vals->push_back(0.0f); ax1_vals->push_back(1.0f);
-  FloatSeq *ax2_vals = new FloatSeq;
-  ax2_vals->push_back(0.0f); ax2_vals->push_back(1.0f);
+  FloatSeq ax1_vals;
+  ax1_vals.push_back(0.0f); ax1_vals.push_back(1.0f);
+  FloatSeq ax2_vals;
+  ax2_vals.push_back(0.0f); ax2_vals.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_net_transition, ax1_vals);
+    TableAxisVariable::input_net_transition, std::move(ax1_vals));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, ax2_vals);
-  FloatTable *values = new FloatTable;
-  FloatSeq *row0 = new FloatSeq; row0->push_back(1.0f); row0->push_back(2.0f);
-  FloatSeq *row1 = new FloatSeq; row1->push_back(3.0f); row1->push_back(4.0f);
-  values->push_back(row0); values->push_back(row1);
-  Table2 tbl(values, axis1, axis2);
+    TableAxisVariable::total_output_net_capacitance, std::move(ax2_vals));
+  FloatTable values;
+  FloatSeq row0; row0.push_back(1.0f); row0.push_back(2.0f);
+  FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
+  values.push_back(std::move(row0)); values.push_back(std::move(row1));
+  Table tbl(std::move(values), axis1, axis2);
   FloatTable *v3 = tbl.values3();
   EXPECT_NE(v3, nullptr);
   EXPECT_EQ(v3->size(), 2u);
@@ -3821,13 +3780,12 @@ TEST(Table2Test, Values3Pointer) {
 // TableAxis values() pointer test
 ////////////////////////////////////////////////////////////////
 
-TEST(TableAxisExtraTest, ValuesPointer) {
-  FloatSeq *vals = new FloatSeq;
-  vals->push_back(1.0f); vals->push_back(2.0f);
-  TableAxis axis(TableAxisVariable::input_net_transition, vals);
-  FloatSeq *v = axis.values();
-  EXPECT_NE(v, nullptr);
-  EXPECT_EQ(v->size(), 2u);
+TEST(TableAxisExtraTest, ValuesReference) {
+  FloatSeq vals;
+  vals.push_back(1.0f); vals.push_back(2.0f);
+  TableAxis axis(TableAxisVariable::input_net_transition, std::move(vals));
+  const FloatSeq &v = axis.values();
+  EXPECT_EQ(v.size(), 2u);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3836,24 +3794,24 @@ TEST(TableAxisExtraTest, ValuesPointer) {
 
 TEST(TableTemplateTest, SetName) {
   TableTemplate tmpl("original_name");
-  EXPECT_STREQ(tmpl.name(), "original_name");
+  EXPECT_EQ(tmpl.name(), "original_name");
   tmpl.setName("new_name");
-  EXPECT_STREQ(tmpl.name(), "new_name");
+  EXPECT_EQ(tmpl.name(), "new_name");
 }
 
 TEST(TableTemplateTest, AxisPtrs) {
-  FloatSeq *vals1 = new FloatSeq;
-  vals1->push_back(0.1f); vals1->push_back(1.0f);
-  FloatSeq *vals2 = new FloatSeq;
-  vals2->push_back(0.01f); vals2->push_back(0.1f);
-  FloatSeq *vals3 = new FloatSeq;
-  vals3->push_back(0.0f); vals3->push_back(1.0f);
+  FloatSeq vals1;
+  vals1.push_back(0.1f); vals1.push_back(1.0f);
+  FloatSeq vals2;
+  vals2.push_back(0.01f); vals2.push_back(0.1f);
+  FloatSeq vals3;
+  vals3.push_back(0.0f); vals3.push_back(1.0f);
   auto axis1 = std::make_shared<TableAxis>(
-    TableAxisVariable::input_transition_time, vals1);
+    TableAxisVariable::input_transition_time, std::move(vals1));
   auto axis2 = std::make_shared<TableAxis>(
-    TableAxisVariable::total_output_net_capacitance, vals2);
+    TableAxisVariable::total_output_net_capacitance, std::move(vals2));
   auto axis3 = std::make_shared<TableAxis>(
-    TableAxisVariable::related_pin_transition, vals3);
+    TableAxisVariable::related_pin_transition, std::move(vals3));
   TableTemplate tmpl("tmpl_3d", axis1, axis2, axis3);
   EXPECT_NE(tmpl.axis1ptr(), nullptr);
   EXPECT_NE(tmpl.axis2ptr(), nullptr);

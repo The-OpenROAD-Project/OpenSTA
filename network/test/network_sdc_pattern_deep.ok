@@ -216,7 +216,7 @@ Path Type: max
            6.82   slack (MET)
 
 
-Warning: network_sdc_pattern_deep.tcl line 1, unknown field nets.
+Warning 168: network_sdc_pattern_deep.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -287,7 +287,7 @@ Path Type: max
            6.82   slack (MET)
 
 
-Warning: network_sdc_pattern_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: network_sdc_pattern_deep.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -443,7 +443,7 @@ Path Type: max
            6.89   slack (MET)
 
 
-Warning: network_sdc_pattern_deep.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Warning 503: network_sdc_pattern_deep.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk

@@ -976,7 +976,7 @@ Driver waveform slew = 0.02
 
 slow reg3 CK->Q: done
 --- network modification and graph update ---
-Warning: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
+Warning 118: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1095,7 +1095,7 @@ Corner: slow
            4.61   slack (MET)
 
 
-Warning: graph_modify.tcl line 1, pin added_buf/A not found.
+Warning 130: graph_modify.tcl line 1, pin added_buf/A not found.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1215,7 +1215,7 @@ Corner: slow
 
 
 --- replace_cell ---
-Warning: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
+Warning 118: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1334,7 +1334,7 @@ Corner: slow
            4.61   slack (MET)
 
 
-Warning: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
+Warning 118: graph_modify.tcl line 1, library 'NangateOpenCellLibrary' not found.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2415,7 +2415,7 @@ Corner: slow
    0.14    1.14 v buf1/Z (BUF_X1)
    0.09    1.23 v and1/ZN (AND2_X1)
    0.09    1.32 ^ nand1/ZN (NAND2_X1)
-   0.06    1.38 ^ buf4/Z (BUF_X4)
+   0.07    1.38 ^ buf4/Z (BUF_X4)
    0.00    1.38 ^ q3 (out)
            1.38   data arrival time
 
@@ -2551,7 +2551,7 @@ A2 -> ZN combinational
   ^ -> ^ 0.02:0.02:0.09:0.09
   v -> v 0.02:0.02:0.16:0.16
 --- fields per corner ---
-Warning: graph_modify.tcl line 1, unknown field nets.
+Warning 168: graph_modify.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2615,7 +2615,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   4.93   slack (MET)
 
 
-Warning: graph_modify.tcl line 1, unknown field nets.
+Warning 168: graph_modify.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2915,7 +2915,7 @@ Corner: slow
            4.61   slack (MET)
 
 
-Warning: graph_modify.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Warning 503: graph_modify.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -3067,7 +3067,7 @@ Corner: fast
           13.94   slack (MET)
 
 
-Warning: graph_modify.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: graph_modify.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1

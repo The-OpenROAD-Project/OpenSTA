@@ -13,9 +13,9 @@ set_output_delay -clock clk 2.0 [get_ports out1]
 report_checks > /dev/null
 
 puts "--- Corner commands ---"
-set corner [sta::cmd_corner]
-puts "Corner name: [$corner name]"
-puts "Multi corner: [sta::multi_corner]"
+set corner [sta::cmd_scene]
+puts "Corner name: $corner"
+puts "Multi corner: [sta::multi_scene]"
 
 puts "--- ClkSkew report with propagated clock ---"
 report_clock_skew -setup
@@ -33,16 +33,16 @@ report_clock_latency -include_internal_latency
 report_clock_latency -digits 6
 
 puts "--- worst_slack corner-specific ---"
-set corner [sta::cmd_corner]
-set ws_corner [sta::worst_slack_corner $corner max]
+set corner [sta::cmd_scene]
+set ws_corner [sta::worst_slack_scene $corner max]
 puts "Worst slack corner max: $ws_corner"
-set ws_corner_min [sta::worst_slack_corner $corner min]
+set ws_corner_min [sta::worst_slack_scene $corner min]
 puts "Worst slack corner min: $ws_corner_min"
 
 puts "--- total_negative_slack corner ---"
-set tns_corner [sta::total_negative_slack_corner_cmd $corner max]
+set tns_corner [sta::total_negative_slack_scene_cmd $corner max]
 puts "TNS corner max: $tns_corner"
-set tns_corner_min [sta::total_negative_slack_corner_cmd $corner min]
+set tns_corner_min [sta::total_negative_slack_scene_cmd $corner min]
 puts "TNS corner min: $tns_corner_min"
 
 puts "--- worst_slack_vertex ---"

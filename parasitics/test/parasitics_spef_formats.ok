@@ -1,21 +1,21 @@
 --- Test 1: coupling SPEF port parsing ---
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
-Warning: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
-Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
-Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Warning 1656: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning 1656: parasitics_coupling_spef.spef line 141, pin u1z not found.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -104,13 +104,13 @@ Path Type: max
 
 
 --- Test 2: coupling factor variations ---
-Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
-Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
-Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning 1656: parasitics_coupling_spef.spef line 141, pin u1z not found.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -140,13 +140,13 @@ Path Type: max
          327.98   slack (MET)
 
 
-Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
-Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
-Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning 1656: parasitics_coupling_spef.spef line 141, pin u1z not found.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -157,32 +157,32 @@ Path Type: max
    0.00    0.00   clock clk (rise edge)
   11.30   11.30   clock network delay (propagated)
    0.00   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  62.48   73.78 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  39.67  113.44 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  52.80  166.25 ^ u2/Y (AND2x2_ASAP7_75t_R)
-  12.57  178.82 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-         178.82   data arrival time
+  64.33   75.63 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  43.21  118.83 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  57.09  175.92 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.82  188.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         188.74   data arrival time
 
  500.00  500.00   clock clk (rise edge)
   11.10  511.10   clock network delay (propagated)
    0.00  511.10   clock reconvergence pessimism
          511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-  -7.64  503.46   library setup time
-         503.46   data required time
+  -7.95  503.15   library setup time
+         503.15   data required time
 ---------------------------------------------------------
-         503.46   data required time
-        -178.82   data arrival time
+         503.15   data required time
+        -188.74   data arrival time
 ---------------------------------------------------------
-         324.64   slack (MET)
+         314.41   slack (MET)
 
 
-Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
-Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
-Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning 1656: parasitics_coupling_spef.spef line 141, pin u1z not found.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -193,32 +193,32 @@ Path Type: max
    0.00    0.00   clock clk (rise edge)
   11.30   11.30   clock network delay (propagated)
    0.00   11.30 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  63.71   75.00 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  42.02  117.02 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  55.63  172.65 ^ u2/Y (AND2x2_ASAP7_75t_R)
-  12.73  185.39 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-         185.39   data arrival time
+  64.33   75.63 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  43.21  118.83 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  57.09  175.92 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  12.82  188.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         188.74   data arrival time
 
  500.00  500.00   clock clk (rise edge)
   11.10  511.10   clock network delay (propagated)
    0.00  511.10   clock reconvergence pessimism
          511.10 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
-  -7.84  503.26   library setup time
-         503.26   data required time
+  -7.95  503.15   library setup time
+         503.15   data required time
 ---------------------------------------------------------
-         503.26   data required time
-        -185.39   data arrival time
+         503.15   data required time
+        -188.74   data arrival time
 ---------------------------------------------------------
-         317.87   slack (MET)
+         314.41   slack (MET)
 
 
-Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
-Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
-Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning 1656: parasitics_coupling_spef.spef line 141, pin u1z not found.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -249,13 +249,13 @@ Path Type: max
 
 
 --- Test 3: SPEF with -reduce ---
-Warning: parasitics_coupling_spef.spef line 47, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 59, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 104, pin u1z not found.
-Warning: parasitics_coupling_spef.spef line 105, pin r2q not found.
-Warning: parasitics_coupling_spef.spef line 117, pin r1q not found.
-Warning: parasitics_coupling_spef.spef line 129, pin u2z not found.
-Warning: parasitics_coupling_spef.spef line 141, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 47, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 59, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 104, pin u1z not found.
+Warning 1656: parasitics_coupling_spef.spef line 105, pin r2q not found.
+Warning 1656: parasitics_coupling_spef.spef line 117, pin r1q not found.
+Warning 1656: parasitics_coupling_spef.spef line 129, pin u2z not found.
+Warning 1656: parasitics_coupling_spef.spef line 141, pin u1z not found.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -315,7 +315,7 @@ Path Type: max
 
 
 --- Test 4: GCD sky130 SPEF ---
-Warning: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+Warning 198: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
 Endpoint: _418_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

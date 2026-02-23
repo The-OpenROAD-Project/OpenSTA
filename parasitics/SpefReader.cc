@@ -29,14 +29,13 @@
 #include "Report.hh"
 #include "Debug.hh"
 #include "StringUtil.hh"
-#include "Map.hh"
 #include "Transition.hh"
 #include "Liberty.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
 #include "Sdc.hh"
 #include "Parasitics.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "ArcDelayCalc.hh"
 #include "SpefReaderPvt.hh"
 #include "SpefNamespace.hh"
@@ -47,42 +46,42 @@ namespace sta {
 using std::string;
 
 bool
-readSpefFile(const char *filename,
-	     Instance *instance,
-	     ParasiticAnalysisPt *ap,
-	     bool pin_cap_included,
-	     bool keep_coupling_caps,
-	     float coupling_cap_factor,
-	     bool reduce,
-	     const Corner *corner,
-	     const MinMaxAll *min_max,
+readSpefFile(const std::string &filename,
+             Instance *instance,
+             bool pin_cap_included,
+             bool keep_coupling_caps,
+             float coupling_cap_factor,
+             bool reduce,
+             const Scene *scene,
+             const MinMaxAll *min_max,
+             Parasitics *parasitics,
              StaState *sta)
 {
-  SpefReader reader(filename, instance, ap,
-                    pin_cap_included, keep_coupling_caps, coupling_cap_factor,
-                    reduce, corner, min_max, sta);
+  SpefReader reader(filename, instance, pin_cap_included,
+                    keep_coupling_caps, coupling_cap_factor,
+                    reduce, scene, min_max, parasitics, sta);
   bool success = reader.read();
   return success;
 }
 
-SpefReader::SpefReader(const char *filename,
-		       Instance *instance,
-		       ParasiticAnalysisPt *ap,
-		       bool pin_cap_included,
-		       bool keep_coupling_caps,
-		       float coupling_cap_factor,
-		       bool reduce,
-		       const Corner *corner,
-		       const MinMaxAll *min_max,
-		       StaState *sta) :
+SpefReader::SpefReader(const std::string &filename,
+                       Instance *instance,
+                       bool pin_cap_included,
+                       bool keep_coupling_caps,
+                       float coupling_cap_factor,
+                       bool reduce,
+                       const Scene *scene,
+                       const MinMaxAll *min_max,
+                       Parasitics *parasitics,
+                       StaState *sta) :
   StaState(sta),
   filename_(filename),
   instance_(instance),
-  ap_(ap),
   pin_cap_included_(pin_cap_included),
   keep_coupling_caps_(keep_coupling_caps),
+  coupling_cap_factor_(coupling_cap_factor),
   reduce_(reduce),
-  corner_(corner),
+  scene_(scene),
   min_max_(min_max),
   // defaults
   divider_('\0'),
@@ -96,9 +95,10 @@ SpefReader::SpefReader(const char *filename,
   res_scale_(1.0),
   induct_scale_(1.0),
   design_flow_(nullptr),
+  parasitics_(parasitics),
   parasitic_(nullptr)
 {
-  ap->setCouplingCapFactor(coupling_cap_factor);
+  parasitics->setCouplingCapFactor(coupling_cap_factor);
 }
 
 SpefReader::~SpefReader()
@@ -114,7 +114,7 @@ bool
 SpefReader::read()
 {
   bool success;
-  gzstream::igzstream stream(filename_);
+  gzstream::igzstream stream(filename_.c_str());
   if (stream.is_open()) {
     Stats stats(debug_, report_);
     SpefScanner scanner(&stream, filename_, this, report_);
@@ -126,7 +126,7 @@ SpefReader::read()
     stats.report("Read spef");
   }
   else
-    throw FileNotReadable(filename_);
+    throw FileNotReadable(filename_.c_str());
   return success;
 }
 
@@ -147,11 +147,11 @@ SpefReader::setBusBrackets(char left,
                            char right)
 {
   if (!((left == '[' && right == ']')
-	|| (left == '{' && right == '}')
-	|| (left == '(' && right == ')')
-	|| (left == '<' && right == '>')
-	|| (left == ':' && right == '\0')
-	|| (left == '.' && right == '\0')))
+        || (left == '{' && right == '}')
+        || (left == '(' && right == ')')
+        || (left == '<' && right == '>')
+        || (left == ':' && right == '\0')
+        || (left == '.' && right == '\0')))
     warn(1640, "illegal bus delimiters.");
   bus_brkt_left_ = left;
   bus_brkt_right_ = right;
@@ -190,7 +190,7 @@ char *
 SpefReader::translated(const char *token)
 {
   return spefToSta(token, divider_, network_->pathDivider(),
-		   network_->pathEscape());
+                   network_->pathEscape());
 }
 
 void
@@ -198,13 +198,13 @@ SpefReader::warn(int id, const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileWarn(id, filename_, scanner_->line(), fmt, args);
+  report_->vfileWarn(id, filename_.c_str(), scanner_->line(), fmt, args);
   va_end(args);
 }
 
 void
 SpefReader::setTimeScale(float scale,
-			 const char *units)
+                         const char *units)
 {
   if (stringEq(units, "NS"))
     time_scale_ = scale * 1E-9F;
@@ -217,7 +217,7 @@ SpefReader::setTimeScale(float scale,
 
 void
 SpefReader::setCapScale(float scale,
-			const char *units)
+                        const char *units)
 {
   if (stringEq(units, "PF"))
     cap_scale_ = scale * 1E-12F;
@@ -230,7 +230,7 @@ SpefReader::setCapScale(float scale,
 
 void
 SpefReader::setResScale(float scale,
-			const char *units)
+                        const char *units)
 {
   if (stringEq(units, "OHM"))
     res_scale_ = scale;
@@ -243,7 +243,7 @@ SpefReader::setResScale(float scale,
 
 void
 SpefReader::setInductScale(float scale,
-			   const char *units)
+                           const char *units)
 {
   if (stringEq(units, "HENRY"))
     induct_scale_ = scale;
@@ -258,7 +258,7 @@ SpefReader::setInductScale(float scale,
 
 void
 SpefReader::makeNameMapEntry(const char *index,
-			     const char *name)
+                             const char *name)
 {
   int i = atoi(index + 1);
   name_map_[i] = name;
@@ -330,7 +330,7 @@ SpefReader::findPin(char *name)
     else {
       pin = findPortPinRelative(name);
       if (pin == nullptr)
-	warn(1649, "pin %s not found.", name);
+        warn(1649, "pin %s not found.", name);
     }
   }
   return pin;
@@ -351,10 +351,10 @@ SpefReader::findNet(const char *name)
 
 void
 SpefReader::rspfBegin(Net *net,
-		      SpefTriple *total_cap)
+                      SpefTriple *total_cap)
 {
   if (net)
-    parasitics_->deleteParasitics(net, ap_);
+    parasitics_->deleteParasitics(net);
   // Net total capacitance is ignored.
   delete total_cap;
 }
@@ -366,14 +366,16 @@ SpefReader::rspfFinish()
 
 void
 SpefReader::rspfDrvrBegin(Pin *drvr_pin,
-			  SpefRspfPi *pi)
+                          SpefRspfPi *pi)
 {
   if (drvr_pin) {
     float c2 = pi->c2()->value(triple_index_) * cap_scale_;
     float rpi = pi->r1()->value(triple_index_) * res_scale_;
     float c1 = pi->c1()->value(triple_index_) * cap_scale_;
     // Only one parasitic, save it under rise transition.
-    parasitic_ = parasitics_->makePiElmore(drvr_pin, RiseFall::rise(), ap_,
+    parasitic_ = parasitics_->makePiElmore(drvr_pin,
+                                           RiseFall::rise(),
+                                           MinMax::max(),
                                            c2, rpi, c1);
   }
   delete pi;
@@ -381,7 +383,7 @@ SpefReader::rspfDrvrBegin(Pin *drvr_pin,
 
 void
 SpefReader::rspfLoad(Pin *load_pin,
-		     SpefTriple *rc)
+                     SpefTriple *rc)
 {
   if (parasitic_ && load_pin) {
     float elmore = rc->value(triple_index_) * time_scale_;
@@ -399,12 +401,12 @@ SpefReader::rspfDrvrFinish()
 // Net cap (total_cap) is ignored.
 void
 SpefReader::dspfBegin(Net *net,
-		      SpefTriple *total_cap)
+                      SpefTriple *total_cap)
 {
   if (net) {
     if (network_->isTopInstance(instance_)) {
-      parasitics_->deleteReducedParasitics(net, ap_);
-      parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_, ap_);
+      parasitics_->deleteReducedParasitics(net);
+      parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_);
     }
     else {
       Net *parasitic_owner = net;
@@ -415,10 +417,10 @@ SpefReader::dspfBegin(Net *net,
         parasitic_owner = network_->net(hpin);
       }
       delete term_iter;
-      parasitic_ = parasitics_->findParasiticNetwork(parasitic_owner, ap_);
+      parasitic_ = parasitics_->findParasiticNetwork(parasitic_owner);
       if (parasitic_ == nullptr)
         parasitic_ = parasitics_->makeParasiticNetwork(parasitic_owner,
-                                                       pin_cap_included_, ap_);
+                                                       pin_cap_included_);
     }
     net_ = net;
   }
@@ -433,8 +435,8 @@ void
 SpefReader::dspfFinish()
 {
   if (parasitic_ && reduce_) {
-    arc_delay_calc_->reduceParasitic(parasitic_, net_, corner_, min_max_);
-    parasitics_->deleteParasiticNetwork(net_, ap_);
+    arc_delay_calc_->reduceParasitic(parasitic_, net_, scene_, min_max_);
+    parasitics_->deleteParasiticNetwork(net_);
   }
   parasitic_ = nullptr;
   net_ = nullptr;
@@ -442,7 +444,7 @@ SpefReader::dspfFinish()
 
 ParasiticNode *
 SpefReader::findParasiticNode(char *name,
-			      bool local_only)
+                              bool local_only)
 {
   if (name && parasitic_) {
     char *delim = strrchr(name, delimiter_);
@@ -459,7 +461,7 @@ SpefReader::findParasiticNode(char *name,
             if (local_only
                 && !network_->isConnected(net_, pin))
               warn(1651, "%s not connected to net %s.",
-		   name1, sdc_network_->pathName(net_));
+                   name1, sdc_network_->pathName(net_));
             return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
           }
           else {
@@ -513,7 +515,7 @@ SpefReader::findParasiticNode(char *name,
 
 void
 SpefReader::makeCapacitor(int, char *node_name,
-			  SpefTriple *cap)
+                          SpefTriple *cap)
 {
   ParasiticNode *node = findParasiticNode(node_name, true);
   if (node) {
@@ -526,9 +528,9 @@ SpefReader::makeCapacitor(int, char *node_name,
 
 void
 SpefReader::makeCapacitor(int id,
-			  char *node_name1,
-			  char *node_name2,
-			  SpefTriple *cap)
+                          char *node_name1,
+                          char *node_name2,
+                          SpefTriple *cap)
 {
   ParasiticNode *node1 = findParasiticNode(node_name1, false);
   ParasiticNode *node2 = findParasiticNode(node_name2, false);
@@ -537,7 +539,7 @@ SpefReader::makeCapacitor(int id,
     if (keep_coupling_caps_)
       parasitics_->makeCapacitor(parasitic_, id, cap1, node1, node2);
     else {
-      float scaled_cap = cap1 * ap_->couplingCapFactor();
+      float scaled_cap = cap1 * coupling_cap_factor_;
       if (node1 && parasitics_->net(node1, network_) == net_)
         parasitics_->incrCap(node1, scaled_cap);
       if (node2 && parasitics_->net(node2, network_) == net_)
@@ -551,9 +553,9 @@ SpefReader::makeCapacitor(int id,
 
 void
 SpefReader::makeResistor(int id,
-			 char *node_name1,
-			 char *node_name2,
-			 SpefTriple *res)
+                         char *node_name1,
+                         char *node_name2,
+                         SpefTriple *res)
 {
   ParasiticNode *node1 = findParasiticNode(node_name1, true);
   ParasiticNode *node2 = findParasiticNode(node_name2, true);
@@ -569,8 +571,8 @@ SpefReader::makeResistor(int id,
 ////////////////////////////////////////////////////////////////
 
 SpefRspfPi::SpefRspfPi(SpefTriple *c2,
-		       SpefTriple *r1,
-		       SpefTriple *c1) :
+                       SpefTriple *r1,
+                       SpefTriple *c1) :
   c2_(c2),
   r1_(r1),
   c1_(c1)
@@ -593,8 +595,8 @@ SpefTriple::SpefTriple(float value) :
 }
 
 SpefTriple::SpefTriple(float value1,
-		       float value2,
-		       float value3) :
+                       float value2,
+                       float value3) :
   is_triple_(true)
 {
   values_[0] = value1;

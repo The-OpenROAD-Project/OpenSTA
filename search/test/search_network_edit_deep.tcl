@@ -70,15 +70,15 @@ report_checks -path_delay max > /dev/null
 sta::set_bidirect_inst_paths_enabled $orig_bidir_inst
 
 puts "--- bidirect_net_paths ---"
-set orig_bidir_net [sta::bidirect_net_paths_enabled]
-puts "bidirect_net_paths_enabled: $orig_bidir_net"
-sta::set_bidirect_net_paths_enabled 0
-puts "After disable: [sta::bidirect_net_paths_enabled]"
+set orig_bidir_net [sta::bidirect_inst_paths_enabled]
+puts "bidirect_inst_paths_enabled: $orig_bidir_net"
+sta::set_bidirect_inst_paths_enabled 0
+puts "After disable: [sta::bidirect_inst_paths_enabled]"
 report_checks -path_delay max > /dev/null
-sta::set_bidirect_net_paths_enabled 1
-puts "After enable: [sta::bidirect_net_paths_enabled]"
+sta::set_bidirect_inst_paths_enabled 1
+puts "After enable: [sta::bidirect_inst_paths_enabled]"
 report_checks -path_delay max > /dev/null
-sta::set_bidirect_net_paths_enabled $orig_bidir_net
+sta::set_bidirect_inst_paths_enabled $orig_bidir_net
 
 ############################################################
 # Complex network edit sequence: make, connect, verify timing,

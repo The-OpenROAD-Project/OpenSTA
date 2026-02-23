@@ -50,11 +50,11 @@ puts "--- report_checks JSON format ---"
 report_checks -path_delay max -format json
 report_checks -path_delay min -format json
 
-puts "--- report_checks JSON with endpoint_path_count ---"
-report_checks -path_delay max -format json -endpoint_path_count 3
+puts "--- report_checks JSON with endpoint_count ---"
+report_checks -path_delay max -format json -endpoint_count 3
 
 puts "--- find_timing_paths and iterate ---"
-set paths [find_timing_paths -path_delay max -endpoint_path_count 5 -group_path_count 10]
+set paths [find_timing_paths -path_delay max -endpoint_count 5 -group_path_count 10]
 puts "Found [llength $paths] paths"
 
 # Report each path individually with different formats
@@ -98,7 +98,7 @@ sta::report_path_ends $paths
 
 puts "--- set_report_path_format json then report ---"
 sta::set_report_path_format json
-set paths2 [find_timing_paths -path_delay max -endpoint_path_count 3]
+set paths2 [find_timing_paths -path_delay max -endpoint_count 3]
 foreach pe $paths2 {
   set p [$pe path]
   sta::report_path_cmd $p
@@ -117,17 +117,20 @@ foreach pe $paths3 {
 sta::set_report_path_format full
 
 puts "--- PathEnd vertex access ---"
-set paths_v [find_timing_paths -path_delay max -endpoint_path_count 2]
+set paths_v [find_timing_paths -path_delay max -endpoint_count 2]
 foreach pe $paths_v {
   set v [$pe vertex]
   puts "vertex: [get_full_name [$v pin]]"
-  puts "  is_clock: [$v is_clock]"
-  puts "  has_downstream_clk_pin: [$v has_downstream_clk_pin]"
+  # TODO: Vertex is_clock and has_downstream_clk_pin methods removed from SWIG
+  # puts "  is_clock: [$v is_clock]"
+  # puts "  has_downstream_clk_pin: [$v has_downstream_clk_pin]"
+  puts "  is_clock: skipped (API removed)"
+  puts "  has_downstream_clk_pin: skipped (API removed)"
   break
 }
 
 puts "--- find_timing_paths min_max ---"
-set paths_mm [find_timing_paths -path_delay min_max -endpoint_path_count 3]
+set paths_mm [find_timing_paths -path_delay min_max -endpoint_count 3]
 puts "min_max paths: [llength $paths_mm]"
 foreach pe $paths_mm {
   puts "  min_max: [$pe min_max] slack=[$pe slack]"

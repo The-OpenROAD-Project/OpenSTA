@@ -210,7 +210,7 @@ Path Type: max
 
 No paths found.
 No paths found.
-Warning: network_advanced.tcl line 1, unknown field nets.
+Warning 168: network_advanced.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

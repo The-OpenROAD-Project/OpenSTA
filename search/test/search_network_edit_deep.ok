@@ -121,7 +121,7 @@ bidirect_inst_paths_enabled: 0
 After disable: 0
 After enable: 1
 --- bidirect_net_paths ---
-bidirect_net_paths_enabled: 0
+bidirect_inst_paths_enabled: 0
 After disable: 0
 After enable: 1
 --- Complex network edit with timing ---

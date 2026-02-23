@@ -3,7 +3,7 @@
 #include <cmath>
 #include "MinMax.hh"
 #include "Transition.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Sta.hh"
 #include "Sdc.hh"
 #include "ReportTcl.hh"
@@ -29,7 +29,7 @@ protected:
     if (report)
       report->setTclInterp(interp_);
 
-    Corner *corner = sta_->cmdCorner();
+    Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
       "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
@@ -51,9 +51,11 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr);
+    Sdc *sdc = sta_->cmdSdc();
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr,
+                    sta_->cmdMode());
 
-    Clock *clk = sta_->sdc()->findClock("clk");
+    Clock *clk = sdc->findClock("clk");
     ASSERT_NE(clk, nullptr);
 
     // Set input delay on in1 and in2
@@ -63,17 +65,17 @@ protected:
     ASSERT_NE(in2, nullptr);
     sta_->setInputDelay(in1, RiseFallBoth::riseFall(),
                         clk, RiseFall::rise(), nullptr,
-                        false, false, MinMaxAll::all(), false, 0.5f);
+                        false, false, MinMaxAll::all(), false, 0.5f, sdc);
     sta_->setInputDelay(in2, RiseFallBoth::riseFall(),
                         clk, RiseFall::rise(), nullptr,
-                        false, false, MinMaxAll::all(), false, 0.5f);
+                        false, false, MinMaxAll::all(), false, 0.5f, sdc);
 
     // Set output delay on out1
     Pin *out1 = network->findPin(top, "out1");
     ASSERT_NE(out1, nullptr);
     sta_->setOutputDelay(out1, RiseFallBoth::riseFall(),
                          clk, RiseFall::rise(), nullptr,
-                         false, false, MinMaxAll::all(), false, 0.5f);
+                         false, false, MinMaxAll::all(), false, 0.5f, sdc);
 
     // Run full timing
     sta_->updateTiming(true);
@@ -333,15 +335,16 @@ TEST_F(IncrementalTimingTest, MultipleEditsBeforeRetiming) {
   Port *out1_port = network->findPort(
     network->cell(top), "out1");
   ASSERT_NE(out1_port, nullptr);
+  Sdc *sdc = sta_->cmdSdc();
   sta_->setPortExtPinCap(out1_port, RiseFallBoth::riseFall(),
-                         sta_->cmdCorner(), MinMaxAll::all(), 0.05f);
+                         MinMaxAll::all(), 0.05f, sdc);
 
   // Edit 3: Set input slew on in1
   Port *in1_port = network->findPort(
     network->cell(top), "in1");
   ASSERT_NE(in1_port, nullptr);
   sta_->setInputSlew(in1_port, RiseFallBoth::riseFall(),
-                     MinMaxAll::all(), 0.1f);
+                     MinMaxAll::all(), 0.1f, sdc);
 
   // Now run timing once (implicitly via worstSlack)
   Slack combined_slack = sta_->worstSlack(MinMax::max());
@@ -393,8 +396,9 @@ TEST_F(IncrementalTimingTest, SetLoadIncremental) {
   Port *out1_port = network->findPort(
     network->cell(top), "out1");
   ASSERT_NE(out1_port, nullptr);
+  Sdc *sdc = sta_->cmdSdc();
   sta_->setPortExtPinCap(out1_port, RiseFallBoth::riseFall(),
-                         sta_->cmdCorner(), MinMaxAll::all(), 0.5f);
+                         MinMaxAll::all(), 0.5f, sdc);
 
   Slack loaded_slack = sta_->worstSlack(MinMax::max());
   // Large load should degrade timing
@@ -402,7 +406,7 @@ TEST_F(IncrementalTimingTest, SetLoadIncremental) {
 
   // Reduce the load
   sta_->setPortExtPinCap(out1_port, RiseFallBoth::riseFall(),
-                         sta_->cmdCorner(), MinMaxAll::all(), 0.001f);
+                         MinMaxAll::all(), 0.001f, sdc);
 
   Slack reduced_load_slack = sta_->worstSlack(MinMax::max());
   // Reduced load should improve timing relative to large load
@@ -437,7 +441,8 @@ TEST_F(IncrementalTimingTest, ClockConstraintAfterEdit) {
   FloatSeq *tight_waveform = new FloatSeq;
   tight_waveform->push_back(0.0f);
   tight_waveform->push_back(1.0f);  // 2ns period
-  sta_->makeClock("clk", clk_pins, false, 2.0f, tight_waveform, nullptr);
+  sta_->makeClock("clk", clk_pins, false, 2.0f, tight_waveform, nullptr,
+                  sta_->cmdMode());
 
   Slack tight_slack = sta_->worstSlack(MinMax::max());
 
@@ -450,7 +455,8 @@ TEST_F(IncrementalTimingTest, ClockConstraintAfterEdit) {
   FloatSeq *loose_waveform = new FloatSeq;
   loose_waveform->push_back(0.0f);
   loose_waveform->push_back(50.0f);  // 100ns period
-  sta_->makeClock("clk", clk_pins2, false, 100.0f, loose_waveform, nullptr);
+  sta_->makeClock("clk", clk_pins2, false, 100.0f, loose_waveform, nullptr,
+                  sta_->cmdMode());
 
   Slack loose_slack = sta_->worstSlack(MinMax::max());
 
@@ -582,14 +588,15 @@ TEST_F(IncrementalTimingTest, TimingDerateAffectsSlack) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
 
+  Sdc *sdc = sta_->cmdSdc();
   // Timing derate requires OCV analysis mode to distinguish early/late.
-  sta_->setAnalysisType(AnalysisType::ocv);
+  sta_->setAnalysisType(AnalysisType::ocv, sdc);
 
   // Add significant load to make gate delays visible for derating
   Port *out1_port = network->findPort(network->cell(top), "out1");
   ASSERT_NE(out1_port, nullptr);
   sta_->setPortExtPinCap(out1_port, RiseFallBoth::riseFall(),
-                         sta_->cmdCorner(), MinMaxAll::all(), 0.5f);
+                         MinMaxAll::all(), 0.5f, sdc);
   sta_->updateTiming(true);
 
   Slack initial_slack = sta_->worstSlack(MinMax::max());
@@ -600,7 +607,7 @@ TEST_F(IncrementalTimingTest, TimingDerateAffectsSlack) {
                         PathClkOrData::data,
                         RiseFallBoth::riseFall(),
                         EarlyLate::late(),
-                        5.0f);
+                        5.0f, sdc);
 
   Slack derated_slack = sta_->worstSlack(MinMax::max());
   EXPECT_FALSE(std::isnan(derated_slack));
@@ -611,7 +618,7 @@ TEST_F(IncrementalTimingTest, TimingDerateAffectsSlack) {
   EXPECT_LE(derated_slack, initial_slack);
 
   // Remove the derate and verify slack restores
-  sta_->unsetTimingDerate();
+  sta_->unsetTimingDerate(sdc);
   Slack restored_slack = sta_->worstSlack(MinMax::max());
   EXPECT_NEAR(restored_slack, initial_slack, 1e-6);
 }
@@ -623,7 +630,7 @@ TEST_F(IncrementalTimingTest, TimingDerateAffectsSlack) {
 TEST_F(IncrementalTimingTest, ClockUncertaintyDegradeSetupSlack) {
   Slack initial_slack = sta_->worstSlack(MinMax::max());
 
-  Clock *clk = sta_->sdc()->findClock("clk");
+  Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
 
   // Add 0.5ns setup uncertainty -- eats into the timing margin
@@ -656,11 +663,12 @@ TEST_F(IncrementalTimingTest, InputSlewChangesPathDelay) {
 
   Slack initial_slack = sta_->worstSlack(MinMax::max());
 
+  Sdc *sdc = sta_->cmdSdc();
   // Set a very large input slew on in1 (1ns)
   Port *in1_port = network->findPort(network->cell(top), "in1");
   ASSERT_NE(in1_port, nullptr);
   sta_->setInputSlew(in1_port, RiseFallBoth::riseFall(),
-                     MinMaxAll::all(), 1.0f);
+                     MinMaxAll::all(), 1.0f, sdc);
 
   Slack after_slack = sta_->worstSlack(MinMax::max());
   EXPECT_FALSE(std::isnan(after_slack));
@@ -670,7 +678,7 @@ TEST_F(IncrementalTimingTest, InputSlewChangesPathDelay) {
 
   // Now set a small slew (fast transition)
   sta_->setInputSlew(in1_port, RiseFallBoth::riseFall(),
-                     MinMaxAll::all(), 0.001f);
+                     MinMaxAll::all(), 0.001f, sdc);
 
   Slack fast_slack = sta_->worstSlack(MinMax::max());
   // Fast slew should give better timing than slow slew
@@ -693,7 +701,7 @@ TEST_F(IncrementalTimingTest, DisableCellTimingExcludesPath) {
   Pin *reg1_d = network->findPin(reg1, "D");
   ASSERT_NE(reg1_d, nullptr);
 
-  Slack initial_pin_slack = sta_->pinSlack(reg1_d, MinMax::max());
+  Slack initial_pin_slack = sta_->slack(reg1_d, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(initial_pin_slack));
 
   // Find and1 instance and disable timing through it
@@ -701,12 +709,13 @@ TEST_F(IncrementalTimingTest, DisableCellTimingExcludesPath) {
   ASSERT_NE(and1, nullptr);
 
   // Disable all timing arcs through and1 instance
-  sta_->disable(and1, nullptr, nullptr);
+  Sdc *sdc = sta_->cmdSdc();
+  sta_->disable(and1, nullptr, nullptr, sdc);
 
   // After disabling and1, the path in1/in2 -> and1 -> buf1 -> reg1 is broken.
   // The pin slack at reg1/D should become unconstrained (NaN/INF) or improve
   // significantly because no constrained path reaches it.
-  Slack after_disable_pin_slack = sta_->pinSlack(reg1_d, MinMax::max());
+  Slack after_disable_pin_slack = sta_->slack(reg1_d, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   // Either unconstrained (NaN/very large) or much better than before
   if (std::isnan(after_disable_pin_slack) == false) {
     EXPECT_GT(after_disable_pin_slack, initial_pin_slack);
@@ -714,8 +723,8 @@ TEST_F(IncrementalTimingTest, DisableCellTimingExcludesPath) {
   // else: NaN means unconstrained, which is expected
 
   // Re-enable timing through and1
-  sta_->removeDisable(and1, nullptr, nullptr);
-  Slack restored_pin_slack = sta_->pinSlack(reg1_d, MinMax::max());
+  sta_->removeDisable(and1, nullptr, nullptr, sdc);
+  Slack restored_pin_slack = sta_->slack(reg1_d, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_NEAR(restored_pin_slack, initial_pin_slack, 1e-6);
 }
 
@@ -733,7 +742,7 @@ TEST_F(IncrementalTimingTest, DisconnectReconnectPinRestoresTiming) {
   Pin *reg1_d = network->findPin(reg1, "D");
   ASSERT_NE(reg1_d, nullptr);
 
-  Slack initial_pin_slack = sta_->pinSlack(reg1_d, MinMax::max());
+  Slack initial_pin_slack = sta_->slack(reg1_d, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(initial_pin_slack));
 
   // Disconnect reg1/D from n2 and reconnect it
@@ -749,7 +758,7 @@ TEST_F(IncrementalTimingTest, DisconnectReconnectPinRestoresTiming) {
   sta_->connectPin(reg1, dff_d_port, n2);
 
   // After disconnect/reconnect to same net, timing should restore
-  Slack restored_pin_slack = sta_->pinSlack(reg1_d, MinMax::max());
+  Slack restored_pin_slack = sta_->slack(reg1_d, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   // The pin slack should be restored to close to the initial value
   // after reconnecting to the same net
   EXPECT_FALSE(std::isnan(restored_pin_slack));
@@ -770,7 +779,7 @@ TEST_F(IncrementalTimingTest, ConnectPinToDifferentNet) {
   Port *out1_port = network->findPort(network->cell(top), "out1");
   ASSERT_NE(out1_port, nullptr);
   sta_->setPortExtPinCap(out1_port, RiseFallBoth::riseFall(),
-                         sta_->cmdCorner(), MinMaxAll::all(), 0.1f);
+                         MinMaxAll::all(), 0.1f, sta_->cmdSdc());
   sta_->updateTiming(true);
 
   // Track pin slack at reg1/D for the input path
@@ -779,7 +788,7 @@ TEST_F(IncrementalTimingTest, ConnectPinToDifferentNet) {
   Pin *reg1_d = network->findPin(reg1, "D");
   ASSERT_NE(reg1_d, nullptr);
 
-  Slack initial_pin_slack = sta_->pinSlack(reg1_d, MinMax::max());
+  Slack initial_pin_slack = sta_->slack(reg1_d, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(initial_pin_slack));
 
   // Current: and1/ZN --[n1]--> buf1/A, buf1/Z --[n2]--> reg1/D
@@ -798,7 +807,7 @@ TEST_F(IncrementalTimingTest, ConnectPinToDifferentNet) {
   // After bypassing buf1, the path is shorter so pin slack should improve
   reg1_d = network->findPin(reg1, "D");
   ASSERT_NE(reg1_d, nullptr);
-  Slack bypassed_pin_slack = sta_->pinSlack(reg1_d, MinMax::max());
+  Slack bypassed_pin_slack = sta_->slack(reg1_d, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(bypassed_pin_slack));
   // Shorter path should improve slack at this pin
   EXPECT_GE(bypassed_pin_slack, initial_pin_slack);
@@ -815,7 +824,7 @@ TEST_F(IncrementalTimingTest, ConnectPinToDifferentNet) {
   // After restoring, pin slack should return to original
   reg1_d = network->findPin(reg1, "D");
   ASSERT_NE(reg1_d, nullptr);
-  Slack restored_pin_slack = sta_->pinSlack(reg1_d, MinMax::max());
+  Slack restored_pin_slack = sta_->slack(reg1_d, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_NEAR(restored_pin_slack, initial_pin_slack, 1e-3);
 }
 
@@ -833,8 +842,9 @@ TEST_F(IncrementalTimingTest, NetWireCapAnnotation) {
   // Annotate large wire cap on net n1 (and1 output)
   Net *n1 = network->findNet(top, "n1");
   ASSERT_NE(n1, nullptr);
-  sta_->setNetWireCap(n1, false, sta_->cmdCorner(),
-                      MinMaxAll::all(), 0.5f);
+  Sdc *sdc = sta_->cmdSdc();
+  sta_->setNetWireCap(n1, false,
+                      MinMaxAll::all(), 0.5f, sdc);
 
   Slack after_cap_slack = sta_->worstSlack(MinMax::max());
   EXPECT_FALSE(std::isnan(after_cap_slack));
@@ -843,8 +853,8 @@ TEST_F(IncrementalTimingTest, NetWireCapAnnotation) {
   EXPECT_LT(after_cap_slack, initial_slack);
 
   // Reduce the cap
-  sta_->setNetWireCap(n1, false, sta_->cmdCorner(),
-                      MinMaxAll::all(), 0.001f);
+  sta_->setNetWireCap(n1, false,
+                      MinMaxAll::all(), 0.001f, sdc);
 
   Slack small_cap_slack = sta_->worstSlack(MinMax::max());
   // Smaller cap should be better than large cap
@@ -874,7 +884,7 @@ TEST_F(IncrementalTimingTest, AnnotatedSlewAffectsDelay) {
   ASSERT_NE(and1_zn_vertex, nullptr);
 
   // Annotate a very large slew (2.0ns) on the and1 output
-  sta_->setAnnotatedSlew(and1_zn_vertex, sta_->cmdCorner(),
+  sta_->setAnnotatedSlew(and1_zn_vertex, sta_->cmdScene(),
                          MinMaxAll::all(), RiseFallBoth::riseFall(),
                          2.0f);
 
@@ -925,7 +935,7 @@ TEST_F(IncrementalTimingTest, ArcDelayAnnotation) {
     TimingArcSet *arc_set = edge->timingArcSet();
     for (TimingArc *arc : arc_set->arcs()) {
       // Annotate a large delay (5ns) on this arc
-      sta_->setArcDelay(edge, arc, sta_->cmdCorner(),
+      sta_->setArcDelay(edge, arc, sta_->cmdScene(),
                         MinMaxAll::all(), 5.0f);
       found_edge = true;
     }
@@ -1013,7 +1023,8 @@ TEST_F(IncrementalTimingTest, TnsUpdatesIncrementally) {
   FloatSeq *tight_waveform = new FloatSeq;
   tight_waveform->push_back(0.0f);
   tight_waveform->push_back(0.2f);  // 0.4ns period (very tight)
-  sta_->makeClock("clk", clk_pins, false, 0.4f, tight_waveform, nullptr);
+  sta_->makeClock("clk", clk_pins, false, 0.4f, tight_waveform, nullptr,
+                  sta_->cmdMode());
 
   Slack tight_tns = sta_->totalNegativeSlack(MinMax::max());
   // Very tight clock should create large negative TNS
@@ -1050,8 +1061,8 @@ TEST_F(IncrementalTimingTest, ArrivalTimeAtPinAfterEdit) {
   Pin *reg1_d = network->findPin(reg1, "D");
   ASSERT_NE(reg1_d, nullptr);
 
-  Arrival initial_arrival = sta_->pinArrival(reg1_d, RiseFall::rise(),
-                                             MinMax::max());
+  Arrival initial_arrival = sta_->arrival(reg1_d, RiseFallBoth::rise(),
+                                          MinMax::max());
   EXPECT_FALSE(std::isnan(initial_arrival));
   EXPECT_GT(initial_arrival, 0.0f);
 
@@ -1062,8 +1073,8 @@ TEST_F(IncrementalTimingTest, ArrivalTimeAtPinAfterEdit) {
   ASSERT_NE(buf_x4, nullptr);
   sta_->replaceCell(buf1, buf_x4);
 
-  Arrival after_arrival = sta_->pinArrival(reg1_d, RiseFall::rise(),
-                                           MinMax::max());
+  Arrival after_arrival = sta_->arrival(reg1_d, RiseFallBoth::rise(),
+                                       MinMax::max());
   EXPECT_FALSE(std::isnan(after_arrival));
 
   // Faster buffer means earlier arrival at reg1/D
@@ -1074,8 +1085,8 @@ TEST_F(IncrementalTimingTest, ArrivalTimeAtPinAfterEdit) {
   ASSERT_NE(buf_x1, nullptr);
   sta_->replaceCell(buf1, buf_x1);
 
-  Arrival restored_arrival = sta_->pinArrival(reg1_d, RiseFall::rise(),
-                                              MinMax::max());
+  Arrival restored_arrival = sta_->arrival(reg1_d, RiseFallBoth::rise(),
+                                           MinMax::max());
   EXPECT_NEAR(restored_arrival, initial_arrival, 1e-6);
 }
 
@@ -1125,7 +1136,7 @@ TEST_F(IncrementalTimingTest, SetupAndHoldAfterEdits) {
   Slack initial_hold = sta_->worstSlack(MinMax::min());
 
   // Edit 1: Add 0.3ns clock uncertainty for both setup and hold
-  Clock *clk = sta_->sdc()->findClock("clk");
+  Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   sta_->setClockUncertainty(clk, SetupHoldAll::all(), 0.3f);
 
@@ -1174,10 +1185,10 @@ TEST_F(IncrementalTimingTest, IncrementalVsFullAfterMixedEdits) {
   Port *out1_port = network->findPort(network->cell(top), "out1");
   ASSERT_NE(out1_port, nullptr);
   sta_->setPortExtPinCap(out1_port, RiseFallBoth::riseFall(),
-                         sta_->cmdCorner(), MinMaxAll::all(), 0.1f);
+                         MinMaxAll::all(), 0.1f, sta_->cmdSdc());
 
   // Edit 3: Add clock uncertainty
-  Clock *clk = sta_->sdc()->findClock("clk");
+  Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   sta_->setClockUncertainty(clk, SetupHoldAll::max(), 0.2f);
 
@@ -1209,12 +1220,13 @@ TEST_F(IncrementalTimingTest, InputDelayChangeUpdatesTiming) {
   // Change input delay on in1 from 0.5ns to 3.0ns
   Pin *in1 = network->findPin(top, "in1");
   ASSERT_NE(in1, nullptr);
-  Clock *clk = sta_->sdc()->findClock("clk");
+  Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
 
+  Sdc *sdc = sta_->cmdSdc();
   sta_->setInputDelay(in1, RiseFallBoth::riseFall(),
                       clk, RiseFall::rise(), nullptr,
-                      false, false, MinMaxAll::all(), false, 3.0f);
+                      false, false, MinMaxAll::all(), false, 3.0f, sdc);
 
   Slack large_delay_slack = sta_->worstSlack(MinMax::max());
   EXPECT_FALSE(std::isnan(large_delay_slack));
@@ -1225,7 +1237,7 @@ TEST_F(IncrementalTimingTest, InputDelayChangeUpdatesTiming) {
   // Set it very small
   sta_->setInputDelay(in1, RiseFallBoth::riseFall(),
                       clk, RiseFall::rise(), nullptr,
-                      false, false, MinMaxAll::all(), false, 0.01f);
+                      false, false, MinMaxAll::all(), false, 0.01f, sdc);
 
   Slack small_delay_slack = sta_->worstSlack(MinMax::max());
   // Smaller input delay should give better slack
@@ -1246,12 +1258,13 @@ TEST_F(IncrementalTimingTest, OutputDelayChangeUpdatesTiming) {
   // Increase output delay on out1 from 0.5ns to 5.0ns
   Pin *out1 = network->findPin(top, "out1");
   ASSERT_NE(out1, nullptr);
-  Clock *clk = sta_->sdc()->findClock("clk");
+  Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
 
+  Sdc *sdc = sta_->cmdSdc();
   sta_->setOutputDelay(out1, RiseFallBoth::riseFall(),
                        clk, RiseFall::rise(), nullptr,
-                       false, false, MinMaxAll::all(), false, 5.0f);
+                       false, false, MinMaxAll::all(), false, 5.0f, sdc);
 
   Slack large_out_delay_slack = sta_->worstSlack(MinMax::max());
   EXPECT_FALSE(std::isnan(large_out_delay_slack));
@@ -1262,7 +1275,7 @@ TEST_F(IncrementalTimingTest, OutputDelayChangeUpdatesTiming) {
   // Set a very small output delay
   sta_->setOutputDelay(out1, RiseFallBoth::riseFall(),
                        clk, RiseFall::rise(), nullptr,
-                       false, false, MinMaxAll::all(), false, 0.01f);
+                       false, false, MinMaxAll::all(), false, 0.01f, sdc);
 
   Slack small_out_delay_slack = sta_->worstSlack(MinMax::max());
   EXPECT_GT(small_out_delay_slack, large_out_delay_slack);
@@ -1279,12 +1292,13 @@ TEST_F(IncrementalTimingTest, ClockLatencyAffectsTiming) {
 
   Slack initial_slack = sta_->worstSlack(MinMax::max());
 
-  Clock *clk = sta_->sdc()->findClock("clk");
+  Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
 
+  Sdc *sdc = sta_->cmdSdc();
   // Add 1ns source latency to clock
   sta_->setClockLatency(clk, nullptr, RiseFallBoth::riseFall(),
-                        MinMaxAll::all(), 1.0f);
+                        MinMaxAll::all(), 1.0f, sdc);
 
   Slack latency_slack = sta_->worstSlack(MinMax::max());
   EXPECT_FALSE(std::isnan(latency_slack));
@@ -1296,7 +1310,7 @@ TEST_F(IncrementalTimingTest, ClockLatencyAffectsTiming) {
   EXPECT_NEAR(latency_slack, initial_slack, 0.01f);
 
   // Remove latency
-  sta_->removeClockLatency(clk, nullptr);
+  sta_->removeClockLatency(clk, nullptr, sdc);
   Slack restored_slack = sta_->worstSlack(MinMax::max());
   EXPECT_NEAR(restored_slack, initial_slack, 1e-6);
 }
@@ -1315,7 +1329,7 @@ TEST_F(IncrementalTimingTest, PinSlackQueryAfterEdit) {
   Pin *buf1_z = network->findPin(buf1, "Z");
   ASSERT_NE(buf1_z, nullptr);
 
-  Slack initial_pin_slack = sta_->pinSlack(buf1_z, MinMax::max());
+  Slack initial_pin_slack = sta_->slack(buf1_z, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(initial_pin_slack));
 
   // Also check worst slack correlation
@@ -1328,7 +1342,7 @@ TEST_F(IncrementalTimingTest, PinSlackQueryAfterEdit) {
   ASSERT_NE(buf_x4, nullptr);
   sta_->replaceCell(buf1, buf_x4);
 
-  Slack after_pin_slack = sta_->pinSlack(buf1_z, MinMax::max());
+  Slack after_pin_slack = sta_->slack(buf1_z, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(after_pin_slack));
 
   // Upsizing should improve the slack at this pin
@@ -1354,8 +1368,8 @@ TEST_F(IncrementalTimingTest, VertexSlewUpdatesAfterReplace) {
   Vertex *buf1_z_vertex = graph->pinDrvrVertex(buf1_z);
   ASSERT_NE(buf1_z_vertex, nullptr);
 
-  Slew initial_slew = sta_->vertexSlew(buf1_z_vertex, RiseFall::rise(),
-                                       MinMax::max());
+  Slew initial_slew = sta_->slew(buf1_z_vertex, RiseFallBoth::rise(),
+                                  sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(initial_slew));
   EXPECT_GT(initial_slew, 0.0f);
 
@@ -1370,8 +1384,8 @@ TEST_F(IncrementalTimingTest, VertexSlewUpdatesAfterReplace) {
   buf1_z_vertex = graph->pinDrvrVertex(buf1_z);
   ASSERT_NE(buf1_z_vertex, nullptr);
 
-  Slew after_slew = sta_->vertexSlew(buf1_z_vertex, RiseFall::rise(),
-                                     MinMax::max());
+  Slew after_slew = sta_->slew(buf1_z_vertex, RiseFallBoth::rise(),
+                                sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(after_slew));
 
   // Stronger driver (BUF_X4) should produce faster (smaller) slew
@@ -1395,14 +1409,14 @@ TEST_F(IncrementalTimingTest, OutputPathCellReplacement) {
   // Get pin slack at out1 before edit
   Pin *out1_pin = network->findPin(top, "out1");
   ASSERT_NE(out1_pin, nullptr);
-  Slack out1_slack_before = sta_->pinSlack(out1_pin, MinMax::max());
+  Slack out1_slack_before = sta_->slack(out1_pin, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
 
   // Replace buf2 with BUF_X4
   LibertyCell *buf_x4 = network->findLibertyCell("BUF_X4");
   ASSERT_NE(buf_x4, nullptr);
   sta_->replaceCell(buf2, buf_x4);
 
-  Slack out1_slack_after = sta_->pinSlack(out1_pin, MinMax::max());
+  Slack out1_slack_after = sta_->slack(out1_pin, RiseFallBoth::riseFall(), sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   EXPECT_FALSE(std::isnan(out1_slack_after));
 
   // BUF_X4 is faster, out1 slack should improve
@@ -1433,7 +1447,8 @@ TEST_F(IncrementalTimingTest, EndpointViolationCountChanges) {
   FloatSeq *tight_waveform = new FloatSeq;
   tight_waveform->push_back(0.0f);
   tight_waveform->push_back(0.1f);  // 0.2ns period
-  sta_->makeClock("clk", clk_pins, false, 0.2f, tight_waveform, nullptr);
+  sta_->makeClock("clk", clk_pins, false, 0.2f, tight_waveform, nullptr,
+                  sta_->cmdMode());
 
   int tight_violations = sta_->endpointViolationCount(MinMax::max());
   // Very tight clock should cause violations
@@ -1445,7 +1460,8 @@ TEST_F(IncrementalTimingTest, EndpointViolationCountChanges) {
   FloatSeq *loose_waveform = new FloatSeq;
   loose_waveform->push_back(0.0f);
   loose_waveform->push_back(50.0f);
-  sta_->makeClock("clk", clk_pins2, false, 100.0f, loose_waveform, nullptr);
+  sta_->makeClock("clk", clk_pins2, false, 100.0f, loose_waveform, nullptr,
+                  sta_->cmdMode());
 
   int loose_violations = sta_->endpointViolationCount(MinMax::max());
   // Loose clock should have fewer violations
@@ -1464,7 +1480,7 @@ TEST_F(IncrementalTimingTest, NetSlackUpdatesIncrementally) {
   Net *n2 = network->findNet(top, "n2");
   ASSERT_NE(n2, nullptr);
 
-  Slack initial_net_slack = sta_->netSlack(n2, MinMax::max());
+  Slack initial_net_slack = sta_->slack(n2, MinMax::max());
   EXPECT_FALSE(std::isnan(initial_net_slack));
 
   // Upsize buf1 to improve the path through n2
@@ -1474,7 +1490,7 @@ TEST_F(IncrementalTimingTest, NetSlackUpdatesIncrementally) {
   ASSERT_NE(buf_x4, nullptr);
   sta_->replaceCell(buf1, buf_x4);
 
-  Slack after_net_slack = sta_->netSlack(n2, MinMax::max());
+  Slack after_net_slack = sta_->slack(n2, MinMax::max());
   EXPECT_FALSE(std::isnan(after_net_slack));
 
   // Net slack on n2 should improve after upsizing buf1
@@ -1502,25 +1518,26 @@ TEST_F(IncrementalTimingTest, ClockInsertionDelayAffectsTiming) {
   Vertex *reg1_d_vertex = graph->pinLoadVertex(reg1_d);
   ASSERT_NE(reg1_d_vertex, nullptr);
 
-  Arrival initial_arrival = sta_->pinArrival(reg1_d, RiseFall::rise(),
-                                             MinMax::max());
-  Required initial_required = sta_->vertexRequired(reg1_d_vertex,
-                                                   MinMax::max());
+  Arrival initial_arrival = sta_->arrival(reg1_d, RiseFallBoth::rise(),
+                                          MinMax::max());
+  Required initial_required = sta_->required(reg1_d_vertex, RiseFallBoth::riseFall(),
+                                                    sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   Slack initial_slack = sta_->worstSlack(MinMax::max());
   EXPECT_FALSE(std::isnan(initial_arrival));
   EXPECT_FALSE(std::isnan(initial_required));
 
-  Clock *clk = sta_->sdc()->findClock("clk");
+  Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
 
+  Sdc *sdc = sta_->cmdSdc();
   // Add 1ns source insertion delay to the clock
   sta_->setClockInsertion(clk, nullptr, RiseFallBoth::riseFall(),
-                          MinMaxAll::all(), EarlyLateAll::all(), 1.0f);
+                          MinMaxAll::all(), EarlyLateAll::all(), 1.0f, sdc);
 
-  Arrival after_arrival = sta_->pinArrival(reg1_d, RiseFall::rise(),
-                                           MinMax::max());
-  Required after_required = sta_->vertexRequired(reg1_d_vertex,
-                                                 MinMax::max());
+  Arrival after_arrival = sta_->arrival(reg1_d, RiseFallBoth::rise(),
+                                       MinMax::max());
+  Required after_required = sta_->required(reg1_d_vertex, RiseFallBoth::riseFall(),
+                                           sta_->makeSceneSeq(sta_->cmdScene()), MinMax::max());
   Slack after_slack = sta_->worstSlack(MinMax::max());
 
   // For same-clock paths, insertion shifts both arrival and required
@@ -1535,7 +1552,7 @@ TEST_F(IncrementalTimingTest, ClockInsertionDelayAffectsTiming) {
   EXPECT_NEAR(after_required - initial_required, 1.0f, 0.01f);
 
   // Remove insertion delay
-  sta_->removeClockInsertion(clk, nullptr);
+  sta_->removeClockInsertion(clk, nullptr, sdc);
   Slack restored_slack = sta_->worstSlack(MinMax::max());
   EXPECT_NEAR(restored_slack, initial_slack, 1e-6);
 }
@@ -1550,11 +1567,12 @@ TEST_F(IncrementalTimingTest, DriveResistanceAffectsTiming) {
 
   Slack initial_slack = sta_->worstSlack(MinMax::max());
 
+  Sdc *sdc = sta_->cmdSdc();
   // Set a large drive resistance on in1 (slow driver)
   Port *in1_port = network->findPort(network->cell(top), "in1");
   ASSERT_NE(in1_port, nullptr);
   sta_->setDriveResistance(in1_port, RiseFallBoth::riseFall(),
-                           MinMaxAll::all(), 1000.0f);
+                           MinMaxAll::all(), 1000.0f, sdc);
 
   Slack after_slack = sta_->worstSlack(MinMax::max());
   EXPECT_FALSE(std::isnan(after_slack));
@@ -1564,7 +1582,7 @@ TEST_F(IncrementalTimingTest, DriveResistanceAffectsTiming) {
 
   // Set a very low drive resistance (fast driver)
   sta_->setDriveResistance(in1_port, RiseFallBoth::riseFall(),
-                           MinMaxAll::all(), 0.001f);
+                           MinMaxAll::all(), 0.001f, sdc);
 
   Slack fast_slack = sta_->worstSlack(MinMax::max());
   // Fast driver should give better timing

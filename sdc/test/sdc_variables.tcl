@@ -64,11 +64,11 @@ set val $::sta_internal_bidirect_instance_paths_enabled
 # Bidirectional net paths
 ############################################################
 
-set ::sta_bidirect_net_paths_enabled 1
+set ::sta_bidirect_inst_paths_enabled 1
 
-set ::sta_bidirect_net_paths_enabled 0
+set ::sta_bidirect_inst_paths_enabled 0
 
-set val $::sta_bidirect_net_paths_enabled
+set val $::sta_bidirect_inst_paths_enabled
 
 ############################################################
 # Clock through tristate

@@ -1203,6 +1203,7 @@ Path Type: min
 ]
 }
 --- find_timing_paths max ---
+Warning 502: search_report_path_pvt_cap.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 10 max paths
   pin=latch2/D slack=0.0 is_check=0
   pin=latch2/D slack=0.0 is_check=0
@@ -1215,6 +1216,7 @@ Found 10 max paths
   pin=out1 slack=6.813110964287716e-9 is_check=0
   pin=out1 slack=6.868247304225861e-9 is_check=0
 --- find_timing_paths min ---
+Warning 502: search_report_path_pvt_cap.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 10 min paths
   pin=reg1/D slack=4.688082214099332e-11 is_check=1
   pin=reg1/D slack=5.435544375709256e-11 is_check=1
@@ -1227,6 +1229,7 @@ Found 10 min paths
   pin=latch1/D slack=6.033108235214968e-9 is_check=1
   pin=latch1/D slack=6.034398758458792e-9 is_check=1
 --- find_timing_paths min_max ---
+Warning 502: search_report_path_pvt_cap.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 6 min_max paths
   min_max=min slack=4.688082214099332e-11
   min_max=min slack=5.435544375709256e-11
@@ -1236,8 +1239,8 @@ Found 6 min_max paths
   min_max=max slack=0.0
 --- endpoint/startpoint pins ---
 Endpoints: 6
-Startpoints: 6
-Endpoint path count: 6
+Startpoints: skipped (API removed)
+Endpoint count: 6
 --- endpoint_violation_count ---
 Max violations: 0
 Min violations: 0

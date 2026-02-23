@@ -91,13 +91,13 @@ memoryUsage()
     while (fgets(line, line_length, status) != nullptr) {
       char *field = strtok(line, " \t");
       if (field && stringEq(field, "VmRSS:")) {
-	char *size = strtok(nullptr, " \t");
-	if (size) {
-	  char *ignore;
-	  // VmRSS is in kilobytes.
-	  memory = strtol(size, &ignore, 10) * 1000;
-	  break;
-	}
+        char *size = strtok(nullptr, " \t");
+        if (size) {
+          char *ignore;
+          // VmRSS is in kilobytes.
+          memory = strtol(size, &ignore, 10) * 1000;
+          break;
+        }
       }
     }
     fclose(status);

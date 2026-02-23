@@ -344,7 +344,7 @@ Path Type: max
 
 
 --- report_checks -group_count 2 ---
-Warning: graph_advanced.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Warning 503: graph_advanced.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: q (output port clocked by clk)
 Path Group: clk
@@ -399,7 +399,7 @@ Path Type: max
 
 
 --- report_checks -endpoint_count 2 ---
-Warning: graph_advanced.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: graph_advanced.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: q (output port clocked by clk)
 Path Group: clk

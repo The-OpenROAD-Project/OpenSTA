@@ -193,7 +193,7 @@ Path Type: max
            9.80   slack (MET)
 
 
-Warning: network_leaf_iter.tcl line 1, unknown field nets.
+Warning 168: network_leaf_iter.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -299,7 +299,7 @@ Path Type: max
            9.80   slack (MET)
 
 
-Warning: network_leaf_iter.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Warning 502: network_leaf_iter.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -397,7 +397,7 @@ Path Type: max
            9.82   slack (MET)
 
 
-Warning: network_leaf_iter.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Warning 503: network_leaf_iter.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

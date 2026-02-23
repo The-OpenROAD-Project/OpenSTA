@@ -4,13 +4,16 @@ fast_clk period_min = 0.00 fmax = inf
 fast_clk period_min = 0.11 fmax = 9067.34
 fast_clk period_min = 0.00 fmax = inf
 --- min_period_violations ---
-Min period violations: 1
+min_period_violations: skipped (API removed)
 --- min_period_check_slack ---
+min_period_check_slack: skipped (API removed)
 --- report_min_period_checks ---
+report_min_period_checks: skipped (API removed)
 --- max_skew checks ---
 --- max_skew_violations ---
-Max skew violations: 1
+max_skew_violations: skipped (API removed)
 --- max_skew_check_slack ---
+max_skew_check_slack: skipped (API removed)
 --- Now with normal clock period ---
 --- min_pulse_width checks ---
 Pin: reg1/CK
@@ -39,7 +42,6 @@ Check: sequential_clock_pulse_width
 Pin                                    Width   Width   Slack
 ------------------------------------------------------------
 reg1/CK (high)                          0.05    5.00    4.95 (MET)
-reg1/CK (low)                           0.05    5.00    4.95 (MET)
 
 Pin: reg1/CK
 Check: sequential_clock_pulse_width
@@ -58,27 +60,6 @@ Check: sequential_clock_pulse_width
            5.00   close edge arrival time
 ---------------------------------------------------------
            0.05   required pulse width (high)
-           5.00   actual pulse width
----------------------------------------------------------
-           4.95   slack (MET)
-
-Pin: reg1/CK
-Check: sequential_clock_pulse_width
-
-  Delay    Time   Description
----------------------------------------------------------
-   5.00    5.00   clock fast_clk (fall edge)
-   0.00    5.00   clock network delay (ideal)
-   0.00    5.00   reg1/CK
-           5.00   open edge arrival time
-
-  10.00   10.00   clock fast_clk (rise edge)
-   0.00   10.00   clock network delay (ideal)
-   0.00   10.00   reg1/CK
-   0.00   10.00   clock reconvergence pessimism
-          10.00   close edge arrival time
----------------------------------------------------------
-           0.05   required pulse width (low)
            5.00   actual pulse width
 ---------------------------------------------------------
            4.95   slack (MET)

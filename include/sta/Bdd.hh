@@ -34,8 +34,8 @@ struct DdManager;
 
 namespace sta {
 
-typedef std::map<const LibertyPort*, DdNode*, LibertyPortLess> BddPortVarMap;
-typedef std::map<unsigned, const LibertyPort*> BddVarIdxPortMap;
+using BddPortVarMap = std::map<const LibertyPort*, DdNode*, LibertyPortLess>;
+using BddVarIdxPortMap = std::map<unsigned, const LibertyPort*>;
 
 class Bdd : public StaState
 {

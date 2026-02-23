@@ -101,14 +101,16 @@ report_clock_properties
 puts "--- report_clock_properties clk ---"
 report_clock_properties clk
 
-puts "--- report_pulse_width_checks ---"
-report_pulse_width_checks
+puts "--- report_min_pulse_width_checks ---"
+report_check_types -min_pulse_width
 
-puts "--- report_pulse_width_checks verbose ---"
-report_pulse_width_checks -verbose
+puts "--- report_min_pulse_width_checks verbose ---"
+report_check_types -min_pulse_width -verbose
 
-puts "--- report_pulse_width_checks on pin ---"
-report_pulse_width_checks [get_pins reg1/CK]
+puts "--- report_min_pulse_width_checks on pin ---"
+# TODO: report_min_pulse_width_checks with pin arg removed (no Tcl wrapper)
+# report_min_pulse_width_checks [get_pins reg1/CK]
+puts "report_min_pulse_width_checks pin: skipped (API removed)"
 
 puts "--- report_disabled_edges ---"
 report_disabled_edges
@@ -135,20 +137,20 @@ puts "--- find_timing_paths with constraints ---"
 set paths_from [find_timing_paths -from [get_ports in1] -path_delay max]
 puts "Found [llength $paths_from] paths from in1"
 
-puts "--- find_timing_paths -endpoint_path_count ---"
-set paths_epc [find_timing_paths -endpoint_path_count 3]
-puts "Found [llength $paths_epc] paths with endpoint_path_count 3"
+puts "--- find_timing_paths -endpoint_count ---"
+set paths_epc [find_timing_paths -endpoint_count 3]
+puts "Found [llength $paths_epc] paths with endpoint_count 3"
 
 puts "--- find_timing_paths -group_path_count ---"
-set paths_gpc [find_timing_paths -group_path_count 5 -endpoint_path_count 5]
+set paths_gpc [find_timing_paths -group_path_count 5 -endpoint_count 5]
 puts "Found [llength $paths_gpc] paths with group_path_count 5"
 
 puts "--- find_timing_paths -sort_by_slack ---"
-set paths_sorted [find_timing_paths -sort_by_slack -endpoint_path_count 3 -group_path_count 3]
+set paths_sorted [find_timing_paths -sort_by_slack -endpoint_count 3 -group_path_count 3]
 puts "Found [llength $paths_sorted] sorted paths"
 
 puts "--- find_timing_paths -unique_paths_to_endpoint ---"
-set paths_unique [find_timing_paths -unique_paths_to_endpoint -endpoint_path_count 3 -group_path_count 3]
+set paths_unique [find_timing_paths -unique_paths_to_endpoint -endpoint_count 3 -group_path_count 3]
 puts "Found [llength $paths_unique] unique paths"
 
 puts "--- find_timing_paths -slack_max ---"

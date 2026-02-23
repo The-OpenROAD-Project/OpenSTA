@@ -6,21 +6,21 @@ INVx5_ASAP7_75t_R equiv count = 21
 INVx8_ASAP7_75t_R equiv count = 21
 INVx11_ASAP7_75t_R equiv count = 21
 INVx13_ASAP7_75t_R equiv count = 21
-Warning: liberty_equiv_cross_lib.tcl line 1, cell 'INVx16_ASAP7_75t_R' not found.
-Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx1_ASAP7_75t_R' not found.
+Warning 354: liberty_equiv_cross_lib.tcl line 1, cell 'INVx16_ASAP7_75t_R' not found.
+Warning 354: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx1_ASAP7_75t_R' not found.
 BUFx2_ASAP7_75t_R equiv count = 16
 BUFx3_ASAP7_75t_R equiv count = 16
 BUFx4_ASAP7_75t_R equiv count = 16
 BUFx5_ASAP7_75t_R equiv count = 16
 BUFx8_ASAP7_75t_R equiv count = 16
-Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx11_ASAP7_75t_R' not found.
-Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx13_ASAP7_75t_R' not found.
-Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx16_ASAP7_75t_R' not found.
+Warning 354: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx11_ASAP7_75t_R' not found.
+Warning 354: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx13_ASAP7_75t_R' not found.
+Warning 354: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx16_ASAP7_75t_R' not found.
 LVT INVx1_ASAP7_75t_L equiv count = 21
 LVT INVx2_ASAP7_75t_L equiv count = 21
 LVT INVx4_ASAP7_75t_L equiv count = 21
 LVT INVx8_ASAP7_75t_L equiv count = 21
-Warning: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx1_ASAP7_75t_L' not found.
+Warning 354: liberty_equiv_cross_lib.tcl line 1, cell 'BUFx1_ASAP7_75t_L' not found.
 LVT BUFx2_ASAP7_75t_L equiv count = 16
 LVT BUFx4_ASAP7_75t_L equiv count = 16
 LVT BUFx8_ASAP7_75t_L equiv count = 16
@@ -34,7 +34,7 @@ SEQ RVT DFFHQNx1 equiv count = 3
   equiv: DFFHQNx3_ASAP7_75t_R
 SEQ RVT ICGx1 equiv count = 10
 SEQ RVT DLLx1 equiv count = 3
-Warning: liberty_equiv_cross_lib.tcl line 1, cell 'SDFHQNx1_ASAP7_75t_R' not found.
+Warning 354: liberty_equiv_cross_lib.tcl line 1, cell 'SDFHQNx1_ASAP7_75t_R' not found.
 equiv SEQ RVT/LVT DFFHQNx1 = 1
 port_equiv SEQ RVT/LVT DFFHQNx1 = 1
 Sky130 inv_1 equiv count = 16

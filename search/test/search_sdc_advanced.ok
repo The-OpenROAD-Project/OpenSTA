@@ -315,7 +315,7 @@ Path Type: max
 
 
 --- set_disable_timing with from/to on lib cell ---
-Warning: search_sdc_advanced.tcl line 1, library 'Nangate45_typ' not found.
+Warning 353: search_sdc_advanced.tcl line 1, library 'Nangate45_typ' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -344,7 +344,7 @@ Path Type: max
 
 
 --- unset lib cell disable ---
-Warning: search_sdc_advanced.tcl line 1, library 'Nangate45_typ' not found.
+Warning 353: search_sdc_advanced.tcl line 1, library 'Nangate45_typ' not found.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk

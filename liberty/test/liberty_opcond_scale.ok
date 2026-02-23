@@ -1,4 +1,4 @@
-Warning: liberty_opcond_scale.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Warning 441: liberty_opcond_scale.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 No paths found.
 INFO: wireload selection not found
 No paths found.

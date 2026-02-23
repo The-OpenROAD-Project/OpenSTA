@@ -54,6 +54,7 @@ Path Type: min
 
 
 --- find_timing_paths with various filters ---
+Warning 502: search_multiclock.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Max paths: 8
   out1 slack=7.918512068272321e-9
   out1 slack=7.924581879592552e-9
@@ -63,6 +64,7 @@ Max paths: 8
   reg1/D slack=8.925195693620935e-9
   reg2/D slack=9.860293914698559e-9
   reg2/D slack=9.865853023427462e-9
+Warning 502: search_multiclock.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Min paths: 8
   reg2/D slack=9.851738869137705e-11
   reg2/D slack=9.93004775629025e-11
@@ -357,6 +359,7 @@ Path Type: max
 
 
 --- report_path_end with specific endpoints ---
+Warning 502: search_multiclock.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: input_group
@@ -893,11 +896,13 @@ Path Type: max
   path arrival: 1.0440722730820085e-9
   path required: 0.0
 --- find_timing_paths min_max ---
+Warning 502: search_multiclock.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Min_max paths: 18
 --- find_timing_paths with unique_edges ---
+Warning 502: search_multiclock.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Unique edge paths: 4
 --- set_clock_sense ---
-Warning: search_multiclock.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Warning 415: search_multiclock.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: input_group
@@ -1010,7 +1015,7 @@ Path Type: max
            8.92   slack (MET)
 
 
-Warning: search_multiclock.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Warning 415: search_multiclock.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
 Startpoint: in2 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: input_group

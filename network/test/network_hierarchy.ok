@@ -3,9 +3,9 @@ flat cells: 7
 hierarchical cells: 11
 sub* cells (flat): 2
 sub* cells (hier): 2
-Warning: network_hierarchy.tcl line 1, instance 'sub1/*' not found.
+Warning 349: network_hierarchy.tcl line 1, instance 'sub1/*' not found.
 sub1/* cells (hier): 0
-Warning: network_hierarchy.tcl line 1, instance 'sub2/*' not found.
+Warning 349: network_hierarchy.tcl line 1, instance 'sub2/*' not found.
 sub2/* cells (hier): 0
 *gate* cells (hier): 4
 --- hierarchical pin queries ---
@@ -359,7 +359,7 @@ Path Type: max
            9.89   slack (MET)
 
 
-Warning: network_hierarchy.tcl line 1, unknown field nets.
+Warning 168: network_hierarchy.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk

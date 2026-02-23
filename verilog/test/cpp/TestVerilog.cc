@@ -2,7 +2,7 @@
 #include <string>
 #include "VerilogNamespace.hh"
 #include "PortDirection.hh"
-#include "verilog/VerilogReader.hh"
+#include "VerilogReader.hh"
 #include "verilog/VerilogReaderPvt.hh"
 
 namespace sta {
@@ -1933,7 +1933,7 @@ TEST_F(VerilogTest, DclBusDifferentRange) {
 #include "Sta.hh"
 #include "Network.hh"
 #include "ReportTcl.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "Error.hh"
 #include "VerilogWriter.hh"
 
@@ -1951,33 +1951,33 @@ protected:
     if (report)
       report->setTclInterp(interp_);
 
-    Corner *corner = sta_->cmdCorner();
+    Scene *scene = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     bool infer_latches = false;
 
     LibertyLibrary *lib_seq = sta_->readLiberty(
       "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib",
-      corner, min_max, infer_latches);
+      scene, min_max, infer_latches);
     if (!lib_seq) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_inv = sta_->readLiberty(
       "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz",
-      corner, min_max, infer_latches);
+      scene, min_max, infer_latches);
     if (!lib_inv) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_simple = sta_->readLiberty(
       "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      scene, min_max, infer_latches);
     if (!lib_simple) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_oa = sta_->readLiberty(
       "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      scene, min_max, infer_latches);
     if (!lib_oa) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_ao = sta_->readLiberty(
       "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      scene, min_max, infer_latches);
     if (!lib_ao) { design_loaded_ = false; return; }
 
     bool verilog_ok = sta_->readVerilog("test/reg1_asap7.v");
