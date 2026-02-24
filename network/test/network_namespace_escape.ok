@@ -106,7 +106,6 @@ Path Type: max
 
 
 --- Test 2: SDC namespace with hierarchical design ---
-Warning 1140: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 sdc hier cells: 11
 sdc hier pins: 30
 sdc hier nets: 19
@@ -186,7 +185,6 @@ Path Type: max
 
 
 --- Test 3: path divider ---
-Warning 1140: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 sub1/* pins (default divider): 3
 hier sub1/* pins: 3
 sub1 cell ref: sub_block

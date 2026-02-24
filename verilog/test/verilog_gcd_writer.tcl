@@ -2,6 +2,7 @@
 # unconnected pins, many cell types, power/ground nets).
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Write GCD sky130 with various options

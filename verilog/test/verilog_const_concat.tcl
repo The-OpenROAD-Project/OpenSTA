@@ -1,6 +1,7 @@
 # Test verilog with net constants (1'b0, 1'b1), concatenation and part selects.
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Read verilog with constants

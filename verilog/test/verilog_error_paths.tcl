@@ -12,6 +12,7 @@
 #     writePortDcls with bus ports
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Read hierarchical design with buses and assigns

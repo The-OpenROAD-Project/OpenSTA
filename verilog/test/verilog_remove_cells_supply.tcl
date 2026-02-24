@@ -1,5 +1,6 @@
 # Test 6: Write assign/tristate design with removes
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 proc assert_file_nonempty {path} {
   if {![file exists $path]} {

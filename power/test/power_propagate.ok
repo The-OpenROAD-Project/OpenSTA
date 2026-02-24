@@ -1129,7 +1129,6 @@ Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Total                  1.74e+06   1.64e+06   9.94e-10   3.38e+06 100.0%
                           51.5%      48.5%       0.0%
 --- Test 6: SAIF power ---
-Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Annotated 937 pin activities.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -1153,7 +1152,6 @@ Total                  4.37e-04   1.37e-04   9.91e-10   5.74e-04 100.0%
 saif          937
 unannotated     0
 --- Test 7: power with defaults ---
-Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------

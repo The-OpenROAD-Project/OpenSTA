@@ -6,6 +6,7 @@
 #   makeModuleInst, linkNetwork, various cell types, declaration handling)
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Read and write GCD sky130hd design (large design)

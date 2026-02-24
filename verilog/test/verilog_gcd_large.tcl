@@ -14,6 +14,7 @@
 #   VerilogLex.ll: tokenization of larger file, bus brackets,
 #     escaped identifiers, string tokens
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 ############################################################
 # Test 1: Read Sky130 library and GCD verilog

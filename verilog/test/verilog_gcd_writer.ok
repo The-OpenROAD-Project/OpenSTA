@@ -9,7 +9,6 @@ Warning 101: verilog_gcd_writer.tcl line 1, object 'sky130_fd_sc_hd__tt_025C_1v8
 No differences found.
 No differences found.
 --- Test 2: roundtrip ---
-Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 roundtrip cells: 1292
 No differences found.
 --- Test 3: timing after roundtrip ---
@@ -138,6 +137,5 @@ No differences found.
 --- Test 5: additional write option ---
 No differences found.
 --- Test 6: modify then write ---
-Warning 1140: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 No differences found.
 No differences found.

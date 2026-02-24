@@ -1,5 +1,6 @@
 # Test 2: Write with remove_cells for multi-gate design
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 proc assert_file_nonempty {path} {
   if {![file exists $path]} {

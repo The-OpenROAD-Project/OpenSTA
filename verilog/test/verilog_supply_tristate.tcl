@@ -15,6 +15,7 @@
 #   writePortDcls with tristate direction
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Read verilog with supply0/supply1/tri

@@ -13,6 +13,7 @@
 #   VerilogNamespace.cc: staToVerilog, verilogToSta name conversion
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog network_hier_test.v

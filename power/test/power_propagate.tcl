@@ -1,5 +1,6 @@
 # Test power propagation, per-instance power breakdown, and activity querying.
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Power with GCD design and VCD - comprehensive

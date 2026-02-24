@@ -5,7 +5,6 @@ ports: 11
 No differences found.
 No differences found.
 --- Test 2: roundtrip bus design ---
-Warning 1140: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 roundtrip cells: 12
 roundtrip nets: 19
 roundtrip ports: 11

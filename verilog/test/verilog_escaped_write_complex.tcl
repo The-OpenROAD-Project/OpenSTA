@@ -1,6 +1,7 @@
 # Test 3: Write complex bus design
 # Exercises: writeWireDcls with bus nets (isBusName, parseBusName)
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 3: Write complex bus design

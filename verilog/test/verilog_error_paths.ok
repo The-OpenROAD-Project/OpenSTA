@@ -349,6 +349,5 @@ Instance reg3
   VDD power (unconnected)
   VSS ground (unconnected)
 --- Test 7: re-read ---
-Warning 1140: ../../test/nangate45/Nangate45_typ.lib line 37, library NangateOpenCellLibrary already exists.
 re-read cells: 34
 re-read nets: 55

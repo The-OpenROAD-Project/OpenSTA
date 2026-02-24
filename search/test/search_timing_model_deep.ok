@@ -3,7 +3,6 @@
 --- write_timing_model -library_name -cell_name ---
 --- write_timing_model -scene ---
 --- Read back generated model ---
-Warning 1140: /workspace/sta/OpenSTA/search/test/results/timing_model_deep1.lib line 1, library search_path_end_types already exists.
 --- min_period_violations ---
 min_period_violations: skipped (API removed)
 --- min_period_check_slack ---

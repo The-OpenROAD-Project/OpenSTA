@@ -1,6 +1,7 @@
 # Test 6: Write constant/concat design
 # Exercises: writeChildren with constant pin connections
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 proc assert_file_nonempty {path} {
   if {![file exists $path] || [file size $path] <= 0} {

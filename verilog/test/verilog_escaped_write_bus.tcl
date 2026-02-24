@@ -1,6 +1,7 @@
 # Test 1: Write verilog for bus design (exercises bus wire declarations)
 # Test 2: Read back written bus verilog (roundtrip)
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Write verilog for bus design (exercises bus wire declarations)

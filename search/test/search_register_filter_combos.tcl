@@ -132,7 +132,8 @@ puts "fall output_pins: [llength $fall_op]"
 ############################################################
 # Part 2: Async reset DFF design - async pin queries
 ############################################################
-read_liberty ../../test/nangate45/Nangate45_typ.lib
+# Reuse the already-loaded Nangate library from Part 1 to avoid duplicate
+# library redefinition warnings in test output.
 read_verilog search_path_end_types.v
 link_design search_path_end_types
 

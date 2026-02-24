@@ -1,6 +1,7 @@
 # Test 3: Multiple re-reads of same file
 # Exercises: module re-definition paths in VerilogReader
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 3: Multiple re-reads of same file

@@ -3583,7 +3583,6 @@ Total                  3.48e+05   3.28e+05   9.94e-10   6.76e+05 100.0%
   }
 }
 --- Test 9: SAIF power ---
-Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 Annotated 937 pin activities.
 saif          937
 unannotated     0

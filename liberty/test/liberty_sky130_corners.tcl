@@ -1,5 +1,6 @@
 # Test multi-corner library reading and timing analysis with Sky130HD.
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 ############################################################
 # Define corners and read Sky130HD libraries with explicit -max/-min views

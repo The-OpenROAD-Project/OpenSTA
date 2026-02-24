@@ -1,6 +1,7 @@
 # Test 1: Write with -remove_cells option (nangate45 design)
 # Test 4: Read back written file with removed cells
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Write with -remove_cells option (nangate45 design)

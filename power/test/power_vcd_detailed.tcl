@@ -6,6 +6,7 @@
 #   SaifReader.cc (SAIF reading and activity annotation)
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: VCD-based power with full reporting

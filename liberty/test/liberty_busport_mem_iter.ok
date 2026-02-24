@@ -102,4 +102,3 @@ sky130_fd_sc_hd__ebufn_2/A dir=input func="" tri=""
 sky130_fd_sc_hd__ebufn_2/TE_B dir=input func="" tri=""
 sky130_fd_sc_hd__ebufn_2/Z dir=tristate func="A" tri="!TE_B"
 Warning 1171: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
-Warning 1140: /workspace/sta/OpenSTA/liberty/test/results/liberty_busport_mem_iter_write.lib line 1, library fakeram45_64x7 already exists.

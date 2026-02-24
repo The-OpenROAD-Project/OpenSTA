@@ -1,6 +1,7 @@
 # Test liberty writer and advanced reading features for code coverage
 # Targets: LibertyWriter.cc, LibertyReader.cc (more paths), LibertyBuilder.cc
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 proc assert_written_liberty {path lib_name} {
   if {![file exists $path]} {

@@ -40,3 +40,35 @@ foreach cell_name $cell_names {
     error "$cell_name has no timing arcs"
   }
 }
+
+# Verify ECSM-tagged library also participates in actual timing paths.
+read_verilog liberty_ecsm_test.v
+link_design liberty_ecsm_test
+
+create_clock -name clk -period 10 [get_ports clk]
+set_input_delay -clock clk 1.0 [get_ports in1]
+set_output_delay -clock clk 1.0 [get_ports out1]
+
+with_output_to_variable max_rep {
+  report_checks -path_delay max -from [get_ports in1] -to [get_ports out1]
+}
+if {![regexp {Startpoint:\s+in1} $max_rep]
+    || ![regexp {Endpoint:\s+out1} $max_rep]
+    || ![regexp {u1/} $max_rep]
+    || ![regexp {u2/} $max_rep]
+    || ![regexp {slack} $max_rep]} {
+  error "ECSM max timing report missing expected path content"
+}
+puts "ecsm timing max: ok"
+
+with_output_to_variable min_rep {
+  report_checks -path_delay min -from [get_ports in1] -to [get_ports out1]
+}
+if {![regexp {Startpoint:\s+in1} $min_rep]
+    || ![regexp {Endpoint:\s+out1} $min_rep]
+    || ![regexp {u1/} $min_rep]
+    || ![regexp {u2/} $min_rep]
+    || ![regexp {slack} $min_rep]} {
+  error "ECSM min timing report missing expected path content"
+}
+puts "ecsm timing min: ok"

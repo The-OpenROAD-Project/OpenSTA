@@ -3,6 +3,7 @@
 # and write_verilog roundtrip of bus designs.
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Read verilog with bus expressions

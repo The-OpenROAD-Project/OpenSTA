@@ -31,4 +31,3 @@ Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz lin
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14748, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14781, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_SLVT_FF_nldm_211120.lib.gz line 14814, timing group from output port.
-Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.

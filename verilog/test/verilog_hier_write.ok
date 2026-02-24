@@ -17,7 +17,6 @@ No differences found.
 No differences found.
 --- Test 4: write_verilog -remove_cells ---
 --- Test 5: read back written verilog ---
-Warning 1140: ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib line 1, library sky130_fd_sc_hd__tt_025C_1v80 already exists.
 roundtrip cells: 1292
 roundtrip nets: 288
 roundtrip ports: 54

@@ -1,5 +1,6 @@
 # Test pg_pin, voltage_map, supply voltage, and power group parsing.
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 ############################################################
 # Read Sky130 library (has pg_pin, voltage_map extensively)

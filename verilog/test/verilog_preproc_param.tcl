@@ -11,6 +11,7 @@
 #     makeModule, makeDcl, linkNetwork
 
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 1: Read verilog with preprocessor/parameter constructs

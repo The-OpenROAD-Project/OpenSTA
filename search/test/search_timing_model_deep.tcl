@@ -9,6 +9,7 @@
 #          reportShort/Verbose for MinPeriod and MaxSkew,
 #          ClkSkew.cc ClkSkew copy, findClkSkew
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog search_path_end_types.v

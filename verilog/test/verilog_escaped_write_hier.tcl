@@ -1,6 +1,7 @@
 # Test 4: Write hierarchical design
 # Exercises: findHierChildren, writeModule for sub-modules, sorted child output
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 #---------------------------------------------------------------
 # Test 4: Write hierarchical design

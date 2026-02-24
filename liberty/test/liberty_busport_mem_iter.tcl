@@ -1,6 +1,7 @@
 # Test bus port member iteration, bundle ports, port functions,
 # tristate enable, sequential queries, and diverse cell classification.
 source ../../test/helpers.tcl
+suppress_msg 1140
 
 ############################################################
 # Read SRAM macro library (has bus ports)
