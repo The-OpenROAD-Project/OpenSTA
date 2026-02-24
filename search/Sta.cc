@@ -2498,27 +2498,31 @@ Sta::makeScene(const std::string &name,
                const std::string &spef_max_file)
 {
   Mode *mode = findMode(mode_name);
-  Parasitics *parasitics_default = findParasitics("default");
-  Parasitics *parasitics_min = parasitics_default;
-  Parasitics *parasitics_max = parasitics_default;
-  if (!spef_min_file.empty() && !spef_max_file.empty()) {
-    parasitics_min = findParasitics(spef_min_file);
-    parasitics_max = findParasitics(spef_max_file);
-    if (parasitics_min == nullptr)
-      report_->error(1558, "Spef file %s not found.", spef_min_file.c_str());
-    if (parasitics_max == nullptr
-        && spef_max_file != spef_min_file)
-      report_->error(1559, "Spef file %s not found.", spef_max_file.c_str());
-  }
+  if (mode) {
+    Parasitics *parasitics_default = findParasitics("default");
+    Parasitics *parasitics_min = parasitics_default;
+    Parasitics *parasitics_max = parasitics_default;
+    if (!spef_min_file.empty() && !spef_max_file.empty()) {
+      parasitics_min = findParasitics(spef_min_file);
+      parasitics_max = findParasitics(spef_max_file);
+      if (parasitics_min == nullptr)
+        report_->error(1558, "Spef file %s not found.", spef_min_file.c_str());
+      if (parasitics_max == nullptr
+          && spef_max_file != spef_min_file)
+        report_->error(1559, "Spef file %s not found.", spef_max_file.c_str());
+    }
 
-  mode->sdc()->makeSceneBefore();
-  Scene *scene = makeScene(name, mode, parasitics_min, parasitics_max);
-  updateComponentsState();
-  if (graph_)
-    graph_->makeSceneAfter();
-  updateSceneLiberty(scene, liberty_min_files, MinMax::min());
-  updateSceneLiberty(scene, liberty_max_files, MinMax::max());
-  cmd_scene_ = scene;
+    mode->sdc()->makeSceneBefore();
+    Scene *scene = makeScene(name, mode, parasitics_min, parasitics_max);
+    updateComponentsState();
+    if (graph_)
+      graph_->makeSceneAfter();
+    updateSceneLiberty(scene, liberty_min_files, MinMax::min());
+    updateSceneLiberty(scene, liberty_max_files, MinMax::max());
+    cmd_scene_ = scene;
+  }
+  else
+    report_->error(1572, "mode %s not found.", mode_name.c_str());
 }
 
 Scene *
