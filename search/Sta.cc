@@ -3107,7 +3107,7 @@ Sta::required(Vertex *vertex,
 
 Slack
 Sta::slack(const Net *net,
-	      const MinMax *min_max)
+           const MinMax *min_max)
 {
   ensureGraph();
   Slack min_slack = MinMax::min()->initValue();
@@ -3129,7 +3129,7 @@ Slack
 Sta::slack(const Pin *pin,
            const RiseFallBoth *rf,
            const SceneSeq &scenes,
-	      const MinMax *min_max)
+           const MinMax *min_max)
 {
   ensureGraph();
   Vertex *vertex, *bidirect_drvr_vertex;
