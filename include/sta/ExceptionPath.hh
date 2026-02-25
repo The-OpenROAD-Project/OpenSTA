@@ -497,8 +497,17 @@ protected:
                const Network *network) const;
   virtual const char *cmdKeyword() const;
 
+  bool matchesInst(const Pin *pin,
+                   bool inst_matches_reg_clk_pin,
+                   const Network *network) const;
+
   // -rise|-fall endpoint transition.
   const RiseFallBoth *end_rf_;
+
+  static constexpr int cache_size_ = 16;
+  mutable const Pin *inst_match_pins_[cache_size_] = {nullptr};
+  mutable bool inst_match_results_[cache_size_] = {false};
+  mutable bool inst_match_reg_clk_[cache_size_] = {false};
 };
 
 class ExceptionThru : public ExceptionPt

@@ -352,7 +352,17 @@ VertexSeq
 Levelize::findTopologicalOrder()
 {
   Stats stats(debug_, report_);
-  std::map<Vertex*, int> in_degree;
+  
+  // Use vector instead of map for O(1) access
+  VertexId max_id = 0;
+  VertexIterator vertex_iter_max(graph_);
+  while (vertex_iter_max.hasNext()) {
+    Vertex *vertex = vertex_iter_max.next();
+    VertexId id = graph_->id(vertex);
+    if (id > max_id)
+      max_id = id;
+  }
+  std::vector<int> in_degree(max_id + 1, 0);
 
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
@@ -362,7 +372,7 @@ Levelize::findTopologicalOrder()
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
       if (searchThru(edge))
-        in_degree[to_vertex] += 1;
+        in_degree[graph_->id(to_vertex)] += 1;
       if (edge->role() == TimingRole::latchDtoQ())
         latch_d_to_q_edges_.insert(edge);
     }
@@ -370,8 +380,9 @@ Levelize::findTopologicalOrder()
     const Pin *pin = vertex->pin();
     if (graph_delay_calc_->bidirectDrvrSlewFromLoad(pin)
         && !vertex->isBidirectDriver()) {
-      Vertex *to_vertex = graph_->pinDrvrVertex(pin);;
-      in_degree[to_vertex] += 1;
+      Vertex *to_vertex = graph_->pinDrvrVertex(pin);
+      if (to_vertex)
+        in_degree[graph_->id(to_vertex)] += 1;
     }
   }
 
@@ -389,10 +400,9 @@ Levelize::findTopologicalOrder()
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
       if (searchThru(edge)) {
-        const auto &to_degree_itr = in_degree.find(to_vertex);
-        int &to_in_degree = to_degree_itr->second;
-        to_in_degree -= 1;
-        if (to_in_degree == 0)
+        int &degree = in_degree[graph_->id(to_vertex)];
+        degree -= 1;
+        if (degree == 0)
           queue.push_back(to_vertex);
       }
     }
@@ -401,11 +411,12 @@ Levelize::findTopologicalOrder()
     if (graph_delay_calc_->bidirectDrvrSlewFromLoad(pin)
         && !vertex->isBidirectDriver()) {
       Vertex *to_vertex = graph_->pinDrvrVertex(pin);
-      const auto &degree_itr = in_degree.find(to_vertex);
-      int &in_degree = degree_itr->second;
-      in_degree -= 1;
-      if (in_degree == 0)
-        queue.push_back(to_vertex);
+      if (to_vertex) {
+        int &degree = in_degree[graph_->id(to_vertex)];
+        degree -= 1;
+        if (degree == 0)
+          queue.push_back(to_vertex);
+      }
     }
   }
 
@@ -413,7 +424,7 @@ Levelize::findTopologicalOrder()
     VertexIterator vertex_iter(graph_);
     while (vertex_iter.hasNext()) {
       Vertex *vertex = vertex_iter.next();
-      if (in_degree[vertex] != 0)
+      if (in_degree[graph_->id(vertex)] != 0)
         debugPrint(debug_, "levelize", 2, "topological sort missing %s",
                    vertex->to_string(this).c_str());
     }

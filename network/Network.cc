@@ -1986,7 +1986,18 @@ bool
 CellIdLess::operator()(const Cell *cell1,
                        const Cell *cell2) const
 {
-  return network_->id(cell1) < network_->id(cell2);
+  return id(cell1) < id(cell2);
+}
+
+ObjectId
+CellIdLess::id(const Cell *cell) const
+{
+  int index = (reinterpret_cast<uintptr_t>(cell) >> 4) & 0xf;
+  if (cell == last_cells_[index])
+    return last_ids_[index];
+  last_cells_[index] = cell;
+  last_ids_[index] = (network_) ? network_->id(cell) : 0;
+  return last_ids_[index];
 }
 
 PortIdLess::PortIdLess(const Network *network) :
@@ -1998,7 +2009,18 @@ bool
 PortIdLess::operator()(const Port *port1,
                       const Port *port2) const
 {
-  return network_->id(port1) < network_->id(port2);
+  return id(port1) < id(port2);
+}
+
+ObjectId
+PortIdLess::id(const Port *port) const
+{
+  int index = (reinterpret_cast<uintptr_t>(port) >> 4) & 0xf;
+  if (port == last_ports_[index])
+    return last_ids_[index];
+  last_ports_[index] = port;
+  last_ids_[index] = (network_) ? network_->id(port) : 0;
+  return last_ids_[index];
 }
 
 InstanceIdLess::InstanceIdLess(const Network *network) :
@@ -2010,7 +2032,18 @@ bool
 InstanceIdLess::operator()(const Instance *inst1,
                            const Instance *inst2) const
 {
-  return network_->id(inst1) < network_->id(inst2);
+  return id(inst1) < id(inst2);
+}
+
+ObjectId
+InstanceIdLess::id(const Instance *inst) const
+{
+  int index = (reinterpret_cast<uintptr_t>(inst) >> 4) & 0xf;
+  if (inst == last_insts_[index])
+    return last_ids_[index];
+  last_insts_[index] = inst;
+  last_ids_[index] = (network_) ? network_->id(inst) : 0;
+  return last_ids_[index];
 }
 
 PinIdLess::PinIdLess(const Network *network) :
@@ -2022,7 +2055,18 @@ bool
 PinIdLess::operator()(const Pin *pin1,
                       const Pin *pin2) const
 {
-  return network_->id(pin1) < network_->id(pin2);
+  return id(pin1) < id(pin2);
+}
+
+ObjectId
+PinIdLess::id(const Pin *pin) const
+{
+  int index = (reinterpret_cast<uintptr_t>(pin) >> 4) & 0xf;
+  if (pin == last_pins_[index])
+    return last_ids_[index];
+  last_pins_[index] = pin;
+  last_ids_[index] = (network_) ? network_->id(pin) : 0;
+  return last_ids_[index];
 }
 
 PinIdHash::PinIdHash(const Network *network) :
@@ -2033,7 +2077,18 @@ PinIdHash::PinIdHash(const Network *network) :
 size_t
 PinIdHash::operator()(const Pin *pin) const
 {
-  return network_->id(pin);
+  return id(pin);
+}
+
+size_t
+PinIdHash::id(const Pin *pin) const
+{
+  int index = (reinterpret_cast<uintptr_t>(pin) >> 4) & 0xf;
+  if (pin == last_pins_[index])
+    return last_ids_[index];
+  last_pins_[index] = pin;
+  last_ids_[index] = (network_) ? network_->id(pin) : 0;
+  return last_ids_[index];
 }
 
 NetIdLess::NetIdLess(const Network *network) :
@@ -2045,7 +2100,18 @@ bool
 NetIdLess::operator()(const Net *net1,
                       const Net *net2) const
 {
-  return network_->id(net1) < network_->id(net2);
+  return id(net1) < id(net2);
+}
+
+ObjectId
+NetIdLess::id(const Net *net) const
+{
+  int index = (reinterpret_cast<uintptr_t>(net) >> 4) & 0xf;
+  if (net == last_nets_[index])
+    return last_ids_[index];
+  last_nets_[index] = net;
+  last_ids_[index] = (network_) ? network_->id(net) : 0;
+  return last_ids_[index];
 }
 
 ////////////////////////////////////////////////////////////////
