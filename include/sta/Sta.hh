@@ -1596,9 +1596,8 @@ protected:
   void setThreadCount1(int thread_count);
   void updateLibertyScenes();
   void updateSceneLiberty(Scene *scene,
-                          const StdStringSeq &liberty_files,
-                          const MinMax *min_max);
-  LibertyLibrary *findLibertyFileBasename(const std::string &filename) const;
+                          const StdStringSeq &liberty_min_files,
+                          const StdStringSeq &liberty_max_files);
 
   Scene *makeScene(const std::string &name,
                    Mode *mode,
