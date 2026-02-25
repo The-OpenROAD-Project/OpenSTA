@@ -92,15 +92,25 @@ staToVerilog(const char *sta_name)
       escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
+<<<<<<< HEAD
         // Only keep the character after "\"
         // to remove the escape added by verilogToSta"
 	escaped_name += next_ch;
 	s++;
       }
+=======
+        escaped_name += ch;
+        escaped_name += next_ch;
+        s++;
+      }
+      else
+        // Skip escape.
+        escaped = true;
+>>>>>>> master
     }
     else {
       if ((!(isalnum(ch) || ch == '_')))
-	escaped = true;
+        escaped = true;
       escaped_name += ch;
     }
   }
@@ -131,15 +141,25 @@ staToVerilog2(const char *sta_name)
       escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
+<<<<<<< HEAD
 	escaped_name += next_ch;
 	s++;
       }
+=======
+        escaped_name += ch;
+        escaped_name += next_ch;
+        s++;
+      }
+      else
+        // Skip escape.
+        escaped = true;
+>>>>>>> master
     }
     else {
       bool is_brkt = (ch == bus_brkt_left || ch == bus_brkt_right);
       if ((!(isalnum(ch) || ch == '_') && !is_brkt)
-	  || is_brkt)
-	escaped = true;
+          || is_brkt)
+        escaped = true;
       escaped_name += ch;
     }
   }
@@ -198,7 +218,7 @@ verilogToSta(const string *verilog_name)
           || ch == divider
           || ch == verilog_escape)
           // Escape bus brackets, dividers and escapes.
-	sta_name += verilog_escape;
+        sta_name += verilog_escape;
       sta_name += ch;
     }
     return sta_name;

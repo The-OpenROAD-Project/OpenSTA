@@ -24,7 +24,8 @@
 
 #pragma once
 
-#include "Map.hh"
+#include <map>
+
 #include "Transition.hh"
 #include "NetworkClass.hh"
 #include "Graph.hh"
@@ -40,51 +41,53 @@ class BfsBkwdIterator;
 class SearchPred;
 class TagGroupBldr;
 
-typedef std::pair<const Clock*,const Pin *> ClockPinPair;
+using ClockPinPair = std::pair<const Clock*,const Pin *>;
 
 class ClockPinPairLess
 {
 public:
   bool operator()(const ClockPinPair &pair1,
-		  const ClockPinPair &pair2) const;
+                  const ClockPinPair &pair2) const;
 };
 
-typedef Map<Clock*, GenclkInfo*> GenclkInfoMap;
-typedef Map<ClockPinPair, std::vector<Path>, ClockPinPairLess> GenclkSrcPathMap;
-typedef std::map<Vertex*, std::vector<const Path*>, VertexIdLess> VertexGenclkSrcPathsMap;
+using GenclkInfoMap = std::map<Clock*, GenclkInfo*>;
+using GenclkSrcPathMap = std::map<ClockPinPair, std::vector<Path>, ClockPinPairLess>;
+using VertexGenclkSrcPathsMap = std::map<Vertex*, std::vector<const Path*>, VertexIdLess>;
 
 class Genclks : public StaState
 {
 public:
-  Genclks(StaState *sta);
-  ~Genclks();
+  Genclks(const Mode *mode,
+          StaState *sta);
+  virtual ~Genclks();
   void clear();
   void ensureInsertionDelays();
   VertexSet *fanins(const Clock *clk);
   void findLatchFdbkEdges(const Clock *clk);
-  EdgeSet *latchFdbkEdges(const Clock *clk);
-  void checkMaster(Clock *gclk);
-  void ensureMaster(Clock *gclk);
+  EdgeSet &latchFdbkEdges(const Clock *clk);
+  void checkMaster(Clock *gclk,
+                   const Sdc *sdc);
+  void ensureMaster(Clock *gclk,
+                    const Sdc *sdc);
   // Generated clock insertion delay.
   Arrival insertionDelay(const Clock *clk,
-			 const Pin *pin,
-			 const RiseFall *rf,
-			 const EarlyLate *early_late,
-			 const PathAnalysisPt *path_ap) const;
+                         const Pin *pin,
+                         const RiseFall *rf,
+                         const EarlyLate *early_late) const;
   // Generated clock source path for a clock path root.
   const Path *srcPath(const Path *clk_path) const;
   // Generated clock source path.
   const Path *srcPath(const ClockEdge *clk_edge,
                       const Pin *src_pin,
-                      const PathAnalysisPt *path_ap) const;
+                      const MinMax *min_max) const;
   const Path *srcPath(const Clock *clk,
                       const Pin *src_pin,
                       const RiseFall *rf,
-                      const PathAnalysisPt *path_ap) const;
+                      const MinMax *min_max) const;
   Vertex *srcPath(const Pin *pin) const;
   Level clkPinMaxLevel(const Clock *clk) const;
   void copyGenClkSrcPaths(Vertex *vertex,
-			  TagGroupBldr *tag_bldr);
+                          TagGroupBldr *tag_bldr);
 
 private:
   void findInsertionDelays();
@@ -93,45 +96,47 @@ private:
   void recordSrcPaths(Clock *gclk);
   void findInsertionDelays(Clock *gclk);
   void seedClkVertices(Clock *clk,
-		       BfsBkwdIterator &iter,
-		       VertexSet *fanins);
+                       BfsBkwdIterator &iter,
+                       VertexSet &dfanins);
   size_t srcPathIndex(const RiseFall *clk_rf,
-                      const PathAnalysisPt *path_ap) const;
+                      const MinMax *min_max) const;
   bool matchesSrcFilter(Path *path,
-			const Clock *gclk) const;
+                        const Clock *gclk) const;
   void seedSrcPins(Clock *gclk,
-		   FilterPath *src_filter,
-		   BfsFwdIterator &insert_iter);
+                   FilterPath *src_filter,
+                   BfsFwdIterator &insert_iter);
   void findSrcArrivals(Clock *gclk,
-		       BfsFwdIterator &insert_iter,
-		       GenclkInfo *genclk_info);
-  virtual FilterPath *makeSrcFilter(Clock *gclk);
+                       BfsFwdIterator &insert_iter,
+                       GenclkInfo *genclk_info);
+  FilterPath *makeSrcFilter(Clock *gclk,
+                            Sdc *sdc);
   void deleteGenClkInfo();
   virtual Tag *makeTag(const Clock *gclk,
-		       const Clock *master_clk,
-		       const Pin *master_pin,
-		       const RiseFall *rf,
-		       FilterPath *src_filter,
+                       const Clock *master_clk,
+                       const Pin *master_pin,
+                       const RiseFall *rf,
+                       FilterPath *src_filter,
                        Arrival insert,
-		       const PathAnalysisPt *path_ap);
+                       Scene *scene,
+                       const MinMax *min_max);
   void seedSrcPins(Clock *clk,
-		   BfsBkwdIterator &iter);
+                   BfsBkwdIterator &iter);
   void findInsertionDelay(Clock *gclk);
   GenclkInfo *makeGenclkInfo(Clock *gclk);
   FilterPath *srcFilter(Clock *gclk);
   void findFanin(Clock *gclk,
-		 // Return value.
-		 VertexSet *fanins);
+                 VertexSet &fanins);
   void findLatchFdbkEdges(const Clock *clk,
-			  GenclkInfo *genclk_info);
+                          GenclkInfo *genclk_info);
   void findLatchFdbkEdges(Vertex *vertex,
-			  Level gclk_level,
-			  SearchPred &srch_pred,
-			  VertexSet &path_vertices,
-			  VertexSet &visited_vertices,
-			  EdgeSet *&fdbk_edges);
+                          Level gclk_level,
+                          SearchPred &srch_pred,
+                          VertexSet &path_vertices,
+                          VertexSet &visited_vertices,
+                          EdgeSet &fdbk_edges);
   void deleteGenclkSrcPaths(Clock *gclk);
 
+  const Mode *mode_;
   bool found_insertion_delays_;
   GenclkSrcPathMap genclk_src_paths_;
   GenclkInfoMap genclk_info_map_;

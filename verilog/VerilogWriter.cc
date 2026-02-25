@@ -26,6 +26,7 @@
 
 #include <cstdlib>
 #include <algorithm>
+#include <map>
 
 #include "Error.hh"
 #include "Liberty.hh"
@@ -45,10 +46,10 @@ class VerilogWriter
 {
 public:
   VerilogWriter(const char *filename,
-		bool include_pwr_gnd,
-		CellSeq *remove_cells,
-		FILE *stream,
-		Network *network);
+                bool include_pwr_gnd,
+                CellSeq *remove_cells,
+                FILE *stream,
+                Network *network);
   void writeModules();
 
 protected:
@@ -64,14 +65,14 @@ protected:
   void writeChildren(const Instance *inst);
   void writeChild(const Instance *child);
   void writeInstPin(const Instance *inst,
-		    const Port *port,
-		    bool &first_port);
+                    const Port *port,
+                    bool &first_port);
   void writeInstBusPin(const Instance *inst,
-		       const Port *port,
-		       bool &first_port);
+                       const Port *port,
+                       bool &first_port);
   void writeInstBusPinBit(const Instance *inst,
-			  const Port *port,
-			  bool &first_member);
+                          const Port *port,
+                          bool &first_member);
   void writeAssigns(const Instance *inst);
 
   int findUnconnectedNetCount(const Instance *inst);
@@ -89,15 +90,15 @@ protected:
 
 void
 writeVerilog(const char *filename,
-	     bool include_pwr_gnd,
-	     CellSeq *remove_cells,
-	     Network *network)
+             bool include_pwr_gnd,
+             CellSeq *remove_cells,
+             Network *network)
 {
   if (network->topInstance()) {
     FILE *stream = fopen(filename, "w");
     if (stream) {
       VerilogWriter writer(filename, include_pwr_gnd,
-			   remove_cells, stream, network);
+                           remove_cells, stream, network);
       writer.writeModules();
       fclose(stream);
     }
@@ -107,10 +108,10 @@ writeVerilog(const char *filename,
 }
 
 VerilogWriter::VerilogWriter(const char *filename,
-			     bool include_pwr_gnd,
-			     CellSeq *remove_cells,
-			     FILE *stream,
-			     Network *network) :
+                             bool include_pwr_gnd,
+                             CellSeq *remove_cells,
+                             FILE *stream,
+                             Network *network) :
   filename_(filename),
   include_pwr_gnd_(include_pwr_gnd),
   remove_cells_(network),
@@ -161,7 +162,7 @@ VerilogWriter::findHierChildren(const Instance *inst,
     const Instance *child = child_iter->next();
     const Cell *cell = network_->cell(child);
     if (network_->isHierarchical(child)
-        && !cells.hasKey(cell)) {
+        && !cells.contains(cell)) {
       children.push_back(child);
       cells.insert(cell);
       findHierChildren(child, children, cells);
@@ -262,14 +263,14 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
   }
 }
 
-typedef std::pair<int, int> BusIndexRange;
+using BusIndexRange = std::pair<int, int>;
 
 void
 VerilogWriter::writeWireDcls(const Instance *inst)
 {
   Cell *cell = network_->cell(inst);
   char escape = network_->pathEscape();
-  Map<std::string, BusIndexRange, std::less<std::string>> bus_ranges;
+  std::map<std::string, BusIndexRange, std::less<std::string>> bus_ranges;
   NetIterator *net_iter = network_->netIterator(inst);
   while (net_iter->hasNext()) {
     Net *net = net_iter->next();
@@ -313,7 +314,7 @@ VerilogWriter::writeWireDcls(const Instance *inst)
 void
 VerilogWriter::writeChildren(const Instance *inst)
 {
-  Vector<Instance*> children;
+  std::vector<Instance*> children;
   InstanceChildIterator *child_iter = network_->childIterator(inst);
   while (child_iter->hasNext()) {
     Instance *child = child_iter->next();
@@ -334,23 +335,23 @@ void
 VerilogWriter::writeChild(const Instance *child)
 {
   Cell *child_cell = network_->cell(child);
-  if (!remove_cells_.hasKey(child_cell)) {
+  if (!remove_cells_.contains(child_cell)) {
     const char *child_name = network_->name(child);
     string child_vname = instanceVerilogName(child_name);
     string child_cell_vname = cellVerilogName(network_->name(child_cell));
     fprintf(stream_, " %s %s (",
-	    child_cell_vname.c_str(),
-	    child_vname.c_str());
+            child_cell_vname.c_str(),
+            child_vname.c_str());
     bool first_port = true;
     CellPortIterator *port_iter = network_->portIterator(child_cell);
     while (port_iter->hasNext()) {
       Port *port = port_iter->next();
       if (include_pwr_gnd_
-	  || !network_->direction(port)->isPowerGround()) {
-	if (network_->hasMembers(port))
-	  writeInstBusPin(child, port, first_port);
-	else
-	  writeInstPin(child, port, first_port);
+          || !network_->direction(port)->isPowerGround()) {
+        if (network_->hasMembers(port))
+          writeInstBusPin(child, port, first_port);
+        else
+          writeInstPin(child, port, first_port);
       }
     }
     delete port_iter;
@@ -360,8 +361,8 @@ VerilogWriter::writeChild(const Instance *child)
 
 void
 VerilogWriter::writeInstPin(const Instance *inst,
-			    const Port *port,
-			    bool &first_port)
+                            const Port *port,
+                            bool &first_port)
 {
   Pin *pin = network_->findPin(inst, port);
   if (pin) {
@@ -370,11 +371,11 @@ VerilogWriter::writeInstPin(const Instance *inst,
       const char *net_name = network_->name(net);
       string net_vname = netVerilogName(net_name);
       if (!first_port)
-	fprintf(stream_, ",\n    ");
+        fprintf(stream_, ",\n    ");
       string port_vname = portVerilogName(network_->name(port));
       fprintf(stream_, ".%s(%s)",
-	      port_vname.c_str(),
-	      net_vname.c_str());
+              port_vname.c_str(),
+              net_vname.c_str());
       first_port = false;
     }
   }
@@ -382,8 +383,8 @@ VerilogWriter::writeInstPin(const Instance *inst,
 
 void
 VerilogWriter::writeInstBusPin(const Instance *inst,
-			       const Port *port,
-			       bool &first_port)
+                               const Port *port,
+                               bool &first_port)
 {
   if (!first_port)
     fprintf(stream_, ",\n    ");
@@ -417,8 +418,8 @@ VerilogWriter::writeInstBusPin(const Instance *inst,
 
 void
 VerilogWriter::writeInstBusPinBit(const Instance *inst,
-				  const Port *port,
-				  bool &first_member)
+                                  const Port *port,
+                                  bool &first_member)
 {
   Pin *pin = network_->findPin(inst, port);
   Net *net = pin ? network_->net(pin) : nullptr;
@@ -486,7 +487,7 @@ VerilogWriter::findChildNCcount(const Instance *child)
 {
   int nc_count = 0;
   Cell *child_cell = network_->cell(child);
-  if (!remove_cells_.hasKey(child_cell)) {
+  if (!remove_cells_.contains(child_cell)) {
     CellPortIterator *port_iter = network_->portIterator(child_cell);
     while (port_iter->hasNext()) {
       Port *port = port_iter->next();

@@ -27,6 +27,7 @@
 #include <cstdarg>
 #include <cctype>
 
+#include "ContainerHelpers.hh"
 #include "Zlib.hh"
 #include "Error.hh"
 #include "Debug.hh"
@@ -37,8 +38,7 @@
 #include "Network.hh"
 #include "SdcNetwork.hh"
 #include "Graph.hh"
-#include "Corner.hh"
-#include "DcalcAnalysisPt.hh"
+#include "Scene.hh"
 #include "Sdc.hh"
 #include "sdf/SdfReaderPvt.hh"
 #include "sdf/SdfScanner.hh"
@@ -52,8 +52,8 @@ class SdfTriple
 {
 public:
   SdfTriple(float *min,
-	    float *typ,
-	    float *max);
+            float *typ,
+            float *max);
   ~SdfTriple();
   float **values() { return values_; }
   bool hasValue() const;
@@ -66,8 +66,8 @@ class SdfPortSpec
 {
 public:
   SdfPortSpec(const Transition *tr,
-	      const std::string *port,
-	      const std::string *cond);
+              const std::string *port,
+              const std::string *cond);
   ~SdfPortSpec();
   const string *port() const { return port_; }
   const Transition *transition() const { return tr_; }
@@ -82,32 +82,32 @@ private:
 bool
 readSdf(const char *filename,
         const char *path,
-        Corner *corner,
+        Scene *scene,
         bool unescaped_dividers,
         bool incremental_only,
         MinMaxAll *cond_use,
         StaState *sta)
 {
-  int arc_min_index = corner->findDcalcAnalysisPt(MinMax::min())->index();
-  int arc_max_index = corner->findDcalcAnalysisPt(MinMax::max())->index();
+  int arc_min_index = scene->dcalcAnalysisPtIndex(MinMax::min());
+  int arc_max_index = scene->dcalcAnalysisPtIndex(MinMax::max());
   SdfReader reader(filename, path,
-		   arc_min_index, arc_max_index, 
-		   sta->sdc()->analysisType(),
+                   arc_min_index, arc_max_index, 
+                   scene->sdc()->analysisType(),
                    unescaped_dividers, incremental_only,
-		   cond_use, sta);
+                   cond_use, sta);
   bool success = reader.read();
   return success;
 }
 
 SdfReader::SdfReader(const char *filename,
-		     const char *path,
+                     const char *path,
                      int arc_min_index,
-		     int arc_max_index,
-		     AnalysisType analysis_type,
-		     bool unescaped_dividers,
-		     bool is_incremental_only,
+                     int arc_max_index,
+                     AnalysisType analysis_type,
+                     bool unescaped_dividers,
+                     bool is_incremental_only,
                      MinMaxAll *cond_use,
-		     StaState *sta) :
+                     StaState *sta) :
   StaState(sta),
   filename_(filename),
   path_(path),
@@ -125,7 +125,7 @@ SdfReader::SdfReader(const char *filename,
   cell_name_(nullptr),
   in_timing_check_(false),
   in_incremental_(false),
-  timescale_(1.0E-9F)		// default units of ns
+  timescale_(1.0E-9F)           // default units of ns
 {
   if (unescaped_dividers)
     network_ = makeSdcNetwork(network_);
@@ -162,7 +162,7 @@ SdfReader::setDivider(char divider)
 
 void
 SdfReader::setTimescale(float multiplier,
-			const string *units)
+                        const string *units)
 {
   if (multiplier == 1.0
       || multiplier == 10.0
@@ -183,8 +183,8 @@ SdfReader::setTimescale(float multiplier,
 
 void
 SdfReader::interconnect(const string *from_pin_name,
-			const string *to_pin_name,
-			SdfTripleSeq *triples)
+                        const string *to_pin_name,
+                        SdfTripleSeq *triples)
 {
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)) {
@@ -194,29 +194,29 @@ SdfReader::interconnect(const string *from_pin_name,
       // Assume the pins are non-hierarchical and on the same net.
       Edge *edge = findWireEdge(from_pin, to_pin);
       if (edge)
-	setEdgeDelays(edge, triples, "INTERCONNECT");
+        setEdgeDelays(edge, triples, "INTERCONNECT");
       else {
-	bool from_is_hier = network_->isHierarchical(from_pin);
-	bool to_is_hier = network_->isHierarchical(to_pin);
-	if (from_is_hier || to_is_hier) {
-	  if (from_is_hier)
-	    sdfError(182, "pin %s is a hierarchical pin.",
+        bool from_is_hier = network_->isHierarchical(from_pin);
+        bool to_is_hier = network_->isHierarchical(to_pin);
+        if (from_is_hier || to_is_hier) {
+          if (from_is_hier)
+            sdfError(182, "pin %s is a hierarchical pin.",
                      from_pin_name->c_str());
-	  if (to_is_hier)
-	    sdfError(183, "pin %s is a hierarchical pin.",
+          if (to_is_hier)
+            sdfError(183, "pin %s is a hierarchical pin.",
                      to_pin_name->c_str());
-	}
-	else
-	  sdfWarn(184, "INTERCONNECT from %s to %s not found.",
+        }
+        else
+          sdfWarn(184, "INTERCONNECT from %s to %s not found.",
                   from_pin_name->c_str(),
                   to_pin_name->c_str());
       }
     }
     else {
       if (from_pin == nullptr)
-	sdfWarn(185, "pin %s not found.", from_pin_name->c_str());
+        sdfWarn(185, "pin %s not found.", from_pin_name->c_str());
       if (to_pin == nullptr)
-	sdfWarn(186, "pin %s not found.", to_pin_name->c_str());
+        sdfWarn(186, "pin %s not found.", to_pin_name->c_str());
     }
   }
   delete from_pin_name;
@@ -226,7 +226,7 @@ SdfReader::interconnect(const string *from_pin_name,
 
 void
 SdfReader::port(const string *to_pin_name,
-		SdfTripleSeq *triples)
+                SdfTripleSeq *triples)
 {
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)) {
@@ -239,9 +239,9 @@ SdfReader::port(const string *to_pin_name,
       Vertex *vertex = graph_->pinLoadVertex(to_pin);
       VertexInEdgeIterator edge_iter(vertex, graph_);
       while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	if (edge->role()->sdfRole()->isWire())
-	  setEdgeDelays(edge, triples, "PORT");
+        Edge *edge = edge_iter.next();
+        if (edge->role()->sdfRole()->isWire())
+          setEdgeDelays(edge, triples, "PORT");
       }
     }
   }
@@ -251,7 +251,7 @@ SdfReader::port(const string *to_pin_name,
 
 Edge *
 SdfReader::findWireEdge(Pin *from_pin,
-			Pin *to_pin)
+                        Pin *to_pin)
 {
   Vertex *to_vertex, *to_vertex_bidirect_drvr;
   graph_->pinVertices(to_pin, to_vertex, to_vertex_bidirect_drvr);
@@ -271,8 +271,8 @@ SdfReader::findWireEdge(Pin *from_pin,
 
 void
 SdfReader::setEdgeDelays(Edge *edge,
-			 SdfTripleSeq *triples,
-			 const char *sdf_cmd)
+                         SdfTripleSeq *triples,
+                         const char *sdf_cmd)
 {
   // Rise/fall triples.
   size_t triple_count = triples->size();
@@ -282,9 +282,9 @@ SdfReader::setEdgeDelays(Edge *edge,
     for (TimingArc *arc : arc_set->arcs()) {
       size_t triple_index;
       if (triple_count == 1)
-	triple_index = 0;
+        triple_index = 0;
       else
-	triple_index = arc->toEdge()->sdfTripleIndex();
+        triple_index = arc->toEdge()->sdfTripleIndex();
       SdfTriple *triple = (*triples)[triple_index];
       setEdgeArcDelays(edge, arc, triple);
     }
@@ -312,10 +312,10 @@ SdfReader::setInstance(const string *instance_name)
     else {
       instance_ = findInstance(instance_name);
       if (instance_) {
-	Cell *inst_cell = network_->cell(instance_);
-	const char *inst_cell_name = network_->name(inst_cell);
-	if (cell_name_ && !stringEq(inst_cell_name, cell_name_->c_str()))
-	  sdfWarn(190, "instance %s cell %s does not match enclosing cell %s.",
+        Cell *inst_cell = network_->cell(instance_);
+        const char *inst_cell_name = network_->name(inst_cell);
+        if (cell_name_ && !stringEq(inst_cell_name, cell_name_->c_str()))
+          sdfWarn(190, "instance %s cell %s does not match enclosing cell %s.",
                   instance_name->c_str(),
                   inst_cell_name,
                   cell_name_->c_str());
@@ -344,10 +344,10 @@ SdfReader::cellFinish()
 
 void
 SdfReader::iopath(SdfPortSpec *from_edge,
-		  const string *to_port_name,
-		  SdfTripleSeq *triples,
-		  const string *cond,
-		  bool condelse)
+                  const string *to_port_name,
+                  SdfTripleSeq *triples,
+                  const string *cond,
+                  bool condelse)
 {
   if (instance_) {
     const string *from_port_name = from_edge->port();
@@ -360,8 +360,8 @@ SdfReader::iopath(SdfPortSpec *from_edge,
       // Do not report an error if the pin is not found because the
       // instance may not have the pin.
       if (from_pin && to_pin) {
-	Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
-	if (to_vertex) {
+        Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
+        if (to_vertex) {
           size_t triple_count = triples->size();
           bool matched = false;
           // Fanin < fanout, so search for driver from load.
@@ -371,16 +371,16 @@ SdfReader::iopath(SdfPortSpec *from_edge,
           while (edge_iter.hasNext()) {
             Edge *edge = edge_iter.next();
             TimingArcSet *arc_set = edge->timingArcSet();
-            const char *lib_cond = arc_set->sdfCond();
+            const std::string &lib_cond = arc_set->sdfCond();
             const TimingRole *edge_role = arc_set->role();
-            bool cond_use_flag = cond_use_ && cond && lib_cond == nullptr
+            bool cond_use_flag = cond_use_ && cond && lib_cond.empty()
               && !(!is_incremental_only_ && in_incremental_);
             if (edge->from(graph_)->pin() == from_pin
                 && edge_role->sdfRole() == TimingRole::sdfIopath()
                 && (cond_use_flag
                     || (!condelse && condMatch(cond, lib_cond))
                     // condelse matches the default (unconditional) arc.
-                    || (condelse && lib_cond == nullptr))) {
+                    || (condelse && lib_cond.empty()))) {
               matched = true;
               for (TimingArc *arc : arc_set->arcs()) {
                 if ((from_edge->transition() == Transition::riseFall())
@@ -433,7 +433,7 @@ SdfReader::findPort(const Cell *cell,
 void
 SdfReader::timingCheck(const TimingRole *role,
                        SdfPortSpec *data_edge,
-		       SdfPortSpec *clk_edge,
+                       SdfPortSpec *clk_edge,
                        SdfTriple *triple)
 {
   if (instance_) {
@@ -453,10 +453,10 @@ SdfReader::timingCheck(const TimingRole *role,
 void
 SdfReader::timingCheck1(const TimingRole *role,
                         Port *data_port,
-			SdfPortSpec *data_edge,
+                        SdfPortSpec *data_edge,
                         Port *clk_port,
-			SdfPortSpec *clk_edge,
-			SdfTriple *triple)
+                        SdfPortSpec *clk_edge,
+                        SdfTriple *triple)
 {
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)
@@ -507,12 +507,12 @@ SdfReader::timingCheck1(const TimingRole *role,
 // Return true if matched.
 bool
 SdfReader::annotateCheckEdges(Pin *data_pin,
-			      SdfPortSpec *data_edge,
-			      Pin *clk_pin,
-			      SdfPortSpec *clk_edge,
-			      const TimingRole *sdf_role,
-			      SdfTriple *triple,
-			      bool match_generic)
+                              SdfPortSpec *data_edge,
+                              Pin *clk_pin,
+                              SdfPortSpec *clk_edge,
+                              const TimingRole *sdf_role,
+                              SdfTriple *triple,
+                              bool match_generic)
 {
   bool matched = false;
   const string *cond_start = data_edge->cond();
@@ -526,24 +526,24 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
     if (edge->from(graph_)->pin() == clk_pin) {
       TimingArcSet *arc_set = edge->timingArcSet();
       const TimingRole *edge_role = arc_set->role();
-      const char *lib_cond_start = arc_set->sdfCondStart();
-      const char *lib_cond_end = arc_set->sdfCondEnd();
+      const std::string &lib_cond_start = arc_set->sdfCondStart();
+      const std::string &lib_cond_end = arc_set->sdfCondEnd();
       bool cond_matches = condMatch(cond_start, lib_cond_start)
-	&& condMatch(cond_end, lib_cond_end);
+        && condMatch(cond_end, lib_cond_end);
       if (((!match_generic && edge_role->sdfRole() == sdf_role)
-	   || (match_generic
-	       && edge_role->genericRole() == sdf_role->genericRole()))
-	  && cond_matches) {
-	TimingArcSet *arc_set = edge->timingArcSet();
+           || (match_generic
+               && edge_role->genericRole() == sdf_role->genericRole()))
+          && cond_matches) {
+        TimingArcSet *arc_set = edge->timingArcSet();
         for (TimingArc *arc : arc_set->arcs()) {
-	  if (((data_edge->transition() == Transition::riseFall())
-	       || (arc->toEdge() == data_edge->transition()))
-	      && ((clk_edge->transition() == Transition::riseFall())
-		  || (arc->fromEdge() == clk_edge->transition()))) {
-	    setEdgeArcDelays(edge, arc, triple);
-	  }
-	}
-	matched = true;
+          if (((data_edge->transition() == Transition::riseFall())
+               || (arc->toEdge() == data_edge->transition()))
+              && ((clk_edge->transition() == Transition::riseFall())
+                  || (arc->fromEdge() == clk_edge->transition()))) {
+            setEdgeArcDelays(edge, arc, triple);
+          }
+        }
+        matched = true;
       }
     }
   }
@@ -552,7 +552,7 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
 
 void
 SdfReader::timingCheckWidth(SdfPortSpec *edge,
-			    SdfTriple *triple)
+                            SdfTriple *triple)
 {
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)
@@ -578,9 +578,9 @@ SdfReader::timingCheckWidth(SdfPortSpec *edge,
 
 void
 SdfReader::timingCheckSetupHold(SdfPortSpec *data_edge,
-				SdfPortSpec *clk_edge,
-				SdfTriple *setup_triple,
-				SdfTriple *hold_triple)
+                                SdfPortSpec *clk_edge,
+                                SdfTriple *setup_triple,
+                                SdfTriple *hold_triple)
 {
   timingCheckSetupHold1(data_edge, clk_edge, setup_triple, hold_triple,
                         TimingRole::setup(), TimingRole::hold());
@@ -588,9 +588,9 @@ SdfReader::timingCheckSetupHold(SdfPortSpec *data_edge,
 
 void
 SdfReader::timingCheckRecRem(SdfPortSpec *data_edge,
-			     SdfPortSpec *clk_edge,
-			     SdfTriple *rec_triple,
-			     SdfTriple *rem_triple)
+                             SdfPortSpec *clk_edge,
+                             SdfTriple *rec_triple,
+                             SdfTriple *rem_triple)
 {
   timingCheckSetupHold1(data_edge, clk_edge, rec_triple, rem_triple,
                         TimingRole::recovery(), TimingRole::removal());
@@ -621,7 +621,7 @@ SdfReader::timingCheckSetupHold1(SdfPortSpec *data_edge,
 
 void
 SdfReader::timingCheckPeriod(SdfPortSpec *edge,
-			     SdfTriple *triple)
+                             SdfTriple *triple)
 {
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)
@@ -633,19 +633,19 @@ SdfReader::timingCheckPeriod(SdfPortSpec *edge,
       // Edge specifier is ignored for period checks.
       Pin *pin = network_->findPin(instance_, port_name->c_str());
       if (pin) {
-	float **values = triple->values();
-	float *value_ptr = values[triple_min_index_];
-	if (value_ptr) {
-	  float value = *value_ptr;
-	  graph_->setPeriodCheckAnnotation(pin, arc_delay_min_index_, value);
-	}
-	if (triple_max_index_ != null_index_) {
-	  value_ptr = values[triple_max_index_];
-	  if (value_ptr) {
-	    float value = *value_ptr;
-	    graph_->setPeriodCheckAnnotation(pin, arc_delay_max_index_, value);
-	  }
-	}
+        float **values = triple->values();
+        float *value_ptr = values[triple_min_index_];
+        if (value_ptr) {
+          float value = *value_ptr;
+          graph_->setPeriodCheckAnnotation(pin, arc_delay_min_index_, value);
+        }
+        if (triple_max_index_ != null_index_) {
+          value_ptr = values[triple_max_index_];
+          if (value_ptr) {
+            float value = *value_ptr;
+            graph_->setPeriodCheckAnnotation(pin, arc_delay_max_index_, value);
+          }
+        }
       }
     }
   }
@@ -655,9 +655,9 @@ SdfReader::timingCheckPeriod(SdfPortSpec *edge,
 
 void
 SdfReader::timingCheckNochange(SdfPortSpec *data_edge,
-			       SdfPortSpec *clk_edge,
-			       SdfTriple *before_triple,
-			       SdfTriple *after_triple)
+                               SdfPortSpec *clk_edge,
+                               SdfTriple *before_triple,
+                               SdfTriple *after_triple)
 {
   notSupported("NOCHANGE");
   delete data_edge;
@@ -684,7 +684,7 @@ SdfReader::device(SdfTripleSeq *triples)
 
 void
 SdfReader::device(const string *to_port_name,
-		  SdfTripleSeq *triples)
+                  SdfTripleSeq *triples)
 {
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)
@@ -702,7 +702,7 @@ SdfReader::device(const string *to_port_name,
 
 void
 SdfReader::setDevicePinDelays(Pin *to_pin,
-			      SdfTripleSeq *triples)
+                              SdfTripleSeq *triples)
 {
   Vertex *vertex = graph_->pinDrvrVertex(to_pin);
   if (vertex) {
@@ -717,8 +717,8 @@ SdfReader::setDevicePinDelays(Pin *to_pin,
 
 void
 SdfReader::setEdgeArcDelays(Edge *edge,
-			    TimingArc *arc,
-			    SdfTriple *triple)
+                            TimingArc *arc,
+                            SdfTriple *triple)
 {
   setEdgeArcDelays(edge, arc, triple, triple_min_index_, arc_delay_min_index_);
   setEdgeArcDelays(edge, arc, triple, triple_max_index_, arc_delay_max_index_);
@@ -726,10 +726,10 @@ SdfReader::setEdgeArcDelays(Edge *edge,
 
 void
 SdfReader::setEdgeArcDelays(Edge *edge,
-			    TimingArc *arc,
-			    SdfTriple *triple,
-			    int triple_index,
-			    int arc_delay_index)
+                            TimingArc *arc,
+                            SdfTriple *triple,
+                            int triple_index,
+                            int arc_delay_index)
 {
   if (triple_index != null_index_) {
     float **values = triple->values();
@@ -737,9 +737,9 @@ SdfReader::setEdgeArcDelays(Edge *edge,
     if (value_ptr) {
       ArcDelay delay;
       if (in_incremental_)
-	delay = *value_ptr + graph_->arcDelay(edge, arc, arc_delay_index);
+        delay = *value_ptr + graph_->arcDelay(edge, arc, arc_delay_index);
       else
-	delay = *value_ptr;
+        delay = *value_ptr;
       graph_->setArcDelay(edge, arc, arc_delay_index, delay);
       graph_->setArcDelayAnnotated(edge, arc, arc_delay_index, true);
       edge->setDelayAnnotationIsIncremental(is_incremental_only_);
@@ -749,8 +749,8 @@ SdfReader::setEdgeArcDelays(Edge *edge,
 
 void
 SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
-				   TimingArc *arc,
-				   SdfTriple *triple)
+                                   TimingArc *arc,
+                                   SdfTriple *triple)
 {
   float **values = triple->values();
   float *value_min = values[triple_min_index_];
@@ -769,18 +769,18 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
     max = MinMax::max();
   }
   setEdgeArcDelaysCondUse(edge, arc, value_min, triple_min_index_,
-			  arc_delay_min_index_, min);
+                          arc_delay_min_index_, min);
   setEdgeArcDelaysCondUse(edge, arc, value_max, triple_max_index_,
-			  arc_delay_max_index_, max);
+                          arc_delay_max_index_, max);
 }
 
 void
 SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
-				   TimingArc *arc,
-				   float *value,
-				   int triple_index,
-				   int arc_delay_index,
-				   const MinMax *min_max)
+                                   TimingArc *arc,
+                                   float *value,
+                                   int triple_index,
+                                   int arc_delay_index,
+                                   const MinMax *min_max)
 {
   if (value
       && triple_index != null_index_) {
@@ -790,7 +790,7 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
     else if (graph_->arcDelayAnnotated(edge, arc, arc_delay_index)) {
       ArcDelay prev_value = graph_->arcDelay(edge, arc, arc_delay_index);
       if (delayGreater(prev_value, delay, min_max, this))
-	delay = prev_value;
+        delay = prev_value;
     }
     graph_->setArcDelay(edge, arc, arc_delay_index, delay);
     graph_->setArcDelayAnnotated(edge, arc, arc_delay_index, true);
@@ -800,25 +800,25 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
 
 bool
 SdfReader::condMatch(const string *sdf_cond,
-		     const char *lib_cond)
+                     const std::string &lib_cond)
 {
   // If the sdf is not conditional it matches any library condition.
   if (sdf_cond == nullptr)
     return true;
-  else if (sdf_cond && lib_cond) {
+  else if (sdf_cond && !lib_cond.empty()) {
     // Match sdf_cond and lib_cond ignoring blanks.
     const char *c1 = sdf_cond->c_str();
-    const char *c2 = lib_cond;
+    const char *c2 = lib_cond.c_str();
     char ch1, ch2;
     do {
       ch1 = *c1++;
       ch2 = *c2++;
       while (ch1 && isspace(ch1))
-	ch1 = *c1++;
+        ch1 = *c1++;
       while (ch2 && isspace(ch2))
-	ch2 = *c2++;
+        ch2 = *c2++;
       if (ch1 != ch2)
-	return false;
+        return false;
     } while (ch1 && ch2);
     return (ch1 == '\0' && ch2 == '\0');
   }
@@ -828,8 +828,8 @@ SdfReader::condMatch(const string *sdf_cond,
 
 SdfPortSpec *
 SdfReader::makePortSpec(const Transition *tr,
-			const string *port,
-			const string *cond)
+                        const string *port,
+                        const string *cond)
 {
   return new SdfPortSpec(tr, port, cond);
 }
@@ -866,11 +866,7 @@ SdfReader::makeTripleSeq()
 void
 SdfReader::deleteTripleSeq(SdfTripleSeq *triples)
 {
-  SdfTripleSeq::Iterator iter(triples);
-  while (iter.hasNext()) {
-    SdfTriple *triple = iter.next();
-    delete triple;
-  }
+  deleteContents(triples);
   delete triples;
 }
 
@@ -890,8 +886,8 @@ SdfReader::makeTriple(float value)
 
 SdfTriple *
 SdfReader::makeTriple(float *min,
-		      float *typ,
-		      float *max)
+                      float *typ,
+                      float *max)
 {
   if (min) *min *= timescale_;
   if (typ) *typ *= timescale_;
@@ -930,18 +926,18 @@ SdfReader::unescaped(const string *token)
       char next_ch = (*token)[i + 1];
       if (next_ch == divider_) {
         // Escaped divider.
-	// Translate sdf escape to network escape.
-	*unescaped += path_escape;
-	// Translate sdf divider to network divider.
-	*unescaped += path_divider;
+        // Translate sdf escape to network escape.
+        *unescaped += path_escape;
+        // Translate sdf divider to network divider.
+        *unescaped += path_divider;
       }
       else if (next_ch == '['
-	       || next_ch == ']'
-	       || next_ch == escape_) {
-	// Escaped bus bracket or escape.
-	// Translate sdf escape to network escape.
-	*unescaped += path_escape;
-	*unescaped += next_ch;
+               || next_ch == ']'
+               || next_ch == escape_) {
+        // Escaped bus bracket or escape.
+        // Translate sdf escape to network escape.
+        *unescaped += path_escape;
+        *unescaped += next_ch;
       }
       else
         // Escaped non-divider character.
@@ -1060,8 +1056,8 @@ SdfPortSpec::~SdfPortSpec()
 ////////////////////////////////////////////////////////////////
 
 SdfTriple::SdfTriple(float *min,
-		     float *typ,
-		     float *max)
+                     float *typ,
+                     float *max)
 {
   values_[0] = min;
   values_[1] = typ;

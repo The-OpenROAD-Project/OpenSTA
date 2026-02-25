@@ -59,7 +59,7 @@ public:
   const char *asString(float value) const;
   const char *asString(double value) const;
   const char *asString(float value,
-		       int digits) const;
+                       int digits) const;
 
 private:
   void setScaleAbbrevSuffix();

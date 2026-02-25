@@ -33,16 +33,16 @@ class Sta;
 // Parse command line argument
 int
 staTclAppInit(int argc,
-	      char *argv[],
-	      const char *init_filename,
-	      Tcl_Interp *interp);
+              char *argv[],
+              const char *init_filename,
+              Tcl_Interp *interp);
 
 // Sta initialization.
 // Makes the Sta object and registers TCL commands.
 void
 initSta(int argc,
-	char *argv[],
-	Tcl_Interp *interp);
+        char *argv[],
+        Tcl_Interp *interp);
 
 // TCL init files are encoded into the string init using the three
 // digit decimal equivalent for each ascii character.  This function
@@ -51,28 +51,26 @@ initSta(int argc,
 // separate files that have to be located and loaded at run time.
 void
 evalTclInit(Tcl_Interp *interp,
-	    const char *inits[]);
+            const char *inits[]);
 char *
 unencode(const char *inits[]);
 
 bool
 findCmdLineFlag(int &argc,
-		char *argv[],
-		const char *flag);
+                char *argv[],
+                const char *flag);
 char *
 findCmdLineKey(int &argc,
-	       char *argv[],
-	       const char *key);
+               char *argv[],
+               const char *key);
 
 int
 parseThreadsArg(int &argc,
-		char *argv[]);
+                char *argv[]);
 int
 sourceTclFile(const char *filename,
-	      bool echo,
-	      bool verbose,
-	      Tcl_Interp *interp);
-bool
-is_regular_file(const char *filename);
+              bool echo,
+              bool verbose,
+              Tcl_Interp *interp);
 
 } // namespace

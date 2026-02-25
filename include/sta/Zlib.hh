@@ -47,7 +47,7 @@
 #define Z_NULL nullptr
 
 namespace gzstream {
-typedef std::ifstream igzstream;
+using igzstream = std::ifstream;
 }
 
 #endif // ZLIB_FOUND

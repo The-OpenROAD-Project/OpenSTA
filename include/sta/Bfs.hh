@@ -25,9 +25,9 @@
 #pragma once
 
 #include <mutex>
+#include <vector>
 
 #include "Iterator.hh"
-#include "Set.hh"
 #include "GraphClass.hh"
 #include "VertexVisitor.hh"
 #include "StaState.hh"
@@ -39,7 +39,7 @@ class BfsFwdIterator;
 class BfsBkwdIterator;
 
 // LevelQueue is a vector of vertex vectors indexed by logic level.
-typedef Vector<VertexSeq> LevelQueue;
+using LevelQueue = std::vector<VertexSeq>;
 
 // Abstract base class for forward and backward breadth first search iterators.
 // Visit all of the vertices at a level before moving to the next.
@@ -58,19 +58,19 @@ public:
   void ensureSize();
   // Reset to virgin state.
   void clear();
-  bool empty() const;
+  [[nodiscard]] bool empty() const;
   // Enqueue a vertex to search from.
   void enqueue(Vertex *vertex);
   // Enqueue vertices adjacent to a vertex.
   void enqueueAdjacentVertices(Vertex *vertex);
-  void enqueueAdjacentVertices(Vertex *vertex,
-			       SearchPred *search_pred);
-  void enqueueAdjacentVertices(Vertex *vertex,
-			       Level to_level);
+  virtual void enqueueAdjacentVertices(Vertex *vertex,
+                                       const Mode *mode);
   virtual void enqueueAdjacentVertices(Vertex *vertex,
 				       SearchPred *search_pred,
-				       Level to_level) = 0;
-  bool inQueue(Vertex *vertex);
+                                       const Mode *mode) = 0;
+  virtual void enqueueAdjacentVertices(Vertex *vertex,
+                                       SearchPred *search_pred) = 0;
+  [[nodiscard]] bool inQueue(Vertex *vertex);
   void checkInQueue(Vertex *vertex);
   // Notify iterator that vertex will be deleted.
   void deleteVertexBefore(Vertex *vertex);
@@ -132,8 +132,10 @@ public:
 		 StaState *sta);
   virtual ~BfsFwdIterator();
   virtual void enqueueAdjacentVertices(Vertex *vertex,
+                                       SearchPred *search_pred);
+  virtual void enqueueAdjacentVertices(Vertex *vertex,
 				       SearchPred *search_pred,
-				       Level to_level);
+                                       const Mode *mode);
   using BfsIterator::enqueueAdjacentVertices;
 
 protected:
@@ -152,8 +154,10 @@ public:
 		  StaState *sta);
   virtual ~BfsBkwdIterator();
   virtual void enqueueAdjacentVertices(Vertex *vertex,
+                                       SearchPred *search_pred);
+  virtual void enqueueAdjacentVertices(Vertex *vertex,
 				       SearchPred *search_pred,
-				       Level to_level);
+                                       const Mode *mode);
   using BfsIterator::enqueueAdjacentVertices;
 
 protected:

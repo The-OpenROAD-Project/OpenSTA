@@ -26,12 +26,14 @@
 
 namespace sta {
 
+class Parasitics;
 class StaState;
-class Corner;
+class Scene;
 
 void
-reportParasiticAnnotation(bool report_unannotated,
-                          const Corner *corner,
+reportParasiticAnnotation(Parasitics *parasitics,
+                          bool report_unannotated,
+                          const Scene *scene,
                           StaState *sta);
 
 } // namespace

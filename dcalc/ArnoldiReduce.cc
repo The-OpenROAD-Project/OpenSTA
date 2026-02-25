@@ -151,20 +151,20 @@ ArnoldiReduce::~ArnoldiReduce()
 
 rcmodel *
 ArnoldiReduce::reduceToArnoldi(Parasitic *parasitic,
-			       const Pin *drvr_pin,
-			       float coupling_cap_factor,
-			       const RiseFall *rf,
-			       const Corner *corner,
-			       const MinMax *min_max,
-			       const ParasiticAnalysisPt *ap)
+                               const Pin *drvr_pin,
+                               float coupling_cap_factor,
+                               const RiseFall *rf,
+                               const Scene *scene,
+                               const MinMax *min_max)
 {
-  parasitic_network_ = reinterpret_cast<ConcreteParasiticNetwork*>(parasitic);
   drvr_pin_ = drvr_pin;
   coupling_cap_factor_ = coupling_cap_factor;
   rf_ = rf;
-  corner_ = corner;
+  scene_ = scene;
   min_max_ = min_max;
-  ap_ = ap;
+  parasitics_ = scene->parasitics(min_max);
+  parasitic_network_ = reinterpret_cast<ConcreteParasiticNetwork*>(parasitic);
+
   loadWork();
   return makeRcmodelDrv();
 }
@@ -426,17 +426,17 @@ ArnoldiReduce::getRC()
     if (p->node_) {
       ParasiticNode *node = p->node_;
       double cap = parasitics_->nodeGndCap(node)
-	+ pinCapacitance(node);
+        + pinCapacitance(node);
       if (cap > 0.0) {
-	p->c = cap;
-	ctot_ += cap;
+        p->c = cap;
+        ctot_ += cap;
       }
       else
-	p->c = 0.0;
+        p->c = 0.0;
       if (p->in_edge && p->in_edge->resistor_)
         p->r = parasitics_->value(p->in_edge->resistor_);
       if (!(p->r>=0.0 && p->r<100e+3)) { // 0 < r < 100kohm
-	debugPrint(debug_, "arnoldi", 1,
+        debugPrint(debug_, "arnoldi", 1,
                    "R value %g out of range, drvr pin %s",
                    p->r,
                    network_->pathName(drvr_pin_));
@@ -444,7 +444,7 @@ ArnoldiReduce::getRC()
     }
   }
   for (ParasiticCapacitor *capacitor : parasitics_->capacitors(parasitic_network_)) {
-    float cap = parasitics_->value(capacitor) * ap_->couplingCapFactor();
+    float cap = parasitics_->value(capacitor) * parasitics_->couplingCapFactor();
     ParasiticNode *node1 = parasitics_->node1(capacitor);
     if (!parasitics_->isExternal(node1)) {
       ts_point *pt = findPt(node1);
@@ -466,10 +466,11 @@ ArnoldiReduce::pinCapacitance(ParasiticNode *node)
   if (pin) {
     Port *port = network_->port(pin);
     LibertyPort *lib_port = network_->libertyPort(port);
+    const Sdc *sdc = scene_->sdc();
     if (lib_port)
-      pin_cap = sdc_->pinCapacitance(pin,rf_, corner_, min_max_);
+      pin_cap = sdc->pinCapacitance(pin,rf_, scene_, min_max_);
     else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc_->portExtCap(port, rf_, corner_, min_max_);
+      pin_cap = sdc->portExtCap(port, rf_, min_max_);
   }
   return pin_cap;
 }
@@ -510,7 +511,7 @@ ArnoldiReduce::makeRcmodelFromTs()
       if (p->is_term)
         debugPrint(debug_, "arnoldi", 1, " term %d", p->tindex);
       if (p->in_edge)
-	debugPrint(debug_, "arnoldi", 1, "  from T%d,P%ld r=%s",
+        debugPrint(debug_, "arnoldi", 1, "  from T%d,P%ld r=%s",
                    p->in_edge->from->ts,
                    p->in_edge->from-p0,
                    units_->resistanceUnit()->asString(p->r));
@@ -610,19 +611,19 @@ ArnoldiReduce::makeRcmodelFromTs()
     report_->reportLine("order %d n %d",order,n);
     for (h=0;h<order;h++) {
       if (h<order-1)
-	report_->reportLine(" d[%d] %s    e[%d] %s",
+        report_->reportLine(" d[%d] %s    e[%d] %s",
                             h,
                             units_->timeUnit()->asString(d[h]),
                             h,
                             units_->timeUnit()->asString(e[h]));
 
       else
-	report_->reportLine(" d[%d] %s",
+        report_->reportLine(" d[%d] %s",
                             h,
                             units_->timeUnit()->asString(d[h]));
       string line = stdstrPrint("U[%d]",h);
       for (i=0;i<nterms;i++)
-	line += stdstrPrint(" %6.2e",U[h][i]);
+        line += stdstrPrint(" %6.2e",U[h][i]);
       report_->reportLineString(line);
     }
   }

@@ -41,10 +41,10 @@
 
 namespace sta {
 
-typedef Delay ArcDelay;
-typedef Delay Slew;
-typedef Delay Arrival;
-typedef Delay Required;
-typedef Delay Slack;
+using ArcDelay = Delay;
+using Slew = Delay;
+using Arrival = Delay;
+using Required = Delay;
+using Slack = Delay;
 
 } // namespace

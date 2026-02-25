@@ -25,9 +25,10 @@
 #pragma once
 
 #include <utility>
+#include <string>
+#include <unordered_map>
 
 #include "StaConfig.hh"  // CUDD
-#include "UnorderedMap.hh"
 #include "Network.hh"
 #include "SdcClass.hh"
 #include "PowerClass.hh"
@@ -40,13 +41,13 @@ struct DdManager;
 namespace sta {
 
 class Sta;
-class Corner;
-class DcalcAnalysisPt;
+class Scene;
 class PropActivityVisitor;
 class BfsFwdIterator;
 class Vertex;
+class ClkNetwork;
 
-typedef std::pair<const Instance*, LibertyPort*> SeqPin;
+using SeqPin = std::pair<const Instance*, LibertyPort*>;
 
 class SeqPinHash
 {
@@ -65,9 +66,9 @@ public:
 		  const SeqPin &pin2) const;
 };
 
-typedef UnorderedMap<const Pin*, PwrActivity> PwrActivityMap;
-typedef UnorderedMap<SeqPin, PwrActivity,
-		     SeqPinHash, SeqPinEqual> PwrSeqActivityMap;
+using PwrActivityMap = std::unordered_map<const Pin*, PwrActivity>;
+using PwrSeqActivityMap = std::unordered_map<SeqPin, PwrActivity,
+                                             SeqPinHash, SeqPinEqual>;
 
 // The Power class has access to Sta components directly for
 // convenience but also requires access to the Sta class member functions.
@@ -77,7 +78,25 @@ public:
   Power(StaState *sta);
   void clear();
   void activitiesInvalid();
-  void power(const Corner *corner,
+  void reportDesign(const Scene *scene,
+                    int digits);
+  void reportInsts(const InstanceSeq &insts,
+                   const Scene *scene,
+                   int digits);
+  void reportHighestInsts(size_t count,
+                          const Scene *scene,
+                          int digits);
+  void reportDesignJson(const Scene *scene,
+                        int digits);
+  void reportInstsJson(const InstanceSeq &insts,
+                       const Scene *scene,
+                       int digits);
+  InstPowers highestInstPowers(size_t count,
+                               const Scene *scene);
+  InstPowers sortInstsByPower(const InstanceSeq &insts,
+                              const Scene *scene);
+
+  void power(const Scene *scene,
 	     // Return values.
 	     PowerResult &total,
 	     PowerResult &sequential,
@@ -86,7 +105,8 @@ public:
 	     PowerResult &macro,
 	     PowerResult &pad);
   PowerResult power(const Instance *inst,
-                    const Corner *corner);
+                    const Scene *scene);
+
   void setGlobalActivity(float activity,
 			 float duty);
   void unsetGlobalActivity();
@@ -97,7 +117,8 @@ public:
 			    float activity,
 			    float duty);
   void unsetInputPortActivity(const Port *input_port);
-  PwrActivity pinActivity(const Pin *pin);
+  PwrActivity pinActivity(const Pin *pin,
+                          const Scene *scene);
   void setUserActivity(const Pin *pin,
 		       float activity,
 		       float duty,
@@ -105,18 +126,18 @@ public:
   void unsetUserActivity(const Pin *pin);
   void reportActivityAnnotation(bool report_unannotated,
                                 bool report_annotated);
+  float clockMinPeriod(const Sdc *sdc);
   float clockMinPeriod();
-  InstanceSeq highestPowerInstances(size_t count,
-                                    const Corner *corner);
   void powerInvalid();
 
 protected:
   PwrActivity &activity(const Pin *pin);
-  bool inClockNetwork(const Instance *inst);
+  bool inClockNetwork(const Instance *inst,
+                      const ClkNetwork *clk_network);
   void powerInside(const Instance *hinst,
-                   const Corner *corner,
+                   const Scene *scene,
                    PowerResult &result);
-  void ensureActivities();
+  void ensureActivities(const Scene *scene);
   bool hasUserActivity(const Pin *pin);
   PwrActivity &userActivity(const Pin *pin);
   void setSeqActivity(const Instance *reg,
@@ -130,15 +151,22 @@ protected:
   void setActivity(const Pin *pin,
 		   PwrActivity &activity);
   PwrActivity findActivity(const Pin *pin);
+  void reportPowerRowJson(const char *name,
+                          const PowerResult &power,
+                          int digits,
+                          const char *separator);
+  void reportPowerInstJson(const Instance *inst,
+                           const PowerResult &power,
+                           int digits);
 
-  void ensureInstPowers(const Corner *corner);
-  void findInstPowers(const Corner *corner);
+  void ensureInstPowers();
+  void findInstPowers();
   PowerResult power(const Instance *inst,
                     LibertyCell *cell,
-                    const Corner *corner);
+                    const Scene *scene);
   void findInternalPower(const Instance *inst,
                          LibertyCell *cell,
-                         const Corner *corner,
+                         const Scene *scene,
                          // Return values.
                          PowerResult &result);
   void findInputInternalPower(const Pin *to_pin,
@@ -147,7 +175,7 @@ protected:
 			      LibertyCell *cell,
 			      PwrActivity &to_activity,
 			      float load_cap,
-			      const Corner *corner,
+                              const Scene *scene,
 			      // Return values.
 			      PowerResult &result);
   void findOutputInternalPower(const LibertyPort *to_port,
@@ -155,22 +183,22 @@ protected:
 			       LibertyCell *cell,
 			       PwrActivity &to_activity,
 			       float load_cap,
-			       const Corner *corner,
+                               const Scene *scene,
 			       // Return values.
 			       PowerResult &result);
   void findLeakagePower(const Instance *inst,
 			LibertyCell *cell,
-			const Corner *corner,
+                        const Scene *scene,
 			// Return values.
 			PowerResult &result);
   void findSwitchingPower(const Instance *inst,
                           LibertyCell *cell,
-                          const Corner *corner,
+                          const Scene *scene,
                           // Return values.
                           PowerResult &result);
   float getSlew(Vertex *vertex,
                 const RiseFall *rf,
-                const Corner *corner);
+                const Scene *scene);
   float getMinRfSlew(const Pin *pin);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
@@ -179,13 +207,15 @@ protected:
 			      LibertyPort *port);
   float portVoltage(LibertyCell *cell,
 		    const LibertyPort *port,
-		    const DcalcAnalysisPt *dcalc_ap);
+                    const Scene *scene,
+                    const MinMax *min_max);
   float pgNameVoltage(LibertyCell *cell,
 		      const char *pg_port_name,
-		      const DcalcAnalysisPt *dcalc_ap);
+                      const Scene *scene,
+                      const MinMax *min_max);
   void seedActivities(BfsFwdIterator &bfs);
   void seedRegOutputActivities(const Instance *reg,
-			       Sequential *seq,
+			       const Sequential &seq,
 			       LibertyPort *output,
 			       bool invert);
   void seedRegOutputActivities(const Instance *inst,
@@ -203,14 +233,14 @@ protected:
   LibertyPort *findExprOutPort(FuncExpr *expr);
   float findInputDuty(const Instance *inst,
 		      FuncExpr *func,
-		      InternalPower *pwr);
+		      const InternalPower *pwr);
   float evalDiffDuty(FuncExpr *expr,
                      LibertyPort *from_port,
                      const Instance *inst);
   LibertyPort *findLinkPort(const LibertyCell *cell,
-			    const LibertyPort *corner_port);
+                            const LibertyPort *scene_port);
   Pin *findLinkPin(const Instance *inst,
-		   const LibertyPort *corner_port);
+                   const LibertyPort *scene_port);
   void clockGatePins(const Instance *inst,
                      // Return values.
                      const Pin *&enable,
@@ -225,6 +255,7 @@ protected:
   size_t pinCount();
 
 private:
+  const Scene *scene_;
   // Port/pin activities set by set_pin_activity.
   // set_pin_activity -global
   PwrActivity global_activity_;
@@ -239,9 +270,8 @@ private:
   Bdd bdd_;
   std::map<const Instance*, PowerResult, InstanceIdLess> instance_powers_;
   bool instance_powers_valid_;
-  const Corner *corner_;
 
-  static constexpr int max_activity_passes_ = 100;
+  static constexpr int max_activity_passes_ = 50;
 
   friend class PropActivityVisitor;
 };

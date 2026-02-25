@@ -26,7 +26,6 @@
 
 #include <string>
 
-#include "Set.hh"
 #include "NetworkClass.hh"
 #include "LibertyClass.hh"
 
@@ -35,46 +34,49 @@ namespace sta {
 class FuncExpr
 {
 public:
-  enum Operator {op_port,
-		 op_not,
-		 op_or,
-		 op_and,
-		 op_xor,
-		 op_one,
-		 op_zero};
+  enum class Op {port,
+                 not_,
+                 or_,
+                 and_,
+                 xor_,
+                 one,
+                 zero};
 
   // Constructors.
-  FuncExpr(Operator op,
-	   FuncExpr *left,
-	   FuncExpr *right,
-	   LibertyPort *port);
+  FuncExpr(Op op,
+           FuncExpr *left,
+           FuncExpr *right,
+           LibertyPort *port);
+  ~FuncExpr();
+  void shallowDelete();
   static FuncExpr *makePort(LibertyPort *port);
   static FuncExpr *makeNot(FuncExpr *expr);
   static FuncExpr *makeAnd(FuncExpr *left,
-			   FuncExpr *right);
+                           FuncExpr *right);
   static FuncExpr *makeOr(FuncExpr *left,
-			  FuncExpr *right);
+                          FuncExpr *right);
   static FuncExpr *makeXor(FuncExpr *left,
-			   FuncExpr *right);
+                           FuncExpr *right);
   static FuncExpr *makeZero();
   static FuncExpr *makeOne();
   static bool equiv(const FuncExpr *expr1,
-		    const FuncExpr *expr2);
+                    const FuncExpr *expr2);
   static bool less(const FuncExpr *expr1,
-		   const FuncExpr *expr2);
+                   const FuncExpr *expr2);
+  // Invert expr by deleting leading NOT if found.
+  FuncExpr *invert();
 
   // Deep copy.
   FuncExpr *copy();
-  // Delete expression and all of its subexpressions.
-  void deleteSubexprs();
-  // op == op_port
+  // op == port
   LibertyPort *port() const;
-  Operator op() const { return op_; }
+  Op op() const { return op_; }
   // When operator is NOT left is the only operand.
   FuncExpr *left() const { return left_; }
-  // nullptr when op == op_not
+  // nullptr when op == not_
   FuncExpr *right() const { return right_; }
   TimingSense portTimingSense(const LibertyPort *port) const;
+  LibertyPortSet ports() const;
   // Return true if expression has port as an input.
   bool hasPort(const LibertyPort *port) const;
   std::string to_string() const;
@@ -86,11 +88,14 @@ public:
   bool checkSize(LibertyPort *port);
 
 private:
+  void findPorts(const FuncExpr *expr,
+                 LibertyPortSet &ports) const;
+
   std::string to_string(bool with_parens) const;
   std::string to_string(bool with_parens,
                         char op) const;
 
-  Operator op_;
+  Op op_;
   FuncExpr *left_;
   FuncExpr *right_;
   LibertyPort *port_;
@@ -99,19 +104,5 @@ private:
 // Negate an expression.
 FuncExpr *
 funcExprNot(FuncExpr *expr);
-
-class FuncExprPortIterator : public Iterator<LibertyPort*>
-{
-public:
-  explicit FuncExprPortIterator(const FuncExpr *expr);
-  virtual bool hasNext() { return iter_.hasNext(); }
-  virtual LibertyPort *next() { return iter_.next(); }
-
-private:
-  void findPorts(const FuncExpr *expr);
-
-  LibertyPortSet ports_;
-  LibertyPortSet::ConstIterator iter_;
-};
 
 } // namespace

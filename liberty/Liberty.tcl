@@ -35,7 +35,7 @@ proc_redirect read_liberty {
   check_argc_eq1 "read_liberty" $args
 
   set filename [file nativename [lindex $args 0]]
-  set corner [parse_corner keys]
+  set corner [parse_scene keys]
   set min_max [parse_min_max_all_flags flags]
   set infer_latches [info exists flags(-infer_latches)]
   read_liberty_cmd $filename $corner $min_max $infer_latches
@@ -58,13 +58,13 @@ proc_redirect report_lib_cell {
   check_argc_eq1 "report_lib_cell" $args
   set arg [lindex $args 0]
   set cell [get_lib_cell_warn "lib_cell" $arg]
-  set corner [cmd_corner]
+  set scene [cmd_scene]
   if { $cell != "NULL" } {
-    report_lib_cell_ $cell $corner
+    report_lib_cell_ $cell $scene
   }
 }
 
-proc report_lib_cell_ { cell corner } {
+proc report_lib_cell_ { cell scene } {
   global sta_report_default_digits
 
   set lib [$cell liberty_library]
@@ -78,21 +78,21 @@ proc report_lib_cell_ { cell corner } {
   while {[$iter has_next]} {
     set port [$iter next]
     if { [$port is_bus] || [$port is_bundle] } {
-      report_lib_port $port $corner
+      report_lib_port $port $scene
       set member_iter [$port member_iterator]
       while { [$member_iter has_next] } {
         set port [$member_iter next]
-        report_lib_port $port $corner
+        report_lib_port $port $scene
       }
       $member_iter finish
     } elseif { ![$port is_bundle_member] && ![$port is_bus_bit] } {
-      report_lib_port $port $corner
+      report_lib_port $port $scene
     }
   }
   $iter finish
 }
 
-proc report_lib_port { port corner } {
+proc report_lib_port { port scene } {
   global sta_report_default_digits
 
   if { [$port is_bus] } {
@@ -112,7 +112,7 @@ proc report_lib_port { port corner } {
   if { $func != "" } {
     set func " function=$func"
   }
-  report_line " ${indent}$port_name [liberty_port_direction $port]$enable$func[port_capacitance_str $port $corner $sta_report_default_digits]"
+  report_line " ${indent}$port_name [liberty_port_direction $port]$enable$func[port_capacitance_str $port $scene $sta_report_default_digits]"
 }
 
 # sta namespace end

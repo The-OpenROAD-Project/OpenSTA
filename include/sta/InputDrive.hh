@@ -40,45 +40,45 @@ class InputDriveCell;
 class InputDrive
 {
 public:
-  explicit InputDrive();
+  InputDrive();
   ~InputDrive();
   void setSlew(const RiseFallBoth *rf,
-	       const MinMaxAll *min_max,
-	       float slew);
+               const MinMaxAll *min_max,
+               float slew);
   void setDriveResistance(const RiseFallBoth *rf,
-			  const MinMaxAll *min_max,
-			  float res);
+                          const MinMaxAll *min_max,
+                          float res);
   void driveResistance(const RiseFall *rf,
-		       const MinMax *min_max,
-		       float &res,
-		       bool &exists) const;
+                       const MinMax *min_max,
+                       float &res,
+                       bool &exists) const;
   bool hasDriveResistance(const RiseFall *rf,
-			  const MinMax *min_max) const;
+                          const MinMax *min_max) const;
   bool driveResistanceMinMaxEqual(const RiseFall *rf) const;
   void setDriveCell(const LibertyLibrary *library,
-		    const LibertyCell *cell,
-		    const LibertyPort *from_port,
-		    float *from_slews,
-		    const LibertyPort *to_port,
-		    const RiseFallBoth *rf,
-		    const MinMaxAll *min_max);
+                    const LibertyCell *cell,
+                    const LibertyPort *from_port,
+                    float *from_slews,
+                    const LibertyPort *to_port,
+                    const RiseFallBoth *rf,
+                    const MinMaxAll *min_max);
   void driveCell(const RiseFall *rf,
-		 const MinMax *min_max,
+                 const MinMax *min_max,
                  // Return values.
-		 const LibertyCell *&cell,
-		 const LibertyPort *&from_port,
-		 float *&from_slews,
-		 const LibertyPort *&to_port) const;
+                 const LibertyCell *&cell,
+                 const LibertyPort *&from_port,
+                 float *&from_slews,
+                 const LibertyPort *&to_port) const;
   InputDriveCell *driveCell(const RiseFall *rf,
-			    const MinMax *min_max) const;
+                            const MinMax *min_max) const;
   bool hasDriveCell(const RiseFall *rf,
-		    const MinMax *min_max) const;
+                    const MinMax *min_max) const;
   // True if rise/fall/min/max drive cells are equal.
   bool driveCellsEqual() const;
   void slew(const RiseFall *rf,
-	    const MinMax *min_max,
-	    float &slew,
-	    bool &exists) const;
+            const MinMax *min_max,
+            float &slew,
+            bool &exists) const;
   const RiseFallMinMax *slews() const { return &slews_; }
 
 private:
@@ -92,10 +92,10 @@ class InputDriveCell
 {
 public:
   InputDriveCell(const LibertyLibrary *library,
-		 const LibertyCell *cell,
-		 const LibertyPort *from_port,
-		 float *from_slews,
-		 const LibertyPort *to_port);
+                 const LibertyCell *cell,
+                 const LibertyPort *from_port,
+                 float *from_slews,
+                 const LibertyPort *to_port);
   const LibertyLibrary *library() const { return library_; }
   void setLibrary(const LibertyLibrary *library);
   const LibertyCell *cell() const { return cell_; }

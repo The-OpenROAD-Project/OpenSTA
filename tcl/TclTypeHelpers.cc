@@ -32,7 +32,7 @@ namespace sta {
 
 StringSet *
 tclListSetConstChar(Tcl_Obj *const source,
-		    Tcl_Interp *interp)
+                    Tcl_Interp *interp)
 {
   Tcl_Size argc;
   Tcl_Obj **argv;
@@ -52,7 +52,7 @@ tclListSetConstChar(Tcl_Obj *const source,
 
 StringSeq *
 tclListSeqConstChar(Tcl_Obj *const source,
-		    Tcl_Interp *interp)
+                    Tcl_Interp *interp)
 {
   Tcl_Size argc;
   Tcl_Obj **argv;
@@ -70,9 +70,47 @@ tclListSeqConstChar(Tcl_Obj *const source,
     return nullptr;
 }
 
+StdStringSeq
+tclListSeqStdString(Tcl_Obj *const source,
+                    Tcl_Interp *interp)
+{
+  Tcl_Size argc;
+  Tcl_Obj **argv;
+
+  StdStringSeq seq;
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
+    for (int i = 0; i < argc; i++) {
+      int length;
+      const char *str = Tcl_GetStringFromObj(argv[i], &length);
+      seq.push_back(str);
+    }
+  }
+  return seq;
+}
+
+StdStringSeq *
+tclListSeqStdStringPtr(Tcl_Obj *const source,
+                       Tcl_Interp *interp)
+{
+  Tcl_Size argc;
+  Tcl_Obj **argv;
+
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
+    StdStringSeq *seq = new StdStringSeq;
+    for (int i = 0; i < argc; i++) {
+      int length;
+      const char *str = Tcl_GetStringFromObj(argv[i], &length);
+      seq->push_back(str);
+    }
+    return seq;
+  }
+  else
+    return nullptr;
+}
+
 StdStringSet *
 tclListSetStdString(Tcl_Obj *const source,
-		    Tcl_Interp *interp)
+                    Tcl_Interp *interp)
 {
   Tcl_Size argc;
   Tcl_Obj **argv;
@@ -90,7 +128,6 @@ tclListSetStdString(Tcl_Obj *const source,
     return nullptr;
 }
 
-
 void
 tclArgError(Tcl_Interp *interp,
             int id,
@@ -107,10 +144,10 @@ tclArgError(Tcl_Interp *interp,
 
 void
 objectListNext(const char *list,
-	       const char *type,
-	       // Return values.
-	       bool &type_match,
-	       const char *&next)
+               const char *type,
+               // Return values.
+               bool &type_match,
+               const char *&next)
 {
   // Default return values (failure).
   type_match = false;
@@ -122,21 +159,21 @@ objectListNext(const char *list,
     while (*s && isxdigit(*s))
       s++;
     if ((s - list - 1) == sizeof(void*) * 2
-	&& *s && *s++ == '_'
-	&& *s && *s++ == 'p'
-	&& *s && *s++ == '_') {
+        && *s && *s++ == '_'
+        && *s && *s++ == 'p'
+        && *s && *s++ == '_') {
       const char *t = type;
       while (*s && *s != ' ') {
-	if (*s != *t)
-	  return;
-	s++;
-	t++;
+        if (*s != *t)
+          return;
+        s++;
+        t++;
       }
       type_match = true;
       if (*s)
-	next = s + 1;
+        next = s + 1;
       else
-	next = nullptr;
+        next = nullptr;
     }
   }
 }

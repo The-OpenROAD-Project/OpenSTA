@@ -3,6 +3,187 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+2025/02/24
+----------
+
+The define_scene -library argument now takes a the library name or a
+library filename. If a filename is used, it must be the same as the
+filename used to read the library with read_liberty.
+
+Release 3.0.0 2025/11/26
+------------------------
+
+This release adds multi-corner multi-mode (mcmm) support. The SDC
+constraints in each mode describe a different operating mode, such as
+mission mode or scan mode.
+
+A "scene" is the combination of a mode and corner. Each scene can have
+separate min/max liberty and spef files.
+
+THe basic structure of a multi-corner/multi-mode command file is
+ read_liberty
+ read_verilog
+ link_design
+ read_sdc -mode... or set_mode followed by sdc commands
+ read_spef -name...
+ define_scene...
+ report_checks [-scenes]
+
+This is an example script with 2 corners, 2 modes and 3 scenes.
+
+read_liberty bc.lib
+read_liberty wc.lib
+
+read_verilog design.v
+link_design top
+
+read_sdc -mode run design.sdc
+read_sdc -mode scan design_scan.sdc
+
+read_spef -name bc bc.spef
+read_spef -name wc wc.spef
+
+define_scene bc \
+  -mode run \
+  -liberty bc \
+  -spef bc
+define_scene wc \
+  -mode run \
+  -liberty wc \
+  -spef wc
+define_scene scan \
+  -mode scan \
+  -liberty wc \
+  -spef wc
+
+report_checks
+report_checks -scenes bc
+report_checks -scenes wc
+report_checks -scenes scan
+
+................
+
+Alternatively, the set_mode command can be used to define commands
+for each mode at the command level instead of using SDC files.
+
+set_mode run
+create_clock -period 10 clock
+set_input_delay 0 -clock clock [all_inputs -no_clocks]
+set_output_delay 0 -clock clock [all_outputs]
+
+set_mode scan
+create_clock -period 100 scan_clock
+set_input_delay 0 -clock scan_clock scan_in
+set_output_delay 0 -clock scan_clock scan_out
+
+................
+
+The define_corners command is supported for compatiblity but should
+not be used with mcmm flows. Similarly, the -min/-max arguemnts to
+read_liberty and read_spaf are supported for compabibility but should
+not be used with mcmm flows.
+
+................
+
+An initial mode and scene named "default" are defined for single mode,
+single corner analysis. SDC commands defined interactively and read
+with read_sdc without a -mode argument are defined in the "default"
+mode.
+
+Use the set_mode command to define a mode or set the command
+interpreter to add following commands to mode mode_name.
+
+  set_mode mode_name
+
+If mode_name does not exist it is created. When modes are created the
+default mode is deleted.
+
+The read_sdc command has a -mode argument to assign the commands in the file
+to a mode.
+
+  read_sdc [-mode mode_name]
+
+If the mode does not exist it is created. Multiple SDC files can
+append commands to a mode by using the -mode_name argument for each
+one. If no -mode arguement is is used the commands are added to the
+current  mode.
+
+................
+
+The define_scene command defines a scene for a mode (SDC), liberty files
+and spef parasitics.
+
+  define_scene -mode mode_name
+    -liberty liberty_files | -liberty_min liberty_min_files -liberty_max liberty_max_files
+    [-spef spef_file | -spef_min spef_min_file -spef_max spef_max_file]
+
+Use get_scenes to find defined scenes.
+
+  get_scenes [-modes mode_names] scene_name
+
+................
+
+Use the read_spef -name argument to append multiple parasitics files
+to annotate hierarchical blocks. Scene definitions use the spef_name
+to specify which parasitices to use for each scene.
+
+  read_spef -name spef_name
+  report_parasitic_annotation [-name spef_name]
+
+If -name is omitted the base name of the file name is used.
+
+The read_spef -corner/-min/-max arguments are supported for comppatibility
+but will be removed in a future release.
+
+The read_spef -reduce options don't work because sdc, liberty ap isn't known
+
+................
+
+The report_checks and report_check_typescommands support a -scenes
+argument to report timing checks/paths from multiple scenes.
+
+  report_checks -scenes
+  report_check_types -scenes
+  report_slews -scenes
+  report_clock_latency -scenes
+
+................
+
+To annotate delays with SDF when there are multiple scenes, use
+the -scene argument. 
+
+  read_sdf -scene
+  report_annotated_delay -scene
+  report_annotated_check -scene
+
+SDF annotation for mcmm analysis must follow the scene definitions.
+
+................
+
+VCD annotation with read_vcd now supports a -mode arguement.
+
+  read_vcd [-mode mode_name]
+
+................
+
+The -corner args has been removed from the following commands because they are no
+longer necessary.
+  set_load -corner
+  set_port_fanout_number -corner
+
+................
+
+The report_pulse_width_checks command is no longer supported. Use
+report_check_types -min_pulse_width.
+
+................
+
+Delay calculation slew values now propagate through set_case_analysis
+and set_logic_zero, set_logic_one, set_logic_dc constraints.
+
+Power analysis now ignores set_case_analysis and set_logic_zero,
+set_logic_one, set_logic_dc.
+
 Release 2.7.0 2025/05/19
 -------------------------
 
@@ -18,6 +199,9 @@ to remove paths through identical pins and rise/fall edges.
   report_checks [-unique_edges_to_endpoint]
 
 Instances now have pins for verilog netlist power/ground connections,
+
+Sta::findPathEnds group_paths arg has been changed from PathGroupNameSet*
+to StdStringSeq&.
 
 Release 2.6.1 2025/03/30
 -------------------------
@@ -92,6 +276,8 @@ timing groups.
 
   report_clock_skew -include_internal_latency
   report_clock_latency -include_internal_latency
+
+The report_clock_skew requires a -scene argument if multiple scenes are defined.
 
 The all_inputs command now supports the -no_clocks argument to exclude
 clocks from the list.

@@ -24,9 +24,10 @@
 
 #pragma once
 
-#include "Map.hh"
-#include "Set.hh"
-#include "Vector.hh"
+#include <map>
+#include <set>
+#include <vector>
+
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "MinMaxValues.hh"
@@ -67,11 +68,11 @@ class PortDelay;
 enum class AnalysisType { single, bc_wc, ocv };
 
 enum class ExceptionPathType { false_path, loop, multi_cycle, path_delay,
-			       group_path, filter, any};
+                               group_path, filter, any};
 
 enum class ClockSense { positive, negative, stop };
 
-typedef std::pair<const Clock*, const Clock*> ClockPair;
+using ClockPair = std::pair<const Clock*, const Clock*>;
 
 class ClockIndexLess
 {
@@ -80,25 +81,25 @@ public:
                   const Clock *clk2) const;
 };
 
-typedef Vector<float> FloatSeq;
-typedef Vector<int> IntSeq;
-typedef Vector<Clock*> ClockSeq;
-typedef std::vector<const Clock*> ConstClockSeq;
-typedef Set<Clock*, ClockIndexLess> ClockSet;
-typedef std::set<const Clock*, ClockIndexLess> ConstClockSet;
-typedef ClockSet ClockGroup;
-typedef Vector<PinSet*> PinSetSeq;
-typedef MinMax SetupHold;
-typedef MinMaxAll SetupHoldAll;
-typedef Vector<ExceptionThru*> ExceptionThruSeq;
-typedef Set<LibertyPortPair, LibertyPortPairLess> LibertyPortPairSet;
-typedef Map<const Instance*, DisabledInstancePorts*> DisabledInstancePortsMap;
-typedef Map<LibertyCell*, DisabledCellPorts*> DisabledCellPortsMap;
-typedef MinMaxValues<float> ClockUncertainties;
-typedef std::set<ExceptionPath*> ExceptionPathSet;
-typedef PinPair EdgePins;
-typedef PinPairSet EdgePinsSet;
-typedef Map<const Pin*, LogicValue> LogicValueMap;
+using FloatSeq = std::vector<float>;
+using IntSeq = std::vector<int>;
+using ClockSeq = std::vector<Clock*>;
+using ConstClockSeq = std::vector<const Clock*>;
+using ClockSet = std::set<Clock*, ClockIndexLess>;
+using ConstClockSet = std::set<const Clock*, ClockIndexLess>;
+using ClockGroup = ClockSet;
+using PinSetSeq = std::vector<PinSet*>;
+using SetupHold = MinMax;
+using SetupHoldAll = MinMaxAll;
+using ExceptionThruSeq = std::vector<ExceptionThru*>;
+using LibertyPortPairSet = std::set<LibertyPortPair, LibertyPortPairLess>;
+using DisabledInstancePortsMap = std::map<const Instance*, DisabledInstancePorts*>;
+using DisabledCellPortsMap = std::map<LibertyCell*, DisabledCellPorts*>;
+using ClockUncertainties = MinMaxValues<float>;
+using ExceptionPathSet = std::set<ExceptionPath*>;
+using EdgePins = PinPair;
+using EdgePinsSet = PinPairSet;
+using LogicValueMap = std::map<const Pin*, LogicValue>;
 
 class ClockSetLess
 {
@@ -107,7 +108,7 @@ public:
                   const ClockSet *set2) const;
 };
 
-typedef Set<ClockGroup*, ClockSetLess> ClockGroupSet;
+using ClockGroupSet = std::set<ClockGroup*, ClockSetLess>;
 
 // For Search.
 class ExceptionState;
@@ -120,7 +121,7 @@ public:
 };
 
 class ExceptionPath;
-typedef Set<ExceptionState*, ExceptionStateLess> ExceptionStateSet;
+using ExceptionStateSet = std::set<ExceptionState*, ExceptionStateLess>;
 
 // Constraint applies to clock or data paths.
 enum class PathClkOrData { clk, data };

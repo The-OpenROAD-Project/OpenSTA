@@ -27,6 +27,7 @@
 %{
 #include "Sta.hh"
 #include "Sdc.hh"
+#include "Mode.hh"
 #include "power/Power.hh"
 #include "power/VcdReader.hh"
 #include "power/SaifReader.hh"
@@ -37,9 +38,54 @@ using namespace sta;
 
 %inline %{
 
+void
+report_power_design(const Scene *scene,
+                    int digits)
+{
+  Sta *sta = Sta::sta();
+  sta->reportPowerDesign(scene, digits);
+}
+
+void
+report_power_insts(const InstanceSeq insts,
+                   const Scene *scene,
+                   int digits)
+{
+  Sta *sta = Sta::sta();
+  sta->reportPowerInsts(insts, scene, digits);
+}
+
+void
+report_power_highest_insts(size_t count,
+                           const Scene *scene,
+                           int digits)
+{
+  Sta *sta = Sta::sta();
+  sta->reportPowerHighestInsts(count, scene, digits);
+}
+
+void
+report_power_design_json(const Scene *scene,
+                         int digits)
+{
+  Sta *sta = Sta::sta();
+  sta->reportPowerDesignJson(scene, digits);
+}
+
+void
+report_power_insts_json(const InstanceSeq insts,
+                        const Scene *scene,
+                        int digits)
+{
+  Sta *sta = Sta::sta();
+  sta->reportPowerInstsJson(insts, scene, digits);
+}
+
+////////////////////////////////////////////////////////////////
+
 static void
 pushPowerResultFloats(PowerResult &power,
-		      FloatSeq &powers)
+                      FloatSeq &powers)
 {
   powers.push_back(power.internal());
   powers.push_back(power.switching());
@@ -47,11 +93,12 @@ pushPowerResultFloats(PowerResult &power,
   powers.push_back(power.total());
 }
 
+// Use lassign to retrieve power values.
 FloatSeq
-design_power(const Corner *corner)
+design_power(const Scene *scene)
 {
   PowerResult total, sequential, combinational, clock, macro, pad;
-  Sta::sta()->power(corner, total, sequential, combinational, clock, macro, pad);
+  Sta::sta()->power(scene, total, sequential, combinational, clock, macro, pad);
   FloatSeq powers;
   pushPowerResultFloats(total, powers);
   pushPowerResultFloats(sequential, powers);
@@ -64,10 +111,10 @@ design_power(const Corner *corner)
 
 FloatSeq
 instance_power(Instance *inst,
-	       const Corner *corner)
+               const Scene *scene)
 {
   Sta *sta = Sta::sta();
-  PowerResult power = sta->power(inst, corner);
+  PowerResult power = sta->power(inst, scene);
   FloatSeq powers;
   powers.push_back(power.internal());
   powers.push_back(power.switching());
@@ -78,7 +125,7 @@ instance_power(Instance *inst,
 
 void
 set_power_global_activity(float activity,
-			  float duty)
+                          float duty)
 {
   Power *power = Sta::sta()->power();
   power->setGlobalActivity(activity, duty);
@@ -93,7 +140,7 @@ unset_power_global_activity()
 
 void
 set_power_input_activity(float activity,
-			 float duty)
+                         float duty)
 {
   Power *power = Sta::sta()->power();
   return power->setInputActivity(activity, duty);
@@ -108,8 +155,8 @@ unset_power_input_activity()
 
 void
 set_power_input_port_activity(const Port *input_port,
-			      float activity,
-			      float duty)
+                              float activity,
+                              float duty)
 {
   Power *power = Sta::sta()->power();
   return power->setInputPortActivity(input_port, activity, duty);
@@ -124,8 +171,8 @@ unset_power_input_port_activity(const Port *input_port)
 
 void
 set_power_pin_activity(const Pin *pin,
-		       float activity,
-		       float duty)
+                       float activity,
+                       float duty)
 {
   Power *power = Sta::sta()->power();
   return power->setUserActivity(pin, activity, duty, PwrActivityOrigin::user);
@@ -139,29 +186,27 @@ unset_power_pin_activity(const Pin *pin)
 }
 
 float
-clock_min_period()
+clock_min_period(const char *mode_name)
 {
-  Power *power = Sta::sta()->power();
-  return power->clockMinPeriod();
-}
-
-InstanceSeq
-highest_power_instances(size_t count,
-                        const Corner *corner)
-{
-  Power *power = Sta::sta()->power();
-  return power->highestPowerInstances(count, corner);
+  Sta *sta = Sta::sta();
+  Power *power = sta->power();
+  const Mode *mode = sta->findMode(mode_name);
+  if (mode)
+    return power->clockMinPeriod(mode->sdc());
+  else
+    return 0.0;
 }
 
 ////////////////////////////////////////////////////////////////
 
 void
 read_vcd_file(const char *filename,
-              const char *scope)
+              const char *scope,
+              const char *mode_name)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  readVcdActivities(filename, scope, sta);
+  readVcdActivities(filename, scope, mode_name, sta);
 }
 
 ////////////////////////////////////////////////////////////////

@@ -26,6 +26,7 @@
 
 #include <map>
 #include <string>
+#include <string_view>
 #include <functional>
 
 #include "LibertyClass.hh"
@@ -47,7 +48,7 @@ class PropertyRegistry
 {
 public:
   typedef std::function<PropertyValue (TYPE object, Sta *sta)> PropertyHandler;
-  void defineProperty(const std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyHandler handler);
   PropertyValue getProperty(TYPE object,
                             const std::string &property,
@@ -65,84 +66,76 @@ public:
   virtual ~Properties() {}
 
   PropertyValue getProperty(const Library *lib,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const LibertyLibrary *lib,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const Cell *cell,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const LibertyCell *cell,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const Port *port,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const LibertyPort *port,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const Instance *inst,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const Pin *pin,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const Net *net,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(Edge *edge,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(const Clock *clk,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(PathEnd *end,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(Path *path,
-                            const std::string property);
+                            const std::string &property);
   PropertyValue getProperty(TimingArcSet *arc_set,
-                            const std::string property);
+                            const std::string &property);
 
   // Define handler for external property.
   // properties->defineProperty("foo",
   //                            [] (const Instance *, Sta *) -> PropertyValue {
   //                              return PropertyValue("bar");
   //                            });
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const Library *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const LibertyLibrary *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const Cell *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const LibertyCell *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const Port *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const LibertyPort *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const Instance *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const Pin *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const Net *>::PropertyHandler handler);
-  void defineProperty(std::string &property,
+  void defineProperty(std::string_view property,
                       PropertyRegistry<const Clock *>::PropertyHandler handler);
 
 protected:
   PropertyValue portSlew(const Port *port,
-                         const MinMax *min_max);
-  PropertyValue portSlew(const Port *port,
-                         const RiseFall *rf,
+                         const RiseFallBoth *rf,
                          const MinMax *min_max);
   PropertyValue portSlack(const Port *port,
-                          const MinMax *min_max);
-  PropertyValue portSlack(const Port *port,
-                          const RiseFall *rf,
+                          const RiseFallBoth *rf,
                           const MinMax *min_max);
   PropertyValue pinArrival(const Pin *pin,
-                           const RiseFall *rf,
+                           const RiseFallBoth *rf,
                            const MinMax *min_max);
 
   PropertyValue pinSlack(const Pin *pin,
-                         const MinMax *min_max);
-  PropertyValue pinSlack(const Pin *pin,
-                         const RiseFall *rf,
+                         const RiseFallBoth *rf,
                          const MinMax *min_max);
   PropertyValue pinSlew(const Pin *pin,
-                        const MinMax *min_max);
-  PropertyValue pinSlew(const Pin *pin,
-                        const RiseFall *rf,
+                        const RiseFallBoth *rf,
                         const MinMax *min_max);
 
   PropertyValue delayPropertyValue(Delay delay);
@@ -179,11 +172,11 @@ protected:
 class PropertyValue
 {
 public:
-  enum Type { type_none, type_string, type_float, type_bool,
-	      type_library, type_cell, type_port,
-	      type_liberty_library, type_liberty_cell, type_liberty_port,
-	      type_instance, type_pin, type_pins, type_net,
-	      type_clk, type_clks, type_paths, type_pwr_activity };
+  enum class Type { none, string, float_, bool_,
+                    library, cell, port,
+                    liberty_library, liberty_cell, liberty_port,
+                    instance, pin, pins, net,
+                    clk, clks, paths, pwr_activity };
   PropertyValue();
   PropertyValue(const char *value);
   PropertyValue(std::string &value);
@@ -210,7 +203,7 @@ public:
   // Copy constructor.
   PropertyValue(const PropertyValue &props);
   // Move constructor.
-  PropertyValue(PropertyValue &&props);
+  PropertyValue(PropertyValue &&props) noexcept;
   ~PropertyValue();
   Type type() const { return type_; }
   const Unit *unit() const { return unit_; }
@@ -237,7 +230,7 @@ public:
   // Copy assignment.
   PropertyValue &operator=(const PropertyValue &);
   // Move assignment.
-  PropertyValue &operator=(PropertyValue &&);
+  PropertyValue &operator=(PropertyValue &&) noexcept;
 
 private:
   Type type_;

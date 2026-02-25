@@ -24,43 +24,26 @@
 
 #pragma once
 
+#include <vector>
+
 #include "GraphClass.hh"
 #include "Delay.hh"
 #include "StaState.hh"
 #include "SearchClass.hh"
 #include "Path.hh"
+#include "MinMax.hh"
 
 namespace sta {
-
-class MaxSkewCheckVisitor;
-
-class CheckMaxSkews
-{
-public:
-  explicit CheckMaxSkews(StaState *sta);
-  ~CheckMaxSkews();
-  void clear();
-  // All violating max skew checks.
-  MaxSkewCheckSeq &violations();
-  // Max skew check with the least slack.
-  MaxSkewCheck *minSlackCheck();
-
-protected:
-  void visitMaxSkewChecks(MaxSkewCheckVisitor *visitor);
-  void visitMaxSkewChecks(Vertex *vertex,
-			  MaxSkewCheckVisitor *visitor);
-
-  MaxSkewCheckSeq checks_;
-  StaState *sta_;
-};
 
 class MaxSkewCheck
 {
 public:
+  MaxSkewCheck();
   MaxSkewCheck(Path *clk_path,
-	       Path *ref_path,
-	       TimingArc *check_arc,
-	       Edge *check_edge);
+               Path *ref_path,
+               TimingArc *check_arc,
+               Edge *check_edge);
+  bool isNull() const { return clk_path_ == nullptr; }
   const Path *clkPath() const { return clk_path_; }
   Pin *clkPin(const StaState *sta) const;
   const Path *refPath() const { return ref_path_; }
@@ -77,12 +60,36 @@ private:
   Edge *check_edge_;
 };
 
+using MaxSkewCheckSeq = std::vector<MaxSkewCheck>;
+
+class CheckMaxSkews
+{
+public:
+  CheckMaxSkews(StaState *sta);
+  ~CheckMaxSkews();
+  void clear();
+  // Return max skew checks.
+  // net=null check all nets
+  MaxSkewCheckSeq &check(const Net *net,
+                         size_t max_count,
+                         bool violators,
+                         const SceneSeq &scenes);
+
+protected:
+  void check(Vertex *vertex,
+             bool violators);
+
+  SceneSet scenes_;
+  MaxSkewCheckSeq checks_;
+  StaState *sta_;
+};
+
 class MaxSkewSlackLess
 {
 public:
-  explicit MaxSkewSlackLess(const StaState *sta);
-  bool operator()(const MaxSkewCheck *check1,
-		  const MaxSkewCheck *check2) const;
+  MaxSkewSlackLess(const StaState *sta);
+  bool operator()(const MaxSkewCheck &check1,
+                  const MaxSkewCheck &check2) const;
 
 protected:
   const StaState *sta_;

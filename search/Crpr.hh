@@ -36,58 +36,60 @@ class CrprPaths;
 class CheckCrpr : public StaState
 {
 public:
-  explicit CheckCrpr(StaState *sta);
+  CheckCrpr(StaState *sta);
 
   // Find the maximum possible crpr (clock min/max delta delay) for path.
   Arrival maxCrpr(const ClkInfo *clk_info);
   // Timing check CRPR.
   Crpr checkCrpr(const Path *src_clk_path,
-		 const Path *tgt_clk_path);
+                 const Path *tgt_clk_path);
   void checkCrpr(const Path *src_path,
-		 const Path *tgt_clk_path,
-		 // Return values.
-		 Crpr &crpr,
-		 Pin *&crpr_pin);
+                 const Path *tgt_clk_path,
+                 // Return values.
+                 Crpr &crpr,
+                 Pin *&crpr_pin);
   // Output delay CRPR.
   Crpr outputDelayCrpr(const Path *src_clk_path,
-		       const ClockEdge *tgt_clk_edge);
+                       const ClockEdge *tgt_clk_edge);
   void outputDelayCrpr(const Path *src_clk_path,
-		       const ClockEdge *tgt_clk_edge,
-		       // Return values.
-		       Crpr &crpr,
-		       Pin *&crpr_pin);
+                       const ClockEdge *tgt_clk_edge,
+                       // Return values.
+                       Crpr &crpr,
+                       Pin *&crpr_pin);
 
 private:
   void clkPathPrev(const Path *path,
                    Path &prev);
   Arrival otherMinMaxArrival(const Path *path);
   void checkCrpr1(const Path *src_path,
-		  const Path *tgt_clk_path,
-		  bool same_pin,
-		  // Return values.
-		  Crpr &crpr,
-		  Pin *&crpr_pin);
+                  const Path *tgt_clk_path,
+                  bool same_pin,
+                  // Return values.
+                  Crpr &crpr,
+                  Pin *&crpr_pin);
   void outputDelayCrpr1(const Path *src_path,
-			const ClockEdge *tgt_clk_edge,
-			const PathAnalysisPt *tgt_path_ap,
-			bool same_pin,
-			// Return values.
-			Crpr &crpr,
-			Pin *&crpr_pin);
+                        const ClockEdge *tgt_clk_edge,
+                        const Scene *scene,
+                        const MinMax *min_max,
+                        bool same_pin,
+                        // Return values.
+                        Crpr &crpr,
+                        Pin *&crpr_pin);
   bool crprPossible(const Clock *clk1,
-		    const Clock *clk2);
+                    const Clock *clk2);
   ConstPathSeq genClkSrcPaths(const Path *path);
   void findCrpr(const Path *src_clk_path,
-		const Path *tgt_clk_path,
-		bool same_pin,
-		// Return values.
-		Crpr &crpr,
-		Pin *&common_pin);
+                const Path *tgt_clk_path,
+                bool same_pin,
+                // Return values.
+                Crpr &crpr,
+                Pin *&common_pin);
   Path *portClkPath(const ClockEdge *clk_edge,
                     const Pin *clk_src_pin,
-                    const PathAnalysisPt *path_ap);
+                    const Scene *scene,
+                    const MinMax *min_max);
   Crpr findCrpr1(const Path *src_clk_path,
-		 const Path *tgt_clk_path);
+                 const Path *tgt_clk_path);
   float crprArrivalDiff(const Path *path);
 };
 

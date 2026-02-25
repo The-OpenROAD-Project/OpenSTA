@@ -25,11 +25,14 @@
 
 #include "Network.hh"
 
+#include <set>
+
+#include "ContainerHelpers.hh"
 #include "StringUtil.hh"
 #include "PatternMatch.hh"
 #include "Liberty.hh"
 #include "PortDirection.hh"
-#include "Corner.hh"
+#include "Scene.hh"
 #include "ParseBus.hh"
 
 namespace sta {
@@ -45,7 +48,7 @@ Network::Network() :
 
 Network::~Network()
 {
-  net_drvr_pin_map_.deleteContents();
+  deleteContents(net_drvr_pin_map_);
 }
 
 void
@@ -105,8 +108,8 @@ Network::findPortsMatching(const Cell *cell,
           else {
             // bus[0]
             Port *port_bit = findBusBit(port, from);
-	    if (port_bit != nullptr)
-	      matches.push_back(port_bit);
+            if (port_bit != nullptr)
+              matches.push_back(port_bit);
           }
         }
       }
@@ -165,9 +168,9 @@ Network::setDefaultLibertyLibrary(LibertyLibrary *library)
 }
 
 void
-Network::checkLibertyCorners()
+Network::checkLibertyScenes()
 {
-  if (corners_->count() > 1) {
+  if (multiScene()) {
     LibertyLibraryIterator *lib_iter = libertyLibraryIterator();
     LibertyCellSet cells;
     while (lib_iter->hasNext()) {
@@ -182,14 +185,14 @@ Network::checkLibertyCorners()
     delete lib_iter;
 
     for (LibertyCell *cell : cells)
-      LibertyLibrary::checkCorners(cell, corners_, report_);
+      LibertyLibrary::checkScenes(cell, scenes_, report_);
   }
 }
 
 void
-Network::checkNetworkLibertyCorners()
+Network::checkNetworkLibertyScenes()
 {
-  if (corners_->count() > 1) {
+  if (multiScene()) {
     LibertyCellSet network_cells;
     LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
     while (leaf_iter->hasNext()) {
@@ -201,11 +204,10 @@ Network::checkNetworkLibertyCorners()
     delete leaf_iter;
 
     for (LibertyCell *cell : network_cells)
-      LibertyLibrary::checkCorners(cell, corners_, report_);
+      LibertyLibrary::checkScenes(cell, scenes_, report_);
   }
 }
 
-// Only used by Sta::setMinLibrary so linear search is acceptable.
 LibertyLibrary *
 Network::findLibertyFilename(const char *filename)
 {
@@ -239,16 +241,16 @@ Network::libertyPort(const Pin *pin) const
 
 bool
 Network::busIndexInRange(const Port *port,
-			 int index)
+                         int index)
 {
   int from_index = fromIndex(port);
   int to_index = toIndex(port);
   return (from_index <= to_index
-	  && index <= to_index
-	  && index >= from_index)
+          && index <= to_index
+          && index >= from_index)
     || (from_index > to_index
-	&& index >= to_index
-	&& index <= from_index);
+        && index >= to_index
+        && index <= from_index);
 }
 
 bool
@@ -263,11 +265,8 @@ Network::pathName(const Instance *instance) const
   InstanceSeq inst_path;
   path(instance, inst_path);
   size_t name_length = 0;
-  InstanceSeq::Iterator path_iter1(inst_path);
-  while (path_iter1.hasNext()) {
-    const Instance *inst = path_iter1.next();
+  for (const Instance *inst : inst_path)
     name_length += strlen(name(inst)) + 1;
-  }
   char *path_name = makeTmpString(name_length + 1);
   char *path_ptr = path_name;
   // Top instance has null string name, so terminate the string here.
@@ -287,14 +286,14 @@ Network::pathName(const Instance *instance) const
 
 bool
 Network::pathNameLess(const Instance *inst1,
-		      const Instance *inst2) const
+                      const Instance *inst2) const
 {
   return pathNameCmp(inst1, inst2) < 0;
 }
 
 int
 Network::pathNameCmp(const Instance *inst1,
-		     const Instance *inst2) const
+                     const Instance *inst2) const
 {
   if (inst1 == nullptr && inst2)
     return -1;
@@ -312,7 +311,7 @@ Network::pathNameCmp(const Instance *inst1,
       const Instance *inst2 = path2.back();
       int cmp = strcmp(name(inst1), name(inst2));
       if (cmp != 0)
-	return cmp;
+        return cmp;
       path1.pop_back();
       path2.pop_back();
     }
@@ -327,8 +326,8 @@ Network::pathNameCmp(const Instance *inst1,
 
 void
 Network::path(const Instance *inst,
-	      // Return value.
-	      InstanceSeq &path) const
+              // Return value.
+              InstanceSeq &path) const
 {
   while (!isTopInstance(inst)) {
     path.push_back(inst);
@@ -344,7 +343,7 @@ Network::isTopInstance(const Instance *inst) const
 
 bool
 Network::isInside(const Instance *inst,
-		  const Instance *hier_inst) const
+                  const Instance *hier_inst) const
 {
   while (inst) {
     if (inst == hier_inst)
@@ -398,14 +397,14 @@ Network::pathName(const Pin *pin) const
 
 bool
 Network::pathNameLess(const Pin *pin1,
-		      const Pin *pin2) const
+                      const Pin *pin2) const
 {
   return pathNameCmp(pin1, pin2) < 0;
 }
 
 int
 Network::pathNameCmp(const Pin *pin1,
-		     const Pin *pin2) const
+                     const Pin *pin2) const
 {
   int inst_cmp = pathNameCmp(instance(pin1), instance(pin2));
   if (inst_cmp == 0)
@@ -416,7 +415,7 @@ Network::pathNameCmp(const Pin *pin1,
 
 bool
 Network::isInside(const Net *net,
-		  const Instance *hier_inst) const
+                  const Instance *hier_inst) const
 {
   return isInside(instance(net), hier_inst);
 }
@@ -441,21 +440,21 @@ Network::isTopLevelPort(const Pin *pin) const
 
 bool
 Network::isInside(const Pin *pin,
-		  const Pin *hier_pin) const
+                  const Pin *hier_pin) const
 {
   return isInside(pin, instance(hier_pin));
 }
 
 bool
 Network::isInside(const Pin *pin,
-		  const Instance *hier_inst) const
+                  const Instance *hier_inst) const
 {
   return isInside(instance(pin), hier_inst);
 }
 
 bool
 Network::pinLess(const Pin *pin1,
-		 const Pin *pin2) const
+                 const Pin *pin2) const
 {
   return pathNameLess(pin1, pin2);
 }
@@ -486,14 +485,14 @@ Network::pathName(const Net *net) const
 
 bool
 Network::pathNameLess(const Net *net1,
-		      const Net *net2) const
+                      const Net *net2) const
 {
   return pathNameCmp(net1, net2) < 0;
 }
 
 int
 Network::pathNameCmp(const Net *net1,
-		     const Net *net2) const
+                     const Net *net2) const
 {
   int inst_cmp = pathNameCmp(instance(net1), instance(net2));
   if (inst_cmp == 0)
@@ -514,8 +513,8 @@ Network::highestNetAbove(Net *net) const
     if (above_pin) {
       Net *above_net = this->net(above_pin);
       if (above_net) {
-	highest_net = highestNetAbove(above_net);
-	break;
+        highest_net = highestNetAbove(above_net);
+        break;
       }
     }
   }
@@ -530,13 +529,11 @@ Network::highestConnectedNet(Net *net) const
   connectedNets(net, &nets);
   const Net *highest_net = net;
   int highest_level = hierarchyLevel(net);
-  NetSet::Iterator net_iter(nets);
-  while (net_iter.hasNext()) {
-    const Net *net1 = net_iter.next();
+  for (const Net *net1 : nets) {
     int level = hierarchyLevel(net1);
     if (level < highest_level
-	|| (level == highest_level
-	    && stringLess(pathName(net1), pathName(highest_net)))) {
+        || (level == highest_level
+            && stringLess(pathName(net1), pathName(highest_net)))) {
       highest_net = net1;
       highest_level = level;
     }
@@ -546,9 +543,9 @@ Network::highestConnectedNet(Net *net) const
 
 void
 Network::connectedNets(Net *net,
-		       NetSet *nets) const
+                       NetSet *nets) const
 {
-  if (!nets->hasKey(net)) {
+  if (!nets->contains(net)) {
     nets->insert(net);
     // Search up from net terminals.
     NetTermIterator *term_iter = termIterator(net);
@@ -556,9 +553,9 @@ Network::connectedNets(Net *net,
       Term *term = term_iter->next();
       Pin *above_pin = pin(term);
       if (above_pin) {
-	Net *above_net = this->net(above_pin);
-	if (above_net)
-	  connectedNets(above_net, nets);
+        Net *above_net = this->net(above_pin);
+        if (above_net)
+          connectedNets(above_net, nets);
       }
     }
     delete term_iter;
@@ -569,9 +566,9 @@ Network::connectedNets(Net *net,
       const Pin *pin1 = pin_iter->next();
       Term *below_term = term(pin1);
       if (below_term) {
-	Net *below_net = this->net(below_term);
-	if (below_net)
-	  connectedNets(below_net, nets);
+        Net *below_net = this->net(below_term);
+        if (below_net)
+          connectedNets(below_net, nets);
       }
     }
     delete pin_iter;
@@ -580,7 +577,7 @@ Network::connectedNets(Net *net,
 
 void
 Network::connectedNets(const Pin *pin,
-		       NetSet *nets) const
+                       NetSet *nets) const
 {
   Net *net = this->net(pin);
   if (net)
@@ -590,7 +587,7 @@ Network::connectedNets(const Pin *pin,
     if (term) {
       Net *below_net = this->net(term);
       if (below_net)
-	connectedNets(below_net, nets);
+        connectedNets(below_net, nets);
     }
   }
 }
@@ -605,8 +602,8 @@ Network::hierarchyLevel(const Net *net) const
     if (pin) {
       Net *above_net = network_->net(pin);
       if (above_net) {
-	delete term_iter;
-	return hierarchyLevel(above_net) + 1;
+        delete term_iter;
+        return hierarchyLevel(above_net) + 1;
       }
     }
   }
@@ -696,7 +693,7 @@ Network::findInstance(const char *path_name) const
 
 Instance *
 Network::findInstanceRelative(const Instance *inst,
-			      const char *path_name) const
+                              const char *path_name) const
 {
   char *first, *tail;
   pathNameFirst(path_name, first, tail);
@@ -707,11 +704,11 @@ Network::findInstanceRelative(const Instance *inst,
       char *next_tail;
       pathNameFirst(tail, first, next_tail);
       if (first) {
-	inst1 = findChild(inst1, first);
-	stringDelete(first);
+        inst1 = findChild(inst1, first);
+        stringDelete(first);
       }
       else
-	inst1 = findChild(inst1, tail);
+        inst1 = findChild(inst1, tail);
       stringDelete(tail);
       tail = next_tail;
     }
@@ -724,7 +721,7 @@ Network::findInstanceRelative(const Instance *inst,
 
 InstanceSeq
 Network::findInstancesMatching(const Instance *context,
-			       const PatternMatch *pattern) const
+                               const PatternMatch *pattern) const
 {
   InstanceSeq matches;
   if (pattern->hasWildcards()) {
@@ -744,9 +741,9 @@ Network::findInstancesMatching(const Instance *context,
 
 void
 Network::findInstancesMatching1(const Instance *context,
-				size_t context_name_length,
-				const PatternMatch *pattern,
-				InstanceSeq &matches) const
+                                size_t context_name_length,
+                                const PatternMatch *pattern,
+                                InstanceSeq &matches) const
 {
   InstanceChildIterator *child_iter = childIterator(context);
   while (child_iter->hasNext()) {
@@ -764,7 +761,7 @@ Network::findInstancesMatching1(const Instance *context,
 
 InstanceSeq
 Network::findInstancesHierMatching(const Instance *instance,
-				   const PatternMatch *pattern) const
+                                   const PatternMatch *pattern) const
 {
   InstanceSeq matches;
   findInstancesHierMatching1(instance, pattern, matches);
@@ -789,15 +786,15 @@ Network::findInstancesHierMatching1(const Instance *instance,
 
 void
 Network::findChildrenMatching(const Instance *parent,
-			      const PatternMatch *pattern,
-			      InstanceSeq &matches) const
+                              const PatternMatch *pattern,
+                              InstanceSeq &matches) const
 {
   if (pattern->hasWildcards()) {
     InstanceChildIterator *child_iter = childIterator(parent);
     while (child_iter->hasNext()) {
       Instance *child = child_iter->next();
       if (pattern->match(name(child)))
-	matches.push_back(child);
+        matches.push_back(child);
     }
     delete child_iter;
   }
@@ -816,7 +813,7 @@ Network::findPin(const char *path_name) const
 
 Pin *
 Network::findPinRelative(const Instance *inst,
-			 const char *path_name) const
+                         const char *path_name) const
 {
   char *inst_path, *port_name;
   pathNameLast(path_name, inst_path, port_name);
@@ -839,7 +836,7 @@ Network::findPinRelative(const Instance *inst,
 
 Pin *
 Network::findPinLinear(const Instance *instance,
-		       const char *port_name) const
+                       const char *port_name) const
 {
   InstancePinIterator *pin_iter = pinIterator(instance);
   while (pin_iter->hasNext()) {
@@ -855,14 +852,14 @@ Network::findPinLinear(const Instance *instance,
 
 Pin *
 Network::findPin(const Instance *instance,
-		 const Port *port) const
+                 const Port *port) const
 {
   return findPin(instance, name(port));
 }
 
 Pin *
 Network::findPin(const Instance *instance,
-		 const LibertyPort *port) const
+                 const LibertyPort *port) const
 {
   return findPin(instance, port->name());
 }
@@ -875,7 +872,7 @@ Network::findNet(const char *path_name) const
 
 Net *
 Network::findNetRelative(const Instance *inst,
-			 const char *path_name) const
+                         const char *path_name) const
 {
   char *inst_path, *net_name;
   pathNameLast(path_name, inst_path, net_name);
@@ -898,7 +895,7 @@ Network::findNetRelative(const Instance *inst,
 
 Net *
 Network::findNetLinear(const Instance *instance,
-		       const char *net_name) const
+                       const char *net_name) const
 {
   InstanceNetIterator *net_iter = netIterator(instance);
   while (net_iter->hasNext()) {
@@ -914,7 +911,7 @@ Network::findNetLinear(const Instance *instance,
 
 NetSeq
 Network::findNetsMatching(const Instance *context,
-			  const PatternMatch *pattern) const
+                          const PatternMatch *pattern) const
 {
   NetSeq matches;
   findNetsMatching(context, pattern, matches);
@@ -923,7 +920,7 @@ Network::findNetsMatching(const Instance *context,
 
 void
 Network::findNetsMatching(const Instance *context,
-			  const PatternMatch *pattern,
+                          const PatternMatch *pattern,
                           NetSeq &matches) const
 {
   if (pattern->hasWildcards()) {
@@ -933,11 +930,8 @@ Network::findNetsMatching(const Instance *context,
       PatternMatch inst_pattern(inst_path, pattern);
       PatternMatch net_pattern(net_name, pattern);
       InstanceSeq insts = findInstancesMatching(context, &inst_pattern);
-      InstanceSeq::Iterator inst_iter(insts);
-      while (inst_iter.hasNext()) {
-	const Instance *inst = inst_iter.next();
-	findNetsMatching(inst, &net_pattern, matches);
-      }
+      for (const Instance *inst : insts)
+        findNetsMatching(inst, &net_pattern, matches);
       stringDelete(inst_path);
       stringDelete(net_name);
     }
@@ -954,7 +948,7 @@ Network::findNetsMatching(const Instance *context,
 
 NetSeq
 Network::findNetsHierMatching(const Instance *instance,
-			      const PatternMatch *pattern) const
+                              const PatternMatch *pattern) const
 {
   NetSeq matches;
   findNetsHierMatching(instance, pattern, matches);
@@ -963,7 +957,7 @@ Network::findNetsHierMatching(const Instance *instance,
 
 void
 Network::findNetsHierMatching(const Instance *instance,
-			      const PatternMatch *pattern,
+                              const PatternMatch *pattern,
                               NetSeq &matches) const
 {
   findInstNetsMatching(instance, pattern, matches);
@@ -977,7 +971,7 @@ Network::findNetsHierMatching(const Instance *instance,
 
 NetSeq
 Network::findNetsMatchingLinear(const Instance *instance,
-				const PatternMatch *pattern) const
+                                const PatternMatch *pattern) const
 {
   NetSeq matches;
   InstanceNetIterator *net_iter = netIterator(instance);
@@ -992,7 +986,7 @@ Network::findNetsMatchingLinear(const Instance *instance,
 
 PinSeq
 Network::findPinsMatching(const Instance *instance,
-			  const PatternMatch *pattern) const
+                          const PatternMatch *pattern) const
 {
   PinSeq matches;
   if (pattern->hasWildcards()) {
@@ -1002,11 +996,8 @@ Network::findPinsMatching(const Instance *instance,
       PatternMatch inst_pattern(inst_path, pattern);
       PatternMatch port_pattern(port_name, pattern);
       InstanceSeq insts = findInstancesMatching(instance, &inst_pattern);
-      InstanceSeq::Iterator inst_iter(insts);
-      while (inst_iter.hasNext()) {
-	const Instance *inst = inst_iter.next();
- 	findInstPinsMatching(inst, &port_pattern, matches);
-      }
+      for (const Instance *inst : insts)
+        findInstPinsMatching(inst, &port_pattern, matches);
       stringDelete(inst_path);
       stringDelete(port_name);
     }
@@ -1024,7 +1015,7 @@ Network::findPinsMatching(const Instance *instance,
 
 PinSeq
 Network::findPinsHierMatching(const Instance *instance,
-			      const PatternMatch *pattern) const
+                              const PatternMatch *pattern) const
 {
   PinSeq matches;
   findPinsHierMatching(instance, pattern, matches);
@@ -1033,7 +1024,7 @@ Network::findPinsHierMatching(const Instance *instance,
 
 void
 Network::findPinsHierMatching(const Instance *instance,
-			      const PatternMatch *pattern,
+                              const PatternMatch *pattern,
                               // Return value.
                               PinSeq &matches) const
 {
@@ -1048,9 +1039,9 @@ Network::findPinsHierMatching(const Instance *instance,
 
 void
 Network::findInstPinsHierMatching(const Instance *instance,
-				  const PatternMatch *pattern,
-				  // Return value.
-				  PinSeq &matches) const
+                                  const PatternMatch *pattern,
+                                  // Return value.
+                                  PinSeq &matches) const
 {
   string inst_name = name(instance);
   InstancePinIterator *pin_iter = pinIterator(instance);
@@ -1066,15 +1057,15 @@ Network::findInstPinsHierMatching(const Instance *instance,
 
 void
 Network::findInstPinsMatching(const Instance *instance,
-			      const PatternMatch *pattern,
-			      PinSeq &matches) const
+                              const PatternMatch *pattern,
+                              PinSeq &matches) const
 {
   if (pattern->hasWildcards()) {
     InstancePinIterator *pin_iter = pinIterator(instance);
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
       if (pattern->match(name(pin)))
-	matches.push_back(pin);
+        matches.push_back(pin);
     }
     delete pin_iter;
   }
@@ -1087,10 +1078,10 @@ Network::findInstPinsMatching(const Instance *instance,
 
 void
 Network::location(const Pin *,
-		  // Return values.
-		  double &x,
-		  double &y,
-		  bool &exists) const
+                  // Return values.
+                  double &x,
+                  double &y,
+                  bool &exists) const
 {
   x = y = 0.0;
   exists = false;
@@ -1225,13 +1216,13 @@ Network::setPathEscape(char escape)
 
 ////////////////////////////////////////////////////////////////
 
-typedef Vector<InstanceChildIterator *> InstanceChildIteratorSeq; 
+typedef std::vector<InstanceChildIterator *> InstanceChildIteratorSeq; 
 
 class LeafInstanceIterator1 : public LeafInstanceIterator
 {
 public:
   LeafInstanceIterator1(const Instance *inst,
-			const Network *network);
+                        const Network *network);
   bool hasNext() { return next_; }
   Instance *next();
 
@@ -1246,7 +1237,7 @@ private:
 };
 
 LeafInstanceIterator1::LeafInstanceIterator1(const Instance *inst,
-					     const Network *network) :
+                                             const Network *network) :
   network_(network),
   child_iter_(network->childIterator(inst)),
   next_(nullptr)
@@ -1305,7 +1296,7 @@ Network::leafInstanceIterator(const Instance *hier_inst) const
 
 void
 Network::visitConnectedPins(const Pin *pin,
-			    PinVisitor &visitor) const
+                            PinVisitor &visitor) const
 {
   NetSet visited_nets(network_);
   Net *pin_net = net(pin);
@@ -1326,7 +1317,7 @@ Network::visitConnectedPins(const Pin *pin,
 
 void
 Network::visitConnectedPins(const Net *net,
-			    PinVisitor &visitor) const
+                            PinVisitor &visitor) const
 {
   NetSet visited_nets(this);
   visitConnectedPins(net, visitor, visited_nets);
@@ -1334,10 +1325,10 @@ Network::visitConnectedPins(const Net *net,
 
 void
 Network::visitConnectedPins(const Net *net,
-			    PinVisitor &visitor,
-			    NetSet &visited_nets) const
+                            PinVisitor &visitor,
+                            NetSet &visited_nets) const
 {
-  if (!visited_nets.hasKey(net)) {
+  if (!visited_nets.contains(net)) {
     visited_nets.insert(net);
     // Search up from net terminals.
     NetTermIterator *term_iter = termIterator(net);
@@ -1345,11 +1336,11 @@ Network::visitConnectedPins(const Net *net,
       Term *term = term_iter->next();
       Pin *above_pin = pin(term);
       if (above_pin) {
-	Net *above_net = this->net(above_pin);
-	if (above_net)
-	  visitConnectedPins(above_net, visitor, visited_nets);
-	else
-	  visitor(above_pin);
+        Net *above_net = this->net(above_pin);
+        if (above_net)
+          visitConnectedPins(above_net, visitor, visited_nets);
+        else
+          visitor(above_pin);
       }
     }
     delete term_iter;
@@ -1361,9 +1352,9 @@ Network::visitConnectedPins(const Net *net,
       visitor(pin);
       Term *below_term = term(pin);
       if (below_term) {
-	Net *below_net = this->net(below_term);
-	if (below_net)
-	  visitConnectedPins(below_net, visitor, visited_nets);
+        Net *below_net = this->net(below_term);
+        if (below_net)
+          visitConnectedPins(below_net, visitor, visited_nets);
       }
     }
     delete pin_iter;
@@ -1375,41 +1366,43 @@ Network::visitConnectedPins(const Net *net,
 class ConnectedPinIterator1 : public ConnectedPinIterator
 {
 public:
-  explicit ConnectedPinIterator1(PinSet *pins);
+  ConnectedPinIterator1(PinSet *pins);
   virtual ~ConnectedPinIterator1();
   virtual bool hasNext();
   virtual const Pin *next();
 
 protected:
-  PinSet::Iterator pin_iter_;
+  PinSet *pins_;
+  PinSet::iterator pin_iter_;
 };
 
 ConnectedPinIterator1::ConnectedPinIterator1(PinSet *pins) :
-  pin_iter_(pins)
+  pins_(pins),
+  pin_iter_(pins_->begin())
 {
 }
 
 ConnectedPinIterator1::~ConnectedPinIterator1()
 {
-  delete pin_iter_.container();
+  delete pins_;
 }
 
 bool
 ConnectedPinIterator1::hasNext()
 {
-  return pin_iter_.hasNext();
+  return pin_iter_ != pins_->end();
 }
 
 const Pin *
 ConnectedPinIterator1::next()
 {
-  return pin_iter_.next();
+  return *pin_iter_++;
 }
 
 class FindConnectedPins : public PinVisitor
 {
 public:
-  explicit FindConnectedPins(PinSet *pins);
+  FindConnectedPins(PinSet *pins);
   virtual void operator()(const Pin *pin);
 
 protected:
@@ -1462,7 +1455,7 @@ Network::connectedPinIterator(const Pin *pin) const
 
 bool
 Network::isConnected(const Net *net,
-		     const Pin *pin) const
+                     const Pin *pin) const
 {
   if (this->net(pin) == net)
     return true;
@@ -1474,10 +1467,10 @@ Network::isConnected(const Net *net,
 
 bool
 Network::isConnected(const Net *net,
-		     const Pin *pin,
-		     NetSet &nets) const
+                     const Pin *pin,
+                     NetSet &nets) const
 {
-  if (!nets.hasKey(net)) {
+  if (!nets.contains(net)) {
     nets.insert(net);
     // Search up from net terminals.
     NetTermIterator *term_iter = termIterator(net);
@@ -1485,17 +1478,17 @@ Network::isConnected(const Net *net,
       Term *term = term_iter->next();
       Pin *above_pin = this->pin(term);
       if (above_pin) {
-	if (above_pin == pin) {
-	  delete term_iter;
-	  return true;
-	}
-	else {
-	  Net *above_net = this->net(above_pin);
-	  if (above_net && isConnected(above_net, pin, nets)) {
-	    delete term_iter;
-	    return true;
-	  }
-	}
+        if (above_pin == pin) {
+          delete term_iter;
+          return true;
+        }
+        else {
+          Net *above_net = this->net(above_pin);
+          if (above_net && isConnected(above_net, pin, nets)) {
+            delete term_iter;
+            return true;
+          }
+        }
       }
     }
     delete term_iter;
@@ -1505,18 +1498,18 @@ Network::isConnected(const Net *net,
     while (pin_iter->hasNext()) {
       const Pin *pin1 = pin_iter->next();
       if (pin1 == pin) {
-	delete pin_iter;
-	return true;
+        delete pin_iter;
+        return true;
       }
       else {
-	Term *below_term = term(pin1);
-	if (below_term) {
-	  Net *below_net = this->net(below_term);
-	  if (below_net && isConnected(below_net, pin, nets)) {
-	    delete pin_iter;
-	    return true;
-	  }
-	}
+        Term *below_term = term(pin1);
+        if (below_term) {
+          Net *below_net = this->net(below_term);
+          if (below_net && isConnected(below_net, pin, nets)) {
+            delete pin_iter;
+            return true;
+          }
+        }
       }
     }
     delete pin_iter;
@@ -1526,7 +1519,7 @@ Network::isConnected(const Net *net,
 
 bool
 Network::isConnected(const Net *net1,
-		     const Net *net2) const
+                     const Net *net2) const
 {
   NetSet nets(this);
   return isConnected(net1, net2, nets);
@@ -1534,12 +1527,12 @@ Network::isConnected(const Net *net1,
 
 bool
 Network::isConnected(const Net *net1,
-		     const Net *net2,
-		     NetSet &nets) const
+                     const Net *net2,
+                     NetSet &nets) const
 {
   if (net1 == net2)
     return true;
-  else if (!nets.hasKey(net1)) {
+  else if (!nets.contains(net1)) {
     nets.insert(net1);
     // Search up from net terminals.
     NetTermIterator *term_iter = termIterator(net1);
@@ -1547,11 +1540,11 @@ Network::isConnected(const Net *net1,
       Term *term = term_iter->next();
       Pin *above_pin = pin(term);
       if (above_pin) {
-	Net *above_net = net(above_pin);
-	if (above_net && isConnected(above_net, net2, nets)) {
-	  delete term_iter;
-	  return true;
-	}
+        Net *above_net = net(above_pin);
+        if (above_net && isConnected(above_net, net2, nets)) {
+          delete term_iter;
+          return true;
+        }
       }
     }
     delete term_iter;
@@ -1562,11 +1555,11 @@ Network::isConnected(const Net *net1,
       const Pin *pin1 = pin_iter->next();
       Term *below_term = term(pin1);
       if (below_term) {
-	Net *below_net = net(below_term);
-	if (below_net && isConnected(below_net, net2, nets)) {
-	  delete pin_iter;
-	  return true;
-	}
+        Net *below_net = net(below_term);
+        if (below_net && isConnected(below_net, net2, nets)) {
+          delete pin_iter;
+          return true;
+        }
       }
     }
     delete pin_iter;
@@ -1579,8 +1572,8 @@ Network::isConnected(const Net *net1,
 class FindDrvrPins : public PinVisitor
 {
 public:
-  explicit FindDrvrPins(PinSet *pins,
-			const Network *network);
+  FindDrvrPins(PinSet *pins,
+               const Network *network);
   virtual void operator()(const Pin *pin);
 
 protected:
@@ -1589,7 +1582,7 @@ protected:
 };
 
 FindDrvrPins::FindDrvrPins(PinSet *pins,
-			   const Network *network) :
+                           const Network *network) :
   PinVisitor(),
   pins_(pins),
   network_(network)
@@ -1616,13 +1609,13 @@ Network::drivers(const Pin *pin)
 void
 Network::clearNetDrvrPinMap()
 {
-  net_drvr_pin_map_.deleteContentsClear();
+  deleteContents(net_drvr_pin_map_);
 }
 
 PinSet *
 Network::drivers(const Net *net)
 {
-  PinSet *drvrs = net_drvr_pin_map_.findKey(net);
+  PinSet *drvrs = findKey(net_drvr_pin_map_, net);
   if (drvrs == nullptr) {
     drvrs = new PinSet(this);
     FindDrvrPins visitor(drvrs, this);
@@ -1636,16 +1629,16 @@ Network::drivers(const Net *net)
 
 void
 Network::pathNameFirst(const char *path_name,
-		       char *&first,
-		       char *&tail) const
+                       char *&first,
+                       char *&tail) const
 {
   char escape = pathEscape();
   char divider = pathDivider();
   const char *d = strchr(path_name, divider);
   // Skip escaped dividers.
   while (d != nullptr
-	 && d > path_name
-	 && d[-1] == escape)
+         && d > path_name
+         && d[-1] == escape)
     d = strchr(d + 1, divider);
   if (d) {
     first = new char[d - path_name + 1];
@@ -1665,8 +1658,8 @@ Network::pathNameFirst(const char *path_name,
 
 void
 Network::pathNameLast(const char *path_name,
-		      char *&head,
-		      char *&last) const
+                      char *&head,
+                      char *&last) const
 {
   char escape = pathEscape();
   char divider = pathDivider();
@@ -1674,10 +1667,10 @@ Network::pathNameLast(const char *path_name,
   // Search for a non-escaped divider.
   if (d) {
     while (d > path_name
-	   && (d[0] != divider
-	       || (d[0] == divider
-		   && d > &path_name[1]
-		   && d[-1] == escape)))
+           && (d[0] != divider
+               || (d[0] == divider
+                   && d > &path_name[1]
+                   && d[-1] == escape)))
       d--;
   }
   if (d && d != path_name) {
@@ -1705,7 +1698,7 @@ NetworkEdit::NetworkEdit() :
 
 void
 NetworkEdit::connectPin(Pin *pin,
-			Net *net)
+                        Net *net)
 {
   connect(instance(pin), port(pin), net);
 }
@@ -1714,8 +1707,8 @@ NetworkEdit::connectPin(Pin *pin,
 
 NetworkConstantPinIterator::
 NetworkConstantPinIterator(const Network *network,
-			   NetSet &zero_nets,
-			   NetSet &one_nets) :
+                           NetSet &zero_nets,
+                           NetSet &one_nets) :
   ConstantPinIterator(),
   network_(network),
   constant_pins_{PinSet(network), PinSet(network)}
@@ -1723,21 +1716,14 @@ NetworkConstantPinIterator(const Network *network,
   findConstantPins(zero_nets, constant_pins_[0]);
   findConstantPins(one_nets, constant_pins_[1]);
   value_ = LogicValue::zero;
-  pin_iter_ = new PinSet::Iterator(constant_pins_[0]);
-}
-
-NetworkConstantPinIterator::~NetworkConstantPinIterator()
-{
-  delete pin_iter_;
+  pin_iter_ = constant_pins_[0].begin();
 }
 
 void
 NetworkConstantPinIterator::findConstantPins(NetSet &nets,
-					     PinSet &pins)
+                                             PinSet &pins)
 {
-  NetSet::Iterator net_iter(nets);
-  while (net_iter.hasNext()) {
-    const Net *net = net_iter.next();
+  for (const Net *net : nets) {
     NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
@@ -1750,13 +1736,12 @@ NetworkConstantPinIterator::findConstantPins(NetSet &nets,
 bool
 NetworkConstantPinIterator::hasNext()
 {
-  if (pin_iter_->hasNext())
+  if (pin_iter_ != constant_pins_[(int)value_].end())
     return true;
   else if (value_ == LogicValue::zero) {
-    delete pin_iter_;
     value_ = LogicValue::one;
-    pin_iter_ = new PinSet::Iterator(constant_pins_[1]);
-    return pin_iter_->hasNext();
+    pin_iter_ = constant_pins_[1].begin();
+    return pin_iter_ != constant_pins_[1].end();
   }
   else
     return false;
@@ -1764,19 +1749,19 @@ NetworkConstantPinIterator::hasNext()
 
 void
 NetworkConstantPinIterator::next(const Pin *&pin,
-				 LogicValue &value)
+                                 LogicValue &value)
 {
-  pin = pin_iter_->next();
+  pin = *pin_iter_++;
   value = value_;
 }
 
 ////////////////////////////////////////////////////////////////
 
 FindNetDrvrLoads::FindNetDrvrLoads(const Pin *drvr_pin,
-				   PinSet &visited_drvrs,
-				   PinSeq &loads,
-				   PinSeq &drvrs,
-				   const Network *network) :
+                                   PinSet &visited_drvrs,
+                                   PinSeq &loads,
+                                   PinSeq &drvrs,
+                                   const Network *network) :
   drvr_pin_(drvr_pin),
   visited_drvrs_(visited_drvrs),
   loads_(loads),
@@ -1801,11 +1786,11 @@ FindNetDrvrLoads::operator()(const Pin *pin)
 
 static void
 visitPinsAboveNet1(const Pin *hpin,
-		   Net *above_net,
-		   NetSet &visited,
-		   PinSet &above_drvrs,
-		   PinSet &above_loads,
-		   const Network *network)
+                   Net *above_net,
+                   NetSet &visited,
+                   PinSet &above_drvrs,
+                   PinSet &above_loads,
+                   const Network *network)
 {
   visited.insert(above_net);
   // Visit above net pins.
@@ -1814,15 +1799,15 @@ visitPinsAboveNet1(const Pin *hpin,
     const Pin *above_pin = pin_iter->next();
     if (above_pin != hpin) {
       if (network->isDriver(above_pin))
-	above_drvrs.insert(above_pin);
+        above_drvrs.insert(above_pin);
       if (network->isLoad(above_pin))
-	above_loads.insert(above_pin);
+        above_loads.insert(above_pin);
       Term *above_term = network->term(above_pin);
       if (above_term) {
-	Net *above_net1 = network->net(above_term);
-	if (above_net1 && !visited.hasKey(above_net1))
-	  visitPinsAboveNet1(above_pin, above_net1, visited,
-			     above_drvrs, above_loads, network);
+        Net *above_net1 = network->net(above_term);
+        if (above_net1 && !visited.contains(above_net1))
+          visitPinsAboveNet1(above_pin, above_net1, visited,
+                             above_drvrs, above_loads, network);
       }
     }
   }
@@ -1834,15 +1819,15 @@ visitPinsAboveNet1(const Pin *hpin,
     Term *term = term_iter->next();
     Pin *above_pin = network->pin(term);
     if (above_pin
-	&& above_pin != hpin) {
+        && above_pin != hpin) {
       Net *above_net1 = network->net(above_pin);
-      if (above_net1 && !visited.hasKey(above_net1))
-	visitPinsAboveNet1(above_pin, above_net1, visited,
-			   above_drvrs, above_loads, network);
+      if (above_net1 && !visited.contains(above_net1))
+        visitPinsAboveNet1(above_pin, above_net1, visited,
+                           above_drvrs, above_loads, network);
       if (network->isDriver(above_pin))
-	above_drvrs.insert(above_pin);
+        above_drvrs.insert(above_pin);
       if (network->isLoad(above_pin))
-	above_loads.insert(above_pin);
+        above_loads.insert(above_pin);
     }
   }
   delete term_iter;
@@ -1850,11 +1835,11 @@ visitPinsAboveNet1(const Pin *hpin,
 
 static void
 visitPinsBelowNet1(const Pin *hpin,
-		   Net *below_net,
-		   NetSet &visited,
-		   PinSet &below_drvrs,
-		   PinSet &below_loads,
-		   const Network *network)
+                   Net *below_net,
+                   NetSet &visited,
+                   PinSet &below_drvrs,
+                   PinSet &below_loads,
+                   const Network *network)
 {
   visited.insert(below_net);
   // Visit below net pins.
@@ -1864,17 +1849,17 @@ visitPinsBelowNet1(const Pin *hpin,
     if (below_pin != hpin) {
       NetSet visited_above(network);
       if (network->isDriver(below_pin))
-	below_drvrs.insert(below_pin);
+        below_drvrs.insert(below_pin);
       if (network->isLoad(below_pin))
-	below_loads.insert(below_pin);
+        below_loads.insert(below_pin);
       if (network->isHierarchical(below_pin)) {
-	Term *term = network->term(below_pin);
-	if (term) {
-	  Net *below_net1 = network->net(term);
-	  if (below_net1 && !visited.hasKey(below_net1))
-	    visitPinsBelowNet1(below_pin, below_net1, visited,
-			       below_drvrs, below_loads, network);
-	}
+        Term *term = network->term(below_pin);
+        if (term) {
+          Net *below_net1 = network->net(term);
+          if (below_net1 && !visited.contains(below_net1))
+            visitPinsBelowNet1(below_pin, below_net1, visited,
+                               below_drvrs, below_loads, network);
+        }
       }
     }
   }
@@ -1883,24 +1868,19 @@ visitPinsBelowNet1(const Pin *hpin,
 
 static void
 visitDrvrLoads(PinSet drvrs,
-	       PinSet loads,
-	       HierPinThruVisitor *visitor)
+               PinSet loads,
+               HierPinThruVisitor *visitor)
 {
-  PinSet::Iterator drvr_iter(drvrs);
-  while (drvr_iter.hasNext()) {
-    const Pin *drvr = drvr_iter.next();
-    PinSet::Iterator load_iter(loads);
-    while (load_iter.hasNext()) {
-      const Pin *load = load_iter.next();
+  for (const Pin *drvr : drvrs) {
+    for (const Pin *load : loads)
       visitor->visit(drvr, load);
-    }
   }
 }
 
 void
 visitDrvrLoadsThruHierPin(const Pin *hpin,
-			  const Network *network,
-			  HierPinThruVisitor *visitor)
+                          const Network *network,
+                          HierPinThruVisitor *visitor)
 {
   Net *above_net = network->net(hpin);
   if (above_net) {
@@ -1909,17 +1889,17 @@ visitDrvrLoadsThruHierPin(const Pin *hpin,
     if (term) {
       Net *below_net = network->net(term);
       if (below_net) {
-	NetSet visited(network);
-	PinSet above_drvrs(network);
-	PinSet above_loads(network);
-	visitPinsAboveNet1(hpin, above_net, visited,
-			   above_drvrs, above_loads, network);
-	PinSet below_drvrs(network);
-	PinSet below_loads(network);
-	visitPinsBelowNet1(hpin, below_net, visited,
-			   below_drvrs, below_loads, network);
-	visitDrvrLoads(above_drvrs, below_loads, visitor);
-	visitDrvrLoads(below_drvrs, above_loads, visitor);
+        NetSet visited(network);
+        PinSet above_drvrs(network);
+        PinSet above_loads(network);
+        visitPinsAboveNet1(hpin, above_net, visited,
+                           above_drvrs, above_loads, network);
+        PinSet below_drvrs(network);
+        PinSet below_loads(network);
+        visitPinsBelowNet1(hpin, below_net, visited,
+                           below_drvrs, below_loads, network);
+        visitDrvrLoads(above_drvrs, below_loads, visitor);
+        visitDrvrLoads(below_drvrs, above_loads, visitor);
       }
     }
   }
@@ -1927,8 +1907,8 @@ visitDrvrLoadsThruHierPin(const Pin *hpin,
 
 void
 visitDrvrLoadsThruNet(const Net *net,
-		      const Network *network,
-		      HierPinThruVisitor *visitor)
+                      const Network *network,
+                      HierPinThruVisitor *visitor)
 {
   NetSet visited(network);
   PinSet above_drvrs(network);
@@ -1944,18 +1924,18 @@ visitDrvrLoadsThruNet(const Net *net,
       // Search down from pin terminal.
       const Term *term = network->term(pin);
       if (term) {
-	Net *below_net = network->net(term);
-	if (below_net) {
-	  visitPinsBelowNet1(pin, below_net, visited,
-			     below_drvrs, below_loads, network);
-	}
+        Net *below_net = network->net(term);
+        if (below_net) {
+          visitPinsBelowNet1(pin, below_net, visited,
+                             below_drvrs, below_loads, network);
+        }
       }
     }
     else {
       if (network->isDriver(pin))
-	net_drvrs.insert(pin);
+        net_drvrs.insert(pin);
       if (network->isLoad(pin))
-	net_loads.insert(pin);
+        net_loads.insert(pin);
     }
   }
   delete pin_iter;
@@ -1966,13 +1946,13 @@ visitDrvrLoadsThruNet(const Net *net,
     Pin *above_pin = network->pin(term);
     if (above_pin) {
       if (network->isDriver(above_pin))
-	above_drvrs.insert(above_pin);
+        above_drvrs.insert(above_pin);
       if (network->isLoad(above_pin))
-	above_loads.insert(above_pin);
+        above_loads.insert(above_pin);
       Net *above_net = network->net(above_pin);
       if (above_net)
-	visitPinsAboveNet1(above_pin, above_net, visited,
-			   above_drvrs, above_loads, network);
+        visitPinsAboveNet1(above_pin, above_net, visited,
+                           above_drvrs, above_loads, network);
     }
   }
   delete term_iter;
@@ -2070,152 +2050,43 @@ NetIdLess::operator()(const Net *net1,
 ////////////////////////////////////////////////////////////////
 
 CellSet::CellSet(const Network *network) :
-  Set<const Cell*, CellIdLess>(CellIdLess(network))
+  std::set<const Cell*, CellIdLess>(CellIdLess(network))
 {
 }
 
 PortSet::PortSet(const Network *network) :
-  Set<const Port*, PortIdLess>(PortIdLess(network))
+  std::set<const Port*, PortIdLess>(PortIdLess(network))
 {
 }
 
 InstanceSet::InstanceSet() :
-  Set<const Instance*, InstanceIdLess>(InstanceIdLess(nullptr))
+  std::set<const Instance*, InstanceIdLess>(InstanceIdLess(nullptr))
 {
 }
 
 InstanceSet::InstanceSet(const Network *network) :
-  Set<const Instance*, InstanceIdLess>(InstanceIdLess(network))
+  std::set<const Instance*, InstanceIdLess>(InstanceIdLess(network))
 {
 }
-
-int
-InstanceSet::compare(const InstanceSet *set1,
-                     const InstanceSet *set2,
-                     const Network *network)
-{
-  size_t size1 = set1 ? set1->size() : 0;
-  size_t size2 = set2 ? set2->size() : 0;
-  if (size1 == size2) {
-    InstanceSet::ConstIterator iter1(set1);
-    InstanceSet::ConstIterator iter2(set2);
-    while (iter1.hasNext() && iter2.hasNext()) {
-      const Instance *inst1 = iter1.next();
-      const Instance *inst2 = iter2.next();
-      ObjectId id1 = network->id(inst1);
-      ObjectId id2 = network->id(inst2);
-      if (id1 < id2)
-        return -1;
-      else if (id1 > id2)
-        return 1;
-    }
-    // Sets are equal.
-    return 0;
-  }
-  else
-    return (size1 > size2) ? 1 : -1;
-}
-
-bool
-InstanceSet::intersects(const InstanceSet *set1,
-                        const InstanceSet *set2,
-                        const Network *network)
-{
-  return Set<const Instance*, InstanceIdLess>::intersects(set1, set2, InstanceIdLess(network));
-}
-
-////////////////////////////////////////////////////////////////
 
 PinSet::PinSet() :
-  Set<const Pin*, PinIdLess>(PinIdLess(nullptr))
+  std::set<const Pin*, PinIdLess>(PinIdLess(nullptr))
 {
 }
 
 PinSet::PinSet(const Network *network) :
-  Set<const Pin*, PinIdLess>(PinIdLess(network))
+  std::set<const Pin*, PinIdLess>(PinIdLess(network))
 {
 }
-
-int
-PinSet::compare(const PinSet *set1,
-                const PinSet *set2,
-                const Network *network)
-{
-  size_t size1 = set1 ? set1->size() : 0;
-  size_t size2 = set2 ? set2->size() : 0;
-  if (size1 == size2) {
-    PinSet::ConstIterator iter1(set1);
-    PinSet::ConstIterator iter2(set2);
-    while (iter1.hasNext() && iter2.hasNext()) {
-      const Pin *pin1 = iter1.next();
-      const Pin *pin2 = iter2.next();
-      ObjectId id1 = network->id(pin1);
-      ObjectId id2 = network->id(pin2);
-      if (id1 < id2)
-        return -1;
-      else if (id1 > id2)
-        return 1;
-    }
-    // Sets are equal.
-    return 0;
-  }
-  else
-    return (size1 > size2) ? 1 : -1;
-}
-
-bool
-PinSet::intersects(const PinSet *set1,
-                   const PinSet *set2,
-                   const Network *network)
-{
-  return Set<const Pin*, PinIdLess>::intersects(set1, set2, PinIdLess(network));
-}
-
-////////////////////////////////////////////////////////////////
 
 NetSet::NetSet() :
-  Set<const Net*, NetIdLess>(NetIdLess(nullptr))
+  std::set<const Net*, NetIdLess>(NetIdLess(nullptr))
 {
 }
 
 NetSet::NetSet(const Network *network) :
-  Set<const Net*, NetIdLess>(NetIdLess(network))
+  std::set<const Net*, NetIdLess>(NetIdLess(network))
 {
-}
-
-int
-NetSet::compare(const NetSet *set1,
-                const NetSet *set2,
-                const Network *network)
-{
-  size_t size1 = set1 ? set1->size() : 0;
-  size_t size2 = set2 ? set2->size() : 0;
-  if (size1 == size2) {
-    NetSet::ConstIterator iter1(set1);
-    NetSet::ConstIterator iter2(set2);
-    while (iter1.hasNext() && iter2.hasNext()) {
-      const Net *net1 = iter1.next();
-      const Net *net2 = iter2.next();
-      ObjectId id1 = network->id(net1);
-      ObjectId id2 = network->id(net2);
-      if (id1 < id2)
-        return -1;
-      else if (id1 > id2)
-        return 1;
-    }
-    // Sets are equal.
-    return 0;
-  }
-  else
-    return (size1 > size2) ? 1 : -1;
-}
-
-bool
-NetSet::intersects(const NetSet *set1,
-                   const NetSet *set2,
-                   const Network *network)
-{
-  return Set<const Net*, NetIdLess>::intersects(set1, set2, NetIdLess(network));
 }
 
 } // namespace

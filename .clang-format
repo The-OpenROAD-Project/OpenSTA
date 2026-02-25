@@ -10,7 +10,7 @@ AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: TopLevel
-BinPackArguments: false
+BinPackArguments: true
 # fails
 BinPackParameters: AlwaysOnePerLine
 BraceWrapping:   

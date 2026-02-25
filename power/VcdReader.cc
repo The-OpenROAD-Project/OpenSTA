@@ -35,6 +35,7 @@
 #include "VerilogNamespace.hh"
 #include "ParseBus.hh"
 #include "Sdc.hh"
+#include "Mode.hh"
 #include "Power.hh"
 #include "Sta.hh"
 
@@ -123,8 +124,8 @@ typedef unordered_map<string, VcdCounts> VcdIdCountsMap;
 class VcdCountReader : public VcdReader
 {
 public:
-  VcdCountReader(const char *scope,
-                 Network *sdc_network,
+  VcdCountReader(const std::string &scope,
+                 const Network *sdc_network,
                  Report *report,
                  Debug *debug);
   VcdTime timeMax() const { return time_max_; }
@@ -161,28 +162,29 @@ private:
                  size_t width,
                  size_t bit_idx);
 
-  const char *scope_;
-  Network *sdc_network_;
-  Report *report_;
-  Debug *debug_;
+  const std::string scope_;
 
   double time_scale_;
   VcdTime time_min_;
   VcdTime time_max_;
   VcdIdCountsMap vcd_count_map_;
+
+  const Network *sdc_network_;
+  Report *report_;
+  Debug *debug_;
 };
 
-VcdCountReader::VcdCountReader(const char *scope,
-                               Network *sdc_network,
+VcdCountReader::VcdCountReader(const std::string &scope,
+                               const Network *sdc_network,
                                Report *report,
                                Debug *debug) :
   scope_(scope),
-  sdc_network_(sdc_network),
-  report_(report),
-  debug_(debug),
   time_scale_(1.0),
   time_min_(0),
-  time_max_(0)
+  time_max_(0),
+  sdc_network_(sdc_network),
+  report_(report),
+  debug_(debug)
 {
 }
 
@@ -229,7 +231,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
       path_name += context;
       first = false;
     }
-    size_t scope_length = strlen(scope_);
+    size_t scope_length = scope_.size();
     // string::starts_with in c++20
     if (scope_length == 0
         || path_name.substr(0, scope_length) == scope_) {
@@ -361,8 +363,9 @@ VcdCountReader::varAppendBusValue(const string &id,
 class ReadVcdActivities : public StaState
 {
 public:
-  ReadVcdActivities(const char *filename,
-                    const char *scope,
+  ReadVcdActivities(const std::string &filename,
+                    const std::string &scope,
+                    const Sdc *sdc,
                     Sta *sta);
   void readActivities();
 
@@ -371,32 +374,38 @@ private:
   void checkClkPeriod(const Pin *pin,
                       double transition_count);
 
-  const char *filename_;
+  const std::string filename_;
+
+  std::set<const Pin*> annotated_pins_;
   VcdCountReader vcd_reader_;
   VcdParse vcd_parse_;
-
+  const Sdc *sdc_;
   Power *power_;
-  std::set<const Pin*> annotated_pins_;
 
   static constexpr double sim_clk_period_tolerance_ = .1;
 };
 
 void
-readVcdActivities(const char *filename,
-                  const char *scope,
+readVcdActivities(const std::string &filename,
+                  const std::string &scope,
+                  const std::string &mode_name,
                   Sta *sta)
 {
-  ReadVcdActivities reader(filename, scope, sta);
+  const Mode *mode = sta->findMode(mode_name);
+  const Sdc *sdc = mode->sdc();
+  ReadVcdActivities reader(filename, scope, sdc, sta);
   reader.readActivities();
 }
 
-ReadVcdActivities::ReadVcdActivities(const char *filename,
-                                     const char *scope,
+ReadVcdActivities::ReadVcdActivities(const std::string &filename,
+                                     const std::string &scope,
+                                     const Sdc *sdc,
                                      Sta *sta) :
   StaState(sta),
   filename_(filename),
   vcd_reader_(scope, sdc_network_, report_, debug_),
   vcd_parse_(report_, debug_),
+  sdc_(sdc),
   power_(sta->power())
 {
 }
@@ -404,11 +413,11 @@ ReadVcdActivities::ReadVcdActivities(const char *filename,
 void
 ReadVcdActivities::readActivities()
 {
-  ClockSeq *clks = sdc_->clocks();
-  if (clks->empty())
+  const ClockSeq &clks = sdc_->clocks();
+  if (clks.empty())
     report_->error(820, "No clocks have been defined.");
 
-  vcd_parse_.read(filename_, &vcd_reader_);
+  vcd_parse_.read(filename_.c_str(), &vcd_reader_);
 
   if (vcd_reader_.timeMax() > 0)
     setActivities();
@@ -462,14 +471,14 @@ ReadVcdActivities::checkClkPeriod(const Pin *pin,
     double sim_period = (time_max - time_min) * time_scale / (transition_count / 2.0);
     for (Clock *clk : *clks) {
       if (transition_count == 0)
-        report_->warn(1452, "clock %s pin %s has no vcd transitions.",
+        report_->warn(1453, "clock %s pin %s has no vcd transitions.",
                       clk->name(),
                       sdc_network_->pathName(pin));
       else {
         double clk_period = clk->period();
         if (abs((clk_period - sim_period) / clk_period) > sim_clk_period_tolerance_)
           // Warn if sim clock period differs from SDC by more than 10%.
-          report_->warn(1453, "clock %s vcd period %s differs from SDC clock period %s",
+          report_->warn(1452, "clock %s vcd period %s differs from SDC clock period %s",
                         clk->name(),
                         delayAsString(sim_period, this),
                         delayAsString(clk_period, this));

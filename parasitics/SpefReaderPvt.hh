@@ -38,23 +38,23 @@ class Report;
 class MinMaxAll;
 class SpefRspfPi;
 class SpefTriple;
-class Corner;
+class Scene;
 class SpefScanner;
 
-typedef std::map<int, std::string> SpefNameMap;
+using SpefNameMap = std::map<int, std::string>;
 
 class SpefReader : public StaState
 {
 public:
-  SpefReader(const char *filename,
-	     Instance *instance,
-	     ParasiticAnalysisPt *ap,
-	     bool pin_cap_included,
-	     bool keep_coupling_caps,
-	     float coupling_cap_factor,
-	     bool reduce,
-	     const Corner *corner,
-	     const MinMaxAll *min_max,
+  SpefReader(const std::string &filename,
+             Instance *instance,
+             bool pin_cap_included,
+             bool keep_coupling_caps,
+             float coupling_cap_factor,
+             bool reduce,
+             const Scene *scene,
+             const MinMaxAll *min_max,
+             Parasitics *parasitics,
              StaState *sta);
   virtual ~SpefReader();
   bool read();
@@ -62,7 +62,7 @@ public:
   void setDivider(char divider);
   char delimiter() const { return delimiter_; }
   void setDelimiter(char delimiter);
-  const char *filename() const { return filename_; }
+  const std::string &filename() const { return filename_; }
   // Translate from spf/spef namespace to sta namespace.
   char *translated(const char *token);
   void warn(int id,
@@ -70,43 +70,43 @@ public:
             ...)
     __attribute__((format (printf, 3, 4)));
   void setBusBrackets(char left,
-		      char right);
+                      char right);
   void setTimeScale(float scale,
-		    const char *units);
+                    const char *units);
   void setCapScale(float scale,
-		   const char *units);
+                   const char *units);
   void setResScale(float scale,
-		   const char *units);
+                   const char *units);
   void setInductScale(float scale,
-		      const char *units);
+                      const char *units);
   void makeNameMapEntry(const char *index,
-			const char *name);
+                        const char *name);
   const char *nameMapLookup(const char *index);
   void setDesignFlow(StringSeq *flow_keys);
   Pin *findPin(char *name);
   Net *findNet(const char *name);
   void rspfBegin(Net *net,
-		 SpefTriple *total_cap);
+                 SpefTriple *total_cap);
   void rspfFinish();
   void rspfDrvrBegin(Pin *drvr_pin,
-		     SpefRspfPi *pi);
+                     SpefRspfPi *pi);
   void rspfLoad(Pin *load_pin,
-		SpefTriple *rc);
+                SpefTriple *rc);
   void rspfDrvrFinish();
   void dspfBegin(Net *net,
-		 SpefTriple *total_cap);
+                 SpefTriple *total_cap);
   void dspfFinish();
   void makeCapacitor(int id,
-		     char *node_name,
-		     SpefTriple *cap);
+                     char *node_name,
+                     SpefTriple *cap);
   void makeCapacitor(int id,
-		     char *node_name1,
-		     char *node_name2,
-		     SpefTriple *cap);
+                     char *node_name1,
+                     char *node_name2,
+                     SpefTriple *cap);
   void makeResistor(int id,
-		    char *node_name1,
-		    char *node_name2,
-		    SpefTriple *res);
+                    char *node_name1,
+                    char *node_name2,
+                    SpefTriple *res);
   PortDirection *portDirection(char *spef_dir);
 
 private:
@@ -117,14 +117,14 @@ private:
   ParasiticNode *findParasiticNode(char *name,
                                    bool local_only);
 
-  const char *filename_;
+  const std::string filename_;
   SpefScanner *scanner_;
   Instance *instance_;
-  const ParasiticAnalysisPt *ap_;
   bool pin_cap_included_;
   bool keep_coupling_caps_;
+  bool coupling_cap_factor_;
   bool reduce_;
-  const Corner *corner_;
+  const Scene *scene_;
   const MinMaxAll *min_max_;
   // Normally no need to keep device names.
   char divider_;
@@ -140,6 +140,7 @@ private:
   float induct_scale_;
   SpefNameMap name_map_;
   StringSeq *design_flow_;
+  Parasitics *parasitics_;
   Parasitic *parasitic_;
 };
 
@@ -148,8 +149,8 @@ class SpefTriple
 public:
   SpefTriple(float value);
   SpefTriple(float value1,
-	     float value2,
-	     float value3);
+             float value2,
+             float value3);
   float value(int index) const;
   bool isTriple() const { return is_triple_; }
 

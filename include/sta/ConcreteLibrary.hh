@@ -25,9 +25,9 @@
 #pragma once
 
 #include <functional>
+#include <vector>
+#include <map>
 
-#include "Vector.hh"
-#include "Map.hh"
 #include "StringUtil.hh"
 #include "NetworkClass.hh"
 
@@ -45,19 +45,19 @@ class PatternMatch;
 class LibertyCell;
 class LibertyPort;
 
-typedef Map<std::string, ConcreteCell*> ConcreteCellMap;
-typedef Vector<ConcretePort*> ConcretePortSeq;
-typedef Map<std::string, ConcretePort*> ConcretePortMap;
-typedef ConcreteCellMap::ConstIterator ConcreteLibraryCellIterator;
-typedef ConcretePortSeq::ConstIterator ConcreteCellPortIterator;
-typedef ConcretePortSeq::ConstIterator ConcretePortMemberIterator;
+using ConcreteCellMap = std::map<std::string, ConcreteCell*>;
+using ConcretePortSeq = std::vector<ConcretePort*>;
+using ConcretePortMap = std::map<std::string, ConcretePort*>;
+using ConcreteLibraryCellIterator = MapIterator<ConcreteCellMap, ConcreteCell*>;
+using ConcreteCellPortIterator = VectorIterator<ConcretePortSeq, ConcretePort*>;
+using ConcretePortMemberIterator = VectorIterator<ConcretePortSeq, ConcretePort*>;
 
 class ConcreteLibrary
 {
 public:
-  explicit ConcreteLibrary(const char *name,
-			   const char *filename,
-			   bool is_liberty);
+  ConcreteLibrary(const char *name,
+                  const char *filename,
+                  bool is_liberty);
   virtual ~ConcreteLibrary();
   const char *name() const { return name_.c_str(); }
   void setName(const char *name);
@@ -66,8 +66,8 @@ public:
   const char *filename() const { return filename_.c_str(); }
   void addCell(ConcreteCell *cell);
   ConcreteCell *makeCell(const char *name,
-			 bool is_leaf,
-			 const char *filename);
+                         bool is_leaf,
+                         const char *filename);
   void deleteCell(ConcreteCell *cell);
   ConcreteLibraryCellIterator *cellIterator() const;
   ConcreteCell *findCell(const char *name) const;
@@ -75,11 +75,11 @@ public:
   char busBrktLeft() const { return bus_brkt_left_; }
   char busBrktRight() const { return bus_brkt_right_; }
   void setBusBrkts(char left,
-		   char right);
+                   char right);
 
 protected:
   void renameCell(ConcreteCell *cell,
-		  const char *cell_name);
+                  const char *cell_name);
 
   std::string name_;
   ObjectId id_;
@@ -122,14 +122,14 @@ public:
   ConcretePort *makePort(const char *name);
   // Bus port.
   ConcretePort *makeBusPort(const char *name,
-			    int from_index,
-			    int to_index);
+                            int from_index,
+                            int to_index);
   // Bundle port.
   ConcretePort *makeBundlePort(const char *name,
-			       ConcretePortSeq *members);
+                               ConcretePortSeq *members);
   // Group previously defined bus bit ports together.
   void groupBusPorts(const char bus_brkt_left,
-		     const char bus_brkt_right,
+                     const char bus_brkt_right,
                      std::function<bool(const char*)> port_msb_first);
   size_t portCount() const;
   void setName(const char *name);
@@ -138,23 +138,23 @@ public:
 
 protected:
   ConcreteCell(const char *name,
-	       const char *filename,
+               const char *filename,
                bool is_leaf,
                ConcreteLibrary *library);
   ConcretePort *makeBusPort(const char *name,
-			    int from_index,
-			    int to_index,
-			    ConcretePortSeq *members);
+                            int from_index,
+                            int to_index,
+                            ConcretePortSeq *members);
   void makeBusPortBits(ConcretePort *bus_port,
-		       const char *name,
-		       int from_index,
-		       int to_index);
+                       const char *name,
+                       int from_index,
+                       int to_index);
   // Bus port bit (internal to makeBusPortBits).
   ConcretePort *makePort(const char *bit_name,
-			 int bit_index);
+                         int bit_index);
   void makeBusPortBit(ConcretePort *bus_port,
-		      const char *name,
-		      int index);
+                      const char *name,
+                      int index);
 
   std::string name_;
   ObjectId id_;
@@ -233,10 +233,10 @@ protected:
   // Constructors for factory in cell class.
   ConcretePort(const char *name,
                bool is_bus,
-	       int from_index,
-	       int to_index,
-	       bool is_bundle,
-	       ConcretePortSeq *member_ports,
+               int from_index,
+               int to_index,
+               bool is_bundle,
+               ConcretePortSeq *member_ports,
                ConcreteCell *cell);
 
   std::string name_;
@@ -263,14 +263,15 @@ private:
 class ConcreteCellPortBitIterator : public Iterator<ConcretePort*>
 {
 public:
-  explicit ConcreteCellPortBitIterator(const ConcreteCell *cell);
+  ConcreteCellPortBitIterator(const ConcreteCell *cell);
   virtual bool hasNext();
   virtual ConcretePort *next();
 
 private:
   void findNext();
 
-  ConcretePortSeq::ConstIterator port_iter_;
+  const ConcretePortSeq &ports_;
+  ConcretePortSeq::const_iterator port_iter_;
   ConcretePortMemberIterator *member_iter_;
   ConcretePort *next_;
 };
