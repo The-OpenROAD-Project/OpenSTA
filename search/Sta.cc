@@ -2498,27 +2498,30 @@ Sta::makeScene(const std::string &name,
                const std::string &spef_max_file)
 {
   Mode *mode = findMode(mode_name);
-  Parasitics *parasitics_default = findParasitics("default");
-  Parasitics *parasitics_min = parasitics_default;
-  Parasitics *parasitics_max = parasitics_default;
-  if (!spef_min_file.empty() && !spef_max_file.empty()) {
-    parasitics_min = findParasitics(spef_min_file);
-    parasitics_max = findParasitics(spef_max_file);
-    if (parasitics_min == nullptr)
-      report_->error(1558, "Spef file %s not found.", spef_min_file.c_str());
-    if (parasitics_max == nullptr
-        && spef_max_file != spef_min_file)
-      report_->error(1559, "Spef file %s not found.", spef_max_file.c_str());
-  }
+  if (mode) {
+    Parasitics *parasitics_default = findParasitics("default");
+    Parasitics *parasitics_min = parasitics_default;
+    Parasitics *parasitics_max = parasitics_default;
+    if (!spef_min_file.empty() && !spef_max_file.empty()) {
+      parasitics_min = findParasitics(spef_min_file);
+      parasitics_max = findParasitics(spef_max_file);
+      if (parasitics_min == nullptr)
+        report_->error(1558, "Spef file %s not found.", spef_min_file.c_str());
+      if (parasitics_max == nullptr
+          && spef_max_file != spef_min_file)
+        report_->error(1559, "Spef file %s not found.", spef_max_file.c_str());
+    }
 
-  mode->sdc()->makeSceneBefore();
-  Scene *scene = makeScene(name, mode, parasitics_min, parasitics_max);
-  updateComponentsState();
-  if (graph_)
-    graph_->makeSceneAfter();
-  updateSceneLiberty(scene, liberty_min_files, MinMax::min());
-  updateSceneLiberty(scene, liberty_max_files, MinMax::max());
-  cmd_scene_ = scene;
+    mode->sdc()->makeSceneBefore();
+    Scene *scene = makeScene(name, mode, parasitics_min, parasitics_max);
+    updateComponentsState();
+    if (graph_)
+      graph_->makeSceneAfter();
+    updateSceneLiberty(scene, liberty_min_files, liberty_max_files);
+    cmd_scene_ = scene;
+  }
+  else
+    report_->error(1572, "mode %s not found.", mode_name.c_str());
 }
 
 Scene *
@@ -2597,34 +2600,27 @@ Sta::findScenes(const std::string &name,
 
 void
 Sta::updateSceneLiberty(Scene *scene,
-                        const StdStringSeq &liberty_files,
-                        const MinMax *min_max)
+                        const StdStringSeq &liberty_min_files,
+                        const StdStringSeq &liberty_max_files)
 {
-  for (const std::string &lib_file : liberty_files) {
-    LibertyLibrary *lib = findLibertyFileBasename(lib_file);
-    if (lib)
-      LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max),
-                                   network_, report_);
-    else
-      report_->warn(1555, "liberty filename %s not found.", lib_file.c_str());
-  }
-}
-
-LibertyLibrary *
-Sta::findLibertyFileBasename(const std::string &filename) const
-{
-  LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
-  while (lib_iter->hasNext()) {
-    LibertyLibrary *lib = lib_iter->next();
-    auto lib_file = std::filesystem::path(lib->filename()).filename().stem();
-    auto stem = lib_file.stem();
-    if (stem.string() == filename) {
-      delete lib_iter;
-      return lib;
+  StdStringSet warned_files;
+  for (const MinMax *min_max : MinMax::range()) {
+    const StdStringSeq &liberty_files = min_max == MinMax::min()
+      ? liberty_min_files
+      : liberty_max_files;
+    for (const std::string &lib_file : liberty_files) {
+      LibertyLibrary *lib = network_->findLiberty(lib_file.c_str());
+      if (lib ==  nullptr)
+        lib = network_->findLibertyFilename(lib_file.c_str());
+      if (lib)
+        LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max),
+                                     network_, report_);
+      else if (!warned_files.contains(lib_file)) {
+        report_->warn(1555, "liberty name/filename %s not found.", lib_file.c_str());
+        warned_files.insert(lib_file);
+      }
     }
   }
-  delete lib_iter;
-  return nullptr;
 }
 
 void
@@ -3128,7 +3124,7 @@ Sta::required(Vertex *vertex,
 
 Slack
 Sta::slack(const Net *net,
-	      const MinMax *min_max)
+           const MinMax *min_max)
 {
   ensureGraph();
   Slack min_slack = MinMax::min()->initValue();
@@ -3150,7 +3146,7 @@ Slack
 Sta::slack(const Pin *pin,
            const RiseFallBoth *rf,
            const SceneSeq &scenes,
-	      const MinMax *min_max)
+           const MinMax *min_max)
 {
   ensureGraph();
   Vertex *vertex, *bidirect_drvr_vertex;

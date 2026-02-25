@@ -208,7 +208,6 @@ Network::checkNetworkLibertyScenes()
   }
 }
 
-// Only used by Sta::setMinLibrary so linear search is acceptable.
 LibertyLibrary *
 Network::findLibertyFilename(const char *filename)
 {
