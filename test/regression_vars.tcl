@@ -163,9 +163,9 @@ record_public_tests {
   report_json1
   report_json2
   suppress_msg
-  test_write_verilog_escape
   verilog_attribute
   verilog_specify
+  verilog_write_escape
 }
 
 define_test_group fast [group_tests all]
