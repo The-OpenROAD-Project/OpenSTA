@@ -436,8 +436,10 @@ PathGroups::pathGroups(const PathEnd *path_end) const
   // GroupPaths have precedence.
   else if (!group_paths.empty()) {
     for (ExceptionPath *group_path : group_paths) {
-      if (group_path->isDefault())
-        path_groups.push_back(path_delay_[mm_index]);
+      if (group_path->isDefault()) {
+        if (path_delay_[mm_index])
+          path_groups.push_back(path_delay_[mm_index]);
+      }
       else {
         const char *group_name = group_path->name();
         PathGroup *group = findPathGroup(group_name, min_max);
