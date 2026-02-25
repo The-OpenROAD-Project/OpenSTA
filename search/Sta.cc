@@ -2517,8 +2517,7 @@ Sta::makeScene(const std::string &name,
     updateComponentsState();
     if (graph_)
       graph_->makeSceneAfter();
-    updateSceneLiberty(scene, liberty_min_files, MinMax::min());
-    updateSceneLiberty(scene, liberty_max_files, MinMax::max());
+    updateSceneLiberty(scene, liberty_min_files, liberty_max_files);
     cmd_scene_ = scene;
   }
   else
@@ -2601,34 +2600,27 @@ Sta::findScenes(const std::string &name,
 
 void
 Sta::updateSceneLiberty(Scene *scene,
-                        const StdStringSeq &liberty_files,
-                        const MinMax *min_max)
+                        const StdStringSeq &liberty_min_files,
+                        const StdStringSeq &liberty_max_files)
 {
-  for (const std::string &lib_file : liberty_files) {
-    LibertyLibrary *lib = findLibertyFileBasename(lib_file);
-    if (lib)
-      LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max),
-                                   network_, report_);
-    else
-      report_->warn(1555, "liberty filename %s not found.", lib_file.c_str());
-  }
-}
-
-LibertyLibrary *
-Sta::findLibertyFileBasename(const std::string &filename) const
-{
-  LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
-  while (lib_iter->hasNext()) {
-    LibertyLibrary *lib = lib_iter->next();
-    auto lib_file = std::filesystem::path(lib->filename()).filename().stem();
-    auto stem = lib_file.stem();
-    if (stem.string() == filename) {
-      delete lib_iter;
-      return lib;
+  StdStringSet warned_files;
+  for (const MinMax *min_max : MinMax::range()) {
+    const StdStringSeq &liberty_files = min_max == MinMax::min()
+      ? liberty_min_files
+      : liberty_max_files;
+    for (const std::string &lib_file : liberty_files) {
+      LibertyLibrary *lib = network_->findLiberty(lib_file.c_str());
+      if (lib ==  nullptr)
+        lib = network_->findLibertyFilename(lib_file.c_str());
+      if (lib)
+        LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max),
+                                     network_, report_);
+      else if (!warned_files.contains(lib_file)) {
+        report_->warn(1555, "liberty name/filename %s not found.", lib_file.c_str());
+        warned_files.insert(lib_file);
+      }
     }
   }
-  delete lib_iter;
-  return nullptr;
 }
 
 void
