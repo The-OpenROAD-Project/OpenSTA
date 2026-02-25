@@ -77,7 +77,6 @@ portVerilogName(const char *sta_name)
   return staToVerilog2(sta_name);
 }
 
-// Unescaping logic should follow reverse of verilogToSta logic
 static string
 staToVerilog(const char *sta_name)
 {
@@ -92,21 +91,9 @@ staToVerilog(const char *sta_name)
       escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
-<<<<<<< HEAD
-        // Only keep the character after "\"
-        // to remove the escape added by verilogToSta"
 	escaped_name += next_ch;
 	s++;
       }
-=======
-        escaped_name += ch;
-        escaped_name += next_ch;
-        s++;
-      }
-      else
-        // Skip escape.
-        escaped = true;
->>>>>>> master
     }
     else {
       if ((!(isalnum(ch) || ch == '_')))
@@ -123,8 +110,6 @@ staToVerilog(const char *sta_name)
     return string(sta_name);
 }
 
-// Unescaping logic should follow reverse of verilogToSta logic
-// For "\\" handling, this should be like staToVerilog
 static string
 staToVerilog2(const char *sta_name)
 {
@@ -141,19 +126,9 @@ staToVerilog2(const char *sta_name)
       escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
-<<<<<<< HEAD
 	escaped_name += next_ch;
 	s++;
       }
-=======
-        escaped_name += ch;
-        escaped_name += next_ch;
-        s++;
-      }
-      else
-        // Skip escape.
-        escaped = true;
->>>>>>> master
     }
     else {
       bool is_brkt = (ch == bus_brkt_left || ch == bus_brkt_right);
