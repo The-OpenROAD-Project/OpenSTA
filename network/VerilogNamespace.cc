@@ -91,8 +91,8 @@ staToVerilog(const char *sta_name)
       escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
-	      escaped_name += next_ch;
-	      s++;
+        escaped_name += next_ch;
+        s++;
       }
     }
     else {
@@ -126,8 +126,8 @@ staToVerilog2(const char *sta_name)
       escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
-	      escaped_name += next_ch;
-	      s++;
+        escaped_name += next_ch;
+        s++;
       }
     }
     else {
