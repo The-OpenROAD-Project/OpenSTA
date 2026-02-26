@@ -170,7 +170,6 @@ public:
   void deleteTimingArc(TimingArc *arc);
   TimingArc *findTimingArc(unsigned arc_index);
   void setRole(const TimingRole *role);
-  TimingType timingType() const { return attrs_->timingType(); }
   FuncExpr *cond() const { return attrs_->cond(); }
   // Cond default is the timing arcs with no condition when there are
   // other conditional timing arcs between the same pins.
