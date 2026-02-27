@@ -118,7 +118,7 @@ register cells: 35
    9.14e-06   5.77e-06   4.60e-12   1.49e-05 clkbuf_0_clk
    9.02e-06   2.49e-06   8.63e-12   1.15e-05 _413_
    1.02e-05   1.05e-06   8.33e-12   1.12e-05 _434_
-   9.83e-06   1.17e-06   8.45e-12   1.10e-05 _432_
+   9.83e-06   1.17e-06   8.45e-12   1.10e-05 _431_
 highest_power_instances json: skipped (API removed)
      Internal    Switching      Leakage        Total
         Power        Power        Power        Power (Watts)
