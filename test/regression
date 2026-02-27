@@ -17,12 +17,10 @@ module=${script_path#${sta_home}/}
 module=${module%%/*}
 
 # Find build directory.
-if [ -d "${sta_home}/build_test" ]; then
-  build_dir="${sta_home}/build_test"
-elif [ -d "${sta_home}/build" ]; then
+if [ -d "${sta_home}/build" ]; then
   build_dir="${sta_home}/build"
 else
-  echo "Error: no build directory found (tried build_test, build)"
+  echo "Error: no build directory found (tried build)"
   exit 1
 fi
 
@@ -43,9 +41,10 @@ done
 
 cd "${build_dir}"
 
-# The top-level test/ directory uses label "tcl" (not "module_test").
-if [ "$module" = "test" ]; then
-  ctest -L "tcl" "${args[@]}"
+# Top-level test/ directory or project root: run all tests.
+# Module directory (e.g. dcalc/test): run only that module's tests.
+if [ "$module" = "test" ] || [ -z "$module" ]; then
+  ctest "${args[@]}"
 else
   ctest -L "module_${module}" "${args[@]}"
 fi
