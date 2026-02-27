@@ -12,6 +12,7 @@ Makefile
 gmon.out
 
 cmake-build-debug
+coverage-output
 build
 pvt
 
@@ -21,6 +22,7 @@ examples/gcd_tb
 doc/._Sta.docx
 
 test/results
+*/test/results
 # ngspice turd
 test/b3v3_1check.log
 
