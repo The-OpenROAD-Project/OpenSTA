@@ -3,8 +3,8 @@
 
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
-load("@rules_hdl//dependency_support/com_github_westes_flex:flex.bzl", "genlex")
-load("@rules_hdl//dependency_support/org_gnu_bison:bison.bzl", "genyacc")
+load("//bazel:bison.bzl", "genyacc")
+load("//bazel:flex.bzl", "genlex")
 load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
 load("//bazel:tcl_wrap_cc.bzl", "tcl_wrap_cc")
 
@@ -177,8 +177,9 @@ tcl_encode_sta(
 genrule(
     name = "StaConfig",
     srcs = [],
-    outs = ["util/StaConfig.hh"],
+    outs = ["include/sta/StaConfig.hh"],
     cmd = """echo -e '
+    #pragma once
     #define STA_VERSION "2.7.0"
     #define STA_GIT_SHA1 "f21d4a3878e2531e3af4930818d9b5968aad9416"
     #define SSTA 0
@@ -296,7 +297,7 @@ cc_binary(
     deps = [
         ":opensta_lib",
         "@rules_cc//cc/runfiles",
-        "@tk_tcl//:tcl",
+        "@tcl_lang//:tcl",
     ],
 )
 
@@ -390,14 +391,17 @@ cc_library(
         "util",
         "verilog",
     ],
-    textual_hdrs = ["util/MachineLinux.cc"],
+    textual_hdrs = select({
+        "@platforms//os:osx": ["util/MachineApple.cc"],
+        "//conditions:default": ["util/MachineLinux.cc"],
+    }),
     visibility = ["//:__subpackages__"],
     deps = [
         "@cudd",
         "@eigen",
         "@openmp",
         "@rules_flex//flex:current_flex_toolchain",
-        "@tk_tcl//:tcl",
+        "@tcl_lang//:tcl",
         "@zlib",
     ],
 )

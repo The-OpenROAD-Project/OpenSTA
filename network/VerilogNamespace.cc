@@ -88,15 +88,12 @@ staToVerilog(const char *sta_name)
   for (const char *s = sta_name; *s ; s++) {
     char ch = s[0];
     if (ch == verilog_escape) {
+      escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
-        escaped_name += ch;
         escaped_name += next_ch;
         s++;
       }
-      else
-        // Skip escape.
-        escaped = true;
     }
     else {
       if ((!(isalnum(ch) || ch == '_')))
@@ -126,15 +123,12 @@ staToVerilog2(const char *sta_name)
   for (const char *s = sta_name; *s ; s++) {
     char ch = s[0];
     if (ch == verilog_escape) {
+      escaped = true;
       char next_ch = s[1];
       if (next_ch == verilog_escape) {
-        escaped_name += ch;
         escaped_name += next_ch;
         s++;
       }
-      else
-        // Skip escape.
-        escaped = true;
     }
     else {
       bool is_brkt = (ch == bus_brkt_left || ch == bus_brkt_right);

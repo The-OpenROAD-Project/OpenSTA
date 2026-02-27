@@ -162,14 +162,14 @@ ClkLatency::findClkDelays(ConstClockSeq &clks,
     VertexPathIterator path_iter(clk_vertex, this);
     while (path_iter.hasNext()) {
       Path *path = path_iter.next();
-      const ClockEdge *path_clk_edge = path->clkEdge(this);
       const Scene *path_scene = path->scene(this);
-      if (path_clk_edge
+      const Clock *path_clk = path->clock(this);
+      if (path_clk
           && scenes.contains(path_scene)
-          && clk_set.contains(path_clk_edge->clock())) {
-        const Clock *path_clk = path_clk_edge->clock();
+          && clk_set.contains(path_clk)) {
         auto delays_itr = clk_delay_map.find(path_clk);
         if (delays_itr != clk_delay_map.end()) {
+          const ClockEdge *path_clk_edge = path->clkEdge(this);
           ClkDelays &clk_delays = delays_itr->second;
           const RiseFall *clk_rf = path_clk_edge->transition();
           const MinMax *min_max = path->minMax(this);
