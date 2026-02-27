@@ -41,10 +41,19 @@ done
 
 cd "${build_dir}"
 
+# Default to parallel execution using all cores.
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  numThreads=$(nproc --all)
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  numThreads=$(sysctl -n hw.ncpu)
+else
+  numThreads=2
+fi
+
 # Top-level test/ directory or project root: run all tests.
 # Module directory (e.g. dcalc/test): run only that module's tests.
 if [ "$module" = "test" ] || [ -z "$module" ]; then
-  ctest "${args[@]}"
+  ctest -j "${numThreads}" "${args[@]}"
 else
-  ctest -L "module_${module}" "${args[@]}"
+  ctest -j "${numThreads}" -L "module_${module}" "${args[@]}"
 fi
