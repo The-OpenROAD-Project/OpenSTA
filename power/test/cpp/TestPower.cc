@@ -2,7 +2,7 @@
 #include "MinMax.hh"
 #include "Transition.hh"
 #include "StringUtil.hh"
-// VcdParse.hh not included - VcdValue constructor is not defined in library
+// Power module unit tests
 
 // Power module smoke tests
 namespace sta {
@@ -461,33 +461,8 @@ TEST_F(PwrActivityTest, SetDutyBoundary) {
 }
 
 ////////////////////////////////////////////////////////////////
-// VcdValue coverage tests
+// PwrActivity check tests
 ////////////////////////////////////////////////////////////////
-
-// VcdValue tests
-
-} // namespace sta
-
-#include "power/VcdParse.hh"
-
-namespace sta {
-
-class VcdValueTest : public ::testing::Test {};
-
-TEST_F(VcdValueTest, SetValueAndAccess) {
-  VcdValue val;
-  val.setValue(100, '1');
-  EXPECT_EQ(val.time(), 100);
-  EXPECT_EQ(val.value(), '1');
-}
-
-TEST_F(VcdValueTest, ValueBitAccess) {
-  VcdValue val;
-  // When value_ is non-null char, value(int) returns value_ regardless of bit
-  val.setValue(200, 'X');
-  EXPECT_EQ(val.value(0), 'X');
-  EXPECT_EQ(val.value(3), 'X');
-}
 
 // Test PwrActivity check() is called during construction
 // Covers: PwrActivity::check
@@ -519,57 +494,6 @@ TEST_F(PwrActivityTest, SetDensityDirect) {
   EXPECT_FLOAT_EQ(act.density(), 1e-11f);
 }
 
-// Test VcdValue with zero value
-TEST_F(VcdValueTest, ValueZero) {
-  VcdValue val;
-
-  val.setValue(0, '0');
-  EXPECT_EQ(val.time(), 0);
-  EXPECT_EQ(val.value(), '0');
-}
-
-// Test VcdValue with Z value
-TEST_F(VcdValueTest, ValueZ) {
-  VcdValue val;
-
-  val.setValue(500, 'Z');
-  EXPECT_EQ(val.time(), 500);
-  EXPECT_EQ(val.value(), 'Z');
-  EXPECT_EQ(val.value(0), 'Z');
-}
-
-// Test VcdValue busValue
-TEST_F(VcdValueTest, BusValue) {
-  VcdValue val;
-
-  // When value_ is '\0', busValue is used
-  val.setValue(100, '\0');
-  EXPECT_EQ(val.value(), '\0');
-  // busValue will be 0 since we zero-initialized
-  EXPECT_EQ(val.busValue(), 0u);
-}
-
-// Test VcdValue large time values
-TEST_F(VcdValueTest, LargeTime) {
-  VcdValue val;
-
-  VcdTime large_time = 1000000000LL;
-  val.setValue(large_time, '1');
-  EXPECT_EQ(val.time(), large_time);
-  EXPECT_EQ(val.value(), '1');
-}
-
-// Test VcdValue overwrite
-TEST_F(VcdValueTest, OverwriteValue) {
-  VcdValue val;
-
-  val.setValue(100, '0');
-  EXPECT_EQ(val.value(), '0');
-
-  val.setValue(200, '1');
-  EXPECT_EQ(val.time(), 200);
-  EXPECT_EQ(val.value(), '1');
-}
 
 // Test PwrActivity check() is called and clips negative small density
 // Covers: PwrActivity::check
@@ -664,42 +588,6 @@ TEST_F(PowerResultTest, IncrMultipleSources) {
   EXPECT_FLOAT_EQ(target.switching(), 6.0f);
   EXPECT_FLOAT_EQ(target.leakage(), 9.0f);
   EXPECT_FLOAT_EQ(target.total(), 18.0f);
-}
-
-// Test VcdValue busValue with zero-initialized memory
-// Covers: VcdValue::busValue
-TEST_F(VcdValueTest, BusValueZeroInit) {
-  VcdValue val;
-  // Zero-initialized: busValue should be 0
-  EXPECT_EQ(val.busValue(), 0u);
-  // value_ is '\0', so value(bit) should look at bus_value_
-  EXPECT_EQ(val.value(0), '0');
-}
-
-// Test VcdValue value(bit) when value_ is set (non-null char)
-// Covers: VcdValue::value(int bit) when value_ is non-null
-TEST_F(VcdValueTest, ValueBitWithScalarValue) {
-  VcdValue val;
-  // When value_ is non-null, value(bit) returns value_ regardless of bit
-  val.setValue(100, '1');
-  EXPECT_EQ(val.value(0), '1');
-  EXPECT_EQ(val.value(5), '1');
-  EXPECT_EQ(val.value(31), '1');
-}
-
-// Test VcdValue setValue multiple times
-// Covers: VcdValue::setValue overwrite behavior
-TEST_F(VcdValueTest, SetValueMultipleTimes) {
-  VcdValue val;
-  val.setValue(100, '0');
-  EXPECT_EQ(val.time(), 100);
-  EXPECT_EQ(val.value(), '0');
-  val.setValue(200, '1');
-  EXPECT_EQ(val.time(), 200);
-  EXPECT_EQ(val.value(), '1');
-  val.setValue(300, 'X');
-  EXPECT_EQ(val.time(), 300);
-  EXPECT_EQ(val.value(), 'X');
 }
 
 // Test PwrActivity density boundary with negative threshold

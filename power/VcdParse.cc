@@ -314,13 +314,6 @@ VcdParse::getToken()
 
 ////////////////////////////////////////////////////////////////
 
-VcdValue::VcdValue() :
-  time_(0),
-  value_('\0'),
-  bus_value_(0)
-{
-}
-
 char
 VcdValue::value(int value_bit) const
 {
