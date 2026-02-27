@@ -13,5 +13,5 @@ target_include_directories(TestSpice PRIVATE
 )
 gtest_discover_tests(TestSpice
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_spice"
+  PROPERTIES LABELS "cpp\;module_spice"
 )

@@ -12,5 +12,5 @@ target_include_directories(TestPower PRIVATE
 )
 gtest_discover_tests(TestPower
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_power"
+  PROPERTIES LABELS "cpp\;module_power"
 )

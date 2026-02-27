@@ -12,5 +12,5 @@ target_include_directories(TestParasitics PRIVATE
 )
 gtest_discover_tests(TestParasitics
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_parasitics"
+  PROPERTIES LABELS "cpp\;module_parasitics"
 )

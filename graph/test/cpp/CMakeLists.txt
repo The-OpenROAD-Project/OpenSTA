@@ -12,5 +12,5 @@ target_include_directories(TestGraph PRIVATE
 )
 gtest_discover_tests(TestGraph
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_graph"
+  PROPERTIES LABELS "cpp\;module_graph"
 )

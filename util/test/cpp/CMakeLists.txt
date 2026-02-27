@@ -12,5 +12,5 @@ target_include_directories(TestUtil PRIVATE
 )
 gtest_discover_tests(TestUtil
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_util"
+  PROPERTIES LABELS "cpp\;module_util"
 )

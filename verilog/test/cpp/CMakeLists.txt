@@ -12,5 +12,5 @@ target_include_directories(TestVerilog PRIVATE
 )
 gtest_discover_tests(TestVerilog
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_verilog"
+  PROPERTIES LABELS "cpp\;module_verilog"
 )

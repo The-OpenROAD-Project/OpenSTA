@@ -13,7 +13,7 @@ macro(sta_cpp_test name)
   )
   gtest_discover_tests(${name}
     WORKING_DIRECTORY ${STA_HOME}
-    PROPERTIES LABELS "cpp;module_search"
+    PROPERTIES LABELS "cpp\;module_search"
   )
 endmacro()
 

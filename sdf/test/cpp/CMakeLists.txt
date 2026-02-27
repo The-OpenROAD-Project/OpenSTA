@@ -12,5 +12,5 @@ target_include_directories(TestSdf PRIVATE
 )
 gtest_discover_tests(TestSdf
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_sdf"
+  PROPERTIES LABELS "cpp\;module_sdf"
 )

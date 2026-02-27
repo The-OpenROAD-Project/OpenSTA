@@ -12,7 +12,7 @@ target_include_directories(TestFindRoot PRIVATE
 )
 gtest_discover_tests(TestFindRoot
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_dcalc"
+  PROPERTIES LABELS "cpp\;module_dcalc"
 )
 
 add_executable(TestDcalc TestDcalc.cc)
@@ -29,5 +29,5 @@ target_include_directories(TestDcalc PRIVATE
 )
 gtest_discover_tests(TestDcalc
   WORKING_DIRECTORY ${STA_HOME}
-  PROPERTIES LABELS "cpp;module_dcalc"
+  PROPERTIES LABELS "cpp\;module_dcalc"
 )
