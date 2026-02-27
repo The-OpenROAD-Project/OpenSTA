@@ -12,6 +12,7 @@ Makefile
 gmon.out
 
 cmake-build-debug
+coverage-output
 build
 pvt
 
