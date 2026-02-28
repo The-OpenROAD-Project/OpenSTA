@@ -678,7 +678,7 @@ Levelize::setLevelIncr(Vertex  *vertex,
   }
   max_level_ = max(level, max_level_);
   if (level >= Graph::vertex_level_max)
-    criticalError(617, "maximum logic level exceeded");
+    criticalError(618, "maximum logic level exceeded");
 }
 
 void

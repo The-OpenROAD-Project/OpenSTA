@@ -610,7 +610,8 @@ delay_work_get_residues(delay_work *D,int term_index)
 // calculate_poles_res
 //
 
-void arnoldi1::calculate_poles_res(delay_work *D,double rdrive)
+void arnoldi1::calculate_poles_res(delay_work *D,
+                                   double rdrive)
 {
   if (n > D->nmax) delay_work_alloc(D,n);
   double *p = D->poles;

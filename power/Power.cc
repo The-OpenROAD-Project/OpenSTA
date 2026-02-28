@@ -842,7 +842,7 @@ Power::evalBddDuty(DdNode *bdd,
     else if (bdd == Cudd_ReadLogicZero(bdd_.cuddMgr()))
       return 0.0;
     else
-      criticalError(1100, "unknown cudd constant");
+      criticalError(2400, "unknown cudd constant");
   }
   else {
     float duty0 = evalBddDuty(Cudd_E(bdd), inst);
