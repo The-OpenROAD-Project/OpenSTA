@@ -33,7 +33,6 @@
 #include "EnumNameMap.hh"
 #include "Report.hh"
 #include "Debug.hh"
-#include "TokenParser.hh"
 #include "Units.hh"
 #include "Transition.hh"
 #include "FuncExpr.hh"

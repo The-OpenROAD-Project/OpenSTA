@@ -213,8 +213,7 @@ WriteSpice::writeSubckts(StdStringSet &cell_names)
       string line;
       while (getline(lib_subckts_stream, line)) {
 	// .subckt <cell_name> [args..]
-	StringVector tokens;
-	split(line, " \t", tokens);
+	StdStringSeq tokens = parseTokens(line, ' ');
 	if (tokens.size() >= 2
 	    && stringEqual(tokens[0].c_str(), ".subckt")) {
 	  const char *cell_name = tokens[1].c_str();
@@ -261,11 +260,11 @@ WriteSpice::writeSubckts(StdStringSet &cell_names)
 
 void
 WriteSpice::recordSpicePortNames(const char *cell_name,
-                                 StringVector &tokens)
+                                 StdStringSeq &tokens)
 {
   LibertyCell *cell = network_->findLibertyCell(cell_name);
   if (cell) {
-    StringVector &spice_port_names = cell_spice_port_names_[cell_name];
+    StdStringSeq &spice_port_names = cell_spice_port_names_[cell_name];
     for (size_t i = 2; i < tokens.size(); i++) {
       const char *port_name = tokens[i].c_str();
       LibertyPort *port = cell->findLibertyPort(port_name);
@@ -290,8 +289,7 @@ WriteSpice::findCellSubckts(StdStringSet &cell_names)
     string line;
     while (getline(lib_subckts_stream, line)) {
       // .subckt <cell_name> [args..]
-      StringVector tokens;
-      split(line, " \t", tokens);
+      StdStringSeq tokens = parseTokens(line, ' ');
       if (tokens.size() >= 2
           && stringEqual(tokens[0].c_str(), ".subckt")) {
         const char *cell_name = tokens[1].c_str();
@@ -304,7 +302,7 @@ WriteSpice::findCellSubckts(StdStringSet &cell_names)
             else {
               // Process previous statement.
               if (tolower(stmt[0]) == 'x') {
-                split(stmt, " \t", tokens);
+                StdStringSeq tokens = parseTokens(line, ' ');
                 string &subckt_cell = tokens[tokens.size() - 1];
                 cell_names.insert(subckt_cell);
               }
@@ -329,7 +327,7 @@ WriteSpice::writeSubcktInst(const Instance *inst)
   const char *inst_name = network_->pathName(inst);
   LibertyCell *cell = network_->libertyCell(inst);
   const char *cell_name = cell->name();
-  StringVector &spice_port_names = cell_spice_port_names_[cell_name];
+  StdStringSeq &spice_port_names = cell_spice_port_names_[cell_name];
   streamPrint(spice_stream_, "x%s", inst_name);
   for (string subckt_port_name : spice_port_names) {
     const char *subckt_port_cname = subckt_port_name.c_str();
@@ -357,7 +355,7 @@ WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
 {
   LibertyCell *cell = network_->libertyCell(inst);
   const char *cell_name = cell->name();
-  StringVector &spice_port_names = cell_spice_port_names_[cell_name];
+  StdStringSeq &spice_port_names = cell_spice_port_names_[cell_name];
   const char *inst_name = network_->pathName(inst);
 
   debugPrint(debug_, "write_spice", 2, "subckt %s", cell->name());

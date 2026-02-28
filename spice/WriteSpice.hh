@@ -40,9 +40,9 @@
 namespace sta {
 
 using ParasiticNodeMap = std::map<const ParasiticNode*, int>;
-using CellSpicePortNames = std::map<std::string, StringVector>;
-using LibertyPortLogicValues = std::map<const LibertyPort*, LogicValue>;
 using StdStringSeq = std::vector<std::string>;
+using CellSpicePortNames = std::map<std::string, StdStringSeq>;
+using LibertyPortLogicValues = std::map<const LibertyPort*, LogicValue>;
 
 // Utilities for writing a spice deck.
 class WriteSpice : public StaState
@@ -69,7 +69,7 @@ protected:
   void writeSubckts(StdStringSet &cell_names);
   void findCellSubckts(StdStringSet &cell_names);
   void recordSpicePortNames(const char *cell_name,
-                            StringVector &tokens);
+                            StdStringSeq &tokens);
   void writeSubcktInst(const Instance *inst);
   void writeSubcktInstVoltSrcs(const Instance *inst,
                                LibertyPortLogicValues &port_values,
