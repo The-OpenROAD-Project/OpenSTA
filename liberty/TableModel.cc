@@ -45,9 +45,7 @@ size_t
 findValueIndex(float value,
                const FloatSeq *values);
 static void
-sigmaModelsMvOwner(TableModel *models[EarlyLate::index_count],
-                   std::array<std::unique_ptr<TableModel>,
-                   EarlyLate::index_count> &out);
+sigmaModelsDelete(TableModelsEarlyLate &models);
 static string
 reportPvt(const LibertyCell *cell,
           const Pvt *pvt,
@@ -63,40 +61,50 @@ TimingModel::TimingModel(LibertyCell *cell) :
 
 GateTableModel::GateTableModel(LibertyCell *cell,
                                TableModel *delay_model,
-                               TableModel *delay_sigma_models[EarlyLate::index_count],
+                               TableModelsEarlyLate delay_sigma_models,
                                TableModel *slew_model,
-                               TableModel *slew_sigma_models[EarlyLate::index_count],
+                               TableModelsEarlyLate slew_sigma_models,
                                ReceiverModelPtr receiver_model,
                                OutputWaveforms *output_waveforms) :
   GateTimingModel(cell),
   delay_model_(delay_model),
+  delay_sigma_models_(std::move(delay_sigma_models)),
   slew_model_(slew_model),
+  slew_sigma_models_(std::move(slew_sigma_models)),
   receiver_model_(receiver_model),
   output_waveforms_(output_waveforms)
 {
-  sigmaModelsMvOwner(delay_sigma_models, delay_sigma_models_);
-  sigmaModelsMvOwner(slew_sigma_models, slew_sigma_models_);
 }
 
-GateTableModel::~GateTableModel() = default;
+GateTableModel::GateTableModel(LibertyCell *cell,
+                               TableModel *delay_model,
+                               TableModel *slew_model) :
+  GateTimingModel(cell),
+  delay_model_(delay_model),
+  delay_sigma_models_{},
+  slew_model_(slew_model),
+  slew_sigma_models_{},
+  receiver_model_(nullptr),
+  output_waveforms_(nullptr)
+{
+}
+
+GateTableModel::~GateTableModel()
+{
+  sigmaModelsDelete(slew_sigma_models_);
+  sigmaModelsDelete(delay_sigma_models_);
+}
 
 static void
-sigmaModelsMvOwner(TableModel *models[EarlyLate::index_count],
-                   std::array<std::unique_ptr<TableModel>,
-                   EarlyLate::index_count> &out)
+sigmaModelsDelete(TableModelsEarlyLate &models)
 {
-  TableModel *early_model = models ? models[EarlyLate::earlyIndex()] : nullptr;
-  TableModel *late_model = models ? models[EarlyLate::lateIndex()] : nullptr;
-  if (early_model) {
-    out[EarlyLate::earlyIndex()].reset(early_model);
-    if (late_model && late_model != early_model) {
-      out[EarlyLate::lateIndex()].reset(late_model);
-    } else if (late_model == early_model) {
-      out[EarlyLate::lateIndex()] =
-        std::make_unique<TableModel>(*out[EarlyLate::earlyIndex()]);
-    }
-  } else if (late_model) {
-    out[EarlyLate::lateIndex()].reset(late_model);
+  TableModel *early_model = models[EarlyLate::earlyIndex()];
+  TableModel *late_model  = models[EarlyLate::lateIndex()];
+  if (early_model == late_model)
+    delete early_model;
+  else {
+    delete early_model;
+    delete late_model;
   }
 }
 
@@ -122,19 +130,19 @@ GateTableModel::gateDelay(const Pvt *pvt,
   float sigma_early = 0.0;
   float sigma_late = 0.0;
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
-    sigma_early = findValue(pvt, delay_sigma_models_[EarlyLate::earlyIndex()].get(),
+    sigma_early = findValue(pvt, delay_sigma_models_[EarlyLate::earlyIndex()],
                             in_slew, load_cap, 0.0);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
-    sigma_late = findValue(pvt, delay_sigma_models_[EarlyLate::lateIndex()].get(),
+    sigma_late = findValue(pvt, delay_sigma_models_[EarlyLate::lateIndex()],
                            in_slew, load_cap, 0.0);
   gate_delay = makeDelay(delay, sigma_early, sigma_late);
 
   float slew = findValue(pvt, slew_model_.get(), in_slew, load_cap, 0.0);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
-    sigma_early = findValue(pvt, slew_sigma_models_[EarlyLate::earlyIndex()].get(),
+    sigma_early = findValue(pvt, slew_sigma_models_[EarlyLate::earlyIndex()],
                             in_slew, load_cap, 0.0);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
-    sigma_late = findValue(pvt, slew_sigma_models_[EarlyLate::lateIndex()].get(),
+    sigma_late = findValue(pvt, slew_sigma_models_[EarlyLate::lateIndex()],
                            in_slew, load_cap, 0.0);
   // Clip negative slews to zero.
   if (slew < 0.0)
@@ -166,22 +174,22 @@ GateTableModel::reportGateDelay(const Pvt *pvt,
                               load_cap, 0.0, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
     result += reportTableLookup("Delay sigma(early)", pvt,
-                                delay_sigma_models_[EarlyLate::earlyIndex()].get(),
+                                delay_sigma_models_[EarlyLate::earlyIndex()],
                                 in_slew, load_cap, 0.0, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
     result += reportTableLookup("Delay sigma(late)", pvt,
-                                delay_sigma_models_[EarlyLate::lateIndex()].get(),
+                                delay_sigma_models_[EarlyLate::lateIndex()],
                                 in_slew, load_cap, 0.0, digits);
   result += '\n';
   result += reportTableLookup("Slew", pvt, slew_model_.get(), in_slew,
                               load_cap, 9.0, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
     result += reportTableLookup("Slew sigma(early)", pvt,
-                      slew_sigma_models_[EarlyLate::earlyIndex()].get(),
+                      slew_sigma_models_[EarlyLate::earlyIndex()],
                       in_slew, load_cap, 0.0, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
     result += reportTableLookup("Slew sigma(late)", pvt,
-                      slew_sigma_models_[EarlyLate::lateIndex()].get(),
+                      slew_sigma_models_[EarlyLate::lateIndex()],
                                 in_slew, load_cap, 0.0, digits);
   float drvr_slew = findValue(pvt, slew_model_.get(), in_slew, load_cap, 0.0);
   if (drvr_slew < 0.0)
@@ -285,13 +293,13 @@ GateTableModel::driveResistance(const Pvt *pvt) const
 const TableModel *
 GateTableModel::delaySigmaModel(const EarlyLate *el) const
 {
-  return delay_sigma_models_[el->index()].get();
+  return delay_sigma_models_[el->index()];
 }
 
 const TableModel *
 GateTableModel::slewSigmaModel(const EarlyLate *el) const
 {
-  return slew_sigma_models_[el->index()].get();
+  return slew_sigma_models_[el->index()];
 }
 
 void
@@ -354,7 +362,7 @@ GateTableModel::axisValue(const TableAxis *axis,
 }
 
 bool
-GateTableModel::checkAxes(const TablePtr &table)
+GateTableModel::checkAxes(const TableModel *table)
 {
   const TableAxis *axis1 = table->axis1();
   const TableAxis *axis2 = table->axis2();
@@ -395,7 +403,7 @@ ReceiverModel::setCapacitanceModel(TableModel table_model,
 }
 
 bool
-ReceiverModel::checkAxes(TablePtr table)
+ReceiverModel::checkAxes(const TableModel *table)
 {
   const TableAxis *axis1 = table->axis1();
   const TableAxis *axis2 = table->axis2();
@@ -415,14 +423,25 @@ ReceiverModel::checkAxes(TablePtr table)
 
 CheckTableModel::CheckTableModel(LibertyCell *cell,
                                  TableModel *model,
-                                 TableModel *sigma_models[EarlyLate::index_count]) :
+                                 TableModelsEarlyLate sigma_models) :
   CheckTimingModel(cell),
-  model_(model)
+  model_(model),
+  sigma_models_(std::move(sigma_models))
 {
-  sigmaModelsMvOwner(sigma_models, sigma_models_);
 }
 
-CheckTableModel::~CheckTableModel() = default;
+CheckTableModel::CheckTableModel(LibertyCell *cell,
+                                 TableModel *model) :
+  CheckTimingModel(cell),
+  model_(model),
+  sigma_models_{}
+{
+}
+
+CheckTableModel::~CheckTableModel()
+{
+  sigmaModelsDelete(sigma_models_);
+}
 
 void
 CheckTableModel::setIsScaled(bool is_scaled)
@@ -434,7 +453,7 @@ CheckTableModel::setIsScaled(bool is_scaled)
 const TableModel *
 CheckTableModel::sigmaModel(const EarlyLate *el) const
 {
-  return sigma_models_[el->index()].get();
+  return sigma_models_[el->index()];
 }
 
 ArcDelay
@@ -449,10 +468,10 @@ CheckTableModel::checkDelay(const Pvt *pvt,
     float sigma_early = 0.0;
     float sigma_late = 0.0;
     if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
-      sigma_early = findValue(pvt, sigma_models_[EarlyLate::earlyIndex()].get(),
+      sigma_early = findValue(pvt, sigma_models_[EarlyLate::earlyIndex()],
                               from_slew, to_slew, related_out_cap);
     if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
-      sigma_late = findValue(pvt, sigma_models_[EarlyLate::lateIndex()].get(),
+      sigma_late = findValue(pvt, sigma_models_[EarlyLate::lateIndex()],
                              from_slew, to_slew, related_out_cap);
     return makeDelay(mean, sigma_early, sigma_late);  
   }
@@ -491,12 +510,12 @@ CheckTableModel::reportCheckDelay(const Pvt *pvt,
                                    related_out_cap, digits);
   if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
     result += reportTableDelay("Check sigma early", pvt,
-                               sigma_models_[EarlyLate::earlyIndex()].get(),
+                               sigma_models_[EarlyLate::earlyIndex()],
                                from_slew, from_slew_annotation, to_slew,
                                related_out_cap, digits);
   if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
     result += reportTableDelay("Check sigma late", pvt,
-                               sigma_models_[EarlyLate::lateIndex()].get(),
+                               sigma_models_[EarlyLate::lateIndex()],
                                from_slew, from_slew_annotation, to_slew,
                                related_out_cap, digits);
   return result;
@@ -587,7 +606,7 @@ CheckTableModel::axisValue(const TableAxis *axis,
 }
 
 bool
-CheckTableModel::checkAxes(const TablePtr table)
+CheckTableModel::checkAxes(const TableModel *table)
 {
   const TableAxis *axis1 = table->axis1();
   const TableAxis *axis2 = table->axis2();

@@ -253,7 +253,7 @@ public:
                         float wire_delay) const;
   // Check for supported axis variables.
   // Return true if axes are supported.
-  static bool checkSlewDegradationAxes(const TablePtr &table);
+  static bool checkSlewDegradationAxes(const TableModel *table_model);
 
   float defaultInputPinCap() const { return default_input_pin_cap_; }
   void setDefaultInputPinCap(float cap);
@@ -1051,7 +1051,7 @@ public:
   void setScale(ScaleFactorType type,
                 ScaleFactorPvt pvt,
                 float scale);
-  void print();
+  void report(Report *report);
 
 protected:
   std::string name_;

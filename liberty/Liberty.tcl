@@ -74,6 +74,11 @@ proc report_lib_cell_ { cell scene } {
   if { $filename != "" } {
     report_line "File $filename"
   }
+  report_lib_ports $cell $scene
+  report_timing_arcs $cell
+}
+
+proc report_lib_ports { cell scene } {
   set iter [$cell liberty_port_iterator]
   while {[$iter has_next]} {
     set port [$iter next]
@@ -113,6 +118,17 @@ proc report_lib_port { port scene } {
     set func " function=$func"
   }
   report_line " ${indent}$port_name [liberty_port_direction $port]$enable$func[port_capacitance_str $port $scene $sta_report_default_digits]"
+}
+
+proc report_timing_arcs { cell } {
+  set timing_arcs [$cell timing_arc_sets]
+  if { [llength $timing_arcs] > 0 } {
+    puts ""
+    puts "Timing arcs"
+    foreach timing_arc $timing_arcs {
+      puts [$timing_arc to_string]
+    }
+  }
 }
 
 # sta namespace end

@@ -363,6 +363,7 @@ scan_signal_type()
 %extend TimingArcSet {
 LibertyPort *from() { return self->from(); }
 LibertyPort *to() { return self->to(); }
+std::string to_string() { return self->to_string(); }
 const TimingRole *role() { return self->role(); }
 const char *sdf_cond() { return self->sdfCond().c_str(); }
 

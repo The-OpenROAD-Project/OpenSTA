@@ -1236,6 +1236,8 @@ Edge::to_string(const StaState *sta) const
   string str = from(graph)->to_string(sta);
   str += " -> ";
   str += to(graph)->to_string(sta);
+  str += " ";
+  str += role()->to_string();
   FuncExpr *when = arc_set_->cond();
   if (when) {
     str += " ";

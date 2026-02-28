@@ -111,8 +111,6 @@ LibertyLibrary::LibertyLibrary(const char *name,
 
 LibertyLibrary::~LibertyLibrary()
 {
-  delete scale_factors_;
-
   for (auto rf_index : RiseFall::rangeIndex()) {
     TableModel *model = wire_slew_degradation_tbls_[rf_index];
     delete model;
@@ -271,14 +269,14 @@ LibertyLibrary::setScaleFactors(ScaleFactors *scales)
 ScaleFactors *
 LibertyLibrary::makeScaleFactors(const char *name)
 {
-  auto [it, inserted] = scale_factors_map_.emplace(std::string(name), name);
+  auto [it, inserted] = scale_factors_map_.emplace(name, name);
   return &it->second;
 }
 
 ScaleFactors *
 LibertyLibrary::findScaleFactors(const char *name)
 {
-  return findKeyValuePtr(scale_factors_map_, std::string(name));
+  return findKeyValuePtr(scale_factors_map_, name);
 }
 
 float
@@ -400,20 +398,20 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
 // Check for supported axis variables.
 // Return true if axes are supported.
 bool
-LibertyLibrary::checkSlewDegradationAxes(const TablePtr &table)
+LibertyLibrary::checkSlewDegradationAxes(const TableModel *table_model)
 {
-  switch (table->order()) {
+  switch (table_model->order()) {
   case 0:
     return true;
   case 1: {
-    const TableAxis *axis1 = table->axis1();
+    const TableAxis *axis1 = table_model->axis1();
     TableAxisVariable var1 = axis1->variable();
     return var1 == TableAxisVariable::output_pin_transition
       || var1 == TableAxisVariable::connect_delay;
   }
   case 2: {
-    const TableAxis *axis1 = table->axis1();
-    const TableAxis *axis2 = table->axis2();
+    const TableAxis *axis1 = table_model->axis1();
+    const TableAxis *axis2 = table_model->axis2();
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
     return (var1 == TableAxisVariable::output_pin_transition
@@ -1269,8 +1267,7 @@ LibertyCell::makeInternalPower(LibertyPort *port,
                                const std::shared_ptr<FuncExpr> &when,
                                InternalPowerModels &models)
 {
-  internal_powers_.emplace_back(port, related_port, related_pg_pin,
-                                when, models);
+  internal_powers_.emplace_back(port, related_port, related_pg_pin, when, models);
   port_internal_powers_[port].push_back(internal_powers_.size() - 1);
 }
 
@@ -1485,6 +1482,10 @@ LibertyCell::makeSequential(int size,
     port_to_seq_map_[sequentials_.back().output()] = idx;
     port_to_seq_map_[sequentials_.back().outputInv()] = idx;
   }
+  delete clk;
+  delete data;
+  delete clear;
+  delete preset;
 }
 
 Sequential *
@@ -3087,7 +3088,8 @@ OperatingConditions::setWireloadTree(WireloadTree tree)
 
 static EnumNameMap<ScaleFactorType> scale_factor_type_map =
   {{ScaleFactorType::pin_cap, "pin_cap"},
-   {ScaleFactorType::wire_cap, "wire_res"},
+   {ScaleFactorType::wire_cap, "wire_cap"},
+   {ScaleFactorType::wire_res, "wire_res"},
    {ScaleFactorType::min_period, "min_period"},
    {ScaleFactorType::cell, "cell"},
    {ScaleFactorType::hold, "hold"},
@@ -3124,7 +3126,9 @@ scaleFactorTypeRiseFallSuffix(ScaleFactorType type)
     || type == ScaleFactorType::recovery
     || type == ScaleFactorType::removal
     || type == ScaleFactorType::nochange
-    || type == ScaleFactorType::skew;
+    || type == ScaleFactorType::skew
+    || type == ScaleFactorType::leakage_power
+    || type == ScaleFactorType::internal_power;
 }
 
 bool
@@ -3144,7 +3148,8 @@ scaleFactorTypeLowHighSuffix(ScaleFactorType type)
 EnumNameMap<ScaleFactorPvt> scale_factor_pvt_names =
   {{ScaleFactorPvt::process, "process"},
    {ScaleFactorPvt::volt, "volt"},
-   {ScaleFactorPvt::temp, "temp"}
+   {ScaleFactorPvt::temp, "temp"},
+   {ScaleFactorPvt::unknown, "unknown"}
   };
 
 ScaleFactorPvt
@@ -3214,31 +3219,32 @@ ScaleFactors::scale(ScaleFactorType type,
 }
 
 void
-ScaleFactors::print()
+ScaleFactors::report(Report *report)
 {
-  printf("%10s", " ");
+  std::string line = "          ";
   for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
     ScaleFactorPvt pvt = (ScaleFactorPvt) pvt_index;
-    printf("%10s", scaleFactorPvtName(pvt));
+    stringAppend(line, "%10s", scaleFactorPvtName(pvt));
   }
-  printf("\n");
+  report->reportLineString(line);
+
   for (int type_index = 0; type_index < scale_factor_type_count; type_index++) {
     ScaleFactorType type = (ScaleFactorType) type_index;
-    printf("%10s ", scaleFactorTypeName(type));
+    stringPrint(line, "%10s ", scaleFactorTypeName(type));
     for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
       if (scaleFactorTypeRiseFallSuffix(type)
           || scaleFactorTypeRiseFallPrefix(type)
           || scaleFactorTypeLowHighSuffix(type)) {
-        printf(" %.3f,%.3f",
-               scales_[type_index][pvt_index][RiseFall::riseIndex()],
-               scales_[type_index][pvt_index][RiseFall::fallIndex()]);
+        stringAppend(line, " %.3f,%.3f",
+                     scales_[type_index][pvt_index][RiseFall::riseIndex()],
+                     scales_[type_index][pvt_index][RiseFall::fallIndex()]);
       }
       else {
-        printf(" %.3f",
-               scales_[type_index][pvt_index][0]);
+        stringAppend(line, " %.3f",
+                     scales_[type_index][pvt_index][0]);
       }
     }
-    printf("\n");
+    report->reportLineString(line);
   }
 }
 

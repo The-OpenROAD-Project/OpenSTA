@@ -87,4 +87,27 @@ TokenParser::next()
   return token_;
 }
 
+////////////////////////////////////////////////////////////////
+
+// Parse space separated tokens.
+StdStringSeq
+parseTokens(const std::string &s,
+            const char delimiter)
+{
+  StdStringSeq tokens;
+  size_t i = 0;
+  while (i < s.size()) {
+    while (i < s.size() && std::isspace(s[i]))
+      ++i;
+    size_t start = i;
+    while (i < s.size() && s[i] != delimiter)
+      ++i;
+    if (start < i) {
+      tokens.emplace_back(s, start, i - start);
+      ++i;
+    }
+  }
+  return tokens;
+}
+
 } // namespace

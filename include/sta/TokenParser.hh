@@ -24,7 +24,12 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
+
 namespace sta {
+
+using StdStringSeq = std::vector<std::string>;
 
 // Iterate over the tokens in str separated by character sep.
 // Similar in functionality to strtok, but does not leave the string
@@ -48,5 +53,10 @@ private:
   char token_delimiter_;
   bool first_;
 };
+
+// Parse delimiter separated tokens and skipp spaces.
+StdStringSeq
+parseTokens(const std::string &s,
+            const char delimiter);
 
 } // namespace

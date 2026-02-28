@@ -292,7 +292,7 @@ Power::reportDesign(const Scene *scene,
   PowerResult total, sequential, combinational, clock, macro, pad;
   power(scene, total, sequential, combinational, clock, macro, pad);
   ReportPower report_power(this);
- report_power.reportDesign(total, sequential, combinational, clock, macro, pad, digits);
+  report_power.reportDesign(total, sequential, combinational, clock, macro, pad, digits);
 }
 
 void

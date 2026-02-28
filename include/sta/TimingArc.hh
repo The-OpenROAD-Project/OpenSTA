@@ -99,7 +99,7 @@ class TimingArcAttrs
 public:
   TimingArcAttrs();
   TimingArcAttrs(TimingSense sense);
-  virtual ~TimingArcAttrs();
+  ~TimingArcAttrs();
   TimingType timingType() const { return timing_type_; }
   void setTimingType(TimingType type);
   TimingSense timingSense() const { return timing_sense_; }
@@ -145,7 +145,8 @@ class TimingArcSet
   friend class LibertyCell;
 
 public:
-  virtual ~TimingArcSet();
+  ~TimingArcSet();
+  std::string to_string();
   LibertyCell *libertyCell() const;
   LibertyPort *from() const { return from_; }
   LibertyPort *to() const { return to_; }
@@ -249,7 +250,7 @@ public:
   TimingArcSet *set() const { return set_; }
   TimingSense sense() const;
   // Index in TimingArcSet.
-  unsigned index() const { return index_; }
+  size_t index() const { return index_; }
   TimingModel *model() const { return model_; }
   GateTimingModel *gateModel(const Scene *scene,
                              const MinMax *min_max) const;
@@ -270,7 +271,7 @@ public:
 protected:
   TimingModel *model(const Scene *scene,
                      const MinMax *min_max) const;
-  void setIndex(unsigned index);
+  void setIndex(size_t index);
   void addScaledModel(const OperatingConditions *op_cond,
                       TimingModel *scaled_model);
 

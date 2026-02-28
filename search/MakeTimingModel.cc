@@ -79,7 +79,7 @@ MakeTimingModel::MakeTimingModel(const char *lib_name,
   scene_(scene),
   cell_(nullptr),
   min_max_(MinMax::max()),
-  lib_builder_(new LibertyBuilder),
+  lib_builder_(new LibertyBuilder(debug_, report_)),
   tbl_template_index_(1),
   sdc_(scene->sdc()),
   sdc_backup_(nullptr),
@@ -611,7 +611,7 @@ MakeTimingModel::makeScalarCheckModel(float value,
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *table_model = new TableModel(table, tbl_template,
                                            scale_factor_type, rf);
-  CheckTableModel *check_model = new CheckTableModel(cell_, table_model, nullptr);
+  CheckTableModel *check_model = new CheckTableModel(cell_, table_model);
   return check_model;
 }
 
@@ -628,9 +628,7 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
                                            ScaleFactorType::cell, rf);
   TableModel *slew_model = new TableModel(slew_table, tbl_template,
                                           ScaleFactorType::cell, rf);
-  GateTableModel *gate_model = new GateTableModel(cell_, delay_model, nullptr,
-                                                  slew_model, nullptr,
-                                                  nullptr, nullptr);
+  GateTableModel *gate_model = new GateTableModel(cell_, delay_model, slew_model);
   return gate_model;
 }
 
@@ -643,9 +641,7 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
                                            ScaleFactorType::cell, rf);
-  GateTableModel *gate_model = new GateTableModel(cell_, delay_model, nullptr,
-                                                  nullptr, nullptr,
-                                                  nullptr, nullptr);
+  GateTableModel *gate_model = new GateTableModel(cell_, delay_model, nullptr);
   return gate_model;
 }
 
@@ -721,10 +717,8 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                                          ScaleFactorType::cell, rf);
                 TableModel *slew_model = new TableModel(slew_table, model_template,
                                                         ScaleFactorType::cell, rf);
-                GateTableModel *gate_model = new GateTableModel(cell_,
-                                                                delay_model, nullptr,
-                                                                slew_model, nullptr,
-                                                                nullptr, nullptr);
+                GateTableModel *gate_model = new GateTableModel(cell_, delay_model,
+                                                                slew_model);
                 return gate_model;
               }
             }

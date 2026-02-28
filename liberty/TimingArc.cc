@@ -204,6 +204,16 @@ TimingArcSet::TimingArcSet(const TimingRole *role,
 {
 }
 
+std::string
+TimingArcSet::to_string()
+{
+  std::string str = from_->name();
+  str += " -> ";
+  str += to_->name();
+  str += " " + role()->to_string();
+  return str;
+}
+
 TimingArcSet::~TimingArcSet()
 {
   deleteContents(arcs_);
@@ -622,7 +632,7 @@ TimingArc::equiv(const TimingArc *arc1,
 }
 
 void
-TimingArc::setIndex(unsigned index)
+TimingArc::setIndex(size_t index)
 {
   index_ = index;
 }

@@ -52,7 +52,7 @@ sta::LibertyParse::error(const location_type &loc,
 
 %require  "3.2"
 %skeleton "lalr1.cc"
-%debug
+//%debug
 %define api.namespace {sta}
 %locations
 %define api.location.file "LibertyLocation.hh"
@@ -72,7 +72,7 @@ sta::LibertyParse::error(const location_type &loc,
 %left '^'
 %left '!'
 
-%type <sta::LibertyStmt *> statement complex_attr simple_attr variable group file
+%type <void *> statement complex_attr simple_attr variable group file
 %type <sta::LibertyAttrValueSeq *> attr_values
 %type <sta::LibertyAttrValue *> attr_value
 %type <std::string> string expr expr_term expr_term1 volt_expr
@@ -158,11 +158,11 @@ string:
 
 attr_value:
 	FLOAT
-	{ $$ = reader->makeFloatAttrValue($1); }
+	{ $$ = reader->makeAttrValueFloat($1); }
 |       expr
-	{ $$ = reader->makeStringAttrValue(std::move($1)); }
+	{ $$ = reader->makeAttrValueString(std::move($1)); }
 |	volt_expr
-	{ $$ = reader->makeStringAttrValue(std::move($1)); }
+	{ $$ = reader->makeAttrValueString(std::move($1)); }
 	;
 
 /* Voltage expressions are ignored. */
