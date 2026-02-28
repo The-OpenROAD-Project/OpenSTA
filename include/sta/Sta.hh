@@ -30,6 +30,7 @@
 #include <functional>
 
 #include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
@@ -80,7 +81,6 @@ using SceneNameMap = std::map<std::string, Scene*>;
 using SlowDrvrIterator = Iterator<Instance*>;
 using CheckError = StringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
-using StdStringSeq = std::vector<std::string>;
 enum class CmdNamespace { sta, sdc };
 using ParasiticsNameMap = std::map<std::string, Parasitics*>;
 // Path::slack/arrival/required function.

@@ -31,6 +31,7 @@
 #include <unordered_map>
 
 #include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "MinMax.hh"
 #include "NetworkClass.hh"
 #include "Transition.hh"
@@ -55,7 +56,6 @@ class OutputWaveform;
 using LibraryGroupVisitor = void (LibertyReader::*)(const LibertyGroup *group,
                                                     LibertyGroup *parent_group);
 using LibraryGroupVisitorMap = std::unordered_map<std::string, LibraryGroupVisitor>;
-using StdStringSeq = std::vector<std::string>;
 using LibertyPortGroupMap = std::map<const LibertyGroup*, LibertyPortSeq,
                                      LibertyGroupLineLess>;
 using OutputWaveformSeq = std::vector<OutputWaveform>;

@@ -31,6 +31,7 @@
 
 #include "StaState.hh"
 #include "StringSet.hh"
+#include "StringUtil.hh"
 #include "Liberty.hh"
 #include "GraphClass.hh"
 #include "Parasitics.hh"
@@ -40,7 +41,6 @@
 namespace sta {
 
 using ParasiticNodeMap = std::map<const ParasiticNode*, int>;
-using StdStringSeq = std::vector<std::string>;
 using CellSpicePortNames = std::map<std::string, StdStringSeq>;
 using LibertyPortLogicValues = std::map<const LibertyPort*, LogicValue>;
 
