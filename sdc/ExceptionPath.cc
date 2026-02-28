@@ -1384,6 +1384,32 @@ ExceptionTo::intersectsPts(ExceptionTo *to,
 }
 
 bool
+ExceptionTo::matchesInst(const Pin *pin,
+                         bool inst_matches_reg_clk_pin,
+                         const Network *network) const
+{
+  size_t hash = reinterpret_cast<size_t>(pin);
+  hash ^= (hash >> 4); 
+  int index = hash % cache_size_;
+
+  if (inst_match_pins_[index] == pin
+      && inst_match_reg_clk_[index] == inst_matches_reg_clk_pin) {
+    return inst_match_results_[index];
+  }
+
+  bool result = (inst_matches_reg_clk_pin || !network->isRegClkPin(pin))
+    && insts_->contains(network->instance(pin))
+    && (network->direction(pin)->isAnyInput()
+        || network->direction(pin)->isInternal());
+
+  inst_match_pins_[index] = pin;
+  inst_match_reg_clk_[index] = inst_matches_reg_clk_pin;
+  inst_match_results_[index] = result;
+  
+  return result;
+}
+
+bool
 ExceptionTo::matchesFilter(const Pin *pin,
                            const ClockEdge *clk_edge,
                            const RiseFall *end_rf,
@@ -1421,11 +1447,7 @@ ExceptionTo::matches(const Pin *pin,
         && rf_->matches(clk_edge->transition())
         && end_rf_->matches(end_rf))
     || (insts_
-        && (inst_matches_reg_clk_pin
-            || !network->isRegClkPin(pin))
-        && insts_->contains(network->instance(pin))
-        && (network->direction(pin)->isAnyInput()
-            || network->direction(pin)->isInternal())
+        && matchesInst(pin, inst_matches_reg_clk_pin, network)
         && rf_->matches(end_rf)
         && end_rf_->matches(end_rf))
     || (pins_ == nullptr
@@ -1444,9 +1466,7 @@ ExceptionTo::matches(const Pin *pin,
           && rf_->matches(end_rf)
           && end_rf_->matches(end_rf))
     || (insts_
-        && insts_->contains(network->instance(pin))
-        && (network->direction(pin)->isAnyInput()
-            || network->direction(pin)->isInternal())
+        && matchesInst(pin, true, network)
         && rf_->matches(end_rf)
         && end_rf_->matches(end_rf));
 }
