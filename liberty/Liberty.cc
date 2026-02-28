@@ -2736,33 +2736,6 @@ LibertyPort::setDriverWaveform(DriverWaveform *driver_waveform,
 
 ////////////////////////////////////////////////////////////////
 
-RiseFallMinMax
-LibertyPort::clockTreePathDelays() const
-{
-  return clkTreeDelays1();
-}
-
-RiseFallMinMax
-LibertyPort::clkTreeDelays() const
-{
-  return clkTreeDelays1();
-}
-
-RiseFallMinMax
-LibertyPort::clkTreeDelays1() const
-{
-  RiseFallMinMax delays;
-  for (const RiseFall *from_rf : RiseFall::range()) {
-    for (const RiseFall *to_rf : RiseFall::range()) {
-      for (const MinMax *min_max : MinMax::range()) {
-        float delay = clkTreeDelay(0.0, from_rf, to_rf, min_max);
-        delays.setValue(from_rf, min_max, delay);
-      }
-    }
-  }
-  return delays;
-}
-
 float
 LibertyPort::clkTreeDelay(float in_slew,
                           const RiseFall *rf,
