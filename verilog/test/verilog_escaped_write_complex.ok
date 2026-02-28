@@ -1,0 +1,37 @@
+--- Test 3: write complex bus design ---
+--- roundtrip complex bus ---
+complex roundtrip cells: 28
+complex roundtrip ports: 27
+roundtrip data_a[*]: 8
+roundtrip data_b[*]: 8
+roundtrip result[*]: 8
+Startpoint: data_a[6] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_a[6] (in)
+   0.06    0.06 v buf_a6/Z (BUF_X1)
+   0.03    0.09 v and6/ZN (AND2_X1)
+   0.05    0.13 v or_carry/ZN (OR2_X1)
+   0.02    0.16 v buf_carry/Z (BUF_X1)
+   0.00    0.16 v carry (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+

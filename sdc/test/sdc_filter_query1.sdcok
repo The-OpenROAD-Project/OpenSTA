@@ -1,0 +1,31 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.0000 [get_ports {clk1}]
+create_clock -name clk2 -period 20.0000 [get_ports {clk2}]
+create_clock -name vclk -period 5.0000 
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in2}]
+set_input_delay 2.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {in3}]
+set_output_delay 3.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {out1}]
+set_output_delay 3.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {out2}]
+group_path -name grp_reg2reg\
+    -from [get_clocks {clk1}]\
+    -to [get_clocks {clk1}]
+group_path -name grp_io\
+    -from [list [get_ports {in1}]\
+           [get_ports {in2}]]\
+    -to [get_ports {out1}]
+###############################################################################
+# Environment
+###############################################################################
+set_logic_zero [get_ports {in3}]
+set_case_analysis 0 [get_ports {in1}]
+set_case_analysis 1 [get_ports {in2}]
+###############################################################################
+# Design Rules
+###############################################################################

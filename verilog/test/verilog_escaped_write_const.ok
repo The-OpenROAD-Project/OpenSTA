@@ -1,0 +1,3 @@
+--- Test 6: write constant design ---
+const roundtrip cells: 8
+const roundtrip nets: 14

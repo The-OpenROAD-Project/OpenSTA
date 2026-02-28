@@ -1,0 +1,47 @@
+INV equiv count: 6
+BUF equiv count: 9
+NAND2 equiv count: 3
+NAND3 equiv count: 3
+NAND4 equiv count: 3
+NOR2 equiv count: 3
+NOR3 equiv count: 3
+NOR4 equiv count: 3
+AND2 equiv count: 3
+OR2 equiv count: 3
+AOI21 equiv count: 3
+OAI21 equiv count: 3
+DFF equiv count: 2
+SDFF equiv count: 2
+CLKBUF equiv count: 9
+XOR2 equiv count: 2
+INV_X1 typ equiv fast: 1
+INV_X1 typ equiv slow: 1
+INV_X1 fast equiv slow: 1
+BUF_X1 typ equiv fast: 1
+NAND2_X1 typ equiv fast: 1
+DFF_X1 typ equiv fast: 1
+equiv_cell_ports INV typ/fast: 1
+equiv_cell_ports BUF typ/fast: 1
+equiv_cell_ports INV/BUF: 0
+equiv_cell_ports NAND2/NAND3: 0
+equiv_cell_timing_arcs INV typ/fast: 1
+equiv_cell_timing_arcs BUF typ/fast: 1
+equiv_cell_timing_arcs INV/BUF: 0
+typ library buffers: 9
+fast library buffers: 9
+slow library buffers: 9
+INV_X1 equiv INV_X2: 1
+INV_X1 equiv INV_X4: 1
+INV_X1 equiv INV_X8: 1
+INV_X1 equiv INV_X16: 1
+INV_X1 equiv INV_X32: 1
+NAND2 equiv NOR2: 0
+AND2 equiv OR2: 0
+AOI21 equiv OAI21: 0
+DFF equiv DFFR: 0
+DFF equiv DFFS: 0
+DFFR equiv DFFRS: 0
+LVT INV equiv count: 6
+LVT library buffers: 9
+INV_X1 equiv LVT INV_X1_L: 1
+equiv_cell_ports INV/LVT_INV: 1

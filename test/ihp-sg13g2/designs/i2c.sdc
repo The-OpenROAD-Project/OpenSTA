@@ -1,0 +1,77 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design I2cGpioExpanderTop
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk_core -period 20.0000 [get_pins {sg13g2_IOPad_io_clock/p2c}]
+set_clock_transition 0.2500 [get_clocks {clk_core}]
+set_clock_uncertainty 0.1500 clk_core
+set_propagated_clock [get_clocks {clk_core}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_address_0_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_address_1_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_address_2_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_0_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_1_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_2_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_3_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_4_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_5_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_6_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_7_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_i2c_scl_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_i2c_sda_PAD}]
+set_input_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_reset_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_0_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_1_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_2_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_3_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_4_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_5_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_6_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_gpio_7_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_i2c_interrupt_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_i2c_scl_PAD}]
+set_output_delay 4.0000 -clock [get_clocks {clk_core}] -add_delay [get_ports {io_i2c_sda_PAD}]
+###############################################################################
+# Environment
+###############################################################################
+set_load -pin_load 5.0000 [get_ports {io_address_0_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_address_1_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_address_2_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_clock_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_gpio_0_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_gpio_1_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_gpio_2_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_gpio_3_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_gpio_4_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_gpio_5_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_gpio_6_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_gpio_7_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_i2c_interrupt_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_i2c_scl_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_i2c_sda_PAD}]
+set_load -pin_load 5.0000 [get_ports {io_reset_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadIn -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_address_0_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadIn -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_address_1_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadIn -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_address_2_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadIn -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_clock_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut16mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_gpio_0_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut16mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_gpio_1_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut16mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_gpio_2_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut16mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_gpio_3_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut16mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_gpio_4_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut16mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_gpio_5_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut16mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_gpio_6_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut16mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_gpio_7_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadOut4mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_i2c_interrupt_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut4mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_i2c_scl_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadInOut4mA -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_i2c_sda_PAD}]
+set_driving_cell -lib_cell sg13g2_IOPadIn -pin {pad} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {io_reset_PAD}]
+###############################################################################
+# Design Rules
+###############################################################################
+set_max_transition 3.0000 [current_design]
+set_max_capacitance 0.5000 [current_design]
+set_max_fanout 8.0000 [current_design]

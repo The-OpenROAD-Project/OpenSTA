@@ -1,0 +1,244 @@
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+--- Test 1: hierarchical pin queries ---
+buf_in/A: dir=input full_name=buf_in/A
+buf_in/Z: dir=output full_name=buf_in/Z
+inv1/A: dir=input full_name=inv1/A
+inv1/ZN: dir=output full_name=inv1/ZN
+reg1/D: dir=input full_name=reg1/D
+reg1/CK: dir=input full_name=reg1/CK
+reg1/Q: dir=output full_name=reg1/Q
+buf_out1/A: dir=input full_name=buf_out1/A
+buf_out1/Z: dir=output full_name=buf_out1/Z
+buf_out2/A: dir=input full_name=buf_out2/A
+buf_out2/Z: dir=output full_name=buf_out2/Z
+sub1/and_gate/A1: dir=input full_name=sub1/and_gate/A1
+sub1/and_gate/A2: dir=input full_name=sub1/and_gate/A2
+sub1/and_gate/ZN: dir=output full_name=sub1/and_gate/ZN
+sub1/buf_gate/A: dir=input full_name=sub1/buf_gate/A
+sub1/buf_gate/Z: dir=output full_name=sub1/buf_gate/Z
+sub2/and_gate/A1: dir=input full_name=sub2/and_gate/A1
+sub2/and_gate/A2: dir=input full_name=sub2/and_gate/A2
+sub2/and_gate/ZN: dir=output full_name=sub2/and_gate/ZN
+sub2/buf_gate/A: dir=input full_name=sub2/buf_gate/A
+sub2/buf_gate/Z: dir=output full_name=sub2/buf_gate/Z
+--- Test 2: pin classification ---
+buf_in/Z: is_driver=1 is_load=0 is_leaf=1
+inv1/ZN: is_driver=1 is_load=0 is_leaf=1
+reg1/Q: is_driver=1 is_load=0 is_leaf=1
+buf_out1/Z: is_driver=1 is_load=0 is_leaf=1
+buf_out2/Z: is_driver=1 is_load=0 is_leaf=1
+buf_in/A: is_driver=0 is_load=1 is_leaf=1
+inv1/A: is_driver=0 is_load=1 is_leaf=1
+reg1/D: is_driver=0 is_load=1 is_leaf=1
+reg1/CK: is_driver=0 is_load=1 is_leaf=1
+buf_out1/A: is_driver=0 is_load=1 is_leaf=1
+buf_out2/A: is_driver=0 is_load=1 is_leaf=1
+sub1/and_gate/A1: is_driver=0 is_load=1
+sub1/and_gate/ZN: is_driver=1 is_load=0
+sub1/buf_gate/Z: is_driver=1 is_load=0
+sub2/and_gate/A1: is_driver=0 is_load=1
+sub2/buf_gate/Z: is_driver=1 is_load=0
+port clk: dir=input
+port in1: dir=input
+port in2: dir=input
+port in3: dir=input
+port out1: dir=output
+port out2: dir=output
+--- Test 3: instance hierarchy ---
+inst buf_in: ref=BUF_X1 full_name=buf_in
+inst sub1: ref=sub_block full_name=sub1
+inst sub2: ref=sub_block full_name=sub2
+inst inv1: ref=INV_X1 full_name=inv1
+inst reg1: ref=DFF_X1 full_name=reg1
+inst buf_out1: ref=BUF_X2 full_name=buf_out1
+inst buf_out2: ref=BUF_X1 full_name=buf_out2
+inst sub1/and_gate: ref=AND2_X1 full_name=sub1/and_gate
+inst sub1/buf_gate: ref=BUF_X1 full_name=sub1/buf_gate
+inst sub2/and_gate: ref=AND2_X1 full_name=sub2/and_gate
+inst sub2/buf_gate: ref=BUF_X1 full_name=sub2/buf_gate
+buf_in ref=BUF_X1
+inv1 ref=INV_X1
+reg1 ref=DFF_X1
+sub1 ref=sub_block
+sub2 ref=sub_block
+--- Test 4: net hierarchy ---
+net w1: full_name=w1
+net w2: full_name=w2
+net w3: full_name=w3
+net w4: full_name=w4
+net w5: full_name=w5
+total hierarchical nets: 19
+Warning 361: network_hier_pin_query.tcl line 1, net 'sub1/*' not found.
+sub1/* nets: 0
+Warning 361: network_hier_pin_query.tcl line 1, net 'sub2/*' not found.
+sub2/* nets: 0
+--- Test 5: connected pins across hierarchy ---
+net w1 has 2 pins
+net w2 has 2 pins
+net w3 has 3 pins
+net w4 has 2 pins
+net w5 has 2 pins
+Net w1
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf_in/Z output (BUF_X1)
+
+Load pins
+ sub1/and_gate/A1 input (AND2_X1) 0.87-0.92
+
+Hierarchical pins
+ sub1/A input
+
+Net w2
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ sub1/buf_gate/Z output (BUF_X1)
+
+Load pins
+ sub2/and_gate/A1 input (AND2_X1) 0.87-0.92
+
+Hierarchical pins
+ sub1/Y output
+ sub2/A input
+
+Net w3
+ Pin capacitance: 2.42-2.67
+ Wire capacitance: 0.00
+ Total capacitance: 2.42-2.67
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ sub2/buf_gate/Z output (BUF_X1)
+
+Load pins
+ buf_out2/A input (BUF_X1) 0.88-0.97
+ inv1/A input (INV_X1) 1.55-1.70
+
+Hierarchical pins
+ sub2/Y output
+
+--- Test 6: pin pattern matching ---
+flat */* pins: 20
+hier * pins: 30
+sub1/* pins: 3
+hier sub*/* pins: 6
+hier *and*/* pins: 6
+hier *buf*/* pins: 10
+--- Test 7: timing through hierarchy ---
+No paths found.
+No paths found.
+Startpoint: in3 (input port clocked by clk)
+Endpoint: out2 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in3 (in)
+   0.06    0.06 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.09 v sub2/buf_gate/Z (BUF_X1)
+   0.02    0.11 v buf_out2/Z (BUF_X1)
+   0.00    0.11 v out2 (out)
+           0.11   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.11   data arrival time
+---------------------------------------------------------
+           9.89   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: out2 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.02    0.18 v buf_out2/Z (BUF_X1)
+   0.00    0.18 v out2 (out)
+           0.18   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.18   data arrival time
+---------------------------------------------------------
+           9.82   slack (MET)
+
+
+No paths found.
+--- Test 8: fanin/fanout ---
+fanin to out1 flat: 5
+fanin to out1 cells: 3
+fanout from in1 flat: 17
+fanout from in1 endpoints: 0
+fanin to out2 flat: 18
+fanout from in3 flat: 11

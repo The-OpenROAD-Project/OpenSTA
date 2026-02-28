@@ -1,0 +1,225 @@
+--- Nangate write options ---
+cells: 5
+Warning 1338: verilog_multimodule_write.tcl line 1, The -sort flag is ignored.
+Warning 1338: verilog_multimodule_write.tcl line 1, The -sort flag is ignored.
+--- Nangate default roundtrip ---
+re-read default cells: 5
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.00    0.00 v r1/D (DFF_X1)
+           0.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ r1/CK (DFF_X1)
+   0.05    0.05   library hold time
+           0.05   data required time
+---------------------------------------------------------
+           0.05   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+          -0.05   slack (VIOLATED)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ r2/CK (DFF_X1)
+     1    0.88    0.01    0.08    0.08 v r2/Q (DFF_X1)
+                  0.01    0.00    0.08 v u1/A (BUF_X1)
+     1    0.89    0.00    0.02    0.10 v u1/Z (BUF_X1)
+                  0.00    0.00    0.10 v u2/A2 (AND2_X1)
+     1    1.06    0.01    0.03    0.13 v u2/ZN (AND2_X1)
+                  0.01    0.00    0.13 v r3/D (DFF_X1)
+                                  0.13   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ r3/CK (DFF_X1)
+                         -0.04    9.96   library setup time
+                                  9.96   data required time
+-----------------------------------------------------------------------------
+                                  9.96   data required time
+                                 -0.13   data arrival time
+-----------------------------------------------------------------------------
+                                  9.83   slack (MET)
+
+
+r1 ref=DFF_X1
+r2 ref=DFF_X1
+r3 ref=DFF_X1
+u1 ref=BUF_X1
+u2 ref=AND2_X1
+Net r1q
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ r1/Q output (DFF_X1)
+
+Load pins
+ u2/A1 input (AND2_X1) 0.87-0.92
+
+Net r2q
+ Pin capacitance: 0.88-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.88-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ r2/Q output (DFF_X1)
+
+Load pins
+ u1/A input (BUF_X1) 0.88-0.97
+
+Net u1z
+ Pin capacitance: 0.89-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.89-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ u1/Z output (BUF_X1)
+
+Load pins
+ u2/A2 input (AND2_X1) 0.89-0.97
+
+Net u2z
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ u2/ZN output (AND2_X1)
+
+Load pins
+ r3/D input (DFF_X1) 1.06-1.14
+
+--- Nangate pwr roundtrip ---
+re-read pwr cells: 5
+--- Nangate sorted roundtrip ---
+re-read sorted cells: 5
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+--- ASAP7 write options ---
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+asap7 cells: 5
+Startpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+   0.04    0.04 ^ r3/Q (DFFHQx4_ASAP7_75t_R)
+   0.00    0.04 ^ out (out)
+           0.04   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+  -1.00  499.00   output external delay
+         499.00   data required time
+---------------------------------------------------------
+         499.00   data required time
+          -0.04   data arrival time
+---------------------------------------------------------
+         498.96   slack (MET)
+
+

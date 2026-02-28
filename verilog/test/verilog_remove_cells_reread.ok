@@ -1,0 +1,5 @@
+--- Test 3: multiple re-reads ---
+re-read cells: 2
+re-read nets: 4
+re-read2 cells: 2
+re-read3 bus cells: 12

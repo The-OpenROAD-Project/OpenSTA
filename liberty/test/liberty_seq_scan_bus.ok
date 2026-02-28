@@ -1,0 +1,216 @@
+sdfxtp_1 area = 26.275200
+sdfxtp_1/SCD dir=input
+sdfxtp_1/SCE dir=input
+sdfxtp_1/CLK dir=input
+sdfxtp_1/D dir=input
+sdfxtp_1/Q dir=output
+sdfxbp_1 area = 30.028799
+sky130_fd_sc_hd__ebufn_1 area = 10.009600
+sky130_fd_sc_hd__ebufn_1 Z tristate_enable = !TE_B
+sky130_fd_sc_hd__ebufn_2 area = 11.260800
+sky130_fd_sc_hd__ebufn_2 Z tristate_enable = !TE_B
+sky130_fd_sc_hd__ebufn_4 area = 16.265600
+sky130_fd_sc_hd__ebufn_4 Z tristate_enable = !TE_B
+sky130_fd_sc_hd__ebufn_8 area = 26.275200
+sky130_fd_sc_hd__ebufn_8 Z tristate_enable = !TE_B
+sky130_fd_sc_hd__dlxtp_1 area = 15.014400
+sky130_fd_sc_hd__dlxtn_1 area = 15.014400
+sky130_fd_sc_hd__dlxbn_1 area = 18.768000
+sky130_fd_sc_hd__dlxbp_1 area = 18.768000
+sky130_fd_sc_hd__dfrtp_1 area=25.024000 is_buf=0 is_inv=0
+sky130_fd_sc_hd__dfstp_1 area=26.275200 is_buf=0 is_inv=0
+sky130_fd_sc_hd__dfxtp_1 area=20.019199 is_buf=0 is_inv=0
+sky130_fd_sc_hd__dfbbp_1 area=32.531200 is_buf=0 is_inv=0
+sky130_fd_sc_hd__and2_1/X dir=output func=A*B
+sky130_fd_sc_hd__or2_1/X dir=output func=A+B
+sky130_fd_sc_hd__xor2_1/X dir=output func=(A*!B)+(!A*B)
+sky130_fd_sc_hd__xnor2_1/Y dir=output func=(!A*!B)+(A*B)
+sky130_fd_sc_hd__mux2_1/X dir=output func=(A0*!S)+(A1*S)
+INV_X1/A cap=0.001700
+INV_X2/A cap=0.003251
+INV_X4/A cap=0.006258
+BUF_X1/A cap=0.000975
+BUF_X2/A cap=0.001779
+BUF_X4/A cap=0.003402
+NAND2_X1/A1 cap=0.001599
+NAND2_X1/A2 cap=0.001664
+NOR2_X1/A1 cap=0.001714
+NOR2_X1/A2 cap=0.001651
+AOI21_X1/A cap=0.001626
+AOI21_X1/B1 cap=0.001647
+AOI21_X1/B2 cap=0.001677
+OAI21_X1/A cap=0.001671
+OAI21_X1/B1 cap=0.001662
+OAI21_X1/B2 cap=0.001572
+DFF_X1 arc_sets = 5
+  DFF_X1 CK -> D role=hold
+  DFF_X1 CK -> D role=setup
+  DFF_X1 CK -> CK role=width
+  DFF_X1 CK -> Q role=Reg Clk to Q
+  DFF_X1 CK -> QN role=Reg Clk to Q
+DFFR_X1 arc_sets = 16
+  DFFR_X1 CK -> D role=hold
+  DFFR_X1 CK -> D role=setup
+  DFFR_X1 CK -> RN role=recovery
+  DFFR_X1 CK -> RN role=removal
+  DFFR_X1 RN -> RN role=width
+  DFFR_X1 CK -> CK role=width
+  DFFR_X1 CK -> Q role=Reg Clk to Q
+  DFFR_X1 RN -> Q role=Reg Set/Clr
+  DFFR_X1 RN -> Q role=Reg Set/Clr
+  DFFR_X1 RN -> Q role=Reg Set/Clr
+  DFFR_X1 RN -> Q role=Reg Set/Clr
+  DFFR_X1 CK -> QN role=Reg Clk to Q
+  DFFR_X1 RN -> QN role=Reg Set/Clr
+  DFFR_X1 RN -> QN role=Reg Set/Clr
+  DFFR_X1 RN -> QN role=Reg Set/Clr
+  DFFR_X1 RN -> QN role=Reg Set/Clr
+DFFS_X1 arc_sets = 16
+  DFFS_X1 CK -> D role=hold
+  DFFS_X1 CK -> D role=setup
+  DFFS_X1 CK -> SN role=recovery
+  DFFS_X1 CK -> SN role=removal
+  DFFS_X1 SN -> SN role=width
+  DFFS_X1 CK -> CK role=width
+  DFFS_X1 CK -> Q role=Reg Clk to Q
+  DFFS_X1 SN -> Q role=Reg Set/Clr
+  DFFS_X1 SN -> Q role=Reg Set/Clr
+  DFFS_X1 SN -> Q role=Reg Set/Clr
+  DFFS_X1 SN -> Q role=Reg Set/Clr
+  DFFS_X1 CK -> QN role=Reg Clk to Q
+  DFFS_X1 SN -> QN role=Reg Set/Clr
+  DFFS_X1 SN -> QN role=Reg Set/Clr
+  DFFS_X1 SN -> QN role=Reg Set/Clr
+  DFFS_X1 SN -> QN role=Reg Set/Clr
+DFFRS_X1 arc_sets = 35
+  DFFRS_X1 CK -> D role=hold
+  DFFRS_X1 CK -> D role=setup
+  DFFRS_X1 CK -> RN role=recovery
+  DFFRS_X1 CK -> RN role=removal
+  DFFRS_X1 RN -> RN role=width
+  DFFRS_X1 CK -> SN role=recovery
+  DFFRS_X1 CK -> SN role=removal
+  DFFRS_X1 SN -> SN role=width
+  DFFRS_X1 CK -> CK role=width
+  DFFRS_X1 CK -> Q role=Reg Clk to Q
+  DFFRS_X1 RN -> Q role=Reg Set/Clr
+  DFFRS_X1 RN -> Q role=Reg Set/Clr
+  DFFRS_X1 RN -> Q role=Reg Set/Clr
+  DFFRS_X1 RN -> Q role=Reg Set/Clr
+  DFFRS_X1 RN -> Q role=Reg Set/Clr
+  DFFRS_X1 RN -> Q role=Reg Set/Clr
+  DFFRS_X1 RN -> Q role=Reg Set/Clr
+  DFFRS_X1 RN -> Q role=Reg Set/Clr
+  DFFRS_X1 SN -> Q role=Reg Set/Clr
+  DFFRS_X1 SN -> Q role=Reg Set/Clr
+  DFFRS_X1 SN -> Q role=Reg Set/Clr
+  DFFRS_X1 SN -> Q role=Reg Set/Clr
+  DFFRS_X1 CK -> QN role=Reg Clk to Q
+  DFFRS_X1 RN -> QN role=Reg Set/Clr
+  DFFRS_X1 RN -> QN role=Reg Set/Clr
+  DFFRS_X1 RN -> QN role=Reg Set/Clr
+  DFFRS_X1 RN -> QN role=Reg Set/Clr
+  DFFRS_X1 SN -> QN role=Reg Set/Clr
+  DFFRS_X1 SN -> QN role=Reg Set/Clr
+  DFFRS_X1 SN -> QN role=Reg Set/Clr
+  DFFRS_X1 SN -> QN role=Reg Set/Clr
+  DFFRS_X1 SN -> QN role=Reg Set/Clr
+  DFFRS_X1 SN -> QN role=Reg Set/Clr
+  DFFRS_X1 SN -> QN role=Reg Set/Clr
+  DFFRS_X1 SN -> QN role=Reg Set/Clr
+fakeram/clk dir=input bus=0 bundle=0 has_members=0
+fakeram/rd_out dir=output bus=1 bundle=0 has_members=1
+  member_count = 7
+fakeram/we_in dir=input bus=0 bundle=0 has_members=0
+fakeram/ce_in dir=input bus=0 bundle=0 has_members=0
+fakeram/addr_in dir=input bus=1 bundle=0 has_members=1
+  member_count = 6
+fakeram/wd_in dir=input bus=1 bundle=0 has_members=1
+  member_count = 7
+fakeram/w_mask_in dir=input bus=1 bundle=0 has_members=1
+  member_count = 7
+DLLx1 arc_sets = 6
+  DLLx1_ASAP7_75t_R CLK -> Q role=Latch En to Q
+  DLLx1_ASAP7_75t_R D -> Q role=Latch D to Q
+  DLLx1_ASAP7_75t_R CLK -> CLK role=width
+  DLLx1_ASAP7_75t_R CLK -> CLK role=width
+  DLLx1_ASAP7_75t_R CLK -> D role=hold
+  DLLx1_ASAP7_75t_R CLK -> D role=setup
+ICGx1 arc_sets = 13
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> CLK role=width
+  ICGx1_ASAP7_75t_R CLK -> CLK role=width
+  ICGx1_ASAP7_75t_R CLK -> ENA role=hold
+  ICGx1_ASAP7_75t_R CLK -> ENA role=hold
+  ICGx1_ASAP7_75t_R CLK -> ENA role=setup
+  ICGx1_ASAP7_75t_R CLK -> ENA role=setup
+  ICGx1_ASAP7_75t_R CLK -> SE role=hold
+  ICGx1_ASAP7_75t_R CLK -> SE role=hold
+  ICGx1_ASAP7_75t_R CLK -> SE role=setup
+  ICGx1_ASAP7_75t_R CLK -> SE role=setup
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           6.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             1.52e-06   6.90e-09   2.36e-07   1.76e-06  84.7%
+Combinational          1.22e-07   7.11e-08   1.25e-07   3.18e-07  15.3%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  1.64e-06   7.80e-08   3.61e-07   2.08e-06 100.0%
+                          78.9%       3.8%      17.4%

@@ -1,0 +1,308 @@
+--- Test 1: read complex bus verilog ---
+cells: 28
+nets: 45
+ports: 27
+--- Test 2: bus port queries ---
+data_a* ports: 8
+data_b* ports: 8
+result* ports: 8
+data_a[0]: input
+data_a[1]: input
+data_a[2]: input
+data_a[3]: input
+data_a[4]: input
+data_a[5]: input
+data_a[6]: input
+data_a[7]: input
+result[0]: output
+result[1]: output
+result[2]: output
+result[3]: output
+result[4]: output
+result[5]: output
+result[6]: output
+result[7]: output
+carry direction: output
+overflow direction: output
+--- Test 3: bus wire queries ---
+stage1* nets: 8
+stage2* nets: 8
+stage1[0]: stage1[0]
+stage2[0]: stage2[0]
+stage1[1]: stage1[1]
+stage2[1]: stage2[1]
+stage1[7]: stage1[7]
+stage2[7]: stage2[7]
+stage1[*] nets: 8
+stage2[*] nets: 8
+--- Test 4: bus pin queries ---
+buf_a0 pins: 2
+  buf_a0/A dir=input
+  buf_a0/Z dir=output
+and0 pins: 3
+  and0/A1 dir=input
+  and0/A2 dir=input
+  and0/ZN dir=output
+reg0 pins: 6
+  reg0/IQ dir=internal
+  reg0/IQN dir=internal
+  reg0/D dir=input
+  reg0/CK dir=input
+  reg0/Q dir=output
+  reg0/QN dir=output
+*/A pins: 10
+*/Z pins: 10
+*/ZN pins: 10
+*/D pins: 8
+*/Q pins: 8
+*/CK pins: 8
+--- Test 5: write verilog with buses ---
+No differences found.
+--- Test 6: timing analysis ---
+Startpoint: data_b[7] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_b[7] (in)
+   2.19    2.19 v and7/ZN (AND2_X1)
+   0.14    2.33 v or_carry/ZN (OR2_X1)
+   0.03    2.36 v buf_carry/Z (BUF_X1)
+   0.00    2.36 v carry (out)
+           2.36   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -2.36   data arrival time
+---------------------------------------------------------
+           7.64   slack (MET)
+
+
+Startpoint: data_a[0] (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ data_a[0] (in)
+  -0.18   -0.18 ^ buf_a0/Z (BUF_X1)
+   0.06   -0.12 ^ and0/ZN (AND2_X1)
+   0.00   -0.12 ^ reg0/D (DFF_X1)
+          -0.12   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg0/CK (DFF_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+           0.12   data arrival time
+---------------------------------------------------------
+          -0.13   slack (VIOLATED)
+
+
+No paths found.
+No paths found.
+Startpoint: data_b[7] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_b[7] (in)
+   2.19    2.19 v and7/ZN (AND2_X1)
+   0.14    2.33 v or_carry/ZN (OR2_X1)
+   0.03    2.36 v buf_carry/Z (BUF_X1)
+   0.00    2.36 v carry (out)
+           2.36   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -2.36   data arrival time
+---------------------------------------------------------
+           7.64   slack (MET)
+
+
+Startpoint: data_b[6] (input port clocked by clk)
+Endpoint: overflow (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_b[6] (in)
+   2.19    2.19 v and6/ZN (AND2_X1)
+   0.11    2.30 v and_ovfl/ZN (AND2_X1)
+   0.03    2.33 v buf_ovfl/Z (BUF_X1)
+   0.00    2.33 v overflow (out)
+           2.33   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -2.33   data arrival time
+---------------------------------------------------------
+           7.67   slack (MET)
+
+
+Startpoint: data_b[7] (input port clocked by clk)
+Endpoint: carry (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00 v input external delay
+     1    0.89   10.00    0.00    0.00 v data_b[7] (in)
+                 10.00    0.00    0.00 v and7/A2 (AND2_X1)
+     3    2.73    0.31    2.19    2.19 v and7/ZN (AND2_X1)
+                  0.31    0.00    2.19 v or_carry/A1 (OR2_X1)
+     1    0.88    0.02    0.14    2.33 v or_carry/ZN (OR2_X1)
+                  0.02    0.00    2.33 v buf_carry/A (BUF_X1)
+     1    0.00    0.00    0.03    2.36 v buf_carry/Z (BUF_X1)
+                  0.00    0.00    2.36 v carry (out)
+                                  2.36   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                          0.00   10.00   output external delay
+                                 10.00   data required time
+-----------------------------------------------------------------------------
+                                 10.00   data required time
+                                 -2.36   data arrival time
+-----------------------------------------------------------------------------
+                                  7.64   slack (MET)
+
+
+--- Test 7: report_net on bus ---
+Net stage1[0]
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf_a0/Z output (BUF_X1)
+
+Load pins
+ and0/A1 input (AND2_X1) 0.87-0.92
+
+report_net stage1[0]: done
+Net stage1[7]
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf_a7/Z output (BUF_X1)
+
+Load pins
+ and7/A1 input (AND2_X1) 0.87-0.92
+
+report_net stage1[7]: done
+Net stage2[0]
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and0/ZN output (AND2_X1)
+
+Load pins
+ reg0/D input (DFF_X1) 1.06-1.14
+
+report_net stage2[0]: done
+Net stage2[7]
+ Pin capacitance: 2.73-3.01
+ Wire capacitance: 0.00
+ Total capacitance: 2.73-3.01
+ Number of drivers: 1
+ Number of loads: 3
+ Number of pins: 4
+
+Driver pins
+ and7/ZN output (AND2_X1)
+
+Load pins
+ and_ovfl/A1 input (AND2_X1) 0.87-0.92
+ or_carry/A1 input (OR2_X1) 0.79-0.95
+ reg7/D input (DFF_X1) 1.06-1.14
+
+report_net stage2[7]: done
+Net internal_carry
+ Pin capacitance: 0.88-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.88-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ or_carry/ZN output (OR2_X1)
+
+Load pins
+ buf_carry/A input (BUF_X1) 0.88-0.97
+
+report_net internal_carry: done
+Net internal_overflow
+ Pin capacitance: 0.88-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.88-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and_ovfl/ZN output (AND2_X1)
+
+Load pins
+ buf_ovfl/A input (BUF_X1) 0.88-0.97
+
+report_net internal_overflow: done
+--- Test 8: fanin/fanout ---
+fanin to result[0]: 3
+fanout from data_a[0]: 6
+fanin cells to carry: 7

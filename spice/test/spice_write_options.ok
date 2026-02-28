@@ -1,0 +1,30 @@
+--- report_checks ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -1.00    9.00   output external delay
+           9.00   data required time
+---------------------------------------------------------
+           9.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           8.92   slack (MET)
+
+
+--- write_path_spice default ---
+--- write_path_spice with -simulator hspice ---
+--- write_path_spice with -simulator xyce ---

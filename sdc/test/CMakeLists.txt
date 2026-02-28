@@ -1,0 +1,45 @@
+sta_module_tests("sdc"
+  TESTS
+    advanced
+    capacitance_propagated
+    clock_groups_sense
+    clock_operations
+    clock_removal_cascade
+    clocks
+    constraints
+    cycle_acct_clk_relationships
+    cycle_acct_genclk
+    delay_borrow_group
+    derate_disable_deep
+    design_rules_limits
+    disable_case
+    drive_input_pvt
+    environment
+    exception_advanced
+    exception_intersect
+    exception_match_filter
+    exception_merge_priority
+    exception_override_priority
+    exception_rise_fall_transitions
+    exception_thru_complex
+    exception_thru_net
+    exception_thru_override
+    exceptions
+    filter_query
+    genclk_advanced
+    leaf_pin_filter_removal
+    net_wire_voltage
+    port_delay_advanced
+    removal_reset
+    remove_clock_gating
+    sense_unset_override
+    variables
+    write_comprehensive
+    write_disabled_groups
+    write_options
+    write_read
+    write_roundtrip
+    write_roundtrip_full
+)
+
+add_subdirectory(cpp)

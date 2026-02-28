@@ -1,0 +1,136 @@
+--- Instance is_buffer/is_inverter ---
+buf1 is_buffer: 1
+buf1 is_inverter: 0
+buf1 is_clock_gate: 0
+buf1 is_macro: 0
+buf1 is_memory: 0
+buf1 is_hierarchical: 0
+buf1 liberty_cell: BUF_X1
+buf1 cell: BUF_X1
+--- Instance properties for and gate ---
+and1 is_buffer: 0
+and1 is_inverter: 0
+and1 is_clock_gate: 0
+and1 is_macro: 0
+and1 is_memory: 0
+--- Instance properties for register ---
+reg1 is_buffer: 0
+reg1 is_inverter: 0
+reg1 is_clock_gate: 0
+reg1 is_macro: 0
+reg1 is_memory: 0
+--- LibertyCell properties ---
+INV_X1 is_buffer: 0
+INV_X1 is_inverter: 1
+INV_X1 is_memory: 0
+INV_X1 dont_use: 0
+INV_X1 area: 0.532000
+BUF_X1 is_buffer: 1
+BUF_X1 is_inverter: 0
+BUF_X1 is_memory: 0
+BUF_X1 dont_use: 0
+BUF_X1 area: 0.798000
+DFF_X1 is_buffer: 0
+DFF_X1 is_inverter: 0
+DFF_X1 is_memory: 0
+DFF_X1 dont_use: 0
+DFF_X1 area: 4.522000
+DFF_X1 filename: ../../test/nangate45/Nangate45_typ.lib
+DFF_X1 library: NangateOpenCellLibrary
+--- Cell properties ---
+cell name: BUF_X1
+cell full_name: NangateOpenCellLibrary/BUF_X1
+cell library: NangateOpenCellLibrary
+cell filename: ../../test/nangate45/Nangate45_typ.lib
+--- LibertyLibrary filename ---
+lib name: NangateOpenCellLibrary
+lib full_name: NangateOpenCellLibrary
+lib filename: ../../test/nangate45/Nangate45_typ.lib
+--- Pin is_port, direction ---
+buf1/A is_port: 0
+buf1/A direction: input
+buf1/A pin_direction: input
+buf1/A is_hierarchical: 0
+buf1/A full_name: buf1/A
+buf1/A name: A
+buf1/A lib_pin_name: A
+buf1/Z is_port: 0
+buf1/Z direction: output
+buf1/Z pin_direction: output
+--- Pin is_clock, is_register_clock ---
+reg1/CK is_clock: 1
+reg1/CK is_register_clock: 1
+reg1/D is_clock: 0
+reg1/D is_register_clock: 0
+--- Pin activity ---
+buf1/A activity: 1.00000e+07 0.250 propagated
+--- Port liberty_port ---
+in1 liberty_port: NULL
+--- Port activity ---
+in1 activity: 1.00000e+07 0.500 input
+--- Port slack variants ---
+out1 slack_max: 7.899714
+out1 slack_max_rise: 7.899714
+out1 slack_max_fall: 7.901434
+out1 slack_min: 2.098566
+out1 slack_min_rise: 2.100286
+out1 slack_min_fall: 2.098566
+--- Port slew variants ---
+in1 slew_max: 0.000000
+in1 slew_max_rise: 0.000000
+in1 slew_max_fall: 0.000000
+in1 slew_min: 0.000000
+in1 slew_min_rise: 0.000000
+in1 slew_min_fall: 0.000000
+--- Clock is_propagated ---
+clk is_propagated: 0
+clk is_virtual: 0
+clk is_generated: 0
+clk period: 10.000000
+clk name: clk
+clk full_name: clk
+clk sources: 1
+--- Propagated clock property ---
+clk is_propagated (after set): 1
+--- PathEnd points property ---
+Warning 502: search_property_inst_cell.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
+PathEnd points count: 4
+  point pin: reg1/Q
+  point arrival: 0.083707
+  point pin: buf2/A
+  point arrival: 0.083707
+  point pin: buf2/Z
+  point arrival: 0.100286
+  point pin: out1
+  point arrival: 0.100286
+--- Edge disabled properties ---
+edge sense: positive_unate
+edge from_pin: buf1/A
+edge to_pin: buf1/Z
+edge delay_min_rise: 0.019582
+edge delay_max_rise: 0.019583
+edge delay_min_fall: 0.023405
+edge delay_max_fall: 0.023517
+--- LibertyPort drive_resistance/intrinsic_delay ---
+BUF_X1/Z drive_resistance: 2.327937
+BUF_X1/Z drive_resistance_min_rise: 2.327937
+BUF_X1/Z drive_resistance_max_rise: 2.327937
+BUF_X1/Z drive_resistance_min_fall: 1.083897
+BUF_X1/Z drive_resistance_max_fall: 1.083897
+BUF_X1/Z intrinsic_delay: 0.018876
+BUF_X1/Z intrinsic_delay_min_rise: 0.013565
+BUF_X1/Z intrinsic_delay_max_rise: 0.013565
+BUF_X1/Z intrinsic_delay_min_fall: 0.018876
+BUF_X1/Z intrinsic_delay_max_fall: 0.018876
+BUF_X1/Z capacitance: 0.000000
+BUF_X1/Z is_clock: 0
+BUF_X1/Z is_register_clock: 0
+BUF_X1/Z direction: output
+BUF_X1/Z port_direction: output
+BUF_X1/Z lib_cell: BUF_X1
+--- LibertyPort for clock pin ---
+DFF_X1/CK is_clock: 1
+DFF_X1/CK is_register_clock: 1
+DFF_X1/CK direction: input
+DFF_X1/D is_clock: 0
+DFF_X1/D is_register_clock: 0

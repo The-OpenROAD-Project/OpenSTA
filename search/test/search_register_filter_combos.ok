@@ -1,0 +1,102 @@
+--- latch: all_registers default ---
+all registers: 3
+  latch1
+  latch2
+  reg1
+--- latch: all_registers -cells ---
+cells: 3
+  latch1
+  latch2
+  reg1
+--- latch: all_registers -level_sensitive ---
+level_sensitive: 2
+  latch1
+  latch2
+--- latch: all_registers -edge_triggered ---
+edge_triggered: 1
+  reg1
+--- latch: all_registers -level_sensitive -data_pins ---
+level_sensitive data_pins: 2
+  latch1/D
+  latch2/D
+--- latch: all_registers -level_sensitive -clock_pins ---
+level_sensitive clock_pins: 2
+  latch1/G
+  latch2/G
+--- latch: all_registers -level_sensitive -output_pins ---
+level_sensitive output_pins: 2
+  latch1/Q
+  latch2/Q
+--- latch: all_registers -edge_triggered -data_pins ---
+edge_triggered data_pins: 1
+  reg1/D
+--- latch: all_registers -edge_triggered -clock_pins ---
+edge_triggered clock_pins: 1
+  reg1/CK
+--- latch: all_registers -edge_triggered -output_pins ---
+edge_triggered output_pins: 2
+  reg1/Q
+  reg1/QN
+--- latch: all_registers -rise_clock ---
+rise_clock cells: 3
+  latch1
+  latch2
+  reg1
+--- latch: all_registers -fall_clock ---
+fall_clock cells: 0
+--- latch: all_registers -rise_clock -level_sensitive ---
+rise level_sensitive: 2
+--- latch: all_registers -fall_clock -level_sensitive ---
+fall level_sensitive: 0
+--- latch: all_registers -rise_clock -edge_triggered ---
+rise edge_triggered: 1
+--- latch: all_registers -fall_clock -edge_triggered ---
+fall edge_triggered: 0
+--- latch: all_registers -rise_clock -data_pins ---
+rise data_pins: 3
+--- latch: all_registers -fall_clock -data_pins ---
+fall data_pins: 0
+--- latch: all_registers -rise_clock -clock_pins ---
+rise clock_pins: 3
+--- latch: all_registers -fall_clock -clock_pins ---
+fall clock_pins: 0
+--- latch: all_registers -rise_clock -output_pins ---
+rise output_pins: 4
+--- latch: all_registers -fall_clock -output_pins ---
+fall output_pins: 0
+--- async: all_registers -async_pins ---
+async pins: 2
+  reg1/RN
+  reg2/RN
+--- async: all_registers -async_pins -clock clk ---
+async pins clk: 2
+  reg1/RN
+  reg2/RN
+--- async: all_registers -async_pins -edge_triggered ---
+async pins edge_triggered: 2
+--- async: all_registers -output_pins ---
+output pins: 4
+  reg1/Q
+  reg1/QN
+  reg2/Q
+  reg2/QN
+--- async: all_registers -output_pins -edge_triggered ---
+output pins edge_triggered: 4
+  reg1/Q
+  reg1/QN
+  reg2/Q
+  reg2/QN
+--- async: all_registers -output_pins -clock clk ---
+output pins clk: 4
+  reg1/Q
+  reg1/QN
+  reg2/Q
+  reg2/QN
+--- async: all_registers -rise_clock -async_pins ---
+rise async_pins: 2
+--- async: all_registers -fall_clock -async_pins ---
+fall async_pins: 0
+--- async: all_registers -rise_clock -output_pins ---
+rise output_pins: 4
+--- async: all_registers -fall_clock -output_pins ---
+fall output_pins: 0

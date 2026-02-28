@@ -1,0 +1,70 @@
+INV_X1 equiv count = 6
+  equiv: INV_X1
+  equiv: INV_X2
+  equiv: INV_X4
+  equiv: INV_X8
+  equiv: INV_X16
+  equiv: INV_X32
+BUF_X1 equiv count = 9
+  equiv: BUF_X1
+  equiv: CLKBUF_X1
+  equiv: BUF_X2
+  equiv: CLKBUF_X2
+  equiv: CLKBUF_X3
+  equiv: BUF_X4
+  equiv: BUF_X8
+  equiv: BUF_X16
+  equiv: BUF_X32
+NAND2_X1 equiv count = 3
+NOR2_X1 equiv count = 3
+AND2_X1 equiv count = 3
+OR2_X1 equiv count = 3
+XOR2_X1 equiv count = 2
+XNOR2_X1 equiv count = 2
+NAND3_X1 equiv count = 3
+NOR3_X1 equiv count = 3
+AND3_X1 equiv count = 3
+OR3_X1 equiv count = 3
+NAND4_X1 equiv count = 3
+NOR4_X1 equiv count = 3
+AND4_X1 equiv count = 3
+OR4_X1 equiv count = 3
+AOI21_X1 equiv count = 3
+OAI21_X1 equiv count = 3
+AOI22_X1 equiv count = 3
+OAI22_X1 equiv count = 3
+AOI211_X1 equiv count = 2
+OAI211_X1 equiv count = 3
+MUX2_X1 equiv count = 2
+DFF_X1 equiv count = 2
+  equiv: DFF_X1
+  equiv: DFF_X2
+DFFR_X1 equiv count = 2
+DFFS_X1 equiv count = 2
+SDFF_X1 equiv count = 2
+equiv INV BUF = 0
+equiv INV NAND = 0
+equiv NAND NOR = 0
+equiv INV DFF = 0
+port_equiv INV_X1 INV_X2 = 1
+port_equiv INV_X1 BUF_X1 = 0
+port_equiv NAND2_X1 NAND2_X2 = 1
+arc_equiv INV_X1 INV_X2 = 1
+arc_equiv INV_X1 BUF_X1 = 0
+arc_equiv DFF_X1 DFF_X2 = 1
+arc_equiv DFF_X1 DFFR_X1 = 0
+equiv typ_INV fast_INV = 1
+equiv typ_INV fast_BUF = 0
+port_equiv typ_INV fast_INV = 1
+arc_equiv typ_INV fast_INV = 1
+fast INV_X1 equiv count = 6
+Library buffers count = 9
+  buffer: BUF_X1
+  buffer: BUF_X16
+  buffer: BUF_X2
+  buffer: BUF_X32
+  buffer: BUF_X4
+  buffer: BUF_X8
+  buffer: CLKBUF_X1
+  buffer: CLKBUF_X2
+  buffer: CLKBUF_X3

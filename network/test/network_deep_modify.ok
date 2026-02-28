@@ -1,0 +1,175 @@
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.03    0.08 v and1/ZN (AND2_X1)
+   0.00    0.08 v reg1/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+--- extensive instance creation ---
+total cells: 15
+test_inst_* cells: 12
+--- connect/disconnect cycle ---
+--- multi-pin connections ---
+Net shared_net1
+ Pin capacitance: 2.46-2.75
+ Wire capacitance: 0.00
+ Total capacitance: 2.46-2.75
+ Number of drivers: 0
+ Number of loads: 2
+ Number of pins: 2
+
+Load pins
+ test_inst_0/A input (BUF_X1) 0.88-0.97
+ test_inst_1/A input (BUF_X2) 1.59-1.78
+
+--- replace_cell tests ---
+buf1 -> BUF_X2: ref=BUF_X2
+buf1 -> BUF_X4: ref=BUF_X4
+buf1 -> BUF_X8: ref=BUF_X8
+buf1 -> BUF_X16: ref=BUF_X16
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.03    0.08 v and1/ZN (AND2_X1)
+   0.00    0.08 v reg1/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+--- delete test instances ---
+remaining cells: 3
+--- net creation/deletion patterns ---
+total nets with bulk: 26
+bulk_net_* count: 20
+nets after cleanup: 6
+--- various reports ---
+Instance buf1
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input in1
+ Output pins:
+  Z output n1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance and1
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input n1
+  A2 input in2
+ Output pins:
+  ZN output n2
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n2
+  CK input clk
+ Output pins:
+  Q output out1
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Net n1
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ and1/A1 input (AND2_X1) 0.87-0.92
+
+Net n2
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and1/ZN output (AND2_X1)
+
+Load pins
+ reg1/D input (DFF_X1) 1.06-1.14
+
+all_registers: 1
+register data_pins: 1
+register clock_pins: 1
+register output_pins: 2
+--- property queries ---
+port clk: dir=input name=clk
+port in1: dir=input name=in1
+port in2: dir=input name=in2
+port out1: dir=output name=out1
+inst buf1: ref=BUF_X1 name=buf1
+inst and1: ref=AND2_X1 name=and1
+inst reg1: ref=DFF_X1 name=reg1
+pin buf1/A: dir=input name=buf1/A
+pin buf1/Z: dir=output name=buf1/Z
+pin and1/A1: dir=input name=and1/A1
+pin and1/A2: dir=input name=and1/A2
+pin and1/ZN: dir=output name=and1/ZN
+pin reg1/D: dir=input name=reg1/D
+pin reg1/CK: dir=input name=reg1/CK
+pin reg1/Q: dir=output name=reg1/Q
+net n1: name=n1
+net n2: name=n2

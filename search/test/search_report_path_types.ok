@@ -1,0 +1,1217 @@
+--- report_checks -format full ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.04   10.04   library recovery time
+          10.04   data required time
+---------------------------------------------------------
+          10.04   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_checks -format full_clock ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.04   10.04   library recovery time
+          10.04   data required time
+---------------------------------------------------------
+          10.04   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_checks -format full_clock_expanded ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.04   10.04   library recovery time
+          10.04   data required time
+---------------------------------------------------------
+          10.04   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_checks -format end ---
+max_delay/setup group asynchronous
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+reg1/RN (DFFR_X1)                      10.04    0.50    9.54 (MET)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+out1 (output)                           8.00    0.12    7.88 (MET)
+
+--- report_checks -format summary ---
+Startpoint                           Endpoint                               Slack
+--------------------------------------------------------------------------------
+rst (input)                          reg1/RN (DFFR_X1)                       9.54
+reg1/Q (search_path_end_types)       out1 (output)                           7.88
+
+--- report_checks min -format full ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.31    0.31   library removal time
+           0.31   data required time
+---------------------------------------------------------
+           0.31   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.19   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+--- report_checks min -format full_clock ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.31    0.31   library removal time
+           0.31   data required time
+---------------------------------------------------------
+           0.31   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.19   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+--- report_checks min -format full_clock_expanded ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.31    0.31   library removal time
+           0.31   data required time
+---------------------------------------------------------
+           0.31   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.19   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+--- report_checks min -format end ---
+min_delay/hold group asynchronous
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+reg1/RN (DFFR_X1)                       0.31    0.50    0.19 (MET)
+
+min_delay/hold group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+reg2/D (DFFR_X1)                        0.00    0.08    0.08 (MET)
+
+--- report_checks min -format summary ---
+Startpoint                           Endpoint                               Slack
+--------------------------------------------------------------------------------
+rst (input)                          reg1/RN (DFFR_X1)                       0.19
+reg1/Q (DFFR_X1)                     reg2/D (DFFR_X1)                        0.08
+
+--- report_checks -fields slew ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.50    0.50 ^ input external delay
+   0.10    0.00    0.50 ^ rst (in)
+   0.10    0.00    0.50 ^ reg1/RN (DFFR_X1)
+                   0.50   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+                  10.00 ^ reg1/CK (DFFR_X1)
+           0.04   10.04   library recovery time
+                  10.04   data required time
+----------------------------------------------------------------
+                  10.04   data required time
+                  -0.50   data arrival time
+----------------------------------------------------------------
+                   9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+   0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.01    0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.00    0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.00    0.12 ^ out1 (out)
+                   0.12   data arrival time
+
+   0.00   10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+          -2.00    8.00   output external delay
+                   8.00   data required time
+----------------------------------------------------------------
+                   8.00   data required time
+                  -0.12   data arrival time
+----------------------------------------------------------------
+                   7.88   slack (MET)
+
+
+--- report_checks -fields cap ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+    Cap   Delay    Time   Description
+----------------------------------------------------------------
+           0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.50    0.50 ^ input external delay
+   3.56    0.00    0.50 ^ rst (in)
+           0.00    0.50 ^ reg1/RN (DFFR_X1)
+                   0.50   data arrival time
+
+          10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+                  10.00 ^ reg1/CK (DFFR_X1)
+           0.04   10.04   library recovery time
+                  10.04   data required time
+----------------------------------------------------------------
+                  10.04   data required time
+                  -0.50   data arrival time
+----------------------------------------------------------------
+                   9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Cap   Delay    Time   Description
+----------------------------------------------------------------
+           0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.00    0.00 ^ reg1/CK (DFFR_X1)
+   2.10    0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.00    0.02    0.12 ^ buf2/Z (BUF_X1)
+           0.00    0.12 ^ out1 (out)
+                   0.12   data arrival time
+
+          10.00   10.00   clock clk (rise edge)
+           0.00   10.00   clock network delay (ideal)
+           0.00   10.00   clock reconvergence pessimism
+          -2.00    8.00   output external delay
+                   8.00   data required time
+----------------------------------------------------------------
+                   8.00   data required time
+                  -0.12   data arrival time
+----------------------------------------------------------------
+                   7.88   slack (MET)
+
+
+--- report_checks -fields input_pins ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.04   10.04   library recovery time
+          10.04   data required time
+---------------------------------------------------------
+          10.04   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.00    0.10 ^ buf2/A (BUF_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_checks -fields nets ---
+Warning 168: search_report_path_types.tcl line 1, unknown field nets.
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.04   10.04   library recovery time
+          10.04   data required time
+---------------------------------------------------------
+          10.04   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_checks -fields fanout ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+Fanout   Delay    Time   Description
+---------------------------------------------------------------
+          0.00    0.00   clock clk (rise edge)
+          0.00    0.00   clock network delay (ideal)
+          0.50    0.50 ^ input external delay
+     2    0.00    0.50 ^ rst (in)
+          0.00    0.50 ^ reg1/RN (DFFR_X1)
+                  0.50   data arrival time
+
+         10.00   10.00   clock clk (rise edge)
+          0.00   10.00   clock network delay (ideal)
+          0.00   10.00   clock reconvergence pessimism
+                 10.00 ^ reg1/CK (DFFR_X1)
+          0.04   10.04   library recovery time
+                 10.04   data required time
+---------------------------------------------------------------
+                 10.04   data required time
+                 -0.50   data arrival time
+---------------------------------------------------------------
+                  9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout   Delay    Time   Description
+---------------------------------------------------------------
+          0.00    0.00   clock clk (rise edge)
+          0.00    0.00   clock network delay (ideal)
+          0.00    0.00 ^ reg1/CK (DFFR_X1)
+     2    0.10    0.10 ^ reg1/Q (DFFR_X1)
+     1    0.02    0.12 ^ buf2/Z (BUF_X1)
+          0.00    0.12 ^ out1 (out)
+                  0.12   data arrival time
+
+         10.00   10.00   clock clk (rise edge)
+          0.00   10.00   clock network delay (ideal)
+          0.00   10.00   clock reconvergence pessimism
+         -2.00    8.00   output external delay
+                  8.00   data required time
+---------------------------------------------------------------
+                  8.00   data required time
+                 -0.12   data arrival time
+---------------------------------------------------------------
+                  7.88   slack (MET)
+
+
+--- report_checks -fields all ---
+Warning 168: search_report_path_types.tcl line 1, unknown field nets.
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.50    0.50 ^ input external delay
+     2    3.56    0.10    0.00    0.50 ^ rst (in)
+                  0.10    0.00    0.50 ^ reg1/RN (DFFR_X1)
+                                  0.50   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ reg1/CK (DFFR_X1)
+                          0.04   10.04   library recovery time
+                                 10.04   data required time
+-----------------------------------------------------------------------------
+                                 10.04   data required time
+                                 -0.50   data arrival time
+-----------------------------------------------------------------------------
+                                  9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+     2    2.10    0.01    0.10    0.10 ^ reg1/Q (DFFR_X1)
+                  0.01    0.00    0.10 ^ buf2/A (BUF_X1)
+     1    0.00    0.00    0.02    0.12 ^ buf2/Z (BUF_X1)
+                  0.00    0.00    0.12 ^ out1 (out)
+                                  0.12   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                         -2.00    8.00   output external delay
+                                  8.00   data required time
+-----------------------------------------------------------------------------
+                                  8.00   data required time
+                                 -0.12   data arrival time
+-----------------------------------------------------------------------------
+                                  7.88   slack (MET)
+
+
+--- report_checks min -fields all ---
+Warning 168: search_report_path_types.tcl line 1, unknown field nets.
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.50    0.50 ^ input external delay
+     2    3.56    0.10    0.00    0.50 ^ rst (in)
+                  0.10    0.00    0.50 ^ reg1/RN (DFFR_X1)
+                                  0.50   data arrival time
+
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00   clock reconvergence pessimism
+                                  0.00 ^ reg1/CK (DFFR_X1)
+                          0.31    0.31   library removal time
+                                  0.31   data required time
+-----------------------------------------------------------------------------
+                                  0.31   data required time
+                                 -0.50   data arrival time
+-----------------------------------------------------------------------------
+                                  0.19   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                  0.00    0.00    0.00 ^ reg1/CK (DFFR_X1)
+     2    1.93    0.01    0.08    0.08 v reg1/Q (DFFR_X1)
+                  0.01    0.00    0.08 v reg2/D (DFFR_X1)
+                                  0.08   data arrival time
+
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00   clock reconvergence pessimism
+                                  0.00 ^ reg2/CK (DFFR_X1)
+                          0.00    0.00   library hold time
+                                  0.00   data required time
+-----------------------------------------------------------------------------
+                                  0.00   data required time
+                                 -0.08   data arrival time
+-----------------------------------------------------------------------------
+                                  0.08   slack (MET)
+
+
+--- report_checks -digits 2 ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.04   10.04   library recovery time
+          10.04   data required time
+---------------------------------------------------------
+          10.04   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_checks -digits 6 ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.500000    0.500000 ^ input external delay
+   0.000000    0.500000 ^ rst (in)
+   0.000000    0.500000 ^ reg1/RN (DFFR_X1)
+               0.500000   data arrival time
+
+  10.000000   10.000000   clock clk (rise edge)
+   0.000000   10.000000   clock network delay (ideal)
+   0.000000   10.000000   clock reconvergence pessimism
+              10.000000 ^ reg1/CK (DFFR_X1)
+   0.036930   10.036931   library recovery time
+              10.036931   data required time
+-----------------------------------------------------------------
+              10.036931   data required time
+              -0.500000   data arrival time
+-----------------------------------------------------------------
+               9.536931   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000 ^ reg1/CK (DFFR_X1)
+   0.100589    0.100589 ^ reg1/Q (DFFR_X1)
+   0.017957    0.118545 ^ buf2/Z (BUF_X1)
+   0.000000    0.118545 ^ out1 (out)
+               0.118545   data arrival time
+
+  10.000000   10.000000   clock clk (rise edge)
+   0.000000   10.000000   clock network delay (ideal)
+   0.000000   10.000000   clock reconvergence pessimism
+  -2.000000    8.000000   output external delay
+               8.000000   data required time
+-----------------------------------------------------------------
+               8.000000   data required time
+              -0.118545   data arrival time
+-----------------------------------------------------------------
+               7.881455   slack (MET)
+
+
+--- report_checks recovery ---
+Group                                  Slack
+--------------------------------------------
+asynchronous                            9.54
+
+--- report_checks removal ---
+Group                                  Slack
+--------------------------------------------
+asynchronous                            0.19
+
+--- report_checks recovery -verbose ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.04   10.04   library recovery time
+          10.04   data required time
+---------------------------------------------------------
+          10.04   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.54   slack (MET)
+
+
+--- report_checks removal -verbose ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.31    0.31   library removal time
+           0.31   data required time
+---------------------------------------------------------
+           0.31   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.19   slack (MET)
+
+
+--- report_check_types -min_period ---
+--- report_check_types -min_period -verbose ---
+--- report_check_types -min_pulse_width ---
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.06    5.00    4.94 (MET)
+
+--- report_check_types -min_pulse_width -verbose ---
+Pin: reg1/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   reg1/CK
+           0.00   open edge arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   reg1/CK
+   0.00    5.00   clock reconvergence pessimism
+           5.00   close edge arrival time
+---------------------------------------------------------
+           0.06   required pulse width (high)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.94   slack (MET)
+
+
+--- report_check_types -max_slew ---
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+reg1/Q                                  0.20    0.01    0.19 (MET)
+
+--- report_check_types -max_slew -verbose ---
+max slew
+
+Pin reg1/Q ^
+max slew    0.20
+slew        0.01
+----------------
+Slack       0.19 (MET)
+
+--- report_check_types -max_capacitance ---
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+reg1/Q                                 60.58    2.10   58.47 (MET)
+
+--- report_check_types -max_capacitance -verbose ---
+max capacitance
+
+Pin reg1/Q ^
+max capacitance   60.58
+capacitance        2.10
+-----------------------
+Slack             58.47 (MET)
+
+--- report_check_types -max_fanout ---
+--- report_check_types -max_fanout -verbose ---
+--- report_check_types -max_skew ---
+--- report_check_types -max_skew -verbose ---
+--- report_check_types -violators ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_check_types -violators -verbose ---
+No paths found.
+--- report_check_types -clock_gating_setup ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_check_types -clock_gating_hold ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_check_types both ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_checks -unconstrained ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.04   10.04   library recovery time
+          10.04   data required time
+---------------------------------------------------------
+          10.04   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.54   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_checks -format json ---
+{"checks": [
+{
+  "type": "check",
+  "path_group": "asynchronous",
+  "path_type": "max",
+  "startpoint": "rst",
+  "endpoint": "reg1/RN",
+  "source_clock": "clk",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "search_path_end_types",
+      "verilog_src": "",
+      "pin": "rst",
+      "arrival": 5.000e-10,
+      "capacitance": 3.557e-15,
+      "slew": 1.000e-10
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFFR_X1",
+      "verilog_src": "",
+      "pin": "reg1/RN",
+      "net": "rst",
+      "arrival": 5.000e-10,
+      "slew": 1.000e-10
+    }
+  ],
+  "target_clock": "clk",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_path_end_types",
+      "verilog_src": "",
+      "pin": "clk",
+      "arrival": 0.000e+00,
+      "capacitance": 1.953e-15,
+      "slew": 1.000e-10
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFFR_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk",
+      "arrival": 0.000e+00,
+      "slew": 1.000e-10
+    }
+  ],
+  "data_arrival_time": 5.000e-10,
+  "crpr": 0.000e+00,
+  "margin": -3.693e-11,
+  "required_time": 1.004e-08,
+  "slack": 9.537e-09
+},
+{
+  "type": "output_delay",
+  "path_group": "clk",
+  "path_type": "max",
+  "startpoint": "reg1/Q",
+  "endpoint": "out1",
+  "source_clock": "clk",
+  "source_clock_edge": "rise",
+  "source_clock_path": [
+    {
+      "instance": "",
+      "cell": "search_path_end_types",
+      "verilog_src": "",
+      "pin": "clk",
+      "arrival": 0.000e+00,
+      "capacitance": 1.953e-15,
+      "slew": 1.000e-10
+    },
+    {
+      "instance": "reg1",
+      "cell": "DFFR_X1",
+      "verilog_src": "",
+      "pin": "reg1/CK",
+      "net": "clk",
+      "arrival": 0.000e+00,
+      "slew": 1.000e-10
+    }
+  ],
+  "source_path": [
+    {
+      "instance": "reg1",
+      "cell": "DFFR_X1",
+      "verilog_src": "",
+      "pin": "reg1/Q",
+      "net": "n3",
+      "arrival": 1.006e-10,
+      "capacitance": 2.103e-15,
+      "slew": 1.079e-11
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/A",
+      "net": "n3",
+      "arrival": 1.006e-10,
+      "slew": 1.079e-11
+    },
+    {
+      "instance": "buf2",
+      "cell": "BUF_X1",
+      "verilog_src": "",
+      "pin": "buf2/Z",
+      "net": "out1",
+      "arrival": 1.185e-10,
+      "capacitance": 0.000e+00,
+      "slew": 3.736e-12
+    },
+    {
+      "instance": "",
+      "cell": "search_path_end_types",
+      "verilog_src": "",
+      "pin": "out1",
+      "arrival": 1.185e-10,
+      "slew": 3.736e-12
+    }
+  ],
+  "target_clock": "clk",
+  "target_clock_edge": "rise",
+  "data_arrival_time": 1.185e-10,
+  "crpr": 0.000e+00,
+  "margin": 2.000e-09,
+  "required_time": 8.000e-09,
+  "slack": 7.881e-09
+}
+]
+}

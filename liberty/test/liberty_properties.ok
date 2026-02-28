@@ -1,0 +1,459 @@
+Cell INV_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.55-1.70
+ ZN output function=!A
+Cell BUF_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 0.88-0.97
+ Z output function=A
+Cell DFF_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.06-1.14
+ CK input 0.86-0.95
+ Q output function=IQ
+ QN output function=IQN
+Cell DFFR_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.05-1.13
+ RN input 1.74-1.78
+ CK input 0.88-0.98
+ Q output function=IQ
+ QN output function=IQN
+Cell DFFS_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.09-1.16
+ SN input 1.33-1.36
+ CK input 0.88-0.97
+ Q output function=IQ
+ QN output function=IQN
+Cell DFFRS_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.08-1.15
+ RN input 1.38-1.41
+ SN input 2.10-2.21
+ CK input 0.87-0.96
+ Q output function=IQ
+ QN output function=IQN
+Cell TLAT_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.07-1.14
+ G input 0.92-1.02
+ OE input 1.42-1.50
+ Q tristate enable=OE function=IQ 0.79-0.79
+Cell AOI21_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.54-1.63
+ B1 input 1.45-1.65
+ B2 input 1.41-1.68
+ ZN output function=!(A+(B1*B2))
+Cell AOI22_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.50-1.69
+ A2 input 1.43-1.69
+ B1 input 1.55-1.58
+ B2 input 1.52-1.62
+ ZN output function=!((A1*A2)+(B1*B2))
+Cell OAI21_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.52-1.67
+ B1 input 1.46-1.66
+ B2 input 1.56-1.57
+ ZN output function=!(A*(B1+B2))
+Cell OAI22_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.46-1.67
+ A2 input 1.56-1.58
+ B1 input 1.41-1.67
+ B2 input 1.55-1.62
+ ZN output function=!((A1+A2)*(B1+B2))
+Cell AOI211_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.56-1.62
+ B input 1.47-1.66
+ C1 input 1.40-1.66
+ C2 input 1.37-1.68
+ ZN output function=!(((C1*C2)+B)+A)
+Cell OAI211_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.53-1.61
+ B input 1.50-1.66
+ C1 input 1.44-1.60
+ C2 input 1.52-1.56
+ ZN output function=!(((C1+C2)*A)*B)
+Cell HA_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 3.06-3.19
+ B input 3.34-3.45
+ CO output function=A*B
+ S output function=A^B
+Cell FA_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 3.61-3.75
+ B input 3.40-3.47
+ CI input 2.66-2.76
+ CO output function=(A*B)+(CI*(A+B))
+ S output function=CI^(A^B)
+Cell XNOR2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 2.13-2.23
+ B input 2.37-2.57
+ ZN output function=!(A^B)
+Cell XOR2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 2.18-2.23
+ B input 2.36-2.41
+ Z output function=A^B
+Cell MUX2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 0.91-0.95
+ B input 0.90-0.94
+ S input 1.81-1.92
+ Z output function=(S*B)+(A*!S)
+Cell CLKBUF_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 0.70-0.78
+ Z output function=A
+Cell CLKBUF_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.24-1.41
+ Z output function=A
+Cell CLKBUF_X3
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 1.25-1.42
+ Z output function=A
+Cell TINV_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ EN input 1.64-1.75
+ I input 1.38-1.44
+ ZN tristate enable=!EN function=!I 0.80-0.80
+Cell NAND2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.53-1.60
+ A2 input 1.50-1.66
+ ZN output function=!(A1*A2)
+Cell NAND3_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.56-1.59
+ A2 input 1.53-1.62
+ A3 input 1.49-1.65
+ ZN output function=!((A1*A2)*A3)
+Cell NAND4_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.52-1.52
+ A2 input 1.54-1.60
+ A3 input 1.54-1.64
+ A4 input 1.49-1.66
+ ZN output function=!(((A1*A2)*A3)*A4)
+Cell NOR2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.41-1.71
+ A2 input 1.56-1.65
+ ZN output function=!(A1+A2)
+Cell NOR3_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.40-1.76
+ A2 input 1.48-1.66
+ A3 input 1.55-1.62
+ ZN output function=!((A1+A2)+A3)
+Cell NOR4_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 1.34-1.74
+ A2 input 1.45-1.67
+ A3 input 1.49-1.64
+ A4 input 1.55-1.61
+ ZN output function=!(((A1+A2)+A3)+A4)
+Cell AND2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 0.87-0.92
+ A2 input 0.89-0.97
+ ZN output function=A1*A2
+Cell AND3_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 0.87-0.88
+ A2 input 0.88-0.93
+ A3 input 0.88-0.96
+ ZN output function=(A1*A2)*A3
+Cell AND4_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 0.85-0.86
+ A2 input 0.88-0.90
+ A3 input 0.88-0.92
+ A4 input 0.86-0.94
+ ZN output function=((A1*A2)*A3)*A4
+Cell OR2_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 0.79-0.95
+ A2 input 0.90-0.94
+ ZN output function=A1+A2
+Cell OR3_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 0.78-0.96
+ A2 input 0.85-0.94
+ A3 input 0.90-0.92
+ ZN output function=(A1+A2)+A3
+Cell OR4_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A1 input 0.75-0.94
+ A2 input 0.83-0.94
+ A3 input 0.85-0.92
+ A4 input 0.89-0.91
+ ZN output function=((A1+A2)+A3)+A4
+Cell ANTENNA_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ A input 0.02-0.02
+Cell FILLCELL_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+Cell LOGIC0_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ Z output function=0
+Cell LOGIC1_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ Z output function=1
+Cell CLKGATETST_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ IQ internal
+ CK input 1.67-1.81
+ E input 0.84-0.88
+ SE input 0.72-0.78
+ GCK output
+Cell CLKGATETST_X2
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ VDD power
+ VSS ground
+ IQ internal
+ CK input 2.63-2.82
+ E input 0.84-0.87
+ SE input 0.75-0.81
+ GCK output
+Cell SDFF_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.07-1.12
+ SE input 1.76-1.89
+ SI input 0.88-0.92
+ CK input 0.87-0.96
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFR_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.10-1.15
+ RN input 1.47-1.49
+ SE input 1.88-2.00
+ SI input 0.84-0.88
+ CK input 0.94-1.03
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFS_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.10-1.15
+ SE input 1.89-2.00
+ SI input 0.86-0.90
+ SN input 1.32-1.34
+ CK input 0.89-0.98
+ Q output function=IQ
+ QN output function=IQN
+Cell SDFFRS_X1
+Library NangateOpenCellLibrary
+File ../../test/nangate45/Nangate45_typ.lib
+ IQ internal
+ IQN internal
+ VDD power
+ VSS ground
+ D input 1.09-1.14
+ RN input 2.13-2.25
+ SE input 1.92-2.14
+ SI input 0.82-0.86
+ SN input 1.48-1.52
+ CK input 0.86-0.95
+ Q output function=IQ
+ QN output function=IQN
+Cell DFFHQNx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ QN output function=IQN
+ CLK input 0.40-0.52
+ D input 0.55-0.62
+ IQN internal
+ IQNN internal
+Cell ICGx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ IQ internal
+ GCLK output
+ CLK input 1.63-2.39
+ ENA input 0.33-0.47
+ SE input 0.39-0.47
+Cell sg13g2_ebufn_2
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Z tristate enable=!TE_B function=A 4.51-7.42
+ A input 2.58-2.66
+ TE_B input 6.21-6.60
+Cell sg13g2_sdfbbp_1
+Library sg13g2_stdcell_typ_1p20V_25C
+File ../../test/ihp-sg13g2/sg13g2_stdcell_typ_1p20V_25C.lib
+ Q output function=IQ
+ Q_N output function=IQN
+ CLK input 2.97-3.06
+ D input 1.95-2.01
+ RESET_B input 1.74
+ SCD input 1.96-2.00
+ SCE input 3.18-3.92
+ SET_B input 5.25
+ IQ internal
+ IQN internal
+Cell sky130_fd_sc_hd__inv_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 2.21-2.39
+ Y output function=!A

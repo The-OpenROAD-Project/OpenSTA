@@ -1,0 +1,216 @@
+--- Basic power report ---
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             4.28e-06   0.00e+00   8.44e-12   4.28e-06  97.4%
+Combinational          8.52e-08   2.72e-08   1.18e-12   1.12e-07   2.6%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  4.36e-06   2.72e-08   9.62e-12   4.39e-06 100.0%
+                          99.4%       0.6%       0.0%
+--- Power with global activity ---
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             5.11e-06   0.00e+00   8.44e-12   5.11e-06  90.1%
+Combinational          4.26e-07   1.36e-07   1.18e-12   5.62e-07   9.9%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  5.53e-06   1.36e-07   9.62e-12   5.67e-06 100.0%
+                          97.6%       2.4%       0.0%
+--- Power with -digits 6 ---
+Group                    Internal    Switching      Leakage        Total
+                            Power        Power        Power        Power (Watts)
+------------------------------------------------------------------------
+Sequential           5.105910e-06 0.000000e+00 8.438625e-12 5.105918e-06  90.1%
+Combinational        4.260146e-07 1.361610e-07 1.181000e-12 5.621768e-07   9.9%
+Clock                0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
+Macro                0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
+Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
+------------------------------------------------------------------------
+Total                5.531924e-06 1.361610e-07 9.619625e-12 5.668095e-06 100.0%
+                            97.6%         2.4%         0.0%
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential            5.106e-06  0.000e+00  8.439e-12  5.106e-06  90.1%
+Combinational         4.260e-07  1.362e-07  1.181e-12  5.622e-07   9.9%
+Clock                 0.000e+00  0.000e+00  0.000e+00  0.000e+00   0.0%
+Macro                 0.000e+00  0.000e+00  0.000e+00  0.000e+00   0.0%
+Pad                   0.000e+00  0.000e+00  0.000e+00  0.000e+00   0.0%
+----------------------------------------------------------------
+Total                 5.532e-06  1.362e-07  9.620e-12  5.668e-06 100.0%
+                          97.6%       2.4%       0.0%
+--- Power for specific instances ---
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   4.26e-07   1.36e-07   1.18e-12   5.62e-07 buf1
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   5.11e-06   0.00e+00   8.44e-12   5.11e-06 reg1
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   5.11e-06   0.00e+00   8.44e-12   5.11e-06 reg1
+   4.26e-07   1.36e-07   1.18e-12   5.62e-07 buf1
+--- Instance power with -digits ---
+     Internal    Switching      Leakage        Total
+        Power        Power        Power        Power (Watts)
+----------------------------------------------------
+ 5.105910e-06 0.000000e+00 8.438625e-12 5.105918e-06 reg1
+ 4.260146e-07 1.361610e-07 1.181000e-12 5.621768e-07 buf1
+--- Power with pin activity ---
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             5.11e-06   0.00e+00   8.44e-12   5.11e-06  90.1%
+Combinational          4.26e-07   1.36e-07   1.18e-12   5.62e-07   9.9%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  5.53e-06   1.36e-07   9.62e-12   5.67e-06 100.0%
+                          97.6%       2.4%       0.0%
+--- Power with input activity ---
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             5.11e-06   0.00e+00   8.44e-12   5.11e-06  90.1%
+Combinational          4.26e-07   1.36e-07   1.18e-12   5.62e-07   9.9%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  5.53e-06   1.36e-07   9.62e-12   5.67e-06 100.0%
+                          97.6%       2.4%       0.0%
+--- Power with input_port activity ---
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             5.11e-06   0.00e+00   8.44e-12   5.11e-06  90.1%
+Combinational          4.26e-07   1.36e-07   1.18e-12   5.62e-07   9.9%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  5.53e-06   1.36e-07   9.62e-12   5.67e-06 100.0%
+                          97.6%       2.4%       0.0%
+--- Unset activities ---
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             4.49e-06   0.00e+00   8.44e-12   4.49e-06  95.2%
+Combinational          1.70e-07   5.45e-08   1.18e-12   2.25e-07   4.8%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  4.66e-06   5.45e-08   9.62e-12   4.71e-06 100.0%
+                          98.8%       1.2%       0.0%
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             4.49e-06   0.00e+00   8.44e-12   4.49e-06  95.2%
+Combinational          1.70e-07   5.45e-08   1.18e-12   2.25e-07   4.8%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  4.66e-06   5.45e-08   9.62e-12   4.71e-06 100.0%
+                          98.8%       1.2%       0.0%
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             4.28e-06   0.00e+00   8.44e-12   4.28e-06  97.4%
+Combinational          8.52e-08   2.72e-08   1.18e-12   1.12e-07   2.6%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  4.36e-06   2.72e-08   9.62e-12   4.39e-06 100.0%
+                          99.4%       0.6%       0.0%
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             4.28e-06   0.00e+00   8.44e-12   4.28e-06  97.4%
+Combinational          8.52e-08   2.72e-08   1.18e-12   1.12e-07   2.6%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  4.36e-06   2.72e-08   9.62e-12   4.39e-06 100.0%
+                          99.4%       0.6%       0.0%
+--- Power with density ---
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             2.07e+03   0.00e+00   8.44e-12   2.07e+03  64.8%
+Combinational          8.52e+02   2.72e+02   1.18e-12   1.12e+03  35.2%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  2.92e+03   2.72e+02   9.62e-12   3.19e+03 100.0%
+                          91.5%       8.5%       0.0%
+--- Power JSON format ---
+{
+  "Sequential": {
+    "internal": 5.11e-06,
+    "switching": 0.00e+00,
+    "leakage": 8.44e-12,
+    "total": 5.11e-06
+  },
+  "Combinational": {
+    "internal": 4.26e-07,
+    "switching": 1.36e-07,
+    "leakage": 1.18e-12,
+    "total": 5.62e-07
+  },
+  "Clock": {
+    "internal": 0.00e+00,
+    "switching": 0.00e+00,
+    "leakage": 0.00e+00,
+    "total": 0.00e+00
+  },
+  "Macro": {
+    "internal": 0.00e+00,
+    "switching": 0.00e+00,
+    "leakage": 0.00e+00,
+    "total": 0.00e+00
+  },
+  "Pad": {
+    "internal": 0.00e+00,
+    "switching": 0.00e+00,
+    "leakage": 0.00e+00,
+    "total": 0.00e+00
+  },
+  "Total": {
+    "internal": 5.53e-06,
+    "switching": 1.36e-07,
+    "leakage": 9.62e-12,
+    "total": 5.67e-06
+  }
+}
+[
+{
+  "name": "reg1",
+  "internal": 5.11e-06,
+  "switching": 0.00e+00,
+  "leakage": 8.44e-12,
+  "total": 5.11e-06
+}
+,
+{
+  "name": "buf1",
+  "internal": 4.26e-07,
+  "switching": 1.36e-07,
+  "leakage": 1.18e-12,
+  "total": 5.62e-07
+}
+]

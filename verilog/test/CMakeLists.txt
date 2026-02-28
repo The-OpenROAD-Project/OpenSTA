@@ -1,0 +1,44 @@
+sta_module_tests("verilog"
+  TESTS
+    assign
+    attributes
+    bus
+    bus_partselect
+    complex_bus
+    const_concat
+    coverage
+    error_paths
+    escaped_write_bus
+    escaped_write_complex
+    escaped_write_const
+    escaped_write_hier
+    escaped_write_supply
+    gcd_large
+    gcd_writer
+    hier_write
+    multimodule_write
+    preproc_param
+    read_asap7
+    remove_cells_basic
+    remove_cells_complex
+    remove_cells_hier
+    remove_cells_multigate
+    remove_cells_reread
+    remove_cells_supply
+    roundtrip
+    specify
+    supply_tristate
+    write_asap7
+    write_assign_types
+    write_bus_types
+    write_complex_bus_types
+    write_nangate
+    write_options
+    write_sky130
+    writer_asap7
+    writer_modify
+    writer_nangate
+    writer_sky130
+)
+
+add_subdirectory(cpp)

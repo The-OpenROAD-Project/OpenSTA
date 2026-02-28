@@ -1,0 +1,178 @@
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.09    0.09 ^ reg2/Q (DFF_X1)
+   0.00    0.09 ^ out1 (out)
+           0.09   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.09   data arrival time
+---------------------------------------------------------
+           6.91   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           6.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+Warning 101: sdc_advanced.tcl line 1, object 'sdc_test2' not found.
+Warning 101: sdc_advanced.tcl line 1, object 'sdc_test2' not found.
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (falling edge-triggered data to data check clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   1.00    1.00   clock network delay (ideal)
+   2.00    3.00 v input external delay
+   0.00    3.00 v in1 (in)
+   0.03    3.03 v buf1/Z (BUF_X1)
+   0.05    3.08 v or1/ZN (OR2_X1)
+   0.03    3.10 ^ nor1/ZN (NOR2_X1)
+   0.00    3.10 ^ reg2/D (DFF_X1)
+           3.10   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.20    0.20   clock network delay (propagated)
+   0.00    0.20   clock reconvergence pessimism
+           0.20 ^ reg1/CK (DFF_X1)
+   0.28    0.48 v reg1/Q (DFF_X1)
+  -0.50   -0.02   data check setup time
+          -0.02   data required time
+---------------------------------------------------------
+          -0.02   data required time
+          -3.10   data arrival time
+---------------------------------------------------------
+          -3.13   slack (VIOLATED)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   1.00   11.00   clock network delay (ideal)
+   0.00   11.00 ^ reg1/CK (DFF_X1)
+   0.08   11.08 v reg1/Q (DFF_X1)
+   0.00   11.08 v reg3/D (DFF_X1)
+          11.08   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.30   20.30   clock network delay (ideal)
+   0.00   20.30   clock reconvergence pessimism
+          20.30 ^ reg3/CK (DFF_X1)
+  -0.04   20.26   library setup time
+          20.26   data required time
+---------------------------------------------------------
+          20.26   data required time
+         -11.08   data arrival time
+---------------------------------------------------------
+           9.18   slack (MET)
+
+
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+nor1/ZN                                 0.20    0.01    0.18 (MET)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+nor1/ZN                                26.70    1.45   25.25 (MET)
+

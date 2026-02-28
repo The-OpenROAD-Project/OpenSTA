@@ -1,0 +1,238 @@
+--- scan DFF cell queries ---
+sky130_fd_sc_hd__sdfxtp_1 area=26.275200
+  has test_cell: yes
+  IQ dir=internal scan_type=none func=
+  IQ_N dir=internal scan_type=none func=
+  CLK dir=input scan_type=none func=
+  D dir=input scan_type=none func=
+  Q dir=output scan_type=output func=IQ
+  SCD dir=input scan_type=input func=
+  SCE dir=input scan_type=enable func=
+sky130_fd_sc_hd__sdfxtp_2 area=27.526400
+  has test_cell: yes
+  IQ dir=internal scan_type=none func=
+  IQ_N dir=internal scan_type=none func=
+  CLK dir=input scan_type=none func=
+  D dir=input scan_type=none func=
+  Q dir=output scan_type=output func=IQ
+  SCD dir=input scan_type=input func=
+  SCE dir=input scan_type=enable func=
+sky130_fd_sc_hd__sdfxtp_4 area=30.028799
+  has test_cell: yes
+  IQ dir=internal scan_type=none func=
+  IQ_N dir=internal scan_type=none func=
+  CLK dir=input scan_type=none func=
+  D dir=input scan_type=none func=
+  Q dir=output scan_type=output func=IQ
+  SCD dir=input scan_type=input func=
+  SCE dir=input scan_type=enable func=
+sky130_fd_sc_hd__sdfxbp_1 area=30.028799
+  has test_cell: yes
+  IQ dir=internal scan_type=none
+  IQ_N dir=internal scan_type=none
+  CLK dir=input scan_type=none
+  D dir=input scan_type=none
+  Q dir=output scan_type=output
+  Q_N dir=output scan_type=output_inverted
+  SCD dir=input scan_type=input
+  SCE dir=input scan_type=enable
+sky130_fd_sc_hd__sdfxbp_2 area=32.531200
+  has test_cell: yes
+  IQ dir=internal scan_type=none
+  IQ_N dir=internal scan_type=none
+  CLK dir=input scan_type=none
+  D dir=input scan_type=none
+  Q dir=output scan_type=output
+  Q_N dir=output scan_type=output_inverted
+  SCD dir=input scan_type=input
+  SCE dir=input scan_type=enable
+sky130_fd_sc_hd__sdfrtp_1 area=31.280001
+  has test_cell: yes
+  IQ dir=internal scan_type=none
+  IQ_N dir=internal scan_type=none
+  CLK dir=input scan_type=none
+  D dir=input scan_type=none
+  Q dir=output scan_type=output
+  RESET_B dir=input scan_type=none
+  SCD dir=input scan_type=input
+  SCE dir=input scan_type=enable
+sky130_fd_sc_hd__sdfrtp_2 area=32.531200
+  has test_cell: yes
+  IQ dir=internal scan_type=none
+  IQ_N dir=internal scan_type=none
+  CLK dir=input scan_type=none
+  D dir=input scan_type=none
+  Q dir=output scan_type=output
+  RESET_B dir=input scan_type=none
+  SCD dir=input scan_type=input
+  SCE dir=input scan_type=enable
+sky130_fd_sc_hd__sdfrtp_4 area=35.033600
+  has test_cell: yes
+  IQ dir=internal scan_type=none
+  IQ_N dir=internal scan_type=none
+  CLK dir=input scan_type=none
+  D dir=input scan_type=none
+  Q dir=output scan_type=output
+  RESET_B dir=input scan_type=none
+  SCD dir=input scan_type=input
+  SCE dir=input scan_type=enable
+sky130_fd_sc_hd__sdfstp_1 area=33.782398
+  IQ dir=internal scan_type=none
+  IQ_N dir=internal scan_type=none
+  CLK dir=input scan_type=none
+  D dir=input scan_type=none
+  Q dir=output scan_type=output
+  SCD dir=input scan_type=input
+  SCE dir=input scan_type=enable
+  SET_B dir=input scan_type=none
+sky130_fd_sc_hd__sdfstp_2 area=35.033600
+  IQ dir=internal scan_type=none
+  IQ_N dir=internal scan_type=none
+  CLK dir=input scan_type=none
+  D dir=input scan_type=none
+  Q dir=output scan_type=output
+  SCD dir=input scan_type=input
+  SCE dir=input scan_type=enable
+  SET_B dir=input scan_type=none
+sky130_fd_sc_hd__sdfstp_4 area=37.535999
+  IQ dir=internal scan_type=none
+  IQ_N dir=internal scan_type=none
+  CLK dir=input scan_type=none
+  D dir=input scan_type=none
+  Q dir=output scan_type=output
+  SCD dir=input scan_type=input
+  SCE dir=input scan_type=enable
+  SET_B dir=input scan_type=none
+--- scan DFF timing arcs ---
+sky130_fd_sc_hd__sdfxtp_1 arc_sets = 8
+  sky130_fd_sc_hd__sdfxtp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__sdfxtp_1 CLK -> D role=setup
+  sky130_fd_sc_hd__sdfxtp_1 CLK -> D role=hold
+  sky130_fd_sc_hd__sdfxtp_1 CLK -> Q role=Reg Clk to Q
+  sky130_fd_sc_hd__sdfxtp_1 CLK -> SCD role=setup
+  sky130_fd_sc_hd__sdfxtp_1 CLK -> SCD role=hold
+  sky130_fd_sc_hd__sdfxtp_1 CLK -> SCE role=setup
+  sky130_fd_sc_hd__sdfxtp_1 CLK -> SCE role=hold
+sky130_fd_sc_hd__sdfrtp_1 arc_sets = 12
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> D role=setup
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> D role=hold
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> Q role=Reg Clk to Q
+  sky130_fd_sc_hd__sdfrtp_1 RESET_B -> Q role=Reg Set/Clr
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> RESET_B role=recovery
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> RESET_B role=removal
+  sky130_fd_sc_hd__sdfrtp_1 RESET_B -> RESET_B role=width
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> SCD role=setup
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> SCD role=hold
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> SCE role=setup
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> SCE role=hold
+sky130_fd_sc_hd__sdfstp_1 arc_sets = 12
+  sky130_fd_sc_hd__sdfstp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__sdfstp_1 CLK -> D role=setup
+  sky130_fd_sc_hd__sdfstp_1 CLK -> D role=hold
+  sky130_fd_sc_hd__sdfstp_1 CLK -> Q role=Reg Clk to Q
+  sky130_fd_sc_hd__sdfstp_1 SET_B -> Q role=Reg Set/Clr
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SCD role=setup
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SCD role=hold
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SCE role=setup
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SCE role=hold
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SET_B role=recovery
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SET_B role=removal
+  sky130_fd_sc_hd__sdfstp_1 SET_B -> SET_B role=width
+SDFF_X1 test_cell=no
+SDFF_X2 test_cell=no
+SDFFR_X1 test_cell=no
+SDFFS_X1 test_cell=no
+SDFFRS_X1 test_cell=no
+CLKGATETST_X1 area=3.990000 test_cell=no
+  CLKGATETST_X1 CK -> CK role=width
+  CLKGATETST_X1 CK -> E role=hold
+  CLKGATETST_X1 CK -> E role=setup
+  CLKGATETST_X1 CK -> SE role=hold
+  CLKGATETST_X1 CK -> SE role=setup
+  CLKGATETST_X1 CK -> GCK role=combinational
+  CLKGATETST_X1 CK -> GCK role=combinational
+  CLKGATETST_X1 CK -> GCK role=combinational
+  CLKGATETST_X1 CK -> GCK role=combinational
+ASAP7 ICGx1 arc_sets = 13
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> CLK role=width
+  ICGx1_ASAP7_75t_R CLK -> CLK role=width
+  ICGx1_ASAP7_75t_R CLK -> ENA role=hold
+  ICGx1_ASAP7_75t_R CLK -> ENA role=hold
+  ICGx1_ASAP7_75t_R CLK -> ENA role=setup
+  ICGx1_ASAP7_75t_R CLK -> ENA role=setup
+  ICGx1_ASAP7_75t_R CLK -> SE role=hold
+  ICGx1_ASAP7_75t_R CLK -> SE role=hold
+  ICGx1_ASAP7_75t_R CLK -> SE role=setup
+  ICGx1_ASAP7_75t_R CLK -> SE role=setup
+DFFHQNx1_ASAP7_75t_R arcs=5
+  DFFHQNx1_ASAP7_75t_R CLK -> QN role=Reg Clk to Q
+  DFFHQNx1_ASAP7_75t_R CLK -> CLK role=width
+  DFFHQNx1_ASAP7_75t_R CLK -> CLK role=width
+  DFFHQNx1_ASAP7_75t_R CLK -> D role=hold
+  DFFHQNx1_ASAP7_75t_R CLK -> D role=setup
+Warning 354: liberty_scan_signal_types.tcl line 1, cell 'DFFHQx1_ASAP7_75t_R' not found.
+DFFHQNx2_ASAP7_75t_R arcs=5
+  DFFHQNx2_ASAP7_75t_R CLK -> QN role=Reg Clk to Q
+  DFFHQNx2_ASAP7_75t_R CLK -> CLK role=width
+  DFFHQNx2_ASAP7_75t_R CLK -> CLK role=width
+  DFFHQNx2_ASAP7_75t_R CLK -> D role=hold
+  DFFHQNx2_ASAP7_75t_R CLK -> D role=setup
+Warning 354: liberty_scan_signal_types.tcl line 1, cell 'DFFHQx2_ASAP7_75t_R' not found.
+Warning 441: liberty_scan_signal_types.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           6.92   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+

@@ -1,0 +1,37 @@
+sta_module_tests("liberty"
+  TESTS
+    arc_model_deep
+    busport_mem_iter
+    ccsn
+    cell_classify_pgpin
+    cell_deep
+    clkgate_lvlshift
+    ecsm
+    equiv_cells
+    equiv_cross_lib
+    equiv_deep
+    equiv_map_libs
+    func_expr
+    leakage_power_deep
+    multi_corner
+    multi_lib_equiv
+    opcond_scale
+    pgpin_voltage
+    power
+    properties
+    read_asap7
+    read_ihp
+    read_nangate
+    read_sky130
+    scan_signal_types
+    seq_scan_bus
+    sky130_corners
+    timing_models
+    timing_types_deep
+    wireload
+    write_roundtrip
+    writer
+    writer_roundtrip
+)
+
+add_subdirectory(cpp)

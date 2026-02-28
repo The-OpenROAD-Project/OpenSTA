@@ -53,6 +53,17 @@ RUN source /opt/rh/devtoolset-11/enable && \
     make -j`nproc` && \
     make install
 
+# Download and build GTest
+RUN wget https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz && \
+    tar -xvf v1.14.0.tar.gz && \
+    rm v1.14.0.tar.gz
+RUN source /opt/rh/devtoolset-11/enable && \
+    cd googletest-1.14.0 && \
+    mkdir build && cd build && \
+    cmake .. && \
+    make -j`nproc` && \
+    make install
+
 FROM base-dependencies AS builder
 
 COPY . /OpenSTA

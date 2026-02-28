@@ -1,0 +1,149 @@
+--- cell pattern matching ---
+INV_* matches: 6
+BUF_* matches: 6
+DFF* matches: 8
+NAND* matches: 9
+NOR* matches: 9
+AOI* matches: 15
+OAI* matches: 16
+all cells: 134
+regexp INV_X#: 6
+regexp BUF_X#: 6
+regexp DFF(R|S|RS)_X(1|2): 8
+nocase nand*: 0
+nocase buf_*: 0
+sky inv* matches: 30
+sky buf* matches: 46
+sky dfxtp* matches: 10
+sky sdf* matches: 19
+sky dlx* matches: 7
+sky dlclkp* matches: 6
+sky lsbuf* matches: 7
+sky all cells: 428
+--- port pattern matching ---
+DFF_X1 all ports: 8
+DFF_X1 Q* ports: 2
+DFFR_X1 all ports: 9
+DFFRS_X1 all ports: 10
+DFFRS_X1 S* ports: 1
+DFFRS_X1 R* ports: 1
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.03    0.08 v and1/ZN (AND2_X1)
+   0.00    0.08 v reg1/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
+--- instance pattern matching ---
+all cells: 3
+buf* cells: 1
+reg* cells: 1
+and* cells: 1
+Warning 349: network_cell_match_merge.tcl line 1, instance 'inv*' not found.
+inv* cells: 0
+Warning 349: network_cell_match_merge.tcl line 1, instance 'or*' not found.
+or* cells: 0
+Warning 349: network_cell_match_merge.tcl line 1, instance 'n*' not found.
+n* cells: 0
+--- net pattern matching ---
+all nets: 6
+n* nets: 2
+--- net merge operations ---
+merge_net_1 exists, merge_net_2 exists
+merge_buf_a -> BUF_X2: ref=BUF_X2
+merge_buf_b -> BUF_X4: ref=BUF_X4
+merge_buf_b -> INV_X1: ref=BUF_X4
+--- multi-cell connection patterns ---
+Net chain_net_1
+ Pin capacitance: 0.88-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.88-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ chain_buf_0/Z output (BUF_X1)
+
+Load pins
+ chain_buf_1/A input (BUF_X1) 0.88-0.97
+
+Net chain_net_2
+ Pin capacitance: 0.88-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.88-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ chain_buf_1/Z output (BUF_X1)
+
+Load pins
+ chain_buf_2/A input (BUF_X1) 0.88-0.97
+
+Net chain_net_3
+ Pin capacitance: 0.88-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.88-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ chain_buf_2/Z output (BUF_X1)
+
+Load pins
+ chain_buf_3/A input (BUF_X1) 0.88-0.97
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf1/Z (BUF_X1)
+   0.03    0.08 v and1/ZN (AND2_X1)
+   0.00    0.08 v reg1/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+

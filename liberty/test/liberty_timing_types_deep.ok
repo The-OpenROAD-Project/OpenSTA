@@ -1,0 +1,275 @@
+--- async reset DFF cells ---
+dfrtp_1 arc_sets = 8
+  sky130_fd_sc_hd__dfrtp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__dfrtp_1 CLK -> D role=setup
+  sky130_fd_sc_hd__dfrtp_1 CLK -> D role=hold
+  sky130_fd_sc_hd__dfrtp_1 CLK -> Q role=Reg Clk to Q
+  sky130_fd_sc_hd__dfrtp_1 RESET_B -> Q role=Reg Set/Clr
+  sky130_fd_sc_hd__dfrtp_1 CLK -> RESET_B role=recovery
+  sky130_fd_sc_hd__dfrtp_1 CLK -> RESET_B role=removal
+  sky130_fd_sc_hd__dfrtp_1 RESET_B -> RESET_B role=width
+dfstp_1 arc_sets = 8
+  sky130_fd_sc_hd__dfstp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__dfstp_1 CLK -> D role=setup
+  sky130_fd_sc_hd__dfstp_1 CLK -> D role=hold
+  sky130_fd_sc_hd__dfstp_1 CLK -> Q role=Reg Clk to Q
+  sky130_fd_sc_hd__dfstp_1 SET_B -> Q role=Reg Set/Clr
+  sky130_fd_sc_hd__dfstp_1 CLK -> SET_B role=recovery
+  sky130_fd_sc_hd__dfstp_1 CLK -> SET_B role=removal
+  sky130_fd_sc_hd__dfstp_1 SET_B -> SET_B role=width
+dfbbp_1 arc_sets = 19
+  sky130_fd_sc_hd__dfbbp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__dfbbp_1 CLK -> D role=setup
+  sky130_fd_sc_hd__dfbbp_1 CLK -> D role=hold
+  sky130_fd_sc_hd__dfbbp_1 CLK -> Q role=Reg Clk to Q
+  sky130_fd_sc_hd__dfbbp_1 RESET_B -> Q role=Reg Set/Clr
+  sky130_fd_sc_hd__dfbbp_1 SET_B -> Q role=Reg Set/Clr
+  sky130_fd_sc_hd__dfbbp_1 CLK -> Q_N role=Reg Clk to Q
+  sky130_fd_sc_hd__dfbbp_1 RESET_B -> Q_N role=Reg Set/Clr
+  sky130_fd_sc_hd__dfbbp_1 SET_B -> Q_N role=Reg Set/Clr
+  sky130_fd_sc_hd__dfbbp_1 CLK -> RESET_B role=recovery
+  sky130_fd_sc_hd__dfbbp_1 CLK -> RESET_B role=removal
+  sky130_fd_sc_hd__dfbbp_1 RESET_B -> RESET_B role=width
+  sky130_fd_sc_hd__dfbbp_1 SET_B -> RESET_B role=non-sequential setup
+  sky130_fd_sc_hd__dfbbp_1 SET_B -> RESET_B role=non-sequential hold
+  sky130_fd_sc_hd__dfbbp_1 CLK -> SET_B role=recovery
+  sky130_fd_sc_hd__dfbbp_1 CLK -> SET_B role=removal
+  sky130_fd_sc_hd__dfbbp_1 RESET_B -> SET_B role=non-sequential setup
+  sky130_fd_sc_hd__dfbbp_1 SET_B -> SET_B role=width
+  sky130_fd_sc_hd__dfbbp_1 RESET_B -> SET_B role=non-sequential hold
+sdfrtp_1 arc_sets = 12
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> D role=setup
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> D role=hold
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> Q role=Reg Clk to Q
+  sky130_fd_sc_hd__sdfrtp_1 RESET_B -> Q role=Reg Set/Clr
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> RESET_B role=recovery
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> RESET_B role=removal
+  sky130_fd_sc_hd__sdfrtp_1 RESET_B -> RESET_B role=width
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> SCD role=setup
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> SCD role=hold
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> SCE role=setup
+  sky130_fd_sc_hd__sdfrtp_1 CLK -> SCE role=hold
+sdfstp_1 arc_sets = 12
+  sky130_fd_sc_hd__sdfstp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__sdfstp_1 CLK -> D role=setup
+  sky130_fd_sc_hd__sdfstp_1 CLK -> D role=hold
+  sky130_fd_sc_hd__sdfstp_1 CLK -> Q role=Reg Clk to Q
+  sky130_fd_sc_hd__sdfstp_1 SET_B -> Q role=Reg Set/Clr
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SCD role=setup
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SCD role=hold
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SCE role=setup
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SCE role=hold
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SET_B role=recovery
+  sky130_fd_sc_hd__sdfstp_1 CLK -> SET_B role=removal
+  sky130_fd_sc_hd__sdfstp_1 SET_B -> SET_B role=width
+--- tristate cell timing arcs ---
+sky130_fd_sc_hd__ebufn_1 arc_sets = 3
+  sky130_fd_sc_hd__ebufn_1 A -> Z role=combinational
+  sky130_fd_sc_hd__ebufn_1 TE_B -> Z role=tristate enable
+  sky130_fd_sc_hd__ebufn_1 TE_B -> Z role=tristate disable
+sky130_fd_sc_hd__ebufn_2 arc_sets = 3
+  sky130_fd_sc_hd__ebufn_2 A -> Z role=combinational
+  sky130_fd_sc_hd__ebufn_2 TE_B -> Z role=tristate enable
+  sky130_fd_sc_hd__ebufn_2 TE_B -> Z role=tristate disable
+sky130_fd_sc_hd__ebufn_4 arc_sets = 3
+  sky130_fd_sc_hd__ebufn_4 A -> Z role=combinational
+  sky130_fd_sc_hd__ebufn_4 TE_B -> Z role=tristate enable
+  sky130_fd_sc_hd__ebufn_4 TE_B -> Z role=tristate disable
+sky130_fd_sc_hd__ebufn_8 arc_sets = 3
+  sky130_fd_sc_hd__ebufn_8 A -> Z role=combinational
+  sky130_fd_sc_hd__ebufn_8 TE_B -> Z role=tristate enable
+  sky130_fd_sc_hd__ebufn_8 TE_B -> Z role=tristate disable
+--- clock gate cell timing arcs ---
+sky130_fd_sc_hd__dlclkp_1 arc_sets = 4
+  sky130_fd_sc_hd__dlclkp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__dlclkp_1 CLK -> GATE role=setup
+  sky130_fd_sc_hd__dlclkp_1 CLK -> GATE role=hold
+  sky130_fd_sc_hd__dlclkp_1 CLK -> GCLK role=combinational
+sky130_fd_sc_hd__dlclkp_2 arc_sets = 4
+  sky130_fd_sc_hd__dlclkp_2 CLK -> CLK role=width
+  sky130_fd_sc_hd__dlclkp_2 CLK -> GATE role=setup
+  sky130_fd_sc_hd__dlclkp_2 CLK -> GATE role=hold
+  sky130_fd_sc_hd__dlclkp_2 CLK -> GCLK role=combinational
+sky130_fd_sc_hd__sdlclkp_1 arc_sets = 6
+  sky130_fd_sc_hd__sdlclkp_1 CLK -> CLK role=width
+  sky130_fd_sc_hd__sdlclkp_1 CLK -> GATE role=setup
+  sky130_fd_sc_hd__sdlclkp_1 CLK -> GATE role=hold
+  sky130_fd_sc_hd__sdlclkp_1 CLK -> GCLK role=combinational
+  sky130_fd_sc_hd__sdlclkp_1 CLK -> SCE role=setup
+  sky130_fd_sc_hd__sdlclkp_1 CLK -> SCE role=hold
+sky130_fd_sc_hd__sdlclkp_2 arc_sets = 6
+  sky130_fd_sc_hd__sdlclkp_2 CLK -> CLK role=width
+  sky130_fd_sc_hd__sdlclkp_2 CLK -> GATE role=setup
+  sky130_fd_sc_hd__sdlclkp_2 CLK -> GATE role=hold
+  sky130_fd_sc_hd__sdlclkp_2 CLK -> GCLK role=combinational
+  sky130_fd_sc_hd__sdlclkp_2 CLK -> SCE role=setup
+  sky130_fd_sc_hd__sdlclkp_2 CLK -> SCE role=hold
+--- latch cell timing arcs ---
+sky130_fd_sc_hd__dlxtp_1 arc_sets = 5
+  sky130_fd_sc_hd__dlxtp_1 GATE -> D role=setup
+  sky130_fd_sc_hd__dlxtp_1 GATE -> D role=hold
+  sky130_fd_sc_hd__dlxtp_1 GATE -> GATE role=width
+  sky130_fd_sc_hd__dlxtp_1 D -> Q role=Latch D to Q
+  sky130_fd_sc_hd__dlxtp_1 GATE -> Q role=Latch En to Q
+sky130_fd_sc_hd__dlxtn_1 arc_sets = 5
+  sky130_fd_sc_hd__dlxtn_1 GATE_N -> D role=setup
+  sky130_fd_sc_hd__dlxtn_1 GATE_N -> D role=hold
+  sky130_fd_sc_hd__dlxtn_1 GATE_N -> GATE_N role=width
+  sky130_fd_sc_hd__dlxtn_1 D -> Q role=Latch D to Q
+  sky130_fd_sc_hd__dlxtn_1 GATE_N -> Q role=Latch En to Q
+sky130_fd_sc_hd__dlxbn_1 arc_sets = 7
+  sky130_fd_sc_hd__dlxbn_1 GATE_N -> D role=setup
+  sky130_fd_sc_hd__dlxbn_1 GATE_N -> D role=hold
+  sky130_fd_sc_hd__dlxbn_1 GATE_N -> GATE_N role=width
+  sky130_fd_sc_hd__dlxbn_1 D -> Q role=Latch D to Q
+  sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q role=Latch En to Q
+  sky130_fd_sc_hd__dlxbn_1 D -> Q_N role=Latch D to Q
+  sky130_fd_sc_hd__dlxbn_1 GATE_N -> Q_N role=Latch En to Q
+sky130_fd_sc_hd__dlxbp_1 arc_sets = 7
+  sky130_fd_sc_hd__dlxbp_1 GATE -> D role=setup
+  sky130_fd_sc_hd__dlxbp_1 GATE -> D role=hold
+  sky130_fd_sc_hd__dlxbp_1 GATE -> GATE role=width
+  sky130_fd_sc_hd__dlxbp_1 D -> Q role=Latch D to Q
+  sky130_fd_sc_hd__dlxbp_1 GATE -> Q role=Latch En to Q
+  sky130_fd_sc_hd__dlxbp_1 D -> Q_N role=Latch D to Q
+  sky130_fd_sc_hd__dlxbp_1 GATE -> Q_N role=Latch En to Q
+DFFHQNx1 arc_sets = 5
+  DFFHQNx1_ASAP7_75t_R CLK -> QN role=Reg Clk to Q
+  DFFHQNx1_ASAP7_75t_R CLK -> CLK role=width
+  DFFHQNx1_ASAP7_75t_R CLK -> CLK role=width
+  DFFHQNx1_ASAP7_75t_R CLK -> D role=hold
+  DFFHQNx1_ASAP7_75t_R CLK -> D role=setup
+DLLx1 arc_sets = 6
+  DLLx1_ASAP7_75t_R CLK -> Q role=Latch En to Q
+  DLLx1_ASAP7_75t_R D -> Q role=Latch D to Q
+  DLLx1_ASAP7_75t_R CLK -> CLK role=width
+  DLLx1_ASAP7_75t_R CLK -> CLK role=width
+  DLLx1_ASAP7_75t_R CLK -> D role=hold
+  DLLx1_ASAP7_75t_R CLK -> D role=setup
+ICGx1 arc_sets = 13
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> GCLK role=combinational
+  ICGx1_ASAP7_75t_R CLK -> CLK role=width
+  ICGx1_ASAP7_75t_R CLK -> CLK role=width
+  ICGx1_ASAP7_75t_R CLK -> ENA role=hold
+  ICGx1_ASAP7_75t_R CLK -> ENA role=hold
+  ICGx1_ASAP7_75t_R CLK -> ENA role=setup
+  ICGx1_ASAP7_75t_R CLK -> ENA role=setup
+  ICGx1_ASAP7_75t_R CLK -> SE role=hold
+  ICGx1_ASAP7_75t_R CLK -> SE role=hold
+  ICGx1_ASAP7_75t_R CLK -> SE role=setup
+  ICGx1_ASAP7_75t_R CLK -> SE role=setup
+sg13g2_dlhq_1 arc_sets = 5
+  sg13g2_dlhq_1 D -> Q role=Latch D to Q
+  sg13g2_dlhq_1 GATE -> Q role=Latch En to Q
+  sg13g2_dlhq_1 GATE -> D role=hold
+  sg13g2_dlhq_1 GATE -> D role=setup
+  sg13g2_dlhq_1 GATE -> GATE role=width
+Warning 354: liberty_timing_types_deep.tcl line 1, cell 'sg13g2_dllq_1' not found.
+sg13g2_dfrbp_1 arc_sets = 10
+  sg13g2_dfrbp_1 CLK -> Q role=Reg Clk to Q
+  sg13g2_dfrbp_1 RESET_B -> Q role=Reg Set/Clr
+  sg13g2_dfrbp_1 CLK -> Q_N role=Reg Clk to Q
+  sg13g2_dfrbp_1 RESET_B -> Q_N role=Reg Set/Clr
+  sg13g2_dfrbp_1 CLK -> CLK role=width
+  sg13g2_dfrbp_1 CLK -> D role=hold
+  sg13g2_dfrbp_1 CLK -> D role=setup
+  sg13g2_dfrbp_1 CLK -> RESET_B role=recovery
+  sg13g2_dfrbp_1 CLK -> RESET_B role=removal
+  sg13g2_dfrbp_1 RESET_B -> RESET_B role=width
+sg13g2_dfrbp_2 arc_sets = 10
+  sg13g2_dfrbp_2 CLK -> Q role=Reg Clk to Q
+  sg13g2_dfrbp_2 RESET_B -> Q role=Reg Set/Clr
+  sg13g2_dfrbp_2 CLK -> Q_N role=Reg Clk to Q
+  sg13g2_dfrbp_2 RESET_B -> Q_N role=Reg Set/Clr
+  sg13g2_dfrbp_2 CLK -> CLK role=width
+  sg13g2_dfrbp_2 CLK -> D role=hold
+  sg13g2_dfrbp_2 CLK -> D role=setup
+  sg13g2_dfrbp_2 CLK -> RESET_B role=recovery
+  sg13g2_dfrbp_2 CLK -> RESET_B role=removal
+  sg13g2_dfrbp_2 RESET_B -> RESET_B role=width
+sg13g2_sdfbbp_1 arc_sets = 23
+  sg13g2_sdfbbp_1 CLK -> Q role=Reg Clk to Q
+  sg13g2_sdfbbp_1 CLK -> Q role=Reg Clk to Q
+  sg13g2_sdfbbp_1 RESET_B -> Q role=Reg Set/Clr
+  sg13g2_sdfbbp_1 SET_B -> Q role=Reg Set/Clr
+  sg13g2_sdfbbp_1 CLK -> Q_N role=Reg Clk to Q
+  sg13g2_sdfbbp_1 CLK -> Q_N role=Reg Clk to Q
+  sg13g2_sdfbbp_1 RESET_B -> Q_N role=Reg Set/Clr
+  sg13g2_sdfbbp_1 SET_B -> Q_N role=Reg Set/Clr
+  sg13g2_sdfbbp_1 CLK -> CLK role=width
+  sg13g2_sdfbbp_1 CLK -> D role=hold
+  sg13g2_sdfbbp_1 CLK -> D role=setup
+  sg13g2_sdfbbp_1 CLK -> RESET_B role=recovery
+  sg13g2_sdfbbp_1 CLK -> RESET_B role=removal
+  sg13g2_sdfbbp_1 RESET_B -> RESET_B role=width
+  sg13g2_sdfbbp_1 CLK -> SCD role=hold
+  sg13g2_sdfbbp_1 CLK -> SCD role=setup
+  sg13g2_sdfbbp_1 CLK -> SCE role=hold
+  sg13g2_sdfbbp_1 CLK -> SCE role=setup
+  sg13g2_sdfbbp_1 CLK -> SET_B role=recovery
+  sg13g2_sdfbbp_1 CLK -> SET_B role=removal
+  sg13g2_sdfbbp_1 RESET_B -> SET_B role=non-sequential hold
+  sg13g2_sdfbbp_1 RESET_B -> SET_B role=non-sequential setup
+  sg13g2_sdfbbp_1 SET_B -> SET_B role=width
+Warning 441: liberty_timing_types_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+Group                                  Slack
+--------------------------------------------
+clk1                                    2.05
+clk2                                    0.08
+clk1                                    6.92
+clk2                                    9.88
+
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.05    5.00    4.95 (MET)
+
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+inv1/ZN                                 0.20    0.02    0.18 (MET)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+nor1/ZN                                 0.03    0.00    0.03 (MET)
+
+Cell sky130_fd_sc_hd__dfrtp_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ RESET_B input 0.00-0.00
+Cell sky130_fd_sc_hd__dfrtp_1
+Library sky130_fd_sc_hd__ss_n40C_1v40
+File ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ RESET_B input 0.00-0.00

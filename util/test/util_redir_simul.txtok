@@ -1,0 +1,92 @@
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CK (DFF_X1)
+   0.08    0.08 v r2/Q (DFF_X1)
+   0.02    0.10 v u1/Z (BUF_X1)
+   0.03    0.13 v u2/ZN (AND2_X1)
+   0.00    0.13 v r3/D (DFF_X1)
+           0.13   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ r3/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+           9.83   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.00    0.00 v r1/D (DFF_X1)
+           0.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ r1/CK (DFF_X1)
+   0.05    0.05   library hold time
+           0.05   data required time
+---------------------------------------------------------
+           0.05   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+          -0.05   slack (VIOLATED)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+           0.00    0.00    0.00 ^ r2/CK (DFF_X1)
+   0.00    0.01    0.08    0.08 v r2/Q (DFF_X1)
+   0.00    0.00    0.02    0.10 v u1/Z (BUF_X1)
+   0.00    0.01    0.03    0.13 v u2/ZN (AND2_X1)
+           0.01    0.00    0.13 v r3/D (DFF_X1)
+                           0.13   data arrival time
+
+           0.00   10.00   10.00   clock clk (rise edge)
+                   0.00   10.00   clock network delay (ideal)
+                   0.00   10.00   clock reconvergence pessimism
+                          10.00 ^ r3/CK (DFF_X1)
+                  -0.04    9.96   library setup time
+                           9.96   data required time
+-----------------------------------------------------------------------
+                           9.96   data required time
+                          -0.13   data arrival time
+-----------------------------------------------------------------------
+                           9.83   slack (MET)
+
+
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1nW
+ distance 1um

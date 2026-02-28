@@ -1,0 +1,57 @@
+module dcalc_multidriver_test (clk,
+    in1,
+    in2,
+    in3,
+    in4,
+    sel,
+    out1,
+    out2,
+    out3);
+ input clk;
+ input in1;
+ input in2;
+ input in3;
+ input in4;
+ input sel;
+ output out1;
+ output out2;
+ output out3;
+
+ wire n1;
+ wire n2;
+ wire n3;
+ wire n4;
+ wire n5;
+ wire n6;
+ wire n7;
+ wire n8;
+
+ AND2_X1 and1 (.A1(n4),
+    .A2(in3),
+    .ZN(n5));
+ BUF_X1 buf1 (.A(in1),
+    .Z(n1));
+ BUF_X2 buf2 (.A(n2),
+    .Z(n3));
+ BUF_X4 buf3 (.A(in2),
+    .Z(n4));
+ BUF_X1 buf_out (.A(n6),
+    .Z(out3));
+ INV_X1 inv1 (.A(n1),
+    .ZN(n2));
+ NAND2_X1 nand1 (.A1(n6),
+    .A2(sel),
+    .ZN(n7));
+ NOR2_X1 nor1 (.A1(n6),
+    .A2(in4),
+    .ZN(n8));
+ OR2_X1 or1 (.A1(n3),
+    .A2(n5),
+    .ZN(n6));
+ DFF_X1 reg1 (.D(n7),
+    .CK(clk),
+    .Q(out1));
+ DFF_X1 reg2 (.D(n8),
+    .CK(clk),
+    .Q(out2));
+endmodule

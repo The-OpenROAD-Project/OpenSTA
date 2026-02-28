@@ -1,0 +1,85 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.0000 [get_ports {clk1}]
+create_clock -name clk2 -period 20.0000 [get_ports {clk2}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in2}]
+set_input_delay 2.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {in3}]
+set_output_delay 3.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {out1}]
+set_output_delay 3.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {out2}]
+group_path -default\
+    -from [get_ports {in1}]\
+    -to [get_ports {out2}]
+group_path -name gp_pin\
+    -from [get_ports {in3}]\
+    -through [get_pins {or1/ZN}]\
+    -to [get_ports {out2}]
+set_multicycle_path -hold\
+    -from [get_ports {in1}]\
+    -through [get_pins {buf1/Z}]\
+    -to [get_ports {out1}] 1
+set_multicycle_path -setup\
+    -from [get_ports {in1}]\
+    -through [get_pins {buf1/Z}]\
+    -to [get_ports {out1}] 2
+set_max_delay -ignore_clock_latency\
+    -from [get_ports {in3}]\
+    -to [get_ports {out2}] 9.0000
+set_max_delay\
+    -from [get_ports {in3}]\
+    -through [get_pins {or1/ZN}]\
+    -to [get_ports {out2}] 8.0000
+set_false_path\
+    -from [get_cells {reg1}]\
+    -to [get_ports {out2}]
+set_false_path\
+    -from [get_clocks {clk1}]\
+    -to [get_ports {out1}]
+set_false_path\
+    -from [get_ports {in1}]\
+    -to [get_cells {reg2}]
+set_false_path\
+    -from [get_ports {in1}]\
+    -through [get_pins {buf1/Z}]\
+    -through [get_nets {n3}]\
+    -to [get_ports {out1}]
+set_false_path\
+    -from [get_ports {in2}]\
+    -through [get_cells {inv1}]\
+    -through [get_pins {nand1/ZN}]\
+    -to [get_ports {out1}]
+set_false_path\
+    -from [get_ports {in2}]\
+    -through [get_pins {inv1/ZN}]\
+    -through [get_nets {n3}]\
+    -through [get_cells {nand1}]\
+    -to [get_ports {out1}]
+set_false_path\
+    -from [get_ports {in3}]\
+    -to [get_ports {out1}]
+set_false_path\
+    -from [get_ports {in3}]\
+    -rise_through [get_cells {or1}]\
+    -to [get_ports {out2}]
+set_false_path\
+    -from [list [get_ports {in1}]\
+           [get_ports {in2}]]\
+    -to [list [get_ports {out1}]\
+           [get_ports {out2}]]
+set_false_path\
+    -rise_through [get_nets {n4}]\
+    -to [get_ports {out2}]
+set_false_path\
+    -fall_through [get_nets {n5}]\
+    -to [get_ports {out1}]
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################

@@ -1,0 +1,39 @@
+INV equiv count: 6
+BUF equiv count: 9
+NAND2 equiv count: 3
+NOR2 equiv count: 3
+AND2 equiv count: 3
+OR2 equiv count: 3
+DFF equiv count: 2
+DFFR equiv count: 2
+DFFS equiv count: 2
+AOI21 equiv count: 3
+OAI21 equiv count: 3
+MUX2 equiv count: 2
+SDFF equiv count: 2
+INV_X1 equiv INV_X2: 1
+BUF_X1 equiv BUF_X2: 1
+INV_X1 equiv BUF_X1: 0
+NAND2 equiv NOR2: 0
+DFF_X1 equiv DFF_X2: 1
+DFF_X1 equiv DFFR_X1: 0
+NAND2 equiv NAND3: 0
+INV_X4 equiv INV_X8: 1
+equiv_cell_ports INV_X1 INV_X2: 1
+equiv_cell_ports INV_X1 BUF_X1: 0
+equiv_cell_ports NAND2_X1 NAND2_X2: 1
+equiv_cell_ports NAND2_X1 NAND3_X1: 0
+equiv_cell_timing_arcs INV_X1 INV_X2: 1
+equiv_cell_timing_arcs BUF_X1 BUF_X2: 1
+equiv_cell_timing_arcs INV_X1 BUF_X1: 0
+library buffers count: 9
+find_liberty: NangateOpenCellLibrary
+supply VDD exists: 1
+supply VSS exists: 1
+supply NONEXISTENT exists: 0
+INV_X1/A direction: input
+INV_X1/ZN direction: output
+DFF_X1/CK direction: input
+DFF_X1/Q direction: output
+fast INV equiv count: 6
+INV_X1 (typ) equiv INV_X1 (fast): 1

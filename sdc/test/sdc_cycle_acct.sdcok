@@ -1,0 +1,26 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk_half -period 10.0000 -waveform {0.0000 3.0000} [get_ports {clk1}]
+create_clock -name clk_norm -period 10.0000 [get_ports {clk2}]
+set_input_delay 1.0000 -clock [get_clocks {clk_half}] -add_delay [get_ports {in1}]
+set_input_delay 1.0000 -clock [get_clocks {clk_half}] -add_delay [get_ports {in2}]
+set_input_delay 1.0000 -clock [get_clocks {clk_norm}] -add_delay [get_ports {in3}]
+set_output_delay 2.0000 -clock [get_clocks {clk_half}] -add_delay [get_ports {out1}]
+set_output_delay 2.0000 -clock [get_clocks {clk_norm}] -add_delay [get_ports {out2}]
+set_multicycle_path -hold\
+    -from [get_clocks {clk_half}]\
+    -to [get_clocks {clk_norm}] 1
+set_multicycle_path -setup\
+    -from [get_clocks {clk_half}]\
+    -to [get_clocks {clk_norm}] 2
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################

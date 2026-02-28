@@ -1,0 +1,31 @@
+sta_module_tests("network"
+  TESTS
+    advanced
+    bus_parse
+    cell_match_merge
+    connect_liberty
+    connected_pins
+    deep_modify
+    escaped_names
+    fanin_fanout
+    find_cells_regex
+    gcd_traversal
+    hier_pin_query
+    hierarchy
+    leaf_iter
+    merge_bus_hier
+    modify
+    multi_lib
+    namespace_escape
+    net_cap_query
+    pattern_match
+    properties
+    query
+    sdc_adapt_deep
+    sdc_pattern_deep
+    sdc_query
+    sorting
+    traversal
+)
+
+add_subdirectory(cpp)

@@ -1,0 +1,342 @@
+--- net properties ---
+  net clk1: is_power=0 is_ground=0
+  net clk2: is_power=0 is_ground=0
+  net in1: is_power=0 is_ground=0
+  net in2: is_power=0 is_ground=0
+  net in3: is_power=0 is_ground=0
+  net n1: is_power=0 is_ground=0
+  net n2: is_power=0 is_ground=0
+  net n3: is_power=0 is_ground=0
+  net n4: is_power=0 is_ground=0
+  net n5: is_power=0 is_ground=0
+  net n6: is_power=0 is_ground=0
+  net n7: is_power=0 is_ground=0
+  net out1: is_power=0 is_ground=0
+  net out2: is_power=0 is_ground=0
+--- port properties ---
+  port clk1: direction=input is_clock=1
+  port clk2: direction=input is_clock=1
+  port in1: direction=input is_clock=0
+  port in2: direction=input is_clock=0
+  port in3: direction=input is_clock=0
+  port out1: direction=output is_clock=0
+  port out2: direction=output is_clock=0
+--- instance properties ---
+  inst and1: ref=AND2_X1 lib=NangateOpenCellLibrary
+  inst buf1: ref=BUF_X1 lib=NangateOpenCellLibrary
+  inst inv1: ref=INV_X1 lib=NangateOpenCellLibrary
+  inst nand1: ref=NAND2_X1 lib=NangateOpenCellLibrary
+  inst nor1: ref=NOR2_X1 lib=NangateOpenCellLibrary
+  inst or1: ref=OR2_X1 lib=NangateOpenCellLibrary
+  inst reg1: ref=DFF_X1 lib=NangateOpenCellLibrary
+  inst reg2: ref=DFF_X1 lib=NangateOpenCellLibrary
+  inst reg3: ref=DFF_X1 lib=NangateOpenCellLibrary
+--- pin properties ---
+  pin buf1/A: direction=input is_clock=0
+  pin buf1/Z: direction=output is_clock=0
+--- disable timing arc ---
+Startpoint: in2 (input port clocked by clk1)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   2.00    2.00 v input external delay
+   0.00    2.00 v in2 (in)
+   0.01    2.01 ^ inv1/ZN (INV_X1)
+   0.03    2.04 ^ and1/ZN (AND2_X1)
+   0.01    2.05 v nand1/ZN (NAND2_X1)
+   0.00    2.05 v reg1/D (DFF_X1)
+           2.05   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -2.05   data arrival time
+---------------------------------------------------------
+           7.91   slack (MET)
+
+
+--- re-enable timing arc ---
+Startpoint: in1 (input port clocked by clk1)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   2.00    2.00 v input external delay
+   0.00    2.00 v in1 (in)
+   0.02    2.02 v buf1/Z (BUF_X1)
+   0.03    2.05 v and1/ZN (AND2_X1)
+   0.02    2.07 ^ nor1/ZN (NOR2_X1)
+   0.00    2.07 ^ reg2/D (DFF_X1)
+           2.07   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg2/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -2.07   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+--- constraint setup ---
+--- write_sdc before removal ---
+No differences found.
+--- remove false_path ---
+--- remove multicycle ---
+--- remove max/min delay ---
+--- remove clock_groups ---
+--- remove clock_uncertainty ---
+--- write_sdc after removal ---
+No differences found.
+--- filter queries ---
+BUF_X1 cells: 1
+DFF_X1 cells: 3
+input ports: 5
+output ports: 2
+--- report_net_load ---
+Net clk1
+ Pin capacitance: 1.71-1.90
+ Wire capacitance: 0.00
+ Total capacitance: 1.71-1.90
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ clk1 input port
+
+Load pins
+ reg1/CK input (DFF_X1) 0.86-0.95
+ reg2/CK input (DFF_X1) 0.86-0.95
+
+Net clk2
+ Pin capacitance: 0.86-0.95
+ Wire capacitance: 0.00
+ Total capacitance: 0.86-0.95
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ clk2 input port
+
+Load pins
+ reg3/CK input (DFF_X1) 0.86-0.95
+
+Net in1
+ Pin capacitance: 0.88-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.88-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ in1 input port
+
+Load pins
+ buf1/A input (BUF_X1) 0.88-0.97
+
+Net in2
+ Pin capacitance: 1.55-1.70
+ Wire capacitance: 0.00
+ Total capacitance: 1.55-1.70
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ in2 input port
+
+Load pins
+ inv1/A input (INV_X1) 1.55-1.70
+
+Net in3
+ Pin capacitance: 0.90-0.94
+ Wire capacitance: 0.00
+ Total capacitance: 0.90-0.94
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ in3 input port
+
+Load pins
+ or1/A2 input (OR2_X1) 0.90-0.94
+
+Net n1
+ Pin capacitance: 1.67-1.86
+ Wire capacitance: 0.00
+ Total capacitance: 1.67-1.86
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ and1/A1 input (AND2_X1) 0.87-0.92
+ or1/A1 input (OR2_X1) 0.79-0.95
+
+Net n2
+ Pin capacitance: 0.89-0.97
+ Wire capacitance: 0.00
+ Total capacitance: 0.89-0.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ inv1/ZN output (INV_X1)
+
+Load pins
+ and1/A2 input (AND2_X1) 0.89-0.97
+
+Net n3
+ Pin capacitance: 2.94-3.31
+ Wire capacitance: 0.00
+ Total capacitance: 2.94-3.31
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ and1/ZN output (AND2_X1)
+
+Load pins
+ nand1/A1 input (NAND2_X1) 1.53-1.60
+ nor1/A1 input (NOR2_X1) 1.41-1.71
+
+Net n4
+ Pin capacitance: 3.07-3.32
+ Wire capacitance: 0.00
+ Total capacitance: 3.07-3.32
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ or1/ZN output (OR2_X1)
+
+Load pins
+ nand1/A2 input (NAND2_X1) 1.50-1.66
+ nor1/A2 input (NOR2_X1) 1.56-1.65
+
+Net n5
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ nand1/ZN output (NAND2_X1)
+
+Load pins
+ reg1/D input (DFF_X1) 1.06-1.14
+
+Net n6
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ nor1/ZN output (NOR2_X1)
+
+Load pins
+ reg2/D input (DFF_X1) 1.06-1.14
+
+Net n7
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ reg1/Q output (DFF_X1)
+
+Load pins
+ reg3/D input (DFF_X1) 1.06-1.14
+
+Net out1
+ Pin capacitance: 0.00
+ Wire capacitance: 0.00
+ Total capacitance: 0.00
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ reg2/Q output (DFF_X1)
+
+Load pins
+ out1 output port
+
+Net out2
+ Pin capacitance: 0.00
+ Wire capacitance: 0.00
+ Total capacitance: 0.00
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ reg3/Q output (DFF_X1)
+
+Load pins
+ out2 output port
+
+--- delete clocks and rebuild ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk_new)
+Endpoint: out1 (output port clocked by clk_new)
+Path Group: clk_new
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk_new (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.08    0.08 ^ reg2/Q (DFF_X1)
+   0.00    0.08 ^ out1 (out)
+           0.08   data arrival time
+
+   8.00    8.00   clock clk_new (rise edge)
+   0.00    8.00   clock network delay (ideal)
+   0.00    8.00   clock reconvergence pessimism
+  -2.00    6.00   output external delay
+           6.00   data required time
+---------------------------------------------------------
+           6.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           5.92   slack (MET)
+
+
+No differences found.

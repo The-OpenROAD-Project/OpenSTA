@@ -1,0 +1,349 @@
+--- Test 1: supply0/supply1/tri read ---
+cells: 12
+nets: 25
+ports: 12
+clk dir=input
+in1 dir=input
+in2 dir=input
+in3 dir=input
+en dir=input
+out1 dir=tristate
+out2 dir=output
+out3 dir=output
+outbus* ports: 4
+outbus[0] dir=output
+outbus[1] dir=output
+outbus[2] dir=output
+outbus[3] dir=output
+--- Test 2: timing with supply/tri ---
+Startpoint: in3 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in3 (in)
+   0.00    0.00 v reg3/D (DFF_X1)
+           0.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg3/CK (DFF_X1)
+  -3.03    6.97   library setup time
+           6.97   data required time
+---------------------------------------------------------
+           6.97   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+           6.97   slack (MET)
+
+
+Startpoint: in3 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in3 (in)
+   0.00    0.00 v reg3/D (DFF_X1)
+           0.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg3/CK (DFF_X1)
+   9.01    9.01   library hold time
+           9.01   data required time
+---------------------------------------------------------
+           9.01   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+          -9.01   slack (VIOLATED)
+
+
+No paths found.
+Startpoint: in3 (input port clocked by clk)
+Endpoint: out3 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in3 (in)
+   1.67    1.67 ^ inv1/ZN (INV_X1)
+  -0.02    1.66 ^ or1/ZN (OR2_X1)
+   0.03    1.69 ^ buf3/Z (BUF_X1)
+   0.00    1.69 ^ out3 (out)
+           1.69   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -1.69   data arrival time
+---------------------------------------------------------
+           8.31   slack (MET)
+
+
+No paths found.
+Warning 168: verilog_supply_tristate.tcl line 1, unknown field nets.
+Startpoint: in3 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout     Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------------
+                  0.00    0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock network delay (ideal)
+                          0.00    0.00 v input external delay
+     2    2.61   10.00    0.00    0.00 v in3 (in)
+                 10.00    0.00    0.00 v reg3/D (DFF_X1)
+                                  0.00   data arrival time
+
+                  0.00   10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (ideal)
+                          0.00   10.00   clock reconvergence pessimism
+                                 10.00 ^ reg3/CK (DFF_X1)
+                         -3.03    6.97   library setup time
+                                  6.97   data required time
+-----------------------------------------------------------------------------
+                                  6.97   data required time
+                                 -0.00   data arrival time
+-----------------------------------------------------------------------------
+                                  6.97   slack (MET)
+
+
+--- Test 3: report_net ---
+Net n1
+ Pin capacitance: 1.94-2.06
+ Wire capacitance: 0.00
+ Total capacitance: 1.94-2.06
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ and1/A1 input (AND2_X1) 0.87-0.92
+ reg4/D input (DFF_X1) 1.06-1.14
+
+report_net n1: done
+Net n2
+ Pin capacitance: 1.96-2.11
+ Wire capacitance: 0.00
+ Total capacitance: 1.96-2.11
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ buf2/Z output (BUF_X1)
+
+Load pins
+ and1/A2 input (AND2_X1) 0.89-0.97
+ reg5/D input (DFF_X1) 1.06-1.14
+
+report_net n2: done
+Net n3
+ Pin capacitance: 1.85-2.09
+ Wire capacitance: 0.00
+ Total capacitance: 1.85-2.09
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ inv1/ZN output (INV_X1)
+
+Load pins
+ or1/A1 input (OR2_X1) 0.79-0.95
+ reg6/D input (DFF_X1) 1.06-1.14
+
+report_net n3: done
+Net n4
+ Pin capacitance: 0.90-0.94
+ Wire capacitance: 0.00
+ Total capacitance: 0.90-0.94
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and1/ZN output (AND2_X1)
+
+Load pins
+ or1/A2 input (OR2_X1) 0.90-0.94
+
+report_net n4: done
+Net n5
+ Pin capacitance: 1.94-2.11
+ Wire capacitance: 0.00
+ Total capacitance: 1.94-2.11
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ or1/ZN output (OR2_X1)
+
+Load pins
+ buf3/A input (BUF_X1) 0.88-0.97
+ reg1/D input (DFF_X1) 1.06-1.14
+
+report_net n5: done
+Net n6
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ buf3/Z output (BUF_X1)
+
+Load pins
+ out3 output port
+ reg2/D input (DFF_X1) 1.06-1.14
+
+report_net n6: done
+Instance buf1
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input in1
+ Output pins:
+  Z output n1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf2
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input in2
+ Output pins:
+  Z output n2
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance inv1
+ Cell: INV_X1
+ Library: NangateOpenCellLibrary
+ Path cells: INV_X1
+ Input pins:
+  A input in3
+ Output pins:
+  ZN output n3
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance and1
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input n1
+  A2 input n2
+ Output pins:
+  ZN output n4
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance or1
+ Cell: OR2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: OR2_X1
+ Input pins:
+  A1 input n3
+  A2 input n4
+ Output pins:
+  ZN output n5
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf3
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input n5
+ Output pins:
+  Z output n6
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n5
+  CK input clk
+ Output pins:
+  Q output out1
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg2
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n6
+  CK input clk
+ Output pins:
+  Q output out2
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg3
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input in3
+  CK input clk
+ Output pins:
+  Q output outbus[0]
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+--- Test 4: write_verilog ---
+--- Test 5: re-read verilog ---
+re-read cells: 12
+re-read nets: 25
+--- Test 6: fanin/fanout ---
+fanin to out1: 3
+fanout from in1: 13
+fanin cells to out1: 2
+fanout cells from in1: 8

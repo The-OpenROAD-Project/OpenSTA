@@ -1,0 +1,75 @@
+--- processor_count ---
+--- memory_usage ---
+--- elapsed_run_time ---
+--- user_run_time ---
+--- cputime ---
+--- redirect to file ---
+--- redirect append to file ---
+--- log_begin with content ---
+ time 1s
+ capacitance 1F
+ resistance 1ohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+ time 1ps
+ capacitance 1fF
+ resistance 1ohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+ time 1ns
+ capacitance 1pF
+ resistance 1ohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+--- file path sanity ---
+--- with_output_to_variable multiple calls ---
+captured v1 length: 91
+captured v2 length: 12
+captured v3 length: 97
+--- redirect_string_begin/end ---
+redirect string captured: 91 chars
+--- set_cmd_units power ---
+ time 1ns
+ capacitance 1pF
+ resistance 1ohm
+ voltage 1v
+ current 1A
+ power 1W
+ distance 1m
+--- set_cmd_units all options ---
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1mA
+ power 1W
+ distance 1um
+--- set_debug commands ---
+--- suppress/unsuppress variety ---
+--- thread_count ---
+thread_count: 1
+--- fuzzy_equal ---
+fuzzy_equal(1.0, 1.0) = 1
+fuzzy_equal(1.0, 2.0) = 0
+--- is_object ---
+is_object(not_an_object) = 0
+--- format_time ---
+format_time: 1.000
+--- format_capacitance ---
+format_capacitance: 1.000
+--- format_resistance ---
+format_resistance: 1.000
+--- format_voltage ---
+format_voltage: 1.100
+--- format_current ---
+format_current: 1.000
+--- format_power ---
+format_power: 0.001
+--- format_distance ---
+format_distance: 1.000

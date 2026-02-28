@@ -1,0 +1,984 @@
+--- report_check_types (all defaults) ---
+Group                                  Slack
+--------------------------------------------
+asynchronous                            0.32
+gated clock                            -4.50
+clk                                     0.08
+asynchronous                            9.55
+gated clock                             9.50
+clk                                     7.88
+
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+buf2/A                                  0.00    0.01   -0.01 (VIOLATED)
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+rst                                       1      2        (VIOLATED)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+rst                                     0.00    3.56   -3.56 (VIOLATED)
+
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.06    5.00    4.94 (MET)
+
+--- report_check_types -verbose ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ en (in)
+   0.00    0.50 ^ clk_gate/A2 (AND2_X1)
+           0.50   data arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 v clk_gate/A1 (AND2_X1)
+   0.00    5.00   clock gating hold time
+           5.00   data required time
+---------------------------------------------------------
+           5.00   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+          -4.50   slack (VIOLATED)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ en (in)
+   0.00    0.50 ^ clk_gate/A2 (AND2_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ clk_gate/A1 (AND2_X1)
+   0.00   10.00   clock gating setup time
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.50   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+max slew
+
+Pin buf2/A ^
+max slew    0.00
+slew        0.01
+----------------
+Slack      -0.01 (VIOLATED)
+
+max fanout
+
+Pin rst  
+max fanout      1
+fanout          2
+-----------------
+Slack             (VIOLATED)
+
+max capacitance
+
+Pin rst ^
+max capacitance    0.00
+capacitance        3.56
+-----------------------
+Slack             -3.56 (VIOLATED)
+
+Pin: reg1/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.02    0.02   clock network delay (ideal)
+   0.00    0.02   reg1/CK
+           0.02   open edge arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.02    5.02   clock network delay (ideal)
+   0.00    5.02   reg1/CK
+   0.00    5.02   clock reconvergence pessimism
+           5.02   close edge arrival time
+---------------------------------------------------------
+           0.06   required pulse width (high)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.94   slack (MET)
+
+
+--- report_check_types -violators ---
+Group                                  Slack
+--------------------------------------------
+gated clock                            -4.50
+
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+buf2/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg1/Q                                  0.00    0.01   -0.01 (VIOLATED)
+reg2/D                                  0.00    0.01   -0.01 (VIOLATED)
+buf4/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg1/QN                                 0.00    0.01   -0.01 (VIOLATED)
+reg2/QN                                 0.00    0.01   -0.01 (VIOLATED)
+buf3/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg2/Q                                  0.00    0.01   -0.01 (VIOLATED)
+buf1/Z                                  0.00    0.01   -0.01 (VIOLATED)
+inv1/A                                  0.00    0.01   -0.01 (VIOLATED)
+and1/ZN                                 0.00    0.01   -0.01 (VIOLATED)
+buf1/A                                  0.00    0.01   -0.01 (VIOLATED)
+inv1/ZN                                 0.00    0.01   -0.00 (VIOLATED)
+reg1/D                                  0.00    0.01   -0.00 (VIOLATED)
+out3                                    0.00    0.00   -0.00 (VIOLATED)
+buf4/Z                                  0.00    0.00   -0.00 (VIOLATED)
+out1                                    0.00    0.00   -0.00 (VIOLATED)
+buf2/Z                                  0.00    0.00   -0.00 (VIOLATED)
+out2                                    0.00    0.00   -0.00 (VIOLATED)
+buf3/Z                                  0.00    0.00   -0.00 (VIOLATED)
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+rst                                       1      2        (VIOLATED)
+reg1/Q                                    1      2        (VIOLATED)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+rst                                     0.00    3.56   -3.56 (VIOLATED)
+
+reg1/Q                                  0.00    2.10   -2.10 (VIOLATED)
+
+buf1/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
+inv1/ZN                                 0.00    1.13   -1.13 (VIOLATED)
+
+--- report_check_types -max_delay ---
+Group                                  Slack
+--------------------------------------------
+clk                                     7.88
+
+--- report_check_types -min_delay ---
+Group                                  Slack
+--------------------------------------------
+clk                                     0.08
+
+--- report_check_types -max_delay -verbose ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_check_types -min_delay -verbose ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+--- report_check_types -max_delay -violators ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_check_types -min_delay -violators ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_check_types -max_delay -min_delay ---
+Group                                  Slack
+--------------------------------------------
+clk                                     0.08
+clk                                     7.88
+
+--- report_check_types -max_delay -min_delay -verbose ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.08    0.08 v reg1/Q (DFFR_X1)
+   0.00    0.08 v reg2/D (DFFR_X1)
+           0.08   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFFR_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           0.08   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFFR_X1)
+   0.10    0.10 ^ reg1/Q (DFFR_X1)
+   0.02    0.12 ^ buf2/Z (BUF_X1)
+   0.00    0.12 ^ out1 (out)
+           0.12   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.12   data arrival time
+---------------------------------------------------------
+           7.88   slack (MET)
+
+
+--- report_check_types -max_delay -min_delay -violators ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_check_types -recovery ---
+Group                                  Slack
+--------------------------------------------
+asynchronous                            9.55
+
+--- report_check_types -removal ---
+Group                                  Slack
+--------------------------------------------
+asynchronous                            0.32
+
+--- report_check_types -recovery -verbose ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+--- report_check_types -removal -verbose ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+--- report_check_types -recovery -violators ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_check_types -removal -violators ---
+Group                                  Slack
+--------------------------------------------
+No paths found.
+
+--- report_check_types -recovery -removal ---
+Group                                  Slack
+--------------------------------------------
+asynchronous                            0.32
+asynchronous                            9.55
+
+--- report_check_types -recovery -removal -verbose ---
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (removal check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFFR_X1)
+   0.18    0.18   library removal time
+           0.18   data required time
+---------------------------------------------------------
+           0.18   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           0.32   slack (MET)
+
+
+Startpoint: rst (input port clocked by clk)
+Endpoint: reg1 (recovery check against rising-edge clock clk)
+Path Group: asynchronous
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ rst (in)
+   0.00    0.50 ^ reg1/RN (DFFR_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFFR_X1)
+   0.05   10.05   library recovery time
+          10.05   data required time
+---------------------------------------------------------
+          10.05   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.55   slack (MET)
+
+
+--- report_check_types -clock_gating_setup ---
+Group                                  Slack
+--------------------------------------------
+gated clock                             9.50
+
+--- report_check_types -clock_gating_hold ---
+Group                                  Slack
+--------------------------------------------
+gated clock                            -4.50
+
+--- report_check_types -clock_gating_setup -verbose ---
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ en (in)
+   0.00    0.50 ^ clk_gate/A2 (AND2_X1)
+           0.50   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ clk_gate/A1 (AND2_X1)
+   0.00   10.00   clock gating setup time
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+           9.50   slack (MET)
+
+
+--- report_check_types -clock_gating_hold -verbose ---
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.50    0.50 ^ input external delay
+   0.00    0.50 ^ en (in)
+   0.00    0.50 ^ clk_gate/A2 (AND2_X1)
+           0.50   data arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 v clk_gate/A1 (AND2_X1)
+   0.00    5.00   clock gating hold time
+           5.00   data required time
+---------------------------------------------------------
+           5.00   data required time
+          -0.50   data arrival time
+---------------------------------------------------------
+          -4.50   slack (VIOLATED)
+
+
+--- report_check_types -clock_gating_setup -clock_gating_hold ---
+Group                                  Slack
+--------------------------------------------
+gated clock                            -4.50
+gated clock                             9.50
+
+--- report_check_types -max_slew ---
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+buf2/A                                  0.00    0.01   -0.01 (VIOLATED)
+
+--- report_check_types -max_slew -verbose ---
+max slew
+
+Pin buf2/A ^
+max slew    0.00
+slew        0.01
+----------------
+Slack      -0.01 (VIOLATED)
+
+--- report_check_types -max_slew -violators ---
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+buf2/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg1/Q                                  0.00    0.01   -0.01 (VIOLATED)
+reg2/D                                  0.00    0.01   -0.01 (VIOLATED)
+buf4/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg1/QN                                 0.00    0.01   -0.01 (VIOLATED)
+reg2/QN                                 0.00    0.01   -0.01 (VIOLATED)
+buf3/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg2/Q                                  0.00    0.01   -0.01 (VIOLATED)
+buf1/Z                                  0.00    0.01   -0.01 (VIOLATED)
+inv1/A                                  0.00    0.01   -0.01 (VIOLATED)
+and1/ZN                                 0.00    0.01   -0.01 (VIOLATED)
+buf1/A                                  0.00    0.01   -0.01 (VIOLATED)
+inv1/ZN                                 0.00    0.01   -0.00 (VIOLATED)
+reg1/D                                  0.00    0.01   -0.00 (VIOLATED)
+out3                                    0.00    0.00   -0.00 (VIOLATED)
+buf4/Z                                  0.00    0.00   -0.00 (VIOLATED)
+out1                                    0.00    0.00   -0.00 (VIOLATED)
+buf2/Z                                  0.00    0.00   -0.00 (VIOLATED)
+out2                                    0.00    0.00   -0.00 (VIOLATED)
+buf3/Z                                  0.00    0.00   -0.00 (VIOLATED)
+
+--- report_check_types -min_slew ---
+--- report_check_types -min_slew -verbose ---
+--- report_check_types -max_capacitance ---
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+rst                                     0.00    3.56   -3.56 (VIOLATED)
+
+--- report_check_types -max_capacitance -verbose ---
+max capacitance
+
+Pin rst ^
+max capacitance    0.00
+capacitance        3.56
+-----------------------
+Slack             -3.56 (VIOLATED)
+
+--- report_check_types -max_capacitance -violators ---
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+rst                                     0.00    3.56   -3.56 (VIOLATED)
+
+reg1/Q                                  0.00    2.10   -2.10 (VIOLATED)
+
+buf1/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
+inv1/ZN                                 0.00    1.13   -1.13 (VIOLATED)
+
+--- report_check_types -min_capacitance ---
+--- report_check_types -min_capacitance -verbose ---
+--- report_check_types -max_fanout ---
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+rst                                       1      2        (VIOLATED)
+
+--- report_check_types -max_fanout -verbose ---
+max fanout
+
+Pin rst  
+max fanout      1
+fanout          2
+-----------------
+Slack             (VIOLATED)
+
+--- report_check_types -max_fanout -violators ---
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+rst                                       1      2        (VIOLATED)
+reg1/Q                                    1      2        (VIOLATED)
+
+--- report_check_types -min_fanout ---
+--- report_check_types -min_fanout -verbose ---
+--- report_check_types -min_pulse_width ---
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.06    5.00    4.94 (MET)
+
+--- report_check_types -min_pulse_width -verbose ---
+Pin: reg1/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.02    0.02   clock network delay (ideal)
+   0.00    0.02   reg1/CK
+           0.02   open edge arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.02    5.02   clock network delay (ideal)
+   0.00    5.02   reg1/CK
+   0.00    5.02   clock reconvergence pessimism
+           5.02   close edge arrival time
+---------------------------------------------------------
+           0.06   required pulse width (high)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.94   slack (MET)
+
+
+--- report_check_types -min_pulse_width -violators ---
+--- report_check_types -min_period ---
+--- report_check_types -min_period -verbose ---
+--- report_check_types -min_period -violators ---
+--- report_check_types -max_skew ---
+--- report_check_types -max_skew -verbose ---
+--- report_check_types -max_skew -violators ---
+--- report_check_types -max_slew -verbose -no_line_splits ---
+max slew
+
+Pin buf2/A ^
+max slew    0.00
+slew        0.01
+----------------
+Slack      -0.01 (VIOLATED)
+
+--- report_worst_slack ---
+worst slack max 7.88
+worst slack min -4.50
+worst slack max 7.881455
+worst slack min -4.500000
+--- report_tns ---
+tns max 0.00
+tns min -4.50
+tns max 0.000000
+tns min -4.500000
+--- report_wns ---
+wns max 0.00
+wns min -4.50
+wns max 0.000000
+wns min -4.500000
+--- worst_slack direct ---
+worst_slack max: 7.881454822969938
+worst_slack min: -4.500000055511153
+--- total_negative_slack direct ---
+tns max: 0.0
+tns min: -4.500000055511153
+--- worst_negative_slack ---
+worst_negative_slack max: 0.0
+worst_negative_slack min: -4.500000055511153
+--- endpoint_violation_count ---
+max violations: 0
+min violations: 1
+--- report_min_pulse_width_checks ---
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.06    5.00    4.94 (MET)
+
+--- report_min_pulse_width_checks -verbose ---
+Pin: reg1/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.02    0.02   clock network delay (ideal)
+   0.00    0.02   reg1/CK
+           0.02   open edge arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.02    5.02   clock network delay (ideal)
+   0.00    5.02   reg1/CK
+   0.00    5.02   clock reconvergence pessimism
+           5.02   close edge arrival time
+---------------------------------------------------------
+           0.06   required pulse width (high)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.94   slack (MET)
+
+
+--- report_clock_min_period ---
+clk period_min = 0.13 fmax = 7459.11
+--- report_clock_min_period -include_port_paths ---
+clk period_min = 2.12 fmax = 472.02
+--- report_clock_skew ---
+Clock clk
+   0.02 source latency reg1/CK ^
+   0.00 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+   0.02 setup skew
+
+Clock clk
+   0.02 source latency reg1/CK ^
+   0.00 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+   0.02 hold skew
+
+Clock clk
+   0.02 source latency reg1/CK ^
+   0.00 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+   0.02 setup skew
+
+Clock clk
+   0.02 source latency reg1/CK ^
+   0.00 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+   0.02 hold skew
+
+Clock clk
+0.024496 source latency reg1/CK ^
+0.000000 target latency reg2/CK ^
+0.000000 CRPR
+--------------
+0.024496 setup skew
+
+Clock clk
+0.024496 source latency reg1/CK ^
+0.000000 target latency reg2/CK ^
+0.000000 CRPR
+--------------
+0.024496 hold skew
+
+--- Combined check types ---
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+buf2/A                                  0.00    0.01   -0.01 (VIOLATED)
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+rst                                       1      2        (VIOLATED)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+rst                                     0.00    3.56   -3.56 (VIOLATED)
+
+max slew
+
+Pin buf2/A ^
+max slew    0.00
+slew        0.01
+----------------
+Slack      -0.01 (VIOLATED)
+
+max fanout
+
+Pin rst  
+max fanout      1
+fanout          2
+-----------------
+Slack             (VIOLATED)
+
+max capacitance
+
+Pin rst ^
+max capacitance    0.00
+capacitance        3.56
+-----------------------
+Slack             -3.56 (VIOLATED)
+
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+buf2/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg1/Q                                  0.00    0.01   -0.01 (VIOLATED)
+reg2/D                                  0.00    0.01   -0.01 (VIOLATED)
+buf4/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg1/QN                                 0.00    0.01   -0.01 (VIOLATED)
+reg2/QN                                 0.00    0.01   -0.01 (VIOLATED)
+buf3/A                                  0.00    0.01   -0.01 (VIOLATED)
+reg2/Q                                  0.00    0.01   -0.01 (VIOLATED)
+buf1/Z                                  0.00    0.01   -0.01 (VIOLATED)
+inv1/A                                  0.00    0.01   -0.01 (VIOLATED)
+and1/ZN                                 0.00    0.01   -0.01 (VIOLATED)
+buf1/A                                  0.00    0.01   -0.01 (VIOLATED)
+inv1/ZN                                 0.00    0.01   -0.00 (VIOLATED)
+reg1/D                                  0.00    0.01   -0.00 (VIOLATED)
+out3                                    0.00    0.00   -0.00 (VIOLATED)
+buf4/Z                                  0.00    0.00   -0.00 (VIOLATED)
+out1                                    0.00    0.00   -0.00 (VIOLATED)
+buf2/Z                                  0.00    0.00   -0.00 (VIOLATED)
+out2                                    0.00    0.00   -0.00 (VIOLATED)
+buf3/Z                                  0.00    0.00   -0.00 (VIOLATED)
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+rst                                       1      2        (VIOLATED)
+reg1/Q                                    1      2        (VIOLATED)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+rst                                     0.00    3.56   -3.56 (VIOLATED)
+
+reg1/Q                                  0.00    2.10   -2.10 (VIOLATED)
+
+buf1/Z                                  0.00    1.70   -1.70 (VIOLATED)
+
+inv1/ZN                                 0.00    1.13   -1.13 (VIOLATED)
+
+--- find_timing_paths with slack_max filtering ---
+Paths with slack <= 0: 0
+Paths with slack <= 100: 3
+--- find_timing_paths min with slack filtering ---
+Min paths with slack <= 0: 1
+Min paths with slack <= 100: 3

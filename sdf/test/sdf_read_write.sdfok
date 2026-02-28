@@ -1,0 +1,52 @@
+(DELAYFILE
+ (SDFVERSION "3.0")
+ (DESIGN "sdf_test1")
+ (DATE "Thu Feb 12 13:40:55 2026")
+ (VENDOR "Parallax")
+ (PROGRAM "STA")
+ (VERSION "2.7.0")
+ (DIVIDER /)
+ (VOLTAGE 1.100::1.100)
+ (PROCESS "1.000::1.000")
+ (TEMPERATURE 25.000::25.000)
+ (TIMESCALE 1ns)
+ (CELL
+  (CELLTYPE "sdf_test1")
+  (INSTANCE)
+  (DELAY
+   (ABSOLUTE
+    (INTERCONNECT clk reg1/CK (0.000::0.000))
+    (INTERCONNECT d buf1/A (0.000::0.000))
+    (INTERCONNECT buf1/Z reg1/D (0.000::0.000))
+    (INTERCONNECT reg1/Q q (0.000::0.000))
+   )
+  )
+ )
+ (CELL
+  (CELLTYPE "BUF_X1")
+  (INSTANCE buf1)
+  (DELAY
+   (ABSOLUTE
+    (IOPATH A Z (0.100::0.300))
+   )
+  )
+ )
+ (CELL
+  (CELLTYPE "DFF_X1")
+  (INSTANCE reg1)
+  (DELAY
+   (ABSOLUTE
+    (IOPATH CK QN (0.056::0.056) (0.057::0.057))
+    (IOPATH CK Q (0.200::0.400))
+   )
+  )
+  (TIMINGCHECK
+    (SETUP (posedge D) (posedge CK) (0.031::0.031))
+    (SETUP (negedge D) (posedge CK) (0.039::0.039))
+    (HOLD (posedge D) (posedge CK) (0.005::0.005))
+    (HOLD (negedge D) (posedge CK) (0.002::0.002))
+    (WIDTH (posedge CK) (0.052::0.052))
+    (WIDTH (negedge CK) (0.052::0.052))
+  )
+ )
+)

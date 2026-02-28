@@ -1,0 +1,679 @@
+Warning 198: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: resp_msg[15] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+   0.31    0.31 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+   0.12    0.43 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+   0.31    0.74 v _215_/X (sky130_fd_sc_hd__maj3_2)
+   0.31    1.05 v _216_/X (sky130_fd_sc_hd__maj3_2)
+   0.34    1.40 v _217_/X (sky130_fd_sc_hd__maj3_2)
+   0.32    1.72 v _218_/X (sky130_fd_sc_hd__maj3_2)
+   0.36    2.08 v _219_/X (sky130_fd_sc_hd__maj3_2)
+   0.21    2.29 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+   0.14    2.42 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+   0.29    2.72 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+   0.13    2.85 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+   0.17    3.03 ^ _232_/Y (sky130_fd_sc_hd__nor2_2)
+   0.10    3.12 v _234_/Y (sky130_fd_sc_hd__a21boi_2)
+   0.12    3.25 v _238_/Y (sky130_fd_sc_hd__xnor2_2)
+   0.00    3.25 v resp_msg[15] (out)
+           3.25   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+  -1.00    4.00   output external delay
+           4.00   data required time
+---------------------------------------------------------
+           4.00   data required time
+          -3.25   data arrival time
+---------------------------------------------------------
+           0.75   slack (MET)
+
+
+--- design counts ---
+cells: 1292
+nets: 288
+ports: 54
+--- cell matching ---
+glob * = 430
+glob inv_* = 7
+glob buf_* = 7
+glob dfxtp_* = 3
+glob nand* = 22
+regex inv = 7
+regex *_1 = 148
+nocase INV_* = 0
+--- net connectivity ---
+net _036_ pins=4
+net _037_ pins=4
+net _038_ pins=5
+net _040_ pins=5
+net _041_ pins=6
+net _042_ pins=4
+net _044_ pins=5
+net _048_ pins=4
+net _057_ pins=4
+net _060_ pins=4
+net _063_ pins=5
+net _066_ pins=4
+net _073_ pins=5
+net _105_ pins=12
+net _106_ pins=17
+net _110_ pins=4
+net _111_ pins=11
+net _113_ pins=12
+net _115_ pins=17
+net _116_ pins=28
+Net _000_
+ Pin capacitance: 0.0015-0.0016
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0015-0.0016
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _289_/Y output (sky130_fd_sc_hd__o21ai_0)
+
+Load pins
+ _411_/D input (sky130_fd_sc_hd__dfxtp_4) 0.0015-0.0016
+
+Net _001_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _290_/X output (sky130_fd_sc_hd__a32o_1)
+
+Load pins
+ _412_/D input (sky130_fd_sc_hd__dfxtp_1) 0.0017-0.0017
+
+Net _002_
+ Pin capacitance: 0.0015-0.0016
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0015-0.0016
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _283_/Y output (sky130_fd_sc_hd__o22ai_1)
+
+Load pins
+ _413_/D input (sky130_fd_sc_hd__dfxtp_4) 0.0015-0.0016
+
+Net _003_
+ Pin capacitance: 0.0015-0.0016
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0015-0.0016
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _302_/Y output (sky130_fd_sc_hd__nand2_1)
+
+Load pins
+ _414_/D input (sky130_fd_sc_hd__dfxtp_4) 0.0015-0.0016
+
+Net _004_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _305_/Y output (sky130_fd_sc_hd__nand2_1)
+
+Load pins
+ _415_/D input (sky130_fd_sc_hd__dfxtp_1) 0.0017-0.0017
+
+Net _005_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _309_/Y output (sky130_fd_sc_hd__nand2_1)
+
+Load pins
+ _416_/D input (sky130_fd_sc_hd__dfxtp_1) 0.0017-0.0017
+
+Net _006_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _312_/Y output (sky130_fd_sc_hd__nand2_1)
+
+Load pins
+ _417_/D input (sky130_fd_sc_hd__dfxtp_2) 0.0017-0.0017
+
+Net _007_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _316_/Y output (sky130_fd_sc_hd__a221oi_1)
+
+Load pins
+ _418_/D input (sky130_fd_sc_hd__dfxtp_1) 0.0017-0.0017
+
+Net _008_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _319_/Y output (sky130_fd_sc_hd__o21ai_0)
+
+Load pins
+ _419_/D input (sky130_fd_sc_hd__dfxtp_2) 0.0017-0.0017
+
+Net _009_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _322_/Y output (sky130_fd_sc_hd__nand2_1)
+
+Load pins
+ _420_/D input (sky130_fd_sc_hd__dfxtp_2) 0.0017-0.0017
+
+Net _010_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _325_/Y output (sky130_fd_sc_hd__nand2_1)
+
+Load pins
+ _421_/D input (sky130_fd_sc_hd__dfxtp_1) 0.0017-0.0017
+
+Net _011_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _328_/Y output (sky130_fd_sc_hd__o21ai_0)
+
+Load pins
+ _422_/D input (sky130_fd_sc_hd__dfxtp_2) 0.0017-0.0017
+
+Net _012_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _331_/Y output (sky130_fd_sc_hd__o21ai_0)
+
+Load pins
+ _423_/D input (sky130_fd_sc_hd__dfxtp_1) 0.0017-0.0017
+
+Net _013_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _333_/X output (sky130_fd_sc_hd__mux2_1)
+
+Load pins
+ _424_/D input (sky130_fd_sc_hd__dfxtp_2) 0.0017-0.0017
+
+Net _014_
+ Pin capacitance: 0.0017-0.0017
+ Wire capacitance: 0.0000
+ Total capacitance: 0.0017-0.0017
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ _336_/Y output (sky130_fd_sc_hd__nand2_1)
+
+Load pins
+ _425_/D input (sky130_fd_sc_hd__dfxtp_2) 0.0017-0.0017
+
+--- instance properties ---
+TAP_0 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_0
+TAP_1 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1
+TAP_10 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_10
+TAP_100 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_100
+TAP_1000 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1000
+TAP_1001 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1001
+TAP_1002 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1002
+TAP_1003 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1003
+TAP_1004 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1004
+TAP_1005 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1005
+TAP_1006 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1006
+TAP_1007 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1007
+TAP_1008 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1008
+TAP_1009 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1009
+TAP_101 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_101
+TAP_1010 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1010
+TAP_1011 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1011
+TAP_1012 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1012
+TAP_1013 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1013
+TAP_1014 ref=sky130_fd_sc_hd__tapvpwrvgnd_1 full_name=TAP_1014
+--- pin properties ---
+  _197_/A dir=input
+  _197_/B dir=input
+  _197_/Y dir=output
+  _198_/A dir=input
+  _198_/B_N dir=input
+  _198_/Y dir=output
+  _199_/A dir=input
+  _199_/B dir=input
+  _199_/Y dir=output
+  _200_/A_N dir=input
+  _200_/B dir=input
+  _200_/Y dir=output
+  _201_/A dir=input
+  _201_/B dir=input
+  _201_/Y dir=output
+  _202_/A dir=input
+  _202_/Y dir=output
+  _203_/A dir=input
+  _203_/B_N dir=input
+  _203_/Y dir=output
+  _204_/A dir=input
+  _204_/B dir=input
+  _204_/Y dir=output
+  _205_/A dir=input
+  _205_/Y dir=output
+  _206_/A dir=input
+  _206_/B dir=input
+  _206_/Y dir=output
+  _207_/A dir=input
+  _207_/B dir=input
+  _207_/Y dir=output
+  _208_/A dir=input
+  _208_/Y dir=output
+  _209_/A dir=input
+  _209_/Y dir=output
+  _210_/A dir=input
+  _210_/Y dir=output
+  _211_/A dir=input
+  _211_/Y dir=output
+  _212_/A dir=input
+  _212_/Y dir=output
+--- port properties ---
+port clk dir=input
+port req_rdy dir=output
+port req_val dir=input
+port reset dir=input
+port resp_rdy dir=input
+port resp_val dir=output
+port req_msg[31] dir=input
+port req_msg[30] dir=input
+port req_msg[29] dir=input
+port req_msg[28] dir=input
+port req_msg[27] dir=input
+port req_msg[26] dir=input
+port req_msg[25] dir=input
+port req_msg[24] dir=input
+port req_msg[23] dir=input
+port req_msg[22] dir=input
+port req_msg[21] dir=input
+port req_msg[20] dir=input
+port req_msg[19] dir=input
+port req_msg[18] dir=input
+port req_msg[17] dir=input
+port req_msg[16] dir=input
+port req_msg[15] dir=input
+port req_msg[14] dir=input
+port req_msg[13] dir=input
+port req_msg[12] dir=input
+port req_msg[11] dir=input
+port req_msg[10] dir=input
+port req_msg[9] dir=input
+port req_msg[8] dir=input
+port req_msg[7] dir=input
+port req_msg[6] dir=input
+port req_msg[5] dir=input
+port req_msg[4] dir=input
+port req_msg[3] dir=input
+port req_msg[2] dir=input
+port req_msg[1] dir=input
+port req_msg[0] dir=input
+port resp_msg[15] dir=output
+port resp_msg[14] dir=output
+port resp_msg[13] dir=output
+port resp_msg[12] dir=output
+port resp_msg[11] dir=output
+port resp_msg[10] dir=output
+port resp_msg[9] dir=output
+port resp_msg[8] dir=output
+port resp_msg[7] dir=output
+port resp_msg[6] dir=output
+port resp_msg[5] dir=output
+port resp_msg[4] dir=output
+port resp_msg[3] dir=output
+port resp_msg[2] dir=output
+port resp_msg[1] dir=output
+port resp_msg[0] dir=output
+--- library queries ---
+find_library: sky130_fd_sc_hd__tt_025C_1v80
+library: sky130_fd_sc_hd__tt_025C_1v80
+library: verilog
+--- timing path traversal ---
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+No paths found.
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Startpoint: reset (input port clocked by clk)
+Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ reset (in)
+   0.06    1.06 v _278_/Y (sky130_fd_sc_hd__inv_1)
+   0.23    1.28 v _290_/X (sky130_fd_sc_hd__a32o_1)
+   0.00    1.28 v _412_/D (sky130_fd_sc_hd__dfxtp_1)
+           1.28   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _412_/CLK (sky130_fd_sc_hd__dfxtp_1)
+  -0.12    4.88   library setup time
+           4.88   data required time
+---------------------------------------------------------
+           4.88   data required time
+          -1.28   data arrival time
+---------------------------------------------------------
+           3.60   slack (MET)
+
+
+Startpoint: reset (input port clocked by clk)
+Endpoint: _412_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ reset (in)
+   0.05    1.05 v _288_/Y (sky130_fd_sc_hd__a21oi_1)
+   0.19    1.25 v _290_/X (sky130_fd_sc_hd__a32o_1)
+   0.00    1.25 v _412_/D (sky130_fd_sc_hd__dfxtp_1)
+           1.25   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _412_/CLK (sky130_fd_sc_hd__dfxtp_1)
+  -0.12    4.88   library setup time
+           4.88   data required time
+---------------------------------------------------------
+           4.88   data required time
+          -1.25   data arrival time
+---------------------------------------------------------
+           3.64   slack (MET)
+
+
+Startpoint: reset (input port clocked by clk)
+Endpoint: _411_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v reset (in)
+   0.15    1.15 ^ _288_/Y (sky130_fd_sc_hd__a21oi_1)
+   0.09    1.24 v _289_/Y (sky130_fd_sc_hd__o21ai_0)
+   0.00    1.24 v _411_/D (sky130_fd_sc_hd__dfxtp_4)
+           1.24   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _411_/CLK (sky130_fd_sc_hd__dfxtp_4)
+  -0.13    4.87   library setup time
+           4.87   data required time
+---------------------------------------------------------
+           4.87   data required time
+          -1.24   data arrival time
+---------------------------------------------------------
+           3.64   slack (MET)
+
+
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Startpoint: req_val (input port clocked by clk)
+Endpoint: _413_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v req_val (in)
+   0.08    1.08 ^ _282_/Y (sky130_fd_sc_hd__nand2_1)
+   0.06    1.15 v _283_/Y (sky130_fd_sc_hd__o22ai_1)
+   0.00    1.15 v _413_/D (sky130_fd_sc_hd__dfxtp_4)
+           1.15   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _413_/CLK (sky130_fd_sc_hd__dfxtp_4)
+  -0.13    4.87   library setup time
+           4.87   data required time
+---------------------------------------------------------
+           4.87   data required time
+          -1.15   data arrival time
+---------------------------------------------------------
+           3.73   slack (MET)
+
+
+Startpoint: req_val (input port clocked by clk)
+Endpoint: _413_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ req_val (in)
+   0.06    1.06 v _282_/Y (sky130_fd_sc_hd__nand2_1)
+   0.11    1.17 ^ _283_/Y (sky130_fd_sc_hd__o22ai_1)
+   0.00    1.17 ^ _413_/D (sky130_fd_sc_hd__dfxtp_4)
+           1.17   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _413_/CLK (sky130_fd_sc_hd__dfxtp_4)
+  -0.08    4.92   library setup time
+           4.92   data required time
+---------------------------------------------------------
+           4.92   data required time
+          -1.17   data arrival time
+---------------------------------------------------------
+           3.75   slack (MET)
+
+
+Startpoint: req_val (input port clocked by clk)
+Endpoint: _411_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v req_val (in)
+   0.13    1.13 ^ _289_/Y (sky130_fd_sc_hd__o21ai_0)
+   0.00    1.13 ^ _411_/D (sky130_fd_sc_hd__dfxtp_4)
+           1.13   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+           5.00 ^ _411_/CLK (sky130_fd_sc_hd__dfxtp_4)
+  -0.08    4.92   library setup time
+           4.92   data required time
+---------------------------------------------------------
+           4.92   data required time
+          -1.13   data arrival time
+---------------------------------------------------------
+           3.78   slack (MET)
+
+
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Startpoint: _411_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: resp_val (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _411_/CLK (sky130_fd_sc_hd__dfxtp_4)
+   0.52    0.52 ^ _411_/Q (sky130_fd_sc_hd__dfxtp_4)
+   0.07    0.59 v _284_/Y (sky130_fd_sc_hd__nor2_8)
+   0.16    0.75 v _285_/X (sky130_fd_sc_hd__and2_1)
+   0.00    0.75 v resp_val (out)
+           0.75   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+  -1.00    4.00   output external delay
+           4.00   data required time
+---------------------------------------------------------
+           4.00   data required time
+          -0.75   data arrival time
+---------------------------------------------------------
+           3.25   slack (MET)
+
+
+Startpoint: _411_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: resp_val (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _411_/CLK (sky130_fd_sc_hd__dfxtp_4)
+   0.42    0.42 v _411_/Q (sky130_fd_sc_hd__dfxtp_4)
+   0.16    0.58 ^ _284_/Y (sky130_fd_sc_hd__nor2_8)
+   0.14    0.72 ^ _285_/X (sky130_fd_sc_hd__and2_1)
+   0.00    0.72 ^ resp_val (out)
+           0.72   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+  -1.00    4.00   output external delay
+           4.00   data required time
+---------------------------------------------------------
+           4.00   data required time
+          -0.72   data arrival time
+---------------------------------------------------------
+           3.28   slack (MET)
+
+
+Startpoint: _413_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: resp_val (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _413_/CLK (sky130_fd_sc_hd__dfxtp_4)
+   0.36    0.36 v _413_/Q (sky130_fd_sc_hd__dfxtp_4)
+   0.16    0.52 ^ _284_/Y (sky130_fd_sc_hd__nor2_8)
+   0.14    0.66 ^ _285_/X (sky130_fd_sc_hd__and2_1)
+   0.00    0.66 ^ resp_val (out)
+           0.66   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+  -1.00    4.00   output external delay
+           4.00   data required time
+---------------------------------------------------------
+           4.00   data required time
+          -0.66   data arrival time
+---------------------------------------------------------
+           3.34   slack (MET)
+
+
+Warning 502: network_gcd_traversal.tcl line 1, report_checks -endpoint_count is deprecated. Use -endpoint_path_count instead.
+No paths found.
+No paths found.
+No paths found.
+No paths found.
+No paths found.
+No paths found.
+No paths found.
+--- namespace ---

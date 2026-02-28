@@ -1,0 +1,7 @@
+No differences found.
+No paths found.
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     20.00        0.00     10.00
+gen_div2                 20.00        0.00     10.00 (generated)

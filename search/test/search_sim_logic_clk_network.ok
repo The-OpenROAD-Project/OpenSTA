@@ -1,0 +1,677 @@
+--- isClock queries ---
+clk port is_clock: 1
+in1 port is_clock: 0
+--- ideal/propagated clock queries ---
+clk isIdealClock: skipped (API removed)
+after propagate - clk isIdealClock: skipped (API removed)
+--- sim logic values ---
+en=X clk_gate_a1=X gated=X buf1=X reg1/D=X
+--- case analysis 0 on en ---
+en=0: gated_clk=0
+No paths found.
+--- case analysis 1 on en ---
+en=1: gated_clk=X
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+--- case analysis rising on en ---
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ en (in)
+   0.00    1.00 ^ clk_gate/A2 (AND2_X1)
+           1.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ clk_gate/A1 (AND2_X1)
+   0.00   10.00   clock gating setup time
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+           9.00   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+--- case analysis falling on en ---
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v en (in)
+   0.00    1.00 v clk_gate/A2 (AND2_X1)
+           1.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ clk_gate/A1 (AND2_X1)
+   0.00   10.00   clock gating setup time
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+           9.00   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+--- set_logic_zero ---
+in1=0: buf1/Z=0
+Startpoint: en (input port clocked by clk)
+Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
+Path Group: gated clock
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 ^ input external delay
+   0.00    1.00 ^ en (in)
+   0.00    1.00 ^ clk_gate/A2 (AND2_X1)
+           1.00   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ clk_gate/A1 (AND2_X1)
+   0.00   10.00   clock gating setup time
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+           9.00   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+--- set_logic_one ---
+en=1: clk_gate/A2=1
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 ^ reg1/Q (DFF_X1)
+   0.02    0.10 ^ buf2/Z (BUF_X1)
+   0.00    0.10 ^ out1 (out)
+           0.10   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.10   data arrival time
+---------------------------------------------------------
+           7.90   slack (MET)
+
+
+--- levelize ---
+--- generated clock ---
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock gclk (rise edge)
+   0.02    0.02   clock network delay
+           0.02 ^ out1 (out)
+           0.02   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+  -2.00   -2.00   output external delay
+          -2.00   data required time
+---------------------------------------------------------
+          -2.00   data required time
+          -0.02   data arrival time
+---------------------------------------------------------
+           2.02   slack (MET)
+
+
+--- report_clock_properties with genclk ---
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                      10.00        0.00      5.00
+gclk                     20.00        0.00     10.00 (generated)
+--- clock skew with genclk ---
+Clock clk
+No launch/capture paths found.
+
+Clock gclk
+No launch/capture paths found.
+
+Clock clk
+No launch/capture paths found.
+
+Clock gclk
+No launch/capture paths found.
+
+--- clock min period ---
+clk period_min = 0.00 fmax = inf
+gclk period_min = 0.00 fmax = inf
+clk period_min = 0.00 fmax = inf
+gclk period_min = 0.00 fmax = inf
+--- clock latency report ---
+Clock clk
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.02         network latency reg1/CK
+           0.02 network latency reg1/CK
+---------------
+   0.02    0.02 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.02         network latency reg1/CK
+           0.02 network latency reg1/CK
+---------------
+   0.02    0.02 latency
+           0.00 skew
+
+
+Clock gclk
+
+Clock clk
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.02         network latency reg1/CK
+           0.02 network latency reg1/CK
+---------------
+   0.02    0.02 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.02         network latency reg1/CK
+           0.02 network latency reg1/CK
+---------------
+   0.02    0.02 latency
+           0.00 skew
+
+
+Clock gclk
+
+Clock clk
+rise -> rise
+    min     max
+0.000000 0.000000 source latency
+0.024409         network latency reg1/CK
+        0.024409 network latency reg1/CK
+---------------
+0.024409 0.024409 latency
+        0.000000 skew
+
+fall -> fall
+    min     max
+0.000000 0.000000 source latency
+0.022412         network latency reg1/CK
+        0.022412 network latency reg1/CK
+---------------
+0.022412 0.022412 latency
+        0.000000 skew
+
+
+Clock gclk
+
+--- find_timing_paths for clock groups ---
+Warning 502: search_sim_logic_clk_network.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Max paths: 2
+  pin=out1 slack=7.978649740891797e-9
+  pin=out1 slack=7.983420147184006e-9
+--- report_checks through clock gate ---
+No paths found.
+No paths found.
+--- bidirect inst paths ---
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+--- bidirect net paths ---
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+--- clk thru tristate ---
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+--- dynamic loop breaking ---
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+--- use default arrival clock ---
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+--- propagate all clocks ---
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+
+Startpoint: reg1/Q (clock source 'gclk')
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock gclk (fall edge)
+   0.02   10.02   clock network delay
+          10.02 v out1 (out)
+          10.02   data arrival time
+
+  20.00   20.00   clock clk (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+  -2.00   18.00   output external delay
+          18.00   data required time
+---------------------------------------------------------
+          18.00   data required time
+         -10.02   data arrival time
+---------------------------------------------------------
+           7.98   slack (MET)
+
+

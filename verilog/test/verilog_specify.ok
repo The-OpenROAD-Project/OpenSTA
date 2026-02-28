@@ -1,0 +1,6 @@
+--- read verilog with specify/parameter ---
+Warning 349: verilog_specify.tcl line 1, instance '*' not found.
+cells: 0
+nets: 4
+ports: 4
+--- write_verilog ---

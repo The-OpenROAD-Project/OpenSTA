@@ -1,0 +1,37 @@
+--- Test 4: write hierarchical design ---
+hier roundtrip cells: 7
+hier roundtrip nets: 11
+hier roundtrip ports: 6
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
