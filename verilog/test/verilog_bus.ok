@@ -1,0 +1,273 @@
+--- read verilog with bus ports ---
+cells: 12
+nets: 19
+ports: 11
+--- bus port queries ---
+data_in* ports: 4
+data_out* ports: 4
+data_in[0] dir=input
+data_in[1] dir=input
+data_in[2] dir=input
+data_in[3] dir=input
+data_out[0] dir=output
+data_out[1] dir=output
+data_out[2] dir=output
+data_out[3] dir=output
+Startpoint: data_in[0] (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_in[0] (in)
+   0.02    0.02 v buf0/Z (BUF_X1)
+   0.02    0.05 v and0/ZN (AND2_X1)
+   0.00    0.05 v reg0/D (DFF_X1)
+           0.05   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg0/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.05   data arrival time
+---------------------------------------------------------
+           9.92   slack (MET)
+
+
+Startpoint: enable (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ enable (in)
+   0.03    0.03 ^ and0/ZN (AND2_X1)
+   0.00    0.03 ^ reg0/D (DFF_X1)
+           0.03   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg0/CK (DFF_X1)
+   0.01    0.01   library hold time
+           0.01   data required time
+---------------------------------------------------------
+           0.01   data required time
+          -0.03   data arrival time
+---------------------------------------------------------
+           0.02   slack (MET)
+
+
+--- pin queries with bus patterns ---
+all pins: 44
+buf* pins: 8
+and* pins: 12
+reg* pins: 24
+--- write_verilog with bus ports ---
+No differences found.
+--- report_net with bus nets ---
+Net n1[0]
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf0/Z output (BUF_X1)
+
+Load pins
+ and0/A1 input (AND2_X1) 0.87-0.92
+
+Net n1[1]
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf1/Z output (BUF_X1)
+
+Load pins
+ and1/A1 input (AND2_X1) 0.87-0.92
+
+Net n1[2]
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf2/Z output (BUF_X1)
+
+Load pins
+ and2/A1 input (AND2_X1) 0.87-0.92
+
+Net n1[3]
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf3/Z output (BUF_X1)
+
+Load pins
+ and3/A1 input (AND2_X1) 0.87-0.92
+
+Net n2[0]
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and0/ZN output (AND2_X1)
+
+Load pins
+ reg0/D input (DFF_X1) 1.06-1.14
+
+Net n2[1]
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and1/ZN output (AND2_X1)
+
+Load pins
+ reg1/D input (DFF_X1) 1.06-1.14
+
+Net n2[2]
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and2/ZN output (AND2_X1)
+
+Load pins
+ reg2/D input (DFF_X1) 1.06-1.14
+
+Net n2[3]
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ and3/ZN output (AND2_X1)
+
+Load pins
+ reg3/D input (DFF_X1) 1.06-1.14
+
+--- report_instance ---
+Instance buf0
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input data_in[0]
+ Output pins:
+  Z output n1[0]
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf1
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input data_in[1]
+ Output pins:
+  Z output n1[1]
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance and0
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input n1[0]
+  A2 input enable
+ Output pins:
+  ZN output n2[0]
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance and1
+ Cell: AND2_X1
+ Library: NangateOpenCellLibrary
+ Path cells: AND2_X1
+ Input pins:
+  A1 input n1[1]
+  A2 input enable
+ Output pins:
+  ZN output n2[1]
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg0
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n2[0]
+  CK input clk
+ Output pins:
+  Q output data_out[0]
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input n2[1]
+  CK input clk
+ Output pins:
+  Q output data_out[1]
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+--- fanin/fanout ---
+fanin to data_out[0]: 3
+fanout from data_in[0]: 6
+fanin cells to data_out[0]: 2

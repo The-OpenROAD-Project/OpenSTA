@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2026, The OpenROAD Authors
+
+# Copy test result logs to golden (.ok) files.
+# Usage: save_ok <test_name> [test_name ...]
+# Looks for results/<test_name>.log and copies to <test_name>.ok.
+
+set -e
+
+for test_name in "${@:1}"
+do
+    if [ -f "results/${test_name}.log" ]; then
+        cp "results/${test_name}.log" "${test_name}.ok"
+        echo "${test_name}"
+    else
+        echo "\"${test_name}\" log file not found"
+    fi
+done
+
