@@ -3270,7 +3270,8 @@ Sta::reportArrivalWrtClks(const Pin *pin,
                           const Scene *scene,
                           int digits)
 {
-  reportDelaysWrtClks(pin, scene, digits,
+  searchPreamble();
+  reportDelaysWrtClks(pin, scene, digits, false,
                       [] (const Path *path) {
                         return path->arrival();
                       });
@@ -3281,7 +3282,7 @@ Sta::reportRequiredWrtClks(const Pin *pin,
                            const Scene *scene,
                            int digits)
 {
-  reportDelaysWrtClks(pin, scene, digits,
+  reportDelaysWrtClks(pin, scene, digits, true,
                       [] (const Path *path) {
                         return path->required();
                       });
@@ -3292,7 +3293,7 @@ Sta::reportSlackWrtClks(const Pin *pin,
                         const Scene *scene,
                         int digits)
 {
-  reportDelaysWrtClks(pin, scene, digits,
+  reportDelaysWrtClks(pin, scene, digits, true,
                       [this] (const Path *path) {
                         return path->slack(this);
                       });
@@ -3302,24 +3303,29 @@ void
 Sta::reportDelaysWrtClks(const Pin *pin,
                          const Scene *scene,
                          int digits,
+                         bool find_required,
                          PathDelayFunc get_path_delay)
 {
   ensureGraph();
   Vertex *vertex, *bidir_vertex;
   graph_->pinVertices(pin, vertex, bidir_vertex);
   if (vertex)
-    reportDelaysWrtClks(vertex, scene, digits, get_path_delay);
+    reportDelaysWrtClks(vertex, scene, digits, find_required, get_path_delay);
   if (bidir_vertex)
-    reportDelaysWrtClks(vertex, scene, digits, get_path_delay);
+    reportDelaysWrtClks(vertex, scene, digits, find_required, get_path_delay);
 }
 
 void
 Sta::reportDelaysWrtClks(Vertex *vertex,
                          const Scene *scene,
                          int digits,
+                         bool find_required,
                          PathDelayFunc get_path_delay)
 {
-  findRequired(vertex);
+  if (find_required)
+    findRequired(vertex);
+  else
+    search_->findArrivals(vertex->level());
   const Sdc *sdc = scene->sdc();
   reportDelaysWrtClks(vertex, nullptr, scene, digits, get_path_delay);
   const ClockEdge *default_clk_edge = sdc->defaultArrivalClock()->edge(RiseFall::rise());

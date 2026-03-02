@@ -1517,10 +1517,12 @@ protected:
   void reportDelaysWrtClks(const Pin *pin,
                            const Scene *scene,
                            int digits,
+                           bool find_required,
                            PathDelayFunc get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const Scene *scene,
                            int digits,
+                           bool find_required,
                            PathDelayFunc get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const ClockEdge *clk_edge,
