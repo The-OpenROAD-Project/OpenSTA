@@ -30,8 +30,6 @@
 
 namespace sta {
 
-using std::string;
-
 FuncExpr *
 FuncExpr::makePort(LibertyPort *port)
 {
@@ -199,20 +197,20 @@ FuncExpr::portTimingSense(const LibertyPort *port) const
   return TimingSense::unknown;
 }
 
-string
+std::string
 FuncExpr::to_string() const
 {
   return to_string(false);
 }
 
-string
+std::string
 FuncExpr::to_string(bool with_parens) const
 {
   switch (op_) {
   case Op::port:
     return port_->name();
   case Op::not_: {
-    string result = "!";
+    std::string result = "!";
     result += left_ ? left_->to_string(true) : "?";
     return result;
   }
@@ -231,12 +229,12 @@ FuncExpr::to_string(bool with_parens) const
   }
 }
 
-string
+std::string
 FuncExpr::to_string(bool with_parens,
                     char op) const
 {
-  string right = right_->to_string(true);
-  string result;
+  std::string right = right_->to_string(true);
+  std::string result;
   if (with_parens)
     result += '(';
   result += left_ ? left_->to_string(true) : "?";

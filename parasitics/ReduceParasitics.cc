@@ -24,6 +24,7 @@
 
 #include "ReduceParasitics.hh"
 
+#include <algorithm>
 #include <map>
 #include <set>
 
@@ -37,8 +38,6 @@
 #include "Parasitics.hh"
 
 namespace sta {
-
-using std::max;
 
 typedef std::map<ParasiticNode*, double> ParasiticNodeValueMap;
 typedef std::map<ParasiticResistor*, double> ResistorCurrentMap;
@@ -174,7 +173,7 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
     + pinCapacitance(node);
   y1 = dwn_cap;
   y2 = y3 = 0.0;
-  max_resistance = max(max_resistance, src_resistance);
+  max_resistance = std::max(max_resistance, src_resistance);
 
   visit(node);
   ParasiticResistorSeq &resistors = resistor_map_[node];

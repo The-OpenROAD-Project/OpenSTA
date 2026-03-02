@@ -26,6 +26,7 @@
 #include "MakeTimingModelPvt.hh"
 
 #include <algorithm>
+#include <cmath>
 #include <map>
 
 #include "Debug.hh"
@@ -50,11 +51,6 @@
 #include "ClkLatency.hh"
 
 namespace sta {
-
-using std::string;
-using std::min;
-using std::max;
-using std::make_shared;
 
 LibertyLibrary *
 makeTimingModel(const char *lib_name,
@@ -305,7 +301,7 @@ MakeEndTimingArcs::visit(PathEnd *path_end)
     margins.value(input_rf_, min_max, max_margin, max_exists);
     // Always max margin, even for min/hold checks.
     margins.setValue(input_rf_, min_max,
-                     max_exists ? max(max_margin, delay1) : delay1);
+                     max_exists ? std::max(max_margin, delay1) : delay1);
   }
 }
 
@@ -606,7 +602,7 @@ MakeTimingModel::makeScalarCheckModel(float value,
                                       ScaleFactorType scale_factor_type,
                                       const RiseFall *rf)
 {
-  TablePtr table = make_shared<Table>(value);
+  TablePtr table = std::make_shared<Table>(value);
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *table_model = new TableModel(table, tbl_template,
@@ -620,8 +616,8 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
                                      Slew slew,
                                      const RiseFall *rf)
 {
-  TablePtr delay_table = make_shared<Table>(delayAsFloat(delay));
-  TablePtr slew_table = make_shared<Table>(delayAsFloat(slew));
+  TablePtr delay_table = std::make_shared<Table>(delayAsFloat(delay));
+  TablePtr slew_table = std::make_shared<Table>(delayAsFloat(slew));
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
@@ -636,7 +632,7 @@ TimingModel *
 MakeTimingModel::makeGateModelScalar(Delay delay,
                                      const RiseFall *rf)
 {
-  TablePtr delay_table = make_shared<Table>(delayAsFloat(delay));
+  TablePtr delay_table = std::make_shared<Table>(delayAsFloat(delay));
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
@@ -708,8 +704,8 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                   std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
                                               std::move(axis_values));
 
-                TablePtr delay_table = make_shared<Table>(load_values, load_axis);
-                TablePtr slew_table = make_shared<Table>(slew_values, load_axis);
+                TablePtr delay_table = std::make_shared<Table>(load_values, load_axis);
+                TablePtr slew_table = std::make_shared<Table>(slew_values, load_axis);
 
                 TableTemplate *model_template = ensureTableTemplate(drvr_template,
                                                                     load_axis);
@@ -738,7 +734,7 @@ MakeTimingModel::ensureTableTemplate(const TableTemplate *drvr_template,
 {
   TableTemplate *model_template = findKey(template_map_, drvr_template);
   if (model_template == nullptr) {
-    string template_name = "template_";
+    std::string template_name = "template_";
     template_name += std::to_string(tbl_template_index_++);
 
     model_template = library_->makeTableTemplate(template_name,

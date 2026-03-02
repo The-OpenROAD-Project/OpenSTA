@@ -35,23 +35,17 @@
 
 namespace sta {
 
-using std::string;
-using std::min;
-using std::max;
-using std::abs;
-using std::make_shared;
-
 size_t
 findValueIndex(float value,
                const FloatSeq *values);
 static void
 sigmaModelsDelete(TableModelsEarlyLate &models);
-static string
+static std::string
 reportPvt(const LibertyCell *cell,
           const Pvt *pvt,
           int digits);
 static void
-appendSpaces(string &result,
+appendSpaces(std::string &result,
              int count);
 
 TimingModel::TimingModel(LibertyCell *cell) :
@@ -162,14 +156,14 @@ GateTableModel::gateDelay(const Pvt *pvt,
   gateDelay(pvt, in_slew, load_cap, pocv_enabled, gate_delay, drvr_slew);
 }
 
-string
+std::string
 GateTableModel::reportGateDelay(const Pvt *pvt,
                                 float in_slew,
                                 float load_cap,
                                 bool pocv_enabled,
                                 int digits) const
 {
-  string result = reportPvt(cell_, pvt, digits);
+  std::string result = reportPvt(cell_, pvt, digits);
   result += reportTableLookup("Delay", pvt, delay_model_.get(), in_slew,
                               load_cap, 0.0, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
@@ -197,7 +191,7 @@ GateTableModel::reportGateDelay(const Pvt *pvt,
   return result;
 }
 
-string
+std::string
 GateTableModel::reportTableLookup(const char *result_name,
                                   const Pvt *pvt,
                                   const TableModel *model,
@@ -496,7 +490,7 @@ CheckTableModel::findValue(const Pvt *pvt,
     return 0.0;
 }
 
-string
+std::string
 CheckTableModel::reportCheckDelay(const Pvt *pvt,
                                   float from_slew,
                                   const char *from_slew_annotation,
@@ -505,7 +499,7 @@ CheckTableModel::reportCheckDelay(const Pvt *pvt,
                                   bool pocv_enabled,
                                   int digits) const
 {
-  string result = reportTableDelay("Check", pvt, model_.get(),
+  std::string result = reportTableDelay("Check", pvt, model_.get(),
                                    from_slew, from_slew_annotation, to_slew,
                                    related_out_cap, digits);
   if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
@@ -521,7 +515,7 @@ CheckTableModel::reportCheckDelay(const Pvt *pvt,
   return result;
 }
 
-string
+std::string
 CheckTableModel::reportTableDelay(const char *result_name,
                                   const Pvt *pvt,
                                   const TableModel *model,
@@ -535,7 +529,7 @@ CheckTableModel::reportTableDelay(const char *result_name,
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(from_slew, to_slew, related_out_cap,
                    axis_value1, axis_value2, axis_value3);
-    string result = reportPvt(cell_, pvt, digits);
+    std::string result = reportPvt(cell_, pvt, digits);
     result += model_->reportValue(result_name, cell_, pvt,
                                   axis_value1, from_slew_annotation, axis_value2,
                                   axis_value3,
@@ -735,7 +729,7 @@ TableModel::scaleFactor(const LibertyCell *cell,
                                                rf_index_, cell, pvt);
 }
 
-string
+std::string
 TableModel::reportValue(const char *result_name,
                         const LibertyCell *cell,
                         const Pvt *pvt,
@@ -746,7 +740,7 @@ TableModel::reportValue(const char *result_name,
                         const Unit *table_unit,
                         int digits) const
 {
-  string result = table_->reportValue("Table value", cell, pvt, value1,
+  std::string result = table_->reportValue("Table value", cell, pvt, value1,
                                       comment1, value2, value3, table_unit, digits);
 
   result += reportPvtScaleFactor(cell, pvt, digits);
@@ -758,7 +752,7 @@ TableModel::reportValue(const char *result_name,
   return result;
 }
 
-static string
+static std::string
 reportPvt(const LibertyCell *cell,
           const Pvt *pvt,
           int digits)
@@ -767,7 +761,7 @@ reportPvt(const LibertyCell *cell,
   if (pvt == nullptr)
     pvt = library->defaultOperatingConditions();
   if (pvt) {
-    string result;
+    std::string result;
     stringPrint(result, "P = %.*f V = %.*f T = %.*f\n",
                 digits, pvt->process(),
                 digits, pvt->voltage(),
@@ -777,7 +771,7 @@ reportPvt(const LibertyCell *cell,
   return "";
 }
 
-string
+std::string
 TableModel::reportPvtScaleFactor(const LibertyCell *cell,
                                  const Pvt *pvt,
                                  int digits) const
@@ -785,7 +779,7 @@ TableModel::reportPvtScaleFactor(const LibertyCell *cell,
   if (pvt == nullptr)
     pvt = cell->libertyLibrary()->defaultOperatingConditions();
   if (pvt) {
-    string result;
+    std::string result;
     stringPrint(result, "PVT scale factor = %.*f\n",
                 digits,
                 scaleFactor(cell, pvt));
@@ -1166,7 +1160,7 @@ Table::reportValueOrder0(const char *result_name,
                          const Unit *table_unit,
                          int digits) const
 {
-  string result = result_name;
+  std::string result = result_name;
   result += " constant = ";
   result += table_unit->asString(value_, digits);
   if (comment1)
@@ -1187,7 +1181,7 @@ Table::reportValueOrder1(const char *result_name,
 {
   const Units *units = cell->libertyLibrary()->units();
   const Unit *unit1 = axis1_->unit(units);
-  string result = "Table is indexed by\n  ";
+  std::string result = "Table is indexed by\n  ";
   result += axis1_->variableString();
   result += " = ";
   result += unit1->asString(value1, digits);
@@ -1228,7 +1222,7 @@ Table::reportValueOrder2(const char *result_name,
   const Units *units = cell->libertyLibrary()->units();
   const Unit *unit1 = axis1_->unit(units);
   const Unit *unit2 = axis2_->unit(units);
-  string result = "------- ";
+  std::string result = "------- ";
   result += axis1_->variableString();
   result += " = ";
   result += unit1->asString(value1, digits);
@@ -1289,7 +1283,7 @@ Table::reportValueOrder3(const char *result_name,
   const Unit *unit1 = axis1_->unit(units);
   const Unit *unit2 = axis2_->unit(units);
   const Unit *unit3 = axis3_->unit(units);
-  string result = "   --------- ";
+  std::string result = "   --------- ";
   result += axis1_->variableString();
   result += " = ";
   result += unit1->asString(value1, digits);
@@ -1391,7 +1385,7 @@ Table::report(const Units *units,
     const Unit *unit1 = axis1_->unit(units);
     report->reportLine("%s", tableVariableString(axis1_->variable()));
     report->reportLine("------------------------------");
-    string line;
+    std::string line;
     for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
       line += unit1->asString(axis1_->axisValue(index1), digits);
       line += " ";
@@ -1410,7 +1404,7 @@ Table::report(const Units *units,
     const Unit *unit2 = axis2_->unit(units);
     report->reportLine("%s", tableVariableString(axis2_->variable()));
     report->reportLine("     ------------------------------");
-    string line = "     ";
+    std::string line = "     ";
     for (size_t index2 = 0; index2 < axis2_->size(); index2++) {
       line += unit2->asString(axis2_->axisValue(index2), digits);
       line += " ";
@@ -1436,7 +1430,7 @@ Table::report(const Units *units,
                       unit1->asString(axis1_->axisValue(axis_index1), digits));
     report->reportLine("%s", tableVariableString(axis3_->variable()));
     report->reportLine("     ------------------------------");
-    string line = "     ";
+    std::string line = "     ";
     for (size_t axis_index3 = 0; axis_index3 < axis3_->size(); axis_index3++) {
       line += unit3->asString(axis3_->axisValue(axis_index3), digits);
       line += " ";
@@ -1455,7 +1449,7 @@ Table::report(const Units *units,
 }
 
 static void
-appendSpaces(string &result,
+appendSpaces(std::string &result,
              int count)
 {
   while (count--)
@@ -1755,7 +1749,7 @@ OutputWaveforms::findVoltages(size_t wave_index,
   // Make voltage -> current table.
   FloatSeq axis_volts = volts;
   TableAxisPtr volt_axis =
-    make_shared<TableAxis>(TableAxisVariable::input_voltage, std::move(axis_volts));
+    std::make_shared<TableAxis>(TableAxisVariable::input_voltage, std::move(axis_volts));
   FloatSeq *currents1 = new FloatSeq(*currents->values());
   Table *volt_currents = new Table(currents1, volt_axis);
   voltage_currents_[wave_index] = volt_currents;
@@ -1774,7 +1768,7 @@ OutputWaveforms::currentWaveform(float slew,
     times->push_back(time);
     currents->push_back(current);
   }
-  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time, std::move(*times));
+  TableAxisPtr time_axis = std::make_shared<TableAxis>(TableAxisVariable::time, std::move(*times));
   delete times;
   return Table(currents, time_axis);
 }
@@ -1951,7 +1945,7 @@ OutputWaveforms::voltageWaveform(float slew,
     times.push_back(time);
     volts.push_back(volt);
   }
-  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
+  TableAxisPtr time_axis = std::make_shared<TableAxis>(TableAxisVariable::time,
                                                   std::move(times));
   return Table(std::move(volts), time_axis);
 }
@@ -2076,7 +2070,7 @@ OutputWaveforms::voltageCurrentWaveform(float slew,
     currents->push_back(current);
   }
   TableAxisPtr volt_axis =
-    make_shared<TableAxis>(TableAxisVariable::input_voltage, std::move(*volts));
+    std::make_shared<TableAxis>(TableAxisVariable::input_voltage, std::move(*volts));
   delete volts;
   return Table(currents, volt_axis);
 }
@@ -2095,12 +2089,12 @@ OutputWaveforms::finalResistance()
   const FloatSeq &voltages = voltage_currents->axis1()->values();
   FloatSeq *currents = voltage_currents->values();
   size_t idx_last1 = voltages.size() - 2;
-  return (vdd_ - voltages[idx_last1]) / abs((*currents)[idx_last1]);
+  return (vdd_ - voltages[idx_last1]) / std::abs((*currents)[idx_last1]);
 }
 
 ////////////////////////////////////////////////////////////////
 
-DriverWaveform::DriverWaveform(const string &name,
+DriverWaveform::DriverWaveform(const std::string &name,
                                TablePtr waveforms) :
   name_(name),
   waveforms_(waveforms)
@@ -2118,7 +2112,7 @@ DriverWaveform::waveform(float slew)
     time_values->push_back(time);
     volt_values->push_back(volt);
   }
-  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
+  TableAxisPtr time_axis = std::make_shared<TableAxis>(TableAxisVariable::time,
                                                   std::move(*time_values));
   delete time_values;
   Table waveform(volt_values, time_axis);

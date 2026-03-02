@@ -49,8 +49,6 @@
 
 namespace sta {
 
-using std::abs;
-
 ClkSkews::ClkSkews(StaState *sta) :
   StaState(sta),
   include_internal_latency_(true),
@@ -148,7 +146,7 @@ ClkSkews::findWorstClkSkew(const SceneSeq &scenes,
   float worst_skew = 0.0;
   for (const auto& [clk, clk_skews] : skews_) {
     float skew = clk_skews[setup_hold->index()].skew();
-    if (abs(skew) > abs(worst_skew))
+    if (std::abs(skew) > std::abs(worst_skew))
       worst_skew = skew;
   }
   return worst_skew;
@@ -210,8 +208,8 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
             ClkSkew &partial_skew_val = partial_skew[setup_hold_idx];
             float partial_skew1 = partial_skew_val.skew();
             float final_skew1 = final_skew.skew();
-            if (abs(partial_skew1) > abs(final_skew1)
-                || (fuzzyEqual(abs(partial_skew1), abs(final_skew1))
+            if (std::abs(partial_skew1) > std::abs(final_skew1)
+                || (fuzzyEqual(std::abs(partial_skew1), std::abs(final_skew1))
                     // Break ties based on source/target path names.
                     && ClkSkew::srcTgtPathNameLess(partial_skew_val, final_skew, this)))
               final_skew = partial_skew_val;
@@ -325,7 +323,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
                      delayAsString(probe.crpr(this), this),
                      time_unit->asString(probe.skew()));
           if (clk_skew.srcPath() == nullptr
-              || abs(probe.skew()) > abs(clk_skew.skew()))
+              || std::abs(probe.skew()) > std::abs(clk_skew.skew()))
             clk_skew = probe;
         }
       }

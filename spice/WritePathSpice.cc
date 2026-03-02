@@ -24,8 +24,8 @@
 
 #include "WritePathSpice.hh"
 
-#include <string>
 #include <fstream>
+#include <string>
 
 #include "Debug.hh"
 #include "Error.hh"
@@ -49,11 +49,6 @@
 #include "WriteSpice.hh"
 
 namespace sta {
-
-using std::string;
-using std::ofstream;
-using std::ifstream;
-using std::max;
 
 typedef int Stage;
 
@@ -112,7 +107,7 @@ private:
   //
   Stage stageFirst();
   Stage stageLast();
-  string stageName(Stage stage);
+  std::string stageName(Stage stage);
   int stageGateInputPathIndex(Stage stage);
   int stageDrvrPathIndex(Stage stage);
   int stageLoadPathIndex(Stage stage);
@@ -219,7 +214,7 @@ void
 WritePathSpice::writeHeader()
 {
   const Path *start_path = path_expanded_.startPath();
-  string title = stdstrPrint("Path from %s %s to %s %s",
+  std::string title = stdstrPrint("Path from %s %s to %s %s",
                              network_->pathName(start_path->pin(this)),
                              start_path->transition(this)->to_string().c_str(),
                              network_->pathName(path_->pin(this)),
@@ -291,7 +286,7 @@ WritePathSpice::writeStageInstances()
   streamPrint(spice_stream_, "*****************\n\n");
 
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
-    string stage_name = stageName(stage);
+    std::string stage_name = stageName(stage);
     const char *stage_cname = stage_name.c_str();
     if (stage == stageFirst())
       streamPrint(spice_stream_, "x%s %s %s %s\n",
@@ -450,7 +445,7 @@ WritePathSpice::writeMeasureSlewStmt(Stage stage,
 {
   const Pin *pin = path->pin(this);
   const RiseFall *rf = path->transition(this);
-  string prefix = stageName(stage);
+  std::string prefix = stageName(stage);
   writeMeasureSlewStmt(pin, rf, prefix);
 }
 
@@ -480,7 +475,7 @@ WritePathSpice::writeInputStage(Stage stage)
   // External driver not handled.
   const char *drvr_pin_name = stageDrvrPinName(stage);
   const char *load_pin_name = stageLoadPinName(stage);
-  string prefix = stageName(stage);
+  std::string prefix = stageName(stage);
   streamPrint(spice_stream_, ".subckt %s %s %s\n",
               prefix.c_str(),
               drvr_pin_name,
@@ -499,7 +494,7 @@ WritePathSpice::writeGateStage(Stage stage)
   const char *drvr_pin_name = stageDrvrPinName(stage);
   const Pin *load_pin = stageLoadPin(stage);
   const char *load_pin_name = stageLoadPinName(stage);
-  string subckt_name = "stage" + std::to_string(stage);
+  std::string subckt_name = "stage" + std::to_string(stage);
 
   const Instance *inst = stageInstance(stage);
   LibertyPort *input_port = stageGateInputPort(stage);
@@ -614,10 +609,10 @@ WritePathSpice::stageLast()
   return (path_expanded_.size() + 1) / 2;
 }
 
-string
+std::string
 WritePathSpice::stageName(Stage stage)
 {
-  string name;
+  std::string name;
   stringPrint(name, "stage%d", stage);
   return name;
 }

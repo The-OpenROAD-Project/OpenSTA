@@ -40,9 +40,6 @@
 
 namespace sta {
 
-using std::string;
-using std::isnan;
-
 ArcDelayCalc *
 makeLumpedCapDelayCalc(StaState *sta)
 {
@@ -146,7 +143,7 @@ LumpedCapDelayCalc::gateDelay(const Pin *drvr_pin,
     Slew drvr_slew;
     float in_slew1 = delayAsFloat(in_slew);
     // NaNs cause seg faults during table lookup.
-    if (isnan(load_cap) || isnan(delayAsFloat(in_slew)))
+    if (std::isnan(load_cap) || std::isnan(delayAsFloat(in_slew)))
       report_->error(1350, "gate delay input variable is NaN");
     model->gateDelay(pinPvt(drvr_pin, scene, min_max), in_slew1, load_cap,
                      variables_->pocvEnabled(),
@@ -178,7 +175,7 @@ LumpedCapDelayCalc::makeResult(const LibertyLibrary *drvr_library,
   return dcalc_result;
 }
 
-string
+std::string
 LumpedCapDelayCalc::reportGateDelay(const Pin *check_pin,
                                     const TimingArc *arc,
                                     const Slew &in_slew,

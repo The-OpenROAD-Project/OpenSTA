@@ -34,8 +34,6 @@
 
 namespace sta {
 
-using std::vector;
-
 ParallelDelayCalc::ParallelDelayCalc(StaState *sta):
   DelayCalcBase(sta)
 {
@@ -71,8 +69,8 @@ ParallelDelayCalc::gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
   ArcDcalcResultSeq dcalc_results(drvr_count);
   Slew slew_sum = 0.0;
   ArcDelay load_delay_sum = 0.0;
-  vector<ArcDelay> intrinsic_delays(dcalc_args.size());
-  vector<ArcDelay> load_delays(dcalc_args.size());
+  std::vector<ArcDelay> intrinsic_delays(dcalc_args.size());
+  std::vector<ArcDelay> load_delays(dcalc_args.size());
   for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
     ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
     ArcDcalcResult &dcalc_result = dcalc_results[drvr_idx];

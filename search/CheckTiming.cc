@@ -46,8 +46,6 @@
 
 namespace sta {
 
-using std::string;
-
 CheckTiming::CheckTiming(StaState *sta) :
   StaState(sta),
   mode_(nullptr),
@@ -202,7 +200,7 @@ CheckTiming::checkLoops()
       loop_count++;
   }
   if (loop_count > 0) {
-   string error_msg;
+   std::string error_msg;
    errorMsgSubst("Warning: There %is %d combinational loop%s in the design.",
                   loop_count, error_msg);
     CheckError *error = new CheckError;
@@ -362,7 +360,7 @@ CheckTiming::pushPinErrors(const char *msg,
 {
   if (!pins.empty()) {
     CheckError *error = new CheckError;
-    string error_msg;
+    std::string error_msg;
     errorMsgSubst(msg, pins.size(), error_msg);
     // Copy the error strings because the error deletes them when it
     // is deleted.
@@ -384,7 +382,7 @@ CheckTiming::pushClkErrors(const char *msg,
 {
   if (!clks.empty()) {
     CheckError *error = new CheckError;
-    string error_msg;
+    std::string error_msg;
     errorMsgSubst(msg, clks.size(), error_msg);
     // Copy the error strings because the error deletes them when it
     // is deleted.
@@ -404,7 +402,7 @@ CheckTiming::pushClkErrors(const char *msg,
 void
 CheckTiming::errorMsgSubst(const char *msg,
                            int obj_count,
-                           string &error_msg)
+                           std::string &error_msg)
 {
   for (const char *s = msg; *s; s++) {
     char ch = *s;

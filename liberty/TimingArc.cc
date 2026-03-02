@@ -35,9 +35,6 @@
 
 namespace sta {
 
-using std::string;
-using std::make_shared;
-
 static bool
 timingArcsEquiv(const TimingArcSet *set1,
                 const TimingArcSet *set2);
@@ -511,7 +508,7 @@ TimingArcSet::wireArcIndex(const RiseFall *rf)
 void
 TimingArcSet::init()
 {
-  wire_timing_arc_attrs_ = make_shared<TimingArcAttrs>(TimingSense::positive_unate);
+  wire_timing_arc_attrs_ = std::make_shared<TimingArcAttrs>(TimingSense::positive_unate);
   wire_timing_arc_set_ = new TimingArcSet(TimingRole::wire(), wire_timing_arc_attrs_);
   new TimingArc(wire_timing_arc_set_, Transition::rise(),
                 Transition::rise(), nullptr);
@@ -549,18 +546,18 @@ TimingArc::~TimingArc()
   delete scaled_models_;
 }
 
-string
+std::string
 TimingArc::to_string() const
 {
   if (set_->role()->isWire()) {
-    string str = "wire ";
+    std::string str = "wire ";
     str += from_rf_->to_string();
     str += " -> ";
     str += to_rf_->to_string();
     return str;
   }
   else {
-    string str = set_->from()->name();
+    std::string str = set_->from()->name();
     str += " ";
     str += from_rf_->to_string();
     str += " -> ";

@@ -24,9 +24,10 @@
 
 #include "VerilogWriter.hh"
 
-#include <cstdlib>
 #include <algorithm>
+#include <cstdlib>
 #include <map>
+#include <string>
 
 #include "Error.hh"
 #include "Liberty.hh"
@@ -37,10 +38,6 @@
 #include "ParseBus.hh"
 
 namespace sta {
-
-using std::min;
-using std::max;
-using std::string;
 
 class VerilogWriter
 {
@@ -284,8 +281,8 @@ VerilogWriter::writeWireDcls(const Instance *inst)
           int index;
           parseBusName(net_name, '[', ']', escape, is_bus, bus_name, index);
           BusIndexRange &range = bus_ranges[bus_name];
-          range.first = max(range.first, index);
-          range.second = min(range.second, index);
+          range.first = std::max(range.first, index);
+          range.second = std::min(range.second, index);
         }
         else {
           std::string net_vname = netVerilogName(net_name);
@@ -337,8 +334,8 @@ VerilogWriter::writeChild(const Instance *child)
   Cell *child_cell = network_->cell(child);
   if (!remove_cells_.contains(child_cell)) {
     const char *child_name = network_->name(child);
-    string child_vname = instanceVerilogName(child_name);
-    string child_cell_vname = cellVerilogName(network_->name(child_cell));
+    std::string child_vname = instanceVerilogName(child_name);
+    std::string child_cell_vname = cellVerilogName(network_->name(child_cell));
     fprintf(stream_, " %s %s (",
             child_cell_vname.c_str(),
             child_vname.c_str());
@@ -369,10 +366,10 @@ VerilogWriter::writeInstPin(const Instance *inst,
     Net *net = network_->net(pin);
     if (net) {
       const char *net_name = network_->name(net);
-      string net_vname = netVerilogName(net_name);
+      std::string net_vname = netVerilogName(net_name);
       if (!first_port)
         fprintf(stream_, ",\n    ");
-      string port_vname = portVerilogName(network_->name(port));
+      std::string port_vname = portVerilogName(network_->name(port));
       fprintf(stream_, ".%s(%s)",
               port_vname.c_str(),
               net_vname.c_str());
@@ -422,13 +419,13 @@ VerilogWriter::writeInstBusPinBit(const Instance *inst,
 {
   Pin *pin = network_->findPin(inst, port);
   Net *net = pin ? network_->net(pin) : nullptr;
-  string net_name;
+  std::string net_name;
   if (net)
     net_name = network_->name(net);
   else
     // There is no verilog syntax to "skip" a bit in the concatentation.
     stringPrint(net_name, "_NC%d", unconnected_net_index_++);
-  string net_vname = netVerilogName(net_name.c_str());
+  std::string net_vname = netVerilogName(net_name.c_str());
   if (!first_member)
     fprintf(stream_, ",\n    ");
   fprintf(stream_, "%s", net_vname.c_str());
@@ -455,8 +452,8 @@ VerilogWriter::writeAssigns(const Instance *inst)
               || (include_pwr_gnd_ && network_->direction(port)->isPowerGround()))
           && !stringEqual(network_->name(port), network_->name(net))) {
         // Port name is different from net name.
-        string port_vname = netVerilogName(network_->name(port));
-        string net_vname = netVerilogName(network_->name(net));
+        std::string port_vname = netVerilogName(network_->name(port));
+        std::string net_vname = netVerilogName(network_->name(net));
         fprintf(stream_, " assign %s = %s;\n",
                 port_vname.c_str(),
                 net_vname.c_str());

@@ -72,13 +72,6 @@
 
 namespace sta {
 
-using std::abs;
-using std::max;
-using std::min;
-using std::isnormal;
-using std::vector;
-using std::map;
-
 static bool
 isPositiveUnate(const LibertyCell *cell,
 		const LibertyPort *from,
@@ -734,7 +727,7 @@ percentChange(float value,
       return 1.0;
   }
   else
-    return abs(value - prev) / prev;
+    return std::abs(value - prev) / prev;
 }
 
 // Return true if the activity changed.
@@ -1837,7 +1830,7 @@ Power::clockMinPeriod(const Sdc *sdc)
   if (!clks.empty()) {
     float min_period = INF;
     for (const Clock *clk : clks)
-      min_period = min(min_period, clk->period());
+      min_period = std::min(min_period, clk->period());
     return min_period;
   }
   else
@@ -1963,7 +1956,7 @@ PwrActivity::check()
   // Densities can get very small from multiplying probabilities
   // through deep chains of logic. Clip them to prevent floating
   // point anomalies.
-  if (abs(density_) < min_density)
+  if (std::abs(density_) < min_density)
     density_ = 0.0;
 }
 

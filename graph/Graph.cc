@@ -39,8 +39,6 @@
 
 namespace sta {
 
-using std::string;
-
 ////////////////////////////////////////////////////////////////
 //
 // Graph
@@ -985,12 +983,12 @@ Vertex::setObjectIdx(ObjectIdx idx)
   object_idx_ = idx;
 }
 
-string
+std::string
 Vertex::to_string(const StaState *sta) const
 {
   const Network *network = sta->sdcNetwork();
   if (network->direction(pin_)->isBidirect()) {
-    string str = network->pathName(pin_);
+    std::string str = network->pathName(pin_);
     str += ' ';
     str += is_bidirect_drvr_ ? "driver" : "load";
     return str;
@@ -1002,7 +1000,7 @@ Vertex::to_string(const StaState *sta) const
 const char *
 Vertex::name(const Network *network) const
 {
-  string name = to_string(network);
+  std::string name = to_string(network);
   return makeTmpString(name);  
 }
 
@@ -1229,11 +1227,11 @@ Edge::setObjectIdx(ObjectIdx idx)
   object_idx_ = idx;
 }
 
-string
+std::string
 Edge::to_string(const StaState *sta) const
 {
   const Graph *graph = sta->graph();
-  string str = from(graph)->to_string(sta);
+  std::string str = from(graph)->to_string(sta);
   str += " -> ";
   str += to(graph)->to_string(sta);
   str += " ";

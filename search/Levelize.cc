@@ -25,6 +25,7 @@
 #include "Levelize.hh"
 
 #include <algorithm>
+#include <cmath>
 #include <deque>
 
 #include "ContainerHelpers.hh"
@@ -42,8 +43,6 @@
 #include "GraphDelayCalc.hh"
 
 namespace sta {
-
-using std::max;
 
 Levelize::Levelize(StaState *sta) :
   StaState(sta),
@@ -500,16 +499,16 @@ Levelize::assignLevels(VertexSeq &topo_sorted)
         Edge *edge = edge_iter.next();
         Vertex *to_vertex = edge->to(graph_);
         if (searchThru(edge))
-          setLevel(to_vertex, max(to_vertex->level(),
-                                  vertex->level() + level_space_));
+          setLevel(to_vertex, std::max(to_vertex->level(),
+                                       vertex->level() + level_space_));
       }
       // Levelize bidirect driver as if it was a fanout of the bidirect load.
       const Pin *pin = vertex->pin();
       if (graph_delay_calc_->bidirectDrvrSlewFromLoad(pin)
           && !vertex->isBidirectDriver()) {
         Vertex *to_vertex = graph_->pinDrvrVertex(pin);
-        setLevel(to_vertex, max(to_vertex->level(),
-                                vertex->level() + level_space_));
+        setLevel(to_vertex, std::max(to_vertex->level(),
+                                     vertex->level() + level_space_));
       }
     }
   }
@@ -541,7 +540,7 @@ Levelize::setLevel(Vertex  *vertex,
              vertex->to_string(this).c_str(),
              level);
   vertex->setLevel(level);
-  max_level_ = max(level, max_level_);
+  max_level_ = std::max(level, max_level_);
   if (level >= Graph::vertex_level_max)
     report_->critical(616, "maximum logic level exceeded");
 }
@@ -676,7 +675,7 @@ Levelize::setLevelIncr(Vertex  *vertex,
       observer_->levelChangedBefore(vertex);
     vertex->setLevel(level);
   }
-  max_level_ = max(level, max_level_);
+  max_level_ = std::max(level, max_level_);
   if (level >= Graph::vertex_level_max)
     criticalError(618, "maximum logic level exceeded");
 }

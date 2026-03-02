@@ -24,6 +24,9 @@
 
 #include "Property.hh"
 
+#include <algorithm>
+#include <string>
+
 #include "StringUtil.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
@@ -43,22 +46,19 @@
 
 namespace sta {
 
-using std::string;
-using std::max;
-
 class PropertyUnknown : public Exception
 {
 public:
   PropertyUnknown(const char *type,
                   const char *property);
   PropertyUnknown(const char *type,
-                  const string property);
+                  const std::string property);
   virtual ~PropertyUnknown() {}
   virtual const char *what() const noexcept;
 
 private:
   const char *type_;
-  const string property_;
+  const std::string property_;
 };
 
 PropertyUnknown::PropertyUnknown(const char *type,
@@ -70,7 +70,7 @@ PropertyUnknown::PropertyUnknown(const char *type,
 }
 
 PropertyUnknown::PropertyUnknown(const char *type,
-                                 const string property) :
+                                 const std::string property) :
   Exception(),
   type_(type),
   property_(property)
@@ -556,7 +556,7 @@ PropertyValue::operator=(PropertyValue &&value) noexcept
   return *this;
 }
 
-string
+std::string
 PropertyValue::to_string(const Network *network) const
 {
   switch (type_) {
@@ -683,9 +683,9 @@ Properties::getProperty(const Cell *cell,
     return PropertyValue(network->name(cell));
   else if (property == "full_name") {
     Library *lib = network->library(cell);
-    string lib_name = network->name(lib);
-    string cell_name = network->name(cell);
-    string full_name = lib_name + network->pathDivider() + cell_name;
+    std::string lib_name = network->name(lib);
+    std::string cell_name = network->name(cell);
+    std::string full_name = lib_name + network->pathDivider() + cell_name;
     return PropertyValue(full_name);
   }
   else if (property == "library")
@@ -714,9 +714,9 @@ Properties::getProperty(const LibertyCell *cell,
   else if (property == "full_name") {
     Network *network = sta_->cmdNetwork();
     LibertyLibrary *lib = cell->libertyLibrary();
-    string lib_name = lib->name();
-    string cell_name = cell->name();
-    string full_name = lib_name + network->pathDivider() + cell_name;
+    std::string lib_name = lib->name();
+    std::string cell_name = cell->name();
+    std::string full_name = lib_name + network->pathDivider() + cell_name;
     return PropertyValue(full_name);
   }
   else if (property == "filename")
@@ -1099,7 +1099,7 @@ Properties::getProperty(Edge *edge,
                         const std::string &property)
 {
   if (property == "full_name") {
-    string full_name = edge->to_string(sta_);
+    std::string full_name = edge->to_string(sta_);
     return PropertyValue(full_name);
   }
   if (property == "delay_min_fall")
@@ -1159,7 +1159,7 @@ Properties::getProperty(TimingArcSet *arc_set,
       const char *from = arc_set->from()->name();
       const char *to = arc_set->to()->name();
       const char *cell_name = arc_set->libertyCell()->name();
-      string name;
+      std::string name;
       stringPrint(name, "%s %s -> %s", cell_name, from, to);
       return PropertyValue(name);
     }

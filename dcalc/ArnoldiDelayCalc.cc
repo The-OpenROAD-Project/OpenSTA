@@ -63,10 +63,6 @@ namespace sta {
 //  ra_get_r
 //  ra_get_s
 
-using std::string;
-using std::abs;
-using std::vector;
-
 struct delay_work;
 struct delay_c;
 
@@ -151,15 +147,15 @@ public:
                            const LoadPinIndexMap &load_pin_index_map,
                            const Scene *scene,
                            const MinMax *min_max) override;
-  string reportGateDelay(const Pin *drvr_pin,
-                         const TimingArc *arc,
-                         const Slew &in_slew,
-                         float load_cap,
-                         const Parasitic *parasitic,
-                         const LoadPinIndexMap &load_pin_index_map,
-                         const Scene *scene,
-                         const MinMax *min_max,
-                         int digits) override;
+  std::string reportGateDelay(const Pin *drvr_pin,
+                              const TimingArc *arc,
+                              const Slew &in_slew,
+                              float load_cap,
+                              const Parasitic *parasitic,
+                              const LoadPinIndexMap &load_pin_index_map,
+                              const Scene *scene,
+                              const MinMax *min_max,
+                              int digits) override;
   void finishDrvrPin() override;
   void delay_work_set_thresholds(delay_work *D,
                                  double lo,
@@ -240,7 +236,7 @@ private:
   int pin_n_;
   ArnoldiReduce *reduce_;
   delay_work *delay_work_;
-  vector<rcmodel*> unsaved_parasitics_;
+  std::vector<rcmodel*> unsaved_parasitics_;
   bool pocv_enabled_;
 };
 
@@ -469,7 +465,7 @@ ArnoldiDelayCalc::gateDelaySlew(const LibertyCell *drvr_cell,
   return dcalc_result;
 }
 
-string
+std::string
 ArnoldiDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                   const TimingArc *arc,
                                   const Slew &in_slew,
@@ -690,7 +686,7 @@ tridiagEV(int n,double *din,double *ein,double *d,double **v)
   e[0] = 0.0;
   for (h=n-1;h>=1;h--) {
     iter = 0;
-    while (abs(e[h])>1e-18) { // 1e-6ps
+    while (std::abs(e[h])>1e-18) { // 1e-6ps
       m=0;
       if (m != h) {
         if (iter++ == 20)
@@ -820,14 +816,14 @@ solve_t_bracketed(double s,int order,double *p,double *rr,
     if (0.0<f2) return x2;
     if (f1<0.0) return x1;
   }
-  dxold = abs(x2-x1);
+  dxold = std::abs(x2-x1);
   dx = dxold;
   get_dv(rts,s,order,p,rr,&f,&df);
   f -= val;
   double flast = 0.0;
   for (j=1;j<10;j++) {
     if ((((rts-xh)*df-f)*((rts-xl)*df-f) >= 0.0)
-        || (abs(2.0*f) > abs(dxold*df))) {
+        || (std::abs(2.0*f) > std::abs(dxold*df))) {
       dxold = dx;
       dx = 0.5*(xh-xl);
       if (flast*f >0.0) {
@@ -851,7 +847,7 @@ solve_t_bracketed(double s,int order,double *p,double *rr,
         return rts;
       }
     }
-    if (abs(dx) < xacc) {
+    if (std::abs(dx) < xacc) {
       return rts;
     }
     get_dv(rts,s,order,p,rr,&f,&df); f -= val;
@@ -860,7 +856,7 @@ solve_t_bracketed(double s,int order,double *p,double *rr,
     else
       xh = rts;
   }
-  if (abs(f)<1e-6) // 1uV
+  if (std::abs(f)<1e-6) // 1uV
     return rts;
   return 0.5*(xl+xh);
 }
@@ -1266,28 +1262,28 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
   f = (ptlo-pthi)/p - tlohi;
   df = dlo-dhi;
   s = s - f/df;
-  if (abs(f)<.001e-12) return;  // .001ps
+  if (std::abs(f)<.001e-12) return;  // .001ps
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
   f = (ptlo-pthi)/p - tlohi;
   df = dlo-dhi;
   s = s - f/df;
-  if (abs(f)<.001e-12) return;  // .001ps
+  if (std::abs(f)<.001e-12) return;  // .001ps
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
   f = (ptlo-pthi)/p - tlohi;
   df = dlo-dhi;
   s = s - f/df;
-  if (abs(f)<.001e-12) return;  // .001ps
+  if (std::abs(f)<.001e-12) return;  // .001ps
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
   f = (ptlo-pthi)/p - tlohi;
   df = dlo-dhi;
   s = s - f/df;
-  if (abs(f)<.001e-12) return;  // .001ps
+  if (std::abs(f)<.001e-12) return;  // .001ps
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
@@ -1295,7 +1291,7 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
   df = dlo-dhi;
   s = s - f/df;
 
-  if (abs(f)>.5e-12) // .5ps
+  if (std::abs(f)>.5e-12) // .5ps
     debugPrint(debug_, "arnoldi", 1, "ra_solve_for_s p %g tlohi %s err %s",
                p,
                units_->timeUnit()->asString(tlohi),

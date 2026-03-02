@@ -24,7 +24,9 @@
 
 #include "Sta.hh"
 
+#include <algorithm>
 #include <filesystem>
+#include <string>
 
 #include "Machine.hh"
 #include "ContainerHelpers.hh"
@@ -87,10 +89,6 @@
 #include "spice/WritePathSpice.hh"
 
 namespace sta {
-
-using std::string;
-using std::min;
-using std::max;
 
 static bool
 libertyPortCapsEqual(const LibertyPort *port1,
@@ -576,7 +574,7 @@ Sta::cmdSdc() const
 }
 
 void
-Sta::setCmdMode(const string &mode_name)
+Sta::setCmdMode(const std::string &mode_name)
 {
   if (!mode_name.empty()) {
     if (!mode_name_map_.contains(mode_name)) {
@@ -3203,8 +3201,8 @@ class EndpointPathEndVisitor : public PathEndVisitor
 {
 public:
   EndpointPathEndVisitor(const std::string &path_group_name,
-			 const MinMax *min_max,
-			 const StaState *sta);
+                         const MinMax *min_max,
+                         const StaState *sta);
   PathEndVisitor *copy() const;
   void visit(PathEnd *path_end);
   Slack slack() const { return slack_; }
@@ -3217,8 +3215,8 @@ private:
 };
 
 EndpointPathEndVisitor::EndpointPathEndVisitor(const std::string &path_group_name,
-					       const MinMax *min_max,
-					       const StaState *sta) :
+                                               const MinMax *min_max,
+                                               const StaState *sta) :
   path_group_name_(path_group_name),
   min_max_(min_max),
   slack_(MinMax::min()->initValue()),
@@ -3249,8 +3247,8 @@ EndpointPathEndVisitor::visit(PathEnd *path_end)
 
 Slack
 Sta::endpointSlack(const Pin *pin,
-		   const std::string &path_group_name,
-		   const MinMax *min_max)
+                   const std::string &path_group_name,
+                   const MinMax *min_max)
 {
   ensureGraph();
   Vertex *vertex = graph_->pinLoadVertex(pin);
@@ -3458,7 +3456,7 @@ MinPeriodEndVisitor::visit(PathEnd *path_end)
                || pathIsFromInputPort(path_end)))) {
     Slack slack = path_end->slack(sta_);
     float period = clk_->period() - delayAsFloat(slack);
-    min_period_ = max(min_period_, period);
+    min_period_ = std::max(min_period_, period);
   }
 }
 
@@ -3551,12 +3549,12 @@ Sta::worstSlack(const Scene *scene,
 
 ////////////////////////////////////////////////////////////////
 
-string
+std::string
 Sta::reportDelayCalc(Edge *edge,
-		     TimingArc *arc,
+                     TimingArc *arc,
                      const Scene *scene,
-		     const MinMax *min_max,
-		     int digits)
+                     const MinMax *min_max,
+                     int digits)
 {
   findDelays();
   return graph_delay_calc_->reportDelayCalc(edge, arc, scene, min_max, digits);
@@ -4097,13 +4095,13 @@ Sta::setResistance(const Net *net,
 bool
 Sta::readSpef(const std::string &name,
               const std::string &filename,
-	      Instance *instance,
+              Instance *instance,
               Scene *scene,   // -scene deprecated 11/20/2025
-	      const MinMaxAll *min_max,
-	      bool pin_cap_included,
-	      bool keep_coupling_caps,
-	      float coupling_cap_factor,
-	      bool reduce)
+              const MinMaxAll *min_max,
+              bool pin_cap_included,
+              bool keep_coupling_caps,
+              float coupling_cap_factor,
+              bool reduce)
 {
   ensureLibLinked();
   Parasitics *parasitics = nullptr;
@@ -4137,7 +4135,7 @@ Sta::readSpef(const std::string &name,
   }
 
   bool success = readSpefFile(filename.c_str(), instance,
-			      pin_cap_included, keep_coupling_caps,
+                              pin_cap_included, keep_coupling_caps,
                               coupling_cap_factor, reduce,
                               scene, min_max, parasitics, this);
   delaysInvalid();
@@ -4151,7 +4149,7 @@ Sta::findParasitics(const std::string &name)
 }
 
 void
-Sta::reportParasiticAnnotation(const string &spef_name,
+Sta::reportParasiticAnnotation(const std::string &spef_name,
                                bool report_unannotated)
 {
   ensureLibLinked();

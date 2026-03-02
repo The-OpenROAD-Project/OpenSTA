@@ -37,8 +37,6 @@
 
 namespace sta {
 
-using std::string;
-
 void
 parseLibertyFile(const char *filename,
                  LibertyGroupVisitor *library_visitor,
@@ -65,7 +63,7 @@ LibertyParser::LibertyParser(const char *filename,
 }
 
 void
-LibertyParser::setFilename(const string &filename)
+LibertyParser::setFilename(const std::string &filename)
 {
   filename_ = filename;
 }
@@ -253,7 +251,7 @@ LibertyScanner::includeBegin()
     static const std::regex include_regexp("include_file *\\( *([^)]+) *\\) *;?");
     std::cmatch matches;
     if (std::regex_match(yytext, matches, include_regexp)) {
-      string filename = matches[1].str();
+      std::string filename = matches[1].str();
       gzstream::igzstream *stream = new gzstream::igzstream(filename.c_str());
       if (stream->is_open()) {
         yypush_buffer_state(yy_create_buffer(stream, 16384));
@@ -348,7 +346,7 @@ LibertyGroup::deleteSubgroup(const LibertyGroup *subgroup)
 void
 LibertyGroup::addDefine(LibertyDefine *define)
 {
-  const string &define_name = define->name();
+  const std::string &define_name = define->name();
   LibertyDefine *prev_define = findKey(define_map_, define_name);
   if (prev_define) {
     define_map_.erase(define_name);

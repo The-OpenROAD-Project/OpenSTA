@@ -50,8 +50,6 @@
 
 namespace sta {
 
-using std::string;
-
 void
 initLiberty()
 {
@@ -2704,13 +2702,13 @@ LibertyPort::setReceiverModel(ReceiverModelPtr receiver_model)
   receiver_model_ = receiver_model;
 }
 
-string
+std::string
 portLibertyToSta(const char *port_name)
 {
   constexpr char bus_brkt_left = '[';
   constexpr char bus_brkt_right = ']';
   size_t name_length = strlen(port_name);
-  string sta_name;
+  std::string sta_name;
   for (size_t i = 0; i < name_length; i++) {
     char ch = port_name[i];
     if (ch == bus_brkt_left
