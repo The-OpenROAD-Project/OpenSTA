@@ -1,0 +1,53 @@
+*SPEF "IEEE 1481-1998"
+*DESIGN "search_test1"
+*DATE "Thu Jan 01 00:00:00 2026"
+*VENDOR "Test"
+*PROGRAM "TestGen"
+*VERSION "1.0"
+*DESIGN_FLOW ""
+*DIVIDER /
+*DELIMITER :
+*BUS_DELIMITER [ ]
+*T_UNIT 1.0 PS
+*C_UNIT 1.0 FF
+*R_UNIT 1.0 KOHM
+*L_UNIT 1.0 UH
+
+*PORTS
+in1 I
+in2 I
+clk I
+out1 O
+
+*D_NET n1 10.0
+*CONN
+*I and1:ZN O
+*I buf1:A I
+*CAP
+1 and1:ZN 5.0
+2 buf1:A 5.0
+*RES
+3 and1:ZN buf1:A 1.5
+*END
+
+*D_NET n2 8.0
+*CONN
+*I buf1:Z O
+*I reg1:D I
+*CAP
+1 buf1:Z 4.0
+2 reg1:D 4.0
+*RES
+3 buf1:Z reg1:D 1.2
+*END
+
+*D_NET n3 12.0
+*CONN
+*I reg1:Q O
+*I buf2:A I
+*CAP
+1 reg1:Q 6.0
+2 buf2:A 6.0
+*RES
+3 reg1:Q buf2:A 2.0
+*END

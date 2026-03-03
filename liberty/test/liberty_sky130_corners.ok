@@ -1,0 +1,699 @@
+--- Fast corner, max ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Corner: fast
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CLK (sky130_fd_sc_hd__dfxtp_1)
+   0.18    0.18 v reg1/Q (sky130_fd_sc_hd__dfxtp_1)
+   0.04    0.22 v buf2/X (sky130_fd_sc_hd__buf_1)
+   0.00    0.22 v out1 (out)
+           0.22   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -0.22   data arrival time
+---------------------------------------------------------
+           6.78   slack (MET)
+
+
+--- Slow corner, max ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Corner: slow
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CLK (sky130_fd_sc_hd__dfxtp_1)
+   1.20    1.20 ^ reg1/Q (sky130_fd_sc_hd__dfxtp_1)
+   0.21    1.41 ^ buf2/X (sky130_fd_sc_hd__buf_1)
+   0.00    1.41 ^ out1 (out)
+           1.41   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -3.00    7.00   output external delay
+           7.00   data required time
+---------------------------------------------------------
+           7.00   data required time
+          -1.41   data arrival time
+---------------------------------------------------------
+           5.59   slack (MET)
+
+
+--- Fast corner, min ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+Corner: fast
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CLK (sky130_fd_sc_hd__dfxtp_1)
+   0.18    0.18 ^ reg1/Q (sky130_fd_sc_hd__dfxtp_1)
+   0.00    0.18 ^ reg2/D (sky130_fd_sc_hd__dfxtp_1)
+           0.18   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CLK (sky130_fd_sc_hd__dfxtp_1)
+  -0.02   -0.02   library hold time
+          -0.02   data required time
+---------------------------------------------------------
+          -0.02   data required time
+          -0.18   data arrival time
+---------------------------------------------------------
+           0.20   slack (MET)
+
+
+--- Slow corner, min ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+Corner: slow
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg1/CLK (sky130_fd_sc_hd__dfxtp_1)
+   0.93    0.93 v reg1/Q (sky130_fd_sc_hd__dfxtp_1)
+   0.00    0.93 v reg2/D (sky130_fd_sc_hd__dfxtp_1)
+           0.93   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CLK (sky130_fd_sc_hd__dfxtp_1)
+  -0.22   -0.22   library hold time
+          -0.22   data required time
+---------------------------------------------------------
+          -0.22   data required time
+          -0.93   data arrival time
+---------------------------------------------------------
+           1.15   slack (MET)
+
+
+Cell sky130_fd_sc_hd__inv_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ Y output function=!A
+Cell sky130_fd_sc_hd__inv_2
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ Y output function=!A
+Cell sky130_fd_sc_hd__inv_4
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.01-0.01
+ Y output function=!A
+Cell sky130_fd_sc_hd__buf_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__buf_2
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__buf_4
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__nand2_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ Y output function=!A+!B
+Cell sky130_fd_sc_hd__nand3_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ Y output function=(!A+!B)+!C
+Cell sky130_fd_sc_hd__nand4_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ D input 0.00-0.00
+ Y output function=((!A+!B)+!C)+!D
+Cell sky130_fd_sc_hd__nor2_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ Y output function=!A*!B
+Cell sky130_fd_sc_hd__nor3_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ Y output function=(!A*!B)*!C
+Cell sky130_fd_sc_hd__nor4_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ D input 0.00-0.00
+ Y output function=((!A*!B)*!C)*!D
+Cell sky130_fd_sc_hd__and2_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ X output function=A*B
+Cell sky130_fd_sc_hd__and3_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ X output function=(A*B)*C
+Cell sky130_fd_sc_hd__and4_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ D input 0.00-0.00
+ X output function=((A*B)*C)*D
+Cell sky130_fd_sc_hd__or2_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ X output function=A+B
+Cell sky130_fd_sc_hd__or3_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ X output function=(A+B)+C
+Cell sky130_fd_sc_hd__or4_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ D input 0.00-0.00
+ X output function=((A+B)+C)+D
+Cell sky130_fd_sc_hd__xor2_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ X output function=(A*!B)+(!A*B)
+Cell sky130_fd_sc_hd__xnor2_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ Y output function=(!A*!B)+(A*B)
+Cell sky130_fd_sc_hd__a21o_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ X output function=(A1*A2)+B1
+Cell sky130_fd_sc_hd__a21oi_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ Y output function=(!A1*!B1)+(!A2*!B1)
+Cell sky130_fd_sc_hd__a22o_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ X output function=(B1*B2)+(A1*A2)
+Cell sky130_fd_sc_hd__a22oi_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ Y output function=(((!A1*!B1)+(!A1*!B2))+(!A2*!B1))+(!A2*!B2)
+Cell sky130_fd_sc_hd__o21a_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ X output function=(A1*B1)+(A2*B1)
+Cell sky130_fd_sc_hd__o21ai_0
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ Y output function=(!A1*!A2)+!B1
+Cell sky130_fd_sc_hd__o22a_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ X output function=(((A1*B1)+(A2*B1))+(A1*B2))+(A2*B2)
+Cell sky130_fd_sc_hd__o22ai_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ Y output function=(!B1*!B2)+(!A1*!A2)
+Cell sky130_fd_sc_hd__a31o_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ A3 input 0.00-0.00
+ B1 input 0.00-0.00
+ X output function=((A1*A2)*A3)+B1
+Cell sky130_fd_sc_hd__a32o_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ A3 input 0.00-0.00
+ B1 input 0.00-0.00
+ B2 input 0.00-0.00
+ X output function=((A1*A2)*A3)+(B1*B2)
+Cell sky130_fd_sc_hd__mux2_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 0.00-0.00
+ A1 input 0.00-0.00
+ S input 0.00-0.00
+ X output function=(A0*!S)+(A1*S)
+Cell sky130_fd_sc_hd__mux4_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A0 input 0.00-0.00
+ A1 input 0.00-0.00
+ A2 input 0.00-0.00
+ A3 input 0.00-0.00
+ S0 input 0.00-0.00
+ S1 input 0.00-0.00
+ X output function=((((A0*!S0)*!S1)+((A1*S0)*!S1))+((A2*!S0)*S1))+((A3*S0)*S1)
+Cell sky130_fd_sc_hd__fa_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.01-0.01
+ B input 0.01-0.01
+ CIN input 0.00-0.00
+ COUT output function=((A*B)+(A*CIN))+(B*CIN)
+ SUM output function=((((A*!B)*!CIN)+((!A*B)*!CIN))+((!A*!B)*CIN))+((A*B)*CIN)
+Cell sky130_fd_sc_hd__ha_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00
+ COUT output function=A*B
+ SUM output function=(A*!B)+(!A*B)
+Cell sky130_fd_sc_hd__maj3_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ B input 0.00-0.00
+ C input 0.00-0.00
+ X output function=((A*B)+(A*C))+(B*C)
+Cell sky130_fd_sc_hd__dfxtp_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+Cell sky130_fd_sc_hd__dfrtp_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ RESET_B input 0.00-0.00
+Cell sky130_fd_sc_hd__dfstp_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ SET_B input 0.00-0.00
+Cell sky130_fd_sc_hd__dfbbp_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ Q_N output function=IQ_N
+ RESET_B input 0.00-0.00
+ SET_B input 0.00-0.00
+Cell sky130_fd_sc_hd__dlxtp_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ D input 0.00-0.00
+ GATE input 0.00-0.00
+ Q output function=IQ
+Cell sky130_fd_sc_hd__dlxtn_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ D input 0.00-0.00
+ GATE_N input 0.00-0.00
+ Q output function=IQ
+Cell sky130_fd_sc_hd__sdfxtp_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ SCD input 0.00-0.00
+ SCE input 0.00-0.00
+Cell sky130_fd_sc_hd__sdfxbp_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ IQ internal
+ IQ_N internal
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ D input 0.00-0.00
+ Q output function=IQ
+ Q_N output function=IQ_N
+ SCD input 0.00-0.00
+ SCE input 0.00-0.00
+Cell sky130_fd_sc_hd__ebufn_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ TE_B input 0.00-0.00
+ Z tristate enable=!TE_B function=A 0.00
+Cell sky130_fd_sc_hd__ebufn_2
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ TE_B input 0.00-0.00
+ Z tristate enable=!TE_B function=A 0.00
+Cell sky130_fd_sc_hd__clkbuf_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__clkbuf_2
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ X output function=A
+Cell sky130_fd_sc_hd__clkinv_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.00
+ Y output function=!A
+Cell sky130_fd_sc_hd__clkinv_2
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ A input 0.00-0.01
+ Y output function=!A
+Cell sky130_fd_sc_hd__conb_1
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ HI output function=1
+ LO output function=0
+Cell sky130_fd_sc_hd__diode_2
+Library sky130_fd_sc_hd__ff_n40C_1v95
+File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ DIODE input 0.00-0.00
+sky130_fd_sc_hd__inv_1: area=3.753600 dont_use=0
+sky130_fd_sc_hd__buf_1: area=3.753600 dont_use=0
+sky130_fd_sc_hd__dfxtp_1: area=20.019199 dont_use=0
+sky130_fd_sc_hd__dlxtp_1: area=15.014400 dont_use=0
+sky130_fd_sc_hd__sdfxtp_1: area=26.275200 dont_use=0
+sky130_fd_sc_hd__ebufn_1: area=10.009600 dont_use=0
+sky130_fd_sc_hd__mux2_1: area=11.260800 dont_use=0
+sky130_fd_sc_hd__fa_1: area=20.019199 dont_use=0
+sky130_fd_sc_hd__inv_1/A: cap=0.002392 dir=input
+sky130_fd_sc_hd__inv_1/Y: cap=0.000000 dir=output
+sky130_fd_sc_hd__buf_1/A: cap=0.002258 dir=input
+sky130_fd_sc_hd__buf_1/X: cap=0.000000 dir=output
+sky130_fd_sc_hd__nand2_1/A: cap=0.002387 dir=input
+sky130_fd_sc_hd__nand2_1/B: cap=0.002422 dir=input
+sky130_fd_sc_hd__nand2_1/Y: cap=0.000000 dir=output
+sky130_fd_sc_hd__dfxtp_1/CLK: cap=0.001937 dir=input
+sky130_fd_sc_hd__dfxtp_1/D: cap=0.001748 dir=input
+sky130_fd_sc_hd__dfxtp_1/Q: cap=0.000000 dir=output
+sky130_fd_sc_hd__dfrtp_1/CLK: cap=0.001951 dir=input
+sky130_fd_sc_hd__dfrtp_1/D: cap=0.002086 dir=input
+sky130_fd_sc_hd__dfrtp_1/RESET_B: cap=0.003621 dir=input
+sky130_fd_sc_hd__dfrtp_1/Q: cap=0.000000 dir=output

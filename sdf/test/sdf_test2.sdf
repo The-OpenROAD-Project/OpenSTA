@@ -1,0 +1,68 @@
+(DELAYFILE
+  (SDFVERSION "3.0")
+  (DESIGN "sdf_test2")
+  (DATE "Wed Feb 12 12:00:00 2026")
+  (VENDOR "Test")
+  (PROGRAM "OpenSTA test")
+  (VERSION "1.0")
+  (DIVIDER /)
+  (VOLTAGE 1.1::0.9)
+  (PROCESS "typical")
+  (TEMPERATURE 25::85)
+  (TIMESCALE 1ns)
+  (CELL
+    (CELLTYPE "BUF_X1")
+    (INSTANCE buf1)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Z (0.05:0.10:0.15) (0.05:0.10:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF_X2")
+    (INSTANCE buf2)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Z (0.03:0.06:0.09) (0.03:0.06:0.09))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2_X1")
+    (INSTANCE and1)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A1 ZN (0.04:0.08:0.12) (0.04:0.08:0.12))
+        (IOPATH A2 ZN (0.04:0.08:0.12) (0.04:0.08:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF_X1")
+    (INSTANCE reg1)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH CK Q (0.15:0.25:0.35) (0.15:0.25:0.35))
+        (IOPATH CK QN (0.18:0.28:0.38) (0.18:0.28:0.38))
+      )
+    )
+    (TIMINGCHECK
+      (SETUP D (posedge CK) (0.05:0.08:0.10))
+      (HOLD D (posedge CK) (0.02:0.03:0.05))
+      (WIDTH (posedge CK) (0.5:0.5:0.5))
+      (WIDTH (negedge CK) (0.5:0.5:0.5))
+    )
+  )
+  (CELL
+    (CELLTYPE "sdf_test2")
+    (INSTANCE )
+    (DELAY
+      (ABSOLUTE
+        (INTERCONNECT buf1/Z buf2/A (0.01:0.02:0.03) (0.01:0.02:0.03))
+        (INTERCONNECT buf2/Z and1/A1 (0.01:0.02:0.03) (0.01:0.02:0.03))
+        (INTERCONNECT and1/ZN reg1/D (0.01:0.02:0.03) (0.01:0.02:0.03))
+      )
+    )
+  )
+)

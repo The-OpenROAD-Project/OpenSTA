@@ -1,42 +1,59 @@
-#!/bin/sh
-# The next line is executed by /bin/sh, but not Tcl \
-exec tclsh $0 ${1+"$@"}
+#!/usr/bin/env bash
+# CLI launcher for module regression tests.
+# Symlinked from <module>/test/regression.
+# Usage: ./regression [ctest args...]
+#   ./regression                       run all tests for this module
+#   ./regression -R search_timing      run matching test
+#   ./regression -R search_timing.tcl  .tcl suffix is stripped automatically
+#
+# Modeled after OpenROAD/test/shared/regression.sh
 
-# OpenSTA, Static Timing Analyzer
-# Copyright (c) 2025, Parallax Software, Inc.
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
-# 
-# The origin of this software must not be misrepresented; you must not
-# claim that you wrote the original software.
-# 
-# Altered source versions must be plainly marked as such, and must not be
-# misrepresented as being the original software.
-# 
-# This notice may not be removed or altered from any source distribution.
+set -e
 
-# Usage: regression help | test1 [test2...]
-# where test is all or the name of a tcl script in $STA/test
+# Determine module name from current directory.
+script_path=$(realpath "$PWD")
+sta_home=$(cd "$(dirname "$(realpath "$0")")/.." && pwd)
+module=${script_path#${sta_home}/}
+module=${module%%/*}
 
-# Directory containing tests.
-set test_dir [file dirname [file normalize [info script]]]
-set sta_dir [file normalize [file join $test_dir ".."]]
-source [file join $test_dir regression_vars.tcl]
-source [file join $test_dir regression.tcl]
+# Find build directory.
+if [ -d "${sta_home}/build" ]; then
+  build_dir="${sta_home}/build"
+else
+  echo "Error: no build directory found (tried build)"
+  exit 1
+fi
 
-regression_main
+# Rewrite -R argument: strip .tcl suffix, convert _ to . for ctest name matching.
+args=()
+next_is_pattern=false
+for arg in "$@"; do
+  if $next_is_pattern; then
+    arg="${arg%.tcl}"
+    arg="${arg//_/.}"
+    next_is_pattern=false
+  fi
+  if [ "$arg" = "-R" ]; then
+    next_is_pattern=true
+  fi
+  args+=("$arg")
+done
 
-# Local Variables:
-# mode:tcl
-# End:
+cd "${build_dir}"
+
+# Default to parallel execution using all cores.
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  numThreads=$(nproc --all)
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  numThreads=$(sysctl -n hw.ncpu)
+else
+  numThreads=2
+fi
+
+# Top-level test/ directory or project root: run all tests.
+# Module directory (e.g. dcalc/test): run only that module's tests.
+if [ "$module" = "test" ] || [ -z "$module" ]; then
+  ctest -j "${numThreads}" "${args[@]}"
+else
+  ctest -j "${numThreads}" -L "module_${module}" "${args[@]}"
+fi

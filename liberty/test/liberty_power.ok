@@ -1,0 +1,69 @@
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             1.52e-06   6.90e-09   2.36e-07   1.76e-06  84.2%
+Combinational          1.33e-07   7.11e-08   1.25e-07   3.29e-07  15.8%
+Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  1.65e-06   7.80e-08   3.61e-07   2.09e-06 100.0%
+                          79.0%       3.7%      17.3%
+Group                    Internal    Switching      Leakage        Total
+                            Power        Power        Power        Power (Watts)
+------------------------------------------------------------------------
+Sequential           1.517312e-06 6.898755e-09 2.356813e-07 1.759892e-06  84.2%
+Combinational        1.332258e-07 7.108275e-08 1.250753e-07 3.293839e-07  15.8%
+Clock                0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
+Macro                0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
+Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
+------------------------------------------------------------------------
+Total                1.650538e-06 7.798150e-08 3.607567e-07 2.089276e-06 100.0%
+                            79.0%         3.7%        17.3%
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   3.04e-08   1.13e-08   2.14e-08   6.31e-08 buf1
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   2.33e-08   5.90e-09   1.44e-08   4.35e-08 inv1
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   2.56e-08   2.00e-08   2.51e-08   7.07e-08 and1
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   5.87e-07   6.90e-09   7.86e-08   6.73e-07 reg1
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   5.89e-07   0.00e+00   7.84e-08   6.67e-07 reg2
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   3.41e-07   0.00e+00   7.86e-08   4.20e-07 reg3
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   5.87e-07   6.90e-09   7.86e-08   6.73e-07 reg1
+   5.89e-07   0.00e+00   7.84e-08   6.67e-07 reg2
+   3.41e-07   0.00e+00   7.86e-08   4.20e-07 reg3
+   2.56e-08   2.00e-08   2.51e-08   7.07e-08 and1
+   2.70e-08   2.01e-08   2.27e-08   6.98e-08 or1
+   3.04e-08   1.13e-08   2.14e-08   6.31e-08 buf1
+   2.33e-08   5.90e-09   1.44e-08   4.35e-08 inv1
+   1.46e-08   6.90e-09   1.97e-08   4.11e-08 nor1
+   1.24e-08   6.90e-09   2.18e-08   4.11e-08 nand1
+INV_X1 area: 0.532000
+BUF_X1 area: 0.798000
+DFF_X1 area: 4.522000
+INV_X1 is_inverter: 1
+INV_X1 is_buffer: 0
+BUF_X1 is_buffer: 1
+BUF_X1 is_inverter: 0
+DFF_X1 is_buffer: 0
+sky130 inv area: 3.753600
+IHP inv area: 5.443200
+ASAP7 DFF area: 0.291600

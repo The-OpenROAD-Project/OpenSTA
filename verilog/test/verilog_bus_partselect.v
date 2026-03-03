@@ -1,0 +1,83 @@
+// Verilog design exercising bus part-select, bit-select, concatenation,
+// and module instance with bus connections.
+// Targets: VerilogReader.cc bus expression handling, part-select parsing,
+//   bit-select parsing, concatenation with bus wires, assign statements
+
+module bus_sub (input [3:0] din, output [3:0] dout);
+  BUF_X1 b0 (.A(din[0]), .Z(dout[0]));
+  BUF_X1 b1 (.A(din[1]), .Z(dout[1]));
+  BUF_X1 b2 (.A(din[2]), .Z(dout[2]));
+  BUF_X1 b3 (.A(din[3]), .Z(dout[3]));
+endmodule
+
+module verilog_bus_partselect (
+  input clk,
+  input [7:0] data_in,
+  input sel,
+  output [7:0] data_out,
+  output valid
+);
+
+  wire [7:0] buf_out;
+  wire [7:0] inv_out;
+  wire [3:0] low_nibble;
+  wire [3:0] high_nibble;
+  wire [7:0] mux_out;
+  wire n1, n2, n3;
+
+  // Bit-select connections
+  BUF_X1 buf0 (.A(data_in[0]), .Z(buf_out[0]));
+  BUF_X1 buf1 (.A(data_in[1]), .Z(buf_out[1]));
+  BUF_X1 buf2 (.A(data_in[2]), .Z(buf_out[2]));
+  BUF_X1 buf3 (.A(data_in[3]), .Z(buf_out[3]));
+  BUF_X1 buf4 (.A(data_in[4]), .Z(buf_out[4]));
+  BUF_X1 buf5 (.A(data_in[5]), .Z(buf_out[5]));
+  BUF_X1 buf6 (.A(data_in[6]), .Z(buf_out[6]));
+  BUF_X1 buf7 (.A(data_in[7]), .Z(buf_out[7]));
+
+  // Inverters on low nibble
+  INV_X1 inv0 (.A(buf_out[0]), .ZN(inv_out[0]));
+  INV_X1 inv1 (.A(buf_out[1]), .ZN(inv_out[1]));
+  INV_X1 inv2 (.A(buf_out[2]), .ZN(inv_out[2]));
+  INV_X1 inv3 (.A(buf_out[3]), .ZN(inv_out[3]));
+
+  // Pass-through on high nibble
+  BUF_X1 pbuf4 (.A(buf_out[4]), .Z(inv_out[4]));
+  BUF_X1 pbuf5 (.A(buf_out[5]), .Z(inv_out[5]));
+  BUF_X1 pbuf6 (.A(buf_out[6]), .Z(inv_out[6]));
+  BUF_X1 pbuf7 (.A(buf_out[7]), .Z(inv_out[7]));
+
+  // Sub-module instantiation with bus port
+  bus_sub sub_lo (.din({inv_out[3], inv_out[2], inv_out[1], inv_out[0]}),
+                  .dout(low_nibble));
+  bus_sub sub_hi (.din({inv_out[7], inv_out[6], inv_out[5], inv_out[4]}),
+                  .dout(high_nibble));
+
+  // MUX using select
+  AND2_X1 mux_lo0 (.A1(low_nibble[0]), .A2(sel), .ZN(mux_out[0]));
+  AND2_X1 mux_lo1 (.A1(low_nibble[1]), .A2(sel), .ZN(mux_out[1]));
+  AND2_X1 mux_lo2 (.A1(low_nibble[2]), .A2(sel), .ZN(mux_out[2]));
+  AND2_X1 mux_lo3 (.A1(low_nibble[3]), .A2(sel), .ZN(mux_out[3]));
+
+  INV_X1 sel_inv (.A(sel), .ZN(n1));
+  AND2_X1 mux_hi0 (.A1(high_nibble[0]), .A2(n1), .ZN(mux_out[4]));
+  AND2_X1 mux_hi1 (.A1(high_nibble[1]), .A2(n1), .ZN(mux_out[5]));
+  AND2_X1 mux_hi2 (.A1(high_nibble[2]), .A2(n1), .ZN(mux_out[6]));
+  AND2_X1 mux_hi3 (.A1(high_nibble[3]), .A2(n1), .ZN(mux_out[7]));
+
+  // Output registers
+  DFF_X1 reg0 (.D(mux_out[0]), .CK(clk), .Q(data_out[0]));
+  DFF_X1 reg1 (.D(mux_out[1]), .CK(clk), .Q(data_out[1]));
+  DFF_X1 reg2 (.D(mux_out[2]), .CK(clk), .Q(data_out[2]));
+  DFF_X1 reg3 (.D(mux_out[3]), .CK(clk), .Q(data_out[3]));
+  DFF_X1 reg4 (.D(mux_out[4]), .CK(clk), .Q(data_out[4]));
+  DFF_X1 reg5 (.D(mux_out[5]), .CK(clk), .Q(data_out[5]));
+  DFF_X1 reg6 (.D(mux_out[6]), .CK(clk), .Q(data_out[6]));
+  DFF_X1 reg7 (.D(mux_out[7]), .CK(clk), .Q(data_out[7]));
+
+  // Valid signal (OR reduction of output bits)
+  OR2_X1 or01 (.A1(data_out[0]), .A2(data_out[1]), .ZN(n2));
+  OR2_X1 or23 (.A1(data_out[2]), .A2(data_out[3]), .ZN(n3));
+  OR2_X1 or_final (.A1(n2), .A2(n3), .ZN(valid));
+
+endmodule

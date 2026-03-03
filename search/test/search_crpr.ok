@@ -1,0 +1,407 @@
+--- CRPR with propagated clock, setup ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.03    0.03 ^ ckbuf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ckbuf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (propagated)
+  -0.50    9.50   clock uncertainty
+   0.00    9.50   clock reconvergence pessimism
+  -2.00    7.50   output external delay
+           7.50   data required time
+---------------------------------------------------------
+           7.50   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.36   slack (MET)
+
+
+--- CRPR with propagated clock, hold ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.02    0.02 ^ ckbuf1/Z (CLKBUF_X1)
+   0.00    0.02 ^ reg1/CK (DFF_X1)
+   0.08    0.11 ^ reg1/Q (DFF_X1)
+   0.02    0.13 ^ buf2/Z (BUF_X1)
+   0.00    0.13 ^ reg2/D (DFF_X1)
+           0.13   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.03    0.03 ^ ckbuf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ckbuf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.30    0.35   clock uncertainty
+   0.00    0.35   clock reconvergence pessimism
+   0.01    0.36   library hold time
+           0.36   data required time
+---------------------------------------------------------
+           0.36   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+          -0.23   slack (VIOLATED)
+
+
+--- report_checks full_clock ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.03    0.03 ^ ckbuf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ckbuf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (propagated)
+  -0.50    9.50   clock uncertainty
+   0.00    9.50   clock reconvergence pessimism
+  -2.00    7.50   output external delay
+           7.50   data required time
+---------------------------------------------------------
+           7.50   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.36   slack (MET)
+
+
+--- report_checks between reg1 and reg2 ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.03    0.03 ^ ckbuf1/Z (CLKBUF_X1)
+   0.00    0.03 ^ reg1/CK (DFF_X1)
+   0.08    0.11 v reg1/Q (DFF_X1)
+   0.02    0.14 v buf2/Z (BUF_X1)
+   0.00    0.14 v reg2/D (DFF_X1)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock source latency
+   0.00   10.00 ^ clk (in)
+   0.02   10.02 ^ ckbuf1/Z (CLKBUF_X1)
+   0.02   10.05 ^ ckbuf2/Z (CLKBUF_X1)
+   0.00   10.05 ^ reg2/CK (DFF_X1)
+  -0.50    9.55   clock uncertainty
+   0.00    9.55   clock reconvergence pessimism
+  -0.04    9.51   library setup time
+           9.51   data required time
+---------------------------------------------------------
+           9.51   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           9.38   slack (MET)
+
+
+--- report_checks min between reg1 and reg2 ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.02    0.02 ^ ckbuf1/Z (CLKBUF_X1)
+   0.00    0.02 ^ reg1/CK (DFF_X1)
+   0.08    0.11 ^ reg1/Q (DFF_X1)
+   0.02    0.13 ^ buf2/Z (BUF_X1)
+   0.00    0.13 ^ reg2/D (DFF_X1)
+           0.13   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.03    0.03 ^ ckbuf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ckbuf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.30    0.35   clock uncertainty
+   0.00    0.35   clock reconvergence pessimism
+   0.01    0.36   library hold time
+           0.36   data required time
+---------------------------------------------------------
+           0.36   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+          -0.23   slack (VIOLATED)
+
+
+--- report_clock_skew ---
+Clock clk
+   0.03 source latency reg1/CK ^
+  -0.05 target latency reg2/CK ^
+   0.50 clock uncertainty
+  -0.00 CRPR
+--------------
+   0.48 setup skew
+
+Clock clk
+   0.02 source latency reg1/CK ^
+  -0.05 target latency reg2/CK ^
+  -0.30 clock uncertainty
+  -0.00 CRPR
+--------------
+  -0.33 hold skew
+
+--- report_clock_latency ---
+Clock clk
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.02         network latency reg1/CK
+           0.05 network latency reg2/CK
+---------------
+   0.02    0.05 latency
+           0.03 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.02         network latency reg1/CK
+           0.05 network latency reg2/CK
+---------------
+   0.02    0.05 latency
+           0.03 skew
+
+
+--- check CRPR mode settings ---
+CRPR enabled: 1
+CRPR mode: same_pin
+CRPR mode after set: same_pin
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.03    0.03 ^ ckbuf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ckbuf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (propagated)
+  -0.50    9.50   clock uncertainty
+   0.00    9.50   clock reconvergence pessimism
+  -2.00    7.50   output external delay
+           7.50   data required time
+---------------------------------------------------------
+           7.50   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.36   slack (MET)
+
+
+CRPR mode after set: same_transition
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.03    0.03 ^ ckbuf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ckbuf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (propagated)
+  -0.50    9.50   clock uncertainty
+   0.00    9.50   clock reconvergence pessimism
+  -2.00    7.50   output external delay
+           7.50   data required time
+---------------------------------------------------------
+           7.50   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.36   slack (MET)
+
+
+--- CRPR disabled ---
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock source latency
+   0.00    0.00 ^ clk (in)
+   0.03    0.03 ^ ckbuf1/Z (CLKBUF_X1)
+   0.03    0.05 ^ ckbuf2/Z (CLKBUF_X1)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (propagated)
+  -0.50    9.50   clock uncertainty
+  -2.00    7.50   output external delay
+           7.50   data required time
+---------------------------------------------------------
+           7.50   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.36   slack (MET)
+
+
+--- find_timing_paths with CRPR ---
+Warning 502: search_crpr.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Found 3 paths with CRPR
+  slack=7.3573676040439295e-9 crpr=0.0
+  slack=7.363725185172143e-9 crpr=0.0
+  slack=8.43751646328883e-9 crpr=0.0
+--- find_timing_paths min with CRPR ---
+Warning 502: search_crpr.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
+Found 3 hold paths with CRPR
+  slack=-2.327258247225572e-10 crpr=-2.547686020482054e-12
+  slack=-2.3130949933225509e-10 crpr=-2.547686020482054e-12
+  slack=7.07958414114529e-10 crpr=-0.0
+--- report_check_types ---
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.02    0.02   clock network delay (propagated)
+   0.00    0.02 ^ reg1/CK (DFF_X1)
+   0.08    0.11 ^ reg1/Q (DFF_X1)
+   0.02    0.13 ^ buf2/Z (BUF_X1)
+   0.00    0.13 ^ reg2/D (DFF_X1)
+           0.13   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.05    0.05   clock network delay (propagated)
+   0.30    0.35   clock uncertainty
+   0.00    0.35   clock reconvergence pessimism
+           0.35 ^ reg2/CK (DFF_X1)
+   0.01    0.36   library hold time
+           0.36   data required time
+---------------------------------------------------------
+           0.36   data required time
+          -0.13   data arrival time
+---------------------------------------------------------
+          -0.23   slack (VIOLATED)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.05    0.05   clock network delay (propagated)
+   0.00    0.05 ^ reg2/CK (DFF_X1)
+   0.09    0.14 ^ reg2/Q (DFF_X1)
+   0.00    0.14 ^ out1 (out)
+           0.14   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (propagated)
+  -0.50    9.50   clock uncertainty
+   0.00    9.50   clock reconvergence pessimism
+  -2.00    7.50   output external delay
+           7.50   data required time
+---------------------------------------------------------
+           7.50   data required time
+          -0.14   data arrival time
+---------------------------------------------------------
+           7.36   slack (MET)
+
+
+max slew
+
+Pin reg1/QN v
+max slew    0.20
+slew        0.01
+----------------
+Slack       0.19 (MET)
+
+max capacitance
+
+Pin ckbuf1/Z ^
+max capacitance   60.73
+capacitance        1.73
+-----------------------
+Slack             59.00 (MET)
+
+Pin: reg2/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.05    0.05   clock network delay (propagated)
+   0.00    0.05   reg2/CK
+           0.05   open edge arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.05    5.05   clock network delay (propagated)
+   0.00    5.05   reg2/CK
+   0.00    5.05   clock reconvergence pessimism
+           5.05   close edge arrival time
+---------------------------------------------------------
+           0.05   required pulse width (high)
+           4.99   actual pulse width
+---------------------------------------------------------
+           4.94   slack (MET)
+
+

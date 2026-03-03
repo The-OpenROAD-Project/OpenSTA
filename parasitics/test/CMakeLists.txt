@@ -1,0 +1,22 @@
+sta_module_tests("parasitics"
+  TESTS
+    annotation_query
+    corners
+    coupling
+    coupling_reduce
+    delete_network
+    detailed
+    estimate_wirerc
+    gcd_reduce
+    gcd_spef
+    manual
+    pi_pole_residue
+    reduce
+    reduce_dcalc
+    spef
+    spef_formats
+    spef_namemap
+    wireload
+)
+
+add_subdirectory(cpp)

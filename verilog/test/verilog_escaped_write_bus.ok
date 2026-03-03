@@ -1,0 +1,41 @@
+--- Test 1: write bus design ---
+cells: 12
+nets: 19
+ports: 11
+No differences found.
+No differences found.
+--- Test 2: roundtrip bus design ---
+roundtrip cells: 12
+roundtrip nets: 19
+roundtrip ports: 11
+roundtrip data_in[*]: 4
+roundtrip data_out[*]: 4
+Startpoint: data_in[0] (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_in[0] (in)
+   0.06    0.06 v buf0/Z (BUF_X1)
+   0.03    0.08 v and0/ZN (AND2_X1)
+   0.00    0.08 v reg0/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg0/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+

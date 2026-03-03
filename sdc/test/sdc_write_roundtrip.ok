@@ -1,0 +1,207 @@
+Warning 415: sdc_write_roundtrip.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+Warning 101: sdc_write_roundtrip.tcl line 1, object 'sdc_test2' not found.
+Warning 101: sdc_write_roundtrip.tcl line 1, object 'sdc_test2' not found.
+Warning 1061: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Startpoint: reg2/Q (clock source 'gclk_edge')
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock gclk_edge (fall edge)
+   0.00    5.00   clock network delay
+           5.00 v out1 (out)
+           5.00   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (propagated)
+  -0.20   10.10   clock uncertainty
+   0.00   10.10   clock reconvergence pessimism
+  -3.00    7.10   output external delay
+           7.10   data required time
+---------------------------------------------------------
+           7.10   data required time
+          -5.00   data arrival time
+---------------------------------------------------------
+           2.10   slack (MET)
+
+
+Startpoint: reg3/Q (clock source 'gclk_mul')
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  13.33   13.33   clock gclk_mul (rise edge)
+   0.00   13.33   clock network delay
+          13.33 ^ out2 (out)
+          13.33   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.20   20.20   clock network delay (ideal)
+   0.00   20.20   clock reconvergence pessimism
+  -3.50   16.70   output external delay
+          16.70   data required time
+---------------------------------------------------------
+          16.70   data required time
+         -13.33   data arrival time
+---------------------------------------------------------
+           3.37   slack (MET)
+
+
+Warning 1061: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Startpoint: reg2/Q (clock source 'gclk_edge')
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock gclk_edge (fall edge)
+   0.00    5.00   clock network delay
+           5.00 v out1 (out)
+           5.00   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (propagated)
+  -0.20   10.10   clock uncertainty
+   0.00   10.10   clock reconvergence pessimism
+  -3.00    7.10   output external delay
+           7.10   data required time
+---------------------------------------------------------
+           7.10   data required time
+          -5.00   data arrival time
+---------------------------------------------------------
+           2.10   slack (MET)
+
+
+Startpoint: reg3/Q (clock source 'gclk_mul')
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  13.33   13.33   clock gclk_mul (rise edge)
+   0.00   13.33   clock network delay
+          13.33 ^ out2 (out)
+          13.33   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.20   20.20   clock network delay (ideal)
+   0.00   20.20   clock reconvergence pessimism
+  -3.50   16.70   output external delay
+          16.70   data required time
+---------------------------------------------------------
+          16.70   data required time
+         -13.33   data arrival time
+---------------------------------------------------------
+           3.37   slack (MET)
+
+
+Warning 1061: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Startpoint: reg2/Q (clock source 'gclk_edge')
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock gclk_edge (fall edge)
+   0.00    5.00   clock network delay
+           5.00 v out1 (out)
+           5.00   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (propagated)
+  -0.20   10.10   clock uncertainty
+   0.00   10.10   clock reconvergence pessimism
+  -3.00    7.10   output external delay
+           7.10   data required time
+---------------------------------------------------------
+           7.10   data required time
+          -5.00   data arrival time
+---------------------------------------------------------
+           2.10   slack (MET)
+
+
+Startpoint: reg3/Q (clock source 'gclk_mul')
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  13.33   13.33   clock gclk_mul (rise edge)
+   0.00   13.33   clock network delay
+          13.33 ^ out2 (out)
+          13.33   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.20   20.20   clock network delay (ideal)
+   0.00   20.20   clock reconvergence pessimism
+  -3.50   16.70   output external delay
+          16.70   data required time
+---------------------------------------------------------
+          16.70   data required time
+         -13.33   data arrival time
+---------------------------------------------------------
+           3.37   slack (MET)
+
+
+Warning 1061: generated clock gclk_div pin clk1 is in the fanout of multiple clocks.
+Warning 1061: generated clock gclk_edge pin clk1 is in the fanout of multiple clocks.
+Startpoint: reg2/Q (clock source 'gclk_edge')
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock gclk_edge (fall edge)
+   0.00    5.00   clock network delay
+           5.00 v out1 (out)
+           5.00   data arrival time
+
+  10.00   10.00   clock clk1 (rise edge)
+   0.30   10.30   clock network delay (propagated)
+  -0.20   10.10   clock uncertainty
+   0.00   10.10   clock reconvergence pessimism
+  -3.00    7.10   output external delay
+           7.10   data required time
+---------------------------------------------------------
+           7.10   data required time
+          -5.00   data arrival time
+---------------------------------------------------------
+           2.10   slack (MET)
+
+
+Startpoint: reg3/Q (clock source 'gclk_mul')
+Endpoint: out2 (output port clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  13.33   13.33   clock gclk_mul (rise edge)
+   0.00   13.33   clock network delay
+          13.33 ^ out2 (out)
+          13.33   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.20   20.20   clock network delay (ideal)
+   0.00   20.20   clock reconvergence pessimism
+  -3.50   16.70   output external delay
+          16.70   data required time
+---------------------------------------------------------
+          16.70   data required time
+         -13.33   data arrival time
+---------------------------------------------------------
+           3.37   slack (MET)
+
+

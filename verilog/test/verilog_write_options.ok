@@ -1,0 +1,10 @@
+--- write_verilog basic ---
+No differences found.
+--- write_verilog -include_pwr_gnd ---
+No differences found.
+--- write_verilog -remove_cells (empty list) ---
+No differences found.
+--- write_verilog additional option path ---
+No differences found.
+--- read_verilog / write_verilog roundtrip ---
+No differences found.

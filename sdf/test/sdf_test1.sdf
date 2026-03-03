@@ -1,0 +1,23 @@
+(DELAYFILE
+  (SDFVERSION "3.0")
+  (DESIGN "sdf_test1")
+  (TIMESCALE 1ns)
+  (CELL
+    (CELLTYPE "BUF_X1")
+    (INSTANCE buf1)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Z (0.1:0.2:0.3) (0.1:0.2:0.3))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF_X1")
+    (INSTANCE reg1)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH CK Q (0.2:0.3:0.4) (0.2:0.3:0.4))
+      )
+    )
+  )
+)

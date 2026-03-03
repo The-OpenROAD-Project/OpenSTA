@@ -1,0 +1,190 @@
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+--- Test 1: SDC namespace hierarchical queries ---
+sdc ports: 6
+sdc port clk dir=input
+sdc port in1 dir=input
+sdc port in2 dir=input
+sdc port in3 dir=input
+sdc port out1 dir=output
+sdc port out2 dir=output
+sdc cells: 7
+sdc sub* cells: 2
+sdc buf* cells: 3
+sdc hier cells: 11
+sdc hier *buf*: 5
+sdc hier *and*: 2
+sdc flat pins: 20
+sdc hier pins: 30
+sdc sub1/* pins: 3
+sdc sub2/* pins: 3
+sdc nets: 11
+sdc w* nets: 5
+sdc hier nets: 19
+Warning 361: network_sdc_adapt_deep.tcl line 1, net 'sub*/*' not found.
+sdc hier sub*/* nets: 0
+No paths found.
+Startpoint: in2 (input port clocked by clk)
+Endpoint: out2 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in2 (in)
+   0.06    0.06 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.09 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.11 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.14 v sub2/buf_gate/Z (BUF_X1)
+   0.02    0.16 v buf_out2/Z (BUF_X1)
+   0.00    0.16 v out2 (out)
+           0.16   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+   0.00   10.00   output external delay
+          10.00   data required time
+---------------------------------------------------------
+          10.00   data required time
+          -0.16   data arrival time
+---------------------------------------------------------
+           9.84   slack (MET)
+
+
+Startpoint: in3 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ in3 (in)
+   0.04    0.04 ^ sub2/and_gate/ZN (AND2_X1)
+   0.02    0.07 ^ sub2/buf_gate/Z (BUF_X1)
+   0.01    0.07 v inv1/ZN (INV_X1)
+   0.00    0.07 v reg1/D (DFF_X1)
+           0.07   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.00    0.00   library hold time
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -0.07   data arrival time
+---------------------------------------------------------
+           0.07   slack (MET)
+
+
+--- Test 2: register queries ---
+all_registers: 1
+register data_pins: 1
+register clock_pins: 1
+register output_pins: 2
+register async_pins: 0
+--- Test 3: SDC namespace fanin/fanout ---
+sdc fanin to out1: 5
+sdc fanin to out2: 18
+sdc fanout from in1: 17
+sdc fanout from in2: 15
+sdc fanout from in3: 11
+sdc fanin cells to out1: 3
+sdc fanin cells to out2: 2
+sdc fanout endpoints from in1: 0
+sdc fanout endpoints from in3: 0
+--- Test 4: namespace switching ---
+iteration 0: sdc_cells=7 sta_cells=11
+iteration 1: sdc_cells=7 sta_cells=11
+iteration 2: sdc_cells=7 sta_cells=11
+--- Test 5: specific pin queries in SDC ---
+sdc pin buf_in/A: dir=input full_name=buf_in/A
+sdc pin buf_in/Z: dir=output full_name=buf_in/Z
+sdc pin inv1/A: dir=input full_name=inv1/A
+sdc pin inv1/ZN: dir=output full_name=inv1/ZN
+sdc pin reg1/D: dir=input full_name=reg1/D
+sdc pin reg1/CK: dir=input full_name=reg1/CK
+sdc pin reg1/Q: dir=output full_name=reg1/Q
+sdc deep pin sub1/and_gate/A1: dir=input
+sdc deep pin sub1/and_gate/ZN: dir=output
+sdc deep pin sub1/buf_gate/Z: dir=output
+sdc deep pin sub2/and_gate/A1: dir=input
+sdc deep pin sub2/buf_gate/Z: dir=output
+--- Test 6: SDC with bus design ---
+sdc bus design ports: 11
+sdc data_in[*]: 4
+sdc data_out[*]: 4
+sdc data_in[0]: dir=input
+sdc data_in[1]: dir=input
+sdc data_in[2]: dir=input
+sdc data_in[3]: dir=input
+sdc bus design cells: 12
+sdc bus design nets: 19
+Startpoint: data_in[0] (input port clocked by clk)
+Endpoint: reg0 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v data_in[0] (in)
+   0.06    0.06 v buf0/Z (BUF_X1)
+   0.03    0.08 v and0/ZN (AND2_X1)
+   0.00    0.08 v reg0/D (DFF_X1)
+           0.08   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg0/CK (DFF_X1)
+  -0.04    9.96   library setup time
+           9.96   data required time
+---------------------------------------------------------
+           9.96   data required time
+          -0.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+

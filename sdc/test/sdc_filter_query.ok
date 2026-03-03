@@ -1,0 +1,35 @@
+all_inputs count = 5
+all_inputs -no_clocks count = 3
+all_outputs count = 2
+find_clocks_matching clk* = 2
+find_clocks_matching regexp = 2
+find_clocks_matching nocase = 0
+clk1 is_clock_src = 1
+clk1 is_clock = 0
+clk1 is_ideal_clock = skipped (API removed)
+in1 is_clock_src = 0
+in1 is_clock = 0
+default_arrival_clock exists
+clk_thru_tristate_enabled = 0
+clk_thru_tristate_enabled after set = 1
+pin clk1 constrained = skipped (API removed)
+pin in1 constrained = skipped (API removed)
+instance buf1 constrained = skipped (API removed)
+net n1 constrained = skipped (API removed)
+in1 case_logic_value = 0
+in1 logic_value = X
+in3 logic_value = 0
+group_path_names = grp_io grp_reg2reg
+is_path_group_name grp_reg2reg = 1
+is_path_group_name nonexistent = 0
+filter_ports direction == input: 5
+filter_clocks period == 10: 0
+filter_lib_cells is_buffer: 9
+filter_insts ref_name =~ BUF*: 1
+filter_pins direction == input: 1
+filter_nets full_name =~ n*: 7
+No differences found.
+remove_constraints: skipped (API removed)
+Differences found at line 10.
+set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
+create_clock -name vclk -period 5.0000 

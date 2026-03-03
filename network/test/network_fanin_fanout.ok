@@ -1,0 +1,264 @@
+Startpoint: in1 (input port clocked by clk)
+Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v in1 (in)
+   0.06    0.06 v buf_in/Z (BUF_X1)
+   0.03    0.08 v sub1/and_gate/ZN (AND2_X1)
+   0.02    0.11 v sub1/buf_gate/Z (BUF_X1)
+   0.02    0.13 v sub2/and_gate/ZN (AND2_X1)
+   0.03    0.16 v sub2/buf_gate/Z (BUF_X1)
+   0.01    0.17 ^ inv1/ZN (INV_X1)
+   0.00    0.17 ^ reg1/D (DFF_X1)
+           0.17   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg1/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.17   data arrival time
+---------------------------------------------------------
+           9.80   slack (MET)
+
+
+--- pin direction queries ---
+in1 is input port
+out1 is output port
+reg1/CK direction: input
+reg1/D direction: input
+reg1/Q direction: output
+pin buf_in/A: dir=input
+pin buf_in/Z: dir=output
+pin inv1/A: dir=input
+pin inv1/ZN: dir=output
+pin buf_out1/A: dir=input
+pin buf_out1/Z: dir=output
+pin buf_out2/A: dir=input
+pin buf_out2/Z: dir=output
+--- hierarchical queries ---
+hierarchical cells: 11
+hierarchical pins: 30
+hierarchical nets: 19
+sub* hierarchical cells: 2
+buf* hierarchical cells: 5
+--- fanin/fanout variants ---
+fanin flat to out1: 5
+fanin cells to out1: 3
+fanin startpoints to out1: 1
+fanout flat from in1: 17
+fanout cells from in1: 2
+fanout endpoints from in1: 0
+fanin levels=1 to out1: 3
+fanin levels=2 to out1: 5
+fanin levels=3 to out1: 5
+fanin pin_levels=1 to out1: 2
+fanin pin_levels=2 to out1: 3
+fanout levels=1 from in1: 3
+fanout levels=2 from in1: 5
+fanout pin_levels=1 from in1: 2
+fanout pin_levels=2 from in1: 3
+fanin trace_arcs timing to out1: 5
+fanin trace_arcs enabled to out1: 5
+fanin trace_arcs all to out1: 5
+fanout trace_arcs all from in1: 17
+fanin flat to out2: 18
+fanin cells to out2: 2
+fanout flat from in2: 15
+fanout flat from in3: 11
+--- report_net all ---
+Net w1
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ buf_in/Z output (BUF_X1)
+
+Load pins
+ sub1/and_gate/A1 input (AND2_X1) 0.87-0.92
+
+Hierarchical pins
+ sub1/A input
+
+report_net w1: done
+Net w2
+ Pin capacitance: 0.87-0.92
+ Wire capacitance: 0.00
+ Total capacitance: 0.87-0.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ sub1/buf_gate/Z output (BUF_X1)
+
+Load pins
+ sub2/and_gate/A1 input (AND2_X1) 0.87-0.92
+
+Hierarchical pins
+ sub1/Y output
+ sub2/A input
+
+report_net w2: done
+Net w3
+ Pin capacitance: 2.42-2.67
+ Wire capacitance: 0.00
+ Total capacitance: 2.42-2.67
+ Number of drivers: 1
+ Number of loads: 2
+ Number of pins: 3
+
+Driver pins
+ sub2/buf_gate/Z output (BUF_X1)
+
+Load pins
+ buf_out2/A input (BUF_X1) 0.88-0.97
+ inv1/A input (INV_X1) 1.55-1.70
+
+Hierarchical pins
+ sub2/Y output
+
+report_net w3: done
+Net w4
+ Pin capacitance: 1.06-1.14
+ Wire capacitance: 0.00
+ Total capacitance: 1.06-1.14
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ inv1/ZN output (INV_X1)
+
+Load pins
+ reg1/D input (DFF_X1) 1.06-1.14
+
+report_net w4: done
+Net w5
+ Pin capacitance: 1.59-1.78
+ Wire capacitance: 0.00
+ Total capacitance: 1.59-1.78
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ reg1/Q output (DFF_X1)
+
+Load pins
+ buf_out1/A input (BUF_X2) 1.59-1.78
+
+report_net w5: done
+--- report_instance all ---
+Instance buf_in
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input in1
+ Output pins:
+  Z output w1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance sub1
+ Cell: sub_block
+ Library: verilog
+ Path cells: sub_block
+ Input pins:
+  A input w1
+  B input in2
+ Output pins:
+  Y output w2
+ Children:
+  and_gate (AND2_X1)
+  buf_gate (BUF_X1)
+Instance sub2
+ Cell: sub_block
+ Library: verilog
+ Path cells: sub_block
+ Input pins:
+  A input w2
+  B input in3
+ Output pins:
+  Y output w3
+ Children:
+  and_gate (AND2_X1)
+  buf_gate (BUF_X1)
+Instance inv1
+ Cell: INV_X1
+ Library: NangateOpenCellLibrary
+ Path cells: INV_X1
+ Input pins:
+  A input w3
+ Output pins:
+  ZN output w4
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance reg1
+ Cell: DFF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: DFF_X1
+ Input pins:
+  D input w4
+  CK input clk
+ Output pins:
+  Q output w5
+  QN output (unconnected)
+ Other pins:
+  IQ internal (unconnected)
+  IQN internal (unconnected)
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf_out1
+ Cell: BUF_X2
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X2
+ Input pins:
+  A input w5
+ Output pins:
+  Z output out1
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+Instance buf_out2
+ Cell: BUF_X1
+ Library: NangateOpenCellLibrary
+ Path cells: BUF_X1
+ Input pins:
+  A input w3
+ Output pins:
+  Z output out2
+ Other pins:
+  VDD power (unconnected)
+  VSS ground (unconnected)
+--- all_registers ---
+all_registers: 1
+register data_pins: 1
+register clock_pins: 1
+register output_pins: 2
+--- port direction filters ---
+input ports: 4
+output ports: 2
+--- cell ref_name filters ---
+BUF_X1: 2
+DFF_X1: 1
+INV_X1: 1
+--- instance/pin/net count queries ---
+top level cells: 7
+top level nets: 11
+top level pins: 20

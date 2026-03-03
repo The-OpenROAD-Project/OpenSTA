@@ -1,0 +1,138 @@
+--- voltage_map / supply queries ---
+VPWR exists: 1
+VGND exists: 1
+VPB exists: 1
+VNB exists: 1
+KAPWR exists: 1
+LOWLVPWR exists: 1
+VPWRIN exists: 1
+VSS exists: 1
+FAKE_SUPPLY exists: 0
+--- clock gate cell queries ---
+sky130_fd_sc_hd__dlclkp_1 area=17.516800
+Cell sky130_fd_sc_hd__dlclkp_1
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ GATE input 0.00-0.00
+ GCLK output
+ M0 internal
+sky130_fd_sc_hd__dlclkp_2 area=18.768000
+Cell sky130_fd_sc_hd__dlclkp_2
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.00
+ GATE input 0.00-0.00
+ GCLK output
+ M0 internal
+sky130_fd_sc_hd__dlclkp_4 area=21.270399
+Cell sky130_fd_sc_hd__dlclkp_4
+Library sky130_fd_sc_hd__tt_025C_1v80
+File ../../test/sky130hd/sky130hd_tt.lib
+ VGND ground
+ VNB unknown
+ VPB unknown
+ VPWR power
+ CLK input 0.00-0.01
+ GATE input 0.00-0.00
+ GCLK output
+ M0 internal
+sky130_fd_sc_hd__sdlclkp_1 area=18.768000
+  VGND dir=ground func=
+  VNB dir=unknown func=
+  VPB dir=unknown func=
+  VPWR dir=power func=
+  CLK dir=input func=
+  GATE dir=input func=
+  GCLK dir=output func=
+  M0 dir=internal func=
+  SCE dir=input func=
+sky130_fd_sc_hd__sdlclkp_2 area=20.019199
+  VGND dir=ground func=
+  VNB dir=unknown func=
+  VPB dir=unknown func=
+  VPWR dir=power func=
+  CLK dir=input func=
+  GATE dir=input func=
+  GCLK dir=output func=
+  M0 dir=internal func=
+  SCE dir=input func=
+sky130_fd_sc_hd__sdlclkp_4 area=22.521601
+  VGND dir=ground func=
+  VNB dir=unknown func=
+  VPB dir=unknown func=
+  VPWR dir=power func=
+  CLK dir=input func=
+  GATE dir=input func=
+  GCLK dir=output func=
+  M0 dir=internal func=
+  SCE dir=input func=
+--- level shifter cell queries ---
+sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1 area=35.033600
+  A dir=input
+  X dir=output
+sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_2 area=35.033600
+  A dir=input
+  X dir=output
+sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_4 area=40.038399
+  A dir=input
+  X dir=output
+sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_4 area=40.038399
+  A dir=input
+  X dir=output
+sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_1 area=35.033600
+  A dir=input
+  X dir=output
+sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_2 area=35.033600
+  A dir=input
+  X dir=output
+sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_4 area=40.038399
+  A dir=input
+  X dir=output
+--- pg_pin queries ---
+sky130_fd_sc_hd__inv_1: pwr_pins=4 signal_pins=2
+sky130_fd_sc_hd__buf_1: pwr_pins=4 signal_pins=2
+sky130_fd_sc_hd__nand2_1: pwr_pins=4 signal_pins=3
+sky130_fd_sc_hd__dfxtp_1: pwr_pins=4 signal_pins=5
+sky130_fd_sc_hd__dlclkp_1: pwr_pins=4 signal_pins=4
+sky130_fd_sc_hd__sdfxtp_1: pwr_pins=4 signal_pins=7
+--- clock gate timing arcs ---
+dlclkp_1 arc_sets = 4
+  CLK -> CLK role=width
+  CLK -> GATE role=setup
+  CLK -> GATE role=hold
+  CLK -> GCLK role=combinational
+sdlclkp_1 arc_sets = 6
+  CLK -> CLK role=width
+  CLK -> GATE role=setup
+  CLK -> GATE role=hold
+  CLK -> GCLK role=combinational
+  CLK -> SCE role=setup
+  CLK -> SCE role=hold
+--- level shifter timing arcs ---
+lsbuf_lh_hl_isowell_tap_1 arcs = 1
+  A -> X role=combinational
+--- cell classification ---
+sky130_fd_sc_hd__inv_1: is_buffer=0 is_inverter=1 is_leaf=1
+sky130_fd_sc_hd__inv_2: is_buffer=0 is_inverter=1 is_leaf=1
+sky130_fd_sc_hd__buf_1: is_buffer=1 is_inverter=0 is_leaf=1
+sky130_fd_sc_hd__buf_2: is_buffer=1 is_inverter=0 is_leaf=1
+sky130_fd_sc_hd__clkinv_1: is_buffer=0 is_inverter=1 is_leaf=1
+sky130_fd_sc_hd__clkbuf_1: is_buffer=1 is_inverter=0 is_leaf=1
+sky130_fd_sc_hd__nand2_1: is_buffer=0 is_inverter=0 is_leaf=1
+sky130_fd_sc_hd__nor2_1: is_buffer=0 is_inverter=0 is_leaf=1
+sky130_fd_sc_hd__dfxtp_1: is_buffer=0 is_inverter=0 is_leaf=1
+sky130_fd_sc_hd__dlclkp_1: is_buffer=0 is_inverter=0 is_leaf=1
+IHP VDD exists: 0
+IHP sg13g2_inv_1: area=5.443200 buf=0 inv=1
+IHP sg13g2_buf_1: area=7.257600 buf=1 inv=0
+IHP sg13g2_nand2_1: area=7.257600 buf=0 inv=0
+IHP sg13g2_nor2_1: area=7.257600 buf=0 inv=0
