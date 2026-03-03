@@ -646,3 +646,44 @@ add_custom_command(
   COMMAND ${STA_HOME}/etc/FindMessages.tcl > ${STA_HOME}/doc/messages.txt || true
   WORKING_DIRECTORY ${STA_HOME}
 )
+
+################################################################
+# Tests
+################################################################
+
+option(BUILD_TESTS "Build unit tests" ON)
+if(BUILD_TESTS)
+  enable_testing()
+  find_package(GTest REQUIRED)
+  include(GoogleTest)
+
+  # Helper: register a list of Tcl tests for a module.
+  # Usage:
+  #   sta_module_tests("search" TESTS timing analysis ...)
+  function(sta_module_tests module_name)
+    cmake_parse_arguments(ARG "" "" "TESTS" ${ARGN})
+    foreach(test_name ${ARG_TESTS})
+      add_test(
+        NAME tcl.${module_name}.${test_name}
+        COMMAND bash ${STA_HOME}/test/regression.sh $<TARGET_FILE:sta> ${module_name}_${test_name}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      )
+      set_tests_properties(tcl.${module_name}.${test_name} PROPERTIES LABELS "tcl;module_${module_name}")
+    endforeach()
+  endfunction()
+
+  add_subdirectory(test)
+  # Per-module tests
+  add_subdirectory(util/test)
+  add_subdirectory(liberty/test)
+  add_subdirectory(graph/test)
+  add_subdirectory(network/test)
+  add_subdirectory(sdc/test)
+  add_subdirectory(sdf/test)
+  add_subdirectory(dcalc/test)
+  add_subdirectory(search/test)
+  add_subdirectory(parasitics/test)
+  add_subdirectory(power/test)
+  add_subdirectory(verilog/test)
+  add_subdirectory(spice/test)
+endif()
