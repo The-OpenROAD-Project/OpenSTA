@@ -1297,13 +1297,13 @@ public:
   void clkPinsInvalid(const Mode *mode);
   // The following functions assume ensureClkNetwork() has been called.
   bool isClock(const Pin *pin,
-               const Mode *mode) const;
+               const Mode *mode);
   bool isClock(const Net *net,
-               const Mode *mode) const;
+               const Mode *mode);
   bool isIdealClock(const Pin *pin,
-                    const Mode *mode) const;
+                    const Mode *mode);
   bool isPropagatedClock(const Pin *pin,
-                         const Mode *mode) const;
+                         const Mode *mode);
   const PinSet *pins(const Clock *clk,
                      const Mode *mode);
 

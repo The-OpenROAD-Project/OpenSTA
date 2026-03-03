@@ -335,6 +335,15 @@ slow_drivers(int count)
   return Sta::sta()->slowDrivers(count);
 }
 
+bool
+is_ideal_clock(const Pin *pin)
+{
+  Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
+  sta->ensureClkNetwork();
+  return sta->isIdealClock(pin, mode);
+}
+
 ////////////////////////////////////////////////////////////////
 
 PathEndSeq

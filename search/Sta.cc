@@ -6054,28 +6054,31 @@ Sta::ensureClkNetwork(const Mode *mode)
 
 bool
 Sta::isClock(const Pin *pin,
-             const Mode *mode) const
+             const Mode *mode)
 {
+  ensureClkNetwork(mode);
   return mode->clkNetwork()->isClock(pin);
 }
 
 bool
 Sta::isClock(const Net *net,
-             const Mode *mode) const
+             const Mode *mode)
 {
+  ensureClkNetwork(mode);
   return mode->clkNetwork()->isClock(net);
 }
 
 bool
 Sta::isIdealClock(const Pin *pin,
-                  const Mode *mode) const
+                  const Mode *mode)
 {
+  ensureClkNetwork(mode);
   return mode->clkNetwork()->isIdealClock(pin);
 }
 
 bool
 Sta::isPropagatedClock(const Pin *pin,
-                       const Mode *mode) const
+                       const Mode *mode)
 {
   return mode->clkNetwork()->isPropagatedClock(pin);
 }
@@ -6084,12 +6087,14 @@ const PinSet *
 Sta::pins(const Clock *clk,
           const Mode *mode)
 {
+  ensureClkNetwork(mode);
   return mode->clkNetwork()->pins(clk);
 }
 
 void
 Sta::clkPinsInvalid(const Mode *mode)
 {
+  ensureClkNetwork(mode);
   mode->clkNetwork()->clkPinsInvalid();
 }
 
