@@ -708,6 +708,20 @@ Search::deleteTagsPrev()
   for (TagGroup** tag_groups: tag_groups_prev_)
     delete [] tag_groups;
   tag_groups_prev_.clear();
+
+  deletePendingPaths();
+}
+
+// Free old vertex path arrays that were deferred during parallel BFS visits.
+// Called after visitParallel completes so no thread can still hold a pointer
+// into any of these arrays.
+void
+Search::deletePendingPaths()
+{
+  LockGuard lock(paths_pending_delete_lock_);
+  for (Path *paths : paths_pending_delete_)
+    delete [] paths;
+  paths_pending_delete_.clear();
 }
 
 void
@@ -2815,8 +2829,28 @@ void
 Search::setVertexArrivals(Vertex *vertex,
                           TagGroupBldr *tag_bldr)
 {
-  if (tag_bldr->empty())
-    deletePathsIncr(vertex);
+  if (tag_bldr->empty()) {
+    // Inline the deletePathsIncr logic using deferred deletion so that
+    // concurrent CRPR/latch readers that hold a pointer into the old path
+    // array are not left with a dangling pointer.
+    tnsNotifyBefore(vertex);
+    if (worst_slacks_)
+      worst_slacks_->worstSlackNotifyBefore(vertex);
+    TagGroup *tag_group = tagGroup(vertex);
+    if (tag_group) {
+      Path *old_paths = vertex->paths();
+      // Clear the tag group index first so concurrent readers observe a
+      // null tag group (and return early from Path::vertexPath) before
+      // we touch paths_.
+      vertex->setTagGroupIndex(tag_group_index_max);
+      vertex->setPathsDeferred(nullptr);
+      tag_group->decrRefCount();
+      if (old_paths) {
+        LockGuard lock(paths_pending_delete_lock_);
+        paths_pending_delete_.push_back(old_paths);
+      }
+    }
+  }
   else {
     TagGroup *prev_tag_group = tagGroup(vertex);
     Path *prev_paths = vertex->paths();
@@ -2827,13 +2861,25 @@ Search::setVertexArrivals(Vertex *vertex,
     }
     else {
       if (prev_tag_group) {
-        vertex->deletePaths();
+        // Clear the tag group index before replacing paths so concurrent
+        // readers see a consistent null-tag-group state during the
+        // transition and do not mix the old tag group with the new array.
+        vertex->setTagGroupIndex(tag_group_index_max);
         prev_tag_group->decrRefCount();
         requiredInvalid(vertex);
       }
       size_t path_count = tag_group->pathCount();
-      Path *paths = vertex->makePaths(path_count);
-      tag_bldr->copyPaths(tag_group, paths);
+      // Allocate the new array and switch paths_ directly from old to new
+      // without creating a null window or freeing the old array immediately.
+      // This prevents concurrent CRPR/latch readers from observing either a
+      // null pointer or a freed (dangling) pointer.
+      Path *new_paths = new Path[path_count];
+      vertex->setPathsDeferred(new_paths);
+      if (prev_paths) {
+        LockGuard lock(paths_pending_delete_lock_);
+        paths_pending_delete_.push_back(prev_paths);
+      }
+      tag_bldr->copyPaths(tag_group, new_paths);
       vertex->setTagGroupIndex(tag_group->index());
       tag_group->incrRefCount();
     }
