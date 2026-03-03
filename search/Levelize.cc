@@ -323,7 +323,7 @@ Levelize::findCycleBackEdges()
       stack.emplace(vertex, new VertexOutEdgeIterator(vertex, graph_));
       EdgeSet back_edges = findBackEdges(path, stack);
       for (Edge *back_edge : back_edges)
-        roots_.insert(back_edge->from(graph_));
+        roots_.insert(back_edge->to(graph_));
       back_edge_count += back_edges.size();
     }
   }
