@@ -340,7 +340,6 @@ is_ideal_clock(const Pin *pin)
 {
   Sta *sta = Sta::sta();
   const Mode *mode = sta->cmdMode();
-  sta->ensureClkNetwork();
   return sta->isIdealClock(pin, mode);
 }
 
