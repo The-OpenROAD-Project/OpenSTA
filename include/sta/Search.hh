@@ -414,7 +414,6 @@ protected:
   void initVars();
   void deleteTags();
   void deleteTagsPrev();
-  void deletePendingPaths();
   void deleteUnusedTagGroups();
   void seedInvalidArrivals();
   void seedArrivals();
@@ -601,10 +600,6 @@ protected:
   std::mutex invalid_arrivals_lock_;
   BfsFwdIterator *arrival_iter_;
   ArrivalVisitor *arrival_visitor_;
-  // Old vertex path arrays deferred for deletion until after the parallel
-  // BFS level completes, preventing use-after-free in concurrent CRPR readers.
-  std::vector<Path*> paths_pending_delete_;
-  std::mutex paths_pending_delete_lock_;
 
   // Some requireds exist.
   bool requireds_exist_;
