@@ -1126,12 +1126,6 @@ Vertex::deletePaths()
   tag_group_index_ = tag_group_index_max;
 }
 
-void
-Vertex::setPathsDeferred(Path *paths)
-{
-  paths_ = paths;
-}
-
 bool
 Vertex::hasFanin() const
 {

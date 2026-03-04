@@ -264,9 +264,6 @@ public:
   Path *makePaths(uint32_t count);
   void setPaths(Path *paths);
   void deletePaths();
-  // Set paths_ without deleting the old array.
-  // Caller is responsible for deferred deletion of the old array.
-  void setPathsDeferred(Path *paths);
   TagGroupIndex tagGroupIndex() const;
   void setTagGroupIndex(TagGroupIndex tag_index);
   // Slew is annotated by sdc set_annotated_transition cmd.
