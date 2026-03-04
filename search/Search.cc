@@ -1449,16 +1449,9 @@ ArrivalVisitor::pruneCrprArrivals()
         Arrival arrival = tag_bldr_->arrival(path_index);
         // Latch D->Q path uses enable min so crpr clk path min/max
         // does not match the path min/max.
-        // Use crprClkPathRaw() rather than crprClkPath() to avoid going
-        // through Path::vertexPath(), which can transiently return nullptr
-        // during a concurrent setVertexArrivals() tag-group transition.
-        // The min/max is a property of the tag (tag_index_), which is
-        // stable for the lifetime of the ClkInfo object.
-        const Path *crpr_clk_path_no_crpr = clk_info_no_crpr->crprClkPathRaw();
-        if (crpr_clk_path_no_crpr
-            && delayGreater(max_arrival_max_crpr, arrival, min_max, this)
-            && crpr_clk_path_no_crpr->minMax(this)
-            == clk_info->crprClkPathRaw()->minMax(this)) {
+        if (delayGreater(max_arrival_max_crpr, arrival, min_max, this)
+            && clk_info_no_crpr->crprClkPath(this)->minMax(this)
+            == clk_info->crprClkPath(this)->minMax(this)) {
           debugPrint(debug_, "search", 3, "  pruned %s",
                      tag->to_string(this).c_str());
           path_itr = path_index_map.erase(path_itr);
