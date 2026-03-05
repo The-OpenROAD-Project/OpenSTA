@@ -526,8 +526,16 @@ Levelize::ensureLatchLevels()
   for (Edge *edge : latch_d_to_q_edges_) {
     Vertex *from = edge->from(graph_);
     Vertex *to = edge->to(graph_);
-    if (from->level() == to->level())
-      setLevel(from, from->level() + level_space_);
+    if (from->level() == to->level()) {
+      Level adjusted_level = from->level() + level_space_;
+      debugPrint(debug_, "levelize", 2, "latch %s %d (adjusted %d) -> %s %d",
+                 from->to_string(this).c_str(),
+                 from->level(),
+                 adjusted_level,
+                 to->to_string(this).c_str(),
+                 to->level());
+      setLevel(from, adjusted_level);
+    }
   }
   latch_d_to_q_edges_.clear();
 }
@@ -536,7 +544,7 @@ void
 Levelize::setLevel(Vertex  *vertex,
                    Level level)
 {
-  debugPrint(debug_, "levelize", 2, "set level %s %d",
+  debugPrint(debug_, "levelize", 3, "set level %s %d",
              vertex->to_string(this).c_str(),
              level);
   vertex->setLevel(level);
@@ -602,7 +610,7 @@ void
 Levelize::relevelize()
 {
   for (Vertex *vertex : relevelize_from_) {
-    debugPrint(debug_, "levelize", 1, "relevelize from %s",
+    debugPrint(debug_, "levelize", 2, "relevelize from %s",
                vertex->to_string(this).c_str());
     if (isRoot(vertex)) 
       roots_.insert(vertex);
@@ -641,9 +649,20 @@ Levelize::visit(Vertex *vertex,
         visit(to_vertex, edge, level+level_space, level_space,
               path_vertices, path);
     }
-    if (edge->role() == TimingRole::latchDtoQ())
+
+    const TimingRole *role = edge->role();
+    if (role->isLatchDtoQ())
       latch_d_to_q_edges_.insert(edge);
+    if (role->isLatchEnToQ()) {
+      VertexInEdgeIterator edge_iter2(to_vertex, graph_);
+      while (edge_iter2.hasNext()) {
+        Edge *edge2 = edge_iter2.next();
+        if (edge2->role()->isLatchDtoQ())
+          latch_d_to_q_edges_.insert(edge2);
+      }
+    }
   }
+
   // Levelize bidirect driver as if it was a fanout of the bidirect load.
   if (graph_delay_calc_->bidirectDrvrSlewFromLoad(from_pin)
       && !vertex->isBidirectDriver()) {

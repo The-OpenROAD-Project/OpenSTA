@@ -4671,12 +4671,14 @@ Sta::connectLoadPinAfter(Vertex *vertex)
   VertexInEdgeIterator edge_iter(vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    Vertex *from_vertex = edge->from(graph_);
-    graph_delay_calc_->delayInvalid(from_vertex);
-    search_->requiredInvalid(from_vertex);
-    for (Mode *mode : modes_)
-      mode->sdc()->clkHpinDisablesChanged(from_vertex->pin());
-    levelize_->relevelizeFrom(from_vertex);
+    if (!edge->role()->isTimingCheck()) {
+      Vertex *from_vertex = edge->from(graph_);
+      graph_delay_calc_->delayInvalid(from_vertex);
+      search_->requiredInvalid(from_vertex);
+      levelize_->relevelizeFrom(from_vertex);
+      for (Mode *mode : modes_)
+        mode->sdc()->clkHpinDisablesChanged(from_vertex->pin());
+    }
   }
   Pin *pin = vertex->pin();
   for (Mode *mode : modes_) {
@@ -4754,12 +4756,14 @@ Sta::deleteEdge(Edge *edge)
              edge->from(graph_)->name(sdc_network_),
              edge->to(graph_)->name(sdc_network_));
   Vertex *to = edge->to(graph_);
-  search_->deleteEdgeBefore(edge);
-  graph_delay_calc_->delayInvalid(to);
-  levelize_->relevelizeFrom(to);
-  levelize_->deleteEdgeBefore(edge);
-  for (Mode *mode : modes_)
-    mode->sdc()->clkHpinDisablesChanged(edge->from(graph_)->pin());
+  if (!edge->role()->isTimingCheck()) {
+    search_->deleteEdgeBefore(edge);
+    graph_delay_calc_->delayInvalid(to);
+    levelize_->relevelizeFrom(to);
+    levelize_->deleteEdgeBefore(edge);
+    for (Mode *mode : modes_)
+      mode->sdc()->clkHpinDisablesChanged(edge->from(graph_)->pin());
+  }
   graph_->deleteEdge(edge);
 }
 
