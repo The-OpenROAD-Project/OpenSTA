@@ -207,7 +207,6 @@ TimingArcSet::to_string()
   std::string str = from_->name();
   str += " -> ";
   str += to_->name();
-  str += " " + role()->to_string();
   return str;
 }
 
@@ -333,7 +332,7 @@ TimingArcSet::isRisingFallingEdge() const
     if (from_rf1 == from_rf2)
       return from_rf1;
   }
-  if (arcs_.size() == 1)
+  if (arc_count == 1)
     return arcs_[0]->fromEdge()->asRiseFall();
   else
     return nullptr;

@@ -2059,7 +2059,7 @@ LibertyReader::makeTimingModels(LibertyCell *cell,
                                 const LibertyGroup *timing_group,
                                 TimingArcAttrsPtr timing_attrs)
 {
-  switch (cell->libertyLibrary()->delayModelType()) {
+   switch (cell->libertyLibrary()->delayModelType()) {
   case DelayModelType::cmos_linear:
     makeLinearModels(cell, timing_group, timing_attrs);
     break;
@@ -2115,6 +2115,7 @@ LibertyReader::makeTableModels(LibertyCell *cell,
                                const LibertyGroup *timing_group,
                                TimingArcAttrsPtr timing_attrs)
 {
+  bool found_model = false;
   for (const RiseFall *rf : RiseFall::range()) {
     std::string delay_attr_name  = "cell_" + rf->to_string_long();
     TableModel *delay = readGateTableModel(timing_group, delay_attr_name.c_str(), rf,
@@ -2160,29 +2161,35 @@ LibertyReader::makeTableModels(LibertyCell *cell,
         if (delay == nullptr)
           libWarn(1211, timing_group, "missing cell_%s.", rf->name());
       }
+      found_model = true;
     }
-
-    std::string constraint_attr_name  = rf->to_string_long() + "_constraint";
-    ScaleFactorType scale_factor_type = 
-      timingTypeScaleFactorType(timing_attrs->timingType());
-    TableModel *constraint = readCheckTableModel(timing_group,
-                                                 constraint_attr_name.c_str(),
-                                                 rf, TableTemplateType::delay,
-                                                 time_scale_, scale_factor_type);
-    if (constraint) {
-      std::string constraint_sigma_attr_name = "ocv_sigma_" + rf->to_string_long()
-        + "_constraint";
-      TableModelsEarlyLate constraint_sigmas =
-        readEarlyLateTableModels(timing_group,
-                                 constraint_sigma_attr_name.c_str(),
-                                 rf, TableTemplateType::delay,
-                                 time_scale_,
-                                 ScaleFactorType::unknown);
-      timing_attrs->setModel(rf, new CheckTableModel(cell, constraint,
-                                                     std::move(constraint_sigmas)));
+    else {
+      std::string constraint_attr_name  = rf->to_string_long() + "_constraint";
+      ScaleFactorType scale_factor_type = 
+        timingTypeScaleFactorType(timing_attrs->timingType());
+      TableModel *constraint = readCheckTableModel(timing_group,
+                                                   constraint_attr_name.c_str(),
+                                                   rf, TableTemplateType::delay,
+                                                   time_scale_, scale_factor_type);
+      if (constraint) {
+        std::string constraint_sigma_attr_name = "ocv_sigma_" + rf->to_string_long()
+          + "_constraint";
+        TableModelsEarlyLate constraint_sigmas =
+          readEarlyLateTableModels(timing_group,
+                                   constraint_sigma_attr_name.c_str(),
+                                   rf, TableTemplateType::delay,
+                                   time_scale_,
+                                   ScaleFactorType::unknown);
+        timing_attrs->setModel(rf, new CheckTableModel(cell, constraint,
+                                                       std::move(constraint_sigmas)));
+        found_model = true;
+      }
     }
   }
+  if (!found_model)
+    libWarn(1311, timing_group, "no table models found in timing group.");
 }
+
 
 bool
 LibertyReader::isGateTimingType(TimingType timing_type)

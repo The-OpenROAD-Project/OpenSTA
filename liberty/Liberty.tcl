@@ -126,7 +126,15 @@ proc report_timing_arcs { cell } {
     puts ""
     puts "Timing arcs"
     foreach timing_arc $timing_arcs {
-      puts [$timing_arc to_string]
+      puts " [$timing_arc to_string]"
+      puts "  [$timing_arc role]"
+      set when [$timing_arc when]
+      if { $when != "" } {
+        puts "  when $when"
+      }
+      foreach arc [$timing_arc timing_arcs] {
+        puts "  [$arc from_edge] -> [$arc to_edge]"
+      }
     }
   }
 }

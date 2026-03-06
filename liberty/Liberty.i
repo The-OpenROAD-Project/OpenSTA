@@ -379,6 +379,16 @@ full_name()
                         to);
 }
 
+const std::string
+when()
+{
+  const FuncExpr *when = self->when();
+  if (when)
+    return when->to_string();
+  else
+    return "";
+}
+
 TimingArcSeq &
 timing_arcs() { return self->arcs(); }
 

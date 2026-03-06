@@ -176,6 +176,7 @@ public:
   // other conditional timing arcs between the same pins.
   bool isCondDefault() const { return is_cond_default_; }
   void setIsCondDefault(bool is_default);
+  const FuncExpr *when() const { return attrs_->cond(); }
   // SDF IOPATHs match sdfCond.
   // sdfCond (IOPATH) reuses sdfCondStart (timing check) variable.
   const std::string &sdfCond() const { return attrs_->sdfCondStart(); }
