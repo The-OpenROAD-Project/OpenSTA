@@ -524,7 +524,7 @@ void
 LibertyReader::readThresholds(const LibertyGroup *library_group)
 {
   for (const RiseFall *rf : RiseFall::range()) {
-    std::string suffix = rf->to_string_long();
+    std::string suffix = rf->to_string();
     readLibAttrFloat(library_group, ("input_threshold_pct_" + suffix).c_str(),
                      &LibertyLibrary::setInputThreshold, rf, 0.01F);
     if (library_->inputThreshold(rf) == 0.0)
@@ -907,7 +907,7 @@ void
 LibertyReader::readSlewDegradations(const LibertyGroup *library_group)
 {
   for (const RiseFall *rf : RiseFall::range()) {
-    const std::string group_name = rf->to_string_long() + "_transition_degradation";
+    const std::string group_name = rf->to_string() + "_transition_degradation";
     const LibertyGroup *degradation_group =
       library_group->findSubgroup(group_name.c_str());
     if (degradation_group) {
@@ -1480,7 +1480,7 @@ LibertyReader::readCapacitance(const LibertyPortSeq &ports,
   for (LibertyPort *port : ports) {
     // rise/fall_capacitance
     for (const RiseFall *rf : RiseFall::range()) {
-      std::string attr_name = rf->to_string_long() + "_capacitance";
+      std::string attr_name = rf->to_string() + "_capacitance";
       float cap;
       bool exists;
       port_group->findAttrFloat(attr_name, cap, exists);
@@ -1490,7 +1490,7 @@ LibertyReader::readCapacitance(const LibertyPortSeq &ports,
       }
 
       // rise/fall_capacitance_range(min_cap, max_cap);
-      attr_name = rf->to_string_long() + "_capacitance_range";
+      attr_name = rf->to_string() + "_capacitance_range";
       const LibertyComplexAttrSeq &range_attrs = port_group->findComplexAttrs(attr_name);
       if (!range_attrs.empty()) {
         const LibertyComplexAttr *attr = range_attrs[0];
@@ -2081,7 +2081,7 @@ LibertyReader::makeLinearModels(LibertyCell *cell,
 {
   LibertyLibrary *library = cell->libertyLibrary();
   for (const RiseFall *rf : RiseFall::range()) {
-    std::string intr_attr_name = "intrinsic_" + rf->to_string_long();
+    std::string intr_attr_name = "intrinsic_" + rf->to_string();
     float intr = 0.0;
     bool intr_exists;
     timing_group->findAttrFloat(intr_attr_name, intr, intr_exists);
@@ -2094,7 +2094,7 @@ LibertyReader::makeLinearModels(LibertyCell *cell,
       if (timingTypeIsCheck(timing_attrs->timingType()))
         model = new CheckLinearModel(cell, intr);
       else {
-        std::string res_attr_name = rf->to_string_long() + "_resistance";
+        std::string res_attr_name = rf->to_string() + "_resistance";
         float res = 0.0;
         bool res_exists;
         timing_group->findAttrFloat(res_attr_name, res, res_exists);
@@ -2117,18 +2117,18 @@ LibertyReader::makeTableModels(LibertyCell *cell,
 {
   bool found_model = false;
   for (const RiseFall *rf : RiseFall::range()) {
-    std::string delay_attr_name  = "cell_" + rf->to_string_long();
+    std::string delay_attr_name  = "cell_" + rf->to_string();
     TableModel *delay = readGateTableModel(timing_group, delay_attr_name.c_str(), rf,
                                            TableTemplateType::delay, time_scale_,
                                            ScaleFactorType::cell);
-    std::string transition_attr_name = rf->to_string_long() + "_transition";
+    std::string transition_attr_name = rf->to_string() + "_transition";
     TableModel *transition = readGateTableModel(timing_group,
                                                 transition_attr_name.c_str(),
                                                 rf, TableTemplateType::delay,
                                                 time_scale_,
                                                 ScaleFactorType::transition);
     if (delay || transition) {
-      std::string delay_sigma_attr_name = "ocv_sigma_cell_" + rf->to_string_long();
+      std::string delay_sigma_attr_name = "ocv_sigma_cell_" + rf->to_string();
       TableModelsEarlyLate delay_sigmas =
         readEarlyLateTableModels(timing_group,
                                  delay_sigma_attr_name.c_str(),
@@ -2136,7 +2136,7 @@ LibertyReader::makeTableModels(LibertyCell *cell,
                                  time_scale_,
                                  ScaleFactorType::unknown);
 
-      std::string slew_sigma_attr_name = "ocv_sigma_" + rf->to_string_long()
+      std::string slew_sigma_attr_name = "ocv_sigma_" + rf->to_string()
         + "_transition";
       TableModelsEarlyLate slew_sigmas =
         readEarlyLateTableModels(timing_group,
@@ -2164,7 +2164,7 @@ LibertyReader::makeTableModels(LibertyCell *cell,
       found_model = true;
     }
     else {
-      std::string constraint_attr_name  = rf->to_string_long() + "_constraint";
+      std::string constraint_attr_name  = rf->to_string() + "_constraint";
       ScaleFactorType scale_factor_type = 
         timingTypeScaleFactorType(timing_attrs->timingType());
       TableModel *constraint = readCheckTableModel(timing_group,
@@ -2172,7 +2172,7 @@ LibertyReader::makeTableModels(LibertyCell *cell,
                                                    rf, TableTemplateType::delay,
                                                    time_scale_, scale_factor_type);
       if (constraint) {
-        std::string constraint_sigma_attr_name = "ocv_sigma_" + rf->to_string_long()
+        std::string constraint_sigma_attr_name = "ocv_sigma_" + rf->to_string()
           + "_constraint";
         TableModelsEarlyLate constraint_sigmas =
           readEarlyLateTableModels(timing_group,
@@ -2298,7 +2298,7 @@ LibertyReader::readReceiverCapacitance(const LibertyGroup *timing_group,
                                        ReceiverModelPtr &receiver_model)
 {
   std::string cap_group_name1 = cap_group_name;
-  cap_group_name1 += "_" + rf->to_string_long();
+  cap_group_name1 += "_" + rf->to_string();
   const LibertyGroup *cap_group = timing_group->findSubgroup(cap_group_name1);
   if (cap_group) {
     const LibertySimpleAttr *segment_attr = cap_group->findSimpleAttr("segment");
@@ -2328,7 +2328,7 @@ OutputWaveforms *
 LibertyReader::readOutputWaveforms(const LibertyGroup *timing_group,
                                    const RiseFall *rf)
 {
-  const std::string current_group_name = "output_current_" + rf->to_string_long();
+  const std::string current_group_name = "output_current_" + rf->to_string();
   const LibertyGroup *current_group = timing_group->findSubgroup(current_group_name);
   if (current_group) {
     OutputWaveformSeq output_currents;
@@ -2680,7 +2680,7 @@ LibertyReader::readInternalPowerGroups(LibertyCell *cell,
       InternalPowerModels models;
       // rise/fall_power group
       for (const RiseFall *rf : RiseFall::range()) {
-        std::string pwr_attr_name = rf->to_string_long() + "_power";
+        std::string pwr_attr_name = rf->to_string() + "_power";
         const LibertyGroup *pwr_group = ipwr_group->findSubgroup(pwr_attr_name);
         if (pwr_group) {
           TableModel *model = readTableModel(pwr_group, rf, TableTemplateType::power,

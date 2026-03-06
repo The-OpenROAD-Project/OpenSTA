@@ -1365,8 +1365,8 @@ ArrivalVisitor::visitFromToPath(const Pin * /* from_pin */,
   debugPrint(debug_, "search", 3, " %s",
              from_vertex->to_string(this).c_str());
   debugPrint(debug_, "search", 3, "  %s -> %s %s",
-             from_rf->to_string().c_str(),
-             to_rf->to_string().c_str(),
+             from_rf->shortName(),
+             to_rf->shortName(),
              min_max->to_string().c_str());
   debugPrint(debug_, "search", 3, "  from tag: %s",
              from_tag->to_string(this).c_str());
@@ -2919,7 +2919,7 @@ Search::reportArrivals(Vertex *vertex,
           prev_str += "NULL";
       }
       report_->reportLine(" %s %s %s / %s %s%s",
-                          rf->to_string().c_str(),
+                          rf->shortName(),
                           path->minMax(this)->to_string().c_str(),
                           delayAsString(path->arrival(), this),
                           req,
@@ -3656,8 +3656,8 @@ RequiredVisitor::visitFromToPath(const Pin *,
   // Don't propagate required times through latch D->Q edges.
   if (edge->role() != TimingRole::latchDtoQ()) {
     debugPrint(debug_, "search", 3, "  %s -> %s %s",
-               from_rf->to_string().c_str(),
-               to_rf->to_string().c_str(),
+               from_rf->shortName(),
+               to_rf->shortName(),
                min_max->to_string().c_str());
     debugPrint(debug_, "search", 3, "  from tag %2u: %s",
                from_tag->index(),

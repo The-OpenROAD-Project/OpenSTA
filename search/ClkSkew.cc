@@ -106,7 +106,7 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
   report_->reportLine("%7s source latency %s %s",
                       time_unit->asString(src_latency, digits),
                       sdc_network_->pathName(src_path->pin(this)),
-                      src_path->transition(this)->to_string().c_str());
+                      src_path->transition(this)->shortName());
   if (src_internal_clk_latency != 0.0)
     report_->reportLine("%7s source internal clock delay",
                         time_unit->asString(src_internal_clk_latency, digits));
@@ -116,7 +116,7 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
   report_->reportLine("%7s target latency %s %s",
                       time_unit->asString(-tgt_latency, digits),
                       sdc_network_->pathName(tgt_path->pin(this)),
-                      tgt_path->transition(this)->to_string().c_str());
+                      tgt_path->transition(this)->shortName());
   if (tgt_internal_clk_latency != 0.0)
     report_->reportLine("%7s target internal clock delay",
                         time_unit->asString(-tgt_internal_clk_latency, digits));
@@ -315,10 +315,10 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
           debugPrint(debug_, "clk_skew", 2,
                      "%s %s %s -> %s %s %s crpr = %s skew = %s",
                      network_->pathName(src_path->pin(this)),
-                     src_path->transition(this)->to_string().c_str(),
+                     src_path->transition(this)->shortName(),
                      time_unit->asString(probe.srcLatency(this)),
                      network_->pathName(tgt_path->pin(this)),
-                     tgt_path->transition(this)->to_string().c_str(),
+                     tgt_path->transition(this)->shortName(),
                      time_unit->asString(probe.tgtLatency(this)),
                      delayAsString(probe.crpr(this), this),
                      time_unit->asString(probe.skew()));

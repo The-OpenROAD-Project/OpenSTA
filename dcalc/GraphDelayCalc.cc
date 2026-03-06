@@ -604,7 +604,7 @@ GraphDelayCalc::findInputDriverDelay(const LibertyCell *drvr_cell,
 {
   debugPrint(debug_, "delay_calc", 2, "  driver cell %s %s",
              drvr_cell->name(),
-             rf->to_string().c_str());
+             rf->shortName());
   for (TimingArcSet *arc_set : drvr_cell->timingArcSets(from_port, to_port)) {
     for (TimingArc *arc : arc_set->arcs()) {
       if (arc->toEdge()->asRiseFall() == rf) {

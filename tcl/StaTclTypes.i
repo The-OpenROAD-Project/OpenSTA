@@ -497,7 +497,7 @@ using namespace sta;
   const RiseFall *rf = $1;
   const char *str = "";
   if (rf)
-    str = rf->to_string().c_str();
+    str = rf->shortName();
   Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
 }
 
@@ -517,7 +517,7 @@ using namespace sta;
   RiseFallBoth *tr = $1;
   const char *str = "";
   if (tr)
-    str = tr->asString();
+    str = tr->shortName();
   Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
 }
 

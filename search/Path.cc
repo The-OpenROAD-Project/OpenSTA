@@ -201,7 +201,7 @@ Path::to_string(const StaState *sta) const
   else
     return stringPrintTmp("%s %s %s/%s %d",
                           vertex(sta)->to_string(sta).c_str(),
-                          transition(sta)->to_string().c_str(),
+                          transition(sta)->shortName(),
                           scene(sta)->name().c_str(),
                           minMax(sta)->to_string().c_str(),
                           tagIndex(sta));

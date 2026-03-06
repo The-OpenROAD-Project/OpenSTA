@@ -805,7 +805,7 @@ MakePathEndsAll::vertexEnd(Vertex *)
           debugPrint(debug, "path_group", 2, "insert %s %s %s %d",
                      path_end->vertex(sta_)->to_string(sta_).c_str(),
                      path_end->typeName(),
-                     path_end->transition(sta_)->to_string().c_str(),
+                     path_end->transition(sta_)->shortName(),
                      path_end->path()->tag(sta_)->index());
           // Give the group a copy of the path end because
           // it may delete it during pruning.
@@ -820,7 +820,7 @@ MakePathEndsAll::vertexEnd(Vertex *)
           debugPrint(debug, "path_group", 3, "prune %s %s %s %d",
                      path_end->vertex(sta_)->to_string(sta_).c_str(),
                      path_end->typeName(),
-                     path_end->transition(sta_)->to_string().c_str(),
+                     path_end->transition(sta_)->shortName(),
                      path_end->path()->tag(sta_)->index());
       }
       // Clear ends for next vertex.

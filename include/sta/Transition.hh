@@ -48,8 +48,7 @@ public:
   static const RiseFall *fall() { return &fall_; }
   static int riseIndex() { return rise_.sdf_triple_index_; }
   static int fallIndex() { return fall_.sdf_triple_index_; }
-  const std::string &to_string_long() const { return name_; }
-  const std::string &to_string() const { return short_name_; }
+  const std::string &to_string(bool use_short = false) const;
   const char *name() const { return name_.c_str(); }
   const char *shortName() const { return short_name_.c_str(); }
   int index() const { return sdf_triple_index_; }
@@ -94,7 +93,7 @@ public:
   static const RiseFallBoth *rise() { return &rise_; }
   static const RiseFallBoth *fall() { return &fall_; }
   static const RiseFallBoth *riseFall() { return &rise_fall_; }
-  const std::string &to_string() const { return short_name_; }
+  const std::string &to_string(bool use_short = false) const;
   const char *name() const { return name_.c_str(); }
   const char *shortName() const { return short_name_.c_str(); }
   int index() const { return sdf_triple_index_; }

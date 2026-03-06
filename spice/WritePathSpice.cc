@@ -215,10 +215,10 @@ WritePathSpice::writeHeader()
 {
   const Path *start_path = path_expanded_.startPath();
   std::string title = stdstrPrint("Path from %s %s to %s %s",
-                             network_->pathName(start_path->pin(this)),
-                             start_path->transition(this)->to_string().c_str(),
-                             network_->pathName(path_->pin(this)),
-                             path_->transition(this)->to_string().c_str());
+                                  network_->pathName(start_path->pin(this)),
+                                  start_path->transition(this)->shortName(),
+                                  network_->pathName(path_->pin(this)),
+                                  path_->transition(this)->shortName());
   float max_time = maxTime();
   float time_step = 1e-13;
   writeHeader(title, max_time, time_step);
