@@ -86,7 +86,6 @@ static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map =
    {PwrActivityOrigin::propagated, "propagated"},
    {PwrActivityOrigin::clock, "clock"},
    {PwrActivityOrigin::constant, "constant"},
-   {PwrActivityOrigin::defaulted, "defaulted"},
    {PwrActivityOrigin::unknown, "unknown"}};
 
 Power::Power(StaState *sta) :
