@@ -1178,7 +1178,7 @@ PathEndLatchCheck::sourceClkOffset(const StaState *sta) const
 const TimingRole *
 PathEndLatchCheck::checkRole(const StaState *sta) const
 {
-  if (clk_path_->clkInfo(sta)->isPulseClk())
+  if (clk_path_ && clk_path_->clkInfo(sta)->isPulseClk())
     // Pulse latches use register cycle accounting.
     return TimingRole::setup();
   else

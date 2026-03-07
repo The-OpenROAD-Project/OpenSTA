@@ -32,9 +32,6 @@
 
 namespace sta {
 
-using std::abs;
-
-
 Unit::Unit(const char *suffix) :
   scale_(1.0),
   suffix_(suffix),
@@ -175,12 +172,12 @@ Unit::asString(float value,
                int digits) const
 {
   // Special case INF because it blows up otherwise.
-  if (abs(value) >= INF * .1)
+  if (std::abs(value) >= INF * .1)
     return (value > 0.0) ? "INF" : "-INF";
   else {
     float scaled_value = value / scale_;
     // prevent "-0.00" on slowaris
-    if (abs(scaled_value) < 1E-6)
+    if (std::abs(scaled_value) < 1E-6)
       scaled_value = 0.0;
     return stringPrintTmp("%.*f", digits, scaled_value);
   }

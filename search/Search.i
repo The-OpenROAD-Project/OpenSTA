@@ -335,6 +335,14 @@ slow_drivers(int count)
   return Sta::sta()->slowDrivers(count);
 }
 
+bool
+is_ideal_clock(const Pin *pin)
+{
+  Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
+  return sta->isIdealClock(pin, mode);
+}
+
 ////////////////////////////////////////////////////////////////
 
 PathEndSeq
@@ -375,29 +383,9 @@ find_path_ends(ExceptionFrom *from,
 ////////////////////////////////////////////////////////////////
 
 void
-report_path_end_header()
-{
-  Sta::sta()->reportPathEndHeader();
-}
-
-void
-report_path_end_footer()
-{
-  Sta::sta()->reportPathEndFooter();
-}
-
-void
 report_path_end(PathEnd *end)
 {
   Sta::sta()->reportPathEnd(end);
-}
-
-void
-report_path_end2(PathEnd *end,
-                 PathEnd *prev_end,
-                 bool last)
-{
-  Sta::sta()->reportPathEnd(end, prev_end, last);
 }
 
 void

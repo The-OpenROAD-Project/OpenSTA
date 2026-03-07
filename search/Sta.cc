@@ -24,7 +24,9 @@
 
 #include "Sta.hh"
 
+#include <algorithm>
 #include <filesystem>
+#include <string>
 
 #include "Machine.hh"
 #include "ContainerHelpers.hh"
@@ -87,10 +89,6 @@
 #include "spice/WritePathSpice.hh"
 
 namespace sta {
-
-using std::string;
-using std::min;
-using std::max;
 
 static bool
 libertyPortCapsEqual(const LibertyPort *port1,
@@ -576,7 +574,7 @@ Sta::cmdSdc() const
 }
 
 void
-Sta::setCmdMode(const string &mode_name)
+Sta::setCmdMode(const std::string &mode_name)
 {
   if (!mode_name.empty()) {
     if (!mode_name_map_.contains(mode_name)) {
@@ -2775,29 +2773,9 @@ Sta::setReportPathSigmas(bool report_sigmas)
 }
 
 void
-Sta::reportPathEndHeader()
-{
-  report_path_->reportPathEndHeader();
-}
-
-void
-Sta::reportPathEndFooter()
-{
-  report_path_->reportPathEndFooter();
-}
-
-void
 Sta::reportPathEnd(PathEnd *end)
 {
   report_path_->reportPathEnd(end);
-}
-
-void
-Sta::reportPathEnd(PathEnd *end,
-		   PathEnd *prev_end,
-                   bool last)
-{
-  report_path_->reportPathEnd(end, prev_end, last);
 }
 
 void
@@ -3228,8 +3206,8 @@ class EndpointPathEndVisitor : public PathEndVisitor
 {
 public:
   EndpointPathEndVisitor(const std::string &path_group_name,
-			 const MinMax *min_max,
-			 const StaState *sta);
+                         const MinMax *min_max,
+                         const StaState *sta);
   PathEndVisitor *copy() const;
   void visit(PathEnd *path_end);
   Slack slack() const { return slack_; }
@@ -3242,8 +3220,8 @@ private:
 };
 
 EndpointPathEndVisitor::EndpointPathEndVisitor(const std::string &path_group_name,
-					       const MinMax *min_max,
-					       const StaState *sta) :
+                                               const MinMax *min_max,
+                                               const StaState *sta) :
   path_group_name_(path_group_name),
   min_max_(min_max),
   slack_(MinMax::min()->initValue()),
@@ -3274,8 +3252,8 @@ EndpointPathEndVisitor::visit(PathEnd *path_end)
 
 Slack
 Sta::endpointSlack(const Pin *pin,
-		   const std::string &path_group_name,
-		   const MinMax *min_max)
+                   const std::string &path_group_name,
+                   const MinMax *min_max)
 {
   ensureGraph();
   Vertex *vertex = graph_->pinLoadVertex(pin);
@@ -3297,7 +3275,8 @@ Sta::reportArrivalWrtClks(const Pin *pin,
                           const Scene *scene,
                           int digits)
 {
-  reportDelaysWrtClks(pin, scene, digits,
+  searchPreamble();
+  reportDelaysWrtClks(pin, scene, digits, false,
                       [] (const Path *path) {
                         return path->arrival();
                       });
@@ -3308,7 +3287,7 @@ Sta::reportRequiredWrtClks(const Pin *pin,
                            const Scene *scene,
                            int digits)
 {
-  reportDelaysWrtClks(pin, scene, digits,
+  reportDelaysWrtClks(pin, scene, digits, true,
                       [] (const Path *path) {
                         return path->required();
                       });
@@ -3319,7 +3298,7 @@ Sta::reportSlackWrtClks(const Pin *pin,
                         const Scene *scene,
                         int digits)
 {
-  reportDelaysWrtClks(pin, scene, digits,
+  reportDelaysWrtClks(pin, scene, digits, true,
                       [this] (const Path *path) {
                         return path->slack(this);
                       });
@@ -3329,24 +3308,29 @@ void
 Sta::reportDelaysWrtClks(const Pin *pin,
                          const Scene *scene,
                          int digits,
+                         bool find_required,
                          PathDelayFunc get_path_delay)
 {
   ensureGraph();
   Vertex *vertex, *bidir_vertex;
   graph_->pinVertices(pin, vertex, bidir_vertex);
   if (vertex)
-    reportDelaysWrtClks(vertex, scene, digits, get_path_delay);
+    reportDelaysWrtClks(vertex, scene, digits, find_required, get_path_delay);
   if (bidir_vertex)
-    reportDelaysWrtClks(vertex, scene, digits, get_path_delay);
+    reportDelaysWrtClks(vertex, scene, digits, find_required, get_path_delay);
 }
 
 void
 Sta::reportDelaysWrtClks(Vertex *vertex,
                          const Scene *scene,
                          int digits,
+                         bool find_required,
                          PathDelayFunc get_path_delay)
 {
-  findRequired(vertex);
+  if (find_required)
+    findRequired(vertex);
+  else
+    search_->findArrivals(vertex->level());
   const Sdc *sdc = scene->sdc();
   reportDelaysWrtClks(vertex, nullptr, scene, digits, get_path_delay);
   const ClockEdge *default_clk_edge = sdc->defaultArrivalClock()->edge(RiseFall::rise());
@@ -3483,7 +3467,7 @@ MinPeriodEndVisitor::visit(PathEnd *path_end)
                || pathIsFromInputPort(path_end)))) {
     Slack slack = path_end->slack(sta_);
     float period = clk_->period() - delayAsFloat(slack);
-    min_period_ = max(min_period_, period);
+    min_period_ = std::max(min_period_, period);
   }
 }
 
@@ -3576,12 +3560,12 @@ Sta::worstSlack(const Scene *scene,
 
 ////////////////////////////////////////////////////////////////
 
-string
+std::string
 Sta::reportDelayCalc(Edge *edge,
-		     TimingArc *arc,
+                     TimingArc *arc,
                      const Scene *scene,
-		     const MinMax *min_max,
-		     int digits)
+                     const MinMax *min_max,
+                     int digits)
 {
   findDelays();
   return graph_delay_calc_->reportDelayCalc(edge, arc, scene, min_max, digits);
@@ -4122,13 +4106,13 @@ Sta::setResistance(const Net *net,
 bool
 Sta::readSpef(const std::string &name,
               const std::string &filename,
-	      Instance *instance,
+              Instance *instance,
               Scene *scene,   // -scene deprecated 11/20/2025
-	      const MinMaxAll *min_max,
-	      bool pin_cap_included,
-	      bool keep_coupling_caps,
-	      float coupling_cap_factor,
-	      bool reduce)
+              const MinMaxAll *min_max,
+              bool pin_cap_included,
+              bool keep_coupling_caps,
+              float coupling_cap_factor,
+              bool reduce)
 {
   ensureLibLinked();
   Parasitics *parasitics = nullptr;
@@ -4162,7 +4146,7 @@ Sta::readSpef(const std::string &name,
   }
 
   bool success = readSpefFile(filename.c_str(), instance,
-			      pin_cap_included, keep_coupling_caps,
+                              pin_cap_included, keep_coupling_caps,
                               coupling_cap_factor, reduce,
                               scene, min_max, parasitics, this);
   delaysInvalid();
@@ -4176,7 +4160,7 @@ Sta::findParasitics(const std::string &name)
 }
 
 void
-Sta::reportParasiticAnnotation(const string &spef_name,
+Sta::reportParasiticAnnotation(const std::string &spef_name,
                                bool report_unannotated)
 {
   ensureLibLinked();
@@ -4712,12 +4696,14 @@ Sta::connectLoadPinAfter(Vertex *vertex)
   VertexInEdgeIterator edge_iter(vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    Vertex *from_vertex = edge->from(graph_);
-    graph_delay_calc_->delayInvalid(from_vertex);
-    search_->requiredInvalid(from_vertex);
-    for (Mode *mode : modes_)
-      mode->sdc()->clkHpinDisablesChanged(from_vertex->pin());
-    levelize_->relevelizeFrom(from_vertex);
+    if (!edge->role()->isTimingCheck()) {
+      Vertex *from_vertex = edge->from(graph_);
+      graph_delay_calc_->delayInvalid(from_vertex);
+      search_->requiredInvalid(from_vertex);
+      levelize_->relevelizeFrom(from_vertex);
+      for (Mode *mode : modes_)
+        mode->sdc()->clkHpinDisablesChanged(from_vertex->pin());
+    }
   }
   Pin *pin = vertex->pin();
   for (Mode *mode : modes_) {
@@ -4795,12 +4781,14 @@ Sta::deleteEdge(Edge *edge)
              edge->from(graph_)->name(sdc_network_),
              edge->to(graph_)->name(sdc_network_));
   Vertex *to = edge->to(graph_);
-  search_->deleteEdgeBefore(edge);
-  graph_delay_calc_->delayInvalid(to);
-  levelize_->relevelizeFrom(to);
-  levelize_->deleteEdgeBefore(edge);
-  for (Mode *mode : modes_)
-    mode->sdc()->clkHpinDisablesChanged(edge->from(graph_)->pin());
+  if (!edge->role()->isTimingCheck()) {
+    search_->deleteEdgeBefore(edge);
+    graph_delay_calc_->delayInvalid(to);
+    levelize_->relevelizeFrom(to);
+    levelize_->deleteEdgeBefore(edge);
+    for (Mode *mode : modes_)
+      mode->sdc()->clkHpinDisablesChanged(edge->from(graph_)->pin());
+  }
   graph_->deleteEdge(edge);
 }
 
@@ -6075,28 +6063,31 @@ Sta::ensureClkNetwork(const Mode *mode)
 
 bool
 Sta::isClock(const Pin *pin,
-             const Mode *mode) const
+             const Mode *mode)
 {
+  ensureClkNetwork(mode);
   return mode->clkNetwork()->isClock(pin);
 }
 
 bool
 Sta::isClock(const Net *net,
-             const Mode *mode) const
+             const Mode *mode)
 {
+  ensureClkNetwork(mode);
   return mode->clkNetwork()->isClock(net);
 }
 
 bool
 Sta::isIdealClock(const Pin *pin,
-                  const Mode *mode) const
+                  const Mode *mode)
 {
+  ensureClkNetwork(mode);
   return mode->clkNetwork()->isIdealClock(pin);
 }
 
 bool
 Sta::isPropagatedClock(const Pin *pin,
-                       const Mode *mode) const
+                       const Mode *mode)
 {
   return mode->clkNetwork()->isPropagatedClock(pin);
 }
@@ -6105,12 +6096,14 @@ const PinSet *
 Sta::pins(const Clock *clk,
           const Mode *mode)
 {
+  ensureClkNetwork(mode);
   return mode->clkNetwork()->pins(clk);
 }
 
 void
 Sta::clkPinsInvalid(const Mode *mode)
 {
+  ensureClkNetwork(mode);
   mode->clkNetwork()->clkPinsInvalid();
 }
 

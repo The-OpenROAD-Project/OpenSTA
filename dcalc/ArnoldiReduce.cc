@@ -38,8 +38,6 @@
 
 namespace sta {
 
-using std::string;
-
 rcmodel::rcmodel() :
   pinV(nullptr)
 {
@@ -621,7 +619,7 @@ ArnoldiReduce::makeRcmodelFromTs()
         report_->reportLine(" d[%d] %s",
                             h,
                             units_->timeUnit()->asString(d[h]));
-      string line = stdstrPrint("U[%d]",h);
+      std::string line = stdstrPrint("U[%d]",h);
       for (i=0;i<nterms;i++)
         line += stdstrPrint(" %6.2e",U[h][i]);
       report_->reportLineString(line);

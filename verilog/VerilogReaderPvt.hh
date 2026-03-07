@@ -29,12 +29,12 @@
 #include <map>
 
 #include "StringSeq.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
 using VerilogDclMap = std::map<std::string, VerilogDcl*>;
 using VerilogConstantValue = std::vector<bool>;
-using StdStringSeq = std::vector<std::string>;
 
 class VerilogStmt
 {

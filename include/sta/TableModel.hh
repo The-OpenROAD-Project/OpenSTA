@@ -49,6 +49,7 @@ using FloatTable = std::vector<FloatSeq>;
 // Sequence of 1D tables (order 1).
 using Table1Seq = std::vector<Table*>;
 using Waveform = Table;
+using TableModelsEarlyLate = std::array<TableModel*, EarlyLate::index_count>;
 
 TableAxisVariable
 stringTableAxisVariable(const char *variable);
@@ -63,11 +64,14 @@ class GateTableModel : public GateTimingModel
 public:
   GateTableModel(LibertyCell *cell,
                  TableModel *delay_model,
-                 TableModel *delay_sigma_models[EarlyLate::index_count],
+                 TableModelsEarlyLate delay_sigma_models,
                  TableModel *slew_model,
-                 TableModel *slew_sigma_models[EarlyLate::index_count],
+                 TableModelsEarlyLate slew_sigma_models,
                  ReceiverModelPtr receiver_model,
                  OutputWaveforms *output_waveforms);
+  GateTableModel(LibertyCell *cell,
+                 TableModel *delay_model,
+                 TableModel *slew_model);
   ~GateTableModel() override;
   void gateDelay(const Pvt *pvt,
                  float in_slew,
@@ -100,7 +104,7 @@ public:
   OutputWaveforms *outputWaveforms() const { return output_waveforms_.get(); }
   // Check the axes before making the model.
   // Return true if the model axes are supported.
-  static bool checkAxes(const TablePtr &table);
+  static bool checkAxes(const TableModel *table);
 
 protected:
   void maxCapSlew(float in_slew,
@@ -135,9 +139,9 @@ protected:
   static bool checkAxis(const TableAxis *axis);
 
   std::unique_ptr<TableModel> delay_model_;
-  std::array<std::unique_ptr<TableModel>, EarlyLate::index_count> delay_sigma_models_;
+  TableModelsEarlyLate delay_sigma_models_;
   std::unique_ptr<TableModel> slew_model_;
-  std::array<std::unique_ptr<TableModel>, EarlyLate::index_count> slew_sigma_models_;
+  TableModelsEarlyLate slew_sigma_models_;
   ReceiverModelPtr receiver_model_;
   std::unique_ptr<OutputWaveforms> output_waveforms_;
 };
@@ -147,7 +151,9 @@ class CheckTableModel : public CheckTimingModel
 public:
   CheckTableModel(LibertyCell *cell,
                   TableModel *model,
-                  TableModel *sigma_models[EarlyLate::index_count]);
+                  TableModelsEarlyLate sigma_models);
+  CheckTableModel(LibertyCell *cell,
+                  TableModel *model);
   ~CheckTableModel() override;
   ArcDelay checkDelay(const Pvt *pvt,
                       float from_slew,
@@ -166,7 +172,7 @@ public:
 
   // Check the axes before making the model.
   // Return true if the model axes are supported.
-  static bool checkAxes(const TablePtr table);
+  static bool checkAxes(const TableModel *table);
 
 protected:
   void setIsScaled(bool is_scaled) override;
@@ -197,7 +203,7 @@ protected:
   static bool checkAxis(const TableAxis *axis);
 
   std::unique_ptr<TableModel> model_;
-  std::array<std::unique_ptr<TableModel>, EarlyLate::index_count> sigma_models_;
+  TableModelsEarlyLate sigma_models_;
 };
 
 class TableAxis
@@ -254,6 +260,8 @@ public:
   const TableAxis *axis2() const { return axis2_.get(); }
   const TableAxis *axis3() const { return axis3_.get(); }
   const TableAxisPtr axis1ptr() const { return axis1_; }
+  const TableAxisPtr axis2ptr() const { return axis2_; }
+  const TableAxisPtr axis3ptr() const { return axis3_; }
   void setIsScaled(bool is_scaled);
 
   float value(size_t axis_idx1,
@@ -409,7 +417,7 @@ public:
   void setCapacitanceModel(TableModel table_model,
                            size_t segment,
                            const RiseFall *rf);
-  static bool checkAxes(TablePtr table);
+  static bool checkAxes(const TableModel *table);
 
 private:
   std::vector<TableModel> capacitance_models_;

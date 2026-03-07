@@ -24,6 +24,8 @@
 
 #include "Genclks.hh"
 
+#include <cmath>
+
 #include "ContainerHelpers.hh"
 #include "Stats.hh"
 #include "Debug.hh"
@@ -46,8 +48,6 @@
 #include "Variables.hh"
 
 namespace sta {
-
-using std::max;
 
 class GenclkInfo
 {
@@ -151,7 +151,7 @@ Genclks::clkPinMaxLevel(const Clock *clk) const
   Level max_level = 0;
   for (const Pin *pin : clk->leafPins()) {
     Vertex *vertex = srcPath(pin);
-    max_level = max(max_level, vertex->level());
+    max_level = std::max(max_level, vertex->level());
   }
   return max_level;
 }

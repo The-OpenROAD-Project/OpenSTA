@@ -33,6 +33,8 @@
 
 namespace sta {
 
+using StdStringSeq = std::vector<std::string>;
+
 inline bool
 stringEq(const char *str1,
          const char *str2)
@@ -201,12 +203,9 @@ deleteTmpStrings();
 void
 trimRight(std::string &str);
 
-using StringVector = std::vector<std::string>;
-
-void
-split(const std::string &text,
-      const std::string &delims,
-      // Return values.
-      StringVector &tokens);
+// Spit text into delimiter separated tokens and skip whitepace.
+StdStringSeq
+parseTokens(const std::string &s,
+            const char delimiter);
 
 } // namespace

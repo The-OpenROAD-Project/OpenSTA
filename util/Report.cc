@@ -33,8 +33,6 @@
 
 namespace sta {
 
-using std::min;
-
 Report *Report::default_ = nullptr;
 
 Report::Report() :
@@ -78,11 +76,11 @@ Report::printString(const char *buffer,
     redirectStringPrint(buffer, length);
   else {
     if (redirect_stream_)
-      ret = min(ret, fwrite(buffer, sizeof(char), length, redirect_stream_));
+      ret = std::min(ret, fwrite(buffer, sizeof(char), length, redirect_stream_));
     else
-      ret = min(ret, printConsole(buffer, length));
+      ret = std::min(ret, printConsole(buffer, length));
     if (log_stream_)
-      ret = min(ret, fwrite(buffer, sizeof(char), length, log_stream_));
+      ret = std::min(ret, fwrite(buffer, sizeof(char), length, log_stream_));
   }
   return ret;
 }

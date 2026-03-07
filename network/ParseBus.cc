@@ -32,8 +32,6 @@
 
 namespace sta {
 
-using std::string;
-
 bool
 isBusName(const char *name,
           const char brkt_left,
@@ -60,7 +58,7 @@ parseBusName(const char *name,
              const char escape,
              // Return values.
              bool &is_bus,
-             string &bus_name,
+             std::string &bus_name,
              int &index)
 {
   const char brkts_left[2] = {brkt_left, '\0'};
@@ -76,7 +74,7 @@ parseBusName(const char *name,
              char escape,
              // Return values.
              bool &is_bus,
-             string &bus_name,
+             std::string &bus_name,
              int &index)
 {
   is_bus = false;
@@ -110,7 +108,7 @@ parseBusName(const char *name,
              // Return values.
              bool &is_bus,
              bool &is_range,
-             string &bus_name,
+             std::string &bus_name,
              int &from,
              int &to,
              bool &subscript_wild)
@@ -129,7 +127,7 @@ parseBusName(const char *name,
              // Return values.
              bool &is_bus,
              bool &is_range,
-             string &bus_name,
+             std::string &bus_name,
              int &from,
              int &to,
              bool &subscript_wild)
@@ -173,13 +171,13 @@ parseBusName(const char *name,
   }
 }
 
-string
+std::string
 escapeChars(const char *token,
             const char ch1,
             const char ch2,
             const char escape)
 {
-  string escaped;
+  std::string escaped;
   for (const char *s = token; *s; s++) {
     char ch = *s;
     if (ch == escape) {

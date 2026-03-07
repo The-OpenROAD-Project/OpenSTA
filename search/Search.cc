@@ -24,8 +24,7 @@
 
 #include "Search.hh"
 
-#include <algorithm>
-#include <cmath> // abs
+#include <vector>
 
 #include "ContainerHelpers.hh"
 #include "Mutex.hh"
@@ -69,10 +68,6 @@
 #include "Variables.hh"
 
 namespace sta {
-
-using std::min;
-using std::max;
-using std::abs;
 
 ////////////////////////////////////////////////////////////////
 

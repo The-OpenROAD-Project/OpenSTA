@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cinttypes>
+#include <string>
 
 #include "Error.hh"
 #include "Debug.hh"
@@ -41,9 +42,6 @@
 #include "Sta.hh"
 
 namespace sta {
-
-using std::string;
-using std::min;
 
 bool
 readSaif(const char *filename,
@@ -129,9 +127,9 @@ SaifReader::instancePush(const char *instance_name)
     // Check for a match to the annotation scope.
     saif_scope_.push_back(instance_name);
 
-    string saif_scope;
+    std::string saif_scope;
     bool first = true;
-    for (string &inst : saif_scope_) {
+    for (std::string &inst : saif_scope_) {
       if (!first)
         saif_scope += sdc_network_->pathDivider();
       saif_scope += inst;
@@ -167,7 +165,7 @@ SaifReader::setNetDurations(const char *net_name,
   if (in_scope_level_ > 0) {
     Instance *parent = path_.empty() ? sdc_network_->topInstance() : path_.back();
     if (parent) {
-      string unescaped_name = unescaped(net_name);
+      std::string unescaped_name = unescaped(net_name);
       const Pin *pin = sdc_network_->findPin(parent, unescaped_name.c_str());
       LibertyPort *liberty_port = pin ? sdc_network_->libertyPort(pin) : nullptr;
       if (pin
@@ -194,10 +192,10 @@ SaifReader::setNetDurations(const char *net_name,
   stringDelete(net_name);
 }
 
-string
+std::string
 SaifReader::unescaped(const char *token)
 {
-  string unescaped;
+  std::string unescaped;
   for (const char *t = token; *t; t++) {
     char ch = *t;
     if (ch != escape_)
@@ -211,7 +209,7 @@ SaifReader::unescaped(const char *token)
 ////////////////////////////////////////////////////////////////
 
 SaifScanner::SaifScanner(std::istream *stream,
-                         const string &filename,
+                         const std::string &filename,
                          SaifReader *reader,
                          Report *report) :
   yyFlexLexer(stream),

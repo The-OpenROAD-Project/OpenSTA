@@ -17,4 +17,3 @@ define_scene ff -liberty NangateOpenCellLibrary_fast
 report_checks -path_delay min_max
 # report typical scene
 report_checks -scene tt
-

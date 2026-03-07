@@ -40,6 +40,7 @@
 #include "SearchPred.hh"
 #include "VertexVisitor.hh"
 #include "Path.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -70,7 +71,6 @@ using VertexSlackMapSeq = std::vector<VertexSlackMap>;
 using WorstSlacksSeq = std::vector<WorstSlacks>;
 using DelayDblSeq = std::vector<DelayDbl>;
 using ExceptionPathSeq = std::vector<ExceptionPath*>;
-using StdStringSeq = std::vector<std::string>;
 
 class Search : public StaState
 {

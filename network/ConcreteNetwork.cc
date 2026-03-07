@@ -35,8 +35,6 @@
 
 namespace sta {
 
-using std::string;
-
 static void
 makeChildNetwork(Instance *proto,
                  Instance *parent,
@@ -581,8 +579,8 @@ ConcreteNetwork::setIsLeaf(Cell *cell,
 
 void
 ConcreteNetwork::setAttribute(Cell *cell,
-                              const string &key,
-                              const string &value)
+                              const std::string &key,
+                              const std::string &value)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   ccell->setAttribute(key, value);
@@ -628,9 +626,9 @@ ConcreteNetwork::filename(const Cell *cell)
   return ccell->filename();
 }
 
-string
+std::string
 ConcreteNetwork::getAttribute(const Cell *cell,
-                              const string &key) const
+                              const std::string &key) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return ccell->getAttribute(key);
@@ -967,9 +965,9 @@ ConcreteNetwork::id(const Instance *instance) const
   return inst->id();
 }
 
-string
+std::string
 ConcreteNetwork::getAttribute(const Instance *inst,
-                              const string &key) const
+                              const std::string &key) const
 {
   const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
   return cinst->getAttribute(key);
@@ -1389,8 +1387,8 @@ ConcreteNetwork::connect(Instance *inst,
 
 void
 ConcreteNetwork::setAttribute(Instance *inst,
-                              const string &key,
-                              const string &value)
+                              const std::string &key,
+                              const std::string &value)
 {
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
   cinst->setAttribute(key, value);
@@ -1718,14 +1716,14 @@ ConcreteInstance::childIterator() const
 }
 
 void
-ConcreteInstance::setAttribute(const string &key,
-                               const string &value)
+ConcreteInstance::setAttribute(const std::string &key,
+                               const std::string &value)
 {
   attribute_map_[key] = value;
 }
 
-string
-ConcreteInstance::getAttribute(const string &key) const
+std::string
+ConcreteInstance::getAttribute(const std::string &key) const
 {
   const auto &itr = attribute_map_.find(key);
   if (itr != attribute_map_.end())

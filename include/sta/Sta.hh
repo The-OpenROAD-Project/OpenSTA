@@ -30,6 +30,7 @@
 #include <functional>
 
 #include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
@@ -80,7 +81,6 @@ using SceneNameMap = std::map<std::string, Scene*>;
 using SlowDrvrIterator = Iterator<Instance*>;
 using CheckError = StringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
-using StdStringSeq = std::vector<std::string>;
 enum class CmdNamespace { sta, sdc };
 using ParasiticsNameMap = std::map<std::string, Parasitics*>;
 // Path::slack/arrival/required function.
@@ -988,16 +988,6 @@ public:
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
   void setReportPathSigmas(bool report_sigmas);
-  // Header above reportPathEnd results.
-  void reportPathEndHeader();
-  // Footer below reportPathEnd results.
-  void reportPathEndFooter();
-  // Format report_path_endpoint only:
-  //   Previous path end is used to detect path group changes
-  //   so headers are reported by group.
-  void reportPathEnd(PathEnd *end,
-                     PathEnd *prev_end,
-                     bool last);
   void reportPathEnd(PathEnd *end);
   void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
@@ -1302,13 +1292,13 @@ public:
   void clkPinsInvalid(const Mode *mode);
   // The following functions assume ensureClkNetwork() has been called.
   bool isClock(const Pin *pin,
-               const Mode *mode) const;
+               const Mode *mode);
   bool isClock(const Net *net,
-               const Mode *mode) const;
+               const Mode *mode);
   bool isIdealClock(const Pin *pin,
-                    const Mode *mode) const;
+                    const Mode *mode);
   bool isPropagatedClock(const Pin *pin,
-                         const Mode *mode) const;
+                         const Mode *mode);
   const PinSet *pins(const Clock *clk,
                      const Mode *mode);
 
@@ -1522,10 +1512,12 @@ protected:
   void reportDelaysWrtClks(const Pin *pin,
                            const Scene *scene,
                            int digits,
+                           bool find_required,
                            PathDelayFunc get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const Scene *scene,
                            int digits,
+                           bool find_required,
                            PathDelayFunc get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const ClockEdge *clk_edge,
