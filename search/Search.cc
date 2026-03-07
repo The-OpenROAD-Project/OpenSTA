@@ -3654,7 +3654,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
                                  const MinMax *min_max)
 {
   // Don't propagate required times through latch D->Q edges.
-  if (edge->role() != TimingRole::latchDtoQ()) {
+  if (!edge->role()->isLatchDtoQ()) {
     debugPrint(debug_, "search", 3, "  %s -> %s %s",
                from_rf->shortName(),
                to_rf->shortName(),
