@@ -31,7 +31,6 @@ namespace sta {
 
 using StringSet = std::set<const char*, CharPtrLess>;
 using StdStringSet = std::set<std::string>;
-using StdStringSeq = std::vector<std::string>;
 
 void
 deleteContents(StringSet *strings);

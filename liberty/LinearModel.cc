@@ -29,8 +29,6 @@
 
 namespace sta {
 
-using std::string;
-
 GateLinearModel::GateLinearModel(LibertyCell *cell,
                                  float intrinsic,
                                  float resistance) :
@@ -53,7 +51,7 @@ GateLinearModel::gateDelay(const Pvt *,
   drvr_slew = 0.0;
 }
 
-string
+std::string
 GateLinearModel::reportGateDelay(const Pvt *,
                                  float,
                                  float load_cap,
@@ -65,7 +63,7 @@ GateLinearModel::reportGateDelay(const Pvt *,
   const Unit *time_unit = units->timeUnit();
   const Unit *res_unit = units->resistanceUnit();
   const Unit *cap_unit = units->capacitanceUnit();
-  string result = "Delay = ";
+  std::string result = "Delay = ";
   result += time_unit->asString(intrinsic_, digits);
   result += " + ";
   result += res_unit->asString(resistance_, digits);
@@ -105,7 +103,7 @@ CheckLinearModel::checkDelay(const Pvt *,
   return intrinsic_;
 }
 
-string
+std::string
 CheckLinearModel::reportCheckDelay(const Pvt *,
                                    float,
                                    const char *,
@@ -117,7 +115,7 @@ CheckLinearModel::reportCheckDelay(const Pvt *,
   const LibertyLibrary *library = cell_->libertyLibrary();
   const Units *units = library->units();
   const Unit *time_unit = units->timeUnit();
-  string result = "Check = ";
+  std::string result = "Check = ";
   result += time_unit->asString(intrinsic_, digits);
   return result;
 }

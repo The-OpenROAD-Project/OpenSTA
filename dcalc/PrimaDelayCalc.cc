@@ -44,9 +44,6 @@
 
 namespace sta {
 
-using std::string;
-using std::abs;
-using std::make_shared;
 using Eigen::SparseLU;
 using Eigen::HouseholderQR;
 using Eigen::ColPivHouseholderQR;
@@ -726,7 +723,7 @@ PrimaDelayCalc::dcalcResults()
     ThresholdTimes &drvr_times = threshold_times_[drvr_node];
     float ref_time = output_waveforms_[drvr_idx]->referenceTime(dcalc_arg.inSlewFlt());
     ArcDelay gate_delay = drvr_times[threshold_vth] - ref_time;
-    Slew drvr_slew = abs(drvr_times[threshold_vh] - drvr_times[threshold_vl]);
+    Slew drvr_slew = std::abs(drvr_times[threshold_vh] - drvr_times[threshold_vl]);
     dcalc_result.setGateDelay(gate_delay);
     dcalc_result.setDrvrSlew(drvr_slew);
     debugPrint(debug_, "ccs_dcalc", 2,
@@ -743,7 +740,7 @@ PrimaDelayCalc::dcalcResults()
       ThresholdTimes &wire_times = threshold_times_[load_node];
       ThresholdTimes &drvr_times = threshold_times_[drvr_node];
       ArcDelay wire_delay = wire_times[threshold_vth] - drvr_times[threshold_vth];
-      Slew load_slew = abs(wire_times[threshold_vh] - wire_times[threshold_vl]);
+      Slew load_slew = std::abs(wire_times[threshold_vh] - wire_times[threshold_vl]);
       debugPrint(debug_, "ccs_dcalc", 2,
                  "load %s %s delay %s slew %s",
                  network_->pathName(load_pin),
@@ -908,7 +905,7 @@ PrimaDelayCalc::recordWaveformStep(double time)
 
 ////////////////////////////////////////////////////////////////
 
-string
+std::string
 PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                 const TimingArc *arc,
                                 const Slew &in_slew,
@@ -959,8 +956,8 @@ Waveform
 PrimaDelayCalc::watchWaveform(const Pin *pin)
 {
   FloatSeq &voltages = watch_pin_values_[pin];
-  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                  FloatSeq(times_));
+  TableAxisPtr time_axis = std::make_shared<TableAxis>(TableAxisVariable::time,
+                                                       FloatSeq(times_));
   Table waveform(new FloatSeq(voltages), time_axis);
   return waveform;
 }
@@ -1003,7 +1000,7 @@ void
 PrimaDelayCalc::reportMatrix(MatrixSd &matrix)
 {
   for (Eigen::Index i = 0; i < matrix.rows(); i++) {
-    string line = "| ";
+    std::string line = "| ";
     for (Eigen::Index j = 0; j < matrix.cols(); j++) {
       std::string entry = stdstrPrint("%10.3e", matrix.coeff(i, j));
       line += entry;

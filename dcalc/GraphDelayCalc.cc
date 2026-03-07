@@ -24,6 +24,8 @@
 
 #include "GraphDelayCalc.hh"
 
+#include <cmath>
+#include <array>
 #include <set>
 
 #include "ContainerHelpers.hh"
@@ -52,10 +54,6 @@
 #include "search/Latches.hh"
 
 namespace sta {
-
-using std::string;
-using std::abs;
-using std::array;
 
 static const Slew default_slew = 0.0;
 
@@ -941,7 +939,7 @@ GraphDelayCalc::findDriverDelays1(Vertex *drvr_vertex,
   initSlew(drvr_vertex);
   initWireDelays(drvr_vertex);
   bool delay_changed = false;
-  array<bool, RiseFall::index_count> delay_exists = {false, false};
+  std::array<bool, RiseFall::index_count> delay_exists = {false, false};
   VertexInEdgeIterator edge_iter(drvr_vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
@@ -983,7 +981,7 @@ GraphDelayCalc::findLatchEdgeDelays(Edge *edge)
   Instance *drvr_inst = network_->instance(drvr_pin);
   debugPrint(debug_, "delay_calc", 2, "find latch D->Q %s",
              sdc_network_->pathName(drvr_inst));
-  array<bool, RiseFall::index_count> delay_exists = {false, false};
+  std::array<bool, RiseFall::index_count> delay_exists = {false, false};
   LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(drvr_vertex);
   bool delay_changed = findDriverEdgeDelays(drvr_vertex, nullptr, edge,
                                             arc_delay_calc_, load_pin_index_map,
@@ -999,7 +997,7 @@ GraphDelayCalc::findDriverEdgeDelays(Vertex *drvr_vertex,
                                      ArcDelayCalc *arc_delay_calc,
                                      LoadPinIndexMap &load_pin_index_map,
                                      // Return value.
-                                     array<bool, RiseFall::index_count> &delay_exists)
+                                     std::array<bool, RiseFall::index_count> &delay_exists)
 {
   Vertex *from_vertex = edge->from(graph_);
   const TimingArcSet *arc_set = edge->timingArcSet();
@@ -1231,7 +1229,7 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
     float gate_delay1 = delayAsFloat(gate_delay);
     float prev_gate_delay1 = delayAsFloat(prev_gate_delay);
     if (prev_gate_delay1 == 0.0
-        || (abs(gate_delay1 - prev_gate_delay1) / prev_gate_delay1
+        || (std::abs(gate_delay1 - prev_gate_delay1) / prev_gate_delay1
             > incremental_delay_tolerance_))
       delay_changed = true;
     graph_->setArcDelay(edge, arc, ap_index, gate_delay);
@@ -1660,7 +1658,7 @@ GraphDelayCalc::checkEdgeClkSlew(const Vertex *from_vertex,
 
 ////////////////////////////////////////////////////////////////
 
-string
+std::string
 GraphDelayCalc::reportDelayCalc(const Edge *edge,
                                 const TimingArc *arc,
                                 const Scene *scene,
@@ -1673,7 +1671,7 @@ GraphDelayCalc::reportDelayCalc(const Edge *edge,
   const TimingRole *role = arc->role();
   const Instance *inst = network_->instance(to_pin);
   const TimingArcSet *arc_set = edge->timingArcSet();
-  string result;
+  std::string result;
   const RiseFall *from_rf = arc->fromEdge()->asRiseFall();
   const RiseFall *to_rf = arc->toEdge()->asRiseFall();
   if (from_rf && to_rf) {

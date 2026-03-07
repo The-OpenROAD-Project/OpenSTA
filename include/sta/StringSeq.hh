@@ -31,7 +31,6 @@
 namespace sta {
 
 using StringSeq = std::vector<const char*>;
-using StdStringSeq = std::vector<std::string>;
 
 void
 deleteContents(StringSeq *strings);

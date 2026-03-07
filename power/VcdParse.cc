@@ -35,10 +35,6 @@
 
 namespace sta {
 
-using std::vector;
-using std::string;
-using std::isspace;
-
 // Very imprecise syntax definition
 // https://en.wikipedia.org/wiki/Value_change_dump#Structure.2FSyntax
 // Much better syntax definition
@@ -125,7 +121,7 @@ VcdParse::VcdParse(Report *report,
 void
 VcdParse::parseTimescale()
 {
-  vector<string> tokens = readStmtTokens();
+  std::vector<std::string> tokens = readStmtTokens();
   if (tokens.size() == 1) {
     size_t last;
     double time_scale = std::stod(tokens[0], &last);
@@ -140,7 +136,7 @@ VcdParse::parseTimescale()
 }
 
 void
-VcdParse::setTimeUnit(const string &time_unit,
+VcdParse::setTimeUnit(const std::string &time_unit,
                       double time_scale)
 {
   double time_unit_scale = 1.0;
@@ -177,19 +173,19 @@ static EnumNameMap<VcdVarType> vcd_var_type_map =
 void
 VcdParse::parseVar()
 {
-  vector<string> tokens = readStmtTokens();
+  std::vector<std::string> tokens = readStmtTokens();
   if (tokens.size() == 4
       || tokens.size() == 5) {
-    string type_name = tokens[0];
+    std::string type_name = tokens[0];
     VcdVarType type = vcd_var_type_map.find(type_name, VcdVarType::unknown);
     if (type == VcdVarType::unknown)
       report_->fileWarn(1370, filename_, file_line_,
                         "Unknown variable type %s.",
                         type_name.c_str());
     else {
-      size_t width = stoi(tokens[1]);
-      string &id = tokens[2];
-      string name = tokens[3];
+      size_t width = std::stoi(tokens[1]);
+      std::string &id = tokens[2];
+      std::string name = tokens[3];
       // iverilog separates bus base name from bit range.
       if (tokens.size() == 5) {
         // Preserve space after esacaped name.
@@ -208,8 +204,8 @@ VcdParse::parseVar()
 void
 VcdParse::parseScope()
 {
-  vector<string> tokens = readStmtTokens();
-  string &scope = tokens[1];
+  std::vector<std::string> tokens = readStmtTokens();
+  std::string &scope = tokens[1];
   scope_.push_back(scope);
 }
 
@@ -223,11 +219,11 @@ VcdParse::parseUpscope()
 void
 VcdParse::parseVarValues()
 {
-  string token = getToken();
+  std::string token = getToken();
   while (!token.empty()) {
     char char0 = toupper(token[0]);
     if (char0 == '#' && token.size() > 1) {
-      VcdTime time = stoll(token.substr(1));
+      VcdTime time = std::stoll(token.substr(1));
       prev_time_ = time_;
       time_ = time;
       if (time_ > prev_time_)
@@ -238,15 +234,15 @@ VcdParse::parseVarValues()
              || char0 == 'X'
              || char0 == 'U'
              || char0 == 'Z') {
-      string id = token.substr(1);
+      std::string id = token.substr(1);
       if (!reader_->varIdValid(id))
         report_->fileError(805, filename_, file_line_,
                            "unknown variable %s", id.c_str());
       reader_->varAppendValue(id, time_, char0);
     }
     else if (char0 == 'B') {
-      string bus_value = token.substr(1);
-      string id = getToken();
+      std::string bus_value = token.substr(1);
+      std::string id = getToken();
       if (!reader_->varIdValid(id))
         report_->fileError(807, filename_, file_line_,
                            "unknown variable %s", id.c_str());
@@ -261,12 +257,12 @@ VcdParse::parseVarValues()
   reader_->setTimeMax(time_);
 }
 
-string
+std::string
 VcdParse::readStmtString()
 {
   stmt_line_ = file_line_;
-  string line;
-  string token = getToken();
+  std::string line;
+  std::string token = getToken();
   while (!token.empty() && token != "$end") {
     if (!line.empty())
       line += " ";
@@ -276,12 +272,12 @@ VcdParse::readStmtString()
   return line;
 }
 
-vector<string>
+std::vector<std::string>
 VcdParse::readStmtTokens()
 {
   stmt_line_ = file_line_;
-  vector<string> tokens;
-  string token = getToken();
+  std::vector<std::string> tokens;
+  std::string token = getToken();
   while (!token.empty() && token != "$end") {
     tokens.push_back(token);
     token = getToken();
@@ -289,18 +285,18 @@ VcdParse::readStmtTokens()
   return tokens;
 }
 
-string
+std::string
 VcdParse::getToken()
 {
-  string token;
+  std::string token;
   int ch = gzgetc(stream_);
   // skip whitespace
-  while (ch != EOF && isspace(ch)) {
+  while (ch != EOF && std::isspace(ch)) {
     if (ch == '\n')
       file_line_++;
     ch = gzgetc(stream_);
   }
-  while (ch != EOF && !isspace(ch)) {
+  while (ch != EOF && !std::isspace(ch)) {
     token.push_back(ch);
     ch = gzgetc(stream_);
   }

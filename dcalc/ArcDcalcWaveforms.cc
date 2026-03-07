@@ -35,8 +35,6 @@
 
 namespace sta {
 
-using std::make_shared;
-
 Waveform
 ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
                                  const Scene *scene,
@@ -68,8 +66,8 @@ ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
       FloatSeq time_values;
       for (float time : in_waveform.axis1()->values())
         time_values.push_back(time + dcalc_arg.inputDelay());
-      TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                      std::move(time_values));
+      TableAxisPtr time_axis = std::make_shared<TableAxis>(TableAxisVariable::time,
+                                                           std::move(time_values));
       // Scale the waveform from 0:vdd.
       FloatSeq *scaled_values = new FloatSeq;
       for (float value : *in_waveform.values()) {

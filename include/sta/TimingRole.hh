@@ -78,6 +78,7 @@ public:
   [[nodiscard]] bool isNonSeqTimingCheck() const { return is_non_seq_check_; }
   [[nodiscard]] bool isDataCheck() const;
   [[nodiscard]] bool isLatchDtoQ() const;
+  [[nodiscard]] bool isLatchEnToQ() const;
   const TimingRole *genericRole() const;
   const TimingRole *sdfRole() const;
   // Timing check data path min/max.

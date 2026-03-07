@@ -62,8 +62,6 @@
 
 namespace sta {
 
-using std::swap;
-
 bool
 ClockPairLess::operator()(const ClockPair &pair1,
                           const ClockPair &pair2) const
@@ -693,10 +691,10 @@ void
 Sdc::swapDeratingFactors(Sdc *sdc1,
                          Sdc *sdc2)
 {
-  swap(sdc1->derating_factors_, sdc2->derating_factors_);
-  swap(sdc1->net_derating_factors_, sdc2->net_derating_factors_);
-  swap(sdc1->inst_derating_factors_, sdc2->inst_derating_factors_);
-  swap(sdc1->cell_derating_factors_, sdc2->cell_derating_factors_);
+  std::swap(sdc1->derating_factors_, sdc2->derating_factors_);
+  std::swap(sdc1->net_derating_factors_, sdc2->net_derating_factors_);
+  std::swap(sdc1->inst_derating_factors_, sdc2->inst_derating_factors_);
+  std::swap(sdc1->cell_derating_factors_, sdc2->cell_derating_factors_);
 }
 
 void
@@ -1818,7 +1816,7 @@ void
 Sdc::swapClockInsertions(Sdc *sdc1,
                          Sdc *sdc2)
 {
-  swap(sdc1->clk_insertions_, sdc2->clk_insertions_);
+  std::swap(sdc1->clk_insertions_, sdc2->clk_insertions_);
 }
 
 void
@@ -2825,17 +2823,17 @@ void
 Sdc::swapPortDelays(Sdc *sdc1,
                     Sdc *sdc2)
 {
-  swap(sdc1->input_delays_, sdc2->input_delays_);
-  swap(sdc1->input_delay_pin_map_, sdc2->input_delay_pin_map_);
-  swap(sdc1->input_delay_ref_pin_map_, sdc2->input_delay_ref_pin_map_);
-  swap(sdc1->input_delay_leaf_pin_map_, sdc2->input_delay_leaf_pin_map_);
-  swap(sdc1->input_delay_internal_pin_map_, sdc2->input_delay_internal_pin_map_);
-  swap(sdc1->input_delay_index_, sdc2->input_delay_index_);
+  std::swap(sdc1->input_delays_, sdc2->input_delays_);
+  std::swap(sdc1->input_delay_pin_map_, sdc2->input_delay_pin_map_);
+  std::swap(sdc1->input_delay_ref_pin_map_, sdc2->input_delay_ref_pin_map_);
+  std::swap(sdc1->input_delay_leaf_pin_map_, sdc2->input_delay_leaf_pin_map_);
+  std::swap(sdc1->input_delay_internal_pin_map_, sdc2->input_delay_internal_pin_map_);
+  std::swap(sdc1->input_delay_index_, sdc2->input_delay_index_);
 
-  swap(sdc1->output_delays_, sdc2->output_delays_);
-  swap(sdc1->output_delay_pin_map_, sdc2->output_delay_pin_map_);
-  swap(sdc1->output_delay_ref_pin_map_, sdc2->output_delay_ref_pin_map_);
-  swap(sdc1->output_delay_leaf_pin_map_, sdc2->output_delay_leaf_pin_map_);
+  std::swap(sdc1->output_delays_, sdc2->output_delays_);
+  std::swap(sdc1->output_delay_pin_map_, sdc2->output_delay_pin_map_);
+  std::swap(sdc1->output_delay_ref_pin_map_, sdc2->output_delay_ref_pin_map_);
+  std::swap(sdc1->output_delay_leaf_pin_map_, sdc2->output_delay_leaf_pin_map_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3374,8 +3372,8 @@ void
 Sdc::swapPortExtCaps(Sdc *sdc1,
                      Sdc *sdc2)
 {
-  swap(sdc1->port_ext_cap_map_, sdc2->port_ext_cap_map_);
-  swap(sdc1->net_wire_cap_map_, sdc2->net_wire_cap_map_);
+  std::swap(sdc1->port_ext_cap_map_, sdc2->port_ext_cap_map_);
+  std::swap(sdc1->net_wire_cap_map_, sdc2->net_wire_cap_map_);
 }
 
 ////////////////////////////////////////////////////////////////

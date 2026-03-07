@@ -24,6 +24,7 @@
 
 #include "ConcreteLibrary.hh"
 
+#include <cmath>
 #include <cstdlib>
 #include <limits>
 
@@ -34,13 +35,6 @@
 #include "ConcreteNetwork.hh"
 
 namespace sta {
-
-using std::string;
-using std::map;
-using std::min;
-using std::max;
-using std::abs;
-using std::swap;
 
 static constexpr char escape_ = '\\';
 
@@ -228,7 +222,7 @@ ConcreteCell::makeBusPortBit(ConcretePort *bus_port,
                              const char *bus_name,
                              int bit_index)
 {
-  string bit_name;
+  std::string bit_name;
   stringPrint(bit_name, "%s%c%d%c",
               bus_name,
               library_->busBrktLeft(),
@@ -272,14 +266,14 @@ ConcreteCell::setIsLeaf(bool is_leaf)
 }
 
 void
-ConcreteCell::setAttribute(const string &key,
-                           const string &value)
+ConcreteCell::setAttribute(const std::string &key,
+                           const std::string &value)
 {
   attribute_map_[key] = value;
 }
 
-string
-ConcreteCell::getAttribute(const string &key) const 
+std::string
+ConcreteCell::getAttribute(const std::string &key) const
 {
   const auto &itr = attribute_map_.find(key);
   if (itr != attribute_map_.end())
@@ -350,8 +344,8 @@ void
 BusPort::addBusBit(ConcretePort *port,
                    int index)
 {
-  from_ = min(from_, index);
-  to_ = max(to_, index);
+  from_ = std::min(from_, index);
+  to_ = std::max(to_, index);
   members_.push_back(port);
 }
 
@@ -362,7 +356,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 {
   const char bus_brkts_left[2]{bus_brkt_left, '\0'};
   const char bus_brkts_right[2]{bus_brkt_right, '\0'};
-  map<string, BusPort> bus_map;
+  std::map<std::string, BusPort> bus_map;
   // Find ungrouped bus ports.
   // Remove bus bit ports from the ports_ vector during the scan by
   // keeping an index to the next insertion index and skipping over
@@ -372,7 +366,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
   for (ConcretePort *port : ports) {
     const char *port_name = port->name();
     bool is_bus;
-    string bus_name;
+    std::string bus_name;
     int index;
     parseBusName(port_name, bus_brkts_left, bus_brkts_right, escape_,
                  is_bus, bus_name, index);
@@ -402,7 +396,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
       (*members)[member_index] = bus_bit;
     }
     if (msb_first)
-      swap(from, to);
+      std::swap(from, to);
     ConcretePort *port = makeBusPort(bus_name.c_str(), from, to, members);
     port->setDirection(bus_port.direction());
   }
@@ -505,7 +499,7 @@ int
 ConcretePort::size() const
 {
   if (is_bus_)
-    return abs(to_index_ - from_index_) + 1;
+    return std::abs(to_index_ - from_index_) + 1;
   else if (is_bundle_)
     return static_cast<int>(member_ports_->size());
   else

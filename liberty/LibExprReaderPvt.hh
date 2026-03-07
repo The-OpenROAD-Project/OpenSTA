@@ -35,7 +35,7 @@ class LibExprReader
 {
 public:
   LibExprReader(const char *func,
-                LibertyCell *cell,
+                const LibertyCell *cell,
                 const char *error_msg,
                 Report *report);
   FuncExpr *makeFuncExprPort(const char *port_name);
@@ -55,7 +55,7 @@ public:
 
 private:
   const char *func_;
-  LibertyCell *cell_;
+  const LibertyCell *cell_;
   const char *error_msg_;
   Report *report_;
   FuncExpr *result_;

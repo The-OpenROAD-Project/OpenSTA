@@ -43,8 +43,6 @@
 
 namespace sta {
 
-using std::string;
-
 bool
 readSpefFile(const std::string &filename,
              Instance *instance,
@@ -616,7 +614,7 @@ SpefTriple::value(int index) const
 ////////////////////////////////////////////////////////////////
 
 SpefScanner::SpefScanner(std::istream *stream,
-                         const string &filename,
+                         const std::string &filename,
                          SpefReader *reader,
                          Report *report) :
   yyFlexLexer(stream),

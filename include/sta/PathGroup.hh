@@ -32,6 +32,7 @@
 #include "SdcClass.hh"
 #include "StaState.hh"
 #include "SearchClass.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -42,7 +43,6 @@ using PathGroupIterator = PathEndSeq::iterator;
 using PathGroupClkMap = std::map<const Clock*, PathGroup*>;
 using PathGroupNamedMap = std::map<const char*, PathGroup*, CharPtrLess>;
 using PathGroupSeq = std::vector<PathGroup*>;
-using StdStringSeq = std::vector<std::string>;
 
 // A collection of PathEnds grouped and sorted for reporting.
 class PathGroup

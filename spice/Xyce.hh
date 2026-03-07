@@ -27,11 +27,11 @@
 #include <string>
 #include <vector>
 
+#include "StringUtil.hh"
 #include "TableModel.hh"
 
 namespace sta {
 
-using StdStringSeq = std::vector<std::string>;
 using WaveformSeq = std::vector<Table>;
 
 void

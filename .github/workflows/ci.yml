@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Set up dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y flex libfl-dev bison tcl-dev tcl-tclreadline libeigen3-dev ninja-build
+
+      - name: Set up cudd-3.0.0
+        run: |
+          wget https://github.com/oscc-ip/artifact/releases/download/cudd-3.0.0/build.tar.gz
+          mkdir -p cudd
+          tar -zxvf build.tar.gz -Ccudd
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G Ninja -DCUDD_DIR=$(pwd)/../cudd -DCMAKE_INSTALL_PREFIX=$(pwd)/install -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --target all -- -j $(nproc)
+          cmake --install .
+          tar -zcvf build.tar.gz -Cinstall .
+
+      - name: Test
+        run: |
+          cd test
+          ./regression
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: artifact
+          path: |
+            build/install/*
+
+      - name: Upload Test Result
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: result
+          path: |
+            test/results/*
