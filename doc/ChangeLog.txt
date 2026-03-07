@@ -3,7 +3,7 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
-2025/02/24
+2026/02/24
 ----------
 
 The define_scene -library argument now takes a the library name or a
