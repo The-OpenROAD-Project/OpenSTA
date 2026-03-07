@@ -638,13 +638,16 @@ InstancePinIterator *
 pin_iterator() { return Sta::sta()->ensureLinked()->pinIterator(self); }
 InstanceNetIterator *
 net_iterator() { return Sta::sta()->ensureLinked()->netIterator(self); }
+
 Pin *
 find_pin(const char *name)
 {
   return Sta::sta()->ensureLinked()->findPin(self, name);
 }
+
 std::string
-get_attribute(const char *key) {
+get_attribute(const char *key)
+{
   return Sta::sta()->ensureLinked()->getAttribute(self, key);
 }
 
