@@ -30,7 +30,6 @@
 #include <mutex>
 
 #include "StringUtil.hh"
-#include "StringSet.hh"
 #include "MinMax.hh"
 #include "StaState.hh"
 #include "NetworkClass.hh"

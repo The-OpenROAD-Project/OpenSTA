@@ -28,12 +28,14 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <set>
 
 #include "Machine.hh" // __attribute__
 
 namespace sta {
 
 using StdStringSeq = std::vector<std::string>;
+using StdStringSet = std::set<std::string>;
 
 inline bool
 stringEq(const char *str1,

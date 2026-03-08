@@ -27,7 +27,6 @@
 
 #include "Machine.hh"
 #include "StringUtil.hh"
-#include "StringSet.hh"
 #include "PatternMatch.hh"
 #include "Network.hh"
 #include "Liberty.hh"
@@ -1225,10 +1224,6 @@ using namespace sta;
 
 %typemap(out) Crpr {
   Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
-}
-
-%typemap(in) StringSet* {
-  $1 = tclListSetConstChar($input, interp);
 }
 
 %typemap(out) Mode* {

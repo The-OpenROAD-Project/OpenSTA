@@ -31,7 +31,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "StringUtil.hh"
-#include "StringSet.hh"
 #include "PatternMatch.hh"
 #include "Units.hh"
 #include "Transition.hh"

@@ -30,7 +30,6 @@
 #include <vector>
 
 #include "StaState.hh"
-#include "StringSet.hh"
 #include "StringUtil.hh"
 #include "Liberty.hh"
 #include "GraphClass.hh"

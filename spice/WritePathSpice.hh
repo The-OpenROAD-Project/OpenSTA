@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "StringSet.hh"
 #include "CircuitSim.hh"
 
 namespace sta {

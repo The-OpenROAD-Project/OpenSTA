@@ -22,10 +22,10 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-#include "ArcDelayCalc.hh"
-#include "StringSet.hh"
-
 #include <tcl.h>
+
+#include "ArcDelayCalc.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -33,9 +33,6 @@ namespace sta {
     typedef int Tcl_Size;
 #endif
 
-StringSet *
-tclListSetConstChar(Tcl_Obj *const source,
-                    Tcl_Interp *interp);
 StdStringSeq
 tclListSeqStdString(Tcl_Obj *const source,
                     Tcl_Interp *interp);

@@ -30,26 +30,6 @@
 
 namespace sta {
 
-StringSet *
-tclListSetConstChar(Tcl_Obj *const source,
-                    Tcl_Interp *interp)
-{
-  Tcl_Size argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    StringSet *set = new StringSet;
-    for (int i = 0; i < argc; i++) {
-      int length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      set->insert(str);
-    }
-    return set;
-  }
-  else
-    return nullptr;
-}
-
 StdStringSeq
 tclListSeqStdString(Tcl_Obj *const source,
                     Tcl_Interp *interp)

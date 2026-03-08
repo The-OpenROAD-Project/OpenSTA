@@ -28,7 +28,7 @@
 #include <vector>
 #include <map>
 
-#include "StringSet.hh"
+#include "StringUtil.hh"
 #include "NetworkClass.hh"
 
 namespace sta {
