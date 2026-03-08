@@ -52,7 +52,7 @@
 #include "Sdc.hh"
 #include "Mode.hh"
 #include "Variables.hh"
-#include "WriteSdc.hh"
+#include "sdc/WriteSdc.hh"
 #include "ExceptionPath.hh"
 #include "Parasitics.hh"
 #include "parasitics/SpefReader.hh"

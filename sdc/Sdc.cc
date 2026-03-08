@@ -1346,8 +1346,7 @@ bool
 FindClkHpinDisables::drvrLoadExists(const Pin *drvr,
                                     const Pin *load)
 {
-  PinPair probe(drvr, load);
-  return drvr_loads_.contains(probe);
+  return drvr_loads_.contains({drvr, load});
 }
 
 void
@@ -3506,24 +3505,21 @@ void
 Sdc::disableWire(const Pin *from,
                  const Pin *to)
 {
-  PinPair pair(from, to);
-  disabled_wire_edges_.insert(pair);
+  disabled_wire_edges_.insert({from, to});
 }
 
 void
 Sdc::removeDisableWire(Pin *from,
                        Pin *to)
 {
-  PinPair probe(from, to);
-  disabled_wire_edges_.erase(probe);
+  disabled_wire_edges_.erase({from, to});
 }
 
 bool
 Sdc::isDisabledWire(const Pin *from,
                     const Pin *to) const
 {
-  PinPair pair(from, to);
-  return disabled_wire_edges_.contains(pair);
+  return disabled_wire_edges_.contains({from, to});
 }
 
 void
@@ -3583,8 +3579,7 @@ void
 DisableEdgesThruHierPin::visit(const Pin *drvr,
                                const Pin *load)
 {
-  PinPair pair(drvr, load);
-  pairs_->insert(pair);
+  pairs_->insert({drvr, load});
 }
 
 void
@@ -3625,8 +3620,7 @@ void
 RemoveDisableEdgesThruHierPin::visit(const Pin *drvr,
                                      const Pin *load)
 {
-  PinPair pair(drvr, load);
-  pairs_->erase(pair);
+  pairs_->erase({drvr, load});
 }
 
 void
@@ -3659,8 +3653,7 @@ Sdc::isDisabled(const Instance *inst,
 {
   if (role == TimingRole::wire()) {
     // Hierarchical thru pin disables.
-    PinPair pair(from_pin, to_pin);
-    return disabled_wire_edges_.contains(pair);
+    return disabled_wire_edges_.contains({from_pin, to_pin});
   }
   else {
     LibertyCell *cell = network_->libertyCell(inst);

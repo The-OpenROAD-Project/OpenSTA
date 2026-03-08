@@ -2427,8 +2427,7 @@ void
 InsertPinPairsThru::visit(const Pin *drvr,
                           const Pin *load)
 {
-  PinPair pair(drvr, load);
-  pairs_->insert(pair);
+  pairs_->insert({drvr, load});
 }
 
 static void
@@ -2475,8 +2474,7 @@ void
 DeletePinPairsThru::visit(const Pin *drvr,
                           const Pin *load)
 {
-  PinPair pair(drvr, load);
-  pairs_->erase(pair);
+  pairs_->erase({drvr, load});
 }
 
 static void
