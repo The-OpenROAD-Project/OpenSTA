@@ -79,7 +79,7 @@ class GraphLoop;
 using ModeNameMap = std::map<std::string, Mode*>;
 using SceneNameMap = std::map<std::string, Scene*>;
 using SlowDrvrIterator = Iterator<Instance*>;
-using CheckError = StringSeq;
+using CheckError = StdStringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
 enum class CmdNamespace { sta, sdc };
 using ParasiticsNameMap = std::map<std::string, Parasitics*>;

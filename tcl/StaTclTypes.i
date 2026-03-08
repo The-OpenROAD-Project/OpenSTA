@@ -1137,10 +1137,9 @@ using namespace sta;
   CheckErrorSeq *check_errors = $1;
   for (CheckError *error : *check_errors) {
     Tcl_Obj *string_list = Tcl_NewListObj(0, nullptr);
-    for (const char *str : *error) {
-      size_t str_len = strlen(str);
-      Tcl_Obj *obj = Tcl_NewStringObj(const_cast<char*>(str),
-                                      static_cast<int>(str_len));
+    for (const std::string &str : *error) {
+      Tcl_Obj *obj = Tcl_NewStringObj(str.c_str(),
+                                      static_cast<int>(str.size()));
       Tcl_ListObjAppendElement(interp, string_list, obj);
     }
     Tcl_ListObjAppendElement(interp, error_list, string_list);

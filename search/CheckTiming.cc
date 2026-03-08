@@ -24,7 +24,6 @@
 
 #include "CheckTiming.hh"
 
-#include "ContainerHelpers.hh"
 #include "Error.hh"
 #include "TimingRole.hh"
 #include "Network.hh"
@@ -64,7 +63,6 @@ void
 CheckTiming::deleteErrors()
 {
   for (CheckError *error : errors_) {
-    deleteContents(error);
     delete error;
   }
 }
@@ -204,25 +202,23 @@ CheckTiming::checkLoops()
    errorMsgSubst("Warning: There %is %d combinational loop%s in the design.",
                   loop_count, error_msg);
     CheckError *error = new CheckError;
-    error->push_back(stringCopy(error_msg.c_str()));
+    error->push_back(error_msg);
 
     for (GraphLoop *loop : loops) {
       if (loop->isCombinational()) {
         Edge *last_edge = nullptr;
         for (Edge *edge : *loop->edges()) {
           Pin *pin = edge->from(graph_)->pin();
-          const char *pin_name = stringCopy(sdc_network_->pathName(pin));
-          error->push_back(pin_name);
+          error->push_back(sdc_network_->pathName(pin));
           last_edge = edge;
         }
         if (last_edge) {
-          error->push_back(stringCopy("| loop cut point"));
+          error->push_back("| loop cut point");
           const Pin *pin = last_edge->to(graph_)->pin();
-          const char *pin_name = stringCopy(sdc_network_->pathName(pin));
-          error->push_back(pin_name);
+          error->push_back(sdc_network_->pathName(pin));
 
           // Separator between loops.
-          error->push_back(stringCopy("--------------------------------"));
+          error->push_back("--------------------------------");
         }
       }
     }
@@ -362,15 +358,12 @@ CheckTiming::pushPinErrors(const char *msg,
     CheckError *error = new CheckError;
     std::string error_msg;
     errorMsgSubst(msg, pins.size(), error_msg);
-    // Copy the error strings because the error deletes them when it
-    // is deleted.
-    error->push_back(stringCopy(error_msg.c_str()));
+    error->push_back(error_msg);
     // Sort the error pins so the output is independent of the order
     // the the errors are discovered.
     PinSeq pins1 = sortByPathName(&pins, network_);
     for (const Pin *pin : pins1) {
-      const char *pin_name = stringCopy(sdc_network_->pathName(pin));
-      error->push_back(pin_name);
+      error->push_back(sdc_network_->pathName(pin));
     }
     errors_.push_back(error);
   }
@@ -384,15 +377,12 @@ CheckTiming::pushClkErrors(const char *msg,
     CheckError *error = new CheckError;
     std::string error_msg;
     errorMsgSubst(msg, clks.size(), error_msg);
-    // Copy the error strings because the error deletes them when it
-    // is deleted.
-    error->push_back(stringCopy(error_msg.c_str()));
+    error->push_back(error_msg);
     // Sort the error clks so the output is independent of the order
     // the the errors are discovered.
     ClockSeq clks1 = sortByName(&clks);
     for (const Clock *clk : clks1) {
-      const char *clk_name = stringCopy(clk->name());
-      error->push_back(clk_name);
+      error->push_back(clk->name());
     }
     errors_.push_back(error);
   }

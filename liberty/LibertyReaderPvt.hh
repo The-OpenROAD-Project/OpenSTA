@@ -31,7 +31,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include "StringSeq.hh"
 #include "StringUtil.hh"
 #include "MinMax.hh"
 #include "NetworkClass.hh"

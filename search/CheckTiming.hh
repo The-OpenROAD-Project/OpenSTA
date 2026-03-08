@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
 #include "SdcClass.hh"
@@ -36,7 +36,7 @@ namespace sta {
 
 class ClkNetwork;
 
-using CheckError = StringSeq;
+using CheckError = StdStringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
 
 class CheckTiming : public StaState
