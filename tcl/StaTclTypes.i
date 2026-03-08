@@ -291,10 +291,6 @@ using namespace sta;
     Tcl_SetResult(interp, nullptr, TCL_STATIC);
 }
 
-%typemap(in) StringSeq* {
-  $1 = tclListSeqConstChar($input, interp);
-}
-
 %typemap(in) StdStringSet* {
   $1 = tclListSetStdString($input, interp);
 }
@@ -310,26 +306,6 @@ using namespace sta;
 
 %typemap(in) StdStringSeq* {
   $1 = tclListSeqStdStringPtr($input, interp);
-}
-
-%typemap(out) StringSeq* {
-  StringSeq *strs = $1;
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  for (const char *str : *strs) {
-    Tcl_Obj *obj = Tcl_NewStringObj(str, strlen(str));
-    Tcl_ListObjAppendElement(interp, list, obj);
-  }
-  Tcl_SetObjResult(interp, list);
-}
-
-%typemap(out) StringSeq {
-  StringSeq &strs = $1;
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  for (const char *str : strs) {
-    Tcl_Obj *obj = Tcl_NewStringObj(str, strlen(str));
-    Tcl_ListObjAppendElement(interp, list, obj);
-  }
-  Tcl_SetObjResult(interp, list);
 }
 
 %typemap(in) StdStringSet* {
