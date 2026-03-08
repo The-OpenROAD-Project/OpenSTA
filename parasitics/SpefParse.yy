@@ -27,7 +27,7 @@
 
 #include "Report.hh"
 #include "StringUtil.hh"
-#include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "parasitics/SpefReaderPvt.hh"
 #include "parasitics/SpefScanner.hh"
 
@@ -62,7 +62,7 @@ sta::SpefParse::error(const location_type &loc,
   char *string;
   int integer;
   float number;
-  sta::StringSeq *string_seq;
+  sta::StdStringSeq *std_string_seq;
   sta::PortDirection *port_dir;
   sta::SpefRspfPi *pi;
   sta::SpefTriple *triple;
@@ -105,7 +105,7 @@ sta::SpefParse::error(const location_type &loc,
 
 %type <ch> hchar suffix_bus_delim prefix_bus_delim
 
-%type <string_seq> qstrings
+%type <std_string_seq> qstrings
 %type<port_dir> direction
 
 %type<triple> par_value total_cap
@@ -220,11 +220,14 @@ design_flow:
 
 qstrings:
 	QSTRING
-	{ $$ = new sta::StringSeq;
+	{ $$ = new sta::StdStringSeq;
 	  $$->push_back($1);
+	  sta::stringDelete($1);
 	}
 |	qstrings QSTRING
-	{ $$->push_back($2); }
+	{ $$->push_back($2);
+	  sta::stringDelete($2);
+	}
 ;
 
 hierarchy_div_def:
