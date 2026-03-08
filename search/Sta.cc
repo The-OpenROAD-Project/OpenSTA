@@ -299,6 +299,7 @@ Sta::makeComponents()
   makeReportPath();
   makePower();
   makeClkSkews();
+  makeCheckTiming();
 
   setCmdNamespace1(CmdNamespace::sdc);
   setThreadCount1(defaultThreadCount());
@@ -355,8 +356,7 @@ Sta::updateComponentsState()
   latches_->copyState(this);
   graph_delay_calc_->copyState(this);
   report_path_->copyState(this);
-  if (check_timing_)
-    check_timing_->copyState(this);
+  check_timing_->copyState(this);
   clk_skews_->copyState(this);
 
   if (power_)
@@ -2224,8 +2224,6 @@ Sta::checkTiming(const Mode *mode,
     mode->sim()->ensureConstantsPropagated();
     mode->clkNetwork()->ensureClkNetwork();
   }
-  if (check_timing_ == nullptr)
-    makeCheckTiming();
   return check_timing_->check(mode, no_input_delay, no_output_delay,
 			      reg_multiple_clks, reg_no_clks,
 			      unconstrained_endpoints,
