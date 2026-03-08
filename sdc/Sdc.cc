@@ -101,6 +101,7 @@ Sdc::Sdc(Mode *mode,
   clk_hpin_disables_(network_),
   propagated_clk_pins_(network_),
   clk_latencies_(network_),
+  clk_latency_pins_(network_),
   edge_clk_latency_map_(network_),
   clk_insertions_(network_),
   clk_sense_map_(network_),
@@ -169,6 +170,7 @@ Sdc::clear()
   clock_pin_map_.clear();
   clock_leaf_pin_map_.clear();
   clk_latencies_.clear();
+  clk_latency_pins_.clear();
   edge_clk_latency_map_.clear();
   clk_insertions_.clear();
 
@@ -1508,6 +1510,8 @@ Sdc::setClockLatency(Clock *clk,
     }
   }
   latency->setDelay(rf, min_max, delay);
+  if (pin)
+    clk_latency_pins_.insert(pin);
 
   // set_clock_latency removes set_propagated_clock on the same object.
   if (clk && pin == nullptr)
@@ -1580,8 +1584,7 @@ Sdc::deleteClockLatenciesReferencing(Clock *clk)
 bool
 Sdc::hasClockLatency(const Pin *pin) const
 {
-  ClockLatency probe(nullptr, pin);
-  return clk_latencies_.contains(&probe);
+  return clk_latency_pins_.contains(pin);
 }
 
 void
