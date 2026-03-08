@@ -264,8 +264,8 @@ class ConcreteCellPortBitIterator : public Iterator<ConcretePort*>
 {
 public:
   ConcreteCellPortBitIterator(const ConcreteCell *cell);
-  virtual bool hasNext();
-  virtual ConcretePort *next();
+  bool hasNext() override;
+  ConcretePort *next() override;
 
 private:
   void findNext();

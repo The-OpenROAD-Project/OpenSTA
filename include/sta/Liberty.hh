@@ -458,8 +458,8 @@ class LibertyCellIterator : public Iterator<LibertyCell*>
 {
 public:
   LibertyCellIterator(const LibertyLibrary *library);
-  bool hasNext();
-  LibertyCell *next();
+  bool hasNext() override;
+  LibertyCell *next() override;
 
 private:
   ConcreteLibraryCellIterator iter_;
@@ -715,8 +715,8 @@ class LibertyCellPortIterator : public Iterator<LibertyPort*>
 {
 public:
   LibertyCellPortIterator(const LibertyCell *cell);
-  bool hasNext();
-  LibertyPort *next();
+  bool hasNext() override;
+  LibertyPort *next() override;
 
 private:
   ConcreteCellPortIterator  iter_;
@@ -727,8 +727,8 @@ class LibertyCellPortBitIterator : public Iterator<LibertyPort*>
 public:
   LibertyCellPortBitIterator(const LibertyCell *cell);
   virtual ~LibertyCellPortBitIterator();
-  bool hasNext();
-  LibertyPort *next();
+  bool hasNext() override;
+  LibertyPort *next() override;
 
 private:
   ConcreteCellPortBitIterator *iter_;
@@ -980,8 +980,8 @@ class LibertyPortMemberIterator : public Iterator<LibertyPort*>
 public:
   LibertyPortMemberIterator(const LibertyPort *port);
   virtual ~LibertyPortMemberIterator();
-  virtual bool hasNext();
-  virtual LibertyPort *next();
+  bool hasNext() override;
+  LibertyPort *next() override;
 
 private:
   ConcretePortMemberIterator *iter_;

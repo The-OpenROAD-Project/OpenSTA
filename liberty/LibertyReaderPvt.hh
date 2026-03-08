@@ -517,8 +517,8 @@ public:
                       LibertyReader *visitor,
                       int line);
   ~PortNameBitIterator();
-  virtual bool hasNext();
-  virtual LibertyPort *next();
+  bool hasNext() override;
+  LibertyPort *next() override;
   unsigned size() const { return size_; }
 
 protected:

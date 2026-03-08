@@ -1080,8 +1080,8 @@ VerilogAssign::~VerilogAssign()
 class VerilogNullNetNameIterator : public VerilogNetNameIterator
 {
 public:
-  virtual bool hasNext() { return false; }
-  virtual const std::string &next();
+  bool hasNext() override { return false; }
+  const std::string &next() override;
 };
 
 const std::string &
@@ -1095,8 +1095,8 @@ class VerilogOneNetNameIterator : public VerilogNetNameIterator
 {
 public:
   VerilogOneNetNameIterator(const std::string &name);
-  virtual bool hasNext();
-  virtual const std::string &next();
+  bool hasNext() override;
+  const std::string &next() override;
 
 protected:
   std::string name_;
@@ -1128,8 +1128,8 @@ public:
   VerilogBusNetNameIterator(const std::string bus_name,
                             int from_index,
                             int to_index);
-  virtual bool hasNext();
-  virtual const std::string &next();
+  bool hasNext() override;
+  const std::string &next() override;
 
 protected:
   const std::string bus_name_;
@@ -1182,8 +1182,8 @@ public:
   VerilogConstantNetNameIterator(VerilogConstantValue *value,
                                  const std::string &zero,
                                  const std::string &one);
-  virtual bool hasNext();
-  virtual const std::string &next();
+  bool hasNext() override;
+  const std::string &next() override;
 
 private:
   VerilogConstantValue *value_;
@@ -1222,8 +1222,8 @@ public:
                                VerilogModule *module,
                                VerilogReader *reader);
   virtual ~VerilogNetConcatNameIterator();
-  virtual bool hasNext();
-  virtual const std::string &next();
+  bool hasNext() override;
+  const std::string &next() override;
 
 private:
   VerilogModule *module_;
