@@ -24,7 +24,6 @@
 
 #include "ArcDelayCalc.hh"
 #include "StringSet.hh"
-#include "StringSeq.hh"
 
 #include <tcl.h>
 
@@ -37,11 +36,6 @@ namespace sta {
 StringSet *
 tclListSetConstChar(Tcl_Obj *const source,
                     Tcl_Interp *interp);
-
-StringSeq *
-tclListSeqConstChar(Tcl_Obj *const source,
-                    Tcl_Interp *interp);
-
 StdStringSeq
 tclListSeqStdString(Tcl_Obj *const source,
                     Tcl_Interp *interp);

@@ -395,7 +395,7 @@ set_report_path_format(ReportPathFormat format)
 }
     
 void
-set_report_path_field_order(StringSeq *field_names)
+set_report_path_field_order(StdStringSeq *field_names)
 {
   Sta::sta()->setReportPathFieldOrder(field_names);
   delete field_names;
@@ -753,7 +753,7 @@ define_scene_cmd(const char *name,
 }
 
 void
-define_scenes_cmd(StringSeq *scene_names)
+define_scenes_cmd(StdStringSeq *scene_names)
 {
   Sta *sta = Sta::sta();
   sta->makeScenes(scene_names);

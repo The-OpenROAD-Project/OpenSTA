@@ -28,7 +28,6 @@
 #include "Machine.hh"
 #include "StringUtil.hh"
 #include "StringSet.hh"
-#include "StringSeq.hh"
 #include "PatternMatch.hh"
 #include "Network.hh"
 #include "Liberty.hh"
@@ -306,7 +305,7 @@ using namespace sta;
 }
 
 %typemap(in) StdStringSeq* {
-  $1 = tclListSeqStdString($input, interp);
+  $1 = tclListSeqStdStringPtr($input, interp);
 }
 
 %typemap(out) StringSeq* {

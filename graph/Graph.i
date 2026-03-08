@@ -229,12 +229,12 @@ arc_delays(TimingArc *arc)
   return delays;
 }
 
-StringSeq
+StdStringSeq
 arc_delay_strings(TimingArc *arc,
                   int digits)
 {
   Sta *sta = Sta::sta();
-  StringSeq delays;
+  StdStringSeq delays;
   DcalcAPIndex ap_count = sta->dcalcAnalysisPtCount();
   for (DcalcAPIndex ap_index = 0; ap_index < ap_count; ap_index++)
     delays.push_back(delayAsString(sta->arcDelay(self, arc, ap_index),

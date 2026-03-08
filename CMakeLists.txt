@@ -234,7 +234,6 @@ set(STA_SOURCE
   util/RiseFallMinMaxDelay.cc
   util/RiseFallValues.cc
   util/Stats.cc
-  util/StringSeq.cc
   util/StringSet.cc
   util/StringUtil.cc
   util/Transition.cc

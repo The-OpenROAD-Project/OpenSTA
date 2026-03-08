@@ -29,7 +29,6 @@
 #include <string_view>
 #include <functional>
 
-#include "StringSeq.hh"
 #include "StringUtil.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -126,7 +125,7 @@ public:
   void setThreadCount(int thread_count);
 
   // define_corners compatibility.
-  void makeScenes(StringSeq *scene_names);
+  void makeScenes(StdStringSeq *scene_names);
   void makeScene(const std::string &name,
                  const std::string &mode_name,
                  const StdStringSeq &liberty_min_files,
@@ -976,7 +975,7 @@ public:
                           bool clk_gating_setup,
                           bool clk_gating_hold);
   void setReportPathFormat(ReportPathFormat format);
-  void setReportPathFieldOrder(StringSeq *field_names);
+  void setReportPathFieldOrder(StdStringSeq *field_names);
   void setReportPathFields(bool report_input_pin,
                            bool report_hier_pins,
                            bool report_net,

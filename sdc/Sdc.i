@@ -1580,12 +1580,12 @@ filter_timing_arcs(const char *property,
 
 ////////////////////////////////////////////////////////////////
 
-StringSeq
+StdStringSeq
 group_path_names()
 {
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->cmdSdc();
-  StringSeq pg_names;
+  StdStringSeq pg_names;
   for (auto const& [name, group] : sdc->groupPaths())
     pg_names.push_back(name);
   return pg_names;

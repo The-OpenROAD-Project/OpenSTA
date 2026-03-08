@@ -28,7 +28,6 @@
 #include <vector>
 #include <map>
 
-#include "StringSeq.hh"
 #include "StringUtil.hh"
 
 namespace sta {

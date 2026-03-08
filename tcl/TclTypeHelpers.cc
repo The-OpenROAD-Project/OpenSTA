@@ -50,26 +50,6 @@ tclListSetConstChar(Tcl_Obj *const source,
     return nullptr;
 }
 
-StringSeq *
-tclListSeqConstChar(Tcl_Obj *const source,
-                    Tcl_Interp *interp)
-{
-  Tcl_Size argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    StringSeq *seq = new StringSeq;
-    for (int i = 0; i < argc; i++) {
-      int length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      seq->push_back(str);
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
 StdStringSeq
 tclListSeqStdString(Tcl_Obj *const source,
                     Tcl_Interp *interp)
