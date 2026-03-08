@@ -36,7 +36,7 @@ namespace sta {
 
 class ClkNetwork;
 
-using CheckError = StdStringSeq;
+using CheckError = StringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
 
 class CheckTiming : public StaState

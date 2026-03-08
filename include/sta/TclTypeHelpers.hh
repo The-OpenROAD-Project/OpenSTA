@@ -33,10 +33,10 @@ namespace sta {
     typedef int Tcl_Size;
 #endif
 
-StdStringSeq
+StringSeq
 tclListSeqStdString(Tcl_Obj *const source,
                     Tcl_Interp *interp);
-StdStringSeq *
+StringSeq *
 tclListSeqStdStringPtr(Tcl_Obj *const source,
                        Tcl_Interp *interp);
 StdStringSet *

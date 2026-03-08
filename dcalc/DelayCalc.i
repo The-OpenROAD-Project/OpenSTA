@@ -36,7 +36,7 @@
 
 %inline %{
 
-StdStringSeq
+StringSeq
 delay_calc_names()
 {
   return sta::delayCalcNames();

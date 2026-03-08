@@ -84,10 +84,10 @@ isDelayCalcName(const std::string &name)
   return delay_calcs.contains(name);
 }
 
-StdStringSeq
+StringSeq
 delayCalcNames()
 {
-  StdStringSeq names;
+  StringSeq names;
   for (const auto &[name, make_dcalc] : delay_calcs)
     names.push_back(name);
   return names;

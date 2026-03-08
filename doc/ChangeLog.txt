@@ -201,7 +201,7 @@ to remove paths through identical pins and rise/fall edges.
 Instances now have pins for verilog netlist power/ground connections,
 
 Sta::findPathEnds group_paths arg has been changed from PathGroupNameSet*
-to StdStringSeq&.
+to StringSeq&.
 
 Release 2.6.1 2025/03/30
 -------------------------

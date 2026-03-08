@@ -211,7 +211,7 @@ ReportPath::findField(const char *name) const
 }
 
 void
-ReportPath::setReportFieldOrder(const StdStringSeq &field_names)
+ReportPath::setReportFieldOrder(const StringSeq &field_names)
 {
   // Disable all fields.
   for (ReportField *field : fields_)

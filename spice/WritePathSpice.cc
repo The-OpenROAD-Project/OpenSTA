@@ -227,7 +227,7 @@ WritePathSpice::writeHeader()
 void
 WritePathSpice::writePrintStmt()
 {
-  StdStringSeq node_names;
+  StringSeq node_names;
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     node_names.push_back(stageDrvrPinName(stage));
     node_names.push_back(stageLoadPinName(stage));

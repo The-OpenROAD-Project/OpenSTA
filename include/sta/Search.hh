@@ -107,7 +107,7 @@ public:
                           float slack_min,
                           float slack_max,
                           bool sort_by_slack,
-                          StdStringSeq &group_names,
+                          StringSeq &group_names,
                           bool setup,
                           bool hold,
                           bool recovery,

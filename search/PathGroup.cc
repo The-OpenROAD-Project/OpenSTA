@@ -258,7 +258,7 @@ PathGroups::PathGroups(int group_path_count,
                        bool unique_edges,
                        float slack_min,
                        float slack_max,
-                       StdStringSeq &group_names,
+                       StringSeq &group_names,
                        bool setup,
                        bool hold,
                        bool recovery,
@@ -479,11 +479,11 @@ PathGroups::pathGroups(const PathEnd *path_end) const
 }
 
 // Mirrors PathGroups::pathGroup.
-StdStringSeq
+StringSeq
 PathGroups::pathGroupNames(const PathEnd *path_end,
                            const StaState *sta)
 {
-  StdStringSeq group_names;
+  StringSeq group_names;
   const char *group_name = nullptr;
   const Search *search = sta->search();
   ExceptionPathSeq group_paths = search->groupPathsTo(path_end);
@@ -576,14 +576,14 @@ PathGroups::pushEnds(PathEndSeq &path_ends)
   }
 }
 
-StdStringSeq
+StringSeq
 PathGroups::pathGroupNames()
 {
   std::set<std::string> group_names1;
   const Sdc *sdc = mode_->sdc();
   for (const auto& [name, group] : sdc->groupPaths())
     group_names1.insert(name);
-  StdStringSeq group_names2;
+  StringSeq group_names2;
   for (const std::string &name : group_names1)
     group_names2.push_back(name);
   sort(group_names2);

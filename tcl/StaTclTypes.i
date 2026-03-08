@@ -294,16 +294,16 @@ using namespace sta;
   $1 = tclListSetStdString($input, interp);
 }
 
-%typemap(in) StdStringSeq {
+%typemap(in) StringSeq {
   $1 = tclListSeqStdString($input, interp);
 }
 
-%typemap(in) const StdStringSeq & (StdStringSeq seq) {
+%typemap(in) const StringSeq & (StringSeq seq) {
   seq = tclListSeqStdString($input, interp);
   $1 = &seq;
 }
 
-%typemap(in) StdStringSeq* {
+%typemap(in) StringSeq* {
   $1 = tclListSeqStdStringPtr($input, interp);
 }
 
@@ -311,12 +311,12 @@ using namespace sta;
   $1 = tclListSetStdString($input, interp);
 }
 
-%typemap(in) StdStringSeq {
+%typemap(in) StringSeq {
   $1 = tclListSeqStdString($input, interp);
 }
 
-%typemap(out) StdStringSeq {
-  StdStringSeq &strs = $1;
+%typemap(out) StringSeq {
+  StringSeq &strs = $1;
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   for (const std::string &str : strs) {
     Tcl_Obj *obj = Tcl_NewStringObj(str.c_str(), str.size());

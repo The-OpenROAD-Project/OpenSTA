@@ -78,7 +78,7 @@ class GraphLoop;
 using ModeNameMap = std::map<std::string, Mode*>;
 using SceneNameMap = std::map<std::string, Scene*>;
 using SlowDrvrIterator = Iterator<Instance*>;
-using CheckError = StdStringSeq;
+using CheckError = StringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
 enum class CmdNamespace { sta, sdc };
 using ParasiticsNameMap = std::map<std::string, Parasitics*>;
@@ -125,11 +125,11 @@ public:
   void setThreadCount(int thread_count);
 
   // define_corners compatibility.
-  void makeScenes(const StdStringSeq &scene_names);
+  void makeScenes(const StringSeq &scene_names);
   void makeScene(const std::string &name,
                  const std::string &mode_name,
-                 const StdStringSeq &liberty_min_files,
-                 const StdStringSeq &liberty_max_files,
+                 const StringSeq &liberty_min_files,
+                 const StringSeq &liberty_max_files,
                  const std::string &spef_min_file,
                  const std::string &spef_max_file);
   Scene *findScene(const std::string &name) const;
@@ -652,7 +652,7 @@ public:
                        const Sdc *sdc) __attribute__ ((deprecated));
   bool isPathGroupName(const char *group_name,
                        const Sdc *sdc) const;
-  StdStringSeq pathGroupNames(const Sdc *sdc) const;
+  StringSeq pathGroupNames(const Sdc *sdc) const;
   void resetPath(ExceptionFrom *from,
                  ExceptionThruSeq *thrus,
                  ExceptionTo *to,
@@ -965,7 +965,7 @@ public:
                           bool sort_by_slack,
                           // Path groups to report.
                           // Empty list reports all groups.
-                          StdStringSeq &group_names,
+                          StringSeq &group_names,
                           // Predicates to filter the type of path
                           // ends returned.
                           bool setup,
@@ -975,7 +975,7 @@ public:
                           bool clk_gating_setup,
                           bool clk_gating_hold);
   void setReportPathFormat(ReportPathFormat format);
-  void setReportPathFieldOrder(const StdStringSeq &field_names);
+  void setReportPathFieldOrder(const StringSeq &field_names);
   void setReportPathFields(bool report_input_pin,
                            bool report_hier_pins,
                            bool report_net,
@@ -1582,8 +1582,8 @@ protected:
   void setThreadCount1(int thread_count);
   void updateLibertyScenes();
   void updateSceneLiberty(Scene *scene,
-                          const StdStringSeq &liberty_min_files,
-                          const StdStringSeq &liberty_max_files);
+                          const StringSeq &liberty_min_files,
+                          const StringSeq &liberty_max_files);
 
   Scene *makeScene(const std::string &name,
                    Mode *mode,

@@ -44,7 +44,7 @@ registerDelayCalc(const std::string &name,
                   MakeArcDelayCalc maker);
 bool
 isDelayCalcName(const std::string &name);
-StdStringSeq
+StringSeq
 delayCalcNames();
 void
 deleteDelayCalcs();

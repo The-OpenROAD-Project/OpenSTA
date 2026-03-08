@@ -37,7 +37,7 @@ namespace sta {
 void
 readXyceCsv(const char *csv_filename,
             // Return values.
-            StdStringSeq &titles,
+            StringSeq &titles,
             WaveformSeq &waveforms)
 {
   std::ifstream file(csv_filename);

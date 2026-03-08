@@ -40,7 +40,7 @@
 namespace sta {
 
 using ParasiticNodeMap = std::map<const ParasiticNode*, int>;
-using CellSpicePortNames = std::map<std::string, StdStringSeq>;
+using CellSpicePortNames = std::map<std::string, StringSeq>;
 using LibertyPortLogicValues = std::map<const LibertyPort*, LogicValue>;
 
 // Utilities for writing a spice deck.
@@ -63,12 +63,12 @@ protected:
   void writeHeader(std::string &title,
                    float max_time,
                    float time_step);
-  void writePrintStmt(StdStringSeq &node_names);
-  void writeGnuplotFile(StdStringSeq &node_nanes);
+  void writePrintStmt(StringSeq &node_names);
+  void writeGnuplotFile(StringSeq &node_nanes);
   void writeSubckts(StdStringSet &cell_names);
   void findCellSubckts(StdStringSet &cell_names);
   void recordSpicePortNames(const char *cell_name,
-                            StdStringSeq &tokens);
+                            StringSeq &tokens);
   void writeSubcktInst(const Instance *inst);
   void writeSubcktInstVoltSrcs(const Instance *inst,
                                LibertyPortLogicValues &port_values,

@@ -62,7 +62,7 @@ sta::SpefParse::error(const location_type &loc,
   char *string;
   int integer;
   float number;
-  sta::StdStringSeq *std_string_seq;
+  sta::StringSeq *std_string_seq;
   sta::PortDirection *port_dir;
   sta::SpefRspfPi *pi;
   sta::SpefTriple *triple;
@@ -220,7 +220,7 @@ design_flow:
 
 qstrings:
 	QSTRING
-	{ $$ = new sta::StdStringSeq;
+	{ $$ = new sta::StringSeq;
 	  $$->push_back($1);
 	  sta::stringDelete($1);
 	}

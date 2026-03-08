@@ -30,14 +30,14 @@
 
 namespace sta {
 
-StdStringSeq
+StringSeq
 tclListSeqStdString(Tcl_Obj *const source,
                     Tcl_Interp *interp)
 {
   Tcl_Size argc;
   Tcl_Obj **argv;
 
-  StdStringSeq seq;
+  StringSeq seq;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
     for (int i = 0; i < argc; i++) {
       int length;
@@ -48,7 +48,7 @@ tclListSeqStdString(Tcl_Obj *const source,
   return seq;
 }
 
-StdStringSeq *
+StringSeq *
 tclListSeqStdStringPtr(Tcl_Obj *const source,
                        Tcl_Interp *interp)
 {
@@ -56,7 +56,7 @@ tclListSeqStdStringPtr(Tcl_Obj *const source,
   Tcl_Obj **argv;
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    StdStringSeq *seq = new StdStringSeq;
+    StringSeq *seq = new StringSeq;
     for (int i = 0; i < argc; i++) {
       int length;
       const char *str = Tcl_GetStringFromObj(argv[i], &length);

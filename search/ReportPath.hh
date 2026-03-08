@@ -49,7 +49,7 @@ public:
   virtual ~ReportPath();
   ReportPathFormat pathFormat() const { return format_; }
   void setPathFormat(ReportPathFormat format);
-  void setReportFieldOrder(const StdStringSeq &field_names);
+  void setReportFieldOrder(const StringSeq &field_names);
   void setReportFields(bool report_input_pin,
                        bool report_hier_pins,
                        bool report_net,

@@ -2075,10 +2075,10 @@ Sta::isPathGroupName(const char *group_name,
     || stringEq(group_name, PathGroups::unconstrainedGroupName());
 }
 
-StdStringSeq
+StringSeq
 Sta::pathGroupNames(const Sdc *sdc) const
 {
-  StdStringSeq names;
+  StringSeq names;
   for (const Clock *clk : sdc->clocks())
     names.push_back(clk->name());
 
@@ -2450,7 +2450,7 @@ void
 Sta::makeDefaultScene()
 {
   const char *name = "default";
-  StdStringSeq scene_names;
+  StringSeq scene_names;
   scene_names.push_back(name);
   Parasitics *parasitics = makeConcreteParasitics(name, "");
 
@@ -2468,7 +2468,7 @@ Sta::makeDefaultScene()
 
 // define_corners (before read_liberty).
 void
-Sta::makeScenes(const StdStringSeq &scene_names)
+Sta::makeScenes(const StringSeq &scene_names)
 {
   if (scene_names.size() > scene_count_max)
     report_->error(1553, "maximum scene count exceeded");
@@ -2490,8 +2490,8 @@ Sta::makeScenes(const StdStringSeq &scene_names)
 void
 Sta::makeScene(const std::string &name,
                const std::string &mode_name,
-               const StdStringSeq &liberty_min_files,
-               const StdStringSeq &liberty_max_files,
+               const StringSeq &liberty_min_files,
+               const StringSeq &liberty_max_files,
                const std::string &spef_min_file,
                const std::string &spef_max_file)
 {
@@ -2598,12 +2598,12 @@ Sta::findScenes(const std::string &name,
 
 void
 Sta::updateSceneLiberty(Scene *scene,
-                        const StdStringSeq &liberty_min_files,
-                        const StdStringSeq &liberty_max_files)
+                        const StringSeq &liberty_min_files,
+                        const StringSeq &liberty_max_files)
 {
   StdStringSet warned_files;
   for (const MinMax *min_max : MinMax::range()) {
-    const StdStringSeq &liberty_files = min_max == MinMax::min()
+    const StringSeq &liberty_files = min_max == MinMax::min()
       ? liberty_min_files
       : liberty_max_files;
     for (const std::string &lib_file : liberty_files) {
@@ -2678,7 +2678,7 @@ Sta::findPathEnds(ExceptionFrom *from,
 		  float slack_min,
 		  float slack_max,
 		  bool sort_by_slack,
-                  StdStringSeq &group_names,
+                  StringSeq &group_names,
 		  bool setup,
 		  bool hold,
 		  bool recovery,
@@ -2729,7 +2729,7 @@ Sta::setReportPathFormat(ReportPathFormat format)
 }
 
 void
-Sta::setReportPathFieldOrder(const StdStringSeq &field_names)
+Sta::setReportPathFieldOrder(const StringSeq &field_names)
 {
   report_path_->setReportFieldOrder(field_names);
 }
@@ -3214,7 +3214,7 @@ void
 EndpointPathEndVisitor::visit(PathEnd *path_end)
 {
   if (path_end->minMax(sta_) == min_max_) {
-    StdStringSeq group_names = PathGroups::pathGroupNames(path_end, sta_);
+    StringSeq group_names = PathGroups::pathGroupNames(path_end, sta_);
     for (std::string &group_name : group_names) {
       if (group_name == path_group_name_) {
 	Slack end_slack = path_end->slack(sta_);

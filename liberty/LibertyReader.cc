@@ -1894,8 +1894,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
 
     LibertyPort *related_output_port = findLibertyPort(cell, timing_group,
                                                        "related_output_pin");
-    StdStringSeq related_port_names = findAttributStrings(timing_group, "related_pin");
-    StdStringSeq related_bus_names=findAttributStrings(timing_group,"related_bus_pins");
+    StringSeq related_port_names = findAttributStrings(timing_group, "related_pin");
+    StringSeq related_bus_names=findAttributStrings(timing_group,"related_bus_pins");
     TimingType timing_type = timing_attrs->timingType();
 
     for (LibertyPort *to_port : ports) {
@@ -2743,7 +2743,7 @@ LibertyReader::findLibertyPort(LibertyCell *cell,
   return nullptr;
 }
 
-StdStringSeq
+StringSeq
 LibertyReader::findAttributStrings(const LibertyGroup *group,
                                    const char *name_attr)
 {
@@ -2754,7 +2754,7 @@ LibertyReader::findAttributStrings(const LibertyGroup *group,
       return parseTokens(*strings, ' ');
     }
   }
-  return StdStringSeq();
+  return StringSeq();
 }
 
 LibertyPortSeq
@@ -2763,7 +2763,7 @@ LibertyReader::findLibertyPorts(LibertyCell *cell,
                                 const char *port_name_attr)
 {
   LibertyPortSeq ports;
-  StdStringSeq port_names = findAttributStrings(group, port_name_attr);
+  StringSeq port_names = findAttributStrings(group, port_name_attr);
   for (const std::string &port_name : port_names) {
     LibertyPort *port = findPort(cell, port_name.c_str());
     if (port)
@@ -2915,40 +2915,40 @@ LibertyReader::readStatetable(LibertyCell *cell,
     const char *input_ports_arg = statetable_group->firstName();
     const char *internal_ports_arg = statetable_group->params().size() >= 2
       ? statetable_group->secondName() : nullptr;
-    StdStringSeq input_ports;
+    StringSeq input_ports;
     if (input_ports_arg)
       input_ports = parseTokens(input_ports_arg, ' ');
-    StdStringSeq internal_ports;
+    StringSeq internal_ports;
     if (internal_ports_arg)
       internal_ports = parseTokens(internal_ports_arg, ' ');
 
     const LibertySimpleAttr *table_attr = statetable_group->findSimpleAttr("table");
     if (table_attr) {
       const std::string *table_str = table_attr->stringValue();
-      StdStringSeq table_rows = parseTokens(table_str->c_str(), ',');
+      StringSeq table_rows = parseTokens(table_str->c_str(), ',');
       size_t input_count = input_ports.size();
       size_t internal_count = internal_ports.size();
       StatetableRows table;
       for (const std::string &row : table_rows) {
-        const StdStringSeq row_groups = parseTokens(row, ':');
+        const StringSeq row_groups = parseTokens(row, ':');
         if (row_groups.size() != 3) {
           libWarn(1300, table_attr, "table row must have 3 groups separated by ':'.");
           break;
         }
-        StdStringSeq inputs = parseTokens(row_groups[0], ' ');
+        StringSeq inputs = parseTokens(row_groups[0], ' ');
         if (inputs.size() != input_count) {
           libWarn(1301,table_attr,"table row has %zu input values but %zu are required.",
                   inputs.size(), input_count);
           break;
         }
-        StdStringSeq currents = parseTokens(row_groups[1], ' ');
+        StringSeq currents = parseTokens(row_groups[1], ' ');
         if (currents.size() != internal_count) {
           libWarn(1302,table_attr,
                   "table row has %zu current values but %zu are required.",
                   currents.size(), internal_count);
           break;
         }
-        StdStringSeq nexts = parseTokens(row_groups[2], ' ');
+        StringSeq nexts = parseTokens(row_groups[2], ' ');
         if (nexts.size() != internal_count) {
           libWarn(1303, table_attr, "table row has %zu next values but %zu are required.",
                   nexts.size(), internal_count);
@@ -3087,7 +3087,7 @@ static EnumNameMap<StateInternalValue> state_internal_value_name_map =
   };
 
 StateInputValues
-LibertyReader::parseStateInputValues(StdStringSeq &inputs,
+LibertyReader::parseStateInputValues(StringSeq &inputs,
                                      const LibertySimpleAttr *attr)
 {
   StateInputValues input_values;
@@ -3106,7 +3106,7 @@ LibertyReader::parseStateInputValues(StdStringSeq &inputs,
 }
 
 StateInternalValues
-LibertyReader::parseStateInternalValues(StdStringSeq &states,
+LibertyReader::parseStateInternalValues(StringSeq &states,
                                         const LibertySimpleAttr *attr)
 {
   StateInternalValues state_values;

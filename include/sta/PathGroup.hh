@@ -120,7 +120,7 @@ public:
              bool unique_edges,
              float slack_min,
              float slack_max,
-             StdStringSeq &group_names,
+             StringSeq &group_names,
              bool setup,
              bool hold,
              bool recovery,
@@ -144,7 +144,7 @@ public:
   PathGroup *findPathGroup(const Clock *clock,
                            const MinMax *min_max) const;
   PathGroupSeq pathGroups(const PathEnd *path_end) const;
-  static StdStringSeq pathGroupNames(const PathEnd *path_end,
+  static StringSeq pathGroupNames(const PathEnd *path_end,
                                      const StaState *sta);
   static const char *asyncPathGroupName() { return async_group_name_; }
   static const char *pathDelayGroupName() { return  path_delay_group_name_; }
@@ -194,7 +194,7 @@ protected:
                    StdStringSet &group_names) const;
   static GroupPath *groupPathTo(const PathEnd *path_end,
                                 const StaState *sta);
-  StdStringSeq pathGroupNames();
+  StringSeq pathGroupNames();
 
   const Mode *mode_;
   int group_path_count_;

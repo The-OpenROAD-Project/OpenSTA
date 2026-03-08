@@ -535,7 +535,7 @@ VerilogReader::makeModuleInst(const std::string *module_vname,
   if (liberty_cell
       && hasScalarNamedPortRefs(liberty_cell, pins)) {
     const int port_count = liberty_cell->portBitCount();
-    StdStringSeq net_names(port_count);
+    StringSeq net_names(port_count);
     for (VerilogNet *vnet : *pins) {
       VerilogNetPortRefScalarNet *vpin =
         dynamic_cast<VerilogNetPortRefScalarNet*>(vnet);
@@ -953,7 +953,7 @@ VerilogModuleInst::namedPins()
 
 VerilogLibertyInst::VerilogLibertyInst(LibertyCell *cell,
                                        const std::string &inst_name,
-                                       const StdStringSeq &net_names,
+                                       const StringSeq &net_names,
                                        VerilogAttrStmtSeq *attr_stmts,
                                        const int line) :
   VerilogInst(inst_name, attr_stmts, line),
@@ -2008,7 +2008,7 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
       network_->setAttribute(inst, entry->key(), entry->value());
     }
   }
-  const StdStringSeq &net_names = lib_inst->netNames();
+  const StringSeq &net_names = lib_inst->netNames();
   LibertyCellPortBitIterator port_iter(lib_cell);
   while (port_iter.hasNext()) {
     LibertyPort *port = port_iter.next();

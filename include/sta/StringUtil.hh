@@ -34,7 +34,7 @@
 
 namespace sta {
 
-using StdStringSeq = std::vector<std::string>;
+using StringSeq = std::vector<std::string>;
 using StdStringSet = std::set<std::string>;
 
 inline bool
@@ -206,7 +206,7 @@ void
 trimRight(std::string &str);
 
 // Spit text into delimiter separated tokens and skip whitepace.
-StdStringSeq
+StringSeq
 parseTokens(const std::string &s,
             const char delimiter);
 

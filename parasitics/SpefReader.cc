@@ -291,7 +291,7 @@ SpefReader::portDirection(char *spef_dir)
 }
 
 void
-SpefReader::setDesignFlow(StdStringSeq *flow)
+SpefReader::setDesignFlow(StringSeq *flow)
 {
   design_flow_ = std::move(*flow);
   delete flow;

@@ -101,7 +101,7 @@ public:
 
   LibertyPort *findPort(LibertyCell *cell,
                         const char *port_name);
-  StdStringSeq findAttributStrings(const LibertyGroup *group,
+  StringSeq findAttributStrings(const LibertyGroup *group,
                                    const char *name_attr);
 
 protected:
@@ -402,9 +402,9 @@ protected:
 
   float defaultCap(LibertyPort *port);
   void visitPorts(std::function<void (LibertyPort *port)> func);
-  StateInputValues parseStateInputValues(StdStringSeq &inputs,
+  StateInputValues parseStateInputValues(StringSeq &inputs,
                                          const LibertySimpleAttr *attr);
-  StateInternalValues parseStateInternalValues(StdStringSeq &states,
+  StateInternalValues parseStateInternalValues(StringSeq &states,
                                                const LibertySimpleAttr *attr);
 
   void getAttrInt(const LibertySimpleAttr *attr,

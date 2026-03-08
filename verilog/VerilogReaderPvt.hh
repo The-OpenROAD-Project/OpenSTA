@@ -216,16 +216,16 @@ class VerilogLibertyInst : public VerilogInst
 public:
   VerilogLibertyInst(LibertyCell *cell,
                      const std::string &inst_name,
-                     const StdStringSeq &net_names,
+                     const StringSeq &net_names,
                      VerilogAttrStmtSeq *attr_stmts,
                      const int line);
   virtual bool isLibertyInst() const { return true; }
   LibertyCell *cell() const { return cell_; }
-  const StdStringSeq &netNames() const { return net_names_; }
+  const StringSeq &netNames() const { return net_names_; }
 
 private:
   LibertyCell *cell_;
-  StdStringSeq net_names_;
+  StringSeq net_names_;
 };
 
 // Abstract base class for nets.

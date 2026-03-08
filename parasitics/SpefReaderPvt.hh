@@ -82,7 +82,7 @@ public:
   void makeNameMapEntry(const char *index,
                         const char *name);
   const char *nameMapLookup(const char *index);
-  void setDesignFlow(StdStringSeq *flow_keys);
+  void setDesignFlow(StringSeq *flow_keys);
   Pin *findPin(char *name);
   Net *findNet(const char *name);
   void rspfBegin(Net *net,
@@ -139,7 +139,7 @@ private:
   float res_scale_;
   float induct_scale_;
   SpefNameMap name_map_;
-  StdStringSeq design_flow_;
+  StringSeq design_flow_;
   Parasitics *parasitics_;
   Parasitic *parasitic_;
 };

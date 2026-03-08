@@ -242,7 +242,7 @@ endpoint_slack(const Pin *pin,
   }
 }
 
-StdStringSeq
+StringSeq
 path_group_names()
 {
   Sta *sta = Sta::sta();
@@ -359,7 +359,7 @@ find_path_ends(ExceptionFrom *from,
                float slack_min,
                float slack_max,
                bool sort_by_slack,
-               StdStringSeq path_groups,
+               StringSeq path_groups,
                bool setup,
                bool hold,
                bool recovery,
@@ -395,7 +395,7 @@ set_report_path_format(ReportPathFormat format)
 }
     
 void
-set_report_path_field_order(const StdStringSeq &field_names)
+set_report_path_field_order(const StringSeq &field_names)
 {
   Sta::sta()->setReportPathFieldOrder(field_names);
 }
@@ -740,8 +740,8 @@ write_timing_model_cmd(const char *lib_name,
 void
 define_scene_cmd(const char *name,
                  const char *mode_name,
-                 const StdStringSeq liberty_min_files,
-                 const StdStringSeq liberty_max_files,
+                 const StringSeq liberty_min_files,
+                 const StringSeq liberty_max_files,
                  const char *spef_min_file,
                  const char *spef_max_file)
 {
@@ -752,7 +752,7 @@ define_scene_cmd(const char *name,
 }
 
 void
-define_scenes_cmd(const StdStringSeq &scene_names)
+define_scenes_cmd(const StringSeq &scene_names)
 {
   Sta *sta = Sta::sta();
   sta->makeScenes(scene_names);
