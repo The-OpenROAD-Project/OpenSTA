@@ -24,7 +24,9 @@
 
 #pragma once
 
-#include "StringSeq.hh"
+#include <string>
+
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -38,18 +40,18 @@ void
 registerDelayCalcs();
 // Register a delay calculator for the set_delay_calc command.
 void
-registerDelayCalc(const char *name,
+registerDelayCalc(const std::string &name,
                   MakeArcDelayCalc maker);
 bool
-isDelayCalcName(const char *name);
-StringSeq
+isDelayCalcName(const std::string &name);
+StdStringSeq
 delayCalcNames();
 void
 deleteDelayCalcs();
 
 // Make a registered delay calculator by name.
 ArcDelayCalc *
-makeDelayCalc(const char *name,
+makeDelayCalc(const std::string &name,
               StaState *sta);
 
 } // namespace

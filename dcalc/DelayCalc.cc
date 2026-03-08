@@ -25,6 +25,7 @@
 #include "DelayCalc.hh"
 
 #include <map>
+#include <string>
 
 #include "ContainerHelpers.hh"
 #include "StringUtil.hh"
@@ -37,9 +38,9 @@
 
 namespace sta {
 
-typedef std::map<const char*, MakeArcDelayCalc, CharPtrLess> DelayCalcMap;
+typedef std::map<std::string, MakeArcDelayCalc> DelayCalcMap;
 
-static DelayCalcMap *delay_calcs = nullptr;
+static DelayCalcMap delay_calcs;
 
 void
 registerDelayCalcs()
@@ -54,26 +55,23 @@ registerDelayCalcs()
 }
 
 void
-registerDelayCalc(const char *name,
+registerDelayCalc(const std::string &name,
                   MakeArcDelayCalc maker)
 {
-  if (delay_calcs == nullptr)
-    delay_calcs = new DelayCalcMap;
-  (*delay_calcs)[name] = maker;
+  delay_calcs[name] = maker;
 }
 
 void
 deleteDelayCalcs()
 {
-  delete delay_calcs;
-  delay_calcs = nullptr;
+  delay_calcs.clear();
 }
 
 ArcDelayCalc *
-makeDelayCalc(const char *name,
+makeDelayCalc(const std::string &name,
               StaState *sta)
 {
-  MakeArcDelayCalc maker = findKey(delay_calcs, name);
+  MakeArcDelayCalc maker = findKey(&delay_calcs, name);
   if (maker)
     return maker(sta);
   else
@@ -81,16 +79,16 @@ makeDelayCalc(const char *name,
 }
 
 bool
-isDelayCalcName(const char *name)
+isDelayCalcName(const std::string &name)
 {
-  return delay_calcs->contains(name);
+  return delay_calcs.contains(name);
 }
 
-StringSeq
+StdStringSeq
 delayCalcNames()
 {
-  StringSeq names;
-  for (const auto [name, make_dcalc] : *delay_calcs)
+  StdStringSeq names;
+  for (const auto &[name, make_dcalc] : delay_calcs)
     names.push_back(name);
   return names;
 }
