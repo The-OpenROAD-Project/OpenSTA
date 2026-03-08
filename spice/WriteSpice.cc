@@ -825,7 +825,7 @@ WriteSpice::railToRailSlew(float slew,
 
 ////////////////////////////////////////////////////////////////
 
-// Find the logic values for expression inputs to enable paths from input_port.
+// Find the logic values for expression inputs to sensitize the path from input_port.
 void
 WriteSpice::gatePortValues(const Pin *input_pin,
                            const Pin *drvr_pin,

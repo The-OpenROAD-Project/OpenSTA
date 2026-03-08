@@ -156,7 +156,7 @@ public:
           // Return values.
           double &vo,
           double &dol_dt);
-  // Load responce to driver waveform.
+  // Load response to driver waveform.
   void Vl(double t,
           // Return values.
           double &vl,
