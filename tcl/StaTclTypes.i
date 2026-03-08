@@ -52,7 +52,6 @@
 namespace sta {
 
 typedef MinMaxAll MinMaxAllNull;
-typedef std::vector<std::string> StdStringSeq;
 
 #if TCL_MAJOR_VERSION < 9
     typedef int Tcl_Size;
@@ -302,6 +301,11 @@ using namespace sta;
 
 %typemap(in) StdStringSeq {
   $1 = tclListSeqStdString($input, interp);
+}
+
+%typemap(in) const StdStringSeq & (StdStringSeq seq) {
+  seq = tclListSeqStdString($input, interp);
+  $1 = &seq;
 }
 
 %typemap(in) StdStringSeq* {

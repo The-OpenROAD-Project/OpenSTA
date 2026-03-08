@@ -2468,9 +2468,9 @@ Sta::makeDefaultScene()
 
 // define_corners (before read_liberty).
 void
-Sta::makeScenes(StdStringSeq *scene_names)
+Sta::makeScenes(const StdStringSeq &scene_names)
 {
-  if (scene_names->size() > scene_count_max)
+  if (scene_names.size() > scene_count_max)
     report_->error(1553, "maximum scene count exceeded");
   Parasitics *parasitics = findParasitics("default");
   Mode *mode = modes_[0];
@@ -2478,7 +2478,7 @@ Sta::makeScenes(StdStringSeq *scene_names)
   mode->clear();
 
   deleteScenes();
-  for (const std::string &name : *scene_names)
+  for (const std::string &name : scene_names)
     makeScene(name, mode, parasitics);
 
   cmd_scene_ = scenes_[0];
@@ -2729,7 +2729,7 @@ Sta::setReportPathFormat(ReportPathFormat format)
 }
 
 void
-Sta::setReportPathFieldOrder(StdStringSeq *field_names)
+Sta::setReportPathFieldOrder(const StdStringSeq &field_names)
 {
   report_path_->setReportFieldOrder(field_names);
 }
