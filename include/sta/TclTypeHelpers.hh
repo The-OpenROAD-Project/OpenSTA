@@ -39,7 +39,7 @@ tclListSeqStdString(Tcl_Obj *const source,
 StringSeq *
 tclListSeqStdStringPtr(Tcl_Obj *const source,
                        Tcl_Interp *interp);
-StdStringSet *
+StringSet *
 tclListSetStdString(Tcl_Obj *const source,
                     Tcl_Interp *interp);
 

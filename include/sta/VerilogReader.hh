@@ -173,7 +173,7 @@ protected:
   void makeNamedPortRefCellPorts(Cell *cell,
                                  VerilogModule *module,
                                  VerilogNet *mod_port,
-                                 StdStringSet &port_names);
+                                 StringSet &port_names);
   void checkModuleDcls(VerilogModule *module,
                        std::set<std::string> &port_names);
   void makeModuleInstBody(VerilogModule *module,

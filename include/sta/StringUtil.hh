@@ -35,7 +35,7 @@
 namespace sta {
 
 using StringSeq = std::vector<std::string>;
-using StdStringSet = std::set<std::string>;
+using StringSet = std::set<std::string>;
 
 inline bool
 stringEq(const char *str1,

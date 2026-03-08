@@ -65,8 +65,8 @@ protected:
                    float time_step);
   void writePrintStmt(StringSeq &node_names);
   void writeGnuplotFile(StringSeq &node_nanes);
-  void writeSubckts(StdStringSet &cell_names);
-  void findCellSubckts(StdStringSet &cell_names);
+  void writeSubckts(StringSet &cell_names);
+  void findCellSubckts(StringSet &cell_names);
   void recordSpicePortNames(const char *cell_name,
                             StringSeq &tokens);
   void writeSubcktInst(const Instance *inst);

@@ -68,7 +68,7 @@ tclListSeqStdStringPtr(Tcl_Obj *const source,
     return nullptr;
 }
 
-StdStringSet *
+StringSet *
 tclListSetStdString(Tcl_Obj *const source,
                     Tcl_Interp *interp)
 {
@@ -76,7 +76,7 @@ tclListSetStdString(Tcl_Obj *const source,
   Tcl_Obj **argv;
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    StdStringSet *set = new StdStringSet;
+    StringSet *set = new StringSet;
     for (int i = 0; i < argc; i++) {
       int length;
       const char *str = Tcl_GetStringFromObj(argv[i], &length);

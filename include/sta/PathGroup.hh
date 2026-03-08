@@ -184,14 +184,14 @@ protected:
                   bool unique_edges,
                   float slack_min,
                   float slack_max,
-                  StdStringSet &group_names,
+                  StringSet &group_names,
                   bool setup_hold,
                   bool async,
                   bool gated_clk,
                   bool unconstrained,
                   const MinMax *min_max);
   bool reportGroup(const char *group_name,
-                   StdStringSet &group_names) const;
+                   StringSet &group_names) const;
   static GroupPath *groupPathTo(const PathEnd *path_end,
                                 const StaState *sta);
   StringSeq pathGroupNames();

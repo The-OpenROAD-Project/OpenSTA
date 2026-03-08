@@ -75,7 +75,7 @@ public:
 private:
   void parseStmts(VerilogReader *reader);
   void checkInstanceName(VerilogInst *inst,
-                         StdStringSet &inst_names,
+                         StringSet &inst_names,
                          VerilogReader *reader);
 
   std::string name_;

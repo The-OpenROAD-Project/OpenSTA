@@ -290,7 +290,7 @@ using namespace sta;
     Tcl_SetResult(interp, nullptr, TCL_STATIC);
 }
 
-%typemap(in) StdStringSet* {
+%typemap(in) StringSet* {
   $1 = tclListSetStdString($input, interp);
 }
 
@@ -307,7 +307,7 @@ using namespace sta;
   $1 = tclListSeqStdStringPtr($input, interp);
 }
 
-%typemap(in) StdStringSet* {
+%typemap(in) StringSet* {
   $1 = tclListSetStdString($input, interp);
 }
 

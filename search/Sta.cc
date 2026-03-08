@@ -2601,7 +2601,7 @@ Sta::updateSceneLiberty(Scene *scene,
                         const StringSeq &liberty_min_files,
                         const StringSeq &liberty_max_files)
 {
-  StdStringSet warned_files;
+  StringSet warned_files;
   for (const MinMax *min_max : MinMax::range()) {
     const StringSeq &liberty_files = min_max == MinMax::min()
       ? liberty_min_files

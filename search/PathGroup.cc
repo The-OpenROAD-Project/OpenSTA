@@ -276,7 +276,7 @@ PathGroups::PathGroups(int group_path_count,
   slack_min_(slack_min),
   slack_max_(slack_max)
 {
-  StdStringSet groups;
+  StringSet groups;
   for (std::string &group_name : group_names)
     groups.insert(group_name);
 
@@ -297,7 +297,7 @@ PathGroups::makeGroups(int group_path_count,
                        bool unique_edges,
                        float slack_min,
                        float slack_max,
-                       StdStringSet &group_names,
+                       StringSet &group_names,
                        bool setup_hold,
                        bool async,
                        bool gated_clk,
@@ -417,7 +417,7 @@ PathGroups::findPathGroup(const Clock *clock,
 
 bool
 PathGroups::reportGroup(const char *group_name,
-                        StdStringSet &group_names) const
+                        StringSet &group_names) const
 {
   return group_names.empty()
     || group_names.contains(group_name);

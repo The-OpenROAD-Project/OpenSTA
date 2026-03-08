@@ -199,7 +199,7 @@ WriteSpice::writeGnuplotFile(StringSeq &node_nanes)
 }
 
 void
-WriteSpice::writeSubckts(StdStringSet &cell_names)
+WriteSpice::writeSubckts(StringSet &cell_names)
 {
   findCellSubckts(cell_names);
   std::ifstream lib_subckts_stream(lib_subckt_filename_);
@@ -278,7 +278,7 @@ WriteSpice::recordSpicePortNames(const char *cell_name,
 
 // Subckts can call subckts (asap7).
 void
-WriteSpice::findCellSubckts(StdStringSet &cell_names)
+WriteSpice::findCellSubckts(StringSet &cell_names)
 {
   std::ifstream lib_subckts_stream(lib_subckt_filename_);
   if (lib_subckts_stream.is_open()) {

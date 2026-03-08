@@ -285,7 +285,7 @@ VerilogReader::makeCellPorts(Cell *cell,
                              VerilogModule *module,
                              VerilogNetSeq *ports)
 {
-  StdStringSet port_names;
+  StringSet port_names;
   for (VerilogNet *mod_port : *ports) {
     const std::string &port_name = mod_port->name();
     if (!port_names.contains(port_name)) {
@@ -335,7 +335,7 @@ void
 VerilogReader::makeNamedPortRefCellPorts(Cell *cell,
                                          VerilogModule *module,
                                          VerilogNet *mod_port,
-                                         StdStringSet &port_names)
+                                         StringSet &port_names)
 {
   PortSeq *member_ports = new PortSeq;
   VerilogNetNameIterator *net_name_iter = mod_port->nameIterator(module,this);
@@ -805,7 +805,7 @@ VerilogModule::~VerilogModule()
 void
 VerilogModule::parseStmts(VerilogReader *reader)
 {
-  StdStringSet inst_names;
+  StringSet inst_names;
   for (VerilogStmt *stmt : *stmts_) {
     if (stmt->isDeclaration())
       parseDcl(dynamic_cast<VerilogDcl*>(stmt), reader);
@@ -861,7 +861,7 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
 // expansion so errors are only reported once.
 void
 VerilogModule::checkInstanceName(VerilogInst *inst,
-                                 StdStringSet &inst_names,
+                                 StringSet &inst_names,
                                  VerilogReader *reader)
 {
   std::string inst_name = inst->instanceName();

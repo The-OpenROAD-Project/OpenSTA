@@ -80,8 +80,8 @@ private:
   void writeGateStage(Stage stage);
   void writeStageParasitics(Stage stage);
   void writeSubckts();
-  StdStringSet findPathCellNames();
-  void findPathCellSubckts(StdStringSet &path_cell_names);
+  StringSet findPathCellNames();
+  void findPathCellSubckts(StringSet &path_cell_names);
   float maxTime();
   float pathMaxTime();
   void writeMeasureDelayStmt(Stage stage,
@@ -562,14 +562,14 @@ WritePathSpice::writeStageParasitics(Stage stage)
 void
 WritePathSpice::writeSubckts()
 {
-  StdStringSet cell_names = findPathCellNames();
+  StringSet cell_names = findPathCellNames();
   writeSubckts(cell_names);
 }
 
-StdStringSet
+StringSet
 WritePathSpice::findPathCellNames()
 {
-  StdStringSet path_cell_names;
+  StringSet path_cell_names;
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     const TimingArc *arc = stageGateArc(stage);
     if (arc) {
