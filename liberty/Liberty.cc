@@ -1367,17 +1367,14 @@ LibertyCell::makeTimingArcPortMaps()
     LibertyPort *from = arc_set->from();
     LibertyPort *to = arc_set->to();
     if (from && to) {
-      LibertyPortPair from_to_pair(from, to);
-      TimingArcSetSeq &sets = port_timing_arc_set_map_[from_to_pair];
+      TimingArcSetSeq &sets = port_timing_arc_set_map_[{from, to}];
       sets.push_back(arc_set);
     }
 
-    LibertyPortPair from_pair(from, nullptr);
-    TimingArcSetSeq &from_sets = port_timing_arc_set_map_[from_pair];
+    TimingArcSetSeq &from_sets = port_timing_arc_set_map_[{from, nullptr}];
     from_sets.push_back(arc_set);
 
-    LibertyPortPair to_pair(nullptr, to);
-    TimingArcSetSeq &to_sets = port_timing_arc_set_map_[to_pair];
+    TimingArcSetSeq &to_sets = port_timing_arc_set_map_[{nullptr, to}];
     to_sets.push_back(arc_set);
 
     const TimingRole *role = arc_set->role();
@@ -1411,8 +1408,7 @@ LibertyCell::timingArcSets(const LibertyPort *from,
                            const LibertyPort *to) const
 {
   static const TimingArcSetSeq null_set;
-  const LibertyPortPair port_pair(from, to);
-  auto itr = port_timing_arc_set_map_.find(port_pair);
+  auto itr = port_timing_arc_set_map_.find({from, to});
   return (itr == port_timing_arc_set_map_.end()) ? null_set : itr->second;
 }
 
@@ -1437,8 +1433,8 @@ LibertyCell::timingArcSetCount() const
 bool
 LibertyCell::hasTimingArcs(LibertyPort *port) const
 {
-  return port_timing_arc_set_map_.contains(LibertyPortPair(port, nullptr))
-    || port_timing_arc_set_map_.contains(LibertyPortPair(nullptr, port));
+  return port_timing_arc_set_map_.contains({port, nullptr})
+    || port_timing_arc_set_map_.contains({nullptr, port});
 }
 
 void
