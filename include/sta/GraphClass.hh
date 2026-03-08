@@ -43,6 +43,9 @@ class VertexIterator;
 class VertexInEdgeIterator;
 class VertexOutEdgeIterator;
 
+using VertexId = ObjectId;
+using EdgeId = ObjectId;
+
 class VertexIdLess
 {
 public:
@@ -52,11 +55,13 @@ public:
                   const Vertex *vertex2) const;
 
 private:
+  VertexId id(const Vertex *vertex) const;
   Graph *&graph_;
+  static constexpr int cache_size_ = 16;
+  mutable const Vertex *last_vertices_[cache_size_] = {nullptr};
+  mutable VertexId last_ids_[cache_size_] = {0};
 };
 
-using VertexId = ObjectId;
-using EdgeId = ObjectId;
 using VertexSeq = std::vector<Vertex*>;
 using VertexSet = std::set<Vertex*, VertexIdLess>;
 using EdgeSeq = std::vector<Edge*>;
