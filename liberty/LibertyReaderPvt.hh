@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <cstdarg>
 #include <functional>
 #include <memory>
 #include <array>
@@ -132,6 +133,7 @@ protected:
                           const char *group_name,
                           TableTemplateType type);
   void readThresholds(const LibertyGroup *library_group);
+  void checkThresholds(const LibertyGroup *library_group) const;
   TableAxisPtr makeTableTemplateAxis(const LibertyGroup *template_group,
                                      int axis_index);
   void readVoltateMaps(const LibertyGroup *library_group);
@@ -445,36 +447,36 @@ protected:
                       const LibertyCell *cell,
                       int line);
   void libWarn(int id,
-               const LibertyGroup *obj,
+               const LibertyGroup *group,
                const char *fmt,
-               ...)
+               ...) const
     __attribute__((format (printf, 4, 5)));
   void libWarn(int id,
-               const LibertySimpleAttr *obj,
+               const LibertySimpleAttr *attr,
                const char *fmt,
-               ...)
+               ...) const
     __attribute__((format (printf, 4, 5)));
   void libWarn(int id,
-               const LibertyComplexAttr *obj,
+               const LibertyComplexAttr *attr,
                const char *fmt,
-               ...)
+               ...) const
     __attribute__((format (printf, 4, 5)));
   void libWarn(int id,
                int line,
                const char *fmt,
-               ...)
+               ...) const
     __attribute__((format (printf, 4, 5)));
   void libError(int id,
-                const LibertyGroup *obj,
-                const char *fmt, ...)
+                const LibertyGroup *group,
+                const char *fmt, ...) const
     __attribute__((format (printf, 4, 5)));
   void libError(int id,
-                const LibertySimpleAttr *obj,
-                const char *fmt, ...)
+                const LibertySimpleAttr *attr,
+                const char *fmt, ...) const
     __attribute__((format (printf, 4, 5)));
   void libError(int id,
-                const LibertyComplexAttr *obj,
-                const char *fmt, ...)
+                const LibertyComplexAttr *attr,
+                const char *fmt, ...) const
     __attribute__((format (printf, 4, 5)));
 
   const char *filename_;
@@ -485,7 +487,6 @@ protected:
   LibertyBuilder builder_;
   LibertyVariableMap var_map_;
   LibertyLibrary *library_;
-  bool first_cell_;
   LibraryGroupVisitorMap group_begin_map_;
   LibraryGroupVisitorMap group_end_map_;
 

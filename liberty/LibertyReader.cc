@@ -78,8 +78,7 @@ LibertyReader::LibertyReader(const char *filename,
   debug_(network->debug()),
   network_(network),
   builder_(debug_, report_),
-  library_(nullptr),
-  first_cell_(true)
+  library_(nullptr)
 {
   defineVisitors();
 }
@@ -148,13 +147,13 @@ LibertyReader::beginLibrary(const LibertyGroup *library_group,
 }
 
 void
-LibertyReader::endLibrary(const LibertyGroup *group,
+LibertyReader::endLibrary(const LibertyGroup *library_group,
                           LibertyGroup *)
 {
-  // If a library hasno cells endCell is not called.
-  if (first_cell_)
-    readLibraryAttributes(group);
-  delete group;
+  // If a library has no cells endCell is not called.
+  readLibraryAttributes(library_group);
+  checkThresholds(library_group);
+  delete library_group;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -167,12 +166,7 @@ LibertyReader::endCell(const LibertyGroup *cell_group,
   // Normally they are all defined by the first cell, but there
   // are libraries that define table templates and bus tyupes
   // between cells.
-  if (first_cell_)
-    readLibraryAttributes(library_group);
-  else {
-    readTableTemplates(library_group);
-    readBusTypes(nullptr, library_group);
-  }
+  readLibraryAttributes(library_group);
 
   const char *name = cell_group->firstName();
   if (name) {
@@ -182,8 +176,10 @@ LibertyReader::endCell(const LibertyGroup *cell_group,
   }
   else
     libWarn(1193, cell_group, "cell missing name.");
+
+  // Delete the cell group and preceding library attributes
+  // and groups so they are not revisited and reduce memory peak.
   library_group->clear();
-  first_cell_ = false;
 }
 
 void
@@ -527,21 +523,25 @@ LibertyReader::readThresholds(const LibertyGroup *library_group)
     std::string suffix = rf->to_string();
     readLibAttrFloat(library_group, ("input_threshold_pct_" + suffix).c_str(),
                      &LibertyLibrary::setInputThreshold, rf, 0.01F);
-    if (library_->inputThreshold(rf) == 0.0)
-      libWarn(1145, library_group, "input_threshold_pct_%s not found.", rf->name());
-
     readLibAttrFloat(library_group, ("output_threshold_pct_" + suffix).c_str(),
                      &LibertyLibrary::setOutputThreshold, rf, 0.01F);
-    if (library_->outputThreshold(rf) == 0.0)
-      libWarn(1146, library_group, "output_threshold_pct_%s not found.", rf->name());
-
     readLibAttrFloat(library_group, ("slew_lower_threshold_pct_" + suffix).c_str(),
                      &LibertyLibrary::setSlewLowerThreshold, rf, 0.01F);
-    if (library_->slewLowerThreshold(rf) == 0.0)
-      libWarn(1147, library_group, "slew_lower_threshold_pct_%s not found.", rf->name());
-
     readLibAttrFloat(library_group, ("slew_upper_threshold_pct_" + suffix).c_str(),
                      &LibertyLibrary::setSlewUpperThreshold, rf, 0.01F);
+  }
+}
+
+void
+LibertyReader::checkThresholds(const LibertyGroup *library_group) const
+{
+  for (const RiseFall *rf : RiseFall::range()) {
+    if (library_->inputThreshold(rf) == 0.0)
+      libWarn(1145, library_group, "input_threshold_pct_%s not found.", rf->name());
+    if (library_->outputThreshold(rf) == 0.0)
+      libWarn(1146, library_group, "output_threshold_pct_%s not found.", rf->name());
+    if (library_->slewLowerThreshold(rf) == 0.0)
+      libWarn(1147, library_group, "slew_lower_threshold_pct_%s not found.", rf->name());
     if (library_->slewUpperThreshold(rf) == 0.0)
       libWarn(1148, library_group, "slew_upper_threshold_pct_%s not found.", rf->name());
   }
@@ -3458,37 +3458,37 @@ LibertyReader::variableValue(const char *var,
 
 void
 LibertyReader::libWarn(int id,
-                       const LibertyGroup *obj,
+                       const LibertyGroup *group,
                        const char *fmt,
-                       ...)
+                       ...) const
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileWarn(id, filename_, obj->line(), fmt, args);
+  report_->vfileWarn(id, filename_, group->line(), fmt, args);
   va_end(args);
 }
 
 void
 LibertyReader::libWarn(int id,
-                       const LibertySimpleAttr *obj,
+                       const LibertySimpleAttr *attr,
                        const char *fmt,
-                       ...)
+                       ...) const
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileWarn(id, filename_, obj->line(), fmt, args);
+  report_->vfileWarn(id, filename_, attr->line(), fmt, args);
   va_end(args);
 }
 
 void
 LibertyReader::libWarn(int id,
-                       const LibertyComplexAttr *obj,
+                       const LibertyComplexAttr *attr,
                        const char *fmt,
-                       ...)
+                       ...) const
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileWarn(id, filename_, obj->line(), fmt, args);
+  report_->vfileWarn(id, filename_, attr->line(), fmt, args);
   va_end(args);
 }
 
@@ -3496,7 +3496,7 @@ void
 LibertyReader::libWarn(int id,
                        int line,
                        const char *fmt,
-                       ...)
+                       ...) const
 {
   va_list args;
   va_start(args, fmt);
@@ -3506,37 +3506,37 @@ LibertyReader::libWarn(int id,
 
 void
 LibertyReader::libError(int id,
-                        const LibertyGroup *obj,
+                        const LibertyGroup *group,
                         const char *fmt,
-                        ...)
+                        ...) const
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileError(id, filename_, obj->line(), fmt, args);
+  report_->vfileError(id, filename_, group->line(), fmt, args);
   va_end(args);
 }
 
 void
 LibertyReader::libError(int id,
-                        const LibertySimpleAttr *obj,
+                        const LibertySimpleAttr *attr,
                         const char *fmt,
-                        ...)
+                        ...) const
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileError(id, filename_, obj->line(), fmt, args);
+  report_->vfileError(id, filename_, attr->line(), fmt, args);
   va_end(args);
 }
 
 void
 LibertyReader::libError(int id,
-                        const LibertyComplexAttr *obj,
+                        const LibertyComplexAttr *attr,
                         const char *fmt,
-                        ...)
+                        ...) const
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileError(id, filename_, obj->line(), fmt, args);
+  report_->vfileError(id, filename_, attr->line(), fmt, args);
   va_end(args);
 }
 
