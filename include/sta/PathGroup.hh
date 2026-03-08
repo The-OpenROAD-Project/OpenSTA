@@ -66,7 +66,7 @@ public:
                                        float min_slack,
                                        float max_slack,
                                        const StaState *sta);
-  const char *name() const { return name_.c_str(); }
+  const std::string &name() const { return name_; }
   const MinMax *minMax() const { return min_max_;}
   const PathEndSeq &pathEnds() const { return path_ends_; }
   void insert(PathEnd *path_end);
