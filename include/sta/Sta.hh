@@ -1383,7 +1383,7 @@ public:
                       LibertyLibrarySeq *map_libs);
   LibertyCellSeq *equivCells(LibertyCell *cell);
 
-  void writePathSpice(Path *path,
+  void writePathSpice(const Path *path,
                       const char *spice_filename,
                       const char *subckt_filename,
                       const char *lib_subckt_filename,

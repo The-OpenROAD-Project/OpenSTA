@@ -33,7 +33,7 @@
 %inline %{
 
 void
-write_path_spice_cmd(Path *path,
+write_path_spice_cmd(const Path *path,
                      const char *spice_filename,
                      const char *subckt_filename,
                      const char *lib_subckt_filename,

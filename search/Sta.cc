@@ -6012,7 +6012,7 @@ Sta::activity(const Pin *pin,
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::writePathSpice(Path *path,
+Sta::writePathSpice(const Path *path,
                     const char *spice_filename,
                     const char *subckt_filename,
                     const char *lib_subckt_filename,
