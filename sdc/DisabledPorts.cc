@@ -96,18 +96,15 @@ DisabledPorts::setDisabledFromTo(LibertyPort *from,
 {
   if (from_to_ == nullptr)
     from_to_ = new LibertyPortPairSet;
-  LibertyPortPair pair(from, to);
-  from_to_->insert(pair);
+  from_to_->insert({from, to});
 }
 
 void
 DisabledPorts::removeDisabledFromTo(LibertyPort *from,
                                     LibertyPort *to)
 {
-  if (from_to_) {
-    LibertyPortPair from_to(from, to);
-    from_to_->erase(from_to);
-  }
+  if (from_to_)
+    from_to_->erase({from, to});
 }
 
 bool
@@ -115,12 +112,11 @@ DisabledPorts::isDisabled(LibertyPort *from,
                           LibertyPort *to,
                           const TimingRole *role)
 {
-  LibertyPortPair from_to(from, to);
   // set_disable_timing instance does not disable timing checks.
   return (all_ && !role->isTimingCheck())
     || (from_ && from_->contains(from))
     || (to_ && to_->contains(to))
-    || (from_to_ && from_to_->contains(from_to));
+    || (from_to_ && from_to_->contains({from, to}));
 }
 
 ////////////////////////////////////////////////////////////////

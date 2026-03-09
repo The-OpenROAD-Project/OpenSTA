@@ -44,6 +44,15 @@ RiseFall::RiseFall(const char *name,
 {
 }
 
+const std::string &
+RiseFall::to_string(bool use_short) const
+{
+  if (use_short)
+    return short_name_;
+  else
+    return name_;
+}
+
 const RiseFall *
 RiseFall::opposite() const
 {
@@ -132,6 +141,15 @@ RiseFallBoth::RiseFallBoth(const char *name,
   range_(range),
   range_index_(range_index)
 {
+}
+
+const std::string &
+RiseFallBoth::to_string(bool use_short) const
+{
+  if (use_short)
+    return short_name_;
+  else
+    return name_;
 }
 
 const RiseFallBoth *

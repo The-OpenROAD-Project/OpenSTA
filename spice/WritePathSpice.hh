@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "StringSet.hh"
 #include "CircuitSim.hh"
 
 namespace sta {
@@ -35,7 +34,7 @@ class StaState;
 // Write a spice deck for path.
 // Throws FileNotReadable, FileNotWritable, SubcktEndsMissing
 void
-writePathSpice(Path *path,
+writePathSpice(const Path *path,
                // Spice file written for path.
                const char *spice_filename,
                // Subckts used by path included in spice file.

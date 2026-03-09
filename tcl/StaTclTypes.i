@@ -27,8 +27,6 @@
 
 #include "Machine.hh"
 #include "StringUtil.hh"
-#include "StringSet.hh"
-#include "StringSeq.hh"
 #include "PatternMatch.hh"
 #include "Network.hh"
 #include "Liberty.hh"
@@ -53,7 +51,6 @@
 namespace sta {
 
 typedef MinMaxAll MinMaxAllNull;
-typedef std::vector<std::string> StdStringSeq;
 
 #if TCL_MAJOR_VERSION < 9
     typedef int Tcl_Size;
@@ -293,52 +290,33 @@ using namespace sta;
     Tcl_SetResult(interp, nullptr, TCL_STATIC);
 }
 
-%typemap(in) StringSeq* {
-  $1 = tclListSeqConstChar($input, interp);
-}
-
-%typemap(in) StdStringSet* {
+%typemap(in) StringSet* {
   $1 = tclListSetStdString($input, interp);
 }
 
-%typemap(in) StdStringSeq {
+%typemap(in) StringSeq {
   $1 = tclListSeqStdString($input, interp);
 }
 
-%typemap(in) StdStringSeq* {
-  $1 = tclListSeqStdString($input, interp);
+%typemap(in) const StringSeq & (StringSeq seq) {
+  seq = tclListSeqStdString($input, interp);
+  $1 = &seq;
 }
 
-%typemap(out) StringSeq* {
-  StringSeq *strs = $1;
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  for (const char *str : *strs) {
-    Tcl_Obj *obj = Tcl_NewStringObj(str, strlen(str));
-    Tcl_ListObjAppendElement(interp, list, obj);
-  }
-  Tcl_SetObjResult(interp, list);
+%typemap(in) StringSeq* {
+  $1 = tclListSeqStdStringPtr($input, interp);
+}
+
+%typemap(in) StringSet* {
+  $1 = tclListSetStdString($input, interp);
+}
+
+%typemap(in) StringSeq {
+  $1 = tclListSeqStdString($input, interp);
 }
 
 %typemap(out) StringSeq {
   StringSeq &strs = $1;
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  for (const char *str : strs) {
-    Tcl_Obj *obj = Tcl_NewStringObj(str, strlen(str));
-    Tcl_ListObjAppendElement(interp, list, obj);
-  }
-  Tcl_SetObjResult(interp, list);
-}
-
-%typemap(in) StdStringSet* {
-  $1 = tclListSetStdString($input, interp);
-}
-
-%typemap(in) StdStringSeq {
-  $1 = tclListSeqStdString($input, interp);
-}
-
-%typemap(out) StdStringSeq {
-  StdStringSeq &strs = $1;
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   for (const std::string &str : strs) {
     Tcl_Obj *obj = Tcl_NewStringObj(str.c_str(), str.size());
@@ -497,7 +475,7 @@ using namespace sta;
   const RiseFall *rf = $1;
   const char *str = "";
   if (rf)
-    str = rf->to_string().c_str();
+    str = rf->shortName();
   Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
 }
 
@@ -517,7 +495,7 @@ using namespace sta;
   RiseFallBoth *tr = $1;
   const char *str = "";
   if (tr)
-    str = tr->asString();
+    str = tr->shortName();
   Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
 }
 
@@ -1137,10 +1115,9 @@ using namespace sta;
   CheckErrorSeq *check_errors = $1;
   for (CheckError *error : *check_errors) {
     Tcl_Obj *string_list = Tcl_NewListObj(0, nullptr);
-    for (const char *str : *error) {
-      size_t str_len = strlen(str);
-      Tcl_Obj *obj = Tcl_NewStringObj(const_cast<char*>(str),
-                                      static_cast<int>(str_len));
+    for (const std::string &str : *error) {
+      Tcl_Obj *obj = Tcl_NewStringObj(str.c_str(),
+                                      static_cast<int>(str.size()));
       Tcl_ListObjAppendElement(interp, string_list, obj);
     }
     Tcl_ListObjAppendElement(interp, error_list, string_list);
@@ -1247,10 +1224,6 @@ using namespace sta;
 
 %typemap(out) Crpr {
   Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
-}
-
-%typemap(in) StringSet* {
-  $1 = tclListSetConstChar($input, interp);
 }
 
 %typemap(out) Mode* {

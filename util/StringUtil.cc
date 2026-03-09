@@ -265,11 +265,11 @@ trimRight(std::string &str)
   str.erase(str.find_last_not_of(" ") + 1);
 }
 
-StdStringSeq
+StringSeq
 split(const std::string &text,
       const std::string &delims)
 {
-  StdStringSeq tokens;
+  StringSeq tokens;
   auto start = text.find_first_not_of(delims);
   auto end = text.find_first_of(delims, start);
   while (end != std::string::npos) {
@@ -283,11 +283,11 @@ split(const std::string &text,
 }
 
 // Parse space separated tokens.
-StdStringSeq
+StringSeq
 parseTokens(const std::string &s,
             const char delimiter)
 {
-  StdStringSeq tokens;
+  StringSeq tokens;
   size_t i = 0;
   while (i < s.size()) {
     while (i < s.size() && std::isspace(s[i]))

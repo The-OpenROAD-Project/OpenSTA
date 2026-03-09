@@ -211,15 +211,15 @@ ReportPath::findField(const char *name) const
 }
 
 void
-ReportPath::setReportFieldOrder(StringSeq *field_names)
+ReportPath::setReportFieldOrder(const StringSeq &field_names)
 {
   // Disable all fields.
   for (ReportField *field : fields_)
     field->setEnabled(false);
 
   ReportFieldSeq next_fields;
-  for (const char *field_name : *field_names) {
-    ReportField *field = findField(field_name);
+  for (const std::string &field_name : field_names) {
+    ReportField *field = findField(field_name.c_str());
     if (field) {
       next_fields.push_back(field);
       field->setEnabled(true);
@@ -406,7 +406,7 @@ ReportPath::reportEndpointHeader(const PathEnd *end,
       : "max_delay/setup";
     report_->reportLine("%s group %s",
                         setup_hold,
-                        group->name());
+                        group->name().c_str());
     reportBlankLine();
     reportEndHeader();
   }
@@ -1079,11 +1079,17 @@ ReportPath::reportJson(const PathEnd *end,
 {
   std::string result;
   result += "{\n";
-  stringAppend(result, "  \"type\": \"%s\",\n", end->typeName());
-  stringAppend(result, "  \"path_group\": \"%s\",\n",
-               end->pathGroup()->name());
-  stringAppend(result, "  \"path_type\": \"%s\",\n",
-               end->minMax(this)->to_string().c_str());
+  result += "  \"type\": \"";
+  result += end->typeName();
+  result += "\",\n";
+
+  result += "  \"path_group\": \"";
+  result += end->pathGroup()->name();
+  result += "\",\n";
+
+  result += "  \"path_type\": \"";
+  result += end->minMax(this)->to_string();
+  result += "\",\n";  
 
   PathExpanded expanded(end->path(), this);
   const Pin *startpoint = expanded.startPath()->vertex(this)->pin();
@@ -1269,7 +1275,7 @@ ReportPath::reportSlackOnly(const PathEnd *end) const
 {
   std::string line;
   const EarlyLate *early_late = end->pathEarlyLate(this);
-  reportDescription(end->pathGroup()->name(), line);
+  reportDescription(end->pathGroup()->name().c_str(), line);
   if (end->isUnconstrained())
     reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, line);
   else

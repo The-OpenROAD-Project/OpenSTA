@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "SearchClass.hh"
 #include "PathEnd.hh"
 #include "CheckMinPulseWidths.hh"
@@ -49,7 +49,7 @@ public:
   virtual ~ReportPath();
   ReportPathFormat pathFormat() const { return format_; }
   void setPathFormat(ReportPathFormat format);
-  void setReportFieldOrder(StringSeq *field_names);
+  void setReportFieldOrder(const StringSeq &field_names);
   void setReportFields(bool report_input_pin,
                        bool report_hier_pins,
                        bool report_net,

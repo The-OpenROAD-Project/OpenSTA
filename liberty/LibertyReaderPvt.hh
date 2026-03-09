@@ -24,13 +24,13 @@
 
 #pragma once
 
+#include <cstdarg>
 #include <functional>
 #include <memory>
 #include <array>
 #include <vector>
 #include <unordered_map>
 
-#include "StringSeq.hh"
 #include "StringUtil.hh"
 #include "MinMax.hh"
 #include "NetworkClass.hh"
@@ -101,7 +101,7 @@ public:
 
   LibertyPort *findPort(LibertyCell *cell,
                         const char *port_name);
-  StdStringSeq findAttributStrings(const LibertyGroup *group,
+  StringSeq findAttributStrings(const LibertyGroup *group,
                                    const char *name_attr);
 
 protected:
@@ -132,6 +132,7 @@ protected:
                           const char *group_name,
                           TableTemplateType type);
   void readThresholds(const LibertyGroup *library_group);
+  void checkThresholds(const LibertyGroup *library_group) const;
   TableAxisPtr makeTableTemplateAxis(const LibertyGroup *template_group,
                                      int axis_index);
   void readVoltateMaps(const LibertyGroup *library_group);
@@ -401,9 +402,9 @@ protected:
 
   float defaultCap(LibertyPort *port);
   void visitPorts(std::function<void (LibertyPort *port)> func);
-  StateInputValues parseStateInputValues(StdStringSeq &inputs,
+  StateInputValues parseStateInputValues(StringSeq &inputs,
                                          const LibertySimpleAttr *attr);
-  StateInternalValues parseStateInternalValues(StdStringSeq &states,
+  StateInternalValues parseStateInternalValues(StringSeq &states,
                                                const LibertySimpleAttr *attr);
 
   void getAttrInt(const LibertySimpleAttr *attr,
@@ -445,36 +446,36 @@ protected:
                       const LibertyCell *cell,
                       int line);
   void libWarn(int id,
-               const LibertyGroup *obj,
+               const LibertyGroup *group,
                const char *fmt,
-               ...)
+               ...) const
     __attribute__((format (printf, 4, 5)));
   void libWarn(int id,
-               const LibertySimpleAttr *obj,
+               const LibertySimpleAttr *attr,
                const char *fmt,
-               ...)
+               ...) const
     __attribute__((format (printf, 4, 5)));
   void libWarn(int id,
-               const LibertyComplexAttr *obj,
+               const LibertyComplexAttr *attr,
                const char *fmt,
-               ...)
+               ...) const
     __attribute__((format (printf, 4, 5)));
   void libWarn(int id,
                int line,
                const char *fmt,
-               ...)
+               ...) const
     __attribute__((format (printf, 4, 5)));
   void libError(int id,
-                const LibertyGroup *obj,
-                const char *fmt, ...)
+                const LibertyGroup *group,
+                const char *fmt, ...) const
     __attribute__((format (printf, 4, 5)));
   void libError(int id,
-                const LibertySimpleAttr *obj,
-                const char *fmt, ...)
+                const LibertySimpleAttr *attr,
+                const char *fmt, ...) const
     __attribute__((format (printf, 4, 5)));
   void libError(int id,
-                const LibertyComplexAttr *obj,
-                const char *fmt, ...)
+                const LibertyComplexAttr *attr,
+                const char *fmt, ...) const
     __attribute__((format (printf, 4, 5)));
 
   const char *filename_;
@@ -485,7 +486,6 @@ protected:
   LibertyBuilder builder_;
   LibertyVariableMap var_map_;
   LibertyLibrary *library_;
-  bool first_cell_;
   LibraryGroupVisitorMap group_begin_map_;
   LibraryGroupVisitorMap group_end_map_;
 
@@ -516,8 +516,8 @@ public:
                       LibertyReader *visitor,
                       int line);
   ~PortNameBitIterator();
-  virtual bool hasNext();
-  virtual LibertyPort *next();
+  bool hasNext() override;
+  LibertyPort *next() override;
   unsigned size() const { return size_; }
 
 protected:

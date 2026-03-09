@@ -878,7 +878,7 @@ Genclks::recordSrcPaths(Clock *gclk)
           debugPrint(debug_, "genclk", 2, "  %s insertion %s %s %s",
                      network_->pathName(gclk_pin),
                      early_late->to_string().c_str(),
-                     rf->to_string().c_str(),
+                     rf->shortName(),
                      delayAsString(path->arrival(), this));
           src_path = *path;
         }

@@ -28,12 +28,14 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <set>
 
 #include "Machine.hh" // __attribute__
 
 namespace sta {
 
-using StdStringSeq = std::vector<std::string>;
+using StringSeq = std::vector<std::string>;
+using StringSet = std::set<std::string>;
 
 inline bool
 stringEq(const char *str1,
@@ -204,7 +206,7 @@ void
 trimRight(std::string &str);
 
 // Spit text into delimiter separated tokens and skip whitepace.
-StdStringSeq
+StringSeq
 parseTokens(const std::string &s,
             const char delimiter);
 

@@ -29,7 +29,6 @@
 #include <map>
 
 #include "VectorMap.hh"
-#include "StringSet.hh"
 #include "MinMaxValues.hh"
 #include "Delay.hh"
 #include "NetworkClass.hh"

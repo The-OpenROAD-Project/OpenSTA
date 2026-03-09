@@ -41,7 +41,6 @@ enum class PwrActivityOrigin
  propagated,
  clock,
  constant,
- defaulted,
  unknown
 };
 
