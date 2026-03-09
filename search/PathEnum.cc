@@ -91,7 +91,7 @@ DiversionGreater::operator()(Diversion *div1,
 {
   PathEnd *path_end1 = div1->pathEnd();
   PathEnd *path_end2 = div2->pathEnd();
-  return PathEnd::cmp(path_end1, path_end2, sta_) > 0;
+  return PathEnd::cmp(path_end1, path_end2, true, sta_) > 0;
 }
 
 static void

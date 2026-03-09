@@ -2030,32 +2030,22 @@ PathEndPathDelay::exceptPathCmp(const PathEnd *path_end,
 
 ////////////////////////////////////////////////////////////////
 
-PathEndLess::PathEndLess(const StaState *sta) :
-  sta_(sta)
-{
-}
-
-bool
-PathEndLess::operator()(const PathEnd *path_end1,
-                        const PathEnd *path_end2) const
-{
-  return PathEnd::less(path_end1, path_end2, sta_);
-}
-
 bool
 PathEnd::less(const PathEnd *path_end1,
               const PathEnd *path_end2,
+              bool cmp_slack,
               const StaState *sta)
 {
-  return cmp(path_end1, path_end2, sta) < 0;
+  return cmp(path_end1, path_end2, cmp_slack, sta) < 0;
 }
 
 int
 PathEnd::cmp(const PathEnd *path_end1,
              const PathEnd *path_end2,
+             bool cmp_slack,
              const StaState *sta)
 {
-  int cmp = path_end1->isUnconstrained()
+  int cmp = !cmp_slack || path_end1->isUnconstrained()
     ? -cmpArrival(path_end1, path_end2, sta)
     : cmpSlack(path_end1, path_end2, sta);
   if (cmp == 0) {
@@ -2139,7 +2129,25 @@ PathEnd::cmpNoCrpr(const PathEnd *path_end1,
 
 ////////////////////////////////////////////////////////////////
 
-PathEndSlackLess::PathEndSlackLess(const StaState *sta) :
+PathEndLess::PathEndLess(bool cmp_slack,
+                         const StaState *sta) :
+  cmp_slack_(cmp_slack),
+  sta_(sta)
+{
+}
+
+bool
+PathEndLess::operator()(const PathEnd *path_end1,
+                        const PathEnd *path_end2) const
+{
+  return PathEnd::less(path_end1, path_end2, cmp_slack_, sta_);
+}
+
+////////////////////////////////////////////////////////////////
+
+PathEndSlackLess::PathEndSlackLess(bool cmp_slack,
+                                   const StaState *sta) :
+  cmp_slack_(cmp_slack),
   sta_(sta)
 {
 }
