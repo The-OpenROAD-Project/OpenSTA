@@ -77,9 +77,9 @@ public:
   void remove(Vertex *vertex);
   void reportEntries() const;
 
-  virtual bool hasNext();
+  bool hasNext() override;
   bool hasNext(Level to_level);
-  virtual Vertex *next();
+  Vertex *next() override;
 
   // Apply visitor to all vertices in the queue in level order.
   // Returns the number of vertices that are visited.
@@ -131,19 +131,19 @@ public:
 		 SearchPred *search_pred,
 		 StaState *sta);
   virtual ~BfsFwdIterator();
-  virtual void enqueueAdjacentVertices(Vertex *vertex,
-                                       SearchPred *search_pred);
-  virtual void enqueueAdjacentVertices(Vertex *vertex,
-				       SearchPred *search_pred,
-                                       const Mode *mode);
+  void enqueueAdjacentVertices(Vertex *vertex,
+                              SearchPred *search_pred) override;
+  void enqueueAdjacentVertices(Vertex *vertex,
+			       SearchPred *search_pred,
+                               const Mode *mode) override;
   using BfsIterator::enqueueAdjacentVertices;
 
 protected:
-  virtual bool levelLessOrEqual(Level level1,
-				Level level2) const;
-  virtual bool levelLess(Level level1,
-			 Level level2) const;
-  virtual void incrLevel(Level &level) const;
+  bool levelLessOrEqual(Level level1,
+			Level level2) const override;
+  bool levelLess(Level level1,
+		 Level level2) const override;
+  void incrLevel(Level &level) const override;
 };
 
 class BfsBkwdIterator : public BfsIterator
@@ -153,19 +153,19 @@ public:
 		  SearchPred *search_pred,
 		  StaState *sta);
   virtual ~BfsBkwdIterator();
-  virtual void enqueueAdjacentVertices(Vertex *vertex,
-                                       SearchPred *search_pred);
-  virtual void enqueueAdjacentVertices(Vertex *vertex,
-				       SearchPred *search_pred,
-                                       const Mode *mode);
+  void enqueueAdjacentVertices(Vertex *vertex,
+                              SearchPred *search_pred) override;
+  void enqueueAdjacentVertices(Vertex *vertex,
+			       SearchPred *search_pred,
+                               const Mode *mode) override;
   using BfsIterator::enqueueAdjacentVertices;
 
 protected:
-  virtual bool levelLessOrEqual(Level level1,
-				Level level2) const;
-  virtual bool levelLess(Level level1,
-			 Level level2) const;
-  virtual void incrLevel(Level &level) const;
+  bool levelLessOrEqual(Level level1,
+			Level level2) const override;
+  bool levelLess(Level level1,
+		 Level level2) const override;
+  void incrLevel(Level &level) const override;
 };
 
 } // namespace

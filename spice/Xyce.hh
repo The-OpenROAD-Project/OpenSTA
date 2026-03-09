@@ -37,7 +37,7 @@ using WaveformSeq = std::vector<Table>;
 void
 readXyceCsv(const char *csv_filename,
             // Return values.
-            StdStringSeq &titles,
+            StringSeq &titles,
             WaveformSeq &waveforms);
 
 } // namespace

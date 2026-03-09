@@ -29,10 +29,12 @@
 #include <map>
 #include <mutex>
 
+#include "BoundedHeap.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
 #include "SearchClass.hh"
 #include "StringUtil.hh"
+#include "PathEnd.hh"
 
 namespace sta {
 
@@ -48,7 +50,6 @@ using PathGroupSeq = std::vector<PathGroup*>;
 class PathGroup
 {
 public:
-  ~PathGroup();
   // Path group that compares compare slacks.
   static PathGroup *makePathGroupArrival(const char *name,
                                          int group_path_count,
@@ -66,9 +67,9 @@ public:
                                        float min_slack,
                                        float max_slack,
                                        const StaState *sta);
-  const char *name() const { return name_.c_str(); }
+  const std::string &name() const { return name_; }
   const MinMax *minMax() const { return min_max_;}
-  const PathEndSeq &pathEnds() const { return path_ends_; }
+  PathEndSeq pathEnds() const;
   void insert(PathEnd *path_end);
   // Push group_path_count into path_ends.
   void pushEnds(PathEndSeq &path_ends);
@@ -76,15 +77,14 @@ public:
   bool saveable(PathEnd *path_end);
   bool enumMinSlackUnderMin(PathEnd *path_end);
   int maxPaths() const { return group_path_count_; }
-  PathEndSeq &pathEnds() { return path_ends_; }
   // This does NOT delete the path ends.
   void clear();
-  static size_t group_path_count_max;
+  static int group_path_count_max;
   
 protected:
   PathGroup(const char *name,
-            size_t group_path_count,
-            size_t endpoint_path_count,
+            int group_path_count,
+            int endpoint_path_count,
             bool unique_pins,
             bool unique_edges,
             float min_slack,
@@ -92,21 +92,17 @@ protected:
             bool cmp_slack,
             const MinMax *min_max,
             const StaState *sta);
-  void ensureSortedMaxPaths();
-  void prune();
-  void sort();
 
   std::string name_;
-  size_t group_path_count_;
-  size_t endpoint_path_count_;
+  int group_path_count_;
+  int endpoint_path_count_;
   bool unique_pins_;
   bool unique_edges_;
   float slack_min_;
   float slack_max_;
-  PathEndSeq path_ends_;
   const MinMax *min_max_;
-  bool compare_slack_;
-  float threshold_;
+  bool cmp_slack_;
+  BoundedHeap<PathEnd*, PathEndLess> heap_;
   std::mutex lock_;
   const StaState *sta_;
 };
@@ -120,7 +116,7 @@ public:
              bool unique_edges,
              float slack_min,
              float slack_max,
-             StdStringSeq &group_names,
+             StringSeq &group_names,
              bool setup,
              bool hold,
              bool recovery,
@@ -144,7 +140,7 @@ public:
   PathGroup *findPathGroup(const Clock *clock,
                            const MinMax *min_max) const;
   PathGroupSeq pathGroups(const PathEnd *path_end) const;
-  static StdStringSeq pathGroupNames(const PathEnd *path_end,
+  static StringSeq pathGroupNames(const PathEnd *path_end,
                                      const StaState *sta);
   static const char *asyncPathGroupName() { return async_group_name_; }
   static const char *pathDelayGroupName() { return  path_delay_group_name_; }
@@ -184,17 +180,17 @@ protected:
                   bool unique_edges,
                   float slack_min,
                   float slack_max,
-                  StdStringSet &group_names,
+                  StringSet &group_names,
                   bool setup_hold,
                   bool async,
                   bool gated_clk,
                   bool unconstrained,
                   const MinMax *min_max);
   bool reportGroup(const char *group_name,
-                   StdStringSet &group_names) const;
+                   StringSet &group_names) const;
   static GroupPath *groupPathTo(const PathEnd *path_end,
                                 const StaState *sta);
-  StdStringSeq pathGroupNames();
+  StringSeq pathGroupNames();
 
   const Mode *mode_;
   int group_path_count_;

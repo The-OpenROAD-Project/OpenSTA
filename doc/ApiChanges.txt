@@ -40,7 +40,7 @@ StaState::clk_network__ moved to Mode
 StaState::parasitics_  moved to Scene
 
 Sta::findPathEnds group_paths arg has been changed from PathGroupNameSet*
-to StdStringSeq&.
+to StringSeq&.
 
 Sta::isClock has been removed. Use mode->clkNetwork()->isClock instead.
 

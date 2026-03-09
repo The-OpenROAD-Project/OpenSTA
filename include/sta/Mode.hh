@@ -71,7 +71,7 @@ public:
                              bool unique_edges,
                              float min_slack,
                              float max_slack,
-                             StdStringSeq &group_names,
+                             StringSeq &group_names,
                              bool setup,
                              bool hold,
                              bool recovery,

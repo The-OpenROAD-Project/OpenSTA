@@ -1221,8 +1221,8 @@ class LeafInstanceIterator1 : public LeafInstanceIterator
 public:
   LeafInstanceIterator1(const Instance *inst,
                         const Network *network);
-  bool hasNext() { return next_; }
-  Instance *next();
+  bool hasNext() override { return next_; }
+  Instance *next() override;
 
 private:
   void nextInst();
@@ -1366,8 +1366,8 @@ class ConnectedPinIterator1 : public ConnectedPinIterator
 public:
   ConnectedPinIterator1(PinSet *pins);
   virtual ~ConnectedPinIterator1();
-  virtual bool hasNext();
-  virtual const Pin *next();
+  bool hasNext() override;
+  const Pin *next() override;
 
 protected:
   PinSet *pins_;

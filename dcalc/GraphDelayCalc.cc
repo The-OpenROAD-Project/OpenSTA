@@ -604,7 +604,7 @@ GraphDelayCalc::findInputDriverDelay(const LibertyCell *drvr_cell,
 {
   debugPrint(debug_, "delay_calc", 2, "  driver cell %s %s",
              drvr_cell->name(),
-             rf->to_string().c_str());
+             rf->shortName());
   for (TimingArcSet *arc_set : drvr_cell->timingArcSets(from_port, to_port)) {
     for (TimingArc *arc : arc_set->arcs()) {
       if (arc->toEdge()->asRiseFall() == rf) {
@@ -1114,8 +1114,7 @@ GraphDelayCalc::makeArcDcalcArgs(Vertex *drvr_vertex,
       const Pin *from_pin = from_vertex->pin();
       const RiseFall *from_rf = arc1->fromEdge()->asRiseFall();
       const RiseFall *drvr_rf = arc1->toEdge()->asRiseFall();
-      Slew in_slew = edgeFromSlew(from_vertex, from_rf, edge1, scene, min_max);
-      in_slew = edgeFromSlew(from_vertex, from_rf, edge1, scene, min_max);
+      const Slew in_slew = edgeFromSlew(from_vertex, from_rf, edge1, scene, min_max);
 
       const Pin *drvr_pin1 = drvr_vertex1->pin();
       float load_cap;
@@ -1694,7 +1693,7 @@ GraphDelayCalc::reportDelayCalc(const Edge *edge,
                                                  related_out_cap, scene, min_max, digits);
     }
     else {
-      const Slew &from_slew = edgeFromSlew(from_vertex, from_rf, edge, scene, min_max);
+      const Slew from_slew = edgeFromSlew(from_vertex, from_rf, edge, scene, min_max);
       const Parasitic *to_parasitic;
       float load_cap;
       parasiticLoad(to_pin, to_rf, scene, min_max, nullptr, arc_delay_calc_,

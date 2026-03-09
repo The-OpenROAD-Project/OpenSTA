@@ -285,7 +285,7 @@ VerilogReader::makeCellPorts(Cell *cell,
                              VerilogModule *module,
                              VerilogNetSeq *ports)
 {
-  StdStringSet port_names;
+  StringSet port_names;
   for (VerilogNet *mod_port : *ports) {
     const std::string &port_name = mod_port->name();
     if (!port_names.contains(port_name)) {
@@ -335,7 +335,7 @@ void
 VerilogReader::makeNamedPortRefCellPorts(Cell *cell,
                                          VerilogModule *module,
                                          VerilogNet *mod_port,
-                                         StdStringSet &port_names)
+                                         StringSet &port_names)
 {
   PortSeq *member_ports = new PortSeq;
   VerilogNetNameIterator *net_name_iter = mod_port->nameIterator(module,this);
@@ -535,7 +535,7 @@ VerilogReader::makeModuleInst(const std::string *module_vname,
   if (liberty_cell
       && hasScalarNamedPortRefs(liberty_cell, pins)) {
     const int port_count = liberty_cell->portBitCount();
-    StdStringSeq net_names(port_count);
+    StringSeq net_names(port_count);
     for (VerilogNet *vnet : *pins) {
       VerilogNetPortRefScalarNet *vpin =
         dynamic_cast<VerilogNetPortRefScalarNet*>(vnet);
@@ -805,7 +805,7 @@ VerilogModule::~VerilogModule()
 void
 VerilogModule::parseStmts(VerilogReader *reader)
 {
-  StdStringSet inst_names;
+  StringSet inst_names;
   for (VerilogStmt *stmt : *stmts_) {
     if (stmt->isDeclaration())
       parseDcl(dynamic_cast<VerilogDcl*>(stmt), reader);
@@ -861,7 +861,7 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
 // expansion so errors are only reported once.
 void
 VerilogModule::checkInstanceName(VerilogInst *inst,
-                                 StdStringSet &inst_names,
+                                 StringSet &inst_names,
                                  VerilogReader *reader)
 {
   std::string inst_name = inst->instanceName();
@@ -953,7 +953,7 @@ VerilogModuleInst::namedPins()
 
 VerilogLibertyInst::VerilogLibertyInst(LibertyCell *cell,
                                        const std::string &inst_name,
-                                       const StdStringSeq &net_names,
+                                       const StringSeq &net_names,
                                        VerilogAttrStmtSeq *attr_stmts,
                                        const int line) :
   VerilogInst(inst_name, attr_stmts, line),
@@ -1080,8 +1080,8 @@ VerilogAssign::~VerilogAssign()
 class VerilogNullNetNameIterator : public VerilogNetNameIterator
 {
 public:
-  virtual bool hasNext() { return false; }
-  virtual const std::string &next();
+  bool hasNext() override { return false; }
+  const std::string &next() override;
 };
 
 const std::string &
@@ -1095,8 +1095,8 @@ class VerilogOneNetNameIterator : public VerilogNetNameIterator
 {
 public:
   VerilogOneNetNameIterator(const std::string &name);
-  virtual bool hasNext();
-  virtual const std::string &next();
+  bool hasNext() override;
+  const std::string &next() override;
 
 protected:
   std::string name_;
@@ -1128,8 +1128,8 @@ public:
   VerilogBusNetNameIterator(const std::string bus_name,
                             int from_index,
                             int to_index);
-  virtual bool hasNext();
-  virtual const std::string &next();
+  bool hasNext() override;
+  const std::string &next() override;
 
 protected:
   const std::string bus_name_;
@@ -1182,8 +1182,8 @@ public:
   VerilogConstantNetNameIterator(VerilogConstantValue *value,
                                  const std::string &zero,
                                  const std::string &one);
-  virtual bool hasNext();
-  virtual const std::string &next();
+  bool hasNext() override;
+  const std::string &next() override;
 
 private:
   VerilogConstantValue *value_;
@@ -1222,8 +1222,8 @@ public:
                                VerilogModule *module,
                                VerilogReader *reader);
   virtual ~VerilogNetConcatNameIterator();
-  virtual bool hasNext();
-  virtual const std::string &next();
+  bool hasNext() override;
+  const std::string &next() override;
 
 private:
   VerilogModule *module_;
@@ -2008,7 +2008,7 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
       network_->setAttribute(inst, entry->key(), entry->value());
     }
   }
-  const StdStringSeq &net_names = lib_inst->netNames();
+  const StringSeq &net_names = lib_inst->netNames();
   LibertyCellPortBitIterator port_iter(lib_cell);
   while (port_iter.hasNext()) {
     LibertyPort *port = port_iter.next();
