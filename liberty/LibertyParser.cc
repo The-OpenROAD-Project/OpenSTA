@@ -324,6 +324,24 @@ LibertyGroup::clear()
   deleteContents(variables_);
 }
 
+bool
+LibertyGroup::empty() const
+{
+  return subgroups_.empty()
+    && simple_attr_map_.empty()
+    && complex_attr_map_.empty()
+    && define_map_.empty();
+}
+
+bool
+LibertyGroup::oneGroupOnly() const
+{
+  return subgroups_.size() == 1
+    && simple_attr_map_.empty()
+    && complex_attr_map_.empty()
+    && define_map_.empty();
+}
+
 void
 LibertyGroup::addSubgroup(LibertyGroup *subgroup)
 {

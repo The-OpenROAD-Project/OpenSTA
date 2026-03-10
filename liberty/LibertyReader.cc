@@ -151,7 +151,8 @@ LibertyReader::endLibrary(const LibertyGroup *library_group,
                           LibertyGroup *)
 {
   // If a library has no cells endCell is not called.
-  readLibraryAttributes(library_group);
+  if (!library_group->empty())
+    readLibraryAttributes(library_group);
   checkThresholds(library_group);
   delete library_group;
 }
@@ -166,7 +167,8 @@ LibertyReader::endCell(const LibertyGroup *cell_group,
   // Normally they are all defined by the first cell, but there
   // are libraries that define table templates and bus tyupes
   // between cells.
-  readLibraryAttributes(library_group);
+  if (!library_group->oneGroupOnly())
+    readLibraryAttributes(library_group);
 
   const char *name = cell_group->firstName();
   if (name) {

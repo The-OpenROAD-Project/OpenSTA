@@ -127,6 +127,8 @@ public:
                int line);
   ~LibertyGroup();
   void clear();
+  bool empty() const;
+  bool oneGroupOnly() const;
   const std::string &type() const { return type_; }
   const LibertyAttrValueSeq &params() const { return params_; }
   // First param as a string.
