@@ -1,0 +1,13 @@
+Find b1/out2: b1/out2
+Find b2/out2: b2/out2
+Net b2/out2
+ Pin capacitance: 0.00
+ Wire capacitance: 0.00
+ Total capacitance: 0.00
+ Number of drivers: 1
+ Number of loads: 0
+ Number of pins: 1
+
+Driver pins
+ b2/u3/Y output (BUFx2_ASAP7_75t_R)
+
