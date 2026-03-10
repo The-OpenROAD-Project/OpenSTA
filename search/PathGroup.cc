@@ -105,6 +105,12 @@ PathGroup::PathGroup(const char *name,
 {
 }
 
+PathGroup::~PathGroup()
+{
+  PathEndSeq path_ends = heap_.extract();
+  deleteContents(path_ends);
+}
+
 PathEndSeq
 PathGroup::pathEnds() const
 {
@@ -170,15 +176,20 @@ void
 PathGroup::insert(PathEnd *path_end)
 {
   LockGuard lock(lock_);
-  heap_.insert(path_end);
-  path_end->setPathGroup(this);
+  auto [inserted, displaced] = heap_.insert(path_end);
+  if (inserted)
+    path_end->setPathGroup(this);
+  else
+    delete path_end;
+  if (displaced)
+    delete *displaced;
 }
 
 void
 PathGroup::pushEnds(PathEndSeq &path_ends)
 {
   if (!heap_.empty()) {
-    PathEndSeq ends = heap_.extract();
+    PathEndSeq ends = heap_.contents();
     path_ends.reserve(path_ends.size() + ends.size());
     // Append heap path ends to path_ends.
     path_ends.insert(path_ends.end(),

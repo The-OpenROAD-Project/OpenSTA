@@ -67,6 +67,7 @@ public:
                                        float min_slack,
                                        float max_slack,
                                        const StaState *sta);
+  ~PathGroup();
   const std::string &name() const { return name_; }
   const MinMax *minMax() const { return min_max_;}
   PathEndSeq pathEnds() const;
