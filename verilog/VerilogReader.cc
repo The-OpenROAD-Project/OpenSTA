@@ -1221,7 +1221,7 @@ public:
   VerilogNetConcatNameIterator(VerilogNetSeq *nets,
                                VerilogModule *module,
                                VerilogReader *reader);
-  virtual ~VerilogNetConcatNameIterator();
+  ~VerilogNetConcatNameIterator() override;
   bool hasNext() override;
   const std::string &next() override;
 
