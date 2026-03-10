@@ -497,7 +497,6 @@ Sta::sta()
 
 Sta::~Sta()
 {
-  delete variables_;
   // Verilog modules refer to the network in the sta so it has
   // to deleted before the network.
   delete verilog_reader_;
@@ -526,6 +525,7 @@ Sta::~Sta()
   delete power_;
   delete equiv_cells_;
   delete dispatch_queue_;
+  delete variables_;
   deleteContents(parasitics_name_map_);
   deleteContents(modes_);
   deleteContents(scenes_);
