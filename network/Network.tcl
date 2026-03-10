@@ -147,22 +147,8 @@ define_cmd_args "report_net" {[-scene scene] [-digits digits]\
 proc_redirect report_net {
   global sta_report_default_digits
 
-  parse_key_args "report_net" args keys {-corner -scene -digits} \
-    flags {-connections -verbose -hier_pins}
+  parse_key_args "report_net" args keys {-corner -scene -digits} flags {}
   check_argc_eq1 "report_net" $args
-
-  if { [info exists flags(-connections)] } {
-    # deprecated 2024-01-17
-    sta_warn 235 "report_net -connections is deprecated."
-  }
-  if { [info exists flags(-verbose)] } {
-    # deprecated 2024-01-17
-    sta_warn 236 "report_net -verbose is deprecated."
-  }
-  if { [info exists flags(-hier_pins)] } {
-    # deprecated 2024-01-17
-    sta_warn 237 "report_net -hier_pins is deprecated."
-  }
 
   set scene [parse_scene_or_default keys]
   set digits $sta_report_default_digits

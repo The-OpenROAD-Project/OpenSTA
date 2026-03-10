@@ -1694,13 +1694,6 @@ NetworkEdit::NetworkEdit() :
 {
 }
 
-void
-NetworkEdit::connectPin(Pin *pin,
-                        Net *net)
-{
-  connect(instance(pin), port(pin), net);
-}
-
 ////////////////////////////////////////////////////////////////
 
 NetworkConstantPinIterator::
