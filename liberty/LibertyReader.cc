@@ -986,6 +986,8 @@ LibertyReader::readCell(LibertyCell *cell,
 
   // Make ff/latch output ports.
   makeSequentials(cell, cell_group);
+  // Test cell ports may be referenced by a statetable.
+  readTestCell(cell, cell_group);
 
   readCellAttributes(cell, cell_group);
 
@@ -999,8 +1001,6 @@ LibertyReader::readCell(LibertyCell *cell,
     makeTimingArcs(cell, ports, port_group);
     readInternalPowerGroups(cell, ports, port_group);
   }
-
-  readTestCell(cell, cell_group);
 
   cell->finish(infer_latches_, report_, debug_);
 }
@@ -2966,6 +2966,9 @@ LibertyReader::readStatetable(LibertyCell *cell,
       LibertyPortSeq input_port_ptrs;
       for (const std::string &input : input_ports) {
         LibertyPort *port = cell->findLibertyPort(input.c_str());
+        if (port == nullptr
+            && cell->testCell())
+          port = cell->testCell()->findLibertyPort(input.c_str());
         if (port)
           input_port_ptrs.push_back(port);
         else
