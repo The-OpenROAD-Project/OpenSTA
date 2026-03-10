@@ -178,14 +178,23 @@ genrule(
     name = "StaConfig",
     srcs = [],
     outs = ["include/sta/StaConfig.hh"],
-    cmd = """echo -e '
-    #pragma once
-    #define STA_VERSION "2.7.0"
-    #define STA_GIT_SHA1 "f21d4a3878e2531e3af4930818d9b5968aad9416"
-    #define SSTA 0
-    #define ZLIB_FOUND
-    #define HAVE_CXX_STD_FORMAT 1' > \"$@\"
+    cmd = """
+        SHA1=""
+        if [ -f bazel-out/stable-status.txt ]; then
+            SHA1=$$(grep '^STABLE_STA_GIT_SHA1 ' bazel-out/stable-status.txt \
+                     | cut -d' ' -f2-) || true
+        fi
+        [ -z "$$SHA1" ] && SHA1="unknown"
+        printf '#pragma once\\n' > $@
+        printf '#define STA_VERSION "3.1.0"\\n' >> $@
+        printf '#define STA_GIT_SHA1 "%s"\\n' "$$SHA1" >> $@
+        printf '#define SSTA 0\\n' >> $@
+        printf '#define ZLIB_FOUND\\n' >> $@
+        printf '#define HAVE_CXX_STD_FORMAT 1\\n' >> $@
     """,
+    # stamp = -1: only stamps with --stamp (or --config=release).
+    # Without --stamp, STA_GIT_SHA1 will be "unknown".
+    stamp = -1,
     visibility = ["//:__subpackages__"],
 )
 
