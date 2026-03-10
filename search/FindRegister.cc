@@ -322,9 +322,9 @@ public:
                        const Mode *mode);
 
 private:
-  virtual void visitReg(Instance *inst);
-  virtual void visitSequential(Instance *inst,
-                               const Sequential *seq);
+  void visitReg(Instance *inst) override;
+  void visitSequential(Instance *inst,
+                       const Sequential *seq) override;
 
   InstanceSet regs_;
 };
@@ -383,9 +383,9 @@ public:
                   const Mode *mode);
 
 protected:
-  virtual void visitReg(Instance *inst);
-  virtual void visitSequential(Instance *inst,
-                               const Sequential *seq);
+  void visitReg(Instance *inst) override;
+  void visitSequential(Instance *inst,
+                       const Sequential *seq) override;
   virtual bool matchPin(Pin *pin);
   void visitExpr(FuncExpr *expr,
                  Instance *inst,
@@ -461,9 +461,9 @@ public:
   FindRegDataPins(const StaState *sta);
 
 private:
-  virtual bool matchPin(Pin *pin);
-  virtual FuncExpr *seqExpr1(const Sequential *seq);
-  virtual FuncExpr *seqExpr2(const Sequential *seq);
+  bool matchPin(Pin *pin) override;
+  FuncExpr *seqExpr1(const Sequential *seq) override;
+  FuncExpr *seqExpr2(const Sequential *seq) override;
 };
 
 FindRegDataPins::FindRegDataPins(const StaState *sta) :
@@ -528,9 +528,9 @@ public:
   FindRegClkPins(const StaState *sta);
 
 private:
-  virtual bool matchPin(Pin *pin);
-  virtual FuncExpr *seqExpr1(const Sequential *seq);
-  virtual FuncExpr *seqExpr2(const Sequential *seq);
+  bool matchPin(Pin *pin) override;
+  FuncExpr *seqExpr1(const Sequential *seq) override;
+  FuncExpr *seqExpr2(const Sequential *seq) override;
 };
 
 FindRegClkPins::FindRegClkPins(const StaState *sta) :
@@ -586,9 +586,9 @@ public:
   FindRegAsyncPins(const StaState *sta);
 
 private:
-  virtual bool matchPin(Pin *pin);
-  virtual FuncExpr *seqExpr1(const Sequential *seq) { return seq->clear(); }
-  virtual FuncExpr *seqExpr2(const Sequential *seq) { return seq->preset(); }
+  bool matchPin(Pin *pin) override;
+  FuncExpr *seqExpr1(const Sequential *seq) override { return seq->clear(); }
+  FuncExpr *seqExpr2(const Sequential *seq) override { return seq->preset(); }
 };
 
 FindRegAsyncPins::FindRegAsyncPins(const StaState *sta) :
@@ -629,14 +629,14 @@ public:
   FindRegOutputPins(const StaState *sta);
 
 private:
-  virtual bool matchPin(Pin *pin);
-  virtual void visitSequential(Instance *inst,
-                               const Sequential *seq);
+  bool matchPin(Pin *pin) override;
+  void visitSequential(Instance *inst,
+                       const Sequential *seq) override;
   void visitOutput(LibertyPort *port,
                    Instance *inst);
   // Unused.
-  virtual FuncExpr *seqExpr1(const Sequential *seq);
-  virtual FuncExpr *seqExpr2(const Sequential *seq);
+  FuncExpr *seqExpr1(const Sequential *seq) override;
+  FuncExpr *seqExpr2(const Sequential *seq) override;
 };
 
 FindRegOutputPins::FindRegOutputPins(const StaState *sta) :

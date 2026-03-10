@@ -119,7 +119,7 @@ class ArnoldiDelayCalc : public LumpedCapDelayCalc
 {
 public:
   ArnoldiDelayCalc(StaState *sta);
-  virtual ~ArnoldiDelayCalc();
+  ~ArnoldiDelayCalc() override;
   ArcDelayCalc *copy() override;
   const char *name() const override { return "arnoldi"; }
   Parasitic *findParasitic(const Pin *drvr_pin,

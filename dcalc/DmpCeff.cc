@@ -77,7 +77,6 @@ class DmpError : public Exception
 {
 public:
   DmpError(const char *what);
-  virtual ~DmpError() {}
   virtual const char *what() const noexcept { return what_; }
 
 private:

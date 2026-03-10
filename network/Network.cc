@@ -1365,7 +1365,7 @@ class ConnectedPinIterator1 : public ConnectedPinIterator
 {
 public:
   ConnectedPinIterator1(PinSet *pins);
-  virtual ~ConnectedPinIterator1();
+  ~ConnectedPinIterator1() override;
   bool hasNext() override;
   const Pin *next() override;
 
@@ -1401,7 +1401,7 @@ class FindConnectedPins : public PinVisitor
 {
 public:
   FindConnectedPins(PinSet *pins);
-  virtual void operator()(const Pin *pin);
+  void operator()(const Pin *pin) override;
 
 protected:
   PinSet *pins_;
@@ -1572,7 +1572,7 @@ class FindDrvrPins : public PinVisitor
 public:
   FindDrvrPins(PinSet *pins,
                const Network *network);
-  virtual void operator()(const Pin *pin);
+  void operator()(const Pin *pin) override;
 
 protected:
   PinSet *pins_;

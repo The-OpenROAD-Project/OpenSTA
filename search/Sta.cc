@@ -114,9 +114,9 @@ class StaDelayCalcObserver : public DelayCalcObserver
 {
 public:
   StaDelayCalcObserver(Search *search);
-  virtual void delayChangedFrom(Vertex *vertex);
-  virtual void delayChangedTo(Vertex *vertex);
-  virtual void checkDelayChangedTo(Vertex *vertex);
+  void delayChangedFrom(Vertex *vertex) override;
+  void delayChangedTo(Vertex *vertex) override;
+  void checkDelayChangedTo(Vertex *vertex) override;
 
 private:
   Search *search_;
@@ -3390,8 +3390,8 @@ public:
                       bool include_port_paths,
                       StaState *sta);
   MinPeriodEndVisitor(const MinPeriodEndVisitor &) = default;
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
   float minPeriod() const { return min_period_; }
 
 private:

@@ -707,8 +707,8 @@ public:
                           BfsFwdIterator *insert_iter,
                           GenclkInfo *genclk_info,
                           const Mode *mode);
-  virtual VertexVisitor *copy() const;
-  virtual void visit(Vertex *vertex);
+  VertexVisitor *copy() const override;
+  void visit(Vertex *vertex) override;
 
 protected:
   GenclkSrcArrivalVisitor(Clock *gclk,

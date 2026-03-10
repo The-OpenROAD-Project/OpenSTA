@@ -236,9 +236,9 @@ class MakeEndTimingArcs : public PathEndVisitor
 public:
   MakeEndTimingArcs(Sta *sta);
   MakeEndTimingArcs(const MakeEndTimingArcs&) = default;
-  virtual ~MakeEndTimingArcs() {}
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
+  ~MakeEndTimingArcs() override {}
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
   void setInputRf(const RiseFall *input_rf);
   const ClockEdgeDelays &margins() const { return margins_; }
 

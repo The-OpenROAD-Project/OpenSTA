@@ -246,11 +246,11 @@ public:
                        bool unique_pins,
                        bool unique_edges,
                        PathEnum *path_enum);
-  virtual VertexVisitor *copy() const override;
+  VertexVisitor *copy() const override;
   void visitFaninPathsThru(Path *before_div,
                            Vertex *prev_vertex,
                            TimingArc *prev_arc);
-  virtual bool visitFromToPath(const Pin *from_pin,
+  bool visitFromToPath(const Pin *from_pin,
                                Vertex *from_vertex,
                                const RiseFall *from_rf,
                                Tag *from_tag,
@@ -277,7 +277,7 @@ private:
                  Edge *edge,
                  const Pin *to_pin,
                  Vertex *to_vertex) override;
-  virtual void visit(Vertex *) override {}  // Not used.
+  void visit(Vertex *) override {}  // Not used.
   void insertUniqueEdgeDiv(Diversion *div);
   void reportDiversion(const Edge *edge,
                        const TimingArc *div_arc,

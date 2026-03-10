@@ -38,7 +38,7 @@ public:
   ReportStd();
 
 protected:
-  virtual size_t printConsole(const char *buffer, size_t length);
+  size_t printConsole(const char *buffer, size_t length) override;
   virtual size_t printErrorConsole(const char *buffer, size_t length);
 };
 

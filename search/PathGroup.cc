@@ -601,9 +601,9 @@ class MakePathEnds1 : public PathEndVisitor
 public:
   MakePathEnds1(PathGroups *path_groups);
   MakePathEnds1(const MakePathEnds1&) = default;
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
-  virtual void vertexEnd(Vertex *vertex);
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
+  void vertexEnd(Vertex *vertex) override;
 
 private:
   void visitPathEnd(PathEnd *path_end,
@@ -676,10 +676,10 @@ public:
   MakePathEndsAll(int endpoint_path_count,
                   PathGroups *path_groups);
   MakePathEndsAll(const MakePathEndsAll&) = default;
-  virtual ~MakePathEndsAll();
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
-  virtual void vertexEnd(Vertex *vertex);
+  ~MakePathEndsAll() override;
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
+  void vertexEnd(Vertex *vertex) override;
 
 private:
   void visitPathEnd(PathEnd *path_end,
@@ -906,8 +906,8 @@ public:
                        const StaState *sta);
   MakeEndpointPathEnds(const MakeEndpointPathEnds &make_path_ends);
   ~MakeEndpointPathEnds();
-  virtual VertexVisitor *copy() const;
-  virtual void visit(Vertex *vertex);
+  VertexVisitor *copy() const override;
+  void visit(Vertex *vertex) override;
 
 private:
   VisitPathEnds visit_path_ends_;
