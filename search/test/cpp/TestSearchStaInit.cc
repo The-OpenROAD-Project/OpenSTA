@@ -1216,19 +1216,17 @@ TEST_F(StaInitTest, SetVoltage) {
 
 }
 
-#if 0 // setReportPathFieldOrder removed from API
 // Report path field order
 TEST_F(StaInitTest, SetReportPathFieldOrder) {
-  StringSeq *field_names = new StringSeq;
-  field_names->push_back("fanout");
-  field_names->push_back("capacitance");
-  field_names->push_back("slew");
-  field_names->push_back("delay");
-  field_names->push_back("time");
+  StringSeq field_names;
+  field_names.push_back("fanout");
+  field_names.push_back("capacitance");
+  field_names.push_back("slew");
+  field_names.push_back("delay");
+  field_names.push_back("time");
   sta_->setReportPathFieldOrder(field_names);
 
 }
-#endif
 
 // Sdc removeNetLoadCaps
 TEST_F(StaInitTest, SdcRemoveNetLoadCaps) {
@@ -1658,17 +1656,15 @@ TEST_F(StaInitTest, ReportPathSetReportFields) {
 
 }
 
-#if 0 // setReportFieldOrder removed from API
 TEST_F(StaInitTest, ReportPathSetFieldOrder) {
   ReportPath *rpt = sta_->reportPath();
-  StringSeq *fields = new StringSeq;
-  fields->push_back(stringCopy("fanout"));
-  fields->push_back(stringCopy("capacitance"));
-  fields->push_back(stringCopy("slew"));
+  StringSeq fields;
+  fields.push_back("fanout");
+  fields.push_back("capacitance");
+  fields.push_back("slew");
   rpt->setReportFieldOrder(fields);
 
 }
-#endif
 
 // PathEnd.cc static methods
 TEST_F(StaInitTest, PathEndTypeValues) {
