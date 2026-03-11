@@ -104,8 +104,7 @@ Tag::to_string(bool report_index,
   if (report_rf_min_max) {
     const RiseFall *rf = transition();
     const MinMax *min_max = minMax();
-    result += rf->to_string();
-    result += " ";
+    result += rf->shortName();
     result += min_max->to_string();
     result += " ";
   }

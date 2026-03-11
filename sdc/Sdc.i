@@ -1654,6 +1654,14 @@ set_propagate_all_clocks(bool prop)
   Sta::sta()->setPropagateAllClocks(prop);
 }
 
+bool
+pin_is_constrained(const Pin *pin)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  return sdc->isConstrained(pin);
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////

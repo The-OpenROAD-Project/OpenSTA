@@ -204,8 +204,8 @@ public:
                      const MinMax *min_max,
                      const StaState *sta);
   virtual ~VertexPathIterator();
-  virtual bool hasNext();
-  virtual Path *next();
+  bool hasNext() override;
+  Path *next() override;
 
 private:
   void findNext();

@@ -28,8 +28,6 @@
 
 namespace sta {
 
-using std::string;
-
 PatternMatch::PatternMatch(const char *pattern,
                            bool is_regexp,
                            bool nocase,
@@ -65,7 +63,7 @@ PatternMatch::PatternMatch(const char *pattern,
     compileRegexp();
 }
 
-PatternMatch::PatternMatch(const string &pattern,
+PatternMatch::PatternMatch(const std::string &pattern,
                            const PatternMatch *inherit_from) :
   pattern_(pattern.c_str()),
   is_regexp_(inherit_from->is_regexp_),
@@ -83,7 +81,7 @@ PatternMatch::compileRegexp()
   int flags = TCL_REG_ADVANCED;
   if (nocase_)
     flags |= TCL_REG_NOCASE;
-  string anchored_pattern;
+  std::string anchored_pattern;
   anchored_pattern += '^';
   anchored_pattern += pattern_;
   anchored_pattern += '$';
@@ -112,7 +110,7 @@ PatternMatch::hasWildcards() const
 }
 
 bool
-PatternMatch::match(const string &str) const
+PatternMatch::match(const std::string &str) const
 {
   return match(str.c_str());
 }

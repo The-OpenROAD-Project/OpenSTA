@@ -45,8 +45,6 @@
 
 namespace sta {
 
-using std::max;
-
 ConcreteParasitic::~ConcreteParasitic()
 {
 }
@@ -620,7 +618,7 @@ ConcreteParasiticNetwork::ensureParasiticNode(const Net *net,
     node = new ConcreteParasiticNode(net, id, network->highestNetAbove(net1) != net_);
     sub_nodes_[net_id] = node;
     if (net == net_)
-      max_node_id_ = max((int) max_node_id_, id);
+      max_node_id_ = std::max((int) max_node_id_, id);
   }
   else
     node = id_node->second;

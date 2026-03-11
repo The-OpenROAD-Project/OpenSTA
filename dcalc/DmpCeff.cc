@@ -32,8 +32,9 @@
 
 #include "DmpCeff.hh"
 
-#include <algorithm> // abs, min
-#include <cmath>    // sqrt, log
+#include <algorithm>
+#include <cmath>
+#include <functional>
 
 #include "Report.hh"
 #include "Debug.hh"
@@ -49,15 +50,6 @@
 #include "Variables.hh"
 
 namespace sta {
-
-using std::string;
-using std::abs;
-using std::min;
-using std::max;
-using std::sqrt;
-using std::log;
-using std::isnan;
-using std::function;
 
 // Tolerance (as a scale of value) for driver parameters (Ceff, delta t, t0).
 static const double driver_param_tol = .01;
@@ -107,7 +99,7 @@ newtonRaphson(const int max_iter,
               const int n,
               const double x_tol,
               // eval(state) is called to fill fvec and fjac.
-              function<void ()> eval,
+              std::function<void ()> eval,
               // Temporaries supplied by caller.
               double *fvec,
               double **fjac,
@@ -133,7 +125,7 @@ class DmpAlg : public StaState
 {
 public:
   DmpAlg(int nr_order, StaState *sta);
-  virtual ~DmpAlg();
+  ~DmpAlg() override = default;
   virtual const char *name() = 0;
   // Set driver model and pi model parameters for delay calculation.
   virtual void init(const LibertyLibrary *library,
@@ -164,7 +156,7 @@ public:
           // Return values.
           double &vo,
           double &dol_dt);
-  // Load responce to driver waveform.
+  // Load response to driver waveform.
   void Vl(double t,
           // Return values.
           double &vl,
@@ -296,8 +288,6 @@ DmpAlg::DmpAlg(int nr_order,
     fjac_[i] = fjac_storage_ + i * max_nr_order_;
 }
 
-DmpAlg::~DmpAlg() = default;
-
 void
 DmpAlg::init(const LibertyLibrary *drvr_library,
              const LibertyCell *drvr_cell,
@@ -337,7 +327,7 @@ DmpAlg::findDriverParams(double ceff)
   gateDelays(ceff, t_vth, t_vl, slew);
   // Scale slew to 0-100%
   double dt = slew / (vh_ - vl_);
-  double t0 = t_vth + log(1.0 - vth_) * rd_ * ceff - vth_ * dt;
+  double t0 = t_vth + std::log(1.0 - vth_) * rd_ * ceff - vth_ * dt;
   x_[DmpParam::dt] = dt;
   x_[DmpParam::t0] = t0;
   newtonRaphson(100, x_, nr_order_, driver_param_tol,
@@ -461,7 +451,7 @@ DmpAlg::showFvec()
 void
 DmpAlg::showJacobian()
 {
-  string line = "    ";
+  std::string line = "    ";
   for (int j = 0; j < nr_order_; j++)
     line += stdstrPrint("%12s", dmp_param_index_strings[j]);
   report_->reportLineString(line);
@@ -894,7 +884,7 @@ DmpPi::init(const LibertyLibrary *drvr_library,
   k0_ = 1.0 / (rd_ * c2_);
   double a = rpi_ * rd_ * c1_ * c2_;
   double b = rd_ * (c1_ + c2_) + rpi_ * c1_;
-  double sqrt_ = sqrt(b * b - 4 * a);
+  double sqrt_ = std::sqrt(b * b - 4 * a);
   p1_ = (b + sqrt_) / (2 * a);
   p2_ = (b - sqrt_) / (2 * a);
 
@@ -1282,7 +1272,7 @@ newtonRaphson(const int max_iter,
               double x[],
               const int size,
               const double x_tol,
-              function<void ()> eval,
+              std::function<void ()> eval,
               // Temporaries supplied by caller.
               double *fvec,
               double **fjac,
@@ -1300,7 +1290,7 @@ newtonRaphson(const int max_iter,
 
     bool all_under_x_tol = true;
     for (int i = 0; i < size; i++) {
-      if (abs(p[i]) > abs(x[i]) * x_tol)
+      if (std::abs(p[i]) > std::abs(x[i]) * x_tol)
         all_under_x_tol = false;
       x[i] += p[i];
     }
@@ -1334,7 +1324,7 @@ luDecomp(double **a,
   for (int i = 0; i < size; i++) {
     double big = 0.0;
     for (int j = 0; j < size; j++) {
-      double temp = abs(a[i][j]);
+      double temp = std::abs(a[i][j]);
       if (temp > big)
         big = temp;
     }
@@ -1363,7 +1353,7 @@ luDecomp(double **a,
       for (int k = 0; k < j; k++)
         sum -= a[i][k] * a[k][j];
       a[i][j] = sum;
-      double dum = scale[i] * abs(sum);
+      double dum = scale[i] * std::abs(sum);
       if (dum >= big) {
         big = dum;
         imax = i;
@@ -1507,7 +1497,7 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
     float in_slew1 = delayAsFloat(in_slew);
     float c2, rpi, c1;
     parasitics_->piModel(parasitic, c2, rpi, c1);
-    if (isnan(c2) || isnan(c1) || isnan(rpi))
+    if (std::isnan(c2) || std::isnan(c1) || std::isnan(rpi))
       report_->error(1040, "parasitic Pi model has NaNs.");
     setCeffAlgorithm(drvr_library, drvr_cell, pinPvt(drvr_pin, scene, min_max),
                      table_model, rf, in_slew1, c2, rpi, c1);
@@ -1583,7 +1573,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
              dmp_alg_->name());
 }
 
-string
+std::string
 DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                   const TimingArc *arc,
                                   const Slew &in_slew,
@@ -1598,7 +1588,7 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                           parasitic, load_pin_index_map, scene, min_max);
   GateTableModel *model = arc->gateTableModel(scene, min_max);
   float c_eff = 0.0;
-  string result;
+  std::string result;
   const LibertyCell *drvr_cell = arc->to()->libertyCell();
   const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
   const Units *units = drvr_library->units();
@@ -1653,7 +1643,8 @@ gateModelRd(const LibertyCell *cell,
   gate_model->gateDelay(pvt, in_slew, cap1, pocv_enabled, d1, s1);
   gate_model->gateDelay(pvt, in_slew, cap2, pocv_enabled, d2, s2);
   double vth = cell->libertyLibrary()->outputThreshold(rf);
-  float rd = -log(vth) * abs(delayAsFloat(d1) - delayAsFloat(d2)) / (cap2 - cap1);
+  float rd = -std::log(vth) * std::abs(delayAsFloat(d1) - delayAsFloat(d2))
+    / (cap2 - cap1);
   return rd;
 }
 

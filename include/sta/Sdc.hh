@@ -30,7 +30,6 @@
 #include <mutex>
 
 #include "StringUtil.hh"
-#include "StringSet.hh"
 #include "MinMax.hh"
 #include "StaState.hh"
 #include "NetworkClass.hh"
@@ -149,7 +148,7 @@ using ExceptionPathPtHash = std::map<size_t, ExceptionPathSet>;
 using ClockLatencies = std::set<ClockLatency*, ClockLatencyLess>;
 using EdgeClockLatencyMap = std::map<PinPair, ClockLatency*, PinPairLess>;
 using PinClockUncertaintyMap = std::map<const Pin*, ClockUncertainties*>;
-using InterClockUncertaintySet = std::set<InterClockUncertainty*, InterClockUncertaintyLess>;
+using InterClockUncertaintySet=std::set<InterClockUncertainty*,InterClockUncertaintyLess>;
 using ClockGatingCheckMap = std::map<const Clock*, ClockGatingCheck*>;
 using InstanceClockGatingCheckMap = std::map<const Instance*, ClockGatingCheck*>;
 using PinClockGatingCheckMap = std::map<const Pin*, ClockGatingCheck*>;
@@ -1306,6 +1305,7 @@ protected:
   bool clk_hpin_disables_valid_;
   PinSet propagated_clk_pins_;
   ClockLatencies clk_latencies_;
+  PinSet clk_latency_pins_;
   EdgeClockLatencyMap edge_clk_latency_map_;
   ClockInsertions clk_insertions_;
   PinClockUncertaintyMap pin_clk_uncertainty_map_;

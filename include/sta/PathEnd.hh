@@ -153,9 +153,13 @@ public:
 
   static bool less(const PathEnd *path_end1,
                    const PathEnd *path_end2,
+                   // Compare slack (if constrained), or arrival when false.
+                   bool cmp_slack,
                    const StaState *sta);
   static int cmp(const PathEnd *path_end1,
                  const PathEnd *path_end2,
+                 // Compare slack (if constrained), or arrival when false.
+                 bool cmp_slack,
                  const StaState *sta);
   static int cmpSlack(const PathEnd *path_end1,
                       const PathEnd *path_end2,
@@ -611,11 +615,13 @@ protected:
 class PathEndLess
 {
 public:
-  PathEndLess(const StaState *sta);
+  PathEndLess(bool cmp_slack,
+              const StaState *sta);
   bool operator()(const PathEnd *path_end1,
                   const PathEnd *path_end2) const;
 
 protected:
+  bool cmp_slack_;
   const StaState *sta_;
 };
 
@@ -623,11 +629,13 @@ protected:
 class PathEndSlackLess
 {
 public:
-  PathEndSlackLess(const StaState *sta);
+  PathEndSlackLess(bool cmp_slack,
+                   const StaState *sta);
   bool operator()(const PathEnd *path_end1,
                   const PathEnd *path_end2) const;
 
 protected:
+  bool cmp_slack_;
   const StaState *sta_;
 };
 

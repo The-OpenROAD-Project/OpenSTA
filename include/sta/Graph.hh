@@ -427,8 +427,8 @@ class VertexIterator : public Iterator<Vertex*>
 {
 public:
   VertexIterator(Graph *graph);
-  virtual bool hasNext() { return vertex_ || bidir_vertex_; }
-  virtual Vertex *next();
+  bool hasNext() override { return vertex_ || bidir_vertex_; }
+  Vertex *next() override;
 
 private:
   bool findNextPin();
@@ -450,8 +450,8 @@ public:
                        const Graph *graph);
   VertexInEdgeIterator(VertexId vertex_id,
                        const Graph *graph);
-  bool hasNext() { return (next_ != nullptr); }
-  Edge *next();
+  bool hasNext() override { return (next_ != nullptr); }
+  Edge *next() override;
 
 private:
   Edge *next_;
@@ -463,8 +463,8 @@ class VertexOutEdgeIterator : public VertexEdgeIterator
 public:
   VertexOutEdgeIterator(Vertex *vertex,
                         const Graph *graph);
-  bool hasNext() { return (next_ != nullptr); }
-  Edge *next();
+  bool hasNext() override { return (next_ != nullptr); }
+  Edge *next() override;
 
 private:
   Edge *next_;
@@ -478,8 +478,8 @@ public:
   EdgesThruHierPinIterator(const Pin *hpin,
                            Network *network,
                            Graph *graph);
-  virtual bool hasNext();
-  virtual Edge *next();
+  bool hasNext() override;
+  Edge *next() override;
 
 private:
   EdgeSet edges_;

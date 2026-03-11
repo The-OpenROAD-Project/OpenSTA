@@ -38,9 +38,6 @@
 
 namespace sta {
 
-using std::string;
-using std::log;
-
 DelayCalcBase::DelayCalcBase(StaState *sta) :
   ArcDelayCalc(sta)
 {
@@ -101,9 +98,9 @@ DelayCalcBase::dspfWireDelaySlew(const Pin *load_pin,
     vh = load_library->slewUpperThreshold(rf);
     slew_derate = load_library->slewDerateFromLibrary();
   }
-  wire_delay = -elmore * log(1.0 - vth);
-  load_slew = drvr_slew + elmore * log((1.0 - vl) / (1.0 - vh)) / slew_derate;
-  load_slew = drvr_slew + elmore * log((1.0 - vl) / (1.0 - vh)) / slew_derate;
+  wire_delay = -elmore * std::log(1.0 - vth);
+  load_slew = drvr_slew + elmore * std::log((1.0 - vl) / (1.0 - vh)) / slew_derate;
+  load_slew = drvr_slew + elmore * std::log((1.0 - vl) / (1.0 - vh)) / slew_derate;
 }
 
 void
@@ -173,7 +170,7 @@ DelayCalcBase::checkDelay(const Pin *check_pin,
     return delay_zero;
 }
 
-string
+std::string
 DelayCalcBase::reportCheckDelay(const Pin *check_pin,
                                 const TimingArc *arc,
                                 const Slew &from_slew,

@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
 #include "SdcClass.hh"

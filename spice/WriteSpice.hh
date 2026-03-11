@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "StaState.hh"
-#include "StringSet.hh"
+#include "StringUtil.hh"
 #include "Liberty.hh"
 #include "GraphClass.hh"
 #include "Parasitics.hh"
@@ -40,9 +40,8 @@
 namespace sta {
 
 using ParasiticNodeMap = std::map<const ParasiticNode*, int>;
-using CellSpicePortNames = std::map<std::string, StringVector>;
+using CellSpicePortNames = std::map<std::string, StringSeq>;
 using LibertyPortLogicValues = std::map<const LibertyPort*, LogicValue>;
-using StdStringSeq = std::vector<std::string>;
 
 // Utilities for writing a spice deck.
 class WriteSpice : public StaState
@@ -64,12 +63,12 @@ protected:
   void writeHeader(std::string &title,
                    float max_time,
                    float time_step);
-  void writePrintStmt(StdStringSeq &node_names);
-  void writeGnuplotFile(StdStringSeq &node_nanes);
-  void writeSubckts(StdStringSet &cell_names);
-  void findCellSubckts(StdStringSet &cell_names);
+  void writePrintStmt(StringSeq &node_names);
+  void writeGnuplotFile(StringSeq &node_nanes);
+  void writeSubckts(StringSet &cell_names);
+  void findCellSubckts(StringSet &cell_names);
   void recordSpicePortNames(const char *cell_name,
-                            StringVector &tokens);
+                            StringSeq &tokens);
   void writeSubcktInst(const Instance *inst);
   void writeSubcktInstVoltSrcs(const Instance *inst,
                                LibertyPortLogicValues &port_values,

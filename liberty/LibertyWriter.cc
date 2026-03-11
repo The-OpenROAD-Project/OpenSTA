@@ -25,7 +25,7 @@
 #include "LibertyWriter.hh"
 
 #include <cstdlib>
-#include <algorithm>
+#include <cmath>
 
 #include "Units.hh"
 #include "FuncExpr.hh"
@@ -38,8 +38,6 @@
 #include "StaState.hh"
 
 namespace sta {
-
-using std::abs;
 
 class LibertyWriter
 {
@@ -271,7 +269,7 @@ LibertyWriter::writeBusDcls()
     fprintf(stream_, "  type (\"%s\") {\n", dcl->name().c_str());
     fprintf(stream_, "    base_type : array;\n");
     fprintf(stream_, "    data_type : bit;\n");
-    fprintf(stream_, "    bit_width : %d;\n", abs(dcl->from() - dcl->to() + 1));
+    fprintf(stream_, "    bit_width : %d;\n", std::abs(dcl->from() - dcl->to() + 1));
     fprintf(stream_, "    bit_from : %d;\n", dcl->from());
     fprintf(stream_, "    bit_to : %d;\n", dcl->to());
     fprintf(stream_, "  }\n");

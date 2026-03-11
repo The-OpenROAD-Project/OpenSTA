@@ -60,7 +60,6 @@ public:
     comp_(comp),
     min_heap_comp_(comp)
   {
-    heap_.reserve(max_size);
   }
 
   // Copy constructor
@@ -107,7 +106,12 @@ public:
   setMaxSize(size_t max_size)
   {
     max_size_ = max_size;
-    heap_.reserve(max_size);
+  }
+
+  void
+  reserve(size_t size)
+  {
+    heap_.reserve(size);
   }
 
   // Insert an element into the heap.
@@ -172,8 +176,6 @@ public:
   {
     // Convert heap to sorted vector (best to worst)
     std::sort_heap(heap_.begin(), heap_.end(), min_heap_comp_);
-    // Reverse to get best first (according to user's comparison)
-    std::reverse(heap_.begin(), heap_.end());
     std::vector<T> result = std::move(heap_);
     heap_.clear();
     return result;
@@ -181,11 +183,10 @@ public:
 
   // Extract all elements sorted from best to worst (const version).
   // Creates a copy since we can't modify the heap.
-  std::vector<T> extract() const
+  std::vector<T> contents() const
   {
     std::vector<T> temp_heap = heap_;
     std::sort_heap(temp_heap.begin(), temp_heap.end(), min_heap_comp_);
-    std::reverse(temp_heap.begin(), temp_heap.end());
     return temp_heap;
   }
 
@@ -245,7 +246,7 @@ private:
     Compare comp_;
     explicit MinHeapCompare(const Compare& c) : comp_(c) {}
     bool operator()(const T& a, const T& b) const {
-      return comp_(b, a);  // Inverted: worst is at root
+      return comp_(a, b);  // comp = less puts largest at root (worst)
     }
   };
 

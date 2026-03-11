@@ -24,11 +24,11 @@
 
 #include "Transition.hh"
 
+#include <algorithm>
+
 #include "ContainerHelpers.hh"
 
 namespace sta {
-
-using std::max;
 
 const RiseFall RiseFall::rise_("rise", "^", 0);
 const RiseFall RiseFall::fall_("fall", "v", 1);
@@ -42,6 +42,15 @@ RiseFall::RiseFall(const char *name,
   short_name_(short_name),
   sdf_triple_index_(sdf_triple_index)
 {
+}
+
+const std::string &
+RiseFall::to_string(bool use_short) const
+{
+  if (use_short)
+    return short_name_;
+  else
+    return name_;
 }
 
 const RiseFall *
@@ -134,6 +143,15 @@ RiseFallBoth::RiseFallBoth(const char *name,
 {
 }
 
+const std::string &
+RiseFallBoth::to_string(bool use_short) const
+{
+  if (use_short)
+    return short_name_;
+  else
+    return name_;
+}
+
 const RiseFallBoth *
 RiseFallBoth::find(const char *tr_str)
 {
@@ -195,7 +213,7 @@ Transition::Transition(const char *name,
 {
   transition_map_[name_] = this;
   transition_map_[init_final_] = this;
-  max_index_ = max(sdf_triple_index, max_index_);
+  max_index_ = std::max(sdf_triple_index, max_index_);
 }
 
 bool

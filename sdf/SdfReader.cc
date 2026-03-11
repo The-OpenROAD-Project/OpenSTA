@@ -26,6 +26,7 @@
 
 #include <cstdarg>
 #include <cctype>
+#include <string>
 
 #include "ContainerHelpers.hh"
 #include "Zlib.hh"
@@ -44,9 +45,6 @@
 #include "sdf/SdfScanner.hh"
 
 namespace sta {
-
-using std::string;
-using std::to_string;
 
 class SdfTriple
 {
@@ -69,14 +67,14 @@ public:
               const std::string *port,
               const std::string *cond);
   ~SdfPortSpec();
-  const string *port() const { return port_; }
+  const std::string *port() const { return port_; }
   const Transition *transition() const { return tr_; }
-  const string *cond() const { return cond_; }
+  const std::string *cond() const { return cond_; }
 
 private:
   const Transition *tr_;
-  const string *port_;
-  const string *cond_;   // timing checks only
+  const std::string *port_;
+  const std::string *cond_;   // timing checks only
 };
 
 bool
@@ -162,7 +160,7 @@ SdfReader::setDivider(char divider)
 
 void
 SdfReader::setTimescale(float multiplier,
-                        const string *units)
+                        const std::string *units)
 {
   if (multiplier == 1.0
       || multiplier == 10.0
@@ -182,8 +180,8 @@ SdfReader::setTimescale(float multiplier,
 }
 
 void
-SdfReader::interconnect(const string *from_pin_name,
-                        const string *to_pin_name,
+SdfReader::interconnect(const std::string *from_pin_name,
+                        const std::string *to_pin_name,
                         SdfTripleSeq *triples)
 {
   // Ignore non-incremental annotations in incremental only mode.
@@ -225,7 +223,7 @@ SdfReader::interconnect(const string *from_pin_name,
 }
 
 void
-SdfReader::port(const string *to_pin_name,
+SdfReader::port(const std::string *to_pin_name,
                 SdfTripleSeq *triples)
 {
   // Ignore non-incremental annotations in incremental only mode.
@@ -296,13 +294,13 @@ SdfReader::setEdgeDelays(Edge *edge,
 }
 
 void
-SdfReader::setCell(const string *cell_name)
+SdfReader::setCell(const std::string *cell_name)
 {
   cell_name_ = cell_name;
 }
 
 void
-SdfReader::setInstance(const string *instance_name)
+SdfReader::setInstance(const std::string *instance_name)
 {
   if (instance_name) {
     if (*instance_name == "*") {
@@ -344,13 +342,13 @@ SdfReader::cellFinish()
 
 void
 SdfReader::iopath(SdfPortSpec *from_edge,
-                  const string *to_port_name,
+                  const std::string *to_port_name,
                   SdfTripleSeq *triples,
-                  const string *cond,
+                  const std::string *cond,
                   bool condelse)
 {
   if (instance_) {
-    const string *from_port_name = from_edge->port();
+    const std::string *from_port_name = from_edge->port();
     Cell *cell = network_->cell(instance_);
     Port *from_port = findPort(cell, from_port_name);
     Port *to_port = findPort(cell, to_port_name);
@@ -420,7 +418,7 @@ SdfReader::iopath(SdfPortSpec *from_edge,
 
 Port *
 SdfReader::findPort(const Cell *cell,
-                    const string *port_name)
+                    const std::string *port_name)
 {
   Port *port = network_->findPort(cell, port_name->c_str());
   if (port == nullptr)
@@ -437,8 +435,8 @@ SdfReader::timingCheck(const TimingRole *role,
                        SdfTriple *triple)
 {
   if (instance_) {
-    const string *data_port_name = data_edge->port();
-    const string *clk_port_name = clk_edge->port();
+    const std::string *data_port_name = data_edge->port();
+    const std::string *clk_port_name = clk_edge->port();
     Cell *cell = network_->cell(instance_);
     Port *data_port = findPort(cell, data_port_name);
     Port *clk_port = findPort(cell, clk_port_name);
@@ -515,8 +513,8 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
                               bool match_generic)
 {
   bool matched = false;
-  const string *cond_start = data_edge->cond();
-  const string *cond_end = clk_edge->cond();
+  const std::string *cond_start = data_edge->cond();
+  const std::string *cond_end = clk_edge->cond();
   // Timing check graph edges from clk to data.
   Vertex *to_vertex = graph_->pinLoadVertex(data_pin);
   // Fanin < fanout, so search for driver from load.
@@ -557,7 +555,7 @@ SdfReader::timingCheckWidth(SdfPortSpec *edge,
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)
       && instance_) {
-    const string *port_name = edge->port();
+    const std::string *port_name = edge->port();
     Cell *cell = network_->cell(instance_);
     Port *port = findPort(cell, port_name);
     if (port) {
@@ -604,8 +602,8 @@ SdfReader::timingCheckSetupHold1(SdfPortSpec *data_edge,
                                  const TimingRole *setup_role,
                                  const TimingRole *hold_role)
 {
-  const string *data_port_name = data_edge->port();
-  const string *clk_port_name = clk_edge->port();
+  const std::string *data_port_name = data_edge->port();
+  const std::string *clk_port_name = clk_edge->port();
   Cell *cell = network_->cell(instance_);
   Port *data_port = findPort(cell, data_port_name);
   Port *clk_port = findPort(cell, clk_port_name);
@@ -626,7 +624,7 @@ SdfReader::timingCheckPeriod(SdfPortSpec *edge,
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)
       && instance_) {
-    const string *port_name = edge->port();
+    const std::string *port_name = edge->port();
     Cell *cell = network_->cell(instance_);
     Port *port = findPort(cell, port_name);
     if (port) {
@@ -683,7 +681,7 @@ SdfReader::device(SdfTripleSeq *triples)
 }
 
 void
-SdfReader::device(const string *to_port_name,
+SdfReader::device(const std::string *to_port_name,
                   SdfTripleSeq *triples)
 {
   // Ignore non-incremental annotations in incremental only mode.
@@ -799,7 +797,7 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
 }
 
 bool
-SdfReader::condMatch(const string *sdf_cond,
+SdfReader::condMatch(const std::string *sdf_cond,
                      const std::string &lib_cond)
 {
   // If the sdf is not conditional it matches any library condition.
@@ -828,24 +826,24 @@ SdfReader::condMatch(const string *sdf_cond,
 
 SdfPortSpec *
 SdfReader::makePortSpec(const Transition *tr,
-                        const string *port,
-                        const string *cond)
+                        const std::string *port,
+                        const std::string *cond)
 {
   return new SdfPortSpec(tr, port, cond);
 }
 
 SdfPortSpec *
-SdfReader::makeCondPortSpec(const string *cond_port)
+SdfReader::makeCondPortSpec(const std::string *cond_port)
 {
   // Search from end to find port name because condition may contain spaces.
-  string cond_port1(*cond_port);
+  std::string cond_port1(*cond_port);
   trimRight(cond_port1);
   auto port_idx = cond_port1.find_last_of(" ");
   if (port_idx != cond_port1.npos) {
-    string *port1 = new string(cond_port1.substr(port_idx + 1));
+    std::string *port1 = new std::string(cond_port1.substr(port_idx + 1));
     auto cond_end = cond_port1.find_last_not_of(" ", port_idx);
     if (cond_end != cond_port1.npos) {
-      string *cond1 = new string(cond_port1.substr(0, cond_end + 1));
+      std::string *cond1 = new std::string(cond_port1.substr(0, cond_end + 1));
       SdfPortSpec *port_spec = new SdfPortSpec(Transition::riseFall(),
                                                port1,
                                                cond1);
@@ -913,13 +911,13 @@ SdfReader::setInIncremental(bool incr)
   in_incremental_ = incr;
 }
 
-string *
-SdfReader::unescaped(const string *token)
+std::string *
+SdfReader::unescaped(const std::string *token)
 {
   char path_escape = network_->pathEscape();
   char path_divider = network_->pathDivider();
   size_t token_length = token->size();
-  string *unescaped = new string;
+  std::string *unescaped = new std::string;
   for (size_t i = 0; i < token_length; i++) {
     char ch = (*token)[i];
     if (ch == escape_) {
@@ -955,11 +953,11 @@ SdfReader::unescaped(const string *token)
   return unescaped;
 }
 
-string *
-SdfReader::makePath(const string *head,
-                    const string *tail)
+std::string *
+SdfReader::makePath(const std::string *head,
+                    const std::string *tail)
 {
-  string *path = new string(*head);
+  std::string *path = new std::string(*head);
   *path += network_->pathDivider();
   *path += *tail;
   delete head;
@@ -967,13 +965,13 @@ SdfReader::makePath(const string *head,
   return path;
 }
 
-string *
-SdfReader::makeBusName(string *base_name,
+std::string *
+SdfReader::makeBusName(std::string *base_name,
                        int index)
 {
-  string *bus_name = unescaped(base_name);
+  std::string *bus_name = unescaped(base_name);
   *bus_name += '[';
-  *bus_name += to_string(index);
+  *bus_name += std::to_string(index);
   *bus_name += ']';
   delete base_name;
   return bus_name;
@@ -1006,10 +1004,10 @@ SdfReader::sdfError(int id,
 }
 
 Pin *
-SdfReader::findPin(const string *name)
+SdfReader::findPin(const std::string *name)
 {
   if (path_) {
-    string path_name(path_);
+    std::string path_name(path_);
     path_name += divider_;
     path_name += *name;
     Pin *pin = network_->findPin(path_name.c_str());
@@ -1020,9 +1018,9 @@ SdfReader::findPin(const string *name)
 }
 
 Instance *
-SdfReader::findInstance(const string *name)
+SdfReader::findInstance(const std::string *name)
 {
-  string inst_name;
+  std::string inst_name;
   if (path_) {
     inst_name = path_;
     inst_name += divider_;
@@ -1039,8 +1037,8 @@ SdfReader::findInstance(const string *name)
 ////////////////////////////////////////////////////////////////
 
 SdfPortSpec::SdfPortSpec(const Transition *tr,
-                         const string *port,
-                         const string *cond) :
+                         const std::string *port,
+                         const std::string *cond) :
   tr_(tr),
   port_(port),
   cond_(cond)
@@ -1084,7 +1082,7 @@ SdfTriple::hasValue() const
 ////////////////////////////////////////////////////////////////
 
 SdfScanner::SdfScanner(std::istream *stream,
-                       const string &filename,
+                       const std::string &filename,
                        SdfReader *reader,
                        Report *report) :
   yyFlexLexer(stream),

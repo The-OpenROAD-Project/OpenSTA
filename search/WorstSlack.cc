@@ -24,6 +24,8 @@
 
 #include "WorstSlack.hh"
 
+#include <algorithm>
+
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Report.hh"
@@ -33,8 +35,6 @@
 #include "Search.hh"
 
 namespace sta {
-
-using std::min;
 
 WorstSlacks::WorstSlacks(StaState *sta) :
   worst_slacks_(sta->scenePathCount(), sta),
@@ -195,7 +195,7 @@ WorstSlack::sortQueue(PathAPIndex path_ap_index)
     sort(vertices, slack_less);
 
     int vertex_count = vertices.size();
-    int threshold_index = min(min_queue_size_, vertex_count - 1);
+    int threshold_index = std::min(min_queue_size_, vertex_count - 1);
     Vertex *threshold_vertex = vertices[threshold_index];
     slack_threshold_ = search_->wnsSlack(threshold_vertex, path_ap_index);
     debugPrint(debug_, "wns", 3, "threshold %s",

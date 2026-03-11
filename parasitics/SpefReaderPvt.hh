@@ -27,7 +27,7 @@
 #include <map>
 
 #include "Zlib.hh"
-#include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
 #include "StaState.hh"
@@ -139,7 +139,7 @@ private:
   float res_scale_;
   float induct_scale_;
   SpefNameMap name_map_;
-  StringSeq *design_flow_;
+  StringSeq design_flow_;
   Parasitics *parasitics_;
   Parasitic *parasitic_;
 };

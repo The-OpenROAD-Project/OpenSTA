@@ -35,8 +35,6 @@
 
 namespace sta {
 
-using std::string;
-
 static void
 makeChildNetwork(Instance *proto,
                  Instance *parent,
@@ -64,8 +62,8 @@ class ConcreteInstanceChildIterator : public InstanceChildIterator
 {
 public:
   ConcreteInstanceChildIterator(ConcreteInstanceChildMap *map);
-  bool hasNext();
-  Instance *next();
+  bool hasNext() override;
+  Instance *next() override;
 
 private:
   ConcreteInstanceChildMap *map_;
@@ -98,8 +96,8 @@ class ConcreteInstanceNetIterator : public InstanceNetIterator
 {
 public:
   ConcreteInstanceNetIterator(ConcreteInstanceNetMap *nets);
-  bool hasNext();
-  Net *next();
+  bool hasNext() override;
+  Net *next() override;
 
 private:
   void findNext();
@@ -154,8 +152,8 @@ class ConcreteInstancePinIterator : public InstancePinIterator
 public:
   ConcreteInstancePinIterator(const ConcreteInstance *inst,
                               int pin_count);
-  bool hasNext();
-  Pin *next();
+  bool hasNext() override;
+  Pin *next() override;
 
 private:
   void findNext();
@@ -208,8 +206,8 @@ class ConcreteNetPinIterator : public NetPinIterator
 {
 public:
   ConcreteNetPinIterator(const ConcreteNet *net);
-  bool hasNext();
-  Pin *next();
+  bool hasNext() override;
+  Pin *next() override;
 
 private:
   ConcretePin *next_;
@@ -240,8 +238,8 @@ class ConcreteNetTermIterator : public NetTermIterator
 {
 public:
   ConcreteNetTermIterator(const ConcreteNet *net);
-  bool hasNext();
-  Term *next();
+  bool hasNext() override;
+  Term *next() override;
 
 private:
   ConcreteTerm *next_;
@@ -324,8 +322,8 @@ class ConcreteLibraryIterator1 : public Iterator<Library*>
 {
 public:
   ConcreteLibraryIterator1(const ConcreteLibrarySeq &libs);
-  virtual bool hasNext();
-  virtual Library *next();
+  bool hasNext() override;
+  Library *next() override;
 
 private:
   const ConcreteLibrarySeq &libs_;
@@ -363,8 +361,8 @@ class ConcreteLibertyLibraryIterator : public Iterator<LibertyLibrary*>
 public:
   ConcreteLibertyLibraryIterator(const ConcreteNetwork *network);
   virtual ~ConcreteLibertyLibraryIterator();
-  virtual bool hasNext();
-  virtual LibertyLibrary *next();
+  bool hasNext() override;
+  LibertyLibrary *next() override;
 
 private:
   void findNext();
@@ -581,8 +579,8 @@ ConcreteNetwork::setIsLeaf(Cell *cell,
 
 void
 ConcreteNetwork::setAttribute(Cell *cell,
-                              const string &key,
-                              const string &value)
+                              const std::string &key,
+                              const std::string &value)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   ccell->setAttribute(key, value);
@@ -628,9 +626,9 @@ ConcreteNetwork::filename(const Cell *cell)
   return ccell->filename();
 }
 
-string
+std::string
 ConcreteNetwork::getAttribute(const Cell *cell,
-                              const string &key) const
+                              const std::string &key) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return ccell->getAttribute(key);
@@ -721,8 +719,8 @@ class ConcreteCellPortIterator1 : public CellPortIterator
 public:
   ConcreteCellPortIterator1(const ConcreteCell *cell);
   ~ConcreteCellPortIterator1();
-  virtual bool hasNext() { return iter_->hasNext(); }
-  virtual Port *next();
+  bool hasNext() override { return iter_->hasNext(); }
+  Port *next() override;
 
 private:
   ConcreteCellPortIterator *iter_;
@@ -758,8 +756,8 @@ class ConcreteCellPortBitIterator1 : public CellPortIterator
 public:
   ConcreteCellPortBitIterator1(const ConcreteCell *cell);
   ~ConcreteCellPortBitIterator1();
-  virtual bool hasNext() { return iter_->hasNext(); }
-  virtual Port *next();
+  bool hasNext() override { return iter_->hasNext(); }
+  Port *next() override;
 
 private:
   ConcreteCellPortBitIterator *iter_;
@@ -905,8 +903,8 @@ class ConcretePortMemberIterator1 : public PortMemberIterator
 public:
   ConcretePortMemberIterator1(const ConcretePort *port);
   ~ConcretePortMemberIterator1();
-  virtual bool hasNext();
-  virtual Port *next();
+  bool hasNext() override;
+  Port *next() override;
 
 private:
   ConcretePortMemberIterator *iter_;
@@ -967,9 +965,9 @@ ConcreteNetwork::id(const Instance *instance) const
   return inst->id();
 }
 
-string
+std::string
 ConcreteNetwork::getAttribute(const Instance *inst,
-                              const string &key) const
+                              const std::string &key) const
 {
   const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
   return cinst->getAttribute(key);
@@ -1389,8 +1387,8 @@ ConcreteNetwork::connect(Instance *inst,
 
 void
 ConcreteNetwork::setAttribute(Instance *inst,
-                              const string &key,
-                              const string &value)
+                              const std::string &key,
+                              const std::string &value)
 {
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
   cinst->setAttribute(key, value);
@@ -1718,14 +1716,14 @@ ConcreteInstance::childIterator() const
 }
 
 void
-ConcreteInstance::setAttribute(const string &key,
-                               const string &value)
+ConcreteInstance::setAttribute(const std::string &key,
+                               const std::string &value)
 {
   attribute_map_[key] = value;
 }
 
-string
-ConcreteInstance::getAttribute(const string &key) const
+std::string
+ConcreteInstance::getAttribute(const std::string &key) const
 {
   const auto &itr = attribute_map_.find(key);
   if (itr != attribute_map_.end())

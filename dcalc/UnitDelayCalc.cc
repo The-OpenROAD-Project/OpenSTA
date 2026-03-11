@@ -28,8 +28,6 @@
 
 namespace sta {
 
-using std::string;
-
 ArcDelayCalc *
 makeUnitDelayCalc(StaState *sta)
 {
@@ -142,7 +140,7 @@ UnitDelayCalc::unitDelayResult(const LoadPinIndexMap &load_pin_index_map)
   return dcalc_result;
 }
 
-string
+std::string
 UnitDelayCalc::reportGateDelay(const Pin *,
                                const TimingArc *,
                                const Slew &,
@@ -153,7 +151,7 @@ UnitDelayCalc::reportGateDelay(const Pin *,
                                const MinMax *,
                                int)
 {
-  string result("Delay = 1.0\n");
+  std::string result("Delay = 1.0\n");
   result += "Slew = 0.0\n";
   return result;
 }
@@ -170,7 +168,7 @@ UnitDelayCalc::checkDelay(const Pin *,
   return units_->timeUnit()->scale();
 }
 
-string
+std::string
 UnitDelayCalc::reportCheckDelay(const Pin *,
                                 const TimingArc *,
                                 const Slew &,

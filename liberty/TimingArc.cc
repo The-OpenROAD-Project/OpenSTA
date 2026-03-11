@@ -35,9 +35,6 @@
 
 namespace sta {
 
-using std::string;
-using std::make_shared;
-
 static bool
 timingArcsEquiv(const TimingArcSet *set1,
                 const TimingArcSet *set2);
@@ -204,6 +201,15 @@ TimingArcSet::TimingArcSet(const TimingRole *role,
 {
 }
 
+std::string
+TimingArcSet::to_string()
+{
+  std::string str = from_->name();
+  str += " -> ";
+  str += to_->name();
+  return str;
+}
+
 TimingArcSet::~TimingArcSet()
 {
   deleteContents(arcs_);
@@ -326,7 +332,7 @@ TimingArcSet::isRisingFallingEdge() const
     if (from_rf1 == from_rf2)
       return from_rf1;
   }
-  if (arcs_.size() == 1)
+  if (arc_count == 1)
     return arcs_[0]->fromEdge()->asRiseFall();
   else
     return nullptr;
@@ -501,7 +507,7 @@ TimingArcSet::wireArcIndex(const RiseFall *rf)
 void
 TimingArcSet::init()
 {
-  wire_timing_arc_attrs_ = make_shared<TimingArcAttrs>(TimingSense::positive_unate);
+  wire_timing_arc_attrs_ = std::make_shared<TimingArcAttrs>(TimingSense::positive_unate);
   wire_timing_arc_set_ = new TimingArcSet(TimingRole::wire(), wire_timing_arc_attrs_);
   new TimingArc(wire_timing_arc_set_, Transition::rise(),
                 Transition::rise(), nullptr);
@@ -539,18 +545,18 @@ TimingArc::~TimingArc()
   delete scaled_models_;
 }
 
-string
+std::string
 TimingArc::to_string() const
 {
   if (set_->role()->isWire()) {
-    string str = "wire ";
+    std::string str = "wire ";
     str += from_rf_->to_string();
     str += " -> ";
     str += to_rf_->to_string();
     return str;
   }
   else {
-    string str = set_->from()->name();
+    std::string str = set_->from()->name();
     str += " ";
     str += from_rf_->to_string();
     str += " -> ";
@@ -622,7 +628,7 @@ TimingArc::equiv(const TimingArc *arc1,
 }
 
 void
-TimingArc::setIndex(unsigned index)
+TimingArc::setIndex(size_t index)
 {
   index_ = index;
 }

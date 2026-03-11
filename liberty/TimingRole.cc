@@ -164,6 +164,12 @@ TimingRole::isLatchDtoQ() const
 }
 
 bool
+TimingRole::isLatchEnToQ() const
+{
+  return this == &latch_en_q_;
+}
+
+bool
 TimingRole::isTimingCheckBetween() const
 {
   return is_timing_check_

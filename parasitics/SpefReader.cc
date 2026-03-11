@@ -43,8 +43,6 @@
 
 namespace sta {
 
-using std::string;
-
 bool
 readSpefFile(const std::string &filename,
              Instance *instance,
@@ -94,7 +92,6 @@ SpefReader::SpefReader(const std::string &filename,
   cap_scale_(1.0),
   res_scale_(1.0),
   induct_scale_(1.0),
-  design_flow_(nullptr),
   parasitics_(parasitics),
   parasitic_(nullptr)
 {
@@ -103,11 +100,6 @@ SpefReader::SpefReader(const std::string &filename,
 
 SpefReader::~SpefReader()
 {
-  if (design_flow_) {
-    deleteContents(design_flow_);
-    delete design_flow_;
-    design_flow_ = nullptr;
-  }
 }
 
 bool
@@ -301,7 +293,8 @@ SpefReader::portDirection(char *spef_dir)
 void
 SpefReader::setDesignFlow(StringSeq *flow)
 {
-  design_flow_ = flow;
+  design_flow_ = std::move(*flow);
+  delete flow;
 }
 
 Pin *
@@ -616,7 +609,7 @@ SpefTriple::value(int index) const
 ////////////////////////////////////////////////////////////////
 
 SpefScanner::SpefScanner(std::istream *stream,
-                         const string &filename,
+                         const std::string &filename,
                          SpefReader *reader,
                          Report *report) :
   yyFlexLexer(stream),

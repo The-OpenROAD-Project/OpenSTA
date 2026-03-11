@@ -91,7 +91,7 @@ DiversionGreater::operator()(Diversion *div1,
 {
   PathEnd *path_end1 = div1->pathEnd();
   PathEnd *path_end2 = div2->pathEnd();
-  return PathEnd::cmp(path_end1, path_end2, sta_) > 0;
+  return PathEnd::cmp(path_end1, path_end2, true, sta_) > 0;
 }
 
 static void
@@ -426,7 +426,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
     debugPrint(debug_, "path_enum", 3, "visit fanin %s -> %s %s %s",
                from_path->to_string(this).c_str(),
                to_vertex->to_string(this).c_str(),
-               to_rf->to_string().c_str(),
+               to_rf->shortName(),
                delayAsString(search_->deratedDelay(from_vertex, arc, edge,
                                                    false, from_path->minMax(this),
                                                    from_path->dcalcAnalysisPtIndex(this),

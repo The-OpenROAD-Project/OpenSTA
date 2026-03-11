@@ -38,8 +38,6 @@
 
 namespace sta {
 
-using std::max;
-
 static unsigned
 hashCell(const LibertyCell *cell);
 static unsigned

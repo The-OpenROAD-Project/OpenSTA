@@ -40,6 +40,7 @@
 #include "SearchPred.hh"
 #include "VertexVisitor.hh"
 #include "Path.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -70,7 +71,6 @@ using VertexSlackMapSeq = std::vector<VertexSlackMap>;
 using WorstSlacksSeq = std::vector<WorstSlacks>;
 using DelayDblSeq = std::vector<DelayDbl>;
 using ExceptionPathSeq = std::vector<ExceptionPath*>;
-using StdStringSeq = std::vector<std::string>;
 
 class Search : public StaState
 {
@@ -100,14 +100,14 @@ public:
                           bool unconstrained,
                           const SceneSeq &scenes,
                           const MinMaxAll *min_max,
-                          size_t group_path_count,
-                          size_t endpoint_path_count,
+                          int group_path_count,
+                          int endpoint_path_count,
                           bool unique_pins,
                           bool unique_edges,
                           float slack_min,
                           float slack_max,
                           bool sort_by_slack,
-                          StdStringSeq &group_names,
+                          StringSeq &group_names,
                           bool setup,
                           bool hold,
                           bool recovery,

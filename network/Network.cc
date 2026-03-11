@@ -37,8 +37,6 @@
 
 namespace sta {
 
-using std::string;
-
 Network::Network() :
   default_liberty_(nullptr),
   divider_('/'),
@@ -76,7 +74,7 @@ Network::findPortsMatching(const Cell *cell,
 {
   PortSeq matches;
   bool is_bus, is_range, subscript_wild;
-  string bus_name;
+  std::string bus_name;
   int from, to;
   parseBusName(pattern->pattern(), '[', ']', '\\',
                is_bus, is_range, bus_name, from, to, subscript_wild);
@@ -1043,12 +1041,12 @@ Network::findInstPinsHierMatching(const Instance *instance,
                                   // Return value.
                                   PinSeq &matches) const
 {
-  string inst_name = name(instance);
+  std::string inst_name = name(instance);
   InstancePinIterator *pin_iter = pinIterator(instance);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const char *port_name = name(port(pin));
-    string pin_name = inst_name + divider_ + port_name;
+    std::string pin_name = inst_name + divider_ + port_name;
     if (pattern->match(pin_name.c_str()))
       matches.push_back(pin);
   }
@@ -1223,8 +1221,8 @@ class LeafInstanceIterator1 : public LeafInstanceIterator
 public:
   LeafInstanceIterator1(const Instance *inst,
                         const Network *network);
-  bool hasNext() { return next_; }
-  Instance *next();
+  bool hasNext() override { return next_; }
+  Instance *next() override;
 
 private:
   void nextInst();
@@ -1368,8 +1366,8 @@ class ConnectedPinIterator1 : public ConnectedPinIterator
 public:
   ConnectedPinIterator1(PinSet *pins);
   virtual ~ConnectedPinIterator1();
-  virtual bool hasNext();
-  virtual const Pin *next();
+  bool hasNext() override;
+  const Pin *next() override;
 
 protected:
   PinSet *pins_;

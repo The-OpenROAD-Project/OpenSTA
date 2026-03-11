@@ -1,4 +1,4 @@
-# Tests whether the is_memory attribute works for cells and libcells
+# Tests whether the is_memory attribute works for instances and cells
 read_liberty gf180mcu_sram.lib.gz
 read_liberty asap7_small.lib.gz
 read_verilog get_is_memory.v

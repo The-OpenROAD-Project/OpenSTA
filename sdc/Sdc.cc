@@ -62,8 +62,6 @@
 
 namespace sta {
 
-using std::swap;
-
 bool
 ClockPairLess::operator()(const ClockPair &pair1,
                           const ClockPair &pair2) const
@@ -103,6 +101,7 @@ Sdc::Sdc(Mode *mode,
   clk_hpin_disables_(network_),
   propagated_clk_pins_(network_),
   clk_latencies_(network_),
+  clk_latency_pins_(network_),
   edge_clk_latency_map_(network_),
   clk_insertions_(network_),
   clk_sense_map_(network_),
@@ -171,6 +170,7 @@ Sdc::clear()
   clock_pin_map_.clear();
   clock_leaf_pin_map_.clear();
   clk_latencies_.clear();
+  clk_latency_pins_.clear();
   edge_clk_latency_map_.clear();
   clk_insertions_.clear();
 
@@ -693,10 +693,10 @@ void
 Sdc::swapDeratingFactors(Sdc *sdc1,
                          Sdc *sdc2)
 {
-  swap(sdc1->derating_factors_, sdc2->derating_factors_);
-  swap(sdc1->net_derating_factors_, sdc2->net_derating_factors_);
-  swap(sdc1->inst_derating_factors_, sdc2->inst_derating_factors_);
-  swap(sdc1->cell_derating_factors_, sdc2->cell_derating_factors_);
+  std::swap(sdc1->derating_factors_, sdc2->derating_factors_);
+  std::swap(sdc1->net_derating_factors_, sdc2->net_derating_factors_);
+  std::swap(sdc1->inst_derating_factors_, sdc2->inst_derating_factors_);
+  std::swap(sdc1->cell_derating_factors_, sdc2->cell_derating_factors_);
 }
 
 void
@@ -1346,8 +1346,7 @@ bool
 FindClkHpinDisables::drvrLoadExists(const Pin *drvr,
                                     const Pin *load)
 {
-  PinPair probe(drvr, load);
-  return drvr_loads_.contains(probe);
+  return drvr_loads_.contains({drvr, load});
 }
 
 void
@@ -1510,6 +1509,8 @@ Sdc::setClockLatency(Clock *clk,
     }
   }
   latency->setDelay(rf, min_max, delay);
+  if (pin)
+    clk_latency_pins_.insert(pin);
 
   // set_clock_latency removes set_propagated_clock on the same object.
   if (clk && pin == nullptr)
@@ -1582,8 +1583,7 @@ Sdc::deleteClockLatenciesReferencing(Clock *clk)
 bool
 Sdc::hasClockLatency(const Pin *pin) const
 {
-  ClockLatency probe(nullptr, pin);
-  return clk_latencies_.contains(&probe);
+  return clk_latency_pins_.contains(pin);
 }
 
 void
@@ -1818,7 +1818,7 @@ void
 Sdc::swapClockInsertions(Sdc *sdc1,
                          Sdc *sdc2)
 {
-  swap(sdc1->clk_insertions_, sdc2->clk_insertions_);
+  std::swap(sdc1->clk_insertions_, sdc2->clk_insertions_);
 }
 
 void
@@ -2825,17 +2825,17 @@ void
 Sdc::swapPortDelays(Sdc *sdc1,
                     Sdc *sdc2)
 {
-  swap(sdc1->input_delays_, sdc2->input_delays_);
-  swap(sdc1->input_delay_pin_map_, sdc2->input_delay_pin_map_);
-  swap(sdc1->input_delay_ref_pin_map_, sdc2->input_delay_ref_pin_map_);
-  swap(sdc1->input_delay_leaf_pin_map_, sdc2->input_delay_leaf_pin_map_);
-  swap(sdc1->input_delay_internal_pin_map_, sdc2->input_delay_internal_pin_map_);
-  swap(sdc1->input_delay_index_, sdc2->input_delay_index_);
+  std::swap(sdc1->input_delays_, sdc2->input_delays_);
+  std::swap(sdc1->input_delay_pin_map_, sdc2->input_delay_pin_map_);
+  std::swap(sdc1->input_delay_ref_pin_map_, sdc2->input_delay_ref_pin_map_);
+  std::swap(sdc1->input_delay_leaf_pin_map_, sdc2->input_delay_leaf_pin_map_);
+  std::swap(sdc1->input_delay_internal_pin_map_, sdc2->input_delay_internal_pin_map_);
+  std::swap(sdc1->input_delay_index_, sdc2->input_delay_index_);
 
-  swap(sdc1->output_delays_, sdc2->output_delays_);
-  swap(sdc1->output_delay_pin_map_, sdc2->output_delay_pin_map_);
-  swap(sdc1->output_delay_ref_pin_map_, sdc2->output_delay_ref_pin_map_);
-  swap(sdc1->output_delay_leaf_pin_map_, sdc2->output_delay_leaf_pin_map_);
+  std::swap(sdc1->output_delays_, sdc2->output_delays_);
+  std::swap(sdc1->output_delay_pin_map_, sdc2->output_delay_pin_map_);
+  std::swap(sdc1->output_delay_ref_pin_map_, sdc2->output_delay_ref_pin_map_);
+  std::swap(sdc1->output_delay_leaf_pin_map_, sdc2->output_delay_leaf_pin_map_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3374,8 +3374,8 @@ void
 Sdc::swapPortExtCaps(Sdc *sdc1,
                      Sdc *sdc2)
 {
-  swap(sdc1->port_ext_cap_map_, sdc2->port_ext_cap_map_);
-  swap(sdc1->net_wire_cap_map_, sdc2->net_wire_cap_map_);
+  std::swap(sdc1->port_ext_cap_map_, sdc2->port_ext_cap_map_);
+  std::swap(sdc1->net_wire_cap_map_, sdc2->net_wire_cap_map_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3505,24 +3505,21 @@ void
 Sdc::disableWire(const Pin *from,
                  const Pin *to)
 {
-  PinPair pair(from, to);
-  disabled_wire_edges_.insert(pair);
+  disabled_wire_edges_.insert({from, to});
 }
 
 void
 Sdc::removeDisableWire(Pin *from,
                        Pin *to)
 {
-  PinPair probe(from, to);
-  disabled_wire_edges_.erase(probe);
+  disabled_wire_edges_.erase({from, to});
 }
 
 bool
 Sdc::isDisabledWire(const Pin *from,
                     const Pin *to) const
 {
-  PinPair pair(from, to);
-  return disabled_wire_edges_.contains(pair);
+  return disabled_wire_edges_.contains({from, to});
 }
 
 void
@@ -3582,8 +3579,7 @@ void
 DisableEdgesThruHierPin::visit(const Pin *drvr,
                                const Pin *load)
 {
-  PinPair pair(drvr, load);
-  pairs_->insert(pair);
+  pairs_->insert({drvr, load});
 }
 
 void
@@ -3624,8 +3620,7 @@ void
 RemoveDisableEdgesThruHierPin::visit(const Pin *drvr,
                                      const Pin *load)
 {
-  PinPair pair(drvr, load);
-  pairs_->erase(pair);
+  pairs_->erase({drvr, load});
 }
 
 void
@@ -3658,8 +3653,7 @@ Sdc::isDisabled(const Instance *inst,
 {
   if (role == TimingRole::wire()) {
     // Hierarchical thru pin disables.
-    PinPair pair(from_pin, to_pin);
-    return disabled_wire_edges_.contains(pair);
+    return disabled_wire_edges_.contains({from_pin, to_pin});
   }
   else {
     LibertyCell *cell = network_->libertyCell(inst);
