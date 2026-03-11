@@ -209,10 +209,10 @@ Instance reg1
   Q output out1
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 report_instance reg1: done
 Instance reg2
  Cell: DFF_X1
@@ -225,10 +225,10 @@ Instance reg2
   Q output out2
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 report_instance reg2: done
 --- Test 4: write verilog ---
 No differences found.

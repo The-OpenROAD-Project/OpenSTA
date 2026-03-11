@@ -29,7 +29,7 @@
 #include <string_view>
 #include <functional>
 
-#include "StringSeq.hh"
+#include "StringUtil.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
@@ -80,7 +80,6 @@ using SceneNameMap = std::map<std::string, Scene*>;
 using SlowDrvrIterator = Iterator<Instance*>;
 using CheckError = StringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
-using StdStringSeq = std::vector<std::string>;
 enum class CmdNamespace { sta, sdc };
 using ParasiticsNameMap = std::map<std::string, Parasitics*>;
 // Path::slack/arrival/required function.
@@ -126,11 +125,11 @@ public:
   void setThreadCount(int thread_count);
 
   // define_corners compatibility.
-  void makeScenes(StringSeq *scene_names);
+  void makeScenes(const StringSeq &scene_names);
   void makeScene(const std::string &name,
                  const std::string &mode_name,
-                 const StdStringSeq &liberty_min_files,
-                 const StdStringSeq &liberty_max_files,
+                 const StringSeq &liberty_min_files,
+                 const StringSeq &liberty_max_files,
                  const std::string &spef_min_file,
                  const std::string &spef_max_file);
   Scene *findScene(const std::string &name) const;
@@ -653,7 +652,7 @@ public:
                        const Sdc *sdc) __attribute__ ((deprecated));
   bool isPathGroupName(const char *group_name,
                        const Sdc *sdc) const;
-  StdStringSeq pathGroupNames(const Sdc *sdc) const;
+  StringSeq pathGroupNames(const Sdc *sdc) const;
   void resetPath(ExceptionFrom *from,
                  ExceptionThruSeq *thrus,
                  ExceptionTo *to,
@@ -966,7 +965,7 @@ public:
                           bool sort_by_slack,
                           // Path groups to report.
                           // Empty list reports all groups.
-                          StdStringSeq &group_names,
+                          StringSeq &group_names,
                           // Predicates to filter the type of path
                           // ends returned.
                           bool setup,
@@ -976,7 +975,7 @@ public:
                           bool clk_gating_setup,
                           bool clk_gating_hold);
   void setReportPathFormat(ReportPathFormat format);
-  void setReportPathFieldOrder(StringSeq *field_names);
+  void setReportPathFieldOrder(const StringSeq &field_names);
   void setReportPathFields(bool report_input_pin,
                            bool report_hier_pins,
                            bool report_net,
@@ -988,16 +987,6 @@ public:
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
   void setReportPathSigmas(bool report_sigmas);
-  // Header above reportPathEnd results.
-  void reportPathEndHeader();
-  // Footer below reportPathEnd results.
-  void reportPathEndFooter();
-  // Format report_path_endpoint only:
-  //   Previous path end is used to detect path group changes
-  //   so headers are reported by group.
-  void reportPathEnd(PathEnd *end,
-                     PathEnd *prev_end,
-                     bool last);
   void reportPathEnd(PathEnd *end);
   void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
@@ -1302,13 +1291,13 @@ public:
   void clkPinsInvalid(const Mode *mode);
   // The following functions assume ensureClkNetwork() has been called.
   bool isClock(const Pin *pin,
-               const Mode *mode) const;
+               const Mode *mode);
   bool isClock(const Net *net,
-               const Mode *mode) const;
+               const Mode *mode);
   bool isIdealClock(const Pin *pin,
-                    const Mode *mode) const;
+                    const Mode *mode);
   bool isPropagatedClock(const Pin *pin,
-                         const Mode *mode) const;
+                         const Mode *mode);
   const PinSet *pins(const Clock *clk,
                      const Mode *mode);
 
@@ -1398,7 +1387,7 @@ public:
                       LibertyLibrarySeq *map_libs);
   LibertyCellSeq *equivCells(LibertyCell *cell);
 
-  void writePathSpice(Path *path,
+  void writePathSpice(const Path *path,
                       const char *spice_filename,
                       const char *subckt_filename,
                       const char *lib_subckt_filename,
@@ -1522,10 +1511,12 @@ protected:
   void reportDelaysWrtClks(const Pin *pin,
                            const Scene *scene,
                            int digits,
+                           bool find_required,
                            PathDelayFunc get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const Scene *scene,
                            int digits,
+                           bool find_required,
                            PathDelayFunc get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const ClockEdge *clk_edge,
@@ -1596,8 +1587,8 @@ protected:
   void setThreadCount1(int thread_count);
   void updateLibertyScenes();
   void updateSceneLiberty(Scene *scene,
-                          const StdStringSeq &liberty_min_files,
-                          const StdStringSeq &liberty_max_files);
+                          const StringSeq &liberty_min_files,
+                          const StringSeq &liberty_max_files);
 
   Scene *makeScene(const std::string &name,
                    Mode *mode,

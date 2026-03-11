@@ -39,7 +39,6 @@ namespace sta {
 extern const char *tcl_inits[];
 }
 
-using std::string;
 using sta::stringEq;
 using sta::findCmdLineFlag;
 using sta::Sta;
@@ -129,7 +128,7 @@ staTclAppInit(int argc,
   if (!findCmdLineFlag(argc, argv, "-no_init")) {
     const char *home = getenv("HOME");
     if (home) {
-      string init_path = home;
+      std::string init_path = home;
       init_path += "/";
       init_path += init_filename;
       if (std::filesystem::is_regular_file(init_path.c_str()))

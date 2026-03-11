@@ -28,13 +28,12 @@
 #include <vector>
 #include <map>
 
-#include "StringSeq.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
 using VerilogDclMap = std::map<std::string, VerilogDcl*>;
 using VerilogConstantValue = std::vector<bool>;
-using StdStringSeq = std::vector<std::string>;
 
 class VerilogStmt
 {
@@ -76,7 +75,7 @@ public:
 private:
   void parseStmts(VerilogReader *reader);
   void checkInstanceName(VerilogInst *inst,
-                         StdStringSet &inst_names,
+                         StringSet &inst_names,
                          VerilogReader *reader);
 
   std::string name_;
@@ -217,16 +216,16 @@ class VerilogLibertyInst : public VerilogInst
 public:
   VerilogLibertyInst(LibertyCell *cell,
                      const std::string &inst_name,
-                     const StdStringSeq &net_names,
+                     const StringSeq &net_names,
                      VerilogAttrStmtSeq *attr_stmts,
                      const int line);
   virtual bool isLibertyInst() const { return true; }
   LibertyCell *cell() const { return cell_; }
-  const StdStringSeq &netNames() const { return net_names_; }
+  const StringSeq &netNames() const { return net_names_; }
 
 private:
   LibertyCell *cell_;
-  StdStringSeq net_names_;
+  StringSeq net_names_;
 };
 
 // Abstract base class for nets.

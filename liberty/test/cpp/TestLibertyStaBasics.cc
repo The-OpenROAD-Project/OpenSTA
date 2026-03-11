@@ -1211,15 +1211,17 @@ TEST(PvtDestructTest, CreateAndDestroy) {
 }
 
 ////////////////////////////////////////////////////////////////
-// ScaleFactors::print coverage
+// ScaleFactors::report coverage
 ////////////////////////////////////////////////////////////////
 
 TEST(ScaleFactorsPrintTest, Print) {
   ASSERT_NO_THROW(( [&](){
+  Report *report = makeReportStd();
   ScaleFactors sf("test_sf");
   sf.setScale(ScaleFactorType::cell, ScaleFactorPvt::process,
               RiseFall::rise(), 1.0f);
-  sf.print(); // covers ScaleFactors::print()
+  sf.report(report); // covers ScaleFactors::report()
+  delete report;
 
   }() ));
 }
@@ -1235,19 +1237,22 @@ TEST(GateTableModelCheckAxesTest, ValidAxes) {
   auto ax1 = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
   auto ax2 = makeTestAxis(TableAxisVariable::total_output_net_capacitance, {0.1f, 0.2f});
   TablePtr tbl = std::make_shared<Table>(std::move(vals), ax1, ax2);
-  EXPECT_TRUE(GateTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(GateTableModel::checkAxes(&tbl_model));
 }
 
 TEST(GateTableModelCheckAxesTest, InvalidAxis) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::constrained_pin_transition, {0.01f, 0.02f});
   TablePtr tbl = std::make_shared<Table>(vals, axis);
-  EXPECT_FALSE(GateTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(GateTableModel::checkAxes(&tbl_model));
 }
 
 TEST(GateTableModelCheckAxesTest, Table0NoAxes) {
   TablePtr tbl = std::make_shared<Table>(1.0f);
-  EXPECT_TRUE(GateTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(GateTableModel::checkAxes(&tbl_model));
 }
 
 TEST(CheckTableModelCheckAxesTest, ValidAxes) {
@@ -1257,31 +1262,36 @@ TEST(CheckTableModelCheckAxesTest, ValidAxes) {
   auto ax1 = makeTestAxis(TableAxisVariable::related_pin_transition, {0.01f, 0.02f});
   auto ax2 = makeTestAxis(TableAxisVariable::constrained_pin_transition, {0.1f, 0.2f});
   TablePtr tbl = std::make_shared<Table>(std::move(vals), ax1, ax2);
-  EXPECT_TRUE(CheckTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(CheckTableModel::checkAxes(&tbl_model));
 }
 
 TEST(CheckTableModelCheckAxesTest, InvalidAxis) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
   TablePtr tbl = std::make_shared<Table>(vals, axis);
-  EXPECT_FALSE(CheckTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(CheckTableModel::checkAxes(&tbl_model));
 }
 
 TEST(CheckTableModelCheckAxesTest, Table0NoAxes) {
   TablePtr tbl = std::make_shared<Table>(1.0f);
-  EXPECT_TRUE(CheckTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(CheckTableModel::checkAxes(&tbl_model));
 }
 
 TEST(ReceiverModelCheckAxesTest, ValidAxes) {
   FloatSeq *vals = makeFloatSeq({1.0f, 2.0f});
   auto axis = makeTestAxis(TableAxisVariable::input_net_transition, {0.01f, 0.02f});
   TablePtr tbl = std::make_shared<Table>(vals, axis);
-  EXPECT_TRUE(ReceiverModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(ReceiverModel::checkAxes(&tbl_model));
 }
 
 TEST(ReceiverModelCheckAxesTest, Table0NoAxis) {
   TablePtr tbl = std::make_shared<Table>(1.0f);
-  EXPECT_FALSE(ReceiverModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(ReceiverModel::checkAxes(&tbl_model));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1722,8 +1732,7 @@ TEST_F(StaLibertyTest, GateTableModelWithTable0Delay) {
                                             RiseFall::rise());
   TableModel *slew_model = new TableModel(slew_ptr, tmpl, ScaleFactorType::cell,
                                            RiseFall::rise());
-  GateTableModel *gtm = new GateTableModel(buf, delay_model, nullptr,
-                                             slew_model, nullptr, nullptr, nullptr);
+  GateTableModel *gtm = new GateTableModel(buf, delay_model, slew_model);
   ArcDelay d;
   Slew s;
   gtm->gateDelay(nullptr, 0.0f, 0.0f, false, d, s);
@@ -1754,7 +1763,7 @@ TEST_F(StaLibertyTest, CheckTableModelDirect) {
 
   TableModel *model = new TableModel(check_ptr, tmpl, ScaleFactorType::cell,
                                       RiseFall::rise());
-  CheckTableModel *ctm = new CheckTableModel(buf, model, nullptr);
+  CheckTableModel *ctm = new CheckTableModel(buf, model);
   ArcDelay d = ctm->checkDelay(nullptr, 0.1f, 0.1f, 0.0f, false);
   EXPECT_GE(delayAsFloat(d), 0.0f);
 
@@ -2301,13 +2310,12 @@ TEST_F(StaLibertyTest, PortClkTreeDelaysDeprecated) {
   ASSERT_NE(dff, nullptr);
   LibertyPort *clk = dff->findLibertyPort("CK");
   ASSERT_NE(clk, nullptr);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  RiseFallMinMax rfmm = clk->clkTreeDelays();
-  EXPECT_NE(&rfmm, nullptr);
-  RiseFallMinMax rfmm2 = clk->clockTreePathDelays();
-  EXPECT_NE(&rfmm2, nullptr);
-#pragma GCC diagnostic pop
+  // clkTreeDelays() and clockTreePathDelays() have been removed;
+  // exercise the remaining clkTreeDelay() overloads instead.
+  float d1 = clk->clkTreeDelay(0.0f, RiseFall::rise(), RiseFall::rise(), MinMax::max());
+  EXPECT_GE(d1, 0.0f);
+  float d2 = clk->clkTreeDelay(0.0f, RiseFall::rise(), MinMax::max());
+  EXPECT_GE(d2, 0.0f);
 }
 
 // addInternalPowerAttrs has been removed from the API.

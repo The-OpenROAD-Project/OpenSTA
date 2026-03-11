@@ -1629,7 +1629,6 @@ Path 9:
   path_pins: 8
   start_path pin: reg3/Q
 --- report_path_end with prev_end chaining ---
-{"checks": [
 {
   "type": "output_delay",
   "path_group": "clk1",
@@ -1855,7 +1854,7 @@ Path 9:
   "margin": 2.000e-09,
   "required_time": 8.000e-09,
   "slack": 7.844e-09
-},
+}
 {
   "type": "check",
   "path_group": "clk1",
@@ -1968,7 +1967,7 @@ Path 9:
   "margin": 3.608e-11,
   "required_time": 9.989e-09,
   "slack": 8.941e-09
-},
+}
 {
   "type": "check",
   "path_group": "clk1",
@@ -2081,7 +2080,7 @@ Path 9:
   "margin": 3.608e-11,
   "required_time": 9.989e-09,
   "slack": 8.943e-09
-},
+}
 {
   "type": "check",
   "path_group": "clk1",
@@ -2194,7 +2193,7 @@ Path 9:
   "margin": 2.980e-11,
   "required_time": 9.996e-09,
   "slack": 8.950e-09
-},
+}
 {
   "type": "check",
   "path_group": "clk1",
@@ -2307,7 +2306,7 @@ Path 9:
   "margin": 2.980e-11,
   "required_time": 9.996e-09,
   "slack": 8.952e-09
-},
+}
 {
   "type": "check",
   "path_group": "clk1",
@@ -2460,7 +2459,7 @@ Path 9:
   "margin": 3.659e-11,
   "required_time": 1.002e-08,
   "slack": 9.885e-09
-},
+}
 {
   "type": "check",
   "path_group": "clk1",
@@ -2613,7 +2612,7 @@ Path 9:
   "margin": 2.997e-11,
   "required_time": 1.002e-08,
   "slack": 9.889e-09
-},
+}
 {
   "type": "output_delay",
   "path_group": "clk2",
@@ -2707,7 +2706,7 @@ Path 9:
   "margin": 2.000e-09,
   "required_time": 6.000e-09,
   "slack": 5.874e-09
-},
+}
 {
   "type": "output_delay",
   "path_group": "clk2",
@@ -2801,8 +2800,6 @@ Path 9:
   "margin": 2.000e-09,
   "required_time": 6.000e-09,
   "slack": 5.876e-09
-},
-]
 }
 --- report_path_ends as sequence ---
 {"checks": [

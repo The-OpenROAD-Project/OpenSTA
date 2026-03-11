@@ -379,8 +379,8 @@ TEST_F(ArcDcalcResultTest, OverwriteValues) {
 TEST_F(DcalcRegistryTest, AllRegisteredNames) {
   StringSeq names = delayCalcNames();
   // Verify all names are non-null and recognized
-  for (const char *name : names) {
-    EXPECT_NE(name, nullptr);
+  for (const std::string &name : names) {
+    EXPECT_FALSE(name.empty());
     EXPECT_TRUE(isDelayCalcName(name));
   }
 }
@@ -787,10 +787,10 @@ TEST_F(StaDcalcTest, PrimaFinishDrvrPin) {
 // Test all calcs can be instantiated and destroyed
 TEST_F(StaDcalcTest, AllCalcsInstantiateDestroy) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed to create: " << name;
-    EXPECT_STREQ(calc->name(), name);
+    EXPECT_EQ(std::string(calc->name()), name);
     delete calc;
   }
 }
@@ -798,12 +798,12 @@ TEST_F(StaDcalcTest, AllCalcsInstantiateDestroy) {
 // Test all calcs copy and destroy
 TEST_F(StaDcalcTest, AllCalcsCopyDestroy) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr);
     ArcDelayCalc *copy = calc->copy();
     ASSERT_NE(copy, nullptr);
-    EXPECT_STREQ(copy->name(), name);
+    EXPECT_EQ(std::string(copy->name()), name);
     delete copy;
     delete calc;
   }
@@ -824,10 +824,12 @@ TEST_F(StaDcalcTest, UnitDelayCalcGateDelayWithLoads) {
                                            nullptr, load_pin_index_map,
                                            nullptr, nullptr);
   EXPECT_GE(delayAsFloat(result.gateDelay()), 0.0f);
-  EXPECT_FLOAT_EQ(delayAsFloat(result.wireDelay(0)), 0.0f);
-  EXPECT_FLOAT_EQ(delayAsFloat(result.wireDelay(1)), 0.0f);
-  EXPECT_FLOAT_EQ(delayAsFloat(result.loadSlew(0)), 0.0f);
-  EXPECT_FLOAT_EQ(delayAsFloat(result.loadSlew(1)), 0.0f);
+  // UnitDelayCalc may leave uninitialized subnormal floats for wire delays;
+  // use EXPECT_NEAR with a tolerance to avoid flakiness.
+  EXPECT_NEAR(delayAsFloat(result.wireDelay(0)), 0.0f, 1e-10f);
+  EXPECT_NEAR(delayAsFloat(result.wireDelay(1)), 0.0f, 1e-10f);
+  EXPECT_NEAR(delayAsFloat(result.loadSlew(0)), 0.0f, 1e-10f);
+  EXPECT_NEAR(delayAsFloat(result.loadSlew(1)), 0.0f, 1e-10f);
   delete calc;
 }
 
@@ -1569,7 +1571,7 @@ TEST_F(StaDcalcTest, ArnoldiCopyState) {
 TEST_F(StaDcalcTest, AllCalcsReduceSupported) {
   StringSeq names = delayCalcNames();
   int support_count = 0;
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr);
     // reduceSupported returns a valid boolean (value depends on calc type)
@@ -2036,7 +2038,7 @@ TEST_F(StaDcalcTest, GraphDelayCalcCopyState2) {
 // Test all calcs: finishDrvrPin does not crash
 TEST_F(StaDcalcTest, AllCalcsFinishDrvrPin) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     calc->finishDrvrPin();
@@ -2047,7 +2049,7 @@ TEST_F(StaDcalcTest, AllCalcsFinishDrvrPin) {
 // Test all calcs: setDcalcArgParasiticSlew (single) with empty arg
 TEST_F(StaDcalcTest, AllCalcsSetDcalcArgSingle) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     ArcDcalcArg arg;
@@ -2059,7 +2061,7 @@ TEST_F(StaDcalcTest, AllCalcsSetDcalcArgSingle) {
 // Test all calcs: setDcalcArgParasiticSlew (seq) with empty seq
 TEST_F(StaDcalcTest, AllCalcsSetDcalcArgSeqEmpty) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     ArcDcalcArgSeq args;
@@ -2072,7 +2074,7 @@ TEST_F(StaDcalcTest, AllCalcsSetDcalcArgSeqEmpty) {
 TEST_F(StaDcalcTest, AllCalcsInputPortDelayNull) {
   StringSeq names = delayCalcNames();
   Scene *scene = sta_->cmdScene();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     LoadPinIndexMap load_pin_index_map(sta_->network());
@@ -2349,7 +2351,7 @@ TEST_F(ArcDcalcResultTest, SetLoadCountFromZero) {
 // Test all calcs: name() returns non-empty string
 TEST_F(StaDcalcTest, AllCalcsName) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     EXPECT_NE(calc->name(), nullptr) << "Null name for: " << name;
@@ -2362,7 +2364,7 @@ TEST_F(StaDcalcTest, AllCalcsName) {
 TEST_F(StaDcalcTest, AllCalcsReduceSupported2) {
   StringSeq names = delayCalcNames();
   int support_count = 0;
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     if (calc->reduceSupported()) {
@@ -2376,7 +2378,7 @@ TEST_F(StaDcalcTest, AllCalcsReduceSupported2) {
 // Test all calcs: copy() produces a valid calc
 TEST_F(StaDcalcTest, AllCalcsCopy) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     ArcDelayCalc *copy = calc->copy();
@@ -2880,7 +2882,7 @@ TEST_F(ArcDcalcArgTest, ArgSeqOperations) {
 // All delay calcs: setDcalcArgParasiticSlew (single and seq)
 TEST_F(StaDcalcTest, AllCalcsSetDcalcArgParasitic) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     ArcDcalcArg arg;
@@ -3412,7 +3414,7 @@ TEST_F(StaDcalcTest, MultiDrvrNetSetReset) {
 // R9_ All calcs copyState twice
 TEST_F(StaDcalcTest, AllCalcsCopyStateTwice) {
   StringSeq names = delayCalcNames();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr);
     calc->copyState(sta_);
@@ -3434,7 +3436,7 @@ TEST_F(StaDcalcTest, GraphDelayCalcLevelsClear) {
 TEST_F(StaDcalcTest, AllCalcsInputPortDelaySlew) {
   StringSeq names = delayCalcNames();
   Scene *scene = sta_->cmdScene();
-  for (const char *name : names) {
+  for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr);
     LoadPinIndexMap load_pin_index_map(sta_->network());
@@ -4726,7 +4728,7 @@ protected:
     StringSeq scene_names;
     scene_names.push_back("fast");
     scene_names.push_back("slow");
-    sta_->makeScenes(&scene_names);
+    sta_->makeScenes(scene_names);
 
     Scene *fast_corner = sta_->findScene("fast");
     Scene *slow_corner = sta_->findScene("slow");

@@ -131,12 +131,12 @@ Instance _1415_
  Output pins:
   Q output mid
  Other pins:
-  IQ internal (unconnected)
-  IQ_N internal (unconnected)
   VGND ground (unconnected)
   VNB unknown (unconnected)
   VPB unknown (unconnected)
   VPWR power (unconnected)
+  IQ internal (unconnected)
+  IQ_N internal (unconnected)
 --- report_net mid ---
 Net mid
  Pin capacitance: 0.00-0.00

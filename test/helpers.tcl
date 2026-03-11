@@ -1,7 +1,35 @@
-# Shared test helpers for module Tcl tests.
-# Modeled after OpenROAD/test/helpers.tcl.
-# CWD is set to CMAKE_CURRENT_SOURCE_DIR by ctest.
+# Helper functions common to multiple regressions.
+
+set test_dir [file dirname [file normalize [info script]]]
 set result_dir [file join [pwd] "results"]
+
+# puts [exec cat $file] without forking.
+proc report_file { file } {
+  set stream [open $file r]
+  if { [file extension $file] == ".gz" } {
+    zlib push gunzip $stream
+  }
+  gets $stream line
+  while { ![eof $stream] } {
+    puts $line
+    gets $stream line
+  }
+  close $stream
+}
+
+proc report_file_filter { file filter } {
+  set stream [open $file r]
+  gets $stream line
+  while { ![eof $stream] } {
+    set index [string first $filter $line]
+    if { $index != -1 } {
+      set line [string replace $line $index [expr $index + [string length $filter] - 1]]
+    }
+    puts $line
+    gets $stream line
+  }
+  close $stream
+}
 
 proc make_result_file { filename } {
   global result_dir
@@ -9,6 +37,10 @@ proc make_result_file { filename } {
     file mkdir $result_dir
   }
   return [file join $result_dir $filename]
+}
+
+proc sort_objects { objects } {
+  return [sta::sort_by_full_name $objects]
 }
 
 proc diff_files_sorted { file1 file2 } {

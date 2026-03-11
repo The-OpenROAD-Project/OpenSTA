@@ -6,9 +6,11 @@ LABEL maintainer="James Cherry <cherry@parallaxsw.com>"
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y \
+    git \
     wget \
     cmake \
     gcc \
+    gdb \
     tcl-dev \
     tcl-tclreadline \
     libeigen3-dev \

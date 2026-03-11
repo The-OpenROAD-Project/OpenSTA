@@ -28,8 +28,6 @@
 
 namespace sta {
 
-using std::abs;
-
 double
 findRoot(FindRootFunc func,
          double x1,
@@ -76,7 +74,7 @@ findRoot(FindRootFunc func,
     // Swap x1/x2 so func(x1) < 0.
     std::swap(x1, x2);
   double root = (x1 + x2) * 0.5;
-  double dx_prev = abs(x2 - x1);
+  double dx_prev = std::abs(x2 - x1);
   double dx = dx_prev;
   double y, dy;
   func(root, y, dy);
@@ -84,7 +82,7 @@ findRoot(FindRootFunc func,
     // Newton/raphson out of range.
     if ((((root - x2) * dy - y) * ((root - x1) * dy - y) > 0.0)
         // Not decreasing fast enough.
-        || (abs(2.0 * y) > abs(dx_prev * dy))) {
+        || (std::abs(2.0 * y) > std::abs(dx_prev * dy))) {
       // Bisect x1/x2 interval.
       dx_prev = dx;
       dx = (x2 - x1) * 0.5;
@@ -95,7 +93,7 @@ findRoot(FindRootFunc func,
       dx = y / dy;
       root -= dx;
     }
-    if (abs(dx) <= x_tol * abs(root)) {
+    if (std::abs(dx) <= x_tol * std::abs(root)) {
       // Converged.
       fail = false;
       return root;

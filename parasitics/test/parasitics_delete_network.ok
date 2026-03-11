@@ -408,17 +408,17 @@ Arc sense: positive_unate
 Arc type: combinational
 A ^ -> Y ^
 P = 1.000000 V = 0.770000 T = 0.000000
-------- input_net_transition = 50.730160
+------- input_net_transition = 50.730164
 |       total_output_net_capacitance = 0.565282
 |        1.440000     2.880000
 v      --------------------
 40.000000 | 20.817699     23.184000
 80.000000 | 25.603901     28.101500
-Table value = 20.642830
+Table value = 20.642832
 PVT scale factor = 1.000000
-Delay = 20.642830
+Delay = 20.642832
 
-------- input_net_transition = 50.730160
+------- input_net_transition = 50.730164
 |       total_output_net_capacitance = 0.565282
 |        1.440000     2.880000
 v      --------------------

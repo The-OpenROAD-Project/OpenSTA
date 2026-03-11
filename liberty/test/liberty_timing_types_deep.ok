@@ -250,8 +250,6 @@ nor1/ZN                                 0.03    0.00    0.03 (MET)
 Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
- IQ internal
- IQ_N internal
  VGND ground
  VNB unknown
  VPB unknown
@@ -260,11 +258,41 @@ File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  D input 0.00-0.00
  Q output function=IQ
  RESET_B input 0.00-0.00
+ IQ internal
+ IQ_N internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  ^ -> v
+  v -> ^
+ CLK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ RESET_B -> Q
+  Reg Set/Clr
+  v -> v
+ CLK -> RESET_B
+  recovery
+  ^ -> ^
+ CLK -> RESET_B
+  removal
+  ^ -> ^
+ RESET_B -> RESET_B
+  width
+  v -> ^
 Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__ss_n40C_1v40
 File ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
- IQ internal
- IQ_N internal
  VGND ground
  VNB unknown
  VPB unknown
@@ -273,3 +301,35 @@ File ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
  D input 0.00-0.00
  Q output function=IQ
  RESET_B input 0.00-0.00
+ IQ internal
+ IQ_N internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  ^ -> v
+  v -> ^
+ CLK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ RESET_B -> Q
+  Reg Set/Clr
+  v -> v
+ CLK -> RESET_B
+  recovery
+  ^ -> ^
+ CLK -> RESET_B
+  removal
+  ^ -> ^
+ RESET_B -> RESET_B
+  width
+  v -> ^

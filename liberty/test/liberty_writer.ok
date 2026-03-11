@@ -9,8 +9,22 @@ Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
 Warning 1171: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
+Warning 1195: ../../test/liberty_arcs_one2one_1.lib line 45, port Y function size does not match port size.
 Warning 1216: ../../test/liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
+Warning 1195: ../../test/liberty_arcs_one2one_2.lib line 45, port Y function size does not match port size.
 Warning 1216: ../../test/liberty_arcs_one2one_2.lib line 48, timing port A and related port Y are different sizes.
+Warning 1110: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L port IQ[0] not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
+Warning 1110: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L port IQN[0] not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
+Warning 1111: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L CLK -> Q timing group Reg Clk to Q not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
+Warning 1111: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L D -> Q timing group combinational not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
+Warning 1111: cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L CLK -> Q timing group Latch En to Q not found in cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L.
+Warning 1111: cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L D -> Q timing group Latch D to Q not found in cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L.
+Warning 1110: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L port IQ[0] not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
+Warning 1110: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L port IQN[0] not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
+Warning 1111: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L CLK -> Q timing group Reg Clk to Q not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
+Warning 1111: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L D -> Q timing group combinational not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
+Warning 1111: cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L CLK -> Q timing group Latch En to Q not found in cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L.
+Warning 1111: cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L D -> Q timing group Latch D to Q not found in cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13189, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_LVT_FF_nldm_211120.lib.gz line 13222, timing group from output port.

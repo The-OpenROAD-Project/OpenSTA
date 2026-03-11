@@ -69,10 +69,10 @@ Instance reg1
   Q output out1
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 --- report_net ---
 Net n1
  Pin capacitance: 0.87-0.92

@@ -220,10 +220,10 @@ Instance reg1
   Q output w5
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance buf_out1
  Cell: BUF_X2
  Library: NangateOpenCellLibrary

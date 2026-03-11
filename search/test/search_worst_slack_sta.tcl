@@ -119,14 +119,7 @@ puts "--- report_checks unique_paths_to_endpoint ---"
 report_checks -path_delay max -endpoint_count 3 -unique_paths_to_endpoint
 
 puts "--- report_path_end with prev_end ---"
-set paths [find_timing_paths -path_delay max -endpoint_count 5]
-set prev_end ""
-foreach pe $paths {
-  if { $prev_end != "" } {
-    sta::report_path_end2 $pe $prev_end 0
-  }
-  set prev_end $pe
-}
+# report_path_end2 removed from API
 
 puts "--- path group names ---"
 set groups [sta::path_group_names]

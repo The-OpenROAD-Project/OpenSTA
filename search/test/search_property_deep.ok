@@ -54,7 +54,7 @@ lib_port direction: output
 lib name: NangateOpenCellLibrary
 lib full_name: NangateOpenCellLibrary
 --- Edge properties deep ---
-edge full_name: and1/A1 -> and1/ZN
+edge full_name: and1/A1 -> and1/ZN combinational
 edge delay_min_fall: 0.022456
 edge delay_max_fall: 0.022456
 edge delay_min_rise: 0.024490

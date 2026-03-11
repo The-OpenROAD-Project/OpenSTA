@@ -212,7 +212,7 @@ protected:
   Tcl_Interp *interp_;
   LibertyLibrary *lib_;
   bool design_loaded_ = false;
-  StdStringSeq group_names;
+  StringSeq group_names;
 };
 
 // ============================================================
@@ -552,8 +552,8 @@ TEST_F(StaDesignTest, FindPathEnds) {
 TEST_F(StaDesignTest, ReportPathEndHeaderFooter) {
   ASSERT_NO_THROW(( [&](){
   sta_->setReportPathFormat(ReportPathFormat::full);
-  sta_->reportPathEndHeader();
-  sta_->reportPathEndFooter();
+  
+  
 
   }() ));
 }
@@ -1488,7 +1488,7 @@ TEST_F(StaDesignTest, ReportPathEndWithPrev) {
     10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (ends.size() >= 2) {
-    sta_->reportPathEnd(ends[1], ends[0], false);
+    sta_->reportPathEnd(ends[1]);
   }
 
   }() ));
@@ -1505,7 +1505,7 @@ TEST_F(StaDesignTest, PathEndLess) {
     10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (ends.size() >= 2) {
-    PathEnd::less(ends[0], ends[1], sta_);
+    PathEnd::less(ends[0], ends[1], true, sta_);
     PathEnd::cmpNoCrpr(ends[0], ends[1], sta_);
   }
 
@@ -1734,7 +1734,7 @@ TEST_F(StaDesignTest, SearchIsEndpoint) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
-  search->isEndpoint(v);
+  EXPECT_TRUE(search->isEndpoint(v));
 }
 
 // --- reportParasiticAnnotation ---
@@ -1897,9 +1897,9 @@ TEST_F(StaDesignTest, SetReportPathFields) {
 
 TEST_F(StaDesignTest, SetReportPathFieldOrder) {
   ASSERT_NO_THROW(( [&](){
-  StringSeq *fields = new StringSeq;
-  fields->push_back("Fanout");
-  fields->push_back("Cap");
+  StringSeq fields;
+  fields.push_back("Fanout");
+  fields.push_back("Cap");
   sta_->setReportPathFieldOrder(fields);
 
   }() ));
@@ -2417,7 +2417,7 @@ TEST_F(StaDesignTest, SearchIsInputArrivalSrchStart) {
   Search *search = sta_->search();
   Vertex *v = findVertex("in1");
   ASSERT_NE(v, nullptr);
-  search->isInputArrivalSrchStart(v);
+  EXPECT_TRUE(search->isInputArrivalSrchStart(v));
 }
 
 // --- Sta: operatingConditions ---
@@ -2530,7 +2530,7 @@ TEST_F(StaDesignTest, PathEndCmp) {
     10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (ends.size() >= 2) {
-    PathEnd::cmp(ends[0], ends[1], sta_);
+    PathEnd::cmp(ends[0], ends[1], true, sta_);
     PathEnd::cmpSlack(ends[0], ends[1], sta_);
     PathEnd::cmpArrival(ends[0], ends[1], sta_);
   }
@@ -2834,8 +2834,8 @@ TEST_F(StaDesignTest, ReportPathEndpointFormat) {
     10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (ends.size() >= 2) {
-    sta_->reportPathEnd(ends[0], nullptr, false);
-    sta_->reportPathEnd(ends[1], ends[0], true);
+    sta_->reportPathEnd(ends[0]);
+    sta_->reportPathEnd(ends[1]);
   }
 
   }() ));
@@ -3374,7 +3374,7 @@ TEST_F(StaDesignTest, PathEndLess2) {
     10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (ends.size() >= 2) {
-    PathEnd::less(ends[0], ends[1], sta_);
+    PathEnd::less(ends[0], ends[1], true, sta_);
   }
 
   }() ));
@@ -3449,14 +3449,14 @@ TEST_F(StaDesignTest, FindPathEndsUnconstrained2) {
 
 TEST_F(StaDesignTest, ReportPathEndHeader) {
   ASSERT_NO_THROW(( [&](){
-  sta_->reportPathEndHeader();
+  
 
   }() ));
 }
 
 TEST_F(StaDesignTest, ReportPathEndFooter) {
   ASSERT_NO_THROW(( [&](){
-  sta_->reportPathEndFooter();
+  
 
   }() ));
 }
@@ -3620,8 +3620,8 @@ TEST_F(StaDesignTest, ReportPathFullWithPrevEnd) {
     true, false, false, false, false, false);
   if (ends.size() >= 2) {
     sta_->setReportPathFormat(ReportPathFormat::full);
-    sta_->reportPathEnd(ends[0], nullptr, false);
-    sta_->reportPathEnd(ends[1], ends[0], true);
+    sta_->reportPathEnd(ends[0]);
+    sta_->reportPathEnd(ends[1]);
   }
 
   }() ));
@@ -3629,10 +3629,10 @@ TEST_F(StaDesignTest, ReportPathFullWithPrevEnd) {
 
 TEST_F(StaDesignTest, ReportPathFieldOrder) {
   ASSERT_NO_THROW(( [&](){
-  StringSeq *field_names = new StringSeq;
-  field_names->push_back("fanout");
-  field_names->push_back("capacitance");
-  field_names->push_back("slew");
+  StringSeq field_names;
+  field_names.push_back("fanout");
+  field_names.push_back("capacitance");
+  field_names.push_back("slew");
   sta_->setReportPathFieldOrder(field_names);
 
   }() ));
@@ -4099,11 +4099,11 @@ TEST_F(StaDesignTest, SearchIsEndpoint2) {
   Search *search = sta_->search();
   Vertex *v_data = findVertex("r3/D");
   if (v_data) {
-    search->isEndpoint(v_data);
+    EXPECT_TRUE(search->isEndpoint(v_data));
   }
   Vertex *v_out = findVertex("r1/Q");
   if (v_out) {
-    search->isEndpoint(v_out);
+    EXPECT_FALSE(search->isEndpoint(v_out));
   }
 
   }() ));

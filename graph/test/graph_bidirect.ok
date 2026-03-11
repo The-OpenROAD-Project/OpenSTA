@@ -831,10 +831,10 @@ Instance reg1
   Q output q1
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance reg2
  Cell: DFF_X1
  Library: NangateOpenCellLibrary
@@ -846,10 +846,10 @@ Instance reg2
   Q output q2
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance reg3
  Cell: DFF_X1
  Library: NangateOpenCellLibrary
@@ -861,10 +861,10 @@ Instance reg3
   Q output q3
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance reg4
  Cell: DFF_X1
  Library: NangateOpenCellLibrary
@@ -876,10 +876,10 @@ Instance reg4
   Q output q4
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 --- Test 7: modify graph ---
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)

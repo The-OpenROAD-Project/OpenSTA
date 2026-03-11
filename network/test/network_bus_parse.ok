@@ -143,10 +143,10 @@ Instance reg0
   Q output result[0]
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 report_instance reg0: done
 Instance or_carry
  Cell: OR2_X1

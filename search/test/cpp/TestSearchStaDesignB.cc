@@ -213,7 +213,7 @@ protected:
   Tcl_Interp *interp_;
   LibertyLibrary *lib_;
   bool design_loaded_ = false;
-  StdStringSeq group_names;
+  StringSeq group_names;
 };
 
 
@@ -1192,8 +1192,8 @@ TEST_F(StaDesignTest, PathGroupFindByName) {
   if (!ends.empty()) {
     PathGroup *pg = ends[0]->pathGroup();
     if (pg) {
-      const char *name = pg->name();
-      EXPECT_NE(name, nullptr);
+      const std::string &name = pg->name();
+      EXPECT_FALSE(name.empty());
     }
   }
 
@@ -1213,7 +1213,7 @@ TEST_F(StaDesignTest, PathGroups) {
     PathGroup *pg = ends[0]->pathGroup();
     EXPECT_NE(pg, nullptr);
     if (pg) {
-      EXPECT_NE(pg->name(), nullptr);
+      EXPECT_FALSE(pg->name().empty());
     }
   }
 
@@ -2422,9 +2422,9 @@ TEST_F(StaDesignTest, ReportPathEndJson2) {
     1, 1, true, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    sta_->reportPathEndHeader();
+    
     sta_->reportPathEnd(ends[0]);
-    sta_->reportPathEndFooter();
+    
   }
 
   }() ));
@@ -3791,9 +3791,9 @@ TEST_F(StaDesignTest, ReportPathEndFullClock) {
     1, 1, true, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    sta_->reportPathEndHeader();
+    
     sta_->reportPathEnd(ends[0]);
-    sta_->reportPathEndFooter();
+    
   }
 
   }() ));
@@ -3809,9 +3809,9 @@ TEST_F(StaDesignTest, ReportPathEndFullClockExpanded) {
     1, 1, true, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    sta_->reportPathEndHeader();
+    
     sta_->reportPathEnd(ends[0]);
-    sta_->reportPathEndFooter();
+    
   }
 
   }() ));
@@ -3827,9 +3827,9 @@ TEST_F(StaDesignTest, ReportPathEndEnd) {
     1, 1, true, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    sta_->reportPathEndHeader();
+    
     sta_->reportPathEnd(ends[0]);
-    sta_->reportPathEndFooter();
+    
   }
 
   }() ));
@@ -3845,9 +3845,9 @@ TEST_F(StaDesignTest, ReportPathEndSummary2) {
     1, 1, true, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    sta_->reportPathEndHeader();
+    
     sta_->reportPathEnd(ends[0]);
-    sta_->reportPathEndFooter();
+    
   }
 
   }() ));
@@ -3863,9 +3863,9 @@ TEST_F(StaDesignTest, ReportPathEndSlackOnly2) {
     1, 1, true, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    sta_->reportPathEndHeader();
+    
     sta_->reportPathEnd(ends[0]);
-    sta_->reportPathEndFooter();
+    
   }
 
   }() ));
@@ -4208,7 +4208,7 @@ TEST_F(StaDesignTest, FindPathEndsGroupFilter) {
 // --- Sta: pathGroupNames ---
 TEST_F(StaDesignTest, PathGroupNames) {
   sta_->makeGroupPath("test_group_r11", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
-  StdStringSeq names = sta_->pathGroupNames(sta_->cmdSdc());
+  StringSeq names = sta_->pathGroupNames(sta_->cmdSdc());
   bool found = false;
   for (const auto &name : names) {
     if (name == "test_group_r11")

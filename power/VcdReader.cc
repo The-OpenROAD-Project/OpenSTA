@@ -24,8 +24,10 @@
 
 #include "VcdReader.hh"
 
+#include <cmath>
 #include <inttypes.h>
 #include <unordered_map>
+#include <vector>
 
 #include "VcdParse.hh"
 #include "Debug.hh"
@@ -40,13 +42,6 @@
 #include "Sta.hh"
 
 namespace sta {
-
-using std::string;
-using std::abs;
-using std::min;
-using std::to_string;
-using std::vector;
-using std::unordered_map;
 
 // Transition count and high time for duty cycle for a group of pins
 // for one bit of vcd ID.
@@ -117,9 +112,9 @@ VcdCount::highTime(VcdTime time_max) const
 ////////////////////////////////////////////////////////////////
 
 // VcdCount[bit]
-typedef vector<VcdCount> VcdCounts;
+using VcdCounts = std::vector<VcdCount>;
 // ID -> VcdCount[bit]
-typedef unordered_map<string, VcdCounts> VcdIdCountsMap;
+using VcdIdCountsMap = std::unordered_map<std::string, VcdCounts>;
 
 class VcdCountReader : public VcdReader
 {
@@ -134,31 +129,31 @@ public:
   double timeScale() const { return time_scale_; }
 
   // VcdParse callbacks.
-  void setDate(const string &) override {}
-  void setComment(const string &) override {}
-  void setVersion(const string &) override {}
-  void setTimeUnit(const string &time_unit,
+  void setDate(const std::string &) override {}
+  void setComment(const std::string &) override {}
+  void setVersion(const std::string &) override {}
+  void setTimeUnit(const std::string &time_unit,
                    double time_unit_scale,
                    double time_scale) override;
   void setTimeMin(VcdTime time) override;
   void setTimeMax(VcdTime time) override;
   void varMinDeltaTime(VcdTime) override {}
-  bool varIdValid(const string &id) override;
+  bool varIdValid(const std::string &id) override;
   void makeVar(const VcdScope &scope,
-               const string &name,
+               const std::string &name,
                VcdVarType type,
                size_t width,
-               const string &id) override;
-  void varAppendValue(const string &id,
+               const std::string &id) override;
+  void varAppendValue(const std::string &id,
                       VcdTime time,
                       char value) override;
-  void varAppendBusValue(const string &id,
+  void varAppendBusValue(const std::string &id,
                          VcdTime time,
-                         const string &bus_value) override;
+                         const std::string &bus_value) override;
 
 private:
-  void addVarPin(const string &pin_name,
-                 const string &id,
+  void addVarPin(const std::string &pin_name,
+                 const std::string &id,
                  size_t width,
                  size_t bit_idx);
 
@@ -189,7 +184,7 @@ VcdCountReader::VcdCountReader(const std::string &scope,
 }
 
 void
-VcdCountReader::setTimeUnit(const string &,
+VcdCountReader::setTimeUnit(const std::string &,
                             double time_unit_scale,
                             double time_scale)
 {
@@ -209,23 +204,23 @@ VcdCountReader::setTimeMax(VcdTime time)
 }
 
 bool
-VcdCountReader::varIdValid(const string &)
+VcdCountReader::varIdValid(const std::string &)
 {
   return true;
 }
 
 void
 VcdCountReader::makeVar(const VcdScope &scope,
-                        const string &name,
+                        const std::string &name,
                         VcdVarType type,
                         size_t width,
-                        const string &id)
+                        const std::string &id)
 {
   if (type == VcdVarType::wire
       || type == VcdVarType::reg) {
-    string path_name;
+    std::string path_name;
     bool first = true;
-    for (const string &context : scope) {
+    for (const std::string &context : scope) {
       if (!first)
         path_name += '/';
       path_name += context;
@@ -238,25 +233,25 @@ VcdCountReader::makeVar(const VcdScope &scope,
       path_name += '/';
       path_name += name;
       // Strip the scope from the name.
-      string var_scoped = path_name.substr(scope_length + 1);
+      std::string var_scoped = path_name.substr(scope_length + 1);
       if (width == 1) {
-        string pin_name = netVerilogToSta(&var_scoped);
+        std::string pin_name = netVerilogToSta(&var_scoped);
         addVarPin(pin_name, id, width, 0);
       }
       else {
         bool is_bus, is_range, subscript_wild;
-        string bus_name;
+        std::string bus_name;
         int from, to;
         parseBusName(var_scoped.c_str(), '[', ']', '\\',
                      is_bus, is_range, bus_name, from, to, subscript_wild);
         if (is_bus) {
-          string sta_bus_name = netVerilogToSta(&bus_name);
+          std::string sta_bus_name = netVerilogToSta(&bus_name);
           int bit_idx = 0;
           if (to < from) {
             for (int bus_bit = to; bus_bit <= from; bus_bit++) {
-              string pin_name = sta_bus_name;
+              std::string pin_name = sta_bus_name;
               pin_name += '[';
-              pin_name += to_string(bus_bit);
+              pin_name += std::to_string(bus_bit);
               pin_name += ']';
               addVarPin(pin_name, id, width, bit_idx);
               bit_idx++;
@@ -264,9 +259,9 @@ VcdCountReader::makeVar(const VcdScope &scope,
           }
           else {
             for (int bus_bit = to; bus_bit >= from; bus_bit--) {
-              string pin_name = sta_bus_name;
+              std::string pin_name = sta_bus_name;
               pin_name += '[';
-              pin_name += to_string(bus_bit);
+              pin_name += std::to_string(bus_bit);
               pin_name += ']';
               addVarPin(pin_name, id, width, bit_idx);
               bit_idx++;
@@ -281,8 +276,8 @@ VcdCountReader::makeVar(const VcdScope &scope,
 }
 
 void
-VcdCountReader::addVarPin(const string &pin_name,
-                          const string &id,
+VcdCountReader::addVarPin(const std::string &pin_name,
+                          const std::string &id,
                           size_t width,
                           size_t bit_idx)
 {
@@ -303,7 +298,7 @@ VcdCountReader::addVarPin(const string &pin_name,
 }
 
 void
-VcdCountReader::varAppendValue(const string &id,
+VcdCountReader::varAppendValue(const std::string &id,
                                VcdTime time,
                                char value)
 {
@@ -329,9 +324,9 @@ VcdCountReader::varAppendValue(const string &id,
 }
 
 void
-VcdCountReader::varAppendBusValue(const string &id,
+VcdCountReader::varAppendBusValue(const std::string &id,
                                   VcdTime time,
-                                  const string &bus_value)
+                                  const std::string &bus_value)
 {
   const auto &itr = vcd_count_map_.find(id);
   if (itr != vcd_count_map_.end()) {
@@ -476,7 +471,7 @@ ReadVcdActivities::checkClkPeriod(const Pin *pin,
                       sdc_network_->pathName(pin));
       else {
         double clk_period = clk->period();
-        if (abs((clk_period - sim_period) / clk_period) > sim_clk_period_tolerance_)
+        if (std::abs((clk_period - sim_period) / clk_period) > sim_clk_period_tolerance_)
           // Warn if sim clock period differs from SDC by more than 10%.
           report_->warn(1452, "clock %s vcd period %s differs from SDC clock period %s",
                         clk->name(),

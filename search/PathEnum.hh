@@ -68,8 +68,8 @@ public:
   // Insert path ends that are enumerated in slack/arrival order.
   void insert(PathEnd *path_end);
   virtual ~PathEnum();
-  virtual bool hasNext();
-  virtual PathEnd *next();
+  bool hasNext() override;
+  PathEnd *next() override;
 
 private:
   void makeDiversions(PathEnd *path_end,

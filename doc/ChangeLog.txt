@@ -3,7 +3,7 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
-2025/02/24
+2026/02/24
 ----------
 
 The define_scene -library argument now takes a the library name or a
@@ -201,7 +201,7 @@ to remove paths through identical pins and rise/fall edges.
 Instances now have pins for verilog netlist power/ground connections,
 
 Sta::findPathEnds group_paths arg has been changed from PathGroupNameSet*
-to StdStringSeq&.
+to StringSeq&.
 
 Release 2.6.1 2025/03/30
 -------------------------

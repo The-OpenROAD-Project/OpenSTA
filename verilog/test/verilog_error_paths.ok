@@ -299,10 +299,10 @@ Instance reg0
   Q output dout[0]
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance reg1
  Cell: DFF_X1
  Library: NangateOpenCellLibrary
@@ -314,10 +314,10 @@ Instance reg1
   Q output dout[1]
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance reg2
  Cell: DFF_X1
  Library: NangateOpenCellLibrary
@@ -329,10 +329,10 @@ Instance reg2
   Q output dout[2]
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance reg3
  Cell: DFF_X1
  Library: NangateOpenCellLibrary
@@ -344,10 +344,10 @@ Instance reg3
   Q output dout[3]
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 --- Test 7: re-read ---
 re-read cells: 34
 re-read nets: 55

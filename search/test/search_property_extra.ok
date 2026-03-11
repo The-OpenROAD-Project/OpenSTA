@@ -42,13 +42,13 @@ arc_set name: AND2_X1 A1 -> ZN
 arc_set full_name: AND2_X1 A2 -> ZN
 arc_set name: AND2_X1 A2 -> ZN
 --- Edge properties on different arc types ---
-edge: reg1/CK -> reg1/QN sense=non_unate
-edge: reg1/CK -> reg1/Q sense=non_unate
-edge: reg1/CK -> reg1/CK sense=unknown
-edge: reg1/CK -> reg1/D sense=unknown
-edge: reg1/CK -> reg1/D sense=unknown
+edge: reg1/CK -> reg1/QN Reg Clk to Q sense=non_unate
+edge: reg1/CK -> reg1/Q Reg Clk to Q sense=non_unate
+edge: reg1/CK -> reg1/CK width sense=unknown
+edge: reg1/CK -> reg1/D setup sense=unknown
+edge: reg1/CK -> reg1/D hold sense=unknown
 --- Edge properties on BUF arcs ---
-buf edge: buf1/A -> buf1/Z
+buf edge: buf1/A -> buf1/Z combinational
 buf delay_max_rise: 0.019583
 buf delay_max_fall: 0.023517
 --- Slew check limits ---

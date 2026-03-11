@@ -207,22 +207,11 @@ if { $wv != "NULL" } {
 # report_path_end_header/footer
 ############################################################
 puts "--- report_path_end header/footer ---"
-sta::report_path_end_header
+# report_path_end_header/footer/2 removed from API
 set pes [find_timing_paths -path_delay max -endpoint_count 3]
-set prev ""
-set last 0
-set idx 0
 foreach pe $pes {
-  incr idx
-  if { $idx == [llength $pes] } { set last 1 }
-  if { $prev != "" } {
-    sta::report_path_end2 $pe $prev $last
-  } else {
-    sta::report_path_end $pe
-  }
-  set prev $pe
+  sta::report_path_end $pe
 }
-sta::report_path_end_footer
 
 ############################################################
 # report_checks -format json

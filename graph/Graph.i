@@ -171,6 +171,7 @@ path_iterator(const RiseFall *rf,
 } // Vertex methods
 
 %extend Edge {
+std::string to_string() { return self->to_string(Sta::sta()); };
 Vertex *from() { return self->from(Sta::sta()->graph()); }
 Vertex *to() { return self->to(Sta::sta()->graph()); }
 Pin *from_pin() { return self->from(Sta::sta()->graph())->pin(); }
@@ -298,7 +299,7 @@ latch_d_to_q_en()
     if (enable_port)
       return stringPrintTmp("%s %s",
                             enable_port->name(),
-                            enable_rf->to_string().c_str());
+                            enable_rf->shortName());
   }
   return "";
 }

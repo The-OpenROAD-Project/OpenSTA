@@ -28,7 +28,6 @@
 #include <vector>
 #include <set>
 
-#include "StringSeq.hh"
 #include "GraphClass.hh"
 #include "SearchClass.hh"
 

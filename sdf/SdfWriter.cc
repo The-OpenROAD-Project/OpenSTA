@@ -45,8 +45,6 @@
 
 namespace sta {
 
-using std::string;
-
 class SdfWriter : public StaState
 {
 public:
@@ -108,10 +106,10 @@ protected:
   void writeSdfTriple(float min,
                       float max);
   void writeSdfDelay(double delay);
-  string sdfPortName(const Pin *pin);
-  string sdfPathName(const Pin *pin);
-  string sdfPathName(const Instance *inst);
-  string sdfName(const Instance *inst);
+  std::string sdfPortName(const Pin *pin);
+  std::string sdfPathName(const Pin *pin);
+  std::string sdfPathName(const Instance *inst);
+  std::string sdfName(const Instance *inst);
 
 private:
   char sdf_divider_;
@@ -315,8 +313,8 @@ SdfWriter::writeInterconnectFromPin(Pin *drvr_pin)
       Edge *edge = edge_iter.next();
       if (edge->isWire()) {
         Pin *load_pin = edge->to(graph_)->pin();
-        string drvr_pin_name = sdfPathName(drvr_pin);
-        string load_pin_name = sdfPathName(load_pin);
+        std::string drvr_pin_name = sdfPathName(drvr_pin);
+        std::string load_pin_name = sdfPathName(load_pin);
         gzprintf(stream_, "    (INTERCONNECT %s %s ",
                  drvr_pin_name.c_str(),
                  load_pin_name.c_str());
@@ -347,7 +345,7 @@ SdfWriter::writeInstHeader(const Instance *inst)
 {
   gzprintf(stream_, " (CELL\n");
   gzprintf(stream_, "  (CELLTYPE \"%s\")\n", network_->cellName(inst));
-  string inst_name = sdfPathName(inst);
+  std::string inst_name = sdfPathName(inst);
   gzprintf(stream_, "  (INSTANCE %s)\n", inst_name.c_str());
 }
 
@@ -392,8 +390,8 @@ SdfWriter::writeIopaths(const Instance *inst,
             gzprintf(stream_, "    (COND %s\n", sdf_cond.c_str());
             gzprintf(stream_, " ");
           }
-          string from_pin_name = sdfPortName(from_pin);
-          string to_pin_name = sdfPortName(to_pin);
+          std::string from_pin_name = sdfPortName(from_pin);
+          std::string to_pin_name = sdfPortName(to_pin);
           gzprintf(stream_, "    (IOPATH %s %s ",
                    from_pin_name.c_str(),
                    to_pin_name.c_str());
@@ -661,7 +659,7 @@ SdfWriter::writeCheck(Edge *edge,
   if (!sdf_cond_start.empty())
     gzprintf(stream_, "(COND %s ", sdf_cond_start.c_str());
 
-  string to_pin_name = sdfPortName(to_pin);
+  std::string to_pin_name = sdfPortName(to_pin);
   if (use_data_edge) {
     gzprintf(stream_, "(%s %s)",
              sdfEdge(arc->toEdge()),
@@ -678,7 +676,7 @@ SdfWriter::writeCheck(Edge *edge,
   if (!sdf_cond_end.empty())
     gzprintf(stream_, "(COND %s ", sdf_cond_end.c_str());
 
-  string from_pin_name = sdfPortName(from_pin);
+  std::string from_pin_name = sdfPortName(from_pin);
   if (use_clk_edge)
     gzprintf(stream_, "(%s %s)",
              sdfEdge(arc->fromEdge()),
@@ -704,7 +702,7 @@ SdfWriter::writeWidthCheck(const Pin *pin,
                            float min_width,
                            float max_width)
 {
-  string pin_name = sdfPortName(pin);
+  std::string pin_name = sdfPortName(pin);
   gzprintf(stream_, "    (WIDTH (%s %s) ",
            sdfEdge(hi_low->asTransition()),
            pin_name.c_str());
@@ -716,7 +714,7 @@ void
 SdfWriter::writePeriodCheck(const Pin *pin,
                             float min_period)
 {
-  string pin_name = sdfPortName(pin);
+  std::string pin_name = sdfPortName(pin);
   gzprintf(stream_, "    (PERIOD %s ", pin_name.c_str());
   writeSdfTriple(min_period, min_period);
   gzprintf(stream_, ")\n");
@@ -734,16 +732,16 @@ SdfWriter::sdfEdge(const Transition *tr)
 
 ////////////////////////////////////////////////////////////////
 
-string
+std::string
 SdfWriter::sdfPathName(const Pin *pin)
 {
   Instance *inst = network_->instance(pin);
   if (network_->isTopInstance(inst))
     return sdfPortName(pin);
   else {
-    string inst_path = sdfPathName(inst);
-    string port_name = sdfPortName(pin);
-    string sdf_name = inst_path;
+    std::string inst_path = sdfPathName(inst);
+    std::string port_name = sdfPortName(pin);
+    std::string sdf_name = inst_path;
     sdf_name += sdf_divider_;
     sdf_name += port_name;
     return sdf_name;
@@ -751,15 +749,15 @@ SdfWriter::sdfPathName(const Pin *pin)
 }
 
 // Based on Network::pathName.
-string
+std::string
 SdfWriter::sdfPathName(const Instance *instance)
 {
   InstanceSeq inst_path;
   network_->path(instance, inst_path);
-  string path_name;
+  std::string path_name;
   while (!inst_path.empty()) {
     const Instance *inst = inst_path.back();
-    string inst_name = sdfName(inst);
+    std::string inst_name = sdfName(inst);
     path_name += inst_name;
     inst_path.pop_back();
     if (!inst_path.empty())
@@ -769,11 +767,11 @@ SdfWriter::sdfPathName(const Instance *instance)
 }
 
 // Escape for non-alpha numeric characters.
-string
+std::string
 SdfWriter::sdfName(const Instance *inst)
 {
   const char *name = network_->name(inst);
-  string sdf_name;
+  std::string sdf_name;
   const char *p = name;
   while (*p) {
     char ch = *p;
@@ -789,12 +787,12 @@ SdfWriter::sdfName(const Instance *inst)
   return sdf_name;
 }
 
-string
+std::string
 SdfWriter::sdfPortName(const Pin *pin)
 {
   const char *name = network_->portName(pin);
   size_t name_length = strlen(name);
-  string sdf_name;
+  std::string sdf_name;
 
   constexpr char bus_brkt_left = '[';
   constexpr char bus_brkt_right = ']';

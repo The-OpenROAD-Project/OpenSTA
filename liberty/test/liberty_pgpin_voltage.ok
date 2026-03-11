@@ -77,11 +77,15 @@ File ../../test/sky130hd/sky130hd_tt.lib
  VPWR power
  A input 0.00-0.00
  Y output function=!A
+
+Timing arcs
+ A -> Y
+  combinational
+  ^ -> v
+  v -> ^
 Cell sky130_fd_sc_hd__dfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
- IQ internal
- IQ_N internal
  VGND ground
  VNB unknown
  VPB unknown
@@ -89,11 +93,29 @@ File ../../test/sky130hd/sky130hd_tt.lib
  CLK input 0.00-0.00
  D input 0.00-0.00
  Q output function=IQ
+ IQ internal
+ IQ_N internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  ^ -> v
+  v -> ^
+ CLK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
 Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
- IQ internal
- IQ_N internal
  VGND ground
  VNB unknown
  VPB unknown
@@ -102,6 +124,38 @@ File ../../test/sky130hd/sky130hd_tt.lib
  D input 0.00-0.00
  Q output function=IQ
  RESET_B input 0.00-0.00
+ IQ internal
+ IQ_N internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  ^ -> v
+  v -> ^
+ CLK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ RESET_B -> Q
+  Reg Set/Clr
+  v -> v
+ CLK -> RESET_B
+  recovery
+  ^ -> ^
+ CLK -> RESET_B
+  removal
+  ^ -> ^
+ RESET_B -> RESET_B
+  width
+  v -> ^
 Cell sky130_fd_sc_hd__ebufn_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -112,6 +166,20 @@ File ../../test/sky130hd/sky130hd_tt.lib
  A input 0.00-0.00
  TE_B input 0.00-0.00
  Z tristate enable=!TE_B function=A 0.00
+
+Timing arcs
+ A -> Z
+  combinational
+  ^ -> ^
+  v -> v
+ TE_B -> Z
+  tristate enable
+  v -> Z1
+  v -> Z0
+ TE_B -> Z
+  tristate disable
+  ^ -> 0Z
+  ^ -> 1Z
 Cell sky130_fd_sc_hd__dlclkp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -123,6 +191,23 @@ File ../../test/sky130hd/sky130hd_tt.lib
  GATE input 0.00-0.00
  GCLK output
  M0 internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  v -> ^
+ CLK -> GATE
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> GATE
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> GCLK
+  combinational
+  ^ -> ^
+  v -> v
 IHP sg13g2_inv_1 area=5.443200
 IHP sg13g2_inv_1 pg_pins=0
 IHP sg13g2_buf_1 area=7.257600

@@ -24,6 +24,8 @@
 
 #include "CcsCeffDelayCalc.hh"
 
+#include <cmath>
+
 #include "Debug.hh"
 #include "Units.hh"
 #include "Liberty.hh"
@@ -38,16 +40,10 @@
 
 namespace sta {
 
-using std::string;
-
 // Implementaion based on:
 // "Gate Delay Estimation with Library Compatible Current Source Models
 // and Effective Capacitance", D. Garyfallou et al,
 // IEEE Transactions on Very Large Scale Integration (VLSI) Systems, March 2021
-
-using std::abs;
-using std::exp;
-using std::make_shared;
 
 ArcDelayCalc *
 makeCcsCeffDelayCalc(StaState *sta)
@@ -122,7 +118,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
       ref_time_ = output_waveforms_->referenceTime(in_slew_);
       debugPrint(debug_, "ccs_dcalc", 1, "%s %s",
                  drvr_cell->name(),
-                 drvr_rf_->to_string().c_str());
+                 drvr_rf_->shortName());
       ArcDelay gate_delay;
       Slew drvr_slew;
       gateDelaySlew(drvr_library, drvr_rf_, gate_delay, drvr_slew);
@@ -144,7 +140,7 @@ CcsCeffDelayCalc::gateDelaySlew(const LibertyLibrary *drvr_library,
   findCsmWaveform();
   ref_time_ = output_waveforms_->referenceTime(in_slew_);
   gate_delay = region_times_[region_vth_idx_] - ref_time_;
-  drvr_slew = abs(region_times_[region_vh_idx_] - region_times_[region_vl_idx_]);
+  drvr_slew = std::abs(region_times_[region_vh_idx_] - region_times_[region_vl_idx_]);
   debugPrint(debug_, "ccs_dcalc", 2,
              "gate_delay %s drvr_slew %s (initial)",
              delayAsString(gate_delay, this),
@@ -184,12 +180,12 @@ CcsCeffDelayCalc::gateDelaySlew(const LibertyLibrary *drvr_library,
     }
     findCsmWaveform();
     gate_delay = region_times_[region_vth_idx_] - ref_time_;
-    drvr_slew = abs(region_times_[region_vh_idx_] - region_times_[region_vl_idx_]);
+    drvr_slew = std::abs(region_times_[region_vh_idx_] - region_times_[region_vl_idx_]);
     debugPrint(debug_, "ccs_dcalc", 2,
                "gate_delay %s drvr_slew %s",
                delayAsString(gate_delay, this),
                delayAsString(drvr_slew, this));
-    if (abs(delayAsFloat(drvr_slew) - prev_drvr_slew) < .01 * prev_drvr_slew)
+    if (std::abs(delayAsFloat(drvr_slew) - prev_drvr_slew) < .01 * prev_drvr_slew)
       break;
     prev_drvr_slew = delayAsFloat(drvr_slew);
   }
@@ -529,8 +525,8 @@ CcsCeffDelayCalc::drvrWaveform()
         drvr_volts->push_back(v);
       }
     }
-    TableAxisPtr drvr_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                         std::move(*drvr_times));
+    TableAxisPtr drvr_time_axis = std::make_shared<TableAxis>(TableAxisVariable::time,
+                                                              std::move(*drvr_times));
     delete drvr_times;
     Table drvr_table(drvr_volts, drvr_time_axis);
     return drvr_table;
@@ -561,8 +557,8 @@ CcsCeffDelayCalc::loadWaveform(const Pin *load_pin)
         double v1 = (drvr_rf_ == RiseFall::rise()) ? v : vdd_ - v;
         load_volts->push_back(v1);
       }
-      TableAxisPtr load_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                           std::move(*load_times));
+      TableAxisPtr load_time_axis = std::make_shared<TableAxis>(TableAxisVariable::time,
+                                                                std::move(*load_times));
       delete load_times;
       Table load_table(load_volts, load_time_axis);
       return load_table;
@@ -606,8 +602,8 @@ CcsCeffDelayCalc::drvrRampWaveform(const Pin *in_pin,
         double v1 = (drvr_rf == RiseFall::rise()) ? v : vdd_ - v;
         load_volts->push_back(v1);
       }
-      TableAxisPtr load_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                           std::move(*load_times));
+      TableAxisPtr load_time_axis = std::make_shared<TableAxis>(TableAxisVariable::time,
+                                                                std::move(*load_times));
       delete load_times;
       Table load_table(load_volts, load_time_axis);
       return load_table;
@@ -663,7 +659,7 @@ CcsCeffDelayCalc::makeWaveformPreamble(const Pin *in_pin,
 
 ////////////////////////////////////////////////////////////////
 
-string
+std::string
 CcsCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                   const TimingArc *arc,
                                   const Slew &in_slew,
@@ -680,7 +676,7 @@ CcsCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
     pi_elmore = parasitics_->reduceToPiElmore(parasitic, drvr_pin_, rf,
                                                scene, min_max);
   }
-  string report = table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap,
+  std::string report = table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap,
                                                 pi_elmore, load_pin_index_map,
                                                 scene, min_max, digits);
   parasitics_->deleteDrvrReducedParasitics(drvr_pin);

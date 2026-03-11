@@ -118,6 +118,12 @@ File ../../test/nangate45/Nangate45_fast.lib
  VSS ground
  A input 0.91-0.98
  Z output function=A
+
+Timing arcs
+ A -> Z
+  combinational
+  ^ -> ^
+  v -> v
 Cell BUF_X1
 Library NangateOpenCellLibrary_slow
 File ../../test/nangate45/Nangate45_slow.lib
@@ -125,25 +131,75 @@ File ../../test/nangate45/Nangate45_slow.lib
  VSS ground
  A input 0.84-0.93
  Z output function=A
+
+Timing arcs
+ A -> Z
+  combinational
+  ^ -> ^
+  v -> v
 Cell DFF_X1
 Library NangateOpenCellLibrary_fast
 File ../../test/nangate45/Nangate45_fast.lib
- IQ internal
- IQN internal
  VDD power
  VSS ground
  D input 1.10-1.16
  CK input 0.89-0.97
  Q output function=IQ
  QN output function=IQN
+ IQ internal
+ IQN internal
+
+Timing arcs
+ CK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+ CK -> CK
+  width
+  ^ -> v
+  v -> ^
+ CK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ CK -> QN
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
 Cell DFF_X1
 Library NangateOpenCellLibrary_slow
 File ../../test/nangate45/Nangate45_slow.lib
- IQ internal
- IQN internal
  VDD power
  VSS ground
  D input 1.03-1.11
  CK input 0.82-0.91
  Q output function=IQ
  QN output function=IQN
+ IQ internal
+ IQN internal
+
+Timing arcs
+ CK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+ CK -> CK
+  width
+  ^ -> v
+  v -> ^
+ CK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ CK -> QN
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v

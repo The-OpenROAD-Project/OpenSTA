@@ -21,6 +21,23 @@ File ../../test/sky130hd/sky130hd_tt.lib
  GATE input 0.00-0.00
  GCLK output
  M0 internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  v -> ^
+ CLK -> GATE
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> GATE
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> GCLK
+  combinational
+  ^ -> ^
+  v -> v
 sky130_fd_sc_hd__dlclkp_2 area=18.768000
 Cell sky130_fd_sc_hd__dlclkp_2
 Library sky130_fd_sc_hd__tt_025C_1v80
@@ -33,6 +50,23 @@ File ../../test/sky130hd/sky130hd_tt.lib
  GATE input 0.00-0.00
  GCLK output
  M0 internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  v -> ^
+ CLK -> GATE
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> GATE
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> GCLK
+  combinational
+  ^ -> ^
+  v -> v
 sky130_fd_sc_hd__dlclkp_4 area=21.270399
 Cell sky130_fd_sc_hd__dlclkp_4
 Library sky130_fd_sc_hd__tt_025C_1v80
@@ -45,6 +79,23 @@ File ../../test/sky130hd/sky130hd_tt.lib
  GATE input 0.00-0.00
  GCLK output
  M0 internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  v -> ^
+ CLK -> GATE
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> GATE
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> GCLK
+  combinational
+  ^ -> ^
+  v -> v
 sky130_fd_sc_hd__sdlclkp_1 area=18.768000
   VGND dir=ground func=
   VNB dir=unknown func=

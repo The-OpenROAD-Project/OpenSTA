@@ -304,10 +304,10 @@ Instance reg1
   Q output out1
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance reg2
  Cell: DFF_X1
  Library: NangateOpenCellLibrary
@@ -319,10 +319,10 @@ Instance reg2
   Q output out2
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 Instance reg3
  Cell: DFF_X1
  Library: NangateOpenCellLibrary
@@ -334,10 +334,10 @@ Instance reg3
   Q output outbus[0]
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 --- Test 4: write_verilog ---
 --- Test 5: re-read verilog ---
 re-read cells: 12

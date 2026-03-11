@@ -37,7 +37,7 @@ namespace sta {
 
 FuncExpr *
 parseFuncExpr(const char *func,
-              LibertyCell *cell,
+              const LibertyCell *cell,
               const char *error_msg,
               Report *report)
 {
@@ -56,7 +56,7 @@ parseFuncExpr(const char *func,
 }
 
 LibExprReader::LibExprReader(const char *func,
-                             LibertyCell *cell,
+                             const LibertyCell *cell,
                              const char *error_msg,
                              Report *report) :
   func_(func),
@@ -69,7 +69,7 @@ LibExprReader::LibExprReader(const char *func,
 
 // defined in LibertyReader.cc
 LibertyPort *
-libertyReaderFindPort(LibertyCell *cell,
+libertyReaderFindPort(const LibertyCell *cell,
                       const char *port_name);
 
 FuncExpr *

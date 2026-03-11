@@ -44,12 +44,12 @@ and0 pins: 3
   and0/A2 dir=input
   and0/ZN dir=output
 reg0 pins: 6
-  reg0/IQ dir=internal
-  reg0/IQN dir=internal
   reg0/D dir=input
   reg0/CK dir=input
   reg0/Q dir=output
   reg0/QN dir=output
+  reg0/IQ dir=internal
+  reg0/IQN dir=internal
 */A pins: 10
 */Z pins: 10
 */ZN pins: 10

@@ -57,12 +57,12 @@ pins in order:
   and1/ZN dir=output
   buf1/A dir=input
   buf1/Z dir=output
-  reg1/IQ dir=internal
-  reg1/IQN dir=internal
   reg1/D dir=input
   reg1/CK dir=input
   reg1/Q dir=output
   reg1/QN dir=output
+  reg1/IQ dir=internal
+  reg1/IQN dir=internal
 --- collection operations ---
 buf1 pins: 2
 and1 pins: 3
@@ -322,10 +322,10 @@ Instance reg1
   Q output out1
   QN output (unconnected)
  Other pins:
-  IQ internal (unconnected)
-  IQN internal (unconnected)
   VDD power (unconnected)
   VSS ground (unconnected)
+  IQ internal (unconnected)
+  IQN internal (unconnected)
 --- property queries ---
 buf1 full_name: buf1
 buf1 ref_name: BUF_X1

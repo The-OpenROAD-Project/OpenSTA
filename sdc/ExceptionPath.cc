@@ -38,8 +38,6 @@
 
 namespace sta {
 
-using std::string;
-
 static bool
 thrusIntersectPts(ExceptionThruSeq *thrus1,
                   ExceptionThruSeq *thrus2,
@@ -326,7 +324,7 @@ ExceptionPath::intersectsPts(ExceptionPath *exception,
 const char *
 ExceptionPath::fromThruToString(const Network *network) const
 {
-  string str;
+  std::string str;
   if (min_max_ != MinMaxAll::all()) {
     str += " -";
     str += min_max_->to_string();
@@ -1186,7 +1184,7 @@ ExceptionFromTo::deletePinBefore(const Pin *pin,
 const char *
 ExceptionFromTo::asString(const Network *network) const
 {
-  string str;
+  std::string str;
   str += " ";
   str += cmdKeyword();
   str += " {";
@@ -1360,7 +1358,7 @@ ExceptionTo::clone(const Network *network)
 const char *
 ExceptionTo::asString(const Network *network) const
 {
-  string str;
+  std::string str;
   if (hasObjects())
     str += ExceptionFromTo::asString(network);
 
@@ -1679,7 +1677,7 @@ ExceptionThru::~ExceptionThru()
 const char *
 ExceptionThru::asString(const Network *network) const
 {
-  string str;
+  std::string str;
   bool first = true;
   int obj_count = 0;
   if (pins_) {
@@ -2429,8 +2427,7 @@ void
 InsertPinPairsThru::visit(const Pin *drvr,
                           const Pin *load)
 {
-  PinPair pair(drvr, load);
-  pairs_->insert(pair);
+  pairs_->insert({drvr, load});
 }
 
 static void
@@ -2477,8 +2474,7 @@ void
 DeletePinPairsThru::visit(const Pin *drvr,
                           const Pin *load)
 {
-  PinPair pair(drvr, load);
-  pairs_->erase(pair);
+  pairs_->erase({drvr, load});
 }
 
 static void

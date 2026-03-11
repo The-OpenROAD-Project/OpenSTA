@@ -2372,7 +2372,8 @@ TEST(Table2Test, FindValueInterpolation) {
 
 TEST(GateTableModelTest, CheckAxesOrder0) {
   TablePtr tbl = std::make_shared<Table>(1.0f);
-  EXPECT_TRUE(GateTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(GateTableModel::checkAxes(&tbl_model));
 }
 
 TEST(GateTableModelTest, CheckAxesOrder1) {
@@ -2383,7 +2384,8 @@ TEST(GateTableModelTest, CheckAxesOrder1) {
   FloatSeq values;
   values.push_back(1.0f); values.push_back(2.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  EXPECT_TRUE(GateTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(GateTableModel::checkAxes(&tbl_model));
 }
 
 TEST(GateTableModelTest, CheckAxesOrder2) {
@@ -2400,7 +2402,8 @@ TEST(GateTableModelTest, CheckAxesOrder2) {
   FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
   values.push_back(std::move(row0)); values.push_back(std::move(row1));
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
-  EXPECT_TRUE(GateTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(GateTableModel::checkAxes(&tbl_model));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2409,7 +2412,8 @@ TEST(GateTableModelTest, CheckAxesOrder2) {
 
 TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder0) {
   TablePtr tbl = std::make_shared<Table>(1.0f);
-  EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(&tbl_model));
 }
 
 TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder1) {
@@ -2420,7 +2424,8 @@ TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder1) {
   FloatSeq values;
   values.push_back(0.1f); values.push_back(1.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(&tbl_model));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2897,7 +2902,8 @@ TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder2) {
   FloatSeq row1; row1.push_back(0.3f); row1.push_back(0.4f);
   values.push_back(std::move(row0)); values.push_back(std::move(row1));
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
-  EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(&tbl_model));
 }
 
 TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder2Reversed) {
@@ -2914,7 +2920,8 @@ TEST(LibertyLibraryTest, CheckSlewDegradationAxesOrder2Reversed) {
   FloatSeq row1; row1.push_back(0.3f); row1.push_back(0.4f);
   values.push_back(std::move(row0)); values.push_back(std::move(row1));
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
-  EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(LibertyLibrary::checkSlewDegradationAxes(&tbl_model));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3001,10 +3008,8 @@ TEST(ScaleFactorPvtTest, PvtToName) {
 
 TEST(ScaleFactorTypeTest, FindByName) {
   EXPECT_EQ(findScaleFactorType("pin_cap"), ScaleFactorType::pin_cap);
-  // Note: in the source map, "wire_res" string is mapped to ScaleFactorType::wire_cap
-  // and there is no "wire_cap" string entry
-  EXPECT_EQ(findScaleFactorType("wire_res"), ScaleFactorType::wire_cap);
-  EXPECT_EQ(findScaleFactorType("wire_cap"), ScaleFactorType::unknown);
+  EXPECT_EQ(findScaleFactorType("wire_res"), ScaleFactorType::wire_res);
+  EXPECT_EQ(findScaleFactorType("wire_cap"), ScaleFactorType::wire_cap);
   EXPECT_EQ(findScaleFactorType("min_period"), ScaleFactorType::min_period);
   EXPECT_EQ(findScaleFactorType("cell"), ScaleFactorType::cell);
   EXPECT_EQ(findScaleFactorType("hold"), ScaleFactorType::hold);
@@ -3022,10 +3027,8 @@ TEST(ScaleFactorTypeTest, FindByName) {
 
 TEST(ScaleFactorTypeTest, TypeToName) {
   EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::pin_cap), "pin_cap");
-  // Note: wire_cap maps to "wire_res" string in source (implementation quirk)
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::wire_cap), "wire_res");
-  // wire_res is not in the map - returns nullptr
-  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::wire_res), nullptr);
+  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::wire_cap), "wire_cap");
+  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::wire_res), "wire_res");
   EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::cell), "cell");
   EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::hold), "hold");
   EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::setup), "setup");
@@ -3549,7 +3552,8 @@ TEST(GateTableModelTest, CheckAxesOrder1BadAxis) {
   FloatSeq values;
   values.push_back(1.0f); values.push_back(2.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  EXPECT_FALSE(GateTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(GateTableModel::checkAxes(&tbl_model));
 }
 
 TEST(GateTableModelTest, CheckAxesOrder2BadAxis) {
@@ -3566,7 +3570,8 @@ TEST(GateTableModelTest, CheckAxesOrder2BadAxis) {
   FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
   values.push_back(std::move(row0)); values.push_back(std::move(row1));
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
-  EXPECT_FALSE(GateTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(GateTableModel::checkAxes(&tbl_model));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3575,7 +3580,8 @@ TEST(GateTableModelTest, CheckAxesOrder2BadAxis) {
 
 TEST(CheckTableModelTest, CheckAxesOrder0) {
   TablePtr tbl = std::make_shared<Table>(1.0f);
-  EXPECT_TRUE(CheckTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(CheckTableModel::checkAxes(&tbl_model));
 }
 
 TEST(CheckTableModelTest, CheckAxesOrder1) {
@@ -3586,7 +3592,8 @@ TEST(CheckTableModelTest, CheckAxesOrder1) {
   FloatSeq values;
   values.push_back(1.0f); values.push_back(2.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  EXPECT_TRUE(CheckTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(CheckTableModel::checkAxes(&tbl_model));
 }
 
 TEST(CheckTableModelTest, CheckAxesOrder1BadAxis) {
@@ -3597,7 +3604,8 @@ TEST(CheckTableModelTest, CheckAxesOrder1BadAxis) {
   FloatSeq values;
   values.push_back(1.0f); values.push_back(2.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  EXPECT_FALSE(CheckTableModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(CheckTableModel::checkAxes(&tbl_model));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3607,7 +3615,8 @@ TEST(CheckTableModelTest, CheckAxesOrder1BadAxis) {
 TEST(ReceiverModelTest, CheckAxesOrder0False) {
   // Table0 has no axes, ReceiverModel requires input_net_transition axis
   TablePtr tbl = std::make_shared<Table>(1.0f);
-  EXPECT_FALSE(ReceiverModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(ReceiverModel::checkAxes(&tbl_model));
 }
 
 TEST(ReceiverModelTest, CheckAxesOrder1Valid) {
@@ -3618,7 +3627,8 @@ TEST(ReceiverModelTest, CheckAxesOrder1Valid) {
   FloatSeq values;
   values.push_back(1.0f); values.push_back(2.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  EXPECT_TRUE(ReceiverModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_TRUE(ReceiverModel::checkAxes(&tbl_model));
 }
 
 TEST(ReceiverModelTest, CheckAxesOrder1BadAxis) {
@@ -3629,7 +3639,8 @@ TEST(ReceiverModelTest, CheckAxesOrder1BadAxis) {
   FloatSeq values;
   values.push_back(1.0f); values.push_back(2.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  EXPECT_FALSE(ReceiverModel::checkAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(ReceiverModel::checkAxes(&tbl_model));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3644,7 +3655,8 @@ TEST(LibertyLibraryTest, CheckSlewDegradationAxesBadAxis) {
   FloatSeq values;
   values.push_back(0.1f); values.push_back(1.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  EXPECT_FALSE(LibertyLibrary::checkSlewDegradationAxes(tbl));
+  TableModel tbl_model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
+  EXPECT_FALSE(LibertyLibrary::checkSlewDegradationAxes(&tbl_model));
 }
 
 ////////////////////////////////////////////////////////////////

@@ -242,7 +242,7 @@ endpoint_slack(const Pin *pin,
   }
 }
 
-StdStringSeq
+StringSeq
 path_group_names()
 {
   Sta *sta = Sta::sta();
@@ -335,6 +335,14 @@ slow_drivers(int count)
   return Sta::sta()->slowDrivers(count);
 }
 
+bool
+is_ideal_clock(const Pin *pin)
+{
+  Sta *sta = Sta::sta();
+  const Mode *mode = sta->cmdMode();
+  return sta->isIdealClock(pin, mode);
+}
+
 ////////////////////////////////////////////////////////////////
 
 PathEndSeq
@@ -351,7 +359,7 @@ find_path_ends(ExceptionFrom *from,
                float slack_min,
                float slack_max,
                bool sort_by_slack,
-               StdStringSeq path_groups,
+               StringSeq path_groups,
                bool setup,
                bool hold,
                bool recovery,
@@ -375,29 +383,9 @@ find_path_ends(ExceptionFrom *from,
 ////////////////////////////////////////////////////////////////
 
 void
-report_path_end_header()
-{
-  Sta::sta()->reportPathEndHeader();
-}
-
-void
-report_path_end_footer()
-{
-  Sta::sta()->reportPathEndFooter();
-}
-
-void
 report_path_end(PathEnd *end)
 {
   Sta::sta()->reportPathEnd(end);
-}
-
-void
-report_path_end2(PathEnd *end,
-                 PathEnd *prev_end,
-                 bool last)
-{
-  Sta::sta()->reportPathEnd(end, prev_end, last);
 }
 
 void
@@ -407,10 +395,9 @@ set_report_path_format(ReportPathFormat format)
 }
     
 void
-set_report_path_field_order(StringSeq *field_names)
+set_report_path_field_order(const StringSeq &field_names)
 {
   Sta::sta()->setReportPathFieldOrder(field_names);
-  delete field_names;
 }
 
 void
@@ -753,8 +740,8 @@ write_timing_model_cmd(const char *lib_name,
 void
 define_scene_cmd(const char *name,
                  const char *mode_name,
-                 const StdStringSeq liberty_min_files,
-                 const StdStringSeq liberty_max_files,
+                 const StringSeq liberty_min_files,
+                 const StringSeq liberty_max_files,
                  const char *spef_min_file,
                  const char *spef_max_file)
 {
@@ -765,11 +752,10 @@ define_scene_cmd(const char *name,
 }
 
 void
-define_scenes_cmd(StringSeq *scene_names)
+define_scenes_cmd(const StringSeq &scene_names)
 {
   Sta *sta = Sta::sta();
   sta->makeScenes(scene_names);
-  delete scene_names;
 }
 
 Scene *

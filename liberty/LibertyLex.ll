@@ -87,14 +87,14 @@ EOL \r?\n
 {FLOAT}{TOKEN_END} {
 	/* Push back the TOKEN_END character. */
 	yyless(yyleng - 1);
-	yylval->emplace<float>(strtod(yytext, nullptr));
+	yylval->emplace<float>(strtof(yytext, nullptr));
 	return token::FLOAT;
 	}
 
 {ALPHA}({ALPHA}|_|{DIGIT})*{TOKEN_END} {
 	/* Push back the TOKEN_END character. */
 	yyless(yyleng - 1);
-	yylval->emplace<std::string>(yytext);
+	yylval->emplace<std::string>(yytext, yyleng);
 	return token::KEYWORD;
 	}
 
@@ -107,7 +107,7 @@ EOL \r?\n
 {TOKEN}{TOKEN_END} {
 	/* Push back the TOKEN_END character. */
 	yyless(yyleng - 1);
-	yylval->emplace<std::string>(yytext);
+	yylval->emplace<std::string>(yytext, yyleng);
 	return token::STRING;
 	}
 
@@ -141,7 +141,7 @@ EOL \r?\n
 <qstring>{EOL} {
 	error("unterminated string constant");
 	BEGIN(INITIAL);
-	yylval->emplace<std::string>(token_);
+        yylval->emplace<std::string>(token_);
 	return token::STRING;
 	}
 

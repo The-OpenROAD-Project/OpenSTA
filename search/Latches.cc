@@ -323,6 +323,10 @@ Latches::latchOutArrival(const Path *data_path,
                          ArcDelay &arc_delay,
                          Arrival &q_arrival)
 {
+  q_tag = nullptr;
+  arc_delay = 0.0;
+  q_arrival = 0.0;
+
   Scene *scene = data_path->scene(this);
   Sdc *sdc = scene->sdc();
   const Mode *mode = scene->mode();
@@ -337,82 +341,109 @@ Latches::latchOutArrival(const Path *data_path,
   // Latch enable may be missing if library is malformed.
   switch (state) {
   case LatchEnableState::closed:
-    // Latch is disabled by constant enable.
+    // Latch is always closed because enable is constant.
     break;
   case LatchEnableState::open: {
+    // Latch is always open because enable is constant.
     ExceptionPath *excpt = exceptionTo(data_path, nullptr);
     if (!(excpt && excpt->isFalse())) {
       arc_delay = search_->deratedDelay(data_vertex, d_q_arc, d_q_edge,
                                         false, min_max, dcalc_ap, sdc);
       q_arrival = data_path->arrival() + arc_delay;
-      q_tag = data_path->tag(this);
+      // Copy the data tag but remove the drprClkPath.
+      // Levelization does not traverse latch D->Q edges, so in some cases
+      //  level(Q) < level(D)
+      // Note that
+      //  level(crprClkPath(data)) < level(D)
+      // The danger is that
+      //  level(crprClkPath(data)) == level(Q)
+      // or some other downstream vertex.
+      // This can lead to data races when finding arrivals at the same level
+      // use multiple threads.
+      // Kill the crprClklPath to be safe.
+      const ClkInfo *data_clk_info = data_path->clkInfo(this);
+      const ClkInfo *q_clk_info =
+        search_->findClkInfo(scene,
+                             data_clk_info->clkEdge(),
+                             data_clk_info->clkSrc(),
+                             data_clk_info->isPropagated(),
+                             data_clk_info->genClkSrc(),
+                             data_clk_info->isGenClkSrcPath(),
+                             data_clk_info->pulseClkSense(),
+                             data_clk_info->insertion(),
+                             data_clk_info->latency(),
+                             data_clk_info->uncertainties(),
+                             min_max, nullptr);
+      q_tag = search_->findTag(scene, d_q_arc->toEdge()->asRiseFall(),
+                               min_max, q_clk_info, false,
+                               nullptr, false, data_path->tag(this)->states(),
+                               false, nullptr);
     }
-  }
     break;
+  }
   case LatchEnableState::enabled: {
     const MinMax *tgt_min_max = data_path->tgtClkMinMax(this);
     VertexPathIterator enable_iter(enable_vertex, scene, tgt_min_max,
                                    enable_rf, this);
     while (enable_iter.hasNext()) {
       Path *enable_path = enable_iter.next();
-       const ClkInfo *en_clk_info = enable_path->clkInfo(this);
-       const ClockEdge *en_clk_edge = en_clk_info->clkEdge();
-       if (enable_path->isClock(this)) {
-         ExceptionPath *excpt = exceptionTo(data_path, en_clk_edge);
-         // D->Q is disabled when if there is a path delay -to D or EN clk.
-         if (!(excpt && (excpt->isFalse()
-                         || excpt->isPathDelay()))) {
-           Path *disable_path = latchEnableOtherPath(enable_path);
-           Delay borrow, time_given_to_startpoint;
-           Arrival adjusted_data_arrival;
-           Required required;
-           latchRequired(data_path, enable_path, disable_path,
-                         required, borrow, adjusted_data_arrival,
-                         time_given_to_startpoint);
-           if (delayGreater(borrow, 0.0, this)) {
-             // Latch is transparent when data arrives.
-             arc_delay = search_->deratedDelay(data_vertex, d_q_arc, d_q_edge,
-                                               false, min_max, dcalc_ap, sdc);
-             q_arrival = adjusted_data_arrival + arc_delay;
-             // Tag switcheroo - data passing thru gets latch enable tag.
-             // States and path ap come from Q, everything else from enable.
-             Path *crpr_clk_path = crprActive(mode) ? enable_path : nullptr;
-             const ClkInfo *q_clk_info = 
-               search_->findClkInfo(en_clk_info->scene(),
-                                    en_clk_edge,
-                                    en_clk_info->clkSrc(),
-                                    en_clk_info->isPropagated(),
-                                    en_clk_info->genClkSrc(),
-                                    en_clk_info->isGenClkSrcPath(),
-                                    en_clk_info->pulseClkSense(),
-                                    en_clk_info->insertion(),
-                                    en_clk_info->latency(),
-                                    en_clk_info->uncertainties(),
-                                    min_max, crpr_clk_path);
-             const RiseFall *q_rf = d_q_arc->toEdge()->asRiseFall();
-             ExceptionStateSet *states = nullptr;
-             // Latch data pin is a valid exception -from pin.
-             if (sdc->exceptionFromStates(data_path->pin(this),
-                                          data_path->transition(this),
-                                          nullptr, nullptr, // clk below
-                                          MinMax::max(), states)
-                 // -from enable non-filter exceptions apply.
-                 && sdc->exceptionFromStates(enable_vertex->pin(),
-                                             enable_rf,
-                                             en_clk_edge->clock(),
-                                             en_clk_edge->transition(),
-                                             MinMax::max(), false, states))
-               q_tag = search_->findTag(enable_path->tag(this)->scene(),
-                                        q_rf, MinMax::max(), q_clk_info, false,
-                                        nullptr, false, states, true, nullptr);
-           }
-           return;
-         }
-       }
+      const ClkInfo *en_clk_info = enable_path->clkInfo(this);
+      const ClockEdge *en_clk_edge = en_clk_info->clkEdge();
+      if (enable_path->isClock(this)) {
+        ExceptionPath *excpt = exceptionTo(data_path, en_clk_edge);
+        // D->Q is disabled when if there is a path delay -to D or EN clk.
+        if (!(excpt && (excpt->isFalse()
+                        || excpt->isPathDelay()))) {
+          Path *disable_path = latchEnableOtherPath(enable_path);
+          Delay borrow, time_given_to_startpoint;
+          Arrival adjusted_data_arrival;
+          Required required;
+          latchRequired(data_path, enable_path, disable_path,
+                        required, borrow, adjusted_data_arrival,
+                        time_given_to_startpoint);
+          if (delayGreater(borrow, 0.0, this)) {
+            // Latch is transparent when data arrives.
+            arc_delay = search_->deratedDelay(data_vertex, d_q_arc, d_q_edge,
+                                              false, min_max, dcalc_ap, sdc);
+            q_arrival = adjusted_data_arrival + arc_delay;
+            // Tag switcheroo - data passing thru gets latch enable tag.
+            // States and path ap come from Q, everything else from enable.
+            Path *crpr_clk_path = crprActive(mode) ? enable_path : nullptr;
+            const ClkInfo *q_clk_info =
+              search_->findClkInfo(scene,
+                                   en_clk_edge,
+                                   en_clk_info->clkSrc(),
+                                   en_clk_info->isPropagated(),
+                                   en_clk_info->genClkSrc(),
+                                   en_clk_info->isGenClkSrcPath(),
+                                   en_clk_info->pulseClkSense(),
+                                   en_clk_info->insertion(),
+                                   en_clk_info->latency(),
+                                   en_clk_info->uncertainties(),
+                                   min_max, crpr_clk_path);
+            ExceptionStateSet *states = nullptr;
+            // Latch data pin is a valid exception -from pin.
+            if (sdc->exceptionFromStates(data_path->pin(this),
+                                         data_path->transition(this),
+                                         nullptr, nullptr, // clk below
+                                         MinMax::max(), states)
+                // -from enable non-filter exceptions apply.
+                && sdc->exceptionFromStates(enable_vertex->pin(),
+                                            enable_rf,
+                                            en_clk_edge->clock(),
+                                            en_clk_edge->transition(),
+                                            MinMax::max(), false, states))
+              q_tag = search_->findTag(scene, d_q_arc->toEdge()->asRiseFall(),
+                                       MinMax::max(), q_clk_info, false,
+                                       nullptr, false, states, true, nullptr);
+          }
+          return;
+        }
+      }
     }
     // No enable path found.
-  }
     break;
+  }
   }
 }
 

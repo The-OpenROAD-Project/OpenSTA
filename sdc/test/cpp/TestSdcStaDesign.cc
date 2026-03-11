@@ -2438,7 +2438,7 @@ TEST_F(SdcDesignTest, DisabledCellPortsAccessors) {
     if (lib_cell) {
       DisabledCellPorts *dcp = new DisabledCellPorts(lib_cell);
       EXPECT_EQ(dcp->cell(), lib_cell);
-      dcp->all();
+      EXPECT_FALSE(dcp->all());
       delete dcp;
     }
   }

@@ -24,8 +24,7 @@
 
 #include "Search.hh"
 
-#include <algorithm>
-#include <cmath> // abs
+#include <vector>
 
 #include "ContainerHelpers.hh"
 #include "Mutex.hh"
@@ -69,10 +68,6 @@
 #include "Variables.hh"
 
 namespace sta {
-
-using std::min;
-using std::max;
-using std::abs;
 
 ////////////////////////////////////////////////////////////////
 
@@ -502,14 +497,14 @@ Search::findPathEnds(ExceptionFrom *from,
                      bool unconstrained,
                      const SceneSeq &scenes,
                      const MinMaxAll *min_max,
-                     size_t group_path_count,
-                     size_t endpoint_path_count,
+                     int group_path_count,
+                     int endpoint_path_count,
                      bool unique_pins,
                      bool unique_edges,
                      float slack_min,
                      float slack_max,
                      bool sort_by_slack,
-                     StdStringSeq &group_names,
+                     StringSeq &group_names,
                      bool setup,
                      bool hold,
                      bool recovery,
@@ -1370,8 +1365,8 @@ ArrivalVisitor::visitFromToPath(const Pin * /* from_pin */,
   debugPrint(debug_, "search", 3, " %s",
              from_vertex->to_string(this).c_str());
   debugPrint(debug_, "search", 3, "  %s -> %s %s",
-             from_rf->to_string().c_str(),
-             to_rf->to_string().c_str(),
+             from_rf->shortName(),
+             to_rf->shortName(),
              min_max->to_string().c_str());
   debugPrint(debug_, "search", 3, "  from tag: %s",
              from_tag->to_string(this).c_str());
@@ -2924,7 +2919,7 @@ Search::reportArrivals(Vertex *vertex,
           prev_str += "NULL";
       }
       report_->reportLine(" %s %s %s / %s %s%s",
-                          rf->to_string().c_str(),
+                          rf->shortName(),
                           path->minMax(this)->to_string().c_str(),
                           delayAsString(path->arrival(), this),
                           req,
@@ -3659,10 +3654,10 @@ RequiredVisitor::visitFromToPath(const Pin *,
                                  const MinMax *min_max)
 {
   // Don't propagate required times through latch D->Q edges.
-  if (edge->role() != TimingRole::latchDtoQ()) {
+  if (!edge->role()->isLatchDtoQ()) {
     debugPrint(debug_, "search", 3, "  %s -> %s %s",
-               from_rf->to_string().c_str(),
-               to_rf->to_string().c_str(),
+               from_rf->shortName(),
+               to_rf->shortName(),
                min_max->to_string().c_str());
     debugPrint(debug_, "search", 3, "  from tag %2u: %s",
                from_tag->index(),

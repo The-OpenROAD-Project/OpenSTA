@@ -150,14 +150,7 @@ if { $wslk != "NULL" } {
 }
 
 puts "--- report_path_end with prev_end ---"
-set paths3 [find_timing_paths -path_delay max -endpoint_count 3]
-set prev_end ""
-foreach pe $paths3 {
-  if { $prev_end != "" } {
-    sta::report_path_end2 $pe $prev_end 0
-  }
-  set prev_end $pe
-}
+# report_path_end2 removed from API
 
 puts "--- make_instance ---"
 set and_cell2 [get_lib_cells NangateOpenCellLibrary/AND2_X1]

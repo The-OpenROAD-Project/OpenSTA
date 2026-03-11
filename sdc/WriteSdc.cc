@@ -29,6 +29,7 @@
 #include <ctime>
 #include <vector>
 #include <set>
+#include <string>
 
 #include "ContainerHelpers.hh"
 #include "Zlib.hh"
@@ -62,8 +63,6 @@
 #include "WriteSdcPvt.hh"
 
 namespace sta {
-
-using std::string;
 
 typedef std::set<ClockSense*> ClockSenseSet;
 typedef std::vector<ClockSense*> ClockSenseSeq;
@@ -1167,7 +1166,7 @@ WriteSdc::writeDisabledEdgeSense(Edge *edge) const
 {
   gzprintf(stream_, "set_disable_timing ");
   const char *sense = to_string(edge->sense());
-  string filter;
+  std::string filter;
   stringPrint(filter, "sense == %s", sense);
   writeGetTimingArcs(edge, filter.c_str());
   gzprintf(stream_, "\n");

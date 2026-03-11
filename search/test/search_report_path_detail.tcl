@@ -154,11 +154,10 @@ sta::report_path_count_histogram
 
 puts "--- report_path_end header/footer ---"
 set pe_for_report [find_timing_paths -path_delay max -endpoint_count 1]
-sta::report_path_end_header
+# report_path_end_header/footer removed from API
 foreach pe $pe_for_report {
   sta::report_path_end $pe
 }
-sta::report_path_end_footer
 
 puts "--- slow_drivers ---"
 set slow [sta::slow_drivers 3]

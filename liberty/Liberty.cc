@@ -31,7 +31,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "StringUtil.hh"
-#include "StringSet.hh"
 #include "PatternMatch.hh"
 #include "Units.hh"
 #include "Transition.hh"
@@ -49,8 +48,6 @@
 #include "Scene.hh"
 
 namespace sta {
-
-using std::string;
 
 void
 initLiberty()
@@ -111,8 +108,6 @@ LibertyLibrary::LibertyLibrary(const char *name,
 
 LibertyLibrary::~LibertyLibrary()
 {
-  delete scale_factors_;
-
   for (auto rf_index : RiseFall::rangeIndex()) {
     TableModel *model = wire_slew_degradation_tbls_[rf_index];
     delete model;
@@ -271,14 +266,14 @@ LibertyLibrary::setScaleFactors(ScaleFactors *scales)
 ScaleFactors *
 LibertyLibrary::makeScaleFactors(const char *name)
 {
-  auto [it, inserted] = scale_factors_map_.emplace(std::string(name), name);
+  auto [it, inserted] = scale_factors_map_.emplace(name, name);
   return &it->second;
 }
 
 ScaleFactors *
 LibertyLibrary::findScaleFactors(const char *name)
 {
-  return findKeyValuePtr(scale_factors_map_, std::string(name));
+  return findKeyValuePtr(scale_factors_map_, name);
 }
 
 float
@@ -400,20 +395,20 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
 // Check for supported axis variables.
 // Return true if axes are supported.
 bool
-LibertyLibrary::checkSlewDegradationAxes(const TablePtr &table)
+LibertyLibrary::checkSlewDegradationAxes(const TableModel *table_model)
 {
-  switch (table->order()) {
+  switch (table_model->order()) {
   case 0:
     return true;
   case 1: {
-    const TableAxis *axis1 = table->axis1();
+    const TableAxis *axis1 = table_model->axis1();
     TableAxisVariable var1 = axis1->variable();
     return var1 == TableAxisVariable::output_pin_transition
       || var1 == TableAxisVariable::connect_delay;
   }
   case 2: {
-    const TableAxis *axis1 = table->axis1();
-    const TableAxis *axis2 = table->axis2();
+    const TableAxis *axis1 = table_model->axis1();
+    const TableAxis *axis2 = table_model->axis2();
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
     return (var1 == TableAxisVariable::output_pin_transition
@@ -1269,8 +1264,7 @@ LibertyCell::makeInternalPower(LibertyPort *port,
                                const std::shared_ptr<FuncExpr> &when,
                                InternalPowerModels &models)
 {
-  internal_powers_.emplace_back(port, related_port, related_pg_pin,
-                                when, models);
+  internal_powers_.emplace_back(port, related_port, related_pg_pin, when, models);
   port_internal_powers_[port].push_back(internal_powers_.size() - 1);
 }
 
@@ -1372,17 +1366,14 @@ LibertyCell::makeTimingArcPortMaps()
     LibertyPort *from = arc_set->from();
     LibertyPort *to = arc_set->to();
     if (from && to) {
-      LibertyPortPair from_to_pair(from, to);
-      TimingArcSetSeq &sets = port_timing_arc_set_map_[from_to_pair];
+      TimingArcSetSeq &sets = port_timing_arc_set_map_[{from, to}];
       sets.push_back(arc_set);
     }
 
-    LibertyPortPair from_pair(from, nullptr);
-    TimingArcSetSeq &from_sets = port_timing_arc_set_map_[from_pair];
+    TimingArcSetSeq &from_sets = port_timing_arc_set_map_[{from, nullptr}];
     from_sets.push_back(arc_set);
 
-    LibertyPortPair to_pair(nullptr, to);
-    TimingArcSetSeq &to_sets = port_timing_arc_set_map_[to_pair];
+    TimingArcSetSeq &to_sets = port_timing_arc_set_map_[{nullptr, to}];
     to_sets.push_back(arc_set);
 
     const TimingRole *role = arc_set->role();
@@ -1416,8 +1407,7 @@ LibertyCell::timingArcSets(const LibertyPort *from,
                            const LibertyPort *to) const
 {
   static const TimingArcSetSeq null_set;
-  const LibertyPortPair port_pair(from, to);
-  auto itr = port_timing_arc_set_map_.find(port_pair);
+  auto itr = port_timing_arc_set_map_.find({from, to});
   return (itr == port_timing_arc_set_map_.end()) ? null_set : itr->second;
 }
 
@@ -1442,8 +1432,8 @@ LibertyCell::timingArcSetCount() const
 bool
 LibertyCell::hasTimingArcs(LibertyPort *port) const
 {
-  return port_timing_arc_set_map_.contains(LibertyPortPair(port, nullptr))
-    || port_timing_arc_set_map_.contains(LibertyPortPair(nullptr, port));
+  return port_timing_arc_set_map_.contains({port, nullptr})
+    || port_timing_arc_set_map_.contains({nullptr, port});
 }
 
 void
@@ -1485,6 +1475,10 @@ LibertyCell::makeSequential(int size,
     port_to_seq_map_[sequentials_.back().output()] = idx;
     port_to_seq_map_[sequentials_.back().outputInv()] = idx;
   }
+  delete clk;
+  delete data;
+  delete clear;
+  delete preset;
 }
 
 Sequential *
@@ -1680,45 +1674,58 @@ LibertyCell::makeLatchEnables(Report *report,
 {
   if (hasSequentials()
       || hasInferedRegTimingArcs()) {
-    for (auto en_to_q : timing_arc_sets_) {
-      if (en_to_q->role() == TimingRole::latchEnToQ()) {
-        LibertyPort *en = en_to_q->from();
-        LibertyPort *q = en_to_q->to();
-        for (TimingArcSet *d_to_q : timingArcSetsTo(q)) {
-          if (d_to_q->role() == TimingRole::latchDtoQ()
-              && condMatch(en_to_q, d_to_q)) {
-            LibertyPort *d = d_to_q->from();
-            const RiseFall *en_rf = en_to_q->isRisingFallingEdge();
-            if (en_rf) {
-              TimingArcSet *setup_check = findLatchSetup(d, en, en_rf, q, d_to_q,
-                                                         report);
-              LatchEnable *latch_enable = makeLatchEnable(d, en, en_rf, q, d_to_q,
-                                                          en_to_q,
-                                                          setup_check,
-                                                          debug);
-              FuncExpr *en_func = latch_enable->enableFunc();
-              if (en_func) {
-                TimingSense en_sense = en_func->portTimingSense(en);
-                if (en_sense == TimingSense::positive_unate
-                    && en_rf != RiseFall::rise())
-                  report->warn(1114, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
-                               library_->name(),
-                               name(),
-                               en->name(),
-                               q->name(),
-                               en_rf == RiseFall::rise()?"rising":"falling");
-                else if (en_sense == TimingSense::negative_unate
-                         && en_rf != RiseFall::fall())
-                  report->warn(1115, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
-                               library_->name(),
-                               name(),
-                               en->name(),
-                               q->name(),
-                               en_rf == RiseFall::rise()?"rising":"falling");
-              }
+    for (TimingArcSet *d_to_q : timing_arc_sets_) {
+      if (d_to_q->role() == TimingRole::latchDtoQ()) {
+        LibertyPort *d = d_to_q->from();
+        LibertyPort *q = d_to_q->to();
+        TimingArcSet *en_to_q = nullptr;
+        TimingArcSet *en_to_q_when = nullptr;
+        // Prefer en_to_q with matching when.
+        for (TimingArcSet *arc_to_q : timingArcSetsTo(q)) {
+          if (arc_to_q->role() == TimingRole::latchEnToQ()) {
+            if (condMatch(arc_to_q, d_to_q))
+              en_to_q_when = arc_to_q;
+            else
+              en_to_q = arc_to_q;
+          }
+        }
+        if (en_to_q_when)
+          en_to_q = en_to_q_when;
+        if (en_to_q) {
+          LibertyPort *en = en_to_q->from();
+          const RiseFall *en_rf = en_to_q->isRisingFallingEdge();
+          if (en_rf) {
+            TimingArcSet *setup_check = findLatchSetup(d, en, en_rf, q, d_to_q, report);
+            LatchEnable *latch_enable = makeLatchEnable(d, en, en_rf, q, d_to_q,
+                                                        en_to_q, setup_check, debug);
+            FuncExpr *en_func = latch_enable->enableFunc();
+            if (en_func) {
+              TimingSense en_sense = en_func->portTimingSense(en);
+              if (en_sense == TimingSense::positive_unate
+                  && en_rf != RiseFall::rise())
+                report->warn(1114, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
+                             library_->name(),
+                             name(),
+                             en->name(),
+                             q->name(),
+                             en_rf == RiseFall::rise()?"rising":"falling");
+              else if (en_sense == TimingSense::negative_unate
+                       && en_rf != RiseFall::fall())
+                report->warn(1115, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
+                             library_->name(),
+                             name(),
+                             en->name(),
+                             q->name(),
+                             en_rf == RiseFall::rise()?"rising":"falling");
             }
           }
         }
+        else
+          report->warn(1121, "cell %s/%s no latch enable found for %s -> %s.",
+                       library_->name(),
+                       name(),
+                       d->name(),
+                       q->name());
       }
     }
   }
@@ -1811,8 +1818,7 @@ LibertyCell::makeLatchEnable(LibertyPort *d,
                              Debug *debug)
 {
   FuncExpr *en_func = findLatchEnableFunc(d, en, en_rf);
-  latch_enables_.emplace_back(d, en, en_rf, en_func, q, d_to_q, en_to_q,
-                              setup_check);
+  latch_enables_.emplace_back(d, en, en_rf, en_func, q, d_to_q, en_to_q, setup_check);
   size_t idx = latch_enables_.size() - 1;
   latch_d_to_q_map_[d_to_q] = idx;
   latch_check_map_[setup_check] = idx;
@@ -2703,13 +2709,13 @@ LibertyPort::setReceiverModel(ReceiverModelPtr receiver_model)
   receiver_model_ = receiver_model;
 }
 
-string
+std::string
 portLibertyToSta(const char *port_name)
 {
   constexpr char bus_brkt_left = '[';
   constexpr char bus_brkt_right = ']';
   size_t name_length = strlen(port_name);
-  string sta_name;
+  std::string sta_name;
   for (size_t i = 0; i < name_length; i++) {
     char ch = port_name[i];
     if (ch == bus_brkt_left
@@ -2734,33 +2740,6 @@ LibertyPort::setDriverWaveform(DriverWaveform *driver_waveform,
 }
 
 ////////////////////////////////////////////////////////////////
-
-RiseFallMinMax
-LibertyPort::clockTreePathDelays() const
-{
-  return clkTreeDelays1();
-}
-
-RiseFallMinMax
-LibertyPort::clkTreeDelays() const
-{
-  return clkTreeDelays1();
-}
-
-RiseFallMinMax
-LibertyPort::clkTreeDelays1() const
-{
-  RiseFallMinMax delays;
-  for (const RiseFall *from_rf : RiseFall::range()) {
-    for (const RiseFall *to_rf : RiseFall::range()) {
-      for (const MinMax *min_max : MinMax::range()) {
-        float delay = clkTreeDelay(0.0, from_rf, to_rf, min_max);
-        delays.setValue(from_rf, min_max, delay);
-      }
-    }
-  }
-  return delays;
-}
 
 float
 LibertyPort::clkTreeDelay(float in_slew,
@@ -3087,7 +3066,8 @@ OperatingConditions::setWireloadTree(WireloadTree tree)
 
 static EnumNameMap<ScaleFactorType> scale_factor_type_map =
   {{ScaleFactorType::pin_cap, "pin_cap"},
-   {ScaleFactorType::wire_cap, "wire_res"},
+   {ScaleFactorType::wire_cap, "wire_cap"},
+   {ScaleFactorType::wire_res, "wire_res"},
    {ScaleFactorType::min_period, "min_period"},
    {ScaleFactorType::cell, "cell"},
    {ScaleFactorType::hold, "hold"},
@@ -3124,7 +3104,9 @@ scaleFactorTypeRiseFallSuffix(ScaleFactorType type)
     || type == ScaleFactorType::recovery
     || type == ScaleFactorType::removal
     || type == ScaleFactorType::nochange
-    || type == ScaleFactorType::skew;
+    || type == ScaleFactorType::skew
+    || type == ScaleFactorType::leakage_power
+    || type == ScaleFactorType::internal_power;
 }
 
 bool
@@ -3144,7 +3126,8 @@ scaleFactorTypeLowHighSuffix(ScaleFactorType type)
 EnumNameMap<ScaleFactorPvt> scale_factor_pvt_names =
   {{ScaleFactorPvt::process, "process"},
    {ScaleFactorPvt::volt, "volt"},
-   {ScaleFactorPvt::temp, "temp"}
+   {ScaleFactorPvt::temp, "temp"},
+   {ScaleFactorPvt::unknown, "unknown"}
   };
 
 ScaleFactorPvt
@@ -3214,31 +3197,32 @@ ScaleFactors::scale(ScaleFactorType type,
 }
 
 void
-ScaleFactors::print()
+ScaleFactors::report(Report *report)
 {
-  printf("%10s", " ");
+  std::string line = "          ";
   for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
     ScaleFactorPvt pvt = (ScaleFactorPvt) pvt_index;
-    printf("%10s", scaleFactorPvtName(pvt));
+    stringAppend(line, "%10s", scaleFactorPvtName(pvt));
   }
-  printf("\n");
+  report->reportLineString(line);
+
   for (int type_index = 0; type_index < scale_factor_type_count; type_index++) {
     ScaleFactorType type = (ScaleFactorType) type_index;
-    printf("%10s ", scaleFactorTypeName(type));
+    stringPrint(line, "%10s ", scaleFactorTypeName(type));
     for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
       if (scaleFactorTypeRiseFallSuffix(type)
           || scaleFactorTypeRiseFallPrefix(type)
           || scaleFactorTypeLowHighSuffix(type)) {
-        printf(" %.3f,%.3f",
-               scales_[type_index][pvt_index][RiseFall::riseIndex()],
-               scales_[type_index][pvt_index][RiseFall::fallIndex()]);
+        stringAppend(line, " %.3f,%.3f",
+                     scales_[type_index][pvt_index][RiseFall::riseIndex()],
+                     scales_[type_index][pvt_index][RiseFall::fallIndex()]);
       }
       else {
-        printf(" %.3f",
-               scales_[type_index][pvt_index][0]);
+        stringAppend(line, " %.3f",
+                     scales_[type_index][pvt_index][0]);
       }
     }
-    printf("\n");
+    report->reportLineString(line);
   }
 }
 

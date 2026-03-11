@@ -26,55 +26,49 @@
 #include "Xyce.hh"
 
 #include <fstream>
-#include <sstream>
 #include <memory>
+#include <sstream>
+#include <string>
 
 #include "Error.hh"
 
 namespace sta {
 
-using std::string;
-using std::ifstream;
-using std::getline;
-using std::stringstream;
-using std::vector;
-using std::make_shared;
-
 void
 readXyceCsv(const char *csv_filename,
             // Return values.
-            StdStringSeq &titles,
+            StringSeq &titles,
             WaveformSeq &waveforms)
 {
-  ifstream file(csv_filename);
+  std::ifstream file(csv_filename);
   if (file.is_open()) {
-    string line;
+    std::string line;
 
     // Read the header line.
-    getline(file, line);
-    stringstream ss(line);
-    string field;
+    std::getline(file, line);
+    std::stringstream ss(line);
+    std::string field;
     size_t col = 0;
-    while (getline(ss, field, ',')) {
+    while (std::getline(ss, field, ',')) {
       // Skip TIME title.
       if (col > 0)
         titles.push_back(field);
       col++;
     }
 
-    vector<FloatSeq> values(titles.size() + 1);
-    while (getline(file, line)) {
-      stringstream ss(line);
+    std::vector<FloatSeq> values(titles.size() + 1);
+    while (std::getline(file, line)) {
+      std::stringstream ss(line);
       size_t col = 0;
-      while (getline(ss, field, ',')) {
+      while (std::getline(ss, field, ',')) {
         float value = std::stof(field);
         values[col].push_back(value);
         col++;
       }
     }
     file.close();
-    TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                    std::move(values[0]));
+    TableAxisPtr time_axis = std::make_shared<TableAxis>(TableAxisVariable::time,
+                                                         std::move(values[0]));
     for (size_t var = 1; var < values.size(); var++)
       waveforms.emplace_back(new FloatSeq(values[var]), time_axis);
   }

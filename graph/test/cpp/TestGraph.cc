@@ -1892,7 +1892,7 @@ protected:
     StringSeq scene_names;
     scene_names.push_back("fast");
     scene_names.push_back("slow");
-    sta_->makeScenes(&scene_names);
+    sta_->makeScenes(scene_names);
 
     Scene *fast_corner = sta_->findScene("fast");
     Scene *slow_corner = sta_->findScene("slow");

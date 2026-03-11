@@ -253,7 +253,7 @@ public:
                         float wire_delay) const;
   // Check for supported axis variables.
   // Return true if axes are supported.
-  static bool checkSlewDegradationAxes(const TablePtr &table);
+  static bool checkSlewDegradationAxes(const TableModel *table_model);
 
   float defaultInputPinCap() const { return default_input_pin_cap_; }
   void setDefaultInputPinCap(float cap);
@@ -458,8 +458,8 @@ class LibertyCellIterator : public Iterator<LibertyCell*>
 {
 public:
   LibertyCellIterator(const LibertyLibrary *library);
-  bool hasNext();
-  LibertyCell *next();
+  bool hasNext() override;
+  LibertyCell *next() override;
 
 private:
   ConcreteLibraryCellIterator iter_;
@@ -715,8 +715,8 @@ class LibertyCellPortIterator : public Iterator<LibertyPort*>
 {
 public:
   LibertyCellPortIterator(const LibertyCell *cell);
-  bool hasNext();
-  LibertyPort *next();
+  bool hasNext() override;
+  LibertyPort *next() override;
 
 private:
   ConcreteCellPortIterator  iter_;
@@ -727,8 +727,8 @@ class LibertyCellPortBitIterator : public Iterator<LibertyPort*>
 public:
   LibertyCellPortBitIterator(const LibertyCell *cell);
   virtual ~LibertyCellPortBitIterator();
-  bool hasNext();
-  LibertyPort *next();
+  bool hasNext() override;
+  LibertyPort *next() override;
 
 private:
   ConcreteCellPortBitIterator *iter_;
@@ -892,10 +892,6 @@ public:
   float clkTreeDelay(float in_slew,
                      const RiseFall *from_rf,
                      const MinMax *min_max) const;
-  // deprecated 2024-06-22
-  RiseFallMinMax clkTreeDelays() const __attribute__ ((deprecated));
-  // deprecated 2024-02-27
-  RiseFallMinMax clockTreePathDelays() const __attribute__ ((deprecated));
 
   static bool equiv(const LibertyPort *port1,
                     const LibertyPort *port2);
@@ -916,7 +912,6 @@ protected:
   void setMinPort(LibertyPort *min);
   void addScaledPort(OperatingConditions *op_cond,
                      LibertyPort *scaled_port);
-  RiseFallMinMax clkTreeDelays1() const;
   void setMemberFlag(bool value,
                      const std::function<void(LibertyPort*, bool)> &setter);
   void setMemberFloat(float value,
@@ -985,8 +980,8 @@ class LibertyPortMemberIterator : public Iterator<LibertyPort*>
 public:
   LibertyPortMemberIterator(const LibertyPort *port);
   virtual ~LibertyPortMemberIterator();
-  virtual bool hasNext();
-  virtual LibertyPort *next();
+  bool hasNext() override;
+  LibertyPort *next() override;
 
 private:
   ConcretePortMemberIterator *iter_;
@@ -1051,7 +1046,7 @@ public:
   void setScale(ScaleFactorType type,
                 ScaleFactorPvt pvt,
                 float scale);
-  void print();
+  void report(Report *report);
 
 protected:
   std::string name_;

@@ -9,6 +9,12 @@ File ../../test/sky130hd/sky130hd_tt.lib
  VPWR power
  A input 0.00-0.00
  Y output function=!A
+
+Timing arcs
+ A -> Y
+  combinational
+  ^ -> v
+  v -> ^
 Cell sky130_fd_sc_hd__nand2_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
@@ -19,11 +25,19 @@ File ../../test/sky130hd/sky130hd_tt.lib
  A input 0.00-0.00
  B input 0.00-0.00
  Y output function=!A+!B
+
+Timing arcs
+ A -> Y
+  combinational
+  ^ -> v
+  v -> ^
+ B -> Y
+  combinational
+  ^ -> v
+  v -> ^
 Cell sky130_fd_sc_hd__dfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
- IQ internal
- IQ_N internal
  VGND ground
  VNB unknown
  VPB unknown
@@ -31,6 +45,26 @@ File ../../test/sky130hd/sky130hd_tt.lib
  CLK input 0.00-0.00
  D input 0.00-0.00
  Q output function=IQ
+ IQ internal
+ IQ_N internal
+
+Timing arcs
+ CLK -> CLK
+  width
+  ^ -> v
+  v -> ^
+ CLK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
 Warning 441: liberty_leakage_power_deep.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
@@ -47,7 +81,7 @@ Group                      Internal      Switching        Leakage          Total
                               Power          Power          Power          Power (Watts)
 --------------------------------------------------------------------------------
 Sequential           1.76263279e-06 6.89875490e-09 2.35681341e-07 2.00521299e-06  86.3%
-Combinational        1.22147199e-07 7.10827521e-08 1.25075346e-07 3.18305297e-07  13.7%
+Combinational        1.22147213e-07 7.10827521e-08 1.25075346e-07 3.18305297e-07  13.7%
 Clock                0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00   0.0%
 Macro                0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00   0.0%
 Pad                  0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00   0.0%

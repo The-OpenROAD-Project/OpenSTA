@@ -80,11 +80,10 @@ puts "nonexistent is group: [sta::is_path_group_name nonexistent_group]"
 
 puts "--- report_path_ends ---"
 set pe_list [find_timing_paths -path_delay max -endpoint_count 5]
-sta::report_path_end_header
+# report_path_end_header/footer removed from API
 foreach pe $pe_list {
   sta::report_path_end $pe
 }
-sta::report_path_end_footer
 
 puts "--- PathEnd type queries on all paths ---"
 foreach pe $pe_list {

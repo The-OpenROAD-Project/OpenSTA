@@ -192,15 +192,8 @@ report_checks -from [get_ports in2] -path_delay max -format full_clock_expanded 
 # report_path_end_header/footer with min paths
 ############################################################
 puts "--- report_path_end min ---"
-sta::report_path_end_header
+# report_path_end_header/footer/2 removed from API
 set min_paths [find_timing_paths -path_delay min -endpoint_count 5]
-set prev ""
 foreach pe $min_paths {
-  if { $prev != "" } {
-    sta::report_path_end2 $pe $prev 0
-  } else {
-    sta::report_path_end $pe
-  }
-  set prev $pe
+  sta::report_path_end $pe
 }
-sta::report_path_end_footer

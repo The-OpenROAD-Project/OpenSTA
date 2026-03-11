@@ -42,8 +42,8 @@ using sta::Report;
 using sta::Debug;
 using sta::Network;
 using sta::LibertyReader;
-using sta::LibertyAttr;
 using sta::LibertyGroup;
+using sta::LibertySimpleAttr;
 using sta::TimingGroup;
 using sta::LibertyCell;
 using sta::LibertyPort;
@@ -164,13 +164,6 @@ class BigcoLibertyBuilder : public LibertyBuilder
 public:
   virtual LibertyCell *makeCell(LibertyLibrary *library, const char *name,
                                 const char *filename);
-
-protected:
-  virtual TimingArcSet *makeTimingArcSet(LibertyCell *cell, LibertyPort *from,
-                                         LibertyPort *to,
-                                         LibertyPort *related_out,
-                                         const TimingRole *role,
-                                         TimingArcAttrsPtr attrs) override;
 };
 
 LibertyCell *
@@ -182,16 +175,6 @@ BigcoLibertyBuilder::makeCell(LibertyLibrary *library, const char *name,
   return cell;
 }
 
-TimingArcSet *
-BigcoLibertyBuilder::makeTimingArcSet(LibertyCell *cell, LibertyPort *from,
-                                      LibertyPort *to,
-                                      LibertyPort *related_out,
-                                      const TimingRole *role,
-                                      TimingArcAttrsPtr attrs)
-{
-  return cell->makeTimingArcSet(from, to, related_out, role, attrs);
-}
-
 ////////////////////////////////////////////////////////////////
 
 // Liberty reader to parse Bigco attributes.
@@ -201,22 +184,18 @@ public:
   BigcoLibertyReader(LibertyBuilder *builder);
 
 protected:
-  virtual void visitAttr1(LibertyAttr *attr);
-  virtual void visitAttr2(LibertyAttr *attr);
-  virtual void beginLibrary(LibertyGroup *group);
+  virtual void visitAttr1(const LibertySimpleAttr *attr);
+  virtual void visitAttr2(const LibertySimpleAttr *attr);
+  virtual void beginLibrary(const LibertyGroup *group,
+                            const LibertyGroup *library_group);
   virtual TimingGroup *makeTimingGroup(int line);
-  virtual void beginCell(LibertyGroup *group);
+  virtual void beginCell(const LibertyGroup *group,
+                         const LibertyGroup *library_group);
 };
 
 BigcoLibertyReader::BigcoLibertyReader(LibertyBuilder *builder) :
   LibertyReader(builder)
 {
-  // Define a visitor for the "thingy" attribute.
-  // Note that the function descriptor passed to defineAttrVisitor 
-  // must be defined by the LibertyVisitor class, so a number of 
-  // extra visitor functions are pre-defined for extensions.
-  defineAttrVisitor("thingy", &LibertyReader::visitAttr1);
-  defineAttrVisitor("frob", &LibertyReader::visitAttr2);
 }
 
 bool
@@ -228,12 +207,13 @@ libertyCellRequired(const char *)
 
 // Prune cells from liberty file based on libertyCellRequired predicate.
 void 
-BigcoLibertyReader::beginCell(LibertyGroup *group)
+BigcoLibertyReader::beginCell(const LibertyGroup *group,
+                              const LibertyGroup *library_group)
 {
   const char *name = group->firstName();
   if (name
       && libertyCellRequired(name))
-    LibertyReader::beginCell(group);
+    LibertyReader::beginCell(group, library_group);
 }
 
 TimingGroup *
@@ -244,15 +224,16 @@ BigcoLibertyReader::makeTimingGroup(int line)
 
 // Called at the beginning of a library group.
 void 
-BigcoLibertyReader::beginLibrary(LibertyGroup *group)
+BigcoLibertyReader::beginLibrary(const LibertyGroup *group,
+                                 const LibertyGroup *library_group)
 {
-  LibertyReader::beginLibrary(group);
+  LibertyReader::beginLibrary(group, library_group);
   // Do Bigco stuff here.
   printf("Bigco was here.\n");
 }
 
 void 
-BigcoLibertyReader::visitAttr1(LibertyAttr *attr)
+BigcoLibertyReader::visitAttr1(const LibertySimpleAttr *attr)
 {
   const char *thingy = getAttrString(attr);
   if (thingy) {
@@ -263,7 +244,7 @@ BigcoLibertyReader::visitAttr1(LibertyAttr *attr)
 }
 
 void 
-BigcoLibertyReader::visitAttr2(LibertyAttr *attr)
+BigcoLibertyReader::visitAttr2(const LibertySimpleAttr *attr)
 {
   const char *frob = getAttrString(attr);
   if (frob) {

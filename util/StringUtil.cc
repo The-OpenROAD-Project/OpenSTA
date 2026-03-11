@@ -24,20 +24,16 @@
 
 #include "StringUtil.hh"
 
-#include <limits>
+#include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib> // exit
-#include <array>
-#include <algorithm>
 
 #include "Machine.hh"
 #include "Mutex.hh"
 
 namespace sta {
-
-using std::max;
-using std::string;
 
 static void
 stringPrintTmp(const char *fmt,
@@ -76,7 +72,7 @@ isDigits(const char *str)
 
 // print for c++ strings.
 void
-stringPrint(string &str,
+stringPrint(std::string &str,
             const char *fmt,
             ...)
 {
@@ -90,7 +86,7 @@ stringPrint(string &str,
 }
 
 void
-stringAppend(string &str,
+stringAppend(std::string &str,
              const char *fmt,
              ...)
 {
@@ -103,7 +99,7 @@ stringAppend(string &str,
   str += tmp;
 }
 
-string
+std::string
 stdstrPrint(const char *fmt,
             ...)
 {
@@ -223,7 +219,7 @@ makeTmpString(size_t length)
   if (tmp_length < length) {
     // String isn't long enough.  Make a new one.
     delete [] tmp_str;
-    tmp_length = max(tmp_string_initial_length, length);
+    tmp_length = std::max(tmp_string_initial_length, length);
     tmp_str = new char[tmp_length];
     tmp_strings[tmp_string_next] = tmp_str;
     tmp_string_lengths[tmp_string_next] = tmp_length;
@@ -233,7 +229,7 @@ makeTmpString(size_t length)
 }
 
 char *
-makeTmpString(string &str)
+makeTmpString(std::string &str)
 {
   char *tmp = makeTmpString(str.length() + 1);
   strcpy(tmp, str.c_str());
@@ -264,26 +260,47 @@ isTmpString(const char *str)
 ////////////////////////////////////////////////////////////////
 
 void
-trimRight(string &str)
+trimRight(std::string &str)
 {
   str.erase(str.find_last_not_of(" ") + 1);
 }
 
-void
-split(const string &text,
-      const string &delims,
-      // Return values.
-      StringVector &tokens)
+StringSeq
+split(const std::string &text,
+      const std::string &delims)
 {
+  StringSeq tokens;
   auto start = text.find_first_not_of(delims);
   auto end = text.find_first_of(delims, start);
-  while (end != string::npos) {
+  while (end != std::string::npos) {
     tokens.push_back(text.substr(start, end - start));
     start = text.find_first_not_of(delims, end);
     end = text.find_first_of(delims, start);
   }
-  if (start != string::npos)
+  if (start != std::string::npos)
     tokens.push_back(text.substr(start));
+  return tokens;
+}
+
+// Parse space separated tokens.
+StringSeq
+parseTokens(const std::string &s,
+            const char delimiter)
+{
+  StringSeq tokens;
+  size_t i = 0;
+  while (i < s.size()) {
+    while (i < s.size() && std::isspace(s[i]))
+      ++i;
+    size_t start = i;
+    while (i < s.size() && s[i] != delimiter)
+      ++i;
+    if (start < i) {
+      tokens.emplace_back(s, start, i - start);
+      ++i;
+    }
+  }
+  return tokens;
 }
 
 } // namespace

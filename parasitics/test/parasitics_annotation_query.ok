@@ -437,7 +437,7 @@ Arc type: combinational
 A ^ -> Y ^
 Pi model C2=6.700000 Rpi=2.420000 C1=7.265282, Ceff=10.495499
 P = 1.000000 V = 0.770000 T = 0.000000
-------- input_net_transition = 50.730160
+------- input_net_transition = 50.730164
 |       total_output_net_capacitance = 10.495499
 |        5.760000     11.520000
 v      --------------------
@@ -447,7 +447,7 @@ Table value = 35.061352
 PVT scale factor = 1.000000
 Delay = 35.061352
 
-------- input_net_transition = 50.730160
+------- input_net_transition = 50.730164
 |       total_output_net_capacitance = 10.495499
 |        5.760000     11.520000
 v      --------------------

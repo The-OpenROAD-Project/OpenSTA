@@ -92,7 +92,7 @@ lib name: NangateOpenCellLibrary
 lib full_name: NangateOpenCellLibrary
 lib filename: ../../test/nangate45/Nangate45_typ.lib
 --- Edge properties ---
-edge full_name: and1/A1 -> and1/ZN
+edge full_name: and1/A1 -> and1/ZN combinational
 edge delay_min_rise: 0.024490
 edge delay_min_fall: 0.022456
 edge delay_max_rise: 0.024490

@@ -81,17 +81,10 @@ foreach pe $paths {
 }
 
 puts "--- report_path_end with prev_end chaining ---"
-set prev ""
-sta::report_path_end_header
+# report_path_end_header/footer/2 removed from API
 foreach pe $paths {
-  if { $prev != "" } {
-    sta::report_path_end2 $pe $prev 0
-  } else {
-    sta::report_path_end $pe
-  }
-  set prev $pe
+  sta::report_path_end $pe
 }
-sta::report_path_end_footer
 
 puts "--- report_path_ends as sequence ---"
 sta::report_path_ends $paths
