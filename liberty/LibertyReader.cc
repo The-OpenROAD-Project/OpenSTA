@@ -1520,8 +1520,11 @@ LibertyReader::readCapacitance(const LibertyPortSeq &ports,
       // min/max_transition
       attr_name = min_max->to_string() + "_transition";
       port_group->findAttrFloat(attr_name, limit, exists);
-      if (exists)
+      if (exists) {
+        if (min_max == MinMax::max() && limit == 0.0)
+          libWarn(1241, port_group, "max_transition is 0.0.");
         port->setSlewLimit(limit * time_scale_, min_max);
+      }
     }
 
     // Default capacitance.
