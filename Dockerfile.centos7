@@ -54,15 +54,19 @@ RUN source /opt/rh/devtoolset-11/enable && \
     make install
 
 # Download and build GTest
-RUN wget https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz && \
-    tar -xvf v1.14.0.tar.gz && \
-    rm v1.14.0.tar.gz
-RUN source /opt/rh/devtoolset-11/enable && \
-    cd googletest-1.14.0 && \
-    mkdir build && cd build && \
-    cmake .. && \
-    make -j`nproc` && \
-    make install
+RUN <<EOF
+set -e
+wget https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+tar -xvf v1.14.0.tar.gz
+source /opt/rh/devtoolset-11/enable
+cd googletest-1.14.0
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+make install
+cd ../..
+rm -rf v1.14.0.tar.gz googletest-1.14.0
+EOF
 
 FROM base-dependencies AS builder
 
