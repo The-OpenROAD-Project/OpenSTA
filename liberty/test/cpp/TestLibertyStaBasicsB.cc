@@ -46,6 +46,12 @@ static void expectStaLibertyCoreState(Sta *sta, LibertyLibrary *lib)
   EXPECT_NE(lib, nullptr);
 }
 
+static LibertyAttrValue *
+makeStringAttrValue(const char *value)
+{
+  return new LibertyAttrValue(std::string(value));
+}
+
 class LinearModelTest : public ::testing::Test {
 protected:
   void SetUp() override {
@@ -1012,189 +1018,147 @@ TEST_F(StaLibertyTest, LibraryDriverWaveformDefault) {
 // R6 tests: LibertyParser classes coverage
 ////////////////////////////////////////////////////////////////
 
-#if 0
-TEST(R6_LibertyStmtTest, ConstructorAndVirtuals) {
-  LibertyStmt *stmt = new LibertyVariable("x", 1.0f, 42);
-  EXPECT_EQ(stmt->line(), 42);
-  EXPECT_FALSE(stmt->isGroup());
-  EXPECT_FALSE(stmt->isAttribute());
-  EXPECT_FALSE(stmt->isDefine());
-  EXPECT_TRUE(stmt->isVariable());
-  delete stmt;
+TEST(R6_LibertyVariableTest, ConstructorAndAccessors) {
+  LibertyVariable var("x", 1.0f, 42);
+  EXPECT_EQ(var.line(), 42);
+  EXPECT_EQ(var.variable(), "x");
+  EXPECT_FLOAT_EQ(var.value(), 1.0f);
 }
-#endif
 
-#if 0
-TEST(R6_LibertyStmtTest, LibertyStmtBaseDefaultVirtuals) {
-  // LibertyStmt base class: isGroup, isAttribute, isDefine, isVariable all false
-  LibertyVariable var("v", 0.0f, 1);
-  LibertyStmt *base = &var;
-  // LibertyVariable overrides isVariable
-  EXPECT_TRUE(base->isVariable());
-  EXPECT_FALSE(base->isGroup());
-  EXPECT_FALSE(base->isAttribute());
-  EXPECT_FALSE(base->isDefine());
+TEST(R6_LibertyAttrValueTest, FloatValueAndQuotedStringParsing) {
+  LibertyAttrValue float_value(1.25f);
+  EXPECT_TRUE(float_value.isFloat());
+  EXPECT_FALSE(float_value.isString());
+  EXPECT_FLOAT_EQ(float_value.floatValue(), 1.25f);
+
+  LibertyAttrValue quoted_value(std::string("3.14"));
+  float parsed = 0.0f;
+  bool valid = false;
+  quoted_value.floatValue(parsed, valid);
+  EXPECT_TRUE(valid);
+  EXPECT_FLOAT_EQ(parsed, 3.14f);
+  EXPECT_TRUE(quoted_value.isString());
 }
-#endif
 
-#if 0
 TEST(R6_LibertyGroupTest, Construction) {
-  LibertyAttrValueSeq *params = new LibertyAttrValueSeq;
-  params->push_back(new LibertyStringAttrValue("cell1"));
-  LibertyGroup grp("cell", params, 10);
-  EXPECT_EQ(grp.type(), "cell");
-  EXPECT_TRUE(grp.isGroup());
+  LibertyAttrValueSeq params;
+  params.push_back(makeStringAttrValue("cell1"));
+  params.push_back(makeStringAttrValue("slow"));
+  LibertyGroup grp("scaled_cell", std::move(params), 10);
+  EXPECT_EQ(grp.type(), "scaled_cell");
   EXPECT_EQ(grp.line(), 10);
-  EXPECT_EQ(grp.firstName(), std::string("cell1"));
+  ASSERT_NE(grp.firstName(), nullptr);
+  EXPECT_STREQ(grp.firstName(), "cell1");
+  ASSERT_NE(grp.secondName(), nullptr);
+  EXPECT_STREQ(grp.secondName(), "slow");
 }
-#endif
 
-#if 0
 TEST(R6_LibertyGroupTest, AddSubgroupAndIterate) {
-  LibertyAttrValueSeq *params = new LibertyAttrValueSeq;
-  LibertyGroup *grp = new LibertyGroup("library", params, 1);
-  LibertyAttrValueSeq *sub_params = new LibertyAttrValueSeq;
-  LibertyGroup *sub = new LibertyGroup("cell", sub_params, 2);
-  grp->addStmt(sub);
-  LibertyStmtSeq *stmts = grp->stmts();
-  ASSERT_NE(stmts, nullptr);
-  EXPECT_EQ(stmts->size(), 1u);
-  EXPECT_EQ((*stmts)[0], sub);
-  delete grp;
+  LibertyGroup grp("library", LibertyAttrValueSeq(), 1);
+  auto *sub = new LibertyGroup("cell", LibertyAttrValueSeq(), 2);
+  grp.addSubgroup(sub);
+  EXPECT_EQ(grp.subgroups().size(), 1u);
+  EXPECT_EQ(grp.subgroups()[0], sub);
+  EXPECT_EQ(grp.findSubgroup("cell"), sub);
+  EXPECT_EQ(grp.findSubgroups("cell").size(), 1u);
 }
-#endif
 
-#if 0
 TEST(R6_LibertyGroupTest, AddAttributeAndIterate) {
-  LibertyAttrValueSeq *params = new LibertyAttrValueSeq;
-  LibertyGroup *grp = new LibertyGroup("cell", params, 1);
-  LibertyAttrValue *val = new LibertyFloatAttrValue(3.14f);
-  LibertySimpleAttr *attr = new LibertySimpleAttr("area", val, 5);
-  grp->addStmt(attr);
-  // Iterate over statements
-  LibertyStmtSeq *stmts = grp->stmts();
-  ASSERT_NE(stmts, nullptr);
-  EXPECT_EQ(stmts->size(), 1u);
-  EXPECT_EQ((*stmts)[0], attr);
-  delete grp;
-}
-#endif
+  LibertyGroup grp("cell", LibertyAttrValueSeq(), 1);
+  grp.addAttr(new LibertySimpleAttr("area", LibertyAttrValue(3.14f), 5));
+  const LibertySimpleAttr *attr = grp.findSimpleAttr("area");
+  ASSERT_NE(attr, nullptr);
+  EXPECT_EQ(attr->line(), 5);
+  EXPECT_TRUE(attr->value().isFloat());
+  EXPECT_FLOAT_EQ(attr->value().floatValue(), 3.14f);
 
-#if 0
+  float area = 0.0f;
+  bool exists = false;
+  grp.findAttrFloat("area", area, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(area, 3.14f);
+}
+
 TEST(R6_LibertySimpleAttrTest, Construction) {
-  LibertyAttrValue *val = new LibertyStringAttrValue("test_value");
-  LibertySimpleAttr attr("name", val, 7);
+  LibertySimpleAttr attr("name", LibertyAttrValue(std::string("test_value")), 7);
   EXPECT_EQ(attr.name(), "name");
-  EXPECT_TRUE(attr.isSimpleAttr());
-  EXPECT_FALSE(attr.isComplexAttr());
-  // isAttribute() returns false for LibertyAttr subclasses
-  // (only LibertyStmt base provides it, and it returns false).
-  EXPECT_FALSE(attr.isAttribute());
-  LibertyAttrValue *first = attr.firstValue();
-  EXPECT_NE(first, nullptr);
-  EXPECT_TRUE(first->isString());
-  EXPECT_EQ(first->stringValue(), "test_value");
+  EXPECT_EQ(attr.line(), 7);
+  ASSERT_NE(attr.stringValue(), nullptr);
+  EXPECT_EQ(*attr.stringValue(), "test_value");
+  EXPECT_TRUE(attr.value().isString());
 }
-#endif
 
-#if 0
-TEST(R6_LibertySimpleAttrTest, ValuesReturnsNull) {
-  LibertyAttrValue *val = new LibertyFloatAttrValue(1.0f);
-  LibertySimpleAttr attr("test", val, 1);
-  // values() on simple attr is not standard; in implementation it triggers error
-  // Just test firstValue
-  EXPECT_EQ(attr.firstValue(), val);
+TEST(R6_LibertySimpleAttrTest, FloatValueStorage) {
+  LibertyGroup grp("cell", LibertyAttrValueSeq(), 1);
+  grp.addAttr(new LibertySimpleAttr("test", LibertyAttrValue(1.0f), 1));
+  float value = 0.0f;
+  bool exists = false;
+  grp.findAttrFloat("test", value, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(value, 1.0f);
 }
-#endif
 
-#if 0
 TEST(R6_LibertyComplexAttrTest, Construction) {
-  LibertyAttrValueSeq *vals = new LibertyAttrValueSeq;
-  vals->push_back(new LibertyFloatAttrValue(1.0f));
-  vals->push_back(new LibertyFloatAttrValue(2.0f));
-  LibertyComplexAttr attr("values", vals, 15);
+  LibertyAttrValueSeq vals;
+  vals.push_back(new LibertyAttrValue(1.0f));
+  vals.push_back(new LibertyAttrValue(2.0f));
+  LibertyComplexAttr attr("values", std::move(vals), 15);
   EXPECT_EQ(attr.name(), "values");
-  EXPECT_FALSE(attr.isSimpleAttr());
-  EXPECT_TRUE(attr.isComplexAttr());
-  // isAttribute() returns false for LibertyAttr subclasses
-  EXPECT_FALSE(attr.isAttribute());
-  LibertyAttrValue *first = attr.firstValue();
+  EXPECT_EQ(attr.line(), 15);
+  const LibertyAttrValue *first = attr.firstValue();
   EXPECT_NE(first, nullptr);
   EXPECT_TRUE(first->isFloat());
   EXPECT_FLOAT_EQ(first->floatValue(), 1.0f);
-  LibertyAttrValueSeq *returned_vals = attr.values();
-  EXPECT_EQ(returned_vals->size(), 2u);
+  EXPECT_EQ(attr.values().size(), 2u);
 }
-#endif
 
-#if 0
 TEST(R6_LibertyComplexAttrTest, EmptyValues) {
-  LibertyAttrValueSeq *vals = new LibertyAttrValueSeq;
-  LibertyComplexAttr attr("empty", vals, 1);
-  LibertyAttrValue *first = attr.firstValue();
+  LibertyComplexAttr attr("empty", LibertyAttrValueSeq(), 1);
+  const LibertyAttrValue *first = attr.firstValue();
   EXPECT_EQ(first, nullptr);
 }
-#endif
 
-#if 0
-TEST(R6_LibertyStringAttrValueTest, Basic) {
-  LibertyStringAttrValue sav("hello");
+TEST(R6_LibertyAttrValueTest, StringBasic) {
+  LibertyAttrValue sav(std::string("hello"));
   EXPECT_TRUE(sav.isString());
   EXPECT_FALSE(sav.isFloat());
   EXPECT_EQ(sav.stringValue(), "hello");
 }
-#endif
 
-#if 0
-TEST(R6_LibertyFloatAttrValueTest, Basic) {
-  LibertyFloatAttrValue fav(42.5f);
+TEST(R6_LibertyAttrValueTest, FloatBasic) {
+  LibertyAttrValue fav(42.5f);
   EXPECT_TRUE(fav.isFloat());
   EXPECT_FALSE(fav.isString());
   EXPECT_FLOAT_EQ(fav.floatValue(), 42.5f);
 }
-#endif
 
-#if 0
 TEST(R6_LibertyDefineTest, Construction) {
   LibertyDefine def("my_attr", LibertyGroupType::cell,
                     LibertyAttrType::attr_string, 20);
   EXPECT_EQ(def.name(), "my_attr");
-  EXPECT_TRUE(def.isDefine());
-  EXPECT_FALSE(def.isGroup());
-  EXPECT_FALSE(def.isAttribute());
-  EXPECT_FALSE(def.isVariable());
   EXPECT_EQ(def.groupType(), LibertyGroupType::cell);
   EXPECT_EQ(def.valueType(), LibertyAttrType::attr_string);
   EXPECT_EQ(def.line(), 20);
 }
-#endif
 
-#if 0
 TEST(R6_LibertyVariableTest, Construction) {
   LibertyVariable var("k_volt_cell_rise", 1.5f, 30);
   EXPECT_EQ(var.variable(), "k_volt_cell_rise");
   EXPECT_FLOAT_EQ(var.value(), 1.5f);
-  EXPECT_TRUE(var.isVariable());
-  EXPECT_FALSE(var.isGroup());
-  EXPECT_FALSE(var.isDefine());
   EXPECT_EQ(var.line(), 30);
 }
-#endif
 
 ////////////////////////////////////////////////////////////////
 // R6 tests: LibertyBuilder destructor
 ////////////////////////////////////////////////////////////////
 
-#if 0
-// LibertyBuilder default constructor removed; requires Debug*, Report*
-TEST(R6_LibertyBuilderTest, ConstructAndDestruct) {
+TEST_F(StaLibertyTest, R6_LibertyBuilderConstructAndDestruct) {
   ASSERT_NO_THROW(( [&](){
-  LibertyBuilder *builder = new LibertyBuilder;
-  delete builder;
+  LibertyBuilder builder(sta_->debug(), sta_->report());
+  (void) builder;
 
   }() ));
 }
-#endif
 
 ////////////////////////////////////////////////////////////////
 // R6 tests: WireloadForArea (via WireloadSelection)
@@ -1791,69 +1755,72 @@ TEST_F(StaLibertyTest, LibraryFilename) {
 
 // Covers LibertyStmt::LibertyStmt(int), LibertyStmt::isVariable(),
 // LibertyGroup::isGroup(), LibertyGroup::findAttr()
-#if 0
 TEST(LibertyParserTest, LibertyGroupConstruction) {
-  LibertyAttrValueSeq *params = new LibertyAttrValueSeq;
-  LibertyStringAttrValue *val = new LibertyStringAttrValue("test_lib");
-  params->push_back(val);
-  LibertyGroup group("library", params, 1);
-  EXPECT_TRUE(group.isGroup());
-  EXPECT_FALSE(group.isVariable());
+  LibertyGroup group("library", LibertyAttrValueSeq(), 1);
+  group.addAttr(new LibertySimpleAttr("name",
+                                      LibertyAttrValue(std::string("test_lib")),
+                                      2));
+  group.addAttr(new LibertySimpleAttr("max_cap",
+                                      LibertyAttrValue(3.0f),
+                                      3));
+  LibertyAttrValueSeq values;
+  values.push_back(new LibertyAttrValue(0.1f));
+  values.push_back(new LibertyAttrValue(0.2f));
+  group.addAttr(new LibertyComplexAttr("index_1", std::move(values), 4));
+  group.addDefine(new LibertyDefine("my_define",
+                                    LibertyGroupType::cell,
+                                    LibertyAttrType::attr_string,
+                                    5));
+  group.addSubgroup(new LibertyGroup("cell", LibertyAttrValueSeq(), 6));
+
   EXPECT_EQ(group.type(), "library");
   EXPECT_EQ(group.line(), 1);
-  // findAttr removed from API
+  ASSERT_NE(group.findAttrString("name"), nullptr);
+  EXPECT_EQ(*group.findAttrString("name"), "test_lib");
+  float max_cap = 0.0f;
+  bool exists = false;
+  group.findAttrFloat("max_cap", max_cap, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(max_cap, 3.0f);
+  int max_cap_int = 0;
+  group.findAttrInt("max_cap", max_cap_int, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_EQ(max_cap_int, 3);
+  EXPECT_NE(group.findComplexAttr("index_1"), nullptr);
+  EXPECT_EQ(group.findComplexAttrs("index_1").size(), 1u);
+  EXPECT_NE(group.findSubgroup("cell"), nullptr);
+  EXPECT_EQ(group.defineMap().size(), 1u);
 }
-#endif
 
-// R7_LibertySimpleAttr removed (segfault)
-
-// Covers LibertyComplexAttr::isSimple()
-#if 0
 TEST(LibertyParserTest, LibertyComplexAttr) {
-  LibertyAttrValueSeq *vals = new LibertyAttrValueSeq;
-  vals->push_back(new LibertyFloatAttrValue(1.0f));
-  vals->push_back(new LibertyFloatAttrValue(2.0f));
-  LibertyComplexAttr attr("complex_attr", vals, 5);
-  // isAttribute() returns false for LibertyAttr subclasses
-  EXPECT_FALSE(attr.isAttribute());
-  EXPECT_FALSE(attr.isSimpleAttr());
-  EXPECT_TRUE(attr.isComplexAttr());
-  LibertyAttrValue *fv = attr.firstValue();
+  LibertyAttrValueSeq vals;
+  vals.push_back(makeStringAttrValue("0.1"));
+  vals.push_back(new LibertyAttrValue(2.0f));
+  LibertyComplexAttr attr("complex_attr", std::move(vals), 5);
+  EXPECT_EQ(attr.name(), "complex_attr");
+  EXPECT_EQ(attr.line(), 5);
+  const LibertyAttrValue *fv = attr.firstValue();
   EXPECT_NE(fv, nullptr);
-  EXPECT_TRUE(fv->isFloat());
+  EXPECT_TRUE(fv->isString());
+  EXPECT_EQ(fv->stringValue(), "0.1");
+  EXPECT_EQ(attr.values().size(), 2u);
 }
-#endif
 
-// R7_LibertyStringAttrValueFloatValue removed (segfault)
-
-// R7_LibertyFloatAttrValueStringValue removed (segfault)
-
-// Covers LibertyDefine::isDefine()
-#if 0
 TEST(LibertyParserTest, LibertyDefine) {
   LibertyDefine def("my_define", LibertyGroupType::cell,
                      LibertyAttrType::attr_string, 20);
-  EXPECT_TRUE(def.isDefine());
-  EXPECT_FALSE(def.isGroup());
-  EXPECT_FALSE(def.isAttribute());
-  EXPECT_FALSE(def.isVariable());
   EXPECT_EQ(def.name(), "my_define");
   EXPECT_EQ(def.groupType(), LibertyGroupType::cell);
   EXPECT_EQ(def.valueType(), LibertyAttrType::attr_string);
+  EXPECT_EQ(def.line(), 20);
 }
-#endif
 
-// Covers LibertyVariable::isVariable()
-#if 0
 TEST(LibertyParserTest, LibertyVariable) {
   LibertyVariable var("input_threshold_pct_rise", 50.0f, 15);
-  EXPECT_TRUE(var.isVariable());
-  EXPECT_FALSE(var.isGroup());
-  EXPECT_FALSE(var.isAttribute());
+  EXPECT_EQ(var.line(), 15);
   EXPECT_EQ(var.variable(), "input_threshold_pct_rise");
   EXPECT_FLOAT_EQ(var.value(), 50.0f);
 }
-#endif
 
 // R7_LibertyGroupFindAttr removed (segfault)
 
@@ -1866,14 +1833,14 @@ TEST(LibertyParserTest, LibertyVariable) {
 ////////////////////////////////////////////////////////////////
 
 // Covers LibertyBuilder::~LibertyBuilder()
-#if 0
-// LibertyBuilder default constructor removed; requires Debug*, Report*
-TEST(LibertyBuilderTest, LibertyBuilderDestructor) {
-  LibertyBuilder *builder = new LibertyBuilder();
+TEST_F(StaLibertyTest, LibertyBuilderDestructor) {
+  ASSERT_NO_THROW(( [&](){
+  LibertyBuilder *builder = new LibertyBuilder(sta_->debug(), sta_->report());
   EXPECT_NE(builder, nullptr);
   delete builder;
+
+  }() ));
 }
-#endif
 
 // R7_ToStringAllTypes removed (to_string(TimingType) not linked for liberty test target)
 

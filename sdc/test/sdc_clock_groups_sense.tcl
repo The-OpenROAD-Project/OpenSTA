@@ -177,7 +177,7 @@ set_clock_uncertainty -from [get_clocks clk2] -to [get_clocks clk1] -hold 0.12
 # Write SDC with all uncertainty
 set sdc_file7 [make_result_file sdc_clk_uncert.sdc]
 write_sdc -no_timestamp $sdc_file7
-diff_files sdc_clk_uncert.sdcok $sdc_file7
+diff_files_sorted sdc_clk_uncert.sdcok $sdc_file7
 
 # Remove inter-clock uncertainty
 unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup

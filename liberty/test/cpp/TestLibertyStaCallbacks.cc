@@ -149,6 +149,66 @@ static LibertyLibrary *writeAndReadLibReturn(Sta *sta, const char *content, cons
   return lib;
 }
 
+static LibertyAttrValue *
+makeStringAttrValue(const char *value)
+{
+  return new LibertyAttrValue(std::string(value));
+}
+
+class NoopLibertyVisitor : public LibertyGroupVisitor {
+public:
+  void begin(const LibertyGroup *, LibertyGroup *) override {}
+  void end(const LibertyGroup *, LibertyGroup *) override {}
+  void visitAttr(const LibertySimpleAttr *) override {}
+  void visitAttr(const LibertyComplexAttr *) override {}
+  void visitVariable(LibertyVariable *) override {}
+};
+
+class RecordingLibertyVisitor : public LibertyGroupVisitor {
+public:
+  ~RecordingLibertyVisitor() override
+  {
+    for (const LibertyGroup *group : root_groups)
+      delete group;
+  }
+
+  void begin(const LibertyGroup *group,
+             LibertyGroup *parent_group) override
+  {
+    begin_count++;
+    if (parent_group == nullptr)
+      root_groups.push_back(group);
+  }
+
+  void end(const LibertyGroup *,
+           LibertyGroup *) override
+  {
+    end_count++;
+  }
+
+  void visitAttr(const LibertySimpleAttr *attr) override
+  {
+    simple_attrs.push_back(attr);
+  }
+
+  void visitAttr(const LibertyComplexAttr *attr) override
+  {
+    complex_attrs.push_back(attr);
+  }
+
+  void visitVariable(LibertyVariable *variable) override
+  {
+    variables.push_back(variable);
+  }
+
+  int begin_count = 0;
+  int end_count = 0;
+  std::vector<const LibertyGroup *> root_groups;
+  std::vector<const LibertySimpleAttr *> simple_attrs;
+  std::vector<const LibertyComplexAttr *> complex_attrs;
+  std::vector<LibertyVariable *> variables;
+};
+
 // ---------- Library-level default attributes ----------
 
 // R9_1: default_intrinsic_rise/fall
@@ -1456,62 +1516,65 @@ TEST_F(StaLibertyTest, LeakagePowerConstruct) {
 }
 
 // R9_42: LibertyGroup isGroup and isVariable
-#if 0
 TEST_F(StaLibertyTest, LibertyStmtTypes) {
-  LibertyGroup grp("test", nullptr, 1);
-  EXPECT_TRUE(grp.isGroup());
-  EXPECT_FALSE(grp.isVariable());
+  LibertyAttrValueSeq params;
+  params.push_back(makeStringAttrValue("TEST"));
+  LibertyGroup grp("cell", std::move(params), 1);
+  EXPECT_EQ(grp.type(), "cell");
+  EXPECT_EQ(grp.line(), 1);
+  ASSERT_NE(grp.firstName(), nullptr);
+  EXPECT_STREQ(grp.firstName(), "TEST");
+  EXPECT_TRUE(grp.subgroups().empty());
 }
-#endif
 
 // R9_43: LibertySimpleAttr isComplex returns false
-#if 0
 TEST_F(StaLibertyTest, LibertySimpleAttrIsComplex) {
-  LibertyStringAttrValue *val = new LibertyStringAttrValue("test");
-  LibertySimpleAttr attr("name", val, 1);
-  EXPECT_FALSE(attr.isComplexAttr());
-  // isAttribute() returns false for LibertyAttr subclasses
-  EXPECT_FALSE(attr.isAttribute());
+  LibertySimpleAttr attr("name", LibertyAttrValue(std::string("test")), 1);
+  EXPECT_EQ(attr.name(), "name");
+  EXPECT_EQ(attr.line(), 1);
+  ASSERT_NE(attr.stringValue(), nullptr);
+  EXPECT_EQ(*attr.stringValue(), "test");
+  EXPECT_TRUE(attr.value().isString());
 }
-#endif
 
 // R9_44: LibertyComplexAttr isSimple returns false
-#if 0
 TEST_F(StaLibertyTest, LibertyComplexAttrIsSimple) {
-  auto *values = new LibertyAttrValueSeq;
-  LibertyComplexAttr attr("name", values, 1);
-  EXPECT_FALSE(attr.isSimpleAttr());
-  // isAttribute() returns false for LibertyAttr subclasses
-  EXPECT_FALSE(attr.isAttribute());
+  LibertyAttrValueSeq values;
+  values.push_back(new LibertyAttrValue(1.0f));
+  values.push_back(makeStringAttrValue("2.0"));
+  LibertyComplexAttr attr("name", std::move(values), 1);
+  ASSERT_NE(attr.firstValue(), nullptr);
+  EXPECT_TRUE(attr.firstValue()->isFloat());
+  EXPECT_FLOAT_EQ(attr.firstValue()->floatValue(), 1.0f);
+  EXPECT_EQ(attr.values().size(), 2u);
 }
-#endif
 
 // R9_45: LibertyStringAttrValue and LibertyFloatAttrValue type checks
-#if 0
 TEST_F(StaLibertyTest, AttrValueCrossType) {
-  // LibertyStringAttrValue normal usage
-  LibertyStringAttrValue sval("hello");
+  LibertyAttrValue sval(std::string("hello"));
   EXPECT_TRUE(sval.isString());
   EXPECT_FALSE(sval.isFloat());
   EXPECT_EQ(sval.stringValue(), "hello");
+  float parsed = 0.0f;
+  bool valid = true;
+  sval.floatValue(parsed, valid);
+  EXPECT_FALSE(valid);
 
-  // LibertyFloatAttrValue normal usage
-  LibertyFloatAttrValue fval(3.14f);
+  LibertyAttrValue fval(3.14f);
   EXPECT_FALSE(fval.isString());
   EXPECT_TRUE(fval.isFloat());
   EXPECT_FLOAT_EQ(fval.floatValue(), 3.14f);
 }
-#endif
 
 // R9_46: LibertyDefine isDefine
-#if 0
 TEST_F(StaLibertyTest, LibertyDefineIsDefine) {
   LibertyDefine def("myattr", LibertyGroupType::cell,
                     LibertyAttrType::attr_string, 1);
-  EXPECT_TRUE(def.isDefine());
-  EXPECT_FALSE(def.isVariable());
+  EXPECT_EQ(def.name(), "myattr");
+  EXPECT_EQ(def.groupType(), LibertyGroupType::cell);
+  EXPECT_EQ(def.valueType(), LibertyAttrType::attr_string);
+  EXPECT_EQ(def.line(), 1);
 }
-#endif
 
 // R9_47: scaled_cell group
 TEST_F(StaLibertyTest, ScaledCell) {
@@ -1920,20 +1983,15 @@ TEST_F(StaLibertyTest, CheckTableModelCheckAxis) {
 }
 
 // R9_60: TimingGroup cell/transition/constraint getter coverage
-#if 0
 TEST_F(StaLibertyTest, TimingGroupGettersNull) {
-  TimingGroup tg(1);
-  // By default all model pointers should be null
-  EXPECT_EQ(tg.cell(RiseFall::rise()), nullptr);
-  EXPECT_EQ(tg.cell(RiseFall::fall()), nullptr);
-  EXPECT_EQ(tg.transition(RiseFall::rise()), nullptr);
-  EXPECT_EQ(tg.transition(RiseFall::fall()), nullptr);
-  EXPECT_EQ(tg.constraint(RiseFall::rise()), nullptr);
-  EXPECT_EQ(tg.constraint(RiseFall::fall()), nullptr);
-  EXPECT_EQ(tg.outputWaveforms(RiseFall::rise()), nullptr);
-  EXPECT_EQ(tg.outputWaveforms(RiseFall::fall()), nullptr);
+  TimingArcAttrs attrs;
+  EXPECT_EQ(attrs.model(RiseFall::rise()), nullptr);
+  EXPECT_EQ(attrs.model(RiseFall::fall()), nullptr);
+  EXPECT_EQ(attrs.cond(), nullptr);
+  EXPECT_TRUE(attrs.sdfCond().empty());
+  EXPECT_TRUE(attrs.sdfCondStart().empty());
+  EXPECT_TRUE(attrs.sdfCondEnd().empty());
 }
-#endif
 
 // R9_61: Timing with ecsm_waveform_set and ecsm_capacitance
 TEST_F(StaLibertyTest, EcsmWaveformSet) {
@@ -2820,22 +2878,54 @@ library(test_r9_84) {
 }
 
 // R9_85: TimingGroup makeLinearModels coverage
-#if 0
 TEST_F(StaLibertyTest, TimingGroupLinearModels) {
-  TimingGroup tg(1);
-  tg.setIntrinsic(RiseFall::rise(), 0.05f);
-  tg.setIntrinsic(RiseFall::fall(), 0.06f);
-  tg.setResistance(RiseFall::rise(), 100.0f);
-  tg.setResistance(RiseFall::fall(), 120.0f);
-  // makeLinearModels needs a cell - but we can verify values are set
-  float val;
-  bool exists;
-  tg.intrinsic(RiseFall::rise(), val, exists);
-  EXPECT_TRUE(exists);
-  tg.resistance(RiseFall::fall(), val, exists);
-  EXPECT_TRUE(exists);
+  const char *content = R"(
+library(test_r9_85) {
+  delay_model : generic_cmos ;
+  time_unit : "1ns" ;
+  voltage_unit : "1V" ;
+  current_unit : "1mA" ;
+  pulling_resistance_unit : "1kohm" ;
+  capacitive_load_unit(1, ff) ;
+  cell(LM2) {
+    area : 2.0 ;
+    pin(A) { direction : input ; capacitance : 0.01 ; }
+    pin(Z) {
+      direction : output ;
+      function : "A" ;
+      timing() {
+        related_pin : "A" ;
+        timing_sense : positive_unate ;
+        intrinsic_rise : 0.05 ;
+        intrinsic_fall : 0.06 ;
+        rise_resistance : 100.0 ;
+        fall_resistance : 120.0 ;
+      }
+    }
+  }
 }
-#endif
+)";
+  LibertyLibrary *lib = writeAndReadLibReturn(sta_, content);
+  ASSERT_NE(lib, nullptr);
+  LibertyCell *cell = lib->findLibertyCell("LM2");
+  ASSERT_NE(cell, nullptr);
+
+  bool found_linear_model = false;
+  for (TimingArcSet *arcset : cell->timingArcSets()) {
+    for (TimingArc *arc : arcset->arcs()) {
+      auto *model = dynamic_cast<GateLinearModel *>(arc->model());
+      if (model) {
+        found_linear_model = true;
+        ArcDelay delay = 0.0;
+        Slew slew = 0.0;
+        model->gateDelay(nullptr, 0.0f, 0.5f, false, delay, slew);
+        EXPECT_GT(delay, 0.0f);
+        EXPECT_GE(model->driveResistance(nullptr), 100.0f);
+      }
+    }
+  }
+  EXPECT_TRUE(found_linear_model);
+}
 
 // R9_86: multiple wire_load and default_wire_load
 TEST_F(StaLibertyTest, DefaultWireLoad) {
@@ -2963,37 +3053,54 @@ library(test_r9_89) {
 }
 
 // R9_90: TimingGroup set/get cell table models
-#if 0
 TEST_F(StaLibertyTest, TimingGroupCellModels) {
-  TimingGroup tg(1);
-  tg.setCell(RiseFall::rise(), nullptr);
-  tg.setCell(RiseFall::fall(), nullptr);
-  EXPECT_EQ(tg.cell(RiseFall::rise()), nullptr);
-  EXPECT_EQ(tg.cell(RiseFall::fall()), nullptr);
+  LibertyCell *cell = lib_->findLibertyCell("BUF_X1");
+  ASSERT_NE(cell, nullptr);
+  TimingArcAttrs attrs;
+  auto *rise_model = new GateLinearModel(cell, 0.01f, 10.0f);
+  auto *fall_model = new GateLinearModel(cell, 0.02f, 12.0f);
+  attrs.setModel(RiseFall::rise(), rise_model);
+  attrs.setModel(RiseFall::fall(), fall_model);
+  EXPECT_EQ(attrs.model(RiseFall::rise()), rise_model);
+  EXPECT_EQ(attrs.model(RiseFall::fall()), fall_model);
+  EXPECT_FLOAT_EQ(static_cast<GateLinearModel *>(attrs.model(RiseFall::rise()))
+                    ->driveResistance(nullptr),
+                  10.0f);
 }
-#endif
 
 // R9_91: TimingGroup constraint setters
-#if 0
 TEST_F(StaLibertyTest, TimingGroupConstraintModels) {
-  TimingGroup tg(1);
-  tg.setConstraint(RiseFall::rise(), nullptr);
-  tg.setConstraint(RiseFall::fall(), nullptr);
-  EXPECT_EQ(tg.constraint(RiseFall::rise()), nullptr);
-  EXPECT_EQ(tg.constraint(RiseFall::fall()), nullptr);
+  LibertyCell *cell = lib_->findLibertyCell("DFF_X1");
+  ASSERT_NE(cell, nullptr);
+  TimingArcAttrs attrs;
+  auto *rise_model = new CheckLinearModel(cell, 0.03f);
+  auto *fall_model = new CheckLinearModel(cell, 0.04f);
+  attrs.setModel(RiseFall::rise(), rise_model);
+  attrs.setModel(RiseFall::fall(), fall_model);
+  EXPECT_EQ(attrs.model(RiseFall::rise()), rise_model);
+  EXPECT_EQ(attrs.model(RiseFall::fall()), fall_model);
+  EXPECT_FLOAT_EQ(static_cast<CheckLinearModel *>(attrs.model(RiseFall::fall()))
+                    ->checkDelay(nullptr, 0.0f, 0.0f, 0.0f, false),
+                  0.04f);
 }
-#endif
 
 // R9_92: TimingGroup transition setters
-#if 0
 TEST_F(StaLibertyTest, TimingGroupTransitionModels) {
-  TimingGroup tg(1);
-  tg.setTransition(RiseFall::rise(), nullptr);
-  tg.setTransition(RiseFall::fall(), nullptr);
-  EXPECT_EQ(tg.transition(RiseFall::rise()), nullptr);
-  EXPECT_EQ(tg.transition(RiseFall::fall()), nullptr);
+  LibertyCell *cell = lib_->findLibertyCell("BUF_X1");
+  ASSERT_NE(cell, nullptr);
+  TimingArcAttrs attrs;
+  auto *rise_model = new GateLinearModel(cell, 0.05f, 7.0f);
+  attrs.setModel(RiseFall::rise(), rise_model);
+  ASSERT_EQ(attrs.model(RiseFall::rise()), rise_model);
+  EXPECT_EQ(attrs.model(RiseFall::fall()), nullptr);
+
+  ArcDelay delay = 0.0;
+  Slew slew = 0.0;
+  static_cast<GateLinearModel *>(attrs.model(RiseFall::rise()))
+    ->gateDelay(nullptr, 0.0f, 0.2f, false, delay, slew);
+  EXPECT_GT(delay, 0.05f);
+  EXPECT_FLOAT_EQ(slew, 0.0f);
 }
-#endif
 
 // R9_93: bus_naming_style attribute
 TEST_F(StaLibertyTest, BusNamingStyle) {
@@ -3397,13 +3504,21 @@ library(test_r9_104) {
 }
 
 // R9_105: TimingGroup outputWaveforms accessors (should be null by default)
-#if 0
 TEST_F(StaLibertyTest, TimingGroupOutputWaveforms) {
-  TimingGroup tg(1);
-  EXPECT_EQ(tg.outputWaveforms(RiseFall::rise()), nullptr);
-  EXPECT_EQ(tg.outputWaveforms(RiseFall::fall()), nullptr);
+  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
+  ASSERT_NE(buf, nullptr);
+  bool found_gate_table_model = false;
+  for (TimingArcSet *arcset : buf->timingArcSets()) {
+    for (TimingArc *arc : arcset->arcs()) {
+      auto *model = dynamic_cast<GateTableModel *>(arc->model());
+      if (model) {
+        found_gate_table_model = true;
+        EXPECT_EQ(model->outputWaveforms(), nullptr);
+      }
+    }
+  }
+  EXPECT_TRUE(found_gate_table_model);
 }
-#endif
 
 // =========================================================================
 // R11_ tests: Cover additional uncovered functions in liberty module
@@ -3448,90 +3563,67 @@ TEST_F(StaLibertyTest, WriteLiberty) {
 // LibertyAttr, LibertySimpleAttr, LibertyComplexAttr, LibertyStringAttrValue,
 // LibertyFloatAttrValue, LibertyDefine, LibertyVariable, isGroup/isAttribute/
 // isDefine/isVariable/isSimple/isComplex, and values() on simple attrs.
-#if 0
 TEST_F(StaLibertyTest, LibertyParserDirect) {
-  // Write a simple lib file for parser testing
-  const char *content = R"(
-library(test_r11_parser) {
-  delay_model : table_lookup ;
-  time_unit : "1ns" ;
-  voltage_unit : "1V" ;
-  current_unit : "1mA" ;
-  capacitive_load_unit(1, ff) ;
-  define(my_attr, cell, string) ;
-  my_var = 3.14 ;
-  cell(P1) {
-    area : 1.0 ;
-    pin(A) { direction : input ; capacitance : 0.01 ; }
-    pin(Z) { direction : output ; function : "A" ; }
-  }
-}
-)";
-  std::string tmp_path = makeUniqueTmpPath();
-  writeLibContent(content, tmp_path);
+  RecordingLibertyVisitor visitor;
+  LibertyParser parser("test_r11_parser.lib", &visitor, sta_->report());
 
-  // Parse with a simple visitor that just collects groups
-  Report *report = sta_->report();
-  // Use parseLibertyFile which creates the parser internally
-  // This exercises LibertyParser constructor, LibertyScanner,
-  // group(), deleteGroups()
-  class TestVisitor : public LibertyGroupVisitor {
-  public:
-    int group_count = 0;
-    int attr_count = 0;
-    int var_count = 0;
-    void begin(LibertyGroup *group) override { group_count++; }
-    void end(LibertyGroup *) override {}
-    void visitAttr(LibertyAttr *attr) override {
-      attr_count++;
-      // Exercise isSimple, isComplex, values()
-      // isAttribute() returns false for LibertyAttr subclasses
-      EXPECT_FALSE(attr->isAttribute());
-      EXPECT_FALSE(attr->isGroup());
-      EXPECT_FALSE(attr->isDefine());
-      EXPECT_FALSE(attr->isVariable());
-      if (attr->isSimpleAttr()) {
-        EXPECT_FALSE(attr->isComplexAttr());
-        // Simple attrs have firstValue but values() is not supported
-      }
-      if (attr->isComplexAttr()) {
-        EXPECT_FALSE(attr->isSimpleAttr());
-      }
-      // Exercise firstValue
-      LibertyAttrValue *val = attr->firstValue();
-      if (val) {
-        if (val->isString()) {
-          EXPECT_FALSE(val->stringValue().empty());
-          EXPECT_FALSE(val->isFloat());
-        }
-        if (val->isFloat()) {
-          EXPECT_FALSE(val->isString());
-          EXPECT_FALSE(std::isinf(val->floatValue()));
-        }
-      }
-    }
-    void visitVariable(LibertyVariable *variable) override {
-      var_count++;
-      EXPECT_TRUE(variable->isVariable());
-      EXPECT_FALSE(variable->isGroup());
-      EXPECT_FALSE(variable->isAttribute());
-      EXPECT_FALSE(variable->isDefine());
-      EXPECT_FALSE(variable->variable().empty());
-      EXPECT_FALSE(std::isinf(variable->value()));
-    }
-    bool save(LibertyGroup *) override { return false; }
-    bool save(LibertyAttr *) override { return false; }
-    bool save(LibertyVariable *) override { return false; }
-  };
+  auto *lib_params = new LibertyAttrValueSeq;
+  lib_params->push_back(parser.makeAttrValueString("test_r11_parser"));
+  parser.groupBegin("library", lib_params, 1);
+  parser.makeSimpleAttr("delay_model",
+                        parser.makeAttrValueString("table_lookup"),
+                        2);
+  parser.makeSimpleAttr("time_unit",
+                        parser.makeAttrValueString("1ns"),
+                        3);
+  auto *define_values = new LibertyAttrValueSeq;
+  define_values->push_back(parser.makeAttrValueString("my_attr"));
+  define_values->push_back(parser.makeAttrValueString("cell"));
+  define_values->push_back(parser.makeAttrValueString("string"));
+  parser.makeComplexAttr("define", define_values, 4);
+  parser.makeVariable("my_var", 3.14f, 5);
 
-  TestVisitor visitor;
-  parseLibertyFile(tmp_path.c_str(), &visitor, report);
-  EXPECT_GT(visitor.group_count, 0);
-  EXPECT_GT(visitor.attr_count, 0);
-  EXPECT_GT(visitor.var_count, 0);
-  remove(tmp_path.c_str());
+  auto *cell_params = new LibertyAttrValueSeq;
+  cell_params->push_back(parser.makeAttrValueString("P1"));
+  parser.groupBegin("cell", cell_params, 6);
+  parser.makeSimpleAttr("area", parser.makeAttrValueFloat(1.0f), 7);
+  auto *complex_values = new LibertyAttrValueSeq;
+  complex_values->push_back(parser.makeAttrValueFloat(0.01f));
+  complex_values->push_back(parser.makeAttrValueFloat(0.02f));
+  parser.makeComplexAttr("values", complex_values, 8);
+  LibertyGroup *cell = parser.groupEnd();
+  LibertyGroup *library = parser.groupEnd();
+
+  EXPECT_EQ(visitor.begin_count, 2);
+  EXPECT_EQ(visitor.end_count, 2);
+  ASSERT_EQ(visitor.root_groups.size(), 1u);
+  EXPECT_EQ(visitor.root_groups.front(), library);
+  EXPECT_EQ(visitor.simple_attrs.size(), 3u);
+  EXPECT_EQ(visitor.complex_attrs.size(), 1u);
+  EXPECT_EQ(visitor.variables.size(), 1u);
+
+  ASSERT_NE(library->firstName(), nullptr);
+  EXPECT_STREQ(library->firstName(), "test_r11_parser");
+  EXPECT_EQ(library->defineMap().size(), 1u);
+  EXPECT_EQ(library->findSubgroup("cell"), cell);
+  float area = 0.0f;
+  bool exists = false;
+  cell->findAttrFloat("area", area, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(area, 1.0f);
+  ASSERT_NE(cell->findComplexAttr("values"), nullptr);
+  EXPECT_EQ(cell->findComplexAttr("values")->values().size(), 2u);
+  EXPECT_EQ(visitor.variables[0]->variable(), "my_var");
+  EXPECT_FLOAT_EQ(visitor.variables[0]->value(), 3.14f);
+
+  NoopLibertyVisitor cleanup_visitor;
+  LibertyParser cleanup_parser("cleanup.lib", &cleanup_visitor, sta_->report());
+  auto *cleanup_params = new LibertyAttrValueSeq;
+  cleanup_params->push_back(cleanup_parser.makeAttrValueString("cleanup"));
+  cleanup_parser.groupBegin("library", cleanup_params, 1);
+  cleanup_parser.groupBegin("cell", new LibertyAttrValueSeq, 2);
+  cleanup_parser.deleteGroups();
 }
-#endif
 
 // R11_4: Liberty file with wireload_selection to cover WireloadForArea
 TEST_F(StaLibertyTest, WireloadForArea) {
@@ -3978,7 +4070,6 @@ library(test_r11_intport) {
 
 // R11_15: Directly test LibertyParser API through parseLibertyFile
 // Focus on saving attrs/variables/groups to exercise more code paths
-#if 0
 TEST_F(StaLibertyTest, ParserSaveAll) {
   const char *content = R"(
 library(test_r11_save) {
@@ -3999,43 +4090,27 @@ library(test_r11_save) {
   std::string tmp_path = makeUniqueTmpPath();
   writeLibContent(content, tmp_path);
 
-  // Visitor that saves everything
-  class SaveVisitor : public LibertyGroupVisitor {
-  public:
-    int group_begin_count = 0;
-    int group_end_count = 0;
-    int define_count = 0;
-    int var_count = 0;
-    void begin(LibertyGroup *group) override {
-      group_begin_count++;
-      EXPECT_TRUE(group->isGroup());
-      EXPECT_FALSE(group->isAttribute());
-      EXPECT_FALSE(group->isVariable());
-      EXPECT_FALSE(group->isDefine());
-      EXPECT_FALSE(group->type().empty());
-    }
-    void end(LibertyGroup *) override { group_end_count++; }
-    void visitAttr(LibertyAttr *attr) override {
-      // Check isDefine virtual dispatch
-      if (attr->isDefine())
-        define_count++;
-    }
-    void visitVariable(LibertyVariable *var) override {
-      var_count++;
-    }
-    bool save(LibertyGroup *) override { return true; }
-    bool save(LibertyAttr *) override { return true; }
-    bool save(LibertyVariable *) override { return true; }
-  };
+  RecordingLibertyVisitor visitor;
+  parseLibertyFile(tmp_path.c_str(), &visitor, sta_->report());
 
-  Report *report = sta_->report();
-  SaveVisitor visitor;
-  parseLibertyFile(tmp_path.c_str(), &visitor, report);
-  EXPECT_GT(visitor.group_begin_count, 0);
-  EXPECT_EQ(visitor.group_begin_count, visitor.group_end_count);
-  remove(tmp_path.c_str());
+  EXPECT_GT(visitor.begin_count, 0);
+  EXPECT_EQ(visitor.begin_count, visitor.end_count);
+  ASSERT_EQ(visitor.root_groups.size(), 1u);
+  const LibertyGroup *library = visitor.root_groups.front();
+  ASSERT_NE(library, nullptr);
+  EXPECT_EQ(library->defineMap().size(), 1u);
+  EXPECT_EQ(visitor.variables.size(), 1u);
+  EXPECT_GT(visitor.simple_attrs.size(), 0u);
+
+  const LibertyGroup *cell = library->findSubgroup("cell");
+  ASSERT_NE(cell, nullptr);
+  float area = 0.0f;
+  bool exists = false;
+  cell->findAttrFloat("area", area, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(area, 1.0f);
+  EXPECT_EQ(remove(tmp_path.c_str()), 0);
 }
-#endif
 
 // R11_16: Exercises clearAxisValues and setEnergyScale through internal_power
 // with energy values
