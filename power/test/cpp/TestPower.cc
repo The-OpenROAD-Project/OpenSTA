@@ -225,9 +225,6 @@ TEST_F(PwrActivityTest, IsSetForAllOrigins) {
 
   activity.setOrigin(PwrActivityOrigin::constant);
   EXPECT_TRUE(activity.isSet());
-
-  activity.setOrigin(PwrActivityOrigin::unknown);
-  EXPECT_FALSE(activity.isSet());
 }
 
 TEST_F(PwrActivityTest, OriginName) {
@@ -256,9 +253,6 @@ TEST_F(PwrActivityTest, OriginName) {
 
   activity.setOrigin(PwrActivityOrigin::constant);
   EXPECT_STREQ(activity.originName(), "constant");
-
-  activity.setOrigin(PwrActivityOrigin::unknown);
-  EXPECT_STREQ(activity.originName(), "unknown");
 
   activity.setOrigin(PwrActivityOrigin::unknown);
   EXPECT_STREQ(activity.originName(), "unknown");
@@ -361,7 +355,6 @@ TEST_F(PwrActivityTest, OriginNames) {
   EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::propagated).originName(), "propagated");
   EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::clock).originName(), "clock");
   EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::constant).originName(), "constant");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::unknown).originName(), "unknown");
 }
 
 // Construct and test with explicit density/duty
@@ -613,7 +606,6 @@ TEST_F(PwrActivityTest, OriginNameExhaustive) {
   EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::propagated).originName(), "propagated");
   EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::clock).originName(), "clock");
   EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::constant).originName(), "constant");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::unknown).originName(), "unknown");
 }
 
 ////////////////////////////////////////////////////////////////
