@@ -22,7 +22,7 @@ BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 # fails if all initializers fit on one line
 BreakConstructorInitializers: AfterColon
-ColumnLimit: 90
+ColumnLimit: 85
 # fails
 ConstructorInitializerIndentWidth: 2
 IncludeBlocks: Preserve

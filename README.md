@@ -184,13 +184,23 @@ files in the build directory.
 
 ## Build with Docker
 
-An alternative way to build and run OpenSTA is with
+AN alternative way to build and run OpenSTA is with
 [Docker](https://www.docker.com).  After installing Docker, the
 following command builds a Docker image.
 
 ```
 cd OpenSTA
 docker build --file Dockerfile.ubuntu22.04 --tag opensta_ubuntu22.04 .
+or
+docker build --file Dockerfile.centos7 --tag opensta_centos7 .
+```
+
+The centos7 build on mac/OsX with ARM processorts requires the platform
+to be specified.
+
+```
+docker build --file Dockerfile.centos7 --platform=linux/amd64 --tag opensta_centos7 .
+
 ```
 
 To run a docker container using the OpenSTA image, use the -v option
