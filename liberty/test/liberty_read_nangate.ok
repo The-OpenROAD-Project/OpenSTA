@@ -5,6 +5,12 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 1.55-1.70
  ZN output function=!A
+
+Timing arcs
+ A -> ZN
+  combinational
+  ^ -> v
+  v -> ^
 Cell BUF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -12,6 +18,12 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 0.88-0.97
  Z output function=A
+
+Timing arcs
+ A -> Z
+  combinational
+  ^ -> ^
+  v -> v
 Cell NAND2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -20,6 +32,16 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 1.53-1.60
  A2 input 1.50-1.66
  ZN output function=!(A1*A2)
+
+Timing arcs
+ A1 -> ZN
+  combinational
+  ^ -> v
+  v -> ^
+ A2 -> ZN
+  combinational
+  ^ -> v
+  v -> ^
 Cell NOR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -28,6 +50,16 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 1.41-1.71
  A2 input 1.56-1.65
  ZN output function=!(A1+A2)
+
+Timing arcs
+ A1 -> ZN
+  combinational
+  ^ -> v
+  v -> ^
+ A2 -> ZN
+  combinational
+  ^ -> v
+  v -> ^
 Cell AND2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -36,6 +68,16 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 0.87-0.92
  A2 input 0.89-0.97
  ZN output function=A1*A2
+
+Timing arcs
+ A1 -> ZN
+  combinational
+  ^ -> ^
+  v -> v
+ A2 -> ZN
+  combinational
+  ^ -> ^
+  v -> v
 Cell OR2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -44,6 +86,16 @@ File ../../test/nangate45/Nangate45_typ.lib
  A1 input 0.79-0.95
  A2 input 0.90-0.94
  ZN output function=A1+A2
+
+Timing arcs
+ A1 -> ZN
+  combinational
+  ^ -> ^
+  v -> v
+ A2 -> ZN
+  combinational
+  ^ -> ^
+  v -> v
 Cell MUX2_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -53,22 +105,74 @@ File ../../test/nangate45/Nangate45_typ.lib
  B input 0.90-0.94
  S input 1.81-1.92
  Z output function=(S*B)+(A*!S)
+
+Timing arcs
+ A -> Z
+  combinational
+  when !B*!S
+  ^ -> ^
+  v -> v
+ A -> Z
+  combinational
+  when B*!S
+  ^ -> ^
+  v -> v
+ B -> Z
+  combinational
+  when !A*S
+  ^ -> ^
+  v -> v
+ B -> Z
+  combinational
+  when A*S
+  ^ -> ^
+  v -> v
+ S -> Z
+  combinational
+  when !A*B
+  ^ -> ^
+  v -> v
+ S -> Z
+  combinational
+  when A*!B
+  ^ -> v
+  v -> ^
 Cell DFF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
- IQ internal
- IQN internal
  VDD power
  VSS ground
  D input 1.06-1.14
  CK input 0.86-0.95
  Q output function=IQ
  QN output function=IQN
+ IQ internal
+ IQN internal
+
+Timing arcs
+ CK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+ CK -> CK
+  width
+  ^ -> v
+  v -> ^
+ CK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ CK -> QN
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
 Cell DFFR_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
- IQ internal
- IQN internal
  VDD power
  VSS ground
  D input 1.05-1.13
@@ -76,11 +180,77 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.88-0.98
  Q output function=IQ
  QN output function=IQN
+ IQ internal
+ IQN internal
+
+Timing arcs
+ CK -> D
+  hold
+  when RN
+  ^ -> ^
+  ^ -> v
+ CK -> D
+  setup
+  when RN
+  ^ -> ^
+  ^ -> v
+ CK -> RN
+  recovery
+  ^ -> ^
+ CK -> RN
+  removal
+  ^ -> ^
+ RN -> RN
+  width
+  v -> ^
+ CK -> CK
+  width
+  when RN
+  ^ -> v
+  v -> ^
+ CK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ RN -> Q
+  Reg Set/Clr
+  when !CK*!D
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when !CK*D
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when CK*!D
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when CK*D
+  v -> v
+ CK -> QN
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ RN -> QN
+  Reg Set/Clr
+  when !CK*!D
+  v -> ^
+ RN -> QN
+  Reg Set/Clr
+  when !CK*D
+  v -> ^
+ RN -> QN
+  Reg Set/Clr
+  when CK*!D
+  v -> ^
+ RN -> QN
+  Reg Set/Clr
+  when CK*D
+  v -> ^
 Cell DFFS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
- IQ internal
- IQN internal
  VDD power
  VSS ground
  D input 1.09-1.16
@@ -88,11 +258,77 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.88-0.97
  Q output function=IQ
  QN output function=IQN
+ IQ internal
+ IQN internal
+
+Timing arcs
+ CK -> D
+  hold
+  when SN
+  ^ -> ^
+  ^ -> v
+ CK -> D
+  setup
+  when SN
+  ^ -> ^
+  ^ -> v
+ CK -> SN
+  recovery
+  ^ -> ^
+ CK -> SN
+  removal
+  ^ -> ^
+ SN -> SN
+  width
+  v -> ^
+ CK -> CK
+  width
+  when SN
+  ^ -> v
+  v -> ^
+ CK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ SN -> Q
+  Reg Set/Clr
+  when !CK*!D
+  v -> ^
+ SN -> Q
+  Reg Set/Clr
+  when !CK*D
+  v -> ^
+ SN -> Q
+  Reg Set/Clr
+  when CK*!D
+  v -> ^
+ SN -> Q
+  Reg Set/Clr
+  when CK*D
+  v -> ^
+ CK -> QN
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ SN -> QN
+  Reg Set/Clr
+  when !CK*!D
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when !CK*D
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when CK*!D
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when CK*D
+  v -> v
 Cell DFFRS_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
- IQ internal
- IQN internal
  VDD power
  VSS ground
  D input 1.08-1.15
@@ -101,17 +337,193 @@ File ../../test/nangate45/Nangate45_typ.lib
  CK input 0.87-0.96
  Q output function=IQ
  QN output function=IQN
+ IQ internal
+ IQN internal
+
+Timing arcs
+ CK -> D
+  hold
+  when RN*SN
+  ^ -> ^
+  ^ -> v
+ CK -> D
+  setup
+  when RN*SN
+  ^ -> ^
+  ^ -> v
+ CK -> RN
+  recovery
+  when SN
+  ^ -> ^
+ CK -> RN
+  removal
+  when SN
+  ^ -> ^
+ RN -> RN
+  width
+  when SN
+  v -> ^
+ CK -> SN
+  recovery
+  when RN
+  ^ -> ^
+ CK -> SN
+  removal
+  when RN
+  ^ -> ^
+ SN -> SN
+  width
+  when RN
+  v -> ^
+ CK -> CK
+  width
+  when RN*SN
+  ^ -> v
+  v -> ^
+ CK -> Q
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ RN -> Q
+  Reg Set/Clr
+  when (!CK*!D)*!SN
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when (!CK*!D)*SN
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when (!CK*D)*!SN
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when (!CK*D)*SN
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when (CK*!D)*!SN
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when (CK*!D)*SN
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when (CK*D)*!SN
+  v -> v
+ RN -> Q
+  Reg Set/Clr
+  when (CK*D)*SN
+  v -> v
+ SN -> Q
+  Reg Set/Clr
+  when (!CK*!D)*RN
+  v -> ^
+ SN -> Q
+  Reg Set/Clr
+  when (!CK*D)*RN
+  v -> ^
+ SN -> Q
+  Reg Set/Clr
+  when (CK*!D)*RN
+  v -> ^
+ SN -> Q
+  Reg Set/Clr
+  when (CK*D)*RN
+  v -> ^
+ CK -> QN
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ RN -> QN
+  Reg Set/Clr
+  when (!CK*!D)*SN
+  v -> ^
+ RN -> QN
+  Reg Set/Clr
+  when (!CK*D)*SN
+  v -> ^
+ RN -> QN
+  Reg Set/Clr
+  when (CK*!D)*SN
+  v -> ^
+ RN -> QN
+  Reg Set/Clr
+  when (CK*D)*SN
+  v -> ^
+ SN -> QN
+  Reg Set/Clr
+  when (!CK*!D)*!RN
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when (!CK*!D)*RN
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when (!CK*D)*!RN
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when (!CK*D)*RN
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when (CK*!D)*!RN
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when (CK*!D)*RN
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when (CK*D)*!RN
+  v -> v
+ SN -> QN
+  Reg Set/Clr
+  when (CK*D)*RN
+  v -> v
 Cell TLAT_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
- IQ internal
- IQN internal
  VDD power
  VSS ground
  D input 1.07-1.14
  G input 0.92-1.02
  OE input 1.42-1.50
  Q tristate enable=OE function=IQ 0.79-0.79
+ IQ internal
+ IQN internal
+
+Timing arcs
+ G -> D
+  hold
+  v -> ^
+  v -> v
+ G -> D
+  setup
+  v -> ^
+  v -> v
+ G -> G
+  width
+  ^ -> v
+ D -> Q
+  Latch D to Q
+  ^ -> ^
+  v -> v
+ G -> Q
+  Latch En to Q
+  ^ -> ^
+  ^ -> v
+ OE -> Q
+  tristate disable
+  v -> 0Z
+  v -> 1Z
+ OE -> Q
+  tristate enable
+  ^ -> Z1
+  ^ -> Z0
 Cell AOI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -121,6 +533,31 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 1.45-1.65
  B2 input 1.41-1.68
  ZN output function=!(A+(B1*B2))
+
+Timing arcs
+ A -> ZN
+  combinational
+  when !B1*!B2
+  ^ -> v
+  v -> ^
+ A -> ZN
+  combinational
+  when !B1*B2
+  ^ -> v
+  v -> ^
+ A -> ZN
+  combinational
+  when B1*!B2
+  ^ -> v
+  v -> ^
+ B1 -> ZN
+  combinational
+  ^ -> v
+  v -> ^
+ B2 -> ZN
+  combinational
+  ^ -> v
+  v -> ^
 Cell OAI21_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -130,6 +567,31 @@ File ../../test/nangate45/Nangate45_typ.lib
  B1 input 1.46-1.66
  B2 input 1.56-1.57
  ZN output function=!(A*(B1+B2))
+
+Timing arcs
+ A -> ZN
+  combinational
+  when !B1*B2
+  ^ -> v
+  v -> ^
+ A -> ZN
+  combinational
+  when B1*!B2
+  ^ -> v
+  v -> ^
+ A -> ZN
+  combinational
+  when B1*B2
+  ^ -> v
+  v -> ^
+ B1 -> ZN
+  combinational
+  ^ -> v
+  v -> ^
+ B2 -> ZN
+  combinational
+  ^ -> v
+  v -> ^
 Cell HA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -139,6 +601,36 @@ File ../../test/nangate45/Nangate45_typ.lib
  B input 3.34-3.45
  CO output function=A*B
  S output function=A^B
+
+Timing arcs
+ A -> CO
+  combinational
+  ^ -> ^
+  v -> v
+ B -> CO
+  combinational
+  ^ -> ^
+  v -> v
+ A -> S
+  combinational
+  when !B
+  ^ -> ^
+  v -> v
+ A -> S
+  combinational
+  when B
+  ^ -> v
+  v -> ^
+ B -> S
+  combinational
+  when !A
+  ^ -> ^
+  v -> v
+ B -> S
+  combinational
+  when A
+  ^ -> v
+  v -> ^
 Cell FA_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -149,6 +641,98 @@ File ../../test/nangate45/Nangate45_typ.lib
  CI input 2.66-2.76
  CO output function=(A*B)+(CI*(A+B))
  S output function=CI^(A^B)
+
+Timing arcs
+ A -> CO
+  combinational
+  when !B*CI
+  ^ -> ^
+  v -> v
+ A -> CO
+  combinational
+  when B*!CI
+  ^ -> ^
+  v -> v
+ B -> CO
+  combinational
+  when !A*CI
+  ^ -> ^
+  v -> v
+ B -> CO
+  combinational
+  when A*!CI
+  ^ -> ^
+  v -> v
+ CI -> CO
+  combinational
+  when !A*B
+  ^ -> ^
+  v -> v
+ CI -> CO
+  combinational
+  when A*!B
+  ^ -> ^
+  v -> v
+ A -> S
+  combinational
+  when !B*!CI
+  ^ -> ^
+  v -> v
+ A -> S
+  combinational
+  when !B*CI
+  ^ -> v
+  v -> ^
+ A -> S
+  combinational
+  when B*!CI
+  ^ -> v
+  v -> ^
+ A -> S
+  combinational
+  when B*CI
+  ^ -> ^
+  v -> v
+ B -> S
+  combinational
+  when !A*!CI
+  ^ -> ^
+  v -> v
+ B -> S
+  combinational
+  when !A*CI
+  ^ -> v
+  v -> ^
+ B -> S
+  combinational
+  when A*!CI
+  ^ -> v
+  v -> ^
+ B -> S
+  combinational
+  when A*CI
+  ^ -> ^
+  v -> v
+ CI -> S
+  combinational
+  when !A*!B
+  ^ -> ^
+  v -> v
+ CI -> S
+  combinational
+  when !A*B
+  ^ -> v
+  v -> ^
+ CI -> S
+  combinational
+  when A*!B
+  ^ -> v
+  v -> ^
+ CI -> S
+  combinational
+  when A*B
+  ^ -> ^
+  v -> v
 Cell CLKBUF_X1
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -156,6 +740,12 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 0.70-0.78
  Z output function=A
+
+Timing arcs
+ A -> Z
+  combinational
+  ^ -> ^
+  v -> v
 Cell CLKBUF_X2
 Library NangateOpenCellLibrary
 File ../../test/nangate45/Nangate45_typ.lib
@@ -163,3 +753,9 @@ File ../../test/nangate45/Nangate45_typ.lib
  VSS ground
  A input 1.24-1.41
  Z output function=A
+
+Timing arcs
+ A -> Z
+  combinational
+  ^ -> ^
+  v -> v

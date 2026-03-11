@@ -70,9 +70,9 @@ TEST_F(RiseFallTest, Singletons) {
 }
 
 TEST_F(RiseFallTest, Names) {
-  // to_string() returns short_name: "^" for rise, "v" for fall
-  EXPECT_EQ(RiseFall::rise()->to_string(), "^");
-  EXPECT_EQ(RiseFall::fall()->to_string(), "v");
+  // to_string() returns name: "rise" for rise, "fall" for fall
+  EXPECT_EQ(RiseFall::rise()->to_string(), "rise");
+  EXPECT_EQ(RiseFall::fall()->to_string(), "fall");
 }
 
 TEST_F(RiseFallTest, Indices) {

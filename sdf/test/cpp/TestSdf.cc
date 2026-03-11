@@ -630,8 +630,8 @@ TEST_F(SdfSmokeTest, TransitionMaxIndex) {
 // Test RiseFall to_string
 // Covers: RiseFall::to_string
 TEST_F(SdfSmokeTest, RiseFallToString) {
-  EXPECT_EQ(RiseFall::rise()->to_string(), "^");
-  EXPECT_EQ(RiseFall::fall()->to_string(), "v");
+  EXPECT_EQ(RiseFall::rise()->to_string(), "rise");
+  EXPECT_EQ(RiseFall::fall()->to_string(), "fall");
 }
 
 // Test MinMax compare with equal values
@@ -1306,8 +1306,8 @@ TEST_F(SdfSmokeTest, MinMaxCompareExtremes) {
 }
 
 TEST_F(SdfSmokeTest, RiseFallToStringAndFind) {
-  EXPECT_EQ(RiseFall::rise()->to_string(), "^");
-  EXPECT_EQ(RiseFall::fall()->to_string(), "v");
+  EXPECT_EQ(RiseFall::rise()->to_string(), "rise");
+  EXPECT_EQ(RiseFall::fall()->to_string(), "fall");
   EXPECT_EQ(RiseFall::find("^"), RiseFall::rise());
   EXPECT_EQ(RiseFall::find("v"), RiseFall::fall());
   EXPECT_EQ(RiseFall::find("rise"), RiseFall::rise());

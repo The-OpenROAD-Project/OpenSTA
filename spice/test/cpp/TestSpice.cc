@@ -18,6 +18,7 @@
 #include "PathExpanded.hh"
 #include "Search.hh"
 #include "CircuitSim.hh"
+#include "StringUtil.hh"
 #include "spice/Xyce.hh"
 #include "spice/WriteSpice.hh"
 
@@ -139,7 +140,7 @@ TEST_F(XyceCsvTest, ReadSimpleCsv) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -161,7 +162,7 @@ TEST_F(XyceCsvTest, ReadSingleSignal) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -173,7 +174,7 @@ TEST_F(XyceCsvTest, ReadSingleSignal) {
 TEST_F(XyceCsvTest, FileNotReadableThrows) {
   EXPECT_THROW(
     {
-      StdStringSeq titles;
+      StringSeq titles;
       WaveformSeq waveforms;
       readXyceCsv("/nonexistent/file.csv", titles, waveforms);
     },
@@ -274,7 +275,7 @@ TEST_F(XyceCsvTest, ReadMultipleSignals) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -296,7 +297,7 @@ TEST_F(XyceCsvTest, ReadManyDataPoints) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -411,7 +412,7 @@ TEST_F(XyceCsvTest, ReadNegativeValues) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -427,7 +428,7 @@ TEST_F(XyceCsvTest, ReadHeaderOnly) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -712,7 +713,7 @@ TEST_F(XyceCsvTest, ReadPrecisionValues) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -739,7 +740,7 @@ TEST_F(XyceCsvTest, ReadManySignals) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -912,7 +913,7 @@ TEST_F(XyceCsvTest, ReadCsvWithZeroValues) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -937,7 +938,7 @@ TEST_F(XyceCsvTest, ReadCsvManySignals) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1147,7 +1148,7 @@ TEST_F(XyceCsvTest, ReadCsvSmallValues) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1165,7 +1166,7 @@ TEST_F(XyceCsvTest, ReadCsvLargeValues) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1187,7 +1188,7 @@ TEST_F(XyceCsvTest, ReadCsv100TimeSteps) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1205,7 +1206,7 @@ TEST_F(XyceCsvTest, ReadCsvSpecialSignalNames) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1224,7 +1225,7 @@ TEST_F(XyceCsvTest, ReadCsvCurrentProbes) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1254,8 +1255,8 @@ TEST_F(SpiceSmokeTest, RiseFallBothIndex) {
 }
 
 TEST_F(SpiceSmokeTest, RiseFallBothToString) {
-  EXPECT_EQ(RiseFallBoth::rise()->to_string(), "^");
-  EXPECT_EQ(RiseFallBoth::fall()->to_string(), "v");
+  EXPECT_EQ(RiseFallBoth::rise()->to_string(), "rise");
+  EXPECT_EQ(RiseFallBoth::fall()->to_string(), "fall");
   EXPECT_FALSE(RiseFallBoth::riseFall()->to_string().empty());
 }
 
@@ -1317,7 +1318,7 @@ TEST_F(XyceCsvTest, ReadCsvSingleRow) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1336,7 +1337,7 @@ TEST_F(XyceCsvTest, ReadCsvAlternatingSign) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1372,7 +1373,7 @@ TEST_F(XyceCsvTest, ReadCsv50Signals) {
     out.close();
   }
 
-  StdStringSeq titles;
+  StringSeq titles;
   WaveformSeq waveforms;
   readXyceCsv(tmpfile_.c_str(), titles, waveforms);
 
@@ -1597,7 +1598,7 @@ TEST_F(SpiceDesignTest, GraphVertexAccess) {
 
 // Verify timing paths exist after analysis (prerequisite for writePathSpice)
 TEST_F(SpiceDesignTest, TimingPathExists) {
-  StdStringSeq group_names;
+  StringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr,       // from
     nullptr,       // thrus
@@ -1626,7 +1627,7 @@ TEST_F(SpiceDesignTest, TimingPathExists) {
 
 // Verify path end has a valid path object for SPICE writing
 TEST_F(SpiceDesignTest, PathEndHasPath) {
-  StdStringSeq group_names;
+  StringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
     sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::max(),
@@ -1659,7 +1660,7 @@ TEST_F(SpiceDesignTest, DcalcAnalysisPtAccess) {
 
 // Verify SPICE file can be written for a timing path
 TEST_F(SpiceDesignTest, WriteSpicePathFile) {
-  StdStringSeq group_names;
+  StringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
     sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::max(),
@@ -1698,7 +1699,7 @@ TEST_F(SpiceDesignTest, WriteSpicePathFile) {
 
 // Verify multiple timing paths are found (SPICE multi-path analysis)
 TEST_F(SpiceDesignTest, MultipleTimingPaths) {
-  StdStringSeq group_names;
+  StringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
     sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::max(),
@@ -1774,7 +1775,7 @@ TEST_F(SpiceDesignTest, NetNamesForSpice) {
 
 // Verify hold timing paths (for SPICE min-delay analysis)
 TEST_F(SpiceDesignTest, HoldTimingPaths) {
-  StdStringSeq group_names;
+  StringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
     sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::min(),
@@ -1805,7 +1806,7 @@ TEST_F(SpiceDesignTest, VertexArrivalForSpice) {
 
 // Verify PathExpanded works on timing paths (used in SPICE path writing)
 TEST_F(SpiceDesignTest, PathExpandedAccess) {
-  StdStringSeq group_names;
+  StringSeq group_names;
   PathEndSeq path_ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, false,
     sta_->makeSceneSeq(sta_->cmdScene()), MinMaxAll::max(),

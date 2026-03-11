@@ -9,13 +9,11 @@
 #include "MinMax.hh"
 #include "PatternMatch.hh"
 #include "StringUtil.hh"
-#include "StringSet.hh"
 #include "RiseFallMinMax.hh"
 #include "RiseFallValues.hh"
 #include "Report.hh"
 #include "ReportStd.hh"
 #include "Error.hh"
-#include "TokenParser.hh"
 #include "Debug.hh"
 #include "Machine.hh"
 #include "DispatchQueue.hh"
@@ -202,35 +200,6 @@ TEST(StringUtilTest, IsDigitsFalse)
   EXPECT_FALSE(isDigits("123abc"));
   // Empty string returns true (no non-digit characters)
   EXPECT_TRUE(isDigits(""));
-}
-
-// split tests
-TEST(StringUtilTest, SplitBasic)
-{
-  StringVector tokens;
-  split("one,two,three", ",", tokens);
-  ASSERT_EQ(tokens.size(), 3u);
-  EXPECT_EQ(tokens[0], "one");
-  EXPECT_EQ(tokens[1], "two");
-  EXPECT_EQ(tokens[2], "three");
-}
-
-TEST(StringUtilTest, SplitSpaces)
-{
-  StringVector tokens;
-  split("hello world foo", " ", tokens);
-  ASSERT_EQ(tokens.size(), 3u);
-  EXPECT_EQ(tokens[0], "hello");
-  EXPECT_EQ(tokens[1], "world");
-  EXPECT_EQ(tokens[2], "foo");
-}
-
-TEST(StringUtilTest, SplitNoDelimiter)
-{
-  StringVector tokens;
-  split("hello", ",", tokens);
-  ASSERT_EQ(tokens.size(), 1u);
-  EXPECT_EQ(tokens[0], "hello");
 }
 
 // trimRight tests
@@ -1190,105 +1159,6 @@ TEST(ReportTest, LogAndConsoleSimultaneous)
 }
 
 ////////////////////////////////////////////////////////////////
-// TokenParser tests
-////////////////////////////////////////////////////////////////
-
-TEST(TokenParserTest, BasicTokens)
-{
-  char str[] = "hello world foo";
-  TokenParser tp(str, " ");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "hello");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "world");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "foo");
-  EXPECT_FALSE(tp.hasNext());
-}
-
-TEST(TokenParserTest, CommaDelimiter)
-{
-  char str[] = "one,two,three";
-  TokenParser tp(str, ",");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "one");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "two");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "three");
-  EXPECT_FALSE(tp.hasNext());
-}
-
-TEST(TokenParserTest, SingleToken)
-{
-  char str[] = "single";
-  TokenParser tp(str, " ");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "single");
-  EXPECT_FALSE(tp.hasNext());
-}
-
-TEST(TokenParserTest, LeadingSpaces)
-{
-  char str[] = "   hello world";
-  TokenParser tp(str, " ");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "hello");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "world");
-  EXPECT_FALSE(tp.hasNext());
-}
-
-TEST(TokenParserTest, EmptyString)
-{
-  char str[] = "";
-  TokenParser tp(str, " ");
-  // For an empty string, hasNext returns true for the first call
-  // but next() returns a pointer to the empty string
-  ASSERT_TRUE(tp.hasNext());
-  char *tok = tp.next();
-  EXPECT_STREQ(tok, "");
-  // After first token, no more
-  EXPECT_FALSE(tp.hasNext());
-}
-
-TEST(TokenParserTest, AllSpaces)
-{
-  char str[] = "   ";
-  TokenParser tp(str, " ");
-  // After skipping leading spaces, token points to '\0'
-  // hasNext returns true for first call since token_ != nullptr
-  ASSERT_TRUE(tp.hasNext());
-  char *tok = tp.next();
-  EXPECT_STREQ(tok, "");
-  EXPECT_FALSE(tp.hasNext());
-}
-
-TEST(TokenParserTest, MultipleDelimiters)
-{
-  char str[] = "a:b;c";
-  TokenParser tp(str, ":;");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "a");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "b");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "c");
-  EXPECT_FALSE(tp.hasNext());
-}
-
-TEST(TokenParserTest, ConsecutiveDelimiters)
-{
-  char str[] = "a,,b";
-  TokenParser tp(str, ",");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "a");
-  ASSERT_TRUE(tp.hasNext());
-  EXPECT_STREQ(tp.next(), "b");
-  EXPECT_FALSE(tp.hasNext());
-}
-
-////////////////////////////////////////////////////////////////
 // Additional StringUtil tests
 ////////////////////////////////////////////////////////////////
 
@@ -1441,20 +1311,6 @@ TEST(StringUtilTest, StringLessIfComparator)
   StringLessIf cmp;
   EXPECT_TRUE(cmp(nullptr, "abc"));
   EXPECT_FALSE(cmp("abc", nullptr));
-}
-
-TEST(StringUtilTest, SplitEmpty)
-{
-  StringVector tokens;
-  split("", ",", tokens);
-  EXPECT_EQ(tokens.size(), 0u);
-}
-
-TEST(StringUtilTest, SplitOnlyDelimiters)
-{
-  StringVector tokens;
-  split(",,,", ",", tokens);
-  EXPECT_EQ(tokens.size(), 0u);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1821,8 +1677,8 @@ TEST(TransitionCovTest, RiseFallFindShortName)
 // RiseFallBoth::to_string and shortName
 TEST(TransitionCovTest, RiseFallBothToString)
 {
-  EXPECT_EQ(RiseFallBoth::rise()->to_string(), "^");
-  EXPECT_EQ(RiseFallBoth::fall()->to_string(), "v");
+  EXPECT_EQ(RiseFallBoth::rise()->to_string(), "rise");
+  EXPECT_EQ(RiseFallBoth::fall()->to_string(), "fall");
   EXPECT_STREQ(RiseFallBoth::rise()->shortName(), "^");
   EXPECT_STREQ(RiseFallBoth::fall()->shortName(), "v");
 }
@@ -1956,8 +1812,8 @@ TEST(TransitionCovTest, TransitionMaxIndex)
 // RiseFall::to_string
 TEST(TransitionCovTest, RiseFallToString)
 {
-  EXPECT_EQ(RiseFall::rise()->to_string(), "^");
-  EXPECT_EQ(RiseFall::fall()->to_string(), "v");
+  EXPECT_EQ(RiseFall::rise()->to_string(), "rise");
+  EXPECT_EQ(RiseFall::fall()->to_string(), "fall");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2256,21 +2112,6 @@ TEST(ExceptionCovTest, ExceptionLineConstructor)
 {
   TestExceptionLine ex("testfile.cc", 42);
   EXPECT_STREQ(ex.what(), "test exception line");
-}
-
-////////////////////////////////////////////////////////////////
-// StringSet deleteContents coverage test
-////////////////////////////////////////////////////////////////
-
-TEST(StringSetCovTest, DeleteContents)
-{
-  StringSet *strings = new StringSet;
-  // Use stringCopy to allocate strings that can be freed by stringDelete
-  strings->insert(stringCopy("hello"));
-  strings->insert(stringCopy("world"));
-  EXPECT_EQ(strings->size(), 2u);
-  deleteContents(strings);
-  delete strings;
 }
 
 ////////////////////////////////////////////////////////////////
