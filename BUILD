@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025, The OpenROAD Authors
 
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("//bazel:bison.bzl", "genyacc")
@@ -174,17 +175,17 @@ tcl_encode_sta(
     char_array_name = "tcl_inits",
 )
 
-genrule(
+write_file(
     name = "StaConfig",
-    srcs = [],
-    outs = ["include/sta/StaConfig.hh"],
-    cmd = """echo -e '
-    #pragma once
-    #define STA_VERSION "2.7.0"
-    #define STA_GIT_SHA1 "f21d4a3878e2531e3af4930818d9b5968aad9416"
-    #define SSTA 0
-    #define ZLIB_FOUND' > \"$@\"
-    """,
+    out = "include/sta/StaConfig.hh",
+    content = [
+        "#pragma once",
+        '#define STA_VERSION "2.7.0"',
+        '#define STA_GIT_SHA1 "f21d4a3878e2531e3af4930818d9b5968aad9416"',
+        "#define SSTA 0",
+        "#define ZLIB_FOUND",
+        "",
+    ],
     visibility = ["//:__subpackages__"],
 )
 
