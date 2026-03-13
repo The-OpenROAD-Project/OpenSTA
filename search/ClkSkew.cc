@@ -95,16 +95,17 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
   Unit *time_unit = units_->timeUnit();
   Path *src_path = clk_skew.srcPath();
   Path *tgt_path = clk_skew.tgtPath();
-  float src_latency = clk_skew.srcLatency(this);
+  const MinMax *src_min_max = src_path->minMax(this);
+  Arrival src_latency = clk_skew.srcLatency(this);
   float tgt_latency = clk_skew.tgtLatency(this);
   float src_internal_clk_latency = clk_skew.srcInternalClkLatency(this);
   float tgt_internal_clk_latency = clk_skew.tgtInternalClkLatency(this);
   float uncertainty = clk_skew.uncertainty(this);
 
   if (src_internal_clk_latency != 0.0)
-    src_latency -= src_internal_clk_latency;
+    delayDecr(src_latency, src_internal_clk_latency, this);
   report_->reportLine("%7s source latency %s %s",
-                      time_unit->asString(src_latency, digits),
+                      delayAsString(src_latency, src_min_max, digits, this),
                       sdc_network_->pathName(src_path->pin(this)),
                       src_path->transition(this)->shortName());
   if (src_internal_clk_latency != 0.0)
@@ -124,15 +125,32 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
     report_->reportLine("%7s clock uncertainty",
                         time_unit->asString(uncertainty, digits));
   report_->reportLine("%7s CRPR",
-                      time_unit->asString(delayAsFloat(-clk_skew.crpr(this)),
-                                          digits));
+                      delayAsString(delayDiff(0.0, clk_skew.crpr(this), this),
+                                    MinMax::max(), digits, this));
   report_->reportLine("--------------");
   report_->reportLine("%7s %s skew",
-                      time_unit->asString(clk_skew.skew(), digits),
+                      delayAsString(clk_skew.skew(), MinMax::max(), digits, this),
                       src_path->minMax(this) == MinMax::max() ? "setup" : "hold");
 }
 
-float
+static float
+delayAbsMax(const Delay &delay,
+            const StaState *sta)
+{
+  float min = delayAsFloat(delay, MinMax::min(), sta);
+  float max = delayAsFloat(delay, MinMax::max(), sta);
+  return std::max(std::abs(min), std::abs(max));
+}
+
+static bool
+delayAbsGreater(const Delay &delay1,
+                const Delay &delay2,
+                const StaState *sta)
+{
+  return delayAbsMax(delay1, sta) > delayAbsMax(delay2, sta);
+}
+
+Delay
 ClkSkews::findWorstClkSkew(const SceneSeq &scenes,
                            const SetupHold *setup_hold,
                            bool include_internal_latency)
@@ -143,10 +161,10 @@ ClkSkews::findWorstClkSkew(const SceneSeq &scenes,
       clks.push_back(clk);
   }
   findClkSkew(clks, scenes, include_internal_latency);
-  float worst_skew = 0.0;
+  Delay worst_skew = 0.0;
   for (const auto& [clk, clk_skews] : skews_) {
-    float skew = clk_skews[setup_hold->index()].skew();
-    if (std::abs(skew) > std::abs(worst_skew))
+    Delay skew = clk_skews[setup_hold->index()].skew();
+    if (delayAbsGreater(skew, worst_skew, this))
       worst_skew = skew;
   }
   return worst_skew;
@@ -206,10 +224,12 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
           for (int setup_hold_idx : SetupHold::rangeIndex()) {
             ClkSkew &final_skew = itr->second[setup_hold_idx];
             ClkSkew &partial_skew_val = partial_skew[setup_hold_idx];
-            float partial_skew1 = partial_skew_val.skew();
-            float final_skew1 = final_skew.skew();
-            if (std::abs(partial_skew1) > std::abs(final_skew1)
-                || (fuzzyEqual(std::abs(partial_skew1), std::abs(final_skew1))
+            Delay partial_skew1 = partial_skew_val.skew();
+            Delay final_skew1 = final_skew.skew();
+            float partial_skew_max = delayAbsMax(partial_skew1, this);
+            float final_skew_max = delayAbsMax(final_skew1, this);
+            if (partial_skew_max > final_skew_max
+                || (fuzzyEqual(partial_skew_max, final_skew_max)
                     // Break ties based on source/target path names.
                     && ClkSkew::srcTgtPathNameLess(partial_skew_val, final_skew, this)))
               final_skew = partial_skew_val;
@@ -299,7 +319,8 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	&& src_rf->matches(src_path->transition(this))
 	&& clk_set_.contains(src_clk)
         && scenes_set_.contains(src_scene)) {
-      const MinMax *tgt_min_max = src_path->minMax(this)->opposite();
+      const MinMax *src_min_max = src_path->minMax(this);
+      const MinMax *tgt_min_max = src_min_max->opposite();
       VertexPathIterator tgt_iter(tgt_vertex, this);
       while (tgt_iter.hasNext()) {
         Path *tgt_path = tgt_iter.next();
@@ -316,14 +337,14 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
                      "%s %s %s -> %s %s %s crpr = %s skew = %s",
                      network_->pathName(src_path->pin(this)),
                      src_path->transition(this)->shortName(),
-                     time_unit->asString(probe.srcLatency(this)),
+                     delayAsString(probe.srcLatency(this), src_min_max, this),
                      network_->pathName(tgt_path->pin(this)),
                      tgt_path->transition(this)->shortName(),
                      time_unit->asString(probe.tgtLatency(this)),
                      delayAsString(probe.crpr(this), this),
-                     time_unit->asString(probe.skew()));
+                     delayAsString(probe.skew(), MinMax::max(), this));
           if (clk_skew.srcPath() == nullptr
-              || std::abs(probe.skew()) > std::abs(clk_skew.skew()))
+              || delayAbsGreater(probe.skew(), clk_skew.skew(), this))
             clk_skew = probe;
         }
       }
@@ -380,10 +401,8 @@ ClkSkew::ClkSkew(Path *src_path,
   tgt_path_(tgt_path),
   include_internal_latency_(include_internal_latency)
 {
-  skew_ = srcLatency(sta)
-    - tgtLatency(sta)
-    - delayAsFloat(crpr(sta))
-    + uncertainty(sta);
+  skew_ = delayDiff(delaySum(srcLatency(sta), uncertainty(sta), sta),
+                    delaySum(tgtLatency(sta), crpr(sta), sta), sta);
 }
 
 ClkSkew::ClkSkew(const ClkSkew &clk_skew)
@@ -403,12 +422,11 @@ ClkSkew::operator=(const ClkSkew &clk_skew)
   skew_ = clk_skew.skew_;
 }
 
-float
+Arrival
 ClkSkew::srcLatency(const StaState *sta)
 {
-  Arrival src_arrival = src_path_->arrival();
-  return delayAsFloat(src_arrival) - src_path_->clkEdge(sta)->time()
-    + clkTreeDelay(src_path_, sta);
+  return delayDiff(delaySum(src_path_->arrival(), clkTreeDelay(src_path_, sta), sta),
+                   src_path_->clkEdge(sta)->time(), sta);
 }
 
 float
@@ -421,8 +439,8 @@ float
 ClkSkew::tgtLatency(const StaState *sta)
 {
   Arrival tgt_arrival = tgt_path_->arrival();
-  return delayAsFloat(tgt_arrival) - tgt_path_->clkEdge(sta)->time()
-    + clkTreeDelay(tgt_path_, sta);
+  return delayAsFloat(delaySum(delayDiff(tgt_arrival, tgt_path_->clkEdge(sta)->time(),sta),
+                               clkTreeDelay(tgt_path_, sta), sta));
 }
 
 float
@@ -441,7 +459,7 @@ ClkSkew::clkTreeDelay(Path *clk_path,
     const LibertyPort *port = sta->network()->libertyPort(pin);
     const MinMax *min_max = clk_path->minMax(sta);
     const RiseFall *rf = clk_path->transition(sta);
-    float slew = delayAsFloat(clk_path->slew(sta));
+    float slew = delayAsFloat(clk_path->slew(sta), min_max, sta);
     return port->clkTreeDelay(slew, rf, min_max);
   }
   else

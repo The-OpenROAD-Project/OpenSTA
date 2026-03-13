@@ -102,7 +102,7 @@ PathEnd::sourceClkEdge(const StaState *sta) const
   return path_->clkEdge(sta);
 }
 
-Arrival
+const Arrival &
 PathEnd::dataArrivalTime(const StaState *) const
 {
   return path_->arrival();
@@ -111,13 +111,17 @@ PathEnd::dataArrivalTime(const StaState *) const
 Arrival
 PathEnd::dataArrivalTimeOffset(const StaState *sta) const
 {
-  return dataArrivalTime(sta) + sourceClkOffset(sta);
+  return delaySum(dataArrivalTime(sta),
+                  sourceClkOffset(sta),
+                  sta);
 }
 
 Required
 PathEnd::requiredTimeOffset(const StaState *sta) const
 {
-  return requiredTime(sta) + sourceClkOffset(sta);
+  return delaySum(requiredTime(sta),
+                  sourceClkOffset(sta),
+                  sta);
 }
 
 const RiseFall *
@@ -259,9 +263,9 @@ Crpr
 PathEnd::checkCrpr(const StaState *sta) const
 {
   if (checkRole(sta)->genericRole() == TimingRole::hold())
-    return -crpr(sta);
+    return delayDiff(delay_zero, crpr(sta), sta);
   else
-    return crpr(sta);;
+    return crpr(sta);
 }
 
 Crpr
@@ -301,7 +305,7 @@ PathEnd::checkTgtClkDelay(const Path *tgt_clk_path,
   Delay insertion, latency;
   checkTgtClkDelay(tgt_clk_path, tgt_clk_edge, check_role, sta,
                    insertion, latency);
-  return Delay(insertion + latency);
+  return delaySum(insertion, latency, sta);
 }
 
 void
@@ -334,7 +338,8 @@ PathEnd::checkTgtClkDelay(const Path *tgt_clk_path,
       Delay path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
                                                     tgt_clk_rf, min_max,
                                                     min_max, mode);
-      latency = delayRemove(clk_arrival - tgt_clk_edge->time(), path_insertion);
+      latency = delayRemove(delayDiff(clk_arrival, tgt_clk_edge->time(), sta),
+                            path_insertion);
     }
     else
       // Ideal clock.
@@ -615,21 +620,25 @@ PathEndClkConstrained::targetClkTime(const StaState *sta) const
 Arrival
 PathEndClkConstrained::targetClkArrival(const StaState *sta) const
 {
-  return targetClkArrivalNoCrpr(sta)
-    + checkCrpr(sta);
+  return delaySum(targetClkArrivalNoCrpr(sta),
+                  checkCrpr(sta),
+                  sta);
 }
  
 Arrival
 PathEndClkConstrained::targetClkArrivalNoCrpr(const StaState *sta) const
 {
   Sdc *sdc = path_->sdc(sta);
-  return targetClkTime(sta)
-    + targetClkDelay(sta)
-    + checkClkUncertainty(sourceClkEdge(sta),
-                          targetClkEdge(sta),
-                          targetClkPath(),
-                          checkRole(sta), sdc)
-    + targetClkMcpAdjustment(sta);
+  Arrival clk_arrival = delaySum(targetClkDelay(sta),
+                                 targetClkTime(sta),
+                                 sta);
+  float uncertainty = checkClkUncertainty(sourceClkEdge(sta),
+                                          targetClkEdge(sta),
+                                          targetClkPath(),
+                                          checkRole(sta),
+                                          sdc);
+  return delaySum(delaySum(clk_arrival, uncertainty, sta),
+                  targetClkMcpAdjustment(sta), sta);
 }
 
 Delay
@@ -704,8 +713,9 @@ PathEndClkConstrained::crpr(const StaState *sta) const
 Required
 PathEndClkConstrained::requiredTime(const StaState *sta) const
 {
-  return requiredTimeNoCrpr(sta)
-    + checkCrpr(sta);
+  return delaySum(requiredTimeNoCrpr(sta),
+                  checkCrpr(sta),
+                  sta);
 }
 
 Required
@@ -714,9 +724,9 @@ PathEndClkConstrained::requiredTimeNoCrpr(const StaState *sta) const
   Arrival tgt_clk_arrival = targetClkArrivalNoCrpr(sta);
   ArcDelay check_margin = margin(sta);
   if (checkGenericRole(sta) == TimingRole::setup())
-    return tgt_clk_arrival - check_margin;
+    return delayDiff(tgt_clk_arrival, check_margin, sta);
   else
-    return tgt_clk_arrival + check_margin;
+    return delaySum(tgt_clk_arrival, check_margin, sta);
 }
 
 Slack
@@ -725,9 +735,9 @@ PathEndClkConstrained::slack(const StaState *sta) const
   Arrival arrival = dataArrivalTime(sta);
   Required required = requiredTime(sta);
   if (checkGenericRole(sta) == TimingRole::setup())
-    return required - arrival;
+    return delayDiff(required, arrival, sta);
   else
-    return arrival - required;
+    return delayDiff(arrival, required, sta);
 }
 
 int
@@ -862,9 +872,9 @@ PathEndClkConstrained::slackNoCrpr(const StaState *sta) const
   Arrival arrival = dataArrivalTime(sta);
   Required required = requiredTimeNoCrpr(sta);
   if (checkGenericRole(sta) == TimingRole::setup())
-    return required - arrival;
+    return delayDiff(required, arrival, sta);
   else
-    return arrival - required;
+    return delayDiff(arrival, required, sta);
 }
 
 void
@@ -1017,10 +1027,18 @@ PathEndCheck::exceptPathCmp(const PathEnd *path_end,
 Delay
 PathEndCheck::clkSkew(const StaState *sta)
 {
-  return sourceClkDelay(sta) - targetClkDelay(sta) - crpr(sta)
-    // Uncertainty decreases slack, but increases skew.
-    - checkTgtClkUncertainty(clk_path_, clk_path_->clkEdge(sta),
-                             checkRole(sta), sta);
+  Delay skew = delayDiff(sourceClkDelay(sta),
+                         targetClkDelay(sta),
+                         sta);
+  skew = delayDiff(skew, crpr(sta), sta);
+  // Uncertainty decreases slack, but increases skew.
+  skew = delayDiff(skew,
+                   checkTgtClkUncertainty(clk_path_,
+                                                    clk_path_->clkEdge(sta),
+                                                    checkRole(sta),
+                                                    sta),
+                   sta);
+  return skew;
 }
 
 Delay
@@ -1035,7 +1053,8 @@ PathEndCheck::sourceClkDelay(const StaState *sta) const
       Arrival clk_arrival = src_clk_path->arrival();
       const ClockEdge *src_clk_edge = src_clk_info->clkEdge();
       Delay insertion = sourceClkInsertionDelay(sta);
-      return delayRemove(clk_arrival - src_clk_edge->time(), insertion);
+      return delayRemove(delayDiff(clk_arrival, src_clk_edge->time(), sta),
+                         insertion);
     }
     else
       // Ideal clock.
@@ -1052,9 +1071,17 @@ PathEndCheck::requiredTimeNoCrpr(const StaState *sta) const
   ArcDelay check_margin = margin(sta);
   float macro_clk_tree_delay = macroClkTreeDelay(sta);
   if (checkGenericRole(sta) == TimingRole::setup())
-    return tgt_clk_arrival - (check_margin + macro_clk_tree_delay);
+    return delayDiff(tgt_clk_arrival,
+                     delaySum(check_margin,
+                              macro_clk_tree_delay,
+                              sta),
+                     sta);
   else
-    return tgt_clk_arrival + (check_margin - macro_clk_tree_delay);
+    return delaySum(tgt_clk_arrival,
+                    delayDiff(check_margin,
+                              macro_clk_tree_delay,
+                              sta),
+                    sta);
 }
 
 float
@@ -1072,7 +1099,7 @@ PathEndCheck::macroClkTreeDelay(const StaState *sta) const
     if (clk_port) {
       const MinMax *min_max = clk_path_->minMax(sta);
       const RiseFall *rf = clk_path_->transition(sta);
-      float slew = delayAsFloat(clk_path_->slew(sta));
+      float slew = delayAsFloat(clk_path_->slew(sta), min_max, sta);
       return clk_port->clkTreeDelay(slew, rf, min_max);
     }
   }
@@ -1276,14 +1303,16 @@ PathEndLatchCheck::targetClkWidth(const StaState *sta) const
   Arrival enable_arrival = search->clkPathArrival(clk_path_);
   const ClkInfo *enable_clk_info = clk_path_->clkInfo(sta);
   if (enable_clk_info->isPulseClk())
-    return disable_arrival - enable_arrival;
+    return delayDiff(disable_arrival, enable_arrival, sta);
   else {
     if (delayGreater(enable_arrival, disable_arrival, sta)) {
       const Clock *disable_clk = enable_clk_info->clock();
       if (disable_clk)
-        disable_arrival += disable_clk->period();
+        disable_arrival = delaySum(disable_arrival,
+                                   disable_clk->period(),
+                                   sta);
     }
-    return disable_arrival - enable_arrival;
+    return delayDiff(disable_arrival, enable_arrival, sta);
   }
 }
 
@@ -1416,10 +1445,14 @@ PathEndOutputDelay::targetClkArrivalNoCrpr(const StaState *sta) const
   else {
     const ClockEdge *tgt_clk_edge = targetClkEdge(sta);
     const TimingRole *check_role = checkRole(sta);
-    return targetClkTime(sta)
-      + tgtClkDelay(tgt_clk_edge, check_role, sta)
-      + targetClkUncertainty(sta)
-      + checkMcpAdjustment(path_, tgt_clk_edge, sta);
+    Arrival base = delaySum(targetClkTime(sta),
+                            tgtClkDelay(tgt_clk_edge, check_role, sta),
+                            sta);
+    return delaySum(delaySum(base,
+                             targetClkUncertainty(sta),
+                             sta),
+                    checkMcpAdjustment(path_, tgt_clk_edge, sta),
+                    sta);
   }
 }
 
@@ -1451,7 +1484,7 @@ PathEndOutputDelay::tgtClkDelay(const ClockEdge *tgt_clk_edge,
   Arrival insertion, latency;
   tgtClkDelay(tgt_clk_edge, check_role, sta,
               insertion, latency);
-  return insertion + latency;
+  return delaySum(insertion, latency, sta);
 }
 
 void
@@ -1691,17 +1724,23 @@ PathEndDataCheck::requiredTimeNoCrpr(const StaState *sta) const
 {
   Arrival data_clk_arrival = data_clk_path_->arrival();
   float data_clk_time = data_clk_path_->clkEdge(sta)->time();
-  Arrival data_clk_delay = data_clk_arrival - data_clk_time;
-  Arrival tgt_clk_arrival = targetClkTime(sta)
-    + data_clk_delay
-    + targetClkUncertainty(sta)
-    + targetClkMcpAdjustment(sta);
+  Arrival data_clk_delay = delayDiff(data_clk_arrival,
+                                     data_clk_time,
+                                     sta);
+  Arrival tgt_clk_arrival =
+    delaySum(delaySum(targetClkTime(sta),
+                      data_clk_delay,
+                      sta),
+             delaySum(targetClkUncertainty(sta),
+                      targetClkMcpAdjustment(sta),
+                      sta),
+             sta);
 
   ArcDelay check_margin = margin(sta);
   if (checkGenericRole(sta) == TimingRole::setup())
-    return tgt_clk_arrival - check_margin;
+    return delayDiff(tgt_clk_arrival, check_margin, sta);
   else
-    return tgt_clk_arrival + check_margin;
+    return delaySum(tgt_clk_arrival, check_margin, sta);
 }
 
 ArcDelay
@@ -1917,7 +1956,7 @@ PathEnd::pathDelaySrcClkOffset(const Path *path,
   const ClockEdge *clk_edge = path->clkEdge(sta);
   if (clk_edge) {
     if (ignoreClkLatency(path, path_delay, sta))
-      offset = -delayAsFloat(src_clk_arrival);
+      offset = -delayAsFloat(src_clk_arrival, path->minMax(sta), sta);
     else
       // Arrival includes src clock edge time that is not counted in the
       // path delay.
@@ -1960,8 +1999,9 @@ PathEndPathDelay::targetClkArrivalNoCrpr(const StaState *sta) const
 {
   const ClockEdge *tgt_clk_edge = targetClkEdge(sta);
   if (tgt_clk_edge)
-    return targetClkDelay(sta)
-      + targetClkUncertainty(sta);
+    return delaySum(targetClkDelay(sta),
+                    targetClkUncertainty(sta),
+                    sta);
   else if (clk_path_)
     return clk_path_->arrival();
   else
@@ -1979,19 +2019,29 @@ PathEndPathDelay::requiredTime(const StaState *sta) const
 {
   float delay = path_delay_->delay();
   if (path_delay_->ignoreClkLatency()) {
-    Required src_offset = path_->isClock(sta)
-      ? path_->clkEdge(sta)->time()
-      : src_clk_arrival_;
-    return src_offset + delay
-      + ((minMax(sta) == MinMax::max()) ? -margin(sta) : margin(sta));
+    Delay with_delay = path_->isClock(sta)
+      ? Delay(path_->clkEdge(sta)->time() + delay)
+      : delaySum(src_clk_arrival_, delay, sta);
+    ArcDelay m = margin(sta);
+    return (minMax(sta) == MinMax::max())
+      ? delayDiff(with_delay, m, sta)
+      : delaySum(with_delay, m, sta);
   }
   else {
     Arrival tgt_clk_arrival = targetClkArrival(sta);
     float src_clk_offset = sourceClkOffset(sta);
     // Path delay includes target clk latency and timing check setup/hold 
     // margin or external departure at target.
-    return delay - src_clk_offset + tgt_clk_arrival
-      + ((minMax(sta) == MinMax::max()) ? -margin(sta) : margin(sta));
+    Delay base = delaySum(tgt_clk_arrival,
+                          delay,
+                          sta);
+    Delay with_src = delayDiff(base,
+                               src_clk_offset,
+                               sta);
+    ArcDelay m = margin(sta);
+    return (minMax(sta) == MinMax::max())
+      ? delayDiff(with_src, m, sta)
+      : delaySum(with_src, m, sta);
   }
 }
 
@@ -2073,22 +2123,22 @@ PathEnd::cmpSlack(const PathEnd *path_end1,
 {
   Slack slack1 = path_end1->slack(sta);
   Slack slack2 = path_end2->slack(sta);
-  if (delayZero(slack1)
-      && delayZero(slack2)
+  if (delayZero(slack1, sta)
+      && delayZero(slack2, sta)
       && path_end1->isLatchCheck()
       && path_end2->isLatchCheck()) {
     Arrival borrow1 = path_end1->borrow(sta);
     Arrival borrow2 = path_end2->borrow(sta);
     // Latch slack is zero if there is borrowing so break ties
     // based on borrow time.
-    if (delayEqual(borrow1, borrow2))
+    if (delayEqual(borrow1, borrow2, sta))
       return 0;
     else if (delayGreater(borrow1, borrow2, sta))
       return -1;
     else
       return 1;
   }
-  else if (delayEqual(slack1, slack2))
+  else if (delayEqual(slack1, slack2, sta))
     return 0;
   else if (delayLess(slack1, slack2, sta))
     return -1;
@@ -2104,7 +2154,7 @@ PathEnd::cmpArrival(const PathEnd *path_end1,
   Arrival arrival1 = path_end1->dataArrivalTime(sta);
   Arrival arrival2 = path_end2->dataArrivalTime(sta);
   const MinMax *min_max = path_end1->minMax(sta);
-  if (delayEqual(arrival1, arrival2))
+  if (delayEqual(arrival1, arrival2, sta))
     return 0;
   else if (delayLess(arrival1, arrival2, min_max, sta))
     return -1;

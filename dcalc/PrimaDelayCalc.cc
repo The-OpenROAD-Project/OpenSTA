@@ -166,8 +166,8 @@ PrimaDelayCalc::inputPortDelay(const Pin *drvr_pin,
   for (auto load_pin_index : load_pin_index_map) {
     const Pin *load_pin = load_pin_index.first;
     size_t load_idx = load_pin_index.second;
-    ArcDelay wire_delay = 0.0;
-    Slew load_slew = in_slew;
+    double wire_delay = 0.0;
+    double load_slew = in_slew;
     bool elmore_exists = false;
     float elmore = 0.0;
     if (pi_elmore)
@@ -722,8 +722,8 @@ PrimaDelayCalc::dcalcResults()
     size_t drvr_node = pin_node_map_[drvr_pin];
     ThresholdTimes &drvr_times = threshold_times_[drvr_node];
     float ref_time = output_waveforms_[drvr_idx]->referenceTime(dcalc_arg.inSlewFlt());
-    ArcDelay gate_delay = drvr_times[threshold_vth] - ref_time;
-    Slew drvr_slew = std::abs(drvr_times[threshold_vh] - drvr_times[threshold_vl]);
+    double gate_delay = drvr_times[threshold_vth] - ref_time;
+    double drvr_slew = std::abs(drvr_times[threshold_vh] - drvr_times[threshold_vl]);
     dcalc_result.setGateDelay(gate_delay);
     dcalc_result.setDrvrSlew(drvr_slew);
     debugPrint(debug_, "ccs_dcalc", 2,
@@ -739,8 +739,8 @@ PrimaDelayCalc::dcalcResults()
       size_t load_node = pin_node_map_[load_pin];
       ThresholdTimes &wire_times = threshold_times_[load_node];
       ThresholdTimes &drvr_times = threshold_times_[drvr_node];
-      ArcDelay wire_delay = wire_times[threshold_vth] - drvr_times[threshold_vth];
-      Slew load_slew = std::abs(wire_times[threshold_vh] - wire_times[threshold_vl]);
+      double wire_delay = wire_times[threshold_vth] - drvr_times[threshold_vth];
+      double load_slew = std::abs(wire_times[threshold_vh] - wire_times[threshold_vl]);
       debugPrint(debug_, "ccs_dcalc", 2,
                  "load %s %s delay %s slew %s",
                  network_->pathName(load_pin),
@@ -920,7 +920,8 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
     return model->reportGateDelay(pinPvt(drvr_pin, scene, min_max),
-                                  in_slew1, load_cap, false, digits);
+                                  in_slew1, load_cap, min_max,
+                                  PocvMode::scalar, digits);
   }
   return "";
 }

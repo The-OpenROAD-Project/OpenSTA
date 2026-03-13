@@ -1032,7 +1032,7 @@ VerilogDclBus::VerilogDclBus(PortDirection *dir,
 int
 VerilogDclBus::size() const
 {
-  return abs(to_index_ - from_index_) + 1;
+  return std::abs(to_index_ - from_index_) + 1;
 }
 
 VerilogDclArg::VerilogDclArg(const std::string &net_name) :

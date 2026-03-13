@@ -52,13 +52,13 @@ public:
   void operator=(const ClkSkew &clk_skew);
   Path *srcPath() { return src_path_; }
   Path *tgtPath() { return tgt_path_; }
-  float srcLatency(const StaState *sta);
+  Arrival srcLatency(const StaState *sta);
   float tgtLatency(const StaState *sta);
   float srcInternalClkLatency(const StaState *sta);
   float tgtInternalClkLatency(const StaState *sta);
   Crpr crpr(const StaState *sta);
   float uncertainty(const StaState *sta);
-  float skew() const { return skew_; }
+  Delay skew() const { return skew_; }
   static bool srcTgtPathNameLess(ClkSkew &clk_skew1,
                                  ClkSkew &clk_skew2,
                                  const StaState *sta);
@@ -70,7 +70,7 @@ private:
   Path *src_path_;
   Path *tgt_path_;
   bool include_internal_latency_;
-  float skew_;
+  Delay skew_;
 };
 
 using ClkSkewMap = std::map<const Clock*, ClkSkew[SetupHold::index_count]>;
@@ -97,7 +97,7 @@ public:
                      bool include_internal_latency,
                      int digits);
   // Find worst clock skew between src/target registers.
-  float findWorstClkSkew(const SceneSeq &scenes,
+  Delay findWorstClkSkew(const SceneSeq &scenes,
                          const SetupHold *setup_hold,
                          bool include_internal_latency);
   

@@ -39,6 +39,7 @@
 #include "Bfs.hh"
 #include "Scene.hh"
 #include "Sta.hh"
+#include "StaConfig.hh"
 
 using namespace sta;
 
@@ -155,26 +156,29 @@ find_requireds()
   Sta::sta()->findRequireds();
 }
 
-Slack
+float
 total_negative_slack_cmd(const MinMax *min_max)
 {
-  return Sta::sta()->totalNegativeSlack(min_max);
+  Sta *sta = Sta::sta();
+  return delayAsFloat(sta->totalNegativeSlack(min_max), min_max, sta);
 }
 
-Slack
+float
 total_negative_slack_scene_cmd(const Scene *scene,
                                const MinMax *min_max)
 {
-  return Sta::sta()->totalNegativeSlack(scene, min_max);
+  Sta *sta = Sta::sta();
+  return delayAsFloat(sta->totalNegativeSlack(scene, min_max), min_max, sta);
 }
 
-Slack
+float
 worst_slack_cmd(const MinMax *min_max)
 {
+  Sta *sta = Sta::sta();
   Slack worst_slack;
   Vertex *worst_vertex;
-  Sta::sta()->worstSlack(min_max, worst_slack, worst_vertex);
-  return worst_slack;
+  sta->worstSlack(min_max, worst_slack, worst_vertex);
+  return delayAsFloat(worst_slack, min_max, sta);
 }
 
 Vertex *
@@ -186,14 +190,15 @@ worst_slack_vertex(const MinMax *min_max)
   return worst_vertex;;
 }
 
-Slack
+float
 worst_slack_scene(const Scene *scene,
                    const MinMax *min_max)
 {
+  Sta *sta = Sta::sta();
   Slack worst_slack;
   Vertex *worst_vertex;
-  Sta::sta()->worstSlack(scene, min_max, worst_slack, worst_vertex);
-  return worst_slack;
+  sta->worstSlack(scene, min_max, worst_slack, worst_vertex);
+  return delayAsFloat(worst_slack, min_max, sta);
 }
 
 Path *
@@ -224,7 +229,7 @@ vertex_worst_slack_path(Vertex *vertex,
   return sta->vertexWorstSlackPath(vertex, min_max);
 }
 
-Slack
+float
 endpoint_slack(const Pin *pin,
                const char *path_group_name,
                const MinMax *min_max)
@@ -233,7 +238,7 @@ endpoint_slack(const Pin *pin,
   sta->ensureLibLinked();
   if (sta->isGroupPathName(path_group_name, sta->cmdSdc())) {
     Slack slack = sta->endpointSlack(pin, std::string(path_group_name), min_max);
-    return sta->units()->timeUnit()->staToUser(delayAsFloat(slack));
+    return sta->units()->timeUnit()->staToUser(delayAsFloat(slack, min_max, sta));
   }
   else {
     sta->report()->error(1577, "%s is not a known path group name.",
@@ -407,6 +412,7 @@ set_report_path_fields(bool report_input_pin,
                        bool report_cap,
                        bool report_slew,
                        bool report_fanout,
+                       bool report_variation,
                        bool report_src_attr)
 {
   Sta::sta()->setReportPathFields(report_input_pin,
@@ -415,6 +421,7 @@ set_report_path_fields(bool report_input_pin,
                                   report_cap,
                                   report_slew,
                                   report_fanout,
+                                  report_variation,
                                   report_src_attr);
 }
 
@@ -433,18 +440,6 @@ set_report_path_field_properties(const char *field_name,
 }
 
 void
-set_report_path_field_width(const char *field_name,
-                            int width)
-{
-  Sta *sta = Sta::sta();
-  ReportField *field = sta->findReportPathField(field_name);
-  if (field)
-    field->setWidth(width);
-  else
-    sta->report()->warn(1576, "unknown report path field %s", field_name);
-}
-
-void
 set_report_path_digits(int digits)
 {
   Sta::sta()->setReportPathDigits(digits);
@@ -454,12 +449,6 @@ void
 set_report_path_no_split(bool no_split)
 {
   Sta::sta()->setReportPathNoSplit(no_split);
-}
-
-void
-set_report_path_sigmas(bool report_sigmas)
-{
-  Sta::sta()->setReportPathSigmas(report_sigmas);
 }
 
 void
@@ -480,25 +469,28 @@ report_path_ends(PathEndSeq *ends)
 void
 report_arrival_wrt_clks(const Pin *pin,
                         const Scene *scene,
+                        bool report_variance,
                         int digits)
 {
-  Sta::sta()->reportArrivalWrtClks(pin, scene, digits);
+  Sta::sta()->reportArrivalWrtClks(pin, scene, report_variance, digits);
 }
 
 void
 report_required_wrt_clks(const Pin *pin,
                          const Scene *scene,
+                         bool report_variance,
                          int digits)
 {
-  Sta::sta()->reportRequiredWrtClks(pin, scene, digits);
+  Sta::sta()->reportRequiredWrtClks(pin, scene, report_variance, digits);
 }
 
 void
 report_slack_wrt_clks(const Pin *pin,
                       const Scene *scene,
+                      bool report_variance,
                       int digits)
 {
-  Sta::sta()->reportSlackWrtClks(pin, scene, digits);
+  Sta::sta()->reportSlackWrtClks(pin, scene, report_variance, digits);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -518,7 +510,9 @@ float
 worst_clk_skew_cmd(const SetupHold *setup_hold,
                    bool include_internal_latency)
 {
-  return Sta::sta()->findWorstClkSkew(setup_hold, include_internal_latency);
+  Sta *sta = Sta::sta();
+  Delay skew = sta->findWorstClkSkew(setup_hold, include_internal_latency);
+  return delayAsFloat(skew, MinMax::max(), sta);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -571,7 +565,7 @@ report_max_skew_checks(const Net *net,
 
 ////////////////////////////////////////////////////////////////
 
-Slack
+float
 find_clk_min_period(const Clock *clk,
                     bool ignore_port_paths)
 {
@@ -963,39 +957,37 @@ set_crpr_mode(const char *mode)
 {
   Sta *sta = Sta::sta();
   if (stringEq(mode, "same_pin"))
-    Sta::sta()->setCrprMode(CrprMode::same_pin);
+    sta->setCrprMode(CrprMode::same_pin);
   else if (stringEq(mode, "same_transition"))
-    Sta::sta()->setCrprMode(CrprMode::same_transition);
+    sta->setCrprMode(CrprMode::same_transition);
   else
-    sta->report()->critical(1573, "unknown common clk pessimism mode.");
+    sta->report()->error(1573, "unknown common clk pessimism mode.");
 }
 
-bool
-pocv_enabled()
+const char *
+pocv_mode()
 {
-  return Sta::sta()->pocvEnabled();
+  return pocvModeName(Sta::sta()->pocvMode());
 }
 
 void
-set_pocv_enabled(bool enabled)
+set_pocv_mode(const char *mode_name)
 {
-#if !SSTA
-  if (enabled)
-    Sta::sta()->report()->error(1574, "POCV support requires compilation with SSTA=1.");
-#endif
-  return Sta::sta()->setPocvEnabled(enabled);
+  Sta *sta = Sta::sta();
+  PocvMode mode = findPocvMode(mode_name);
+  sta->setPocvMode(mode);
 }
 
 float
-pocv_sigma_factor()
+pocv_quantile()
 {
-  return Sta::sta()->sigmaFactor();
+  return Sta::sta()->pocvQuantile();
 }
 
 void
-set_pocv_sigma_factor(float factor)
+set_pocv_quantile(float quantile)
 {
-  Sta::sta()->setSigmaFactor(factor);
+  Sta::sta()->setPocvQuantile(quantile);
 }
 
 bool
@@ -1141,58 +1133,83 @@ Vertex *vertex() { return self->vertex(Sta::sta()); }
 Path *path() { return self->path(); }
 RiseFall *end_transition()
 { return const_cast<RiseFall*>(self->path()->transition(Sta::sta())); }
-Slack slack() { return self->slack(Sta::sta()); }
-ArcDelay margin() { return self->margin(Sta::sta()); }
-Required data_required_time() { return self->requiredTimeOffset(Sta::sta()); }
-Arrival data_arrival_time() { return self->dataArrivalTimeOffset(Sta::sta()); }
+
+float
+slack()
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->slack(sta), self->minMax(sta), sta);
+}
+
+float
+margin()
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->margin(sta), self->minMax(sta), sta);
+}
+
+float
+data_required_time()
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->requiredTimeOffset(sta), self->minMax(sta), sta);
+}
+
+float
+data_arrival_time()
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->dataArrivalTimeOffset(sta), self->minMax(sta), sta);
+}
+
+float
+target_clk_delay()
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->targetClkDelay(sta), self->minMax(sta), sta);
+}
+
+float
+source_clk_latency()
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->sourceClkLatency(sta), self->minMax(sta), sta);
+}
+
+float
+clk_skew()
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->clkSkew(sta), self->minMax(sta), sta);
+}
+
 const TimingRole *check_role() { return self->checkRole(Sta::sta()); }
 MinMax *min_max() { return const_cast<MinMax*>(self->minMax(Sta::sta())); }
-float source_clk_offset() { return self->sourceClkOffset(Sta::sta()); }
-Arrival source_clk_latency() { return self->sourceClkLatency(Sta::sta()); }
-Arrival source_clk_insertion_delay()
-{ return self->sourceClkInsertionDelay(Sta::sta()); }
 const Clock *target_clk() { return self->targetClk(Sta::sta()); }
 const ClockEdge *target_clk_edge() { return self->targetClkEdge(Sta::sta()); }
 Path *target_clk_path() { return self->targetClkPath(); }
-float target_clk_time() { return self->targetClkTime(Sta::sta()); }
-float target_clk_offset() { return self->targetClkOffset(Sta::sta()); }
-float target_clk_mcp_adjustment()
-{ return self->targetClkMcpAdjustment(Sta::sta()); }
-Arrival target_clk_delay() { return self->targetClkDelay(Sta::sta()); }
-Arrival target_clk_insertion_delay()
-{ return self->targetClkInsertionDelay(Sta::sta()); }
-float target_clk_uncertainty()
-{ return self->targetNonInterClkUncertainty(Sta::sta()); }
-float inter_clk_uncertainty()
-{ return self->interClkUncertainty(Sta::sta()); }
-Arrival target_clk_arrival() { return self->targetClkArrival(Sta::sta()); }
-bool path_delay_margin_is_external()
-{ return self->pathDelayMarginIsExternal();}
-Crpr check_crpr() { return self->checkCrpr(Sta::sta()); }
-RiseFall *target_clk_end_trans()
-{ return const_cast<RiseFall*>(self->targetClkEndTrans(Sta::sta())); }
-Delay clk_skew() { return self->clkSkew(Sta::sta()); }
-
 }
 
 %extend Path {
 float
 arrival()
 {
-  return delayAsFloat(self->arrival());
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->arrival(), self->minMax(sta), sta);
 }
 
 float
 required()
 {
-  return delayAsFloat(self->required());
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->required(), self->minMax(sta), sta);
 }
 
 float
 slack()
 {
   Sta *sta = Sta::sta();
-  return delayAsFloat(self->slack(sta));
+  return delayAsFloat(self->slack(sta), self->minMax(sta), sta);
 }
 
 const Pin *

@@ -323,28 +323,6 @@ net have wire edges between the pin vertices. Timing arc sets in the
 leaf instance timing models have corresponding edges in the graph
 between pins on the instance.
 
-The Graph class constructor option slew_tr_count is used to prevent
-the grpah from reserving memory to store slews. Similarly, if the
-have_arc_delays option is false no memory is reserved for storing arc
-delay values. This is useful if an external delay calculator is used
-to annotate delays on the graph. In this case the Graph functions
-arcDelay and wireDelay should be overloaded to return delay values
-stored outside of the STA.
-
-A graph with no slews or delays is constructed using:
-
-  Graph(this, 0, false, ap_count);
-
-A graph with one slew for rising and falling edges is constructed using:
-
-  Graph(this, 1, true, ap_count);
-
-A graph with separate rising and falling slews (the default) is
-constructed using:
-
-  Graph(this, 2, true, ap_count);
-
-
 SDC
 ---
 

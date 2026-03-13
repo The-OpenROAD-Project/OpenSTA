@@ -3,6 +3,134 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+Release 3.0.1 2026/03/12
+------------------------
+
+Statistical timing (SSTA) with Liberty LVF (Liberty Variation Format)
+models is now supported. Statistical timing uses a probaility
+distribution to represent a delay or slew ranther than a single
+number.
+
+Normal and skew normal probability distributions are supported.
+
+SSTA is enabled with the sta_pocv_mode variaable.
+
+  set sta_pocv_mode scalar|normal|skew_normal
+
+scalar mode is for non-SSTA analysis
+normal mode uses gaussian normal distributions
+skew_normal'mode is for skew normal LVF moment based distributions
+
+The target quantile of a delay probability distribution (confidence level) is
+set with the sta_pocv_quantile variable.
+
+  sta_pocv_quantile <float>
+
+The default value is 3 standard deviations, or sigma.
+
+Use the variance field with report_checks or report_check_types to see
+distribution parameters in timing reports.
+
+A command file for analyzing a design with statisical timing with an
+LVF library is shown below.
+
+read_liberty lvf_library.lib.gz
+read_verilog design.v
+link_design top
+create_clock -period 50 clk
+set_input_delay -clock clk 1 {in1 in2}
+set sta_pocv_mode skew_normal
+report_checks -fields {slew variation input_pin variation} -digits 3
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Slew    Delay Variation     Time   Description
+---------------------------------------------------------------------------
+   0.000    0.000             0.000   clock clk (rise edge)
+            0.000             0.000   clock network delay (ideal)
+   0.000    0.000             0.000 ^ r2/CK (FDPQ1)
+                    12.026            mean
+                     0.017            mean_shift
+                     0.366            std_dev
+                     0.000            skewness
+   4.648   12.409            12.409 v r2/Q (FFQ1)
+   4.648    0.000            12.409 v u1/A (BUF1)
+                     6.084            mean
+                     0.007            mean_shift
+                     0.188            std_dev
+                     0.000            skewness
+   2.513    6.137            18.546 v u1/X (BUF1)
+   2.513    0.000            18.546 v u2/A2 (AN21)
+                     6.447            mean
+                     0.008            mean_shift
+                     0.191            std_dev
+                     0.000            skewness
+   2.565    6.497            25.043 v u2/X (AN21)
+   2.565    0.000            25.043 v r3/D (FFQ1)
+                             25.043   data arrival time
+
+   0.000   50.000            50.000   clock clk (rise edge)
+            0.000            50.000   clock network delay (ideal)
+            0.000            50.000   clock reconvergence pessimism
+                             50.000 ^ r3/CK (FFQ1)
+           -9.376            40.624   library setup time
+                             40.624   data required time
+---------------------------------------------------------------------------
+                             40.624   data required time
+                            -25.043   data arrival time
+---------------------------------------------------------------------------
+                             15.581   slack (MET)
+
+
+The following commands now support a -report_variance arggument.
+
+  report_arrival [-report_variance]
+  report_required [-report_variance]
+  report_slack [-report_variance]
+  report_slews [-report_variance]
+  report_edges [-report_variance]
+
+The following commands now support a -digits option.
+
+  report_edges [-digits digits]
+  report_slews [-digits digits]
+
+The standard deviation for normal distributions is specified with the
+following liberty timing groups.
+
+  ocv_sigma_cell_rise
+  ocv_sigma_cell_fall
+  ocv_sigma_rise_transition
+  ocv_sigma_fall_transition
+  ocv_sigma_rise_constraint
+  ocv_sigma_fall_constraint
+
+LVF skew normal distributions are specified with liberty groups below.
+
+  ocv_std_dev_cell_rise
+  ocv_std_dev_cell_fall
+  ocv_mean_shift_cell_rise
+  ocv_mean_shift_cell_fall
+  ocv_skewness_cell_rise
+  ocv_skewness_cell_fall
+
+  ocv_std_dev_rise_transition
+  ocv_std_dev_fall_transition
+  ocv_skewness_rise_transition
+  ocv_skewness_fall_transition
+  ocv_mean_shift_rise_transition
+  ocv_mean_shift_fall_transition
+
+  ocv_std_dev_rise_constraint
+  ocv_std_dev_fall_constraint
+  ocv_skewness_rise_constraint
+  ocv_skewness_fall_constraint
+  ocv_mean_shift_rise_constraint
+  ocv_mean_shift_fall_constraint
+
 2026/02/24
 ----------
 

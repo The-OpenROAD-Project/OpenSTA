@@ -113,14 +113,12 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
       vh_ = drvr_library->slewUpperThreshold(drvr_rf_) * vdd_;
 
       drvr_cell->ensureVoltageWaveforms(scenes_);
-      in_slew_ = delayAsFloat(in_slew);
       output_waveforms_ = output_waveforms;
       ref_time_ = output_waveforms_->referenceTime(in_slew_);
       debugPrint(debug_, "ccs_dcalc", 1, "%s %s",
                  drvr_cell->name(),
                  drvr_rf_->shortName());
-      ArcDelay gate_delay;
-      Slew drvr_slew;
+      double gate_delay, drvr_slew;
       gateDelaySlew(drvr_library, drvr_rf_, gate_delay, drvr_slew);
       return makeResult(drvr_library,drvr_rf_,gate_delay,drvr_slew,load_pin_index_map);
     }
@@ -133,8 +131,8 @@ void
 CcsCeffDelayCalc::gateDelaySlew(const LibertyLibrary *drvr_library,
                                 const RiseFall *rf,
                                 // Return values.
-                                ArcDelay &gate_delay,
-                                Slew &drvr_slew)
+                                double &gate_delay,
+                                double &drvr_slew)
 {    
   initRegions(drvr_library, rf);
   findCsmWaveform();
@@ -145,7 +143,7 @@ CcsCeffDelayCalc::gateDelaySlew(const LibertyLibrary *drvr_library,
              "gate_delay %s drvr_slew %s (initial)",
              delayAsString(gate_delay, this),
              delayAsString(drvr_slew, this));
-  float prev_drvr_slew = delayAsFloat(drvr_slew);
+  float prev_drvr_slew = drvr_slew;
   constexpr int max_iterations = 5;
   for (int iter = 0; iter < max_iterations; iter++) {
     debugPrint(debug_, "ccs_dcalc", 2, "iteration %d", iter);
@@ -185,9 +183,9 @@ CcsCeffDelayCalc::gateDelaySlew(const LibertyLibrary *drvr_library,
                "gate_delay %s drvr_slew %s",
                delayAsString(gate_delay, this),
                delayAsString(drvr_slew, this));
-    if (std::abs(delayAsFloat(drvr_slew) - prev_drvr_slew) < .01 * prev_drvr_slew)
+    if (std::abs(drvr_slew - prev_drvr_slew) < .01 * prev_drvr_slew)
       break;
-    prev_drvr_slew = delayAsFloat(drvr_slew);
+    prev_drvr_slew = drvr_slew;
   }
 }
 
@@ -309,8 +307,8 @@ CcsCeffDelayCalc::findCsmWaveform()
 ArcDcalcResult
 CcsCeffDelayCalc::makeResult(const LibertyLibrary *drvr_library,
                              const RiseFall *rf,
-                             ArcDelay &gate_delay,
-                             Slew &drvr_slew,
+                             double &gate_delay,
+                             double &drvr_slew,
                              const LoadPinIndexMap &load_pin_index_map)
 {
   ArcDcalcResult dcalc_result(load_pin_index_map.size());
@@ -322,8 +320,7 @@ CcsCeffDelayCalc::makeResult(const LibertyLibrary *drvr_library,
   dcalc_result.setDrvrSlew(drvr_slew);
 
   for (const auto &[load_pin, load_idx] : load_pin_index_map) {
-    ArcDelay wire_delay;
-    Slew load_slew;
+    double wire_delay, load_slew;
     loadDelaySlew(load_pin, drvr_library, rf, drvr_slew, wire_delay, load_slew);
     dcalc_result.setWireDelay(load_idx, wire_delay);
     dcalc_result.setLoadSlew(load_idx, load_slew);
@@ -335,13 +332,14 @@ void
 CcsCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
                                 const LibertyLibrary *drvr_library,
                                 const RiseFall *rf,
-                                Slew &drvr_slew,
+                                double &drvr_slew,
                                 // Return values.
-                                ArcDelay &wire_delay,
-                                Slew &load_slew)
+                                double &wire_delay,
+                                double &load_slew)
 {
   wire_delay = 0.0;
   load_slew = drvr_slew;
+
   bool elmore_exists = false;
   float elmore = 0.0;
   if (parasitic_
@@ -351,7 +349,7 @@ CcsCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
   if (elmore_exists &&
       (elmore == 0.0
        // Elmore delay is small compared to driver slew.
-       || elmore < delayAsFloat(drvr_slew) * 1e-3)) {
+       || elmore < drvr_slew * 1e-3)) {
     wire_delay = elmore;
     load_slew = drvr_slew;
   }
@@ -363,11 +361,11 @@ CcsCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
 
 void
 CcsCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
-                                Slew &drvr_slew,
+                                double &drvr_slew,
                                 float elmore,
                                 // Return values.
-                                ArcDelay &delay,
-                                Slew &slew)
+                                double &delay,
+                                double &slew)
 {
   for (size_t i = 0; i <= region_count_; i++) {
     region_ramp_times_[i] = region_times_[i];

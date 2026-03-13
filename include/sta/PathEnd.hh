@@ -98,7 +98,7 @@ public:
   virtual const char *typeName() const = 0;
   virtual int exceptPathCmp(const PathEnd *path_end,
                             const StaState *sta) const;
-  virtual Arrival dataArrivalTime(const StaState *sta) const;
+  virtual const Arrival &dataArrivalTime(const StaState *sta) const;
   // Arrival time with source clock offset.
   Arrival dataArrivalTimeOffset(const StaState *sta) const;
   virtual Required requiredTime(const StaState *sta) const = 0;

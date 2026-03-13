@@ -982,11 +982,11 @@ public:
                            bool report_cap,
                            bool report_slew,
                            bool report_fanout,
+                           bool report_variation,
                            bool report_src_attr);
   ReportField *findReportPathField(const char *name);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
-  void setReportPathSigmas(bool report_sigmas);
   void reportPathEnd(PathEnd *end);
   void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
@@ -998,7 +998,7 @@ public:
                      const SetupHold *setup_hold,
                      bool include_internal_latency,
                      int digits);
-  float findWorstClkSkew(const SetupHold *setup_hold,
+  Delay findWorstClkSkew(const SetupHold *setup_hold,
                          bool include_internal_latency);
 
   void reportClkLatency(ConstClockSeq &clks,
@@ -1126,12 +1126,15 @@ public:
 
   void reportArrivalWrtClks(const Pin *pin,
                             const Scene *scene,
+                            bool report_variance,
                             int digits);
   void reportRequiredWrtClks(const Pin *pin,
                              const Scene *scene,
+                             bool report_variance,
                              int digits);
   void reportSlackWrtClks(const Pin *pin,
                           const Scene *scene,
+                          bool report_variance,
                           int digits);
 
   Slew slew(Vertex *vertex,
@@ -1139,9 +1142,9 @@ public:
             const SceneSeq &scenes,
             const MinMax *min_max);
 
-  ArcDelay arcDelay(Edge *edge,
-                    TimingArc *arc,
-                    DcalcAPIndex ap_index);
+  const ArcDelay &arcDelay(Edge *edge,
+                           TimingArc *arc,
+                           DcalcAPIndex ap_index);
   // True if the timing arc has been back-annotated.
   bool arcDelayAnnotated(Edge *edge,
                          TimingArc *arc,
@@ -1403,12 +1406,13 @@ public:
   // TCL variable sta_crpr_mode.
   CrprMode crprMode() const;
   void setCrprMode(CrprMode mode);
-  // TCL variable sta_pocv_enabled.
+  // TCL variable sta_pocv_mode.
   // Parametric on chip variation (statisical sta).
-  bool pocvEnabled() const;
-  void setPocvEnabled(bool enabled);
+  PocvMode pocvMode() const;
+  void setPocvMode(PocvMode mode);
   // Number of std deviations from mean to use for normal distributions.
-  void setSigmaFactor(float factor);
+  float pocvQuantile();
+  void setPocvQuantile(float quantile);
   // TCL variable sta_propagate_gated_clock_enable.
   // Propagate gated clock enable arrivals.
   bool propagateGatedClockEnable() const;
@@ -1505,17 +1509,20 @@ protected:
 
   void reportDelaysWrtClks(const Pin *pin,
                            const Scene *scene,
+                           bool report_variance,
                            int digits,
                            bool find_required,
                            PathDelayFunc get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const Scene *scene,
+                           bool report_variance,
                            int digits,
                            bool find_required,
                            PathDelayFunc get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const ClockEdge *clk_edge,
                            const Scene *scene,
+                           bool report_variance,
                            int digits,
                            PathDelayFunc get_path_delay);
   RiseFallMinMaxDelay findDelaysWrtClks(Vertex *vertex,
@@ -1525,6 +1532,7 @@ protected:
   std::string formatDelay(const RiseFall *rf,
                           const MinMax *min_max,
                           const RiseFallMinMaxDelay &delays,
+                          bool report_variance,
                           int digits);
 
   void connectDrvrPinAfter(Vertex *vertex);

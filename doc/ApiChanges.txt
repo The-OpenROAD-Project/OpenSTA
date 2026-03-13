@@ -62,6 +62,8 @@ The Vector/Map/Set/UnorderedSet classes have been removed and replaced by
 the std containers. The member functions are now templated functions found
 in ContainerHelpers.hh.
 
+The Graph slew_rf_count option is no longer supported.
+
 Release 2.6.2 2025/03/30
 ------------------------
 

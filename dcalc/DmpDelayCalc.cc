@@ -59,8 +59,8 @@ protected:
                      const LibertyLibrary *drvr_library,
                      const Parasitic *parasitic,
                      // Return values.
-                     ArcDelay &wire_delay,
-                     Slew &load_slew) override;
+                     double &wire_delay,
+                     double &load_slew) override;
 };
 
 ArcDelayCalc *
@@ -93,8 +93,8 @@ DmpCeffElmoreDelayCalc::inputPortDelay(const Pin *,
   ArcDcalcResult dcalc_result(load_pin_index_map.size());
   LibertyLibrary *drvr_library = network_->defaultLibertyLibrary();
   for (auto [load_pin, load_idx] : load_pin_index_map) {
-    ArcDelay wire_delay = 0.0;
-    Slew load_slew = in_slew;
+    double wire_delay = 0.0;
+    double load_slew = in_slew;
     bool elmore_exists = false;
     float elmore = 0.0;
     if (parasitic)
@@ -116,8 +116,8 @@ DmpCeffElmoreDelayCalc::loadDelaySlew(const Pin *load_pin,
                                       const LibertyLibrary *drvr_library,
                                       const Parasitic *parasitic,
                                       // Return values.
-                                      ArcDelay &wire_delay,
-                                      Slew &load_slew)
+                                      double &wire_delay,
+                                      double &load_slew)
 {
   wire_delay = 0.0;
   load_slew = drvr_slew;
@@ -143,14 +143,14 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const Scene *scene,
-                const MinMax *min_max) override;
+                           const MinMax *min_max) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
                                 const Parasitic *parasitic,
                                 const LoadPinIndexMap &load_pin_index_map,
                                 const Scene *scene,
-                const MinMax *min_max) override;
+                                const MinMax *min_max) override;
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
                            const Slew &in_slew,
@@ -158,7 +158,7 @@ public:
                            const Parasitic *parasitic,
                            const LoadPinIndexMap &load_pin_index_map,
                            const Scene *scene,
-                const MinMax *min_max) override;
+                           const MinMax *min_max) override;
 
 private:
   void loadDelaySlew(const Pin *load_pin,
@@ -167,14 +167,14 @@ private:
                      const LibertyLibrary *drvr_library,
                      const Parasitic *parasitic,
                      // Return values.
-                     ArcDelay &wire_delay,
-                     Slew &load_slew) override;
+                     double &wire_delay,
+                     double &load_slew) override;
   void loadDelay(double drvr_slew,
                  Parasitic *pole_residue,
                  double p1,
                  double k1,
-                 ArcDelay &wire_delay,
-                 Slew &load_slew);
+                 double &wire_delay,
+                 double &load_slew);
   float loadDelay(double vth,
                   double p1,
                   double p2,
@@ -267,8 +267,8 @@ DmpCeffTwoPoleDelayCalc::inputPortDelay(const Pin *,
 {
   const Parasitics *parasitics = scene->parasitics(min_max);
   ArcDcalcResult dcalc_result(load_pin_index_map.size());
-  ArcDelay wire_delay = 0.0;
-  Slew load_slew = in_slew;
+  double wire_delay = 0.0;
+  double load_slew = in_slew;
   LibertyLibrary *drvr_library = network_->defaultLibertyLibrary();
   for (const auto [load_pin, load_idx] : load_pin_index_map) {
     if (parasitics->isPiPoleResidue(parasitic)) {
@@ -323,8 +323,8 @@ DmpCeffTwoPoleDelayCalc::loadDelaySlew(const Pin *load_pin,
                                        const LibertyLibrary *drvr_library,
                                        const Parasitic *parasitic,
                                        // Return values.
-                                       ArcDelay &wire_delay,
-                                       Slew &load_slew)
+                                       double &wire_delay,
+                                       double &load_slew)
 {
   parasitic_is_pole_residue_ = parasitics_->isPiPoleResidue(parasitic);
   // Should handle PiElmore parasitic.
@@ -362,12 +362,12 @@ DmpCeffTwoPoleDelayCalc::loadDelay(double drvr_slew,
                                    double p1,
                                    double k1,
                                    // Return values.
-                                   ArcDelay &wire_delay,
-                                   Slew &load_slew)
+                                   double &wire_delay,
+                                   double &load_slew)
 {
   ComplexFloat pole2, residue2;
   parasitics_->poleResidue(pole_residue, 1, pole2, residue2);
-  if (!delayZero(drvr_slew)
+  if (!delayZero(drvr_slew, this)
       && pole2.imag() == 0.0
       && residue2.imag() == 0.0) {
     double p2 = pole2.real();

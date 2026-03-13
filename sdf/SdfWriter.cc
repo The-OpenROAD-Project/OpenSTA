@@ -430,11 +430,11 @@ SdfWriter::writeArcDelays(Edge *edge)
   TimingArcSet *arc_set = edge->timingArcSet();
   for (TimingArc *arc : arc_set->arcs()) {
     const RiseFall *rf = arc->toEdge()->asRiseFall();
-    ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
-    delays.setValue(rf, MinMax::min(), delayAsFloat(min_delay));
+    const ArcDelay &min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
+    delays.setValue(rf, MinMax::min(), delayAsFloat(min_delay, MinMax::min(), this));
 
-    ArcDelay max_delay = graph_->arcDelay(edge, arc, arc_delay_max_index_);
-    delays.setValue(rf, MinMax::max(), delayAsFloat(max_delay));
+    const ArcDelay &max_delay = graph_->arcDelay(edge, arc, arc_delay_max_index_);
+    delays.setValue(rf, MinMax::max(), delayAsFloat(max_delay, MinMax::max(), this));
   }
 
   if (delays.hasValue(RiseFall::rise(), MinMax::min())
@@ -527,8 +527,10 @@ SdfWriter::writeTimingChecks(const Instance *inst,
         TimingArc *arc;
         graph_->minPulseWidthArc(vertex, hi_low, edge, arc);
         if (edge) {
-          min_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_min_index_));
-          max_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_max_index_));
+          min_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_min_index_),
+                                   MinMax::min(), this);
+          max_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_max_index_),
+                                   MinMax::max(), this);
           ensureTimingCheckheaders(check_header, inst, inst_header);
           writeWidthCheck(pin, hi_low, min_width, max_width);
         }
@@ -615,30 +617,37 @@ SdfWriter::writeEdgeCheck(Edge *edge,
   if (arcs[clk_rf_index][RiseFall::riseIndex()]
       && arcs[clk_rf_index][RiseFall::fallIndex()]
       && arcs[clk_rf_index][RiseFall::riseIndex()]
-      && arcs[clk_rf_index][RiseFall::fallIndex()]
-      && delayEqual(graph_->arcDelay(edge, 
-                                     arcs[clk_rf_index][RiseFall::riseIndex()],
-                                     arc_delay_min_index_),
-                    graph_->arcDelay(edge,
-                                     arcs[clk_rf_index][RiseFall::fallIndex()],
-                                     arc_delay_min_index_))
-      && delayEqual(graph_->arcDelay(edge,
-                                     arcs[clk_rf_index][RiseFall::riseIndex()],
-                                     arc_delay_max_index_),
-                    graph_->arcDelay(edge,
-                                     arcs[clk_rf_index][RiseFall::fallIndex()],
-                                     arc_delay_max_index_)))
-    // Rise/fall margins are the same, so no data edge specifier is required.
-    writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()],
-               sdf_check, false, true);
-  else {
-    if (arcs[clk_rf_index][RiseFall::riseIndex()])
-      writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()], 
-                 sdf_check, true, true);
-    if (arcs[clk_rf_index][RiseFall::fallIndex()])
-      writeCheck(edge, arcs[clk_rf_index][RiseFall::fallIndex()],
-                 sdf_check, true, true);
+      && arcs[clk_rf_index][RiseFall::fallIndex()]) {
+    float rise_min=delayAsFloat(graph_->arcDelay(edge, 
+                                                 arcs[clk_rf_index][RiseFall::riseIndex()],
+                                                 arc_delay_min_index_),
+                                MinMax::min(), this);
+    float fall_min=delayAsFloat(graph_->arcDelay(edge,
+                                                 arcs[clk_rf_index][RiseFall::fallIndex()],
+                                                 arc_delay_min_index_),
+                                MinMax::min(), this);
+    float rise_max=delayAsFloat(graph_->arcDelay(edge,
+                                                 arcs[clk_rf_index][RiseFall::riseIndex()],
+                                                 arc_delay_max_index_),
+                                MinMax::max(), this);
+    float fall_max=delayAsFloat(graph_->arcDelay(edge,
+                                                 arcs[clk_rf_index][RiseFall::fallIndex()],
+                                                 arc_delay_max_index_),
+                                MinMax::max(), this);
+    if (fuzzyEqual(rise_min, fall_min)
+        && fuzzyEqual(rise_max, fall_max)) {
+      // Rise/fall margins are the same, so no data edge specifier is required.
+      writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()],
+                 sdf_check, false, true);
+      return;
+    }
   }
+  if (arcs[clk_rf_index][RiseFall::riseIndex()])
+    writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()], 
+               sdf_check, true, true);
+  if (arcs[clk_rf_index][RiseFall::fallIndex()])
+    writeCheck(edge, arcs[clk_rf_index][RiseFall::fallIndex()],
+               sdf_check, true, true);
 }
 
 void
@@ -689,9 +698,11 @@ SdfWriter::writeCheck(Edge *edge,
 
   gzprintf(stream_, " ");
 
-  ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
-  ArcDelay max_delay = graph_->arcDelay(edge, arc, arc_delay_max_index_);
-  writeSdfTriple(delayAsFloat(min_delay), delayAsFloat(max_delay));
+  float min_delay = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_min_index_),
+                                 MinMax::min(), this);
+  float max_delay = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_max_index_),
+                                 MinMax::max(), this);
+  writeSdfTriple(min_delay, max_delay);
 
   gzprintf(stream_, ")\n");
 }

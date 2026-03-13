@@ -118,7 +118,7 @@ LumpedCapDelayCalc::inputPortDelay(const Pin *,
                                    const MinMax *)
 {
   const LibertyLibrary *drvr_library = network_->defaultLibertyLibrary();
-  return makeResult(drvr_library,rf, 0.0, in_slew, load_pin_index_map);
+  return makeResult(drvr_library,rf, delay_zero, in_slew, load_pin_index_map);
 }
 
 ArcDcalcResult
@@ -139,16 +139,22 @@ LumpedCapDelayCalc::gateDelay(const Pin *drvr_pin,
   const RiseFall *rf = arc->toEdge()->asRiseFall();
   const LibertyLibrary *drvr_library = arc->to()->libertyLibrary();
   if (model) {
-    ArcDelay gate_delay;
-    Slew drvr_slew;
+    float gate_delay, drvr_slew;
     float in_slew1 = delayAsFloat(in_slew);
     // NaNs cause seg faults during table lookup.
-    if (std::isnan(load_cap) || std::isnan(delayAsFloat(in_slew)))
+    if (std::isnan(load_cap) || std::isnan(in_slew.mean()))
       report_->error(1350, "gate delay input variable is NaN");
-    model->gateDelay(pinPvt(drvr_pin, scene, min_max), in_slew1, load_cap,
-                     variables_->pocvEnabled(),
-                     gate_delay, drvr_slew);
-    return makeResult(drvr_library, rf, gate_delay, drvr_slew, load_pin_index_map);
+    const Pvt *pvt = pinPvt(drvr_pin, scene, min_max);
+    model->gateDelay(pvt, in_slew1, load_cap, gate_delay, drvr_slew);
+
+    // Fill in pocv parameters.
+    ArcDelay gate_delay2(gate_delay);
+    Slew drvr_slew2(drvr_slew);
+    if (variables_->pocvEnabled())
+      model->gateDelayPocv(pvt, in_slew1, load_cap, min_max, variables_->pocvMode(),
+                           gate_delay2, drvr_slew2);
+
+    return makeResult(drvr_library, rf, gate_delay2, drvr_slew2, load_pin_index_map);
   }
   else
     return makeResult(drvr_library, rf, delay_zero, delay_zero, load_pin_index_map);
@@ -157,17 +163,18 @@ LumpedCapDelayCalc::gateDelay(const Pin *drvr_pin,
 ArcDcalcResult
 LumpedCapDelayCalc::makeResult(const LibertyLibrary *drvr_library,
                                const RiseFall *rf,
-                               ArcDelay gate_delay,
-                               Slew drvr_slew,
+                               const ArcDelay &gate_delay,
+                               const Slew &drvr_slew,
                                const LoadPinIndexMap &load_pin_index_map)
 {
   ArcDcalcResult dcalc_result(load_pin_index_map.size());
   dcalc_result.setGateDelay(gate_delay);
   dcalc_result.setDrvrSlew(drvr_slew);
 
+  double drvr_slew1 = delayAsFloat(drvr_slew);
   for (const auto [load_pin, load_idx] : load_pin_index_map) {
-    ArcDelay wire_delay = 0.0;
-    Slew load_slew = drvr_slew;
+    double wire_delay = 0.0;
+    double load_slew = drvr_slew1;
     thresholdAdjust(load_pin, drvr_library, rf, wire_delay, load_slew);
     dcalc_result.setWireDelay(load_idx, wire_delay);
     dcalc_result.setLoadSlew(load_idx, load_slew);
@@ -190,7 +197,8 @@ LumpedCapDelayCalc::reportGateDelay(const Pin *check_pin,
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
     return model->reportGateDelay(pinPvt(check_pin, scene, min_max),
-                                  in_slew1, load_cap, false, digits);
+                                  in_slew1, load_cap, min_max,
+                                  PocvMode::scalar, digits);
   }
   return "";
 }

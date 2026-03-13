@@ -232,25 +232,21 @@ protected:
                       const LibertyPortSeq &ports,
                       const LibertyGroup *port_group);
   bool isGateTimingType(TimingType timing_type);
-  TableModel *readGateTableModel(const LibertyGroup *timing_group,
-                                 const char *table_group_name,
-                                 const RiseFall *rf,
-                                 TableTemplateType template_type,
-                                 float scale,
-                                 ScaleFactorType scale_factor_type);
+  TableModel *readTableModel(const LibertyGroup *timing_group,
+                             const std::string &table_group_name,
+                             const RiseFall *rf,
+                             TableTemplateType template_type,
+                             float scale,
+                             ScaleFactorType scale_factor_type,
+                             const std::function<bool(TableModel *model)> check_axes);
   TableModelsEarlyLate
   readEarlyLateTableModels(const LibertyGroup *timing_group,
                            const char *table_group_name,
                            const RiseFall *rf,
                            TableTemplateType template_type,
                            float scale,
-                           ScaleFactorType scale_factor_type);
-  TableModel *readCheckTableModel(const LibertyGroup *timing_group,
-                                  const char *table_group_name,
-                                  const RiseFall *rf,
-                                  TableTemplateType template_type,
-                                  float scale,
-                                  ScaleFactorType scale_factor_type);
+                           ScaleFactorType scale_factor_type,
+                           const std::function<bool(TableModel *model)> check_axes);
   ReceiverModelPtr readReceiverCapacitance(const LibertyGroup *timing_group,
                                            const RiseFall *rf);
   void readReceiverCapacitance(const LibertyGroup *timing_group,
@@ -268,7 +264,9 @@ protected:
                              const RiseFall *rf,
                              TableTemplateType template_type,
                              float scale,
-                             ScaleFactorType scale_factor_type);
+                             ScaleFactorType scale_factor_type,
+                             const std::function<bool(TableModel *model)> &check_axes =
+                               [](TableModel *) { return true; });
   TablePtr readTableModel(const LibertyGroup *table_group,
                           const TableTemplate *tbl_template,
                           float scale);
@@ -281,6 +279,14 @@ protected:
   void makeTableModels(LibertyCell *cell,
                        const LibertyGroup *timing_group,
                        TimingArcAttrsPtr timing_attrs);
+  void readLvfModels(const LibertyGroup *timing_group,
+                     const std::string &sigma_group_name,
+                     const std::string &std_dev_group_name,
+                     const std::string &mean_shift_group_name,
+                     const std::string &skewness_group_name,
+                     const RiseFall *rf,
+                     TableModels *table_models,
+                     const std::function<bool(TableModel *model)> check_axes);
 
   TableAxisPtr makeTableAxis(const LibertyGroup *table_group,
                              const char *index_attr_name,

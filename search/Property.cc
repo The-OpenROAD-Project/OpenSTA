@@ -1133,7 +1133,7 @@ Properties::edgeDelay(Edge *edge,
     if (to_rf == rf) {
       for (const Scene *scene : sta_->scenes()) {
         DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-        ArcDelay arc_delay = sta_->arcDelay(edge, arc, ap_index);
+        const ArcDelay &arc_delay = sta_->arcDelay(edge, arc, ap_index);
         if (!delay_exists
             || delayGreater(arc_delay, delay, min_max, sta_)) {
           delay = arc_delay;

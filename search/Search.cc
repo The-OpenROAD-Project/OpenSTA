@@ -1334,7 +1334,7 @@ Search::arrivalsChanged(Vertex *vertex,
       Path *path2 = tag_bldr->tagMatchPath(tag1);
       if (path2 == nullptr
           || path1->tag(this) != path2->tag(this)
-          || !delayEqual(path1->arrival(), path2->arrival())
+          || !delayEqual(path1->arrival(), path2->arrival(), this)
           || path1->prevEdge(this) != path2->prevEdge(this)
           || path1->prevArc(this) != path2->prevArc(this)
           || path1->prevPath() != path2->prevPath())
@@ -1420,8 +1420,8 @@ ArrivalVisitor::pruneCrprArrivals()
         const ClkInfo *clk_info_no_crpr = path_no_crpr->clkInfo(this);
         Arrival max_crpr = crpr->maxCrpr(clk_info_no_crpr);
         Arrival max_arrival_max_crpr = (min_max == MinMax::max())
-          ? max_arrival - max_crpr
-          : max_arrival + max_crpr;
+          ? delayDiff(max_arrival, max_crpr, this)
+          : delaySum(max_arrival, max_crpr, this);
         debugPrint(debug_, "search", 4, "  cmp %s %s - %s = %s",
                    tag->to_string(this).c_str(),
                    delayAsString(max_arrival, this),
@@ -1622,7 +1622,7 @@ Search::seedClkArrival(const Pin *pin,
   sdc->exceptionFromClkStates(pin,rf,clk,rf,min_max,states);
   Tag *tag = findTag(scene, rf, min_max, clk_info, true, nullptr, false,
                      states, true, nullptr);
-  Arrival arrival(clk_edge->time() + insertion);
+  Arrival arrival = delaySum(insertion, clk_edge->time(), this);
   tag_bldr->setArrival(tag, arrival);
 }
 
@@ -1639,7 +1639,7 @@ Search::seedClkDataArrival(const Pin *pin,
   Tag *tag = clkDataTag(pin, clk, rf, clk_edge, insertion, min_max, scene);
   if (tag) {
     // Data arrivals include insertion delay.
-    Arrival arrival(clk_edge->time() + insertion);
+    Arrival arrival = delaySum(insertion, clk_edge->time(), this);
     tag_bldr->setArrival(tag, arrival);
   }
 }
@@ -1878,8 +1878,8 @@ Search::inputDelayRefPinArrival(Path *ref_path,
   Clock *clk = clk_edge->clock();
   if (clk->isPropagated()) {
     const ClkInfo *clk_info = ref_path->clkInfo(this);
-    ref_arrival = delayAsFloat(ref_path->arrival());
-    ref_insertion = delayAsFloat(clk_info->insertion());
+    ref_arrival = delayAsFloat(ref_path->arrival(), min_max, this);
+    ref_insertion = delayAsFloat(clk_info->insertion(), min_max, this);
     ref_latency = clk_info->latency();
   }
   else {
@@ -2186,13 +2186,12 @@ PathVisitor::visitFromPath(const Pin *from_pin,
                                                       true, min_max,
                                                       dcalc_ap,
                                                       sdc);
-          bool arc_delay_min_max_eq =
-            fuzzyEqual(delayAsFloat(arc_delay), delayAsFloat(arc_delay_opp));
+          bool arc_delay_min_max_eq = delayEqual(arc_delay, arc_delay_opp, this);
           to_tag = search_->thruClkTag(from_path, from_vertex, from_tag, true,
                                        edge, to_rf, arc_delay_min_max_eq,
                                        min_max, scene);
-                                       if (to_tag)
-          to_arrival = from_arrival + arc_delay;
+          if (to_tag)
+            to_arrival = delaySum(from_arrival, arc_delay, this);
         }
       }
     }
@@ -2210,7 +2209,9 @@ PathVisitor::visitFromPath(const Pin *from_pin,
         const LibertyCell *inst_cell = clk_port->libertyCell();
         if (inst_cell->isMacro()) {
           float slew = delayAsFloat(from_path->slew(this));
-          arc_delay -= clk_port->clkTreeDelay(slew, from_rf, min_max);
+          arc_delay = delayDiff(arc_delay,
+                                clk_port->clkTreeDelay(slew, from_rf, min_max),
+                                this);
         }
       }
 
@@ -2237,7 +2238,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
           to_tag = search_->thruTag(to_tag, edge, to_rf, tag_cache_);
         from_arrival = search_->clkPathArrival(from_path, from_clk_info,
                                                clk_edge, min_max);
-        to_arrival = from_arrival + arc_delay;
+        to_arrival = delaySum(from_arrival, arc_delay, this);
       }
       else
         to_tag = nullptr;
@@ -2309,7 +2310,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
                                    to_propagates_clk, edge, to_rf,
                                    arc_delay_min_max_eq,
                                    min_max, scene);
-      to_arrival = from_arrival + arc_delay;
+      to_arrival = delaySum(from_arrival, arc_delay, this);
     }
   }
   else {
@@ -2317,8 +2318,8 @@ PathVisitor::visitFromPath(const Pin *from_pin,
           || sdc->isPathDelayInternalToBreak(from_pin))) {
       arc_delay = search_->deratedDelay(from_vertex, arc, edge, false,
                                         min_max, dcalc_ap, sdc);
-      if (!delayInf(arc_delay)) {
-        to_arrival = from_arrival + arc_delay;
+      if (!delayInf(arc_delay, this)) {
+        to_arrival = delaySum(from_arrival, arc_delay, this);
         to_tag = search_->thruTag(from_tag, edge, to_rf, tag_cache_);
       }
     }
@@ -2355,11 +2356,11 @@ Search::clkPathArrival(const Path *clk_path,
       && !clk_info->isPropagated()) {
     // Ideal clock, apply ideal insertion delay and latency.
     const EarlyLate *early_late = min_max;
-    return clk_edge->time()
-      + clockInsertion(clk_edge->clock(), clk_info->clkSrc(),
-                       clk_edge->transition(), min_max,
-                       early_late, scene->mode())
-      + clk_info->latency();
+    Arrival insertion = clockInsertion(clk_edge->clock(), clk_info->clkSrc(),
+                                       clk_edge->transition(), min_max,
+                                       early_late, scene->mode());
+    return delaySum(delaySum(insertion, clk_edge->time(), this),
+                    clk_info->latency(), this);
   }
   else
     return clk_path->arrival();
@@ -3166,8 +3167,8 @@ Search::deratedDelay(const Vertex *from_vertex,
                      const Sdc *sdc)
 {
   float derate = timingDerate(from_vertex, arc, edge, is_clk, sdc, min_max);
-  ArcDelay delay = graph_->arcDelay(edge, arc, dcalc_ap);
-  return delay * derate;
+  const ArcDelay &delay = graph_->arcDelay(edge, arc, dcalc_ap);
+  return delayProduct(delay, derate, this);;
 }
 
 float
@@ -3568,9 +3569,9 @@ RequiredCmp::requiredsSave(Vertex *vertex,
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     size_t path_index = path->pathIndex(sta);
-    Required req = requireds_[path_index];
-    Required &prev_req = path->required();
-    bool changed = !delayEqual(prev_req, req);
+    const Required req = requireds_[path_index];
+    const Required &prev_req = path->required();
+    bool changed = !delayEqual(prev_req, req, sta);
     debugPrint(debug, "search", 3, "required %s save %s -> %s%s",
                path->to_string(sta).c_str(),
                delayAsString(prev_req, sta),
@@ -3669,8 +3670,8 @@ RequiredVisitor::visitFromToPath(const Pin *,
     if (to_tag_group && to_tag_group->hasTag(to_tag)) {
       size_t to_path_index = to_tag_group->pathIndex(to_tag);
       Path &to_path = to_vertex->paths()[to_path_index];
-      Required &to_required = to_path.required();
-      Required from_required = to_required - arc_delay;
+      const Required &to_required = to_path.required();
+      Required from_required = delayDiff(to_required, arc_delay, this);
       debugPrint(debug_, "search", 3, "  to tag   %2u: %s",
                  to_tag->index(),
                  to_tag->to_string(this).c_str());
@@ -3694,7 +3695,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
           Tag *to_path_tag = to_path->tag(this);
           if (Tag::matchNoCrpr(to_path_tag, to_tag)) {
             Required to_required = to_path->required();
-            Required from_required = to_required - arc_delay;
+            Required from_required = delayDiff(to_required, arc_delay, this);
             debugPrint(debug_, "search", 3, "  to tag   %2u: %s",
                        to_path_tag->index(),
                        to_path_tag->to_string(this).c_str());
@@ -3873,14 +3874,14 @@ Slack
 Search::totalNegativeSlack(const MinMax *min_max)
 {
   tnsPreamble();
-  Slack tns = 0.0;
+  DelayDbl tns = 0.0;
   for (Scene *scene : scenes_) {
     size_t path_index = scene->pathIndex(min_max);
-    Slack tns1 = tns_[path_index];
+    DelayDbl tns1 = tns_[path_index];
     if (delayLess(tns1, tns, this))
       tns = tns1;
   }
-  return tns;
+  return delayDblAsDelay(tns);
 }
 
 Slack
@@ -3889,7 +3890,7 @@ Search::totalNegativeSlack(const Scene *scene,
 {
   tnsPreamble();
   PathAPIndex path_ap_index = scene->pathIndex(min_max);
-  return tns_[path_ap_index];
+  return delayDblAsDelay(tns_[path_ap_index]);
 }
 
 void
@@ -3976,7 +3977,7 @@ Search::tnsIncr(Vertex *vertex,
     debugPrint(debug_, "tns", 3, "tns+ %s %s",
                delayAsString(slack, this),
                vertex->to_string(this).c_str());
-    tns_[path_ap_index] += slack;
+    delayIncr(tns_[path_ap_index], slack, this);
     if (tns_slacks_[path_ap_index].contains(vertex))
       report_->critical(1513, "tns incr existing vertex");
     tns_slacks_[path_ap_index][vertex] = slack;
@@ -3995,7 +3996,7 @@ Search::tnsDecr(Vertex *vertex,
     debugPrint(debug_, "tns", 3, "tns- %s %s",
                delayAsString(slack, this),
                vertex->to_string(this).c_str());
-    tns_[path_ap_index] -= slack;
+    delayDecr(tns_[path_ap_index], slack, this);
     tns_slacks_[path_ap_index].erase(vertex);
   }
 }

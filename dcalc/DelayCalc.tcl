@@ -135,8 +135,6 @@ proc set_delay_calculator { alg } {
   }
 }
 
-define_cmd_args "set_pocv_sigma_factor" { factor }
-
 ################################################################
 
 define_cmd_args "set_assigned_delay" \
@@ -382,22 +380,31 @@ proc set_assigned_transition { args } {
 
 ################################################################
 
-define_cmd_args "report_slews" {[-scenes scenes] pin}
+define_cmd_args "report_slews" {[-scenes scenes] [-digits digits]\
+                                  [-report_variance] pin}
 
 proc report_slews { args } {
   global sta_report_default_digits
 
-  parse_key_args "report_slews" args keys {-corner -scenes} flags {}
+  parse_key_args "report_slews" args keys {-corner -scenes -digits} \
+    flags {-report_variance}
   check_argc_eq1 "report_slews" $args
 
   set scenes [parse_scenes_or_all keys]
   set pin [get_port_pin_error "pin" [lindex $args 0]]
-  set digits $sta_report_default_digits
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+  set report_variance [info exists flags(-report_variance)]
+
   foreach vertex [$pin vertices] {
-    set rise_min [format_time [$vertex slew_scenes rise $scenes min] $digits]
-    set rise_max [format_time [$vertex slew_scenes rise $scenes max] $digits]
-    set fall_min [format_time [$vertex slew_scenes fall $scenes min] $digits]
-    set fall_max [format_time [$vertex slew_scenes fall $scenes max] $digits]
+    set rise_min [$vertex slew_scenes_string rise $scenes min $report_variance $digits]
+    set rise_max [$vertex slew_scenes_string rise $scenes max $report_variance $digits]
+    set fall_min [$vertex slew_scenes_string fall $scenes min $report_variance $digits]
+    set fall_max [$vertex slew_scenes_string fall $scenes max $report_variance $digits]
     report_line "[vertex_path_name $vertex] [rise_short_name] $rise_min:$rise_max [fall_short_name] $fall_min:$fall_max"
   }
 }

@@ -87,6 +87,9 @@
 #include "MakeTimingModel.hh"
 #include "parasitics/ConcreteParasitics.hh"
 #include "spice/WritePathSpice.hh"
+#include "DelayScalar.hh"
+#include "DelayNormal.hh"
+#include "DelaySkewNormal.hh"
 
 namespace sta {
 
@@ -300,6 +303,7 @@ Sta::makeComponents()
   makePower();
   makeClkSkews();
   makeCheckTiming();
+  delay_ops_ = new DelayOpsScalar();
 
   setCmdNamespace1(CmdNamespace::sdc);
   setThreadCount1(defaultThreadCount());
@@ -526,6 +530,7 @@ Sta::~Sta()
   delete equiv_cells_;
   delete dispatch_queue_;
   delete variables_;
+  delete delay_ops_;
   deleteContents(parasitics_name_map_);
   deleteContents(modes_);
   deleteContents(scenes_);
@@ -2262,25 +2267,47 @@ Sta::setCrprMode(CrprMode mode)
   variables_->setCrprMode(mode);
 }
 
-bool
-Sta::pocvEnabled() const
+PocvMode
+Sta::pocvMode() const
 {
-  return variables_->pocvEnabled();
+  return variables_->pocvMode();
 }
 
 void
-Sta::setPocvEnabled(bool enabled)
+Sta::setPocvMode(PocvMode mode)
 {
-  if (enabled != variables_->pocvEnabled())
+  if (mode != variables_->pocvMode()) {
+    variables_->setPocvMode(mode);
+
+    delete delay_ops_;
+    switch (mode) {
+    case PocvMode::scalar:
+    default:
+      delay_ops_ = new DelayOpsScalar();
+      break;
+    case PocvMode::normal:
+      delay_ops_ = new  DelayOpsNormal();
+      break;
+    case PocvMode::skew_normal:
+      delay_ops_ = new DelayOpsSkewNormal();
+      break;
+    }
+    updateComponentsState();
     delaysInvalid();
-  variables_->setPocvEnabled(enabled);
+  }
+}
+
+float
+Sta::pocvQuantile()
+{
+  return variables_->pocvQuantile();
 }
 
 void
-Sta::setSigmaFactor(float factor)
+Sta::setPocvQuantile(float quantile)
 {
-  if (!fuzzyEqual(factor, sigma_factor_)) {
-    sigma_factor_ = factor;
+  if (!fuzzyEqual(quantile, variables_->pocvQuantile())) {
+    variables_->setPocvQuantile(quantile);
     search_->arrivalsInvalid();
     updateComponentsState();
   }
@@ -2739,11 +2766,12 @@ Sta::setReportPathFields(bool report_input_pin,
 			 bool report_cap,
 			 bool report_slew,
 			 bool report_fanout,
+                         bool report_variation,
 			 bool report_src_attr)
 {
   report_path_->setReportFields(report_input_pin, report_hier_pins, report_net,
                                 report_cap, report_slew, report_fanout,
-                                report_src_attr);
+                                report_variation, report_src_attr);
 }
 
 ReportField *
@@ -2762,12 +2790,6 @@ void
 Sta::setReportPathNoSplit(bool no_split)
 {
   report_path_->setNoSplit(no_split);
-}
-
-void
-Sta::setReportPathSigmas(bool report_sigmas)
-{
-  report_path_->setReportSigmas(report_sigmas);
 }
 
 void
@@ -2811,7 +2833,7 @@ Sta::reportClkSkew(ConstClockSeq &clks,
                             include_internal_latency, digits);
 }
 
-float
+Delay
 Sta::findWorstClkSkew(const SetupHold *setup_hold,
                       bool include_internal_latency)
 {
@@ -3246,10 +3268,11 @@ Sta::endpointSlack(const Pin *pin,
 void
 Sta::reportArrivalWrtClks(const Pin *pin,
                           const Scene *scene,
+                          bool report_variance,
                           int digits)
 {
   searchPreamble();
-  reportDelaysWrtClks(pin, scene, digits, false,
+  reportDelaysWrtClks(pin, scene, report_variance, digits, false,
                       [] (const Path *path) {
                         return path->arrival();
                       });
@@ -3258,9 +3281,10 @@ Sta::reportArrivalWrtClks(const Pin *pin,
 void
 Sta::reportRequiredWrtClks(const Pin *pin,
                            const Scene *scene,
+                           bool report_variance,
                            int digits)
 {
-  reportDelaysWrtClks(pin, scene, digits, true,
+  reportDelaysWrtClks(pin, scene, report_variance, digits, true,
                       [] (const Path *path) {
                         return path->required();
                       });
@@ -3269,9 +3293,10 @@ Sta::reportRequiredWrtClks(const Pin *pin,
 void
 Sta::reportSlackWrtClks(const Pin *pin,
                         const Scene *scene,
+                        bool report_variance,
                         int digits)
 {
-  reportDelaysWrtClks(pin, scene, digits, true,
+  reportDelaysWrtClks(pin, scene, report_variance, digits, true,
                       [this] (const Path *path) {
                         return path->slack(this);
                       });
@@ -3280,6 +3305,7 @@ Sta::reportSlackWrtClks(const Pin *pin,
 void
 Sta::reportDelaysWrtClks(const Pin *pin,
                          const Scene *scene,
+                         bool report_variance,
                          int digits,
                          bool find_required,
                          PathDelayFunc get_path_delay)
@@ -3288,14 +3314,17 @@ Sta::reportDelaysWrtClks(const Pin *pin,
   Vertex *vertex, *bidir_vertex;
   graph_->pinVertices(pin, vertex, bidir_vertex);
   if (vertex)
-    reportDelaysWrtClks(vertex, scene, digits, find_required, get_path_delay);
+    reportDelaysWrtClks(vertex, scene, report_variance, digits,
+                        find_required, get_path_delay);
   if (bidir_vertex)
-    reportDelaysWrtClks(vertex, scene, digits, find_required, get_path_delay);
+    reportDelaysWrtClks(vertex, scene, report_variance, digits,
+                        find_required, get_path_delay);
 }
 
 void
 Sta::reportDelaysWrtClks(Vertex *vertex,
                          const Scene *scene,
+                         bool report_variance,
                          int digits,
                          bool find_required,
                          PathDelayFunc get_path_delay)
@@ -3305,13 +3334,15 @@ Sta::reportDelaysWrtClks(Vertex *vertex,
   else
     search_->findArrivals(vertex->level());
   const Sdc *sdc = scene->sdc();
-  reportDelaysWrtClks(vertex, nullptr, scene, digits, get_path_delay);
+  reportDelaysWrtClks(vertex, nullptr, scene, report_variance, digits, get_path_delay);
   const ClockEdge *default_clk_edge = sdc->defaultArrivalClock()->edge(RiseFall::rise());
-  reportDelaysWrtClks(vertex, default_clk_edge, scene, digits, get_path_delay);
+  reportDelaysWrtClks(vertex, default_clk_edge, scene, report_variance,
+                      digits, get_path_delay);
   for (const Clock *clk : sdc->sortedClocks()) {
     for (const RiseFall *rf : RiseFall::range()) {
       const ClockEdge *clk_edge = clk->edge(rf);
-      reportDelaysWrtClks(vertex, clk_edge, scene, digits, get_path_delay);
+      reportDelaysWrtClks(vertex, clk_edge, scene, report_variance, digits,
+                          get_path_delay);
     }
   }
 }
@@ -3320,6 +3351,7 @@ void
 Sta::reportDelaysWrtClks(Vertex *vertex,
                          const ClockEdge *clk_edge,
                          const Scene *scene,
+                         bool report_variance,
                          int digits,
                          PathDelayFunc get_path_delay)
 {
@@ -3335,13 +3367,13 @@ Sta::reportDelaysWrtClks(Vertex *vertex,
     report_->reportLine("%s r %s:%s f %s:%s",
                         clk_name.c_str(),
                         formatDelay(RiseFall::rise(), MinMax::min(),
-                                    delays, digits).c_str(),
+                                    delays, report_variance, digits).c_str(),
                         formatDelay(RiseFall::rise(), MinMax::max(),
-                                    delays, digits).c_str(),
+                                    delays, report_variance, digits).c_str(),
                         formatDelay(RiseFall::fall(), MinMax::min(),
-                                    delays, digits).c_str(),
+                                    delays, report_variance, digits).c_str(),
                         formatDelay(RiseFall::fall(), MinMax::max(),
-                                    delays, digits).c_str());
+                                    delays, report_variance, digits).c_str());
   }
 }
 
@@ -3360,7 +3392,7 @@ Sta::findDelaysWrtClks(Vertex *vertex,
     const MinMax *min_max = path->minMax(this);
     const ClockEdge *path_clk_edge = path->clkEdge(this);
     if (path_clk_edge == clk_edge
-        && !delayInf(delay))
+        && !delayInf(delay, this))
       delays.mergeValue(rf, min_max, delay, this);
   }
   return delays;
@@ -3370,13 +3402,14 @@ std::string
 Sta::formatDelay(const RiseFall *rf,
                  const MinMax *min_max,
                  const RiseFallMinMaxDelay &delays,
+                 bool report_variance,
                  int digits)
 {
   Delay delay;
   bool exists;
   delays.value(rf, min_max, delay, exists);
   if (exists)
-    return delayAsString(delay, this, digits);
+    return delayAsString(delay, min_max, report_variance, digits, this);
   else
     return "---";
 }
@@ -3439,7 +3472,7 @@ MinPeriodEndVisitor::visit(PathEnd *path_end)
           || !(network->isTopLevelPort(path->pin(sta_))
                || pathIsFromInputPort(path_end)))) {
     Slack slack = path_end->slack(sta_);
-    float period = clk_->period() - delayAsFloat(slack);
+    float period = clk_->period() - delayAsFloat(slack, MinMax::min(), sta_);
     min_period_ = std::max(min_period_, period);
   }
 }
@@ -3589,7 +3622,7 @@ Sta::setIncrementalDelayTolerance(float tol)
   graph_delay_calc_->setIncrementalDelayTolerance(tol);
 }
 
-ArcDelay
+const ArcDelay&
 Sta::arcDelay(Edge *edge,
 	      TimingArc *arc,
               DcalcAPIndex ap_index)
@@ -3684,7 +3717,7 @@ Sta::ensureGraph()
 void
 Sta::makeGraph()
 {
-  graph_ = new Graph(this, 2, dcalcAnalysisPtCount());
+  graph_ = new Graph(this, dcalcAnalysisPtCount());
   graph_->makeGraph();
 }
 
@@ -5535,12 +5568,12 @@ Sta::reportSlewChecks(const Net *net,
       if (verbose)
         report_path_->reportLimitVerbose(report_path_->fieldSlew(),
                                          check.pin(), check.edge(),
-                                         delayAsFloat(check.slew()),
+                                         delayAsFloat(check.slew(), min_max, this),
                                          check.limit(), check.slack(),
                                          check.scene(), min_max);
       else
         report_path_->reportLimitShort(report_path_->fieldSlew(), check.pin(),
-                                       delayAsFloat(check.slew()),
+                                       delayAsFloat(check.slew(), min_max, this),
                                        check.limit(), check.slack());
     }
     report_->reportLine("");

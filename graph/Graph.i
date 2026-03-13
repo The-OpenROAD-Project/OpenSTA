@@ -132,21 +132,24 @@ bool is_bidirect_driver() { return self->isBidirectDriver(); }
 int level() { return Sta::sta()->vertexLevel(self); }
 int tag_group_index() { return self->tagGroupIndex(); }
 
-Slew
+float
 slew(const RiseFallBoth *rf,
      const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  return sta->slew(self, rf, sta->scenes(), min_max);
+  return delayAsFloat(sta->slew(self, rf, sta->scenes(), min_max), min_max, sta);
 }
 
-Slew
-slew_scenes(const RiseFallBoth *rf,
-            const SceneSeq scenes,
-            const MinMax *min_max)
+std::string
+slew_scenes_string(const RiseFallBoth *rf,
+                   const SceneSeq scenes,
+                   const MinMax *min_max,
+                   bool report_variance,
+                   int digits)
 {
   Sta *sta = Sta::sta();
-  return sta->slew(self, rf, scenes, min_max);
+  Slew slew = sta->slew(self, rf, scenes, min_max);
+  return delayAsString(slew, min_max, report_variance, digits, sta);
 }
 
 VertexOutEdgeIterator *
@@ -223,22 +226,29 @@ arc_delays(TimingArc *arc)
 {
   Sta *sta = Sta::sta();
   FloatSeq delays;
-  DcalcAPIndex ap_count = sta->dcalcAnalysisPtCount();
-  for (DcalcAPIndex ap_index = 0; ap_index < ap_count; ap_index++)
-    delays.push_back(delayAsFloat(sta->arcDelay(self, arc, ap_index)));
+  for (Scene *scene : sta->scenes()) {
+    for (const MinMax *min_max : MinMax::range()) {
+      DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
+      delays.push_back(delayAsFloat(sta->arcDelay(self, arc, ap_index), min_max, sta));
+    }
+  }
   return delays;
 }
 
 StringSeq
 arc_delay_strings(TimingArc *arc,
+                  bool report_variance,
                   int digits)
 {
   Sta *sta = Sta::sta();
   StringSeq delays;
-  DcalcAPIndex ap_count = sta->dcalcAnalysisPtCount();
-  for (DcalcAPIndex ap_index = 0; ap_index < ap_count; ap_index++)
-    delays.push_back(delayAsString(sta->arcDelay(self, arc, ap_index),
-                                   sta, digits));
+  for (Scene *scene : sta->scenes()) {
+    for (const MinMax *min_max : MinMax::range()) {
+      DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
+      delays.push_back(delayAsString(sta->arcDelay(self, arc, ap_index),
+                                     min_max, report_variance, digits, sta));
+    }
+  }
   return delays;
 }
 
@@ -255,8 +265,9 @@ arc_delay(TimingArc *arc,
           const Scene *scene,
           const MinMax *min_max)
 {
+  Sta *sta = Sta::sta();
   DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-  return delayAsFloat(Sta::sta()->arcDelay(self, arc, ap_index));
+  return delayAsFloat(Sta::sta()->arcDelay(self, arc, ap_index), min_max, sta);
 }
 
 std::string

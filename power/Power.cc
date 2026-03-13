@@ -1173,7 +1173,7 @@ Power::findInputInternalPower(const Pin *pin,
         int rf_count = 0;
         for (const RiseFall *rf : RiseFall::range()) {
           float slew = getSlew(vertex, rf, scene);
-          if (!delayInf(slew)) {
+          if (!delayInf(slew, this)) {
             float table_energy = pwr->power(rf, pvt, slew, load_cap);
             energy += table_energy;
             rf_count++;
@@ -1238,17 +1238,18 @@ Power::getMinRfSlew(const Pin *pin)
   graph_->pinVertices(pin, vertex, bidir_vertex);
   if (vertex) {
     const MinMax *min_max = MinMax::min();
-    Slew mm_slew = min_max->initValue();
+    float mm_slew = min_max->initValue();
     for (DcalcAPIndex ap_index = 0;
          ap_index < dcalcAnalysisPtCount();
          ap_index++) {
       const Slew &slew1 = graph_->slew(vertex, RiseFall::rise(), ap_index);
       const Slew &slew2 = graph_->slew(vertex, RiseFall::fall(), ap_index);
-      Slew slew = delayAsFloat(slew1 + slew2) / 2.0;
-      if (delayGreater(slew, mm_slew, min_max, this))
-        mm_slew = slew;
+      float slew_avg = (delayAsFloat(slew1, min_max, this)
+                        + delayAsFloat(slew2, min_max, this)) / 2.0;
+      if (delayGreater(slew_avg, mm_slew, min_max, this))
+        mm_slew = slew_avg;
     }
-    return delayAsFloat(mm_slew);
+    return mm_slew;
   }
   return 0.0;
 }
@@ -1343,7 +1344,7 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
       float slew = from_vertex
         ? getSlew(from_vertex, from_rf, scene)
 	: 0.0;
-      if (!delayInf(slew)) {
+      if (!delayInf(slew, this)) {
 	float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
 	energy += table_energy;
 	rf_count++;

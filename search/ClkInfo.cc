@@ -102,7 +102,7 @@ ClkInfo::findHash(const StaState *sta)
       hashIncr(hash_, hash_float(uncertainty));
   }
   hashIncr(hash_, hash_float(latency_));
-  hashIncr(hash_, hash_float(delayAsFloat(insertion_)));
+  hashIncr(hash_, hash_float(insertion_.mean()));
   hashIncr(hash_, is_propagated_);
   hashIncr(hash_, is_gen_clk_src_path_);
   hashIncr(hash_, is_pulse_clk_);
@@ -152,9 +152,10 @@ ClkInfo::to_string(const StaState *sta) const
   Network *network = sta->network();
   std::string result;
 
+  const MinMax *min_max = minMax();
   result += scene_->name();
   result += "/";
-  result += minMax()->to_string();
+  result += min_max->to_string();
   result += " ";
 
   if (clk_edge_)
@@ -186,7 +187,7 @@ ClkInfo::to_string(const StaState *sta) const
 
   if (delayGreater(insertion_, 0.0, sta)) {
     result += " insert";
-    result += delayAsString(insertion_, sta);
+    result += delayAsString(insertion_, min_max, sta);
   }
 
   if (uncertainties_) {

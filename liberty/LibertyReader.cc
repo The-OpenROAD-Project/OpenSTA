@@ -2122,79 +2122,75 @@ LibertyReader::makeTableModels(LibertyCell *cell,
 {
   bool found_model = false;
   for (const RiseFall *rf : RiseFall::range()) {
-    std::string delay_attr_name  = "cell_" + rf->to_string();
-    TableModel *delay = readGateTableModel(timing_group, delay_attr_name.c_str(), rf,
-                                           TableTemplateType::delay, time_scale_,
-                                           ScaleFactorType::cell);
-    std::string transition_attr_name = rf->to_string() + "_transition";
-    TableModel *transition = readGateTableModel(timing_group,
-                                                transition_attr_name.c_str(),
-                                                rf, TableTemplateType::delay,
-                                                time_scale_,
-                                                ScaleFactorType::transition);
-    if (delay || transition) {
-      std::string delay_sigma_attr_name = "ocv_sigma_cell_" + rf->to_string();
-      TableModelsEarlyLate delay_sigmas =
-        readEarlyLateTableModels(timing_group,
-                                 delay_sigma_attr_name.c_str(),
-                                 rf, TableTemplateType::delay,
-                                 time_scale_,
-                                 ScaleFactorType::unknown);
+    TableModel *delay_model = readTableModel(timing_group,
+                                             "cell_" + rf->to_string(),
+                                             rf, TableTemplateType::delay,
+                                             time_scale_,
+                                             ScaleFactorType::cell,
+                                             GateTableModel::checkAxes);
+    TableModel *slew_model = readTableModel(timing_group,
+                                            rf->to_string() + "_transition",
+                                            rf, TableTemplateType::delay,
+                                            time_scale_,
+                                            ScaleFactorType::transition,
+                                            GateTableModel::checkAxes);
+    if (delay_model || slew_model) {
+      TableModels *delay_models = new TableModels(delay_model);
+      readLvfModels(timing_group,
+                    "ocv_sigma_cell_" + rf->to_string(),
+                    "ocv_std_dev_cell_" + rf->to_string(),
+                    "ocv_mean_shift_cell_" + rf->to_string(),
+                    "ocv_skewness_cell_" + rf->to_string(),
+                    rf, delay_models, GateTableModel::checkAxes);
 
-      std::string slew_sigma_attr_name = "ocv_sigma_" + rf->to_string()
-        + "_transition";
-      TableModelsEarlyLate slew_sigmas =
-        readEarlyLateTableModels(timing_group,
-                                 slew_sigma_attr_name.c_str(),
-                                 rf, TableTemplateType::delay,
-                                 time_scale_,
-                                 ScaleFactorType::unknown);
+      TableModels *slew_models = new TableModels(slew_model);
+      readLvfModels(timing_group,
+                    "ocv_sigma_" + rf->to_string() + "_transition",
+                    "ocv_std_dev_" + rf->to_string() + "_transition",
+                    "ocv_mean_shift_" + rf->to_string() + "_transition",
+                    "ocv_skewness_" + rf->to_string() + "_transition",
+                    rf, slew_models, GateTableModel::checkAxes);
 
       ReceiverModelPtr receiver_model = readReceiverCapacitance(timing_group, rf);
       OutputWaveforms *output_waveforms = readOutputWaveforms(timing_group, rf);
 
-      timing_attrs->setModel(rf, new GateTableModel(cell, delay,
-                                                    std::move(delay_sigmas),
-                                                    transition,
-                                                    std::move(slew_sigmas),
+      timing_attrs->setModel(rf, new GateTableModel(cell, delay_models,
+                                                    slew_models,
                                                     receiver_model,
                                                     output_waveforms));
       TimingType timing_type = timing_attrs->timingType();
       if (isGateTimingType(timing_type)) {
-        if (transition == nullptr)
+        if (slew_model == nullptr)
           libWarn(1210, timing_group, "missing %s_transition.", rf->name());
-        if (delay == nullptr)
+        if (delay_model == nullptr)
           libWarn(1211, timing_group, "missing cell_%s.", rf->name());
       }
       found_model = true;
     }
-    else {
-      std::string constraint_attr_name  = rf->to_string() + "_constraint";
-      ScaleFactorType scale_factor_type = 
-        timingTypeScaleFactorType(timing_attrs->timingType());
-      TableModel *constraint = readCheckTableModel(timing_group,
-                                                   constraint_attr_name.c_str(),
-                                                   rf, TableTemplateType::delay,
-                                                   time_scale_, scale_factor_type);
-      if (constraint) {
-        std::string constraint_sigma_attr_name = "ocv_sigma_" + rf->to_string()
-          + "_constraint";
-        TableModelsEarlyLate constraint_sigmas =
-          readEarlyLateTableModels(timing_group,
-                                   constraint_sigma_attr_name.c_str(),
-                                   rf, TableTemplateType::delay,
-                                   time_scale_,
-                                   ScaleFactorType::unknown);
-        timing_attrs->setModel(rf, new CheckTableModel(cell, constraint,
-                                                       std::move(constraint_sigmas)));
-        found_model = true;
-      }
+
+    std::string constraint_attr_name  = rf->to_string() + "_constraint";
+    ScaleFactorType scale_factor_type = 
+      timingTypeScaleFactorType(timing_attrs->timingType());
+    TableModel *check_model = readTableModel(timing_group,
+                                             constraint_attr_name.c_str(),
+                                             rf, TableTemplateType::delay,
+                                             time_scale_, scale_factor_type,
+                                             CheckTableModel::checkAxes);
+    if (check_model) {
+      TableModels *check_models = new TableModels(check_model);
+      readLvfModels(timing_group,
+                    "ocv_sigma_" + rf->to_string() + "_constraint",
+                    "ocv_std_dev_" + rf->to_string() + "_constraint",
+                    "ocv_mean_shift_" + rf->to_string() + "_constraint",
+                    "ocv_skewness_" + rf->to_string() + "_constraint",
+                    rf, check_models, CheckTableModel::checkAxes);
+      timing_attrs->setModel(rf, new CheckTableModel(cell, check_models));
+      found_model = true;
     }
   }
   if (!found_model)
     libWarn(1311, timing_group, "no table models found in timing group.");
 }
-
 
 bool
 LibertyReader::isGateTimingType(TimingType timing_type)
@@ -2215,41 +2211,66 @@ LibertyReader::isGateTimingType(TimingType timing_type)
 }
 
 TableModel *
-LibertyReader::readGateTableModel(const LibertyGroup *timing_group,
-                                  const char *table_group_name,
-                                  const RiseFall *rf,
-                                  TableTemplateType template_type,
-                                  float scale,
-                                  ScaleFactorType scale_factor_type)
+LibertyReader::readTableModel(const LibertyGroup *timing_group,
+                              const std::string &table_group_name,
+                              const RiseFall *rf,
+                              TableTemplateType template_type,
+                              float scale,
+                              ScaleFactorType scale_factor_type,
+                              const std::function<bool(TableModel *model)> check_axes)
 {
   const LibertyGroup *table_group = timing_group->findSubgroup(table_group_name);
-  if (table_group) {
-    TableModel *model = readTableModel(table_group, rf, template_type, scale,
-                                       scale_factor_type);
-    if (model && !GateTableModel::checkAxes(model))
-      libWarn(1251, table_group, "unsupported model axis.");
-    return model;
-  }
+  if (table_group)
+    return readTableModel(table_group, rf, template_type, scale,
+                         scale_factor_type, check_axes);
   return nullptr;
 }
 
-TableModel *
-LibertyReader::readCheckTableModel(const LibertyGroup *timing_group,
-                                   const char *table_group_name,
-                                   const RiseFall *rf,
-                                   TableTemplateType template_type,
-                                   float scale,
-                                   ScaleFactorType scale_factor_type)
+void
+LibertyReader::readLvfModels(const LibertyGroup *timing_group,
+                             const std::string &sigma_group_name,
+                             const std::string &std_dev_group_name,
+                             const std::string &mean_shift_group_name,
+                             const std::string &skewness_group_name,
+                             const RiseFall *rf,
+                             TableModels *table_models,
+                             const std::function<bool(TableModel *model)> check_axes)
 {
-  const LibertyGroup *table_group = timing_group->findSubgroup(table_group_name);
-  if (table_group) {
-    TableModel *model = readTableModel(table_group, rf, template_type, scale,
-                                       scale_factor_type);
-    if (model && !CheckTableModel::checkAxes(model))
-      libWarn(1252, table_group, "unsupported model axis.");
-    return model;
+  TableModelsEarlyLate sigmas =
+    readEarlyLateTableModels(timing_group,
+                             sigma_group_name.c_str(),
+                             rf, TableTemplateType::delay,
+                             time_scale_,
+                             ScaleFactorType::unknown,
+                             check_axes);
+  for (const EarlyLate *early_late : EarlyLate::range())
+    table_models->setSigma(sigmas[early_late->index()], early_late);
+
+  const LibertyGroup *std_dev_group = timing_group->findSubgroup(std_dev_group_name);
+  if (std_dev_group) {
+    TableModel *std_dev = readTableModel(std_dev_group, rf, TableTemplateType::delay,
+                                        time_scale_, ScaleFactorType::unknown,
+                                        check_axes);
+    table_models->setStdDev(std_dev);
   }
-  return nullptr;
+
+  const LibertyGroup *mean_shift_group=timing_group->findSubgroup(mean_shift_group_name);
+  if (mean_shift_group) {
+    TableModel *mean_shift = readTableModel(mean_shift_group, rf,
+                                            TableTemplateType::delay,
+                                            time_scale_, ScaleFactorType::unknown,
+                                            check_axes);
+    table_models->setMeanShift(mean_shift);
+  }
+
+  const LibertyGroup *skewness_group = timing_group->findSubgroup(skewness_group_name);
+  if (skewness_group) {
+    TableModel *skewness = readTableModel(skewness_group, rf,
+                                          TableTemplateType::delay,
+                                          1.0, ScaleFactorType::unknown,
+                                          check_axes);
+    table_models->setSkewness(skewness);
+  }
 }
 
 TableModelsEarlyLate
@@ -2258,12 +2279,13 @@ LibertyReader::readEarlyLateTableModels(const LibertyGroup *timing_group,
                                         const RiseFall *rf,
                                         TableTemplateType template_type,
                                         float scale,
-                                        ScaleFactorType scale_factor_type)
+                                        ScaleFactorType scale_factor_type,
+                                        const std::function<bool(TableModel *model)> check_axes)
 {
   TableModelsEarlyLate models{};
   for (const LibertyGroup *table_group : timing_group->findSubgroups(table_group_name)) {
     TableModel *model = readTableModel(table_group, rf, template_type, scale,
-                                       scale_factor_type);
+                                       scale_factor_type, check_axes);
     const std::string *early_late = table_group->findAttrString("sigma_type");
     if (early_late == nullptr
         || *early_late == "early_and_late") {
@@ -2274,9 +2296,6 @@ LibertyReader::readEarlyLateTableModels(const LibertyGroup *timing_group,
       models[EarlyLate::early()->index()] = model;
     else if (*early_late == "late")
       models[EarlyLate::late()->index()] = model;
-
-    //if (model && !GateTableModel::checkAxes(model))
-    //  libWarn(1182, table_group, "unsupported model axis.");
   }
   return models;
 }
@@ -2445,7 +2464,8 @@ LibertyReader::readTableModel(const LibertyGroup *table_group,
                               const RiseFall *rf,
                               TableTemplateType template_type,
                               float scale,
-                              ScaleFactorType scale_factor_type)
+                              ScaleFactorType scale_factor_type,
+                              const std::function<bool(TableModel *model)> &check_axes)
 {
   const char *template_name = table_group->firstName();
   if (library_ && template_name) {
@@ -2456,6 +2476,9 @@ LibertyReader::readTableModel(const LibertyGroup *table_group,
       if (table) {
         TableModel *table_model = new TableModel(table, tbl_template,
                                                  scale_factor_type, rf);
+        if (!check_axes(table_model)) {
+          libWarn(1251, table_group, "unsupported model axis.");
+        }
         return table_model;
       }
     }
@@ -2682,7 +2705,7 @@ LibertyReader::readInternalPowerGroups(LibertyCell *cell,
       FuncExpr *when1 = readFuncExpr(cell, ipwr_group, "when");
       if (when1)
         when = std::shared_ptr<FuncExpr>(when1);
-      InternalPowerModels models;
+      InternalPowerModels models{};
       // rise/fall_power group
       for (const RiseFall *rf : RiseFall::range()) {
         std::string pwr_attr_name = rf->to_string() + "_power";
@@ -2691,7 +2714,9 @@ LibertyReader::readInternalPowerGroups(LibertyCell *cell,
           TableModel *model = readTableModel(pwr_group, rf, TableTemplateType::power,
                                              energyScale(),
                                              ScaleFactorType::internal_power);
-          models[rf->index()] = std::make_shared<InternalPowerModel>(model);
+          std::shared_ptr<TableModel> table_model(model);
+          InternalPowerModel pwr_model(table_model);
+          models[rf->index()] = pwr_model;
         }
       }
       // power group (rise/fall power are the same)
@@ -2701,9 +2726,11 @@ LibertyReader::readInternalPowerGroups(LibertyCell *cell,
                                            TableTemplateType::power,
                                            energyScale(),
                                            ScaleFactorType::internal_power);
-        auto pwr_model = std::make_shared<InternalPowerModel>(model);
-        for (const RiseFall *rf : RiseFall::range())
+        std::shared_ptr<TableModel> table_model(model);
+        for (const RiseFall *rf : RiseFall::range()) {
+          InternalPowerModel pwr_model(table_model);
           models[rf->index()] = pwr_model;
+        }
       }
       if (related_ports.empty())
         cell->makeInternalPower(port, nullptr, related_pg_port, when, models);
@@ -2792,9 +2819,9 @@ LibertyReader::makeScalarCheckModel(LibertyCell *cell,
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *table_model = new TableModel(table, tbl_template,
                                            scale_factor_type, rf);
-  TableModelsEarlyLate sigmas{};
-  CheckTableModel *check_model = new CheckTableModel(cell, table_model,
-                                                     std::move(sigmas));
+
+  TableModels *check_models = new TableModels(table_model);
+  TimingModel *check_model = new CheckTableModel(cell, check_models);
   return check_model;
 }
 
@@ -3713,7 +3740,7 @@ PortNameBitIterator::init(const char *port_name)
         range_bit_ = from;
         findRangeBusNameNext();
       }
-      size_ = abs(from - to) + 1;
+      size_ = std::abs(from - to) + 1;
     }
     else
       visitor_->libWarn(1294, line_, "port %s not found.", port_name);

@@ -252,13 +252,13 @@ MinPulseWidthCheck::closeArrival(const StaState *sta) const
 Arrival
 MinPulseWidthCheck::openDelay(const StaState *sta) const
 {
-  return openArrival(sta) - openClkEdge(sta)->time();
+  return delayDiff(openArrival(sta), openClkEdge(sta)->time(), sta);
 }
 
 Arrival
 MinPulseWidthCheck::closeDelay(const StaState *sta) const
 {
-  return closeArrival(sta) - closeClkEdge(sta)->time();
+  return delayDiff(closeArrival(sta), closeClkEdge(sta)->time(), sta);
 }
 
 const ClockEdge *
@@ -289,9 +289,11 @@ MinPulseWidthCheck::closeOffset(const StaState *sta) const
 Arrival
 MinPulseWidthCheck::width(const StaState *sta) const
 {
-  return closeArrival(sta) + closeOffset(sta)
-    - open_path_->arrival()
-    + checkCrpr(sta);
+  Arrival close_with_offset = delaySum(closeArrival(sta),
+                                       closeOffset(sta),
+                                       sta);
+  Arrival minus_open = delayDiff(close_with_offset, open_path_->arrival(), sta);
+  return delaySum(minus_open, checkCrpr(sta), sta);
 }
 
 float
@@ -323,6 +325,7 @@ minPulseWidth(const Path *path,
   // set_min_pulse_width command.
   sdc->minPulseWidth(pin, clk, rf, min_width, exists);
   if (!exists) {
+    const MinMax *min_max = path->minMax(sta);
     DcalcAPIndex dcalc_ap = path->dcalcAnalysisPtIndex(sta);
     Vertex *vertex = path->vertex(sta);
     Graph *graph = sta->graph();
@@ -330,7 +333,7 @@ minPulseWidth(const Path *path,
     TimingArc *arc;
     graph->minPulseWidthArc(vertex, rf, edge, arc);
     if (edge) {
-      min_width = delayAsFloat(graph->arcDelay(edge, arc, dcalc_ap));
+      min_width = delayAsFloat(graph->arcDelay(edge, arc, dcalc_ap), min_max, sta);
       exists = true;
     }
   }
@@ -350,7 +353,7 @@ MinPulseWidthCheck::checkCrpr(const StaState *sta) const
 Slack
 MinPulseWidthCheck::slack(const StaState *sta) const
 {
-  return width(sta) - minWidth(sta);
+  return delayDiff(width(sta), minWidth(sta), sta);
 }
 
 Scene *
@@ -375,7 +378,7 @@ MinPulseWidthSlackLess::operator()(const MinPulseWidthCheck &check1,
   const Pin *pin1 = check1.pin(sta_);
   const Pin *pin2 = check2.pin(sta_);
   return delayLess(slack1, slack2, sta_)
-    || (delayEqual(slack1, slack2)
+    || (delayEqual(slack1, slack2, sta_)
         // Break ties for the sake of regression stability.
         && (sta_->network()->pinLess(pin1, pin2)
             || (pin1 == pin2

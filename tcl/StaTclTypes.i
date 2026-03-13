@@ -1198,32 +1198,8 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(out) Delay {
-  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
-}
-
-%typemap(out) Arrival {
-  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
-}
-
-%typemap(out) Required {
-  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
-}
-
-%typemap(out) Slack {
-  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
-}
-
-%typemap(out) ArcDelay {
-  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
-}
-
-%typemap(out) Slew {
-  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
-}
-
-%typemap(out) Crpr {
-  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
+%typemap(in) StringSet* {
+  $1 = tclListSetConstChar($input, interp);
 }
 
 %typemap(out) Mode* {

@@ -281,9 +281,9 @@ MakeEndTimingArcs::visit(PathEnd *path_end)
     Arrival data_delay = src_path->arrival();
     Delay clk_latency = path_end->targetClkDelay(sta_);
     ArcDelay check_margin = path_end->margin(sta_);
-    Delay margin = min_max == MinMax::max()
-      ? data_delay - clk_latency + check_margin
-      : clk_latency - data_delay + check_margin;
+    Delay margin = (min_max == MinMax::max())
+      ? delaySum(delayDiff(data_delay, clk_latency, sta_), check_margin, sta_)
+      : delaySum(delayDiff(clk_latency, data_delay, sta_), check_margin, sta_);
     float delay1 = delayAsFloat(margin, MinMax::max(), sta_);
     debugPrint(debug, "make_timing_model", 2, "%s -> %s clock %s %s %s %s",
                input_rf_->shortName(),
@@ -605,10 +605,10 @@ MakeTimingModel::makeScalarCheckModel(float value,
   TablePtr table = std::make_shared<Table>(value);
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
-  TableModel *table_model = new TableModel(table, tbl_template,
-                                           scale_factor_type, rf);
-  CheckTableModel *check_model = new CheckTableModel(cell_, table_model);
-  return check_model;
+  TableModel *check_table = new TableModel(table, tbl_template, scale_factor_type, rf);
+  TableModels *check_tables = new TableModels(check_table);
+  CheckTableModel *check = new CheckTableModel(cell_, check_tables);
+  return check;
 }
 
 TimingModel *
@@ -622,9 +622,12 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
                                            ScaleFactorType::cell, rf);
+  TableModels *delay_models = new TableModels(delay_model);
   TableModel *slew_model = new TableModel(slew_table, tbl_template,
                                           ScaleFactorType::cell, rf);
-  GateTableModel *gate_model = new GateTableModel(cell_, delay_model, slew_model);
+  TableModels *slew_models = new TableModels(slew_model);
+  GateTableModel *gate_model = new GateTableModel(cell_, delay_models, slew_models,
+                                                  nullptr, nullptr);
   return gate_model;
 }
 
@@ -637,7 +640,9 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
                                            ScaleFactorType::cell, rf);
-  GateTableModel *gate_model = new GateTableModel(cell_, delay_model, nullptr);
+  TableModels *models = new TableModels(delay_model);
+  GateTableModel *gate_model = new GateTableModel(cell_, models, nullptr,
+                                                  nullptr, nullptr);
   return gate_model;
 }
 
@@ -674,12 +679,11 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
               float output_load_cap = graph_delay_calc_->loadCap(output_pin,
                                                                  scene_,
                                                                  min_max_);
-              ArcDelay drvr_self_delay;
-              Slew drvr_self_slew;
-              drvr_gate_model->gateDelay(pvt, in_slew1, output_load_cap, false,
+              float drvr_self_delay, drvr_self_slew;
+              drvr_gate_model->gateDelay(pvt, in_slew1, output_load_cap,
                                          drvr_self_delay, drvr_self_slew);
 
-              const TableModel *drvr_table = drvr_gate_model->delayModel();
+              const TableModel *drvr_table = drvr_gate_model->delayModels()->model();
               const TableTemplate *drvr_template = drvr_table->tblTemplate();
               const TableAxis *drvr_load_axis = loadCapacitanceAxis(drvr_table);
               if (drvr_load_axis) {
@@ -689,13 +693,13 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                 for (size_t i = 0; i < drvr_axis_values.size(); i++) {
                   float load_cap = drvr_axis_values[i];
                   // get slew from driver input pin
-                  ArcDelay gate_delay;
-                  Slew gate_slew;
-                  drvr_gate_model->gateDelay(pvt, in_slew1, load_cap, false,
+                  float gate_delay, gate_slew;
+                  drvr_gate_model->gateDelay(pvt, in_slew1, load_cap,
                                              gate_delay, gate_slew);
                   // Remove the self delay driving the output pin net load cap.
-                  load_values->push_back(delayAsFloat(delay + gate_delay
-                                                      - drvr_self_delay));
+                  load_values->push_back(delayAsFloat(delay)
+                                         + gate_delay
+                                         - drvr_self_delay);
                   slew_values->push_back(delayAsFloat(gate_slew));
                 }
 
@@ -711,10 +715,14 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                                                     load_axis);
                 TableModel *delay_model = new TableModel(delay_table, model_template,
                                                          ScaleFactorType::cell, rf);
+                TableModels *delay_models = new TableModels(delay_model);
                 TableModel *slew_model = new TableModel(slew_table, model_template,
                                                         ScaleFactorType::cell, rf);
-                GateTableModel *gate_model = new GateTableModel(cell_, delay_model,
-                                                                slew_model);
+                TableModels *slew_models = new TableModels(slew_model);
+                GateTableModel *gate_model = new GateTableModel(cell_,
+                                                                delay_models,
+                                                                slew_models,
+                                                                nullptr, nullptr);
                 return gate_model;
               }
             }

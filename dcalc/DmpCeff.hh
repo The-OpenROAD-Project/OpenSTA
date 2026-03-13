@@ -69,15 +69,15 @@ protected:
                              const LibertyLibrary *drvr_library,
                              const Parasitic *parasitic,
                              // Return values.
-                             ArcDelay &wire_delay,
-                             Slew &load_slew) = 0;
+                             double &wire_delay,
+                             double &load_slew) = 0;
   void gateDelaySlew(// Return values.
                      double &delay,
                      double &slew);
   void loadDelaySlewElmore(const Pin *load_pin,
                            double elmore,
-                           ArcDelay &delay,
-                           Slew &slew);
+                           double &delay,
+                           double &slew);
   // Select the appropriate special case Dartu/Menezes/Pileggi algorithm.
   void setCeffAlgorithm(const LibertyLibrary *library,
                         const LibertyCell *cell,

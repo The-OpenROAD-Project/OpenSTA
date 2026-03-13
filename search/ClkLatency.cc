@@ -116,15 +116,15 @@ ClkLatency::reportClkLatency(const Clock *clk,
         report_->reportLine("    min     max");
 
         report_->reportLine("%7s %7s source latency",
-                            delayAsString(insertion_min, this, digits),
-                            delayAsString(insertion_max, this, digits));
+                            delayAsString(insertion_min, MinMax::min(), digits, this),
+                            delayAsString(insertion_max, MinMax::max(), digits, this));
         report_->reportLine("%7s %7s network latency %s",
-                            delayAsString(delay_min, this, digits),
+                            delayAsString(delay_min, MinMax::min(), digits, this),
                             "",
                             sdc_network_->pathName(path_min.pin(this)));
         report_->reportLine("%7s %7s network latency %s",
                             "",
-                            delayAsString(delay_max, this, digits),
+                            delayAsString(delay_max, MinMax::max(), digits, this),
                             sdc_network_->pathName(path_max.pin(this)));
         if (internal_latency_min != 0.0
             || internal_latency_max != 0.0)
@@ -133,11 +133,11 @@ ClkLatency::reportClkLatency(const Clock *clk,
                               time_unit->asString(internal_latency_max, digits));
         report_->reportLine("---------------");
         report_->reportLine("%7s %7s latency",
-                            delayAsString(latency_min, this, digits),
-                            delayAsString(latency_max, this, digits));
-        Delay skew = latency_max - latency_min;
+                            delayAsString(latency_min, MinMax::min(), digits, this),
+                            delayAsString(latency_max, MinMax::max(), digits, this));
+        Delay skew = delayDiff(latency_max, latency_min, this);
         report_->reportLine("        %7s skew",
-                            delayAsString(skew, this, digits));
+                            delayAsString(skew, MinMax::max(), digits, this));
         report_->reportBlankLine();
       }
     }
@@ -255,10 +255,10 @@ ClkDelays::setLatency(const RiseFall *src_rf,
   int end_rf_index = end_rf->index();
   int mm_index = min_max->index();
 
-  float insertion = insertionDelay(path, sta);
+  Delay insertion = insertionDelay(path, sta);
   insertion_[src_rf_index][end_rf_index][mm_index] = insertion;
 
-  float delay1 = delay(path, sta);
+  Delay delay1 = delay(path, sta);
   delay_[src_rf_index][end_rf_index][mm_index] = delay1;
 
   float internal_latency = 0.0;
@@ -267,7 +267,7 @@ ClkDelays::setLatency(const RiseFall *src_rf,
     internal_latency_[src_rf_index][end_rf_index][mm_index] = internal_latency;
   }
 
-  float latency = insertion + delay1 + internal_latency;
+  Delay latency = delaySum(delay1, delaySum(insertion, internal_latency, sta), sta);
   latency_[src_rf_index][end_rf_index][mm_index] = latency;
 
   path_[src_rf_index][end_rf_index][mm_index] = *path;
@@ -279,22 +279,22 @@ ClkDelays::latency(Path *clk_path,
                    StaState *sta)
 {
 
-  float insertion = insertionDelay(clk_path, sta);
-  float delay1 = delay(clk_path, sta);
+  Delay insertion = insertionDelay(clk_path, sta);
+  Delay delay1 = delay(clk_path, sta);
   float lib_clk_delay = clkTreeDelay(clk_path, sta);
-  return insertion + delay1 + lib_clk_delay;
+  return delaySum(delay1, delaySum(insertion, lib_clk_delay, sta), sta);
 }
 
-float
+Delay
 ClkDelays::delay(Path *clk_path,
                  StaState *sta)
 {
   Arrival arrival = clk_path->arrival();
   const ClockEdge *path_clk_edge = clk_path->clkEdge(sta);
-  return delayAsFloat(arrival) - path_clk_edge->time();
+  return delayDiff(arrival, path_clk_edge->time(), sta);
 }
 
-float
+Delay
 ClkDelays::insertionDelay(Path *clk_path,
                           StaState *sta)
 {
@@ -305,8 +305,7 @@ ClkDelays::insertionDelay(Path *clk_path,
   const Pin *src_pin = clk_info->clkSrc();
   const MinMax *min_max = clk_path->minMax(sta);
   const Mode *mode = clk_path->mode(sta);
-  return delayAsFloat(sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max,
-                                                    min_max, mode));
+  return sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max, min_max, mode);
 }
 
 float
@@ -318,7 +317,7 @@ ClkDelays::clkTreeDelay(Path *clk_path,
   const LibertyPort *port = sta->network()->libertyPort(pin);
   const MinMax *min_max = clk_path->minMax(sta);
   const RiseFall *rf = clk_path->transition(sta);
-  float slew = delayAsFloat(clk_path->slew(sta));
+  float slew = delayAsFloat(clk_path->slew(sta), min_max, sta);
   return port->clkTreeDelay(slew, rf, min_max);
 }
 

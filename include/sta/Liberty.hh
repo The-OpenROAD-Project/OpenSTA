@@ -589,7 +589,7 @@ public:
                          LibertyPort *related_port,
                          LibertyPort *related_pg_pin,
                          const std::shared_ptr<FuncExpr> &when,
-                         InternalPowerModels &models);
+                         const InternalPowerModels &models);
   void makeLeakagePower(LibertyPort *related_pg_port,
                         FuncExpr *when,
                         float power);

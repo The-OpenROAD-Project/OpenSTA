@@ -166,7 +166,7 @@ WorstSlack::initQueue(PathAPIndex path_ap_index)
   slack_threshold_ = slack_init_;
   for(Vertex *vertex : search_->endpoints()) {
     Slack slack = search_->wnsSlack(vertex, path_ap_index);
-    if (!delayEqual(slack, slack_init_)) {
+    if (!delayEqual(slack, slack_init_, this)) {
       if (delayLess(slack, worst_slack_, this))
         setWorstSlack(vertex, slack);
       if (delayLessEqual(slack, slack_threshold_, this))
@@ -177,8 +177,8 @@ WorstSlack::initQueue(PathAPIndex path_ap_index)
     }
   }
   debugPrint(debug_, "wns", 3, "threshold %s",
-             delayAsString(slack_threshold_, this));
-//  checkQueue();
+             delayAsString(slack_threshold_, MinMax::max(), this));
+  //checkQueue();
 }
 
 void
@@ -199,7 +199,7 @@ WorstSlack::sortQueue(PathAPIndex path_ap_index)
     Vertex *threshold_vertex = vertices[threshold_index];
     slack_threshold_ = search_->wnsSlack(threshold_vertex, path_ap_index);
     debugPrint(debug_, "wns", 3, "threshold %s",
-               delayAsString(slack_threshold_, this));
+               delayAsString(slack_threshold_, MinMax::max(), this));
 
     // Reinsert vertices with slack < threshold.
     queue_->clear();
@@ -281,7 +281,7 @@ WorstSlack::updateWorstSlack(Vertex *vertex,
       // Mark worst slack as unknown (updated by findWorstSlack().
       worst_vertex_ = nullptr;
 
-    if (!delayEqual(slack, slack_init_)
+    if (!delayEqual(slack, slack_init_, this)
         && delayLessEqual(slack, slack_threshold_, this)) {
       debugPrint(debug_, "wns", 3, "insert %s %s",
                  vertex->to_string(this).c_str(),

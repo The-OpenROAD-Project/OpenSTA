@@ -466,13 +466,14 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
     const TableModel *slew_model = gate_model->slewModel();
     if (slew_model) {
       const std::string &slew_template_name = slew_model->tblTemplate()->name();
-      fprintf(stream_, "        %s_transition(%s) {\n", rf->name(), slew_template_name.c_str());
+      fprintf(stream_, "        %s_transition(%s) {\n", rf->name(),
+              slew_template_name.c_str());
       writeTableModel(slew_model);
       fprintf(stream_, "        }\n");
     }
   }
   else if (check_model) {
-    const TableModel *model = check_model->model();
+    const TableModel *model = check_model->checkModel();
     const std::string &template_name = model->tblTemplate()->name();
     fprintf(stream_, "        %s_constraint(%s) {\n", rf->name(), template_name.c_str());
     writeTableModel(model);

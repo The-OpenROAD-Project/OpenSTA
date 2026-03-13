@@ -90,8 +90,7 @@ gateModelRd(const LibertyCell *cell,
             double in_slew,
             double c2,
             double c1,
-            const Pvt *pvt,
-            bool pocv_enabled);
+            const Pvt *pvt);
 static void
 newtonRaphson(const int max_iter,
               double x[],
@@ -143,8 +142,8 @@ public:
   virtual void loadDelaySlew(const Pin *load_pin,
                              double elmore,
                              // Return values.
-                             ArcDelay &delay,
-                             Slew &slew);
+                             double &delay,
+                             double &slew);
   double ceff() { return ceff_; }
 
   // Given x_ as a vector of input parameters, fill fvec_ with the
@@ -348,13 +347,10 @@ DmpAlg::gateCapDelaySlew(double ceff,
                          double &delay,
                          double &slew)
 {
-  ArcDelay model_delay;
-  Slew model_slew;
-  gate_model_->gateDelay(pvt_, in_slew_, ceff,
-                         variables_->pocvEnabled(),
-                         model_delay, model_slew);
-  delay = delayAsFloat(model_delay);
-  slew = delayAsFloat(model_slew);
+  float model_delay, model_slew;
+  gate_model_->gateDelay(pvt_, in_slew_, ceff, model_delay, model_slew);
+  delay = model_delay;
+  slew = model_slew;
 }
 
 void
@@ -543,8 +539,8 @@ DmpAlg::showVo()
 void
 DmpAlg::loadDelaySlew(const Pin *,
                       double elmore,
-                      ArcDelay &delay,
-                      Slew &slew)
+                      double &delay,
+                      double &slew)
 {
   if (!driver_valid_
       || elmore == 0.0
@@ -700,8 +696,8 @@ public:
   void loadDelaySlew(const Pin *,
                      double elmore,
                      // Return values.
-                     ArcDelay &delay,
-                     Slew &slew) override;
+                     double &delay,
+                     double &slew) override;
   void evalDmpEqns() override;
   double voCrossingUpperBound() override;
 
@@ -753,8 +749,8 @@ DmpCap::gateDelaySlew(// Return values.
 void
 DmpCap::loadDelaySlew(const Pin *,
                       double elmore,
-                      ArcDelay &delay,
-                      Slew &slew)
+                      double &delay,
+                      double &slew)
 {
   delay = elmore;
   slew = drvr_slew_;
@@ -1498,21 +1494,36 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
     parasitics_->piModel(parasitic, c2, rpi, c1);
     if (std::isnan(c2) || std::isnan(c1) || std::isnan(rpi))
       report_->error(1040, "parasitic Pi model has NaNs.");
-    setCeffAlgorithm(drvr_library, drvr_cell, pinPvt(drvr_pin, scene, min_max),
+    const Pvt *pvt = pinPvt(drvr_pin, scene, min_max);
+    setCeffAlgorithm(drvr_library, drvr_cell, pvt,
                      table_model, rf, in_slew1, c2, rpi, c1);
     double gate_delay, drvr_slew;
     gateDelaySlew(gate_delay, drvr_slew);
+
+    // Fill in pocv parameters.
+    double ceff = dmp_alg_->ceff();
+    ArcDelay gate_delay2(gate_delay);
+    Slew drvr_slew2(drvr_slew);
+    if (variables_->pocvEnabled())
+      table_model->gateDelayPocv(pvt, in_slew1, ceff, min_max,
+                                 variables_->pocvMode(),
+                                 gate_delay2, drvr_slew2);
     ArcDcalcResult dcalc_result(load_pin_index_map.size());
-    dcalc_result.setGateDelay(gate_delay);
-    dcalc_result.setDrvrSlew(drvr_slew);
+    dcalc_result.setGateDelay(gate_delay2);
+    dcalc_result.setDrvrSlew(drvr_slew2);
 
     for (const auto &[load_pin, load_idx] : load_pin_index_map) {
-      ArcDelay wire_delay;
-      Slew load_slew;
+      double wire_delay;
+      double load_slew;
       loadDelaySlew(load_pin, drvr_slew, rf, drvr_library, parasitic,
                     wire_delay, load_slew);
-      dcalc_result.setWireDelay(load_idx, wire_delay);
-      dcalc_result.setLoadSlew(load_idx, load_slew);
+      // Copy pocv params from driver.
+      ArcDelay wire_delay2(gate_delay2);
+      Slew load_slew2(drvr_slew2);
+      delaySetMean(wire_delay2, wire_delay);
+      delaySetMean(load_slew2, load_slew);
+      dcalc_result.setWireDelay(load_idx, wire_delay2);
+      dcalc_result.setLoadSlew(load_idx, load_slew2);
     }
     return dcalc_result;
   }
@@ -1543,8 +1554,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 {
   double rd = 0.0;
   if (gate_model) {
-    rd = gateModelRd(drvr_cell, gate_model, rf, in_slew, c2, c1,
-                     pvt, variables_->pocvEnabled());
+    rd = gateModelRd(drvr_cell, gate_model, rf, in_slew, c2, c1, pvt);
     // Zero Rd means the table is constant and thus independent of load cap.
     if (rd < 1e-2
         // Rpi is small compared to Rd, which makes the load capacitive.
@@ -1612,14 +1622,12 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
   else
     c_eff = load_cap;
   if (model) {
-    const Unit *time_unit = units->timeUnit();
     float in_slew1 = delayAsFloat(in_slew);
     result += model->reportGateDelay(pinPvt(drvr_pin, scene, min_max),
-                                     in_slew1, c_eff,
-                                     variables_->pocvEnabled(), digits);
+                                     in_slew1, c_eff, min_max,
+                                     variables_->pocvMode(), digits);
     result += "Driver waveform slew = ";
-    float drvr_slew = delayAsFloat(dcalc_result.drvrSlew());
-    result += time_unit->asString(drvr_slew, digits);
+    result += delayAsString(dcalc_result.drvrSlew(), min_max, digits, this);
     result += '\n';
   }
   return result;
@@ -1632,18 +1640,15 @@ gateModelRd(const LibertyCell *cell,
             double in_slew,
             double c2,
             double c1,
-            const Pvt *pvt,
-            bool pocv_enabled)
+            const Pvt *pvt)
 {
   float cap1 = c1 + c2;
   float cap2 = cap1 + 1e-15;
-  ArcDelay d1, d2;
-  Slew s1, s2;
-  gate_model->gateDelay(pvt, in_slew, cap1, pocv_enabled, d1, s1);
-  gate_model->gateDelay(pvt, in_slew, cap2, pocv_enabled, d2, s2);
+  float d1, d2, s1, s2;
+  gate_model->gateDelay(pvt, in_slew, cap1, d1, s1);
+  gate_model->gateDelay(pvt, in_slew, cap2, d2, s2);
   double vth = cell->libertyLibrary()->outputThreshold(rf);
-  float rd = -std::log(vth) * std::abs(delayAsFloat(d1) - delayAsFloat(d2))
-    / (cap2 - cap1);
+  float rd = -std::log(vth) * std::abs(d1 - d2) / (cap2 - cap1);
   return rd;
 }
 
@@ -1658,8 +1663,8 @@ DmpCeffDelayCalc::gateDelaySlew(// Return values.
 void
 DmpCeffDelayCalc::loadDelaySlewElmore(const Pin *load_pin,
                                       double elmore,
-                                      ArcDelay &delay,
-                                      Slew &slew)
+                                      double &delay,
+                                      double &slew)
 {
   if (dmp_alg_)
     dmp_alg_->loadDelaySlew(load_pin, elmore, delay, slew);

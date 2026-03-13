@@ -75,7 +75,7 @@ Path::Path(Vertex *vertex,
 
 Path::Path(Vertex *vertex,
            Tag *tag,
-           Arrival arrival,
+           const Arrival &arrival,
            Path *prev_path,
            Edge *prev_edge,
            TimingArc *prev_arc,
@@ -99,7 +99,7 @@ Path::Path(Vertex *vertex,
 
 Path::Path(Vertex *vertex,
            Tag *tag,
-           Arrival arrival,
+           const Arrival &arrival,
            Path *prev_path,
            Edge *prev_edge,
            TimingArc *prev_arc,
@@ -124,7 +124,7 @@ Path::Path(Vertex *vertex,
 
 void
 Path::init(Vertex *vertex,
-           Arrival arrival,
+           const Arrival &arrival,
            const StaState *sta)
 {
   const Graph *graph = sta->graph();
@@ -155,7 +155,7 @@ Path::init(Vertex *vertex,
 void
 Path::init(Vertex *vertex,
            Tag *tag,
-           Arrival arrival,
+           const Arrival &arrival,
            const StaState *sta)
 {
   const Graph *graph = sta->graph();
@@ -171,7 +171,7 @@ Path::init(Vertex *vertex,
 void
 Path::init(Vertex *vertex,
            Tag *tag,
-           Arrival arrival,
+           const Arrival &arrival,
            Path *prev_path,
            Edge *prev_edge,
            TimingArc *prev_arc,
@@ -330,7 +330,7 @@ Path::pathAnalysisPtIndex(const StaState *sta) const
   return scene(sta)->pathIndex(minMax(sta));
 }
 
-Slew
+const Slew &
 Path::slew(const StaState *sta) const
 {
   DcalcAPIndex slew_index = scene(sta)->dcalcAnalysisPtIndex(minMax(sta));
@@ -365,9 +365,9 @@ Slack
 Path::slack(const StaState *sta) const
 {
   if (minMax(sta) == MinMax::max())
-    return required_ - arrival_;
+    return delayDiff(required_, arrival_, sta);
   else
-    return arrival_ - required_;
+    return delayDiff(arrival_, required_, sta);
 }
 
 Path *

@@ -511,9 +511,11 @@ PathEnumFaninVisitor::reportDiversion(const Edge *div_edge,
     Arrival path_delay = path_enum_->cmp_slack_
       ? path_end_->slack(this)
       : path_end_->dataArrivalTime(this);
-    Arrival div_delay = path_delay - path_enum_->divSlack(before_div_,
-                                                          after_div, div_edge,
-                                                          div_arc);
+    Arrival div_delay = delayDiff(path_delay,
+                                  path_enum_->divSlack(before_div_,
+                                                       after_div, div_edge,
+                                                       div_arc),
+                                  this);
     Path *div_prev = before_div_->prevPath();
     report_->reportLine("path_enum: diversion %s %s %s -> %s",
                         path->to_string(this).c_str(),
@@ -580,7 +582,7 @@ PathEnum::divSlack(Path *before_div,
       Tag *q_tag;
       latches_->latchOutArrival(after_div, div_arc, div_edge,
                                 q_tag, div_delay, div_arrival);
-      return div_arrival - before_div_arrival;
+      return delayDiff(div_arrival, before_div_arrival, this);
     }
     else {
       DcalcAPIndex dcalc_ap = before_div->dcalcAnalysisPtIndex(this);
@@ -589,8 +591,8 @@ PathEnum::divSlack(Path *before_div,
                                                  false, before_div->minMax(this),
                                                  dcalc_ap,
                                                  before_div->sdc(this));
-      Arrival div_arrival = search_->clkPathArrival(after_div) + div_delay;
-      return div_arrival - before_div_arrival;
+      Arrival div_arrival = delaySum(search_->clkPathArrival(after_div), div_delay, this);
+      return delayDiff(div_arrival, before_div_arrival, this);
     }
   }
   else {
@@ -719,7 +721,7 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
                                                    path->minMax(this),
                                                    path->dcalcAnalysisPtIndex(this),
                                                    path->sdc(this));
-        arrival = prev_arrival + arc_delay;
+        arrival = delaySum(prev_arrival, arc_delay, this);
         path->setArrival(arrival);
         const Tag *tag = path->tag(this);
         const ClkInfo *clk_info = tag->clkInfo();

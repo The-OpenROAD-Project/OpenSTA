@@ -484,7 +484,7 @@ WriteSpice::slewAxisMinValue(const TimingArc *arc)
 {
   GateTableModel *gate_model = arc->gateTableModel(scene_, min_max_);
   if (gate_model) {
-    const TableModel *model = gate_model->delayModel();
+    const TableModel *model = gate_model->delayModels()->model();
     const TableAxis *axis1 = model->axis1();
     TableAxisVariable var1 = axis1->variable();
     if (var1 == TableAxisVariable::input_transition_time
