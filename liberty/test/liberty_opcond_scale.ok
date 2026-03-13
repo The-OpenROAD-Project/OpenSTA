@@ -1,0 +1,21 @@
+Warning 441: liberty_opcond_scale.tcl line 1, set_input_delay relative to a clock defined on the same port/pin not allowed.
+No paths found.
+INFO: wireload selection not found
+No paths found.
+No paths found.
+max slew
+
+Pin inv1/ZN ^
+max slew    0.15
+slew        0.02
+----------------
+Slack       0.13 (MET)
+
+max capacitance
+
+Pin nor1/ZN ^
+max capacitance   26.70
+capacitance        1.16
+-----------------------
+Slack             25.55 (MET)
+

@@ -1,0 +1,93 @@
+module verilog_complex_bus_test (clk,
+    data_a,
+    data_b,
+    result,
+    carry,
+    overflow);
+ input clk;
+ input [7:0] data_a;
+ input [7:0] data_b;
+ output [7:0] result;
+ output carry;
+ output overflow;
+
+ wire internal_carry;
+ wire internal_overflow;
+ wire [7:0] stage1;
+ wire [7:0] stage2;
+
+ AND2_X1 and0 (.A1(stage1[0]),
+    .A2(data_b[0]),
+    .ZN(stage2[0]));
+ AND2_X1 and1 (.A1(stage1[1]),
+    .A2(data_b[1]),
+    .ZN(stage2[1]));
+ AND2_X1 and2 (.A1(stage1[2]),
+    .A2(data_b[2]),
+    .ZN(stage2[2]));
+ AND2_X1 and3 (.A1(stage1[3]),
+    .A2(data_b[3]),
+    .ZN(stage2[3]));
+ AND2_X1 and4 (.A1(stage1[4]),
+    .A2(data_b[4]),
+    .ZN(stage2[4]));
+ AND2_X1 and5 (.A1(stage1[5]),
+    .A2(data_b[5]),
+    .ZN(stage2[5]));
+ AND2_X1 and6 (.A1(stage1[6]),
+    .A2(data_b[6]),
+    .ZN(stage2[6]));
+ AND2_X1 and7 (.A1(stage1[7]),
+    .A2(data_b[7]),
+    .ZN(stage2[7]));
+ AND2_X1 and_ovfl (.A1(stage2[7]),
+    .A2(stage2[6]),
+    .ZN(internal_overflow));
+ BUF_X1 buf_a0 (.A(data_a[0]),
+    .Z(stage1[0]));
+ BUF_X1 buf_a1 (.A(data_a[1]),
+    .Z(stage1[1]));
+ BUF_X1 buf_a2 (.A(data_a[2]),
+    .Z(stage1[2]));
+ BUF_X1 buf_a3 (.A(data_a[3]),
+    .Z(stage1[3]));
+ BUF_X1 buf_a4 (.A(data_a[4]),
+    .Z(stage1[4]));
+ BUF_X1 buf_a5 (.A(data_a[5]),
+    .Z(stage1[5]));
+ BUF_X1 buf_a6 (.A(data_a[6]),
+    .Z(stage1[6]));
+ BUF_X1 buf_a7 (.A(data_a[7]),
+    .Z(stage1[7]));
+ BUF_X1 buf_carry (.A(internal_carry),
+    .Z(carry));
+ BUF_X1 buf_ovfl (.A(internal_overflow),
+    .Z(overflow));
+ OR2_X1 or_carry (.A1(stage2[7]),
+    .A2(stage2[6]),
+    .ZN(internal_carry));
+ DFF_X1 reg0 (.D(stage2[0]),
+    .CK(clk),
+    .Q(result[0]));
+ DFF_X1 reg1 (.D(stage2[1]),
+    .CK(clk),
+    .Q(result[1]));
+ DFF_X1 reg2 (.D(stage2[2]),
+    .CK(clk),
+    .Q(result[2]));
+ DFF_X1 reg3 (.D(stage2[3]),
+    .CK(clk),
+    .Q(result[3]));
+ DFF_X1 reg4 (.D(stage2[4]),
+    .CK(clk),
+    .Q(result[4]));
+ DFF_X1 reg5 (.D(stage2[5]),
+    .CK(clk),
+    .Q(result[5]));
+ DFF_X1 reg6 (.D(stage2[6]),
+    .CK(clk),
+    .Q(result[6]));
+ DFF_X1 reg7 (.D(stage2[7]),
+    .CK(clk),
+    .Q(result[7]));
+endmodule

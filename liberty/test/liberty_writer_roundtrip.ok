@@ -1,0 +1,194 @@
+Differences found at line 107.
+	cell_rise(Timing_7_7) {
+        cell_rise(Timing_7_7) {
+Differences found at line 118.
+	cell_rise(del_1_7_7) {
+        cell_rise(del_1_7_7) {
+INV_X1: 1 arc sets
+  rise->fall
+  fall->rise
+BUF_X1: 1 arc sets
+  rise->rise
+  fall->fall
+NAND2_X1: 2 arc sets
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+NOR2_X1: 2 arc sets
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+AND2_X1: 2 arc sets
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+OR2_X1: 2 arc sets
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+XOR2_X1: 4 arc sets
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+XNOR2_X1: 4 arc sets
+  rise->fall
+  fall->rise
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+  rise->rise
+  fall->fall
+AOI21_X1: 5 arc sets
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+OAI21_X1: 5 arc sets
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+MUX2_X1: 6 arc sets
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+FA_X1: 18 arc sets
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+  rise->fall
+  fall->rise
+  rise->rise
+  fall->fall
+HA_X1: 6 arc sets
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+  rise->rise
+  fall->fall
+  rise->fall
+  fall->rise
+DFF_X1: 5 arc sets
+DFF_X2: 5 arc sets
+DFFR_X1: 16 arc sets
+DFFS_X1: 16 arc sets
+DFFRS_X1: 35 arc sets
+TINV_X1: 3 arc sets
+  role=tristate disable
+  role=tristate enable
+  role=combinational
+TBUF_X1: 3 arc sets
+  role=combinational
+  role=tristate disable
+  role=tristate enable
+TBUF_X2: 3 arc sets
+  role=combinational
+  role=tristate disable
+  role=tristate enable
+SDFF_X1: 9 arc sets
+SDFFR_X1: 44 arc sets
+SDFFS_X1: 44 arc sets
+SDFFRS_X1: 111 arc sets
+CLKGATETST_X1: 9 arc sets
+  role=width
+  role=hold
+  role=setup
+  role=hold
+  role=setup
+  role=combinational
+  role=combinational
+  role=combinational
+  role=combinational
+CLKGATETST_X2: 9 arc sets
+  role=width
+  role=hold
+  role=setup
+  role=hold
+  role=setup
+  role=combinational
+  role=combinational
+  role=combinational
+  role=combinational
+CLKGATETST_X4: 9 arc sets
+  role=width
+  role=hold
+  role=setup
+  role=hold
+  role=setup
+  role=combinational
+  role=combinational
+  role=combinational
+  role=combinational
+TLAT_X1: 7 arc sets
+  role=hold
+  role=setup
+  role=width
+  role=Latch D to Q
+  role=Latch En to Q
+  role=tristate disable
+  role=tristate enable

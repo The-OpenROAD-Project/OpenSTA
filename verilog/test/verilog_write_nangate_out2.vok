@@ -1,0 +1,25 @@
+module verilog_test1 (clk,
+    in1,
+    out1);
+ input clk;
+ input in1;
+ output out1;
+
+ wire n1;
+ wire wire_a;
+ wire wire_b;
+ wire wire_c;
+ wire wire_d;
+ wire wire_e;
+
+ BUF_X1 buf1 (.A(in1),
+    .Z(n1));
+ BUF_X4 buf_x4 (.A(wire_e));
+ NAND2_X1 nand1 (.A1(wire_a),
+    .A2(wire_b));
+ NOR2_X1 nor1 (.A1(wire_c),
+    .A2(wire_d));
+ DFF_X1 reg1 (.D(n1),
+    .CK(clk),
+    .Q(out1));
+endmodule

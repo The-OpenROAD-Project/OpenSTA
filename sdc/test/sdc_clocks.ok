@@ -1,0 +1,22 @@
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     20.00        0.00     10.00
+vclk                      5.00        0.00      2.50
+clk1_fast                 5.00        0.00      2.50
+Warning 1061: generated clock gen_clk_div2 pin clk1 is in the fanout of multiple clocks.
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     20.00        0.00     10.00
+vclk                      5.00        0.00      2.50
+clk1_fast                 5.00        0.00      2.50
+gen_clk_div2             10.00        0.00      5.00 (generated)
+gen_clk_mul3              6.67        0.00      3.33 (generated)
+Warning 415: sdc_clocks.tcl line 1, set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock.
+No paths found.
+Clock                   Period          Waveform
+----------------------------------------------------
+clk1                     10.00        0.00      5.00
+clk2                     20.00        0.00     10.00
+clk1_fast                 5.00        0.00      2.50

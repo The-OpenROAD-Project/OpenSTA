@@ -1,0 +1,154 @@
+*SPEF "IEEE 1481-1998"
+*DESIGN "top"
+*DATE "Thu Feb 12 10:00:00 2026"
+*VENDOR "OpenSTA Test"
+*PROGRAM "OpenSTA"
+*VERSION "1.0"
+*DESIGN_FLOW "MISSING_NETS"
+*DIVIDER /
+*DELIMITER :
+*BUS_DELIMITER [ ]
+*T_UNIT 1.0 PS
+*C_UNIT 1.0 FF
+*R_UNIT 1.0 KOHM
+*L_UNIT 1.0 UH
+
+*NAME_MAP
+*1 in1
+*2 in2
+*3 clk1
+*4 clk2
+*5 clk3
+*6 out
+*7 r1q
+*8 r2q
+*9 u1z
+*10 u2z
+
+*POWER_NETS VDD
+*GROUND_NETS VSS
+
+*PORTS
+*1 I
+*2 I
+*3 I
+*4 I
+*5 I
+*6 O
+
+*D_NET *1 20.0
+*CONN
+*P *1 I
+*I r1:D I *L .0036
+*CAP
+1 *1 4.0
+2 r1:D 4.0
+3 *1 *7 2.0
+*RES
+4 *1 r1:D 3.0
+*END
+
+*D_NET *2 20.0
+*CONN
+*P *2 I
+*I r2:D I *L .0036
+*CAP
+1 *2 4.0
+2 r2:D 4.0
+3 *2 *8 2.0
+*RES
+4 *2 r2:D 3.0
+*END
+
+*D_NET *3 15.0
+*CONN
+*P *3 I
+*I r1:CLK I *L .0036
+*CAP
+1 *3 6.0
+2 r1:CLK 6.0
+*RES
+3 *3 r1:CLK 2.5
+*END
+
+*D_NET *4 15.0
+*CONN
+*P *4 I
+*I r2:CLK I *L .0036
+*CAP
+1 *4 6.0
+2 r2:CLK 6.0
+*RES
+3 *4 r2:CLK 2.5
+*END
+
+*D_NET *5 15.0
+*CONN
+*P *5 I
+*I r3:CLK I *L .0036
+*CAP
+1 *5 6.0
+2 r3:CLK 6.0
+*RES
+3 *5 r3:CLK 2.5
+*END
+
+*D_NET *7 25.0
+*CONN
+*I r1:Q O
+*I u2:A I *L .0086
+*CAP
+1 r1:Q 5.0
+2 u2:A 5.0
+3 r1:Q *9 3.0
+4 u2:A *8 2.0
+*RES
+5 r1:Q u2:A 2.0
+*END
+
+*D_NET *8 25.0
+*CONN
+*I r2:Q O
+*I u1:A I *L .0086
+*CAP
+1 r2:Q 5.0
+2 u1:A 5.0
+3 r2:Q *7 3.0
+*RES
+4 r2:Q u1:A 2.0
+*END
+
+*D_NET *9 20.0
+*CONN
+*I u1:Y O
+*I u2:B I *L .0086
+*CAP
+1 u1:Y 5.0
+2 u2:B 5.0
+3 u1:Y *10 2.5
+*RES
+4 u1:Y u2:B 2.5
+*END
+
+*D_NET *10 20.0
+*CONN
+*I u2:Y O
+*I r3:D I *L .0086
+*CAP
+1 u2:Y 5.0
+2 r3:D 5.0
+3 u2:Y *9 2.5
+*RES
+4 u2:Y r3:D 2.5
+*END
+
+*D_NET *6 15.0
+*CONN
+*I r3:Q O
+*P *6 O
+*CAP
+1 r3:Q 6.0
+2 *6 6.0
+*RES
+3 r3:Q *6 2.5
+*END

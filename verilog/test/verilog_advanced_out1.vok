@@ -1,0 +1,33 @@
+module top (in1,
+    in2,
+    clk1,
+    clk2,
+    clk3,
+    out);
+ input in1;
+ input in2;
+ input clk1;
+ input clk2;
+ input clk3;
+ output out;
+
+ wire r1q;
+ wire r2q;
+ wire u1z;
+ wire u2z;
+
+ DFFHQx4_ASAP7_75t_R r1 (.Q(r1q),
+    .CLK(clk1),
+    .D(in1));
+ DFFHQx4_ASAP7_75t_R r2 (.Q(r2q),
+    .CLK(clk2),
+    .D(in2));
+ DFFHQx4_ASAP7_75t_R r3 (.Q(out),
+    .CLK(clk3),
+    .D(u2z));
+ BUFx2_ASAP7_75t_R u1 (.Y(u1z),
+    .A(r2q));
+ AND2x2_ASAP7_75t_R u2 (.Y(u2z),
+    .A(r1q),
+    .B(u1z));
+endmodule

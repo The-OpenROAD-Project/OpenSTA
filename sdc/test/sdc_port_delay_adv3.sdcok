@@ -1,0 +1,90 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.00000000 [get_ports {clk1}]
+create_clock -name clk2 -period 20.00000000 [get_ports {clk2}]
+create_clock -name vclk -period 8.00000000 
+set_clock_latency -source -early -rise 0.25000000 [get_clocks {clk1}]
+set_clock_latency -source -early -fall 0.19999999 [get_clocks {clk1}]
+set_clock_latency -source -late -rise 0.55000001 [get_clocks {clk1}]
+set_clock_latency -source -late -fall 0.44999999 [get_clocks {clk1}]
+set_clock_latency -source -early 0.19999999 [get_clocks {clk2}]
+set_clock_latency -source -late 0.39999998 [get_clocks {clk2}]
+set_input_delay 2.00000000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
+set_input_delay 1.20000005 -clock [get_clocks {clk1}] -rise -min -add_delay [get_ports {in2}]
+set_input_delay 2.50000000 -clock [get_clocks {clk1}] -rise -max -add_delay [get_ports {in2}]
+set_input_delay 1.00000000 -clock [get_clocks {clk1}] -fall -min -add_delay [get_ports {in2}]
+set_input_delay 2.29999995 -clock [get_clocks {clk1}] -fall -max -add_delay [get_ports {in2}]
+set_input_delay 1.50000000 -clock [get_clocks {clk1}] -clock_fall -rise -min -add_delay [get_ports {in3}]
+set_input_delay 2.80000019 -clock [get_clocks {clk1}] -clock_fall -rise -max -add_delay [get_ports {in3}]
+set_input_delay 0.79999995 -clock [get_clocks {clk1}] -clock_fall -fall -min -add_delay [get_ports {in3}]
+set_input_delay 1.50000000 -clock [get_clocks {clk1}] -clock_fall -fall -max -add_delay [get_ports {in3}]
+set_input_delay 1.79999995 -clock [get_clocks {clk2}] -add_delay [get_ports {in3}]
+set_output_delay 3.00000000 -clock [get_clocks {clk1}] -add_delay [get_ports {out1}]
+set_output_delay 2.50000000 -clock [get_clocks {clk1}] -clock_fall -add_delay [get_ports {out1}]
+set_output_delay 1.50000000 -clock [get_clocks {clk2}] -rise -min -add_delay [get_ports {out2}]
+set_output_delay 3.50000000 -clock [get_clocks {clk2}] -rise -max -add_delay [get_ports {out2}]
+set_output_delay 1.20000005 -clock [get_clocks {clk2}] -fall -min -add_delay [get_ports {out2}]
+set_output_delay 3.19999981 -clock [get_clocks {clk2}] -fall -max -add_delay [get_ports {out2}]
+set_disable_timing -from {A} -to {Z} [get_lib_cells {NangateOpenCellLibrary/BUF_X1}]
+set_disable_timing [get_lib_cells {NangateOpenCellLibrary/NAND2_X1}]
+set_disable_timing [get_cells {buf1}]
+set_disable_timing [get_pins {inv1/A}]
+set_data_check -from [get_pins {reg1/Q}] -to [get_pins {reg2/D}] -hold 0.30000001
+set_data_check -from [get_pins {reg1/Q}] -to [get_pins {reg2/D}] -setup 0.50000000
+###############################################################################
+# Environment
+###############################################################################
+set_operating_conditions typical
+set_wire_load_mode "enclosed"
+set_load -pin_load -min 0.01000000 [get_ports {out1}]
+set_load -pin_load -max 0.06000000 [get_ports {out1}]
+set_load -wire_load 0.02000000 [get_ports {out1}]
+set_port_fanout_number 4 [get_ports {out1}]
+set_load -pin_load 0.03000000 [get_ports {out2}]
+set_port_fanout_number 8 [get_ports {out2}]
+set_drive -rise 100.00000000 [get_ports {in1}]
+set_drive -fall 100.00000000 [get_ports {in1}]
+set_drive -rise 80.00000000 [get_ports {in2}]
+set_drive -fall 120.00000000 [get_ports {in2}]
+set_driving_cell -lib_cell BUF_X1 -pin {Z} -input_transition_rise 0.00000000 -input_transition_fall 0.00000000 [get_ports {in1}]
+set_driving_cell -lib_cell INV_X1 -pin {ZN} -input_transition_rise 0.00000000 -input_transition_fall 0.00000000 [get_ports {in2}]
+set_driving_cell -rise -lib_cell BUF_X4 -pin {Z} -input_transition_rise 0.00000000 -input_transition_fall 0.00000000 [get_ports {in3}]
+set_driving_cell -fall -lib_cell BUF_X2 -pin {Z} -input_transition_rise 0.00000000 -input_transition_fall 0.00000000 [get_ports {in3}]
+set_input_transition 0.15000001 [get_ports {in1}]
+set_input_transition -rise -max 0.12000000 [get_ports {in2}]
+set_input_transition -fall -min 0.08000001 [get_ports {in2}]
+set_input_transition -rise -min 0.06000000 [get_ports {in3}]
+set_input_transition -fall -max 0.18000001 [get_ports {in3}]
+set_resistance 10.00000000 -min [get_nets {n1}]
+set_resistance 20.00000000 -max [get_nets {n1}]
+set_logic_zero [get_ports {in1}]
+set_logic_one [get_ports {in2}]
+set_case_analysis 0 [get_ports {in3}]
+set_timing_derate -cell_delay -early 0.93000001
+set_timing_derate -net_delay -early 0.92000002
+set_timing_derate -cell_delay -late 1.07000005
+set_timing_derate -net_delay -late 1.08000004
+set_timing_derate -cell_delay -early 0.89999998 [get_cells {buf1}]
+set_timing_derate -cell_delay -late 1.10000002 [get_cells {buf1}]
+set_timing_derate -cell_delay -early 0.88999999 [get_cells {inv1}]
+set_timing_derate -cell_delay -late 1.11000001 [get_cells {inv1}]
+set_timing_derate -cell_delay -early 0.91000003 [get_lib_cells {NangateOpenCellLibrary/INV_X1}]
+set_timing_derate -cell_delay -late 1.09000003 [get_lib_cells {NangateOpenCellLibrary/INV_X1}]
+set_voltage -min 0.900 1.100
+###############################################################################
+# Design Rules
+###############################################################################
+set_min_pulse_width 0.79999995 [get_clocks {clk2}]
+set_min_pulse_width -high 0.60000002 [get_clocks {clk1}]
+set_min_pulse_width -low 0.39999998 [get_clocks {clk1}]
+set_max_time_borrow 1.50000000 [get_pins {reg1/D}]
+set_max_time_borrow 2.00000000 [get_clocks {clk1}]
+set_max_transition 0.50000000 [current_design]
+set_max_capacitance 0.20000000 [current_design]
+set_max_fanout 20.00000000 [current_design]
+set_max_area 100.00000000

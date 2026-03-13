@@ -53,4 +53,4 @@ in2
 [get_ports -filter direction==output *]
 out
 [get_cells -filter {name ~= *r1*} *]
-Error 336: get_filter.tcl line 48, unknown filter operand.
+Error 336: get_filter.tcl line 1, unknown filter operand.

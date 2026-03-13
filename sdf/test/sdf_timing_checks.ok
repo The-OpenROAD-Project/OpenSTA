@@ -1,0 +1,409 @@
+--- read_sdf with timing checks ---
+--- report_checks with SDF ---
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v d1 (in)
+   0.14    0.14 v buf1/Z (BUF_X1)
+   0.16    0.30 v and1/ZN (AND2_X1)
+   0.13    0.43 v or1/ZN (OR2_X1)
+   0.13    0.56 ^ nand1/ZN (NAND2_X1)
+   0.13    0.69 v nor1/ZN (NOR2_X1)
+   0.03    0.72 v reg3/D (DFF_X1)
+           0.72   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg3/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.72   data arrival time
+---------------------------------------------------------
+           9.25   slack (MET)
+
+
+Startpoint: en (input port clocked by clk)
+Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ en (in)
+   0.02    0.02 v nand1/ZN (NAND2_X1)
+   0.01    0.03 v reg2/D (DFF_X1)
+           0.03   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg2/CK (DFF_X1)
+   0.05    0.05   library hold time
+           0.05   data required time
+---------------------------------------------------------
+           0.05   data required time
+          -0.03   data arrival time
+---------------------------------------------------------
+          -0.02   slack (VIOLATED)
+
+
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v d1 (in)
+   0.14    0.14 v buf1/Z (BUF_X1)
+   0.16    0.30 v and1/ZN (AND2_X1)
+   0.13    0.43 v or1/ZN (OR2_X1)
+   0.13    0.56 ^ nand1/ZN (NAND2_X1)
+   0.13    0.69 v nor1/ZN (NOR2_X1)
+   0.03    0.72 v reg3/D (DFF_X1)
+           0.72   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg3/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.72   data arrival time
+---------------------------------------------------------
+           9.25   slack (MET)
+
+
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v d1 (in)
+   0.14    0.14 v buf1/Z (BUF_X1)
+   0.16    0.30 v and1/ZN (AND2_X1)
+   0.13    0.43 v or1/ZN (OR2_X1)
+   0.13    0.56 ^ nand1/ZN (NAND2_X1)
+   0.13    0.69 v nor1/ZN (NOR2_X1)
+   0.03    0.72 v reg3/D (DFF_X1)
+           0.72   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg3/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.72   data arrival time
+---------------------------------------------------------
+           9.25   slack (MET)
+
+
+No paths found.
+No paths found.
+No paths found.
+No paths found.
+No paths found.
+No paths found.
+No paths found.
+--- report_annotated_delay ---
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            17          17           0
+internal net arcs                    11          11           0
+net arcs from primary inputs          6           0           6
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                     37          28           9
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            17          17           0
+----------------------------------------------------------------
+                                     17          17           0
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+internal net arcs                    11          11           0
+----------------------------------------------------------------
+                                     11          11           0
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+net arcs from primary inputs          6           0           6
+----------------------------------------------------------------
+                                      6           0           6
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                      3           0           3
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            17          17           0
+internal net arcs                    11          11           0
+----------------------------------------------------------------
+                                     28          28           0
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            17          17           0
+internal net arcs                    11          11           0
+net arcs from primary inputs          6           0           6
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                     37          28           9
+
+Annotated Arcs
+ delay              and1/A1 -> and1/ZN 
+ delay              and1/A2 -> and1/ZN 
+ internal net       and1/ZN -> or1/A2 
+ delay              buf1/A -> buf1/Z 
+ internal net       buf1/Z -> inv1/A 
+ internal net       buf1/Z -> and1/A1 
+ delay              buf2/A -> buf2/Z 
+ internal net       buf2/Z -> and1/A2 
+ delay              inv1/A -> inv1/ZN 
+ internal net       inv1/ZN -> or1/A1 
+ internal net       inv1/ZN -> nor1/A1 
+ delay              nand1/A1 -> nand1/ZN 
+ delay              nand1/A2 -> nand1/ZN 
+ internal net       nand1/ZN -> nor1/A2 
+ internal net       nand1/ZN -> reg2/D 
+ delay              nor1/A1 -> nor1/ZN 
+ delay              nor1/A2 -> nor1/ZN 
+ internal net       nor1/ZN -> reg3/D 
+ delay              or1/A1 -> or1/ZN 
+ delay              or1/A2 -> or1/ZN 
+ internal net       or1/ZN -> nand1/A1 
+ internal net       or1/ZN -> reg1/D 
+ delay              reg1/CK -> reg1/QN 
+ delay              reg1/CK -> reg1/Q 
+ delay              reg2/CK -> reg2/QN 
+ delay              reg2/CK -> reg2/Q 
+ delay              reg3/CK -> reg3/QN 
+ delay              reg3/CK -> reg3/Q 
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            17          17           0
+internal net arcs                    11          11           0
+net arcs from primary inputs          6           0           6
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                     37          28           9
+
+Unannotated Arcs
+ primary input net  clk -> reg1/CK 
+ primary input net  clk -> reg2/CK 
+ primary input net  clk -> reg3/CK 
+ primary input net  d1 -> buf1/A 
+ primary input net  d2 -> buf2/A 
+ primary input net  en -> nand1/A2 
+ primary output net reg1/Q -> q1 
+ primary output net reg2/Q -> q2 
+ primary output net reg3/Q -> q3 
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            17          17           0
+constant arcs                                     0           0
+internal net arcs                    11          11           0
+constant arcs                                     0           0
+net arcs from primary inputs          6           0           6
+constant arcs                                     0           0
+net arcs to primary outputs           3           0           3
+constant arcs                                     0           0
+----------------------------------------------------------------
+                                     37          28           9
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                            17          17           0
+internal net arcs                    11          11           0
+net arcs from primary inputs          6           0           6
+net arcs to primary outputs           3           0           3
+----------------------------------------------------------------
+                                     37          28           9
+--- report_annotated_check ---
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+----------------------------------------------------------------
+                                      3           3           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell hold arcs                        3           3           0
+----------------------------------------------------------------
+                                      3           3           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      3           3           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+----------------------------------------------------------------
+                                      0           0           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+----------------------------------------------------------------
+                                      6           6           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+----------------------------------------------------------------
+                                      6           6           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      3           3           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      9           9           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      9           9           0
+
+Annotated Arcs
+ width              reg1/CK -> reg1/CK 
+ setup              reg1/CK -> reg1/D 
+ hold               reg1/CK -> reg1/D 
+ width              reg2/CK -> reg2/CK 
+ setup              reg2/CK -> reg2/D 
+ hold               reg2/CK -> reg2/D 
+ width              reg3/CK -> reg3/CK 
+ setup              reg3/CK -> reg3/D 
+ hold               reg3/CK -> reg3/D 
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      9           9           0
+
+Unannotated Arcs
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+constant arcs                                     0           0
+cell hold arcs                        3           3           0
+constant arcs                                     0           0
+cell width arcs                       3           3           0
+constant arcs                                     0           0
+----------------------------------------------------------------
+                                      9           9           0
+                                                          Not   
+Check type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell setup arcs                       3           3           0
+cell hold arcs                        3           3           0
+cell width arcs                       3           3           0
+----------------------------------------------------------------
+                                      9           9           0
+--- write_sdf ---
+--- re-read SDF ---
+Startpoint: d1 (input port clocked by clk)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v d1 (in)
+   0.14    0.14 v buf1/Z (BUF_X1)
+   0.16    0.30 v and1/ZN (AND2_X1)
+   0.13    0.43 v or1/ZN (OR2_X1)
+   0.13    0.56 ^ nand1/ZN (NAND2_X1)
+   0.13    0.69 v nor1/ZN (NOR2_X1)
+   0.03    0.72 v reg3/D (DFF_X1)
+           0.72   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+          10.00 ^ reg3/CK (DFF_X1)
+  -0.03    9.97   library setup time
+           9.97   data required time
+---------------------------------------------------------
+           9.97   data required time
+          -0.72   data arrival time
+---------------------------------------------------------
+           9.25   slack (MET)
+
+

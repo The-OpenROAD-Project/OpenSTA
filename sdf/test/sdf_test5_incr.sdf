@@ -1,0 +1,38 @@
+(DELAYFILE
+  (SDFVERSION "3.0")
+  (DESIGN "sdf_test5")
+  (DIVIDER /)
+  (TIMESCALE 1ns)
+  (CELL
+    (CELLTYPE "BUF_X1")
+    (INSTANCE buf1)
+    (DELAY
+      (INCREMENT
+        (IOPATH A Z (0.001:0.002:0.003) (0.001:0.002:0.003))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2_X1")
+    (INSTANCE and1)
+    (DELAY
+      (INCREMENT
+        (IOPATH A1 ZN (0.001:0.002:0.003) (0.001:0.002:0.003))
+        (DEVICE ZN (0.001:0.001:0.001) (0.001:0.001:0.001))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF_X1")
+    (INSTANCE reg1)
+    (DELAY
+      (INCREMENT
+        (IOPATH (posedge CK) Q (0.001:0.002:0.003) (0.001:0.002:0.003))
+      )
+    )
+    (TIMINGCHECK
+      (SETUP D (posedge CK) (0.001:0.001:0.001))
+      (HOLD D (posedge CK) (0.001:0.001:0.001))
+    )
+  )
+)

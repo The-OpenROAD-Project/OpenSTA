@@ -1,0 +1,160 @@
+Cell DFFHQNx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ QN output function=IQN
+ CLK input 0.40-0.52
+ D input 0.55-0.62
+ IQN internal
+ IQNN internal
+
+Timing arcs
+ CLK -> QN
+  Reg Clk to Q
+  ^ -> ^
+  ^ -> v
+ CLK -> CLK
+  width
+  when D
+  ^ -> v
+  v -> ^
+ CLK -> CLK
+  width
+  when !D
+  ^ -> v
+  v -> ^
+ CLK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+Cell DLLx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ Q output function=IQ
+ CLK input 0.41-0.53
+ D input 0.50-0.63
+ IQ internal
+ IQN internal
+
+Timing arcs
+ CLK -> Q
+  Latch En to Q
+  v -> ^
+  v -> v
+ D -> Q
+  Latch D to Q
+  ^ -> ^
+  v -> v
+ CLK -> CLK
+  width
+  when D
+  v -> ^
+ CLK -> CLK
+  width
+  when !D
+  v -> ^
+ CLK -> D
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> D
+  setup
+  ^ -> ^
+  ^ -> v
+Cell ICGx1_ASAP7_75t_R
+Library asap7sc7p5t_SEQ_RVT_FF_nldm_220123
+File ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
+ VDD power
+ VSS ground
+ IQ internal
+ GCLK output
+ CLK input 1.63-2.39
+ ENA input 0.33-0.47
+ SE input 0.39-0.47
+
+Timing arcs
+ CLK -> GCLK
+  combinational
+  when ENA+(!ENA*SE)
+  v -> v
+ CLK -> GCLK
+  combinational
+  when !ENA*!SE
+  v -> v
+ CLK -> GCLK
+  combinational
+  ^ -> ^
+  v -> v
+ CLK -> CLK
+  width
+  when ENA+(!ENA*SE)
+  ^ -> v
+  v -> ^
+ CLK -> CLK
+  width
+  when !ENA*!SE
+  v -> ^
+ CLK -> ENA
+  hold
+  when !SE
+  ^ -> ^
+  ^ -> v
+ CLK -> ENA
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> ENA
+  setup
+  when !SE
+  ^ -> ^
+  ^ -> v
+ CLK -> ENA
+  setup
+  ^ -> ^
+  ^ -> v
+ CLK -> SE
+  hold
+  when !ENA
+  ^ -> ^
+  ^ -> v
+ CLK -> SE
+  hold
+  ^ -> ^
+  ^ -> v
+ CLK -> SE
+  setup
+  when !ENA
+  ^ -> ^
+  ^ -> v
+ CLK -> SE
+  setup
+  ^ -> ^
+  ^ -> v
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13156, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13189, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13222, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13255, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13288, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13321, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13354, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14748, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14781, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 14814, timing group from output port.
+Warning 1171: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
