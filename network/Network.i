@@ -520,7 +520,7 @@ pin_location(const Pin *pin)
   network->location(pin, x, y, exists);
   // return x/y as tcl list
   if (exists)
-    return std::format("{} {}", x, y);
+    return sta::format("{} {}", x, y);
   else
     return "";
 }
