@@ -179,11 +179,11 @@ using InstDeratingFactorsMap = std::map<const Instance*, DeratingFactorsCell*>;
 using CellDeratingFactorsMap = std::map<const LibertyCell*, DeratingFactorsCell*>;
 using ClockGroupsSet = std::set<ClockGroups*>;
 using ClockGroupsClkMap = std::map<const Clock*, ClockGroupsSet*>;
-using ClockGroupsNameMap = std::map<const char*, ClockGroups*, CharPtrLess>;
+using ClockGroupsNameMap = std::map<std::string, ClockGroups*>;
 using ClockSenseMap = std::map<PinClockPair, ClockSense, PinClockPairLess>;
 using ClkHpinDisables = std::set<ClkHpinDisable*, ClkHpinDisableLess>;
 using GroupPathSet = std::set<GroupPath*, ExceptionPathLess>;
-using GroupPathMap = std::map<const char*, GroupPathSet*, CharPtrLess>;
+using GroupPathMap = std::map<std::string, GroupPathSet*>;
 using ClockPairSet = std::set<ClockPair, ClockPairLess>;
 using NetVoltageMap = std::map<const Net*, MinMaxFloatValues>;
 
@@ -499,7 +499,7 @@ public:
                               Clock *to_clk,
                               const RiseFallBoth *to_rf,
                               const SetupHoldAll *setup_hold);
-  ClockGroups *makeClockGroups(const char *name,
+  ClockGroups *makeClockGroups(const std::string &name,
                                bool logically_exclusive,
                                bool physically_exclusive,
                                bool asynchronous,
@@ -507,11 +507,13 @@ public:
                                const char *comment);
   void makeClockGroup(ClockGroups *clk_groups,
                       ClockSet *clks);
-  void removeClockGroups(const char *name);
-  // nullptr name removes all.
-  void removeClockGroupsLogicallyExclusive(const char *name);
-  void removeClockGroupsPhysicallyExclusive(const char *name);
-  void removeClockGroupsAsynchronous(const char *name);
+  void removeClockGroups(const std::string &name);
+  void removeClockGroupsLogicallyExclusive();
+  void removeClockGroupsLogicallyExclusive(const std::string &name);
+  void removeClockGroupsPhysicallyExclusive();
+  void removeClockGroupsPhysicallyExclusive(const std::string &name);
+  void removeClockGroupsAsynchronous();
+  void removeClockGroupsAsynchronous(const std::string &name);
   bool sameClockGroup(const Clock *clk1,
                       const Clock *clk2) const;
   // Clocks explicitly excluded by set_clock_group.
@@ -756,7 +758,7 @@ public:
                  ExceptionThruSeq *thrus,
                  ExceptionTo *to,
                  const MinMaxAll *min_max);
-  void makeGroupPath(const char *name,
+  void makeGroupPath(const std::string &name,
                      bool is_default,
                      ExceptionFrom *from,
                      ExceptionThruSeq *thrus,
@@ -1266,7 +1268,7 @@ protected:
   void makeClkGroupExclusions(ClockGroupSet *groups);
   void makeClkGroupSame(ClockGroup *group);
   void clearClkGroupExclusions();
-  char *makeClockGroupsName();
+  std::string makeClockGroupsName();
   void setClockSense(const Pin *pin,
                      const Clock *clk,
                      ClockSense sense);

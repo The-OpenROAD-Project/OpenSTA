@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 // "Performance Computation for Precharacterized CMOS Gates with RC Loads",
@@ -36,6 +36,7 @@
 #include <cmath>
 #include <functional>
 
+#include "Format.hh"
 #include "Report.hh"
 #include "Debug.hh"
 #include "Units.hh"
@@ -97,7 +98,7 @@ newtonRaphson(const int max_iter,
               const int n,
               const double x_tol,
               // eval(state) is called to fill fvec and fjac.
-              std::function<void ()> eval,
+              std::function<void()> eval,
               // Temporaries supplied by caller.
               double *fvec,
               double **fjac,
@@ -122,7 +123,8 @@ luDecomp(double **a,
 class DmpAlg : public StaState
 {
 public:
-  DmpAlg(int nr_order, StaState *sta);
+  DmpAlg(int nr_order,
+         StaState *sta);
   ~DmpAlg() override = default;
   virtual const char *name() = 0;
   // Set driver model and pi model parameters for delay calculation.
@@ -136,9 +138,9 @@ public:
                     double c2,
                     double rpi,
                     double c1);
-  virtual void gateDelaySlew(// Return values.
-                             double &delay,
-                             double &slew) = 0;
+  virtual void gateDelaySlew(  // Return values.
+      double &delay,
+      double &slew) = 0;
   virtual void loadDelaySlew(const Pin *load_pin,
                              double elmore,
                              // Return values.
@@ -188,9 +190,9 @@ protected:
   void showX();
   void showFvec();
   void showJacobian();
-  void findDriverDelaySlew(// Return values.
-                           double &delay,
-                           double &slew);
+  void findDriverDelaySlew(  // Return values.
+      double &delay,
+      double &slew);
   double findVoCrossing(double vth,
                         double lower_bound,
                         double upper_bound);
@@ -260,7 +262,7 @@ protected:
   double fjac_storage_[max_nr_order_ * max_nr_order_];
   double *fjac_[max_nr_order_];
   double scale_[max_nr_order_];
-  double p_[max_nr_order_ ];
+  double p_[max_nr_order_];
   int index_[max_nr_order_];
 
   // Driver slew used to check load delay.
@@ -274,7 +276,7 @@ protected:
 };
 
 DmpAlg::DmpAlg(int nr_order,
-               StaState *sta):
+               StaState *sta) :
   StaState(sta),
   c2_(0.0),
   rpi_(0.0),
@@ -328,14 +330,13 @@ DmpAlg::findDriverParams(double ceff)
   double t0 = t_vth + std::log(1.0 - vth_) * rd_ * ceff - vth_ * dt;
   x_[DmpParam::dt] = dt;
   x_[DmpParam::t0] = t0;
-  newtonRaphson(100, x_, nr_order_, driver_param_tol,
-                [this] () { evalDmpEqns(); },
-                fvec_, fjac_, index_, p_, scale_);
+  newtonRaphson(
+      100, x_, nr_order_, driver_param_tol, [this]() { evalDmpEqns(); }, fvec_,
+      fjac_, index_, p_, scale_);
   t0_ = x_[DmpParam::t0];
   dt_ = x_[DmpParam::dt];
-  debugPrint(debug_, "dmp_ceff", 3, "    t0 = %s dt = %s ceff = %s",
-             units_->timeUnit()->asString(t0_),
-             units_->timeUnit()->asString(dt_),
+  debugPrint(debug_, "dmp_ceff", 3, "    t0 = {} dt = {} ceff = {}",
+             units_->timeUnit()->asString(t0_), units_->timeUnit()->asString(dt_),
              units_->capacitanceUnit()->asString(x_[DmpParam::ceff]));
   if (debug_->check("dmp_ceff", 4))
     showVo();
@@ -409,8 +410,7 @@ DmpAlg::dy(double t,
   }
   else {
     dydt0 = -(y0dt(t1, cl) - y0dt(t1 - dt, cl)) / dt;
-    dyddt = -(y0(t1, cl) + y0(t1 - dt, cl)) / (dt * dt)
-      + y0dt(t1 - dt, cl) / dt;
+    dyddt = -(y0(t1, cl) + y0(t1 - dt, cl)) / (dt * dt) + y0dt(t1 - dt, cl) / dt;
     dydcl = (y0dcl(t1, cl) - y0dcl(t1 - dt, cl)) / dt;
   }
 }
@@ -433,14 +433,14 @@ void
 DmpAlg::showX()
 {
   for (int i = 0; i < nr_order_; i++)
-    report_->reportLine("%4s %12.3e", dmp_param_index_strings[i], x_[i]);
+    report_->report("{:4} {:12.3e}", dmp_param_index_strings[i], x_[i]);
 }
 
 void
 DmpAlg::showFvec()
 {
   for (int i = 0; i < nr_order_; i++)
-    report_->reportLine("%4s %12.3e", dmp_func_index_strings[i], fvec_[i]);
+    report_->report("{:4} {:12.3e}", dmp_func_index_strings[i], fvec_[i]);
 }
 
 void
@@ -448,21 +448,21 @@ DmpAlg::showJacobian()
 {
   std::string line = "    ";
   for (int j = 0; j < nr_order_; j++)
-    line += stdstrPrint("%12s", dmp_param_index_strings[j]);
-  report_->reportLineString(line);
+    line += sta::format("{:12}", dmp_param_index_strings[j]);
+  report_->reportLine(line);
   line.clear();
   for (int i = 0; i < nr_order_; i++) {
-    line += stdstrPrint("%4s ", dmp_func_index_strings[i]);
+    line += sta::format("{:4} ", dmp_func_index_strings[i]);
     for (int j = 0; j < nr_order_; j++)
-      line += stdstrPrint("%12.3e ", fjac_[i][j]);
-    report_->reportLineString(line);
+      line += sta::format("{:12.3e} ", fjac_[i][j]);
+    report_->reportLine(line);
   }
 }
 
 void
-DmpAlg::findDriverDelaySlew(// Return values.
-                            double &delay,
-                            double &slew)
+DmpAlg::findDriverDelaySlew(  // Return values.
+    double &delay,
+    double &slew)
 {
   double t_upper = voCrossingUpperBound();
   delay = findVoCrossing(vth_, t0_, t_upper);
@@ -478,17 +478,15 @@ DmpAlg::findVoCrossing(double vth,
                        double t_lower,
                        double t_upper)
 {
-  FindRootFunc vo_func = [&] (double t,
-                              double &y,
-                              double &dy) {
+  FindRootFunc vo_func = [&](double t, double &y, double &dy) {
     double vo, vo_dt;
     Vo(t, vo, vo_dt);
     y = vo - vth;
     dy = vo_dt;
   };
   bool fail;
-  double t_vth = findRoot(vo_func, t_lower, t_upper, vth_time_tol,
-                          find_root_max_iter, fail);
+  double t_vth =
+      findRoot(vo_func, t_lower, t_upper, vth_time_tol, find_root_max_iter, fail);
   if (fail)
     throw DmpError("find Vo crossing failed");
   return t_vth;
@@ -510,7 +508,7 @@ DmpAlg::Vo(double t,
     V0(t1, v0, dv0_dt);
 
     vo = v0 / dt_;
-    dvo_dt = dv0_dt / dt_;    
+    dvo_dt = dv0_dt / dt_;
   }
   else {
     double v0, dv0_dt;
@@ -527,12 +525,12 @@ DmpAlg::Vo(double t,
 void
 DmpAlg::showVo()
 {
-  report_->reportLine("  t    vo(t)");
+  report_->report("  t    vo(t)");
   double ub = voCrossingUpperBound();
   for (double t = t0_; t < t0_ + ub; t += dt_ / 10.0) {
     double vo, dvo_dt;
     Vo(t, vo, dvo_dt);
-    report_->reportLine(" %g %g", t, vo);
+    report_->report(" {:g} {:g}", t, vo);
   }
 }
 
@@ -581,8 +579,7 @@ DmpAlg::loadDelaySlew(const Pin *,
       }
       delay = delay1;
       slew = slew1;
-    }
-    catch (DmpError &error) {
+    } catch (DmpError &error) {
       fail(error.what());
       delay = elmore_;
       slew = drvr_slew_;
@@ -596,17 +593,15 @@ DmpAlg::findVlCrossing(double vth,
                        double t_lower,
                        double t_upper)
 {
-  FindRootFunc vl_func = [&] (double t,
-                              double &y,
-                              double &dy) {
+  FindRootFunc vl_func = [&](double t, double &y, double &dy) {
     double vl, vl_dt;
     Vl(t, vl, vl_dt);
     y = vl - vth;
     dy = vl_dt;
   };
   bool fail;
-  double t_vth = findRoot(vl_func, t_lower, t_upper, vth_time_tol,
-                          find_root_max_iter, fail);
+  double t_vth =
+      findRoot(vl_func, t_lower, t_upper, vth_time_tol, find_root_max_iter, fail);
   if (fail)
     throw DmpError("find Vl crossing failed");
   return t_vth;
@@ -650,12 +645,12 @@ DmpAlg::Vl(double t,
 void
 DmpAlg::showVl()
 {
-  report_->reportLine("  t    vl(t)");
+  report_->report("  t    vl(t)");
   double ub = vlCrossingUpperBound();
   for (double t = t0_; t < t0_ + ub * 2.0; t += ub / 10.0) {
     double vl, dvl_dt;
     Vl(t, vl, dvl_dt);
-    report_->reportLine(" %g %g", t, vl);
+    report_->report(" {:g} {:g}", t, vl);
   }
 }
 
@@ -664,12 +659,11 @@ DmpAlg::fail(const char *reason)
 {
   // Report failures with a unique debug flag.
   if (debug_->check("dmp_ceff", 1) || debug_->check("dcalc_error", 1))
-    report_->reportLine("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s rd=%s",
-                        reason,
-                        units_->capacitanceUnit()->asString(c2_),
-                        units_->resistanceUnit()->asString(rpi_),
-                        units_->capacitanceUnit()->asString(c1_),
-                        units_->resistanceUnit()->asString(rd_));
+    report_->report("delay_calc: DMP failed - {} c2={} rpi={} c1={} rd={}", reason,
+                    units_->capacitanceUnit()->asString(c2_),
+                    units_->resistanceUnit()->asString(rpi_),
+                    units_->capacitanceUnit()->asString(c1_),
+                    units_->resistanceUnit()->asString(rd_));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -690,9 +684,9 @@ public:
             double c2,
             double rpi,
             double c1) override;
-  void gateDelaySlew(// Return values.
-                     double &delay,
-                     double &slew) override;
+  void gateDelaySlew(  // Return values.
+      double &delay,
+      double &slew) override;
   void loadDelaySlew(const Pin *,
                      double elmore,
                      // Return values.
@@ -712,8 +706,9 @@ private:
            double &dvl_dt) override;
 };
 
-DmpCap::DmpCap(StaState *sta):
-  DmpAlg(1, sta)
+DmpCap::DmpCap(StaState *sta) :
+  DmpAlg(1,
+         sta)
 {
 }
 
@@ -730,17 +725,17 @@ DmpCap::init(const LibertyLibrary *drvr_library,
              double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP cap");
-  DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf,
-               rd, in_slew, c2, rpi, c1);
+  DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd, in_slew, c2, rpi,
+               c1);
   ceff_ = c1 + c2;
 }
 
 void
-DmpCap::gateDelaySlew(// Return values.
-                      double &delay,
-                      double &slew)
+DmpCap::gateDelaySlew(  // Return values.
+    double &delay,
+    double &slew)
 {
-  debugPrint(debug_, "dmp_ceff", 3, "    ceff = %s",
+  debugPrint(debug_, "dmp_ceff", 3, "    ceff = {}",
              units_->capacitanceUnit()->asString(ceff_));
   gateCapDelaySlew(ceff_, delay, slew);
   drvr_slew_ = slew;
@@ -778,7 +773,7 @@ DmpCap::voCrossingUpperBound()
 }
 
 void
-DmpCap::Vl0(double ,
+DmpCap::Vl0(double,
             // Return values.
             double &vl,
             double &dvl_dt)
@@ -805,9 +800,9 @@ public:
             double c2,
             double rpi,
             double c1) override;
-  void gateDelaySlew(// Return values.
-                     double &delay,
-                     double &slew) override;
+  void gateDelaySlew(  // Return values.
+      double &delay,
+      double &slew) override;
   void evalDmpEqns() override;
   double voCrossingUpperBound() override;
 
@@ -843,7 +838,8 @@ private:
 };
 
 DmpPi::DmpPi(StaState *sta) :
-  DmpAlg(3, sta),
+  DmpAlg(3,
+         sta),
   p1_(0.0),
   p2_(0.0),
   z1_(0.0),
@@ -871,8 +867,8 @@ DmpPi::init(const LibertyLibrary *drvr_library,
             double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP Pi");
-  DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
-               in_slew, c2, rpi, c1);
+  DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd, in_slew, c2, rpi,
+               c1);
 
   // Find poles/zeros.
   z1_ = 1.0 / (rpi_ * c1_);
@@ -896,9 +892,9 @@ DmpPi::init(const LibertyLibrary *drvr_library,
 }
 
 void
-DmpPi::gateDelaySlew(// Return values.
-                     double &delay,
-                     double &slew)
+DmpPi::gateDelaySlew(  // Return values.
+    double &delay,
+    double &slew)
 {
   driver_valid_ = false;
   try {
@@ -907,23 +903,21 @@ DmpPi::gateDelaySlew(// Return values.
     double table_delay, table_slew;
     gateCapDelaySlew(ceff_, table_delay, table_slew);
     delay = table_delay;
-    //slew = table_slew;
+    // slew = table_slew;
     try {
       double vo_delay, vo_slew;
       findDriverDelaySlew(vo_delay, vo_slew);
       driver_valid_ = true;
       // Save Vo delay to measure load wire delay waveform.
       vo_delay_ = vo_delay;
-      //delay = vo_delay;
+      // delay = vo_delay;
       slew = vo_slew;
-    }
-    catch (DmpError &error) {
+    } catch (DmpError &error) {
       fail(error.what());
       // Fall back to table slew.
       slew = table_slew;
     }
-  }
-  catch (DmpError &error) {
+  } catch (DmpError &error) {
     fail(error.what());
     // Driver calculation failed - use Ceff=c1+c2.
     ceff_ = c1_ + c2_;
@@ -937,8 +931,7 @@ DmpPi::findDriverParamsPi()
 {
   try {
     findDriverParams(c2_ + c1_);
-  }
-  catch (DmpError &) {
+  } catch (DmpError &) {
     findDriverParams(c2_);
   }
 }
@@ -981,36 +974,33 @@ DmpPi::evalDmpEqns()
   fvec_[DmpFunc::y20] = y20 - vl_;
   fjac_[DmpFunc::ipi][DmpParam::t0] = 0.0;
   fjac_[DmpFunc::ipi][DmpParam::dt] =
-    (-A_ * dt + B_ * dt * exp_p1_dt - (2 * B_ / p1_) * (1.0 - exp_p1_dt)
-     + D_ * dt * exp_p2_dt - (2 * D_ / p2_) * (1.0 - exp_p2_dt)
-     + rd_ * ceff * (dt + dt * exp_dt_rd_ceff
-                     - 2 * rd_ * ceff * (1.0 - exp_dt_rd_ceff)))
-    / (rd_ * dt * dt * dt);
+      (-A_ * dt + B_ * dt * exp_p1_dt - (2 * B_ / p1_) * (1.0 - exp_p1_dt)
+       + D_ * dt * exp_p2_dt - (2 * D_ / p2_) * (1.0 - exp_p2_dt)
+       + rd_ * ceff
+           * (dt + dt * exp_dt_rd_ceff - 2 * rd_ * ceff * (1.0 - exp_dt_rd_ceff)))
+      / (rd_ * dt * dt * dt);
   fjac_[DmpFunc::ipi][DmpParam::ceff] =
-    (2 * rd_ * ceff - dt - (2 * rd_ * ceff + dt) * exp2(-dt / (rd_ * ceff)))
-    / (dt * dt);
+      (2 * rd_ * ceff - dt - (2 * rd_ * ceff + dt) * exp2(-dt / (rd_ * ceff)))
+      / (dt * dt);
 
-  dy(t_vl, t0, dt, ceff,
-     fjac_[DmpFunc::y20][DmpParam::t0],
-     fjac_[DmpFunc::y20][DmpParam::dt],
-     fjac_[DmpFunc::y20][DmpParam::ceff]);
+  dy(t_vl, t0, dt, ceff, fjac_[DmpFunc::y20][DmpParam::t0],
+     fjac_[DmpFunc::y20][DmpParam::dt], fjac_[DmpFunc::y20][DmpParam::ceff]);
 
-  dy(t_vth, t0, dt, ceff,
-     fjac_[DmpFunc::y50][DmpParam::t0],
-     fjac_[DmpFunc::y50][DmpParam::dt],
-     fjac_[DmpFunc::y50][DmpParam::ceff]);
+  dy(t_vth, t0, dt, ceff, fjac_[DmpFunc::y50][DmpParam::t0],
+     fjac_[DmpFunc::y50][DmpParam::dt], fjac_[DmpFunc::y50][DmpParam::ceff]);
 
   if (debug_->check("dmp_ceff", 4)) {
     showX();
     showFvec();
     showJacobian();
-    report_->reportLine(".................");
+    report_->report(".................");
   }
 }
 
 // Eqn 13, Eqn 14.
 double
-DmpPi::ipiIceff(double, double dt,
+DmpPi::ipiIceff(double,
+                double dt,
                 double ceff_time,
                 double ceff)
 {
@@ -1018,11 +1008,11 @@ DmpPi::ipiIceff(double, double dt,
   double exp_p2_dt = exp2(-p2_ * ceff_time);
   double exp_dt_rd_ceff = exp2(-ceff_time / (rd_ * ceff));
   double ipi = (A_ * ceff_time + (B_ / p1_) * (1.0 - exp_p1_dt)
-               + (D_ / p2_) * (1.0 - exp_p2_dt))
-    / (rd_ * ceff_time * dt);
-  double iceff = (rd_ * ceff * ceff_time - (rd_ * ceff) * (rd_ * ceff)
-                  * (1.0 - exp_dt_rd_ceff))
-    / (rd_ * ceff_time * dt);
+                + (D_ / p2_) * (1.0 - exp_p2_dt))
+      / (rd_ * ceff_time * dt);
+  double iceff =
+      (rd_ * ceff * ceff_time - (rd_ * ceff) * (rd_ * ceff) * (1.0 - exp_dt_rd_ceff))
+      / (rd_ * ceff_time * dt);
   return ipi - iceff;
 }
 
@@ -1047,14 +1037,13 @@ DmpPi::Vl0(double t,
   double D1 = k0_ * (k1_ - k2_ / p3_);
   double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
   double D4 = -p3_ * k0_ * k4_ / (p2_ - p3_);
-  double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_)
-                    + p3_ * k4_ / (p2_ - p3_));
+  double D5 =
+      k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_) + p3_ * k4_ / (p2_ - p3_));
   double exp_p1 = exp2(-p1_ * t);
   double exp_p2 = exp2(-p2_ * t);
   double exp_p3 = exp2(-p3_ * t);
   vl = D1 + t + D3 * exp_p1 + D4 * exp_p2 + D5 * exp_p3;
-  dvl_dt = 1.0 - D3 * p1_ * exp_p1 - D4 * p2_ * exp_p2
-    - D5 * p3_ * exp_p3;
+  dvl_dt = 1.0 - D3 * p1_ * exp_p1 - D4 * p2_ * exp_p2 - D5 * p3_ * exp_p3;
 }
 
 double
@@ -1076,7 +1065,8 @@ public:
 };
 
 DmpOnePole::DmpOnePole(StaState *sta) :
-  DmpAlg(2, sta)
+  DmpAlg(2,
+         sta)
 {
 }
 
@@ -1100,19 +1090,15 @@ DmpOnePole::evalDmpEqns()
     showFvec();
   }
 
-  dy(t_vl, t0, dt, ceff_,
-     fjac_[DmpFunc::y20][DmpParam::t0],
-     fjac_[DmpFunc::y20][DmpParam::dt],
-     ignore2);
+  dy(t_vl, t0, dt, ceff_, fjac_[DmpFunc::y20][DmpParam::t0],
+     fjac_[DmpFunc::y20][DmpParam::dt], ignore2);
 
-  dy(t_vth, t0, dt, ceff_,
-     fjac_[DmpFunc::y50][DmpParam::t0],
-     fjac_[DmpFunc::y50][DmpParam::dt],
-     ignore2);
+  dy(t_vth, t0, dt, ceff_, fjac_[DmpFunc::y50][DmpParam::t0],
+     fjac_[DmpFunc::y50][DmpParam::dt], ignore2);
 
   if (debug_->check("dmp_ceff", 4)) {
     showJacobian();
-    report_->reportLine(".................");
+    report_->report(".................");
   }
 }
 
@@ -1140,19 +1126,19 @@ public:
             double c2,
             double rpi,
             double c1) override;
-  void gateDelaySlew(// Return values.
-                     double &delay,
-                     double &slew) override;
+  void gateDelaySlew(  // Return values.
+      double &delay,
+      double &slew) override;
 
 private:
   void V0(double t,
           // Return values.
           double &vo,
           double &dvo_dt) override;
-   void Vl0(double t,
-            // Return values.
-            double &vl,
-            double &dvl_dt) override;
+  void Vl0(double t,
+           // Return values.
+           double &vl,
+           double &dvl_dt) override;
   double voCrossingUpperBound() override;
 
   // Pole/zero.
@@ -1189,8 +1175,8 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
                 double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP C2=0");
-  DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
-               in_slew, c2, rpi, c1);
+  DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd, in_slew, c2, rpi,
+               c1);
   ceff_ = c1;
 
   z1_ = 1.0 / (rpi_ * c1_);
@@ -1203,9 +1189,9 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
 }
 
 void
-DmpZeroC2::gateDelaySlew(// Return values.
-                         double &delay,
-                         double &slew)
+DmpZeroC2::gateDelaySlew(  // Return values.
+    double &delay,
+    double &slew)
 {
   try {
     findDriverParams(c1_);
@@ -1213,8 +1199,7 @@ DmpZeroC2::gateDelaySlew(// Return values.
     findDriverDelaySlew(delay, slew);
     driver_valid_ = true;
     vo_delay_ = delay;
-  }
-  catch (DmpError &error) {
+  } catch (DmpError &error) {
     fail(error.what());
     // Fall back to table slew.
     driver_valid_ = false;
@@ -1237,9 +1222,9 @@ DmpZeroC2::V0(double t,
 
 void
 DmpZeroC2::Vl0(double t,
-           // Return values.
-           double &vl,
-           double &dvl_dt)
+               // Return values.
+               double &vl,
+               double &dvl_dt)
 {
   double D1 = k0_ * (k1_ - k2_ / p3_);
   double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
@@ -1267,7 +1252,7 @@ newtonRaphson(const int max_iter,
               double x[],
               const int size,
               const double x_tol,
-              std::function<void ()> eval,
+              std::function<void()> eval,
               // Temporaries supplied by caller.
               double *fvec,
               double **fjac,
@@ -1529,12 +1514,13 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
   }
   else {
     ArcDcalcResult dcalc_result =
-      LumpedCapDelayCalc::gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
-                                    load_pin_index_map, scene, min_max);
-    if (parasitic
-        && !unsuppored_model_warned_) {
+        LumpedCapDelayCalc::gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
+                                      load_pin_index_map, scene, min_max);
+    if (parasitic && !unsuppored_model_warned_) {
       unsuppored_model_warned_ = true;
-      report_->warn(1041, "cell %s delay model not supported on SPF parasitics by DMP delay calculator",
+      report_->warn(1041,
+                    "cell {} delay model not supported on SPF parasitics by DMP "
+                    "delay calculator",
                     drvr_cell->name());
     }
     return dcalc_result;
@@ -1570,16 +1556,15 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
   }
   else
     dmp_alg_ = dmp_cap_;
-  dmp_alg_->init(drvr_library, drvr_cell, pvt, gate_model,
-                 rf, rd, in_slew, c2, rpi, c1);
+  dmp_alg_->init(drvr_library, drvr_cell, pvt, gate_model, rf, rd, in_slew, c2, rpi,
+                 c1);
   debugPrint(debug_, "dmp_ceff", 3,
-             "    DMP in_slew = %s c2 = %s rpi = %s c1 = %s Rd = %s (%s alg)",
+             "    DMP in_slew = {} c2 = {} rpi = {} c1 = {} Rd = {} ({} alg)",
              units_->timeUnit()->asString(in_slew),
              units_->capacitanceUnit()->asString(c2),
              units_->resistanceUnit()->asString(rpi),
              units_->capacitanceUnit()->asString(c1),
-             units_->resistanceUnit()->asString(rd),
-             dmp_alg_->name());
+             units_->resistanceUnit()->asString(rd), dmp_alg_->name());
 }
 
 std::string
@@ -1593,8 +1578,9 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                   const MinMax *min_max,
                                   int digits)
 {
-  ArcDcalcResult dcalc_result = gateDelay(drvr_pin, arc, in_slew, load_cap,
-                                          parasitic, load_pin_index_map, scene, min_max);
+  ArcDcalcResult dcalc_result =
+      gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic, load_pin_index_map,
+                scene, min_max);
   GateTableModel *model = arc->gateTableModel(scene, min_max);
   float c_eff = 0.0;
   std::string result;
@@ -1653,9 +1639,9 @@ gateModelRd(const LibertyCell *cell,
 }
 
 void
-DmpCeffDelayCalc::gateDelaySlew(// Return values.
-                                double &delay,
-                                double &slew)
+DmpCeffDelayCalc::gateDelaySlew(  // Return values.
+    double &delay,
+    double &slew)
 {
   dmp_alg_->gateDelaySlew(delay, slew);
 }
@@ -1683,7 +1669,7 @@ DmpCeffDelayCalc::copyState(const StaState *sta)
 DmpError::DmpError(const char *what) :
   what_(what)
 {
-  //printf("DmpError %s\n", what);
+  // printf("DmpError %s\n", what);
 }
 
 // This saves about 2.5% in overall run time on designs with SPEF.
@@ -1712,4 +1698,4 @@ exp2(double x)
   }
 }
 
-} // namespace
+}  // namespace sta

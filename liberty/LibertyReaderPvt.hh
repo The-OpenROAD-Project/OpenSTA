@@ -28,6 +28,7 @@
 #include <functional>
 #include <memory>
 #include <array>
+#include <string_view>
 #include <vector>
 #include <unordered_map>
 
@@ -44,6 +45,7 @@
 #include "LibertyParser.hh"
 #include "LibertyReader.hh"
 #include "LibertyBuilder.hh"
+#include "Report.hh"
 
 namespace sta {
 
@@ -451,38 +453,65 @@ protected:
                       const char *attr_name,
                       const LibertyCell *cell,
                       int line);
-  void libWarn(int id,
+  template <typename... Args>
+  void warn(int id,
                const LibertyGroup *group,
-               const char *fmt,
-               ...) const
-    __attribute__((format (printf, 4, 5)));
-  void libWarn(int id,
+               std::string_view fmt,
+               Args &&...args) const
+  {
+    report_->fileWarn(id, filename_, group->line(), fmt, std::forward<Args>(args)...);
+  }
+  template <typename... Args>
+  void warn(int id,
                const LibertySimpleAttr *attr,
-               const char *fmt,
-               ...) const
-    __attribute__((format (printf, 4, 5)));
-  void libWarn(int id,
+               std::string_view fmt,
+               Args &&...args) const
+  {
+    report_->fileWarn(id, filename_, attr->line(), fmt, std::forward<Args>(args)...);
+  }
+  template <typename... Args>
+  void warn(int id,
                const LibertyComplexAttr *attr,
-               const char *fmt,
-               ...) const
-    __attribute__((format (printf, 4, 5)));
-  void libWarn(int id,
+               std::string_view fmt,
+               Args &&...args) const
+  {
+    report_->fileWarn(id, filename_, attr->line(), fmt, std::forward<Args>(args)...);
+  }
+  template <typename... Args>
+  void warn(int id,
                int line,
-               const char *fmt,
-               ...) const
-    __attribute__((format (printf, 4, 5)));
-  void libError(int id,
+               std::string_view fmt,
+               Args &&...args) const
+  {
+    report_->fileWarn(id, filename_, line, fmt, std::forward<Args>(args)...);
+  }
+  template <typename... Args>
+  void error(int id,
                 const LibertyGroup *group,
-                const char *fmt, ...) const
-    __attribute__((format (printf, 4, 5)));
-  void libError(int id,
+                std::string_view fmt,
+                Args &&...args) const
+  {
+    report_->fileError(id, filename_, group->line(), fmt,
+                      std::forward<Args>(args)...);
+  }
+  template <typename... Args>
+  void error(int id,
                 const LibertySimpleAttr *attr,
-                const char *fmt, ...) const
-    __attribute__((format (printf, 4, 5)));
-  void libError(int id,
+                std::string_view fmt,
+                Args &&...args) const
+  {
+    report_->fileError(id, filename_, attr->line(), fmt,
+                      std::forward<Args>(args)...);
+  }
+  template <typename... Args>
+  void error(int id,
                 const LibertyComplexAttr *attr,
-                const char *fmt, ...) const
-    __attribute__((format (printf, 4, 5)));
+                std::string_view fmt,
+                Args &&...args) const
+  {
+    report_->fileError(id, filename_, attr->line(), fmt,
+                      std::forward<Args>(args)...);
+  }
 
   const char *filename_;
   bool infer_latches_;

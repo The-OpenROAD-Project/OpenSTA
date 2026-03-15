@@ -133,7 +133,7 @@ LumpedCapDelayCalc::gateDelay(const Pin *drvr_pin,
 {
   GateTimingModel *model = arc->gateModel(scene, min_max);
   debugPrint(debug_, "delay_calc", 3,
-             "    in_slew = %s load_cap = %s lumped",
+             "    in_slew = {} load_cap = {} lumped",
              delayAsString(in_slew, this),
              units()->capacitanceUnit()->asString(load_cap));
   const RiseFall *rf = arc->toEdge()->asRiseFall();

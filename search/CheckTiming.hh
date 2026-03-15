@@ -70,13 +70,10 @@ protected:
   bool hasClkedCheck(Vertex *vertex);
   bool hasMaxDelay(Pin *pin);
   void checkGeneratedClocks();
-  void pushPinErrors(const char *msg,
+  void pushPinErrors(std::string_view msg,
                      PinSet &pins);
   void pushClkErrors(const char *msg,
                      ClockSet &clks);
-  void errorMsgSubst(const char *msg,
-                     int count,
-                     std::string &error_msg);
 
   CheckErrorSeq errors_;
   const Mode *mode_;

@@ -42,7 +42,7 @@ class PathEndVisitor;
 
 using PathGroupIterator = PathEndSeq::iterator;
 using PathGroupClkMap = std::map<const Clock*, PathGroup*>;
-using PathGroupNamedMap = std::map<const char*, PathGroup*, CharPtrLess>;
+using PathGroupNamedMap = std::map<std::string, PathGroup*>;
 using PathGroupSeq = std::vector<PathGroup*>;
 
 // A collection of PathEnds grouped and sorted for reporting.
@@ -140,7 +140,7 @@ public:
                     bool unconstrained_paths,
                     // Return value.
                     PathEndSeq &path_ends);
-  PathGroup *findPathGroup(const char *name,
+  PathGroup *findPathGroup(const std::string &name,
                            const MinMax *min_max) const;
   PathGroup *findPathGroup(const Clock *clock,
                            const MinMax *min_max) const;
@@ -191,7 +191,7 @@ protected:
                   bool gated_clk,
                   bool unconstrained,
                   const MinMax *min_max);
-  bool reportGroup(const char *group_name,
+  bool reportGroup(const std::string &group_name,
                    StringSet &group_names) const;
   static GroupPath *groupPathTo(const PathEnd *path_end,
                                 const StaState *sta);

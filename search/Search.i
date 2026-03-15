@@ -241,7 +241,7 @@ endpoint_slack(const Pin *pin,
     return sta->units()->timeUnit()->staToUser(delayAsFloat(slack, min_max, sta));
   }
   else {
-    sta->report()->error(1577, "%s is not a known path group name.",
+    sta->report()->error(1577, "{} is not a known path group name.",
                          path_group_name);
     return INF;
   }
@@ -322,7 +322,7 @@ report_loops()
   Report *report = sta->report();
   for (GraphLoop *loop : sta->graphLoops()) {
     loop->report(sta);
-    report->reportLineString("");
+    report->reportLine("");
   }
 }
 
@@ -436,7 +436,7 @@ set_report_path_field_properties(const char *field_name,
   if (field)
     field->setProperties(title, width, left_justify);
   else
-    sta->report()->warn(1575, "unknown report path field %s", field_name);
+    sta->report()->warn(1575, "unknown report path field {}", field_name);
 }
 
 void

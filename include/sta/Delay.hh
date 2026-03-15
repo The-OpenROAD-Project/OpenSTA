@@ -155,7 +155,7 @@ public:
                         float delay2) const = 0;
   virtual Delay div(float delay1,
                     const Delay &delay2) const = 0;
-  virtual const char *asStringVariance(const Delay &delay,
+  virtual std::string asStringVariance(const Delay &delay,
                                        int digits,
                                        const StaState *sta) const = 0;
 
@@ -203,19 +203,19 @@ void
 delaySetMean(Delay &delay,
              float mean);
 
-const char *
+std::string
 delayAsString(const Delay &delay,
               const StaState *sta);
-const char *
+std::string
 delayAsString(const Delay &delay,
               const EarlyLate *early_late,
               const StaState *sta);
-const char *
+std::string
 delayAsString(const Delay &delay,
               const EarlyLate *early_late,
               int digits,
               const StaState *sta);
-const char *
+std::string
 delayAsString(const Delay &delay,
               const EarlyLate *early_late,
               bool report_variance,

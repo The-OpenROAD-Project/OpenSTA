@@ -94,24 +94,24 @@ makeArcDcalcArg(const char *inst_name,
             else {
               const Network *network = sta->network();
               const Instance *inst = network->instance(in_pin);
-              report->warn(2100, "no timing arc for %s input/driver pins.",
+              report->warn(2100, "no timing arc for {} input/driver pins.",
                            network->pathName(inst));
             }
           }
           else
-            report->warn(2101, "%s not a valid rise/fall.", drvr_rf_name);
+            report->warn(2101, "{} not a valid rise/fall.", drvr_rf_name);
         }
         else
-          report->warn(2102, "Pin %s/%s not found.", inst_name, drvr_port_name);
+          report->warn(2102, "Pin {}/{} not found.", inst_name, drvr_port_name);
       }
       else
-        report->warn(2103, "%s not a valid rise/fall.", in_rf_name);
+        report->warn(2103, "{} not a valid rise/fall.", in_rf_name);
     }
     else
-      report->warn(2104, "Pin %s/%s not found.", inst_name, in_port_name);
+      report->warn(2104, "Pin {}/{} not found.", inst_name, in_port_name);
   }
   else
-    report->warn(2105, "Instance %s not found.", inst_name);
+    report->warn(2105, "Instance {} not found.", inst_name);
   return ArcDcalcArg();
 }
 

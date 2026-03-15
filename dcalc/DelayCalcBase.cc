@@ -123,6 +123,7 @@ DelayCalcBase::thresholdAdjust(const Pin *load_pin,
     wire_delay += (rf == RiseFall::rise())
       ? wire_delay_delta
       : -wire_delay_delta;
+
     float load_slew_delta = load_library->slewUpperThreshold(rf)
       - load_library->slewLowerThreshold(rf);
     float drvr_slew_derate = drvr_library->slewDerateFromLibrary();

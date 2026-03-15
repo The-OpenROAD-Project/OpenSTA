@@ -1,30 +1,30 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "ClkSkew.hh"
 
-#include <cmath> // abs
+#include <cmath>  // abs
 #include <algorithm>
 #include <vector>
 #include <unordered_set>
@@ -78,12 +78,12 @@ ClkSkews::reportClkSkew(ConstClockSeq &clks,
   sort(sorted_clks, ClkNameLess());
 
   for (const Clock *clk : sorted_clks) {
-    report_->reportLine("Clock %s", clk->name());
+    report_->report("Clock {}", clk->name());
     auto skew_itr = skews_.find(clk);
     if (skew_itr != skews_.end())
       reportClkSkew(skew_itr->second[setup_hold->index()], digits);
     else
-      report_->reportLine("No launch/capture paths found.");
+      report_->report("No launch/capture paths found.");
     report_->reportBlankLine();
   }
 }
@@ -104,33 +104,33 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
 
   if (src_internal_clk_latency != 0.0)
     delayDecr(src_latency, src_internal_clk_latency, this);
-  report_->reportLine("%7s source latency %s %s",
-                      delayAsString(src_latency, src_min_max, digits, this),
-                      sdc_network_->pathName(src_path->pin(this)),
-                      src_path->transition(this)->shortName());
+  report_->report("{:>7} source latency {} {}",
+                  delayAsString(src_latency, src_min_max, digits, this),
+                  sdc_network_->pathName(src_path->pin(this)),
+                  src_path->transition(this)->shortName());
   if (src_internal_clk_latency != 0.0)
-    report_->reportLine("%7s source internal clock delay",
-                        time_unit->asString(src_internal_clk_latency, digits));
+    report_->report("{:>7} source internal clock delay",
+                    time_unit->asString(src_internal_clk_latency, digits));
 
   if (tgt_internal_clk_latency != 0.0)
     tgt_latency -= tgt_internal_clk_latency;
-  report_->reportLine("%7s target latency %s %s",
-                      time_unit->asString(-tgt_latency, digits),
-                      sdc_network_->pathName(tgt_path->pin(this)),
-                      tgt_path->transition(this)->shortName());
+  report_->report("{:>7} target latency {} {}",
+                  time_unit->asString(-tgt_latency, digits),
+                  sdc_network_->pathName(tgt_path->pin(this)),
+                  tgt_path->transition(this)->shortName());
   if (tgt_internal_clk_latency != 0.0)
-    report_->reportLine("%7s target internal clock delay",
-                        time_unit->asString(-tgt_internal_clk_latency, digits));
+    report_->report("{:>7} target internal clock delay",
+                    time_unit->asString(-tgt_internal_clk_latency, digits));
   if (uncertainty != 0.0)
-    report_->reportLine("%7s clock uncertainty",
-                        time_unit->asString(uncertainty, digits));
-  report_->reportLine("%7s CRPR",
-                      delayAsString(delayDiff(0.0, clk_skew.crpr(this), this),
-                                    MinMax::max(), digits, this));
-  report_->reportLine("--------------");
-  report_->reportLine("%7s %s skew",
-                      delayAsString(clk_skew.skew(), MinMax::max(), digits, this),
-                      src_path->minMax(this) == MinMax::max() ? "setup" : "hold");
+    report_->report("{:>7} clock uncertainty",
+                    time_unit->asString(uncertainty, digits));
+  report_->report("{:>7} CRPR",
+                  delayAsString(delayDiff(0.0, clk_skew.crpr(this), this),
+                                MinMax::max(), digits, this));
+  report_->report("--------------");
+  report_->report("{:>7} {} skew",
+                  delayAsString(clk_skew.skew(), MinMax::max(), digits, this),
+                  src_path->minMax(this) == MinMax::max() ? "setup" : "hold");
 }
 
 static float
@@ -174,11 +174,9 @@ void
 ClkSkews::findClkSkew(ConstClockSeq &clks,
                       const SceneSeq &scenes,
                       bool include_internal_latency)
-{	      
-  if (scenes == scenes_
-      && include_internal_latency == include_internal_latency_
-      && clks == clks_
-      && !skews_.empty())
+{
+  if (scenes == scenes_ && include_internal_latency == include_internal_latency_
+      && clks == clks_ && !skews_.empty())
     return;
 
   skews_.clear();
@@ -206,14 +204,14 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
 
     // Reduce skews from each register source.
     for (size_t i = 0; i < partial_skews.size(); i++) {
-      for (auto& [clk, partial_skew] : partial_skews[i]) {
+      for (auto &[clk, partial_skew] : partial_skews[i]) {
         auto itr = skews_.find(clk);
         if (itr == skews_.end()) {
           // Insert new entry using emplace with piecewise_construct
           // This will default-construct the array, then we copy the elements
-          auto result = skews_.emplace(std::piecewise_construct,
-                                       std::forward_as_tuple(clk),
-                                       std::make_tuple());
+          auto result =
+              skews_.emplace(std::piecewise_construct, std::forward_as_tuple(clk),
+                             std::make_tuple());
           itr = result.first;
           // Copy array elements
           for (int setup_hold_idx : SetupHold::rangeIndex())
@@ -231,7 +229,8 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
             if (partial_skew_max > final_skew_max
                 || (fuzzyEqual(partial_skew_max, final_skew_max)
                     // Break ties based on source/target path names.
-                    && ClkSkew::srcTgtPathNameLess(partial_skew_val, final_skew, this)))
+                    && ClkSkew::srcTgtPathNameLess(partial_skew_val, final_skew,
+                                                   this)))
               final_skew = partial_skew_val;
           }
         }
@@ -269,9 +268,8 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
     if (edge->role()->genericRole() == TimingRole::regClkToQ()) {
       Vertex *q_vertex = edge->to(graph_);
       const RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
-      const RiseFallBoth *src_rf = rf
-        ? rf->asRiseFallBoth()
-        : RiseFallBoth::riseFall();
+      const RiseFallBoth *src_rf =
+          rf ? rf->asRiseFallBoth() : RiseFallBoth::riseFall();
       findClkSkewFrom(src_vertex, q_vertex, src_rf, skews);
     }
   }
@@ -291,12 +289,11 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
       const TimingRole *role = edge->role();
       if (role->genericRole() == TimingRole::setup()
           || role->genericRole() == TimingRole::hold()) {
-	Vertex *tgt_vertex = edge->from(graph_);
-	const RiseFall *tgt_rf1 = edge->timingArcSet()->isRisingFallingEdge();
-	const RiseFallBoth *tgt_rf = tgt_rf1
-	  ? tgt_rf1->asRiseFallBoth()
-	  : RiseFallBoth::riseFall();
-	findClkSkew(src_vertex, src_rf, tgt_vertex, tgt_rf, skews);
+        Vertex *tgt_vertex = edge->from(graph_);
+        const RiseFall *tgt_rf1 = edge->timingArcSet()->isRisingFallingEdge();
+        const RiseFallBoth *tgt_rf =
+            tgt_rf1 ? tgt_rf1->asRiseFallBoth() : RiseFallBoth::riseFall();
+        findClkSkew(src_vertex, src_rf, tgt_vertex, tgt_rf, skews);
       }
     }
   }
@@ -325,8 +322,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
       while (tgt_iter.hasNext()) {
         Path *tgt_path = tgt_iter.next();
         const Clock *tgt_clk = tgt_path->clock(this);
-        if (tgt_clk == src_clk
-            && tgt_path->isClock(this)
+        if (tgt_clk == src_clk && tgt_path->isClock(this)
             && tgt_rf->matches(tgt_path->transition(this))
             && tgt_path->minMax(this) == tgt_min_max
             && tgt_path->scene(this) == src_scene) {
@@ -334,7 +330,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
           const SetupHold *setup_hold = src_path->minMax(this);
           ClkSkew &clk_skew = skews[src_clk][setup_hold->index()];
           debugPrint(debug_, "clk_skew", 2,
-                     "%s %s %s -> %s %s %s crpr = %s skew = %s",
+                     "{} {} {} -> {} {} {} crpr = {} skew = {}",
                      network_->pathName(src_path->pin(this)),
                      src_path->transition(this)->shortName(),
                      delayAsString(probe.srcLatency(this), src_min_max, this),
@@ -356,14 +352,14 @@ VertexSet
 ClkSkews::findFanout(Vertex *from)
 {
   VertexSet endpoints = makeVertexSet(this);
-  std::unordered_set<Vertex*> visited;
+  std::unordered_set<Vertex *> visited;
   findFanout1(from, visited, endpoints);
   return endpoints;
 }
 
 void
 ClkSkews::findFanout1(Vertex *from,
-                      std::unordered_set<Vertex*> &visited,
+                      std::unordered_set<Vertex *> &visited,
                       VertexSet &endpoints)
 {
   visited.insert(from);
@@ -439,7 +435,8 @@ float
 ClkSkew::tgtLatency(const StaState *sta)
 {
   Arrival tgt_arrival = tgt_path_->arrival();
-  return delayAsFloat(delaySum(delayDiff(tgt_arrival, tgt_path_->clkEdge(sta)->time(),sta),
+  return delayAsFloat(delaySum(delayDiff(tgt_arrival,
+                                         tgt_path_->clkEdge(sta)->time(),sta),
                                clkTreeDelay(tgt_path_, sta), sta));
 }
 
@@ -477,8 +474,8 @@ float
 ClkSkew::uncertainty(const StaState *sta)
 {
   const TimingRole *check_role = (src_path_->minMax(sta) == SetupHold::max())
-    ? TimingRole::setup()
-    : TimingRole::hold();
+      ? TimingRole::setup()
+      : TimingRole::hold();
   // Uncertainty decreases slack, but increases skew.
   return -PathEnd::checkTgtClkUncertainty(tgt_path_, tgt_path_->clkEdge(sta),
                                           check_role, sta);
@@ -495,8 +492,7 @@ ClkSkew::srcTgtPathNameLess(ClkSkew &clk_skew1,
   const char *tgt_path1 = network->pathName(clk_skew1.tgtPath()->pin(sta));
   const char *tgt_path2 = network->pathName(clk_skew2.tgtPath()->pin(sta));
   return stringLess(src_path1, src_path2)
-    || (stringEqual(src_path1, src_path2)
-        && stringEqual(tgt_path1, tgt_path2));
+      || (stringEqual(src_path1, src_path2) && stringEqual(tgt_path1, tgt_path2));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -512,10 +508,9 @@ FanOutSrchPred::searchThru(Edge *edge,
 {
   const TimingRole *role = edge->role();
   return SearchPred1::searchThru(edge, mode)
-    && (role == TimingRole::wire()
-        || role == TimingRole::combinational()
-        || role == TimingRole::tristateEnable()
-        || role == TimingRole::tristateDisable());
+      && (role == TimingRole::wire() || role == TimingRole::combinational()
+          || role == TimingRole::tristateEnable()
+          || role == TimingRole::tristateDisable());
 }
 
-} // namespace
+}  // namespace sta

@@ -60,7 +60,7 @@ ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
       bool vdd_exists;
       library->supplyVoltage("VDD", vdd, vdd_exists);
       if (!vdd_exists)
-        report->error(1751, "VDD not defined in library %s", library->name());
+        report->error(1751, "VDD not defined in library {}", library->name());
       float slew1 = delayAsFloat(in_slew, min_max, sta);
       Waveform in_waveform = driver_waveform->waveform(slew1);
       // Delay time axis.

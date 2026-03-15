@@ -403,6 +403,17 @@ find_package(Threads)
 
 find_package(Eigen3 REQUIRED)
 
+# fmt library: fallback when std::format is not available (e.g. GCC 11 on Ubuntu 22.04)
+find_package(fmt QUIET)
+if(NOT fmt_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 10.2.1
+  )
+  FetchContent_MakeAvailable(fmt)
+endif()
+
 include(cmake/FindCUDD.cmake)
 
 # configure a header file to pass some of the CMake settings
@@ -518,6 +529,7 @@ target_sources(OpenSTA
 
 target_link_libraries(OpenSTA
   Eigen3::Eigen
+  fmt::fmt
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
   ${CUDD_LIB}

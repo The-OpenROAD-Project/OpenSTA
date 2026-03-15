@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "Path.hh"
@@ -129,8 +129,7 @@ Path::init(Vertex *vertex,
 {
   const Graph *graph = sta->graph();
   vertex_id_ = graph->id(vertex);
-  tag_index_ = tag_index_null,
-  prev_path_ = nullptr;
+  tag_index_ = tag_index_null, prev_path_ = nullptr;
   prev_arc_idx_ = 0;
   arrival_ = arrival;
   required_ = 0.0;
@@ -144,8 +143,7 @@ Path::init(Vertex *vertex,
 {
   const Graph *graph = sta->graph();
   vertex_id_ = graph->id(vertex);
-  tag_index_ = tag->index(),
-  prev_path_ = nullptr;
+  tag_index_ = tag->index(), prev_path_ = nullptr;
   prev_arc_idx_ = 0;
   arrival_ = 0.0;
   required_ = 0.0;
@@ -160,8 +158,7 @@ Path::init(Vertex *vertex,
 {
   const Graph *graph = sta->graph();
   vertex_id_ = graph->id(vertex);
-  tag_index_ = tag->index(),
-  prev_path_ = nullptr;
+  tag_index_ = tag->index(), prev_path_ = nullptr;
   prev_arc_idx_ = 0;
   arrival_ = arrival;
   required_ = 0.0;
@@ -178,8 +175,7 @@ Path::init(Vertex *vertex,
            const StaState *sta)
 {
   const Graph *graph = sta->graph();
-  tag_index_ = tag->index(),
-  prev_path_ = prev_path;
+  tag_index_ = tag->index(), prev_path_ = prev_path;
   if (prev_path) {
     prev_edge_id_ = graph->id(prev_edge);
     prev_arc_idx_ = prev_arc->index();
@@ -199,12 +195,12 @@ Path::to_string(const StaState *sta) const
   if (isNull())
     return "null path";
   else
-    return stringPrintTmp("%s %s %s/%s %d",
-                          vertex(sta)->to_string(sta).c_str(),
-                          transition(sta)->shortName(),
-                          scene(sta)->name().c_str(),
-                          minMax(sta)->to_string().c_str(),
-                          tagIndex(sta));
+    return sta::format("{} {} {}/{} {}",
+                       vertex(sta)->to_string(sta),
+                       transition(sta)->shortName(),
+                       scene(sta)->name(),
+                       minMax(sta)->to_string(),
+                       tagIndex(sta));
 }
 
 bool
@@ -221,7 +217,7 @@ Path::vertex(const StaState *sta) const
     const Edge *edge = graph->edge(prev_edge_id_);
     return edge->to(graph);
   }
-  else 
+  else
     return graph->vertex(vertex_id_);
 }
 
@@ -404,7 +400,7 @@ Path::prevArc(const StaState *sta) const
     TimingArcSet *arc_set = edge->timingArcSet();
     return arc_set->findTimingArc(prev_arc_idx_);
   }
-  else 
+  else
     return nullptr;
 }
 
@@ -415,7 +411,7 @@ Path::prevEdge(const StaState *sta) const
     const Graph *graph = sta->graph();
     return graph->edge(prev_edge_id_);
   }
-  else 
+  else
     return nullptr;
 }
 
@@ -448,8 +444,7 @@ void
 Path::checkPrevPath(const StaState *sta) const
 {
   if (prev_path_ && prev_path_->isNull())
-    sta->report()->reportLine("path %s prev path is null.",
-                              to_string(sta).c_str());
+    sta->report()->report("path {} prev path is null.", to_string(sta));
   if (prev_path_ && !prev_path_->isNull()) {
     Graph *graph = sta->graph();
     Edge *edge = prevEdge(sta);
@@ -457,10 +452,9 @@ Path::checkPrevPath(const StaState *sta) const
     Vertex *prev_edge_vertex = edge->from(graph);
     if (prev_vertex != prev_edge_vertex) {
       Network *network = sta->network();
-      sta->report()->reportLine("path %s prev path corrupted %s vs %s.",
-                                to_string(sta).c_str(),
-                                prev_vertex->name(network),
-                                prev_edge_vertex->name(network));
+      sta->report()->report("path {} prev path corrupted {} vs {}.", to_string(sta),
+                            prev_vertex->name(network),
+                            prev_edge_vertex->name(network));
     }
   }
 }
@@ -478,14 +472,14 @@ Path::tgtClkMinMax(const StaState *sta) const
 {
   const MinMax *min_max = minMax(sta);
   switch (mode(sta)->sdc()->analysisType()) {
-  case AnalysisType::single:
-  case AnalysisType::bc_wc:
-    return min_max;
-  case AnalysisType::ocv:
-    return min_max->opposite();
-  default:
-    // suppress gcc warning
-    return min_max;
+    case AnalysisType::single:
+    case AnalysisType::bc_wc:
+      return min_max;
+    case AnalysisType::ocv:
+      return min_max->opposite();
+    default:
+      // suppress gcc warning
+      return min_max;
   }
 }
 ////////////////////////////////////////////////////////////////
@@ -579,8 +573,7 @@ Path::cmpClk(const Path *path1,
     else
       return 1;
   }
-  else if (clk_edge1 == nullptr
-           && clk_edge2 == nullptr)
+  else if (clk_edge1 == nullptr && clk_edge2 == nullptr)
     return 0;
   else if (clk_edge2)
     return -1;
@@ -594,11 +587,10 @@ Path::equal(const Path *path1,
             const StaState *sta)
 {
   return (path1 == nullptr && path2 == nullptr)
-    || (path1
-        && path2
-        && path1->vertexId(sta) == path2->vertexId(sta)
-        // Tag equal implies transition and path ap equal.
-        && path1->tagIndex(sta) == path2->tagIndex(sta));
+      || (path1 && path2
+          && path1->vertexId(sta) == path2->vertexId(sta)
+          // Tag equal implies transition and path ap equal.
+          && path1->tagIndex(sta) == path2->tagIndex(sta));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -779,12 +771,9 @@ VertexPathIterator::findNext()
     Path *path = &paths_[path_index_++];
     if (filtered_) {
       const Tag *tag = path->tag(search_);
-      if ((scene_ == nullptr
-           || path->scene(search_) == scene_)
-          && (rf_ == nullptr
-           || tag->rfIndex() == rf_->index())
-          && (min_max_ == nullptr
-              || path->minMax(search_) == min_max_)) {
+      if ((scene_ == nullptr || path->scene(search_) == scene_)
+          && (rf_ == nullptr || tag->rfIndex() == rf_->index())
+          && (min_max_ == nullptr || path->minMax(search_) == min_max_)) {
         next_ = path;
         return;
       }
@@ -797,9 +786,7 @@ VertexPathIterator::findNext()
   next_ = nullptr;
 }
 
-VertexPathIterator::~VertexPathIterator()
-{
-}
+VertexPathIterator::~VertexPathIterator() {}
 
 bool
 VertexPathIterator::hasNext()
@@ -815,4 +802,4 @@ VertexPathIterator::next()
   return path;
 }
 
-} // namespace
+}  // namespace sta

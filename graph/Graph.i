@@ -292,7 +292,7 @@ mode_value()
   return self->timingArcSet()->modeValue().c_str();
 }
 
-const char *
+std::string
 latch_d_to_q_en()
 {
   if (self->role() == TimingRole::latchDtoQ()) {
@@ -308,9 +308,7 @@ latch_d_to_q_en()
     const RiseFall *enable_rf;
     lib_cell->latchEnable(d_q_set, enable_port, enable_func, enable_rf);
     if (enable_port)
-      return stringPrintTmp("%s %s",
-                            enable_port->name(),
-                            enable_rf->shortName());
+      return sta::format("{} {}", enable_port->name(), enable_rf->shortName());
   }
   return "";
 }

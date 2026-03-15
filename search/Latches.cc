@@ -76,7 +76,7 @@ Latches::latchRequired(const Path *data_path,
       time_given_to_startpoint = 0.0;
   }
   else if (enable_path && disable_path) {
-    debugPrint(debug_, "latch", 1, "latch %s",
+    debugPrint(debug_, "latch", 1, "latch {}",
                sdc_network_->pathName(data_path->pin(this)));
     Delay open_latency, latency_diff, max_borrow;
     float nom_pulse_width, open_uncertainty;
@@ -107,7 +107,7 @@ Latches::latchRequired(const Path *data_path,
                                       open_latency,
                                       this);
     enable_arrival = delaySum(enable_arrival, open_crpr, this);
-    debugPrint(debug_, "latch", 1, "data %s enable %s",
+    debugPrint(debug_, "latch", 1, "data {} enable {}",
                delayAsString(data_arrival, this),
                delayAsString(enable_arrival, this));
     if (delayLessEqual(data_arrival, enable_arrival, this)) {
@@ -155,7 +155,7 @@ Latches::latchRequired(const Path *data_path,
     adjusted_data_arrival = data_arrival;
     time_given_to_startpoint = 0.0;
   }
-  debugPrint(debug_, "latch", 2, "req %s borrow %s time_given %s adj_arrival %s",
+  debugPrint(debug_, "latch", 2, "req {} borrow {} time_given {} adj_arrival {}",
              delayAsString(required, this),
              delayAsString(borrow, this),
              delayAsString(time_given_to_startpoint, this),
@@ -226,12 +226,12 @@ Latches::latchBorrowInfo(const Path *data_path,
     open_crpr = 0.0;
     crpr_diff = 0.0;
   }
-  debugPrint(debug_, "latch", 2, "nom_width %s open_lat %s lat_diff %s open_uncert %s",
+  debugPrint(debug_, "latch", 2, "nom_width {} open_lat {} lat_diff {} open_uncert {}",
              delayAsString(nom_pulse_width, this),
              delayAsString(open_latency, this),
              delayAsString(latency_diff, this),
              delayAsString(open_uncertainty, this));
-  debugPrint(debug_, "latch", 2, "open_crpr %s crpr_diff %s open_uncert %s max_borrow %s",
+  debugPrint(debug_, "latch", 2, "open_crpr {} crpr_diff {} open_uncert {} max_borrow {}",
              delayAsString(open_crpr, this),
              delayAsString(crpr_diff, this),
              delayAsString(open_uncertainty, this),

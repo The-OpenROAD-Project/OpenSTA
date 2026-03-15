@@ -30,6 +30,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "Report.hh"
+#include "Format.hh"
 #include "StringUtil.hh"
 #include "FuncExpr.hh"
 #include "Units.hh"
@@ -203,7 +204,7 @@ WritePathSpice::writeSpice()
     writeInputSource();
     writeStageInstances();
     writeStageSubckts();
-    streamPrint(spice_stream_, ".end\n");
+    sta::print(spice_stream_, ".end\n");
     spice_stream_.close();
   }
   else
@@ -214,11 +215,11 @@ void
 WritePathSpice::writeHeader()
 {
   const Path *start_path = path_expanded_.startPath();
-  std::string title = stdstrPrint("Path from %s %s to %s %s",
-                                  network_->pathName(start_path->pin(this)),
-                                  start_path->transition(this)->shortName(),
-                                  network_->pathName(path_->pin(this)),
-                                  path_->transition(this)->shortName());
+  std::string title = sta::format("Path from {} {} to {} {}",
+                                 network_->pathName(start_path->pin(this)),
+                                 start_path->transition(this)->shortName(),
+                                 network_->pathName(path_->pin(this)),
+                                 path_->transition(this)->shortName());
   float max_time = maxTime();
   float time_step = 1e-13;
   writeHeader(title, max_time, time_step);
@@ -281,37 +282,37 @@ WritePathSpice::pathMaxTime()
 void
 WritePathSpice::writeStageInstances()
 {
-  streamPrint(spice_stream_, "*****************\n");
-  streamPrint(spice_stream_, "* Stage instances\n");
-  streamPrint(spice_stream_, "*****************\n\n");
+  sta::print(spice_stream_, "*****************\n");
+  sta::print(spice_stream_, "* Stage instances\n");
+  sta::print(spice_stream_, "*****************\n\n");
 
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     std::string stage_name = stageName(stage);
     const char *stage_cname = stage_name.c_str();
     if (stage == stageFirst())
-      streamPrint(spice_stream_, "x%s %s %s %s\n",
-                  stage_cname,
-                  stageDrvrPinName(stage),
-                  stageLoadPinName(stage),
-                  stage_cname);
+      sta::print(spice_stream_, "x{} {} {} {}\n",
+                 stage_cname,
+                 stageDrvrPinName(stage),
+                 stageLoadPinName(stage),
+                 stage_cname);
     else {
-      streamPrint(spice_stream_, "x%s %s %s %s %s\n",
-                  stage_cname,
-                  stageGateInputPinName(stage),
-                  stageDrvrPinName(stage),
-                  stageLoadPinName(stage),
-                  stage_cname);
+      sta::print(spice_stream_, "x{} {} {} {} {}\n",
+                 stage_cname,
+                 stageGateInputPinName(stage),
+                 stageDrvrPinName(stage),
+                 stageLoadPinName(stage),
+                 stage_cname);
     }
   }
-  streamPrint(spice_stream_, "\n");
+  sta::print(spice_stream_, "\n");
 }
 
 void
 WritePathSpice::writeInputSource()
 {
-  streamPrint(spice_stream_, "**************\n");
-  streamPrint(spice_stream_, "* Input source\n");
-  streamPrint(spice_stream_, "**************\n\n");
+  sta::print(spice_stream_, "**************\n");
+  sta::print(spice_stream_, "* Input source\n");
+  sta::print(spice_stream_, "**************\n\n");
 
   Stage input_stage = stageFirst();
   const Path *input_path = stageDrvrPath(input_stage);
@@ -319,7 +320,7 @@ WritePathSpice::writeInputSource()
     writeClkWaveform();
   else
     writeInputWaveform();
-  streamPrint(spice_stream_, "\n");
+  sta::print(spice_stream_, "\n");
 }
 
 void
@@ -372,17 +373,17 @@ WritePathSpice::writeClkWaveform()
   }
   float slew0 = findSlew(input_path, rf0, next_arc);
   float slew1 = findSlew(input_path, rf1, next_arc);
-  streamPrint(spice_stream_, "v1 %s 0 pwl(\n",
-              stageDrvrPinName(input_stage));
-  streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
+  sta::print(spice_stream_, "v1 {} 0 pwl(\n",
+             stageDrvrPinName(input_stage));
+  sta::print(spice_stream_, "+{:.3e} {:.3e}\n", 0.0, volt0);
   for (int cycle = 0; cycle < clk_cycle_count_; cycle++) {
     float time0 = time_offset + cycle * period;
     float time1 = time0 + period / 2.0;
     writeWaveformEdge(rf0, time0, slew0);
     writeWaveformEdge(rf1, time1, slew1);
   }
-  streamPrint(spice_stream_, "+%.3e %.3e\n", max_time_, volt0);
-  streamPrint(spice_stream_, "+)\n");
+  sta::print(spice_stream_, "+{:.3e} {:.3e}\n", max_time_, volt0);
+  sta::print(spice_stream_, "+)\n");
 }
 
 float
@@ -407,9 +408,9 @@ WritePathSpice::findSlew(const Path *path,
 void
 WritePathSpice::writeMeasureStmts()
 {
-  streamPrint(spice_stream_, "********************\n");
-  streamPrint(spice_stream_, "* Measure statements\n");
-  streamPrint(spice_stream_, "********************\n\n");
+  sta::print(spice_stream_, "********************\n");
+  sta::print(spice_stream_, "* Measure statements\n");
+  sta::print(spice_stream_, "********************\n\n");
 
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     const Path *gate_input_path = stageGateInputPath(stage);
@@ -426,7 +427,7 @@ WritePathSpice::writeMeasureStmts()
     if (stage == stageLast())
       writeMeasureSlewStmt(stage, load_path);
   }
-  streamPrint(spice_stream_, "\n");
+  sta::print(spice_stream_, "\n");
 }
 
 void
@@ -452,9 +453,9 @@ WritePathSpice::writeMeasureSlewStmt(Stage stage,
 void
 WritePathSpice::writeStageSubckts()
 {
-  streamPrint(spice_stream_, "***************\n");
-  streamPrint(spice_stream_, "* Stage subckts\n");
-  streamPrint(spice_stream_, "***************\n\n");
+  sta::print(spice_stream_, "***************\n");
+  sta::print(spice_stream_, "* Stage subckts\n");
+  sta::print(spice_stream_, "***************\n\n");
 
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     cap_index_ = 1;
@@ -476,12 +477,12 @@ WritePathSpice::writeInputStage(Stage stage)
   const char *drvr_pin_name = stageDrvrPinName(stage);
   const char *load_pin_name = stageLoadPinName(stage);
   std::string prefix = stageName(stage);
-  streamPrint(spice_stream_, ".subckt %s %s %s\n",
-              prefix.c_str(),
-              drvr_pin_name,
-              load_pin_name);
+  sta::print(spice_stream_, ".subckt {} {} {}\n",
+             prefix,
+             drvr_pin_name,
+             load_pin_name);
   writeStageParasitics(stage);
-  streamPrint(spice_stream_, ".ends\n\n");
+  sta::print(spice_stream_, ".ends\n\n");
 }
 
 // Gate and load parasitics.
@@ -500,17 +501,17 @@ WritePathSpice::writeGateStage(Stage stage)
   const LibertyPort *input_port = stageGateInputPort(stage);
   const LibertyPort *drvr_port = stageDrvrPort(stage);
 
-  streamPrint(spice_stream_, ".subckt %s %s %s %s\n",
-              subckt_name.c_str(),
-              input_pin_name,
-              drvr_pin_name,
-              load_pin_name);
+  sta::print(spice_stream_, ".subckt {} {} {} {}\n",
+             subckt_name,
+             input_pin_name,
+             drvr_pin_name,
+             load_pin_name);
 
   // Driver subckt call.
-  streamPrint(spice_stream_, "* Gate %s %s -> %s\n",
-              network_->pathName(inst),
-              input_port->name(),
-              drvr_port->name());
+  sta::print(spice_stream_, "* Gate {} {} -> {}\n",
+             network_->pathName(inst),
+             input_port->name(),
+             drvr_port->name());
   writeSubcktInst(inst);
 
   const Path *drvr_path = stageDrvrPath(stage);
@@ -525,7 +526,7 @@ WritePathSpice::writeGateStage(Stage stage)
   PinSet inputs(network_);
   inputs.insert(input_pin);
   writeSubcktInstVoltSrcs(inst, port_values, inputs);
-  streamPrint(spice_stream_, "\n");
+  sta::print(spice_stream_, "\n");
 
   PinSet drvr_loads(network_);
   PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
@@ -537,7 +538,7 @@ WritePathSpice::writeGateStage(Stage stage)
 
   writeSubcktInstLoads(drvr_pin, load_pin, drvr_loads, written_insts_);
   writeStageParasitics(stage);
-  streamPrint(spice_stream_, ".ends\n\n");
+  sta::print(spice_stream_, ".ends\n\n");
 }
 
 void
@@ -575,7 +576,7 @@ WritePathSpice::findPathCellNames()
     if (arc) {
       LibertyCell *cell = arc->set()->libertyCell();
       if (cell) {
-        debugPrint(debug_, "write_spice", 2, "cell %s", cell->name());
+        debugPrint(debug_, "write_spice", 2, "cell {}", cell->name());
         path_cell_names.insert(cell->name());
       }
       // Include side receivers.
@@ -612,9 +613,7 @@ WritePathSpice::stageLast()
 std::string
 WritePathSpice::stageName(Stage stage)
 {
-  std::string name;
-  stringPrint(name, "stage%d", stage);
-  return name;
+  return sta::format("stage{}", stage);
 }
 
 int

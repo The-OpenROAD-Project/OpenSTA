@@ -236,7 +236,7 @@ CheckCrpr::findCrpr(const Path *src_clk_path,
       && tgt_clk_path2 && !tgt_clk_path2->isNull()
       && (src_clk_path2->transition(this) == tgt_clk_path2->transition(this)
           || same_pin)) {
-    debugPrint(debug_, "crpr", 2, "crpr pin %s",
+    debugPrint(debug_, "crpr", 2, "crpr pin {}",
                network_->pathName(src_clk_path2->pin(this)));
     crpr = findCrpr1(src_clk_path2, tgt_clk_path2);
     crpr_pin = src_clk_path2->pin(this);
@@ -289,12 +289,12 @@ CheckCrpr::findCrpr1(const Path *src_clk_path,
     // is the min of the source and target max-min delay.
     float src_delta = crprArrivalDiff(src_clk_path);
     float tgt_delta = crprArrivalDiff(tgt_clk_path);
-    debugPrint(debug_, "crpr", 2, " src delta %s",
+    debugPrint(debug_, "crpr", 2, " src delta {}",
                delayAsString(src_delta, this));
-    debugPrint(debug_, "crpr", 2, " tgt delta %s",
+    debugPrint(debug_, "crpr", 2, " tgt delta {}",
                delayAsString(tgt_delta, this));
     float common_delay = std::min(src_delta, tgt_delta);
-    debugPrint(debug_, "crpr", 2, " %s delta %s",
+    debugPrint(debug_, "crpr", 2, " {} delta {}",
                network_->pathName(src_clk_path->pin(this)),
                delayAsString(common_delay, this));
     return common_delay;

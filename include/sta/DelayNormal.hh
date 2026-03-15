@@ -82,7 +82,7 @@ public:
                 float delay2) const override;
   Delay div(float delay1,
             const Delay &delay2) const override;
-  const char *asStringVariance(const Delay &delay,
+  std::string asStringVariance(const Delay &delay,
                                int digits,
                                const StaState *sta) const override;
 };

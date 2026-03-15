@@ -215,7 +215,7 @@ delayDblAsDelay(DelayDbl &delay)
   return Delay(delay.mean(), delay.meanShift(), delay.stdDev2(), delay.skewness());
 }
 
-const char *
+std::string
 delayAsString(const Delay &delay,
               const StaState *sta)
 {
@@ -223,7 +223,7 @@ delayAsString(const Delay &delay,
                        sta->units()->timeUnit()->digits(), sta);
 }
 
-const char *
+std::string
 delayAsString(const Delay &delay,
               const EarlyLate *early_late,
               const StaState *sta)
@@ -231,7 +231,7 @@ delayAsString(const Delay &delay,
   return delayAsString(delay, early_late, sta->units()->timeUnit()->digits(), sta);
 }
 
-const char *
+std::string
 delayAsString(const Delay &delay,
               const EarlyLate *early_late,
               int digits,
@@ -242,7 +242,7 @@ delayAsString(const Delay &delay,
   return unit->asString(mean_std_dev, digits);
 }
 
-const char *
+std::string
 delayAsString(const Delay &delay,
               const EarlyLate *early_late,
               bool report_variance,

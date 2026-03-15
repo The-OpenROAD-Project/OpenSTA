@@ -222,12 +222,10 @@ ConcreteCell::makeBusPortBit(ConcretePort *bus_port,
                              const char *bus_name,
                              int bit_index)
 {
-  std::string bit_name;
-  stringPrint(bit_name, "%s%c%d%c",
-              bus_name,
-              library_->busBrktLeft(),
-              bit_index,
-              library_->busBrktRight());
+  std::string bit_name = std::string(bus_name)
+    + library_->busBrktLeft()
+    + std::to_string(bit_index)
+    + library_->busBrktRight();
   ConcretePort *port = makePort(bit_name.c_str(), bit_index);
   bus_port->addPortBit(port);
   addPortBit(port);
@@ -465,12 +463,13 @@ ConcretePort::busName() const
 {
   if (is_bus_) {
     ConcreteLibrary *lib = cell_->library();
-    return stringPrintTmp("%s%c%d:%d%c",
-                          name(),
-                          lib->busBrktLeft(),
-                          from_index_,
-                          to_index_,
-                          lib->busBrktRight());
+    std::string bus_name = sta::format("{}{}{}:{}{}",
+                                       name(),
+                                       lib->busBrktLeft(),
+                                       from_index_,
+                                       to_index_,
+                                       lib->busBrktRight());
+    return makeTmpString(bus_name);
   }
   else
     return name();

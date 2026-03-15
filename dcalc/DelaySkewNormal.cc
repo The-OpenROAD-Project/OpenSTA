@@ -29,6 +29,7 @@
 #include "Error.hh"
 #include "Fuzzy.hh"
 #include "Units.hh"
+#include "Format.hh"
 #include "StaState.hh"
 #include "Variables.hh"
 
@@ -276,17 +277,17 @@ DelayOpsSkewNormal::div(float delay1,
   return Delay(delay1 / delay2.mean());
 }
 
-const char *
+std::string
 DelayOpsSkewNormal::asStringVariance(const Delay &delay,
                                      int digits,
                                      const StaState *sta) const
 {
   const Unit *unit = sta->units()->timeUnit();
-  return stringPrintTmp("%s[%s,%s,%s]",
-                        unit->asString(delay.mean(), digits),
-                        unit->asString(delay.meanShift(), digits),
-                        unit->asString(delay.stdDev(), digits),
-                        sta->units()->scalarUnit()->asString(delay.skewness(), digits));
+  return sta::format("{}[{},{},{}]",
+                     unit->asString(delay.mean(), digits),
+                     unit->asString(delay.meanShift(), digits),
+                     unit->asString(delay.stdDev(), digits),
+                     sta->units()->scalarUnit()->asString(delay.skewness(), digits));
 }
 
 } // namespace

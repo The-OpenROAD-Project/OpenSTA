@@ -24,6 +24,19 @@
 
 This file summarizes STA API changes for each release.
 
+2026/03/12
+----------
+
+The Report class used for reporting and error messages now uses std::format
+instead of printf.
+
+sta::format is a wrapper for std::format that will compile on gcc8, which
+centos7 uses and does not support std::format.
+
+stdstrPrint, strintPrint, stringAppend have been removed. Use sta::format.
+
+reportLineString is now reportLine
+
 Release 3.0.0 2025/01/03
 ------------------------
 

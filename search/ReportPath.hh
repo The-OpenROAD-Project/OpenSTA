@@ -491,11 +491,13 @@ protected:
   ReportField *field_src_attr_;
   ReportField *field_edge_;
   ReportField *field_case_;
-  static constexpr float field_blank_ = -1;
-  int field_width_extra_;
 
-  const char *plus_zero_;
-  const char *minus_zero_;
+  std::string plus_zero_;
+  std::string minus_zero_;
+
+  int field_width_extra_;
+  static constexpr float field_blank_ = -1;
+  static const float field_skip_;
 };
 
 class ReportField

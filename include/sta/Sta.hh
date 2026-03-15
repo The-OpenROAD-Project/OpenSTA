@@ -434,19 +434,21 @@ public:
                               const RiseFallBoth *to_rf,
                               const SetupHoldAll *setup_hold,
                               Sdc *sdc);
-  ClockGroups *makeClockGroups(const char *name,
+  ClockGroups *makeClockGroups(const std::string &name,
                                bool logically_exclusive,
                                bool physically_exclusive,
                                bool asynchronous,
                                bool allow_paths,
                                const char *comment,
                                Sdc *sdc);
-  // nullptr name removes all.
-  void removeClockGroupsLogicallyExclusive(const char *name,
+  void removeClockGroupsLogicallyExclusive(Sdc *sdc);
+  void removeClockGroupsLogicallyExclusive(const std::string &name,
                                            Sdc *sdc);
-  void removeClockGroupsPhysicallyExclusive(const char *name,
+  void removeClockGroupsPhysicallyExclusive(Sdc *sdc);
+  void removeClockGroupsPhysicallyExclusive(const std::string &name,
                                             Sdc *sdc);
-  void removeClockGroupsAsynchronous(const char *name,
+  void removeClockGroupsAsynchronous(Sdc *sdc);
+  void removeClockGroupsAsynchronous(const std::string &name,
                                      Sdc *sdc);
   void makeClockGroup(ClockGroups *clk_groups,
                       ClockSet *clks,
@@ -640,7 +642,7 @@ public:
                      float delay,
                      const char *comment,
                      Sdc *sdc);
-  void makeGroupPath(const char *name,
+  void makeGroupPath(const std::string &name,
                      bool is_default,
                      ExceptionFrom *from,
                      ExceptionThruSeq *thrus,

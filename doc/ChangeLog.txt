@@ -2,6 +2,7 @@ OpenSTA Timing Analyzer Release Notes
 -------------------------------------
 
 This file summarizes user visible changes for each release.
+See ApiChangeLog.txt for changes to the STA api.
 
 Release 3.0.1 2026/03/12
 ------------------------

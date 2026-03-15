@@ -1156,7 +1156,7 @@ ra_hinv(double y,
    ex = exp(-x);
    f =  x+ex-1.0-y;
    if (f<-1e-8 || f>1e-8)
-     debugPrint(debug, "arnoldi", 1, "y f %g %g", y, f);
+     debugPrint(debug, "arnoldi", 1, "y f {:g} {:g}", y, f);
   return x;
 }
 
@@ -1290,7 +1290,7 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
   s = s - f/df;
 
   if (std::abs(f)>.5e-12) // .5ps
-    debugPrint(debug_, "arnoldi", 1, "ra_solve_for_s p %g tlohi %s err %s",
+    debugPrint(debug_, "arnoldi", 1, "ra_solve_for_s p {:g} tlohi {} err {}",
                p,
                units_->timeUnit()->asString(tlohi),
                units_->timeUnit()->asString(f));
@@ -1399,7 +1399,7 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   double ceff,tlohi,t50_sy,r,s,t50_sr,rdelay;
   float df, sf;
 
-  debugPrint(debug_, "arnoldi", 1, "ctot=%s",
+  debugPrint(debug_, "arnoldi", 1, "ctot={}",
              units_->capacitanceUnit()->asString(ctot));
 
   rdelay = ra_rdelay_1(tab,ctot);
@@ -1421,18 +1421,18 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   if (debug_->check("arnoldi", 1)) {
     double p = 1.0/(r*ctot);
     double thix,tlox;
-    debugPrint(debug_, "arnoldi", 1, "at r=%s s=%s",
+    debugPrint(debug_, "arnoldi", 1, "at r={} s={}",
                units_->resistanceUnit()->asString(r),
                units_->timeUnit()->asString(s));
     thix = ra_solve_for_t(p,s,vhi);
     tlox = ra_solve_for_t(p,s,vlo);
     tab->table->gateDelay(tab->pvt,tab->in_slew, ctot, df, sf);
-    debugPrint(debug_, "arnoldi", 1, "table slew (in_slew %s ctot %s) = %s",
+    debugPrint(debug_, "arnoldi", 1, "table slew (in_slew {} ctot {}) = {}",
                units_->timeUnit()->asString(tab->in_slew),
                units_->capacitanceUnit()->asString(ctot),
                delayAsString(sf, this));
     tlohi = slew_derate*delayAsFloat(sf);
-    debugPrint(debug_, "arnoldi", 1, "tlohi %s %s",
+    debugPrint(debug_, "arnoldi", 1, "tlohi {} {}",
                units_->timeUnit()->asString(tlohi),
                units_->timeUnit()->asString(tlox-thix));
   }
@@ -1468,11 +1468,11 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
 
       // new mvs at ceff
       s = ra_get_s(D,tab,r,ceff);
-      debugPrint(debug_, "arnoldi", 1, "new mvs  s = %s",
+      debugPrint(debug_, "arnoldi", 1, "new mvs  s = {}",
                  units_->timeUnit()->asString(s));
     }
   }
-  debugPrint(debug_, "arnoldi", 1, "r %s s %s ceff_time %s ceff %s",
+  debugPrint(debug_, "arnoldi", 1, "r {} s {} ceff_time {} ceff {}",
              units_->resistanceUnit()->asString(r),
              units_->timeUnit()->asString(s),
              units_->timeUnit()->asString(ceff_time),

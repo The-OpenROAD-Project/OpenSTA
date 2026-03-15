@@ -32,19 +32,9 @@
 
 #include "Machine.hh"
 #include "Mutex.hh"
+#include "Error.hh"
 
 namespace sta {
-
-static void
-stringPrintTmp(const char *fmt,
-               va_list args,
-               // Return values.
-               char *&str,
-               size_t &length);
-static void
-getTmpString(// Return values.
-             char *&str,
-             size_t &length);
 
 char *
 stringCopy(const char *str)
@@ -70,112 +60,6 @@ isDigits(const char *str)
 
 ////////////////////////////////////////////////////////////////
 
-// print for c++ strings.
-void
-stringPrint(std::string &str,
-            const char *fmt,
-            ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  char *tmp;
-  size_t tmp_length;
-  stringPrintTmp(fmt, args, tmp, tmp_length);
-  va_end(args);
-  str = tmp;
-}
-
-void
-stringAppend(std::string &str,
-             const char *fmt,
-             ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  char *tmp;
-  size_t tmp_length;
-  stringPrintTmp(fmt, args, tmp, tmp_length);
-  va_end(args);
-  str += tmp;
-}
-
-std::string
-stdstrPrint(const char *fmt,
-            ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  char *tmp;
-  size_t tmp_length;
-  stringPrintTmp(fmt, args, tmp, tmp_length);
-  va_end(args);
-  return tmp;
-}
-
-char *
-stringPrint(const char *fmt,
-            ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  char *result = stringPrintArgs(fmt, args);
-  va_end(args);
-  return result;
-}
-
-char *
-stringPrintArgs(const char *fmt,
-                va_list args)
-{
-  char *tmp;
-  size_t tmp_length;
-  stringPrintTmp(fmt, args, tmp, tmp_length);
-  char *result = new char[tmp_length + 1];
-  strcpy(result, tmp);
-  return result;
-}
-
-char *
-stringPrintTmp(const char *fmt,
-               ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  char *tmp;
-  size_t tmp_length;
-  stringPrintTmp(fmt, args, tmp, tmp_length);
-  va_end(args);
-  return tmp;
-}
-
-static void
-stringPrintTmp(const char *fmt,
-               va_list args,
-               // Return values.
-               char *&tmp,
-               // strlen(tmp), not including terminating '\0'.
-               size_t &tmp_length)
-{
-  size_t tmp_length1;
-  getTmpString(tmp, tmp_length1);
-
-  va_list args_copy;
-  va_copy(args_copy, args);
-  // Returned length does NOT include trailing '\0'.
-  tmp_length = vsnprint(tmp, tmp_length1, fmt, args_copy);
-  va_end(args_copy);
-
-  if (tmp_length >= tmp_length1) {
-    tmp_length1 = tmp_length + 1;
-    tmp = makeTmpString(tmp_length1);
-    va_copy(args_copy, args);
-    tmp_length = vsnprint(tmp, tmp_length1, fmt, args_copy);
-    va_end(args_copy);
-  }
-}
-
-////////////////////////////////////////////////////////////////
-
 static constexpr size_t tmp_string_count = 256;
 static constexpr size_t tmp_string_initial_length = 256;
 thread_local static std::array<char*, tmp_string_count> tmp_strings;
@@ -191,22 +75,6 @@ deleteTmpStrings()
     tmp_strings[i] = nullptr;
   }
   tmp_string_next = 0;
-}
-
-static void
-getTmpString(// Return values.
-             char *&str,
-             size_t &length)
-{
-  if (tmp_string_next == tmp_string_count)
-    tmp_string_next = 0;
-  str = tmp_strings[tmp_string_next];
-  length = tmp_string_lengths[tmp_string_next];
-  if (str == nullptr) {
-    str = tmp_strings[tmp_string_next] = new char[tmp_string_initial_length];
-    length = tmp_string_lengths[tmp_string_next] = tmp_string_initial_length;
-  }
-  tmp_string_next++;
 }
 
 char *
@@ -239,10 +107,8 @@ makeTmpString(std::string &str)
 void
 stringDeleteCheck(const char *str)
 {
-  if (isTmpString(str)) {
-    printf("Critical error: stringDelete for tmp string.");
-    exit(1);
-  }
+  if (isTmpString(str))
+    criticalError(2600, "stringDelete for tmp string.");
 }
 
 bool

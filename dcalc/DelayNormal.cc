@@ -29,6 +29,7 @@
 #include "Error.hh"
 #include "Fuzzy.hh"
 #include "Units.hh"
+#include "Format.hh"
 #include "StaState.hh"
 #include "Variables.hh"
 
@@ -217,15 +218,15 @@ DelayOpsNormal::div(float delay1,
   return Delay(delay1 / delay2.mean());
 }
 
-const char *
+std::string
 DelayOpsNormal::asStringVariance(const Delay &delay,
                                  int digits,
                                  const StaState *sta) const
 {
   const Unit *unit = sta->units()->timeUnit();
-  return stringPrintTmp("%s[%s]",
-                        unit->asString(delay.mean(), digits),
-                        unit->asString(delay.stdDev(), digits));
+  return sta::format("{}[{}]",
+                     unit->asString(delay.mean(), digits),
+                     unit->asString(delay.stdDev(), digits));
 }
 
 } // namespace

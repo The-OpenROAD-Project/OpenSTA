@@ -283,7 +283,7 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin,
   if (isIsolatedNet(drvrs, loads)) {
     for (auto drvr_pin : drvrs) {
       visited_drvrs.insert(drvr_pin);
-      debugPrint(debug_, "graph", 1, "ignoring isolated driver %s",
+      debugPrint(debug_, "graph", 1, "ignoring isolated driver {}",
                  network_->pathName(drvr_pin));
     }
     return;

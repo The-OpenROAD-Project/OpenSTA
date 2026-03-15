@@ -511,7 +511,7 @@ net_pins(Net *net)
   return pins;
 }
 
-const char *
+std::string
 pin_location(const Pin *pin)
 {
   Network *network = Sta::sta()->ensureLinked();
@@ -520,12 +520,12 @@ pin_location(const Pin *pin)
   network->location(pin, x, y, exists);
   // return x/y as tcl list
   if (exists)
-    return sta::stringPrintTmp("%f %f", x, y);
+    return std::format("{} {}", x, y);
   else
     return "";
 }
 
-const char *
+std::string
 port_location(const Port *port)
 {
   Network *network = Sta::sta()->ensureLinked();

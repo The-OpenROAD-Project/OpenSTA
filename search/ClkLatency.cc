@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "ClkLatency.hh"
@@ -55,8 +55,7 @@ ClkLatency::findClkDelays(const Clock *clk,
   clks.push_back(clk);
   SceneSet scenes;
   scenes.insert(scene);
-  ClkDelayMap clk_delay_map = findClkDelays(clks, scenes,
-                                            include_internal_latency);
+  ClkDelayMap clk_delay_map = findClkDelays(clks, scenes, include_internal_latency);
   return clk_delay_map[clk];
 }
 
@@ -88,7 +87,7 @@ ClkLatency::reportClkLatency(const Clock *clk,
                              int digits)
 {
   Unit *time_unit = units_->timeUnit();
-  report_->reportLine("Clock %s", clk->name());
+  report_->report("Clock {}", clk->name());
   for (const RiseFall *src_rf : RiseFall::range()) {
     for (const RiseFall *end_rf : RiseFall::range()) {
       Path path_min;
@@ -97,47 +96,41 @@ ClkLatency::reportClkLatency(const Clock *clk,
       float internal_latency_min;
       Delay latency_min;
       bool exists_min;
-      clk_delays.delay(src_rf, end_rf, MinMax::min(), insertion_min,
-                       delay_min, internal_latency_min, latency_min,
-                       path_min, exists_min);
+      clk_delays.delay(src_rf, end_rf, MinMax::min(), insertion_min, delay_min,
+                       internal_latency_min, latency_min, path_min, exists_min);
       Path path_max;
       Delay insertion_max;
       Delay delay_max;
       float internal_latency_max;
       Delay latency_max;
       bool exists_max;
-      clk_delays.delay(src_rf, end_rf, MinMax::max(), insertion_max,
-                       delay_max, internal_latency_max, latency_max,
-                       path_max, exists_max);
+      clk_delays.delay(src_rf, end_rf, MinMax::max(), insertion_max, delay_max,
+                       internal_latency_max, latency_max, path_max, exists_max);
       if (exists_min & exists_max) {
-        report_->reportLine("%s -> %s",
-                            src_rf->name(),
-                            end_rf->name());
-        report_->reportLine("    min     max");
-
-        report_->reportLine("%7s %7s source latency",
-                            delayAsString(insertion_min, MinMax::min(), digits, this),
-                            delayAsString(insertion_max, MinMax::max(), digits, this));
-        report_->reportLine("%7s %7s network latency %s",
-                            delayAsString(delay_min, MinMax::min(), digits, this),
-                            "",
-                            sdc_network_->pathName(path_min.pin(this)));
-        report_->reportLine("%7s %7s network latency %s",
-                            "",
-                            delayAsString(delay_max, MinMax::max(), digits, this),
-                            sdc_network_->pathName(path_max.pin(this)));
-        if (internal_latency_min != 0.0
-            || internal_latency_max != 0.0)
-          report_->reportLine("%7s %7s internal clock latency",
-                              time_unit->asString(internal_latency_min, digits),
-                              time_unit->asString(internal_latency_max, digits));
-        report_->reportLine("---------------");
-        report_->reportLine("%7s %7s latency",
-                            delayAsString(latency_min, MinMax::min(), digits, this),
-                            delayAsString(latency_max, MinMax::max(), digits, this));
+        report_->report("{} -> {}", src_rf->name(), end_rf->name());
+        report_->report("    min     max");
+        report_->report("{:>7} {:>7} source latency",
+                        delayAsString(insertion_min, MinMax::min(), digits, this),
+                        delayAsString(insertion_max, MinMax::max(), digits, this));
+        report_->report("{:>7} {:>7} network latency {}",
+                        delayAsString(delay_min, MinMax::min(), digits, this),
+                        "",
+                        sdc_network_->pathName(path_min.pin(this)));
+        report_->report("{:>7} {:>7} network latency {}",
+                        "",
+                        delayAsString(delay_max, MinMax::max(), digits, this),
+                        sdc_network_->pathName(path_max.pin(this)));
+        if (internal_latency_min != 0.0 || internal_latency_max != 0.0)
+          report_->report("{:>7} {:>7} internal clock latency",
+                          time_unit->asString(internal_latency_min, digits),
+                          time_unit->asString(internal_latency_max, digits));
+        report_->report("---------------");
+        report_->report("{:>7} {:>7} latency",
+                        delayAsString(latency_min, MinMax::min(), digits, this),
+                        delayAsString(latency_max, MinMax::max(), digits, this));
         Delay skew = delayDiff(latency_max, latency_min, this);
-        report_->reportLine("        %7s skew",
-                            delayAsString(skew, MinMax::max(), digits, this));
+        report_->report("        {:>7} skew",
+                        delayAsString(skew, MinMax::max(), digits, this));
         report_->reportBlankLine();
       }
     }
@@ -164,9 +157,7 @@ ClkLatency::findClkDelays(ConstClockSeq &clks,
       Path *path = path_iter.next();
       const Scene *path_scene = path->scene(this);
       const Clock *path_clk = path->clock(this);
-      if (path_clk
-          && scenes.contains(path_scene)
-          && clk_set.contains(path_clk)) {
+      if (path_clk && scenes.contains(path_scene) && clk_set.contains(path_clk)) {
         auto delays_itr = clk_delay_map.find(path_clk);
         if (delays_itr != clk_delay_map.end()) {
           const ClockEdge *path_clk_edge = path->clkEdge(this);
@@ -278,7 +269,6 @@ Delay
 ClkDelays::latency(Path *clk_path,
                    StaState *sta)
 {
-
   Delay insertion = insertionDelay(clk_path, sta);
   Delay delay1 = delay(clk_path, sta);
   float lib_clk_delay = clkTreeDelay(clk_path, sta);
@@ -321,4 +311,4 @@ ClkDelays::clkTreeDelay(Path *clk_path,
   return port->clkTreeDelay(slew, rf, min_max);
 }
 
-} // namespace
+}  // namespace sta

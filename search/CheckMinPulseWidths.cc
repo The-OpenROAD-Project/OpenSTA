@@ -140,8 +140,8 @@ CheckMinPulseWidths::checkVertex(Vertex *vertex,
         Path *close_path = check.closePath(sta_);
         // Don't bother visiting if nobody is home.
         if (close_path) {
-          debugPrint(debug, "mpw", 2, "%s %s %s",
-                     path_vertex->to_string(sta_).c_str(),
+          debugPrint(debug, "mpw", 2, "{} {} {}",
+                     path_vertex->to_string(sta_),
                      path->transition(sta_) == RiseFall::rise() ? "(high)" : "(low)",
                      delayAsString(check.slack(sta_), sta_));
           if (violators) {
@@ -219,17 +219,17 @@ MinPulseWidthCheck::closePath(const StaState *sta) const
                 open_tag->isSegmentStart(),
                 open_tag->states(),
                 false);
-  debugPrint(sta->debug(), "mpw", 3, " open  %s",
-             open_tag->to_string(sta).c_str());
-  debugPrint(sta->debug(), "mpw", 3, " close %s",
-             close_tag.to_string(sta).c_str());
+  debugPrint(sta->debug(), "mpw", 3, " open  {}",
+             open_tag->to_string(sta));
+  debugPrint(sta->debug(), "mpw", 3, " close {}",
+             close_tag.to_string(sta));
   VertexPathIterator close_iter(open_path_->vertex(sta), scene, close_min_max,
                                 close_rf, sta);
   while (close_iter.hasNext()) {
     Path *close_path = close_iter.next();
     if (Tag::matchNoPathAp(close_path->tag(sta), &close_tag)) {
-      debugPrint(sta->debug(), "mpw", 3, " match %s",
-                 close_path->tag(sta)->to_string(sta).c_str());
+      debugPrint(sta->debug(), "mpw", 3, " match {}",
+                 close_path->tag(sta)->to_string(sta));
       return close_path;
     }
   }

@@ -309,7 +309,7 @@ PathGroups::makeGroups(int group_path_count,
     const Sdc *sdc = mode_->sdc();
     for (const auto& [name, group] : sdc->groupPaths()) {
       if (reportGroup(name, group_names)) {
-        PathGroup *group = PathGroup::makePathGroupSlack(name,
+        PathGroup *group = PathGroup::makePathGroupSlack(name.c_str(),
                                                          group_path_count,
                                                          endpoint_path_count,
                                                          unique_pins,
@@ -394,7 +394,7 @@ PathGroups::~PathGroups()
 }
 
 PathGroup *
-PathGroups::findPathGroup(const char *name,
+PathGroups::findPathGroup(const std::string &name,
                           const MinMax *min_max) const
 {
   auto itr = named_map_[min_max->index()].find(name);
@@ -416,7 +416,7 @@ PathGroups::findPathGroup(const Clock *clock,
 }
 
 bool
-PathGroups::reportGroup(const char *group_name,
+PathGroups::reportGroup(const std::string &group_name,
                         StringSet &group_names) const
 {
   return group_names.empty()
@@ -441,7 +441,7 @@ PathGroups::pathGroups(const PathEnd *path_end) const
           path_groups.push_back(path_delay_[mm_index]);
       }
       else {
-        const char *group_name = group_path->name();
+        std::string group_name = group_path->name();
         PathGroup *group = findPathGroup(group_name, min_max);
         if (group)
           path_groups.push_back(group);
@@ -552,7 +552,7 @@ PathGroups::pushEnds(PathEndSeq &path_ends)
   for (const MinMax *min_max : MinMax::range()) {
     int mm_index =  min_max->index();
     for (std::string &group_name : pathGroupNames()) {
-      PathGroup *path_group = findPathGroup(group_name.c_str(), min_max);
+      PathGroup *path_group = findPathGroup(group_name, min_max);
       if (path_group)
         path_group->pushEnds(path_ends);
     }
@@ -801,8 +801,8 @@ MakePathEndsAll::vertexEnd(Vertex *)
         // Only save the worst path end for each crpr tag.
         // PathEnum will peel the others.
         if (!unique_ends.contains(path_end)) {
-          debugPrint(debug, "path_group", 2, "insert %s %s %s %d",
-                     path_end->vertex(sta_)->to_string(sta_).c_str(),
+          debugPrint(debug, "path_group", 2, "insert {} {} {} {}",
+                     path_end->vertex(sta_)->to_string(sta_),
                      path_end->typeName(),
                      path_end->transition(sta_)->shortName(),
                      path_end->path()->tag(sta_)->index());
@@ -816,8 +816,8 @@ MakePathEndsAll::vertexEnd(Vertex *)
           }
         }
         else
-          debugPrint(debug, "path_group", 3, "prune %s %s %s %d",
-                     path_end->vertex(sta_)->to_string(sta_).c_str(),
+          debugPrint(debug, "path_group", 3, "prune {} {} {} {}",
+                     path_end->vertex(sta_)->to_string(sta_),
                      path_end->typeName(),
                      path_end->transition(sta_)->shortName(),
                      path_end->path()->tag(sta_)->index());

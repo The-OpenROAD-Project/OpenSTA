@@ -56,9 +56,8 @@ public:
   void setDigits(int digits);
   // Does not include suffix.
   int width() const;
-  const char *asString(float value) const;
-  const char *asString(double value) const;
-  const char *asString(float value,
+  std::string asString(float value) const;
+  std::string asString(float value,
                        int digits) const;
 
 private:

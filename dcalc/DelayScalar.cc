@@ -193,7 +193,7 @@ DelayOpsScalar::div(float delay1,
   return Delay(delay1 / delay2.mean());
 }
 
-const char *
+std::string
 DelayOpsScalar::asStringVariance(const Delay &delay,
                                  int digits,
                                  const StaState *sta) const
