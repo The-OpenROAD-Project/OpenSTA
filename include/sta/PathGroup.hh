@@ -29,7 +29,6 @@
 #include <map>
 #include <mutex>
 
-#include "BoundedHeap.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
 #include "SearchClass.hh"
@@ -70,7 +69,7 @@ public:
   ~PathGroup();
   const std::string &name() const { return name_; }
   const MinMax *minMax() const { return min_max_;}
-  PathEndSeq pathEnds() const;
+  PathEndSeq pathEnds() const { return path_ends_; }
   void insert(PathEnd *path_end);
   // Push group_path_count into path_ends.
   void pushEnds(PathEndSeq &path_ends);
@@ -93,6 +92,9 @@ protected:
             bool cmp_slack,
             const MinMax *min_max,
             const StaState *sta);
+  void ensureSortedMaxPaths();
+  void prune();
+  void sort();
 
   std::string name_;
   int group_path_count_;
@@ -101,9 +103,11 @@ protected:
   bool unique_edges_;
   float slack_min_;
   float slack_max_;
+  PathEndSeq path_ends_;
   const MinMax *min_max_;
   bool cmp_slack_;
-  BoundedHeap<PathEnd*, PathEndLess> heap_;
+  float threshold_;
+
   std::mutex lock_;
   const StaState *sta_;
 };
