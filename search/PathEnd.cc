@@ -449,7 +449,7 @@ PathEndUnconstrained::PathEndUnconstrained(Path *path) :
 PathEnd *
 PathEndUnconstrained::copy() const
 {
-  return new PathEndUnconstrained(path_);
+  return new PathEndUnconstrained(*this);
 }
 
 bool
@@ -509,17 +509,6 @@ PathEndClkConstrained::PathEndClkConstrained(Path *path,
   clk_path_(clk_path),
   crpr_(0.0),
   crpr_valid_(false)
-{
-}
-
-PathEndClkConstrained::PathEndClkConstrained(Path *path,
-                                             Path *clk_path,
-                                             Crpr crpr,
-                                             bool crpr_valid) :
-  PathEnd(path),
-  clk_path_(clk_path),
-  crpr_(crpr),
-  crpr_valid_(crpr_valid)
 {
 }
 
@@ -765,16 +754,6 @@ PathEndClkConstrainedMcp::PathEndClkConstrainedMcp(Path *path,
 {
 }
 
-PathEndClkConstrainedMcp::PathEndClkConstrainedMcp(Path *path,
-                                                   Path *clk_path,
-                                                   MultiCyclePath *mcp,
-                                                   Crpr crpr,
-                                                   bool crpr_valid) :
-  PathEndClkConstrained(path, clk_path, crpr, crpr_valid),
-  mcp_(mcp)
-{
-}
-
 float
 PathEndClkConstrainedMcp::targetClkMcpAdjustment(const StaState *sta) const
 {
@@ -945,24 +924,10 @@ PathEndCheck::PathEndCheck(Path *path,
 {
 }
 
-PathEndCheck::PathEndCheck(Path *path,
-                           TimingArc *check_arc,
-                           Edge *check_edge,
-                           Path *clk_path,
-                           MultiCyclePath *mcp,
-                           Crpr crpr,
-                           bool crpr_valid) :
-  PathEndClkConstrainedMcp(path, clk_path, mcp, crpr, crpr_valid),
-  check_arc_(check_arc),
-  check_edge_(check_edge)
-{
-}
-
 PathEnd *
 PathEndCheck::copy() const
 {
-  return new PathEndCheck(path_, check_arc_, check_edge_,
-                          clk_path_, mcp_, crpr_, crpr_valid_);
+  return new PathEndCheck(*this);
 }
 
 PathEnd::Type
@@ -1129,29 +1094,10 @@ PathEndLatchCheck::PathEndLatchCheck(Path *path,
     src_clk_arrival_ = search->pathClkPathArrival(path_);
 }
 
-PathEndLatchCheck::PathEndLatchCheck(Path *path,
-                                     TimingArc *check_arc,
-                                     Edge *check_edge,
-                                     Path *clk_path,
-                                     Path *disable_path,
-                                     MultiCyclePath *mcp,
-                                     PathDelay *path_delay,
-                                     Delay src_clk_arrival,
-                                     Crpr crpr,
-                                     bool crpr_valid) :
-  PathEndCheck(path, check_arc, check_edge, clk_path, mcp, crpr, crpr_valid),
-  disable_path_(disable_path),
-  path_delay_(path_delay),
-  src_clk_arrival_(src_clk_arrival)
-{
-}
-
 PathEnd *
 PathEndLatchCheck::copy() const
 {
-  return new PathEndLatchCheck(path_, check_arc_, check_edge_,
-                               clk_path_, disable_path_, mcp_, path_delay_,
-                               src_clk_arrival_, crpr_, crpr_valid_);
+  return new PathEndLatchCheck(*this);
 }
 
 PathEnd::Type
@@ -1357,22 +1303,10 @@ PathEndOutputDelay::PathEndOutputDelay(OutputDelay *output_delay,
 {
 }
 
-PathEndOutputDelay::PathEndOutputDelay(OutputDelay *output_delay,
-                                       Path *path,
-                                       Path *clk_path,
-                                       MultiCyclePath *mcp,
-                                       Crpr crpr,
-                                       bool crpr_valid) :
-  PathEndClkConstrainedMcp(path, clk_path, mcp, crpr, crpr_valid),
-  output_delay_(output_delay)
-{
-}
-
 PathEnd *
 PathEndOutputDelay::copy() const
 {
-  return new PathEndOutputDelay(output_delay_, path_, clk_path_,
-                                mcp_, crpr_, crpr_valid_);
+  return new PathEndOutputDelay(*this);
 }
 
 PathEnd::Type
@@ -1564,24 +1498,10 @@ PathEndGatedClock::PathEndGatedClock(Path *gating_ref,
 {
 }
 
-PathEndGatedClock::PathEndGatedClock(Path *gating_ref,
-                                     Path *clk_path,
-                                     const TimingRole *check_role,
-                                     MultiCyclePath *mcp,
-                                     ArcDelay margin,
-                                     Crpr crpr,
-                                     bool crpr_valid) :
-  PathEndClkConstrainedMcp(gating_ref, clk_path, mcp, crpr, crpr_valid),
-  check_role_(check_role),
-  margin_(margin)
-{
-}
-
 PathEnd *
 PathEndGatedClock::copy() const
 {
-  return new PathEndGatedClock(path_, clk_path_, check_role_,
-                               mcp_, margin_, crpr_, crpr_valid_);
+  return new PathEndGatedClock(*this);
 }
 
 PathEnd::Type
@@ -1680,24 +1600,10 @@ PathEndDataCheck::clkPath(Path *path,
   return nullptr;
 }
 
-PathEndDataCheck::PathEndDataCheck(DataCheck *check,
-                                   Path *data_path,
-                                   Path *data_clk_path,
-                                   Path *clk_path,
-                                   MultiCyclePath *mcp,
-                                   Crpr crpr,
-                                   bool crpr_valid) :
-  PathEndClkConstrainedMcp(data_path, clk_path, mcp, crpr, crpr_valid),
-  data_clk_path_(data_clk_path),
-  check_(check)
-{
-}
-
 PathEnd *
 PathEndDataCheck::copy() const
 {
-  return new PathEndDataCheck(check_, path_, data_clk_path_,
-                              clk_path_, mcp_, crpr_, crpr_valid_);
+  return new PathEndDataCheck(*this);
 }
 
 PathEnd::Type
@@ -1838,30 +1744,10 @@ PathEndPathDelay::PathEndPathDelay(PathDelay *path_delay,
   findSrcClkArrival(sta);
 }
 
-PathEndPathDelay::PathEndPathDelay(PathDelay *path_delay,
-                                   Path *path,
-                                   Path *clk_path,
-                                   TimingArc *check_arc,
-                                   Edge *check_edge,
-                                   OutputDelay *output_delay,
-                                   Arrival src_clk_arrival,
-                                   Crpr crpr,
-                                   bool crpr_valid) :
-  PathEndClkConstrained(path, clk_path, crpr, crpr_valid),
-  path_delay_(path_delay),
-  check_arc_(check_arc),
-  check_edge_(check_edge),
-  output_delay_(output_delay),
-  src_clk_arrival_(src_clk_arrival)
-{
-}
-
 PathEnd *
 PathEndPathDelay::copy() const
 {
-  return new PathEndPathDelay(path_delay_, path_, clk_path_,
-                              check_arc_, check_edge_, output_delay_,
-                              src_clk_arrival_, crpr_, crpr_valid_);
+  return new PathEndPathDelay(*this);
 }
 
 PathEnd::Type
