@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -340,8 +340,8 @@ CcsCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
                                 ArcDelay &wire_delay,
                                 Slew &load_slew)
 {
-  ArcDelay wire_delay1 = 0.0;
-  Slew load_slew1 = drvr_slew;
+  wire_delay = 0.0;
+  load_slew = drvr_slew;
   bool elmore_exists = false;
   float elmore = 0.0;
   if (parasitic_
@@ -352,15 +352,13 @@ CcsCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
       (elmore == 0.0
        // Elmore delay is small compared to driver slew.
        || elmore < delayAsFloat(drvr_slew) * 1e-3)) {
-    wire_delay1 = elmore;
-    load_slew1 = drvr_slew;
+    wire_delay = elmore;
+    load_slew = drvr_slew;
   }
   else
-    loadDelaySlew(load_pin, drvr_slew, elmore, wire_delay1, load_slew1);
+    loadDelaySlew(load_pin, drvr_slew, elmore, wire_delay, load_slew);
 
   thresholdAdjust(load_pin, drvr_library, rf, wire_delay, load_slew);
-  wire_delay = wire_delay1;
-  load_slew = load_slew1;
 }
 
 void

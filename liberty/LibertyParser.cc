@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -322,6 +322,24 @@ LibertyGroup::clear()
   subgroup_map_.clear();
   deleteContents(define_map_);
   deleteContents(variables_);
+}
+
+bool
+LibertyGroup::empty() const
+{
+  return subgroups_.empty()
+    && simple_attr_map_.empty()
+    && complex_attr_map_.empty()
+    && define_map_.empty();
+}
+
+bool
+LibertyGroup::oneGroupOnly() const
+{
+  return subgroups_.size() == 1
+    && simple_attr_map_.empty()
+    && complex_attr_map_.empty()
+    && define_map_.empty();
 }
 
 void

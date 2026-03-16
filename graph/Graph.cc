@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -107,7 +107,7 @@ public:
                         int &bidirect_count,
                         int &load_count,
                         const Network *network);
-  virtual void operator()(const Pin *pin);
+  void operator()(const Pin *pin) override;
 
 protected:
   Pin *drvr_pin_;
@@ -345,8 +345,8 @@ public:
   MakeEdgesThruHierPin(Graph *graph);
 
 private:
-  virtual void visit(const Pin *drvr,
-                     const Pin *load);
+  void visit(const Pin *drvr,
+             const Pin *load) override;
 
   Graph *graph_;
 };
@@ -1483,8 +1483,8 @@ class FindEdgesThruHierPinVisitor : public HierPinThruVisitor
 public:
   FindEdgesThruHierPinVisitor(EdgeSet &edges,
                               Graph *graph);
-  virtual void visit(const Pin *drvr,
-                     const Pin *load);
+  void visit(const Pin *drvr,
+             const Pin *load) override;
   
 protected:
   EdgeSet &edges_;

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -114,9 +114,9 @@ class StaDelayCalcObserver : public DelayCalcObserver
 {
 public:
   StaDelayCalcObserver(Search *search);
-  virtual void delayChangedFrom(Vertex *vertex);
-  virtual void delayChangedTo(Vertex *vertex);
-  virtual void checkDelayChangedTo(Vertex *vertex);
+  void delayChangedFrom(Vertex *vertex) override;
+  void delayChangedTo(Vertex *vertex) override;
+  void checkDelayChangedTo(Vertex *vertex) override;
 
 private:
   Search *search_;
@@ -497,7 +497,6 @@ Sta::sta()
 
 Sta::~Sta()
 {
-  delete variables_;
   // Verilog modules refer to the network in the sta so it has
   // to deleted before the network.
   delete verilog_reader_;
@@ -526,6 +525,7 @@ Sta::~Sta()
   delete power_;
   delete equiv_cells_;
   delete dispatch_queue_;
+  delete variables_;
   deleteContents(parasitics_name_map_);
   deleteContents(modes_);
   deleteContents(scenes_);
@@ -3415,8 +3415,8 @@ public:
                       bool include_port_paths,
                       StaState *sta);
   MinPeriodEndVisitor(const MinPeriodEndVisitor &) = default;
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
   float minPeriod() const { return min_period_; }
 
 private:

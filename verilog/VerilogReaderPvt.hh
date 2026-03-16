@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ public:
                 const std::string &filename,
                 int line,
                 VerilogReader *reader);
-  virtual ~VerilogModule();
+  ~VerilogModule() override;
   const std::string &name() { return name_; }
   const char *filename() { return filename_.c_str(); }
   VerilogAttrStmtSeq *attrStmts() { return attr_stmts_; }
@@ -128,10 +128,10 @@ public:
                 VerilogDclArg *arg,
                 VerilogAttrStmtSeq *attr_stmts,
                 int line);
-  virtual bool isBus() const { return true; }
+  bool isBus() const override { return true; }
   int fromIndex() const { return from_index_; }
   int toIndex() const { return to_index_; }
-  virtual int size() const;
+  int size() const override;
 
 private:
   int from_index_;
@@ -161,8 +161,8 @@ public:
   VerilogAssign(VerilogNet *lhs,
                 VerilogNet *rhs,
                 int line);
-  virtual ~VerilogAssign();
-  virtual bool isAssign() const { return true; }
+  ~VerilogAssign() override;
+  bool isAssign() const override { return true; }
   VerilogNet *lhs() const { return lhs_; }
   VerilogNet *rhs() const { return rhs_; }
 
@@ -177,8 +177,8 @@ public:
   VerilogInst(const std::string &inst_name,
               VerilogAttrStmtSeq *attr_stmts,
               const int line);
-  virtual ~VerilogInst();
-  virtual bool isInstance() const { return true; }
+  ~VerilogInst() override;
+  bool isInstance() const override { return true; }
   const std::string &instanceName() const { return inst_name_; }
   VerilogAttrStmtSeq *attrStmts() const { return attr_stmts_; }
   void setInstanceName(const std::string &inst_name);
@@ -196,8 +196,8 @@ public:
                     VerilogNetSeq *pins,
                     VerilogAttrStmtSeq *attr_stmts,
                     const int line);
-  virtual ~VerilogModuleInst();
-  virtual bool isModuleInst() const { return true; }
+  ~VerilogModuleInst() override;
+  bool isModuleInst() const override { return true; }
   const std::string &moduleName() const { return module_name_; }
   VerilogNetSeq *pins() const { return pins_; }
   bool namedPins();
@@ -219,7 +219,7 @@ public:
                      const StringSeq &net_names,
                      VerilogAttrStmtSeq *attr_stmts,
                      const int line);
-  virtual bool isLibertyInst() const { return true; }
+  bool isLibertyInst() const override { return true; }
   LibertyCell *cell() const { return cell_; }
   const StringSeq &netNames() const { return net_names_; }
 
@@ -258,7 +258,7 @@ class VerilogNetNamed : public VerilogNet
 {
 public:
   VerilogNetNamed(const std::string &name);
-  virtual ~VerilogNetNamed();
+  ~VerilogNetNamed() override;
   bool isNamed() const override { return true; }
   virtual bool isScalar() const = 0;
   const std::string &name() const override { return name_; }
@@ -272,10 +272,10 @@ class VerilogNetScalar : public VerilogNetNamed
 {
 public:
   VerilogNetScalar(const std::string &name);
-  virtual bool isScalar() const { return true; }
-  virtual int size(VerilogModule *module);
-  virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-                                               VerilogReader *reader);
+  bool isScalar() const override { return true; }
+  int size(VerilogModule *module) override;
+  VerilogNetNameIterator *nameIterator(VerilogModule *module,
+                                      VerilogReader *reader) override;
 };
 
 class VerilogNetBitSelect : public VerilogNetNamed
@@ -284,10 +284,10 @@ public:
   VerilogNetBitSelect(const std::string &name,
                       int index);
   int index() { return index_; }
-  virtual bool isScalar() const { return false; }
-  virtual int size(VerilogModule *module);
-  virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-                                               VerilogReader *reader);
+  bool isScalar() const override { return false; }
+  int size(VerilogModule *module) override;
+  VerilogNetNameIterator *nameIterator(VerilogModule *module,
+                                       VerilogReader *reader) override;
 private:
   int index_;
 };
@@ -298,10 +298,10 @@ public:
   VerilogNetPartSelect(const std::string &name,
                        int from_index,
                        int to_index);
-  virtual bool isScalar() const { return false; }
-  virtual int size(VerilogModule *module);
-  virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-                                               VerilogReader *reader);
+  bool isScalar() const override { return false; }
+  int size(VerilogModule *module) override;
+  VerilogNetNameIterator *nameIterator(VerilogModule *module,
+                                       VerilogReader *reader) override;
   int fromIndex() const { return from_index_; }
   int toIndex() const { return to_index_; }
 
@@ -316,10 +316,10 @@ public:
   VerilogNetConstant(const std::string *constant,
                      VerilogReader *reader,
                      int line);
-  virtual ~VerilogNetConstant();
-  virtual int size(VerilogModule *module);
-  virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-                                               VerilogReader *reader);
+  ~VerilogNetConstant() override;
+  int size(VerilogModule *module) override;
+  VerilogNetNameIterator *nameIterator(VerilogModule *module,
+                                       VerilogReader *reader) override;
 
 private:
   void parseConstant(const std::string *constant,
@@ -341,10 +341,10 @@ class VerilogNetConcat : public VerilogNetUnnamed
 {
 public:
   VerilogNetConcat(VerilogNetSeq *nets);
-  virtual ~VerilogNetConcat();
-  virtual int size(VerilogModule *module);
-  virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-                                               VerilogReader *reader);
+  ~VerilogNetConcat() override;
+  int size(VerilogModule *module) override;
+  VerilogNetNameIterator *nameIterator(VerilogModule *module,
+                                       VerilogReader *reader) override;
 
 private:
   VerilogNetSeq *nets_;
@@ -355,7 +355,7 @@ class VerilogNetPortRef : public VerilogNetScalar
 {
 public:
   VerilogNetPortRef(const std::string &name);
-  virtual bool isNamedPortRef() { return true; }
+  bool isNamedPortRef() override { return true; }
   virtual bool hasNet() = 0;
 };
 
@@ -369,12 +369,12 @@ public:
   VerilogNetPortRefScalarNet(const std::string &name);
   VerilogNetPortRefScalarNet(const std::string &name,
                              const std::string &net_name);
-  virtual bool isScalar() const { return true; }
-  virtual bool isNamedPortRefScalarNet() const { return true; }
-  virtual int size(VerilogModule *module);
-  virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-                                               VerilogReader *reader);
-  virtual bool hasNet() { return !net_name_.empty(); }
+  bool isScalar() const override { return true; }
+  bool isNamedPortRefScalarNet() const override { return true; }
+  int size(VerilogModule *module) override;
+  VerilogNetNameIterator *nameIterator(VerilogModule *module,
+                                        VerilogReader *reader) override;
+  bool hasNet() override { return !net_name_.empty(); }
   const std::string &netName() const { return net_name_; }
   void setNetName(const std::string &net_name) { net_name_ = net_name; }
 
@@ -387,12 +387,12 @@ class VerilogNetPortRefScalar : public VerilogNetPortRef
 public:
   VerilogNetPortRefScalar(const std::string &name,
                           VerilogNet *net);
-  virtual ~VerilogNetPortRefScalar();
-  virtual bool isScalar() const { return true; }
-  virtual int size(VerilogModule *module);
-  virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
-                                               VerilogReader *reader);
-  virtual bool hasNet() { return net_ != nullptr; }
+  ~VerilogNetPortRefScalar() override;
+  bool isScalar() const override { return true; }
+  int size(VerilogModule *module) override;
+  VerilogNetNameIterator *nameIterator(VerilogModule *module,
+                                       VerilogReader *reader) override;
+  bool hasNet() override { return net_ != nullptr; }
 
 private:
   VerilogNet *net_;

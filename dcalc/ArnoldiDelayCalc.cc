@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@ class ArnoldiDelayCalc : public LumpedCapDelayCalc
 {
 public:
   ArnoldiDelayCalc(StaState *sta);
-  virtual ~ArnoldiDelayCalc();
+  ~ArnoldiDelayCalc() override;
   ArcDelayCalc *copy() override;
   const char *name() const override { return "arnoldi"; }
   Parasitic *findParasitic(const Pin *drvr_pin,

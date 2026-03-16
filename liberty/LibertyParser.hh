@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -127,6 +127,8 @@ public:
                int line);
   ~LibertyGroup();
   void clear();
+  bool empty() const;
+  bool oneGroupOnly() const;
   const std::string &type() const { return type_; }
   const LibertyAttrValueSeq &params() const { return params_; }
   // First param as a string.

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -77,7 +77,6 @@ class DmpError : public Exception
 {
 public:
   DmpError(const char *what);
-  virtual ~DmpError() {}
   virtual const char *what() const noexcept { return what_; }
 
 private:

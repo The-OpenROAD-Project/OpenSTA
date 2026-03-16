@@ -166,6 +166,7 @@ record_public_tests {
   verilog_attribute
   verilog_specify
   verilog_write_escape
+  verilog_unconnected_hpin
 }
 
 define_test_group fast [group_tests all]
