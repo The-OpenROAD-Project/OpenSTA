@@ -330,7 +330,7 @@ Path::pathAnalysisPtIndex(const StaState *sta) const
   return scene(sta)->pathIndex(minMax(sta));
 }
 
-const Slew &
+const Slew
 Path::slew(const StaState *sta) const
 {
   DcalcAPIndex slew_index = scene(sta)->dcalcAnalysisPtIndex(minMax(sta));

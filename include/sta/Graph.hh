@@ -91,11 +91,11 @@ public:
   // Reported slew are the same as those in the liberty tables.
   //  reported_slews = measured_slews / slew_derate_from_library
   // Measured slews are between slew_lower_threshold and slew_upper_threshold.
-  const Slew &slew(const Vertex *vertex,
-                   const RiseFall *rf,
-                   DcalcAPIndex ap_index);
-  const Slew &slew(const Vertex *vertex,
-                   size_t index);
+  Slew slew(const Vertex *vertex,
+            const RiseFall *rf,
+            DcalcAPIndex ap_index);
+  Slew slew(const Vertex *vertex,
+            size_t index);
   void setSlew(Vertex *vertex,
                const RiseFall *rf,
                DcalcAPIndex ap_index,
@@ -124,17 +124,17 @@ public:
                    Edge *&edge,
                    const TimingArc *&arc) const;
 
-  const ArcDelay &arcDelay(const Edge *edge,
-                           const TimingArc *arc,
-                           DcalcAPIndex ap_index) const;
+  ArcDelay arcDelay(const Edge *edge,
+                    const TimingArc *arc,
+                    DcalcAPIndex ap_index) const;
   void setArcDelay(Edge *edge,
                    const TimingArc *arc,
                    DcalcAPIndex ap_index,
                    const ArcDelay &delay);
   // Alias for arcDelays using library wire arcs.
-  const ArcDelay &wireArcDelay(const Edge *edge,
-                               const RiseFall *rf,
-                               DcalcAPIndex ap_index);
+  ArcDelay wireArcDelay(const Edge *edge,
+                        const RiseFall *rf,
+                        DcalcAPIndex ap_index);
   void setWireArcDelay(Edge *edge,
                        const RiseFall *rf,
                        DcalcAPIndex ap_index,

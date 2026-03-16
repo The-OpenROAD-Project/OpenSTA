@@ -577,7 +577,7 @@ Graph::gateEdgeArc(const Pin *in_pin,
 
 ////////////////////////////////////////////////////////////////
 
-const Slew &
+Slew
 Graph::slew(const Vertex *vertex,
             const RiseFall *rf,
             DcalcAPIndex ap_index)
@@ -588,14 +588,11 @@ Graph::slew(const Vertex *vertex,
     const Slew *slews = std::bit_cast<const Slew*>(slews_flt);
     return slews[slew_index];
   }
-  else {
-    static Slew slew;
-    slew = slews_flt[slew_index];
-    return slew;
-  }
+  else
+    return slews_flt[slew_index];
 }
 
-const Slew &
+Slew
 Graph::slew(const Vertex *vertex,
             size_t index)
 {
@@ -604,11 +601,8 @@ Graph::slew(const Vertex *vertex,
     const Slew *slews = std::bit_cast<const Slew*>(slews_flt);
     return slews[index];
   }
-  else {
-    static Slew slew;
-    slew = slews_flt[index];
-    return slew;
-  }
+  else
+    return slews_flt[index];
 }
 
 void
@@ -677,7 +671,7 @@ Graph::deleteEdge(Edge *edge)
   edges_->destroy(edge);
 }
 
-const ArcDelay &
+ArcDelay
 Graph::arcDelay(const Edge *edge,
                 const TimingArc *arc,
                 DcalcAPIndex ap_index) const
@@ -689,9 +683,7 @@ Graph::arcDelay(const Edge *edge,
   }
   else {
     const float *delays = edge->arcDelays();
-    static ArcDelay delay;
-    delay = delays[index];
-    return delay;
+    return delays[index];
   }
 }
 
@@ -712,7 +704,7 @@ Graph::setArcDelay(Edge *edge,
   }
 }
 
-const ArcDelay &
+ArcDelay
 Graph::wireArcDelay(const Edge *edge,
                     const RiseFall *rf,
                     DcalcAPIndex ap_index)
@@ -724,9 +716,7 @@ Graph::wireArcDelay(const Edge *edge,
   }
   else {
     const float *delays = edge->arcDelays();
-    static ArcDelay delay;
-    delay = delays[index];
-    return delay;
+    return delays[index];
   }
 }
 

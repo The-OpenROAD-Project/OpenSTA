@@ -1142,9 +1142,9 @@ public:
             const SceneSeq &scenes,
             const MinMax *min_max);
 
-  const ArcDelay &arcDelay(Edge *edge,
-                           TimingArc *arc,
-                           DcalcAPIndex ap_index);
+  const ArcDelay arcDelay(Edge *edge,
+                          TimingArc *arc,
+                          DcalcAPIndex ap_index);
   // True if the timing arc has been back-annotated.
   bool arcDelayAnnotated(Edge *edge,
                          TimingArc *arc,

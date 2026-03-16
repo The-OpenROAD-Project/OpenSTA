@@ -504,7 +504,7 @@ GraphDelayCalc::seedNoDrvrSlew(Vertex *drvr_vertex,
                                ArcDelayCalc *arc_delay_calc)
 {
   DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-  Slew slew(default_slew);
+  Slew slew = default_slew;
   // Top level bidirect driver uses load slew unless
   // bidirect instance paths are disabled.
   if (bidirectDrvrSlewFromLoad(drvr_pin)) {
@@ -744,7 +744,7 @@ GraphDelayCalc::loadSlewsChanged(DrvrLoadSlews &load_slews_prev,
     Vertex *load_vertex = graph_->pinLoadVertex(pin);
     SlewSeq &slews_prev = load_slews_prev[index];;
     for (size_t i = 0; i < slew_count; i++) {
-      const Slew &slew = graph_->slew(load_vertex, i);
+      const Slew slew = graph_->slew(load_vertex, i);
       if (!delayEqual(slew, slews_prev[i], this))
         return true;
     }
@@ -1216,13 +1216,13 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
   Vertex *drvr_vertex = edge->to(graph_);
   const RiseFall *drvr_rf = arc->toEdge()->asRiseFall();
   // Merge slews.
-  const Slew &drvr_slew = graph_->slew(drvr_vertex, drvr_rf, ap_index);
+  const Slew drvr_slew = graph_->slew(drvr_vertex, drvr_rf, ap_index);
   if (delayGreater(gate_slew, drvr_slew, min_max, this)
       && !drvr_vertex->slewAnnotated(drvr_rf, min_max)
       && !edge->role()->isLatchDtoQ())
     graph_->setSlew(drvr_vertex, drvr_rf, ap_index, gate_slew);
   if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
-    const ArcDelay &prev_gate_delay = graph_->arcDelay(edge,arc,ap_index);
+    const ArcDelay prev_gate_delay = graph_->arcDelay(edge,arc,ap_index);
     float gate_delay1 = delayAsFloat(gate_delay);
     float prev_gate_delay1 = delayAsFloat(prev_gate_delay);
     if (prev_gate_delay1 == 0.0
@@ -1267,12 +1267,12 @@ GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
       if (!load_vertex->slewAnnotated(drvr_rf, min_max)) {
         if (drvr_vertex->slewAnnotated(drvr_rf, min_max)) {
 	  // Copy the driver slew to the load if it is annotated.
-	  const Slew &drvr_slew = graph_->slew(drvr_vertex,drvr_rf,ap_index);
+	  const Slew drvr_slew = graph_->slew(drvr_vertex,drvr_rf,ap_index);
 	  graph_->setSlew(load_vertex, drvr_rf, ap_index, drvr_slew);
           load_changed = true;
 	}
 	else {
-	  const Slew &slew = graph_->slew(load_vertex, drvr_rf, ap_index);
+	  const Slew slew = graph_->slew(load_vertex, drvr_rf, ap_index);
 	  if (!merge
               || delayGreater(load_slew, slew, min_max, this)) {
 	    graph_->setSlew(load_vertex, drvr_rf, ap_index, load_slew);
@@ -1600,7 +1600,7 @@ GraphDelayCalc::findCheckEdgeDelays(Edge *edge,
 	if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
 	  const Slew &from_slew = checkEdgeClkSlew(from_vertex, from_rf,
                                                      scene, min_max);
-            const Slew &to_slew = graph_->slew(to_vertex, to_rf, ap_index);
+            const Slew to_slew = graph_->slew(to_vertex, to_rf, ap_index);
 	  debugPrint(debug_, "delay_calc", 3,
                        "  %s %s -> %s %s (%s) scene:%s/%s",
                      arc_set->from()->name(),
@@ -1682,7 +1682,7 @@ GraphDelayCalc::reportDelayCalc(const Edge *edge,
     if (role->isTimingCheck()) {
       const Slew &from_slew = checkEdgeClkSlew(from_vertex, from_rf, scene, min_max);
       DcalcAPIndex slew_index = scene->dcalcAnalysisPtIndex(min_max);
-      const Slew &to_slew = graph_->slew(to_vertex, to_rf, slew_index);
+      const Slew to_slew = graph_->slew(to_vertex, to_rf, slew_index);
       const ClkNetwork *clk_network = scene->mode()->clkNetwork();
       bool from_ideal_clk = clk_network->isIdealClock(from_vertex);
       const char *from_slew_annotation = from_ideal_clk ? " (ideal clock)" : nullptr;

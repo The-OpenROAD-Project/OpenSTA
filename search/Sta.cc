@@ -3622,7 +3622,7 @@ Sta::setIncrementalDelayTolerance(float tol)
   graph_delay_calc_->setIncrementalDelayTolerance(tol);
 }
 
-const ArcDelay&
+const ArcDelay
 Sta::arcDelay(Edge *edge,
 	      TimingArc *arc,
               DcalcAPIndex ap_index)
