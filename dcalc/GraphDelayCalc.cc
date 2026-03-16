@@ -534,22 +534,22 @@ GraphDelayCalc::seedLoadSlew(Vertex *vertex)
     const Sdc *sdc = scene->sdc();
     for (const MinMax *min_max : MinMax::range()) {
       DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-  for (const RiseFall *rf : RiseFall::range()) {
+      for (const RiseFall *rf : RiseFall::range()) {
         ClockSet *clks = sdc->findLeafPinClocks(pin);
         if (!vertex->slewAnnotated(rf, min_max)) {
-	float slew = 0.0;
-	if (clks) {
+          float slew = 0.0;
+          if (clks) {
             slew = min_max->initValue();
             for (Clock *clk : *clks) {
               float clk_slew = clk->slew(rf, min_max);
               if (min_max->compare(clk_slew, slew))
-	      slew = clk_slew;
-	  }
-	}
-	graph_->setSlew(vertex, rf, ap_index, slew);
+                slew = clk_slew;
+            }
+          }
+          graph_->setSlew(vertex, rf, ap_index, slew);
+        }
       }
     }
-  }
   }
 }
 
