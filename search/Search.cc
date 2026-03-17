@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -733,8 +733,8 @@ public:
                         Search *search);
 
 protected:
-  virtual void visit(const Pin *drvr,
-                     const Pin *load);
+  void visit(const Pin *drvr,
+             const Pin *load) override;
 
   Graph *graph_;
   Search *search_;
@@ -3444,9 +3444,9 @@ public:
   FindEndRequiredVisitor(RequiredCmp *required_cmp,
                          const StaState *sta);
   FindEndRequiredVisitor(const StaState *sta);
-  virtual ~FindEndRequiredVisitor();
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
+  ~FindEndRequiredVisitor() override;
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
 
 protected:
   const StaState *sta_;
@@ -4092,8 +4092,8 @@ public:
   FindEndSlackVisitor(SlackSeq &slacks,
                       const StaState *sta);
   FindEndSlackVisitor(const FindEndSlackVisitor &) = default;
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
 
 protected:
   SlackSeq &slacks_;

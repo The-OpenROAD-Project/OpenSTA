@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -105,6 +105,12 @@ PathGroup::PathGroup(const char *name,
 {
 }
 
+PathGroup::~PathGroup()
+{
+  PathEndSeq path_ends = heap_.extract();
+  deleteContents(path_ends);
+}
+
 PathEndSeq
 PathGroup::pathEnds() const
 {
@@ -170,15 +176,20 @@ void
 PathGroup::insert(PathEnd *path_end)
 {
   LockGuard lock(lock_);
-  heap_.insert(path_end);
-  path_end->setPathGroup(this);
+  auto [inserted, displaced] = heap_.insert(path_end);
+  if (inserted)
+    path_end->setPathGroup(this);
+  else
+    delete path_end;
+  if (displaced)
+    delete *displaced;
 }
 
 void
 PathGroup::pushEnds(PathEndSeq &path_ends)
 {
   if (!heap_.empty()) {
-    PathEndSeq ends = heap_.extract();
+    PathEndSeq ends = heap_.contents();
     path_ends.reserve(path_ends.size() + ends.size());
     // Append heap path ends to path_ends.
     path_ends.insert(path_ends.end(),
@@ -601,9 +612,9 @@ class MakePathEnds1 : public PathEndVisitor
 public:
   MakePathEnds1(PathGroups *path_groups);
   MakePathEnds1(const MakePathEnds1&) = default;
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
-  virtual void vertexEnd(Vertex *vertex);
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
+  void vertexEnd(Vertex *vertex) override;
 
 private:
   void visitPathEnd(PathEnd *path_end,
@@ -676,10 +687,10 @@ public:
   MakePathEndsAll(int endpoint_path_count,
                   PathGroups *path_groups);
   MakePathEndsAll(const MakePathEndsAll&) = default;
-  virtual ~MakePathEndsAll();
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
-  virtual void vertexEnd(Vertex *vertex);
+  ~MakePathEndsAll() override;
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
+  void vertexEnd(Vertex *vertex) override;
 
 private:
   void visitPathEnd(PathEnd *path_end,
@@ -906,8 +917,8 @@ public:
                        const StaState *sta);
   MakeEndpointPathEnds(const MakeEndpointPathEnds &make_path_ends);
   ~MakeEndpointPathEnds();
-  virtual VertexVisitor *copy() const;
-  virtual void visit(Vertex *vertex);
+  VertexVisitor *copy() const override;
+  void visit(Vertex *vertex) override;
 
 private:
   VisitPathEnds visit_path_ends_;
