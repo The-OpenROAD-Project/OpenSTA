@@ -25,6 +25,7 @@
 #pragma once
 
 #include <map>
+#include <string_view>
 
 #include "Zlib.hh"
 #include "StringUtil.hh"
@@ -65,10 +66,6 @@ public:
   const std::string &filename() const { return filename_; }
   // Translate from spf/spef namespace to sta namespace.
   char *translated(const char *token);
-  void warn(int id,
-            const char *fmt,
-            ...)
-    __attribute__((format (printf, 3, 4)));
   void setBusBrackets(char left,
                       char right);
   void setTimeScale(float scale,
@@ -108,6 +105,15 @@ public:
                     char *node_name2,
                     SpefTriple *res);
   PortDirection *portDirection(char *spef_dir);
+  int warnLine() const;
+  template <typename... Args>
+  void warn(int id,
+            std::string_view fmt,
+            Args &&...args)
+  {
+    report_->fileWarn(id, filename_, warnLine(), fmt,
+                     std::forward<Args>(args)...);
+  }
 
 private:
   Pin *findPinRelative(const char *name);

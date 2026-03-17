@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <string>
 
+#include "Format.hh"
 #include "StringUtil.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
@@ -49,39 +50,26 @@ namespace sta {
 class PropertyUnknown : public Exception
 {
 public:
-  PropertyUnknown(const char *type,
-                  const char *property);
-  PropertyUnknown(const char *type,
-                  const std::string property);
+  PropertyUnknown(const std::string &type,
+                  const std::string &property);
   virtual ~PropertyUnknown() {}
   virtual const char *what() const noexcept;
 
 private:
-  const char *type_;
-  const std::string property_;
+  std::string msg_;
 };
 
-PropertyUnknown::PropertyUnknown(const char *type,
-                                 const char *property) :
+PropertyUnknown::PropertyUnknown(const std::string &type,
+                                 const std::string &property) :
   Exception(),
-  type_(type),
-  property_(property)
-{
-}
-
-PropertyUnknown::PropertyUnknown(const char *type,
-                                 const std::string property) :
-  Exception(),
-  type_(type),
-  property_(property)
+  msg_(sta::format("{} objects do not have a {} property.", type, property))
 {
 }
 
 const char *
 PropertyUnknown::what() const noexcept
 {
-  return stringPrint("%s objects do not have a %s property.",
-                     type_, property_.c_str());
+  return msg_.c_str();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -89,29 +77,27 @@ PropertyUnknown::what() const noexcept
 class PropertyTypeWrong : public Exception
 {
 public:
-  PropertyTypeWrong(const char *accessor,
-                    const char *type);
+  PropertyTypeWrong(const std::string &accessor,
+                    const std::string &type);
   virtual ~PropertyTypeWrong() {}
   virtual const char *what() const noexcept;
 
 private:
-  const char *accessor_;
-  const char *type_;
+  std::string msg_;
 };
 
-PropertyTypeWrong::PropertyTypeWrong(const char *accessor,
-                                     const char *type) :
+PropertyTypeWrong::PropertyTypeWrong(const std::string &accessor,
+                                     const std::string &type) :
   Exception(),
-  accessor_(accessor),
-  type_(type)
+  msg_(sta::format("property accessor {} is only valid for {} properties.",
+                   accessor, type))
 {
 }
 
 const char *
 PropertyTypeWrong::what() const noexcept
 {
-  return stringPrint("property accessor %s is only valid for %s properties.",
-                     accessor_, type_);
+  return msg_.c_str();
 }
 ////////////////////////////////////////////////////////////////
 
@@ -1133,7 +1119,7 @@ Properties::edgeDelay(Edge *edge,
     if (to_rf == rf) {
       for (const Scene *scene : sta_->scenes()) {
         DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-        ArcDelay arc_delay = sta_->arcDelay(edge, arc, ap_index);
+        const ArcDelay &arc_delay = sta_->arcDelay(edge, arc, ap_index);
         if (!delay_exists
             || delayGreater(arc_delay, delay, min_max, sta_)) {
           delay = arc_delay;
@@ -1159,8 +1145,7 @@ Properties::getProperty(TimingArcSet *arc_set,
       const char *from = arc_set->from()->name();
       const char *to = arc_set->to()->name();
       const char *cell_name = arc_set->libertyCell()->name();
-      std::string name;
-      stringPrint(name, "%s %s -> %s", cell_name, from, to);
+      std::string name = sta::format("{} {} -> {}", cell_name, from, to);
       return PropertyValue(name);
     }
   }

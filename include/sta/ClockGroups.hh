@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string>
+
 #include "SdcCmdComment.hh"
 #include "SdcClass.hh"
 
@@ -32,7 +34,7 @@ namespace sta {
 class ClockGroups : public SdcCmdComment
 {
 public:
-  ClockGroups(const char *name,
+  ClockGroups(const std::string &name,
               bool logically_exclusive,
               bool physically_exclusive,
               bool asynchronous,
@@ -40,7 +42,7 @@ public:
               const char *comment);
   ~ClockGroups();
   void makeClockGroup(ClockSet *clks);
-  const char *name() const { return name_; }
+  const std::string &name() const { return name_; }
   ClockGroupSet *groups() { return &groups_; }
   bool logicallyExclusive() const { return logically_exclusive_; }
   bool physicallyExclusive() const { return physically_exclusive_; }
@@ -49,7 +51,7 @@ public:
   void removeClock(Clock *clk);
 
 private:
-  const char *name_;
+  std::string name_;
   bool logically_exclusive_;
   bool physically_exclusive_;
   bool asynchronous_;

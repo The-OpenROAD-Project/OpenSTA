@@ -74,8 +74,8 @@ public:
 protected:
   ArcDcalcResult makeResult(const LibertyLibrary *drvr_library,
                             const RiseFall *rf,
-                            ArcDelay gate_delay,
-                            Slew drvr_slew,
+                            const ArcDelay &gate_delay,
+                            const Slew &drvr_slew,
                             const LoadPinIndexMap &load_pin_index_map);
 
   using ArcDelayCalc::reduceParasitic;

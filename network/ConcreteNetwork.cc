@@ -2003,7 +2003,7 @@ ConcreteNetwork::linkNetwork(const char *top_cell_name,
     return top_instance_ != nullptr;
   }
   else {
-    report->error(1000, "cell type %s can not be linked.", top_cell_name);
+    report->error(1000, "cell type {} can not be linked.", top_cell_name);
     return false;
   }
 }

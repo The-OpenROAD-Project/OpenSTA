@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "sdf/ReportAnnotation.hh"
@@ -72,7 +72,8 @@ protected:
     count_input_net,
     count_output_net,
   };
-  static const int count_index_max = static_cast<int>(CountIndex::count_output_net) + 1;
+  static const int count_index_max =
+      static_cast<int>(CountIndex::count_output_net) + 1;
   static int count_delay;
 
   void init();
@@ -81,7 +82,7 @@ protected:
   void reportDelayCounts();
   void reportCheckCounts();
   void reportArcs();
-  void reportArcs(const char *header,
+  void reportArcs(const std::string &header,
                   bool report_annotated,
                   PinSet &pins);
   void reportArcs(Vertex *vertex,
@@ -117,7 +118,6 @@ protected:
   PinSet annotated_pins_;
 };
 
-
 int ReportAnnotated::count_delay;
 
 void
@@ -132,10 +132,9 @@ reportAnnotatedDelay(const Scene *scene,
                      bool report_constant_arcs,
                      StaState *sta)
 {
-  ReportAnnotated report(scene, report_cells, report_nets,
-                         from_in_ports, to_out_ports,
-                         max_lines, report_annotated, report_unannotated,
-                         report_constant_arcs, sta);
+  ReportAnnotated report(scene, report_cells, report_nets, from_in_ports,
+                         to_out_ports, max_lines, report_annotated,
+                         report_unannotated, report_constant_arcs, sta);
   report.reportDelayAnnotation();
 }
 
@@ -176,24 +175,27 @@ ReportAnnotated::reportDelayAnnotation()
 void
 ReportAnnotated::reportDelayCounts()
 {
-  report_->reportLine("                                                          Not   ");
-  report_->reportLine("Delay type                        Total    Annotated   Annotated");
-  report_->reportLine("----------------------------------------------------------------");
+  report_->report(
+      "                                                          Not   ");
+  report_->report(
+      "Delay type                        Total    Annotated   Annotated");
+  report_->report(
+      "----------------------------------------------------------------");
 
   int total = 0;
   int annotated_total = 0;
   reportCount("cell arcs", count_delay, total, annotated_total);
-  reportCount("internal net arcs", static_cast<int>(CountIndex::count_internal_net), total, annotated_total);
-  reportCount("net arcs from primary inputs", static_cast<int>(CountIndex::count_input_net),
-                total, annotated_total);
-  reportCount("net arcs to primary outputs", static_cast<int>(CountIndex::count_output_net),
+  reportCount("internal net arcs", static_cast<int>(CountIndex::count_internal_net),
               total, annotated_total);
-  report_->reportLine("----------------------------------------------------------------");
-  report_->reportLine("%-28s %10u  %10u  %10u",
-                      " ",
-                      total,
-                      annotated_total,
-                      total - annotated_total);
+  reportCount("net arcs from primary inputs",
+              static_cast<int>(CountIndex::count_input_net), total, annotated_total);
+  reportCount("net arcs to primary outputs",
+              static_cast<int>(CountIndex::count_output_net), total,
+              annotated_total);
+  report_->report(
+      "----------------------------------------------------------------");
+  report_->report("{:<28} {:10}  {:10}  {:10}", " ", total, annotated_total,
+                  total - annotated_total);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -215,12 +217,10 @@ reportAnnotatedCheck(const Scene *scene,
                      StaState *sta)
 
 {
-  ReportAnnotated report(scene, report_setup, report_hold,
-                         report_recovery, report_removal,
-                         report_nochange, report_width,
-                         report_period,  report_max_skew,
-                         max_lines, report_annotated, report_unannotated,
-                         report_constant_arcs, sta);
+  ReportAnnotated report(scene, report_setup, report_hold, report_recovery,
+                         report_removal, report_nochange, report_width,
+                         report_period, report_max_skew, max_lines, report_annotated,
+                         report_unannotated, report_constant_arcs, sta);
   report.reportCheckAnnotation();
 }
 
@@ -269,9 +269,12 @@ ReportAnnotated::reportCheckAnnotation()
 void
 ReportAnnotated::reportCheckCounts()
 {
-  report_->reportLine("                                                          Not   ");
-  report_->reportLine("Check type                        Total    Annotated   Annotated");
-  report_->reportLine("----------------------------------------------------------------");
+  report_->report(
+      "                                                          Not   ");
+  report_->report(
+      "Check type                        Total    Annotated   Annotated");
+  report_->report(
+      "----------------------------------------------------------------");
 
   int total = 0;
   int annotated_total = 0;
@@ -284,12 +287,10 @@ ReportAnnotated::reportCheckCounts()
   reportCheckCount(TimingRole::period(), total, annotated_total);
   reportCheckCount(TimingRole::skew(), total, annotated_total);
 
-  report_->reportLine("----------------------------------------------------------------");
-  report_->reportLine("%-28s %10u  %10u  %10u",
-                      " ",
-                      total,
-                      annotated_total,
-                      total - annotated_total);
+  report_->report(
+      "----------------------------------------------------------------");
+  report_->report("{:<28} {:10}  {:10}  {:10}", " ", total, annotated_total,
+                  total - annotated_total);
 }
 
 void
@@ -299,8 +300,7 @@ ReportAnnotated::reportCheckCount(const TimingRole *role,
 {
   int index = role->index();
   if (edge_count_[index] > 0) {
-    std::string title;
-    stringPrint(title, "cell %s arcs", role->to_string().c_str());
+    std::string title = sta::format("cell {} arcs", role->to_string());
     reportCount(title.c_str(), index, total, annotated_total);
   }
 }
@@ -330,8 +330,7 @@ ReportAnnotated::findCounts()
     Pin *from_pin = from_vertex->pin();
     LogicValue from_logic_value;
     bool from_logic_value_exists;
-    sdc->logicValue(from_pin, from_logic_value,
-                    from_logic_value_exists);
+    sdc->logicValue(from_pin, from_logic_value, from_logic_value_exists);
     VertexOutEdgeIterator edge_iter(from_vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
@@ -341,8 +340,7 @@ ReportAnnotated::findCounts()
       int index = roleIndex(role, from_pin, to_pin);
       LogicValue to_logic_value;
       bool to_logic_value_exists;
-      sdc->logicValue(to_pin, to_logic_value,
-                      to_logic_value_exists);
+      sdc->logicValue(to_pin, to_logic_value, to_logic_value_exists);
 
       edge_count_[index]++;
 
@@ -374,7 +372,7 @@ ReportAnnotated::delayAnnotated(Edge *edge)
     for (const MinMax *min_max : MinMax::range()) {
       DcalcAPIndex ap_index = scene_->dcalcAnalysisPtIndex(min_max);
       if (!graph_->arcDelayAnnotated(edge, arc, ap_index))
-      return false;
+        return false;
     }
   }
   return true;
@@ -397,8 +395,7 @@ ReportAnnotated::roleIndex(const TimingRole *role,
     return count_delay;
   else {
     if (role->isTimingCheck()
-        && (role == TimingRole::latchSetup()
-            || role == TimingRole::latchHold()))
+        && (role == TimingRole::latchSetup() || role == TimingRole::latchHold()))
       role = role->genericRole();
     return role->index();
   }
@@ -443,19 +440,13 @@ ReportAnnotated::reportCount(const char *title,
   if (report_role_[index]) {
     int count = edge_count_[index];
     int annotated_count = edge_annotated_count_[index];
-    report_->reportLine("%-28s %10u  %10u  %10u",
-                        title,
-                        count,
-                        annotated_count,
-                        count - annotated_count);
+    report_->report("{:<28} {:10}  {:10}  {:10}", title, count, annotated_count,
+                    count - annotated_count);
     if (report_constant_arcs_) {
       int const_count = edge_constant_count_[index];
       int const_annotated_count = edge_constant_annotated_count_[index];
-      report_->reportLine("%-28s %10s  %10u  %10u",
-                          "constant arcs",
-                          "",
-                          const_annotated_count,
-                          const_count - const_annotated_count);
+      report_->report("{:<28} {:10}  {:10}  {:10}", "constant arcs", "",
+                      const_annotated_count, const_count - const_annotated_count);
     }
     total += count;
     annotated_total += annotated_count;
@@ -472,12 +463,12 @@ ReportAnnotated::reportArcs()
 }
 
 void
-ReportAnnotated::reportArcs(const char *header,
+ReportAnnotated::reportArcs(const std::string &header,
                             bool report_annotated,
                             PinSet &pins)
 {
   report_->reportBlankLine();
-  report_->reportLineString(header);
+  report_->reportLine(header);
   PinSeq pins1 = sortByPathName(&pins, network_);
   int i = 0;
   for (const Pin *pin : pins1) {
@@ -499,8 +490,7 @@ ReportAnnotated::reportArcs(Vertex *vertex,
 {
   const Pin *from_pin = vertex->pin();
   VertexOutEdgeIterator edge_iter(vertex, graph_);
-  while (edge_iter.hasNext()
-         && (max_lines_ == 0 || i < max_lines_)) {
+  while (edge_iter.hasNext() && (max_lines_ == 0 || i < max_lines_)) {
     Edge *edge = edge_iter.next();
     const TimingRole *role = edge->role();
     const Pin *to_pin = edge->to(graph_)->pin();
@@ -520,11 +510,8 @@ ReportAnnotated::reportArcs(Vertex *vertex,
       else
         role_name = "delay";
       const std::string &cond = edge->timingArcSet()->sdfCond();
-      report_->reportLine(" %-18s %s -> %s %s",
-                          role_name,
-                          network_->pathName(from_pin),
-                          network_->pathName(to_pin),
-                          cond.c_str());
+      report_->report(" {:<18} {} -> {} {}", role_name, network_->pathName(from_pin),
+                      network_->pathName(to_pin), cond);
       i++;
     }
   }
@@ -539,8 +526,7 @@ ReportAnnotated::reportPeriodArcs(const Pin *pin,
   if (port) {
     DcalcAPIndex ap_index = 0;
     int period_index = TimingRole::period()->index();
-    if (report_role_[period_index]
-        && (max_lines_ == 0 || i < max_lines_)) {
+    if (report_role_[period_index] && (max_lines_ == 0 || i < max_lines_)) {
       float value;
       bool exists, annotated;
       port->minPeriod(value, exists);
@@ -548,9 +534,7 @@ ReportAnnotated::reportPeriodArcs(const Pin *pin,
         edge_count_[period_index]++;
         graph_->periodCheckAnnotation(pin, ap_index, value, annotated);
         if (annotated == report_annotated) {
-          report_->reportLine(" %-18s %s",
-                              "period",
-                              network_->pathName(pin));
+          report_->report(" {:<18} {}", "period", network_->pathName(pin));
           i++;
         }
       }
@@ -558,4 +542,4 @@ ReportAnnotated::reportPeriodArcs(const Pin *pin,
   }
 }
 
-} // namespace
+}  // namespace sta

@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "power/SaifReader.hh"
@@ -61,7 +61,7 @@ SaifReader::SaifReader(const char *filename,
   scope_(scope),
   divider_('/'),
   escape_('\\'),
-  timescale_(1.0E-9F),          // default units of ns
+  timescale_(1.0E-9F),  // default units of ns
   duration_(0.0),
   in_scope_level_(0),
   power_(sta->power())
@@ -78,7 +78,7 @@ SaifReader::read()
     SaifParse parser(&scanner, this);
     // yyparse returns 0 on success.
     bool success = (parser.parse() == 0);
-    report_->reportLine("Annotated %zu pin activities.", annotated_pins_.size());
+    report_->report("Annotated {} pin activities.", annotated_pins_.size());
     return success;
   }
   else
@@ -95,9 +95,7 @@ void
 SaifReader::setTimescale(uint64_t multiplier,
                          const char *units)
 {
-  if (multiplier == 1
-      || multiplier == 10
-      || multiplier == 100) {
+  if (multiplier == 1 || multiplier == 10 || multiplier == 100) {
     if (stringEq(units, "us"))
       timescale_ = multiplier * 1E-6;
     else if (stringEq(units, "ns"))
@@ -107,10 +105,10 @@ SaifReader::setTimescale(uint64_t multiplier,
     else if (stringEq(units, "fs"))
       timescale_ = multiplier * 1E-15;
     else
-      report_->error(180, "SAIF TIMESCALE units not us, ns, or ps.");
+      report_->error(1861, "SAIF TIMESCALE units not us, ns, or ps.");
   }
   else
-    report_->error(181, "SAIF TIMESCALE multiplier not 1, 10, or 100.");
+    report_->error(1862, "SAIF TIMESCALE multiplier not 1, 10, or 100.");
   stringDelete(units);
 }
 
@@ -168,8 +166,7 @@ SaifReader::setNetDurations(const char *net_name,
       std::string unescaped_name = unescaped(net_name);
       const Pin *pin = sdc_network_->findPin(parent, unescaped_name.c_str());
       LibertyPort *liberty_port = pin ? sdc_network_->libertyPort(pin) : nullptr;
-      if (pin
-          && !sdc_network_->isHierarchical(pin)
+      if (pin && !sdc_network_->isHierarchical(pin)
           && !sdc_network_->direction(pin)->isInternal()
           && !(liberty_port && liberty_port->isPwrGnd())) {
         double t1 = durations[static_cast<int>(SaifState::T1)];
@@ -177,13 +174,8 @@ SaifReader::setNetDurations(const char *net_name,
         double tc = durations[static_cast<int>(SaifState::TC)];
         float density = tc / (duration_ * timescale_);
         debugPrint(debug_, "read_saif", 2,
-                   "%s duty %.0f / %" PRIu64 " = %.2f tc %.0f density %.2f",
-                   sdc_network_->pathName(pin),
-                   t1,
-                   duration_,
-                   duty,
-                   tc,
-                   density);
+                   "{} duty {:.0f} / {} = {:.2f} tc {:.0f} density {:.2f}",
+                   sdc_network_->pathName(pin), t1, duration_, duty, tc, density);
         power_->setUserActivity(pin, density, duty, PwrActivityOrigin::saif);
         annotated_pins_.insert(pin);
       }
@@ -202,7 +194,7 @@ SaifReader::unescaped(const char *token)
       // Just the normal noises.
       unescaped += ch;
   }
-  debugPrint(debug_, "saif_name", 1, "token %s -> %s", token, unescaped.c_str());
+  debugPrint(debug_, "saif_name", 1, "token {} -> {}", token, unescaped);
   return unescaped;
 }
 
@@ -222,7 +214,7 @@ SaifScanner::SaifScanner(std::istream *stream,
 void
 SaifScanner::error(const char *msg)
 {
-  report_->fileError(1868, filename_.c_str(), lineno(), "%s", msg);
+  report_->fileError(1860, filename_.c_str(), lineno(), "{}", msg);
 }
 
-} // namespace
+}  // namespace sta

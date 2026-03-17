@@ -45,7 +45,7 @@ sta::LibertyParse::error(const location_type &loc,
                          const std::string &msg)
 {
   reader->report()->fileError(164, reader->filename().c_str(),
-                              loc.begin.line, "%s", msg.c_str());
+                              loc.begin.line, "{}", msg);
 }
 
 %}
@@ -169,13 +169,13 @@ attr_value:
 /* Crafted to avoid conflicts with expr */
 volt_expr:
         FLOAT volt_op FLOAT
-	{ $$ = sta::stdstrPrint("%e%c%e", $1, $2, $3); }
+	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
 |       string volt_op FLOAT
-	{ $$ = sta::stdstrPrint("%s%c%e", $1.c_str(), $2, $3); }
+	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
 |       FLOAT volt_op string
-	{ $$ = sta::stdstrPrint("%e%c%s", $1, $2, $3.c_str()); }
+	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
 |       volt_expr volt_op FLOAT
-	{ $$ = sta::stdstrPrint("%s%c%e", $1.c_str(), $2, $3); }
+	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
         ;
 
 volt_op:
@@ -192,7 +192,7 @@ volt_op:
 expr:
         expr_term1
 |	expr_term1 expr_op expr
-	{ $$ = sta::stdstrPrint("%s%c%s", $1.c_str(), $2, $3.c_str()); }
+	{ $$ = sta::format("{}{}{}", $1.c_str(), $2, $3.c_str()); }
 	;
 
 expr_term:

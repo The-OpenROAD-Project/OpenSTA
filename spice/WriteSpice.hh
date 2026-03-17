@@ -29,6 +29,7 @@
 #include <map>
 #include <vector>
 
+#include "Format.hh"
 #include "StaState.hh"
 #include "StringUtil.hh"
 #include "Liberty.hh"
@@ -186,9 +187,4 @@ protected:
   Parasitics *parasitics_;
 };
 
-void
-streamPrint(std::ofstream &stream,
-            const char *fmt,
-            ...) __attribute__((format (printf, 2, 3)));
-
-} // namespace
+}  // namespace sta

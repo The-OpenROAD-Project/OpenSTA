@@ -39,7 +39,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
   cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 3.0.0
+project(STA VERSION 3.0.1
   LANGUAGES CXX
 )
 
@@ -89,13 +89,17 @@ endif()
 set(STA_SOURCE
   app/StaMain.cc
   
-  dcalc/ArcDelayCalc.cc
   dcalc/ArcDcalcWaveforms.cc
+  dcalc/ArcDelayCalc.cc
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
   dcalc/CcsCeffDelayCalc.cc
+  dcalc/Delay.cc
   dcalc/DelayCalc.cc
   dcalc/DelayCalcBase.cc
+  dcalc/DelayNormal.cc
+  dcalc/DelayScalar.cc
+  dcalc/DelaySkewNormal.cc
   dcalc/DmpCeff.cc
   dcalc/DmpDelayCalc.cc
   dcalc/FindRoot.cc
@@ -106,9 +110,6 @@ set(STA_SOURCE
   dcalc/PrimaDelayCalc.cc
   dcalc/UnitDelayCalc.cc
   
-  graph/DelayFloat.cc
-  graph/DelayNormal1.cc
-  graph/DelayNormal2.cc
   graph/Graph.cc
   graph/GraphCmp.cc
   
@@ -206,6 +207,7 @@ set(STA_SOURCE
   search/PathEnum.cc
   search/PathExpanded.cc
   search/PathGroup.cc
+  search/PocvMode.cc
   search/Property.cc
   search/ReportPath.cc
   search/Search.cc
@@ -408,12 +410,18 @@ find_package(Threads)
 
 find_package(Eigen3 REQUIRED)
 
-include(cmake/FindCUDD.cmake)
-
-if("${SSTA}" STREQUAL "")
-  set(SSTA 0)
+# fmt library: fallback when std::format is not available (e.g. GCC 11 on Ubuntu 22.04)
+find_package(fmt QUIET)
+if(NOT fmt_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 10.2.1
+  )
+  FetchContent_MakeAvailable(fmt)
 endif()
-message(STATUS "SSTA: ${SSTA}")
+
+include(cmake/FindCUDD.cmake)
 
 # configure a header file to pass some of the CMake settings
 configure_file(${STA_HOME}/util/StaConfig.hh.cmake
@@ -528,6 +536,7 @@ target_sources(OpenSTA
 
 target_link_libraries(OpenSTA
   Eigen3::Eigen
+  fmt::fmt
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
   ${CUDD_LIB}
@@ -561,7 +570,7 @@ endif()
 
 # common to gcc/clang
 set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls
-  -Wformat-security -Werror=misleading-indentation)
+  -Wformat-security -Werror=misleading-indentation -Wundef)
 
 if(ENABLE_TSAN)
   message(STATUS "Thread sanitizer: ${ENABLE_TSAN}")

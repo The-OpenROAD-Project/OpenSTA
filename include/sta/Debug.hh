@@ -25,10 +25,12 @@
 #pragma once
 
 #include <string>
-#include <cstdarg>
+#include <string_view>
 #include <map>
 #include <mutex>
 
+#include "Format.hh"
+#include "Report.hh"
 #include "StringUtil.hh"
 
 namespace sta {
@@ -48,10 +50,16 @@ public:
   bool check(const char *what,
              int level) const;
   int statsLevel() const { return stats_level_; }
-  void reportLine(const char *what,
-                  const char *fmt,
-                  ...)
-    __attribute__((format (printf, 3, 4)));
+  template <typename... Args>
+  void report(const char *what,
+              std::string_view fmt,
+              Args &&...args)
+  {
+    std::string msg = sta::format("{}: {}", what,
+                                 sta::formatRuntime(fmt, std::forward<Args>(args)...));
+    std::unique_lock<std::mutex> lock(buffer_lock_);
+    report_->reportLine(msg);
+  }
 
 protected:
   Report *report_;
@@ -63,9 +71,9 @@ protected:
 
 // Inlining a varargs function would eval the args, which can
 // be expensive, so use a macro.
-#define debugPrint(debug, what, level, ...) \
+#define debugPrint(debug, what, level, fmt, ...) \
   if (debug->check(what, level)) {  \
-    debug->reportLine(what __VA_OPT__(,) __VA_ARGS__); \
+    debug->report(what, fmt __VA_OPT__(,) __VA_ARGS__); \
   }
 
 } // namespace

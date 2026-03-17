@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "sdf/SdfReader.hh"
@@ -74,7 +74,7 @@ public:
 private:
   const Transition *tr_;
   const std::string *port_;
-  const std::string *cond_;   // timing checks only
+  const std::string *cond_;  // timing checks only
 };
 
 bool
@@ -88,11 +88,9 @@ readSdf(const char *filename,
 {
   int arc_min_index = scene->dcalcAnalysisPtIndex(MinMax::min());
   int arc_max_index = scene->dcalcAnalysisPtIndex(MinMax::max());
-  SdfReader reader(filename, path,
-                   arc_min_index, arc_max_index, 
-                   scene->sdc()->analysisType(),
-                   unescaped_dividers, incremental_only,
-                   cond_use, sta);
+  SdfReader reader(filename, path, arc_min_index, arc_max_index,
+                   scene->sdc()->analysisType(), unescaped_dividers,
+                   incremental_only, cond_use, sta);
   bool success = reader.read();
   return success;
 }
@@ -123,7 +121,7 @@ SdfReader::SdfReader(const char *filename,
   cell_name_(nullptr),
   in_timing_check_(false),
   in_incremental_(false),
-  timescale_(1.0E-9F)           // default units of ns
+  timescale_(1.0E-9F)  // default units of ns
 {
   if (unescaped_dividers)
     network_ = makeSdcNetwork(network_);
@@ -149,7 +147,7 @@ SdfReader::read()
     return success;
   }
   else
-    throw FileNotReadable(filename_.c_str());
+    throw FileNotReadable(filename_);
 }
 
 void
@@ -162,9 +160,7 @@ void
 SdfReader::setTimescale(float multiplier,
                         const std::string *units)
 {
-  if (multiplier == 1.0
-      || multiplier == 10.0
-      || multiplier == 100.0) {
+  if (multiplier == 1.0 || multiplier == 10.0 || multiplier == 100.0) {
     if (*units == "us")
       timescale_ = multiplier * 1E-6F;
     else if (*units == "ns")
@@ -172,10 +168,10 @@ SdfReader::setTimescale(float multiplier,
     else if (*units == "ps")
       timescale_ = multiplier * 1E-12F;
     else
-      sdfError(180, "TIMESCALE units not us, ns, or ps.");
+      error(180, "TIMESCALE units not us, ns, or ps.");
   }
   else
-    sdfError(181, "TIMESCALE multiplier not 1, 10, or 100.");
+    error(181, "TIMESCALE multiplier not 1, 10, or 100.");
   delete units;
 }
 
@@ -198,23 +194,20 @@ SdfReader::interconnect(const std::string *from_pin_name,
         bool to_is_hier = network_->isHierarchical(to_pin);
         if (from_is_hier || to_is_hier) {
           if (from_is_hier)
-            sdfError(182, "pin %s is a hierarchical pin.",
-                     from_pin_name->c_str());
+            error(182, "pin {} is a hierarchical pin.", *from_pin_name);
           if (to_is_hier)
-            sdfError(183, "pin %s is a hierarchical pin.",
-                     to_pin_name->c_str());
+            error(183, "pin {} is a hierarchical pin.", *to_pin_name);
         }
         else
-          sdfWarn(184, "INTERCONNECT from %s to %s not found.",
-                  from_pin_name->c_str(),
-                  to_pin_name->c_str());
+          warn(184, "INTERCONNECT from {} to {} not found.",
+                  *from_pin_name, *to_pin_name);
       }
     }
     else {
       if (from_pin == nullptr)
-        sdfWarn(185, "pin %s not found.", from_pin_name->c_str());
+        warn(185, "pin {} not found.", *from_pin_name);
       if (to_pin == nullptr)
-        sdfWarn(186, "pin %s not found.", to_pin_name->c_str());
+        warn(186, "pin {} not found.", *to_pin_name);
     }
   }
   delete from_pin_name;
@@ -229,10 +222,10 @@ SdfReader::port(const std::string *to_pin_name,
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)) {
     Pin *to_pin = (instance_)
-      ? network_->findPinRelative(instance_, to_pin_name->c_str())
-      : network_->findPin(to_pin_name->c_str());
+        ? network_->findPinRelative(instance_, to_pin_name->c_str())
+        : network_->findPin(to_pin_name->c_str());
     if (to_pin == nullptr)
-      sdfWarn(187, "pin %s not found.", to_pin_name->c_str());
+      warn(187, "pin {} not found.", *to_pin_name);
     else {
       Vertex *vertex = graph_->pinLoadVertex(to_pin);
       VertexInEdgeIterator edge_iter(vertex, graph_);
@@ -259,8 +252,7 @@ SdfReader::findWireEdge(Pin *from_pin,
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       const TimingRole *edge_role = edge->role();
-      if (edge->from(graph_)->pin() == from_pin
-          && edge_role->sdfRole()->isWire())
+      if (edge->from(graph_)->pin() == from_pin && edge_role->sdfRole()->isWire())
         return edge;
     }
   }
@@ -274,8 +266,7 @@ SdfReader::setEdgeDelays(Edge *edge,
 {
   // Rise/fall triples.
   size_t triple_count = triples->size();
-  if (triple_count == 1
-      || triple_count == 2) {
+  if (triple_count == 1 || triple_count == 2) {
     TimingArcSet *arc_set = edge->timingArcSet();
     for (TimingArc *arc : arc_set->arcs()) {
       size_t triple_index;
@@ -288,9 +279,9 @@ SdfReader::setEdgeDelays(Edge *edge,
     }
   }
   else if (triple_count == 0)
-    sdfError(188, "%s with no triples.", sdf_cmd);
+    error(188, "{} with no triples.", sdf_cmd);
   else
-    sdfError(189, "%s with more than 2 triples.", sdf_cmd);
+    error(189, "{} with more than 2 triples.", sdf_cmd);
 }
 
 void
@@ -313,10 +304,8 @@ SdfReader::setInstance(const std::string *instance_name)
         Cell *inst_cell = network_->cell(instance_);
         const char *inst_cell_name = network_->name(inst_cell);
         if (cell_name_ && !stringEq(inst_cell_name, cell_name_->c_str()))
-          sdfWarn(190, "instance %s cell %s does not match enclosing cell %s.",
-                  instance_name->c_str(),
-                  inst_cell_name,
-                  cell_name_->c_str());
+          warn(190, "instance {} cell {} does not match enclosing cell {}.",
+                  *instance_name, inst_cell_name, *cell_name_);
       }
     }
   }
@@ -372,7 +361,7 @@ SdfReader::iopath(SdfPortSpec *from_edge,
             const std::string &lib_cond = arc_set->sdfCond();
             const TimingRole *edge_role = arc_set->role();
             bool cond_use_flag = cond_use_ && cond && lib_cond.empty()
-              && !(!is_incremental_only_ && in_incremental_);
+                && !(!is_incremental_only_ && in_incremental_);
             if (edge->from(graph_)->pin() == from_pin
                 && edge_role->sdfRole() == TimingRole::sdfIopath()
                 && (cond_use_flag
@@ -402,10 +391,9 @@ SdfReader::iopath(SdfPortSpec *from_edge,
             }
           }
           if (!matched)
-            sdfWarn(191, "cell %s IOPATH %s -> %s not found.",
-                    network_->cellName(instance_),
-                    from_port_name->c_str(),
-                    to_port_name->c_str());
+            warn(191, "cell {} IOPATH {} -> {} not found.",
+                    network_->cellName(instance_), *from_port_name,
+                    *to_port_name);
         }
       }
     }
@@ -422,9 +410,8 @@ SdfReader::findPort(const Cell *cell,
 {
   Port *port = network_->findPort(cell, port_name->c_str());
   if (port == nullptr)
-    sdfWarn(194, "instance %s port %s not found.",
-            network_->pathName(instance_),
-            port_name->c_str());
+    warn(194, "instance {} port {} not found.", network_->pathName(instance_),
+            *port_name);
   return port;
 }
 
@@ -457,8 +444,7 @@ SdfReader::timingCheck1(const TimingRole *role,
                         SdfTriple *triple)
 {
   // Ignore non-incremental annotations in incremental only mode.
-  if (!(is_incremental_only_ && !in_incremental_)
-      && instance_) {
+  if (!(is_incremental_only_ && !in_incremental_) && instance_) {
     Pin *data_pin = network_->findPin(instance_, data_port);
     Pin *clk_pin = network_->findPin(instance_, clk_port);
     if (data_pin && clk_pin) {
@@ -468,36 +454,32 @@ SdfReader::timingCheck1(const TimingRole *role,
       float *value_max = values[triple_max_index_];
       if (value_min && value_max) {
         switch (analysis_type_) {
-        case AnalysisType::single:
-          break;
-        case AnalysisType::bc_wc:
-          if (role->genericRole() == TimingRole::setup())
+          case AnalysisType::single:
+            break;
+          case AnalysisType::bc_wc:
+            if (role->genericRole() == TimingRole::setup())
+              *value_min = *value_max;
+            else
+              *value_max = *value_min;
+            break;
+          case AnalysisType::ocv:
             *value_min = *value_max;
-          else
-            *value_max = *value_min;
-          break;
-        case AnalysisType::ocv:
-          *value_min = *value_max;
-          break;
+            break;
         }
       }
-      bool matched = annotateCheckEdges(data_pin, data_edge,
-                                        clk_pin, clk_edge, role,
+      bool matched = annotateCheckEdges(data_pin, data_edge, clk_pin, clk_edge, role,
                                         triple, false);
       // Liberty setup/hold checks on preset/clear pins can be translated
       // into recovery/removal checks, so be flexible about matching.
       if (!matched)
-        matched = annotateCheckEdges(data_pin, data_edge,
-                                     clk_pin, clk_edge, role,
+        matched = annotateCheckEdges(data_pin, data_edge, clk_pin, clk_edge, role,
                                      triple, true);
       if (!matched
           // Only warn when non-null values are present.
           && triple->hasValue())
-        sdfWarn(192, "cell %s %s -> %s %s check not found.",
-                network_->cellName(instance_),
-                network_->name(data_port),
-                network_->name(clk_port),
-                role->to_string().c_str());
+        warn(192, "cell {} {} -> {} {} check not found.",
+                network_->cellName(instance_), network_->name(data_port),
+                network_->name(clk_port), role->to_string());
     }
   }
 }
@@ -526,11 +508,10 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
       const TimingRole *edge_role = arc_set->role();
       const std::string &lib_cond_start = arc_set->sdfCondStart();
       const std::string &lib_cond_end = arc_set->sdfCondEnd();
-      bool cond_matches = condMatch(cond_start, lib_cond_start)
-        && condMatch(cond_end, lib_cond_end);
+      bool cond_matches =
+          condMatch(cond_start, lib_cond_start) && condMatch(cond_end, lib_cond_end);
       if (((!match_generic && edge_role->sdfRole() == sdf_role)
-           || (match_generic
-               && edge_role->genericRole() == sdf_role->genericRole()))
+           || (match_generic && edge_role->genericRole() == sdf_role->genericRole()))
           && cond_matches) {
         TimingArcSet *arc_set = edge->timingArcSet();
         for (TimingArc *arc : arc_set->arcs()) {
@@ -553,8 +534,7 @@ SdfReader::timingCheckWidth(SdfPortSpec *edge,
                             SdfTriple *triple)
 {
   // Ignore non-incremental annotations in incremental only mode.
-  if (!(is_incremental_only_ && !in_incremental_)
-      && instance_) {
+  if (!(is_incremental_only_ && !in_incremental_) && instance_) {
     const std::string *port_name = edge->port();
     Cell *cell = network_->cell(instance_);
     Port *port = findPort(cell, port_name);
@@ -622,8 +602,7 @@ SdfReader::timingCheckPeriod(SdfPortSpec *edge,
                              SdfTriple *triple)
 {
   // Ignore non-incremental annotations in incremental only mode.
-  if (!(is_incremental_only_ && !in_incremental_)
-      && instance_) {
+  if (!(is_incremental_only_ && !in_incremental_) && instance_) {
     const std::string *port_name = edge->port();
     Cell *cell = network_->cell(instance_);
     Port *port = findPort(cell, port_name);
@@ -668,8 +647,7 @@ void
 SdfReader::device(SdfTripleSeq *triples)
 {
   // Ignore non-incremental annotations in incremental only mode.
-  if (!(is_incremental_only_ && !in_incremental_)
-      && instance_) {
+  if (!(is_incremental_only_ && !in_incremental_) && instance_) {
     InstancePinIterator *pin_iter = network_->pinIterator(instance_);
     while (pin_iter->hasNext()) {
       Pin *to_pin = pin_iter->next();
@@ -685,8 +663,7 @@ SdfReader::device(const std::string *to_port_name,
                   SdfTripleSeq *triples)
 {
   // Ignore non-incremental annotations in incremental only mode.
-  if (!(is_incremental_only_ && !in_incremental_)
-      && instance_) {
+  if (!(is_incremental_only_ && !in_incremental_) && instance_) {
     Cell *cell = network_->cell(instance_);
     Port *to_port = findPort(cell, to_port_name);
     if (to_port) {
@@ -735,7 +712,7 @@ SdfReader::setEdgeArcDelays(Edge *edge,
     if (value_ptr) {
       ArcDelay delay;
       if (in_incremental_)
-        delay = *value_ptr + graph_->arcDelay(edge, arc, arc_delay_index);
+        delay = delaySum(graph_->arcDelay(edge, arc, arc_delay_index), *value_ptr, this);
       else
         delay = *value_ptr;
       graph_->setArcDelay(edge, arc, arc_delay_index, delay);
@@ -780,11 +757,10 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
                                    int arc_delay_index,
                                    const MinMax *min_max)
 {
-  if (value
-      && triple_index != null_index_) {
+  if (value && triple_index != null_index_) {
     ArcDelay delay(*value);
     if (!is_incremental_only_ && in_incremental_)
-      delay = graph_->arcDelay(edge, arc, arc_delay_index) + *value;
+      delay = delaySum(graph_->arcDelay(edge, arc, arc_delay_index), *value, this);
     else if (graph_->arcDelayAnnotated(edge, arc, arc_delay_index)) {
       ArcDelay prev_value = graph_->arcDelay(edge, arc, arc_delay_index);
       if (delayGreater(prev_value, delay, min_max, this))
@@ -844,9 +820,7 @@ SdfReader::makeCondPortSpec(const std::string *cond_port)
     auto cond_end = cond_port1.find_last_not_of(" ", port_idx);
     if (cond_end != cond_port1.npos) {
       std::string *cond1 = new std::string(cond_port1.substr(0, cond_end + 1));
-      SdfPortSpec *port_spec = new SdfPortSpec(Transition::riseFall(),
-                                               port1,
-                                               cond1);
+      SdfPortSpec *port_spec = new SdfPortSpec(Transition::riseFall(), port1, cond1);
       delete cond_port;
       return port_spec;
     }
@@ -887,9 +861,12 @@ SdfReader::makeTriple(float *min,
                       float *typ,
                       float *max)
 {
-  if (min) *min *= timescale_;
-  if (typ) *typ *= timescale_;
-  if (max) *max *= timescale_;
+  if (min)
+    *min *= timescale_;
+  if (typ)
+    *typ *= timescale_;
+  if (max)
+    *max *= timescale_;
   return new SdfTriple(min, typ, max);
 }
 
@@ -929,9 +906,7 @@ SdfReader::unescaped(const std::string *token)
         // Translate sdf divider to network divider.
         *unescaped += path_divider;
       }
-      else if (next_ch == '['
-               || next_ch == ']'
-               || next_ch == escape_) {
+      else if (next_ch == '[' || next_ch == ']' || next_ch == escape_) {
         // Escaped bus bracket or escape.
         // Translate sdf escape to network escape.
         *unescaped += path_escape;
@@ -946,9 +921,8 @@ SdfReader::unescaped(const std::string *token)
       // Just the normal noises.
       *unescaped += ch;
   }
-  debugPrint(debug_, "sdf_name", 1, "unescape %s -> %s",
-             token->c_str(),
-             unescaped->c_str());
+  debugPrint(debug_, "sdf_name", 1, "unescape {} -> {}", *token,
+             *unescaped);
   delete token;
   return unescaped;
 }
@@ -980,27 +954,13 @@ SdfReader::makeBusName(std::string *base_name,
 void
 SdfReader::notSupported(const char *feature)
 {
-  sdfError(193, "%s not supported.", feature);
+  error(193, "{} not supported.", feature);
 }
 
-void
-SdfReader::sdfWarn(int id,
-                   const char *fmt, ...)
+int
+SdfReader::sdfLine() const
 {
-  va_list args;
-  va_start(args, fmt);
-  report_->vfileWarn(id, filename_.c_str(), scanner_->lineno(), fmt, args);
-  va_end(args);
-}
-
-void
-SdfReader::sdfError(int id,
-                    const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  report_->vfileError(id, filename_.c_str(), scanner_->lineno(), fmt, args);
-  va_end(args);
+  return scanner_->lineno();
 }
 
 Pin *
@@ -1030,7 +990,7 @@ SdfReader::findInstance(const std::string *name)
     inst_name = *name;
   Instance *inst = network_->findInstance(inst_name.c_str());
   if (inst == nullptr)
-    sdfWarn(195, "instance %s not found.", inst_name.c_str());
+    warn(195, "instance {} not found.", inst_name);
   return inst;
 }
 
@@ -1067,9 +1027,12 @@ SdfTriple::~SdfTriple()
   if (values_[0] == values_[1] && values_[0] == values_[2])
     delete values_[0];
   else {
-    if (values_[0]) delete values_[0];
-    if (values_[1]) delete values_[1];
-    if (values_[2]) delete values_[2];
+    if (values_[0])
+      delete values_[0];
+    if (values_[1])
+      delete values_[1];
+    if (values_[2])
+      delete values_[2];
   }
 }
 
@@ -1095,7 +1058,7 @@ SdfScanner::SdfScanner(std::istream *stream,
 void
 SdfScanner::error(const char *msg)
 {
-  report_->fileError(1869, filename_.c_str(), lineno(), "%s", msg);
+  report_->fileError(196, filename_.c_str(), lineno(), "{}", msg);
 }
 
-} // namespace
+}  // namespace sta

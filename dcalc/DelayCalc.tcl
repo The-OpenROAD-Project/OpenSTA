@@ -131,11 +131,9 @@ proc set_delay_calculator { alg } {
   if { [is_delay_calc_name $alg] } {
     set_delay_calculator_cmd $alg
   } else {
-    sta_error 195 "delay calculator $alg not found."
+    sta_error 2500 "delay calculator $alg not found."
   }
 }
-
-define_cmd_args "set_pocv_sigma_factor" { factor }
 
 ################################################################
 
@@ -156,38 +154,38 @@ proc set_assigned_delay { args } {
   if [info exists keys(-from)] {
     set from_pins [get_port_pins_error "from_pins" $keys(-from)]
   } else {
-    sta_error 196 "set_assigned_delay missing -from argument."
+    sta_error 2501 "set_assigned_delay missing -from argument."
   }
   if [info exists keys(-to)] {
     set to_pins [get_port_pins_error "to_pins" $keys(-to)]
   } else {
-    sta_error 182 "set_assigned_delay missing -to argument."
+    sta_error 2502 "set_assigned_delay missing -to argument."
   }
 
   set delay [lindex $args 0]
   if {![string is double $delay]} {
-    sta_error 183 "set_assigned_delay delay is not a float."
+    sta_error 2503 "set_assigned_delay delay is not a float."
   }
   set delay [time_ui_sta $delay]
 
   if {[info exists flags(-cell)] && [info exists flags(-net)]} {
-    sta_error 184 "set_annotated_delay -cell and -net options are mutually excluive."
+    sta_error 2504 "set_annotated_delay -cell and -net options are mutually excluive."
   } elseif {[info exists flags(-cell)]} {
     if { $from_pins != {} } {
       set inst [[lindex $from_pins 0] instance]
       foreach pin $from_pins {
         if {[$pin instance] != $inst} {
-          sta_error 185 "set_assigned_delay pin [get_full_name $pin] is not attached to instance [get_full_name $inst]."
+          sta_error 2505 "set_assigned_delay pin [get_full_name $pin] is not attached to instance [get_full_name $inst]."
         }
       }
       foreach pin $to_pins {
         if {[$pin instance] != $inst} {
-          sta_error 186 "set_assigned_delay pin [get_full_name $pin] is not attached to instance [get_full_name $inst]"
+          sta_error 2506 "set_assigned_delay pin [get_full_name $pin] is not attached to instance [get_full_name $inst]"
         }
       }
     }
   } elseif {![info exists flags(-net)]} {
-    sta_error 187 "set_assigned_delay -cell or -net required."
+    sta_error 2508 "set_assigned_delay -cell or -net required."
   }
   foreach from_pin $from_pins {
     set from_vertices [$from_pin vertices]
@@ -231,7 +229,7 @@ proc set_assigned_delay2 {from_vertex to_vertex to_rf scene min_max delay} {
   }
   $edge_iter finish
   if { !$matched } {
-    sta_error 193 "set_assigned_delay no timing arcs found between from/to pins."
+    sta_error 2509 "set_assigned_delay no timing arcs found between from/to pins."
   }
 }
 
@@ -252,7 +250,7 @@ proc set_assigned_check { args } {
   if { [info exists keys(-from)] } {
     set from_pins [get_port_pins_error "from_pins" $keys(-from)]
   } else {
-    sta_error 188 "set_assigned_check missing -from argument."
+    sta_error 2510 "set_assigned_check missing -from argument."
   }
   set from_rf "rise_fall"
   if { [info exists keys(-clock)] } {
@@ -261,14 +259,14 @@ proc set_assigned_check { args } {
            || $clk_arg eq "fall" } {
       set from_rf $clk_arg
     } else {
-      sta_error 189 "set_assigned_check -clock must be rise or fall."
+      sta_error 2511 "set_assigned_check -clock must be rise or fall."
     }
   }
 
   if { [info exists keys(-to)] } {
     set to_pins [get_port_pins_error "to_pins" $keys(-to)]
   } else {
-    sta_error 190 "set_assigned_check missing -to argument."
+    sta_error 2512 "set_assigned_check missing -to argument."
   }
   set to_rf [parse_rise_fall_flags flags]
   set scene [parse_scene keys]
@@ -283,7 +281,7 @@ proc set_assigned_check { args } {
   } elseif { [info exists flags(-removal)] } {
     set role "removal"
   } else {
-    sta_error 191 "set_assigned_check missing -setup|-hold|-recovery|-removal check type.."
+    sta_error 2513 "set_assigned_check missing -setup|-hold|-recovery|-removal check type.."
   }
   set cond ""
   if { [info exists key(-cond)] } {
@@ -291,7 +289,7 @@ proc set_assigned_check { args } {
   }
   set check_value [lindex $args 0]
   if { ![string is double $check_value] } {
-    sta_error 192 "set_assigned_check check_value is not a float."
+    sta_error 2514 "set_assigned_check check_value is not a float."
   }
   set check_value [time_ui_sta $check_value]
 
@@ -343,7 +341,7 @@ proc set_assigned_check2 { from_vertex from_rf to_vertex to_rf \
   }
   $edge_iter finish
   if { !$matched } {
-    sta_error 194 "set_assigned_check no check arcs found between from/to pins."
+    sta_error 2516 "set_assigned_check no check arcs found between from/to pins."
   }
 }
 
@@ -364,7 +362,7 @@ proc set_assigned_transition { args } {
 
   set slew [lindex $args 0]
   if {![string is double $slew]} {
-    sta_error 210 "set_assigned_transition transition is not a float."
+    sta_error 2518 "set_assigned_transition transition is not a float."
   }
   set slew [time_ui_sta $slew]
   set pins [get_port_pins_error "pins" [lindex $args 1]]
@@ -382,22 +380,31 @@ proc set_assigned_transition { args } {
 
 ################################################################
 
-define_cmd_args "report_slews" {[-scenes scenes] pin}
+define_cmd_args "report_slews" {[-scenes scenes] [-digits digits]\
+                                  [-report_variance] pin}
 
 proc report_slews { args } {
   global sta_report_default_digits
 
-  parse_key_args "report_slews" args keys {-corner -scenes} flags {}
+  parse_key_args "report_slews" args keys {-corner -scenes -digits} \
+    flags {-report_variance}
   check_argc_eq1 "report_slews" $args
 
   set scenes [parse_scenes_or_all keys]
   set pin [get_port_pin_error "pin" [lindex $args 0]]
-  set digits $sta_report_default_digits
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+  set report_variance [info exists flags(-report_variance)]
+
   foreach vertex [$pin vertices] {
-    set rise_min [format_time [$vertex slew_scenes rise $scenes min] $digits]
-    set rise_max [format_time [$vertex slew_scenes rise $scenes max] $digits]
-    set fall_min [format_time [$vertex slew_scenes fall $scenes min] $digits]
-    set fall_max [format_time [$vertex slew_scenes fall $scenes max] $digits]
+    set rise_min [$vertex slew_scenes_string rise $scenes min $report_variance $digits]
+    set rise_max [$vertex slew_scenes_string rise $scenes max $report_variance $digits]
+    set fall_min [$vertex slew_scenes_string fall $scenes min $report_variance $digits]
+    set fall_max [$vertex slew_scenes_string fall $scenes max $report_variance $digits]
     report_line "[vertex_path_name $vertex] [rise_short_name] $rise_min:$rise_max [fall_short_name] $fall_min:$fall_max"
   }
 }

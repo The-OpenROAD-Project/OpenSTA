@@ -1,32 +1,34 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "LibertyWriter.hh"
 
 #include <cstdlib>
 #include <cmath>
+#include <fstream>
 
+#include "Format.hh"
 #include "Units.hh"
 #include "FuncExpr.hh"
 #include "PortDirection.hh"
@@ -44,7 +46,7 @@ class LibertyWriter
 public:
   LibertyWriter(const LibertyLibrary *lib,
                 const char *filename,
-                FILE *stream,
+                std::ofstream &stream,
                 Report *report);
   void writeLibrary();
 
@@ -80,7 +82,7 @@ protected:
 
   const LibertyLibrary *library_;
   const char *filename_;
-  FILE *stream_;
+  std::ofstream &stream_;
   Report *report_;
   const Unit *time_unit_;
   const Unit *cap_unit_;
@@ -91,11 +93,10 @@ writeLiberty(LibertyLibrary *lib,
              const char *filename,
              StaState *sta)
 {
-  FILE *stream = fopen(filename, "w");
-  if (stream) {
+  std::ofstream stream(filename);
+  if (stream.is_open()) {
     LibertyWriter writer(lib, filename, stream, sta->report());
     writer.writeLibrary();
-    fclose(stream);
   }
   else
     throw FileNotWritable(filename);
@@ -103,7 +104,7 @@ writeLiberty(LibertyLibrary *lib,
 
 LibertyWriter::LibertyWriter(const LibertyLibrary *lib,
                              const char *filename,
-                             FILE *stream,
+                             std::ofstream &stream,
                              Report *report) :
   library_(lib),
   filename_(filename),
@@ -118,87 +119,87 @@ void
 LibertyWriter::writeLibrary()
 {
   writeHeader();
-  fprintf(stream_, "\n");
+  sta::print(stream_, "\n");
   writeTableTemplates();
   writeBusDcls();
-  fprintf(stream_, "\n");
+  sta::print(stream_, "\n");
   writeCells();
   writeFooter();
 }
-  
+
 void
 LibertyWriter::writeHeader()
 {
-  fprintf(stream_, "library (%s) {\n", library_->name());
-  fprintf(stream_, "  comment                        : \"\";\n");
-  fprintf(stream_, "  delay_model                    : table_lookup;\n");
-  fprintf(stream_, "  simulation                     : false;\n");
+  sta::print(stream_, "library ({}) {{\n", library_->name());
+  sta::print(stream_, "  comment                        : \"\";\n");
+  sta::print(stream_, "  delay_model                    : table_lookup;\n");
+  sta::print(stream_, "  simulation                     : false;\n");
   const Unit *cap_unit = library_->units()->capacitanceUnit();
-  fprintf(stream_, "  capacitive_load_unit (1,%s);\n",
-          cap_unit->scaleAbbrevSuffix().c_str());
-  fprintf(stream_, "  leakage_power_unit             : 1pW;\n");
+  sta::print(stream_, "  capacitive_load_unit (1,{});\n",
+             cap_unit->scaleAbbrevSuffix());
+  sta::print(stream_, "  leakage_power_unit             : 1pW;\n");
   const Unit *current_unit = library_->units()->currentUnit();
-  fprintf(stream_, "  current_unit                   : \"1%s\";\n",
-          current_unit->scaleAbbrevSuffix().c_str());
+  sta::print(stream_, "  current_unit                   : \"1{}\";\n",
+             current_unit->scaleAbbrevSuffix());
   const Unit *res_unit = library_->units()->resistanceUnit();
-  fprintf(stream_, "  pulling_resistance_unit        : \"1%s\";\n",
-          res_unit->scaleAbbrevSuffix().c_str());
+  sta::print(stream_, "  pulling_resistance_unit        : \"1{}\";\n",
+             res_unit->scaleAbbrevSuffix());
   const Unit *time_unit = library_->units()->timeUnit();
-  fprintf(stream_, "  time_unit                      : \"1%s\";\n",
-          time_unit->scaleAbbrevSuffix().c_str());
+  sta::print(stream_, "  time_unit                      : \"1{}\";\n",
+             time_unit->scaleAbbrevSuffix());
   const Unit *volt_unit = library_->units()->voltageUnit();
-  fprintf(stream_, "  voltage_unit                   : \"1%s\";\n",
-          volt_unit->scaleAbbrevSuffix().c_str());
-  fprintf(stream_, "  library_features(report_delay_calculation);\n");
-  fprintf(stream_, "\n");
+  sta::print(stream_, "  voltage_unit                   : \"1{}\";\n",
+             volt_unit->scaleAbbrevSuffix());
+  sta::print(stream_, "  library_features(report_delay_calculation);\n");
+  sta::print(stream_, "\n");
 
-  fprintf(stream_, "  input_threshold_pct_rise : %.0f;\n",
-          library_->inputThreshold(RiseFall::rise()) * 100);
-  fprintf(stream_, "  input_threshold_pct_fall : %.0f;\n",
-          library_->inputThreshold(RiseFall::fall()) * 100);
-  fprintf(stream_, "  output_threshold_pct_rise : %.0f;\n",
-          library_->inputThreshold(RiseFall::rise()) * 100);
-  fprintf(stream_, "  output_threshold_pct_fall : %.0f;\n",
-          library_->inputThreshold(RiseFall::fall()) * 100);
-  fprintf(stream_, "  slew_lower_threshold_pct_rise : %.0f;\n",
-          library_->slewLowerThreshold(RiseFall::rise()) * 100);
-  fprintf(stream_, "  slew_lower_threshold_pct_fall : %.0f;\n",
-          library_->slewLowerThreshold(RiseFall::fall()) * 100);
-  fprintf(stream_, "  slew_upper_threshold_pct_rise : %.0f;\n",
-          library_->slewUpperThreshold(RiseFall::rise()) * 100);
-  fprintf(stream_, "  slew_upper_threshold_pct_fall : %.0f;\n",
-          library_->slewUpperThreshold(RiseFall::rise()) * 100);
-  fprintf(stream_, "  slew_derate_from_library : %.1f;\n",
-          library_->slewDerateFromLibrary());
-  fprintf(stream_, "\n");
+  sta::print(stream_, "  input_threshold_pct_rise : {:.0f};\n",
+             library_->inputThreshold(RiseFall::rise()) * 100);
+  sta::print(stream_, "  input_threshold_pct_fall : {:.0f};\n",
+             library_->inputThreshold(RiseFall::fall()) * 100);
+  sta::print(stream_, "  output_threshold_pct_rise : {:.0f};\n",
+             library_->inputThreshold(RiseFall::rise()) * 100);
+  sta::print(stream_, "  output_threshold_pct_fall : {:.0f};\n",
+             library_->inputThreshold(RiseFall::fall()) * 100);
+  sta::print(stream_, "  slew_lower_threshold_pct_rise : {:.0f};\n",
+             library_->slewLowerThreshold(RiseFall::rise()) * 100);
+  sta::print(stream_, "  slew_lower_threshold_pct_fall : {:.0f};\n",
+             library_->slewLowerThreshold(RiseFall::fall()) * 100);
+  sta::print(stream_, "  slew_upper_threshold_pct_rise : {:.0f};\n",
+             library_->slewUpperThreshold(RiseFall::rise()) * 100);
+  sta::print(stream_, "  slew_upper_threshold_pct_fall : {:.0f};\n",
+             library_->slewUpperThreshold(RiseFall::rise()) * 100);
+  sta::print(stream_, "  slew_derate_from_library : {:.1f};\n",
+             library_->slewDerateFromLibrary());
+  sta::print(stream_, "\n");
 
   bool exists;
   float max_fanout;
   library_->defaultFanoutLoad(max_fanout, exists);
   if (exists)
-    fprintf(stream_, "  default_max_fanout             : %.0f;\n", max_fanout);
+    sta::print(stream_, "  default_max_fanout             : {:.0f};\n", max_fanout);
   float max_slew;
   library_->defaultMaxSlew(max_slew, exists);
   if (exists)
-    fprintf(stream_, "  default_max_transition         : %s;\n",
-            time_unit_->asString(max_slew, 3));
+    sta::print(stream_, "  default_max_transition         : {};\n",
+               time_unit_->asString(max_slew, 3));
   float max_cap;
   library_->defaultMaxCapacitance(max_cap, exists);
   if (exists)
-    fprintf(stream_, "  default_max_capacitance         : %s;\n",
-            cap_unit_->asString(max_cap, 3));
+    sta::print(stream_, "  default_max_capacitance         : {};\n",
+               cap_unit_->asString(max_cap, 3));
   float fanout_load;
   library_->defaultFanoutLoad(fanout_load, exists);
   if (exists)
-    fprintf(stream_, "  default_fanout_load            : %.2f;\n", fanout_load);
-  fprintf(stream_, "\n");
+    sta::print(stream_, "  default_fanout_load            : {:.2f};\n", fanout_load);
+  sta::print(stream_, "\n");
 
-  fprintf(stream_, "  nom_process                    : %.1f;\n",
-          library_->nominalProcess());
-  fprintf(stream_, "  nom_temperature                : %.1f;\n",
-          library_->nominalTemperature());
-  fprintf(stream_, "  nom_voltage                    : %.2f;\n",
-          library_->nominalVoltage());
+  sta::print(stream_, "  nom_process                    : {:.1f};\n",
+             library_->nominalProcess());
+  sta::print(stream_, "  nom_temperature                : {:.1f};\n",
+             library_->nominalTemperature());
+  sta::print(stream_, "  nom_voltage                    : {:.2f};\n",
+             library_->nominalVoltage());
 }
 
 void
@@ -216,22 +217,22 @@ LibertyWriter::writeTableTemplate(const TableTemplate *tbl_template)
   const TableAxis *axis3 = tbl_template->axis3();
   // skip scalar templates
   if (axis1) {
-    fprintf(stream_, "  lu_table_template(%s) {\n", tbl_template->name().c_str());
-    fprintf(stream_, "    variable_1 : %s;\n",
-            tableVariableString(axis1->variable()));
+    sta::print(stream_, "  lu_table_template({}) {{\n", tbl_template->name());
+    sta::print(stream_, "    variable_1 : {};\n",
+               tableVariableString(axis1->variable()));
     if (axis2)
-      fprintf(stream_, "    variable_2 : %s;\n",
-              tableVariableString(axis2->variable()));
+      sta::print(stream_, "    variable_2 : {};\n",
+                 tableVariableString(axis2->variable()));
     if (axis3)
-      fprintf(stream_, "    variable_3 : %s;\n",
-              tableVariableString(axis3->variable()));
+      sta::print(stream_, "    variable_3 : {};\n",
+                 tableVariableString(axis3->variable()));
     if (axis1 && !axis1->values().empty())
       writeTableAxis4(axis1, 1);
     if (axis2 && !axis2->values().empty())
       writeTableAxis4(axis2, 2);
     if (axis3 && !axis3->values().empty())
       writeTableAxis4(axis3, 3);
-    fprintf(stream_, "  }\n");
+    sta::print(stream_, "  }}\n");
   }
 }
 
@@ -240,16 +241,16 @@ void
 LibertyWriter::writeTableAxis4(const TableAxis *axis,
                                int index)
 {
-  fprintf(stream_, "    index_%d(\"", index);
+  sta::print(stream_, "    index_{}(\"", index);
   const Unit *unit = tableVariableUnit(axis->variable(), library_->units());
   bool first = true;
   for (size_t i = 0; i < axis->size(); i++) {
     if (!first)
-      fprintf(stream_, ",  ");      
-    fprintf(stream_, "%s", unit->asString(axis->axisValue(i), 5));
+      sta::print(stream_, ",  ");
+    sta::print(stream_, "{}", unit->asString(axis->axisValue(i), 5));
     first = false;
   }
-  fprintf(stream_, "\");\n");
+  sta::print(stream_, "\");\n");
 }
 
 // indent 10
@@ -257,7 +258,7 @@ void
 LibertyWriter::writeTableAxis10(const TableAxis *axis,
                                 int index)
 {
-  fprintf(stream_, "      ");
+  sta::print(stream_, "      ");
   writeTableAxis4(axis, index);
 }
 
@@ -266,13 +267,13 @@ LibertyWriter::writeBusDcls()
 {
   BusDclSeq dcls = library_->busDcls();
   for (BusDcl *dcl : dcls) {
-    fprintf(stream_, "  type (\"%s\") {\n", dcl->name().c_str());
-    fprintf(stream_, "    base_type : array;\n");
-    fprintf(stream_, "    data_type : bit;\n");
-    fprintf(stream_, "    bit_width : %d;\n", std::abs(dcl->from() - dcl->to() + 1));
-    fprintf(stream_, "    bit_from : %d;\n", dcl->from());
-    fprintf(stream_, "    bit_to : %d;\n", dcl->to());
-    fprintf(stream_, "  }\n");
+    sta::print(stream_, "  type (\"{}\") {{\n", dcl->name());
+    sta::print(stream_, "    base_type : array;\n");
+    sta::print(stream_, "    data_type : bit;\n");
+    sta::print(stream_, "    bit_width : {};\n", std::abs(dcl->from() - dcl->to() + 1));
+    sta::print(stream_, "    bit_from : {};\n", dcl->from());
+    sta::print(stream_, "    bit_to : {};\n", dcl->to());
+    sta::print(stream_, "  }}\n");
   }
 }
 
@@ -289,21 +290,20 @@ LibertyWriter::writeCells()
 void
 LibertyWriter::writeCell(const LibertyCell *cell)
 {
-  fprintf(stream_, "  cell (\"%s\") {\n", cell->name());
+  sta::print(stream_, "  cell (\"{}\") {{\n", cell->name());
   float area = cell->area();
   if (area > 0.0)
-    fprintf(stream_, "    area : %.3f \n", area);
+    sta::print(stream_, "    area : {:.3f} \n", area);
   if (cell->isMacro())
-    fprintf(stream_, "    is_macro_cell : true;\n");
+    sta::print(stream_, "    is_macro_cell : true;\n");
   if (cell->interfaceTiming())
-    fprintf(stream_, "    interface_timing : true;\n");
+    sta::print(stream_, "    interface_timing : true;\n");
   const char *footprint = cell->footprint();
   if (footprint)
-    fprintf(stream_, "    cell_footprint : \"%s\";\n", footprint);
+    sta::print(stream_, "    cell_footprint : \"{}\";\n", footprint);
   const char *user_function_class = cell->userFunctionClass();
   if (user_function_class)
-    fprintf(stream_, "    user_function_class : \"%s\";\n",
-            user_function_class);
+    sta::print(stream_, "    user_function_class : \"{}\";\n", user_function_class);
 
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
@@ -314,24 +314,23 @@ LibertyWriter::writeCell(const LibertyCell *cell)
       else if (port->isBus())
         writeBusPort(port);
       else if (port->isBundle())
-        report_->error(1340, "%s/%s bundled ports not supported.",
-                       library_->name(),
+        report_->error(1340, "{}/{} bundled ports not supported.", library_->name(),
                        cell->name());
       else
         writePort(port);
     }
   }
 
-  fprintf(stream_, "  }\n");
-  fprintf(stream_, "\n");
+  sta::print(stream_, "  }}\n");
+  sta::print(stream_, "\n");
 }
 
 void
 LibertyWriter::writeBusPort(const LibertyPort *port)
 {
-  fprintf(stream_, "    bus(\"%s\") {\n", port->name());
+  sta::print(stream_, "    bus(\"{}\") {{\n", port->name());
   if (port->busDcl())
-    fprintf(stream_, "      bus_type : %s;\n", port->busDcl()->name().c_str());
+    sta::print(stream_, "      bus_type : {};\n", port->busDcl()->name());
   writePortAttrs(port);
 
   LibertyPortMemberIterator member_iter(port);
@@ -339,56 +338,53 @@ LibertyWriter::writeBusPort(const LibertyPort *port)
     LibertyPort *member = member_iter.next();
     writePort(member);
   }
-  fprintf(stream_, "    }\n");
+  sta::print(stream_, "    }}\n");
 }
 
 void
 LibertyWriter::writePort(const LibertyPort *port)
 {
-  fprintf(stream_, "    pin(\"%s\") {\n", port->name());
+  sta::print(stream_, "    pin(\"{}\") {{\n", port->name());
   writePortAttrs(port);
-  fprintf(stream_, "    }\n");
+  sta::print(stream_, "    }}\n");
 }
 
 void
 LibertyWriter::writePortAttrs(const LibertyPort *port)
 {
-  fprintf(stream_, "      direction : %s;\n" , asString(port->direction()));
+  sta::print(stream_, "      direction : {};\n", asString(port->direction()));
   auto func = port->function();
   if (func
       // cannot ref internal ports until sequentials are written
-      && !(func->port()
-           && func->port()->direction()->isInternal()))
-    fprintf(stream_, "      function : \"%s\";\n", func->to_string().c_str());
+      && !(func->port() && func->port()->direction()->isInternal()))
+    sta::print(stream_, "      function : \"{}\";\n", func->to_string());
   auto tristate_enable = port->tristateEnable();
   if (tristate_enable) {
     if (tristate_enable->op() == FuncExpr::Op::not_) {
       FuncExpr *three_state = tristate_enable->left();
-      fprintf(stream_, "      three_state : \"%s\";\n",
-              three_state->to_string().c_str());
+      sta::print(stream_, "      three_state : \"{}\";\n",
+                 three_state->to_string());
     }
     else {
       FuncExpr *three_state = tristate_enable->copy()->invert();
-      fprintf(stream_, "      three_state : \"%s\";\n",
-              three_state->to_string().c_str());
+      sta::print(stream_, "      three_state : \"{}\";\n",
+                 three_state->to_string());
       delete three_state;
     }
   }
   if (port->isClock())
-    fprintf(stream_, "      clock : true;\n");
-  fprintf(stream_, "      capacitance : %s;\n",
-          cap_unit_->asString(port->capacitance(), 4));
-  
+    sta::print(stream_, "      clock : true;\n");
+  sta::print(stream_, "      capacitance : {};\n",
+             cap_unit_->asString(port->capacitance(), 4));
+
   float limit;
   bool exists;
   port->slewLimit(MinMax::max(), limit, exists);
   if (exists)
-    fprintf(stream_, "      max_transition : %s;\n",
-            time_unit_->asString(limit, 3));
+    sta::print(stream_, "      max_transition : {};\n", time_unit_->asString(limit, 3));
   port->capacitanceLimit(MinMax::max(), limit, exists);
   if (exists)
-    fprintf(stream_, "      max_capacitance : %s;\n",
-            cap_unit_->asString(limit, 3));
+    sta::print(stream_, "      max_capacitance : {};\n", cap_unit_->asString(limit, 3));
 
   for (TimingArcSet *arc_set : port->libertyCell()->timingArcSetsTo(port)) {
     if (!isAutoWidthArc(port, arc_set))
@@ -399,10 +395,10 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
 void
 LibertyWriter::writePwrGndPort(const LibertyPort *port)
 {
-  fprintf(stream_, "    pg_pin(\"%s\") {\n", port->name());
-  fprintf(stream_, "      pg_type : \"%s\";\n", pwrGndTypeName(port->pwrGndType()));
-  fprintf(stream_, "      voltage_name : \"%s\";\n", port->voltageName());
-  fprintf(stream_, "    }\n");
+  sta::print(stream_, "    pg_pin(\"{}\") {{\n", port->name());
+  sta::print(stream_, "      pg_type : \"{}\";\n", pwrGndTypeName(port->pwrGndType()));
+  sta::print(stream_, "      voltage_name : \"{}\";\n", port->voltageName());
+  sta::print(stream_, "    }}\n");
 }
 
 // Check if arc is added for port min_pulse_width_high/low attribute.
@@ -423,30 +419,27 @@ LibertyWriter::isAutoWidthArc(const LibertyPort *port,
 void
 LibertyWriter::writeTimingArcSet(const TimingArcSet *arc_set)
 {
-  fprintf(stream_, "      timing() {\n");
+  sta::print(stream_, "      timing() {{\n");
   if (arc_set->from())
-    fprintf(stream_, "        related_pin : \"%s\";\n", arc_set->from()->name());
+    sta::print(stream_, "        related_pin : \"{}\";\n", arc_set->from()->name());
   TimingSense sense = arc_set->sense();
-  if (sense != TimingSense::unknown
-      && sense != TimingSense::non_unate)
-    fprintf(stream_, "        timing_sense : %s;\n",
-            to_string(sense));
+  if (sense != TimingSense::unknown && sense != TimingSense::non_unate)
+    sta::print(stream_, "        timing_sense : {};\n", to_string(sense));
   const char *timing_type = timingTypeString(arc_set);
   if (timing_type)
-    fprintf(stream_, "        timing_type : %s;\n", timing_type);
+    sta::print(stream_, "        timing_type : {};\n", timing_type);
 
   for (const RiseFall *rf : RiseFall::range()) {
     TimingArc *arc = arc_set->arcTo(rf);
     if (arc) {
       // Min pulse width arcs are wrt to the leading edge of the pulse.
-      const RiseFall *model_rf = (arc_set->role() == TimingRole::width())
-        ? rf->opposite()
-        : rf;
+      const RiseFall *model_rf =
+          (arc_set->role() == TimingRole::width()) ? rf->opposite() : rf;
       writeTimingModels(arc, model_rf);
     }
   }
 
-  fprintf(stream_, "      }\n");
+  sta::print(stream_, "      }}\n");
 }
 
 void
@@ -454,53 +447,53 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
                                  const RiseFall *rf)
 {
   TimingModel *model = arc->model();
-  const GateTableModel *gate_model = dynamic_cast<GateTableModel*>(model);
-  const CheckTableModel *check_model = dynamic_cast<CheckTableModel*>(model);
+  const GateTableModel *gate_model = dynamic_cast<GateTableModel *>(model);
+  const CheckTableModel *check_model = dynamic_cast<CheckTableModel *>(model);
   if (gate_model) {
     const TableModel *delay_model = gate_model->delayModel();
     const std::string &template_name = delay_model->tblTemplate()->name();
-    fprintf(stream_, "        cell_%s(%s) {\n", rf->name(), template_name.c_str());
+    sta::print(stream_, "        cell_{}({}) {{\n", rf->name(), template_name);
     writeTableModel(delay_model);
-    fprintf(stream_, "        }\n");
+    sta::print(stream_, "        }}\n");
 
     const TableModel *slew_model = gate_model->slewModel();
     if (slew_model) {
       const std::string &slew_template_name = slew_model->tblTemplate()->name();
-      fprintf(stream_, "        %s_transition(%s) {\n", rf->name(), slew_template_name.c_str());
+      sta::print(stream_, "        {}_transition({}) {{\n", rf->name(),
+                 slew_template_name);
       writeTableModel(slew_model);
-      fprintf(stream_, "        }\n");
+      sta::print(stream_, "        }}\n");
     }
   }
   else if (check_model) {
-    const TableModel *model = check_model->model();
+    const TableModel *model = check_model->checkModel();
     const std::string &template_name = model->tblTemplate()->name();
-    fprintf(stream_, "        %s_constraint(%s) {\n", rf->name(), template_name.c_str());
+    sta::print(stream_, "        {}_constraint({}) {{\n", rf->name(),
+               template_name);
     writeTableModel(model);
-    fprintf(stream_, "        }\n");
+    sta::print(stream_, "        }}\n");
   }
   else
-    report_->error(1341, "%s/%s/%s timing model not supported.",
-                   library_->name(),
-                   arc->from()->libertyCell()->name(),
-                   arc->from()->name());
+    report_->error(1341, "{}/{}/{} timing model not supported.", library_->name(),
+                   arc->from()->libertyCell()->name(), arc->from()->name());
 }
 
 void
 LibertyWriter::writeTableModel(const TableModel *model)
 {
   switch (model->order()) {
-  case 0:
-    writeTableModel0(model);
-    break;
-  case 1:
-    writeTableModel1(model);
-    break;
-  case 2:
-    writeTableModel2(model);
-    break;
-  case 3:
-    report_->error(1342, "3 axis table models not supported.");  
-    break;
+    case 0:
+      writeTableModel0(model);
+      break;
+    case 1:
+      writeTableModel1(model);
+      break;
+    case 2:
+      writeTableModel2(model);
+      break;
+    case 3:
+      report_->error(1342, "3 axis table models not supported.");
+      break;
   }
 }
 
@@ -508,24 +501,23 @@ void
 LibertyWriter::writeTableModel0(const TableModel *model)
 {
   float value = model->value(0, 0, 0);
-  fprintf(stream_, "          values(\"%s\");\n",
-          time_unit_->asString(value, 5));
+  sta::print(stream_, "          values(\"{}\");\n", time_unit_->asString(value, 5));
 }
 
 void
 LibertyWriter::writeTableModel1(const TableModel *model)
 {
   writeTableAxis10(model->axis1(), 1);
-  fprintf(stream_, "          values(\"");
+  sta::print(stream_, "          values(\"");
   bool first_col = true;
   for (size_t index1 = 0; index1 < model->axis1()->size(); index1++) {
     float value = model->value(index1, 0, 0);
     if (!first_col)
-      fprintf(stream_, ",");
-    fprintf(stream_, "%s", time_unit_->asString(value, 5));
+      sta::print(stream_, ",");
+    sta::print(stream_, "{}", time_unit_->asString(value, 5));
     first_col = false;
   }
-  fprintf(stream_, "\");\n");
+  sta::print(stream_, "\");\n");
 }
 
 void
@@ -533,31 +525,31 @@ LibertyWriter::writeTableModel2(const TableModel *model)
 {
   writeTableAxis10(model->axis1(), 1);
   writeTableAxis10(model->axis2(), 2);
-  fprintf(stream_, "          values(\"");
+  sta::print(stream_, "          values(\"");
   bool first_row = true;
   for (size_t index1 = 0; index1 < model->axis1()->size(); index1++) {
     if (!first_row) {
-      fprintf(stream_, "\\\n");
-      fprintf(stream_, "                 \"");
+      sta::print(stream_, "\\\n");
+      sta::print(stream_, "                 \"");
     }
     bool first_col = true;
     for (size_t index2 = 0; index2 < model->axis2()->size(); index2++) {
       float value = model->value(index1, index2, 0);
       if (!first_col)
-        fprintf(stream_, ",");
-      fprintf(stream_, "%s", time_unit_->asString(value, 5));
+        sta::print(stream_, ",");
+      sta::print(stream_, "{}", time_unit_->asString(value, 5));
       first_col = false;
     }
-    fprintf(stream_, "\"");
+    sta::print(stream_, "\"");
     first_row = false;
   }
-  fprintf(stream_, ");\n");
+  sta::print(stream_, ");\n");
 }
 
 void
 LibertyWriter::writeFooter()
 {
-  fprintf(stream_, "}\n");
+  sta::print(stream_, "}}\n");
 }
 
 const char *
@@ -571,15 +563,13 @@ LibertyWriter::asString(const PortDirection *dir)
 {
   if (dir == PortDirection::input())
     return "input";
-  else if (dir == PortDirection::output()
-           || (dir == PortDirection::tristate()))
+  else if (dir == PortDirection::output() || (dir == PortDirection::tristate()))
     return "output";
   else if (dir == PortDirection::internal())
     return "internal";
   else if (dir == PortDirection::bidirect())
     return "inout";
-  else if (dir == PortDirection::ground()
-           || dir == PortDirection::power())
+  else if (dir == PortDirection::ground() || dir == PortDirection::power())
     return "input";
   return "unknown";
 }
@@ -594,8 +584,7 @@ LibertyWriter::timingTypeString(const TimingArcSet *arc_set)
     return "three_state_disable";
   else if (role == TimingRole::tristateEnable())
     return "three_state_enable";
-  else if (role == TimingRole::regClkToQ()
-           || role == TimingRole::latchEnToQ()) {
+  else if (role == TimingRole::regClkToQ() || role == TimingRole::latchEnToQ()) {
     const TimingArc *arc = arc_set->arcs()[0];
     if (arc->fromEdge()->asRiseFall() == RiseFall::rise())
       return "rising_edge";
@@ -611,16 +600,14 @@ LibertyWriter::timingTypeString(const TimingArcSet *arc_set)
     else
       return "clear";
   }
-  else if (role == TimingRole::setup()
-           || role == TimingRole::recovery()) {
+  else if (role == TimingRole::setup() || role == TimingRole::recovery()) {
     const TimingArc *arc = arc_set->arcs()[0];
     if (arc->fromEdge()->asRiseFall() == RiseFall::rise())
       return "setup_rising";
     else
       return "setup_falling";
   }
-  else if (role == TimingRole::hold()
-           || role == TimingRole::removal()) {
+  else if (role == TimingRole::hold() || role == TimingRole::removal()) {
     const TimingArc *arc = arc_set->arcs()[0];
     if (arc->fromEdge()->asRiseFall() == RiseFall::rise())
       return "hold_rising";
@@ -648,13 +635,11 @@ LibertyWriter::timingTypeString(const TimingArcSet *arc_set)
   else if (role == TimingRole::width())
     return "min_pulse_width";
   else {
-    report_->error(1343, "%s/%s/%s timing arc type %s not supported.",
-                   library_->name(),
-                   arc_set->to()->libertyCell()->name(),
-                   arc_set->to()->name(),
-                   role->to_string().c_str());
+    report_->error(1343, "{}/{}/{} timing arc type {} not supported.",
+                   library_->name(), arc_set->to()->libertyCell()->name(),
+                   arc_set->to()->name(), role->to_string());
     return nullptr;
   }
 }
 
-} // namespace
+}  // namespace sta

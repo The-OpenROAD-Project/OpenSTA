@@ -140,8 +140,8 @@ CheckMinPulseWidths::checkVertex(Vertex *vertex,
         Path *close_path = check.closePath(sta_);
         // Don't bother visiting if nobody is home.
         if (close_path) {
-          debugPrint(debug, "mpw", 2, "%s %s %s",
-                     path_vertex->to_string(sta_).c_str(),
+          debugPrint(debug, "mpw", 2, "{} {} {}",
+                     path_vertex->to_string(sta_),
                      path->transition(sta_) == RiseFall::rise() ? "(high)" : "(low)",
                      delayAsString(check.slack(sta_), sta_));
           if (violators) {
@@ -219,17 +219,17 @@ MinPulseWidthCheck::closePath(const StaState *sta) const
                 open_tag->isSegmentStart(),
                 open_tag->states(),
                 false);
-  debugPrint(sta->debug(), "mpw", 3, " open  %s",
-             open_tag->to_string(sta).c_str());
-  debugPrint(sta->debug(), "mpw", 3, " close %s",
-             close_tag.to_string(sta).c_str());
+  debugPrint(sta->debug(), "mpw", 3, " open  {}",
+             open_tag->to_string(sta));
+  debugPrint(sta->debug(), "mpw", 3, " close {}",
+             close_tag.to_string(sta));
   VertexPathIterator close_iter(open_path_->vertex(sta), scene, close_min_max,
                                 close_rf, sta);
   while (close_iter.hasNext()) {
     Path *close_path = close_iter.next();
     if (Tag::matchNoPathAp(close_path->tag(sta), &close_tag)) {
-      debugPrint(sta->debug(), "mpw", 3, " match %s",
-                 close_path->tag(sta)->to_string(sta).c_str());
+      debugPrint(sta->debug(), "mpw", 3, " match {}",
+                 close_path->tag(sta)->to_string(sta));
       return close_path;
     }
   }
@@ -252,13 +252,13 @@ MinPulseWidthCheck::closeArrival(const StaState *sta) const
 Arrival
 MinPulseWidthCheck::openDelay(const StaState *sta) const
 {
-  return openArrival(sta) - openClkEdge(sta)->time();
+  return delayDiff(openArrival(sta), openClkEdge(sta)->time(), sta);
 }
 
 Arrival
 MinPulseWidthCheck::closeDelay(const StaState *sta) const
 {
-  return closeArrival(sta) - closeClkEdge(sta)->time();
+  return delayDiff(closeArrival(sta), closeClkEdge(sta)->time(), sta);
 }
 
 const ClockEdge *
@@ -289,9 +289,11 @@ MinPulseWidthCheck::closeOffset(const StaState *sta) const
 Arrival
 MinPulseWidthCheck::width(const StaState *sta) const
 {
-  return closeArrival(sta) + closeOffset(sta)
-    - open_path_->arrival()
-    + checkCrpr(sta);
+  Arrival close_with_offset = delaySum(closeArrival(sta),
+                                       closeOffset(sta),
+                                       sta);
+  Arrival minus_open = delayDiff(close_with_offset, open_path_->arrival(), sta);
+  return delaySum(minus_open, checkCrpr(sta), sta);
 }
 
 float
@@ -323,6 +325,7 @@ minPulseWidth(const Path *path,
   // set_min_pulse_width command.
   sdc->minPulseWidth(pin, clk, rf, min_width, exists);
   if (!exists) {
+    const MinMax *min_max = path->minMax(sta);
     DcalcAPIndex dcalc_ap = path->dcalcAnalysisPtIndex(sta);
     Vertex *vertex = path->vertex(sta);
     Graph *graph = sta->graph();
@@ -330,7 +333,7 @@ minPulseWidth(const Path *path,
     TimingArc *arc;
     graph->minPulseWidthArc(vertex, rf, edge, arc);
     if (edge) {
-      min_width = delayAsFloat(graph->arcDelay(edge, arc, dcalc_ap));
+      min_width = delayAsFloat(graph->arcDelay(edge, arc, dcalc_ap), min_max, sta);
       exists = true;
     }
   }
@@ -350,7 +353,7 @@ MinPulseWidthCheck::checkCrpr(const StaState *sta) const
 Slack
 MinPulseWidthCheck::slack(const StaState *sta) const
 {
-  return width(sta) - minWidth(sta);
+  return delayDiff(width(sta), minWidth(sta), sta);
 }
 
 Scene *
@@ -375,7 +378,7 @@ MinPulseWidthSlackLess::operator()(const MinPulseWidthCheck &check1,
   const Pin *pin1 = check1.pin(sta_);
   const Pin *pin2 = check2.pin(sta_);
   return delayLess(slack1, slack2, sta_)
-    || (delayEqual(slack1, slack2)
+    || (delayEqual(slack1, slack2, sta_)
         // Break ties for the sake of regression stability.
         && (sta_->network()->pinLess(pin1, pin2)
             || (pin1 == pin2

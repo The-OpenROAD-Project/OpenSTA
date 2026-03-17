@@ -237,7 +237,6 @@ private:
   ArnoldiReduce *reduce_;
   delay_work *delay_work_;
   std::vector<rcmodel*> unsaved_parasitics_;
-  bool pocv_enabled_;
 };
 
 ArcDelayCalc *
@@ -397,7 +396,6 @@ ArnoldiDelayCalc::gateDelay(const Pin *drvr_pin,
   ConcreteParasitic *cparasitic =
     reinterpret_cast<ConcreteParasitic*>(const_cast<Parasitic*>(parasitic));
   rcmodel_ = dynamic_cast<rcmodel*>(cparasitic);
-  pocv_enabled_ = variables_->pocvEnabled();
   GateTableModel *table_model = arc->gateTableModel(scene, min_max);
   if (table_model && rcmodel_) {
     const Pvt *pvt = pinPvt(drvr_pin, scene, min_max);
@@ -453,8 +451,8 @@ ArnoldiDelayCalc::gateDelaySlew(const LibertyCell *drvr_cell,
         auto load_idx_itr = load_pin_index_map.find(load_pin);
         if (load_idx_itr != load_pin_index_map.end()) {
           size_t load_idx = load_idx_itr->second;
-          ArcDelay wire_delay = _delayV[i] - _delayV[0];
-          Slew load_slew = _slewV[i];
+          double wire_delay = _delayV[i] - _delayV[0];
+          double load_slew = _slewV[i];
           thresholdAdjust(load_pin, drvr_library, rf, wire_delay, load_slew);
           dcalc_result.setWireDelay(load_idx, wire_delay);
           dcalc_result.setLoadSlew(load_idx, load_slew);
@@ -1158,7 +1156,7 @@ ra_hinv(double y,
    ex = exp(-x);
    f =  x+ex-1.0-y;
    if (f<-1e-8 || f>1e-8)
-     debugPrint(debug, "arnoldi", 1, "y f %g %g", y, f);
+     debugPrint(debug, "arnoldi", 1, "y f {:g} {:g}", y, f);
   return x;
 }
 
@@ -1292,7 +1290,7 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
   s = s - f/df;
 
   if (std::abs(f)>.5e-12) // .5ps
-    debugPrint(debug_, "arnoldi", 1, "ra_solve_for_s p %g tlohi %s err %s",
+    debugPrint(debug_, "arnoldi", 1, "ra_solve_for_s p {:g} tlohi {} err {}",
                p,
                units_->timeUnit()->asString(tlohi),
                units_->timeUnit()->asString(f));
@@ -1325,9 +1323,8 @@ ArnoldiDelayCalc::ra_get_r(delay_work *D,
   float  c1;
   double tlohi,r;
   c1 = ctot;
-  ArcDelay d1;
-  Slew s1;
-  tab->table->gateDelay(tab->pvt, tab->in_slew, c1, pocv_enabled_, d1, s1);
+  float d1, s1;
+  tab->table->gateDelay(tab->pvt, tab->in_slew, c1, d1, s1);
   tlohi = slew_derate*delayAsFloat(s1);
   r = tlohi/(c_log*c1);
   if (rdelay>0.0 && r > rdelay)
@@ -1346,9 +1343,8 @@ ArnoldiDelayCalc::ra_get_s(delay_work *D,
   double c_log = con->vlg;
   double c_smin = con->smin;
   double tlohi,smin,s;
-  ArcDelay d1;
-  Slew s1;
-  tab->table->gateDelay(tab->pvt, tab->in_slew, c, pocv_enabled_, d1, s1);
+  float d1, s1;
+  tab->table->gateDelay(tab->pvt, tab->in_slew, c, d1, s1);
   tlohi = slew_derate*delayAsFloat(s1);
   smin = r*c*c_smin; // c_smin = ra_hinv((1-vhi)/vhi-log(vhi)) + log(vhi);
   if (c_log*r*c >= tlohi) {
@@ -1378,10 +1374,9 @@ ArnoldiDelayCalc::ra_rdelay_1(timing_table *tab,
   float c2 = 0.5*c1;
   if (c1==c2)
     return 0.0;
-  ArcDelay d1, d2;
-  Slew s1, s2;
-  tab->table->gateDelay(tab->pvt, tab->in_slew, c1, pocv_enabled_, d1, s1);
-  tab->table->gateDelay(tab->pvt, tab->in_slew, c2, pocv_enabled_, d2, s2);
+  float d1, d2, s1, s2;
+  tab->table->gateDelay(tab->pvt, tab->in_slew, c1, d1, s1);
+  tab->table->gateDelay(tab->pvt, tab->in_slew, c2, d2, s2);
   double dt50 = delayAsFloat(d1)-delayAsFloat(d2);
   if (dt50 <= 0.0)
     return 0.0;
@@ -1402,10 +1397,9 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   double vlo = con->vlo;
   double ctot = mod->ctot;
   double ceff,tlohi,t50_sy,r,s,t50_sr,rdelay;
-  ArcDelay df;
-  Slew sf;
+  float df, sf;
 
-  debugPrint(debug_, "arnoldi", 1, "ctot=%s",
+  debugPrint(debug_, "arnoldi", 1, "ctot={}",
              units_->capacitanceUnit()->asString(ctot));
 
   rdelay = ra_rdelay_1(tab,ctot);
@@ -1427,24 +1421,23 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   if (debug_->check("arnoldi", 1)) {
     double p = 1.0/(r*ctot);
     double thix,tlox;
-    debugPrint(debug_, "arnoldi", 1, "at r=%s s=%s",
+    debugPrint(debug_, "arnoldi", 1, "at r={} s={}",
                units_->resistanceUnit()->asString(r),
                units_->timeUnit()->asString(s));
     thix = ra_solve_for_t(p,s,vhi);
     tlox = ra_solve_for_t(p,s,vlo);
-    tab->table->gateDelay(tab->pvt,tab->in_slew, ctot, pocv_enabled_, df, sf);
-    debugPrint(debug_, "arnoldi", 1, "table slew (in_slew %s ctot %s) = %s",
+    tab->table->gateDelay(tab->pvt,tab->in_slew, ctot, df, sf);
+    debugPrint(debug_, "arnoldi", 1, "table slew (in_slew {} ctot {}) = {}",
                units_->timeUnit()->asString(tab->in_slew),
                units_->capacitanceUnit()->asString(ctot),
                delayAsString(sf, this));
     tlohi = slew_derate*delayAsFloat(sf);
-    debugPrint(debug_, "arnoldi", 1, "tlohi %s %s",
+    debugPrint(debug_, "arnoldi", 1, "tlohi {} {}",
                units_->timeUnit()->asString(tlohi),
                units_->timeUnit()->asString(tlox-thix));
   }
   ceff = ctot;
-  tab->table->gateDelay(tab->pvt, tab->in_slew, ceff, pocv_enabled_,
-                        df, sf);
+  tab->table->gateDelay(tab->pvt, tab->in_slew, ceff, df, sf);
   t50_sy = delayAsFloat(df);
   t50_sr = ra_solve_for_t(1.0/(r*ceff),s,0.5);
 
@@ -1475,17 +1468,17 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
 
       // new mvs at ceff
       s = ra_get_s(D,tab,r,ceff);
-      debugPrint(debug_, "arnoldi", 1, "new mvs  s = %s",
+      debugPrint(debug_, "arnoldi", 1, "new mvs  s = {}",
                  units_->timeUnit()->asString(s));
     }
   }
-  debugPrint(debug_, "arnoldi", 1, "r %s s %s ceff_time %s ceff %s",
+  debugPrint(debug_, "arnoldi", 1, "r {} s {} ceff_time {} ceff {}",
              units_->resistanceUnit()->asString(r),
              units_->timeUnit()->asString(s),
              units_->timeUnit()->asString(ceff_time),
              units_->capacitanceUnit()->asString(ceff));
 
-  tab->table->gateDelay(tab->pvt, tab->in_slew, ceff, pocv_enabled_, df, sf);
+  tab->table->gateDelay(tab->pvt, tab->in_slew, ceff, df, sf);
   t50_sy = delayAsFloat(df);
   t50_sr = ra_solve_for_t(1.0/(r*ceff),s,0.5);
   for (j=0;j<mod->n;j++) {

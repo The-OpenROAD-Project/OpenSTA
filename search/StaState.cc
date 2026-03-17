@@ -49,11 +49,11 @@ StaState::StaState() :
   arc_delay_calc_(nullptr),
   graph_delay_calc_(nullptr),
   search_(nullptr),
+  delay_ops_(nullptr),
   latches_(nullptr),
   variables_(nullptr),
   thread_count_(1),
-  dispatch_queue_(nullptr),
-  sigma_factor_(1.0)
+  dispatch_queue_(nullptr)
 {
 }
 

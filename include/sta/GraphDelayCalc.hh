@@ -245,8 +245,8 @@ protected:
 
   bool annotateDelaySlew(Edge *edge,
                          const TimingArc *arc,
-                         ArcDelay &gate_delay,
-                         Slew &gate_slew,
+                         const ArcDelay &gate_delay,
+                         const Slew &gate_slew,
                          const Scene *scene,
                          const MinMax *min_max);
   bool annotateLoadDelays(Vertex *drvr_vertex,

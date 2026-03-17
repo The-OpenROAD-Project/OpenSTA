@@ -293,15 +293,16 @@ HpinDrvrLoad::~HpinDrvrLoad()
 void 
 HpinDrvrLoad::report(const Network *network)
 {
-  printf("%s -> %s: ", 
-         drvr_ ? network->pathName(drvr_) : "-",
-         load_ ? network->pathName(load_) : "-");
+  Report *report = network->report();
+  std::string line = sta::format("{} -> {}: ",
+                                 drvr_ ? network->pathName(drvr_) : "-",
+                                 load_ ? network->pathName(load_) : "-");
   for (const Pin *pin : *hpins_from_drvr_)
-    printf("%s ", network->pathName(pin)); 
-  printf("* "); 
+    line += sta::format("{} ", network->pathName(pin));
+  line += "* ";
   for (const Pin *pin : *hpins_to_load_)
-    printf("%s ", network->pathName(pin)); 
-  printf("\n");
+    line += sta::format("{} ", network->pathName(pin));
+  report->report(line);
 }
 
 void 

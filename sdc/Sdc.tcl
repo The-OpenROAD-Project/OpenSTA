@@ -1435,11 +1435,11 @@ proc unset_clk_groups_cmd { cmd cmd_args } {
 
   if { $all } {
     if { $logically_exclusive } {
-      unset_clock_groups_logically_exclusive "NULL"
+      unset_clock_groups_logically_exclusive_all
     } elseif { $physically_exclusive } {
-      unset_clock_groups_physically_exclusive "NULL"
+      unset_clock_groups_physically_exclusive_all
     } elseif { $asynchronous } {
-      unset_clock_groups_asynchronous "NULL"
+      unset_clock_groups_asynchronous_all
     }
   } else {
     foreach name $names {

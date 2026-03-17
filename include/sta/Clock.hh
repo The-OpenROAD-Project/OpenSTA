@@ -25,6 +25,7 @@
 #pragma once
 
 #include <map>
+#include <string>
 
 #include "MinMax.hh"
 #include "RiseFallMinMax.hh"
@@ -207,7 +208,7 @@ public:
   ~ClockEdge();
   const RiseFall *transition() const { return rf_; }
   float time() const { return time_; }
-  const char *name() const { return name_; }
+  const std::string &name() const { return name_; }
   int index() const { return index_; }
   ClockEdge *opposite() const;
   // Pulse width if this is the leading edge of the pulse.
@@ -221,7 +222,7 @@ private:
 
   Clock *clock_;
   const RiseFall *rf_;
-  const char *name_;
+  std::string name_;
   float time_;
   int index_;
 };

@@ -143,14 +143,6 @@ public:
 char *
 stringCopy(const char *str);
 
-inline void
-stringAppend(char *&str1,
-             const char *str2)
-{
-  strcpy(str1, str2);
-  str1 += strlen(str2);
-}
-
 void
 stringDeleteCheck(const char *str);
 
@@ -163,32 +155,6 @@ stringDelete(const char *str)
 
 bool
 isDigits(const char *str);
-
-// Print to a new string.
-// Caller owns returned string.
-char *
-stringPrint(const char *fmt,
-            ...) __attribute__((format (printf, 1, 2)));
-std::string
-stdstrPrint(const char *fmt,
-               ...) __attribute__((format (printf, 1, 2)));
-char *
-stringPrintArgs(const char *fmt,
-                va_list args);
-void
-stringPrint(std::string &str,
-            const char *fmt,
-            ...) __attribute__((format (printf, 2, 3)));
-// Formated append to std::string.
-void
-stringAppend(std::string &str,
-             const char *fmt,
-             ...) __attribute__((format (printf, 2, 3)));
-
-// Print to a temporary string.
-char *
-stringPrintTmp(const char *fmt,
-               ...)  __attribute__((format (printf, 1, 2)));
 
 char *
 makeTmpString(size_t length);

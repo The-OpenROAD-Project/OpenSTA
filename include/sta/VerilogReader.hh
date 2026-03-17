@@ -25,9 +25,12 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 
+#include "Format.hh"
+#include "Report.hh"
 #include "StringUtil.hh"
 #include "NetworkClass.hh"
 
@@ -59,8 +62,32 @@ class StringRegistry;
 class VerilogBindingTbl;
 class VerilogNetNameIterator;
 class VerilogNetPortRef;
-class VerilogError;
 class LibertyCell;
+class VerilogErrorCmp;
+
+class VerilogError
+{
+public:
+  VerilogError(int id,
+               std::string_view filename,
+               int line,
+               std::string_view msg,
+               bool warn);
+  const char *msg() const { return msg_.c_str(); }
+  const char *filename() const { return filename_.c_str(); }
+  int id() const { return id_; }
+  int line() const { return line_; }
+  bool warn() const { return warn_; }
+
+private:
+  int id_;
+  std::string filename_;
+  int line_;
+  std::string msg_;
+  bool warn_;
+
+  friend class VerilogErrorCmp;
+};
 
 using VerilogModuleMap = std::map<Cell*, VerilogModule*>;
 using VerilogStmtSeq = std::vector<VerilogStmt*>;
@@ -148,14 +175,24 @@ public:
   const char *filename() const { return filename_.c_str(); }
   void incrLine();
   Report *report() const { return report_; }
+  template <typename... Args>
   void error(int id,
-             const char *filename,
+             std::string_view filename,
              int line,
-             const char *fmt, ...);
+             std::string_view fmt,
+             Args &&...args)
+  {
+    report_->fileError(id, filename, line, fmt, std::forward<Args>(args)...);
+  }
+  template <typename... Args>
   void warn(int id,
-            const char *filename,
+            std::string_view filename,
             int line,
-            const char *fmt, ...);
+            std::string_view fmt,
+            Args &&...args)
+  {
+    report_->fileWarn(id, filename, line, fmt, std::forward<Args>(args)...);
+  }
   const std::string &zeroNetName() const { return zero_net_name_; }
   const std::string &oneNetName() const { return one_net_name_; }
   void deleteModules();
@@ -231,16 +268,26 @@ protected:
                    Instance *parent,
                    VerilogBindingTbl *parent_bindings,
                    bool is_leaf);
+  template <typename... Args>
   void linkWarn(int id,
-                const char *filename,
+                std::string_view filename,
                 int line,
-                const char *msg, ...)
-    __attribute__((format (printf, 5, 6)));
+                std::string_view msg,
+                Args &&...args)
+  {
+    std::string msg_str = sta::formatRuntime(msg, std::forward<Args>(args)...);
+    link_errors_.push_back(new VerilogError(id, filename, line, msg_str, true));
+  }
+  template <typename... Args>
   void linkError(int id,
-                 const char *filename,
+                 std::string_view filename,
                  int line,
-                 const char *msg, ...)
-    __attribute__((format (printf, 5, 6)));
+                 std::string_view msg,
+                 Args &&...args)
+  {
+    std::string msg_str = sta::formatRuntime(msg, std::forward<Args>(args)...);
+    link_errors_.push_back(new VerilogError(id, filename, line, msg_str, false));
+  }
   bool reportLinkErrors();
   bool haveLinkErrors();
   Cell *makeBlackBox(VerilogModuleInst *mod_inst,

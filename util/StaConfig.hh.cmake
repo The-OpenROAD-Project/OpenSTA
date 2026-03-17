@@ -6,6 +6,4 @@
 
 #cmakedefine ZLIB_FOUND
 
-#define SSTA ${SSTA}
-
 #define TCL_READLINE ${TCL_READLINE}

@@ -152,9 +152,8 @@ TimingArc::intrinsicDelay() const
 {
   GateTimingModel *model = dynamic_cast<GateTimingModel*>(model_);
   if (model) {
-    ArcDelay arc_delay;
-    Slew slew;
-    model->gateDelay(nullptr, 0.0, 0.0, false, arc_delay, slew);
+    float arc_delay, slew;
+    model->gateDelay(nullptr, 0.0, 0.0, arc_delay, slew);
     return arc_delay;
   }
   else

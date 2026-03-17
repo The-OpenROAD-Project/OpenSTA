@@ -94,24 +94,24 @@ makeArcDcalcArg(const char *inst_name,
             else {
               const Network *network = sta->network();
               const Instance *inst = network->instance(in_pin);
-              report->warn(2100, "no timing arc for %s input/driver pins.",
+              report->warn(2100, "no timing arc for {} input/driver pins.",
                            network->pathName(inst));
             }
           }
           else
-            report->warn(2101, "%s not a valid rise/fall.", drvr_rf_name);
+            report->warn(2101, "{} not a valid rise/fall.", drvr_rf_name);
         }
         else
-          report->warn(2102, "Pin %s/%s not found.", inst_name, drvr_port_name);
+          report->warn(2102, "Pin {}/{} not found.", inst_name, drvr_port_name);
       }
       else
-        report->warn(2103, "%s not a valid rise/fall.", in_rf_name);
+        report->warn(2103, "{} not a valid rise/fall.", in_rf_name);
     }
     else
-      report->warn(2104, "Pin %s/%s not found.", inst_name, in_port_name);
+      report->warn(2104, "Pin {}/{} not found.", inst_name, in_port_name);
   }
   else
-    report->warn(2105, "Instance %s not found.", inst_name);
+    report->warn(2105, "Instance {} not found.", inst_name);
   return ArcDcalcArg();
 }
 
@@ -257,18 +257,18 @@ ArcDcalcResult::ArcDcalcResult(size_t load_count) :
 }
 
 void
-ArcDcalcResult::setGateDelay(ArcDelay gate_delay)
+ArcDcalcResult::setGateDelay(const ArcDelay &gate_delay)
 {
   gate_delay_ = gate_delay;
 }
 
 void
-ArcDcalcResult::setDrvrSlew(Slew drvr_slew)
+ArcDcalcResult::setDrvrSlew(const Slew &drvr_slew)
 {
   drvr_slew_ = drvr_slew;
 }
 
-ArcDelay
+const ArcDelay &
 ArcDcalcResult::wireDelay(size_t load_idx) const
 {
   return wire_delays_[load_idx];
@@ -276,7 +276,7 @@ ArcDcalcResult::wireDelay(size_t load_idx) const
 
 void
 ArcDcalcResult::setWireDelay(size_t load_idx,
-                             ArcDelay wire_delay)
+                             const ArcDelay &wire_delay)
 {
   wire_delays_[load_idx] = wire_delay;
 }
@@ -288,7 +288,7 @@ ArcDcalcResult::setLoadCount(size_t load_count)
   load_slews_.resize(load_count);
 }
 
-Slew
+const Slew &
 ArcDcalcResult::loadSlew(size_t load_idx) const
 {
   return load_slews_[load_idx];
@@ -296,7 +296,7 @@ ArcDcalcResult::loadSlew(size_t load_idx) const
 
 void
 ArcDcalcResult::setLoadSlew(size_t load_idx,
-                            Slew load_slew)
+                            const Slew &load_slew)
 {
   load_slews_[load_idx] = load_slew;
 }
