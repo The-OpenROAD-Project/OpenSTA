@@ -24,6 +24,10 @@
 
 #pragma once
 
+#include <string>
+#include <istream>
+
+#include "LibertyParser.hh"
 #include "LibertyLocation.hh"
 #include "LibertyParse.hh"
 
