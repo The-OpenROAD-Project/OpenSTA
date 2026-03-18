@@ -138,13 +138,13 @@ public:
   }
 
   // Log output to filename until logEnd is called.
-  virtual void logBegin(std::string_view filename);
+  virtual void logBegin(std::string filename);
   virtual void logEnd();
 
   // Redirect output to filename until redirectFileEnd is called.
-  virtual void redirectFileBegin(std::string_view filename);
+  virtual void redirectFileBegin(std::string filename);
   // Redirect append output to filename until redirectFileEnd is called.
-  virtual void redirectFileAppendBegin(std::string_view filename);
+  virtual void redirectFileAppendBegin(std::string filename);
   virtual void redirectFileEnd();
   // Redirect output to a string until redirectStringEnd is called.
   virtual void redirectStringBegin();

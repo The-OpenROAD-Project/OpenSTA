@@ -185,12 +185,11 @@ Report::isSuppressed(int id)
 ////////////////////////////////////////////////////////////////
 
 void
-Report::logBegin(std::string_view filename)
+Report::logBegin(std::string filename)
 {
-  std::string filename_str(filename);
-  log_stream_ = fopen(filename_str.c_str(), "w");
+  log_stream_ = fopen(filename.c_str(), "w");
   if (log_stream_ == nullptr)
-    throw FileNotWritable(std::move(filename_str));
+    throw FileNotWritable(std::move(filename));
 }
 
 void
@@ -202,21 +201,19 @@ Report::logEnd()
 }
 
 void
-Report::redirectFileBegin(std::string_view filename)
+Report::redirectFileBegin(std::string filename)
 {
-  std::string filename_str(filename);
-  redirect_stream_ = fopen(filename_str.c_str(), "w");
+  redirect_stream_ = fopen(filename.c_str(), "w");
   if (redirect_stream_ == nullptr)
-    throw FileNotWritable(std::move(filename_str));
+    throw FileNotWritable(std::move(filename));
 }
 
 void
-Report::redirectFileAppendBegin(std::string_view filename)
+Report::redirectFileAppendBegin(std::string filename)
 {
-  std::string filename_str(filename);
-  redirect_stream_ = fopen(filename_str.c_str(), "a");
+  redirect_stream_ = fopen(filename.c_str(), "a");
   if (redirect_stream_ == nullptr)
-    throw FileNotWritable(std::move(filename_str));
+    throw FileNotWritable(std::move(filename));
 }
 
 void

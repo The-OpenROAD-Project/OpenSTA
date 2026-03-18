@@ -27,8 +27,6 @@
 #include <string>
 #include <istream>
 
-#include "LibertyParser.hh"
-#include "LibertyLocation.hh"
 #include "LibertyParse.hh"
 
 #ifndef __FLEX_LEXER_H
