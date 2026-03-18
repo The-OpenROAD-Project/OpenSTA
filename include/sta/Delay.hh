@@ -63,6 +63,10 @@ public:
   void setSkewness(float skewness);
 
   void operator=(float delay);
+  // This allows applications that do not support statistical timing
+  // to treat Delays as floats without explicitly converting with
+  // delayAsFloat.
+  operator float() const { return mean(); }
 
 private:
   std::array<float, 4> values_;
