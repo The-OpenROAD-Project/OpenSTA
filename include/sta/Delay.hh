@@ -207,8 +207,14 @@ void
 delaySetMean(Delay &delay,
              float mean);
 
+// early_late == late
 std::string
 delayAsString(const Delay &delay,
+              const StaState *sta);
+// early_late == late
+std::string
+delayAsString(const Delay &delay,
+              int digits,
               const StaState *sta);
 std::string
 delayAsString(const Delay &delay,
