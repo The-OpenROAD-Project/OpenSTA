@@ -44,10 +44,10 @@ class ReportTcl : public Report
 public:
   ReportTcl();
   virtual ~ReportTcl();
-  void logBegin(std::string_view filename) override;
+  void logBegin(std::string filename) override;
   void logEnd() override;
-  void redirectFileBegin(std::string_view filename) override;
-  void redirectFileAppendBegin(std::string_view filename) override;
+  void redirectFileBegin(std::string filename) override;
+  void redirectFileAppendBegin(std::string filename) override;
   void redirectFileEnd() override;
   void redirectStringBegin() override;
   const char *redirectStringEnd() override;

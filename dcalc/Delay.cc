@@ -225,6 +225,14 @@ delayAsString(const Delay &delay,
 
 std::string
 delayAsString(const Delay &delay,
+              int digits,
+              const StaState *sta)
+{
+  return delayAsString(delay, EarlyLate::late(), digits, sta);
+}
+
+std::string
+delayAsString(const Delay &delay,
               const EarlyLate *early_late,
               const StaState *sta)
 {

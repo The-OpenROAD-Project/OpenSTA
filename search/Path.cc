@@ -50,8 +50,8 @@ Path::Path() :
 
 Path::Path(const Path *path) :
   prev_path_(path ? path->prev_path_ : nullptr),
-  arrival_(path ? path->arrival_ : 0.0),
-  required_(path ? path->required_ : 0.0),
+  arrival_(path ? path->arrival_ : delay_zero),
+  required_(path ? path->required_ : delay_zero),
   vertex_id_(path ? path->vertex_id_ : vertex_id_null),
   tag_index_(path ? path->tag_index_ : tag_index_null),
   is_enum_(path ? path->is_enum_ : false),
