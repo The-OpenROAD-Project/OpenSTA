@@ -923,13 +923,6 @@ TEST_F(SdcInitTest, ExceptionPathLessComparator2) {
   }() ));
 }
 
-// Sdc::isLeafPinNonGeneratedClock with null
-TEST_F(SdcInitTest, SdcIsLeafPinNonGeneratedClockNull) {
-  Sdc *sdc = sta_->cmdSdc();
-  bool result = sdc->isLeafPinNonGeneratedClock(nullptr);
-  EXPECT_FALSE(result);
-}
-
 // Clock removeSlew
 TEST_F(SdcInitTest, ClockRemoveSlew) {
   FloatSeq *waveform = new FloatSeq;

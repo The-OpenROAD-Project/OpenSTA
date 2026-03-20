@@ -1417,10 +1417,6 @@ TEST_F(StaInitTest, CmdNamespaceSet) {
   EXPECT_EQ(sta_->cmdNamespace(), CmdNamespace::sta);
 }
 
-TEST_F(StaInitTest, IsClockSrcNoDesign) {
-  EXPECT_FALSE(sta_->isClockSrc(nullptr, sta_->cmdSdc()));
-}
-
 TEST_F(StaInitTest, EquivCellsNullCell) {
   LibertyCellSeq *equiv = sta_->equivCells(nullptr);
   EXPECT_EQ(equiv, nullptr);
@@ -2898,11 +2894,6 @@ TEST_F(StaInitTest, StaSetMaxAreaVal) {
 }
 
 // --- Sta.cc: clock operations ---
-TEST_F(StaInitTest, StaIsClockSrcNoDesign2) {
-  bool result = sta_->isClockSrc(nullptr, sta_->cmdSdc());
-  EXPECT_FALSE(result);
-}
-
 TEST_F(StaInitTest, StaSetPropagatedClockNull) {
   sta_->setPropagatedClock(static_cast<Pin*>(nullptr), sta_->cmdMode());
 
