@@ -1057,14 +1057,14 @@ ReportPath::pathEndpoint(const PathEnd *end) const
 void
 ReportPath::reportJsonHeader() const
 {
-  report_->report("{{\"checks\": [");
+  report_->report("{\"checks\": [");
 }
 
 void
 ReportPath::reportJsonFooter() const
 {
   report_->report("]");
-  report_->report("}}");
+  report_->report("}");
 }
 
 void
