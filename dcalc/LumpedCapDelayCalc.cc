@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -168,7 +168,7 @@ LumpedCapDelayCalc::makeResult(const LibertyLibrary *drvr_library,
   for (const auto [load_pin, load_idx] : load_pin_index_map) {
     ArcDelay wire_delay = 0.0;
     Slew load_slew = drvr_slew;
-    thresholdAdjust(load_pin, drvr_library, rf, wire_delay, drvr_slew);
+    thresholdAdjust(load_pin, drvr_library, rf, wire_delay, load_slew);
     dcalc_result.setWireDelay(load_idx, wire_delay);
     dcalc_result.setLoadSlew(load_idx, load_slew);
   }

@@ -47,4 +47,4 @@ write_path_spice \
   -model_file $model_file \
   -power VDD \
   -ground VSS
-diff_files $test_name.spok [file join $spice_dir path_1.sp]
+diff_files $test_name.spok [file join $spice_dir path_1.sp] "mock_model.sp"

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -151,7 +151,8 @@ LibertyReader::endLibrary(const LibertyGroup *library_group,
                           LibertyGroup *)
 {
   // If a library has no cells endCell is not called.
-  readLibraryAttributes(library_group);
+  if (!library_group->empty())
+    readLibraryAttributes(library_group);
   checkThresholds(library_group);
   delete library_group;
 }
@@ -166,7 +167,8 @@ LibertyReader::endCell(const LibertyGroup *cell_group,
   // Normally they are all defined by the first cell, but there
   // are libraries that define table templates and bus tyupes
   // between cells.
-  readLibraryAttributes(library_group);
+  if (!library_group->oneGroupOnly())
+    readLibraryAttributes(library_group);
 
   const char *name = cell_group->firstName();
   if (name) {
@@ -984,6 +986,8 @@ LibertyReader::readCell(LibertyCell *cell,
 
   // Make ff/latch output ports.
   makeSequentials(cell, cell_group);
+  // Test cell ports may be referenced by a statetable.
+  readTestCell(cell, cell_group);
 
   readCellAttributes(cell, cell_group);
 
@@ -997,8 +1001,6 @@ LibertyReader::readCell(LibertyCell *cell,
     makeTimingArcs(cell, ports, port_group);
     readInternalPowerGroups(cell, ports, port_group);
   }
-
-  readTestCell(cell, cell_group);
 
   cell->finish(infer_latches_, report_, debug_);
 }
@@ -1518,8 +1520,11 @@ LibertyReader::readCapacitance(const LibertyPortSeq &ports,
       // min/max_transition
       attr_name = min_max->to_string() + "_transition";
       port_group->findAttrFloat(attr_name, limit, exists);
-      if (exists)
+      if (exists) {
+        if (min_max == MinMax::max() && limit == 0.0)
+          libWarn(1241, port_group, "max_transition is 0.0.");
         port->setSlewLimit(limit * time_scale_, min_max);
+      }
     }
 
     // Default capacitance.
@@ -2964,6 +2969,9 @@ LibertyReader::readStatetable(LibertyCell *cell,
       LibertyPortSeq input_port_ptrs;
       for (const std::string &input : input_ports) {
         LibertyPort *port = cell->findLibertyPort(input.c_str());
+        if (port == nullptr
+            && cell->testCell())
+          port = cell->testCell()->findLibertyPort(input.c_str());
         if (port)
           input_port_ptrs.push_back(port);
         else

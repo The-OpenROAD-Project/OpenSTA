@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -1365,7 +1365,7 @@ class ConnectedPinIterator1 : public ConnectedPinIterator
 {
 public:
   ConnectedPinIterator1(PinSet *pins);
-  virtual ~ConnectedPinIterator1();
+  ~ConnectedPinIterator1() override;
   bool hasNext() override;
   const Pin *next() override;
 
@@ -1401,7 +1401,7 @@ class FindConnectedPins : public PinVisitor
 {
 public:
   FindConnectedPins(PinSet *pins);
-  virtual void operator()(const Pin *pin);
+  void operator()(const Pin *pin) override;
 
 protected:
   PinSet *pins_;
@@ -1572,7 +1572,7 @@ class FindDrvrPins : public PinVisitor
 public:
   FindDrvrPins(PinSet *pins,
                const Network *network);
-  virtual void operator()(const Pin *pin);
+  void operator()(const Pin *pin) override;
 
 protected:
   PinSet *pins_;
@@ -1692,13 +1692,6 @@ Network::pathNameLast(const char *path_name,
 NetworkEdit::NetworkEdit() :
   Network()
 {
-}
-
-void
-NetworkEdit::connectPin(Pin *pin,
-                        Net *net)
-{
-  connect(instance(pin), port(pin), net);
 }
 
 ////////////////////////////////////////////////////////////////

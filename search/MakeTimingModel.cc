@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -236,9 +236,9 @@ class MakeEndTimingArcs : public PathEndVisitor
 public:
   MakeEndTimingArcs(Sta *sta);
   MakeEndTimingArcs(const MakeEndTimingArcs&) = default;
-  virtual ~MakeEndTimingArcs() {}
-  virtual PathEndVisitor *copy() const;
-  virtual void visit(PathEnd *path_end);
+  ~MakeEndTimingArcs() override {}
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
   void setInputRf(const RiseFall *input_rf);
   const ClockEdgeDelays &margins() const { return margins_; }
 

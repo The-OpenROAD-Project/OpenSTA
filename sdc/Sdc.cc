@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -1289,7 +1289,7 @@ public:
                       const Pin *load);
 
 protected:
-  virtual void visit(HpinDrvrLoad *drvr_load);
+  void visit(HpinDrvrLoad *drvr_load) override;
   void makeClkHpinDisables(const Pin *clk_src,
                            const Pin *drvr,
                            const Pin *load);
@@ -3173,7 +3173,7 @@ public:
               float &fanout,
               bool &has_net_load,
               const Sdc *sdc);
-  virtual void operator()(const Pin *pin);
+  void operator()(const Pin *pin) override;
 
 protected:
   const RiseFall *rf_;
@@ -3560,8 +3560,8 @@ public:
                           Graph *graph);
 
 protected:
-  virtual void visit(const Pin *drvr,
-                     const Pin *load);
+  void visit(const Pin *drvr,
+             const Pin *load) override;
 
   PinPairSet *pairs_;
   Graph *graph_;
@@ -3601,8 +3601,8 @@ public:
                                 Graph *graph);
 
 protected:
-  virtual void visit(const Pin *drvr,
-                     const Pin *load);
+  void visit(const Pin *drvr,
+             const Pin *load) override;
 
   PinPairSet *pairs_;
   Graph *graph_;
@@ -5151,9 +5151,9 @@ public:
   ExpandException(ExceptionPath *exception,
                   ExceptionPathSet &expansions,
                   Network *network);
-  virtual void visit(ExceptionFrom *from,
-                     ExceptionThruSeq *thrus,
-                     ExceptionTo *to);
+  void visit(ExceptionFrom *from,
+             ExceptionThruSeq *thrus,
+             ExceptionTo *to) override;
 
 private:
   ExceptionPathSet &expansions_;
