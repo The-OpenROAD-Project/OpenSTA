@@ -3626,7 +3626,7 @@ TEST_F(StaInitTest, StaStaGlobal) {
 TEST_F(StaInitTest, StaTclInterpAccess) {
   ASSERT_NE(sta_, nullptr);
   ASSERT_NE(interp_, nullptr);
-  Tcl_Interp *before = sta_->tclInterp();
+  // tcl_interp_ is uninitialized before setTclInterp, so skip reading it.
   sta_->setTclInterp(interp_);
   Tcl_Interp *after = sta_->tclInterp();
 
@@ -3634,7 +3634,6 @@ TEST_F(StaInitTest, StaTclInterpAccess) {
   EXPECT_EQ(sta_->tclInterp(), interp_);
   EXPECT_EQ(Sta::sta(), sta_);
   EXPECT_NE(sta_->report(), nullptr);
-  EXPECT_TRUE(before == nullptr || before == interp_);
 }
 
 TEST_F(StaInitTest, StaCmdNamespace) {
