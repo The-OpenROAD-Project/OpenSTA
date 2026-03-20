@@ -16,7 +16,16 @@ jobs:
 
       - name: Set up dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y flex libfl-dev bison tcl-dev tcl-tclreadline libeigen3-dev ninja-build
+          sudo apt-get update
+          sudo apt-get install -y \
+                flex \
+                libfl-dev \
+                bison \
+                tcl-dev \
+                tcl-tclreadline \
+                libeigen3-dev \
+                ninja-build \
+                libgtest-dev
 
       - name: Set up cudd-3.0.0
         run: |
