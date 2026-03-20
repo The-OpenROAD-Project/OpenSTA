@@ -61,7 +61,11 @@ public:
   void report(std::string_view fmt,
               Args &&...args)
   {
-    reportLine(sta::vformat(fmt, sta::make_format_args(args...)));
+    report(sta::vformat(fmt, sta::make_format_args(args...)));
+  }
+  virtual void report(const std::string &formatted_msg)
+  {
+    reportLine(formatted_msg);
   }
 
   ////////////////////////////////////////////////////////////////
@@ -73,10 +77,14 @@ public:
             Args &&...args)
   {
     if (!isSuppressed(id)) {
-      reportLine(sta::format(
-          "Warning {}: {}", id, sta::vformat(fmt, sta::make_format_args(args...))));
+      warn(id, sta::vformat(fmt, sta::make_format_args(args...)));
     }
   }
+  virtual void warn(int id,
+                    const std::string &formatted_msg) {
+    reportLine(sta::format("Warning {}: {}", id, formatted_msg));
+  }
+
   // Report warning in a file.
   template <typename... Args>
   void fileWarn(int id,
@@ -86,10 +94,17 @@ public:
                 Args &&...args)
   {
     if (!isSuppressed(id)) {
-      reportLine(
-          sta::format("Warning {}: {} line {}, {}", id, filename, line,
-                      sta::vformat(fmt, sta::make_format_args(args...))));
+      fileWarn(id, filename, line, 
+               sta::vformat(fmt, sta::make_format_args(args...)));
     }
+  }
+  virtual void
+  fileWarn(int id,
+           std::string_view filename,
+           int line,
+           const std::string &formatted_msg) {
+    reportLine(sta::format("Warning {}: {} line {}, {}",
+                           id, filename, line, formatted_msg));
   }
 
   template <typename... Args>
@@ -97,8 +112,12 @@ public:
              std::string_view fmt,
              Args &&...args)
   {
-    std::string msg = sta::vformat(fmt, sta::make_format_args(args...));
-    reportThrowExceptionMsg(sta::format("{} {}", id, msg), isSuppressed(id));
+    error(id, sta::vformat(fmt, sta::make_format_args(args...)));
+  }
+  virtual void error(int id,
+                    const std::string &formatted_msg)
+  {
+    reportThrowExceptionMsg(sta::format("{} {}", id, formatted_msg), isSuppressed(id));
   }
   // Report error in a file.
   template <typename... Args>
@@ -108,8 +127,16 @@ public:
                  std::string_view fmt,
                  Args &&...args)
   {
-    const std::string msg = sta::vformat(fmt, sta::make_format_args(args...));
-    reportThrowExceptionMsg(sta::format("{} {} line {}, {}", id, filename, line, msg),
+    fileError(id, filename, line,
+              sta::vformat(fmt, sta::make_format_args(args...)));
+  }
+  virtual void fileError(int id,
+                        std::string_view filename,
+                        int line,
+                        const std::string &formatted_msg)
+  {
+    reportThrowExceptionMsg(sta::format("{} {} line {}, {}",
+                                        id, filename, line, formatted_msg),
                             isSuppressed(id));
   }
 
@@ -121,10 +148,15 @@ public:
                 std::string_view fmt,
                 Args &&...args)
   {
-    reportLine(sta::format("Critical {}: {}", id,
-                                 sta::vformat(fmt, sta::make_format_args(args...))));
+    critical(id, sta::vformat(fmt, sta::make_format_args(args...)));
+  }
+  virtual void critical(int id,
+                        const std::string &formatted_msg)
+  {
+    reportLine(sta::format("Critical {}: {}", id, formatted_msg));
     exit(1);
   }
+
   template <typename... Args>
   void fileCritical(int id,
                     std::string_view filename,
@@ -132,8 +164,16 @@ public:
                     std::string_view fmt,
                     Args &&...args)
   {
+    fileCritical(id, filename, line,
+                 sta::vformat(fmt, sta::make_format_args(args...)));
+  }
+  virtual void fileCritical(int id,
+                           std::string_view filename,
+                           int line,
+                           const std::string &formatted_msg)
+  {
     reportLine(sta::format("Critical {}: {} line {}, {}", id, filename, line,
-                                 sta::vformat(fmt, sta::make_format_args(args...))));
+                           formatted_msg));
     exit(1);
   }
 
