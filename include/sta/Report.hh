@@ -61,9 +61,9 @@ public:
   void report(std::string_view fmt,
               Args &&...args)
   {
-    report(sta::vformat(fmt, sta::make_format_args(args...)));
+    reportMsg(sta::vformat(fmt, sta::make_format_args(args...)));
   }
-  virtual void report(const std::string &formatted_msg)
+  virtual void reportMsg(const std::string &formatted_msg)
   {
     reportLine(formatted_msg);
   }
@@ -76,12 +76,11 @@ public:
             std::string_view fmt,
             Args &&...args)
   {
-    if (!isSuppressed(id)) {
-      warn(id, sta::vformat(fmt, sta::make_format_args(args...)));
-    }
+    if (!isSuppressed(id))
+      warnMsg(id, sta::vformat(fmt, sta::make_format_args(args...)));
   }
-  virtual void warn(int id,
-                    const std::string &formatted_msg) {
+  virtual void warnMsg(int id,
+                       const std::string &formatted_msg) {
     reportLine(sta::format("Warning {}: {}", id, formatted_msg));
   }
 
@@ -94,15 +93,15 @@ public:
                 Args &&...args)
   {
     if (!isSuppressed(id)) {
-      fileWarn(id, filename, line, 
-               sta::vformat(fmt, sta::make_format_args(args...)));
+      fileWarnMsg(id, filename, line, 
+                  sta::vformat(fmt, sta::make_format_args(args...)));
     }
   }
   virtual void
-  fileWarn(int id,
-           std::string_view filename,
-           int line,
-           const std::string &formatted_msg) {
+  fileWarnMsg(int id,
+              std::string_view filename,
+              int line,
+              const std::string &formatted_msg) {
     reportLine(sta::format("Warning {}: {} line {}, {}",
                            id, filename, line, formatted_msg));
   }
@@ -112,10 +111,10 @@ public:
              std::string_view fmt,
              Args &&...args)
   {
-    error(id, sta::vformat(fmt, sta::make_format_args(args...)));
+    errorMsg(id, sta::vformat(fmt, sta::make_format_args(args...)));
   }
-  virtual void error(int id,
-                    const std::string &formatted_msg)
+  virtual void errorMsg(int id,
+                        const std::string &formatted_msg)
   {
     reportThrowExceptionMsg(sta::format("{} {}", id, formatted_msg), isSuppressed(id));
   }
@@ -127,13 +126,13 @@ public:
                  std::string_view fmt,
                  Args &&...args)
   {
-    fileError(id, filename, line,
-              sta::vformat(fmt, sta::make_format_args(args...)));
+    fileErrorMsg(id, filename, line,
+                 sta::vformat(fmt, sta::make_format_args(args...)));
   }
-  virtual void fileError(int id,
-                        std::string_view filename,
-                        int line,
-                        const std::string &formatted_msg)
+  virtual void fileErrorMsg(int id,
+                            std::string_view filename,
+                            int line,
+                            const std::string &formatted_msg)
   {
     reportThrowExceptionMsg(sta::format("{} {} line {}, {}",
                                         id, filename, line, formatted_msg),
@@ -148,10 +147,10 @@ public:
                 std::string_view fmt,
                 Args &&...args)
   {
-    critical(id, sta::vformat(fmt, sta::make_format_args(args...)));
+    criticalMsg(id, sta::vformat(fmt, sta::make_format_args(args...)));
   }
-  virtual void critical(int id,
-                        const std::string &formatted_msg)
+  virtual void criticalMsg(int id,
+                           const std::string &formatted_msg)
   {
     reportLine(sta::format("Critical {}: {}", id, formatted_msg));
     exit(1);
@@ -164,13 +163,13 @@ public:
                     std::string_view fmt,
                     Args &&...args)
   {
-    fileCritical(id, filename, line,
-                 sta::vformat(fmt, sta::make_format_args(args...)));
+    fileCriticalMsg(id, filename, line,
+                    sta::vformat(fmt, sta::make_format_args(args...)));
   }
-  virtual void fileCritical(int id,
-                           std::string_view filename,
-                           int line,
-                           const std::string &formatted_msg)
+  virtual void fileCriticalMsg(int id,
+                               std::string_view filename,
+                               int line,
+                               const std::string &formatted_msg)
   {
     reportLine(sta::format("Critical {}: {} line {}, {}", id, filename, line,
                            formatted_msg));
