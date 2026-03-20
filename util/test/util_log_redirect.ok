@@ -76,7 +76,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00    0.00   clock network delay (ideal)
                   0.00    0.00    0.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
      1    0.00    0.01    0.04    0.04 ^ r3/Q (DFFHQx4_ASAP7_75t_R)
-                  0.01    0.00    0.04 ^ out (out)
+                  0.00    0.00    0.04 ^ out (out)
                                   0.04   data arrival time
 
                   0.00  500.00  500.00   clock clk (rise edge)

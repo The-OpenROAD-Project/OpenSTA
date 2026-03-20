@@ -532,10 +532,10 @@ Path Type: max
  172.71 3148.49 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
  433.19 3581.68 v _292_/X (sky130_fd_sc_hd__o311a_2)
  727.20 4308.88 ^ _295_/Y (sky130_fd_sc_hd__o31ai_4)
- 368.17 4677.05 ^ split1/X (sky130_fd_sc_hd__buf_4)
- 112.45 4789.50 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
-   0.00 4789.50 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
-        4789.50   data arrival time
+ 368.13 4677.01 ^ split1/X (sky130_fd_sc_hd__buf_4)
+ 112.44 4789.46 v _316_/Y (sky130_fd_sc_hd__a221oi_1)
+   0.00 4789.46 v _418_/D (sky130_fd_sc_hd__dfxtp_1)
+        4789.46   data arrival time
 
    5.00    5.00   clock clk (rise edge)
    0.00    5.00   clock network delay (ideal)
@@ -545,9 +545,9 @@ Path Type: max
         -154.73   data required time
 ---------------------------------------------------------
         -154.73   data required time
-        -4789.50   data arrival time
+        -4789.46   data arrival time
 ---------------------------------------------------------
-        -4944.23   slack (VIOLATED)
+        -4944.19   slack (VIOLATED)
 
 
 Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)

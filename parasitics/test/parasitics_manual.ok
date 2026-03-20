@@ -140,7 +140,7 @@ Path Type: max
                    0.00    0.00   clock network delay (propagated)
           20.00    0.00    0.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
    0.00    0.01    1.09    1.09 ^ r3/Q (DFFHQx4_ASAP7_75t_R)
-           0.01    0.00    1.09 ^ out (out)
+           0.00    0.00    1.09 ^ out (out)
                            1.09   data arrival time
 
            0.00  500.00  500.00   clock clk (rise edge)

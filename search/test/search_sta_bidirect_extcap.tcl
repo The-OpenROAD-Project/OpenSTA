@@ -111,9 +111,7 @@ puts "--- report_net detail ---"
 report_net n1
 report_net n2
 report_net n3
-report_net -connections n1
-report_net -verbose n1
-report_net -connections -verbose n1
+report_net n1
 
 ############################################################
 # write_verilog / write_sdc

@@ -164,8 +164,8 @@ report_checks -path_delay max
 report_checks -path_delay min
 
 ############################################################
-# report_net with -connections (exercises connectedCap and net printing)
+# report_net (exercises connectedCap and net printing)
 ############################################################
-puts "--- report_net -connections ---"
-report_net -connections n1
-report_net -connections n2
+puts "--- report_net ---"
+report_net n1
+report_net n2
