@@ -24,6 +24,4 @@ Path Type: max
            9.92   slack (MET)
 
 
-Differences found at line 2.
-.include "/workspace/sta/OpenSTA/spice/test/results/spice_out/mock_model.sp"
-.include "/workspace/sta2/OpenSTA/spice/test/results/spice_out/mock_model.sp"
+No differences found.

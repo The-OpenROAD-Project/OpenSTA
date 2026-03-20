@@ -2761,7 +2761,7 @@ LibertyPort::clkTreeDelay(float in_slew,
         || (arc_set->role() == TimingRole::clockTreePathMax()
             && min_max == MinMax::max())) {
       const TimingArc *arc = arc_set->arcTo(to_rf);
-      if (arc->fromEdge()->asRiseFall() == from_rf) {
+      if (arc && arc->fromEdge()->asRiseFall() == from_rf) {
         const GateTableModel *gate_model = dynamic_cast<GateTableModel*>(arc->model());
         if (gate_model)
           return gate_model->delayModel()->findValue(in_slew, 0.0, 0.0);
