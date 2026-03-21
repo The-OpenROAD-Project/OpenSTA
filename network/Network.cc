@@ -262,24 +262,15 @@ Network::pathName(const Instance *instance) const
 {
   InstanceSeq inst_path;
   path(instance, inst_path);
-  size_t name_length = 0;
-  for (const Instance *inst : inst_path)
-    name_length += strlen(name(inst)) + 1;
-  char *path_name = makeTmpString(name_length + 1);
-  char *path_ptr = path_name;
-  // Top instance has null string name, so terminate the string here.
-  *path_name = '\0';
+  std::string path_name;
   while (inst_path.size()) {
     const Instance *inst = inst_path.back();
-    const char *inst_name = name(inst);
-    strcpy(path_ptr, inst_name);
-    path_ptr += strlen(inst_name);
+    path_name += name(inst);
     inst_path.pop_back();
-    if (inst_path.size())
-      *path_ptr++ = pathDivider();
-    *path_ptr = '\0';
+    if (!inst_path.empty())
+      path_name += pathDivider();
   }
-  return path_name;
+  return makeTmpString(path_name);
 }
 
 bool
@@ -376,18 +367,10 @@ Network::pathName(const Pin *pin) const
 {
   const Instance *inst = instance(pin);
   if (inst && inst != topInstance()) {
-    const char *inst_name = pathName(inst);
-    size_t inst_name_length = strlen(inst_name);
-    const char *port_name = portName(pin);
-    size_t port_name_length = strlen(port_name);
-    size_t path_name_length = inst_name_length + port_name_length + 2;
-    char *path_name = makeTmpString(path_name_length);
-    char *path_ptr = path_name;
-    strcpy(path_ptr, inst_name);
-    path_ptr += inst_name_length;
-    *path_ptr++ = pathDivider();
-    strcpy(path_ptr, port_name);
-    return path_name;
+    std::string path_name = pathName(inst);
+    path_name += pathDivider();
+    path_name += portName(pin);
+    return makeTmpString(path_name);
   }
   else
     return portName(pin);
@@ -464,18 +447,10 @@ Network::pathName(const Net *net) const
 {
   const Instance *inst = instance(net);
   if (inst && inst != topInstance()) {
-    const char *inst_name = pathName(inst);
-    size_t inst_name_length = strlen(inst_name);
-    const char *net_name = name(net);
-    size_t net_name_length = strlen(net_name);
-    size_t path_name_length = inst_name_length + net_name_length + 2;
-    char *path_name = makeTmpString(path_name_length);
-    char *path_ptr = path_name;
-    strcpy(path_ptr, inst_name);
-    path_ptr += inst_name_length;
-    *path_ptr++ = pathDivider();
-    strcpy(path_ptr, net_name);
-    return path_name;
+    std::string path_name = pathName(inst);
+    path_name += pathDivider();
+    path_name += name(net);
+    return makeTmpString(path_name);
   }
   else
     return name(net);

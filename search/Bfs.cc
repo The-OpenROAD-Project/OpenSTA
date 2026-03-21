@@ -1,26 +1,26 @@
 
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "Bfs.hh"
@@ -38,10 +38,10 @@
 namespace sta {
 
 BfsIterator::BfsIterator(BfsIndex bfs_index,
-			 Level level_min,
-			 Level level_max,
-			 SearchPred *search_pred,
-			 StaState *sta) :
+                         Level level_min,
+                         Level level_max,
+                         SearchPred *search_pred,
+                         StaState *sta) :
   StaState(sta),
   bfs_index_(bfs_index),
   level_min_(level_min),
@@ -69,9 +69,7 @@ BfsIterator::ensureSize()
   }
 }
 
-BfsIterator::~BfsIterator()
-{
-}
+BfsIterator::~BfsIterator() {}
 
 void
 BfsIterator::clear()
@@ -81,7 +79,7 @@ BfsIterator::clear()
     VertexSeq &level_vertices = queue_[level];
     for (Vertex *vertex : level_vertices) {
       if (vertex)
-	vertex->setBfsInQueue(bfs_index_, false);
+        vertex->setBfsInQueue(bfs_index_, false);
     }
     level_vertices.clear();
     incrLevel(level);
@@ -92,18 +90,18 @@ BfsIterator::clear()
 void
 BfsIterator::reportEntries() const
 {
-  for (Level level=first_level_; levelLessOrEqual(level, last_level_);incrLevel(level)){
+  for (Level level = first_level_; levelLessOrEqual(level, last_level_);
+       incrLevel(level)) {
     const VertexSeq &level_vertices = queue_[level];
     if (!level_vertices.empty()) {
-      report_->reportLine("Level %d", level);
+      report_->report("Level {}", level);
       for (Vertex *vertex : level_vertices)
-	report_->reportLine(" %s",
-			    vertex ? vertex->to_string(this).c_str() : "NULL");
+        report_->report(" {}", vertex ? vertex->to_string(this) : "NULL");
     }
   }
 }
 
-void 
+void
 BfsIterator::deleteEntries(Level level)
 {
   VertexSeq &level_vertices = queue_[level];
@@ -135,11 +133,11 @@ BfsIterator::enqueueAdjacentVertices(Vertex *vertex,
 
 int
 BfsIterator::visit(Level to_level,
-		   VertexVisitor *visitor)
+                   VertexVisitor *visitor)
 {
   int visit_count = 0;
   while (levelLessOrEqual(first_level_, last_level_)
-	 && levelLessOrEqual(first_level_, to_level)) {
+         && levelLessOrEqual(first_level_, to_level)) {
     Level level = first_level_;
     VertexSeq &level_vertices = queue_[level];
     incrLevel(first_level_);
@@ -163,7 +161,7 @@ BfsIterator::visit(Level to_level,
 
 int
 BfsIterator::visitParallel(Level to_level,
-			   VertexVisitor *visitor)
+                           VertexVisitor *visitor)
 {
   size_t thread_count = thread_count_;
   int visit_count = 0;
@@ -171,15 +169,15 @@ BfsIterator::visitParallel(Level to_level,
     if (thread_count == 1)
       visit_count = visit(to_level, visitor);
     else {
-      std::vector<VertexVisitor*> visitors;
+      std::vector<VertexVisitor *> visitors;
       for (int k = 0; k < thread_count_; k++)
-	visitors.push_back(visitor->copy());
+        visitors.push_back(visitor->copy());
       while (levelLessOrEqual(first_level_, last_level_)
-	     && levelLessOrEqual(first_level_, to_level)) {
-	VertexSeq &level_vertices = queue_[first_level_];
+             && levelLessOrEqual(first_level_, to_level)) {
+        VertexSeq &level_vertices = queue_[first_level_];
         Level level = first_level_;
-	incrLevel(first_level_);
-	if (!level_vertices.empty()) {
+        incrLevel(first_level_);
+        if (!level_vertices.empty()) {
           size_t vertex_count = level_vertices.size();
           if (vertex_count < thread_count) {
             for (Vertex *vertex : level_vertices) {
@@ -197,7 +195,7 @@ BfsIterator::visitParallel(Level to_level,
             for (size_t k = 0; k < thread_count; k++) {
               // Last thread gets the left overs.
               size_t to = (k == thread_count - 1) ? vertex_count : from + chunk_size;
-              dispatch_queue_->dispatch( [=, this](int) {
+              dispatch_queue_->dispatch([=, this](int) {
                 for (size_t i = from; i < to; i++) {
                   Vertex *vertex = level_vertices[i];
                   if (vertex) {
@@ -211,13 +209,13 @@ BfsIterator::visitParallel(Level to_level,
             }
             dispatch_queue_->finishTasks();
           }
-	  visitor->levelFinished();
-	  level_vertices.clear();
+          visitor->levelFinished();
+          level_vertices.clear();
           visit_count += vertex_count;
-	}
+        }
       }
       for (VertexVisitor *visitor : visitors)
-	delete visitor;
+        delete visitor;
     }
   }
   return visit_count;
@@ -234,7 +232,7 @@ BfsIterator::hasNext(Level to_level)
 {
   findNext(to_level);
   return levelLessOrEqual(first_level_, last_level_)
-     && !queue_[first_level_].empty();
+      && !queue_[first_level_].empty();
 }
 
 Vertex *
@@ -251,16 +249,16 @@ void
 BfsIterator::findNext(Level to_level)
 {
   while (levelLessOrEqual(first_level_, last_level_)
-	 && levelLessOrEqual(first_level_, to_level)) {
+         && levelLessOrEqual(first_level_, to_level)) {
     VertexSeq &level_vertices = queue_[first_level_];
     // Skip null entries from deleted vertices.
     while (!level_vertices.empty()) {
       Vertex *vertex = level_vertices.back();
       if (vertex == nullptr)
-	level_vertices.pop_back();
+        level_vertices.pop_back();
       else {
         checkLevel(vertex, first_level_);
-	return;
+        return;
       }
     }
     incrLevel(first_level_);
@@ -270,8 +268,7 @@ BfsIterator::findNext(Level to_level)
 void
 BfsIterator::enqueue(Vertex *vertex)
 {
-  debugPrint(debug_, "bfs", 2, "enqueue %s",
-             vertex->to_string(this).c_str());
+  debugPrint(debug_, "bfs", 2, "enqueue {}", vertex->to_string(this));
   if (!vertex->bfsInQueue(bfs_index_)) {
     Level level = vertex->level();
     LockGuard lock(queue_lock_);
@@ -280,9 +277,9 @@ BfsIterator::enqueue(Vertex *vertex)
       queue_[level].push_back(vertex);
 
       if (levelLess(last_level_, level))
-	last_level_ = level;
+        last_level_ = level;
       if (levelLess(level, first_level_))
-	first_level_ = level;
+        first_level_ = level;
     }
   }
 }
@@ -301,17 +298,15 @@ BfsIterator::checkInQueue(Vertex *vertex)
   if (static_cast<Level>(queue_.size()) > level) {
     for (Vertex *v : queue_[level]) {
       if (v == vertex) {
-	if (vertex->bfsInQueue(bfs_index_))
-	  return;
-	else
-	  debugPrint(debug_, "bfs", 1, "extra %s",
-		     vertex->to_string(this).c_str());
+        if (vertex->bfsInQueue(bfs_index_))
+          return;
+        else
+          debugPrint(debug_, "bfs", 1, "extra {}", vertex->to_string(this));
       }
     }
   }
   if (vertex->bfsInQueue(bfs_index_))
-    debugPrint(debug_, "brs", 1, "missing %s",
-	       vertex->to_string(this).c_str());
+    debugPrint(debug_, "brs", 1, "missing {}", vertex->to_string(this));
 }
 
 void
@@ -319,10 +314,8 @@ BfsIterator::checkLevel(Vertex *vertex,
                         Level level)
 {
   if (vertex->level() != level)
-    report_->error(2300, "vertex %s level %d != bfs level %d",
-                   vertex->to_string(this).c_str(),
-                   vertex->level(),
-                   level);
+    report_->error(2300, "vertex {} level {} != bfs level {}",
+                   vertex->to_string(this), vertex->level(), level);
 }
 
 void
@@ -337,14 +330,12 @@ BfsIterator::remove(Vertex *vertex)
 {
   // If the iterator has not been inited the queue will be empty.
   Level level = vertex->level();
-  if (vertex->bfsInQueue(bfs_index_)
-      && static_cast<Level>(queue_.size()) > level) {
-    debugPrint(debug_, "bfs", 2, "remove %s",
-	       vertex->to_string(this).c_str());
+  if (vertex->bfsInQueue(bfs_index_) && static_cast<Level>(queue_.size()) > level) {
+    debugPrint(debug_, "bfs", 2, "remove {}", vertex->to_string(this));
     for (Vertex *&v : queue_[level]) {
       if (v == vertex) {
-	v = nullptr;
-	vertex->setBfsInQueue(bfs_index_, false);
+        v = nullptr;
+        vertex->setBfsInQueue(bfs_index_, false);
         break;
       }
     }
@@ -354,9 +345,13 @@ BfsIterator::remove(Vertex *vertex)
 ////////////////////////////////////////////////////////////////
 
 BfsFwdIterator::BfsFwdIterator(BfsIndex bfs_index,
-			       SearchPred *search_pred,
-			       StaState *sta) :
-  BfsIterator(bfs_index, 0, level_max, search_pred, sta)
+                               SearchPred *search_pred,
+                               StaState *sta) :
+  BfsIterator(bfs_index,
+              0,
+              level_max,
+              search_pred,
+              sta)
 {
 }
 
@@ -375,14 +370,14 @@ BfsFwdIterator::incrLevel(Level &level) const
 
 bool
 BfsFwdIterator::levelLessOrEqual(Level level1,
-				 Level level2) const
+                                 Level level2) const
 {
   return level1 <= level2;
 }
 
 bool
 BfsFwdIterator::levelLess(Level level1,
-			  Level level2) const
+                          Level level2) const
 {
   return level1 < level2;
 }
@@ -396,9 +391,8 @@ BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
-      if (search_pred->searchThru(edge)
-	  && search_pred->searchTo(to_vertex))
-	enqueue(to_vertex);
+      if (search_pred->searchThru(edge) && search_pred->searchTo(to_vertex))
+        enqueue(to_vertex);
     }
   }
 }
@@ -423,9 +417,13 @@ BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
 ////////////////////////////////////////////////////////////////
 
 BfsBkwdIterator::BfsBkwdIterator(BfsIndex bfs_index,
-				 SearchPred *search_pred,
-				 StaState *sta) :
-  BfsIterator(bfs_index, level_max, 0, search_pred, sta)
+                                 SearchPred *search_pred,
+                                 StaState *sta) :
+  BfsIterator(bfs_index,
+              level_max,
+              0,
+              search_pred,
+              sta)
 {
 }
 
@@ -444,14 +442,14 @@ BfsBkwdIterator::incrLevel(Level &level) const
 
 bool
 BfsBkwdIterator::levelLessOrEqual(Level level1,
-				  Level level2) const
+                                  Level level2) const
 {
   return level1 >= level2;
 }
 
 bool
 BfsBkwdIterator::levelLess(Level level1,
-			   Level level2) const
+                           Level level2) const
 {
   return level1 > level2;
 }
@@ -465,9 +463,8 @@ BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *from_vertex = edge->from(graph_);
-      if (search_pred->searchFrom(from_vertex)
-	  && search_pred->searchThru(edge))
-	enqueue(from_vertex);
+      if (search_pred->searchFrom(from_vertex) && search_pred->searchThru(edge))
+        enqueue(from_vertex);
     }
   }
 }
@@ -489,4 +486,4 @@ BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
   }
 }
 
-} // namespace
+}  // namespace sta

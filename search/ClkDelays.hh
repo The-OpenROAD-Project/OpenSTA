@@ -61,9 +61,9 @@ public:
                   StaState *sta);
 
 private:
-  static float insertionDelay(Path *clk_path,
+  static Delay insertionDelay(Path *clk_path,
                               StaState *sta);
-  static float delay(Path *clk_path,
+  static Delay delay(Path *clk_path,
                      StaState *sta);
   static float clkTreeDelay(Path *clk_path,
                             StaState *sta);

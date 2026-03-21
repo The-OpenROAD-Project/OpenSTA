@@ -93,7 +93,7 @@ CycleAcctings::reportClkToClkMaxCycleWarnings(Report *report)
             ClockPair clk_pair2(tgt_clk, src_clk);
             if (!clk_warnings.contains(clk_pair1)
                 && !clk_warnings.contains(clk_pair2)) {
-              report->warn(1010, "No common period was found between clocks %s and %s.",
+              report->warn(1010, "No common period was found between clocks {} and {}.",
                            src_clk->name(),
                            tgt_clk->name());
               clk_warnings.insert(clk_pair1);
@@ -126,7 +126,7 @@ CycleAccting::findDelays(StaState *sta)
 {
   Debug *debug = sta->debug();
   const Unit *time_unit = sta->units()->timeUnit();
-  debugPrint(debug, "cycle_acct", 1, "%s -> %s",
+  debugPrint(debug, "cycle_acct", 1, "{} -> {}",
              src_->name(),
              tgt_->name());
   const int setup_index = TimingRole::setup()->index();
@@ -167,14 +167,14 @@ CycleAccting::findDelays(StaState *sta)
         if (tgt_past_src && src_past_tgt
             // Synchronicity achieved.
             && fuzzyEqual(src_cycle_start, tgt_cycle_start)) {
-          debugPrint(debug, "cycle_acct", 1, " setup = %s, required = %s",
+          debugPrint(debug, "cycle_acct", 1, " setup = {}, required = {}",
                      time_unit->asString(delay_[setup_index]),
                      time_unit->asString(required_[setup_index]));
-          debugPrint(debug, "cycle_acct", 1, " hold = %s, required = %s",
+          debugPrint(debug, "cycle_acct", 1, " hold = {}, required = {}",
                      time_unit->asString(delay_[hold_index]),
                      time_unit->asString(required_[hold_index]));
           debugPrint(debug, "cycle_acct", 1,
-                     " converged at src cycles = %d tgt cycles = %d",
+                     " converged at src cycles = {} tgt cycles = {}",
                      src_cycle, tgt_cycle);
           return;
         }
@@ -182,13 +182,13 @@ CycleAccting::findDelays(StaState *sta)
         if (fuzzyGreater(src_cycle_start, tgt_cycle_start + tgt_period)
             && src_past_tgt)
           break;
-        debugPrint(debug, "cycle_acct", 2, " %s src cycle %d %s + %s = %s",
+        debugPrint(debug, "cycle_acct", 2, " {} src cycle {} {} + {} = {}",
                    src_->name(),
                    src_cycle,
                    time_unit->asString(src_cycle_start),
                    time_unit->asString(src_->time()),
                    time_unit->asString(src_time));
-        debugPrint(debug, "cycle_acct", 2, " %s tgt cycle %d %s + %s = %s",
+        debugPrint(debug, "cycle_acct", 2, " {} tgt cycle {} {} + {} = {}",
                    tgt_->name(),
                    tgt_cycle,
                    time_unit->asString(tgt_cycle_start),
@@ -203,7 +203,7 @@ CycleAccting::findDelays(StaState *sta)
             double required = tgt_time - src_cycle_start;
             setSetupAccting(src_cycle, tgt_cycle, delay, required);
             debugPrint(debug, "cycle_acct", 2,
-                       " setup min delay = %s, required = %s",
+                       " setup min delay = {}, required = {}",
                        time_unit->asString(delay_[setup_index]),
                        time_unit->asString(required_[setup_index]));
           }
@@ -239,7 +239,7 @@ CycleAccting::findDelays(StaState *sta)
             setAccting(TimingRole::latchSetup(),
                        src_cycle, latch_tgt_cycle, delay, required);
             debugPrint(debug, "cycle_acct", 2,
-                       " latch setup min delay = %s, required = %s",
+                       " latch setup min delay = {}, required = {}",
                        time_unit->asString(delay_[latch_setup_index]),
                        time_unit->asString(required_[latch_setup_index]));
           }
@@ -253,7 +253,7 @@ CycleAccting::findDelays(StaState *sta)
             double required = tgt_time - src_cycle_start;
             setHoldAccting(src_cycle, tgt_cycle, delay, required);
             debugPrint(debug, "cycle_acct", 2,
-                       " hold min delay = %s, required = %s",
+                       " hold min delay = {}, required = {}",
                        time_unit->asString(delay_[hold_index]),
                        time_unit->asString(required_[hold_index]));
           }
@@ -268,7 +268,7 @@ CycleAccting::findDelays(StaState *sta)
             setAccting(TimingRole::gatedClockHold(),
                        src_cycle, tgt_cycle, delay, required);
             debugPrint(debug, "cycle_acct", 2,
-                       " gated clk hold min delay = %s, required = %s",
+                       " gated clk hold min delay = {}, required = {}",
                        time_unit->asString(delay_[gclk_hold_index]),
                        time_unit->asString(required_[gclk_hold_index]));
           }
@@ -278,7 +278,7 @@ CycleAccting::findDelays(StaState *sta)
     }
     max_cycles_exceeded_ = true;
     debugPrint(debug, "cycle_acct", 1,
-               " max cycles exceeded after %d src cycles, %d tgt_cycles",
+               " max cycles exceeded after {} src cycles, {} tgt_cycles",
                src_cycle, tgt_cycle);
   }
   else if (tgt_period > 0.0)

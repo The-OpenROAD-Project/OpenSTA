@@ -115,7 +115,7 @@ report_error(int id,
              const char *msg)
 {
   Report *report = Sta::sta()->report();
-  report->error(id, "%s", msg);
+  report->error(id, "{}", msg);
 }
 
 void
@@ -125,7 +125,7 @@ report_file_error(int id,
                   const char *msg)
 {
   Report *report = Sta::sta()->report();
-  report->error(id, filename, line, "%s", msg);
+  report->error(id, filename, line, "{}", msg);
 }
 
 void
@@ -133,7 +133,7 @@ report_warn(int id,
             const char *msg)
 {
   Report *report = Sta::sta()->report();
-  report->warn(id, "%s", msg);
+  report->warn(id, "{}", msg);
 }
 
 void
@@ -143,7 +143,7 @@ report_file_warn(int id,
                  const char *msg)
 {
   Report *report = Sta::sta()->report();
-  report->fileWarn(id, filename, line, "%s", msg);
+  report->fileWarn(id, filename, line, "{}", msg);
 }
 
 void
@@ -151,9 +151,9 @@ report_line(const char *msg)
 {
   Sta *sta = Sta::sta();
   if (sta)
-    sta->report()->reportLineString(msg);
+    sta->report()->reportLine(msg);
   else
-    // After sta::delete_all_memory souce -echo prints the cmd file line
+    // After sta::delete_all_memory include -echo prints the cmd file line.
     printf("%s\n", msg);
 }
 
@@ -471,7 +471,7 @@ unit_scale(const char *unit_name)
 
 // format_unit functions print with fixed digits and suffix.
 // Pass value arg as string to support NaNs.
-const char *
+std::string
 format_time(const char *value,
             int digits)
 {
@@ -479,7 +479,7 @@ format_time(const char *value,
   return Sta::sta()->units()->timeUnit()->asString(value1, digits);
 }
 
-const char *
+std::string
 format_capacitance(const char *value,
                    int digits)
 {
@@ -487,7 +487,7 @@ format_capacitance(const char *value,
   return Sta::sta()->units()->capacitanceUnit()->asString(value1, digits);
 }
 
-const char *
+std::string
 format_resistance(const char *value,
                   int digits)
 {
@@ -495,7 +495,7 @@ format_resistance(const char *value,
   return Sta::sta()->units()->resistanceUnit()->asString(value1, digits);
 }
 
-const char *
+std::string
 format_voltage(const char *value,
                int digits)
 {
@@ -503,7 +503,7 @@ format_voltage(const char *value,
   return Sta::sta()->units()->voltageUnit()->asString(value1, digits);
 }
 
-const char *
+std::string
 format_current(const char *value,
                int digits)
 {
@@ -511,7 +511,7 @@ format_current(const char *value,
   return Sta::sta()->units()->currentUnit()->asString(value1, digits);
 }
 
-const char *
+std::string
 format_power(const char *value,
              int digits)
 {
@@ -519,7 +519,7 @@ format_power(const char *value,
   return Sta::sta()->units()->powerUnit()->asString(value1, digits);
 }
 
-const char *
+std::string
 format_distance(const char *value,
                 int digits)
 {
@@ -528,7 +528,7 @@ format_distance(const char *value,
   return dist_unit->asString(value1, digits);
 }
 
-const char *
+std::string
 format_area(const char *value,
             int digits)
 {

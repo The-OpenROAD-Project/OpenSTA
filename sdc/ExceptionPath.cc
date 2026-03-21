@@ -26,6 +26,7 @@
 
 #include <algorithm>
 
+#include "Format.hh"
 #include "ContainerHelpers.hh"
 #include "MinMax.hh"
 #include "TimingRole.hh"
@@ -121,17 +122,10 @@ ExceptionPath::~ExceptionPath()
   }
 }
 
-const char *
-ExceptionPath::asString(const Network *network) const
+std::string
+ExceptionPath::to_string(const Network *network) const
 {
-  const char *from_thru_to = fromThruToString(network);
-  const char *type = typeString();
-  size_t length = strlen(type) + strlen(from_thru_to) + 1;
-  char *result = makeTmpString(length);
-  char *r = result;
-  stringAppend(r, type);
-  stringAppend(r, from_thru_to);
-  return result;
+  return sta::format("{}{}", typeString(), fromThruToString(network));
 }
 
 void
@@ -321,7 +315,7 @@ ExceptionPath::intersectsPts(ExceptionPath *exception,
   return false;
 }
 
-const char *
+std::string
 ExceptionPath::fromThruToString(const Network *network) const
 {
   std::string str;
@@ -331,7 +325,7 @@ ExceptionPath::fromThruToString(const Network *network) const
   }
 
   if (from_)
-    str += from_->asString(network);
+    str += from_->to_string(network);
 
   if (thrus_) {
     str += " -thru";
@@ -341,7 +335,7 @@ ExceptionPath::fromThruToString(const Network *network) const
         if (!first_thru)
           str += " &&";
         str += " {";
-        str += thru->asString(network);
+        str += thru->to_string(network);
         str += "}";
         first_thru = false;
       }
@@ -349,11 +343,9 @@ ExceptionPath::fromThruToString(const Network *network) const
   }
 
   if (to_)
-    str += to_->asString(network);
+    str += to_->to_string(network);
 
-  char *result = makeTmpString(str.size() + 1);
-  strcpy(result, str.c_str());
-  return result;
+  return str;
 }
 
 ExceptionState *
@@ -524,14 +516,12 @@ PathDelay::tighterThan(ExceptionPath *exception) const
     return delay_ < exception->delay();
 }
 
-const char *
-PathDelay::asString(const Network *network) const
+std::string
+PathDelay::to_string(const Network *network) const
 {
-  const char *from_thru_to = fromThruToString(network);
-  const char *result = stringPrintTmp("PathDelay %.3fns%s",
-                                      delay_ * 1E+9F,
-                                      from_thru_to);
-  return result;
+  return sta::format("PathDelay {:.3f}ns{}",
+                     delay_ * 1E+9F,
+                     fromThruToString(network));
 }
 
 const char *
@@ -728,15 +718,13 @@ MultiCyclePath::matches(const MinMax *min_max,
     || (!exactly && min_max == MinMax::min());
 }
 
-const char *
-MultiCyclePath::asString(const Network *network) const
+std::string
+MultiCyclePath::to_string(const Network *network) const
 {
-  const char *from_thru_to = fromThruToString(network);
-  const char *result = stringPrintTmp("Multicycle %s %d%s",
-                                      (use_end_clk_) ? "-end" : "-start",
-                                      path_multiplier_,
-                                      from_thru_to);
-  return result;
+  return sta::format("Multicycle {} {}{}",
+                     (use_end_clk_) ? "-end" : "-start",
+                     path_multiplier_,
+                     fromThruToString(network));
 }
 
 const char *
@@ -826,7 +814,7 @@ FilterPath::resetMatch(ExceptionFrom *,
 
 ////////////////////////////////////////////////////////////////
 
-GroupPath::GroupPath(const char *name,
+GroupPath::GroupPath(const std::string &name,
                      bool is_default,
                      ExceptionFrom *from,
                      ExceptionThruSeq *thrus,
@@ -836,14 +824,13 @@ GroupPath::GroupPath(const char *name,
   ExceptionPath(from, thrus, to, MinMaxAll::all(), own_pts,
                 groupPathPriority() + fromThruToPriority(from, thrus, to),
                 comment),
-  name_(stringCopy(name)),
+  name_(name),
   is_default_(is_default)
 {
 }
 
 GroupPath::~GroupPath()
 {
-  stringDelete(name_);
 }
 
 const char *
@@ -877,7 +864,7 @@ GroupPath::tighterThan(ExceptionPath *) const
 bool
 GroupPath::mergeable(ExceptionPath *exception) const
 {
-  return stringEqIf(name_, exception->name())
+  return name_ == exception->name()
     && ExceptionPath::mergeable(exception)
     && overrides(exception);
 }
@@ -887,12 +874,12 @@ GroupPath::overrides(ExceptionPath *exception) const
 {
   return exception->isGroupPath()
     && is_default_ == exception->isDefault()
-    && stringEqIf(name_, exception->name());
+    && name_ == exception->name();
 }
 
 ////////////////////////////////////////////////////////////////
 
-const int ExceptionPt::as_string_max_objects_ = 20;
+const int ExceptionPt::to_string_max_objects_ = 20;
 
 ExceptionPt::ExceptionPt(const RiseFallBoth *rf,
                          bool own_pts) :
@@ -1181,8 +1168,8 @@ ExceptionFromTo::deletePinBefore(const Pin *pin,
   deletePin(pin, network);
 }
 
-const char *
-ExceptionFromTo::asString(const Network *network) const
+std::string
+ExceptionFromTo::to_string(const Network *network) const
 {
   std::string str;
   str += " ";
@@ -1199,7 +1186,7 @@ ExceptionFromTo::asString(const Network *network) const
       str += network->pathName(pin);
       first = false;
       obj_count++;
-      if (obj_count > as_string_max_objects_)
+      if (obj_count > to_string_max_objects_)
         break;
     }
   }
@@ -1211,7 +1198,7 @@ ExceptionFromTo::asString(const Network *network) const
       str += clk->name();
       first = false;
       obj_count++;
-      if (obj_count > as_string_max_objects_)
+      if (obj_count > to_string_max_objects_)
         break;
     }
   }
@@ -1223,18 +1210,16 @@ ExceptionFromTo::asString(const Network *network) const
       str += network->pathName(inst);
       first = false;
       obj_count++;
-      if (obj_count > as_string_max_objects_)
+      if (obj_count > to_string_max_objects_)
         break;
     }
   }
-  if (obj_count == as_string_max_objects_)
+  if (obj_count == to_string_max_objects_)
     str += ", ...";
 
   str += "}";
 
-  char *result = makeTmpString(str.size() + 1);
-  strcpy(result, str.c_str());
-  return result;
+  return str;
 }
 
 size_t
@@ -1355,19 +1340,17 @@ ExceptionTo::clone(const Network *network)
   return new ExceptionTo(pins, clks, insts, rf_, end_rf_, true, network);
 }
 
-const char *
-ExceptionTo::asString(const Network *network) const
+std::string
+ExceptionTo::to_string(const Network *network) const
 {
   std::string str;
   if (hasObjects())
-    str += ExceptionFromTo::asString(network);
+    str += ExceptionFromTo::to_string(network);
 
   if (end_rf_ != RiseFallBoth::riseFall())
     str += (end_rf_ == RiseFallBoth::rise()) ? " -rise" : " -fall";
 
-  char *result = makeTmpString(str.size() + 1);
-  strcpy(result, str.c_str());
-  return result;
+  return str;
 }
 
 bool
@@ -1674,8 +1657,8 @@ ExceptionThru::~ExceptionThru()
   }
 }
 
-const char *
-ExceptionThru::asString(const Network *network) const
+std::string
+ExceptionThru::to_string(const Network *network) const
 {
   std::string str;
   bool first = true;
@@ -1688,7 +1671,7 @@ ExceptionThru::asString(const Network *network) const
       str += network->pathName(pin);
       first = false;
       obj_count++;
-      if (obj_count > as_string_max_objects_)
+      if (obj_count > to_string_max_objects_)
         break;
     }
   }
@@ -1700,7 +1683,7 @@ ExceptionThru::asString(const Network *network) const
       str += network->pathName(net);
       first = false;
       obj_count++;
-      if (obj_count > as_string_max_objects_)
+      if (obj_count > to_string_max_objects_)
         break;
     }
   }
@@ -1712,20 +1695,18 @@ ExceptionThru::asString(const Network *network) const
       str += network->pathName(inst);
       first = false;
       obj_count++;
-      if (obj_count > as_string_max_objects_)
+      if (obj_count > to_string_max_objects_)
         break;
     }
   }
-  if (obj_count == as_string_max_objects_)
+  if (obj_count == to_string_max_objects_)
     str += ", ...";
   if (rf_ == RiseFallBoth::rise())
     str += " rise";
   else if (rf_ == RiseFallBoth::fall())
     str += " fall";
 
-  char *result = makeTmpString(str.size() + 1);
-  strcpy(result, str.c_str());
-  return result;
+  return str;
 }
 
 ExceptionThruSeq *

@@ -198,7 +198,7 @@ MinPeriodSlackLess::operator()(const MinPeriodCheck &check1,
   const Pin *pin2 = check2.pin();
   return delayLess(slack1, slack2, sta_)
     // Break ties based on pin and clock names.
-    || (delayEqual(slack1, slack2)
+    || (delayEqual(slack1, slack2, sta_)
         && (sta_->network()->pinLess(pin1, pin2)
             || (pin1 == pin2
                 && ClockNameLess()(check1.clk(),

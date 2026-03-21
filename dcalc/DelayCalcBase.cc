@@ -81,10 +81,10 @@ DelayCalcBase::finishDrvrPin()
 void
 DelayCalcBase::dspfWireDelaySlew(const Pin *load_pin,
                                  const RiseFall *rf,
-                                 Slew drvr_slew,
+                                 double drvr_slew,
                                  float elmore,
-                                 ArcDelay &wire_delay,
-                                 Slew &load_slew)
+                                 double &wire_delay,
+                                 double &load_slew)
 {
   
   LibertyLibrary *load_library = thresholdLibrary(load_pin);
@@ -107,8 +107,8 @@ void
 DelayCalcBase::thresholdAdjust(const Pin *load_pin,
                                const LibertyLibrary *drvr_library,
                                const RiseFall *rf,
-                               ArcDelay &load_delay,
-                               Slew &load_slew)
+                               double &wire_delay,
+                               double &load_slew)
 {
   LibertyLibrary *load_library = thresholdLibrary(load_pin);
   if (load_library
@@ -118,11 +118,12 @@ DelayCalcBase::thresholdAdjust(const Pin *load_pin,
     float load_vth = load_library->inputThreshold(rf);
     float drvr_slew_delta = drvr_library->slewUpperThreshold(rf)
       - drvr_library->slewLowerThreshold(rf);
-    float load_delay_delta =
+    float wire_delay_delta =
       delayAsFloat(load_slew) * ((load_vth - drvr_vth) / drvr_slew_delta);
-    load_delay += (rf == RiseFall::rise())
-      ? load_delay_delta
-      : -load_delay_delta;
+    wire_delay += (rf == RiseFall::rise())
+      ? wire_delay_delta
+      : -wire_delay_delta;
+
     float load_slew_delta = load_library->slewUpperThreshold(rf)
       - load_library->slewLowerThreshold(rf);
     float drvr_slew_derate = drvr_library->slewDerateFromLibrary();
@@ -162,9 +163,8 @@ DelayCalcBase::checkDelay(const Pin *check_pin,
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
     return model->checkDelay(pinPvt(check_pin, scene, min_max),
-                             from_slew1, to_slew1,
-                             related_out_cap,
-                             variables_->pocvEnabled());
+                             from_slew1, to_slew1, related_out_cap,
+                             min_max, variables_->pocvMode());
   }
   else
     return delay_zero;
@@ -187,8 +187,8 @@ DelayCalcBase::reportCheckDelay(const Pin *check_pin,
     float to_slew1 = delayAsFloat(to_slew);
     return model->reportCheckDelay(pinPvt(check_pin, scene, min_max),
                                    from_slew1, from_slew_annotation,
-                                   to_slew1, related_out_cap, false,
-                                   digits);
+                                   to_slew1, related_out_cap, min_max,
+                                   PocvMode::scalar, digits);
   }
   return "";
 }

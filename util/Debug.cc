@@ -81,19 +81,4 @@ Debug::setLevel(const char *what,
   }
 }
 
-void
-Debug::reportLine(const char *what,
-                  const char *fmt,
-                  ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  std::unique_lock<std::mutex> lock(buffer_lock_);
-  report_->printToBuffer("%s", what);
-  report_->printToBufferAppend(": ");
-  report_->printToBufferAppend(fmt, args);
-  report_->printBufferLine();
-  va_end(args);
-}
-
 } // namespace

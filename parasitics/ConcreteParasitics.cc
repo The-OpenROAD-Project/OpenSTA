@@ -410,8 +410,10 @@ const char *
 ConcreteParasiticNode::name(const Network *network) const
 {
   if (is_net_) {
-    const char *net_name = network->pathName(net_pin_.net_);
-    return stringPrintTmp("%s:%d", net_name, id_);
+    std::string name = std::string(network->pathName(net_pin_.net_))
+      + ':'
+      + std::to_string(id_);
+    return makeTmpString(name);
   }
   else
     return network->pathName(net_pin_.pin_);

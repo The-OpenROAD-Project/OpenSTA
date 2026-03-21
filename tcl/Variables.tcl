@@ -152,16 +152,42 @@ proc trace_propagate_gated_clock_enable { name1 name2 op } {
     propagate_gated_clock_enable set_propagate_gated_clock_enable
 }
 
-trace variable ::sta_pocv_enabled "rw" \
-  sta::trace_pocv_enabled
+trace variable ::sta_pocv_mode "rw" \
+  sta::trace_pocv_mode
 
-proc trace_pocv_enabled { name1 name2 op } {
-  trace_boolean_var $op ::sta_pocv_enabled \
-    pocv_enabled set_pocv_enabled
+proc trace_pocv_mode { name1 name2 op } {
+  global sta_pocv_mode
+
+  if { $op == "r" } {
+    set sta_pocv_mode [pocv_mode]
+  } elseif { $op == "w" } {
+    if { $sta_pocv_mode == "scalar" \
+           || $sta_pocv_mode == "normal" \
+           || $sta_pocv_mode == "skew_normal" } {
+      set_pocv_mode $sta_pocv_mode
+    } else {
+      sta_error 593 "sta_pocv_mode must be scalar, normal, or skew_normal."
+    }
+  }
 }
 
-# Report path numeric field width is digits + extra.
-set report_path_field_width_extra 5
+trace variable ::sta_pocv_quantile "rw" \
+  sta::trace_pocv_quantile
+
+proc trace_pocv_quantile { name1 name2 op } {
+  global sta_pocv_quantile
+
+  if { $op == "r" } {
+    set sta_pocv_quantile [pocv_quantile]
+  } elseif { $op == "w" } {
+    if { [string is double $sta_pocv_quantile] \
+           && $sta_pocv_quantile >= 0.0 } {
+      set_pocv_quantile $sta_pocv_quantile
+    } else {
+      sta_error 594 "sta_pocv_quantile must be a positive floating point number."
+    }
+  }
+}
 
 ################################################################
 

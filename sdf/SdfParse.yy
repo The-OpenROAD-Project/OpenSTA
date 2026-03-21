@@ -38,8 +38,7 @@ void
 sta::SdfParse::error(const location_type &loc,
                      const std::string &msg)
 {
-  reader->report()->fileError(164,reader->filename().c_str(),
-                              loc.begin.line,"%s",msg.c_str());
+  reader->report()->fileError(170, reader->filename(), loc.begin.line,"{}",msg);
 }
 %}
 

@@ -26,6 +26,7 @@
 
 #include <cmath> // abs
 
+#include "Format.hh"
 #include "StringUtil.hh"
 #include "MinMax.hh"  // INF
 #include "Fuzzy.hh"
@@ -127,7 +128,7 @@ Unit::scaleString() const
   else if (fuzzyEqual(scale_, 1E-15))
     return "1f";
   else
-    return stdstrPrint("%.1e", scale_);
+    return sta::format("{:.1e}", scale_);
 }
 
 std::string
@@ -155,19 +156,13 @@ Unit::width() const
   return digits_ + 2;
 }
 
-const char *
+std::string
 Unit::asString(float value) const
 {
   return asString(value, digits_);
 }
 
-const char *
-Unit::asString(double value) const
-{
-  return asString(static_cast<float>(value), digits_);
-}
-
-const char *
+std::string
 Unit::asString(float value,
                int digits) const
 {
@@ -179,7 +174,7 @@ Unit::asString(float value,
     // prevent "-0.00" on slowaris
     if (std::abs(scaled_value) < 1E-6)
       scaled_value = 0.0;
-    return stringPrintTmp("%.*f", digits, scaled_value);
+    return sta::formatRuntime("{:.{}f}", scaled_value, digits);
   }
 }
 

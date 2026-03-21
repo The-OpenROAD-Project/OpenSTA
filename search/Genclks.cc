@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "Genclks.hh"
@@ -85,10 +85,7 @@ GenclkInfo::GenclkInfo(Clock *gclk,
 {
 }
 
-GenclkInfo::~GenclkInfo()
-{
-  delete src_filter_;
-}
+GenclkInfo::~GenclkInfo() { delete src_filter_; }
 
 void
 GenclkInfo::setFoundLatchFdbkEdges(bool found)
@@ -202,7 +199,7 @@ Genclks::ensureInsertionDelays()
 
     // Generated clocks derived from a generated clock inherit its
     // insertion delay, so sort the clocks by source pin level.
-    sort(gclks , ClockPinMaxLevelLess(this));
+    sort(gclks, ClockPinMaxLevelLess(this));
 
     for (Clock *gclk : gclks) {
       if (gclk->masterClk()) {
@@ -232,8 +229,7 @@ GenClkMasterSearchPred::GenClkMasterSearchPred(const StaState *sta) :
 bool
 GenClkMasterSearchPred::searchThruAllow(const TimingRole *role) const
 {
-  return (role->isWire()
-          || role == TimingRole::combinational()
+  return (role->isWire() || role == TimingRole::combinational()
           || role->regClkToQ());
 }
 
@@ -245,7 +241,7 @@ Genclks::checkMaster(Clock *gclk,
 {
   ensureMaster(gclk, sdc);
   if (gclk->masterClk() == nullptr)
-    report_->warn(1060, "no master clock found for generated clock %s.",
+    report_->warn(1060, "no master clock found for generated clock {}.",
                   gclk->name());
 }
 
@@ -266,8 +262,7 @@ Genclks::ensureMaster(Clock *gclk,
         // Master source pin can actually be a clock source pin.
         if (master_clk != gclk) {
           gclk->setInferedMasterClk(master_clk);
-          debugPrint(debug_, "genclk", 2, " %s master clk %s",
-                     gclk->name(),
+          debugPrint(debug_, "genclk", 2, " {} master clk {}", gclk->name(),
                      master_clk->name());
           found_master = true;
           master_clk_count++;
@@ -291,8 +286,7 @@ Genclks::ensureMaster(Clock *gclk,
               // Master source pin can actually be a clock source pin.
               if (master_clk != gclk) {
                 gclk->setInferedMasterClk(master_clk);
-                debugPrint(debug_, "genclk", 2, " %s master clk %s",
-                           gclk->name(),
+                debugPrint(debug_, "genclk", 2, " {} master clk {}", gclk->name(),
                            master_clk->name());
                 master_clk_count++;
                 break;
@@ -305,9 +299,8 @@ Genclks::ensureMaster(Clock *gclk,
     }
     if (master_clk_count > 1)
       report_->warn(1061,
-                    "generated clock %s pin %s is in the fanout of multiple clocks.",
-                    gclk->name(),
-                    network_->pathName(src_pin));
+                    "generated clock {} pin {} is in the fanout of multiple clocks.",
+                    gclk->name(), network_->pathName(src_pin));
   }
 }
 
@@ -346,8 +339,7 @@ GenClkFaninSrchPred::GenClkFaninSrchPred(Clock *gclk,
 bool
 GenClkFaninSrchPred::searchThruAllow(const TimingRole *role) const
 {
-  return (role == TimingRole::combinational()
-          || role == TimingRole::wire()
+  return (role == TimingRole::combinational() || role == TimingRole::wire()
           || !combinational_);
 }
 
@@ -363,8 +355,8 @@ Genclks::findFanin(Clock *gclk,
     Vertex *vertex = iter.next();
     if (!fanins.contains(vertex)) {
       fanins.insert(vertex);
-      debugPrint(debug_, "genclk", 2, "gen clk %s fanin %s",
-                 gclk->name(), vertex->to_string(this).c_str());
+      debugPrint(debug_, "genclk", 2, "gen clk {} fanin {}", gclk->name(),
+                 vertex->to_string(this));
       iter.enqueueAdjacentVertices(vertex, mode_);
     }
   }
@@ -398,7 +390,7 @@ public:
   bool searchThru(Edge *edge,
                   const Mode *mode) const override;
   bool searchTo(const Vertex *to_vertex,
-                const Mode *mode) const override;               
+                const Mode *mode) const override;
 
 private:
   bool isNonGeneratedClkPin(const Pin *pin,
@@ -423,12 +415,11 @@ GenClkInsertionSearchPred::searchThru(Edge *edge,
 {
   const TimingRole *role = edge->role();
   EdgeSet &fdbk_edges = genclk_info_->fdbkEdges();
-  return SearchPred0::searchThru(edge, mode)
-    && !role->isTimingCheck()
-    && (sta_->variables()->clkThruTristateEnabled()
-        || !(role == TimingRole::tristateEnable()
-             || role == TimingRole::tristateDisable()))
-    && !fdbk_edges.contains(edge);
+  return SearchPred0::searchThru(edge, mode) && !role->isTimingCheck()
+      && (sta_->variables()->clkThruTristateEnabled()
+          || !(role == TimingRole::tristateEnable()
+               || role == TimingRole::tristateDisable()))
+      && !fdbk_edges.contains(edge);
 }
 
 bool
@@ -437,11 +428,11 @@ GenClkInsertionSearchPred::searchTo(const Vertex *to_vertex,
 {
   Pin *to_pin = to_vertex->pin();
   return SearchPred0::searchTo(to_vertex, mode)
-    // Propagate through other generated clock roots but not regular
-    // clock roots.
-    && !(!gclk_->leafPins().contains(to_pin)
-         && isNonGeneratedClkPin(to_pin, mode->sdc()))
-    && genclk_info_->fanins().contains(const_cast<Vertex*>(to_vertex));
+      // Propagate through other generated clock roots but not regular
+      // clock roots.
+      && !(!gclk_->leafPins().contains(to_pin)
+           && isNonGeneratedClkPin(to_pin, mode->sdc()))
+      && genclk_info_->fanins().contains(const_cast<Vertex *>(to_vertex));
 }
 
 bool
@@ -463,8 +454,7 @@ GenClkInsertionSearchPred::isNonGeneratedClkPin(const Pin *pin,
 void
 Genclks::findInsertionDelays(Clock *gclk)
 {
-  debugPrint(debug_, "genclk", 2, "find gen clk %s insertion",
-             gclk->name());
+  debugPrint(debug_, "genclk", 2, "find gen clk {} insertion", gclk->name());
   GenclkInfo *genclk_info = makeGenclkInfo(gclk);
   FilterPath *src_filter = genclk_info->srcFilter();
   GenClkInsertionSearchPred srch_pred(gclk, genclk_info, this);
@@ -492,7 +482,7 @@ Genclks::makeGenclkInfo(Clock *gclk)
 GenclkInfo *
 Genclks::genclkInfo(const Clock *gclk) const
 {
-  return findKey(genclk_info_map_, const_cast<Clock*>(gclk));
+  return findKey(genclk_info_map_, const_cast<Clock *>(gclk));
 }
 
 FilterPath *
@@ -516,8 +506,7 @@ void
 Genclks::findLatchFdbkEdges(const Clock *clk)
 {
   GenclkInfo *genclk_info = genclkInfo(clk);
-  if (genclk_info
-      && !genclk_info->foundLatchFdbkEdges())
+  if (genclk_info && !genclk_info->foundLatchFdbkEdges())
     findLatchFdbkEdges(clk, genclk_info);
 }
 
@@ -563,15 +552,15 @@ Genclks::findLatchFdbkEdges(Vertex *from_vertex,
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
       if (path_vertices.contains(to_vertex)) {
-        debugPrint(debug_, "genclk", 2, " found feedback edge %s",
-                   edge->to_string(this).c_str());
+        debugPrint(debug_, "genclk", 2, " found feedback edge {}",
+                   edge->to_string(this));
         fdbk_edges.insert(edge);
       }
       else if (srch_pred.searchThru(edge, mode_)
                && srch_pred.searchTo(to_vertex, mode_)
                && to_vertex->level() <= gclk_level)
-        findLatchFdbkEdges(to_vertex, gclk_level, srch_pred,
-                           path_vertices, visited_vertices, fdbk_edges);
+        findLatchFdbkEdges(to_vertex, gclk_level, srch_pred, path_vertices,
+                           visited_vertices, fdbk_edges);
     }
     path_vertices.erase(from_vertex);
   }
@@ -584,11 +573,11 @@ Genclks::makeSrcFilter(Clock *gclk,
   ClockSet *from_clks = new ClockSet;
   from_clks->insert(gclk->masterClk());
   const RiseFallBoth *rf = RiseFallBoth::riseFall();
-  ExceptionFrom *from = sdc->makeExceptionFrom(nullptr,from_clks,nullptr,rf);
+  ExceptionFrom *from = sdc->makeExceptionFrom(nullptr, from_clks, nullptr, rf);
 
   PinSet *thru_pins = new PinSet(network_);
   thru_pins->insert(gclk->srcPin());
-  ExceptionThru *thru = sdc->makeExceptionThru(thru_pins,nullptr,nullptr,rf);
+  ExceptionThru *thru = sdc->makeExceptionThru(thru_pins, nullptr, nullptr, rf);
   ExceptionThruSeq *thrus = new ExceptionThruSeq;
   thrus->push_back(thru);
 
@@ -608,7 +597,7 @@ Genclks::seedSrcPins(Clock *gclk,
   for (const Pin *master_pin : master_clk->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(master_pin);
     if (vertex) {
-      debugPrint(debug_, "genclk", 2, " seed src pin %s",
+      debugPrint(debug_, "genclk", 2, " seed src pin {}",
                  network_->pathName(master_pin));
       TagGroupBldr tag_bldr(true, this);
       tag_bldr.init(vertex);
@@ -619,8 +608,8 @@ Genclks::seedSrcPins(Clock *gclk,
           for (const RiseFall *rf : RiseFall::range()) {
             Arrival insert = search_->clockInsertion(master_clk, master_pin, rf,
                                                      min_max, early_late, mode_);
-            Tag *tag = makeTag(gclk, master_clk, master_pin, rf,
-                               src_filter, insert, scene, min_max);
+            Tag *tag = makeTag(gclk, master_clk, master_pin, rf, src_filter, insert,
+                               scene, min_max);
             tag_bldr.setArrival(tag, insert);
           }
         }
@@ -648,13 +637,11 @@ Genclks::makeTag(const Clock *gclk,
     state = state->nextState();
   ExceptionStateSet *states = new ExceptionStateSet();
   states->insert(state);
-  const ClkInfo *clk_info = search_->findClkInfo(scene,
-                                                 master_clk->edge(master_rf),
-                                                 master_pin, true, nullptr, true,
-                                                 nullptr, insert, 0.0, nullptr,
-                                                 min_max, nullptr);
-  return search_->findTag(scene, master_rf, min_max, clk_info,
-                          false, nullptr, false, states, true, nullptr);
+  const ClkInfo *clk_info = search_->findClkInfo(
+      scene, master_clk->edge(master_rf), master_pin, true, nullptr, true, nullptr,
+      insert, 0.0, nullptr, min_max, nullptr);
+  return search_->findTag(scene, master_rf, min_max, clk_info, false, nullptr, false,
+                          states, true, nullptr);
 }
 
 class GenClkArrivalSearchPred : public EvalPred
@@ -684,12 +671,10 @@ GenClkArrivalSearchPred::searchThru(Edge *edge,
 {
   const TimingRole *role = edge->role();
   return EvalPred::searchThru(edge, mode)
-    && (role == TimingRole::combinational()
-        || role->isWire()
-        || !combinational_)
-    && (sta_->variables()->clkThruTristateEnabled()
-        || !(role == TimingRole::tristateEnable()
-             || role == TimingRole::tristateDisable()));
+      && (role == TimingRole::combinational() || role->isWire() || !combinational_)
+      && (sta_->variables()->clkThruTristateEnabled()
+          || !(role == TimingRole::tristateEnable()
+               || role == TimingRole::tristateDisable()));
 }
 
 // Override EvalPred::searchTo to search to generated clock pin.
@@ -730,12 +715,14 @@ protected:
 GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
                                                  BfsFwdIterator *insert_iter,
                                                  GenclkInfo *genclk_info,
-                                                 const Mode *mode):
+                                                 const Mode *mode) :
   ArrivalVisitor(mode),
   gclk_(gclk),
   insert_iter_(insert_iter),
   genclk_info_(genclk_info),
-  srch_pred_(gclk_, genclk_info, mode),
+  srch_pred_(gclk_,
+             genclk_info,
+             mode),
   mode_(mode),
   sdc_(mode->sdc()),
   genclks_(mode->genclks())
@@ -749,11 +736,15 @@ GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
                                                  bool always_to_endpoints,
                                                  SearchPred *pred,
                                                  const Mode *mode) :
-  ArrivalVisitor(always_to_endpoints, pred, mode),
+  ArrivalVisitor(always_to_endpoints,
+                 pred,
+                 mode),
   gclk_(gclk),
   insert_iter_(insert_iter),
   genclk_info_(genclk_info),
-  srch_pred_(gclk, genclk_info, mode),
+  srch_pred_(gclk,
+             genclk_info,
+             mode),
   mode_(mode),
   sdc_(mode->sdc()),
   genclks_(mode->genclks())
@@ -770,8 +761,8 @@ GenclkSrcArrivalVisitor::copy() const
 void
 GenclkSrcArrivalVisitor::visit(Vertex *vertex)
 {
-  debugPrint(debug_, "genclk", 2, "find gen clk insert arrival %s",
-             vertex->to_string(this).c_str());
+  debugPrint(debug_, "genclk", 2, "find gen clk insert arrival {}",
+             vertex->to_string(this));
   tag_bldr_->init(vertex);
   has_fanin_one_ = graph_->hasFaninOne(vertex);
   genclks_->copyGenClkSrcPaths(vertex, tag_bldr_);
@@ -787,8 +778,7 @@ Genclks::findSrcArrivals(Clock *gclk,
                          GenclkInfo *genclk_info)
 {
   GenClkArrivalSearchPred eval_pred(gclk, this);
-  GenclkSrcArrivalVisitor arrival_visitor(gclk, &insert_iter,
-                                          genclk_info, mode_);
+  GenclkSrcArrivalVisitor arrival_visitor(gclk, &insert_iter, genclk_info, mode_);
   arrival_visitor.init(true, false, &eval_pred);
   // This cannot restrict the search level because loops in the clock tree
   // can circle back to the generated clock src pin.
@@ -803,7 +793,7 @@ Genclks::copyGenClkSrcPaths(Vertex *vertex,
 {
   auto itr = vertex_src_paths_map_.find(vertex);
   if (itr != vertex_src_paths_map_.end()) {
-    const std::vector<const Path*> &src_paths = itr->second;
+    const std::vector<const Path *> &src_paths = itr->second;
     for (const Path *path : src_paths) {
       Path src_path = *path;
       Path *prev_path = src_path.prevPath();
@@ -811,11 +801,11 @@ Genclks::copyGenClkSrcPaths(Vertex *vertex,
         Path *prev_vpath = Path::vertexPath(prev_path, this);
         src_path.setPrevPath(prev_vpath);
       }
-      debugPrint(debug_, "genclk", 3, "vertex %s insert genclk %s src path %s %ss",
-                 src_path.vertex(this)->to_string(this).c_str(),
+      debugPrint(debug_, "genclk", 3, "vertex {} insert genclk {} src path {} {}s",
+                 src_path.vertex(this)->to_string(this),
                  src_path.tag(this)->genClkSrcPathClk()->name(),
-                 src_path.tag(this)->minMax()->to_string().c_str(),
-                 src_path.tag(this)->to_string(true, false, this).c_str());
+                 src_path.tag(this)->minMax()->to_string(),
+                 src_path.tag(this)->to_string(true, false, this));
       tag_bldr->insertPath(src_path);
     }
   }
@@ -858,28 +848,21 @@ Genclks::recordSrcPaths(Clock *gclk)
     while (path_iter.hasNext()) {
       Path *path = path_iter.next();
       const ClockEdge *src_clk_edge = path->clkEdge(this);
-      if (src_clk_edge
-          && matchesSrcFilter(path, gclk)) {
+      if (src_clk_edge && matchesSrcFilter(path, gclk)) {
         const EarlyLate *early_late = path->minMax(this);
         const RiseFall *src_clk_rf = src_clk_edge->transition();
         const RiseFall *rf = path->transition(this);
         bool inverting_path = (rf != src_clk_rf);
         size_t path_index = srcPathIndex(rf, path->minMax(this));
         Path &src_path = src_paths[path_index];
-        if ((!divide_by_1
-             || (inverting_path == invert))
-            && (!has_edges
-                || src_clk_rf == gclk->masterClkEdgeTr(rf))
+        if ((!divide_by_1 || (inverting_path == invert))
+            && (!has_edges || src_clk_rf == gclk->masterClkEdgeTr(rf))
             && (src_path.isNull()
-                || delayGreater(path->arrival(),
-                                src_path.arrival(),
-                                early_late,
+                || delayGreater(path->arrival(), src_path.arrival(), early_late,
                                 this))) {
-          debugPrint(debug_, "genclk", 2, "  %s insertion %s %s %s",
-                     network_->pathName(gclk_pin),
-                     early_late->to_string().c_str(),
-                     rf->shortName(),
-                     delayAsString(path->arrival(), this));
+          debugPrint(debug_, "genclk", 2, "  {} insertion {} {} {}",
+                     network_->pathName(gclk_pin), early_late->to_string(),
+                     rf->shortName(), delayAsString(path->arrival(), this));
           src_path = *path;
         }
       }
@@ -905,19 +888,17 @@ Genclks::recordSrcPaths(Clock *gclk)
       }
     }
     // Don't warn if the master clock is ideal.
-    if (!found_src_paths
-        && gclk->masterClk()
-        && gclk->masterClk()->isPropagated())
-      report_->warn(1062, "generated clock %s source pin %s missing paths from master clock %s.",
-                    gclk->name(),
-                    network_->pathName(gclk_pin),
-                    gclk->masterClk()->name());
+    if (!found_src_paths && gclk->masterClk() && gclk->masterClk()->isPropagated())
+      report_->warn(
+          1062,
+          "generated clock {} source pin {} missing paths from master clock {}.",
+          gclk->name(), network_->pathName(gclk_pin), gclk->masterClk()->name());
   }
   deleteGenclkSrcPaths(gclk);
 }
 
 void
-Genclks:: deleteGenclkSrcPaths(Clock *gclk)
+Genclks::deleteGenclkSrcPaths(Clock *gclk)
 {
   GenclkInfo *genclk_info = genclkInfo(gclk);
   GenClkInsertionSearchPred srch_pred(gclk, genclk_info, mode_);
@@ -938,13 +919,10 @@ Genclks::matchesSrcFilter(Path *path,
 {
   Tag *tag = path->tag(this);
   const ExceptionStateSet *states = tag->states();
-  if (tag->isGenClkSrcPath()
-      && states) {
+  if (tag->isGenClkSrcPath() && states) {
     for (ExceptionState *state : *states) {
       ExceptionPath *except = state->exception();
-      if (except->isFilter()
-          && state->nextThru() == nullptr
-          && except->to()
+      if (except->isFilter() && state->nextThru() == nullptr && except->to()
           && except->to()->matches(gclk))
         return true;
     }
@@ -958,8 +936,7 @@ Genclks::srcPath(const Path *clk_path) const
   const Pin *src_pin = clk_path->pin(this);
   const ClockEdge *clk_edge = clk_path->clkEdge(this);
   const EarlyLate *early_late = clk_path->minMax(this);
-  return srcPath(clk_edge->clock(), src_pin,
-                 clk_edge->transition(), early_late);
+  return srcPath(clk_edge->clock(), src_pin, clk_edge->transition(), early_late);
 }
 
 const Path *
@@ -967,8 +944,7 @@ Genclks::srcPath(const ClockEdge *clk_edge,
                  const Pin *src_pin,
                  const MinMax *min_max) const
 {
-  return srcPath(clk_edge->clock(), src_pin,
-                 clk_edge->transition(), min_max);
+  return srcPath(clk_edge->clock(), src_pin, clk_edge->transition(), min_max);
 }
 
 const Path *
@@ -1016,9 +992,7 @@ ClockPinPairLess::operator()(const ClockPinPair &pair1,
   int clk_index2 = clk2->index();
   const Pin *pin1 = pair1.second;
   const Pin *pin2 = pair2.second;
-  return (clk_index1 < clk_index2
-          || (clk_index1 == clk_index2
-              && pin1 < pin2));
+  return (clk_index1 < clk_index2 || (clk_index1 == clk_index2 && pin1 < pin2));
 }
 
 class ClockPinPairHash
@@ -1054,8 +1028,7 @@ ClockPinPairEqual::operator()(const ClockPinPair &pair1,
                               const ClockPinPair &pair2) const
 
 {
-  return pair1.first == pair2.first
-    && pair1.second == pair2.second;
+  return pair1.first == pair2.first && pair1.second == pair2.second;
 }
 
-} // namespace
+}  // namespace sta

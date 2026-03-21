@@ -236,7 +236,7 @@ CheckCrpr::findCrpr(const Path *src_clk_path,
       && tgt_clk_path2 && !tgt_clk_path2->isNull()
       && (src_clk_path2->transition(this) == tgt_clk_path2->transition(this)
           || same_pin)) {
-    debugPrint(debug_, "crpr", 2, "crpr pin %s",
+    debugPrint(debug_, "crpr", 2, "crpr pin {}",
                network_->pathName(src_clk_path2->pin(this)));
     crpr = findCrpr1(src_clk_path2, tgt_clk_path2);
     crpr_pin = src_clk_path2->pin(this);
@@ -273,31 +273,28 @@ CheckCrpr::findCrpr1(const Path *src_clk_path,
   if (variables_->pocvEnabled()) {
     // Remove variation on the common path.
     // Note that the crpr sigma is negative to offset the
-    // sigma of the common clock path.
-    const EarlyLate *src_el = src_clk_path->minMax(this);
-    const EarlyLate *tgt_el = tgt_clk_path->minMax(this);
-    Arrival src_arrival = src_clk_path->arrival();
-    Arrival tgt_arrival = tgt_clk_path->arrival();
+    // std_dev of the common clock path.
+    const Arrival &src_arrival = src_clk_path->arrival();
+    const Arrival &tgt_arrival = tgt_clk_path->arrival();
     float src_clk_time = src_clk_path->clkEdge(this)->time();
     float tgt_clk_time = tgt_clk_path->clkEdge(this)->time();
-    float crpr_mean = std::abs(delayAsFloat(src_arrival) - src_clk_time
-                          - (delayAsFloat(tgt_arrival) - tgt_clk_time));
+    float crpr_mean = std::abs(src_arrival.mean() - src_clk_time
+                               - (tgt_arrival.mean() - tgt_clk_time));
     // Remove the sigma from both source and target path arrivals.
-    float crpr_sigma2 = delaySigma2(src_arrival, src_el)
-      + delaySigma2(tgt_arrival, tgt_el);
-    return makeDelay2(crpr_mean, -crpr_sigma2, -crpr_sigma2);
+    float crpr_sigma2 = src_arrival.stdDev2() + tgt_arrival.stdDev2();
+    return makeDelay2(crpr_mean, -crpr_sigma2);
   }
   else {
     // The source and target edges are different so the crpr
     // is the min of the source and target max-min delay.
     float src_delta = crprArrivalDiff(src_clk_path);
     float tgt_delta = crprArrivalDiff(tgt_clk_path);
-    debugPrint(debug_, "crpr", 2, " src delta %s",
+    debugPrint(debug_, "crpr", 2, " src delta {}",
                delayAsString(src_delta, this));
-    debugPrint(debug_, "crpr", 2, " tgt delta %s",
+    debugPrint(debug_, "crpr", 2, " tgt delta {}",
                delayAsString(tgt_delta, this));
     float common_delay = std::min(src_delta, tgt_delta);
-    debugPrint(debug_, "crpr", 2, " %s delta %s",
+    debugPrint(debug_, "crpr", 2, " {} delta {}",
                network_->pathName(src_clk_path->pin(this)),
                delayAsString(common_delay, this));
     return common_delay;
@@ -308,8 +305,9 @@ float
 CheckCrpr::crprArrivalDiff(const Path *path)
 {
   Arrival other_arrival = otherMinMaxArrival(path);
-  float crpr_diff = std::abs(delayAsFloat(path->arrival())
-                        - delayAsFloat(other_arrival));
+  const MinMax *min_max = path->minMax(this);
+  float crpr_diff = std::abs(delayAsFloat(path->arrival(), min_max, this)
+                             - delayAsFloat(other_arrival, min_max->opposite(), this));
   return crpr_diff;
 }
 

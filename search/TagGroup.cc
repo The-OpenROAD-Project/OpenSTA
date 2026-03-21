@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "TagGroup.hh"
@@ -43,7 +43,8 @@ TagGroup::TagGroup(TagGroupIndex index,
                    bool has_loop_tag,
                    const StaState *sta) :
   path_index_map_(path_index_map),
-  hash_(hash(path_index_map, sta)),
+  hash_(hash(path_index_map,
+             sta)),
   ref_count_(0),
   index_(index),
   has_clk_tag_(has_clk_tag),
@@ -57,7 +58,8 @@ TagGroup::TagGroup(TagGroupIndex index,
 TagGroup::TagGroup(TagGroupBldr *tag_bldr,
                    const StaState *sta) :
   path_index_map_(&tag_bldr->pathIndexMap()),
-  hash_(hash(path_index_map_, sta)),
+  hash_(hash(path_index_map_,
+             sta)),
   ref_count_(0),
   own_path_map_(false)
 {
@@ -121,7 +123,7 @@ void
 TagGroup::report(const StaState *sta) const
 {
   Report *report = sta->report();
-  report->reportLine("Group %u hash = %zu", index_, hash_);
+  report->report("Group {} hash = {}", index_, hash_);
   pathIndexMapReport(path_index_map_, sta);
 }
 
@@ -137,9 +139,7 @@ pathIndexMapReport(const PathIndexMap *path_index_map,
 {
   Report *report = sta->report();
   for (auto const [tag, path_index] : *path_index_map)
-    report->reportLine(" %2zu %s",
-                       path_index,
-                       tag->to_string(sta).c_str());
+    report->report(" {:2} {}", path_index, tag->to_string(sta));
   report->reportBlankLine();
 }
 
@@ -147,10 +147,10 @@ pathIndexMapReport(const PathIndexMap *path_index_map,
 
 TagGroupBldr::TagGroupBldr(bool match_crpr_clk_pin,
                            const StaState *sta) :
-  default_path_count_(sta->scenes().size()
-                      * RiseFall::index_count
+  default_path_count_(sta->scenes().size() * RiseFall::index_count
                       * MinMax::index_count),
-  path_index_map_(TagMatchLess(match_crpr_clk_pin, sta)),
+  path_index_map_(TagMatchLess(match_crpr_clk_pin,
+                               sta)),
   paths_(default_path_count_),
   has_clk_tag_(false),
   has_genclk_src_tag_(false),
@@ -213,7 +213,7 @@ TagGroupBldr::tagMatchPath(Tag *tag,
   }
 }
 
-Arrival 
+Arrival
 TagGroupBldr::arrival(size_t path_index) const
 {
   return paths_[path_index].arrival();
@@ -247,8 +247,8 @@ TagGroupBldr::setMatchPath(Path *match,
       path_index_map_.erase(tag_match);
       path_index_map_[tag] = path_index;
     }
-    paths_[path_index].init(vertex_, tag, arrival, prev_path,
-                            prev_edge, prev_arc, sta_);
+    paths_[path_index].init(vertex_, tag, arrival, prev_path, prev_edge, prev_arc,
+                            sta_);
   }
   else
     insertPath(tag, arrival, prev_path, prev_edge, prev_arc);
@@ -264,15 +264,13 @@ TagGroupBldr::insertPath(Tag *tag,
 {
   size_t path_index = paths_.size();
   path_index_map_[tag] = path_index;
-  paths_.emplace_back(vertex_, tag, arrival, prev_path,
-                      prev_edge, prev_arc, sta_);
+  paths_.emplace_back(vertex_, tag, arrival, prev_path, prev_edge, prev_arc, sta_);
 
   if (tag->isClock())
     has_clk_tag_ = true;
   if (tag->isGenClkSrcPath())
     has_genclk_src_tag_ = true;
-  if (tag->isFilter()
-      || tag->clkInfo()->crprPathRefsFilter())
+  if (tag->isFilter() || tag->clkInfo()->crprPathRefsFilter())
     has_filter_tag_ = true;
   if (tag->isLoop())
     has_loop_tag_ = true;
@@ -283,18 +281,16 @@ TagGroupBldr::insertPath(Tag *tag,
 void
 TagGroupBldr::insertPath(const Path &path)
 {
-  insertPath(path.tag(sta_), path.arrival(), path.prevPath(),
-             path.prevEdge(sta_), path.prevArc(sta_));
+  insertPath(path.tag(sta_), path.arrival(), path.prevPath(), path.prevEdge(sta_),
+             path.prevArc(sta_));
 }
 
 TagGroup *
 TagGroupBldr::makeTagGroup(TagGroupIndex index,
                            const StaState *sta)
 {
-  return new TagGroup(index, makePathIndexMap(sta),
-                      has_clk_tag_, has_genclk_src_tag_, has_filter_tag_,
-                      has_loop_tag_, sta);
-
+  return new TagGroup(index, makePathIndexMap(sta), has_clk_tag_,
+                      has_genclk_src_tag_, has_filter_tag_, has_loop_tag_, sta);
 }
 
 PathIndexMap *
@@ -352,9 +348,9 @@ TagGroupEqual::operator()(const TagGroup *tag_group1,
                           const TagGroup *tag_group2) const
 {
   return tag_group1 == tag_group2
-    || (tag_group1->hash() == tag_group2->hash()
-        && pathIndexMapEqual(tag_group1->pathIndexMap(),
-                             tag_group2->pathIndexMap()));
+      || (tag_group1->hash() == tag_group2->hash()
+          && pathIndexMapEqual(tag_group1->pathIndexMap(),
+                               tag_group2->pathIndexMap()));
 }
 
-} // namespace
+}  // namespace sta
