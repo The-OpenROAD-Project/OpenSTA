@@ -886,7 +886,7 @@ TEST_F(VariablesTest, SetUseDefaultArrivalClock) {
 
 TEST_F(VariablesTest, SetPocvEnabled) {
   Variables vars;
-  vars.setPocvEnabled(true);
+  vars.setPocvMode(PocvMode::normal);
   EXPECT_TRUE(vars.pocvEnabled());
 }
 
@@ -2170,7 +2170,7 @@ TEST_F(SdcInitTest, GroupPathClone) {
   ExceptionPath *cloned = gp.clone(nullptr, nullptr, nullptr, true);
   EXPECT_NE(cloned, nullptr);
   EXPECT_TRUE(cloned->isGroupPath());
-  EXPECT_STREQ(cloned->name(), "grp");
+  EXPECT_EQ(cloned->name(), "grp");
   delete cloned;
 }
 
@@ -2184,22 +2184,22 @@ TEST_F(SdcInitTest, FilterPathClone) {
 
 TEST_F(SdcInitTest, FalsePathAsString) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  const char *str = fp.asString(sta_->cmdNetwork());
-  EXPECT_NE(str, nullptr);
+  std::string str = fp.to_string(sta_->cmdNetwork());
+  EXPECT_FALSE(str.empty());
 }
 
 TEST_F(SdcInitTest, PathDelayAsString) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
                1.0e-9f, true, nullptr);
-  const char *str = pd.asString(sta_->cmdNetwork());
-  EXPECT_NE(str, nullptr);
+  std::string str = pd.to_string(sta_->cmdNetwork());
+  EXPECT_FALSE(str.empty());
 }
 
 TEST_F(SdcInitTest, MultiCyclePathAsString) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 2, true, nullptr);
-  const char *str = mcp.asString(sta_->cmdNetwork());
-  EXPECT_NE(str, nullptr);
+  std::string str = mcp.to_string(sta_->cmdNetwork());
+  EXPECT_FALSE(str.empty());
 }
 
 // ExceptionPath type predicates
@@ -2320,7 +2320,7 @@ TEST_F(SdcInitTest, ExceptionPathDefaultHandlers) {
   EXPECT_FALSE(fp.useEndClk());
   EXPECT_EQ(fp.pathMultiplier(), 0);
   EXPECT_FLOAT_EQ(fp.delay(), 0.0f);
-  EXPECT_EQ(fp.name(), nullptr);
+  EXPECT_TRUE(fp.name().empty());
   EXPECT_FALSE(fp.isDefault());
   EXPECT_FALSE(fp.ignoreClkLatency());
   EXPECT_FALSE(fp.breakPath());
@@ -2641,8 +2641,8 @@ TEST_F(SdcInitTest, ClockEdgeDetails) {
   EXPECT_EQ(fall->transition(), RiseFall::fall());
   EXPECT_EQ(rise->opposite(), fall);
   EXPECT_EQ(fall->opposite(), rise);
-  EXPECT_NE(rise->name(), nullptr);
-  EXPECT_NE(fall->name(), nullptr);
+  EXPECT_FALSE(rise->name().empty());
+  EXPECT_FALSE(fall->name().empty());
   EXPECT_GE(rise->index(), 0);
   EXPECT_GE(fall->index(), 0);
   EXPECT_NE(rise->index(), fall->index());
@@ -2878,8 +2878,8 @@ TEST_F(SdcInitTest, SdcMakePathDelay) {
 TEST_F(SdcInitTest, SdcRemoveClockGroupsOther) {
   ASSERT_NO_THROW(( [&](){
   Sdc *sdc = sta_->cmdSdc();
-  sdc->removeClockGroupsPhysicallyExclusive(nullptr);
-  sdc->removeClockGroupsAsynchronous(nullptr);
+  sdc->removeClockGroupsPhysicallyExclusive();
+  sdc->removeClockGroupsAsynchronous();
 
   }() ));
 }
@@ -3813,7 +3813,7 @@ TEST_F(SdcInitTest, VariablesSetUseDefaultArrivalClock) {
 
 TEST_F(SdcInitTest, VariablesSetPocvEnabled) {
   Variables vars;
-  vars.setPocvEnabled(true);
+  vars.setPocvMode(PocvMode::normal);
   EXPECT_TRUE(vars.pocvEnabled());
 }
 
@@ -4565,7 +4565,7 @@ TEST_F(SdcExceptionPathTest, GroupPathIsGroupPath) {
   GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, nullptr);
   EXPECT_TRUE(gp.isGroupPath());
   EXPECT_FALSE(gp.isFalse());
-  EXPECT_STREQ(gp.name(), "grp");
+  EXPECT_EQ(gp.name(), "grp");
   EXPECT_FALSE(gp.isDefault());
   EXPECT_EQ(gp.type(), ExceptionPathType::group_path);
 }

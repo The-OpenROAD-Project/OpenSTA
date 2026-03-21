@@ -1233,14 +1233,14 @@ TEST_F(ExceptionPathTest, GroupPathBasic) {
   EXPECT_FALSE(gp.isFalse());
   EXPECT_FALSE(gp.isPathDelay());
   EXPECT_EQ(gp.type(), ExceptionPathType::group_path);
-  EXPECT_STREQ(gp.name(), "group1");
+  EXPECT_EQ(gp.name(), "group1");
   EXPECT_FALSE(gp.isDefault());
 }
 
 TEST_F(ExceptionPathTest, GroupPathDefault) {
   GroupPath gp("default_group", true, nullptr, nullptr, nullptr, true, nullptr);
   EXPECT_TRUE(gp.isDefault());
-  EXPECT_STREQ(gp.name(), "default_group");
+  EXPECT_EQ(gp.name(), "default_group");
 }
 
 TEST_F(ExceptionPathTest, GroupPathTypePriority) {
@@ -1258,7 +1258,7 @@ TEST_F(ExceptionPathTest, GroupPathClone) {
   GroupPath gp("gp_clone", true, nullptr, nullptr, nullptr, true, "comment");
   ExceptionPath *clone = gp.clone(nullptr, nullptr, nullptr, true);
   EXPECT_TRUE(clone->isGroupPath());
-  EXPECT_STREQ(clone->name(), "gp_clone");
+  EXPECT_EQ(clone->name(), "gp_clone");
   EXPECT_TRUE(clone->isDefault());
   delete clone;
 }
@@ -1377,7 +1377,7 @@ TEST_F(ExceptionPathTest, DefaultValues) {
   EXPECT_FALSE(fp.useEndClk());
   EXPECT_EQ(fp.pathMultiplier(), 0);
   EXPECT_FLOAT_EQ(fp.delay(), 0.0f);
-  EXPECT_EQ(fp.name(), nullptr);
+  EXPECT_EQ(fp.name(), "");
   EXPECT_FALSE(fp.isDefault());
   EXPECT_FALSE(fp.ignoreClkLatency());
   EXPECT_FALSE(fp.breakPath());

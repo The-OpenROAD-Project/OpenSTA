@@ -60,8 +60,8 @@ TEST_F(UnitTest, UserToSta) {
 
 TEST_F(UnitTest, AsString) {
   Unit unit(1e-9f, "s", 3);
-  const char *str = unit.asString(1e-9f);
-  EXPECT_NE(str, nullptr);
+  std::string str = unit.asString(1e-9f);
+  EXPECT_FALSE(str.empty());
   // Should produce something like "1.000"
 }
 
@@ -1268,8 +1268,8 @@ TEST(InternalPowerTest, DirectConstruction) {
   InternalPower pwr(nullptr, nullptr, nullptr, when_expr, models);
   EXPECT_EQ(pwr.when(), when_expr.get());
   EXPECT_EQ(pwr.relatedPgPin(), nullptr);
-  EXPECT_EQ(pwr.model(RiseFall::rise()), nullptr);
-  EXPECT_EQ(pwr.model(RiseFall::fall()), nullptr);
+  EXPECT_EQ(pwr.model(RiseFall::rise()).model(), nullptr);
+  EXPECT_EQ(pwr.model(RiseFall::fall()).model(), nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1450,26 +1450,27 @@ TEST_F(LinearModelTest, GateLinearModelConstruct) {
 
 TEST_F(LinearModelTest, GateLinearModelGateDelay) {
   GateLinearModel model(cell_, 1.0f, 2.0f);
-  ArcDelay gate_delay;
-  Slew drvr_slew;
+  float gate_delay;
+  float drvr_slew;
   // delay = intrinsic + resistance * load_cap = 1.0 + 2.0 * 3.0 = 7.0
-  model.gateDelay(nullptr, 0.0f, 3.0f, false, gate_delay, drvr_slew);
-  EXPECT_FLOAT_EQ(delayAsFloat(gate_delay), 7.0f);
-  EXPECT_FLOAT_EQ(delayAsFloat(drvr_slew), 0.0f);
+  model.gateDelay(nullptr, 0.0f, 3.0f, gate_delay, drvr_slew);
+  EXPECT_FLOAT_EQ(gate_delay, 7.0f);
+  EXPECT_FLOAT_EQ(drvr_slew, 0.0f);
 }
 
 TEST_F(LinearModelTest, GateLinearModelZeroLoad) {
   GateLinearModel model(cell_, 2.5f, 1.0f);
-  ArcDelay gate_delay;
-  Slew drvr_slew;
+  float gate_delay;
+  float drvr_slew;
   // delay = 2.5 + 1.0 * 0.0 = 2.5
-  model.gateDelay(nullptr, 0.0f, 0.0f, false, gate_delay, drvr_slew);
-  EXPECT_FLOAT_EQ(delayAsFloat(gate_delay), 2.5f);
+  model.gateDelay(nullptr, 0.0f, 0.0f, gate_delay, drvr_slew);
+  EXPECT_FLOAT_EQ(gate_delay, 2.5f);
 }
 
 TEST_F(LinearModelTest, GateLinearModelReportGateDelay) {
   GateLinearModel model(cell_, 1.0f, 2.0f);
-  std::string report = model.reportGateDelay(nullptr, 0.0f, 0.5f, false, 3);
+  std::string report = model.reportGateDelay(nullptr, 0.0f, 0.5f,
+                                              nullptr, PocvMode::scalar, 3);
   EXPECT_FALSE(report.empty());
   // Report should contain "Delay ="
   EXPECT_NE(report.find("Delay"), std::string::npos);
@@ -1477,23 +1478,27 @@ TEST_F(LinearModelTest, GateLinearModelReportGateDelay) {
 
 TEST_F(LinearModelTest, CheckLinearModelConstruct) {
   CheckLinearModel model(cell_, 3.0f);
-  ArcDelay delay = model.checkDelay(nullptr, 0.0f, 0.0f, 0.0f, false);
+  ArcDelay delay = model.checkDelay(nullptr, 0.0f, 0.0f, 0.0f,
+                                    nullptr, PocvMode::scalar);
   EXPECT_FLOAT_EQ(delayAsFloat(delay), 3.0f);
 }
 
 TEST_F(LinearModelTest, CheckLinearModelCheckDelay) {
   CheckLinearModel model(cell_, 5.5f);
   // checkDelay always returns intrinsic_ regardless of other params
-  ArcDelay delay1 = model.checkDelay(nullptr, 1.0f, 2.0f, 3.0f, true);
+  ArcDelay delay1 = model.checkDelay(nullptr, 1.0f, 2.0f, 3.0f,
+                                     nullptr, PocvMode::scalar);
   EXPECT_FLOAT_EQ(delayAsFloat(delay1), 5.5f);
-  ArcDelay delay2 = model.checkDelay(nullptr, 0.0f, 0.0f, 0.0f, false);
+  ArcDelay delay2 = model.checkDelay(nullptr, 0.0f, 0.0f, 0.0f,
+                                     nullptr, PocvMode::scalar);
   EXPECT_FLOAT_EQ(delayAsFloat(delay2), 5.5f);
 }
 
 TEST_F(LinearModelTest, CheckLinearModelReportCheckDelay) {
   CheckLinearModel model(cell_, 2.0f);
   std::string report = model.reportCheckDelay(nullptr, 0.0f, nullptr,
-                                               0.0f, 0.0f, false, 3);
+                                               0.0f, 0.0f,
+                                               nullptr, PocvMode::scalar, 3);
   EXPECT_FALSE(report.empty());
   EXPECT_NE(report.find("Check"), std::string::npos);
 }
@@ -1505,24 +1510,24 @@ TEST_F(LinearModelTest, CheckLinearModelReportCheckDelay) {
 TEST(InternalPowerTest, ModelAccess) {
   InternalPowerModels models{};
   InternalPower pwr(nullptr, nullptr, nullptr, nullptr, models);
-  // Initially models should be nullptr
-  EXPECT_EQ(pwr.model(RiseFall::rise()), nullptr);
-  EXPECT_EQ(pwr.model(RiseFall::fall()), nullptr);
+  // Initially models should have null inner TableModel
+  EXPECT_EQ(pwr.model(RiseFall::rise()).model(), nullptr);
+  EXPECT_EQ(pwr.model(RiseFall::fall()).model(), nullptr);
 }
 
 TEST(InternalPowerTest, WithModel) {
   // Create a minimal model: Table -> TableModel -> InternalPowerModel
   TablePtr tbl = std::make_shared<Table>(1.0f);
-  TableModel *table_model = new TableModel(tbl, nullptr,
-                                           ScaleFactorType::internal_power,
-                                           RiseFall::rise());
-  auto power_model = std::make_shared<InternalPowerModel>(table_model);
+  auto table_model = std::make_shared<TableModel>(tbl, nullptr,
+                                                  ScaleFactorType::internal_power,
+                                                  RiseFall::rise());
+  InternalPowerModel power_model(table_model);
 
   InternalPowerModels models{};
   models[RiseFall::riseIndex()] = power_model;
   InternalPower pwr(nullptr, nullptr, nullptr, nullptr, models);
-  EXPECT_EQ(pwr.model(RiseFall::rise()), power_model.get());
-  EXPECT_EQ(pwr.model(RiseFall::fall()), nullptr);
+  EXPECT_NE(pwr.model(RiseFall::rise()).model(), nullptr);
+  EXPECT_EQ(pwr.model(RiseFall::fall()).model(), nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3473,9 +3478,9 @@ TEST(LibertyUtilTest, PortLibertyToStaWithBrackets) {
 
 TEST(InternalPowerModelTest, PowerLookupOrder0) {
   TablePtr tbl = std::make_shared<Table>(5.0f);
-  TableModel *table_model = new TableModel(tbl, nullptr,
-                                           ScaleFactorType::internal_power,
-                                           RiseFall::rise());
+  auto table_model = std::make_shared<TableModel>(tbl, nullptr,
+                                                  ScaleFactorType::internal_power,
+                                                  RiseFall::rise());
   InternalPowerModel model(table_model);
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "INV", "test.lib");
@@ -3485,9 +3490,9 @@ TEST(InternalPowerModelTest, PowerLookupOrder0) {
 
 TEST(InternalPowerModelTest, ReportPowerOrder0) {
   TablePtr tbl = std::make_shared<Table>(3.0f);
-  TableModel *table_model = new TableModel(tbl, nullptr,
-                                           ScaleFactorType::internal_power,
-                                           RiseFall::rise());
+  auto table_model = std::make_shared<TableModel>(tbl, nullptr,
+                                                  ScaleFactorType::internal_power,
+                                                  RiseFall::rise());
   InternalPowerModel model(table_model);
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "INV", "test.lib");
@@ -3505,9 +3510,9 @@ TEST(InternalPowerModelTest, PowerLookupOrder1) {
   values.push_back(1.0f);
   values.push_back(3.0f);
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis);
-  TableModel *table_model = new TableModel(tbl, nullptr,
-                                           ScaleFactorType::internal_power,
-                                           RiseFall::rise());
+  auto table_model = std::make_shared<TableModel>(tbl, nullptr,
+                                                  ScaleFactorType::internal_power,
+                                                  RiseFall::rise());
   InternalPowerModel model(table_model);
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "INV", "test.lib");
@@ -3529,9 +3534,9 @@ TEST(InternalPowerModelTest, PowerLookupOrder2) {
   FloatSeq row1; row1.push_back(3.0f); row1.push_back(4.0f);
   values.push_back(std::move(row0)); values.push_back(std::move(row1));
   TablePtr tbl = std::make_shared<Table>(std::move(values), axis1, axis2);
-  TableModel *table_model = new TableModel(tbl, nullptr,
-                                           ScaleFactorType::internal_power,
-                                           RiseFall::rise());
+  auto table_model = std::make_shared<TableModel>(tbl, nullptr,
+                                                  ScaleFactorType::internal_power,
+                                                  RiseFall::rise());
   InternalPowerModel model(table_model);
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "INV", "test.lib");

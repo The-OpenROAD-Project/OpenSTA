@@ -842,7 +842,7 @@ TEST(ReportTest, RedirectStringBasic)
 {
   Report report;
   report.redirectStringBegin();
-  report.reportLineString("hello world");
+  report.reportLine("hello world");
   const char *result = report.redirectStringEnd();
   EXPECT_NE(result, nullptr);
   std::string s(result);
@@ -853,8 +853,8 @@ TEST(ReportTest, RedirectStringMultipleLines)
 {
   Report report;
   report.redirectStringBegin();
-  report.reportLineString("line1");
-  report.reportLineString("line2");
+  report.reportLine("line1");
+  report.reportLine("line2");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("line1"), std::string::npos);
@@ -866,7 +866,7 @@ TEST(ReportTest, RedirectStringStdString)
   Report report;
   report.redirectStringBegin();
   std::string line = "std string line";
-  report.reportLineString(line);
+  report.reportLine(line);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("std string line"), std::string::npos);
@@ -886,7 +886,7 @@ TEST(ReportTest, ReportLineFormatted)
 {
   Report report;
   report.redirectStringBegin();
-  report.reportLine("value=%d", 42);
+  report.report("value={}", 42);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("value=42"), std::string::npos);
@@ -897,7 +897,7 @@ TEST(ReportTest, LogToFile)
   Report report;
   const char *tmpfile = "/tmp/test_report_log.txt";
   report.logBegin(tmpfile);
-  report.reportLineString("log test line");
+  report.reportLine("log test line");
   report.logEnd();
   // Verify file was created with content
   FILE *f = fopen(tmpfile, "r");
@@ -924,7 +924,7 @@ TEST(ReportTest, RedirectFileBegin)
   Report report;
   const char *tmpfile = "/tmp/test_report_redirect.txt";
   report.redirectFileBegin(tmpfile);
-  report.reportLineString("redirected line");
+  report.reportLine("redirected line");
   report.redirectFileEnd();
 
   FILE *f = fopen(tmpfile, "r");
@@ -943,12 +943,12 @@ TEST(ReportTest, RedirectFileAppendBegin)
 
   // Write first
   report.redirectFileBegin(tmpfile);
-  report.reportLineString("first");
+  report.reportLine("first");
   report.redirectFileEnd();
 
   // Append
   report.redirectFileAppendBegin(tmpfile);
-  report.reportLineString("second");
+  report.reportLine("second");
   report.redirectFileEnd();
 
   FILE *f = fopen(tmpfile, "r");
@@ -997,7 +997,7 @@ TEST(ReportTest, WarnBasic)
 {
   Report report;
   report.redirectStringBegin();
-  report.warn(100, "something bad %d", 42);
+  report.warn(100, "something bad {}", 42);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 100:"), std::string::npos);
@@ -1008,7 +1008,7 @@ TEST(ReportTest, FileWarn)
 {
   Report report;
   report.redirectStringBegin();
-  report.fileWarn(101, "test.v", 10, "missing %s", "semicolon");
+  report.fileWarn(101, "test.v", 10, "missing {}", "semicolon");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 101:"), std::string::npos);
@@ -1022,7 +1022,7 @@ TEST(ReportTest, VwarnBasic)
   Report report;
   report.redirectStringBegin();
   // Use vwarn indirectly via warn (vwarn is called by warn internals)
-  report.warn(102, "vwarn test %s", "value");
+  report.warn(102, "warn test {}", "value");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 102:"), std::string::npos);
@@ -1031,14 +1031,14 @@ TEST(ReportTest, VwarnBasic)
 TEST(ReportTest, ErrorThrows)
 {
   Report report;
-  EXPECT_THROW(report.error(200, "error message %d", 1), ExceptionMsg);
+  EXPECT_THROW(report.error(200, "error message {}", 1), ExceptionMsg);
 }
 
 TEST(ReportTest, ErrorMessageContent)
 {
   Report report;
   try {
-    report.error(200, "specific error %s", "info");
+    report.error(200, "specific error {}", "info");
     FAIL() << "Expected ExceptionMsg";
   } catch (const ExceptionMsg &e) {
     std::string what = e.what();
@@ -1056,7 +1056,7 @@ TEST(ReportTest, FileErrorContent)
 {
   Report report;
   try {
-    report.fileError(201, "test.sdc", 5, "unexpected token %s", "foo");
+    report.fileError(201, "test.sdc", 5, "unexpected token {}", "foo");
     FAIL() << "Expected ExceptionMsg";
   } catch (const ExceptionMsg &e) {
     std::string what = e.what();
@@ -1146,7 +1146,7 @@ TEST(ReportTest, LogAndConsoleSimultaneous)
   const char *logfile = "/tmp/test_report_logconsole.txt";
   report.logBegin(logfile);
   // Print to console (with log capturing)
-  report.reportLineString("dual output");
+  report.reportLine("dual output");
   report.logEnd();
 
   FILE *f = fopen(logfile, "r");
@@ -1177,38 +1177,35 @@ TEST(StringUtilTest, StringCopyNull)
   EXPECT_EQ(copy, nullptr);
 }
 
-TEST(StringUtilTest, StdstrPrint)
+TEST(StringUtilTest, StaFormat)
 {
-  std::string s = stdstrPrint("value=%d", 42);
+  std::string s = sta::format("value={}", 42);
   EXPECT_EQ(s, "value=42");
 }
 
-TEST(StringUtilTest, StringPrintToStdString)
+TEST(StringUtilTest, StaFormatToStdString)
 {
-  std::string s;
-  stringPrint(s, "test %s %d", "abc", 123);
+  std::string s = sta::format("test {} {}", "abc", 123);
   EXPECT_EQ(s, "test abc 123");
 }
 
-TEST(StringUtilTest, StringAppendToStdString)
+TEST(StringUtilTest, StaFormatAppendToStdString)
 {
   std::string s = "prefix ";
-  stringAppend(s, "suffix %d", 1);
+  s += sta::format("suffix {}", 1);
   EXPECT_EQ(s, "prefix suffix 1");
 }
 
-TEST(StringUtilTest, StringPrintAllocates)
+TEST(StringUtilTest, StaFormatAllocates)
 {
-  char *s = stringPrint("number %d", 99);
-  EXPECT_STREQ(s, "number 99");
-  stringDelete(s);
+  std::string s = sta::format("number {}", 99);
+  EXPECT_EQ(s, "number 99");
 }
 
-TEST(StringUtilTest, StringPrintTmp)
+TEST(StringUtilTest, StaFormatTmp)
 {
-  char *s = stringPrintTmp("tmp %d", 42);
-  EXPECT_STREQ(s, "tmp 42");
-  // tmp strings should not be freed by the caller
+  std::string s = sta::format("tmp {}", 42);
+  EXPECT_EQ(s, "tmp 42");
 }
 
 TEST(StringUtilTest, MakeTmpString)
@@ -1229,7 +1226,8 @@ TEST(StringUtilTest, MakeTmpStringFromStdString)
 
 TEST(StringUtilTest, IsTmpString)
 {
-  char *tmp = stringPrintTmp("test");
+  char *tmp = makeTmpString(10);
+  strcpy(tmp, "test");
   EXPECT_TRUE(isTmpString(tmp));
 
   char local[] = "local";
@@ -1370,7 +1368,7 @@ TEST(DebugTest, ReportLine)
   debug.setLevel("test", 1);
   // Redirect output to string to capture the debug line
   report.redirectStringBegin();
-  debug.reportLine("test", "value %d", 42);
+  debug.report("test", "value {}", 42);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("test"), std::string::npos);
@@ -1378,125 +1376,91 @@ TEST(DebugTest, ReportLine)
 }
 
 ////////////////////////////////////////////////////////////////
-// Helper functions to test va_list variants of Report
+// Tests for variadic template Report methods (warn, fileWarn, error, fileError)
 ////////////////////////////////////////////////////////////////
 
-static void callVwarn(Report &report, int id, const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  report.vwarn(id, fmt, args);
-  va_end(args);
-}
-
-static void callVfileWarn(Report &report, int id, const char *filename,
-                          int line, const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  report.vfileWarn(id, filename, line, fmt, args);
-  va_end(args);
-}
-
-static void callVerror(Report &report, int id, const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  report.verror(id, fmt, args);
-  va_end(args);
-}
-
-static void callVfileError(Report &report, int id, const char *filename,
-                           int line, const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  report.vfileError(id, filename, line, fmt, args);
-  va_end(args);
-}
-
-TEST(ReportVaTest, VwarnBasic)
+TEST(ReportVaTest, WarnBasic)
 {
   Report report;
   report.redirectStringBegin();
-  callVwarn(report, 300, "vwarn message %d", 42);
+  report.warn(300, "warn message {}", 42);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 300:"), std::string::npos);
-  EXPECT_NE(s.find("vwarn message 42"), std::string::npos);
+  EXPECT_NE(s.find("warn message 42"), std::string::npos);
 }
 
-TEST(ReportVaTest, VwarnSuppressed)
+TEST(ReportVaTest, WarnSuppressed)
 {
   Report report;
   report.suppressMsgId(300);
   report.redirectStringBegin();
-  callVwarn(report, 300, "suppressed vwarn");
+  report.warn(300, "suppressed warn");
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_EQ(s.find("suppressed vwarn"), std::string::npos);
+  EXPECT_EQ(s.find("suppressed warn"), std::string::npos);
 }
 
-TEST(ReportVaTest, VfileWarnBasic)
+TEST(ReportVaTest, FileWarnBasic)
 {
   Report report;
   report.redirectStringBegin();
-  callVfileWarn(report, 301, "test.v", 15, "vfile warn msg %s", "detail");
+  report.fileWarn(301, "test.v", 15, "file warn msg {}", "detail");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 301:"), std::string::npos);
   EXPECT_NE(s.find("test.v"), std::string::npos);
   EXPECT_NE(s.find("line 15"), std::string::npos);
-  EXPECT_NE(s.find("vfile warn msg detail"), std::string::npos);
+  EXPECT_NE(s.find("file warn msg detail"), std::string::npos);
 }
 
-TEST(ReportVaTest, VfileWarnSuppressed)
+TEST(ReportVaTest, FileWarnSuppressed)
 {
   Report report;
   report.suppressMsgId(301);
   report.redirectStringBegin();
-  callVfileWarn(report, 301, "test.v", 15, "suppressed vfile warn");
+  report.fileWarn(301, "test.v", 15, "suppressed file warn");
   const char *result = report.redirectStringEnd();
   std::string s(result);
-  EXPECT_EQ(s.find("suppressed vfile warn"), std::string::npos);
+  EXPECT_EQ(s.find("suppressed file warn"), std::string::npos);
 }
 
-TEST(ReportVaTest, VerrorThrows)
+TEST(ReportVaTest, ErrorThrows)
 {
   Report report;
-  EXPECT_THROW(callVerror(report, 400, "verror msg %d", 99), ExceptionMsg);
+  EXPECT_THROW(report.error(400, "error msg {}", 99), ExceptionMsg);
 }
 
-TEST(ReportVaTest, VerrorContent)
+TEST(ReportVaTest, ErrorContent)
 {
   Report report;
   try {
-    callVerror(report, 400, "verror content %s", "test");
+    report.error(400, "error content {}", "test");
     FAIL();
   } catch (const ExceptionMsg &e) {
     std::string what = e.what();
-    EXPECT_NE(what.find("verror content test"), std::string::npos);
+    EXPECT_NE(what.find("error content test"), std::string::npos);
   }
 }
 
-TEST(ReportVaTest, VfileErrorThrows)
+TEST(ReportVaTest, FileErrorThrows)
 {
   Report report;
-  EXPECT_THROW(callVfileError(report, 401, "myfile.sdc", 20, "vfile error msg"),
+  EXPECT_THROW(report.fileError(401, "myfile.sdc", 20, "file error msg"),
                ExceptionMsg);
 }
 
-TEST(ReportVaTest, VfileErrorContent)
+TEST(ReportVaTest, FileErrorContent)
 {
   Report report;
   try {
-    callVfileError(report, 401, "myfile.sdc", 20, "vfile error %d", 42);
+    report.fileError(401, "myfile.sdc", 20, "file error {}", 42);
     FAIL();
   } catch (const ExceptionMsg &e) {
     std::string what = e.what();
     EXPECT_NE(what.find("myfile.sdc"), std::string::npos);
     EXPECT_NE(what.find("line 20"), std::string::npos);
-    EXPECT_NE(what.find("vfile error 42"), std::string::npos);
+    EXPECT_NE(what.find("file error 42"), std::string::npos);
   }
 }
 
@@ -1507,7 +1471,7 @@ TEST(ReportTest, LongReportLine)
   report.redirectStringBegin();
   // Create a string longer than the initial 1000 char buffer
   std::string long_str(2000, 'x');
-  report.reportLine("%s", long_str.c_str());
+  report.reportLine(long_str);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find(long_str), std::string::npos);
@@ -1518,7 +1482,7 @@ TEST(ReportTest, LongWarnLine)
   Report report;
   report.redirectStringBegin();
   std::string long_str(2000, 'y');
-  report.warn(500, "%s", long_str.c_str());
+  report.warn(500, "{}", long_str);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 500:"), std::string::npos);
@@ -1526,23 +1490,23 @@ TEST(ReportTest, LongWarnLine)
 }
 
 // Test ExceptionMsg suppressed flag
-TEST(ReportVaTest, VerrorSuppressedFlag)
+TEST(ReportVaTest, ErrorSuppressedFlag)
 {
   Report report;
   report.suppressMsgId(400);
   try {
-    callVerror(report, 400, "suppressed verror");
+    report.error(400, "suppressed error");
     FAIL();
   } catch (const ExceptionMsg &e) {
     EXPECT_TRUE(e.suppressed());
   }
 }
 
-TEST(ReportVaTest, VerrorNotSuppressedFlag)
+TEST(ReportVaTest, ErrorNotSuppressedFlag)
 {
   Report report;
   try {
-    callVerror(report, 400, "not suppressed");
+    report.error(400, "not suppressed");
     FAIL();
   } catch (const ExceptionMsg &e) {
     EXPECT_FALSE(e.suppressed());
@@ -1820,19 +1784,18 @@ TEST(TransitionCovTest, RiseFallToString)
 // Additional StringUtil coverage
 ////////////////////////////////////////////////////////////////
 
-TEST(StringUtilCovTest, StringPrintArgs)
+TEST(StringUtilCovTest, StaFormatArgs)
 {
-  // stringPrintArgs is called by stringPrint internally; test via stringPrint
-  char *s = stringPrint("args test %d %s", 42, "hello");
-  EXPECT_STREQ(s, "args test 42 hello");
-  stringDelete(s);
+  // Test sta::format with multiple arguments
+  std::string s = sta::format("args test {} {}", 42, "hello");
+  EXPECT_EQ(s, "args test 42 hello");
 }
 
 // stringDeleteCheck (only for non-tmp strings - should not crash)
 TEST(StringUtilCovTest, StringDeleteCheckNonTmp)
 {
   ASSERT_NO_THROW(( [&](){
-  char *s = stringPrint("not tmp");
+  char *s = stringCopy("not tmp");
   // This should not crash or exit; it's not a tmp string
   stringDeleteCheck(s);
   stringDelete(s);
@@ -1849,23 +1812,21 @@ TEST(StringUtilCovTest, IsTmpStringHeap)
   delete [] s;
 }
 
-// Long stringPrintTmp (forces buffer growth)
-TEST(StringUtilCovTest, LongStringPrintTmp)
+// Long sta::format string
+TEST(StringUtilCovTest, LongStaFormat)
 {
   std::string long_str(500, 'z');
-  char *tmp = stringPrintTmp("%s", long_str.c_str());
-  EXPECT_STREQ(tmp, long_str.c_str());
+  std::string result = sta::format("{}", long_str);
+  EXPECT_EQ(result, long_str);
 }
 
-// stringAppend (char* version) inline in header
-TEST(StringUtilCovTest, StringAppendCharPtr)
+// std::string append
+TEST(StringUtilCovTest, StringAppendStd)
 {
-  char buf[100];
-  char *p = buf;
-  stringAppend(p, "hello");
-  stringAppend(p, " world");
-  *p = '\0';
-  EXPECT_STREQ(buf, "hello world");
+  std::string s;
+  s += "hello";
+  s += " world";
+  EXPECT_EQ(s, "hello world");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1886,7 +1847,7 @@ TEST(ReportCovTest, ReportLineStringEmpty)
 {
   Report report;
   report.redirectStringBegin();
-  report.reportLineString("");
+  report.reportLine("");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   // Empty line should just have a newline
@@ -1899,7 +1860,7 @@ TEST(ReportCovTest, ReportLineLongFormatted)
   Report report;
   report.redirectStringBegin();
   std::string fmt_str(2000, 'a');
-  report.reportLine("%s end", fmt_str.c_str());
+  report.report("{} end", fmt_str);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find(fmt_str), std::string::npos);
@@ -1914,12 +1875,12 @@ TEST(ReportCovTest, ReportRedirectSequence)
 
   // Redirect to file first
   report.redirectFileBegin(tmpfile);
-  report.reportLineString("file output");
+  report.reportLine("file output");
   report.redirectFileEnd();
 
   // Then redirect to string
   report.redirectStringBegin();
-  report.reportLineString("string output");
+  report.reportLine("string output");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("string output"), std::string::npos);
@@ -1935,7 +1896,7 @@ TEST(ReportCovTest, LogDuringStringRedirect)
 
   report.logBegin(logfile);
   report.redirectStringBegin();
-  report.reportLineString("string only");
+  report.reportLine("string only");
   const char *result = report.redirectStringEnd();
   report.logEnd();
 
@@ -1950,7 +1911,7 @@ TEST(ReportCovTest, WarnWithLongMessage)
   Report report;
   report.redirectStringBegin();
   std::string long_msg(1500, 'w');
-  report.warn(999, "prefix %s suffix", long_msg.c_str());
+  report.warn(999, "prefix {} suffix", long_msg);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 999:"), std::string::npos);
@@ -1964,7 +1925,7 @@ TEST(ReportCovTest, FileWarnLongMessage)
   Report report;
   report.redirectStringBegin();
   std::string long_msg(1500, 'f');
-  report.fileWarn(998, "bigfile.v", 100, "detail: %s", long_msg.c_str());
+  report.fileWarn(998, "bigfile.v", 100, "detail: {}", long_msg);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 998:"), std::string::npos);
@@ -1978,7 +1939,7 @@ TEST(ReportCovTest, ErrorLongMessage)
   Report report;
   std::string long_msg(1500, 'e');
   try {
-    report.error(997, "err: %s", long_msg.c_str());
+    report.error(997, "err: {}", long_msg);
     FAIL();
   } catch (const ExceptionMsg &e) {
     std::string what = e.what();
@@ -1993,7 +1954,7 @@ TEST(ReportCovTest, FileErrorLongMessage)
   Report report;
   std::string long_msg(1500, 'x');
   try {
-    report.fileError(996, "big.sdc", 50, "detail: %s", long_msg.c_str());
+    report.fileError(996, "big.sdc", 50, "detail: {}", long_msg);
     FAIL();
   } catch (const ExceptionMsg &e) {
     std::string what = e.what();
@@ -2396,14 +2357,14 @@ TEST(ReportCovTest, RedirectStringPrintMultiple)
   EXPECT_STREQ(result, "abcdefghi");
 }
 
-// Test Report printToBuffer with va_list
-// Covers: Report::printToBuffer(const char*, va_list)
-TEST(ReportCovTest, PrintToBufferViaReportLine)
+// Test Report::report with format args
+// Covers: Report::report(std::string_view, Args&&...)
+TEST(ReportCovTest, ReportFormatViaReport)
 {
   Report report;
   report.redirectStringBegin();
-  // reportLine calls printToBuffer internally
-  report.reportLine("value=%d", 42);
+  // report() uses std::format style formatting
+  report.report("value={}", 42);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("value=42"), std::string::npos);
@@ -2414,7 +2375,7 @@ TEST(ReportCovTest, ReportLineString)
 {
   Report report;
   report.redirectStringBegin();
-  report.reportLineString("test line");
+  report.reportLine("test line");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("test line"), std::string::npos);
@@ -2426,7 +2387,7 @@ TEST(ReportCovTest, ReportLineStringStd)
   Report report;
   report.redirectStringBegin();
   std::string line = "std string line";
-  report.reportLineString(line);
+  report.reportLine(line);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("std string line"), std::string::npos);
@@ -2461,7 +2422,7 @@ TEST(ReportStdCovTest, PrintErrorConsoleViaWarn)
   ASSERT_NO_THROW(( [&](){
   Report *report = makeReportStd();
   // warn uses printErrorConsole path
-  report->warn(9999, "test warning %d", 42);
+  report->warn(9999, "test warning {}", 42);
   delete report;
 
   }() ));
@@ -2496,7 +2457,7 @@ TEST(ReportCovTest, LogBeginEnd)
   Report report;
   const char *logfile = "/tmp/sta_test_log_r5.log";
   report.logBegin(logfile);
-  report.reportLine("log line %d", 1);
+  report.report("log line {}", 1);
   report.logEnd();
   // Verify log file exists and has content
   std::ifstream in(logfile);
@@ -2590,7 +2551,7 @@ TEST(GzStreamTest, GzStreamWriteRead)
 TEST(ReportCovTest, ErrorThrowsException)
 {
   Report report;
-  EXPECT_THROW(report.error(1, "test error %s", "msg"), ExceptionMsg);
+  EXPECT_THROW(report.error(1, "test error {}", "msg"), ExceptionMsg);
 }
 
 // Test Report fileError throws ExceptionMsg
@@ -2618,7 +2579,7 @@ TEST(ReportCovTest, ReportErrorFormatting)
 {
   Report report;
   try {
-    report.error(999, "critical format test %s %d", "value", 42);
+    report.error(999, "critical format test {} {}", "value", 42);
     FAIL();
   } catch (const ExceptionMsg &e) {
     std::string what = e.what();
@@ -2632,7 +2593,7 @@ TEST(ReportCovTest, ReportFileErrorFormatting)
 {
   Report report;
   try {
-    report.fileError(998, "critical.v", 42, "critical file error %s", "detail");
+    report.fileError(998, "critical.v", 42, "critical file error {}", "detail");
     FAIL();
   } catch (const ExceptionMsg &e) {
     std::string what = e.what();
@@ -2660,7 +2621,7 @@ TEST(ReportCovTest, ReportStdCreation)
   ASSERT_NE(report, nullptr);
   // Verify it works as a Report
   report->redirectStringBegin();
-  report->reportLineString("test via ReportStd");
+  report->reportLine("test via ReportStd");
   const char *result = report->redirectStringEnd();
   EXPECT_NE(result, nullptr);
   std::string s(result);
@@ -2675,7 +2636,7 @@ TEST(ReportCovTest, ReportStdWarn)
   Report *report = makeReportStd();
   ASSERT_NE(report, nullptr);
   report->redirectStringBegin();
-  report->warn(700, "reportstd warn test %d", 99);
+  report->warn(700, "reportstd warn test {}", 99);
   const char *result = report->redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 700:"), std::string::npos);
@@ -2701,7 +2662,7 @@ TEST(ReportCovTest, ReportPrintToBufferLong)
   report.redirectStringBegin();
   // Create a string exceeding the initial 1000-char buffer
   std::string long_str(3000, 'Z');
-  report.reportLine("%s", long_str.c_str());
+  report.reportLine(long_str);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find(long_str), std::string::npos);
@@ -2780,7 +2741,7 @@ TEST(ReportCovTest, WarnLongMessage)
   Report report;
   report.redirectStringBegin();
   std::string long_msg(5000, 'W');
-  report.warn(800, "%s", long_msg.c_str());
+  report.warn(800, "{}", long_msg);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 800:"), std::string::npos);
@@ -2794,7 +2755,7 @@ TEST(ReportCovTest, FileWarnLongMessage2)
   Report report;
   report.redirectStringBegin();
   std::string long_msg(2000, 'F');
-  report.fileWarn(801, "long_file.v", 999, "%s", long_msg.c_str());
+  report.fileWarn(801, "long_file.v", 999, "{}", long_msg);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning 801:"), std::string::npos);
@@ -2841,13 +2802,13 @@ TEST(ReportCovTest, ErrorNotSuppressed)
 // because it calls abort(). Instead, test printToBuffer and
 // redirectStringPrint paths.
 
-// Test Report::printToBuffer via reportLine
-// Covers: Report::printToBuffer(const char*, va_list)
-TEST(ReportCovTest, PrintToBufferViaReportLine2)
+// Test Report::report with multiple format args
+// Covers: Report::report(std::string_view, Args&&...)
+TEST(ReportCovTest, ReportFormatViaReport2)
 {
   Report report;
   report.redirectStringBegin();
-  report.reportLine("test %d %s %.2f", 42, "hello", 3.14);
+  report.report("test {} {} {:.2f}", 42, "hello", 3.14);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("42"), std::string::npos);
@@ -2878,23 +2839,23 @@ TEST(ReportCovTest, RedirectStringPrintLong)
   Report report;
   report.redirectStringBegin();
   std::string long_str(5000, 'X');
-  report.reportLineString(long_str);
+  report.reportLine(long_str);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("XXXXX"), std::string::npos);
 }
 
-// Test Report::printToBuffer with various format strings
-// Covers: Report::printToBuffer(const char*, va_list)
-TEST(ReportCovTest, PrintToBufferFormats)
+// Test Report::report with various format strings
+// Covers: Report::report(std::string_view, Args&&...)
+TEST(ReportCovTest, ReportFormatVariousFormats)
 {
   Report report;
   report.redirectStringBegin();
-  // Exercise various printf formats
-  report.reportLine("int: %d", 12345);
-  report.reportLine("float: %f", 1.5);
-  report.reportLine("string: %s", "test_string");
-  report.reportLine("hex: %x", 0xFF);
+  // Exercise various std::format specifiers
+  report.report("int: {}", 12345);
+  report.report("float: {}", 1.5);
+  report.report("string: {}", "test_string");
+  report.report("hex: {:x}", 0xFF);
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("12345"), std::string::npos);
@@ -2908,9 +2869,9 @@ TEST(ReportStdCovTest, ReportStdConstructorAndPrint)
   Report *report = makeReportStd();
   ASSERT_NE(report, nullptr);
   // warn() calls printErrorConsole
-  report->warn(10001, "R8 test warning %s", "message");
+  report->warn(10001, "R8 test warning {}", "message");
   // reportLine calls printConsole
-  report->reportLine("R8 test print %d", 42);
+  report->report("R8 test print {}", 42);
   delete report;
 }
 
@@ -2920,7 +2881,7 @@ TEST(ReportStdCovTest, PrintErrorConsoleViaFileWarn)
 {
   Report *report = makeReportStd();
   ASSERT_NE(report, nullptr);
-  report->fileWarn(10002, "test_file.v", 100, "file warning %d", 99);
+  report->fileWarn(10002, "test_file.v", 100, "file warning {}", 99);
   delete report;
 }
 
@@ -2930,7 +2891,7 @@ TEST(ReportCovTest, PrintToBufferEmpty)
 {
   Report report;
   report.redirectStringBegin();
-  report.reportLine("%s", "");
+  report.reportLine("");
   const char *result = report.redirectStringEnd();
   // Should have at least a newline
   EXPECT_NE(result, nullptr);
@@ -2942,7 +2903,7 @@ TEST(ReportCovTest, WarnWithRedirect)
 {
   Report report;
   report.redirectStringBegin();
-  report.warn(10003, "warning %d: %s", 1, "test");
+  report.warn(10003, "warning {}: {}", 1, "test");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning"), std::string::npos);
@@ -2955,7 +2916,7 @@ TEST(ReportCovTest, FileWarnWithRedirect)
 {
   Report report;
   report.redirectStringBegin();
-  report.fileWarn(10004, "myfile.tcl", 42, "file issue %s", "here");
+  report.fileWarn(10004, "myfile.tcl", 42, "file issue {}", "here");
   const char *result = report.redirectStringEnd();
   std::string s(result);
   EXPECT_NE(s.find("Warning"), std::string::npos);
