@@ -2916,9 +2916,9 @@ library(test_r9_85) {
       auto *model = dynamic_cast<GateLinearModel *>(arc->model());
       if (model) {
         found_linear_model = true;
-        ArcDelay delay = 0.0;
-        Slew slew = 0.0;
-        model->gateDelay(nullptr, 0.0f, 0.5f, false, delay, slew);
+        float delay = 0.0f;
+        float slew = 0.0f;
+        model->gateDelay(nullptr, 0.0f, 0.5f, delay, slew);
         EXPECT_GT(delay, 0.0f);
         EXPECT_GE(model->driveResistance(nullptr), 100.0f);
       }
@@ -3079,8 +3079,10 @@ TEST_F(StaLibertyTest, TimingGroupConstraintModels) {
   attrs.setModel(RiseFall::fall(), fall_model);
   EXPECT_EQ(attrs.model(RiseFall::rise()), rise_model);
   EXPECT_EQ(attrs.model(RiseFall::fall()), fall_model);
-  EXPECT_FLOAT_EQ(static_cast<CheckLinearModel *>(attrs.model(RiseFall::fall()))
-                    ->checkDelay(nullptr, 0.0f, 0.0f, 0.0f, false),
+  EXPECT_FLOAT_EQ(delayAsFloat(
+                    static_cast<CheckLinearModel *>(attrs.model(RiseFall::fall()))
+                      ->checkDelay(nullptr, 0.0f, 0.0f, 0.0f,
+                                   MinMax::max(), PocvMode::scalar)),
                   0.04f);
 }
 
@@ -3094,10 +3096,10 @@ TEST_F(StaLibertyTest, TimingGroupTransitionModels) {
   ASSERT_EQ(attrs.model(RiseFall::rise()), rise_model);
   EXPECT_EQ(attrs.model(RiseFall::fall()), nullptr);
 
-  ArcDelay delay = 0.0;
-  Slew slew = 0.0;
+  float delay = 0.0f;
+  float slew = 0.0f;
   static_cast<GateLinearModel *>(attrs.model(RiseFall::rise()))
-    ->gateDelay(nullptr, 0.0f, 0.2f, false, delay, slew);
+    ->gateDelay(nullptr, 0.0f, 0.2f, delay, slew);
   EXPECT_GT(delay, 0.05f);
   EXPECT_FLOAT_EQ(slew, 0.0f);
 }

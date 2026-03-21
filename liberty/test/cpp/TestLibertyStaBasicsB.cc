@@ -1200,7 +1200,8 @@ TEST_F(LinearModelTest, GateLinearModelDriveResistance) {
 
 TEST_F(LinearModelTest, CheckLinearModelCheckDelay2) {
   CheckLinearModel model(cell_, 2.0f);
-  ArcDelay delay = model.checkDelay(nullptr, 0.0f, 0.0f, 0.0f, false);
+  ArcDelay delay = model.checkDelay(nullptr, 0.0f, 0.0f, 0.0f,
+                                    MinMax::max(), PocvMode::scalar);
   EXPECT_FLOAT_EQ(delayAsFloat(delay), 2.0f);
 }
 

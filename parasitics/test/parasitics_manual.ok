@@ -240,7 +240,7 @@ v      --------------------
 Table value = 5.15
 PVT scale factor = 1.00
 Slew = 5.15
-Driver waveform slew = 5.15
+Driver waveform slew = 0.01
 
 .............................................
 
@@ -265,7 +265,7 @@ v      --------------------
 Table value = 4.91
 PVT scale factor = 1.00
 Slew = 4.91
-Driver waveform slew = 4.91
+Driver waveform slew = 0.00
 
 .............................................
 
@@ -295,7 +295,7 @@ v      --------------------
 Table value = 6.96
 PVT scale factor = 1.00
 Slew = 6.96
-Driver waveform slew = 6.96
+Driver waveform slew = 0.01
 
 .............................................
 
@@ -320,7 +320,7 @@ v      --------------------
 Table value = 6.03
 PVT scale factor = 1.00
 Slew = 6.03
-Driver waveform slew = 6.03
+Driver waveform slew = 0.01
 
 .............................................
 
@@ -350,7 +350,7 @@ v      --------------------
 Table value = 6.59
 PVT scale factor = 1.00
 Slew = 6.59
-Driver waveform slew = 6.59
+Driver waveform slew = 0.01
 
 .............................................
 
@@ -375,7 +375,7 @@ v      --------------------
 Table value = 4.86
 PVT scale factor = 1.00
 Slew = 4.86
-Driver waveform slew = 4.86
+Driver waveform slew = 0.00
 
 .............................................
 

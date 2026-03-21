@@ -345,7 +345,7 @@ out1 (output)                          -2.00    0.10    2.10 (MET)
   "target_clock": "clk",
   "target_clock_edge": "rise",
   "data_arrival_time": 9.857e-11,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": -2.000e-09,
   "required_time": -2.000e-09,
   "slack": 2.099e-09
@@ -811,7 +811,7 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
     }
   ],
   "data_arrival_time": 1.044e-09,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 4.894e-12,
   "required_time": 4.894e-12,
   "slack": 1.039e-09
@@ -1155,6 +1155,4 @@ is_path_delay: 0
 margin: 1.999999943436137e-9
 data_arrival: 1.0028596009181712e-10
 data_required: 7.999999773744548e-9
-source_clk_offset: 0.0
 target_clk: clk
-target_clk_time: 9.99999993922529e-9

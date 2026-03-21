@@ -394,7 +394,7 @@ clk                                     0.05
     }
   ],
   "data_arrival_time": 5.291e-11,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 6.024e-12,
   "required_time": 6.024e-12,
   "slack": 4.688e-11
@@ -1195,7 +1195,7 @@ Path Type: min
     }
   ],
   "data_arrival_time": 5.291e-11,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 6.024e-12,
   "required_time": 6.024e-12,
   "slack": 4.688e-11

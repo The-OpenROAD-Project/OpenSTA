@@ -102,24 +102,13 @@ foreach pe $paths {
 }
 
 ############################################################
-# set_report_path_field_properties / set_report_path_field_width
+# set_report_path_field_properties
 ############################################################
 puts "--- field properties ---"
-sta::set_report_path_field_properties "delay" "Delay" 10 0
-sta::set_report_path_field_width "delay" 12
+sta::set_report_path_field_properties "delay" "Delay" 12 0
 report_checks -path_delay max
 
-sta::set_report_path_field_properties "total" "Total" 12 0
-sta::set_report_path_field_width "total" 14
-report_checks -path_delay max
-
-############################################################
-# set_report_path_sigmas
-############################################################
-puts "--- report_path_sigmas ---"
-sta::set_report_path_sigmas 1
-report_checks -path_delay max
-sta::set_report_path_sigmas 0
+sta::set_report_path_field_properties "total" "Total" 14 0
 report_checks -path_delay max
 
 ############################################################

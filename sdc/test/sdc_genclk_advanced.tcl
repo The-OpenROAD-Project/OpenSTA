@@ -94,7 +94,8 @@ set_output_delay -clock gclk_div3 2.5 [get_ports out2]
 # Clock groups involving generated clocks
 ############################################################
 
-set_clock_groups -asynchronous -group {clk1 clk1_2x gclk_div2 gclk_mul2} -group {clk2 gclk_div3}
+set_clock_groups -asynchronous -name genclk_async \
+  -group {clk1 clk1_2x gclk_div2 gclk_mul2} -group {clk2 gclk_div3}
 
 ############################################################
 # Exception paths referencing generated clocks
@@ -133,7 +134,7 @@ report_checks -from [get_ports in2] -to [get_ports out2]
 ############################################################
 
 # Remove clock groups first
-unset_clock_groups -asynchronous -all
+unset_clock_groups -asynchronous -name genclk_async
 
 # Delete generated clocks
 delete_generated_clock [get_clocks gclk_mul2]

@@ -384,109 +384,91 @@ Max paths: 18
   margin: 5.49663405069456e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 1 is_check: 0 slack=0.0
   data_arrival: 1.081046252515705e-9 data_required: 1.081046252515705e-9
   margin: 1.631178005168099e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 1 is_check: 0 slack=0.0
   data_arrival: 1.0477667622410536e-9 data_required: 1.0477667622410536e-9
   margin: 5.264827462880817e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 1 is_check: 0 slack=0.0
   data_arrival: 1.0455454280133836e-9 data_required: 1.0455454280133836e-9
   margin: 5.264827462880817e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 1 is_check: 0 slack=0.0
   data_arrival: 1.044742847788882e-9 data_required: 1.044742847788882e-9
   margin: 1.5100346320573443e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 1 is_check: 0 slack=0.0
   data_arrival: 1.0434519914781504e-9 data_required: 1.0434519914781504e-9
   margin: 1.5100346320573443e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 1 is_check: 0 slack=0.0
   data_arrival: 5.6313842478061815e-11 data_required: 5.6313842478061815e-11
   margin: 5.49663405069456e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 1 is_check: 0 slack=0.0
   data_arrival: 5.290530860624365e-11 data_required: 5.290530860624365e-11
   margin: 1.631178005168099e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 0 slack=6.813221542500969e-9
   data_arrival: 1.1867781202212768e-9 data_required: 7.999999773744548e-9
   margin: 1.999999943436137e-9
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 0 slack=6.868384527791704e-9
   data_arrival: 1.1316151349305414e-9 data_required: 7.999999773744548e-9
   margin: 1.999999943436137e-9
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 0 slack=7.899713772019368e-9
   data_arrival: 1.0028596009181712e-10 data_required: 7.999999773744548e-9
   margin: 1.999999943436137e-9
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 0 slack=7.901434173618327e-9
   data_arrival: 9.856562094290311e-11 data_required: 7.999999773744548e-9
   margin: 1.999999943436137e-9
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 0 slack=7.923797618047956e-9
   data_arrival: 7.620201691871387e-11 data_required: 7.999999773744548e-9
   margin: 1.999999943436137e-9
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 0 slack=7.934120027641711e-9
   data_arrival: 6.588010692532009e-11 data_required: 7.999999773744548e-9
   margin: 1.999999943436137e-9
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 1 slack=8.852826915983769e-9
   data_arrival: 1.106064906331028e-9 data_required: 9.95889148924789e-9
   margin: 4.110847773297621e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 1 slack=8.88718165725777e-9
   data_arrival: 1.081046252515705e-9 data_required: 9.968228020795777e-9
   margin: 3.177172414048357e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 1 slack=9.902577424725223e-9
   data_arrival: 5.6313842478061815e-11 data_required: 9.95889148924789e-9
   margin: 4.110847773297621e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
   is_latch: 0 is_check: 1 slack=9.91532278504792e-9
   data_arrival: 5.290530860624365e-11 data_required: 9.968228020795777e-9
   margin: 3.177172414048357e-11
   source_clk_latency: 0.0
   target_clk_delay: 0.0
-  target_clk_uncertainty: -0.0
 --- report_path_ends for latch paths ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
 Endpoint: latch2 (positive level-sensitive latch clocked by clk)
@@ -1966,7 +1948,7 @@ Path Type: max
     }
   ],
   "data_arrival_time": 5.291e-11,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 6.024e-12,
   "required_time": 6.024e-12,
   "slack": 4.688e-11

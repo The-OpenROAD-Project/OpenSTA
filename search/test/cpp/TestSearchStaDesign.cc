@@ -1888,7 +1888,7 @@ TEST_F(StaDesignTest, SearchReportClkInfos) {
 
 TEST_F(StaDesignTest, SetReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setReportPathFields(true, true, true, true, true, true, true);
+  sta_->setReportPathFields(true, true, true, true, true, true, true, true);
 
   }() ));
 }
@@ -3640,7 +3640,7 @@ TEST_F(StaDesignTest, ReportPathFieldOrder) {
 
 TEST_F(StaDesignTest, ReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setReportPathFields(true, true, true, true, true, true, true);
+  sta_->setReportPathFields(true, true, true, true, true, true, true, true);
 
   }() ));
 }
@@ -3659,12 +3659,7 @@ TEST_F(StaDesignTest, ReportPathNoSplit) {
   }() ));
 }
 
-TEST_F(StaDesignTest, ReportPathSigmas) {
-  ASSERT_NO_THROW(( [&](){
-  sta_->setReportPathSigmas(true);
-
-  }() ));
-}
+// ReportPathSigmas removed — API no longer exists
 
 TEST_F(StaDesignTest, FindReportPathField2) {
   ReportField *field = sta_->findReportPathField("fanout");

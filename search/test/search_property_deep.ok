@@ -79,18 +79,9 @@ endpoint_clock: clk
   margin: 1.999999943436137e-9
   data_required_time: 7.999999773744548e-9
   data_arrival_time: 1.0361974472905544e-10
-  source_clk_offset: 0.0
   source_clk_latency: 0.0
-  source_clk_insertion_delay: 0.0
   target_clk: clk
-  target_clk_time: 9.99999993922529e-9
-  target_clk_offset: 9.99999993922529e-9
   target_clk_delay: 0.0
-  target_clk_insertion_delay: 0.0
-  target_clk_uncertainty: -0.0
-  target_clk_arrival: 9.99999993922529e-9
-  inter_clk_uncertainty: 0.0
-  check_crpr: 0.0
   clk_skew: 0.0
   min_max: max
   end_transition: ^

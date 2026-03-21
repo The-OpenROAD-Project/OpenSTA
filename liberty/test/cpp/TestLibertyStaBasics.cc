@@ -971,19 +971,19 @@ TEST_F(StaLibertyTest, GateTableModelDriveResistanceAndDelay) {
   GateTableModel *gtm = arc->gateTableModel();
   if (gtm) {
     // Test gate delay
-    ArcDelay delay;
-    Slew slew;
-    gtm->gateDelay(nullptr, 0.1f, 0.01f, false, delay, slew);
+    float delay_f, slew_f;
+    gtm->gateDelay(nullptr, 0.1f, 0.01f, delay_f, slew_f);
     // Delay values can be negative depending on library data
-    EXPECT_FALSE(std::isinf(delayAsFloat(delay)));
-    EXPECT_GE(delayAsFloat(slew), 0.0f);
+    EXPECT_FALSE(std::isinf(delay_f));
+    EXPECT_GE(slew_f, 0.0f);
 
     // Test drive resistance
     float res = gtm->driveResistance(nullptr);
     EXPECT_GE(res, 0.0f);
 
     // Test report
-    std::string report = gtm->reportGateDelay(nullptr, 0.1f, 0.01f, false, 3);
+    std::string report = gtm->reportGateDelay(nullptr, 0.1f, 0.01f,
+                                               MinMax::max(), PocvMode::scalar, 3);
     EXPECT_FALSE(report.empty());
 
     // Test model accessors
@@ -1594,15 +1594,11 @@ TEST_F(StaLibertyTest, GateTableModelGateDelayDeprecated) {
   ASSERT_GT(arcs.size(), 0u);
   GateTableModel *gtm = arcs[0]->gateTableModel();
   if (gtm) {
-    ArcDelay delay;
-    Slew slew;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    gtm->gateDelay(nullptr, 0.1f, 0.01f, 0.0f, false, delay, slew);
-#pragma GCC diagnostic pop
+    float delay_f, slew_f;
+    gtm->gateDelay(nullptr, 0.1f, 0.01f, delay_f, slew_f);
     // Delay values can be negative depending on library data
-    EXPECT_FALSE(std::isinf(delayAsFloat(delay)));
-    EXPECT_GE(delayAsFloat(slew), 0.0f);
+    EXPECT_FALSE(std::isinf(delay_f));
+    EXPECT_GE(slew_f, 0.0f);
   }
 }
 
@@ -1622,10 +1618,12 @@ TEST_F(StaLibertyTest, CheckTableModelCheckDelay) {
         TimingModel *model = arcs[0]->model();
         CheckTableModel *ctm = dynamic_cast<CheckTableModel*>(model);
         if (ctm) {
-          ArcDelay d = ctm->checkDelay(nullptr, 0.1f, 0.1f, 0.0f, false);
+          ArcDelay d = ctm->checkDelay(nullptr, 0.1f, 0.1f, 0.0f,
+                                        MinMax::max(), PocvMode::scalar);
           EXPECT_GE(delayAsFloat(d), 0.0f);
           std::string rpt = ctm->reportCheckDelay(nullptr, 0.1f, nullptr,
-                                                    0.1f, 0.0f, false, 3);
+                                                    0.1f, 0.0f,
+                                                    MinMax::max(), PocvMode::scalar, 3);
           EXPECT_FALSE(rpt.empty());
           return;
         }
@@ -1732,17 +1730,20 @@ TEST_F(StaLibertyTest, GateTableModelWithTable0Delay) {
                                             RiseFall::rise());
   TableModel *slew_model = new TableModel(slew_ptr, tmpl, ScaleFactorType::cell,
                                            RiseFall::rise());
-  GateTableModel *gtm = new GateTableModel(buf, delay_model, slew_model);
-  ArcDelay d;
-  Slew s;
-  gtm->gateDelay(nullptr, 0.0f, 0.0f, false, d, s);
-  EXPECT_GE(delayAsFloat(d), 0.0f);
-  EXPECT_GE(delayAsFloat(s), 0.0f);
+  // Wrap TableModel in TableModels as required by GateTableModel constructor
+  TableModels *delay_models = new TableModels(delay_model);
+  TableModels *slew_models = new TableModels(slew_model);
+  GateTableModel *gtm = new GateTableModel(buf, delay_models, slew_models);
+  float d, s;
+  gtm->gateDelay(nullptr, 0.0f, 0.0f, d, s);
+  EXPECT_GE(d, 0.0f);
+  EXPECT_GE(s, 0.0f);
 
   float res = gtm->driveResistance(nullptr);
   EXPECT_GE(res, 0.0f);
 
-  std::string rpt = gtm->reportGateDelay(nullptr, 0.0f, 0.0f, false, 3);
+  std::string rpt = gtm->reportGateDelay(nullptr, 0.0f, 0.0f,
+                                           MinMax::max(), PocvMode::scalar, 3);
   EXPECT_FALSE(rpt.empty());
 
   delete gtm;
@@ -1763,15 +1764,19 @@ TEST_F(StaLibertyTest, CheckTableModelDirect) {
 
   TableModel *model = new TableModel(check_ptr, tmpl, ScaleFactorType::cell,
                                       RiseFall::rise());
-  CheckTableModel *ctm = new CheckTableModel(buf, model);
-  ArcDelay d = ctm->checkDelay(nullptr, 0.1f, 0.1f, 0.0f, false);
+  // Wrap TableModel in TableModels as required by CheckTableModel constructor
+  TableModels *check_models = new TableModels(model);
+  CheckTableModel *ctm = new CheckTableModel(buf, check_models);
+  ArcDelay d = ctm->checkDelay(nullptr, 0.1f, 0.1f, 0.0f,
+                                MinMax::max(), PocvMode::scalar);
   EXPECT_GE(delayAsFloat(d), 0.0f);
 
   std::string rpt = ctm->reportCheckDelay(nullptr, 0.1f, nullptr,
-                                            0.1f, 0.0f, false, 3);
+                                            0.1f, 0.0f,
+                                            MinMax::max(), PocvMode::scalar, 3);
   EXPECT_FALSE(rpt.empty());
 
-  const TableModel *m = ctm->model();
+  const TableModel *m = ctm->checkModel();
   EXPECT_NE(m, nullptr);
 
   delete ctm;
@@ -2743,14 +2748,14 @@ TEST_F(UnitTest, WidthVaryDigits) {
 // Unit::asString(double) - covers uncovered function
 TEST_F(UnitTest, AsStringDouble) {
   Unit unit(1e-9f, "s", 3);
-  const char *str = unit.asString(1e-9);
-  EXPECT_NE(str, nullptr);
+  std::string str = unit.asString(1e-9f);
+  EXPECT_FALSE(str.empty());
 }
 
 TEST_F(UnitTest, AsStringDoubleZero) {
   Unit unit(1.0f, "V", 2);
-  const char *str = unit.asString(0.0);
-  EXPECT_NE(str, nullptr);
+  std::string str = unit.asString(0.0f);
+  EXPECT_FALSE(str.empty());
 }
 
 // to_string(TimingSense) exercise - ensure all senses

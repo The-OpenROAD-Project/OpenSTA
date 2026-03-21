@@ -179,7 +179,7 @@ TEST_F(SdcDesignTest, CycleAcctingSourceTargetCycle) {
   }
 }
 
-// --- ExceptionThru: asString ---
+// --- ExceptionThru: to_string ---
 
 TEST_F(SdcInitTest, ExceptionThruAsString) {
   ASSERT_NO_THROW(( [&](){
@@ -188,14 +188,14 @@ TEST_F(SdcInitTest, ExceptionThruAsString) {
   // Create ExceptionThru with no objects
   ExceptionThru *thru = new ExceptionThru(nullptr, nullptr, nullptr,
                                           RiseFallBoth::riseFall(), true, network);
-  const char *str = thru->asString(network);
-  EXPECT_NE(str, nullptr);
+  std::string str = thru->to_string(network);
+  // With all-nullptr objects, to_string returns empty
   delete thru;
 
   }() ));
 }
 
-// --- ExceptionTo: asString, matches, cmdKeyword ---
+// --- ExceptionTo: to_string, matches, cmdKeyword ---
 
 TEST_F(SdcInitTest, ExceptionToAsString) {
   ASSERT_NO_THROW(( [&](){
@@ -204,8 +204,7 @@ TEST_F(SdcInitTest, ExceptionToAsString) {
                                     RiseFallBoth::riseFall(),
                                     RiseFallBoth::riseFall(),
                                     true, network);
-  const char *str = to->asString(network);
-  EXPECT_NE(str, nullptr);
+  std::string str = to->to_string(network);
   // matches with null pin and rf
   to->matches(nullptr, RiseFall::rise());
   delete to;
@@ -353,8 +352,8 @@ TEST_F(SdcInitTest, ClockEdgeAccessors) {
   EXPECT_EQ(rise_edge->transition(), RiseFall::rise());
   EXPECT_EQ(fall_edge->transition(), RiseFall::fall());
   // name()
-  EXPECT_NE(rise_edge->name(), nullptr);
-  EXPECT_NE(fall_edge->name(), nullptr);
+  EXPECT_FALSE(rise_edge->name().empty());
+  EXPECT_FALSE(fall_edge->name().empty());
   // index()
   int ri = rise_edge->index();
   int fi = fall_edge->index();
@@ -675,8 +674,8 @@ TEST_F(SdcDesignTest, ExceptionThruEdges) {
     pins->insert(pin);
     ExceptionThru *thru = new ExceptionThru(pins, nullptr, nullptr,
                                             RiseFallBoth::riseFall(), true, network);
-    const char *str = thru->asString(network);
-    EXPECT_NE(str, nullptr);
+    std::string str = thru->to_string(network);
+    EXPECT_FALSE(str.empty());
     delete thru;
   }
 }
@@ -692,8 +691,8 @@ TEST_F(SdcDesignTest, ExceptionThruWithNet) {
     nets->insert(net);
     ExceptionThru *thru = new ExceptionThru(nullptr, nets, nullptr,
                                             RiseFallBoth::riseFall(), true, network);
-    const char *str = thru->asString(network);
-    EXPECT_NE(str, nullptr);
+    std::string str = thru->to_string(network);
+    EXPECT_FALSE(str.empty());
     delete thru;
   }
   delete net_iter;
@@ -709,8 +708,8 @@ TEST_F(SdcDesignTest, ExceptionThruWithInstance) {
     insts->insert(inst);
     ExceptionThru *thru = new ExceptionThru(nullptr, nullptr, insts,
                                             RiseFallBoth::riseFall(), true, network);
-    const char *str = thru->asString(network);
-    EXPECT_NE(str, nullptr);
+    std::string str = thru->to_string(network);
+    EXPECT_FALSE(str.empty());
     delete thru;
   }
   delete inst_iter;
@@ -1892,7 +1891,7 @@ TEST_F(SdcDesignTest, WriteSdcMulticycleStart) {
 // --- WriteSdc with group path default
 //     (triggers isDefault branch in writeExceptionCmd) ---
 TEST_F(SdcDesignTest, WriteSdcGroupPathDefault) {
-  sta_->makeGroupPath(nullptr, true, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("", true, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
   const char *filename = "/tmp/test_sdc_r11_grppath_default.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");

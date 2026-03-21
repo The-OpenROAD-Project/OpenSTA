@@ -17,6 +17,7 @@
 #include "ReportTcl.hh"
 #include "RiseFallMinMax.hh"
 #include "Variables.hh"
+#include "PocvMode.hh"
 #include "LibertyClass.hh"
 #include "Search.hh"
 #include "Path.hh"
@@ -1290,12 +1291,12 @@ TEST_F(StaDesignTest, IncrementalDelayTolerance) {
   }() ));
 }
 
-// --- Sta: pocvEnabled ---
+// --- Sta: pocvMode ---
 
-TEST_F(StaDesignTest, PocvEnabled) {
+TEST_F(StaDesignTest, PocvMode) {
   ASSERT_NO_THROW(( [&](){
-  bool enabled = sta_->pocvEnabled();
-  EXPECT_FALSE(enabled);
+  PocvMode mode = sta_->pocvMode();
+  EXPECT_EQ(mode, PocvMode::scalar);
 
   }() ));
 }

@@ -301,15 +301,15 @@ Path Type: max
 --- find_timing_paths with CRPR ---
 Warning 502: search_crpr.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 3 paths with CRPR
-  slack=7.3573676040439295e-9 crpr=0.0
-  slack=7.363725185172143e-9 crpr=0.0
-  slack=8.43751646328883e-9 crpr=0.0
+  slack=7.3573676040439295e-9
+  slack=7.363725185172143e-9
+  slack=8.43751646328883e-9
 --- find_timing_paths min with CRPR ---
 Warning 502: search_crpr.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 3 hold paths with CRPR
-  slack=-2.327258247225572e-10 crpr=-2.547686020482054e-12
-  slack=-2.3130949933225509e-10 crpr=-2.547686020482054e-12
-  slack=7.07958414114529e-10 crpr=-0.0
+  slack=-2.327258247225572e-10
+  slack=-2.3130949933225509e-10
+  slack=7.07958414114529e-10
 --- report_check_types ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)

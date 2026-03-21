@@ -922,7 +922,7 @@ Path Type: min
     }
   ],
   "data_arrival_time": 1.323e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 6.736e-12,
   "required_time": 5.834e-11,
   "slack": 7.392e-11
@@ -1016,7 +1016,7 @@ Path Type: min
   "target_clock": "clk2",
   "target_clock_edge": "rise",
   "data_arrival_time": 1.242e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": -2.000e-09,
   "required_time": -2.000e-09,
   "slack": 2.124e-09

@@ -80,21 +80,10 @@ Warning 502: search_report_path_detail.tcl line 1, find_timing_paths -endpoint_c
   data_arrival_time: 1.0028596009181712e-10
   check_role: output setup
   min_max: max
-  source_clk_offset: 0.0
   source_clk_latency: 0.0
-  source_clk_insertion_delay: 0.0
   target_clk: clk
   target_clk_edge exists: 1
-  target_clk_time: 9.99999993922529e-9
-  target_clk_offset: 9.99999993922529e-9
-  target_clk_mcp_adjustment: 0.0
   target_clk_delay: 0.0
-  target_clk_insertion_delay: 0.0
-  target_clk_uncertainty: -0.0
-  inter_clk_uncertainty: 0.0
-  target_clk_arrival: 9.99999993922529e-9
-  check_crpr: 0.0
-  target_clk_end_trans: ^
   clk_skew: 0.0
 --- Path methods ---
   arrival: 1.0028596009181712e-10

@@ -64,14 +64,14 @@ puts "--- find_timing_paths with CRPR ---"
 set paths [find_timing_paths -path_delay max -endpoint_count 5]
 puts "Found [llength $paths] paths"
 foreach pe $paths {
-  puts "  slack=[$pe slack] crpr=[$pe check_crpr] pin=[get_full_name [$pe pin]]"
+  puts "  slack=[$pe slack] pin=[get_full_name [$pe pin]]"
 }
 
 puts "--- find_timing_paths min with CRPR ---"
 set paths_min [find_timing_paths -path_delay min -endpoint_count 5]
 puts "Found [llength $paths_min] hold paths"
 foreach pe $paths_min {
-  puts "  slack=[$pe slack] crpr=[$pe check_crpr]"
+  puts "  slack=[$pe slack]"
 }
 
 puts "--- worst_slack by clock ---"

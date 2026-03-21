@@ -35,11 +35,6 @@ set_clock_uncertainty -fall_from [get_clocks {clk2}] -fall_to [get_clocks {clk1}
 set_sense -type clock -stop_propagation -clock [get_clocks {clk1}] [get_pins {and1/ZN}]
 set_sense -type clock -positive -clock [get_clocks {clk1}] [get_pins {buf1/Z}]
 set_sense -type clock -negative -clock [get_clocks {clk2}] [get_pins {inv1/ZN}]
-set_clock_groups -name group1 -asynchronous \
- -group [list [get_clocks {clk1}]\
-           [get_clocks {gclk1}]]\
- -group [list [get_clocks {clk2}]\
-           [get_clocks {gclk2}]]
 set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
 set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in2}]
 set_input_delay 2.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {in3}]

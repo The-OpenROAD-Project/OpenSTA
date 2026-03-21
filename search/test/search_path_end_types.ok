@@ -644,21 +644,16 @@ Found 12 paths
 Warning 502: search_path_end_types.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
   is_check: 1
   is_output_delay: 0
-  path_delay_margin_is_external: 0
   target_clk_path pin: reg1/CK
   is_check: 1
   is_output_delay: 0
-  path_delay_margin_is_external: 0
   target_clk_path pin: reg2/CK
   is_check: 0
   is_output_delay: 1
-  path_delay_margin_is_external: 0
   is_check: 0
   is_output_delay: 1
-  path_delay_margin_is_external: 0
   is_check: 0
   is_output_delay: 1
-  path_delay_margin_is_external: 0
 --- set_max_delay to create path_delay PathEnd ---
 No paths found.
 --- Multiple output delays on same pin ---

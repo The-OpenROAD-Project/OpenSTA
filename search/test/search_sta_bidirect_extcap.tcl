@@ -127,8 +127,8 @@ write_sdc $s_out
 ############################################################
 # pocv_enabled
 ############################################################
-puts "--- pocv_enabled ---"
-puts "pocv_enabled: [sta::pocv_enabled]"
+puts "--- pocv_mode ---"
+puts "pocv_mode: [sta::pocv_mode]"
 
 ############################################################
 # report_disabled_edges

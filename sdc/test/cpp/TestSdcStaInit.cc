@@ -184,7 +184,7 @@ TEST_F(SdcInitTest, ClockEdgeNameIndex) {
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ASSERT_NE(rise_edge, nullptr);
-  EXPECT_NE(rise_edge->name(), nullptr);
+  EXPECT_FALSE(rise_edge->name().empty());
   int idx = rise_edge->index();
   EXPECT_GE(idx, 0);
 }
@@ -428,7 +428,7 @@ TEST_F(SdcInitTest, MultiCyclePathPriorityMinMax) {
 // GroupPath name and isDefault
 TEST_F(SdcInitTest, GroupPathName) {
   GroupPath gp("test_group", true, nullptr, nullptr, nullptr, true, nullptr);
-  EXPECT_STREQ(gp.name(), "test_group");
+  EXPECT_EQ(gp.name(), "test_group");
   EXPECT_TRUE(gp.isDefault());
 }
 
@@ -502,7 +502,7 @@ TEST_F(SdcInitTest, GroupPathCloneAndCheck) {
   ExceptionPath *clone = gp.clone(nullptr, nullptr, nullptr, true);
   ASSERT_NE(clone, nullptr);
   EXPECT_TRUE(clone->isGroupPath());
-  EXPECT_STREQ(clone->name(), "grp");
+  EXPECT_EQ(clone->name(), "grp");
   delete clone;
 }
 
@@ -1252,8 +1252,8 @@ TEST_F(SdcInitTest, ClockEdgeTimeAccess) {
   EXPECT_FLOAT_EQ(fall_edge->time(), 5.0);
   EXPECT_EQ(rise_edge->clock(), clk);
   EXPECT_EQ(fall_edge->clock(), clk);
-  EXPECT_NE(rise_edge->name(), nullptr);
-  EXPECT_NE(fall_edge->name(), nullptr);
+  EXPECT_FALSE(rise_edge->name().empty());
+  EXPECT_FALSE(fall_edge->name().empty());
 }
 
 TEST_F(SdcInitTest, ClockMakeClock) {
@@ -1470,20 +1470,20 @@ TEST_F(SdcInitTest, LoopPathTighterThan) {
 
 TEST_F(SdcInitTest, GroupPathAsString) {
   GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, nullptr);
-  const char *str = gp.asString(sta_->cmdNetwork());
-  EXPECT_NE(str, nullptr);
+  std::string str = gp.to_string(sta_->cmdNetwork());
+  EXPECT_FALSE(str.empty());
 }
 
 TEST_F(SdcInitTest, FilterPathAsString) {
   FilterPath flp(nullptr, nullptr, nullptr, true);
-  const char *str = flp.asString(sta_->cmdNetwork());
-  EXPECT_NE(str, nullptr);
+  std::string str = flp.to_string(sta_->cmdNetwork());
+  EXPECT_FALSE(str.empty());
 }
 
 TEST_F(SdcInitTest, LoopPathAsString) {
   LoopPath lp(nullptr, true);
-  const char *str = lp.asString(sta_->cmdNetwork());
-  EXPECT_NE(str, nullptr);
+  std::string str = lp.to_string(sta_->cmdNetwork());
+  EXPECT_FALSE(str.empty());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1686,9 +1686,9 @@ TEST_F(SdcInitTest, VariablesAllToggles) {
   vars.setCrprEnabled(true);
   EXPECT_TRUE(vars.crprEnabled());
 
-  vars.setPocvEnabled(true);
+  vars.setPocvMode(PocvMode::normal);
   EXPECT_TRUE(vars.pocvEnabled());
-  vars.setPocvEnabled(false);
+  vars.setPocvMode(PocvMode::scalar);
   EXPECT_FALSE(vars.pocvEnabled());
 
   vars.setDynamicLoopBreaking(true);
@@ -2308,7 +2308,7 @@ TEST_F(SdcInitTest, GroupPathType) {
   GroupPath gp("test_group", false, nullptr, nullptr, nullptr, false, nullptr);
   EXPECT_TRUE(gp.isGroupPath());
   EXPECT_EQ(gp.type(), ExceptionPathType::group_path);
-  EXPECT_STREQ(gp.name(), "test_group");
+  EXPECT_EQ(gp.name(), "test_group");
   EXPECT_FALSE(gp.isDefault());
 }
 
@@ -2426,7 +2426,7 @@ TEST_F(SdcInitTest, ExceptionPathDelayDefault) {
 // ExceptionPath name default
 TEST_F(SdcInitTest, ExceptionPathNameDefault) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
-  EXPECT_EQ(fp.name(), nullptr);
+  EXPECT_EQ(fp.name(), "");
 }
 
 // ExceptionPath isDefault
@@ -2588,7 +2588,7 @@ TEST_F(SdcInitTest, ClockEdgeProperties2) {
   EXPECT_EQ(rise->clock(), clk);
   EXPECT_EQ(rise->transition(), RiseFall::rise());
   EXPECT_FLOAT_EQ(rise->time(), 0.0f);
-  EXPECT_NE(rise->name(), nullptr);
+  EXPECT_FALSE(rise->name().empty());
 }
 
 // ClockEdge opposite
@@ -3106,12 +3106,12 @@ TEST_F(SdcInitTest, VariablesUseDefaultArrivalClock) {
   EXPECT_FALSE(sta_->useDefaultArrivalClock());
 }
 
-// Variables pocvEnabled
+// Variables pocvMode
 TEST_F(SdcInitTest, VariablesPocvEnabled) {
-  sta_->setPocvEnabled(true);
-  EXPECT_TRUE(sta_->pocvEnabled());
-  sta_->setPocvEnabled(false);
-  EXPECT_FALSE(sta_->pocvEnabled());
+  sta_->setPocvMode(PocvMode::normal);
+  EXPECT_EQ(sta_->pocvMode(), PocvMode::normal);
+  sta_->setPocvMode(PocvMode::scalar);
+  EXPECT_EQ(sta_->pocvMode(), PocvMode::scalar);
 }
 
 // Variables crprEnabled

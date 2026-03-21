@@ -176,112 +176,112 @@ Total max paths: 16
     pin=reg1/RN role=recovery slack=9.553728474998024e-9
     margin=-5.372824407601229e-11 data_arr=4.999999858590343e-10 data_req=1.005372851636821e-8
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=reg2/RN role=recovery slack=9.553728474998024e-9
     margin=-5.372824407601229e-11 data_arr=4.999999858590343e-10 data_req=1.005372851636821e-8
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=1 is_check=0 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=clk_gate/A2 role=clock gating setup slack=9.499999897855105e-9
     margin=0.0 data_arr=4.999999858590343e-10 data_req=9.99999993922529e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=1 is_check=0 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=clk_gate/A2 role=clock gating setup slack=9.499999897855105e-9
     margin=0.0 data_arr=4.999999858590343e-10 data_req=9.99999993922529e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: v
     min_max: max
   type: is_gated=0 is_check=0 is_output=1 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=out1 role=output setup slack=7.881454600067173e-9
     margin=1.999999943436137e-9 data_arr=1.1854504877728544e-10 data_req=7.999999773744548e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=0 is_check=0 is_output=1 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=out2 role=output setup slack=7.885596176038234e-9
     margin=1.999999943436137e-9 data_arr=1.1440334790613349e-10 data_req=7.999999773744548e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=0 is_check=0 is_output=1 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=out1 role=output setup slack=7.892997366809595e-9
     margin=1.999999943436137e-9 data_arr=1.0700216407366625e-10 data_req=7.999999773744548e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: v
     min_max: max
   type: is_gated=0 is_check=0 is_output=1 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=out2 role=output setup slack=7.895866183105227e-9
     margin=1.999999943436137e-9 data_arr=1.0413332002245923e-10 data_req=7.999999773744548e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: v
     min_max: max
   type: is_gated=0 is_check=0 is_output=1 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=out3 role=output setup slack=7.914771948946964e-9
     margin=1.999999943436137e-9 data_arr=8.522769295860044e-11 data_req=7.999999773744548e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: v
     min_max: max
   type: is_gated=0 is_check=0 is_output=1 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=out3 role=output setup slack=7.92035237395794e-9
     margin=1.999999943436137e-9 data_arr=7.964784387581858e-11 data_req=7.999999773744548e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=reg1/D role=setup slack=8.908846105271095e-9
     margin=3.831846298596453e-11 data_arr=1.0528351523930723e-9 data_req=9.961681257664168e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: v
     min_max: max
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=reg1/D role=setup slack=8.909343485186128e-9
     margin=3.18987544711824e-11 data_arr=1.0587571930287254e-9 data_req=9.96810101128176e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=reg1/D role=setup slack=8.91013662851492e-9
     margin=3.831846298596453e-11 data_arr=1.0515442960823407e-9 data_req=9.961681257664168e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: v
     min_max: max
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=reg1/D role=setup slack=8.911564819413798e-9
     margin=3.18987544711824e-11 data_arr=1.0565358588010554e-9 data_req=9.96810101128176e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=reg2/D role=setup slack=9.865935624020494e-9
     margin=3.3475701377572165e-11 data_arr=1.0058853056049699e-10 data_req=9.966524494586793e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: ^
     min_max: max
   type: is_gated=0 is_check=1 is_output=0 is_latch=0 is_data=0 is_path_delay=0 is_uncon=0
     pin=reg2/D role=setup slack=9.875192219510609e-9
     margin=3.9929969053442704e-11 data_arr=8.487754249442148e-11 data_req=9.960070102010832e-9
     target_clk: clk
-    target_clk_time: 9.99999993922529e-9
+    target_clk_delay: 0.0
     end_transition: v
     min_max: max
 --- Gated clock all formats ---

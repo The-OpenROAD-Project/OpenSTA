@@ -4,7 +4,7 @@
 
 #include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
-#include "DelayFloat.hh"
+#include "Delay.hh"
 #include "dcalc/FindRoot.hh"
 
 namespace sta {

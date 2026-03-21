@@ -51,7 +51,7 @@ set paths [find_timing_paths -path_delay max -endpoint_count 3]
 foreach pe $paths {
   puts "  is_check: [$pe is_check]"
   puts "  is_output_delay: [$pe is_output_delay]"
-  puts "  path_delay_margin_is_external: [$pe path_delay_margin_is_external]"
+  # path_delay_margin_is_external removed from SWIG interface
   set tclkp [$pe target_clk_path]
   if { $tclkp != "NULL" } {
     puts "  target_clk_path pin: [get_full_name [$tclkp pin]]"
@@ -64,7 +64,7 @@ report_checks -path_delay max -from [get_ports in1] -to [get_ports out1] -format
 set paths_pd [find_timing_paths -from [get_ports in1] -to [get_ports out1] -path_delay max]
 foreach pe $paths_pd {
   puts "  is_path_delay: [$pe is_path_delay]"
-  puts "  path_delay_margin_is_external: [$pe path_delay_margin_is_external]"
+  # path_delay_margin_is_external removed from SWIG interface
 }
 unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 

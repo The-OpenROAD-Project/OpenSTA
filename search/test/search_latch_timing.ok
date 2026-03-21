@@ -431,7 +431,7 @@ latch1/Q (DFF_X1)                    reg1/D (DFF_X1)                         0.0
     }
   ],
   "data_arrival_time": 5.291e-11,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 6.024e-12,
   "required_time": 6.024e-12,
   "slack": 4.688e-11

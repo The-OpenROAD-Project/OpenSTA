@@ -63,13 +63,8 @@ puts "Found [llength $paths] max paths"
 foreach pe $paths {
   puts "  check=[$pe is_check] latch=[$pe is_latch_check] out=[$pe is_output_delay] gated=[$pe is_gated_clock] data=[$pe is_data_check] unconst=[$pe is_unconstrained] role=[$pe check_role]"
   puts "  margin=[$pe margin] req=[$pe data_required_time] arr=[$pe data_arrival_time]"
-  puts "  target_clk=[get_name [$pe target_clk]] target_time=[$pe target_clk_time]"
-  puts "  src_offset=[$pe source_clk_offset] tgt_offset=[$pe target_clk_offset]"
+  puts "  target_clk=[get_name [$pe target_clk]]"
   puts "  target_clk_delay=[$pe target_clk_delay]"
-  puts "  target_clk_insertion_delay=[$pe target_clk_insertion_delay]"
-  puts "  target_clk_uncertainty=[$pe target_clk_uncertainty]"
-  puts "  inter_clk_uncertainty=[$pe inter_clk_uncertainty]"
-  puts "  check_crpr=[$pe check_crpr]"
   puts "  clk_skew=[$pe clk_skew]"
 }
 
@@ -111,7 +106,6 @@ foreach pe $paths_g {
   puts "  gated=[$pe is_gated_clock] check=[$pe is_check] role=[$pe check_role] slack=[$pe slack]"
   puts "  margin=[$pe margin]"
   puts "  target_clk_delay=[$pe target_clk_delay]"
-  puts "  target_clk_insertion_delay=[$pe target_clk_insertion_delay]"
 }
 
 puts "--- Gated clock report all formats ---"
@@ -152,8 +146,6 @@ foreach pe $paths_od {
   puts "  out=[$pe is_output_delay] check=[$pe is_check] role=[$pe check_role] slack=[$pe slack]"
   puts "  margin=[$pe margin] req=[$pe data_required_time]"
   puts "  target_clk_delay=[$pe target_clk_delay]"
-  puts "  target_clk_insertion_delay=[$pe target_clk_insertion_delay]"
-  puts "  target_clk_uncertainty=[$pe target_clk_uncertainty]"
 }
 
 puts "--- Output delay report all formats ---"
@@ -201,7 +193,6 @@ foreach pe $paths_dc {
   puts "  data=[$pe is_data_check] check=[$pe is_check] role=[$pe check_role] slack=[$pe slack]"
   puts "  margin=[$pe margin]"
   puts "  target_clk_delay=[$pe target_clk_delay]"
-  puts "  target_clk_uncertainty=[$pe target_clk_uncertainty]"
 }
 
 puts "--- Data check report all formats ---"

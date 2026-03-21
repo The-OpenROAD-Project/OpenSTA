@@ -72,7 +72,6 @@ foreach pe $paths_max {
   puts "  margin: [$pe margin]"
   puts "  source_clk_latency: [$pe source_clk_latency]"
   puts "  target_clk_delay: [$pe target_clk_delay]"
-  puts "  target_clk_uncertainty: [$pe target_clk_uncertainty]"
 }
 
 ############################################################

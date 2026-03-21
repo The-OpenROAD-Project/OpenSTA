@@ -141,17 +141,17 @@ Fanout 2 inst levels of and2/ZN: 5
   inv1/ZN
 === VERTEX/PIN QUERIES ===
 --- Pin arrival ---
- (clk ^) r 1.13:1.14 f 1.13:1.16
- (clk ^) r 0.08:0.08 f 0.08:0.08
- (clk ^) r 1.02:1.03 f 1.02:1.02
- (clk ^) r 1.00:1.00 f 1.00:1.00
- (clk ^) r 0.10:0.10 f 0.10:0.10
+(clk ^) r 1.13:1.14 f 1.13:1.16
+(clk ^) r 0.08:0.08 f 0.08:0.08
+(clk ^) r 1.02:1.03 f 1.02:1.02
+(clk ^) r 1.00:1.00 f 1.00:1.00
+(clk ^) r 0.10:0.10 f 0.10:0.10
 --- Pin required ---
- (clk ^) r 0.00:9.97 f 0.00:9.96
- (clk ^) r -2.00:8.00 f -2.00:8.00
+(clk ^) r 0.00:9.97 f 0.00:9.96
+(clk ^) r -2.00:8.00 f -2.00:8.00
 --- Pin slack ---
- (clk ^) r 1.12:8.83 f 1.13:8.80
- (clk ^) r 2.10:7.90 f 2.10:7.90
+(clk ^) r 1.12:8.83 f 1.13:8.80
+(clk ^) r 2.10:7.90 f 2.10:7.90
 --- Pin slack various ---
 and1/ZN max rise slack: 8.831884
 inv2/ZN min fall slack: 1.130790

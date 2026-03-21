@@ -303,11 +303,11 @@ TEST_F(StaInitTest, CrprMode) {
   EXPECT_EQ(sta_->crprMode(), CrprMode::same_transition);
 }
 
-TEST_F(StaInitTest, PocvEnabled) {
-  sta_->setPocvEnabled(true);
-  EXPECT_TRUE(sta_->pocvEnabled());
-  sta_->setPocvEnabled(false);
-  EXPECT_FALSE(sta_->pocvEnabled());
+TEST_F(StaInitTest, PocvMode) {
+  sta_->setPocvMode(PocvMode::normal);
+  EXPECT_EQ(sta_->pocvMode(), PocvMode::normal);
+  sta_->setPocvMode(PocvMode::scalar);
+  EXPECT_EQ(sta_->pocvMode(), PocvMode::scalar);
 }
 
 TEST_F(StaInitTest, PropagateGatedClockEnable) {
@@ -418,15 +418,7 @@ TEST_F(StaInitTest, SetReportPathNoSplit) {
   ASSERT_NO_THROW(sta_->setReportPathNoSplit(false));
 }
 
-TEST_F(StaInitTest, SetReportPathSigmas) {
-  ReportPath *rpt = sta_->reportPath();
-  ASSERT_NE(rpt, nullptr);
-
-  sta_->setReportPathSigmas(true);
-  EXPECT_TRUE(rpt->reportSigmas());
-  sta_->setReportPathSigmas(false);
-  EXPECT_FALSE(rpt->reportSigmas());
-}
+// SetReportPathSigmas test removed: setReportPathSigmas/reportSigmas API removed
 
 TEST_F(StaInitTest, SetReportPathFields) {
   ReportPath *rpt = sta_->reportPath();
@@ -440,13 +432,13 @@ TEST_F(StaInitTest, SetReportPathFields) {
   ASSERT_NE(fanout_field, nullptr);
   ASSERT_NE(src_attr_field, nullptr);
 
-  sta_->setReportPathFields(true, true, true, true, true, true, true);
+  sta_->setReportPathFields(true, true, true, true, true, true, true, true);
   EXPECT_TRUE(cap_field->enabled());
   EXPECT_TRUE(slew_field->enabled());
   EXPECT_TRUE(fanout_field->enabled());
   EXPECT_TRUE(src_attr_field->enabled());
 
-  sta_->setReportPathFields(false, false, false, false, false, false, false);
+  sta_->setReportPathFields(false, false, false, false, false, false, false, false);
   EXPECT_FALSE(cap_field->enabled());
   EXPECT_FALSE(slew_field->enabled());
   EXPECT_FALSE(fanout_field->enabled());
@@ -626,10 +618,7 @@ TEST_F(StaInitTest, IncrementalDelayTolerance) {
   EXPECT_FLOAT_EQ(gdc->incrementalDelayTolerance(), 0.01f);
 }
 
-// Sigma factor for statistical timing
-TEST_F(StaInitTest, SigmaFactor) {
-  ASSERT_NO_THROW(sta_->setSigmaFactor(3.0));
-}
+// SigmaFactor test removed: setSigmaFactor API removed
 
 // Properties
 TEST_F(StaInitTest, PropertiesAccess) {
@@ -764,13 +753,7 @@ TEST_F(StaInitTest, SetParasiticAnalysisPts) {
   // setParasiticAnalysisPts removed from API
 }
 
-// Remove all clock groups
-TEST_F(StaInitTest, RemoveClockGroupsNull) {
-  ASSERT_NO_THROW((sta_->removeClockGroupsLogicallyExclusive(nullptr, sta_->cmdSdc()), sta_->cmdSdc()));
-  ASSERT_NO_THROW((sta_->removeClockGroupsPhysicallyExclusive(nullptr, sta_->cmdSdc())));
-  ASSERT_NO_THROW((sta_->removeClockGroupsAsynchronous(nullptr, sta_->cmdSdc())));
-  EXPECT_NE(sta_->cmdSdc(), nullptr);
-}
+// RemoveClockGroupsNull removed — nullptr now throws std::logic_error
 
 // FindReportPathField
 TEST_F(StaInitTest, FindReportPathField) {
@@ -1109,11 +1092,11 @@ TEST_F(StaInitTest, VariablesComprehensive) {
   vars->setCrprMode(CrprMode::same_transition);
   EXPECT_EQ(vars->crprMode(), CrprMode::same_transition);
 
-  // POCV
-  vars->setPocvEnabled(true);
-  EXPECT_TRUE(vars->pocvEnabled());
-  vars->setPocvEnabled(false);
-  EXPECT_FALSE(vars->pocvEnabled());
+  // POCV mode
+  vars->setPocvMode(PocvMode::normal);
+  EXPECT_EQ(vars->pocvMode(), PocvMode::normal);
+  vars->setPocvMode(PocvMode::scalar);
+  EXPECT_EQ(vars->pocvMode(), PocvMode::scalar);
 
   // Gate clk propagation
   vars->setPropagateGatedClockEnable(true);
@@ -1379,13 +1362,7 @@ TEST_F(StaInitTest, CornerParasiticAnalysisPt) {
   EXPECT_NE(corner, nullptr);
 }
 
-// SigmaFactor through StaState
-TEST_F(StaInitTest, SigmaFactorViaStaState) {
-  sta_->setSigmaFactor(2.5);
-  // sigma_factor is stored in StaState
-  float sigma = sta_->sigmaFactor();
-  EXPECT_FLOAT_EQ(sigma, 2.5);
-}
+// SigmaFactorViaStaState test removed: setSigmaFactor/sigmaFactor API removed
 
 // ThreadCount through StaState
 TEST_F(StaInitTest, ThreadCountStaState) {
@@ -1637,18 +1614,12 @@ TEST_F(StaInitTest, ReportPathNoSplit) {
 
 }
 
-TEST_F(StaInitTest, ReportPathReportSigmas) {
-  ReportPath *rpt = sta_->reportPath();
-  rpt->setReportSigmas(true);
-  EXPECT_TRUE(rpt->reportSigmas());
-  rpt->setReportSigmas(false);
-  EXPECT_FALSE(rpt->reportSigmas());
-}
+// ReportPathReportSigmas test removed: setReportSigmas/reportSigmas API removed
 
 TEST_F(StaInitTest, ReportPathSetReportFields) {
   ReportPath *rpt = sta_->reportPath();
-  rpt->setReportFields(true, true, true, true, true, true, true);
-  rpt->setReportFields(false, false, false, false, false, false, false);
+  rpt->setReportFields(true, true, true, true, true, true, true, true);
+  rpt->setReportFields(false, false, false, false, false, false, false, false);
 
 }
 
@@ -2466,23 +2437,7 @@ TEST_F(StaInitTest, StaUpdateGeneratedClks) {
 
 }
 
-TEST_F(StaInitTest, StaRemoveClockGroupsLogicallyExclusive) {
-  sta_->removeClockGroupsLogicallyExclusive(nullptr, sta_->cmdSdc());
-  // No crash
-
-}
-
-TEST_F(StaInitTest, StaRemoveClockGroupsPhysicallyExclusive) {
-  sta_->removeClockGroupsPhysicallyExclusive(nullptr, sta_->cmdSdc());
-  // No crash
-
-}
-
-TEST_F(StaInitTest, StaRemoveClockGroupsAsynchronous) {
-  sta_->removeClockGroupsAsynchronous(nullptr, sta_->cmdSdc());
-  // No crash
-
-}
+// StaRemoveClockGroups* tests removed — nullptr now throws std::logic_error
 
 // Sta.cc - more search-related functions
 TEST_F(StaInitTest, StaFindLogicConstants) {
@@ -2926,21 +2881,17 @@ TEST_F(StaInitTest, StaSetCrprModeVal) {
   EXPECT_EQ(sta_->crprMode(), CrprMode::same_pin);
 }
 
-TEST_F(StaInitTest, StaPocvEnabledAccess) {
-  sta_->pocvEnabled();
+TEST_F(StaInitTest, StaPocvModeAccess) {
+  sta_->pocvMode();
 }
 
-TEST_F(StaInitTest, StaSetPocvEnabled) {
-  sta_->setPocvEnabled(true);
-  EXPECT_TRUE(sta_->pocvEnabled());
-  sta_->setPocvEnabled(false);
+TEST_F(StaInitTest, StaSetPocvMode2) {
+  sta_->setPocvMode(PocvMode::normal);
+  EXPECT_EQ(sta_->pocvMode(), PocvMode::normal);
+  sta_->setPocvMode(PocvMode::scalar);
 }
 
-TEST_F(StaInitTest, StaSetSigmaFactor) {
-  sta_->setSigmaFactor(1.0f);
-  // No crash
-
-}
+// StaSetSigmaFactor test removed: setSigmaFactor API removed
 
 TEST_F(StaInitTest, StaPropagateGatedClockEnable) {
   sta_->propagateGatedClockEnable();
@@ -4133,7 +4084,7 @@ TEST_F(StaInitTest, PathLessAllFunction) {
 
 // --- Path.cc: Path::init overloads ---
 TEST_F(StaInitTest, PathInitFloatExists) {
-  auto fn = static_cast<void (Path::*)(Vertex*, float, const StaState*)>(&Path::init);
+  auto fn = static_cast<void (Path::*)(Vertex*, const Arrival&, const StaState*)>(&Path::init);
   expectCallablePointerUsable(fn);
 }
 
@@ -4249,8 +4200,8 @@ TEST_F(StaInitTest, StaMultiCorner2) {
   sta_->multiScene();
 }
 
-TEST_F(StaInitTest, StaPocvEnabled) {
-  sta_->pocvEnabled();
+TEST_F(StaInitTest, StaPocvMode3) {
+  sta_->pocvMode();
 }
 
 TEST_F(StaInitTest, StaPresetClrArcsEnabled2) {
@@ -4338,10 +4289,10 @@ TEST_F(StaInitTest, StaSetGatedClkChecksEnabled2) {
   sta_->setGatedClkChecksEnabled(false);
 }
 
-TEST_F(StaInitTest, StaSetPocvEnabled2) {
-  sta_->setPocvEnabled(true);
-  EXPECT_TRUE(sta_->pocvEnabled());
-  sta_->setPocvEnabled(false);
+TEST_F(StaInitTest, StaSetPocvMode3) {
+  sta_->setPocvMode(PocvMode::normal);
+  EXPECT_EQ(sta_->pocvMode(), PocvMode::normal);
+  sta_->setPocvMode(PocvMode::scalar);
 }
 
 TEST_F(StaInitTest, StaSetPresetClrArcsEnabled2) {
@@ -4379,10 +4330,7 @@ TEST_F(StaInitTest, StaSetIncrementalDelayTolerance) {
 
 }
 
-TEST_F(StaInitTest, StaSetSigmaFactor2) {
-  sta_->setSigmaFactor(1.5f);
-
-}
+// StaSetSigmaFactor2 test removed: setSigmaFactor API removed
 
 TEST_F(StaInitTest, StaSetReportPathDigits) {
   sta_->setReportPathDigits(4);
@@ -4400,11 +4348,7 @@ TEST_F(StaInitTest, StaSetReportPathNoSplit) {
 
 }
 
-TEST_F(StaInitTest, StaSetReportPathSigmas) {
-  sta_->setReportPathSigmas(true);
-  sta_->setReportPathSigmas(false);
-
-}
+// StaSetReportPathSigmas test removed: setReportPathSigmas API removed
 
 TEST_F(StaInitTest, StaSetMaxArea) {
   sta_->setMaxArea(100.0f, sta_->cmdSdc());

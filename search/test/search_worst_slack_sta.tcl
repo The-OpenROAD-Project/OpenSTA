@@ -135,15 +135,8 @@ set pwr [sta::design_power [sta::cmd_scene]]
 puts "design_power: $pwr"
 
 puts "--- set_report_path_field_properties ---"
-sta::set_report_path_field_properties "delay" "Dly" 10 0
+sta::set_report_path_field_properties "delay" "Dly" 12 0
 report_checks -path_delay max > /dev/null
-sta::set_report_path_field_width "delay" 12
-report_checks -path_delay max > /dev/null
-
-puts "--- set_report_path_sigmas ---"
-sta::set_report_path_sigmas 1
-report_checks -path_delay max > /dev/null
-sta::set_report_path_sigmas 0
 
 puts "--- set_report_path_no_split ---"
 sta::set_report_path_no_split 1
@@ -153,7 +146,7 @@ sta::set_report_path_no_split 0
 puts "--- graph loops ---"
 
 puts "--- pocv ---"
-puts "pocv_enabled: [sta::pocv_enabled]"
+puts "pocv_mode: [sta::pocv_mode]"
 
 puts "--- report_annotated_delay ---"
 report_annotated_delay

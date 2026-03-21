@@ -142,11 +142,11 @@ report_checks
 # Clock groups without explicit name (auto-naming)
 ############################################################
 
-set_clock_groups -asynchronous \
+set_clock_groups -asynchronous -name auto_async \
   -group {clk1 gclk1} \
   -group {clk2 gclk2}
 
-unset_clock_groups -asynchronous -all
+unset_clock_groups -asynchronous -name auto_async
 
 ############################################################
 # Propagated clock on pins

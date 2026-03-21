@@ -224,7 +224,7 @@ TEST_F(StaInitTest, StaReportPathEndFooter2) {
 
 TEST_F(StaInitTest, StaSetReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-    sta_->setReportPathFields(true, true, true, true, true, true, true);
+    sta_->setReportPathFields(true, true, true, true, true, true, true, true);
   }() ));
 }
 
@@ -1720,8 +1720,8 @@ TEST_F(StaInitTest, SearchClassConstants2) {
 TEST_F(StaInitTest, ReportPathSetReportFields2) {
   ASSERT_NO_THROW(( [&](){
     ReportPath *rpt = sta_->reportPath();
-    rpt->setReportFields(true, true, true, true, true, true, true);
-    rpt->setReportFields(false, false, false, false, false, false, false);
+    rpt->setReportFields(true, true, true, true, true, true, true, true);
+    rpt->setReportFields(false, false, false, false, false, false, false, false);
   }() ));
 }
 
@@ -1733,7 +1733,7 @@ TEST_F(StaInitTest, MaxSkewCheckSkewZero) {
   clk_path.setArrival(0.0f);
   ref_path.setArrival(0.0f);
   MaxSkewCheck check(&clk_path, &ref_path, nullptr, nullptr);
-  Delay s = check.skew();
+  Delay s = check.skew(sta_);
   EXPECT_FLOAT_EQ(s, 0.0f);
 }
 
@@ -1745,7 +1745,7 @@ TEST_F(StaInitTest, MaxSkewCheckSkewNonZero) {
   clk_path.setArrival(5.0f);
   ref_path.setArrival(3.0f);
   MaxSkewCheck check(&clk_path, &ref_path, nullptr, nullptr);
-  Delay s = check.skew();
+  Delay s = check.skew(sta_);
   EXPECT_FLOAT_EQ(s, 2.0f);
 }
 
@@ -1830,19 +1830,9 @@ TEST_F(StaInitTest, ReportPathSetDigits) {
   rpt->setDigits(3);  // restore default
 }
 
-TEST_F(StaInitTest, ReportPathReportSigmas2) {
-  ReportPath *rpt = sta_->reportPath();
-  bool sigmas = rpt->reportSigmas();
-  // Default should be false
-  EXPECT_FALSE(sigmas);
-}
+// ReportPathReportSigmas2 test removed: reportSigmas API removed
 
-TEST_F(StaInitTest, ReportPathSetReportSigmas) {
-  ReportPath *rpt = sta_->reportPath();
-  rpt->setReportSigmas(true);
-  EXPECT_TRUE(rpt->reportSigmas());
-  rpt->setReportSigmas(false);
-}
+// ReportPathSetReportSigmas test removed: setReportSigmas/reportSigmas API removed
 
 TEST_F(StaInitTest, ReportPathPathFormat) {
   ReportPath *rpt = sta_->reportPath();
@@ -1914,8 +1904,8 @@ TEST_F(StaInitTest, ReportPathSetReportFieldsPublic) {
   ASSERT_NO_THROW(( [&](){
     ReportPath *rpt = sta_->reportPath();
     // Call setReportFields with various combinations
-    rpt->setReportFields(true, false, false, false, true, false, false);
-    rpt->setReportFields(true, true, true, true, true, true, true);
+    rpt->setReportFields(true, false, false, false, true, false, false, false);
+    rpt->setReportFields(true, true, true, true, true, true, true, true);
     expectStaCoreState(sta_);
   }() ));
 }
@@ -2583,15 +2573,7 @@ TEST_F(StaInitTest, ReportPathSetNoSplit2) {
   }() ));
 }
 
-// === ReportPath: setReportSigmas ===
-
-TEST_F(StaInitTest, ReportPathSetReportSigmas2) {
-  ReportPath *rpt = sta_->reportPath();
-  bool sigmas = rpt->reportSigmas();
-  rpt->setReportSigmas(!sigmas);
-  EXPECT_NE(rpt->reportSigmas(), sigmas);
-  rpt->setReportSigmas(sigmas);
-}
+// ReportPathSetReportSigmas2 test removed: setReportSigmas/reportSigmas API removed
 
 // === ReportPath: findField ===
 

@@ -153,7 +153,7 @@
     }
   ],
   "data_arrival_time": 5.291e-11,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 6.024e-12,
   "required_time": 6.024e-12,
   "slack": 4.688e-11
@@ -373,103 +373,53 @@ Warning 502: search_report_json_formats.tcl line 1, find_timing_paths -endpoint_
 Found 10 max paths
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=5.49663405069456e-11 req=1.106064906331028e-9 arr=1.106064906331028e-9
-  target_clk=clk target_time=0.0
-  src_offset=0.0 tgt_offset=0.0
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=1.631178005168099e-11 req=1.081046252515705e-9 arr=1.081046252515705e-9
-  target_clk=clk target_time=0.0
-  src_offset=0.0 tgt_offset=0.0
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=5.264827462880817e-11 req=1.0477667622410536e-9 arr=1.0477667622410536e-9
-  target_clk=clk target_time=0.0
-  src_offset=0.0 tgt_offset=0.0
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=5.264827462880817e-11 req=1.0455454280133836e-9 arr=1.0455454280133836e-9
-  target_clk=clk target_time=0.0
-  src_offset=0.0 tgt_offset=0.0
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=1.5100346320573443e-11 req=1.044742847788882e-9 arr=1.044742847788882e-9
-  target_clk=clk target_time=0.0
-  src_offset=0.0 tgt_offset=0.0
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=1.5100346320573443e-11 req=1.0434519914781504e-9 arr=1.0434519914781504e-9
-  target_clk=clk target_time=0.0
-  src_offset=0.0 tgt_offset=0.0
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=5.49663405069456e-11 req=5.6313842478061815e-11 arr=5.6313842478061815e-11
-  target_clk=clk target_time=0.0
-  src_offset=0.0 tgt_offset=0.0
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=1 out=0 gated=0 data=0 unconst=0 role=latch setup
   margin=1.631178005168099e-11 req=5.290530860624365e-11 arr=5.290530860624365e-11
-  target_clk=clk target_time=0.0
-  src_offset=0.0 tgt_offset=0.0
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=0 out=1 gated=0 data=0 unconst=0 role=output setup
   margin=1.999999943436137e-9 req=7.999999773744548e-9 arr=1.1867781202212768e-9
-  target_clk=clk target_time=9.99999993922529e-9
-  src_offset=0.0 tgt_offset=9.99999993922529e-9
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
   check=0 latch=0 out=1 gated=0 data=0 unconst=0 role=output setup
   margin=1.999999943436137e-9 req=7.999999773744548e-9 arr=1.1316151349305414e-9
-  target_clk=clk target_time=9.99999993922529e-9
-  src_offset=0.0 tgt_offset=9.99999993922529e-9
+  target_clk=clk
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
-  inter_clk_uncertainty=0.0
-  check_crpr=0.0
   clk_skew=0.0
 --- Latch report with fields ---
 Startpoint: latch1 (positive level-sensitive latch clocked by clk)
@@ -772,7 +722,7 @@ Path Type: max
     }
   ],
   "data_arrival_time": 5.000e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 0.000e+00,
   "required_time": 5.000e-09,
   "slack": -4.500e-09
@@ -866,7 +816,7 @@ Path Type: max
     }
   ],
   "data_arrival_time": 1.017e-09,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 4.881e-12,
   "required_time": 4.881e-12,
   "slack": 1.012e-09
@@ -989,27 +939,21 @@ Found 6 gated paths
   gated=1 check=0 role=clock gating setup slack=9.499999897855105e-9
   margin=0.0
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
   gated=1 check=0 role=clock gating setup slack=9.499999897855105e-9
   margin=0.0
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
   gated=0 check=0 role=output setup slack=7.899713772019368e-9
   margin=1.999999943436137e-9
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
   gated=0 check=0 role=output setup slack=7.901434173618327e-9
   margin=1.999999943436137e-9
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
   gated=0 check=1 role=setup slack=8.939980311595264e-9
   margin=3.877912227445712e-11
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
   gated=0 check=1 role=setup slack=8.952572017051352e-9
   margin=3.072002721649092e-11
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
 --- Gated clock report all formats ---
 Startpoint: en (input port clocked by clk)
 Endpoint: clk_gate (rising clock gating-check end-point clocked by clk)
@@ -1252,7 +1196,7 @@ clk                                     7.90
   "target_clock": "clk",
   "target_clock_edge": "rise",
   "data_arrival_time": 9.857e-11,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": -8.000e-09,
   "required_time": -8.000e-09,
   "slack": 8.099e-09
@@ -1320,13 +1264,9 @@ Found 2 output delay paths
   out=1 check=0 role=output setup slack=1.8997141637555615e-9
   margin=7.999999773744548e-9 req=2.000000165480742e-9
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
   out=1 check=0 role=output setup slack=1.9014345653545206e-9
   margin=7.999999773744548e-9 req=2.000000165480742e-9
   target_clk_delay=0.0
-  target_clk_insertion_delay=0.0
-  target_clk_uncertainty=-0.0
 --- Output delay report all formats ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
@@ -1669,7 +1609,7 @@ clk                                     1.90
     }
   ],
   "data_arrival_time": 5.000e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 1.814e-10,
   "required_time": 1.814e-10,
   "slack": 3.186e-10
@@ -1765,7 +1705,7 @@ clk                                     1.90
     }
   ],
   "data_arrival_time": 8.488e-11,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 2.672e-12,
   "required_time": 2.672e-12,
   "slack": 8.221e-11
@@ -1889,83 +1829,63 @@ Found 20 data check paths
   data=0 check=1 role=recovery slack=9.553728474998024e-9
   margin=-5.372824407601229e-11
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=1 role=recovery slack=9.553728474998024e-9
   margin=-5.372824407601229e-11
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=1 check=0 role=data check setup slack=-5.278119719065444e-9
   margin=1.9999998879249858e-10
   target_clk_delay=2.2468693572363918e-11
-  target_clk_uncertainty=-0.0
   data=1 check=0 role=data check setup slack=-5.262408730999368e-9
   margin=1.9999998879249858e-10
   target_clk_delay=2.2468693572363918e-11
-  target_clk_uncertainty=-0.0
   data=1 check=0 role=data check setup slack=-2.760924822098332e-10
   margin=1.9999998879249858e-10
   target_clk_delay=2.4496025000098065e-11
-  target_clk_uncertainty=-0.0
   data=1 check=0 role=data check setup slack=-2.6038149414375766e-10
   margin=1.9999998879249858e-10
   target_clk_delay=2.4496025000098065e-11
-  target_clk_uncertainty=-0.0
   data=1 check=0 role=data check setup slack=2.2410170941178365e-10
   margin=1.9999998879249858e-10
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=1 check=0 role=data check setup slack=2.3981269747785916e-10
   margin=1.9999998879249858e-10
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=0 role=output setup slack=7.881454600067173e-9
   margin=1.999999943436137e-9
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=0 role=output setup slack=7.885596176038234e-9
   margin=1.999999943436137e-9
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=0 role=output setup slack=7.892997366809595e-9
   margin=1.999999943436137e-9
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=0 role=output setup slack=7.895866183105227e-9
   margin=1.999999943436137e-9
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=0 role=output setup slack=7.914771948946964e-9
   margin=1.999999943436137e-9
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=0 role=output setup slack=7.92035237395794e-9
   margin=1.999999943436137e-9
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=1 role=setup slack=8.908846105271095e-9
   margin=3.831846298596453e-11
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=1 role=setup slack=8.909343485186128e-9
   margin=3.18987544711824e-11
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=1 role=setup slack=8.91013662851492e-9
   margin=3.831846298596453e-11
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=1 role=setup slack=8.911564819413798e-9
   margin=3.18987544711824e-11
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=1 role=setup slack=9.865935624020494e-9
   margin=3.3475701377572165e-11
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
   data=0 check=1 role=setup slack=9.875192219510609e-9
   margin=3.9929969053442704e-11
   target_clk_delay=0.0
-  target_clk_uncertainty=-0.0
 --- Data check report all formats ---
 Startpoint: rst (input port clocked by clk)
 Endpoint: reg1 (recovery check against rising-edge clock clk)

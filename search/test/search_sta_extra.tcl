@@ -50,14 +50,8 @@ report_checks -slack_min -10 -path_delay max
 report_checks -slack_max 100 -slack_min -100 -path_delay max
 
 puts "--- set_report_path_field_properties ---"
-sta::set_report_path_field_properties "delay" "Delay" 10 0
-sta::set_report_path_field_width "delay" 12
+sta::set_report_path_field_properties "delay" "Delay" 12 0
 report_checks -path_delay max
-
-puts "--- set_report_path_sigmas ---"
-sta::set_report_path_sigmas 1
-report_checks -path_delay max
-sta::set_report_path_sigmas 0
 
 puts "--- find_timing_paths with recovery/removal/gating_setup/gating_hold ---"
 sta::set_recovery_removal_checks_enabled 1
@@ -109,7 +103,7 @@ foreach edge $edges {
   foreach tarc $tarcs {
     set delays [$edge arc_delays $tarc]
     puts "arc_delays count: [llength $delays]"
-    set dstrs [$edge arc_delay_strings $tarc 3]
+    set dstrs [$edge arc_delay_strings $tarc 0 3]
     puts "arc_delay_strings count: [llength $dstrs]"
     set corner2 [sta::cmd_scene]
     puts "delay_annotated: [$edge delay_annotated $tarc $corner2 max]"
@@ -157,8 +151,8 @@ set and_cell2 [get_lib_cells NangateOpenCellLibrary/AND2_X1]
 sta::make_instance new_inst $and_cell2
 puts "make_instance: done"
 
-puts "--- pocv_enabled ---"
-puts "pocv_enabled: [sta::pocv_enabled]"
+puts "--- pocv_mode ---"
+puts "pocv_mode: [sta::pocv_mode]"
 
 puts "--- report_checks -summary format ---"
 report_checks -path_delay max -format summary

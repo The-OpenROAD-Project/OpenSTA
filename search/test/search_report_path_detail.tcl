@@ -64,9 +64,7 @@ foreach pe $path_ends {
   puts "  data_arrival_time: [$pe data_arrival_time]"
   puts "  check_role: [$pe check_role]"
   puts "  min_max: [$pe min_max]"
-  puts "  source_clk_offset: [$pe source_clk_offset]"
   puts "  source_clk_latency: [$pe source_clk_latency]"
-  puts "  source_clk_insertion_delay: [$pe source_clk_insertion_delay]"
   set tclk [$pe target_clk]
   if { $tclk != "NULL" } {
     puts "  target_clk: [get_name $tclk]"
@@ -75,16 +73,7 @@ foreach pe $path_ends {
   }
   set tclke [$pe target_clk_edge]
   puts "  target_clk_edge exists: [expr {$tclke != "NULL"}]"
-  puts "  target_clk_time: [$pe target_clk_time]"
-  puts "  target_clk_offset: [$pe target_clk_offset]"
-  puts "  target_clk_mcp_adjustment: [$pe target_clk_mcp_adjustment]"
   puts "  target_clk_delay: [$pe target_clk_delay]"
-  puts "  target_clk_insertion_delay: [$pe target_clk_insertion_delay]"
-  puts "  target_clk_uncertainty: [$pe target_clk_uncertainty]"
-  puts "  inter_clk_uncertainty: [$pe inter_clk_uncertainty]"
-  puts "  target_clk_arrival: [$pe target_clk_arrival]"
-  puts "  check_crpr: [$pe check_crpr]"
-  puts "  target_clk_end_trans: [$pe target_clk_end_trans]"
   puts "  clk_skew: [$pe clk_skew]"
   break
 }

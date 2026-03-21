@@ -526,7 +526,7 @@ Warning 502: search_json_unconstrained.tcl line 1, report_checks -endpoint_count
     }
   ],
   "data_arrival_time": 1.044e-09,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 4.894e-12,
   "required_time": 4.894e-12,
   "slack": 1.039e-09
@@ -624,7 +624,7 @@ Warning 502: search_json_unconstrained.tcl line 1, report_checks -endpoint_count
     }
   ],
   "data_arrival_time": 1.044e-09,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 4.894e-12,
   "required_time": 4.894e-12,
   "slack": 1.039e-09

@@ -169,8 +169,6 @@ foreach pe $pe_out {
   puts "margin: [$pe margin]"
   puts "data_arrival: [$pe data_arrival_time]"
   puts "data_required: [$pe data_required_time]"
-  puts "source_clk_offset: [$pe source_clk_offset]"
   puts "target_clk: [get_name [$pe target_clk]]"
-  puts "target_clk_time: [$pe target_clk_time]"
   break
 }

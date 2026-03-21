@@ -238,8 +238,8 @@ Load pins
 
 --- write_verilog ---
 --- write_sdc ---
---- pocv_enabled ---
-pocv_enabled: 0
+--- pocv_mode ---
+pocv_mode: scalar
 --- report_disabled_edges ---
 --- set_disable_timing on instance ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)

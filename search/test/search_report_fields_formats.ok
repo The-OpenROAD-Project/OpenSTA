@@ -1463,7 +1463,6 @@ Warning 502: search_report_fields_formats.tcl line 1, find_timing_paths -endpoin
 
 --- field properties ---
 Warning 1575: unknown report path field delay
-Warning 1576: unknown report path field delay
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
@@ -1497,115 +1496,6 @@ Path Group: clk2
 Path Type: max
 
   Delay    Time   Description
----------------------------------------------------------
-  30.00   30.00   clock clk1 (rise edge)
-   0.05   30.05   clock network delay (propagated)
-   0.00   30.05 ^ reg2/CK (DFF_X1)
-   0.09   30.14 ^ reg2/Q (DFF_X1)
-   0.00   30.14 ^ reg3/D (DFF_X1)
-          30.14   data arrival time
-
-  32.00   32.00   clock clk2 (rise edge)
-   0.02   32.02   clock network delay (propagated)
-   0.00   32.02   clock reconvergence pessimism
-          32.02 ^ reg3/CK (DFF_X1)
-  -0.03   31.99   library setup time
-          31.99   data required time
----------------------------------------------------------
-          31.99   data required time
-         -30.14   data arrival time
----------------------------------------------------------
-           1.85   slack (MET)
-
-
-Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
-Endpoint: out1 (output port clocked by clk1)
-Path Group: clk1
-Path Type: max
-
-  Delay   Total   Description
----------------------------------------------------------
-   0.00    0.00   clock clk1 (rise edge)
-   0.05    0.05   clock network delay (propagated)
-   0.00    0.05 ^ reg2/CK (DFF_X1)
-   0.09    0.14 ^ reg2/Q (DFF_X1)
-   0.02    0.16 ^ buf3/Z (BUF_X1)
-   0.00    0.16 ^ out1 (out)
-           0.16   data arrival time
-
-  10.00   10.00   clock clk1 (rise edge)
-   0.00   10.00   clock network delay (propagated)
-   0.00   10.00   clock reconvergence pessimism
-  -2.00    8.00   output external delay
-           8.00   data required time
----------------------------------------------------------
-           8.00   data required time
-          -0.16   data arrival time
----------------------------------------------------------
-           7.84   slack (MET)
-
-
-Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
-Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
-Path Group: clk2
-Path Type: max
-
-  Delay   Total   Description
----------------------------------------------------------
-  30.00   30.00   clock clk1 (rise edge)
-   0.05   30.05   clock network delay (propagated)
-   0.00   30.05 ^ reg2/CK (DFF_X1)
-   0.09   30.14 ^ reg2/Q (DFF_X1)
-   0.00   30.14 ^ reg3/D (DFF_X1)
-          30.14   data arrival time
-
-  32.00   32.00   clock clk2 (rise edge)
-   0.02   32.02   clock network delay (propagated)
-   0.00   32.02   clock reconvergence pessimism
-          32.02 ^ reg3/CK (DFF_X1)
-  -0.03   31.99   library setup time
-          31.99   data required time
----------------------------------------------------------
-          31.99   data required time
-         -30.14   data arrival time
----------------------------------------------------------
-           1.85   slack (MET)
-
-
---- report_path_sigmas ---
-Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
-Endpoint: out1 (output port clocked by clk1)
-Path Group: clk1
-Path Type: max
-
-  Delay   Total   Description
----------------------------------------------------------
-   0.00    0.00   clock clk1 (rise edge)
-   0.05    0.05   clock network delay (propagated)
-   0.00    0.05 ^ reg2/CK (DFF_X1)
-   0.09    0.14 ^ reg2/Q (DFF_X1)
-   0.02    0.16 ^ buf3/Z (BUF_X1)
-   0.00    0.16 ^ out1 (out)
-           0.16   data arrival time
-
-  10.00   10.00   clock clk1 (rise edge)
-   0.00   10.00   clock network delay (propagated)
-   0.00   10.00   clock reconvergence pessimism
-  -2.00    8.00   output external delay
-           8.00   data required time
----------------------------------------------------------
-           8.00   data required time
-          -0.16   data arrival time
----------------------------------------------------------
-           7.84   slack (MET)
-
-
-Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
-Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
-Path Group: clk2
-Path Type: max
-
-  Delay   Total   Description
 ---------------------------------------------------------
   30.00   30.00   clock clk1 (rise edge)
    0.05   30.05   clock network delay (propagated)
@@ -3401,7 +3291,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
     }
   ],
   "data_arrival_time": 1.323e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 6.736e-12,
   "required_time": 5.834e-11,
   "slack": 7.392e-11
@@ -3554,7 +3444,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
     }
   ],
   "data_arrival_time": 1.298e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 2.987e-12,
   "required_time": 5.459e-11,
   "slack": 7.521e-11
@@ -3667,7 +3557,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
     }
   ],
   "data_arrival_time": 1.044e-09,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 7.159e-12,
   "required_time": 3.264e-11,
   "slack": 1.011e-09
@@ -3780,7 +3670,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
     }
   ],
   "data_arrival_time": 1.045e-09,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 7.159e-12,
   "required_time": 3.264e-11,
   "slack": 1.013e-09
@@ -3893,7 +3783,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
     }
   ],
   "data_arrival_time": 1.046e-09,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 3.301e-12,
   "required_time": 2.878e-11,
   "slack": 1.017e-09
@@ -4027,7 +3917,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
     }
   ],
   "data_arrival_time": 1.338e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 3.068e-12,
   "required_time": 2.597e-11,
   "slack": 1.078e-10
@@ -4161,7 +4051,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
     }
   ],
   "data_arrival_time": 1.406e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": 7.747e-12,
   "required_time": 3.065e-11,
   "slack": 1.099e-10
@@ -4255,7 +4145,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
   "target_clock": "clk2",
   "target_clock_edge": "rise",
   "data_arrival_time": 1.242e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": -2.000e-09,
   "required_time": -2.000e-09,
   "slack": 2.124e-09
@@ -4349,7 +4239,7 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
   "target_clock": "clk2",
   "target_clock_edge": "rise",
   "data_arrival_time": 1.259e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": -2.000e-09,
   "required_time": -2.000e-09,
   "slack": 2.126e-09

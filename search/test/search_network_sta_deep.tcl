@@ -223,8 +223,7 @@ report_checks -path_delay max -format json
 # set_report_path_field_properties (ReportPath.cc)
 ############################################################
 puts "--- set_report_path_field_properties ---"
-sta::set_report_path_field_properties "total" "Total" 12 0
-sta::set_report_path_field_width "total" 14
+sta::set_report_path_field_properties "total" "Total" 14 0
 report_checks -path_delay max
 
 ############################################################

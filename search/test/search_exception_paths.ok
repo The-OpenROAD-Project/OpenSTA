@@ -1001,8 +1001,8 @@ endpoint_slack out1 clk max: Inf
    0.02    1.05 v buf1/Z (BUF_X1)
    0.00    1.05 v reg1/D (DFFR_X1)
 --- report_arrival ---
- (clk ^) r 1.04:1.05 f 1.05:1.05
+(clk ^) r 1.04:1.05 f 1.05:1.05
 --- report_required ---
- (clk ^) r 0.00:9.97 f 0.00:9.96
+(clk ^) r 0.00:9.97 f 0.00:9.96
 --- report_slack ---
- (clk ^) r 1.04:8.92 f 1.04:8.91
+(clk ^) r 1.04:8.92 f 1.04:8.91

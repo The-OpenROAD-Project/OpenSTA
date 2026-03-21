@@ -27,7 +27,7 @@ set_clock_uncertainty -rise_from [get_clocks {gclk_div2}] -rise_to [get_clocks {
 set_clock_uncertainty -rise_from [get_clocks {gclk_div2}] -fall_to [get_clocks {clk2}]  -hold 0.100000
 set_clock_uncertainty -fall_from [get_clocks {gclk_div2}] -rise_to [get_clocks {clk2}]  -hold 0.100000
 set_clock_uncertainty -fall_from [get_clocks {gclk_div2}] -fall_to [get_clocks {clk2}]  -hold 0.100000
-set_clock_groups -name group1 -asynchronous \
+set_clock_groups -name genclk_async -asynchronous \
  -group [list [get_clocks {clk2}]\
            [get_clocks {gclk_div3}]]\
  -group [list [get_clocks {clk1}]\

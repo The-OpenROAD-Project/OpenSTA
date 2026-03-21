@@ -50,7 +50,7 @@ foreach pe $gated_paths {
   puts "    pin=[get_full_name [$pe pin]] role=[$pe check_role] slack=[$pe slack]"
   puts "    margin=[$pe margin] data_arr=[$pe data_arrival_time] data_req=[$pe data_required_time]"
   puts "    target_clk: [get_name [$pe target_clk]]"
-  puts "    target_clk_time: [$pe target_clk_time]"
+  puts "    target_clk_delay: [$pe target_clk_delay]"
   puts "    end_transition: [$pe end_transition]"
   puts "    min_max: [$pe min_max]"
 }

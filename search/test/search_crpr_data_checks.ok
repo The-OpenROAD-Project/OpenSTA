@@ -440,23 +440,23 @@ fall -> fall
 --- find_timing_paths with CRPR ---
 Warning 502: search_crpr_data_checks.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 7 paths
-  slack=7.334127083424846e-9 crpr=0.0 pin=out1
-  slack=7.3365340469422335e-9 crpr=0.0 pin=out1
-  slack=8.43751646328883e-9 crpr=0.0 pin=reg1/D
-  slack=8.439848819818963e-9 crpr=0.0 pin=reg1/D
-  slack=8.446774835135784e-9 crpr=0.0 pin=reg1/D
-  slack=5.46777734200532e-9 crpr=0.0 pin=out2
-  slack=5.469566577431806e-9 crpr=0.0 pin=out2
+  slack=7.334127083424846e-9 pin=out1
+  slack=7.3365340469422335e-9 pin=out1
+  slack=8.43751646328883e-9 pin=reg1/D
+  slack=8.439848819818963e-9 pin=reg1/D
+  slack=8.446774835135784e-9 pin=reg1/D
+  slack=5.46777734200532e-9 pin=out2
+  slack=5.469566577431806e-9 pin=out2
 --- find_timing_paths min with CRPR ---
 Warning 502: search_crpr_data_checks.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Found 7 hold paths
-  slack=-2.327258247225572e-10 crpr=-2.547686020482054e-12
-  slack=-2.3130949933225509e-10 crpr=-2.547686020482054e-12
-  slack=7.07958414114529e-10 crpr=-0.0
-  slack=7.091847664675299e-10 crpr=-0.0
-  slack=7.135160240423488e-10 crpr=-0.0
-  slack=1.918010639201384e-9 crpr=-0.0
-  slack=1.9196295664158924e-9 crpr=-0.0
+  slack=-2.327258247225572e-10
+  slack=-2.3130949933225509e-10
+  slack=7.07958414114529e-10
+  slack=7.091847664675299e-10
+  slack=7.135160240423488e-10
+  slack=1.918010639201384e-9
+  slack=1.9196295664158924e-9
 --- worst_slack by clock ---
 worst_slack max: 5.46777734200532e-9
 worst_slack min: -2.327258247225572e-10
@@ -1503,7 +1503,7 @@ Path Type: min
   "target_clock": "clk2",
   "target_clock_edge": "rise",
   "data_arrival_time": 1.180e-10,
-  "crpr": -0.000e+00,
+  "crpr": 0.000e+00,
   "margin": -2.000e-09,
   "required_time": -1.800e-09,
   "slack": 1.918e-09
