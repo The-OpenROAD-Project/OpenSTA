@@ -84,18 +84,18 @@ set_propagated_clock [get_clocks clk1]
 # set_clock_groups
 ############################################################
 
-set_clock_groups -logically_exclusive -group [get_clocks clk1] -group [get_clocks clk2]
+set_clock_groups -name le_grp -logically_exclusive -group [get_clocks clk1] -group [get_clocks clk2]
 
 # Remove and re-add as physically exclusive
-unset_clock_groups -logically_exclusive -all
+unset_clock_groups -logically_exclusive -name le_grp
 
-set_clock_groups -physically_exclusive -group [get_clocks clk1] -group [get_clocks clk2]
+set_clock_groups -name pe_grp -physically_exclusive -group [get_clocks clk1] -group [get_clocks clk2]
 
-unset_clock_groups -physically_exclusive -all
+unset_clock_groups -physically_exclusive -name pe_grp
 
-set_clock_groups -asynchronous -group [get_clocks clk1] -group [get_clocks clk2]
+set_clock_groups -name async_grp -asynchronous -group [get_clocks clk1] -group [get_clocks clk2]
 
-unset_clock_groups -asynchronous -all
+unset_clock_groups -asynchronous -name async_grp
 
 ############################################################
 # set_clock_sense
