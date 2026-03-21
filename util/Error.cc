@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include "Format.hh"
 #include "StringUtil.hh"
 
 namespace sta {
@@ -36,7 +37,7 @@ Exception::Exception() :
 {
 }
 
-ExceptionMsg::ExceptionMsg(const char *msg,
+ExceptionMsg::ExceptionMsg(const std::string &msg,
                            const bool suppressed) :
   Exception(),
   msg_(msg),
@@ -50,7 +51,7 @@ ExceptionMsg::what() const noexcept
   return msg_.c_str();
 }
 
-ExceptionLine::ExceptionLine(const char *filename,
+ExceptionLine::ExceptionLine(const std::string &filename,
                              int line) :
   Exception(),
   filename_(filename),
@@ -58,26 +59,28 @@ ExceptionLine::ExceptionLine(const char *filename,
 {
 }
 
-FileNotReadable::FileNotReadable(const char *filename) :
-  filename_(filename)
+FileNotReadable::FileNotReadable(std::string filename) :
+  filename_(std::move(filename)),
+  msg_(sta::format("cannot read file {}.", filename_))
 {
 }
 
 const char *
 FileNotReadable::what() const noexcept
 {
-  return stringPrintTmp("cannot read file %s.", filename_);
+  return msg_.c_str();
 }
 
-FileNotWritable::FileNotWritable(const char *filename) :
-  filename_(filename)
+FileNotWritable::FileNotWritable(std::string filename) :
+  filename_(std::move(filename)),
+  msg_(sta::format("cannot write file {}.", filename_))
 {
 }
 
 const char *
 FileNotWritable::what() const noexcept
 {
-  return stringPrintTmp("cannot write file %s.", filename_);
+  return msg_.c_str();
 }
 
 } // namespace

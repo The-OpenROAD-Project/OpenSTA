@@ -67,8 +67,8 @@ VisitPathEnds::visitPathEnds(Vertex *vertex,
   // Ignore slack on bidirect driver vertex.  The load vertex gets the slack.
   if (!vertex->isBidirectDriver()) {
     const Pin *pin = vertex->pin();
-    debugPrint(debug_, "search", 2, "find end slack %s",
-               vertex->to_string(this).c_str());
+    debugPrint(debug_, "search", 2, "find end slack {}",
+               vertex->to_string(this));
     visitor->vertexBegin(vertex);
     bool is_constrained = false;
     visitClkedPathEnds(pin, vertex, scenes, min_max, filtered, visitor,

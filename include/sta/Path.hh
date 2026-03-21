@@ -45,14 +45,14 @@ public:
        const StaState *sta);
   Path(Vertex *vertex,
        Tag *tag,
-       Arrival arrival,
+       const Arrival &arrival,
        Path *prev_path,
        Edge *prev_edge,
        TimingArc *prev_arc,
        const StaState *sta);
   Path(Vertex *vertex,
        Tag *tag,
-       Arrival arrival,
+       const Arrival &arrival,
        Path *prev_path,
        Edge *prev_edge,
        TimingArc *prev_arc,
@@ -62,11 +62,11 @@ public:
   bool isNull() const;
   // prev_path null 
   void init(Vertex *vertex,
-            Arrival arrival,
+            const Arrival &arrival,
             const StaState *sta);
   void init(Vertex *vertex,
             Tag *tag,
-            Arrival arrival,
+            const Arrival &arrival,
             Path *prev_path,
             Edge *prev_edge,
             TimingArc *prev_arc,
@@ -76,7 +76,7 @@ public:
             const StaState *sta);
   void init(Vertex *vertex,
             Tag *tag,
-            Arrival arrival,
+            const Arrival &arrival,
             const StaState *sta);
 
   Vertex *vertex(const StaState *sta) const;
@@ -98,14 +98,12 @@ public:
   const MinMax *minMax(const StaState *sta) const;
   PathAPIndex pathAnalysisPtIndex(const StaState *sta) const;
   DcalcAPIndex dcalcAnalysisPtIndex(const StaState *sta) const;
-  Arrival &arrival() { return arrival_; }
   const Arrival &arrival() const { return arrival_; }
   void setArrival(Arrival arrival);
-  Required &required() { return required_; }
   const Required &required() const {return required_; }
   void setRequired(const Required &required);
   Slack slack(const StaState *sta) const;
-  Slew slew(const StaState *sta) const;
+  const Slew slew(const StaState *sta) const;
   // This takes the same time as prevPath and prevArc combined.
   Path *prevPath() const;
   void setPrevPath(Path *prev_path);

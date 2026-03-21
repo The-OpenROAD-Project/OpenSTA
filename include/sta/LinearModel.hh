@@ -37,14 +37,22 @@ public:
   void gateDelay(const Pvt *pvt,
                  float in_slew,
                  float load_cap,
-                 bool pocv_enabled,
                  // Return values.
-                 ArcDelay &gate_delay,
-                 Slew &drvr_slew) const override;
+                 float &gate_delay,
+                 float &drvr_slew) const override;
+  void gateDelayPocv(const Pvt *pvt,
+                     float in_slew,
+                     float load_cap,
+                     const MinMax *min_max,
+                     PocvMode pocv_mode,
+                     // Return values.
+                     ArcDelay &gate_delay,
+                     Slew &drvr_slew) const override;
   std::string reportGateDelay(const Pvt *pvt,
                               float in_slew,
                               float load_cap,
-                              bool pocv_enabled,
+                              const MinMax *min_max,
+                              PocvMode pocv_mode,
                               int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
 
@@ -64,13 +72,15 @@ public:
                       float from_slew,
                       float to_slew,
                       float related_out_cap,
-                      bool pocv_enabled) const override;
+                      const MinMax *min_max,
+                      PocvMode pocv_mode) const override;
   std::string reportCheckDelay(const Pvt *pvt,
                                float from_slew,
                                const char *from_slew_annotation,
                                float to_slew,
                                float related_out_cap,
-                               bool pocv_enabled,
+                               const MinMax *min_max,
+                               PocvMode pocv_mode,
                                int digits) const override;
 
 protected:

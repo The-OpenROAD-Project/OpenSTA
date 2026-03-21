@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <string_view>
 #include <vector>
 
 #include "TimingRole.hh"
@@ -31,6 +32,7 @@
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
+#include "Report.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
 
@@ -148,11 +150,23 @@ public:
   std::string *makeBusName(std::string *bus_name,
                            int index);
   const std::string &filename() const { return filename_; }
-  void sdfWarn(int id,
-               const char *fmt, ...);
-  void sdfError(int id,
-                const char *fmt,
-                ...);
+  int sdfLine() const;
+  template <typename... Args>
+  void warn(int id,
+               std::string_view fmt,
+               Args &&...args)
+  {
+    report_->fileWarn(id, filename_, sdfLine(), fmt,
+                     std::forward<Args>(args)...);
+  }
+  template <typename... Args>
+  void error(int id,
+                std::string_view fmt,
+                Args &&...args)
+  {
+    report_->fileError(id, filename_, sdfLine(), fmt,
+                      std::forward<Args>(args)...);
+  }
   void notSupported(const char *feature);
 
 private:

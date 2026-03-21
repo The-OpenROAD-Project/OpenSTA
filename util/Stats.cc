@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "Stats.hh"
@@ -57,12 +57,11 @@ Stats::report(const char *step)
     double memory_begin = static_cast<double>(memory_begin_);
     double memory_end = static_cast<double>(memoryUsage());
     double memory_delta = memory_end - memory_begin;
-    report_->reportLine("stats: %5.1f/%5.1fe %5.1f/%5.1fu %5.1f/%5.1fMB %s",
-                        elapsed_end - elapsed_begin_, elapsed_end,
-                        user_end - user_begin_, user_end,
-                        memory_delta * 1e-6, memory_end * 1e-6,
-                        step);
+    report_->report("stats: {:5.1f}/{:5.1f}e {:5.1f}/{:5.1f}u {:5.1f}/{:5.1f}MB {}",
+                    elapsed_end - elapsed_begin_, elapsed_end,
+                    user_end - user_begin_, user_end, memory_delta * 1e-6,
+                    memory_end * 1e-6, step);
   }
 }
 
-} // namespace
+}  // namespace sta

@@ -22,19 +22,15 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "Units.hh"
-#include "StaState.hh"
-#include "Delay.hh"
+#pragma once
 
 namespace sta {
 
+enum class PocvMode { scalar, normal, skew_normal };
+
 const char *
-delayAsString(const Delay &delay,
-              const StaState *sta)
-{
-  return delayAsString(delay, sta, sta->units()->timeUnit()->digits());
-}
+pocvModeName(PocvMode mode);
+PocvMode
+findPocvMode(const char *mode_name);
 
 } // namespace

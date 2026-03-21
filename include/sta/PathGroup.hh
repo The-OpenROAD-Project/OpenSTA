@@ -29,7 +29,6 @@
 #include <map>
 #include <mutex>
 
-#include "BoundedHeap.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
 #include "SearchClass.hh"
@@ -43,7 +42,7 @@ class PathEndVisitor;
 
 using PathGroupIterator = PathEndSeq::iterator;
 using PathGroupClkMap = std::map<const Clock*, PathGroup*>;
-using PathGroupNamedMap = std::map<const char*, PathGroup*, CharPtrLess>;
+using PathGroupNamedMap = std::map<std::string, PathGroup*>;
 using PathGroupSeq = std::vector<PathGroup*>;
 
 // A collection of PathEnds grouped and sorted for reporting.
@@ -70,7 +69,7 @@ public:
   ~PathGroup();
   const std::string &name() const { return name_; }
   const MinMax *minMax() const { return min_max_;}
-  PathEndSeq pathEnds() const;
+  PathEndSeq pathEnds() const { return path_ends_; }
   void insert(PathEnd *path_end);
   // Push group_path_count into path_ends.
   void pushEnds(PathEndSeq &path_ends);
@@ -93,6 +92,9 @@ protected:
             bool cmp_slack,
             const MinMax *min_max,
             const StaState *sta);
+  void ensureSortedMaxPaths();
+  void prune();
+  void sort();
 
   std::string name_;
   int group_path_count_;
@@ -101,9 +103,11 @@ protected:
   bool unique_edges_;
   float slack_min_;
   float slack_max_;
+  PathEndSeq path_ends_;
   const MinMax *min_max_;
   bool cmp_slack_;
-  BoundedHeap<PathEnd*, PathEndLess> heap_;
+  float threshold_;
+
   std::mutex lock_;
   const StaState *sta_;
 };
@@ -136,7 +140,7 @@ public:
                     bool unconstrained_paths,
                     // Return value.
                     PathEndSeq &path_ends);
-  PathGroup *findPathGroup(const char *name,
+  PathGroup *findPathGroup(const std::string &name,
                            const MinMax *min_max) const;
   PathGroup *findPathGroup(const Clock *clock,
                            const MinMax *min_max) const;
@@ -187,7 +191,7 @@ protected:
                   bool gated_clk,
                   bool unconstrained,
                   const MinMax *min_max);
-  bool reportGroup(const char *group_name,
+  bool reportGroup(const std::string &group_name,
                    StringSet &group_names) const;
   static GroupPath *groupPathTo(const PathEnd *path_end,
                                 const StaState *sta);

@@ -28,6 +28,7 @@
 
 #include "ContainerHelpers.hh"
 #include "Error.hh"
+#include "Format.hh"
 #include "StringUtil.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
@@ -531,7 +532,7 @@ ClockEdge::ClockEdge(Clock *clock,
                      const RiseFall *rf) :
   clock_(clock),
   rf_(rf),
-  name_(stringPrint("%s %s", clock_->name(), rf_->shortName())),
+  name_(sta::format("{} {}", clock_->name(), rf_->shortName())),
   time_(0.0),
   index_(clock_->index() * RiseFall::index_count + rf_->index())
 {
@@ -539,7 +540,6 @@ ClockEdge::ClockEdge(Clock *clock,
 
 ClockEdge::~ClockEdge()
 {
-  stringDelete(name_);
 }
 
 void

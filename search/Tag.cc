@@ -160,10 +160,10 @@ Tag::to_string(bool report_index,
     for (ExceptionState *state : *states_) {
       ExceptionPath *exception = state->exception();
       result += " ";
-      result += exception->asString(network);
+      result += exception->to_string(network);
       if (state->nextThru()) {
         result += " (next thru ";
-        result += state->nextThru()->asString(network);
+        result += state->nextThru()->to_string(network);
         result += ")";
       }
       else {

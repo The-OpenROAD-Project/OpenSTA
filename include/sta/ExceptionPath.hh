@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "Error.hh"
@@ -67,7 +68,7 @@ public:
   virtual bool isGroupPath() const { return false; }
   virtual bool isFilter() const { return false; }
   virtual ExceptionPathType type() const = 0;
-  virtual const char *asString(const Network *network) const;
+  virtual std::string to_string(const Network *network) const;
   ExceptionFrom *from() const { return from_; }
   ExceptionThruSeq *thrus() const { return thrus_; }
   ExceptionTo *to() const { return to_; }
@@ -127,14 +128,14 @@ public:
   virtual bool useEndClk() const { return false; }
   virtual int pathMultiplier() const { return 0; }
   virtual float delay() const { return 0.0; }
-  virtual const char *name() const { return nullptr; }
+  virtual std::string name() const { return ""; }
   virtual bool isDefault() const { return false; }
   virtual bool ignoreClkLatency() const { return false; }
   virtual bool breakPath() const { return false; }
 
 protected:
   virtual const char *typeString() const = 0;
-  const char *fromThruToString(const Network *network) const;
+  std::string fromThruToString(const Network *network) const;
   void makeStates();
 
   ExceptionFrom *from_;
@@ -209,7 +210,7 @@ public:
                        bool own_pts) override;
   bool isPathDelay() const override { return true; }
   ExceptionPathType type() const override { return ExceptionPathType::path_delay; }
-  const char *asString(const Network *network) const override;
+  std::string to_string(const Network *network) const override;
   const char *typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
   bool overrides(ExceptionPath *exception) const override;
@@ -245,7 +246,7 @@ public:
   ExceptionPathType type() const override { return ExceptionPathType::multi_cycle; }
   bool matches(const MinMax *min_max,
                bool exactly) const override;
-  const char *asString(const Network *network) const override;
+  std::string to_string(const Network *network) const override;
   const char *typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
   bool overrides(ExceptionPath *exception) const override;
@@ -292,7 +293,7 @@ public:
 class GroupPath : public ExceptionPath
 {
 public:
-  GroupPath(const char *name,
+  GroupPath(const std::string &name,
             bool is_default,
             ExceptionFrom *from,
             ExceptionThruSeq *thrus,
@@ -311,11 +312,11 @@ public:
   bool overrides(ExceptionPath *exception) const override;
   int typePriority() const override;
   bool tighterThan(ExceptionPath *exception) const override;
-  const char *name()  const override { return name_; }
+  std::string name() const override { return name_; }
   bool isDefault() const override { return is_default_; }
 
 protected:
-  const char *name_;
+  std::string name_;
   bool is_default_;
 };
 
@@ -343,7 +344,7 @@ public:
   // All pins and instance/net pins.
   virtual PinSet allPins(const Network *network) = 0;
   virtual int typePriority() const = 0;
-  virtual const char *asString(const Network *network) const = 0;
+  virtual std::string to_string(const Network *network) const = 0;
   virtual size_t objectCount() const = 0;
   virtual void addPin(const Pin *pin,
                       const Network *network) = 0;
@@ -367,8 +368,8 @@ protected:
   // exception merging.
   size_t hash_;
 
-  // Maximum number of objects for asString() to show.
-  static const int as_string_max_objects_;
+  // Maximum number of objects for to_string() to show.
+  static const int to_string_max_objects_;
   static const size_t hash_clk  =  3;
   static const size_t hash_pin  =  5;
   static const size_t hash_net  =  7;
@@ -402,7 +403,7 @@ public:
               const Network *network) const override;
   void mergeInto(ExceptionPt *pt,
                  const Network *network) override;
-  const char *asString(const Network *network) const override;
+  std::string to_string(const Network *network) const override;
   size_t objectCount() const override;
   void deleteClock(Clock *clk);
   void addPin(const Pin *pin,
@@ -467,7 +468,7 @@ public:
               const Network *network);
   ExceptionTo *clone(const Network *network);
   bool isTo() const override { return true; }
-  const char *asString(const Network *network) const override;
+  std::string to_string(const Network *network) const override;
   const RiseFallBoth *endTransition() { return end_rf_; }
   bool intersectsPts(ExceptionTo *to,
                      const Network *network) const;
@@ -512,7 +513,7 @@ public:
                 const Network *network);
   ~ExceptionThru();
   ExceptionThru *clone(const Network *network);
-  const char *asString(const Network *network) const override;
+  std::string to_string(const Network *network) const override;
   bool isThru() const override { return true; }
   PinSet *pins() override { return pins_; }
   EdgePinsSet *edges() override { return edges_; }

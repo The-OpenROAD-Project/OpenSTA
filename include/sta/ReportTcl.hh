@@ -44,20 +44,20 @@ class ReportTcl : public Report
 public:
   ReportTcl();
   virtual ~ReportTcl();
-  virtual void logBegin(const char *filename);
-  virtual void logEnd();
-  virtual void redirectFileBegin(const char *filename);
-  virtual void redirectFileAppendBegin(const char *filename);
-  virtual void redirectFileEnd();
-  virtual void redirectStringBegin();
-  virtual const char *redirectStringEnd();
+  void logBegin(std::string filename) override;
+  void logEnd() override;
+  void redirectFileBegin(std::string filename) override;
+  void redirectFileAppendBegin(std::string filename) override;
+  void redirectFileEnd() override;
+  void redirectStringBegin() override;
+  const char *redirectStringEnd() override;
   // This must be called after the Tcl interpreter has been constructed.
   // It makes the encapsulated channels.
-  virtual void setTclInterp(Tcl_Interp *interp);
+  void setTclInterp(Tcl_Interp *interp) override;
 
 protected:
-  virtual size_t printConsole(const char *buffer,
-                              size_t length);
+  size_t printConsole(const char *buffer,
+                      size_t length) override;
   void flush();
 
 private:

@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "VcdParse.hh"
@@ -80,16 +80,14 @@ VcdParse::read(const char *filename,
       else if (token[0] == '#') {
         try {
           time_ = stoll(token.substr(1));
+        } catch (std::invalid_argument &error) {
+          report_->fileError(805, filename_, file_line_, "invalid time {}",
+                             token.substr(1));
+        } catch (std::out_of_range &error) {
+          report_->fileError(806, filename_, file_line_, "time out of range {}",
+                             token.substr(1));
         }
-        catch (std::invalid_argument &error) {
-          report_->fileError(805, filename_, file_line_, "invalid time %s",
-                             token.substr(1).c_str());
-        }
-        catch (std::out_of_range &error) {
-          report_->fileError(806, filename_, file_line_, "time out of range %s",
-                             token.substr(1).c_str());
-        }
-	reader_->setTimeMin(time_);
+        reader_->setTimeMin(time_);
         prev_time_ = time_;
       }
       else if (token[0] == '$')
@@ -151,37 +149,34 @@ VcdParse::setTimeUnit(const std::string &time_unit,
   reader_->setTimeUnit(time_unit, time_unit_scale, time_scale);
 }
 
-static EnumNameMap<VcdVarType> vcd_var_type_map =
-  {{VcdVarType::wire, "wire"},
-   {VcdVarType::reg, "reg"},
-   {VcdVarType::parameter, "parameter"},
-   {VcdVarType::integer, "integer"},
-   {VcdVarType::real, "real"},
-   {VcdVarType::supply0, "supply0"},
-   {VcdVarType::supply1, "supply1"},
-   {VcdVarType::time, "time"},
-   {VcdVarType::tri, "tri"},
-   {VcdVarType::triand, "triand"},
-   {VcdVarType::trior, "trior"},
-   {VcdVarType::trireg, "trireg"},
-   {VcdVarType::tri0, "tri0"},
-   {VcdVarType::tri1, "tri1"},
-   {VcdVarType::wand, "wand"},
-   {VcdVarType::wor, "wor"}
-  };
+static EnumNameMap<VcdVarType> vcd_var_type_map = {
+    {VcdVarType::wire, "wire"},
+    {VcdVarType::reg, "reg"},
+    {VcdVarType::parameter, "parameter"},
+    {VcdVarType::integer, "integer"},
+    {VcdVarType::real, "real"},
+    {VcdVarType::supply0, "supply0"},
+    {VcdVarType::supply1, "supply1"},
+    {VcdVarType::time, "time"},
+    {VcdVarType::tri, "tri"},
+    {VcdVarType::triand, "triand"},
+    {VcdVarType::trior, "trior"},
+    {VcdVarType::trireg, "trireg"},
+    {VcdVarType::tri0, "tri0"},
+    {VcdVarType::tri1, "tri1"},
+    {VcdVarType::wand, "wand"},
+    {VcdVarType::wor, "wor"}};
 
 void
 VcdParse::parseVar()
 {
   std::vector<std::string> tokens = readStmtTokens();
-  if (tokens.size() == 4
-      || tokens.size() == 5) {
+  if (tokens.size() == 4 || tokens.size() == 5) {
     std::string type_name = tokens[0];
     VcdVarType type = vcd_var_type_map.find(type_name, VcdVarType::unknown);
     if (type == VcdVarType::unknown)
-      report_->fileWarn(1370, filename_, file_line_,
-                        "Unknown variable type %s.",
-                        type_name.c_str());
+      report_->fileWarn(809, filename_, file_line_, "Unknown variable type {}.",
+                        type_name);
     else {
       size_t width = std::stoi(tokens[1]);
       std::string &id = tokens[2];
@@ -229,23 +224,18 @@ VcdParse::parseVarValues()
       if (time_ > prev_time_)
         reader_->varMinDeltaTime(time_ - prev_time_);
     }
-    else if (char0 == '0'
-             || char0 == '1'
-             || char0 == 'X'
-             || char0 == 'U'
+    else if (char0 == '0' || char0 == '1' || char0 == 'X' || char0 == 'U'
              || char0 == 'Z') {
       std::string id = token.substr(1);
       if (!reader_->varIdValid(id))
-        report_->fileError(805, filename_, file_line_,
-                           "unknown variable %s", id.c_str());
+        report_->fileError(808, filename_, file_line_, "unknown variable {}", id);
       reader_->varAppendValue(id, time_, char0);
     }
     else if (char0 == 'B') {
       std::string bus_value = token.substr(1);
       std::string id = getToken();
       if (!reader_->varIdValid(id))
-        report_->fileError(807, filename_, file_line_,
-                           "unknown variable %s", id.c_str());
+        report_->fileError(807, filename_, file_line_, "unknown variable {}", id);
       else {
         // Reverse the bus value to match the bit order in the VCD file.
         std::reverse(bus_value.begin(), bus_value.end());
@@ -327,4 +317,4 @@ VcdValue::setValue(VcdTime time,
   value_ = value;
 }
 
-} // namespace
+}  // namespace sta

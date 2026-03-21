@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "Parasitics.hh"
@@ -49,38 +49,29 @@ Parasitics::report(const Parasitic *parasitic) const
 {
   if (isParasiticNetwork(parasitic)) {
     const Unit *cap_unit = units_->capacitanceUnit();
-    report_->reportLine("Net %s %s",
-                        network_->pathName(net(parasitic)),
-                        cap_unit->asString(capacitance(parasitic)));
-    report_->reportLine("Nodes:");
+    report_->report("Net {} {}", network_->pathName(net(parasitic)),
+                    cap_unit->asString(capacitance(parasitic)));
+    report_->report("Nodes:");
     for (ParasiticNode *node : nodes(parasitic))
-      report_->reportLine("%s%s %s",
-                          name(node),
-                          isExternal(node) ? " (ext)" : "",
-                          cap_unit->asString(nodeGndCap(node)));
-    report_->reportLine("Resistors:");
+      report_->report("{}{} {}", name(node), isExternal(node) ? " (ext)" : "",
+                      cap_unit->asString(nodeGndCap(node)));
+    report_->report("Resistors:");
     for (ParasiticResistor *res : resistors(parasitic)) {
       ParasiticNode *node1 = this->node1(res);
       ParasiticNode *node2 = this->node2(res);
-      report_->reportLine("%zu %s%s %s%s %s",
-                          id(res),
-                          name(node1),
-                          isExternal(node1) ? " (ext)" : "",
-                          name(node2),
-                          isExternal(node2) ? " (ext)" : "",
-                          units_->resistanceUnit()->asString(value(res)));
+      report_->report("{} {}{} {}{} {}", id(res), name(node1),
+                      isExternal(node1) ? " (ext)" : "", name(node2),
+                      isExternal(node2) ? " (ext)" : "",
+                      units_->resistanceUnit()->asString(value(res)));
     }
-    report_->reportLine("Coupling Capacitors:");
+    report_->report("Coupling Capacitors:");
     for (ParasiticCapacitor *cap : capacitors(parasitic)) {
       ParasiticNode *node1 = this->node1(cap);
       ParasiticNode *node2 = this->node2(cap);
-      report_->reportLine("%zu %s%s %s%s %s",
-                          id(cap),
-                          name(node1),
-                          isExternal(node1) ? " (ext)" : "",
-                          name(node2),
-                          isExternal(node2) ? " (ext)" : "",
-                          cap_unit->asString(value(cap)));
+      report_->report("{} {}{} {}{} {}", id(cap), name(node1),
+                      isExternal(node1) ? " (ext)" : "", name(node2),
+                      isExternal(node2) ? " (ext)" : "",
+                      cap_unit->asString(value(cap)));
     }
   }
 }
@@ -138,10 +129,10 @@ Parasitics::parasiticNodeResistorMap(const Parasitic *parasitic) const
   return resistor_map;
 }
 
-ParasiticNodeCapacitorMap 
+ParasiticNodeCapacitorMap
 Parasitics::parasiticNodeCapacitorMap(const Parasitic *parasitic) const
 {
-  ParasiticNodeCapacitorMap  capacitor_map;
+  ParasiticNodeCapacitorMap capacitor_map;
   for (ParasiticCapacitor *capacitor : capacitors(parasitic)) {
     ParasiticNode *n1 = node1(capacitor);
     ParasiticNode *n2 = node2(capacitor);
@@ -186,9 +177,8 @@ Parasitics::reduceToPiElmore(const Parasitic *parasitic,
                              const Scene *scene,
                              const MinMax *min_max)
 {
-  return sta::reduceToPiElmore(parasitic, drvr_pin, rf,
-                               coupling_cap_factor_,
-                               scene, min_max, this);
+  return sta::reduceToPiElmore(parasitic, drvr_pin, rf, coupling_cap_factor_, scene,
+                               min_max, this);
 }
 
 Parasitic *
@@ -198,8 +188,7 @@ Parasitics::reduceToPiPoleResidue2(const Parasitic *parasitic,
                                    const Scene *scene,
                                    const MinMax *min_max)
 {
-  return sta::reduceToPiPoleResidue2(parasitic, drvr_pin, rf,
-                                     coupling_cap_factor_,
+  return sta::reduceToPiPoleResidue2(parasitic, drvr_pin, rf, coupling_cap_factor_,
                                      scene, min_max, this);
 }
 
@@ -217,10 +206,9 @@ Parasitics::estimatePiElmore(const Pin *drvr_pin,
   EstimateParasitics estimate(this);
   float c2, rpi, c1, elmore_res, elmore_cap;
   bool elmore_use_load_cap;
-  estimate.estimatePiElmore(drvr_pin, rf, wireload, fanout, net_pin_cap,
-                            scene, min_max,
-                            c2, rpi, c1,
-                            elmore_res, elmore_cap, elmore_use_load_cap);
+  estimate.estimatePiElmore(drvr_pin, rf, wireload, fanout, net_pin_cap, scene,
+                            min_max, c2, rpi, c1, elmore_res, elmore_cap,
+                            elmore_use_load_cap);
 
   if (c1 > 0.0 || c2 > 0.0) {
     Parasitic *parasitic = makePiElmore(drvr_pin, rf, min_max, c2, rpi, c1);
@@ -265,19 +253,19 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
     if (op_cond)
       tree = op_cond->wireloadTree();
     switch (tree) {
-    case WireloadTree::worst_case:
-      makeWireloadNetworkWorst(parasitic, drvr_pin, net, wireload_cap, 
-                               wireload_res, fanout);
-      break;
-    case WireloadTree::balanced:
-      makeWireloadNetworkBalanced(parasitic, drvr_pin, wireload_cap,
-                                  wireload_res, fanout);
-      break;
-    case WireloadTree::best_case:
-    case WireloadTree::unknown:
-      makeWireloadNetworkBest(parasitic, drvr_pin, wireload_cap, 
-                              wireload_res, fanout);
-      break;
+      case WireloadTree::worst_case:
+        makeWireloadNetworkWorst(parasitic, drvr_pin, net, wireload_cap,
+                                 wireload_res, fanout);
+        break;
+      case WireloadTree::balanced:
+        makeWireloadNetworkBalanced(parasitic, drvr_pin, wireload_cap, wireload_res,
+                                    fanout);
+        break;
+      case WireloadTree::best_case:
+      case WireloadTree::unknown:
+        makeWireloadNetworkBest(parasitic, drvr_pin, wireload_cap, wireload_res,
+                                fanout);
+        break;
     }
   }
   return parasitic;
@@ -298,12 +286,10 @@ Parasitics::makeWireloadNetworkWorst(Parasitic *parasitic,
   ParasiticNode *load_node = ensureParasiticNode(parasitic, net, 0, network_);
   makeResistor(parasitic, resistor_index++, wireload_res, drvr_node, load_node);
   incrCap(load_node, wireload_cap);
-  PinConnectedPinIterator *load_iter =
-    network_->connectedPinIterator(drvr_pin);
+  PinConnectedPinIterator *load_iter = network_->connectedPinIterator(drvr_pin);
   while (load_iter->hasNext()) {
     const Pin *load_pin = load_iter->next();
-    if (load_pin != drvr_pin
-        && network_->isLoad(load_pin)) {
+    if (load_pin != drvr_pin && network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin, network_);
       makeResistor(parasitic, resistor_index++, 0.0, load_node, load_node1);
     }
@@ -320,13 +306,11 @@ Parasitics::makeWireloadNetworkBest(Parasitic *parasitic,
 {
   ParasiticNode *drvr_node = ensureParasiticNode(parasitic, drvr_pin, network_);
   incrCap(drvr_node, wireload_cap);
-  PinConnectedPinIterator *load_iter =
-    network_->connectedPinIterator(drvr_pin);
+  PinConnectedPinIterator *load_iter = network_->connectedPinIterator(drvr_pin);
   size_t resistor_index = 1;
   while (load_iter->hasNext()) {
     const Pin *load_pin = load_iter->next();
-    if (load_pin != drvr_pin
-        && network_->isLoad(load_pin)) {
+    if (load_pin != drvr_pin && network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin, network_);
       makeResistor(parasitic, resistor_index++, 0.0, drvr_node, load_node1);
     }
@@ -345,15 +329,13 @@ Parasitics::makeWireloadNetworkBalanced(Parasitic *parasitic,
   float fanout_cap = wireload_cap / fanout;
   float fanout_res = wireload_res / fanout;
   ParasiticNode *drvr_node = ensureParasiticNode(parasitic, drvr_pin, network_);
-  PinConnectedPinIterator *load_iter =
-    network_->connectedPinIterator(drvr_pin);
+  PinConnectedPinIterator *load_iter = network_->connectedPinIterator(drvr_pin);
   size_t resistor_index = 1;
   while (load_iter->hasNext()) {
     const Pin *load_pin = load_iter->next();
-    if (load_pin != drvr_pin
-        && network_->isLoad(load_pin)) {
+    if (load_pin != drvr_pin && network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin, network_);
-      makeResistor(parasitic, resistor_index++, fanout_res, drvr_node, load_node1);    
+      makeResistor(parasitic, resistor_index++, fanout_res, drvr_node, load_node1);
       incrCap(load_node1, fanout_cap);
     }
   }
@@ -391,12 +373,10 @@ ParasiticNodeLess::operator()(const ParasiticNode *node1,
   unsigned id1 = parasitics_->netId(node1);
   unsigned id2 = parasitics_->netId(node2);
   return (pin1 == nullptr && pin2)
-    || (pin1 && pin2
-        && network_->id(pin1) < network_->id(pin2))
-    || (pin1 == nullptr && pin2 == nullptr
-        && (network_->id(net1) < network_->id(net2)
-            || (net1 == net2
-                && id1 < id2)));
+      || (pin1 && pin2 && network_->id(pin1) < network_->id(pin2))
+      || (pin1 == nullptr && pin2 == nullptr
+          && (network_->id(net1) < network_->id(net2)
+              || (net1 == net2 && id1 < id2)));
 }
 
-} // namespace
+}  // namespace sta

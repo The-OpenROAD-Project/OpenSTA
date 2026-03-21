@@ -1941,40 +1941,38 @@ ClockInsertionkLess::operator()(const ClockInsertion *insert1,
 ////////////////////////////////////////////////////////////////
 
 ClockGroups *
-Sdc::makeClockGroups(const char *name,
+Sdc::makeClockGroups(const std::string &name,
                      bool logically_exclusive,
                      bool physically_exclusive,
                      bool asynchronous,
                      bool allow_paths,
                      const char *comment)
 {
-  char *gen_name = nullptr;
-  if (name == nullptr
-      || name[0] == '\0')
-    name = gen_name = makeClockGroupsName();
+  std::string group_name;
+  if (name.empty())
+    group_name = makeClockGroupsName();
   else {
-    ClockGroups *groups = findKey(clk_groups_name_map_, name);
+    group_name = name;
+    ClockGroups *groups = findKey(clk_groups_name_map_, group_name);
     if (groups)
       removeClockGroups(groups);
   }
-  ClockGroups *groups = new ClockGroups(name, logically_exclusive,
+  ClockGroups *groups = new ClockGroups(group_name, logically_exclusive,
                                         physically_exclusive,
                                         asynchronous, allow_paths, comment);
   clk_groups_name_map_[groups->name()] = groups;
-  stringDelete(gen_name);
   return groups;
 }
 
 // Generate a name for the clock group.
-char *
+std::string
 Sdc::makeClockGroupsName()
 {
-  char *name = nullptr;
+  std::string name;
   int i = 0;
   do {
     i++;
-    stringDelete(name);
-    name = stringPrint("group%d", i);
+    name = sta::format("group{}", i);
   } while (clk_groups_name_map_.contains(name));
   return name;
 }
@@ -1990,7 +1988,7 @@ void
 Sdc::ensureClkGroupExclusions()
 {
   if (clk_group_exclusions_.empty()) {
-    for (const auto [name, clk_groups] : clk_groups_name_map_)
+    for (const auto &[name, clk_groups] : clk_groups_name_map_)
       makeClkGroupExclusions(clk_groups);
   }
 }
@@ -2087,7 +2085,7 @@ Sdc::sameClockGroupExplicit(const Clock *clk1,
 }
 
 void
-Sdc::removeClockGroups(const char *name)
+Sdc::removeClockGroups(const std::string &name)
 {
   ClockGroups *clk_groups = findKey(clk_groups_name_map_, name);
   if (clk_groups)
@@ -2095,51 +2093,55 @@ Sdc::removeClockGroups(const char *name)
 }
 
 void
-Sdc::removeClockGroupsLogicallyExclusive(const char *name)
+Sdc::removeClockGroupsLogicallyExclusive()
 {
-  if (name) {
-    ClockGroups *groups = findKey(clk_groups_name_map_, name);
-    if (groups && groups->logicallyExclusive())
+
+  for (const auto &[name, groups] : clk_groups_name_map_) {
+    if (groups->logicallyExclusive())
       removeClockGroups(groups);
-  }
-  else {
-    for (const auto [name, groups] : clk_groups_name_map_) {
-      if (groups->logicallyExclusive())
-        removeClockGroups(groups);
-    }
   }
 }
 
 void
-Sdc::removeClockGroupsPhysicallyExclusive(const char *name)
+Sdc::removeClockGroupsLogicallyExclusive(const std::string &name)
 {
-  if (name) {
-    ClockGroups *groups = findKey(clk_groups_name_map_, name);
-    if (groups && groups->physicallyExclusive())
+  ClockGroups *groups = findKey(clk_groups_name_map_, name);
+  if (groups && groups->logicallyExclusive())
+    removeClockGroups(groups);
+}
+
+void
+Sdc::removeClockGroupsPhysicallyExclusive()
+{
+  for (const auto &[name, groups] : clk_groups_name_map_) {
+    if (groups->physicallyExclusive())
       removeClockGroups(groups);
-  }
-  else {
-    for (const auto [name, groups] : clk_groups_name_map_) {
-      if (groups->physicallyExclusive())
-        removeClockGroups(groups);
-    }
   }
 }
 
 void
-Sdc::removeClockGroupsAsynchronous(const char *name)
+Sdc::removeClockGroupsPhysicallyExclusive(const std::string &name)
 {
-  if (name) {
-    ClockGroups *groups = findKey(clk_groups_name_map_, name);
-    if (groups && groups->asynchronous())
+  ClockGroups *groups = findKey(clk_groups_name_map_, name);
+  if (groups && groups->physicallyExclusive())
+    removeClockGroups(groups);
+}
+
+void
+Sdc::removeClockGroupsAsynchronous()
+{
+  for (const auto &[name, groups] : clk_groups_name_map_) {
+    if (groups->asynchronous())
       removeClockGroups(groups);
   }
-  else {
-    for (const auto [name, groups] : clk_groups_name_map_) {
-      if (groups->asynchronous())
-        removeClockGroups(groups);
-    }
-  }
+}
+
+void
+Sdc::removeClockGroupsAsynchronous(const std::string &name)
+{
+  ClockGroups *groups = findKey(clk_groups_name_map_, name);
+  if (groups && groups->asynchronous())
+    removeClockGroups(groups);
 }
 
 void
@@ -2155,7 +2157,7 @@ Sdc::removeClockGroups(ClockGroups *groups)
 void
 Sdc::clockGroupsDeleteClkRefs(Clock *clk)
 {
-  for (const auto [name, groups] : clk_groups_name_map_)
+  for (const auto &[name, groups] : clk_groups_name_map_)
     groups->removeClock(clk);
   clearClkGroupExclusions();
 }
@@ -4080,9 +4082,7 @@ void
 Sdc::clearGroupPathMap()
 {
   // GroupPath exceptions are deleted with other exceptions.
-  // Delete group_path name strings.
   for (auto [name, groups] : group_path_map_) {
-    stringDelete(name);
     deleteContents(*groups);
     delete groups;
   }
@@ -4090,7 +4090,7 @@ Sdc::clearGroupPathMap()
 }
 
 void
-Sdc::makeGroupPath(const char *name,
+Sdc::makeGroupPath(const std::string &name,
                    bool is_default,
                    ExceptionFrom *from,
                    ExceptionThruSeq *thrus,
@@ -4098,9 +4098,9 @@ Sdc::makeGroupPath(const char *name,
                    const char *comment)
 {
   checkFromThrusTo(from, thrus, to);
-  if (name && is_default)
+  if (!name.empty() && is_default)
     report_->critical(1490, "group path name and is_default are mutually exclusive.");
-  else if (name) {
+  else if (!name.empty()) {
     GroupPath *group_path = new GroupPath(name, is_default, from, thrus, to,
                                           true, comment);
     // Clone the group_path because it may get merged and hence deleted
@@ -4115,7 +4115,7 @@ Sdc::makeGroupPath(const char *name,
     GroupPathSet *groups = findKey(group_path_map_, name);
     if (groups == nullptr) {
       groups = new GroupPathSet(network_);
-      group_path_map_[stringCopy(name)] = groups;
+      group_path_map_[name] = groups;
     }
     if (groups->contains(group_path))
       // Exact copy of existing group path.
@@ -4226,7 +4226,7 @@ void
 Sdc::makeLoopExceptionThru(const Pin *pin,
                            ExceptionThruSeq *thrus)
 {
-  debugPrint(debug_, "levelize", 2, " %s", network_->pathName(pin));
+  debugPrint(debug_, "levelize", 2, " {}", network_->pathName(pin));
   PinSet *pins = new PinSet(network_);
   pins->insert(pin);
   ExceptionThru *thru = makeExceptionThru(pins, nullptr, nullptr,
@@ -4254,8 +4254,8 @@ Sdc::deleteLoopExceptions()
 void
 Sdc::addException(ExceptionPath *exception)
 {
-  debugPrint(debug_, "exception_merge", 1, "add exception for %s",
-             exception->asString(network_));
+  debugPrint(debug_, "exception_merge", 1, "add exception for {}",
+             exception->to_string(network_));
 
   if (exception->isPathDelay()) {
     recordPathDelayInternalFrom(exception);
@@ -4282,8 +4282,8 @@ Sdc::addException(ExceptionPath *exception)
     ExceptionTo *to = exception->to();    
     ExceptionTo *to1 = to ? to->clone(network_) : nullptr;
     ExceptionPath *exception1 = exception->clone(from1, thrus1, to1, true);
-    debugPrint(debug_, "exception_merge", 1, " split exception for %s",
-               exception1->asString(network_));
+    debugPrint(debug_, "exception_merge", 1, " split exception for {}",
+               exception1->to_string(network_));
     addException1(exception1);
 
     ClockSet *clks2 = new ClockSet(*from->clks());
@@ -4292,8 +4292,8 @@ Sdc::addException(ExceptionPath *exception)
     ExceptionThruSeq *thrus2 = exceptionThrusClone(exception->thrus(), network_);
     ExceptionTo *to2 = to ? to->clone(network_) : nullptr;
     ExceptionPath *exception2 = exception->clone(from2, thrus2, to2, true);
-    debugPrint(debug_, "exception_merge", 1, " split exception for %s",
-               exception2->asString(network_));
+    debugPrint(debug_, "exception_merge", 1, " split exception for {}",
+               exception2->to_string(network_));
     addException1(exception2);
 
     delete exception;
@@ -4316,8 +4316,8 @@ Sdc::addException1(ExceptionPath *exception)
     ExceptionTo *to1 = new ExceptionTo(pins1, nullptr, insts1, to->transition(),
                                        to->endTransition(), true, network_);
     ExceptionPath *exception1 = exception->clone(from1, thrus1, to1, true);
-    debugPrint(debug_, "exception_merge", 1, " split exception for %s",
-               exception1->asString(network_));
+    debugPrint(debug_, "exception_merge", 1, " split exception for {}",
+               exception1->to_string(network_));
     addException2(exception1);
 
     ExceptionFrom *from2 = exception->from() ? exception->from()->clone(network_):nullptr;
@@ -4326,8 +4326,8 @@ Sdc::addException1(ExceptionPath *exception)
     ExceptionTo *to2 = new ExceptionTo(nullptr, clks2, nullptr, to->transition(),
                                        to->endTransition(), true, network_);
     ExceptionPath *exception2 = exception->clone(from2, thrus2, to2, true);
-    debugPrint(debug_, "exception_merge", 1, " split exception for %s",
-               exception2->asString(network_));
+    debugPrint(debug_, "exception_merge", 1, " split exception for {}",
+               exception2->to_string(network_));
     addException2(exception2);
 
     delete exception;
@@ -4389,8 +4389,8 @@ Sdc::addException2(ExceptionPath *exception)
 void
 Sdc::deleteMatchingExceptions(ExceptionPath *exception)
 {
-  debugPrint(debug_, "exception_merge", 1, "find matches for %s",
-             exception->asString(network_));
+  debugPrint(debug_, "exception_merge", 1, "find matches for {}",
+             exception->to_string(network_));
   ExceptionPathSet matches;
   findMatchingExceptions(exception, matches);
 
@@ -4676,10 +4676,10 @@ Sdc::recordMergeHash(ExceptionPath *exception,
 {
   size_t hash = exception->hash(missing_pt);
   debugPrint(debug_, "exception_merge", 3,
-             "record merge hash %zu %s missing %s",
+             "record merge hash {} {} missing {}",
              hash,
-             exception->asString(network_),
-             missing_pt->asString(network_));
+             exception->to_string(network_),
+             missing_pt->to_string(network_));
   ExceptionPathSet &set = exception_merge_hash_[hash];
   set.insert(exception);
 }
@@ -4860,10 +4860,10 @@ Sdc::findMergeMatch(ExceptionPath *exception)
             // search at the endpoint.
             && exception->mergeable(match)
             && match->mergeablePts(exception, missing_pt, match_missing_pt)) {
-          debugPrint(debug_, "exception_merge", 1, "merge %s",
-                     exception->asString(network_));
-          debugPrint(debug_, "exception_merge", 1, " with %s",
-                     match->asString(network_));
+          debugPrint(debug_, "exception_merge", 1, "merge {}",
+                     exception->to_string(network_));
+          debugPrint(debug_, "exception_merge", 1, " with {}",
+                     match->to_string(network_));
           // Unrecord the exception that is being merged away.
           unrecordException(exception);
           unrecordMergeHashes(match);
@@ -4965,8 +4965,8 @@ Sdc::deleteExceptionsReferencing(Clock *clk)
 void
 Sdc::deleteException(ExceptionPath *exception)
 {
-  debugPrint(debug_, "exception_merge", 2, "delete %s",
-             exception->asString(network_));
+  debugPrint(debug_, "exception_merge", 2, "delete {}",
+             exception->to_string(network_));
   unrecordException(exception);
   delete exception;
 }
@@ -4996,10 +4996,10 @@ Sdc::unrecordMergeHash(ExceptionPath *exception,
 {
   size_t hash = exception->hash(missing_pt);
   debugPrint(debug_, "exception_merge", 3,
-             "unrecord merge hash %zu %s missing %s",
+             "unrecord merge hash {} {} missing {}",
              hash,
-             exception->asString(network_),
-             missing_pt->asString(network_));
+             exception->to_string(network_),
+             missing_pt->to_string(network_));
   auto itr = exception_merge_hash_.find(hash);
   if (itr != exception_merge_hash_.end()) {
     ExceptionPathSet &matches = itr->second;
@@ -5214,8 +5214,8 @@ Sdc::resetPath(ExceptionFrom *from,
   for (auto itr = exceptions_.begin(); itr != exceptions_.end(); ) {
     ExceptionPath *match = *itr;
     if (match->resetMatch(from, thrus, to, min_max, network_)) {
-      debugPrint(debug_, "exception_match", 3, "reset match %s",
-                 match->asString(network_));
+      debugPrint(debug_, "exception_match", 3, "reset match {}",
+                 match->to_string(network_));
       ExceptionPathSet expansions;
       expandException(match, expansions);
       itr = exceptions_.erase(itr);

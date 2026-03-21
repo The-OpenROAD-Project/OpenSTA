@@ -29,21 +29,21 @@
 namespace sta {
 
 std::string
-cellVerilogName(const char *sta_name);
+cellVerilogName(std::string sta_name);
 std::string
-instanceVerilogName(const char *sta_name);
+instanceVerilogName(std::string sta_name);
 std::string
-netVerilogName(const char *sta_name);
+netVerilogName(std::string sta_name);
 std::string
-portVerilogName(const char *sta_name);
+portVerilogName(std::string sta_name);
 
 std::string
-moduleVerilogToSta(const std::string *sta_name);
+moduleVerilogToSta(std::string sta_name);
 std::string
-instanceVerilogToSta(const std::string *sta_name);
+instanceVerilogToSta(std::string sta_name);
 std::string
-netVerilogToSta(const std::string *sta_name);
+netVerilogToSta(std::string sta_name);
 std::string
-portVerilogToSta(const std::string *sta_name);
+portVerilogToSta(std::string sta_name);
 
 } // namespace

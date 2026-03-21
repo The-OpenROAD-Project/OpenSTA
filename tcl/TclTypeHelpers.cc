@@ -170,8 +170,8 @@ tclArcDcalcArg(ArcDcalcArg &gate,
   obj = Tcl_NewStringObj(to_edge, strlen(to_edge));
   Tcl_ListObjAppendElement(interp, list, obj);
 
-  const char *input_delay = delayAsString(gate.inputDelay(), sta, 3);
-  obj = Tcl_NewStringObj(input_delay, strlen(input_delay));
+  std::string input_delay = delayAsString(gate.inputDelay(), sta);
+  obj = Tcl_NewStringObj(input_delay.c_str(), input_delay.size());
   Tcl_ListObjAppendElement(interp, list, obj);
 
   return list;

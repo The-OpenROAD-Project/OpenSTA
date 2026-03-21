@@ -25,6 +25,7 @@
 #pragma once
 
 #include <exception>
+#include <string>
 
 #include "Report.hh"
 
@@ -42,7 +43,7 @@ public:
 class ExceptionMsg : public Exception
 {
 public:
-  ExceptionMsg(const char *msg,
+  ExceptionMsg(const std::string &msg,
                const bool suppressed);
   virtual const char *what() const noexcept;
   virtual bool suppressed() const { return suppressed_; }
@@ -55,11 +56,11 @@ private:
 class ExceptionLine : public Exception
 {
 public:
-  ExceptionLine(const char *filename,
+  ExceptionLine(const std::string &filename,
                 int line);
 
 protected:
-  const char *filename_;
+  std::string filename_;
   int line_;
 };
 
@@ -67,29 +68,31 @@ protected:
 class FileNotReadable : public Exception
 {
 public:
-  FileNotReadable(const char *filename);
+  FileNotReadable(std::string filename);
   virtual const char *what() const noexcept;
 
 protected:
-  const char *filename_;
+  std::string filename_;
+  std::string msg_;
 };
 
 // Failure opening filename for writing.
 class FileNotWritable : public Exception
 {
 public:
-  FileNotWritable(const char *filename);
+  FileNotWritable(std::string filename);
   virtual const char *what() const noexcept;
 
 protected:
-  const char *filename_;
+  std::string filename_;
+  std::string msg_;
 };
 
 // Report an error condition that should not be possible.
 // The default handler prints msg to stderr and exits.
 // The msg should NOT include a period or return.
-// Only for use in those cases where a Report object is not available. 
-#define criticalError(id,msg) \
+// Only for use in those cases where a Report object is not available.
+#define criticalError(id, msg) \
   Report::defaultReport()->fileCritical(id, __FILE__, __LINE__, msg)
 
 } // namespace

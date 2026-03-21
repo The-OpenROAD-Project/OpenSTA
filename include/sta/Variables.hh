@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "PocvMode.hh"
+
 namespace sta {
 
 enum class CrprMode { same_pin, same_transition };
@@ -72,8 +74,11 @@ public:
   // TCL variable sta_input_port_default_clock.
   bool useDefaultArrivalClock() { return use_default_arrival_clock_; }
   void setUseDefaultArrivalClock(bool enable);
-  bool pocvEnabled() const { return pocv_enabled_; }
-  void setPocvEnabled(bool enabled);
+  bool pocvEnabled() const;
+  PocvMode pocvMode() const { return pocv_mode_; }
+  void setPocvMode(PocvMode mode);
+  float pocvQuantile() const { return pocv_quantile_; }
+  void setPocvQuantile(float quartile);
 
 private:
   bool crpr_enabled_;
@@ -88,7 +93,8 @@ private:
   bool dynamic_loop_breaking_;
   bool propagate_all_clks_;
   bool use_default_arrival_clock_;
-  bool pocv_enabled_;
+  PocvMode pocv_mode_;
+  float pocv_quantile_;
 };
 
 } // namespace

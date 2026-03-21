@@ -33,12 +33,14 @@
 #include "Transition.hh"
 #include "LibertyClass.hh"
 #include "TimingModel.hh"
+#include "Variables.hh"
 
 namespace sta {
 
 class Unit;
 class Units;
 class Report;
+class TableModels;
 class Table;
 class TableModel;
 class TableAxis;
@@ -63,43 +65,41 @@ class GateTableModel : public GateTimingModel
 {
 public:
   GateTableModel(LibertyCell *cell,
-                 TableModel *delay_model,
-                 TableModelsEarlyLate delay_sigma_models,
-                 TableModel *slew_model,
-                 TableModelsEarlyLate slew_sigma_models,
+                 TableModels *delay_models,
+                 TableModels *slew_models,
                  ReceiverModelPtr receiver_model,
                  OutputWaveforms *output_waveforms);
   GateTableModel(LibertyCell *cell,
-                 TableModel *delay_model,
-                 TableModel *slew_model);
+                 TableModels *delay_models,
+                 TableModels *slew_models);
   ~GateTableModel() override;
   void gateDelay(const Pvt *pvt,
                  float in_slew,
                  float load_cap,
-                 bool pocv_enabled,
                  // Return values.
-                 ArcDelay &gate_delay,
-                 Slew &drvr_slew) const override;
-  // deprecated 2024-01-07
-  // related_out_cap arg removed.
-  void gateDelay(const Pvt *pvt,
-                 float in_slew,
-                 float load_cap,
-                 float related_out_cap,
-                 bool pocv_enabled,
-                 ArcDelay &gate_delay,
-                 Slew &drvr_slew) const __attribute__ ((deprecated));
+                 float &gate_delay,
+                 float &drvr_slew) const override;
+  // Fill in pocv parameters in gate_delay, drvr_slew.
+  void gateDelayPocv(const Pvt *pvt,
+                     float in_slew,
+                     float load_cap,
+                     const MinMax *min_max,
+                     PocvMode pocv_mode,
+                     // Return values.
+                     ArcDelay &gate_delay,
+                     Slew &drvr_slew) const override;
   std::string reportGateDelay(const Pvt *pvt,
                               float in_slew,
                               float load_cap,
-                              bool pocv_enabled,
+                              const MinMax *min_max,
+                              PocvMode pocv_mode,
                               int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
 
-  const TableModel *delayModel() const { return delay_model_.get(); }
-  const TableModel *slewModel() const { return slew_model_.get(); }
-  const TableModel *delaySigmaModel(const EarlyLate *el) const;
-  const TableModel *slewSigmaModel(const EarlyLate *el) const;
+  const TableModels *delayModels() const { return delay_models_.get(); }
+  const TableModel *delayModel() const;
+  const TableModels *slewModels() const { return slew_models_.get(); }
+  const TableModel *slewModel() const;
   const ReceiverModel *receiverModel() const { return receiver_model_.get(); }
   OutputWaveforms *outputWaveforms() const { return output_waveforms_.get(); }
   // Check the axes before making the model.
@@ -138,10 +138,8 @@ protected:
                       float &axis_value3) const;
   static bool checkAxis(const TableAxis *axis);
 
-  std::unique_ptr<TableModel> delay_model_;
-  TableModelsEarlyLate delay_sigma_models_;
-  std::unique_ptr<TableModel> slew_model_;
-  TableModelsEarlyLate slew_sigma_models_;
+  std::unique_ptr<TableModels> delay_models_;
+  std::unique_ptr<TableModels> slew_models_;
   ReceiverModelPtr receiver_model_;
   std::unique_ptr<OutputWaveforms> output_waveforms_;
 };
@@ -150,25 +148,24 @@ class CheckTableModel : public CheckTimingModel
 {
 public:
   CheckTableModel(LibertyCell *cell,
-                  TableModel *model,
-                  TableModelsEarlyLate sigma_models);
-  CheckTableModel(LibertyCell *cell,
-                  TableModel *model);
+                  TableModels *check_models);
   ~CheckTableModel() override;
   ArcDelay checkDelay(const Pvt *pvt,
                       float from_slew,
                       float to_slew,
                       float related_out_cap,
-                      bool pocv_enabled) const override;
+                      const MinMax *min_max,
+                      PocvMode pocv_mode) const override;
   std::string reportCheckDelay(const Pvt *pvt,
                                float from_slew,
                                const char *from_slew_annotation,
                                float to_slew,
                                float related_out_cap,
-                               bool pocv_enabled,
+                               const MinMax *min_max,
+                               PocvMode pocv_mode,
                                int digits) const override;
-  const TableModel *model() const { return model_.get(); }
-  const TableModel *sigmaModel(const EarlyLate *el) const;
+  const TableModels *checkModels() const { return check_models_.get(); }
+  const TableModel *checkModel() const;
 
   // Check the axes before making the model.
   // Return true if the model axes are supported.
@@ -202,8 +199,7 @@ protected:
                                int digits) const;
   static bool checkAxis(const TableAxis *axis);
 
-  std::unique_ptr<TableModel> model_;
-  TableModelsEarlyLate sigma_models_;
+  std::unique_ptr<TableModels> check_models_;
 };
 
 class TableAxis
@@ -311,6 +307,8 @@ public:
 
 private:
   void clear();
+  float findValueOrder2(float axis_value1, float axis_value2) const;
+  float findValueOrder3(float axis_value1, float axis_value2, float axis_value3) const;
   std::string reportValueOrder0(const char *result_name,
                                 const char *comment1,
                                 const Unit *table_unit,
@@ -406,6 +404,34 @@ protected:
   unsigned scale_factor_type_:scale_factor_bits;
   unsigned rf_index_:RiseFall::index_bit_count;
   bool is_scaled_:1;
+};
+
+// cell/transition/check nldm/ocv/lvf models for one rise/fall edge.
+class TableModels
+{
+public:
+  TableModels();
+  TableModels(TableModel *model);
+  ~TableModels();
+  TableModel *model() const { return model_.get(); }
+  void setModel(TableModel *model);
+  TableModel *sigma(const EarlyLate *early_late) const;
+  void setSigma(TableModel *table,
+                const EarlyLate *early_late);
+  TableModel *meanShift() const { return mean_shift_.get(); }
+  void setMeanShift(TableModel *table);
+  TableModel *skewness() const { return skewness_.get(); }
+  void setSkewness(TableModel *table);
+  TableModel *stdDev() const { return std_dev_.get(); }
+  void setStdDev(TableModel *table);
+
+protected:
+  std::unique_ptr<TableModel> model_;
+  // Note early/late can point to the same model.
+  std::array<TableModel*, EarlyLate::index_count> sigma_;
+  std::unique_ptr<TableModel> std_dev_;
+  std::unique_ptr<TableModel> mean_shift_;
+  std::unique_ptr<TableModel> skewness_;
 };
 
 ////////////////////////////////////////////////////////////////

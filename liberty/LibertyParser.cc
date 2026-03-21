@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "LibertyParser.hh"
@@ -130,10 +130,8 @@ LibertyParser::groupBegin(const std::string type,
                           LibertyAttrValueSeq *params,
                           int line)
 {
-  LibertyGroup *group =
-    new LibertyGroup(std::move(type),
-                     params ? std::move(*params) : LibertyAttrValueSeq(),
-                     line);
+  LibertyGroup *group = new LibertyGroup(
+      std::move(type), params ? std::move(*params) : LibertyAttrValueSeq(), line);
   delete params;
   LibertyGroup *parent_group = group_stack_.empty() ? nullptr : group_stack_.back();
   group_visitor_->begin(group, parent_group);
@@ -145,8 +143,7 @@ LibertyParser::groupEnd()
 {
   LibertyGroup *group = this->group();
   group_stack_.pop_back();
-  LibertyGroup *parent =
-    group_stack_.empty() ? nullptr : group_stack_.back();
+  LibertyGroup *parent = group_stack_.empty() ? nullptr : group_stack_.back();
   if (parent)
     parent->addSubgroup(group);
   group_visitor_->end(group, parent);
@@ -170,8 +167,8 @@ LibertyParser::makeSimpleAttr(const std::string name,
                               const LibertyAttrValue *value,
                               int line)
 {
-  LibertySimpleAttr *attr = new LibertySimpleAttr(std::move(name),
-                                                  std::move(*value), line);
+  LibertySimpleAttr *attr =
+      new LibertySimpleAttr(std::move(name), std::move(*value), line);
   delete value;
   LibertyGroup *group = this->group();
   group->addAttr(attr);
@@ -191,9 +188,8 @@ LibertyParser::makeComplexAttr(const std::string name,
     return nullptr;  // Define is not a complex attr; already added to group
   }
   else {
-    LibertyComplexAttr *attr = new LibertyComplexAttr(std::move(name),
-                                                      std::move(*values),
-                                                      line);
+    LibertyComplexAttr *attr =
+        new LibertyComplexAttr(std::move(name), std::move(*values), line);
     delete values;
     LibertyGroup *group = this->group();
     group->addAttr(attr);
@@ -266,7 +262,7 @@ LibertyScanner::includeBegin()
       }
       else {
         report_->fileWarn(25, filename_.c_str(), yylineno,
-                          "cannot open include file %s.", filename.c_str());
+                          "cannot open include file {}.", filename);
         delete stream;
       }
     }
@@ -291,7 +287,7 @@ LibertyScanner::fileEnd()
 void
 LibertyScanner::error(const char *msg)
 {
-  report_->fileError(1866, filename_.c_str(), lineno(), "%s", msg);
+  report_->fileError(1866, filename_.c_str(), lineno(), "{}", msg);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -305,10 +301,7 @@ LibertyGroup::LibertyGroup(std::string type,
 {
 }
 
-LibertyGroup::~LibertyGroup()
-{
-  clear();
-}
+LibertyGroup::~LibertyGroup() { clear(); }
 
 void
 LibertyGroup::clear()
@@ -327,19 +320,15 @@ LibertyGroup::clear()
 bool
 LibertyGroup::empty() const
 {
-  return subgroups_.empty()
-    && simple_attr_map_.empty()
-    && complex_attr_map_.empty()
-    && define_map_.empty();
+  return subgroups_.empty() && simple_attr_map_.empty() && complex_attr_map_.empty()
+      && define_map_.empty();
 }
 
 bool
 LibertyGroup::oneGroupOnly() const
 {
-  return subgroups_.size() == 1
-    && simple_attr_map_.empty()
-    && complex_attr_map_.empty()
-    && define_map_.empty();
+  return subgroups_.size() == 1 && simple_attr_map_.empty()
+      && complex_attr_map_.empty() && define_map_.empty();
 }
 
 void
@@ -483,7 +472,7 @@ LibertyGroup::findAttrFloat(const std::string attr_name,
       const std::string &float_str = attr_value.stringValue();
       char *end = nullptr;
       value = std::strtof(float_str.c_str(), &end);
-      if (end)  {
+      if (end) {
         exists = true;
         return;
       }
@@ -538,10 +527,7 @@ LibertyComplexAttr::LibertyComplexAttr(std::string name,
 {
 }
 
-LibertyComplexAttr::~LibertyComplexAttr()
-{
-  deleteContents(values_);
-}
+LibertyComplexAttr::~LibertyComplexAttr() { deleteContents(values_); }
 
 const LibertyAttrValue *
 LibertyComplexAttr::firstValue() const
@@ -585,9 +571,9 @@ LibertyAttrValue::floatValue() const
 }
 
 void
-LibertyAttrValue::floatValue(// Return values.
-                             float &value,
-                             bool &valid) const
+LibertyAttrValue::floatValue(  // Return values.
+    float &value,
+    bool &valid) const
 {
   valid = false;
   if (string_value_.empty()) {
@@ -598,8 +584,7 @@ LibertyAttrValue::floatValue(// Return values.
     // Some floats are enclosed in quotes.
     char *end;
     value = strtof(string_value_.c_str(), &end);
-    if ((*end == '\0'
-         || isspace(*end))
+    if ((*end == '\0' || isspace(*end))
         // strtof support INF as a valid float.
         && string_value_ != "inf") {
       valid = true;
@@ -631,4 +616,4 @@ LibertyVariable::LibertyVariable(std::string var,
 {
 }
 
-} // namespace
+}  // namespace sta

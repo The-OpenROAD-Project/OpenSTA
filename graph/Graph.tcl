@@ -26,51 +26,64 @@
 
 namespace eval sta {
 
-define_cmd_args "report_edges" {[-from from_pin] [-to to_pin]}
+define_cmd_args "report_edges" {[-from from_pin] [-to to_pin]\
+                                  [-digits digits] [-report_variance]}
 
 proc report_edges { args } {
-  parse_key_args "report_edges" args keys {-from -to} flags {}
+  global sta_report_default_digits
+
+  parse_key_args "report_edges" args keys {-from -to -digits} flags {-report_variance}
   check_argc_eq0 "report_edges" $args
+
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+
+  set report_variance [info exists flags(-report_variance)]
 
   if { [info exists keys(-from)] && [info exists keys(-to)] } {
     set from_pin [get_port_pin_error "from_pin" $keys(-from)]
     set to_pin [get_port_pin_error "to_pin" $keys(-to)]
     foreach from_vertex [$from_pin vertices] {
       foreach to_vertex [$to_pin vertices] {
-        report_edges_between_ $from_vertex $to_vertex
+        report_edges_between_ $from_vertex $to_vertex $digits $report_variance
       }
     }
   } elseif [info exists keys(-from)] {
     set from_pin [get_port_pin_error "from_pin" $keys(-from)]
     foreach from_vertex [$from_pin vertices] {
       report_edges_ $from_vertex out_edge_iterator \
-        vertex_port_name vertex_path_name
+        vertex_port_name vertex_path_name $digits $report_variance
     }
   } elseif [info exists keys(-to)] {
     set to_pin [get_port_pin_error "to_pin" $keys(-to)]
     foreach to_vertex [$to_pin vertices] {
       report_edges_ $to_vertex in_edge_iterator \
-        vertex_path_name vertex_port_name
+        vertex_path_name vertex_port_name $digits $report_variance
     }
   }
 }
 
-proc report_edges_between_ { from_vertex to_vertex } {
+proc report_edges_between_ { from_vertex to_vertex digits report_variance } {
   set iter [$from_vertex out_edge_iterator]
   while {[$iter has_next]} {
     set edge [$iter next]
     if { [$edge to] == $to_vertex } {
       if { [$edge role] == "wire" } {
-        report_edge_ $edge vertex_path_name vertex_path_name
+        report_edge_ $edge vertex_path_name vertex_path_name $digits $report_variance
       } else {
-        report_edge_ $edge vertex_port_name vertex_port_name
+        report_edge_ $edge vertex_port_name vertex_port_name $digits $report_variance
       }
     }
   }
   $iter finish
 }
 
-proc report_edges_ { vertex iter_proc wire_from_name_proc wire_to_name_proc } {
+proc report_edges_ { vertex iter_proc wire_from_name_proc wire_to_name_proc \
+                       digits report_variance } {
   # First report edges internal to the device.
   set device_header 0
   set iter [$vertex $iter_proc]
@@ -84,7 +97,7 @@ proc report_edges_ { vertex iter_proc wire_from_name_proc wire_to_name_proc } {
         }
         set device_header 1
       }
-      report_edge_ $edge vertex_port_name vertex_port_name
+      report_edge_ $edge vertex_port_name vertex_port_name $digits $report_variance
     }
   }
   $iter finish
@@ -94,15 +107,14 @@ proc report_edges_ { vertex iter_proc wire_from_name_proc wire_to_name_proc } {
   while {[$iter has_next]} {
     set edge [$iter next]
     if { [$edge role] == "wire" } {
-      report_edge_ $edge $wire_from_name_proc $wire_to_name_proc
+      report_edge_ $edge $wire_from_name_proc $wire_to_name_proc $digits $report_variance
     }
   }
   $iter finish
 }
 
-proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
-  global sta_report_default_digits
-
+proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc \
+                      digits report_variance } {
   set latch_enable [$edge latch_d_to_q_en]
   if { $latch_enable != "" } {
     set latch_enable " enable $latch_enable"
@@ -125,7 +137,7 @@ proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
   }
 
   foreach arc [$edge timing_arcs] {
-    set delays [$edge arc_delay_strings $arc $sta_report_default_digits]
+    set delays [$edge arc_delay_strings $arc $report_variance $digits]
     set delays_fmt [format_delays $delays]
     set disable_reason ""
     if { [timing_arc_disabled $edge $arc] } {
@@ -133,18 +145,6 @@ proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
     }
     report_line "  [$arc from_edge] -> [$arc to_edge] $delays_fmt$disable_reason"
   }
-}
-
-# Separate list elements with colons.
-proc format_times { values digits } {
-  set result ""
-  foreach value $values {
-    if { $result != "" } {
-      append result ":"
-    }
-    append result [format_time $value $digits]
-  }
-  return $result
 }
 
 # Separate delay list elements with colons.

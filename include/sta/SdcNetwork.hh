@@ -274,7 +274,7 @@ protected:
                               const PatternMatch *pattern,
                               InstanceSeq &matches) const;
 
-  const char *staToSdc(const char *sta_name) const;
+  const char *staToSdc(std::string_view sta_name) const;
 };
 
 // Encapsulate a network to map names to/from the sdc namespace.
