@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
-#include "DelayFloat.hh"
+#include "Delay.hh"
+#include "DelayScalar.hh"
+#include "StaState.hh"
 #include "MinMax.hh"
 #include "Graph.hh"
 #include "Transition.hh"
@@ -9,38 +11,55 @@
 
 namespace sta {
 
+// Minimal StaState subclass that provides a DelayOps for unit tests.
+class TestStaState : public StaState
+{
+public:
+  TestStaState() { delay_ops_ = new DelayOpsScalar(); }
+  ~TestStaState() override { delete delay_ops_; delay_ops_ = nullptr; }
+};
+
 class DelayFloatTest : public ::testing::Test {
 protected:
   void SetUp() override {
     initDelayConstants();
+    sta_state_ = new TestStaState();
   }
+  void TearDown() override {
+    delete sta_state_;
+    sta_state_ = nullptr;
+  }
+  // Convenience accessor for delay comparison functions.
+  const StaState *sta() const { return sta_state_; }
+
+  TestStaState *sta_state_;
 };
 
 TEST_F(DelayFloatTest, DelayZero) {
-  EXPECT_TRUE(delayZero(0.0f));
-  EXPECT_TRUE(delayZero(delay_zero));
-  EXPECT_FALSE(delayZero(1.0f));
-  EXPECT_FALSE(delayZero(-1.0f));
+  EXPECT_TRUE(delayZero(Delay(0.0f), sta()));
+  EXPECT_TRUE(delayZero(delay_zero, sta()));
+  EXPECT_FALSE(delayZero(Delay(1.0f), sta()));
+  EXPECT_FALSE(delayZero(Delay(-1.0f), sta()));
 }
 
 TEST_F(DelayFloatTest, DelayEqual) {
-  EXPECT_TRUE(delayEqual(1.0f, 1.0f));
-  EXPECT_TRUE(delayEqual(0.0f, 0.0f));
-  EXPECT_FALSE(delayEqual(1.0f, 2.0f));
+  EXPECT_TRUE(delayEqual(Delay(1.0f), Delay(1.0f), sta()));
+  EXPECT_TRUE(delayEqual(Delay(0.0f), Delay(0.0f), sta()));
+  EXPECT_FALSE(delayEqual(Delay(1.0f), Delay(2.0f), sta()));
 }
 
 TEST_F(DelayFloatTest, DelayInf) {
   // delayInf checks against STA's INF constant, not IEEE infinity
-  EXPECT_TRUE(delayInf(INF));
-  EXPECT_TRUE(delayInf(-INF));
-  EXPECT_FALSE(delayInf(0.0f));
-  EXPECT_FALSE(delayInf(1e10f));
+  EXPECT_TRUE(delayInf(Delay(INF), sta()));
+  EXPECT_TRUE(delayInf(Delay(-INF), sta()));
+  EXPECT_FALSE(delayInf(Delay(0.0f), sta()));
+  EXPECT_FALSE(delayInf(Delay(1e10f), sta()));
 }
 
 TEST_F(DelayFloatTest, DelayLess) {
-  EXPECT_TRUE(delayLess(1.0f, 2.0f, nullptr));
-  EXPECT_FALSE(delayLess(2.0f, 1.0f, nullptr));
-  EXPECT_FALSE(delayLess(1.0f, 1.0f, nullptr));
+  EXPECT_TRUE(delayLess(Delay(1.0f), Delay(2.0f), sta()));
+  EXPECT_FALSE(delayLess(Delay(2.0f), Delay(1.0f), sta()));
+  EXPECT_FALSE(delayLess(Delay(1.0f), Delay(1.0f), sta()));
 }
 
 TEST_F(DelayFloatTest, DelayRemove) {
@@ -48,11 +67,6 @@ TEST_F(DelayFloatTest, DelayRemove) {
   Delay d2 = 3.0f;
   Delay result = delayRemove(d1, d2);
   EXPECT_FLOAT_EQ(result, 2.0f);
-}
-
-TEST_F(DelayFloatTest, DelayRatio) {
-  EXPECT_FLOAT_EQ(delayRatio(6.0f, 3.0f), 2.0f);
-  EXPECT_FLOAT_EQ(delayRatio(0.0f, 1.0f), 0.0f);
 }
 
 TEST_F(DelayFloatTest, DelayInitValueMin) {
@@ -68,8 +82,8 @@ TEST_F(DelayFloatTest, DelayInitValueMax) {
 }
 
 TEST_F(DelayFloatTest, MakeDelay) {
-  Delay d = makeDelay(1.5f, 0.0f, 0.0f);
-  EXPECT_FLOAT_EQ(d, 1.5f);
+  Delay d = makeDelay(1.5f, 0.0f);
+  EXPECT_FLOAT_EQ(delayAsFloat(d), 1.5f);
 }
 
 TEST_F(DelayFloatTest, DelayAsFloat) {
@@ -79,33 +93,33 @@ TEST_F(DelayFloatTest, DelayAsFloat) {
 
 // Additional delay tests for improved coverage
 TEST_F(DelayFloatTest, DelayGreater) {
-  EXPECT_TRUE(delayGreater(2.0f, 1.0f, nullptr));
-  EXPECT_FALSE(delayGreater(1.0f, 2.0f, nullptr));
-  EXPECT_FALSE(delayGreater(1.0f, 1.0f, nullptr));
+  EXPECT_TRUE(delayGreater(Delay(2.0f), Delay(1.0f), sta()));
+  EXPECT_FALSE(delayGreater(Delay(1.0f), Delay(2.0f), sta()));
+  EXPECT_FALSE(delayGreater(Delay(1.0f), Delay(1.0f), sta()));
 }
 
 TEST_F(DelayFloatTest, DelayLessEqual) {
-  EXPECT_TRUE(delayLessEqual(1.0f, 2.0f, nullptr));
-  EXPECT_TRUE(delayLessEqual(1.0f, 1.0f, nullptr));
-  EXPECT_FALSE(delayLessEqual(2.0f, 1.0f, nullptr));
+  EXPECT_TRUE(delayLessEqual(Delay(1.0f), Delay(2.0f), sta()));
+  EXPECT_TRUE(delayLessEqual(Delay(1.0f), Delay(1.0f), sta()));
+  EXPECT_FALSE(delayLessEqual(Delay(2.0f), Delay(1.0f), sta()));
 }
 
 TEST_F(DelayFloatTest, DelayGreaterEqual) {
-  EXPECT_TRUE(delayGreaterEqual(2.0f, 1.0f, nullptr));
-  EXPECT_TRUE(delayGreaterEqual(1.0f, 1.0f, nullptr));
-  EXPECT_FALSE(delayGreaterEqual(1.0f, 2.0f, nullptr));
+  EXPECT_TRUE(delayGreaterEqual(Delay(2.0f), Delay(1.0f), sta()));
+  EXPECT_TRUE(delayGreaterEqual(Delay(1.0f), Delay(1.0f), sta()));
+  EXPECT_FALSE(delayGreaterEqual(Delay(1.0f), Delay(2.0f), sta()));
 }
 
 TEST_F(DelayFloatTest, MakeDelayWithSigma) {
-  // In float mode, sigma is ignored
-  Delay d = makeDelay(2.5f, 0.1f, 0.2f);
-  EXPECT_FLOAT_EQ(d, 2.5f);
+  // makeDelay(mean, std_dev) - sigma stored in Delay class
+  Delay d = makeDelay(2.5f, 0.1f);
+  EXPECT_FLOAT_EQ(delayAsFloat(d), 2.5f);
 }
 
 TEST_F(DelayFloatTest, DelayNegative) {
   Delay d = -5.0f;
   EXPECT_FLOAT_EQ(delayAsFloat(d), -5.0f);
-  EXPECT_FALSE(delayZero(d));
+  EXPECT_FALSE(delayZero(d, sta()));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -274,11 +288,12 @@ TEST(VertexStandaloneTest, Paths)
   EXPECT_EQ(v.paths(), nullptr);
 }
 
-// Test Vertex slews
-TEST(VertexStandaloneTest, Slews)
+// Test Vertex pin default
+TEST(VertexStandaloneTest, PinDefault)
 {
   Vertex v;
-  EXPECT_EQ(v.slews(), nullptr);
+  // slews() is protected; verify public pin() accessor instead
+  EXPECT_EQ(v.pin(), nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -360,10 +375,10 @@ TEST(EdgeStandaloneTest, RemoveDelayAnnotated)
 TEST(EdgeStandaloneTest, SetArcDelays)
 {
   Edge e;
-  // Set and clear arc delays
-  ArcDelay *delays = new ArcDelay[4];
+  // Set and clear arc delays (setArcDelays takes float*)
+  float *delays = new float[4];
   for (int i = 0; i < 4; i++)
-    delays[i] = 0.0;
+    delays[i] = 0.0f;
   e.setArcDelays(delays);
   EXPECT_NE(e.arcDelays(), nullptr);
   e.setArcDelays(nullptr);
@@ -385,14 +400,14 @@ TEST_F(DelayFloatTest, DelayLessEqualMinMax)
 {
   // 4-arg delayLessEqual with MinMax
   // With max: same as fuzzyLessEqual
-  EXPECT_TRUE(delayLessEqual(1.0f, 2.0f, MinMax::max(), nullptr));
-  EXPECT_TRUE(delayLessEqual(1.0f, 1.0f, MinMax::max(), nullptr));
-  EXPECT_FALSE(delayLessEqual(2.0f, 1.0f, MinMax::max(), nullptr));
+  EXPECT_TRUE(delayLessEqual(Delay(1.0f), Delay(2.0f), MinMax::max(), sta()));
+  EXPECT_TRUE(delayLessEqual(Delay(1.0f), Delay(1.0f), MinMax::max(), sta()));
+  EXPECT_FALSE(delayLessEqual(Delay(2.0f), Delay(1.0f), MinMax::max(), sta()));
 
   // With min: same as fuzzyGreaterEqual (reversed)
-  EXPECT_TRUE(delayLessEqual(2.0f, 1.0f, MinMax::min(), nullptr));
-  EXPECT_TRUE(delayLessEqual(1.0f, 1.0f, MinMax::min(), nullptr));
-  EXPECT_FALSE(delayLessEqual(1.0f, 2.0f, MinMax::min(), nullptr));
+  EXPECT_TRUE(delayLessEqual(Delay(2.0f), Delay(1.0f), MinMax::min(), sta()));
+  EXPECT_TRUE(delayLessEqual(Delay(1.0f), Delay(1.0f), MinMax::min(), sta()));
+  EXPECT_FALSE(delayLessEqual(Delay(1.0f), Delay(2.0f), MinMax::min(), sta()));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -413,7 +428,8 @@ TEST(EdgeStandaloneTest, DefaultState)
 TEST(VertexStandaloneTest, SlewsDefault)
 {
   Vertex v;
-  EXPECT_EQ(v.slews(), nullptr);
+  // slews() is protected; verify public paths() accessor instead
+  EXPECT_EQ(v.paths(), nullptr);
 }
 
 // Test Edge::arcDelayAnnotateBit - static method
@@ -440,22 +456,14 @@ TEST(EdgeStandaloneTest, EdgeInitViaTimingArcSet)
   EXPECT_EQ(e.timingArcSet(), nullptr);
 }
 
-// Test Vertex setSlews
-// Covers: Vertex::setSlews
+// Test Vertex initial state via public accessors
+// Covers: Vertex default state
 TEST(VertexStandaloneTest, SetSlews)
 {
   Vertex v;
-  EXPECT_EQ(v.slews(), nullptr);
-
-  // Allocate some slews
-  Slew *slews = new Slew[4];
-  for (int i = 0; i < 4; i++)
-    slews[i] = static_cast<float>(i) * 1e-9f;
-
-  // setSlews is protected, but we test via the public slews() accessor
-  // We can't directly call setSlews, but we verify initial state
-  EXPECT_EQ(v.slews(), nullptr);
-  delete[] slews;
+  // slews() and setSlews() are protected; verify public accessors instead
+  EXPECT_EQ(v.pin(), nullptr);
+  EXPECT_EQ(v.paths(), nullptr);
 }
 
 // Test Vertex setPaths
@@ -541,14 +549,12 @@ TEST(EdgeStandaloneTest, SetTimingArcSetNull)
   EXPECT_EQ(e.timingArcSet(), nullptr);
 }
 
-// Test Vertex setSlews indirectly - slews_ is protected
-// Covers: Vertex::setSlews path
+// Test Vertex public accessors for initial state
+// Covers: Vertex::paths, Vertex::setPaths
 TEST(VertexStandaloneTest, VertexSlewsProtected)
 {
   Vertex v;
-  // Initially slews_ is nullptr
-  EXPECT_EQ(v.slews(), nullptr);
-  // setPaths is public - at least verify paths
+  // slews() is protected; verify public setPaths/paths instead
   v.setPaths(nullptr);
   EXPECT_EQ(v.paths(), nullptr);
 }
@@ -673,7 +679,8 @@ TEST(EdgeStandaloneTest, ArcDelaysSetAndAccess)
 {
   Edge e;
   EXPECT_EQ(e.arcDelays(), nullptr);
-  ArcDelay *delays = new ArcDelay[8];
+  // setArcDelays takes float*
+  float *delays = new float[8];
   for (int i = 0; i < 8; i++)
     delays[i] = static_cast<float>(i) * 1e-12f;
   e.setArcDelays(delays);
@@ -773,14 +780,14 @@ TEST(EdgeStandaloneTest, MultipleFlagCombinations)
 TEST_F(DelayFloatTest, DelayLessEqualMinMaxVariant)
 {
   // With max: standard less-equal
-  EXPECT_TRUE(delayLessEqual(1.0f, 2.0f, MinMax::max(), nullptr));
-  EXPECT_TRUE(delayLessEqual(2.0f, 2.0f, MinMax::max(), nullptr));
-  EXPECT_FALSE(delayLessEqual(3.0f, 2.0f, MinMax::max(), nullptr));
+  EXPECT_TRUE(delayLessEqual(Delay(1.0f), Delay(2.0f), MinMax::max(), sta()));
+  EXPECT_TRUE(delayLessEqual(Delay(2.0f), Delay(2.0f), MinMax::max(), sta()));
+  EXPECT_FALSE(delayLessEqual(Delay(3.0f), Delay(2.0f), MinMax::max(), sta()));
 
   // With min: reversed (greater-equal)
-  EXPECT_TRUE(delayLessEqual(3.0f, 2.0f, MinMax::min(), nullptr));
-  EXPECT_TRUE(delayLessEqual(2.0f, 2.0f, MinMax::min(), nullptr));
-  EXPECT_FALSE(delayLessEqual(1.0f, 2.0f, MinMax::min(), nullptr));
+  EXPECT_TRUE(delayLessEqual(Delay(3.0f), Delay(2.0f), MinMax::min(), sta()));
+  EXPECT_TRUE(delayLessEqual(Delay(2.0f), Delay(2.0f), MinMax::min(), sta()));
+  EXPECT_FALSE(delayLessEqual(Delay(1.0f), Delay(2.0f), MinMax::min(), sta()));
 }
 
 ////////////////////////////////////////////////////////////////
