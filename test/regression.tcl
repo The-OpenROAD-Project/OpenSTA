@@ -30,7 +30,7 @@
 # 
 # This notice may not be removed or altered from any source distribution.
 
-# Usage: regression -help | [-threads threads] [-j jobs] [-valgrind] [-report_stats]
+# Usage: regression -help | [-j jobs] [-threads threads] [-valgrind] [-report_stats]
 #                   test1 [test2...]
 
 proc regression_main {} {
@@ -82,8 +82,8 @@ proc parse_args {} {
     set arg [lindex $argv 0]
     if { $arg == "help" || $arg == "-help" } {
       puts {Usage: regression [-help] [-threads threads] [-j jobs] [-valgrind] [-report_stats] tests...}
-      puts "  -threads max|integer - number of threads to use"
-      puts "  -j jobs - number of parallel jobs (processes) to run"
+      puts "  -j jobs - number of parallel test jobs (processes) to run"
+      puts "  -threads max|integer - number of threads the STA uses"
       puts "  -valgrind - run valgrind (linux memory checker)"
       puts "  -report_stats - report run time and memory"
       puts "  Wildcarding for test names is supported (enclose in \"'s)"
