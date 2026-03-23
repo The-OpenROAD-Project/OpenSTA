@@ -25,7 +25,7 @@
 namespace eval sta {
 
 define_cmd_args "write_path_spice" { -path_args path_args\
-                                       -spice_directory spice_directory\
+                                       -spice_file spice_file\
                                        -lib_subckt_file lib_subckts_file\
                                        -model_file model_file\
                                        -power power\
@@ -34,12 +34,13 @@ define_cmd_args "write_path_spice" { -path_args path_args\
 
 proc write_path_spice { args } {
   parse_key_args "write_path_spice" args \
-    keys {-spice_directory -lib_subckt_file -model_file \
+    keys {-spice_file -lib_subckt_file -model_file \
             -power -ground -path_args -simulator} \
     flags {}
 
-  if { [info exists keys(-spice_directory)] } {
-    set spice_dir [file nativename $keys(-spice_directory)]
+  if { [info exists keys(-spice_file)] } {
+    set spice_file [file nativename $keys(-spice_file)]
+    set spice_dir [file dirname $spice_file]
     if { ![file exists $spice_dir] } {
       sta_error 1920 "Directory $spice_dir not found."
     }
@@ -50,7 +51,7 @@ proc write_path_spice { args } {
       sta_error 1922 "Cannot write in $spice_dir."
     }
   } else {
-    sta_error 1923 "No -spice_directory specified."
+    sta_error 1923 "No -spice_file specified."
   }
 
   if { [info exists keys(-lib_subckt_file)] } {
@@ -96,10 +97,10 @@ proc write_path_spice { args } {
     set path_index 1
     foreach path_end $path_ends {
       set path [$path_end path]
-      set path_name "path_$path_index"
-      set spice_file [file join $spice_dir "$path_name.sp"]
-      set subckt_file [file join $spice_dir "$path_name.subckt"]
-      write_path_spice_cmd $path $spice_file $subckt_file \
+      set path_file "${spice_file}_$path_index"
+      set spice_file1 ${path_file}.sp
+      set subckt_file ${path_file}.subckt
+      write_path_spice_cmd $path $spice_file1 $subckt_file \
         $lib_subckt_file $model_file $power $ground $ckt_sim
       incr path_index
     }

@@ -4,6 +4,13 @@ OpenSTA Timing Analyzer Release Notes
 This file summarizes user visible changes for each release.
 See ApiChangeLog.txt for changes to the STA api.
 
+2026/03/23
+----------
+
+The write_path_spice command -spice_directory has been changed to
+-spice_file, which is a prefix for the spice filenames. Successive
+paths are written in files name <spice_file>_<path_number>.sp.
+
 Release 3.0.1 2026/03/12
 ------------------------
 
