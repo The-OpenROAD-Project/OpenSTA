@@ -1,0 +1,16 @@
+(SAIFILE
+(SAIFVERSION "2.0")
+(DIRECTION "backward")
+(DIVIDER / )
+(TIMESCALE 1ns)
+(DURATION 1000)
+ (INSTANCE TOP
+  (INSTANCE child
+   (INSTANCE grandchild
+    (NET
+     (clk (T0 500) (T1 500) (TZ 0) (TX 0) (TB 0) (TC 1000))
+    )
+   )
+  )
+ )
+)
