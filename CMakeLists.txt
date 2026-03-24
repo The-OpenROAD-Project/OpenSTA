@@ -403,15 +403,44 @@ find_package(Threads)
 
 find_package(Eigen3 REQUIRED)
 
-# fmt library: fallback when std::format is not available (e.g. GCC 11 on Ubuntu 22.04)
-find_package(fmt QUIET)
-if(NOT fmt_FOUND)
-  include(FetchContent)
-  FetchContent_Declare(fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 10.2.1
-  )
-  FetchContent_MakeAvailable(fmt)
+# See if std::format is available and if nor install fmt.
+include(CheckCXXSourceCompiles)
+set(_sta_fmt_check_saved_flags "${CMAKE_REQUIRED_FLAGS}")
+if(MSVC)
+  string(APPEND CMAKE_REQUIRED_FLAGS " /std:c++20")
+else()
+  string(APPEND CMAKE_REQUIRED_FLAGS " -std=c++20")
+endif()
+check_cxx_source_compiles("
+#include <format>
+#include <string>
+int main() { (void)std::format(\"{}\", 42); return 0; }
+" HAVE_CXX_STD_FORMAT)
+set(CMAKE_REQUIRED_FLAGS "${_sta_fmt_check_saved_flags}")
+
+if(HAVE_CXX_STD_FORMAT)
+  message(STATUS "std::format: available")
+else()
+  # Set the fmt dir for the ubuntu/centos docker files.
+  if(EXISTS "/usr/local/lib/cmake/fmt/fmt-config.cmake")
+    set(fmt_DIR "/usr/local/lib/cmake/fmt")
+  elseif(EXISTS "/usr/lib/x86_64-linux-gnu/cmake/fmt/fmt-config.cmake")
+    set(fmt_DIR "/usr/lib/x86_64-linux-gnu/cmake/fmt")
+  elseif(EXISTS "/usr/lib/aarch64-linux-gnu/cmake/fmt/fmt-config.cmake")
+    set(fmt_DIR "/usr/lib/aarch64-linux-gnu/cmake/fmt")
+  endif()
+  find_package(fmt QUIET)
+  if(fmt_FOUND)
+    message(STATUS "std::format: using installed fmt library")
+  else()
+    message(STATUS "std::format: building fmt library")
+    include(FetchContent)
+    FetchContent_Declare(fmt
+      GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+      GIT_TAG 10.2.1
+    )
+    FetchContent_MakeAvailable(fmt)
+  endif()
 endif()
 
 include(cmake/FindCUDD.cmake)
@@ -529,11 +558,14 @@ target_sources(OpenSTA
 
 target_link_libraries(OpenSTA
   Eigen3::Eigen
-  fmt::fmt
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
   ${CUDD_LIB}
   )
+
+if(NOT HAVE_CXX_STD_FORMAT)
+  target_link_libraries(OpenSTA fmt::fmt)
+endif()
 
 if (ZLIB_LIBRARIES)
   target_link_libraries(OpenSTA ${ZLIB_LIBRARIES})
