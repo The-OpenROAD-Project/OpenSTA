@@ -1546,7 +1546,18 @@ bool
 VertexIdLess::operator()(const Vertex *vertex1,
                          const Vertex *vertex2) const
 {
-  return graph_->id(vertex1) < graph_->id(vertex2);
+  return id(vertex1) < id(vertex2);
+}
+
+VertexId
+VertexIdLess::id(const Vertex *vertex) const
+{
+  int index = (reinterpret_cast<uintptr_t>(vertex) >> 4) & 0xf;
+  if (vertex == last_vertices_[index])
+    return last_ids_[index];
+  last_vertices_[index] = vertex;
+  last_ids_[index] = (graph_) ? graph_->id(vertex) : 0;
+  return last_ids_[index];
 }
 
 

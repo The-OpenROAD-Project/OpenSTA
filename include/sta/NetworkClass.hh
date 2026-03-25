@@ -85,7 +85,11 @@ public:
   bool operator()(const Cell *cell1,
                   const Cell *cell2) const;
 private:
+  ObjectId id(const Cell *cell) const;
   const Network *network_;
+  static constexpr int cache_size_ = 16;
+  mutable const Cell *last_cells_[cache_size_] = {nullptr};
+  mutable ObjectId last_ids_[cache_size_] = {0};
 };
 
 class PortIdLess
@@ -95,7 +99,11 @@ public:
   bool operator()(const Port *port1,
                   const Port *port2) const;
 private:
+  ObjectId id(const Port *port) const;
   const Network *network_;
+  static constexpr int cache_size_ = 16;
+  mutable const Port *last_ports_[cache_size_] = {nullptr};
+  mutable ObjectId last_ids_[cache_size_] = {0};
 };
 
 class InstanceIdLess
@@ -105,7 +113,11 @@ public:
   bool operator()(const Instance *inst1,
                   const Instance *inst2) const;
 private:
+  ObjectId id(const Instance *inst) const;
   const Network *network_;
+  static constexpr int cache_size_ = 16;
+  mutable const Instance *last_insts_[cache_size_] = {nullptr};
+  mutable ObjectId last_ids_[cache_size_] = {0};
 };
 
 class PinIdLess
@@ -115,7 +127,11 @@ public:
   bool operator()(const Pin *pin1,
                   const Pin *pin2) const;
 private:
+  ObjectId id(const Pin *pin) const;
   const Network *network_;
+  static constexpr int cache_size_ = 16;
+  mutable const Pin *last_pins_[cache_size_] = {nullptr};
+  mutable ObjectId last_ids_[cache_size_] = {0};
 };
 
 class PinIdHash
@@ -125,7 +141,11 @@ public:
   size_t operator()(const Pin *pin) const;
 
 private:
+  size_t id(const Pin *pin) const;
   const Network *network_;
+  static constexpr int cache_size_ = 16;
+  mutable const Pin *last_pins_[cache_size_] = {nullptr};
+  mutable size_t last_ids_[cache_size_] = {0};
 };
 
 class NetIdLess
@@ -135,7 +155,11 @@ public:
   bool operator()(const Net *net1,
                   const Net *net2) const;
 private:
+  ObjectId id(const Net *net) const;
   const Network *network_;
+  static constexpr int cache_size_ = 16;
+  mutable const Net *last_nets_[cache_size_] = {nullptr};
+  mutable ObjectId last_ids_[cache_size_] = {0};
 };
 
 ////////////////////////////////////////////////////////////////
