@@ -769,7 +769,6 @@ TEST_F(PowerDesignTest, PowerPerInstance) {
   int count = 0;
   while (child_iter->hasNext() && count < 5) {
     Instance *inst = child_iter->next();
-    PowerResult result = sta_->power(inst, corner);
     count++;
   }
   delete child_iter;
