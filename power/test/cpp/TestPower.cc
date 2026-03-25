@@ -768,7 +768,7 @@ TEST_F(PowerDesignTest, PowerPerInstance) {
   InstanceChildIterator *child_iter = network->childIterator(top);
   int count = 0;
   while (child_iter->hasNext() && count < 5) {
-    child_iter->next();
+    sta_->power(child_iter->next(), corner);
     count++;
   }
   delete child_iter;
