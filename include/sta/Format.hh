@@ -35,10 +35,7 @@
 #include <zlib.h>
 #endif
 
-// std::format is not supported in GCC 11 (e.g. Ubuntu 22.04).
-// Use fmt library as fallback when __cpp_lib_format is not defined.
-
-#if defined(__cpp_lib_format) && __cpp_lib_format >= 201907L
+#if HAVE_CXX_STD_FORMAT
 #include <format>
 
 namespace sta {

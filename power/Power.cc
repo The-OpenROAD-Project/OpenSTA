@@ -1427,8 +1427,12 @@ Power::findSwitchingPower(const Instance *inst,
         float volt = portVoltage(scene_cell, to_port, scene, MinMax::max());
         float switching = .5 * load_cap * volt * volt * activity.density();
         debugPrint(debug_, "power", 2,
-                   "switching {}/{} activity = {:.2e} volt = {:.2f} {:.3e}", cell->name(),
-                   to_port->name(), activity.density(), volt, switching);
+                   "switching {}/{} activity = {:.2e} volt = {:.2f} {:.3e}",
+                   cell->name(),
+                   to_port->name(),
+                   activity.density(),
+                   volt,
+                   switching);
         result.incrSwitching(switching);
       }
     }
@@ -1477,14 +1481,18 @@ Power::findLeakagePower(const Instance *inst,
   for (const LeakagePower &pwr : scene_cell->leakagePowers()) {
     LibertyPort *pg_port = pwr.relatedPgPort();
     if (pg_port == nullptr || pg_port->pwrGndType() == PwrGndType::primary_power) {
+      std::string pg_name = pg_port ? pg_port->name() : "?";
       LeakageSummary &sum = leakage_summaries[pg_port];
       float leakage = pwr.power();
       FuncExpr *when = pwr.when();
       if (when) {
         LogicValue when_value = sim->evalExpr(when, inst);
         if (when_value == LogicValue::one) {
-          debugPrint(debug_, "power", 2, "leakage {}/{} {}=1 {:.3e}", cell->name(),
-                     pg_port->name(), when->to_string(), leakage);
+          debugPrint(debug_, "power", 2, "leakage {}/{} {}=1 {:.3e}",
+                     cell->name(),
+                     pg_name,
+                     when->to_string(),
+                     leakage);
           sum.cond_true_leakage = leakage;
           sum.cond_true_exists = true;
         }
@@ -1492,7 +1500,9 @@ Power::findLeakagePower(const Instance *inst,
           PwrActivity cond_activity = evalActivity(when, inst);
           float cond_duty = cond_activity.duty();
           debugPrint(debug_, "power", 2, "leakage {} {} {} {:.3e} * {:.2f}",
-                     cell->name(), pg_port->name(), when->to_string(),
+                     cell->name(),
+                     pg_name,
+                     when->to_string(),
                      leakage, cond_duty);
           // Leakage power average weighted by duty.
           sum.cond_leakage += leakage * cond_duty;
@@ -1502,8 +1512,10 @@ Power::findLeakagePower(const Instance *inst,
         }
       }
       else {
-        debugPrint(debug_, "power", 2, "leakage {} {} -- {:.3e}", cell->name(),
-                   pg_port->name(), leakage);
+        debugPrint(debug_, "power", 2, "leakage {} {} -- {:.3e}",
+                   cell->name(),
+                   pg_name,
+                   leakage);
         sum.uncond_leakage = leakage;
         sum.uncond_exists = true;
       }
@@ -1529,8 +1541,10 @@ Power::findLeakagePower(const Instance *inst,
       // Ignore unconditional leakage unless there are no conditional leakage groups.
       else if (sum.uncond_exists)
         leakage = sum.uncond_leakage;
-      debugPrint(debug_, "power", 2, "leakage {}/{} {:.3e}", cell->name(),
-                 pg_port->name(), leakage);
+      debugPrint(debug_, "power", 2, "leakage {}/{} {:.3e}",
+                 cell->name(),
+                 pg_port ? pg_port->name() : "?",
+                 leakage);
       result.incrLeakage(leakage);
     }
   }

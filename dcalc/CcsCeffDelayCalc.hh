@@ -71,22 +71,15 @@ protected:
   typedef std::vector<double> Region;
 
   void gateDelaySlew(const LibertyLibrary *drvr_library,
-                     const RiseFall *rf,
                      // Return values.
                      double &gate_delay,
                      double &drvr_slew);
   void initRegions(const LibertyLibrary *drvr_library,
                    const RiseFall *rf);
   void findCsmWaveform();
-  ArcDcalcResult makeResult(const LibertyLibrary *drvr_library,
-                            const RiseFall *rf,
-                            double &gate_delay,
-                            double &drvr_slew,
-                            const LoadPinIndexMap &load_pin_index_map);
   void loadDelaySlew(const Pin *load_pin,
                      const LibertyLibrary *drvr_library,
-                     const RiseFall *rf,
-                     double &drvr_slew,
+                     double drvr_slew,
                      // Return values.
                      double &wire_delay,
                      double &load_slew);
