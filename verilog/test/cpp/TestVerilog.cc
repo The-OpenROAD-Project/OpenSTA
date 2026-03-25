@@ -316,7 +316,7 @@ TEST_F(VerilogTest, EscapedWithBackslash) {
   std::string name = "\\a\\b ";
   std::string result = instanceVerilogToSta(&name);
   EXPECT_FALSE(result.empty());
-  // The backslash inside should be escaped as \\
+  // The backslash inside should be escaped as double-backslash
   EXPECT_NE(result.find("\\\\"), std::string::npos);
 }
 

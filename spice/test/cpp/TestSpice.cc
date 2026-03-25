@@ -1302,8 +1302,12 @@ TEST_F(SpiceSmokeTest, RiseFallRangeValues) {
   auto range = RiseFall::range();
   int idx = 0;
   for (auto rf : range) {
-    if (idx == 0) EXPECT_EQ(rf, RiseFall::rise());
-    if (idx == 1) EXPECT_EQ(rf, RiseFall::fall());
+    if (idx == 0) {
+      EXPECT_EQ(rf, RiseFall::rise());
+    }
+    if (idx == 1) {
+      EXPECT_EQ(rf, RiseFall::fall());
+    }
     idx++;
   }
   EXPECT_EQ(idx, 2);
@@ -1554,7 +1558,6 @@ TEST_F(SpiceDesignTest, LibertyCellTimingArcs) {
 // Verify pin connectivity for SPICE net writing
 TEST_F(SpiceDesignTest, PinConnectivity) {
   Network *network = sta_->cmdNetwork();
-  Instance *top = network->topInstance();
 
   // The internal net n1 connects and1:ZN to buf1:A
   Pin *and1_zn = network->findPin("and1/ZN");
