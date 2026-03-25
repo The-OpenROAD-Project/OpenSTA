@@ -3542,8 +3542,6 @@ TEST_F(SdcInitTest, DisabledPortsSetAll) {
 
 // PortExtCap: operations (needs Port* constructor)
 TEST_F(SdcInitTest, PortExtCapSetGet) {
-  // Need a port to construct PortExtCap
-  Network *network = sta_->cmdNetwork();
   // PortExtCap default constructor
   PortExtCap pec;
   pec.setPinCap(nullptr, 0.1f, RiseFall::rise(), MinMax::max());

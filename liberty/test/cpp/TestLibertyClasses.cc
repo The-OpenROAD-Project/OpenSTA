@@ -1993,8 +1993,6 @@ TEST_F(LinearModelTest, Table3ReportValue) {
 TEST_F(LinearModelTest, TableModelReport) {
   TablePtr tbl = std::make_shared<Table>(42.0f);
   TableModel model(tbl, nullptr, ScaleFactorType::cell, RiseFall::rise());
-  const Units *units = lib_->units();
-  Report *report_obj = nullptr;
   // report needs Report*; test order/axes instead
   EXPECT_EQ(model.order(), 0);
   EXPECT_EQ(model.axis1(), nullptr);
@@ -3285,8 +3283,9 @@ TEST(TestCellTest, FootprintDefault) {
   TestCell cell(&lib, "CELL1", "test.lib");
   const char *fp = cell.footprint();
   // Empty string or nullptr for default
-  if (fp)
+  if (fp) {
     EXPECT_EQ(fp, "");
+  }
 }
 
 TEST(TestCellTest, SetFootprint) {
@@ -3300,8 +3299,9 @@ TEST(TestCellTest, UserFunctionClassDefault) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
   const char *ufc = cell.userFunctionClass();
-  if (ufc)
+  if (ufc) {
     EXPECT_EQ(ufc, "");
+  }
 }
 
 TEST(TestCellTest, SetUserFunctionClass) {

@@ -1141,7 +1141,6 @@ TEST(ConcreteNetworkTest, FindCellViaNetwork) {
 TEST(ConcreteNetworkTest, FindAnyCell) {
   ConcreteNetwork network;
   Library *lib1 = network.makeLibrary("lib1", "lib1.lib");
-  Library *lib2 = network.makeLibrary("lib2", "lib2.lib");
   network.makeCell(lib1, "INV_X1", true, "lib1.lib");
   Cell *found = network.findAnyCell("INV_X1");
   EXPECT_NE(found, nullptr);
