@@ -411,27 +411,27 @@ GraphDelayCalc::seedDrvrSlew(Vertex *drvr_vertex,
     for (const MinMax *min_max : MinMax::range()) {
       for (const RiseFall *rf : RiseFall::range()) {
         InputDrive *drive = nullptr;
-  if (network_->isTopLevelPort(drvr_pin)) {
-    Port *port = network_->port(drvr_pin);
+        if (network_->isTopLevelPort(drvr_pin)) {
+          Port *port = network_->port(drvr_pin);
           drive = sdc->findInputDrive(port);
-  }
-      if (drive) {
-	const LibertyCell *drvr_cell;
-	const LibertyPort *from_port, *to_port;
-	float *from_slews;
+        }
+        if (drive) {
+          const LibertyCell *drvr_cell;
+          const LibertyPort *from_port, *to_port;
+          float *from_slews;
           drive->driveCell(rf, min_max, drvr_cell, from_port,
-			 from_slews, to_port);
-	if (drvr_cell) {
-	  if (from_port == nullptr)
-	    from_port = driveCellDefaultFromPort(drvr_cell, to_port);
-	  findInputDriverDelay(drvr_cell, drvr_pin, drvr_vertex, rf,
+                           from_slews, to_port);
+          if (drvr_cell) {
+            if (from_port == nullptr)
+              from_port = driveCellDefaultFromPort(drvr_cell, to_port);
+            findInputDriverDelay(drvr_cell, drvr_pin, drvr_vertex, rf,
                                  from_port, from_slews, to_port, scene, min_max);
-	}
-	else
+          }
+          else
             seedNoDrvrCellSlew(drvr_vertex, drvr_pin, rf, drive, scene, min_max,
-			     arc_delay_calc);
-      }
-      else
+                               arc_delay_calc);
+        }
+        else
           seedNoDrvrSlew(drvr_vertex, drvr_pin, rf, scene, min_max, arc_delay_calc);
       }
     }
