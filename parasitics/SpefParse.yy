@@ -41,8 +41,7 @@ void
 sta::SpefParse::error(const location_type &loc,
                      const std::string &msg)
 {
-  reader->report()->fileError(164,reader->filename().c_str(),
-                              loc.begin.line,"%s",msg.c_str());
+  reader->report()->fileError(1670,reader->filename(), loc.begin. line, "{}", msg);
 }
 %}
 
@@ -831,7 +830,7 @@ pos_integer:
 	INTEGER
 	{ int value = $1;
 	  if (value < 0)
-	    reader->warn(1525, "%d is not positive.", value);
+	    reader->warn(1525, "{} is not positive.", value);
 	  $$ = value;
 	}
 ;
@@ -840,13 +839,13 @@ pos_number:
 	INTEGER
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    reader->warn(1526, "%.4f is not positive.", value);
+	    reader->warn(1526, "{:.4f} is not positive.", value);
 	  $$ = value;
 	}
 |	FLOAT
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    reader->warn(1527, "%.4f is not positive.", value);
+	    reader->warn(1527, "{:.4f} is not positive.", value);
 	  $$ = value;
 	}
 ;

@@ -44,7 +44,7 @@ TEST_F(SpiceSmokeTest, TransitionNames) {
   EXPECT_EQ(Transition::fall()->to_string(), "v");
 }
 
-// Tests for streamPrint (free function in WriteSpice.cc)
+// Tests for print (Format.hh - formerly print)
 class StreamPrintTest : public ::testing::Test {
 protected:
   void SetUp() override {
@@ -63,7 +63,7 @@ protected:
 TEST_F(StreamPrintTest, BasicString) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "hello world\n");
+  sta::print(out, "hello world\n");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -75,7 +75,7 @@ TEST_F(StreamPrintTest, BasicString) {
 TEST_F(StreamPrintTest, FormattedOutput) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "v%d %s 0 %.3f\n", 1, "node1", 1.800);
+  sta::print(out, "v{} {} 0 {:.3f}\n", 1, "node1", 1.800);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -87,7 +87,7 @@ TEST_F(StreamPrintTest, FormattedOutput) {
 TEST_F(StreamPrintTest, ScientificNotation) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "C%d %s 0 %.3e\n", 1, "net1", 1.5e-12);
+  sta::print(out, "C{} {} 0 {:.3e}\n", 1, "net1", 1.5e-12);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -99,9 +99,9 @@ TEST_F(StreamPrintTest, ScientificNotation) {
 TEST_F(StreamPrintTest, MultipleWrites) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "* Header\n");
-  streamPrint(out, ".tran %.3g %.3g\n", 1e-13, 1e-9);
-  streamPrint(out, ".end\n");
+  sta::print(out, "* Header\n");
+  sta::print(out, ".tran {:.3g} {:.3g}\n", 1e-13, 1e-9);
+  sta::print(out, ".end\n");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -182,11 +182,11 @@ TEST_F(XyceCsvTest, FileNotReadableThrows) {
   );
 }
 
-// Additional streamPrint tests for format coverage
+// Additional print tests for format coverage
 TEST_F(StreamPrintTest, EmptyString) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "%s", "");
+  sta::print(out, "{}", "");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -200,7 +200,7 @@ TEST_F(StreamPrintTest, LongString) {
   ASSERT_TRUE(out.is_open());
   // Build a long subcircuit line
   std::string long_name(200, 'x');
-  streamPrint(out, ".subckt %s\n", long_name.c_str());
+  sta::print(out, ".subckt {}\n", long_name.c_str());
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -213,7 +213,7 @@ TEST_F(StreamPrintTest, LongString) {
 TEST_F(StreamPrintTest, SpiceResistor) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "R%d %s %s %.4e\n", 1, "n1", "n2", 1.0e3);
+  sta::print(out, "R{} {} {} {:.4e}\n", 1, "n1", "n2", 1.0e3);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -227,7 +227,7 @@ TEST_F(StreamPrintTest, SpiceResistor) {
 TEST_F(StreamPrintTest, SpiceComment) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "* %s\n", "This is a SPICE comment");
+  sta::print(out, "* {}\n", "This is a SPICE comment");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -240,7 +240,7 @@ TEST_F(StreamPrintTest, SpiceComment) {
 TEST_F(StreamPrintTest, SpiceSubcktInstantiation) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "x%s %s %s %s %s %s\n",
+  sta::print(out, "x{} {} {} {} {} {}\n",
               "inst1", "vdd", "vss", "in", "out", "INV");
   out.close();
 
@@ -254,7 +254,7 @@ TEST_F(StreamPrintTest, SpiceSubcktInstantiation) {
 TEST_F(StreamPrintTest, SpiceMeasure) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".measure tran %s trig v(%s) val=%.1f %s=%.3e\n",
+  sta::print(out, ".measure tran {} trig v({}) val={:.1f} {}={:.3e}\n",
               "delay", "in", 0.9, "targ", 1e-9);
   out.close();
 
@@ -346,11 +346,11 @@ TEST_F(SpiceSmokeTest, TransitionInitFinalString) {
 // Additional SPICE tests for function coverage
 ////////////////////////////////////////////////////////////////
 
-// streamPrint with integers
+// print with integers
 TEST_F(StreamPrintTest, IntegerFormats) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "R%d %d %d %d\n", 1, 100, 200, 50000);
+  sta::print(out, "R{} {} {} {}\n", 1, 100, 200, 50000);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -359,11 +359,11 @@ TEST_F(StreamPrintTest, IntegerFormats) {
   EXPECT_EQ(line, "R1 100 200 50000");
 }
 
-// streamPrint with mixed types
+// print with mixed types
 TEST_F(StreamPrintTest, MixedTypes) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".param %s=%g\n", "vdd", 1.8);
+  sta::print(out, ".param {}={:g}\n", "vdd", 1.8);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -374,11 +374,11 @@ TEST_F(StreamPrintTest, MixedTypes) {
   EXPECT_NE(line.find("1.8"), std::string::npos);
 }
 
-// streamPrint with percent
+// print with percent
 TEST_F(StreamPrintTest, PercentLiteral) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "value = 100%%\n");
+  sta::print(out, "value = 100%\n");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -387,12 +387,12 @@ TEST_F(StreamPrintTest, PercentLiteral) {
   EXPECT_NE(line.find("100%"), std::string::npos);
 }
 
-// streamPrint with very long format
+// print with very long format
 TEST_F(StreamPrintTest, VeryLongFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   std::string long_name(500, 'n');
-  streamPrint(out, ".subckt %s port1 port2 port3\n", long_name.c_str());
+  sta::print(out, ".subckt {} port1 port2 port3\n", long_name.c_str());
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -502,11 +502,11 @@ TEST_F(SpiceSmokeTest, TransitionFind) {
   EXPECT_EQ(Transition::find("v"), Transition::fall());
 }
 
-// Test streamPrint with empty format
+// Test print with empty format
 TEST_F(StreamPrintTest, EmptyFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "%s", "");
+  sta::print(out, "{}", "");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -515,11 +515,11 @@ TEST_F(StreamPrintTest, EmptyFormat) {
   EXPECT_EQ(content, "");
 }
 
-// Test streamPrint with integer formatting
+// Test print with integer formatting
 TEST_F(StreamPrintTest, IntegerFormatting) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "R%d %d %d %.2f\n", 1, 10, 20, 100.5);
+  sta::print(out, "R{} {} {} {:.2f}\n", 1, 10, 20, 100.5);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -528,13 +528,13 @@ TEST_F(StreamPrintTest, IntegerFormatting) {
   EXPECT_EQ(line, "R1 10 20 100.50");
 }
 
-// Test streamPrint with multiple lines
+// Test print with multiple lines
 TEST_F(StreamPrintTest, MultipleLines) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "line1\n");
-  streamPrint(out, "line2\n");
-  streamPrint(out, "line3\n");
+  sta::print(out, "line1\n");
+  sta::print(out, "line2\n");
+  sta::print(out, "line3\n");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -547,11 +547,11 @@ TEST_F(StreamPrintTest, MultipleLines) {
   EXPECT_EQ(line, "line3");
 }
 
-// Test streamPrint with special characters
+// Test print with special characters
 TEST_F(StreamPrintTest, SpecialChars) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "* SPICE deck for %s\n", "test_design");
+  sta::print(out, "* SPICE deck for {}\n", "test_design");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -609,12 +609,12 @@ TEST_F(SpiceSmokeTest, MinMaxOpposite) {
 // R6_ tests for Spice function coverage
 ////////////////////////////////////////////////////////////////
 
-// Test streamPrint with wide variety of format specifiers
-// Covers: streamPrint with many format types
+// Test print with wide variety of format specifiers
+// Covers: print with many format types
 TEST_F(StreamPrintTest, FormatSpecifiers) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "%c %s %d %f %e %g\n", 'A', "test", 42, 3.14, 1.5e-12, 1.8);
+  sta::print(out, "{:c} {} {} {} {:e} {:g}\n", 'A', "test", 42, 3.14, 1.5e-12, 1.8);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -625,12 +625,12 @@ TEST_F(StreamPrintTest, FormatSpecifiers) {
   EXPECT_NE(line.find("42"), std::string::npos);
 }
 
-// Test streamPrint with SPICE node naming
-// Covers: streamPrint for SPICE net naming patterns
+// Test print with SPICE node naming
+// Covers: print for SPICE net naming patterns
 TEST_F(StreamPrintTest, SpiceNodeNaming) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "C%d %s %s %.4e\n", 1, "n_top/sub/net:1", "0", 1.5e-15);
+  sta::print(out, "C{} {} {} {:.4e}\n", 1, "n_top/sub/net:1", "0", 1.5e-15);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -640,12 +640,12 @@ TEST_F(StreamPrintTest, SpiceNodeNaming) {
   EXPECT_NE(line.find("n_top/sub/net:1"), std::string::npos);
 }
 
-// Test streamPrint with SPICE .include directive
-// Covers: streamPrint for SPICE directives
+// Test print with SPICE .include directive
+// Covers: print for SPICE directives
 TEST_F(StreamPrintTest, SpiceIncludeDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".include \"%s\"\n", "/path/to/models.spice");
+  sta::print(out, ".include \"{}\"\n", "/path/to/models.spice");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -655,12 +655,12 @@ TEST_F(StreamPrintTest, SpiceIncludeDirective) {
   EXPECT_NE(line.find("/path/to/models.spice"), std::string::npos);
 }
 
-// Test streamPrint SPICE voltage source
-// Covers: streamPrint for voltage sources
+// Test print SPICE voltage source
+// Covers: print for voltage sources
 TEST_F(StreamPrintTest, SpiceVoltageSource) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "v%s %s 0 %.3f\n", "dd", "vdd", 1.800);
+  sta::print(out, "v{} {} 0 {:.3f}\n", "dd", "vdd", 1.800);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -669,12 +669,12 @@ TEST_F(StreamPrintTest, SpiceVoltageSource) {
   EXPECT_EQ(line, "vdd vdd 0 1.800");
 }
 
-// Test streamPrint SPICE .tran with detailed parameters
-// Covers: streamPrint for transient analysis
+// Test print SPICE .tran with detailed parameters
+// Covers: print for transient analysis
 TEST_F(StreamPrintTest, SpiceTransAnalysis) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".tran %g %g %g %g\n", 1e-13, 5e-9, 0.0, 1e-12);
+  sta::print(out, ".tran {:g} {:g} {:g} {:g}\n", 1e-13, 5e-9, 0.0, 1e-12);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -683,15 +683,15 @@ TEST_F(StreamPrintTest, SpiceTransAnalysis) {
   EXPECT_NE(line.find(".tran"), std::string::npos);
 }
 
-// Test streamPrint SPICE PWL source
-// Covers: streamPrint with PWL voltage source
+// Test print SPICE PWL source
+// Covers: print with PWL voltage source
 TEST_F(StreamPrintTest, SpicePWLSource) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "v_in in 0 PWL(\n");
-  streamPrint(out, "+%.3e %.3f\n", 0.0, 0.0);
-  streamPrint(out, "+%.3e %.3f\n", 1e-10, 1.8);
-  streamPrint(out, "+%.3e %.3f)\n", 2e-10, 1.8);
+  sta::print(out, "v_in in 0 PWL(\n");
+  sta::print(out, "+{:.3e} {:.3f}\n", 0.0, 0.0);
+  sta::print(out, "+{:.3e} {:.3f}\n", 1e-10, 1.8);
+  sta::print(out, "+{:.3e} {:.3f})\n", 2e-10, 1.8);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -812,12 +812,12 @@ TEST_F(SpiceSmokeTest, RiseFallShortName) {
 // R8_ tests for SPICE module coverage improvement
 ////////////////////////////////////////////////////////////////
 
-// Test streamPrint with SPICE transistor format (used in writeParasiticNetwork)
-// Covers: streamPrint paths used by WriteSpice
+// Test print with SPICE transistor format (used in writeParasiticNetwork)
+// Covers: print paths used by WriteSpice
 TEST_F(StreamPrintTest, SpiceTransistorFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "M%d %s %s %s %s %s W=%.3e L=%.3e\n",
+  sta::print(out, "M{} {} {} {} {} {} W={:.3e} L={:.3e}\n",
               1, "drain", "gate", "source", "bulk", "NMOS",
               1.0e-6, 45.0e-9);
   out.close();
@@ -830,13 +830,13 @@ TEST_F(StreamPrintTest, SpiceTransistorFormat) {
   EXPECT_NE(line.find("NMOS"), std::string::npos);
 }
 
-// Test streamPrint with SPICE capacitor format (used in writeParasiticNetwork)
-// Covers: streamPrint paths used by WriteSpice::writeParasiticNetwork
+// Test print with SPICE capacitor format (used in writeParasiticNetwork)
+// Covers: print paths used by WriteSpice::writeParasiticNetwork
 TEST_F(StreamPrintTest, SpiceCapacitorFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "C%d %s %s %.4e\n", 1, "net1:1", "0", 1.5e-15);
-  streamPrint(out, "C%d %s %s %.4e\n", 2, "net1:2", "net1:3", 2.5e-15);
+  sta::print(out, "C{} {} {} {:.4e}\n", 1, "net1:1", "0", 1.5e-15);
+  sta::print(out, "C{} {} {} {:.4e}\n", 2, "net1:2", "net1:3", 2.5e-15);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -847,12 +847,12 @@ TEST_F(StreamPrintTest, SpiceCapacitorFormat) {
   EXPECT_TRUE(line2.find("C2") == 0);
 }
 
-// Test streamPrint with SPICE voltage source (used in writeClkedStepSource)
-// Covers: streamPrint paths used by WriteSpice::writeClkedStepSource
+// Test print with SPICE voltage source (used in writeClkedStepSource)
+// Covers: print paths used by WriteSpice::writeClkedStepSource
 TEST_F(StreamPrintTest, SpiceVoltageSource2) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "v%s %s 0 pwl(0 %.3f %.3e %.3f)\n",
+  sta::print(out, "v{} {} 0 pwl(0 {:.3f} {:.3e} {:.3f})\n",
               "clk", "clk_node", 0.0, 1e-9, 1.8);
   out.close();
 
@@ -863,16 +863,16 @@ TEST_F(StreamPrintTest, SpiceVoltageSource2) {
   EXPECT_NE(line.find("pwl"), std::string::npos);
 }
 
-// Test streamPrint with SPICE waveform format (used in writeWaveformVoltSource)
-// Covers: streamPrint paths used by WriteSpice::writeWaveformVoltSource
+// Test print with SPICE waveform format (used in writeWaveformVoltSource)
+// Covers: print paths used by WriteSpice::writeWaveformVoltSource
 TEST_F(StreamPrintTest, SpiceWaveformFormat) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "v%s %s 0 pwl(\n", "in", "in_node");
-  streamPrint(out, "+ %.3e %.3f\n", 0.0, 0.0);
-  streamPrint(out, "+ %.3e %.3f\n", 1e-10, 0.9);
-  streamPrint(out, "+ %.3e %.3f\n", 2e-10, 1.8);
-  streamPrint(out, "+)\n");
+  sta::print(out, "v{} {} 0 pwl(\n", "in", "in_node");
+  sta::print(out, "+ {:.3e} {:.3f}\n", 0.0, 0.0);
+  sta::print(out, "+ {:.3e} {:.3f}\n", 1e-10, 0.9);
+  sta::print(out, "+ {:.3e} {:.3f}\n", 2e-10, 1.8);
+  sta::print(out, "+)\n");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -882,16 +882,16 @@ TEST_F(StreamPrintTest, SpiceWaveformFormat) {
   EXPECT_NE(content.find("pwl"), std::string::npos);
 }
 
-// Test streamPrint with SPICE .measure format (used in spiceTrans context)
-// Covers: streamPrint with RISE/FALL strings (used by WriteSpice::spiceTrans)
+// Test print with SPICE .measure format (used in spiceTrans context)
+// Covers: print with RISE/FALL strings (used by WriteSpice::spiceTrans)
 TEST_F(StreamPrintTest, SpiceMeasureRiseFall) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   // This mimics how spiceTrans returns RISE/FALL strings
   const char *rise_str = "RISE";
   const char *fall_str = "FALL";
-  streamPrint(out, ".measure tran delay_rf trig v(in) val=0.9 %s=last\n", rise_str);
-  streamPrint(out, "+targ v(out) val=0.9 %s=last\n", fall_str);
+  sta::print(out, ".measure tran delay_rf trig v(in) val=0.9 {}=last\n", rise_str);
+  sta::print(out, "+targ v(out) val=0.9 {}=last\n", fall_str);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -950,15 +950,15 @@ TEST_F(XyceCsvTest, ReadCsvManySignals) {
 // R9_ tests for SPICE module coverage improvement
 ////////////////////////////////////////////////////////////////
 
-// streamPrint: SPICE subcircuit definition (used by WriteSpice)
+// print: SPICE subcircuit definition (used by WriteSpice)
 TEST_F(StreamPrintTest, SpiceSubcktDefinition) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".subckt %s %s %s %s %s\n",
+  sta::print(out, ".subckt {} {} {} {} {}\n",
               "INV_X1", "VDD", "VSS", "A", "Y");
-  streamPrint(out, "M1 Y A VDD VDD PMOS W=%.3e L=%.3e\n", 200e-9, 45e-9);
-  streamPrint(out, "M2 Y A VSS VSS NMOS W=%.3e L=%.3e\n", 100e-9, 45e-9);
-  streamPrint(out, ".ends %s\n", "INV_X1");
+  sta::print(out, "M1 Y A VDD VDD PMOS W={:.3e} L={:.3e}\n", 200e-9, 45e-9);
+  sta::print(out, "M2 Y A VSS VSS NMOS W={:.3e} L={:.3e}\n", 100e-9, 45e-9);
+  sta::print(out, ".ends {}\n", "INV_X1");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -970,12 +970,12 @@ TEST_F(StreamPrintTest, SpiceSubcktDefinition) {
   EXPECT_NE(content.find("NMOS"), std::string::npos);
 }
 
-// streamPrint: SPICE resistor network (used in writeParasiticNetwork)
+// print: SPICE resistor network (used in writeParasiticNetwork)
 TEST_F(StreamPrintTest, SpiceResistorNetwork) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   for (int i = 0; i < 10; i++) {
-    streamPrint(out, "R%d n%d n%d %.4e\n", i+1, i, i+1, 50.0 + i*10.0);
+    sta::print(out, "R{} n{} n{} {:.4e}\n", i+1, i, i+1, 50.0 + i*10.0);
   }
   out.close();
 
@@ -986,12 +986,12 @@ TEST_F(StreamPrintTest, SpiceResistorNetwork) {
   EXPECT_NE(content.find("R10"), std::string::npos);
 }
 
-// streamPrint: SPICE capacitor network (used in writeParasiticNetwork)
+// print: SPICE capacitor network (used in writeParasiticNetwork)
 TEST_F(StreamPrintTest, SpiceCapacitorNetwork) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
   for (int i = 0; i < 10; i++) {
-    streamPrint(out, "C%d n%d 0 %.4e\n", i+1, i, 1e-15 * (i+1));
+    sta::print(out, "C{} n{} 0 {:.4e}\n", i+1, i, 1e-15 * (i+1));
   }
   out.close();
 
@@ -1002,11 +1002,11 @@ TEST_F(StreamPrintTest, SpiceCapacitorNetwork) {
   EXPECT_NE(content.find("C10"), std::string::npos);
 }
 
-// streamPrint: SPICE .lib directive
+// print: SPICE .lib directive
 TEST_F(StreamPrintTest, SpiceLibDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".lib '%s' %s\n", "/path/to/models.lib", "tt");
+  sta::print(out, ".lib '{}' {}\n", "/path/to/models.lib", "tt");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -1016,11 +1016,11 @@ TEST_F(StreamPrintTest, SpiceLibDirective) {
   EXPECT_NE(line.find("tt"), std::string::npos);
 }
 
-// streamPrint: SPICE .option directive
+// print: SPICE .option directive
 TEST_F(StreamPrintTest, SpiceOptionDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".option %s=%g %s=%g\n", "reltol", 1e-6, "abstol", 1e-12);
+  sta::print(out, ".option {}={:g} {}={:g}\n", "reltol", 1e-6, "abstol", 1e-12);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -1030,11 +1030,11 @@ TEST_F(StreamPrintTest, SpiceOptionDirective) {
   EXPECT_NE(line.find("reltol"), std::string::npos);
 }
 
-// streamPrint: SPICE .print directive
+// print: SPICE .print directive
 TEST_F(StreamPrintTest, SpicePrintDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".print tran v(%s) v(%s) v(%s)\n",
+  sta::print(out, ".print tran v({}) v({}) v({})\n",
               "input", "output", "clk");
   out.close();
 
@@ -1046,11 +1046,11 @@ TEST_F(StreamPrintTest, SpicePrintDirective) {
   EXPECT_NE(line.find("v(output)"), std::string::npos);
 }
 
-// streamPrint: SPICE pulse source
+// print: SPICE pulse source
 TEST_F(StreamPrintTest, SpicePulseSource) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "v%s %s 0 PULSE(%.3f %.3f %.3e %.3e %.3e %.3e %.3e)\n",
+  sta::print(out, "v{} {} 0 PULSE({:.3f} {:.3f} {:.3e} {:.3e} {:.3e} {:.3e} {:.3e})\n",
               "clk", "clk_node", 0.0, 1.8, 0.0, 20e-12, 20e-12, 500e-12, 1e-9);
   out.close();
 
@@ -1061,13 +1061,13 @@ TEST_F(StreamPrintTest, SpicePulseSource) {
   EXPECT_NE(line.find("PULSE"), std::string::npos);
 }
 
-// streamPrint: SPICE mutual inductance
+// print: SPICE mutual inductance
 TEST_F(StreamPrintTest, SpiceMutualInductance) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "L%d %s %s %.4e\n", 1, "n1", "n2", 1e-9);
-  streamPrint(out, "L%d %s %s %.4e\n", 2, "n3", "n4", 1e-9);
-  streamPrint(out, "K%d L%d L%d %.4f\n", 1, 1, 2, 0.5);
+  sta::print(out, "L{} {} {} {:.4e}\n", 1, "n1", "n2", 1e-9);
+  sta::print(out, "L{} {} {} {:.4e}\n", 2, "n3", "n4", 1e-9);
+  sta::print(out, "K{} L{} L{} {:.4f}\n", 1, 1, 2, 0.5);
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -1077,11 +1077,11 @@ TEST_F(StreamPrintTest, SpiceMutualInductance) {
   EXPECT_NE(content.find("K1"), std::string::npos);
 }
 
-// streamPrint: SPICE probe statement
+// print: SPICE probe statement
 TEST_F(StreamPrintTest, SpiceProbeStatement) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".probe v(%s) v(%s) i(%s)\n",
+  sta::print(out, ".probe v({}) v({}) i({})\n",
               "out", "in", "v_supply");
   out.close();
 
@@ -1091,12 +1091,12 @@ TEST_F(StreamPrintTest, SpiceProbeStatement) {
   EXPECT_NE(line.find(".probe"), std::string::npos);
 }
 
-// streamPrint: SPICE with escaped characters
+// print: SPICE with escaped characters
 TEST_F(StreamPrintTest, SpiceEscapedChars) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "* Node: %s\n", "top/sub/inst:pin");
-  streamPrint(out, "R1 %s %s %.4e\n",
+  sta::print(out, "* Node: {}\n", "top/sub/inst:pin");
+  sta::print(out, "R1 {} {} {:.4e}\n",
               "top/sub/inst:pin", "top/sub/inst:int", 100.0);
   out.close();
 
@@ -1106,25 +1106,25 @@ TEST_F(StreamPrintTest, SpiceEscapedChars) {
   EXPECT_NE(content.find("top/sub/inst:pin"), std::string::npos);
 }
 
-// streamPrint: SPICE full deck structure
+// print: SPICE full deck structure
 TEST_F(StreamPrintTest, SpiceFullDeck) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "* Full SPICE deck\n");
-  streamPrint(out, ".include \"%s\"\n", "models.spice");
-  streamPrint(out, ".subckt top VDD VSS IN OUT\n");
-  streamPrint(out, "R1 IN n1 %.2e\n", 50.0);
-  streamPrint(out, "C1 n1 VSS %.4e\n", 1e-15);
-  streamPrint(out, "xinv VDD VSS n1 OUT INV_X1\n");
-  streamPrint(out, ".ends top\n");
-  streamPrint(out, "\n");
-  streamPrint(out, "xinst VDD VSS IN OUT top\n");
-  streamPrint(out, "vvdd VDD 0 %.3f\n", 1.8);
-  streamPrint(out, "vvss VSS 0 0\n");
-  streamPrint(out, "vin IN 0 PULSE(0 %.3f 0 %.3e %.3e %.3e %.3e)\n",
+  sta::print(out, "* Full SPICE deck\n");
+  sta::print(out, ".include \"{}\"\n", "models.spice");
+  sta::print(out, ".subckt top VDD VSS IN OUT\n");
+  sta::print(out, "R1 IN n1 {:.2e}\n", 50.0);
+  sta::print(out, "C1 n1 VSS {:.4e}\n", 1e-15);
+  sta::print(out, "xinv VDD VSS n1 OUT INV_X1\n");
+  sta::print(out, ".ends top\n");
+  sta::print(out, "\n");
+  sta::print(out, "xinst VDD VSS IN OUT top\n");
+  sta::print(out, "vvdd VDD 0 {:.3f}\n", 1.8);
+  sta::print(out, "vvss VSS 0 0\n");
+  sta::print(out, "vin IN 0 PULSE(0 {:.3f} 0 {:.3e} {:.3e} {:.3e} {:.3e})\n",
               1.8, 20e-12, 20e-12, 500e-12, 1e-9);
-  streamPrint(out, ".tran %.3e %.3e\n", 1e-13, 2e-9);
-  streamPrint(out, ".end\n");
+  sta::print(out, ".tran {:.3e} {:.3e}\n", 1e-13, 2e-9);
+  sta::print(out, ".end\n");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -1349,11 +1349,11 @@ TEST_F(XyceCsvTest, ReadCsvAlternatingSign) {
   EXPECT_EQ(waveforms.size(), 1u);
 }
 
-// streamPrint: SPICE .end directive
+// print: SPICE .end directive
 TEST_F(StreamPrintTest, SpiceEndDirective) {
   std::ofstream out(tmpfile_);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, ".end\n");
+  sta::print(out, ".end\n");
   out.close();
 
   std::ifstream in(tmpfile_);
@@ -1737,7 +1737,7 @@ TEST_F(SpiceDesignTest, InstanceCellName) {
   EXPECT_STREQ(cell_name, "DFF_X1");
 }
 
-// Verify streamPrint with SPICE subcircuit instance format for design cells
+// Verify print with SPICE subcircuit instance format for design cells
 TEST_F(SpiceDesignTest, StreamPrintSubcktInst) {
   char tmpl[] = "/tmp/sta_spice_subckt_inst_XXXXXX";
   int fd = mkstemp(tmpl);
@@ -1752,7 +1752,7 @@ TEST_F(SpiceDesignTest, StreamPrintSubcktInst) {
 
   std::ofstream out(tmpl);
   ASSERT_TRUE(out.is_open());
-  streamPrint(out, "x%s VDD VSS %s\n", inst_name, cell_name);
+  sta::print(out, "x{} VDD VSS {}\n", inst_name, cell_name);
   out.close();
 
   std::ifstream in(tmpl);

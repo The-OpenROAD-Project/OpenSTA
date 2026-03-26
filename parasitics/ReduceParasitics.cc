@@ -147,7 +147,7 @@ ReduceToPi::reduceToPi(const Parasitic *parasitic_network,
     rpi = -y3 * y3 / (y2 * y2 * y2);
   }
   debugPrint(debug_, "parasitic_reduce", 2,
-             " Pi model c2=%.3g rpi=%.3g c1=%.3g max_r=%.3g",
+             " Pi model c2={:.3g} rpi={:.3g} c1={:.3g} max_r={:.3g}",
              c2, rpi, c1, max_resistance);
 }
 
@@ -185,7 +185,7 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
           && resistor != from_res) {
         if (isVisited(onode)) {
           // Resistor loop.
-          debugPrint(debug_, "parasitic_reduce", 2, " loop detected thru resistor %zu",
+          debugPrint(debug_, "parasitic_reduce", 2, " loop detected thru resistor {}",
                      parasitics_->id(resistor));
           markLoopResistor(resistor);
         }
@@ -208,7 +208,7 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
   setDownstreamCap(node, dwn_cap);
   leave(node);
   debugPrint(debug_, "parasitic_reduce", 3,
-             " node %s y1=%.3g y2=%.3g y3=%.3g cap=%.3g",
+             " node {} y1={:.3g} y2={:.3g} y3={:.3g} cap={:.3g}",
              parasitics_->name(node), y1, y2, y3, dwn_cap);
 }
 
@@ -309,10 +309,10 @@ reduceToPiElmore(const Parasitic *parasitic_network,
   ParasiticNode *drvr_node =
     parasitics->findParasiticNode(parasitic_network, drvr_pin);
   if (drvr_node) {
-    debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s %s %s",
+    debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver {} {} {}",
                sta->network()->pathName(drvr_pin),
                rf->shortName(),
-               min_max->to_string().c_str());
+               min_max->to_string());
     ReduceToPiElmore reducer(sta);
     return reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
                                 coupling_cap_factor, rf, scene, min_max);
@@ -356,7 +356,7 @@ ReduceToPiElmore::reduceElmoreDfs(const Pin *drvr_pin,
   const Pin *pin = parasitics_->pin(node);
   if (from_res && pin) {
     if (network_->isLoad(pin)) {
-      debugPrint(debug_, "parasitic_reduce", 2, " Load %s elmore=%.3g",
+      debugPrint(debug_, "parasitic_reduce", 2, " Load {} elmore={:.3g}",
                  network_->pathName(pin),
                  elmore);
       parasitics_->setElmore(pi_elmore, pin, elmore);
@@ -456,7 +456,7 @@ reduceToPiPoleResidue2(const Parasitic *parasitic_network,
   ParasiticNode *drvr_node =
     parasitics->findParasiticNode(parasitic_network, drvr_pin);
   if (drvr_node) {
-    debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s",
+    debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver {}",
                sta->network()->pathName(drvr_pin));
     ReduceToPiPoleResidue2 reducer(sta);
     return reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
@@ -564,7 +564,7 @@ ReduceToPiPoleResidue2::findBranchCurrents(const Pin *drvr_pin,
   leave(node);
   if (from_res) {
     setCurrent(from_res, branch_i);
-    debugPrint(debug_, "parasitic_reduce", 3, " res i=%.3g", branch_i);
+    debugPrint(debug_, "parasitic_reduce", 3, " res i={:.3g}", branch_i);
   }
   return branch_i;
 }
@@ -589,7 +589,7 @@ ReduceToPiPoleResidue2::findMoments(const Pin *drvr_pin,
       double r_volt = r * current(resistor);
       double onode_volt = from_volt - r_volt;
       setMoment(onode, onode_volt, moment_index);
-      debugPrint(debug_, "parasitic_reduce", 3, " moment %s %d %.3g",
+      debugPrint(debug_, "parasitic_reduce", 3, " moment {} {} {:.3g}",
                  parasitics_->name(onode),
                  moment_index,
                  onode_volt);
@@ -655,7 +655,7 @@ ReduceToPiPoleResidue2::findPolesResidues(Parasitic *pi_pole_residue,
       || m1 / m2 == m2 / m3) {
     double p1 = -1.0 / m1;
     double k1 = 1.0;
-    debugPrint(debug_, "parasitic_reduce", 3, " load %s p1=%.3g k1=%.3g",
+    debugPrint(debug_, "parasitic_reduce", 3, " load {} p1={:.3g} k1={:.3g}",
                network_->pathName(load_pin), p1, k1);
     ComplexFloatSeq *poles = new ComplexFloatSeq(1);
     ComplexFloatSeq *residues = new ComplexFloatSeq(1);
@@ -675,7 +675,7 @@ ReduceToPiPoleResidue2::findPolesResidues(Parasitic *pi_pole_residue,
       k1 = k;
     }
     debugPrint(debug_, "parasitic_reduce", 3,
-               " load %s p1=%.3g p2=%.3g k1=%.3g k2=%.3g",
+               " load {} p1={:.3g} p2={:.3g} k1={:.3g} k2={:.3g}",
                network_->pathName(load_pin), p1, p2, k1, k2);
 
     ComplexFloatSeq *poles = new ComplexFloatSeq(2);

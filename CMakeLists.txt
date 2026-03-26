@@ -39,7 +39,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
   cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 3.0.0
+project(STA VERSION 3.0.1
   LANGUAGES CXX
 )
 
@@ -89,13 +89,17 @@ endif()
 set(STA_SOURCE
   app/StaMain.cc
   
-  dcalc/ArcDelayCalc.cc
   dcalc/ArcDcalcWaveforms.cc
+  dcalc/ArcDelayCalc.cc
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
   dcalc/CcsCeffDelayCalc.cc
+  dcalc/Delay.cc
   dcalc/DelayCalc.cc
   dcalc/DelayCalcBase.cc
+  dcalc/DelayNormal.cc
+  dcalc/DelayScalar.cc
+  dcalc/DelaySkewNormal.cc
   dcalc/DmpCeff.cc
   dcalc/DmpDelayCalc.cc
   dcalc/FindRoot.cc
@@ -106,9 +110,6 @@ set(STA_SOURCE
   dcalc/PrimaDelayCalc.cc
   dcalc/UnitDelayCalc.cc
   
-  graph/DelayFloat.cc
-  graph/DelayNormal1.cc
-  graph/DelayNormal2.cc
   graph/Graph.cc
   graph/GraphCmp.cc
   
@@ -206,6 +207,7 @@ set(STA_SOURCE
   search/PathEnum.cc
   search/PathExpanded.cc
   search/PathGroup.cc
+  search/PocvMode.cc
   search/Property.cc
   search/ReportPath.cc
   search/Search.cc
@@ -408,12 +410,47 @@ find_package(Threads)
 
 find_package(Eigen3 REQUIRED)
 
-include(cmake/FindCUDD.cmake)
-
-if("${SSTA}" STREQUAL "")
-  set(SSTA 0)
+# See if std::format is available and if nor install fmt.
+include(CheckCXXSourceCompiles)
+set(_sta_fmt_check_saved_flags "${CMAKE_REQUIRED_FLAGS}")
+if(MSVC)
+  string(APPEND CMAKE_REQUIRED_FLAGS " /std:c++20")
+else()
+  string(APPEND CMAKE_REQUIRED_FLAGS " -std=c++20")
 endif()
-message(STATUS "SSTA: ${SSTA}")
+check_cxx_source_compiles("
+#include <format>
+#include <string>
+int main() { (void)std::format(\"{}\", 42); return 0; }
+" HAVE_CXX_STD_FORMAT)
+set(CMAKE_REQUIRED_FLAGS "${_sta_fmt_check_saved_flags}")
+
+if(HAVE_CXX_STD_FORMAT)
+  message(STATUS "std::format: available")
+else()
+  # Set the fmt dir for the ubuntu/centos docker files.
+  if(EXISTS "/usr/local/lib/cmake/fmt/fmt-config.cmake")
+    set(fmt_DIR "/usr/local/lib/cmake/fmt")
+  elseif(EXISTS "/usr/lib/x86_64-linux-gnu/cmake/fmt/fmt-config.cmake")
+    set(fmt_DIR "/usr/lib/x86_64-linux-gnu/cmake/fmt")
+  elseif(EXISTS "/usr/lib/aarch64-linux-gnu/cmake/fmt/fmt-config.cmake")
+    set(fmt_DIR "/usr/lib/aarch64-linux-gnu/cmake/fmt")
+  endif()
+  find_package(fmt QUIET)
+  if(fmt_FOUND)
+    message(STATUS "std::format: using installed fmt library")
+  else()
+    message(STATUS "std::format: building fmt library")
+    include(FetchContent)
+    FetchContent_Declare(fmt
+      GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+      GIT_TAG 11.0.2
+    )
+    FetchContent_MakeAvailable(fmt)
+  endif()
+endif()
+
+include(cmake/FindCUDD.cmake)
 
 # configure a header file to pass some of the CMake settings
 configure_file(${STA_HOME}/util/StaConfig.hh.cmake
@@ -533,6 +570,10 @@ target_link_libraries(OpenSTA
   ${CUDD_LIB}
   )
 
+if(NOT HAVE_CXX_STD_FORMAT)
+  target_link_libraries(OpenSTA fmt::fmt)
+endif()
+
 if (ZLIB_LIBRARIES)
   target_link_libraries(OpenSTA ${ZLIB_LIBRARIES})
 endif()
@@ -561,7 +602,7 @@ endif()
 
 # common to gcc/clang
 set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls
-  -Wformat-security -Werror=misleading-indentation)
+  -Wformat-security -Werror=misleading-indentation -Wundef)
 
 if(ENABLE_TSAN)
   message(STATUS "Thread sanitizer: ${ENABLE_TSAN}")

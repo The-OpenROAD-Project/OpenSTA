@@ -51,31 +51,31 @@ TEST_F(VerilogTest, InstanceWithSlash) {
 // Verilog to STA conversions
 TEST_F(VerilogTest, ModuleToSta) {
   std::string name = "top";
-  std::string result = moduleVerilogToSta(&name);
+  std::string result = moduleVerilogToSta(name);
   EXPECT_EQ(result, "top");
 }
 
 TEST_F(VerilogTest, InstanceToSta) {
   std::string name = "inst1";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_EQ(result, "inst1");
 }
 
 TEST_F(VerilogTest, EscapedToSta) {
   std::string name = "\\esc_name ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 TEST_F(VerilogTest, NetToSta) {
   std::string name = "net1";
-  std::string result = netVerilogToSta(&name);
+  std::string result = netVerilogToSta(name);
   EXPECT_EQ(result, "net1");
 }
 
 TEST_F(VerilogTest, PortToSta) {
   std::string name = "port_a";
-  std::string result = portVerilogToSta(&name);
+  std::string result = portVerilogToSta(name);
   EXPECT_EQ(result, "port_a");
 }
 
@@ -165,7 +165,7 @@ TEST_F(VerilogTest, CellEscapePrefix) {
 // Verilog-to-STA conversions with escaped names
 TEST_F(VerilogTest, EscapedModuleToSta) {
   std::string name = "\\my/module ";
-  std::string result = moduleVerilogToSta(&name);
+  std::string result = moduleVerilogToSta(name);
   // Should strip leading \ and trailing space, but escape special chars
   EXPECT_FALSE(result.empty());
   EXPECT_NE(result.front(), '\\');
@@ -173,38 +173,38 @@ TEST_F(VerilogTest, EscapedModuleToSta) {
 
 TEST_F(VerilogTest, EscapedNetToSta) {
   std::string name = "\\net[0] ";
-  std::string result = netVerilogToSta(&name);
+  std::string result = netVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 TEST_F(VerilogTest, EscapedPortToSta) {
   std::string name = "\\port/a ";
-  std::string result = portVerilogToSta(&name);
+  std::string result = portVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 TEST_F(VerilogTest, PlainModuleToSta) {
   std::string name = "top_module";
-  std::string result = moduleVerilogToSta(&name);
+  std::string result = moduleVerilogToSta(name);
   EXPECT_EQ(result, "top_module");
 }
 
 TEST_F(VerilogTest, PlainNetToSta) {
   std::string name = "wire1";
-  std::string result = netVerilogToSta(&name);
+  std::string result = netVerilogToSta(name);
   EXPECT_EQ(result, "wire1");
 }
 
 TEST_F(VerilogTest, PlainPortToSta) {
   std::string name = "port_b";
-  std::string result = portVerilogToSta(&name);
+  std::string result = portVerilogToSta(name);
   EXPECT_EQ(result, "port_b");
 }
 
 // Escaped name with brackets (bus notation)
 TEST_F(VerilogTest, EscapedInstanceWithBracket) {
   std::string name = "\\inst[0] ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
   // Brackets should be escaped in STA name
   EXPECT_NE(result.find("\\["), std::string::npos);
@@ -213,7 +213,7 @@ TEST_F(VerilogTest, EscapedInstanceWithBracket) {
 // Escaped name with divider
 TEST_F(VerilogTest, EscapedInstanceWithDivider) {
   std::string name = "\\u1/u2 ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
   // Divider should be escaped in STA name
   EXPECT_NE(result.find("\\/"), std::string::npos);
@@ -222,14 +222,14 @@ TEST_F(VerilogTest, EscapedInstanceWithDivider) {
 // Escaped name with escape character
 TEST_F(VerilogTest, EscapedNameWithEscapeChar) {
   std::string name = "\\esc\\val ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 // Escaped name without trailing space
 TEST_F(VerilogTest, EscapedNoTrailingSpace) {
   std::string name = "\\esc_name";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
@@ -303,7 +303,7 @@ TEST_F(VerilogTest, InstanceWithAt) {
 // verilogToSta: escaped name with multiple special chars
 TEST_F(VerilogTest, EscapedMultipleSpecial) {
   std::string name = "\\u1/u2[3] ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
   // Both / and [ and ] should be escaped
   EXPECT_NE(result.find("\\/"), std::string::npos);
@@ -314,7 +314,7 @@ TEST_F(VerilogTest, EscapedMultipleSpecial) {
 // verilogToSta: escaped name with backslash inside
 TEST_F(VerilogTest, EscapedWithBackslash) {
   std::string name = "\\a\\b ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
   // The backslash inside should be escaped as double-backslash
   EXPECT_NE(result.find("\\\\"), std::string::npos);
@@ -342,25 +342,25 @@ TEST_F(VerilogTest, CellDoubleBackslash) {
 // netVerilogToSta with plain name
 TEST_F(VerilogTest, NetToStaPlain) {
   std::string name = "simple_wire";
-  EXPECT_EQ(netVerilogToSta(&name), "simple_wire");
+  EXPECT_EQ(netVerilogToSta(name), "simple_wire");
 }
 
 // portVerilogToSta with plain name
 TEST_F(VerilogTest, PortToStaPlain) {
   std::string name = "port_clk";
-  EXPECT_EQ(portVerilogToSta(&name), "port_clk");
+  EXPECT_EQ(portVerilogToSta(name), "port_clk");
 }
 
 // moduleVerilogToSta plain
 TEST_F(VerilogTest, ModuleToStaPlain) {
   std::string name = "mod_top";
-  EXPECT_EQ(moduleVerilogToSta(&name), "mod_top");
+  EXPECT_EQ(moduleVerilogToSta(name), "mod_top");
 }
 
 // verilogToSta: escaped name without trailing space
 TEST_F(VerilogTest, EscapedNoSpace) {
   std::string name = "\\name";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
   // "ame" (without leading 'n' because 'n' is first char after \ which is stripped)
   // Actually: ignoring leading '\', copy the rest. "name" has no trailing space.
@@ -421,14 +421,14 @@ TEST_F(VerilogTest, InstanceWithBrackets) {
 // verilogToSta: empty escaped name
 TEST_F(VerilogTest, EmptyEscapedName) {
   std::string name = "\\";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_TRUE(result.empty());
 }
 
 // verilogToSta: escaped name with only space
 TEST_F(VerilogTest, EscapedOnlySpace) {
   std::string name = "\\ ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_TRUE(result.empty());
 }
 
@@ -454,28 +454,28 @@ TEST_F(VerilogTest, CellOnlySpecialChars) {
 // instanceVerilogToSta: plain unescaped name
 TEST_F(VerilogTest, UnescapedInstance) {
   std::string name = "plain_inst";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_EQ(result, "plain_inst");
 }
 
 // netVerilogToSta: escaped name with bus notation
 TEST_F(VerilogTest, EscapedNetBus) {
   std::string name = "\\data[7:0] ";
-  std::string result = netVerilogToSta(&name);
+  std::string result = netVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 // moduleVerilogToSta: escaped module name
 TEST_F(VerilogTest, EscapedModule) {
   std::string name = "\\mod/special ";
-  std::string result = moduleVerilogToSta(&name);
+  std::string result = moduleVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 // portVerilogToSta: escaped port name
 TEST_F(VerilogTest, EscapedPort) {
   std::string name = "\\port$gen ";
-  std::string result = portVerilogToSta(&name);
+  std::string result = portVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
@@ -521,7 +521,7 @@ TEST_F(VerilogTest, PortWithPlus) {
 // instanceVerilogToSta: escaped name with various special chars
 TEST_F(VerilogTest, EscapedInstanceComplex) {
   std::string name = "\\inst.a/b[c] ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
   // The result should contain the original special characters in some form
   EXPECT_GT(result.size(), 3u);
@@ -530,21 +530,21 @@ TEST_F(VerilogTest, EscapedInstanceComplex) {
 // netVerilogToSta: plain net with underscore
 TEST_F(VerilogTest, PlainNetUnderscore) {
   std::string name = "_net_wire_";
-  std::string result = netVerilogToSta(&name);
+  std::string result = netVerilogToSta(name);
   EXPECT_EQ(result, "_net_wire_");
 }
 
 // portVerilogToSta: plain port with numbers
 TEST_F(VerilogTest, PlainPortNumeric) {
   std::string name = "port_123";
-  std::string result = portVerilogToSta(&name);
+  std::string result = portVerilogToSta(name);
   EXPECT_EQ(result, "port_123");
 }
 
 // moduleVerilogToSta: plain module with mixed case
 TEST_F(VerilogTest, PlainModuleMixedCase) {
   std::string name = "MyModule_V2";
-  std::string result = moduleVerilogToSta(&name);
+  std::string result = moduleVerilogToSta(name);
   EXPECT_EQ(result, "MyModule_V2");
 }
 
@@ -575,14 +575,14 @@ TEST_F(VerilogTest, PortWithPipe) {
 // instanceVerilogToSta: escaped name without trailing space (edge case)
 TEST_F(VerilogTest, EscapedNoTrailingSpaceComplex) {
   std::string name = "\\inst/a[0]";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 // cellVerilogName: very long name
 TEST_F(VerilogTest, CellLongName) {
   std::string long_name(200, 'a');
-  std::string result = cellVerilogName(long_name.c_str());
+  std::string result = cellVerilogName(long_name);
   EXPECT_EQ(result, long_name);
 }
 
@@ -590,7 +590,7 @@ TEST_F(VerilogTest, CellLongName) {
 TEST_F(VerilogTest, CellLongEscapedName) {
   std::string long_name(200, 'a');
   long_name[100] = '/';
-  std::string result = cellVerilogName(long_name.c_str());
+  std::string result = cellVerilogName(long_name);
   EXPECT_EQ(result.front(), '\\');
   EXPECT_EQ(result.back(), ' ');
 }
@@ -1014,21 +1014,21 @@ TEST_F(VerilogTest, InstanceWithLessThan) {
 // VerilogToSta: net with bus range
 TEST_F(VerilogTest, EscapedNetRange) {
   std::string name = "\\data[7:0] ";
-  std::string result = netVerilogToSta(&name);
+  std::string result = netVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 // VerilogToSta: module with digit prefix
 TEST_F(VerilogTest, ModuleDigitPrefix) {
   std::string name = "123module";
-  std::string result = moduleVerilogToSta(&name);
+  std::string result = moduleVerilogToSta(name);
   EXPECT_EQ(result, "123module");
 }
 
 // portVerilogToSta: escaped
 TEST_F(VerilogTest, EscapedPortComplex) {
   std::string name = "\\port.a[0]/b ";
-  std::string result = portVerilogToSta(&name);
+  std::string result = portVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
@@ -1036,7 +1036,7 @@ TEST_F(VerilogTest, EscapedPortComplex) {
 TEST_F(VerilogTest, RoundTripSpecialCell) {
   // STA name with escaped bracket
   std::string sta_name = "cell\\[0\\]";
-  std::string verilog = cellVerilogName(sta_name.c_str());
+  std::string verilog = cellVerilogName(sta_name);
   EXPECT_FALSE(verilog.empty());
 }
 
@@ -1427,25 +1427,25 @@ TEST_F(VerilogTest, PortNameWithBacktick) {
 // Verilog to STA conversions: edge cases
 TEST_F(VerilogTest, EscapedInstanceOnlyBrackets) {
   std::string name = "\\[0] ";
-  std::string result = instanceVerilogToSta(&name);
+  std::string result = instanceVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 TEST_F(VerilogTest, EscapedNetOnlySlash) {
   std::string name = "\\/ ";
-  std::string result = netVerilogToSta(&name);
+  std::string result = netVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 TEST_F(VerilogTest, ModuleToStaEscapedComplex) {
   std::string name = "\\mod.a/b[1] ";
-  std::string result = moduleVerilogToSta(&name);
+  std::string result = moduleVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
 TEST_F(VerilogTest, PortToStaEscapedBracket) {
   std::string name = "\\port[3] ";
-  std::string result = portVerilogToSta(&name);
+  std::string result = portVerilogToSta(name);
   EXPECT_FALSE(result.empty());
 }
 
@@ -1727,35 +1727,35 @@ TEST_F(VerilogTest, PortNameMixedSpecial) {
 // Round-trip tests: staToVerilog -> verilogToSta should preserve identity for simple names
 TEST_F(VerilogTest, RoundTripSimpleName) {
   std::string sta_name = "simple_wire";
-  std::string verilog = netVerilogName(sta_name.c_str());
-  std::string back = netVerilogToSta(&verilog);
+  std::string verilog = netVerilogName(sta_name);
+  std::string back = netVerilogToSta(verilog);
   EXPECT_EQ(back, sta_name);
 }
 
 TEST_F(VerilogTest, RoundTripSimpleCell) {
   std::string sta_name = "my_cell_123";
-  std::string verilog = cellVerilogName(sta_name.c_str());
+  std::string verilog = cellVerilogName(sta_name);
   EXPECT_EQ(verilog, sta_name); // no escaping needed
 }
 
 TEST_F(VerilogTest, RoundTripSimpleInstance) {
   std::string sta_name = "u1_abc";
-  std::string verilog = instanceVerilogName(sta_name.c_str());
-  std::string back = instanceVerilogToSta(&verilog);
+  std::string verilog = instanceVerilogName(sta_name);
+  std::string back = instanceVerilogToSta(verilog);
   EXPECT_EQ(back, sta_name);
 }
 
 TEST_F(VerilogTest, RoundTripSimplePort) {
   std::string sta_name = "clk_in";
-  std::string verilog = portVerilogName(sta_name.c_str());
-  std::string back = portVerilogToSta(&verilog);
+  std::string verilog = portVerilogName(sta_name);
+  std::string back = portVerilogToSta(verilog);
   EXPECT_EQ(back, sta_name);
 }
 
 TEST_F(VerilogTest, RoundTripSimpleModule) {
   std::string sta_name = "top_module";
-  std::string verilog = cellVerilogName(sta_name.c_str());
-  std::string back = moduleVerilogToSta(&verilog);
+  std::string verilog = cellVerilogName(sta_name);
+  std::string back = moduleVerilogToSta(verilog);
   EXPECT_EQ(back, sta_name);
 }
 
@@ -1802,7 +1802,7 @@ TEST_F(VerilogTest, DclBusPortName) {
 TEST_F(VerilogTest, NetBusRangeConversion) {
   // Verilog bus notation should convert properly
   std::string verilog_name = "data[3]";
-  std::string net_name = netVerilogToSta(&verilog_name);
+  std::string net_name = netVerilogToSta(verilog_name);
   EXPECT_FALSE(net_name.empty());
 }
 
@@ -1838,7 +1838,7 @@ TEST_F(VerilogTest, EmptyNames) {
 // Covers: netVerilogToSta with bus notation
 TEST_F(VerilogTest, BusVerilogToSta) {
   std::string verilog_name = "bus[7:0]";
-  std::string bus = netVerilogToSta(&verilog_name);
+  std::string bus = netVerilogToSta(verilog_name);
   EXPECT_FALSE(bus.empty());
 }
 
@@ -1846,7 +1846,7 @@ TEST_F(VerilogTest, BusVerilogToSta) {
 // Covers: instanceVerilogToSta with escaped name
 TEST_F(VerilogTest, EscapedInstanceToSta) {
   std::string verilog_name = "\\inst[0] ";
-  std::string name = instanceVerilogToSta(&verilog_name);
+  std::string name = instanceVerilogToSta(verilog_name);
   EXPECT_FALSE(name.empty());
 }
 
@@ -1854,10 +1854,10 @@ TEST_F(VerilogTest, EscapedInstanceToSta) {
 // Covers: netVerilogToSta bracket handling
 TEST_F(VerilogTest, NetVerilogToStaBrackets) {
   std::string name1 = "wire1";
-  std::string net1 = netVerilogToSta(&name1);
+  std::string net1 = netVerilogToSta(name1);
   EXPECT_EQ(net1, "wire1");
   std::string name2 = "bus[0]";
-  std::string net2 = netVerilogToSta(&name2);
+  std::string net2 = netVerilogToSta(name2);
   EXPECT_FALSE(net2.empty());
 }
 
@@ -1893,7 +1893,7 @@ TEST_F(VerilogTest, PortHierSep) {
 // Covers: instanceVerilogToSta simple case
 TEST_F(VerilogTest, InstanceToStaSimple) {
   std::string verilog_name = "u1";
-  std::string name = instanceVerilogToSta(&verilog_name);
+  std::string name = instanceVerilogToSta(verilog_name);
   EXPECT_EQ(name, "u1");
 }
 

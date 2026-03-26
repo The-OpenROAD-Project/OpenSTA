@@ -104,6 +104,7 @@ eigen       3.4.0   3.4.0   MPL2  required
 cudd        3.0.0   3.0.0   BSD   required
 tclreadline 2.3.8   2.3.8   BSD   optional
 zLib        1.2.5   1.2.8   zlib  optional
+libfmt      8.1.1   N/A     MIT   required if std::format not available
 ```
 
 The [TCL readline library](https://tclreadline.sourceforge.net/tclreadline.html)
@@ -142,6 +143,11 @@ make
 
 You can use the "configure --prefix" option and "make install" to install CUDD
 in a different directory.
+
+Modern c++ compilers that support c++20 include support for std::format.
+With older compilers like gcc 11 on Ubuntu 22.04 and Centos7 the fmt library
+is used instead. If it is not installed locally, the github repository is
+downloaded and compiled in the build directory.
 
 ### Building with CMake
 

@@ -33,44 +33,11 @@
 
 namespace sta {
 
-class InternalPowerModel;
-
-using InternalPowerModels =
-  std::array<std::shared_ptr<InternalPowerModel>, RiseFall::index_count>;
-
-class InternalPower
-{
-public:
-  InternalPower(LibertyPort *port,
-                LibertyPort *related_port,
-                LibertyPort *related_pg_pin,
-                const std::shared_ptr<FuncExpr> &when,
-                InternalPowerModels &models);
-  //InternalPower(InternalPower &&other) noexcept;
-  LibertyCell *libertyCell() const;
-  LibertyPort *port() const { return port_; }
-  LibertyPort *relatedPort() const { return related_port_; }
-  FuncExpr *when() const { return when_.get(); }
-  LibertyPort *relatedPgPin() const { return related_pg_pin_; }
-  float power(const RiseFall *rf,
-              const Pvt *pvt,
-              float in_slew,
-              float load_cap) const;
-  const InternalPowerModel *model(const RiseFall *rf) const;
-
-protected:
-  LibertyPort *port_;
-  LibertyPort *related_port_;
-  LibertyPort *related_pg_pin_;
-  std::shared_ptr<FuncExpr> when_;
-  InternalPowerModels models_;
-};
-
 class InternalPowerModel
 {
 public:
-  InternalPowerModel(TableModel *model);
-  ~InternalPowerModel();
+  InternalPowerModel();
+  InternalPowerModel(std::shared_ptr<TableModel> model);
   float power(const LibertyCell *cell,
               const Pvt *pvt,
               float in_slew,
@@ -80,7 +47,7 @@ public:
                           float in_slew,
                           float load_cap,
                           int digits) const;
-  const TableModel *model() const { return model_; }
+  const TableModel *model() const { return model_.get(); }
 
 protected:
   void findAxisValues(float in_slew,
@@ -95,7 +62,36 @@ protected:
   bool checkAxes(const TableModel *model);
   bool checkAxis(const TableAxis *axis);
 
-  TableModel *model_;
+  std::shared_ptr<TableModel> model_;
+};
+
+using InternalPowerModels = std::array<InternalPowerModel, RiseFall::index_count>;
+
+class InternalPower
+{
+public:
+  InternalPower(LibertyPort *port,
+                LibertyPort *related_port,
+                LibertyPort *related_pg_pin,
+                const std::shared_ptr<FuncExpr> &when,
+                const InternalPowerModels &models);
+  LibertyCell *libertyCell() const;
+  LibertyPort *port() const { return port_; }
+  LibertyPort *relatedPort() const { return related_port_; }
+  FuncExpr *when() const { return when_.get(); }
+  LibertyPort *relatedPgPin() const { return related_pg_pin_; }
+  float power(const RiseFall *rf,
+              const Pvt *pvt,
+              float in_slew,
+              float load_cap) const;
+  const InternalPowerModel &model(const RiseFall *rf) const;
+
+protected:
+  LibertyPort *port_;
+  LibertyPort *related_port_;
+  LibertyPort *related_pg_pin_;
+  std::shared_ptr<FuncExpr> when_;
+  InternalPowerModels models_;
 };
 
 } // namespace

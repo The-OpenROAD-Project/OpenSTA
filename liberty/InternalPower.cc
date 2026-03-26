@@ -37,7 +37,7 @@ InternalPower::InternalPower(LibertyPort *port,
                              LibertyPort *related_port,
                              LibertyPort *related_pg_pin,
                              const std::shared_ptr<FuncExpr> &when,
-                             InternalPowerModels &models) :
+                             const InternalPowerModels &models) :
   port_(port),
   related_port_(related_port),
   related_pg_pin_(related_pg_pin),
@@ -52,36 +52,32 @@ InternalPower::libertyCell() const
   return port_->libertyCell();
 }
 
+const InternalPowerModel &
+InternalPower::model(const RiseFall *rf) const
+{
+  return models_[rf->index()];
+}
+
 float
 InternalPower::power(const RiseFall *rf,
                      const Pvt *pvt,
                      float in_slew,
                      float load_cap) const
 {
-  const std::shared_ptr<InternalPowerModel> &model = models_[rf->index()];
-  if (model)
-    return model->power(libertyCell(), pvt, in_slew, load_cap);
-  else
-    return 0.0;
-}
-
-const InternalPowerModel *
-InternalPower::model(const RiseFall *rf) const
-{
-  const std::shared_ptr<InternalPowerModel> &m = models_[rf->index()];
-  return m.get();
+  const InternalPowerModel &model = models_[rf->index()];
+  return model.power(libertyCell(), pvt, in_slew, load_cap);
 }
 
 ////////////////////////////////////////////////////////////////
 
-InternalPowerModel::InternalPowerModel(TableModel *model) :
-  model_(model)
+InternalPowerModel::InternalPowerModel() :
+  model_(nullptr)
 {
 }
 
-InternalPowerModel::~InternalPowerModel()
+InternalPowerModel::InternalPowerModel(std::shared_ptr<TableModel> model) :
+  model_(model)
 {
-  delete model_;
 }
 
 float

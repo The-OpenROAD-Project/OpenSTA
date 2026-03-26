@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "Sim.hh"
@@ -68,10 +68,7 @@ Sim::Sim(StaState *sta) :
 {
 }
 
-Sim::~Sim()
-{
-  delete observer_;
-}
+Sim::~Sim() { delete observer_; }
 
 void
 Sim::copyState(const StaState *sta)
@@ -92,9 +89,8 @@ Sim::functionSense(const FuncExpr *expr,
                    const Pin *input_pin,
                    const Instance *inst)
 {
-  debugPrint(debug_, "sim", 4, "find sense pin %s %s",
-             network_->pathName(input_pin),
-             expr->to_string().c_str());
+  debugPrint(debug_, "sim", 4, "find sense pin {} {}", network_->pathName(input_pin),
+             expr->to_string());
   bool increasing, decreasing;
   {
     LockGuard lock(bdd_lock_);
@@ -103,10 +99,10 @@ Sim::functionSense(const FuncExpr *expr,
     LibertyPort *input_port = network_->libertyPort(input_pin);
     DdNode *input_node = bdd_.ensureNode(input_port);
     unsigned int input_index = Cudd_NodeReadIndex(input_node);
-    increasing = (Cudd_Increasing(cudd_mgr, bdd, input_index)
-                  == Cudd_ReadOne(cudd_mgr));
-    decreasing = (Cudd_Decreasing(cudd_mgr, bdd, input_index)
-                  == Cudd_ReadOne(cudd_mgr));
+    increasing =
+        (Cudd_Increasing(cudd_mgr, bdd, input_index) == Cudd_ReadOne(cudd_mgr));
+    decreasing =
+        (Cudd_Decreasing(cudd_mgr, bdd, input_index) == Cudd_ReadOne(cudd_mgr));
     Cudd_RecursiveDeref(cudd_mgr, bdd);
     bdd_.clearVarMap();
   }
@@ -119,7 +115,7 @@ Sim::functionSense(const FuncExpr *expr,
     sense = TimingSense::negative_unate;
   else
     sense = TimingSense::non_unate;
-  debugPrint(debug_, "sim", 4, " %s", to_string(sense));
+  debugPrint(debug_, "sim", 4, " {}", to_string(sense));
   return sense;
 }
 
@@ -159,16 +155,17 @@ Sim::funcBddSim(const FuncExpr *expr,
       LogicValue value = simValue(pin);
       int var_index = Cudd_NodeReadIndex(port_node);
       switch (value) {
-      case LogicValue::zero:
-        bdd = Cudd_bddCompose(cudd_mgr, bdd, Cudd_ReadLogicZero(cudd_mgr), var_index);
-        Cudd_Ref(bdd);
-        break;
-      case LogicValue::one:
-        bdd = Cudd_bddCompose(cudd_mgr, bdd, Cudd_ReadOne(cudd_mgr), var_index);
-        Cudd_Ref(bdd);
-        break;
-      default:
-        break;
+        case LogicValue::zero:
+          bdd = Cudd_bddCompose(cudd_mgr, bdd, Cudd_ReadLogicZero(cudd_mgr),
+                                var_index);
+          Cudd_Ref(bdd);
+          break;
+        case LogicValue::one:
+          bdd = Cudd_bddCompose(cudd_mgr, bdd, Cudd_ReadOne(cudd_mgr), var_index);
+          Cudd_Ref(bdd);
+          break;
+        default:
+          break;
       }
     }
   }
@@ -243,16 +240,14 @@ bool
 Sim::isConstant(const Vertex *vertex) const
 {
   LogicValue value = simValue(vertex);
-  return value == LogicValue::zero
-    || value == LogicValue::one;
+  return value == LogicValue::zero || value == LogicValue::one;
 }
 
 bool
 Sim::isConstant(const Pin *pin) const
 {
   LogicValue value = simValue(pin);
-  return value == LogicValue::zero
-    || value == LogicValue::one;
+  return value == LogicValue::zero || value == LogicValue::one;
 }
 
 TimingSense
@@ -283,8 +278,7 @@ Sim::setSimTimingSense(Edge *edge,
 bool
 Sim::isDisabledCond(const Edge *edge) const
 {
-  return edge->hasDisabledCond()
-    && edge_disabled_cond_set_.contains(edge);
+  return edge->hasDisabledCond() && edge_disabled_cond_set_.contains(edge);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -356,13 +350,12 @@ Sim::propagateFromInvalidDrvrsToLoads()
 {
   for (const Pin *drvr_pin : invalid_drvr_pins_) {
     LogicValue value = const_func_pins_.contains(drvr_pin)
-      ? pinConstFuncValue(drvr_pin)
-      : simValue(drvr_pin);
-    PinConnectedPinIterator *load_iter=network_->connectedPinIterator(drvr_pin);
+        ? pinConstFuncValue(drvr_pin)
+        : simValue(drvr_pin);
+    PinConnectedPinIterator *load_iter = network_->connectedPinIterator(drvr_pin);
     while (load_iter->hasNext()) {
       const Pin *load_pin = load_iter->next();
-      if (load_pin != drvr_pin
-          && network_->isLoad(load_pin))
+      if (load_pin != drvr_pin && network_->isLoad(load_pin))
         setPinValue(load_pin, value);
     }
     delete load_iter;
@@ -413,8 +406,7 @@ Sim::recordConstPinFunc(const Pin *pin)
     if (expr
         // Tristate outputs do not force the output to be constant.
         && port->tristateEnable() == nullptr
-        && (expr->op() == FuncExpr::Op::zero
-            || expr->op() == FuncExpr::Op::one))
+        && (expr->op() == FuncExpr::Op::zero || expr->op() == FuncExpr::Op::one))
       const_func_pins_.insert(pin);
   }
 }
@@ -507,17 +499,15 @@ void
 Sim::setConstraintConstPins(const LogicValueMap &value_map)
 {
   for (const auto [pin, value] : value_map) {
-    debugPrint(debug_, "sim", 2, "case pin %s = %c",
-               network_->pathName(pin),
+    debugPrint(debug_, "sim", 2, "case pin {} = {}", network_->pathName(pin),
                logicValueString(value));
     if (network_->isHierarchical(pin)) {
       // Set the logic value on pins inside the instance of a hierarchical pin.
       bool pin_is_output = network_->direction(pin)->isAnyOutput();
-      PinConnectedPinIterator *pin_iter=network_->connectedPinIterator(pin);
+      PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(pin);
       while (pin_iter->hasNext()) {
         const Pin *pin1 = pin_iter->next();
-        if (network_->isLeaf(pin1)
-            && network_->direction(pin1)->isAnyInput()
+        if (network_->isLeaf(pin1) && network_->direction(pin1)->isAnyInput()
             && ((pin_is_output && !network_->isInside(pin1, pin))
                 || (!pin_is_output && network_->isInside(pin1, pin))))
           setPinValue(pin1, value);
@@ -537,8 +527,7 @@ Sim::setConstFuncPins()
   for (const Pin *pin : const_func_pins_) {
     LogicValue value = pinConstFuncValue(pin);
     setPinValue(pin, value);
-    debugPrint(debug_, "sim", 2, "func pin %s = %c",
-               network_->pathName(pin),
+    debugPrint(debug_, "sim", 2, "func pin {} = {}", network_->pathName(pin),
                logicValueString(value));
   }
 }
@@ -565,9 +554,8 @@ Sim::enqueueConstantPinInputs()
     LogicValue value;
     const Pin *pin;
     const_iter->next(pin, value);
-    debugPrint(debug_, "sim", 2, "network constant pin %s = %c",
-               network_->pathName(pin),
-               logicValueString(value));
+    debugPrint(debug_, "sim", 2, "network constant pin {} = {}",
+               network_->pathName(pin), logicValueString(value));
     setPinValue(pin, value);
   }
   delete const_iter;
@@ -587,7 +575,7 @@ Sim::removePropagatedValue(const Pin *pin)
   if (!exists) {
     sdc->logicValue(pin, constraint_value, exists);
     if (!exists) {
-      debugPrint(debug_, "sim", 2, "pin %s remove prop constant",
+      debugPrint(debug_, "sim", 2, "pin {} remove prop constant",
                  network_->pathName(pin));
       setSimValue(pin, LogicValue::unknown);
     }
@@ -604,17 +592,16 @@ Sim::setPinValue(const Pin *pin,
   sdc->caseLogicValue(pin, constraint_value, exists);
   if (!exists)
     sdc->logicValue(pin, constraint_value, exists);
-  if (exists
-      && value != constraint_value) {
+  if (exists && value != constraint_value) {
     if (value != LogicValue::unknown)
-      report_->warn(1521, "propagated logic value %c differs from constraint value of %c on pin %s.",
-                    logicValueString(value),
-                    logicValueString(constraint_value),
-                    sdc_network_->pathName(pin));
+      report_->warn(
+          1521,
+          "propagated logic value {} differs from constraint value of {} on pin {}.",
+          logicValueString(value), logicValueString(constraint_value),
+          sdc_network_->pathName(pin));
   }
   else {
-    debugPrint(debug_, "sim", 3, "pin %s = %c",
-               network_->pathName(pin),
+    debugPrint(debug_, "sim", 3, "pin {} = {}", network_->pathName(pin),
                logicValueString(value));
     bool value_changed = false;
     value_changed |= value != simValue(pin);
@@ -623,19 +610,16 @@ Sim::setPinValue(const Pin *pin,
       Instance *inst = network_->instance(pin);
       instances_to_annotate_.insert(inst);
 
-      if (network_->isLeaf(inst)
-          && network_->direction(pin)->isAnyInput()) {
-        if (eval_queue_.empty() 
-            || (eval_queue_.back() != inst))
+      if (network_->isLeaf(inst) && network_->direction(pin)->isAnyInput()) {
+        if (eval_queue_.empty() || (eval_queue_.back() != inst))
           eval_queue_.push(inst);
       }
       else if (network_->isDriver(pin)) {
         // Enqueue instances with input pins connected to net.
-        PinConnectedPinIterator *pin_iter=network_->connectedPinIterator(pin);
+        PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(pin);
         while (pin_iter->hasNext()) {
           const Pin *pin1 = pin_iter->next();
-          if (pin1 != pin
-              && network_->isLoad(pin1))
+          if (pin1 != pin && network_->isLoad(pin1))
             setPinValue(pin1, value);
         }
         delete pin_iter;
@@ -648,7 +632,7 @@ void
 Sim::evalInstance(const Instance *inst,
                   bool thru_sequentials)
 {
-  debugPrint(debug_, "sim", 2, "eval %s", network_->pathName(inst));
+  debugPrint(debug_, "sim", 2, "eval {}", network_->pathName(inst));
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
@@ -664,39 +648,32 @@ Sim::evalInstance(const Instance *inst,
           if (tri_en_expr) {
             if (evalExpr(tri_en_expr, inst) == LogicValue::one) {
               value = evalExpr(expr, inst);
-              debugPrint(debug_, "sim", 2, " %s tri_en=1 %s = %c",
-                         port->name(),
-                         expr->to_string().c_str(),
-                         logicValueString(value));
+              debugPrint(debug_, "sim", 2, " {} tri_en=1 {} = {}", port->name(),
+                         expr->to_string(), logicValueString(value));
             }
           }
           else {
             LibertyPort *expr_port = expr->port();
-            Sequential *sequential = (thru_sequentials && expr_port) 
-              ? cell->outputPortSequential(expr_port)
-              : nullptr;
+            Sequential *sequential = (thru_sequentials && expr_port)
+                ? cell->outputPortSequential(expr_port)
+                : nullptr;
             if (sequential) {
               value = evalExpr(sequential->data(), inst);
               if (expr_port == sequential->outputInv())
                 value = logicNot(value);
-              debugPrint(debug_, "sim", 2, " %s seq %s = %c",
-                         port->name(),
-                         expr->to_string().c_str(),
-                         logicValueString(value));
+              debugPrint(debug_, "sim", 2, " {} seq {} = {}", port->name(),
+                         expr->to_string(), logicValueString(value));
             }
             else {
               value = evalExpr(expr, inst);
-              debugPrint(debug_, "sim", 2, " %s %s = %c",
-                         port->name(),
-                         expr->to_string().c_str(),
-                         logicValueString(value));
+              debugPrint(debug_, "sim", 2, " {} {} = {}", port->name(),
+                         expr->to_string(), logicValueString(value));
             }
           }
         }
         else if (port->isClockGateOut()) {
           value = clockGateOutValue(inst);
-          debugPrint(debug_, "sim", 2, " %s gated_clk = %c",
-                     port->name(),
+          debugPrint(debug_, "sim", 2, " {} gated_clk = {}", port->name(),
                      logicValueString(value));
         }
         if (value != simValue(pin))
@@ -714,11 +691,9 @@ Sim::clockGateOutValue(const Instance *inst)
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
     LibertyPort *port = port_iter.next();
-    if (port->isClockGateClock()
-        || port->isClockGateEnable()) {
+    if (port->isClockGateClock() || port->isClockGateEnable()) {
       Pin *gclk_pin = network_->findPin(inst, port);
-      if (gclk_pin
-          && simValue(gclk_pin) == LogicValue::zero)
+      if (gclk_pin && simValue(gclk_pin) == LogicValue::zero)
         return LogicValue::zero;
     }
   }
@@ -932,15 +907,15 @@ Sim::isDisabledMode(Edge *edge,
 void
 Sim::findDisabledEdges()
 {
-   for (const Instance *inst : instances_to_annotate_)
-     findDisabledEdges(inst);
-   instances_to_annotate_.clear();
+  for (const Instance *inst : instances_to_annotate_)
+    findDisabledEdges(inst);
+  instances_to_annotate_.clear();
 }
 
 void
 Sim::findDisabledEdges(const Instance *inst)
 {
-  debugPrint(debug_, "sim", 4, "annotate %s", network_->pathName(inst));
+  debugPrint(debug_, "sim", 4, "annotate {}", network_->pathName(inst));
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
@@ -974,9 +949,9 @@ Sim::findDisabledEdges(const Instance *inst,
       if (sense != TimingSense::none)
         // Disable conditional timing edges based on constant pins.
         is_disabled_cond = isDisabledCond(edge, inst, from_pin, pin)
-          // Disable mode conditional timing
-          // edges based on constant pins.
-          || isDisabledMode(edge,inst);
+            // Disable mode conditional timing
+            // edges based on constant pins.
+            || isDisabledMode(edge, inst);
 
       bool disables_changed = false;
       if (sense != simTimingSense(edge)) {
@@ -997,4 +972,4 @@ Sim::findDisabledEdges(const Instance *inst,
     observer_->faninEdgesChangeAfter(vertex->pin());
 }
 
-} // namespace
+}  // namespace sta

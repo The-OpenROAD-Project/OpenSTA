@@ -33,6 +33,7 @@
 
 #include "StaConfig.hh"
 #include "StringUtil.hh"
+#include "Format.hh"
 
 namespace sta {
 
@@ -81,8 +82,7 @@ systemRunTime()
 size_t
 memoryUsage()
 {
-  std::string proc_filename;
-  stringPrint(proc_filename, "/proc/%d/status", getpid());
+  std::string proc_filename = sta::format("/proc/{}/status", getpid());
   size_t memory = 0;
   FILE *status = fopen(proc_filename.c_str(), "r");
   if (status) {

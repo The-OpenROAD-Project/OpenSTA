@@ -640,28 +640,27 @@ SdcNetwork::SdcNetwork(Network *network) :
 // Translate sta namespace to sdc namespace.
 // Remove all escapes.
 const char *
-SdcNetwork::staToSdc(const char *sta_name) const
+SdcNetwork::staToSdc(std::string_view sta_name) const
 {
   char escape = pathEscape();
-  char *sdc_name = makeTmpString(strlen(sta_name) + 1);
-  char *d = sdc_name;
-  for (const char *s = sta_name; *s; s++) {
-    char ch = s[0];
+  size_t sta_length = sta_name.length();
+  std::string sdc_name;
+  for (size_t i = 0; i < sta_length; i++) {
+    char ch = sta_name[i];
     if (ch == escape) {
-      char next_ch = s[1];
+      char next_ch = sta_name[i + 1];
       // Escaped escape.
       if (next_ch == escape) {
-        *d++ = ch;
-        *d++ = next_ch;
-        s++;
+        sdc_name += ch;
+        sdc_name += next_ch;
+        i++;
       }
     }
     else
       // Non escape.
-      *d++ = ch;
+      sdc_name += ch;
   }
-  *d++ = '\0';
-  return sdc_name;
+  return makeTmpString(sdc_name);
 }
 
 Port *
@@ -680,11 +679,11 @@ SdcNetwork::findPort(const Cell *cell,
       port = network_->findPort(cell, escaped1.c_str());
       if (port == nullptr) {
         // Try escaping base foo\[0\][1]
-        std::string escaped2;
         std::string escaped_bus_name = escapeBrackets(bus_name.c_str(), this);
-        stringPrint(escaped2, "%s[%d]",
-                    escaped_bus_name.c_str(),
-                    index);
+        std::string escaped2 = escaped_bus_name
+          + '['
+          + std::to_string(index)
+          + ']';
         port = network_->findPort(cell, escaped2.c_str());
       }
     }
@@ -966,8 +965,10 @@ SdcNetwork::findPin(const Instance *instance,
       if (pin == nullptr) {
         // Try escaping base foo\[0\][1]
         std::string escaped_bus_name = escapeBrackets(bus_name.c_str(), this);
-        std::string escaped2;
-        stringPrint(escaped2, "%s[%d]", escaped_bus_name.c_str(), index);
+        std::string escaped2 = escaped_bus_name
+          + '['
+          + std::to_string(index)
+          + ']';
         pin = network_->findPin(instance, escaped2.c_str());
       }
     }
@@ -1149,46 +1150,39 @@ SdcNetwork::parsePath(const char *path,
                       const char *&path_tail) const
 {
   Instance *parent = topInstance();
+  std::string inst_path;
   // Leave room to escape all the dividers and '\0'.
-  int inst_path_length = path_length + divider_count + 1;
-  char *inst_path = new char[inst_path_length];
+  inst_path.reserve(path_length + divider_count + 1);
   inst = nullptr;
   path_tail = path;
-  char *p = inst_path;
   for (const char *s = path; *s; s++) {
     char ch = *s;
     if (ch == escape_) {
       // Make sure we don't skip the null if escape is the last char.
       if (s[1] != '\0') {
-        *p++ = ch;
-        *p++ = s[1];
+        inst_path += ch;
+        inst_path += s[1];
         s++;
       }
     }
     else if (ch == divider_) {
-      // Terminate the sub-path up to this divider.
-      *p = '\0';
-      Instance *child = findChild(parent, inst_path);
+      Instance *child = findChild(parent, inst_path.c_str());
       if (child) {
         // Found an instance for the sub-path up to this divider.
         parent = inst = child;
         // Reset the instance path.
-        p = inst_path;
+        inst_path.clear();
         path_tail = s + 1;
       }
       else {
         // No match for sub-path.  Escape the divider and keep looking.
-        *p++ = escape_;
-        *p++ = divider_;
+        inst_path += escape_;
+        inst_path += divider_;
       }
     }
     else
-      *p++ = ch;
-    if (p - inst_path + 1 > inst_path_length)
-      report_->critical(1500, "inst path std::string lenth estimate busted");
+      inst_path += ch;
   }
-  *p = '\0';
-  stringDelete(inst_path);
 }
 
 // Helper to visit instance path matches.
@@ -1207,11 +1201,9 @@ SdcNetwork::visitMatches(const Instance *parent,
 {
   int divider_count, path_length;
   scanPath(pattern->pattern(), divider_count, path_length);
-
+  std::string inst_path;
   // Leave room to escape all the dividers and '\0'.
-  int inst_path_length = path_length + divider_count + 1;
-  char *inst_path = new char[inst_path_length];
-  char *p = inst_path;
+  inst_path.reserve(path_length + divider_count + 1);
   bool has_brkts = false;
   bool found_match = false;
   for (const char *s = pattern->pattern(); *s; s++) {
@@ -1219,20 +1211,18 @@ SdcNetwork::visitMatches(const Instance *parent,
     if (ch == escape_) {
       // Make sure we don't skip the null if escape is the last char.
       if (s[1] != '\0') {
-        *p++ = ch;
-        *p++ = s[1];
+        inst_path += ch;
+        inst_path += s[1];
         s++;
       }
     }
     else if (ch == divider_) {
-      // Terminate the sub-path up to this divider.
-      *p = '\0';
-      PatternMatch matcher(inst_path, pattern);
+      PatternMatch matcher(inst_path.c_str(), pattern);
       InstanceSeq matches;
       network_->findChildrenMatching(parent, &matcher, matches);
       if (has_brkts && matches.empty()) {
         // Look for matches after escaping brackets.
-        std::string escaped_brkts = escapeBrackets(inst_path, this);
+        std::string escaped_brkts = escapeBrackets(inst_path.c_str(), this);
         const PatternMatch escaped_pattern(escaped_brkts, pattern);
         network_->findChildrenMatching(parent, &escaped_pattern, matches);
       }
@@ -1245,29 +1235,25 @@ SdcNetwork::visitMatches(const Instance *parent,
           found_match |= visitMatches(match, &tail_pattern, visit_tail);
       }
       // Escape the divider and keep looking.
-      *p++ = escape_;
-      *p++ = divider_;
+      inst_path += escape_;
+      inst_path += divider_;
     }
     else {
       if (ch == '[' || ch == ']')
         has_brkts = true;
-      *p++ = ch;
+      inst_path += ch;
     }
-    if (p - inst_path + 1 > inst_path_length)
-      report_->critical(1501, "inst path std::string lenth estimate exceeded");
   }
-  *p = '\0';
   if (!found_match) {
-    PatternMatch tail_pattern(inst_path, pattern);
+    PatternMatch tail_pattern(inst_path.c_str(), pattern);
     found_match |= visit_tail(parent, &tail_pattern);
     if (!found_match && has_brkts) {
       // Look for matches after escaping brackets.
-      std::string escaped_path = escapeBrackets(inst_path, this);
+      std::string escaped_path = escapeBrackets(inst_path.c_str(), this);
       const PatternMatch escaped_tail(escaped_path, pattern);
       found_match |= visit_tail(parent, &escaped_tail);
     }
   }
-  stringDelete(inst_path);
   return found_match;
 }
 

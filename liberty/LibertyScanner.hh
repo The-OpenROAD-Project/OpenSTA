@@ -24,7 +24,9 @@
 
 #pragma once
 
-#include "LibertyLocation.hh"
+#include <string>
+#include <istream>
+
 #include "LibertyParse.hh"
 
 #ifndef __FLEX_LEXER_H

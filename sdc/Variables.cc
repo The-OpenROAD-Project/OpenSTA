@@ -39,7 +39,8 @@ Variables::Variables() :
   dynamic_loop_breaking_(false),
   propagate_all_clks_(false),
   use_default_arrival_clock_(false),
-  pocv_enabled_(false)
+  pocv_mode_(PocvMode::scalar),
+  pocv_quantile_(3.0)
 {
 }
 
@@ -115,10 +116,24 @@ Variables::setUseDefaultArrivalClock(bool enable)
   use_default_arrival_clock_ = enable;
 }
 
-void
-Variables::setPocvEnabled(bool enabled)
+////////////////////////////////////////////////////////////////
+
+bool
+Variables::pocvEnabled() const
 {
-  pocv_enabled_ = enabled;
+  return pocv_mode_ != PocvMode::scalar;
 }
-  
+
+void
+Variables::setPocvMode(PocvMode mode)
+{
+  pocv_mode_ = mode;
+}
+
+void
+Variables::setPocvQuantile(float quantile)
+{
+  pocv_quantile_ = quantile;
+}
+
 } // namespace

@@ -119,15 +119,15 @@ public:
   ArcDcalcResult(size_t load_count);
   void setLoadCount(size_t load_count);
   ArcDelay &gateDelay() { return gate_delay_; }
-  void setGateDelay(ArcDelay gate_delay);
+  void setGateDelay(const ArcDelay &gate_delay);
   Slew &drvrSlew() { return drvr_slew_; }
-  void setDrvrSlew(Slew drvr_slew);
-  ArcDelay wireDelay(size_t load_idx) const;
+  void setDrvrSlew(const Slew &drvr_slew);
+  const ArcDelay &wireDelay(size_t load_idx) const;
   void setWireDelay(size_t load_idx,
-                    ArcDelay wire_delay);
-  Slew loadSlew(size_t load_idx) const;
+                    const ArcDelay &wire_delay);
+  const Slew &loadSlew(size_t load_idx) const;
   void setLoadSlew(size_t load_idx,
-                   Slew load_slew);
+                   const Slew &load_slew);
 
 protected:
   ArcDelay gate_delay_;

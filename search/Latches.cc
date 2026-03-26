@@ -70,13 +70,13 @@ Latches::latchRequired(const Path *data_path,
     ignore_clk_latency = path_delay->ignoreClkLatency();
   }
   if (ignore_clk_latency) {
-      required = max_delay + src_clk_latency;
+      required = delaySum(src_clk_latency, max_delay, this);
       borrow = 0.0;
       adjusted_data_arrival = data_arrival;
       time_given_to_startpoint = 0.0;
   }
   else if (enable_path && disable_path) {
-    debugPrint(debug_, "latch", 1, "latch %s",
+    debugPrint(debug_, "latch", 1, "latch {}",
                sdc_network_->pathName(data_path->pin(this)));
     Delay open_latency, latency_diff, max_borrow;
     float nom_pulse_width, open_uncertainty;
@@ -98,14 +98,16 @@ Latches::latchRequired(const Path *data_path,
     // checkTgtClkTime
     float tgt_clk_time = path_delay ? 0.0 : acct->requiredTime(check_role);
     // checkTgtClkArrival broken down into components.
-    Arrival enable_arrival = max_delay
-      + tgt_clk_time
-      + open_latency
-      + open_uncertainty
-      + PathEnd::checkSetupMcpAdjustment(data_clk_edge, enable_clk_edge, mcp,
-                                         1, sdc)
-      + open_crpr;
-    debugPrint(debug_, "latch", 1, "data %s enable %s",
+    Arrival enable_arrival = delaySum(max_delay
+                                      + tgt_clk_time
+                                      + open_uncertainty
+                                      + PathEnd::checkSetupMcpAdjustment(data_clk_edge,
+                                                                         enable_clk_edge,
+                                                                         mcp, 1, sdc),
+                                      open_latency,
+                                      this);
+    enable_arrival = delaySum(enable_arrival, open_crpr, this);
+    debugPrint(debug_, "latch", 1, "data {} enable {}",
                delayAsString(data_arrival, this),
                delayAsString(enable_arrival, this));
     if (delayLessEqual(data_arrival, enable_arrival, this)) {
@@ -117,25 +119,31 @@ Latches::latchRequired(const Path *data_path,
     }
     else {
       // Data arrives while latch is transparent.
-      borrow = data_arrival - enable_arrival;
+      borrow = delayDiff(data_arrival, enable_arrival, this);
       if (delayLessEqual(borrow, max_borrow, this))
         required = data_arrival;
       else {
         borrow = max_borrow;
-        required = enable_arrival + max_borrow;
+        required = delaySum(enable_arrival, max_borrow, this);
       }
-      time_given_to_startpoint = borrow + open_uncertainty + open_crpr;
+      time_given_to_startpoint = delaySum(delaySum(borrow,
+                                                   open_uncertainty,
+                                                   this),
+                                          open_crpr, this);
 
       // Cycle accounting for required time is with respect to the
       // data clock zeroth cycle.  The data departs the latch
       // with respect to the enable clock zeroth cycle.
       float data_shift_to_enable_clk = acct->sourceTimeOffset(check_role)
         - acct->targetTimeOffset(check_role);
-      adjusted_data_arrival = required + data_shift_to_enable_clk;
+      adjusted_data_arrival = delaySum(required, data_shift_to_enable_clk, this);
     }
   }
   else if (disable_path) {
-    required = max_delay + search_->clkPathArrival(disable_path) - margin;
+    required = delayDiff(delaySum(max_delay,
+                                  search_->clkPathArrival(disable_path),
+                                  this),
+                         margin, this);
     // Borrow cannot be determined without enable path.
     borrow = 0.0;
     adjusted_data_arrival = data_arrival;
@@ -147,7 +155,7 @@ Latches::latchRequired(const Path *data_path,
     adjusted_data_arrival = data_arrival;
     time_given_to_startpoint = 0.0;
   }
-  debugPrint(debug_, "latch", 2, "req %s borrow %s time_given %s adj_arrival %s",
+  debugPrint(debug_, "latch", 2, "req {} borrow {} time_given {} adj_arrival {}",
              delayAsString(required, this),
              delayAsString(borrow, this),
              delayAsString(time_given_to_startpoint, this),
@@ -176,7 +184,7 @@ Latches::latchBorrowInfo(const Path *data_path,
     const ClockEdge *enable_clk_edge = enable_path->clkEdge(this);
     const ClockEdge *disable_clk_edge = disable_path->clkEdge(this);
     bool is_pulse_clk = enable_path->clkInfo(this)->isPulseClk();
-    nom_pulse_width = is_pulse_clk ? 0.0F : enable_clk_edge->pulseWidth();
+    nom_pulse_width = is_pulse_clk ? 0.0 : enable_clk_edge->pulseWidth();
     open_uncertainty = PathEnd::checkClkUncertainty(data_clk_edge, enable_clk_edge,
                                                     enable_path,
                                                     TimingRole::latchSetup(), sdc);
@@ -190,14 +198,14 @@ Latches::latchBorrowInfo(const Path *data_path,
       CheckCrpr *check_crpr = search_->checkCrpr();
       open_crpr = check_crpr->checkCrpr(data_path, enable_path);
       Crpr close_crpr = check_crpr->checkCrpr(data_path, disable_path);
-      crpr_diff = open_crpr - close_crpr;
+      crpr_diff = delayDiff(open_crpr, close_crpr, this);
       open_latency = PathEnd::checkTgtClkDelay(enable_path, enable_clk_edge,
                                                TimingRole::setup(), this);
       Arrival close_latency = PathEnd::checkTgtClkDelay(disable_path,
                                                         disable_clk_edge,
                                                         TimingRole::latchSetup(),
                                                         this);
-      latency_diff = open_latency - close_latency;
+      latency_diff = delayDiff(open_latency, close_latency, this);
     }
     float borrow_limit;
     sdc->latchBorrowLimit(data_path->pin(this), disable_path->pin(this),
@@ -206,8 +214,9 @@ Latches::latchBorrowInfo(const Path *data_path,
     if (borrow_limit_exists)
       max_borrow = borrow_limit;
     else
-      max_borrow = nom_pulse_width - delayAsFloat(latency_diff)
-        - delayAsFloat(crpr_diff) - delayAsFloat(margin);
+      max_borrow = delayDiff(nom_pulse_width,
+                             delaySum(delaySum(latency_diff, crpr_diff, this),
+                                      margin, this), this);
   }
   else {
     nom_pulse_width = 0.0;
@@ -217,12 +226,12 @@ Latches::latchBorrowInfo(const Path *data_path,
     open_crpr = 0.0;
     crpr_diff = 0.0;
   }
-  debugPrint(debug_, "latch", 2, "nom_width %s open_lat %s lat_diff %s open_uncert %s",
+  debugPrint(debug_, "latch", 2, "nom_width {} open_lat {} lat_diff {} open_uncert {}",
              delayAsString(nom_pulse_width, this),
              delayAsString(open_latency, this),
              delayAsString(latency_diff, this),
              delayAsString(open_uncertainty, this));
-  debugPrint(debug_, "latch", 2, "open_crpr %s crpr_diff %s open_uncert %s max_borrow %s",
+  debugPrint(debug_, "latch", 2, "open_crpr {} crpr_diff {} open_uncert {} max_borrow {}",
              delayAsString(open_crpr, this),
              delayAsString(crpr_diff, this),
              delayAsString(open_uncertainty, this),
@@ -349,7 +358,7 @@ Latches::latchOutArrival(const Path *data_path,
     if (!(excpt && excpt->isFalse())) {
       arc_delay = search_->deratedDelay(data_vertex, d_q_arc, d_q_edge,
                                         false, min_max, dcalc_ap, sdc);
-      q_arrival = data_path->arrival() + arc_delay;
+      q_arrival = delaySum(data_path->arrival(),  arc_delay, this);
       // Copy the data tag but remove the drprClkPath.
       // Levelization does not traverse latch D->Q edges, so in some cases
       //  level(Q) < level(D)
@@ -405,7 +414,7 @@ Latches::latchOutArrival(const Path *data_path,
             // Latch is transparent when data arrives.
             arc_delay = search_->deratedDelay(data_vertex, d_q_arc, d_q_edge,
                                               false, min_max, dcalc_ap, sdc);
-            q_arrival = adjusted_data_arrival + arc_delay;
+            q_arrival = delaySum(adjusted_data_arrival, arc_delay, this);
             // Tag switcheroo - data passing thru gets latch enable tag.
             // States and path ap come from Q, everything else from enable.
             Path *crpr_clk_path = crprActive(mode) ? enable_path : nullptr;

@@ -100,41 +100,42 @@ PathGroup::PathGroup(const char *name,
   slack_max_(slack_max),
   min_max_(min_max),
   cmp_slack_(cmp_slack),
-  heap_(group_path_count, PathEndLess(cmp_slack, sta)),
+  threshold_(min_max->initValue()),
   sta_(sta)
 {
 }
 
 PathGroup::~PathGroup()
 {
-  PathEndSeq path_ends = heap_.extract();
-  deleteContents(path_ends);
-}
-
-PathEndSeq
-PathGroup::pathEnds() const
-{
-  return heap_.contents();
+  deleteContents(path_ends_);
 }
 
 bool
 PathGroup::saveable(PathEnd *path_end)
 {
+  float threshold;
+  {
+    LockGuard lock(lock_);
+    threshold = threshold_;
+  }
   if (cmp_slack_) {
     // Crpr increases the slack, so check the slack
     // without crpr first because it is expensive to find.
-    Slack slack = path_end->slackNoCrpr(sta_);
-    if (!delayIsInitValue(slack, min_max_)
-        && delayLessEqual(slack, slack_max_, sta_)) {
+    Slack slack_no_crpr = path_end->slackNoCrpr(sta_);
+    if (!delayIsInitValue(slack_no_crpr, min_max_)
+        && delayLessEqual(slack_no_crpr, threshold, sta_)
+        && delayLessEqual(slack_no_crpr, slack_max_, sta_)) {
       // Now check with crpr.
-      slack = path_end->slack(sta_);
-      return delayLessEqual(slack, slack_max_, sta_)
+      Slack slack = path_end->slack(sta_);
+      return delayLessEqual(slack, threshold, sta_)
+        && delayLessEqual(slack, slack_max_, sta_)
         && delayGreaterEqual(slack, slack_min_, sta_);
     }
   }
   else {
     const Arrival &arrival = path_end->dataArrivalTime(sta_);
-    return !delayIsInitValue(arrival, min_max_);
+    return !delayIsInitValue(arrival, min_max_)
+      && delayGreaterEqual(arrival, threshold, min_max_, sta_);
   }
   return false;
 }
@@ -176,33 +177,72 @@ void
 PathGroup::insert(PathEnd *path_end)
 {
   LockGuard lock(lock_);
-  auto [inserted, displaced] = heap_.insert(path_end);
-  if (inserted)
-    path_end->setPathGroup(this);
+  path_ends_.push_back(path_end);
+   path_end->setPathGroup(this);
+  if (group_path_count_ != group_path_count_max
+      && path_ends_.size() > static_cast<size_t>(group_path_count_) * 2)
+    prune();
+}
+
+void
+PathGroup::prune()
+{
+  sort();
+  VertexPathCountMap path_counts;
+  size_t end_count = 0;
+  for (unsigned i = 0; i < path_ends_.size(); i++) {
+    PathEnd *path_end = path_ends_[i];
+    Vertex *vertex = path_end->vertex(sta_);
+    // Squish up to endpoint_path_count path ends per vertex
+    // up to the front of path_ends_.
+    if (end_count < static_cast<size_t>(group_path_count_)
+        && path_counts[vertex] < static_cast<size_t>(endpoint_path_count_)) {
+      path_ends_[end_count++] = path_end;
+      path_counts[vertex]++;
+    }
+    else
+      delete path_end;
+  }
+  path_ends_.resize(end_count);
+
+  // Set a threshold to the bottom of the sorted list that future
+  // inserts need to beat.
+  PathEnd *last_end = path_ends_[end_count - 1];
+  if (cmp_slack_)
+    threshold_ = delayAsFloat(last_end->slack(sta_));
   else
-    delete path_end;
-  if (displaced)
-    delete *displaced;
+    threshold_ = delayAsFloat(last_end->dataArrivalTime(sta_));
 }
 
 void
 PathGroup::pushEnds(PathEndSeq &path_ends)
 {
-  if (!heap_.empty()) {
-    PathEndSeq ends = heap_.contents();
-    path_ends.reserve(path_ends.size() + ends.size());
-    // Append heap path ends to path_ends.
-    path_ends.insert(path_ends.end(),
-                     std::make_move_iterator(ends.begin()),
-                     std::make_move_iterator(ends.end()));
-  }
+  ensureSortedMaxPaths();
+  for (PathEnd *path_end : path_ends_)
+    path_ends.push_back(path_end);
+}
+
+void
+PathGroup::ensureSortedMaxPaths()
+{
+  if (path_ends_.size() > static_cast<size_t>(group_path_count_))
+    prune();
+  else
+    sort();
+}
+
+void
+PathGroup::sort()
+{
+  sta::sort(path_ends_, PathEndLess(cmp_slack_, sta_));
 }
 
 void
 PathGroup::clear()
 {
+  threshold_ = min_max_->initValue();
   LockGuard lock(lock_);
-  heap_.clear();
+  path_ends_.clear();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -269,7 +309,7 @@ PathGroups::makeGroups(int group_path_count,
     const Sdc *sdc = mode_->sdc();
     for (const auto& [name, group] : sdc->groupPaths()) {
       if (reportGroup(name, group_names)) {
-        PathGroup *group = PathGroup::makePathGroupSlack(name,
+        PathGroup *group = PathGroup::makePathGroupSlack(name.c_str(),
                                                          group_path_count,
                                                          endpoint_path_count,
                                                          unique_pins,
@@ -354,7 +394,7 @@ PathGroups::~PathGroups()
 }
 
 PathGroup *
-PathGroups::findPathGroup(const char *name,
+PathGroups::findPathGroup(const std::string &name,
                           const MinMax *min_max) const
 {
   auto itr = named_map_[min_max->index()].find(name);
@@ -376,7 +416,7 @@ PathGroups::findPathGroup(const Clock *clock,
 }
 
 bool
-PathGroups::reportGroup(const char *group_name,
+PathGroups::reportGroup(const std::string &group_name,
                         StringSet &group_names) const
 {
   return group_names.empty()
@@ -401,7 +441,7 @@ PathGroups::pathGroups(const PathEnd *path_end) const
           path_groups.push_back(path_delay_[mm_index]);
       }
       else {
-        const char *group_name = group_path->name();
+        std::string group_name = group_path->name();
         PathGroup *group = findPathGroup(group_name, min_max);
         if (group)
           path_groups.push_back(group);
@@ -512,7 +552,7 @@ PathGroups::pushEnds(PathEndSeq &path_ends)
   for (const MinMax *min_max : MinMax::range()) {
     int mm_index =  min_max->index();
     for (std::string &group_name : pathGroupNames()) {
-      PathGroup *path_group = findPathGroup(group_name.c_str(), min_max);
+      PathGroup *path_group = findPathGroup(group_name, min_max);
       if (path_group)
         path_group->pushEnds(path_ends);
     }
@@ -761,8 +801,8 @@ MakePathEndsAll::vertexEnd(Vertex *)
         // Only save the worst path end for each crpr tag.
         // PathEnum will peel the others.
         if (!unique_ends.contains(path_end)) {
-          debugPrint(debug, "path_group", 2, "insert %s %s %s %d",
-                     path_end->vertex(sta_)->to_string(sta_).c_str(),
+          debugPrint(debug, "path_group", 2, "insert {} {} {} {}",
+                     path_end->vertex(sta_)->to_string(sta_),
                      path_end->typeName(),
                      path_end->transition(sta_)->shortName(),
                      path_end->path()->tag(sta_)->index());
@@ -776,8 +816,8 @@ MakePathEndsAll::vertexEnd(Vertex *)
           }
         }
         else
-          debugPrint(debug, "path_group", 3, "prune %s %s %s %d",
-                     path_end->vertex(sta_)->to_string(sta_).c_str(),
+          debugPrint(debug, "path_group", 3, "prune {} {} {} {}",
+                     path_end->vertex(sta_)->to_string(sta_),
                      path_end->typeName(),
                      path_end->transition(sta_)->shortName(),
                      path_end->path()->tag(sta_)->index());
@@ -857,8 +897,11 @@ PathGroups::enumPathEnds(PathGroup *group,
   // enumerator.
   PathEnum path_enum(group_path_count, endpoint_path_count,
                      unique_pins, unique_edges, cmp_slack, this);
-  for (PathEnd *end : group->pathEnds())
-    path_enum.insert(end);
+  for (PathEnd *end : group->pathEnds()) {
+    if (group->saveable(end)
+        || group->enumMinSlackUnderMin(end))
+      path_enum.insert(end);
+  }
   group->clear();
 
   // Parallel path enumeratation to find the endpoint_path_count/max path ends.

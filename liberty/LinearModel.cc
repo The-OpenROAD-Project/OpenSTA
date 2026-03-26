@@ -42,20 +42,32 @@ void
 GateLinearModel::gateDelay(const Pvt *,
                            float,
                            float load_cap,
-                           bool,
                            // return values
-                           ArcDelay &gate_delay,
-                           Slew &drvr_slew) const
+                           float &gate_delay,
+                           float &drvr_slew) const
 {
   gate_delay = intrinsic_ + resistance_ * load_cap;
   drvr_slew = 0.0;
+}
+
+void
+GateLinearModel::gateDelayPocv(const Pvt *,
+                               float,
+                               float,
+                               const MinMax *,
+                               PocvMode,
+                               // return values
+                               ArcDelay &,
+                               Slew &) const
+{
 }
 
 std::string
 GateLinearModel::reportGateDelay(const Pvt *,
                                  float,
                                  float load_cap,
-                                 bool,
+                                 const MinMax *,
+                                 PocvMode,
                                  int digits) const
 {
   const LibertyLibrary *library = cell_->libertyLibrary();
@@ -98,7 +110,8 @@ CheckLinearModel::checkDelay(const Pvt *,
                              float,
                              float,
                              float,
-                             bool) const
+                             const MinMax *,
+                             PocvMode) const
 {
   return intrinsic_;
 }
@@ -109,7 +122,8 @@ CheckLinearModel::reportCheckDelay(const Pvt *,
                                    const char *,
                                    float,
                                    float,
-                                   bool,
+                                   const MinMax *,
+                                   PocvMode,
                                    int digits) const
 {
   const LibertyLibrary *library = cell_->libertyLibrary();

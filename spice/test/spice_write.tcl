@@ -42,7 +42,7 @@ close $subckt_fh
 # C++ WritePathSpice code paths.
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $spice_dir \
+  -spice_file [file join $spice_dir path] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \

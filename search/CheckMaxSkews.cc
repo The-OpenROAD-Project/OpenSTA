@@ -178,15 +178,15 @@ MaxSkewCheck::maxSkew(const StaState *sta) const
 }
 
 Delay
-MaxSkewCheck::skew() const
+MaxSkewCheck::skew(const StaState *sta) const
 {
-  return Delay(clk_path_->arrival() - ref_path_->arrival());
+  return delayDiff(clk_path_->arrival(), ref_path_->arrival(), sta);
 }
 
 Slack
 MaxSkewCheck::slack(const StaState *sta) const
 {
-  return maxSkew(sta) - skew();
+  return delayDiff(maxSkew(sta), skew(sta), sta);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ MaxSkewSlackLess::operator()(const MaxSkewCheck &check1,
   Slack slack1 = check1.slack(sta_);
   Slack slack2 = check2.slack(sta_);
   return delayLess(slack1, slack2, sta_)
-    || (delayEqual(slack1, slack2)
+    || (delayEqual(slack1, slack2, sta_)
         // Break ties based on constrained pin names.
         && sta_->network()->pinLess(check1.clkPin(sta_), check2.clkPin(sta_)));
 }

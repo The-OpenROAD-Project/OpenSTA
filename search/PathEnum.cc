@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2026, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // The origin of this software must not be misrepresented; you must not
 // claim that you wrote the original software.
-// 
+//
 // Altered source versions must be plainly marked as such, and must not be
 // misrepresented as being the original software.
-// 
+//
 // This notice may not be removed or altered from any source distribution.
 
 #include "PathEnum.hh"
@@ -41,11 +41,11 @@
 
 namespace sta {
 
-// A diversion is an alternate path formed by changing the previous 
+// A diversion is an alternate path formed by changing the previous
 // path/arc of before_div to after_div/div_arc in path.
 //
 //             div_arc
-// after_div<--------+ 
+// after_div<--------+
 //                   |
 //      <--...--before_div<--...--path<---path_end
 //
@@ -128,13 +128,14 @@ PathEnum::PathEnum(size_t group_path_count,
 void
 PathEnum::insert(PathEnd *path_end)
 {
-  debugPrint(debug_, "path_enum", 1, "insert %s",
-             path_end->path()->to_string(this).c_str());
-  debugPrint(debug_, "path_enum", 2, "diversion %s %s %s",
-             path_end->path()->to_string(this).c_str(),
+  debugPrint(debug_, "path_enum", 1, "insert {}",
+             path_end->path()->to_string(this));
+  debugPrint(debug_, "path_enum", 2, "diversion {} {} {}",
+             path_end->path()->to_string(this),
              cmp_slack_ ? "slack" : "delay",
-             delayAsString(cmp_slack_ ? path_end->slack(this) :
-                           path_end->dataArrivalTime(this), this));
+             delayAsString(cmp_slack_ ? path_end->slack(this)
+                                      : path_end->dataArrivalTime(this),
+                           this));
   Diversion *div = new Diversion(path_end, path_end->path());
   div_queue_.push(div);
   div_count_++;
@@ -154,13 +155,11 @@ PathEnum::~PathEnum()
 bool
 PathEnum::hasNext()
 {
-  if (unique_pins_
-      && !inserts_pruned_) {
+  if (unique_pins_ && !inserts_pruned_) {
     pruneDiversionQueue();
     inserts_pruned_ = true;
   }
-  if (next_ == nullptr
-      && !div_queue_.empty())
+  if (next_ == nullptr && !div_queue_.empty())
     findNext();
   return next_ != nullptr;
 }
@@ -186,11 +185,10 @@ PathEnum::findNext()
     Vertex *vertex = path_end->vertex(this);
     path_counts_[vertex]++;
     if (debug_->check("path_enum", 2)) {
-      report_->reportLine("path_enum: next path %zu %s delay %s slack %s",
-                          path_counts_[vertex],
-                          path->to_string(this).c_str(),
-                          delayAsString(path_end->dataArrivalTime(this), this),
-                          delayAsString(path_end->slack(this), this));
+      report_->report("path_enum: next path {} {} delay {} slack {}",
+                      path_counts_[vertex], path->to_string(this),
+                      delayAsString(path_end->dataArrivalTime(this), this),
+                      delayAsString(path_end->slack(this), this));
       reportDiversionPath(div);
     }
 
@@ -206,9 +204,8 @@ PathEnum::findNext()
     else {
       // We have endpoint_path_count paths for this endpoint,
       // so we are done with it.
-      debugPrint(debug_, "path_enum", 1,
-                 "endpoint_path_count reached for %s",
-                 vertex->to_string(this).c_str());
+      debugPrint(debug_, "path_enum", 1, "endpoint_path_count reached for {}",
+                 vertex->to_string(this));
       deleteDiversionPathEnd(div);
     }
   }
@@ -222,12 +219,10 @@ PathEnum::reportDiversionPath(Diversion *div)
   Path *p = path_end->path();
   Path *after_div = div->divPath();
   while (p) {
-    report_->reportLine("path_enum:  %s %s%s",
-                        p->to_string(this).c_str(),
-                        delayAsString(p->arrival(), this),
-                        Path::equal(p, after_div, this) ? " <-after diversion" : "");
-    if (p != path
-        && network_->isLatchData(p->pin(this)))
+    report_->report("path_enum:  {} {}{}", p->to_string(this),
+                    delayAsString(p->arrival(), this),
+                    Path::equal(p, after_div, this) ? " <-after diversion" : "");
+    if (p != path && network_->isLatchData(p->pin(this)))
       break;
     p = p->prevPath();
   }
@@ -235,8 +230,8 @@ PathEnum::reportDiversionPath(Diversion *div)
 
 ////////////////////////////////////////////////////////////////
 
-using VisitedFanins = std::set<std::pair<const Vertex*, const TimingArc*>>;
-using VertexEdge = std::pair<const Vertex*, const RiseFall*>;
+using VisitedFanins = std::set<std::pair<const Vertex *, const TimingArc *>>;
+using VertexEdge = std::pair<const Vertex *, const RiseFall *>;
 
 class PathEnumFaninVisitor : public PathVisitor
 {
@@ -251,19 +246,19 @@ public:
                            Vertex *prev_vertex,
                            TimingArc *prev_arc);
   bool visitFromToPath(const Pin *from_pin,
-                               Vertex *from_vertex,
-                               const RiseFall *from_rf,
-                               Tag *from_tag,
-                               Path *from_path,
-                               const Arrival &from_arrival,
-                               Edge *edge,
-                               TimingArc *arc,
-                               ArcDelay arc_delay,
-                               Vertex *to_vertex,
-                               const RiseFall *to_rf,
-                               Tag *to_tag,
-                               Arrival &to_arrival,
-                               const MinMax *min_max) override;
+                       Vertex *from_vertex,
+                       const RiseFall *from_rf,
+                       Tag *from_tag,
+                       Path *from_path,
+                       const Arrival &from_arrival,
+                       Edge *edge,
+                       TimingArc *arc,
+                       ArcDelay arc_delay,
+                       Vertex *to_vertex,
+                       const RiseFall *to_rf,
+                       Tag *to_tag,
+                       Arrival &to_arrival,
+                       const MinMax *min_max) override;
 
 private:
   void makeDivertedPathEnd(Path *after_div,
@@ -299,7 +294,7 @@ private:
   Vertex *prev_vertex_;
   bool crpr_active_;
   VisitedFanins visited_fanins_;
-  std::map<VertexEdge, Diversion*> unique_edge_divs_;
+  std::map<VertexEdge, Diversion *> unique_edge_divs_;
 };
 
 PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
@@ -372,8 +367,7 @@ PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
       Path *from_path = from_iter.next();
       const Mode *mode = from_path->mode(this);
       const Sdc *sdc = mode->sdc();
-      if (pred_->searchFrom(from_vertex, mode)
-          && pred_->searchThru(edge, mode)
+      if (pred_->searchFrom(from_vertex, mode) && pred_->searchThru(edge, mode)
           && pred_->searchTo(to_vertex, mode)
           // Fanin paths are broken by path delay internal pin startpoints.
           && !sdc->isPathDelayInternalFromBreak(to_pin)) {
@@ -382,13 +376,13 @@ PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
         arc_set->arcsFrom(from_rf, arc1, arc2);
         // Filter arcs by to edge.
         if (arc1 && arc1->toEdge()->asRiseFall()->index() == before_div_rf_index_) {
-          if (!visitArc(from_pin, from_vertex, from_rf, from_path,
-                        edge, arc1, to_pin, to_vertex, min_max_, mode))
+          if (!visitArc(from_pin, from_vertex, from_rf, from_path, edge, arc1,
+                        to_pin, to_vertex, min_max_, mode))
             return false;
         }
         if (arc2 && arc2->toEdge()->asRiseFall()->index() == before_div_rf_index_) {
-          if (!visitArc(from_pin, from_vertex, from_rf, from_path,
-                        edge, arc2, to_pin, to_vertex, min_max_, mode))
+          if (!visitArc(from_pin, from_vertex, from_rf, from_path, edge, arc2,
+                        to_pin, to_vertex, min_max_, mode))
             return false;
         }
       }
@@ -415,23 +409,20 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
 {
   // These paths fanin to before_div_ so we know to_vertex matches.
   if ((!unique_pins_ || from_vertex != prev_vertex_)
-      && (!unique_edges_
-          || from_vertex != prev_vertex_
+      && (!unique_edges_ || from_vertex != prev_vertex_
           || from_rf != prev_arc_->fromEdge()->asRiseFall())
       && arc != prev_arc_
       && Tag::matchNoCrpr(to_tag, before_div_tag_)
       // Ignore paths that only differ by crpr from same vertex/edge.
-      && (!crpr_active_
-          || !visited_fanins_.contains({from_vertex, arc}))) {
-    debugPrint(debug_, "path_enum", 3, "visit fanin %s -> %s %s %s",
-               from_path->to_string(this).c_str(),
-               to_vertex->to_string(this).c_str(),
-               to_rf->shortName(),
-               delayAsString(search_->deratedDelay(from_vertex, arc, edge,
-                                                   false, from_path->minMax(this),
-                                                   from_path->dcalcAnalysisPtIndex(this),
-                                                   from_path->sdc(this)),
-                             this));
+      && (!crpr_active_ || !visited_fanins_.contains({from_vertex, arc}))) {
+    debugPrint(debug_, "path_enum", 3, "visit fanin {} -> {} {} {}",
+               from_path->to_string(this),
+               to_vertex->to_string(this), to_rf->shortName(),
+               delayAsString(
+                   search_->deratedDelay(
+                       from_vertex, arc, edge, false, from_path->minMax(this),
+                       from_path->dcalcAnalysisPtIndex(this), from_path->sdc(this)),
+                   this));
     PathEnd *div_end;
     Path *after_div_copy;
     // Make the diverted path end to check slack with from_path crpr.
@@ -448,21 +439,18 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
   else {
     if (debug_->check("path_enum", 3)) {
       bool unique_pins = !(!unique_pins_ || from_vertex != prev_vertex_);
-      bool unique_edges = !(!unique_edges_
-                            || from_rf != prev_arc_->fromEdge()->asRiseFall());
+      bool unique_edges =
+          !(!unique_edges_ || from_rf != prev_arc_->fromEdge()->asRiseFall());
       bool same_arc = !(arc != prev_arc_);
       bool tag_march = !Tag::matchNoCrpr(to_tag, before_div_tag_);
-      bool crpr = !(!crpr_active_
-                    || visited_fanins_.find({from_vertex, arc})
-                    == visited_fanins_.end());
-      debugPrint(debug_, "path_enum", 3, "      pruned %s%s%s%s%s %s %s",
+      bool crpr =
+          !(!crpr_active_
+            || visited_fanins_.find({from_vertex, arc}) == visited_fanins_.end());
+      debugPrint(debug_, "path_enum", 3, "      pruned {}{}{}{}{} {} {}",
                  unique_pins ? "unique_pins " : "",
-                 unique_edges ? "unique_edges " : "",
-                 same_arc ? "same_arc " : "",
-                 tag_march ? "tag_march " : "",
-                 crpr ? "crpr " : "",
-                 edge->to_string(this).c_str(),
-                 arc->to_string().c_str());
+                 unique_edges ? "unique_edges " : "", same_arc ? "same_arc " : "",
+                 tag_march ? "tag_march " : "", crpr ? "crpr " : "",
+                 edge->to_string(this), arc->to_string());
     }
   }
   return true;
@@ -495,8 +483,8 @@ PathEnumFaninVisitor::makeDivertedPathEnd(Path *after_div,
                                           Path *&after_div_copy)
 {
   Path *div_path;
-  path_enum_->makeDivertedPath(path_end_->path(), before_div_, after_div,
-                               div_edge, div_arc, div_path, after_div_copy);
+  path_enum_->makeDivertedPath(path_end_->path(), before_div_, after_div, div_edge,
+                               div_arc, div_path, after_div_copy);
   div_end = path_end_->copy();
   div_end->setPath(div_path);
 }
@@ -505,26 +493,24 @@ void
 PathEnumFaninVisitor::reportDiversion(const Edge *div_edge,
                                       const TimingArc *div_arc,
                                       Path *after_div)
-{                       
+{
   if (debug_->check("path_enum", 3)) {
     Path *path = path_end_->path();
     Arrival path_delay = path_enum_->cmp_slack_
       ? path_end_->slack(this)
       : path_end_->dataArrivalTime(this);
-    Arrival div_delay = path_delay - path_enum_->divSlack(before_div_,
-                                                          after_div, div_edge,
-                                                          div_arc);
+    Arrival div_delay = delayDiff(path_delay,
+                                  path_enum_->divSlack(before_div_,
+                                                       after_div, div_edge,
+                                                       div_arc),
+                                  this);
     Path *div_prev = before_div_->prevPath();
-    report_->reportLine("path_enum: diversion %s %s %s -> %s",
-                        path->to_string(this).c_str(),
-                        path_enum_->cmp_slack_ ? "slack" : "delay",
-                        delayAsString(path_delay, this),
-                        delayAsString(div_delay, this));
-    report_->reportLine("path_enum:  from %s -> %s",
-                        div_prev->to_string(this).c_str(),
-                        before_div_->to_string(this).c_str());
-    report_->reportLine("path_enum:    to %s",
-                        after_div->to_string(this).c_str());
+    report_->report("path_enum: diversion {} {} {} -> {}", path->to_string(this),
+                    path_enum_->cmp_slack_ ? "slack" : "delay",
+                    delayAsString(path_delay, this), delayAsString(div_delay, this));
+    report_->report("path_enum:  from {} -> {}", div_prev->to_string(this),
+                    before_div_->to_string(this));
+    report_->report("path_enum:    to {}", after_div->to_string(this));
   }
 }
 
@@ -580,7 +566,7 @@ PathEnum::divSlack(Path *before_div,
       Tag *q_tag;
       latches_->latchOutArrival(after_div, div_arc, div_edge,
                                 q_tag, div_delay, div_arrival);
-      return div_arrival - before_div_arrival;
+      return delayDiff(div_arrival, before_div_arrival, this);
     }
     else {
       DcalcAPIndex dcalc_ap = before_div->dcalcAnalysisPtIndex(this);
@@ -589,8 +575,8 @@ PathEnum::divSlack(Path *before_div,
                                                  false, before_div->minMax(this),
                                                  dcalc_ap,
                                                  before_div->sdc(this));
-      Arrival div_arrival = search_->clkPathArrival(after_div) + div_delay;
-      return div_arrival - before_div_arrival;
+      Arrival div_arrival = delaySum(search_->clkPathArrival(after_div), div_delay, this);
+      return delayDiff(div_arrival, before_div_arrival, this);
     }
   }
   else {
@@ -608,8 +594,8 @@ PathEnum::makeDiversions(PathEnd *path_end,
   Path *path = before;
   Path *prev_path = path->prevPath();
   TimingArc *prev_arc = path->prevArc(this);
-  PathEnumFaninVisitor fanin_visitor(path_end, path, unique_pins_,
-                                     unique_edges_, this);
+  PathEnumFaninVisitor fanin_visitor(path_end, path, unique_pins_, unique_edges_,
+                                     this);
   while (prev_path) {
     // Fanin visitor does all the work.
     // While visiting the fanins the fanin_visitor finds the
@@ -618,8 +604,7 @@ PathEnum::makeDiversions(PathEnd *path_end,
     // Do not enumerate beyond latch D to Q edges.
     // This breaks latch loop paths.
     const TimingRole *prev_role = prev_arc->role();
-    if (prev_role == TimingRole::latchDtoQ()
-        || prev_role == TimingRole::regClkToQ())
+    if (prev_role == TimingRole::latchDtoQ() || prev_role == TimingRole::regClkToQ())
       break;
     path = prev_path;
     prev_path = path->prevPath();
@@ -647,14 +632,10 @@ PathEnum::makeDivertedPath(Path *path,
   Path *prev_copy = nullptr;
   while (p) {
     // prev_path made in next pass.
-    Path *copy = new Path(p->vertex(this),
-                          p->tag(this),
-                          p->arrival(),
-                          // Replaced on next pass.
-                          p->prevPath(),
-                          p->prevEdge(this),
-                          p->prevArc(this),
-                          true, this);
+    Path *copy =
+        new Path(p->vertex(this), p->tag(this), p->arrival(),
+                 // Replaced on next pass.
+                 p->prevPath(), p->prevEdge(this), p->prevArc(this), true, this);
     search_->saveEnumPath(copy);
     if (prev_copy)
       prev_copy->setPrevPath(copy);
@@ -664,8 +645,7 @@ PathEnum::makeDivertedPath(Path *path,
       after_div_copy = copy;
     if (first)
       div_path = copy;
-    else if (found_div
-             && network_->isLatchData(p->pin(this)))
+    else if (found_div && network_->isLatchData(p->pin(this)))
       break;
     if (p == before_div) {
       // Replaced on next pass.
@@ -702,13 +682,11 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
     if (edge) {
       Arrival arrival;
       const MinMax *min_max = path->minMax(this);
-      if (i == path_idx_max
-          && edge->role()->isLatchDtoQ()
+      if (i == path_idx_max && edge->role()->isLatchDtoQ()
           && min_max == MinMax::max()) {
         ArcDelay arc_delay;
         Tag *q_tag;
-        latches_->latchOutArrival(after_div, arc, edge,
-                                  q_tag, arc_delay, arrival);
+        latches_->latchOutArrival(after_div, arc, edge, q_tag, arc_delay, arrival);
         path->setArrival(arrival);
         path->setTag(q_tag);
         prev_clk_info = q_tag->clkInfo();
@@ -719,7 +697,7 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
                                                    path->minMax(this),
                                                    path->dcalcAnalysisPtIndex(this),
                                                    path->sdc(this));
-        arrival = prev_arrival + arc_delay;
+        arrival = delaySum(prev_arrival, arc_delay, this);
         path->setArrival(arrival);
         const Tag *tag = path->tag(this);
         const ClkInfo *clk_info = tag->clkInfo();
@@ -729,19 +707,15 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
             && arc->role() != TimingRole::latchDtoQ()) {
           // When crpr is enabled the diverion may be from another crpr clk pin,
           // so update the tags to use the corresponding ClkInfo.
-          Tag *updated_tag = search_->findTag(path->scene(this),
-                                              path->transition(this),
-                                              path->minMax(this),
-                                              prev_clk_info,
-                                              tag->isClock(),
-                                              tag->inputDelay(),
-                                              tag->isSegmentStart(),
-                                              tag->states(), false, nullptr);
+          Tag *updated_tag = search_->findTag(
+              path->scene(this), path->transition(this), path->minMax(this),
+              prev_clk_info, tag->isClock(), tag->inputDelay(),
+              tag->isSegmentStart(), tag->states(), false, nullptr);
           path->setTag(updated_tag);
         }
-        debugPrint(debug_, "path_enum", 5, "update arrival %s %s %s -> %s",
-                   path->vertex(this)->to_string(this).c_str(),
-                   path->tag(this)->to_string(this).c_str(),
+        debugPrint(debug_, "path_enum", 5, "update arrival {} {} {} -> {}",
+                   path->vertex(this)->to_string(this),
+                   path->tag(this)->to_string(this),
                    delayAsString(path->arrival(), this),
                    delayAsString(arrival, this));
       }
@@ -750,4 +724,4 @@ PathEnum::updatePathHeadDelays(PathSeq &paths,
   }
 }
 
-} // namespace
+}  // namespace sta

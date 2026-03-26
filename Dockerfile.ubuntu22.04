@@ -13,13 +13,14 @@ RUN apt-get update && \
     gdb \
     tcl-dev \
     tcl-tclreadline \
-    libeigen3-dev \
     swig \
     bison \
     flex \
     automake \
     autotools-dev \
-    libgtest-dev
+    libgtest-dev \
+    libeigen3-dev \
+    libfmt-dev
 
 # Download CUDD
 RUN wget https://raw.githubusercontent.com/davidkebo/cudd/main/cudd_versions/cudd-3.0.0.tar.gz && \

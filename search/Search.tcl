@@ -683,7 +683,6 @@ proc_redirect report_path {
 proc parse_report_path_options { cmd args_var default_format
                                  unknown_key_is_error } {
   variable path_options
-  variable report_path_field_width_extra
   global sta_report_default_digits
 
   upvar 1 $args_var args
@@ -691,7 +690,7 @@ proc parse_report_path_options { cmd args_var default_format
     unset path_options
   }
   parse_key_args $cmd args path_options {-format -digits -fields} \
-    path_options {-no_line_splits -report_sigmas} $unknown_key_is_error
+    path_options {-no_line_splits} $unknown_key_is_error
 
   set format $default_format
   if [info exists path_options(-format)] {
@@ -712,24 +711,8 @@ proc parse_report_path_options { cmd args_var default_format
     check_positive_integer "-digits" $digits
   }
 
-  set report_sigmas [info exists path_options(-report_sigmas)]
-  set_report_path_sigmas $report_sigmas
-
   set path_options(num_fmt) "%.${digits}f"
   set_report_path_digits $digits
-  # Numeric field width expands with digits.
-  set field_width [expr $digits + $report_path_field_width_extra]
-  if { $report_sigmas } {
-    set delay_field_width [expr $field_width * 3 + $report_path_field_width_extra]
-  } else {
-    set delay_field_width $field_width
-  }
-  foreach field {total incr} {
-    set_report_path_field_width $field $delay_field_width
-  }
-  foreach field {capacitance slew} {
-    set_report_path_field_width $field $field_width
-  }
 
   set report_input_pin 0
   set report_hier_pins 0
@@ -737,6 +720,7 @@ proc parse_report_path_options { cmd args_var default_format
   set report_net 0
   set report_slew 0
   set report_fanout 0
+  set report_variation 0
   set report_src_attr 0
   if { [info exists path_options(-fields)] } {
     foreach field $path_options(-fields) {
@@ -752,6 +736,8 @@ proc parse_report_path_options { cmd args_var default_format
         set report_slew 1
       } elseif { [string match "fanout" $field] } {
         set report_fanout 1
+      } elseif { [string match "variation" $field] } {
+        set report_variation 1
       } elseif { [string match "src*" $field] } {
         set report_src_attr 1
       } else {
@@ -759,20 +745,21 @@ proc parse_report_path_options { cmd args_var default_format
       }
     }
   }
+
   set_report_path_fields $report_input_pin $report_hier_pins $report_net \
-    $report_cap $report_slew $report_fanout $report_src_attr
+    $report_cap $report_slew $report_fanout $report_variation $report_src_attr
 
   set_report_path_no_split [info exists path_options(-no_line_splits)]
 }
 
 ################################################################
 
-define_cmd_args "report_arrival" {[-scene scene] [-digits digits] pin}
+define_cmd_args "report_arrival" {[-scene scene] [-report_variance] [-digits digits] pin}
 
 proc report_arrival { args } {
   global sta_report_default_digits
 
-  parse_key_args "report_arrival" args keys {-scene -digits} flags {}
+  parse_key_args "report_arrival" args keys {-scene -digits} flags {-report_variance}
   check_argc_eq1 "report_arrival" $args
 
   set pin [get_port_pin_error "pin" [lindex $args 0]]
@@ -783,17 +770,18 @@ proc report_arrival { args } {
   } else {
     set digits $sta_report_default_digits
   }
-  report_arrival_wrt_clks $pin $scene $digits
+  set report_variance [info exists flags(-report_variance)]
+  report_arrival_wrt_clks $pin $scene $report_variance $digits
 }
 
 ################################################################
 
-define_cmd_args "report_required" {[-scene scene] [-digits digits] pin}
+define_cmd_args "report_required" {[-scene scene] [-report_variance] [-digits digits] pin}
 
 proc report_required { args } {
   global sta_report_default_digits
 
-  parse_key_args "report_required" args keys {-scene -digits} flags {}
+  parse_key_args "report_required" args keys {-scene -digits} flags {-report_variance}
   check_argc_eq1 "report_required" $args
 
   set pin [get_port_pin_error "pin" [lindex $args 0]]
@@ -804,17 +792,18 @@ proc report_required { args } {
   } else {
     set digits $sta_report_default_digits
   }
-  report_required_wrt_clks $pin $scene $digits
+  set report_variance [info exists flags(-report_variance)]
+  report_required_wrt_clks $pin $scene $report_variance $digits
 }
 
 ################################################################
 
-define_cmd_args "report_slack" {[-scene scene] [-digits digits] pin}
+define_cmd_args "report_slack" {[-scene scene] [-report_variance] [-digits digits] pin}
 
 proc report_slack { args } {
   global sta_report_default_digits
 
-  parse_key_args "report_slack" args keys {-scene -digits} flags {}
+  parse_key_args "report_slack" args keys {-scene -digits} flags {-report_variance}
   check_argc_eq1 "report_slack" $args
 
   set pin [get_port_pin_error "pin" [lindex $args 0]]
@@ -825,7 +814,8 @@ proc report_slack { args } {
   } else {
     set digits $sta_report_default_digits
   }
-  report_slack_wrt_clks $pin $scene $digits
+  set report_variance [info exists flags(-report_variance)]
+  report_slack_wrt_clks $pin $scene $report_variance $digits
 }
 
 ################################################################

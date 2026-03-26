@@ -61,20 +61,20 @@ TEST_F(VerilogNamespaceTest, PortBusName) {
 // Test Verilog-to-STA conversion
 TEST_F(VerilogNamespaceTest, ModuleVerilogToSta) {
   std::string verilog_name = "top_module";
-  std::string result = moduleVerilogToSta(&verilog_name);
+  std::string result = moduleVerilogToSta(verilog_name);
   EXPECT_EQ(result, "top_module");
 }
 
 TEST_F(VerilogNamespaceTest, InstanceVerilogToSta) {
   std::string verilog_name = "u1";
-  std::string result = instanceVerilogToSta(&verilog_name);
+  std::string result = instanceVerilogToSta(verilog_name);
   EXPECT_EQ(result, "u1");
 }
 
 // Test escaped name round-trip
 TEST_F(VerilogNamespaceTest, EscapedNameRoundTrip) {
   std::string verilog_name = "\\esc_name ";
-  std::string sta = instanceVerilogToSta(&verilog_name);
+  std::string sta = instanceVerilogToSta(verilog_name);
   EXPECT_FALSE(sta.empty());
 }
 

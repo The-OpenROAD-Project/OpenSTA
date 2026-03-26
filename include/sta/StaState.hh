@@ -47,6 +47,7 @@ class GraphDelayCalc;
 class Latches;
 class DispatchQueue;
 class Variables;
+class DelayOps;
 
 using ModeSeq = std::vector<Mode*>;
 using ModeSet = std::set<Mode*>;
@@ -96,10 +97,10 @@ public:
   GraphDelayCalc *graphDelayCalc() const { return graph_delay_calc_; }
   Search *search() { return search_; }
   Search *search() const { return search_; }
+  const DelayOps *delayOps() const { return delay_ops_; }
   Latches *latches() { return latches_; }
   Latches *latches() const { return latches_; }
   unsigned threadCount() const { return thread_count_; }
-  float sigmaFactor() const { return sigma_factor_; }
   bool crprActive(const Mode *mode) const;
   Variables *variables() { return variables_; }
   const Variables *variables() const { return variables_; }
@@ -133,11 +134,11 @@ protected:
   ArcDelayCalc *arc_delay_calc_;
   GraphDelayCalc *graph_delay_calc_;
   Search *search_;
+  DelayOps *delay_ops_;
   Latches *latches_;
   Variables *variables_;
   int thread_count_;
   DispatchQueue *dispatch_queue_;
-  float sigma_factor_;
 };
 
 } // namespace
