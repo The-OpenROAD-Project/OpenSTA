@@ -571,7 +571,7 @@ target_link_libraries(OpenSTA
 if(NOT HAVE_CXX_STD_FORMAT)
   if(STA_USE_SPDLOG_FMT)
     target_include_directories(OpenSTA PUBLIC "${_fmt_dir}")
-    target_link_libraries(OpenSTA PUBLIC spdlog::spdlog)
+    target_link_libraries(OpenSTA spdlog::spdlog)
   else()
     target_link_libraries(OpenSTA fmt::fmt)
   endif()
