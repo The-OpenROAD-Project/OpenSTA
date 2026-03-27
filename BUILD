@@ -183,8 +183,7 @@ genrule(
     #define STA_VERSION "2.7.0"
     #define STA_GIT_SHA1 "f21d4a3878e2531e3af4930818d9b5968aad9416"
     #define SSTA 0
-    #define ZLIB_FOUND
-    #define HAVE_CXX_STD_FORMAT 1' > \"$@\"
+    #define ZLIB_FOUND' > \"$@\"
     """,
     visibility = ["//:__subpackages__"],
 )
