@@ -79,7 +79,7 @@ LibertyParser::makeDefine(const LibertyAttrValueSeq *values,
     const std::string &value_type_name = (*values)[2]->stringValue();
     LibertyAttrType value_type = attrValueType(value_type_name);
     LibertyGroupType group_type = groupType(group_type_name);
-    define = new LibertyDefine(std::move(define_name), group_type, value_type, line);
+    define = new LibertyDefine(define_name, group_type, value_type, line);
     LibertyGroup *group = this->group();
     group->addDefine(define);
     for (auto value : *values)
@@ -168,7 +168,7 @@ LibertyParser::makeSimpleAttr(const std::string name,
                               int line)
 {
   LibertySimpleAttr *attr =
-      new LibertySimpleAttr(std::move(name), std::move(*value), line);
+      new LibertySimpleAttr(name, *value, line);
   delete value;
   LibertyGroup *group = this->group();
   group->addAttr(attr);
@@ -189,7 +189,7 @@ LibertyParser::makeComplexAttr(const std::string name,
   }
   else {
     LibertyComplexAttr *attr =
-        new LibertyComplexAttr(std::move(name), std::move(*values), line);
+        new LibertyComplexAttr(name, *values, line);
     delete values;
     LibertyGroup *group = this->group();
     group->addAttr(attr);
@@ -414,7 +414,7 @@ LibertyGroup::findSubgroups(const std::string type) const
 const LibertyGroup *
 LibertyGroup::findSubgroup(const std::string type) const
 {
-  const LibertyGroupSeq &groups = findKeyValue(subgroup_map_, type);
+  const LibertyGroupSeq groups = findKeyValue(subgroup_map_, type);
   if (groups.size() >= 1)
     return groups[0];
   else
@@ -436,7 +436,7 @@ LibertyGroup::findComplexAttrs(const std::string attr_name) const
 const LibertyComplexAttr *
 LibertyGroup::findComplexAttr(const std::string attr_name) const
 {
-  const LibertyComplexAttrSeq &attrs = findKeyValue(complex_attr_map_, attr_name);
+  const LibertyComplexAttrSeq attrs = findKeyValue(complex_attr_map_, attr_name);
   if (attrs.size() >= 1)
     return attrs[0];
   else
