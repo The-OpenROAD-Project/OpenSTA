@@ -33,7 +33,7 @@ namespace eval sta {
 # Default digits to print after decimal point for reporting commands.
 set ::sta_report_default_digits 2
 
-trace variable ::sta_report_default_digits "rw" \
+trace add variable ::sta_report_default_digits {read write} \
   sta::trace_report_default_digits
 
 proc trace_report_default_digits { name1 name2 op } {
@@ -47,7 +47,7 @@ proc trace_report_default_digits { name1 name2 op } {
   }
 }
 
-trace variable ::sta_crpr_enabled "rw" \
+trace add variable ::sta_crpr_enabled {read write} \
   sta::trace_crpr_enabled
 
 proc trace_crpr_enabled { name1 name2 op } {
@@ -55,7 +55,7 @@ proc trace_crpr_enabled { name1 name2 op } {
     crpr_enabled set_crpr_enabled
 }
 
-trace variable ::sta_crpr_mode "rw" \
+trace add variable ::sta_crpr_mode {read write} \
   sta::trace_crpr_mode
 
 proc trace_crpr_mode { name1 name2 op } {
@@ -72,7 +72,7 @@ proc trace_crpr_mode { name1 name2 op } {
   }
 }
 
-trace variable ::sta_cond_default_arcs_enabled "rw" \
+trace add variable ::sta_cond_default_arcs_enabled {read write} \
   sta::trace_cond_default_arcs_enabled
 
 proc trace_cond_default_arcs_enabled { name1 name2 op } {
@@ -80,7 +80,7 @@ proc trace_cond_default_arcs_enabled { name1 name2 op } {
     cond_default_arcs_enabled set_cond_default_arcs_enabled
 }
 
-trace variable ::sta_gated_clock_checks_enabled "rw" \
+trace add variable ::sta_gated_clock_checks_enabled {read write} \
   sta::trace_gated_clk_checks_enabled
 
 proc trace_gated_clk_checks_enabled { name1 name2 op } {
@@ -88,7 +88,7 @@ proc trace_gated_clk_checks_enabled { name1 name2 op } {
     gated_clk_checks_enabled set_gated_clk_checks_enabled
 }
 
-trace variable ::sta_internal_bidirect_instance_paths_enabled "rw" \
+trace add variable ::sta_internal_bidirect_instance_paths_enabled {read write} \
   sta::trace_internal_bidirect_instance_paths_enabled
 
 proc trace_internal_bidirect_instance_paths_enabled { name1 name2 op } {
@@ -96,7 +96,7 @@ proc trace_internal_bidirect_instance_paths_enabled { name1 name2 op } {
     bidirect_inst_paths_enabled set_bidirect_inst_paths_enabled
 }
 
-trace variable ::sta_clock_through_tristate_enabled "rw" \
+trace add variable ::sta_clock_through_tristate_enabled {read write} \
   sta::trace_clock_through_tristate_enabled
 
 proc trace_clock_through_tristate_enabled { name1 name2 op } {
@@ -104,7 +104,7 @@ proc trace_clock_through_tristate_enabled { name1 name2 op } {
     clk_thru_tristate_enabled set_clk_thru_tristate_enabled
 }
 
-trace variable ::sta_preset_clear_arcs_enabled "rw" \
+trace add variable ::sta_preset_clear_arcs_enabled {read write} \
   sta::trace_preset_clr_arcs_enabled
 
 proc trace_preset_clr_arcs_enabled { name1 name2 op } {
@@ -112,7 +112,7 @@ proc trace_preset_clr_arcs_enabled { name1 name2 op } {
     preset_clr_arcs_enabled set_preset_clr_arcs_enabled
 }
 
-trace variable ::sta_recovery_removal_checks_enabled "rw" \
+trace add variable ::sta_recovery_removal_checks_enabled {read write} \
   sta::trace_recovery_removal_checks_enabled
 
 proc trace_recovery_removal_checks_enabled { name1 name2 op } {
@@ -120,7 +120,7 @@ proc trace_recovery_removal_checks_enabled { name1 name2 op } {
     recovery_removal_checks_enabled set_recovery_removal_checks_enabled
 }
 
-trace variable ::sta_dynamic_loop_breaking "rw" \
+trace add variable ::sta_dynamic_loop_breaking {read write} \
   sta::trace_dynamic_loop_breaking
 
 proc trace_dynamic_loop_breaking { name1 name2 op } {
@@ -128,7 +128,7 @@ proc trace_dynamic_loop_breaking { name1 name2 op } {
     dynamic_loop_breaking set_dynamic_loop_breaking
 }
 
-trace variable ::sta_input_port_default_clock "rw" \
+trace add variable ::sta_input_port_default_clock {read write} \
   sta::trace_input_port_default_clock
 
 proc trace_input_port_default_clock { name1 name2 op } {
@@ -136,7 +136,7 @@ proc trace_input_port_default_clock { name1 name2 op } {
     use_default_arrival_clock set_use_default_arrival_clock
 }
 
-trace variable ::sta_propagate_all_clocks "rw" \
+trace add variable ::sta_propagate_all_clocks {read write} \
   sta::trace_propagate_all_clocks
 
 proc trace_propagate_all_clocks { name1 name2 op } {
@@ -144,7 +144,7 @@ proc trace_propagate_all_clocks { name1 name2 op } {
     propagate_all_clocks set_propagate_all_clocks
 }
 
-trace variable ::sta_propagate_gated_clock_enable "rw" \
+trace add variable ::sta_propagate_gated_clock_enable {read write} \
   sta::trace_propagate_gated_clock_enable
 
 proc trace_propagate_gated_clock_enable { name1 name2 op } {
@@ -152,7 +152,7 @@ proc trace_propagate_gated_clock_enable { name1 name2 op } {
     propagate_gated_clock_enable set_propagate_gated_clock_enable
 }
 
-trace variable ::sta_pocv_mode "rw" \
+trace add variable ::sta_pocv_mode {read write} \
   sta::trace_pocv_mode
 
 proc trace_pocv_mode { name1 name2 op } {
@@ -171,7 +171,7 @@ proc trace_pocv_mode { name1 name2 op } {
   }
 }
 
-trace variable ::sta_pocv_quantile "rw" \
+trace add variable ::sta_pocv_quantile {read write} \
   sta::trace_pocv_quantile
 
 proc trace_pocv_quantile { name1 name2 op } {
