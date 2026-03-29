@@ -455,6 +455,7 @@ configure_file(${STA_HOME}/util/StaConfig.hh.cmake
 ###########################################################
 
 find_package(SWIG 3.0 REQUIRED)
+message(STATUS "SWIG version: ${SWIG_VERSION}")
 include(UseSWIG)
 
 set(STA_SWIG_FILE app/StaApp.i)
