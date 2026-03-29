@@ -2454,7 +2454,7 @@ ReportPath::reportPathLine(const Path *path,
   Slew slew = graph_->slew(vertex, rf, slew_index);
   float cap = field_blank_;
   Instance *inst = network_->instance(pin);
-  std::string src_attr = "";
+  std::string src_attr;
   if (inst)
     src_attr = network_->getAttribute(inst, "src");
   // Don't show capacitance field for input pins.
@@ -2736,7 +2736,7 @@ ReportPath::reportPath6(const Path *path,
     bool is_clk_start = path1->vertex(this) == clk_start;
     bool is_clk = path1->isClock(search_);
     Instance *inst = network_->instance(pin);
-    std::string src_attr = "";
+    std::string src_attr;
     if (inst)
       src_attr = network_->getAttribute(inst, "src");
     // Always show the search start point (register clk pin).
@@ -3187,7 +3187,7 @@ ReportPath::reportLine(std::string_view what,
                        bool total_with_minus,
                        const EarlyLate *early_late,
                        const RiseFall *rf,
-                       std::string src_attr,
+                       std::string_view src_attr,
                        std::string_view line_case) const
 {
   std::string line;

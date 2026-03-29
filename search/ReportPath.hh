@@ -369,7 +369,7 @@ protected:
                   bool total_with_minus,
                   const EarlyLate *early_late,
                   const RiseFall *rf,
-                  std::string src_attr,
+                  std::string_view src_attr,
                   std::string_view line_case) const;
   void reportLineTotal(std::string_view what,
                        const Delay &incr,
