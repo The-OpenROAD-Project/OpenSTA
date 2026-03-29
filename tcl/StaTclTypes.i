@@ -23,24 +23,23 @@
 // This notice may not be removed or altered from any source distribution.
 
 // Swig TCL input/output type parsers.
+
+#if SWIG_VERSION >= 0x040200
+%include "std_string_view.i"
+#endif
+
 %{
 
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "PatternMatch.hh"
 #include "Network.hh"
 #include "Liberty.hh"
 #include "FuncExpr.hh"
 #include "TimingArc.hh"
-#include "TableModel.hh"
 #include "TimingRole.hh"
 #include "Graph.hh"
-#include "NetworkClass.hh"
 #include "Clock.hh"
 #include "Scene.hh"
 #include "Search.hh"
 #include "Path.hh"
-#include "search/Tag.hh"
 #include "PathEnd.hh"
 #include "SearchClass.hh"
 #include "CircuitSim.hh"

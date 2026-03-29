@@ -35,6 +35,7 @@
 #include "Search.hh"
 #include "search/Levelize.hh"
 #include "search/ReportPath.hh"
+#include "search/Tag.hh"
 #include "PathExpanded.hh"
 #include "Bfs.hh"
 #include "Scene.hh"

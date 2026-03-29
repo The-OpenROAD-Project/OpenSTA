@@ -25,6 +25,7 @@
 %module liberty
 
 %{
+#include "PatternMatch.hh"
 #include "PortDirection.hh"
 #include "Liberty.hh"
 #include "EquivCells.hh"
