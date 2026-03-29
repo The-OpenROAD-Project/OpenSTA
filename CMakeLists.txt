@@ -455,14 +455,12 @@ set(STA_SWIG_FILE app/StaApp.i)
 set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY CPLUSPLUS ON
 )
-# Ubuntu 18.04 cmake version 3.10.2 does not support the
-# COMPILE_OPTIONS and INCLUDE_DIRECTORIES properties, so cram
-# them into SWIG_FLAGS for the time being.
+# SWIG flags (CMake UseSWIG).
 set_property(SOURCE ${STA_SWIG_FILE}
-  PROPERTY SWIG_FLAGS
+  PROPERTY COMPILE_OPTIONS
   -module sta
-  -namespace -prefix sta
-  -I${STA_HOME}
+  -namespace
+  -prefix sta
 )
 
 set(SWIG_FILES
@@ -518,6 +516,9 @@ target_include_directories(sta_swig
   ${TCL_INCLUDE_PATH}
   ${CMAKE_CURRENT_BINARY_DIR}/include/sta
 )
+
+# Pass sta_swig include directories to SWIG as -I (same paths as the C++ build).
+set_property(TARGET sta_swig PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES TRUE)
 
 ###########################################################
 # Library
