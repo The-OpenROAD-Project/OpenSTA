@@ -3042,7 +3042,7 @@ OperatingConditions::OperatingConditions(const char *name) :
   Pvt(0.0, 0.0, 0.0),
   name_(name),
   // Default wireload tree.
-  wire_load_tree_(WireloadTree::balanced)
+  wire_load_tree_(WireloadTree::unknown)
 {
 }
 

@@ -139,7 +139,9 @@ SaifReader::instancePush(const char *instance_name)
   else {
     // Inside annotation scope.
     Instance *parent = path_.empty() ? sdc_network_->topInstance() : path_.back();
-    Instance *child = sdc_network_->findChild(parent, instance_name);
+    Instance *child = parent
+      ? sdc_network_->findChild(parent, instance_name)
+      : nullptr;
     path_.push_back(child);
   }
   stringDelete(instance_name);

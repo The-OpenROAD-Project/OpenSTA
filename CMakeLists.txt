@@ -410,15 +410,42 @@ find_package(Threads)
 
 find_package(Eigen3 REQUIRED)
 
-# fmt library: fallback when std::format is not available (e.g. GCC 11 on Ubuntu 22.04)
-find_package(fmt QUIET)
-if(NOT fmt_FOUND)
-  include(FetchContent)
-  FetchContent_Declare(fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 10.2.1
-  )
-  FetchContent_MakeAvailable(fmt)
+# See if std::format is available and if nor install fmt.
+include(CheckCXXSourceCompiles)
+set(_sta_fmt_check_saved_flags "${CMAKE_REQUIRED_FLAGS}")
+if(MSVC)
+  string(APPEND CMAKE_REQUIRED_FLAGS " /std:c++20")
+else()
+  string(APPEND CMAKE_REQUIRED_FLAGS " -std=c++20")
+endif()
+check_cxx_source_compiles("
+#include <format>
+#include <string>
+int main() { (void)std::format(\"{}\", 42); return 0; }
+" HAVE_CXX_STD_FORMAT)
+set(CMAKE_REQUIRED_FLAGS "${_sta_fmt_check_saved_flags}")
+
+if(HAVE_CXX_STD_FORMAT)
+  message(STATUS "std::format: available")
+else()
+  # Use spdlog's bundled fmt when available to avoid ODR violations.
+  find_package(spdlog QUIET)
+  if(spdlog_FOUND)
+    message(STATUS "std::format: using spdlog's bundled fmt")
+    set(STA_USE_SPDLOG_FMT TRUE)
+    get_target_property(_spdlog_inc spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
+    set(_fmt_dir "${CMAKE_CURRENT_BINARY_DIR}/_spdlog_fmt")
+    file(MAKE_DIRECTORY "${_fmt_dir}")
+    file(CREATE_LINK "${_spdlog_inc}/spdlog/fmt/bundled" "${_fmt_dir}/fmt" SYMBOLIC)
+  else()
+    message(STATUS "std::format: building fmt library")
+    include(FetchContent)
+    FetchContent_Declare(fmt
+      GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+      GIT_TAG 11.0.2
+    )
+    FetchContent_MakeAvailable(fmt)
+  endif()
 endif()
 
 include(cmake/FindCUDD.cmake)
@@ -536,11 +563,19 @@ target_sources(OpenSTA
 
 target_link_libraries(OpenSTA
   Eigen3::Eigen
-  fmt::fmt
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
   ${CUDD_LIB}
   )
+
+if(NOT HAVE_CXX_STD_FORMAT)
+  if(STA_USE_SPDLOG_FMT)
+    target_include_directories(OpenSTA PUBLIC "${_fmt_dir}")
+    target_link_libraries(OpenSTA spdlog::spdlog)
+  else()
+    target_link_libraries(OpenSTA fmt::fmt)
+  endif()
+endif()
 
 if (ZLIB_LIBRARIES)
   target_link_libraries(OpenSTA ${ZLIB_LIBRARIES})

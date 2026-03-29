@@ -257,12 +257,12 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
         makeWireloadNetworkWorst(parasitic, drvr_pin, net, wireload_cap,
                                  wireload_res, fanout);
         break;
+      case WireloadTree::unknown:
       case WireloadTree::balanced:
         makeWireloadNetworkBalanced(parasitic, drvr_pin, wireload_cap, wireload_res,
                                     fanout);
         break;
       case WireloadTree::best_case:
-      case WireloadTree::unknown:
         makeWireloadNetworkBest(parasitic, drvr_pin, wireload_cap, wireload_res,
                                 fanout);
         break;

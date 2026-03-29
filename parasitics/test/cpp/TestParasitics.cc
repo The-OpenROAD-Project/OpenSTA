@@ -1304,7 +1304,6 @@ TEST_F(StaParasiticsTest, ParasiticNodeResistorMap) {
 // Test findNode (deprecated) - delegates to findParasiticNode
 TEST_F(StaParasiticsTest, FindNodeDeprecated) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   // findNode on non-network parasitic should work but return nullptr
   // since it's not a parasitic network
@@ -1317,7 +1316,6 @@ TEST_F(StaParasiticsTest, FindNodeDeprecated) {
 // Test unannotatedLoads through parasitics API with PiElmore
 TEST_F(StaParasiticsTest, UnannotatedLoadsPiElmore) {
   ASSERT_NO_THROW(( [&](){
-  Parasitics *parasitics = sta_->findParasitics("default");
   ConcretePiElmore pe(1e-12f, 100.0f, 2e-12f);
   // With no network loads, should just return what parasitics->loads returns
   // which needs a connected pin. With nullptr pin, this will likely crash

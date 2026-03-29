@@ -448,10 +448,10 @@ DmpAlg::showJacobian()
 {
   std::string line = "    ";
   for (int j = 0; j < nr_order_; j++)
-    line += sta::format("{:12}", dmp_param_index_strings[j]);
+    line += sta::format("{:>12}", dmp_param_index_strings[j]);
   report_->reportLine(line);
-  line.clear();
   for (int i = 0; i < nr_order_; i++) {
+    line.clear();
     line += sta::format("{:4} ", dmp_func_index_strings[i]);
     for (int j = 0; j < nr_order_; j++)
       line += sta::format("{:12.3e} ", fjac_[i][j]);
@@ -551,10 +551,10 @@ DmpAlg::loadDelaySlew(const Pin *,
     // Use the driver thresholds and rely on thresholdAdjust to
     // convert the delay and slew to the load's thresholds.
     try {
-      if (debug_->check("dmp_ceff", 4))
-        showVl();
       elmore_ = elmore;
       p3_ = 1.0 / elmore;
+      if (debug_->check("dmp_ceff", 4))
+        showVl();
       double t_lower = t0_;
       double t_upper = vlCrossingUpperBound();
       double load_delay = findVlCrossing(vth_, t_lower, t_upper);
@@ -1189,9 +1189,9 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
 }
 
 void
-DmpZeroC2::gateDelaySlew(  // Return values.
-    double &delay,
-    double &slew)
+DmpZeroC2::gateDelaySlew(// Return values.
+                         double &delay,
+                         double &slew)
 {
   try {
     findDriverParams(c1_);

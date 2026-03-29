@@ -1,0 +1,14 @@
+library(min) {
+  technology(cmos);
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  capacitive_load_unit(1, pf);
+  cell(BUF) {
+    pin(A) { direction : input; }
+    pin(Y) { direction : output;
+      function : "A";
+      timing() { related_pin : "A"; }
+    }
+  }
+}

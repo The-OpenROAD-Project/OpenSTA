@@ -35,31 +35,6 @@
 
 namespace sta {
 
-static std::string
-readTextFile(const char *filename)
-{
-  std::ifstream in(filename);
-  if (!in.is_open())
-    return "";
-  return std::string((std::istreambuf_iterator<char>(in)),
-                     std::istreambuf_iterator<char>());
-}
-
-static size_t
-countSubstring(const std::string &text,
-               const std::string &needle)
-{
-  if (needle.empty())
-    return 0;
-  size_t count = 0;
-  size_t pos = 0;
-  while ((pos = text.find(needle, pos)) != std::string::npos) {
-    ++count;
-    pos += needle.size();
-  }
-  return count;
-}
-
 // RiseFall tests
 class RiseFallTest : public ::testing::Test {};
 
@@ -3542,8 +3517,6 @@ TEST_F(SdcInitTest, DisabledPortsSetAll) {
 
 // PortExtCap: operations (needs Port* constructor)
 TEST_F(SdcInitTest, PortExtCapSetGet) {
-  // Need a port to construct PortExtCap
-  Network *network = sta_->cmdNetwork();
   // PortExtCap default constructor
   PortExtCap pec;
   pec.setPinCap(nullptr, 0.1f, RiseFall::rise(), MinMax::max());
