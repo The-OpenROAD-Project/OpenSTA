@@ -218,14 +218,14 @@ set_max_time_borrow 1.2 [get_cells reg2]
 
 set sdc_final [make_result_file sdc_disable_case_final.sdc]
 write_sdc -no_timestamp $sdc_final
-diff_files sdc_disable_case_final.sdcok $sdc_final
+diff_files_sorted sdc_disable_case_final.sdcok $sdc_final
 
 set sdc_compat [make_result_file sdc_disable_case_compat.sdc]
 write_sdc -no_timestamp -compatible $sdc_compat
-diff_files sdc_disable_case_compat.sdcok $sdc_compat
+diff_files_sorted sdc_disable_case_compat.sdcok $sdc_compat
 
 set sdc_d6 [make_result_file sdc_disable_case_d6.sdc]
 write_sdc -no_timestamp -digits 6 $sdc_d6
-diff_files sdc_disable_case_d6.sdcok $sdc_d6
+diff_files_sorted sdc_disable_case_d6.sdcok $sdc_d6
 
 report_checks

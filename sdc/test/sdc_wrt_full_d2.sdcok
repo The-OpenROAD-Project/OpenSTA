@@ -143,9 +143,9 @@ set_timing_derate -net_delay -late -data 1.05
 ###############################################################################
 # Design Rules
 ###############################################################################
-set_min_pulse_width 0.55 [get_clocks {clk2}]
 set_min_pulse_width -high 0.60 [get_clocks {clk1}]
 set_min_pulse_width -low 0.40 [get_clocks {clk1}]
+set_min_pulse_width 0.55 [get_clocks {clk2}]
 set_max_time_borrow 1.50 [get_pins {reg1/D}]
 set_max_time_borrow 2.00 [get_clocks {clk1}]
 set_max_transition 0.50 [current_design]
