@@ -70,7 +70,7 @@ set dir1 [make_result_file spice_gcd_max]
 file mkdir $dir1
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $dir1 \
+  -spice_file [file join $dir1 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VPWR \
@@ -84,7 +84,7 @@ set dir2 [make_result_file spice_gcd_min]
 file mkdir $dir2
 write_path_spice \
   -path_args {-path_delay min} \
-  -spice_directory $dir2 \
+  -spice_file [file join $dir2 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VPWR \
@@ -99,7 +99,7 @@ set dir3 [make_result_file spice_gcd_hspice]
 file mkdir $dir3
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $dir3 \
+  -spice_file [file join $dir3 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VPWR \
@@ -115,7 +115,7 @@ set dir4 [make_result_file spice_gcd_xyce]
 file mkdir $dir4
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $dir4 \
+  -spice_file [file join $dir4 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VPWR \
@@ -131,7 +131,7 @@ set dir5 [make_result_file spice_gcd_specific]
 file mkdir $dir5
 write_path_spice \
   -path_args {-from req_msg[0]} \
-  -spice_directory $dir5 \
+  -spice_file [file join $dir5 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VPWR \

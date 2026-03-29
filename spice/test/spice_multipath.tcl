@@ -106,7 +106,7 @@ set spice_dir1 [make_result_file spice_mp_max]
 file mkdir $spice_dir1
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $spice_dir1 \
+  -spice_file [file join $spice_dir1 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \
@@ -120,7 +120,7 @@ set spice_dir2 [make_result_file spice_mp_min]
 file mkdir $spice_dir2
 write_path_spice \
   -path_args {-path_delay min} \
-  -spice_directory $spice_dir2 \
+  -spice_file [file join $spice_dir2 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \
@@ -135,7 +135,7 @@ set spice_dir3 [make_result_file spice_mp_specific]
 file mkdir $spice_dir3
 write_path_spice \
   -path_args {-from in1} \
-  -spice_directory $spice_dir3 \
+  -spice_file [file join $spice_dir3 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \
@@ -149,7 +149,7 @@ set spice_dir4 [make_result_file spice_mp_hspice]
 file mkdir $spice_dir4
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $spice_dir4 \
+  -spice_file [file join $spice_dir4 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \
@@ -164,9 +164,10 @@ set spice_dir5 [make_result_file spice_mp_xyce]
 file mkdir $spice_dir5
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $spice_dir5 \
+  -spice_file [file join $spice_dir5 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS \
   -simulator xyce
+

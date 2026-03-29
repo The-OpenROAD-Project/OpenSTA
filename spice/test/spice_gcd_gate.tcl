@@ -65,7 +65,7 @@ set pdir1 [make_result_file spice_gcd_path_ng]
 file mkdir $pdir1
 write_path_spice \
   -path_args {-sort_by_slack -path_delay max} \
-  -spice_directory $pdir1 \
+  -spice_file [file join $pdir1 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VPWR \
@@ -77,7 +77,7 @@ set pdir2 [make_result_file spice_gcd_path_hs]
 file mkdir $pdir2
 write_path_spice \
   -path_args {-path_delay min} \
-  -spice_directory $pdir2 \
+  -spice_file [file join $pdir2 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VPWR \
@@ -89,9 +89,10 @@ set pdir3 [make_result_file spice_gcd_path_xy]
 file mkdir $pdir3
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $pdir3 \
+  -spice_file [file join $pdir3 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VPWR \
   -ground VGND \
   -simulator xyce
+

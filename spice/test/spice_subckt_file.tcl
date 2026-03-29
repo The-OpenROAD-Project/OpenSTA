@@ -70,7 +70,7 @@ set spice_dir2 [file join $spice_dir path_out1]
 file mkdir $spice_dir2
 write_path_spice \
   -path_args {-to out1 -path_delay max} \
-  -spice_directory $spice_dir2 \
+  -spice_file [file join $spice_dir2 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \
@@ -81,7 +81,7 @@ set spice_dir3 [file join $spice_dir path_out2]
 file mkdir $spice_dir3
 write_path_spice \
   -path_args {-to out2 -path_delay max} \
-  -spice_directory $spice_dir3 \
+  -spice_file [file join $spice_dir3 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \
@@ -92,7 +92,7 @@ set spice_dir4 [file join $spice_dir path_ng]
 file mkdir $spice_dir4
 write_path_spice \
   -path_args {-sort_by_slack} \
-  -spice_directory $spice_dir4 \
+  -spice_file [file join $spice_dir4 spice] \
   -lib_subckt_file $subckt_file \
   -model_file $model_file \
   -power VDD \
