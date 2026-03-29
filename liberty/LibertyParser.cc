@@ -172,9 +172,7 @@ LibertyParser::makeSimpleAttr(std::string &&name,
                               const LibertyAttrValue *value,
                               int line)
 {
-  LibertySimpleAttr *attr = new LibertySimpleAttr(std::move(name),
-                                                  std::move(*value),
-                                                  line);
+  LibertySimpleAttr *attr = new LibertySimpleAttr(std::move(name), *value, line);
   delete value;
   LibertyGroup *group = this->group();
   group->addAttr(attr);
@@ -194,8 +192,7 @@ LibertyParser::makeComplexAttr(std::string &&name,
     return nullptr;  // Define is not a complex attr; already added to group
   }
   else {
-    LibertyComplexAttr *attr =
-        new LibertyComplexAttr(std::move(name), std::move(*values), line);
+    LibertyComplexAttr *attr = new LibertyComplexAttr(std::move(name), *values, line);
     delete values;
     LibertyGroup *group = this->group();
     group->addAttr(attr);
