@@ -24,13 +24,15 @@
 
 #pragma once
 
+#include <string_view>
+
 namespace sta {
 
 class Network;
 class LibertyLibrary;
 
 LibertyLibrary *
-readLibertyFile(const char *filename,
+readLibertyFile(std::string_view filename,
                 bool infer_latches,
                 Network *network);
 

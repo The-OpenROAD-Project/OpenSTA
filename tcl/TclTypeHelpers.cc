@@ -31,8 +31,8 @@
 namespace sta {
 
 StringSeq
-tclListSeqStdString(Tcl_Obj *const source,
-                    Tcl_Interp *interp)
+tclListStringSeq(Tcl_Obj *const source,
+                 Tcl_Interp *interp)
 {
   Tcl_Size argc;
   Tcl_Obj **argv;
@@ -49,8 +49,8 @@ tclListSeqStdString(Tcl_Obj *const source,
 }
 
 StringSeq *
-tclListSeqStdStringPtr(Tcl_Obj *const source,
-                       Tcl_Interp *interp)
+tclListStringSeqPtr(Tcl_Obj *const source,
+                    Tcl_Interp *interp)
 {
   Tcl_Size argc;
   Tcl_Obj **argv;
@@ -69,8 +69,8 @@ tclListSeqStdStringPtr(Tcl_Obj *const source,
 }
 
 StringSet *
-tclListSetStdString(Tcl_Obj *const source,
-                    Tcl_Interp *interp)
+tclListStringSet(Tcl_Obj *const source,
+                 Tcl_Interp *interp)
 {
   Tcl_Size argc;
   Tcl_Obj **argv;
@@ -150,24 +150,24 @@ tclArcDcalcArg(ArcDcalcArg &gate,
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   Tcl_Obj *obj;
 
-  const char *inst_name = network->pathName(drvr);
-  obj = Tcl_NewStringObj(inst_name, strlen(inst_name));
+  std::string inst_name = network->pathName(drvr);
+  obj = Tcl_NewStringObj(inst_name.data(), inst_name.size());
   Tcl_ListObjAppendElement(interp, list, obj);
 
-  const char *from_name = arc->from()->name();
-  obj = Tcl_NewStringObj(from_name, strlen(from_name));
+  const std::string &from_name = arc->from()->name();
+  obj = Tcl_NewStringObj(from_name.c_str(), from_name.size());
   Tcl_ListObjAppendElement(interp, list, obj);
 
-  const char *from_edge = arc->fromEdge()->to_string().c_str();
-  obj = Tcl_NewStringObj(from_edge, strlen(from_edge));
+  const std::string from_edge(arc->fromEdge()->to_string());
+  obj = Tcl_NewStringObj(from_edge.c_str(), from_edge.size());
   Tcl_ListObjAppendElement(interp, list, obj);
 
-  const char *to_name = arc->to()->name();
-  obj = Tcl_NewStringObj(to_name, strlen(to_name));
+  const std::string to_name = arc->to()->name();
+  obj = Tcl_NewStringObj(to_name.c_str(), to_name.size());
   Tcl_ListObjAppendElement(interp, list, obj);
 
-  const char *to_edge = arc->toEdge()->to_string().c_str();
-  obj = Tcl_NewStringObj(to_edge, strlen(to_edge));
+  const std::string to_edge(arc->toEdge()->to_string());
+  obj = Tcl_NewStringObj(to_edge.c_str(), to_edge.size());
   Tcl_ListObjAppendElement(interp, list, obj);
 
   std::string input_delay = delayAsString(gate.inputDelay(), sta);

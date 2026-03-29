@@ -25,6 +25,8 @@
 #pragma once
 
 #include <map>
+#include <string>
+#include <string_view>
 
 #include "LibertyClass.hh"
 #include "SdcClass.hh"
@@ -54,9 +56,9 @@ using OutputPinDelays = std::map<const Pin *, OutputDelays>;
 class MakeTimingModel : public StaState
 {
 public:
-  MakeTimingModel(const char *lib_name,
-                  const char *cell_name,
-                  const char *filename,
+  MakeTimingModel(std::string_view lib_name,
+                  std::string_view cell_name,
+                  std::string_view filename,
                   const Scene *scene,
                   Sta *sta);
   ~MakeTimingModel();
@@ -102,9 +104,9 @@ private:
   void restoreSdc();
   void swapSdcWithBackup();
 
-  const char *lib_name_;
-  const char *cell_name_;
-  const char *filename_;
+  std::string lib_name_;
+  std::string cell_name_;
+  std::string filename_;
   const Scene *scene_;
   SceneSet scenes_;
   LibertyLibrary *library_;

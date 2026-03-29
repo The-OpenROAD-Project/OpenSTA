@@ -53,7 +53,7 @@ namespace sta {
 int PathGroup::group_path_count_max = std::numeric_limits<int>::max();
 
 PathGroup *
-PathGroup::makePathGroupSlack(const char *name,
+PathGroup::makePathGroupSlack(std::string_view name,
                               int group_path_count,
                               int endpoint_path_count,
                               bool unique_pins,
@@ -68,7 +68,7 @@ PathGroup::makePathGroupSlack(const char *name,
 }
 
 PathGroup *
-PathGroup::makePathGroupArrival(const char *name,
+PathGroup::makePathGroupArrival(std::string_view name,
                                 int group_path_count,
                                 int endpoint_path_count,
                                 bool unique_pins,
@@ -81,7 +81,7 @@ PathGroup::makePathGroupArrival(const char *name,
                        false, min_max, sta);
 }
 
-PathGroup::PathGroup(const char *name,
+PathGroup::PathGroup(std::string_view name,
                      int group_path_count,
                      int endpoint_path_count,
                      bool unique_pins,
@@ -247,11 +247,6 @@ PathGroup::clear()
 
 ////////////////////////////////////////////////////////////////
 
-const char *PathGroups::path_delay_group_name_ = "path delay";
-const char *PathGroups::gated_clk_group_name_ = "gated clock";
-const char *PathGroups::async_group_name_ = "asynchronous";
-const char *PathGroups::unconstrained_group_name_ = "unconstrained";
-
 PathGroups::PathGroups(int group_path_count,
                        int endpoint_path_count,
                        bool unique_pins,
@@ -309,7 +304,7 @@ PathGroups::makeGroups(int group_path_count,
     const Sdc *sdc = mode_->sdc();
     for (const auto& [name, group] : sdc->groupPaths()) {
       if (reportGroup(name, group_names)) {
-        PathGroup *group = PathGroup::makePathGroupSlack(name.c_str(),
+        PathGroup *group = PathGroup::makePathGroupSlack(name,
                                                          group_path_count,
                                                          endpoint_path_count,
                                                          unique_pins,
@@ -321,7 +316,7 @@ PathGroups::makeGroups(int group_path_count,
     }
 
     for (Clock *clk : sdc->clocks()) {
-      const char *clk_name = clk->name();
+      const std::string &clk_name = clk->name();
       if (reportGroup(clk_name, group_names)) {
         PathGroup *group = PathGroup::makePathGroupSlack(clk_name,
                                                          group_path_count,
@@ -336,7 +331,7 @@ PathGroups::makeGroups(int group_path_count,
   }
 
   if (setup_hold
-      && reportGroup(path_delay_group_name_, group_names))
+      && reportGroup(std::string(path_delay_group_name_), group_names))
     path_delay_[mm_index] = PathGroup::makePathGroupSlack(path_delay_group_name_,
                                                           group_path_count,
                                                           endpoint_path_count,
@@ -348,7 +343,7 @@ PathGroups::makeGroups(int group_path_count,
     path_delay_[mm_index] = nullptr;
 
   if (gated_clk
-      && reportGroup(gated_clk_group_name_, group_names))
+      && reportGroup(std::string(gated_clk_group_name_), group_names))
     gated_clk_[mm_index] = PathGroup::makePathGroupSlack(gated_clk_group_name_,
                                                          group_path_count,
                                                          endpoint_path_count,
@@ -360,7 +355,7 @@ PathGroups::makeGroups(int group_path_count,
     gated_clk_[mm_index] = nullptr;
 
   if (async
-      && reportGroup(async_group_name_, group_names))
+      && reportGroup(std::string(async_group_name_), group_names))
     async_[mm_index] = PathGroup::makePathGroupSlack(async_group_name_,
                                                      group_path_count,
                                                      endpoint_path_count,
@@ -372,7 +367,7 @@ PathGroups::makeGroups(int group_path_count,
     async_[mm_index] = nullptr;
 
   if (unconstrained
-      && reportGroup(unconstrained_group_name_, group_names))
+      && reportGroup(std::string(unconstrained_group_name_), group_names))
     unconstrained_[mm_index] =
       PathGroup::makePathGroupArrival(unconstrained_group_name_,
                                       group_path_count, endpoint_path_count,
@@ -441,7 +436,7 @@ PathGroups::pathGroups(const PathEnd *path_end) const
           path_groups.push_back(path_delay_[mm_index]);
       }
       else {
-        std::string group_name = group_path->name();
+        std::string group_name(group_path->name());
         PathGroup *group = findPathGroup(group_name, min_max);
         if (group)
           path_groups.push_back(group);
@@ -484,7 +479,7 @@ PathGroups::pathGroupNames(const PathEnd *path_end,
                            const StaState *sta)
 {
   StringSeq group_names;
-  const char *group_name = nullptr;
+  std::string group_name;
   const Search *search = sta->search();
   ExceptionPathSeq group_paths = search->groupPathsTo(path_end);
   if (path_end->isUnconstrained())
@@ -493,9 +488,9 @@ PathGroups::pathGroupNames(const PathEnd *path_end,
     // GroupPaths have precedence.
     for (ExceptionPath *group_path : group_paths) {
       if (group_path->isDefault())
-        group_names.push_back(path_delay_group_name_);
+        group_names.push_back(std::string(path_delay_group_name_));
       else
-        group_names.push_back(group_path->name());
+        group_names.push_back(std::string(group_path->name()));
     }
   }
   else if (path_end->isCheck() || path_end->isLatchCheck()) {
@@ -526,7 +521,7 @@ PathGroups::pathGroupNames(const PathEnd *path_end,
     else
       group_name = path_delay_group_name_;
   }
-  if (group_name)
+  if (!group_name.empty())
     group_names.push_back(group_name);
   return group_names;
 }

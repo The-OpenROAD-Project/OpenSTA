@@ -52,7 +52,7 @@ Graph::Graph(StaState *sta,
   vertices_(nullptr),
   edges_(nullptr),
   ap_count_(ap_count),
-  period_check_annotations_(nullptr),
+  period_check_annotations_(network_),
   reg_clk_vertices_(makeVertexSet(this))
 {
   // For the benifit of reg_clk_vertices_ that references graph_.
@@ -910,13 +910,11 @@ Graph::periodCheckAnnotation(const Pin *pin,
                              bool &exists)
 {
   exists = false;
-  if (period_check_annotations_) {
-    float *periods = findKey(period_check_annotations_, pin);
-    if (periods) {
-      period = periods[ap_index];
-      if (period >= 0.0)
-        exists = true;
-    }
+  float *periods = findKey(period_check_annotations_, pin);
+  if (periods) {
+    period = periods[ap_index];
+    if (period >= 0.0)
+      exists = true;
   }
 }
 
@@ -925,15 +923,13 @@ Graph::setPeriodCheckAnnotation(const Pin *pin,
                                 DcalcAPIndex ap_index,
                                 float period)
 {
-  if (period_check_annotations_ == nullptr)
-    period_check_annotations_ = new PeriodCheckAnnotations(network_);
   float *periods = findKey(period_check_annotations_, pin);
   if (periods == nullptr) {
     periods = new float[ap_count_];
     // Use negative (illegal) period values to indicate unannotated checks.
     for (int i = 0; i < ap_count_; i++)
       periods[i] = -1;
-    (*period_check_annotations_)[pin] = periods;
+    period_check_annotations_[pin] = periods;
   }
   periods[ap_index] = period;
 }
@@ -941,12 +937,9 @@ Graph::setPeriodCheckAnnotation(const Pin *pin,
 void
 Graph::removePeriodCheckAnnotations()
 {
-  if (period_check_annotations_) {
-    for (const auto [pin, periods] : *period_check_annotations_)
-      delete [] periods;
-    delete period_check_annotations_;
-    period_check_annotations_ = nullptr;
-  }
+  for (auto& [pin, periods] : period_check_annotations_)
+    delete [] periods;
+  period_check_annotations_.clear();
 }
 
 void
@@ -1026,7 +1019,7 @@ Vertex::to_string(const StaState *sta) const
 {
   const Network *network = sta->sdcNetwork();
   if (network->direction(pin_)->isBidirect()) {
-    std::string str = network->pathName(pin_);
+    std::string str(network->pathName(pin_));
     str += ' ';
     str += is_bidirect_drvr_ ? "driver" : "load";
     return str;
@@ -1035,11 +1028,10 @@ Vertex::to_string(const StaState *sta) const
     return network->pathName(pin_);
 }
 
-const char *
+std::string
 Vertex::name(const Network *network) const
 {
-  std::string name = to_string(network);
-  return makeTmpString(name);  
+  return to_string(network);
 }
 
 bool

@@ -24,13 +24,15 @@
 
 #pragma once
 
+#include <string>
+
 namespace sta {
 
 enum class PocvMode { scalar, normal, skew_normal };
 
-const char *
+const std::string &
 pocvModeName(PocvMode mode);
 PocvMode
-findPocvMode(const char *mode_name);
+findPocvMode(std::string_view mode_name);
 
 } // namespace

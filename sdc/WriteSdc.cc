@@ -24,12 +24,12 @@
 
 #include "WriteSdc.hh"
 
-#include <cstdio>
 #include <algorithm>
 #include <ctime>
 #include <vector>
 #include <set>
 #include <string>
+#include <string_view>
 
 #include "ContainerHelpers.hh"
 #include "Format.hh"
@@ -68,19 +68,19 @@ namespace sta {
 typedef std::set<ClockSense*> ClockSenseSet;
 typedef std::vector<ClockSense*> ClockSenseSeq;
 
-static const char *
+static std::string_view
 transRiseFallFlag(const RiseFall *rf);
-static const char *
+static std::string_view
 transRiseFallFlag(const RiseFallBoth *rf);
-static const char *
+static std::string_view
 minMaxFlag(const MinMaxAll *min_max);
-static const char *
+static std::string_view
 minMaxFlag(const MinMax *min_max);
-static const char *
+static std::string_view
 earlyLateFlag(const MinMax *early_late);
-static const char *
+static std::string_view
 setupHoldFlag(const MinMax *min_max);
-static const char *
+static std::string_view
 timingDerateTypeKeyword(TimingDerateType type);
 
 ////////////////////////////////////////////////////////////////
@@ -287,8 +287,8 @@ WriteGetClock::write() const
 void
 writeSdc(const Sdc *sdc,
          Instance *instance,
-         const char *filename,
-         const char *creator,
+         std::string_view filename,
+         std::string_view creator,
          bool map_hpins,
          bool native,
          int digits,
@@ -302,7 +302,7 @@ writeSdc(const Sdc *sdc,
 
 WriteSdc::WriteSdc(const Sdc *sdc,
                    Instance *instance,
-                   const char *creator,
+                   std::string_view creator,
                    bool map_hpins,
                    bool native,
                    int digits,
@@ -316,7 +316,7 @@ WriteSdc::WriteSdc(const Sdc *sdc,
   digits_(digits),
   no_timestamp_(no_timestamp),
   top_instance_(instance == sdc_network_->topInstance()),
-  instance_name_length_(strlen(sdc_network_->pathName(instance))),
+  instance_name_length_(sdc_network_->pathName(instance).size()),
   cell_(sdc_network_->cell(instance))
 {
 }
@@ -326,7 +326,7 @@ WriteSdc::~WriteSdc()
 }
 
 void
-WriteSdc::write(const char *filename,
+WriteSdc::write(std::string_view filename,
                 bool gzip)
 {
   openFile(filename, gzip);
@@ -339,10 +339,11 @@ WriteSdc::write(const char *filename,
 }
 
 void
-WriteSdc::openFile(const char *filename,
+WriteSdc::openFile(std::string_view filename,
                    bool gzip)
 {
-  stream_ = gzopen(filename, gzip ? "wb" : "wT");
+  std::string filename_str(filename);
+  stream_ = gzopen(filename_str.c_str(), gzip ? "wb" : "wT");
   if (stream_ == nullptr)
     throw FileNotWritable(filename);
 }
@@ -361,9 +362,9 @@ WriteSdc::writeHeader() const
   if (!no_timestamp_) {
     time_t now;
     time(&now);
-    char *time_str = ctime(&now);
-    // Remove trailing \n.
-    time_str[strlen(time_str) - 1] = '\0';
+    std::string time_str(ctime(&now));
+    if (!time_str.empty() && time_str.back() == '\n')
+      time_str.pop_back();
     sta::print(stream_, "# {}\n", time_str);
   }
   writeCommentSeparator();
@@ -521,7 +522,7 @@ WriteSdc::writeClockUncertainty(const Clock *clk) const
 
 void
 WriteSdc::writeClockUncertainty(const Clock *clk,
-                                const char *setup_hold,
+                                std::string_view setup_hold,
                                 float value) const
 {
   sta::print(stream_, "set_clock_uncertainty {}", setup_hold);
@@ -558,7 +559,7 @@ WriteSdc::writeClockUncertaintyPin(const Pin *pin,
 }
 void
 WriteSdc::writeClockUncertaintyPin(const Pin *pin,
-                                   const char *setup_hold,
+                                   std::string_view setup_hold,
                                    float value) const
 {
   sta::print(stream_, "set_clock_uncertainty {}", setup_hold);
@@ -726,7 +727,7 @@ WriteSdc::writeOutputDelays() const
 void
 WriteSdc::writePortDelay(PortDelay *port_delay,
                          bool is_input_delay,
-                         const char *sdc_cmd) const
+                         std::string_view sdc_cmd) const
 {
   RiseFallMinMax *delays = port_delay->delays();
   float rise_min, rise_max, fall_min, fall_max;
@@ -793,7 +794,7 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
                          float delay,
                          const RiseFallBoth *rf,
                          const MinMaxAll *min_max,
-                         const char *sdc_cmd) const
+                         std::string_view sdc_cmd) const
 {
   sta::print(stream_, "{} ", sdc_cmd);
   writeTime(delay);
@@ -870,7 +871,7 @@ void
 WriteSdc::writeClockSense(PinClockPair &pin_clk,
                           ClockSense sense) const
 {
-  const char *flag = nullptr;
+  std::string_view flag;
   if (sense == ClockSense::positive)
     flag = "-positive";
   else if (sense == ClockSense::negative)
@@ -923,7 +924,7 @@ ClockGroupLess::operator()(const ClockGroup *clk_group1,
            && clk_iter4 != clks2.end()) {
       Clock *clk1 = *clk_iter3++;
       Clock *clk2 = *clk_iter4++;
-      int cmp = strcmp(clk1->name(), clk2->name());
+      int cmp = clk1->name().compare(clk2->name());
       if (cmp < 0)
         return true;
       else if (cmp > 0)
@@ -1166,9 +1167,8 @@ void
 WriteSdc::writeDisabledEdgeSense(Edge *edge) const
 {
   sta::print(stream_, "set_disable_timing ");
-  const char *sense = to_string(edge->sense());
-  std::string filter = sta::format("sense == {}", sense);
-  writeGetTimingArcs(edge, filter.c_str());
+  std::string filter = sta::format("sense == {}", to_string(edge->sense()));
+  writeGetTimingArcs(edge, filter);
   sta::print(stream_, "\n");
 }
 
@@ -1275,11 +1275,11 @@ WriteSdc::writeExceptionTo(ExceptionTo *to) const
 
 void
 WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
-                               const char *from_to_key,
+                               std::string_view from_to_key,
                                bool map_hpin_to_drvr) const
 {
   const RiseFallBoth *rf = from_to->transition();
-  const char *rf_prefix = "-";
+  std::string_view rf_prefix = "-";
   if (rf == RiseFallBoth::rise())
     rf_prefix = "-rise_";
   else if (rf == RiseFallBoth::fall())
@@ -1320,7 +1320,7 @@ void
 WriteSdc::writeExceptionThru(ExceptionThru *thru) const
 {
   const RiseFallBoth *rf = thru->transition();
-  const char *rf_prefix = "-";
+  std::string_view rf_prefix = "-";
   if (rf == RiseFallBoth::rise())
     rf_prefix = "-rise_";
   else if (rf == RiseFallBoth::fall())
@@ -1441,14 +1441,14 @@ WriteSdc::writeDataCheck(DataCheck *check,
                          const SetupHold *setup_hold,
                          float margin) const
 {
-  const char *from_key = "-from";
+  std::string_view from_key = "-from";
   if (from_rf == RiseFallBoth::rise())
     from_key = "-rise_from";
   else if (from_rf == RiseFallBoth::fall())
     from_key = "-fall_from";
   sta::print(stream_, "set_data_check {} ", from_key);
   writeGetPin(check->from(), true);
-  const char *to_key = "-to";
+  std::string_view to_key = "-to";
   if (to_rf == RiseFallBoth::rise())
     to_key = "-rise_to";
   else if (to_rf == RiseFallBoth::fall())
@@ -1755,13 +1755,13 @@ WriteSdc::writeConstants() const
 void
 WriteSdc::writeConstant(const Pin *pin) const
 {
-  const char *cmd = setConstantCmd(pin);
+  std::string_view cmd = setConstantCmd(pin);
   sta::print(stream_, "{} ", cmd);
   writeGetPin(pin, false);
   sta::print(stream_, "\n");
 }
 
-const char *
+std::string_view
 WriteSdc::setConstantCmd(const Pin *pin) const
 {
   LogicValue value;
@@ -1778,7 +1778,7 @@ WriteSdc::setConstantCmd(const Pin *pin) const
   case LogicValue::fall:
   default:
     report_->critical(1621, "illegal set_logic value");
-    return nullptr;
+    return {};
   }
 }
 
@@ -1795,13 +1795,13 @@ WriteSdc::writeCaseAnalysis() const
 void
 WriteSdc::writeCaseAnalysis(const Pin *pin) const
 {
-  const char *value_str = caseAnalysisValueStr(pin);
+  std::string_view value_str = caseAnalysisValueStr(pin);
   sta::print(stream_, "set_case_analysis {} ", value_str);
   writeGetPin(pin, false);
   sta::print(stream_, "\n");
 }
 
-const char *
+std::string_view
 WriteSdc::caseAnalysisValueStr(const Pin *pin) const
 {
   LogicValue value;
@@ -1819,7 +1819,7 @@ WriteSdc::caseAnalysisValueStr(const Pin *pin) const
   case LogicValue::unknown:
   default:
     report_->critical(1622, "invalid set_case_analysis value");
-    return nullptr;
+    return {};
   }
 }
 
@@ -1917,7 +1917,7 @@ WriteSdc::writeDerating(DeratingFactors *factors,
                         const MinMax *early_late,
                         WriteSdcObject *write_obj) const
 {
-  const char *type_key = timingDerateTypeKeyword(type);
+  std::string_view type_key = timingDerateTypeKeyword(type);
   bool is_one_value;
   float value;
   factors->isOneValue(early_late, is_one_value, value);
@@ -1939,8 +1939,8 @@ WriteSdc::writeDerating(DeratingFactors *factors,
          clk_data_index < path_clk_or_data_count;
          clk_data_index++) {
       PathClkOrData clk_data = static_cast<PathClkOrData>(clk_data_index);
-      static const char *clk_data_keys[] = {"-clock", "-data"};
-      const char *clk_data_key = clk_data_keys[clk_data_index];
+      static constexpr std::string_view clk_data_keys[] = {"-clock", "-data"};
+      std::string_view clk_data_key = clk_data_keys[clk_data_index];
       factors->isOneValue(clk_data, early_late, is_one_value, value);
       if (is_one_value) {
         if (value != 1.0) {
@@ -1980,10 +1980,11 @@ WriteSdc::writeDerating(DeratingFactors *factors,
   }
 }
 
-static const char *
+static std::string_view
 timingDerateTypeKeyword(TimingDerateType type)
 {
-  static const char *type_keys[] = {"-cell_delay","-cell_check","-net_delay"};
+  static constexpr std::string_view type_keys[] = {
+    "-cell_delay", "-cell_check", "-net_delay"};
   return type_keys[static_cast<int>(type)];
 }
 
@@ -2075,7 +2076,7 @@ WriteSdc::writeMinPulseWidths(RiseFallValues *min_widths,
 }
 
 void
-WriteSdc::writeMinPulseWidth(const char *hi_low,
+WriteSdc::writeMinPulseWidth(std::string_view hi_low,
                              float value,
                              WriteSdcObject &write_obj) const
 {
@@ -2195,8 +2196,8 @@ WriteSdc::writeClkSlewLimits() const
 }
 
 void
-WriteSdc::writeClkSlewLimit(const char *clk_data,
-                            const char *rise_fall,
+WriteSdc::writeClkSlewLimit(std::string_view clk_data,
+                            std::string_view rise_fall,
                             const Clock *clk,
                             float limit) const
 {
@@ -2216,7 +2217,7 @@ WriteSdc::writeCapLimits() const
 
 void
 WriteSdc::writeCapLimits(const MinMax *min_max,
-                         const char *cmd) const
+                         std::string_view cmd) const
 {
   float cap;
   bool exists;
@@ -2274,7 +2275,7 @@ WriteSdc::writeFanoutLimits() const
 
 void
 WriteSdc::writeFanoutLimits(const MinMax *min_max,
-                            const char *cmd) const
+                            std::string_view cmd) const
 {
   float fanout;
   bool exists;
@@ -2331,14 +2332,8 @@ WriteSdc::writeGetTimingArcsOfOjbects(const LibertyCell *cell) const
 }
 
 void
-WriteSdc::writeGetTimingArcs(Edge *edge) const
-{
-  writeGetTimingArcs(edge, nullptr);
-}
-
-void
 WriteSdc::writeGetTimingArcs(Edge *edge,
-                             const char *filter) const
+                             std::string_view filter) const
 {
   sta::print(stream_, "[{} -from ", getTimingArcsCmd());
   Vertex *from_vertex = edge->from(graph_);
@@ -2346,12 +2341,12 @@ WriteSdc::writeGetTimingArcs(Edge *edge,
   sta::print(stream_, " -to ");
   Vertex *to_vertex = edge->to(graph_);
   writeGetPin(to_vertex->pin(), false);
-  if (filter)
+  if (!filter.empty())
     sta::print(stream_, " -filter {{{}}}", filter);
   sta::print(stream_, "]");
 }
 
-const char *
+std::string_view
 WriteSdc::getTimingArcsCmd() const
 {
   return native_ ? "get_timing_edges" : "get_timing_arcs";
@@ -2493,38 +2488,38 @@ WriteSdc::writeGetInstance(const Instance *inst) const
   sta::print(stream_, "[get_cells {{{}}}]", pathName(inst));
 }
 
-const char *
+std::string
 WriteSdc::pathName(const Pin *pin) const
 {
-  const char *pin_path = sdc_network_->pathName(pin);
+  std::string pin_path = sdc_network_->pathName(pin);
   if (top_instance_)
     return pin_path;
   else
-    return pin_path + instance_name_length_ + 1;
+    return pin_path.substr(instance_name_length_ + 1);
 }
 
-const char *
+std::string
 WriteSdc::pathName(const Net *net) const
 {
-  const char *net_path = sdc_network_->pathName(net);
+  std::string net_path = sdc_network_->pathName(net);
   if (top_instance_)
     return net_path;
   else
-    return net_path + instance_name_length_ + 1;
+    return net_path.substr(instance_name_length_ + 1);
 }
 
-const char *
+std::string
 WriteSdc::pathName(const Instance *inst) const
 {
-  const char *inst_path = sdc_network_->pathName(inst);
+  std::string inst_path = sdc_network_->pathName(inst);
   if (top_instance_)
     return inst_path;
   else
-    return inst_path + instance_name_length_ + 1;
+    return inst_path.substr(instance_name_length_ + 1);
 }
 
 void
-WriteSdc::writeCommentSection(const char *line) const
+WriteSdc::writeCommentSection(std::string_view line) const
 {
   writeCommentSeparator();
   sta::print(stream_, "# {}\n", line);
@@ -2540,7 +2535,7 @@ WriteSdc::writeCommentSeparator() const
 ////////////////////////////////////////////////////////////////
 
 void
-WriteSdc::writeRiseFallMinMaxTimeCmd(const char *sdc_cmd,
+WriteSdc::writeRiseFallMinMaxTimeCmd(std::string_view sdc_cmd,
                                      const RiseFallMinMax *values,
                                      WriteSdcObject &write_object) const
 {
@@ -2549,7 +2544,7 @@ WriteSdc::writeRiseFallMinMaxTimeCmd(const char *sdc_cmd,
 }
 
 void
-WriteSdc::writeRiseFallMinMaxCapCmd(const char *sdc_cmd,
+WriteSdc::writeRiseFallMinMaxCapCmd(std::string_view sdc_cmd,
                                     const RiseFallMinMax *values,
                                     WriteSdcObject &write_object) const
 {
@@ -2558,7 +2553,7 @@ WriteSdc::writeRiseFallMinMaxCapCmd(const char *sdc_cmd,
 }
 
 void
-WriteSdc::writeRiseFallMinMaxCmd(const char *sdc_cmd,
+WriteSdc::writeRiseFallMinMaxCmd(std::string_view sdc_cmd,
                                  const RiseFallMinMax *values,
                                  float scale,
                                  WriteSdcObject &write_object) const
@@ -2625,7 +2620,7 @@ WriteSdc::writeRiseFallMinMaxCmd(const char *sdc_cmd,
 }
 
 void
-WriteSdc::writeRiseFallMinMaxCmd(const char *sdc_cmd,
+WriteSdc::writeRiseFallMinMaxCmd(std::string_view sdc_cmd,
                                  float value,
                                  float scale,
                                  const RiseFallBoth *rf,
@@ -2652,7 +2647,7 @@ WriteSdc::writeClockKey(const Clock *clk) const
 ////////////////////////////////////////////////////////////////
 
 void
-WriteSdc::writeMinMaxFloatValuesCmd(const char *sdc_cmd,
+WriteSdc::writeMinMaxFloatValuesCmd(std::string_view sdc_cmd,
                                     const MinMaxFloatValues *values,
                                     float scale,
                                     WriteSdcObject &write_object) const
@@ -2675,7 +2670,7 @@ WriteSdc::writeMinMaxFloatValuesCmd(const char *sdc_cmd,
 }
 
 void
-WriteSdc::writeMinMaxFloatCmd(const char *sdc_cmd,
+WriteSdc::writeMinMaxFloatCmd(std::string_view sdc_cmd,
                               float value,
                               float scale,
                               const MinMaxAll *min_max,
@@ -2691,7 +2686,7 @@ WriteSdc::writeMinMaxFloatCmd(const char *sdc_cmd,
 }
 
 void
-WriteSdc::writeMinMaxIntValuesCmd(const char *sdc_cmd,
+WriteSdc::writeMinMaxIntValuesCmd(std::string_view sdc_cmd,
                                   const MinMaxIntValues *values,
                                   WriteSdcObject &write_object) const
 {
@@ -2713,7 +2708,7 @@ WriteSdc::writeMinMaxIntValuesCmd(const char *sdc_cmd,
 }
 
 void
-WriteSdc::writeMinMaxIntCmd(const char *sdc_cmd,
+WriteSdc::writeMinMaxIntCmd(std::string_view sdc_cmd,
                             int value,
                             const MinMaxAll *min_max,
                             WriteSdcObject &write_object) const
@@ -2802,13 +2797,13 @@ WriteSdc::writeIntSeq(IntSeq *ints) const
 
 ////////////////////////////////////////////////////////////////
 
-static const char *
+static std::string_view
 transRiseFallFlag(const RiseFall *rf)
 {
   return (rf == RiseFall::rise()) ? "-rise" : "-fall";
 }
 
-static const char *
+static std::string_view
 transRiseFallFlag(const RiseFallBoth *rf)
 {
   if (rf == RiseFallBoth::rise())
@@ -2819,7 +2814,7 @@ transRiseFallFlag(const RiseFallBoth *rf)
     return "";
 }
 
-static const char *
+static std::string_view
 minMaxFlag(const MinMaxAll *min_max)
 {
   if (min_max == MinMaxAll::min())
@@ -2830,13 +2825,13 @@ minMaxFlag(const MinMaxAll *min_max)
     return "";
 }
 
-static const char *
+static std::string_view
 minMaxFlag(const MinMax *min_max)
 {
   return (min_max == MinMax::min()) ? " -min" : " -max";
 }
 
-static const char *
+static std::string_view
 earlyLateFlag(const MinMax *early_late)
 {
   return (early_late == MinMax::min()) ? "-early" : "-late";
@@ -2851,7 +2846,7 @@ WriteSdc::writeSetupHoldFlag(const MinMaxAll *min_max) const
     sta::print(stream_,  " -setup");
 }
 
-static const char *
+static std::string_view
 setupHoldFlag(const MinMax *min_max)
 {
   return (min_max == MinMax::min()) ?  " -hold" : " -setup";
@@ -2860,10 +2855,9 @@ setupHoldFlag(const MinMax *min_max)
 void
 WriteSdc::writeCmdComment(SdcCmdComment *cmd) const
 {
-  const char *comment = cmd->comment();
-  if (comment) {
+  const std::string comment = cmd->comment();
+  if (!comment.empty())
     sta::print(stream_, " -comment {{{}}}", comment);
-  }
 }
 
 } // namespace

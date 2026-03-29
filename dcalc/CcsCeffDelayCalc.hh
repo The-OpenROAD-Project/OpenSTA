@@ -41,7 +41,7 @@ public:
   CcsCeffDelayCalc(StaState *sta);
   virtual ~CcsCeffDelayCalc();
   ArcDelayCalc *copy() override;
-  const char *name() const override { return "ccs_ceff"; }
+  std::string_view name() const override { return "ccs_ceff"; }
   bool reduceSupported() const override { return true; }
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
@@ -113,7 +113,7 @@ protected:
           double &dvl_dt);
   double vl(double t,
            double elmore);
-  void fail(const char *reason);
+  void fail(std::string_view reason);
 
   const Pin *drvr_pin_;
   const RiseFall *drvr_rf_;

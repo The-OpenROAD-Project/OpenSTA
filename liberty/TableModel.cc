@@ -242,7 +242,7 @@ GateTableModel::reportGateDelay(const Pvt *pvt,
 }
 
 std::string
-GateTableModel::reportTableLookup(const char *result_name,
+GateTableModel::reportTableLookup(std::string_view result_name,
                                   const Pvt *pvt,
                                   const TableModel *model,
                                   float in_slew,
@@ -255,7 +255,7 @@ GateTableModel::reportTableLookup(const char *result_name,
     findAxisValues(model, in_slew, load_cap, related_out_cap, axis_value1,
                    axis_value2, axis_value3);
     const LibertyLibrary *library = cell_->libertyLibrary();
-    return model->reportValue(result_name, cell_, pvt, axis_value1, nullptr,
+    return model->reportValue(result_name, cell_, pvt, axis_value1, {},
                               axis_value2, axis_value3, library->units()->timeUnit(),
                               digits);
   }
@@ -538,7 +538,7 @@ CheckTableModel::findValue(const Pvt *pvt,
 std::string
 CheckTableModel::reportCheckDelay(const Pvt *pvt,
                                   float from_slew,
-                                  const char *from_slew_annotation,
+                                  std::string_view from_slew_annotation,
                                   float to_slew,
                                   float related_out_cap,
                                   const MinMax *min_max,
@@ -567,11 +567,11 @@ CheckTableModel::reportCheckDelay(const Pvt *pvt,
 }
 
 std::string
-CheckTableModel::reportTableDelay(const char *result_name,
+CheckTableModel::reportTableDelay(std::string_view result_name,
                                   const Pvt *pvt,
                                   const TableModel *model,
                                   float from_slew,
-                                  const char *from_slew_annotation,
+                                  std::string_view from_slew_annotation,
                                   float to_slew,
                                   float related_out_cap,
                                   int digits) const
@@ -852,11 +852,11 @@ TableModel::scaleFactor(const LibertyCell *cell,
 }
 
 std::string
-TableModel::reportValue(const char *result_name,
+TableModel::reportValue(std::string_view result_name,
                         const LibertyCell *cell,
                         const Pvt *pvt,
                         float value1,
-                        const char *comment1,
+                        std::string_view comment1,
                         float value2,
                         float value3,
                         const Unit *table_unit,
@@ -868,7 +868,7 @@ TableModel::reportValue(const char *result_name,
 
   result += reportPvtScaleFactor(cell, pvt, digits);
 
-  result += result_name;
+  result.append(result_name);
   result += " = ";
   result +=
       table_unit->asString(findValue(cell, pvt, value1, value2, value3), digits);
@@ -1255,11 +1255,11 @@ Table::findValue(const LibertyLibrary *,
 }
 
 std::string
-Table::reportValue(const char *result_name,
+Table::reportValue(std::string_view result_name,
                    const LibertyCell *cell,
                    const Pvt *,
                    float value1,
-                   const char *comment1,
+                   std::string_view comment1,
                    float value2,
                    float value3,
                    const Unit *table_unit,
@@ -1283,25 +1283,24 @@ Table::reportValue(const char *result_name,
 }
 
 std::string
-Table::reportValueOrder0(const char *result_name,
-                         const char *comment1,
+Table::reportValueOrder0(std::string_view result_name,
+                         std::string_view comment1,
                          const Unit *table_unit,
                          int digits) const
 {
-  std::string result = result_name;
+  std::string result(result_name);
   result += " constant = ";
   result += table_unit->asString(value_, digits);
-  if (comment1)
-    result += comment1;
+  result.append(comment1);
   result += '\n';
   return result;
 }
 
 std::string
-Table::reportValueOrder1(const char *result_name,
+Table::reportValueOrder1(std::string_view result_name,
                          const LibertyCell *cell,
                          float value1,
-                         const char *comment1,
+                         std::string_view comment1,
                          float value2,
                          float value3,
                          const Unit *table_unit,
@@ -1313,8 +1312,7 @@ Table::reportValueOrder1(const char *result_name,
   result += axis1_->variableString();
   result += " = ";
   result += unit1->asString(value1, digits);
-  if (comment1)
-    result += comment1;
+  result.append(comment1);
   result += '\n';
   if (axis1_->size() != 1) {
     size_t index1 = axis1_->findAxisIndex(value1);
@@ -1330,7 +1328,7 @@ Table::reportValueOrder1(const char *result_name,
     result += table_unit->asString(value(index1 + 1), digits);
     result += '\n';
   }
-  result += result_name;
+  result.append(result_name);
   result += " = ";
   result += table_unit->asString(findValue(value1, value2, value3), digits);
   result += '\n';
@@ -1338,10 +1336,10 @@ Table::reportValueOrder1(const char *result_name,
 }
 
 std::string
-Table::reportValueOrder2(const char *result_name,
+Table::reportValueOrder2(std::string_view result_name,
                          const LibertyCell *cell,
                          float value1,
-                         const char *comment1,
+                         std::string_view comment1,
                          float value2,
                          float value3,
                          const Unit *table_unit,
@@ -1354,8 +1352,7 @@ Table::reportValueOrder2(const char *result_name,
   result += axis1_->variableString();
   result += " = ";
   result += unit1->asString(value1, digits);
-  if (comment1)
-    result += comment1;
+  result.append(comment1);
   result += '\n';
   result += "|       ";
   result += axis2_->variableString();
@@ -1390,7 +1387,7 @@ Table::reportValueOrder2(const char *result_name,
     }
   }
   result += '\n';
-  result += result_name;
+  result.append(result_name);
   result += " = ";
   result += table_unit->asString(findValue(value1, value2, value3), digits);
   result += '\n';
@@ -1398,10 +1395,10 @@ Table::reportValueOrder2(const char *result_name,
 }
 
 std::string
-Table::reportValueOrder3(const char *result_name,
+Table::reportValueOrder3(std::string_view result_name,
                          const LibertyCell *cell,
                          float value1,
-                         const char *comment1,
+                         std::string_view comment1,
                          float value2,
                          float value3,
                          const Unit *table_unit,
@@ -1415,8 +1412,7 @@ Table::reportValueOrder3(const char *result_name,
   result += axis1_->variableString();
   result += " = ";
   result += unit1->asString(value1, digits);
-  if (comment1)
-    result += comment1;
+  result.append(comment1);
   result += '\n';
   result += "   |    ---- ";
   result += axis2_->variableString();
@@ -1492,7 +1488,7 @@ Table::reportValueOrder3(const char *result_name,
     }
   }
   result += '\n';
-  result += result_name;
+  result.append(result_name);
   result += " = ";
   result += table_unit->asString(findValue(value1, value2, value3), digits);
   result += '\n';
@@ -1703,7 +1699,7 @@ TableAxis::findAxisClosestIndex(float value) const
   }
 }
 
-const char *
+std::string_view
 TableAxis::variableString() const
 {
   return tableVariableString(variable_);
@@ -1741,12 +1737,12 @@ static EnumNameMap<TableAxisVariable> table_axis_variable_map = {
     {TableAxisVariable::normalized_voltage, "normalized_voltage"}};
 
 TableAxisVariable
-stringTableAxisVariable(const char *variable)
+stringTableAxisVariable(std::string_view variable)
 {
   return table_axis_variable_map.find(variable, TableAxisVariable::unknown);
 }
 
-const char *
+std::string_view
 tableVariableString(TableAxisVariable variable)
 {
   return table_axis_variable_map.find(variable);
@@ -2213,9 +2209,9 @@ OutputWaveforms::finalResistance()
 
 ////////////////////////////////////////////////////////////////
 
-DriverWaveform::DriverWaveform(const std::string &name,
+DriverWaveform::DriverWaveform(std::string name,
                                TablePtr waveforms) :
-  name_(name),
+  name_(std::move(name)),
   waveforms_(waveforms)
 {
 }

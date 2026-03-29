@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 #include "Delay.hh"
 #include "LibertyClass.hh"
@@ -88,7 +89,7 @@ public:
                               PocvMode pocv_mode) const = 0;
   virtual std::string reportCheckDelay(const Pvt *pvt,
                                        float from_slew,
-                                       const char *from_slew_annotation,
+                                       std::string_view from_slew_annotation,
                                        float to_slew,
                                        float related_out_cap,
                                        const MinMax *min_max,

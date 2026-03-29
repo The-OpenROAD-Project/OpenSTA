@@ -117,7 +117,7 @@ using VcdIdCountsMap = std::unordered_map<std::string, VcdCounts>;
 class VcdCountReader : public VcdReader
 {
 public:
-  VcdCountReader(const std::string &scope,
+  VcdCountReader(std::string_view scope,
                  const Network *sdc_network,
                  Report *report,
                  Debug *debug);
@@ -127,31 +127,31 @@ public:
   double timeScale() const { return time_scale_; }
 
   // VcdParse callbacks.
-  void setDate(const std::string &) override {}
-  void setComment(const std::string &) override {}
-  void setVersion(const std::string &) override {}
-  void setTimeUnit(const std::string &time_unit,
+  void setDate(std::string_view ) override {}
+  void setComment(std::string_view ) override {}
+  void setVersion(std::string_view ) override {}
+  void setTimeUnit(std::string_view time_unit,
                    double time_unit_scale,
                    double time_scale) override;
   void setTimeMin(VcdTime time) override;
   void setTimeMax(VcdTime time) override;
   void varMinDeltaTime(VcdTime) override {}
-  bool varIdValid(const std::string &id) override;
+  bool varIdValid(std::string_view id) override;
   void makeVar(const VcdScope &scope,
-               const std::string &name,
+               std::string_view name,
                VcdVarType type,
                size_t width,
-               const std::string &id) override;
+               std::string_view id) override;
   void varAppendValue(const std::string &id,
                       VcdTime time,
                       char value) override;
   void varAppendBusValue(const std::string &id,
                          VcdTime time,
-                         const std::string &bus_value) override;
+                         std::string_view bus_value) override;
 
 private:
-  void addVarPin(const std::string &pin_name,
-                 const std::string &id,
+  void addVarPin(std::string_view pin_name,
+                 std::string_view id,
                  size_t width,
                  size_t bit_idx);
 
@@ -167,7 +167,7 @@ private:
   Debug *debug_;
 };
 
-VcdCountReader::VcdCountReader(const std::string &scope,
+VcdCountReader::VcdCountReader(std::string_view scope,
                                const Network *sdc_network,
                                Report *report,
                                Debug *debug) :
@@ -182,7 +182,7 @@ VcdCountReader::VcdCountReader(const std::string &scope,
 }
 
 void
-VcdCountReader::setTimeUnit(const std::string &,
+VcdCountReader::setTimeUnit(std::string_view ,
                             double time_unit_scale,
                             double time_scale)
 {
@@ -202,22 +202,22 @@ VcdCountReader::setTimeMax(VcdTime time)
 }
 
 bool
-VcdCountReader::varIdValid(const std::string &)
+VcdCountReader::varIdValid(std::string_view )
 {
   return true;
 }
 
 void
 VcdCountReader::makeVar(const VcdScope &scope,
-                        const std::string &name,
+                        std::string_view name,
                         VcdVarType type,
                         size_t width,
-                        const std::string &id)
+                        std::string_view id)
 {
   if (type == VcdVarType::wire || type == VcdVarType::reg) {
     std::string path_name;
     bool first = true;
-    for (const std::string &context : scope) {
+    for (std::string_view context : scope) {
       if (!first)
         path_name += '/';
       path_name += context;
@@ -238,7 +238,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
         bool is_bus, is_range, subscript_wild;
         std::string bus_name;
         int from, to;
-        parseBusName(var_scoped.c_str(), '[', ']', '\\', is_bus, is_range, bus_name,
+        parseBusName(var_scoped, '[', ']', '\\', is_bus, is_range, bus_name,
                      from, to, subscript_wild);
         if (is_bus) {
           std::string sta_bus_name = netVerilogToSta(bus_name);
@@ -272,18 +272,18 @@ VcdCountReader::makeVar(const VcdScope &scope,
 }
 
 void
-VcdCountReader::addVarPin(const std::string &pin_name,
-                          const std::string &id,
+VcdCountReader::addVarPin(std::string_view pin_name,
+                          std::string_view id,
                           size_t width,
                           size_t bit_idx)
 {
-  const Pin *pin = sdc_network_->findPin(pin_name.c_str());
+  const Pin *pin = sdc_network_->findPin(pin_name);
   LibertyPort *liberty_port = pin ? sdc_network_->libertyPort(pin) : nullptr;
   if (pin && !sdc_network_->isHierarchical(pin)
       && !sdc_network_->direction(pin)->isInternal()
       && !sdc_network_->direction(pin)->isPowerGround()
       && !(liberty_port && liberty_port->isPwrGnd())) {
-    VcdCounts &vcd_counts = vcd_count_map_[id];
+    VcdCounts &vcd_counts = vcd_count_map_[std::string(id)];
     vcd_counts.resize(width);
     vcd_counts[bit_idx].addPin(pin);
     debugPrint(debug_, "read_vcd", 2, "id {} pin {}", id, pin_name);
@@ -317,7 +317,7 @@ VcdCountReader::varAppendValue(const std::string &id,
 void
 VcdCountReader::varAppendBusValue(const std::string &id,
                                   VcdTime time,
-                                  const std::string &bus_value)
+                                  std::string_view bus_value)
 {
   const auto &itr = vcd_count_map_.find(id);
   if (itr != vcd_count_map_.end()) {
@@ -347,8 +347,8 @@ VcdCountReader::varAppendBusValue(const std::string &id,
 class ReadVcdActivities : public StaState
 {
 public:
-  ReadVcdActivities(const std::string &filename,
-                    const std::string &scope,
+  ReadVcdActivities(std::string_view filename,
+                    std::string_view scope,
                     const Sdc *sdc,
                     Sta *sta);
   void readActivities();
@@ -370,9 +370,9 @@ private:
 };
 
 void
-readVcdActivities(const std::string &filename,
-                  const std::string &scope,
-                  const std::string &mode_name,
+readVcdActivities(std::string_view filename,
+                  std::string_view scope,
+                  std::string_view mode_name,
                   Sta *sta)
 {
   const Mode *mode = sta->findMode(mode_name);
@@ -381,8 +381,8 @@ readVcdActivities(const std::string &filename,
   reader.readActivities();
 }
 
-ReadVcdActivities::ReadVcdActivities(const std::string &filename,
-                                     const std::string &scope,
+ReadVcdActivities::ReadVcdActivities(std::string_view filename,
+                                     std::string_view scope,
                                      const Sdc *sdc,
                                      Sta *sta) :
   StaState(sta),

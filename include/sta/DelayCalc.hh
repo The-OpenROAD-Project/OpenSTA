@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 #include "StringUtil.hh"
 
@@ -40,10 +41,10 @@ void
 registerDelayCalcs();
 // Register a delay calculator for the set_delay_calc command.
 void
-registerDelayCalc(const std::string &name,
+registerDelayCalc(std::string_view name,
                   MakeArcDelayCalc maker);
 bool
-isDelayCalcName(const std::string &name);
+isDelayCalcName(std::string_view name);
 StringSeq
 delayCalcNames();
 void
@@ -51,7 +52,7 @@ deleteDelayCalcs();
 
 // Make a registered delay calculator by name.
 ArcDelayCalc *
-makeDelayCalc(const std::string &name,
+makeDelayCalc(std::string_view name,
               StaState *sta);
 
 } // namespace

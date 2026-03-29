@@ -25,6 +25,8 @@
 // Liberty function expression parser.
 
 %{
+#include <string>
+
 #include "FuncExpr.hh"
 #include "liberty/LibExprReader.hh"
 #include "liberty/LibExprReaderPvt.hh"
@@ -39,7 +41,7 @@
 void
 sta::LibExprParse::error(const std::string &msg)
 {
-  reader->parseError(msg.c_str());
+  reader->parseError(msg);
 }
 
 %}
@@ -52,21 +54,15 @@ sta::LibExprParse::error(const std::string &msg)
 %parse-param{LibExprScanner *scanner}
 %parse-param{LibExprReader *reader}
 %define api.parser.class {LibExprParse}
+%define api.value.type variant
 
-%union {
-  int int_val;
-  const char *string;
-  sta::FuncExpr *expr;
-}
-
-%token PORT
+%token <std::string> PORT
 %left '+' '|'
 %left '*' '&'
 %left '^'
 %left '!' '\''
 
-%type <string> PORT
-%type <expr> expr terminal terminal_expr implicit_and
+%type <sta::FuncExpr *> expr terminal terminal_expr implicit_and
 
 %%
 
@@ -76,14 +72,14 @@ result_expr:
 ;
 
 terminal:
-	PORT		{ $$ = reader->makeFuncExprPort($1); }
+	PORT		{ $$ = reader->makeFuncExprPort(std::move($1)); }
 |	'0'		{ $$ = sta::FuncExpr::makeZero(); }
 |	'1'		{ $$ = sta::FuncExpr::makeOne(); }
 |	'(' expr ')'	{ $$ = $2; }
 ;
 
 terminal_expr:
-	terminal
+	terminal		{ $$ = $1; }
 |	'!' terminal	{ $$ = reader->makeFuncExprNot($2); }
 |	terminal '\''	{ $$ = reader->makeFuncExprNot($1); }
 ;
@@ -96,8 +92,8 @@ implicit_and:
 ;
 
 expr:
-	terminal_expr
-|	implicit_and
+	terminal_expr		{ $$ = $1; }
+|	implicit_and		{ $$ = $1; }
 |	expr '+' expr	{ $$ = reader->makeFuncExprOr($1, $3); }
 |	expr '|' expr	{ $$ = reader->makeFuncExprOr($1, $3); }
 |	expr '*' expr   { $$ = reader->makeFuncExprAnd($1, $3); }

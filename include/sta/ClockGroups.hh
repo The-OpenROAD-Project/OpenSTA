@@ -39,7 +39,7 @@ public:
               bool physically_exclusive,
               bool asynchronous,
               bool allow_paths,
-              const char *comment);
+              std::string comment);
   ~ClockGroups();
   void makeClockGroup(ClockSet *clks);
   const std::string &name() const { return name_; }

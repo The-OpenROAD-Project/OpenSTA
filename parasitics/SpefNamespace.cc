@@ -26,97 +26,92 @@
 
 #include <cctype>
 #include <cstring>
+#include <string>
 
 namespace sta {
 
-char *
-spefToSta(const char *token,
+std::string
+spefToSta(std::string_view spef_name,
           char spef_divider,
           char path_divider,
           char path_escape)
 {
   const char spef_escape = '\\';
-  char *trans_token = new char[strlen(token) + 1];
-  char *t = trans_token;
-
-  for (const char *s = token; *s ; s++) {
-    char ch = *s;
+  std::string sta_name;
+  for (size_t i = 0; i < spef_name.size(); i++) {
+    char ch = spef_name[i];
     if (ch == spef_escape) {
-      char next_ch = s[1];
+      char next_ch = spef_name[i + 1];
       if (next_ch == spef_divider) {
         // Translate spef escape to network escape.
-        *t++ = path_escape;
+        sta_name += path_escape;
         // Translate spef divider to network divider.
-        *t++ = path_divider;
+        sta_name += path_divider;
       }
       else if (next_ch == '['
                || next_ch == ']'
                || next_ch == spef_escape) {
         // Translate spef escape to network escape.
-        *t++ = path_escape;
-        *t++ = next_ch;
+        sta_name += path_escape;
+        sta_name += next_ch;
       }
       else
         // No need to escape other characters.
-        *t++ = next_ch;
-      s++;
+        sta_name += next_ch;
+      i++;
     }
     else if (ch == spef_divider)
       // Translate spef divider to network divider.
-      *t++ = path_divider;
+      sta_name += path_divider;
     else
       // Just the normal noises.
-      *t++ = ch;
+      sta_name += ch;
   }
-  *t++ = '\0';
-  return trans_token;
+  return sta_name;
 }
 
-char *
-staToSpef(const char *token,
+std::string
+staToSpef(std::string_view sta_name,
           char spef_divider,
           char path_divider,
           char path_escape)
 {
   const char spef_escape = '\\';
-  char *trans_token = new char[strlen(token) + 1];
-  char *t = trans_token;
-
-  for (const char *s = token; *s ; s++) {
-    char ch = *s;
+  std::string spef_name;
+  for (size_t i = 0; i < sta_name.size(); i++) {
+    char ch = sta_name[i];
     if (ch == path_escape) {
-      char next_ch = s[1];
+      char next_ch = sta_name[i + 1];
       if (next_ch == path_divider) {
         // Translate network escape to spef escape.
-        *t++ = spef_escape;
+        spef_name += spef_escape;
         // Translate network divider to spef divider.
-        *t++ = spef_divider;
+        spef_name += spef_divider;
       }
       else if (next_ch == '['
                || next_ch == ']') {
         // Translate network escape to spef escape.
-        *t++ = spef_escape;
-        *t++ = next_ch;
+        spef_name += spef_escape;
+        spef_name += next_ch;
       }
       else
         // No need to escape other characters.
-        *t++ = next_ch;
-      s++;
+        spef_name += next_ch;
+      i++;
     }
     else if (ch == path_divider)
       // Translate network divider to spef divider.
-      *t++ = spef_divider;
+      spef_name += spef_divider;
     else if (!(isdigit(ch) || isalpha(ch) || ch == '_')) {
       // Escape non-alphanum characters.
-      *t++ = spef_escape;
-      *t++ = ch;
+      spef_name += spef_escape;
+      spef_name += ch;
     }
     else
       // Just the normal noises.
-      *t++ = ch;
+      spef_name += ch;
   }
-  *t++ = '\0';
-  return trans_token;
+  return spef_name;
 }
 
 } // namespace

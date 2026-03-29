@@ -150,7 +150,7 @@ Sdc::makeDefaultArrivalClock()
   waveform->push_back(0.0);
   waveform->push_back(0.0);
   default_arrival_clk_ = new Clock("input port clock", clk_index_++, network_);
-  default_arrival_clk_->initClk(0, false, 0.0, waveform, nullptr, network_);
+  default_arrival_clk_->initClk(0, false, 0.0, waveform, "", network_);
 }
 
 Sdc::~Sdc()
@@ -956,14 +956,14 @@ Sdc::maxArea() const
 ////////////////////////////////////////////////////////////////
 
 Clock *
-Sdc::makeClock(const char *name,
+Sdc::makeClock(std::string_view name,
                PinSet *pins,
                bool add_to_pins,
                float period,
                FloatSeq *waveform,
-               const char *comment)
+               std::string_view comment)
 {
-  Clock *clk = findKey(clock_name_map_, name);
+  Clock *clk = findStringKey(clock_name_map_, name);
   if (!add_to_pins)
     deletePinClocks(clk, pins);
   if (clk)
@@ -971,7 +971,7 @@ Sdc::makeClock(const char *name,
     deleteClkPinMappings(clk);
   else {
     // Fresh clock definition.
-    clk = new Clock(name, clk_index_++, network_);
+    clk = new Clock(std::move(name), clk_index_++, network_);
     clk->setIsPropagated(variables_->propagateAllClocks());
     clocks_.push_back(clk);
     // Use the copied name in the map.
@@ -986,7 +986,7 @@ Sdc::makeClock(const char *name,
 }
 
 Clock *
-Sdc::makeGeneratedClock(const char *name,
+Sdc::makeGeneratedClock(std::string_view name,
                         PinSet *pins,
                         bool add_to_pins,
                         Pin *src_pin,
@@ -998,9 +998,9 @@ Sdc::makeGeneratedClock(const char *name,
                         bool combinational,
                         IntSeq *edges,
                         FloatSeq *edge_shifts,
-                        const char *comment)
+                        std::string_view comment)
 {
-  Clock *clk = findKey(clock_name_map_, name);
+  Clock *clk = findStringKey(clock_name_map_, name);
   if (!add_to_pins)
     deletePinClocks(clk, pins);
   if (clk)
@@ -1150,9 +1150,9 @@ Sdc::deleteMasterClkRefs(Clock *clk)
 }
 
 Clock *
-Sdc::findClock(const char *name) const
+Sdc::findClock(std::string_view name) const
 {
-  return findKey(clock_name_map_, name);
+  return findStringKey(clock_name_map_, name);
 }
 
 bool
@@ -1220,7 +1220,7 @@ Sdc::sortedClocks() const
   ClockSeq clks;
   for (Clock *clk : clocks_)
     clks.push_back(clk);
-  sort(clks, ClkNameLess());
+  sort(clks, ClockNameLess());
   return clks;
 }
 
@@ -1946,20 +1946,21 @@ Sdc::makeClockGroups(const std::string &name,
                      bool physically_exclusive,
                      bool asynchronous,
                      bool allow_paths,
-                     const char *comment)
+                     std::string comment)
 {
   std::string group_name;
   if (name.empty())
     group_name = makeClockGroupsName();
   else {
     group_name = name;
-    ClockGroups *groups = findKey(clk_groups_name_map_, group_name);
+    ClockGroups *groups = findStringKey(clk_groups_name_map_, group_name);
     if (groups)
       removeClockGroups(groups);
   }
   ClockGroups *groups = new ClockGroups(group_name, logically_exclusive,
                                         physically_exclusive,
-                                        asynchronous, allow_paths, comment);
+                                        asynchronous, allow_paths,
+                                        std::move(comment));
   clk_groups_name_map_[groups->name()] = groups;
   return groups;
 }
@@ -3891,7 +3892,7 @@ Sdc::makeFalsePath(ExceptionFrom *from,
                    ExceptionThruSeq *thrus,
                    ExceptionTo *to,
                    const MinMaxAll *min_max,
-                   const char *comment)
+                   std::string_view comment)
 {
   checkFromThrusTo(from, thrus, to);
   FalsePath *exception = new FalsePath(from, thrus, to, min_max, true,
@@ -3906,7 +3907,7 @@ Sdc::makeMulticyclePath(ExceptionFrom *from,
                         const MinMaxAll *min_max,
                         bool use_end_clk,
                         int path_multiplier,
-                        const char *comment)
+                        std::string_view comment)
 {
   checkFromThrusTo(from, thrus, to);
   MultiCyclePath *exception = new MultiCyclePath(from, thrus, to,
@@ -3924,7 +3925,7 @@ Sdc::makePathDelay(ExceptionFrom *from,
                    bool ignore_clk_latency,
                    bool break_path,
                    float delay,
-                   const char *comment)
+                   std::string_view comment)
 {
   checkFromThrusTo(from, thrus, to);
   PathDelay *exception = new PathDelay(from, thrus, to, min_max, 
@@ -4090,17 +4091,18 @@ Sdc::clearGroupPathMap()
 }
 
 void
-Sdc::makeGroupPath(const std::string &name,
+Sdc::makeGroupPath(std::string_view name,
                    bool is_default,
                    ExceptionFrom *from,
                    ExceptionThruSeq *thrus,
                    ExceptionTo *to,
-                   const char *comment)
+                   std::string_view comment)
 {
   checkFromThrusTo(from, thrus, to);
   if (!name.empty() && is_default)
     report_->critical(1490, "group path name and is_default are mutually exclusive.");
   else if (!name.empty()) {
+    const std::string name_key(name);
     GroupPath *group_path = new GroupPath(name, is_default, from, thrus, to,
                                           true, comment);
     // Clone the group_path because it may get merged and hence deleted
@@ -4112,10 +4114,10 @@ Sdc::makeGroupPath(const std::string &name,
     ExceptionPath *clone = group_path->clone(from1, thrus1, to1, true);
     addException(clone);
     // A named group path can have multiple exceptions.
-    GroupPathSet *groups = findKey(group_path_map_, name);
+    GroupPathSet *groups = findKey(group_path_map_, name_key);
     if (groups == nullptr) {
       groups = new GroupPathSet(network_);
-      group_path_map_[name] = groups;
+      group_path_map_[name_key] = groups;
     }
     if (groups->contains(group_path))
       // Exact copy of existing group path.
@@ -4132,7 +4134,7 @@ Sdc::makeGroupPath(const std::string &name,
 }
 
 bool
-Sdc::isGroupPathName(const char *group_name) const
+Sdc::isGroupPathName(std::string_view group_name) const
 {
   return group_path_map_.contains(group_name);
 }

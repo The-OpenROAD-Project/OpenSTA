@@ -27,30 +27,34 @@
 
 namespace sta {
 
-SdcCmdComment::SdcCmdComment() :
-  comment_(nullptr)
+SdcCmdComment::SdcCmdComment()
 {
 }
 
-SdcCmdComment::SdcCmdComment(const char *comment)
+SdcCmdComment::SdcCmdComment(std::string comment) :
+  comment_(std::move(comment))
 {
-  comment_ = nullptr;
-  if (comment && comment[0] != '\0')
-    comment_ = stringCopy(comment);
 }
-  
+
+SdcCmdComment::SdcCmdComment(std::string_view comment) :
+  comment_(comment)
+{
+}
+
 SdcCmdComment::~SdcCmdComment()
 {
-  stringDelete(comment_);
 }
+
 void
-SdcCmdComment::setComment(const char *comment)
+SdcCmdComment::setComment(std::string comment)
 {
-  if (comment_)
-    stringDelete(comment_);
-  comment_ = nullptr;
-  if (comment && comment[0] != '\0')
-    comment_ = stringCopy(comment);
+  comment_ = std::move(comment);
+}
+
+void
+SdcCmdComment::setComment(std::string_view comment)
+{
+  comment_ = comment;
 }
 
 } // namespace

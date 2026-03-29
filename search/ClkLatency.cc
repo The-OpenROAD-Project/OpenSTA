@@ -72,7 +72,7 @@ ClkLatency::reportClkLatency(ConstClockSeq &clks,
   ConstClockSeq sorted_clks;
   for (const Clock *clk : clks)
     sorted_clks.push_back(clk);
-  sort(sorted_clks, ClkNameLess());
+  sort(sorted_clks, ClockNameLess());
 
   for (const Clock *clk : sorted_clks) {
     ClkDelays clk_delays = clk_delay_map[clk];

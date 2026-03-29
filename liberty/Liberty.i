@@ -173,7 +173,7 @@ find_library_buffers(LibertyLibrary *library)
   return library->buffers();
 }
 
-const char *
+std::string_view
 liberty_port_direction(const LibertyPort *port)
 {
   return port->direction()->name();
@@ -220,7 +220,7 @@ timing_role_is_check(const TimingRole *role)
 ////////////////////////////////////////////////////////////////
 
 %extend LibertyLibrary {
-const char *name() { return self->name(); }
+const char *name() { return self->name().c_str(); }
 
 LibertyCell *
 find_liberty_cell(const char *name)
@@ -264,7 +264,7 @@ default_operating_conditions()
 } // LibertyLibrary methods
 
 %extend LibertyCell {
-const char *name() { return self->name(); }
+const char *name() { return self->name().c_str(); }
 bool is_leaf() { return self->isLeaf(); }
 bool is_buffer() { return self->isBuffer(); }
 bool is_inverter() { return self->isInverter(); }
@@ -306,7 +306,8 @@ LibertyCell *test_cell() { return self->testCell(); }
 } // LibertyCell methods
 
 %extend LibertyPort {
-const char *bus_name() { return self->busName(); }
+const char *name() { return self->name().c_str(); }
+std::string bus_name() { return self->busName(); }
 Cell *cell() { return self->cell(); }
 bool is_bus() { return self->isBus(); }
 bool is_bus_bit() { return self->isBusBit(); }
@@ -355,7 +356,7 @@ set_direction(const char *dir)
 const char *
 scan_signal_type()
 {
-  return scanSignalTypeName(self->scanSignalType());
+  return scanSignalTypeName(self->scanSignalType()).c_str();
 }
 
 } // LibertyPort methods
@@ -370,10 +371,10 @@ const char *sdf_cond() { return self->sdfCond().c_str(); }
 std::string
 full_name()
 {
-  const char *from = self->from()->name();
-  const char *to = self->to()->name();
-  const char *cell_name = self->libertyCell()->name();
-  return sta::format("{} {} -> {}", cell_name, from, to);
+  return sta::format("{} {} -> {}",
+                     self->libertyCell()->name(),
+                     self->from()->name(),
+                     self->to()->name());
 }
 
 const std::string
@@ -395,9 +396,9 @@ timing_arcs() { return self->arcs(); }
 LibertyPort *from() { return self->from(); }
 LibertyPort *to() { return self->to(); }
 const Transition *from_edge() { return self->fromEdge(); }
-const char *from_edge_name() { return self->fromEdge()->asRiseFall()->name(); }
+const char *from_edge_name() { return self->fromEdge()->asRiseFall()->name().c_str(); }
 const Transition *to_edge() { return self->toEdge(); }
-const char *to_edge_name() { return self->toEdge()->asRiseFall()->name(); }
+const char *to_edge_name() { return self->toEdge()->asRiseFall()->name().c_str(); }
 const TimingRole *role() { return self->role(); }
 
 float

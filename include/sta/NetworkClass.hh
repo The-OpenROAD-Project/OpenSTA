@@ -74,7 +74,7 @@ using ConnectedPinIterator = Iterator<const Pin*>;
 using NetConnectedPinIterator = ConnectedPinIterator;
 using PinConnectedPinIterator = ConnectedPinIterator;
 using ObjectId = uint32_t;
-using AttributeMap = std::map<std::string, std::string>;
+using AttributeMap = std::map<std::string, std::string, std::less<>>;
 
 enum class LogicValue : unsigned { zero, one, unknown, rise, fall };
 

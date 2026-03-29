@@ -25,6 +25,7 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include <string_view>
 
 #include "Zlib.hh"
@@ -47,7 +48,7 @@ using SpefNameMap = std::map<int, std::string>;
 class SpefReader : public StaState
 {
 public:
-  SpefReader(const std::string &filename,
+  SpefReader(std::string_view filename,
              Instance *instance,
              bool pin_cap_included,
              bool keep_coupling_caps,
@@ -63,25 +64,25 @@ public:
   void setDivider(char divider);
   char delimiter() const { return delimiter_; }
   void setDelimiter(char delimiter);
-  const std::string &filename() const { return filename_; }
+  std::string_view filename() const { return filename_; }
   // Translate from spf/spef namespace to sta namespace.
-  char *translated(const char *token);
+  std::string translated(std::string_view spef_name);
   void setBusBrackets(char left,
                       char right);
   void setTimeScale(float scale,
-                    const char *units);
+                    std::string_view units);
   void setCapScale(float scale,
-                   const char *units);
+                   std::string_view units);
   void setResScale(float scale,
-                   const char *units);
+                   std::string_view units);
   void setInductScale(float scale,
-                      const char *units);
-  void makeNameMapEntry(const char *index,
-                        const char *name);
-  const char *nameMapLookup(const char *index);
+                      std::string_view units);
+  void makeNameMapEntry(std::string_view index,
+                        std::string_view name);
+  std::string_view nameMapLookup(std::string_view name);
   void setDesignFlow(StringSeq *flow_keys);
-  Pin *findPin(char *name);
-  Net *findNet(const char *name);
+  Pin *findPin(std::string_view name);
+  Net *findNet(std::string_view name);
   void rspfBegin(Net *net,
                  SpefTriple *total_cap);
   void rspfFinish();
@@ -94,17 +95,17 @@ public:
                  SpefTriple *total_cap);
   void dspfFinish();
   void makeCapacitor(int id,
-                     char *node_name,
+                     std::string_view node_name,
                      SpefTriple *cap);
   void makeCapacitor(int id,
-                     char *node_name1,
-                     char *node_name2,
+                     std::string_view node_name1,
+                     std::string_view node_name2,
                      SpefTriple *cap);
   void makeResistor(int id,
-                    char *node_name1,
-                    char *node_name2,
+                    std::string_view node_name1,
+                    std::string_view node_name2,
                     SpefTriple *res);
-  PortDirection *portDirection(char *spef_dir);
+  PortDirection *portDirection(std::string_view spef_dir);
   int warnLine() const;
   template <typename... Args>
   void warn(int id,
@@ -116,14 +117,14 @@ public:
   }
 
 private:
-  Pin *findPinRelative(const char *name);
-  Pin *findPortPinRelative(const char *name);
-  Net *findNetRelative(const char *name);
-  Instance *findInstanceRelative(const char *name);
-  ParasiticNode *findParasiticNode(char *name,
+  Pin *findPinRelative(std::string_view name);
+  Pin *findPortPinRelative(std::string_view name);
+  Net *findNetRelative(std::string_view name);
+  Instance *findInstanceRelative(std::string_view name);
+  ParasiticNode *findParasiticNode(std::string_view name,
                                    bool local_only);
 
-  const std::string filename_;
+  std::string_view filename_;
   SpefScanner *scanner_;
   Instance *instance_;
   bool pin_cap_included_;
@@ -179,7 +180,5 @@ private:
   SpefTriple *r1_;
   SpefTriple *c1_;
 };
-
-extern SpefReader *spef_reader;
 
 } // namespace

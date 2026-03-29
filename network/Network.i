@@ -24,8 +24,12 @@
 
 %module network
 
+%include <std_string.i>
+
 %{
 #include "Network.hh"
+#include "StringUtil.hh"
+#include <string>
 %}
 
 ////////////////////////////////////////////////////////////////
@@ -252,12 +256,12 @@ find_cells_matching(const char *pattern,
 }
 
 void
-set_cmd_namespace_cmd(const char *namespc)
+set_cmd_namespace_cmd(std::string namespc)
 {
   Sta *sta = Sta::sta();
-  if (stringEq(namespc, "sdc"))
+  if (namespc == "sdc")
     sta->setCmdNamespace(CmdNamespace::sdc);
-  else if (stringEq(namespc, "sta"))
+  else if (namespc == "sta")
     sta->setCmdNamespace(CmdNamespace::sta);
   else
     sta->report()->warn(2120, "unknown namespace");
@@ -284,16 +288,16 @@ leaf_instance_iterator()
   return network->leafInstanceIterator();
 }
 
-const char *
+std::string_view
 port_direction(const Port *port)
 {
   return Sta::sta()->ensureLinked()->direction(port)->name();
 }
              
-const char *
+std::string
 pin_direction(const Pin *pin)
 {
-  return Sta::sta()->ensureLinked()->direction(pin)->name();
+  return std::string(Sta::sta()->ensureLinked()->direction(pin)->name());
 }
 
 PortSeq
@@ -542,7 +546,7 @@ port_location(const Port *port)
 ////////////////////////////////////////////////////////////////
 
 %extend Library {
-const char *name()
+std::string name()
 {
   return Sta::sta()->ensureLinked()->name(self);
 }
@@ -574,13 +578,13 @@ void finish() { delete self; }
 } // LibraryIterator methods
 
 %extend Cell {
-const char *name() { return Sta::sta()->cmdNetwork()->name(self); }
+std::string name() { return Sta::sta()->cmdNetwork()->name(self); }
 Library *library() { return Sta::sta()->cmdNetwork()->library(self); }
 LibertyCell *liberty_cell() { return Sta::sta()->cmdNetwork()->libertyCell(self); }
 bool is_leaf() { return Sta::sta()->cmdNetwork()->isLeaf(self); }
 CellPortIterator *
 port_iterator() { return Sta::sta()->cmdNetwork()->portIterator(self); }
-std::string 
+std::string
 get_attribute(const char *key)
 {
   return Sta::sta()->cmdNetwork()->getAttribute(self, key);
@@ -612,7 +616,7 @@ void finish() { delete self; }
 } // CellPortIterator methods
 
 %extend Port {
-const char *bus_name() { return Sta::sta()->ensureLinked()->busName(self); }
+std::string bus_name() { return Sta::sta()->ensureLinked()->busName(self); }
 Cell *cell() { return Sta::sta()->ensureLinked()->cell(self); }
 LibertyPort *liberty_port() { return Sta::sta()->ensureLibLinked()->libertyPort(self); }
 bool is_bus() { return Sta::sta()->ensureLinked()->isBus(self); }
@@ -678,7 +682,7 @@ void finish() { delete self; }
 } // InstanceNetIterator methods
 
 %extend Pin {
-const char *port_name() { return Sta::sta()->ensureLinked()->portName(self); }
+std::string port_name() { return Sta::sta()->ensureLinked()->portName(self); }
 Instance *instance() { return Sta::sta()->ensureLinked()->instance(self); }
 Net *net() { return Sta::sta()->ensureLinked()->net(self); }
 Port *port() { return Sta::sta()->ensureLinked()->port(self); }

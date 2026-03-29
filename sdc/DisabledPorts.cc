@@ -172,8 +172,7 @@ bool
 DisabledCellPortsLess::operator()(const DisabledCellPorts *disable1,
                                   const DisabledCellPorts *disable2)
 {
-  return stringLess(disable1->cell()->name(),
-                    disable2->cell()->name());
+  return disable1->cell()->name() < disable2->cell()->name();
 }
 
 DisabledCellPortsSeq
@@ -216,8 +215,8 @@ bool
 DisabledInstPortsLess::operator()(const DisabledInstancePorts *disable1,
                                   const DisabledInstancePorts *disable2)
 {
-  return stringLess(network_->pathName(disable1->instance()),
-                    network_->pathName(disable2->instance()));
+  return network_->pathName(disable1->instance()) <
+    network_->pathName(disable2->instance());
 }
 
 DisabledInstancePortsSeq
@@ -246,12 +245,12 @@ bool
 LibertyPortPairNameLess::operator()(const LibertyPortPair &pair1,
                                     const LibertyPortPair &pair2)
 {
-  const char *from1 = pair1.first->name();
-  const char *from2 = pair2.first->name();
-  const char *to1 = pair1.second->name();
-  const char *to2 = pair2.second->name();
-  return stringLess(from1, from2)
-    || (stringEq(from1, from2) && stringLess(to1, to2));
+  const std::string &from1 = pair1.first->name();
+  const std::string &from2 = pair2.first->name();
+  const std::string &to1 = pair1.second->name();
+  const std::string &to2 = pair2.second->name();
+  return from1 < from2
+    || (from1 == from2 && to1 < to2);
 }
 
 LibertyPortPairSeq

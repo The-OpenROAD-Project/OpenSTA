@@ -24,6 +24,8 @@
 
 %module dcalc
 
+%include <std_string.i>
+
 %{
 
 #include "DelayCalc.hh"

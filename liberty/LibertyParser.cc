@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <cstring>
 #include <regex>
+#include <string>
 
 #include "ContainerHelpers.hh"
 #include "Zlib.hh"
@@ -38,11 +39,12 @@
 namespace sta {
 
 void
-parseLibertyFile(const char *filename,
+parseLibertyFile(std::string_view filename,
                  LibertyGroupVisitor *library_visitor,
                  Report *report)
 {
-  gzstream::igzstream stream(filename);
+  std::string fn(filename);
+  gzstream::igzstream stream(fn.c_str());
   if (stream.is_open()) {
     LibertyParser reader(filename, library_visitor, report);
     LibertyScanner scanner(&stream, filename, &reader, report);
@@ -53,7 +55,7 @@ parseLibertyFile(const char *filename,
     throw FileNotReadable(filename);
 }
 
-LibertyParser::LibertyParser(const char *filename,
+LibertyParser::LibertyParser(std::string_view filename,
                              LibertyGroupVisitor *library_visitor,
                              Report *report) :
   filename_(filename),
@@ -63,7 +65,7 @@ LibertyParser::LibertyParser(const char *filename,
 }
 
 void
-LibertyParser::setFilename(const std::string &filename)
+LibertyParser::setFilename(std::string_view filename)
 {
   filename_ = filename;
 }
@@ -74,7 +76,7 @@ LibertyParser::makeDefine(const LibertyAttrValueSeq *values,
 {
   LibertyDefine *define = nullptr;
   if (values->size() == 3) {
-    const std::string &define_name = (*values)[0]->stringValue();
+    std::string &define_name = (*values)[0]->stringValue();
     const std::string &group_type_name = (*values)[1]->stringValue();
     const std::string &value_type_name = (*values)[2]->stringValue();
     LibertyAttrType value_type = attrValueType(value_type_name);
@@ -87,7 +89,7 @@ LibertyParser::makeDefine(const LibertyAttrValueSeq *values,
     delete values;
   }
   else
-    report_->fileWarn(24, filename_.c_str(), line,
+    report_->fileWarn(24, filename_, line,
                       "define does not have three arguments.");
   return define;
 }
@@ -126,12 +128,15 @@ LibertyParser::groupType(const std::string &group_type_name)
 }
 
 void
-LibertyParser::groupBegin(const std::string type,
+LibertyParser::groupBegin(std::string &&type,
                           LibertyAttrValueSeq *params,
                           int line)
 {
-  LibertyGroup *group = new LibertyGroup(
-      std::move(type), params ? std::move(*params) : LibertyAttrValueSeq(), line);
+  LibertyGroup *group = new LibertyGroup(std::move(type),
+                                         params
+                                         ? std::move(*params)
+                                         : LibertyAttrValueSeq(),
+                                         line);
   delete params;
   LibertyGroup *parent_group = group_stack_.empty() ? nullptr : group_stack_.back();
   group_visitor_->begin(group, parent_group);
@@ -163,12 +168,13 @@ LibertyParser::deleteGroups()
 }
 
 LibertySimpleAttr *
-LibertyParser::makeSimpleAttr(const std::string name,
+LibertyParser::makeSimpleAttr(std::string &&name,
                               const LibertyAttrValue *value,
                               int line)
 {
-  LibertySimpleAttr *attr =
-      new LibertySimpleAttr(std::move(name), std::move(*value), line);
+  LibertySimpleAttr *attr = new LibertySimpleAttr(std::move(name),
+                                                  std::move(*value),
+                                                  line);
   delete value;
   LibertyGroup *group = this->group();
   group->addAttr(attr);
@@ -177,7 +183,7 @@ LibertyParser::makeSimpleAttr(const std::string name,
 }
 
 LibertyComplexAttr *
-LibertyParser::makeComplexAttr(const std::string name,
+LibertyParser::makeComplexAttr(std::string &&name,
                                const LibertyAttrValueSeq *values,
                                int line)
 {
@@ -199,7 +205,7 @@ LibertyParser::makeComplexAttr(const std::string name,
 }
 
 LibertyVariable *
-LibertyParser::makeVariable(const std::string var,
+LibertyParser::makeVariable(std::string &&var,
                             float value,
                             int line)
 {
@@ -211,7 +217,7 @@ LibertyParser::makeVariable(const std::string var,
 }
 
 LibertyAttrValue *
-LibertyParser::makeAttrValueString(std::string value)
+LibertyParser::makeAttrValueString(std::string &&value)
 {
   return new LibertyAttrValue(std::move(value));
 }
@@ -225,7 +231,7 @@ LibertyParser::makeAttrValueFloat(float value)
 ////////////////////////////////////////////////////////////////
 
 LibertyScanner::LibertyScanner(std::istream *stream,
-                               const char *filename,
+                               std::string_view filename,
                                LibertyParser *reader,
                                Report *report) :
   yyFlexLexer(stream),
@@ -261,7 +267,7 @@ LibertyScanner::includeBegin()
         return true;
       }
       else {
-        report_->fileWarn(25, filename_.c_str(), yylineno,
+        report_->fileWarn(25, filename_, yylineno,
                           "cannot open include file {}.", filename);
         delete stream;
       }
@@ -287,7 +293,7 @@ LibertyScanner::fileEnd()
 void
 LibertyScanner::error(const char *msg)
 {
-  report_->fileError(1866, filename_.c_str(), lineno(), "{}", msg);
+  report_->fileError(1866, filename_, lineno(), "{}", msg);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -366,9 +372,9 @@ void
 LibertyGroup::addAttr(LibertySimpleAttr *attr)
 {
   // Only keep the most recent simple attribute value.
-  const auto &itr = simple_attr_map_.find(attr->name());
-  if (itr != simple_attr_map_.end())
-    delete itr->second;
+  const auto &it = simple_attr_map_.find(attr->name());
+  if (it != simple_attr_map_.end())
+    delete it->second;
   simple_attr_map_[attr->name()] = attr;
 }
 
@@ -384,37 +390,46 @@ LibertyGroup::addVariable(LibertyVariable *var)
   variables_.push_back(var);
 }
 
-const char *
-LibertyGroup::firstName() const
+bool
+LibertyGroup::hasFirstParam() const
 {
-  if (params_.size() >= 1) {
-    LibertyAttrValue *value = params_[0];
-    if (value->isString())
-      return value->stringValue().c_str();
-  }
-  return nullptr;
+  return !params_.empty();
 }
 
-const char *
-LibertyGroup::secondName() const
+const std::string &
+LibertyGroup::firstParam() const
+{
+  LibertyAttrValue *value = params_[0];
+  return value->stringValue();
+}
+
+bool
+LibertyGroup::hasSecondParam() const
+{
+  return params_.size() >= 2;
+}
+
+const std::string &
+LibertyGroup::secondParam() const
 {
   LibertyAttrValue *value = params_[1];
-  if (value->isString())
-    return value->stringValue().c_str();
-  else
-    return nullptr;
+  return value->stringValue();
 }
 
 const LibertyGroupSeq &
-LibertyGroup::findSubgroups(const std::string type) const
+LibertyGroup::findSubgroups(std::string_view type) const
 {
-  return findKeyValue(subgroup_map_, type);
+  auto it = subgroup_map_.find(type);
+  if (it != subgroup_map_.end())
+    return it->second;
+  static const LibertyGroupSeq empty;
+  return empty;
 }
 
 const LibertyGroup *
-LibertyGroup::findSubgroup(const std::string type) const
+LibertyGroup::findSubgroup(std::string_view type) const
 {
-  const LibertyGroupSeq &groups = findKeyValue(subgroup_map_, type);
+  const LibertyGroupSeq &groups = findSubgroups(type);
   if (groups.size() >= 1)
     return groups[0];
   else
@@ -422,39 +437,43 @@ LibertyGroup::findSubgroup(const std::string type) const
 }
 
 const LibertySimpleAttr *
-LibertyGroup::findSimpleAttr(const std::string attr_name) const
+LibertyGroup::findSimpleAttr(std::string_view attr_name) const
 {
-  return findKeyValue(simple_attr_map_, attr_name);
+  return findStringKey(simple_attr_map_, attr_name);
 }
 
 const LibertyComplexAttrSeq &
-LibertyGroup::findComplexAttrs(const std::string attr_name) const
+LibertyGroup::findComplexAttrs(std::string_view attr_name) const
 {
-  return findKeyValue(complex_attr_map_, attr_name);
+  auto it = complex_attr_map_.find(attr_name);
+  if (it != complex_attr_map_.end())
+    return it->second;
+  static const LibertyComplexAttrSeq empty;
+  return empty;
 }
 
 const LibertyComplexAttr *
-LibertyGroup::findComplexAttr(const std::string attr_name) const
+LibertyGroup::findComplexAttr(std::string_view attr_name) const
 {
-  const LibertyComplexAttrSeq &attrs = findKeyValue(complex_attr_map_, attr_name);
+  const LibertyComplexAttrSeq &attrs = findComplexAttrs(attr_name);
   if (attrs.size() >= 1)
     return attrs[0];
   else
     return nullptr;
 }
 
-const std::string *
-LibertyGroup::findAttrString(const std::string attr_name) const
+const std::string &
+LibertyGroup::findAttrString(std::string_view attr_name) const
 {
   const LibertySimpleAttr *attr = findSimpleAttr(attr_name);
   if (attr)
-    return &attr->value().stringValue();
-  else
-    return nullptr;
+    return attr->value().stringValue();
+  static const std::string null_string;
+  return null_string;
 }
 
 void
-LibertyGroup::findAttrFloat(const std::string attr_name,
+LibertyGroup::findAttrFloat(std::string_view attr_name,
                             // Return values.
                             float &value,
                             bool &exists) const
@@ -463,26 +482,25 @@ LibertyGroup::findAttrFloat(const std::string attr_name,
   if (attr) {
     const LibertyAttrValue &attr_value = attr->value();
     if (attr_value.isFloat()) {
-      value = attr_value.floatValue();
-      exists = true;
+      auto [value1, exists1] = attr_value.floatValue();
+      value = value1;
+      exists = exists1;
       return;
     }
     else {
       // Possibly quoted string float.
       const std::string &float_str = attr_value.stringValue();
-      char *end = nullptr;
-      value = std::strtof(float_str.c_str(), &end);
-      if (end) {
-        exists = true;
-        return;
-      }
+      auto [value1, valid1] = stringFloat(float_str);
+      value = value1;
+      exists = valid1;
+      return;
     }
   }
   exists = false;
 }
 
 void
-LibertyGroup::findAttrInt(const std::string attr_name,
+LibertyGroup::findAttrInt(std::string_view attr_name,
                           // Return values.
                           int &value,
                           bool &exists) const
@@ -491,8 +509,9 @@ LibertyGroup::findAttrInt(const std::string attr_name,
   if (attr) {
     const LibertyAttrValue &attr_value = attr->value();
     if (attr_value.isFloat()) {
-      value = static_cast<int>(attr_value.floatValue());
-      exists = true;
+      auto [value1, exists1] = attr_value.floatValue();
+      value = static_cast<int>(value1);
+      exists = exists1;
       return;
     }
   }
@@ -501,7 +520,7 @@ LibertyGroup::findAttrInt(const std::string attr_name,
 
 ////////////////////////////////////////////////////////////////
 
-LibertySimpleAttr::LibertySimpleAttr(const std::string name,
+LibertySimpleAttr::LibertySimpleAttr(std::string &&name,
                                      const LibertyAttrValue value,
                                      int line) :
   name_(std::move(name)),
@@ -510,15 +529,9 @@ LibertySimpleAttr::LibertySimpleAttr(const std::string name,
 {
 }
 
-const std::string *
-LibertySimpleAttr::stringValue() const
-{
-  return &value().stringValue();
-}
-
 ////////////////////////////////////////////////////////////////
 
-LibertyComplexAttr::LibertyComplexAttr(std::string name,
+LibertyComplexAttr::LibertyComplexAttr(std::string &&name,
                                        const LibertyAttrValueSeq values,
                                        int line) :
   name_(std::move(name)),
@@ -540,7 +553,7 @@ LibertyComplexAttr::firstValue() const
 
 ////////////////////////////////////////////////////////////////
 
-LibertyAttrValue::LibertyAttrValue(std::string value) :
+LibertyAttrValue::LibertyAttrValue(std::string &&value) :
   string_value_(std::move(value))
 {
 }
@@ -562,39 +575,18 @@ LibertyAttrValue::isString() const
   return !string_value_.empty();
 }
 
-float
+std::pair<float, bool>
 LibertyAttrValue::floatValue() const
 {
-  if (!string_value_.empty())
-    criticalError(1127, "LibertyAttrValue::floatValue() called on string");
-  return float_value_;
-}
-
-void
-LibertyAttrValue::floatValue(  // Return values.
-    float &value,
-    bool &valid) const
-{
-  valid = false;
-  if (string_value_.empty()) {
-    value = float_value_;
-    valid = true;
-  }
-  else {
-    // Some floats are enclosed in quotes.
-    char *end;
-    value = strtof(string_value_.c_str(), &end);
-    if ((*end == '\0' || isspace(*end))
-        // strtof support INF as a valid float.
-        && string_value_ != "inf") {
-      valid = true;
-    }
-  }
+  if (string_value_.empty())
+    return {float_value_, true};
+  else
+    return stringFloat(string_value_);
 }
 
 ////////////////////////////////////////////////////////////////
 
-LibertyDefine::LibertyDefine(std::string name,
+LibertyDefine::LibertyDefine(std::string &&name,
                              LibertyGroupType group_type,
                              LibertyAttrType value_type,
                              int line) :

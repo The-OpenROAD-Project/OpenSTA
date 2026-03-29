@@ -163,7 +163,7 @@ INDEX   "*"{POS_INTEGER}
 
 "\"" 	{
 	BEGIN INITIAL;
-	yylval->string = sta::stringCopy(token_.c_str());
+	yylval->emplace<std::string>(std::move(token_));
 	return token::QSTRING;
 	}
 
@@ -179,27 +179,27 @@ INDEX   "*"{POS_INTEGER}
 {BLANK}*\n { loc->lines(); loc->step(); }
 
 {INTEGER} {
-	yylval->integer = atoi(yytext);
+	yylval->emplace<int>(atoi(yytext));
 	return token::INTEGER;
 	}
 
 {FLOAT} {
-	yylval->number = static_cast<float>(atof(yytext));
+	yylval->emplace<float>(static_cast<float>(atof(yytext)));
 	return token::FLOAT;
 	}
 
 {IDENT} {
-	yylval->string = reader_->translated(yytext);
+	yylval->emplace<std::string>(reader_->translated(yytext));
 	return token::IDENT;
 	}
 
 {PATH}|{NAME_PAIR} {
-	yylval->string = reader_->translated(yytext);
+	yylval->emplace<std::string>(reader_->translated(yytext));
 	return token::NAME;
 	}
 
 {INDEX} {
-	yylval->string = sta::stringCopy(yytext);
+	yylval->emplace<std::string>(yytext);
 	return token::INDEX;
 	}
 

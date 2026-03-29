@@ -231,19 +231,20 @@ vertex_worst_slack_path(Vertex *vertex,
 
 float
 endpoint_slack(const Pin *pin,
-               const char *path_group_name,
+               const std::string &path_group_name,
                const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  if (sta->isGroupPathName(path_group_name, sta->cmdSdc())) {
-    Slack slack = sta->endpointSlack(pin, std::string(path_group_name), min_max);
-    return sta->units()->timeUnit()->staToUser(delayAsFloat(slack, min_max, sta));
-  }
-  else {
+  if (!path_group_name.empty()
+      && !sta->isGroupPathName(path_group_name, sta->cmdSdc()))  {
     sta->report()->error(1577, "{} is not a known path group name.",
                          path_group_name);
     return INF;
+  }
+  else {
+    Slack slack = sta->endpointSlack(pin, path_group_name, min_max);
+    return sta->units()->timeUnit()->staToUser(delayAsFloat(slack, min_max, sta));
   }
 }
 
@@ -734,8 +735,8 @@ write_timing_model_cmd(const char *lib_name,
 void
 define_scene_cmd(const char *name,
                  const char *mode_name,
-                 const StringSeq liberty_min_files,
-                 const StringSeq liberty_max_files,
+                 StringSeq liberty_min_files,
+                 StringSeq liberty_max_files,
                  const char *spef_min_file,
                  const char *spef_max_file)
 {
@@ -746,7 +747,7 @@ define_scene_cmd(const char *name,
 }
 
 void
-define_scenes_cmd(const StringSeq &scene_names)
+define_scenes_cmd(StringSeq scene_names)
 {
   Sta *sta = Sta::sta();
   sta->makeScenes(scene_names);
@@ -953,18 +954,18 @@ crpr_mode()
 }
 
 void
-set_crpr_mode(const char *mode)
+set_crpr_mode(std::string mode)
 {
   Sta *sta = Sta::sta();
-  if (stringEq(mode, "same_pin"))
+  if (stringEqual(mode, "same_pin"))
     sta->setCrprMode(CrprMode::same_pin);
-  else if (stringEq(mode, "same_transition"))
+  else if (stringEqual(mode, "same_transition"))
     sta->setCrprMode(CrprMode::same_transition);
   else
     sta->report()->error(1573, "unknown common clk pessimism mode.");
 }
 
-const char *
+const std::string &
 pocv_mode()
 {
   return pocvModeName(Sta::sta()->pocvMode());

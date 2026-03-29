@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "Error.hh"
@@ -57,7 +58,7 @@ public:
                 const MinMaxAll *min_max,
                 bool own_pts,
                 int priority,
-                const char *comment);
+                std::string_view comment);
   virtual ~ExceptionPath();
   size_t id() const { return id_; }
   void setId(size_t id);
@@ -128,7 +129,7 @@ public:
   virtual bool useEndClk() const { return false; }
   virtual int pathMultiplier() const { return 0; }
   virtual float delay() const { return 0.0; }
-  virtual std::string name() const { return ""; }
+  virtual std::string_view name() const { return {}; }
   virtual bool isDefault() const { return false; }
   virtual bool ignoreClkLatency() const { return false; }
   virtual bool breakPath() const { return false; }
@@ -157,14 +158,14 @@ public:
             ExceptionTo *to,
             const MinMaxAll *min_max,
             bool own_pts,
-            const char *comment);
+            std::string_view comment);
   FalsePath(ExceptionFrom *from,
             ExceptionThruSeq *thrus,
             ExceptionTo *to,
             const MinMaxAll *min_max,
             bool own_pts,
             int priority,
-            const char *comment);
+            std::string_view comment);
   ExceptionPath *clone(ExceptionFrom *from,
                        ExceptionThruSeq *thrus,
                        ExceptionTo *to,
@@ -203,7 +204,7 @@ public:
             bool break_path,
             float delay,
             bool own_pts,
-            const char *comment);
+            std::string_view comment);
   ExceptionPath *clone(ExceptionFrom *from,
                        ExceptionThruSeq *thrus,
                        ExceptionTo *to,
@@ -237,7 +238,7 @@ public:
                  bool use_end_clk,
                  int path_multiplier,
                  bool own_pts,
-                 const char *comment);
+                 std::string_view comment);
   ExceptionPath *clone(ExceptionFrom *from,
                        ExceptionThruSeq *thrus,
                        ExceptionTo *to,
@@ -293,13 +294,13 @@ public:
 class GroupPath : public ExceptionPath
 {
 public:
-  GroupPath(const std::string &name,
+  GroupPath(std::string_view name,
             bool is_default,
             ExceptionFrom *from,
             ExceptionThruSeq *thrus,
             ExceptionTo *to,
             bool own_pts,
-            const char *comment);
+            std::string_view comment);
   ~GroupPath() override;
   ExceptionPath *clone(ExceptionFrom *from,
                        ExceptionThruSeq *thrus,
@@ -312,7 +313,7 @@ public:
   bool overrides(ExceptionPath *exception) const override;
   int typePriority() const override;
   bool tighterThan(ExceptionPath *exception) const override;
-  std::string name() const override { return name_; }
+  std::string_view name() const override { return name_; }
   bool isDefault() const override { return is_default_; }
 
 protected:

@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <string_view>
 
 #include "Format.hh"
 #include "Report.hh"
@@ -126,7 +127,7 @@ public:
   DmpAlg(int nr_order,
          StaState *sta);
   ~DmpAlg() override = default;
-  virtual const char *name() = 0;
+  virtual std::string_view name() = 0;
   // Set driver model and pi model parameters for delay calculation.
   virtual void init(const LibertyLibrary *library,
                     const LibertyCell *drvr_cell,
@@ -201,7 +202,7 @@ protected:
                         double lower_bound,
                         double upper_bound);
   void showVl();
-  void fail(const char *reason);
+  void fail(std::string_view reason);
 
   // Output response to vs(t) ramp driving capacitive load.
   double y(double t,
@@ -655,7 +656,7 @@ DmpAlg::showVl()
 }
 
 void
-DmpAlg::fail(const char *reason)
+DmpAlg::fail(std::string_view reason)
 {
   // Report failures with a unique debug flag.
   if (debug_->check("dmp_ceff", 1) || debug_->check("dcalc_error", 1))
@@ -673,7 +674,7 @@ class DmpCap : public DmpAlg
 {
 public:
   DmpCap(StaState *sta);
-  const char *name() override { return "cap"; }
+  std::string_view name() override { return "cap"; }
   void init(const LibertyLibrary *library,
             const LibertyCell *drvr_cell,
             const Pvt *pvt,
@@ -789,7 +790,7 @@ class DmpPi : public DmpAlg
 {
 public:
   DmpPi(StaState *sta);
-  const char *name() override { return "Pi"; }
+  std::string_view name() override { return "Pi"; }
   void init(const LibertyLibrary *library,
             const LibertyCell *drvr_cell,
             const Pvt *pvt,
@@ -1115,7 +1116,7 @@ class DmpZeroC2 : public DmpOnePole
 {
 public:
   DmpZeroC2(StaState *sta);
-  const char *name() override { return "c2=0"; }
+  std::string_view name() override { return "c2=0"; }
   void init(const LibertyLibrary *drvr_library,
             const LibertyCell *drvr_cell,
             const Pvt *pvt,

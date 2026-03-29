@@ -26,6 +26,7 @@
 
 #include <map>
 #include <set>
+#include <string>
 
 #include "Parasitics.hh"
 
@@ -272,7 +273,7 @@ public:
   ConcreteParasiticNode(const Pin *pin,
                         bool is_external);
   float capacitance() const { return cap_; }
-  const char *name(const Network *network) const;
+  std::string name(const Network *network) const;
   const Net *net(const Network *network) const;
   unsigned id() const { return id_; }
   bool isExternal() const { return is_external_; }

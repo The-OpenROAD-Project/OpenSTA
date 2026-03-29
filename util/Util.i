@@ -34,6 +34,7 @@
 #include "Error.hh"
 #include "Fuzzy.hh"
 #include "Units.hh"
+#include "StringUtil.hh"
 
 using namespace sta;
 
@@ -472,10 +473,10 @@ unit_scale(const char *unit_name)
 // format_unit functions print with fixed digits and suffix.
 // Pass value arg as string to support NaNs.
 std::string
-format_time(const char *value,
+format_time(std::string value,
             int digits)
 {
-  float value1 = strtof(value, nullptr);
+  auto [value1, valid] = stringFloat(value);
   return Sta::sta()->units()->timeUnit()->asString(value1, digits);
 }
 
@@ -483,7 +484,7 @@ std::string
 format_capacitance(const char *value,
                    int digits)
 {
-  float value1 = strtof(value, nullptr);
+  auto [value1, valid] = stringFloat(value);
   return Sta::sta()->units()->capacitanceUnit()->asString(value1, digits);
 }
 
@@ -491,7 +492,7 @@ std::string
 format_resistance(const char *value,
                   int digits)
 {
-  float value1 = strtof(value, nullptr);
+  auto [value1, valid] = stringFloat(value);
   return Sta::sta()->units()->resistanceUnit()->asString(value1, digits);
 }
 
@@ -499,7 +500,7 @@ std::string
 format_voltage(const char *value,
                int digits)
 {
-  float value1 = strtof(value, nullptr);
+  auto [value1, valid] = stringFloat(value);
   return Sta::sta()->units()->voltageUnit()->asString(value1, digits);
 }
 
@@ -507,7 +508,7 @@ std::string
 format_current(const char *value,
                int digits)
 {
-  float value1 = strtof(value, nullptr);
+  auto [value1, valid] = stringFloat(value);
   return Sta::sta()->units()->currentUnit()->asString(value1, digits);
 }
 
@@ -515,7 +516,7 @@ std::string
 format_power(const char *value,
              int digits)
 {
-  float value1 = strtof(value, nullptr);
+  auto [value1, valid] = stringFloat(value);
   return Sta::sta()->units()->powerUnit()->asString(value1, digits);
 }
 
@@ -523,29 +524,28 @@ std::string
 format_distance(const char *value,
                 int digits)
 {
-  float value1 = strtof(value, nullptr);
-  Unit *dist_unit = Sta::sta()->units()->distanceUnit();
-  return dist_unit->asString(value1, digits);
+  auto [value1, valid] = stringFloat(value);
+  return Sta::sta()->units()->distanceUnit()->asString(value1, digits);
 }
 
 std::string
 format_area(const char *value,
             int digits)
 {
-  float value1 = strtof(value, nullptr);
+  auto [value1, valid] = stringFloat(value);
   Unit *dist_unit = Sta::sta()->units()->distanceUnit();
   return dist_unit->asString(value1 / dist_unit->scale(), digits);
 }
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string_view
 rise_short_name()
 {
   return RiseFall::rise()->shortName();
 }
 
-const char *
+std::string_view
 fall_short_name()
 {
   return RiseFall::fall()->shortName();

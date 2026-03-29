@@ -58,7 +58,7 @@ public:
   void setDuty(float duty);
   PwrActivityOrigin origin() const { return origin_; }
   void setOrigin(PwrActivityOrigin origin);
-  const char *originName() const;
+  const std::string &originName() const;
   void set(float density,
            float duty,
            PwrActivityOrigin origin);

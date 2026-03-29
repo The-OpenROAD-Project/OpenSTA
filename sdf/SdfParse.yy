@@ -24,6 +24,8 @@
 
 %{
 #include <cctype>
+#include <string>
+#include <utility>
 
 #include "sdf/SdfReaderPvt.hh"
 #include "sdf/SdfScanner.hh"
@@ -52,21 +54,14 @@ sta::SdfParse::error(const location_type &loc,
 %parse-param { SdfScanner *scanner }
 %parse-param { SdfReader *reader }
 %define api.parser.class {SdfParse}
+%define api.value.type variant
 
 // expected shift/reduce conflicts
 %expect 4
 
-%union {
-  char character;
-  std::string *string;
-  float number;
-  float *number_ptr;
-  int integer;
-  sta::SdfTriple *triple;
-  sta::SdfTripleSeq *delval_list;
-  sta::SdfPortSpec *port_spec;
-  const sta::Transition *transition;
-}
+%token <std::string> QSTRING ID EXPR_OPEN_IOPATH EXPR_OPEN EXPR_ID_CLOSE
+%token <float> FNUMBER
+%token <int> DNUMBER
 
 %token DELAYFILE SDFVERSION DESIGN DATE VENDOR PROGRAM PVERSION
 %token DIVIDER VOLTAGE PROCESS TEMPERATURE TIMESCALE
@@ -75,21 +70,15 @@ sta::SdfParse::error(const location_type &loc,
 %token IOPATH TIMINGCHECK
 %token SETUP HOLD SETUPHOLD RECOVERY REMOVAL RECREM WIDTH PERIOD SKEW NOCHANGE
 %token POSEDGE NEGEDGE COND CONDELSE
-%token QSTRING ID FNUMBER DNUMBER EXPR_OPEN_IOPATH EXPR_OPEN EXPR_ID_CLOSE
 
-%type <number> FNUMBER NUMBER
-%type <integer> DNUMBER
-%type <number_ptr> number_opt
-%type <triple> value triple
-%type <delval_list> delval_list
-%type <string> QSTRING ID path port port_instance
-%type <string> EXPR_OPEN_IOPATH EXPR_OPEN EXPR_ID_CLOSE
-%type <port_spec> port_spec port_tchk
-%type <transition> port_transition
-%type <character> hchar
-
-// Used by error recovery.
-%destructor { delete $$; } QSTRING
+%type <float> NUMBER
+%type <float*> number_opt
+%type <sta::SdfTriple *> value triple
+%type <sta::SdfTripleSeq *> delval_list
+%type <std::string> path port port_instance
+%type <sta::SdfPortSpec *> port_spec port_tchk
+%type <const sta::Transition *> port_transition
+%type <char> hchar
 
 %start file
 
@@ -106,17 +95,17 @@ header:
 
 // technically the ordering of these statements is fixed by the spec
 header_stmt:
-	'(' SDFVERSION QSTRING ')' { delete $3; }
-|	'(' DESIGN QSTRING ')' { delete $3; }
-|	'(' DATE QSTRING ')' { delete $3; }
-|	'(' VENDOR QSTRING ')' { delete $3; }
-|	'(' PROGRAM QSTRING ')' { delete $3; }
-|	'(' PVERSION QSTRING ')' { delete $3; }
+	'(' SDFVERSION QSTRING ')'
+|	'(' DESIGN QSTRING ')'
+|	'(' DATE QSTRING ')'
+|	'(' VENDOR QSTRING ')'
+|	'(' PROGRAM QSTRING ')'
+|	'(' PVERSION QSTRING ')'
 |	'(' DIVIDER hchar ')' { reader->setDivider($3); }
 |	'(' VOLTAGE triple ')' { reader->deleteTriple($3); }
 |	'(' VOLTAGE NUMBER ')'
 |	'(' VOLTAGE ')'  // Illegal SDF (from OC).
-|	'(' PROCESS QSTRING ')' { delete $3; }
+|	'(' PROCESS QSTRING ')'
 |	'(' PROCESS ')'  // Illegal SDF (from OC).
 |	'(' TEMPERATURE NUMBER ')'
 |	'(' TEMPERATURE triple ')' { reader->deleteTriple($3); }
@@ -152,7 +141,7 @@ celltype:
 
 cell_instance:
 	'(' INSTANCE ')'
-        { reader->setInstance(nullptr); }
+        { reader->setInstance(); }
 |	'(' INSTANCE '*' ')'
         { reader->setInstanceWildcard(); }
 |	'(' INSTANCE path ')'
@@ -195,10 +184,10 @@ path:
 
 del_def:
 	'(' IOPATH port_spec port_instance retains delval_list ')'
-	{ reader->iopath($3, $4, $6, nullptr, false); }
+	{ reader->iopath($3, $4, $6, "", false); }
 |	'(' CONDELSE '(' IOPATH port_spec port_instance
             retains delval_list ')' ')'
-	{ reader->iopath($5, $6, $8, nullptr, true); }
+	{ reader->iopath($5, $6, $8, "", true); }
 |	'(' COND EXPR_OPEN_IOPATH port_spec port_instance
             retains delval_list ')' ')'
 	{ reader->iopath($4, $5, $7, $3, false); }
@@ -296,15 +285,16 @@ port:
 
 port_instance:
 	port
+	{ $$ = $1; }
 |	path hchar port
         { $$ = reader->makePath($1, $3); }
 ;
 
 port_spec:
 	port_instance
-	{ $$=reader->makePortSpec(sta::Transition::riseFall(),$1,nullptr); }
+	{ $$ = reader->makePortSpec(sta::Transition::riseFall(), $1); }
 |	'(' port_transition port_instance ')'
-	{ $$ = reader->makePortSpec($2, $3, nullptr); }
+	{ $$ = reader->makePortSpec($2, $3); }
 ;
 
 port_transition:
@@ -314,6 +304,7 @@ port_transition:
 
 port_tchk:
 	port_spec
+	{ $$ = $1; }
 |	'(' COND EXPR_ID_CLOSE
 	{ $$ = reader->makeCondPortSpec($3); }
 |	'(' COND EXPR_OPEN port_transition port_instance ')' ')'
@@ -352,6 +343,7 @@ triple:
 
 NUMBER:
         FNUMBER
+	{ $$ = $1; }
 |       DNUMBER
         { $$ = static_cast<float>($1); }
 |       '-' DNUMBER

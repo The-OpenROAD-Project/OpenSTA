@@ -58,16 +58,16 @@ public:
 
   void setDivider(char divider);
   void setTimescale(uint64_t multiplier,
-                    const char *units);
+                    std::string &&units);
   void setDuration(uint64_t duration);
-  void instancePush(const char *instance_name);
+  void instancePush(std::string &&instance_name);
   void instancePop();
-  void setNetDurations(const char *net_name,
-                       SaifStateDurations &durations);
+  void setNetDurations(std::string &&net_name,
+                       const SaifStateDurations &durations);
   const char *filename() { return filename_; }
 
 private:
-  std::string unescaped(const char *token);
+  std::string unescaped(const std::string &token);
 
   const char *filename_;
   const char *scope_;           // Divider delimited scope to begin annotation.

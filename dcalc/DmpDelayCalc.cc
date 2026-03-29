@@ -43,7 +43,7 @@ class DmpCeffElmoreDelayCalc : public DmpCeffDelayCalc
 public:
   DmpCeffElmoreDelayCalc(StaState *sta);
   ArcDelayCalc *copy() override;
-  const char *name() const override { return "dmp_ceff_elmore"; }
+  std::string_view name() const override { return "dmp_ceff_elmore"; }
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -139,7 +139,7 @@ class DmpCeffTwoPoleDelayCalc : public DmpCeffDelayCalc
 public:
   DmpCeffTwoPoleDelayCalc(StaState *sta);
   ArcDelayCalc *copy() override;
-  const char *name() const override { return "dmp_ceff_two_pole"; }
+  std::string_view name() const override { return "dmp_ceff_two_pole"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const Scene *scene,

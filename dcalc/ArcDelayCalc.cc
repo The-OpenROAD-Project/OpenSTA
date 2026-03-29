@@ -25,7 +25,9 @@
 #include "ArcDelayCalc.hh"
 
 #include <cstdlib>
+#include <string>
 
+#include "StringUtil.hh"
 #include "Units.hh"
 #include "Liberty.hh"
 #include "TimingArc.hh"
@@ -61,13 +63,14 @@ ArcDelayCalc::gateDelay(const TimingArc *arc,
 
 ////////////////////////////////////////////////////////////////
 
+// For TCL %typemap(in) ArcDcalcArg.
 ArcDcalcArg
-makeArcDcalcArg(const char *inst_name,
-                const char *in_port_name,
-                const char *in_rf_name,
-                const char *drvr_port_name,
-                const char *drvr_rf_name,
-                const char *input_delay_str,
+makeArcDcalcArg(std::string_view inst_name,
+                std::string_view in_port_name,
+                std::string_view in_rf_name,
+                std::string_view drvr_port_name,
+                std::string_view drvr_rf_name,
+                std::string_view input_delay_str,
                 const StaState *sta)
 {
   Report *report = sta->report();
@@ -82,7 +85,8 @@ makeArcDcalcArg(const char *inst_name,
         if (drvr_pin) {
           const RiseFall *drvr_rf = RiseFall::find(drvr_rf_name);
           if (drvr_rf) {
-            float input_delay = strtof(input_delay_str, nullptr);
+            const std::string input_delay_buf(input_delay_str);
+            auto [input_delay, valid] = stringFloat(input_delay_buf);
             input_delay = sta->units()->timeUnit()->userToSta(input_delay);
 
             const Graph *graph = sta->graph();

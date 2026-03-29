@@ -25,7 +25,7 @@
 %module sdf
 
 %{
-#include "sdf/SdfReader.hh"
+#include <string>
 #include "sdf/ReportAnnotation.hh"
 #include "sdf/SdfWriter.hh"
 #include "Search.hh"
@@ -35,8 +35,6 @@ using sta::Sta;
 using sta::AnalysisType;
 using sta::MinMax;
 using sta::MinMaxAllNull;
-using sta::stringEq;
-using sta::readSdf;
 using sta::reportAnnotatedDelay;
 using sta::reportAnnotatedCheck;
 
@@ -51,22 +49,16 @@ using sta::reportAnnotatedCheck;
 
 // Return true if successful.
 bool
-read_sdf_file(const char *filename,
-              const char *path,
+read_sdf_file(std::string filename,
+              std::string path,
               Scene *scene,
               bool unescaped_dividers,
               bool incremental_only,
               MinMaxAllNull *cond_use)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLibLinked();
-  sta->ensureGraph();
-  if (stringEq(path, ""))
-    path = NULL;
-  bool success = readSdf(filename, path, scene, unescaped_dividers,
-                         incremental_only, cond_use, sta);
-  sta->search()->arrivalsInvalid();
-  return success;
+  return sta->readSdf(filename, path, scene, unescaped_dividers,
+                      incremental_only, cond_use);
 }
 
 void
