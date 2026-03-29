@@ -22,15 +22,7 @@
 # 
 # This notice may not be removed or altered from any source distribution.
 
-cmake_minimum_required (VERSION 3.10)
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-# Use standard target names
-cmake_policy(SET CMP0078 NEW)
-endif()
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
-# Allows SWIG_MODULE_NAME to be set
-cmake_policy(SET CMP0086 NEW)
-endif()
+cmake_minimum_required (VERSION 3.16)
 
 project(STA VERSION 3.1.0
   LANGUAGES CXX
