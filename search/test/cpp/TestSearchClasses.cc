@@ -168,7 +168,7 @@ TEST_F(PropertyValueTest, DefaultConstructor) {
 }
 
 TEST_F(PropertyValueTest, StringConstructor) {
-  PropertyValue pv("hello");
+  PropertyValue pv(std::string_view("hello"));
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   EXPECT_EQ(pv.stringValue(), "hello");
 }
@@ -272,7 +272,7 @@ TEST_F(PropertyValueTest, NullClockConstructor) {
 }
 
 TEST_F(PropertyValueTest, CopyConstructorString) {
-  PropertyValue pv1("copy_test");
+  PropertyValue pv1(std::string_view("copy_test"));
   PropertyValue pv2(pv1);
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
   EXPECT_EQ(pv2.stringValue(), "copy_test");
@@ -379,7 +379,7 @@ TEST_F(PropertyValueTest, CopyConstructorClock) {
 }
 
 TEST_F(PropertyValueTest, MoveConstructorString) {
-  PropertyValue pv1("move_test");
+  PropertyValue pv1(std::string_view("move_test"));
   PropertyValue pv2(std::move(pv1));
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
   EXPECT_EQ(pv2.stringValue(), "move_test");
@@ -476,7 +476,7 @@ TEST_F(PropertyValueTest, MoveConstructorClock) {
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentString) {
-  PropertyValue pv1("assign_test");
+  PropertyValue pv1(std::string_view("assign_test"));
   PropertyValue pv2;
   pv2 = pv1;
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
@@ -501,7 +501,7 @@ TEST_F(PropertyValueTest, CopyAssignmentBool) {
 
 TEST_F(PropertyValueTest, CopyAssignmentNone) {
   PropertyValue pv1;
-  PropertyValue pv2("replace_me");
+  PropertyValue pv2(std::string_view("replace_me"));
   pv2 = pv1;
   EXPECT_EQ(pv2.type(), PropertyValue::Type::none);
 }
@@ -587,7 +587,7 @@ TEST_F(PropertyValueTest, CopyAssignmentClock) {
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentString) {
-  PropertyValue pv1("move_assign");
+  PropertyValue pv1(std::string_view("move_assign"));
   PropertyValue pv2;
   pv2 = std::move(pv1);
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
@@ -612,7 +612,7 @@ TEST_F(PropertyValueTest, MoveAssignmentBool) {
 
 TEST_F(PropertyValueTest, MoveAssignmentNone) {
   PropertyValue pv1;
-  PropertyValue pv2("stuff");
+  PropertyValue pv2(std::string_view("stuff"));
   pv2 = std::move(pv1);
   EXPECT_EQ(pv2.type(), PropertyValue::Type::none);
 }
@@ -704,12 +704,12 @@ TEST_F(PropertyValueTest, StringValueThrowsOnWrongType) {
 }
 
 TEST_F(PropertyValueTest, FloatValueThrowsOnWrongType) {
-  PropertyValue pv("not_a_float");
+  PropertyValue pv(std::string_view("not_a_float"));
   EXPECT_THROW(pv.floatValue(), Exception);
 }
 
 TEST_F(PropertyValueTest, BoolValueThrowsOnWrongType) {
-  PropertyValue pv("not_a_bool");
+  PropertyValue pv(std::string_view("not_a_bool"));
   EXPECT_THROW(pv.boolValue(), Exception);
 }
 
@@ -903,7 +903,7 @@ TEST_F(PropertyValueTest, ToStringBoolFalse) {
 
 // to_string for string values
 TEST_F(PropertyValueTest, ToStringString) {
-  PropertyValue pv("test_str");
+  PropertyValue pv(std::string_view("test_str"));
   EXPECT_EQ(pv.to_string(nullptr), "test_str");
 }
 

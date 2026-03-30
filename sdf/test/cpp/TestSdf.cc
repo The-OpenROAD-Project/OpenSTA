@@ -1599,7 +1599,7 @@ TEST_F(SdfDesignTest, ReadSdfPeriod) {
 
 // R11_8: Read SDF with NOCHANGE check
 // Covers: SdfReader::timingCheckNochange, notSupported
-// NOCHANGE is not supported and throws, so we catch the exception
+// NOCHANGE is not supported and issues a warning (no longer throws)
 TEST_F(SdfDesignTest, ReadSdfNochange) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
@@ -1626,11 +1626,10 @@ TEST_F(SdfDesignTest, ReadSdfNochange) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  // NOCHANGE is not supported and throws an exception
-  EXPECT_THROW(
+  // NOCHANGE is not supported; upstream now warns instead of throwing
+  EXPECT_NO_THROW(
     readSdf(sdf_path, "", corner, false, false,
-            const_cast<MinMaxAll*>(MinMaxAll::all()), sta_),
-    std::exception
+            const_cast<MinMaxAll*>(MinMaxAll::all()), sta_)
   );
 
   std::remove(sdf_path);
