@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string_view>
+
 #include "CircuitSim.hh"
 
 namespace sta {
@@ -36,15 +38,15 @@ class StaState;
 void
 writePathSpice(const Path *path,
                // Spice file written for path.
-               const char *spice_filename,
+               std::string_view spice_filename,
                // Subckts used by path included in spice file.
-               const char *subckt_filename,
+               std::string_view subckt_filename,
                // File of all cell spice subckt definitions.
-               const char *lib_subckt_filename,
+               std::string_view lib_subckt_filename,
                // Device model file included in spice file.
-               const char *model_filename,
-               const char *power_name,
-               const char *gnd_name,
+               std::string_view model_filename,
+               std::string_view power_name,
+               std::string_view gnd_name,
                CircuitSim ckt_sim,
                StaState *sta);
 

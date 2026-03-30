@@ -23,6 +23,10 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+#include <cstdlib>
+#include <string>
+#include <utility>
+
 #include "util/FlexDisableRegister.hh"
 #include "sdf/SdfReaderPvt.hh"
 #include "SdfParse.hh"
@@ -82,7 +86,7 @@ EOL	\r?\n
 
 "\"" 	{
 	BEGIN INITIAL;
-	yylval->string = new std::string(token_);
+	yylval->emplace<std::string>(std::move(token_));
 	return token::QSTRING;
 	}
 
@@ -98,12 +102,12 @@ EOL	\r?\n
 "//"[^\n]*{EOL} { loc->lines(); loc->step(); }
 
 ("-"|"+")?([0-9]*)("."[0-9]+)([eE]("-"|"+")?[0-9]+)? {
-	yylval->number = atof(yytext);
+	yylval->emplace<float>(static_cast<float>(atof(yytext)));
 	return token::FNUMBER;
 	}
 
 "+"?[0-9]+ {
-	yylval->integer = atoi(yytext);
+	yylval->emplace<int>(atoi(yytext));
         return token::DNUMBER;
         }
 
@@ -157,7 +161,7 @@ COND	{
 
 <COND_EXPR>"("{BLANK}*IOPATH {
 	BEGIN INITIAL;
-	yylval->string = new std::string(token_);
+	yylval->emplace<std::string>(std::move(token_));
 	return token::EXPR_OPEN_IOPATH;
 	}
 
@@ -167,7 +171,7 @@ COND	{
  	 */
 	if (reader_->inTimingCheck()) {
 	  BEGIN INITIAL;
-	  yylval->string = new std::string(token_);
+	  yylval->emplace<std::string>(std::move(token_));
 	  return token::EXPR_OPEN;
 	}
         else
@@ -181,7 +185,7 @@ COND	{
           /* remove trailing ")" */
           std::string cond_id(token_);
           cond_id += yytext;
-          yylval->string = new std::string(cond_id.substr(0, cond_id.size() - 1));
+	  yylval->emplace<std::string>(cond_id.substr(0, cond_id.size() - 1));
 	  /* No way to pass expr and id separately, so pass them together. */
 	  return token::EXPR_ID_CLOSE;
 	}
@@ -194,7 +198,7 @@ COND	{
 <COND_EXPR>.   { token_ += yytext[0]; }
 
 {ID}	{
-	  yylval->string = new std::string(yytext);
+	  yylval->emplace<std::string>(yytext);
 	  return token::ID;
 	}
 

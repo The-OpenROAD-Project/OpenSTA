@@ -1390,7 +1390,7 @@ ArrivalVisitor::pruneCrprArrivals()
           ? delayDiff(max_arrival, max_crpr, this)
           : delaySum(max_arrival, max_crpr, this);
         debugPrint(debug_, "search", 4, "  cmp {} {} - {} = {}",
-                   tag->to_string(this).c_str(),
+                   tag->to_string(this),
                    delayAsString(max_arrival, this),
                    delayAsString(max_crpr, this),
                    delayAsString(max_arrival_max_crpr, this));
@@ -1767,7 +1767,7 @@ Search::seedInputDelayArrival(const Pin *pin,
 {
   debugPrint(debug_, "search", 2,
              input_delay ? "arrival seed input arrival {}" : "arrival seed input {}",
-             vertex->to_string(this).c_str());
+             vertex->to_string(this));
   const ClockEdge *clk_edge = nullptr;
   const Pin *ref_pin = nullptr;
   const Sdc *sdc = mode->sdc();
@@ -2673,7 +2673,7 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
 {
   TagGroup probe(tag_bldr, this);
   LockGuard lock(tag_group_lock_);
-  TagGroup *tag_group = findKey(tag_group_set_, &probe);
+  TagGroup *tag_group = findKey(*tag_group_set_, &probe);
   if (tag_group == nullptr) {
     TagGroupIndex tag_group_index;
     if (tag_group_free_indices_.empty())
@@ -2918,13 +2918,13 @@ Search::findTag(Scene *scene,
   Tag probe(scene, 0, rf, min_max, clk_info, is_clk, input_delay, is_segment_start,
             states, false);
   if (tag_cache) {
-    Tag *tag = findKey(tag_cache, &probe);
+    Tag *tag = findKey(*tag_cache, &probe);
     if (tag)
       return tag;
   }
 
   LockGuard lock(tag_lock_);
-  Tag *tag = findKey(tag_set_, &probe);
+  Tag *tag = findKey(*tag_set_, &probe);
   if (tag == nullptr) {
     // Make rise/fall versions of the tag to avoid tag_set lookups when the
     // only change is the rise/fall edge.
@@ -3014,7 +3014,7 @@ Search::findClkInfo(Scene *scene,
                       gen_clk_src_path, pulse_clk_sense, insertion, latency,
                       uncertainties, min_max, crpr_clk_path, this);
   LockGuard lock(clk_info_lock_);
-  const ClkInfo *clk_info = findKey(clk_info_set_, &probe);
+  const ClkInfo *clk_info = findKey(*clk_info_set_, &probe);
   if (clk_info == nullptr) {
     clk_info = new ClkInfo(scene, clk_edge, clk_src, is_propagated, gen_clk_src,
                            gen_clk_src_path, pulse_clk_sense, insertion, latency,
@@ -3449,7 +3449,7 @@ RequiredCmp::requiredsSave(Vertex *vertex,
     const Required &prev_req = path->required();
     bool changed = !delayEqual(prev_req, req, sta);
     debugPrint(debug, "search", 3, "required {} save {} -> {}{}",
-               path->to_string(sta).c_str(),
+               path->to_string(sta),
                delayAsString(prev_req, sta),
                delayAsString(req, sta),
                changed ? " changed" : "");
@@ -3549,7 +3549,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
       Required from_required = delayDiff(to_required, arc_delay, this);
       debugPrint(debug_, "search", 3, "  to tag   {:2}: {}",
                  to_tag->index(),
-                 to_tag->to_string(this).c_str());
+                 to_tag->to_string(this));
       debugPrint(debug_, "search", 3, "  {} - {} = {} {} {}",
                  delayAsString(to_required, this),
                  delayAsString(arc_delay, this),
@@ -3573,7 +3573,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
             Required from_required = delayDiff(to_required, arc_delay, this);
             debugPrint(debug_, "search", 3, "  to tag   {:2}: {}",
                        to_path_tag->index(),
-                       to_path_tag->to_string(this).c_str());
+                       to_path_tag->to_string(this));
             debugPrint(debug_, "search", 3, "  {} - {} = {} {} {}",
                        delayAsString(to_required, this),
                        delayAsString(arc_delay, this),
@@ -3838,7 +3838,7 @@ Search::tnsIncr(Vertex *vertex,
   if (delayLess(slack, 0.0, this)) {
     debugPrint(debug_, "tns", 3, "tns+ {} {}",
                delayAsString(slack, this),
-               vertex->to_string(this).c_str());
+               vertex->to_string(this));
     delayIncr(tns_[path_ap_index], slack, this);
     if (tns_slacks_[path_ap_index].contains(vertex))
       report_->critical(1513, "tns incr existing vertex");
@@ -3857,7 +3857,7 @@ Search::tnsDecr(Vertex *vertex,
       && delayLess(slack, 0.0, this)) {
     debugPrint(debug_, "tns", 3, "tns- {} {}",
                delayAsString(slack, this),
-               vertex->to_string(this).c_str());
+               vertex->to_string(this));
     delayDecr(tns_[path_ap_index], slack, this);
     tns_slacks_[path_ap_index].erase(vertex);
   }

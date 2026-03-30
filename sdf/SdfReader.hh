@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
+
 namespace sta {
 
 class MinMaxAll;
@@ -40,7 +43,7 @@ class StaState;
 // If incremental_only is true non-incremental annoatations are ignored.
 //
 // path is a hierararchial path prefix for instances and pins in the
-// sdf file.  Pass 0 (nullptr) to specify no path.
+// sdf file.  Pass a null string to specify no path.
 //
 // The cond_use option is used when the SDF file contains conditional
 // delays and the library does not have conditional delay arcs.  If
@@ -52,8 +55,8 @@ class StaState;
 // maximum operating conditions.
 
 bool
-readSdf(const char *filename,
-        const char *path,
+readSdf(std::string_view filename,
+        std::string_view path,
         Scene *scene,
         bool unescaped_dividers,
         bool incremental_only,

@@ -61,6 +61,7 @@
 #include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
 #include "GraphDelayCalc.hh"
+#include "sdf/SdfReader.hh"
 #include "sdf/SdfWriter.hh"
 #include "Levelize.hh"
 #include "Sim.hh"
@@ -257,7 +258,6 @@ deleteAllMemory()
   deleteDelayCalcs();
   PortDirection::destroy();
   deleteLiberty();
-  deleteTmpStrings();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -581,7 +581,7 @@ Sta::cmdSdc() const
 }
 
 void
-Sta::setCmdMode(const std::string &mode_name)
+Sta::setCmdMode(std::string_view mode_name)
 {
   if (!mode_name.empty()) {
     if (!mode_name_map_.contains(mode_name)) {
@@ -592,7 +592,7 @@ Sta::setCmdMode(const std::string &mode_name)
         modes_.clear();
       }
       Mode *mode = new Mode(mode_name, mode_name_map_.size(), this);
-      mode_name_map_[mode_name] = mode;
+      mode_name_map_[std::string(mode_name)] = mode;
       modes_.push_back(mode);
       mode->sim()->setMode(mode);
       mode->sim()->setObserver(new StaSimObserver(this));
@@ -605,16 +605,16 @@ Sta::setCmdMode(const std::string &mode_name)
 }
 
 Mode *
-Sta::findMode(const std::string &mode_name) const
+Sta::findMode(std::string_view mode_name) const
 {
-  return findKey(mode_name_map_, mode_name);
+  return findStringKey(mode_name_map_, mode_name);
 }
 
 ModeSeq
 Sta::findModes(const std::string &name) const
 {
   ModeSeq matches;
-  PatternMatch pattern(name.c_str());
+  PatternMatch pattern(name);
   for (Mode *mode : modes_) {
     if (pattern.match(mode->name()))
       matches.push_back(mode);
@@ -692,7 +692,7 @@ Sta::setCurrentInstance(Instance *inst)
 ////////////////////////////////////////////////////////////////
 
 LibertyLibrary *
-Sta::readLiberty(const char *filename,
+Sta::readLiberty(std::string_view filename,
                  Scene *scene,
                  const MinMaxAll *min_max,
                  bool infer_latches)
@@ -712,7 +712,7 @@ Sta::readLiberty(const char *filename,
 }
 
 LibertyLibrary *
-Sta::readLibertyFile(const char *filename,
+Sta::readLibertyFile(std::string_view filename,
                      Scene *scene,
                      const MinMaxAll *min_max,
                      bool infer_latches)
@@ -732,13 +732,6 @@ Sta::readLibertyFile(const char *filename,
   return liberty;
 }
 
-LibertyLibrary *
-Sta::readLibertyFile(const char *filename,
-                     bool infer_latches)
-{
-  return sta::readLibertyFile(filename, infer_latches, network_);
-}
-
 void
 Sta::readLibertyAfter(LibertyLibrary *liberty,
                       Scene *scene,
@@ -750,7 +743,7 @@ Sta::readLibertyAfter(LibertyLibrary *liberty,
 }
 
 bool
-Sta::readVerilog(const char *filename)
+Sta::readVerilog(std::string_view filename)
 {
   NetworkReader *network = networkReader();
   if (network) {
@@ -781,6 +774,24 @@ Sta::linkDesign(const char *top_cell_name,
   bool status = network_->linkNetwork(top_cell_name, make_black_boxes, report_);
   stats.report("Link");
   return status;
+}
+
+////////////////////////////////////////////////////////////////
+
+bool 
+Sta::readSdf(std::string_view filename,
+             std::string_view path,
+             Scene *scene,
+             bool unescaped_dividers,
+             bool incremental_only,
+             MinMaxAll *cond_use)
+{
+  ensureLibLinked();
+  ensureGraph();
+  bool success = sta::readSdf(filename, path, scene, unescaped_dividers,
+                              incremental_only, cond_use, this);
+  search_->arrivalsInvalid();
+  return success;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1145,12 +1156,12 @@ Sta::setMaxArea(float area,
 }
 
 void
-Sta::makeClock(const char *name,
+Sta::makeClock(std::string_view name,
                PinSet *pins,
                bool add_to_pins,
                float period,
                FloatSeq *waveform,
-               char *comment,
+               std::string_view comment,
                const Mode *mode)
 {
   mode->sdc()->makeClock(name, pins, add_to_pins, period, waveform, comment);
@@ -1161,7 +1172,7 @@ Sta::makeClock(const char *name,
 }
 
 void
-Sta::makeGeneratedClock(const char *name,
+Sta::makeGeneratedClock(std::string_view name,
                         PinSet *pins,
                         bool add_to_pins,
                         Pin *src_pin,
@@ -1173,7 +1184,7 @@ Sta::makeGeneratedClock(const char *name,
                         bool combinational,
                         IntSeq *edges,
                         FloatSeq *edge_shifts,
-                        char *comment,
+                        std::string_view comment,
                         const Mode *mode)
 {
   mode->sdc()->makeGeneratedClock(name, pins, add_to_pins, src_pin, master_clk,
@@ -1375,13 +1386,13 @@ Sta::makeClockGroups(const std::string &name,
                      bool physically_exclusive,
                      bool asynchronous,
                      bool allow_paths,
-                     const char *comment,
+                     std::string comment,
                      Sdc *sdc)
 {
   ClockGroups *groups = sdc->makeClockGroups(name, logically_exclusive,
                                              physically_exclusive,
                                              asynchronous, allow_paths,
-                                             comment);
+                                             std::move(comment));
   search_->requiredsInvalid();
   return groups;
 }
@@ -1998,7 +2009,7 @@ Sta::makeFalsePath(ExceptionFrom *from,
                    ExceptionThruSeq *thrus,
                    ExceptionTo *to,
                    const MinMaxAll *min_max,
-                   const char *comment,
+                   std::string_view comment,
                    Sdc *sdc)
 {
   sdc->makeFalsePath(from, thrus, to, min_max, comment);
@@ -2012,7 +2023,7 @@ Sta::makeMulticyclePath(ExceptionFrom *from,
                         const MinMaxAll *min_max,
                         bool use_end_clk,
                         int path_multiplier,
-                        const char *comment,
+                        std::string_view comment,
                         Sdc *sdc)
 {
   sdc->makeMulticyclePath(from, thrus, to, min_max, use_end_clk, path_multiplier,
@@ -2028,7 +2039,7 @@ Sta::makePathDelay(ExceptionFrom *from,
                    bool ignore_clk_latency,
                    bool break_path,
                    float delay,
-                   const char *comment,
+                   std::string_view comment,
                    Sdc *sdc)
 {
   sdc->makePathDelay(from, thrus, to, min_max, ignore_clk_latency, break_path, delay,
@@ -2049,12 +2060,12 @@ Sta::resetPath(ExceptionFrom *from,
 }
 
 void
-Sta::makeGroupPath(const std::string &name,
+Sta::makeGroupPath(std::string_view name,
                    bool is_default,
                    ExceptionFrom *from,
                    ExceptionThruSeq *thrus,
                    ExceptionTo *to,
-                   const char *comment,
+                   std::string_view comment,
                    Sdc *sdc)
 {
   sdc->makeGroupPath(name, is_default, from, thrus, to, comment);
@@ -2062,21 +2073,21 @@ Sta::makeGroupPath(const std::string &name,
 }
 
 bool
-Sta::isGroupPathName(const char *group_name,
+Sta::isGroupPathName(std::string_view group_name,
                      const Sdc *sdc)
 {
   return isPathGroupName(group_name, sdc);
 }
 
 bool
-Sta::isPathGroupName(const char *group_name,
+Sta::isPathGroupName(std::string_view group_name,
                      const Sdc *sdc) const
 {
   return sdc->findClock(group_name) || sdc->isGroupPathName(group_name)
-      || stringEq(group_name, PathGroups::asyncPathGroupName())
-      || stringEq(group_name, PathGroups::pathDelayGroupName())
-      || stringEq(group_name, PathGroups::gatedClkGroupName())
-      || stringEq(group_name, PathGroups::unconstrainedGroupName());
+      || group_name == PathGroups::asyncPathGroupName()
+      || group_name == PathGroups::pathDelayGroupName()
+      || group_name == PathGroups::gatedClkGroupName()
+      || group_name == PathGroups::unconstrainedGroupName();
 }
 
 StringSeq
@@ -2089,10 +2100,10 @@ Sta::pathGroupNames(const Sdc *sdc) const
   for (auto const &[name, group] : sdc->groupPaths())
     names.push_back(name);
 
-  names.push_back(PathGroups::asyncPathGroupName());
-  names.push_back(PathGroups::pathDelayGroupName());
-  names.push_back(PathGroups::gatedClkGroupName());
-  names.push_back(PathGroups::unconstrainedGroupName());
+  names.emplace_back(PathGroups::asyncPathGroupName());
+  names.emplace_back(PathGroups::pathDelayGroupName());
+  names.emplace_back(PathGroups::gatedClkGroupName());
+  names.emplace_back(PathGroups::unconstrainedGroupName());
   return names;
 }
 
@@ -2108,7 +2119,7 @@ Sta::makeExceptionFrom(PinSet *from_pins,
 
 void
 Sta::checkExceptionFromPins(ExceptionFrom *from,
-                            const char *file,
+                            std::string_view filename,
                             int line,
                             const Sdc *sdc) const
 {
@@ -2118,7 +2129,7 @@ Sta::checkExceptionFromPins(ExceptionFrom *from,
       for (const Pin *pin : *pins) {
         if (!sdc->isExceptionStartpoint(pin)) {
           if (line)
-            report_->fileWarn(1554, file, line, "'{}' is not a valid start point.",
+            report_->fileWarn(1554, filename, line, "'{}' is not a valid start point.",
                               cmd_network_->pathName(pin));
           else
             report_->warn(1550, "'{}' is not a valid start point.",
@@ -2193,7 +2204,7 @@ Sta::checkExceptionToPins(ExceptionTo *to,
 
 void
 Sta::writeSdc(const Sdc *sdc,
-              const char *filename,
+              std::string_view filename,
               bool leaf,
               bool native,
               int digits,
@@ -2593,7 +2604,7 @@ SceneSeq
 Sta::findScenes(const std::string &name) const
 {
   SceneSeq matches;
-  PatternMatch pattern(name.c_str());
+  PatternMatch pattern(name);
   for (Scene *scene : scenes_) {
     if (pattern.match(scene->name()))
       matches.push_back(scene);
@@ -2606,7 +2617,7 @@ Sta::findScenes(const std::string &name,
                 ModeSeq &modes) const
 {
   SceneSeq matches;
-  PatternMatch pattern(name.c_str());
+  PatternMatch pattern(name);
   for (Mode *mode : modes) {
     for (Scene *scene : mode->scenes()) {
       if (pattern.match(scene->name()))
@@ -2626,9 +2637,9 @@ Sta::updateSceneLiberty(Scene *scene,
     const StringSeq &liberty_files =
         min_max == MinMax::min() ? liberty_min_files : liberty_max_files;
     for (const std::string &lib_file : liberty_files) {
-      LibertyLibrary *lib = network_->findLiberty(lib_file.c_str());
+      LibertyLibrary *lib = network_->findLiberty(lib_file);
       if (lib == nullptr)
-        lib = network_->findLibertyFilename(lib_file.c_str());
+        lib = network_->findLibertyFilename(lib_file);
       if (lib)
         LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max), network_,
                                      report_);
@@ -2766,7 +2777,7 @@ Sta::setReportPathFields(bool report_input_pin,
 }
 
 ReportField *
-Sta::findReportPathField(const char *name)
+Sta::findReportPathField(std::string_view name)
 {
   return report_path_->findField(name);
 }
@@ -3210,7 +3221,7 @@ Sta::slacks(Vertex *vertex,
 class EndpointPathEndVisitor : public PathEndVisitor
 {
 public:
-  EndpointPathEndVisitor(const std::string &path_group_name,
+  EndpointPathEndVisitor(std::string_view path_group_name,
                          const MinMax *min_max,
                          const StaState *sta);
   PathEndVisitor *copy() const;
@@ -3218,13 +3229,13 @@ public:
   Slack slack() const { return slack_; }
 
 private:
-  const std::string &path_group_name_;
+  std::string_view path_group_name_;
   const MinMax *min_max_;
   Slack slack_;
   const StaState *sta_;
 };
 
-EndpointPathEndVisitor::EndpointPathEndVisitor(const std::string &path_group_name,
+EndpointPathEndVisitor::EndpointPathEndVisitor(std::string_view path_group_name,
                                                const MinMax *min_max,
                                                const StaState *sta) :
   path_group_name_(path_group_name),
@@ -3257,7 +3268,7 @@ EndpointPathEndVisitor::visit(PathEnd *path_end)
 
 Slack
 Sta::endpointSlack(const Pin *pin,
-                   const std::string &path_group_name,
+                   std::string_view path_group_name,
                    const MinMax *min_max)
 {
   ensureGraph();
@@ -3373,13 +3384,13 @@ Sta::reportDelaysWrtClks(Vertex *vertex,
       clk_name = sta::format("({})", clk_edge->name());
     report_->report("{} r {}:{} f {}:{}", clk_name,
                     formatDelay(RiseFall::rise(), MinMax::min(),
-                                delays, report_variance, digits).c_str(),
+                                delays, report_variance, digits),
                     formatDelay(RiseFall::rise(), MinMax::max(),
-                                delays, report_variance, digits).c_str(),
+                                delays, report_variance, digits),
                     formatDelay(RiseFall::fall(), MinMax::min(),
-                                delays, report_variance, digits).c_str(),
+                                delays, report_variance, digits),
                     formatDelay(RiseFall::fall(), MinMax::max(),
-                                delays, report_variance, digits).c_str());
+                                delays, report_variance, digits));
   }
 }
 
@@ -3582,10 +3593,10 @@ Sta::reportDelayCalc(Edge *edge,
 }
 
 void
-Sta::setArcDelayCalc(const char *delay_calc_name)
+Sta::setArcDelayCalc(std::string_view delay_calc_name)
 {
   delete arc_delay_calc_;
-  arc_delay_calc_ = makeDelayCalc(delay_calc_name, sta_);
+  arc_delay_calc_ = makeDelayCalc(std::string(delay_calc_name), sta_);
   // Update pointers to arc_delay_calc.
   updateComponentsState();
   delaysInvalid();
@@ -3872,7 +3883,7 @@ Sta::setAnnotatedSlew(Vertex *vertex,
 }
 
 void
-Sta::writeSdf(const char *filename,
+Sta::writeSdf(std::string_view filename,
               const Scene *scene,
               char divider,
               bool include_typ,
@@ -4112,8 +4123,8 @@ Sta::setResistance(const Net *net,
 ////////////////////////////////////////////////////////////////
 
 bool
-Sta::readSpef(const std::string &name,
-              const std::string &filename,
+Sta::readSpef(std::string_view name,
+              std::string_view filename,
               Instance *instance,
               Scene *scene,  // -scene deprecated 11/20/2025
               const MinMaxAll *min_max,
@@ -4134,7 +4145,7 @@ Sta::readSpef(const std::string &name,
         spef_name += "_";
         spef_name += min_max->to_string();
       }
-      parasitics = makeConcreteParasitics(spef_name, filename);
+      parasitics = makeConcreteParasitics(spef_name, std::string(filename));
     }
     else
       parasitics = findParasitics(spef_name);
@@ -4147,14 +4158,14 @@ Sta::readSpef(const std::string &name,
     }
   }
   else {
-    parasitics = findParasitics(name);
+    parasitics = findParasitics(std::string(name));
     if (parasitics == nullptr)
-      parasitics = makeConcreteParasitics(name, filename);
+      parasitics = makeConcreteParasitics(std::string(name), std::string(filename));
   }
 
-  bool success =
-      readSpefFile(filename.c_str(), instance, pin_cap_included, keep_coupling_caps,
-                   coupling_cap_factor, reduce, scene, min_max, parasitics, this);
+  bool success = readSpefFile(filename, instance, pin_cap_included,
+                              keep_coupling_caps, coupling_cap_factor, reduce,
+                              scene, min_max, parasitics, this);
   delaysInvalid();
   return success;
 }
@@ -5900,16 +5911,16 @@ Sta::equivCells(LibertyCell *cell)
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::writeTimingModel(const char *lib_name,
-                      const char *cell_name,
-                      const char *filename,
+Sta::writeTimingModel(std::string_view lib_name,
+                      std::string_view cell_name,
+                      std::string_view filename,
                       const Scene *scene)
 {
   ensureLibLinked();
   ensureGraph();
-  LibertyLibrary *library =
-      makeTimingModel(lib_name, cell_name, filename, scene, this);
-  writeLiberty(library, filename, this);
+  LibertyLibrary *library = makeTimingModel(lib_name, cell_name,
+                                            filename, scene, this);
+  writeLiberty(library, std::string(filename).c_str(), this);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -6006,12 +6017,12 @@ Sta::activity(const Pin *pin,
 
 void
 Sta::writePathSpice(const Path *path,
-                    const char *spice_filename,
-                    const char *subckt_filename,
-                    const char *lib_subckt_filename,
-                    const char *model_filename,
-                    const char *power_name,
-                    const char *gnd_name,
+                    std::string_view spice_filename,
+                    std::string_view subckt_filename,
+                    std::string_view lib_subckt_filename,
+                    std::string_view model_filename,
+                    std::string_view power_name,
+                    std::string_view gnd_name,
                     CircuitSim ckt_sim)
 {
   ensureLibLinked();

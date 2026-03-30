@@ -51,12 +51,12 @@ public:
   void defineProperty(std::string_view property,
                       PropertyHandler handler);
   PropertyValue getProperty(TYPE object,
-                            const std::string &property,
-                            const char *type_name,
+                            std::string_view property,
+                            std::string_view type_name,
                             Sta *sta);
 
 private:
-  std::map<std::string, PropertyHandler> registry_;
+  std::map<std::string, PropertyHandler, std::less<>> registry_;
 };
 
 class Properties
@@ -66,33 +66,33 @@ public:
   virtual ~Properties() {}
 
   PropertyValue getProperty(const Library *lib,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const LibertyLibrary *lib,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const Cell *cell,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const LibertyCell *cell,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const Port *port,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const LibertyPort *port,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const Instance *inst,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const Pin *pin,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const Net *net,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(Edge *edge,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(const Clock *clk,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(PathEnd *end,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(Path *path,
-                            const std::string &property);
+                            std::string_view property);
   PropertyValue getProperty(TimingArcSet *arc_set,
-                            const std::string &property);
+                            std::string_view property);
 
   // Define handler for external property.
   // properties->defineProperty("foo",
@@ -160,7 +160,7 @@ protected:
 };
 
 // Adding a new property type
-//  value union
+//  value union (string values use std::string* so the union stays trivial)
 //  enum Type
 //  constructor
 //  copy constructor switch clause
@@ -178,11 +178,11 @@ public:
                     instance, pin, pins, net,
                     clk, clks, paths, pwr_activity };
   PropertyValue();
-  PropertyValue(const char *value);
-  PropertyValue(std::string &value);
+  PropertyValue(std::string_view value);
+  PropertyValue(std::string value);
   PropertyValue(float value,
                 const Unit *unit);
-  explicit PropertyValue(bool value);
+  PropertyValue(bool value);
   PropertyValue(const Library *value);
   PropertyValue(const Cell *value);
   PropertyValue(const Port *value);
@@ -209,7 +209,7 @@ public:
   const Unit *unit() const { return unit_; }
 
   std::string to_string(const Network *network) const;
-  const char *stringValue() const; // valid for type string
+  const std::string &stringValue() const; // valid for type string
   float floatValue() const;        // valid for type float
   bool boolValue() const;          // valid for type bool
   const LibertyLibrary *libertyLibrary() const { return liberty_library_; }
@@ -233,9 +233,12 @@ public:
   PropertyValue &operator=(PropertyValue &&) noexcept;
 
 private:
+  void destroyActive();
+
   Type type_;
   union {
-    const char *string_;
+    // Use heap string to simplify initialization/destrucction.
+    std::string *string_;
     float float_;
     bool bool_;
     const Library *library_;

@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 #include "Zlib.hh"
 #include "MinMax.hh"
@@ -43,7 +44,7 @@ class StaState;
 // Min/max and operating condition op_cond are used for parasitic network reduction.
 // Return true if successful.
 bool
-readSpefFile(const std::string &filename,
+readSpefFile(std::string_view filename,
              Instance *instance,
              bool pin_cap_included,
              bool keep_coupling_caps,

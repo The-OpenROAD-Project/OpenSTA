@@ -39,44 +39,44 @@ Debug::Debug(Report *report) :
 }
 
 bool
-Debug::check(const char *what,
+Debug::check(std::string_view what,
              int level) const
 {
   if (debug_on_) {
-    int dbg_level;
-    bool exists;
-    findKeyValue(debug_map_, what, dbg_level, exists);
-    if (exists)
+    auto itr = debug_map_.find(what);
+    if (itr != debug_map_.end()) {
+      int dbg_level = itr->second;
       return dbg_level >= level;
+    }
   }
   return false;
 }
 
 int
-Debug::level(const char *what)
+Debug::level(std::string_view what)
 {
   if (debug_on_) {
-    int dbg_level;
-    bool exists;
-    findKeyValue(debug_map_, what, dbg_level, exists);
-    if (exists)
+    auto itr = debug_map_.find(what);
+    if (itr != debug_map_.end()) {
+      int dbg_level = itr->second;
       return dbg_level;
+    }
   }
   return 0;
 }
 
 void
-Debug::setLevel(const char *what,
+Debug::setLevel(std::string_view what,
                 int level)
 {
-  if (stringEq(what, "stats"))
+  if (what == "stats")
     stats_level_ = level;
   else if (level == 0) {
-    debug_map_.erase(what);
+    debug_map_.erase(std::string(what));
     debug_on_ = !debug_map_.empty();
   }
   else {
-    debug_map_[what] = level;
+    debug_map_[std::string(what)] = level;
     debug_on_ = true;
   }
 }

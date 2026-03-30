@@ -185,7 +185,7 @@ public:
   // Increment the grounded capacitance on node.
   virtual void incrCap(ParasiticNode *node,
                        float cap) = 0;
-  virtual const char *name(const ParasiticNode *node) const = 0;
+  virtual std::string name(const ParasiticNode *node) const = 0;
   virtual const Pin *pin(const ParasiticNode *node) const = 0;
   virtual const Net *net(const ParasiticNode *node,
                          const Network *network) const = 0;

@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string_view>
+
 struct Tcl_Interp;
 
 namespace sta {
@@ -58,11 +60,11 @@ unencode(const char *inits[]);
 bool
 findCmdLineFlag(int &argc,
                 char *argv[],
-                const char *flag);
+                std::string_view flag);
 char *
 findCmdLineKey(int &argc,
                char *argv[],
-               const char *key);
+               std::string_view key);
 
 int
 parseThreadsArg(int &argc,

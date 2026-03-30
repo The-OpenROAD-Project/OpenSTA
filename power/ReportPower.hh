@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string_view>
+
 #include "StaState.hh"
 #include "NetworkClass.hh"
 #include "PowerClass.hh"
@@ -51,35 +53,35 @@ private:
   std::string powerColPercent(float col_total,
                               float total,
                               int field_width);
-  void reportTitle5(const char *title1,
-                    const char *title2,
-                    const char *title3,
-                    const char *title4,
-                    const char *title5,
+  void reportTitle5(std::string_view title1,
+                    std::string_view title2,
+                    std::string_view title3,
+                    std::string_view title4,
+                    std::string_view title5,
                     int field_width);
-  void reportTitle5Units(const char *title1,
-                         const char *title2,
-                         const char *title3,
-                         const char *title4,
-                         const char *title5,
-                         const char *units,
+  void reportTitle5Units(std::string_view title1,
+                         std::string_view title2,
+                         std::string_view title3,
+                         std::string_view title4,
+                         std::string_view title5,
+                         std::string_view units,
                          int field_width);
   void reportTitleDashes5(int field_width);
-  void reportRow(const char *type,
+  void reportRow(std::string_view type,
                  const PowerResult &power,
                  float design_total,
                  int field_width,
                  int digits);
-  void reportTitle4(const char *title1,
-                    const char *title2,
-                    const char *title3,
-                    const char *title4,
+  void reportTitle4(std::string_view title1,
+                    std::string_view title2,
+                    std::string_view title3,
+                    std::string_view title4,
                     int field_width);
-  void reportTitle4Units(const char *title1,
-                         const char *title2,
-                         const char *title3,
-                         const char *title4,
-                         const char *units,
+  void reportTitle4Units(std::string_view title1,
+                         std::string_view title2,
+                         std::string_view title3,
+                         std::string_view title4,
+                         std::string_view units,
                          int field_width);
   void reportTitleDashes4(int field_width);
   void reportInst(const Instance *inst,

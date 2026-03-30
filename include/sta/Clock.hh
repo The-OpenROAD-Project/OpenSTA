@@ -41,7 +41,7 @@ class Clock : public SdcCmdComment
 {
 public:
   ~Clock();
-  const char *name() const { return name_; }
+  const std::string &name() const { return name_; }
   float period() const { return period_; }
   // Virtual clocks have no pins.
   bool isVirtual() const;
@@ -135,14 +135,14 @@ public:
 
 protected:
   // Private to Sdc::makeClock.
-  Clock(const char *name,
+  Clock(std::string_view name,
         int index,
         const Network *network);
   void initClk(PinSet *pins,
                bool add_to_pins,
                float period,
                FloatSeq *waveform,
-               const char *comment,
+               std::string_view comment,
                const Network *network);
   void initGeneratedClk(PinSet *pins,
                         bool add_to_pins,
@@ -156,7 +156,7 @@ protected:
                         IntSeq *edges,
                         FloatSeq *edge_shifts,
                         bool is_propagated,
-                        const char *comment,
+                        std::string_view comment,
                         const Network *network);
   void setPins(PinSet *pins,
                const Network *network);
@@ -168,7 +168,7 @@ protected:
                          float scale);
   void generateEdgesClk(const Clock *src_clk);
 
-  const char *name_;
+  std::string name_;
   PinSet pins_;
   bool add_to_pins_;
   // Hierarchical pins in pins_ become driver pins through the pin.
@@ -241,7 +241,10 @@ class ClockNameLess
 {
 public:
   bool operator()(const Clock *clk1,
-                  const Clock *clk2);
+                  const Clock *clk2) const
+  {
+    return clk1->name() < clk2->name();
+  }
 };
 
 ////////////////////////////////////////////////////////////////
@@ -280,16 +283,6 @@ class InterClockUncertaintyLess
 public:
   bool operator()(const InterClockUncertainty *inter1,
                   const InterClockUncertainty *inter2) const;
-};
-
-class ClkNameLess
-{
-public:
-  bool operator()(const Clock *clk1,
-                  const Clock *clk2) const
-  {
-    return stringLess(clk1->name(), clk2->name());
-  }
 };
 
 ClockSeq

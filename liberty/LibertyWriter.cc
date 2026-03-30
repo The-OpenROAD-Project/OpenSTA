@@ -298,11 +298,11 @@ LibertyWriter::writeCell(const LibertyCell *cell)
     sta::print(stream_, "    is_macro_cell : true;\n");
   if (cell->interfaceTiming())
     sta::print(stream_, "    interface_timing : true;\n");
-  const char *footprint = cell->footprint();
-  if (footprint)
+  const std::string &footprint = cell->footprint();
+  if (!footprint.empty())
     sta::print(stream_, "    cell_footprint : \"{}\";\n", footprint);
-  const char *user_function_class = cell->userFunctionClass();
-  if (user_function_class)
+  const std::string &user_function_class = cell->userFunctionClass();
+  if (!user_function_class.empty())
     sta::print(stream_, "    user_function_class : \"{}\";\n", user_function_class);
 
   LibertyCellPortIterator port_iter(cell);

@@ -134,7 +134,7 @@ VcdParse::parseTimescale()
 }
 
 void
-VcdParse::setTimeUnit(const std::string &time_unit,
+VcdParse::setTimeUnit(std::string_view time_unit,
                       double time_scale)
 {
   double time_unit_scale = 1.0;
@@ -172,7 +172,7 @@ VcdParse::parseVar()
 {
   std::vector<std::string> tokens = readStmtTokens();
   if (tokens.size() == 4 || tokens.size() == 5) {
-    std::string type_name = tokens[0];
+    std::string &type_name = tokens[0];
     VcdVarType type = vcd_var_type_map.find(type_name, VcdVarType::unknown);
     if (type == VcdVarType::unknown)
       report_->fileWarn(809, filename_, file_line_, "Unknown variable type {}.",
@@ -180,7 +180,7 @@ VcdParse::parseVar()
     else {
       size_t width = std::stoi(tokens[1]);
       std::string &id = tokens[2];
-      std::string name = tokens[3];
+      std::string &name = tokens[3];
       // iverilog separates bus base name from bit range.
       if (tokens.size() == 5) {
         // Preserve space after esacaped name.
@@ -188,7 +188,6 @@ VcdParse::parseVar()
           name += ' ';
         name += tokens[4];
       }
-
       reader_->makeVar(scope_, name, type, width, id);
     }
   }

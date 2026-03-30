@@ -23,6 +23,8 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+#include <utility>
+
 #include "util/FlexDisableRegister.hh"
 #include "VerilogNamespace.hh"
 #include "VerilogReader.hh"
@@ -93,27 +95,27 @@ ID_TOKEN {ID_ESCAPED_TOKEN}|{ID_ALPHA_TOKEN}
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[bB][01_xz]+ {
-  yylval->constant = new std::string(yytext);
+  yylval->emplace<std::string>(yytext);
   return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[oO][0-7_xz]+ {
-  yylval->constant = new std::string(yytext);
+  yylval->emplace<std::string>(yytext);
   return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[dD][0-9_]+ {
-  yylval->constant = new std::string(yytext);
+  yylval->emplace<std::string>(yytext);
   return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[hH][0-9a-fA-F_xz]+ {
-  yylval->constant = new std::string(yytext);
+  yylval->emplace<std::string>(yytext);
   return token::CONSTANT;
 }
 
 {SIGN}?[0-9]+ {
-  yylval->ival = atol(yytext);
+  yylval->emplace<int>(static_cast<int>(atol(yytext)));
   return token::INT;
 }
 
@@ -143,7 +145,7 @@ wire { return token::WIRE; }
 wor { return token::WOR; }
 
 {ID_TOKEN}("."{ID_TOKEN})* {
-	yylval->string = new std::string(yytext, yyleng);
+	yylval->emplace<std::string>(yytext, yyleng);
 	return token::ID;
 }
 
@@ -155,18 +157,20 @@ wor { return token::WOR; }
 {BLANK}	{ /* ignore blanks */ }
 
 \"	{
-	yylval->string = new std::string;
+	token_.clear();
 	BEGIN(QSTRING);
 	}
 
 <QSTRING>\" {
 	BEGIN(INITIAL);
+	yylval->emplace<std::string>(std::move(token_));
 	return token::STRING;
 	}
 
 <QSTRING>{EOL} {
 	error("unterminated quoted string");
 	BEGIN(INITIAL);
+	yylval->emplace<std::string>(std::move(token_));
 	return token::STRING;
 	}
 
@@ -177,8 +181,8 @@ wor { return token::WOR; }
 	}
 
 <QSTRING>[^\r\n\"]+ {
-	/* Anything return token::or double quote */
-	*yylval->string += yytext;
+	/* Anything but return or double quote */
+	token_ += yytext;
 	}
 
 <QSTRING><<EOF>> {

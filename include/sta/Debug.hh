@@ -38,20 +38,20 @@ namespace sta {
 class Report;
 class Pin;
 
-using DebugMap = std::map<std::string, int>;
+using DebugMap = std::map<std::string, int, std::less<>>;
 
 class Debug
 {
 public:
   Debug(Report *report);
-  int level(const char *what);
-  void setLevel(const char *what,
+  int level(std::string_view what);
+  void setLevel(std::string_view what,
                 int level);
-  bool check(const char *what,
+  bool check(std::string_view what,
              int level) const;
   int statsLevel() const { return stats_level_; }
   template <typename... Args>
-  void report(const char *what,
+  void report(std::string_view what,
               std::string_view fmt,
               Args &&...args)
   {

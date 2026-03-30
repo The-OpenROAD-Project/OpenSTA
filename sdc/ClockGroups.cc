@@ -34,8 +34,8 @@ ClockGroups::ClockGroups(const std::string &name,
                          bool physically_exclusive,
                          bool asynchronous,
                          bool allow_paths,
-                         const char *comment) :
-  SdcCmdComment(comment),
+                         std::string comment) :
+  SdcCmdComment(std::move(comment)),
   name_(name),
   logically_exclusive_(logically_exclusive),
   physically_exclusive_(physically_exclusive),

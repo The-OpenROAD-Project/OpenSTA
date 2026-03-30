@@ -44,7 +44,7 @@ void
 sta::LibertyParse::error(const location_type &loc,
                          const std::string &msg)
 {
-  reader->report()->fileError(164, reader->filename().c_str(),
+  reader->report()->fileError(164, reader->filename(),
                               loc.begin.line, "{}", msg);
 }
 
@@ -192,7 +192,7 @@ volt_op:
 expr:
         expr_term1
 |	expr_term1 expr_op expr
-	{ $$ = sta::format("{}{}{}", $1.c_str(), $2, $3.c_str()); }
+	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
 	;
 
 expr_term:

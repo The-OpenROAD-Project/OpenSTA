@@ -41,7 +41,7 @@ bool
 PortNameLess::operator()(const Port *port1,
                          const Port *port2) const
 {
-  return stringLess(network_->name(port1), network_->name(port2));
+  return network_->name(port1) < network_->name(port2);
 }
 
 PinPathNameLess::PinPathNameLess(const Network *network) :

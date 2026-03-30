@@ -24,9 +24,11 @@
 
 %{
 #include <cctype>
+#include <cstdint>
+#include <string>
+#include <utility>
 
 #include "Report.hh"
-#include "StringUtil.hh"
 #include "power/SaifReaderPvt.hh"
 #include "power/SaifScanner.hh"
 
@@ -56,29 +58,22 @@ sta::SaifParse::error(const location_type &loc,
 %parse-param { SaifScanner *scanner }
 %parse-param { SaifReader *reader }
 %define api.parser.class {SaifParse}
+%define api.value.type variant
 
 // expected shift/reduce conflicts
 %expect 2
-
-%union {
-  char character;
-  const char *string;
-  uint64_t uint;
-  sta::SaifState state;
-  sta::SaifStateDurations state_durations;
-}
 
 %token SAIFILE SAIFVERSION DIRECTION DESIGN DATE VENDOR PROGRAM_NAME VERSION
 %token DIVIDER TIMESCALE DURATION
 %token INSTANCE NET PORT
 %token T0 T1 TX TZ TB TC IG
-%token QSTRING ID FNUMBER DNUMBER UINT
+%token FNUMBER DNUMBER
+%token <std::string> QSTRING ID
+%token <uint64_t> UINT
 
-%type <uint> UINT
-%type <string> QSTRING ID
-%type <character> hchar
-%type <state> state
-%type <state_durations> state_durations
+%type <char> hchar
+%type <sta::SaifState> state
+%type <sta::SaifStateDurations> state_durations
 
 %start file
 
@@ -97,16 +92,16 @@ header:
 ;
 
 header_stmt:
-	'(' SAIFVERSION QSTRING ')' { sta::stringDelete($3); }
-|	'(' DIRECTION QSTRING ')' { sta::stringDelete($3); }
-|	'(' DESIGN QSTRING ')' { sta::stringDelete($3); }
-|	'(' DESIGN ')' { }
-|	'(' DATE QSTRING ')' { sta::stringDelete($3); }
-|	'(' VENDOR QSTRING ')' { sta::stringDelete($3); }
-|	'(' PROGRAM_NAME QSTRING ')' { sta::stringDelete($3); }
-|	'(' VERSION QSTRING ')' { sta::stringDelete($3); }
+	'(' SAIFVERSION QSTRING ')'
+|	'(' DIRECTION QSTRING ')'
+|	'(' DESIGN QSTRING ')'
+|	'(' DESIGN ')'
+|	'(' DATE QSTRING ')'
+|	'(' VENDOR QSTRING ')'
+|	'(' PROGRAM_NAME QSTRING ')'
+|	'(' VERSION QSTRING ')'
 |	'(' DIVIDER hchar ')' { reader->setDivider($3); }
-|	'(' TIMESCALE UINT ID ')' { reader->setTimescale($3, $4); }
+|	'(' TIMESCALE UINT ID ')' { reader->setTimescale($3, std::move($4)); }
 |	'(' DURATION UINT ')' { reader->setDuration($3); }
 ;
 
@@ -119,11 +114,11 @@ hchar:
 
 instance:
 	'(' INSTANCE ID
-	{ reader->instancePush($3); }
+	{ reader->instancePush(std::move($3)); }
         instance_contents ')'
 	{ reader->instancePop(); }
 |	'(' INSTANCE QSTRING ID
-	{ reader->instancePush($3); }
+	{ reader->instancePush(std::move($3)); }
         instance_contents ')'
 	{ reader->instancePop(); }
 ;
@@ -147,7 +142,7 @@ nets:
 
 net:
         '(' ID state_durations ')'
-        { reader->setNetDurations($2, $3); }
+        { reader->setNetDurations(std::move($2), $3); }
 ;
 
 ports:
@@ -163,7 +158,7 @@ state_durations:
         '(' state UINT ')'
         { $$[static_cast<int>($2)] = $3; }
 |       state_durations '(' state UINT ')'
-        { $$[static_cast<int>($3)] = $4; }
+        { $$ = $1; $$[static_cast<int>($3)] = $4; }
 ;
 
 state:

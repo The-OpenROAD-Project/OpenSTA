@@ -28,6 +28,7 @@
 #include <map>
 #include <unordered_map>
 #include <mutex>
+#include <string_view>
 
 #include "StringUtil.hh"
 #include "MinMax.hh"
@@ -131,7 +132,7 @@ private:
   bool subtract_pin_cap_[MinMax::index_count];
 };
 
-using ClockNameMap = std::map<const char*,Clock*, CharPtrLess>;
+using ClockNameMap = std::map<std::string ,Clock*, std::less<>>;
 using ClockPinMap = std::unordered_map<const Pin*, ClockSet*, PinIdHash>;
 using InputDelaySet = std::set<InputDelay*>;
 using InputDelaysPinMap = std::map<const Pin*, InputDelaySet*, PinIdLess>;
@@ -179,11 +180,11 @@ using InstDeratingFactorsMap = std::map<const Instance*, DeratingFactorsCell*>;
 using CellDeratingFactorsMap = std::map<const LibertyCell*, DeratingFactorsCell*>;
 using ClockGroupsSet = std::set<ClockGroups*>;
 using ClockGroupsClkMap = std::map<const Clock*, ClockGroupsSet*>;
-using ClockGroupsNameMap = std::map<std::string, ClockGroups*>;
+using ClockGroupsNameMap = std::map<std::string, ClockGroups*, std::less<>>;
 using ClockSenseMap = std::map<PinClockPair, ClockSense, PinClockPairLess>;
 using ClkHpinDisables = std::set<ClkHpinDisable*, ClkHpinDisableLess>;
 using GroupPathSet = std::set<GroupPath*, ExceptionPathLess>;
-using GroupPathMap = std::map<std::string, GroupPathSet*>;
+using GroupPathMap = std::map<std::string, GroupPathSet*, std::less<>>;
 using ClockPairSet = std::set<ClockPair, ClockPairLess>;
 using NetVoltageMap = std::map<const Net*, MinMaxFloatValues>;
 
@@ -377,14 +378,14 @@ public:
                       float fanout);
   void setMaxArea(float area);
   float maxArea() const;
-  Clock *makeClock(const char *name,
+  Clock *makeClock(std::string_view name,
                    PinSet *pins,
                    bool add_to_pins,
                    float period,
                    FloatSeq *waveform,
-                   const char *comment);
+                   std::string_view comment);
   // edges size must be 3.
-  Clock *makeGeneratedClock(const char *name,
+  Clock *makeGeneratedClock(std::string_view name,
                             PinSet *pins,
                             bool add_to_pins,
                             Pin *src_pin,
@@ -396,7 +397,7 @@ public:
                             bool combinational,
                             IntSeq *edges,
                             FloatSeq *edge_shifts,
-                            const char *comment);
+                            std::string_view comment);
   // Invalidate all generated clock waveforms.
   void invalidateGeneratedClks() const;
   void removeClock(Clock *clk);
@@ -504,7 +505,7 @@ public:
                                bool physically_exclusive,
                                bool asynchronous,
                                bool allow_paths,
-                               const char *comment);
+                               std::string comment);
   void makeClockGroup(ClockGroups *clk_groups,
                       ClockSet *clks);
   void removeClockGroups(const std::string &name);
@@ -730,7 +731,7 @@ public:
                      ExceptionThruSeq *thrus,
                      ExceptionTo *to,
                      const MinMaxAll *min_max,
-                     const char *comment);
+                     std::string_view comment);
   // Loop paths are false paths used to disable paths around
   // combinational loops when dynamic loop breaking is enabled.
   void makeLoopExceptions();
@@ -742,7 +743,7 @@ public:
                           const MinMaxAll *min_max,
                           bool use_end_clk,
                           int path_multiplier,
-                          const char *comment);
+                          std::string_view comment);
   void makePathDelay(ExceptionFrom *from,
                      ExceptionThruSeq *thrus,
                      ExceptionTo *to,
@@ -750,7 +751,7 @@ public:
                      bool ignore_clk_latency,
                      bool break_path,
                      float delay,
-                     const char *comment);
+                     std::string_view comment);
   bool pathDelaysWithoutTo() const { return path_delays_without_to_; }
   // Delete matching false/multicycle/path_delay exceptions.
   // Caller owns from, thrus, to exception points (and must delete them).
@@ -758,13 +759,13 @@ public:
                  ExceptionThruSeq *thrus,
                  ExceptionTo *to,
                  const MinMaxAll *min_max);
-  void makeGroupPath(const std::string &name,
+  void makeGroupPath(std::string_view name,
                      bool is_default,
                      ExceptionFrom *from,
                      ExceptionThruSeq *thrus,
                      ExceptionTo *to,
-                     const char *comment);
-  bool isGroupPathName(const char *group_name) const;
+                     std::string_view comment);
+  bool isGroupPathName(std::string_view group_name) const;
   const GroupPathMap &groupPaths() const { return group_path_map_; }
   void addException(ExceptionPath *exception);
   // The pin/clk/instance/net set arguments passed into the following
@@ -833,7 +834,7 @@ public:
                   const MinMax *min_max,
                   float voltage);
   InputDrive *findInputDrive(Port *port) const;
-  Clock *findClock(const char *name) const;
+  Clock *findClock(std::string_view name) const;
   ClockSeq findClocksMatching(PatternMatch *pattern) const;
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClock(const Pin *pin) const;

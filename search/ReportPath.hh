@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "StringUtil.hh"
@@ -61,7 +62,7 @@ public:
   int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);
-  ReportField *findField(const char *name) const;
+  ReportField *findField(std::string_view name) const;
 
   // Header above reportPathEnd results.
   void reportPathEndHeader() const;
@@ -99,12 +100,12 @@ public:
                   bool last) const;
   void reportJson(const Path *path) const;
   void reportJson(const Path *path,
-                  const char *path_name,
+                  std::string_view path_name,
                   int indent,
                   bool trailing_comma,
                   std::string &result) const;
   void reportJson(const PathExpanded &expanded,
-                  const char *path_name,
+                  std::string_view path_name,
                   int indent,
                   bool trailing_comma,
                   std::string &result) const;
@@ -161,8 +162,8 @@ public:
 
 protected:
   void makeFields();
-  ReportField *makeField(const char *name,
-                         const char *title,
+  ReportField *makeField(std::string_view name,
+                         std::string_view title,
                          int width,
                          bool left_justify,
                          Unit *unit,
@@ -194,7 +195,7 @@ protected:
                        Arrival &borrow,
                        Arrival &time_given_to_startpoint) const;
   void reportEndpoint(const PathEndDataCheck *end) const;
-  const char *clkNetworkDelayIdealProp(bool is_ideal) const;
+  std::string_view clkNetworkDelayIdealProp(bool is_ideal) const;
 
   std::string checkRoleReason(const PathEnd *end) const;
   std::string checkRoleString(const PathEnd *end) const;
@@ -202,19 +203,19 @@ protected:
   void reportStartpoint(const PathEnd *end,
                         const PathExpanded &expanded) const;
   void reportUnclockedEndpoint(const PathEnd *end,
-                               const char *default_reason) const;
+                               std::string_view default_reason) const;
   void reportEndpoint(const PathEndCheck *end) const;
   void reportEndpoint(const PathEndLatchCheck *end) const;
-  const char *latchDesc(const PathEndLatchCheck *end) const;
-  void reportStartpoint(const char *start,
-                        const std::string reason) const;
-  void reportEndpoint(const char *end,
-                      const std::string reason) const;
-  void reportStartEndPoint(const char *pt,
-                           const std::string reason,
-                           const char *key) const;
+  std::string_view latchDesc(const PathEndLatchCheck *end) const;
+  void reportStartpoint(std::string_view start,
+                        const std::string &reason) const;
+  void reportEndpoint(std::string_view end,
+                      const std::string &reason) const;
+  void reportStartEndPoint(std::string_view pt,
+                           const std::string &reason,
+                           std::string_view key) const;
   std::string tgtClkName(const PathEnd *end) const;
-  const char *clkRegLatchDesc(const PathEnd *end) const;
+  std::string_view clkRegLatchDesc(const PathEnd *end) const;
   void reportSrcPath(const PathEnd *end,
                      const PathExpanded &expanded) const;
   void reportTgtClk(const PathEnd *end) const;
@@ -268,18 +269,18 @@ protected:
   void reportPathLine(const Path *path,
                       const Delay &incr,
                       const Arrival &time,
-                      const char *line_case) const;
+                      std::string_view line_case) const;
   void reportCommonClkPessimism(const PathEnd *end,
                                 Arrival &clk_arrival) const ;
   void reportClkUncertainty(const PathEnd *end,
                             Arrival &clk_arrival) const ;
   void reportClkLine(const Clock *clk,
-                     const char *clk_name,
+                     std::string_view clk_name,
                      const RiseFall *clk_rf,
                      Arrival clk_time,
                      const MinMax *min_max) const ;
   void reportClkLine(const Clock *clk,
-                     const char *clk_name,
+                     std::string_view clk_name,
                      const RiseFall *clk_rf,
                      Arrival prev_time,
                      Arrival clk_time,
@@ -334,31 +335,31 @@ protected:
   void reportHierPinsThru(const Path *path) const;
   void reportInputExternalDelay(const Path *path,
                                 float time_offset) const;
-  void reportLine(const char *what,
+  void reportLine(std::string_view what,
                   Delay total,
                   const EarlyLate *early_late) const;
-  void reportLineNegative(const char *what,
+  void reportLineNegative(std::string_view what,
                           Delay total,
                           const EarlyLate *early_late) const;
-  void reportLine(const char *what,
+  void reportLine(std::string_view what,
                   Delay total,
                   const EarlyLate *early_late,
                   const RiseFall *rf) const;
-  void reportLine(const char *what,
+  void reportLine(std::string_view what,
                   const Delay &incr,
                   const Delay &total,
                   const EarlyLate *early_late) const;
-  void reportLine(const char *what,
+  void reportLine(std::string_view what,
                   const Delay &incr,
                   const Delay &total,
                   const EarlyLate *early_late,
                   const RiseFall *rf) const;
-  void reportLine(const char *what,
+  void reportLine(std::string_view what,
                   const Slew &slew,
                   const Delay &incr,
                   const Delay &total,
                   const EarlyLate *early_late) const;
-  void reportLine(const char *what,
+  void reportLine(std::string_view what,
                   float cap,
                   const Slew &slew,
                   float fanout,
@@ -368,22 +369,22 @@ protected:
                   bool total_with_minus,
                   const EarlyLate *early_late,
                   const RiseFall *rf,
-                  std::string src_attr,
-                  const char *line_case) const;
-  void reportLineTotal(const char *what,
+                  std::string_view src_attr,
+                  std::string_view line_case) const;
+  void reportLineTotal(std::string_view what,
                        const Delay &incr,
                        const EarlyLate *early_late) const;
-  void reportLineTotalMinus(const char *what,
+  void reportLineTotalMinus(std::string_view what,
                             const Delay &decr,
                             const EarlyLate *early_late) const;
-  void reportLineTotal1(const char *what,
+  void reportLineTotal1(std::string_view what,
                         const Delay &incr,
                         bool incr_with_minus,
                         const EarlyLate *early_late) const;
   void reportDashLineTotal() const;
-  void reportDescription(const char *what,
+  void reportDescription(std::string_view what,
                          std::string &result) const;
-  void reportDescription(const char *what,
+  void reportDescription(std::string_view what,
                          bool first_field,
                          bool last_field,
                          std::string &result) const;
@@ -409,7 +410,7 @@ protected:
   void reportField(float value,
                    const ReportField *field,
                    std::string &result) const;
-  void reportField(const char *value,
+  void reportField(std::string_view value,
                    const ReportField *field,
                    std::string &result) const;
   void reportFieldBlank(const ReportField *field,
@@ -430,15 +431,15 @@ protected:
   float drvrFanout(Vertex *drvr,
                    const Scene *scene,
                    const MinMax *min_max) const;
-  const char *mpwCheckHiLow(const MinPulseWidthCheck &check) const;
-  void reportSkewClkPath(const char *arrival_msg,
+  std::string_view mpwCheckHiLow(const MinPulseWidthCheck &check) const;
+  void reportSkewClkPath(std::string_view arrival_msg,
                          const Path *clk_path) const;
-  const char *edgeRegLatchDesc(const Edge *edge,
-                               const TimingArc *arc) const;
-  const char *checkRegLatchDesc(const TimingRole *role,
-                                const RiseFall *clk_rf) const;
-  const char *regDesc(const RiseFall *clk_rf) const;
-  const char *latchDesc(const RiseFall *clk_rf) const;
+  std::string_view edgeRegLatchDesc(const Edge *edge,
+                                    const TimingArc *arc) const;
+  std::string_view checkRegLatchDesc(const TimingRole *role,
+                                     const RiseFall *clk_rf) const;
+  std::string_view regDesc(const RiseFall *clk_rf) const;
+  std::string_view latchDesc(const RiseFall *clk_rf) const;
   void pathClkPath(const Path *path,
                    const Path &clk_path) const;
   bool isPropagated(const Path *clk_path) const;
@@ -464,8 +465,8 @@ protected:
                              const InputDelay *input_delay,
                              // Return value.
                              Path &ref_path) const;
-  const char *asRisingFalling(const RiseFall *rf) const;
-  const char *asRiseFall(const RiseFall *rf) const;
+  std::string_view asRisingFalling(const RiseFall *rf) const;
+  std::string_view asRiseFall(const RiseFall *rf) const;
   Delay delayIncr(const Delay &time,
                   const Delay &prev,
                   const MinMax *min_max) const;
@@ -479,7 +480,7 @@ protected:
   bool no_split_;
   int digits_;
 
-  int start_end_pt_width_;
+  size_t start_end_pt_width_;
 
   ReportField *field_description_;
   ReportField *field_total_;
@@ -503,34 +504,34 @@ protected:
 class ReportField
 {
 public:
-  ReportField(const char *name,
-              const char *title,
-              int width,
+  ReportField(std::string_view name,
+              std::string_view title,
+              size_t width,
               bool left_justify,
               Unit *unit,
               bool enabled);
   ~ReportField();
-  void setProperties(const char *title,
-                     int width,
+  void setProperties(std::string_view title,
+                     size_t width,
                      bool left_justify);
-  const char *name() const { return name_; }
-  const char *title() const { return title_; }
-  int width() const { return width_; }
-  void setWidth(int width);
+  const std::string &name() const { return name_; }
+  const std::string &title() const { return title_; }
+  size_t width() const { return width_; }
+  void setWidth(size_t width);
   bool leftJustify() const { return left_justify_; }
   Unit *unit() const { return unit_; }
-  const char *blank() const { return blank_; }
+  const std::string &blank() const { return blank_; }
   void setEnabled(bool enabled);
   bool enabled() const { return enabled_; }
 
 protected:
-  const char *name_;
-  const char *title_;
-  int width_;
+  std::string name_;
+  std::string title_;
+  size_t width_;
   bool left_justify_;
   Unit *unit_;
   bool enabled_;
-  char *blank_;
+  std::string blank_;
 };
 
 } // namespace

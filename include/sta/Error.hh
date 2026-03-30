@@ -37,7 +37,7 @@ class Exception : public std::exception
 public:
   Exception();
   virtual ~Exception() {}
-  virtual const char *what() const noexcept = 0;
+  const char *what() const noexcept override = 0;
 };
 
 class ExceptionMsg : public Exception
@@ -45,8 +45,8 @@ class ExceptionMsg : public Exception
 public:
   ExceptionMsg(const std::string &msg,
                const bool suppressed);
-  virtual const char *what() const noexcept;
-  virtual bool suppressed() const { return suppressed_; }
+  const char *what() const noexcept override;
+  bool suppressed() const { return suppressed_; }
 
 private:
   std::string msg_;
@@ -68,11 +68,10 @@ protected:
 class FileNotReadable : public Exception
 {
 public:
-  FileNotReadable(std::string filename);
-  virtual const char *what() const noexcept;
+  FileNotReadable(std::string_view filename);
+  const char *what() const noexcept override;
 
 protected:
-  std::string filename_;
   std::string msg_;
 };
 
@@ -80,11 +79,10 @@ protected:
 class FileNotWritable : public Exception
 {
 public:
-  FileNotWritable(std::string filename);
-  virtual const char *what() const noexcept;
+  FileNotWritable(std::string_view filename);
+  const char *what() const noexcept override;
 
 protected:
-  std::string filename_;
   std::string msg_;
 };
 

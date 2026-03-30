@@ -25,28 +25,11 @@
 #include "StringUtil.hh"
 
 #include <algorithm>
-#include <array>
 #include <cctype>
-#include <cstdio>
-#include <cstdlib> // exit
-
-#include "Machine.hh"
-#include "Mutex.hh"
-#include "Error.hh"
+#include <charconv>
+#include <system_error>
 
 namespace sta {
-
-char *
-stringCopy(const char *str)
-{
-  if (str) {
-    char *copy = new char[strlen(str) + 1];
-    strcpy(copy, str);
-    return copy;
-  }
-  else
-    return nullptr;
-}
 
 bool
 isDigits(const char *str)
@@ -58,72 +41,28 @@ isDigits(const char *str)
   return true;
 }
 
-////////////////////////////////////////////////////////////////
-
-static constexpr size_t tmp_string_count = 256;
-static constexpr size_t tmp_string_initial_length = 256;
-thread_local static std::array<char*, tmp_string_count> tmp_strings;
-thread_local static std::array<size_t, tmp_string_count> tmp_string_lengths;
-thread_local static int tmp_string_next = 0;
-
-void
-deleteTmpStrings()
-{
-  for (size_t i = 0; i < tmp_string_count; i++) {
-    stringDelete(tmp_strings[i]);
-    tmp_string_lengths[i] = 0;
-    tmp_strings[i] = nullptr;
-  }
-  tmp_string_next = 0;
-}
-
-char *
-makeTmpString(size_t length)
-{
-  if (tmp_string_next == tmp_string_count)
-    tmp_string_next = 0;
-  char *tmp_str = tmp_strings[tmp_string_next];
-  size_t tmp_length = tmp_string_lengths[tmp_string_next];
-  if (tmp_length < length) {
-    // String isn't long enough.  Make a new one.
-    delete [] tmp_str;
-    tmp_length = std::max(tmp_string_initial_length, length);
-    tmp_str = new char[tmp_length];
-    tmp_strings[tmp_string_next] = tmp_str;
-    tmp_string_lengths[tmp_string_next] = tmp_length;
-  }
-  tmp_string_next++;
-  return tmp_str;
-}
-
-char *
-makeTmpString(std::string &str)
-{
-  char *tmp = makeTmpString(str.length() + 1);
-  strcpy(tmp, str.c_str());
-  return tmp;
-}
-
-void
-stringDeleteCheck(const char *str)
-{
-  if (isTmpString(str))
-    criticalError(2600, "stringDelete for tmp string.");
-}
-
 bool
-isTmpString(const char *str)
+isDigits(std::string_view str)
 {
-  if (!tmp_strings.empty()) {
-    for (size_t i = 0; i < tmp_string_count; i++) {
-      if (str == tmp_strings[i])
-        return true;
-    }
+  for (char ch : str) {
+    if (!isdigit(ch))
+      return false;
   }
-  return false;
+  return true;
 }
 
-////////////////////////////////////////////////////////////////
+// Wrapper for the absurdly named std::from_chars.
+std::pair<float, bool>
+stringFloat(const std::string &str)
+{
+  float value;
+  auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
+  if (ec == std::errc()
+      && *ptr == '\0')
+    return {value, true};
+  else
+    return {0.0, false};
+}
 
 void
 trimRight(std::string &str)
@@ -132,8 +71,8 @@ trimRight(std::string &str)
 }
 
 StringSeq
-split(const std::string &text,
-      const std::string &delims)
+parseTokens(const std::string &text,
+            std::string_view delims)
 {
   StringSeq tokens;
   auto start = text.find_first_not_of(delims);
@@ -145,27 +84,6 @@ split(const std::string &text,
   }
   if (start != std::string::npos)
     tokens.push_back(text.substr(start));
-  return tokens;
-}
-
-// Parse space separated tokens.
-StringSeq
-parseTokens(const std::string &s,
-            const char delimiter)
-{
-  StringSeq tokens;
-  size_t i = 0;
-  while (i < s.size()) {
-    while (i < s.size() && std::isspace(s[i]))
-      ++i;
-    size_t start = i;
-    while (i < s.size() && s[i] != delimiter)
-      ++i;
-    if (start < i) {
-      tokens.emplace_back(s, start, i - start);
-      ++i;
-    }
-  }
   return tokens;
 }
 

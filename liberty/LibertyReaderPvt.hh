@@ -28,6 +28,7 @@
 #include <functional>
 #include <memory>
 #include <array>
+#include <string>
 #include <string_view>
 #include <vector>
 #include <unordered_map>
@@ -65,10 +66,10 @@ using OutputWaveformSeq = std::vector<OutputWaveform>;
 class LibertyReader : public LibertyGroupVisitor
 {
 public:
-  LibertyReader(const char *filename,
+  LibertyReader(std::string_view filename,
                 bool infer_latches,
                 Network *network);
-  virtual LibertyLibrary *readLibertyFile(const char *filename);
+  virtual LibertyLibrary *readLibertyFile(std::string_view filename);
   LibertyLibrary *library() { return library_; }
   const LibertyLibrary *library() const { return library_; }
 
@@ -90,7 +91,7 @@ public:
   void checkScaledCell(LibertyCell *scaled_cell,
                        LibertyCell *owner,
                        const LibertyGroup *scaled_cell_group,
-                       const char *op_cond_name);
+                       std::string_view op_cond_name);
 
   void setPortCapDefault(LibertyPort *port);
   void checkLatchEnableSense(FuncExpr *enable_func,
@@ -102,9 +103,9 @@ public:
                             float scale);
 
   LibertyPort *findPort(LibertyCell *cell,
-                        const char *port_name);
+                        std::string_view port_name);
   StringSeq findAttributStrings(const LibertyGroup *group,
-                                   const char *name_attr);
+                                std::string_view name_attr);
 
 protected:
   virtual void begin(const LibertyGroup *group,
@@ -113,7 +114,7 @@ protected:
                    LibertyGroup *library_group);
 
   // Library gruops.
-  void makeLibrary(const LibertyGroup *libary_group);
+  void makeLibrary(const LibertyGroup *library_group);
   void readLibraryAttributes(const LibertyGroup *library_group);
   void readLibraryUnits(const LibertyGroup *library_group);
   void readDelayModel(const LibertyGroup *library_group);
@@ -122,8 +123,8 @@ protected:
   void readDefaultWireLoadMode(const LibertyGroup *library_group);
   void readTechnology(const LibertyGroup *library_group);
   void readDefaultWireLoadSelection(const LibertyGroup *library_group);
-  void readUnit(const char *unit_attr_name,
-                const char *unit_suffix,
+  void readUnit(std::string_view unit_attr_name,
+                std::string_view unit_suffix,
                 float &scale_var,
                 Unit *unit,
                 const LibertyGroup *library_group);
@@ -131,7 +132,7 @@ protected:
                     const LibertyGroup *type_group);
   void readTableTemplates(const LibertyGroup *library_group);
   void readTableTemplates(const LibertyGroup *library_group,
-                          const char *group_name,
+                          std::string_view group_name,
                           TableTemplateType type);
   void readThresholds(const LibertyGroup *library_group);
   void checkThresholds(const LibertyGroup *library_group) const;
@@ -150,17 +151,17 @@ protected:
   void readNormalizedDriverWaveform(const LibertyGroup *library_group);
   void readSlewDegradations(const LibertyGroup *library_group);
   void readLibAttrFloat(const LibertyGroup *library_group,
-                        const char *attr_name,
+                        std::string_view attr_name,
                         void (LibertyLibrary::*set_func)(float value),
                         float scale);
   void readLibAttrFloat(const LibertyGroup *library_group,
-                        const char *attr_name,
+                        std::string_view attr_name,
                         void (LibertyLibrary::*set_func)(const RiseFall *rf,
                                                          float value),
                         const RiseFall *rf,
                         float scale);
   void readLibAttrFloatWarnZero(const LibertyGroup *library_group,
-                                const char *attr_name,
+                                std::string_view attr_name,
                                 void (LibertyLibrary::*set_func)(float value),
                                 float scale);
 
@@ -188,9 +189,9 @@ protected:
   void makePgPinPort(LibertyCell *cell,
                      const LibertyGroup *pg_pin_group);
   LibertyPort *makePort(LibertyCell *cell,
-                        const char *port_name);
+                        std::string_view port_name);
   LibertyPort *makeBusPort(LibertyCell *cell,
-                           const char *bus_name,
+                           std::string_view bus_name,
                            int from_index,
                            int to_index,
                            BusDcl *bus_dcl);
@@ -198,22 +199,27 @@ protected:
   void readPortAttributes(LibertyCell *cell,
                           const LibertyPortSeq &ports,
                           const LibertyGroup *port_group);
-  void readPortAttrString(const char *attr_name,
-                          void (LibertyPort::*set_func)(const char *value),
+  void readPortAttrString(std::string_view attr_name,
+                          void (LibertyPort::*set_func)(std::string value),
                           const LibertyPortSeq &ports,
                           const LibertyGroup *group);
-  void readPortAttrFloat(const char *attr_name,
+  void readPortAttrLibertyPort(std::string_view attr_name,
+                               void (LibertyPort::*set_func)(LibertyPort *port),
+                               LibertyCell *cell,
+                               const LibertyPortSeq &ports,
+                               const LibertyGroup *group);
+  void readPortAttrFloat(std::string_view attr_name,
                          void (LibertyPort::*set_func)(float value),
                          const LibertyPortSeq &ports,
                          const LibertyGroup *group,
                          float scale);
-  void readPortAttrBool(const char *attr_name,
+  void readPortAttrBool(std::string_view attr_name,
                         void (LibertyPort::*set_func)(bool value),
                         const LibertyPortSeq &ports,
                         const LibertyGroup *group);
   void readDriverWaveform(const LibertyPortSeq &ports,
                          const LibertyGroup *port_group);
-  void readPortAttrFloatMinMax(const char *attr_name,
+  void readPortAttrFloatMinMax(std::string_view attr_name,
                                void (LibertyPort::*set_func)(float value,
                                                              const MinMax *min_max),
                                const LibertyPortSeq &ports,
@@ -243,7 +249,7 @@ protected:
                              const std::function<bool(TableModel *model)> check_axes);
   TableModelsEarlyLate
   readEarlyLateTableModels(const LibertyGroup *timing_group,
-                           const char *table_group_name,
+                           std::string_view table_group_name,
                            const RiseFall *rf,
                            TableTemplateType template_type,
                            float scale,
@@ -252,7 +258,7 @@ protected:
   ReceiverModelPtr readReceiverCapacitance(const LibertyGroup *timing_group,
                                            const RiseFall *rf);
   void readReceiverCapacitance(const LibertyGroup *timing_group,
-                               const char *cap_group_name,
+                               std::string_view cap_group_name,
                                int index,
                                const RiseFall *rf,
                                ReceiverModelPtr &receiver_model);
@@ -291,9 +297,9 @@ protected:
                      const std::function<bool(TableModel *model)> check_axes);
 
   TableAxisPtr makeTableAxis(const LibertyGroup *table_group,
-                             const char *index_attr_name,
+                             std::string_view index_attr_name,
                              TableAxisPtr template_axis);
-  void readGroupAttrFloat(const char *attr_name,
+  void readGroupAttrFloat(std::string_view attr_name,
                           const LibertyGroup *group,
                           const std::function<void(float)> &set_func,
                           float scale = 1.0F);
@@ -318,12 +324,12 @@ protected:
   void makeSequentials(LibertyCell *cell,
                        const LibertyGroup *cell_group,
                        bool is_register,
-                       const char *seq_group_name,
-                       const char *clk_attr_name,
-                       const char *data_attr_name);
+                       std::string_view seq_group_name,
+                       std::string_view clk_attr_name,
+                       std::string_view data_attr_name);
   FuncExpr *makeSeqFunc(LibertyCell *cell,
                         const LibertyGroup *seq_group,
-                        const char *attr_name,
+                        std::string_view attr_name,
                         int size);
   void makeSeqPorts(LibertyCell *cell,
                     const LibertyGroup *seq_group,
@@ -332,8 +338,9 @@ protected:
                     LibertyPort *&out_port_inv,
                     size_t &size);
   void seqPortNames(const LibertyGroup *group,
-                    const char *&out_name,
-                    const char *&out_inv_name,
+                    // Return values.
+                    std::string &out_name,
+                    std::string &out_inv_name,
                     bool &has_size,
                     size_t &size);
   TimingModel *makeScalarCheckModel(LibertyCell *cell,
@@ -367,17 +374,17 @@ protected:
                           const LibertyGroup *cell_group);
   void readScaleFactors(LibertyCell *cell,
                         const LibertyGroup *cell_group);
-  void readCellAttrString(const char *attr_name,
-                          void (LibertyCell::*set_func)(const char *value),
+  void readCellAttrString(std::string_view attr_name,
+                          void (LibertyCell::*set_func)(std::string value),
                           LibertyCell *cell,
                           const LibertyGroup *group);
-  void readCellAttrFloat(const char *attr_name,
+  void readCellAttrFloat(std::string_view attr_name,
                          void (LibertyCell::*set_func)(float value),
                          LibertyCell *cell,
                          const LibertyGroup *group,
                          float scale);
-  void readCellAttrBool(const char *attr_name,
-                         void (LibertyCell::*set_func)(bool value),
+  void readCellAttrBool(std::string_view attr_name,
+                        void (LibertyCell::*set_func)(bool value),
                         LibertyCell *cell,
                         const LibertyGroup *group);
   void readLevelShifterType(LibertyCell *cell,
@@ -393,18 +400,18 @@ protected:
 
   FuncExpr *readFuncExpr(LibertyCell *cell,
                          const LibertyGroup *group,
-                         const char *attr_name);
+                         std::string_view attr_name);
   LibertyPort *findLibertyPort(LibertyCell *cell,
                                const LibertyGroup *group,
-                               const char *port_name_attr);
+                               std::string_view port_name_attr);
   LibertyPortSeq findLibertyPorts(LibertyCell *cell,
                                   const LibertyGroup *group,
-                                  const char *port_name_attr);
+                                  std::string_view port_name_attr);
 
   float energyScale();
   void defineVisitors();
 
-  void defineGroupVisitor(const char *type,
+  void defineGroupVisitor(std::string_view type,
                           LibraryGroupVisitor begin_visitor,
                           LibraryGroupVisitor end_visitor);
 
@@ -436,52 +443,49 @@ protected:
                    bool &exists);
   const EarlyLateAll *getAttrEarlyLate(const LibertySimpleAttr *attr);
 
-  FloatSeq parseStringFloatList(const std::string &float_list,
-                                float scale,
-                                const LibertySimpleAttr *attr);
-  FloatSeq parseStringFloatList(const std::string &float_list,
-                                float scale,
-                                const LibertyComplexAttr *attr);
+  FloatSeq parseFloatList(const std::string &float_list,
+                          float scale,
+                          int line);
   TableAxisPtr makeAxis(int index,
                         const LibertyGroup *group);
   FloatSeq readFloatSeq(const LibertyComplexAttr *attr,
                         float scale);
-  void variableValue(const char *var,
+  void variableValue(std::string_view var,
                      float &value,
                      bool &exists);
-  FuncExpr *parseFunc(const char *func,
-                      const char *attr_name,
+  FuncExpr *parseFunc(std::string_view func,
+                      std::string_view attr_name,
                       const LibertyCell *cell,
                       int line);
   template <typename... Args>
   void warn(int id,
-               const LibertyGroup *group,
-               std::string_view fmt,
-               Args &&...args) const
+            const LibertyGroup *group,
+            std::string_view fmt,
+            Args &&...args) const
   {
     report_->fileWarn(id, filename_, group->line(), fmt, std::forward<Args>(args)...);
   }
   template <typename... Args>
   void warn(int id,
-               const LibertySimpleAttr *attr,
-               std::string_view fmt,
-               Args &&...args) const
+            const LibertySimpleAttr *attr,
+            std::string_view fmt,
+            Args &&...args) const
   {
     report_->fileWarn(id, filename_, attr->line(), fmt, std::forward<Args>(args)...);
   }
   template <typename... Args>
   void warn(int id,
-               const LibertyComplexAttr *attr,
-               std::string_view fmt,
-               Args &&...args) const
+            const LibertyComplexAttr *attr,
+            std::string_view fmt,
+            Args &&...args) const
   {
     report_->fileWarn(id, filename_, attr->line(), fmt, std::forward<Args>(args)...);
   }
   template <typename... Args>
   void warn(int id,
-               int line,
-               std::string_view fmt,
-               Args &&...args) const
+            int line,
+            std::string_view fmt,
+            Args &&...args) const
   {
     report_->fileWarn(id, filename_, line, fmt, std::forward<Args>(args)...);
   }
@@ -513,7 +517,7 @@ protected:
                       std::forward<Args>(args)...);
   }
 
-  const char *filename_;
+  std::string_view filename_;
   bool infer_latches_;
   Report *report_;
   Debug *debug_;
@@ -547,7 +551,7 @@ class PortNameBitIterator : public Iterator<LibertyPort*>
 {
 public:
   PortNameBitIterator(LibertyCell *cell,
-                      const char *port_name,
+                      std::string_view port_name,
                       LibertyReader *visitor,
                       int line);
   ~PortNameBitIterator();
@@ -558,7 +562,7 @@ public:
 protected:
   void findRangeBusNameNext();
 
-  void init(const char *port_name);
+  void init(std::string_view port_name);
   LibertyCell *cell_;
   LibertyReader *visitor_;
   int line_;

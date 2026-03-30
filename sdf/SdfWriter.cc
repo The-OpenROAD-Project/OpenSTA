@@ -26,6 +26,8 @@
 
 #include <cstdio>
 #include <ctime>
+#include <string>
+#include <string_view>
 
 #include "Format.hh"
 #include "Zlib.hh"
@@ -50,7 +52,7 @@ class SdfWriter : public StaState
 {
 public:
   SdfWriter(StaState *sta);
-  void write(const char *filename,
+  void write(std::string_view filename,
              const Scene *scene,
              char sdf_divider,
              bool include_typ,
@@ -81,14 +83,14 @@ protected:
                                 const Instance *inst,
                                 bool &inst_header);
   void writeCheck(Edge *edge,
-                  const char *sdf_check);
+                  std::string_view sdf_check);
   void writeCheck(Edge *edge,
                   TimingArc *arc,
-                  const char *sdf_check,
+                  std::string_view sdf_check,
                   bool use_data_edge,
                   bool use_clk_edge);
   void writeEdgeCheck(Edge *edge,
-                      const char *sdf_check,
+                      std::string_view sdf_check,
                       int clk_rf_index,
                       TimingArc *arcs[RiseFall::index_count][RiseFall::index_count]);
   void writeTimingCheckHeader();
@@ -99,7 +101,7 @@ protected:
                        float max_width);
   void writePeriodCheck(const Pin *pin,
                         float min_period);
-  const char *sdfEdge(const Transition *tr);
+  std::string_view sdfEdge(const Transition *tr);
   void writeArcDelays(Edge *edge);
   void writeSdfTriple(RiseFallMinMax &delays,
                       const RiseFall *rf);
@@ -127,7 +129,7 @@ private:
 };
 
 void
-writeSdf(const char *filename,
+writeSdf(std::string_view filename,
          const Scene *scene,
          char sdf_divider,
          bool include_typ,
@@ -150,7 +152,7 @@ SdfWriter::SdfWriter(StaState *sta) :
 }
 
 void
-SdfWriter::write(const char *filename,
+SdfWriter::write(std::string_view filename,
                  const Scene *scene,
                  char sdf_divider,
                  bool include_typ,
@@ -170,7 +172,7 @@ SdfWriter::write(const char *filename,
   arc_delay_min_index_ = scene->dcalcAnalysisPtIndex(MinMax::min());
   arc_delay_max_index_ = scene->dcalcAnalysisPtIndex(MinMax::max());
 
-  stream_ = gzopen(filename, gzip ? "wb" : "wT");
+  stream_ = gzopen(std::string(filename).c_str(), gzip ? "wb" : "wT");
   if (stream_ == nullptr)
     throw FileNotWritable(filename);
 
@@ -573,7 +575,7 @@ SdfWriter::writeTimingCheckTrailer()
 
 void
 SdfWriter::writeCheck(Edge *edge,
-                      const char *sdf_check)
+                      std::string_view sdf_check)
 {
   TimingArcSet *arc_set = edge->timingArcSet();
   // Examine the arcs to see if the check requires clk or data edge specifiers.
@@ -600,7 +602,7 @@ SdfWriter::writeCheck(Edge *edge,
 
 void
 SdfWriter::writeEdgeCheck(Edge *edge,
-                          const char *sdf_check,
+                          std::string_view sdf_check,
                           int clk_rf_index,
                           TimingArc *arcs[RiseFall::index_count][RiseFall::index_count])
 {
@@ -647,7 +649,7 @@ SdfWriter::writeEdgeCheck(Edge *edge,
 void
 SdfWriter::writeCheck(Edge *edge,
                       TimingArc *arc,
-                      const char *sdf_check,
+                      std::string_view sdf_check,
                       bool use_data_edge,
                       bool use_clk_edge)
 {
@@ -725,14 +727,14 @@ SdfWriter::writePeriodCheck(const Pin *pin,
   sta::print(stream_, ")\n");
 }
 
-const char *
+std::string_view
 SdfWriter::sdfEdge(const Transition *tr)
 {
   if (tr == Transition::rise())
     return "posedge";
   else if (tr == Transition::fall())
     return "negedge";
-  return nullptr;
+  return {};
 }
 
 ////////////////////////////////////////////////////////////////
@@ -762,8 +764,7 @@ SdfWriter::sdfPathName(const Instance *instance)
   std::string path_name;
   while (!inst_path.empty()) {
     const Instance *inst = inst_path.back();
-    std::string inst_name = sdfName(inst);
-    path_name += inst_name;
+    path_name += sdfName(inst);
     inst_path.pop_back();
     if (!inst_path.empty())
       path_name += sdf_divider_;
@@ -775,11 +776,9 @@ SdfWriter::sdfPathName(const Instance *instance)
 std::string
 SdfWriter::sdfName(const Instance *inst)
 {
-  const char *name = network_->name(inst);
+  const std::string &name = network_->name(inst);
   std::string sdf_name;
-  const char *p = name;
-  while (*p) {
-    char ch = *p;
+  for (char ch : name) {
     // Ignore sta escapes.
     if (ch != network_escape_) {
       if (!(isalnum(ch) || ch == '_'))
@@ -787,7 +786,6 @@ SdfWriter::sdfName(const Instance *inst)
         sdf_name += sdf_escape_;
       sdf_name += ch;
     }
-    p++;
   }
   return sdf_name;
 }
@@ -795,8 +793,8 @@ SdfWriter::sdfName(const Instance *inst)
 std::string
 SdfWriter::sdfPortName(const Pin *pin)
 {
-  const char *name = network_->portName(pin);
-  size_t name_length = strlen(name);
+  const std::string &name = network_->portName(pin);
+  size_t name_length = name.size();
   std::string sdf_name;
 
   constexpr char bus_brkt_left = '[';
@@ -804,9 +802,9 @@ SdfWriter::sdfPortName(const Pin *pin)
   size_t bus_index = name_length;
   if (name_length >= 4
       && name[name_length - 1] == bus_brkt_right) {
-    const char *left = strrchr(name, bus_brkt_left);
-    if (left)
-      bus_index = left - name;
+    size_t left = name.rfind(bus_brkt_left);
+    if (left != std::string_view::npos)
+      bus_index = left;
   }
   for (size_t i = 0; i < name_length; i++) {
     char ch = name[i];

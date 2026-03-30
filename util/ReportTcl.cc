@@ -183,7 +183,7 @@ ReportTcl::flush()
 // Tcl_Main can eval multiple commands before the flushing the command
 // output, so the log/redirect commands must force a flush.
 void
-ReportTcl::logBegin(std::string filename)
+ReportTcl::logBegin(std::string_view filename)
 {
   flush();
   Report::logBegin(filename);
@@ -197,14 +197,14 @@ ReportTcl::logEnd()
 }
 
 void
-ReportTcl::redirectFileBegin(std::string filename)
+ReportTcl::redirectFileBegin(std::string_view filename)
 {
   flush();
   Report::redirectFileBegin(filename);
 }
 
 void
-ReportTcl::redirectFileAppendBegin(std::string filename)
+ReportTcl::redirectFileAppendBegin(std::string_view filename)
 {
   flush();
   Report::redirectFileAppendBegin(filename);

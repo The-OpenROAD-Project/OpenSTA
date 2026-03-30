@@ -32,7 +32,7 @@
 
 namespace sta {
 
-Mode::Mode(const std::string &name,
+Mode::Mode(std::string_view name,
            size_t mode_index,
            StaState *sta) :
   StaState(sta),

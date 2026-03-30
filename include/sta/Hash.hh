@@ -26,6 +26,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <string_view>
 
 namespace sta {
 
@@ -56,7 +57,7 @@ nextMersenne(size_t n)
 
 // Sadly necessary until c++ std::hash works for char *.
 size_t
-hashString(const char *str);
+hashString(std::string_view str);
 
 // Pointer hashing is strongly discouraged because it causes results to change
 // from run to run. Use Network::id functions instead.

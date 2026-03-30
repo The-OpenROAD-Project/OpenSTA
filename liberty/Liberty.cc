@@ -62,9 +62,9 @@ deleteLiberty()
   TimingArcSet::destroy();
 }
 
-LibertyLibrary::LibertyLibrary(const char *name,
-                               const char *filename) :
-  ConcreteLibrary(name, filename, true),
+LibertyLibrary::LibertyLibrary(std::string name,
+                               std::string filename) :
+  ConcreteLibrary(std::move(name), std::move(filename), true),
   units_(new Units()),
   delay_model_type_(DelayModelType::table), // default
   nominal_process_(0.0),
@@ -121,7 +121,7 @@ LibertyLibrary::~LibertyLibrary()
 }
 
 LibertyCell *
-LibertyLibrary::findLibertyCell(const char *name) const
+LibertyLibrary::findLibertyCell(std::string_view name) const
 {
   return static_cast<LibertyCell*>(findCell(name));
 }
@@ -188,10 +188,9 @@ LibertyLibrary::makeBusDcl(std::string name,
 }
 
 BusDcl *
-LibertyLibrary::findBusDcl(const char *name) const
+LibertyLibrary::findBusDcl(std::string_view name)
 {
-  auto it = bus_dcls_.find(name);
-  return it != bus_dcls_.end() ? const_cast<BusDcl *>(&it->second) : nullptr;
+  return findStringValuePtr(bus_dcls_, name);
 }
 
 BusDclSeq
@@ -208,16 +207,17 @@ LibertyLibrary::makeTableTemplate(std::string name,
                                   TableTemplateType type)
 {
   std::string key = name;
-  auto [it, inserted] = template_maps_[int(type)].try_emplace(
-      std::move(key), std::move(name), type);
+  auto [it, inserted] = template_maps_[int(type)].try_emplace(std::move(key),
+                                                              std::move(name),
+                                                              type);
   return &it->second;
 }
 
 TableTemplate *
-LibertyLibrary::findTableTemplate(const char *name,
+LibertyLibrary::findTableTemplate(std::string_view name,
                                   TableTemplateType type)
 {
-  return findKeyValuePtr(template_maps_[int(type)], name);
+  return findStringValuePtr(template_maps_[int(type)], name);
 }
 
 TableTemplateSeq
@@ -265,16 +265,17 @@ LibertyLibrary::setScaleFactors(ScaleFactors *scales)
 }
 
 ScaleFactors *
-LibertyLibrary::makeScaleFactors(const char *name)
+LibertyLibrary::makeScaleFactors(std::string name)
 {
-  auto [it, inserted] = scale_factors_map_.emplace(name, name);
+  std::string key = name;
+  auto [it, inserted] = scale_factors_map_.emplace(std::move(key), std::move(name));
   return &it->second;
 }
 
 ScaleFactors *
-LibertyLibrary::findScaleFactors(const char *name)
+LibertyLibrary::findScaleFactors(std::string_view name)
 {
-  return findKeyValuePtr(scale_factors_map_, name);
+  return findStringValuePtr(scale_factors_map_,name);
 }
 
 float
@@ -566,16 +567,14 @@ LibertyLibrary::setDefaultOutputPinRes(const RiseFall *rf,
 Wireload *
 LibertyLibrary::makeWireload(std::string name)
 {
-  std::string key = name;
-  auto [it, inserted] = wireloads_.try_emplace(
-      std::move(key), name.c_str(), this);
+  auto [it, inserted] = wireloads_.try_emplace(name, name, this);
   return &it->second;
 }
 
 const Wireload *
-LibertyLibrary::findWireload(const char *name) const
+LibertyLibrary::findWireload(std::string_view name)
 {
-  return findKeyValuePtr(wireloads_, name);
+  return findStringValuePtr(wireloads_, name);
 }
 
 void
@@ -594,14 +593,15 @@ WireloadSelection *
 LibertyLibrary::makeWireloadSelection(std::string name)
 {
   std::string key = name;
-  auto [it, inserted] = wire_load_selections_.try_emplace(std::move(key), name.c_str());
+  auto [it, inserted] = wire_load_selections_.try_emplace(std::move(key),
+                                                          std::move(name));
   return &it->second;
 }
 
 const WireloadSelection *
-LibertyLibrary::findWireloadSelection(const char *name) const
+LibertyLibrary::findWireloadSelection(std::string_view name) const
 {
-  return  findKeyValuePtr(wire_load_selections_, name);
+  return findStringValuePtr(wire_load_selections_, name);
 }
 
 const WireloadSelection *
@@ -632,15 +632,14 @@ OperatingConditions *
 LibertyLibrary::makeOperatingConditions(std::string name)
 {
   std::string key = name;
-  auto [it, inserted] = operating_conditions_.try_emplace(
-      std::move(key), name.c_str());
+  auto [it, inserted] = operating_conditions_.try_emplace(std::move(key), std::move(name));
   return &it->second;
 }
 
 OperatingConditions *
-LibertyLibrary::findOperatingConditions(const char *name)
+LibertyLibrary::findOperatingConditions(std::string_view name)
 {
-  return findKeyValuePtr(operating_conditions_, name);
+  return findStringValuePtr(operating_conditions_, name);
 }
 
 OperatingConditions *
@@ -720,11 +719,10 @@ LibertyLibrary::setSlewDerateFromLibrary(float derate)
 }
 
 LibertyCell *
-LibertyLibrary::makeScaledCell(const char *name,
-                               const char *filename)
+LibertyLibrary::makeScaledCell(std::string name,
+                               std::string filename)
 {
-  LibertyCell *cell = new LibertyCell(this, name, filename);
-  return cell;
+  return new LibertyCell(this, std::move(name), std::move(filename));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -738,8 +736,7 @@ LibertyLibrary::makeSceneMap(LibertyLibrary *lib,
   LibertyCellIterator cell_iter(lib);
   while (cell_iter.hasNext()) {
     LibertyCell *cell = cell_iter.next();
-    const char *name = cell->name();
-    LibertyCell *link_cell = network->findLibertyCell(name);
+    LibertyCell *link_cell = network->findLibertyCell(cell->name());
     if (link_cell)
       makeSceneMap(link_cell, cell, ap_index, report);
   }
@@ -769,8 +766,7 @@ LibertyLibrary::makeSceneMap(LibertyCell *cell1,
   LibertyCellPortBitIterator port_iter1(cell1);
   while (port_iter1.hasNext()) {
     LibertyPort *port1 = port_iter1.next();
-    const char *port_name = port1->name();
-    LibertyPort *port2 = cell2->findLibertyPort(port_name);
+    LibertyPort *port2 = cell2->findLibertyPort(port1->name());
     if (port2) {
       if (link)
         port1->setScenePort(port2, ap_index);
@@ -779,7 +775,7 @@ LibertyLibrary::makeSceneMap(LibertyCell *cell1,
       report->warn(1110, "cell {}/{} port {} not found in cell {}/{}.",
                    cell1->library()->name(),
                    cell1->name(),
-                   port_name,
+                   port1->name(),
                    cell2->library()->name(),
                    cell2->name());
   }
@@ -807,7 +803,7 @@ LibertyLibrary::makeSceneMap(LibertyCell *cell1,
                    cell1->name(),
                    arc_set1->from() ? arc_set1->from()->name() : "",
                    arc_set1->to()->name(),
-                   arc_set1->role()->to_string().c_str(),
+                   arc_set1->role()->to_string(),
                    cell2->library()->name(),
                    cell2->name());
   }
@@ -824,8 +820,8 @@ LibertyLibrary::checkScenes(LibertyCell *cell,
         report->error(1112, "Liberty cell {}/{} for corner {}/{} not found.",
                       cell->libertyLibrary()->name(),
                       cell->name(),
-                      scene->name().c_str(),
-                      min_max->to_string().c_str());
+                      scene->name(),
+                      min_max->to_string());
     }
   }
 }
@@ -865,21 +861,20 @@ LibertyLibrary::makeOcvDerate(std::string name)
 }
 
 OcvDerate *
-LibertyLibrary::findOcvDerate(const char *derate_name)
+LibertyLibrary::findOcvDerate(std::string_view derate_name)
 {
-  auto it = ocv_derate_map_.find(derate_name);
-  return it != ocv_derate_map_.end() ? &it->second : nullptr;
+  return findStringValuePtr(ocv_derate_map_, derate_name);
 }
 
 void
-LibertyLibrary::addSupplyVoltage(const char *supply_name,
+LibertyLibrary::addSupplyVoltage(std::string supply_name,
                                  float voltage)
 {
-  supply_voltage_map_[supply_name] = voltage;
+  supply_voltage_map_[std::move(supply_name)] = voltage;
 }
 
 void
-LibertyLibrary::supplyVoltage(const char *supply_name,
+LibertyLibrary::supplyVoltage(std::string_view supply_name,
                               // Return value.
                               float &voltage,
                               bool &exists) const
@@ -896,26 +891,26 @@ LibertyLibrary::supplyVoltage(const char *supply_name,
 }
 
 bool
-LibertyLibrary::supplyExists(const char *supply_name) const
+LibertyLibrary::supplyExists(std::string_view supply_name) const
 {
   return supply_voltage_map_.contains(supply_name);
 }
 
 DriverWaveform *
-LibertyLibrary::findDriverWaveform(const char *name)
+LibertyLibrary::findDriverWaveform(std::string_view name)
 {
-  auto it = driver_waveform_map_.find(name);
-  if (it != driver_waveform_map_.end())
-    return &it->second;
-  return nullptr;
+  return findStringValuePtr(driver_waveform_map_, name);
 }
 
 DriverWaveform *
-LibertyLibrary::makeDriverWaveform(const std::string &name,
+LibertyLibrary::makeDriverWaveform(std::string name,
                                    TablePtr waveforms)
 {
-  auto it = driver_waveform_map_.emplace(name, DriverWaveform(name, waveforms));
-  return &it.first->second;
+  std::string key = name;
+  auto [it, inserted] = driver_waveform_map_.try_emplace(std::move(key),
+                                                         std::move(name),
+                                                         waveforms);
+  return &it->second;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -940,8 +935,8 @@ LibertyCellIterator::next()
 ////////////////////////////////////////////////////////////////
 
 LibertyCell::LibertyCell(LibertyLibrary *library,
-                         const char *name,
-                         const char *filename) :
+                         std::string name,
+                         std::string filename) :
   ConcreteCell(name, filename, true, library),
   liberty_library_(library),
   area_(0.0),
@@ -982,7 +977,7 @@ LibertyCell::~LibertyCell()
 }
 
 LibertyPort *
-LibertyCell::findLibertyPort(const char *name) const
+LibertyCell::findLibertyPort(std::string_view name) const
 {
   return static_cast<LibertyPort*>(findPort(name));
 }
@@ -1032,9 +1027,9 @@ LibertyCell::makeModeDef(std::string name)
 }
 
 const ModeDef *
-LibertyCell::findModeDef(const char *name) const
+LibertyCell::findModeDef(std::string_view name) const
 {
-  return findKeyValuePtr(mode_defs_, name);
+  return findStringValuePtr(mode_defs_, name);
 }
 
 void
@@ -1054,10 +1049,9 @@ LibertyCell::makeBusDcl(std::string name,
 }
 
 BusDcl *
-LibertyCell::findBusDcl(const char *name) const
+LibertyCell::findBusDcl(std::string_view name)
 {
-  auto it = bus_dcls_.find(name);
-  return it != bus_dcls_.end() ? const_cast<BusDcl *>(&it->second) : nullptr;
+  return findStringValuePtr(bus_dcls_, name);
 }
 
 void
@@ -1494,8 +1488,7 @@ LibertyCell::outputPortSequential(LibertyPort *port)
 bool
 LibertyCell::hasSequentials() const
 {
-  return !sequentials_.empty()
-    || statetable_ != nullptr;
+  return !sequentials_.empty();
 }
 
 void
@@ -1639,10 +1632,9 @@ LibertyCell::makeOcvDerate(std::string name)
 }
 
 OcvDerate *
-LibertyCell::findOcvDerate(const char *derate_name)
+LibertyCell::findOcvDerate(std::string_view derate_name)
 {
-  auto it = ocv_derate_map_.find(derate_name);
-  return it != ocv_derate_map_.end() ? &it->second : nullptr;
+  return findStringValuePtr(ocv_derate_map_, derate_name);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1936,35 +1928,16 @@ LibertyCell::ensureVoltageWaveforms(const SceneSeq &scenes)
   }
 }
 
-const char *
-LibertyCell::footprint() const
-{
-  if (footprint_.empty())
-    return nullptr;
-  else
-    return footprint_.c_str();
-}
-
-
 void
-LibertyCell::setFootprint(const char *footprint)
+LibertyCell::setFootprint(std::string footprint)
 {
-  footprint_ = footprint;
-}
-
-const char *
-LibertyCell::userFunctionClass() const
-{
-  if (user_function_class_.empty())
-    return nullptr;
-  else
-    return user_function_class_.c_str();
+  footprint_ = std::move(footprint);
 }
 
 void
-LibertyCell::setUserFunctionClass(const char *user_function_class)
+LibertyCell::setUserFunctionClass(std::string user_function_class)
 {
-  user_function_class_ = user_function_class;
+  user_function_class_ = std::move(user_function_class);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2013,14 +1986,15 @@ LibertyCellPortBitIterator::next()
 ////////////////////////////////////////////////////////////////
 
 LibertyPort::LibertyPort(LibertyCell *cell,
-                         const char *name,
+                         std::string name,
                          bool is_bus,
                          BusDcl *bus_dcl,
                          int from_index,
                          int to_index,
                          bool is_bundle,
                          ConcretePortSeq *members) :
-  ConcretePort(name, is_bus, from_index, to_index, is_bundle, members, cell),
+  ConcretePort(name, is_bus, from_index, to_index,
+               is_bundle, members, cell),
   liberty_cell_(cell),
   bus_dcl_(bus_dcl),
   pwr_gnd_type_(PwrGndType::none),
@@ -2033,6 +2007,8 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   min_period_(0.0),
   pulse_clk_trigger_(nullptr),
   pulse_clk_sense_(nullptr),
+  related_ground_port_(nullptr),
+  related_power_port_(nullptr),
   receiver_model_(nullptr),
   driver_waveform_{nullptr, nullptr},
   min_pulse_width_exists_(false),
@@ -2103,9 +2079,9 @@ LibertyPort::setPwrGndType(PwrGndType type)
 }
 
 void
-LibertyPort::setVoltageName(const char *voltage_name)
+LibertyPort::setVoltageName(std::string voltage_name)
 {
-  voltage_name_ = voltage_name;
+  voltage_name_ = std::move(voltage_name);
 }
 
 static EnumNameMap<PwrGndType> pwr_gnd_type_map =
@@ -2121,21 +2097,21 @@ static EnumNameMap<PwrGndType> pwr_gnd_type_map =
    {PwrGndType::deepnwell, "deepnwell"},
    {PwrGndType::deeppwell, "deeppwell"}};
 
-const char *
+const std::string &
 pwrGndTypeName(PwrGndType pg_type)
 {
   return pwr_gnd_type_map.find(pg_type);
 }
 
 PwrGndType
-findPwrGndType(const char *pg_name)
+findPwrGndType(std::string_view pg_name)
 {
   return pwr_gnd_type_map.find(pg_name, PwrGndType::none);
 }
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+const std::string &
 scanSignalTypeName(ScanSignalType scan_type)
 {
   return scan_signal_type_map.find(scan_type);
@@ -2491,7 +2467,7 @@ LibertyPort::equiv(const LibertyPort *port1,
 {
   return (port1 == nullptr && port2 == nullptr)
     || (port1 != nullptr && port2 != nullptr
-        && stringEq(port1->name(), port2->name())
+        && port1->name() == port2->name()
         && port1->direction() == port2->direction()
         && port1->pwr_gnd_type_ == port2->pwr_gnd_type_);
 }
@@ -2504,14 +2480,14 @@ LibertyPort::less(const LibertyPort *port1,
     return true;
   if (port1 != nullptr && port2 == nullptr)
     return false;
-  const char *name1 = port1->name();
-  const char *name2 = port2->name();
-  if (stringEq(name1, name2)) {
+  const std::string &name1 = port1->name();
+  const std::string &name2 = port2->name();
+  if (name1 == name2) {
     PortDirection *dir1 = port1->direction();
     PortDirection *dir2 = port2->direction();
     return dir1->index() < dir2->index();
   }
-  return stringLess(name1, name2);
+  return name1 < name2;
 }
 
 void
@@ -2674,34 +2650,16 @@ LibertyPort::setScenePort(LibertyPort *scene_port,
   scene_ports_[ap_index] = scene_port;
 }
 
-const char *
-LibertyPort::relatedGroundPin() const
+void
+LibertyPort::setRelatedGroundPort(LibertyPort *related_ground_port)
 {
-  if (related_ground_pin_.empty())
-    return nullptr;
-  else
-    return related_ground_pin_.c_str();
+  related_ground_port_ = related_ground_port;
 }
 
 void
-LibertyPort::setRelatedGroundPin(const char *related_ground_pin)
+LibertyPort::setRelatedPowerPort(LibertyPort *related_power_port)
 {
-  related_ground_pin_ = related_ground_pin;
-}
-
-const char *
-LibertyPort::relatedPowerPin() const
-{
-  if (related_power_pin_.empty())
-    return nullptr;
-  else
-    return related_power_pin_.c_str();
-}
-
-void
-LibertyPort::setRelatedPowerPin(const char *related_power_pin)
-{
-  related_power_pin_ = related_power_pin;
+  related_power_port_ = related_power_port;
 }
 
 void
@@ -2711,13 +2669,12 @@ LibertyPort::setReceiverModel(ReceiverModelPtr receiver_model)
 }
 
 std::string
-portLibertyToSta(const char *port_name)
+portLibertyToSta(std::string_view port_name)
 {
   constexpr char bus_brkt_left = '[';
   constexpr char bus_brkt_right = ']';
-  size_t name_length = strlen(port_name);
   std::string sta_name;
-  for (size_t i = 0; i < name_length; i++) {
+  for (size_t i = 0; i < port_name.size(); i++) {
     char ch = port_name[i];
     if (ch == bus_brkt_left
         || ch == bus_brkt_right)
@@ -2841,7 +2798,7 @@ bool
 LibertyPortNameLess::operator()(const LibertyPort *port1,
                                 const LibertyPort *port2) const
 {
-  return stringLess(port1->name(), port2->name());
+  return port1->name() < port2->name();
 }
 
 bool
@@ -2900,30 +2857,24 @@ ModeDef::ModeDef(std::string name) :
 }
 
 ModeValueDef *
-ModeDef::defineValue(const char *value,
-                     FuncExpr *cond,
-                     const char *sdf_cond)
+ModeDef::defineValue(std::string value)
 {
   std::string key = value;
-  std::string sdf = sdf_cond ? sdf_cond : std::string();
-  auto [it, inserted] = values_.try_emplace(key, key, cond, std::move(sdf));
+  auto [it, inserted] = values_.try_emplace(std::move(key), std::move(value));
   return &it->second;
 }
 
 const ModeValueDef *
-ModeDef::findValueDef(const char *value) const
+ModeDef::findValueDef(std::string_view value) const
 {
-  return findKeyValuePtr(values_, value);
+  return findStringValuePtr(values_, value);
 }
 
 ////////////////////////////////////////////////////////////////
 
-ModeValueDef::ModeValueDef(std::string value,
-                           FuncExpr *cond,
-                           std::string sdf_cond) :
+ModeValueDef::ModeValueDef(std::string value) :
   value_(std::move(value)),
-  cond_(cond),
-  sdf_cond_(std::move(sdf_cond))
+  cond_(nullptr)
 {
 }
 
@@ -3038,22 +2989,11 @@ Pvt::setTemperature(float temp)
   temperature_ = temp;
 }
 
-OperatingConditions::OperatingConditions(const char *name) :
+OperatingConditions::OperatingConditions(std::string name) :
   Pvt(0.0, 0.0, 0.0),
-  name_(name),
+  name_(std::move(name)),
   // Default wireload tree.
   wire_load_tree_(WireloadTree::unknown)
-{
-}
-
-OperatingConditions::OperatingConditions(const char *name,
-                                         float process,
-                                         float voltage,
-                                         float temperature,
-                                         WireloadTree wire_load_tree) :
-  Pvt(process, voltage, temperature),
-  name_(name),
-  wire_load_tree_(wire_load_tree)
 {
 }
 
@@ -3084,7 +3024,7 @@ static EnumNameMap<ScaleFactorType> scale_factor_type_map =
    {ScaleFactorType::unknown, "unknown"}
   };
 
-const char *
+const std::string &
 scaleFactorTypeName(ScaleFactorType type)
 {
   return scale_factor_type_map.find(type);
@@ -3137,7 +3077,7 @@ findScaleFactorPvt(const char *name)
   return scale_factor_pvt_names.find(name, ScaleFactorPvt::unknown);
 }
 
-const char *
+const std::string &
 scaleFactorPvtName(ScaleFactorPvt pvt)
 {
   return scale_factor_pvt_names.find(pvt);
@@ -3145,8 +3085,8 @@ scaleFactorPvtName(ScaleFactorPvt pvt)
 
 ////////////////////////////////////////////////////////////////
 
-ScaleFactors::ScaleFactors(const char *name) :
-  name_(name)
+ScaleFactors::ScaleFactors(std::string name) :
+  name_(std::move(name))
 {
   for (int type = 0; type < scale_factor_type_count; type++) {
     for (int pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
@@ -3230,7 +3170,7 @@ ScaleFactors::report(Report *report)
 TestCell::TestCell(LibertyLibrary *library,
                    std::string name,
                    std::string filename) :
-  LibertyCell(library, name.c_str(), filename.c_str())
+  LibertyCell(library, name, filename)
 {
 }
 

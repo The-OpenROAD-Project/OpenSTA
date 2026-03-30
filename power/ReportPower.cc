@@ -137,11 +137,11 @@ ReportPower::powerColPercent(float col_total,
 }
 
 void
-ReportPower::reportTitle5(const char *title1,
-                          const char *title2,
-                          const char *title3,
-                          const char *title4,
-                          const char *title5,
+ReportPower::reportTitle5(std::string_view title1,
+                          std::string_view title2,
+                          std::string_view title3,
+                          std::string_view title4,
+                          std::string_view title5,
                           int field_width)
 {
   report_->report("{:<20} {:>{}} {:>{}} {:>{}} {:>{}}", title1, title2, field_width,
@@ -149,12 +149,12 @@ ReportPower::reportTitle5(const char *title1,
 }
 
 void
-ReportPower::reportTitle5Units(const char *title1,
-                               const char *title2,
-                               const char *title3,
-                               const char *title4,
-                               const char *title5,
-                               const char *units,
+ReportPower::reportTitle5Units(std::string_view title1,
+                               std::string_view title2,
+                               std::string_view title3,
+                               std::string_view title4,
+                               std::string_view title5,
+                               std::string_view units,
                                int field_width)
 {
   report_->report("{:<20} {:>{}} {:>{}} {:>{}} {:>{}} {}", title1, title2,
@@ -171,7 +171,7 @@ ReportPower::reportTitleDashes5(int field_width)
 }
 
 void
-ReportPower::reportRow(const char *type,
+ReportPower::reportRow(std::string_view type,
                        const PowerResult &power,
                        float design_total,
                        int field_width,
@@ -186,7 +186,7 @@ ReportPower::reportRow(const char *type,
   if (design_total != 0.0 && !std::isnan(design_total))
     percent = total / design_total * 100.0;
 
-  std::string line = sta::format("{:<20}", type);
+  std::string line = sta::format("{:<20}", std::string(type));
   line += powerCol(internal, field_width, digits);
   line += powerCol(switching, field_width, digits);
   line += powerCol(leakage, field_width, digits);
@@ -196,10 +196,10 @@ ReportPower::reportRow(const char *type,
 }
 
 void
-ReportPower::reportTitle4(const char *title1,
-                          const char *title2,
-                          const char *title3,
-                          const char *title4,
+ReportPower::reportTitle4(std::string_view title1,
+                          std::string_view title2,
+                          std::string_view title3,
+                          std::string_view title4,
                           int field_width)
 {
   report_->report(" {:>{}} {:>{}} {:>{}} {:>{}}", title1, field_width, title2,
@@ -207,11 +207,11 @@ ReportPower::reportTitle4(const char *title1,
 }
 
 void
-ReportPower::reportTitle4Units(const char *title1,
-                               const char *title2,
-                               const char *title3,
-                               const char *title4,
-                               const char *units,
+ReportPower::reportTitle4Units(std::string_view title1,
+                               std::string_view title2,
+                               std::string_view title3,
+                               std::string_view title4,
+                               std::string_view units,
                                int field_width)
 {
   report_->report(" {:>{}} {:>{}} {:>{}} {:>{}} {}", title1, field_width, title2,
