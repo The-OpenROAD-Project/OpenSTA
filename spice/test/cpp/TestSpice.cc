@@ -336,10 +336,10 @@ TEST_F(SpiceSmokeTest, TransitionAsRiseFall) {
 }
 
 TEST_F(SpiceSmokeTest, TransitionInitFinalString) {
-  const char *rise_str = Transition::rise()->asInitFinalString();
-  EXPECT_NE(rise_str, nullptr);
-  const char *fall_str = Transition::fall()->asInitFinalString();
-  EXPECT_NE(fall_str, nullptr);
+  std::string rise_str = Transition::rise()->asInitFinalString();
+  EXPECT_FALSE(rise_str.empty());
+  std::string fall_str = Transition::fall()->asInitFinalString();
+  EXPECT_FALSE(fall_str.empty());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -587,8 +587,8 @@ TEST_F(SpiceSmokeTest, RiseFallBothRange) {
 
 // Test Transition init strings used in WriteSpice
 TEST_F(SpiceSmokeTest, TransitionInitFinalStrings) {
-  EXPECT_NE(Transition::rise()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::fall()->asInitFinalString(), nullptr);
+  EXPECT_FALSE(Transition::rise()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::fall()->asInitFinalString().empty());
 }
 
 // Test MinMax initValue used in spice
@@ -804,8 +804,8 @@ TEST_F(SpiceSmokeTest, MinMaxToString) {
 // Test RiseFall shortName
 // Covers: RiseFall::shortName
 TEST_F(SpiceSmokeTest, RiseFallShortName) {
-  EXPECT_STREQ(RiseFall::rise()->shortName(), "^");
-  EXPECT_STREQ(RiseFall::fall()->shortName(), "v");
+  EXPECT_EQ(RiseFall::rise()->shortName(), "^");
+  EXPECT_EQ(RiseFall::fall()->shortName(), "v");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1424,7 +1424,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr,
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "",
                     sta_->cmdMode());
 
     Pin *in1 = network->findPin(top, "in1");
@@ -1510,7 +1510,7 @@ TEST_F(SpiceDesignTest, LibertyCellAccess) {
   ASSERT_NE(and1, nullptr);
   LibertyCell *cell = network->libertyCell(and1);
   ASSERT_NE(cell, nullptr);
-  EXPECT_STREQ(cell->name(), "AND2_X1");
+  EXPECT_EQ(cell->name(), "AND2_X1");
 }
 
 // Verify liberty cell ports (needed for SPICE subcircuit port mapping)
@@ -1726,15 +1726,15 @@ TEST_F(SpiceDesignTest, InstanceCellName) {
   Network *network = sta_->cmdNetwork();
   Instance *and1 = network->findInstance("and1");
   ASSERT_NE(and1, nullptr);
-  const char *cell_name = network->cellName(and1);
-  ASSERT_NE(cell_name, nullptr);
-  EXPECT_STREQ(cell_name, "AND2_X1");
+  std::string cell_name = network->cellName(and1);
+  EXPECT_FALSE(cell_name.empty());
+  EXPECT_EQ(cell_name, "AND2_X1");
 
   Instance *reg1 = network->findInstance("reg1");
   ASSERT_NE(reg1, nullptr);
   cell_name = network->cellName(reg1);
-  ASSERT_NE(cell_name, nullptr);
-  EXPECT_STREQ(cell_name, "DFF_X1");
+  EXPECT_FALSE(cell_name.empty());
+  EXPECT_EQ(cell_name, "DFF_X1");
 }
 
 // Verify print with SPICE subcircuit instance format for design cells
@@ -1747,8 +1747,8 @@ TEST_F(SpiceDesignTest, StreamPrintSubcktInst) {
   Network *network = sta_->cmdNetwork();
   Instance *and1 = network->findInstance("and1");
   ASSERT_NE(and1, nullptr);
-  const char *inst_name = network->name(and1);
-  const char *cell_name = network->cellName(and1);
+  std::string inst_name = network->name(and1);
+  std::string cell_name = network->cellName(and1);
 
   std::ofstream out(tmpl);
   ASSERT_TRUE(out.is_open());
@@ -1770,10 +1770,10 @@ TEST_F(SpiceDesignTest, NetNamesForSpice) {
   ASSERT_NE(and1_zn, nullptr);
   Net *net = network->net(and1_zn);
   ASSERT_NE(net, nullptr);
-  const char *net_name = network->name(net);
-  EXPECT_NE(net_name, nullptr);
+  std::string net_name = network->name(net);
+  EXPECT_FALSE(net_name.empty());
   // The net name should be "n1" (from the Verilog: wire n1)
-  EXPECT_STREQ(net_name, "n1");
+  EXPECT_EQ(net_name, "n1");
 }
 
 // Verify hold timing paths (for SPICE min-delay analysis)

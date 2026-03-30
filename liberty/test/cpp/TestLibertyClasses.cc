@@ -683,9 +683,8 @@ TEST_F(TableAxisTest, FindAxisIndexExact) {
 TEST_F(TableAxisTest, VariableString) {
   auto axis = makeAxis(TableAxisVariable::total_output_net_capacitance,
                         {1.0f});
-  const char *str = axis->variableString();
-  EXPECT_NE(str, nullptr);
-  EXPECT_STREQ(str, "total_output_net_capacitance");
+  auto str = axis->variableString();
+  EXPECT_EQ(str, "total_output_net_capacitance");
 }
 
 TEST_F(TableAxisTest, UnitLookup) {
@@ -740,12 +739,12 @@ TEST(TableVariableTest, StringTableAxisVariable) {
 }
 
 TEST(TableVariableTest, TableVariableString) {
-  EXPECT_STREQ(tableVariableString(TableAxisVariable::total_output_net_capacitance),
-               "total_output_net_capacitance");
-  EXPECT_STREQ(tableVariableString(TableAxisVariable::input_net_transition),
-               "input_net_transition");
-  EXPECT_STREQ(tableVariableString(TableAxisVariable::time),
-               "time");
+  EXPECT_EQ(tableVariableString(TableAxisVariable::total_output_net_capacitance),
+            "total_output_net_capacitance");
+  EXPECT_EQ(tableVariableString(TableAxisVariable::input_net_transition),
+            "input_net_transition");
+  EXPECT_EQ(tableVariableString(TableAxisVariable::time),
+            "time");
 }
 
 TEST(TableVariableTest, TableVariableUnit) {
@@ -1155,11 +1154,11 @@ TEST(TimingTypeTest, TimingTypeScaleFactorType) {
 }
 
 TEST(TimingSenseTest, ToString) {
-  EXPECT_STREQ(to_string(TimingSense::positive_unate), "positive_unate");
-  EXPECT_STREQ(to_string(TimingSense::negative_unate), "negative_unate");
-  EXPECT_STREQ(to_string(TimingSense::non_unate), "non_unate");
-  EXPECT_STREQ(to_string(TimingSense::none), "none");
-  EXPECT_STREQ(to_string(TimingSense::unknown), "unknown");
+  EXPECT_EQ(to_string(TimingSense::positive_unate), "positive_unate");
+  EXPECT_EQ(to_string(TimingSense::negative_unate), "negative_unate");
+  EXPECT_EQ(to_string(TimingSense::non_unate), "non_unate");
+  EXPECT_EQ(to_string(TimingSense::none), "none");
+  EXPECT_EQ(to_string(TimingSense::unknown), "unknown");
 }
 
 TEST(TimingSenseTest, Opposite) {
@@ -1353,8 +1352,8 @@ TEST(TimingArcAttrsTest, SetSdfCondStartEnd) {
 TEST(RiseFallTest, BasicProperties) {
   EXPECT_EQ(RiseFall::rise()->index(), 0);
   EXPECT_EQ(RiseFall::fall()->index(), 1);
-  EXPECT_STREQ(RiseFall::rise()->name(), "rise");
-  EXPECT_STREQ(RiseFall::fall()->name(), "fall");
+  EXPECT_EQ(RiseFall::rise()->name(), "rise");
+  EXPECT_EQ(RiseFall::fall()->name(), "fall");
   EXPECT_EQ(RiseFall::rise()->opposite(), RiseFall::fall());
   EXPECT_EQ(RiseFall::fall()->opposite(), RiseFall::rise());
 }
@@ -1496,7 +1495,7 @@ TEST_F(LinearModelTest, CheckLinearModelCheckDelay) {
 
 TEST_F(LinearModelTest, CheckLinearModelReportCheckDelay) {
   CheckLinearModel model(cell_, 2.0f);
-  std::string report = model.reportCheckDelay(nullptr, 0.0f, nullptr,
+  std::string report = model.reportCheckDelay(nullptr, 0.0f, "",
                                                0.0f, 0.0f,
                                                nullptr, PocvMode::scalar, 3);
   EXPECT_FALSE(report.empty());
@@ -1686,13 +1685,13 @@ TEST(TableModelTest, Order2) {
 TEST(WireloadTest, BasicConstruction) {
   LibertyLibrary lib("test_lib", "test.lib");
   Wireload wl("test_wl", &lib, 0.0f, 1.0f, 2.0f, 3.0f);
-  EXPECT_STREQ(wl.name(), "test_wl");
+  EXPECT_EQ(wl.name(), "test_wl");
 }
 
 TEST(WireloadTest, SimpleConstructor) {
   LibertyLibrary lib("test_lib", "test.lib");
   Wireload wl("test_wl", &lib);
-  EXPECT_STREQ(wl.name(), "test_wl");
+  EXPECT_EQ(wl.name(), "test_wl");
   // Set individual properties
   wl.setArea(10.0f);
   wl.setResistance(1.5f);
@@ -1917,7 +1916,7 @@ TEST_F(LinearModelTest, Table0ReportValue) {
   Table tbl(42.0f);
   const Units *units = lib_->units();
   std::string report = tbl.reportValue("Delay", cell_, nullptr,
-                                        0.0f, nullptr, 0.0f, 0.0f,
+                                        0.0f, "", 0.0f, 0.0f,
                                         units->timeUnit(), 3);
   EXPECT_FALSE(report.empty());
   EXPECT_NE(report.find("Delay"), std::string::npos);
@@ -1936,7 +1935,7 @@ TEST_F(LinearModelTest, Table1ReportValue) {
 
   const Units *units = lib_->units();
   std::string report = tbl.reportValue("Delay", cell_, nullptr,
-                                        0.5f, nullptr, 0.0f, 0.0f,
+                                        0.5f, "", 0.0f, 0.0f,
                                         units->timeUnit(), 3);
   EXPECT_FALSE(report.empty());
   EXPECT_NE(report.find("Delay"), std::string::npos);
@@ -1959,7 +1958,7 @@ TEST_F(LinearModelTest, Table2ReportValue) {
 
   const Units *units = lib_->units();
   std::string report = tbl.reportValue("Delay", cell_, nullptr,
-                                        0.5f, nullptr, 0.5f, 0.0f,
+                                        0.5f, "", 0.5f, 0.0f,
                                         units->timeUnit(), 3);
   EXPECT_FALSE(report.empty());
   EXPECT_NE(report.find("Delay"), std::string::npos);
@@ -1989,7 +1988,7 @@ TEST_F(LinearModelTest, Table3ReportValue) {
 
   const Units *units = lib_->units();
   std::string report = tbl.reportValue("Delay", cell_, nullptr,
-                                        0.5f, nullptr, 0.5f, 0.5f,
+                                        0.5f, "", 0.5f, 0.5f,
                                         units->timeUnit(), 3);
   EXPECT_FALSE(report.empty());
   EXPECT_NE(report.find("Delay"), std::string::npos);
@@ -2036,7 +2035,7 @@ TEST_F(LinearModelTest, TableModelReportValue) {
 
   const Units *units = lib_->units();
   std::string report = model.reportValue("Delay", cell_, nullptr,
-                                          0.5f, nullptr, 0.0f, 0.0f,
+                                          0.5f, "", 0.0f, 0.0f,
                                           units->timeUnit(), 3);
   EXPECT_FALSE(report.empty());
   EXPECT_NE(report.find("Delay"), std::string::npos);
@@ -2116,11 +2115,11 @@ TEST(FuncExprTest, ZeroOneExpressions) {
 TEST(SequentialTest, BasicConstruction) {
   // Sequential class is constructed and used during liberty parsing
   // We can test the StringTableAxisVariable utility
-  const char *var_str = tableVariableString(TableAxisVariable::input_transition_time);
-  EXPECT_STREQ(var_str, "input_transition_time");
+  auto var_str = tableVariableString(TableAxisVariable::input_transition_time);
+  EXPECT_EQ(var_str, "input_transition_time");
 
   var_str = tableVariableString(TableAxisVariable::total_output_net_capacitance);
-  EXPECT_STREQ(var_str, "total_output_net_capacitance");
+  EXPECT_EQ(var_str, "total_output_net_capacitance");
 }
 
 TEST(TableAxisVariableTest, StringToVariable) {
@@ -2140,7 +2139,7 @@ TEST(TableAxisVariableTest, StringToVariable) {
 
 TEST(WireloadSelectionTest, BasicConstruction) {
   WireloadSelection sel("test_sel");
-  EXPECT_STREQ(sel.name(), "test_sel");
+  EXPECT_EQ(sel.name(), "test_sel");
 }
 
 TEST(WireloadSelectionTest, FindWireload) {
@@ -2507,7 +2506,7 @@ TEST(TableModelTest, FindValueOrder2) {
 
 TEST(ScaleFactorsTest, BasicConstruction) {
   ScaleFactors sf("test_scales");
-  EXPECT_STREQ(sf.name(), "test_scales");
+  EXPECT_EQ(sf.name(), "test_scales");
 }
 
 TEST(ScaleFactorsTest, SetAndGetWithRiseFall) {
@@ -2541,12 +2540,12 @@ TEST(ScaleFactorsTest, SetAndGetWithoutRiseFall) {
 ////////////////////////////////////////////////////////////////
 
 TEST(OcvDerateTest, BasicConstruction) {
-  OcvDerate derate(stringCopy("test_ocv"));
+  OcvDerate derate("test_ocv");
   EXPECT_EQ(derate.name(), "test_ocv");
 }
 
 TEST(OcvDerateTest, SetAndGetDerateTable) {
-  OcvDerate derate(stringCopy("ocv1"));
+  OcvDerate derate("ocv1");
   TablePtr tbl = std::make_shared<Table>(0.95f);
   derate.setDerateTable(RiseFall::rise(), EarlyLate::early(),
                         PathType::data, tbl);
@@ -2556,7 +2555,7 @@ TEST(OcvDerateTest, SetAndGetDerateTable) {
 }
 
 TEST(OcvDerateTest, NullByDefault) {
-  OcvDerate derate(stringCopy("ocv2"));
+  OcvDerate derate("ocv2");
   const Table *found = derate.derateTable(RiseFall::fall(), EarlyLate::late(),
                                           PathType::clk);
   EXPECT_EQ(found, nullptr);
@@ -2575,7 +2574,7 @@ TEST(LibertyLibraryTest, OcvArcDepth) {
 TEST(LibertyLibraryTest, DefaultOcvDerate) {
   LibertyLibrary lib("test_lib", "test.lib");
   EXPECT_EQ(lib.defaultOcvDerate(), nullptr);
-  OcvDerate *derate = new OcvDerate(stringCopy("default_ocv"));
+  OcvDerate *derate = new OcvDerate("default_ocv");
   lib.setDefaultOcvDerate(derate);
   EXPECT_EQ(lib.defaultOcvDerate(), derate);
 }
@@ -2626,7 +2625,7 @@ TEST(LibertyLibraryTest, MakeScaledCell) {
   LibertyLibrary lib("test_lib", "test.lib");
   LibertyCell *cell = lib.makeScaledCell("scaled_inv", "test.lib");
   EXPECT_NE(cell, nullptr);
-  EXPECT_STREQ(cell->name(), "scaled_inv");
+  EXPECT_EQ(cell->name(), "scaled_inv");
   delete cell;
 }
 
@@ -2666,7 +2665,7 @@ TEST(LibertyLibraryTest, TableTemplates) {
 TEST(TestCellTest, BasicConstruction) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "INV_X1", "test.lib");
-  EXPECT_STREQ(cell.name(), "INV_X1");
+  EXPECT_EQ(cell.name(), "INV_X1");
   EXPECT_EQ(cell.libertyLibrary(), &lib);
 }
 
@@ -2834,7 +2833,7 @@ TEST(TestCellTest, CellOcvDerate) {
   // Without cell-level derate, returns library default
   EXPECT_EQ(cell.ocvDerate(), nullptr);
 
-  OcvDerate *derate = new OcvDerate(stringCopy("cell_ocv"));
+  OcvDerate *derate = new OcvDerate("cell_ocv");
   cell.setOcvDerate(derate);
   EXPECT_EQ(cell.ocvDerate(), derate);
 }
@@ -2873,8 +2872,8 @@ TEST(TestCellTest, TimingArcSetCount) {
 ////////////////////////////////////////////////////////////////
 
 TEST(ScanSignalTypeTest, Names) {
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::enable), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::enable_inverted), nullptr);
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::enable).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::enable_inverted).empty());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2979,8 +2978,8 @@ TEST(LibertyUtilTest, PortLibertyToSta) {
 }
 
 TEST(LibertyUtilTest, PwrGndTypeName) {
-  const char *name = pwrGndTypeName(PwrGndType::primary_power);
-  EXPECT_NE(name, nullptr);
+  const std::string &name = pwrGndTypeName(PwrGndType::primary_power);
+  EXPECT_FALSE(name.empty());
 }
 
 TEST(LibertyUtilTest, FindPwrGndType) {
@@ -3000,9 +2999,9 @@ TEST(ScaleFactorPvtTest, FindByName) {
 }
 
 TEST(ScaleFactorPvtTest, PvtToName) {
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::process), "process");
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::volt), "volt");
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::temp), "temp");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::process), "process");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::volt), "volt");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::temp), "temp");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3029,16 +3028,16 @@ TEST(ScaleFactorTypeTest, FindByName) {
 }
 
 TEST(ScaleFactorTypeTest, TypeToName) {
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::pin_cap), "pin_cap");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::wire_cap), "wire_cap");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::wire_res), "wire_res");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::cell), "cell");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::hold), "hold");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::setup), "setup");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::recovery), "recovery");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::removal), "removal");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::transition), "transition");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::min_pulse_width), "min_pulse_width");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::pin_cap), "pin_cap");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::wire_cap), "wire_cap");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::wire_res), "wire_res");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::cell), "cell");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::hold), "hold");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::setup), "setup");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::recovery), "recovery");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::removal), "removal");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::transition), "transition");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::min_pulse_width), "min_pulse_width");
 }
 
 TEST(ScaleFactorTypeTest, RiseFallSuffix) {
@@ -3097,13 +3096,16 @@ TEST(PvtTest, Setters) {
 
 TEST(OperatingConditionsTest, NameOnlyConstructor) {
   OperatingConditions opcond("typical");
-  EXPECT_STREQ(opcond.name(), "typical");
+  EXPECT_EQ(opcond.name(), "typical");
 }
 
 TEST(OperatingConditionsTest, FullConstructor) {
-  OperatingConditions opcond("worst", 1.0f, 0.9f, 125.0f,
-                             WireloadTree::worst_case);
-  EXPECT_STREQ(opcond.name(), "worst");
+  OperatingConditions opcond("worst");
+  opcond.setProcess(1.0f);
+  opcond.setVoltage(0.9f);
+  opcond.setTemperature(125.0f);
+  opcond.setWireloadTree(WireloadTree::worst_case);
+  EXPECT_EQ(opcond.name(), "worst");
   EXPECT_FLOAT_EQ(opcond.process(), 1.0f);
   EXPECT_FLOAT_EQ(opcond.voltage(), 0.9f);
   EXPECT_FLOAT_EQ(opcond.temperature(), 125.0f);
@@ -3201,8 +3203,10 @@ TEST(ModeDefTest, DefineAndFindValue) {
   EXPECT_NE(mode, nullptr);
 
   FuncExpr *cond = FuncExpr::makeOne();
-  ModeValueDef *valdef = mode->defineValue("test_value", cond, "A==1");
+  ModeValueDef *valdef = mode->defineValue("test_value");
   EXPECT_NE(valdef, nullptr);
+  valdef->setCond(cond);
+  valdef->setSdfCond("A==1");
   EXPECT_EQ(valdef->value(), "test_value");
   EXPECT_EQ(valdef->cond(), cond);
   EXPECT_EQ(valdef->sdfCond(), "A==1");
@@ -3211,8 +3215,8 @@ TEST(ModeDefTest, DefineAndFindValue) {
   EXPECT_EQ(found, valdef);
   EXPECT_EQ(mode->findValueDef("nonexistent"), nullptr);
 
-  const ModeValueMap *vals = mode->values();
-  EXPECT_NE(vals, nullptr);
+  const ModeValueMap &vals = mode->values();
+  EXPECT_FALSE(vals.empty());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3286,34 +3290,30 @@ TEST(TestCellTest, TimingArcSetsEmpty) {
 TEST(TestCellTest, FootprintDefault) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
-  const char *fp = cell.footprint();
-  // Empty string or nullptr for default
-  if (fp) {
-    EXPECT_EQ(fp, "");
-  }
+  const std::string &fp = cell.footprint();
+  // Empty string for default
+  EXPECT_TRUE(fp.empty());
 }
 
 TEST(TestCellTest, SetFootprint) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
   cell.setFootprint("INV_FP");
-  EXPECT_STREQ(cell.footprint(), "INV_FP");
+  EXPECT_EQ(cell.footprint(), "INV_FP");
 }
 
 TEST(TestCellTest, UserFunctionClassDefault) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
-  const char *ufc = cell.userFunctionClass();
-  if (ufc) {
-    EXPECT_EQ(ufc, "");
-  }
+  const std::string &ufc = cell.userFunctionClass();
+  EXPECT_TRUE(ufc.empty());
 }
 
 TEST(TestCellTest, SetUserFunctionClass) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
   cell.setUserFunctionClass("inverter");
-  EXPECT_STREQ(cell.userFunctionClass(), "inverter");
+  EXPECT_EQ(cell.userFunctionClass(), "inverter");
 }
 
 TEST(TestCellTest, SwitchCellTypeGetter) {
@@ -3425,15 +3425,15 @@ TEST(TimingTypeTest, ScaleFactorTypeAdditional) {
 ////////////////////////////////////////////////////////////////
 
 TEST(ScanSignalTypeTest, AllNames) {
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::enable), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::enable_inverted), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::clock), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::clock_a), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::clock_b), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::input), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::input_inverted), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::output), nullptr);
-  EXPECT_NE(scanSignalTypeName(ScanSignalType::output_inverted), nullptr);
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::enable).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::enable_inverted).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::clock).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::clock_a).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::clock_b).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::input).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::input_inverted).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::output).empty());
+  EXPECT_FALSE(scanSignalTypeName(ScanSignalType::output_inverted).empty());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3441,16 +3441,16 @@ TEST(ScanSignalTypeTest, AllNames) {
 ////////////////////////////////////////////////////////////////
 
 TEST(LibertyUtilTest, PwrGndTypeAllNames) {
-  EXPECT_NE(pwrGndTypeName(PwrGndType::primary_power), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::primary_ground), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::backup_power), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::backup_ground), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::internal_power), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::internal_ground), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::nwell), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::pwell), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::deepnwell), nullptr);
-  EXPECT_NE(pwrGndTypeName(PwrGndType::deeppwell), nullptr);
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::primary_power).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::primary_ground).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::backup_power).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::backup_ground).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::internal_power).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::internal_ground).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::nwell).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::pwell).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::deepnwell).empty());
+  EXPECT_FALSE(pwrGndTypeName(PwrGndType::deeppwell).empty());
 }
 
 TEST(LibertyUtilTest, FindPwrGndTypeAll) {
@@ -3675,7 +3675,7 @@ TEST(Table0Test, ReportValue) {
   TestCell cell(&lib, "INV", "test.lib");
   const Units *units = lib.units();
   std::string report = tbl.reportValue("Power", &cell, nullptr,
-                                        0.0f, nullptr, 0.0f, 0.0f,
+                                        0.0f, "", 0.0f, 0.0f,
                                         units->powerUnit(), 3);
   EXPECT_FALSE(report.empty());
 }

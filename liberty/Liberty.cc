@@ -3031,7 +3031,7 @@ scaleFactorTypeName(ScaleFactorType type)
 }
 
 ScaleFactorType
-findScaleFactorType(const char *name)
+findScaleFactorType(std::string_view name)
 {
   return scale_factor_type_map.find(name, ScaleFactorType::unknown);
 }
@@ -3072,7 +3072,7 @@ EnumNameMap<ScaleFactorPvt> scale_factor_pvt_names =
   };
 
 ScaleFactorPvt
-findScaleFactorPvt(const char *name)
+findScaleFactorPvt(std::string_view name)
 {
   return scale_factor_pvt_names.find(name, ScaleFactorPvt::unknown);
 }

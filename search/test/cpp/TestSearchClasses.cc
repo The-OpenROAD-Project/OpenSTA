@@ -170,14 +170,14 @@ TEST_F(PropertyValueTest, DefaultConstructor) {
 TEST_F(PropertyValueTest, StringConstructor) {
   PropertyValue pv("hello");
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv.stringValue(), "hello");
+  EXPECT_EQ(pv.stringValue(), "hello");
 }
 
 TEST_F(PropertyValueTest, StdStringConstructor) {
   std::string s("world");
   PropertyValue pv(s);
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv.stringValue(), "world");
+  EXPECT_EQ(pv.stringValue(), "world");
 }
 
 TEST_F(PropertyValueTest, BoolConstructorTrue) {
@@ -275,7 +275,7 @@ TEST_F(PropertyValueTest, CopyConstructorString) {
   PropertyValue pv1("copy_test");
   PropertyValue pv2(pv1);
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "copy_test");
+  EXPECT_EQ(pv2.stringValue(), "copy_test");
 }
 
 TEST_F(PropertyValueTest, CopyConstructorFloat) {
@@ -382,7 +382,7 @@ TEST_F(PropertyValueTest, MoveConstructorString) {
   PropertyValue pv1("move_test");
   PropertyValue pv2(std::move(pv1));
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "move_test");
+  EXPECT_EQ(pv2.stringValue(), "move_test");
 }
 
 TEST_F(PropertyValueTest, MoveConstructorFloat) {
@@ -480,7 +480,7 @@ TEST_F(PropertyValueTest, CopyAssignmentString) {
   PropertyValue pv2;
   pv2 = pv1;
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "assign_test");
+  EXPECT_EQ(pv2.stringValue(), "assign_test");
 }
 
 TEST_F(PropertyValueTest, CopyAssignmentFloat) {
@@ -591,7 +591,7 @@ TEST_F(PropertyValueTest, MoveAssignmentString) {
   PropertyValue pv2;
   pv2 = std::move(pv1);
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "move_assign");
+  EXPECT_EQ(pv2.stringValue(), "move_assign");
 }
 
 TEST_F(PropertyValueTest, MoveAssignmentFloat) {
@@ -950,7 +950,7 @@ protected:
 
 // FalsePath
 TEST_F(ExceptionPathTest, FalsePathBasic) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp.isFalse());
   EXPECT_FALSE(fp.isLoop());
   EXPECT_FALSE(fp.isMultiCycle());
@@ -965,38 +965,38 @@ TEST_F(ExceptionPathTest, FalsePathBasic) {
 }
 
 TEST_F(ExceptionPathTest, FalsePathTypeString) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_EQ(fp.typePriority(), ExceptionPath::falsePathPriority());
 }
 
 TEST_F(ExceptionPathTest, FalsePathTighterThan) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   // FalsePath tighterThan always returns false
   EXPECT_FALSE(fp1.tighterThan(&fp2));
 }
 
 TEST_F(ExceptionPathTest, FalsePathMatches) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp.matches(MinMax::min(), false));
   EXPECT_TRUE(fp.matches(MinMax::max(), false));
 }
 
 TEST_F(ExceptionPathTest, FalsePathMatchesMinOnly) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::min(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::min(), true, "");
   EXPECT_TRUE(fp.matches(MinMax::min(), false));
   EXPECT_FALSE(fp.matches(MinMax::max(), false));
 }
 
 TEST_F(ExceptionPathTest, FalsePathMergeable) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp1.mergeable(&fp2));
 }
 
 TEST_F(ExceptionPathTest, FalsePathOverrides) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp1.overrides(&fp2));
 }
 
@@ -1026,7 +1026,7 @@ TEST_F(ExceptionPathTest, LoopPathNotMergeable) {
 // PathDelay
 TEST_F(ExceptionPathTest, PathDelayBasic) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-               10.0e-9f, true, nullptr);
+               10.0e-9f, true, "");
   EXPECT_TRUE(pd.isPathDelay());
   EXPECT_FALSE(pd.isFalse());
   EXPECT_FALSE(pd.isMultiCycle());
@@ -1038,7 +1038,7 @@ TEST_F(ExceptionPathTest, PathDelayBasic) {
 
 TEST_F(ExceptionPathTest, PathDelayWithFlags) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::min(), true, true,
-               5.0e-9f, true, nullptr);
+               5.0e-9f, true, "");
   EXPECT_TRUE(pd.ignoreClkLatency());
   EXPECT_TRUE(pd.breakPath());
   EXPECT_FLOAT_EQ(pd.delay(), 5.0e-9f);
@@ -1046,15 +1046,15 @@ TEST_F(ExceptionPathTest, PathDelayWithFlags) {
 
 TEST_F(ExceptionPathTest, PathDelayTypePriority) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-               0.0f, true, nullptr);
+               0.0f, true, "");
   EXPECT_EQ(pd.typePriority(), ExceptionPath::pathDelayPriority());
 }
 
 TEST_F(ExceptionPathTest, PathDelayTighterThanMax) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-                5.0e-9f, true, nullptr);
+                5.0e-9f, true, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-                10.0e-9f, true, nullptr);
+                10.0e-9f, true, "");
   // For max, tighter means smaller delay
   EXPECT_TRUE(pd1.tighterThan(&pd2));
   EXPECT_FALSE(pd2.tighterThan(&pd1));
@@ -1062,9 +1062,9 @@ TEST_F(ExceptionPathTest, PathDelayTighterThanMax) {
 
 TEST_F(ExceptionPathTest, PathDelayTighterThanMin) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::min(), false, false,
-                10.0e-9f, true, nullptr);
+                10.0e-9f, true, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::min(), false, false,
-                5.0e-9f, true, nullptr);
+                5.0e-9f, true, "");
   // For min, tighter means larger delay
   EXPECT_TRUE(pd1.tighterThan(&pd2));
   EXPECT_FALSE(pd2.tighterThan(&pd1));
@@ -1072,7 +1072,7 @@ TEST_F(ExceptionPathTest, PathDelayTighterThanMin) {
 
 TEST_F(ExceptionPathTest, PathDelayClone) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), true, true,
-               7.0e-9f, true, nullptr);
+               7.0e-9f, true, "");
   ExceptionPath *clone = pd.clone(nullptr, nullptr, nullptr, true);
   EXPECT_TRUE(clone->isPathDelay());
   EXPECT_FLOAT_EQ(clone->delay(), 7.0e-9f);
@@ -1083,16 +1083,16 @@ TEST_F(ExceptionPathTest, PathDelayClone) {
 
 TEST_F(ExceptionPathTest, PathDelayOverrides) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-                5.0e-9f, true, nullptr);
+                5.0e-9f, true, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-                10.0e-9f, true, nullptr);
+                10.0e-9f, true, "");
   EXPECT_TRUE(pd1.overrides(&pd2));
 }
 
 // MultiCyclePath
 TEST_F(ExceptionPathTest, MultiCyclePathBasic) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   EXPECT_TRUE(mcp.isMultiCycle());
   EXPECT_FALSE(mcp.isFalse());
   EXPECT_FALSE(mcp.isPathDelay());
@@ -1103,13 +1103,13 @@ TEST_F(ExceptionPathTest, MultiCyclePathBasic) {
 
 TEST_F(ExceptionPathTest, MultiCyclePathTypePriority) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     false, 2, true, nullptr);
+                     false, 2, true, "");
   EXPECT_EQ(mcp.typePriority(), ExceptionPath::multiCyclePathPriority());
 }
 
 TEST_F(ExceptionPathTest, MultiCyclePathMultiplierAll) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   // When min_max_ is all and min_max arg is min, multiplier is 0
   EXPECT_EQ(mcp.pathMultiplier(MinMax::min()), 0);
   // For max, returns the actual multiplier
@@ -1118,14 +1118,14 @@ TEST_F(ExceptionPathTest, MultiCyclePathMultiplierAll) {
 
 TEST_F(ExceptionPathTest, MultiCyclePathMultiplierSpecific) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
-                     true, 5, true, nullptr);
+                     true, 5, true, "");
   EXPECT_EQ(mcp.pathMultiplier(MinMax::min()), 5);
   EXPECT_EQ(mcp.pathMultiplier(MinMax::max()), 5);
 }
 
 TEST_F(ExceptionPathTest, MultiCyclePathPriorityAll) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   int base_priority = mcp.priority();
   // priority(min_max) returns priority_ + 1 when min_max_ == all
   EXPECT_EQ(mcp.priority(MinMax::min()), base_priority + 1);
@@ -1134,7 +1134,7 @@ TEST_F(ExceptionPathTest, MultiCyclePathPriorityAll) {
 
 TEST_F(ExceptionPathTest, MultiCyclePathPrioritySpecific) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   int base_priority = mcp.priority();
   // priority(min_max) returns priority_ + 2 when min_max_ matches
   EXPECT_EQ(mcp.priority(MinMax::max()), base_priority + 2);
@@ -1144,7 +1144,7 @@ TEST_F(ExceptionPathTest, MultiCyclePathPrioritySpecific) {
 
 TEST_F(ExceptionPathTest, MultiCyclePathMatchesAll) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   EXPECT_TRUE(mcp.matches(MinMax::min(), false));
   EXPECT_TRUE(mcp.matches(MinMax::max(), false));
   EXPECT_TRUE(mcp.matches(MinMax::min(), true));
@@ -1153,7 +1153,7 @@ TEST_F(ExceptionPathTest, MultiCyclePathMatchesAll) {
 
 TEST_F(ExceptionPathTest, MultiCyclePathMatchesMaxSetup) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   EXPECT_TRUE(mcp.matches(MinMax::max(), false));
   EXPECT_TRUE(mcp.matches(MinMax::max(), true));
   // For min path, not exact: should still match because multicycle setup
@@ -1165,16 +1165,16 @@ TEST_F(ExceptionPathTest, MultiCyclePathMatchesMaxSetup) {
 
 TEST_F(ExceptionPathTest, MultiCyclePathTighterThan) {
   MultiCyclePath mcp1(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                      true, 2, true, nullptr);
+                      true, 2, true, "");
   MultiCyclePath mcp2(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                      true, 5, true, nullptr);
+                      true, 5, true, "");
   EXPECT_TRUE(mcp1.tighterThan(&mcp2));
   EXPECT_FALSE(mcp2.tighterThan(&mcp1));
 }
 
 TEST_F(ExceptionPathTest, MultiCyclePathClone) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
-                     true, 4, true, nullptr);
+                     true, 4, true, "");
   ExceptionPath *clone = mcp.clone(nullptr, nullptr, nullptr, true);
   EXPECT_TRUE(clone->isMultiCycle());
   EXPECT_EQ(clone->pathMultiplier(), 4);
@@ -1228,7 +1228,7 @@ TEST_F(ExceptionPathTest, FilterPathClone) {
 
 // GroupPath
 TEST_F(ExceptionPathTest, GroupPathBasic) {
-  GroupPath gp("group1", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("group1", false, nullptr, nullptr, nullptr, true, "");
   EXPECT_TRUE(gp.isGroupPath());
   EXPECT_FALSE(gp.isFalse());
   EXPECT_FALSE(gp.isPathDelay());
@@ -1238,19 +1238,19 @@ TEST_F(ExceptionPathTest, GroupPathBasic) {
 }
 
 TEST_F(ExceptionPathTest, GroupPathDefault) {
-  GroupPath gp("default_group", true, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("default_group", true, nullptr, nullptr, nullptr, true, "");
   EXPECT_TRUE(gp.isDefault());
   EXPECT_EQ(gp.name(), "default_group");
 }
 
 TEST_F(ExceptionPathTest, GroupPathTypePriority) {
-  GroupPath gp("gp", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("gp", false, nullptr, nullptr, nullptr, true, "");
   EXPECT_EQ(gp.typePriority(), ExceptionPath::groupPathPriority());
 }
 
 TEST_F(ExceptionPathTest, GroupPathTighterThan) {
-  GroupPath gp1("gp1", false, nullptr, nullptr, nullptr, true, nullptr);
-  GroupPath gp2("gp2", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp1("gp1", false, nullptr, nullptr, nullptr, true, "");
+  GroupPath gp2("gp2", false, nullptr, nullptr, nullptr, true, "");
   EXPECT_FALSE(gp1.tighterThan(&gp2));
 }
 
@@ -1277,14 +1277,14 @@ TEST_F(ExceptionPathTest, FromThruToPriority) {
 }
 
 TEST_F(ExceptionPathTest, SetId) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_EQ(fp.id(), 0u);
   fp.setId(42);
   EXPECT_EQ(fp.id(), 42u);
 }
 
 TEST_F(ExceptionPathTest, SetPriority) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   int orig_priority = fp.priority();
   fp.setPriority(9999);
   EXPECT_EQ(fp.priority(), 9999);
@@ -1292,12 +1292,12 @@ TEST_F(ExceptionPathTest, SetPriority) {
 }
 
 TEST_F(ExceptionPathTest, FirstPtNone) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_EQ(fp.firstPt(), nullptr);
 }
 
 TEST_F(ExceptionPathTest, FirstState) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionState *state = fp.firstState();
   EXPECT_NE(state, nullptr);
   // Should be complete since no from/thru/to
@@ -1305,27 +1305,27 @@ TEST_F(ExceptionPathTest, FirstState) {
 }
 
 TEST_F(ExceptionPathTest, Hash) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   // Same structure should produce same hash
   EXPECT_EQ(fp1.hash(), fp2.hash());
 }
 
 TEST_F(ExceptionPathTest, MergeablePts) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp1.mergeablePts(&fp2));
 }
 
 TEST_F(ExceptionPathTest, IntersectsPts) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp1.intersectsPts(&fp2, nullptr));
 }
 
 // ExceptionState tests
 TEST_F(ExceptionPathTest, ExceptionStateBasic) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionState *state = fp.firstState();
   EXPECT_EQ(state->exception(), &fp);
   EXPECT_EQ(state->nextThru(), nullptr);
@@ -1333,7 +1333,7 @@ TEST_F(ExceptionPathTest, ExceptionStateBasic) {
 }
 
 TEST_F(ExceptionPathTest, ExceptionStateHash) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionState *state = fp.firstState();
   // Hash should be deterministic
   size_t h = state->hash();
@@ -1341,9 +1341,9 @@ TEST_F(ExceptionPathTest, ExceptionStateHash) {
 }
 
 TEST_F(ExceptionPathTest, ExceptionStateLess) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   fp1.setId(1);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   fp2.setId(2);
   ExceptionState *s1 = fp1.firstState();
   ExceptionState *s2 = fp2.firstState();
@@ -1366,14 +1366,14 @@ TEST_F(ExceptionPathTest, CheckFromThrusToWithNulls) {
 
 // ExceptionPtIterator
 TEST_F(ExceptionPathTest, PtIteratorEmpty) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionPtIterator iter(&fp);
   EXPECT_FALSE(iter.hasNext());
 }
 
 // Default values
 TEST_F(ExceptionPathTest, DefaultValues) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_FALSE(fp.useEndClk());
   EXPECT_EQ(fp.pathMultiplier(), 0);
   EXPECT_FLOAT_EQ(fp.delay(), 0.0f);

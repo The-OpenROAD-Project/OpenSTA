@@ -81,7 +81,7 @@ LibertyParser::makeDefine(const LibertyAttrValueSeq *values,
     const std::string &value_type_name = (*values)[2]->stringValue();
     LibertyAttrType value_type = attrValueType(value_type_name);
     LibertyGroupType group_type = groupType(group_type_name);
-    define = new LibertyDefine(define_name, group_type, value_type, line);
+    define = new LibertyDefine(std::move(define_name), group_type, value_type, line);
     LibertyGroup *group = this->group();
     group->addDefine(define);
     for (auto value : *values)
