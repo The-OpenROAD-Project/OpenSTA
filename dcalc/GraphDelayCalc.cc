@@ -617,7 +617,6 @@ GraphDelayCalc::findInputDriverDelay(const LibertyCell *drvr_cell,
       }
     }
   }
-  arc_delay_calc_->finishDrvrPin();
 }
 
 // Driving cell delay is the load dependent delay, which is the gate
