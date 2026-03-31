@@ -53,7 +53,8 @@ Levelize::Levelize(StaState *sta) :
   level_space_(10),
   roots_(makeVertexSet(sta)),
   relevelize_from_(makeVertexSet(sta)),
-  observer_(nullptr)
+  observer_(nullptr),
+  drvr_vertices_level_valid_(false)
 {
 }
 
@@ -90,6 +91,7 @@ Levelize::clear()
   loops_.clear();
   loop_edges_.clear();
   max_level_ = 0;
+  drvr_vertices_level_valid_ = false;
 }
 
 void
@@ -550,6 +552,7 @@ Levelize::invalid()
     debugPrint(debug_, "levelize", 1, "levels invalid");
     levelized_ = false;
     levels_valid_ = false;
+    drvr_vertices_level_valid_ = false;
   }
 }
 
@@ -559,6 +562,7 @@ Levelize::deleteVertexBefore(Vertex *vertex)
   if (levelized_) {
     roots_.erase(vertex);
     relevelize_from_.erase(vertex);
+    drvr_vertices_level_valid_ = false;
   }
 }
 
@@ -570,6 +574,7 @@ Levelize::relevelizeFrom(Vertex *vertex)
                vertex->to_string(this));
     relevelize_from_.insert(vertex);
     levels_valid_ = false;
+    drvr_vertices_level_valid_ = false;
   }
 }
 
@@ -584,6 +589,7 @@ Levelize::deleteEdgeBefore(Edge *edge)
     // fails because the DFS path will be missing.
     levelized_ = false;
     levels_valid_ = false;
+    drvr_vertices_level_valid_ = false;
   }
 }
 
@@ -708,6 +714,32 @@ Levelize::checkLevels()
                       vertex->name(network_), level);
     }
   }
+}
+
+void
+Levelize::levelizeDrvrVertices()
+{
+  levelized_drvr_vertices_.clear();
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext()) {
+    Vertex *vertex = vertex_iter.next();
+    if (vertex->isDriver(network_))
+      levelized_drvr_vertices_.emplace_back(vertex);
+  }
+  sort(levelized_drvr_vertices_,
+       [](const Vertex *a, const Vertex *b) {
+         return a->level() < b->level();
+       });
+  drvr_vertices_level_valid_ = true;
+}
+
+const VertexSeq &
+Levelize::levelizedDrvrVertices()
+{
+  ensureLevelized();
+  if (!drvr_vertices_level_valid_)
+    levelizeDrvrVertices();
+  return levelized_drvr_vertices_;
 }
 
 ////////////////////////////////////////////////////////////////
