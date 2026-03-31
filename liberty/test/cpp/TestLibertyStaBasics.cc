@@ -594,15 +594,15 @@ TEST_F(StaLibertyTest, PortBoolFlags) {
   EXPECT_FALSE(a->isPad());
 }
 
-TEST_F(StaLibertyTest, PortRelatedPins) {
+TEST_F(StaLibertyTest, PortRelatedPorts) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
   ASSERT_NE(a, nullptr);
-  const char *ground_pin = a->relatedGroundPin();
-  const char *power_pin = a->relatedPowerPin();
-  // ground_pin may be null for simple arcs
-  // power_pin may be null for simple arcs
+  LibertyPort *ground_port = a->relatedGroundPort();
+  LibertyPort *power_port = a->relatedPowerPort();
+  // ground_port may be null for simple cells
+  // power_port may be null for simple cells
 }
 
 TEST_F(StaLibertyTest, PortLibertyLibrary) {
@@ -900,8 +900,9 @@ TEST_F(StaLibertyTest, PortVoltageName) {
   ASSERT_NE(buf, nullptr);
   LibertyPort *a = buf->findLibertyPort("A");
   ASSERT_NE(a, nullptr);
-  const char *vname = a->voltageName();
-  // vname may be null for simple arcs
+  const std::string &vname = a->voltageName();
+  // vname may be empty for simple cells
+  (void)vname;
 }
 
 TEST_F(StaLibertyTest, PortEquivAndLess) {
@@ -1136,7 +1137,7 @@ TEST(TableReportTest, Table0ReportValue) {
   Table t(42.0f);
   Unit unit(1e-9f, "s", 3);
   std::string rv = t.reportValue("delay", nullptr, nullptr,
-                                  0.0f, nullptr, 0.0f, 0.0f,
+                                  0.0f, "", 0.0f, 0.0f,
                                   &unit, 3);
   EXPECT_FALSE(rv.empty());
 }
@@ -1307,7 +1308,7 @@ TEST(DriverWaveformTest, CreateAndName) {
   auto ax2 = makeTestAxis(TableAxisVariable::normalized_voltage, {0.0f, 1.0f});
   TablePtr tbl = std::make_shared<Table>(std::move(vals), ax1, ax2);
   DriverWaveform *dw = new DriverWaveform("test_driver_waveform", tbl);
-  EXPECT_STREQ(dw->name(), "test_driver_waveform");
+  EXPECT_EQ(dw->name(), "test_driver_waveform");
   Table wf = dw->waveform(0.15f);
   // Waveform accessor exercised; axis may be null for simple waveforms
   EXPECT_EQ(wf.order(), 1);
@@ -1470,9 +1471,11 @@ TEST_F(StaLibertyTest, ModeValueDefSetSdfCond) {
   ASSERT_NE(buf, nullptr);
   ModeDef *mode_def = buf->makeModeDef("test_mode");
   ASSERT_NE(mode_def, nullptr);
-  ModeValueDef *val_def = mode_def->defineValue("val1", nullptr, "orig_sdf_cond");
+  ModeValueDef *val_def = mode_def->defineValue("val1");
   ASSERT_NE(val_def, nullptr);
   EXPECT_EQ(val_def->value(), "val1");
+  // Set sdf_cond after creation
+  val_def->setSdfCond("orig_sdf_cond");
   EXPECT_EQ(val_def->sdfCond(), "orig_sdf_cond");
   val_def->setSdfCond("new_sdf_cond");
   EXPECT_EQ(val_def->sdfCond(), "new_sdf_cond");
@@ -1483,7 +1486,7 @@ TEST_F(StaLibertyTest, ModeValueDefSetCond) {
   ASSERT_NE(buf, nullptr);
   ModeDef *mode_def = buf->makeModeDef("test_mode2");
   ASSERT_NE(mode_def, nullptr);
-  ModeValueDef *val_def = mode_def->defineValue("val2", nullptr, nullptr);
+  ModeValueDef *val_def = mode_def->defineValue("val2");
   ASSERT_NE(val_def, nullptr);
   EXPECT_EQ(val_def->cond(), nullptr);
   val_def->setCond(nullptr);
@@ -1621,7 +1624,7 @@ TEST_F(StaLibertyTest, CheckTableModelCheckDelay) {
           ArcDelay d = ctm->checkDelay(nullptr, 0.1f, 0.1f, 0.0f,
                                         MinMax::max(), PocvMode::scalar);
           EXPECT_GE(delayAsFloat(d), 0.0f);
-          std::string rpt = ctm->reportCheckDelay(nullptr, 0.1f, nullptr,
+          std::string rpt = ctm->reportCheckDelay(nullptr, 0.1f, "",
                                                     0.1f, 0.0f,
                                                     MinMax::max(), PocvMode::scalar, 3);
           EXPECT_FALSE(rpt.empty());
@@ -1644,7 +1647,7 @@ TEST_F(StaLibertyTest, LibraryMakeAndFindDriverWaveform) {
   ASSERT_NE(dw, nullptr);
   DriverWaveform *found = lib_->findDriverWaveform("my_driver_wf");
   EXPECT_EQ(found, dw);
-  EXPECT_STREQ(found->name(), "my_driver_wf");
+  EXPECT_EQ(found->name(), "my_driver_wf");
   EXPECT_EQ(lib_->findDriverWaveform("no_such_wf"), nullptr);
 }
 
@@ -1771,7 +1774,7 @@ TEST_F(StaLibertyTest, CheckTableModelDirect) {
                                 MinMax::max(), PocvMode::scalar);
   EXPECT_GE(delayAsFloat(d), 0.0f);
 
-  std::string rpt = ctm->reportCheckDelay(nullptr, 0.1f, nullptr,
+  std::string rpt = ctm->reportCheckDelay(nullptr, 0.1f, "",
                                             0.1f, 0.0f,
                                             MinMax::max(), PocvMode::scalar, 3);
   EXPECT_FALSE(rpt.empty());
@@ -1866,19 +1869,21 @@ TEST_F(StaLibertyTest, CellInverterCheck) {
 TEST_F(StaLibertyTest, CellFootprint) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  const char *fp = buf->footprint();
-  // fp may be null for simple arcs
+  const std::string &fp = buf->footprint();
+  // fp may be empty for simple cells
+  (void)fp;
   buf->setFootprint("test_fp");
-  EXPECT_STREQ(buf->footprint(), "test_fp");
+  EXPECT_EQ(buf->footprint(), "test_fp");
 }
 
 TEST_F(StaLibertyTest, CellUserFunctionClass) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  const char *ufc = buf->userFunctionClass();
-  // ufc may be null for simple arcs
+  const std::string &ufc = buf->userFunctionClass();
+  // ufc may be empty for simple cells
+  (void)ufc;
   buf->setUserFunctionClass("my_class");
-  EXPECT_STREQ(buf->userFunctionClass(), "my_class");
+  EXPECT_EQ(buf->userFunctionClass(), "my_class");
 }
 
 TEST_F(StaLibertyTest, CellSetArea) {
@@ -1981,7 +1986,7 @@ TEST(BusDclTest, Create) {
 
 TEST(OperatingConditionsTest, Create) {
   OperatingConditions oc("typical");
-  EXPECT_STREQ(oc.name(), "typical");
+  EXPECT_EQ(oc.name(), "typical");
   oc.setProcess(1.0f);
   oc.setTemperature(25.0f);
   oc.setVoltage(1.1f);
@@ -2132,22 +2137,28 @@ TEST(TimingArcSetWireTest, WireTimingArcSet) {
 // LibertyPort additional setters
 ////////////////////////////////////////////////////////////////
 
-TEST_F(StaLibertyTest, PortSetRelatedGroundPin) {
+TEST_F(StaLibertyTest, PortSetRelatedGroundPort) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  LibertyPort *port = buf->findLibertyPort("A");
-  ASSERT_NE(port, nullptr);
-  port->setRelatedGroundPin("VSS");
-  EXPECT_STREQ(port->relatedGroundPin(), "VSS");
+  LibertyPort *port_a = buf->findLibertyPort("A");
+  LibertyPort *port_z = buf->findLibertyPort("Z");
+  ASSERT_NE(port_a, nullptr);
+  ASSERT_NE(port_z, nullptr);
+  // Set and verify related ground port pointer
+  port_a->setRelatedGroundPort(port_z);
+  EXPECT_EQ(port_a->relatedGroundPort(), port_z);
 }
 
-TEST_F(StaLibertyTest, PortSetRelatedPowerPin) {
+TEST_F(StaLibertyTest, PortSetRelatedPowerPort) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  LibertyPort *port = buf->findLibertyPort("A");
-  ASSERT_NE(port, nullptr);
-  port->setRelatedPowerPin("VDD");
-  EXPECT_STREQ(port->relatedPowerPin(), "VDD");
+  LibertyPort *port_a = buf->findLibertyPort("A");
+  LibertyPort *port_z = buf->findLibertyPort("Z");
+  ASSERT_NE(port_a, nullptr);
+  ASSERT_NE(port_z, nullptr);
+  // Set and verify related power port pointer
+  port_a->setRelatedPowerPort(port_z);
+  EXPECT_EQ(port_a->relatedPowerPort(), port_z);
 }
 
 // isDisabledConstraint has been moved from LibertyPort to Sdc.
@@ -2249,7 +2260,7 @@ TEST_F(StaLibertyTest, CellSetCornerCell) {
 TEST_F(StaLibertyTest, LibraryOperatingConditions) {
   OperatingConditions *nom = lib_->findOperatingConditions("typical");
   if (nom) {
-    EXPECT_STREQ(nom->name(), "typical");
+    EXPECT_EQ(nom->name(), "typical");
   }
   OperatingConditions *def = lib_->defaultOperatingConditions();
   EXPECT_NE(def, nullptr);
@@ -2760,11 +2771,11 @@ TEST_F(UnitTest, AsStringDoubleZero) {
 
 // to_string(TimingSense) exercise - ensure all senses
 TEST(TimingArcTest, TimingSenseToStringAll) {
-  EXPECT_NE(to_string(TimingSense::positive_unate), nullptr);
-  EXPECT_NE(to_string(TimingSense::negative_unate), nullptr);
-  EXPECT_NE(to_string(TimingSense::non_unate), nullptr);
-  EXPECT_NE(to_string(TimingSense::none), nullptr);
-  EXPECT_NE(to_string(TimingSense::unknown), nullptr);
+  EXPECT_FALSE(to_string(TimingSense::positive_unate).empty());
+  EXPECT_FALSE(to_string(TimingSense::negative_unate).empty());
+  EXPECT_FALSE(to_string(TimingSense::non_unate).empty());
+  EXPECT_FALSE(to_string(TimingSense::none).empty());
+  EXPECT_FALSE(to_string(TimingSense::unknown).empty());
 }
 
 // timingSenseOpposite - covers uncovered
@@ -2882,7 +2893,7 @@ TEST(TimingArcTest, TimingArcAttrsSetters) {
 // ScaleFactors - covers ScaleFactors constructor and methods
 TEST(LibertyTest, ScaleFactors) {
   ScaleFactors sf("test_sf");
-  EXPECT_STREQ(sf.name(), "test_sf");
+  EXPECT_EQ(sf.name(), "test_sf");
   sf.setScale(ScaleFactorType::cell, ScaleFactorPvt::process,
               RiseFall::rise(), 1.5f);
   float v = sf.scale(ScaleFactorType::cell, ScaleFactorPvt::process,
@@ -2907,9 +2918,9 @@ TEST(LibertyTest, FindScaleFactorPvt) {
 
 // scaleFactorPvtName
 TEST(LibertyTest, ScaleFactorPvtName) {
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::process), "process");
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::volt), "volt");
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::temp), "temp");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::process), "process");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::volt), "volt");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::temp), "temp");
 }
 
 // findScaleFactorType / scaleFactorTypeName
@@ -2921,11 +2932,11 @@ TEST(LibertyTest, FindScaleFactorType) {
 }
 
 TEST(LibertyTest, ScaleFactorTypeName) {
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::cell), "cell");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::hold), "hold");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::setup), "setup");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::recovery), "recovery");
-  EXPECT_STREQ(scaleFactorTypeName(ScaleFactorType::removal), "removal");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::cell), "cell");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::hold), "hold");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::setup), "setup");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::recovery), "recovery");
+  EXPECT_EQ(scaleFactorTypeName(ScaleFactorType::removal), "removal");
 }
 
 // scaleFactorTypeRiseFallSuffix, scaleFactorTypeRiseFallPrefix, scaleFactorTypeLowHighSuffix
@@ -2963,12 +2974,16 @@ TEST(LibertyTest, Pvt) {
 // OperatingConditions
 TEST(LibertyTest, OperatingConditionsNameOnly) {
   OperatingConditions oc("typical");
-  EXPECT_STREQ(oc.name(), "typical");
+  EXPECT_EQ(oc.name(), "typical");
 }
 
 TEST(LibertyTest, OperatingConditionsFull) {
-  OperatingConditions oc("fast", 1.0f, 1.21f, 0.0f, WireloadTree::balanced);
-  EXPECT_STREQ(oc.name(), "fast");
+  OperatingConditions oc("fast");
+  oc.setProcess(1.0f);
+  oc.setVoltage(1.21f);
+  oc.setTemperature(0.0f);
+  oc.setWireloadTree(WireloadTree::balanced);
+  EXPECT_EQ(oc.name(), "fast");
   EXPECT_FLOAT_EQ(oc.process(), 1.0f);
   EXPECT_FLOAT_EQ(oc.voltage(), 1.21f);
   EXPECT_FLOAT_EQ(oc.temperature(), 0.0f);
@@ -3039,15 +3054,15 @@ TEST_F(Table1Test, TableAxisVariableString) {
   FloatSeq vals({0.0f});
   auto axis = std::make_shared<TableAxis>(
     TableAxisVariable::total_output_net_capacitance, std::move(vals));
-  EXPECT_NE(axis->variableString(), nullptr);
+  EXPECT_FALSE(axis->variableString().empty());
 }
 
 // tableVariableString / stringTableAxisVariable
 TEST_F(Table1Test, TableVariableString) {
-  EXPECT_NE(tableVariableString(TableAxisVariable::total_output_net_capacitance), nullptr);
-  EXPECT_NE(tableVariableString(TableAxisVariable::input_net_transition), nullptr);
-  EXPECT_NE(tableVariableString(TableAxisVariable::related_pin_transition), nullptr);
-  EXPECT_NE(tableVariableString(TableAxisVariable::constrained_pin_transition), nullptr);
+  EXPECT_FALSE(tableVariableString(TableAxisVariable::total_output_net_capacitance).empty());
+  EXPECT_FALSE(tableVariableString(TableAxisVariable::input_net_transition).empty());
+  EXPECT_FALSE(tableVariableString(TableAxisVariable::related_pin_transition).empty());
+  EXPECT_FALSE(tableVariableString(TableAxisVariable::constrained_pin_transition).empty());
 }
 
 TEST_F(Table1Test, StringTableAxisVariable) {

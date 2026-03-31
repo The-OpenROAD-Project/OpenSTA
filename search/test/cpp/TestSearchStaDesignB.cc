@@ -161,7 +161,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr,
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "",
                      sta_->cmdMode());
 
     // Set input delays
@@ -1491,9 +1491,9 @@ TEST_F(StaDesignTest, PropertyValueConstructors) {
   PropertyValue pv1;
   EXPECT_EQ(pv1.type(), PropertyValue::Type::none);
 
-  PropertyValue pv2("test");
+  PropertyValue pv2(std::string("test"));
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "test");
+  EXPECT_EQ(pv2.stringValue(), "test");
 
   PropertyValue pv3(true);
   EXPECT_EQ(pv3.type(), PropertyValue::Type::bool_);
@@ -1647,7 +1647,7 @@ TEST_F(StaDesignTest, PropertyUnknownException) {
 
 TEST_F(StaDesignTest, PropertyTypeWrongException) {
   // Cover PropertyTypeWrong constructor and what()
-  PropertyValue pv("test_string");
+  PropertyValue pv(std::string("test_string"));
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   try {
     float val = pv.floatValue();
@@ -1837,7 +1837,7 @@ TEST_F(StaDesignTest, PathEndUnconstrainedMethods) {
 
 TEST_F(StaDesignTest, PathEndPathDelay) {
   sta_->makePathDelay(nullptr, nullptr, nullptr,
-                      MinMax::max(), false, false, 5.0, nullptr,
+                      MinMax::max(), false, false, 5.0, "",
                       sta_->cmdSdc());
   sta_->updateTiming(true);
   const SceneSeq &corners = sta_->scenes();
@@ -2248,7 +2248,7 @@ TEST_F(StaDesignTest, WriteSdcWithConstraints) {
                          false, false, MinMaxAll::all(), true, 2.0f,
                          sta_->cmdSdc());
   }
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr,
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), "",
                       sta_->cmdSdc());
 
   if (out) {
@@ -2454,7 +2454,7 @@ TEST_F(StaDesignTest, ReportPathEndShorter) {
 TEST_F(StaDesignTest, WriteSdcWithClockGroups) {
   Clock *clk = sta_->cmdSdc()->findClock("clk");
   if (clk) {
-    ClockGroups *cg = sta_->makeClockGroups("test_group", true, false, false, false, nullptr, sta_->cmdSdc());
+    ClockGroups *cg = sta_->makeClockGroups("test_group", true, false, false, false, "", sta_->cmdSdc());
     EXPECT_NE(cg, nullptr);
     sta_->updateTiming(true);
     std::string filename = makeUniqueSdcPath("test_write_sdc_r10_clkgrp.sdc");
@@ -2984,7 +2984,7 @@ TEST_F(StaDesignTest, MakeGeneratedClock) {
     divide_by->push_back(2);
     FloatSeq *edges = nullptr;
     sta_->makeGeneratedClock("gen_clk", gen_pins, false, clk2, clk,
-                              2, 0, 0.0, false, false, divide_by, edges, nullptr,
+                              2, 0, 0.0, false, false, divide_by, edges, "",
                               sta_->cmdMode());
     Clock *gen = sdc->findClock("gen_clk");
     EXPECT_NE(gen, nullptr);
@@ -3995,7 +3995,7 @@ TEST_F(StaDesignTest, WriteSdcComprehensive) {
       thrus->push_back(thru);
     }
     delete nit;
-    sta_->makeFalsePath(from, thrus, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, thrus, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
 
   // Max delay
@@ -4010,13 +4010,13 @@ TEST_F(StaDesignTest, WriteSdcComprehensive) {
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::riseFall(), sta_->cmdSdc());
     sta_->makePathDelay(from, nullptr, to, MinMax::max(), false, false,
-                        7.0f, nullptr, sta_->cmdSdc());
+                        7.0f, "", sta_->cmdSdc());
   }
 
   // Clock groups with actual clocks
   if (clk) {
     ClockGroups *cg = sta_->makeClockGroups("search_grp", true, false, false,
-                                             false, nullptr, sta_->cmdSdc());
+                                             false, "", sta_->cmdSdc());
     ClockSet *g1 = new ClockSet;
     g1->insert(clk);
     sta_->makeClockGroup(cg, g1, sta_->cmdSdc());
@@ -4024,10 +4024,10 @@ TEST_F(StaDesignTest, WriteSdcComprehensive) {
 
   // Multicycle
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
-                           MinMaxAll::max(), true, 2, nullptr, sta_->cmdSdc());
+                           MinMaxAll::max(), true, 2, "", sta_->cmdSdc());
 
   // Group path
-  sta_->makeGroupPath("search_group", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("search_group", false, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
 
   // Voltage
   sta_->setVoltage(MinMax::max(), 1.1f, sta_->cmdSdc());
@@ -4194,7 +4194,7 @@ TEST_F(StaDesignTest, FindPathEndsUnconstrained3) {
 TEST_F(StaDesignTest, FindPathEndsGroupFilter) {
   ASSERT_NO_THROW(( [&](){
   // Create a group path first
-  sta_->makeGroupPath("r11_grp", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("r11_grp", false, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
 
   Scene *corner = sta_->cmdScene();
   PathEndSeq ends = sta_->findPathEnds(
@@ -4208,7 +4208,7 @@ TEST_F(StaDesignTest, FindPathEndsGroupFilter) {
 
 // --- Sta: pathGroupNames ---
 TEST_F(StaDesignTest, PathGroupNames) {
-  sta_->makeGroupPath("test_group_r11", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("test_group_r11", false, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
   StringSeq names = sta_->pathGroupNames(sta_->cmdSdc());
   bool found = false;
   for (const auto &name : names) {
@@ -4220,7 +4220,7 @@ TEST_F(StaDesignTest, PathGroupNames) {
 
 // --- Sta: isPathGroupName ---
 TEST_F(StaDesignTest, IsPathGroupName) {
-  sta_->makeGroupPath("test_pg_r11", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("test_pg_r11", false, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
   bool is_group = sta_->isPathGroupName("test_pg_r11", sta_->cmdSdc());
   EXPECT_TRUE(is_group);
   bool not_group = sta_->isPathGroupName("nonexistent_group", sta_->cmdSdc());
@@ -4245,7 +4245,7 @@ TEST_F(StaDesignTest, ReportPathWithMaxDelay) {
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::riseFall(), sta_->cmdSdc());
     sta_->makePathDelay(from, nullptr, to, MinMax::max(), false, false,
-                        8.0f, nullptr, sta_->cmdSdc());
+                        8.0f, "", sta_->cmdSdc());
     sta_->updateTiming(true);
 
     Scene *corner = sta_->cmdScene();

@@ -453,7 +453,7 @@ protected:
 TEST_F(StaDcalcTest, UnitDelayCalcName) {
   ArcDelayCalc *calc = makeDelayCalc("unit", sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "unit");
+  EXPECT_EQ(calc->name(), "unit");
   delete calc;
 }
 
@@ -463,7 +463,7 @@ TEST_F(StaDcalcTest, UnitDelayCalcCopy) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "unit");
+  EXPECT_EQ(copy->name(), "unit");
   delete copy;
   delete calc;
 }
@@ -594,7 +594,7 @@ TEST_F(StaDcalcTest, UnitDelayCalcReportCheckDelay) {
   ArcDelayCalc *calc = makeDelayCalc("unit", sta_);
   ASSERT_NE(calc, nullptr);
   std::string report = calc->reportCheckDelay(nullptr, nullptr, 0.0,
-                                               nullptr, 0.0, 0.0,
+                                               "", 0.0, 0.0,
                                                nullptr, nullptr, 3);
   EXPECT_FALSE(report.empty());
   EXPECT_NE(report.find("Check"), std::string::npos);
@@ -613,7 +613,7 @@ TEST_F(StaDcalcTest, UnitDelayCalcFinishDrvrPin) {
 TEST_F(StaDcalcTest, LumpedCapDelayCalcName) {
   ArcDelayCalc *calc = makeDelayCalc("lumped_cap", sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "lumped_cap");
+  EXPECT_EQ(calc->name(), "lumped_cap");
   delete calc;
 }
 
@@ -623,7 +623,7 @@ TEST_F(StaDcalcTest, LumpedCapDelayCalcCopy) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "lumped_cap");
+  EXPECT_EQ(copy->name(), "lumped_cap");
   delete copy;
   delete calc;
 }
@@ -640,7 +640,7 @@ TEST_F(StaDcalcTest, LumpedCapReduceSupported) {
 TEST_F(StaDcalcTest, DmpCeffElmoreName) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_elmore", sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_elmore");
+  EXPECT_EQ(calc->name(), "dmp_ceff_elmore");
   delete calc;
 }
 
@@ -650,7 +650,7 @@ TEST_F(StaDcalcTest, DmpCeffElmoreCopy) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "dmp_ceff_elmore");
+  EXPECT_EQ(copy->name(), "dmp_ceff_elmore");
   delete copy;
   delete calc;
 }
@@ -667,7 +667,7 @@ TEST_F(StaDcalcTest, DmpCeffElmoreReduceSupported) {
 TEST_F(StaDcalcTest, DmpCeffTwoPoleName) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_two_pole", sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_two_pole");
+  EXPECT_EQ(calc->name(), "dmp_ceff_two_pole");
   delete calc;
 }
 
@@ -677,7 +677,7 @@ TEST_F(StaDcalcTest, DmpCeffTwoPoleCopy) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "dmp_ceff_two_pole");
+  EXPECT_EQ(copy->name(), "dmp_ceff_two_pole");
   delete copy;
   delete calc;
 }
@@ -694,7 +694,7 @@ TEST_F(StaDcalcTest, DmpCeffTwoPoleReduceSupported) {
 TEST_F(StaDcalcTest, ArnoldiName) {
   ArcDelayCalc *calc = makeDelayCalc("arnoldi", sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "arnoldi");
+  EXPECT_EQ(calc->name(), "arnoldi");
   delete calc;
 }
 
@@ -704,7 +704,7 @@ TEST_F(StaDcalcTest, ArnoldiCopy) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "arnoldi");
+  EXPECT_EQ(copy->name(), "arnoldi");
   delete copy;
   delete calc;
 }
@@ -713,7 +713,7 @@ TEST_F(StaDcalcTest, ArnoldiCopy) {
 TEST_F(StaDcalcTest, CcsCeffName) {
   ArcDelayCalc *calc = makeDelayCalc("ccs_ceff", sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "ccs_ceff");
+  EXPECT_EQ(calc->name(), "ccs_ceff");
   delete calc;
 }
 
@@ -723,7 +723,7 @@ TEST_F(StaDcalcTest, CcsCeffCopy) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "ccs_ceff");
+  EXPECT_EQ(copy->name(), "ccs_ceff");
   delete copy;
   delete calc;
 }
@@ -740,7 +740,7 @@ TEST_F(StaDcalcTest, CcsCeffReduceSupported) {
 TEST_F(StaDcalcTest, PrimaName) {
   ArcDelayCalc *calc = makeDelayCalc("prima", sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "prima");
+  EXPECT_EQ(calc->name(), "prima");
   delete calc;
 }
 
@@ -750,7 +750,7 @@ TEST_F(StaDcalcTest, PrimaCopy) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "prima");
+  EXPECT_EQ(copy->name(), "prima");
   delete copy;
   delete calc;
 }
@@ -1106,7 +1106,7 @@ TEST_F(StaDcalcTest, PrimaInputPortDelay) {
 TEST_F(StaDcalcTest, UnitDelayCalcDirectConstruct) {
   UnitDelayCalc *unit = new UnitDelayCalc(sta_);
   ASSERT_NE(unit, nullptr);
-  EXPECT_STREQ(unit->name(), "unit");
+  EXPECT_EQ(unit->name(), "unit");
   delete unit;
 }
 
@@ -1125,7 +1125,7 @@ TEST_F(StaDcalcTest, DmpCeffDelayCalcDeleteViaBasePtr) {
 TEST_F(StaDcalcTest, DmpCeffElmoreDirectFactory) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_elmore");
+  EXPECT_EQ(calc->name(), "dmp_ceff_elmore");
   delete calc;
 }
 
@@ -1133,7 +1133,7 @@ TEST_F(StaDcalcTest, DmpCeffElmoreDirectFactory) {
 TEST_F(StaDcalcTest, DmpCeffTwoPoleDirectFactory) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_two_pole");
+  EXPECT_EQ(calc->name(), "dmp_ceff_two_pole");
   delete calc;
 }
 
@@ -1313,7 +1313,7 @@ TEST_F(StaDcalcTest, PrimaCopyDeepState) {
   prima->setPrimaReduceOrder(6);
   ArcDelayCalc *copy = prima->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "prima");
+  EXPECT_EQ(copy->name(), "prima");
   delete copy;
   delete calc;
 }
@@ -1715,7 +1715,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(250.0f);
-    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, nullptr, sta_->cmdMode());
+    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, "", sta_->cmdMode());
 
     design_loaded_ = true;
   }
@@ -2354,8 +2354,8 @@ TEST_F(StaDcalcTest, AllCalcsName) {
   for (const std::string &name : names) {
     ArcDelayCalc *calc = makeDelayCalc(name, sta_);
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
-    EXPECT_NE(calc->name(), nullptr) << "Null name for: " << name;
-    EXPECT_GT(strlen(calc->name()), 0u) << "Empty name for: " << name;
+    EXPECT_FALSE(calc->name().empty()) << "Empty name for: " << name;
+    EXPECT_GT(calc->name().size(), 0u) << "Empty name for: " << name;
     delete calc;
   }
 }
@@ -2383,7 +2383,7 @@ TEST_F(StaDcalcTest, AllCalcsCopy) {
     ASSERT_NE(calc, nullptr) << "Failed for: " << name;
     ArcDelayCalc *copy = calc->copy();
     ASSERT_NE(copy, nullptr) << "Copy failed for: " << name;
-    EXPECT_STREQ(copy->name(), calc->name());
+    EXPECT_EQ(copy->name(), calc->name());
     delete copy;
     delete calc;
   }
@@ -2747,7 +2747,7 @@ TEST_F(StaDcalcTest, LumpedCapCopyState2) {
   ArcDelayCalc *calc = makeDelayCalc("lumped_cap", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
-  EXPECT_STREQ(calc->name(), "lumped_cap");
+  EXPECT_EQ(calc->name(), "lumped_cap");
   delete calc;
 }
 
@@ -2765,7 +2765,7 @@ TEST_F(StaDcalcTest, DmpCeffElmoreCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_elmore", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_elmore");
+  EXPECT_EQ(calc->name(), "dmp_ceff_elmore");
   delete calc;
 }
 
@@ -2783,7 +2783,7 @@ TEST_F(StaDcalcTest, DmpCeffTwoPoleCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_two_pole", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_two_pole");
+  EXPECT_EQ(calc->name(), "dmp_ceff_two_pole");
   delete calc;
 }
 
@@ -2801,7 +2801,7 @@ TEST_F(StaDcalcTest, CcsCeffCopyState2) {
   ArcDelayCalc *calc = makeDelayCalc("ccs_ceff", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
-  EXPECT_STREQ(calc->name(), "ccs_ceff");
+  EXPECT_EQ(calc->name(), "ccs_ceff");
   delete calc;
 }
 
@@ -2812,7 +2812,7 @@ TEST_F(StaDcalcTest, PrimaCopyState2) {
   ArcDelayCalc *calc = makeDelayCalc("prima", sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
-  EXPECT_STREQ(calc->name(), "prima");
+  EXPECT_EQ(calc->name(), "prima");
   delete calc;
 }
 
@@ -3457,7 +3457,7 @@ TEST_F(StaDcalcTest, AllCalcsInputPortDelaySlew) {
 TEST_F(StaDcalcTest, DmpCeffElmoreMakeDelete) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_elmore");
+  EXPECT_EQ(calc->name(), "dmp_ceff_elmore");
   EXPECT_TRUE(calc->reduceSupported());
   delete calc;
 }
@@ -3467,7 +3467,7 @@ TEST_F(StaDcalcTest, DmpCeffElmoreMakeDelete) {
 TEST_F(StaDcalcTest, DmpCeffTwoPoleMakeDelete) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_two_pole");
+  EXPECT_EQ(calc->name(), "dmp_ceff_two_pole");
   EXPECT_TRUE(calc->reduceSupported());
   delete calc;
 }
@@ -3479,7 +3479,7 @@ TEST_F(StaDcalcTest, DmpCeffElmoreCopy2) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "dmp_ceff_elmore");
+  EXPECT_EQ(copy->name(), "dmp_ceff_elmore");
   delete copy;
   delete calc;
 }
@@ -3491,7 +3491,7 @@ TEST_F(StaDcalcTest, DmpCeffTwoPoleCopy2) {
   ASSERT_NE(calc, nullptr);
   ArcDelayCalc *copy = calc->copy();
   ASSERT_NE(copy, nullptr);
-  EXPECT_STREQ(copy->name(), "dmp_ceff_two_pole");
+  EXPECT_EQ(copy->name(), "dmp_ceff_two_pole");
   delete copy;
   delete calc;
 }
@@ -3501,7 +3501,7 @@ TEST_F(StaDcalcTest, DmpCeffElmoreCopyState2) {
   ArcDelayCalc *calc = makeDmpCeffElmoreDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_elmore");
+  EXPECT_EQ(calc->name(), "dmp_ceff_elmore");
   delete calc;
 }
 
@@ -3510,7 +3510,7 @@ TEST_F(StaDcalcTest, DmpCeffTwoPoleCopyState2) {
   ArcDelayCalc *calc = makeDmpCeffTwoPoleDelayCalc(sta_);
   ASSERT_NE(calc, nullptr);
   calc->copyState(sta_);
-  EXPECT_STREQ(calc->name(), "dmp_ceff_two_pole");
+  EXPECT_EQ(calc->name(), "dmp_ceff_two_pole");
   delete calc;
 }
 
@@ -4204,7 +4204,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
 
     // Set input/output delay constraints to create constrained timing paths
     Clock *clk = sta_->cmdSdc()->findClock("clk");
@@ -4445,7 +4445,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
 
     Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);
@@ -4624,7 +4624,7 @@ TEST_F(MultiDriverDcalcTest, IncrementalClockPeriodChange) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(1.0f);
-  sta_->makeClock("clk", clk_pins, false, 2.0f, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("clk", clk_pins, false, 2.0f, waveform, "", sta_->cmdMode());
   sta_->updateTiming(true);
   Slack slack2 = sta_->worstSlack(MinMax::max());
 
@@ -4760,7 +4760,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
 
     // Set input/output delay constraints to create constrained timing paths
     Clock *clk = sta_->cmdSdc()->findClock("clk");
@@ -4886,7 +4886,7 @@ TEST_F(DesignDcalcTest, IncrementalWithSpef) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(50.0f);
-  sta_->makeClock("clk", clk_pins, false, 100.0f, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("clk", clk_pins, false, 100.0f, waveform, "", sta_->cmdMode());
   sta_->updateTiming(true);
   Slack slack2 = sta_->worstSlack(MinMax::max());
 

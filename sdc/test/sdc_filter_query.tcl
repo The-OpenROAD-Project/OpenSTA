@@ -138,32 +138,32 @@ puts "is_path_group_name nonexistent = $is_gp"
 
 # filter_ports
 set all_ports [get_ports *]
-set filtered [sta::filter_ports direction == input $all_ports]
+set filtered [sta::filter_ports "direction==input" $all_ports 0]
 puts "filter_ports direction == input: [llength $filtered]"
 
 # filter_clocks
 set all_clks [get_clocks *]
-set filtered [sta::filter_clocks period == 10.000 $all_clks]
-puts "filter_clocks period == 10: [llength $filtered]"
+set filtered [sta::filter_clocks "is_virtual==0" $all_clks 1]
+puts "filter_clocks is_virtual == 0: [llength $filtered]"
 
 # filter_lib_cells
 set all_cells [get_lib_cells NangateOpenCellLibrary/*]
-set filtered [sta::filter_lib_cells is_buffer == 1 $all_cells]
+set filtered [sta::filter_lib_cells "is_buffer==1" $all_cells 1]
 puts "filter_lib_cells is_buffer: [llength $filtered]"
 
 # filter_insts
 set all_insts [get_cells *]
-set filtered [sta::filter_insts ref_name =~ "BUF*" $all_insts]
+set filtered [sta::filter_insts "ref_name=~BUF*" $all_insts 0]
 puts "filter_insts ref_name =~ BUF*: [llength $filtered]"
 
 # filter_pins
 set all_pins [get_pins buf1/*]
-set filtered [sta::filter_pins direction == input $all_pins]
+set filtered [sta::filter_pins "direction==input" $all_pins 0]
 puts "filter_pins direction == input: [llength $filtered]"
 
 # filter_nets
 set all_nets [get_nets *]
-set filtered [sta::filter_nets full_name =~ n* $all_nets]
+set filtered [sta::filter_nets "full_name=~n*" $all_nets 0]
 puts "filter_nets full_name =~ n*: [llength $filtered]"
 
 ############################################################

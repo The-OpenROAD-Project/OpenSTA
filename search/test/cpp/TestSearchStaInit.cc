@@ -1156,12 +1156,12 @@ TEST_F(StaInitTest, MakeClockWithComment) {
 
 // Make false path exercises ExceptionPath creation in Sta.cc
 TEST_F(StaInitTest, MakeFalsePath) {
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
 }
 
 // Make group path
 TEST_F(StaInitTest, MakeGroupPath) {
-  sta_->makeGroupPath("test_grp", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("test_grp", false, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
   EXPECT_TRUE(sta_->isPathGroupName("test_grp", sta_->cmdSdc()));
 }
 
@@ -1172,7 +1172,7 @@ TEST_F(StaInitTest, MakePathDelay) {
                       false,   // ignore_clk_latency
                       false,   // break_path
                       5.0,     // delay
-                      nullptr, sta_->cmdSdc());
+                      "", sta_->cmdSdc());
 
 }
 
@@ -1182,7 +1182,7 @@ TEST_F(StaInitTest, MakeMulticyclePath) {
                            MinMaxAll::max(),
                            true,  // use_end_clk
                            2,     // path_multiplier
-                           nullptr, sta_->cmdSdc());
+                           "", sta_->cmdSdc());
 
 }
 
@@ -1775,7 +1775,7 @@ TEST_F(StaInitTest, PropertyValueUnitGetter) {
 }
 
 TEST_F(StaInitTest, PropertyValueToStringBasic) {
-  PropertyValue pv_str("hello");
+  PropertyValue pv_str(std::string("hello"));
   Network *network = sta_->network();
   std::string result = pv_str.to_string(network);
   EXPECT_EQ(result, "hello");
@@ -2067,10 +2067,10 @@ TEST_F(StaInitTest, PathLessComparator) {
 
 // PathGroup static names
 TEST_F(StaInitTest, PathGroupsStaticNames) {
-  EXPECT_NE(PathGroups::asyncPathGroupName(), nullptr);
-  EXPECT_NE(PathGroups::pathDelayGroupName(), nullptr);
-  EXPECT_NE(PathGroups::gatedClkGroupName(), nullptr);
-  EXPECT_NE(PathGroups::unconstrainedGroupName(), nullptr);
+  EXPECT_FALSE(PathGroups::asyncPathGroupName().empty());
+  EXPECT_FALSE(PathGroups::pathDelayGroupName().empty());
+  EXPECT_FALSE(PathGroups::gatedClkGroupName().empty());
+  EXPECT_FALSE(PathGroups::unconstrainedGroupName().empty());
 }
 
 TEST_F(StaInitTest, PathGroupMaxPathsDefault) {
@@ -2758,7 +2758,7 @@ TEST_F(StaInitTest, StaWorstSlackSingleValue) {
 TEST_F(StaInitTest, StaMakeClockGroupsAndRemove) {
   ClockGroups *cg = sta_->makeClockGroups("test_cg",
                                             true, false, false,
-                                            false, nullptr, sta_->cmdSdc());
+                                            false, "", sta_->cmdSdc());
   EXPECT_NE(cg, nullptr);
   sta_->removeClockGroupsLogicallyExclusive("test_cg", sta_->cmdSdc());
 }
@@ -3455,7 +3455,7 @@ TEST_F(StaInitTest, StaDelaysInvalid) {
 // --- Sta.cc: clock groups ---
 TEST_F(StaInitTest, StaMakeClockGroupsDetailed) {
   ClockGroups *groups = sta_->makeClockGroups("test_group",
-    true, false, false, false, nullptr, sta_->cmdSdc());
+    true, false, false, false, "", sta_->cmdSdc());
   EXPECT_NE(groups, nullptr);
 }
 
@@ -3741,7 +3741,7 @@ TEST_F(StaInitTest, GraphLoopEmpty) {
 
 // --- Sta.cc: makeFalsePath ---
 TEST_F(StaInitTest, StaMakeFalsePath) {
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
 
   // No crash (with all null args)
 
@@ -3749,7 +3749,7 @@ TEST_F(StaInitTest, StaMakeFalsePath) {
 
 // --- Sta.cc: makeMulticyclePath ---
 TEST_F(StaInitTest, StaMakeMulticyclePath) {
-  sta_->makeMulticyclePath(nullptr, nullptr, nullptr, MinMaxAll::all(), false, 2, nullptr, sta_->cmdSdc());
+  sta_->makeMulticyclePath(nullptr, nullptr, nullptr, MinMaxAll::all(), false, 2, "", sta_->cmdSdc());
   // No crash
 
 }
@@ -3763,7 +3763,7 @@ TEST_F(StaInitTest, StaResetPath) {
 
 // --- Sta.cc: makeGroupPath ---
 TEST_F(StaInitTest, StaMakeGroupPath) {
-  sta_->makeGroupPath("test_group", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("test_group", false, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
   // No crash
 
 }
@@ -3802,8 +3802,8 @@ TEST_F(StaInitTest, LogicValueStringOne) {
 // --- ReportPath.cc: ReportField constructor and setEnabled ---
 TEST_F(StaInitTest, ReportFieldConstruct) {
   ReportField rf("test_field", "Test Field", 10, false, nullptr, true);
-  EXPECT_STREQ(rf.name(), "test_field");
-  EXPECT_STREQ(rf.title(), "Test Field");
+  EXPECT_EQ(rf.name(), "test_field");
+  EXPECT_EQ(rf.title(), "Test Field");
   EXPECT_EQ(rf.width(), 10);
   EXPECT_FALSE(rf.leftJustify());
   EXPECT_EQ(rf.unit(), nullptr);
@@ -3829,15 +3829,15 @@ TEST_F(StaInitTest, ReportFieldSetWidth) {
 TEST_F(StaInitTest, ReportFieldSetProperties) {
   ReportField rf("f3", "F3", 5, false, nullptr, true);
   rf.setProperties("New Title", 20, true);
-  EXPECT_STREQ(rf.title(), "New Title");
+  EXPECT_EQ(rf.title(), "New Title");
   EXPECT_EQ(rf.width(), 20);
   EXPECT_TRUE(rf.leftJustify());
 }
 
 TEST_F(StaInitTest, ReportFieldBlank) {
   ReportField rf("f4", "F4", 3, false, nullptr, true);
-  const char *blank = rf.blank();
-  EXPECT_NE(blank, nullptr);
+  const std::string &blank = rf.blank();
+  EXPECT_FALSE(blank.empty());
 }
 
 // --- Sta.cc: idealClockMode is protected, test via public API ---
@@ -4117,7 +4117,7 @@ TEST_F(StaInitTest, PropertiesGetPropertyLibraryExists) {
 
 TEST_F(StaInitTest, PropertiesGetPropertyCellExists) {
   // getProperty(Cell*) segfaults on nullptr - verify method exists via function pointer
-  using FnType = PropertyValue (Properties::*)(const Cell*, const std::string&);
+  using FnType = PropertyValue (Properties::*)(const Cell*, std::string_view);
   FnType fn = &Properties::getProperty;
   expectCallablePointerUsable(fn);
 }

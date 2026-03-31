@@ -940,7 +940,7 @@ TEST_F(StaInitTest, PathEndSlack) {
 
 TEST_F(StaInitTest, StaMakeClockGroups) {
   ASSERT_NO_THROW(( [&](){
-    sta_->makeClockGroups("test_grp", false, false, false, false, nullptr, sta_->cmdSdc());
+    sta_->makeClockGroups("test_grp", false, false, false, false, "", sta_->cmdSdc());
   }() ));
 }
 
@@ -1354,9 +1354,9 @@ TEST_F(StaInitTest, PropertyValueDefaultCtor) {
 // === PropertyValue: string constructor ===
 
 TEST_F(StaInitTest, PropertyValueStringCtor) {
-  PropertyValue pv("hello");
+  PropertyValue pv(std::string("hello"));
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv.stringValue(), "hello");
+  EXPECT_EQ(pv.stringValue(), "hello");
 }
 
 // === PropertyValue: float constructor ===
@@ -1378,39 +1378,39 @@ TEST_F(StaInitTest, PropertyValueBoolCtor) {
 // === PropertyValue: copy constructor ===
 
 TEST_F(StaInitTest, PropertyValueCopyCtor) {
-  PropertyValue pv1("test");
+  PropertyValue pv1(std::string("test"));
   PropertyValue pv2(pv1);
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "test");
+  EXPECT_EQ(pv2.stringValue(), "test");
 }
 
 // === PropertyValue: move constructor ===
 
 TEST_F(StaInitTest, PropertyValueMoveCtor) {
-  PropertyValue pv1("test");
+  PropertyValue pv1(std::string("test"));
   PropertyValue pv2(std::move(pv1));
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "test");
+  EXPECT_EQ(pv2.stringValue(), "test");
 }
 
 // === PropertyValue: copy assignment ===
 
 TEST_F(StaInitTest, PropertyValueCopyAssign) {
-  PropertyValue pv1("test");
+  PropertyValue pv1(std::string("test"));
   PropertyValue pv2;
   pv2 = pv1;
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "test");
+  EXPECT_EQ(pv2.stringValue(), "test");
 }
 
 // === PropertyValue: move assignment ===
 
 TEST_F(StaInitTest, PropertyValueMoveAssign) {
-  PropertyValue pv1("test");
+  PropertyValue pv1(std::string("test"));
   PropertyValue pv2;
   pv2 = std::move(pv1);
   EXPECT_EQ(pv2.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv2.stringValue(), "test");
+  EXPECT_EQ(pv2.stringValue(), "test");
 }
 
 // === PropertyValue: Library constructor ===
@@ -1568,10 +1568,10 @@ TEST_F(StaInitTest, ReportFieldGetters) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldSlew();
   EXPECT_NE(field, nullptr);
-  EXPECT_NE(field->name(), nullptr);
-  EXPECT_NE(field->title(), nullptr);
+  EXPECT_FALSE(field->name().empty());
+  EXPECT_FALSE(field->title().empty());
   EXPECT_GT(field->width(), 0);
-  EXPECT_NE(field->blank(), nullptr);
+  EXPECT_FALSE(field->blank().empty());
 }
 
 // === ReportField: setWidth ===
@@ -1804,7 +1804,7 @@ TEST_F(StaInitTest, PropertyValueStdStringCtor) {
   std::string s = "test_string";
   PropertyValue pv(s);
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
-  EXPECT_STREQ(pv.stringValue(), "test_string");
+  EXPECT_EQ(pv.stringValue(), "test_string");
 }
 
 // === Levelize: invalid ===
@@ -1859,21 +1859,21 @@ TEST_F(StaInitTest, ReportPathFindFieldSlew) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *slew = rpt->findField("slew");
   EXPECT_NE(slew, nullptr);
-  EXPECT_STREQ(slew->name(), "slew");
+  EXPECT_EQ(slew->name(), "slew");
 }
 
 TEST_F(StaInitTest, ReportPathFindFieldFanout) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *fo = rpt->findField("fanout");
   EXPECT_NE(fo, nullptr);
-  EXPECT_STREQ(fo->name(), "fanout");
+  EXPECT_EQ(fo->name(), "fanout");
 }
 
 TEST_F(StaInitTest, ReportPathFindFieldCapacitance) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *cap = rpt->findField("capacitance");
   EXPECT_NE(cap, nullptr);
-  EXPECT_STREQ(cap->name(), "capacitance");
+  EXPECT_EQ(cap->name(), "capacitance");
 }
 
 TEST_F(StaInitTest, ReportPathFindFieldNonexistent) {
@@ -1927,8 +1927,8 @@ TEST_F(StaInitTest, ReportPathSetReportFieldsPublic) {
 TEST_F(StaInitTest, ReportFieldBlank2) {
   ReportPath *rpt = sta_->reportPath();
   ReportField *field = rpt->fieldSlew();
-  const char *blank = field->blank();
-  EXPECT_NE(blank, nullptr);
+  const std::string &blank = field->blank();
+  EXPECT_FALSE(blank.empty());
 }
 
 // === ReportField: setProperties ===
@@ -1983,23 +1983,23 @@ TEST_F(StaInitTest, PathExpandedEmptyCtor) {
 // === PathGroups: static group names ===
 
 TEST_F(StaInitTest, PathGroupsAsyncGroupName) {
-  const char *name = PathGroups::asyncPathGroupName();
-  EXPECT_NE(name, nullptr);
+  std::string_view name = PathGroups::asyncPathGroupName();
+  EXPECT_FALSE(name.empty());
 }
 
 TEST_F(StaInitTest, PathGroupsPathDelayGroupName) {
-  const char *name = PathGroups::pathDelayGroupName();
-  EXPECT_NE(name, nullptr);
+  std::string_view name = PathGroups::pathDelayGroupName();
+  EXPECT_FALSE(name.empty());
 }
 
 TEST_F(StaInitTest, PathGroupsGatedClkGroupName) {
-  const char *name = PathGroups::gatedClkGroupName();
-  EXPECT_NE(name, nullptr);
+  std::string_view name = PathGroups::gatedClkGroupName();
+  EXPECT_FALSE(name.empty());
 }
 
 TEST_F(StaInitTest, PathGroupsUnconstrainedGroupName) {
-  const char *name = PathGroups::unconstrainedGroupName();
-  EXPECT_NE(name, nullptr);
+  std::string_view name = PathGroups::unconstrainedGroupName();
+  EXPECT_FALSE(name.empty());
 }
 
 // === PathGroup: static max path count ===
@@ -2631,23 +2631,23 @@ TEST_F(StaInitTest, ReportPathReportSlackOnlyHeader) {
 // === PathGroups: static group name accessors ===
 
 TEST_F(StaInitTest, PathGroupsAsyncGroupName2) {
-  const char *name = PathGroups::asyncPathGroupName();
-  EXPECT_NE(name, nullptr);
+  std::string_view name = PathGroups::asyncPathGroupName();
+  EXPECT_FALSE(name.empty());
 }
 
 TEST_F(StaInitTest, PathGroupsPathDelayGroupName2) {
-  const char *name = PathGroups::pathDelayGroupName();
-  EXPECT_NE(name, nullptr);
+  std::string_view name = PathGroups::pathDelayGroupName();
+  EXPECT_FALSE(name.empty());
 }
 
 TEST_F(StaInitTest, PathGroupsGatedClkGroupName2) {
-  const char *name = PathGroups::gatedClkGroupName();
-  EXPECT_NE(name, nullptr);
+  std::string_view name = PathGroups::gatedClkGroupName();
+  EXPECT_FALSE(name.empty());
 }
 
 TEST_F(StaInitTest, PathGroupsUnconstrainedGroupName2) {
-  const char *name = PathGroups::unconstrainedGroupName();
-  EXPECT_NE(name, nullptr);
+  std::string_view name = PathGroups::unconstrainedGroupName();
+  EXPECT_FALSE(name.empty());
 }
 
 // Corner setParasiticAnalysisPtcount, setParasiticAP, setDcalcAnalysisPtcount,

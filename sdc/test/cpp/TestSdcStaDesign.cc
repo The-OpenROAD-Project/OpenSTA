@@ -127,7 +127,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
 
     Pin *in1 = network->findPin(top, "in1");
     Clock *clk = sta_->cmdSdc()->findClock("clk");
@@ -173,7 +173,7 @@ TEST_F(SdcDesignTest, CycleAcctingSourceTargetCycle) {
     FloatSeq *waveform2 = new FloatSeq;
     waveform2->push_back(0.0f);
     waveform2->push_back(2.5f);
-    sta_->makeClock("clk2", clk2_pins, false, 5.0f, waveform2, nullptr, sta_->cmdMode());
+    sta_->makeClock("clk2", clk2_pins, false, 5.0f, waveform2, "", sta_->cmdMode());
     sta_->updateTiming(true);
     // Forces CycleAccting to compute inter-clock accounting
   }
@@ -231,14 +231,14 @@ TEST_F(SdcInitTest, ExceptionFromHash) {
 TEST_F(SdcInitTest, ExceptionPathMergeable) {
   Sdc *sdc = sta_->cmdSdc();
   FalsePath *fp1 = new FalsePath(nullptr, nullptr, nullptr,
-                                 MinMaxAll::all(), true, nullptr);
+                                 MinMaxAll::all(), true, "");
   FalsePath *fp2 = new FalsePath(nullptr, nullptr, nullptr,
-                                 MinMaxAll::all(), true, nullptr);
+                                 MinMaxAll::all(), true, "");
   bool m = fp1->mergeable(fp2);
   EXPECT_TRUE(m);
   // Different type should not be mergeable
   PathDelay *pd = new PathDelay(nullptr, nullptr, nullptr,
-                                MinMax::max(), false, false, 5.0, true, nullptr);
+                                MinMax::max(), false, false, 5.0, true, "");
   bool m2 = fp1->mergeable(pd);
   EXPECT_FALSE(m2);
   delete fp1;
@@ -276,7 +276,7 @@ TEST_F(SdcInitTest, ExceptionFromToDestructor) {
 TEST_F(SdcInitTest, ExceptionPathDestructor) {
   ASSERT_NO_THROW(( [&](){
   FalsePath *fp = new FalsePath(nullptr, nullptr, nullptr,
-                                MinMaxAll::all(), true, nullptr);
+                                MinMaxAll::all(), true, "");
   delete fp;
 
   }() ));
@@ -335,7 +335,7 @@ TEST_F(SdcInitTest, ClockEdgeAccessors) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(5.0f);
-  sta_->makeClock("test_clk_edge", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("test_clk_edge", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
   Clock *clk = sdc->findClock("test_clk_edge");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
@@ -389,12 +389,12 @@ TEST_F(SdcInitTest, SdcInterClockUncertainty) {
   FloatSeq *waveform1 = new FloatSeq;
   waveform1->push_back(0.0f);
   waveform1->push_back(5.0f);
-  sta_->makeClock("clk_a", pins1, false, 10.0f, waveform1, nullptr, sta_->cmdMode());
+  sta_->makeClock("clk_a", pins1, false, 10.0f, waveform1, "", sta_->cmdMode());
   PinSet *pins2 = new PinSet(sta_->cmdNetwork());
   FloatSeq *waveform2 = new FloatSeq;
   waveform2->push_back(0.0f);
   waveform2->push_back(2.5f);
-  sta_->makeClock("clk_b", pins2, false, 5.0f, waveform2, nullptr, sta_->cmdMode());
+  sta_->makeClock("clk_b", pins2, false, 5.0f, waveform2, "", sta_->cmdMode());
 
   Clock *clk_a = sdc->findClock("clk_a");
   Clock *clk_b = sdc->findClock("clk_b");
@@ -413,7 +413,7 @@ TEST_F(SdcInitTest, SdcInterClockUncertainty) {
 // --- Sdc: clearClkGroupExclusions (via removeClockGroupsLogicallyExclusive) ---
 
 TEST_F(SdcInitTest, SdcClearClkGroupExclusions) {
-  ClockGroups *cg = sta_->makeClockGroups("grp_exc", true, false, false, false, nullptr, sta_->cmdSdc());
+  ClockGroups *cg = sta_->makeClockGroups("grp_exc", true, false, false, false, "", sta_->cmdSdc());
   EXPECT_NE(cg, nullptr);
   sta_->removeClockGroupsLogicallyExclusive("grp_exc", sta_->cmdSdc());
 }
@@ -437,7 +437,7 @@ TEST_F(SdcDesignTest, SdcFalsePathExercise) {
     ExceptionTo *to = sta_->makeExceptionTo(to_pins, nullptr, nullptr,
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::riseFall(), sta_->cmdSdc());
-    sta_->makeFalsePath(from, nullptr, to, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, nullptr, to, MinMaxAll::all(), "", sta_->cmdSdc());
     // Write SDC to exercise the path delay annotation
     const char *fn = "/tmp/test_sdc_r10_falsepath_exercise.sdc";
     sta_->writeSdc(sta_->cmdSdc(), fn, false, false, 4, false, true);
@@ -483,7 +483,7 @@ TEST_F(SdcDesignTest, WriteSdcNative) {
 }
 
 TEST_F(SdcDesignTest, WriteSdcWithFalsePath) {
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   const char *filename = "/tmp/test_write_sdc_sdc_r10_fp.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -795,7 +795,7 @@ TEST_F(SdcDesignTest, WriteSdcWithClockInsertion) {
 
 TEST_F(SdcDesignTest, WriteSdcWithMulticycle) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
-                           MinMaxAll::max(), true, 2, nullptr, sta_->cmdSdc());
+                           MinMaxAll::max(), true, 2, "", sta_->cmdSdc());
   const char *filename = "/tmp/test_write_sdc_sdc_r10_mcp.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -845,7 +845,7 @@ TEST_F(SdcInitTest, SdcDeleteLatchBorrowLimits) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(5.0f);
-  sta_->makeClock("clk_borrow", clk_pins, false, 10.0f, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("clk_borrow", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
   Clock *clk = sdc->findClock("clk_borrow");
   ASSERT_NE(clk, nullptr);
   // Set latch borrow limit on clock
@@ -1173,7 +1173,7 @@ TEST_F(SdcDesignTest, ClockAccessors) {
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("clk");
   ASSERT_NE(clk, nullptr);
-  EXPECT_STREQ(clk->name(), "clk");
+  EXPECT_EQ(clk->name(), "clk");
   EXPECT_FLOAT_EQ(clk->period(), 10.0f);
   const FloatSeq *wave = clk->waveform();
   ASSERT_NE(wave, nullptr);
@@ -1351,7 +1351,7 @@ TEST_F(SdcDesignTest, SdcClocksList) {
   const ClockSeq &clks = sdc->clocks();
   EXPECT_GT(clks.size(), 0u);
   for (Clock *c : clks) {
-    EXPECT_NE(c->name(), nullptr);
+    EXPECT_FALSE(c->name().empty());
   }
 }
 
@@ -1515,11 +1515,11 @@ TEST_F(SdcDesignTest, WriteSdcWithClockGroupsMembers) {
       FloatSeq *waveform2 = new FloatSeq;
       waveform2->push_back(0.0f);
       waveform2->push_back(2.5f);
-      sta_->makeClock("clk2", clk2_pins, false, 5.0f, waveform2, nullptr, sta_->cmdMode());
+      sta_->makeClock("clk2", clk2_pins, false, 5.0f, waveform2, "", sta_->cmdMode());
       Clock *clk2 = sdc->findClock("clk2");
       if (clk2) {
         ClockGroups *cg = sta_->makeClockGroups("grp1", true, false, false,
-                                                 false, nullptr, sta_->cmdSdc());
+                                                 false, "", sta_->cmdSdc());
         ClockSet *group1 = new ClockSet;
         group1->insert(clk);
         sta_->makeClockGroup(cg, group1, sta_->cmdSdc());
@@ -1568,7 +1568,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathFromThruTo) {
     ExceptionTo *to = sta_->makeExceptionTo(to_pins, nullptr, nullptr,
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::riseFall(), sta_->cmdSdc());
-    sta_->makeFalsePath(from, thrus, to, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, thrus, to, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_fp_fromthru.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1591,7 +1591,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathThruNet) {
     ExceptionThru *thru = sta_->makeExceptionThru(nullptr, nets, nullptr,
                                                    RiseFallBoth::riseFall(), sta_->cmdSdc());
     thrus->push_back(thru);
-    sta_->makeFalsePath(nullptr, thrus, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(nullptr, thrus, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   delete net_iter;
   const char *filename = "/tmp/test_sdc_r11_fp_thrunet.sdc";
@@ -1610,7 +1610,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathFromClock) {
     from_clks->insert(clk);
     ExceptionFrom *from = sta_->makeExceptionFrom(nullptr, from_clks, nullptr,
                                                    RiseFallBoth::riseFall(), sta_->cmdSdc());
-    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_fp_fromclk.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1631,7 +1631,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathFromInstance) {
     from_insts->insert(inst);
     ExceptionFrom *from = sta_->makeExceptionFrom(nullptr, nullptr, from_insts,
                                                    RiseFallBoth::riseFall(), sta_->cmdSdc());
-    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   delete iter;
   const char *filename = "/tmp/test_sdc_r11_fp_frominst.sdc";
@@ -1653,7 +1653,7 @@ TEST_F(SdcDesignTest, WriteSdcMulticycleWithFrom) {
     ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
                                                    RiseFallBoth::riseFall(), sta_->cmdSdc());
     sta_->makeMulticyclePath(from, nullptr, nullptr,
-                             MinMaxAll::max(), true, 3, nullptr, sta_->cmdSdc());
+                             MinMaxAll::max(), true, 3, "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_mcp_from.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1680,7 +1680,7 @@ TEST_F(SdcDesignTest, WriteSdcPathDelay) {
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::riseFall(), sta_->cmdSdc());
     sta_->makePathDelay(from, nullptr, to, MinMax::max(), false, false,
-                        5.0f, nullptr, sta_->cmdSdc());
+                        5.0f, "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_pathdelay.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1700,7 +1700,7 @@ TEST_F(SdcDesignTest, WriteSdcGroupPath) {
     from_pins->insert(in1);
     ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
                                                    RiseFallBoth::riseFall(), sta_->cmdSdc());
-    sta_->makeGroupPath("mygroup", false, from, nullptr, nullptr, nullptr, sta_->cmdSdc());
+    sta_->makeGroupPath("mygroup", false, from, nullptr, nullptr, "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_grouppath.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1805,7 +1805,7 @@ TEST_F(SdcDesignTest, SdcConnectedCapNet) {
 // --- ExceptionPath::mergeable ---
 TEST_F(SdcDesignTest, ExceptionPathMergeable) {
   // Create two false paths and check mergeability
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   Sdc *sdc = sta_->cmdSdc();
   const ExceptionPathSet &exceptions = sdc->exceptions();
   ExceptionPath *first = nullptr;
@@ -1855,7 +1855,7 @@ TEST_F(SdcDesignTest, WriteSdcMinDelay) {
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::riseFall(), sta_->cmdSdc());
     sta_->makePathDelay(from, nullptr, to, MinMax::min(), false, false,
-                        1.0f, nullptr, sta_->cmdSdc());
+                        1.0f, "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_mindelay.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1868,7 +1868,7 @@ TEST_F(SdcDesignTest, WriteSdcMinDelay) {
 //     (triggers the hold branch in writeExceptionCmd) ---
 TEST_F(SdcDesignTest, WriteSdcMulticycleHold) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
-                           MinMaxAll::min(), true, 0, nullptr, sta_->cmdSdc());
+                           MinMaxAll::min(), true, 0, "", sta_->cmdSdc());
   const char *filename = "/tmp/test_sdc_r11_mcp_hold.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -1880,7 +1880,7 @@ TEST_F(SdcDesignTest, WriteSdcMulticycleHold) {
 //     (triggers the start branch in writeExceptionCmd) ---
 TEST_F(SdcDesignTest, WriteSdcMulticycleStart) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
-                           MinMaxAll::max(), false, 2, nullptr, sta_->cmdSdc());
+                           MinMaxAll::max(), false, 2, "", sta_->cmdSdc());
   const char *filename = "/tmp/test_sdc_r11_mcp_start.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -1891,7 +1891,7 @@ TEST_F(SdcDesignTest, WriteSdcMulticycleStart) {
 // --- WriteSdc with group path default
 //     (triggers isDefault branch in writeExceptionCmd) ---
 TEST_F(SdcDesignTest, WriteSdcGroupPathDefault) {
-  sta_->makeGroupPath("", true, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("", true, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
   const char *filename = "/tmp/test_sdc_r11_grppath_default.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -1910,7 +1910,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathRiseFrom) {
     from_pins->insert(in1);
     ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
                                                    RiseFallBoth::rise(), sta_->cmdSdc());
-    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_fp_risefrom.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1930,7 +1930,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathFallFrom) {
     from_pins->insert(in1);
     ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
                                                    RiseFallBoth::fall(), sta_->cmdSdc());
-    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_fp_fallfrom.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1943,7 +1943,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathFallFrom) {
 //     (triggers the ignoreClkLatency branch) ---
 TEST_F(SdcDesignTest, WriteSdcPathDelayIgnoreClkLat) {
   sta_->makePathDelay(nullptr, nullptr, nullptr, MinMax::max(), true, false,
-                      8.0f, nullptr, sta_->cmdSdc());
+                      8.0f, "", sta_->cmdSdc());
   const char *filename = "/tmp/test_sdc_r11_pathdelay_ignoreclk.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   FILE *f = fopen(filename, "r");
@@ -1963,7 +1963,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathToRise) {
     ExceptionTo *to = sta_->makeExceptionTo(to_pins, nullptr, nullptr,
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::rise(), sta_->cmdSdc());
-    sta_->makeFalsePath(nullptr, nullptr, to, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(nullptr, nullptr, to, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_fp_torise.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -1984,7 +1984,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathMultiFrom) {
     from_pins->insert(in2);
     ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
                                                    RiseFallBoth::riseFall(), sta_->cmdSdc());
-    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_fp_multifrom.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
@@ -2242,7 +2242,7 @@ TEST_F(SdcDesignTest, WriteSdcMegaComprehensive) {
   // Clock groups
   if (clk) {
     ClockGroups *cg = sta_->makeClockGroups("mega_grp", false, true, false,
-                                             false, nullptr, sta_->cmdSdc());
+                                             false, "", sta_->cmdSdc());
     ClockSet *g1 = new ClockSet;
     g1->insert(clk);
     sta_->makeClockGroup(cg, g1, sta_->cmdSdc());
@@ -2270,7 +2270,7 @@ TEST_F(SdcDesignTest, WriteSdcMegaComprehensive) {
     ExceptionTo *to = sta_->makeExceptionTo(to_pins, nullptr, nullptr,
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::rise(), sta_->cmdSdc());
-    sta_->makeFalsePath(from, thrus, to, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from, thrus, to, MinMaxAll::all(), "", sta_->cmdSdc());
   }
 
   // Max/min delay
@@ -2285,15 +2285,15 @@ TEST_F(SdcDesignTest, WriteSdcMegaComprehensive) {
                                             RiseFallBoth::riseFall(),
                                             RiseFallBoth::riseFall(), sta_->cmdSdc());
     sta_->makePathDelay(from, nullptr, to, MinMax::max(), true, false,
-                        6.0f, nullptr, sta_->cmdSdc());
+                        6.0f, "", sta_->cmdSdc());
   }
 
   // Multicycle
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
-                           MinMaxAll::max(), false, 4, nullptr, sta_->cmdSdc());
+                           MinMaxAll::max(), false, 4, "", sta_->cmdSdc());
 
   // Group path
-  sta_->makeGroupPath("mega", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+  sta_->makeGroupPath("mega", false, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
 
   // Clock gating check
   sta_->setClockGatingCheck(RiseFallBoth::riseFall(), MinMax::max(), 0.15f, sta_->cmdSdc());
@@ -2343,7 +2343,7 @@ TEST_F(SdcDesignTest, SdcRemoveClockGroups) {
   Clock *clk = sdc->findClock("clk");
   if (clk) {
     ClockGroups *cg = sta_->makeClockGroups("rm_grp", true, false, false,
-                                             false, nullptr, sta_->cmdSdc());
+                                             false, "", sta_->cmdSdc());
     ClockSet *g1 = new ClockSet;
     g1->insert(clk);
     sta_->makeClockGroup(cg, g1, sta_->cmdSdc());
@@ -2361,7 +2361,7 @@ TEST_F(SdcDesignTest, SdcRemovePhysExclClkGroups) {
   Clock *clk = sdc->findClock("clk");
   if (clk) {
     ClockGroups *cg = sta_->makeClockGroups("phys_grp", false, true, false,
-                                             false, nullptr, sta_->cmdSdc());
+                                             false, "", sta_->cmdSdc());
     ClockSet *g1 = new ClockSet;
     g1->insert(clk);
     sta_->makeClockGroup(cg, g1, sta_->cmdSdc());
@@ -2378,7 +2378,7 @@ TEST_F(SdcDesignTest, SdcRemoveAsyncClkGroups) {
   Clock *clk = sdc->findClock("clk");
   if (clk) {
     ClockGroups *cg = sta_->makeClockGroups("async_grp", false, false, true,
-                                             false, nullptr, sta_->cmdSdc());
+                                             false, "", sta_->cmdSdc());
     ClockSet *g1 = new ClockSet;
     g1->insert(clk);
     sta_->makeClockGroup(cg, g1, sta_->cmdSdc());
@@ -2419,8 +2419,8 @@ TEST_F(SdcDesignTest, ExceptionFromMatching) {
     ExceptionFrom *from2 = sta_->makeExceptionFrom(pins2, nullptr, nullptr,
                                                      RiseFallBoth::riseFall(), sta_->cmdSdc());
     // Make false paths - internally triggers findHash
-    sta_->makeFalsePath(from1, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
-    sta_->makeFalsePath(from2, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(from1, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
+    sta_->makeFalsePath(from2, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
 
   }() ));
@@ -2581,7 +2581,7 @@ TEST_F(SdcDesignTest, SdcCapLimitPin) {
 // --- WriteSdc with set_false_path -hold only
 //     (triggers writeSetupHoldFlag for hold) ---
 TEST_F(SdcDesignTest, WriteSdcFalsePathHold) {
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::min(), nullptr, sta_->cmdSdc());
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::min(), "", sta_->cmdSdc());
   const char *filename = "/tmp/test_sdc_r11_fp_hold.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   std::string text = readTextFile(filename);
@@ -2592,7 +2592,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathHold) {
 // --- WriteSdc with set_false_path -setup only
 //     (triggers writeSetupHoldFlag for setup) ---
 TEST_F(SdcDesignTest, WriteSdcFalsePathSetup) {
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::max(), nullptr, sta_->cmdSdc());
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::max(), "", sta_->cmdSdc());
   const char *filename = "/tmp/test_sdc_r11_fp_setup.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);
   std::string text = readTextFile(filename);
@@ -2613,7 +2613,7 @@ TEST_F(SdcDesignTest, WriteSdcFalsePathRiseThru) {
     ExceptionThru *thru = sta_->makeExceptionThru(thru_pins, nullptr, nullptr,
                                                    RiseFallBoth::rise(), sta_->cmdSdc());
     thrus->push_back(thru);
-    sta_->makeFalsePath(nullptr, thrus, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+    sta_->makeFalsePath(nullptr, thrus, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   }
   const char *filename = "/tmp/test_sdc_r11_fp_risethru.sdc";
   sta_->writeSdc(sta_->cmdSdc(), filename, false, false, 4, false, true);

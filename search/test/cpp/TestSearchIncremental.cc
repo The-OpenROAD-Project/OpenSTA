@@ -52,7 +52,7 @@ protected:
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
     Sdc *sdc = sta_->cmdSdc();
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr,
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "",
                     sta_->cmdMode());
 
     Clock *clk = sdc->findClock("clk");
@@ -441,7 +441,7 @@ TEST_F(IncrementalTimingTest, ClockConstraintAfterEdit) {
   FloatSeq *tight_waveform = new FloatSeq;
   tight_waveform->push_back(0.0f);
   tight_waveform->push_back(1.0f);  // 2ns period
-  sta_->makeClock("clk", clk_pins, false, 2.0f, tight_waveform, nullptr,
+  sta_->makeClock("clk", clk_pins, false, 2.0f, tight_waveform, "",
                   sta_->cmdMode());
 
   Slack tight_slack = sta_->worstSlack(MinMax::max());
@@ -455,7 +455,7 @@ TEST_F(IncrementalTimingTest, ClockConstraintAfterEdit) {
   FloatSeq *loose_waveform = new FloatSeq;
   loose_waveform->push_back(0.0f);
   loose_waveform->push_back(50.0f);  // 100ns period
-  sta_->makeClock("clk", clk_pins2, false, 100.0f, loose_waveform, nullptr,
+  sta_->makeClock("clk", clk_pins2, false, 100.0f, loose_waveform, "",
                   sta_->cmdMode());
 
   Slack loose_slack = sta_->worstSlack(MinMax::max());
@@ -1023,7 +1023,7 @@ TEST_F(IncrementalTimingTest, TnsUpdatesIncrementally) {
   FloatSeq *tight_waveform = new FloatSeq;
   tight_waveform->push_back(0.0f);
   tight_waveform->push_back(0.2f);  // 0.4ns period (very tight)
-  sta_->makeClock("clk", clk_pins, false, 0.4f, tight_waveform, nullptr,
+  sta_->makeClock("clk", clk_pins, false, 0.4f, tight_waveform, "",
                   sta_->cmdMode());
 
   Slack tight_tns = sta_->totalNegativeSlack(MinMax::max());
@@ -1447,7 +1447,7 @@ TEST_F(IncrementalTimingTest, EndpointViolationCountChanges) {
   FloatSeq *tight_waveform = new FloatSeq;
   tight_waveform->push_back(0.0f);
   tight_waveform->push_back(0.1f);  // 0.2ns period
-  sta_->makeClock("clk", clk_pins, false, 0.2f, tight_waveform, nullptr,
+  sta_->makeClock("clk", clk_pins, false, 0.2f, tight_waveform, "",
                   sta_->cmdMode());
 
   int tight_violations = sta_->endpointViolationCount(MinMax::max());
@@ -1460,7 +1460,7 @@ TEST_F(IncrementalTimingTest, EndpointViolationCountChanges) {
   FloatSeq *loose_waveform = new FloatSeq;
   loose_waveform->push_back(0.0f);
   loose_waveform->push_back(50.0f);
-  sta_->makeClock("clk", clk_pins2, false, 100.0f, loose_waveform, nullptr,
+  sta_->makeClock("clk", clk_pins2, false, 100.0f, loose_waveform, "",
                   sta_->cmdMode());
 
   int loose_violations = sta_->endpointViolationCount(MinMax::max());

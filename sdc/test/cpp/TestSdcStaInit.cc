@@ -98,7 +98,7 @@ TEST_F(SdcInitTest, ClockAddPinNull) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_addpin", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   // addPin with nullptr - after adding null, isVirtual becomes false
   // because the pins set becomes non-empty
@@ -113,7 +113,7 @@ TEST_F(SdcInitTest, ClockSetSlewRfMinMax) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_slew", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   clk->setSlew(RiseFall::rise(), MinMax::max(), 0.5f);
   float slew;
@@ -131,7 +131,7 @@ TEST_F(SdcInitTest, ClockEdgeTime) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_edge", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ClockEdge *fall_edge = clk->edge(RiseFall::fall());
@@ -148,7 +148,7 @@ TEST_F(SdcInitTest, ClockEdgeOpposite) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_opp", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ClockEdge *fall_edge = clk->edge(RiseFall::fall());
@@ -165,7 +165,7 @@ TEST_F(SdcInitTest, ClockEdgePulseWidth) {
   waveform->push_back(4.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_pw", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ASSERT_NE(rise_edge, nullptr);
@@ -180,7 +180,7 @@ TEST_F(SdcInitTest, ClockEdgeNameIndex) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_ni", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ASSERT_NE(rise_edge, nullptr);
@@ -246,19 +246,19 @@ TEST_F(SdcInitTest, DisabledCellPortsIsDisabled) {
 
 // ExceptionPath::typeString via various subclasses
 TEST_F(SdcInitTest, FalsePathTypeString) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_NE(fp.typeString(), nullptr);
 }
 
 TEST_F(SdcInitTest, PathDelayTypeString) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
-               false, false, 5.0f, true, nullptr);
+               false, false, 5.0f, true, "");
   EXPECT_NE(pd.typeString(), nullptr);
 }
 
 TEST_F(SdcInitTest, MultiCyclePathTypeString) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   EXPECT_NE(mcp.typeString(), nullptr);
 }
 
@@ -268,7 +268,7 @@ TEST_F(SdcInitTest, FilterPathTypeString) {
 }
 
 TEST_F(SdcInitTest, GroupPathTypeString) {
-  GroupPath gp("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("grp1", false, nullptr, nullptr, nullptr, true, "");
   EXPECT_NE(gp.typeString(), nullptr);
 }
 
@@ -279,44 +279,44 @@ TEST_F(SdcInitTest, LoopPathTypeString) {
 
 // ExceptionPath::mergeable tests
 TEST_F(SdcInitTest, FalsePathMergeable) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp1.mergeable(&fp2));
 }
 
 TEST_F(SdcInitTest, PathDelayMergeable) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 5.0f, true, nullptr);
+                false, false, 5.0f, true, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 5.0f, true, nullptr);
+                false, false, 5.0f, true, "");
   EXPECT_TRUE(pd1.mergeable(&pd2));
 }
 
 TEST_F(SdcInitTest, PathDelayMergeableDifferentDelay) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 5.0f, true, nullptr);
+                false, false, 5.0f, true, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 10.0f, true, nullptr);
+                false, false, 10.0f, true, "");
   EXPECT_FALSE(pd1.mergeable(&pd2));
 }
 
 TEST_F(SdcInitTest, MultiCyclePathMergeable) {
   MultiCyclePath mcp1(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                      true, 3, true, nullptr);
+                      true, 3, true, "");
   MultiCyclePath mcp2(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                      true, 3, true, nullptr);
+                      true, 3, true, "");
   EXPECT_TRUE(mcp1.mergeable(&mcp2));
 }
 
 TEST_F(SdcInitTest, GroupPathMergeable) {
-  GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
-  GroupPath gp2("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, "");
+  GroupPath gp2("grp1", false, nullptr, nullptr, nullptr, true, "");
   EXPECT_TRUE(gp1.mergeable(&gp2));
 }
 
 TEST_F(SdcInitTest, GroupPathNotMergeable) {
-  GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
-  GroupPath gp2("grp2", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, "");
+  GroupPath gp2("grp2", false, nullptr, nullptr, nullptr, true, "");
   EXPECT_FALSE(gp1.mergeable(&gp2));
 }
 
@@ -328,24 +328,24 @@ TEST_F(SdcInitTest, LoopPathNotMergeable) {
 
 // ExceptionPath::overrides tests
 TEST_F(SdcInitTest, FalsePathOverrides) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp1.overrides(&fp2));
 }
 
 TEST_F(SdcInitTest, PathDelayOverrides) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 5.0f, true, nullptr);
+                false, false, 5.0f, true, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 5.0f, true, nullptr);
+                false, false, 5.0f, true, "");
   EXPECT_TRUE(pd1.overrides(&pd2));
 }
 
 TEST_F(SdcInitTest, MultiCyclePathOverrides) {
   MultiCyclePath mcp1(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                      true, 3, true, nullptr);
+                      true, 3, true, "");
   MultiCyclePath mcp2(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                      true, 3, true, nullptr);
+                      true, 3, true, "");
   EXPECT_TRUE(mcp1.overrides(&mcp2));
 }
 
@@ -357,15 +357,15 @@ TEST_F(SdcInitTest, FilterPathOverrides2) {
 }
 
 TEST_F(SdcInitTest, GroupPathOverrides) {
-  GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
-  GroupPath gp2("grp1", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp1("grp1", false, nullptr, nullptr, nullptr, true, "");
+  GroupPath gp2("grp1", false, nullptr, nullptr, nullptr, true, "");
   EXPECT_TRUE(gp1.overrides(&gp2));
 }
 
 // ExceptionPath::matches with min_max
 TEST_F(SdcInitTest, MultiCyclePathMatches) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   EXPECT_TRUE(mcp.matches(MinMax::max(), false));
   EXPECT_TRUE(mcp.matches(MinMax::min(), false));
 }
@@ -388,7 +388,7 @@ TEST_F(SdcInitTest, ExceptionFromThruToPriority) {
 // PathDelay specific getters
 TEST_F(SdcInitTest, PathDelayGetters) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
-               true, true, 5.0f, true, nullptr);
+               true, true, 5.0f, true, "");
   EXPECT_FLOAT_EQ(pd.delay(), 5.0f);
   EXPECT_TRUE(pd.ignoreClkLatency());
   EXPECT_TRUE(pd.breakPath());
@@ -403,7 +403,7 @@ TEST_F(SdcInitTest, PathDelayGetters) {
 // MultiCyclePath specific getters
 TEST_F(SdcInitTest, MultiCyclePathGetters) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
-                     true, 5, true, nullptr);
+                     true, 5, true, "");
   EXPECT_EQ(mcp.pathMultiplier(), 5);
   EXPECT_TRUE(mcp.useEndClk());
   EXPECT_TRUE(mcp.isMultiCycle());
@@ -412,7 +412,7 @@ TEST_F(SdcInitTest, MultiCyclePathGetters) {
 // MultiCyclePath pathMultiplier with MinMax
 TEST_F(SdcInitTest, MultiCyclePathMultiplierMinMax) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
-                     true, 5, true, nullptr);
+                     true, 5, true, "");
   int mult_max = mcp.pathMultiplier(MinMax::max());
   EXPECT_EQ(mult_max, 5);
 }
@@ -420,14 +420,14 @@ TEST_F(SdcInitTest, MultiCyclePathMultiplierMinMax) {
 // MultiCyclePath priority with MinMax
 TEST_F(SdcInitTest, MultiCyclePathPriorityMinMax) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::max(),
-                     true, 5, true, nullptr);
+                     true, 5, true, "");
   int p = mcp.priority(MinMax::max());
   EXPECT_GT(p, 0);
 }
 
 // GroupPath name and isDefault
 TEST_F(SdcInitTest, GroupPathName) {
-  GroupPath gp("test_group", true, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("test_group", true, nullptr, nullptr, nullptr, true, "");
   EXPECT_EQ(gp.name(), "test_group");
   EXPECT_TRUE(gp.isDefault());
 }
@@ -446,7 +446,7 @@ TEST_F(SdcInitTest, FilterPathBasic) {
 // FalsePath with priority
 TEST_F(SdcInitTest, FalsePathWithPriority) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true,
-               4500, nullptr);
+               4500, "");
   EXPECT_EQ(fp.priority(), 4500);
 }
 
@@ -461,16 +461,16 @@ TEST_F(SdcInitTest, LoopPathBasicProps) {
 
 // Exception hash
 TEST_F(SdcInitTest, ExceptionPathHash) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   size_t h1 = fp1.hash();
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   size_t h2 = fp2.hash();
   EXPECT_EQ(h1, h2);
 }
 
 // ExceptionPath clone tests
 TEST_F(SdcInitTest, FalsePathCloneAndCheck) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionPath *clone = fp.clone(nullptr, nullptr, nullptr, true);
   ASSERT_NE(clone, nullptr);
   EXPECT_TRUE(clone->isFalse());
@@ -479,7 +479,7 @@ TEST_F(SdcInitTest, FalsePathCloneAndCheck) {
 
 TEST_F(SdcInitTest, PathDelayCloneAndCheck) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
-               false, false, 5.0f, true, nullptr);
+               false, false, 5.0f, true, "");
   ExceptionPath *clone = pd.clone(nullptr, nullptr, nullptr, true);
   ASSERT_NE(clone, nullptr);
   EXPECT_TRUE(clone->isPathDelay());
@@ -489,7 +489,7 @@ TEST_F(SdcInitTest, PathDelayCloneAndCheck) {
 
 TEST_F(SdcInitTest, MultiCyclePathCloneAndCheck) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 4, true, nullptr);
+                     true, 4, true, "");
   ExceptionPath *clone = mcp.clone(nullptr, nullptr, nullptr, true);
   ASSERT_NE(clone, nullptr);
   EXPECT_TRUE(clone->isMultiCycle());
@@ -498,7 +498,7 @@ TEST_F(SdcInitTest, MultiCyclePathCloneAndCheck) {
 }
 
 TEST_F(SdcInitTest, GroupPathCloneAndCheck) {
-  GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, "");
   ExceptionPath *clone = gp.clone(nullptr, nullptr, nullptr, true);
   ASSERT_NE(clone, nullptr);
   EXPECT_TRUE(clone->isGroupPath());
@@ -516,7 +516,7 @@ TEST_F(SdcInitTest, FilterPathCloneAndCheck) {
 
 // ExceptionState constructor
 TEST_F(SdcInitTest, ExceptionState) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionState state(&fp, nullptr, 0);
   EXPECT_EQ(state.exception(), &fp);
   EXPECT_EQ(state.nextThru(), nullptr);
@@ -526,7 +526,7 @@ TEST_F(SdcInitTest, ExceptionState) {
 
 // ExceptionState setNextState
 TEST_F(SdcInitTest, ExceptionStateSetNextState) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionState state1(&fp, nullptr, 0);
   ExceptionState state2(&fp, nullptr, 1);
   state1.setNextState(&state2);
@@ -536,7 +536,7 @@ TEST_F(SdcInitTest, ExceptionStateSetNextState) {
 // ExceptionState hash
 TEST_F(SdcInitTest, ExceptionStateHash) {
   ASSERT_NO_THROW(( [&](){
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionState state(&fp, nullptr, 0);
   size_t h = state.hash();
   EXPECT_GE(h, 0);
@@ -547,8 +547,8 @@ TEST_F(SdcInitTest, ExceptionStateHash) {
 // exceptionStateLess
 TEST_F(SdcInitTest, ExceptionStateLess) {
   ASSERT_NO_THROW(( [&](){
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionState state1(&fp1, nullptr, 0);
   ExceptionState state2(&fp2, nullptr, 0);
   // Just exercise the comparator
@@ -611,7 +611,7 @@ TEST_F(SdcInitTest, SdcLatchBorrowLimitOnClock) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Clock *clk = sdc->makeClock("clk_lbl", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   sdc->setLatchBorrowLimit(clk, 2.0f);
   // Just exercise - borrow limit is set
@@ -627,9 +627,9 @@ TEST_F(SdcInitTest, InterClockUncertaintyEmpty) {
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->makeClock("clk_icu1", nullptr, false, 10.0,
-                                waveform1, nullptr);
+                                waveform1, "");
   Clock *clk2 = sdc->makeClock("clk_icu2", nullptr, false, 6.0,
-                                waveform2, nullptr);
+                                waveform2, "");
   InterClockUncertainty icu(clk1, clk2);
   EXPECT_TRUE(icu.empty());
   EXPECT_EQ(icu.src(), clk1);
@@ -645,9 +645,9 @@ TEST_F(SdcInitTest, InterClockUncertaintySetAndGet) {
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->makeClock("clk_icu3", nullptr, false, 10.0,
-                                waveform1, nullptr);
+                                waveform1, "");
   Clock *clk2 = sdc->makeClock("clk_icu4", nullptr, false, 6.0,
-                                waveform2, nullptr);
+                                waveform2, "");
   InterClockUncertainty icu(clk1, clk2);
   icu.setUncertainty(RiseFallBoth::riseFall(), RiseFallBoth::riseFall(),
                      SetupHoldAll::all(), 0.1f);
@@ -669,9 +669,9 @@ TEST_F(SdcInitTest, InterClockUncertaintyRemove) {
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->makeClock("clk_icu5", nullptr, false, 10.0,
-                                waveform1, nullptr);
+                                waveform1, "");
   Clock *clk2 = sdc->makeClock("clk_icu6", nullptr, false, 6.0,
-                                waveform2, nullptr);
+                                waveform2, "");
   InterClockUncertainty icu(clk1, clk2);
   icu.setUncertainty(RiseFallBoth::riseFall(), RiseFallBoth::riseFall(),
                      SetupHoldAll::all(), 0.2f);
@@ -689,9 +689,9 @@ TEST_F(SdcInitTest, InterClockUncertaintyUncertainties) {
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->makeClock("clk_icu7", nullptr, false, 10.0,
-                                waveform1, nullptr);
+                                waveform1, "");
   Clock *clk2 = sdc->makeClock("clk_icu8", nullptr, false, 6.0,
-                                waveform2, nullptr);
+                                waveform2, "");
   InterClockUncertainty icu(clk1, clk2);
   const RiseFallMinMax *rfmm = icu.uncertainties(RiseFall::rise());
   EXPECT_NE(rfmm, nullptr);
@@ -704,7 +704,7 @@ TEST_F(SdcInitTest, CycleAcctingConstruct2) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_ca", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise = clk->edge(RiseFall::rise());
   ClockEdge *fall = clk->edge(RiseFall::fall());
@@ -719,7 +719,7 @@ TEST_F(SdcInitTest, CycleAcctingFindDefaultArrivalSrcDelays) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_ca2", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise = clk->edge(RiseFall::rise());
   ClockEdge *fall = clk->edge(RiseFall::fall());
@@ -763,9 +763,9 @@ TEST_F(SdcInitTest, ClockSetCompare) {
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->makeClock("clk_csc1", nullptr, false, 10.0,
-                                waveform1, nullptr);
+                                waveform1, "");
   Clock *clk2 = sdc->makeClock("clk_csc2", nullptr, false, 6.0,
-                                waveform2, nullptr);
+                                waveform2, "");
   ClockSet set1;
   set1.insert(clk1);
   ClockSet set2;
@@ -791,7 +791,7 @@ TEST_F(SdcInitTest, ExceptionPtIteratorFromOnly) {
   ExceptionFrom *from = new ExceptionFrom(nullptr, nullptr, nullptr,
                                            RiseFallBoth::riseFall(),
                                            true, network);
-  FalsePath fp(from, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(from, nullptr, nullptr, MinMaxAll::all(), true, "");
   ExceptionPtIterator iter(&fp);
   int count = 0;
   while (iter.hasNext()) {
@@ -915,8 +915,8 @@ TEST_F(SdcInitTest, ExceptionPathLessComparator2) {
   ASSERT_NO_THROW(( [&](){
   const Network *network = sta_->cmdNetwork();
   ExceptionPathLess less(network);
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   // Should not crash
   less(&fp1, &fp2);
 
@@ -930,7 +930,7 @@ TEST_F(SdcInitTest, ClockRemoveSlew) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_rs", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   clk->setSlew(RiseFallBoth::riseFall(), MinMaxAll::all(), 0.5f);
   clk->removeSlew();
@@ -947,7 +947,7 @@ TEST_F(SdcInitTest, ClockSlewsAccessor) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_sa", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   clk->slews();
 }
@@ -959,7 +959,7 @@ TEST_F(SdcInitTest, ClockUncertaintiesAccessor) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_ua", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   // A freshly created clock has no uncertainties set yet
   ClockUncertainties *unc = clk->uncertainties();
@@ -973,7 +973,7 @@ TEST_F(SdcInitTest, ClockSetRemoveUncertainty) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_sru", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   clk->setUncertainty(SetupHoldAll::all(), 0.1f);
   float unc;
@@ -993,7 +993,7 @@ TEST_F(SdcInitTest, ClockGeneratedProperties) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_gp", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   EXPECT_FALSE(clk->isGenerated());
   EXPECT_EQ(clk->masterClk(), nullptr);
@@ -1012,10 +1012,10 @@ TEST_F(SdcInitTest, ClkNameLess) {
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clkA = sdc->makeClock("alpha", nullptr, false, 10.0,
-                                waveform1, nullptr);
+                                waveform1, "");
   Clock *clkB = sdc->makeClock("beta", nullptr, false, 6.0,
-                                waveform2, nullptr);
-  ClkNameLess less;
+                                waveform2, "");
+  ClockNameLess less;
   EXPECT_TRUE(less(clkA, clkB));
   EXPECT_FALSE(less(clkB, clkA));
 }
@@ -1038,7 +1038,7 @@ TEST_F(SdcInitTest, ClockPropagation2) {
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->makeClock("clk_prop", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   ASSERT_NE(clk, nullptr);
   EXPECT_FALSE(clk->isPropagated());
   sdc->setPropagatedClock(clk);
@@ -1124,21 +1124,21 @@ TEST_F(SdcInitTest, SdcWireloadMode2) {
 ////////////////////////////////////////////////////////////////
 
 TEST_F(SdcInitTest, FalsePathMergeableSame) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   EXPECT_TRUE(fp1.mergeable(&fp2));
 }
 
 TEST_F(SdcInitTest, FalsePathNotMergeableDiffMinMax) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::min(), true, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::max(), true, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::min(), true, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::max(), true, "");
   EXPECT_FALSE(fp1.mergeable(&fp2));
 }
 
 TEST_F(SdcInitTest, FalsePathNotMergeableDiffType) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-               1.0e-9f, true, nullptr);
+               1.0e-9f, true, "");
   EXPECT_FALSE(fp.mergeable(&pd));
 }
 
@@ -1148,16 +1148,16 @@ TEST_F(SdcInitTest, FalsePathNotMergeableDiffType) {
 
 TEST_F(SdcInitTest, PathDelayMinDirection) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::min(), false, false,
-               5.0e-9f, true, nullptr);
+               5.0e-9f, true, "");
   EXPECT_TRUE(pd.matches(MinMax::min(), false));
   EXPECT_FALSE(pd.matches(MinMax::max(), false));
 }
 
 TEST_F(SdcInitTest, PathDelayTighterMin) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::min(), false, false,
-                5.0e-9f, true, nullptr);
+                5.0e-9f, true, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::min(), false, false,
-                2.0e-9f, true, nullptr);
+                2.0e-9f, true, "");
   // For min, larger delay is tighter
   EXPECT_TRUE(pd1.tighterThan(&pd2));
   EXPECT_FALSE(pd2.tighterThan(&pd1));
@@ -1169,20 +1169,20 @@ TEST_F(SdcInitTest, PathDelayTighterMin) {
 
 TEST_F(SdcInitTest, PathDelayHash) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-               5.0e-9f, true, nullptr);
+               5.0e-9f, true, "");
   size_t h = pd.hash();
   EXPECT_GE(h, 0u);
 }
 
 TEST_F(SdcInitTest, MultiCyclePathHash) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, true, nullptr);
+                     true, 3, true, "");
   size_t h = mcp.hash();
   EXPECT_GE(h, 0u);
 }
 
 TEST_F(SdcInitTest, GroupPathHash) {
-  GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, "");
   size_t h = gp.hash();
   EXPECT_GE(h, 0u);
 }
@@ -1204,27 +1204,27 @@ TEST_F(SdcInitTest, LoopPathHash) {
 ////////////////////////////////////////////////////////////////
 
 TEST_F(SdcInitTest, FalsePathTypeString2) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
   const char *ts = fp.typeString();
   EXPECT_NE(ts, nullptr);
 }
 
 TEST_F(SdcInitTest, PathDelayTypeString2) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
-               1.0e-9f, true, nullptr);
+               1.0e-9f, true, "");
   const char *ts = pd.typeString();
   EXPECT_NE(ts, nullptr);
 }
 
 TEST_F(SdcInitTest, MultiCyclePathTypeString2) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 2, true, nullptr);
+                     true, 2, true, "");
   const char *ts = mcp.typeString();
   EXPECT_NE(ts, nullptr);
 }
 
 TEST_F(SdcInitTest, GroupPathTypeString2) {
-  GroupPath gp("g", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("g", false, nullptr, nullptr, nullptr, true, "");
   const char *ts = gp.typeString();
   EXPECT_NE(ts, nullptr);
 }
@@ -1243,7 +1243,7 @@ TEST_F(SdcInitTest, ClockEdgeTimeAccess) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("et_clk", nullptr, false, 10.0, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("et_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("et_clk");
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
@@ -1262,16 +1262,16 @@ TEST_F(SdcInitTest, ClockMakeClock) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Clock *clk = sdc->makeClock("direct_clk", nullptr, false, 10.0,
-                               waveform, nullptr);
+                               waveform, "");
   EXPECT_NE(clk, nullptr);
-  EXPECT_STREQ(clk->name(), "direct_clk");
+  EXPECT_EQ(clk->name(), "direct_clk");
 }
 
 TEST_F(SdcInitTest, ClockLeafPins) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("lp_clk", nullptr, false, 10.0, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("lp_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("lp_clk");
   const PinSet &pins = clk->leafPins();
@@ -1283,7 +1283,7 @@ TEST_F(SdcInitTest, ClockLeafPins) {
 ////////////////////////////////////////////////////////////////
 
 TEST_F(SdcInitTest, SdcMakeAndDeleteException) {
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   Sdc *sdc = sta_->cmdSdc();
   EXPECT_FALSE(sdc->exceptions().empty());
   sdc->deleteExceptions();
@@ -1293,7 +1293,7 @@ TEST_F(SdcInitTest, SdcMakeAndDeleteException) {
 TEST_F(SdcInitTest, SdcMultiCyclePathWithEndClk) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
                            MinMaxAll::max(),
-                           true, 3, nullptr, sta_->cmdSdc());
+                           true, 3, "", sta_->cmdSdc());
   Sdc *sdc = sta_->cmdSdc();
   EXPECT_FALSE(sdc->exceptions().empty());
 }
@@ -1301,7 +1301,7 @@ TEST_F(SdcInitTest, SdcMultiCyclePathWithEndClk) {
 TEST_F(SdcInitTest, SdcMultiCyclePathWithStartClk) {
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
                            MinMaxAll::min(),
-                           false, 2, nullptr, sta_->cmdSdc());
+                           false, 2, "", sta_->cmdSdc());
   Sdc *sdc = sta_->cmdSdc();
   EXPECT_FALSE(sdc->exceptions().empty());
 }
@@ -1375,11 +1375,11 @@ TEST_F(SdcInitTest, ClockGroupsPhysicallyExclusive) {
   FloatSeq *wave = new FloatSeq;
   wave->push_back(0.0);
   wave->push_back(5.0);
-  sta_->makeClock("pe_clk", nullptr, false, 10.0, wave, nullptr, sta_->cmdMode());
+  sta_->makeClock("pe_clk", nullptr, false, 10.0, wave, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("pe_clk");
 
-  ClockGroups *groups = sta_->makeClockGroups("pe_grp", false, true, false, false, nullptr, sta_->cmdSdc());
+  ClockGroups *groups = sta_->makeClockGroups("pe_grp", false, true, false, false, "", sta_->cmdSdc());
   ClockSet *clk_set = new ClockSet;
   clk_set->insert(clk);
   sta_->makeClockGroup(groups, clk_set, sta_->cmdSdc());
@@ -1393,11 +1393,11 @@ TEST_F(SdcInitTest, ClockGroupsAsynchronous) {
   FloatSeq *wave = new FloatSeq;
   wave->push_back(0.0);
   wave->push_back(5.0);
-  sta_->makeClock("async_clk", nullptr, false, 10.0, wave, nullptr, sta_->cmdMode());
+  sta_->makeClock("async_clk", nullptr, false, 10.0, wave, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("async_clk");
 
-  ClockGroups *groups = sta_->makeClockGroups("async_grp", false, false, true, false, nullptr, sta_->cmdSdc());
+  ClockGroups *groups = sta_->makeClockGroups("async_grp", false, false, true, false, "", sta_->cmdSdc());
   ClockSet *clk_set = new ClockSet;
   clk_set->insert(clk);
   sta_->makeClockGroup(groups, clk_set, sta_->cmdSdc());
@@ -1428,7 +1428,7 @@ TEST_F(SdcInitTest, ClockSetUncertaintyMinMax) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("unc_mm_clk", nullptr, false, 10.0, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("unc_mm_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("unc_mm_clk");
   clk->setUncertainty(MinMax::min(), 0.05f);
@@ -1469,7 +1469,7 @@ TEST_F(SdcInitTest, LoopPathTighterThan) {
 }
 
 TEST_F(SdcInitTest, GroupPathAsString) {
-  GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, nullptr);
+  GroupPath gp("grp", false, nullptr, nullptr, nullptr, true, "");
   std::string str = gp.to_string(sta_->cmdNetwork());
   EXPECT_FALSE(str.empty());
 }
@@ -1494,17 +1494,17 @@ TEST_F(SdcInitTest, FindClocksMatchingWildcard) {
   FloatSeq *wave1 = new FloatSeq;
   wave1->push_back(0.0);
   wave1->push_back(5.0);
-  sta_->makeClock("sys_clk_a", nullptr, false, 10.0, wave1, nullptr, sta_->cmdMode());
+  sta_->makeClock("sys_clk_a", nullptr, false, 10.0, wave1, "", sta_->cmdMode());
 
   FloatSeq *wave2 = new FloatSeq;
   wave2->push_back(0.0);
   wave2->push_back(2.5);
-  sta_->makeClock("sys_clk_b", nullptr, false, 5.0, wave2, nullptr, sta_->cmdMode());
+  sta_->makeClock("sys_clk_b", nullptr, false, 5.0, wave2, "", sta_->cmdMode());
 
   FloatSeq *wave3 = new FloatSeq;
   wave3->push_back(0.0);
   wave3->push_back(1.0);
-  sta_->makeClock("io_clk", nullptr, false, 2.0, wave3, nullptr, sta_->cmdMode());
+  sta_->makeClock("io_clk", nullptr, false, 2.0, wave3, "", sta_->cmdMode());
 
   Sdc *sdc = sta_->cmdSdc();
   PatternMatch pattern("sys_*");
@@ -1523,7 +1523,7 @@ TEST_F(SdcInitTest, FindClocksMatchingWildcard) {
 TEST_F(SdcInitTest, SdcPathDelaysWithoutToAfterAdd) {
   // Add a path delay without a "to" endpoint
   sta_->makePathDelay(nullptr, nullptr, nullptr,
-                      MinMax::max(), false, false, 5.0e-9, nullptr, sta_->cmdSdc());
+                      MinMax::max(), false, false, 5.0e-9, "", sta_->cmdSdc());
   Sdc *sdc = sta_->cmdSdc();
   EXPECT_TRUE(sdc->pathDelaysWithoutTo());
 }
@@ -1539,12 +1539,12 @@ TEST_F(SdcInitTest, SdcComplexSequence) {
   FloatSeq *w1 = new FloatSeq;
   w1->push_back(0.0);
   w1->push_back(5.0);
-  sta_->makeClock("seq_clk1", nullptr, false, 10.0, w1, nullptr, sta_->cmdMode());
+  sta_->makeClock("seq_clk1", nullptr, false, 10.0, w1, "", sta_->cmdMode());
 
   FloatSeq *w2 = new FloatSeq;
   w2->push_back(0.0);
   w2->push_back(2.5);
-  sta_->makeClock("seq_clk2", nullptr, false, 5.0, w2, nullptr, sta_->cmdMode());
+  sta_->makeClock("seq_clk2", nullptr, false, 5.0, w2, "", sta_->cmdMode());
 
   // Set various constraints
   sdc->setMaxArea(1000.0);
@@ -1557,10 +1557,10 @@ TEST_F(SdcInitTest, SdcComplexSequence) {
   EXPECT_EQ(sdc->analysisType(), AnalysisType::ocv);
 
   // Make exception paths
-  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), nullptr, sta_->cmdSdc());
+  sta_->makeFalsePath(nullptr, nullptr, nullptr, MinMaxAll::all(), "", sta_->cmdSdc());
   sta_->makeMulticyclePath(nullptr, nullptr, nullptr,
-                           MinMaxAll::all(), true, 4, nullptr, sta_->cmdSdc());
-  sta_->makeGroupPath("test_grp", false, nullptr, nullptr, nullptr, nullptr, sta_->cmdSdc());
+                           MinMaxAll::all(), true, 4, "", sta_->cmdSdc());
+  sta_->makeGroupPath("test_grp", false, nullptr, nullptr, nullptr, "", sta_->cmdSdc());
 
   EXPECT_FALSE(sdc->exceptions().empty());
   EXPECT_TRUE(sta_->isPathGroupName("test_grp", sta_->cmdSdc()));
@@ -1578,7 +1578,7 @@ TEST_F(SdcInitTest, ClockPropagateCycle) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("prop_cycle_clk", nullptr, false, 10.0, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("prop_cycle_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("prop_cycle_clk");
 
@@ -1599,11 +1599,11 @@ TEST_F(SdcInitTest, InterClockUncertaintySetGet) {
   FloatSeq *w1 = new FloatSeq;
   w1->push_back(0.0);
   w1->push_back(5.0);
-  sta_->makeClock("icu_clk1", nullptr, false, 10.0, w1, nullptr, sta_->cmdMode());
+  sta_->makeClock("icu_clk1", nullptr, false, 10.0, w1, "", sta_->cmdMode());
   FloatSeq *w2 = new FloatSeq;
   w2->push_back(0.0);
   w2->push_back(2.5);
-  sta_->makeClock("icu_clk2", nullptr, false, 5.0, w2, nullptr, sta_->cmdMode());
+  sta_->makeClock("icu_clk2", nullptr, false, 5.0, w2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("icu_clk1");
   Clock *clk2 = sdc->findClock("icu_clk2");
@@ -1788,7 +1788,7 @@ TEST_F(SdcInitTest, ClockLatencyConstruction) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("lat_clk", nullptr, false, 10.0, waveform, nullptr, sta_->cmdMode());
+  sta_->makeClock("lat_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("lat_clk");
   ClockLatency lat(clk, nullptr);
@@ -2202,7 +2202,7 @@ TEST_F(SdcInitTest, ExceptionPathPriorities) {
 
 // FalsePath creation and type
 TEST_F(SdcInitTest, FalsePathType) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_TRUE(fp.isFalse());
   EXPECT_FALSE(fp.isLoop());
   EXPECT_FALSE(fp.isMultiCycle());
@@ -2214,14 +2214,14 @@ TEST_F(SdcInitTest, FalsePathType) {
 
 // FalsePath priority
 TEST_F(SdcInitTest, FalsePathPriority) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_EQ(fp.typePriority(), ExceptionPath::falsePathPriority());
 }
 
 // PathDelay creation and type
 TEST_F(SdcInitTest, PathDelayType) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
-               false, false, 5.0f, false, nullptr);
+               false, false, 5.0f, false, "");
   EXPECT_TRUE(pd.isPathDelay());
   EXPECT_FALSE(pd.isFalse());
   EXPECT_EQ(pd.type(), ExceptionPathType::path_delay);
@@ -2231,26 +2231,26 @@ TEST_F(SdcInitTest, PathDelayType) {
 // PathDelay ignoreClkLatency
 TEST_F(SdcInitTest, PathDelayIgnoreClkLatency) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
-                true, false, 3.0f, false, nullptr);
+                true, false, 3.0f, false, "");
   EXPECT_TRUE(pd1.ignoreClkLatency());
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 3.0f, false, nullptr);
+                false, false, 3.0f, false, "");
   EXPECT_FALSE(pd2.ignoreClkLatency());
 }
 
 // PathDelay breakPath
 TEST_F(SdcInitTest, PathDelayBreakPath) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
-               false, true, 3.0f, false, nullptr);
+               false, true, 3.0f, false, "");
   EXPECT_TRUE(pd.breakPath());
 }
 
 // PathDelay tighterThan
 TEST_F(SdcInitTest, PathDelayTighterThanMin) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::min(),
-                false, false, 3.0f, false, nullptr);
+                false, false, 3.0f, false, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::min(),
-                false, false, 5.0f, false, nullptr);
+                false, false, 5.0f, false, "");
   // For min, larger delay is tighter
   EXPECT_TRUE(pd2.tighterThan(&pd1));
 }
@@ -2258,9 +2258,9 @@ TEST_F(SdcInitTest, PathDelayTighterThanMin) {
 // PathDelay tighterThan max
 TEST_F(SdcInitTest, PathDelayTighterThanMax) {
   PathDelay pd1(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 3.0f, false, nullptr);
+                false, false, 3.0f, false, "");
   PathDelay pd2(nullptr, nullptr, nullptr, MinMax::max(),
-                false, false, 5.0f, false, nullptr);
+                false, false, 5.0f, false, "");
   // For max, smaller delay is tighter
   EXPECT_TRUE(pd1.tighterThan(&pd2));
 }
@@ -2268,7 +2268,7 @@ TEST_F(SdcInitTest, PathDelayTighterThanMax) {
 // MultiCyclePath creation and type
 TEST_F(SdcInitTest, MultiCyclePathType) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, false, nullptr);
+                     true, 3, false, "");
   EXPECT_TRUE(mcp.isMultiCycle());
   EXPECT_EQ(mcp.type(), ExceptionPathType::multi_cycle);
   EXPECT_EQ(mcp.pathMultiplier(), 3);
@@ -2278,7 +2278,7 @@ TEST_F(SdcInitTest, MultiCyclePathType) {
 // MultiCyclePath with start clk
 TEST_F(SdcInitTest, MultiCyclePathStartClk) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     false, 2, false, nullptr);
+                     false, 2, false, "");
   EXPECT_FALSE(mcp.useEndClk());
   EXPECT_EQ(mcp.pathMultiplier(), 2);
 }
@@ -2286,9 +2286,9 @@ TEST_F(SdcInitTest, MultiCyclePathStartClk) {
 // MultiCyclePath tighterThan
 TEST_F(SdcInitTest, MultiCyclePathTighterThan2) {
   MultiCyclePath mcp1(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                      true, 2, false, nullptr);
+                      true, 2, false, "");
   MultiCyclePath mcp2(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                      true, 4, false, nullptr);
+                      true, 4, false, "");
   // For setup, larger multiplier is tighter
   bool t1 = mcp1.tighterThan(&mcp2);
   bool t2 = mcp2.tighterThan(&mcp1);
@@ -2305,7 +2305,7 @@ TEST_F(SdcInitTest, FilterPathType) {
 
 // GroupPath creation and type
 TEST_F(SdcInitTest, GroupPathType) {
-  GroupPath gp("test_group", false, nullptr, nullptr, nullptr, false, nullptr);
+  GroupPath gp("test_group", false, nullptr, nullptr, nullptr, false, "");
   EXPECT_TRUE(gp.isGroupPath());
   EXPECT_EQ(gp.type(), ExceptionPathType::group_path);
   EXPECT_EQ(gp.name(), "test_group");
@@ -2314,7 +2314,7 @@ TEST_F(SdcInitTest, GroupPathType) {
 
 // GroupPath default
 TEST_F(SdcInitTest, GroupPathDefault) {
-  GroupPath gp("default_group", true, nullptr, nullptr, nullptr, false, nullptr);
+  GroupPath gp("default_group", true, nullptr, nullptr, nullptr, false, "");
   EXPECT_TRUE(gp.isDefault());
 }
 
@@ -2328,7 +2328,7 @@ TEST_F(SdcInitTest, LoopPathType) {
 
 // ExceptionPath minMax
 TEST_F(SdcInitTest, ExceptionPathMinMax) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::min(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::min(), false, "");
   EXPECT_EQ(fp.minMax(), MinMaxAll::min());
   EXPECT_TRUE(fp.matches(MinMax::min(), true));
   EXPECT_FALSE(fp.matches(MinMax::max(), true));
@@ -2336,47 +2336,47 @@ TEST_F(SdcInitTest, ExceptionPathMinMax) {
 
 // ExceptionPath matches min/max all
 TEST_F(SdcInitTest, ExceptionPathMatchesAll) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_TRUE(fp.matches(MinMax::min(), true));
   EXPECT_TRUE(fp.matches(MinMax::max(), true));
 }
 
 // FalsePath hash
 TEST_F(SdcInitTest, FalsePathHash) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   // Same structure should have same hash
   EXPECT_EQ(fp1.hash(), fp2.hash());
 }
 
 // FalsePath overrides
 TEST_F(SdcInitTest, FalsePathOverrides2) {
-  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
-  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp1(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
+  FalsePath fp2(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_TRUE(fp1.overrides(&fp2));
 }
 
 // PathDelay hash
 TEST_F(SdcInitTest, PathDelayHashR8) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
-               false, false, 5.0f, false, nullptr);
+               false, false, 5.0f, false, "");
   size_t h = pd.hash();
   EXPECT_GT(h, 0u);
 }
 
 // FalsePath not mergeable with PathDelay
 TEST_F(SdcInitTest, FalsePathNotMergeablePathDelay) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
-               false, false, 5.0f, false, nullptr);
+               false, false, 5.0f, false, "");
   EXPECT_FALSE(fp.mergeable(&pd));
 }
 
 // GroupPath tighterThan
 TEST_F(SdcInitTest, GroupPathTighterThan2) {
   ASSERT_NO_THROW(( [&](){
-  GroupPath gp1("g1", false, nullptr, nullptr, nullptr, false, nullptr);
-  GroupPath gp2("g2", false, nullptr, nullptr, nullptr, false, nullptr);
+  GroupPath gp1("g1", false, nullptr, nullptr, nullptr, false, "");
+  GroupPath gp2("g2", false, nullptr, nullptr, nullptr, false, "");
   // Group paths have no value to compare
   gp1.tighterThan(&gp2);
   }() ));
@@ -2393,57 +2393,57 @@ TEST_F(SdcInitTest, FilterPathTighterThan2) {
 
 // ExceptionPath id
 TEST_F(SdcInitTest, ExceptionPathId) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   fp.setId(42);
   EXPECT_EQ(fp.id(), 42u);
 }
 
 // ExceptionPath setPriority
 TEST_F(SdcInitTest, ExceptionPathSetPriority) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   fp.setPriority(999);
   EXPECT_EQ(fp.priority(), 999);
 }
 
 // ExceptionPath useEndClk default
 TEST_F(SdcInitTest, ExceptionPathUseEndClkDefault) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_FALSE(fp.useEndClk());
 }
 
 // ExceptionPath pathMultiplier default
 TEST_F(SdcInitTest, ExceptionPathPathMultiplierDefault) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_EQ(fp.pathMultiplier(), 0);
 }
 
 // ExceptionPath delay default
 TEST_F(SdcInitTest, ExceptionPathDelayDefault) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_FLOAT_EQ(fp.delay(), 0.0f);
 }
 
 // ExceptionPath name default
 TEST_F(SdcInitTest, ExceptionPathNameDefault) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_EQ(fp.name(), "");
 }
 
 // ExceptionPath isDefault
 TEST_F(SdcInitTest, ExceptionPathIsDefault) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_FALSE(fp.isDefault());
 }
 
 // ExceptionPath ignoreClkLatency default
 TEST_F(SdcInitTest, ExceptionPathIgnoreClkLatencyDefault) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_FALSE(fp.ignoreClkLatency());
 }
 
 // ExceptionPath breakPath default
 TEST_F(SdcInitTest, ExceptionPathBreakPathDefault) {
-  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, nullptr);
+  FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), false, "");
   EXPECT_FALSE(fp.breakPath());
 }
 
@@ -2452,7 +2452,7 @@ TEST_F(SdcInitTest, ClockSlewSetGet2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_slew_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_slew_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_slew_clk");
   ASSERT_NE(clk, nullptr);
@@ -2469,7 +2469,7 @@ TEST_F(SdcInitTest, ClockRemoveSlew2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_rslew_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_rslew_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_rslew_clk");
   ASSERT_NE(clk, nullptr);
@@ -2486,7 +2486,7 @@ TEST_F(SdcInitTest, ClockSlewsAccessor2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_slews_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_slews_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_slews_clk");
   ASSERT_NE(clk, nullptr);
@@ -2500,7 +2500,7 @@ TEST_F(SdcInitTest, ClockPeriod) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(10.0);
-  sta_->makeClock("r8_per_clk", nullptr, false, 20.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_per_clk", nullptr, false, 20.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_per_clk");
   ASSERT_NE(clk, nullptr);
@@ -2512,7 +2512,7 @@ TEST_F(SdcInitTest, ClockPeriodAccess) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(12.5);
-  sta_->makeClock("r8_pera_clk", nullptr, false, 25.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_pera_clk", nullptr, false, 25.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_pera_clk");
   ASSERT_NE(clk, nullptr);
@@ -2524,7 +2524,7 @@ TEST_F(SdcInitTest, ClockIsVirtual2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_virt_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_virt_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_virt_clk");
   ASSERT_NE(clk, nullptr);
@@ -2537,7 +2537,7 @@ TEST_F(SdcInitTest, ClockIsPropagated) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_prop_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_prop_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_prop_clk");
   ASSERT_NE(clk, nullptr);
@@ -2552,7 +2552,7 @@ TEST_F(SdcInitTest, ClockIsIdeal) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_ideal_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_ideal_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_ideal_clk");
   ASSERT_NE(clk, nullptr);
@@ -2564,7 +2564,7 @@ TEST_F(SdcInitTest, ClockEdge) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_edge_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_edge_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_edge_clk");
   ASSERT_NE(clk, nullptr);
@@ -2580,7 +2580,7 @@ TEST_F(SdcInitTest, ClockEdgeProperties2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_edgep_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_edgep_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_edgep_clk");
   ASSERT_NE(clk, nullptr);
@@ -2596,7 +2596,7 @@ TEST_F(SdcInitTest, ClockEdgeOpposite2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_opp_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_opp_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_opp_clk");
   ASSERT_NE(clk, nullptr);
@@ -2611,7 +2611,7 @@ TEST_F(SdcInitTest, ClockEdgePulseWidth2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_pw_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_pw_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_pw_clk");
   ASSERT_NE(clk, nullptr);
@@ -2625,7 +2625,7 @@ TEST_F(SdcInitTest, ClockEdgeIndex) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_idx_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_idx_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_idx_clk");
   ASSERT_NE(clk, nullptr);
@@ -2639,7 +2639,7 @@ TEST_F(SdcInitTest, ClockUncertainty2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_unc_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_unc_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_unc_clk");
   ASSERT_NE(clk, nullptr);
@@ -2656,7 +2656,7 @@ TEST_F(SdcInitTest, ClockRemoveUncertainty) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_runc_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_runc_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_runc_clk");
   ASSERT_NE(clk, nullptr);
@@ -2673,7 +2673,7 @@ TEST_F(SdcInitTest, ClockIsGenerated) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_gen_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_gen_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_gen_clk");
   ASSERT_NE(clk, nullptr);
@@ -2685,7 +2685,7 @@ TEST_F(SdcInitTest, ClockAddToPins) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_atp_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_atp_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_atp_clk");
   ASSERT_NE(clk, nullptr);
@@ -2700,7 +2700,7 @@ TEST_F(SdcInitTest, ClockWaveform) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_wf_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_wf_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_wf_clk");
   ASSERT_NE(clk, nullptr);
@@ -2714,11 +2714,11 @@ TEST_F(SdcInitTest, ClockIndex2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_idx1_clk", nullptr, false, 10.0, wf1, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_idx1_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(10.0);
-  sta_->makeClock("r8_idx2_clk", nullptr, false, 20.0, wf2, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_idx2_clk", nullptr, false, 20.0, wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_idx1_clk");
   Clock *clk2 = sdc->findClock("r8_idx2_clk");
@@ -2732,7 +2732,7 @@ TEST_F(SdcInitTest, ClockCombinational) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_comb_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_comb_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_comb_clk");
   ASSERT_NE(clk, nullptr);
@@ -2745,11 +2745,11 @@ TEST_F(SdcInitTest, InterClockUncertaintyConstruct) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_icus_clk", nullptr, false, 10.0, wf1, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_icus_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_icut_clk", nullptr, false, 10.0, wf2, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_icut_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_icus_clk");
   Clock *clk2 = sdc->findClock("r8_icut_clk");
@@ -2764,11 +2764,11 @@ TEST_F(SdcInitTest, InterClockUncertaintySetGet2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_icu2s_clk", nullptr, false, 10.0, wf1, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_icu2s_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_icu2t_clk", nullptr, false, 10.0, wf2, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_icu2t_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_icu2s_clk");
   Clock *clk2 = sdc->findClock("r8_icu2t_clk");
@@ -2789,11 +2789,11 @@ TEST_F(SdcInitTest, InterClockUncertaintyRemove2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_icu3s_clk", nullptr, false, 10.0, wf1, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_icu3s_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_icu3t_clk", nullptr, false, 10.0, wf2, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_icu3t_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_icu3s_clk");
   Clock *clk2 = sdc->findClock("r8_icu3t_clk");
@@ -2810,11 +2810,11 @@ TEST_F(SdcInitTest, InterClockUncertaintyAccessor) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_icu4s_clk", nullptr, false, 10.0, wf1, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_icu4s_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_icu4t_clk", nullptr, false, 10.0, wf2, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_icu4t_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_icu4s_clk");
   Clock *clk2 = sdc->findClock("r8_icu4t_clk");
@@ -2874,7 +2874,7 @@ TEST_F(SdcInitTest, SdcPropagatedClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_propt_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_propt_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_propt_clk");
   ASSERT_NE(clk, nullptr);
@@ -2889,7 +2889,7 @@ TEST_F(SdcInitTest, SdcSetClockSlew2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_sslew_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_sslew_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_sslew_clk");
   ASSERT_NE(clk, nullptr);
@@ -2904,7 +2904,7 @@ TEST_F(SdcInitTest, SdcRemoveClockSlew) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_srslew_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_srslew_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_srslew_clk");
   ASSERT_NE(clk, nullptr);
@@ -2920,7 +2920,7 @@ TEST_F(SdcInitTest, SdcSetClockLatency2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_slat_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_slat_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_slat_clk");
   ASSERT_NE(clk, nullptr);
@@ -2939,7 +2939,7 @@ TEST_F(SdcInitTest, SdcRemoveClockLatency) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_srlat_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_srlat_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_srlat_clk");
   ASSERT_NE(clk, nullptr);
@@ -2965,7 +2965,7 @@ TEST_F(SdcInitTest, SdcClockLatencyFloat) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_slatf_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_slatf_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_slatf_clk");
   ASSERT_NE(clk, nullptr);
@@ -2980,7 +2980,7 @@ TEST_F(SdcInitTest, SdcClockInsertion) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_sins_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_sins_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_sins_clk");
   ASSERT_NE(clk, nullptr);
@@ -2996,7 +2996,7 @@ TEST_F(SdcInitTest, SdcRemoveClockInsertion) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_srins_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_srins_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_srins_clk");
   ASSERT_NE(clk, nullptr);
@@ -3021,7 +3021,7 @@ TEST_F(SdcInitTest, SdcSetLatchBorrowLimit) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_lbl_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_lbl_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_lbl_clk");
   ASSERT_NE(clk, nullptr);
@@ -3034,7 +3034,7 @@ TEST_F(SdcInitTest, SdcRemoveClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_rem_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_rem_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_rem_clk");
   ASSERT_NE(clk, nullptr);
@@ -3213,11 +3213,11 @@ TEST_F(SdcInitTest, ClkCmp) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_cmpa_clk", nullptr, false, 10.0, wf1, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_cmpa_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_cmpb_clk", nullptr, false, 10.0, wf2, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_cmpb_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_cmpa_clk");
   Clock *clk2 = sdc->findClock("r8_cmpb_clk");
@@ -3233,7 +3233,7 @@ TEST_F(SdcInitTest, ClkEdgeCmp) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_ecmp_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_ecmp_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_ecmp_clk");
   ASSERT_NE(clk, nullptr);
@@ -3248,7 +3248,7 @@ TEST_F(SdcInitTest, ClkEdgeLess) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_eless_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_eless_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_eless_clk");
   ASSERT_NE(clk, nullptr);
@@ -3265,11 +3265,11 @@ TEST_F(SdcInitTest, ClockNameLess) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_aaa_clk", nullptr, false, 10.0, wf1, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_aaa_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_zzz_clk", nullptr, false, 10.0, wf2, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_zzz_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk_a = sdc->findClock("r8_aaa_clk");
   Clock *clk_z = sdc->findClock("r8_zzz_clk");
@@ -3294,7 +3294,7 @@ TEST_F(SdcInitTest, SdcClockGatingCheckOnClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_cg_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_cg_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_cg_clk");
   ASSERT_NE(clk, nullptr);
@@ -3308,7 +3308,7 @@ TEST_F(SdcInitTest, ClockSlewLimit) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_sl_clk", nullptr, false, 10.0, wf, nullptr, sta_->cmdMode());
+  sta_->makeClock("r8_sl_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_sl_clk");
   ASSERT_NE(clk, nullptr);
@@ -3355,7 +3355,7 @@ TEST_F(SdcInitTest, ExceptionFromHasObjectsEmpty) {
 // MultiCyclePath matches min/max
 TEST_F(SdcInitTest, MultiCyclePathMatchesMinMax) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, false, nullptr);
+                     true, 3, false, "");
   EXPECT_TRUE(mcp.matches(MinMax::min(), false));
   EXPECT_TRUE(mcp.matches(MinMax::max(), false));
 }
@@ -3363,7 +3363,7 @@ TEST_F(SdcInitTest, MultiCyclePathMatchesMinMax) {
 // MultiCyclePath pathMultiplier with min_max
 TEST_F(SdcInitTest, MultiCyclePathMultiplierWithMinMax2) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
-                     true, 3, false, nullptr);
+                     true, 3, false, "");
   int mult_max = mcp.pathMultiplier(MinMax::max());
   EXPECT_EQ(mult_max, 3);
 }

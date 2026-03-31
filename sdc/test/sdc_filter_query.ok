@@ -23,7 +23,7 @@ group_path_names = grp_io grp_reg2reg
 is_path_group_name grp_reg2reg = 1
 is_path_group_name nonexistent = 0
 filter_ports direction == input: 5
-filter_clocks period == 10: 0
+filter_clocks is_virtual == 0: 2
 filter_lib_cells is_buffer: 9
 filter_insts ref_name =~ BUF*: 1
 filter_pins direction == input: 1

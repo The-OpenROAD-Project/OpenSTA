@@ -159,7 +159,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, nullptr,
+    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "",
                      sta_->cmdMode());
 
     // Set input delays

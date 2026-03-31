@@ -140,7 +140,7 @@ TEST_F(NetworkAdapterTest, AdapterTopInstance) {
 
 // NetworkNameAdapter: name(Library) forwarding
 TEST_F(NetworkAdapterTest, AdapterLibraryName) {
-  EXPECT_STREQ(sdc_net_->name(lib_), "adapter_lib");
+  EXPECT_EQ(sdc_net_->name(lib_), "adapter_lib");
 }
 
 // NetworkNameAdapter: id(Library) forwarding
@@ -198,7 +198,7 @@ TEST_F(NetworkAdapterTest, AdapterLibertyLibraryIterator) {
 
 // NetworkNameAdapter: name(Cell) forwarding
 TEST_F(NetworkAdapterTest, AdapterCellName) {
-  EXPECT_STREQ(sdc_net_->name(inv_cell_), "BUF");
+  EXPECT_EQ(sdc_net_->name(inv_cell_), "BUF");
 }
 
 // NetworkNameAdapter: id(Cell) forwarding
@@ -229,8 +229,8 @@ TEST_F(NetworkAdapterTest, AdapterCellLibrary) {
 
 // NetworkNameAdapter: filename(Cell) forwarding
 TEST_F(NetworkAdapterTest, AdapterCellFilename) {
-  const char *fn = sdc_net_->filename(inv_cell_);
-  EXPECT_STREQ(fn, "adapter.lib");
+  std::string_view fn = sdc_net_->filename(inv_cell_);
+  EXPECT_EQ(fn, "adapter.lib");
 }
 
 // NetworkNameAdapter: findPort forwarding
@@ -285,7 +285,7 @@ TEST_F(NetworkAdapterTest, AdapterPortBitCount) {
 
 // NetworkNameAdapter: name(Port) forwarding
 TEST_F(NetworkAdapterTest, AdapterPortName) {
-  EXPECT_STREQ(sdc_net_->name(port_a_), "A");
+  EXPECT_EQ(sdc_net_->name(port_a_), "A");
 }
 
 // NetworkNameAdapter: id(Port) forwarding
@@ -324,9 +324,9 @@ TEST_F(NetworkAdapterTest, AdapterPortSize) {
 
 // NetworkNameAdapter: busName(Port) scalar forwarding
 TEST_F(NetworkAdapterTest, AdapterPortBusName) {
-  const char *bn = sdc_net_->busName(port_a_);
+  const std::string &bn = sdc_net_->busName(port_a_);
   // Scalar port returns name (not nullptr) through SdcNetwork
-  EXPECT_NE(bn, nullptr);
+  EXPECT_FALSE(bn.empty());
 }
 
 // NetworkNameAdapter: fromIndex(Port) forwarding (scalar ports return -1)
@@ -652,15 +652,15 @@ TEST_F(NetworkAdapterTest, SdcNetworkTopInstance) {
 
 // SdcNetwork: name(Port) forwarding with sdc namespace
 TEST_F(NetworkAdapterTest, SdcNetworkPortName) {
-  const char *name = sdc_net_->name(port_a_);
-  EXPECT_NE(name, nullptr);
+  const std::string &name = sdc_net_->name(port_a_);
+  EXPECT_FALSE(name.empty());
 }
 
 // SdcNetwork: busName(Port) forwarding
 TEST_F(NetworkAdapterTest, SdcNetworkPortBusName) {
-  const char *bn = sdc_net_->busName(port_a_);
+  const std::string &bn = sdc_net_->busName(port_a_);
   // SdcNetwork busName returns name for scalar port
-  EXPECT_NE(bn, nullptr);
+  EXPECT_FALSE(bn.empty());
 }
 
 // SdcNetwork: findPort forwarding
@@ -685,38 +685,38 @@ TEST_F(NetworkAdapterTest, SdcNetworkFindNet) {
 
 // SdcNetwork: name(Instance) forwarding
 TEST_F(NetworkAdapterTest, SdcNetworkInstanceName) {
-  const char *name = sdc_net_->name(u1_);
-  EXPECT_NE(name, nullptr);
+  const std::string &name = sdc_net_->name(u1_);
+  EXPECT_FALSE(name.empty());
 }
 
 // SdcNetwork: pathName(Instance) forwarding
 TEST_F(NetworkAdapterTest, SdcNetworkInstancePathName) {
-  const char *path = sdc_net_->pathName(u1_);
-  EXPECT_NE(path, nullptr);
+  const std::string &path = sdc_net_->pathName(u1_);
+  EXPECT_FALSE(path.empty());
 }
 
 // SdcNetwork: pathName(Pin) forwarding
 TEST_F(NetworkAdapterTest, SdcNetworkPinPathName) {
-  const char *path = sdc_net_->pathName(pin_b1_a_);
-  EXPECT_NE(path, nullptr);
+  const std::string &path = sdc_net_->pathName(pin_b1_a_);
+  EXPECT_FALSE(path.empty());
 }
 
 // SdcNetwork: portName(Pin) forwarding
 TEST_F(NetworkAdapterTest, SdcNetworkPinPortName) {
-  const char *port_name = sdc_net_->portName(pin_b1_a_);
-  EXPECT_NE(port_name, nullptr);
+  const std::string &port_name = sdc_net_->portName(pin_b1_a_);
+  EXPECT_FALSE(port_name.empty());
 }
 
 // SdcNetwork: name(Net) forwarding
 TEST_F(NetworkAdapterTest, SdcNetworkNetName) {
-  const char *name = sdc_net_->name(net1_);
-  EXPECT_NE(name, nullptr);
+  const std::string &name = sdc_net_->name(net1_);
+  EXPECT_FALSE(name.empty());
 }
 
 // SdcNetwork: pathName(Net) forwarding
 TEST_F(NetworkAdapterTest, SdcNetworkNetPathName) {
-  const char *path = sdc_net_->pathName(net1_);
-  EXPECT_NE(path, nullptr);
+  const std::string &path = sdc_net_->pathName(net1_);
+  EXPECT_FALSE(path.empty());
 }
 
 // SdcNetwork: findChild forwarding
@@ -842,7 +842,7 @@ TEST_F(ConcreteNetworkLinkedTest, AddConstantAndIterate) {
 TEST_F(ConcreteNetworkLinkedTest, ConcreteInstanceCell) {
   Cell *cell = network_.cell(u1_);
   EXPECT_NE(cell, nullptr);
-  EXPECT_STREQ(network_.name(cell), "INV");
+  EXPECT_EQ(network_.name(cell), "INV");
 }
 
 // ConcreteInstance: findChild returns nullptr on leaf
@@ -894,17 +894,16 @@ TEST_F(ConcreteNetworkLinkedTest, SetCellViaReplace) {
   network_.disconnectPin(pin_u1_y_);
   network_.replaceCell(u1_, buf_cell);
   Cell *new_cell = network_.cell(u1_);
-  EXPECT_STREQ(network_.name(new_cell), "BUF_R6");
+  EXPECT_EQ(network_.name(new_cell), "BUF_R6");
 }
 
 // ConcretePin: name() via Network base class
 TEST_F(ConcreteNetworkLinkedTest, ConcretePinName) {
   const Network &net = network_;
-  const char *name = net.name(pin_u1_a_);
-  EXPECT_NE(name, nullptr);
+  const std::string &name = net.name(pin_u1_a_);
+  EXPECT_FALSE(name.empty());
   // Pin name is instance/port
-  std::string name_str(name);
-  EXPECT_NE(name_str.find("A"), std::string::npos);
+  EXPECT_NE(name.find("A"), std::string::npos);
 }
 
 // ConcretePin: setVertexId
@@ -927,8 +926,8 @@ TEST_F(ConcreteNetworkLinkedTest, ConcreteTermName) {
   Term *term = network_.makeTerm(pin, net);
   EXPECT_NE(term, nullptr);
   const Network &base_net = network_;
-  const char *tname = base_net.name(term);
-  EXPECT_NE(tname, nullptr);
+  const std::string &tname = base_net.name(term);
+  EXPECT_FALSE(tname.empty());
 }
 
 // Network: name(Term), pathName(Term), portName(Term)
@@ -942,14 +941,14 @@ TEST_F(ConcreteNetworkLinkedTest, TermPathAndPortName) {
   EXPECT_NE(term, nullptr);
 
   const Network &base_net = network_;
-  const char *tname = base_net.name(term);
-  EXPECT_NE(tname, nullptr);
+  const std::string &tname = base_net.name(term);
+  EXPECT_FALSE(tname.empty());
 
-  const char *tpath = base_net.pathName(term);
-  EXPECT_NE(tpath, nullptr);
+  const std::string &tpath = base_net.pathName(term);
+  EXPECT_FALSE(tpath.empty());
 
-  const char *tport = base_net.portName(term);
-  EXPECT_NE(tport, nullptr);
+  const std::string &tport = base_net.portName(term);
+  EXPECT_FALSE(tport.empty());
 }
 
 // Network: id(Term)
@@ -1480,9 +1479,9 @@ TEST_F(ConcreteNetworkLinkedTest, FindPinByPort3) {
 
 // ConcretePin::name() - exercises the name() method on concrete pins
 TEST_F(ConcreteNetworkLinkedTest, PinName2) {
-  const char *name = network_.name(network_.port(pin_u1_a_));
-  EXPECT_NE(name, nullptr);
-  EXPECT_STREQ(name, "A");
+  const std::string &name = network_.name(network_.port(pin_u1_a_));
+  EXPECT_FALSE(name.empty());
+  EXPECT_EQ(name, "A");
 }
 
 // ConcretePin::setVertexId - exercises via Network::setVertexId
@@ -1635,9 +1634,9 @@ TEST_F(ConcreteNetworkLinkedTest, ReplaceCell2) {
   network_.makePort(buf_cell, "A");
   network_.makePort(buf_cell, "Y");
   Instance *inst = network_.makeInstance(inv_cell, "r7_replace", network_.topInstance());
-  EXPECT_STREQ(network_.name(network_.cell(inst)), "INV");
+  EXPECT_EQ(network_.name(network_.cell(inst)), "INV");
   network_.replaceCell(inst, buf_cell);
-  EXPECT_STREQ(network_.name(network_.cell(inst)), "R7_BUF");
+  EXPECT_EQ(network_.name(network_.cell(inst)), "R7_BUF");
 }
 
 // ConcreteInstance::addNet via makeNet and findNet on child instance
@@ -1668,15 +1667,15 @@ TEST_F(NetworkAdapterTest, AdapterFindPortsMatching2) {
 
 // NetworkNameAdapter: name(Port) forwarding
 TEST_F(NetworkAdapterTest, AdapterPortName2) {
-  const char *name = sdc_net_->name(port_a_);
-  EXPECT_NE(name, nullptr);
-  EXPECT_STREQ(name, "A");
+  const std::string &name = sdc_net_->name(port_a_);
+  EXPECT_FALSE(name.empty());
+  EXPECT_EQ(name, "A");
 }
 
 // NetworkNameAdapter: busName(Port) forwarding
 TEST_F(NetworkAdapterTest, AdapterPortBusName2) {
-  const char *bname = sdc_net_->busName(port_a_);
-  EXPECT_NE(bname, nullptr);
+  const std::string &bname = sdc_net_->busName(port_a_);
+  EXPECT_FALSE(bname.empty());
 }
 
 // R7_AdapterFindBusBit removed (segfault)
@@ -1829,8 +1828,8 @@ TEST_F(ConcreteNetworkLinkedTest, NetInstance2) {
 
 // Network: cellName convenience
 TEST_F(ConcreteNetworkLinkedTest, CellNameConvenience) {
-  const char *name = network_.cellName(u2_);
-  EXPECT_STREQ(name, "INV");
+  const std::string &name = network_.cellName(u2_);
+  EXPECT_EQ(name, "INV");
 }
 
 // ConcreteNetwork: pin direction
@@ -1972,7 +1971,7 @@ TEST_F(ConcreteNetworkLinkedTest, InstanceCell2) {
   Cell *cell = network_.cell(u1_);
   EXPECT_NE(cell, nullptr);
   // Verify it's the INV cell
-  EXPECT_STREQ(network_.name(cell), "INV");
+  EXPECT_EQ(network_.name(cell), "INV");
 }
 
 // ConcreteInstance::findChild - exercise child lookup
@@ -2331,14 +2330,14 @@ TEST_F(NetworkAdapterTest, AdapterFindPortsMatching3) {
 
 // NetworkNameAdapter::name(Port*) forwarding
 TEST_F(NetworkAdapterTest, AdapterPortNameForward) {
-  const char *name = sdc_net_->name(port_a_);
-  EXPECT_STREQ(name, "A");
+  const std::string &name = sdc_net_->name(port_a_);
+  EXPECT_EQ(name, "A");
 }
 
 // NetworkNameAdapter::busName(Port*) forwarding
 TEST_F(NetworkAdapterTest, AdapterBusNameForward) {
-  const char *bname = sdc_net_->busName(port_a_);
-  EXPECT_STREQ(bname, "A"); // scalar port
+  const std::string &bname = sdc_net_->busName(port_a_);
+  EXPECT_EQ(bname, "A"); // scalar port
 }
 
 // R8_AdapterFindBusBit removed (segfault)
@@ -2352,7 +2351,7 @@ TEST_F(NetworkAdapterTest, AdapterMakeNetForward) {
   Instance *top = sdc_net_->topInstance();
   Net *net = sdc_net_->makeNet("adapter_net_r8", top);
   EXPECT_NE(net, nullptr);
-  EXPECT_STREQ(network_.name(net), "adapter_net_r8");
+  EXPECT_EQ(network_.name(net), "adapter_net_r8");
   sdc_net_->deleteNet(net);
 }
 
@@ -2521,8 +2520,8 @@ TEST_F(ConcreteNetworkLinkedTest, ConnectedPinIteratorMultiPin) {
 
 // NetworkNameAdapter: various forwarding methods
 TEST_F(NetworkAdapterTest, AdapterCellName2) {
-  const char *name = sdc_net_->name(inv_cell_);
-  EXPECT_STREQ(name, "BUF");
+  const std::string &name = sdc_net_->name(inv_cell_);
+  EXPECT_EQ(name, "BUF");
 }
 
 TEST_F(NetworkAdapterTest, AdapterCellId2) {
@@ -2665,11 +2664,11 @@ TEST_F(ConcreteNetworkLinkedTest, ClearAndRebuild) {
 TEST_F(ConcreteNetworkLinkedTest, InstanceCellAccessor) {
   Cell *cell = network_.cell(u1_);
   ASSERT_NE(cell, nullptr);
-  EXPECT_STREQ(network_.name(cell), "INV");
+  EXPECT_EQ(network_.name(cell), "INV");
   // Also test on top instance
   Cell *top_cell = network_.cell(network_.topInstance());
   ASSERT_NE(top_cell, nullptr);
-  EXPECT_STREQ(network_.name(top_cell), "TOP");
+  EXPECT_EQ(network_.name(top_cell), "TOP");
 }
 
 // R10_ ConcreteInstance: findChild via network interface
@@ -2754,7 +2753,7 @@ TEST_F(ConcreteNetworkLinkedTest, SetCellOnInstance) {
   // Replace cell of u1
   network_.replaceCell(u1_, buf_cell);
   Cell *new_cell = network_.cell(u1_);
-  EXPECT_STREQ(network_.name(new_cell), "BUF2");
+  EXPECT_EQ(network_.name(new_cell), "BUF2");
 }
 
 // R10_ ConcretePin: port name via port accessor
@@ -2762,8 +2761,8 @@ TEST_F(ConcreteNetworkLinkedTest, SetCellOnInstance) {
 TEST_F(ConcreteNetworkLinkedTest, PinPortName2) {
   Port *port = network_.port(pin_u1_a_);
   ASSERT_NE(port, nullptr);
-  const char *name = network_.name(port);
-  EXPECT_STREQ(name, "A");
+  const std::string &name = network_.name(port);
+  EXPECT_EQ(name, "A");
 }
 
 // R10_ ConcretePin: setVertexId
@@ -3016,17 +3015,17 @@ TEST_F(NetworkAdapterTest, AdapterPortSize2) {
 // R10_ NetworkAdapter: name(Port) forwarding
 // Covers: NetworkNameAdapter::name(Port const*) const
 TEST_F(NetworkAdapterTest, AdapterPortName3) {
-  const char *name = sdc_net_->name(port_a_);
-  EXPECT_STREQ(name, "A");
+  const std::string &name = sdc_net_->name(port_a_);
+  EXPECT_EQ(name, "A");
 }
 
 // R10_ NetworkAdapter: busName forwarding
 // Covers: NetworkNameAdapter::busName(Port const*) const
 TEST_F(NetworkAdapterTest, AdapterBusName) {
-  const char *name = sdc_net_->busName(port_a_);
-  // Scalar port busName may be nullptr or same as port name
-  if (name != nullptr) {
-    EXPECT_STREQ(name, "A");
+  const std::string &name = sdc_net_->busName(port_a_);
+  // Scalar port busName may be empty or same as port name
+  if (!name.empty()) {
+    EXPECT_EQ(name, "A");
   }
 }
 

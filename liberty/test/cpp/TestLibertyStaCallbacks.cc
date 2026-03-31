@@ -1522,8 +1522,8 @@ TEST_F(StaLibertyTest, LibertyStmtTypes) {
   LibertyGroup grp("cell", std::move(params), 1);
   EXPECT_EQ(grp.type(), "cell");
   EXPECT_EQ(grp.line(), 1);
-  ASSERT_NE(grp.firstName(), nullptr);
-  EXPECT_STREQ(grp.firstName(), "TEST");
+  EXPECT_FALSE(grp.firstParam().empty());
+  EXPECT_EQ(grp.firstParam(), "TEST");
   EXPECT_TRUE(grp.subgroups().empty());
 }
 
@@ -1532,8 +1532,8 @@ TEST_F(StaLibertyTest, LibertySimpleAttrIsComplex) {
   LibertySimpleAttr attr("name", LibertyAttrValue(std::string("test")), 1);
   EXPECT_EQ(attr.name(), "name");
   EXPECT_EQ(attr.line(), 1);
-  ASSERT_NE(attr.stringValue(), nullptr);
-  EXPECT_EQ(*attr.stringValue(), "test");
+  EXPECT_FALSE(attr.stringValue().empty());
+  EXPECT_EQ(attr.stringValue(), "test");
   EXPECT_TRUE(attr.value().isString());
 }
 
@@ -1545,7 +1545,7 @@ TEST_F(StaLibertyTest, LibertyComplexAttrIsSimple) {
   LibertyComplexAttr attr("name", std::move(values), 1);
   ASSERT_NE(attr.firstValue(), nullptr);
   EXPECT_TRUE(attr.firstValue()->isFloat());
-  EXPECT_FLOAT_EQ(attr.firstValue()->floatValue(), 1.0f);
+  EXPECT_FLOAT_EQ(attr.firstValue()->floatValue().first, 1.0f);
   EXPECT_EQ(attr.values().size(), 2u);
 }
 
@@ -1555,15 +1555,13 @@ TEST_F(StaLibertyTest, AttrValueCrossType) {
   EXPECT_TRUE(sval.isString());
   EXPECT_FALSE(sval.isFloat());
   EXPECT_EQ(sval.stringValue(), "hello");
-  float parsed = 0.0f;
-  bool valid = true;
-  sval.floatValue(parsed, valid);
+  auto [parsed, valid] = sval.floatValue();
   EXPECT_FALSE(valid);
 
   LibertyAttrValue fval(3.14f);
   EXPECT_FALSE(fval.isString());
   EXPECT_TRUE(fval.isFloat());
-  EXPECT_FLOAT_EQ(fval.floatValue(), 3.14f);
+  EXPECT_FLOAT_EQ(fval.floatValue().first, 3.14f);
 }
 
 // R9_46: LibertyDefine isDefine
@@ -3528,19 +3526,19 @@ TEST_F(StaLibertyTest, TimingGroupOutputWaveforms) {
 
 // R11_1: timingTypeString - the free function in TimingArc.cc
 // It is not declared in a public header, so we declare it extern here.
-extern const char *timingTypeString(TimingType type);
+extern std::string_view timingTypeString(TimingType type);
 
 TEST_F(StaLibertyTest, TimingTypeString) {
   // timingTypeString is defined in TimingArc.cc
   // We test several timing types to cover the function
-  EXPECT_STREQ(timingTypeString(TimingType::combinational), "combinational");
-  EXPECT_STREQ(timingTypeString(TimingType::clear), "clear");
-  EXPECT_STREQ(timingTypeString(TimingType::rising_edge), "rising_edge");
-  EXPECT_STREQ(timingTypeString(TimingType::falling_edge), "falling_edge");
-  EXPECT_STREQ(timingTypeString(TimingType::setup_rising), "setup_rising");
-  EXPECT_STREQ(timingTypeString(TimingType::hold_falling), "hold_falling");
-  EXPECT_STREQ(timingTypeString(TimingType::three_state_enable), "three_state_enable");
-  EXPECT_STREQ(timingTypeString(TimingType::unknown), "unknown");
+  EXPECT_EQ(timingTypeString(TimingType::combinational), "combinational");
+  EXPECT_EQ(timingTypeString(TimingType::clear), "clear");
+  EXPECT_EQ(timingTypeString(TimingType::rising_edge), "rising_edge");
+  EXPECT_EQ(timingTypeString(TimingType::falling_edge), "falling_edge");
+  EXPECT_EQ(timingTypeString(TimingType::setup_rising), "setup_rising");
+  EXPECT_EQ(timingTypeString(TimingType::hold_falling), "hold_falling");
+  EXPECT_EQ(timingTypeString(TimingType::three_state_enable), "three_state_enable");
+  EXPECT_EQ(timingTypeString(TimingType::unknown), "unknown");
 }
 
 // R11_2: writeLiberty exercises LibertyWriter constructor, destructor,
@@ -3604,8 +3602,8 @@ TEST_F(StaLibertyTest, LibertyParserDirect) {
   EXPECT_EQ(visitor.complex_attrs.size(), 1u);
   EXPECT_EQ(visitor.variables.size(), 1u);
 
-  ASSERT_NE(library->firstName(), nullptr);
-  EXPECT_STREQ(library->firstName(), "test_r11_parser");
+  EXPECT_FALSE(library->firstParam().empty());
+  EXPECT_EQ(library->firstParam(), "test_r11_parser");
   EXPECT_EQ(library->defineMap().size(), 1u);
   EXPECT_EQ(library->findSubgroup("cell"), cell);
   float area = 0.0f;

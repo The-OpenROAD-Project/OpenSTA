@@ -840,8 +840,8 @@ TEST_F(StaLibertyTest, PortRelatedPins2) {
   LibertyPort *z = buf->findLibertyPort("Z");
   ASSERT_NE(z, nullptr);
   // May or may not have related ground/power pins
-  z->relatedGroundPin();
-  z->relatedPowerPin();
+  z->relatedGroundPort();
+  z->relatedPowerPort();
 }
 
 // LibertyPort receiverModel
@@ -859,8 +859,8 @@ TEST_F(StaLibertyTest, PortReceiverModel2) {
 TEST_F(StaLibertyTest, CellFootprint2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  const char *fp = buf->footprint();
-  // fp may be null for simple arcs
+  const std::string &fp = buf->footprint();
+  // fp may be empty for simple arcs
 }
 
 // LibertyCell ocv methods
@@ -1029,12 +1029,11 @@ TEST(R6_LibertyAttrValueTest, FloatValueAndQuotedStringParsing) {
   LibertyAttrValue float_value(1.25f);
   EXPECT_TRUE(float_value.isFloat());
   EXPECT_FALSE(float_value.isString());
-  EXPECT_FLOAT_EQ(float_value.floatValue(), 1.25f);
+  auto [fval, fexists] = float_value.floatValue();
+  EXPECT_FLOAT_EQ(fval, 1.25f);
 
   LibertyAttrValue quoted_value(std::string("3.14"));
-  float parsed = 0.0f;
-  bool valid = false;
-  quoted_value.floatValue(parsed, valid);
+  auto [parsed, valid] = quoted_value.floatValue();
   EXPECT_TRUE(valid);
   EXPECT_FLOAT_EQ(parsed, 3.14f);
   EXPECT_TRUE(quoted_value.isString());
@@ -1047,10 +1046,10 @@ TEST(R6_LibertyGroupTest, Construction) {
   LibertyGroup grp("scaled_cell", std::move(params), 10);
   EXPECT_EQ(grp.type(), "scaled_cell");
   EXPECT_EQ(grp.line(), 10);
-  ASSERT_NE(grp.firstName(), nullptr);
-  EXPECT_STREQ(grp.firstName(), "cell1");
-  ASSERT_NE(grp.secondName(), nullptr);
-  EXPECT_STREQ(grp.secondName(), "slow");
+  EXPECT_FALSE(grp.firstParam().empty());
+  EXPECT_EQ(grp.firstParam(), "cell1");
+  EXPECT_FALSE(grp.secondParam().empty());
+  EXPECT_EQ(grp.secondParam(), "slow");
 }
 
 TEST(R6_LibertyGroupTest, AddSubgroupAndIterate) {
@@ -1070,7 +1069,8 @@ TEST(R6_LibertyGroupTest, AddAttributeAndIterate) {
   ASSERT_NE(attr, nullptr);
   EXPECT_EQ(attr->line(), 5);
   EXPECT_TRUE(attr->value().isFloat());
-  EXPECT_FLOAT_EQ(attr->value().floatValue(), 3.14f);
+  auto [area_val, area_exists] = attr->value().floatValue();
+  EXPECT_FLOAT_EQ(area_val, 3.14f);
 
   float area = 0.0f;
   bool exists = false;
@@ -1083,8 +1083,8 @@ TEST(R6_LibertySimpleAttrTest, Construction) {
   LibertySimpleAttr attr("name", LibertyAttrValue(std::string("test_value")), 7);
   EXPECT_EQ(attr.name(), "name");
   EXPECT_EQ(attr.line(), 7);
-  ASSERT_NE(attr.stringValue(), nullptr);
-  EXPECT_EQ(*attr.stringValue(), "test_value");
+  EXPECT_FALSE(attr.stringValue().empty());
+  EXPECT_EQ(attr.stringValue(), "test_value");
   EXPECT_TRUE(attr.value().isString());
 }
 
@@ -1108,7 +1108,8 @@ TEST(R6_LibertyComplexAttrTest, Construction) {
   const LibertyAttrValue *first = attr.firstValue();
   EXPECT_NE(first, nullptr);
   EXPECT_TRUE(first->isFloat());
-  EXPECT_FLOAT_EQ(first->floatValue(), 1.0f);
+  auto [first_fval, first_fexists] = first->floatValue();
+  EXPECT_FLOAT_EQ(first_fval, 1.0f);
   EXPECT_EQ(attr.values().size(), 2u);
 }
 
@@ -1129,7 +1130,8 @@ TEST(R6_LibertyAttrValueTest, FloatBasic) {
   LibertyAttrValue fav(42.5f);
   EXPECT_TRUE(fav.isFloat());
   EXPECT_FALSE(fav.isString());
-  EXPECT_FLOAT_EQ(fav.floatValue(), 42.5f);
+  auto [fav_val, fav_exists] = fav.floatValue();
+  EXPECT_FLOAT_EQ(fav_val, 42.5f);
 }
 
 TEST(R6_LibertyDefineTest, Construction) {
@@ -1374,7 +1376,7 @@ TEST(R6_TestCellTest, LibertyLibraryAccessor) {
   LibertyLibrary lib1("lib1", "lib1.lib");
   TestCell cell(&lib1, "CELL1", "lib1.lib");
   EXPECT_EQ(cell.libertyLibrary(), &lib1);
-  EXPECT_STREQ(cell.libertyLibrary()->name(), "lib1");
+  EXPECT_EQ(cell.libertyLibrary()->name(), "lib1");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1388,33 +1390,33 @@ TEST(R6_TableVariableTest, EqualOrOppositeCapacitance) {
 
 TEST(R6_TableVariableTest, AllVariableStrings) {
   // Test that tableVariableString works for all known variables
-  const char *s;
+  std::string_view s;
   s = tableVariableString(TableAxisVariable::input_transition_time);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::constrained_pin_transition);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::output_pin_transition);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::connect_delay);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::related_out_total_output_net_capacitance);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::iv_output_voltage);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::input_noise_width);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::input_noise_height);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::input_voltage);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::output_voltage);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::path_depth);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::path_distance);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
   s = tableVariableString(TableAxisVariable::normalized_voltage);
-  EXPECT_NE(s, nullptr);
+  EXPECT_FALSE(s.empty());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1704,7 +1706,7 @@ TEST_F(StaLibertyTest, CellPortIteration) {
     while (port_iter.hasNext()) {
       LibertyPort *port = port_iter.next();
       EXPECT_NE(port, nullptr);
-      EXPECT_NE(port->name(), nullptr);
+      EXPECT_FALSE(port->name().empty());
       port_count++;
     }
     EXPECT_GT(port_count, 0);
@@ -1743,11 +1745,11 @@ TEST_F(StaLibertyTest, PatternMatchCells) {
 }
 
 TEST_F(StaLibertyTest, LibraryName) {
-  EXPECT_NE(lib_->name(), nullptr);
+  EXPECT_FALSE(lib_->name().empty());
 }
 
 TEST_F(StaLibertyTest, LibraryFilename) {
-  EXPECT_NE(lib_->filename(), nullptr);
+  EXPECT_FALSE(lib_->filename().empty());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1776,8 +1778,8 @@ TEST(LibertyParserTest, LibertyGroupConstruction) {
 
   EXPECT_EQ(group.type(), "library");
   EXPECT_EQ(group.line(), 1);
-  ASSERT_NE(group.findAttrString("name"), nullptr);
-  EXPECT_EQ(*group.findAttrString("name"), "test_lib");
+  EXPECT_FALSE(group.findAttrString("name").empty());
+  EXPECT_EQ(group.findAttrString("name"), "test_lib");
   float max_cap = 0.0f;
   bool exists = false;
   group.findAttrFloat("max_cap", max_cap, exists);
@@ -1924,12 +1926,12 @@ TEST_F(StaLibertyTest, InferLatchRolesAlreadyCalled) {
   // Find a latch cell
   LibertyCell *cell = lib_->findLibertyCell("DFFR_X1");
   if (cell) {
-    EXPECT_NE(cell->name(), nullptr);
+    EXPECT_FALSE(cell->name().empty());
   }
   // Also try DLATCH cells
   LibertyCell *latch = lib_->findLibertyCell("DLH_X1");
   if (latch) {
-    EXPECT_NE(latch->name(), nullptr);
+    EXPECT_FALSE(latch->name().empty());
   }
 }
 
@@ -2252,9 +2254,8 @@ TEST_F(StaLibertyTest, CellOcvDerate3) {
 TEST_F(StaLibertyTest, CellFootprint3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  const char *fp = buf->footprint();
-  // May be null or empty
-  // fp may be null for simple arcs
+  const std::string &fp = buf->footprint();
+  // May be empty for simple arcs
 }
 
 // LibertyCell::setFootprint
@@ -2262,15 +2263,15 @@ TEST_F(StaLibertyTest, CellSetFootprint) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setFootprint("test_footprint");
-  EXPECT_STREQ(buf->footprint(), "test_footprint");
+  EXPECT_EQ(buf->footprint(), "test_footprint");
 }
 
 // LibertyCell::userFunctionClass
 TEST_F(StaLibertyTest, CellUserFunctionClass2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  const char *ufc = buf->userFunctionClass();
-  // ufc may be null for simple arcs
+  const std::string &ufc = buf->userFunctionClass();
+  // ufc may be empty for simple arcs
 }
 
 // LibertyCell::setUserFunctionClass
@@ -2278,7 +2279,7 @@ TEST_F(StaLibertyTest, CellSetUserFunctionClass) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   buf->setUserFunctionClass("my_class");
-  EXPECT_STREQ(buf->userFunctionClass(), "my_class");
+  EXPECT_EQ(buf->userFunctionClass(), "my_class");
 }
 
 // LibertyCell::setSwitchCellType
@@ -2561,7 +2562,11 @@ TEST_F(StaLibertyTest, CellSetOcvDerateNull) {
 
 // OperatingConditions construction
 TEST_F(StaLibertyTest, OperatingConditionsConstruct) {
-  OperatingConditions oc("typical", 1.0f, 1.1f, 25.0f, WireloadTree::balanced);
+  OperatingConditions oc("typical");
+  oc.setProcess(1.0f);
+  oc.setVoltage(1.1f);
+  oc.setTemperature(25.0f);
+  oc.setWireloadTree(WireloadTree::balanced);
   EXPECT_EQ(oc.name(), std::string("typical"));
   EXPECT_FLOAT_EQ(oc.process(), 1.0f);
   EXPECT_FLOAT_EQ(oc.voltage(), 1.1f);
@@ -3083,12 +3088,12 @@ TEST_F(StaLibertyTest, TimingTypeIsCheck) {
 
 // to_string(TimingSense)
 TEST_F(StaLibertyTest, TimingSenseToString) {
-  const char *s = to_string(TimingSense::positive_unate);
-  EXPECT_NE(s, nullptr);
-  s = to_string(TimingSense::negative_unate);
-  EXPECT_NE(s, nullptr);
-  s = to_string(TimingSense::non_unate);
-  EXPECT_NE(s, nullptr);
+  const std::string &s1 = to_string(TimingSense::positive_unate);
+  EXPECT_FALSE(s1.empty());
+  const std::string &s2 = to_string(TimingSense::negative_unate);
+  EXPECT_FALSE(s2.empty());
+  const std::string &s3 = to_string(TimingSense::non_unate);
+  EXPECT_FALSE(s3.empty());
 }
 
 // timingSenseOpposite
@@ -3101,9 +3106,9 @@ TEST_F(StaLibertyTest, TimingSenseOpposite) {
 
 // ScaleFactorPvt names
 TEST_F(StaLibertyTest, ScaleFactorPvtNames) {
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::process), "process");
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::volt), "volt");
-  EXPECT_STREQ(scaleFactorPvtName(ScaleFactorPvt::temp), "temp");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::process), "process");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::volt), "volt");
+  EXPECT_EQ(scaleFactorPvtName(ScaleFactorPvt::temp), "temp");
 }
 
 // findScaleFactorPvt
@@ -3115,8 +3120,8 @@ TEST_F(StaLibertyTest, FindScaleFactorPvt) {
 
 // ScaleFactorType names
 TEST_F(StaLibertyTest, ScaleFactorTypeNames) {
-  const char *name = scaleFactorTypeName(ScaleFactorType::cell);
-  EXPECT_NE(name, nullptr);
+  const std::string &name = scaleFactorTypeName(ScaleFactorType::cell);
+  EXPECT_FALSE(name.empty());
 }
 
 // findScaleFactorType
@@ -3397,16 +3402,16 @@ TEST_F(StaLibertyTest, PortScanSignalType2) {
 
 // scanSignalTypeName
 TEST_F(StaLibertyTest, ScanSignalTypeName) {
-  const char *name = scanSignalTypeName(ScanSignalType::enable);
-  EXPECT_NE(name, nullptr);
-  name = scanSignalTypeName(ScanSignalType::clock);
-  EXPECT_NE(name, nullptr);
+  const std::string &scan_name1 = scanSignalTypeName(ScanSignalType::enable);
+  EXPECT_FALSE(scan_name1.empty());
+  const std::string &scan_name2 = scanSignalTypeName(ScanSignalType::clock);
+  EXPECT_FALSE(scan_name2.empty());
 }
 
 // pwrGndTypeName and findPwrGndType
 TEST_F(StaLibertyTest, PwrGndTypeName) {
-  const char *name = pwrGndTypeName(PwrGndType::primary_power);
-  EXPECT_NE(name, nullptr);
+  const std::string &pwr_name = pwrGndTypeName(PwrGndType::primary_power);
+  EXPECT_FALSE(pwr_name.empty());
   PwrGndType t = findPwrGndType("primary_power");
   EXPECT_EQ(t, PwrGndType::primary_power);
 }
