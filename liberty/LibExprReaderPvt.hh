@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
+
 namespace sta {
 
 class Report;
@@ -34,11 +37,11 @@ class LibExprScanner;
 class LibExprReader
 {
 public:
-  LibExprReader(const char *func,
+  LibExprReader(std::string_view func,
                 const LibertyCell *cell,
-                const char *error_msg,
+                std::string_view error_msg,
                 Report *report);
-  FuncExpr *makeFuncExprPort(const char *port_name);
+  FuncExpr *makeFuncExprPort(std::string &&port_name);
   FuncExpr *makeFuncExprOr(FuncExpr *arg1,
                            FuncExpr *arg2);
   FuncExpr *makeFuncExprAnd(FuncExpr *arg1,
@@ -48,15 +51,13 @@ public:
   FuncExpr *makeFuncExprNot(FuncExpr *arg);
   void setResult(FuncExpr *result);
   FuncExpr *result() { return result_; }
-  void parseError(const char *msg);
-  size_t copyInput(char *buf,
-                   size_t max_size);
+  void parseError(std::string_view msg);
   Report *report() const { return report_; }
 
 private:
-  const char *func_;
+  std::string_view func_;
   const LibertyCell *cell_;
-  const char *error_msg_;
+  std::string_view error_msg_;
   Report *report_;
   FuncExpr *result_;
 };

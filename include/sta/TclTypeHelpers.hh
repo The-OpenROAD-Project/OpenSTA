@@ -34,14 +34,14 @@ namespace sta {
 #endif
 
 StringSeq
-tclListSeqStdString(Tcl_Obj *const source,
-                    Tcl_Interp *interp);
+tclListStringSeq(Tcl_Obj *const source,
+                 Tcl_Interp *interp);
 StringSeq *
-tclListSeqStdStringPtr(Tcl_Obj *const source,
-                       Tcl_Interp *interp);
-StringSet *
-tclListSetStdString(Tcl_Obj *const source,
+tclListStringSeqPtr(Tcl_Obj *const source,
                     Tcl_Interp *interp);
+StringSet *
+tclListStringSet(Tcl_Obj *const source,
+                 Tcl_Interp *interp);
 
 void
 tclArgError(Tcl_Interp *interp,

@@ -2187,8 +2187,8 @@ TEST_F(VerilogDesignTest, EnsureGraphVerify) {
     Instance *inst = child_iter->next();
     Cell *cell = network->cell(inst);
     EXPECT_NE(cell, nullptr);
-    const char *cell_name = network->name(cell);
-    EXPECT_NE(cell_name, nullptr);
+    std::string cell_name = network->name(cell);
+    EXPECT_FALSE(cell_name.empty());
   }
   delete child_iter;
 }

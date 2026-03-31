@@ -22,24 +22,9 @@
 # 
 # This notice may not be removed or altered from any source distribution.
 
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.16)
 
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.12)
-  # Use <PACKAGENAME>_ROOT in find_package
-  cmake_policy(SET CMP0074 NEW)
-endif()
-
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-  # Use standard target names
-  cmake_policy(SET CMP0078 NEW)
-endif()
-
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
-  # Allows SWIG_MODULE_NAME to be set
-  cmake_policy(SET CMP0086 NEW)
-endif()
-
-project(STA VERSION 3.0.1
+project(STA VERSION 3.1.0
   LANGUAGES CXX
 )
 
@@ -460,6 +445,7 @@ configure_file(${STA_HOME}/util/StaConfig.hh.cmake
 ###########################################################
 
 find_package(SWIG 3.0 REQUIRED)
+message(STATUS "SWIG version: ${SWIG_VERSION}")
 include(UseSWIG)
 
 set(STA_SWIG_FILE app/StaApp.i)
@@ -467,14 +453,12 @@ set(STA_SWIG_FILE app/StaApp.i)
 set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY CPLUSPLUS ON
 )
-# Ubuntu 18.04 cmake version 3.10.2 does not support the
-# COMPILE_OPTIONS and INCLUDE_DIRECTORIES properties, so cram
-# them into SWIG_FLAGS for the time being.
+# SWIG flags (CMake UseSWIG).
 set_property(SOURCE ${STA_SWIG_FILE}
-  PROPERTY SWIG_FLAGS
+  PROPERTY COMPILE_OPTIONS
   -module sta
-  -namespace -prefix sta
-  -I${STA_HOME}
+  -namespace
+  -prefix sta
 )
 
 set(SWIG_FILES
@@ -530,6 +514,9 @@ target_include_directories(sta_swig
   ${TCL_INCLUDE_PATH}
   ${CMAKE_CURRENT_BINARY_DIR}/include/sta
 )
+
+# Pass sta_swig include directories to SWIG as -I (same paths as the C++ build).
+set_property(TARGET sta_swig PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES TRUE)
 
 ###########################################################
 # Library

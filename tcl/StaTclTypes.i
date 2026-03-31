@@ -23,24 +23,23 @@
 // This notice may not be removed or altered from any source distribution.
 
 // Swig TCL input/output type parsers.
+
+#if SWIG_VERSION >= 0x040200
+%include "std_string_view.i"
+#endif
+
 %{
 
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "PatternMatch.hh"
 #include "Network.hh"
 #include "Liberty.hh"
 #include "FuncExpr.hh"
 #include "TimingArc.hh"
-#include "TableModel.hh"
 #include "TimingRole.hh"
 #include "Graph.hh"
-#include "NetworkClass.hh"
 #include "Clock.hh"
 #include "Scene.hh"
 #include "Search.hh"
 #include "Path.hh"
-#include "search/Tag.hh"
 #include "PathEnd.hh"
 #include "SearchClass.hh"
 #include "CircuitSim.hh"
@@ -271,48 +270,24 @@ using namespace sta;
 //
 ////////////////////////////////////////////////////////////////
 
-// String that is deleted after crossing over to tcland.
-%typemap(out) std::string {
-  std::string &str = $1;
+// SWIG before 4.2.0 has no std::string_view typemaps; newer SWIG defines
+// them and duplicates here conflict.
+#if SWIG_VERSION < 0x040200
+%typemap(out) std::string_view {
+  std::string str($1);
   // String is volatile because it is deleted.
   Tcl_SetResult(interp, const_cast<char*>(str.c_str()), TCL_VOLATILE);
 }
 
-// String that is deleted after crossing over to tcland.
-%typemap(out) TmpString* {
-  string *str = $1;
-  if (str) {
-    // String is volatile because it is deleted.
-    Tcl_SetResult(interp, const_cast<char*>(str->c_str()), TCL_VOLATILE);
-    delete str;
-  }
-  else
-    Tcl_SetResult(interp, nullptr, TCL_STATIC);
+%typemap(in) std::string_view {
+  int length;
+  const char *str = Tcl_GetStringFromObj($input, &length);
+  $1 = std::string_view(str, length);
 }
-
-%typemap(in) StringSet* {
-  $1 = tclListSetStdString($input, interp);
-}
+#endif
 
 %typemap(in) StringSeq {
-  $1 = tclListSeqStdString($input, interp);
-}
-
-%typemap(in) const StringSeq & (StringSeq seq) {
-  seq = tclListSeqStdString($input, interp);
-  $1 = &seq;
-}
-
-%typemap(in) StringSeq* {
-  $1 = tclListSeqStdStringPtr($input, interp);
-}
-
-%typemap(in) StringSet* {
-  $1 = tclListSetStdString($input, interp);
-}
-
-%typemap(in) StringSeq {
-  $1 = tclListSeqStdString($input, interp);
+  $1 = tclListStringSeq($input, interp);
 }
 
 %typemap(out) StringSeq {
@@ -442,7 +417,7 @@ using namespace sta;
 %typemap(in) Transition* {
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
-  Transition *tr = Transition::find(arg);
+  Transition *tr = Transition::find(std::string_view(arg, length));
   if (tr == nullptr) {
     tclArgError(interp, 2150, "Unknown transition '{}'.", arg);
     return TCL_ERROR;
@@ -453,16 +428,14 @@ using namespace sta;
 
 %typemap(out) Transition* {
   Transition *tr = $1;
-  const char *str = "";
-  if (tr)
-    str = tr->to_string().c_str();
-  Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
+  const std::string &name = tr->to_string();
+  Tcl_SetResult(interp, const_cast<char*>(name.c_str()), TCL_STATIC);
 }
 
 %typemap(in) RiseFall* {
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
-  const RiseFall *rf = RiseFall::find(arg);
+  const RiseFall *rf = RiseFall::find(std::string_view(arg, length));
   if (rf == nullptr) {
     tclArgError(interp, 2151, "Unknown rise/fall edge '{}'.", arg);
     return TCL_ERROR;
@@ -473,16 +446,14 @@ using namespace sta;
 
 %typemap(out) RiseFall* {
   const RiseFall *rf = $1;
-  const char *str = "";
-  if (rf)
-    str = rf->shortName();
-  Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
+  const std::string &name = rf->shortName();
+  Tcl_SetResult(interp, const_cast<char*>(name.c_str()), TCL_STATIC);
 }
 
 %typemap(in) RiseFallBoth* {
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
-  const RiseFallBoth *rf = RiseFallBoth::find(arg);
+  const RiseFallBoth *rf = RiseFallBoth::find(std::string_view(arg, length));
   if (rf == nullptr) {
     tclArgError(interp, 2152, "Unknown transition name '{}'.", arg);
     return TCL_ERROR;
@@ -492,11 +463,9 @@ using namespace sta;
 }
 
 %typemap(out) RiseFallBoth* {
-  RiseFallBoth *tr = $1;
-  const char *str = "";
-  if (tr)
-    str = tr->shortName();
-  Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
+  RiseFallBoth *rf = $1;
+  const std::string &name = tr->shortName();
+  Tcl_SetResult(interp, const_cast<char*>(name.c_str()), TCL_STATIC);
 }
 
 %typemap(in) PortDirection* {
@@ -530,19 +499,19 @@ using namespace sta;
 
 %typemap(in) LogicValue {
   int length;
-  const char *arg = Tcl_GetStringFromObj($input, &length);
-  if (stringEq(arg, "0") || stringEq(arg, "zero"))
+  std::string arg = Tcl_GetStringFromObj($input, &length);
+  if (arg == "0" || stringEqual(arg, "zero"))
     $1 = LogicValue::zero;
-  else if (stringEq(arg, "1") || stringEq(arg, "one"))
+  else if (arg == "1" || stringEqual(arg, "one"))
     $1 = LogicValue::one;
-  else if (stringEq(arg, "X"))
+  else if (stringEqual(arg, "X"))
     $1 = LogicValue::unknown;
-  else if (stringEq(arg, "rise") || stringEq(arg, "rising"))
+  else if (stringEqual(arg, "rise") || stringEqual(arg, "rising"))
     $1 = LogicValue::rise;
-  else if (stringEq(arg, "fall") || stringEq(arg, "falling"))
+  else if (stringEqual(arg, "fall") || stringEqual(arg, "falling"))
     $1 = LogicValue::fall;
   else {
-    tclArgError(interp, 2155, "Unknown logic value '{}'.", arg);
+    tclArgError(interp, 2155, "Unknown logic value '{}'.", arg.c_str());
     return TCL_ERROR;
   }
 }
@@ -554,10 +523,10 @@ using namespace sta;
     $1 = AnalysisType::single;
   else if (stringEqual(arg, "bc_wc"))
     $1 = AnalysisType::bc_wc;
-  else if (stringEq(arg, "on_chip_variation"))
+  else if (stringEqual(arg, "on_chip_variation"))
     $1 = AnalysisType::ocv;
   else {
-    tclArgError(interp, 2156, "Unknown analysis type '{}'.", arg);
+    tclArgError(interp, 2156, "Unknown analysis type '{}'.", arg.c_str());
     return TCL_ERROR;
   }
 }
@@ -985,11 +954,11 @@ using namespace sta;
 %typemap(in) TimingDerateType {
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
-  if (stringEq(arg, "net_delay"))
+  if (stringEqual(arg, "net_delay"))
     $1 = TimingDerateType::net_delay;
-  else if (stringEq(arg, "cell_delay"))
+  else if (stringEqual(arg, "cell_delay"))
     $1 = TimingDerateType::cell_delay;
-  else if (stringEq(arg, "cell_check"))
+  else if (stringEqual(arg, "cell_check"))
     $1 = TimingDerateType::cell_check;
   else {
     tclArgError(interp, 2166, "{} not net_delay, cell_delay or cell_check.", arg);
@@ -1000,9 +969,9 @@ using namespace sta;
 %typemap(in) TimingDerateCellType {
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
-  if (stringEq(arg, "cell_delay"))
+  if (stringEqual(arg, "cell_delay"))
     $1 = TimingDerateCellType::cell_delay;
-  else if (stringEq(arg, "cell_check"))
+  else if (stringEqual(arg, "cell_check"))
     $1 = TimingDerateCellType::cell_check;
   else {
     tclArgError(interp, 2167, "{} not cell_delay or cell_check.", arg);
@@ -1012,51 +981,51 @@ using namespace sta;
 
 %typemap(in) PathClkOrData {
   int length;
-  char *arg = Tcl_GetStringFromObj($input, &length);
-  if (stringEq(arg, "clk"))
+  std::string arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEqual(arg, "clk"))
     $1 = PathClkOrData::clk;
-  else if (stringEq(arg, "data"))
+  else if (stringEqual(arg, "data"))
     $1 = PathClkOrData::data;
   else {
-    tclArgError(interp, 2168, "{} not clk or data.", arg);
+    tclArgError(interp, 2168, "{} not clk or data.", arg.c_str());
     return TCL_ERROR;
   }
 }
 
 %typemap(in) ReportSortBy {
   int length;
-  char *arg = Tcl_GetStringFromObj($input, &length);
-  if (stringEq(arg, "group"))
+  std::string arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEqual(arg, "group"))
     $1 = sort_by_group;
-  else if (stringEq(arg, "slack"))
+  else if (stringEqual(arg, "slack"))
     $1 = sort_by_slack;
   else {
-    tclArgError(interp, 2169, "{} not group or slack.", arg);
+    tclArgError(interp, 2169, "{} not group or slack.", arg.c_str());
     return TCL_ERROR;
   }
 }
 
 %typemap(in) ReportPathFormat {
   int length;
-  char *arg = Tcl_GetStringFromObj($input, &length);
-  if (stringEq(arg, "full"))
+  std::string arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEqual(arg, "full"))
     $1 = ReportPathFormat::full;
-  else if (stringEq(arg, "full_clock"))
+  else if (stringEqual(arg, "full_clock"))
     $1 = ReportPathFormat::full_clock;
-  else if (stringEq(arg, "full_clock_expanded"))
+  else if (stringEqual(arg, "full_clock_expanded"))
     $1 = ReportPathFormat::full_clock_expanded;
-  else if (stringEq(arg, "short"))
+  else if (stringEqual(arg, "short"))
     $1 = ReportPathFormat::shorter;
-  else if (stringEq(arg, "end"))
+  else if (stringEqual(arg, "end"))
     $1 = ReportPathFormat::endpoint;
-  else if (stringEq(arg, "summary"))
+  else if (stringEqual(arg, "summary"))
     $1 = ReportPathFormat::summary;
-  else if (stringEq(arg, "slack_only"))
+  else if (stringEqual(arg, "slack_only"))
     $1 = ReportPathFormat::slack_only;
-  else if (stringEq(arg, "json"))
+  else if (stringEqual(arg, "json"))
     $1 = ReportPathFormat::json;
   else {
-    tclArgError(interp, 2170, "unknown path type {}.", arg);
+    tclArgError(interp, 2170, "unknown path type {}.", arg.c_str());
     return TCL_ERROR;
   }
 }
@@ -1247,16 +1216,16 @@ using namespace sta;
 %typemap(in) Scene* {
   sta::Sta *sta = Sta::sta();
   int length;
-  char *scene_name = Tcl_GetStringFromObj($input, &length);
+  std::string scene_name = Tcl_GetStringFromObj($input, &length);
   // parse_scene_or_all support depreated 11/21/2025
-  if (stringEq(scene_name, "NULL"))
+  if (scene_name == "NULL")
     $1 = nullptr;
   else {
     Scene *scene = sta->findScene(scene_name);
     if (scene)
       $1 = scene;
     else {
-      tclArgError(interp, 2173, "scene {} not found.", scene_name);
+      tclArgError(interp, 2173, "scene {} not found.", scene_name.c_str());
       return TCL_ERROR;
     }
   }
@@ -1317,7 +1286,7 @@ using namespace sta;
     Tcl_SetResult(interp, const_cast<char*>(""), TCL_STATIC);
     break;
   case PropertyValue::Type::string:
-    Tcl_SetResult(interp, const_cast<char*>(value.stringValue()), TCL_VOLATILE);
+    Tcl_SetResult(interp, const_cast<char*>(value.stringValue().c_str()), TCL_VOLATILE);
     break;
   case PropertyValue::Type::float_: {
     const Unit *unit = value.unit();
@@ -1443,15 +1412,15 @@ using namespace sta;
 
 %typemap(in) CircuitSim {
   int length;
-  char *arg = Tcl_GetStringFromObj($input, &length);
-  if (stringEq(arg, "hspice"))
+  std::string arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEqual(arg, "hspice"))
     $1 = CircuitSim::hspice;
-  else if (stringEq(arg, "ngspice"))
+  else if (stringEqual(arg, "ngspice"))
     $1 = CircuitSim::ngspice;
-  else if (stringEq(arg, "xyce"))
+  else if (stringEqual(arg, "xyce"))
     $1 = CircuitSim::xyce;
   else {
-    tclArgError(interp, 2171, "unknown circuit simulator {}.", arg);
+    tclArgError(interp, 2171, "unknown circuit simulator {}.", arg.c_str());
     return TCL_ERROR;
   }
 }

@@ -75,7 +75,7 @@ class Units
 {
 public:
   Units();
-  Unit *find(const char *unit_name);
+  Unit *find(std::string_view unit_name);
   void operator=(const Units &units);
   Unit *timeUnit() { return &time_unit_; }
   const Unit *timeUnit() const { return &time_unit_; }

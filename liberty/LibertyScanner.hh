@@ -24,8 +24,9 @@
 
 #pragma once
 
-#include <string>
 #include <istream>
+#include <string>
+#include <string_view>
 
 #include "LibertyParse.hh"
 
@@ -44,7 +45,7 @@ class LibertyScanner : public LibertyFlexLexer
 {
 public:
   LibertyScanner(std::istream *stream,
-                 const char *filename,
+                 std::string_view filename,
                  LibertyParser *reader,
                  Report *report);
   virtual ~LibertyScanner() {}

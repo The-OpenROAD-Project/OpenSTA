@@ -57,7 +57,6 @@ class VertexPathIterator;
 class MinPulseWidthCheck;
 class MinPeriodCheck;
 class MaxSkewCheck;
-class CharPtrLess;
 class SearchPred;
 class BfsFwdIterator;
 class ClkDelays;

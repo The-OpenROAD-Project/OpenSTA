@@ -344,24 +344,24 @@ Power::reportInstsJson(const InstanceSeq &insts,
 }
 
 void
-Power::reportPowerRowJson(const char *name,
+Power::reportPowerRowJson(std::string_view type,
                           const PowerResult &power,
                           int digits,
-                          const char *separator)
+                          std::string_view eol)
 {
   float internal = power.internal();
   float switching = power.switching();
   float leakage = power.leakage();
   float total = power.total();
 
-  report_->report("  \"{}\": {{", name);
+  report_->report("  \"{}\": {{", type);
   report_->report("    \"internal\": {:.{}e},", internal, digits);
   report_->report("    \"switching\": {:.{}e},", switching, digits);
   report_->report("    \"leakage\": {:.{}e},", leakage, digits);
   report_->report("    \"total\": {:.{}e}", total, digits);
   std::string line = "  }";
-  if (separator && separator[0] != '\0')
-    line += separator;
+  if (!eol.empty())
+    line += eol;
   report_->reportLine(line);
 }
 
@@ -375,9 +375,8 @@ Power::reportPowerInstJson(const Instance *inst,
   float leakage = power.leakage();
   float total = power.total();
 
-  const char *inst_name = network_->pathName(inst);
   report_->report("{{");
-  report_->report("  \"name\": \"{}\",", inst_name);
+  report_->report("  \"name\": \"{}\",", network_->pathName(inst));
   report_->report("  \"internal\": {:.{}e},", internal, digits);
   report_->report("  \"switching\": {:.{}e},", switching, digits);
   report_->report("  \"leakage\": {:.{}e},", leakage, digits);
@@ -1622,26 +1621,23 @@ Power::portVoltage(LibertyCell *cell,
                    const Scene *scene,
                    const MinMax *min_max)
 {
-  return pgNameVoltage(cell, port->relatedPowerPin(), scene, min_max);
+  return pgPortVoltage(cell, port->relatedPowerPort(), scene, min_max);
 }
 
 float
-Power::pgNameVoltage(LibertyCell *cell,
-                     const char *pg_port_name,
+Power::pgPortVoltage(LibertyCell *cell,
+                     const LibertyPort *pg_port,
                      const Scene *scene,
                      const MinMax *min_max)
 {
-  if (pg_port_name) {
-    LibertyPort *pg_port = cell->findLibertyPort(pg_port_name);
-    if (pg_port) {
-      const char *volt_name = pg_port->voltageName();
-      LibertyLibrary *library = cell->libertyLibrary();
-      float voltage;
-      bool exists;
-      library->supplyVoltage(volt_name, voltage, exists);
-      if (exists)
-        return voltage;
-    }
+  if (pg_port) {
+    const std::string &volt_name = pg_port->voltageName();
+    LibertyLibrary *library = cell->libertyLibrary();
+    float voltage;
+    bool exists;
+    library->supplyVoltage(volt_name, voltage, exists);
+    if (exists)
+      return voltage;
   }
 
   Pvt *pvt = scene->sdc()->operatingConditions(min_max);
@@ -1714,7 +1710,7 @@ Power::reportActivityAnnotation(bool report_unannotated,
     for (const Pin *pin : annotated_pins) {
       const PwrActivity &activity = user_activity_map_[pin];
       PwrActivityOrigin origin = activity.origin();
-      const char *origin_name = pwr_activity_origin_map.find(origin);
+      const std::string &origin_name = pwr_activity_origin_map.find(origin);
       report_->report("{:>5} {}", origin_name, sdc_network_->pathName(pin));
     }
   }
@@ -1927,7 +1923,7 @@ PwrActivity::isSet() const
   return origin_ != PwrActivityOrigin::unknown;
 }
 
-const char *
+const std::string &
 PwrActivity::originName() const
 {
   return pwr_activity_origin_map.find(origin_);

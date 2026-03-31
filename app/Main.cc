@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <cstdlib>              // exit
 #include <filesystem>
+#include <string_view>
 #include <tcl.h>
 #if TCL_READLINE
   #include <tclreadline.h>
@@ -58,14 +59,14 @@ static char **cmd_argv;
 static const char *init_filename = ".sta";
 
 static void
-showUsage(const char *prog,
-          const char *init_filename);
+showUsage(std::string_view prog,
+          std::string_view init_filename);
 static int
 tclAppInit(Tcl_Interp *interp);
 static int
 staTclAppInit(int argc,
               char *argv[],
-              const char *init_filename,
+              std::string_view init_filename,
               Tcl_Interp *interp);
 static void
 initStaApp(int &argc,
@@ -105,7 +106,7 @@ tclAppInit(Tcl_Interp *interp)
 static int
 staTclAppInit(int argc,
               char *argv[],
-              const char *init_filename,
+              std::string_view init_filename,
               Tcl_Interp *interp)
 {
   // source init.tcl
@@ -130,7 +131,7 @@ staTclAppInit(int argc,
     if (home) {
       std::string init_path = home;
       init_path += "/";
-      init_path += init_filename;
+      init_path.append(init_filename);
       if (std::filesystem::is_regular_file(init_path.c_str()))
         sourceTclFile(init_path.c_str(), true, true, interp);
     }
@@ -183,15 +184,17 @@ initStaApp(int &argc,
 }
 
 static void
-showUsage(const char *prog,
-          const char *init_filename)
+showUsage(std::string_view prog,
+          std::string_view init_filename)
 {
-  printf("Usage: %s [-help] [-version] [-no_init] [-exit] cmd_file\n", prog);
-  printf("  -help              show help and exit\n");
-  printf("  -version           show version and exit\n");
-  printf("  -no_init           do not read %s init file\n", init_filename);
-  printf("  -threads count|max use count threads\n");
-  printf("  -no_splash         do not show the license splash at startup\n");
-  printf("  -exit              exit after reading cmd_file\n");
-  printf("  cmd_file           source cmd_file\n");
+  sta::print(stdout, "Usage: {} [-help] [-version] [-no_init] [-exit] cmd_file\n",
+             prog);
+  sta::print(stdout, "  -help              show help and exit\n");
+  sta::print(stdout, "  -version           show version and exit\n");
+  sta::print(stdout, "  -no_init           do not read {} init file\n",
+             init_filename);
+  sta::print(stdout, "  -threads count|max use count threads\n");
+  sta::print(stdout, "  -no_splash         do not show the license splash at startup\n");
+  sta::print(stdout, "  -exit              exit after reading cmd_file\n");
+  sta::print(stdout, "  cmd_file           source cmd_file\n");
 }

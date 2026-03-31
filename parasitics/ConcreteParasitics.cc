@@ -406,14 +406,14 @@ ConcreteParasiticNode::incrCapacitance(float cap)
   cap_ += cap;
 }
 
-const char *
+std::string
 ConcreteParasiticNode::name(const Network *network) const
 {
   if (is_net_) {
     std::string name = std::string(network->pathName(net_pin_.net_))
       + ':'
       + std::to_string(id_);
-    return makeTmpString(name);
+    return name;
   }
   else
     return network->pathName(net_pin_.pin_);
@@ -1312,7 +1312,7 @@ ConcreteParasitics::capacitors(const Parasitic *parasitic) const
 }
 
 
-const char *
+std::string
 ConcreteParasitics::name(const ParasiticNode *node) const
 {
   const ConcreteParasiticNode *cnode =

@@ -24,9 +24,10 @@
 
 #pragma once
 
-#include <mutex>
 #include <array>
 #include <map>
+#include <mutex>
+#include <string>
 
 #include "MinMax.hh"
 #include "Parasitics.hh"
@@ -143,7 +144,7 @@ public:
   ParasiticNodeSeq nodes(const Parasitic *parasitic) const override;
   void incrCap(ParasiticNode *node,
                float cap) override;
-  const char *name(const ParasiticNode *node) const override;
+  std::string name(const ParasiticNode *node) const override;
   const Pin *pin(const ParasiticNode *node) const override;
   const Net *net(const ParasiticNode *node,
                  const Network *network) const override;

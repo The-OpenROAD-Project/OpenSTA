@@ -121,7 +121,7 @@ public:
   ArnoldiDelayCalc(StaState *sta);
   ~ArnoldiDelayCalc() override;
   ArcDelayCalc *copy() override;
-  const char *name() const override { return "arnoldi"; }
+  std::string_view name() const override { return "arnoldi"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const Scene *scene,

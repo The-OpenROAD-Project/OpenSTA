@@ -659,7 +659,7 @@ TEST(RiseFallValuesTest, OverwriteValue)
 TEST(PatternMatchClassTest, SimpleGlobConstructor)
 {
   PatternMatch pm("hello");
-  EXPECT_STREQ(pm.pattern(), "hello");
+  EXPECT_EQ(pm.pattern(), "hello");
   EXPECT_FALSE(pm.isRegexp());
   EXPECT_FALSE(pm.nocase());
   EXPECT_EQ(pm.tclInterp(), nullptr);
@@ -728,7 +728,7 @@ TEST(PatternMatchClassTest, InheritFromConstructor)
 {
   PatternMatch parent("base*", false, true, nullptr);
   PatternMatch child("child*", &parent);
-  EXPECT_STREQ(child.pattern(), "child*");
+  EXPECT_EQ(child.pattern(), "child*");
   EXPECT_FALSE(child.isRegexp());
   EXPECT_TRUE(child.nocase());
   EXPECT_TRUE(child.match("children"));
@@ -1162,21 +1162,6 @@ TEST(ReportTest, LogAndConsoleSimultaneous)
 // Additional StringUtil tests
 ////////////////////////////////////////////////////////////////
 
-TEST(StringUtilTest, StringCopy)
-{
-  const char *orig = "hello";
-  char *copy = stringCopy(orig);
-  EXPECT_STREQ(copy, "hello");
-  EXPECT_NE(copy, orig);
-  stringDelete(copy);
-}
-
-TEST(StringUtilTest, StringCopyNull)
-{
-  char *copy = stringCopy(nullptr);
-  EXPECT_EQ(copy, nullptr);
-}
-
 TEST(StringUtilTest, StaFormat)
 {
   std::string s = sta::format("value={}", 42);
@@ -1208,45 +1193,10 @@ TEST(StringUtilTest, StaFormatTmp)
   EXPECT_EQ(s, "tmp 42");
 }
 
-TEST(StringUtilTest, MakeTmpString)
-{
-  char *tmp = makeTmpString(100);
-  EXPECT_NE(tmp, nullptr);
-  // We can write to it
-  strcpy(tmp, "test");
-  EXPECT_STREQ(tmp, "test");
-}
-
-TEST(StringUtilTest, MakeTmpStringFromStdString)
-{
-  std::string s = "hello";
-  char *tmp = makeTmpString(s);
-  EXPECT_STREQ(tmp, "hello");
-}
-
-TEST(StringUtilTest, IsTmpString)
-{
-  char *tmp = makeTmpString(10);
-  strcpy(tmp, "test");
-  EXPECT_TRUE(isTmpString(tmp));
-
-  char local[] = "local";
-  EXPECT_FALSE(isTmpString(local));
-}
-
 TEST(StringUtilTest, StringEqWithLength)
 {
   EXPECT_TRUE(stringEq("hello world", "hello", 5));
   EXPECT_FALSE(stringEq("hello world", "hellx", 5));
-}
-
-TEST(StringUtilTest, StringEqIf)
-{
-  EXPECT_TRUE(stringEqIf(nullptr, nullptr));
-  EXPECT_FALSE(stringEqIf(nullptr, "hello"));
-  EXPECT_FALSE(stringEqIf("hello", nullptr));
-  EXPECT_TRUE(stringEqIf("hello", "hello"));
-  EXPECT_FALSE(stringEqIf("hello", "world"));
 }
 
 TEST(StringUtilTest, StringBeginEq)
@@ -1265,50 +1215,6 @@ TEST(StringUtilTest, StringEqual)
 {
   EXPECT_TRUE(stringEqual("HELLO", "hello"));
   EXPECT_FALSE(stringEqual("hello", "world"));
-}
-
-TEST(StringUtilTest, StringEqualIf)
-{
-  EXPECT_TRUE(stringEqualIf(nullptr, nullptr));
-  EXPECT_FALSE(stringEqualIf(nullptr, "hello"));
-  EXPECT_FALSE(stringEqualIf("hello", nullptr));
-  EXPECT_TRUE(stringEqualIf("HELLO", "hello"));
-}
-
-TEST(StringUtilTest, StringLess)
-{
-  EXPECT_TRUE(stringLess("abc", "def"));
-  EXPECT_FALSE(stringLess("def", "abc"));
-  EXPECT_FALSE(stringLess("abc", "abc"));
-}
-
-TEST(StringUtilTest, StringLessIf)
-{
-  EXPECT_TRUE(stringLessIf(nullptr, "abc"));
-  EXPECT_FALSE(stringLessIf("abc", nullptr));
-  EXPECT_FALSE(stringLessIf(nullptr, nullptr));
-  EXPECT_TRUE(stringLessIf("abc", "def"));
-}
-
-TEST(StringUtilTest, CharPtrLessComparator)
-{
-  CharPtrLess cmp;
-  EXPECT_TRUE(cmp("abc", "def"));
-  EXPECT_FALSE(cmp("def", "abc"));
-}
-
-TEST(StringUtilTest, CharPtrCaseLessComparator)
-{
-  CharPtrCaseLess cmp;
-  EXPECT_TRUE(cmp("abc", "DEF"));
-  EXPECT_FALSE(cmp("DEF", "ABC"));
-}
-
-TEST(StringUtilTest, StringLessIfComparator)
-{
-  StringLessIf cmp;
-  EXPECT_TRUE(cmp(nullptr, "abc"));
-  EXPECT_FALSE(cmp("abc", nullptr));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1643,8 +1549,8 @@ TEST(TransitionCovTest, RiseFallBothToString)
 {
   EXPECT_EQ(RiseFallBoth::rise()->to_string(), "rise");
   EXPECT_EQ(RiseFallBoth::fall()->to_string(), "fall");
-  EXPECT_STREQ(RiseFallBoth::rise()->shortName(), "^");
-  EXPECT_STREQ(RiseFallBoth::fall()->shortName(), "v");
+  EXPECT_EQ(RiseFallBoth::rise()->shortName(), "^");
+  EXPECT_EQ(RiseFallBoth::fall()->shortName(), "v");
 }
 
 // RiseFallBoth::index
@@ -1734,19 +1640,19 @@ TEST(TransitionCovTest, TransitionAsRiseFallExtra)
 // Transition asInitFinalString for various transitions
 TEST(TransitionCovTest, TransitionAsInitFinalString)
 {
-  EXPECT_STREQ(Transition::rise()->asInitFinalString(), "01");
-  EXPECT_STREQ(Transition::fall()->asInitFinalString(), "10");
-  EXPECT_STREQ(Transition::tr0Z()->asInitFinalString(), "0Z");
-  EXPECT_STREQ(Transition::trZ1()->asInitFinalString(), "Z1");
-  EXPECT_STREQ(Transition::tr1Z()->asInitFinalString(), "1Z");
-  EXPECT_STREQ(Transition::trZ0()->asInitFinalString(), "Z0");
-  EXPECT_STREQ(Transition::tr0X()->asInitFinalString(), "0X");
-  EXPECT_STREQ(Transition::trX1()->asInitFinalString(), "X1");
-  EXPECT_STREQ(Transition::tr1X()->asInitFinalString(), "1X");
-  EXPECT_STREQ(Transition::trX0()->asInitFinalString(), "X0");
-  EXPECT_STREQ(Transition::trXZ()->asInitFinalString(), "XZ");
-  EXPECT_STREQ(Transition::trZX()->asInitFinalString(), "ZX");
-  EXPECT_STREQ(Transition::riseFall()->asInitFinalString(), "**");
+  EXPECT_EQ(Transition::rise()->asInitFinalString(), "01");
+  EXPECT_EQ(Transition::fall()->asInitFinalString(), "10");
+  EXPECT_EQ(Transition::tr0Z()->asInitFinalString(), "0Z");
+  EXPECT_EQ(Transition::trZ1()->asInitFinalString(), "Z1");
+  EXPECT_EQ(Transition::tr1Z()->asInitFinalString(), "1Z");
+  EXPECT_EQ(Transition::trZ0()->asInitFinalString(), "Z0");
+  EXPECT_EQ(Transition::tr0X()->asInitFinalString(), "0X");
+  EXPECT_EQ(Transition::trX1()->asInitFinalString(), "X1");
+  EXPECT_EQ(Transition::tr1X()->asInitFinalString(), "1X");
+  EXPECT_EQ(Transition::trX0()->asInitFinalString(), "X0");
+  EXPECT_EQ(Transition::trXZ()->asInitFinalString(), "XZ");
+  EXPECT_EQ(Transition::trZX()->asInitFinalString(), "ZX");
+  EXPECT_EQ(Transition::riseFall()->asInitFinalString(), "**");
 }
 
 // Transition::sdfTripleIndex
@@ -1789,27 +1695,6 @@ TEST(StringUtilCovTest, StaFormatArgs)
   // Test sta::format with multiple arguments
   std::string s = sta::format("args test {} {}", 42, "hello");
   EXPECT_EQ(s, "args test 42 hello");
-}
-
-// stringDeleteCheck (only for non-tmp strings - should not crash)
-TEST(StringUtilCovTest, StringDeleteCheckNonTmp)
-{
-  ASSERT_NO_THROW(( [&](){
-  char *s = stringCopy("not tmp");
-  // This should not crash or exit; it's not a tmp string
-  stringDeleteCheck(s);
-  stringDelete(s);
-
-  }() ));
-}
-
-// Test that isTmpString returns false for heap-allocated strings
-TEST(StringUtilCovTest, IsTmpStringHeap)
-{
-  char *s = new char[10];
-  strcpy(s, "heap");
-  EXPECT_FALSE(isTmpString(s));
-  delete [] s;
 }
 
 // Long sta::format string
@@ -2294,31 +2179,6 @@ TEST(ReportStdCovTest, PrintErrorConsole)
   // fileWarn also goes through printErrorConsole
   report->fileWarn(778, "test.v", 1, "file warning test");
   delete report;
-
-  }() ));
-}
-
-////////////////////////////////////////////////////////////////
-// StringUtil: makeTmpString(std::string&) and stringDeleteCheck
-////////////////////////////////////////////////////////////////
-
-TEST(StringUtilCovTest, MakeTmpStringStdString)
-{
-  std::string s = "test_tmp_string";
-  char *tmp = makeTmpString(s);
-  EXPECT_STREQ(tmp, "test_tmp_string");
-  EXPECT_TRUE(isTmpString(tmp));
-}
-
-// stringDeleteCheck for tmp string calls Report::critical which exits,
-// so we cannot test that path. Test only with non-tmp strings.
-TEST(StringUtilCovTest, StringDeleteCheckRegular)
-{
-  ASSERT_NO_THROW(( [&](){
-  char *s = stringCopy("regular");
-  // Should not crash - regular string can be deleted
-  stringDeleteCheck(s);
-  stringDelete(s);
 
   }() ));
 }

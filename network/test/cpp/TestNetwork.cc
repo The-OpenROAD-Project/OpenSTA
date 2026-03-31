@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <string>
+#include <string_view>
 #include "VerilogNamespace.hh"
 #include "PortDirection.hh"
 #include "ConcreteLibrary.hh"
@@ -97,7 +98,7 @@ protected:
 TEST_F(PortDirectionTest, InputSingleton) {
   PortDirection *dir = PortDirection::input();
   EXPECT_NE(dir, nullptr);
-  EXPECT_STREQ(dir->name(), "input");
+  EXPECT_EQ(dir->name(), "input");
   EXPECT_EQ(dir->index(), 0);
   EXPECT_TRUE(dir->isInput());
   EXPECT_FALSE(dir->isOutput());
@@ -112,7 +113,7 @@ TEST_F(PortDirectionTest, InputSingleton) {
 TEST_F(PortDirectionTest, OutputSingleton) {
   PortDirection *dir = PortDirection::output();
   EXPECT_NE(dir, nullptr);
-  EXPECT_STREQ(dir->name(), "output");
+  EXPECT_EQ(dir->name(), "output");
   EXPECT_EQ(dir->index(), 1);
   EXPECT_TRUE(dir->isOutput());
   EXPECT_FALSE(dir->isInput());
@@ -121,7 +122,7 @@ TEST_F(PortDirectionTest, OutputSingleton) {
 TEST_F(PortDirectionTest, TristateSingleton) {
   PortDirection *dir = PortDirection::tristate();
   EXPECT_NE(dir, nullptr);
-  EXPECT_STREQ(dir->name(), "tristate");
+  EXPECT_EQ(dir->name(), "tristate");
   EXPECT_EQ(dir->index(), 2);
   EXPECT_TRUE(dir->isTristate());
   EXPECT_FALSE(dir->isInput());
@@ -131,7 +132,7 @@ TEST_F(PortDirectionTest, TristateSingleton) {
 TEST_F(PortDirectionTest, BidirectSingleton) {
   PortDirection *dir = PortDirection::bidirect();
   EXPECT_NE(dir, nullptr);
-  EXPECT_STREQ(dir->name(), "bidirect");
+  EXPECT_EQ(dir->name(), "bidirect");
   EXPECT_EQ(dir->index(), 3);
   EXPECT_TRUE(dir->isBidirect());
 }
@@ -139,7 +140,7 @@ TEST_F(PortDirectionTest, BidirectSingleton) {
 TEST_F(PortDirectionTest, InternalSingleton) {
   PortDirection *dir = PortDirection::internal();
   EXPECT_NE(dir, nullptr);
-  EXPECT_STREQ(dir->name(), "internal");
+  EXPECT_EQ(dir->name(), "internal");
   EXPECT_EQ(dir->index(), 4);
   EXPECT_TRUE(dir->isInternal());
 }
@@ -147,7 +148,7 @@ TEST_F(PortDirectionTest, InternalSingleton) {
 TEST_F(PortDirectionTest, GroundSingleton) {
   PortDirection *dir = PortDirection::ground();
   EXPECT_NE(dir, nullptr);
-  EXPECT_STREQ(dir->name(), "ground");
+  EXPECT_EQ(dir->name(), "ground");
   EXPECT_EQ(dir->index(), 5);
   EXPECT_TRUE(dir->isGround());
 }
@@ -155,7 +156,7 @@ TEST_F(PortDirectionTest, GroundSingleton) {
 TEST_F(PortDirectionTest, PowerSingleton) {
   PortDirection *dir = PortDirection::power();
   EXPECT_NE(dir, nullptr);
-  EXPECT_STREQ(dir->name(), "power");
+  EXPECT_EQ(dir->name(), "power");
   EXPECT_EQ(dir->index(), 6);
   EXPECT_TRUE(dir->isPower());
 }
@@ -163,7 +164,7 @@ TEST_F(PortDirectionTest, PowerSingleton) {
 TEST_F(PortDirectionTest, UnknownSingleton) {
   PortDirection *dir = PortDirection::unknown();
   EXPECT_NE(dir, nullptr);
-  EXPECT_STREQ(dir->name(), "unknown");
+  EXPECT_EQ(dir->name(), "unknown");
   EXPECT_EQ(dir->index(), 7);
   EXPECT_TRUE(dir->isUnknown());
 }
@@ -229,8 +230,8 @@ TEST_F(PortDirectionTest, IsPowerGround) {
 
 TEST(ConcreteLibraryTest, CreateAndFind) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
-  EXPECT_STREQ(lib.name(), "test_lib");
-  EXPECT_STREQ(lib.filename(), "test.lib");
+  EXPECT_EQ(lib.name(), "test_lib");
+  EXPECT_EQ(lib.filename(), "test.lib");
   EXPECT_FALSE(lib.isLiberty());
 }
 
@@ -245,8 +246,8 @@ TEST(ConcreteLibraryTest, MakeCell) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   ConcreteCell *cell = lib.makeCell("INV", true, "inv.v");
   EXPECT_NE(cell, nullptr);
-  EXPECT_STREQ(cell->name(), "INV");
-  EXPECT_STREQ(cell->filename(), "inv.v");
+  EXPECT_EQ(cell->name(), "INV");
+  EXPECT_EQ(cell->filename(), "inv.v");
   EXPECT_TRUE(cell->isLeaf());
   EXPECT_EQ(cell->library(), &lib);
 
@@ -299,7 +300,7 @@ TEST(ConcreteCellTest, MakePort) {
   ConcreteCell *cell = lib.makeCell("INV", true, "");
   ConcretePort *port_a = cell->makePort("A");
   EXPECT_NE(port_a, nullptr);
-  EXPECT_STREQ(port_a->name(), "A");
+  EXPECT_EQ(port_a->name(), "A");
   EXPECT_EQ(port_a->cell(), reinterpret_cast<Cell*>(cell));
 
   ConcretePort *found = cell->findPort("A");
@@ -357,9 +358,9 @@ TEST(ConcreteCellTest, AttributeMap) {
 TEST(ConcreteCellTest, SetName) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   ConcreteCell *cell = lib.makeCell("OLD", true, "");
-  EXPECT_STREQ(cell->name(), "OLD");
+  EXPECT_EQ(cell->name(), "OLD");
   cell->setName("NEW");
-  EXPECT_STREQ(cell->name(), "NEW");
+  EXPECT_EQ(cell->name(), "NEW");
 }
 
 TEST(ConcreteCellTest, PortIterator) {
@@ -646,10 +647,10 @@ TEST(ConcreteCellTest, MakeBusPortAscending) {
 TEST(ConcreteCellTest, Filename) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
   ConcreteCell *cell = lib.makeCell("INV", true, "test_cell.v");
-  EXPECT_STREQ(cell->filename(), "test_cell.v");
+  EXPECT_EQ(cell->filename(), "test_cell.v");
 
   ConcreteCell *cell2 = lib.makeCell("BUF", true, "");
-  EXPECT_STREQ(cell2->filename(), "");
+  EXPECT_EQ(cell2->filename(), "");
 }
 
 TEST(ConcreteCellTest, FindCellsMatching) {
@@ -692,8 +693,8 @@ TEST(ConcretePortTest, BusPortBusName) {
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("REG", true, "");
   ConcretePort *bus = cell->makeBusPort("D", 3, 0);
-  const char *bus_name = bus->busName();
-  EXPECT_NE(bus_name, nullptr);
+  std::string bus_name = bus->busName();
+  EXPECT_FALSE(bus_name.empty());
   // Should contain bus bracket notation
   std::string name_str(bus_name);
   EXPECT_NE(name_str.find("["), std::string::npos);
@@ -704,8 +705,8 @@ TEST(ConcretePortTest, ScalarBusName) {
   ConcreteCell *cell = lib.makeCell("INV", true, "");
   ConcretePort *port = cell->makePort("A");
   // Scalar port busName returns just the name
-  const char *bus_name = port->busName();
-  EXPECT_STREQ(bus_name, "A");
+  std::string bus_name = port->busName();
+  EXPECT_EQ(bus_name, "A");
 }
 
 TEST(ConcretePortTest, FindMember) {
@@ -830,7 +831,7 @@ TEST(ConcreteLibraryTest, BusBracketsChange) {
 
 TEST(ConcreteLibraryTest, FilenameAndId) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
-  EXPECT_STREQ(lib.filename(), "test.lib");
+  EXPECT_EQ(lib.filename(), "test.lib");
   // Library ID is a monotonically increasing counter
   EXPECT_GE(lib.id(), 0u);
 }
@@ -878,14 +879,14 @@ TEST(PortDirectionExtraTest, DirectionNames) {
   if (PortDirection::input() == nullptr) {
     PortDirection::init();
   }
-  EXPECT_STREQ(PortDirection::input()->name(), "input");
-  EXPECT_STREQ(PortDirection::output()->name(), "output");
-  EXPECT_STREQ(PortDirection::bidirect()->name(), "bidirect");
-  EXPECT_STREQ(PortDirection::tristate()->name(), "tristate");
-  EXPECT_STREQ(PortDirection::internal()->name(), "internal");
-  EXPECT_STREQ(PortDirection::ground()->name(), "ground");
-  EXPECT_STREQ(PortDirection::power()->name(), "power");
-  EXPECT_STREQ(PortDirection::unknown()->name(), "unknown");
+  EXPECT_EQ(PortDirection::input()->name(), "input");
+  EXPECT_EQ(PortDirection::output()->name(), "output");
+  EXPECT_EQ(PortDirection::bidirect()->name(), "bidirect");
+  EXPECT_EQ(PortDirection::tristate()->name(), "tristate");
+  EXPECT_EQ(PortDirection::internal()->name(), "internal");
+  EXPECT_EQ(PortDirection::ground()->name(), "ground");
+  EXPECT_EQ(PortDirection::power()->name(), "power");
+  EXPECT_EQ(PortDirection::unknown()->name(), "unknown");
 }
 
 TEST(PortDirectionExtraTest, FindAllByName) {
@@ -940,7 +941,7 @@ TEST(ConcreteCellTest, GroupBusPorts) {
   cell->makePort("CLK");
 
   // groupBusPorts should group D[0]-D[3] into bus D
-  cell->groupBusPorts('[', ']', [](const char*) { return true; });
+  cell->groupBusPorts('[', ']', [](std::string_view) { return true; });
 
   // After grouping, we should find the bus port D
   ConcretePort *bus = cell->findPort("D");
@@ -969,7 +970,7 @@ TEST(ConcreteNetworkTest, MakeLibrary) {
   EXPECT_EQ(found, lib);
 
   // Library name
-  EXPECT_STREQ(network.name(lib), "test_lib");
+  EXPECT_EQ(network.name(lib), "test_lib");
 }
 
 TEST(ConcreteNetworkTest, LibraryIterator) {
@@ -1008,7 +1009,7 @@ TEST(ConcreteNetworkTest, CellName) {
 
   Cell *cell = network.findCell(lib, "INV_X1");
   EXPECT_NE(cell, nullptr);
-  EXPECT_STREQ(network.name(cell), "INV_X1");
+  EXPECT_EQ(network.name(cell), "INV_X1");
 }
 
 TEST(ConcreteNetworkTest, CellIsLeaf) {
@@ -1052,7 +1053,7 @@ TEST(ConcreteNetworkTest, PortProperties) {
   ConcretePort *a = ccell->makePort("A");
 
   Port *port = reinterpret_cast<Port*>(a);
-  EXPECT_STREQ(network.name(port), "A");
+  EXPECT_EQ(network.name(port), "A");
   EXPECT_FALSE(network.isBus(port));
   EXPECT_FALSE(network.isBundle(port));
 }
@@ -1068,7 +1069,7 @@ TEST(ConcreteNetworkTest, FindPort) {
   Cell *cell = reinterpret_cast<Cell*>(ccell);
   Port *found = network.findPort(cell, "A");
   EXPECT_NE(found, nullptr);
-  EXPECT_STREQ(network.name(found), "A");
+  EXPECT_EQ(network.name(found), "A");
 
   Port *not_found = network.findPort(cell, "B");
   EXPECT_EQ(not_found, nullptr);
@@ -1102,7 +1103,7 @@ TEST(ConcreteNetworkTest, FindLibraryByName) {
 TEST(ConcreteNetworkTest, LibraryName) {
   ConcreteNetwork network;
   Library *lib = network.makeLibrary("test_name_lib", "test.lib");
-  EXPECT_STREQ(network.name(lib), "test_name_lib");
+  EXPECT_EQ(network.name(lib), "test_name_lib");
 }
 
 TEST(ConcreteNetworkTest, LibraryId) {
@@ -1151,7 +1152,7 @@ TEST(ConcreteNetworkTest, CellNameViaNetwork) {
   ConcreteNetwork network;
   Library *lib = network.makeLibrary("nm_lib", "nm.lib");
   Cell *cell = network.makeCell(lib, "OR2_X1", true, "nm.lib");
-  EXPECT_STREQ(network.name(cell), "OR2_X1");
+  EXPECT_EQ(network.name(cell), "OR2_X1");
 }
 
 TEST(ConcreteNetworkTest, CellIdViaNetwork) {
@@ -1167,7 +1168,7 @@ TEST(ConcreteNetworkTest, SetCellName) {
   Library *lib = network.makeLibrary("rn_lib", "rn.lib");
   Cell *cell = network.makeCell(lib, "OLD_NAME", true, "rn.lib");
   network.setName(cell, "NEW_NAME");
-  EXPECT_STREQ(network.name(cell), "NEW_NAME");
+  EXPECT_EQ(network.name(cell), "NEW_NAME");
 }
 
 TEST(ConcreteNetworkTest, SetIsLeaf) {
@@ -1210,7 +1211,7 @@ TEST(ConcreteNetworkTest, CellFilename) {
   ConcreteNetwork network;
   Library *lib = network.makeLibrary("fn_lib", "fn.lib");
   Cell *cell = network.makeCell(lib, "CELL1", true, "fn.lib");
-  EXPECT_STREQ(network.filename(cell), "fn.lib");
+  EXPECT_EQ(network.filename(cell), "fn.lib");
 }
 
 TEST(ConcreteNetworkTest, DeleteCell) {
@@ -1343,8 +1344,8 @@ TEST_F(ConcreteNetworkLinkedTest, IsTopInstance) {
 }
 
 TEST_F(ConcreteNetworkLinkedTest, InstanceName) {
-  EXPECT_STREQ(network_.name(u1_), "u1");
-  EXPECT_STREQ(network_.name(u2_), "u2");
+  EXPECT_EQ(network_.name(u1_), "u1");
+  EXPECT_EQ(network_.name(u2_), "u2");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, InstanceId) {
@@ -1356,12 +1357,12 @@ TEST_F(ConcreteNetworkLinkedTest, InstanceId) {
 TEST_F(ConcreteNetworkLinkedTest, InstanceCell) {
   Cell *cell = network_.cell(u1_);
   EXPECT_NE(cell, nullptr);
-  EXPECT_STREQ(network_.name(cell), "INV");
+  EXPECT_EQ(network_.name(cell), "INV");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, InstanceCellName) {
-  const char *name = network_.cellName(u1_);
-  EXPECT_STREQ(name, "INV");
+  std::string name = network_.cellName(u1_);
+  EXPECT_EQ(name, "INV");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, InstanceParent) {
@@ -1388,9 +1389,9 @@ TEST_F(ConcreteNetworkLinkedTest, InstanceFindChild) {
 }
 
 TEST_F(ConcreteNetworkLinkedTest, InstancePathName) {
-  const char *path = network_.pathName(u1_);
-  EXPECT_NE(path, nullptr);
-  EXPECT_STREQ(path, "u1");
+  std::string path = network_.pathName(u1_);
+  EXPECT_FALSE(path.empty());
+  EXPECT_EQ(path, "u1");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, ChildIterator) {
@@ -1447,7 +1448,7 @@ TEST_F(ConcreteNetworkLinkedTest, PinNet) {
 TEST_F(ConcreteNetworkLinkedTest, PinPort) {
   Port *port = network_.port(pin_u1_a_);
   EXPECT_NE(port, nullptr);
-  EXPECT_STREQ(network_.name(port), "A");
+  EXPECT_EQ(network_.name(port), "A");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PinDirection) {
@@ -1473,18 +1474,18 @@ TEST_F(ConcreteNetworkLinkedTest, PinVertexId) {
 
 TEST_F(ConcreteNetworkLinkedTest, PinName) {
   const Network &net = network_;
-  const char *name = net.name(pin_u1_a_);
-  EXPECT_NE(name, nullptr);
+  std::string name = net.name(pin_u1_a_);
+  EXPECT_FALSE(name.empty());
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PinPortName) {
-  const char *pname = network_.portName(pin_u1_a_);
-  EXPECT_STREQ(pname, "A");
+  std::string pname = network_.portName(pin_u1_a_);
+  EXPECT_EQ(pname, "A");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PinPathName) {
-  const char *path = network_.pathName(pin_u1_a_);
-  EXPECT_NE(path, nullptr);
+  std::string path = network_.pathName(pin_u1_a_);
+  EXPECT_FALSE(path.empty());
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PinIsLeaf) {
@@ -1517,7 +1518,7 @@ TEST_F(ConcreteNetworkLinkedTest, FindPinByPort) {
 
 // Net tests
 TEST_F(ConcreteNetworkLinkedTest, NetName) {
-  EXPECT_STREQ(network_.name(net1_), "n1");
+  EXPECT_EQ(network_.name(net1_), "n1");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, NetId) {
@@ -1531,8 +1532,8 @@ TEST_F(ConcreteNetworkLinkedTest, NetInstance) {
 }
 
 TEST_F(ConcreteNetworkLinkedTest, NetPathName) {
-  const char *path = network_.pathName(net1_);
-  EXPECT_NE(path, nullptr);
+  std::string path = network_.pathName(net1_);
+  EXPECT_FALSE(path.empty());
 }
 
 TEST_F(ConcreteNetworkLinkedTest, NetIsPowerGround) {
@@ -1628,7 +1629,7 @@ TEST_F(ConcreteNetworkLinkedTest, ReplaceCell) {
   network_.disconnectPin(pin_u1_y_);
   network_.replaceCell(u1_, buf_cell);
   Cell *new_cell = network_.cell(u1_);
-  EXPECT_STREQ(network_.name(new_cell), "BUF");
+  EXPECT_EQ(network_.name(new_cell), "BUF");
 }
 
 // Network pathName comparisons
@@ -1666,35 +1667,31 @@ TEST_F(ConcreteNetworkLinkedTest, PathNameCmpNet) {
 
 // Network: pathNameFirst / pathNameLast
 TEST_F(ConcreteNetworkLinkedTest, PathNameFirst) {
-  char *first = nullptr;
-  char *tail = nullptr;
+  std::string first;
+  std::string tail;
   network_.pathNameFirst("a/b/c", first, tail);
-  if (first) {
-    EXPECT_STREQ(first, "a");
-    EXPECT_STREQ(tail, "b/c");
-    delete [] first;
-    delete [] tail;
+  if (!first.empty()) {
+    EXPECT_EQ(first, "a");
+    EXPECT_EQ(tail, "b/c");
   }
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PathNameLast) {
-  char *head = nullptr;
-  char *last = nullptr;
+  std::string head;
+  std::string last;
   network_.pathNameLast("a/b/c", head, last);
-  if (last) {
-    EXPECT_STREQ(last, "c");
-    EXPECT_STREQ(head, "a/b");
-    delete [] head;
-    delete [] last;
+  if (!last.empty()) {
+    EXPECT_EQ(last, "c");
+    EXPECT_EQ(head, "a/b");
   }
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PathNameFirstNoDivider) {
-  char *first = nullptr;
-  char *tail = nullptr;
+  std::string first;
+  std::string tail;
   network_.pathNameFirst("simple", first, tail);
-  EXPECT_EQ(first, nullptr);
-  EXPECT_EQ(tail, nullptr);
+  EXPECT_TRUE(first.empty());
+  EXPECT_TRUE(tail.empty());
 }
 
 // Network: pathDivider / pathEscape
@@ -2027,8 +2024,8 @@ TEST_F(ConcreteNetworkLinkedTest, SortByPathNameInstances) {
   inst_set.insert(u1_);
   InstanceSeq sorted = sortByPathName(&inst_set, &network_);
   EXPECT_EQ(sorted.size(), 2u);
-  EXPECT_STREQ(network_.name(sorted[0]), "u1");
-  EXPECT_STREQ(network_.name(sorted[1]), "u2");
+  EXPECT_EQ(network_.name(sorted[0]), "u1");
+  EXPECT_EQ(network_.name(sorted[1]), "u2");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, SortByPathNameNets) {
@@ -2049,8 +2046,8 @@ TEST_F(ConcreteNetworkLinkedTest, SortByNamePorts) {
   port_set.insert(port_a);
   PortSeq sorted = sortByName(&port_set, &network_);
   EXPECT_EQ(sorted.size(), 2u);
-  EXPECT_STREQ(network_.name(sorted[0]), "A");
-  EXPECT_STREQ(network_.name(sorted[1]), "Y");
+  EXPECT_EQ(network_.name(sorted[0]), "A");
+  EXPECT_EQ(network_.name(sorted[1]), "Y");
 }
 
 // NetworkCmp comparator constructors
@@ -2212,8 +2209,8 @@ TEST_F(ConcreteNetworkLinkedTest, PortFromToIndexViaNetwork) {
 TEST_F(ConcreteNetworkLinkedTest, PortBusNameViaNetwork) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
-  const char *bus_name = network_.busName(port_a);
-  EXPECT_STREQ(bus_name, "A");
+  std::string bus_name = network_.busName(port_a);
+  EXPECT_EQ(bus_name, "A");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PortFindBusBitViaNetwork) {
@@ -2308,7 +2305,7 @@ TEST_F(ConcreteNetworkLinkedTest, GroupBusPortsViaNetwork) {
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib_);
   clib->setBusBrkts('[', ']');
 
-  network_.groupBusPorts(cell, [](const char*) { return true; });
+  network_.groupBusPorts(cell, [](std::string_view) { return true; });
   Port *bus = network_.findPort(cell, "D");
   EXPECT_NE(bus, nullptr);
   if (bus) {
@@ -2558,29 +2555,29 @@ TEST_F(ConcreteNetworkLinkedTest, PortDirectionAccess) {
 
 // Network: various accessor methods
 TEST_F(ConcreteNetworkLinkedTest, LibraryNameAccess) {
-  EXPECT_STREQ(network_.name(lib_), "test_lib");
+  EXPECT_EQ(network_.name(lib_), "test_lib");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, CellNameAccess) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
-  EXPECT_STREQ(network_.name(inv_cell), "INV");
+  EXPECT_EQ(network_.name(inv_cell), "INV");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PortNameAccess) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
   Port *port_a = network_.findPort(inv_cell, "A");
-  EXPECT_STREQ(network_.name(port_a), "A");
+  EXPECT_EQ(network_.name(port_a), "A");
 }
 
 TEST_F(ConcreteNetworkLinkedTest, NetNameAccess) {
-  EXPECT_STREQ(network_.name(net1_), "n1");
+  EXPECT_EQ(network_.name(net1_), "n1");
 }
 
 // Network: cell filename
 TEST_F(ConcreteNetworkLinkedTest, CellFilename) {
   Cell *inv_cell = network_.findCell(lib_, "INV");
-  const char *fn = network_.filename(inv_cell);
-  EXPECT_STREQ(fn, "test.lib");
+  std::string_view fn = network_.filename(inv_cell);
+  EXPECT_EQ(fn, "test.lib");
 }
 
 // PinSet default constructor

@@ -24,9 +24,12 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstdarg>
 #include <cstring>
 #include <string>
+#include <string_view>
+#include <strings.h> // for strncasecmp
 #include <vector>
 #include <set>
 
@@ -53,14 +56,6 @@ stringEq(const char *str1,
   return strncmp(str1, str2, length) == 0;
 }
 
-inline bool
-stringEqIf(const char *str1,
-           const char *str2)
-{
-  return (str1 == nullptr && str2 == nullptr)
-    || (str1 && str2 && strcmp(str1, str2) == 0);
-}
-
 // Case sensitive compare the beginning of str1 to str2.
 inline bool
 stringBeginEq(const char *str1,
@@ -71,77 +66,23 @@ stringBeginEq(const char *str1,
 
 // Case insensitive compare the beginning of str1 to str2.
 inline bool
-stringBeginEqual(const char *str1,
-                 const char *str2)
+stringBeginEqual(std::string_view str,
+                 std::string_view prefix)
 {
-  return strncasecmp(str1, str2, strlen(str2)) == 0;
+  if (str.size() < prefix.size())
+    return false;
+  return strncasecmp(str.data(), prefix.data(), prefix.size()) == 0;
 }
 
 // Case insensitive compare.
 inline bool
-stringEqual(const char *str1,
-            const char *str2)
+stringEqual(std::string_view s1,
+            std::string_view s2)
 {
-  return strcasecmp(str1, str2) == 0;
+  return std::ranges::equal(s1, s2, [](unsigned char c1, unsigned char c2) {
+    return std::tolower(c1) == std::tolower(c2);
+  });
 }
-
-inline bool
-stringEqualIf(const char *str1,
-              const char *str2)
-{
-  return (str1 == nullptr && str2 == nullptr)
-    || (str1 && str2 && strcasecmp(str1, str2) == 0);
-}
-
-inline bool
-stringLess(const char *str1,
-           const char *str2)
-{
-  return strcmp(str1, str2) < 0;
-}
-
-inline bool
-stringLessIf(const char *str1,
-             const char *str2)
-{
-  return (str1 == nullptr && str2 != nullptr)
-    || (str1 != nullptr && str2 != nullptr && strcmp(str1, str2) < 0);
-}
-
-class CharPtrLess
-{
-public:
-  bool operator()(const char *string1,
-                  const char *string2) const
-  {
-    return stringLess(string1, string2);
-  }
-};
-
-// Case insensitive comparision.
-class CharPtrCaseLess
-{
-public:
-  bool operator()(const char *string1,
-                  const char *string2) const
-  {
-    return strcasecmp(string1, string2) < 0;
-  }
-};
-
-class StringLessIf
-{
-public:
-  bool operator()(const char *string1,
-                  const char *string2) const
-  {
-    return stringLessIf(string1, string2);
-  }
-};
-
-// strdup using new instead of malloc so delete can be used on the strings.
-char *
-stringCopy(const char *str);
 
 void
 stringDeleteCheck(const char *str);
@@ -153,17 +94,14 @@ stringDelete(const char *str)
   delete [] str;
 }
 
+std::pair<float, bool>
+stringFloat(const std::string &str);
+
 bool
 isDigits(const char *str);
 
-char *
-makeTmpString(size_t length);
-char *
-makeTmpString(std::string &str);
 bool
-isTmpString(const char *str);
-void
-deleteTmpStrings();
+isDigits(std::string_view str);
 
 ////////////////////////////////////////////////////////////////
 
@@ -171,9 +109,9 @@ deleteTmpStrings();
 void
 trimRight(std::string &str);
 
-// Spit text into delimiter separated tokens and skip whitepace.
+// Parse text into delimiter separated tokens and skip whitepace.
 StringSeq
-parseTokens(const std::string &s,
-            const char delimiter);
+parseTokens(const std::string &text,
+            std::string_view delims = " \t");
 
 } // namespace

@@ -180,7 +180,7 @@ Vertex *to() { return self->to(Sta::sta()->graph()); }
 Pin *from_pin() { return self->from(Sta::sta()->graph())->pin(); }
 Pin *to_pin() { return self->to(Sta::sta()->graph())->pin(); }
 const TimingRole *role() { return self->role(); }
-const char *sense() { return to_string(self->sense()); }
+const char *sense() { return to_string(self->sense()).c_str(); }
 TimingArcSeq &
 timing_arcs() { return self->timingArcSet()->arcs(); }
 bool is_disabled_loop() { return Sta::sta()->isDisabledLoop(self); }
@@ -212,13 +212,16 @@ disabled_constant_pins()
 
 bool is_disabled_bidirect_inst_path()
 { return Sta::sta()->isDisabledBidirectInstPath(self); }
+
 bool is_disabled_preset_clear()
 { return Sta::sta()->isDisabledPresetClr(self); }
+
 const char *
-sim_timing_sense(){
+sim_timing_sense()
+{
   Sta *sta = Sta::sta();
   const Mode *mode = sta->cmdMode();
-  return to_string(sta->simTimingSense(self, mode));
+  return to_string(sta->simTimingSense(self, mode)).c_str();
 }
 
 FloatSeq

@@ -25,6 +25,7 @@
 #include "ConcreteNetwork.hh"
 
 #include <map>
+#include <string_view>
 
 #include "PatternMatch.hh"
 #include "Report.hh"
@@ -424,19 +425,21 @@ ConcreteNetwork::libertyLibraryIterator() const
 ////////////////////////////////////////////////////////////////
 
 Library *
-ConcreteNetwork::makeLibrary(const char *name,
-                             const char *filename)
+ConcreteNetwork::makeLibrary(std::string_view name,
+                             std::string_view filename)
 {
-  ConcreteLibrary *library = new ConcreteLibrary(name, filename, false);
+  ConcreteLibrary *library = new ConcreteLibrary(std::string(name),
+                                                 std::string(filename), false);
   addLibrary(library);
   return reinterpret_cast<Library*>(library);
 }
 
 LibertyLibrary *
-ConcreteNetwork::makeLibertyLibrary(const char *name,
-                                    const char *filename)
+ConcreteNetwork::makeLibertyLibrary(std::string_view name,
+                                    std::string_view filename)
 {
-  LibertyLibrary *library = new LibertyLibrary(name, filename);
+  LibertyLibrary *library = new LibertyLibrary(std::string(name),
+                                               std::string(filename));
   addLibrary(library);
   return library;
 }
@@ -449,9 +452,9 @@ ConcreteNetwork::addLibrary(ConcreteLibrary *library)
 }
 
 Library *
-ConcreteNetwork::findLibrary(const char *name)
+ConcreteNetwork::findLibrary(std::string_view name)
 {
-  return reinterpret_cast<Library*>(findKey(library_map_, name));
+  return reinterpret_cast<Library*>(findStringKey(library_map_, name));
 }
 
 void
@@ -463,7 +466,7 @@ ConcreteNetwork::deleteLibrary(Library *library)
   delete clib;
 }
 
-const char *
+std::string
 ConcreteNetwork::name(const Library *library) const
 {
   const ConcreteLibrary *clib =
@@ -480,16 +483,16 @@ ConcreteNetwork::id(const Library *library) const
 }
 
 LibertyLibrary *
-ConcreteNetwork::findLiberty(const char *name)
+ConcreteNetwork::findLiberty(std::string_view name)
 {
-  ConcreteLibrary *lib =  findKey(library_map_, name);
+  ConcreteLibrary *lib = findStringKey(library_map_, name);
   if (lib) {
     if (lib->isLiberty())
       return static_cast<LibertyLibrary*>(lib);
     // Potential name conflict
     else {
       for (ConcreteLibrary *lib : library_seq_) {
-        if (stringEq(lib->name(), name)
+        if (lib->name() == name
             && lib->isLiberty())
           return static_cast<LibertyLibrary*>(lib);
       }
@@ -500,9 +503,9 @@ ConcreteNetwork::findLiberty(const char *name)
 
 Cell *
 ConcreteNetwork::makeCell(Library *library,
-                          const char *name,
+                          std::string_view name,
                           bool is_leaf,
-                          const char *filename)
+                          std::string_view filename)
 {
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(library);
   return reinterpret_cast<Cell*>(clib->makeCell(name, is_leaf, filename));
@@ -510,7 +513,7 @@ ConcreteNetwork::makeCell(Library *library,
 
 Cell *
 ConcreteNetwork::findCell(const Library *library,
-                          const char *name) const
+                          std::string_view name) const
 {
   const ConcreteLibrary *clib =
     reinterpret_cast<const ConcreteLibrary*>(library);
@@ -518,7 +521,7 @@ ConcreteNetwork::findCell(const Library *library,
 }
 
 Cell *
-ConcreteNetwork::findAnyCell(const char *name)
+ConcreteNetwork::findAnyCell(std::string_view name)
 {
   for (ConcreteLibrary *lib : library_seq_) {
     ConcreteCell *cell = lib->findCell(name);
@@ -547,7 +550,7 @@ ConcreteNetwork::deleteCell(Cell *cell)
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 ConcreteNetwork::name(const Cell *cell) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
@@ -563,7 +566,7 @@ ConcreteNetwork::id(const Cell *cell) const
 
 void
 ConcreteNetwork::setName(Cell *cell,
-                         const char *name)
+                         std::string_view name)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   ccell->setName(name);
@@ -579,8 +582,8 @@ ConcreteNetwork::setIsLeaf(Cell *cell,
 
 void
 ConcreteNetwork::setAttribute(Cell *cell,
-                              const std::string &key,
-                              const std::string &value)
+                              std::string_view key,
+                              std::string_view value)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   ccell->setAttribute(key, value);
@@ -619,8 +622,8 @@ ConcreteNetwork::cell(const LibertyCell *cell) const
   return reinterpret_cast<const Cell*>(cell);
 }
 
-const char *
-ConcreteNetwork::filename(const Cell *cell)
+std::string_view
+ConcreteNetwork::filename(const Cell *cell) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return ccell->filename();
@@ -628,7 +631,7 @@ ConcreteNetwork::filename(const Cell *cell)
 
 std::string
 ConcreteNetwork::getAttribute(const Cell *cell,
-                              const std::string &key) const
+                              std::string_view key) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return ccell->getAttribute(key);
@@ -643,7 +646,7 @@ ConcreteNetwork::attributeMap(const Cell *cell) const
 
 Port *
 ConcreteNetwork::findPort(const Cell *cell,
-                          const char *name) const
+                          std::string_view name) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return reinterpret_cast<Port*>(ccell->findPort(name));
@@ -658,7 +661,7 @@ ConcreteNetwork::isLeaf(const Cell *cell) const
 
 Port *
 ConcreteNetwork::makePort(Cell *cell,
-                          const char *name)
+                          std::string_view name)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   ConcretePort *port = ccell->makePort(name);
@@ -667,7 +670,7 @@ ConcreteNetwork::makePort(Cell *cell,
 
 Port *
 ConcreteNetwork::makeBusPort(Cell *cell,
-                             const char *name,
+                             std::string_view name,
                              int from_index,
                              int to_index)
 {
@@ -678,7 +681,7 @@ ConcreteNetwork::makeBusPort(Cell *cell,
 
 void
 ConcreteNetwork::groupBusPorts(Cell *cell,
-                               std::function<bool(const char*)> port_msb_first)
+                               std::function<bool(std::string_view)> port_msb_first)
 {
   Library *lib = library(cell);
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib);
@@ -689,7 +692,7 @@ ConcreteNetwork::groupBusPorts(Cell *cell,
 
 Port *
 ConcreteNetwork::makeBundlePort(Cell *cell,
-                                const char *name,
+                                std::string_view name,
                                 PortSeq *members)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
@@ -795,7 +798,7 @@ ConcreteNetwork::portBitCount(const Cell *cell) const
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 ConcreteNetwork::name(const Port *port) const
 {
   const ConcretePort *cport = reinterpret_cast<const ConcretePort*>(port);
@@ -844,7 +847,7 @@ ConcreteNetwork::isBus(const Port *port) const
   return cport->isBus();
 }
 
-const char *
+std::string
 ConcreteNetwork::busName(const Port *port) const
 {
   const ConcretePort *cport = reinterpret_cast<const ConcretePort*>(port);
@@ -949,12 +952,12 @@ ConcreteNetwork::memberIterator(const Port *port) const
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 ConcreteNetwork::name(const Instance *instance) const
 {
   const ConcreteInstance *inst =
     reinterpret_cast<const ConcreteInstance*>(instance);
-  return inst->name();
+  return std::string(inst->name());
 }
 
 ObjectId
@@ -967,7 +970,7 @@ ConcreteNetwork::id(const Instance *instance) const
 
 std::string
 ConcreteNetwork::getAttribute(const Instance *inst,
-                              const std::string &key) const
+                              std::string_view key) const
 {
   const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
   return cinst->getAttribute(key);
@@ -1007,7 +1010,7 @@ ConcreteNetwork::isLeaf(const Instance *instance) const
 
 Instance *
 ConcreteNetwork::findChild(const Instance *parent,
-                           const char *name) const
+                           std::string_view name) const
 {
   const ConcreteInstance *inst =
     reinterpret_cast<const ConcreteInstance*>(parent);
@@ -1016,7 +1019,7 @@ ConcreteNetwork::findChild(const Instance *parent,
 
 Pin *
 ConcreteNetwork::findPin(const Instance *instance,
-                         const char *port_name) const
+                         std::string_view port_name) const
 {
   const ConcreteInstance *inst =
     reinterpret_cast<const ConcreteInstance*>(instance);
@@ -1034,7 +1037,7 @@ ConcreteNetwork::findPin(const Instance *instance,
 
 Net *
 ConcreteNetwork::findNet(const Instance *instance,
-                         const char *net_name) const
+                         std::string_view net_name) const
 {
   const ConcreteInstance *inst =
     reinterpret_cast<const ConcreteInstance*>(instance);
@@ -1164,11 +1167,11 @@ ConcreteNetwork::pin(const Term *term) const
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 ConcreteNetwork::name(const Net *net) const
 {
   const ConcreteNet *cnet = reinterpret_cast<const ConcreteNet*>(net);
-  return cnet->name();
+  return std::string(cnet->name());
 }
 
 ObjectId
@@ -1238,7 +1241,7 @@ ConcreteInstance::cell() const
 
 Instance *
 ConcreteNetwork::makeInstance(Cell *cell,
-                              const char *name,
+                              std::string_view name,
                               Instance *parent)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
@@ -1247,7 +1250,7 @@ ConcreteNetwork::makeInstance(Cell *cell,
 
 Instance *
 ConcreteNetwork::makeInstance(LibertyCell *cell,
-                              const char *name,
+                              std::string_view name,
                               Instance *parent)
 {
   return makeConcreteInstance(cell, name, parent);
@@ -1255,7 +1258,7 @@ ConcreteNetwork::makeInstance(LibertyCell *cell,
 
 Instance *
 ConcreteNetwork::makeConcreteInstance(ConcreteCell *cell,
-                                      const char *name,
+                                      std::string_view name,
                                       Instance *parent)
 {
   ConcreteInstance *cparent =
@@ -1387,8 +1390,8 @@ ConcreteNetwork::connect(Instance *inst,
 
 void
 ConcreteNetwork::setAttribute(Instance *inst,
-                              const std::string &key,
-                              const std::string &value)
+                              std::string_view key,
+                              std::string_view value)
 {
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
   cinst->setAttribute(key, value);
@@ -1509,7 +1512,7 @@ ConcreteNetwork::deletePin(Pin *pin)
 }
 
 Net *
-ConcreteNetwork::makeNet(const char *name,
+ConcreteNetwork::makeNet(std::string_view name,
                          Instance *parent)
 {
   ConcreteInstance *cparent = reinterpret_cast<ConcreteInstance*>(parent);
@@ -1608,10 +1611,10 @@ ConcreteNetwork::visitConnectedPins(const Net *net,
 
 ////////////////////////////////////////////////////////////////
 
-ConcreteInstance::ConcreteInstance(const char *name,
+ConcreteInstance::ConcreteInstance(std::string_view name,
                                    ConcreteCell *cell,
                                    ConcreteInstance *parent) :
-  name_(stringCopy(name)),
+  name_(name),
   id_(ConcreteNetwork::nextObjectId()),
   cell_(cell),
   parent_(parent),
@@ -1630,22 +1633,21 @@ ConcreteInstance::initPins()
 
 ConcreteInstance::~ConcreteInstance()
 {
-  stringDelete(name_);
   delete children_;
   delete nets_;
 }
 
 Instance *
-ConcreteInstance::findChild(const char *name) const
+ConcreteInstance::findChild(std::string_view name) const
 {
   if (children_)
-    return reinterpret_cast<Instance*>(findKey(children_, name));
+    return reinterpret_cast<Instance*>(findStringKey(*children_, name));
   else
     return nullptr;
 }
 
 ConcretePin *
-ConcreteInstance::findPin(const char *port_name) const
+ConcreteInstance::findPin(std::string_view port_name) const
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell_);
   const ConcretePort *cport =
@@ -1669,11 +1671,11 @@ ConcreteInstance::findPin(const Port *port) const
 }
 
 ConcreteNet *
-ConcreteInstance::findNet(const char *net_name) const
+ConcreteInstance::findNet(std::string_view net_name) const
 {
   ConcreteNet *net = nullptr;
   if (nets_) {
-    net = findKey(nets_, net_name);
+    net = findStringKey(*nets_, net_name);
     // Follow merge pointer to surviving net.
     if (net) {
       while (net->mergedInto())
@@ -1716,14 +1718,14 @@ ConcreteInstance::childIterator() const
 }
 
 void
-ConcreteInstance::setAttribute(const std::string &key,
-                               const std::string &value)
+ConcreteInstance::setAttribute(std::string_view key,
+                               std::string_view value)
 {
-  attribute_map_[key] = value;
+  attribute_map_[std::string(key)] = value;
 }
 
 std::string
-ConcreteInstance::getAttribute(const std::string &key) const
+ConcreteInstance::getAttribute(std::string_view key) const
 {
   const auto &itr = attribute_map_.find(key);
   if (itr != attribute_map_.end())
@@ -1736,13 +1738,13 @@ ConcreteInstance::addChild(ConcreteInstance *child)
 {
   if (children_ == nullptr)
     children_ = new ConcreteInstanceChildMap;
-  (*children_)[child->name()] = child;
+  (*children_)[child->name().data()] = child;
 }
 
 void
 ConcreteInstance::deleteChild(ConcreteInstance *child)
 {
-  children_->erase(child->name());
+  children_->erase(child->name().data());
 }
 
 void
@@ -1767,22 +1769,22 @@ ConcreteInstance::addNet(ConcreteNet *net)
 {
   if (nets_ == nullptr)
     nets_ = new ConcreteInstanceNetMap;
-  (*nets_)[net->name()] = net;
+  (*nets_)[net->name().data()] = net;
 }
 
 void
-ConcreteInstance::addNet(const char *name,
+ConcreteInstance::addNet(std::string_view,
                          ConcreteNet *net)
 {
   if (nets_ == nullptr)
     nets_ = new ConcreteInstanceNetMap;
-  (*nets_)[name] = net;
+  (*nets_)[net->name().data()] = net;
 }
 
 void
 ConcreteInstance::deleteNet(ConcreteNet *net)
 {
-  nets_->erase(net->name());
+  nets_->erase(net->name().data());
 }
 
 void
@@ -1807,7 +1809,7 @@ ConcretePin::ConcretePin(ConcreteInstance *instance,
 {
 }
 
-const char *
+std::string_view
 ConcretePin::name() const
 {
   return port_->name();
@@ -1821,7 +1823,7 @@ ConcretePin::setVertexId(VertexId id)
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string_view
 ConcreteTerm::name() const
 {
   ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin_);
@@ -1841,20 +1843,15 @@ ConcreteTerm::ConcreteTerm(ConcretePin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-ConcreteNet::ConcreteNet(const char *name,
+ConcreteNet::ConcreteNet(std::string_view name,
                          ConcreteInstance *instance) :
-  name_(stringCopy(name)),
+  name_(name),
   id_(ConcreteNetwork::nextObjectId()),
   instance_(instance),
   pins_(nullptr),
   terms_(nullptr),
   merged_into_(nullptr)
 {
-}
-
-ConcreteNet::~ConcreteNet()
-{
-  stringDelete(name_);
 }
 
 // Merged nets are kept around to serve as name aliases.
@@ -1990,14 +1987,15 @@ ConcreteNetwork::setLinkFunc(LinkNetworkFunc link)
 }
 
 bool
-ConcreteNetwork::linkNetwork(const char *top_cell_name,
+ConcreteNetwork::linkNetwork(std::string_view top_cell_name,
                              bool make_black_boxes,
                              Report *report)
 {
   if (link_func_) {
     clearConstantNets();
     deleteTopInstance();
-    top_instance_ = link_func_(top_cell_name, make_black_boxes);
+    top_instance_ = link_func_(top_cell_name,
+                               make_black_boxes);
     if (top_instance_)
       checkNetworkLibertyScenes();
     return top_instance_ != nullptr;

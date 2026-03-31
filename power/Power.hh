@@ -151,10 +151,10 @@ protected:
   void setActivity(const Pin *pin,
 		   PwrActivity &activity);
   PwrActivity findActivity(const Pin *pin);
-  void reportPowerRowJson(const char *name,
+  void reportPowerRowJson(std::string_view type,
                           const PowerResult &power,
                           int digits,
-                          const char *separator);
+                          std::string_view eol);
   void reportPowerInstJson(const Instance *inst,
                            const PowerResult &power,
                            int digits);
@@ -209,8 +209,8 @@ protected:
 		    const LibertyPort *port,
                     const Scene *scene,
                     const MinMax *min_max);
-  float pgNameVoltage(LibertyCell *cell,
-		      const char *pg_port_name,
+  float pgPortVoltage(LibertyCell *cell,
+		      const LibertyPort *pg_port,
                       const Scene *scene,
                       const MinMax *min_max);
   void seedActivities(BfsFwdIterator &bfs);

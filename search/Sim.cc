@@ -873,9 +873,9 @@ Sim::isDisabledMode(Edge *edge,
   const std::string &mode_value = arc_set->modeValue();
   if (!mode_name.empty() && !mode_value.empty()) {
     LibertyCell *cell = network_->libertyCell(inst);
-    const ModeDef *mode_def = cell->findModeDef(mode_name.c_str());
+    const ModeDef *mode_def = cell->findModeDef(mode_name);
     if (mode_def) {
-      const ModeValueDef *value_def = mode_def->findValueDef(mode_value.c_str());
+      const ModeValueDef *value_def = mode_def->findValueDef(mode_value);
       if (value_def) {
         FuncExpr *cond = value_def->cond();
         if (cond) {
@@ -883,7 +883,7 @@ Sim::isDisabledMode(Edge *edge,
           if (cond_value == LogicValue::zero) {
             // For a mode value to be disabled by having a value of
             // logic zero one mode value must logic one.
-            for (const auto &[name, value_def] : *mode_def->values()) {
+            for (const auto &[name, value_def] : mode_def->values()) {
               FuncExpr *cond1 = value_def.cond();
               if (cond1) {
                 LogicValue cond_value1 = evalExpr(cond1, inst);

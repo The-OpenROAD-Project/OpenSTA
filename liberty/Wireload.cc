@@ -31,9 +31,9 @@
 
 namespace sta {
 
-Wireload::Wireload(const char *name,
+Wireload::Wireload(std::string name,
                    LibertyLibrary *library) :
-  name_(stringCopy(name)),
+  name_(std::move(name)),
   library_(library),
   area_(0.0F),
   resistance_(0.0F),
@@ -42,13 +42,13 @@ Wireload::Wireload(const char *name,
 {
 }
 
-Wireload::Wireload(const char *name,
+Wireload::Wireload(std::string name,
                    LibertyLibrary *library,
                    float area,
                    float resistance,
                    float capacitance,
                    float slope) :
-  name_(stringCopy(name)),
+  name_(std::move(name)),
   library_(library),
   area_(area),
   resistance_(resistance),
@@ -60,7 +60,6 @@ Wireload::Wireload(const char *name,
 Wireload::~Wireload()
 {
   deleteContents(fanout_lengths_);
-  stringDelete(name_);
 }
 
 void
@@ -186,15 +185,14 @@ WireloadForArea::WireloadForArea(float min_area,
 {
 }
 
-WireloadSelection::WireloadSelection(const char *name) :
-  name_(stringCopy(name))
+WireloadSelection::WireloadSelection(std::string name) :
+  name_(std::move(name))
 {
 }
 
 WireloadSelection::~WireloadSelection()
 {
   deleteContents(wireloads_);
-  stringDelete(name_);
 }
 
 struct WireloadForAreaMinLess
@@ -264,13 +262,13 @@ wireloadTreeString(WireloadTree tree)
 }
 
 WireloadTree
-stringWireloadTree(const char *wire_load_type)
+stringWireloadTree(std::string_view wire_load_type)
 {
-  if (stringEq(wire_load_type, "worst_case_tree"))
+  if (wire_load_type == "worst_case_tree")
     return WireloadTree::worst_case;
-  else if (stringEq(wire_load_type, "best_case_tree"))
+  else if (wire_load_type == "best_case_tree")
     return WireloadTree::best_case;
-  else if (stringEq(wire_load_type, "balanced_tree"))
+  else if (wire_load_type == "balanced_tree")
     return WireloadTree::balanced;
   else
     return WireloadTree::unknown;
@@ -294,13 +292,13 @@ wireloadModeString(WireloadMode wire_load_mode)
 }
 
 WireloadMode
-stringWireloadMode(const char *wire_load_mode)
+stringWireloadMode(std::string_view wire_load_mode)
 {
-  if (stringEq(wire_load_mode, "top"))
+  if (wire_load_mode == "top")
     return WireloadMode::top;
-  else if (stringEq(wire_load_mode, "enclosed"))
+  else if (wire_load_mode == "enclosed")
     return WireloadMode::enclosed;
-  else if (stringEq(wire_load_mode, "segmented"))
+  else if (wire_load_mode == "segmented")
     return WireloadMode::segmented;
   else
     return WireloadMode::unknown;

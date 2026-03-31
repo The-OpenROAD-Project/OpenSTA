@@ -74,7 +74,7 @@ public:
                std::string_view msg,
                bool warn);
   const char *msg() const { return msg_.c_str(); }
-  const char *filename() const { return filename_.c_str(); }
+  std::string_view filename() const { return filename_; }
   int id() const { return id_; }
   int line() const { return line_; }
   bool warn() const { return warn_; }
@@ -102,14 +102,14 @@ class VerilogReader
 public:
   VerilogReader(NetworkReader *network);
   ~VerilogReader();
-  bool read(const char *filename);
+  bool read(std::string_view filename);
 
-  void makeModule(const std::string *module_name,
+  void makeModule(std::string &&module_name,
                   VerilogNetSeq *ports,
                   VerilogStmtSeq *stmts,
                   VerilogAttrStmtSeq *attr_stmts,
                   int line);
-  void makeModule(const std::string *module_name,
+  void makeModule(std::string &&module_name,
                   VerilogStmtSeq *port_dcls,
                   VerilogStmtSeq *stmts,
                   VerilogAttrStmtSeq *attr_stmts,
@@ -122,7 +122,7 @@ public:
                       VerilogDclArg *arg,
                       VerilogAttrStmtSeq *attr_stmts,
                       int line);
-  VerilogDclArg *makeDclArg(const std::string *net_name);
+  VerilogDclArg *makeDclArg(std::string &&net_name);
   VerilogDclArg*makeDclArg(VerilogAssign *assign);
   VerilogDclBus *makeDclBus(PortDirection *dir,
                             int from_index,
@@ -136,43 +136,43 @@ public:
                             VerilogDclArgSeq *args,
                             VerilogAttrStmtSeq *attr_stmts,
                             int line);
-  VerilogInst *makeModuleInst(const std::string *module_name,
-                              const std::string *inst_name,
+  VerilogInst *makeModuleInst(std::string &&module_name,
+                              std::string &&inst_name,
                               VerilogNetSeq *pins,
                               VerilogAttrStmtSeq *attr_stmts,
                               const int line);
   VerilogAssign *makeAssign(VerilogNet *lhs,
                             VerilogNet *rhs,
                             int line);
-  VerilogNetScalar *makeNetScalar(const std::string *name);
-  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const std::string *port_vname);
-  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const std::string *port_name,
-                                                  const std::string *net_name);
-  VerilogNetPortRef *makeNetNamedPortRefBitSelect(const std::string *port_name,
-                                                  const std::string *bus_name,
+  VerilogNetScalar *makeNetScalar(std::string &&name);
+  VerilogNetPortRef *makeNetNamedPortRefScalarNet(std::string &&port_vname);
+  VerilogNetPortRef *makeNetNamedPortRefScalarNet(std::string &&port_name,
+                                                  std::string &&net_name);
+  VerilogNetPortRef *makeNetNamedPortRefBitSelect(std::string &&port_name,
+                                                  std::string &&bus_name,
                                                   int index);
-  VerilogNetPortRef *makeNetNamedPortRefScalar(const std::string *port_name,
+  VerilogNetPortRef *makeNetNamedPortRefScalar(std::string &&port_name,
                                                VerilogNet *net);
-  VerilogNetPortRef *makeNetNamedPortRefBit(const std::string *port_name,
+  VerilogNetPortRef *makeNetNamedPortRefBit(std::string &&port_name,
                                             int index,
                                             VerilogNet *net);
-  VerilogNetPortRef *makeNetNamedPortRefPart(const std::string *port_name,
+  VerilogNetPortRef *makeNetNamedPortRefPart(std::string &&port_name,
                                              int from_index,
                                              int to_index,
                                              VerilogNet *net);
   VerilogNetConcat *makeNetConcat(VerilogNetSeq *nets);
-  VerilogNetConstant *makeNetConstant(const std::string *constant,
-                                  int line);
-  VerilogNetBitSelect *makeNetBitSelect(const std::string *name,
+  VerilogNetConstant *makeNetConstant(std::string &&constant,
+                                      int line);
+  VerilogNetBitSelect *makeNetBitSelect(std::string &&name,
                                         int index);
-  VerilogNetPartSelect *makeNetPartSelect(const std::string *name,
+  VerilogNetPartSelect *makeNetPartSelect(std::string &&name,
                                           int from_index,
                                           int to_index);
   VerilogModule *module(Cell *cell);
-  Instance *linkNetwork(const char *top_cell_name,
+  Instance *linkNetwork(std::string_view top_cell_name,
                         bool make_black_boxes,
                         bool delete_modules);
-  const char *filename() const { return filename_.c_str(); }
+  std::string_view filename() const { return filename_; }
   void incrLine();
   Report *report() const { return report_; }
   template <typename... Args>
@@ -196,11 +196,10 @@ public:
   const std::string &zeroNetName() const { return zero_net_name_; }
   const std::string &oneNetName() const { return one_net_name_; }
   void deleteModules();
-  void reportStmtCounts();
   const std::string &constant10Max() const { return constant10_max_; }
 
 protected:
-  void init(const char *filename);
+  void init(std::string_view filename);
   void makeCellPorts(Cell *cell,
                      VerilogModule *module,
                      VerilogNetSeq *ports);
@@ -315,29 +314,6 @@ protected:
   const std::string one_net_name_;
   std::string constant10_max_;
   ViewType *view_type_;
-  bool report_stmt_stats_;
-  int module_count_;
-  int inst_mod_count_;
-  int inst_lib_count_;
-  int inst_lib_net_arrays_;
-  int port_names_;
-  int inst_module_names_;
-  int inst_names_;
-  int dcl_count_;
-  int dcl_bus_count_;
-  int dcl_arg_count_;
-  int net_scalar_count_;
-  int net_scalar_names_;
-  int net_bus_names_;
-  int net_part_select_count_;
-  int net_bit_select_count_;
-  int net_port_ref_scalar_count_;
-  int net_port_ref_scalar_net_count_;
-  int net_port_ref_bit_count_;
-  int net_port_ref_part_count_;
-  int net_constant_count_;
-  int assign_count_;
-  int concat_count_;
 };
 
 } // namespace sta

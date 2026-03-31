@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -40,26 +42,26 @@ using WireloadForAreaSeq = std::vector<WireloadForArea*>;
 const char *
 wireloadTreeString(WireloadTree tree);
 WireloadTree
-stringWireloadTree(const char *tree);
+stringWireloadTree(std::string_view tree);
 
 const char *
 wireloadModeString(WireloadMode wire_load_mode);
 WireloadMode
-stringWireloadMode(const char *wire_load_mode);
+stringWireloadMode(std::string_view wire_load_mode);
 
 class Wireload
 {
 public:
-  Wireload(const char *name,
+  Wireload(std::string name,
            LibertyLibrary *library);
-  Wireload(const char *name,
+  Wireload(std::string name,
            LibertyLibrary *library,
            float area,
            float resistance,
            float capacitance,
            float slope);
   virtual ~Wireload();
-  const char *name() const { return name_; }
+  const std::string &name() const { return name_; }
   void setArea(float area);
   void setResistance(float res);
   void setCapacitance(float cap);
@@ -73,7 +75,7 @@ public:
                             float &res) const;
 
 protected:
-  const char *name_;
+  std::string name_;
   LibertyLibrary *library_;
   float area_;
   float resistance_;
@@ -86,16 +88,16 @@ protected:
 class WireloadSelection
 {
 public:
-  WireloadSelection(const char *name);
+  WireloadSelection(std::string name);
   ~WireloadSelection();
-  const char *name() const { return name_; }
+  const std::string &name() const { return name_; }
   void addWireloadFromArea(float min_area,
                            float max_area,
                            const Wireload *wireload);
   const Wireload *findWireload(float area) const;
 
 private:
-  const char *name_;
+  const std::string name_;
   WireloadForAreaSeq wireloads_;
 };
 

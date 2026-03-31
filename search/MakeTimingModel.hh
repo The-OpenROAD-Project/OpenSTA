@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string_view>
+
 namespace sta {
 
 class LibertyLibrary;
@@ -31,9 +33,9 @@ class Scene;
 class Sta;
 
 LibertyLibrary *
-makeTimingModel(const char *lib_name,
-                const char *cell_name,
-                const char *filename,
+makeTimingModel(std::string_view lib_name,
+                std::string_view cell_name,
+                std::string_view filename,
                 const Scene *scene,
                 Sta *sta);
 

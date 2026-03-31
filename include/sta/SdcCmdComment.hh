@@ -24,22 +24,28 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
+
 namespace sta {
 
 class SdcCmdComment
 {
 public:
   SdcCmdComment();
-  SdcCmdComment(const char *comment);
-  const char *comment() { return comment_; }
-  void setComment(const char *comment);
+  SdcCmdComment(std::string comment);
+  SdcCmdComment(std::string_view comment);
+  const std::string &comment() { return comment_; }
+  const std::string &comment() const { return comment_; }
+  void setComment(std::string comment);
+  void setComment(std::string_view comment);
 
 protected:
   // Destructor is protected to prevent deletion of a derived
   // class with a pointer to this base class.
   ~SdcCmdComment();
 
-  char *comment_;
+  std::string comment_;
 };
 
 } // namespace

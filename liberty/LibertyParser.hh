@@ -24,8 +24,11 @@
 
 #pragma once
 
+#include <functional>
+#include <string_view>
 #include <vector>
 #include <map>
+#include <utility>
 
 #include "Zlib.hh"
 #include "StringUtil.hh"
@@ -43,15 +46,15 @@ class LibertyVariable;
 class LibertyScanner;
 
 using LibertyGroupSeq = std::vector<LibertyGroup*>;
-using LibertySubGroupMap = std::map<std::string, LibertyGroupSeq>;
-using LibertySimpleAttrMap = std::map<std::string, LibertySimpleAttr*>;
+using LibertySubGroupMap = std::map<std::string, LibertyGroupSeq, std::less<>>;
+using LibertySimpleAttrMap = std::map<std::string, LibertySimpleAttr*, std::less<>>;
 using LibertyComplexAttrSeq = std::vector<LibertyComplexAttr*>;
-using LibertyComplexAttrMap = std::map<std::string, LibertyComplexAttrSeq>;
-using LibertyDefineMap = std::map<std::string, LibertyDefine*>;
+using LibertyComplexAttrMap = std::map<std::string, LibertyComplexAttrSeq, std::less<>>;
+using LibertyDefineMap = std::map<std::string, LibertyDefine*, std::less<>>;
 using LibertyAttrValueSeq = std::vector<LibertyAttrValue*>;
 using LibertyVariableSeq = std::vector<LibertyVariable*>;
-using LibertyVariableMap = std::map<std::string, float>;
-using LibertyGroupVisitorMap = std::map<std::string, LibertyGroupVisitor*>;
+using LibertyVariableMap = std::map<std::string, float, std::less<>>;
+using LibertyGroupVisitorMap = std::map<std::string, LibertyGroupVisitor*, std::less<>>;
 
 enum class LibertyAttrType { attr_string, attr_int, attr_double,
                              attr_boolean, attr_unknown };
@@ -61,31 +64,31 @@ enum class LibertyGroupType { library, cell, pin, timing, unknown };
 class LibertyParser
 {
 public:
-  LibertyParser(const char *filename,
+  LibertyParser(std::string_view filename,
                 LibertyGroupVisitor *library_visitor,
                 Report *report);
   const std::string &filename() const { return filename_; }
-  void setFilename(const std::string &filename);
+  void setFilename(std::string_view filename);
   Report *report() const { return report_; }
   LibertyDefine *makeDefine(const LibertyAttrValueSeq *values,
                            int line);
   LibertyAttrType attrValueType(const std::string &value_type_name);
   LibertyGroupType groupType(const std::string &group_type_name);
-  void groupBegin(const std::string type,
+  void groupBegin(std::string &&type,
                   LibertyAttrValueSeq *params,
                   int line);
   LibertyGroup *groupEnd();
   LibertyGroup *group();
   void deleteGroups();
-  LibertySimpleAttr *makeSimpleAttr(const std::string name,
+  LibertySimpleAttr *makeSimpleAttr(std::string &&name,
                                     const LibertyAttrValue *value,
                                     int line);
-  LibertyComplexAttr *makeComplexAttr(const std::string name,
+  LibertyComplexAttr *makeComplexAttr(std::string &&name,
                                      const LibertyAttrValueSeq *values,
                                      int line);
-  LibertyAttrValue *makeAttrValueString(const std::string value);
+  LibertyAttrValue *makeAttrValueString(std::string &&value);
   LibertyAttrValue *makeAttrValueFloat(float value);
-  LibertyVariable *makeVariable(const std::string var,
+  LibertyVariable *makeVariable(std::string &&var,
                                 float value,
                                 int line);
 
@@ -102,14 +105,12 @@ class LibertyAttrValue
 public:
   LibertyAttrValue() {}
   LibertyAttrValue(float value);
-  LibertyAttrValue(std::string value);
+  LibertyAttrValue(std::string &&value);
   bool isString() const;
   bool isFloat() const;
-  float floatValue() const;
-  void floatValue(// Return values.
-                  float &value,
-                  bool &valid) const;
+  std::pair<float, bool> floatValue() const;
   const std::string &stringValue() const { return string_value_; }
+  std::string &stringValue() { return string_value_; }
 
 private:
   float float_value_;
@@ -131,23 +132,23 @@ public:
   bool oneGroupOnly() const;
   const std::string &type() const { return type_; }
   const LibertyAttrValueSeq &params() const { return params_; }
-  // First param as a string.
-  const char *firstName() const;
-  // Second param as a string.
-  const char *secondName() const;
+  bool hasFirstParam() const;
+  const std::string &firstParam() const;
+  bool hasSecondParam() const;
+  const std::string &secondParam() const;
   int line() const { return line_; }
 
-  const LibertyGroupSeq &findSubgroups(const std::string type) const;
-  const LibertyGroup *findSubgroup(const std::string type) const;
-  const LibertySimpleAttr *findSimpleAttr(const std::string attr_name) const;
-  const LibertyComplexAttrSeq &findComplexAttrs(const std::string attr_name) const;
-  const LibertyComplexAttr *findComplexAttr(const std::string attr_name) const;
-  const std::string *findAttrString(const std::string attr_name) const;
-  void findAttrFloat(const std::string attr_name,
+  const LibertyGroupSeq &findSubgroups(std::string_view type) const;
+  const LibertyGroup *findSubgroup(std::string_view type) const;
+  const LibertySimpleAttr *findSimpleAttr(std::string_view attr_name) const;
+  const LibertyComplexAttrSeq &findComplexAttrs(std::string_view attr_name) const;
+  const LibertyComplexAttr *findComplexAttr(std::string_view attr_name) const;
+  const std::string &findAttrString(std::string_view attr_name) const;
+  void findAttrFloat(std::string_view attr_name,
                      // Return values.
                      float &value,
                      bool &exists) const;
-  void findAttrInt(const std::string attr_name,
+  void findAttrInt(std::string_view attr_name,
                    // Return values.
                    int &value,
                    bool &exists) const;
@@ -189,12 +190,12 @@ public:
 class LibertySimpleAttr
 {
 public:
-  LibertySimpleAttr(const std::string name,
+  LibertySimpleAttr(std::string &&name,
                     const LibertyAttrValue value,
                     int line);
   const std::string &name() const { return name_; }
   const LibertyAttrValue &value() const { return value_; };
-  const std::string *stringValue() const;
+  const std::string &stringValue() const { return value_.stringValue(); }
   int line() const { return line_; }
 
 private:
@@ -208,7 +209,7 @@ private:
 class LibertyComplexAttr
 {
 public:
-  LibertyComplexAttr(const std::string name,
+  LibertyComplexAttr(std::string &&name,
                      const LibertyAttrValueSeq values,
                      int line);
   ~LibertyComplexAttr();
@@ -229,7 +230,7 @@ private:
 class LibertyDefine
 {
 public:
-  LibertyDefine(std::string name,
+  LibertyDefine(std::string &&name,
                 LibertyGroupType group_type,
                 LibertyAttrType value_type,
                 int line);
@@ -280,7 +281,7 @@ public:
 };
 
 void
-parseLibertyFile(const char *filename,
+parseLibertyFile(std::string_view filename,
                  LibertyGroupVisitor *library_visitor,
                  Report *report);
 } // namespace

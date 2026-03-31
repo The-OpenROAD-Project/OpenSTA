@@ -60,7 +60,7 @@ TEST_F(SdfSmokeTest, AllSdfTransitions) {
 
   // 0Z
   EXPECT_NE(Transition::tr0Z(), nullptr);
-  EXPECT_NE(Transition::tr0Z()->asInitFinalString(), nullptr);
+  EXPECT_FALSE(Transition::tr0Z()->asInitFinalString().empty());
 
   // Z1
   EXPECT_NE(Transition::trZ1(), nullptr);
@@ -135,10 +135,10 @@ TEST_F(SdfSmokeTest, RiseFallFind) {
 
 // Test RiseFall names
 TEST_F(SdfSmokeTest, RiseFallNames) {
-  EXPECT_STREQ(RiseFall::rise()->name(), "rise");
-  EXPECT_STREQ(RiseFall::fall()->name(), "fall");
-  EXPECT_STREQ(RiseFall::rise()->shortName(), "^");
-  EXPECT_STREQ(RiseFall::fall()->shortName(), "v");
+  EXPECT_EQ(RiseFall::rise()->name(), "rise");
+  EXPECT_EQ(RiseFall::fall()->name(), "fall");
+  EXPECT_EQ(RiseFall::rise()->shortName(), "^");
+  EXPECT_EQ(RiseFall::fall()->shortName(), "v");
 }
 
 // Test RiseFall opposite
@@ -160,8 +160,8 @@ TEST_F(SdfSmokeTest, RiseFallBothBasic) {
   EXPECT_NE(RiseFallBoth::fall(), nullptr);
   EXPECT_NE(RiseFallBoth::riseFall(), nullptr);
 
-  EXPECT_STREQ(RiseFallBoth::rise()->name(), "rise");
-  EXPECT_STREQ(RiseFallBoth::fall()->name(), "fall");
+  EXPECT_EQ(RiseFallBoth::rise()->name(), "rise");
+  EXPECT_EQ(RiseFallBoth::fall()->name(), "fall");
 }
 
 // Test RiseFallBoth matches
@@ -174,8 +174,8 @@ TEST_F(SdfSmokeTest, RiseFallBothMatches) {
 
 // Test MinMax details
 TEST_F(SdfSmokeTest, MinMaxDetails) {
-  EXPECT_STREQ(MinMax::min()->to_string().c_str(), "min");
-  EXPECT_STREQ(MinMax::max()->to_string().c_str(), "max");
+  EXPECT_EQ(MinMax::min()->to_string(), "min");
+  EXPECT_EQ(MinMax::max()->to_string(), "max");
   EXPECT_EQ(MinMax::min()->index(), MinMax::minIndex());
   EXPECT_EQ(MinMax::max()->index(), MinMax::maxIndex());
 }
@@ -326,18 +326,18 @@ TEST_F(SdfSmokeTest, AllTransitionSdfTripleIndex) {
 
 // Test all transition initFinal strings
 TEST_F(SdfSmokeTest, AllTransitionInitFinalString) {
-  EXPECT_STREQ(Transition::rise()->asInitFinalString(), "01");
-  EXPECT_STREQ(Transition::fall()->asInitFinalString(), "10");
-  EXPECT_STREQ(Transition::tr0Z()->asInitFinalString(), "0Z");
-  EXPECT_STREQ(Transition::trZ1()->asInitFinalString(), "Z1");
-  EXPECT_STREQ(Transition::tr1Z()->asInitFinalString(), "1Z");
-  EXPECT_STREQ(Transition::trZ0()->asInitFinalString(), "Z0");
-  EXPECT_STREQ(Transition::tr0X()->asInitFinalString(), "0X");
-  EXPECT_STREQ(Transition::trX1()->asInitFinalString(), "X1");
-  EXPECT_STREQ(Transition::tr1X()->asInitFinalString(), "1X");
-  EXPECT_STREQ(Transition::trX0()->asInitFinalString(), "X0");
-  EXPECT_STREQ(Transition::trXZ()->asInitFinalString(), "XZ");
-  EXPECT_STREQ(Transition::trZX()->asInitFinalString(), "ZX");
+  EXPECT_EQ(Transition::rise()->asInitFinalString(), "01");
+  EXPECT_EQ(Transition::fall()->asInitFinalString(), "10");
+  EXPECT_EQ(Transition::tr0Z()->asInitFinalString(), "0Z");
+  EXPECT_EQ(Transition::trZ1()->asInitFinalString(), "Z1");
+  EXPECT_EQ(Transition::tr1Z()->asInitFinalString(), "1Z");
+  EXPECT_EQ(Transition::trZ0()->asInitFinalString(), "Z0");
+  EXPECT_EQ(Transition::tr0X()->asInitFinalString(), "0X");
+  EXPECT_EQ(Transition::trX1()->asInitFinalString(), "X1");
+  EXPECT_EQ(Transition::tr1X()->asInitFinalString(), "1X");
+  EXPECT_EQ(Transition::trX0()->asInitFinalString(), "X0");
+  EXPECT_EQ(Transition::trXZ()->asInitFinalString(), "XZ");
+  EXPECT_EQ(Transition::trZX()->asInitFinalString(), "ZX");
 }
 
 // Test all transition asRiseFall
@@ -416,16 +416,16 @@ TEST_F(SdfSmokeTest, MinMaxAllAsMinMax) {
 // Covers: SdfWriter::sdfEdge - exercises transition to SDF edge string mapping
 TEST_F(SdfSmokeTest, TransitionAsInitFinalString) {
   // SDF uses init/final transition string representation
-  EXPECT_NE(Transition::rise()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::fall()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::tr0Z()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::trZ1()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::tr1Z()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::trZ0()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::tr0X()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::trX1()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::tr1X()->asInitFinalString(), nullptr);
-  EXPECT_NE(Transition::trX0()->asInitFinalString(), nullptr);
+  EXPECT_FALSE(Transition::rise()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::fall()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::tr0Z()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::trZ1()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::tr1Z()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::trZ0()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::tr0X()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::trX1()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::tr1X()->asInitFinalString().empty());
+  EXPECT_FALSE(Transition::trX0()->asInitFinalString().empty());
 }
 
 // Test Transition asRiseFall for SDF edge transitions
@@ -538,7 +538,7 @@ TEST_F(SdfSmokeTest, MinMaxAllRangeIndex) {
 TEST_F(SdfSmokeTest, MinMaxConstructorCoverage) {
   // The MinMax constructor is private; we verify it was called via singletons
   const MinMax *mn = MinMax::min();
-  EXPECT_STREQ(mn->to_string().c_str(), "min");
+  EXPECT_EQ(mn->to_string(), "min");
   EXPECT_EQ(mn->index(), MinMax::minIndex());
   EXPECT_GT(mn->initValue(), 0.0f);
   EXPECT_GT(mn->initValueInt(), 0);
@@ -547,7 +547,7 @@ TEST_F(SdfSmokeTest, MinMaxConstructorCoverage) {
   EXPECT_FALSE(mn->compare(3.0f, 2.0f));
 
   const MinMax *mx = MinMax::max();
-  EXPECT_STREQ(mx->to_string().c_str(), "max");
+  EXPECT_EQ(mx->to_string(), "max");
   EXPECT_EQ(mx->index(), MinMax::maxIndex());
   EXPECT_LT(mx->initValue(), 0.0f);
   EXPECT_LT(mx->initValueInt(), 0);
@@ -1001,7 +1001,7 @@ TEST_F(SdfDesignTest, WriteThenReadSdf) {
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
 
   // Now read it back
-  readSdf(tmpfile, nullptr, corner, false, false,
+  readSdf(tmpfile, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
@@ -1021,7 +1021,7 @@ TEST_F(SdfDesignTest, ReadSdfUnescapedDividers) {
   const char *tmpfile = "/tmp/test_r9_sdf_unesc.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
 
-  readSdf(tmpfile, nullptr, corner, true, false,
+  readSdf(tmpfile, "", corner, true, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
@@ -1041,7 +1041,7 @@ TEST_F(SdfDesignTest, ReadSdfIncrementalOnly) {
   const char *tmpfile = "/tmp/test_r9_sdf_incr.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
 
-  readSdf(tmpfile, nullptr, corner, false, true,
+  readSdf(tmpfile, "", corner, false, true,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
@@ -1061,7 +1061,7 @@ TEST_F(SdfDesignTest, ReadSdfCondUseMin) {
   const char *tmpfile = "/tmp/test_r9_sdf_cumin.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
 
-  readSdf(tmpfile, nullptr, corner, false, false,
+  readSdf(tmpfile, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::min()), sta_);
 
   std::remove(tmpfile);
@@ -1081,7 +1081,7 @@ TEST_F(SdfDesignTest, ReadSdfCondUseMax) {
   const char *tmpfile = "/tmp/test_r9_sdf_cumax.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
 
-  readSdf(tmpfile, nullptr, corner, false, false,
+  readSdf(tmpfile, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::max()), sta_);
 
   std::remove(tmpfile);
@@ -1101,7 +1101,7 @@ TEST_F(SdfDesignTest, ReadSdfCombinedOptions) {
   const char *tmpfile = "/tmp/test_r9_sdf_combined.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
 
-  readSdf(tmpfile, nullptr, corner, true, true,
+  readSdf(tmpfile, "", corner, true, true,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
@@ -1144,7 +1144,7 @@ TEST_F(SdfDesignTest, WriteSdfGzipThenRead) {
   const char *tmpfile = "/tmp/test_r9_sdf_gz.sdf.gz";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, true, true, true);
 
-  readSdf(tmpfile, nullptr, corner, false, false,
+  readSdf(tmpfile, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(tmpfile);
@@ -1182,7 +1182,7 @@ TEST_F(SdfDesignTest, ReadSdfNonexistent) {
   Scene *corner = sta_->cmdScene();
   // Attempt to read nonexistent SDF - should throw
   EXPECT_THROW(
-    readSdf("/tmp/nonexistent_r9.sdf", nullptr, corner,
+    readSdf("/tmp/nonexistent_r9.sdf", "", corner,
             false, false, const_cast<MinMaxAll*>(MinMaxAll::all()), sta_),
     FileNotReadable
   );
@@ -1195,7 +1195,7 @@ TEST_F(SdfSmokeTest, TransitionRiseProperties) {
   EXPECT_EQ(t->asRiseFall(), RiseFall::rise());
   EXPECT_EQ(t->sdfTripleIndex(), RiseFall::riseIndex());
   EXPECT_FALSE(t->to_string().empty());
-  EXPECT_NE(t->asInitFinalString(), nullptr);
+  EXPECT_FALSE(t->asInitFinalString().empty());
 }
 
 TEST_F(SdfSmokeTest, TransitionFallProperties) {
@@ -1204,7 +1204,7 @@ TEST_F(SdfSmokeTest, TransitionFallProperties) {
   EXPECT_EQ(t->asRiseFall(), RiseFall::fall());
   EXPECT_EQ(t->sdfTripleIndex(), RiseFall::fallIndex());
   EXPECT_FALSE(t->to_string().empty());
-  EXPECT_NE(t->asInitFinalString(), nullptr);
+  EXPECT_FALSE(t->asInitFinalString().empty());
 }
 
 TEST_F(SdfSmokeTest, TransitionTristateProperties) {
@@ -1418,7 +1418,7 @@ TEST_F(SdfDesignTest, ReadHandCraftedSdf) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  readSdf(sdf_path, nullptr, corner, false, false,
+  readSdf(sdf_path, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
@@ -1455,7 +1455,7 @@ TEST_F(SdfDesignTest, ReadSdfEdgeIopath) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  readSdf(sdf_path, nullptr, corner, false, false,
+  readSdf(sdf_path, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
@@ -1489,7 +1489,7 @@ TEST_F(SdfDesignTest, ReadSdfSetupHold) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  readSdf(sdf_path, nullptr, corner, false, false,
+  readSdf(sdf_path, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
@@ -1523,7 +1523,7 @@ TEST_F(SdfDesignTest, ReadSdfRecRem) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  readSdf(sdf_path, nullptr, corner, false, false,
+  readSdf(sdf_path, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
@@ -1557,7 +1557,7 @@ TEST_F(SdfDesignTest, ReadSdfWidth) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  readSdf(sdf_path, nullptr, corner, false, false,
+  readSdf(sdf_path, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
@@ -1591,7 +1591,7 @@ TEST_F(SdfDesignTest, ReadSdfPeriod) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  readSdf(sdf_path, nullptr, corner, false, false,
+  readSdf(sdf_path, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);
@@ -1599,7 +1599,7 @@ TEST_F(SdfDesignTest, ReadSdfPeriod) {
 
 // R11_8: Read SDF with NOCHANGE check
 // Covers: SdfReader::timingCheckNochange, notSupported
-// NOCHANGE is not supported and throws, so we catch the exception
+// NOCHANGE is not supported and issues a warning (no longer throws)
 TEST_F(SdfDesignTest, ReadSdfNochange) {
   ASSERT_TRUE(design_loaded_);
   sta_->ensureGraph();
@@ -1626,11 +1626,10 @@ TEST_F(SdfDesignTest, ReadSdfNochange) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  // NOCHANGE is not supported and throws an exception
-  EXPECT_THROW(
-    readSdf(sdf_path, nullptr, corner, false, false,
-            const_cast<MinMaxAll*>(MinMaxAll::all()), sta_),
-    std::exception
+  // NOCHANGE is not supported; upstream now warns instead of throwing
+  EXPECT_NO_THROW(
+    readSdf(sdf_path, "", corner, false, false,
+            const_cast<MinMaxAll*>(MinMaxAll::all()), sta_)
   );
 
   std::remove(sdf_path);
@@ -1666,7 +1665,7 @@ TEST_F(SdfDesignTest, ReadSdfInterconnect) {
   fprintf(fp, ")\n");
   fclose(fp);
 
-  readSdf(sdf_path, nullptr, corner, false, false,
+  readSdf(sdf_path, "", corner, false, false,
           const_cast<MinMaxAll*>(MinMaxAll::all()), sta_);
 
   std::remove(sdf_path);

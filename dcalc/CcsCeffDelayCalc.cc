@@ -670,7 +670,7 @@ CcsCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
 }
 
 void
-CcsCeffDelayCalc::fail(const char *reason)
+CcsCeffDelayCalc::fail(std::string_view reason)
 {
   // Report failures with a unique debug flag.
   if (debug_->check("ccs_dcalc", 1) || debug_->check("dcalc_error", 1))

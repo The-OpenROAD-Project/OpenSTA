@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string_view>
+
 #include "SdfLocation.hh"
 #include "SdfParse.hh"
 
@@ -41,7 +43,7 @@ class SdfScanner : public SdfFlexLexer
 {
 public:
   SdfScanner(std::istream *stream,
-             const std::string &filename,
+             std::string_view filename,
              SdfReader *reader,
              Report *report);
   virtual ~SdfScanner() {}
@@ -51,13 +53,13 @@ public:
   // YY_DECL defined in SdfLex.ll
   // Method body created by flex in SdfLex.cc
 
-  void error(const char *msg);
+  void error(std::string_view msg);
 
   // Get rid of override virtual function warning.
   using FlexLexer::yylex;
 
 private:
-  std::string filename_;
+  std::string_view filename_;
   SdfReader *reader_;
   Report *report_;
   std::string token_;

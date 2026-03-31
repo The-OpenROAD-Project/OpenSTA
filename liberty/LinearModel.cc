@@ -119,7 +119,7 @@ CheckLinearModel::checkDelay(const Pvt *,
 std::string
 CheckLinearModel::reportCheckDelay(const Pvt *,
                                    float,
-                                   const char *,
+                                   std::string_view,
                                    float,
                                    float,
                                    const MinMax *,

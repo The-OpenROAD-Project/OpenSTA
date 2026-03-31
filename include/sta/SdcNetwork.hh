@@ -25,6 +25,8 @@
 #pragma once
 
 #include <functional>
+#include <string>
+#include <string_view>
 
 #include "Network.hh"
 
@@ -36,26 +38,26 @@ class NetworkNameAdapter : public NetworkEdit
 {
 public:
   NetworkNameAdapter(Network *network);
-  bool linkNetwork(const char *top_cell_name,
+  bool linkNetwork(std::string_view top_cell_name,
                    bool make_black_boxes,
                    Report *report) override;
 
-  const char *name(const Library *library) const override;
+  std::string name(const Library *library) const override;
   ObjectId id(const Library *library) const override;
   LibertyLibrary *defaultLibertyLibrary() const override;
   LibraryIterator *libraryIterator() const override;
   LibertyLibraryIterator *libertyLibraryIterator() const override;
-  Library *findLibrary(const char *name) override;
-  LibertyLibrary *findLibertyFilename(const char *filename) override;
-  LibertyLibrary *findLiberty(const char *name) override;
+  Library *findLibrary(std::string_view name) override;
+  LibertyLibrary *findLibertyFilename(std::string_view filename) override;
+  LibertyLibrary *findLiberty(std::string_view name) override;
   Cell *findCell(const Library *library,
-                 const char *name) const override;
+                 std::string_view name) const override;
   CellSeq findCellsMatching(const Library *library,
                             const PatternMatch *pattern) const override;
 
-  const char *name(const Cell *cell) const override;
+  std::string name(const Cell *cell) const override;
   std::string getAttribute(const Cell *cell,
-                           const std::string &key) const override;
+                           std::string_view key) const override;
   const AttributeMap &attributeMap(const Cell *cell) const override;
   ObjectId id(const Cell *cell) const override;
   Library *library(const Cell *cell) const override;
@@ -63,9 +65,9 @@ public:
   const LibertyCell *libertyCell(const Cell *cell) const override;
   Cell *cell(LibertyCell *cell) const override;
   const Cell *cell(const LibertyCell *cell) const override;
-  const char *filename(const Cell *cell) override;
+  std::string_view filename(const Cell *cell) const override;
   Port *findPort(const Cell *cell,
-                 const char *name) const override;
+                 std::string_view name) const override;
   PortSeq findPortsMatching(const Cell *cell,
                             const PatternMatch *pattern) const override;
   bool isLeaf(const Cell *cell) const override;
@@ -73,7 +75,7 @@ public:
   CellPortBitIterator *portBitIterator(const Cell *cell) const override;
   int portBitCount(const Cell *cell) const override;
 
-  const char *name(const Port *port) const override;
+  std::string name(const Port *port) const override;
   ObjectId id(const Port *port) const override;
   Cell *cell(const Port *port) const override;
   LibertyPort *libertyPort(const Port *port) const override;
@@ -81,7 +83,7 @@ public:
   bool isBundle(const Port *port) const override;
   bool isBus(const Port *port) const override;
   int size(const Port *port) const override;
-  const char *busName(const Port *port) const override;
+  std::string busName(const Port *port) const override;
   Port *findBusBit(const Port *port,
                    int index) const override;
   int fromIndex(const Port *port) const override;
@@ -93,7 +95,7 @@ public:
 
   ObjectId id(const Instance *instance) const override;
   std::string getAttribute(const Instance *inst,
-                           const std::string &key) const override;
+                           std::string_view key) const override;
   const AttributeMap &attributeMap(const Instance *inst) const override;
   Instance *topInstance() const override;
   Cell *cell(const Instance *instance) const override;
@@ -145,15 +147,15 @@ public:
   void setPathEscape(char escape) override;
 
   bool isEditable() const override;
-  LibertyLibrary *makeLibertyLibrary(const char *name,
-                                     const char *filename) override;
+  LibertyLibrary *makeLibertyLibrary(std::string_view name,
+                                     std::string_view filename) override;
   Instance *makeInstance(LibertyCell *cell,
-                         const char *name,
+                         std::string_view name,
                          Instance *parent) override;
   void makePins(Instance *inst) override;
   void replaceCell(Instance *inst,
                    Cell *to_cell) override;
-  Net *makeNet(const char *name,
+  Net *makeNet(std::string_view name,
                Instance *parent) override;
   Pin *connect(Instance *inst,
                Port *port,
@@ -195,47 +197,47 @@ public:
   SdcNetwork(Network *network);
 
   Port *findPort(const Cell *cell,
-                 const char *name) const override;
+                 std::string_view name) const override;
   PortSeq findPortsMatching(const Cell *cell,
                             const PatternMatch *pattern) const override;
-  const char *name(const Port *port) const override;
-  const char *busName(const Port *port) const override;
+  std::string name(const Port *port) const override;
+  std::string busName(const Port *port) const override;
 
-  const char *name(const Instance *instance) const override;
-  const char *pathName(const Instance *instance) const override;
-  const char *pathName(const Pin *pin) const override;
-  const char *portName(const Pin *pin) const override;
+  std::string name(const Instance *instance) const override;
+  std::string pathName(const Instance *instance) const override;
+  std::string pathName(const Pin *pin) const override;
+  std::string portName(const Pin *pin) const override;
 
-  const char *name(const Net *net) const override;
-  const char *pathName(const Net *net) const override;
+  std::string name(const Net *net) const override;
+  std::string pathName(const Net *net) const override;
 
-  Instance *findInstance(const char *path_name) const override;
+  Instance *findInstance(std::string_view path_name) const override;
   Instance *findInstanceRelative(const Instance *inst,
-                                 const char *path_name) const override;
+                                 std::string_view path_name) const override;
   InstanceSeq findInstancesMatching(const Instance *context,
                                     const PatternMatch *pattern) const override;
-  Net *findNet(const char *path_name) const override;
+  Net *findNet(std::string_view path_name) const override;
   Net *findNetRelative(const Instance *instance,
-                       const char *net_name) const override;
+                       std::string_view net_name) const override;
   Net *findNet(const Instance *instance,
-               const char *net_name) const override;
+               std::string_view net_name) const override;
   NetSeq findNetsMatching(const Instance *parent,
                           const PatternMatch *pattern) const override;
   void findInstNetsMatching(const Instance *instance,
                             const PatternMatch *pattern,
                             NetSeq &nets) const override;
   Instance *findChild(const Instance *parent,
-                      const char *name) const override;
-  Pin *findPin(const char *path_name) const override;
+                      std::string_view name) const override;
+  Pin *findPin(std::string_view path_name) const override;
   Pin *findPin(const Instance *instance,
-               const char *port_name) const override;
+               std::string_view port_name) const override;
   PinSeq findPinsMatching(const Instance *instance,
                           const PatternMatch *pattern) const override;
 
   Instance *makeInstance(LibertyCell *cell,
-                         const char *name,
+                         std::string_view name,
                          Instance *parent) override;
-  Net *makeNet(const char *name,
+  Net *makeNet(std::string_view name,
                Instance *parent) override;
 
   // The following member functions are inherited from the
@@ -247,21 +249,21 @@ public:
   using Network::findPin;
 
 protected:
-  void parsePath(const char *path,
+  void parsePath(std::string_view path,
                  // Return values.
                  Instance *&inst,
-                 const char *&path_tail) const;
-  void scanPath(const char *path,
+                 std::string &path_tail) const;
+  void scanPath(std::string_view path,
                 // Return values.
                 // Unescaped divider count.
                 int &divider_count,
                 int &path_length) const;
-  void parsePath(const char *path,
+  void parsePath(std::string_view path,
                  int divider_count,
                  int path_length,
                  // Return values.
                  Instance *&inst,
-                 const char *&path_tail) const;
+                 std::string &path_tail) const;
   bool visitMatches(const Instance *parent,
                     const PatternMatch *pattern,
                     std::function<bool (const Instance *instance,
@@ -274,11 +276,18 @@ protected:
                               const PatternMatch *pattern,
                               InstanceSeq &matches) const;
 
-  const char *staToSdc(std::string_view sta_name) const;
+  std::string staToSdc(std::string_view sta_name) const;
 };
 
 // Encapsulate a network to map names to/from the sdc namespace.
 Network *
 makeSdcNetwork(Network *network);
+
+std::string
+escapeDividers(std::string_view name,
+               const Network *network);
+std::string
+escapeBrackets(std::string_view name,
+               const Network *network);
 
 } // namespace

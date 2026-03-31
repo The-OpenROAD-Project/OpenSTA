@@ -25,8 +25,9 @@
 #pragma once
 
 #include <array>
-#include <vector>
+#include <functional>
 #include <map>
+#include <vector>
 
 #include "Iterator.hh"
 #include "StringUtil.hh"
@@ -37,7 +38,7 @@ class Transition;
 class RiseFall;
 class RiseFallBoth;
 
-using TransitionMap = std::map<const std::string, const Transition*>;
+using TransitionMap = std::map<std::string, const Transition*, std::less<>>;
 
 // Rise/fall transition.
 class RiseFall
@@ -49,14 +50,14 @@ public:
   static int riseIndex() { return rise_.sdf_triple_index_; }
   static int fallIndex() { return fall_.sdf_triple_index_; }
   const std::string &to_string(bool use_short = false) const;
-  const char *name() const { return name_.c_str(); }
-  const char *shortName() const { return short_name_.c_str(); }
+  const std::string &name() const { return name_; }
+  const std::string &shortName() const { return short_name_; }
   int index() const { return sdf_triple_index_; }
   const RiseFallBoth *asRiseFallBoth();
   const RiseFallBoth *asRiseFallBoth() const;
   const Transition *asTransition() const;
   // Find transition corresponding to rf_str.
-  static const RiseFall *find(const char *rf_str);
+  static const RiseFall *find(std::string_view rf_str);
   // Find transition from index.
   static const RiseFall *find(int index);
   const RiseFall *opposite() const;
@@ -71,8 +72,8 @@ public:
   static const int index_bit_count = 1;
 
 protected:
-  RiseFall(const char *name,
-           const char *short_name,
+  RiseFall(std::string_view name,
+           std::string_view  short_name,
            int sdf_triple_index);
 
   const std::string name_;
@@ -94,14 +95,14 @@ public:
   static const RiseFallBoth *fall() { return &fall_; }
   static const RiseFallBoth *riseFall() { return &rise_fall_; }
   const std::string &to_string(bool use_short = false) const;
-  const char *name() const { return name_.c_str(); }
-  const char *shortName() const { return short_name_.c_str(); }
+  const std::string &name() const { return name_; }
+  const std::string &shortName() const { return short_name_; }
   int index() const { return sdf_triple_index_; }
   bool matches(const RiseFall *rf) const;
   bool matches(const Transition *tr) const;
   const RiseFall *asRiseFall() const { return as_rise_fall_; }
   // Find transition corresponding to string.
-  static const RiseFallBoth *find(const char *tr_str);
+  static const RiseFallBoth *find(std::string_view tr_str);
   // for (const auto rf : rf->range()) {}
   const std::vector<const RiseFall*> &range() const { return range_; }
   // for (const auto rf_index : rf->rangeIndex()) {}
@@ -112,8 +113,8 @@ public:
   static const int index_bit_count = 2;
 
 protected:
-  RiseFallBoth(const char *name,
-               const char *short_name,
+  RiseFallBoth(std::string_view name,
+               std::string_view short_name,
                int sdf_triple_index,
                const RiseFall *as_rise_fall,
                std::vector<const RiseFall*> range,
@@ -152,19 +153,19 @@ public:
   static const Transition *riseFall() { return &rise_fall_; }
   const std::string &to_string() const { return name_; }
   // As initial/final value pair.
-  const char *asInitFinalString() const { return init_final_.c_str(); }
+  const std::string &asInitFinalString() const { return init_final_; }
   int sdfTripleIndex() const { return sdf_triple_index_; }
   int index() const { return sdf_triple_index_; }
   const RiseFall *asRiseFall() const { return as_rise_fall_; }
   const RiseFallBoth *asRiseFallBoth() const;
   bool matches(const Transition *tr) const;
   // Find transition corresponding to string.
-  static const Transition *find(const char *tr_str);
+  static const Transition *find(std::string_view tr_str);
   static int maxIndex() { return max_index_; }
 
 private:
-  Transition(const char *name,
-             const char *init_final,
+  Transition(std::string_view name,
+             std::string_view init_final,
              const RiseFall *as_rise_fall,
              int sdf_triple_index);
 

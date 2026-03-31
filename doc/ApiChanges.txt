@@ -24,6 +24,33 @@
 
 This file summarizes STA API changes for each release.
 
+Release 3.1.0 2026/03/25
+------------------------
+
+OpenSTA now uses std::string and std::string_view instead of const char *.
+Lookup funtions such as Network::findPin use std::string_view that accept
+a const char *, std::string, or std::string_view caller argument.
+
+2026/03/19
+----------
+
+LibertyCell::footprint() returns const std::string& instead of const char*.
+LibertyCell::userFunctionClass returns const std::string& instead of const char*.
+
+The Sdc, Liberty, ConcreteLibrary, ConcreteNetwork classes have been updated to
+use std::string and std::string_view instead of const char *. std::string_view
+is used when the lifetime of the string argument is only while the function is
+called. std::string is used when the string value outlives the function call
+because it is stored in data structures.
+
+The LibertyPort functions
+ relatedGroundPin
+ relatedPowerPin
+are renamed to
+ relatedGroundPort
+ relatedPowerPort
+and return LibertyPort's instead of strings.
+
 2026/03/12
 ----------
 
@@ -37,7 +64,7 @@ stdstrPrint, strintPrint, stringAppend have been removed. Use sta::format.
 
 reportLineString is now reportLine
 
-Release 3.0.0 2025/01/03
+Release 3.0.0 2026/01/03
 ------------------------
 
 OpenSTA now requires c++ 20.

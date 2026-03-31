@@ -32,7 +32,7 @@
 
 namespace sta {
 
-using VerilogDclMap = std::map<std::string, VerilogDcl*>;
+using VerilogDclMap = std::map<std::string, VerilogDcl*, std::less<>>;
 using VerilogConstantValue = std::vector<bool>;
 
 class VerilogStmt
@@ -63,10 +63,10 @@ public:
                 VerilogReader *reader);
   ~VerilogModule() override;
   const std::string &name() { return name_; }
-  const char *filename() { return filename_.c_str(); }
+  const std::string &filename() { return filename_; }
   VerilogAttrStmtSeq *attrStmts() { return attr_stmts_; }
   VerilogNetSeq *ports() { return ports_; }
-  VerilogDcl *declaration(const std::string &net_name);
+  VerilogDcl *declaration(std::string_view net_name);
   VerilogStmtSeq *stmts() { return stmts_; }
   VerilogDclMap *declarationMap() { return &dcl_map_; }
   void parseDcl(VerilogDcl *dcl,
@@ -313,7 +313,7 @@ private:
 class VerilogNetConstant : public VerilogNetUnnamed
 {
 public:
-  VerilogNetConstant(const std::string *constant,
+  VerilogNetConstant(std::string constant,
                      VerilogReader *reader,
                      int line);
   ~VerilogNetConstant() override;
@@ -322,14 +322,14 @@ public:
                                        VerilogReader *reader) override;
 
 private:
-  void parseConstant(const std::string *constant,
+  void parseConstant(const std::string &constant,
                      VerilogReader *reader,
                      int line);
-  void parseConstant(const std::string *constant,
+  void parseConstant(const std::string &constant,
                      size_t base_idx,
                      int base,
                      int digit_bit_count);
-  void parseConstant10(const std::string *constant,
+  void parseConstant10(const std::string &constant,
                        size_t base_idx,
                        VerilogReader *reader,
                        int line);
