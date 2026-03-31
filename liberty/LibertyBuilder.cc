@@ -36,7 +36,7 @@
 namespace sta {
 
 LibertyBuilder::LibertyBuilder(Debug *debug,
-                              Report *report) :
+                               Report *report) :
   debug_(debug),
   report_(report)
 {
@@ -44,19 +44,19 @@ LibertyBuilder::LibertyBuilder(Debug *debug,
 
 LibertyCell *
 LibertyBuilder::makeCell(LibertyLibrary *library,
-                         const char *name,
-                         const char *filename)
+                         std::string_view name,
+                         std::string_view filename)
 {
-  LibertyCell *cell = new LibertyCell(library, name, filename);
+  LibertyCell *cell = new LibertyCell(library, std::string(name), std::string(filename));
   library->addCell(cell);
   return cell;
 }
 
 LibertyPort *
 LibertyBuilder::makePort(LibertyCell *cell,
-                         const char *port_name)
+                         std::string_view port_name)
 {
-  LibertyPort *port = new LibertyPort(cell, port_name, false, nullptr,
+  LibertyPort *port = new LibertyPort(cell, std::string(port_name), false, nullptr,
                                       -1, -1, false, nullptr);
   cell->addPort(port);
   return port;
@@ -64,12 +64,12 @@ LibertyBuilder::makePort(LibertyCell *cell,
 
 LibertyPort *
 LibertyBuilder::makeBusPort(LibertyCell *cell,
-                            const char *bus_name,
+                            std::string_view bus_name,
                             int from_index,
                             int to_index,
                             BusDcl *bus_dcl)
 {
-  LibertyPort *port = new LibertyPort(cell, bus_name, true, bus_dcl,
+  LibertyPort *port = new LibertyPort(cell, std::string(bus_name), true, bus_dcl,
                                       from_index, to_index,
                                       false, new ConcretePortSeq);
   cell->addPort(port);
@@ -81,7 +81,7 @@ void
 LibertyBuilder::makeBusPortBits(ConcreteLibrary *library,
                                 LibertyCell *cell,
                                 ConcretePort *bus_port,
-                                const char *bus_name,
+                                std::string_view bus_name,
                                 int from_index,
                                 int to_index)
 {
@@ -99,22 +99,25 @@ void
 LibertyBuilder::makeBusPortBit(ConcreteLibrary *library,
                                LibertyCell *cell,
                                ConcretePort *bus_port,
-                               const char *bus_name,
+                               std::string_view bus_name,
                                int bit_index)
 {
-  std::string bit_name = std::string(bus_name) + library->busBrktLeft()
-    + std::to_string(bit_index) + library->busBrktRight();
-  LibertyPort *port = makePort(cell, bit_name.c_str(), bit_index);
+  std::string bit_name;
+  bit_name.append(bus_name);
+  bit_name += library->busBrktLeft();
+  bit_name += std::to_string(bit_index);
+  bit_name += library->busBrktRight();
+  LibertyPort *port = makePort(cell, std::move(bit_name), bit_index);
   bus_port->addPortBit(port);
   cell->addPortBit(port);
 }
 
 LibertyPort *
 LibertyBuilder::makePort(LibertyCell *cell,
-                         const char *bit_name,
+                         std::string bit_name,
                          int bit_index)
 {
-  LibertyPort *port = new LibertyPort(cell, bit_name, false, nullptr,
+  LibertyPort *port = new LibertyPort(cell, std::move(bit_name), false, nullptr,
                                       bit_index, bit_index, false, nullptr);
   return port;
 }

@@ -24,9 +24,10 @@
 // This notice may not be removed or altered from any source distribution.
 
 #include <cstdint>
+#include <string>
+#include <utility>
 
 #include "util/FlexDisableRegister.hh"
-#include "StringUtil.hh"
 #include "power/SaifReaderPvt.hh"
 #include "SaifParse.hh"
 #include "power/SaifScanner.hh"
@@ -85,7 +86,7 @@ EOL	\r?\n
 
 "\"" 	{
 	BEGIN INITIAL;
-	yylval->string = sta::stringCopy(token_.c_str());
+	yylval->emplace<std::string>(std::move(token_));
 	return token::QSTRING;
 	}
 
@@ -101,7 +102,7 @@ EOL	\r?\n
 "//"[^\n]*{EOL} { loc->lines(); loc->step(); }
 
 [0-9]+ {
-	yylval->uint = atoll(yytext);
+	yylval->emplace<uint64_t>(atoll(yytext));
         return token::UINT;
         }
 
@@ -132,7 +133,7 @@ TC  { return token::TC; }
 IG  { return token::IG; }
 
 {ID}	{
-	yylval->string = sta::stringCopy(yytext);
+	yylval->emplace<std::string>(yytext);
 	return token::ID;
 	}
 

@@ -42,7 +42,7 @@ using PathGroupSeq = std::vector<PathGroup*>;
 class Mode : public StaState
 {
 public:
-  Mode(const std::string &name,
+  Mode(std::string_view name,
        size_t mode_index,
        StaState *sta);
   virtual ~Mode();

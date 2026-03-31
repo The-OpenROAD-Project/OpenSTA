@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <mutex>
@@ -50,7 +51,7 @@ class PathGroup
 {
 public:
   // Path group that compares compare slacks.
-  static PathGroup *makePathGroupArrival(const char *name,
+  static PathGroup *makePathGroupArrival(std::string_view name,
                                          int group_path_count,
                                          int endpoint_path_count,
                                          bool unique_pins,
@@ -58,7 +59,7 @@ public:
                                          const MinMax *min_max,
                                          const StaState *sta);
   // Path group that compares arrival time, sorted by min_max.
-  static PathGroup *makePathGroupSlack(const char *name,
+  static PathGroup *makePathGroupSlack(std::string_view name,
                                        int group_path_count,
                                        int endpoint_path_count,
                                        bool unique_pins,
@@ -82,7 +83,7 @@ public:
   static int group_path_count_max;
   
 protected:
-  PathGroup(const char *name,
+  PathGroup(std::string_view name,
             int group_path_count,
             int endpoint_path_count,
             bool unique_pins,
@@ -147,10 +148,10 @@ public:
   PathGroupSeq pathGroups(const PathEnd *path_end) const;
   static StringSeq pathGroupNames(const PathEnd *path_end,
                                      const StaState *sta);
-  static const char *asyncPathGroupName() { return async_group_name_; }
-  static const char *pathDelayGroupName() { return  path_delay_group_name_; }
-  static const char *gatedClkGroupName() { return gated_clk_group_name_; }
-  static const char *unconstrainedGroupName() { return unconstrained_group_name_; }
+  static std::string_view asyncPathGroupName() { return async_group_name_; }
+  static std::string_view pathDelayGroupName() { return path_delay_group_name_; }
+  static std::string_view gatedClkGroupName() { return gated_clk_group_name_; }
+  static std::string_view unconstrainedGroupName() { return unconstrained_group_name_; }
 
 protected:
   void makeGroupPathEnds(ExceptionTo *to,
@@ -219,10 +220,10 @@ protected:
   // Unconstrained paths.
   PathGroup *unconstrained_[MinMax::index_count];
 
-  static const char *path_delay_group_name_;
-  static const char *gated_clk_group_name_;
-  static const char *async_group_name_;
-  static const char *unconstrained_group_name_;
+  static constexpr std::string_view path_delay_group_name_ = "path delay";
+  static constexpr std::string_view gated_clk_group_name_ = "gated clock";
+  static constexpr std::string_view async_group_name_ = "asynchronous";
+  static constexpr std::string_view unconstrained_group_name_ = "unconstrained";
 };
 
 } // namespace

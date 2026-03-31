@@ -26,6 +26,8 @@
 
 #include <functional>
 #include <map>
+#include <string>
+#include <string_view>
 
 #include "StringUtil.hh"
 #include "LibertyClass.hh"
@@ -39,11 +41,11 @@ class Report;
 class PatternMatch;
 class PinVisitor;
 
-using LibertyLibraryMap = std::map<const char*, LibertyLibrary*, CharPtrLess>;
+using LibertyLibraryMap = std::map<std::string, LibertyLibrary*, std::less<>>;
 // Link network function returns top level instance.
 // Return nullptr if link fails.
-using LinkNetworkFunc = std::function<Instance* (const char *top_cell_name,
-                                                   bool make_black_boxes)>;
+using LinkNetworkFunc = std::function<Instance* (std::string_view top_cell_name,
+                                                 bool make_black_boxes)>;
 using NetDrvrPinsMap = std::map<const Net*, PinSet*>;
 
 // The Network class defines the network API used by sta.
@@ -100,7 +102,7 @@ public:
   // has been linked.  When the network interfaces to an external database,
   // linking is not necessary because the network has already been expanded.
   // Return true if successful.
-  virtual bool linkNetwork(const char *top_cell_name,
+  virtual bool linkNetwork(std::string_view top_cell_name,
                            bool make_black_boxes,
                            Report *report) = 0;
   virtual bool isLinked() const;
@@ -108,23 +110,23 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Library functions.
-  virtual const char *name(const Library *library) const = 0;
+  virtual std::string name(const Library *library) const = 0;
   virtual ObjectId id(const Library *library) const = 0;
   virtual LibraryIterator *libraryIterator() const = 0;
   virtual LibertyLibraryIterator *libertyLibraryIterator() const = 0;
-  virtual Library *findLibrary(const char *name) = 0;
-  virtual LibertyLibrary *findLiberty(const char *name) = 0;
+  virtual Library *findLibrary(std::string_view name) = 0;
+  virtual LibertyLibrary *findLiberty(std::string_view name) = 0;
   // Find liberty library by filename.
-  virtual LibertyLibrary *findLibertyFilename(const char *filename);
+  virtual LibertyLibrary *findLibertyFilename(std::string_view filename);
   virtual Cell *findCell(const Library *library,
-                         const char *name) const = 0;
+                         std::string_view name) const = 0;
   // Search the design (non-liberty) libraries for cells matching pattern.
   virtual CellSeq findCellsMatching(const Library *library,
                                     const PatternMatch *pattern) const = 0;
   // Search liberty libraries for cell name.
-  virtual LibertyCell *findLibertyCell(const char *name) const;
-  virtual LibertyLibrary *makeLibertyLibrary(const char *name,
-                                             const char *filename) = 0;
+  virtual LibertyCell *findLibertyCell(std::string_view name) const;
+  virtual LibertyLibrary *makeLibertyLibrary(std::string_view name,
+                                             std::string_view filename) = 0;
   // Hook for network after reading liberty library.
   virtual void readLibertyAfter(LibertyLibrary *library);
   // First liberty library read is used to look up defaults.
@@ -139,7 +141,7 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Cell functions.
-  virtual const char *name(const Cell *cell) const = 0;
+  virtual std::string name(const Cell *cell) const = 0;
   virtual ObjectId id(const Cell *cell) const = 0;
   virtual Library *library(const Cell *cell) const = 0;
   virtual LibertyLibrary *libertyLibrary(const Cell *cell) const;
@@ -149,14 +151,13 @@ public:
   virtual const Cell *cell(const LibertyCell *cell) const = 0;
   virtual Cell *cell(LibertyCell *cell) const = 0;
   // Filename may return null.
-  virtual const char *filename(const Cell *cell) = 0;
-  // Attributes can be null
+  virtual std::string_view filename(const Cell *cell) const = 0;
   virtual std::string getAttribute(const Cell *cell,
-                                   const std::string &key) const = 0;
+                                   std::string_view key) const = 0;
   virtual const AttributeMap &attributeMap(const Cell *cell) const = 0;
   // Name can be a simple, bundle, bus, or bus bit name.
   virtual Port *findPort(const Cell *cell,
-                         const char *name) const = 0;
+                         std::string_view name) const = 0;
   virtual PortSeq findPortsMatching(const Cell *cell,
                                     const PatternMatch *pattern) const;
   virtual bool isLeaf(const Cell *cell) const = 0;
@@ -168,7 +169,7 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Port functions
-  virtual const char *name(const Port *port) const = 0;
+  virtual std::string name(const Port *port) const = 0;
   virtual ObjectId id(const Port *port) const = 0;
   virtual Cell *cell(const Port *port) const = 0;
   virtual LibertyPort *libertyPort(const Port *port) const = 0;
@@ -179,7 +180,7 @@ public:
   // Size is the bus/bundle member count (1 for non-bus/bundle ports).
   virtual int size(const Port *port) const = 0;
   // Bus range bus[from:to].
-  virtual const char *busName(const Port *port) const = 0;
+  virtual std::string busName(const Port *port) const = 0;
   // Bus member, bus[subscript].
   virtual Port *findBusBit(const Port *port,
                            int index) const = 0;
@@ -202,25 +203,25 @@ public:
   ////////////////////////////////////////////////////////////////
   // Instance functions
   // Name local to containing cell/instance.
-  virtual const char *name(const Instance *instance) const = 0;
+  virtual std::string name(const Instance *instance) const = 0;
   virtual ObjectId id(const Instance *instance) const = 0;
   // Top level instance of the design (defined after link).
   virtual Instance *topInstance() const = 0;
   virtual bool isTopInstance(const Instance *inst) const;
-  virtual Instance *findInstance(const char *path_name) const;
+  virtual Instance *findInstance(std::string_view path_name) const;
   // Find instance relative to hierarchical instance.
   virtual Instance *findInstanceRelative(const Instance *inst,
-                                         const char *path_name) const;
+                                         std::string_view path_name) const;
   // Default implementation uses linear search.
   virtual InstanceSeq findInstancesMatching(const Instance *context,
                                             const PatternMatch *pattern) const;
   virtual InstanceSeq findInstancesHierMatching(const Instance *instance,
                                                 const PatternMatch *pattern) const;
   virtual std::string getAttribute(const Instance *inst,
-                                   const std::string &key) const = 0;
+                                   std::string_view key) const = 0;
   virtual const AttributeMap &attributeMap(const Instance *inst) const = 0;
   // Hierarchical path name.
-  virtual const char *pathName(const Instance *instance) const;
+  virtual std::string pathName(const Instance *instance) const;
   bool pathNameLess(const Instance *inst1,
                     const Instance *inst2) const;
   int pathNameCmp(const Instance *inst1,
@@ -230,14 +231,14 @@ public:
             // Return value.
             InstanceSeq &path) const;
   virtual Cell *cell(const Instance *instance) const = 0;
-  virtual const char *cellName(const Instance *instance) const;
+  virtual std::string cellName(const Instance *instance) const;
   virtual LibertyLibrary *libertyLibrary(const Instance *instance) const;
   virtual LibertyCell *libertyCell(const Instance *instance) const;
   virtual Instance *parent(const Instance *instance) const = 0;
   virtual bool isLeaf(const Instance *instance) const = 0;
   virtual bool isHierarchical(const Instance *instance) const;
   virtual Instance *findChild(const Instance *parent,
-                              const char *name) const = 0;
+                              std::string_view name) const = 0;
   virtual void findChildrenMatching(const Instance *parent,
                                     const PatternMatch *pattern,
                                     // Return value.
@@ -270,18 +271,18 @@ public:
   ////////////////////////////////////////////////////////////////
   // Pin functions
   // Name is instance_name/port_name (the same as path name).
-  virtual const char *name(const Pin *pin) const;
+  virtual std::string name(const Pin *pin) const;
   virtual ObjectId id(const Pin *pin) const = 0;
-  virtual Pin *findPin(const char *path_name) const;
+  virtual Pin *findPin(std::string_view path_name) const;
   virtual Pin *findPin(const Instance *instance,
-                       const char *port_name) const = 0;
+                       std::string_view port_name) const = 0;
   virtual Pin *findPin(const Instance *instance,
                        const Port *port) const;
   virtual Pin *findPin(const Instance *instance,
                        const LibertyPort *port) const;
   // Find pin relative to hierarchical instance.
   Pin *findPinRelative(const Instance *inst,
-                       const char *path_name) const;
+                       std::string_view path_name) const;
   // Default implementation uses linear search.
   virtual PinSeq findPinsMatching(const Instance *instance,
                                   const PatternMatch *pattern) const;
@@ -289,9 +290,9 @@ public:
   // pattern of the form instance_name/port_name.
   virtual PinSeq findPinsHierMatching(const Instance *instance,
                                       const PatternMatch *pattern) const;
-  virtual const char *portName(const Pin *pin) const;
+  virtual std::string portName(const Pin *pin) const;
   // Path name is instance_name/port_name.
-  virtual const char *pathName(const Pin *pin) const;
+  virtual std::string pathName(const Pin *pin) const;
   bool pathNameLess(const Pin *pin1,
                     const Pin *pin2) const;
   int pathNameCmp(const Pin *pin1,
@@ -349,27 +350,27 @@ public:
   ////////////////////////////////////////////////////////////////
   // Terminal functions
   // Name is instance_name/port_name (the same as path name).
-  virtual const char *name(const Term *term) const;
+  virtual std::string name(const Term *term) const;
   virtual ObjectId id(const Term *term) const = 0;
-  virtual const char *portName(const Term *term) const;
+  virtual std::string portName(const Term *term) const;
   // Path name is instance_name/port_name (pin name).
-  virtual const char *pathName(const Term *term) const;
+  virtual std::string pathName(const Term *term) const;
   virtual Net *net(const Term *term) const = 0;
   virtual Pin *pin(const Term *term) const = 0;
 
   ////////////////////////////////////////////////////////////////
   // Net functions
-  virtual const char *name(const Net *net) const = 0; // no hierarchy prefix
+  virtual std::string name(const Net *net) const = 0; // no hierarchy prefix
   virtual ObjectId id(const Net *net) const = 0;
-  virtual Net *findNet(const char *path_name) const;
+  virtual Net *findNet(std::string_view path_name) const;
   // Find net relative to hierarchical instance.
   virtual Net *findNetRelative(const Instance *inst,
-                               const char *path_name) const;
+                               std::string_view path_name) const;
   // Default implementation uses linear search.
   virtual NetSeq findNetsMatching(const Instance *context,
                                   const PatternMatch *pattern) const;
   virtual Net *findNet(const Instance *instance,
-                       const char *net_name) const = 0;
+                       std::string_view net_name) const = 0;
   // Traverse the hierarchy from instance down and find nets matching
   // pattern of the form instance_name/net_name.
   virtual NetSeq findNetsHierMatching(const Instance *instance,
@@ -378,7 +379,7 @@ public:
   virtual void findInstNetsMatching(const Instance *instance,
                                     const PatternMatch *pattern,
                                     NetSeq &matches) const = 0;
-  virtual const char *pathName(const Net *net) const;
+  virtual std::string pathName(const Net *net) const;
   bool pathNameLess(const Net *net1,
                     const Net *net2) const;
   int pathNameCmp(const Net *net1,
@@ -424,17 +425,13 @@ public:
   ////////////////////////////////////////////////////////////////
 
   // Parse path into first/tail (first hierarchy divider separated token).
-  // first and tail are both null if there are no dividers in path.
-  // Caller must delete first and tail.
-  void pathNameFirst(const char *path_name,
-                     char *&first,
-                     char *&tail) const;
+  void pathNameFirst(std::string_view path_name,
+                     std::string &first,
+                     std::string &tail) const;
   // Parse path into head/last (last hierarchy divider separated token).
-  // head and last are both null if there are no dividers in path.
-  // Caller must delete head and last.
-  void pathNameLast(const char *path_name,
-                    char *&head,
-                    char *&last) const;
+  void pathNameLast(std::string_view path_name,
+                    std::string &head,
+                    std::string &last) const;
 
   // Divider between instance names in a hierarchical path name.
   virtual char pathDivider() const { return divider_; }
@@ -445,7 +442,7 @@ public:
 
 protected:
   Pin *findPinLinear(const Instance *instance,
-                     const char *port_name) const;
+                     std::string_view port_name) const;
   void findInstancesMatching1(const Instance *context,
                               size_t context_name_length,
                               const PatternMatch *pattern,
@@ -484,7 +481,7 @@ protected:
                                 PinSeq &matches) const;
   // findNet using linear search.
   Net *findNetLinear(const Instance *instance,
-                     const char *net_name) const;
+                     std::string_view net_name) const;
   // findNetsMatching using linear search.
   NetSeq findNetsMatchingLinear(const Instance *instance,
                                 const PatternMatch *pattern) const;
@@ -506,7 +503,7 @@ public:
   NetworkEdit();
   virtual bool isEditable() const { return true; }
   virtual Instance *makeInstance(LibertyCell *cell,
-                                 const char *name,
+                                 std::string_view name,
                                  Instance *parent) = 0;
   virtual void makePins(Instance *inst) = 0;
   virtual void replaceCell(Instance *inst,
@@ -523,7 +520,7 @@ public:
   // Disconnect pin from net.
   virtual void disconnectPin(Pin *pin) = 0;
   virtual void deletePin(Pin *pin) = 0;
-  virtual Net *makeNet(const char *name,
+  virtual Net *makeNet(std::string_view name,
                        Instance *parent) = 0;
   // Deleting net disconnects (but does not delete) net pins.
   virtual void deleteNet(Net *net) = 0;
@@ -540,39 +537,39 @@ public:
   // Called before reading a netlist to delete any previously linked network.
   virtual void readNetlistBefore() = 0;
   virtual void setLinkFunc(LinkNetworkFunc link) = 0;
-  virtual Library *makeLibrary(const char *name,
-                               const char *filename) = 0;
+  virtual Library *makeLibrary(std::string_view name,
+                               std::string_view filename) = 0;
   virtual void deleteLibrary(Library *library) = 0;
   // Search the libraries in read order for a cell by name.
-  virtual Cell *findAnyCell(const char *name) = 0;
+  virtual Cell *findAnyCell(std::string_view name) = 0;
   virtual Cell *makeCell(Library *library,
-                         const char *name,
+                         std::string_view name,
                          bool is_leaf,
-                         const char *filename) = 0;
+                         std::string_view filename) = 0;
   virtual void deleteCell(Cell *cell) = 0;
   virtual void setName(Cell *cell,
-                       const char *name) = 0;
+                       std::string_view name) = 0;
   virtual void setIsLeaf(Cell *cell,
                          bool is_leaf) = 0;
   virtual void setAttribute(Cell *cell,
-                            const std::string &key,
-                            const std::string &value) = 0;
+                            std::string_view key,
+                            std::string_view value) = 0;
   virtual void setAttribute(Instance *instance,
-                            const std::string &key,
-                            const std::string &value) = 0;
+                            std::string_view key,
+                            std::string_view value) = 0;
   virtual Port *makePort(Cell *cell,
-                         const char *name) = 0;
+                         std::string_view name) = 0;
   virtual Port *makeBusPort(Cell *cell,
-                            const char *name,
+                            std::string_view name,
                             int from_index,
                             int to_index) = 0;
   virtual void groupBusPorts(Cell *cell,
-                             std::function<bool(const char*)> port_msb_first) = 0;
+                             std::function<bool(std::string_view)> port_msb_first) = 0;
   virtual Port *makeBundlePort(Cell *cell,
-                               const char *name,
+                               std::string_view name,
                                PortSeq *members) = 0;
   virtual Instance *makeInstance(Cell *cell,
-                                 const char *name,
+                                 std::string_view name,
                                  Instance *parent) = 0;
   virtual Pin *makePin(Instance *inst,
                        Port *port,

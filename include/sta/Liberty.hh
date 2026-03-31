@@ -31,6 +31,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "ContainerHelpers.hh"
@@ -68,7 +69,7 @@ class DriverWaveform;
 class ModeValueDef
 {
 public:
-  ModeValueDef(std::string value, FuncExpr *cond, std::string sdf_cond);
+  ModeValueDef(std::string value);
   ModeValueDef(ModeValueDef &&other) noexcept;
   ~ModeValueDef();
   const std::string &value() const { return value_; }
@@ -115,14 +116,14 @@ private:
   TimingArcSet *setup_check_;
 };
 
-using TableTemplateMap = std::map<std::string, TableTemplate>;
+using TableTemplateMap = std::map<std::string, TableTemplate, std::less<>>;
 using TableTemplateSeq = std::vector<TableTemplate*>;
-using BusDclMap = std::map<std::string, BusDcl>;
+using BusDclMap = std::map<std::string, BusDcl, std::less<>>;
 using BusDclSeq = std::vector<BusDcl*>;
-using ScaleFactorsMap = std::map<std::string, ScaleFactors>;
-using WireloadMap = std::map<std::string, Wireload>;
-using WireloadSelectionMap = std::map<std::string, WireloadSelection>;
-using OperatingConditionsMap = std::map<std::string, OperatingConditions>;
+using ScaleFactorsMap = std::map<std::string, ScaleFactors, std::less<>>;
+using WireloadMap = std::map<std::string, Wireload, std::less<>>;
+using WireloadSelectionMap = std::map<std::string, WireloadSelection, std::less<>>;
+using OperatingConditionsMap = std::map<std::string, OperatingConditions, std::less<>>;
 using PortToSequentialMap = std::map<LibertyPort*, size_t>;
 using TimingArcSetSeq = std::vector<TimingArcSet*>;
 using TimingArcSetSet = std::set<TimingArcSet*, TimingArcSetLess>;
@@ -135,13 +136,13 @@ using PortInternalPowerMap = std::map<const LibertyPort *, InternalPowerIndexSeq
 using LeakagePowerSeq = std::vector<LeakagePower>;
 using ScaledCellMap = std::map<const OperatingConditions*, LibertyCell*>;
 using ScaledPortMap = std::map<const OperatingConditions*, LibertyPort*>;
-using ModeDefMap = std::map<std::string, ModeDef>;
-using ModeValueMap = std::map<std::string, ModeValueDef>;
+using ModeDefMap = std::map<std::string, ModeDef, std::less<>>;
+using ModeValueMap = std::map<std::string, ModeValueDef, std::less<>>;
 using LatchEnableIndexMap = std::map<const TimingArcSet*, size_t>;
 using LatchEnableSeq = std::vector<LatchEnable>;
-using OcvDerateMap = std::map<std::string, OcvDerate>;
-using SupplyVoltageMap = std::map<std::string, float>;
-using DriverWaveformMap = std::map<std::string, DriverWaveform>;
+using OcvDerateMap = std::map<std::string, OcvDerate, std::less<>>;
+using SupplyVoltageMap = std::map<std::string, float, std::less<>>;
+using DriverWaveformMap = std::map<std::string, DriverWaveform, std::less<>>;
 using SceneSeq = std::vector<Scene*>;
 
 enum class ClockGateType { none, latch_posedge, latch_negedge, other };
@@ -175,13 +176,13 @@ void
 deleteLiberty();
 
 ScaleFactorPvt
-findScaleFactorPvt(const char *name);
-const char *
+findScaleFactorPvt(std::string_view name);
+const std::string&
 scaleFactorPvtName(ScaleFactorPvt pvt);
 
 ScaleFactorType
-findScaleFactorType(const char *name);
-const char *
+findScaleFactorType(std::string_view name);
+const std::string&
 scaleFactorTypeName(ScaleFactorType type);
 bool
 scaleFactorTypeRiseFallSuffix(ScaleFactorType type);
@@ -191,7 +192,7 @@ bool
 scaleFactorTypeLowHighSuffix(ScaleFactorType type);
 
 // Timing sense as a string.
-const char *
+const std::string&
 to_string(TimingSense sense);
 
 // Opposite timing sense.
@@ -203,10 +204,10 @@ timingSenseOpposite(TimingSense sense);
 class LibertyLibrary : public ConcreteLibrary
 {
 public:
-  LibertyLibrary(const char *name,
-                 const char *filename);
+  LibertyLibrary(std::string name,
+                 std::string filename);
   virtual ~LibertyLibrary();
-  LibertyCell *findLibertyCell(const char *name) const;
+  LibertyCell *findLibertyCell(std::string_view name) const;
   LibertyCellSeq findLibertyCellsMatching(PatternMatch *pattern);
   // Liberty cells that are buffers.
   LibertyCellSeq *buffers();
@@ -214,12 +215,14 @@ public:
 
   DelayModelType delayModelType() const { return delay_model_type_; }
   void setDelayModelType(DelayModelType type);
-  BusDcl *makeBusDcl(std::string name, int from, int to);
-  BusDcl *findBusDcl(const char *name) const;
+  BusDcl *makeBusDcl(std::string name,
+                     int from,
+                     int to);
+  BusDcl *findBusDcl(std::string_view name);
   BusDclSeq busDcls() const;
   TableTemplate *makeTableTemplate(std::string name,
                                    TableTemplateType type);
-  TableTemplate *findTableTemplate(const char *name,
+  TableTemplate *findTableTemplate(std::string_view name,
                                    TableTemplateType type);
   TableTemplateSeq tableTemplates() const;
   TableTemplateSeq tableTemplates(TableTemplateType type) const;
@@ -232,8 +235,8 @@ public:
 
   void setScaleFactors(ScaleFactors *scales);
   // Make named scale factor group. Returns pointer to the inserted element.
-  ScaleFactors *makeScaleFactors(const char *name);
-  ScaleFactors *findScaleFactors(const char *name);
+  ScaleFactors *makeScaleFactors(std::string name);
+  ScaleFactors *findScaleFactors(std::string_view name);
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   float scaleFactor(ScaleFactorType type,
                     const Pvt *pvt) const;
@@ -334,18 +337,18 @@ public:
   const Units *units() const { return units_; }
 
   Wireload *makeWireload(std::string name);
-  const Wireload *findWireload(const char *name) const;
+  const Wireload *findWireload(std::string_view name);
   void setDefaultWireload(const Wireload *wireload);
   const Wireload *defaultWireload() const;
   WireloadSelection *makeWireloadSelection(std::string name);
-  const WireloadSelection *findWireloadSelection(const char *name) const;
+  const WireloadSelection *findWireloadSelection(std::string_view name) const;
   const WireloadSelection *defaultWireloadSelection() const;
   WireloadMode defaultWireloadMode() const;
   void setDefaultWireloadMode(WireloadMode mode);
   void setDefaultWireloadSelection(const WireloadSelection *selection);
 
   OperatingConditions *makeOperatingConditions(std::string name);
-  OperatingConditions *findOperatingConditions(const char *name);
+  OperatingConditions *findOperatingConditions(std::string_view name);
   OperatingConditions *defaultOperatingConditions() const;
   void setDefaultOperatingConditions(OperatingConditions *op_cond);
 
@@ -356,18 +359,18 @@ public:
   OcvDerate *defaultOcvDerate() const;
   void setDefaultOcvDerate(OcvDerate *derate);
   OcvDerate *makeOcvDerate(std::string name);
-  OcvDerate *findOcvDerate(const char *derate_name);
-  void addSupplyVoltage(const char *suppy_name,
+  OcvDerate *findOcvDerate(std::string_view derate_name);
+  void addSupplyVoltage(std::string suppy_name,
                         float voltage);
-  bool supplyExists(const char *suppy_name) const;
-  void supplyVoltage(const char *supply_name,
+  bool supplyExists(std::string_view supply_name) const;
+  void supplyVoltage(std::string_view supply_name,
                      // Return value.
                      float &voltage,
                      bool &exists) const;
 
   // Make scaled cell.  Call LibertyCell::addScaledCell after it is complete.
-  LibertyCell *makeScaledCell(const char *name,
-                              const char *filename);
+  LibertyCell *makeScaledCell(std::string name,
+                              std::string filename);
 
   static void
   makeSceneMap(LibertyLibrary *lib,
@@ -390,9 +393,9 @@ public:
               const SceneSeq &scenes,
               Report *report);
 
-  DriverWaveform *findDriverWaveform(const char *name);
+  DriverWaveform *findDriverWaveform(std::string_view name);
   DriverWaveform *driverWaveformDefault() { return findDriverWaveform(""); }
-  DriverWaveform *makeDriverWaveform(const std::string &name,
+  DriverWaveform *makeDriverWaveform(std::string name,
                                      TablePtr waveforms);
 
 protected:
@@ -471,18 +474,18 @@ class LibertyCell : public ConcreteCell
 {
 public:
   LibertyCell(LibertyLibrary *library,
-              const char *name,
-              const char *filename);
+              std::string name,
+              std::string filename);
   virtual ~LibertyCell();
   LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyLibrary *libertyLibrary() { return liberty_library_; }
-  LibertyPort *findLibertyPort(const char *name) const;
+  LibertyPort *findLibertyPort(std::string_view name) const;
   LibertyPortSeq findLibertyPortsMatching(PatternMatch *pattern) const;
   bool hasInternalPorts() const { return has_internal_ports_; }
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   void setScaleFactors(ScaleFactors *scale_factors);
   ModeDef *makeModeDef(std::string name);
-  const ModeDef *findModeDef(const char *name) const;
+  const ModeDef *findModeDef(std::string_view name) const;
 
   float area() const { return area_; }
   void setArea(float area);
@@ -541,8 +544,10 @@ public:
   const Statetable *statetable() const { return statetable_; }
 
   // Find bus declaration local to this cell.
-  BusDcl *makeBusDcl(std::string name, int from, int to);
-  BusDcl *findBusDcl(const char *name) const;
+  BusDcl *makeBusDcl(std::string name,
+                     int from,
+                     int to);
+  BusDcl *findBusDcl(std::string_view name);
   // True when TimingArcSetBuilder::makeRegLatchArcs infers register
   // timing arcs.
   bool hasInferedRegTimingArcs() const { return has_infered_reg_timing_arcs_; }
@@ -561,7 +566,7 @@ public:
   float ocvArcDepth() const;
   OcvDerate *ocvDerate() const;
   OcvDerate *makeOcvDerate(std::string name);
-  OcvDerate *findOcvDerate(const char *derate_name);
+  OcvDerate *findOcvDerate(std::string_view derate_name);
 
   // Build helpers.
   void makeSequential(int size,
@@ -614,10 +619,10 @@ public:
   // for all the defined scenes.
   static void checkLibertyScenes();
   void ensureVoltageWaveforms(const SceneSeq &scenes);
-  const char *footprint() const;
-  void setFootprint(const char *footprint);
-  const char *userFunctionClass() const;
-  void setUserFunctionClass(const char *user_function_class);
+  const std::string &footprint() const { return footprint_; }
+  void setFootprint(std::string footprint);
+  const std::string &userFunctionClass() const { return user_function_class_; }
+  void setUserFunctionClass(std::string user_function_class);
 
 protected:
   void addPort(ConcretePort *port);
@@ -752,8 +757,8 @@ public:
   bool isPwrGnd() const;
   PwrGndType pwrGndType() const { return pwr_gnd_type_; }
   void setPwrGndType(PwrGndType type);
-  const char *voltageName() const { return voltage_name_.c_str(); }
-  void setVoltageName(const char *voltage_name);
+  const std::string &voltageName() const { return voltage_name_; }
+  void setVoltageName(std::string voltage_name);
   ////////////////////////////////////////////////////////////////
 
   ScanSignalType scanSignalType() const { return scan_signal_type_; }
@@ -876,10 +881,10 @@ public:
   const LibertyPort *scenePort(int ap_index) const;
   void setScenePort(LibertyPort *scene_port,
                      int ap_index);
-  const char *relatedGroundPin() const;
-  void setRelatedGroundPin(const char *related_ground_pin);
-  const char *relatedPowerPin() const;
-  void setRelatedPowerPin(const char *related_power_pin);
+  LibertyPort *relatedGroundPort() const { return related_ground_port_; }
+  void setRelatedGroundPort(LibertyPort *related_ground_port);
+  LibertyPort *relatedPowerPort() const { return related_power_port_; }
+  void setRelatedPowerPort(LibertyPort *related_power_port);
   const ReceiverModel *receiverModel() const { return receiver_model_.get(); }
   void setReceiverModel(ReceiverModelPtr receiver_model);
   DriverWaveform *driverWaveform(const RiseFall *rf) const;
@@ -901,7 +906,7 @@ public:
 protected:
   // Constructor is internal to LibertyBuilder.
   LibertyPort(LibertyCell *cell,
-              const char *name,
+              std::string name,
               bool is_bus,
               BusDcl *bus_dcl,
               int from_index,
@@ -942,8 +947,8 @@ protected:
   float min_pulse_width_[RiseFall::index_count];
   const RiseFall *pulse_clk_trigger_;
   const RiseFall *pulse_clk_sense_;
-  std::string related_ground_pin_;
-  std::string related_power_pin_;
+  LibertyPort *related_ground_port_;
+  LibertyPort *related_power_port_;
   std::vector<LibertyPort*> scene_ports_;
   ReceiverModelPtr receiver_model_;
   DriverWaveform *driver_waveform_[RiseFall::index_count];
@@ -1011,13 +1016,8 @@ protected:
 class OperatingConditions : public Pvt
 {
 public:
-  OperatingConditions(const char *name);
-  OperatingConditions(const char *name,
-                      float process,
-                      float voltage,
-                      float temperature,
-                      WireloadTree wire_load_tree);
-  const char *name() const { return name_.c_str(); }
+  OperatingConditions(std::string name);
+  const std::string &name() const { return name_; }
   WireloadTree wireloadTree() const { return wire_load_tree_; }
   void setWireloadTree(WireloadTree tree);
 
@@ -1029,8 +1029,8 @@ protected:
 class ScaleFactors
 {
 public:
-  ScaleFactors(const char *name);
-  const char *name() const { return name_.c_str(); }
+  ScaleFactors(std::string name);
+  const std::string &name() const { return name_; }
   float scale(ScaleFactorType type,
               ScaleFactorPvt pvt,
               const RiseFall *rf);
@@ -1073,14 +1073,11 @@ protected:
 class ModeDef
 {
 public:
+  ModeDef(std::string name);
   const std::string &name() const { return name_; }
-  ModeValueDef *defineValue(const char *value,
-                            FuncExpr *cond,
-                            const char *sdf_cond);
-  const ModeValueDef *findValueDef(const char *value) const;
-  const ModeValueMap *values() const { return &values_; }
-
-  explicit ModeDef(std::string name);
+  ModeValueDef *defineValue(std::string value);
+  const ModeValueDef *findValueDef(std::string_view value) const;
+  const ModeValueMap &values() const { return values_; }
 
 protected:
   std::string name_;
@@ -1152,12 +1149,12 @@ private:
 };
 
 std::string
-portLibertyToSta(const char *port_name);
-const char *
+portLibertyToSta(std::string_view port_name);
+const std::string &
 scanSignalTypeName(ScanSignalType scan_type);
-const char *
+const std::string &
 pwrGndTypeName(PwrGndType pwr_gnd_type);
 PwrGndType
-findPwrGndType(const char *pg_name);
+findPwrGndType(std::string_view pg_name);
 
 } // namespace

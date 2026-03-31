@@ -24,6 +24,8 @@
 
 #include "StaMain.hh"
 
+#include <string>
+#include <string_view>
 #include <tcl.h>
 #include <cstdlib>
 #include <sys/stat.h>
@@ -43,7 +45,7 @@ parseThreadsArg(int &argc,
     if (stringEqual(thread_arg, "max"))
       return processorCount();
     else if (isDigits(thread_arg))
-      return atoi(thread_arg);
+      return std::stoi(thread_arg);
     else
       fprintf(stderr,"Warning: -threads must be max or a positive integer.\n");
   }
@@ -53,11 +55,11 @@ parseThreadsArg(int &argc,
 bool
 findCmdLineFlag(int &argc,
                 char *argv[],
-                const char *flag)
+                std::string_view flag)
 {
   for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
-    if (stringEq(arg, flag)) {
+    if (std::string_view(arg) == flag) {
       // Remove flag from argv.
       for (int j = i + 1; j < argc; j++, i++)
         argv[i] = argv[j];
@@ -72,11 +74,11 @@ findCmdLineFlag(int &argc,
 char *
 findCmdLineKey(int &argc,
                char *argv[],
-               const char *key)
+               std::string_view key)
 {
   for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
-    if (stringEq(arg, key) && i + 1 < argc) {
+    if (std::string_view(arg) == key && i + 1 < argc) {
       char *value = argv[i + 1];
       // Remove key and value from argv.
       for (int j = i + 2; j < argc; j++, i++)

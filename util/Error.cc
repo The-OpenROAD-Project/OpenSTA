@@ -59,9 +59,8 @@ ExceptionLine::ExceptionLine(const std::string &filename,
 {
 }
 
-FileNotReadable::FileNotReadable(std::string filename) :
-  filename_(std::move(filename)),
-  msg_(sta::format("cannot read file {}.", filename_))
+FileNotReadable::FileNotReadable(std::string_view filename) :
+  msg_(sta::format("cannot read file {}.", filename))
 {
 }
 
@@ -71,9 +70,8 @@ FileNotReadable::what() const noexcept
   return msg_.c_str();
 }
 
-FileNotWritable::FileNotWritable(std::string filename) :
-  filename_(std::move(filename)),
-  msg_(sta::format("cannot write file {}.", filename_))
+FileNotWritable::FileNotWritable(std::string_view filename) :
+  msg_(sta::format("cannot write file {}.", filename))
 {
 }
 

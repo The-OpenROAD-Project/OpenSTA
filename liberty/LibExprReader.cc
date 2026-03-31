@@ -26,9 +26,10 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <string_view>
 
 #include "Report.hh"
-#include "StringUtil.hh"
 #include "Liberty.hh"
 #include "LibExprReaderPvt.hh"
 #include "LibExprScanner.hh"
@@ -36,14 +37,14 @@
 namespace sta {
 
 FuncExpr *
-parseFuncExpr(const char *func,
+parseFuncExpr(std::string_view func,
               const LibertyCell *cell,
-              const char *error_msg,
+              std::string_view error_msg,
               Report *report)
 {
-  if (func != nullptr && func[0] != '\0') {
-    std::string func1(func);
-    std::istringstream stream(func);
+  if (!func.empty()) {
+    std::string func_str(func);
+    std::istringstream stream(func_str);
     LibExprReader reader(func, cell, error_msg, report);
     LibExprScanner scanner(stream);
     LibExprParse parser(&scanner, &reader);
@@ -55,9 +56,9 @@ parseFuncExpr(const char *func,
     return nullptr;
 }
 
-LibExprReader::LibExprReader(const char *func,
+LibExprReader::LibExprReader(std::string_view func,
                              const LibertyCell *cell,
-                             const char *error_msg,
+                             std::string_view error_msg,
                              Report *report) :
   func_(func),
   cell_(cell),
@@ -70,18 +71,18 @@ LibExprReader::LibExprReader(const char *func,
 // defined in LibertyReader.cc
 LibertyPort *
 libertyReaderFindPort(const LibertyCell *cell,
-                      const char *port_name);
+                      std::string_view port_name);
 
 FuncExpr *
-LibExprReader::makeFuncExprPort(const char *port_name)
+LibExprReader::makeFuncExprPort(std::string &&port_name)
 {
   FuncExpr *expr = nullptr;
-  LibertyPort *port = libertyReaderFindPort(cell_, port_name);
+  const std::string_view port_view(port_name);
+  LibertyPort *port = libertyReaderFindPort(cell_, port_view);
   if (port)
     expr = FuncExpr::makePort(port);
   else
-    report_->warn(1130, "{} references unknown port {}.", error_msg_, port_name);
-  stringDelete(port_name);
+    report_->warn(1130, "{} references unknown port {}.", error_msg_, port_view);
   return expr;
 }
 
@@ -131,7 +132,7 @@ LibExprReader::setResult(FuncExpr *result)
 }
 
 void
-LibExprReader::parseError(const char *msg)
+LibExprReader::parseError(std::string_view msg)
 {
   report_->error(1131, "{} {}.", error_msg_, msg);
 }

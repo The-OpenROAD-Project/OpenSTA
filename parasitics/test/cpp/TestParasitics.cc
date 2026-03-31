@@ -1,3 +1,5 @@
+#include <string>
+
 #include <gtest/gtest.h>
 #include "StringUtil.hh"
 #include "MinMax.hh"
@@ -41,132 +43,114 @@ class SpefNamespaceTest : public ::testing::Test {};
 
 // Basic identity: no dividers or escapes needed
 TEST_F(SpefNamespaceTest, SpefToStaSimpleName) {
-  char *result = spefToSta("net1", '/', '/', '\\');
-  EXPECT_STREQ(result, "net1");
-  delete[] result;
+  std::string result = spefToSta("net1", '/', '/', '\\');
+  EXPECT_EQ(result, "net1");
 }
 
 TEST_F(SpefNamespaceTest, StaToSpefSimpleName) {
-  char *result = staToSpef("net1", '/', '/', '\\');
-  EXPECT_STREQ(result, "net1");
-  delete[] result;
+  std::string result = staToSpef("net1", '/', '/', '\\');
+  EXPECT_EQ(result, "net1");
 }
 
 // SPEF divider to STA divider translation
 TEST_F(SpefNamespaceTest, SpefToStaDividerTranslation) {
   // SPEF uses '.' as divider, STA uses '/'
-  char *result = spefToSta("top.sub.net", '.', '/', '\\');
-  EXPECT_STREQ(result, "top/sub/net");
-  delete[] result;
+  std::string result = spefToSta("top.sub.net", '.', '/', '\\');
+  EXPECT_EQ(result, "top/sub/net");
 }
 
 TEST_F(SpefNamespaceTest, StaToSpefDividerTranslation) {
   // STA uses '/' as divider, SPEF uses '.'
-  char *result = staToSpef("top/sub/net", '.', '/', '\\');
-  EXPECT_STREQ(result, "top.sub.net");
-  delete[] result;
+  std::string result = staToSpef("top/sub/net", '.', '/', '\\');
+  EXPECT_EQ(result, "top.sub.net");
 }
 
 // Escaped divider in SPEF
 TEST_F(SpefNamespaceTest, SpefToStaEscapedDivider) {
   // In SPEF, "\." is an escaped divider
-  char *result = spefToSta("top\\.net", '.', '/', '\\');
-  EXPECT_STREQ(result, "top\\/net");
-  delete[] result;
+  std::string result = spefToSta("top\\.net", '.', '/', '\\');
+  EXPECT_EQ(result, "top\\/net");
 }
 
 // Escaped brackets in SPEF
 TEST_F(SpefNamespaceTest, SpefToStaEscapedBracket) {
-  char *result = spefToSta("bus\\[0\\]", '.', '/', '\\');
-  EXPECT_STREQ(result, "bus\\[0\\]");
-  delete[] result;
+  std::string result = spefToSta("bus\\[0\\]", '.', '/', '\\');
+  EXPECT_EQ(result, "bus\\[0\\]");
 }
 
 // STA to SPEF escaped brackets
 TEST_F(SpefNamespaceTest, StaToSpefEscapedBracket) {
-  char *result = staToSpef("bus\\[0\\]", '.', '/', '\\');
-  EXPECT_STREQ(result, "bus\\[0\\]");
-  delete[] result;
+  std::string result = staToSpef("bus\\[0\\]", '.', '/', '\\');
+  EXPECT_EQ(result, "bus\\[0\\]");
 }
 
 // SPEF escaped backslash
 TEST_F(SpefNamespaceTest, SpefToStaEscapedBackslash) {
   // "\\" in SPEF means literal backslash
-  char *result = spefToSta("name\\\\end", '.', '/', '\\');
-  EXPECT_STREQ(result, "name\\\\end");
-  delete[] result;
+  std::string result = spefToSta("name\\\\end", '.', '/', '\\');
+  EXPECT_EQ(result, "name\\\\end");
 }
 
 // SPEF escape of non-special character
 TEST_F(SpefNamespaceTest, SpefToStaEscapedNonSpecial) {
   // "\a" - 'a' is not divider, not bracket, not backslash
-  char *result = spefToSta("\\a", '.', '/', '\\');
-  EXPECT_STREQ(result, "a");
-  delete[] result;
+  std::string result = spefToSta("\\a", '.', '/', '\\');
+  EXPECT_EQ(result, "a");
 }
 
 // STA to SPEF escaping non-alphanumeric characters
 TEST_F(SpefNamespaceTest, StaToSpefSpecialChars) {
   // '@' should get escaped in SPEF
-  char *result = staToSpef("net@1", '.', '/', '\\');
-  EXPECT_STREQ(result, "net\\@1");
-  delete[] result;
+  std::string result = staToSpef("net@1", '.', '/', '\\');
+  EXPECT_EQ(result, "net\\@1");
 }
 
 // STA to SPEF: escape for path_escape + non-special char
 TEST_F(SpefNamespaceTest, StaToSpefEscapedNonSpecial) {
   // "\\a" - escape + 'a' (not divider, not bracket)
-  char *result = staToSpef("\\a", '.', '/', '\\');
-  EXPECT_STREQ(result, "a");
-  delete[] result;
+  std::string result = staToSpef("\\a", '.', '/', '\\');
+  EXPECT_EQ(result, "a");
 }
 
 // Empty string
 TEST_F(SpefNamespaceTest, SpefToStaEmpty) {
-  char *result = spefToSta("", '.', '/', '\\');
-  EXPECT_STREQ(result, "");
-  delete[] result;
+  std::string result = spefToSta("", '.', '/', '\\');
+  EXPECT_EQ(result, "");
 }
 
 TEST_F(SpefNamespaceTest, StaToSpefEmpty) {
-  char *result = staToSpef("", '.', '/', '\\');
-  EXPECT_STREQ(result, "");
-  delete[] result;
+  std::string result = staToSpef("", '.', '/', '\\');
+  EXPECT_EQ(result, "");
 }
 
 // Different divider characters
 TEST_F(SpefNamespaceTest, SpefToStaColonDivider) {
-  char *result = spefToSta("a:b:c", ':', '.', '\\');
-  EXPECT_STREQ(result, "a.b.c");
-  delete[] result;
+  std::string result = spefToSta("a:b:c", ':', '.', '\\');
+  EXPECT_EQ(result, "a.b.c");
 }
 
 TEST_F(SpefNamespaceTest, StaToSpefColonDivider) {
-  char *result = staToSpef("a.b.c", ':', '.', '\\');
-  EXPECT_STREQ(result, "a:b:c");
-  delete[] result;
+  std::string result = staToSpef("a.b.c", ':', '.', '\\');
+  EXPECT_EQ(result, "a:b:c");
 }
 
 // Underscores and digits should pass through in staToSpef
 TEST_F(SpefNamespaceTest, StaToSpefAlphanumUnderscore) {
-  char *result = staToSpef("abc_123_XYZ", '.', '/', '\\');
-  EXPECT_STREQ(result, "abc_123_XYZ");
-  delete[] result;
+  std::string result = staToSpef("abc_123_XYZ", '.', '/', '\\');
+  EXPECT_EQ(result, "abc_123_XYZ");
 }
 
 // Multiple consecutive dividers
 TEST_F(SpefNamespaceTest, SpefToStaMultipleDividers) {
-  char *result = spefToSta("a..b", '.', '/', '\\');
-  EXPECT_STREQ(result, "a//b");
-  delete[] result;
+  std::string result = spefToSta("a..b", '.', '/', '\\');
+  EXPECT_EQ(result, "a//b");
 }
 
 // STA escaped divider (path_escape + path_divider)
 TEST_F(SpefNamespaceTest, StaToSpefEscapedDivider) {
   // "\/" in STA namespace => "\." in SPEF namespace
-  char *result = staToSpef("\\/", '.', '/', '\\');
-  EXPECT_STREQ(result, "\\.");
-  delete[] result;
+  std::string result = staToSpef("\\/", '.', '/', '\\');
+  EXPECT_EQ(result, "\\.");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2137,7 +2121,7 @@ TEST_F(DesignParasiticsTest, TimingWithParasitics) {
     waveform->push_back(0.0f);
     waveform->push_back(250.0f);
 
-    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, nullptr,
+    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, "",
                     sta_->cmdMode());
 
     // Run timing update to exercise delay calculation with parasitics

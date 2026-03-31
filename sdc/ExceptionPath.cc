@@ -92,7 +92,7 @@ ExceptionPath::ExceptionPath(ExceptionFrom *from,
                              const MinMaxAll *min_max,
                              bool own_pts,
                              int priority,
-                             const char *comment) :
+                             std::string_view comment) :
   SdcCmdComment(comment),
   from_(from),
   thrus_(thrus),
@@ -225,7 +225,7 @@ ExceptionPath::hash(ExceptionPt *missing_pt) const
 bool
 ExceptionPath::mergeable(ExceptionPath *exception) const
 {
-  return stringEqualIf(comment_, exception->comment());
+  return comment_ == exception->comment();
 }
 
 bool
@@ -480,7 +480,7 @@ PathDelay::PathDelay(ExceptionFrom *from,
                      bool break_path,
                      float delay,
                      bool own_pts,
-                     const char *comment) :
+                     std::string_view comment) :
   ExceptionPath(from, thrus, to, min_max->asMinMaxAll(), own_pts,
                 pathDelayPriority() + fromThruToPriority(from, thrus, to),
                 comment),
@@ -565,7 +565,7 @@ FalsePath::FalsePath(ExceptionFrom *from,
                      ExceptionTo *to,
                      const MinMaxAll *min_max,
                      bool own_pts,
-                     const char *comment) :
+                     std::string_view comment) :
   ExceptionPath(from, thrus, to, min_max, own_pts,
                 falsePathPriority() + fromThruToPriority(from, thrus, to),
                 comment)
@@ -578,7 +578,7 @@ FalsePath::FalsePath(ExceptionFrom *from,
                      const MinMaxAll *min_max,
                      bool own_pts,
                      int priority,
-                     const char *comment) :
+                     std::string_view comment) :
   ExceptionPath(from, thrus, to, min_max, own_pts, priority, comment)
 {
 }
@@ -629,8 +629,7 @@ FalsePath::overrides(ExceptionPath *exception) const
 LoopPath::LoopPath(ExceptionThruSeq *thrus,
                    bool own_pts) :
   FalsePath(nullptr, thrus, nullptr, MinMaxAll::all(), own_pts,
-            falsePathPriority() + fromThruToPriority(nullptr, thrus, nullptr),
-            nullptr)
+            falsePathPriority() + fromThruToPriority(nullptr, thrus, nullptr), "")
 {
 }
 
@@ -655,7 +654,7 @@ MultiCyclePath::MultiCyclePath(ExceptionFrom *from,
                                bool use_end_clk,
                                int path_multiplier,
                                bool own_pts,
-                               const char *comment) :
+                               std::string_view comment) :
   ExceptionPath(from, thrus, to, min_max, own_pts,
                 multiCyclePathPriority() + fromThruToPriority(from, thrus, to),
                 comment),
@@ -756,8 +755,7 @@ FilterPath::FilterPath(ExceptionFrom *from,
                        ExceptionTo *to,
                        bool own_pts) :
   ExceptionPath(from, thrus, to, MinMaxAll::all(), own_pts,
-                filterPathPriority() + fromThruToPriority(from, thrus, to),
-                nullptr)
+                filterPathPriority() + fromThruToPriority(from, thrus, to), "")
 {
 }
 
@@ -814,13 +812,13 @@ FilterPath::resetMatch(ExceptionFrom *,
 
 ////////////////////////////////////////////////////////////////
 
-GroupPath::GroupPath(const std::string &name,
+GroupPath::GroupPath(std::string_view name,
                      bool is_default,
                      ExceptionFrom *from,
                      ExceptionThruSeq *thrus,
                      ExceptionTo *to,
                      bool own_pts,
-                     const char *comment) :
+                     std::string_view comment) :
   ExceptionPath(from, thrus, to, MinMaxAll::all(), own_pts,
                 groupPathPriority() + fromThruToPriority(from, thrus, to),
                 comment),

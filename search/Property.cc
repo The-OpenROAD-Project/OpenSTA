@@ -50,8 +50,8 @@ namespace sta {
 class PropertyUnknown : public Exception
 {
 public:
-  PropertyUnknown(const std::string &type,
-                  const std::string &property);
+  PropertyUnknown(std::string_view type,
+                  std::string_view property);
   virtual ~PropertyUnknown() {}
   virtual const char *what() const noexcept;
 
@@ -59,8 +59,8 @@ private:
   std::string msg_;
 };
 
-PropertyUnknown::PropertyUnknown(const std::string &type,
-                                 const std::string &property) :
+PropertyUnknown::PropertyUnknown(std::string_view type,
+                                 std::string_view property) :
   Exception(),
   msg_(sta::format("{} objects do not have a {} property.", type, property))
 {
@@ -107,18 +107,18 @@ PropertyValue::PropertyValue() :
 {
 }
 
-PropertyValue::PropertyValue(const char *value) :
+PropertyValue::PropertyValue(std::string_view value) :
   type_(Type::string),
-  string_(stringCopy(value)),
   unit_(nullptr)
 {
+  string_ = new std::string(value);
 }
 
-PropertyValue::PropertyValue(std::string &value) :
+PropertyValue::PropertyValue(std::string value) :
   type_(Type::string),
-  string_(stringCopy(value.c_str())),
   unit_(nullptr)
 {
+  string_ = new std::string(std::move(value));
 }
 
 PropertyValue::PropertyValue(float value,
@@ -269,7 +269,7 @@ PropertyValue::PropertyValue(const PropertyValue &value) :
   case Type::none:
     break;
   case Type::string:
-    string_ = stringCopy(value.string_);
+    string_ = new std::string(*value.string_);
     break;
   case Type::float_:
     float_ = value.float_;
@@ -325,7 +325,6 @@ PropertyValue::PropertyValue(const PropertyValue &value) :
 PropertyValue::PropertyValue(PropertyValue &&value) noexcept :
   type_(value.type_),
   unit_(value.unit_)
-
 {
   switch (type_) {
   case Type::none:
@@ -333,6 +332,7 @@ PropertyValue::PropertyValue(PropertyValue &&value) noexcept :
   case Type::string:
     string_ = value.string_;
     value.string_ = nullptr;
+    value.type_ = Type::none;
     break;
   case Type::float_:
     float_ = value.float_;
@@ -382,7 +382,7 @@ PropertyValue::PropertyValue(PropertyValue &&value) noexcept :
   case Type::paths:
     paths_ = value.paths_;
     // Steal the value.
-    value.clks_ = nullptr;
+    value.paths_ = nullptr;
     break;
   case Type::pwr_activity:
     pwr_activity_ = value.pwr_activity_;
@@ -390,11 +390,12 @@ PropertyValue::PropertyValue(PropertyValue &&value) noexcept :
   }
 }
 
-PropertyValue::~PropertyValue()
-{  
+void
+PropertyValue::destroyActive()
+{
   switch (type_) {
   case Type::string:
-    stringDelete(string_);
+    delete string_;
     break;
   case Type::clks:
     delete clks_;
@@ -410,9 +411,17 @@ PropertyValue::~PropertyValue()
   }
 }
 
+PropertyValue::~PropertyValue()
+{
+  destroyActive();
+}
+
 PropertyValue &
 PropertyValue::operator=(const PropertyValue &value)
 {
+  if (this == &value)
+    return *this;
+  destroyActive();
   type_ = value.type_;
   unit_ = value.unit_;
 
@@ -420,7 +429,7 @@ PropertyValue::operator=(const PropertyValue &value)
   case Type::none:
     break;
   case Type::string:
-    string_ = stringCopy(value.string_);
+    string_ = new std::string(*value.string_);
     break;
   case Type::float_:
     float_ = value.float_;
@@ -477,6 +486,9 @@ PropertyValue::operator=(const PropertyValue &value)
 PropertyValue &
 PropertyValue::operator=(PropertyValue &&value) noexcept
 {
+  if (this == &value)
+    return *this;
+  destroyActive();
   type_ = value.type_;
   unit_ = value.unit_;
 
@@ -486,6 +498,7 @@ PropertyValue::operator=(PropertyValue &&value) noexcept
   case Type::string:
     string_ = value.string_;
     value.string_ = nullptr;
+    value.type_ = Type::none;
     break;
   case Type::float_:
     float_ = value.float_;
@@ -533,7 +546,7 @@ PropertyValue::operator=(PropertyValue &&value) noexcept
     break;
   case Type::paths:
     paths_ = value.paths_;
-    value.clks_ = nullptr;
+    value.paths_ = nullptr;
     break;
   case Type::pwr_activity:
     pwr_activity_ = value.pwr_activity_;
@@ -547,7 +560,7 @@ PropertyValue::to_string(const Network *network) const
 {
   switch (type_) {
   case Type::string:
-    return string_;
+    return *string_;
   case Type::float_:
     return unit_->asString(float_, 6);
   case Type::bool_:
@@ -563,11 +576,11 @@ PropertyValue::to_string(const Network *network) const
   case Type::liberty_port:
     return liberty_port_->name();
   case Type::library:
-    return network->name(library_);
+    return std::string(network->name(library_));
   case Type::cell:
-    return network->name(cell_);
+    return std::string(network->name(cell_));
   case Type::port:
-    return network->name(port_);
+    return std::string(network->name(port_));
   case Type::instance:
     return network->pathName(inst_);
   case Type::pin:
@@ -586,12 +599,12 @@ PropertyValue::to_string(const Network *network) const
   return "";
 }
 
-const char *
+const std::string &
 PropertyValue::stringValue() const
 {
   if (type_ != Type::string)
     throw PropertyTypeWrong("stringValue", "string");
-  return string_;
+  return *string_;
 }
 
 float
@@ -619,7 +632,7 @@ Properties::Properties(Sta *sta) :
 
 PropertyValue
 Properties::getProperty(const Library *lib,
-                        const std::string &property)
+                        std::string_view property)
 {
   Network *network = sta_->cmdNetwork();
   if (property == "name"
@@ -639,7 +652,7 @@ Properties::getProperty(const Library *lib,
 
 PropertyValue
 Properties::getProperty(const LibertyLibrary *lib,
-                        const std::string &property)
+                        std::string_view property)
 {
   if (property == "name"
       || property == "full_name")
@@ -661,7 +674,7 @@ Properties::getProperty(const LibertyLibrary *lib,
 
 PropertyValue
 Properties::getProperty(const Cell *cell,
-                        const std::string &property)
+                        std::string_view property)
 {
   Network *network = sta_->cmdNetwork();
   if (property == "name"
@@ -669,8 +682,8 @@ Properties::getProperty(const Cell *cell,
     return PropertyValue(network->name(cell));
   else if (property == "full_name") {
     Library *lib = network->library(cell);
-    std::string lib_name = network->name(lib);
-    std::string cell_name = network->name(cell);
+    std::string lib_name(network->name(lib));
+    std::string cell_name(network->name(cell));
     std::string full_name = lib_name + network->pathDivider() + cell_name;
     return PropertyValue(full_name);
   }
@@ -692,7 +705,7 @@ Properties::getProperty(const Cell *cell,
 
 PropertyValue
 Properties::getProperty(const LibertyCell *cell,
-                        const std::string &property)
+                        std::string_view property)
 {
   if (property == "name"
       || property == "base_name")
@@ -733,11 +746,11 @@ Properties::getProperty(const LibertyCell *cell,
 
 PropertyValue
 Properties::getProperty(const Port *port,
-                        const std::string &property)
+                        std::string_view property)
 {
   Network *network = sta_->cmdNetwork();
   if (property == "name"
-           || property == "full_name")
+      || property == "full_name")
     return PropertyValue(network->name(port));
   else if (property == "direction"
            || property == "port_direction")
@@ -815,7 +828,7 @@ Properties::portSlack(const Port *port,
 
 PropertyValue
 Properties::getProperty(const LibertyPort *port,
-                        const std::string &property)
+                        std::string_view property)
 {
   if (property == "name")
     return PropertyValue(port->name());
@@ -894,7 +907,7 @@ Properties::getProperty(const LibertyPort *port,
 
 PropertyValue
 Properties::getProperty(const Instance *inst,
-                        const std::string &property)
+                        std::string_view property)
 {
   Network *network = sta_->ensureLinked();
   LibertyCell *liberty_cell = network->libertyCell(inst);
@@ -934,7 +947,7 @@ Properties::getProperty(const Instance *inst,
 
 PropertyValue
 Properties::getProperty(const Pin *pin,
-                        const std::string &property)
+                        std::string_view property)
 {
   Network *network = sta_->ensureLinked();
   if (property == "name"
@@ -1062,7 +1075,7 @@ Properties::pinSlew(const Pin *pin,
 
 PropertyValue
 Properties::getProperty(const Net *net,
-                        const std::string &property)
+                        std::string_view property)
 {
   Network *network = sta_->ensureLinked();
   if (property == "name")
@@ -1082,7 +1095,7 @@ Properties::getProperty(const Net *net,
 
 PropertyValue
 Properties::getProperty(Edge *edge,
-                        const std::string &property)
+                        std::string_view property)
 {
   if (property == "full_name") {
     std::string full_name = edge->to_string(sta_);
@@ -1135,17 +1148,17 @@ Properties::edgeDelay(Edge *edge,
 
 PropertyValue
 Properties::getProperty(TimingArcSet *arc_set,
-                        const std::string &property)
+                        std::string_view property)
 {
   if (property == "name"
       || property == "full_name") {
     if (arc_set->isWire())
       return PropertyValue("wire");
     else {
-      const char *from = arc_set->from()->name();
-      const char *to = arc_set->to()->name();
-      const char *cell_name = arc_set->libertyCell()->name();
-      std::string name = sta::format("{} {} -> {}", cell_name, from, to);
+      std::string name = sta::format("{} {} -> {}",
+                                     arc_set->libertyCell()->name(),
+                                     arc_set->from()->name(),
+                                     arc_set->to()->name());
       return PropertyValue(name);
     }
   }
@@ -1157,7 +1170,7 @@ Properties::getProperty(TimingArcSet *arc_set,
 
 PropertyValue
 Properties::getProperty(const Clock *clk,
-                        const std::string &property)
+                        std::string_view property)
 {
   if (property == "name"
       || property == "full_name")
@@ -1186,7 +1199,7 @@ Properties::getProperty(const Clock *clk,
 
 PropertyValue
 Properties::getProperty(PathEnd *end,
-                        const std::string &property)
+                        std::string_view property)
 {
   if (property == "startpoint") {
     PathExpanded expanded(end->path(), sta_);
@@ -1217,7 +1230,7 @@ Properties::getProperty(PathEnd *end,
 
 PropertyValue
 Properties::getProperty(Path *path,
-                        const std::string &property)
+                        std::string_view property)
 {
   if (property == "pin")
     return PropertyValue(path->pin(sta_));
@@ -1326,8 +1339,8 @@ Properties::defineProperty(std::string_view property,
 template<class TYPE>
 PropertyValue
 PropertyRegistry<TYPE>::getProperty(TYPE object,
-                                    const std::string &property,
-                                    const char *type_name,
+                                    std::string_view property,
+                                    std::string_view type_name,
                                     Sta *sta)
 
 {

@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
+
 #include "Zlib.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
@@ -38,16 +41,16 @@ class WriteSdc : public StaState
 public:
   WriteSdc(const Sdc *sdc,
            Instance *instance,
-           const char *creator,
+           std::string_view creator,
            bool map_hpins,
            bool native,
            int digits,
            bool no_timestamp);
   virtual ~WriteSdc();
-  void write(const char *filename,
+  void write(std::string_view filename,
              bool gzip);
 
-  void openFile(const char *filename,
+  void openFile(std::string_view filename,
                 bool gzip);
   void closeFile();
   virtual void writeHeader() const;
@@ -75,13 +78,13 @@ public:
   void writeClockSlews(const Clock *clk) const;
   void writeClockUncertainty(const Clock *clk) const;
   void writeClockUncertainty(const Clock *clk,
-                             const char *setup_hold,
+                             std::string_view setup_hold,
                              float value) const;
   void writeClockUncertaintyPins() const;
   void writeClockUncertaintyPin(const Pin *pin,
                                 ClockUncertainties *uncertainties) const;
   void writeClockUncertaintyPin(const Pin *pin,
-                                const char *setup_hold,
+                                std::string_view setup_hold,
                                 float value) const;
   void writeClockLatencies() const;
   void writeClockInsertions() const;
@@ -94,13 +97,13 @@ public:
   void writeOutputDelays() const;
   void writePortDelay(PortDelay *port_delay,
                       bool is_input_delay,
-                      const char *sdc_cmd) const;
+                      std::string_view sdc_cmd) const;
   void writePortDelay(PortDelay *port_delay,
                       bool is_input_delay,
                       float delay,
                       const RiseFallBoth *rf,
                       const MinMaxAll *min_max,
-                      const char *sdc_cmd) const;
+                      std::string_view sdc_cmd) const;
   void writeClockSenses() const;
   void writeClockSense(PinClockPair &pin_clk,
                        ClockSense sense) const;
@@ -113,7 +116,7 @@ public:
   void writeExceptionFrom(ExceptionFrom *from) const;
   void writeExceptionTo(ExceptionTo *to) const;
   void writeExceptionFromTo(ExceptionFromTo *from_to,
-                            const char *from_to_key,
+                            std::string_view from_to_key,
                             bool map_hpin_to_drvr) const;
   void writeExceptionThru(ExceptionThru *thru) const;
   void mapThruHpins(ExceptionThru *thru,
@@ -144,10 +147,10 @@ public:
                         const MinMax *min_max) const;
   void writeConstants() const;
   virtual void writeConstant(const Pin *pin) const;
-  const char *setConstantCmd(const Pin *pin) const;
+  std::string_view setConstantCmd(const Pin *pin) const;
   void writeCaseAnalysis() const;
   virtual void writeCaseAnalysis(const Pin *pin) const;
-  const char *caseAnalysisValueStr(const Pin *pin) const;
+  std::string_view caseAnalysisValueStr(const Pin *pin) const;
   void sortedLogicValuePins(const LogicValueMap &value_map,
                             PinSeq &pins) const;
   void writeNetResistances() const;
@@ -158,17 +161,17 @@ public:
   void writeMinPulseWidths() const;
   void writeMinPulseWidths(RiseFallValues *min_widths,
                            WriteSdcObject &write_obj) const;
-  void writeMinPulseWidth(const char *hi_low,
+  void writeMinPulseWidth(std::string_view hi_low,
                           float value,
                           WriteSdcObject &write_obj) const;
   void writeSlewLimits() const;
   void writeCapLimits() const;
   void writeCapLimits(const MinMax *min_max,
-                      const char *cmd) const;
+                      std::string_view cmd) const;
   void writeMaxArea() const;
   void writeFanoutLimits() const;
   void writeFanoutLimits(const MinMax *min_max,
-                         const char *cmd) const;
+                         std::string_view cmd) const;
   void writeLatchBorowLimits() const;
   void writeDeratings() const;
   void writeDerating(DeratingFactorsGlobal *factors) const;
@@ -180,17 +183,16 @@ public:
                      WriteSdcObject *write_obj) const;
   void writeVoltages() const;
 
-  const char *pathName(const Pin *pin) const;
-  const char *pathName(const Net *net) const;
-  const char *pathName(const Instance *inst) const;
-  void writeCommentSection(const char *line) const;
+  std::string pathName(const Pin *pin) const;
+  std::string pathName(const Net *net) const;
+  std::string pathName(const Instance *inst) const;
+  void writeCommentSection(std::string_view line) const;
   void writeCommentSeparator() const;
 
   void writeGetTimingArcsOfOjbects(const LibertyCell *cell) const;
-  void writeGetTimingArcs(Edge *edge) const;
   void writeGetTimingArcs(Edge *edge,
-                          const char *filter) const;
-  const char *getTimingArcsCmd() const;
+                          std::string_view filter = {}) const;
+  std::string_view getTimingArcsCmd() const;
   void writeGetLibCell(const LibertyCell *cell) const;
   void writeGetLibPin(const LibertyPort *port) const;
   void writeGetClock(const Clock *clk) const;
@@ -217,39 +219,39 @@ public:
   void writeResistance(float res) const;
 
   void writeClkSlewLimits() const;
-  void writeClkSlewLimit(const char *clk_data,
-                         const char *rise_fall,
+  void writeClkSlewLimit(std::string_view clk_data,
+                         std::string_view rise_fall,
                          const Clock *clk,
                          float limit) const;
-  void writeRiseFallMinMaxTimeCmd(const char *sdc_cmd,
+  void writeRiseFallMinMaxTimeCmd(std::string_view sdc_cmd,
                                   const RiseFallMinMax *values,
                                   WriteSdcObject &write_object) const;
-  void writeRiseFallMinMaxCapCmd(const char *sdc_cmd,
+  void writeRiseFallMinMaxCapCmd(std::string_view sdc_cmd,
                                  const RiseFallMinMax *values,
                                  WriteSdcObject &write_object) const;
-  void writeRiseFallMinMaxCmd(const char *sdc_cmd,
+  void writeRiseFallMinMaxCmd(std::string_view sdc_cmd,
                               const RiseFallMinMax *values,
                               float scale,
                               WriteSdcObject &write_object) const;
-  void writeRiseFallMinMaxCmd(const char *sdc_cmd,
+  void writeRiseFallMinMaxCmd(std::string_view sdc_cmd,
                               float value,
                               float scale,
                               const RiseFallBoth *rf,
                               const MinMaxAll *min_max,
                               WriteSdcObject &write_object) const;
-  void writeMinMaxFloatValuesCmd(const char *sdc_cmd,
+  void writeMinMaxFloatValuesCmd(std::string_view sdc_cmd,
                                  const MinMaxFloatValues *values,
                                  float scale,
                                  WriteSdcObject &write_object) const;
-  void writeMinMaxFloatCmd(const char *sdc_cmd,
+  void writeMinMaxFloatCmd(std::string_view sdc_cmd,
                            float value,
                            float scale,
                            const MinMaxAll *min_max,
                            WriteSdcObject &write_object) const;
-  void writeMinMaxIntValuesCmd(const char *sdc_cmd,
+  void writeMinMaxIntValuesCmd(std::string_view sdc_cmd,
                                const MinMaxIntValues *values,
                                WriteSdcObject &write_object) const;
-  void writeMinMaxIntCmd(const char *sdc_cmd,
+  void writeMinMaxIntCmd(std::string_view sdc_cmd,
                          int value,
                          const MinMaxAll *min_max,
                          WriteSdcObject &write_object) const;
@@ -262,7 +264,7 @@ public:
 protected:
   const Sdc *sdc_;
   Instance *instance_;
-  const char *creator_;
+  std::string creator_;
   bool map_hpins_;
   bool native_;
   int digits_;

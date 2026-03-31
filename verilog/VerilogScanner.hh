@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
+
 #include "VerilogLocation.hh"
 #include "VerilogParse.hh"
 
@@ -41,7 +44,7 @@ class VerilogScanner : public VerilogFlexLexer
 {
 public:
   VerilogScanner(std::istream *stream,
-                 const char *filename,
+                 std::string_view filename,
                  Report *report);
   virtual ~VerilogScanner() {}
 
@@ -50,14 +53,16 @@ public:
   // YY_DECL defined in VerilogLex.ll
   // Method body created by flex in VerilogLex.cc
 
-  void error(const char *msg);
+  void error(std::string_view msg);
 
   // Get rid of override virtual function warning.
   using yyFlexLexer::yylex;
 
 private:
-  const char *filename_;
+  std::string filename_;
   Report *report_;
+  // Quoted string accumulation (see VerilogLex.ll).
+  std::string token_;
 };
 
 } // namespace

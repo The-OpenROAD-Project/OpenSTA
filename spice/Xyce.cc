@@ -31,6 +31,7 @@
 #include <string>
 
 #include "Error.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -61,7 +62,7 @@ readXyceCsv(const char *csv_filename,
       std::stringstream ss(line);
       size_t col = 0;
       while (std::getline(ss, field, ',')) {
-        float value = std::stof(field);
+        auto [value, valid] = stringFloat(field);
         values[col].push_back(value);
         col++;
       }

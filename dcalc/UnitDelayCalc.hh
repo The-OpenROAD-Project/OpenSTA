@@ -34,7 +34,7 @@ class UnitDelayCalc : public ArcDelayCalc
 public:
   UnitDelayCalc(StaState *sta);
   ArcDelayCalc *copy() override;
-  const char *name() const override { return "unit"; }
+  std::string_view name() const override { return "unit"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const Scene *scene,
@@ -94,7 +94,7 @@ public:
   std::string reportCheckDelay(const Pin *check_pin,
                                const TimingArc *arc,
                                const Slew &from_slew,
-                               const char *from_slew_annotation,
+                               std::string_view from_slew_annotation,
                                const Slew &to_slew,
                                float related_out_cap,
                                const Scene *scene,

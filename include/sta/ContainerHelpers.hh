@@ -143,7 +143,7 @@ struct find_return<C, false>
 };
 
 
-// Find an pointer value in a reference to a contaiiner of pointers.
+// Find a pointer value in a reference to a contaiiner of pointers.
 // Return nullptr if not found.
 template<typename AssocContainer>
 auto
@@ -166,29 +166,24 @@ findKey(const AssocContainer& c,
     return *it;         // set
 }
 
-// Find an pointer value in a pointer to a contaiiner of pointers.
+// Find a pointer value in a reference to a map that uses strings as keys.
 // Return nullptr if not found.
 template<typename AssocContainer>
 auto
-findKey(const AssocContainer *c,
-        typename AssocContainer::key_type key)
+findStringKey(const AssocContainer& c,
+              std::string_view key)
     -> typename find_return<AssocContainer>::type
 {
   using ReturnType = typename find_return<AssocContainer>::type;
 
   static_assert(std::is_pointer_v<ReturnType>,
-                "findKey requires pointer types");
+                "findStringKey requires pointer types");
 
-  auto it = c->find(key);
-  if (it == c->end())
+  auto it = c.find(key);
+  if (it == c.end())
     return nullptr;
-
-  if constexpr (has_mapped_type<AssocContainer>::value)
-    // map
-    return it->second;
   else
-    // set
-    return *it;
+    return it->second;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -212,7 +207,7 @@ findKeyValue(const AssocContainer& c,
   return empty;
 }
 
-// Find an value reference in a reference to a contaiiner of objects.
+// Find a value reference in a reference to a contaiiner of objects.
 // Return exists.
 template<typename AssocContainer>
 void
@@ -239,7 +234,7 @@ findKeyValue(const AssocContainer& c,
   }
 }
 
-// Find an value reference in a pointer to a contaiiner of objects.
+// Find a value reference in a pointer to a contaiiner of objects.
 // Return exists.
 template<typename AssocContainer>
 void
@@ -268,7 +263,8 @@ findKeyValue(const AssocContainer *c,
 
 ////////////////////////////////////////////////////////////////
 
-// Find an value pointer in a reference to a contaiiner of objects.
+// Find a value pointer in a reference to a contaiiner of objects.
+// Return nullptr if not found.
 template<typename AssocContainer>
 auto
 findKeyValuePtr(AssocContainer& c,
@@ -283,17 +279,17 @@ findKeyValuePtr(AssocContainer& c,
     // map
     return &it->second;
   else
-    // set
+    // sett
     return *it;
 }
 
-// Find an pointger to a value in a const reference to a contaiiner objects.
+// Find a value pointer in a reference to a contaiiner of objects.
 // Return nullptr if not found.
 template<typename AssocContainer>
 auto
 findKeyValuePtr(const AssocContainer& c,
                 typename AssocContainer::key_type key)
-  -> const typename find_return<AssocContainer>::type*
+  -> typename find_return<AssocContainer>::type const*
 {
   auto it = c.find(key);
   if (it == c.end())
@@ -305,6 +301,38 @@ findKeyValuePtr(const AssocContainer& c,
   else
     // set
     return *it;
+}
+
+// Find a pointer to a value in a reference to a contaiiner of objects
+// using std::string as the key.
+// Return nullptr if not found.
+template<typename AssocContainer>
+auto
+findStringValuePtr(AssocContainer& c,
+                   std::string_view key)
+  -> typename find_return<AssocContainer>::type*
+{
+  auto it = c.find(key);
+  if (it == c.end())
+    return nullptr;
+  else
+    return &it->second;
+}
+
+// Find a const pointer to a value in a const reference to a contaiiner objects
+// using std::string as the key.
+// Return nullptr if not found.
+template<typename AssocContainer>
+auto
+findStringValuePtr(const AssocContainer& c,
+                   std::string_view key)
+  -> typename find_return<AssocContainer>::type const*
+{
+  auto it = c.find(key);
+  if (it == c.end())
+    return nullptr;
+  else
+    return &it->second;
 }
 
 ////////////////////////////////////////////////////////////////

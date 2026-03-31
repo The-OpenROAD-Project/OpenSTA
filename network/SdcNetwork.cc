@@ -30,13 +30,6 @@
 
 namespace sta {
 
-static std::string
-escapeDividers(const char *token,
-               const Network *network);
-static std::string
-escapeBrackets(const char *token,
-               const Network *network);
-
 NetworkNameAdapter::NetworkNameAdapter(Network *network) :
   NetworkEdit(),
   network_(network),
@@ -45,7 +38,7 @@ NetworkNameAdapter::NetworkNameAdapter(Network *network) :
 }
 
 bool
-NetworkNameAdapter::linkNetwork(const char *top_cell_name,
+NetworkNameAdapter::linkNetwork(std::string_view top_cell_name,
                                 bool make_black_boxes,
                                 Report *report)
 {
@@ -77,24 +70,24 @@ NetworkNameAdapter::libertyLibraryIterator() const
 }
 
 Library *
-NetworkNameAdapter::findLibrary(const char *name)
+NetworkNameAdapter::findLibrary(std::string_view name)
 {
   return network_->findLibrary(name);
 }
 
 LibertyLibrary *
-NetworkNameAdapter::findLiberty(const char *name)
+NetworkNameAdapter::findLiberty(std::string_view name)
 {
   return network_->findLiberty(name);
 }
 
 LibertyLibrary *
-NetworkNameAdapter::findLibertyFilename(const char *filename)
+NetworkNameAdapter::findLibertyFilename(std::string_view filename)
 {
   return network_->findLibertyFilename(filename);
 }
 
-const char *
+std::string
 NetworkNameAdapter::name(const Library *library) const
 {
   return network_->name(library);
@@ -108,7 +101,7 @@ NetworkNameAdapter::id(const Library *library) const
 
 Cell *
 NetworkNameAdapter::findCell(const Library *library,
-                             const char *name) const
+                             std::string_view name) const
 {
   return network_->findCell(library, name);
 }
@@ -122,7 +115,7 @@ NetworkNameAdapter::findCellsMatching(const Library *library,
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 NetworkNameAdapter::name(const Cell *cell) const
 {
   return network_->name(cell);
@@ -136,7 +129,7 @@ NetworkNameAdapter::id(const Cell *cell) const
 
 std::string
 NetworkNameAdapter::getAttribute(const Cell *cell,
-                                 const std::string &key) const
+                                 std::string_view key) const
 {
   return network_->getAttribute(cell, key);
 }
@@ -153,8 +146,8 @@ NetworkNameAdapter::library(const Cell *cell) const
   return network_->library(cell);
 }
 
-const char *
-NetworkNameAdapter::filename(const Cell *cell)
+std::string_view
+NetworkNameAdapter::filename(const Cell *cell) const
 {
   return network_->filename(cell);
 }
@@ -185,7 +178,7 @@ NetworkNameAdapter::cell(const LibertyCell *cell) const
 
 Port *
 NetworkNameAdapter::findPort(const Cell *cell,
-                             const char *name) const
+                             std::string_view name) const
 {
   return network_->findPort(cell, name);
 }
@@ -223,7 +216,7 @@ NetworkNameAdapter::portBitCount(const Cell *cell) const
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 NetworkNameAdapter::name(const Port *port) const
 {
   return network_->name(port);
@@ -288,7 +281,7 @@ NetworkNameAdapter::isBus(const Port *port) const
   return network_->isBus(port);
 }
 
-const char *
+std::string
 NetworkNameAdapter::busName(const Port *port) const
 {
   return network_->busName(port);
@@ -354,7 +347,7 @@ NetworkNameAdapter::cell(const Instance *instance) const
 
 std::string
 NetworkNameAdapter::getAttribute(const Instance *inst,
-                                 const std::string &key) const
+                                 std::string_view key) const
 {
   return network_->getAttribute(inst, key);
 }
@@ -537,15 +530,15 @@ NetworkNameAdapter::isEditable() const
 
 
 LibertyLibrary *
-NetworkNameAdapter::makeLibertyLibrary(const char *name,
-                                       const char *filename)
+NetworkNameAdapter::makeLibertyLibrary(std::string_view name,
+                                       std::string_view filename)
 {
   return network_edit_->makeLibertyLibrary(name, filename);
 }
 
 Instance *
 NetworkNameAdapter::makeInstance(LibertyCell *cell,
-                                 const char *name,
+                                 std::string_view name,
                                  Instance *parent)
 {
   return network_edit_->makeInstance(cell, name, parent);
@@ -571,7 +564,7 @@ NetworkNameAdapter::mergedInto(Net *net)
 }
 
 Net *
-NetworkNameAdapter::makeNet(const char *name,
+NetworkNameAdapter::makeNet(std::string_view name,
                             Instance *parent)
 {
   return network_edit_->makeNet(name, parent);
@@ -639,7 +632,7 @@ SdcNetwork::SdcNetwork(Network *network) :
 
 // Translate sta namespace to sdc namespace.
 // Remove all escapes.
-const char *
+std::string
 SdcNetwork::staToSdc(std::string_view sta_name) const
 {
   char escape = pathEscape();
@@ -660,12 +653,12 @@ SdcNetwork::staToSdc(std::string_view sta_name) const
       // Non escape.
       sdc_name += ch;
   }
-  return makeTmpString(sdc_name);
+  return sdc_name;
 }
 
 Port *
 SdcNetwork::findPort(const Cell *cell,
-                     const char *name) const
+                     std::string_view name) const
 {
   Port *port = network_->findPort(cell, name);
   if (port == nullptr) {
@@ -675,22 +668,22 @@ SdcNetwork::findPort(const Cell *cell,
     int index;
     parseBusName(name, '[', ']', pathEscape(), is_bus, bus_name, index);
     if (is_bus) {
-      std::string escaped1 = escapeBrackets(name, this);
-      port = network_->findPort(cell, escaped1.c_str());
+      std::string escaped1 = escapeBrackets(std::string(name), this);
+      port = network_->findPort(cell, escaped1);
       if (port == nullptr) {
         // Try escaping base foo\[0\][1]
-        std::string escaped_bus_name = escapeBrackets(bus_name.c_str(), this);
+        std::string escaped_bus_name = escapeBrackets(bus_name, this);
         std::string escaped2 = escaped_bus_name
           + '['
           + std::to_string(index)
           + ']';
-        port = network_->findPort(cell, escaped2.c_str());
+        port = network_->findPort(cell, escaped2);
       }
     }
     else {
       // Try escaping brackets foo\[0\].bar
-      std::string escaped = escapeBrackets(name, this);
-      port = network_->findPort(cell, escaped.c_str());
+      std::string escaped = escapeBrackets(std::string(name), this);
+      port = network_->findPort(cell, escaped);
     }
   }
   return port;
@@ -710,71 +703,71 @@ SdcNetwork::findPortsMatching(const Cell *cell,
                  is_bus, bus_name, index);
     if (is_bus) {
       std::string escaped1 = escapeBrackets(pattern->pattern(), this);
-      PatternMatch escaped_pattern1(escaped1.c_str(), pattern);
+      PatternMatch escaped_pattern1(escaped1, pattern);
       matches = network_->findPortsMatching(cell, &escaped_pattern1);
       if (matches.empty()) {
         // Try escaping base foo\[0\][1]
-        std::string escaped_name = escapeBrackets(bus_name.c_str(), this);
+        std::string escaped_name = escapeBrackets(bus_name, this);
         escaped_name += '[';
         escaped_name += std::to_string(index);
         escaped_name += ']';
-        PatternMatch escaped_pattern2(escaped_name.c_str(), pattern);
+        PatternMatch escaped_pattern2(escaped_name, pattern);
         matches = network_->findPortsMatching(cell, &escaped_pattern2);
       }
     }
     else {
       // Try escaping brackets foo\[0\].bar
       std::string escaped = escapeBrackets(pattern->pattern(), this);
-      PatternMatch escaped_pattern(escaped.c_str(), pattern);
+      PatternMatch escaped_pattern(escaped, pattern);
       matches = network_->findPortsMatching(cell, &escaped_pattern);
     }
   }
   return matches;
 }
 
-const char *
+std::string
 SdcNetwork::name(const Port *port) const
 {
   return staToSdc(network_->name(port));
 }
 
-const char *
+std::string
 SdcNetwork::busName(const Port *port) const
 {
   return staToSdc(network_->busName(port));
 }
 
-const char *
+std::string
 SdcNetwork::name(const Instance *instance) const
 {
   return staToSdc(network_->name(instance));
 }
 
-const char *
+std::string
 SdcNetwork::pathName(const Instance *instance) const
 {
   return staToSdc(network_->pathName(instance));
 }
 
-const char *
+std::string
 SdcNetwork::pathName(const Pin *pin) const
 {
   return staToSdc(network_->pathName(pin));
 }
 
-const char *
+std::string
 SdcNetwork::portName(const Pin *pin) const
 {
   return staToSdc(network_->portName(pin));
 }
 
-const char *
+std::string
 SdcNetwork::name(const Net *net) const
 {
   return staToSdc(network_->name(net));
 }
 
-const char *
+std::string
 SdcNetwork::pathName(const Net *net) const
 {
   return staToSdc(network_->pathName(net));
@@ -783,9 +776,9 @@ SdcNetwork::pathName(const Net *net) const
 ////////////////////////////////////////////////////////////////
 
 Instance *
-SdcNetwork::findInstance(const char *path_name) const
+SdcNetwork::findInstance(std::string_view path_name) const
 {
-  const char *child_name;
+  std::string child_name;
   Instance *parent;
   parsePath(path_name, parent, child_name);
   if (parent == nullptr)
@@ -793,22 +786,22 @@ SdcNetwork::findInstance(const char *path_name) const
   Instance *child = findChild(parent, child_name);
   if (child == nullptr) {
     std::string escaped_name = escapeDividers(child_name, this);
-    child = findChild(parent, escaped_name.c_str());
+    child = findChild(parent, escaped_name);
   }
   return child;
 }
 
 Instance *
 SdcNetwork::findInstanceRelative(const Instance *inst,
-                                 const char *path_name) const
+                                 std::string_view path_name) const
 {
   Instance *inst1 = network_->findInstanceRelative(inst, path_name);
   if (inst1 == nullptr) {
-    std::string path_name1 = escapeBrackets(path_name, this);
-    inst1 = network_->findInstanceRelative(inst, path_name1.c_str());
+    std::string path_name1 = escapeBrackets(std::string(path_name), this);
+    inst1 = network_->findInstanceRelative(inst, path_name1);
     if (inst1 == nullptr) {
-      std::string path_name2 = escapeDividers(path_name1.c_str(), network_);
-      inst1 = network_->findInstanceRelative(inst, path_name2.c_str());
+      std::string path_name2 = escapeDividers(path_name1, network_);
+      inst1 = network_->findInstanceRelative(inst, path_name2);
     }
   }
   return inst1;
@@ -840,12 +833,12 @@ SdcNetwork::findInstancesMatching1(const Instance *context,
 
 Instance *
 SdcNetwork::findChild(const Instance *parent,
-                      const char *name) const
+                      std::string_view name) const
 {
   Instance *child = network_->findChild(parent, name);
   if (child == nullptr) {
-    std::string escaped = escapeBrackets(name, this);
-    child = network_->findChild(parent, escaped.c_str());
+    std::string escaped = escapeBrackets(std::string(name), this);
+    child = network_->findChild(parent, escaped);
   }
   return child;
 }
@@ -853,9 +846,9 @@ SdcNetwork::findChild(const Instance *parent,
 ////////////////////////////////////////////////////////////////
 
 Net *
-SdcNetwork::findNet(const char *path_name) const
+SdcNetwork::findNet(std::string_view path_name) const
 {
-  const char *net_name;
+  std::string net_name;
   Instance *inst;
   parsePath(path_name, inst, net_name);
   if (inst == nullptr)
@@ -865,33 +858,33 @@ SdcNetwork::findNet(const char *path_name) const
 
 Net *
 SdcNetwork::findNet(const Instance *instance,
-                    const char *net_name) const
+                    std::string_view net_name) const
 {
   Net *net = network_->findNet(instance, net_name);
   if (net == nullptr) {
-    std::string net_name1 = escapeBrackets(net_name, this);
-    std::string net_name2 = escapeDividers(net_name1.c_str(), network_);
-    net = network_->findNet(instance, net_name2.c_str());
+    std::string net_name1 = escapeBrackets(std::string(net_name), this);
+    std::string net_name2 = escapeDividers(net_name1, network_);
+    net = network_->findNet(instance, net_name2);
   }
   return net;
 }
 
 Net *
 SdcNetwork::findNetRelative(const Instance *inst,
-                            const char *path_name) const
+                            std::string_view path_name) const
 {
   Net *net = network_->findNetRelative(inst, path_name);
   if (net == nullptr) {
-    std::string path_name1 = escapeDividers(path_name, network_);
-    net = network_->findNetRelative(inst, path_name1.c_str());
+    std::string path_name1 = escapeDividers(std::string(path_name), network_);
+    net = network_->findNetRelative(inst, path_name1);
 
     if (net == nullptr) {
-      std::string path_name2 = escapeBrackets(path_name, network_);
-      net = network_->findNetRelative(inst, path_name2.c_str());
+      std::string path_name2 = escapeBrackets(std::string(path_name), network_);
+      net = network_->findNetRelative(inst, path_name2);
 
       if (net == nullptr) {
-        std::string path_name3 = escapeDividers(path_name2.c_str(), network_);
-        net = network_->findNetRelative(inst, path_name3.c_str());
+        std::string path_name3 = escapeDividers(path_name2, network_);
+        net = network_->findNetRelative(inst, path_name3);
       }
     }
   }
@@ -923,12 +916,12 @@ SdcNetwork::findInstNetsMatching(const Instance *instance,
   if (matches.empty()) {
     // Look for matches after escaping path dividers.
     std::string escaped_pattern = escapeDividers(pattern->pattern(), this);
-    const PatternMatch escaped_dividers(escaped_pattern.c_str(), pattern);
+    const PatternMatch escaped_dividers(escaped_pattern, pattern);
     network_->findInstNetsMatching(instance, &escaped_dividers, matches);
     if (matches.empty()) {
       // Look for matches after escaping brackets.
       std::string escaped_pattern2 = escapeBrackets(pattern->pattern(),this);
-      const PatternMatch escaped_brkts(escaped_pattern2.c_str(), pattern);
+      const PatternMatch escaped_brkts(escaped_pattern2, pattern);
       network_->findInstNetsMatching(instance, &escaped_brkts, matches);
     }
   }
@@ -937,9 +930,9 @@ SdcNetwork::findInstNetsMatching(const Instance *instance,
 ////////////////////////////////////////////////////////////////
 
 Pin *
-SdcNetwork::findPin(const char *path_name) const
+SdcNetwork::findPin(std::string_view path_name) const
 {
-  const char *port_name;
+  std::string port_name;
   Instance *inst;
   parsePath(path_name, inst, port_name);
   if (inst == nullptr)
@@ -949,7 +942,7 @@ SdcNetwork::findPin(const char *path_name) const
 
 Pin *
 SdcNetwork::findPin(const Instance *instance,
-                    const char *port_name) const
+                    std::string_view port_name) const
 {
   Pin *pin = network_->findPin(instance, port_name);
   if (pin == nullptr) {
@@ -960,22 +953,22 @@ SdcNetwork::findPin(const Instance *instance,
     parseBusName(port_name, '[', ']', pathEscape(),
                  is_bus, bus_name, index);
     if (is_bus) {
-      std::string escaped1 = escapeBrackets(port_name, this);
-      pin = network_->findPin(instance, escaped1.c_str());
+      std::string escaped1 = escapeBrackets(std::string(port_name), this);
+      pin = network_->findPin(instance, escaped1);
       if (pin == nullptr) {
         // Try escaping base foo\[0\][1]
-        std::string escaped_bus_name = escapeBrackets(bus_name.c_str(), this);
+        std::string escaped_bus_name = escapeBrackets(bus_name, this);
         std::string escaped2 = escaped_bus_name
           + '['
           + std::to_string(index)
           + ']';
-        pin = network_->findPin(instance, escaped2.c_str());
+        pin = network_->findPin(instance, escaped2);
       }
     }
     else {
       // Try escaping port brackets foo\[0\].bar
-      std::string escaped = escapeBrackets(port_name, this);
-      pin = network_->findPin(instance, escaped.c_str());
+      std::string escaped = escapeBrackets(std::string(port_name), this);
+      pin = network_->findPin(instance, escaped);
     }
   }
   return pin;
@@ -987,7 +980,7 @@ SdcNetwork::findPinsMatching(const Instance *instance,
                              const PatternMatch *pattern) const
 {
   PinSeq matches;
-  if (stringEq(pattern->pattern(), "*")) {
+  if (pattern->pattern() == "*") {
     // Pattern of '*' matches all child instance pins.
     InstanceChildIterator *child_iter = childIterator(instance);
     while (child_iter->hasNext()) {
@@ -1022,11 +1015,12 @@ SdcNetwork::visitPinTail(const Instance *instance,
     CellPortIterator *port_iter = network_->portIterator(cell);
     while (port_iter->hasNext()) {
       Port *port = port_iter->next();
-      const char *port_name = network_->name(port);
+      std::string port_name = network_->name(port);
       if (network_->hasMembers(port)) {
         bool bus_matches = tail->match(port_name);
         if (!bus_matches) {
-          std::string escaped_name = escapeDividers(port_name, network_);
+          std::string escaped_name = escapeDividers(std::string(port_name),
+                                                    network_);
           bus_matches = tail->match(escaped_name);
         }
         PortMemberIterator *member_iter = network_->memberIterator(port);
@@ -1039,10 +1033,11 @@ SdcNetwork::visitPinTail(const Instance *instance,
               found_match = true;
             }
             else {
-              const char *member_name = network_->name(member_port);
+              std::string member_name = network_->name(member_port);
               bool member_matches = tail->match(member_name);
               if (!member_matches) {
-                std::string escaped_name = escapeDividers(member_name, network_);
+                std::string escaped_name = escapeDividers(std::string(member_name),
+                                                          network_);
                 member_matches = tail->match(escaped_name);
               }
               if (member_matches) {
@@ -1057,7 +1052,8 @@ SdcNetwork::visitPinTail(const Instance *instance,
       else {
         bool port_matches = tail->match(port_name);
         if (!port_matches) {
-          std::string escaped_name = escapeDividers(port_name, network_);
+          std::string escaped_name = escapeDividers(std::string(port_name),
+                                                    network_);
           port_matches = tail->match(escaped_name);
         }
         if (port_matches) {
@@ -1076,19 +1072,19 @@ SdcNetwork::visitPinTail(const Instance *instance,
 
 Instance *
 SdcNetwork::makeInstance(LibertyCell *cell,
-                         const char *name,
+                         std::string_view name,
                          Instance *parent)
 {
-  std::string escaped_name = escapeDividers(name, this);
-  return network_edit_->makeInstance(cell, escaped_name.c_str(), parent);
+  std::string escaped_name = escapeDividers(std::string(name), this);
+  return network_edit_->makeInstance(cell, escaped_name, parent);
 }
 
 Net *
-SdcNetwork::makeNet(const char *name,
+SdcNetwork::makeNet(std::string_view name,
                     Instance *parent)
 {
-  std::string escaped_name = escapeDividers(name, this);
-  return network_edit_->makeNet(escaped_name.c_str(), parent);
+  std::string escaped_name = escapeDividers(std::string(name), this);
+  return network_edit_->makeNet(escaped_name, parent);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1101,10 +1097,10 @@ SdcNetwork::makeNet(const char *name,
 //  a\/b
 //  a\/b\/c
 void
-SdcNetwork::parsePath(const char *path,
+SdcNetwork::parsePath(std::string_view path,
                       // Return values.
                       Instance *&inst,
-                      const char *&path_tail) const
+                      std::string &path_tail) const
 {
   int divider_count, path_length;
   scanPath(path, divider_count, path_length);
@@ -1118,7 +1114,7 @@ SdcNetwork::parsePath(const char *path,
 
 // Scan the path for unescaped dividers.
 void
-SdcNetwork::scanPath(const char *path,
+SdcNetwork::scanPath(std::string_view path,
                      // Return values.
                      // Unescaped divider count.
                      int &divider_count,
@@ -1126,12 +1122,12 @@ SdcNetwork::scanPath(const char *path,
 {
   divider_count = 0;
   path_length = 0;
-  for (const char *s = path; *s; s++) {
-    char ch = *s;
+  for (size_t i = 0; i < path.size(); i++) {
+    char ch = path[i];
     if (ch == escape_) {
       // Make sure we don't skip the null if escape is the last char.
-      if (s[1] != '\0') {
-        s++;
+      if (i != path.size() - 1) {
+        i++;
         path_length++;
       }
     }
@@ -1142,37 +1138,37 @@ SdcNetwork::scanPath(const char *path,
 }
 
 void
-SdcNetwork::parsePath(const char *path,
+SdcNetwork::parsePath(std::string_view path,
                       int divider_count,
                       int path_length,
                       // Return values.
                       Instance *&inst,
-                      const char *&path_tail) const
+                      std::string &path_tail) const
 {
   Instance *parent = topInstance();
   std::string inst_path;
-  // Leave room to escape all the dividers and '\0'.
-  inst_path.reserve(path_length + divider_count + 1);
+  // Leave room to escape all the dividers.
+  inst_path.reserve(path_length + divider_count);
   inst = nullptr;
   path_tail = path;
-  for (const char *s = path; *s; s++) {
-    char ch = *s;
+  for (size_t i = 0; i < path.size(); i++) {
+    char ch = path[i];
     if (ch == escape_) {
       // Make sure we don't skip the null if escape is the last char.
-      if (s[1] != '\0') {
+      if (i < path.size() - 1) {
         inst_path += ch;
-        inst_path += s[1];
-        s++;
+        inst_path += path[i + 1];
+        i++;
       }
     }
     else if (ch == divider_) {
-      Instance *child = findChild(parent, inst_path.c_str());
+      Instance *child = findChild(parent, inst_path);
       if (child) {
         // Found an instance for the sub-path up to this divider.
         parent = inst = child;
         // Reset the instance path.
         inst_path.clear();
-        path_tail = s + 1;
+        path_tail = path.substr(i + 1);
       }
       else {
         // No match for sub-path.  Escape the divider and keep looking.
@@ -1206,29 +1202,30 @@ SdcNetwork::visitMatches(const Instance *parent,
   inst_path.reserve(path_length + divider_count + 1);
   bool has_brkts = false;
   bool found_match = false;
-  for (const char *s = pattern->pattern(); *s; s++) {
-    char ch = *s;
+  const std::string &pattern_str = pattern->pattern();
+  for (size_t i = 0; i < pattern_str.size(); i++) {
+    char ch = pattern_str[i];
     if (ch == escape_) {
       // Make sure we don't skip the null if escape is the last char.
-      if (s[1] != '\0') {
+      if (i < pattern_str.size() - 1) {
         inst_path += ch;
-        inst_path += s[1];
-        s++;
+        inst_path += pattern_str[i + 1];
+        i++;
       }
     }
     else if (ch == divider_) {
-      PatternMatch matcher(inst_path.c_str(), pattern);
+      PatternMatch matcher(inst_path, pattern);
       InstanceSeq matches;
       network_->findChildrenMatching(parent, &matcher, matches);
       if (has_brkts && matches.empty()) {
         // Look for matches after escaping brackets.
-        std::string escaped_brkts = escapeBrackets(inst_path.c_str(), this);
+        std::string escaped_brkts = escapeBrackets(inst_path, this);
         const PatternMatch escaped_pattern(escaped_brkts, pattern);
         network_->findChildrenMatching(parent, &escaped_pattern, matches);
       }
       if (!matches.empty()) {
         // Found instance matches for the sub-path up to this divider.
-        const PatternMatch tail_pattern(s + 1, pattern);
+        const PatternMatch tail_pattern(pattern_str.substr(i + 1), pattern);
         for (const Instance *match : matches) 
           // Recurse to save the iterator state so we can iterate over
           // multiple nested partial matches.
@@ -1245,11 +1242,11 @@ SdcNetwork::visitMatches(const Instance *parent,
     }
   }
   if (!found_match) {
-    PatternMatch tail_pattern(inst_path.c_str(), pattern);
+    PatternMatch tail_pattern(inst_path, pattern);
     found_match |= visit_tail(parent, &tail_pattern);
     if (!found_match && has_brkts) {
       // Look for matches after escaping brackets.
-      std::string escaped_path = escapeBrackets(inst_path.c_str(), this);
+      std::string escaped_path = escapeBrackets(inst_path, this);
       const PatternMatch escaped_tail(escaped_path, pattern);
       found_match |= visit_tail(parent, &escaped_tail);
     }
@@ -1259,19 +1256,19 @@ SdcNetwork::visitMatches(const Instance *parent,
 
 ////////////////////////////////////////////////////////////////
 
-static std::string
-escapeDividers(const char *token,
+std::string
+escapeDividers(std::string_view name,
                const Network *network)
 {
-  return escapeChars(token, network->pathDivider(), '\0',
+  return escapeChars(name, network->pathDivider(), '\0',
                      network->pathEscape());
 }
 
-static std::string
-escapeBrackets(const char *token,
+std::string
+escapeBrackets(std::string_view name,
                const Network *network)
 {
-  return escapeChars(token, '[', ']', network->pathEscape());
+  return escapeChars(name, '[', ']', network->pathEscape());
 }
 
 } // namespace

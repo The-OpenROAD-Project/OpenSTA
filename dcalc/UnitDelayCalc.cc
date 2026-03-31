@@ -172,7 +172,7 @@ std::string
 UnitDelayCalc::reportCheckDelay(const Pin *,
                                 const TimingArc *,
                                 const Slew &,
-                                const char *,
+                                std::string_view,
                                 const Slew &,
                                 float,
                                 const Scene *,

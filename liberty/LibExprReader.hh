@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string_view>
+
 namespace sta {
 
 class Report;
@@ -31,9 +33,9 @@ class FuncExpr;
 class LibertyCell;
 
 FuncExpr *
-parseFuncExpr(const char *func,
+parseFuncExpr(std::string_view func,
               const LibertyCell *cell,
-              const char *error_msg,
+              std::string_view error_msg,
               Report *report);
 
 } // namespace

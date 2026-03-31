@@ -88,11 +88,11 @@ MinMax::opposite() const
 const MinMax *
 MinMax::find(const char *min_max)
 {
-  if (stringEq(min_max, "min")
-      || stringEq(min_max, "early"))
+  if (stringEqual(min_max, "min")
+      || stringEqual(min_max, "early"))
     return &min_;
-  else if (stringEq(min_max, "max")
-           || stringEq(min_max, "late"))
+  else if (stringEqual(min_max, "max")
+           || stringEqual(min_max, "late"))
     return &max_;
   else
     return nullptr;
@@ -168,15 +168,15 @@ MinMaxAll::matches(const MinMaxAll *min_max) const
 const MinMaxAll *
 MinMaxAll::find(const char *min_max)
 {
-  if (stringEq(min_max, "min")
-      || stringEq(min_max, "early"))
+  if (stringEqual(min_max, "min")
+      || stringEqual(min_max, "early"))
     return &min_;
-  else if (stringEq(min_max, "max")
-           || stringEq(min_max, "late"))
+  else if (stringEqual(min_max, "max")
+           || stringEqual(min_max, "late"))
     return &max_;
-  else if (stringEq(min_max, "all")
-           || stringEq(min_max, "min_max")
-           || stringEq(min_max, "minmax"))
+  else if (stringEqual(min_max, "all")
+           || stringEqual(min_max, "min_max")
+           || stringEqual(min_max, "minmax"))
     return &all_;
   else
     return nullptr;

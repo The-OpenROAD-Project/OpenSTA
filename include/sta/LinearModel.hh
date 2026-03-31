@@ -76,7 +76,7 @@ public:
                       PocvMode pocv_mode) const override;
   std::string reportCheckDelay(const Pvt *pvt,
                                float from_slew,
-                               const char *from_slew_annotation,
+                               std::string_view from_slew_annotation,
                                float to_slew,
                                float related_out_cap,
                                const MinMax *min_max,
