@@ -426,7 +426,8 @@ GraphDelayCalc::seedDrvrSlew(Vertex *drvr_vertex,
             if (from_port == nullptr)
               from_port = driveCellDefaultFromPort(drvr_cell, to_port);
             findInputDriverDelay(drvr_cell, drvr_pin, drvr_vertex, rf,
-                                 from_port, from_slews, to_port, scene, min_max);
+                                 from_port, from_slews, to_port, scene, min_max,
+                                 arc_delay_calc);
           }
           else
             seedNoDrvrCellSlew(drvr_vertex, drvr_pin, rf, drive, scene, min_max,
@@ -601,7 +602,8 @@ GraphDelayCalc::findInputDriverDelay(const LibertyCell *drvr_cell,
                                      float *from_slews,
                                      const LibertyPort *to_port,
                                      const Scene *scene,
-                                     const MinMax *min_max)
+                                     const MinMax *min_max,
+                                     ArcDelayCalc *arc_delay_calc)
 {
   debugPrint(debug_, "delay_calc", 2, "  driver cell {} {}",
              drvr_cell->name(),
@@ -610,7 +612,8 @@ GraphDelayCalc::findInputDriverDelay(const LibertyCell *drvr_cell,
     for (TimingArc *arc : arc_set->arcs()) {
       if (arc->toEdge()->asRiseFall() == rf) {
         float from_slew = from_slews[arc->fromEdge()->index()];
-        findInputArcDelay(drvr_pin, drvr_vertex, arc, from_slew, scene, min_max);
+        findInputArcDelay(drvr_pin, drvr_vertex, arc, from_slew, scene, min_max,
+                          arc_delay_calc);
       }
     }
   }
@@ -626,7 +629,8 @@ GraphDelayCalc::findInputArcDelay(const Pin *drvr_pin,
                                   const TimingArc *arc,
                                   float from_slew,
                                   const Scene *scene,
-                                  const MinMax *min_max)
+                                  const MinMax *min_max,
+                                  ArcDelayCalc *arc_delay_calc)
 {
   debugPrint(debug_, "delay_calc", 3, "  {} {} -> {} {} ({})",
              arc->from()->name(),
@@ -640,20 +644,20 @@ GraphDelayCalc::findInputArcDelay(const Pin *drvr_pin,
 
     const Parasitic *parasitic;
     float load_cap;
-    parasiticLoad(drvr_pin, drvr_rf, scene, min_max, nullptr, arc_delay_calc_,
+    parasiticLoad(drvr_pin, drvr_rf, scene, min_max, nullptr, arc_delay_calc,
                   load_cap, parasitic);
 
     LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(drvr_vertex);
     ArcDcalcResult intrinsic_result =
-      arc_delay_calc_->gateDelay(drvr_pin, arc, Slew(from_slew), 0.0, nullptr,
-                                 load_pin_index_map, scene, min_max);
+      arc_delay_calc->gateDelay(drvr_pin, arc, Slew(from_slew), 0.0, nullptr,
+                                load_pin_index_map, scene, min_max);
     const ArcDelay &intrinsic_delay = intrinsic_result.gateDelay();
 
-    ArcDcalcResult gate_result = arc_delay_calc_->gateDelay(drvr_pin, arc,
-                                                            Slew(from_slew), load_cap,
-                                                            parasitic, 
-                                                            load_pin_index_map,
-                                                            scene, min_max);
+    ArcDcalcResult gate_result = arc_delay_calc->gateDelay(drvr_pin, arc,
+                                                           Slew(from_slew), load_cap,
+                                                           parasitic, 
+                                                           load_pin_index_map,
+                                                           scene, min_max);
     const ArcDelay &gate_delay = gate_result.gateDelay();
     const Slew &gate_slew = gate_result.drvrSlew();
 
@@ -666,7 +670,7 @@ GraphDelayCalc::findInputArcDelay(const Pin *drvr_pin,
     graph_->setSlew(drvr_vertex, drvr_rf, ap_index, gate_slew);
     annotateLoadDelays(drvr_vertex, drvr_rf, gate_result, load_pin_index_map, 
                        load_delay, false, scene, min_max);
-    arc_delay_calc_->finishDrvrPin();
+    arc_delay_calc->finishDrvrPin();
   }
 }
 
