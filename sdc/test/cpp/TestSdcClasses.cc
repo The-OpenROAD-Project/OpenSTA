@@ -4407,7 +4407,7 @@ TEST_F(SdcInitTest, SdcSwapDeratingFactors) {
 // Sdc: deleteDeratingFactors
 // Sdc: allInputs/allOutputs
 // Sdc: findClocksMatching
-// Sdc: isGroupPathName
+// Sdc: isGroupPathName (deprecated) and isPathGroupName
 TEST_F(SdcInitTest, SdcIsGroupPathNameEmpty) {
   Sdc *sdc = sta_->cmdSdc();
   // Suppress deprecation warning -- we intentionally test deprecated API
@@ -4416,6 +4416,10 @@ TEST_F(SdcInitTest, SdcIsGroupPathNameEmpty) {
   bool is_group = sdc->isGroupPathName("nonexistent");
   #pragma GCC diagnostic pop
   EXPECT_FALSE(is_group);
+}
+
+TEST_F(SdcInitTest, SdcIsPathGroupNameEmpty) {
+  EXPECT_FALSE(sta_->isPathGroupName("nonexistent", sta_->cmdSdc()));
 }
 
 // Sdc: setVoltage

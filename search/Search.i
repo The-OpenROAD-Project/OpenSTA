@@ -238,7 +238,7 @@ endpoint_slack(const Pin *pin,
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
   if (!path_group_name.empty()
-      && !sta->isGroupPathName(path_group_name, sta->cmdSdc()))  {
+      && !sta->isPathGroupName(path_group_name, sta->cmdSdc()))  {
     sta->report()->error(1577, "{} is not a known path group name.",
                          path_group_name);
     return INF;
