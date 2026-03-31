@@ -15,4 +15,4 @@ read_sdf sdf_test1.sdf
 set sdf_out [make_result_file $test_name.sdf]
 write_sdf $sdf_out
 
-diff_files $test_name.sdfok $sdf_out {\(DATE}
+diff_files $test_name.sdfok $sdf_out {\(DATE|\(VERSION}

@@ -28,12 +28,12 @@ diff_files search_test1_opts.sdfok $sdf_file2
 puts "--- write_sdf with digits ---"
 set sdf_file3 [make_result_file "search_test1_digits.sdf"]
 write_sdf -digits 6 -no_timestamp $sdf_file3
-diff_files search_test1_digits.sdfok $sdf_file3
+diff_files search_test1_digits.sdfok $sdf_file3 {\(VERSION}
 
 puts "--- write_sdf with include_typ ---"
 set sdf_file4 [make_result_file "search_test1_typ.sdf"]
 write_sdf -include_typ -no_timestamp $sdf_file4
-diff_files search_test1_typ.sdfok $sdf_file4
+diff_files search_test1_typ.sdfok $sdf_file4 {\(VERSION}
 
 puts "--- write_timing_model ---"
 set model_file [make_result_file "search_test1_model.lib"]
