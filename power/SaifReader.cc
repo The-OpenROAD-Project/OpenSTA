@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cinttypes>
 #include <string>
+#include <utility>
 
 #include "Error.hh"
 #include "Debug.hh"
@@ -93,23 +94,22 @@ SaifReader::setDivider(char divider)
 
 void
 SaifReader::setTimescale(uint64_t multiplier,
-                         const char *units)
+                         std::string &&units)
 {
   if (multiplier == 1 || multiplier == 10 || multiplier == 100) {
-    if (stringEq(units, "us"))
+    if (stringEqual(units, "us"))
       timescale_ = multiplier * 1E-6;
-    else if (stringEq(units, "ns"))
+    else if (stringEqual(units, "ns"))
       timescale_ = multiplier * 1E-9;
-    else if (stringEq(units, "ps"))
+    else if (stringEqual(units, "ps"))
       timescale_ = multiplier * 1E-12;
-    else if (stringEq(units, "fs"))
+    else if (stringEqual(units, "fs"))
       timescale_ = multiplier * 1E-15;
     else
       report_->error(1861, "SAIF TIMESCALE units not us, ns, or ps.");
   }
   else
     report_->error(1862, "SAIF TIMESCALE multiplier not 1, 10, or 100.");
-  stringDelete(units);
 }
 
 void
@@ -119,11 +119,11 @@ SaifReader::setDuration(uint64_t duration)
 }
 
 void
-SaifReader::instancePush(const char *instance_name)
+SaifReader::instancePush(std::string &&instance_name)
 {
   if (in_scope_level_ == 0) {
     // Check for a match to the annotation scope.
-    saif_scope_.push_back(instance_name);
+    saif_scope_.push_back(std::move(instance_name));
 
     std::string saif_scope;
     bool first = true;
@@ -133,7 +133,7 @@ SaifReader::instancePush(const char *instance_name)
       saif_scope += inst;
       first = false;
     }
-    if (stringEq(saif_scope.c_str(), scope_))
+    if (saif_scope == scope_)
       in_scope_level_ = saif_scope_.size();
   }
   else {
@@ -144,7 +144,6 @@ SaifReader::instancePush(const char *instance_name)
       : nullptr;
     path_.push_back(child);
   }
-  stringDelete(instance_name);
 }
 
 void
@@ -159,14 +158,14 @@ SaifReader::instancePop()
 }
 
 void
-SaifReader::setNetDurations(const char *net_name,
-                            SaifStateDurations &durations)
+SaifReader::setNetDurations(std::string &&net_name,
+                            const SaifStateDurations &durations)
 {
   if (in_scope_level_ > 0) {
     Instance *parent = path_.empty() ? sdc_network_->topInstance() : path_.back();
     if (parent) {
       std::string unescaped_name = unescaped(net_name);
-      const Pin *pin = sdc_network_->findPin(parent, unescaped_name.c_str());
+      const Pin *pin = sdc_network_->findPin(parent, unescaped_name);
       LibertyPort *liberty_port = pin ? sdc_network_->libertyPort(pin) : nullptr;
       if (pin && !sdc_network_->isHierarchical(pin)
           && !sdc_network_->direction(pin)->isInternal()
@@ -183,17 +182,14 @@ SaifReader::setNetDurations(const char *net_name,
       }
     }
   }
-  stringDelete(net_name);
 }
 
 std::string
-SaifReader::unescaped(const char *token)
+SaifReader::unescaped(const std::string &token)
 {
   std::string unescaped;
-  for (const char *t = token; *t; t++) {
-    char ch = *t;
+  for (char ch : token) {
     if (ch != escape_)
-      // Just the normal noises.
       unescaped += ch;
   }
   debugPrint(debug_, "saif_name", 1, "token {} -> {}", token, unescaped);
@@ -216,7 +212,7 @@ SaifScanner::SaifScanner(std::istream *stream,
 void
 SaifScanner::error(const char *msg)
 {
-  report_->fileError(1860, filename_.c_str(), lineno(), "{}", msg);
+  report_->fileError(1860, filename_, lineno(), "{}", msg);
 }
 
 }  // namespace sta

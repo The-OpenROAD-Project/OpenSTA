@@ -68,7 +68,7 @@ public:
 
 private:
   void parseTimescale();
-  void setTimeUnit(const std::string &time_unit,
+  void setTimeUnit(std::string_view time_unit,
                    double time_scale);
   void parseVar();
   void parseScope();
@@ -98,27 +98,27 @@ class VcdReader
 {
 public:
   virtual ~VcdReader() {}
-  virtual void setDate(const std::string &date) = 0;
-  virtual void setComment(const std::string &comment) = 0;
-  virtual void setVersion(const std::string &version) = 0;
-  virtual void setTimeUnit(const std::string &time_unit,
+  virtual void setDate(std::string_view date) = 0;
+  virtual void setComment(std::string_view comment) = 0;
+  virtual void setVersion(std::string_view version) = 0;
+  virtual void setTimeUnit(std::string_view time_unit,
                            double time_unit_scale,
                            double time_scale) = 0;
   virtual void setTimeMin(VcdTime time) = 0;
   virtual void setTimeMax(VcdTime time) = 0;
   virtual void varMinDeltaTime(VcdTime min_delta_time) = 0;
-  virtual bool varIdValid(const std::string &id) = 0;
+  virtual bool varIdValid(std::string_view id) = 0;
   virtual void makeVar(const VcdScope &scope,
-                       const std::string &name,
+                       std::string_view name,
                        VcdVarType type,
                        size_t width,
-                       const std::string &id) = 0;
+                       std::string_view id) = 0;
   virtual void varAppendValue(const std::string &id,
                               VcdTime time,
                               char value) = 0;
   virtual void varAppendBusValue(const std::string &id,
                                  VcdTime time,
-                                 const std::string &bus_value) = 0;
+                                 std::string_view bus_value) = 0;
 };
 
 class VcdValue

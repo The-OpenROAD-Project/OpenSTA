@@ -88,34 +88,34 @@ TimingArcAttrs::setCond(FuncExpr *cond)
 }
 
 void
-TimingArcAttrs::setSdfCond(const std::string &cond)
+TimingArcAttrs::setSdfCond(std::string cond)
 {
-  sdf_cond_ = cond;
+  sdf_cond_ = std::move(cond);
   sdf_cond_start_ = sdf_cond_end_ = sdf_cond_;
 }
 
 void
-TimingArcAttrs::setSdfCondStart(const std::string &cond)
+TimingArcAttrs::setSdfCondStart(std::string cond)
 {
-  sdf_cond_start_ = cond;
+  sdf_cond_start_ = std::move(cond);
 }
 
 void
-TimingArcAttrs::setSdfCondEnd(const std::string &cond)
+TimingArcAttrs::setSdfCondEnd(std::string cond)
 {
-  sdf_cond_end_ = cond;
+  sdf_cond_end_ = std::move(cond);
 }
 
 void
-TimingArcAttrs::setModeName(const std::string &name)
+TimingArcAttrs::setModeName(std::string name)
 {
-  mode_name_ = name;
+  mode_name_ = std::move(name);
 }
 
 void
-TimingArcAttrs::setModeValue(const std::string &value)
+TimingArcAttrs::setModeValue(std::string value)
 {
-  mode_value_ = value;
+  mode_value_ = std::move(value);
 }
 
 TimingModel *
@@ -679,7 +679,7 @@ static EnumNameMap<TimingSense> timing_sense_name_map =
    {TimingSense::unknown, "unknown"}
   };
 
-const char *
+const std::string &
 to_string(TimingSense sense)
 {
   return timing_sense_name_map.find(sense);
@@ -747,14 +747,14 @@ EnumNameMap<TimingType> timing_type_name_map =
    {TimingType::unknown, "unknown"}
   };
 
-const char *
+std::string_view
 timingTypeString(TimingType type)
 {
   return timing_type_name_map.find(type);
 }
 
 TimingType
-findTimingType(const char *type_name)
+findTimingType(std::string_view type_name)
 {
   return timing_type_name_map.find(type_name, TimingType::unknown);
 }

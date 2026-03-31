@@ -220,7 +220,7 @@ protected:
   PinVertexMap pin_bidirect_drvr_vertex_map_;
   DcalcAPIndex ap_count_;
   // Sdf period check annotations.
-  PeriodCheckAnnotations *period_check_annotations_;
+  PeriodCheckAnnotations period_check_annotations_;
   // Register/latch clock vertices to search from.
   VertexSet reg_clk_vertices_;
 
@@ -241,7 +241,7 @@ public:
   // Pin path with load/driver suffix for bidirects.
   std::string to_string(const StaState *sta) const;
   // compatibility
-  const char *name(const Network *network) const;
+  std::string name(const Network *network) const;
   [[nodiscard]] bool isBidirectDriver() const { return is_bidirect_drvr_; }
   [[nodiscard]] bool isDriver(const Network *network) const;
   Level level() const { return level_; }

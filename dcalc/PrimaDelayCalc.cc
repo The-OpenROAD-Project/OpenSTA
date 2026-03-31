@@ -25,6 +25,7 @@
 #include "PrimaDelayCalc.hh"
 
 #include <cmath>  // abs
+#include <string_view>
 
 #include "Debug.hh"
 #include "Units.hh"
@@ -951,7 +952,7 @@ PrimaDelayCalc::watchWaveform(const Pin *pin)
 ////////////////////////////////////////////////////////////////
 
 void
-PrimaDelayCalc::reportMatrix(const char *name,
+PrimaDelayCalc::reportMatrix(std::string_view name,
                              MatrixSd &matrix)
 {
   report_->report("{}", name);
@@ -959,7 +960,7 @@ PrimaDelayCalc::reportMatrix(const char *name,
 }
 
 void
-PrimaDelayCalc::reportMatrix(const char *name,
+PrimaDelayCalc::reportMatrix(std::string_view name,
                              Eigen::MatrixXd &matrix)
 {
   report_->report("{}", name);
@@ -967,7 +968,7 @@ PrimaDelayCalc::reportMatrix(const char *name,
 }
 
 void
-PrimaDelayCalc::reportMatrix(const char *name,
+PrimaDelayCalc::reportMatrix(std::string_view name,
                              Eigen::VectorXd &matrix)
 {
   report_->report("{}", name);
@@ -975,7 +976,7 @@ PrimaDelayCalc::reportMatrix(const char *name,
 }
 
 void
-PrimaDelayCalc::reportVector(const char *name,
+PrimaDelayCalc::reportVector(std::string_view name,
                              std::vector<double> &matrix)
 {
   report_->report("{}", name);

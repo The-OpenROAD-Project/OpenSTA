@@ -42,10 +42,10 @@ namespace sta {
 static bool
 isPowerOfTwo(int i);
 
-Clock::Clock(const char *name,
+Clock::Clock(std::string_view name,
              int index,
              const Network *network) :
-  name_(stringCopy(name)),
+  name_(name),
   pins_(network),
   add_to_pins_(false),
   leaf_pins_(network),
@@ -76,7 +76,7 @@ Clock::initClk(PinSet *pins,
                bool add_to_pins,
                float period,
                FloatSeq *waveform,
-               const char *comment,
+               std::string_view comment,
                const Network *network)
 {
   is_generated_ = false;
@@ -87,7 +87,7 @@ Clock::initClk(PinSet *pins,
   waveform_valid_ = true;
   period_ = period;
   setClkEdgeTimes();
-  setComment(comment);
+  setComment(std::move(comment));
 }
 
 bool
@@ -132,7 +132,6 @@ Clock::makeClkEdges()
 
 Clock::~Clock()
 {
-  stringDelete(name_);
   if (clk_edges_) {
     delete clk_edges_[RiseFall::riseIndex()];
     delete clk_edges_[RiseFall::fallIndex()];
@@ -328,7 +327,7 @@ Clock::initGeneratedClk(PinSet *pins,
                         IntSeq *edges,
                         FloatSeq *edge_shifts,
                         bool is_propagated,
-                        const char *comment,
+                        std::string_view comment,
                         const Network *network)
 {
   is_generated_ = true;
@@ -344,7 +343,7 @@ Clock::initGeneratedClk(PinSet *pins,
   invert_ = invert;
   combinational_ = combinational;
   is_propagated_ = is_propagated;
-  setComment(comment);
+  setComment(std::move(comment));
 
   delete edges_;
   if (edges
@@ -679,14 +678,6 @@ InterClockUncertaintyLess::operator()(const InterClockUncertainty *inter1,
 }
 
 ////////////////////////////////////////////////////////////////
-
-bool
-ClockNameLess::operator()(const Clock *clk1,
-                          const Clock *clk2)
-{
-  return stringLess(clk1->name(), clk2->name());
-}
-
 
 bool
 ClockIndexLess::operator()(const Clock *clk1,

@@ -193,21 +193,21 @@ Units::Units() :
 }
 
 Unit *
-Units::find(const char *unit_name)
+Units::find(std::string_view unit_name)
 {
-  if (stringEq(unit_name, "time"))
+  if (stringEqual(unit_name, "time"))
     return &time_unit_;
-  else if (stringEq(unit_name, "resistance"))
+  else if (stringEqual(unit_name, "resistance"))
     return &resistance_unit_;
-  else if (stringEq(unit_name, "capacitance"))
+  else if (stringEqual(unit_name, "capacitance"))
     return &capacitance_unit_;
-  else if (stringEq(unit_name, "voltage"))
+  else if (stringEqual(unit_name, "voltage"))
     return &voltage_unit_;
-  else if (stringEq(unit_name, "current"))
+  else if (stringEqual(unit_name, "current"))
     return &current_unit_;
-  else if (stringEq(unit_name, "power"))
+  else if (stringEqual(unit_name, "power"))
     return &power_unit_;
-  else if (stringEq(unit_name, "distance"))
+  else if (stringEqual(unit_name, "distance"))
     return &distance_unit_;
   else
     return nullptr;

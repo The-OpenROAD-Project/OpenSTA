@@ -35,8 +35,8 @@ const RiseFall RiseFall::fall_("fall", "v", 1);
 const std::array<const RiseFall*, 2> RiseFall::range_{&rise_, &fall_};
 const std::array<int, 2> RiseFall::range_index_{rise_.index(), fall_.index()};
 
-RiseFall::RiseFall(const char *name,
-                   const char *short_name,
+RiseFall::RiseFall(std::string_view name,
+                   std::string_view  short_name,
                    int sdf_triple_index) :
   name_(name),
   short_name_(short_name),
@@ -44,7 +44,7 @@ RiseFall::RiseFall(const char *name,
 {
 }
 
-const std::string &
+const std::string&
 RiseFall::to_string(bool use_short) const
 {
   if (use_short)
@@ -63,16 +63,13 @@ RiseFall::opposite() const
 }
 
 const RiseFall *
-RiseFall::find(const char *rf_str)
+RiseFall::find(std::string_view rf_str)
 {
-  if (stringEq(rf_str, rise_.name())
-      || stringEq(rf_str, rise_.shortName()))
+  if (rf_str == rise_.name() || rf_str == rise_.shortName())
     return &rise_;
-  else if (stringEq(rf_str, fall_.name())
-           || stringEq(rf_str, fall_.shortName()))
+  if (rf_str == fall_.name() || rf_str == fall_.shortName())
     return &fall_;
-  else
-    return nullptr;
+  return nullptr;
 }
 
 const RiseFall *
@@ -128,8 +125,8 @@ const RiseFallBoth RiseFallBoth::rise_fall_("rise_fall", "rf", 2,
                                             {RiseFall::riseIndex(),
                                              RiseFall::fallIndex()});
 
-RiseFallBoth::RiseFallBoth(const char *name,
-                           const char *short_name,
+RiseFallBoth::RiseFallBoth(std::string_view name,
+                           std::string_view short_name,
                            int sdf_triple_index,
                            const RiseFall *as_rise_fall,
                            std::vector<const RiseFall*> range,
@@ -143,7 +140,7 @@ RiseFallBoth::RiseFallBoth(const char *name,
 {
 }
 
-const std::string &
+const std::string&
 RiseFallBoth::to_string(bool use_short) const
 {
   if (use_short)
@@ -153,16 +150,15 @@ RiseFallBoth::to_string(bool use_short) const
 }
 
 const RiseFallBoth *
-RiseFallBoth::find(const char *tr_str)
+RiseFallBoth::find(std::string_view name)
 {
-  if (stringEq(tr_str, rise_.name()))
+  if (name == rise_.name())
     return &rise_;
-  else if (stringEq(tr_str, fall_.name()))
+  if (name == fall_.name())
     return &fall_;
-  else if (stringEq(tr_str, rise_fall_.name()))
+  if (name == rise_fall_.name())
     return &rise_fall_;
-  else
-    return nullptr;
+  return nullptr;
 }
 
 bool
@@ -202,8 +198,8 @@ const Transition Transition::tr_XZ_{"XZ", "XZ", nullptr,          10};
 const Transition Transition::tr_ZX_{"ZX", "ZX", nullptr,          11};
 const Transition Transition::rise_fall_{"*", "**", nullptr,       -1};
 
-Transition::Transition(const char *name,
-                       const char *init_final,
+Transition::Transition(std::string_view name,
+                       std::string_view init_final,
                        const RiseFall *as_rise_fall,
                        int sdf_triple_index) :
   name_(name),
@@ -223,9 +219,9 @@ Transition::matches(const Transition *tr) const
 }
 
 const Transition *
-Transition::find(const char *tr_str)
+Transition::find(std::string_view tr_str)
 {
-  return findKey(transition_map_, tr_str);
+  return findStringKey(transition_map_, tr_str);
 }
 
 const RiseFallBoth *

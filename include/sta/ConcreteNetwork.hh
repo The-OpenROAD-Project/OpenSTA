@@ -25,6 +25,7 @@
 #pragma once
 
 #include <functional>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <set>
@@ -47,9 +48,9 @@ class ConcreteBindingTbl;
 class ConcreteLibertyLibraryIterator;
 
 using ConcreteLibrarySeq = std::vector<ConcreteLibrary*>;
-using ConcreteLibraryMap = std::map<const char*, ConcreteLibrary*, CharPtrLess>;
-using ConcreteInstanceChildMap = std::map<const char *, ConcreteInstance*, CharPtrLess>;
-using ConcreteInstanceNetMap = std::map<const char *, ConcreteNet*, CharPtrLess>;
+using ConcreteLibraryMap = std::map<std::string, ConcreteLibrary*, std::less<>>;
+using ConcreteInstanceChildMap = std::map<std::string, ConcreteInstance*, std::less<>>;
+using ConcreteInstanceNetMap = std::map<std::string, ConcreteNet*, std::less<>>;
 using ConcreteNetSeq = std::vector<ConcreteNet*>;
 using ConcretePinSeq = std::vector<ConcretePin*>;
 using CellNetworkViewMap = std::map<Cell*, Instance*>;
@@ -63,26 +64,26 @@ public:
   ConcreteNetwork();
   ~ConcreteNetwork();
   void clear() override;
-  bool linkNetwork(const char *top_cell_name,
+  bool linkNetwork(std::string_view top_cell_name,
                    bool make_black_boxes,
                    Report *report) override;
   Instance *topInstance() const override;
 
-  const char *name(const Library *library) const override;
+  std::string name(const Library *library) const override;
   ObjectId id(const Library *library) const override;
   LibraryIterator *libraryIterator() const override;
   LibertyLibraryIterator *libertyLibraryIterator() const override;
-  Library *findLibrary(const char *name) override;
-  LibertyLibrary *findLiberty(const char *name) override;
+  Library *findLibrary(std::string_view name) override;
+  LibertyLibrary *findLiberty(std::string_view name) override;
   Cell *findCell(const Library *library,
-                 const char *name) const override;
-  Cell *findAnyCell(const char *name) override;
+                 std::string_view name) const override;
+  Cell *findAnyCell(std::string_view name) override;
   CellSeq findCellsMatching(const Library *library,
                             const PatternMatch *pattern) const override;
 
-  const char *name(const Cell *cell) const override;
+  std::string name(const Cell *cell) const override;
   std::string getAttribute(const Cell *cell,
-                           const std::string &key) const override;
+                           std::string_view key) const override;
   const AttributeMap &attributeMap(const Cell *cell) const override;
   ObjectId id(const Cell *cell) const override;
   Library *library(const Cell *cell) const override;
@@ -90,15 +91,15 @@ public:
   const LibertyCell *libertyCell(const Cell *cell) const override;
   Cell *cell(LibertyCell *cell) const override;
   const Cell *cell(const LibertyCell *cell) const override;
-  const char *filename(const Cell *cell) override;
+  std::string_view filename(const Cell *cell) const override;
   Port *findPort(const Cell *cell,
-                 const char *name) const override;
+                 std::string_view name) const override;
   bool isLeaf(const Cell *cell) const override;
   CellPortIterator *portIterator(const Cell *cell) const override;
   CellPortBitIterator *portBitIterator(const Cell *cell) const override;
   int portBitCount(const Cell *cell) const override;
 
-  const char *name(const Port *port) const override;
+  std::string name(const Port *port) const override;
   ObjectId id(const Port *port) const override;
   Cell *cell(const Port *port) const override;
   LibertyPort *libertyPort(const Port *port) const override;
@@ -108,7 +109,7 @@ public:
 
   bool isBus(const Port *port) const override;
   int size(const Port *port) const override;
-  const char *busName(const Port *port) const override;
+  std::string busName(const Port *port) const override;
   Port *findBusBit(const Port *port,
                    int index) const override;
   int fromIndex(const Port *port) const override;
@@ -117,18 +118,18 @@ public:
                    int index) const override;
   PortMemberIterator *memberIterator(const Port *port) const override;
 
-  const char *name(const Instance *instance) const override;
+  std::string name(const Instance *instance) const override;
   std::string getAttribute(const Instance *inst,
-                           const std::string &key) const override;
+                           std::string_view key) const override;
   const AttributeMap &attributeMap(const Instance *inst) const override;
   ObjectId id(const Instance *instance) const override;
   Cell *cell(const Instance *instance) const override;
   Instance *parent(const Instance *instance) const override;
   bool isLeaf(const Instance *instance) const override;
   Instance *findChild(const Instance *parent,
-                      const char *name) const override;
+                      std::string_view name) const override;
   Pin *findPin(const Instance *instance,
-               const char *port_name) const override;
+               std::string_view port_name) const override;
   Pin *findPin(const Instance *instance,
                const Port *port) const override;
 
@@ -153,10 +154,10 @@ public:
   Net *net(const Term *term) const override;
   Pin *pin(const Term *term) const override;
 
-  const char *name(const Net *net) const override;
+  std::string name(const Net *net) const override;
   ObjectId id(const Net *net) const override;
   Net *findNet(const Instance *instance,
-               const char *net_name) const override;
+               std::string_view net_name) const override;
   void findInstNetsMatching(const Instance *instance,
                             const PatternMatch *pattern,
                             NetSeq &matches) const override;
@@ -174,44 +175,44 @@ public:
                       LogicValue value) override;
 
   // Edit methods.
-  Library *makeLibrary(const char *name,
-                       const char *filename) override;
-  LibertyLibrary *makeLibertyLibrary(const char *name,
-                                     const char *filename) override;
+  Library *makeLibrary(std::string_view name,
+                       std::string_view filename) override;
+  LibertyLibrary *makeLibertyLibrary(std::string_view name,
+                                     std::string_view filename) override;
   void deleteLibrary(Library *library) override;
   Cell *makeCell(Library *library,
-                 const char *name,
+                 std::string_view name,
                  bool is_leaf,
-                 const char *filename) override;
+                 std::string_view filename) override;
   void deleteCell(Cell *cell) override;
   void setName(Cell *cell,
-               const char *name) override;
+               std::string_view name) override;
   void setIsLeaf(Cell *cell,
                  bool is_leaf) override;
   void setAttribute(Cell *cell,
-                    const std::string &key,
-                    const std::string &value) override;
+                    std::string_view key,
+                    std::string_view value) override;
   Port *makePort(Cell *cell,
-                 const char *name) override;
+                 std::string_view name) override;
   Port *makeBusPort(Cell *cell,
-                    const char *name,
+                    std::string_view name,
                     int from_index,
                     int to_index) override;
   void groupBusPorts(Cell *cell,
-                     std::function<bool(const char*)> port_msb_first) override;
+                     std::function<bool(std::string_view)> port_msb_first) override;
   Port *makeBundlePort(Cell *cell,
-                       const char *name,
+                       std::string_view name,
                        PortSeq *members) override;
   void setDirection(Port *port,
                     PortDirection *dir) override;
   // For NetworkEdit.
   Instance *makeInstance(LibertyCell *cell,
-                         const char *name,
+                         std::string_view name,
                          Instance *parent) override;
   void makePins(Instance *inst) override;
   // For linking.
   Instance *makeInstance(Cell *cell,
-                         const char *name,
+                         std::string_view name,
                          Instance *parent) override;
   void replaceCell(Instance *inst,
                    Cell *cell) override;
@@ -223,11 +224,11 @@ public:
                LibertyPort *port,
                Net *net) override;
   void setAttribute(Instance *inst,
-                    const std::string &key,
-                    const std::string &value) override;
+                    std::string_view key,
+                    std::string_view value) override;
   void disconnectPin(Pin *pin) override;
   void deletePin(Pin *pin) override;
-  Net *makeNet(const char *name,
+  Net *makeNet(std::string_view name,
                Instance *parent) override;
   void deleteNet(Net *net) override;
 
@@ -263,13 +264,13 @@ public:
 
 protected:
   void addLibrary(ConcreteLibrary *library);
-  void setName(const char *name);
+  void setName(std::string_view name);
   void clearConstantNets();
   void visitConnectedPins(const Net *net,
                           PinVisitor &visitor,
                           NetSet &visited_nets) const override;
   Instance *makeConcreteInstance(ConcreteCell *cell,
-                                 const char *name,
+                                 std::string_view name,
                                  Instance *parent);
   void disconnectNetPin(ConcreteNet *cnet,
                         ConcretePin *cpin);
@@ -292,40 +293,40 @@ private:
 class ConcreteInstance
 {
 public:
-  const char *name() const { return name_; }
+  std::string_view name() const { return name_; }
   ObjectId id() const { return id_; }
   Cell *cell() const;
   ConcreteInstance *parent() const { return parent_; }
-  ConcretePin *findPin(const char *port_name) const;
+  ConcretePin *findPin(std::string_view port_name) const;
   ConcretePin *findPin(const Port *port) const;
-  ConcreteNet *findNet(const char *net_name) const;
+  ConcreteNet *findNet(std::string_view net_name) const;
   void findNetsMatching(const PatternMatch *pattern,
                         NetSeq &matches) const;
   InstanceNetIterator *netIterator() const;
-  Instance *findChild(const char *name) const;
+  Instance *findChild(std::string_view name) const;
   InstanceChildIterator *childIterator() const;
-  void setAttribute(const std::string &key,
-                    const std::string &value);
-  std::string getAttribute(const std::string &key) const;
+  void setAttribute(std::string_view key,
+                    std::string_view value);
+  std::string getAttribute(std::string_view key) const;
   const AttributeMap &attributeMap() const { return attribute_map_; }
   void addChild(ConcreteInstance *child);
   void deleteChild(ConcreteInstance *child);
   void addPin(ConcretePin *pin);
   void deletePin(ConcretePin *pin);
   void addNet(ConcreteNet *net);
-  void addNet(const char *name,
+  void addNet(std::string_view name,
               ConcreteNet *net);
   void deleteNet(ConcreteNet *net);
   void setCell(ConcreteCell *cell);
   void initPins();
 
 protected:
-  ConcreteInstance(const char *name,
+  ConcreteInstance(std::string_view name,
                    ConcreteCell *cell,
                    ConcreteInstance *parent);
   ~ConcreteInstance();
 
-  const char *name_;
+  std::string name_;
   ObjectId id_;
   ConcreteCell *cell_;
   ConcreteInstance *parent_;
@@ -343,7 +344,7 @@ private:
 class ConcretePin
 {
 public:
-  const char *name() const;
+  std::string_view name() const;
   ConcreteInstance *instance() const { return instance_; }
   ConcreteNet *net() const { return net_; }
   ConcretePort *port() const { return port_; }
@@ -377,7 +378,7 @@ private:
 class ConcreteTerm
 {
 public:
-  const char *name() const;
+  std::string_view name() const;
   ObjectId id() const { return id_; }
   ConcreteNet *net() const { return net_; }
   ConcretePin *pin() const { return pin_; }
@@ -402,7 +403,7 @@ private:
 class ConcreteNet
 {
 public:
-  const char *name() const { return name_; }
+  std::string_view name() const { return name_; }
   ObjectId id() const { return id_; }
   ConcreteInstance *instance() const { return instance_; }
   void addPin(ConcretePin *pin);
@@ -413,10 +414,9 @@ public:
   ConcreteNet *mergedInto() { return merged_into_; }
 
 protected:
-  ConcreteNet(const char *name,
+  ConcreteNet(std::string_view name,
               ConcreteInstance *instance);
-  ~ConcreteNet();
-  const char *name_;
+  std::string name_;
   ObjectId id_;
   ConcreteInstance *instance_;
   // Pointer to head of linked list of pins.

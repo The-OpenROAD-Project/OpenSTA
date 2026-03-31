@@ -38,7 +38,7 @@
 
 namespace sta {
 
-typedef std::map<std::string, MakeArcDelayCalc> DelayCalcMap;
+typedef std::map<std::string, MakeArcDelayCalc, std::less<>> DelayCalcMap;
 
 static DelayCalcMap delay_calcs;
 
@@ -55,10 +55,10 @@ registerDelayCalcs()
 }
 
 void
-registerDelayCalc(const std::string &name,
+registerDelayCalc(std::string_view name,
                   MakeArcDelayCalc maker)
 {
-  delay_calcs[name] = maker;
+  delay_calcs[std::string(name)] = maker;
 }
 
 void
@@ -68,10 +68,10 @@ deleteDelayCalcs()
 }
 
 ArcDelayCalc *
-makeDelayCalc(const std::string &name,
+makeDelayCalc(const std::string_view name,
               StaState *sta)
 {
-  MakeArcDelayCalc maker = findKey(&delay_calcs, name);
+  MakeArcDelayCalc maker = findStringKey(delay_calcs, name);
   if (maker)
     return maker(sta);
   else
@@ -79,7 +79,7 @@ makeDelayCalc(const std::string &name,
 }
 
 bool
-isDelayCalcName(const std::string &name)
+isDelayCalcName(std::string_view name)
 {
   return delay_calcs.contains(name);
 }

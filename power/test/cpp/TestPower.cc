@@ -231,31 +231,31 @@ TEST_F(PwrActivityTest, OriginName) {
   PwrActivity activity;
 
   activity.setOrigin(PwrActivityOrigin::global);
-  EXPECT_STREQ(activity.originName(), "global");
+  EXPECT_EQ(activity.originName(), "global");
 
   activity.setOrigin(PwrActivityOrigin::input);
-  EXPECT_STREQ(activity.originName(), "input");
+  EXPECT_EQ(activity.originName(), "input");
 
   activity.setOrigin(PwrActivityOrigin::user);
-  EXPECT_STREQ(activity.originName(), "user");
+  EXPECT_EQ(activity.originName(), "user");
 
   activity.setOrigin(PwrActivityOrigin::vcd);
-  EXPECT_STREQ(activity.originName(), "vcd");
+  EXPECT_EQ(activity.originName(), "vcd");
 
   activity.setOrigin(PwrActivityOrigin::saif);
-  EXPECT_STREQ(activity.originName(), "saif");
+  EXPECT_EQ(activity.originName(), "saif");
 
   activity.setOrigin(PwrActivityOrigin::propagated);
-  EXPECT_STREQ(activity.originName(), "propagated");
+  EXPECT_EQ(activity.originName(), "propagated");
 
   activity.setOrigin(PwrActivityOrigin::clock);
-  EXPECT_STREQ(activity.originName(), "clock");
+  EXPECT_EQ(activity.originName(), "clock");
 
   activity.setOrigin(PwrActivityOrigin::constant);
-  EXPECT_STREQ(activity.originName(), "constant");
+  EXPECT_EQ(activity.originName(), "constant");
 
   activity.setOrigin(PwrActivityOrigin::unknown);
-  EXPECT_STREQ(activity.originName(), "unknown");
+  EXPECT_EQ(activity.originName(), "unknown");
 }
 
 TEST_F(PwrActivityTest, VerySmallDensityClipped) {
@@ -346,15 +346,15 @@ TEST_F(PowerResultTest, MultipleIncrements) {
 
 TEST_F(PwrActivityTest, OriginNames) {
   // Test all origin name strings
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::unknown).originName(), "unknown");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::global).originName(), "global");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::input).originName(), "input");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::user).originName(), "user");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::vcd).originName(), "vcd");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::saif).originName(), "saif");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::propagated).originName(), "propagated");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::clock).originName(), "clock");
-  EXPECT_STREQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::constant).originName(), "constant");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::unknown).originName(), "unknown");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::global).originName(), "global");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::input).originName(), "input");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::user).originName(), "user");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::vcd).originName(), "vcd");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::saif).originName(), "saif");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::propagated).originName(), "propagated");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::clock).originName(), "clock");
+  EXPECT_EQ(PwrActivity(0.0f, 0.0f, PwrActivityOrigin::constant).originName(), "constant");
 }
 
 // Construct and test with explicit density/duty
@@ -597,15 +597,15 @@ TEST_F(PwrActivityTest, NegativeNearThreshold) {
 // Test PwrActivity originName for all origins
 // Covers: PwrActivity::originName exhaustive
 TEST_F(PwrActivityTest, OriginNameExhaustive) {
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::unknown).originName(), "unknown");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::global).originName(), "global");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::input).originName(), "input");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::user).originName(), "user");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::vcd).originName(), "vcd");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::saif).originName(), "saif");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::propagated).originName(), "propagated");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::clock).originName(), "clock");
-  EXPECT_STREQ(PwrActivity(0, 0, PwrActivityOrigin::constant).originName(), "constant");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::unknown).originName(), "unknown");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::global).originName(), "global");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::input).originName(), "input");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::user).originName(), "user");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::vcd).originName(), "vcd");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::saif).originName(), "saif");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::propagated).originName(), "propagated");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::clock).originName(), "clock");
+  EXPECT_EQ(PwrActivity(0, 0, PwrActivityOrigin::constant).originName(), "constant");
 }
 
 ////////////////////////////////////////////////////////////////

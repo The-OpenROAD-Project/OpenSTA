@@ -171,7 +171,7 @@ MinPulseWidthCheck::MinPulseWidthCheck(Path *open_path) :
 std::string
 MinPulseWidthCheck::to_string(const StaState *sta)
 {
-  std::string result = sta->network()->pathName(pin(sta));
+  std::string result(sta->network()->pathName(pin(sta)));
   result += " ";
   result += (openTransition(sta) == RiseFall::rise()) ? "(high)" : "(low)";
   return result;

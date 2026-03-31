@@ -28,6 +28,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
 
 #include "cudd.h"
 
@@ -56,41 +57,12 @@ Net *
 pinNet(const Pin *pin,
        const Network *network);
 
-class SubcktEndsMissing : public Exception
-{
-public:
-  SubcktEndsMissing(const char *cell_name,
-                    const char *subckt_filename);
-  const char *what() const noexcept;
-
-protected:
-  std::string what_;
-};
-
-SubcktEndsMissing::SubcktEndsMissing(const char *cell_name,
-                                     const char *subckt_filename) :
-  Exception()
-{
-  what_ = "spice subckt for cell ";
-  what_ += cell_name;
-  what_ += " missing .ends in ";
-  what_ += subckt_filename;
-}
-
-const char *
-SubcktEndsMissing::what() const noexcept
-{
-  return what_.c_str();
-}
-
-////////////////////////////////////////////////////////////////
-
-WriteSpice::WriteSpice(const char *spice_filename,
-                       const char *subckt_filename,
-                       const char *lib_subckt_filename,
-                       const char *model_filename,
-                       const char *power_name,
-                       const char *gnd_name,
+WriteSpice::WriteSpice(std::string_view spice_filename,
+                       std::string_view subckt_filename,
+                       std::string_view lib_subckt_filename,
+                       std::string_view model_filename,
+                       std::string_view power_name,
+                       std::string_view gnd_name,
                        CircuitSim ckt_sim,
                        const Scene *scene,
                        const MinMax *min_max,
@@ -165,11 +137,11 @@ WriteSpice::writePrintStmt(StringSeq &node_names)
 }
 
 std::string
-WriteSpice::replaceFileExt(std::string filename,
-                           const char *ext)
+WriteSpice::replaceFileExt(std::string_view filename,
+                           std::string_view ext)
 {
   size_t dot = filename.rfind('.');
-  std::string ext_filename = filename.substr(0, dot + 1);
+  std::string ext_filename(filename.substr(0, dot + 1));
   ext_filename += ext;
   return ext_filename;
 }
@@ -201,29 +173,33 @@ void
 WriteSpice::writeSubckts(StringSet &cell_names)
 {
   findCellSubckts(cell_names);
-  std::ifstream lib_subckts_stream(lib_subckt_filename_);
+  std::ifstream lib_subckts_stream{std::string(lib_subckt_filename_)};
   if (lib_subckts_stream.is_open()) {
-    std::ofstream subckts_stream(subckt_filename_);
+    std::ofstream subckts_stream{std::string(subckt_filename_)};
     if (subckts_stream.is_open()) {
       std::string line;
+      int line_num = 0;
       while (std::getline(lib_subckts_stream, line)) {
+        line_num++;
         // .subckt <cell_name> [args..]
-        StringSeq tokens = parseTokens(line, ' ');
-        if (tokens.size() >= 2 && stringEqual(tokens[0].c_str(), ".subckt")) {
-          const char *cell_name = tokens[1].c_str();
+        StringSeq tokens = parseTokens(line);
+        if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
+          const std::string &cell_name = tokens[1];
           if (cell_names.contains(cell_name)) {
             subckts_stream << line << "\n";
             bool found_ends = false;
             while (std::getline(lib_subckts_stream, line)) {
               subckts_stream << line << "\n";
-              if (stringBeginEqual(line.c_str(), ".ends")) {
+              if (stringBeginEqual(line, ".ends")) {
                 subckts_stream << "\n";
                 found_ends = true;
                 break;
               }
             }
             if (!found_ends)
-              throw SubcktEndsMissing(cell_name, lib_subckt_filename_);
+              report_->fileError(1606, lib_subckt_filename_, line_num,
+                                 "spice subckt for cell {} missing .ends.",
+                                 cell_name);
             cell_names.erase(cell_name);
           }
           recordSpicePortNames(cell_name, tokens);
@@ -252,19 +228,18 @@ WriteSpice::writeSubckts(StringSet &cell_names)
 }
 
 void
-WriteSpice::recordSpicePortNames(const char *cell_name,
+WriteSpice::recordSpicePortNames(std::string_view cell_name,
                                  StringSeq &tokens)
 {
   LibertyCell *cell = network_->findLibertyCell(cell_name);
   if (cell) {
-    StringSeq &spice_port_names = cell_spice_port_names_[cell_name];
+    StringSeq &spice_port_names = cell_spice_port_names_[std::string(cell_name)];
     for (size_t i = 2; i < tokens.size(); i++) {
-      const char *port_name = tokens[i].c_str();
+      const std::string &port_name = tokens[i];
       LibertyPort *port = cell->findLibertyPort(port_name);
-      LibertyPort *pg_port = cell->findLibertyPort(port_name);
-      if (port == nullptr && pg_port == nullptr
-          && !stringEqual(port_name, power_name_)
-          && !stringEqual(port_name, gnd_name_))
+      if (port == nullptr
+          && port_name != power_name_
+          && port_name != gnd_name_)
         report_->error(1606,
                        "subckt {} port {} has no corresponding liberty port, "
                        "pg_port and is not power or ground.",
@@ -278,14 +253,14 @@ WriteSpice::recordSpicePortNames(const char *cell_name,
 void
 WriteSpice::findCellSubckts(StringSet &cell_names)
 {
-  std::ifstream lib_subckts_stream(lib_subckt_filename_);
+  std::ifstream lib_subckts_stream{std::string(lib_subckt_filename_)};
   if (lib_subckts_stream.is_open()) {
     std::string line;
     while (std::getline(lib_subckts_stream, line)) {
       // .subckt <cell_name> [args..]
-      StringSeq tokens = parseTokens(line, ' ');
-      if (tokens.size() >= 2 && stringEqual(tokens[0].c_str(), ".subckt")) {
-        const char *cell_name = tokens[1].c_str();
+      StringSeq tokens = parseTokens(line);
+      if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
+        const std::string &cell_name = tokens[1];
         if (cell_names.contains(cell_name)) {
           // Scan the subckt definition for subckt calls.
           std::string stmt;
@@ -295,13 +270,13 @@ WriteSpice::findCellSubckts(StringSet &cell_names)
             else {
               // Process previous statement.
               if (tolower(stmt[0]) == 'x') {
-                StringSeq tokens = parseTokens(line, ' ');
+                StringSeq tokens = parseTokens(line);
                 std::string &subckt_cell = tokens[tokens.size() - 1];
                 cell_names.insert(subckt_cell);
               }
               stmt = line;
             }
-            if (stringBeginEqual(line.c_str(), ".ends"))
+            if (stringBeginEqual(line, ".ends"))
               break;
           }
         }
@@ -317,25 +292,21 @@ WriteSpice::findCellSubckts(StringSet &cell_names)
 void
 WriteSpice::writeSubcktInst(const Instance *inst)
 {
-  const char *inst_name = network_->pathName(inst);
+  std::string inst_name = network_->pathName(inst);
   LibertyCell *cell = network_->libertyCell(inst);
-  const char *cell_name = cell->name();
+  const std::string &cell_name = cell->name();
   StringSeq &spice_port_names = cell_spice_port_names_[cell_name];
   sta::print(spice_stream_, "x{}", inst_name);
-  for (std::string subckt_port_name : spice_port_names) {
-    const char *subckt_port_cname = subckt_port_name.c_str();
-    Pin *pin = network_->findPin(inst, subckt_port_cname);
-    LibertyPort *pg_port = cell->findLibertyPort(subckt_port_cname);
-    const char *pin_name;
-    if (pin) {
-      pin_name = network_->pathName(pin);
-      sta::print(spice_stream_, " {}", pin_name);
-    }
+  for (std::string &subckt_port_name : spice_port_names) {
+    Pin *pin = network_->findPin(inst, subckt_port_name);
+    LibertyPort *pg_port = cell->findLibertyPort(subckt_port_name);
+    if (pin)
+      sta::print(spice_stream_, " {}", network_->pathName(pin));
     else if (pg_port)
-      sta::print(spice_stream_, " {}/{}", inst_name, subckt_port_cname);
-    else if (stringEq(subckt_port_cname, power_name_)
-             || stringEq(subckt_port_cname, gnd_name_))
-      sta::print(spice_stream_, " {}/{}", inst_name, subckt_port_cname);
+      sta::print(spice_stream_, " {}/{}", inst_name, subckt_port_name);
+    else if (subckt_port_name == power_name_
+             || subckt_port_name == gnd_name_)
+      sta::print(spice_stream_, " {}/{}", inst_name, subckt_port_name);
   }
   sta::print(spice_stream_, " {}\n", cell_name);
 }
@@ -347,23 +318,23 @@ WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
                                     const PinSet &excluded_input_pins)
 {
   LibertyCell *cell = network_->libertyCell(inst);
-  const char *cell_name = cell->name();
+  const std::string &cell_name = cell->name();
   StringSeq &spice_port_names = cell_spice_port_names_[cell_name];
-  const char *inst_name = network_->pathName(inst);
+  std::string inst_name = network_->pathName(inst);
 
   debugPrint(debug_, "write_spice", 2, "subckt {}", cell->name());
-  for (std::string subckt_port_sname : spice_port_names) {
-    const char *subckt_port_name = subckt_port_sname.c_str();
+  for (std::string &subckt_port_name : spice_port_names) {
     LibertyPort *port = cell->findLibertyPort(subckt_port_name);
     const Pin *pin = port ? network_->findPin(inst, port) : nullptr;
     bool is_pg_port = port && port->isPwrGnd();
-    debugPrint(debug_, "write_spice", 2, " port {}{}", subckt_port_name,
+    debugPrint(debug_, "write_spice", 2, " port {}{}",
+               subckt_port_name,
                is_pg_port ? " pwr/gnd" : "");
     if (is_pg_port)
       writeVoltageSource(inst_name, subckt_port_name, pgPortVoltage(port));
-    else if (stringEq(subckt_port_name, power_name_))
+    else if (subckt_port_name == power_name_)
       writeVoltageSource(inst_name, subckt_port_name, power_voltage_);
-    else if (stringEq(subckt_port_name, gnd_name_))
+    else if (subckt_port_name == gnd_name_)
       writeVoltageSource(inst_name, subckt_port_name, gnd_voltage_);
     else if (port && !excluded_input_pins.contains(pin)
              && port->direction()->isAnyInput()) {
@@ -380,12 +351,12 @@ WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
       switch (port_value) {
         case LogicValue::zero:
         case LogicValue::unknown:
-          writeVoltageSource(cell, inst_name, subckt_port_name,
-                             port->relatedGroundPin(), gnd_voltage_);
+          writeVoltageSource(inst_name, subckt_port_name,
+                             port->relatedGroundPort(), gnd_voltage_);
           break;
         case LogicValue::one:
-          writeVoltageSource(cell, inst_name, subckt_port_name,
-                             port->relatedPowerPin(), power_voltage_);
+          writeVoltageSource(inst_name, subckt_port_name,
+                             port->relatedPowerPort(), power_voltage_);
           break;
         case LogicValue::rise:
         case LogicValue::fall:
@@ -396,24 +367,35 @@ WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
 }
 
 void
-WriteSpice::writeVoltageSource(const char *inst_name,
-                               const char *port_name,
+WriteSpice::writeVoltageSource(std::string_view inst_name,
+                               std::string_view port_name,
                                float voltage)
 {
-  std::string node_name = inst_name;
+  std::string node_name(inst_name);
   node_name += '/';
   node_name += port_name;
-  writeVoltageSource(node_name.c_str(), voltage);
+  writeVoltageSource(node_name, voltage);
+}
+
+void
+WriteSpice::writeVoltageSource(std::string_view inst_name,
+                               std::string_view subckt_port_name,
+                               const LibertyPort *pg_port,
+                               float voltage)
+{
+  if (pg_port)
+    voltage = pgPortVoltage(pg_port);
+  writeVoltageSource(inst_name, subckt_port_name, voltage);
 }
 
 void
 WriteSpice::writeVoltageSource(LibertyCell *cell,
-                               const char *inst_name,
-                               const char *subckt_port_name,
-                               const char *pg_port_name,
+                               std::string_view inst_name,
+                               std::string_view subckt_port_name,
+                               const std::string &pg_port_name,
                                float voltage)
 {
-  if (pg_port_name) {
+  if (!pg_port_name.empty()) {
     LibertyPort *pg_port = cell->findLibertyPort(pg_port_name);
     if (pg_port)
       voltage = pgPortVoltage(pg_port);
@@ -424,18 +406,18 @@ WriteSpice::writeVoltageSource(LibertyCell *cell,
 }
 
 float
-WriteSpice::pgPortVoltage(LibertyPort *pg_port)
+WriteSpice::pgPortVoltage(const LibertyPort *pg_port)
 {
   LibertyLibrary *liberty = pg_port->libertyCell()->libertyLibrary();
   float voltage = 0.0;
   bool exists;
-  const char *voltage_name = pg_port->voltageName();
-  if (voltage_name) {
+  const std::string &voltage_name = pg_port->voltageName();
+  if (!voltage_name.empty()) {
     liberty->supplyVoltage(voltage_name, voltage, exists);
     if (!exists) {
-      if (stringEqual(voltage_name, power_name_))
+      if (voltage_name == power_name_)
         voltage = power_voltage_;
-      else if (stringEqual(voltage_name, gnd_name_))
+      else if (voltage_name == gnd_name_)
         voltage = gnd_voltage_;
       else
         report_->error(1601, "pg_pin {}/{} voltage {} not found,",
@@ -501,8 +483,9 @@ WriteSpice::writeDrvrParasitics(const Pin *drvr_pin,
                                 const NetSet &coupling_nets)
 {
   Net *net = network_->net(drvr_pin);
-  const char *net_name =
-      net ? network_->pathName(net) : network_->pathName(drvr_pin);
+  std::string net_name = net
+    ? std::string(network_->pathName(net))
+    : std::string(network_->pathName(drvr_pin));
   sta::print(spice_stream_, "* Net {}\n", net_name);
 
   if (parasitics_->isParasiticNetwork(parasitic))
@@ -559,9 +542,9 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
   // Sort nodes for consistent regression results.
   ParasiticNodeSeq nodes = parasitics_->nodes(parasitic);
   sort(nodes, [this](const ParasiticNode *node1, const ParasiticNode *node2) {
-    const char *name1 = parasitics_->name(node1);
-    const char *name2 = parasitics_->name(node2);
-    return stringLess(name1, name2);
+    std::string name1 = parasitics_->name(node1);
+    std::string name2 = parasitics_->name(node2);
+    return name1 < name2;
   });
 
   for (ParasiticNode *node : nodes) {
@@ -677,7 +660,7 @@ WriteSpice::writeNullParasitic(const Pin *drvr_pin)
 ////////////////////////////////////////////////////////////////
 
 void
-WriteSpice::writeVoltageSource(const char *node_name,
+WriteSpice::writeVoltageSource(std::string_view node_name,
                                float voltage)
 {
   sta::print(spice_stream_, "v{} {} 0 {:.3f}\n", volt_index_++, node_name, voltage);
@@ -976,11 +959,11 @@ WriteSpice::writeMeasureDelayStmt(const Pin *from_pin,
                                   const RiseFall *from_rf,
                                   const Pin *to_pin,
                                   const RiseFall *to_rf,
-                                  std::string prefix)
+                                  std::string_view prefix)
 {
-  const char *from_pin_name = network_->pathName(from_pin);
+  std::string from_pin_name = network_->pathName(from_pin);
   float from_threshold = power_voltage_ * default_library_->inputThreshold(from_rf);
-  const char *to_pin_name = network_->pathName(to_pin);
+  std::string to_pin_name = network_->pathName(to_pin);
   float to_threshold = power_voltage_ * default_library_->inputThreshold(to_rf);
   sta::print(spice_stream_, ".measure tran {}_{}_delay_{}\n", prefix,
              from_pin_name, to_pin_name);
@@ -993,10 +976,10 @@ WriteSpice::writeMeasureDelayStmt(const Pin *from_pin,
 void
 WriteSpice::writeMeasureSlewStmt(const Pin *pin,
                                  const RiseFall *rf,
-                                 std::string prefix)
+                                 std::string_view prefix)
 {
-  const char *pin_name = network_->pathName(pin);
-  const char *spice_rf = spiceTrans(rf);
+  std::string pin_name = network_->pathName(pin);
+  std::string_view spice_rf = spiceTrans(rf);
   float lower = power_voltage_ * default_library_->slewLowerThreshold(rf);
   float upper = power_voltage_ * default_library_->slewUpperThreshold(rf);
   float threshold1, threshold2;
@@ -1017,7 +1000,7 @@ WriteSpice::writeMeasureSlewStmt(const Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string_view
 WriteSpice::spiceTrans(const RiseFall *rf)
 {
   if (rf == RiseFall::rise())

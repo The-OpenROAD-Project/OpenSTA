@@ -208,7 +208,7 @@ hashCellPorts(const LibertyCell *cell)
 static unsigned
 hashPort(const LibertyPort *port)
 {
-  return hashString(port->name()) * 3
+  return hashString(port->name().c_str()) * 3
     + port->direction()->index() * 5;
 }
 
@@ -338,8 +338,7 @@ equivCellFuncs(const LibertyCell *cell1,
   LibertyCellPortIterator port_iter1(cell1);
   while (port_iter1.hasNext()) {
     LibertyPort *port1 = port_iter1.next();
-    const char *name = port1->name();
-    LibertyPort *port2 = cell2->findLibertyPort(name);
+    LibertyPort *port2 = cell2->findLibertyPort(port1->name());
     if (!(port2
           && FuncExpr::equiv(port1->function(), port2->function())
           && FuncExpr::equiv(port1->tristateEnable(),
@@ -359,8 +358,7 @@ equivCellPorts(const LibertyCell *cell1,
     LibertyCellPortIterator port_iter1(cell1);
     while (port_iter1.hasNext()) {
       LibertyPort *port1 = port_iter1.next();
-      const char* name = port1->name();
-      LibertyPort *port2 = cell2->findLibertyPort(name);
+      LibertyPort *port2 = cell2->findLibertyPort(port1->name());
       if (!(port2 && LibertyPort::equiv(port1, port2)))
         return false;
     }

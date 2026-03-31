@@ -28,6 +28,7 @@
 //  * a string attribute named "thingy" is parsed
 
 #include <stdio.h>
+#include <string>
 #include "Machine.hh"
 #include "StringUtil.hh"
 #include "LibertyReader.hh"
@@ -162,15 +163,17 @@ BigcoTimingArcSet::BigcoTimingArcSet(LibertyCell *cell, LibertyPort *from,
 class BigcoLibertyBuilder : public LibertyBuilder
 {
 public:
-  virtual LibertyCell *makeCell(LibertyLibrary *library, const char *name,
-                                const char *filename);
+  virtual LibertyCell *makeCell(LibertyLibrary *library, std::string_view name,
+                                std::string_view filename);
 };
 
 LibertyCell *
-BigcoLibertyBuilder::makeCell(LibertyLibrary *library, const char *name,
-                              const char *filename)
+BigcoLibertyBuilder::makeCell(LibertyLibrary *library, std::string_view name,
+                              std::string_view filename)
 {
-  LibertyCell *cell = new BigcoCell(library, name, filename);
+  std::string name_str(name);
+  std::string filename_str(filename);
+  LibertyCell *cell = new BigcoCell(library, name_str.c_str(), filename_str.c_str());
   library->addCell(cell);
   return cell;
 }
@@ -210,9 +213,8 @@ void
 BigcoLibertyReader::beginCell(const LibertyGroup *group,
                               const LibertyGroup *library_group)
 {
-  const char *name = group->firstName();
-  if (name
-      && libertyCellRequired(name))
+  if (group->hasFirstParam()
+      && libertyCellRequired(group->firstParam().c_str()))
     LibertyReader::beginCell(group, library_group);
 }
 
@@ -263,7 +265,7 @@ public:
   BigcoSta();
 
 protected:
-  virtual LibertyLibrary *readLibertyFile(const char *filename, 
+  virtual LibertyLibrary *readLibertyFile(std::string_view filename,
                                           bool infer_latches,
                                           Network *network);
 };
@@ -275,7 +277,7 @@ BigcoSta::BigcoSta() :
 
 // Replace Sta liberty file reader with Bigco's very own.
 LibertyLibrary *
-Sta::readLibertyFile(const char *filename,
+Sta::readLibertyFile(std::string_view filename,
                 bool infer_latches,
                      Network *network)
 {

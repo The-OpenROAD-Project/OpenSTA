@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
+
 #include "MinMax.hh"
 #include "Transition.hh"
 #include "LibertyClass.hh"
@@ -41,12 +44,12 @@ public:
   LibertyBuilder(Debug *debug,
                  Report *report);
   LibertyCell *makeCell(LibertyLibrary *library,
-                        const char *name,
-                        const char *filename);
+                        std::string_view name,
+                        std::string_view filename);
   LibertyPort *makePort(LibertyCell *cell,
-                        const char *name);
+                        std::string_view name);
   LibertyPort *makeBusPort(LibertyCell *cell,
-                           const char *bus_name,
+                           std::string_view bus_name,
                            int from_index,
                            int to_index,
                            BusDcl *bus_dcl);
@@ -87,24 +90,24 @@ public:
                                       TimingArcAttrsPtr attrs);
 
 protected:
-  ConcretePort *makeBusPort(const char *name,
+  ConcretePort *makeBusPort(std::string_view name,
                             int from_index,
                             int to_index,
                             ConcretePortSeq *members);
   void makeBusPortBits(ConcreteLibrary *library,
                        LibertyCell *cell,
                        ConcretePort *bus_port,
-                       const char *bus_name,
+                       std::string_view bus_name,
                        int from_index,
                        int to_index);
   // Bus port bit (internal to makeBusPortBits).
   LibertyPort *makePort(LibertyCell *cell,
-                        const char *bit_name,
+                        std::string bit_name,
                         int bit_index);
   void makeBusPortBit(ConcreteLibrary *library,
                       LibertyCell *cell,
                       ConcretePort *bus_port,
-                      const char *bus_name,
+                      std::string_view bus_name,
                       int index);
   TimingArc *makeTimingArc(TimingArcSet *set,
                            const Transition *from_rf,

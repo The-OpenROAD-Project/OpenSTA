@@ -26,6 +26,7 @@
 
 #include <fstream>
 #include <string>
+#include <string_view>
 
 #include "Debug.hh"
 #include "Error.hh"
@@ -59,12 +60,12 @@ class WritePathSpice : public WriteSpice
 {
 public:
   WritePathSpice(const Path *path,
-                 const char *spice_filename,
-                 const char *subckt_filename,
-                 const char *lib_subckt_filename,
-                 const char *model_filename,
-                 const char *power_name,
-                 const char *gnd_name,
+                 std::string_view spice_filename,
+                 std::string_view subckt_filename,
+                 std::string_view lib_subckt_filename,
+                 std::string_view model_filename,
+                 std::string_view power_name,
+                 std::string_view gnd_name,
                  CircuitSim ckt_sim,
                  const StaState *sta);
   void writeSpice();
@@ -124,9 +125,9 @@ private:
   const LibertyPort *stageGateInputPort(Stage stage);
   const LibertyPort *stageDrvrPort(Stage stage);
   const Pin *stageLoadPin(Stage stage);
-  const char *stageGateInputPinName(Stage stage);
-  const char *stageDrvrPinName(Stage stage);
-  const char *stageLoadPinName(Stage stage);
+  std::string stageGateInputPinName(Stage stage);
+  std::string stageDrvrPinName(Stage stage);
+  std::string stageLoadPinName(Stage stage);
   const LibertyCell *stageLibertyCell(Stage stage);
   const Instance *stageInstance(Stage stage);
 
@@ -154,12 +155,12 @@ private:
 
 void
 writePathSpice(const Path *path,
-               const char *spice_filename,
-               const char *subckt_filename,
-               const char *lib_subckt_filename,
-               const char *model_filename,
-               const char *power_name,
-               const char *gnd_name,
+               std::string_view spice_filename,
+               std::string_view subckt_filename,
+               std::string_view lib_subckt_filename,
+               std::string_view model_filename,
+               std::string_view power_name,
+               std::string_view gnd_name,
                CircuitSim ckt_sim,
                StaState *sta)
 {
@@ -170,12 +171,12 @@ writePathSpice(const Path *path,
 }
 
 WritePathSpice::WritePathSpice(const Path *path,
-                               const char *spice_filename,
-                               const char *subckt_filename,
-                               const char *lib_subckt_filename,
-                               const char *model_filename,
-                               const char *power_name,
-                               const char *gnd_name,
+                               std::string_view spice_filename,
+                               std::string_view subckt_filename,
+                               std::string_view lib_subckt_filename,
+                               std::string_view model_filename,
+                               std::string_view power_name,
+                               std::string_view gnd_name,
                                CircuitSim ckt_sim,
                                const StaState *sta) :
   WriteSpice(spice_filename, subckt_filename, lib_subckt_filename,
@@ -192,7 +193,7 @@ WritePathSpice::WritePathSpice(const Path *path,
 void
 WritePathSpice::writeSpice()
 {
-  spice_stream_.open(spice_filename_);
+  spice_stream_.open(std::string(spice_filename_));
   if (spice_stream_.is_open()) {
     path_expanded_.expand(path_, true);
     // Find subckt port names as a side-effect of writeSubckts.
@@ -288,20 +289,19 @@ WritePathSpice::writeStageInstances()
 
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     std::string stage_name = stageName(stage);
-    const char *stage_cname = stage_name.c_str();
     if (stage == stageFirst())
       sta::print(spice_stream_, "x{} {} {} {}\n",
-                 stage_cname,
+                 stage_name,
                  stageDrvrPinName(stage),
                  stageLoadPinName(stage),
-                 stage_cname);
+                 stage_name);
     else {
       sta::print(spice_stream_, "x{} {} {} {} {}\n",
-                 stage_cname,
+                 stage_name,
                  stageGateInputPinName(stage),
                  stageDrvrPinName(stage),
                  stageLoadPinName(stage),
-                 stage_cname);
+                 stage_name);
     }
   }
   sta::print(spice_stream_, "\n");
@@ -474,8 +474,8 @@ WritePathSpice::writeInputStage(Stage stage)
 {
   // Input arc.
   // External driver not handled.
-  const char *drvr_pin_name = stageDrvrPinName(stage);
-  const char *load_pin_name = stageLoadPinName(stage);
+  std::string drvr_pin_name = stageDrvrPinName(stage);
+  std::string load_pin_name = stageLoadPinName(stage);
   std::string prefix = stageName(stage);
   sta::print(spice_stream_, ".subckt {} {} {}\n",
              prefix,
@@ -490,11 +490,11 @@ void
 WritePathSpice::writeGateStage(Stage stage)
 {
   const Pin *input_pin = stageGateInputPin(stage);
-  const char *input_pin_name = stageGateInputPinName(stage);
+  std::string input_pin_name = stageGateInputPinName(stage);
   const Pin *drvr_pin = stageDrvrPin(stage);
-  const char *drvr_pin_name = stageDrvrPinName(stage);
+  std::string drvr_pin_name = stageDrvrPinName(stage);
   const Pin *load_pin = stageLoadPin(stage);
-  const char *load_pin_name = stageLoadPinName(stage);
+  std::string load_pin_name = stageLoadPinName(stage);
   std::string subckt_name = "stage" + std::to_string(stage);
 
   const Instance *inst = stageInstance(stage);
@@ -721,21 +721,21 @@ WritePathSpice::stageLoadPin(Stage stage)
   return path->pin(this);
 }
 
-const char *
+std::string
 WritePathSpice::stageGateInputPinName(Stage stage)
 {
   const Pin *pin = stageGateInputPin(stage);
   return network_->pathName(pin);
 }
 
-const char *
+std::string
 WritePathSpice::stageDrvrPinName(Stage stage)
 {
   const Pin *pin = stageDrvrPin(stage);
   return network_->pathName(pin);
 }
 
-const char *
+std::string
 WritePathSpice::stageLoadPinName(Stage stage)
 {
   const Pin *pin = stageLoadPin(stage);

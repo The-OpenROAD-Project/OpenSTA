@@ -83,10 +83,10 @@ enum class TimingType {
   unknown
 };
 
-const char *
+std::string_view
 to_string(TimingType type);
 TimingType
-findTimingType(const char *string);
+findTimingType(std::string_view string);
 bool
 timingTypeIsCheck(TimingType type);
 ScaleFactorType
@@ -107,15 +107,15 @@ public:
   FuncExpr *cond() const { return cond_; }
   void setCond(FuncExpr *cond);
   const std::string &sdfCond() const { return sdf_cond_; }
-  void setSdfCond(const std::string &cond);
+  void setSdfCond(std::string cond);
   const std::string &sdfCondStart() const { return sdf_cond_start_; }
-  void setSdfCondStart(const std::string &cond);
+  void setSdfCondStart(std::string cond);
   const std::string &sdfCondEnd() const { return sdf_cond_end_; }
-  void setSdfCondEnd(const std::string &cond);
+  void setSdfCondEnd(std::string cond);
   const std::string &modeName() const { return mode_name_; }
-  void setModeName(const std::string &name);
+  void setModeName(std::string name);
   const std::string &modeValue() const { return mode_value_; }
-  void setModeValue(const std::string &value);
+  void setModeValue(std::string value);
   TimingModel *model(const RiseFall *rf) const;
   void setModel(const RiseFall *rf,
                 TimingModel *model);

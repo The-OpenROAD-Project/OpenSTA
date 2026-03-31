@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 
@@ -103,12 +104,12 @@ protected:
 
 
 ArcDcalcArg
-makeArcDcalcArg(const char *inst_name,
-                const char *in_port_name,
-                const char *in_rf_name,
-                const char *drvr_port_name,
-                const char *drvr_rf_name,
-                const char *input_delay_str,
+makeArcDcalcArg(std::string_view inst_name,
+                std::string_view in_port_name,
+                std::string_view in_rf_name,
+                std::string_view drvr_port_name,
+                std::string_view drvr_rf_name,
+                std::string_view input_delay_str,
                 const StaState *sta);
 
 // Arc delay calc result.
@@ -161,7 +162,7 @@ public:
   ArcDelayCalc(StaState *sta);
   virtual ~ArcDelayCalc() {}
   virtual ArcDelayCalc *copy() = 0;
-  virtual const char *name() const = 0;
+  virtual std::string_view name() const = 0;
 
   // Find the parasitic for drvr_pin that is acceptable to the delay
   // calculator by probing parasitics_.
@@ -252,7 +253,7 @@ public:
   virtual std::string reportCheckDelay(const Pin *check_pin,
                                        const TimingArc *arc,
                                        const Slew &from_slew,
-                                       const char *from_slew_annotation,
+                                       std::string_view from_slew_annotation,
                                        const Slew &to_slew,
                                        float related_out_cap,
                                        const Scene *scene,

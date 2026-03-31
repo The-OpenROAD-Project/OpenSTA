@@ -60,7 +60,7 @@ public:
   ~PrimaDelayCalc();
   ArcDelayCalc *copy() override;
   void copyState(const StaState *sta) override;
-  const char *name() const override { return "prima"; }
+  std::string_view name() const override { return "prima"; }
   void setPrimaReduceOrder(size_t order);
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
@@ -157,13 +157,13 @@ protected:
   void primaReduce();
   void primaReduce2();
 
-  void reportMatrix(const char *name,
+  void reportMatrix(std::string_view name,
                     MatrixSd &matrix);
-  void reportMatrix(const char *name,
+  void reportMatrix(std::string_view name,
                     Eigen::MatrixXd &matrix);
-  void reportMatrix(const char *name,
+  void reportMatrix(std::string_view name,
                     Eigen::VectorXd &matrix);
-  void reportVector(const char *name,
+  void reportVector(std::string_view name,
                     std::vector<double> &matrix);
   void reportMatrix(MatrixSd &matrix);
   void reportMatrix(Eigen::MatrixXd &matrix);

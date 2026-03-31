@@ -33,14 +33,14 @@ static EnumNameMap<PocvMode> pocv_mode_map =
    {PocvMode::normal, "normal"},
    {PocvMode::skew_normal, "skew_normal"}};
 
-const char *
+const std::string &
 pocvModeName(PocvMode mode)
 {
   return pocv_mode_map.find(mode);
 }
 
 PocvMode
-findPocvMode(const char *mode_name)
+findPocvMode(std::string_view mode_name)
 {
   return pocv_mode_map.find(mode_name, PocvMode::scalar);
 }

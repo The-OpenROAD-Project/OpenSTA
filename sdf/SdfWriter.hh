@@ -24,13 +24,15 @@
 
 #pragma once
 
+#include <string_view>
+
 namespace sta {
 
 class StaState;
 class Scene;
 
 void
-writeSdf(const char *filename,
+writeSdf(std::string_view filename,
          const Scene *scene,
          char divider,
          bool include_typ,

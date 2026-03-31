@@ -25,6 +25,7 @@
 
 #include "Network.hh"
 
+#include <compare>
 #include <set>
 
 #include "ContainerHelpers.hh"
@@ -79,7 +80,7 @@ Network::findPortsMatching(const Cell *cell,
   parseBusName(pattern->pattern(), '[', ']', '\\',
                is_bus, is_range, bus_name, from, to, subscript_wild);
   if (is_bus) {
-    PatternMatch bus_pattern(bus_name.c_str(), pattern);
+    PatternMatch bus_pattern(bus_name, pattern);
     CellPortIterator *port_iter = portIterator(cell);
     while (port_iter->hasNext()) {
       Port *port = port_iter->next();
@@ -138,7 +139,7 @@ Network::readLibertyAfter(LibertyLibrary *)
 }
 
 LibertyCell *
-Network::findLibertyCell(const char *name) const
+Network::findLibertyCell(std::string_view name) const
 {
   LibertyLibraryIterator *iter = libertyLibraryIterator();
   while (iter->hasNext()) {
@@ -207,12 +208,12 @@ Network::checkNetworkLibertyScenes()
 }
 
 LibertyLibrary *
-Network::findLibertyFilename(const char *filename)
+Network::findLibertyFilename(std::string_view filename)
 {
   LibertyLibraryIterator *lib_iter = libertyLibraryIterator();
   while (lib_iter->hasNext()) {
     LibertyLibrary *lib = lib_iter->next();
-    if (stringEq(lib->filename(), filename)) {
+    if (lib->filename() == filename) {
       delete lib_iter;
       return lib;
     }
@@ -257,7 +258,7 @@ Network::hasMembers(const Port *port) const
   return isBus(port) || isBundle(port);
 }
 
-const char *
+std::string
 Network::pathName(const Instance *instance) const
 {
   InstanceSeq inst_path;
@@ -270,7 +271,7 @@ Network::pathName(const Instance *instance) const
     if (!inst_path.empty())
       path_name += pathDivider();
   }
-  return makeTmpString(path_name);
+  return path_name;
 }
 
 bool
@@ -298,9 +299,9 @@ Network::pathNameCmp(const Instance *inst1,
     while (!path1.empty() && !path2.empty()) {
       const Instance *inst1 = path1.back();
       const Instance *inst2 = path2.back();
-      int cmp = strcmp(name(inst1), name(inst2));
+      auto cmp = name(inst1) <=> name(inst2);
       if (cmp != 0)
-        return cmp;
+        return cmp < 0 ? -1 : 1;
       path1.pop_back();
       path2.pop_back();
     }
@@ -350,27 +351,27 @@ Network::isHierarchical(const Instance *instance) const
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 Network::name(const Pin *pin) const
 {
   return pathName(pin);
 }
 
-const char *
+std::string
 Network::portName(const Pin *pin) const
 {
   return name(port(pin));
 }
 
-const char *
+std::string
 Network::pathName(const Pin *pin) const
 {
   const Instance *inst = instance(pin);
   if (inst && inst != topInstance()) {
-    std::string path_name = pathName(inst);
+    std::string path_name(pathName(inst));
     path_name += pathDivider();
     path_name += portName(pin);
-    return makeTmpString(path_name);
+    return path_name;
   }
   else
     return portName(pin);
@@ -388,8 +389,14 @@ Network::pathNameCmp(const Pin *pin1,
                      const Pin *pin2) const
 {
   int inst_cmp = pathNameCmp(instance(pin1), instance(pin2));
-  if (inst_cmp == 0)
-    return strcmp(portName(pin1), portName(pin2));
+  if (inst_cmp == 0) {
+    auto cmp = portName(pin1) <=> portName(pin2);
+    if (cmp < 0)
+      return -1;
+    if (cmp > 0)
+      return 1;
+    return 0;
+  }
   else
     return inst_cmp;
 }
@@ -442,18 +449,18 @@ Network::pinLess(const Pin *pin1,
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 Network::pathName(const Net *net) const
 {
   const Instance *inst = instance(net);
   if (inst && inst != topInstance()) {
-    std::string path_name = pathName(inst);
+    std::string path_name(pathName(inst));
     path_name += pathDivider();
     path_name += name(net);
-    return makeTmpString(path_name);
+    return path_name;
   }
   else
-    return name(net);
+    return std::string(name(net));
 }
 
 bool
@@ -468,8 +475,14 @@ Network::pathNameCmp(const Net *net1,
                      const Net *net2) const
 {
   int inst_cmp = pathNameCmp(instance(net1), instance(net2));
-  if (inst_cmp == 0)
-    return strcmp(name(net1), name(net2));
+  if (inst_cmp == 0) {
+    auto cmp = name(net1) <=> name(net2);
+    if (cmp < 0)
+      return -1;
+    if (cmp > 0)
+      return 1;
+    return 0;
+  }
   else
     return inst_cmp;
 }
@@ -506,7 +519,7 @@ Network::highestConnectedNet(Net *net) const
     int level = hierarchyLevel(net1);
     if (level < highest_level
         || (level == highest_level
-            && stringLess(pathName(net1), pathName(highest_net)))) {
+            && pathName(net1) < pathName(highest_net))) {
       highest_net = net1;
       highest_level = level;
     }
@@ -632,19 +645,19 @@ Network::isLatchData(const Pin *pin) const
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 Network::name(const Term *term) const
 {
   return name(pin(term));
 }
 
-const char *
+std::string
 Network::pathName(const Term *term) const
 {
   return pathName(pin(term));
 }
 
-const char *
+std::string
 Network::portName(const Term *term) const
 {
   return portName(pin(term));
@@ -652,40 +665,35 @@ Network::portName(const Term *term) const
 
 ////////////////////////////////////////////////////////////////
 
-const char *
+std::string
 Network::cellName(const Instance *inst) const
 {
   return name(cell(inst));
 }
 
 Instance *
-Network::findInstance(const char *path_name) const
+Network::findInstance(std::string_view path_name) const
 {
   return findInstanceRelative(topInstance(), path_name);
 }
 
 Instance *
 Network::findInstanceRelative(const Instance *inst,
-                              const char *path_name) const
+                              std::string_view path_name) const
 {
-  char *first, *tail;
+  std::string first, tail;
   pathNameFirst(path_name, first, tail);
-  if (first) {
+  if (!first.empty()) {
     Instance *inst1 = findChild(inst, first);
-    stringDelete(first);
-    while (inst1 && tail) {
-      char *next_tail;
+    while (inst1 && !tail.empty()) {
+      std::string next_tail;
       pathNameFirst(tail, first, next_tail);
-      if (first) {
+      if (!first.empty())
         inst1 = findChild(inst1, first);
-        stringDelete(first);
-      }
       else
         inst1 = findChild(inst1, tail);
-      stringDelete(tail);
       tail = next_tail;
     }
-    stringDelete(tail);
     return inst1;
   }
   else
@@ -701,7 +709,7 @@ Network::findInstancesMatching(const Instance *context,
     size_t context_name_length = 0;
     if (context != topInstance())
       // Add one for the trailing divider.
-      context_name_length = strlen(pathName(context)) + 1;
+      context_name_length = pathName(context).size() + 1;
     findInstancesMatching1(context, context_name_length, pattern, matches);
   }
   else {
@@ -721,9 +729,10 @@ Network::findInstancesMatching1(const Instance *context,
   InstanceChildIterator *child_iter = childIterator(context);
   while (child_iter->hasNext()) {
     Instance *child = child_iter->next();
-    const char *child_name = pathName(child);
+    std::string child_name = pathName(child);
     // Remove context prefix from the name.
-    const char *child_context_name = &child_name[context_name_length];
+    std::string_view child_context_name =
+      std::string_view(child_name).substr(context_name_length);
     if (pattern->match(child_context_name))
       matches.push_back(child);
     if (!isLeaf(child))
@@ -779,27 +788,22 @@ Network::findChildrenMatching(const Instance *parent,
 }
 
 Pin *
-Network::findPin(const char *path_name) const
+Network::findPin(std::string_view path_name) const
 {
   return findPinRelative(topInstance(), path_name);
 }
 
 Pin *
 Network::findPinRelative(const Instance *inst,
-                         const char *path_name) const
+                         std::string_view path_name) const
 {
-  char *inst_path, *port_name;
-  pathNameLast(path_name, inst_path, port_name);
-  if (inst_path) {
+  std::string inst_path, port_name;
+  std::string path_storage(path_name);
+  pathNameLast(path_storage, inst_path, port_name);
+  if (!inst_path.empty()) {
     Instance *pin_inst = findInstanceRelative(inst, inst_path);
-    if (pin_inst) {
-      Pin *pin = findPin(pin_inst, port_name);
-      stringDelete(inst_path);
-      stringDelete(port_name);
-      return pin;
-    }
-    stringDelete(inst_path);
-    stringDelete(port_name);
+    if (pin_inst)
+      return findPin(pin_inst, port_name);
     return nullptr;
   }
   else
@@ -809,12 +813,12 @@ Network::findPinRelative(const Instance *inst,
 
 Pin *
 Network::findPinLinear(const Instance *instance,
-                       const char *port_name) const
+                       std::string_view port_name) const
 {
   InstancePinIterator *pin_iter = pinIterator(instance);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (stringEq(port_name, portName(pin))) {
+    if (port_name == portName(pin)) {
       delete pin_iter;
       return pin;
     }
@@ -838,27 +842,22 @@ Network::findPin(const Instance *instance,
 }
 
 Net *
-Network::findNet(const char *path_name) const
+Network::findNet(std::string_view path_name) const
 {
   return findNetRelative(topInstance(), path_name);
 }
 
 Net *
 Network::findNetRelative(const Instance *inst,
-                         const char *path_name) const
+                         std::string_view path_name) const
 {
-  char *inst_path, *net_name;
-  pathNameLast(path_name, inst_path, net_name);
-  if (inst_path) {
+  std::string inst_path, net_name;
+  std::string path_storage(path_name);
+  pathNameLast(path_storage, inst_path, net_name);
+  if (!inst_path.empty()) {
     Instance *net_inst = findInstanceRelative(inst, inst_path);
-    if (net_inst) {
-      Net *net = findNet(net_inst, net_name);
-      stringDelete(inst_path);
-      stringDelete(net_name);
-      return net;
-    }
-    stringDelete(inst_path);
-    stringDelete(net_name);
+    if (net_inst)
+      return findNet(net_inst, net_name);
     return nullptr;
   }
   else
@@ -868,12 +867,12 @@ Network::findNetRelative(const Instance *inst,
 
 Net *
 Network::findNetLinear(const Instance *instance,
-                       const char *net_name) const
+                       std::string_view net_name) const
 {
   InstanceNetIterator *net_iter = netIterator(instance);
   while (net_iter->hasNext()) {
     Net *net = net_iter->next();
-    if (stringEq(name(net), net_name)) {
+    if (name(net) == net_name) {
       delete net_iter;
       return net;
     }
@@ -897,16 +896,14 @@ Network::findNetsMatching(const Instance *context,
                           NetSeq &matches) const
 {
   if (pattern->hasWildcards()) {
-    char *inst_path, *net_name;
+    std::string inst_path, net_name;
     pathNameLast(pattern->pattern(), inst_path, net_name);
-    if (inst_path) {
+    if (!inst_path.empty()) {
       PatternMatch inst_pattern(inst_path, pattern);
       PatternMatch net_pattern(net_name, pattern);
       InstanceSeq insts = findInstancesMatching(context, &inst_pattern);
       for (const Instance *inst : insts)
         findNetsMatching(inst, &net_pattern, matches);
-      stringDelete(inst_path);
-      stringDelete(net_name);
     }
     else
       // Top level net.
@@ -963,16 +960,14 @@ Network::findPinsMatching(const Instance *instance,
 {
   PinSeq matches;
   if (pattern->hasWildcards()) {
-    char *inst_path, *port_name;
+    std::string inst_path, port_name;
     pathNameLast(pattern->pattern(), inst_path, port_name);
-    if (inst_path) {
+    if (!inst_path.empty()) {
       PatternMatch inst_pattern(inst_path, pattern);
       PatternMatch port_pattern(port_name, pattern);
       InstanceSeq insts = findInstancesMatching(instance, &inst_pattern);
       for (const Instance *inst : insts)
         findInstPinsMatching(inst, &port_pattern, matches);
-      stringDelete(inst_path);
-      stringDelete(port_name);
     }
     else
       // Top level pin.
@@ -1016,13 +1011,13 @@ Network::findInstPinsHierMatching(const Instance *instance,
                                   // Return value.
                                   PinSeq &matches) const
 {
-  std::string inst_name = name(instance);
+  std::string inst_name(name(instance));
   InstancePinIterator *pin_iter = pinIterator(instance);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
-    const char *port_name = name(port(pin));
-    std::string pin_name = inst_name + divider_ + port_name;
-    if (pattern->match(pin_name.c_str()))
+    std::string port_name = name(port(pin));
+    std::string pin_name = inst_name + divider_ + std::string(port_name);
+      if (pattern->match(pin_name))
       matches.push_back(pin);
   }
   delete pin_iter;
@@ -1601,64 +1596,54 @@ Network::drivers(const Net *net)
 ////////////////////////////////////////////////////////////////
 
 void
-Network::pathNameFirst(const char *path_name,
-                       char *&first,
-                       char *&tail) const
+Network::pathNameFirst(std::string_view path_name,
+                       std::string &first,
+                       std::string &tail) const
 {
+  first.clear();
+  tail.clear();
+
   char escape = pathEscape();
   char divider = pathDivider();
-  const char *d = strchr(path_name, divider);
-  // Skip escaped dividers.
-  while (d != nullptr
-         && d > path_name
-         && d[-1] == escape)
-    d = strchr(d + 1, divider);
-  if (d) {
-    first = new char[d - path_name + 1];
-    strncpy(first, path_name, d - path_name);
-    first[d - path_name] = '\0';
-
-    tail = new char[strlen(d)];
-    // Chop off the leading divider.
-    strcpy(tail, d + 1);
-  }
-  else {
-    // No divider in path_name.
-    first = nullptr;
-    tail = nullptr;
+  size_t i = 0;
+  while (i < path_name.size()) {
+    size_t d = path_name.find(divider, i);
+    while (d != std::string_view::npos && d > 0
+           && path_name[d - 1] == escape)
+      d = path_name.find(divider, d + 1);
+    if (d != std::string_view::npos) {
+      first = path_name.substr(0, d);
+      tail = path_name.substr(d + 1);
+      return;
+    }
+    break;
   }
 }
 
 void
-Network::pathNameLast(const char *path_name,
-                      char *&head,
-                      char *&last) const
+Network::pathNameLast(std::string_view path_name,
+                      std::string &head,
+                      std::string &last) const
 {
+  head.clear();
+  last.clear();
+
   char escape = pathEscape();
   char divider = pathDivider();
-  const char *d = strrchr(path_name, divider);
-  // Search for a non-escaped divider.
-  if (d) {
-    while (d > path_name
-           && (d[0] != divider
-               || (d[0] == divider
-                   && d > &path_name[1]
-                   && d[-1] == escape)))
-      d--;
-  }
-  if (d && d != path_name) {
-    head = new char[d - path_name + 1];
-    strncpy(head, path_name, d - path_name);
-    head[d - path_name] = '\0';
 
-    last = new char[strlen(d)];
-    // Chop off the last divider.
-    strcpy(last, d + 1);
-  }
-  else {
-    // No divider in path_name.
-    head = nullptr;
-    last = nullptr;
+  size_t div_pos = path_name.rfind(divider);
+  size_t path_end = path_name.size();
+  while (div_pos > 0) {
+    if (div_pos == std::string_view::npos)
+      return;
+    if (path_name[div_pos - 1] != escape) {
+      // Found the last non-escaped divider.
+      head = path_name.substr(0, div_pos);
+      last = path_name.substr(div_pos + 1);
+      return;
+    }
+    path_end = div_pos - 1;
+    div_pos = path_name.rfind(divider, path_end);
   }
 }
 

@@ -24,6 +24,8 @@
 
 #include "sdf/ReportAnnotation.hh"
 
+#include <string_view>
+
 #include "StringUtil.hh"
 #include "Report.hh"
 #include "TimingRole.hh"
@@ -91,7 +93,7 @@ protected:
   void reportPeriodArcs(const Pin *pin,
                         bool report_annotated,
                         int &i);
-  void reportCount(const char *title,
+  void reportCount(std::string_view title,
                    int index,
                    int &total,
                    int &annotated_total);
@@ -301,7 +303,7 @@ ReportAnnotated::reportCheckCount(const TimingRole *role,
   int index = role->index();
   if (edge_count_[index] > 0) {
     std::string title = sta::format("cell {} arcs", role->to_string());
-    reportCount(title.c_str(), index, total, annotated_total);
+    reportCount(title, index, total, annotated_total);
   }
 }
 
@@ -432,7 +434,7 @@ ReportAnnotated::findPeriodCount(Pin *pin)
 }
 
 void
-ReportAnnotated::reportCount(const char *title,
+ReportAnnotated::reportCount(std::string_view title,
                              int index,
                              int &total,
                              int &annotated_total)
@@ -496,9 +498,9 @@ ReportAnnotated::reportArcs(Vertex *vertex,
     const Pin *to_pin = edge->to(graph_)->pin();
     if (delayAnnotated(edge) == report_annotated
         && report_role_[roleIndex(role, from_pin, to_pin)]) {
-      const char *role_name;
+      std::string_view role_name;
       if (role->isTimingCheck())
-        role_name = role->to_string().c_str();
+        role_name = role->to_string();
       else if (role->isWire()) {
         if (network_->isTopLevelPort(from_pin))
           role_name = "primary input net";

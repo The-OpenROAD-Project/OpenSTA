@@ -75,7 +75,7 @@ class EquivCells;
 class StaSimObserver;
 class GraphLoop;
 
-using ModeNameMap = std::map<std::string, Mode*>;
+using ModeNameMap = std::map<std::string, Mode*, std::less<>>;
 using SceneNameMap = std::map<std::string, Scene*>;
 using SlowDrvrIterator = Iterator<Instance*>;
 using CheckError = StringSeq;
@@ -143,12 +143,12 @@ public:
 
   Mode *cmdMode() const { return cmd_scene_->mode(); }
   const std::string &cmdModeName();
-  void setCmdMode(const std::string &mode_name);
-  Mode *findMode(const std::string &mode_name) const;
+  void setCmdMode(std::string_view mode_name);
+  Mode *findMode(std::string_view mode_name) const;
   ModeSeq findModes(const std::string &mode_name) const;
   Sdc *cmdSdc() const;
 
-  virtual LibertyLibrary *readLiberty(const char *filename,
+  virtual LibertyLibrary *readLiberty(std::string_view filename,
                                       Scene *scene,
                                       const MinMaxAll *min_max,
                                       bool infer_latches);
@@ -156,13 +156,20 @@ public:
   void readLibertyAfter(LibertyLibrary *liberty,
                         Scene *scene,
                         const MinMax *min_max);
-  bool readVerilog(const char *filename);
+  bool readVerilog(std::string_view filename);
   // Network readers call this to notify the Sta to delete any previously
   // linked network.
   void readNetlistBefore();
   // Return true if successful.
   bool linkDesign(const char *top_cell_name,
                   bool make_black_boxes);
+
+  bool readSdf(std::string_view filename,
+               std::string_view path,
+               Scene *scene,
+               bool unescaped_dividers,
+               bool incremental_only,
+               MinMaxAll *cond_use);
 
   // SDC Swig API.
   Instance *currentInstance() const;
@@ -340,15 +347,15 @@ public:
   void setMaxArea(float area,
                   Sdc *sdc);
 
-  void makeClock(const char *name,
+  void makeClock(std::string_view name,
                  PinSet *pins,
                  bool add_to_pins,
                  float period,
                  FloatSeq *waveform,
-                 char *comment,
+                 std::string_view comment,
                  const Mode *mode);
   // edges size must be 3.
-  void makeGeneratedClock(const char *name,
+  void makeGeneratedClock(std::string_view name,
                           PinSet *pins,
                           bool add_to_pins,
                           Pin *src_pin,
@@ -360,7 +367,7 @@ public:
                           bool combinational,
                           IntSeq *edges,
                           FloatSeq *edge_shifts,
-                          char *comment,
+                          std::string_view comment,
                           const Mode *mode);
   void removeClock(Clock *clk,
                    Sdc *sdc);
@@ -439,7 +446,7 @@ public:
                                bool physically_exclusive,
                                bool asynchronous,
                                bool allow_paths,
-                               const char *comment,
+                               std::string comment,
                                Sdc *sdc);
   void removeClockGroupsLogicallyExclusive(Sdc *sdc);
   void removeClockGroupsLogicallyExclusive(const std::string &name,
@@ -623,7 +630,7 @@ public:
                      ExceptionThruSeq *thrus,
                      ExceptionTo *to,
                      const MinMaxAll *min_max,
-                     const char *comment,
+                     std::string_view comment,
                      Sdc *sdc);
   void makeMulticyclePath(ExceptionFrom *from,
                           ExceptionThruSeq *thrus,
@@ -631,7 +638,7 @@ public:
                           const MinMaxAll *min_max,
                           bool use_end_clk,
                           int path_multiplier,
-                          const char *comment,
+                          std::string_view comment,
                           Sdc *sdc);
   void makePathDelay(ExceptionFrom *from,
                      ExceptionThruSeq *thrus,
@@ -640,19 +647,19 @@ public:
                      bool ignore_clk_latency,
                      bool break_path,
                      float delay,
-                     const char *comment,
+                     std::string_view comment,
                      Sdc *sdc);
-  void makeGroupPath(const std::string &name,
+  void makeGroupPath(std::string_view name,
                      bool is_default,
                      ExceptionFrom *from,
                      ExceptionThruSeq *thrus,
                      ExceptionTo *to,
-                     const char *comment,
+                     std::string_view comment,
                      Sdc *sdc);
   // Deprecated 10/24/2025
-  bool isGroupPathName(const char *group_name,
+  bool isGroupPathName(std::string_view group_name,
                        const Sdc *sdc) __attribute__ ((deprecated));
-  bool isPathGroupName(const char *group_name,
+  bool isPathGroupName(std::string_view group_name,
                        const Sdc *sdc) const;
   StringSeq pathGroupNames(const Sdc *sdc) const;
   void resetPath(ExceptionFrom *from,
@@ -667,7 +674,7 @@ public:
                                    const RiseFallBoth *from_rf,
                                    const Sdc *sdc);
   void checkExceptionFromPins(ExceptionFrom *from,
-                              const char *file,
+                              std::string_view filename,
                               int line,
                               const Sdc *sdc) const;
   void deleteExceptionFrom(ExceptionFrom *from);
@@ -892,7 +899,7 @@ public:
                         const MinMaxAll *min_max,
                         const RiseFallBoth *rf,
                         float slew);
-  void writeSdf(const char *filename,
+  void writeSdf(std::string_view filename,
                 const Scene *scene,
                 char divider,
                 bool include_typ,
@@ -986,7 +993,7 @@ public:
                            bool report_fanout,
                            bool report_variation,
                            bool report_src_attr);
-  ReportField *findReportPathField(const char *name);
+  ReportField *findReportPathField(std::string_view name);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
   void reportPathEnd(PathEnd *end);
@@ -1038,7 +1045,7 @@ public:
                               const MinMax *min_max,
                               int digits);
   void writeSdc(const Sdc *sdc,
-                const char *filename,
+                std::string_view filename,
                 // Map hierarchical pins and instances to leaf pins and instances.
                 bool leaf,
                 // Replace non-sdc get functions with OpenSTA equivalents.
@@ -1128,7 +1135,7 @@ public:
               Slack (&slacks)[RiseFall::index_count][MinMax::index_count]);
   // Worst slack for an endpoint in a path group.
   Slack endpointSlack(const Pin *pin,
-                      const std::string &path_group_name,
+                      std::string_view path_group_name,
                       const MinMax *min_max);
 
   void reportArrivalWrtClks(const Pin *pin,
@@ -1193,8 +1200,8 @@ public:
   // networks (dspf) are reduced and deleted after reading each net
   // with reduce_to and delete_after_reduce.
   // Return true if successful.
-  bool readSpef(const std::string &name,
-                const std::string &filename,
+  bool readSpef(std::string_view name,
+                std::string_view filename,
                 Instance *instance,
                 Scene *scene,
                 const MinMaxAll *min_max,
@@ -1333,7 +1340,7 @@ public:
   void searchPreamble();
 
   // Define the delay calculator implementation.
-  void setArcDelayCalc(const char *delay_calc_name);
+  void setArcDelayCalc(std::string_view delay_calc_name);
 
   void setDebugLevel(const char *what,
                      int level);
@@ -1381,9 +1388,9 @@ public:
   PwrActivity activity(const Pin *pin,
                        const Scene *scene);
 
-  void writeTimingModel(const char *lib_name,
-                        const char *cell_name,
-                        const char *filename,
+  void writeTimingModel(std::string_view lib_name,
+                        std::string_view cell_name,
+                        std::string_view filename,
                         const Scene *scene);
 
   // Find equivalent cells in equiv_libs.
@@ -1393,12 +1400,12 @@ public:
   LibertyCellSeq *equivCells(LibertyCell *cell);
 
   void writePathSpice(const Path *path,
-                      const char *spice_filename,
-                      const char *subckt_filename,
-                      const char *lib_subckt_filename,
-                      const char *model_filename,
-                      const char *power_name,
-                      const char *gnd_name,
+                      std::string_view spice_filename,
+                      std::string_view subckt_filename,
+                      std::string_view lib_subckt_filename,
+                      std::string_view model_filename,
+                      std::string_view power_name,
+                      std::string_view gnd_name,
                       CircuitSim ckt_sim);
 
   ////////////////////////////////////////////////////////////////
@@ -1490,13 +1497,10 @@ protected:
   virtual void makeObservers();
   NetworkEdit *networkCmdEdit();
 
-  LibertyLibrary *readLibertyFile(const char *filename,
+  LibertyLibrary *readLibertyFile(std::string_view filename,
                                   Scene *scene,
                                   const MinMaxAll *min_max,
                                   bool infer_latches);
-  // Allow external Liberty reader to parse forms not used by Sta.
-  virtual LibertyLibrary *readLibertyFile(const char *filename,
-                                          bool infer_latches);
   void delayCalcPreamble();
   void delaysInvalidFrom(const Port *port);
   void delaysInvalidFromFanin(const Port *port);

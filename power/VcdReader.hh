@@ -31,9 +31,9 @@ namespace sta {
 class Sta;
 
 void
-readVcdActivities(const std::string &filename,
-                  const std::string &scope,
-                  const std::string &mode_name,
+readVcdActivities(std::string_view filename,
+                  std::string_view scope,
+                  std::string_view mode_name,
                   Sta *sta);
 
 } // namespace

@@ -27,6 +27,7 @@
 #include <cmath>
 #include <array>
 #include <set>
+#include <string_view>
 
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
@@ -1707,7 +1708,8 @@ GraphDelayCalc::reportDelayCalc(const Edge *edge,
       const Slew to_slew = graph_->slew(to_vertex, to_rf, slew_index);
       const ClkNetwork *clk_network = scene->mode()->clkNetwork();
       bool from_ideal_clk = clk_network->isIdealClock(from_vertex);
-      const char *from_slew_annotation = from_ideal_clk ? " (ideal clock)" : nullptr;
+      std::string_view from_slew_annotation =
+          from_ideal_clk ? std::string_view(" (ideal clock)") : std::string_view{};
       result = arc_delay_calc_->reportCheckDelay(to_pin, arc, from_slew,
                                                  from_slew_annotation, to_slew,
                                                  related_out_cap, scene, min_max, digits);

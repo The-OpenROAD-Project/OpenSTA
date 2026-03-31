@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <string_view>
+
 #include "SpefLocation.hh"
 #include "SpefParse.hh"
 
@@ -41,7 +43,7 @@ class SpefScanner : public SpefFlexLexer
 {
 public:
   SpefScanner(std::istream *stream,
-              const std::string &filename,
+              std::string_view filename,
               SpefReader *reader,
               Report *report);
   virtual ~SpefScanner() {}
@@ -51,14 +53,14 @@ public:
   // YY_DECL defined in SpefLex.ll
   // Method body created by flex in SpefLex.cc
 
-  void error(const char *msg);
+  void error(std::string_view msg);
   int line() const {  return yylineno; }
 
   // Get rid of override virtual function warning.
   using FlexLexer::yylex;
 
 private:
-  std::string filename_;
+  std::string_view filename_;
   SpefReader *reader_;
   Report *report_;
   std::string token_;

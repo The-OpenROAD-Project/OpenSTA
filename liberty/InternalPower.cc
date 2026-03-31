@@ -108,7 +108,7 @@ InternalPowerModel::reportPower(const LibertyCell *cell,
     findAxisValues(in_slew, load_cap,
                    axis_value1, axis_value2, axis_value3);
     const LibertyLibrary *library = cell->libertyLibrary();
-    return model_->reportValue("Power", cell, pvt, axis_value1, nullptr,
+    return model_->reportValue("Power", cell, pvt, axis_value1, {},
                                axis_value2, axis_value3,
                                library->units()->powerUnit(), digits);
   }

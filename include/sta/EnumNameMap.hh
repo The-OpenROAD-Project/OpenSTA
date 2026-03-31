@@ -35,17 +35,17 @@ class EnumNameMap
 {
 public:
   EnumNameMap(std::initializer_list<std::pair<const ENUM, std::string>> enum_names);
-  const char *find(ENUM key) const;
-  ENUM find(std::string name,
+  const std::string &find(ENUM key) const;
+  ENUM find(std::string_view name,
             ENUM unknown_key) const;
-  void find(std::string name,
+  void find(std::string_view name,
             // Return values.
             ENUM &key,
             bool &exists) const;
   
 private:
   std::map<ENUM, std::string> enum_map_;
-  std::map<std::string, ENUM> name_map_;
+  std::map<std::string, ENUM, std::less<>> name_map_;
 };
 
 template <class ENUM>
@@ -57,19 +57,21 @@ EnumNameMap<ENUM>::EnumNameMap(std::initializer_list<std::pair<const ENUM,std::s
 }
 
 template <class ENUM>
-const char *
+const std::string&
 EnumNameMap<ENUM>::find(ENUM key) const
 {
   auto find_iter = enum_map_.find(key);
   if (find_iter != enum_map_.end())
-    return find_iter->second.c_str();
-  else
-    return nullptr;
+    return find_iter->second;
+  else {
+    static std::string null_ref;
+    return null_ref;
+  }
 }
 
 template <class ENUM>
 void
-EnumNameMap<ENUM>::find(std::string name,
+EnumNameMap<ENUM>::find(std::string_view name,
                         // Return values.
                         ENUM &key,
                         bool &exists) const
@@ -85,7 +87,7 @@ EnumNameMap<ENUM>::find(std::string name,
 
 template <class ENUM>
 ENUM
-EnumNameMap<ENUM>::find(std::string name,
+EnumNameMap<ENUM>::find(std::string_view name,
                         ENUM unknown_key) const
 {
   auto find_iter = name_map_.find(name);

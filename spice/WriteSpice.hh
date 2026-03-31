@@ -26,6 +26,7 @@
 
 #include <fstream>
 #include <string>
+#include <string_view>
 #include <map>
 #include <vector>
 
@@ -41,19 +42,19 @@
 namespace sta {
 
 using ParasiticNodeMap = std::map<const ParasiticNode*, int>;
-using CellSpicePortNames = std::map<std::string, StringSeq>;
+using CellSpicePortNames = std::map<std::string, StringSeq, std::less<>>;
 using LibertyPortLogicValues = std::map<const LibertyPort*, LogicValue>;
 
 // Utilities for writing a spice deck.
 class WriteSpice : public StaState
 {
 public:
-  WriteSpice(const char *spice_filename,
-             const char *subckt_filename,
-             const char *lib_subckt_filename,
-             const char *model_filename,
-             const char *power_name,
-             const char *gnd_name,
+  WriteSpice(std::string_view spice_filename,
+             std::string_view subckt_filename,
+             std::string_view lib_subckt_filename,
+             std::string_view model_filename,
+             std::string_view power_name,
+             std::string_view gnd_name,
              CircuitSim ckt_sim,
              const Scene *scene,
              const MinMax *min_max,
@@ -68,20 +69,24 @@ protected:
   void writeGnuplotFile(StringSeq &node_nanes);
   void writeSubckts(StringSet &cell_names);
   void findCellSubckts(StringSet &cell_names);
-  void recordSpicePortNames(const char *cell_name,
+  void recordSpicePortNames(std::string_view cell_name,
                             StringSeq &tokens);
   void writeSubcktInst(const Instance *inst);
   void writeSubcktInstVoltSrcs(const Instance *inst,
                                LibertyPortLogicValues &port_values,
                                const PinSet &excluded_input_pins);
-  float pgPortVoltage(LibertyPort *pg_port);
-  void writeVoltageSource(const char *inst_name,
-                          const char *port_name,
+  float pgPortVoltage(const LibertyPort *pg_port);
+  void writeVoltageSource(std::string_view inst_name,
+                          std::string_view port_name,
+                          float voltage);
+  void writeVoltageSource(std::string_view inst_name,
+                          std::string_view subckt_port_name,
+                          const LibertyPort *pg_port,
                           float voltage);
   void writeVoltageSource(LibertyCell *cell,
-                          const char *inst_name,
-                          const char *subckt_port_name,
-                          const char *pg_port_name,
+                          std::string_view inst_name,
+                          std::string_view subckt_port_name,
+                          const std::string &pg_port_name,
                           float voltage);
   void writeClkedStepSource(const Pin *pin,
                             const RiseFall *rf,
@@ -96,7 +101,7 @@ protected:
                      const Parasitic *parasitic);
   void writeNullParasitic(const Pin *drvr_pin);
 
-  void writeVoltageSource(const char *node_name,
+  void writeVoltageSource(std::string_view node_name,
                           float voltage);
   void writeRampVoltSource(const Pin *pin,
                            const RiseFall *rf,
@@ -121,11 +126,11 @@ protected:
                              const RiseFall *from_rf,
                              const Pin *to_pin,
                              const RiseFall *to_rf,
-                             std::string prefix);
+                             std::string_view prefix);
   void writeMeasureSlewStmt(const Pin *pin,
                             const RiseFall *rf,
-                            std::string prefix);
-  const char *spiceTrans(const RiseFall *rf);
+                            std::string_view prefix);
+  std::string_view spiceTrans(const RiseFall *rf);
   float findSlew(Vertex *vertex,
                  const RiseFall *rf,
                  const TimingArc *next_arc);
@@ -157,15 +162,15 @@ protected:
                             InstanceSet &written_insts);
   PinSeq drvrLoads(const Pin *drvr_pin);
   void writeSubcktInstVoltSrcs();
-  std::string replaceFileExt(std::string filename,
-                             const char *ext);
+  std::string replaceFileExt(std::string_view filename,
+                             std::string_view ext);
 
-  const char *spice_filename_;
-  const char *subckt_filename_;
-  const char *lib_subckt_filename_;
-  const char *model_filename_;
-  const char *power_name_;
-  const char *gnd_name_;
+  const std::string_view spice_filename_;
+  const std::string_view subckt_filename_;
+  const std::string_view lib_subckt_filename_;
+  const std::string_view model_filename_;
+  const std::string_view power_name_;
+  const std::string_view gnd_name_;
   CircuitSim ckt_sim_;
   const Scene *scene_;
   const MinMax *min_max_;

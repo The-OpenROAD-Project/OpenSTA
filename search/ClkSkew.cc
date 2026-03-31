@@ -26,6 +26,7 @@
 
 #include <cmath>  // abs
 #include <algorithm>
+#include <string_view>
 #include <vector>
 #include <unordered_set>
 
@@ -75,7 +76,7 @@ ClkSkews::reportClkSkew(ConstClockSeq &clks,
   ConstClockSeq sorted_clks;
   for (const Clock *clk : clks)
     sorted_clks.push_back(clk);
-  sort(sorted_clks, ClkNameLess());
+  sort(sorted_clks, ClockNameLess());
 
   for (const Clock *clk : sorted_clks) {
     report_->report("Clock {}", clk->name());
@@ -487,12 +488,13 @@ ClkSkew::srcTgtPathNameLess(ClkSkew &clk_skew1,
                             const StaState *sta)
 {
   Network *network = sta->sdcNetwork();
-  const char *src_path1 = network->pathName(clk_skew1.srcPath()->pin(sta));
-  const char *src_path2 = network->pathName(clk_skew2.srcPath()->pin(sta));
-  const char *tgt_path1 = network->pathName(clk_skew1.tgtPath()->pin(sta));
-  const char *tgt_path2 = network->pathName(clk_skew2.tgtPath()->pin(sta));
-  return stringLess(src_path1, src_path2)
-      || (stringEqual(src_path1, src_path2) && stringEqual(tgt_path1, tgt_path2));
+  std::string src_path1 = network->pathName(clk_skew1.srcPath()->pin(sta));
+  std::string src_path2 = network->pathName(clk_skew2.srcPath()->pin(sta));
+  std::string tgt_path1 = network->pathName(clk_skew1.tgtPath()->pin(sta));
+  std::string tgt_path2 = network->pathName(clk_skew2.tgtPath()->pin(sta));
+  return src_path1 < src_path2
+      || (src_path1 == src_path2
+          && tgt_path1 == tgt_path2);
 }
 
 ////////////////////////////////////////////////////////////////

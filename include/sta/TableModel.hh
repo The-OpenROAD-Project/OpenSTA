@@ -27,6 +27,7 @@
 #include <array>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "MinMax.hh"
@@ -54,8 +55,8 @@ using Waveform = Table;
 using TableModelsEarlyLate = std::array<TableModel*, EarlyLate::index_count>;
 
 TableAxisVariable
-stringTableAxisVariable(const char *variable);
-const char *
+stringTableAxisVariable(std::string_view variable);
+std::string_view
 tableVariableString(TableAxisVariable variable);
 const Unit *
 tableVariableUnit(TableAxisVariable variable,
@@ -121,7 +122,7 @@ protected:
                   float in_slew,
                   float load_cap,
                   float related_out_cap) const;
-  std::string reportTableLookup(const char *result_name,
+  std::string reportTableLookup(std::string_view result_name,
                                 const Pvt *pvt,
                                 const TableModel *model,
                                 float in_slew,
@@ -158,7 +159,7 @@ public:
                       PocvMode pocv_mode) const override;
   std::string reportCheckDelay(const Pvt *pvt,
                                float from_slew,
-                               const char *from_slew_annotation,
+                               std::string_view from_slew_annotation,
                                float to_slew,
                                float related_out_cap,
                                const MinMax *min_max,
@@ -189,11 +190,11 @@ protected:
                   float load_cap,
                   float in_slew,
                   float related_out_cap) const;
-  std::string reportTableDelay(const char *result_name,
+  std::string reportTableDelay(std::string_view result_name,
                                const Pvt *pvt,
                                const TableModel *model,
                                float from_slew,
-                               const char *from_slew_annotation,
+                               std::string_view from_slew_annotation,
                                float to_slew,
                                float related_out_cap,
                                int digits) const;
@@ -208,7 +209,7 @@ public:
   TableAxis(TableAxisVariable variable,
             FloatSeq &&values);
   TableAxisVariable variable() const { return variable_; }
-  const char *variableString() const;
+  std::string_view variableString() const;
   const Unit *unit(const Units *units);
   size_t size() const { return values_.size(); }
   bool inBounds(float value) const;
@@ -287,11 +288,11 @@ public:
                   float axis_value2,
                   float axis_value3) const;
 
-  std::string reportValue(const char *result_name,
+  std::string reportValue(std::string_view result_name,
                           const LibertyCell *cell,
                           const Pvt *pvt,
                           float value1,
-                          const char *comment1,
+                          std::string_view comment1,
                           float value2,
                           float value3,
                           const Unit *table_unit,
@@ -309,30 +310,30 @@ private:
   void clear();
   float findValueOrder2(float axis_value1, float axis_value2) const;
   float findValueOrder3(float axis_value1, float axis_value2, float axis_value3) const;
-  std::string reportValueOrder0(const char *result_name,
-                                const char *comment1,
+  std::string reportValueOrder0(std::string_view result_name,
+                                std::string_view comment1,
                                 const Unit *table_unit,
                                 int digits) const;
-  std::string reportValueOrder1(const char *result_name,
+  std::string reportValueOrder1(std::string_view result_name,
                                 const LibertyCell *cell,
                                 float value1,
-                                const char *comment1,
+                                std::string_view comment1,
                                 float value2,
                                 float value3,
                                 const Unit *table_unit,
                                 int digits) const;
-  std::string reportValueOrder2(const char *result_name,
+  std::string reportValueOrder2(std::string_view result_name,
                                 const LibertyCell *cell,
                                 float value1,
-                                const char *comment1,
+                                std::string_view comment1,
                                 float value2,
                                 float value3,
                                 const Unit *table_unit,
                                 int digits) const;
-  std::string reportValueOrder3(const char *result_name,
+  std::string reportValueOrder3(std::string_view result_name,
                                 const LibertyCell *cell,
                                 float value1,
-                                const char *comment1,
+                                std::string_view comment1,
                                 float value2,
                                 float value3,
                                 const Unit *table_unit,
@@ -379,11 +380,11 @@ public:
                   float value1,
                   float value2,
                   float value3) const;
-  std::string reportValue(const char *result_name,
+  std::string reportValue(std::string_view result_name,
                           const LibertyCell *cell,
                           const Pvt *pvt,
                           float value1,
-                          const char *comment1,
+                          std::string_view comment1,
                           float value2,
                           float value3,
                           const Unit *table_unit,
@@ -535,9 +536,9 @@ private:
 class DriverWaveform
 {
 public:
-  DriverWaveform(const std::string &name,
+  DriverWaveform(std::string name,
                  TablePtr waveforms);
-  const char *name() const { return name_.c_str(); }
+  std::string_view name() const { return name_; }
   Table waveform(float slew);
 
 private:
