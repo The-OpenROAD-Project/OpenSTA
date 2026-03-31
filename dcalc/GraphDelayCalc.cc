@@ -1601,40 +1601,40 @@ GraphDelayCalc::findCheckEdgeDelays(Edge *edge,
       for (Scene *scene : scenes_) {
         for (const MinMax *min_max : MinMax::range()) {
           DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-	if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
-	  const Slew &from_slew = checkEdgeClkSlew(from_vertex, from_rf,
+          if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
+            const Slew &from_slew = checkEdgeClkSlew(from_vertex, from_rf,
                                                      scene, min_max);
             const Slew to_slew = graph_->slew(to_vertex, to_rf, ap_index);
-	  debugPrint(debug_, "delay_calc", 3,
+            debugPrint(debug_, "delay_calc", 3,
                        "  {} {} -> {} {} ({}) scene:{}/{}",
-                     arc_set->from()->name(),
-                     arc->fromEdge()->to_string(),
-                     arc_set->to()->name(),
-                     arc->toEdge()->to_string(),
-                     arc_set->role()->to_string(),
+                       arc_set->from()->name(),
+                       arc->fromEdge()->to_string(),
+                       arc_set->to()->name(),
+                       arc->toEdge()->to_string(),
+                       arc_set->role()->to_string(),
                        scene->name(),
                        min_max->to_string());
-	  debugPrint(debug_, "delay_calc", 3,
-                     "    from_slew = {} to_slew = {}",
-                     delayAsString(from_slew, this),
-                     delayAsString(to_slew, this));
-	  float related_out_cap = 0.0;
-	  if (related_out_pin)
+            debugPrint(debug_, "delay_calc", 3,
+                       "    from_slew = {} to_slew = {}",
+                       delayAsString(from_slew, this),
+                       delayAsString(to_slew, this));
+            float related_out_cap = 0.0;
+            if (related_out_pin)
               related_out_cap = loadCap(related_out_pin, to_rf,scene,min_max,
                                         arc_delay_calc);
-          ArcDelay check_delay = arc_delay_calc->checkDelay(to_pin, arc, from_slew,
-                                                            to_slew, related_out_cap,
+            ArcDelay check_delay = arc_delay_calc->checkDelay(to_pin, arc, from_slew,
+                                                              to_slew, related_out_cap,
                                                               scene, min_max);
-	  debugPrint(debug_, "delay_calc", 3,
-                     "    check_delay = {}",
-                     delayAsString(check_delay, this));
-	  graph_->setArcDelay(edge, arc, ap_index, check_delay);
-	  delay_changed = true;
-          arc_delay_calc_->finishDrvrPin();
-	}
+            debugPrint(debug_, "delay_calc", 3,
+                       "    check_delay = {}",
+                       delayAsString(check_delay, this));
+            graph_->setArcDelay(edge, arc, ap_index, check_delay);
+            delay_changed = true;
+            arc_delay_calc_->finishDrvrPin();
+          }
+        }
       }
     }
-  }
   }
 
   if (delay_changed && observer_)
