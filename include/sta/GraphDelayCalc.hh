@@ -167,24 +167,26 @@ protected:
   void seedLoadSlew(Vertex *vertex);
   void setInputPortWireDelays(Vertex *vertex);
   void findInputDriverDelay(const LibertyCell *drvr_cell,
-			    const Pin *drvr_pin,
-			    Vertex *drvr_vertex,
-			    const RiseFall *rf,
-			    const LibertyPort *from_port,
-			    float *from_slews,
-			    const LibertyPort *to_port,
+                            const Pin *drvr_pin,
+                            Vertex *drvr_vertex,
+                            const RiseFall *rf,
+                            const LibertyPort *from_port,
+                            float *from_slews,
+                            const LibertyPort *to_port,
                             const Scene *scene,
-                            const MinMax *min_max);
+                            const MinMax *min_max,
+                            ArcDelayCalc *arc_delay_calc);
   LibertyPort *driveCellDefaultFromPort(const LibertyCell *cell,
 					const LibertyPort *to_port);
   int findPortIndex(const LibertyCell *cell,
 		    const LibertyPort *port);
   void findInputArcDelay(const Pin *drvr_pin,
-			 Vertex *drvr_vertex,
-			 const TimingArc *arc,
-			 float from_slew,
+                         Vertex *drvr_vertex,
+                         const TimingArc *arc,
+                         float from_slew,
                          const Scene *scene,
-                         const MinMax *min_max);
+                         const MinMax *min_max,
+                         ArcDelayCalc *arc_delay_calc);
   void findDriverDelays(Vertex *drvr_vertex,
 			ArcDelayCalc *arc_delay_calc,
                         LoadPinIndexMap &load_pin_index_map);

@@ -44,7 +44,6 @@
 #include "TimingArc.hh"
 #include "TableModel.hh"
 #include "Liberty.hh"
-#include "Network.hh"
 #include "Sdc.hh"
 #include "Parasitics.hh"
 #include "ArcDelayCalc.hh"
@@ -78,11 +77,11 @@ exp2(double x);
 class DmpError : public Exception
 {
 public:
-  DmpError(const char *what);
-  virtual const char *what() const noexcept { return what_; }
+  DmpError(std::string_view what);
+  virtual const char *what() const noexcept { return what_.c_str(); }
 
 private:
-  const char *what_;
+  std::string what_;
 };
 
 static double
@@ -1275,8 +1274,10 @@ newtonRaphson(const int max_iter,
         all_under_x_tol = false;
       x[i] += p[i];
     }
-    if (all_under_x_tol)
+    if (all_under_x_tol) {
+      eval();
       return;
+    }
   }
   throw DmpError("Newton-Raphson max iterations exceeded");
 }
@@ -1667,10 +1668,10 @@ DmpCeffDelayCalc::copyState(const StaState *sta)
   dmp_zero_c2_->copyState(sta);
 }
 
-DmpError::DmpError(const char *what) :
+DmpError::DmpError(std::string_view what) :
   what_(what)
 {
-  // printf("DmpError %s\n", what);
+  // sta::print(stdout, "DmpError {}\n", what);
 }
 
 // This saves about 2.5% in overall run time on designs with SPEF.

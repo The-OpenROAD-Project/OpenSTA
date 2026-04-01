@@ -1102,9 +1102,7 @@ Search::findArrivalsSeed()
 ////////////////////////////////////////////////////////////////
 
 ArrivalVisitor::ArrivalVisitor(const StaState *sta) :
-  PathVisitor(nullptr,
-              false,
-              sta)
+  PathVisitor(nullptr, false, sta)
 {
   init0();
   init(true, false, nullptr);
@@ -1114,9 +1112,7 @@ ArrivalVisitor::ArrivalVisitor(const StaState *sta) :
 ArrivalVisitor::ArrivalVisitor(bool always_to_endpoints,
                                SearchPred *pred,
                                const StaState *sta) :
-  PathVisitor(pred,
-              true,
-              sta)
+  PathVisitor(pred, true, sta)
 {
   init0();
   init(always_to_endpoints, false, pred);
@@ -1997,11 +1993,13 @@ PathVisitor::visitFaninPaths(Vertex *to_vertex)
   VertexInEdgeIterator edge_iter(to_vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    Vertex *from_vertex = edge->from(graph_);
-    const Pin *from_pin = from_vertex->pin();
-    const Pin *to_pin = to_vertex->pin();
-    if (!visitEdge(from_pin, from_vertex, edge, to_pin, to_vertex))
-      break;
+    if (!edge->role()->isTimingCheck()) {
+      Vertex *from_vertex = edge->from(graph_);
+      const Pin *from_pin = from_vertex->pin();
+      const Pin *to_pin = to_vertex->pin();
+      if (!visitEdge(from_pin, from_vertex, edge, to_pin, to_vertex))
+        break;
+    }
   }
 }
 

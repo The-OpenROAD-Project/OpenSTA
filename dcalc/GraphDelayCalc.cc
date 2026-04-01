@@ -425,8 +425,9 @@ GraphDelayCalc::seedDrvrSlew(Vertex *drvr_vertex,
           if (drvr_cell) {
             if (from_port == nullptr)
               from_port = driveCellDefaultFromPort(drvr_cell, to_port);
-            findInputDriverDelay(drvr_cell, drvr_pin, drvr_vertex, rf,
-                                 from_port, from_slews, to_port, scene, min_max);
+            findInputDriverDelay(drvr_cell, drvr_pin, drvr_vertex, rf, from_port,
+                                 from_slews, to_port, scene, min_max,
+                                 arc_delay_calc);
           }
           else
             seedNoDrvrCellSlew(drvr_vertex, drvr_pin, rf, drive, scene, min_max,
@@ -601,7 +602,8 @@ GraphDelayCalc::findInputDriverDelay(const LibertyCell *drvr_cell,
                                      float *from_slews,
                                      const LibertyPort *to_port,
                                      const Scene *scene,
-                                     const MinMax *min_max)
+                                     const MinMax *min_max,
+                                     ArcDelayCalc *arc_delay_calc)
 {
   debugPrint(debug_, "delay_calc", 2, "  driver cell {} {}",
              drvr_cell->name(),
@@ -610,11 +612,11 @@ GraphDelayCalc::findInputDriverDelay(const LibertyCell *drvr_cell,
     for (TimingArc *arc : arc_set->arcs()) {
       if (arc->toEdge()->asRiseFall() == rf) {
         float from_slew = from_slews[arc->fromEdge()->index()];
-        findInputArcDelay(drvr_pin, drvr_vertex, arc, from_slew, scene, min_max);
+        findInputArcDelay(drvr_pin, drvr_vertex, arc, from_slew, scene, min_max,
+                          arc_delay_calc);
       }
     }
   }
-  arc_delay_calc_->finishDrvrPin();
 }
 
 // Driving cell delay is the load dependent delay, which is the gate
@@ -626,7 +628,8 @@ GraphDelayCalc::findInputArcDelay(const Pin *drvr_pin,
                                   const TimingArc *arc,
                                   float from_slew,
                                   const Scene *scene,
-                                  const MinMax *min_max)
+                                  const MinMax *min_max,
+                                  ArcDelayCalc *arc_delay_calc)
 {
   debugPrint(debug_, "delay_calc", 3, "  {} {} -> {} {} ({})",
              arc->from()->name(),
@@ -640,20 +643,18 @@ GraphDelayCalc::findInputArcDelay(const Pin *drvr_pin,
 
     const Parasitic *parasitic;
     float load_cap;
-    parasiticLoad(drvr_pin, drvr_rf, scene, min_max, nullptr, arc_delay_calc_,
+    parasiticLoad(drvr_pin, drvr_rf, scene, min_max, nullptr, arc_delay_calc,
                   load_cap, parasitic);
 
     LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(drvr_vertex);
     ArcDcalcResult intrinsic_result =
-      arc_delay_calc_->gateDelay(drvr_pin, arc, Slew(from_slew), 0.0, nullptr,
-                                 load_pin_index_map, scene, min_max);
+        arc_delay_calc->gateDelay(drvr_pin, arc, Slew(from_slew), 0.0, nullptr,
+                                  load_pin_index_map, scene, min_max);
     const ArcDelay &intrinsic_delay = intrinsic_result.gateDelay();
 
-    ArcDcalcResult gate_result = arc_delay_calc_->gateDelay(drvr_pin, arc,
-                                                            Slew(from_slew), load_cap,
-                                                            parasitic, 
-                                                            load_pin_index_map,
-                                                            scene, min_max);
+    ArcDcalcResult gate_result =
+        arc_delay_calc->gateDelay(drvr_pin, arc, Slew(from_slew), load_cap,
+                                  parasitic, load_pin_index_map, scene, min_max);
     const ArcDelay &gate_delay = gate_result.gateDelay();
     const Slew &gate_slew = gate_result.drvrSlew();
 
@@ -666,7 +667,7 @@ GraphDelayCalc::findInputArcDelay(const Pin *drvr_pin,
     graph_->setSlew(drvr_vertex, drvr_rf, ap_index, gate_slew);
     annotateLoadDelays(drvr_vertex, drvr_rf, gate_result, load_pin_index_map, 
                        load_delay, false, scene, min_max);
-    arc_delay_calc_->finishDrvrPin();
+    arc_delay_calc->finishDrvrPin();
   }
 }
 
@@ -1598,40 +1599,32 @@ GraphDelayCalc::findCheckEdgeDelays(Edge *edge,
       for (Scene *scene : scenes_) {
         for (const MinMax *min_max : MinMax::range()) {
           DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-	if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
-	  const Slew &from_slew = checkEdgeClkSlew(from_vertex, from_rf,
-                                                     scene, min_max);
+          if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
+            const Slew &from_slew =
+                checkEdgeClkSlew(from_vertex, from_rf, scene, min_max);
             const Slew to_slew = graph_->slew(to_vertex, to_rf, ap_index);
-	  debugPrint(debug_, "delay_calc", 3,
-                       "  {} {} -> {} {} ({}) scene:{}/{}",
-                     arc_set->from()->name(),
-                     arc->fromEdge()->to_string(),
-                     arc_set->to()->name(),
-                     arc->toEdge()->to_string(),
-                     arc_set->role()->to_string(),
-                       scene->name(),
+            debugPrint(debug_, "delay_calc", 3, "  {} {} -> {} {} ({}) scene:{}/{}",
+                       arc_set->from()->name(), arc->fromEdge()->to_string(),
+                       arc_set->to()->name(), arc->toEdge()->to_string(),
+                       arc_set->role()->to_string(), scene->name(),
                        min_max->to_string());
-	  debugPrint(debug_, "delay_calc", 3,
-                     "    from_slew = {} to_slew = {}",
-                     delayAsString(from_slew, this),
-                     delayAsString(to_slew, this));
-	  float related_out_cap = 0.0;
-	  if (related_out_pin)
+            debugPrint(debug_, "delay_calc", 3, "    from_slew = {} to_slew = {}",
+                       delayAsString(from_slew, this), delayAsString(to_slew, this));
+            float related_out_cap = 0.0;
+            if (related_out_pin)
               related_out_cap = loadCap(related_out_pin, to_rf,scene,min_max,
                                         arc_delay_calc);
-          ArcDelay check_delay = arc_delay_calc->checkDelay(to_pin, arc, from_slew,
-                                                            to_slew, related_out_cap,
-                                                              scene, min_max);
-	  debugPrint(debug_, "delay_calc", 3,
-                     "    check_delay = {}",
-                     delayAsString(check_delay, this));
-	  graph_->setArcDelay(edge, arc, ap_index, check_delay);
-	  delay_changed = true;
-          arc_delay_calc_->finishDrvrPin();
-	}
+            ArcDelay check_delay = arc_delay_calc->checkDelay(
+                to_pin, arc, from_slew, to_slew, related_out_cap, scene, min_max);
+            debugPrint(debug_, "delay_calc", 3, "    check_delay = {}",
+                       delayAsString(check_delay, this));
+            graph_->setArcDelay(edge, arc, ap_index, check_delay);
+            delay_changed = true;
+            arc_delay_calc_->finishDrvrPin();
+          }
+        }
       }
     }
-  }
   }
 
   if (delay_changed && observer_)

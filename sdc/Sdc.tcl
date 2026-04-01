@@ -315,42 +315,6 @@ proc current_design { {design ""} } {
 
 ################################################################
 
-# Generic get_* filter.
-proc filter_objs { filter objects filter_function object_type } {
-  # Regexp for attr op arg (e.g., full_name =~ *blk*)
-  set filter_regexp_op {@?([a-zA-Z_]+) *(==|!=|=~|!~) *([0-9a-zA-Z_\*]+)}
-  # Regexp for bool attr (e.g., is_hierarchical) - anchored for standalone use
-  set filter_regexp_bool {^@?([a-zA-Z_]+)$}
-  # Regexp for wildcard attr (e.g., full_name <?> *blk*)
-  set filter_regexp_wild_op {@?([a-zA-Z_]+) *(.+) *([0-9a-zA-Z_\*]+)}
-  # Regexp for term in compound expression (no anchors)
-  set filter_regexp_term {@?([a-zA-Z_]+)( *(==|!=|=~|!~) *([0-9a-zA-Z_\*]+))?}
-  set filter_or_regexp "($filter_regexp_term) *\\|\\| *($filter_regexp_term)"
-  set filter_and_regexp "($filter_regexp_term) *&& *($filter_regexp_term)"
-  set filtered_objects {}
-  # Ignore sub-exprs in filter_regexp for expr2 match var.
-  if { [regexp $filter_or_regexp $filter ignore expr1 ignore ignore ignore ignore expr2] } {
-    set filtered_objects1 [filter_objs $expr1 $objects $filter_function $object_type]
-    set filtered_objects2 [filter_objs $expr2 $objects $filter_function $object_type]
-    set filtered_objects [concat $filtered_objects1 $filtered_objects2]
-  } elseif { [regexp $filter_and_regexp $filter ignore expr1 ignore ignore ignore ignore expr2] } {
-    set filtered_objects [filter_objs $expr1 $objects $filter_function $object_type]
-    set filtered_objects [filter_objs $expr2 $filtered_objects $filter_function $object_type]
-  } elseif { [regexp $filter_regexp_op $filter ignore attr_name op arg] } {
-    set filtered_objects [$filter_function $attr_name $op $arg $objects]
-  } elseif { [regexp $filter_regexp_bool $filter ignore attr_name] } {
-    # Bool property: use <attr_name>==1 by default.
-    set filtered_objects [$filter_function $attr_name "==" "1" $objects]
-  } elseif { [regexp $filter_regexp_wild_op $filter ignore attr_name op arg] } {
-    sta_error 336 "unknown filter operand."
-  } else {
-    sta_error 350 "unsupported $object_type -filter expression."
-  }
-  return $filtered_objects
-}
-
-################################################################
-
 define_cmd_args "get_cells" \
   {[-hierarchical] [-hsc separator] [-filter expr]\
      [-regexp] [-nocase] [-quiet] [-of_objects objects] [patterns]}
@@ -429,7 +393,7 @@ proc get_cells { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set insts [filter_objs $keys(-filter) $insts filter_insts "instance"]
+    set insts [filter_insts $keys(-filter) $insts 1]
   }
   return $insts
 }
@@ -472,7 +436,7 @@ proc get_clocks { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set clocks [filter_objs $keys(-filter) $clocks filter_clocks "clock"]
+    set clocks [filter_clocks $keys(-filter) $clocks 1]
   }
   return $clocks
 }
@@ -553,7 +517,7 @@ proc get_lib_cells { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set cells [filter_objs $keys(-filter) $cells filter_lib_cells "liberty cell"]
+    set cells [filter_lib_cells $keys(-filter) $cells 1]
   }
   return $cells
 }
@@ -657,7 +621,7 @@ proc get_lib_pins { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set ports [filter_objs $keys(-filter) $ports filter_lib_pins "liberty port"]
+    set ports [filter_lib_pins $keys(-filter) $ports 1]
   }
   return $ports
 }
@@ -707,7 +671,7 @@ proc get_libs { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set libs [filter_objs $keys(-filter) $libs filter_liberty_libraries "liberty library"]
+    set libs [filter_liberty_libraries $keys(-filter) $libs 1]
   }
   return $libs
 }
@@ -808,7 +772,7 @@ proc get_nets { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set nets [filter_objs $keys(-filter) $nets filter_nets "net"]
+    set nets [filter_nets $keys(-filter) $nets 1]
   }
   return $nets
 }
@@ -899,7 +863,7 @@ proc get_pins { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set pins [filter_objs $keys(-filter) $pins filter_pins "pin"]
+    set pins [filter_pins $keys(-filter) $pins 1]
   }
   return $pins
 }
@@ -955,7 +919,7 @@ proc get_ports { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set ports [filter_objs $keys(-filter) $ports filter_ports "port"]
+    set ports [filter_ports $keys(-filter) $ports 1]
   }
   return $ports
 }
