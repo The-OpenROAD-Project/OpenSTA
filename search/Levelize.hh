@@ -74,7 +74,8 @@ public:
   void checkLevels();
   // Public for regression testing.
   void levelize();
-
+  const VertexSeq &levelizedDrvrVertices();
+  
 protected:
   void findRoots();
   VertexSeq sortedRootsWithFanout();
@@ -104,6 +105,7 @@ protected:
   void clearLoopEdges();
   void deleteLoops();
   void reportPath(EdgeSeq &path) const;
+  void levelizeDrvrVertices();
 
   bool levelized_;
   bool levels_valid_;
@@ -116,6 +118,8 @@ protected:
   EdgeSet disabled_loop_edges_;
   EdgeSet latch_d_to_q_edges_;
   LevelizeObserver *observer_;
+  VertexSeq levelized_drvr_vertices_;
+  bool drvr_vertices_level_valid_;
 };
 
 // Loops broken by levelization may not necessarily be combinational.

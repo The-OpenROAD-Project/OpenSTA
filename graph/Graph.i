@@ -28,6 +28,7 @@
 #include "Graph.hh"
 #include "FuncExpr.hh"
 #include "TimingRole.hh"
+#include "search/Levelize.hh"
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Clock.hh"
@@ -116,6 +117,32 @@ void
 remove_delay_slew_annotations()
 {
   Sta::sta()->removeDelaySlewAnnotations();
+}
+
+void
+report_levelized_drvr_vertices(int max_count)
+{
+  Sta *sta = Sta::sta();
+  sta->ensureGraph();
+  const VertexSeq &drvrs = sta->levelizedDrvrVertices();
+  Report *report = sta->report();
+  const Network *network = sta->network();
+  report->report("driver vertex count {}", drvrs.size());
+  Level prev_level = -1;
+  int n = 0;
+  for (Vertex *vertex : drvrs) {
+    Level level = vertex->level();
+    if (level < prev_level)
+      report->report("level order violated {} {} < {}",
+                     network->pathName(vertex->pin()),
+                     level, prev_level);
+    if (n < max_count)
+      report->report("{} level={}",
+                     network->pathName(vertex->pin()),
+                     level);
+    prev_level = level;
+    n++;
+  }
 }
 
 %} // inline

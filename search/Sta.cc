@@ -2900,6 +2900,12 @@ Sta::ensureClkArrivals()
   search_->findClkArrivals();
 }
 
+const VertexSeq&
+Sta::levelizedDrvrVertices()
+{
+  return levelize_->levelizedDrvrVertices();
+}
+
 ////////////////////////////////////////////////////////////////
 
 VertexSet &

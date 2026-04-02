@@ -1,0 +1,127 @@
+OpenSTA 3.1.0 211aea7497 Copyright (c) 2026, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+Warning 198: gcd_asap7.v line 844, module FAx1_ASAP7_75t_R not found. Creating black box for _106_.
+Warning 198: gcd_asap7.v line 925, module HAxp5_ASAP7_75t_R not found. Creating black box for _115_.
+Warning 198: gcd_asap7.v line 1079, module XOR2x2_ASAP7_75t_R not found. Creating black box for _140_.
+Warning 198: gcd_asap7.v line 1159, module OR2x2_ASAP7_75t_R not found. Creating black box for _156_.
+Warning 198: gcd_asap7.v line 1164, module OA21x2_ASAP7_75t_R not found. Creating black box for _157_.
+Warning 198: gcd_asap7.v line 1170, module OAI21x1_ASAP7_75t_R not found. Creating black box for _158_.
+Warning 198: gcd_asap7.v line 1210, module NOR2x1_ASAP7_75t_R not found. Creating black box for _165_.
+Warning 198: gcd_asap7.v line 1219, module OR4x1_ASAP7_75t_R not found. Creating black box for _167_.
+Warning 198: gcd_asap7.v line 1232, module AO21x1_ASAP7_75t_R not found. Creating black box for _169_.
+Warning 198: gcd_asap7.v line 1265, module NAND2x1_ASAP7_75t_R not found. Creating black box for _175_.
+Warning 198: gcd_asap7.v line 1313, module AO221x1_ASAP7_75t_R not found. Creating black box for _184_.
+Warning 198: gcd_asap7.v line 3244, module TIEHIx1_ASAP7_75t_R not found. Creating black box for _216_.
+Warning 198: gcd_asap7.v line 3251, module AOI211x1_ASAP7_75t_R not found. Creating black box for _218_.
+Warning 198: gcd_asap7.v line 3258, module AND3x1_ASAP7_75t_R not found. Creating black box for _219_.
+Warning 198: gcd_asap7.v line 3269, module OA211x2_ASAP7_75t_R not found. Creating black box for _221_.
+Warning 198: gcd_asap7.v line 3735, module OAI22x1_ASAP7_75t_R not found. Creating black box for _305_.
+Warning 198: gcd_asap7.v line 4197, module AND4x1_ASAP7_75t_R not found. Creating black box for _386_.
+Warning 198: gcd_asap7.v line 4204, module AND5x1_ASAP7_75t_R not found. Creating black box for _387_.
+Warning 198: gcd_asap7.v line 4259, module DFFHQNx1_ASAP7_75t_R not found. Creating black box for \ctrl.state.out[0]$_DFF_P_ .
+driver vertex count 106
+clk level=0
+req_msg[0] level=0
+req_msg[10] level=0
+req_msg[11] level=0
+req_msg[12] level=0
+req_msg[13] level=0
+req_msg[14] level=0
+req_msg[15] level=0
+req_msg[16] level=0
+req_msg[17] level=0
+req_msg[18] level=0
+req_msg[19] level=0
+req_msg[1] level=0
+req_msg[20] level=0
+req_msg[21] level=0
+req_msg[22] level=0
+req_msg[23] level=0
+req_msg[24] level=0
+req_msg[25] level=0
+req_msg[26] level=0
+req_msg[27] level=0
+req_msg[28] level=0
+req_msg[29] level=0
+req_msg[2] level=0
+req_msg[30] level=0
+req_msg[31] level=0
+req_msg[3] level=0
+req_msg[4] level=0
+req_msg[5] level=0
+req_msg[6] level=0
+req_msg[7] level=0
+req_msg[8] level=0
+req_msg[9] level=0
+req_val level=0
+reset level=0
+resp_rdy level=0
+_215_/_129_/Y level=10
+_215_/_130_/Y level=10
+_215_/_131_/Y level=10
+_215_/_132_/Y level=10
+_215_/_133_/Y level=10
+_215_/_134_/Y level=10
+_215_/_135_/Y level=10
+_215_/_136_/Y level=10
+_215_/_137_/Y level=10
+_215_/_138_/Y level=10
+_215_/_139_/Y level=10
+_215_/_166_/Y level=10
+_215_/_174_/Y level=10
+_215_/_180_/Y level=10
+_215_/_182_/Y level=10
+_215_/_186_/Y level=10
+_215_/_193_/Y level=10
+_217_/Y level=10
+_222_/Y level=10
+_224_/Y level=10
+_227_/Y level=10
+_228_/Y level=10
+_229_/Y level=10
+_230_/Y level=10
+_231_/Y level=10
+_232_/Y level=10
+_233_/Y level=10
+_234_/Y level=10
+_235_/Y level=10
+_236_/Y level=10
+_237_/Y level=10
+_238_/Y level=10
+_239_/Y level=10
+_240_/Y level=10
+_241_/Y level=10
+_242_/Y level=10
+_243_/Y level=10
+_244_/Y level=10
+_245_/Y level=10
+_354_/Y level=10
+_357_/Y level=10
+_361_/Y level=10
+_365_/Y level=10
+_368_/Y level=10
+_373_/Y level=10
+_376_/Y level=10
+_380_/Y level=10
+_384_/Y level=10
+_388_/Y level=10
+_393_/Y level=10
+_395_/Y level=10
+_396_/Y level=10
+_278_/Y level=20
+_282_/Y level=20
+_286_/Y level=20
+_291_/Y level=20
+_296_/Y level=20
+_301_/Y level=20
+_304_/Y level=20
+_308_/Y level=20
+_312_/Y level=20
+_315_/Y level=20
+_320_/Y level=20
+_323_/Y level=20
+% 
