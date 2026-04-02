@@ -747,12 +747,6 @@ TEST_F(StaInitTest, SetArcDelayCalc) {
   ASSERT_NO_THROW(sta_->setArcDelayCalc("lumped_cap"));
 }
 
-// Parasitic analysis pts
-TEST_F(StaInitTest, SetParasiticAnalysisPts) {
-  // setParasiticAnalysisPts removed from API
-  // setParasiticAnalysisPts removed from API
-}
-
 // RemoveClockGroupsNull removed — nullptr now throws std::logic_error
 
 // FindReportPathField
@@ -1891,12 +1885,6 @@ TEST_F(StaInitTest, CornersBeginEnd) {
   EXPECT_EQ(static_cast<size_t>(count), corners.size());
 }
 
-TEST_F(StaInitTest, CornersOperatingConditionsChanged) {
-  // operatingConditionsChanged removed from SceneSeq
-  // No crash
-
-}
-
 // Levelize.cc uncovered functions
 TEST_F(StaInitTest, LevelizeNotLevelized) {
   Levelize *levelize = sta_->levelize();
@@ -2118,13 +2106,6 @@ TEST_F(StaInitTest, ClkSkewPaths) {
   EXPECT_EQ(skew.tgtPath(), nullptr);
 }
 
-// ClkSkews class
-TEST_F(StaInitTest, ClkSkewsExists) {
-  // ClkSkews is a component of Sta
-  // Access through sta_ members
-
-}
-
 // CheckMaxSkews
 TEST_F(StaInitTest, CheckMaxSkewsExists) {
   // maxSkewSlack/maxSkewViolations removed from Sta API
@@ -2280,13 +2261,6 @@ TEST_F(StaInitTest, ReportPathFormatValues) {
             static_cast<int>(ReportPathFormat::slack_only));
 }
 
-// Variables - additional variables
-TEST_F(StaInitTest, VariablesSearchPreamble) {
-  // Search preamble requires network but we can test it won't crash
-  // when there's no linked design
-
-}
-
 // Sta::clear on empty
 TEST_F(StaInitTest, StaClearEmpty) {
   sta_->clear();
@@ -2298,12 +2272,6 @@ TEST_F(StaInitTest, StaClearEmpty) {
 // (skipping because requires linked design)
 
 // Additional Sta functions that exercise uncovered code paths
-TEST_F(StaInitTest, StaSearchPreambleNoDesign) {
-  // searchPreamble requires ensureLinked which needs a network
-  // We can verify the pre-conditions
-
-}
-
 TEST_F(StaInitTest, StaTagCount) {
   TagIndex count = sta_->tagCount();
   EXPECT_GE(count, 0u);
@@ -2334,11 +2302,6 @@ TEST_F(StaInitTest, StaMaxPathCountVertex) {
 }
 
 // More Sta.cc function coverage
-TEST_F(StaInitTest, StaSetSlewLimitClock) {
-  // Without a clock this is a no-op - just exercise code path
-
-}
-
 TEST_F(StaInitTest, StaOperatingConditions) {
   const OperatingConditions *op = sta_->operatingConditions(MinMax::min(), sta_->cmdSdc());
   // May be null without a liberty lib
@@ -2349,11 +2312,6 @@ TEST_F(StaInitTest, StaDelaysInvalidEmpty) {
   sta_->delaysInvalid();
   // No crash
 
-}
-
-TEST_F(StaInitTest, StaFindRequiredsEmpty) {
-  // Without timing, this should be a no-op
-  // findRequireds removed from public Sta API
 }
 
 // Additional Property types coverage
@@ -2451,18 +2409,6 @@ TEST_F(StaInitTest, StaClearLogicConstants) {
 
 }
 
-TEST_F(StaInitTest, StaSetParasiticAnalysisPtsNotPerCorner) {
-  // setParasiticAnalysisPts removed from API
-  // No crash
-
-}
-
-TEST_F(StaInitTest, StaSetParasiticAnalysisPtsPerCorner) {
-  // setParasiticAnalysisPts removed from API
-  // No crash
-
-}
-
 TEST_F(StaInitTest, StaDeleteParasitics) {
   sta_->deleteParasitics();
   // No crash on empty
@@ -2487,14 +2433,6 @@ TEST_F(StaInitTest, PathInitVertex) {
 TEST_F(StaInitTest, WnsSlackLessConstructor) {
   WnsSlackLess less(0, sta_);
   // Just exercise constructor
-
-}
-
-// Additional Sta.cc report functions
-TEST_F(StaInitTest, StaReportPathEndHeaderFooter) {
-  // reportPathEndHeader removed from API
-  // reportPathEndFooter removed from API
-  // Just exercise without crash
 
 }
 
@@ -2616,24 +2554,6 @@ TEST_F(StaInitTest, StaMakeExceptionTo) {
                                             RiseFallBoth::riseFall(), sta_->cmdSdc());
   // With all-null args, returns nullptr
   EXPECT_EQ(to, nullptr);
-}
-
-// Sta.cc - checkTiming
-TEST_F(StaInitTest, StaCheckTimingNoDesign) {
-  // checkTiming requires a linked network - just verify the method exists
-
-}
-
-// Exercise Sta.cc setPvt without instance
-TEST_F(StaInitTest, StaSetPvtMinMax) {
-  // Can't call without instance/design, but verify the API exists
-  // setPvt removed from public Sta API
-}
-
-// Sta.cc - endpoint-related functions
-TEST_F(StaInitTest, StaEndpointViolationCountNoDesign) {
-  // Requires graph, skip
-  // endpointViolationCount removed from public Sta API
 }
 
 // Additional coverage for SceneSeq iteration
@@ -3035,11 +2955,6 @@ TEST_F(StaInitTest, StaEnsureClkArrivals) {
   EXPECT_THROW(sta_->ensureClkArrivals(), std::exception);
 }
 
-// startpointPins() is declared in Sta.hh but not defined - skip
-TEST_F(StaInitTest, StaStartpointPins) {
-  // startpointPins not implemented
-}
-
 TEST_F(StaInitTest, StaEndpoints2) {
   EXPECT_THROW(sta_->endpoints(), std::exception);
 }
@@ -3083,18 +2998,6 @@ TEST_F(StaInitTest, StaConstraintsChanged) {
 // --- Sta.cc: report path functions ---
 TEST_F(StaInitTest, StaSetReportPathFormat2) {
   sta_->setReportPathFormat(ReportPathFormat::full_clock_expanded);
-  // No crash
-
-}
-
-TEST_F(StaInitTest, StaReportPathEndHeader) {
-  // reportPathEndHeader removed from API
-  // No crash
-
-}
-
-TEST_F(StaInitTest, StaReportPathEndFooter) {
-  // reportPathEndFooter removed from API
   // No crash
 
 }
@@ -3278,11 +3181,6 @@ TEST_F(StaInitTest, StaRemoveDelaySlewAnnotations) {
   sta_->removeDelaySlewAnnotations();
   // No crash
 
-}
-
-// --- Sta.cc: minPeriodViolations and maxSkewViolations (throw) ---
-TEST_F(StaInitTest, StaMinPeriodViolationsThrows) {
-  // minPeriodViolations removed from API;
 }
 
 // minPeriodSlack removed from API

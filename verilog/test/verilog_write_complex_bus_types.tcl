@@ -2,21 +2,6 @@
 
 source ../../test/helpers.tcl
 
-proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
-    error "expected non-empty file: $path"
-  }
-}
-
-proc assert_file_contains {path token} {
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string first $token $text] < 0} {
-    error "expected '$token' in $path"
-  }
-}
-
 proc assert_files_equal {path_a path_b} {
   set in_a [open $path_a r]
   set text_a [read $in_a]
