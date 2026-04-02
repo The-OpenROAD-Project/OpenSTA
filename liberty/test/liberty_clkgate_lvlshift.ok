@@ -14,8 +14,8 @@ Cell sky130_fd_sc_hd__dlclkp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 0.00-0.00
  GATE input 0.00-0.00
@@ -43,8 +43,8 @@ Cell sky130_fd_sc_hd__dlclkp_2
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 0.00-0.00
  GATE input 0.00-0.00
@@ -72,8 +72,8 @@ Cell sky130_fd_sc_hd__dlclkp_4
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 0.00-0.01
  GATE input 0.00-0.00
@@ -98,8 +98,8 @@ Timing arcs
   v -> v
 sky130_fd_sc_hd__sdlclkp_1 area=18.768000
   VGND dir=ground func=
-  VNB dir=unknown func=
-  VPB dir=unknown func=
+  VNB dir=bias func=
+  VPB dir=bias func=
   VPWR dir=power func=
   CLK dir=input func=
   GATE dir=input func=
@@ -108,8 +108,8 @@ sky130_fd_sc_hd__sdlclkp_1 area=18.768000
   SCE dir=input func=
 sky130_fd_sc_hd__sdlclkp_2 area=20.019199
   VGND dir=ground func=
-  VNB dir=unknown func=
-  VPB dir=unknown func=
+  VNB dir=bias func=
+  VPB dir=bias func=
   VPWR dir=power func=
   CLK dir=input func=
   GATE dir=input func=
@@ -118,8 +118,8 @@ sky130_fd_sc_hd__sdlclkp_2 area=20.019199
   SCE dir=input func=
 sky130_fd_sc_hd__sdlclkp_4 area=22.521601
   VGND dir=ground func=
-  VNB dir=unknown func=
-  VPB dir=unknown func=
+  VNB dir=bias func=
+  VPB dir=bias func=
   VPWR dir=power func=
   CLK dir=input func=
   GATE dir=input func=

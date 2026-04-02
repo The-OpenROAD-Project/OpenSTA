@@ -6,8 +6,8 @@ VNB exists = 1
 BOGUS_SUPPLY exists = 0
 --- pg pin port queries ---
 inv_1/VGND dir=ground is_pg=1
-inv_1/VNB dir=unknown is_pg=1
-inv_1/VPB dir=unknown is_pg=1
+inv_1/VNB dir=bias is_pg=1
+inv_1/VPB dir=bias is_pg=1
 inv_1/VPWR dir=power is_pg=1
 sky130_fd_sc_hd__buf_1 pg_pin_count=4
 sky130_fd_sc_hd__nand2_1 pg_pin_count=4
@@ -72,8 +72,8 @@ Cell sky130_fd_sc_hd__inv_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  A input 0.00-0.00
  Y output function=!A
@@ -87,8 +87,8 @@ Cell sky130_fd_sc_hd__dfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -117,8 +117,8 @@ Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -160,8 +160,8 @@ Cell sky130_fd_sc_hd__ebufn_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  A input 0.00-0.00
  TE_B input 0.00-0.00
@@ -184,8 +184,8 @@ Cell sky130_fd_sc_hd__dlclkp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 0.00-0.00
  GATE input 0.00-0.00

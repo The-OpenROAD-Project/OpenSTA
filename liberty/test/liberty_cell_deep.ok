@@ -111,8 +111,8 @@ Cell sky130_fd_sc_hd__ebufn_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  A input 1.73-1.88
  TE_B input 2.93-3.34
@@ -135,8 +135,8 @@ Cell sky130_fd_sc_hd__ebufn_2
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  A input 1.74-1.89
  TE_B input 3.75-4.41
@@ -159,8 +159,8 @@ Cell sky130_fd_sc_hd__ebufn_4
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  A input 2.37-2.60
  TE_B input 6.26-7.48
@@ -183,8 +183,8 @@ Cell sky130_fd_sc_hd__dlxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  D input 1.70-1.85
  GATE input 1.68-1.82
@@ -216,8 +216,8 @@ Cell sky130_fd_sc_hd__dlxtn_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  D input 1.70-1.89
  GATE_N input 1.66-1.82
@@ -249,8 +249,8 @@ Cell sky130_fd_sc_hd__sdfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 1.69-1.86
  D input 1.62-1.78
@@ -297,8 +297,8 @@ Cell sky130_fd_sc_hd__sdfxbp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 1.70-1.87
  D input 1.61-1.78
@@ -350,8 +350,8 @@ Cell sky130_fd_sc_hd__dfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 1.71-1.88
  D input 1.67-1.68
@@ -380,8 +380,8 @@ Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 1.71-1.87
  D input 1.95-2.01
@@ -423,8 +423,8 @@ Cell sky130_fd_sc_hd__dfstp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 1.69-1.86
  D input 2.23-2.49
@@ -466,8 +466,8 @@ Cell sky130_fd_sc_hd__dfbbp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  CLK input 1.69-1.89
  D input 1.49-1.70
@@ -545,8 +545,8 @@ Cell sky130_fd_sc_hd__mux2_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  A0 input 1.51-1.61
  A1 input 1.81-1.96
@@ -574,8 +574,8 @@ Cell sky130_fd_sc_hd__mux2i_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  A0 input 2.10-2.31
  A1 input 2.15-2.36
@@ -603,8 +603,8 @@ Cell sky130_fd_sc_hd__mux4_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB unknown
- VPB unknown
+ VNB bias
+ VPB bias
  VPWR power
  A0 input 1.48-1.57
  A1 input 1.40-1.48
