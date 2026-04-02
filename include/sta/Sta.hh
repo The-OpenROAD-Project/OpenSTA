@@ -1325,7 +1325,7 @@ public:
   // Ensure that the timing graph has been built.
   Graph *ensureGraph();
   void ensureClkArrivals();
-  Levelize* levelize() const { return levelize_; }
+  const VertexSeq& levelizedDrvrVertices();
 
   // Find all arc delays and vertex slews with delay calculator.
   virtual void findDelays();

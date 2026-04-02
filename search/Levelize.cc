@@ -92,6 +92,7 @@ Levelize::clear()
   loop_edges_.clear();
   max_level_ = 0;
   drvr_vertices_level_valid_ = false;
+  levelized_drvr_vertices_.clear();
 }
 
 void
@@ -548,11 +549,11 @@ Levelize::setLevel(Vertex *vertex,
 void
 Levelize::invalid()
 {
+  drvr_vertices_level_valid_ = false;
   if (levelized_) {
     debugPrint(debug_, "levelize", 1, "levels invalid");
     levelized_ = false;
     levels_valid_ = false;
-    drvr_vertices_level_valid_ = false;
   }
 }
 
@@ -563,6 +564,7 @@ Levelize::deleteVertexBefore(Vertex *vertex)
     roots_.erase(vertex);
     relevelize_from_.erase(vertex);
     drvr_vertices_level_valid_ = false;
+    levelized_drvr_vertices_.clear();
   }
 }
 
@@ -720,6 +722,8 @@ void
 Levelize::levelizeDrvrVertices()
 {
   levelized_drvr_vertices_.clear();
+  // Rough estimate: ~half of vertices are drivers
+  levelized_drvr_vertices_.reserve(graph_->vertexCount() / 2);
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
@@ -727,8 +731,10 @@ Levelize::levelizeDrvrVertices()
       levelized_drvr_vertices_.emplace_back(vertex);
   }
   sort(levelized_drvr_vertices_,
-       [](const Vertex *a, const Vertex *b) {
-         return a->level() < b->level();
+       [this](const Vertex *a, const Vertex *b) {
+         if (a->level() != b->level())
+           return a->level() < b->level();
+         return VertexNameLess(network_)(a, b);
        });
   drvr_vertices_level_valid_ = true;
 }
