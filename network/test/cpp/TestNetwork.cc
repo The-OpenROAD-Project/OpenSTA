@@ -161,11 +161,20 @@ TEST_F(PortDirectionTest, PowerSingleton) {
   EXPECT_TRUE(dir->isPower());
 }
 
+TEST_F(PortDirectionTest, BiasSingleton)
+{
+  PortDirection *dir = PortDirection::bias();
+  EXPECT_NE(dir, nullptr);
+  EXPECT_EQ(dir->name(), "bias");
+  EXPECT_EQ(dir->index(), 7);
+  EXPECT_TRUE(dir->isBias());
+}
+
 TEST_F(PortDirectionTest, UnknownSingleton) {
   PortDirection *dir = PortDirection::unknown();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "unknown");
-  EXPECT_EQ(dir->index(), 7);
+  EXPECT_EQ(dir->index(), 8);
   EXPECT_TRUE(dir->isUnknown());
 }
 
@@ -177,6 +186,7 @@ TEST_F(PortDirectionTest, FindByName) {
   EXPECT_EQ(PortDirection::find("internal"), PortDirection::internal());
   EXPECT_EQ(PortDirection::find("ground"), PortDirection::ground());
   EXPECT_EQ(PortDirection::find("power"), PortDirection::power());
+  EXPECT_EQ(PortDirection::find("bias"), PortDirection::bias());
   EXPECT_EQ(PortDirection::find("nonexistent"), nullptr);
 }
 
@@ -188,6 +198,7 @@ TEST_F(PortDirectionTest, IsAnyInput) {
   EXPECT_FALSE(PortDirection::internal()->isAnyInput());
   EXPECT_FALSE(PortDirection::ground()->isAnyInput());
   EXPECT_FALSE(PortDirection::power()->isAnyInput());
+  EXPECT_FALSE(PortDirection::bias()->isAnyInput());
   EXPECT_FALSE(PortDirection::unknown()->isAnyInput());
 }
 
@@ -199,6 +210,7 @@ TEST_F(PortDirectionTest, IsAnyOutput) {
   EXPECT_FALSE(PortDirection::internal()->isAnyOutput());
   EXPECT_FALSE(PortDirection::ground()->isAnyOutput());
   EXPECT_FALSE(PortDirection::power()->isAnyOutput());
+  EXPECT_FALSE(PortDirection::bias()->isAnyOutput());
   EXPECT_FALSE(PortDirection::unknown()->isAnyOutput());
 }
 
@@ -210,12 +222,14 @@ TEST_F(PortDirectionTest, IsAnyTristate) {
   EXPECT_FALSE(PortDirection::internal()->isAnyTristate());
   EXPECT_FALSE(PortDirection::ground()->isAnyTristate());
   EXPECT_FALSE(PortDirection::power()->isAnyTristate());
+  EXPECT_FALSE(PortDirection::bias()->isAnyTristate());
   EXPECT_FALSE(PortDirection::unknown()->isAnyTristate());
 }
 
 TEST_F(PortDirectionTest, IsPowerGround) {
   EXPECT_TRUE(PortDirection::power()->isPowerGround());
   EXPECT_TRUE(PortDirection::ground()->isPowerGround());
+  EXPECT_TRUE(PortDirection::bias()->isPowerGround());
   EXPECT_FALSE(PortDirection::input()->isPowerGround());
   EXPECT_FALSE(PortDirection::output()->isPowerGround());
   EXPECT_FALSE(PortDirection::tristate()->isPowerGround());
@@ -851,6 +865,7 @@ TEST(PortDirectionExtraTest, AllDirections) {
   EXPECT_NE(PortDirection::internal(), nullptr);
   EXPECT_NE(PortDirection::ground(), nullptr);
   EXPECT_NE(PortDirection::power(), nullptr);
+  EXPECT_NE(PortDirection::bias(), nullptr);
   EXPECT_NE(PortDirection::unknown(), nullptr);
 }
 
@@ -873,6 +888,7 @@ TEST(PortDirectionExtraTest, DirectionProperties) {
 
   EXPECT_TRUE(PortDirection::ground()->isPowerGround());
   EXPECT_TRUE(PortDirection::power()->isPowerGround());
+  EXPECT_TRUE(PortDirection::bias()->isPowerGround());
 }
 
 TEST(PortDirectionExtraTest, DirectionNames) {
@@ -886,6 +902,7 @@ TEST(PortDirectionExtraTest, DirectionNames) {
   EXPECT_EQ(PortDirection::internal()->name(), "internal");
   EXPECT_EQ(PortDirection::ground()->name(), "ground");
   EXPECT_EQ(PortDirection::power()->name(), "power");
+  EXPECT_EQ(PortDirection::bias()->name(), "bias");
   EXPECT_EQ(PortDirection::unknown()->name(), "unknown");
 }
 
@@ -900,6 +917,7 @@ TEST(PortDirectionExtraTest, FindAllByName) {
   EXPECT_EQ(PortDirection::find("internal"), PortDirection::internal());
   EXPECT_EQ(PortDirection::find("ground"), PortDirection::ground());
   EXPECT_EQ(PortDirection::find("power"), PortDirection::power());
+  EXPECT_EQ(PortDirection::find("bias"), PortDirection::bias());
   // "unknown" is not findable by name, returns nullptr
   EXPECT_EQ(PortDirection::find("nonexistent"), nullptr);
 }

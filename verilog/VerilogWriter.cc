@@ -253,6 +253,8 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
     return "inout";
   else if (dir == PortDirection::ground())
     return "inout";
+  else if (dir == PortDirection::bias())
+    return "inout";
   else if (dir == PortDirection::internal()
            || dir == PortDirection::unknown())
     return "inout";

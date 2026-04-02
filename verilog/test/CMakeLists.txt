@@ -2,6 +2,7 @@ sta_module_tests("verilog"
   TESTS
     assign
     attributes
+    bias_pins
     bus
     bus_partselect
     complex_bus
