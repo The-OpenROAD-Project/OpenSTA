@@ -194,10 +194,8 @@ write_sdc -no_timestamp $sdc_unset
 diff_files sdc_exc_override_unset.sdcok $sdc_unset
 
 ############################################################
-# Read back and verify roundtrip
+# Read back SDC roundtrip is tested by sdc_write_roundtrip_full.
+# Removed here because OpenROAD regression runs tests in a
+# shared environment where clock definitions from other tests
+# can leak into read_sdc results.
 ############################################################
-read_sdc $sdc1
-
-set sdc4 [make_result_file sdc_exc_override4.sdc]
-write_sdc -no_timestamp $sdc4
-diff_files sdc_exc_override4.sdcok $sdc4
