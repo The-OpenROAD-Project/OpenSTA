@@ -12,7 +12,7 @@ AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: TopLevel
 BinPackArguments: true
 # fails
-BinPackParameters: AlwaysOnePerLine
+BinPackParameters: false
 BraceWrapping:   
   AfterClass: true
   AfterStruct: true
