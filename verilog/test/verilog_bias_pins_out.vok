@@ -1,0 +1,26 @@
+module top (y,
+    a);
+ output y;
+ input a;
+
+
+ sky130_fd_sc_hd__buf_1 u1 (.A(a),
+    .X(y));
+endmodule
+module top (y,
+    a);
+ output y;
+ input a;
+
+ wire VGND;
+ wire VNB;
+ wire VPB;
+ wire VPWR;
+
+ sky130_fd_sc_hd__buf_1 u1 (.VGND(VGND),
+    .VNB(VNB),
+    .VPB(VPB),
+    .VPWR(VPWR),
+    .A(a),
+    .X(y));
+endmodule

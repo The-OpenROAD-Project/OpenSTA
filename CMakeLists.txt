@@ -152,6 +152,7 @@ set(STA_SOURCE
   sdc/DeratingFactors.cc
   sdc/DisabledPorts.cc
   sdc/ExceptionPath.cc
+  sdc/FilterObjects.cc
   sdc/InputDrive.cc
   sdc/PinPair.cc
   sdc/PortDelay.cc

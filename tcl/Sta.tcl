@@ -300,7 +300,7 @@ proc get_timing_edges_cmd { cmd cmd_args } {
     cmd_usage_error $cmd
   }
   if [info exists keys(-filter)] {
-    set arcs [filter_objs $keys(-filter) $arcs filter_timing_arcs "timing arc"]
+    set arcs [filter_timing_arcs $keys(-filter) $arcs 1]
   }
   return $arcs
 }

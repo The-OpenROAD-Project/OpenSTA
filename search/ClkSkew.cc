@@ -196,7 +196,7 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
     std::vector<ClkSkewMap> partial_skews(thread_count_);
     for (Vertex *src_vertex : graph_->regClkVertices()) {
       if (hasClkPaths(src_vertex)) {
-        dispatch_queue_->dispatch([this, src_vertex, &partial_skews](int i) {
+        dispatch_queue_->dispatch([this, src_vertex, &partial_skews](size_t i) {
           findClkSkewFrom(src_vertex, partial_skews[i]);
         });
       }
