@@ -1025,7 +1025,7 @@ PathGroups::makeGroupPathEnds(VertexSet &endpoints,
                MakeEndpointPathEnds(visitor, Scene::sceneSet(scenes),
                                     min_max, this));
     for (const auto endpoint : endpoints) {
-      dispatch_queue_->dispatch( [endpoint, &visitors](int i)
+      dispatch_queue_->dispatch( [endpoint, &visitors](size_t i)
       { visitors[i].visit(endpoint); } );
     }
     dispatch_queue_->finishTasks();

@@ -108,18 +108,17 @@ GateTableModel::gateDelay(const Pvt *pvt,
                           float &gate_delay,
                           float &drvr_slew) const
 {
-  if (delay_models_)
+  if (delay_models_ && delay_models_->model())
     gate_delay = findValue(pvt, delay_models_->model(), in_slew, load_cap, 0.0);
   else
     gate_delay = 0.0;
-  if (slew_models_)
+  if (slew_models_ && slew_models_->model()) {
     drvr_slew = findValue(pvt, slew_models_->model(), in_slew, load_cap, 0.0);
+    // Clip negative slews to zero.
+    if (drvr_slew < 0.0)
+      drvr_slew = 0.0;
+  }
   else
-    drvr_slew = 0.0;
-  // TODO: Check for a better solution than clip negative delays and slews to zero.
-  //if (gate_delay < 0.0)
-  //  gate_delay = 0.0;
-  if (drvr_slew < 0.0)
     drvr_slew = 0.0;
 }
 

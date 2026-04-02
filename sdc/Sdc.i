@@ -34,6 +34,7 @@
 #include "Clock.hh"
 #include "PortDelay.hh"
 #include "Property.hh"
+#include "FilterObjects.hh"
 #include "Sta.hh"
 
 using namespace sta;
@@ -1490,114 +1491,103 @@ find_register_output_pins(ClockSet *clks,
 
 ////////////////////////////////////////////////////////////////
 
-template <typename T> std::vector<T*>
-filter_objects(std::string_view property,
-               std::string_view op,
-               std::string_view pattern,
-               std::vector<T*> *objects)
-{
-  std::vector<T*> filtered_objects;
-  if (objects) {
-    Sta *sta = Sta::sta();
-    Properties &properties = sta->properties();
-    bool exact_match = op == "==";
-    bool pattern_match = op == "=~";
-    bool not_match = op == "!=";
-    bool not_pattern_match = op == "!~";
-    for (T *object : *objects) {
-      PropertyValue value(properties.getProperty(object, property));
-      std::string prop_value = value.to_string(sta->network());
-      if (!prop_value.empty()
-          && ((exact_match && prop_value == pattern)
-              || (not_match && prop_value != pattern)
-              || (pattern_match && patternMatch(pattern, prop_value))
-              || (not_pattern_match && !patternMatch(pattern, prop_value))))
-        filtered_objects.push_back(object);
-    }
-    delete objects;
-  }
-  return filtered_objects;
-}
-
 PortSeq
-filter_ports(std::string_view property,
-             std::string_view op,
-             std::string_view pattern,
-             PortSeq *ports)
+filter_ports(const char *filter_expression,
+	     PortSeq *ports,
+             bool bool_props_as_int)
 {
-  return filter_objects<const Port>(property, op, pattern, ports);
+  sta::Sta *sta = Sta::sta(); 
+  return filterPorts(filter_expression, ports, bool_props_as_int, sta);
 }
 
 InstanceSeq
-filter_insts(std::string_view property,
-             std::string_view op,
-             std::string_view pattern,
-             InstanceSeq *insts)
+filter_insts(const char *filter_expression,
+	     InstanceSeq *insts,
+             bool bool_props_as_int)
 {
-  return filter_objects<const Instance>(property, op, pattern, insts);
+  sta::Sta *sta = Sta::sta(); 
+  return filterInstances(filter_expression, insts, bool_props_as_int, sta);
 }
 
 PinSeq
-filter_pins(std::string_view property,
-            std::string_view op,
-            std::string_view pattern,
-            PinSeq *pins)
+filter_pins(const char *filter_expression,
+            PinSeq *pins,
+            bool bool_props_as_int)
 {
-  return filter_objects<const Pin>(property, op, pattern, pins);
-}
-
-ClockSeq
-filter_clocks(std::string_view property,
-              std::string_view op,
-              std::string_view pattern,
-              ClockSeq *clocks)
-{
-  return filter_objects<Clock>(property, op, pattern, clocks);
-}
-
-LibertyCellSeq
-filter_lib_cells(std::string_view property,
-                 std::string_view op,
-                 std::string_view pattern,
-                 LibertyCellSeq *cells)
-{
-  return filter_objects<LibertyCell>(property, op, pattern, cells);
-}
-
-LibertyPortSeq
-filter_lib_pins(std::string_view property,
-                std::string_view op,
-                std::string_view pattern,
-                LibertyPortSeq *pins)
-{
-  return filter_objects<LibertyPort>(property, op, pattern, pins);
-}
-
-LibertyLibrarySeq
-filter_liberty_libraries(std::string_view property,
-                         std::string_view op,
-                         std::string_view pattern,
-                         LibertyLibrarySeq *libs)
-{
-  return filter_objects<LibertyLibrary>(property, op, pattern, libs);
+  sta::Sta *sta = Sta::sta(); 
+  return filterPins(filter_expression, pins, bool_props_as_int, sta);
 }
 
 NetSeq
-filter_nets(std::string_view property,
-            std::string_view op,
-            std::string_view pattern,
-            NetSeq *nets)
+filter_nets(const char *filter_expression,
+            NetSeq *nets,
+            bool bool_props_as_int)
 {
-  return filter_objects<const Net>(property, op, pattern, nets);
+  sta::Sta *sta = Sta::sta(); 
+  return filterNets(filter_expression, nets, bool_props_as_int, sta);
+}
+
+ClockSeq
+filter_clocks(const char *filter_expression,
+              ClockSeq *clocks,
+              bool bool_props_as_int)
+{
+  sta::Sta *sta = Sta::sta(); 
+  return filterClocks(filter_expression, clocks, bool_props_as_int, sta);
+}
+
+LibertyCellSeq
+filter_lib_cells(const char *filter_expression,
+                 LibertyCellSeq *cells,
+                 bool bool_props_as_int)
+{
+  sta::Sta *sta = Sta::sta(); 
+  return filterLibCells(filter_expression, cells, bool_props_as_int, sta);
+}
+
+LibertyPortSeq
+filter_lib_pins(const char *filter_expression,
+                LibertyPortSeq *pins,
+                bool bool_props_as_int)
+{
+  sta::Sta *sta = Sta::sta(); 
+  return filterLibPins(filter_expression, pins, bool_props_as_int, sta);
+}
+
+LibertyLibrarySeq
+filter_liberty_libraries(const char *filter_expression,
+                         LibertyLibrarySeq *libs,
+                         bool bool_props_as_int)
+{
+  sta::Sta *sta = Sta::sta(); 
+  return filterLibertyLibraries(filter_expression, libs, bool_props_as_int, sta);
 }
 
 EdgeSeq
-filter_timing_arcs(std::string_view property,
-                   std::string_view op,
-                   std::string_view pattern,
-                   EdgeSeq *edges)
+filter_timing_arcs(const char *filter_expression,
+                   EdgeSeq *edges,
+                   bool bool_props_as_int)
 {
-  return filter_objects<Edge>(property, op, pattern, edges);
+  sta::Sta *sta = Sta::sta(); 
+  return filterTimingArcs(filter_expression, edges, bool_props_as_int, sta);
+}
+
+PathEndSeq
+filter_path_ends(const char *filter_expression,
+                 PathEndSeq *path_ends,
+                 bool bool_props_as_int)
+{
+  sta::Sta *sta = Sta::sta(); 
+  return filterPathEnds(filter_expression, path_ends, bool_props_as_int, sta);
+}
+
+// For FilterExpr unit tests.
+StringSeq
+filter_expr_to_postfix(const char* expr,
+                       bool bool_props_as_int)
+{
+  Report *report = Sta::sta()->report();
+  return filterExprToPostfix(expr, bool_props_as_int, report);
 }
 
 ////////////////////////////////////////////////////////////////
