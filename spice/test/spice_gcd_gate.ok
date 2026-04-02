@@ -1,0 +1,43 @@
+Warning 198: ../../examples/gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+--- baseline timing ---
+Startpoint: _414_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: resp_msg[15] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ _414_/CLK (sky130_fd_sc_hd__dfxtp_4)
+   0.31    0.31 v _414_/Q (sky130_fd_sc_hd__dfxtp_4)
+   0.12    0.43 v _214_/Y (sky130_fd_sc_hd__nor2b_4)
+   0.31    0.74 v _215_/X (sky130_fd_sc_hd__maj3_2)
+   0.31    1.05 v _216_/X (sky130_fd_sc_hd__maj3_2)
+   0.34    1.40 v _217_/X (sky130_fd_sc_hd__maj3_2)
+   0.32    1.72 v _218_/X (sky130_fd_sc_hd__maj3_2)
+   0.36    2.08 v _219_/X (sky130_fd_sc_hd__maj3_2)
+   0.21    2.29 ^ _222_/Y (sky130_fd_sc_hd__o211ai_4)
+   0.14    2.42 v _225_/Y (sky130_fd_sc_hd__a311oi_4)
+   0.29    2.72 ^ _228_/Y (sky130_fd_sc_hd__o311ai_4)
+   0.13    2.85 v _231_/Y (sky130_fd_sc_hd__a311oi_4)
+   0.17    3.03 ^ _232_/Y (sky130_fd_sc_hd__nor2_2)
+   0.10    3.12 v _234_/Y (sky130_fd_sc_hd__a21boi_2)
+   0.12    3.25 v _238_/Y (sky130_fd_sc_hd__xnor2_2)
+   0.00    3.25 v resp_msg[15] (out)
+           3.25   data arrival time
+
+   5.00    5.00   clock clk (rise edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   clock reconvergence pessimism
+  -1.00    4.00   output external delay
+           4.00   data required time
+---------------------------------------------------------
+           4.00   data required time
+          -3.25   data arrival time
+---------------------------------------------------------
+           0.75   slack (MET)
+
+
+Warning 356: spice_gcd_gate.tcl line 1, port '*' not found.
+--- write_path_spice tests ---

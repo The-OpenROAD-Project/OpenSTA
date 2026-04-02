@@ -1,0 +1,189 @@
+--- write_timing_model default ---
+--- write_timing_model -cell_name ---
+--- write_timing_model -library_name -cell_name ---
+--- write_timing_model -scene ---
+--- Read back generated model ---
+--- min_period_violations ---
+min_period_violations: skipped (API removed)
+--- min_period_check_slack ---
+min_period_check_slack: skipped (API removed)
+--- report_min_period_checks ---
+report_min_period_checks: skipped (API removed)
+--- max_skew_violations ---
+max_skew_violations: skipped (API removed)
+--- max_skew_check_slack ---
+max_skew_check_slack: skipped (API removed)
+--- report_clock_skew -setup ---
+Clock clk
+   0.00 source latency reg1/CK ^
+   0.00 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+   0.00 setup skew
+
+--- report_clock_skew -hold ---
+Clock clk
+   0.00 source latency reg1/CK ^
+   0.00 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+   0.00 hold skew
+
+--- report_clock_skew -digits 6 ---
+Clock clk
+0.000000 source latency reg1/CK ^
+0.000000 target latency reg2/CK ^
+0.000000 CRPR
+--------------
+0.000000 setup skew
+
+--- report_clock_skew -clock clk ---
+report_clock_skew -clock: skipped (source bug)
+--- report_clock_skew -include_internal_latency ---
+Clock clk
+   0.00 source latency reg1/CK ^
+   0.00 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+   0.00 setup skew
+
+--- report_clock_latency ---
+Clock clk
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+--- report_clock_latency -include_internal_latency ---
+Clock clk
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+--- report_clock_latency -clock clk ---
+Clock clk
+rise -> rise
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+fall -> fall
+    min     max
+   0.00    0.00 source latency
+   0.00         network latency reg1/CK
+           0.00 network latency reg1/CK
+---------------
+   0.00    0.00 latency
+           0.00 skew
+
+
+--- report_clock_latency -digits 6 ---
+Clock clk
+rise -> rise
+    min     max
+0.000000 0.000000 source latency
+0.000000         network latency reg1/CK
+        0.000000 network latency reg1/CK
+---------------
+0.000000 0.000000 latency
+        0.000000 skew
+
+fall -> fall
+    min     max
+0.000000 0.000000 source latency
+0.000000         network latency reg1/CK
+        0.000000 network latency reg1/CK
+---------------
+0.000000 0.000000 latency
+        0.000000 skew
+
+
+--- report_clock_min_period ---
+clk period_min = 0.13 fmax = 7459.11
+--- report_clock_min_period -include_port_paths ---
+clk period_min = 2.12 fmax = 472.02
+--- report_clock_min_period -clocks ---
+clk period_min = 0.13 fmax = 7459.11
+--- find_clk_min_period ---
+clk min_period: 1.34064315204796e-10
+clk min_period (with port): 2.1185453391581177e-9
+--- report_min_pulse_width_checks ---
+                                     Required  Actual
+Pin                                    Width   Width   Slack
+------------------------------------------------------------
+reg1/CK (high)                          0.06    5.00    4.94 (MET)
+
+--- report_min_pulse_width_checks -verbose ---
+Pin: reg1/CK
+Check: sequential_clock_pulse_width
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   reg1/CK
+           0.00   open edge arrival time
+
+   5.00    5.00   clock clk (fall edge)
+   0.00    5.00   clock network delay (ideal)
+   0.00    5.00   reg1/CK
+   0.00    5.00   clock reconvergence pessimism
+           5.00   close edge arrival time
+---------------------------------------------------------
+           0.06   required pulse width (high)
+           5.00   actual pulse width
+---------------------------------------------------------
+           4.94   slack (MET)
+
+
+--- min_pulse_width_checks ---
+mpw checks: skipped (API removed)
+--- min_pulse_width_violations ---
+mpw violations: skipped (API removed)
+--- min_pulse_width_check_slack ---
+mpw check slack: skipped (API removed)
+--- max_slew_violation_count ---
+max slew violations: 0
+--- max_fanout_violation_count ---
+max fanout violations: skipped (source bug - segfault)
+--- max_capacitance_violation_count ---
+max cap violations: skipped (source bug - segfault)
+--- max_slew_check_slack ---
+max slew slack: 0.18774758279323578 limit: 0.1985349953174591
+--- max_fanout_check_slack ---
+max fanout slack: skipped (source bug - segfault)
+--- max_capacitance_check_slack ---
+max cap slack: skipped (source bug - segfault)

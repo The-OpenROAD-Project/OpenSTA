@@ -1,0 +1,365 @@
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+--- Reading SPEF ---
+--- Parasitic annotation ---
+Found 0 unannotated drivers.
+Found 0 partially unannotated drivers.
+Found 0 unannotated drivers.
+Found 0 partially unannotated drivers.
+--- Annotated delay reporting ---
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+internal net arcs                     4           0           4
+----------------------------------------------------------------
+                                     10           0          10
+
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+net arcs from primary inputs          5           0           5
+net arcs to primary outputs           1           0           1
+----------------------------------------------------------------
+                                      6           0           6
+
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+----------------------------------------------------------------
+                                      6           0           6
+
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+internal net arcs                     4           0           4
+----------------------------------------------------------------
+                                      4           0           4
+
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+internal net arcs                     4           0           4
+net arcs from primary inputs          5           0           5
+net arcs to primary outputs           1           0           1
+----------------------------------------------------------------
+                                     16           0          16
+
+Annotated Arcs
+
+                                                          Not   
+Delay type                        Total    Annotated   Annotated
+----------------------------------------------------------------
+cell arcs                             6           0           6
+internal net arcs                     4           0           4
+net arcs from primary inputs          5           0           5
+net arcs to primary outputs           1           0           1
+----------------------------------------------------------------
+                                     16           0          16
+
+Unannotated Arcs
+ primary input net  clk1 -> r1/CLK 
+ primary input net  clk2 -> r2/CLK 
+ primary input net  clk3 -> r3/CLK 
+ primary input net  in1 -> r1/D 
+ primary input net  in2 -> r2/D 
+ delay              r1/CLK -> r1/Q 
+ internal net       r1/Q -> u2/A 
+ delay              r2/CLK -> r2/Q 
+ internal net       r2/Q -> u1/A 
+ delay              r3/CLK -> r3/Q 
+ primary output net r3/Q -> out 
+ delay              u1/A -> u1/Y 
+ internal net       u1/Y -> u2/B 
+ delay              u2/A -> u2/Y 
+ delay              u2/B -> u2/Y 
+ internal net       u2/Y -> r3/D 
+
+--- Timing with parasitics ---
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  124.92 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  185.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  201.72 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         201.72   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -8.46  503.46   library setup time
+         503.46   data required time
+---------------------------------------------------------
+         503.46   data required time
+        -201.72   data arrival time
+---------------------------------------------------------
+         301.74   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   1.00    1.00 v input external delay
+   0.00    1.00 v in1 (in)
+  12.16   13.16 v r1/D (DFFHQx4_ASAP7_75t_R)
+          13.16   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11   clock reconvergence pessimism
+          12.11 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+  12.51   24.61   library hold time
+          24.61   data required time
+---------------------------------------------------------
+          24.61   data required time
+         -13.16   data arrival time
+---------------------------------------------------------
+         -11.46   slack (VIOLATED)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  124.92 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  185.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  201.72 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         201.72   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -8.46  503.46   library setup time
+         503.46   data required time
+---------------------------------------------------------
+         503.46   data required time
+        -201.72   data arrival time
+---------------------------------------------------------
+         301.74   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   1.00    1.00 ^ input external delay
+  14.02   10.00    0.00    1.00 ^ in1 (in)
+          48.93   12.28   13.28 ^ r1/D (DFFHQx4_ASAP7_75t_R)
+                          13.28   data arrival time
+
+           0.00  500.00  500.00   clock clk (rise edge)
+                  11.92  511.92   clock network delay (propagated)
+                   0.00  511.92   clock reconvergence pessimism
+                         511.92 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+                  -6.94  504.98   library setup time
+                         504.98   data required time
+-----------------------------------------------------------------------
+                         504.98   data required time
+                         -13.28   data arrival time
+-----------------------------------------------------------------------
+                         491.70   slack (MET)
+
+
+Startpoint: in2 (input port clocked by clk)
+Endpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Cap    Slew   Delay    Time   Description
+-----------------------------------------------------------------------
+           0.00    0.00    0.00   clock clk (rise edge)
+                   0.00    0.00   clock network delay (ideal)
+                   1.00    1.00 ^ input external delay
+  14.02   10.00    0.00    1.00 ^ in2 (in)
+          48.93   12.28   13.28 ^ r2/D (DFFHQx4_ASAP7_75t_R)
+                          13.28   data arrival time
+
+           0.00  500.00  500.00   clock clk (rise edge)
+                  11.92  511.92   clock network delay (propagated)
+                   0.00  511.92   clock reconvergence pessimism
+                         511.92 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+                  -6.94  504.98   library setup time
+                         504.98   data required time
+-----------------------------------------------------------------------
+                         504.98   data required time
+                         -13.28   data arrival time
+-----------------------------------------------------------------------
+                         491.70   slack (MET)
+
+
+--- report_net ---
+Net r1q
+ Pin capacitance: 0.40-0.52
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.80-13.92
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ r1/Q output (DFFHQx4_ASAP7_75t_R)
+
+Load pins
+ u2/A input (AND2x2_ASAP7_75t_R) 0.40-0.52
+
+
+Net r2q
+ Pin capacitance: 0.44-0.58
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.84-13.98
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ r2/Q output (DFFHQx4_ASAP7_75t_R)
+
+Load pins
+ u1/A input (BUFx2_ASAP7_75t_R) 0.44-0.58
+
+
+Net u1z
+ Pin capacitance: 0.32-0.57
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.72-13.97
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ u1/Y output (BUFx2_ASAP7_75t_R)
+
+Load pins
+ u2/B input (AND2x2_ASAP7_75t_R) 0.32-0.57
+
+
+Net u2z
+ Pin capacitance: 0.55-0.62
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.95-14.02
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ u2/Y output (AND2x2_ASAP7_75t_R)
+
+Load pins
+ r3/D input (DFFHQx4_ASAP7_75t_R) 0.55-0.62
+
+
+Net out
+ Pin capacitance: 0.00
+ Wire capacitance: 13.40
+ Total capacitance: 13.40
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ r3/Q output (DFFHQx4_ASAP7_75t_R)
+
+Load pins
+ out output port
+
+
+Net in1
+ Pin capacitance: 0.55-0.62
+ Wire capacitance: 13.40-13.40
+ Total capacitance: 13.95-14.02
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ in1 input port
+
+Load pins
+ r1/D input (DFFHQx4_ASAP7_75t_R) 0.55-0.62
+
+
+Net r1q
+ Pin capacitance: 0.399352-0.522565
+ Wire capacitance: 13.399999-13.400000
+ Total capacitance: 13.799351-13.922565
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ r1/Q output (DFFHQx4_ASAP7_75t_R)
+
+Load pins
+ u2/A input (AND2x2_ASAP7_75t_R) 0.399352-0.522565
+
+
+--- Manual parasitic models ---
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+  12.11   12.11   clock network delay (propagated)
+   0.00   12.11 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  63.51   75.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  34.88  110.50 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  32.94  143.44 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.75  159.19 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         159.19   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+  11.92  511.92   clock network delay (propagated)
+   0.00  511.92   clock reconvergence pessimism
+         511.92 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+  -8.43  503.49   library setup time
+         503.49   data required time
+---------------------------------------------------------
+         503.49   data required time
+        -159.19   data arrival time
+---------------------------------------------------------
+         344.30   slack (MET)
+
+

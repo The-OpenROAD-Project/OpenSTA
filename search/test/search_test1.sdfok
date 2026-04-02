@@ -1,0 +1,72 @@
+(DELAYFILE
+ (SDFVERSION "3.0")
+ (DESIGN "search_test1")
+ (VENDOR "Parallax")
+ (PROGRAM "STA")
+ (DIVIDER /)
+ (VOLTAGE 1.100::1.100)
+ (PROCESS "1.000::1.000")
+ (TEMPERATURE 25.000::25.000)
+ (TIMESCALE 1ns)
+ (CELL
+  (CELLTYPE "search_test1")
+  (INSTANCE)
+  (DELAY
+   (ABSOLUTE
+    (INTERCONNECT clk reg1/CK (0.000::0.000))
+    (INTERCONNECT in1 and1/A1 (0.000::0.000))
+    (INTERCONNECT in2 and1/A2 (0.000::0.000))
+    (INTERCONNECT and1/ZN buf1/A (0.000::0.000))
+    (INTERCONNECT buf1/Z reg1/D (0.000::0.000))
+    (INTERCONNECT buf2/Z out1 (0.000::0.000))
+    (INTERCONNECT reg1/Q buf2/A (0.000::0.000))
+   )
+  )
+ )
+ (CELL
+  (CELLTYPE "AND2_X1")
+  (INSTANCE and1)
+  (DELAY
+   (ABSOLUTE
+    (IOPATH A1 ZN (0.024::0.024) (0.022::0.022))
+    (IOPATH A2 ZN (0.026::0.026) (0.025::0.025))
+   )
+  )
+ )
+ (CELL
+  (CELLTYPE "BUF_X1")
+  (INSTANCE buf1)
+  (DELAY
+   (ABSOLUTE
+    (IOPATH A Z (0.020::0.020) (0.023::0.024))
+   )
+  )
+ )
+ (CELL
+  (CELLTYPE "BUF_X1")
+  (INSTANCE buf2)
+  (DELAY
+   (ABSOLUTE
+    (IOPATH A Z (0.017::0.017) (0.021::0.021))
+   )
+  )
+ )
+ (CELL
+  (CELLTYPE "DFF_X1")
+  (INSTANCE reg1)
+  (DELAY
+   (ABSOLUTE
+    (IOPATH CK QN (0.056::0.056) (0.057::0.057))
+    (IOPATH CK Q (0.084::0.084) (0.077::0.077))
+   )
+  )
+  (TIMINGCHECK
+    (SETUP (posedge D) (posedge CK) (0.031::0.031))
+    (SETUP (negedge D) (posedge CK) (0.039::0.039))
+    (HOLD (posedge D) (posedge CK) (0.005::0.005))
+    (HOLD (negedge D) (posedge CK) (0.002::0.002))
+    (WIDTH (posedge CK) (0.052::0.052))
+    (WIDTH (negedge CK) (0.052::0.052))
+  )
+ )
+)

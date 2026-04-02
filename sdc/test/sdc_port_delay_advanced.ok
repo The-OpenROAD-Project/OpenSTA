@@ -1,0 +1,184 @@
+No differences found.
+No differences found.
+No differences found.
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.95    0.95   clock network delay (ideal)
+   0.00    0.95 ^ reg2/CK (DFF_X1)
+   0.09    1.04 ^ reg2/Q (DFF_X1)
+   0.00    1.04 ^ out1 (out)
+           1.04   data arrival time
+
+   5.00    5.00   clock clk1 (fall edge)
+   0.35    5.35   clock network delay (ideal)
+   0.00    5.35   clock reconvergence pessimism
+  -2.50    2.85   output external delay
+           2.85   data required time
+---------------------------------------------------------
+           2.85   data required time
+          -1.04   data arrival time
+---------------------------------------------------------
+           1.81   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.95   10.95   clock network delay (ideal)
+   0.00   10.95 ^ reg1/CK (DFF_X1)
+   0.08   11.03 v reg1/Q (DFF_X1)
+   0.00   11.03 v reg3/D (DFF_X1)
+          11.03   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.20   20.20   clock network delay (ideal)
+   0.00   20.20   clock reconvergence pessimism
+          20.20 ^ reg3/CK (DFF_X1)
+  -0.04   20.16   library setup time
+          20.16   data required time
+---------------------------------------------------------
+          20.16   data required time
+         -11.03   data arrival time
+---------------------------------------------------------
+           9.13   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: out1 (output port clocked by clk1)
+Path Group: clk1
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.45    0.45   clock network delay (ideal)
+   0.00    0.45 ^ reg2/CK (DFF_X1)
+   0.07    0.52 v reg2/Q (DFF_X1)
+   0.00    0.52 v out1 (out)
+           0.52   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.95    0.95   clock network delay (ideal)
+   0.00    0.95   clock reconvergence pessimism
+  -3.00   -2.05   output external delay
+          -2.05   data required time
+---------------------------------------------------------
+          -2.05   data required time
+          -0.52   data arrival time
+---------------------------------------------------------
+           2.57   slack (MET)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: min
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk1 (rise edge)
+   0.45    0.45   clock network delay (ideal)
+   0.00    0.45 ^ reg1/CK (DFF_X1)
+   0.07    0.52 v reg1/Q (DFF_X1)
+   0.00    0.52 v reg3/D (DFF_X1)
+           0.52   data arrival time
+
+   0.00    0.00   clock clk2 (rise edge)
+   0.40    0.40   clock network delay (ideal)
+   0.00    0.40   clock reconvergence pessimism
+           0.40 ^ reg3/CK (DFF_X1)
+   0.00    0.40   library hold time
+           0.40   data required time
+---------------------------------------------------------
+           0.40   data required time
+          -0.52   data arrival time
+---------------------------------------------------------
+           0.12   slack (MET)
+
+
+max slew
+
+Pin                                    Limit    Slew   Slack
+------------------------------------------------------------
+nor1/ZN                                 0.20    0.01    0.18 (MET)
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+reg1/Q                                   20      1     19 (MET)
+
+max capacitance
+
+Pin                                    Limit     Cap   Slack
+------------------------------------------------------------
+reg1/Q                                  0.20    1.45   -1.25 (VIOLATED)
+
+Startpoint: in3 (input port clocked by clk1)
+Endpoint: reg2 (falling edge-triggered data to data check clocked by clk1)
+Path Group: clk1
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   5.00    5.00   clock clk1 (fall edge)
+   0.00    5.00   clock network delay (ideal)
+   2.80    7.80 ^ input external delay
+   0.00    7.80 ^ in3 (in)
+   0.03    7.83 ^ or1/ZN (OR2_X1)
+   0.01    7.84 v nor1/ZN (NOR2_X1)
+   0.00    7.84 v reg2/D (DFF_X1)
+           7.84   data arrival time
+
+   0.00    0.00   clock clk1 (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00   clock reconvergence pessimism
+           0.00 ^ reg1/CK (DFF_X1)
+   0.08    0.08 v reg1/Q (DFF_X1)
+  -0.50   -0.42   data check setup time
+          -0.42   data required time
+---------------------------------------------------------
+          -0.42   data required time
+          -7.84   data arrival time
+---------------------------------------------------------
+          -8.26   slack (VIOLATED)
+
+
+Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk1)
+Endpoint: reg3 (rising edge-triggered flip-flop clocked by clk2)
+Path Group: clk2
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  10.00   10.00   clock clk1 (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00 ^ reg1/CK (DFF_X1)
+   0.08   10.08 v reg1/Q (DFF_X1)
+   0.00   10.08 v reg3/D (DFF_X1)
+          10.08   data arrival time
+
+  20.00   20.00   clock clk2 (rise edge)
+   0.00   20.00   clock network delay (ideal)
+   0.00   20.00   clock reconvergence pessimism
+          20.00 ^ reg3/CK (DFF_X1)
+  -0.04   19.96   library setup time
+          19.96   data required time
+---------------------------------------------------------
+          19.96   data required time
+         -10.08   data arrival time
+---------------------------------------------------------
+           9.88   slack (MET)
+
+
