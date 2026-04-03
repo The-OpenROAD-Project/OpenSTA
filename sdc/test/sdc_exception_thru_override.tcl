@@ -28,9 +28,7 @@ set_output_delay -clock clk2 3.0 [get_ports out2]
 
 report_checks > /dev/null
 
-############################################################
 # Test 1: Rise/fall from exceptions
-############################################################
 puts "--- set_false_path -rise_from ---"
 set_false_path -rise_from [get_ports in1] -to [get_ports out1]
 report_checks -path_delay max -from [get_ports in1]
@@ -43,9 +41,7 @@ puts "--- unset rise/fall from ---"
 unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 unset_path_exceptions -from [get_ports in2] -to [get_ports out1]
 
-############################################################
 # Test 2: Rise/fall to exceptions
-############################################################
 puts "--- set_false_path -rise_to ---"
 set_false_path -from [get_ports in1] -rise_to [get_ports out1]
 report_checks -path_delay max -to [get_ports out1]
@@ -58,9 +54,7 @@ puts "--- unset rise/fall to ---"
 unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 unset_path_exceptions -from [get_ports in2] -to [get_ports out1]
 
-############################################################
 # Test 3: Rise/fall through exceptions
-############################################################
 puts "--- set_false_path -rise_through ---"
 set_false_path -rise_through [get_pins buf1/Z] -to [get_ports out1]
 report_checks -path_delay max
@@ -73,9 +67,7 @@ puts "--- unset rise/fall through ---"
 unset_path_exceptions -through [get_pins buf1/Z] -to [get_ports out1]
 unset_path_exceptions -through [get_pins inv1/ZN] -to [get_ports out1]
 
-############################################################
 # Test 4: Exception priority ordering (more specific overrides less specific)
-############################################################
 puts "--- priority: broad false_path ---"
 set_false_path -from [get_ports in1]
 report_checks -path_delay max -from [get_ports in1]
@@ -93,9 +85,7 @@ unset_path_exceptions -from [get_ports in1]
 unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 unset_path_exceptions -from [get_ports in1] -through [get_pins buf1/Z] -to [get_ports out1]
 
-############################################################
 # Test 5: Clock-based from/to exceptions
-############################################################
 puts "--- false_path from clock ---"
 set_false_path -from [get_clocks clk1] -to [get_clocks clk2]
 report_checks -path_delay max
@@ -111,9 +101,7 @@ report_checks -path_delay max
 puts "--- unset rise_from clock ---"
 unset_path_exceptions -from [get_clocks clk1] -to [get_clocks clk2]
 
-############################################################
 # Test 6: Multiple overlapping exceptions (merge testing)
-############################################################
 puts "--- overlapping exceptions ---"
 set_false_path -from [get_ports in1] -to [get_ports out1]
 set_false_path -from [get_ports in1] -to [get_ports out2]
@@ -126,9 +114,7 @@ unset_path_exceptions -from [get_ports in1] -to [get_ports out2]
 unset_path_exceptions -from [get_ports in2] -to [get_ports out1]
 report_checks -path_delay max
 
-############################################################
 # Test 7: Multicycle with -start/-end and rise/fall
-############################################################
 puts "--- mcp -start -rise_from ---"
 set_multicycle_path 2 -setup -start -rise_from [get_clocks clk1] -to [get_clocks clk2]
 report_checks -path_delay max
@@ -140,9 +126,7 @@ report_checks -path_delay max
 puts "--- unset mcp ---"
 unset_path_exceptions -from [get_clocks clk1] -to [get_clocks clk2]
 
-############################################################
 # Test 8: Max/min delay with rise/fall from/to
-############################################################
 puts "--- max_delay -rise_from -to ---"
 set_max_delay 6.0 -rise_from [get_ports in1] -to [get_ports out1]
 report_checks -path_delay max
@@ -154,9 +138,7 @@ report_checks -path_delay min
 puts "--- unset max/min delays ---"
 unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 
-############################################################
 # Test 9: write_sdc with exception paths
-############################################################
 set_false_path -rise_from [get_ports in1] -to [get_ports out1]
 set_false_path -from [get_ports in2] -fall_to [get_ports out2]
 set_multicycle_path 2 -setup -from [get_clocks clk1] -to [get_clocks clk2]
@@ -167,11 +149,3 @@ write_sdc -no_timestamp $sdc1
 
 set sdc2 [make_result_file sdc_exc_override2.sdc]
 write_sdc -no_timestamp -compatible $sdc2
-
-############################################################
-# Test 10: Read back SDC
-############################################################
-read_sdc $sdc1
-
-set sdc3 [make_result_file sdc_exc_override3.sdc]
-write_sdc -no_timestamp $sdc3

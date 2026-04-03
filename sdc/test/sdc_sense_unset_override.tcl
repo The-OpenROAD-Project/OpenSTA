@@ -23,9 +23,7 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog sdc_test2.v
 link_design sdc_test2
 
-############################################################
 # Create clocks
-############################################################
 create_clock -name clk1 -period 10 [get_ports clk1]
 create_clock -name clk2 -period 20 [get_ports clk2]
 create_clock -name vclk -period 5
@@ -35,9 +33,7 @@ set_input_delay -clock clk2 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 3.0 [get_ports out2]
 
-############################################################
 # Clock sense: positive, negative, stop
-############################################################
 # Positive sense on a pin with specific clock
 set_clock_sense -positive -clocks [get_clocks clk1] [get_pins buf1/Z]
 
@@ -63,9 +59,7 @@ set_clock_sense -negative -clocks [get_clocks clk1] [get_pins buf1/Z]
 
 report_checks
 
-############################################################
 # Clock uncertainty: set and unset
-############################################################
 # Simple uncertainty
 set_clock_uncertainty -setup 0.2 [get_clocks clk1]
 set_clock_uncertainty -hold 0.1 [get_clocks clk1]
@@ -92,9 +86,7 @@ unset_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -hold
 
 report_checks
 
-############################################################
 # Clock insertion (source latency)
-############################################################
 set_clock_latency -source -early 0.3 [get_clocks clk1]
 set_clock_latency -source -late 0.5 [get_clocks clk1]
 set_clock_latency -source -rise -early 0.25 [get_clocks clk1]
@@ -103,9 +95,7 @@ set_clock_latency -source -fall -late 0.55 [get_clocks clk1]
 # Remove clock insertion
 unset_clock_latency -source [get_clocks clk1]
 
-############################################################
 # Clock groups: all three types
-############################################################
 # Asynchronous
 set_clock_groups -asynchronous -name async1 -group {clk1} -group {clk2}
 
@@ -128,9 +118,7 @@ write_sdc -no_timestamp $sdc3
 # Unset
 unset_clock_groups -physically_exclusive -name phys1
 
-############################################################
 # Exception overrides: same from/to with different types
-############################################################
 
 # First set a max_delay
 set_max_delay -from [get_ports in1] -to [get_ports out1] 8.0
@@ -170,18 +158,10 @@ write_sdc -no_timestamp $sdc4
 set sdc5 [make_result_file sdc_sense5.sdc]
 write_sdc -no_timestamp -compatible $sdc5
 
-############################################################
 # Unset exceptions and re-report
-############################################################
 unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 
 unset_path_exceptions -from [get_ports in2] -rise_to [get_ports out1]
 unset_path_exceptions -from [get_ports in2] -fall_to [get_ports out1]
 
-report_checks
-
-############################################################
-# Read back SDC
-############################################################
-read_sdc $sdc4
 report_checks

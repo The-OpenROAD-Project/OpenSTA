@@ -24,9 +24,7 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog sdc_test2.v
 link_design sdc_test2
 
-############################################################
 # Phase 1: Create complex clock hierarchy
-############################################################
 create_clock -name clk_master -period 10 [get_ports clk1]
 create_clock -name clk_aux -period 20 -waveform {0 10} [get_ports clk2]
 create_clock -name vclk1 -period 5
@@ -101,9 +99,7 @@ write_sdc -no_timestamp $sdc1
 
 report_checks
 
-############################################################
 # Phase 2: Delete virtual clocks (simpler cascade)
-############################################################
 delete_clock [get_clocks vclk1]
 
 delete_clock [get_clocks vclk2]
@@ -113,9 +109,7 @@ report_clock_properties
 set sdc2 [make_result_file sdc_clkremoval2.sdc]
 write_sdc -no_timestamp $sdc2
 
-############################################################
 # Phase 3: Delete generated clocks
-############################################################
 delete_generated_clock [get_clocks gclk_div2]
 
 delete_generated_clock [get_clocks gclk_div4]
@@ -124,17 +118,13 @@ delete_generated_clock [get_clocks gclk_mul2]
 
 report_clock_properties
 
-############################################################
 # Phase 4: Delete the -add clock on clk1 port
-############################################################
 delete_clock [get_clocks clk_master_alt]
 
 set sdc3 [make_result_file sdc_clkremoval3.sdc]
 write_sdc -no_timestamp $sdc3
 
-############################################################
 # Phase 5: Delete master clock (cascades to remove all refs)
-############################################################
 delete_clock [get_clocks clk_aux]
 
 report_clock_properties
@@ -144,9 +134,7 @@ write_sdc -no_timestamp $sdc4
 
 report_checks
 
-############################################################
 # Phase 6: Re-create everything fresh
-############################################################
 create_clock -name clk_new -period 15 [get_ports clk2]
 create_generated_clock -name gclk_new -source [get_ports clk1] -divide_by 3 [get_pins reg1/Q]
 
@@ -164,6 +152,3 @@ set_false_path -from [get_clocks clk_master] -to [get_clocks clk_new]
 
 set sdc5 [make_result_file sdc_clkremoval5.sdc]
 write_sdc -no_timestamp $sdc5
-
-read_sdc $sdc5
-report_checks

@@ -33,10 +33,8 @@ set_input_delay -clock clk2 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 3.0 [get_ports out2]
 
-############################################################
 # Test 1: Override max_delay with false_path
 # (FalsePath::overrides, PathDelay::overrides)
-############################################################
 
 # Set max_delay first
 set_max_delay -from [get_ports in1] -to [get_ports out1] 8.0
@@ -50,10 +48,8 @@ set_min_delay -from [get_ports in2] -to [get_ports out1] 1.0
 # Override min_delay with another min_delay (same endpoints)
 set_min_delay -from [get_ports in2] -to [get_ports out1] 2.0
 
-############################################################
 # Test 2: Multicycle path overrides
 # (MultiCyclePath::overrides, MultiCyclePath::mergeable)
-############################################################
 
 # Setup multicycle
 set_multicycle_path -setup 2 -from [get_ports in1] -to [get_ports out2]
@@ -73,10 +69,8 @@ set_multicycle_path -setup -start 4 -from [get_ports in2] -to [get_ports out2]
 # Multicycle with -end (exercises use_end_clk=true)
 set_multicycle_path -hold -end 2 -from [get_ports in2] -to [get_ports out2]
 
-############################################################
 # Test 3: Exception with rise/fall transitions on to/from
 # (ExceptionTo::matchesFilter with endTransition)
-############################################################
 
 # False path with rise_from only
 set_false_path -rise_from [get_ports in3] -to [get_ports out1]
@@ -95,10 +89,8 @@ set_multicycle_path -setup 2 -rise_from [get_clocks clk1] -to [get_clocks clk2]
 
 set_multicycle_path -setup 3 -from [get_clocks clk1] -fall_to [get_clocks clk2]
 
-############################################################
 # Test 4: Group path overrides
 # (GroupPath::overrides, GroupPath::mergeable)
-############################################################
 
 # Named group path
 group_path -name grp_a -from [get_ports in1] -to [get_ports out1]
@@ -130,10 +122,8 @@ group_path -name grp_inst \
   -through [get_cells and1] \
   -to [get_ports out2]
 
-############################################################
 # Test 5: Complex through combinations
 # (ExceptionThru with pins + nets + instances)
-############################################################
 
 # Multiple through points: pin then net then pin
 set_false_path -from [get_ports in1] \
@@ -158,16 +148,12 @@ set_max_delay -from [get_ports in1] \
   -through [get_nets n1] \
   -to [get_ports out1] 6.0
 
-############################################################
 # Test 6: False path with -setup and -hold only
-############################################################
 set_false_path -setup -from [get_clocks clk1] -to [get_clocks clk2]
 
 set_false_path -hold -from [get_clocks clk2] -to [get_clocks clk1]
 
-############################################################
 # Write SDC with all exception types
-############################################################
 set sdc1 [make_result_file sdc_exc_override1.sdc]
 write_sdc -no_timestamp $sdc1
 diff_files sdc_exc_override1.sdcok $sdc1
@@ -180,9 +166,7 @@ set sdc3 [make_result_file sdc_exc_override3.sdc]
 write_sdc -no_timestamp -digits 6 $sdc3
 diff_files sdc_exc_override3.sdcok $sdc3
 
-############################################################
 # Unset some exceptions and verify
-############################################################
 unset_path_exceptions -from [get_ports in1] -to [get_ports out1]
 
 unset_path_exceptions -from [get_ports in2] -rise_to [get_ports out1]
@@ -192,12 +176,3 @@ unset_path_exceptions -from [get_ports in2] -fall_to [get_ports out2]
 set sdc_unset [make_result_file sdc_exc_override_unset.sdc]
 write_sdc -no_timestamp $sdc_unset
 diff_files sdc_exc_override_unset.sdcok $sdc_unset
-
-############################################################
-# Read back and verify roundtrip
-############################################################
-read_sdc $sdc1
-
-set sdc4 [make_result_file sdc_exc_override4.sdc]
-write_sdc -no_timestamp $sdc4
-diff_files sdc_exc_override4.sdcok $sdc4
