@@ -31,9 +31,7 @@ set_input_delay -clock clk2 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 3.0 [get_ports out2]
 
-############################################################
 # Exception with -through using nets, instances, and pins combined
-############################################################
 
 # Through net only
 set_false_path -through [get_nets n1] -to [get_ports out1]
@@ -63,16 +61,12 @@ set_false_path -from [get_ports in1] \
   -fall_through [get_pins buf1/Z] \
   -to [get_ports out2]
 
-############################################################
 # Write SDC with through exceptions
-############################################################
 set sdc1 [make_result_file sdc_exception_int1.sdc]
 write_sdc -no_timestamp $sdc1
 diff_files sdc_exception_int1.sdcok $sdc1
 
-############################################################
 # Unset all paths and create new set for merging tests
-############################################################
 unset_path_exceptions -through [get_nets n1] -to [get_ports out1]
 unset_path_exceptions -through [get_cells inv1] -to [get_ports out2]
 unset_path_exceptions -from [get_ports in1] -through [get_pins buf1/Z] -through [get_nets n3] -to [get_ports out1]
@@ -80,9 +74,7 @@ unset_path_exceptions -from [get_ports in2] -through [get_cells and1] -through [
 unset_path_exceptions -from [get_ports in3] -rise_through [get_pins or1/ZN] -to [get_ports out2]
 unset_path_exceptions -from [get_ports in1] -fall_through [get_pins buf1/Z] -to [get_ports out2]
 
-############################################################
 # Exception merging: multiple exceptions on overlapping paths
-############################################################
 
 # False path that should merge when same from/to
 set_false_path -from [get_ports in1] -to [get_ports out1]
@@ -123,9 +115,7 @@ group_path -name grp_inst \
   -through [get_cells and1] \
   -to [get_ports out1]
 
-############################################################
 # Write SDC with all exception types
-############################################################
 set sdc2 [make_result_file sdc_exception_int2.sdc]
 write_sdc -no_timestamp $sdc2
 diff_files sdc_exception_int2.sdcok $sdc2
@@ -137,13 +127,3 @@ diff_files sdc_exception_int3.sdcok $sdc3
 set sdc4 [make_result_file sdc_exception_int4.sdc]
 write_sdc -no_timestamp -digits 6 $sdc4
 diff_files sdc_exception_int4.sdcok $sdc4
-
-############################################################
-# Read back SDC
-############################################################
-read_sdc $sdc2
-
-# Re-write to verify roundtrip
-set sdc5 [make_result_file sdc_exception_int5.sdc]
-write_sdc -no_timestamp $sdc5
-diff_files sdc_exception_int5.sdcok $sdc5

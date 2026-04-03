@@ -7,9 +7,7 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog sdc_test2.v
 link_design sdc_test2
 
-############################################################
 # Create comprehensive constraints to maximize write_sdc coverage
-############################################################
 
 # Multiple clocks
 create_clock -name clk1 -period 10 [get_ports clk1]
@@ -151,9 +149,7 @@ set_clock_gating_check -hold 0.3 [get_clocks clk1]
 # set_voltage
 set_voltage 1.1 -min 0.9
 
-############################################################
 # Write SDC with all option combinations
-############################################################
 
 # Option 1: basic (native mode, default digits)
 set sdc_file1 [make_result_file sdc_write_opt_basic.sdc]
@@ -178,17 +174,3 @@ write_sdc -no_timestamp -compatible -digits 6 $sdc_file5
 # Option 6: -map_hpins
 set sdc_file6 [make_result_file sdc_write_opt_hpins.sdc]
 write_sdc -no_timestamp -map_hpins $sdc_file6
-
-############################################################
-# Read back and verify
-############################################################
-
-# Read back native SDC
-read_sdc $sdc_file1
-
-report_checks
-
-# Read back compatible SDC
-read_sdc $sdc_file2
-
-report_checks

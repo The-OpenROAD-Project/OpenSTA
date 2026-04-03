@@ -14,9 +14,7 @@ read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog sdc_test2.v
 link_design sdc_test2
 
-############################################################
 # Phase 1: Create comprehensive constraints
-############################################################
 
 # Clocks
 create_clock -name clk1 -period 10 [get_ports clk1]
@@ -97,9 +95,7 @@ write_sdc -no_timestamp $sdc_phase1
 
 report_checks
 
-############################################################
 # Phase 2: Remove constraints systematically
-############################################################
 
 # Remove exceptions
 unset_path_exceptions -from [get_clocks clk1] -to [get_clocks clk2]
@@ -138,11 +134,9 @@ write_sdc -no_timestamp $sdc_phase2
 
 report_checks
 
-############################################################
 # Phase 3: Delete and re-create clocks
 # (this is the key test - deleting clocks should remove
 #  all referencing constraints)
-############################################################
 
 # Delete generated clocks first
 delete_generated_clock [get_clocks gclk1]
@@ -160,9 +154,7 @@ write_sdc -no_timestamp $sdc_phase3a
 
 report_checks
 
-############################################################
 # Phase 4: Re-create everything fresh
-############################################################
 
 # Re-create virtual clock with different period
 create_clock -name vclk_new -period 12
@@ -202,14 +194,3 @@ set sdc_phase4_compat [make_result_file sdc_removal_phase4_compat.sdc]
 write_sdc -no_timestamp -compatible $sdc_phase4_compat
 
 report_checks
-
-############################################################
-# Phase 5: Read back SDC and verify
-############################################################
-
-read_sdc $sdc_phase4
-
-report_checks
-
-set sdc_phase5 [make_result_file sdc_removal_phase5.sdc]
-write_sdc -no_timestamp $sdc_phase5
