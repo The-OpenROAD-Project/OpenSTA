@@ -29,9 +29,7 @@ set_input_delay -clock clk2 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 3.0 [get_ports out2]
 
-############################################################
 # Disable timing on ports (exercises writeDisabledPorts)
-############################################################
 set_disable_timing [get_ports in1]
 set_disable_timing [get_ports in2]
 
@@ -62,9 +60,7 @@ unset_disable_timing [get_lib_cells NangateOpenCellLibrary/AND2_X1] -from A1 -to
 unset_disable_timing [get_lib_cells NangateOpenCellLibrary/OR2_X1]
 unset_disable_timing [get_pins nand1/A1]
 
-############################################################
 # Clock groups - all three types (exercises writeClockGroups)
-############################################################
 set_clock_groups -asynchronous -name async1 -group {clk1} -group {clk2}
 
 set sdc2 [make_result_file sdc_wdg2.sdc]
@@ -86,9 +82,7 @@ write_sdc -no_timestamp $sdc4
 
 unset_clock_groups -physically_exclusive -name phys1
 
-############################################################
 # Group paths - named and default (exercises writeGroupPath)
-############################################################
 group_path -name grp_reg -from [get_clocks clk1] -to [get_clocks clk1]
 group_path -name grp_cross -from [get_clocks clk1] -to [get_clocks clk2]
 group_path -default -from [get_ports in1] -to [get_ports out1]
@@ -103,9 +97,7 @@ group_path -name grp_thru -from [get_ports in1] \
   -through [get_pins and1/ZN] \
   -to [get_ports out1]
 
-############################################################
 # Output drives (exercises writeOutputDrives/writeDriveResistances)
-############################################################
 set_driving_cell -lib_cell BUF_X1 [get_ports in1]
 set_driving_cell -lib_cell INV_X1 -pin ZN [get_ports in2]
 set_driving_cell -lib_cell BUF_X4 [get_ports in3]
@@ -119,19 +111,15 @@ set_input_transition 0.15 [get_ports in1]
 set_input_transition -rise -max 0.12 [get_ports in2]
 set_input_transition -fall -min 0.08 [get_ports in2]
 
-############################################################
 # Inter-clock uncertainty with all combinations
 # (exercises writeInterClockUncertainty)
-############################################################
 set_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup 0.3
 set_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -hold 0.15
 set_clock_uncertainty -from [get_clocks clk2] -to [get_clocks clk1] -setup 0.28
 set_clock_uncertainty -from [get_clocks clk2] -to [get_clocks clk1] -hold 0.12
 
-############################################################
 # Min pulse width on multiple target types
 # (exercises writeMinPulseWidths)
-############################################################
 set_min_pulse_width 0.5
 
 set_min_pulse_width -high 0.6 [get_clocks clk1]
@@ -143,24 +131,18 @@ set_min_pulse_width 0.3 [get_pins reg1/CK]
 
 set_min_pulse_width 0.45 [get_cells reg3]
 
-############################################################
 # Port loads (exercises writePortLoads/writePortExtCap)
-############################################################
 set_load -pin_load 0.05 [get_ports out1]
 set_load -wire_load 0.02 [get_ports out1]
 set_load -pin_load -rise 0.04 [get_ports out2]
 set_load -pin_load -fall 0.045 [get_ports out2]
 set_port_fanout_number 4 [get_ports out1]
 
-############################################################
 # Clock sense (exercises writeClockSenses)
-############################################################
 set_clock_sense -positive -clocks [get_clocks clk1] [get_pins buf1/Z]
 set_clock_sense -negative -clocks [get_clocks clk2] [get_pins or1/ZN]
 
-############################################################
 # Propagated clocks (exercises writePropagatedClkPins)
-############################################################
 set_propagated_clock [get_clocks clk1]
 set_propagated_clock [get_ports clk2]
 
@@ -168,23 +150,17 @@ set_propagated_clock [get_ports clk2]
 set_clock_latency -source -early 0.3 [get_clocks clk1]
 set_clock_latency -source -late 0.5 [get_clocks clk1]
 
-############################################################
 # Clock transition
-############################################################
 set_clock_transition -rise -max 0.15 [get_clocks clk1]
 set_clock_transition -fall -min 0.08 [get_clocks clk1]
 set_clock_transition 0.1 [get_clocks clk2]
 
-############################################################
 # False paths with -setup/-hold only
 # (exercises writeFalsePaths branches)
-############################################################
 set_false_path -setup -from [get_clocks clk1] -to [get_clocks clk2]
 set_false_path -hold -from [get_clocks clk2] -to [get_clocks clk1]
 
-############################################################
 # Comprehensive write with all constraint types
-############################################################
 set sdc5 [make_result_file sdc_wdg5.sdc]
 write_sdc -no_timestamp $sdc5
 
@@ -198,10 +174,3 @@ set sdc8 [make_result_file sdc_wdg8.sdc]
 write_sdc -no_timestamp -map_hpins $sdc8
 
 report_checks
-
-############################################################
-# Read back SDC roundtrip is tested by sdc_write_roundtrip_full.
-# Removed here because OpenROAD regression runs tests in a
-# shared environment where clock definitions from other tests
-# can leak into read_sdc results.
-############################################################

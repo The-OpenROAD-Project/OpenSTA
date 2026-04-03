@@ -21,16 +21,12 @@ set_input_delay -clock clk2 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 3.0 [get_ports out2]
 
-############################################################
 # Simple false path
-############################################################
 puts "--- false path clock to clock ---"
 set_false_path -from [get_clocks clk1] -to [get_clocks clk2]
 report_checks
 
-############################################################
 # False path with rise_from/fall_to
-############################################################
 puts "--- false path rise_from/fall_to ---"
 set_false_path -rise_from [get_ports in1] -fall_to [get_ports out1]
 report_checks
@@ -39,9 +35,7 @@ puts "--- false path fall_from/rise_to ---"
 set_false_path -fall_from [get_ports in2] -rise_to [get_ports out2]
 report_checks
 
-############################################################
 # False path with -through
-############################################################
 puts "--- false path through single pin ---"
 set_false_path -from [get_ports in1] -through [get_pins and1/ZN] -to [get_ports out1]
 report_checks
@@ -54,9 +48,7 @@ puts "--- false path through second pin ---"
 set_false_path -from [get_ports in1] -through [get_pins buf1/Z] -to [get_ports out2]
 report_checks
 
-############################################################
 # Multicycle paths with various options
-############################################################
 puts "--- multicycle setup ---"
 set_multicycle_path -setup 2 -from [get_ports in1] -to [get_ports out1]
 report_checks
@@ -81,9 +73,7 @@ puts "--- multicycle with fall_to ---"
 set_multicycle_path -hold 2 -fall_to [get_ports out1]
 report_checks
 
-############################################################
 # Max/min delay constraints
-############################################################
 puts "--- max_delay ---"
 set_max_delay -from [get_ports in1] -to [get_ports out1] 8.0
 report_checks -path_delay max
@@ -104,9 +94,7 @@ puts "--- max_delay rise_from ---"
 set_max_delay -rise_from [get_ports in3] -to [get_ports out2] 7.0
 report_checks -path_delay max
 
-############################################################
 # Group paths
-############################################################
 puts "--- group_path ---"
 group_path -name grp1 -from [get_clocks clk1]
 group_path -name grp2 -from [get_ports in1] -to [get_ports out1]
@@ -121,17 +109,13 @@ puts "--- is_path_group_name ---"
 puts "grp1 is group: [sta::is_path_group_name grp1]"
 puts "nonexistent is group: [sta::is_path_group_name nonexistent]"
 
-############################################################
 # Exception priority and overriding
-############################################################
 puts "--- exception override: false path then max_delay ---"
 # More specific exception should override broader one
 set_max_delay -from [get_ports in3] -to [get_ports out2] 5.0
 report_checks
 
-############################################################
 # remove_constraints (remove all SDC constraints)
-############################################################
 puts "--- remove_constraints ---"
 # TODO: sta::remove_constraints removed from Sta API
 # sta::remove_constraints
@@ -153,9 +137,7 @@ set_max_delay -from [get_ports in2] -to [get_ports out1] 8.0
 group_path -name grp1 -from [get_clocks clk1]
 report_checks
 
-############################################################
 # Write SDC with all exception types
-############################################################
 puts "--- write_sdc with exceptions ---"
 set sdc1 [make_result_file sdc_exception_merge1.sdc]
 write_sdc -no_timestamp $sdc1
@@ -163,10 +145,3 @@ write_sdc -no_timestamp $sdc1
 puts "--- write_sdc compatible with exceptions ---"
 set sdc2 [make_result_file sdc_exception_merge2.sdc]
 write_sdc -no_timestamp -compatible $sdc2
-
-############################################################
-# Read back SDC roundtrip is tested by sdc_write_roundtrip_full.
-# Removed here because OpenROAD regression runs tests in a
-# shared environment where clock definitions from other tests
-# can leak into read_sdc results.
-############################################################

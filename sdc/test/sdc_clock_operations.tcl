@@ -23,9 +23,7 @@ set_input_delay -clock [create_clock -name clk1 -period 10 [get_ports clk1]] 2.0
 set_input_delay -clock clk1 2.0 [get_ports in2]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 
-############################################################
 # Create clocks with different waveforms
-############################################################
 puts "--- clock with custom waveform ---"
 create_clock -name clk2 -period 20 -waveform {5 15} [get_ports clk2]
 set_input_delay -clock clk2 2.0 [get_ports in3]
@@ -39,9 +37,7 @@ puts "--- clock with -add ---"
 create_clock -name clk1_alt -period 5 -add [get_ports clk1]
 report_checks
 
-############################################################
 # Generated clocks with various options
-############################################################
 puts "--- generated clock divide_by ---"
 create_generated_clock -name gclk_div2 -source [get_ports clk1] -divide_by 2 [get_pins reg1/Q]
 report_checks
@@ -54,9 +50,7 @@ puts "--- generated clock edges ---"
 create_generated_clock -name gclk_edge -source [get_ports clk1] -edges {1 3 5} [get_pins reg2/Q]
 report_checks
 
-############################################################
 # Propagated clock
-############################################################
 puts "--- set_propagated_clock ---"
 set_propagated_clock [get_clocks clk1]
 set_propagated_clock [get_clocks clk2]
@@ -65,9 +59,7 @@ report_checks
 puts "--- set_propagated_clock on pin ---"
 set_propagated_clock [get_ports clk1]
 
-############################################################
 # Clock slew/transition
-############################################################
 puts "--- clock transition ---"
 set_clock_transition -rise -max 0.15 [get_clocks clk1]
 set_clock_transition -fall -min 0.08 [get_clocks clk1]
@@ -76,9 +68,7 @@ set_clock_transition -rise 0.12 [get_clocks clk1]
 set_clock_transition -fall 0.09 [get_clocks clk1]
 report_checks
 
-############################################################
 # Clock latency - source and non-source
-############################################################
 puts "--- clock latency source ---"
 set_clock_latency -source 0.5 [get_clocks clk1]
 set_clock_latency -source -early 0.3 [get_clocks clk1]
@@ -93,9 +83,7 @@ set_clock_latency -rise -max 0.4 [get_clocks clk2]
 set_clock_latency -fall -min 0.1 [get_clocks clk2]
 report_checks
 
-############################################################
 # Clock insertion
-############################################################
 puts "--- clock insertion ---"
 set_clock_latency -source -rise -early 0.1 [get_clocks clk1]
 set_clock_latency -source -rise -late 0.3 [get_clocks clk1]
@@ -103,18 +91,14 @@ set_clock_latency -source -fall -early 0.15 [get_clocks clk1]
 set_clock_latency -source -fall -late 0.35 [get_clocks clk1]
 report_checks
 
-############################################################
 # Clock uncertainty - simple
-############################################################
 puts "--- clock uncertainty ---"
 set_clock_uncertainty -setup 0.2 [get_clocks clk1]
 set_clock_uncertainty -hold 0.1 [get_clocks clk1]
 set_clock_uncertainty 0.15 [get_clocks clk2]
 report_checks
 
-############################################################
 # Inter-clock uncertainty
-############################################################
 puts "--- inter-clock uncertainty ---"
 set_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -setup 0.3
 set_clock_uncertainty -from [get_clocks clk1] -to [get_clocks clk2] -hold 0.15
@@ -122,17 +106,13 @@ set_clock_uncertainty -from [get_clocks clk2] -to [get_clocks clk1] -setup 0.28
 set_clock_uncertainty -from [get_clocks clk2] -to [get_clocks clk1] -hold 0.12
 report_checks
 
-############################################################
 # Clock uncertainty on pin
-############################################################
 puts "--- clock uncertainty on pin ---"
 set_clock_uncertainty -setup 0.25 [get_ports clk1]
 set_clock_uncertainty -hold 0.08 [get_ports clk1]
 report_checks
 
-############################################################
 # Write SDC
-############################################################
 puts "--- write_sdc ---"
 set sdc1 [make_result_file sdc_clock_ops1.sdc]
 write_sdc -no_timestamp $sdc1
@@ -141,24 +121,13 @@ puts "--- write_sdc compatible ---"
 set sdc2 [make_result_file sdc_clock_ops2.sdc]
 write_sdc -no_timestamp -compatible $sdc2
 
-############################################################
 # Remove clock and re-create
-############################################################
 puts "--- delete_clock ---"
 delete_clock [get_clocks vclk1]
 report_checks
 
-############################################################
 # Clock properties reporting
-############################################################
 puts "--- report_clock_properties ---"
 report_clock_properties
 report_clock_properties clk1
 report_clock_properties clk2
-
-############################################################
-# Read back SDC roundtrip is tested by sdc_write_roundtrip_full.
-# Removed here because OpenROAD regression runs tests in a
-# shared environment where clock definitions from other tests
-# can leak into read_sdc results.
-############################################################

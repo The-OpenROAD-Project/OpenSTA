@@ -30,9 +30,7 @@ set_input_delay -clock clk2 2.0 [get_ports in3]
 set_output_delay -clock clk1 3.0 [get_ports out1]
 set_output_delay -clock clk2 3.0 [get_ports out2]
 
-############################################################
 # Input transition / slew
-############################################################
 set_input_transition 0.15 [get_ports in1]
 set_input_transition -rise -max 0.12 [get_ports in2]
 set_input_transition -fall -min 0.08 [get_ports in2]
@@ -42,9 +40,7 @@ set_input_transition -rise -min 0.06 [get_ports in1]
 set_input_transition -fall -max 0.18 [get_ports in1]
 report_checks
 
-############################################################
 # Drive resistance
-############################################################
 set_drive 100 [get_ports in1]
 
 set_drive -rise 120 [get_ports in2]
@@ -57,9 +53,7 @@ set_drive -fall -max 110 [get_ports in3]
 
 report_checks
 
-############################################################
 # Driving cells - basic
-############################################################
 set_driving_cell -lib_cell BUF_X1 [get_ports in1]
 
 set_driving_cell -lib_cell INV_X1 -pin ZN [get_ports in2]
@@ -86,25 +80,19 @@ set_driving_cell -lib_cell INV_X8 -pin ZN -max [get_ports in1]
 
 report_checks
 
-############################################################
 # Write SDC - exercises writing drive resistance and driving cell
-############################################################
 set sdc1 [make_result_file sdc_drive_input1.sdc]
 write_sdc -no_timestamp $sdc1
 
 set sdc2 [make_result_file sdc_drive_input2.sdc]
 write_sdc -no_timestamp -compatible $sdc2
 
-############################################################
 # Operating conditions
-############################################################
 set_operating_conditions typical
 
 report_checks
 
-############################################################
 # Analysis type
-############################################################
 sta::set_analysis_type_cmd single
 
 sta::set_analysis_type_cmd bc_wc
@@ -119,16 +107,12 @@ set_operating_conditions -analysis_type bc_wc
 
 set_operating_conditions -analysis_type single
 
-############################################################
 # PVT settings on instances
-############################################################
 set_pvt [get_cells buf1] -process 1.0 -voltage 1.1 -temperature 25.0
 
 set_pvt [get_cells inv1] -process 0.9 -voltage 1.0 -temperature 85.0
 
-############################################################
 # Wire load model and mode
-############################################################
 set_wire_load_model -name "5K_hvratio_1_1"
 
 set_wire_load_mode enclosed
@@ -137,24 +121,13 @@ set_wire_load_mode top
 
 set_wire_load_mode segmented
 
-############################################################
 # Propagate all clocks variable
-############################################################
 sta::set_propagate_all_clocks 1
 
-############################################################
 # Write after all environment settings
-############################################################
 set sdc3 [make_result_file sdc_drive_input3.sdc]
 write_sdc -no_timestamp $sdc3
 
 # Write with digits
 set sdc4 [make_result_file sdc_drive_input4.sdc]
 write_sdc -no_timestamp -digits 6 $sdc4
-
-############################################################
-# Read back SDC roundtrip is tested by sdc_write_roundtrip_full.
-# Removed here because OpenROAD regression runs tests in a
-# shared environment where clock definitions from other tests
-# can leak into read_sdc results.
-############################################################
