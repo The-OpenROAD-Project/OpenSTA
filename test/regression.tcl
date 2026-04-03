@@ -176,11 +176,10 @@ proc run_tests {} {
       run_test $test
     }
   }
-  write_failure_file
 }
 
 proc run_test { test } {
-  global result_dir diff_file errors diff_options
+  global result_dir diff_file errors diff_options failed_tests
   
   puts -nonewline $test
   flush stdout
@@ -267,8 +266,6 @@ proc run_tests_parallel {} {
         vwait reg_parallel_job_done
       }
     }
-    # update results/failures and results/diffs
-    write_failure_file
   }
 }
 
@@ -432,26 +429,21 @@ proc test_failed { test reason } {
   }
   lappend failed_tests $test
   incr errors($reason)
+  append_diff_file $test
 }
 
-proc write_failure_file {} {
-  global failure_file failed_tests failed_tests_summery
+proc append_diff_file { test } {
+  global failure_file
   global diff_file diff_options
 
   set fail_ch [open $failure_file "a"]
-  foreach test $failed_tests {
-    if { ![info exists failed_tests_summery($test)] } {
-      puts $fail_ch $test
-
-      # Append diff to results/diffs
-      set log_file [test_log_file $test]
-      set ok_file [test_ok_file $test]
-      catch [concat exec diff $diff_options $ok_file $log_file >> $diff_file]
-
-      set failed_tests_summery($test) 1
-    }
-  }
+  puts $fail_ch $test
   close $fail_ch
+    
+  # Append diff to results/diffs
+  set log_file [test_log_file $test]
+  set ok_file [test_ok_file $test]
+  catch [concat exec diff $diff_options $ok_file $log_file >> $diff_file]
 }
 
 # Error messages can be found in "valgrind/memcheck/mc_errcontext.c".
@@ -530,6 +522,10 @@ proc show_summary {} {
   global app_path app
   
   puts "------------------------------------------------------"
+  if { $valgrind_shared_lib_failure } {
+    puts "WARNING: valgrind failed because the executable is not statically linked."
+  }
+  puts "See $result_dir for log files"
   set test_count [llength $tests]
   if { [found_errors] } {
     if { $errors(error) != 0 } {
@@ -556,10 +552,6 @@ proc show_summary {} {
   } else {
     puts "Passed $test_count"
   }
-  if { $valgrind_shared_lib_failure } {
-    puts "WARNING: valgrind failed because the executable is not statically linked."
-  }
-  puts "See $result_dir for log files"
 }
 
 proc found_errors {} {
