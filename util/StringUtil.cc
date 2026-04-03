@@ -57,6 +57,7 @@ std::pair<float, bool>
 stringFloat(const std::string &str)
 {
   float value;
+  // OsX 15.xx and earlier clang do not support std::from_chars.
 #if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
   auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
   if (ec == std::errc()
