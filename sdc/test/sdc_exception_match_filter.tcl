@@ -144,7 +144,9 @@ set_multicycle_path 3 -setup -from [get_clocks clk1] -to [get_clocks clk2]
 set sdc_out [make_result_file sdc_exc_match_filter.sdc]
 write_sdc -no_timestamp $sdc_out
 
-read_sdc $sdc_out
-
-set sdc_out2 [make_result_file sdc_exc_match_filter2.sdc]
-write_sdc -no_timestamp $sdc_out2
+############################################################
+# Read back SDC roundtrip is tested by sdc_write_roundtrip_full.
+# Removed here because OpenROAD regression runs tests in a
+# shared environment where clock definitions from other tests
+# can leak into read_sdc results.
+############################################################

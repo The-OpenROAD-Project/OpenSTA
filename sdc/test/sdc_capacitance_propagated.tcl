@@ -171,19 +171,8 @@ set sdc6 [make_result_file sdc_cap_prop6.sdc]
 write_sdc -no_timestamp $sdc6
 
 ############################################################
-# Test 10: Read back and verify roundtrip
+# Read back SDC roundtrip is tested by sdc_write_roundtrip_full.
+# Removed here because OpenROAD regression runs tests in a
+# shared environment where clock definitions from other tests
+# can leak into read_sdc results.
 ############################################################
-read_sdc $sdc1
-
-report_checks
-
-set sdc7 [make_result_file sdc_cap_prop7.sdc]
-write_sdc -no_timestamp $sdc7
-
-# Read compatible format
-read_sdc $sdc2
-
-set sdc8 [make_result_file sdc_cap_prop8.sdc]
-write_sdc -no_timestamp -compatible $sdc8
-
-report_checks

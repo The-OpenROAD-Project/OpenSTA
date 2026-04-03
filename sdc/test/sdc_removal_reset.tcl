@@ -204,12 +204,8 @@ write_sdc -no_timestamp -compatible $sdc_phase4_compat
 report_checks
 
 ############################################################
-# Phase 5: Read back SDC and verify
+# Read back SDC roundtrip is tested by sdc_write_roundtrip_full.
+# Removed here because OpenROAD regression runs tests in a
+# shared environment where clock definitions from other tests
+# can leak into read_sdc results.
 ############################################################
-
-read_sdc $sdc_phase4
-
-report_checks
-
-set sdc_phase5 [make_result_file sdc_removal_phase5.sdc]
-write_sdc -no_timestamp $sdc_phase5
