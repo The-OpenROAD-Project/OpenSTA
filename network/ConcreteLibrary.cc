@@ -38,12 +38,12 @@ namespace sta {
 
 static constexpr char escape_ = '\\';
 
-ConcreteLibrary::ConcreteLibrary(std::string name,
-                                 std::string filename,
+ConcreteLibrary::ConcreteLibrary(std::string_view name,
+                                 std::string_view filename,
                                  bool is_liberty) :
-  name_(std::move(name)),
+  name_(name),
   id_(ConcreteNetwork::nextObjectId()),
-  filename_(std::move(filename)),
+  filename_(filename),
   is_liberty_(is_liberty),
   bus_brkt_left_('['),
   bus_brkt_right_(']')

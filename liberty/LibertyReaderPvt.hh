@@ -375,7 +375,7 @@ protected:
   void readScaleFactors(LibertyCell *cell,
                         const LibertyGroup *cell_group);
   void readCellAttrString(std::string_view attr_name,
-                          void (LibertyCell::*set_func)(std::string value),
+                          void (LibertyCell::*set_func)(std::string_view value),
                           LibertyCell *cell,
                           const LibertyGroup *group);
   void readCellAttrFloat(std::string_view attr_name,
