@@ -307,18 +307,18 @@ public:
   [[nodiscard]] bool isHierarchical(const Pin *pin) const;
   [[nodiscard]] bool isTopLevelPort(const Pin *pin) const;
   // Is pin inside the instance hier_pin is attached to?
-  bool isInside(const Pin *pin,
-                const Pin *hier_pin) const;
+  [[nodiscard]] bool isInside(const Pin *pin,
+                              const Pin *hier_pin) const;
   // Is pin inside of hier_inst?
-  bool isInside(const Pin *pin,
-                const Instance *hier_inst) const;
-  bool isDriver(const Pin *pin) const;
-  bool isLoad(const Pin *pin) const;
+  [[nodiscard]] bool isInside(const Pin *pin,
+                              const Instance *hier_inst) const;
+  [[nodiscard]] bool isDriver(const Pin *pin) const;
+  [[nodiscard]] bool isLoad(const Pin *pin) const;
   // Has register/latch rise/fall edges from pin.
-  bool isRegClkPin(const Pin *pin) const;
+  [[nodiscard]] bool isRegClkPin(const Pin *pin) const;
   // Pin clocks a timing check.
-  bool isCheckClk(const Pin *pin) const;
-  bool isLatchData(const Pin *pin) const;
+  [[nodiscard]] bool isCheckClk(const Pin *pin) const;
+  [[nodiscard]] bool isLatchData(const Pin *pin) const;
 
   // Iterate over all of the pins connected to a pin and the parent
   // and child nets it is hierarchically connected to (port, leaf and
