@@ -40,67 +40,56 @@ class Report;
 PortSeq
 filterPorts(std::string_view filter_expression,
             PortSeq *objects,
-            bool bool_props_as_int,
             Sta *sta);
 
 InstanceSeq
 filterInstances(std::string_view filter_expression,
                 InstanceSeq *objects,
-                bool bool_props_as_int,
                 Sta *sta);
 
 PinSeq
 filterPins(std::string_view filter_expression,
            PinSeq *objects,
-           bool bool_props_as_int,
            Sta *sta);
 
 NetSeq
 filterNets(std::string_view filter_expression,
            NetSeq *objects,
-           bool bool_props_as_int,
            Sta *sta);
 
 ClockSeq
 filterClocks(std::string_view filter_expression,
              ClockSeq *objects,
-             bool bool_props_as_int,
              Sta *sta);
 
 LibertyCellSeq
 filterLibCells(std::string_view filter_expression,
                LibertyCellSeq *objects,
-               bool bool_props_as_int,
                Sta *sta);
 
 LibertyPortSeq
 filterLibPins(std::string_view filter_expression,
               LibertyPortSeq *objects,
-              bool bool_props_as_int,
               Sta *sta);
 
 LibertyLibrarySeq
 filterLibertyLibraries(std::string_view filter_expression,
                        LibertyLibrarySeq *objects,
-                       bool bool_props_as_int,
                        Sta *sta);
 
 EdgeSeq
 filterTimingArcs(std::string_view filter_expression,
                   EdgeSeq *objects,
-                  bool bool_props_as_int,
                   Sta *sta);
 
 PathEndSeq
 filterPathEnds(std::string_view filter_expression,
                PathEndSeq *objects,
-               bool bool_props_as_int,
                Sta *sta);
 
 // For FilterExpr unit tests.
 StringSeq
 filterExprToPostfix(std::string_view expr,
-                    bool bool_props_as_int,
                     Report *report);
 
 } // namespace

@@ -73,9 +73,9 @@ public:
   FilterExpr(std::string_view expression,
              Report *report);
     
-  std::vector<std::unique_ptr<Token>> postfix(bool bool_props_as_int);
+  std::vector<std::unique_ptr<Token>> postfix();
 private:
-  std::vector<std::unique_ptr<Token>> lex(bool bool_props_as_int);
+  std::vector<std::unique_ptr<Token>> lex();
   std::vector<std::unique_ptr<Token>> shuntingYard(std::vector<std::unique_ptr<Token>> &infix);
     
   std::string raw_;
@@ -106,20 +106,21 @@ FilterExpr::FilterExpr(std::string_view expression,
 }
 
 std::vector<std::unique_ptr<FilterExpr::Token>>
-FilterExpr::postfix(bool bool_props_as_int)
+FilterExpr::postfix()
 {
-  auto infix = lex(bool_props_as_int);
+  auto infix = lex();
   return shuntingYard(infix);
 }
 
 std::vector<std::unique_ptr<FilterExpr::Token>>
-FilterExpr::lex(bool bool_props_as_int)
+FilterExpr::lex()
 {
   std::vector<std::pair<std::regex, Token::Kind>> token_regexes = {
     {std::regex("^\\s+"), Token::Kind::skip},
     {std::regex("^defined\\(([a-zA-Z_]+)\\)"), Token::Kind::defined},
     {std::regex("^undefined\\(([a-zA-Z_]+)\\)"), Token::Kind::undefined},
-    {std::regex("^@?([a-zA-Z_]+) *((==|!=|=~|!~) *([0-9a-zA-Z_\\/$\\[\\]*?]+))?"), Token::Kind::predicate},
+    {std::regex("^@?([a-zA-Z_]+) *((==|!=|=~|!~) *([0-9a-zA-Z_\\/$\\[\\]*?.]+))?"),
+     Token::Kind::predicate},
     {std::regex("^(&&)"), Token::Kind::op_and},
     {std::regex("^(\\|\\|)"), Token::Kind::op_or},
     {std::regex("^(!)"), Token::Kind::op_inv},
@@ -139,9 +140,9 @@ FilterExpr::lex(bool bool_props_as_int)
           std::string property = token_match[1].str();
                     
           // The default operation on a predicate if an op and arg are
-          // omitted is 'arg == 1' / 'arg == true'.
+          // omitted is 'prop == 1 || true'.
           std::string op = "==";
-          std::string arg = (bool_props_as_int ? "1" : "true");
+          std::string arg = "1";
                     
           if (token_match[2].length() != 0) {
             op = token_match[3].str();
@@ -250,13 +251,18 @@ filterObjects(const char *property,
   bool not_pattern_match = stringEq(op, "!~");
   for (T *object : all) {
     PropertyValue value = properties.getProperty(object, property);
-    std::string prop_str = value.to_string(network);
-    const char *prop = prop_str.c_str();
-    if (prop &&
-        ((exact_match && stringEq(prop, pattern))
-          || (not_match && !stringEq(prop, pattern))
-          || (pattern_match && patternMatch(pattern, prop))
-          || (not_pattern_match && !patternMatch(pattern, prop))))
+    std::string prop = value.to_string(network);
+    if (value.type() == PropertyValue::Type::bool_) {
+      // Canonicalize bool true/false to 1/0.
+      if (stringEqual(pattern, "true"))
+        pattern = "1";
+      else if (stringEqual(pattern, "false"))
+        pattern = "0";
+    }
+    if ((exact_match && stringEq(prop.c_str(), pattern))
+        || (not_match && !stringEq(prop.c_str(), pattern))
+        || (pattern_match && patternMatch(pattern, prop))
+        || (not_pattern_match && !patternMatch(pattern, prop)))
       filtered_objects.insert(object);
   }
   return filtered_objects;
@@ -265,7 +271,6 @@ filterObjects(const char *property,
 template <typename T> std::vector<T*>
 filterObjects(std::string_view filter_expression,
               std::vector<T*> *objects,
-              bool bool_props_as_int,
               Sta *sta)
 {
   Report *report = sta->report();
@@ -278,7 +283,7 @@ filterObjects(std::string_view filter_expression,
       all.insert(object);
 
     FilterExpr filter(filter_expression, report);
-    auto postfix = filter.postfix(bool_props_as_int);
+    auto postfix = filter.postfix();
     std::stack<std::set<T*>> eval_stack;
     for (auto &token : postfix) {
       if (token->kind == FilterExpr::Token::Kind::op_or) {
@@ -405,100 +410,89 @@ filterObjects(std::string_view filter_expression,
 PortSeq
 filterPorts(std::string_view filter_expression,
             PortSeq *objects,
-            bool bool_props_as_int,
             Sta *sta)
 {
-  return filterObjects<const Port>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<const Port>(filter_expression, objects, sta);
 }
 
 InstanceSeq
 filterInstances(std::string_view filter_expression,
                 InstanceSeq *objects,
-                bool bool_props_as_int,
                 Sta *sta)
 {
-  return filterObjects<const Instance>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<const Instance>(filter_expression, objects, sta);
 }
 
 PinSeq
 filterPins(std::string_view filter_expression,
            PinSeq *objects,
-           bool bool_props_as_int,
            Sta *sta)
 {
-  return filterObjects<const Pin>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<const Pin>(filter_expression, objects, sta);
 }
 
 NetSeq
 filterNets(std::string_view filter_expression,
            NetSeq *objects,
-           bool bool_props_as_int,
            Sta *sta)
 {
-  return filterObjects<const Net>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<const Net>(filter_expression, objects, sta);
 }
 
 ClockSeq
 filterClocks(std::string_view filter_expression,
              ClockSeq *objects,
-             bool bool_props_as_int,
              Sta *sta)
 {
-  return filterObjects<Clock>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<Clock>(filter_expression, objects, sta);
 }
 
 LibertyCellSeq
 filterLibCells(std::string_view filter_expression,
                LibertyCellSeq *objects,
-               bool bool_props_as_int,
                Sta *sta)
 {
-  return filterObjects<LibertyCell>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<LibertyCell>(filter_expression, objects, sta);
 }
 
 LibertyPortSeq
 filterLibPins(std::string_view filter_expression,
               LibertyPortSeq *objects,
-              bool bool_props_as_int,
               Sta *sta)
 {
-  return filterObjects<LibertyPort>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<LibertyPort>(filter_expression, objects, sta);
 }
 
 LibertyLibrarySeq
 filterLibertyLibraries(std::string_view filter_expression,
                        LibertyLibrarySeq *objects,
-                       bool bool_props_as_int,
                        Sta *sta)
 {
-  return filterObjects<LibertyLibrary>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<LibertyLibrary>(filter_expression, objects, sta);
 }
 
 EdgeSeq
 filterTimingArcs(std::string_view filter_expression,
                  EdgeSeq *objects,
-                 bool bool_props_as_int,
                  Sta *sta)
 {
-  return filterObjects<Edge>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<Edge>(filter_expression, objects, sta);
 }
 
 PathEndSeq
 filterPathEnds(std::string_view filter_expression,
                PathEndSeq *objects,
-               bool bool_props_as_int,
                Sta *sta)
 {
-  return filterObjects<PathEnd>(filter_expression, objects, bool_props_as_int, sta);
+  return filterObjects<PathEnd>(filter_expression, objects, sta);
 }
 
 StringSeq
 filterExprToPostfix(std::string_view expr,
-                    bool bool_props_as_int,
                     Report *report)
 {
   FilterExpr filter(expr, report);
-  auto postfix = filter.postfix(bool_props_as_int);
+  auto postfix = filter.postfix();
   StringSeq result;
   for (auto &token : postfix)
     result.push_back(token->text);
