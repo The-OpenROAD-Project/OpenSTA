@@ -582,22 +582,27 @@ proc save_ok_main {} {
     }
   } else {
     foreach test $argv {
-      save_ok $test
+      if { [lsearch [group_tests "all"] $test] == -1 } {
+        puts "Error: test $test not found."
+      } else {
+        save_ok $test
+      }
     }
   }
 }
 
+# hook for pvt/public sync.
 proc save_ok { test } {
-  if { [lsearch [group_tests "all"] $test] == -1 } {
-    puts "Error: test $test not found."
+  save_ok_file $test
+}
+
+proc save_ok_file { test } {
+  set ok_file [test_ok_file $test]
+  set log_file [test_log_file $test]
+  if { ! [file exists $log_file] } {
+    puts "Error: log file $log_file not found."
   } else {
-    set ok_file [test_ok_file $test]
-    set log_file [test_log_file $test]
-    if { ! [file exists $log_file] } {
-      puts "Error: log file $log_file not found."
-    } else {
-      file copy -force $log_file $ok_file
-    }
+    file copy -force $log_file $ok_file
   }
 }
 
