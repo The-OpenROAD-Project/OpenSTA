@@ -33,6 +33,7 @@
 #include "DmpCeff.hh"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <optional>
 #include <string_view>
@@ -201,13 +202,12 @@ protected:
 
   static constexpr int max_nr_order_ = 3;
 
-  double x_[max_nr_order_];
-  double fvec_[max_nr_order_];
-  double fjac_storage_[max_nr_order_ * max_nr_order_];
-  double *fjac_[max_nr_order_];
-  double scale_[max_nr_order_];
-  double p_[max_nr_order_];
-  int index_[max_nr_order_];
+  std::array<double, max_nr_order_> x_;
+  std::array<double, max_nr_order_> fvec_;
+  std::array<std::array<double, max_nr_order_>, max_nr_order_> fjac_;
+  std::array<double, max_nr_order_> scale_;
+  std::array<double, max_nr_order_> p_;
+  std::array<int, max_nr_order_> index_;
 
   // Driver slew used to check load delay.
   double drvr_slew_;
@@ -237,9 +237,6 @@ DmpAlg::DmpAlg(int nr_order,
   c1_(0.0),
   nr_order_(nr_order)
 {
-  for (int i = 0; i < nr_order_; i++)
-    // Only use the upper left block of the matrix
-    fjac_[i] = fjac_storage_ + i * max_nr_order_;
 }
 
 void
