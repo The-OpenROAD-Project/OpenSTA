@@ -119,7 +119,7 @@ FilterExpr::lex(bool bool_props_as_int)
     {std::regex("^\\s+"), Token::Kind::skip},
     {std::regex("^defined\\(([a-zA-Z_]+)\\)"), Token::Kind::defined},
     {std::regex("^undefined\\(([a-zA-Z_]+)\\)"), Token::Kind::undefined},
-    {std::regex("^@?([a-zA-Z_]+) *((==|!=|=~|!~) *([0-9a-zA-Z_\\/$\\[\\]*?]+))?"), Token::Kind::predicate},
+    {std::regex("^@?([a-zA-Z_]+) *((==|!=|=~|!~) *([0-9a-zA-Z_\\/$\\[\\]*?.]+))?"), Token::Kind::predicate},
     {std::regex("^(&&)"), Token::Kind::op_and},
     {std::regex("^(\\|\\|)"), Token::Kind::op_or},
     {std::regex("^(!)"), Token::Kind::op_inv},
