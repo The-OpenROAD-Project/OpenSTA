@@ -1536,6 +1536,7 @@ TEST_F(ConcreteNetworkLinkedTest, MakeTermAndTermName) {
     // Exercises ConcreteTerm::name()
     // Exercise Term accessors
     Net *tnet_check = network_.net(term);
+    (void)tnet_check;
     // Exercises NetworkNameAdapter::id(Term)
     ObjectId tid = network_.id(term);
     EXPECT_GE(tid, 0u);
@@ -1711,6 +1712,7 @@ TEST_F(NetworkAdapterTest, AdapterMakeNet2) {
 TEST_F(NetworkAdapterTest, AdapterConnect2) {
   Instance *top = sdc_net_->topInstance();
   Net *net = sdc_net_->makeNet("r7_adapter_conn_net", top);
+  (void)net;
   // makeInstance requires LibertyCell, get it from the network
   LibertyCell *lib_cell = sdc_net_->findLibertyCell("INV_X1");
   if (lib_cell) {

@@ -40,8 +40,9 @@ static void expectStaLibertyCoreState(Sta *sta, LibertyLibrary *lib)
   EXPECT_NE(sta->cmdSdc(), nullptr);
   EXPECT_NE(sta->report(), nullptr);
   EXPECT_FALSE(sta->scenes().empty());
-  if (!sta->scenes().empty())
+  if (!sta->scenes().empty()) {
     EXPECT_GE(sta->scenes().size(), 1);
+  }
   EXPECT_NE(sta->cmdScene(), nullptr);
   EXPECT_NE(lib, nullptr);
 }
@@ -303,6 +304,7 @@ TEST_F(StaLibertyTest, TimingArcSetCondDefault) {
   TimingArcSet *arcset = arcsets[0];
   // Just call the getter for coverage
   bool is_default = arcset->isCondDefault();
+  (void)is_default;
   // is_default value depends on cell type
 }
 
@@ -314,10 +316,15 @@ TEST_F(StaLibertyTest, TimingArcSetSdfCond) {
   TimingArcSet *arcset = arcsets[0];
   // SDF condition getters - may be empty for simple arcs
   const std::string &sdf_cond = arcset->sdfCond();
+  (void)sdf_cond;
   const std::string &sdf_start = arcset->sdfCondStart();
+  (void)sdf_start;
   const std::string &sdf_end = arcset->sdfCondEnd();
+  (void)sdf_end;
   const std::string &mode_name = arcset->modeName();
+  (void)mode_name;
   const std::string &mode_value = arcset->modeValue();
+  (void)mode_value;
   // sdf_cond may be empty for simple arcs
   // sdf_start may be empty for simple arcs
   // sdf_end may be empty for simple arcs
@@ -353,6 +360,7 @@ TEST_F(StaLibertyTest, TimingArcProperties) {
 
   // Test model
   TimingModel *model = arc->model();
+  (void)model;
   // model may be null depending on cell type
 }
 
@@ -431,6 +439,7 @@ TEST_F(StaLibertyTest, LibraryPortProperties) {
 
   // Test capacitanceIsOneValue
   bool one_val = a->capacitanceIsOneValue();
+  (void)one_val;
   // one_val value depends on cell type
 
   // Test driveResistance
@@ -467,8 +476,11 @@ TEST_F(StaLibertyTest, PortClockFlags) {
     LibertyPort *ck = dff->findLibertyPort("CK");
     if (ck) {
       bool is_clk = ck->isClock();
+      (void)is_clk;
       bool is_reg_clk = ck->isRegClk();
+      (void)is_reg_clk;
       bool is_check_clk = ck->isCheckClk();
+      (void)is_check_clk;
       // is_clk tested implicitly (bool accessor exercised)
       // is_reg_clk tested implicitly (bool accessor exercised)
       // is_check_clk tested implicitly (bool accessor exercised)
@@ -476,6 +488,7 @@ TEST_F(StaLibertyTest, PortClockFlags) {
     LibertyPort *q = dff->findLibertyPort("Q");
     if (q) {
       bool is_reg_out = q->isRegOutput();
+      (void)is_reg_out;
       // is_reg_out tested implicitly (bool accessor exercised)
     }
   }
@@ -600,7 +613,9 @@ TEST_F(StaLibertyTest, PortRelatedPorts) {
   LibertyPort *a = buf->findLibertyPort("A");
   ASSERT_NE(a, nullptr);
   LibertyPort *ground_port = a->relatedGroundPort();
+  (void)ground_port;
   LibertyPort *power_port = a->relatedPowerPort();
+  (void)power_port;
   // ground_port may be null for simple cells
   // power_port may be null for simple cells
 }
@@ -638,6 +653,7 @@ TEST_F(StaLibertyTest, PortReceiverModel) {
   LibertyPort *a = buf->findLibertyPort("A");
   ASSERT_NE(a, nullptr);
   const ReceiverModel *rm = a->receiverModel();
+  (void)rm;
   // rm may be null depending on cell type
 }
 
@@ -659,6 +675,7 @@ TEST_F(StaLibertyTest, CellInternalPowers) {
     }
     // relatedPgPin may be nullptr
     LibertyPort *pgpin = pwr.relatedPgPin();
+    (void)pgpin;
     // pgpin may be null for simple arcs
     EXPECT_EQ(pwr.libertyCell(), buf);
   }
@@ -679,6 +696,7 @@ TEST_F(StaLibertyTest, CellDontUse) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   bool dont_use = buf->dontUse();
+  (void)dont_use;
   // dont_use value depends on cell type
 }
 
@@ -1031,6 +1049,7 @@ TEST_F(StaLibertyTest, CellScaleFactors) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   ScaleFactors *sf = buf->scaleFactors();
+  (void)sf;
   // sf may be null depending on cell type
 }
 
@@ -1045,6 +1064,7 @@ TEST_F(StaLibertyTest, CellOcvDerate) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   OcvDerate *derate = buf->ocvDerate();
+  (void)derate;
   // derate may be null depending on cell type
 }
 
@@ -2170,10 +2190,12 @@ TEST_F(StaLibertyTest, PortRegClkAndOutput) {
   LibertyPort *clk = dff->findLibertyPort("CK");
   ASSERT_NE(clk, nullptr);
   bool is_reg_clk = clk->isRegClk();
+  (void)is_reg_clk;
   // is_reg_clk value depends on cell type
   LibertyPort *q = dff->findLibertyPort("Q");
   ASSERT_NE(q, nullptr);
   bool is_reg_out = q->isRegOutput();
+  (void)is_reg_out;
   // is_reg_out value depends on cell type
 }
 
@@ -2183,6 +2205,7 @@ TEST_F(StaLibertyTest, PortLatchData) {
   LibertyPort *d = dlh->findLibertyPort("D");
   ASSERT_NE(d, nullptr);
   bool is_latch_data = d->isLatchData();
+  (void)is_latch_data;
   // is_latch_data value depends on cell type
 }
 
@@ -2281,6 +2304,7 @@ TEST_F(StaLibertyTest, CellHasInternalPorts) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   bool hip = buf->hasInternalPorts();
+  (void)hip;
   // hip value depends on cell type
 }
 
@@ -3252,8 +3276,9 @@ TEST_F(StaLibertyTest, CellHasSequentials2) {
   ASSERT_NE(buf, nullptr);
   EXPECT_FALSE(buf->hasSequentials());
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
-  if (dff)
+  if (dff) {
     EXPECT_TRUE(dff->hasSequentials());
+  }
 }
 
 TEST_F(StaLibertyTest, CellTimingArcSets2) {
