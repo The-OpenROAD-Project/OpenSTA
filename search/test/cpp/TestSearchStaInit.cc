@@ -74,8 +74,9 @@ static void expectStaCoreState(Sta *sta)
   EXPECT_NE(sta->cmdSdc(), nullptr);
   EXPECT_NE(sta->report(), nullptr);
   EXPECT_FALSE(sta->scenes().empty());
-  if (!sta->scenes().empty())
+  if (!sta->scenes().empty()) {
     EXPECT_GE(sta->scenes().size(), 1);
+  }
   EXPECT_NE(sta->cmdScene(), nullptr);
 }
 
@@ -2176,6 +2177,7 @@ TEST_F(StaInitTest, TagLessConstructor) {
 
 TEST_F(StaInitTest, TagIndexLessComparator) {
   TagIndexLess less;
+  (void)less;
   // Just exercise constructor
 
 }
@@ -2341,6 +2343,7 @@ TEST_F(StaInitTest, StaSetSlewLimitClock) {
 
 TEST_F(StaInitTest, StaOperatingConditions) {
   const OperatingConditions *op = sta_->operatingConditions(MinMax::min(), sta_->cmdSdc());
+  (void)op;
   // May be null without a liberty lib
   sta_->operatingConditions(MinMax::max(), sta_->cmdSdc());
 }
@@ -2652,6 +2655,7 @@ TEST_F(StaInitTest, CornersRangeForIteration) {
 TEST_F(StaInitTest, PathGroupsFindByNameNoGroups) {
   Mode *mode = sta_->cmdMode();
   PathGroups *pgs = mode->pathGroups();
+  (void)pgs;
   // PathGroups may not be initialized yet; just verify mode access works
   // PathGroup lookup requires path groups to be built first
   EXPECT_NE(mode, nullptr);
@@ -3726,7 +3730,9 @@ TEST_F(StaInitTest, CornersFindByIndex) {
 
 TEST_F(StaInitTest, CornersFindByName) {
   const SceneSeq &corners = sta_->scenes();
+  (void)corners;
   Scene *c = sta_->findScene("default");
+  (void)c;
   // May or may not find it
 
 }
@@ -3771,6 +3777,7 @@ TEST_F(StaInitTest, StaMakeGroupPath) {
 // --- Sta.cc: isPathGroupName ---
 TEST_F(StaInitTest, StaIsPathGroupNameTestGroup) {
   bool val = sta_->isPathGroupName("test_group", sta_->cmdSdc());
+  (void)val;
   // May or may not find it depending on prior makeGroupPath
 
 }

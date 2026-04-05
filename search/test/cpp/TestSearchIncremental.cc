@@ -143,6 +143,7 @@ TEST_F(IncrementalTimingTest, ReplaceCellDownsize) {
 
   // Get initial worst slack
   Slack initial_slack = sta_->worstSlack(MinMax::max());
+  (void)initial_slack;
 
   // Find buf1 and upsize it first so we have room to downsize
   Instance *buf1 = network->findChild(top, "buf1");
@@ -423,6 +424,7 @@ TEST_F(IncrementalTimingTest, ClockConstraintAfterEdit) {
   Instance *top = network->topInstance();
 
   Slack initial_slack = sta_->worstSlack(MinMax::max());
+  (void)initial_slack;
 
   // Edit: Replace buf1 with BUF_X4
   Instance *buf1 = network->findChild(top, "buf1");
@@ -1289,6 +1291,7 @@ TEST_F(IncrementalTimingTest, OutputDelayChangeUpdatesTiming) {
 TEST_F(IncrementalTimingTest, ClockLatencyAffectsTiming) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
+  (void)top;
 
   Slack initial_slack = sta_->worstSlack(MinMax::max());
 
