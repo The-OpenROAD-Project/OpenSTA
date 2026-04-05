@@ -25,6 +25,7 @@ sta_module_tests("sdc"
     exception_thru_net
     exception_thru_override
     exceptions
+    filter_dot
     filter_query
     genclk_advanced
     leaf_pin_filter_removal

@@ -4263,6 +4263,7 @@ TEST_F(NangateDcalcTest, DmpExtremeLoads) {
   ASSERT_NE(out_port, nullptr);
 
   Scene *corner = sta_->cmdScene();
+  (void)corner;
   float loads[] = {0.00001f, 0.1f, 1.0f, 5.0f, 10.0f};
   Slack prev_slack = 0.0f;
   bool first = true;
@@ -4315,6 +4316,7 @@ TEST_F(NangateDcalcTest, DmpCombinedExtremes) {
   ASSERT_NE(in_port, nullptr);
 
   Scene *corner = sta_->cmdScene();
+  (void)corner;
 
   // Large load + fast slew
   sta_->setPortExtPinCap(out_port, RiseFallBoth::riseFall(),
@@ -4348,6 +4350,7 @@ TEST_F(NangateDcalcTest, TwoPoleExtremeLoads) {
   ASSERT_NE(out_port, nullptr);
 
   Scene *corner = sta_->cmdScene();
+  (void)corner;
   float loads[] = {0.00001f, 0.1f, 1.0f, 5.0f, 10.0f};
   for (float load : loads) {
     sta_->setPortExtPinCap(out_port, RiseFallBoth::riseFall(),
@@ -4532,6 +4535,7 @@ TEST_F(MultiDriverDcalcTest, DmpCeffLoadSweep) {
   ASSERT_NE(out_port, nullptr);
 
   Scene *corner = sta_->cmdScene();
+  (void)corner;
   float loads[] = {0.001f, 0.005f, 0.01f, 0.05f, 0.1f};
   Slack prev_slack = 1e30f;  // Start with large positive value
   for (float load : loads) {
@@ -4593,6 +4597,7 @@ TEST_F(MultiDriverDcalcTest, IncrementalLoadChanges) {
   Instance *top = network->topInstance();
   Cell *top_cell = network->cell(top);
   Scene *corner = sta_->cmdScene();
+  (void)corner;
 
   const char *output_ports[] = {"out1", "out2", "out3"};
   for (const char *pname : output_ports) {

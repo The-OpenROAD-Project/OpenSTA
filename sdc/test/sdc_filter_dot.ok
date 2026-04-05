@@ -1,0 +1,2 @@
+[get_cells -filter {name =~ r.*} *]
+{name =~ tcdm_master_.*req_.*_i}

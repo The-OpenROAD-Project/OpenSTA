@@ -42,8 +42,9 @@ static void expectStaLibertyCoreState(Sta *sta, LibertyLibrary *lib)
   EXPECT_NE(sta->cmdSdc(), nullptr);
   EXPECT_NE(sta->report(), nullptr);
   EXPECT_FALSE(sta->scenes().empty());
-  if (!sta->scenes().empty())
+  if (!sta->scenes().empty()) {
     EXPECT_GE(sta->scenes().size(), 1);
+  }
   EXPECT_NE(sta->cmdScene(), nullptr);
   EXPECT_NE(lib, nullptr);
 }
@@ -3847,8 +3848,9 @@ library(test_r11_bus) {
       if (bus_port) {
         // findLibertyMember on bus port
         LibertyPort *member = bus_port->findLibertyMember(0);
-        if (member)
+        if (member) {
           EXPECT_NE(member, nullptr);
+        }
       }
     }
   }

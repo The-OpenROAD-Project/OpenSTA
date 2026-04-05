@@ -68,37 +68,6 @@ static void expectCallablePointerUsable(FnPtr fn) {
   EXPECT_EQ(fn_copy, fn);
 }
 
-static std::string makeUniqueSdcPath(const char *tag)
-{
-  static std::atomic<int> counter{0};
-  char buf[256];
-  snprintf(buf, sizeof(buf), "%s_%d_%d.sdc",
-           tag, static_cast<int>(getpid()), counter.fetch_add(1));
-  return std::string(buf);
-}
-
-static void expectSdcFileReadable(const std::string &filename)
-{
-  FILE *f = fopen(filename.c_str(), "r");
-  ASSERT_NE(f, nullptr);
-
-  std::string content;
-  char chunk[512];
-  size_t read_count = 0;
-  while ((read_count = fread(chunk, 1, sizeof(chunk), f)) > 0)
-    content.append(chunk, read_count);
-  fclose(f);
-
-  EXPECT_FALSE(content.empty());
-  EXPECT_GT(content.size(), 10u);
-  EXPECT_NE(content.find('\n'), std::string::npos);
-  EXPECT_EQ(content.find('\0'), std::string::npos);
-  const bool has_set_cmd = content.find("set_") != std::string::npos;
-  const bool has_create_clock = content.find("create_clock") != std::string::npos;
-  EXPECT_TRUE(has_set_cmd || has_create_clock);
-  EXPECT_EQ(remove(filename.c_str()), 0);
-}
-
 static void expectStaDesignCoreState(Sta *sta, bool design_loaded)
 {
   ASSERT_NE(sta, nullptr);
@@ -107,12 +76,14 @@ static void expectStaDesignCoreState(Sta *sta, bool design_loaded)
   EXPECT_NE(sta->search(), nullptr);
   EXPECT_NE(sta->cmdSdc(), nullptr);
   EXPECT_FALSE(sta->scenes().empty());
-  if (!sta->scenes().empty())
+  if (!sta->scenes().empty()) {
     EXPECT_GE(sta->scenes().size(), 1);
+  }
   EXPECT_NE(sta->cmdScene(), nullptr);
   EXPECT_TRUE(design_loaded);
-  if (sta->network())
+  if (sta->network()) {
     EXPECT_NE(sta->network()->topInstance(), nullptr);
+  }
 }
 
 // ============================================================
@@ -232,6 +203,7 @@ TEST_F(StaDesignTest, VertexArrivalRfPathAP) {
   ASSERT_NE(v, nullptr);
   Scene *corner = sta_->cmdScene();
   const size_t path_idx = corner->pathIndex(MinMax::max());
+  (void)path_idx;
   sta_->arrival(v, RiseFallBoth::rise(), sta_->scenes(), MinMax::max());
 }
 
@@ -254,6 +226,7 @@ TEST_F(StaDesignTest, VertexRequiredRfPathAP) {
   ASSERT_NE(v, nullptr);
   Scene *corner = sta_->cmdScene();
   const size_t path_idx = corner->pathIndex(MinMax::max());
+  (void)path_idx;
   sta_->required(v, RiseFallBoth::rise(), sta_->scenes(), MinMax::max());
 }
 
@@ -270,6 +243,7 @@ TEST_F(StaDesignTest, VertexSlackRfPathAP) {
   ASSERT_NE(v, nullptr);
   Scene *corner = sta_->cmdScene();
   const size_t path_idx = corner->pathIndex(MinMax::max());
+  (void)path_idx;
   sta_->slack(v, RiseFallBoth::rise(), sta_->scenes(), MinMax::max());
 }
 
@@ -288,6 +262,7 @@ TEST_F(StaDesignTest, VertexSlewRfCornerMinMax) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Scene *corner = sta_->cmdScene();
+  (void)corner;
   sta_->slew(v, RiseFallBoth::rise(), sta_->scenes(), MinMax::max());
 }
 
@@ -296,6 +271,7 @@ TEST_F(StaDesignTest, VertexSlewRfDcalcAP) {
   ASSERT_NE(v, nullptr);
   Scene *corner = sta_->cmdScene();
   const DcalcAPIndex dcalc_idx = corner->dcalcAnalysisPtIndex(MinMax::max());
+  (void)dcalc_idx;
   sta_->slew(v, RiseFallBoth::rise(), sta_->scenes(), MinMax::max());
 }
 
@@ -639,6 +615,7 @@ TEST_F(StaDesignTest, PvtGetSet) {
   sta_->setPvt(top, MinMaxAll::all(), 1.0f, 1.1f, 25.0f, sta_->cmdSdc());
 
   p = sta_->pvt(top, MinMax::max(), sta_->cmdSdc());
+  (void)p;
 
 
   }() ));
@@ -803,6 +780,7 @@ TEST_F(StaDesignTest, SearchCopyState) {
 TEST_F(StaDesignTest, SearchFindPathGroupByName) {
   ASSERT_NO_THROW(( [&](){
   Search *search = sta_->search();
+  (void)search;
   // First ensure path groups exist
   sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -855,10 +833,11 @@ TEST_F(StaDesignTest, SearchDeletePathGroups) {
 TEST_F(StaDesignTest, SearchVisitEndpoints) {
   ASSERT_NO_THROW(( [&](){
   Search *search = sta_->search();
+  (void)search;
   Network *network = sta_->cmdNetwork();
   PinSet pins(network);
   VertexPinCollector collector(pins);
-  true /* Search::visitEndpoints removed */;
+  (void)true /* Search::visitEndpoints removed */;
 
   }() ));
 }
@@ -868,10 +847,11 @@ TEST_F(StaDesignTest, SearchVisitEndpoints) {
 TEST_F(StaDesignTest, SearchVisitStartpoints) {
   ASSERT_NO_THROW(( [&](){
   Search *search = sta_->search();
+  (void)search;
   Network *network = sta_->cmdNetwork();
   PinSet pins(network);
   VertexPinCollector collector(pins);
-  true /* Search::visitStartpoints removed */;
+  (void)true /* Search::visitStartpoints removed */;
 
   }() ));
 }
@@ -903,9 +883,10 @@ TEST_F(StaDesignTest, SearchClockDomainsVertex) {
 TEST_F(StaDesignTest, SearchIsGenClkSrc) {
   ASSERT_NO_THROW(( [&](){
   Search *search = sta_->search();
+  (void)search;
   Vertex *v = findVertex("r1/Q");
   if (v) {
-    true /* Search::isGenClkSrc removed */;
+    (void)true /* Search::isGenClkSrc removed */;
   }
 
   }() ));
@@ -922,7 +903,8 @@ TEST_F(StaDesignTest, SearchPathGroups) {
     true, false, false, false, false, false);
   if (!ends.empty()) {
     Search *search = sta_->search();
-    true /* Search::pathGroups removed */;
+    (void)search;
+    (void)true /* Search::pathGroups removed */;
   }
 
   }() ));
@@ -1118,6 +1100,7 @@ TEST_F(StaDesignTest, SetArcDelayAnnotated) {
       if (!arcs.empty()) {
         Scene *corner = sta_->cmdScene();
         DcalcAPIndex dcalc_idx = corner->dcalcAnalysisPtIndex(MinMax::max());
+        (void)dcalc_idx;
         sta_->setArcDelayAnnotated(edge, arcs[0], corner, MinMax::max(), true);
         sta_->setArcDelayAnnotated(edge, arcs[0], corner, MinMax::max(), false);
       }
@@ -1175,6 +1158,7 @@ TEST_F(StaDesignTest, TotalNegativeSlackCorner) {
 
 TEST_F(StaDesignTest, Endpoints) {
   VertexSet &eps = sta_->endpoints();
+  (void)eps;
   // endpoints() returns reference, always valid
 }
 
@@ -1362,6 +1346,7 @@ TEST_F(StaDesignTest, PathExpanded) {
 TEST_F(StaDesignTest, SearchEndpoints) {
   Search *search = sta_->search();
   VertexSet &eps = search->endpoints();
+  (void)eps;
   // endpoints() returns reference, always valid
 }
 
@@ -1636,6 +1621,7 @@ TEST_F(StaDesignTest, ReadLibertyFile) {
   Scene *corner = sta_->cmdScene();
   LibertyLibrary *lib = sta_->readLiberty(
     "test/nangate45/Nangate45_slow.lib", corner, MinMaxAll::min(), false);
+  (void)lib;
   // May or may not succeed depending on file existence; just check no crash
   }() ));
 }
@@ -2233,7 +2219,7 @@ TEST_F(StaDesignTest, SearchIsClockVertex) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/CK");
   ASSERT_NE(v, nullptr);
-  (search->clocks(v, sta_->cmdMode()).size() > 0);
+  (void)(search->clocks(v, sta_->cmdMode()).size() > 0);
 }
 
 // --- Search: clkPathArrival ---
@@ -2362,6 +2348,7 @@ TEST_F(StaDesignTest, ArcDelayAnnotated) {
     if (arc_set && !arc_set->arcs().empty()) {
       Scene *corner = sta_->cmdScene();
       DcalcAPIndex dcalc_idx = corner->dcalcAnalysisPtIndex(MinMax::max());
+      (void)dcalc_idx;
       sta_->arcDelayAnnotated(edge, arc_set->arcs()[0], corner, MinMax::max());
     }
   }
@@ -2398,9 +2385,10 @@ TEST_F(StaDesignTest, SearchRequiredInvalid) {
 
 TEST_F(StaDesignTest, SearchIsSegmentStart) {
   Search *search = sta_->search();
+  (void)search;
   Pin *pin = findPin("in1");
   ASSERT_NE(pin, nullptr);
-  true /* Search::isSegmentStart removed */;
+  (void)true /* Search::isSegmentStart removed */;
 }
 
 // --- Search: isInputArrivalSrchStart ---
@@ -2653,6 +2641,7 @@ TEST_F(StaDesignTest, RemoveConstraints) {
 
 TEST_F(StaDesignTest, SearchFilter) {
   Search *search = sta_->search();
+  (void)search;
   FilterPath *filter = nullptr /* Search::filter() removed */;
   // filter should be null since we haven't set one
   EXPECT_EQ(filter, nullptr);
@@ -2779,7 +2768,11 @@ TEST_F(StaDesignTest, MaxFanoutCheck) {
   ASSERT_NO_THROW(( [&](){
   sta_->checkFanoutPreamble();
   const Pin *pin = nullptr;
+  (void)pin;
   float fanout, slack, limit;
+  (void)fanout;
+  (void)slack;
+  (void)limit;
   // maxFanoutCheck removed (renamed to maxFanoutMinSlackPin);
 
   }() ));
@@ -4030,7 +4023,7 @@ TEST_F(StaDesignTest, SearchIsClock) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/CK");
   if (v) {
-    (search->clocks(v, sta_->cmdMode()).size() > 0);
+    (void)(search->clocks(v, sta_->cmdMode()).size() > 0);
   }
 
   }() ));
@@ -4038,9 +4031,10 @@ TEST_F(StaDesignTest, SearchIsClock) {
 
 TEST_F(StaDesignTest, SearchIsGenClkSrc2) {
   Search *search = sta_->search();
+  (void)search;
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
-  true /* Search::isGenClkSrc removed */;
+  (void)true /* Search::isGenClkSrc removed */;
 }
 
 TEST_F(StaDesignTest, SearchClocks) {
@@ -4099,12 +4093,14 @@ TEST_F(StaDesignTest, SearchIsEndpoint2) {
 TEST_F(StaDesignTest, SearchHavePathGroups) {
   ASSERT_NO_THROW(( [&](){
   Search *search = sta_->search();
-  true /* Search::havePathGroups removed */;
+  (void)search;
+  (void)true /* Search::havePathGroups removed */;
   }() ));
 }
 
 TEST_F(StaDesignTest, SearchFindPathGroup) {
   Search *search = sta_->search();
+  (void)search;
   Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   // Search::findPathGroup removed

@@ -40,8 +40,9 @@ static void expectStaLibertyCoreState(Sta *sta, LibertyLibrary *lib)
   EXPECT_NE(sta->cmdSdc(), nullptr);
   EXPECT_NE(sta->report(), nullptr);
   EXPECT_FALSE(sta->scenes().empty());
-  if (!sta->scenes().empty())
+  if (!sta->scenes().empty()) {
     EXPECT_GE(sta->scenes().size(), 1);
+  }
   EXPECT_NE(sta->cmdScene(), nullptr);
   EXPECT_NE(lib, nullptr);
 }
@@ -860,6 +861,7 @@ TEST_F(StaLibertyTest, CellFootprint2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const std::string &fp = buf->footprint();
+  (void)fp;
   // fp may be empty for simple arcs
 }
 
@@ -1433,6 +1435,7 @@ TEST(R6_FuncExprTest, PortExprCheckSizeOne) {
   // Port with size 1 should return true for checkSize(1)
   // (depends on port->size())
   bool result = port_expr->checkSize(1);
+  (void)result;
   // Just exercise the code path
   // result tested implicitly (bool accessor exercised)
   delete port_expr;
@@ -1462,7 +1465,7 @@ TEST(R6_FuncExprTest, HasPortMatching) {
   FuncExpr *expr_a = FuncExpr::makePort(port_a);
   EXPECT_TRUE(expr_a->hasPort(port_a));
   EXPECT_FALSE(expr_a->hasPort(port_b));
-  expr_a; // deleteSubexprs removed
+  (void)expr_a; // deleteSubexprs removed
 }
 
 TEST(R6_FuncExprTest, LessPortExprs) {
@@ -1478,8 +1481,8 @@ TEST(R6_FuncExprTest, LessPortExprs) {
   bool r1 = FuncExpr::less(expr_a, expr_b);
   bool r2 = FuncExpr::less(expr_b, expr_a);
   EXPECT_NE(r1, r2);
-  expr_a; // deleteSubexprs removed
-  expr_b; // deleteSubexprs removed
+  (void)expr_a; // deleteSubexprs removed
+  (void)expr_b; // deleteSubexprs removed
 }
 
 TEST(R6_FuncExprTest, EquivPortExprs) {
@@ -1490,8 +1493,8 @@ TEST(R6_FuncExprTest, EquivPortExprs) {
   FuncExpr *expr1 = FuncExpr::makePort(port_a);
   FuncExpr *expr2 = FuncExpr::makePort(port_a);
   EXPECT_TRUE(FuncExpr::equiv(expr1, expr2));
-  expr1; // deleteSubexprs removed
-  expr2; // deleteSubexprs removed
+  (void)expr1; // deleteSubexprs removed
+  (void)expr2; // deleteSubexprs removed
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2255,6 +2258,7 @@ TEST_F(StaLibertyTest, CellFootprint3) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const std::string &fp = buf->footprint();
+  (void)fp;
   // May be empty for simple arcs
 }
 
@@ -2271,6 +2275,7 @@ TEST_F(StaLibertyTest, CellUserFunctionClass2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   const std::string &ufc = buf->userFunctionClass();
+  (void)ufc;
   // ufc may be empty for simple arcs
 }
 
@@ -2690,7 +2695,7 @@ TEST_F(StaLibertyTest, FuncExprMakeNot) {
   EXPECT_EQ(not_expr->left(), port_expr);
   std::string s = not_expr->to_string();
   EXPECT_FALSE(s.empty());
-  not_expr; // deleteSubexprs removed
+  (void)not_expr; // deleteSubexprs removed
 }
 
 // FuncExpr::makeAnd
@@ -2707,7 +2712,7 @@ TEST_F(StaLibertyTest, FuncExprMakeAnd) {
   EXPECT_EQ(and_expr->op(), FuncExpr::Op::and_);
   std::string s = and_expr->to_string();
   EXPECT_FALSE(s.empty());
-  and_expr; // deleteSubexprs removed
+  (void)and_expr; // deleteSubexprs removed
 }
 
 // FuncExpr::makeOr
@@ -2722,7 +2727,7 @@ TEST_F(StaLibertyTest, FuncExprMakeOr) {
   FuncExpr *right = FuncExpr::makePort(a2);
   FuncExpr *or_expr = FuncExpr::makeOr(left, right);
   EXPECT_EQ(or_expr->op(), FuncExpr::Op::or_);
-  or_expr; // deleteSubexprs removed
+  (void)or_expr; // deleteSubexprs removed
 }
 
 // FuncExpr::makeXor
@@ -2735,7 +2740,7 @@ TEST_F(StaLibertyTest, FuncExprMakeXor) {
   FuncExpr *right = FuncExpr::makePort(a);
   FuncExpr *xor_expr = FuncExpr::makeXor(left, right);
   EXPECT_EQ(xor_expr->op(), FuncExpr::Op::xor_);
-  xor_expr; // deleteSubexprs removed
+  (void)xor_expr; // deleteSubexprs removed
 }
 
 // FuncExpr::makeZero and makeOne
@@ -2772,8 +2777,9 @@ TEST_F(StaLibertyTest, FuncExprHasPort) {
   ASSERT_NE(a, nullptr);
   FuncExpr *expr = FuncExpr::makePort(a);
   EXPECT_TRUE(expr->hasPort(a));
-  if (zn)
+  if (zn) {
     EXPECT_FALSE(expr->hasPort(zn));
+  }
   delete expr;
 }
 
@@ -2786,7 +2792,7 @@ TEST_F(StaLibertyTest, FuncExprPortTimingSense) {
   FuncExpr *not_expr = FuncExpr::makeNot(FuncExpr::makePort(a));
   TimingSense sense = not_expr->portTimingSense(a);
   EXPECT_EQ(sense, TimingSense::negative_unate);
-  not_expr; // deleteSubexprs removed
+  (void)not_expr; // deleteSubexprs removed
 }
 
 // FuncExpr::copy
@@ -2905,8 +2911,9 @@ TEST_F(StaLibertyTest, PortIsClock2) {
   ASSERT_NE(ck, nullptr);
   EXPECT_TRUE(ck->isClock());
   LibertyPort *d = dff->findLibertyPort("D");
-  if (d)
+  if (d) {
     EXPECT_FALSE(d->isClock());
+  }
 }
 
 // LibertyPort::setIsClock
@@ -3047,6 +3054,7 @@ TEST_F(StaLibertyTest, TimingArcSetIsCondDefault) {
   ASSERT_GT(arcsets.size(), 0u);
   // Default should be false or true depending on library
   bool cd = arcsets[0]->isCondDefault();
+  (void)cd;
   // cd value depends on cell type
 }
 
@@ -3326,6 +3334,7 @@ TEST_F(StaLibertyTest, PortCapacitanceIsOneValue2) {
   LibertyPort *a = buf->findLibertyPort("A");
   ASSERT_NE(a, nullptr);
   bool one_val = a->capacitanceIsOneValue();
+  (void)one_val;
   // one_val value depends on cell type
 }
 
@@ -3384,6 +3393,9 @@ TEST_F(StaLibertyTest, ScaleFactorTypeRiseFallSuffix) {
   bool rfs = scaleFactorTypeRiseFallSuffix(ScaleFactorType::cell);
   bool rfp = scaleFactorTypeRiseFallPrefix(ScaleFactorType::cell);
   bool lhs = scaleFactorTypeLowHighSuffix(ScaleFactorType::cell);
+  (void)rfs;
+  (void)rfp;
+  (void)lhs;
   // rfs tested implicitly (bool accessor exercised)
   // rfp tested implicitly (bool accessor exercised)
   // lhs tested implicitly (bool accessor exercised)

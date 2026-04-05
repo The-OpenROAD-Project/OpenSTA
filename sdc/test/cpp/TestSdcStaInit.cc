@@ -35,31 +35,6 @@
 
 namespace sta {
 
-static std::string
-readTextFile(const char *filename)
-{
-  std::ifstream in(filename);
-  if (!in.is_open())
-    return "";
-  return std::string((std::istreambuf_iterator<char>(in)),
-                     std::istreambuf_iterator<char>());
-}
-
-static size_t
-countSubstring(const std::string &text,
-               const std::string &needle)
-{
-  if (needle.empty())
-    return 0;
-  size_t count = 0;
-  size_t pos = 0;
-  while ((pos = text.find(needle, pos)) != std::string::npos) {
-    ++count;
-    pos += needle.size();
-  }
-  return count;
-}
-
 ////////////////////////////////////////////////////////////////
 // SDC tests that require full Sta initialization
 ////////////////////////////////////////////////////////////////
@@ -1904,8 +1879,9 @@ TEST_F(SdcInitTest, DeratingFactorsIsOneValue2) {
   bool is_one_value;
   float value;
   df.isOneValue(EarlyLate::early(), is_one_value, value);
-  if (is_one_value)
+  if (is_one_value) {
     EXPECT_FLOAT_EQ(value, 0.9f);
+  }
 }
 
 // DeratingFactors isOneValue per clk_data
@@ -1917,8 +1893,9 @@ TEST_F(SdcInitTest, DeratingFactorsIsOneValueClkData2) {
   float value;
   df.isOneValue(PathClkOrData::clk, EarlyLate::early(),
                 is_one_value, value);
-  if (is_one_value)
+  if (is_one_value) {
     EXPECT_FLOAT_EQ(value, 0.95f);
+  }
 }
 
 // DeratingFactorsGlobal
@@ -2034,8 +2011,9 @@ TEST_F(SdcInitTest, DeratingFactorsCellIsOneValue2) {
   bool is_one;
   float val;
   dfc.isOneValue(EarlyLate::early(), is_one, val);
-  if (is_one)
+  if (is_one) {
     EXPECT_FLOAT_EQ(val, 0.95f);
+  }
 }
 
 // DeratingFactorsNet
