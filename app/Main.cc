@@ -30,6 +30,11 @@
 #include <filesystem>
 #include <string_view>
 #include <tcl.h>
+
+#ifdef BAZEL_CURRENT_REPOSITORY
+  #include "bazel/tcl_library_init.h"
+#endif
+
 #if TCL_READLINE
   #include <tclreadline.h>
 #endif
@@ -109,6 +114,12 @@ staTclAppInit(int argc,
               std::string_view init_filename,
               Tcl_Interp *interp)
 {
+#ifdef BAZEL_CURRENT_REPOSITORY
+    if (in_bazel::SetupTclEnvironment(interp) == TCL_ERROR) {
+      return TCL_ERROR;
+    }
+#endif
+
   // source init.tcl
   if (Tcl_Init(interp) == TCL_ERROR)
     return TCL_ERROR;
