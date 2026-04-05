@@ -109,12 +109,14 @@ static void expectStaDesignCoreState(Sta *sta, bool design_loaded)
   EXPECT_NE(sta->search(), nullptr);
   EXPECT_NE(sta->cmdSdc(), nullptr);
   EXPECT_FALSE(sta->scenes().empty());
-  if (!sta->scenes().empty())
+  if (!sta->scenes().empty()) {
     EXPECT_GE(sta->scenes().size(), 1);
+  }
   EXPECT_NE(sta->cmdScene(), nullptr);
   EXPECT_TRUE(design_loaded);
-  if (sta->network())
+  if (sta->network()) {
     EXPECT_NE(sta->network()->topInstance(), nullptr);
+  }
 }
 
 // ============================================================
@@ -275,6 +277,7 @@ TEST_F(StaDesignTest, SearchDeratedDelay) {
   ASSERT_NE(v, nullptr);
   Scene *corner = sta_->cmdScene();
   const size_t path_idx = corner->pathIndex(MinMax::max());
+  (void)path_idx;
   VertexInEdgeIterator edge_iter(v, sta_->graph());
   if (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
@@ -523,6 +526,7 @@ TEST_F(StaDesignTest, StaVertexSlewRfCorner) {
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   Scene *corner = sta_->cmdScene();
+  (void)corner;
   Slew slew = sta_->slew(v, RiseFallBoth::rise(), sta_->scenes(), MinMax::max());
   EXPECT_FALSE(std::isinf(slew));
 }
@@ -539,6 +543,7 @@ TEST_F(StaDesignTest, StaVertexRequiredRfPathAP) {
   ASSERT_NE(v, nullptr);
   Scene *corner = sta_->cmdScene();
   const size_t path_idx = corner->pathIndex(MinMax::max());
+  (void)path_idx;
   Required req = sta_->required(v, RiseFallBoth::rise(), sta_->scenes(), MinMax::max());
   EXPECT_FALSE(std::isinf(req));
 }
@@ -1049,6 +1054,7 @@ TEST_F(StaDesignTest, MakeParasiticNetwork) {
     Net *net = network->net(pin);
     if (net) {
       Scene *corner = sta_->cmdScene();
+      (void)corner;
       // ParasiticAnalysisPt and findParasiticAnalysisPt removed from API
       // makeParasiticNetwork API changed
     }
@@ -1183,6 +1189,7 @@ TEST_F(StaDesignTest, SearchVisitStartpoints2) {
 TEST_F(StaDesignTest, PathGroupFindByName) {
   ASSERT_NO_THROW(( [&](){
   Search *search = sta_->search();
+  (void)search;
   // After findPathEnds, path groups should exist
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr,
@@ -1364,6 +1371,7 @@ TEST_F(StaDesignTest, IsInputArrivalSrchStart) {
 TEST_F(StaDesignTest, IsSegmentStart) {
   ASSERT_NO_THROW(( [&](){
   Search *search = sta_->search();
+  (void)search;
   Pin *pin = findPin("in1");
   if (pin) {
     // Search::isSegmentStart removed from API
@@ -1384,6 +1392,7 @@ TEST_F(StaDesignTest, ClockInsertion) {
   if (pin) {
     Scene *corner = sta_->cmdScene();
     const size_t path_idx = corner->pathIndex(MinMax::max());
+    (void)path_idx;
     Arrival ins = search->clockInsertion(clk, pin, RiseFall::rise(),
       MinMax::max(), EarlyLate::late(), sta_->cmdMode());
     EXPECT_FALSE(std::isinf(ins));
@@ -1817,6 +1826,7 @@ TEST_F(StaDesignTest, PathEndUnconstrainedMethods) {
   ASSERT_NO_THROW(( [&](){
   const SceneSeq &corners = sta_->scenes();
   Scene *corner = corners[0];
+  (void)corner;
   PathEndSeq ends = sta_->findPathEnds(
     nullptr, nullptr, nullptr, true, corners, MinMaxAll::max(),
     5, 5, true, false, -INF, INF, false, group_names,
@@ -2019,6 +2029,7 @@ TEST_F(StaDesignTest, ClkSkewPreamble) {
     clks.push_back(clk);
     const SceneSeq &corners = sta_->scenes();
     Scene *corner = corners[0];
+    (void)corner;
     sta_->reportClkSkew(clks, sta_->scenes(), MinMax::max(), false, 3);
   }
 
@@ -2073,6 +2084,7 @@ TEST_F(StaDesignTest, ClkSkewInternalLatency) {
     clks.push_back(clk);
     const SceneSeq &corners = sta_->scenes();
     Scene *corner = corners[0];
+    (void)corner;
     sta_->reportClkSkew(clks, sta_->scenes(), MinMax::max(), true, 3);
   }
 
@@ -3216,6 +3228,7 @@ TEST_F(StaDesignTest, ReportClkSkew2) {
     ConstClockSeq clks;
     clks.push_back(clk);
     Scene *corner = sta_->cmdScene();
+    (void)corner;
     sta_->reportClkSkew(clks, sta_->scenes(), MinMax::max(), false, 3);
     sta_->reportClkSkew(clks, sta_->scenes(), MinMax::min(), false, 3);
   }
@@ -3242,6 +3255,7 @@ TEST_F(StaDesignTest, ReportClkLatency3) {
     ConstClockSeq clks;
     clks.push_back(clk);
     Scene *corner = sta_->cmdScene();
+    (void)corner;
     sta_->reportClkLatency(clks, sta_->scenes(), false, 3);
   }
 
@@ -3650,6 +3664,7 @@ TEST_F(StaDesignTest, ReportClkSkew3) {
     ConstClockSeq clks;
     clks.push_back(clk);
     Scene *corner = sta_->cmdScene();
+    (void)corner;
     sta_->reportClkSkew(clks, sta_->scenes(), MinMax::max(), false, 4);
     sta_->reportClkSkew(clks, sta_->scenes(), MinMax::min(), false, 4);
   }
@@ -3678,6 +3693,7 @@ TEST_F(StaDesignTest, ReportClkLatency4) {
     ConstClockSeq clks;
     clks.push_back(clk);
     Scene *corner = sta_->cmdScene();
+    (void)corner;
     sta_->reportClkLatency(clks, sta_->scenes(), false, 4);
     sta_->reportClkLatency(clks, sta_->scenes(), true, 4);
   }
@@ -3944,6 +3960,7 @@ TEST_F(StaDesignTest, WriteSdcComprehensive) {
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Scene *corner = sta_->cmdScene();
+  (void)corner;
   Clock *clk = sta_->cmdSdc()->findClock("clk");
 
   Pin *in1 = network->findPin(top, "in1");

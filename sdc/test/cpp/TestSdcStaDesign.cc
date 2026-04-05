@@ -184,6 +184,7 @@ TEST_F(SdcDesignTest, CycleAcctingSourceTargetCycle) {
 TEST_F(SdcInitTest, ExceptionThruAsString) {
   ASSERT_NO_THROW(( [&](){
   Sdc *sdc = sta_->cmdSdc();
+  (void)sdc;
   Network *network = sta_->cmdNetwork();
   // Create ExceptionThru with no objects
   ExceptionThru *thru = new ExceptionThru(nullptr, nullptr, nullptr,
@@ -230,6 +231,7 @@ TEST_F(SdcInitTest, ExceptionFromHash) {
 
 TEST_F(SdcInitTest, ExceptionPathMergeable) {
   Sdc *sdc = sta_->cmdSdc();
+  (void)sdc;
   FalsePath *fp1 = new FalsePath(nullptr, nullptr, nullptr,
                                  MinMaxAll::all(), true, "");
   FalsePath *fp2 = new FalsePath(nullptr, nullptr, nullptr,
@@ -507,6 +509,7 @@ TEST_F(SdcDesignTest, WriteSdcWithDerating) {
 TEST_F(SdcDesignTest, WriteSdcWithDisable) {
   Graph *graph = sta_->graph();
   Network *network = sta_->cmdNetwork();
+  (void)network;
   Pin *pin = findPin("r1/D");
   if (pin && graph) {
     Vertex *v = graph->pinLoadVertex(pin);
@@ -608,6 +611,7 @@ TEST_F(SdcDesignTest, SdcClockLatencyEdge) {
   Sdc *sdc = sta_->cmdSdc();
   Graph *graph = sta_->graph();
   Network *network = sta_->cmdNetwork();
+  (void)network;
   Pin *pin = findPin("r1/CK");
   if (pin && graph) {
     Vertex *v = graph->pinLoadVertex(pin);

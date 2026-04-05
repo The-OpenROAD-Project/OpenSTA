@@ -1138,6 +1138,7 @@ TEST_F(StaInitTest, ClkInfoEqualCtor) {
 TEST_F(StaInitTest, ClkInfoHashExists) {
   ASSERT_NO_THROW(( [&](){
     ClkInfoHash hash;
+    (void)hash;
   }() ));
 }
 
@@ -1146,6 +1147,7 @@ TEST_F(StaInitTest, ClkInfoHashExists) {
 TEST_F(StaInitTest, TagLessCtor) {
   ASSERT_NO_THROW(( [&](){
     TagLess less(sta_);
+    (void)less;
   }() ));
 }
 
@@ -1154,6 +1156,7 @@ TEST_F(StaInitTest, TagLessCtor) {
 TEST_F(StaInitTest, TagIndexLessExists) {
   ASSERT_NO_THROW(( [&](){
     TagIndexLess less;
+    (void)less;
   }() ));
 }
 
@@ -1240,6 +1243,7 @@ TEST_F(StaInitTest, ClockPinPairLessExists) {
   ASSERT_NO_THROW(( [&](){
     // ClockPinPairLess comparison dereferences Clock*, so just test existence
     ClockPinPairLess less;
+    (void)less;
     expectStaCoreState(sta_);
   }() ));
 }
@@ -1895,6 +1899,7 @@ TEST_F(StaInitTest, ReportPathFieldSrcAttr) {
   ASSERT_NO_THROW(( [&](){
     ReportPath *rpt = sta_->reportPath();
     ReportField *src = rpt->fieldSrcAttr();
+    (void)src;
     // src_attr field may or may not exist
     expectStaCoreState(sta_);
   }() ));
@@ -2108,6 +2113,7 @@ TEST_F(StaInitTest, CornersIteration) {
 TEST_F(StaInitTest, CornerFindName) {
   ASSERT_NO_THROW(( [&](){
     const SceneSeq &corners = sta_->scenes();
+    (void)corners;
     Scene *corner = sta_->findScene("default");
     EXPECT_NE(corner, nullptr);
     expectStaCoreState(sta_);
@@ -2518,7 +2524,8 @@ TEST_F(StaInitTest, ReportPathReportMpwHeaderShort) {
 TEST_F(StaInitTest, ReportPathReportPathEndHeader) {
   ASSERT_NO_THROW(( [&](){
     ReportPath *rpt = sta_->reportPath();
-    
+    (void)rpt;
+
     expectStaCoreState(sta_);
   }() ));
 }
@@ -2528,7 +2535,8 @@ TEST_F(StaInitTest, ReportPathReportPathEndHeader) {
 TEST_F(StaInitTest, ReportPathReportPathEndFooter) {
   ASSERT_NO_THROW(( [&](){
     ReportPath *rpt = sta_->reportPath();
-    
+    (void)rpt;
+
     expectStaCoreState(sta_);
   }() ));
 }
