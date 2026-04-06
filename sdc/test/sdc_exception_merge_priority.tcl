@@ -115,13 +115,6 @@ puts "--- exception override: false path then max_delay ---"
 set_max_delay -from [get_ports in3] -to [get_ports out2] 5.0
 report_checks
 
-# remove_constraints (remove all SDC constraints)
-puts "--- remove_constraints ---"
-# TODO: sta::remove_constraints removed from Sta API
-# sta::remove_constraints
-# report_checks
-puts "remove_constraints: skipped (API removed)"
-
 # Re-add constraints for write_sdc
 create_clock -name clk1 -period 10 [get_ports clk1]
 create_clock -name clk2 -period 20 [get_ports clk2]

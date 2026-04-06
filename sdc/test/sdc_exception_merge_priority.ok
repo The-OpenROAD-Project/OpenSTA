@@ -1094,8 +1094,6 @@ Path Type: max
            7.89   slack (MET)
 
 
---- remove_constraints ---
-remove_constraints: skipped (API removed)
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: grp1

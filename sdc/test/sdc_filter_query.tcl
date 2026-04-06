@@ -13,7 +13,7 @@
 #     net_is_constrained, is_clock_src, is_clock, is_ideal_clock,
 #     clk_thru_tristate_enabled, set_clk_thru_tristate_enabled,
 #     find_clocks_matching, default_arrival_clock,
-#     pin_case_logic_value, pin_logic_value, remove_constraints
+#     pin_case_logic_value, pin_logic_value
 source ../../test/helpers.tcl
 
 read_liberty ../../test/nangate45/Nangate45_typ.lib
@@ -178,14 +178,6 @@ diff_files sdc_filter_query1.sdcok $sdc1
 ############################################################
 unset_case_analysis [get_ports in1]
 unset_case_analysis [get_ports in2]
-
-############################################################
-# remove_constraints
-############################################################
-# TODO: sta::remove_constraints removed from Sta API
-# sta::remove_constraints
-# report_checks
-puts "remove_constraints: skipped (API removed)"
 
 ############################################################
 # Re-apply constraints for final write
