@@ -647,6 +647,4 @@ Timing arcs
   combinational
   ^ -> v
   v -> ^
-Differences found at line 107.
-	cell_rise(Timing_7_7) {
-        cell_rise(Timing_7_7) {
+No differences found.

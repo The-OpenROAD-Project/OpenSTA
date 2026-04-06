@@ -1,12 +1,6 @@
-Differences found at line 107.
-	cell_rise(Timing_7_7) {
-        cell_rise(Timing_7_7) {
-Differences found at line 118.
-	cell_rise(del_1_7_7) {
-        cell_rise(del_1_7_7) {
-Differences found at line 70.
-	cell_rise(TIMING_DELAY_7x7ds1) {
-        cell_rise(TIMING_DELAY_7x7ds1) {
+No differences found.
+No differences found.
+No differences found.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
@@ -17,18 +11,10 @@ Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
-Differences found at line 83.
-	cell_rise(delay_template_7x7_x1) {
-        cell_rise(delay_template_7x7_x1) {
-Differences found at line 81.
-	cell_rise(delay_template_7x7) {
-        cell_rise(delay_template_7x7) {
-Differences found at line 83.
-	cell_rise(delay_template_7x7_x1) {
-        cell_rise(delay_template_7x7_x1) {
-Differences found at line 90.
-	cell_rise(fakeram7_256x32_mem_out_delay_template) {
-        cell_rise(fakeram7_256x32_mem_out_delay_template) {
+No differences found.
+No differences found.
+No differences found.
+No differences found.
 Warning 1171: ../../test/nangate45/fake_macros.lib line 32, default_max_transition is 0.0.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13156, timing group from output port.
 Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_SS_nldm_211120.lib.gz line 13189, timing group from output port.
