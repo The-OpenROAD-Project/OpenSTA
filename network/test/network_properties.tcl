@@ -190,4 +190,4 @@ puts "all_registers -output_pins: [llength $reg_output]"
 puts "--- timing analysis ---"
 report_checks
 report_checks -path_delay min
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}

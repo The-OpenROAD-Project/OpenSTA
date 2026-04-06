@@ -123,7 +123,7 @@ report_checks -from [get_ports in1] -to [get_ports out]
 
 report_checks -from [get_ports in2] -to [get_ports out]
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 #---------------------------------------------------------------
 # Test 4: Report parasitic annotation
@@ -206,7 +206,7 @@ puts "elmore r3/Q->out after SPEF: $elm_r3_spef"
 #---------------------------------------------------------------
 puts "--- Test 8: detailed reports ---"
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 report_checks -format full_clock
 

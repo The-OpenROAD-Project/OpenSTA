@@ -225,7 +225,7 @@ report_checks -rise_to [get_ports out1]
 report_checks -fall_to [get_ports out1]
 
 # Various report formats
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 report_checks -format full_clock
 report_checks -format full_clock_expanded
 report_checks -digits 6

@@ -173,4 +173,4 @@ puts "--- timing analysis ---"
 report_checks
 report_checks -path_delay min
 report_checks -from [get_ports {data_a[0]}] -to [get_ports {result[0]}]
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
