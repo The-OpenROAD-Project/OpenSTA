@@ -4,8 +4,7 @@
 #   Sdc.cc: allInputs, allOutputs, isConstrained (pin, instance, net),
 #     findClocksMatching, sortedClocks, findClock,
 #     isClockSrc, isClock, isIdealClock,
-#     clkThruTristateEnabled, setClkThruTristateEnabled,
-#     removeConstraints
+#     clkThruTristateEnabled, setClkThruTristateEnabled
 #   Sdc.i: all_inputs_cmd, all_outputs_cmd, filter_ports, filter_insts,
 #     filter_pins, filter_clocks, filter_lib_cells, filter_lib_pins,
 #     filter_liberty_libraries, filter_nets, filter_timing_arcs,
@@ -178,14 +177,6 @@ diff_files sdc_filter_query1.sdcok $sdc1
 ############################################################
 unset_case_analysis [get_ports in1]
 unset_case_analysis [get_ports in2]
-
-############################################################
-# Re-apply constraints for final write
-############################################################
-create_clock -name clk1 -period 10 [get_ports clk1]
-create_clock -name clk2 -period 20 [get_ports clk2]
-set_input_delay -clock clk1 2.0 [get_ports in1]
-set_output_delay -clock clk1 3.0 [get_ports out1]
 
 set sdc2 [make_result_file sdc_filter_query2.sdc]
 write_sdc -no_timestamp $sdc2

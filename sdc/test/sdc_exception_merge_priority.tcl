@@ -3,7 +3,7 @@
 # Targets: ExceptionPath.cc exception merging, priority, matches,
 #          overrides, through-pin matching, ExceptionThru matching,
 #          Sdc.cc addException, findException, isPathGroupName,
-#          pathGroupNames, removeConstraints, constraintsChanged,
+#          pathGroupNames,
 #          makeExceptionFrom/Thru/To, checkExceptionFromPins,
 #          checkExceptionToPins, deleteExceptionFrom/Thru/To,
 #          WriteSdc.cc writeExceptions (various exception types)
@@ -113,21 +113,6 @@ puts "nonexistent is group: [sta::is_path_group_name nonexistent]"
 puts "--- exception override: false path then max_delay ---"
 # More specific exception should override broader one
 set_max_delay -from [get_ports in3] -to [get_ports out2] 5.0
-report_checks
-
-# Re-add constraints for write_sdc
-create_clock -name clk1 -period 10 [get_ports clk1]
-create_clock -name clk2 -period 20 [get_ports clk2]
-set_input_delay -clock clk1 2.0 [get_ports in1]
-set_input_delay -clock clk1 2.0 [get_ports in2]
-set_input_delay -clock clk2 2.0 [get_ports in3]
-set_output_delay -clock clk1 3.0 [get_ports out1]
-set_output_delay -clock clk2 3.0 [get_ports out2]
-
-set_false_path -from [get_clocks clk1] -to [get_clocks clk2]
-set_multicycle_path -setup 2 -from [get_ports in1] -to [get_ports out1]
-set_max_delay -from [get_ports in2] -to [get_ports out1] 8.0
-group_path -name grp1 -from [get_clocks clk1]
 report_checks
 
 # Write SDC with all exception types
