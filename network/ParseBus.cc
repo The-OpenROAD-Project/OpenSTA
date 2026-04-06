@@ -86,7 +86,9 @@ parseBusName(std::string_view name,
     if (brkt_index != std::string_view::npos) {
       char brkt_left_ch = brkts_left[brkt_index];
       size_t left = name.rfind(brkt_left_ch);
-      if (left != std::string_view::npos) {
+      if (left != std::string_view::npos
+          && left + 1 < len
+          && isdigit(name[left + 1])) {
         is_bus = true;
         bus_name.append(name.data(), left);
         // Simple bus subscript.
@@ -140,19 +142,21 @@ parseBusName(std::string_view name,
     if (brkt_index != std::string_view::npos) {
       char brkt_left_ch = brkts_left[brkt_index];
       size_t left = name.rfind(brkt_left_ch);
-      if (left != std::string_view::npos) {
+      if (left != std::string_view::npos
+          && left + 1 < len
+          && (isdigit(name[left + 1]) || name[left + 1] == '*')) {
         is_bus = true;
         bus_name.append(name.data(), left);
-        // Check for bus range.
-        size_t range = name.find(':', left);
-        if (range != std::string_view::npos) {
-          is_range = true;
-          from = std::stoi(std::string(name.substr(left + 1)));
-          to = std::stoi(std::string(name.substr(range + 1)));
-        }
+        if (name[left + 1] == '*')
+          subscript_wild = true;
         else {
-          if (left + 1 < len && name[left + 1] == '*')
-            subscript_wild = true;
+          // Check for bus range.
+          size_t range = name.find(':', left);
+          if (range != std::string_view::npos) {
+            is_range = true;
+            from = std::stoi(std::string(name.substr(left + 1)));
+            to = std::stoi(std::string(name.substr(range + 1)));
+          }
           else
             from = to = std::stoi(std::string(name.substr(left + 1)));
         }
