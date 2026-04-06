@@ -310,9 +310,7 @@ Path Type: max
  current 1mA
  power 1nW
  distance 1um
-Differences found at line 57.
-Warning: util_report_string_log.tcl line 1, unknown field nets.
-Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+No differences found.
 --- Test 2: log + redirect simultaneous ---
 No differences found.
 No differences found.
