@@ -30,7 +30,7 @@ log_begin $log_file1
 report_checks
 report_checks -path_delay min
 report_checks -from [get_ports in1] -to [get_ports out]
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 report_units
 
 log_end
