@@ -32,7 +32,6 @@ option(CUDD_DIR "CUDD BDD package directory")
 option(USE_TCL_READLINE "Use TCL readline package" ON)
 option(ENABLE_TSAN "Compile with thread santizer enabled" OFF)
 option(ENABLE_ASAN "Compile with address santizer enabled" OFF)
-option(ALLOW_WARNINGS "Allow compiler warnings without failing the build" OFF)
 
 # Turn on to debug compiler args.
 set(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -595,18 +594,6 @@ endif()
 # common to gcc/clang
 set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls
   -Wformat-security -Werror=misleading-indentation -Wundef)
-if(NOT ALLOW_WARNINGS)
-  list(APPEND CXX_FLAGS -Werror)
-endif()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(STA_WARNING_FLAGS ${CXX_FLAGS} -Wno-format-zero-length)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
-       OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  set(STA_WARNING_FLAGS ${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments)
-else()
-  set(STA_WARNING_FLAGS ${CXX_FLAGS})
-endif()
 
 if(ENABLE_TSAN)
   message(STATUS "Thread sanitizer: ${ENABLE_TSAN}")
@@ -620,12 +607,12 @@ if(ENABLE_ASAN)
   set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address")
 endif()
 
-add_library(OpenSTAWarnings INTERFACE)
-target_compile_options(OpenSTAWarnings
-  INTERFACE
-  ${STA_WARNING_FLAGS}
+target_compile_options(OpenSTA
+  PRIVATE
+  $<$<CXX_COMPILER_ID:GNU>:${CXX_FLAGS} -Wno-format-zero-length>
+  $<$<CXX_COMPILER_ID:Clang>:${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
+  $<$<CXX_COMPILER_ID:AppleClang>:${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   )
-target_link_libraries(OpenSTA OpenSTAWarnings)
 
 # Disable compiler specific extensions like gnu++11.
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
