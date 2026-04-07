@@ -1215,6 +1215,12 @@ LibertyReader::makePgPinPort(LibertyCell *cell,
       case PwrGndType::internal_power:
         dir = PortDirection::power();
         break;
+      case PwrGndType::nwell:
+      case PwrGndType::pwell:
+      case PwrGndType::deepnwell:
+      case PwrGndType::deeppwell:
+        dir = PortDirection::well();
+        break;
       case PwrGndType::none:
         error(1291, pg_pin_group, "unknown pg_type.");
         break;

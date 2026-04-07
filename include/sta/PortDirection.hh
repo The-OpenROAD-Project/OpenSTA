@@ -41,6 +41,7 @@ public:
   static PortDirection *internal() { return internal_; }
   static PortDirection *ground() { return ground_; }
   static PortDirection *power() { return power_; }
+  static PortDirection *well() { return well_; }
   static PortDirection *unknown() { return unknown_; }
   static PortDirection *find(const char *dir_name);
   std::string_view name() const { return name_; }
@@ -57,7 +58,8 @@ public:
   bool isAnyTristate() const;
   bool isGround() const { return this == ground_; }
   bool isPower() const { return this == power_; }
-  // Ground or power.
+  bool isWell() const { return this == well_; }
+  // Ground, power, or well.
   bool isPowerGround() const;
   bool isInternal() const { return this == internal_; }
   bool isUnknown() const { return this == unknown_; }
@@ -76,6 +78,7 @@ private:
   static PortDirection *internal_;
   static PortDirection *ground_;
   static PortDirection *power_;
+  static PortDirection *well_;
   static PortDirection *unknown_;
 };
 
