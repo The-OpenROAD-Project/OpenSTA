@@ -1,0 +1,91 @@
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13178, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13211, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13244, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13277, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13310, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13343, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 13376, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14772, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14805, timing group from output port.
+Warning 1212: ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz line 14838, timing group from output port.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  52.65   52.65 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  49.30  101.95 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  61.03  162.97 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  15.77  178.74 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         178.74   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -13.66  486.34   library setup time
+         486.34   data required time
+---------------------------------------------------------
+         486.34   data required time
+        -178.74   data arrival time
+---------------------------------------------------------
+         307.59   slack (MET)
+
+
+Library: asap7sc7p5t_INVBUF_RVT_FF_nldm_211120
+Cell: BUFx2_ASAP7_75t_R
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+P = 1.00 V = 0.77 T = 0.00
+------- input_net_transition = 50.73
+|       total_output_net_capacitance = 13.97
+|        11.52     23.04
+v      --------------------
+40.00 | 35.12     50.39
+80.00 | 40.08     55.44
+Table value = 39.70
+PVT scale factor = 1.00
+Delay = 39.70
+
+------- input_net_transition = 50.73
+|       total_output_net_capacitance = 13.97
+|        11.52     23.04
+v      --------------------
+40.00 | 37.28     71.28
+80.00 | 38.13     71.69
+Table value = 44.70
+PVT scale factor = 1.00
+Slew = 44.70
+
+.............................................
+
+A v -> Y v
+P = 1.00 V = 0.77 T = 0.00
+------- input_net_transition = 48.72
+|       total_output_net_capacitance = 13.97
+|        11.52     23.04
+v      --------------------
+40.00 | 36.17     49.65
+80.00 | 43.28     56.72
+Table value = 40.58
+PVT scale factor = 1.00
+Delay = 40.58
+
+------- input_net_transition = 48.72
+|       total_output_net_capacitance = 13.97
+|        11.52     23.04
+v      --------------------
+40.00 | 31.72     59.66
+80.00 | 32.63     60.23
+Table value = 37.84
+PVT scale factor = 1.00
+Slew = 37.84
+
+.............................................
+
