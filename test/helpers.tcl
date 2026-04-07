@@ -56,10 +56,14 @@ proc diff_files_sorted { file1 file2 } {
   } else {
     for {set i 0} {$i < [llength $lines1] && $i < [llength $lines2]} {incr i} {
       if { [lindex $lines1 $i] ne [lindex $lines2 $i] } {
-        error "diff_files_sorted: $file1 vs $file2 differ at sorted line $i\n< [lindex $lines1 $i]\n> [lindex $lines2 $i]"
+        puts "Differences found (sorted)."
+        puts "[lindex $lines1 $i]"
+        puts "[lindex $lines2 $i]"
+        return 1
       }
     }
-    error "diff_files_sorted: $file1 vs $file2 differ: file lengths differ"
+    puts "Differences found (sorted): file lengths differ."
+    return 1
   }
 }
 
@@ -102,7 +106,10 @@ proc diff_files { file1 file2 { ignore "" } } {
   close $stream1
   close $stream2
   if { $found_diff || $line1_length != $line2_length } {
-    error "diff_files: $file1 vs $file2 differ at line $line\n< $line1\n> $line2"
+    puts "Differences found at line $line."
+    puts "$line1"
+    puts "$line2"
+    return 1
   } else {
     puts "No differences found."
     return 0
