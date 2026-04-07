@@ -214,7 +214,7 @@ report_checks -path_delay min
 report_checks -path_delay max
 
 # Detailed reports with various fields
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 report_checks -format full_clock
 report_checks -format full_clock_expanded
 

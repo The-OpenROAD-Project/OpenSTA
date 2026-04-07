@@ -3,21 +3,6 @@
 source ../../test/helpers.tcl
 suppress_msg 1140
 
-proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
-    error "expected non-empty file: $path"
-  }
-}
-
-proc assert_file_contains {path token} {
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string first $token $text] < 0} {
-    error "expected '$token' in $path"
-  }
-}
-
 #---------------------------------------------------------------
 # Test 6: Write constant/concat design
 # Exercises: writeChildren with constant pin connections

@@ -13,12 +13,12 @@ DIFF_FILE="${RESULT_DIR}/${TEST_NAME}.diff"
 mkdir -p "${RESULT_DIR}"
 
 # Run test, merge stderr into stdout, capture to log.
-${STA_EXE} -no_init -no_splash -exit ${TEST_NAME}.tcl > ${LOG_FILE} 2>&1
+"${STA_EXE}" -no_init -no_splash -exit "${TEST_NAME}.tcl" > "${LOG_FILE}" 2>&1
 sta_exit=$?
 
 if [ $sta_exit -ne 0 ]; then
   echo "Error: sta exited with code ${sta_exit}"
-  cat ${LOG_FILE}
+  cat "${LOG_FILE}"
   exit 1
 fi
 
@@ -28,10 +28,10 @@ if [ ! -f "${TEST_NAME}.ok" ]; then
   exit 1
 fi
 
-if diff ${TEST_NAME}.ok ${LOG_FILE} > ${DIFF_FILE} 2>&1; then
+if diff "${TEST_NAME}.ok" "${LOG_FILE}" > "${DIFF_FILE}" 2>&1; then
   exit 0
 else
   echo "FAIL: output differs from ${TEST_NAME}.ok"
-  cat ${DIFF_FILE}
+  cat "${DIFF_FILE}"
   exit 1
 fi

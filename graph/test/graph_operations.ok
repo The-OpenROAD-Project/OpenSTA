@@ -1784,7 +1784,6 @@ Path Type: max
 
 
 --- report_checks options ---
-Warning 168: graph_operations.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -1796,14 +1795,19 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00    0.00   clock network delay (ideal)
                           1.00    1.00 v input external delay
      1    0.88    0.10    0.00    1.00 v d1 (in)
+                                         d1 (net)
                   0.10    0.00    1.00 v buf1/A (BUF_X1)
      2    2.29    0.01    0.06    1.06 v buf1/Z (BUF_X1)
+                                         n1 (net)
                   0.01    0.00    1.06 v and1/A1 (AND2_X1)
      1    1.53    0.01    0.03    1.09 v and1/ZN (AND2_X1)
+                                         n5 (net)
                   0.01    0.00    1.09 v nand1/A1 (NAND2_X1)
      3    6.80    0.02    0.03    1.11 ^ nand1/ZN (NAND2_X1)
+                                         n7 (net)
                   0.02    0.00    1.11 ^ buf4/A (BUF_X4)
      1    0.00    0.00    0.02    1.13 ^ buf4/Z (BUF_X4)
+                                         q3 (net)
                   0.00    0.00    1.13 ^ q3 (out)
                                   1.13   data arrival time
 
@@ -1830,6 +1834,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00   10.00   clock network delay (ideal)
                   0.00    0.00   10.00 ^ reg1/CK (DFF_X1)
      1    1.06    0.01    0.08   10.08 v reg1/Q (DFF_X1)
+                                         n11 (net)
                   0.01    0.00   10.08 v reg3/D (DFF_X1)
                                  10.08   data arrival time
 

@@ -404,10 +404,6 @@ TEST_F(StaDesignTest, StaPins) {
   EXPECT_NE(pins, nullptr);
 }
 
-TEST_F(StaDesignTest, StaStartpointPins) {
-  // startpointPins() is declared in Sta.hh but not defined - skip
-}
-
 TEST_F(StaDesignTest, StaEndpointPins) {
   PinSet endpoints = sta_->endpointPins();
   EXPECT_GE(endpoints.size(), 1u);

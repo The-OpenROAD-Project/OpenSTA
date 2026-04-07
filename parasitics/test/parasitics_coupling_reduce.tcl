@@ -38,7 +38,7 @@ report_checks
 
 report_checks -path_delay min
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 #---------------------------------------------------------------
 # Test 2: DMP calculators with coupling caps

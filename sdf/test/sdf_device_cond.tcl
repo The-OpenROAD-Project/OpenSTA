@@ -121,7 +121,7 @@ report_annotated_check -setup -hold
 # Test 7: Detailed path reports
 #---------------------------------------------------------------
 puts "--- Test 7: detailed reports ---"
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 report_checks -format full_clock
 

@@ -242,7 +242,6 @@ Path Type: min
           -5.33   slack (VIOLATED)
 
 
-Warning 168: network_properties.tcl line 1, unknown field nets.
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -254,10 +253,13 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00    0.00   clock network delay (ideal)
                   0.00    0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
      1    0.58    6.09   45.31   45.31 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+                                         r2q (net)
                   6.09    0.00   45.31 ^ u1/A (BUFx2_ASAP7_75t_R)
      1    0.57    5.15   11.76   57.08 ^ u1/Y (BUFx2_ASAP7_75t_R)
+                                         u1z (net)
                   5.15    0.00   57.08 ^ u2/B (AND2x2_ASAP7_75t_R)
      1    0.62    6.96   14.88   71.95 ^ u2/Y (AND2x2_ASAP7_75t_R)
+                                         u2z (net)
                   6.96    0.00   71.95 ^ r3/D (DFFHQx4_ASAP7_75t_R)
                                  71.95   data arrival time
 

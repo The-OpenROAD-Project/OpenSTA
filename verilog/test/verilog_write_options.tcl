@@ -1,27 +1,6 @@
 # Test verilog writer options
 source ../../test/helpers.tcl
 
-proc assert_file_nonempty {path} {
-  if {![file exists $path]} {
-    error "expected non-empty file: $path"
-  }
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string length $text] <= 0} {
-    error "expected non-empty file: $path"
-  }
-}
-
-proc assert_file_contains {path token} {
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string first $token $text] < 0} {
-    error "expected '$token' in $path"
-  }
-}
-
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog verilog_test1.v
 link_design verilog_test1

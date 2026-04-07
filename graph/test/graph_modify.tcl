@@ -228,9 +228,9 @@ report_edges -from [get_pins or2/A2] -to [get_pins or2/ZN]
 # report_checks with fields per corner
 #---------------------------------------------------------------
 puts "--- fields per corner ---"
-report_checks -corner fast -fields {slew cap input_pins nets fanout}
+report_checks -corner fast -fields {slew cap input_pins net fanout}
 
-report_checks -corner slow -fields {slew cap input_pins nets fanout}
+report_checks -corner slow -fields {slew cap input_pins net fanout}
 
 report_checks -corner fast -format full_clock
 

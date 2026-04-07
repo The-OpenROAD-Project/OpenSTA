@@ -71,7 +71,7 @@ report_checks -from [get_ports in3] -to [get_ports out3]
 
 report_checks -from [get_ports in3] -to [get_ports {outbus[0]}]
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 #---------------------------------------------------------------
 # Test 3: report_net for assign-related nets

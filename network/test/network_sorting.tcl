@@ -86,8 +86,8 @@ puts "reg1 pins: [llength $reg_pins]"
 # sorting in report paths
 #---------------------------------------------------------------
 puts "--- timing report sorting ---"
-report_checks -path_delay max -fields {slew cap input_pins nets fanout}
-report_checks -path_delay min -fields {slew cap input_pins nets fanout}
+report_checks -path_delay max -fields {slew cap input_pins net fanout}
+report_checks -path_delay min -fields {slew cap input_pins net fanout}
 report_checks -sort_by_slack
 report_checks -group_path_count 5
 

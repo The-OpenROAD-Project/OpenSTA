@@ -53,7 +53,7 @@ report_checks -from [get_ports d3] -to [get_ports q2]
 
 report_checks -from [get_ports d1] -to [get_ports q3]
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 #---------------------------------------------------------------
 # Test 3: Write verilog and verify
