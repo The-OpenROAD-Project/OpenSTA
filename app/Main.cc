@@ -33,6 +33,7 @@
 
 #ifdef BAZEL_CURRENT_REPOSITORY
   #include "bazel/tcl_library_init.h"
+  #include "src/tcl_readline_setup.h"
 #endif
 
 #if TCL_READLINE
@@ -124,12 +125,18 @@ staTclAppInit(int argc,
   if (Tcl_Init(interp) == TCL_ERROR)
     return TCL_ERROR;
 
+  bool has_readline = false;
+#ifdef BAZEL_CURRENT_REPOSITORY
+  has_readline = (ord::SetupTclReadlineLibrary(interp) == TCL_OK);
+#endif
 #if TCL_READLINE
   if (Tclreadline_Init(interp) == TCL_ERROR)
     return TCL_ERROR;
   Tcl_StaticPackage(interp, "tclreadline", Tclreadline_Init, Tclreadline_SafeInit);
   if (Tcl_EvalFile(interp, TCLRL_LIBRARY "/tclreadlineInit.tcl") != TCL_OK)
     printf("Failed to load tclreadline.tcl\n");
+  else
+    has_readline = true;
 #endif
 
   initStaApp(argc, argv, interp);
@@ -167,11 +174,8 @@ staTclAppInit(int argc,
       }
     }
   }
-#if TCL_READLINE
-  return Tcl_Eval(interp, "::tclreadline::Loop");
-#else
-  return TCL_OK;
-#endif
+
+  return has_readline ? Tcl_Eval(interp, "::tclreadline::Loop") : TCL_OK;
 }
 
 static void
