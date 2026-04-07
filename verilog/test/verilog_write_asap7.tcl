@@ -2,27 +2,6 @@
 
 source ../../test/helpers.tcl
 
-proc assert_file_nonempty {path} {
-  if {![file exists $path]} {
-    error "expected non-empty file: $path"
-  }
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string length $text] <= 0} {
-    error "expected non-empty file: $path"
-  }
-}
-
-proc assert_file_contains {path token} {
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string first $token $text] < 0} {
-    error "expected '$token' in $path"
-  }
-}
-
 read_liberty ../../test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib
 read_liberty ../../test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz
 read_liberty ../../test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz

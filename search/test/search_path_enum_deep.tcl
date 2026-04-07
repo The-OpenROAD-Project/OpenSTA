@@ -92,7 +92,7 @@ puts "grouped epc 5: [llength $paths_g]"
 # report_checks with endpoint_count (text output)
 ############################################################
 puts "--- report_checks epc 3 -fields ---"
-report_checks -path_delay max -endpoint_count 3 -fields {slew cap input_pins nets fanout}
+report_checks -path_delay max -endpoint_count 3 -fields {slew cap input_pins net fanout}
 
 puts "--- report_checks epc 3 -format end ---"
 report_checks -path_delay max -endpoint_count 3 -format end

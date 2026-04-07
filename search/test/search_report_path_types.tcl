@@ -69,17 +69,17 @@ report_checks -path_delay max -fields {cap}
 puts "--- report_checks -fields input_pins ---"
 report_checks -path_delay max -fields {input_pins}
 
-puts "--- report_checks -fields nets ---"
-report_checks -path_delay max -fields {nets}
+puts "--- report_checks -fields net ---"
+report_checks -path_delay max -fields {net}
 
 puts "--- report_checks -fields fanout ---"
 report_checks -path_delay max -fields {fanout}
 
 puts "--- report_checks -fields all ---"
-report_checks -path_delay max -fields {slew cap input_pins nets fanout}
+report_checks -path_delay max -fields {slew cap input_pins net fanout}
 
 puts "--- report_checks min -fields all ---"
-report_checks -path_delay min -fields {slew cap input_pins nets fanout}
+report_checks -path_delay min -fields {slew cap input_pins net fanout}
 
 ############################################################
 # report_checks with -digits

@@ -119,7 +119,7 @@ write_sdf -divider . $sdf_out4
 #---------------------------------------------------------------
 puts "--- Test 6: detailed reports ---"
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 report_checks -digits 6
 

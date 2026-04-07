@@ -272,7 +272,6 @@ cc_binary(
         "app/Main.cc",
         ":StaApp",
         ":StaTclInitVar",
-        "//bazel:runfiles",
     ],
     copts = [
         "-Wno-error",
@@ -297,6 +296,7 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":opensta_lib",
+        "//bazel:tcl_library_init",
         "@rules_cc//cc/runfiles",
         "@tcl_lang//:tcl",
     ],

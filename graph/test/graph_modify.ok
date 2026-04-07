@@ -2551,7 +2551,6 @@ A2 -> ZN combinational
   ^ -> ^ 0.02:0.02:0.09:0.09
   v -> v 0.02:0.02:0.16:0.16
 --- fields per corner ---
-Warning 168: graph_modify.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2564,14 +2563,19 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00    0.00   clock network delay (ideal)
                           1.00    1.00 v input external delay
      1    0.91    0.10    0.00    1.00 v d1 (in)
+                                         d1 (net)
                   0.10    0.00    1.00 v buf1/A (BUF_X1)
      2    2.36    0.01    0.04    1.04 v buf1/Z (BUF_X1)
+                                         n1 (net)
                   0.01    0.00    1.04 v and1/A1 (AND2_X1)
      1    1.60    0.00    0.02    1.06 v and1/ZN (AND2_X1)
+                                         n5 (net)
                   0.00    0.00    1.06 v nand1/A1 (NAND2_X1)
      3    6.91    0.01    0.01    1.07 ^ nand1/ZN (NAND2_X1)
+                                         n7 (net)
                   0.01    0.00    1.07 ^ buf4/A (BUF_X4)
      1    0.00    0.00    0.01    1.09 ^ buf4/Z (BUF_X4)
+                                         q3 (net)
                   0.00    0.00    1.09 ^ q3 (out)
                                   1.09   data arrival time
 
@@ -2599,6 +2603,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00   10.00   clock network delay (ideal)
                   0.00    0.00   10.00 ^ reg1/CK (DFF_X1)
      1    1.16    0.00    0.05   10.05 ^ reg1/Q (DFF_X1)
+                                         n11 (net)
                   0.00    0.00   10.05 ^ reg3/D (DFF_X1)
                                  10.05   data arrival time
 
@@ -2615,7 +2620,6 @@ Fanout     Cap    Slew   Delay    Time   Description
                                   4.93   slack (MET)
 
 
-Warning 168: graph_modify.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk1)
 Endpoint: q3 (output port clocked by clk1)
 Path Group: clk1
@@ -2628,14 +2632,19 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00    0.00   clock network delay (ideal)
                           1.00    1.00 v input external delay
      1    0.84    0.10    0.00    1.00 v d1 (in)
+                                         d1 (net)
                   0.10    0.00    1.00 v buf1/A (BUF_X1)
      2    2.20    0.02    0.14    1.14 v buf1/Z (BUF_X1)
+                                         n1 (net)
                   0.02    0.00    1.14 v and1/A1 (AND2_X1)
      1    1.45    0.02    0.09    1.23 v and1/ZN (AND2_X1)
+                                         n5 (net)
                   0.02    0.00    1.23 v nand1/A1 (NAND2_X1)
      3    6.52    0.07    0.09    1.32 ^ nand1/ZN (NAND2_X1)
+                                         n7 (net)
                   0.07    0.00    1.32 ^ buf4/A (BUF_X4)
      1    0.00    0.01    0.07    1.38 ^ buf4/Z (BUF_X4)
+                                         q3 (net)
                   0.01    0.00    1.38 ^ q3 (out)
                                   1.38   data arrival time
 
@@ -2663,6 +2672,7 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00   10.00   clock network delay (ideal)
                   0.00    0.00   10.00 ^ reg1/CK (DFF_X1)
      1    1.03    0.02    0.23   10.23 v reg1/Q (DFF_X1)
+                                         n11 (net)
                   0.02    0.00   10.23 v reg3/D (DFF_X1)
                                  10.23   data arrival time
 

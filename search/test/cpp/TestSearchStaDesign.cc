@@ -2125,14 +2125,6 @@ TEST_F(StaDesignTest, EndpointPins) {
   EXPECT_GT(eps.size(), 0u);
 }
 
-// --- Sta: startpointPins ---
-
-TEST_F(StaDesignTest, StartpointPins) {
-  // startpointPins() is declared in Sta.hh but not defined - skip
-  // PinSet sps = sta_->startpointPins();
-  // EXPECT_GT(sps.size(), 0u);
-}
-
 // --- Search: arrivalsValid ---
 
 TEST_F(StaDesignTest, SearchArrivalsValidDesign) {

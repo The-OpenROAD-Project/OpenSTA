@@ -204,5 +204,5 @@ report_checks -from [get_ports in1] -to [get_ports out1]
 report_checks -from [get_ports in2] -to [get_ports out1]
 
 # Report with various field combinations
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 report_checks -format full_clock_expanded

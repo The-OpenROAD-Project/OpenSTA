@@ -210,7 +210,6 @@ Path Type: max
 
 No paths found.
 No paths found.
-Warning 168: network_advanced.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -222,10 +221,13 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00    0.00   clock network delay (ideal)
                           0.00    0.00 v input external delay
      1    0.88    0.00    0.00    0.00 v in1 (in)
+                                         in1 (net)
                   0.00    0.00    0.00 v buf1/A (BUF_X1)
      1    0.87    0.00    0.02    0.02 v buf1/Z (BUF_X1)
+                                         n1 (net)
                   0.00    0.00    0.02 v and1/A1 (AND2_X1)
      1    1.06    0.01    0.02    0.05 v and1/ZN (AND2_X1)
+                                         n2 (net)
                   0.01    0.00    0.05 v reg1/D (DFF_X1)
                                   0.05   data arrival time
 

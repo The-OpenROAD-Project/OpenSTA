@@ -2,27 +2,6 @@
 source ../../test/helpers.tcl
 suppress_msg 1140
 
-proc assert_file_nonempty {path} {
-  if {![file exists $path]} {
-    error "expected non-empty file: $path"
-  }
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string length $text] <= 0} {
-    error "expected non-empty file: $path"
-  }
-}
-
-proc assert_file_contains {path token} {
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string first $token $text] < 0} {
-    error "expected '$token' in $path"
-  }
-}
-
 proc assert_file_not_contains {path token} {
   set in [open $path r]
   set text [read $in]
