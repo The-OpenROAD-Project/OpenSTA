@@ -28,6 +28,7 @@
 #include <array>
 #include <set>
 #include <string_view>
+#include <iostream>
 
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
@@ -150,7 +151,7 @@ GraphDelayCalc::GraphDelayCalc(StaState *sta) :
   invalid_delays_(makeVertexSet(this)),
   search_pred_(new DcalcPred(sta)),
   search_non_latch_pred_(new DcalcNonLatchPred(sta)),
-  iter_(new BfsFwdIterator(BfsIndex::dcalc, search_non_latch_pred_, sta)),
+  iter_(new BfsFwdInDegreeIterator(BfsIndex::dcalc, search_non_latch_pred_, sta)),
   incremental_delay_tolerance_(0.0)
 {
 }
@@ -343,19 +344,16 @@ GraphDelayCalc::findDelays(Level level)
     int dcalc_count = 0;
     debugPrint(debug_, "delay_calc", 1, "find delays to level {}", level);
     if (!delays_seeded_) {
-      iter_->clear();
-      seedRootSlews();
+      iter_->computeInDegrees();
       delays_seeded_ = true;
     }
-    else
-      iter_->ensureSize();
-    if (incremental_)
-      seedInvalidDelays();
-
-    if (!iter_->empty()) {
-      FindVertexDelays visitor(this);
-      dcalc_count += iter_->visitParallel(level, &visitor);
+    else if (incremental_) {
+      iter_->computeInDegrees(invalid_delays_);
+      invalid_delays_.clear();
     }
+
+    FindVertexDelays visitor(this);
+    dcalc_count += iter_->visitParallel(level, &visitor);
 
     // Timing checks require slews at both ends of the arc,
     // so find their delays after all slews are known.

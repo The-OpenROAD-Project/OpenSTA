@@ -43,6 +43,7 @@ class MultiDrvrNet;
 class FindVertexDelays;
 class NetCaps;
 class SearchPred;
+class BfsFwdInDegreeIterator;
 
 using MultiDrvrNetMap = std::map<const Vertex*, MultiDrvrNet*>;
 using DrvrLoadSlews = std::vector<SlewSeq>;
@@ -308,7 +309,7 @@ protected:
   std::mutex invalid_edge_lock_;
   SearchPred *search_pred_;
   SearchPred *search_non_latch_pred_;
-  BfsFwdIterator *iter_;
+  BfsFwdInDegreeIterator *iter_;
   MultiDrvrNetMap multi_drvr_net_map_;
   std::mutex multi_drvr_lock_;
   // Percentage (0.0:1.0) change in delay that causes downstream
