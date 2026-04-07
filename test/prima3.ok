@@ -31,3 +31,55 @@ Path Type: max
                  228.48   slack (MET)
 
 
+Library: asap7_small
+Cell: BUFx2_ASAP7_75t_R
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+P = 1.00 V = 0.70 T = 25.00
+------- input_net_transition = 59.28
+|       total_output_net_capacitance = 13.54
+|        11.52     23.04
+v      --------------------
+40.00 | 48.68     71.50
+80.00 | 56.23     79.10
+Table value = 56.33
+PVT scale factor = 1.00
+Delay = 56.33
+
+------- input_net_transition = 59.28
+|       total_output_net_capacitance = 13.54
+|        11.52     23.04
+v      --------------------
+40.00 | 53.99     104.08
+80.00 | 54.58     104.40
+Table value = 63.04
+PVT scale factor = 1.00
+Slew = 63.04
+
+.............................................
+
+A v -> Y v
+P = 1.00 V = 0.70 T = 25.00
+------- input_net_transition = 52.93
+|       total_output_net_capacitance = 12.09
+|        11.52     23.04
+v      --------------------
+40.00 | 48.42     67.20
+80.00 | 57.92     76.86
+Table value = 52.43
+PVT scale factor = 1.00
+Delay = 52.43
+
+------- input_net_transition = 52.93
+|       total_output_net_capacitance = 12.09
+|        11.52     23.04
+v      --------------------
+40.00 | 42.77     80.89
+80.00 | 43.84     81.48
+Table value = 45.00
+PVT scale factor = 1.00
+Slew = 45.00
+
+.............................................
+

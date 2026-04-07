@@ -931,15 +931,18 @@ std::string
 PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                 const TimingArc *arc,
                                 const Slew &in_slew,
-                                float,
-                                const Parasitic *,
-                                const LoadPinIndexMap &,
+                                float load_cap,
+                                const Parasitic *parasitic,
+                                const LoadPinIndexMap &load_pin_index_map,
                                 const Scene *scene,
                                 const MinMax *min_max,
                                 int digits)
 {
   GateTimingModel *model = arc->gateModel(scene, min_max);
   if (model) {
+    // Delay calc to find ceff.
+    gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
+              load_pin_index_map, scene, min_max);
     float in_slew1 = delayAsFloat(in_slew);
     float ceff = ceff_vth_[0];
     return model->reportGateDelay(pinPvt(drvr_pin, scene, min_max),
