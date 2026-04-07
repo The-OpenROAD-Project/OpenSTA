@@ -3861,8 +3861,8 @@ Cell sky130_fd_sc_hd__a21o_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 2.31-2.47
  A2 input 2.23-2.43
@@ -3886,8 +3886,8 @@ Cell sky130_fd_sc_hd__a21oi_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 2.28-2.43
  A2 input 2.22-2.42
@@ -3911,8 +3911,8 @@ Cell sky130_fd_sc_hd__a22o_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 2.26-2.43
  A2 input 2.26-2.53
@@ -3941,8 +3941,8 @@ Cell sky130_fd_sc_hd__a22oi_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 2.28-2.43
  A2 input 2.26-2.50
@@ -3971,8 +3971,8 @@ Cell sky130_fd_sc_hd__a31o_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 2.27-2.42
  A2 input 2.28-2.46
@@ -4001,8 +4001,8 @@ Cell sky130_fd_sc_hd__a32o_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 2.26-2.43
  A2 input 2.23-2.44
@@ -4036,8 +4036,8 @@ Cell sky130_fd_sc_hd__o21a_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 2.25-2.47
  A2 input 2.26-2.57
@@ -4061,8 +4061,8 @@ Cell sky130_fd_sc_hd__o21ai_0
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 1.68-1.82
  A2 input 1.60-1.81
@@ -4086,8 +4086,8 @@ Cell sky130_fd_sc_hd__o22a_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 2.25-2.45
  A2 input 2.27-2.58
@@ -4116,8 +4116,8 @@ Cell sky130_fd_sc_hd__mux2_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A0 input 1.51-1.61
  A1 input 1.81-1.96
@@ -4145,8 +4145,8 @@ Cell sky130_fd_sc_hd__mux4_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A0 input 1.48-1.57
  A1 input 1.40-1.48
@@ -4193,8 +4193,8 @@ Cell sky130_fd_sc_hd__xor2_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 4.21-4.54
  B input 4.17-4.51
@@ -4221,8 +4221,8 @@ Cell sky130_fd_sc_hd__xnor2_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 4.34-4.68
  B input 4.47-4.65
@@ -4249,8 +4249,8 @@ Cell sky130_fd_sc_hd__fa_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 6.56-6.90
  B input 5.87-6.18
@@ -4299,8 +4299,8 @@ Cell sky130_fd_sc_hd__ha_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 2.95-3.10
  B input 2.83-2.84
@@ -4336,8 +4336,8 @@ Cell sky130_fd_sc_hd__maj3_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 2.67-2.82
  B input 2.42-2.66
@@ -4361,8 +4361,8 @@ Cell sky130_fd_sc_hd__dlxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  D input 1.70-1.85
  GATE input 1.68-1.82
@@ -4394,8 +4394,8 @@ Cell sky130_fd_sc_hd__sdfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 1.69-1.86
  D input 1.62-1.78
@@ -4442,8 +4442,8 @@ Cell sky130_fd_sc_hd__ebufn_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 1.73-1.88
  TE_B input 2.93-3.34
