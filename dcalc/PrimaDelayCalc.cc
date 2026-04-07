@@ -194,8 +194,8 @@ PrimaDelayCalc::gateDelay(const Pin *drvr_pin,
   ArcDcalcArgSeq dcalc_args;
   dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, load_cap,
                           parasitic);
-  ArcDcalcResultSeq dcalc_results =
-      gateDelays(dcalc_args, load_pin_index_map, scene, min_max);
+  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map,
+                                               scene, min_max);
   return dcalc_results[0];
 }
 
@@ -399,6 +399,7 @@ void
 PrimaDelayCalc::initSim()
 {
   ceff_.resize(drvr_count_);
+  ceff_vth_.resize(drvr_count_);
   drvr_current_.resize(drvr_count_);
 
   findNodeCount();
@@ -615,8 +616,12 @@ PrimaDelayCalc::updateCeffIdrvr()
     if (drvr_rf_ == RiseFall::rise()) {
       if (drvr_current != 0.0 && dv > 0.0) {
         double ceff = drvr_current * time_step_ / dv;
-        if (output_waveforms_[drvr_idx]->capAxis()->inBounds(ceff))
+        if (output_waveforms_[drvr_idx]->capAxis()->inBounds(ceff)) {
           ceff_[drvr_idx] = ceff;
+          // Record the Ceff at Vth.
+          if (v1 >= vth_ && v2 < vth_)
+            ceff_vth_[drvr_idx] = ceff;
+        }
       }
       if (v1 > (vdd_ - .01))
         // Whoa partner. Head'n for the weeds.
@@ -628,8 +633,12 @@ PrimaDelayCalc::updateCeffIdrvr()
     else {
       if (drvr_current != 0.0 && dv < 0.0) {
         double ceff = drvr_current * time_step_ / dv;
-        if (output_waveforms_[drvr_idx]->capAxis()->inBounds(ceff))
+        if (output_waveforms_[drvr_idx]->capAxis()->inBounds(ceff)) {
           ceff_[drvr_idx] = ceff;
+          // Record the Ceff at Vth.
+          if (v1 <= vth_ && v2 > vth_)
+            ceff_vth_[drvr_idx] = ceff;
+        }
       }
       if (v1 < 0.01) {
         // Whoa partner. Head'n for the weeds.
@@ -711,8 +720,13 @@ PrimaDelayCalc::dcalcResults()
     float ref_time = output_waveforms_[drvr_idx]->referenceTime(dcalc_arg.inSlewFlt());
     double gate_delay = drvr_times[threshold_vth] - ref_time;
     double drvr_slew = std::abs(drvr_times[threshold_vh] - drvr_times[threshold_vl]);
-    dcalc_result.setGateDelay(gate_delay);
-    dcalc_result.setDrvrSlew(drvr_slew);
+
+    ArcDelay gate_delay2(gate_delay);
+    Slew drvr_slew2(drvr_slew);
+    delaySlewPocv(dcalc_arg, drvr_idx, gate_delay2, drvr_slew2);
+    dcalc_result.setGateDelay(gate_delay2);
+    dcalc_result.setDrvrSlew(drvr_slew2);
+
     debugPrint(debug_, "ccs_dcalc", 2, "{} gate delay {} slew {}",
                network_->pathName(drvr_pin), delayAsString(gate_delay, this),
                delayAsString(drvr_slew, this));
@@ -738,6 +752,28 @@ PrimaDelayCalc::dcalcResults()
     }
   }
   return dcalc_results;
+}
+
+// Fill in pocv parameters in gate_delay/drvr_slew.
+void
+PrimaDelayCalc::delaySlewPocv(ArcDcalcArg &dcalc_arg,
+                              size_t drvr_idx,
+                              ArcDelay &gate_delay,
+                              Slew &drvr_slew)
+{
+  if (variables_->pocvEnabled()) {
+    GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(scene_, min_max_);
+    if (table_model) {
+      double ceff = ceff_vth_[drvr_idx];
+      if (ceff == 0.0)
+        ceff = dcalc_arg.loadCap();
+      float in_slew = delayAsFloat(dcalc_arg.inSlew());
+      const Pvt *pvt = pinPvt(dcalc_arg.drvrPin(), scene_, min_max_);
+      table_model->gateDelayPocv(pvt, in_slew, ceff, min_max_,
+                                 variables_->pocvMode(),
+                                 gate_delay, drvr_slew);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -895,7 +931,7 @@ std::string
 PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                 const TimingArc *arc,
                                 const Slew &in_slew,
-                                float load_cap,
+                                float,
                                 const Parasitic *,
                                 const LoadPinIndexMap &,
                                 const Scene *scene,
@@ -905,8 +941,9 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
   GateTimingModel *model = arc->gateModel(scene, min_max);
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
+    float ceff = ceff_vth_[0];
     return model->reportGateDelay(pinPvt(drvr_pin, scene, min_max),
-                                  in_slew1, load_cap, min_max,
+                                  in_slew1, ceff, min_max,
                                   PocvMode::scalar, digits);
   }
   return "";

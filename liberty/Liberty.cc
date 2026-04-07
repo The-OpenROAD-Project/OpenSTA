@@ -62,9 +62,9 @@ deleteLiberty()
   TimingArcSet::destroy();
 }
 
-LibertyLibrary::LibertyLibrary(std::string name,
-                               std::string filename) :
-  ConcreteLibrary(std::move(name), std::move(filename), true),
+LibertyLibrary::LibertyLibrary(std::string_view name,
+                               std::string_view filename) :
+  ConcreteLibrary(name, filename, true),
   units_(new Units()),
   delay_model_type_(DelayModelType::table), // default
   nominal_process_(0.0),
@@ -178,12 +178,12 @@ LibertyLibrary::setDelayModelType(DelayModelType type)
 }
 
 BusDcl *
-LibertyLibrary::makeBusDcl(std::string name,
+LibertyLibrary::makeBusDcl(std::string_view name,
                            int from,
                            int to)
 {
-  std::string key = name;
-  auto [it, inserted] = bus_dcls_.try_emplace(std::move(key), std::move(name), from, to);
+  std::string key(name);
+  auto [it, inserted] = bus_dcls_.try_emplace(std::move(key), std::string(name), from, to);
   return &it->second;
 }
 
@@ -203,13 +203,13 @@ LibertyLibrary::busDcls() const
 }
 
 TableTemplate *
-LibertyLibrary::makeTableTemplate(std::string name,
-                                  TableTemplateType type)
+LibertyLibrary::makeTableTemplate(std::string_view name,
+                                    TableTemplateType type)
 {
-  std::string key = name;
+  std::string key(name);
   auto [it, inserted] = template_maps_[int(type)].try_emplace(std::move(key),
-                                                              std::move(name),
-                                                              type);
+                                                             std::string(name),
+                                                             type);
   return &it->second;
 }
 
@@ -265,10 +265,10 @@ LibertyLibrary::setScaleFactors(ScaleFactors *scales)
 }
 
 ScaleFactors *
-LibertyLibrary::makeScaleFactors(std::string name)
+LibertyLibrary::makeScaleFactors(std::string_view name)
 {
-  std::string key = name;
-  auto [it, inserted] = scale_factors_map_.emplace(std::move(key), std::move(name));
+  std::string key(name);
+  auto [it, inserted] = scale_factors_map_.emplace(std::move(key), std::string(name));
   return &it->second;
 }
 
@@ -565,9 +565,10 @@ LibertyLibrary::setDefaultOutputPinRes(const RiseFall *rf,
 }
 
 Wireload *
-LibertyLibrary::makeWireload(std::string name)
+LibertyLibrary::makeWireload(std::string_view name)
 {
-  auto [it, inserted] = wireloads_.try_emplace(name, name, this);
+  std::string key(name);
+  auto [it, inserted] = wireloads_.try_emplace(std::move(key), std::string(name), this);
   return &it->second;
 }
 
@@ -590,11 +591,11 @@ LibertyLibrary::defaultWireload() const
 }
 
 WireloadSelection *
-LibertyLibrary::makeWireloadSelection(std::string name)
+LibertyLibrary::makeWireloadSelection(std::string_view name)
 {
-  std::string key = name;
+  std::string key(name);
   auto [it, inserted] = wire_load_selections_.try_emplace(std::move(key),
-                                                          std::move(name));
+                                                        std::string(name));
   return &it->second;
 }
 
@@ -629,10 +630,10 @@ LibertyLibrary::setDefaultWireloadMode(WireloadMode mode)
 }
 
 OperatingConditions *
-LibertyLibrary::makeOperatingConditions(std::string name)
+LibertyLibrary::makeOperatingConditions(std::string_view name)
 {
-  std::string key = name;
-  auto [it, inserted] = operating_conditions_.try_emplace(std::move(key), std::move(name));
+  std::string key(name);
+  auto [it, inserted] = operating_conditions_.try_emplace(std::move(key), std::string(name));
   return &it->second;
 }
 
@@ -719,10 +720,10 @@ LibertyLibrary::setSlewDerateFromLibrary(float derate)
 }
 
 LibertyCell *
-LibertyLibrary::makeScaledCell(std::string name,
-                               std::string filename)
+LibertyLibrary::makeScaledCell(std::string_view name,
+                               std::string_view filename)
 {
-  return new LibertyCell(this, std::move(name), std::move(filename));
+  return new LibertyCell(this, name, filename);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -853,10 +854,10 @@ LibertyLibrary::setDefaultOcvDerate(OcvDerate *derate)
 }
 
 OcvDerate *
-LibertyLibrary::makeOcvDerate(std::string name)
+LibertyLibrary::makeOcvDerate(std::string_view name)
 {
-  std::string key = name;
-  auto [it, inserted] = ocv_derate_map_.try_emplace(std::move(key), std::move(name));
+  std::string key(name);
+  auto [it, inserted] = ocv_derate_map_.try_emplace(std::move(key), std::string(name));
   return &it->second;
 }
 
@@ -867,10 +868,10 @@ LibertyLibrary::findOcvDerate(std::string_view derate_name)
 }
 
 void
-LibertyLibrary::addSupplyVoltage(std::string supply_name,
+LibertyLibrary::addSupplyVoltage(std::string_view supply_name,
                                  float voltage)
 {
-  supply_voltage_map_[std::move(supply_name)] = voltage;
+  supply_voltage_map_[std::string(supply_name)] = voltage;
 }
 
 void
@@ -903,13 +904,13 @@ LibertyLibrary::findDriverWaveform(std::string_view name)
 }
 
 DriverWaveform *
-LibertyLibrary::makeDriverWaveform(std::string name,
+LibertyLibrary::makeDriverWaveform(std::string_view name,
                                    TablePtr waveforms)
 {
-  std::string key = name;
+  std::string key(name);
   auto [it, inserted] = driver_waveform_map_.try_emplace(std::move(key),
-                                                         std::move(name),
-                                                         waveforms);
+                                                           std::string(name),
+                                                           waveforms);
   return &it->second;
 }
 
@@ -935,8 +936,8 @@ LibertyCellIterator::next()
 ////////////////////////////////////////////////////////////////
 
 LibertyCell::LibertyCell(LibertyLibrary *library,
-                         std::string name,
-                         std::string filename) :
+                         std::string_view name,
+                         std::string_view filename) :
   ConcreteCell(name, filename, true, library),
   liberty_library_(library),
   area_(0.0),
@@ -1019,10 +1020,10 @@ LibertyCell::setHasInternalPorts(bool has_internal)
 }
 
 ModeDef *
-LibertyCell::makeModeDef(std::string name)
+LibertyCell::makeModeDef(std::string_view name)
 {
-  std::string key = name;
-  auto [it, inserted] = mode_defs_.try_emplace(std::move(key), std::move(name));
+  std::string key(name);
+  auto [it, inserted] = mode_defs_.try_emplace(std::move(key), std::string(name));
   return &it->second;
 }
 
@@ -1039,12 +1040,12 @@ LibertyCell::setScaleFactors(ScaleFactors *scale_factors)
 }
 
 BusDcl *
-LibertyCell::makeBusDcl(std::string name,
+LibertyCell::makeBusDcl(std::string_view name,
                         int from,
                         int to)
 {
-  std::string key = name;
-  auto [it, inserted] = bus_dcls_.try_emplace(std::move(key), std::move(name), from, to);
+  std::string key(name);
+  auto [it, inserted] = bus_dcls_.try_emplace(std::move(key), std::string(name), from, to);
   return &it->second;
 }
 
@@ -1624,10 +1625,10 @@ LibertyCell::setOcvDerate(OcvDerate *derate)
 }
 
 OcvDerate *
-LibertyCell::makeOcvDerate(std::string name)
+LibertyCell::makeOcvDerate(std::string_view name)
 {
-  std::string key = name;
-  auto [it, inserted] = ocv_derate_map_.try_emplace(std::move(key), std::move(name));
+  std::string key(name);
+  auto [it, inserted] = ocv_derate_map_.try_emplace(std::move(key), std::string(name));
   return &it->second;
 }
 
@@ -1929,15 +1930,15 @@ LibertyCell::ensureVoltageWaveforms(const SceneSeq &scenes)
 }
 
 void
-LibertyCell::setFootprint(std::string footprint)
+LibertyCell::setFootprint(std::string_view footprint)
 {
-  footprint_ = std::move(footprint);
+  footprint_ = footprint;
 }
 
 void
-LibertyCell::setUserFunctionClass(std::string user_function_class)
+LibertyCell::setUserFunctionClass(std::string_view user_function_class)
 {
-  user_function_class_ = std::move(user_function_class);
+  user_function_class_ = user_function_class;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1986,7 +1987,7 @@ LibertyCellPortBitIterator::next()
 ////////////////////////////////////////////////////////////////
 
 LibertyPort::LibertyPort(LibertyCell *cell,
-                         std::string name,
+                         std::string_view name,
                          bool is_bus,
                          BusDcl *bus_dcl,
                          int from_index,
@@ -2079,9 +2080,9 @@ LibertyPort::setPwrGndType(PwrGndType type)
 }
 
 void
-LibertyPort::setVoltageName(std::string voltage_name)
+LibertyPort::setVoltageName(std::string_view voltage_name)
 {
-  voltage_name_ = std::move(voltage_name);
+  voltage_name_ = voltage_name;
 }
 
 static EnumNameMap<PwrGndType> pwr_gnd_type_map =
@@ -2840,10 +2841,10 @@ LibertyPortMemberIterator::next()
 
 ////////////////////////////////////////////////////////////////
 
-BusDcl::BusDcl(std::string name,
+BusDcl::BusDcl(std::string_view name,
                int from,
                int to) :
-  name_(std::move(name)),
+  name_(name),
   from_(from),
   to_(to)
 {
@@ -2851,16 +2852,16 @@ BusDcl::BusDcl(std::string name,
 
 ////////////////////////////////////////////////////////////////
 
-ModeDef::ModeDef(std::string name) :
-  name_(std::move(name))
+ModeDef::ModeDef(std::string_view name) :
+  name_(name)
 {
 }
 
 ModeValueDef *
-ModeDef::defineValue(std::string value)
+ModeDef::defineValue(std::string_view value)
 {
-  std::string key = value;
-  auto [it, inserted] = values_.try_emplace(std::move(key), std::move(value));
+  std::string key(value);
+  auto [it, inserted] = values_.try_emplace(std::move(key), std::string(value));
   return &it->second;
 }
 
@@ -2872,8 +2873,8 @@ ModeDef::findValueDef(std::string_view value) const
 
 ////////////////////////////////////////////////////////////////
 
-ModeValueDef::ModeValueDef(std::string value) :
-  value_(std::move(value)),
+ModeValueDef::ModeValueDef(std::string_view value) :
+  value_(value),
   cond_(nullptr)
 {
 }
@@ -2905,8 +2906,8 @@ ModeValueDef::setSdfCond(std::string sdf_cond)
 
 ////////////////////////////////////////////////////////////////
 
-TableTemplate::TableTemplate(std::string name) :
-  name_(std::move(name)),
+TableTemplate::TableTemplate(std::string_view name) :
+  name_(name),
   type_(TableTemplateType::delay),
   axis1_(nullptr),
   axis2_(nullptr),
@@ -2914,9 +2915,9 @@ TableTemplate::TableTemplate(std::string name) :
 {
 }
 
-TableTemplate::TableTemplate(std::string name,
+TableTemplate::TableTemplate(std::string_view name,
                              TableTemplateType type) :
-  name_(std::move(name)),
+  name_(name),
   type_(type),
   axis1_(nullptr),
   axis2_(nullptr),
@@ -2924,11 +2925,11 @@ TableTemplate::TableTemplate(std::string name,
 {
 }
 
-TableTemplate::TableTemplate(std::string name,
+TableTemplate::TableTemplate(std::string_view name,
                              TableAxisPtr axis1,
                              TableAxisPtr axis2,
                              TableAxisPtr axis3) :
-  name_(std::move(name)),
+  name_(name),
   type_(TableTemplateType::delay),
   axis1_(axis1),
   axis2_(axis2),
@@ -2937,9 +2938,9 @@ TableTemplate::TableTemplate(std::string name,
 }
 
 void
-TableTemplate::setName(std::string name)
+TableTemplate::setName(std::string_view name)
 {
-  name_ = std::move(name);
+  name_ = name;
 }
 
 void
@@ -2989,9 +2990,9 @@ Pvt::setTemperature(float temp)
   temperature_ = temp;
 }
 
-OperatingConditions::OperatingConditions(std::string name) :
+OperatingConditions::OperatingConditions(std::string_view name) :
   Pvt(0.0, 0.0, 0.0),
-  name_(std::move(name)),
+  name_(name),
   // Default wireload tree.
   wire_load_tree_(WireloadTree::unknown)
 {
@@ -3085,8 +3086,8 @@ scaleFactorPvtName(ScaleFactorPvt pvt)
 
 ////////////////////////////////////////////////////////////////
 
-ScaleFactors::ScaleFactors(std::string name) :
-  name_(std::move(name))
+ScaleFactors::ScaleFactors(std::string_view name) :
+  name_(name)
 {
   for (int type = 0; type < scale_factor_type_count; type++) {
     for (int pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
@@ -3168,16 +3169,16 @@ ScaleFactors::report(Report *report)
 }
 
 TestCell::TestCell(LibertyLibrary *library,
-                   std::string name,
-                   std::string filename) :
+                   std::string_view name,
+                   std::string_view filename) :
   LibertyCell(library, name, filename)
 {
 }
 
 ////////////////////////////////////////////////////////////////
 
-OcvDerate::OcvDerate(std::string name) :
-  name_(std::move(name))
+OcvDerate::OcvDerate(std::string_view name) :
+  name_(name)
 {
   for (auto el_index : EarlyLate::rangeIndex()) {
     for (auto rf_index : RiseFall::rangeIndex()) {

@@ -69,7 +69,7 @@ class DriverWaveform;
 class ModeValueDef
 {
 public:
-  ModeValueDef(std::string value);
+  ModeValueDef(std::string_view value);
   ModeValueDef(ModeValueDef &&other) noexcept;
   ~ModeValueDef();
   const std::string &value() const { return value_; }
@@ -204,8 +204,8 @@ timingSenseOpposite(TimingSense sense);
 class LibertyLibrary : public ConcreteLibrary
 {
 public:
-  LibertyLibrary(std::string name,
-                 std::string filename);
+  LibertyLibrary(std::string_view name,
+                 std::string_view filename);
   virtual ~LibertyLibrary();
   LibertyCell *findLibertyCell(std::string_view name) const;
   LibertyCellSeq findLibertyCellsMatching(PatternMatch *pattern);
@@ -215,12 +215,12 @@ public:
 
   DelayModelType delayModelType() const { return delay_model_type_; }
   void setDelayModelType(DelayModelType type);
-  BusDcl *makeBusDcl(std::string name,
+  BusDcl *makeBusDcl(std::string_view name,
                      int from,
                      int to);
   BusDcl *findBusDcl(std::string_view name);
   BusDclSeq busDcls() const;
-  TableTemplate *makeTableTemplate(std::string name,
+  TableTemplate *makeTableTemplate(std::string_view name,
                                    TableTemplateType type);
   TableTemplate *findTableTemplate(std::string_view name,
                                    TableTemplateType type);
@@ -235,7 +235,7 @@ public:
 
   void setScaleFactors(ScaleFactors *scales);
   // Make named scale factor group. Returns pointer to the inserted element.
-  ScaleFactors *makeScaleFactors(std::string name);
+  ScaleFactors *makeScaleFactors(std::string_view name);
   ScaleFactors *findScaleFactors(std::string_view name);
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   float scaleFactor(ScaleFactorType type,
@@ -336,18 +336,18 @@ public:
   Units *units() { return units_; }
   const Units *units() const { return units_; }
 
-  Wireload *makeWireload(std::string name);
+  Wireload *makeWireload(std::string_view name);
   const Wireload *findWireload(std::string_view name);
   void setDefaultWireload(const Wireload *wireload);
   const Wireload *defaultWireload() const;
-  WireloadSelection *makeWireloadSelection(std::string name);
+  WireloadSelection *makeWireloadSelection(std::string_view name);
   const WireloadSelection *findWireloadSelection(std::string_view name) const;
   const WireloadSelection *defaultWireloadSelection() const;
   WireloadMode defaultWireloadMode() const;
   void setDefaultWireloadMode(WireloadMode mode);
   void setDefaultWireloadSelection(const WireloadSelection *selection);
 
-  OperatingConditions *makeOperatingConditions(std::string name);
+  OperatingConditions *makeOperatingConditions(std::string_view name);
   OperatingConditions *findOperatingConditions(std::string_view name);
   OperatingConditions *defaultOperatingConditions() const;
   void setDefaultOperatingConditions(OperatingConditions *op_cond);
@@ -358,9 +358,9 @@ public:
   void setOcvArcDepth(float depth);
   OcvDerate *defaultOcvDerate() const;
   void setDefaultOcvDerate(OcvDerate *derate);
-  OcvDerate *makeOcvDerate(std::string name);
+  OcvDerate *makeOcvDerate(std::string_view name);
   OcvDerate *findOcvDerate(std::string_view derate_name);
-  void addSupplyVoltage(std::string suppy_name,
+  void addSupplyVoltage(std::string_view suppy_name,
                         float voltage);
   bool supplyExists(std::string_view supply_name) const;
   void supplyVoltage(std::string_view supply_name,
@@ -369,8 +369,8 @@ public:
                      bool &exists) const;
 
   // Make scaled cell.  Call LibertyCell::addScaledCell after it is complete.
-  LibertyCell *makeScaledCell(std::string name,
-                              std::string filename);
+  LibertyCell *makeScaledCell(std::string_view name,
+                              std::string_view filename);
 
   static void
   makeSceneMap(LibertyLibrary *lib,
@@ -395,7 +395,7 @@ public:
 
   DriverWaveform *findDriverWaveform(std::string_view name);
   DriverWaveform *driverWaveformDefault() { return findDriverWaveform(""); }
-  DriverWaveform *makeDriverWaveform(std::string name,
+  DriverWaveform *makeDriverWaveform(std::string_view name,
                                      TablePtr waveforms);
 
 protected:
@@ -474,8 +474,8 @@ class LibertyCell : public ConcreteCell
 {
 public:
   LibertyCell(LibertyLibrary *library,
-              std::string name,
-              std::string filename);
+              std::string_view name,
+              std::string_view filename);
   virtual ~LibertyCell();
   LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyLibrary *libertyLibrary() { return liberty_library_; }
@@ -484,7 +484,7 @@ public:
   bool hasInternalPorts() const { return has_internal_ports_; }
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   void setScaleFactors(ScaleFactors *scale_factors);
-  ModeDef *makeModeDef(std::string name);
+  ModeDef *makeModeDef(std::string_view name);
   const ModeDef *findModeDef(std::string_view name) const;
 
   float area() const { return area_; }
@@ -544,7 +544,7 @@ public:
   const Statetable *statetable() const { return statetable_; }
 
   // Find bus declaration local to this cell.
-  BusDcl *makeBusDcl(std::string name,
+  BusDcl *makeBusDcl(std::string_view name,
                      int from,
                      int to);
   BusDcl *findBusDcl(std::string_view name);
@@ -565,7 +565,7 @@ public:
   // AOCV
   float ocvArcDepth() const;
   OcvDerate *ocvDerate() const;
-  OcvDerate *makeOcvDerate(std::string name);
+  OcvDerate *makeOcvDerate(std::string_view name);
   OcvDerate *findOcvDerate(std::string_view derate_name);
 
   // Build helpers.
@@ -620,9 +620,9 @@ public:
   static void checkLibertyScenes();
   void ensureVoltageWaveforms(const SceneSeq &scenes);
   const std::string &footprint() const { return footprint_; }
-  void setFootprint(std::string footprint);
+  void setFootprint(std::string_view footprint);
   const std::string &userFunctionClass() const { return user_function_class_; }
-  void setUserFunctionClass(std::string user_function_class);
+  void setUserFunctionClass(std::string_view user_function_class);
 
 protected:
   void addPort(ConcretePort *port);
@@ -758,7 +758,7 @@ public:
   PwrGndType pwrGndType() const { return pwr_gnd_type_; }
   void setPwrGndType(PwrGndType type);
   const std::string &voltageName() const { return voltage_name_; }
-  void setVoltageName(std::string voltage_name);
+  void setVoltageName(std::string_view voltage_name);
   ////////////////////////////////////////////////////////////////
 
   ScanSignalType scanSignalType() const { return scan_signal_type_; }
@@ -906,7 +906,7 @@ public:
 protected:
   // Constructor is internal to LibertyBuilder.
   LibertyPort(LibertyCell *cell,
-              std::string name,
+              std::string_view name,
               bool is_bus,
               BusDcl *bus_dcl,
               int from_index,
@@ -1016,7 +1016,7 @@ protected:
 class OperatingConditions : public Pvt
 {
 public:
-  OperatingConditions(std::string name);
+  OperatingConditions(std::string_view name);
   const std::string &name() const { return name_; }
   WireloadTree wireloadTree() const { return wire_load_tree_; }
   void setWireloadTree(WireloadTree tree);
@@ -1029,7 +1029,7 @@ protected:
 class ScaleFactors
 {
 public:
-  ScaleFactors(std::string name);
+  ScaleFactors(std::string_view name);
   const std::string &name() const { return name_; }
   float scale(ScaleFactorType type,
               ScaleFactorPvt pvt,
@@ -1056,7 +1056,7 @@ protected:
 class BusDcl
 {
 public:
-  BusDcl(std::string name,
+  BusDcl(std::string_view name,
          int from,
          int to);
   const std::string &name() const { return name_; }
@@ -1073,9 +1073,9 @@ protected:
 class ModeDef
 {
 public:
-  ModeDef(std::string name);
+  ModeDef(std::string_view name);
   const std::string &name() const { return name_; }
-  ModeValueDef *defineValue(std::string value);
+  ModeValueDef *defineValue(std::string_view value);
   const ModeValueDef *findValueDef(std::string_view value) const;
   const ModeValueMap &values() const { return values_; }
 
@@ -1090,15 +1090,15 @@ private:
 class TableTemplate
 {
 public:
-  TableTemplate(std::string name);
-  TableTemplate(std::string name,
+  TableTemplate(std::string_view name);
+  TableTemplate(std::string_view name,
                 TableTemplateType type);
-  TableTemplate(std::string name,
+  TableTemplate(std::string_view name,
                 TableAxisPtr axis1,
                 TableAxisPtr axis2,
                 TableAxisPtr axis3);
   const std::string &name() const { return name_; }
-  void setName(std::string name);
+  void setName(std::string_view name);
   TableTemplateType type() const { return type_; }
   const TableAxis *axis1() const { return axis1_.get(); }
   TableAxisPtr axis1ptr() const { return axis1_; }
@@ -1122,8 +1122,8 @@ class TestCell : public LibertyCell
 {
 public:
   TestCell(LibertyLibrary *library,
-           std::string name,
-           std::string filename);
+           std::string_view name,
+           std::string_view filename);
 
 protected:
 };
@@ -1131,7 +1131,7 @@ protected:
 class OcvDerate
 {
 public:
-  OcvDerate(std::string name);
+  OcvDerate(std::string_view name);
   ~OcvDerate();
   const std::string &name() const { return name_; }
   const Table *derateTable(const RiseFall *rf,

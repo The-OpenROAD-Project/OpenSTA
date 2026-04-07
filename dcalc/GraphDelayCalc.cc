@@ -648,12 +648,12 @@ GraphDelayCalc::findInputArcDelay(const Pin *drvr_pin,
 
     LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(drvr_vertex);
     ArcDcalcResult intrinsic_result =
-      arc_delay_calc->gateDelay(drvr_pin, arc, Slew(from_slew), 0.0, nullptr,
+      arc_delay_calc->gateDelay(drvr_pin, arc, from_slew, 0.0, nullptr,
                                 load_pin_index_map, scene, min_max);
     const ArcDelay &intrinsic_delay = intrinsic_result.gateDelay();
 
     ArcDcalcResult gate_result = arc_delay_calc->gateDelay(drvr_pin, arc,
-                                                           Slew(from_slew), load_cap,
+                                                           from_slew, load_cap,
                                                            parasitic, 
                                                            load_pin_index_map,
                                                            scene, min_max);

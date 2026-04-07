@@ -176,7 +176,7 @@ LibertyReader::endCell(const LibertyGroup *cell_group,
   if (cell_group->hasFirstParam()) {
     const std::string &name = cell_group->firstParam();
     debugPrint(debug_, "liberty", 1, "cell {}", name);
-    LibertyCell *cell = builder_.makeCell(library_, name, std::string(filename_));
+    LibertyCell *cell = builder_.makeCell(library_, name, filename_);
     readCell(cell, cell_group);
   }
   else
@@ -849,7 +849,7 @@ LibertyReader::readDefaultWireLoadSelection(const LibertyGroup *library_group)
     library_group->findAttrString("default_wire_load_selection");
   if (!selection_name.empty()) {
     const WireloadSelection *selection =
-      library_->findWireloadSelection(selection_name.c_str());
+      library_->findWireloadSelection(selection_name);
     if (selection)
       library_->setDefaultWireloadSelection(selection);
     else
@@ -1003,9 +1003,8 @@ LibertyReader::readScaledCell(const LibertyGroup *scaled_cell_group)
         OperatingConditions *op_cond = library_->findOperatingConditions(op_cond_name);
         if (op_cond) {
           debugPrint(debug_, "liberty", 1, "scaled cell {} {}",
-                     name.c_str(), op_cond_name.c_str());
-          LibertyCell *scaled_cell = library_->makeScaledCell(name,
-                                                                std::string(filename_));
+                     name, op_cond_name);
+          LibertyCell *scaled_cell = library_->makeScaledCell(name, filename_);
           readCell(scaled_cell, scaled_cell_group);
           checkScaledCell(scaled_cell, owner, scaled_cell_group, op_cond_name);
           // Add scaled cell AFTER ports and timing arcs are defined.
@@ -1163,8 +1162,7 @@ LibertyReader::makeBundlePort(LibertyCell *cell,
         members->push_back(member);
       }
     }
-    LibertyPort *bundle_port = builder_.makeBundlePort(cell, bundle_name.c_str(),
-                                                       members);
+    LibertyPort *bundle_port = builder_.makeBundlePort(cell, bundle_name, members);
     port_group_map[bundle_group].push_back(bundle_port);
     // Make ports for pin groups inside the bundle group.
     makeBundlePinPorts(cell, bundle_group, port_group_map);
@@ -1204,7 +1202,7 @@ LibertyReader::makePgPinPort(LibertyCell *cell,
 
     const std::string &type_name = pg_pin_group->findAttrString("pg_type");
     if (!type_name.empty()) {
-      PwrGndType type = findPwrGndType(type_name.c_str());
+      PwrGndType type = findPwrGndType(type_name);
       PortDirection *dir = PortDirection::unknown();
       switch (type) {
       case PwrGndType::primary_ground:
@@ -1235,7 +1233,7 @@ LibertyReader::makePgPinPort(LibertyCell *cell,
 
     const std::string &voltate_name = pg_pin_group->findAttrString("voltage_name");
     if (!voltate_name.empty())
-      pg_port->setVoltageName(voltate_name.c_str());
+      pg_port->setVoltageName(voltate_name);
   }
   else
     warn(1314, pg_pin_group, "pg_pin missing name.");
@@ -1295,7 +1293,7 @@ LibertyReader::readDriverWaveform(const LibertyPortSeq &ports,
       : "driver_waveform_fall";
     const std::string &name = port_group->findAttrString(attr_name);
     if (!name.empty()) {
-      DriverWaveform *waveform = library_->findDriverWaveform(name.c_str());
+      DriverWaveform *waveform = library_->findDriverWaveform(name);
       if (waveform) {
         for (LibertyPort *port : ports)
           port->setDriverWaveform(waveform, rf);
@@ -1830,9 +1828,9 @@ LibertyReader::readCellAttributes(LibertyCell *cell,
   const std::string &clock_gate_type =
     cell_group->findAttrString("clock_gating_integrated_cell");
   if (!clock_gate_type.empty()) {
-    if (stringBeginEqual(clock_gate_type.c_str(), "latch_posedge"))
+    if (stringBeginEqual(clock_gate_type, "latch_posedge"))
       cell->setClockGateType(ClockGateType::latch_posedge);
-    else if (stringBeginEqual(clock_gate_type.c_str(), "latch_negedge"))
+    else if (stringBeginEqual(clock_gate_type, "latch_negedge"))
       cell->setClockGateType(ClockGateType::latch_negedge);
     else
       cell->setClockGateType(ClockGateType::other);
@@ -1852,7 +1850,7 @@ LibertyReader::readScaleFactors(LibertyCell *cell,
     cell_group->findAttrString("scaling_factors");
   if (!scale_factors_name.empty()) {
     ScaleFactors *scale_factors =
-      library_->findScaleFactors(scale_factors_name.c_str());
+      library_->findScaleFactors(scale_factors_name);
     if (scale_factors)
       cell->setScaleFactors(scale_factors);
     else
@@ -1862,7 +1860,7 @@ LibertyReader::readScaleFactors(LibertyCell *cell,
 
 void
 LibertyReader::readCellAttrString(std::string_view attr_name,
-                                  void (LibertyCell::*set_func)(std::string value),
+                                  void (LibertyCell::*set_func)(std::string_view value),
                                   LibertyCell *cell,
                                   const LibertyGroup *group)
 {
@@ -2943,9 +2941,9 @@ LibertyReader::readCellOcvDerateGroup(LibertyCell *cell,
 {
   const std::string &derate_name = cell_group->findAttrString("ocv_derate_group");
   if (!derate_name.empty()) {
-    OcvDerate *derate = cell->findOcvDerate(derate_name.c_str());
+    OcvDerate *derate = cell->findOcvDerate(derate_name);
     if (derate == nullptr)
-      derate = library_->findOcvDerate(derate_name.c_str());
+      derate = library_->findOcvDerate(derate_name);
     if (derate)
       cell->setOcvDerate(derate);
     else
@@ -3453,7 +3451,7 @@ LibertyReader::readDefaultOcvDerateGroup(const LibertyGroup *library_group)
   const std::string &derate_name =
     library_group->findAttrString("default_ocv_derate_group");
   if (!derate_name.empty()) {
-    OcvDerate *derate = library_->findOcvDerate(derate_name.c_str());
+    OcvDerate *derate = library_->findOcvDerate(derate_name);
     if (derate)
       library_->setDefaultOcvDerate(derate);
     else

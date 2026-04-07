@@ -125,8 +125,12 @@ DmpCeffElmoreDelayCalc::loadDelaySlew(const Pin *load_pin,
   float elmore = 0.0;
   if (parasitic)
     parasitics_->findElmore(parasitic, load_pin, elmore, elmore_exists);
-  if (elmore_exists)
-    loadDelaySlewElmore(load_pin, elmore, wire_delay, load_slew);
+  if (elmore_exists) {
+    if (auto r = loadDelaySlewElmore(load_pin, elmore)) {
+      wire_delay = r->first;
+      load_slew = r->second;
+    }
+  }
   thresholdAdjust(load_pin, drvr_library, rf, wire_delay, load_slew);
 }
 

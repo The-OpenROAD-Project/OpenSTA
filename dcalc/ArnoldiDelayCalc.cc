@@ -236,7 +236,6 @@ private:
   int pin_n_;
   ArnoldiReduce *reduce_;
   delay_work *delay_work_;
-  std::vector<rcmodel*> unsaved_parasitics_;
 };
 
 ArcDelayCalc *
@@ -247,6 +246,7 @@ makeArnoldiDelayCalc(StaState *sta)
 
 ArnoldiDelayCalc::ArnoldiDelayCalc(StaState *sta) :
   LumpedCapDelayCalc(sta),
+  rcmodel_(nullptr),
   reduce_(new ArnoldiReduce(sta)),
   delay_work_(delay_work_create())
 {
@@ -267,6 +267,7 @@ ArnoldiDelayCalc::~ArnoldiDelayCalc()
   free(_delayV);
   free(_slewV);
   delete reduce_;
+  delete rcmodel_;
 }
 
 Parasitic *
@@ -297,12 +298,11 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
   }
     
   if (parasitic_network) {
-    rcmodel *rcmodel = reduce_->reduceToArnoldi(parasitic_network, drvr_pin,
-                                                parasitics->couplingCapFactor(),
-                                                drvr_rf, scene, min_max);
+    rcmodel_ = reduce_->reduceToArnoldi(parasitic_network, drvr_pin,
+                                        parasitics->couplingCapFactor(),
+                                        drvr_rf, scene, min_max);
     // Arnoldi parasitics are their own class that are not saved in the parasitic db.
-    unsaved_parasitics_.push_back(rcmodel);
-    parasitic = rcmodel;
+    parasitic = rcmodel_;
   }
   return parasitic;
 }
@@ -321,9 +321,8 @@ ArnoldiDelayCalc::reduceParasitic(const Parasitic *,
 void
 ArnoldiDelayCalc::finishDrvrPin()
 {
-  for (auto parasitic : unsaved_parasitics_)
-    delete parasitic;
-  unsaved_parasitics_.clear();
+  delete rcmodel_;
+  rcmodel_ = nullptr;
 }
 
 ArcDcalcResult

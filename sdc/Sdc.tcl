@@ -393,7 +393,7 @@ proc get_cells { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set insts [filter_insts $keys(-filter) $insts 1]
+    set insts [filter_insts $keys(-filter) $insts]
   }
   return $insts
 }
@@ -436,7 +436,7 @@ proc get_clocks { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set clocks [filter_clocks $keys(-filter) $clocks 1]
+    set clocks [filter_clocks $keys(-filter) $clocks]
   }
   return $clocks
 }
@@ -517,7 +517,7 @@ proc get_lib_cells { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set cells [filter_lib_cells $keys(-filter) $cells 1]
+    set cells [filter_lib_cells $keys(-filter) $cells]
   }
   return $cells
 }
@@ -621,7 +621,7 @@ proc get_lib_pins { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set ports [filter_lib_pins $keys(-filter) $ports 1]
+    set ports [filter_lib_pins $keys(-filter) $ports]
   }
   return $ports
 }
@@ -671,7 +671,7 @@ proc get_libs { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set libs [filter_liberty_libraries $keys(-filter) $libs 1]
+    set libs [filter_liberty_libraries $keys(-filter) $libs]
   }
   return $libs
 }
@@ -772,7 +772,7 @@ proc get_nets { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set nets [filter_nets $keys(-filter) $nets 1]
+    set nets [filter_nets $keys(-filter) $nets]
   }
   return $nets
 }
@@ -863,7 +863,7 @@ proc get_pins { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set pins [filter_pins $keys(-filter) $pins 1]
+    set pins [filter_pins $keys(-filter) $pins]
   }
   return $pins
 }
@@ -919,7 +919,7 @@ proc get_ports { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set ports [filter_ports $keys(-filter) $ports 1]
+    set ports [filter_ports $keys(-filter) $ports]
   }
   return $ports
 }

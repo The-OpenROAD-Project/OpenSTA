@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <optional>
+#include <utility>
+
 #include "LibertyClass.hh"
 #include "LumpedCapDelayCalc.hh"
 
@@ -71,13 +74,10 @@ protected:
                              // Return values.
                              double &wire_delay,
                              double &load_slew) = 0;
-  void gateDelaySlew(// Return values.
-                     double &delay,
-                     double &slew);
-  void loadDelaySlewElmore(const Pin *load_pin,
-                           double elmore,
-                           double &delay,
-                           double &slew);
+  std::pair<double, double> gateDelaySlew();
+  std::optional<std::pair<double, double>>
+  loadDelaySlewElmore(const Pin *load_pin,
+                      double elmore);
   // Select the appropriate special case Dartu/Menezes/Pileggi algorithm.
   void setCeffAlgorithm(const LibertyLibrary *library,
                         const LibertyCell *cell,

@@ -28,6 +28,7 @@
 #include <cctype>
 #include <charconv>
 #include <system_error>
+#include <version>
 
 namespace sta {
 
@@ -56,12 +57,22 @@ std::pair<float, bool>
 stringFloat(const std::string &str)
 {
   float value;
+  // OsX 15.xx and earlier clang do not support std::from_chars.
+#if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
   auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
   if (ec == std::errc()
       && *ptr == '\0')
     return {value, true};
   else
     return {0.0, false};
+#else
+  char *ptr;
+  value = strtof(str.data(), &ptr);
+  if (!errno || *ptr != '\0')
+    return {0.0, false};
+  else
+    return {value, true};
+#endif
 }
 
 void
