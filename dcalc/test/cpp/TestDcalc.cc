@@ -1467,15 +1467,14 @@ TEST_F(ArcDcalcResultTest, CopyResult) {
   EXPECT_FLOAT_EQ(delayAsFloat(copy.loadSlew(1)), 6e-12f);
 }
 
-// Test ArcDcalcArg assignment
-TEST_F(ArcDcalcArgTest, Assignment) {
+// Test ArcDcalcArg copy construction with alternate values
+TEST_F(ArcDcalcArgTest, CopyConstructionAltValues) {
   ArcDcalcArg arg;
   arg.setLoadCap(3.5e-12f);
   arg.setInputDelay(1.5e-9f);
   arg.setInSlew(200e-12f);
 
-  ArcDcalcArg other;
-  other = arg;
+  ArcDcalcArg other(arg);
   EXPECT_FLOAT_EQ(other.loadCap(), 3.5e-12f);
   EXPECT_FLOAT_EQ(other.inputDelay(), 1.5e-9f);
   EXPECT_FLOAT_EQ(other.inSlewFlt(), 200e-12f);
@@ -2829,14 +2828,13 @@ TEST_F(ArcDcalcArgTest, InputDelayConstructorZero) {
   EXPECT_FLOAT_EQ(arg.inputDelay(), 0.0f);
 }
 
-TEST_F(ArcDcalcArgTest, CopyAssignment) {
+TEST_F(ArcDcalcArgTest, CopyConstructionAltValues2) {
   ArcDcalcArg arg;
   arg.setLoadCap(3.0e-12f);
   arg.setInputDelay(2.0e-9f);
   arg.setInSlew(75e-12f);
 
-  ArcDcalcArg copy;
-  copy = arg;
+  ArcDcalcArg copy(arg);
   EXPECT_FLOAT_EQ(copy.loadCap(), 3.0e-12f);
   EXPECT_FLOAT_EQ(copy.inputDelay(), 2.0e-9f);
   EXPECT_FLOAT_EQ(copy.inSlewFlt(), 75e-12f);

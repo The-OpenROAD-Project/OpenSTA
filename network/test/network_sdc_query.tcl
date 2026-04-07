@@ -279,7 +279,7 @@ report_checks -from [get_ports {data_a[7]}] -to [get_ports carry]
 
 report_checks -from [get_ports {data_b[6]}] -to [get_ports overflow]
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 report_checks -endpoint_count 5
 

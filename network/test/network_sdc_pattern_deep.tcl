@@ -150,7 +150,7 @@ report_checks -to [get_ports out1]
 report_checks -to [get_ports out2]
 
 # Fields
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 report_checks -format full_clock
 

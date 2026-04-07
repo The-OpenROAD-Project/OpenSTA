@@ -56,14 +56,25 @@ proc diff_files_sorted { file1 file2 } {
   } else {
     for {set i 0} {$i < [llength $lines1] && $i < [llength $lines2]} {incr i} {
       if { [lindex $lines1 $i] ne [lindex $lines2 $i] } {
-        puts "Differences found (sorted)."
-        puts "[lindex $lines1 $i]"
-        puts "[lindex $lines2 $i]"
-        return 1
+        error "diff_files_sorted: $file1 vs $file2 differ at sorted line $i\n< [lindex $lines1 $i]\n> [lindex $lines2 $i]"
       }
     }
-    puts "Differences found (sorted): file lengths differ."
-    return 1
+    error "diff_files_sorted: $file1 vs $file2 differ: file lengths differ"
+  }
+}
+
+proc assert_file_nonempty { path } {
+  if { ![file exists $path] || [file size $path] <= 0 } {
+    error "expected non-empty file: $path"
+  }
+}
+
+proc assert_file_contains { path token } {
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if { [string first $token $text] < 0 } {
+    error "expected '$token' in $path"
   }
 }
 
@@ -91,10 +102,7 @@ proc diff_files { file1 file2 { ignore "" } } {
   close $stream1
   close $stream2
   if { $found_diff || $line1_length != $line2_length } {
-    puts "Differences found at line $line."
-    puts "$line1"
-    puts "$line2"
-    return 1
+    error "diff_files: $file1 vs $file2 differ at line $line\n< $line1\n> $line2"
   } else {
     puts "No differences found."
     return 0

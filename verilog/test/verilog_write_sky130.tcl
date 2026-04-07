@@ -2,21 +2,6 @@
 
 source ../../test/helpers.tcl
 
-proc assert_file_nonempty {path} {
-  if {![file exists $path] || [file size $path] <= 0} {
-    error "expected non-empty file: $path"
-  }
-}
-
-proc assert_file_contains {path token} {
-  set in [open $path r]
-  set text [read $in]
-  close $in
-  if {[string first $token $text] < 0} {
-    error "expected '$token' in $path"
-  }
-}
-
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
 read_verilog ../../test/verilog_attribute.v
 link_design counter
