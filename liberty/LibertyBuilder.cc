@@ -124,7 +124,7 @@ LibertyBuilder::makePort(LibertyCell *cell,
 
 LibertyPort *
 LibertyBuilder::makeBundlePort(LibertyCell *cell,
-                               const char *name,
+                               std::string_view name,
                                ConcretePortSeq *members)
 {
   LibertyPort *port = new LibertyPort(cell, name, false, nullptr, -1, -1, true, members);

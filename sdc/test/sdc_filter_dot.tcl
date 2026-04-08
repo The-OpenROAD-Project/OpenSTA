@@ -12,4 +12,4 @@ puts {[get_cells -filter {name =~ r.*} *]}
 report_object_full_names [get_cells -filter {name =~ r.*} *]
 
 # Verify filter_expr_to_postfix parses dot-containing values
-puts [sta::filter_expr_to_postfix "name =~ tcdm_master_.*req_.*_i" 0]
+puts [sta::filter_expr_to_postfix "name =~ tcdm_master_.*req_.*_i"]

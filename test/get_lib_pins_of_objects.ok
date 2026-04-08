@@ -5,11 +5,13 @@ Y
 [get_lib_pins -of_objects [get_lib_cells *]]
 A
 A
+A
 B
 CLK
 D
 IQ
 IQN
 Q
+Y
 Y
 Y

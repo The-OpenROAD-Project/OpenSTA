@@ -4169,6 +4169,12 @@ Sta::readSpef(std::string_view name,
     parasitics = findParasitics(std::string(name));
     if (parasitics == nullptr)
       parasitics = makeConcreteParasitics(std::string(name), std::string(filename));
+    if (scene)
+      scene->setParasitics(parasitics, min_max);
+    else {
+      for (Scene *scn : scenes_)
+        scn->setParasitics(parasitics, min_max);
+    }
   }
 
   bool success = readSpefFile(filename, instance, pin_cap_included,

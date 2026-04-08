@@ -11,7 +11,9 @@ vclk
 asap7_small/AND2x2_ASAP7_75t_R
 asap7_small/BUFx2_ASAP7_75t_R
 asap7_small/DFFHQx4_ASAP7_75t_R
+asap7_small/INVx2_ASAP7_75t_R
 [get_lib_pins]
+A
 A
 A
 B
@@ -20,6 +22,7 @@ D
 IQ
 IQN
 Q
+Y
 Y
 Y
 [get_libs]

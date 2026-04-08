@@ -4,8 +4,8 @@ Cell sky130_fd_sc_hd__inv_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  Y output function=!A
@@ -19,8 +19,8 @@ Cell sky130_fd_sc_hd__nand2_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -39,8 +39,8 @@ Cell sky130_fd_sc_hd__dfxtp_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00

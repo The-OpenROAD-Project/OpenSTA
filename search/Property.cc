@@ -564,7 +564,7 @@ PropertyValue::to_string(const Network *network) const
   case Type::float_:
     return unit_->asString(float_, 6);
   case Type::bool_:
-    // true/false would be better but these are TCL true/false values.
+    // These are TCL true/false values.
     if (bool_)
       return "1";
     else
