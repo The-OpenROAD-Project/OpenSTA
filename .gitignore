@@ -33,4 +33,4 @@ doc/messages.txt
 
 # test artifacts
 */test/*.log
-Testing/
+**/Testing/
