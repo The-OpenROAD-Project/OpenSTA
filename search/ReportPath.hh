@@ -58,7 +58,8 @@ public:
                        bool report_slew,
                        bool report_fanout,
                        bool report_variation,
-                       bool report_src_attr);
+                       bool report_src_attr,
+                       bool report_orig_name);
   int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);
@@ -159,6 +160,7 @@ public:
   ReportField *fieldFanout() const { return field_fanout_; }
   ReportField *fieldCapacitance() const { return field_capacitance_; }
   ReportField *fieldSrcAttr() const { return field_src_attr_; }
+  ReportField *fieldOrigName() const { return field_orig_name_; }
 
 protected:
   void makeFields();
@@ -370,6 +372,7 @@ protected:
                   const EarlyLate *early_late,
                   const RiseFall *rf,
                   std::string_view src_attr,
+                  std::string_view orig_name,
                   std::string_view line_case) const;
   void reportLineTotal(std::string_view what,
                        const Delay &incr,
@@ -490,6 +493,7 @@ protected:
   ReportField *field_fanout_;
   ReportField *field_variation_;
   ReportField *field_src_attr_;
+  ReportField *field_orig_name_;
   ReportField *field_edge_;
   ReportField *field_case_;
 
