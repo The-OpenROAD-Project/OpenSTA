@@ -56,8 +56,8 @@ using ConcretePortMemberIterator = VectorIterator<ConcretePortSeq, ConcretePort*
 class ConcreteLibrary
 {
 public:
-  ConcreteLibrary(std::string name,
-                  std::string filename,
+  ConcreteLibrary(std::string_view name,
+                  std::string_view filename,
                   bool is_liberty);
   virtual ~ConcreteLibrary();
   const std::string &name() const { return name_; }

@@ -72,6 +72,11 @@ encapGetHandleProc(ClientData instanceData,
 static int
 encapBlockModeProc(ClientData instanceData, int mode);
 
+static int
+encapClose2Proc(ClientData instanceData,
+                Tcl_Interp *interp,
+                int flags);
+
 #if TCL_MAJOR_VERSION < 9
 static int
 encapCloseProc(ClientData instanceData, Tcl_Interp *interp);
@@ -97,13 +102,13 @@ Tcl_ChannelType tcl_encap_type_stdout = {
 #if TCL_MAJOR_VERSION < 9
   encapSeekProc,
 #else
-  nullptr,  // close2Proc
+  nullptr,  // seekProc unused
 #endif
   encapSetOptionProc,
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  nullptr,  // close2Proc
+  encapClose2Proc,
   encapBlockModeProc,
   nullptr,  // flushProc
   nullptr,  // handlerProc
@@ -290,17 +295,31 @@ encapBlockModeProc(ClientData,
   return 0;
 }
 
+// Close channel implementing CloseProc() or Close2Proc()
+static int
+closeChannel(ReportTcl *report)
+{
+  report->logEnd();
+  report->redirectFileEnd();
+  report->redirectStringEnd();
+  return 0;
+}
+
+static int
+encapClose2Proc(ClientData instanceData,
+                Tcl_Interp *,
+                int)
+{
+  return closeChannel(reinterpret_cast<ReportTcl *>(instanceData));
+}
+
 #if TCL_MAJOR_VERSION < 9
 
 static int
 encapCloseProc(ClientData instanceData,
                Tcl_Interp *)
 {
-  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
-  report->logEnd();
-  report->redirectFileEnd();
-  report->redirectStringEnd();
-  return 0;
+  return closeChannel(reinterpret_cast<ReportTcl *>(instanceData));
 }
 
 static int

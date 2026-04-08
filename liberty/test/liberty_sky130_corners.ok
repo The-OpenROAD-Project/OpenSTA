@@ -118,8 +118,8 @@ Cell sky130_fd_sc_hd__inv_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  Y output function=!A
@@ -133,8 +133,8 @@ Cell sky130_fd_sc_hd__inv_2
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  Y output function=!A
@@ -148,8 +148,8 @@ Cell sky130_fd_sc_hd__inv_4
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.01-0.01
  Y output function=!A
@@ -163,8 +163,8 @@ Cell sky130_fd_sc_hd__buf_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  X output function=A
@@ -178,8 +178,8 @@ Cell sky130_fd_sc_hd__buf_2
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  X output function=A
@@ -193,8 +193,8 @@ Cell sky130_fd_sc_hd__buf_4
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  X output function=A
@@ -208,8 +208,8 @@ Cell sky130_fd_sc_hd__nand2_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -228,8 +228,8 @@ Cell sky130_fd_sc_hd__nand3_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -253,8 +253,8 @@ Cell sky130_fd_sc_hd__nand4_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -283,8 +283,8 @@ Cell sky130_fd_sc_hd__nor2_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -303,8 +303,8 @@ Cell sky130_fd_sc_hd__nor3_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -328,8 +328,8 @@ Cell sky130_fd_sc_hd__nor4_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -358,8 +358,8 @@ Cell sky130_fd_sc_hd__and2_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -378,8 +378,8 @@ Cell sky130_fd_sc_hd__and3_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -403,8 +403,8 @@ Cell sky130_fd_sc_hd__and4_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -433,8 +433,8 @@ Cell sky130_fd_sc_hd__or2_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -453,8 +453,8 @@ Cell sky130_fd_sc_hd__or3_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -478,8 +478,8 @@ Cell sky130_fd_sc_hd__or4_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -508,8 +508,8 @@ Cell sky130_fd_sc_hd__xor2_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -536,8 +536,8 @@ Cell sky130_fd_sc_hd__xnor2_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -564,8 +564,8 @@ Cell sky130_fd_sc_hd__a21o_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -589,8 +589,8 @@ Cell sky130_fd_sc_hd__a21oi_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -614,8 +614,8 @@ Cell sky130_fd_sc_hd__a22o_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -644,8 +644,8 @@ Cell sky130_fd_sc_hd__a22oi_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -674,8 +674,8 @@ Cell sky130_fd_sc_hd__o21a_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -699,8 +699,8 @@ Cell sky130_fd_sc_hd__o21ai_0
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -724,8 +724,8 @@ Cell sky130_fd_sc_hd__o22a_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -754,8 +754,8 @@ Cell sky130_fd_sc_hd__o22ai_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -784,8 +784,8 @@ Cell sky130_fd_sc_hd__a31o_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -814,8 +814,8 @@ Cell sky130_fd_sc_hd__a32o_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A1 input 0.00-0.00
  A2 input 0.00-0.00
@@ -849,8 +849,8 @@ Cell sky130_fd_sc_hd__mux2_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A0 input 0.00-0.00
  A1 input 0.00-0.00
@@ -878,8 +878,8 @@ Cell sky130_fd_sc_hd__mux4_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A0 input 0.00-0.00
  A1 input 0.00-0.00
@@ -926,8 +926,8 @@ Cell sky130_fd_sc_hd__fa_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.01-0.01
  B input 0.01-0.01
@@ -976,8 +976,8 @@ Cell sky130_fd_sc_hd__ha_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00
@@ -1013,8 +1013,8 @@ Cell sky130_fd_sc_hd__maj3_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  B input 0.00-0.00
@@ -1038,8 +1038,8 @@ Cell sky130_fd_sc_hd__dfxtp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -1068,8 +1068,8 @@ Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -1111,8 +1111,8 @@ Cell sky130_fd_sc_hd__dfstp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -1154,8 +1154,8 @@ Cell sky130_fd_sc_hd__dfbbp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -1233,8 +1233,8 @@ Cell sky130_fd_sc_hd__dlxtp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  D input 0.00-0.00
  GATE input 0.00-0.00
@@ -1266,8 +1266,8 @@ Cell sky130_fd_sc_hd__dlxtn_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  D input 0.00-0.00
  GATE_N input 0.00-0.00
@@ -1299,8 +1299,8 @@ Cell sky130_fd_sc_hd__sdfxtp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -1347,8 +1347,8 @@ Cell sky130_fd_sc_hd__sdfxbp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -1400,8 +1400,8 @@ Cell sky130_fd_sc_hd__ebufn_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  TE_B input 0.00-0.00
@@ -1424,8 +1424,8 @@ Cell sky130_fd_sc_hd__ebufn_2
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  TE_B input 0.00-0.00
@@ -1448,8 +1448,8 @@ Cell sky130_fd_sc_hd__clkbuf_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  X output function=A
@@ -1463,8 +1463,8 @@ Cell sky130_fd_sc_hd__clkbuf_2
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  X output function=A
@@ -1478,8 +1478,8 @@ Cell sky130_fd_sc_hd__clkinv_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.00
  Y output function=!A
@@ -1493,8 +1493,8 @@ Cell sky130_fd_sc_hd__clkinv_2
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 0.00-0.01
  Y output function=!A
@@ -1508,8 +1508,8 @@ Cell sky130_fd_sc_hd__conb_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  HI output function=1
  LO output function=0
@@ -1517,8 +1517,8 @@ Cell sky130_fd_sc_hd__diode_2
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  DIODE input 0.00-0.00
 sky130_fd_sc_hd__inv_1: area=3.753600 dont_use=0

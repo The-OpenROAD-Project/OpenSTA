@@ -1493,101 +1493,90 @@ find_register_output_pins(ClockSet *clks,
 
 PortSeq
 filter_ports(const char *filter_expression,
-	     PortSeq *ports,
-             bool bool_props_as_int)
+	     PortSeq *ports)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterPorts(filter_expression, ports, bool_props_as_int, sta);
+  return filterPorts(filter_expression, ports, sta);
 }
 
 InstanceSeq
 filter_insts(const char *filter_expression,
-	     InstanceSeq *insts,
-             bool bool_props_as_int)
+	     InstanceSeq *insts)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterInstances(filter_expression, insts, bool_props_as_int, sta);
+  return filterInstances(filter_expression, insts, sta);
 }
 
 PinSeq
 filter_pins(const char *filter_expression,
-            PinSeq *pins,
-            bool bool_props_as_int)
+            PinSeq *pins)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterPins(filter_expression, pins, bool_props_as_int, sta);
+  return filterPins(filter_expression, pins, sta);
 }
 
 NetSeq
 filter_nets(const char *filter_expression,
-            NetSeq *nets,
-            bool bool_props_as_int)
+            NetSeq *nets)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterNets(filter_expression, nets, bool_props_as_int, sta);
+  return filterNets(filter_expression, nets, sta);
 }
 
 ClockSeq
 filter_clocks(const char *filter_expression,
-              ClockSeq *clocks,
-              bool bool_props_as_int)
+              ClockSeq *clocks)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterClocks(filter_expression, clocks, bool_props_as_int, sta);
+  return filterClocks(filter_expression, clocks, sta);
 }
 
 LibertyCellSeq
 filter_lib_cells(const char *filter_expression,
-                 LibertyCellSeq *cells,
-                 bool bool_props_as_int)
+                 LibertyCellSeq *cells)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterLibCells(filter_expression, cells, bool_props_as_int, sta);
+  return filterLibCells(filter_expression, cells, sta);
 }
 
 LibertyPortSeq
 filter_lib_pins(const char *filter_expression,
-                LibertyPortSeq *pins,
-                bool bool_props_as_int)
+                LibertyPortSeq *pins)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterLibPins(filter_expression, pins, bool_props_as_int, sta);
+  return filterLibPins(filter_expression, pins, sta);
 }
 
 LibertyLibrarySeq
 filter_liberty_libraries(const char *filter_expression,
-                         LibertyLibrarySeq *libs,
-                         bool bool_props_as_int)
+                         LibertyLibrarySeq *libs)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterLibertyLibraries(filter_expression, libs, bool_props_as_int, sta);
+  return filterLibertyLibraries(filter_expression, libs, sta);
 }
 
 EdgeSeq
 filter_timing_arcs(const char *filter_expression,
-                   EdgeSeq *edges,
-                   bool bool_props_as_int)
+                   EdgeSeq *edges)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterTimingArcs(filter_expression, edges, bool_props_as_int, sta);
+  return filterTimingArcs(filter_expression, edges, sta);
 }
 
 PathEndSeq
 filter_path_ends(const char *filter_expression,
-                 PathEndSeq *path_ends,
-                 bool bool_props_as_int)
+                 PathEndSeq *path_ends)
 {
   sta::Sta *sta = Sta::sta(); 
-  return filterPathEnds(filter_expression, path_ends, bool_props_as_int, sta);
+  return filterPathEnds(filter_expression, path_ends, sta);
 }
 
 // For FilterExpr unit tests.
 StringSeq
-filter_expr_to_postfix(const char* expr,
-                       bool bool_props_as_int)
+filter_expr_to_postfix(const char* expr)
 {
   Report *report = Sta::sta()->report();
-  return filterExprToPostfix(expr, bool_props_as_int, report);
+  return filterExprToPostfix(expr, report);
 }
 
 ////////////////////////////////////////////////////////////////

@@ -445,14 +445,13 @@ CcsCeffDelayCalc::findVlTime(double v,
 {
   double t_init = region_ramp_times_[0];
   double t_final = region_ramp_times_[region_count_];
-  bool root_fail = false;
-  double time = findRoot(
-      [&](double t, double &y, double &dy) {
-        vl(t, elmore, y, dy);
-        y -= v;
-      },
-      t_init, t_final + elmore * 3.0, .001, 20, root_fail);
-  vl_fail_ |= root_fail;
+  auto [time, failed] =
+    findRoot([&](double t, double &y, double &dy) {
+      vl(t, elmore, y, dy);
+      y -= v;
+    },
+      t_init, t_final + elmore * 3.0, .001, 20);
+  vl_fail_ |= failed;
   return time;
 }
 

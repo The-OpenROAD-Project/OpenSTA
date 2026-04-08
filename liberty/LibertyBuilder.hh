@@ -54,7 +54,7 @@ public:
                            int to_index,
                            BusDcl *bus_dcl);
   LibertyPort *makeBundlePort(LibertyCell *cell,
-                              const char *name,
+                              std::string_view name,
                               ConcretePortSeq *members);
   // Build timing arc sets and their arcs given a type and sense.
   // Port functions and cell latches are also used by this builder

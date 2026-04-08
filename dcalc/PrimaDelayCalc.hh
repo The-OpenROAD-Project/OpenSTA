@@ -108,6 +108,10 @@ public:
   Waveform watchWaveform(const Pin *pin) override;
   
 protected:
+  void delaySlewPocv(ArcDcalcArg &dcalc_arg,
+                     size_t drvr_idx,
+                     ArcDelay &gate_delay,
+                     Slew &drvr_slew);
   ArcDcalcResultSeq tableDcalcResults();
   void simulate();
   void simulate1(const MatrixSd &G,
@@ -215,6 +219,8 @@ protected:
 
   // Indexed by driver index.
   std::vector<double> ceff_;
+  // Ceff at Vth
+  std::vector<double> ceff_vth_;
   std::vector<double> drvr_current_;
 
   double time_step_;

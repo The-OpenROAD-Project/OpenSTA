@@ -2564,8 +2564,8 @@ Cell sky130_fd_sc_hd__inv_1
 Library sky130_fd_sc_hd__tt_025C_1v80
 File ../../test/sky130hd/sky130hd_tt.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  A input 2.21-2.39
  Y output function=!A
