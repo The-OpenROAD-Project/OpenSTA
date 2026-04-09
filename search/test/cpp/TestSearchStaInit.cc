@@ -433,13 +433,13 @@ TEST_F(StaInitTest, SetReportPathFields) {
   ASSERT_NE(fanout_field, nullptr);
   ASSERT_NE(src_attr_field, nullptr);
 
-  sta_->setReportPathFields(true, true, true, true, true, true, true, true);
+  sta_->setReportPathFields(true, true, true, true, true, true, true, true, true);
   EXPECT_TRUE(cap_field->enabled());
   EXPECT_TRUE(slew_field->enabled());
   EXPECT_TRUE(fanout_field->enabled());
   EXPECT_TRUE(src_attr_field->enabled());
 
-  sta_->setReportPathFields(false, false, false, false, false, false, false, false);
+  sta_->setReportPathFields(false, false, false, false, false, false, false, false, false);
   EXPECT_FALSE(cap_field->enabled());
   EXPECT_FALSE(slew_field->enabled());
   EXPECT_FALSE(fanout_field->enabled());
@@ -1613,8 +1613,8 @@ TEST_F(StaInitTest, ReportPathNoSplit) {
 
 TEST_F(StaInitTest, ReportPathSetReportFields) {
   ReportPath *rpt = sta_->reportPath();
-  rpt->setReportFields(true, true, true, true, true, true, true, true);
-  rpt->setReportFields(false, false, false, false, false, false, false, false);
+  rpt->setReportFields(true, true, true, true, true, true, true, true, true);
+  rpt->setReportFields(false, false, false, false, false, false, false, false, false);
 
 }
 

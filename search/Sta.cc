@@ -2769,11 +2769,13 @@ Sta::setReportPathFields(bool report_input_pin,
 			 bool report_slew,
 			 bool report_fanout,
                          bool report_variation,
-			 bool report_src_attr)
+			 bool report_src_attr,
+			 bool report_orig_name)
 {
   report_path_->setReportFields(report_input_pin, report_hier_pins, report_net,
                                 report_cap, report_slew, report_fanout,
-                                report_variation, report_src_attr);
+                                report_variation, report_src_attr,
+                                report_orig_name);
 }
 
 ReportField *

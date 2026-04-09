@@ -224,7 +224,7 @@ TEST_F(StaInitTest, StaReportPathEndFooter2) {
 
 TEST_F(StaInitTest, StaSetReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-    sta_->setReportPathFields(true, true, true, true, true, true, true, true);
+    sta_->setReportPathFields(true, true, true, true, true, true, true, true, true);
   }() ));
 }
 
@@ -1724,8 +1724,8 @@ TEST_F(StaInitTest, SearchClassConstants2) {
 TEST_F(StaInitTest, ReportPathSetReportFields2) {
   ASSERT_NO_THROW(( [&](){
     ReportPath *rpt = sta_->reportPath();
-    rpt->setReportFields(true, true, true, true, true, true, true, true);
-    rpt->setReportFields(false, false, false, false, false, false, false, false);
+    rpt->setReportFields(true, true, true, true, true, true, true, true, true);
+    rpt->setReportFields(false, false, false, false, false, false, false, false, false);
   }() ));
 }
 
@@ -1909,8 +1909,8 @@ TEST_F(StaInitTest, ReportPathSetReportFieldsPublic) {
   ASSERT_NO_THROW(( [&](){
     ReportPath *rpt = sta_->reportPath();
     // Call setReportFields with various combinations
-    rpt->setReportFields(true, false, false, false, true, false, false, false);
-    rpt->setReportFields(true, true, true, true, true, true, true, true);
+    rpt->setReportFields(true, false, false, false, true, false, false, false, false);
+    rpt->setReportFields(true, true, true, true, true, true, true, true, true);
     expectStaCoreState(sta_);
   }() ));
 }

@@ -992,7 +992,8 @@ public:
                            bool report_slew,
                            bool report_fanout,
                            bool report_variation,
-                           bool report_src_attr);
+                           bool report_src_attr,
+                           bool report_orig_name);
   ReportField *findReportPathField(std::string_view name);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);

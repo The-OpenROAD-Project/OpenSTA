@@ -415,7 +415,8 @@ set_report_path_fields(bool report_input_pin,
                        bool report_slew,
                        bool report_fanout,
                        bool report_variation,
-                       bool report_src_attr)
+                       bool report_src_attr,
+                       bool report_orig_name)
 {
   Sta::sta()->setReportPathFields(report_input_pin,
                                   report_hier_pins,
@@ -424,7 +425,8 @@ set_report_path_fields(bool report_input_pin,
                                   report_slew,
                                   report_fanout,
                                   report_variation,
-                                  report_src_attr);
+                                  report_src_attr,
+                                  report_orig_name);
 }
 
 void

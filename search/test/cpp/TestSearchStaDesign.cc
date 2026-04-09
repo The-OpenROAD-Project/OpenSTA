@@ -1874,7 +1874,7 @@ TEST_F(StaDesignTest, SearchReportClkInfos) {
 
 TEST_F(StaDesignTest, SetReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setReportPathFields(true, true, true, true, true, true, true, true);
+  sta_->setReportPathFields(true, true, true, true, true, true, true, true, true);
 
   }() ));
 }
@@ -3625,7 +3625,7 @@ TEST_F(StaDesignTest, ReportPathFieldOrder) {
 
 TEST_F(StaDesignTest, ReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setReportPathFields(true, true, true, true, true, true, true, true);
+  sta_->setReportPathFields(true, true, true, true, true, true, true, true, true);
 
   }() ));
 }
