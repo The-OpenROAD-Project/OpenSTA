@@ -1489,7 +1489,7 @@ LibertyCell::outputPortSequential(LibertyPort *port)
 bool
 LibertyCell::hasSequentials() const
 {
-  return !sequentials_.empty();
+  return !sequentials_.empty() || statetable_ != nullptr;
 }
 
 void
