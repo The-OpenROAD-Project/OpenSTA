@@ -34,26 +34,26 @@ namespace sta {
 constexpr char verilog_escape = '\\';
 
 static std::string
-staToVerilog(std::string sta_name);
+staToVerilog(std::string_view sta_name);
 static std::string
-staToVerilog2(std::string sta_name);
+staToVerilog2(std::string_view sta_name);
 static std::string
-verilogToSta(const std::string verilog_name);
+verilogToSta(const std::string_view verilog_name);
 
 std::string
-cellVerilogName(std::string sta_name)
+cellVerilogName(std::string_view sta_name)
 {
   return staToVerilog(sta_name);
 }
 
 std::string
-instanceVerilogName(std::string sta_name)
+instanceVerilogName(std::string_view sta_name)
 {
   return staToVerilog(sta_name);
 }
 
 std::string
-netVerilogName(std::string sta_name)
+netVerilogName(std::string_view sta_name)
 {
   bool is_bus;
   std::string bus_name;
@@ -69,13 +69,20 @@ netVerilogName(std::string sta_name)
 }
 
 std::string
-portVerilogName(std::string sta_name)
+portVerilogName(std::string_view sta_name)
 {
   return staToVerilog2(sta_name);
 }
 
+// <cctype> functions expect a value representable as unsigned char or EOF.
+static bool
+isAlnumUnderscore(char ch)
+{
+  return std::isalnum(static_cast<unsigned char>(ch)) != 0 || ch == '_';
+}
+
 static std::string
-staToVerilog(std::string sta_name)
+staToVerilog(std::string_view sta_name)
 {
   // Leave room for leading escape and trailing space if the name
   // needs to be escaped.
@@ -87,14 +94,18 @@ staToVerilog(std::string sta_name)
     char ch = sta_name[i];
     if (ch == verilog_escape) {
       escaped = true;
-      char next_ch = sta_name[i + 1];
-      if (next_ch == verilog_escape) {
-        escaped_name += next_ch;
-        i++;
+      if (i + 1 < sta_length) {
+        char next_ch = sta_name[i + 1];
+        if (next_ch == verilog_escape) {
+          escaped_name += next_ch;
+          i++;
+        }
       }
+      else
+        escaped_name += ch;
     }
     else {
-      if ((!(isalnum(ch) || ch == '_')))
+      if (!isAlnumUnderscore(ch))
         escaped = true;
       escaped_name += ch;
     }
@@ -105,11 +116,11 @@ staToVerilog(std::string sta_name)
     return escaped_name;
   }
   else
-    return sta_name;
+    return std::string(sta_name);
 }
 
 static std::string
-staToVerilog2(std::string sta_name)
+staToVerilog2(std::string_view sta_name)
 {
   constexpr char bus_brkt_left = '[';
   constexpr char bus_brkt_right = ']';
@@ -123,16 +134,19 @@ staToVerilog2(std::string sta_name)
     char ch = sta_name[i];
     if (ch == verilog_escape) {
       escaped = true;
-      char next_ch = sta_name[i + 1];
-      if (next_ch == verilog_escape) {
-        escaped_name += next_ch;
-        i++;
+      if (i + 1 < sta_length) {
+        char next_ch = sta_name[i + 1];
+        if (next_ch == verilog_escape) {
+          escaped_name += next_ch;
+          i++;
+        }
       }
+      else
+        escaped_name += ch;
     }
     else {
       bool is_brkt = (ch == bus_brkt_left || ch == bus_brkt_right);
-      if ((!(isalnum(ch) || ch == '_') && !is_brkt)
-          || is_brkt)
+      if ((!isAlnumUnderscore(ch) && !is_brkt) || is_brkt)
         escaped = true;
       escaped_name += ch;
     }
@@ -143,45 +157,49 @@ staToVerilog2(std::string sta_name)
     return escaped_name;
   }
   else
-    return sta_name;
+    return std::string(sta_name);
 }
 
 ////////////////////////////////////////////////////////////////
 
 std::string
-moduleVerilogToSta(std::string module_name)
+moduleVerilogToSta(std::string_view module_name)
 {
   return verilogToSta(module_name);
 }
 
 std::string
-instanceVerilogToSta(std::string inst_name)
+instanceVerilogToSta(std::string_view inst_name)
 {
   return verilogToSta(inst_name);
 }
 
 std::string
-netVerilogToSta(std::string net_name)
+netVerilogToSta(std::string_view net_name)
 {
   return verilogToSta(net_name);
 }
 
 std::string
-portVerilogToSta(std::string port_name)
+portVerilogToSta(std::string_view port_name)
 {
   return verilogToSta(port_name);
 }
 
 static std::string
-verilogToSta(std::string verilog_name)
+verilogToSta(std::string_view verilog_name)
 {
+  if (verilog_name.empty())
+    return std::string(verilog_name);
+
   if (verilog_name.front() == '\\') {
     constexpr char divider = '/';
     constexpr char bus_brkt_left = '[';
     constexpr char bus_brkt_right = ']';
 
     size_t verilog_name_length = verilog_name.size();
-    if (isspace(verilog_name.back()))
+    if (verilog_name_length > 1
+        && std::isspace(static_cast<unsigned char>(verilog_name.back())) != 0)
       verilog_name_length--;
     std::string sta_name;
     // Ignore leading '\'.
@@ -198,7 +216,7 @@ verilogToSta(std::string verilog_name)
     return sta_name;
   }
   else
-    return verilog_name;
+    return std::string(verilog_name);
 }
 
 } // namespace
