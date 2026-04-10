@@ -2478,10 +2478,8 @@ bool
 LibertyPort::less(const LibertyPort *port1,
                   const LibertyPort *port2)
 {
-  if (port1 == nullptr && port2 != nullptr)
-    return true;
   if (port1 == nullptr || port2 == nullptr)
-    return false;
+    return port1 == nullptr && port2 != nullptr;
   const std::string &name1 = port1->name();
   const std::string &name2 = port2->name();
   if (name1 == name2) {
