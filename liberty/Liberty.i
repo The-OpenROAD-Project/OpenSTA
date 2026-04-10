@@ -303,7 +303,6 @@ ensure_voltage_waveforms()
 }
 
 LibertyCell *test_cell() { return self->testCell(); }
-bool has_sequentials() { return self->hasSequentials(); }
 
 } // LibertyCell methods
 
