@@ -595,13 +595,13 @@ set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls
 if(ENABLE_TSAN)
   message(STATUS "Thread sanitizer: ${ENABLE_TSAN}")
   set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=thread")
-  set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=thread")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -fsanitize=thread")
 endif()
 
 if(ENABLE_ASAN)
   message(STATUS "Address sanitizer: ${ENABLE_ASAN}")
   set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=address")
-  set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -fsanitize=address")
 endif()
 
 target_compile_options(OpenSTA
@@ -627,6 +627,7 @@ message(STATUS "STA library: ${CMAKE_BINARY_DIR}/libOpenSTA.a")
 add_executable(sta app/Main.cc)
 
 target_link_libraries(sta
+  PRIVATE
   sta_swig
   OpenSTA
   )
