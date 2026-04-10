@@ -36,6 +36,9 @@ option(ENABLE_ASAN "Compile with address santizer enabled" OFF)
 # Turn on to debug compiler args.
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 
+# Write compile_commands.json to the build directory for clang-tidy.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(STA_HOME ${PROJECT_SOURCE_DIR})
 message(STATUS "STA version: ${PROJECT_VERSION}")
 
