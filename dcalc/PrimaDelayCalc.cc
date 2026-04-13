@@ -944,7 +944,7 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
     gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
               load_pin_index_map, scene, min_max);
     float in_slew1 = delayAsFloat(in_slew);
-    float ceff = ceff_vth_.empty() ? load_cap : ceff_vth_[0];
+    float ceff = ceff_vth_[0];
     return model->reportGateDelay(pinPvt(drvr_pin, scene, min_max),
                                   in_slew1, ceff, min_max,
                                   PocvMode::scalar, digits);
