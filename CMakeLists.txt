@@ -36,6 +36,9 @@ option(ENABLE_ASAN "Compile with address santizer enabled" OFF)
 # Turn on to debug compiler args.
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 
+# Write compile_commands.json to the build directory for clang-tidy.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(STA_HOME ${PROJECT_SOURCE_DIR})
 message(STATUS "STA version: ${PROJECT_VERSION}")
 
@@ -598,13 +601,13 @@ set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls
 if(ENABLE_TSAN)
   message(STATUS "Thread sanitizer: ${ENABLE_TSAN}")
   set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=thread")
-  set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=thread")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -fsanitize=thread")
 endif()
 
 if(ENABLE_ASAN)
   message(STATUS "Address sanitizer: ${ENABLE_ASAN}")
   set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=address")
-  set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -fsanitize=address")
 endif()
 
 target_compile_options(OpenSTA
@@ -630,6 +633,7 @@ message(STATUS "STA library: ${CMAKE_BINARY_DIR}/libOpenSTA.a")
 add_executable(sta app/Main.cc)
 
 target_link_libraries(sta
+  PRIVATE
   sta_swig
   OpenSTA
   )

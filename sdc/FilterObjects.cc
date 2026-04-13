@@ -24,11 +24,17 @@
 
 #include "FilterObjects.hh"
 
-#include <regex>
-#include <stack>
 #include <functional>
 #include <memory>
+#include <regex>
+#include <stack>
+#include <cstddef>
+#include <string>
+#include <string_view>
 
+#include "NetworkClass.hh"
+#include "Network.hh"
+#include "StringUtil.hh"
 #include "Property.hh"
 #include "PatternMatch.hh"
 #include "Sta.hh"
@@ -52,22 +58,27 @@ public:
       undefined
     };
         
-    Token(std::string text,
+    Token(std::string_view text,
           Kind kind);
-        
-    std::string text;
-    Kind kind;
+    const std::string &text() const { return  text_; }
+    Kind kind() const { return kind_; }
+
+    std::string text_;
+    Kind kind_;
   };
     
   struct PredicateToken : public Token
   {
-    PredicateToken(std::string property,
-                   std::string op,
-                   std::string arg);
+    PredicateToken(std::string_view property,
+                   std::string_view op,
+                   std::string_view arg);
+    const std::string &property() const { return property_; }
+    const std::string &op() const { return op_; }
+    const std::string &arg() const { return arg_; }
       
-    std::string property;
-    std::string op;
-    std::string arg;
+    std::string property_;
+    std::string op_;
+    std::string arg_;
   };
     
   FilterExpr(std::string_view expression,
@@ -82,19 +93,21 @@ private:
   Report *report_;
 };
 
-FilterExpr::Token::Token(std::string text,
+FilterExpr::Token::Token(std::string_view text,
                          Token::Kind kind) :
-  text (text),
-  kind(kind)
+  text_(text),
+  kind_(kind)
 {
 }
 
-FilterExpr::PredicateToken::PredicateToken(std::string property,
-                                           std::string op,
-                                           std::string arg) :
-  Token(property + " " + op + " " + arg,
+FilterExpr::PredicateToken::PredicateToken(std::string_view property,
+                                           std::string_view op,
+                                           std::string_view arg) :
+  Token(sta::format("{} {} {}", property, op, arg),
         Token::Kind::predicate),
-  property(property), op(op), arg(arg)
+  property_(property),
+  op_(op),
+  arg_(arg)
 {
 }
 
@@ -140,7 +153,7 @@ FilterExpr::lex()
           std::string property = token_match[1].str();
                     
           // The default operation on a predicate if an op and arg are
-          // omitted is 'prop == 1 || true'.
+          // omitted is 'prop == 1'.
           std::string op = "==";
           std::string arg = "1";
                     
@@ -175,7 +188,7 @@ FilterExpr::shuntingYard(std::vector<std::unique_ptr<Token>> &infix)
   std::stack<std::unique_ptr<Token>> operator_stack;
 
   for (auto &token : infix) {
-    switch (token->kind) {
+    switch (token->kind()) {
     case Token::Kind::predicate:
       output.push_back(std::move(token));
       break;
@@ -185,7 +198,7 @@ FilterExpr::shuntingYard(std::vector<std::unique_ptr<Token>> &infix)
       // The operators' enum values are ascending by precedence:
       //   inv > and > or
       while (operator_stack.size()
-             && operator_stack.top()->kind > token->kind) {
+             && operator_stack.top()->kind() > token->kind()) {
         output.push_back(std::move(operator_stack.top()));
         operator_stack.pop();
       }
@@ -208,7 +221,7 @@ FilterExpr::shuntingYard(std::vector<std::unique_ptr<Token>> &infix)
       if (operator_stack.empty())
         report_->error(2601, "-filter extraneous ).");
       while (operator_stack.size()
-             && operator_stack.top()->kind != Token::Kind::op_lparen) {
+             && operator_stack.top()->kind() != Token::Kind::op_lparen) {
         output.push_back(std::move(operator_stack.top()));
         operator_stack.pop();
         if (operator_stack.empty())
@@ -224,7 +237,7 @@ FilterExpr::shuntingYard(std::vector<std::unique_ptr<Token>> &infix)
   }
 
   while (operator_stack.size()) {
-    if (operator_stack.top()->kind == Token::Kind::op_lparen)
+    if (operator_stack.top()->kind() == Token::Kind::op_lparen)
       report_->error(2603, "-filter unmatched (.");
     output.push_back(std::move(operator_stack.top()));
     operator_stack.pop();
@@ -235,20 +248,20 @@ FilterExpr::shuntingYard(std::vector<std::unique_ptr<Token>> &infix)
 
 ////////////////////////////////////////////////////////////////
 
-template <typename T> std::set<T*>
-filterObjects(const char *property,
-              const char *op,
-              const char *pattern,
+template <typename T> static std::set<T*>
+filterObjects(std::string_view property,
+              std::string_view op,
+              std::string_view pattern,
               std::set<T*> &all,
               Sta *sta)
 {
   Properties &properties = sta->properties();
   Network *network = sta->network();
   auto filtered_objects = std::set<T*>();
-  bool exact_match = stringEq(op, "==");
-  bool pattern_match = stringEq(op, "=~");
-  bool not_match = stringEq(op, "!=");
-  bool not_pattern_match = stringEq(op, "!~");
+  bool exact_match = (op == "==");
+  bool pattern_match = (op == "=~");
+  bool not_match = (op == "!=");
+  bool not_pattern_match = (op == "!~");
   for (T *object : all) {
     PropertyValue value = properties.getProperty(object, property);
     std::string prop = value.to_string(network);
@@ -259,8 +272,8 @@ filterObjects(const char *property,
       else if (stringEqual(pattern, "false"))
         pattern = "0";
     }
-    if ((exact_match && stringEq(prop.c_str(), pattern))
-        || (not_match && !stringEq(prop.c_str(), pattern))
+    if ((exact_match && prop == pattern)
+        || (not_match && prop != pattern)
         || (pattern_match && patternMatch(pattern, prop))
         || (not_pattern_match && !patternMatch(pattern, prop)))
       filtered_objects.insert(object);
@@ -268,9 +281,9 @@ filterObjects(const char *property,
   return filtered_objects;
 }
 
-template <typename T> std::vector<T*>
+template <typename T> static std::vector<T*>
 filterObjects(std::string_view filter_expression,
-              std::vector<T*> *objects,
+              const std::vector<T*> *objects,
               Sta *sta)
 {
   Report *report = sta->report();
@@ -286,7 +299,7 @@ filterObjects(std::string_view filter_expression,
     auto postfix = filter.postfix();
     std::stack<std::set<T*>> eval_stack;
     for (auto &token : postfix) {
-      if (token->kind == FilterExpr::Token::Kind::op_or) {
+      if (token->kind() == FilterExpr::Token::Kind::op_or) {
         if (eval_stack.size() < 2)
           report->error(2604, "-filter logical OR requires at least two operands.");
         auto arg0 = eval_stack.top();
@@ -298,7 +311,7 @@ filterObjects(std::string_view filter_expression,
                        std::inserter(union_result, union_result.begin()));
         eval_stack.push(union_result);
       }
-      else if (token->kind == FilterExpr::Token::Kind::op_and) {
+      else if (token->kind() == FilterExpr::Token::Kind::op_and) {
         if (eval_stack.size() < 2) {
           report->error(2605, "-filter logical AND requires two operands.");
         }
@@ -313,7 +326,7 @@ filterObjects(std::string_view filter_expression,
                                             intersection_result.begin()));
         eval_stack.push(intersection_result);
       }
-      else if (token->kind == FilterExpr::Token::Kind::op_inv) {
+      else if (token->kind() == FilterExpr::Token::Kind::op_inv) {
         if (eval_stack.size() < 1) {
           report->error(2606, "-filter NOT missing operand.");
         }
@@ -327,13 +340,13 @@ filterObjects(std::string_view filter_expression,
                                           difference_result.begin()));
         eval_stack.push(difference_result);
       }
-      else if (token->kind == FilterExpr::Token::Kind::defined
-               || token->kind == FilterExpr::Token::Kind::undefined) {
+      else if (token->kind() == FilterExpr::Token::Kind::defined
+               || token->kind() == FilterExpr::Token::Kind::undefined) {
         bool should_be_defined =
-          (token->kind == FilterExpr::Token::Kind::defined);
+          (token->kind() == FilterExpr::Token::Kind::defined);
         auto result = std::set<T*>();
         for (auto object : all) {
-          PropertyValue value = properties.getProperty(object, token->text);
+          PropertyValue value = properties.getProperty(object, token->text());
           bool is_defined = false;
           switch (value.type()) {
           case PropertyValue::Type::float_:
@@ -377,12 +390,12 @@ filterObjects(std::string_view filter_expression,
         }
         eval_stack.push(result);
       }
-      else if (token->kind == FilterExpr::Token::Kind::predicate) {
+      else if (token->kind() == FilterExpr::Token::Kind::predicate) {
         auto *predicate_token =
           static_cast<FilterExpr::PredicateToken *>(token.get());
-        auto result = filterObjects<T>(predicate_token->property.c_str(),
-                                       predicate_token->op.c_str(),
-                                       predicate_token->arg.c_str(),
+        auto result = filterObjects<T>(predicate_token->property(),
+                                       predicate_token->op(),
+                                       predicate_token->arg(),
                                        all, sta);
         eval_stack.push(result);
       }
@@ -495,7 +508,7 @@ filterExprToPostfix(std::string_view expr,
   auto postfix = filter.postfix();
   StringSeq result;
   for (auto &token : postfix)
-    result.push_back(token->text);
+    result.push_back(token->text());
   return result;
 }
 
