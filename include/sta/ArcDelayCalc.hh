@@ -63,7 +63,7 @@ public:
               const Pin *drvr_pin,
               Edge *edge,
               const TimingArc *arc,
-              const Slew in_slew,
+              Slew in_slew,
               float load_cap,
               const Parasitic *parasitic);
   ArcDcalcArg(const Pin *in_pin,
@@ -160,7 +160,6 @@ class ArcDelayCalc : public StaState
 {
 public:
   ArcDelayCalc(StaState *sta);
-  virtual ~ArcDelayCalc() {}
   virtual ArcDelayCalc *copy() = 0;
   virtual std::string_view name() const = 0;
 
@@ -262,4 +261,4 @@ public:
   virtual void finishDrvrPin() = 0;
 };
 
-} // namespace
+} // namespace sta

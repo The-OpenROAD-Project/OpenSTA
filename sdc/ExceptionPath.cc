@@ -524,7 +524,7 @@ PathDelay::to_string(const Network *network) const
                      fromThruToString(network));
 }
 
-const char *
+std::string_view
 PathDelay::typeString() const
 {
   return "Path";
@@ -604,7 +604,7 @@ FalsePath::tighterThan(ExceptionPath *) const
   return false;
 }
 
-const char *
+std::string_view
 FalsePath::typeString() const
 {
   return "False";
@@ -633,7 +633,7 @@ LoopPath::LoopPath(ExceptionThruSeq *thrus,
 {
 }
 
-const char *
+std::string_view
 LoopPath::typeString() const
 {
   return "Loop";
@@ -726,7 +726,7 @@ MultiCyclePath::to_string(const Network *network) const
                      fromThruToString(network));
 }
 
-const char *
+std::string_view
 MultiCyclePath::typeString() const
 {
   return "Multicycle";
@@ -759,7 +759,7 @@ FilterPath::FilterPath(ExceptionFrom *from,
 {
 }
 
-const char *
+std::string_view
 FilterPath::typeString() const
 {
   return "Filter";
@@ -831,7 +831,7 @@ GroupPath::~GroupPath()
 {
 }
 
-const char *
+std::string_view
 GroupPath::typeString() const
 {
   return "Group";
@@ -2465,4 +2465,4 @@ deletePinPairsThruHierPin(const Pin *hpin,
   visitDrvrLoadsThruHierPin(hpin, network, &visitor);
 }
 
-} // namespace
+} // namespace sta

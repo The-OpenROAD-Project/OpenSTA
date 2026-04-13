@@ -130,4 +130,4 @@ private:
   bool max_cycles_exceeded_;
 };
 
-} // namespace
+} // namespace sta

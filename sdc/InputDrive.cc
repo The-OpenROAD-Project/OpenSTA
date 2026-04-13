@@ -235,4 +235,4 @@ InputDriveCell::equal(const InputDriveCell *drive) const
     && to_port_ == drive->to_port_;
 }
 
-} // namespace
+} // namespace sta

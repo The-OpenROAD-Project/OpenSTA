@@ -67,4 +67,4 @@ hashString(std::string_view str);
   #define hashPtr(ptr) (reinterpret_cast<intptr_t>(ptr) >> 2)
 #endif
 
-} // namespace
+} // namespace sta

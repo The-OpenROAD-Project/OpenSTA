@@ -61,7 +61,7 @@ public:
   Graph(StaState *sta,
         DcalcAPIndex ap_count);
   void makeGraph();
-  ~Graph();
+  ~Graph() override;
 
   // Number of arc delays and slews from sdf or delay calculation.
   void setDelayCount(DcalcAPIndex ap_count);
@@ -291,8 +291,8 @@ protected:
             bool is_bidirect_drvr,
             bool is_reg_clk);
   void clear();
-  Slew *slews() { return std::bit_cast<Slew*>(slews_); }
-  const Slew *slews() const { return std::bit_cast<const Slew*>(slews_); }
+  Slew *slews() { return reinterpret_cast<Slew*>(slews_); }
+  const Slew *slews() const { return reinterpret_cast<const Slew*>(slews_); }
   float *slewsFloat() { return slews_; }
   const float *slewsFloat() const { return slews_; }
   void setSlews(float *slews);
@@ -491,4 +491,4 @@ makeVertexSet(StaState *sta)
   return VertexSet(VertexIdLess(sta->graphRef()));
 }
 
-} // namespace
+} // namespace sta

@@ -244,7 +244,7 @@ Clock::removeSlew()
 
 void
 Clock::setSlewLimit(const RiseFallBoth *rf,
-                    const PathClkOrData clk_data,
+                    PathClkOrData clk_data,
                     const MinMax *min_max,
                     float slew)
 {
@@ -253,7 +253,7 @@ Clock::setSlewLimit(const RiseFallBoth *rf,
 
 void
 Clock::slewLimit(const RiseFall *rf,
-                 const PathClkOrData clk_data,
+                 PathClkOrData clk_data,
                  const MinMax *min_max,
                  // Return values.
                  float &slew,
@@ -714,4 +714,4 @@ compare(const ClockSet *set1,
   return sta::compare(set1, set2, ClockIndexLess());
 }
 
-} // namespace
+} // namespace sta

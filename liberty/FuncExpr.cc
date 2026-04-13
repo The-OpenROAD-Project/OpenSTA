@@ -24,9 +24,11 @@
 
 #include "FuncExpr.hh"
 
-#include "StringUtil.hh"
+#include <cstddef>
+#include <string>
+
 #include "Liberty.hh"
-#include "Network.hh"
+#include "LibertyClass.hh"
 
 namespace sta {
 
@@ -233,7 +235,6 @@ std::string
 FuncExpr::to_string(bool with_parens,
                     char op) const
 {
-  std::string right = right_->to_string(true);
   std::string result;
   if (with_parens)
     result += '(';
@@ -422,4 +423,4 @@ FuncExpr::less(const FuncExpr *expr1,
     return (expr1 == nullptr && expr2 != nullptr);
 }
 
-} // namespace
+} // namespace sta

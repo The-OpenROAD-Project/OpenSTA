@@ -52,4 +52,4 @@ findRoot(FindRootFunc func,
          double x_tol,
          int max_iter);
 
-} // namespace
+} // namespace sta

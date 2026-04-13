@@ -24,23 +24,25 @@
 
 #include "CheckCapacitances.hh"
 
+#include <cstddef>
+
+#include "ClkNetwork.hh"
 #include "ContainerHelpers.hh"
 #include "Fuzzy.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "InputDrive.hh"
-#include "GraphDelayCalc.hh"
-#include "StaState.hh"
-#include "Scene.hh"
-#include "PortDirection.hh"
-#include "Sim.hh"
 #include "Graph.hh"
 #include "GraphDelayCalc.hh"
-#include "ClkNetwork.hh"
+#include "InputDrive.hh"
+#include "Liberty.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "PortDirection.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "Sim.hh"
+#include "StaState.hh"
 #include "Transition.hh"
-#include "BoundedHeap.hh"
 
 namespace sta {
 
@@ -210,21 +212,21 @@ CheckCapacitances::findLimit(const Pin *pin,
 CapacitanceCheckSeq &
 CheckCapacitances::check(const Net *net,
                          size_t max_count,
-                         bool violations,
+                         bool violators,
                          const SceneSeq &scenes,
                          const MinMax *min_max)
 {
   clear();
-  if (violations)
-    return checkViolations(net, scenes, min_max);
+  if (violators)
+    return checkViolators(net, scenes, min_max);
   else
     return checkMaxCount(net, max_count, scenes, min_max);
 }
 
 CapacitanceCheckSeq &
-CheckCapacitances::checkViolations(const Net *net,
-                                    const SceneSeq &scenes,
-                                    const MinMax *min_max)
+CheckCapacitances::checkViolators(const Net *net,
+                                  const SceneSeq &scenes,
+                                  const MinMax *min_max)
 {
   const Network *network = sta_->network();
   if (net) {
@@ -366,4 +368,4 @@ CapacitanceCheck::CapacitanceCheck(const Pin *pin,
 {
 }
 
-} // namespace
+} // namespace sta

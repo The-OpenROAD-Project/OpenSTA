@@ -24,14 +24,14 @@
 
 #include "TagGroup.hh"
 
-#include "Report.hh"
+#include "ClkInfo.hh"
 #include "Debug.hh"
 #include "Graph.hh"
-#include "ClkInfo.hh"
-#include "Tag.hh"
+#include "Path.hh"
+#include "Report.hh"
 #include "Scene.hh"
 #include "Search.hh"
-#include "Path.hh"
+#include "Tag.hh"
 
 namespace sta {
 
@@ -152,11 +152,6 @@ TagGroupBldr::TagGroupBldr(bool match_crpr_clk_pin,
   path_index_map_(TagMatchLess(match_crpr_clk_pin,
                                sta)),
   paths_(default_path_count_),
-  has_clk_tag_(false),
-  has_genclk_src_tag_(false),
-  has_filter_tag_(false),
-  has_loop_tag_(false),
-  has_propagated_clk_(false),
   sta_(sta)
 {
 }

@@ -24,11 +24,16 @@
 
 #include "LibertyWriter.hh"
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
+#include <string>
 
+#include "Error.hh"
 #include "Format.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "Transition.hh"
 #include "Units.hh"
 #include "FuncExpr.hh"
 #include "PortDirection.hh"
@@ -493,6 +498,8 @@ LibertyWriter::writeTableModel(const TableModel *model)
       break;
     case 3:
       report_->error(1342, "3 axis table models not supported.");
+      break;
+    default:
       break;
   }
 }

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,19 +24,32 @@
 
 #include "FilterObjects.hh"
 
-#include <functional>
 #include <memory>
 #include <regex>
+#include <map>
 #include <stack>
 #include <cstddef>
+#include <set>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 
+#include "Clock.hh"
+#include "ContainerHelpers.hh"
+#include "Format.hh"
+#include "GraphClass.hh"
+#include "GraphCmp.hh"
+#include "Liberty.hh"
+#include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "Network.hh"
+#include "SearchClass.hh"
 #include "StringUtil.hh"
 #include "Property.hh"
+#include "PathEnd.hh"
 #include "PatternMatch.hh"
+#include "SdcClass.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -46,6 +59,7 @@ class FilterExpr
 public:
   struct Token
   {
+    virtual ~Token() = default;
     enum class Kind {
       skip = 0,
       predicate,
@@ -72,6 +86,7 @@ public:
     PredicateToken(std::string_view property,
                    std::string_view op,
                    std::string_view arg);
+    virtual ~PredicateToken() = default;
     const std::string &property() const { return property_; }
     const std::string &op() const { return op_; }
     const std::string &arg() const { return arg_; }
@@ -142,7 +157,7 @@ FilterExpr::lex()
   };
     
   std::vector<std::unique_ptr<Token>> result;
-  const char* ptr = &raw_[0];
+  const char* ptr = raw_.data();
   bool match = false;
   while (*ptr != '\0') {
     match = false;
@@ -197,7 +212,7 @@ FilterExpr::shuntingYard(std::vector<std::unique_ptr<Token>> &infix)
     case Token::Kind::op_and:
       // The operators' enum values are ascending by precedence:
       //   inv > and > or
-      while (operator_stack.size()
+      while (!operator_stack.empty()
              && operator_stack.top()->kind() > token->kind()) {
         output.push_back(std::move(operator_stack.top()));
         operator_stack.pop();
@@ -220,7 +235,7 @@ FilterExpr::shuntingYard(std::vector<std::unique_ptr<Token>> &infix)
     case Token::Kind::op_rparen:
       if (operator_stack.empty())
         report_->error(2601, "-filter extraneous ).");
-      while (operator_stack.size()
+      while (!operator_stack.empty()
              && operator_stack.top()->kind() != Token::Kind::op_lparen) {
         output.push_back(std::move(operator_stack.top()));
         operator_stack.pop();
@@ -236,7 +251,7 @@ FilterExpr::shuntingYard(std::vector<std::unique_ptr<Token>> &infix)
     }
   }
 
-  while (operator_stack.size()) {
+  while (!operator_stack.empty()) {
     if (operator_stack.top()->kind() == Token::Kind::op_lparen)
       report_->error(2603, "-filter unmatched (.");
     output.push_back(std::move(operator_stack.top()));
@@ -284,6 +299,7 @@ filterObjects(std::string_view property,
 template <typename T> static std::vector<T*>
 filterObjects(std::string_view filter_expression,
               const std::vector<T*> *objects,
+              const std::function<bool (T *obj1, T *obj2)> &object_less,
               Sta *sta)
 {
   Report *report = sta->report();
@@ -294,6 +310,8 @@ filterObjects(std::string_view filter_expression,
     std::set<T*> all;
     for (auto object: *objects)
       all.insert(object);
+    // Delete objects before parsing so errors to not leak them.
+    delete objects;
 
     FilterExpr filter(filter_expression, report);
     auto postfix = filter.postfix();
@@ -366,19 +384,19 @@ filterObjects(std::string_view filter_expression,
           case PropertyValue::Type::pin:
           case PropertyValue::Type::net:
           case PropertyValue::Type::clk:
-            is_defined = value.to_string(network) != "";
+            is_defined = !value.to_string(network).empty();
             break;
           case PropertyValue::Type::none:
             is_defined = false;
             break;
           case PropertyValue::Type::pins:
-            is_defined = value.pins()->size() > 0;
+            is_defined = !value.pins()->empty();
             break;
           case PropertyValue::Type::clks:
-            is_defined = value.clocks()->size() > 0;
+            is_defined = !value.clocks()->empty();
             break;
           case PropertyValue::Type::paths:
-            is_defined = value.paths()->size() > 0;
+            is_defined = !value.paths()->empty();
             break;
           case PropertyValue::Type::pwr_activity:
             is_defined = value.pwrActivity().isSet();
@@ -400,7 +418,7 @@ filterObjects(std::string_view filter_expression,
         eval_stack.push(result);
       }
     }
-    if (eval_stack.size() == 0)
+    if (eval_stack.empty())
       report->error(2607, "-filter expression is empty.");
     if (eval_stack.size() > 1)
       // huh?
@@ -408,96 +426,139 @@ filterObjects(std::string_view filter_expression,
     auto result_set = eval_stack.top();
     result.resize(result_set.size());
     std::copy(result_set.begin(), result_set.end(), result.begin());
-    std::map<T*, int> objects_i;
-    for (size_t i = 0; i < objects->size(); ++i)
-      objects_i[objects->at(i)] = i;
-    std::sort(result.begin(), result.end(),
-              [&](T* a, T* b) {
-                return objects_i[a] < objects_i[b];
-              });
-    delete objects;
+    sort(result, [object_less] (T *obj1, T *obj2) {
+      return object_less(obj1, obj2);
+    });
   }
   return result;
 }
 
 PortSeq
 filterPorts(std::string_view filter_expression,
-            PortSeq *objects,
+            PortSeq *ports,
             Sta *sta)
 {
-  return filterObjects<const Port>(filter_expression, objects, sta);
+  Network *network = sta->network();
+  return filterObjects<const Port>(filter_expression, ports,
+                                   [network] (const Port *port1,
+                                              const Port *port2) {
+                                     return network->name(port1) < network->name(port2);
+                                   }, sta);
 }
 
 InstanceSeq
 filterInstances(std::string_view filter_expression,
-                InstanceSeq *objects,
+                InstanceSeq *insts,
                 Sta *sta)
 {
-  return filterObjects<const Instance>(filter_expression, objects, sta);
+  Network *network = sta->network();
+  return filterObjects<const Instance>(filter_expression, insts,
+                                   [network] (const Instance *inst1,
+                                              const Instance *inst2) {
+                                     return network->name(inst1) < network->name(inst2);
+                                   }, sta);
 }
 
 PinSeq
 filterPins(std::string_view filter_expression,
-           PinSeq *objects,
+           PinSeq *pins,
            Sta *sta)
 {
-  return filterObjects<const Pin>(filter_expression, objects, sta);
+  Network *network = sta->network();
+  return filterObjects<const Pin>(filter_expression, pins,
+                                  [network] (const Pin *pin1,
+                                             const Pin *pin2) {
+                                     return network->pathName(pin1) < network->pathName(pin2);
+                                   }, sta);
 }
 
 NetSeq
 filterNets(std::string_view filter_expression,
-           NetSeq *objects,
+           NetSeq *nets,
            Sta *sta)
 {
-  return filterObjects<const Net>(filter_expression, objects, sta);
+  Network *network = sta->network();
+  return filterObjects<const Net>(filter_expression, nets,
+                                   [network] (const Net *net1,
+                                              const Net *net2) {
+                                     return network->pathName(net1) < network->pathName(net2);
+                                   }, sta);
 }
 
 ClockSeq
 filterClocks(std::string_view filter_expression,
-             ClockSeq *objects,
+             ClockSeq *clks,
              Sta *sta)
 {
-  return filterObjects<Clock>(filter_expression, objects, sta);
+  return filterObjects<Clock>(filter_expression, clks,
+                                   [] (const Clock *clk1,
+                                       const Clock *clk2) {
+                                     return clk1->name() < clk2->name();
+                                   }, sta);
 }
 
 LibertyCellSeq
 filterLibCells(std::string_view filter_expression,
-               LibertyCellSeq *objects,
+               LibertyCellSeq *cells,
                Sta *sta)
 {
-  return filterObjects<LibertyCell>(filter_expression, objects, sta);
+  return filterObjects<LibertyCell>(filter_expression, cells,
+                                    [] (const LibertyCell *cell1,
+                                        const LibertyCell *cell2) {
+                                      return cell1->name() < cell2->name();
+                                    }, sta);
 }
 
 LibertyPortSeq
 filterLibPins(std::string_view filter_expression,
-              LibertyPortSeq *objects,
+              LibertyPortSeq *ports,
               Sta *sta)
 {
-  return filterObjects<LibertyPort>(filter_expression, objects, sta);
+  return filterObjects<LibertyPort>(filter_expression, ports,
+                                    [] (const LibertyPort *port1,
+                                        const LibertyPort *port2) {
+                                      return port1->name() < port2->name();
+                                    }, sta);
 }
 
 LibertyLibrarySeq
 filterLibertyLibraries(std::string_view filter_expression,
-                       LibertyLibrarySeq *objects,
+                       LibertyLibrarySeq *libs,
                        Sta *sta)
 {
-  return filterObjects<LibertyLibrary>(filter_expression, objects, sta);
+  return filterObjects<LibertyLibrary>(filter_expression, libs,
+                                       [] (const LibertyLibrary *lib1,
+                                           const LibertyLibrary *lib2) {
+                                         return lib1->name() < lib2->name();
+                                       }, sta);
 }
 
 EdgeSeq
 filterTimingArcs(std::string_view filter_expression,
-                 EdgeSeq *objects,
+                 EdgeSeq *edges,
                  Sta *sta)
 {
-  return filterObjects<Edge>(filter_expression, objects, sta);
+  Network *network = sta->network();
+  Graph *graph = sta->graph();
+  EdgeLess edge_less(network, graph);
+  return filterObjects<Edge>(filter_expression, edges,
+                             [edge_less] (const Edge *edge1,
+                                          const Edge *edge2) {
+                               return edge_less.operator()(edge1, edge2);
+                             }, sta);
 }
 
 PathEndSeq
 filterPathEnds(std::string_view filter_expression,
-               PathEndSeq *objects,
+               PathEndSeq *ends,
                Sta *sta)
 {
-  return filterObjects<PathEnd>(filter_expression, objects, sta);
+  PathEndLess end_less(true, sta);
+  return filterObjects<PathEnd>(filter_expression, ends,
+                                [end_less] (const PathEnd *end1,
+                                            const PathEnd *end2) {
+                               return end_less.operator()(end1, end2);
+                             }, sta);
 }
 
 StringSeq

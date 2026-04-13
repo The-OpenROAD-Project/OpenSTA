@@ -85,7 +85,7 @@ enum class ScaleFactorType : unsigned {
   wire_cap,
   wire_res,
   min_period,
-  // Liberty attributes have rise/fall suffix.
+  // Liberty attributes with rise/fall suffix.
   cell,
   hold,
   setup,
@@ -95,13 +95,13 @@ enum class ScaleFactorType : unsigned {
   skew,
   leakage_power,
   internal_power,
-  // Liberty attributes have rise/fall prefix.
+  // Liberty attributes with rise/fall prefix.
   transition,
-  // Liberty attributes have low/high suffix (indexed as rise/fall).
+  // Liberty attributes with low/high suffix (indexed as rise/fall).
   min_pulse_width,
   unknown,
 };
-const int scale_factor_type_count = int(ScaleFactorType::unknown) + 1;
+const int scale_factor_type_count = static_cast<int>(ScaleFactorType::unknown) + 1;
 // Enough bits to hold a ScaleFactorType enum.
 const int scale_factor_bits = 4;
 
@@ -116,7 +116,7 @@ enum class TimingSense {
   none,
   unknown
 };
-const int timing_sense_count = int(TimingSense::unknown) + 1;
+const int timing_sense_count = static_cast<int>(TimingSense::unknown) + 1;
 const int timing_sense_bit_count = 3;
 
 enum class TableAxisVariable {
@@ -178,4 +178,4 @@ public:
   }
 };
 
-} // namespace
+} // namespace sta

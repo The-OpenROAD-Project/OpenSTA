@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,18 +43,18 @@ initDelayConstants()
   delay_init_values[MinMax::maxIndex()] = MinMax::max()->initValue();
 }
 
-Delay::Delay() :
+Delay::Delay() noexcept :
   values_{0.0, 0.0, 0.0, 0.0}
 {
 }
 
-Delay::Delay(float mean) :
+Delay::Delay(float mean) noexcept :
   values_{mean, 0.0, 0.0, 0.0}
 {
 }
 
 Delay::Delay(float mean,
-             float std_dev2) :
+             float std_dev2) noexcept :
   values_{mean, 0.0, std_dev2, 0.0}
 {
 }
@@ -62,18 +62,19 @@ Delay::Delay(float mean,
 Delay::Delay(float mean,
              float mean_shift,
              float std_dev2,
-             float skewness) :
+             float skewness) noexcept :
   values_{mean, mean_shift, std_dev2, skewness}
 {
 }
 
-void
+Delay &
 Delay::operator=(float delay)
 {
   values_[0] = delay;
   values_[1] = 0.0;
   values_[2] = 0.0;
   values_[3] = 0.0;
+  return *this;
 }
 
 void
@@ -126,12 +127,12 @@ Delay::setSkewness(float skewness)
 
 ////////////////////////////////////////////////////////////////
 
-DelayDbl::DelayDbl() :
+DelayDbl::DelayDbl() noexcept :
   values_{0.0, 0.0, 0.0, 0.0}
 {
 }
 
-DelayDbl::DelayDbl(double mean) :
+DelayDbl::DelayDbl(double mean) noexcept :
   values_{mean, 0.0, 0.0, 0.0}
 {
 }
@@ -166,13 +167,14 @@ DelayDbl::setValues(double mean,
   values_[3] = skewnes;  
 }
 
-void
+DelayDbl &
 DelayDbl::operator=(double delay)
 {
   values_[0] = delay;
   values_[1] = 0.0;
   values_[2] = 0.0;
   values_[3] = 0.0;
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -520,4 +522,4 @@ delayStdDev2(const Delay &delay,
   return sta->delayOps()->stdDev2(delay, early_late);
 }
 
-} // namespace
+} // namespace sta

@@ -1580,4 +1580,4 @@ VertexIdLess::operator()(const Vertex *vertex1,
 }
 
 
-} // namespace
+} // namespace sta

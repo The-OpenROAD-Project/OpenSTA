@@ -136,4 +136,4 @@ Variables::setPocvQuantile(float quantile)
   pocv_quantile_ = quantile;
 }
 
-} // namespace
+} // namespace sta

@@ -24,14 +24,14 @@
 
 #include "Bfs.hh"
 
-#include "Report.hh"
 #include "Debug.hh"
-#include "Mutex.hh"
 #include "DispatchQueue.hh"
-#include "Network.hh"
 #include "Graph.hh"
-#include "Sdc.hh"
 #include "Levelize.hh"
+#include "Mutex.hh"
+#include "Network.hh"
+#include "Report.hh"
+#include "Sdc.hh"
 #include "SearchPred.hh"
 
 namespace sta {
@@ -67,8 +67,6 @@ BfsIterator::ensureSize()
       queue_.resize(max_level_1);
   }
 }
-
-BfsIterator::~BfsIterator() {}
 
 void
 BfsIterator::clear()
@@ -153,7 +151,6 @@ BfsIterator::visit(Level to_level,
       }
     }
     level_vertices.clear();
-    visitor->levelFinished();
   }
   return visit_count;
 }
@@ -169,6 +166,7 @@ BfsIterator::visitParallel(Level to_level,
       visit_count = visit(to_level, visitor);
     else {
       std::vector<VertexVisitor *> visitors;
+      visitors.reserve(thread_count_);
       for (int k = 0; k < thread_count_; k++)
         visitors.push_back(visitor->copy());
       while (levelLessOrEqual(first_level_, last_level_)
@@ -208,7 +206,6 @@ BfsIterator::visitParallel(Level to_level,
             }
             dispatch_queue_->finishTasks();
           }
-          visitor->levelFinished();
           level_vertices.clear();
           visit_count += vertex_count;
         }
@@ -294,7 +291,7 @@ void
 BfsIterator::checkInQueue(Vertex *vertex)
 {
   Level level = vertex->level();
-  if (static_cast<Level>(queue_.size()) > level) {
+  if (std::cmp_greater(queue_.size(), level)) {
     for (Vertex *v : queue_[level]) {
       if (v == vertex) {
         if (vertex->bfsInQueue(bfs_index_))
@@ -329,7 +326,7 @@ BfsIterator::remove(Vertex *vertex)
 {
   // If the iterator has not been inited the queue will be empty.
   Level level = vertex->level();
-  if (vertex->bfsInQueue(bfs_index_) && static_cast<Level>(queue_.size()) > level) {
+  if (vertex->bfsInQueue(bfs_index_) && std::cmp_greater(queue_.size(), level)) {
     debugPrint(debug_, "bfs", 2, "remove {}", vertex->to_string(this));
     for (Vertex *&v : queue_[level]) {
       if (v == vertex) {

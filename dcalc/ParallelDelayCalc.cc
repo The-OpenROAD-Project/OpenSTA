@@ -118,4 +118,4 @@ ParallelDelayCalc::gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
   return dcalc_results;
 }
 
-} // namespace
+} // namespace sta

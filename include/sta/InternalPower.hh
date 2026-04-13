@@ -94,4 +94,4 @@ protected:
   InternalPowerModels models_;
 };
 
-} // namespace
+} // namespace sta

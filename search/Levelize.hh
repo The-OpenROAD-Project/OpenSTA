@@ -25,11 +25,10 @@
 #pragma once
 
 #include <stack>
+#include <utility>
+#include <vector>
 
-#include "NetworkClass.hh"
-#include "SdcClass.hh"
 #include "Graph.hh"
-#include "SearchPred.hh"
 #include "StaState.hh"
 
 namespace sta {
@@ -46,7 +45,7 @@ class Levelize : public StaState
 {
 public:
   Levelize(StaState *sta);
-  virtual ~Levelize();
+  ~Levelize() override;
   // Space between initially assigned levels that is filled in by
   // incremental levelization.  Set level space before levelization.
   void setLevelSpace(Level space);
@@ -73,7 +72,7 @@ public:
   void setObserver(LevelizeObserver *observer);
   void checkLevels();
   // Public for regression testing.
-  void levelize();
+  void findLevels();
 
 protected:
   void findRoots();
@@ -105,17 +104,17 @@ protected:
   void deleteLoops();
   void reportPath(EdgeSeq &path) const;
 
-  bool levelized_;
-  bool levels_valid_;
-  Level max_level_;
-  Level level_space_;
+  bool levelized_{false};
+  bool levels_valid_{false};
+  Level max_level_{0};
+  Level level_space_{10};
   VertexSet roots_;
   VertexSet relevelize_from_;
   GraphLoopSeq loops_;
   EdgeSet loop_edges_;
   EdgeSet disabled_loop_edges_;
   EdgeSet latch_d_to_q_edges_;
-  LevelizeObserver *observer_;
+  LevelizeObserver *observer_{nullptr};
 };
 
 // Loops broken by levelization may not necessarily be combinational.
@@ -137,10 +136,9 @@ private:
 class LevelizeObserver
 {
 public:
-  LevelizeObserver() {}
-  virtual ~LevelizeObserver() {}
+  virtual ~LevelizeObserver() = default;
   virtual void levelsChangedBefore() = 0;
   virtual void levelChangedBefore(Vertex *vertex) = 0;
 };
 
-} // namespace
+} // namespace sta

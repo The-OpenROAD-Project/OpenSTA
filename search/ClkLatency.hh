@@ -26,12 +26,11 @@
 
 #include <map>
 
-#include "SdcClass.hh"
-#include "StaState.hh"
-#include "Transition.hh"
-#include "SearchClass.hh"
-#include "Path.hh"
 #include "ClkDelays.hh"
+#include "SdcClass.hh"
+#include "Scene.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -60,4 +59,4 @@ protected:
                         int digits);
 };
     
-} // namespace
+} // namespace sta

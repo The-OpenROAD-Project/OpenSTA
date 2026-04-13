@@ -217,4 +217,4 @@ DeratingFactorsNet::DeratingFactorsNet()
 {
 }
 
-} // namespace
+} // namespace sta

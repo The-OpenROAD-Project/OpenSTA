@@ -752,8 +752,8 @@ NetIdPairLess::operator()(const NetIdPair &net_id1,
 
 ////////////////////////////////////////////////////////////////
 
-ConcreteParasitics::ConcreteParasitics(std::string name,
-                                       std::string filename,
+ConcreteParasitics::ConcreteParasitics(std::string_view name,
+                                       std::string_view filename,
                                        StaState *sta) :
   Parasitics(sta),
   name_(name),
@@ -1439,4 +1439,4 @@ ConcreteParasitics::unannotatedLoads(const Parasitic *parasitic,
   return cparasitic->unannotatedLoads(drvr_pin, this);
 }
 
-} // namespace
+} // namespace sta

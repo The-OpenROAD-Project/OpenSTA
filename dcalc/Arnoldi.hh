@@ -86,4 +86,4 @@ struct timing_table
   float in_slew;
 };
 
-} // namespace
+} // namespace sta

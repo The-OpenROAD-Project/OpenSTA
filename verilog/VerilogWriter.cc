@@ -515,4 +515,4 @@ VerilogWriter::findPortNCcount(const Instance *inst,
   return nc_count;
 }
 
-} // namespace
+} // namespace sta

@@ -1828,4 +1828,4 @@ MultiDrvrNet::parallelGates(const Network *network) const
   return network->direction(dcalc_drvr_->pin())->isOutput();
 }
 
-} // namespace
+} // namespace sta

@@ -63,4 +63,4 @@ readSdf(std::string_view filename,
         MinMaxAll *cond_use,
         StaState *sta);
 
-} // namespace
+} // namespace sta

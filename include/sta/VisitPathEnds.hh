@@ -142,7 +142,7 @@ protected:
 class PathEndVisitor
 {
 public:
-  virtual ~PathEndVisitor() {}
+  virtual ~PathEndVisitor() = default;
   virtual PathEndVisitor *copy() const = 0;
   // Begin visiting the path ends for a vertex / path_index.
   virtual void vertexBegin(Vertex *) {}
@@ -152,4 +152,4 @@ public:
   virtual void vertexEnd(Vertex *) {}
 };
 
-} // namespace
+} // namespace sta

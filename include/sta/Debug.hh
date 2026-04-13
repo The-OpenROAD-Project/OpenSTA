@@ -64,9 +64,9 @@ public:
 protected:
   Report *report_;
   std::mutex buffer_lock_;
-  bool debug_on_;
+  bool debug_on_{false};
   DebugMap debug_map_;
-  int stats_level_;
+  int stats_level_{0};
 };
 
 // Inlining a varargs function would eval the args, which can
@@ -76,4 +76,4 @@ protected:
     debug->report(what, fmt __VA_OPT__(,) __VA_ARGS__); \
   }
 
-} // namespace
+} // namespace sta

@@ -200,4 +200,4 @@ private:
 using MinMaxFloatValues = MinMaxValues<float>;
 using MinMaxIntValues = MinMaxValues<int>;
 
-} // namespace
+} // namespace sta

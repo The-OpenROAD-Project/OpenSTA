@@ -59,4 +59,4 @@ sortEdges(EdgeSeq *edges,
           Network *network,
           Graph *graph);
 
-} // namespace
+} // namespace sta

@@ -76,4 +76,4 @@ private:
   FanoutValues fanout_;
 };
 
-} // namespace
+} // namespace sta

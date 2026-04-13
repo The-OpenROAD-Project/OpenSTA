@@ -65,7 +65,7 @@ public:
   // Copy the state from sta.  This is virtual so that a component
   // can notify sub-components.
   virtual void copyState(const StaState *sta);
-  virtual ~StaState() {}
+  virtual ~StaState() = default;
   Report *report() { return report_; }
   Report *report() const { return report_; }
   void setReport(Report *report);
@@ -113,7 +113,7 @@ public:
   size_t scenePathCount() const;
   DcalcAPIndex dcalcAnalysisPtCount() const;
 
-  const SceneSet scenesSet();
+  SceneSet scenesSet();
 
   ModeSeq &modes() { return modes_; }
   const ModeSeq &modes() const { return modes_; }
@@ -141,4 +141,4 @@ protected:
   DispatchQueue *dispatch_queue_;
 };
 
-} // namespace
+} // namespace sta

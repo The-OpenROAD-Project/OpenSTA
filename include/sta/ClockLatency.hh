@@ -61,4 +61,4 @@ private:
   RiseFallMinMax delays_;
 };
 
-} // namespace
+} // namespace sta

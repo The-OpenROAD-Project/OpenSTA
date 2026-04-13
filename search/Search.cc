@@ -24,56 +24,61 @@
 
 #include "Search.hh"
 
+#include <algorithm>
+#include <cstddef>
 #include <vector>
 
-#include "ContainerHelpers.hh"
-#include "Mutex.hh"
-#include "Report.hh"
-#include "Debug.hh"
-#include "Stats.hh"
-#include "Fuzzy.hh"
-#include "TimingRole.hh"
-#include "FuncExpr.hh"
-#include "TimingArc.hh"
-#include "Sequential.hh"
-#include "Units.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "PortDirection.hh"
-#include "Graph.hh"
-#include "GraphCmp.hh"
-#include "PortDelay.hh"
-#include "Clock.hh"
-#include "CycleAccting.hh"
-#include "ExceptionPath.hh"
-#include "DataCheck.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "SearchPred.hh"
-#include "Levelize.hh"
 #include "Bfs.hh"
-#include "Sim.hh"
-#include "Path.hh"
 #include "ClkInfo.hh"
-#include "Tag.hh"
-#include "TagGroup.hh"
+#include "Clock.hh"
+#include "ContainerHelpers.hh"
+#include "Crpr.hh"
+#include "DataCheck.hh"
+#include "Debug.hh"
+#include "Delay.hh"
+#include "ExceptionPath.hh"
+#include "Fuzzy.hh"
+#include "GatedClk.hh"
+#include "Genclks.hh"
+#include "Graph.hh"
+#include "GraphClass.hh"
+#include "Latches.hh"
+#include "Levelize.hh"
+#include "Liberty.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "Mutex.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "Path.hh"
 #include "PathEnd.hh"
 #include "PathGroup.hh"
-#include "VisitPathEnds.hh"
-#include "GatedClk.hh"
-#include "WorstSlack.hh"
-#include "Latches.hh"
-#include "Crpr.hh"
-#include "Genclks.hh"
+#include "PortDelay.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "SdcClass.hh"
+#include "SearchClass.hh"
+#include "SearchPred.hh"
+#include "Stats.hh"
+#include "StringUtil.hh"
+#include "Tag.hh"
+#include "TagGroup.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
 #include "Variables.hh"
+#include "VertexVisitor.hh"
+#include "VisitPathEnds.hh"
+#include "WorstSlack.hh"
 
 namespace sta {
 
 ////////////////////////////////////////////////////////////////
 
 EvalPred::EvalPred(const StaState *sta) :
-  SearchPred0(sta),
-  search_thru_latches_(true)
+  SearchPred0(sta)
 {
 }
 
@@ -227,61 +232,39 @@ SearchAdj::searchTo(const Vertex * /* to_vertex */,
 
 Search::Search(StaState *sta) :
   StaState(sta),
-  unconstrained_paths_(false),
-  crpr_path_pruning_enabled_(true),
-  crpr_approx_missing_requireds_(true),
 
   search_thru_(new SearchThru(this)),
   search_adj_(new SearchAdj(nullptr,
                             this)),
   eval_pred_(new EvalPred(this)),
 
-  arrivals_exist_(false),
-  arrivals_seeded_(false),
   invalid_arrivals_(makeVertexSet(this)),
   arrival_iter_(new BfsFwdIterator(BfsIndex::arrival,
                                    nullptr,
                                    this)),
   arrival_visitor_(new ArrivalVisitor(this)),
 
-  requireds_exist_(false),
-  requireds_seeded_(false),
   invalid_requireds_(makeVertexSet(this)),
   required_iter_(new BfsBkwdIterator(BfsIndex::required,
                                      search_adj_,
                                      this)),
 
-  tns_exists_(false),
   invalid_tns_(makeVertexSet(this)),
-  worst_slacks_(nullptr),
   clk_info_set_(new ClkInfoSet(ClkInfoLess(this))),
 
-  tag_capacity_(128),
   tags_(new Tag *[tag_capacity_]),
   tag_set_(new TagSet(tag_capacity_,
                       TagHash(this),
                       TagEqual(this))),
-  tag_next_(0),
-
   tag_group_capacity_(tag_capacity_),
   tag_groups_(new TagGroup *[tag_group_capacity_]),
   tag_group_set_(new TagGroupSet(tag_group_capacity_)),
-  tag_group_next_(0),
-
   pending_latch_outputs_(makeVertexSet(this)),
   pending_clk_endpoints_(makeVertexSet(this)),
   endpoints_(makeVertexSet(this)),
-  endpoints_initialized_(false),
   invalid_endpoints_(makeVertexSet(this)),
 
-  have_filter_(false),
-  filter_from_(nullptr),
-  filter_thrus_(nullptr),
-  filter_to_(nullptr),
   filtered_arrivals_(makeVertexSet(this)),
-
-  found_downstream_clk_pins_(false),
-  postpone_latch_outputs_(false),
 
   visit_path_ends_(new VisitPathEnds(this)),
   gated_clk_(new GatedClk(this)),
@@ -714,18 +697,16 @@ class SeedFaninsThruHierPin : public HierPinThruVisitor
 public:
   SeedFaninsThruHierPin(Graph *graph,
                         Search *search);
-
-protected:
   void visit(const Pin *drvr,
              const Pin *load) override;
 
+protected:
   Graph *graph_;
   Search *search_;
 };
 
 SeedFaninsThruHierPin::SeedFaninsThruHierPin(Graph *graph,
                                              Search *search) :
-  HierPinThruVisitor(),
   graph_(graph),
   search_(search)
 {
@@ -1556,7 +1537,6 @@ Search::seedClkArrival(const Pin *pin,
       // Propagated pin overrides latency on clk.
       if (sdc->isPropagatedClock(pin)) {
         latency = 0.0;
-        latency_exists = false;
         is_propagated = true;
       }
     }
@@ -2689,7 +2669,7 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
     if (tag_group_next_ == tag_group_capacity_) {
       TagGroupIndex tag_capacity = tag_group_capacity_ * 2;
       TagGroup **tag_groups = new TagGroup *[tag_capacity];
-      memcpy(tag_groups, tag_groups_, tag_group_capacity_ * sizeof(TagGroup *));
+      std::copy_n(tag_groups_.load(), tag_group_capacity_, tag_groups);
       tag_groups_prev_.push_back(tag_groups_);
       tag_groups_ = tag_groups;
       tag_group_capacity_ = tag_capacity;
@@ -2952,7 +2932,7 @@ Search::findTag(Scene *scene,
     if (tag_next_ == tag_capacity_) {
       TagIndex tag_capacity = tag_capacity_ * 2;
       Tag **tags = new Tag *[tag_capacity];
-      memcpy(tags, tags_, tag_capacity_ * sizeof(Tag *));
+      std::copy_n(tags_.load(), tag_capacity_, tags);
       tags_prev_.push_back(tags_);
       tags_ = tags;
       tag_capacity_ = tag_capacity;
@@ -3395,12 +3375,6 @@ Search::seedRequiredEnqueueFanin(Vertex *vertex)
 }
 
 ////////////////////////////////////////////////////////////////
-
-RequiredCmp::RequiredCmp() :
-  have_requireds_(false)
-{
-  requireds_.reserve(10);
-}
 
 void
 RequiredCmp::requiredsInit(Vertex *vertex,

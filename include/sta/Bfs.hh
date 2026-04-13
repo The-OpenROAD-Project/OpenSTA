@@ -50,10 +50,10 @@ using LevelQueue = std::vector<VertexSeq>;
 // Vertices are marked as being in the queue by using a flag on
 // the vertex indexed by bfs_index.  A unique flag is only needed
 // if the BFS in in use when other BFS's are simultaneously in use.
-class BfsIterator : public StaState, Iterator<Vertex*>
+class BfsIterator : public StaState,
+                    public Iterator<Vertex*>
 {
 public:
-  virtual ~BfsIterator();
   // Make sure that the BFS queue is deep enough for the max logic level.
   void ensureSize();
   // Reset to virgin state.
@@ -130,7 +130,7 @@ public:
   BfsFwdIterator(BfsIndex bfs_index,
 		 SearchPred *search_pred,
 		 StaState *sta);
-  virtual ~BfsFwdIterator();
+  ~BfsFwdIterator() override;
   void enqueueAdjacentVertices(Vertex *vertex,
                               SearchPred *search_pred) override;
   void enqueueAdjacentVertices(Vertex *vertex,
@@ -152,7 +152,7 @@ public:
   BfsBkwdIterator(BfsIndex bfs_index,
 		  SearchPred *search_pred,
 		  StaState *sta);
-  virtual ~BfsBkwdIterator();
+  ~BfsBkwdIterator() override;
   void enqueueAdjacentVertices(Vertex *vertex,
                               SearchPred *search_pred) override;
   void enqueueAdjacentVertices(Vertex *vertex,
@@ -168,4 +168,4 @@ protected:
   void incrLevel(Level &level) const override;
 };
 
-} // namespace
+} // namespace sta

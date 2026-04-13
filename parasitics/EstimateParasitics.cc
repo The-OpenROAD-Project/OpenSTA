@@ -239,4 +239,4 @@ instanceArea(Instance *inst,
 }
 #endif
 
-} // namespace
+} // namespace sta

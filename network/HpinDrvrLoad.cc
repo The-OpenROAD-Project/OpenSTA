@@ -326,4 +326,4 @@ HpinDrvrLoadLess::operator()(const HpinDrvrLoad *drvr_load1,
     return load1 < load2;
 }
 
-} // namespace
+} // namespace sta

@@ -263,4 +263,4 @@ protected:
   using ArcDelayCalc::reduceParasitic;
 };
 
-} // namespace
+} // namespace sta

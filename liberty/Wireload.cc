@@ -25,8 +25,13 @@
 #include "Wireload.hh"
 
 #include <algorithm>
+#include <cstddef>
+#include <string>
+#include <string_view>
+#include <utility>
 
-#include "StringUtil.hh"
+#include "ContainerHelpers.hh"
+#include "LibertyClass.hh"
 #include "Liberty.hh"
 
 namespace sta {
@@ -124,8 +129,7 @@ Wireload::findWireload(float fanout,
     if (fanout < fanout0) {
       // Extrapolate from lowest fanout entry.
       length = fanout_lengths_[0]->second - (fanout0 - fanout) * slope_;
-      if (length < 0)
-        length = 0;
+      length = std::max(length, 0.0F);
     }
     else if (fanout == fanout0)
       length = fanout_lengths_[0]->second;
@@ -304,4 +308,4 @@ stringWireloadMode(std::string_view wire_load_mode)
     return WireloadMode::unknown;
 }
 
-} // namespace
+} // namespace sta

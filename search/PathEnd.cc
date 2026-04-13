@@ -24,33 +24,32 @@
 
 #include "PathEnd.hh"
 
-#include "Debug.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Clock.hh"
-#include "PortDelay.hh"
-#include "DataCheck.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "ExceptionPath.hh"
 #include "ClkInfo.hh"
-#include "Tag.hh"
-#include "Search.hh"
-#include "ReportPath.hh"
-#include "Sim.hh"
+#include "Clock.hh"
+#include "DataCheck.hh"
+#include "Debug.hh"
+#include "ExceptionPath.hh"
+#include "Graph.hh"
 #include "Latches.hh"
-#include "StaState.hh"
+#include "Liberty.hh"
+#include "Mode.hh"
+#include "Network.hh"
 #include "PathExpanded.hh"
+#include "PortDelay.hh"
+#include "ReportPath.hh"
+#include "Sdc.hh"
+#include "Search.hh"
+#include "Sim.hh"
+#include "StaState.hh"
+#include "Tag.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
 #include "search/Crpr.hh"
 
 namespace sta {
 
 PathEnd::PathEnd(Path *path) :
-  path_(path),
-  path_group_(nullptr)
+  path_(path)
 {
 }
 
@@ -419,6 +418,14 @@ PathEnd::checkInterClkUncertainty(const ClockEdge *src_clk_edge,
     exists = false;
 }
 
+bool
+PathEnd::ignoreClkLatency(const Path *path,
+                          PathDelay *path_delay,
+                          const StaState *sta)
+{
+  return path_delay->ignoreClkLatency() && !path->isClock(sta);
+}
+
 ////////////////////////////////////////////////////////////////
 
 void
@@ -507,8 +514,7 @@ PathEndClkConstrained::PathEndClkConstrained(Path *path,
                                              Path *clk_path) :
   PathEnd(path),
   clk_path_(clk_path),
-  crpr_(0.0),
-  crpr_valid_(false)
+  crpr_(0.0)
 {
 }
 
@@ -609,9 +615,7 @@ PathEndClkConstrained::targetClkTime(const StaState *sta) const
 Arrival
 PathEndClkConstrained::targetClkArrival(const StaState *sta) const
 {
-  return delaySum(targetClkArrivalNoCrpr(sta),
-                  checkCrpr(sta),
-                  sta);
+  return delaySum(targetClkArrivalNoCrpr(sta), checkCrpr(sta), sta);
 }
  
 Arrival
@@ -1090,7 +1094,7 @@ PathEndLatchCheck::PathEndLatchCheck(Path *path,
   clk_path_ = enable_path;
   Search *search = sta->search();
   // Same as PathEndPathDelay::findRequired.
-  if (path_delay_ && ignoreClkLatency(sta))
+  if (path_delay_ && PathEnd::ignoreClkLatency(path_, path_delay_, sta))
     src_clk_arrival_ = search->pathClkPathArrival(path_);
 }
 
@@ -1266,7 +1270,7 @@ int
 PathEndLatchCheck::exceptPathCmp(const PathEnd *path_end,
                                  const StaState *sta) const
 {
-  int cmp = PathEndClkConstrainedMcp::exceptPathCmp(path_end, sta);
+  int cmp = PathEndCheck::exceptPathCmp(path_end, sta);
   if (cmp == 0) {
     const PathEndLatchCheck *path_end2 =
       dynamic_cast<const PathEndLatchCheck*>(path_end);
@@ -1765,7 +1769,7 @@ PathEndPathDelay::typeName() const
 void
 PathEndPathDelay::findSrcClkArrival(const StaState *sta)
 {
-  if (ignoreClkLatency(sta)) {
+  if (PathEnd::ignoreClkLatency(path_, path_delay_, sta)) {
     Search *search = sta->search();
     src_clk_arrival_ = search->pathClkPathArrival(path_);
   }
@@ -1849,14 +1853,6 @@ PathEnd::pathDelaySrcClkOffset(const Path *path,
       offset = -clk_edge->time();
   }
   return offset;
-}
-
-bool
-PathEnd::ignoreClkLatency(const Path *path,
-                          PathDelay *path_delay,
-                          const StaState *sta)
-{
-  return path_delay->ignoreClkLatency() && !path->isClock(sta);
 }
 
 const ClockEdge *
@@ -2119,4 +2115,4 @@ PathEndNoCrprLess::operator()(const PathEnd *path_end1,
     return cmp < 0;
 }
 
-} // namespace
+} // namespace sta

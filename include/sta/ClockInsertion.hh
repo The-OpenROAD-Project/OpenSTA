@@ -57,4 +57,4 @@ private:
   RiseFallMinMax delays_[EarlyLate::index_count];
 };
 
-} // namespace
+} // namespace sta

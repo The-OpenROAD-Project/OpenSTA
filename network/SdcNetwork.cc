@@ -1271,4 +1271,4 @@ escapeBrackets(std::string_view name,
   return escapeChars(name, '[', ']', network->pathEscape());
 }
 
-} // namespace
+} // namespace sta

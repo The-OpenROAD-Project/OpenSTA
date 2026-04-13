@@ -99,14 +99,14 @@ private:
   Compare comp_;
 
   // Helper to find insertion point using binary search
-  typename storage_type::iterator findInsertPos(const Key& key) {
+  storage_type::iterator findInsertPos(const Key& key) {
     return std::lower_bound(data_.begin(), data_.end(), key,
                             [this](const auto& pair, const Key& k) {
                               return comp_(pair.first, k);
                             });
   }
 
-  typename storage_type::const_iterator findInsertPos(const Key& key) const {
+  storage_type::const_iterator findInsertPos(const Key& key) const {
     return std::lower_bound(data_.begin(), data_.end(), key,
                             [this](const auto& pair, const Key& k) {
                               return comp_(pair.first, k);
@@ -126,15 +126,12 @@ private:
     using reference = proxy_type;
     using pointer = proxy_type*;
 
-    IteratorAdapter() = default;
     explicit IteratorAdapter(BaseIter it) : it_(it) {}
     
     // Conversion constructor: allow conversion from non-const to const iterator
     template <typename OtherIter>
-    IteratorAdapter(const IteratorAdapter<OtherIter>& other,
-                    typename std::enable_if<
-                      std::is_convertible_v<OtherIter, BaseIter>
-                    >::type* = nullptr)
+    requires std::is_convertible_v<OtherIter, BaseIter>
+    IteratorAdapter(const IteratorAdapter<OtherIter>& other)
       : it_(other.base()) {}
 
     reference operator*() {
@@ -166,11 +163,8 @@ private:
 
     // Assignment operator: allow assignment from non-const to const iterator
     template <typename OtherIter>
-    typename std::enable_if<
-      std::is_convertible_v<OtherIter, BaseIter>,
-      IteratorAdapter&
-    >::type
-    operator=(const IteratorAdapter<OtherIter>& other) {
+    requires std::is_convertible_v<OtherIter, BaseIter>
+    IteratorAdapter& operator=(const IteratorAdapter<OtherIter>& other) {
       it_ = other.base();
       return *this;
     }
@@ -263,7 +257,6 @@ public:
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  VectorMap() = default;
   explicit VectorMap(const Compare& comp) : comp_(comp) {}
 
   template <typename InputIt>

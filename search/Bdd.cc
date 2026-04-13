@@ -24,10 +24,10 @@
 
 #include "Bdd.hh"
 
-#include "cudd.h"
-#include "StaConfig.hh"
-#include "Report.hh"
 #include "FuncExpr.hh"
+#include "Report.hh"
+#include "StaConfig.hh"
+#include "cudd.h"
 
 namespace sta {
 
@@ -57,6 +57,7 @@ Bdd::funcBdd(const FuncExpr *expr)
   case FuncExpr::Op::not_:
     left = funcBdd(expr->left());
     if (left)
+      // NOLINTNEXTLINE(performance-no-int-to-ptr)
       result = Cudd_Not(left);
     break;
   case FuncExpr::Op::or_:
@@ -161,4 +162,4 @@ Bdd::clearVarMap()
   bdd_var_idx_port_map_.clear();
 }
 
-} // namespace
+} // namespace sta

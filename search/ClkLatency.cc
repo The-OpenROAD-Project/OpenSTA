@@ -26,18 +26,18 @@
 
 #include <algorithm>
 
+#include "ClkInfo.hh"
+#include "Clock.hh"
 #include "ContainerHelpers.hh"
-#include "Report.hh"
 #include "Debug.hh"
-#include "Units.hh"
+#include "Graph.hh"
 #include "Liberty.hh"
 #include "Network.hh"
-#include "Clock.hh"
-#include "Graph.hh"
 #include "Path.hh"
-#include "StaState.hh"
+#include "Report.hh"
 #include "Search.hh"
-#include "ClkInfo.hh"
+#include "StaState.hh"
+#include "Units.hh"
 
 namespace sta {
 

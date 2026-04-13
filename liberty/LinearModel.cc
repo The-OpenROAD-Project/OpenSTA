@@ -24,6 +24,14 @@
 
 #include "LinearModel.hh"
 
+#include <string>
+#include <string_view>
+
+#include "Delay.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "PocvMode.hh"
+#include "TimingModel.hh"
 #include "Units.hh"
 #include "Liberty.hh"
 
@@ -139,4 +147,4 @@ CheckLinearModel::setIsScaled(bool)
 {
 }
 
-} // namespace
+} // namespace sta

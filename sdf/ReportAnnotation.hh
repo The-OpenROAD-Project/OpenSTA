@@ -56,4 +56,4 @@ reportAnnotatedCheck(const Scene *scene,
                      bool report_constant_arcs,
                      StaState *sta);
 
-} // namespace
+} // namespace sta

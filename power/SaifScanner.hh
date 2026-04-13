@@ -44,8 +44,6 @@ public:
              const std::string &filename,
              SaifReader *reader,
              Report *report);
-  virtual ~SaifScanner() {}
-
   virtual int lex(SaifParse::semantic_type *const yylval,
                   SaifParse::location_type *yylloc);
   // YY_DECL defined in SaifLex.ll
@@ -63,4 +61,4 @@ private:
   std::string token_;
 };
 
-} // namespace
+} // namespace sta

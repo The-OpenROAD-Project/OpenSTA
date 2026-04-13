@@ -83,4 +83,4 @@ ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
   return Waveform();
 }
 
-} // namespace
+} // namespace sta

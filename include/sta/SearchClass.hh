@@ -129,4 +129,4 @@ static const int path_ap_index_bit_count = 8;
 // One path analysis point per scene min/max.
 static const int scene_count_max = (1 << path_ap_index_bit_count) / 2;
 
-} // namespace
+} // namespace sta

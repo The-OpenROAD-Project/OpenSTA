@@ -127,12 +127,12 @@ public:
   ConcretePort *makeBundlePort(std::string_view name,
                                ConcretePortSeq *members);
   // Group previously defined bus bit ports together.
-  void groupBusPorts(const char bus_brkt_left,
-                     const char bus_brkt_right,
+  void groupBusPorts(char bus_brkt_left,
+                     char bus_brkt_right,
                      std::function<bool(std::string_view)> port_msb_first);
   size_t portCount() const;
   void setName(std::string_view name);
-  void addPort(ConcretePort *port);
+  virtual void addPort(ConcretePort *port);
   void addPortBit(ConcretePort *port);
 
 protected:
@@ -275,4 +275,4 @@ private:
   ConcretePort *next_;
 };
 
-} // Namespace
+} // namespace sta

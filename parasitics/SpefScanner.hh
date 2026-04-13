@@ -46,8 +46,6 @@ public:
               std::string_view filename,
               SpefReader *reader,
               Report *report);
-  virtual ~SpefScanner() {}
-
   virtual int lex(SpefParse::semantic_type *const yylval,
                   SpefParse::location_type *yylloc);
   // YY_DECL defined in SpefLex.ll
@@ -66,4 +64,4 @@ private:
   std::string token_;
 };
 
-} // namespace
+} // namespace sta

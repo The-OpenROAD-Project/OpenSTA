@@ -64,4 +64,4 @@ ArcDcalcArg
 arcDcalcArgTcl(Tcl_Obj *obj,
                Tcl_Interp *interp);
 
-} // namespace
+} // namespace sta

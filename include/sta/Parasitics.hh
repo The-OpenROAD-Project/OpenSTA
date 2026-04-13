@@ -52,7 +52,6 @@ class Parasitics : public StaState
 {
 public:
   Parasitics(StaState *sta);
-  virtual ~Parasitics() {}
   virtual const std::string &name() const = 0;
   virtual const std::string &filename() const = 0;
   virtual bool haveParasitics() = 0;
@@ -304,4 +303,4 @@ private:
   const Network *network_;
 };
 
-} // namespace
+} // namespace sta

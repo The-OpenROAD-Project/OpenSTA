@@ -47,7 +47,7 @@ class SearchPred
 {
 public:
   SearchPred(const StaState *sta);
-  virtual ~SearchPred() {}
+  virtual ~SearchPred() = default;
   // Search is allowed from from_vertex.
   virtual bool searchFrom(const Vertex *from_vertex,
                           const Mode *mode) const = 0;
@@ -158,4 +158,4 @@ hasFanout(Vertex *vertex,
           const Graph *graph,
           const Mode *mode);
 
-} // namespace
+} // namespace sta

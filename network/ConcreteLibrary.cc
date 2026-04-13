@@ -351,8 +351,8 @@ BusPort::addBusBit(ConcretePort *port,
 }
 
 void
-ConcreteCell::groupBusPorts(const char bus_brkt_left,
-                            const char bus_brkt_right,
+ConcreteCell::groupBusPorts(char bus_brkt_left,
+                            char bus_brkt_right,
                             std::function<bool(std::string_view)> port_msb_first)
 {
   const char bus_brkts_left[2]{bus_brkt_left, '\0'};
@@ -625,4 +625,4 @@ ConcreteCellPortBitIterator::findNext()
   next_ = nullptr;
 }
 
-} // namespace
+} // namespace sta

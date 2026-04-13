@@ -39,21 +39,22 @@ class PathGroups;
 using PathGroupSeq = std::vector<PathGroup*>;
 
 // Sdc and dependent state.
-class Mode : public StaState
+class Mode
 {
 public:
   Mode(std::string_view name,
        size_t mode_index,
        StaState *sta);
-  virtual ~Mode();
-  virtual void copyState(const StaState *sta);
+  ~Mode();
+  void copyState(const StaState *sta);
   void clear();
   const std::string &name() const { return name_; }
   size_t modeIndex() const { return mode_index_; }
   const SceneSeq &scenes() const { return scenes_; }
-  const SceneSet sceneSet() const;
+  SceneSet sceneSet() const;
   void addScene(Scene *scene);
   void removeScene(Scene *scene);
+  StaState *sta() const { return sta_; }
   Sdc *sdc() { return sdc_; }
   Sdc *sdc() const { return sdc_; }
   Sim *sim() { return sim_; }
@@ -69,8 +70,8 @@ public:
                              int endpoint_path_count,
                              bool unique_pins,
                              bool unique_edges,
-                             float min_slack,
-                             float max_slack,
+                             float slack_min,
+                             float slack_max,
                              StringSeq &group_names,
                              bool setup,
                              bool hold,
@@ -89,7 +90,8 @@ private:
   Sim *sim_;
   ClkNetwork *clk_network_;
   Genclks *genclks_;
-  PathGroups *path_groups_;
+  PathGroups *path_groups_{nullptr};
+  StaState *sta_;
 };
 
-} // namespace
+} // namespace sta

@@ -101,8 +101,6 @@ SpefReader::SpefReader(std::string_view filename,
   parasitics->setCouplingCapFactor(coupling_cap_factor);
 }
 
-SpefReader::~SpefReader() {}
-
 bool
 SpefReader::read()
 {

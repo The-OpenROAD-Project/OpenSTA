@@ -26,11 +26,6 @@
 
 // This header contains global os/port specific definitions.
 
-// Pragma placeholder for non-gcc compilers.
-#ifndef __GNUC__
-  #define __attribute__(x)
-#endif // __GNUC__
-
 #ifdef _MSC_VER
   // Microcruft Visual C++
   // Obtuse warning codes enabled by pragma.
@@ -48,6 +43,7 @@
   //   4611 = setjmp used in C++ function
   //   4701 = variable used but not initialized
   #pragma warning( 3 : 4018 4032 4132 4189 4201 4222 4234 4505 4611 4701 )
+
   // Disable security warnings for posix functions.
   // _CRT_SECURE_NO_WARNINGS does not seem to work
   #pragma warning( disable : 4996 )
@@ -65,7 +61,7 @@
   // Flex doesn't check for unistd.h.
   #define YY_NO_UNISTD_H
   namespace sta {
-    int vsnprint(char *str, size_t size, const char *fmt, va_list args);
+    int vsnprint(char *str, size_t size, const char *fmt, const va_list args);
     int vasprintf(char **str, const char *fmt, va_list args);
   }
 #else

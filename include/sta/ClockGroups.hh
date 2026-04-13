@@ -34,12 +34,12 @@ namespace sta {
 class ClockGroups : public SdcCmdComment
 {
 public:
-  ClockGroups(const std::string &name,
+  ClockGroups(std::string_view name,
               bool logically_exclusive,
               bool physically_exclusive,
               bool asynchronous,
               bool allow_paths,
-              std::string comment);
+              std::string_view comment);
   ~ClockGroups();
   void makeClockGroup(ClockSet *clks);
   const std::string &name() const { return name_; }
@@ -59,4 +59,4 @@ private:
   ClockGroupSet groups_;
 };
 
-} // namespace
+} // namespace sta

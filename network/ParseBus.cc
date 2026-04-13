@@ -190,4 +190,4 @@ escapeChars(std::string_view token,
   return escaped;
 }
 
-} // namespace
+} // namespace sta

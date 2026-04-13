@@ -50,10 +50,10 @@ using ConcreteParasiticNetworkMap = std::map<const Net*, ConcreteParasiticNetwor
 class ConcreteParasitics : public Parasitics
 {
 public:
-  ConcreteParasitics(std::string name,
-                     std::string filename,
+  ConcreteParasitics(std::string_view name,
+                     std::string_view filename,
                      StaState *sta);
-  virtual ~ConcreteParasitics();
+  ~ConcreteParasitics() override;
   const std::string &name() const override { return name_; };
   const std::string &filename() const override { return filename_; };
   bool haveParasitics() override;
@@ -202,4 +202,4 @@ protected:
   friend class ConcreteParasiticNetwork;
 };
 
-} // namespace
+} // namespace sta

@@ -429,4 +429,4 @@ CycleAcctingEqual::operator()(const CycleAccting *acct1,
     && acct1->target() == acct2->target();
 }
 
-} // namespace
+} // namespace sta

@@ -111,4 +111,4 @@ sortByPathName(const DisabledInstancePortsMap *inst_map,
 LibertyPortPairSeq
 sortByName(const LibertyPortPairSet *set);
 
-} // namespace
+} // namespace sta

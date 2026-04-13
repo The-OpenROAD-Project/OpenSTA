@@ -108,4 +108,4 @@ private:
   const Network *network_;
 };
 
-} // namespace
+} // namespace sta

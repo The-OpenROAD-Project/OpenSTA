@@ -26,38 +26,53 @@
 
 #include <algorithm>  // max
 #include <cmath>      // abs
+#include <cstddef>
+#include <map>
+#include <string>
+#include <utility>
 
 #include "cudd.h"
-#include "ContainerHelpers.hh"
-#include "Stats.hh"
-#include "Debug.hh"
-#include "EnumNameMap.hh"
-#include "Hash.hh"
-#include "MinMax.hh"
-#include "Units.hh"
-#include "Transition.hh"
-#include "TimingRole.hh"
-#include "Liberty.hh"
-#include "InternalPower.hh"
-#include "LeakagePower.hh"
-#include "Sequential.hh"
-#include "TimingArc.hh"
-#include "FuncExpr.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Clock.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "Graph.hh"
-#include "GraphDelayCalc.hh"
-#include "Scene.hh"
-#include "Path.hh"
-#include "search/Levelize.hh"
-#include "search/Sim.hh"
-#include "Search.hh"
+
 #include "Bfs.hh"
 #include "ClkNetwork.hh"
+#include "Clock.hh"
+#include "ContainerHelpers.hh"
+#include "Debug.hh"
+#include "Delay.hh"
+#include "EnumNameMap.hh"
+#include "Error.hh"
+#include "FuncExpr.hh"
+#include "Graph.hh"
+#include "GraphClass.hh"
+#include "GraphDelayCalc.hh"
+#include "Hash.hh"
+#include "InternalPower.hh"
+#include "LeakagePower.hh"
+#include "Liberty.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "NetworkCmp.hh"
+#include "Path.hh"
+#include "PortDirection.hh"
+#include "PowerClass.hh"
 #include "ReportPower.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "SdcClass.hh"
+#include "Search.hh"
+#include "SearchClass.hh"
+#include "Sequential.hh"
+#include "Stats.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
+#include "Units.hh"
+#include "VertexVisitor.hh"
+#include "search/Levelize.hh"
+#include "search/Sim.hh"
 
 // Related liberty not supported:
 // library
@@ -90,16 +105,7 @@ static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map = {
 
 Power::Power(StaState *sta) :
   StaState(sta),
-  scene_(nullptr),
-  global_activity_(),
-  input_activity_(),  // default set in ensureActivities.
-  seq_activity_map_(100,
-                    SeqPinHash(network_),
-                    SeqPinEqual()),
-  activities_valid_(false),
-  bdd_(sta),
-  instance_powers_(InstanceIdLess(network_)),
-  instance_powers_valid_(false)
+  bdd_(sta)
 {
 }
 
@@ -399,7 +405,7 @@ Power::sortInstsByPower(const InstanceSeq &insts,
   InstPowers inst_pwrs;
   for (const Instance *inst : insts) {
     PowerResult inst_power = power(inst, scene);
-    inst_pwrs.push_back(std::make_pair(inst, inst_power));
+    inst_pwrs.emplace_back(inst, inst_power);
   }
 
   // Sort by total power (descending)
@@ -505,7 +511,7 @@ Power::highestInstPowers(size_t count,
   while (inst_iter->hasNext()) {
     Instance *inst = inst_iter->next();
     PowerResult pwr = power(inst, scene);
-    inst_pwrs.push_back(std::make_pair(inst, pwr));
+    inst_pwrs.emplace_back(inst, pwr);
   }
   delete inst_iter;
 
@@ -564,14 +570,15 @@ ActivitySrchPred::searchTo(const Vertex *,
 
 ////////////////////////////////////////////////////////////////
 
+// NOLINTNEXTLINE(misc-multiple-inheritance)
 class PropActivityVisitor : public VertexVisitor, StaState
 {
 public:
   PropActivityVisitor(Power *power,
                       const Mode *mode,
                       BfsFwdIterator *bfs);
-  virtual VertexVisitor *copy() const;
-  virtual void visit(Vertex *vertex);
+  VertexVisitor *copy() const override;
+  void visit(Vertex *vertex) override;
   InstanceSet &visitedRegs() { return visited_regs_; }
   void init();
   float maxChange() const { return max_change_; }
@@ -583,8 +590,8 @@ private:
 
   static constexpr float change_tolerance_ = .01;
   InstanceSet visited_regs_;
-  float max_change_;
-  const Pin *max_change_pin_;
+  float max_change_{0.0};
+  const Pin *max_change_pin_{nullptr};
   BfsFwdIterator *bfs_;
   Power *power_;
   const Mode *mode_;
@@ -595,8 +602,6 @@ PropActivityVisitor::PropActivityVisitor(Power *power,
                                          BfsFwdIterator *bfs) :
   StaState(power),
   visited_regs_(network_),
-  max_change_(0.0),
-  max_change_pin_(nullptr),
   bfs_(bfs),
   power_(power),
   mode_(mode)
@@ -1445,27 +1450,14 @@ Power::findSwitchingPower(const Instance *inst,
 class LeakageSummary
 {
 public:
-  LeakageSummary();
-
-  bool cond_exists;
-  float cond_leakage;
-  float cond_duty_sum;
-  bool cond_true_exists;
-  float cond_true_leakage;
-  bool uncond_exists;
-  float uncond_leakage;
+  bool cond_exists{false};
+  float cond_leakage{0.0};
+  float cond_duty_sum{0.0};
+  bool cond_true_exists{false};
+  float cond_true_leakage{0.0};
+  bool uncond_exists{false};
+  float uncond_leakage{0.0};
 };
-
-LeakageSummary::LeakageSummary() :
-  cond_exists(false),
-  cond_leakage(0.0),
-  cond_duty_sum(0.0),
-  cond_true_exists(false),
-  cond_true_leakage(0.0),
-  uncond_exists(false),
-  uncond_leakage(0.0)
-{
-}
 
 void
 Power::findLeakagePower(const Instance *inst,
@@ -1804,13 +1796,6 @@ Power::powerInvalid()
 
 ////////////////////////////////////////////////////////////////
 
-PowerResult::PowerResult() :
-  internal_(0.0),
-  switching_(0.0),
-  leakage_(0.0)
-{
-}
-
 void
 PowerResult::clear()
 {
@@ -1861,13 +1846,6 @@ PwrActivity::PwrActivity(float density,
   origin_(origin)
 {
   check();
-}
-
-PwrActivity::PwrActivity() :
-  density_(0.0),
-  duty_(0.0),
-  origin_(PwrActivityOrigin::unknown)
-{
 }
 
 void

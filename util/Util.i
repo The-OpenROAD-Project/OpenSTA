@@ -27,14 +27,14 @@
 
 %{
 
+#include "Error.hh"
+#include "Fuzzy.hh"
+#include "Report.hh"
 #include "Sta.hh"
 #include "StaConfig.hh"  // STA_VERSION
 #include "Stats.hh"
-#include "Report.hh"
-#include "Error.hh"
-#include "Fuzzy.hh"
-#include "Units.hh"
 #include "StringUtil.hh"
+#include "Units.hh"
 
 using namespace sta;
 

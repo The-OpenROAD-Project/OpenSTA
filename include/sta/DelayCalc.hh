@@ -55,4 +55,4 @@ ArcDelayCalc *
 makeDelayCalc(std::string_view name,
               StaState *sta);
 
-} // namespace
+} // namespace sta

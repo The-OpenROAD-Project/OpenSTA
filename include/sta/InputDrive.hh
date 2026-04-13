@@ -116,4 +116,4 @@ private:
   const LibertyPort *to_port_;
 };
 
-} // namespace
+} // namespace sta

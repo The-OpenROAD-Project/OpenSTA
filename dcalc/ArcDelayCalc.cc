@@ -135,7 +135,7 @@ ArcDcalcArg::ArcDcalcArg(const Pin *in_pin,
                          const Pin *drvr_pin,
                          Edge *edge,
                          const TimingArc *arc,
-                         const Slew in_slew,
+                         Slew in_slew,
                          float load_cap,
                          const Parasitic *parasitic) :
   in_pin_(in_pin),
@@ -305,4 +305,4 @@ ArcDcalcResult::setLoadSlew(size_t load_idx,
   load_slews_[load_idx] = load_slew;
 }
 
-} // namespace
+} // namespace sta

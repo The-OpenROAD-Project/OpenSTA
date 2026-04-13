@@ -24,11 +24,15 @@
 
 #pragma once
 
-#include "Transition.hh"
+#include <cstddef>
+#include <string>
+
+#include "NetworkClass.hh"
+#include "Scene.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
-#include "Path.hh"
-#include "Scene.hh"
+#include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -71,7 +75,7 @@ public:
   const ClockEdge *clkEdge() const;
   const Clock *clock() const;
   const Pin *clkSrc() const;
-  int rfIndex() const { return rf_index_; }
+  size_t rfIndex() const { return rf_index_; }
   const RiseFall *transition() const;
   const MinMax *minMax() const;
   int minMaxIndex() const { return min_max_index_; }
@@ -95,7 +99,7 @@ public:
                  const StaState *sta);
   static int matchCmp(const Tag *tag1,
                       const Tag *tag2,
-                      bool match_clk_clk_pin,
+                      bool match_crpr_clk_pin,
                       const StaState *sta);
   static bool match(const Tag *tag1,
                     const Tag *tag2,
@@ -134,11 +138,11 @@ private:
   size_t match_hash_;
   TagIndex index_;
   bool is_clk_:1;
-  bool is_filter_:1;
-  bool is_loop_:1;
-  bool is_segment_start_:1;
+  bool is_filter_:1 {false};
+  bool is_loop_:1 {false};
+  bool is_segment_start_:1 {false};
   // Indicates that states_ is owned by the tag.
-  bool own_states_:1;
+  bool own_states_:1 {false};
   unsigned int rf_index_:RiseFall::index_bit_count;
   unsigned int min_max_index_:MinMax::index_bit_count;
 };
@@ -182,4 +186,4 @@ private:
   const StaState *sta_;
 };
 
-} // namespace
+} // namespace sta

@@ -24,16 +24,27 @@
 
 #include "Path.hh"
 
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Network.hh"
-#include "Graph.hh"
+#include <cstddef>
+#include <string>
+
 #include "Clock.hh"
+#include "Delay.hh"
+#include "Format.hh"
+#include "Graph.hh"
+#include "GraphClass.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "Sdc.hh"
+#include "SdcClass.hh"
+#include "Search.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
 #include "Tag.hh"
 #include "TagGroup.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "Search.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "VertexId.hh"
 
 namespace sta {
 
@@ -326,7 +337,7 @@ Path::pathAnalysisPtIndex(const StaState *sta) const
   return scene(sta)->pathIndex(minMax(sta));
 }
 
-const Slew
+Slew
 Path::slew(const StaState *sta) const
 {
   DcalcAPIndex slew_index = scene(sta)->dcalcAnalysisPtIndex(minMax(sta));
@@ -785,8 +796,6 @@ VertexPathIterator::findNext()
   }
   next_ = nullptr;
 }
-
-VertexPathIterator::~VertexPathIterator() {}
 
 bool
 VertexPathIterator::hasNext()

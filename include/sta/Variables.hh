@@ -97,4 +97,4 @@ private:
   float pocv_quantile_;
 };
 
-} // namespace
+} // namespace sta

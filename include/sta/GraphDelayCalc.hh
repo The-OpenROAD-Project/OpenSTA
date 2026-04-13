@@ -53,8 +53,8 @@ class GraphDelayCalc : public StaState
 {
 public:
   GraphDelayCalc(StaState *sta);
-  virtual ~GraphDelayCalc();
-  virtual void copyState(const StaState *sta);
+  ~GraphDelayCalc() override;
+  void copyState(const StaState *sta) override;
   // Set the observer for edge delay changes.
   virtual void setObserver(DelayCalcObserver *observer);
   // Invalidate all delays/slews.
@@ -323,8 +323,7 @@ protected:
 class DelayCalcObserver
 {
 public:
-  DelayCalcObserver() {}
-  virtual ~DelayCalcObserver() {}
+  virtual ~DelayCalcObserver() = default;
   virtual void delayChangedFrom(Vertex *vertex) = 0;
   virtual void delayChangedTo(Vertex *vertex) = 0;
   virtual void checkDelayChangedTo(Vertex *vertex) = 0;
@@ -359,4 +358,4 @@ private:
   std::vector<NetCaps> net_caps_;
 };
 
-} // namespace
+} // namespace sta

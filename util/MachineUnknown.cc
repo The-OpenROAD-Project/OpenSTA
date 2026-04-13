@@ -61,4 +61,4 @@ memoryUsage()
   return 0;
 }
 
-} // namespace
+} // namespace sta

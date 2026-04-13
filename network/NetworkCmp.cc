@@ -137,4 +137,4 @@ sortByPathName(NetSet *set,
   return nets;
 }
 
-} // namespace
+} // namespace sta

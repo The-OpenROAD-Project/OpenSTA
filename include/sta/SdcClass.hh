@@ -133,4 +133,4 @@ constexpr int timing_derate_type_count = 3;
 enum class TimingDerateCellType { cell_delay, cell_check };
 constexpr int timing_derate_cell_type_count = 2;
 
-} // namespace
+} // namespace sta

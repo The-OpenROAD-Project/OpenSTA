@@ -77,8 +77,8 @@ class RegexpCompileError : public Exception
 {
 public:
   RegexpCompileError(std::string_view pattern);
-  virtual ~RegexpCompileError() noexcept {}
-  virtual const char *what() const noexcept;
+  ~RegexpCompileError() noexcept override = default;
+  const char *what() const noexcept override;
 
 private:
   std::string error_;
@@ -98,4 +98,4 @@ patternMatchNoCase(std::string_view pattern,
 bool
 patternWildcards(std::string_view pattern);
 
-} // namespace
+} // namespace sta

@@ -1488,4 +1488,4 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   }
 }
 
-} // namespace
+} // namespace sta

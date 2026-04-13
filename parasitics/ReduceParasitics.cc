@@ -688,4 +688,4 @@ ReduceToPiPoleResidue2::findPolesResidues(Parasitic *pi_pole_residue,
   }
 }
 
-} // namespace
+} // namespace sta

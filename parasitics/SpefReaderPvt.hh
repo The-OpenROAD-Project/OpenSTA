@@ -58,7 +58,7 @@ public:
              const MinMaxAll *min_max,
              Parasitics *parasitics,
              StaState *sta);
-  virtual ~SpefReader();
+  virtual ~SpefReader() = default;
   bool read();
   char divider() const { return divider_; }
   void setDivider(char divider);
@@ -181,4 +181,4 @@ private:
   SpefTriple *c1_;
 };
 
-} // namespace
+} // namespace sta

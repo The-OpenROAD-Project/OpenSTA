@@ -93,4 +93,4 @@ delayCalcNames()
   return names;
 }
 
-} // namespace
+} // namespace sta

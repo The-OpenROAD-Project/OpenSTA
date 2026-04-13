@@ -18,10 +18,10 @@ namespace sta {
 
 class DispatchQueue
 {
-  typedef std::function<void(int thread)> fp_t;
+  using fp_t = std::function<void(int thread)>;
 
 public:
-  DispatchQueue(size_t thread_cnt);
+  DispatchQueue(size_t thread_count);
   ~DispatchQueue();
   void setThreadCount(size_t thread_count);
   size_t getThreadCount() const;
@@ -49,4 +49,4 @@ private:
   bool quit_ = false;
 };
 
-} // namespace
+} // namespace sta

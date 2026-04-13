@@ -53,4 +53,4 @@ NetCaps::init(float pin_cap,
   has_net_load_ = has_net_load;
 }
 
-} // namespace
+} // namespace sta

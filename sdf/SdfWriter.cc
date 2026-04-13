@@ -824,4 +824,4 @@ SdfWriter::sdfPortName(const Pin *pin)
   return sdf_name;
 }
 
-} // namespace
+} // namespace sta

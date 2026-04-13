@@ -24,14 +24,20 @@
 
 #pragma once
 
+#include <cstddef>
 #include <map>
+#include <utility>
+#include <vector>
 
-#include "Transition.hh"
-#include "NetworkClass.hh"
+#include "Clock.hh"
 #include "Graph.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "NetworkClass.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -59,7 +65,7 @@ class Genclks : public StaState
 public:
   Genclks(const Mode *mode,
           StaState *sta);
-  virtual ~Genclks();
+  ~Genclks() override;
   void clear();
   void ensureInsertionDelays();
   VertexSet *fanins(const Clock *clk);
@@ -137,10 +143,10 @@ private:
   void deleteGenclkSrcPaths(Clock *gclk);
 
   const Mode *mode_;
-  bool found_insertion_delays_;
+  bool found_insertion_delays_{false};
   GenclkSrcPathMap genclk_src_paths_;
   GenclkInfoMap genclk_info_map_;
   VertexGenclkSrcPathsMap vertex_src_paths_map_;
 };
 
-} // namespace
+} // namespace sta

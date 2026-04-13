@@ -37,4 +37,4 @@ ClockGatingCheck::setActiveValue(LogicValue value)
   active_value_ = value;
 }
 
-} // namespace
+} // namespace sta

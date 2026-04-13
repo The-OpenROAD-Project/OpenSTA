@@ -46,8 +46,6 @@ public:
   VerilogScanner(std::istream *stream,
                  std::string_view filename,
                  Report *report);
-  virtual ~VerilogScanner() {}
-
   virtual int lex(VerilogParse::semantic_type *const yylval,
                   VerilogParse::location_type *yylloc);
   // YY_DECL defined in VerilogLex.ll
@@ -65,4 +63,4 @@ private:
   std::string token_;
 };
 
-} // namespace
+} // namespace sta

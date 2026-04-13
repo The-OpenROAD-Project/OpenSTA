@@ -120,4 +120,4 @@ DataCheckLess::operator()(const DataCheck *check1,
                 && clkCmp(clk1, clk2) < 0)));
 }
 
-} // namespace
+} // namespace sta

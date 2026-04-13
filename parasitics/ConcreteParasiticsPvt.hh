@@ -336,4 +336,4 @@ public:
                              ConcreteParasiticNode *node2);
 };
 
-} // namespace
+} // namespace sta

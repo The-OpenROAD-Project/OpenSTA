@@ -95,4 +95,4 @@ protected:
                                 bool &elmore_use_load_cap);
 };
 
-} // namespace
+} // namespace sta

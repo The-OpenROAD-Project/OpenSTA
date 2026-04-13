@@ -42,7 +42,7 @@ using WireloadForAreaSeq = std::vector<WireloadForArea*>;
 const char *
 wireloadTreeString(WireloadTree tree);
 WireloadTree
-stringWireloadTree(std::string_view tree);
+stringWireloadTree(std::string_view wire_load_type);
 
 const char *
 wireloadModeString(WireloadMode wire_load_mode);
@@ -101,4 +101,4 @@ private:
   WireloadForAreaSeq wireloads_;
 };
 
-} // namespace
+} // namespace sta

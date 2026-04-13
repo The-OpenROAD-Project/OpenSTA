@@ -42,4 +42,4 @@ private:
   LogicValue active_value_;
 };
 
-} // namespace
+} // namespace sta

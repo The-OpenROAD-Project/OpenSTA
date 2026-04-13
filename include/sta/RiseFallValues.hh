@@ -49,4 +49,4 @@ private:
   bool exists_[RiseFall::index_count];
 };
 
-} // namespace
+} // namespace sta

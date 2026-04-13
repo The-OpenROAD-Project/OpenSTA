@@ -436,4 +436,4 @@ DmpCeffTwoPoleDelayCalc::loadDelay(double vth,
   }
 }
 
-} // namespace
+} // namespace sta

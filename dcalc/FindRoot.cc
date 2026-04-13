@@ -98,4 +98,4 @@ findRoot(FindRootFunc func,
   return {root, true};
 }
 
-} // namespace
+} // namespace sta

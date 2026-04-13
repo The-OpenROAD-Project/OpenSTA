@@ -84,4 +84,4 @@ private:
   Power *power_;
 };
 
-} // namespace
+} // namespace sta

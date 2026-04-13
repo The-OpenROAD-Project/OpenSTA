@@ -24,14 +24,16 @@
 
 #pragma once
 
+#include <cstddef>
 #include <queue>
 #include <vector>
 
-#include "ContainerHelpers.hh"
+#include "Delay.hh"
 #include "Iterator.hh"
-#include "StaState.hh"
-#include "SearchClass.hh"
+#include "LibertyClass.hh"
 #include "Path.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -67,7 +69,7 @@ public:
            const StaState *sta);
   // Insert path ends that are enumerated in slack/arrival order.
   void insert(PathEnd *path_end);
-  virtual ~PathEnum();
+  ~PathEnum() override;
   bool hasNext() override;
   PathEnd *next() override;
 
@@ -85,7 +87,7 @@ private:
                         Path *&after_div_copy);
   void updatePathHeadDelays(PathSeq &path,
                             Path *after_div);
-  Arrival divSlack(Path *path,
+  Arrival divSlack(Path *before_div,
                    Path *after_div,
                    const Edge *div_edge,
                    const TimingArc *div_arc);
@@ -99,13 +101,13 @@ private:
   bool unique_pins_;
   bool unique_edges_;
   DiversionQueue div_queue_;
-  int div_count_;
+  int div_count_{0};
   // Number of paths returned for each endpoint (limit to endpoint_path_count).
   VertexPathCountMap path_counts_;
-  bool inserts_pruned_;
-  PathEnd *next_;
+  bool inserts_pruned_{false};
+  PathEnd *next_{nullptr};
 
   friend class PathEnumFaninVisitor;
 };
 
-} // namespace
+} // namespace sta

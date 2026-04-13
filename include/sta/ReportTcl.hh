@@ -43,7 +43,7 @@ class ReportTcl : public Report
 {
 public:
   ReportTcl();
-  virtual ~ReportTcl();
+  ~ReportTcl() override;
   void logBegin(std::string_view filename) override;
   void logEnd() override;
   void redirectFileBegin(std::string_view filename) override;
@@ -68,13 +68,13 @@ private:
                   const char *buffer,
                   size_t length);
 
-  Tcl_Interp *interp_;
+  Tcl_Interp *interp_{nullptr};
   // The original tcl channels.
-  Tcl_Channel tcl_stdout_;
-  Tcl_Channel tcl_stderr_;
+  Tcl_Channel tcl_stdout_{nullptr};
+  Tcl_Channel tcl_stderr_{nullptr};
   // Encapsulated channels that print on this object.
-  Tcl_Channel tcl_encap_stdout_;
-  Tcl_Channel tcl_encap_stderr_;
+  Tcl_Channel tcl_encap_stdout_{nullptr};
+  Tcl_Channel tcl_encap_stderr_{nullptr};
 };
 
-} // namespace
+} // namespace sta

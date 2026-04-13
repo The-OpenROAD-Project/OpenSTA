@@ -89,7 +89,7 @@ class WriteSdcObject
 {
 public:
   WriteSdcObject() {}
-  virtual ~WriteSdcObject() {}
+  virtual ~WriteSdcObject() = default;
   virtual void write() const = 0;
 };
 
@@ -2860,4 +2860,4 @@ WriteSdc::writeCmdComment(SdcCmdComment *cmd) const
     sta::print(stream_, " -comment {{{}}}", comment);
 }
 
-} // namespace
+} // namespace sta

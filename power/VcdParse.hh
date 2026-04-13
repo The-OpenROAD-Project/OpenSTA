@@ -97,7 +97,7 @@ private:
 class VcdReader
 {
 public:
-  virtual ~VcdReader() {}
+  virtual ~VcdReader() = default;
   virtual void setDate(std::string_view date) = 0;
   virtual void setComment(std::string_view comment) = 0;
   virtual void setVersion(std::string_view version) = 0;
@@ -139,4 +139,4 @@ private:
   uint64_t bus_value_;
 };
 
-} // namespace
+} // namespace sta

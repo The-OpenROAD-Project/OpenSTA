@@ -117,4 +117,4 @@ public:
   DeratingFactorsNet();
 };
 
-} // namespace
+} // namespace sta

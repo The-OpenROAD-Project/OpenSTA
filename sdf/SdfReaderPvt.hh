@@ -230,4 +230,4 @@ private:
   static const int null_index_ = -1;
 };
 
-} // namespace
+} // namespace sta

@@ -90,4 +90,4 @@ private:
                   int digits);
 };
 
-} // namespace
+} // namespace sta

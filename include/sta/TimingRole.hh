@@ -144,4 +144,4 @@ private:
   friend class TimingRoleLess;
 };
 
-} // namespace
+} // namespace sta

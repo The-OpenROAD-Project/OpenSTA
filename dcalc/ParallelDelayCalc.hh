@@ -47,4 +47,4 @@ protected:
                                        const MinMax *min_max);
 };
 
-} // namespace
+} // namespace sta

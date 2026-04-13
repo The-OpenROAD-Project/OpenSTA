@@ -173,4 +173,4 @@ public:
   NetSet(const Network *network);
 };
 
-} // namespace
+} // namespace sta

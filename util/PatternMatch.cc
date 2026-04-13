@@ -23,6 +23,7 @@
 // This notice may not be removed or altered from any source distribution.
 
 #include "PatternMatch.hh"
+
 #include <cctype>
 #include <tcl.h>
 
@@ -114,15 +115,14 @@ PatternMatch::matchNoCase(std::string_view str) const
   if (regexp_) {
     std::string buf(str);
     const char *cstr = buf.c_str();
-    return Tcl_RegExpExec(0, regexp_, cstr, cstr) == 1;
+    return Tcl_RegExpExec(nullptr, regexp_, cstr, cstr) == 1;
   }
   return patternMatchNoCase(pattern_, str, nocase_);
 }
 
 ////////////////////////////////////////////////////////////////
 
-RegexpCompileError::RegexpCompileError(std::string_view pattern)  :
-  Exception()
+RegexpCompileError::RegexpCompileError(std::string_view pattern)
 {
   error_ = "TCL failed to compile regular expression '";
   error_.append(pattern.data(), pattern.size());
@@ -205,4 +205,4 @@ patternWildcards(std::string_view pattern)
   return pattern.find_first_of("*?") != std::string_view::npos;
 }
 
-} // namespace
+} // namespace sta

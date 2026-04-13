@@ -44,7 +44,7 @@ class ClkNetwork : public StaState
 public:
   ClkNetwork(Mode *mode,
              StaState *sta);
-  ~ClkNetwork();
+  ~ClkNetwork() override;
   void ensureClkNetwork();
   void clear();
   bool isClock(const Pin *pin) const;
@@ -73,9 +73,9 @@ private:
 
   void findClkPins();
   void findClkPins(bool ideal_only,
-                   PinClksMap &clk_pin_map);
+                   PinClksMap &pin_clks_map);
 
-  bool clk_pins_valid_;
+  bool clk_pins_valid_{false};
   // pin -> clks
   PinClksMap pin_clks_map_;
   // pin -> ideal clks
@@ -84,4 +84,4 @@ private:
   ClkPinsMap clk_pins_map_;
 };
 
-} // namespace
+} // namespace sta

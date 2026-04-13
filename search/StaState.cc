@@ -28,14 +28,14 @@
 
 #include "ContainerHelpers.hh"
 #include "DispatchQueue.hh"
-#include "Units.hh"
-#include "Network.hh"
-#include "Variables.hh"
-#include "Sdc.hh"
 #include "Graph.hh"
-#include "TimingArc.hh"
 #include "Mode.hh"
+#include "Network.hh"
 #include "Scene.hh"
+#include "Sdc.hh"
+#include "TimingArc.hh"
+#include "Units.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -160,11 +160,11 @@ StaState::dcalcAnalysisPtCount() const
   return MinMax::index_count * scenes_.size();
 }
 
-const SceneSet
+SceneSet
 StaState::scenesSet()
 {
   return Scene::sceneSet(scenes_);
 }
 
 
-} // namespace
+} // namespace sta

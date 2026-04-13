@@ -24,15 +24,15 @@
 
 #include "GatedClk.hh"
 
+#include "ClkNetwork.hh"
 #include "FuncExpr.hh"
-#include "Liberty.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
 #include "Graph.hh"
+#include "Liberty.hh"
 #include "Mode.hh"
+#include "Network.hh"
+#include "PortDirection.hh"
 #include "Sdc.hh"
 #include "Search.hh"
-#include "ClkNetwork.hh"
 
 namespace sta {
 
@@ -259,4 +259,4 @@ GatedClk::gatedClkActiveTrans(LogicValue active_value,
     return leading_rf->opposite();
 }
 
-} // namespace
+} // namespace sta

@@ -203,4 +203,4 @@ LumpedCapDelayCalc::reportGateDelay(const Pin *check_pin,
   return "";
 }
 
-} // namespace
+} // namespace sta

@@ -55,4 +55,4 @@ readSpefFile(std::string_view filename,
              Parasitics *parasirics,
              StaState *sta);
 
-} // namespace
+} // namespace sta

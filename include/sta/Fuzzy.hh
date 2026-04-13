@@ -48,4 +48,4 @@ fuzzyGreaterEqual(float v1,
 bool
 fuzzyInf(float value);
 
-} // namespace
+} // namespace sta

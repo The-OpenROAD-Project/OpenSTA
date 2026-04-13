@@ -290,4 +290,4 @@ std::string
 escapeBrackets(std::string_view name,
                const Network *network);
 
-} // namespace
+} // namespace sta

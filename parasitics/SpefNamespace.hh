@@ -42,4 +42,4 @@ staToSpef(std::string_view sta_name,
           char path_divider,
           char path_escape);
 
-} // namespace
+} // namespace sta

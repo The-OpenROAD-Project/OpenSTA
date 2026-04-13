@@ -84,4 +84,4 @@ protected:
 ArcDelayCalc *
 makeLumpedCapDelayCalc(StaState *sta);
 
-} // namespace
+} // namespace sta

@@ -105,4 +105,4 @@ private:
 FuncExpr *
 funcExprNot(FuncExpr *expr);
 
-} // namespace
+} // namespace sta

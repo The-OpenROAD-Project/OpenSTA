@@ -25,44 +25,46 @@
 #pragma once
 
 #include "LibertyClass.hh"
+#include "Mode.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 
 InstanceSet
 findRegInstances(ClockSet *clks,
                  const RiseFallBoth *clk_rf,
-                 bool edge_triggered,
+                 bool registers,
                  bool latches,
                  const Mode *mode,
                  const StaState *sta);
 PinSet
 findRegDataPins(ClockSet *clks,
                 const RiseFallBoth *clk_rf,
-                bool edge_triggered,
+                bool registers,
                 bool latches,
                 const Mode *mode,
                 const StaState *sta);
 PinSet
 findRegClkPins(ClockSet *clks,
                const RiseFallBoth *clk_rf,
-               bool edge_triggered,
+               bool registers,
                bool latches,
                const Mode *mode,
                const StaState *sta);
 PinSet
 findRegAsyncPins(ClockSet *clks,
                  const RiseFallBoth *clk_rf,
-                 bool edge_triggered,
+                 bool registers,
                  bool latches,
                  const Mode *mode,
                  const StaState *sta);
 PinSet
 findRegOutputPins(ClockSet *clks,
                   const RiseFallBoth *clk_rf,
-                  bool edge_triggered,
+                  bool registers,
                   bool latches,
                   const Mode *mode,
                   const StaState *sta);
@@ -70,4 +72,4 @@ findRegOutputPins(ClockSet *clks,
 void
 initPathSenseThru();
 
-} // namespace
+} // namespace sta

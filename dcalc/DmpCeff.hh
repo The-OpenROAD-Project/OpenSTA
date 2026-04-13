@@ -101,4 +101,4 @@ private:
   DmpAlg *dmp_alg_;
 };
 
-} // namespace
+} // namespace sta

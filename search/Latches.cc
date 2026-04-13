@@ -24,21 +24,21 @@
 
 #include "Latches.hh"
 
-#include "Debug.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "ExceptionPath.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
 #include "ClkInfo.hh"
-#include "Tag.hh"
-#include "Sim.hh"
-#include "PathEnd.hh"
-#include "Search.hh"
 #include "Crpr.hh"
+#include "Debug.hh"
+#include "ExceptionPath.hh"
+#include "Graph.hh"
+#include "Liberty.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "PathEnd.hh"
+#include "Sdc.hh"
+#include "Search.hh"
+#include "Sim.hh"
+#include "Tag.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
 
 namespace sta {
 
@@ -603,4 +603,4 @@ Latches::isLatchDtoQ(const Edge *edge,
     && latchDtoQState(edge, mode) == LatchEnableState::enabled;
 }
 
-} // namespace
+} // namespace sta

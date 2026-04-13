@@ -82,11 +82,11 @@ public:
   void removeSlew();
   const RiseFallMinMax &slews() const { return slews_; }
   void setSlewLimit(const RiseFallBoth *rf,
-                    const PathClkOrData clk_data,
+                    PathClkOrData clk_data,
                     const MinMax *min_max,
                     float slew);
   void slewLimit(const RiseFall *rf,
-                 const PathClkOrData clk_data,
+                 PathClkOrData clk_data,
                  const MinMax *min_max,
                  // Return values.
                  float &slew,
@@ -291,4 +291,4 @@ int
 compare(const ClockSet *set1,
         const ClockSet *set2);
 
-} // namespace
+} // namespace sta

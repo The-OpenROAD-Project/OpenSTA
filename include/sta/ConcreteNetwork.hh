@@ -62,7 +62,7 @@ class ConcreteNetwork : public NetworkReader
 {
 public:
   ConcreteNetwork();
-  ~ConcreteNetwork();
+  ~ConcreteNetwork() override;
   void clear() override;
   bool linkNetwork(std::string_view top_cell_name,
                    bool make_black_boxes,
@@ -354,7 +354,7 @@ public:
   void setVertexId(VertexId id);
 
 protected:
-  ~ConcretePin() {}
+  ~ConcretePin() = default;
   ConcretePin(ConcreteInstance *instance,
               ConcretePort *port,
               ConcreteNet *net);
@@ -384,7 +384,7 @@ public:
   ConcretePin *pin() const { return pin_; }
 
 protected:
-  ~ConcreteTerm() {}
+  ~ConcreteTerm() = default;
   ConcreteTerm(ConcretePin *pin,
                ConcreteNet *net);
 
@@ -432,4 +432,4 @@ protected:
   friend class ConcreteNetPinIterator;
 };
 
-} // namespace
+} // namespace sta

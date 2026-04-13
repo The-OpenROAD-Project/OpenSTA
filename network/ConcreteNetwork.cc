@@ -2125,4 +2125,4 @@ ConcreteBindingTbl::ensureBinding(Net *proto_net,
   return net;
 }
 
-} // namespace
+} // namespace sta

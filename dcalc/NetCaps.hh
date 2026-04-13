@@ -51,4 +51,4 @@ private:
   bool has_net_load_;
 };
 
-} // namespace
+} // namespace sta

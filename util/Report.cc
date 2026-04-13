@@ -29,25 +29,17 @@
 #include <cstring>    // strlen
 
 #include "Error.hh"
-#include "Machine.hh"
 #include "Format.hh"
+#include "Machine.hh"
 
 namespace sta {
 
 Report *Report::default_ = nullptr;
 
-Report::Report() :
-  log_stream_(nullptr),
-  redirect_stream_(nullptr),
-  redirect_to_string_(false),
-  buffer_size_(1000),
-  buffer_(new char[buffer_size_]),
-  buffer_length_(0)
+Report::Report()
 {
   default_ = this;
 }
-
-Report::~Report() { delete[] buffer_; }
 
 size_t
 Report::printConsole(const char *buffer,
@@ -93,64 +85,6 @@ void
 Report::reportLine(const std::string &line)
 {
   printLine(line.c_str(), line.length());
-}
-
-////////////////////////////////////////////////////////////////
-
-void
-Report::printToBuffer(const char *fmt,
-                      ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  printToBuffer(fmt, args);
-  va_end(args);
-}
-
-void
-Report::printToBuffer(const char *fmt,
-                      va_list args)
-{
-  buffer_length_ = 0;
-  printToBufferAppend(fmt, args);
-}
-
-void
-Report::printToBufferAppend(const char *fmt,
-                            ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  printToBufferAppend(fmt, args);
-  va_end(args);
-}
-
-void
-Report::printToBufferAppend(const char *fmt,
-                            va_list args)
-{
-  // Copy args in case we need to grow the buffer.
-  va_list args_copy;
-  va_copy(args_copy, args);
-  size_t length =
-      vsnprint(buffer_ + buffer_length_, buffer_size_ - buffer_length_, fmt, args);
-  if (length >= buffer_size_ - buffer_length_) {
-    buffer_size_ = buffer_length_ + length * 2;
-    char *new_buffer = new char[buffer_size_];
-    strncpy(new_buffer, buffer_, buffer_length_);
-    delete[] buffer_;
-    buffer_ = new_buffer;
-    length = vsnprint(buffer_ + buffer_length_, buffer_size_ - buffer_length_, fmt,
-                      args_copy);
-  }
-  buffer_length_ += length;
-  va_end(args_copy);
-}
-
-void
-Report::printBufferLine()
-{
-  printLine(buffer_, buffer_length_);
 }
 
 ////////////////////////////////////////////////////////////////

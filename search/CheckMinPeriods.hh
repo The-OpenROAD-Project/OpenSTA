@@ -24,13 +24,17 @@
 
 #pragma once
 
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
+#include <cstddef>
+#include <vector>
+
+#include "BoundedHeap.hh"
 #include "Delay.hh"
+#include "GraphClass.hh"
+#include "NetworkClass.hh"
+#include "Scene.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
-#include "BoundedHeap.hh"
 
 namespace sta {
 
@@ -96,4 +100,4 @@ protected:
   StaState *sta_;
 };
 
-} // namespace
+} // namespace sta

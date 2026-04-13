@@ -24,22 +24,20 @@
 
 #include "Error.hh"
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 #include "Format.hh"
 #include "StringUtil.hh"
 
 namespace sta {
 
-Exception::Exception() :
-  std::exception()
+Exception::Exception()
 {
 }
 
 ExceptionMsg::ExceptionMsg(const std::string &msg,
-                           const bool suppressed) :
-  Exception(),
+                           bool suppressed) :
   msg_(msg),
   suppressed_(suppressed)
 {
@@ -53,7 +51,6 @@ ExceptionMsg::what() const noexcept
 
 ExceptionLine::ExceptionLine(const std::string &filename,
                              int line) :
-  Exception(),
   filename_(filename),
   line_(line)
 {
@@ -81,4 +78,4 @@ FileNotWritable::what() const noexcept
   return msg_.c_str();
 }
 
-} // namespace
+} // namespace sta

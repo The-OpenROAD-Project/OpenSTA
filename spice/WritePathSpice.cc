@@ -756,4 +756,4 @@ WritePathSpice::stageLibertyCell(Stage stage)
   return network_->libertyPort(pin)->libertyCell();
 }
 
-} // namespace
+} // namespace sta

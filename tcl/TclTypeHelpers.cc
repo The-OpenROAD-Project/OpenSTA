@@ -204,4 +204,4 @@ arcDcalcArgTcl(Tcl_Obj *obj,
   return ArcDcalcArg();
 }
 
-} // namespace
+} // namespace sta

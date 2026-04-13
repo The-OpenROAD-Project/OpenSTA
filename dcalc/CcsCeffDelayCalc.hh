@@ -155,4 +155,4 @@ protected:
   ArcDelayCalc *table_dcalc_;
 };
 
-} // namespace
+} // namespace sta

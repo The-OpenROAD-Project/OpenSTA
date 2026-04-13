@@ -275,4 +275,4 @@ protected:
   gzFile stream_;
 };
 
-} // namespace
+} // namespace sta

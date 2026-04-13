@@ -239,4 +239,4 @@ DelayCalcBase::setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
     setDcalcArgParasiticSlew(gate, scene, min_max);
 }
 
-} // namespace
+} // namespace sta

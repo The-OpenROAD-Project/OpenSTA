@@ -30,9 +30,9 @@ DispatchQueue::terminateThreads()
   cv_.notify_all();
 
   // Wait for threads to finish before we exit
-  for(size_t i = 0; i < threads_.size(); i++) {
-    if (threads_[i].joinable()) {
-      threads_[i].join();
+  for (auto &thread : threads_) {
+    if (thread.joinable()) {
+      thread.join();
     }
   }
   quit_ = false;
@@ -95,10 +95,10 @@ DispatchQueue::dispatch_thread_handler(size_t i)
 
   do {
     // Wait until we have data or a quit signal
-    cv_.wait(lock, [this] { return (q_.size() || quit_); } );
+    cv_.wait(lock, [this] { return (!q_.empty() || quit_); } );
 
     //after wait, we own the lock
-    if(!quit_ && q_.size()) {
+    if (!quit_ && !q_.empty()) {
       auto op = std::move(q_.front());
       q_.pop();
 
@@ -112,4 +112,4 @@ DispatchQueue::dispatch_thread_handler(size_t i)
   } while (!quit_);
 }
 
-} // namespace
+} // namespace sta

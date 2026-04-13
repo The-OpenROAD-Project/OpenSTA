@@ -219,4 +219,4 @@ verilogToSta(std::string_view verilog_name)
     return std::string(verilog_name);
 }
 
-} // namespace
+} // namespace sta

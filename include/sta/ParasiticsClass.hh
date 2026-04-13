@@ -32,4 +32,4 @@ class ParasiticNode;
 class ParasiticResistor;
 class ParasiticCapacitor;
 
-} // namespace
+} // namespace sta

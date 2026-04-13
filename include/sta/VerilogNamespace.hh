@@ -47,4 +47,4 @@ netVerilogToSta(std::string_view sta_name);
 std::string
 portVerilogToSta(std::string_view sta_name);
 
-} // namespace
+} // namespace sta

@@ -78,4 +78,4 @@ protected:
   const StaState *sta_;
 };
 
-} // namespace
+} // namespace sta

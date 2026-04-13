@@ -25,8 +25,13 @@
 #include "InternalPower.hh"
 
 #include <memory>
+#include <string>
+#include <utility>
 
+#include "Error.hh"
 #include "FuncExpr.hh"
+#include "LibertyClass.hh"
+#include "Transition.hh"
 #include "TableModel.hh"
 #include "Liberty.hh"
 #include "Units.hh"
@@ -76,7 +81,7 @@ InternalPowerModel::InternalPowerModel() :
 }
 
 InternalPowerModel::InternalPowerModel(std::shared_ptr<TableModel> model) :
-  model_(model)
+  model_(std::move(model))
 {
 }
 
@@ -192,4 +197,4 @@ InternalPowerModel::checkAxis(const TableAxis *axis)
     || var == TableAxisVariable::related_out_total_output_net_capacitance;
 }
 
-} // namespace
+} // namespace sta

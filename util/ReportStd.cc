@@ -24,8 +24,8 @@
 
 #include "ReportStd.hh"
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 #include "Report.hh"
 
@@ -35,7 +35,7 @@ namespace sta {
 class ReportStd : public Report
 {
 public:
-  ReportStd();
+  ReportStd() = default;
 
 protected:
   size_t printConsole(const char *buffer, size_t length) override;
@@ -46,11 +46,6 @@ Report *
 makeReportStd()
 {
   return new ReportStd;
-}
-
-ReportStd::ReportStd() :
-  Report()
-{
 }
 
 size_t
@@ -65,4 +60,4 @@ ReportStd::printErrorConsole(const char *buffer, size_t length)
   return fwrite(buffer, sizeof(char), length, stderr);
 }
 
-} // namespace
+} // namespace sta

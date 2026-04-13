@@ -93,4 +93,4 @@ ClockInsertion::delays(const EarlyLate *early_late)
   return &delays_[early_late->index()];
 }
 
-} // namespace
+} // namespace sta

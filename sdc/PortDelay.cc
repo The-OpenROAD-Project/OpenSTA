@@ -132,4 +132,4 @@ PortDelayLess::operator() (const PortDelay *delay1,
     return clkEdgeLess(delay1->clkEdge(), delay2->clkEdge());
 }
 
-} // namespace
+} // namespace sta

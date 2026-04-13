@@ -22,16 +22,27 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-#include "TimingModel.hh"
+#include "TimingArc.hh"
+
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
 #include "ContainerHelpers.hh"
+#include "Delay.hh"
 #include "EnumNameMap.hh"
+#include "Error.hh"
 #include "FuncExpr.hh"
-#include "TimingRole.hh"
+#include "LibertyClass.hh"
 #include "Liberty.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
+#include "MinMax.hh"
 #include "Sdc.hh"
+#include "TableModel.hh"
+#include "TimingModel.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -88,34 +99,34 @@ TimingArcAttrs::setCond(FuncExpr *cond)
 }
 
 void
-TimingArcAttrs::setSdfCond(std::string cond)
+TimingArcAttrs::setSdfCond(std::string_view cond)
 {
-  sdf_cond_ = std::move(cond);
+  sdf_cond_ = cond;
   sdf_cond_start_ = sdf_cond_end_ = sdf_cond_;
 }
 
 void
-TimingArcAttrs::setSdfCondStart(std::string cond)
+TimingArcAttrs::setSdfCondStart(std::string_view cond)
 {
-  sdf_cond_start_ = std::move(cond);
+  sdf_cond_start_ = cond;
 }
 
 void
-TimingArcAttrs::setSdfCondEnd(std::string cond)
+TimingArcAttrs::setSdfCondEnd(std::string_view cond)
 {
-  sdf_cond_end_ = std::move(cond);
+  sdf_cond_end_ = cond;
 }
 
 void
-TimingArcAttrs::setModeName(std::string name)
+TimingArcAttrs::setModeName(std::string_view name)
 {
-  mode_name_ = std::move(name);
+  mode_name_ = name;
 }
 
 void
-TimingArcAttrs::setModeValue(std::string value)
+TimingArcAttrs::setModeValue(std::string_view value)
 {
-  mode_value_ = std::move(value);
+  mode_value_ = value;
 }
 
 TimingModel *
@@ -176,7 +187,7 @@ TimingArcSet::TimingArcSet(LibertyCell *,
   to_(to),
   related_out_(related_out),
   role_(role),
-  attrs_(attrs),
+  attrs_(std::move(attrs)),
   is_cond_default_(false),
   index_(index),
   from_arc1_{nullptr, nullptr},
@@ -191,7 +202,7 @@ TimingArcSet::TimingArcSet(const TimingRole *role,
   to_(nullptr),
   related_out_(nullptr),
   role_(role),
-  attrs_(attrs),
+  attrs_(std::move(attrs)),
   is_cond_default_(false),
   index_(0),
   from_arc1_{nullptr, nullptr},
@@ -235,7 +246,8 @@ TimingArcSet::addTimingArc(TimingArc *arc)
 {
   size_t arc_index = arcs_.size();
   // Rise/fall to rise/fall.
-  if (arc_index > RiseFall::index_count * RiseFall::index_count)
+  if (arc_index > static_cast<size_t>(RiseFall::index_count)
+                      * RiseFall::index_count)
     criticalError(243, "timing arc max index exceeded\n");
   arcs_.push_back(arc);
 
@@ -531,8 +543,7 @@ TimingArc::TimingArc(TimingArcSet *set,
   set_(set),
   from_rf_(from_rf),
   to_rf_(to_rf),
-  model_(model),
-  scaled_models_(nullptr)
+  model_(model)
 {
   index_ = set->addTimingArc(this);
 }
@@ -633,10 +644,10 @@ TimingArc::setIndex(size_t index)
 }
 
 const TimingArc *
-TimingArc::sceneArc(int ap_index) const
+TimingArc::sceneArc(size_t lib_ap_index) const
 {
-  if (ap_index < static_cast<int>(scene_arcs_.size())) {
-    TimingArc *scene_arc = scene_arcs_[ap_index];
+  if (lib_ap_index < scene_arcs_.size()) {
+    TimingArc *scene_arc = scene_arcs_[lib_ap_index];
     if (scene_arc)
       return scene_arc;
   }
@@ -645,11 +656,11 @@ TimingArc::sceneArc(int ap_index) const
 
 void
 TimingArc::setSceneArc(TimingArc *scene_arc,
-                        int ap_index)
+                        size_t lib_ap_index)
 {
-  if (ap_index >= static_cast<int>(scene_arcs_.size()))
-    scene_arcs_.resize(ap_index + 1);
-  scene_arcs_[ap_index] = scene_arc;
+  if (lib_ap_index >= scene_arcs_.size())
+    scene_arcs_.resize(lib_ap_index + 1);
+  scene_arcs_[lib_ap_index] = scene_arc;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -845,4 +856,4 @@ timingTypeScaleFactorType(TimingType type)
   return ScaleFactorType::unknown;
 }
 
-} // namespace
+} // namespace sta

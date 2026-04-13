@@ -90,4 +90,4 @@ PortExtCap::fanout(const MinMax *min_max,
   fanout_.value(min_max, fanout, exists);
 }
 
-} // namespace
+} // namespace sta

@@ -24,14 +24,16 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
+#include "BoundedHeap.hh"
 #include "MinMax.hh"
-#include "Transition.hh"
 #include "NetworkClass.hh"
+#include "Scene.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
-#include "BoundedHeap.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -110,9 +112,9 @@ protected:
              const SceneSeq &scenes,
              const MinMax *min_max,
              CapacitanceCheckHeap &heap);
-  CapacitanceCheckSeq &checkViolations(const Net *net,
-                                       const SceneSeq &scenes,
-                                       const MinMax *min_max);
+  CapacitanceCheckSeq &checkViolators(const Net *net,
+                                      const SceneSeq &scenes,
+                                      const MinMax *min_max);
   CapacitanceCheckSeq &checkMaxCount(const Net *net,
                                      size_t max_count,
                                      const SceneSeq &scenes,
@@ -124,5 +126,5 @@ protected:
   CapacitanceCheckSeq checks_;
 };
 
-} // namespace
+} // namespace sta
 

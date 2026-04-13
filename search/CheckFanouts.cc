@@ -24,18 +24,23 @@
 
 #include "CheckFanouts.hh"
 
+#include <cstddef>
+
+#include "ClkNetwork.hh"
 #include "ContainerHelpers.hh"
 #include "Fuzzy.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "InputDrive.hh"
-#include "Sim.hh"
-#include "PortDirection.hh"
 #include "Graph.hh"
-#include "Search.hh"
-#include "ClkNetwork.hh"
+#include "InputDrive.hh"
+#include "Liberty.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "PortDirection.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "Sim.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -331,4 +336,4 @@ FanoutCheckSlackLess::operator()(const FanoutCheck &check1,
         && sta_->network()->pinLess(check1.pin(), check2.pin()));
 }
 
-} // namespace
+} // namespace sta
