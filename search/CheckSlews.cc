@@ -297,7 +297,7 @@ CheckSlews::findLimit(const Pin *pin,
       for (auto rf : RiseFall::range()) {
         const LibertyCell *cell;
         const LibertyPort *from_port;
-        float *from_slews;
+        const DriveCellSlews *from_slews;
         const LibertyPort *to_port;
         drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
         if (to_port) {

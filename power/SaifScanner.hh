@@ -36,6 +36,7 @@
 namespace sta {
 
 class Report;
+class SaifReader;
 
 class SaifScanner : public SaifFlexLexer
 {
@@ -44,7 +45,7 @@ public:
              const std::string &filename,
              SaifReader *reader,
              Report *report);
-  virtual int lex(SaifParse::semantic_type *const yylval,
+  virtual int lex(SaifParse::semantic_type *yylval,
                   SaifParse::location_type *yylloc);
   // YY_DECL defined in SaifLex.ll
   // Method body created by flex in SaifLex.cc

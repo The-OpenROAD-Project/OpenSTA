@@ -59,6 +59,7 @@ Checks: >
   -modernize-use-transparent-functors,
   misc-*,
   -misc-const-correctness,
+  -misc-multiple-inheritance,
   -misc-no-recursion,
   -misc-non-private-member-variables-in-classes,
   -misc-redundant-expression,
@@ -72,6 +73,8 @@ Checks: >
 # Excludes system and third-party paths such as /opt/local/include.
 HeaderFilterRegex: '.*/(app|cmake|dcalc|graph|liberty|network|parasitics|power|sdc|sdf|search|spice|tcl|util|verilog|include/sta|build/include/sta)/.*'
 
-# Bison-generated parser headers (build/{Liberty,Verilog,...}Parse.hh); gzstream (e.g. util/gzstream.hh).
-ExcludeHeaderFilterRegex: '.*/(gzstream\.h(?:h)?|(?:Liberty|Verilog|Sdf|Spef|Saif|LibExpr)Parse\.hh)$'
+# util/gzstream.hh
+# util/FlexDisableRegister.hh
+# Bison-generated parser headers (build/{Liberty,Verilog,...}Parse.hh)
+ExcludeHeaderFilterRegex: '(.*/)?(gzstream\.hh|FlexDisableRegister\.hh|(Liberty|Verilog|Sdf|Spef|Saif|LibExpr)Parse\.hh)$'
 FormatStyle: none

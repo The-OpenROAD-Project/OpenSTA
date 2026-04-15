@@ -32,7 +32,7 @@
 
 namespace sta {
 
-typedef std::set<HpinDrvrLoad*, HpinDrvrLoadLess> HpinDrvrLoads;
+using HpinDrvrLoads = std::set<HpinDrvrLoad*, HpinDrvrLoadLess>;
 
 static void
 visitPinsAboveNet2(const Pin *hpin,
@@ -52,8 +52,8 @@ visitPinsBelowNet2(const Pin *hpin,
                    PinSet *hpin_path,
                    const Network *network);
 static void
-visitHpinDrvrLoads(HpinDrvrLoads drvrs,
-                   HpinDrvrLoads loads,
+visitHpinDrvrLoads(HpinDrvrLoads &drvrs,
+                   HpinDrvrLoads &loads,
                    HpinDrvrLoadVisitor *visitor);
 
 void
@@ -249,8 +249,8 @@ visitPinsBelowNet2(const Pin *hpin,
 }
 
 static void
-visitHpinDrvrLoads(HpinDrvrLoads drvrs,
-                   HpinDrvrLoads loads,
+visitHpinDrvrLoads(HpinDrvrLoads &drvrs,
+                   HpinDrvrLoads &loads,
                    HpinDrvrLoadVisitor *visitor)
 {
   for (HpinDrvrLoad *drvr : drvrs) {

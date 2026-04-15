@@ -26,8 +26,8 @@
 
 #include <string>
 
-#include "NetworkClass.hh"
 #include "LibertyClass.hh"
+#include "NetworkClass.hh"
 
 namespace sta {
 

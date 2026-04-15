@@ -26,16 +26,16 @@
 
 #include <algorithm>
 
-#include "Format.hh"
+#include "Clock.hh"
 #include "ContainerHelpers.hh"
+#include "Format.hh"
 #include "MinMax.hh"
-#include "TimingRole.hh"
-#include "Units.hh"
-#include "Transition.hh"
-#include "PortDirection.hh"
 #include "Network.hh"
 #include "NetworkCmp.hh"
-#include "Clock.hh"
+#include "PortDirection.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
+#include "Units.hh"
 
 namespace sta {
 
@@ -99,8 +99,7 @@ ExceptionPath::ExceptionPath(ExceptionFrom *from,
   to_(to),
   min_max_(min_max),
   own_pts_(own_pts),
-  priority_(priority),
-  id_(0)
+  priority_(priority)
 {
   makeStates();
 }
@@ -827,10 +826,6 @@ GroupPath::GroupPath(std::string_view name,
 {
 }
 
-GroupPath::~GroupPath()
-{
-}
-
 std::string_view
 GroupPath::typeString() const
 {
@@ -882,8 +877,7 @@ const int ExceptionPt::to_string_max_objects_ = 20;
 ExceptionPt::ExceptionPt(const RiseFallBoth *rf,
                          bool own_pts) :
   rf_(rf),
-  own_pts_(own_pts),
-  hash_(0)
+  own_pts_(own_pts)
 {
 }
 
@@ -922,7 +916,7 @@ ExceptionFromTo::ExceptionFromTo(PinSet *pins,
       delete insts_;
     insts_ = nullptr;
   }
-  findHash(network);
+  ExceptionFromTo::findHash(network);
 }
 
 ExceptionFromTo::~ExceptionFromTo()
@@ -1484,7 +1478,6 @@ ExceptionThru::ExceptionThru(PinSet *pins,
                              const Network *network) :
   ExceptionPt(rf, own_pts),
   pins_(pins),
-  edges_(nullptr),
   nets_(nets),
   insts_(insts)
 {
@@ -2103,9 +2096,7 @@ ExceptionThru::deletePinBefore(const Pin *pin,
 ////////////////////////////////////////////////////////////////
 
 ExceptionPtIterator::ExceptionPtIterator(const ExceptionPath *exception) :
-  exception_(exception),
-  from_done_(false),
-  to_done_(false)
+  exception_(exception)
 {
   if (exception->thrus())
     thru_iter_ = exception->thrus()->begin();
@@ -2177,7 +2168,7 @@ ExpandedExceptionVisitor::visitExpansions()
     }
   }
   else
-    expandThrus(0);
+    expandThrus(nullptr);
 }
 
 void
@@ -2282,7 +2273,6 @@ ExceptionState::ExceptionState(ExceptionPath *exception,
                                int index) :
   exception_(exception),
   next_thru_(next_thru),
-  next_state_(nullptr),
   index_(index)
 {
 }
@@ -2385,11 +2375,10 @@ class InsertPinPairsThru : public HierPinThruVisitor
 public:
   InsertPinPairsThru(PinPairSet *pairs,
                      const Network *network);
+  void visit(const Pin *drvr,
+             const Pin *load) override;
 
 protected:
-  virtual void visit(const Pin *drvr,
-                     const Pin *load);
-
   PinPairSet *pairs_;
   const Network *network_;
 };
@@ -2432,11 +2421,10 @@ class DeletePinPairsThru : public HierPinThruVisitor
 public:
   DeletePinPairsThru(PinPairSet *pairs,
                      const Network *network);
+  void visit(const Pin *drvr,
+             const Pin *load) override;
 
 protected:
-  virtual void visit(const Pin *drvr,
-                     const Pin *load);
-
   PinPairSet *pairs_;
   const Network *network_;
 };

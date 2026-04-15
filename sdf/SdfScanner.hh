@@ -46,7 +46,7 @@ public:
              std::string_view filename,
              SdfReader *reader,
              Report *report);
-  virtual int lex(SdfParse::semantic_type *const yylval,
+  virtual int lex(SdfParse::semantic_type *yylval,
                   SdfParse::location_type *yylloc);
   // YY_DECL defined in SdfLex.ll
   // Method body created by flex in SdfLex.cc

@@ -32,10 +32,6 @@
 
 namespace sta {
 
-Exception::Exception()
-{
-}
-
 ExceptionMsg::ExceptionMsg(const std::string &msg,
                            bool suppressed) :
   msg_(msg),

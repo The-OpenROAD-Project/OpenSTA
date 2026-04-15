@@ -26,28 +26,24 @@
 
 #include <algorithm> // max
 
-#include "Report.hh"
+#include "ConcreteParasiticsPvt.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "Mutex.hh"
-#include "MinMax.hh"
-#include "Network.hh"
-#include "Wireload.hh"
 #include "Liberty.hh"
-#include "Sdc.hh"
+#include "MinMax.hh"
+#include "Mutex.hh"
+#include "Network.hh"
 #include "Parasitics.hh"
-#include "ConcreteParasiticsPvt.hh"
+#include "Report.hh"
 #include "Scene.hh"
+#include "Sdc.hh"
+#include "Wireload.hh"
 
 // Multiple inheritance is used to share elmore and pi model base
 // classes, but care is taken to make sure there are no loops in the
 // inheritance graph (ConcreteParasitic only included once).
 
 namespace sta {
-
-ConcreteParasitic::~ConcreteParasitic()
-{
-}
 
 bool
 ConcreteParasitic::isPiElmore() const
@@ -138,8 +134,7 @@ ConcretePi::ConcretePi(float c2,
                        float c1) :
   c2_(c2),
   rpi_(rpi),
-  c1_(c1),
-  is_reduced_(false)
+  c1_(c1)
 {
 }
 
@@ -256,12 +251,6 @@ ConcretePiElmore::unannotatedLoads(const Pin *drvr_pin,
 }
 
 ////////////////////////////////////////////////////////////////
-
-ConcretePoleResidue::ConcretePoleResidue() :
-  poles_(nullptr),
-  residues_(nullptr)
-{
-}
 
 ConcretePoleResidue::~ConcretePoleResidue()
 {
@@ -380,7 +369,7 @@ ConcretePiPoleResidue::unannotatedLoads(const Pin *drvr_pin,
 ////////////////////////////////////////////////////////////////
 
 ConcreteParasiticNode::ConcreteParasiticNode(const Net *net,
-                                             int id,
+                                             uint32_t id,
                                              bool is_external) :
   is_net_(true),
   is_external_(is_external),
@@ -449,7 +438,7 @@ ConcreteParasiticNode::net(const Network *network) const
 ////////////////////////////////////////////////////////////////
 
                        
-ConcreteParasiticDevice::ConcreteParasiticDevice(size_t id,
+ConcreteParasiticDevice::ConcreteParasiticDevice(uint32_t id,
                                                  float value,
                                                  ConcreteParasiticNode *node1,
                                                  ConcreteParasiticNode *node2) :
@@ -470,7 +459,7 @@ ConcreteParasiticDevice::replaceNode(ConcreteParasiticNode *from_node,
     node2_ = to_node;
 }
 
-ConcreteParasiticResistor::ConcreteParasiticResistor(size_t id,
+ConcreteParasiticResistor::ConcreteParasiticResistor(uint32_t id,
                                                      float value,
                                                      ConcreteParasiticNode *node1,
                                                      ConcreteParasiticNode *node2) :
@@ -478,7 +467,7 @@ ConcreteParasiticResistor::ConcreteParasiticResistor(size_t id,
 {
 }
 
-ConcreteParasiticCapacitor::ConcreteParasiticCapacitor(size_t id,
+ConcreteParasiticCapacitor::ConcreteParasiticCapacitor(uint32_t id,
                                                        float value,
                                                        ConcreteParasiticNode *node1,
                                                        ConcreteParasiticNode *node2) :
@@ -494,15 +483,15 @@ ConcreteParasiticNetwork::ConcreteParasiticNetwork(const Net *net,
   net_(net),
   sub_nodes_(network),
   pin_nodes_(network),
-  max_node_id_(0),
   includes_pin_caps_(includes_pin_caps)
 {
 }
 
-ConcreteParasiticNetwork::ConcreteParasiticNetwork(ConcreteParasiticNetwork &&parasitic):
+ConcreteParasiticNetwork::ConcreteParasiticNetwork(ConcreteParasiticNetwork &&parasitic)
+  noexcept :
   net_(parasitic.net_),
-  sub_nodes_(parasitic.sub_nodes_),
-  pin_nodes_(parasitic.pin_nodes_),
+  sub_nodes_(std::move(parasitic.sub_nodes_)),
+  pin_nodes_(std::move(parasitic.pin_nodes_)),
   max_node_id_(parasitic.max_node_id_),
   includes_pin_caps_(parasitic.includes_pin_caps_)
 {
@@ -586,7 +575,7 @@ ConcreteParasiticNetwork::capacitance() const
 
 ConcreteParasiticNode *
 ConcreteParasiticNetwork::findParasiticNode(const Net *net,
-                                            int id,
+                                            uint32_t id,
                                             const Network *) const
 {
   NetIdPair net_id(net, id);
@@ -609,7 +598,7 @@ ConcreteParasiticNetwork::findParasiticNode(const Pin *pin) const
 
 ConcreteParasiticNode *
 ConcreteParasiticNetwork::ensureParasiticNode(const Net *net,
-                                              int id,
+                                              uint32_t id,
                                               const Network *network)
 {
   ConcreteParasiticNode *node;
@@ -620,7 +609,7 @@ ConcreteParasiticNetwork::ensureParasiticNode(const Net *net,
     node = new ConcreteParasiticNode(net, id, network->highestNetAbove(net1) != net_);
     sub_nodes_[net_id] = node;
     if (net == net_)
-      max_node_id_ = std::max((int) max_node_id_, id);
+      max_node_id_ = std::max(max_node_id_, id);
   }
   else
     node = id_node->second;
@@ -763,7 +752,7 @@ ConcreteParasitics::ConcreteParasitics(std::string_view name,
 
 ConcreteParasitics::~ConcreteParasitics()
 {
-  deleteParasitics();
+  deleteParasiticsImpl();
 }
 
 bool
@@ -781,6 +770,12 @@ ConcreteParasitics::clear()
 
 void
 ConcreteParasitics::deleteParasitics()
+{
+  deleteParasiticsImpl();
+}
+
+void
+ConcreteParasitics::deleteParasiticsImpl()
 {
   for (auto &[drvr, parasitics] : drvr_parasitic_map_) {
     for (size_t i = 0; i < min_max_rise_fall_count; i++)
@@ -1209,7 +1204,7 @@ ConcreteParasitics::includesPinCaps(const Parasitic *parasitic) const
 ParasiticNode *
 ConcreteParasitics::findParasiticNode(Parasitic *parasitic,
                                       const Net *net,
-                                      int id,
+                                      uint32_t id,
                                       const Network *network) const
 {
   const ConcreteParasiticNetwork *cparasitic =
@@ -1220,7 +1215,7 @@ ConcreteParasitics::findParasiticNode(Parasitic *parasitic,
 ParasiticNode *
 ConcreteParasitics::ensureParasiticNode(Parasitic *parasitic,
                                         const Net *net,
-                                        int id,
+                                        uint32_t id,
                                         const Network *network)
 {
   ConcreteParasiticNetwork *cparasitic =
@@ -1257,7 +1252,7 @@ ConcreteParasitics::incrCap(ParasiticNode *node,
 
 void
 ConcreteParasitics::makeCapacitor(Parasitic *parasitic,
-                                  size_t index,
+                                  uint32_t id,
                                   float cap,
                                   ParasiticNode *node1,
                                   ParasiticNode *node2)
@@ -1265,7 +1260,7 @@ ConcreteParasitics::makeCapacitor(Parasitic *parasitic,
   ConcreteParasiticNode *cnode1 = static_cast<ConcreteParasiticNode*>(node1);
   ConcreteParasiticNode *cnode2 = static_cast<ConcreteParasiticNode*>(node2);
   ConcreteParasiticCapacitor *capacitor =
-    new ConcreteParasiticCapacitor(index, cap, cnode1, cnode2);
+    new ConcreteParasiticCapacitor(id, cap, cnode1, cnode2);
   ConcreteParasiticNetwork *cparasitic =
     static_cast<ConcreteParasiticNetwork*>(parasitic);
   cparasitic->addCapacitor(capacitor);
@@ -1273,14 +1268,14 @@ ConcreteParasitics::makeCapacitor(Parasitic *parasitic,
 
 void
 ConcreteParasitics::makeResistor(Parasitic *parasitic,
-                                 size_t index,
+                                 uint32_t id,
                                  float res,
                                  ParasiticNode *node1,
                                  ParasiticNode *node2)
 {
   ConcreteParasiticNode *cnode1 = static_cast<ConcreteParasiticNode*>(node1);
   ConcreteParasiticNode *cnode2 = static_cast<ConcreteParasiticNode*>(node2);
-  ParasiticResistor *resistor = new ConcreteParasiticResistor(index, res,
+  ParasiticResistor *resistor = new ConcreteParasiticResistor(id, res,
                                                               cnode1, cnode2);
   ConcreteParasiticNetwork *cparasitic =
     static_cast<ConcreteParasiticNetwork*>(parasitic);
@@ -1363,7 +1358,7 @@ ConcreteParasitics::isExternal(const ParasiticNode *node) const
 
 ////////////////////////////////////////////////////////////////
 
-size_t
+uint32_t
 ConcreteParasitics::id(const ParasiticResistor *resistor) const
 {
   const ConcreteParasiticResistor *cresistor =
@@ -1397,7 +1392,7 @@ ConcreteParasitics::node2(const ParasiticResistor *resistor) const
 
 ////////////////////////////////////////////////////////////////
 
-size_t
+uint32_t
 ConcreteParasitics::id(const ParasiticCapacitor *capacitor) const
 {
   const ConcreteParasiticCapacitor *ccapacitor =

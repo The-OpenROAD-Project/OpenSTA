@@ -27,10 +27,10 @@
 #include <mutex>
 #include <vector>
 
-#include "Iterator.hh"
 #include "GraphClass.hh"
-#include "VertexVisitor.hh"
+#include "Iterator.hh"
 #include "StaState.hh"
+#include "VertexVisitor.hh"
 
 namespace sta {
 

@@ -26,10 +26,6 @@
 
 namespace sta {
 
-NetCaps::NetCaps()
-{
-}
-
 NetCaps::NetCaps(float pin_cap,
                  float wire_cap,
                  float fanout,

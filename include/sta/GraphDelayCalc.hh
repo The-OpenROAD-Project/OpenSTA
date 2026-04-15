@@ -25,16 +25,16 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <map>
 #include <mutex>
+#include <vector>
 
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
-#include "SearchClass.hh"
-#include "SdcClass.hh"
-#include "StaState.hh"
 #include "ArcDelayCalc.hh"
+#include "GraphClass.hh"
+#include "NetworkClass.hh"
+#include "SdcClass.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -104,7 +104,7 @@ public:
                float &pin_cap,
                float &wire_cap,
                float &fanout,
-               bool &has_set_load) const;
+               bool &has_net_load) const;
   void parasiticLoad(const Pin *drvr_pin,
                      const RiseFall *rf,
                      const Scene *scene,
@@ -171,7 +171,7 @@ protected:
 			    Vertex *drvr_vertex,
 			    const RiseFall *rf,
 			    const LibertyPort *from_port,
-			    float *from_slews,
+                            const DriveCellSlews *from_slews,
 			    const LibertyPort *to_port,
                             const Scene *scene,
                             const MinMax *min_max,
@@ -191,7 +191,7 @@ protected:
 			ArcDelayCalc *arc_delay_calc,
                         LoadPinIndexMap &load_pin_index_map);
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
-  MultiDrvrNet *findMultiDrvrNet(Vertex *drvr_pin);
+  MultiDrvrNet *findMultiDrvrNet(Vertex *drvr_vertex);
   MultiDrvrNet *makeMultiDrvrNet(Vertex *drvr_vertex);
   bool hasMultiDrvrs(Vertex *drvr_vertex);
   Vertex *firstLoad(Vertex *drvr_vertex);
@@ -235,7 +235,7 @@ protected:
 		       ArcDelayCalc *arc_delay_calc,
 		       bool propagate);
   DrvrLoadSlews loadSlews(LoadPinIndexMap &load_pin_index_map);
-  bool loadSlewsChanged(DrvrLoadSlews &prev_load_slews,
+  bool loadSlewsChanged(DrvrLoadSlews &load_slews_prev,
                         LoadPinIndexMap &load_pin_index_map);
   void enqueueTimingChecksEdges(Vertex *vertex);
   bool annotateDelaysSlews(Edge *edge,
@@ -294,10 +294,10 @@ protected:
                bool &has_net_load) const;
 
   // Observer for edge delay changes.
-  DelayCalcObserver *observer_;
-  bool delays_seeded_;
-  bool incremental_;
-  bool delays_exist_;
+  DelayCalcObserver *observer_{nullptr};
+  bool delays_seeded_{false};
+  bool incremental_{false};
+  bool delays_exist_{false};
   // Vertices with invalid -to delays.
   VertexSet invalid_delays_;
   // Timing check edges with invalid delays.
@@ -313,7 +313,7 @@ protected:
   std::mutex multi_drvr_lock_;
   // Percentage (0.0:1.0) change in delay that causes downstream
   // delays to be recomputed during incremental delay calculation.
-  float incremental_delay_tolerance_;
+  float incremental_delay_tolerance_{0.0};
 
   friend class FindVertexDelays;
   friend class MultiDrvrNet;
@@ -334,7 +334,6 @@ public:
 class MultiDrvrNet
 {
 public:
-  MultiDrvrNet();
   VertexSeq &drvrs() { return drvrs_; }
   const VertexSeq &drvrs() const { return drvrs_; }
   bool parallelGates(const Network *network) const;
@@ -352,7 +351,7 @@ public:
 
 private:
   // Driver that triggers delay calculation for all the drivers on the net.
-  Vertex *dcalc_drvr_;
+  Vertex *dcalc_drvr_{nullptr};
   VertexSeq drvrs_;
   // [drvr_rf->index][dcalc_ap->index]
   std::vector<NetCaps> net_caps_;

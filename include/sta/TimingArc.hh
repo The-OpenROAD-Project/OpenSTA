@@ -24,14 +24,14 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
-#include "Transition.hh"
 #include "Delay.hh"
 #include "LibertyClass.hh"
+#include "Transition.hh"
 
 namespace sta {
 

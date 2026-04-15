@@ -24,16 +24,16 @@
 
 #pragma once
 
-#include <utility>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
-#include "StaConfig.hh"  // CUDD
-#include "Network.hh"
-#include "SdcClass.hh"
-#include "PowerClass.hh"
-#include "StaState.hh"
 #include "Bdd.hh"
+#include "Network.hh"
+#include "PowerClass.hh"
+#include "SdcClass.hh"
+#include "StaConfig.hh"  // CUDD
+#include "StaState.hh"
 
 struct DdNode;
 struct DdManager;

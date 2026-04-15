@@ -111,10 +111,10 @@ CheckFanouts::findLimit(const Pin *pin,
     }
     InputDrive *drive = sdc->findInputDrive(port);
     if (drive) {
-      for (auto rf : RiseFall::range()) {
+      for (const RiseFall *rf : RiseFall::range()) {
         const LibertyCell *cell;
         const LibertyPort *from_port;
-        float *from_slews;
+        const DriveCellSlews *from_slews;
         const LibertyPort *to_port;
         drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
         if (to_port) {

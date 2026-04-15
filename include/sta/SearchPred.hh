@@ -24,9 +24,9 @@
 
 #pragma once
 
-#include "NetworkClass.hh"
 #include "GraphClass.hh"
 #include "LibertyClass.hh"
+#include "NetworkClass.hh"
 #include "StaState.hh"
 
 namespace sta {

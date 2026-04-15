@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include <thread>
-#include <functional>
-#include <vector>
-#include <cstdint>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 #include <atomic>
+#include <condition_variable>
+#include <cstdint>
+#include <functional>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <vector>
 
 namespace sta {
 

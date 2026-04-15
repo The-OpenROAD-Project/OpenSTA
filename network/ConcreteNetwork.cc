@@ -24,15 +24,16 @@
 
 #include "ConcreteNetwork.hh"
 
+#include <algorithm>
 #include <map>
 #include <string_view>
 
-#include "PatternMatch.hh"
-#include "Report.hh"
-#include "Liberty.hh"
-#include "PortDirection.hh"
 #include "ConcreteLibrary.hh"
+#include "Liberty.hh"
 #include "Network.hh"
+#include "PatternMatch.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
 
 namespace sta {
 
@@ -105,13 +106,12 @@ private:
 
   ConcreteInstanceNetMap *nets_;
   ConcreteInstanceNetMap::iterator iter_;
-  ConcreteNet *next_;
+  ConcreteNet *next_{nullptr};
 };
 
 ConcreteInstanceNetIterator::
 ConcreteInstanceNetIterator(ConcreteInstanceNetMap *nets):
-  nets_(nets),
-  next_(nullptr)
+  nets_(nets)
 {
   if (nets) {
     iter_ = nets->begin();
@@ -161,7 +161,7 @@ private:
 
   const ConcretePinSeq &pins_;
   int pin_count_;
-  int pin_index_;
+  int pin_index_{0};
   ConcretePin *next_;
 };
 
@@ -169,8 +169,7 @@ ConcreteInstancePinIterator::
 ConcreteInstancePinIterator(const ConcreteInstance *inst,
                             int pin_count) :
   pins_(inst->pins_),
-  pin_count_(pin_count),
-  pin_index_(0)
+  pin_count_(pin_count)
 {
   findNext();
 }
@@ -271,24 +270,31 @@ ObjectId ConcreteNetwork::object_id_ = 0;
 
 ConcreteNetwork::ConcreteNetwork() :
   NetworkReader(),
-  top_instance_(nullptr),
-  constant_nets_{NetSet(this), NetSet(this)},
   link_func_(nullptr)
 {
 }
 
 ConcreteNetwork::~ConcreteNetwork()
 {
-  clear();
+  // Cannot call virtual functions in destructor.
+  clearImpl();
+}
+
+void
+ConcreteNetwork::clearImpl()
+{
+  if (top_instance_)
+    deleteInstanceImpl(top_instance_);
+  top_instance_ = nullptr;
+  deleteCellNetworkViewsImpl();
+  deleteContents(library_seq_);
+  library_map_.clear();
 }
 
 void
 ConcreteNetwork::clear()
 {
-  deleteTopInstance();
-  deleteCellNetworkViews();
-  deleteContents(library_seq_);
-  library_map_.clear();
+  clearImpl();
   Network::clear();
 }
 
@@ -303,6 +309,12 @@ ConcreteNetwork::deleteTopInstance()
 
 void
 ConcreteNetwork::deleteCellNetworkViews()
+{
+  deleteCellNetworkViewsImpl();
+}
+
+void
+ConcreteNetwork::deleteCellNetworkViewsImpl()
 {
   for (auto [cell, view] : cell_network_view_map_) {
     if (view)
@@ -361,7 +373,6 @@ class ConcreteLibertyLibraryIterator : public Iterator<LibertyLibrary*>
 {
 public:
   ConcreteLibertyLibraryIterator(const ConcreteNetwork *network);
-  virtual ~ConcreteLibertyLibraryIterator();
   bool hasNext() override;
   LibertyLibrary *next() override;
 
@@ -370,20 +381,15 @@ private:
 
   const ConcreteLibrarySeq &libs_;
   ConcreteLibrarySeq::const_iterator iter_;
-  LibertyLibrary *next_;
+  LibertyLibrary *next_{nullptr};
 };
 
 ConcreteLibertyLibraryIterator::
 ConcreteLibertyLibraryIterator(const ConcreteNetwork *network):
   libs_(network->library_seq_),
-  iter_(libs_.begin()),
-  next_(nullptr)
+  iter_(libs_.begin())
 {
   findNext();
-}
-
-ConcreteLibertyLibraryIterator::~ConcreteLibertyLibraryIterator()
-{
 }
 
 bool
@@ -462,7 +468,7 @@ ConcreteNetwork::deleteLibrary(Library *library)
 {
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(library);
   library_map_.erase(clib->name());
-  library_seq_.erase(std::find(library_seq_.begin(), library_seq_.end(), clib));
+  library_seq_.erase(std::ranges::find(library_seq_, clib));
   delete clib;
 }
 
@@ -721,7 +727,7 @@ class ConcreteCellPortIterator1 : public CellPortIterator
 {
 public:
   ConcreteCellPortIterator1(const ConcreteCell *cell);
-  ~ConcreteCellPortIterator1();
+  ~ConcreteCellPortIterator1() override;
   bool hasNext() override { return iter_->hasNext(); }
   Port *next() override;
 
@@ -758,7 +764,7 @@ class ConcreteCellPortBitIterator1 : public CellPortIterator
 {
 public:
   ConcreteCellPortBitIterator1(const ConcreteCell *cell);
-  ~ConcreteCellPortBitIterator1();
+  ~ConcreteCellPortBitIterator1() override;
   bool hasNext() override { return iter_->hasNext(); }
   Port *next() override;
 
@@ -905,19 +911,18 @@ class ConcretePortMemberIterator1 : public PortMemberIterator
 {
 public:
   ConcretePortMemberIterator1(const ConcretePort *port);
-  ~ConcretePortMemberIterator1();
+  ~ConcretePortMemberIterator1() override;
   bool hasNext() override;
   Port *next() override;
 
 private:
   ConcretePortMemberIterator *iter_;
-  ConcretePort *next_;
+  ConcretePort *next_{nullptr};
 };
 
 ConcretePortMemberIterator1::ConcretePortMemberIterator1(const ConcretePort *
                                                          port) :
-  iter_(port->memberIterator()),
-  next_(nullptr)
+  iter_(port->memberIterator())
 {
 }
 
@@ -1051,7 +1056,7 @@ ConcreteNetwork::findInstNetsMatching(const Instance *instance,
 {
   const ConcreteInstance *inst =
     reinterpret_cast<const ConcreteInstance*>(instance);
-  return inst->findNetsMatching(pattern, matches);
+  inst->findNetsMatching(pattern, matches);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1191,13 +1196,13 @@ ConcreteNetwork::instance(const Net *net) const
 bool
 ConcreteNetwork::isPower(const Net *net) const
 {
-  return constant_nets_[int(LogicValue::one)].contains(const_cast<Net*>(net));
+  return constant_nets_[static_cast<int>(LogicValue::one)].contains(const_cast<Net*>(net));
 }
 
 bool
 ConcreteNetwork::isGround(const Net *net) const
 {
-  return constant_nets_[int(LogicValue::zero)].contains(const_cast<Net*>(net));
+  return constant_nets_[static_cast<int>(LogicValue::zero)].contains(const_cast<Net*>(net));
 }
 
 NetPinIterator *
@@ -1308,6 +1313,12 @@ ConcreteNetwork::replaceCell(Instance *inst,
 
 void
 ConcreteNetwork::deleteInstance(Instance *inst)
+{
+  deleteInstanceImpl(inst);
+}
+
+void
+ConcreteNetwork::deleteInstanceImpl(Instance *inst)
 {
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
   ConcreteInstanceNetMap *nets = cinst->nets_;
@@ -1504,8 +1515,7 @@ ConcreteNetwork::deletePin(Pin *pin)
   ConcreteNet *cnet = cpin->net();
   if (cnet)
     disconnectNetPin(cnet, cpin);
-  ConcreteInstance *cinst =
-    reinterpret_cast<ConcreteInstance*>(cpin->instance());
+  ConcreteInstance *cinst = cpin->instance();
   if (cinst)
     cinst->deletePin(cpin);
   delete cpin;
@@ -1533,16 +1543,15 @@ ConcreteNetwork::deleteNet(Net *net)
     pin->net_ = nullptr;
   }
 
-  constant_nets_[int(LogicValue::zero)].erase(net);
-  constant_nets_[int(LogicValue::one)].erase(net);
+  constant_nets_[static_cast<int>(LogicValue::zero)].erase(net);
+  constant_nets_[static_cast<int>(LogicValue::one)].erase(net);
   PinSet *drvrs = findKey(net_drvr_pin_map_, net);
   if (drvrs) {
     delete drvrs;
     net_drvr_pin_map_.erase(net);
   }
 
-  ConcreteInstance *cinst =
-    reinterpret_cast<ConcreteInstance*>(cnet->instance());
+  ConcreteInstance *cinst = cnet->instance();
   cinst->deleteNet(cnet);
   delete cnet;
 }
@@ -1550,8 +1559,8 @@ ConcreteNetwork::deleteNet(Net *net)
 void
 ConcreteNetwork::clearConstantNets()
 {
-  constant_nets_[int(LogicValue::zero)].clear();
-  constant_nets_[int(LogicValue::one)].clear();
+  constant_nets_[static_cast<int>(LogicValue::zero)].clear();
+  constant_nets_[static_cast<int>(LogicValue::one)].clear();
 }
 
 void
@@ -1560,15 +1569,15 @@ ConcreteNetwork::addConstantNet(Net *net,
 {
   if (value == LogicValue::zero
       || value == LogicValue::one)
-    constant_nets_[int(value)].insert(net);
+    constant_nets_[static_cast<int>(value)].insert(net);
 }
 
 ConstantPinIterator *
 ConcreteNetwork::constantPinIterator()
 {
   return new NetworkConstantPinIterator(this,
-                                        constant_nets_[int(LogicValue::zero)],
-                                        constant_nets_[int(LogicValue::one)]);
+                                        constant_nets_[static_cast<int>(LogicValue::zero)],
+                                        constant_nets_[static_cast<int>(LogicValue::one)]);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1617,9 +1626,7 @@ ConcreteInstance::ConcreteInstance(std::string_view name,
   name_(name),
   id_(ConcreteNetwork::nextObjectId()),
   cell_(cell),
-  parent_(parent),
-  children_(nullptr),
-  nets_(nullptr)
+  parent_(parent)
 {
   initPins();
 }
@@ -1738,13 +1745,13 @@ ConcreteInstance::addChild(ConcreteInstance *child)
 {
   if (children_ == nullptr)
     children_ = new ConcreteInstanceChildMap;
-  (*children_)[child->name().data()] = child;
+  (*children_)[child->name()] = child;
 }
 
 void
 ConcreteInstance::deleteChild(ConcreteInstance *child)
 {
-  children_->erase(child->name().data());
+  children_->erase(child->name());
 }
 
 void
@@ -1769,7 +1776,7 @@ ConcreteInstance::addNet(ConcreteNet *net)
 {
   if (nets_ == nullptr)
     nets_ = new ConcreteInstanceNetMap;
-  (*nets_)[net->name().data()] = net;
+  (*nets_)[net->name()] = net;
 }
 
 void
@@ -1778,13 +1785,13 @@ ConcreteInstance::addNet(std::string_view,
 {
   if (nets_ == nullptr)
     nets_ = new ConcreteInstanceNetMap;
-  (*nets_)[net->name().data()] = net;
+  (*nets_)[net->name()] = net;
 }
 
 void
 ConcreteInstance::deleteNet(ConcreteNet *net)
 {
-  nets_->erase(net->name().data());
+  nets_->erase(net->name());
 }
 
 void
@@ -1801,15 +1808,11 @@ ConcretePin::ConcretePin(ConcreteInstance *instance,
   instance_(instance),
   port_(port),
   net_(net),
-  term_(nullptr),
-  id_(ConcreteNetwork::nextObjectId()),
-  net_next_(nullptr),
-  net_prev_(nullptr),
-  vertex_id_(vertex_id_null)
+  id_(ConcreteNetwork::nextObjectId())
 {
 }
 
-std::string_view
+const std::string&
 ConcretePin::name() const
 {
   return port_->name();
@@ -1823,12 +1826,11 @@ ConcretePin::setVertexId(VertexId id)
 
 ////////////////////////////////////////////////////////////////
 
-std::string_view
+const std::string &
 ConcreteTerm::name() const
 {
   ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin_);
-  const ConcretePort *cport =
-    reinterpret_cast<const ConcretePort*>(cpin->port());
+  const ConcretePort *cport = cpin->port();
   return cport->name();
 }
 
@@ -1836,8 +1838,7 @@ ConcreteTerm::ConcreteTerm(ConcretePin *pin,
                            ConcreteNet *net) :
   pin_(pin),
   net_(net),
-  id_(ConcreteNetwork::nextObjectId()),
-  net_next_(nullptr)
+  id_(ConcreteNetwork::nextObjectId())
 {
 }
 
@@ -1847,10 +1848,7 @@ ConcreteNet::ConcreteNet(std::string_view name,
                          ConcreteInstance *instance) :
   name_(name),
   id_(ConcreteNetwork::nextObjectId()),
-  instance_(instance),
-  pins_(nullptr),
-  terms_(nullptr),
-  merged_into_(nullptr)
+  instance_(instance)
 {
 }
 

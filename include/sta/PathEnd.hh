@@ -26,11 +26,11 @@
 
 #include <string>
 
-#include "LibertyClass.hh"
 #include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "Path.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
-#include "Path.hh"
 #include "StaState.hh"
 
 namespace sta {

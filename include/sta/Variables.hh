@@ -34,7 +34,6 @@ enum class CrprMode { same_pin, same_transition };
 class Variables
 {
 public:
-  Variables();
   // TCL variable sta_crpr_enabled.
   bool crprEnabled() const { return crpr_enabled_; }
   void setCrprEnabled(bool enabled);
@@ -78,23 +77,23 @@ public:
   PocvMode pocvMode() const { return pocv_mode_; }
   void setPocvMode(PocvMode mode);
   float pocvQuantile() const { return pocv_quantile_; }
-  void setPocvQuantile(float quartile);
+  void setPocvQuantile(float quantile);
 
 private:
-  bool crpr_enabled_;
-  CrprMode crpr_mode_;
-  bool propagate_gated_clock_enable_;
-  bool preset_clr_arcs_enabled_;
-  bool cond_default_arcs_enabled_;
-  bool bidirect_inst_paths_enabled_;
-  bool recovery_removal_checks_enabled_;
-  bool gated_clk_checks_enabled_;
-  bool clk_thru_tristate_enabled_;
-  bool dynamic_loop_breaking_;
-  bool propagate_all_clks_;
-  bool use_default_arrival_clock_;
-  PocvMode pocv_mode_;
-  float pocv_quantile_;
+  bool crpr_enabled_{true};
+  CrprMode crpr_mode_{CrprMode::same_pin};
+  bool propagate_gated_clock_enable_{true};
+  bool preset_clr_arcs_enabled_{false};
+  bool cond_default_arcs_enabled_{true};
+  bool bidirect_inst_paths_enabled_{false};
+  bool recovery_removal_checks_enabled_{true};
+  bool gated_clk_checks_enabled_{true};
+  bool clk_thru_tristate_enabled_{false};
+  bool dynamic_loop_breaking_{false};
+  bool propagate_all_clks_{false};
+  bool use_default_arrival_clock_{false};
+  PocvMode pocv_mode_{PocvMode::scalar};
+  float pocv_quantile_{3.0};
 };
 
 } // namespace sta

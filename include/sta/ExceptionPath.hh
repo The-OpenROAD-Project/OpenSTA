@@ -29,8 +29,8 @@
 #include <vector>
 
 #include "Error.hh"
-#include "SdcCmdComment.hh"
 #include "SdcClass.hh"
+#include "SdcCmdComment.hh"
 
 namespace sta {
 
@@ -145,7 +145,7 @@ protected:
   const MinMaxAll *min_max_;
   bool own_pts_;
   int priority_;
-  size_t id_;                   // Unique ID assigned by Sdc.
+  size_t id_{0};                   // Unique ID assigned by Sdc.
   ExceptionState *states_;
 };
 
@@ -301,7 +301,6 @@ public:
             ExceptionTo *to,
             bool own_pts,
             std::string_view comment);
-  ~GroupPath() override;
   ExceptionPath *clone(ExceptionFrom *from,
                        ExceptionThruSeq *thrus,
                        ExceptionTo *to,
@@ -367,7 +366,7 @@ protected:
   bool own_pts_;
   // Hash is cached because there may be many objects to speed up
   // exception merging.
-  size_t hash_;
+  size_t hash_{0};
 
   // Maximum number of objects for to_string() to show.
   static const int to_string_max_objects_;
@@ -583,7 +582,7 @@ protected:
   // Leaf/port pins.
   PinSet *pins_;
   // Graph edges that traverse thru hierarchical pins.
-  EdgePinsSet *edges_;
+  EdgePinsSet *edges_{nullptr};
   NetSet *nets_;
   InstanceSet *insts_;
 };
@@ -602,9 +601,9 @@ public:
 
 private:
   const ExceptionPath *exception_;
-  bool from_done_;
+  bool from_done_{false};
   ExceptionThruSeq::iterator thru_iter_;
-  bool to_done_;
+  bool to_done_{false};
 };
 
 // Visitor for exception point sets expanded into single object paths.
@@ -665,7 +664,7 @@ public:
 private:
   ExceptionPath *exception_;
   ExceptionThru *next_thru_;
-  ExceptionState *next_state_;
+  ExceptionState *next_state_{nullptr};
   int index_;
 };
 

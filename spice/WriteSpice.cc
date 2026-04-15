@@ -30,26 +30,25 @@
 #include <string>
 #include <string_view>
 
-#include "cudd.h"
-
+#include "Bdd.hh"
+#include "Clock.hh"
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
-#include "Units.hh"
-#include "TableModel.hh"
-#include "TimingRole.hh"
 #include "FuncExpr.hh"
-#include "Sequential.hh"
-#include "PortDirection.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Network.hh"
 #include "Graph.hh"
-#include "search/Sim.hh"
-#include "Clock.hh"
-#include "Path.hh"
-#include "Bdd.hh"
-#include "Sdc.hh"
+#include "Liberty.hh"
 #include "Mode.hh"
+#include "Network.hh"
+#include "Path.hh"
+#include "PortDirection.hh"
+#include "Sdc.hh"
+#include "Sequential.hh"
+#include "TableModel.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "Units.hh"
+#include "cudd.h"
+#include "search/Sim.hh"
 
 namespace sta {
 
@@ -78,10 +77,6 @@ WriteSpice::WriteSpice(std::string_view spice_filename,
   scene_(scene),
   min_max_(min_max),
   default_library_(network_->defaultLibertyLibrary()),
-  short_ckt_resistance_(.0001),
-  cap_index_(1),
-  res_index_(1),
-  volt_index_(1),
   bdd_(sta),
   parasitics_(scene->parasitics(min_max))
 {

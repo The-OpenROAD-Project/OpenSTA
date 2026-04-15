@@ -88,7 +88,7 @@ parseBusName(std::string_view name,
       size_t left = name.rfind(brkt_left_ch);
       if (left != std::string_view::npos) {
         is_bus = true;
-        bus_name.append(name.data(), left);
+        bus_name.append(name.substr(0, left));
         // Simple bus subscript.
         index = std::stoi(std::string(name.substr(left + 1)));
       }
@@ -142,7 +142,7 @@ parseBusName(std::string_view name,
       size_t left = name.rfind(brkt_left_ch);
       if (left != std::string_view::npos) {
         is_bus = true;
-        bus_name.append(name.data(), left);
+        bus_name.append(name.substr(0, left));
         // Check for bus range.
         size_t range = name.find(':', left);
         if (range != std::string_view::npos) {

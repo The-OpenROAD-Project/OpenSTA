@@ -25,14 +25,14 @@
 #pragma once
 
 #include <limits>
-#include <vector>
 #include <map>
+#include <vector>
 
-#include "VectorMap.hh"
-#include "MinMaxValues.hh"
 #include "Delay.hh"
-#include "NetworkClass.hh"
 #include "GraphClass.hh"
+#include "MinMaxValues.hh"
+#include "NetworkClass.hh"
+#include "VectorMap.hh"
 
 namespace sta {
 

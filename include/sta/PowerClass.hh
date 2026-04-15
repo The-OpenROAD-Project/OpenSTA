@@ -24,12 +24,13 @@
 
 #pragma once
 
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace sta {
 
 class Power;
+class Instance;
 
 enum class PwrActivityOrigin
 {

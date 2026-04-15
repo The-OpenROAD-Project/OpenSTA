@@ -46,7 +46,7 @@ public:
               std::string_view filename,
               SpefReader *reader,
               Report *report);
-  virtual int lex(SpefParse::semantic_type *const yylval,
+  virtual int lex(SpefParse::semantic_type *yylval,
                   SpefParse::location_type *yylloc);
   // YY_DECL defined in SpefLex.ll
   // Method body created by flex in SpefLex.cc

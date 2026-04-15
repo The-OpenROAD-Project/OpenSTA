@@ -28,10 +28,10 @@
 #include <cctype>
 #include <cinttypes>
 
-#include "Stats.hh"
-#include "Report.hh"
-#include "Error.hh"
 #include "EnumNameMap.hh"
+#include "Error.hh"
+#include "Report.hh"
+#include "Stats.hh"
 
 namespace sta {
 
@@ -106,11 +106,6 @@ VcdParse::read(const char *filename,
 
 VcdParse::VcdParse(Report *report,
                    Debug *debug) :
-  reader_(nullptr),
-  file_line_(0),
-  stmt_line_(0),
-  time_(0),
-  prev_time_(0),
   report_(report),
   debug_(debug)
 {
@@ -237,7 +232,7 @@ VcdParse::parseVarValues()
         report_->fileError(807, filename_, file_line_, "unknown variable {}", id);
       else {
         // Reverse the bus value to match the bit order in the VCD file.
-        std::reverse(bus_value.begin(), bus_value.end());
+        std::ranges::reverse(bus_value);
         reader_->varAppendBusValue(id, time_, bus_value);
       }
     }

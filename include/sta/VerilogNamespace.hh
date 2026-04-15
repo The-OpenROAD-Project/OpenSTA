@@ -39,12 +39,12 @@ std::string
 portVerilogName(std::string_view sta_name);
 
 std::string
-moduleVerilogToSta(std::string_view sta_name);
+moduleVerilogToSta(std::string_view module_name);
 std::string
-instanceVerilogToSta(std::string_view sta_name);
+instanceVerilogToSta(std::string_view inst_name);
 std::string
-netVerilogToSta(std::string_view sta_name);
+netVerilogToSta(std::string_view net_name);
 std::string
-portVerilogToSta(std::string_view sta_name);
+portVerilogToSta(std::string_view port_name);
 
 } // namespace sta

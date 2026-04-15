@@ -22,16 +22,16 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-#include <memory>
-
 #include "ArcDcalcWaveforms.hh"
 
-#include "Report.hh"
+#include <memory>
+
+#include "ArcDelayCalc.hh"
+#include "Graph.hh"
+#include "GraphDelayCalc.hh"
 #include "Liberty.hh"
 #include "Network.hh"
-#include "Graph.hh"
-#include "ArcDelayCalc.hh"
-#include "GraphDelayCalc.hh"
+#include "Report.hh"
 
 namespace sta {
 

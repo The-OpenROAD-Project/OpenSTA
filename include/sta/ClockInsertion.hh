@@ -26,8 +26,8 @@
 
 #include "MinMax.hh"
 #include "NetworkClass.hh"
-#include "SdcClass.hh"
 #include "RiseFallMinMax.hh"
+#include "SdcClass.hh"
 #include "Transition.hh"
 
 namespace sta {

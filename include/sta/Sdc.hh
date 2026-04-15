@@ -24,25 +24,25 @@
 
 #pragma once
 
-#include <vector>
 #include <map>
-#include <unordered_map>
 #include <mutex>
 #include <string_view>
+#include <unordered_map>
+#include <vector>
 
-#include "StringUtil.hh"
-#include "MinMax.hh"
-#include "StaState.hh"
-#include "NetworkClass.hh"
-#include "LibertyClass.hh"
-#include "GraphClass.hh"
-#include "SdcClass.hh"
-#include "RiseFallValues.hh"
 #include "Clock.hh"
-#include "DataCheck.hh"
 #include "CycleAccting.hh"
+#include "DataCheck.hh"
 #include "ExceptionPath.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "NetworkClass.hh"
 #include "PinPair.hh"
+#include "RiseFallValues.hh"
+#include "SdcClass.hh"
+#include "StaState.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -54,7 +54,7 @@ class DisabledPorts;
 class GraphLoop;
 class DeratingFactors;
 class DeratingFactorsGlobal;
-class DeratingFactorsNet;
+class DeratingFactors;
 class DeratingFactorsCell;
 class PatternMatch;
 class FindNetCaps;
@@ -174,7 +174,7 @@ using InstancePvtMap = std::map<const Instance*, Pvt*>;
 using PinMinPulseWidthMap = std::map<const Pin*, RiseFallValues*>;
 using ClockMinPulseWidthMap = std::map<const Clock*, RiseFallValues*>;
 using InstMinPulseWidthMap = std::map<const Instance*, RiseFallValues*>;
-using NetDeratingFactorsMap = std::map<const Net*, DeratingFactorsNet*>;
+using NetDeratingFactorsMap = std::map<const Net*, DeratingFactors*>;
 using InstDeratingFactorsMap = std::map<const Instance*, DeratingFactorsCell*>;
 using CellDeratingFactorsMap = std::map<const LibertyCell*, DeratingFactorsCell*>;
 using ClockGroupsSet = std::set<ClockGroups*>;
@@ -279,7 +279,7 @@ public:
                     const LibertyCell *cell,
                     const Port *port,
                     const LibertyPort *from_port,
-                    float *from_slews,
+                    const DriveCellSlews &from_slews,
                     const LibertyPort *to_port,
                     const RiseFallBoth *rf,
                     const MinMaxAll *min_max);

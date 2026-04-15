@@ -30,10 +30,10 @@
 #include <string_view>
 #include <vector>
 
-#include "MinMax.hh"
-#include "Transition.hh"
 #include "LibertyClass.hh"
+#include "MinMax.hh"
 #include "TimingModel.hh"
+#include "Transition.hh"
 #include "Variables.hh"
 
 namespace sta {

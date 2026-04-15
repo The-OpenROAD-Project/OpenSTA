@@ -28,8 +28,10 @@
 
 %{
 #include "Network.hh"
-#include "StringUtil.hh"
+
 #include <string>
+
+#include "StringUtil.hh"
 %}
 
 ////////////////////////////////////////////////////////////////

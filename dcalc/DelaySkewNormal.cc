@@ -27,10 +27,10 @@
 #include <cmath> // sqrt
 
 #include "Error.hh"
-#include "Fuzzy.hh"
-#include "Units.hh"
 #include "Format.hh"
+#include "Fuzzy.hh"
 #include "StaState.hh"
+#include "Units.hh"
 #include "Variables.hh"
 
 namespace sta {

@@ -27,9 +27,9 @@
 #include <string>
 #include <string_view>
 
-#include "Zlib.hh"
 #include "MinMax.hh"
 #include "ParasiticsClass.hh"
+#include "Zlib.hh"
 
 namespace sta {
 
@@ -52,7 +52,7 @@ readSpefFile(std::string_view filename,
              bool reduce,
              const Scene *scene,
              const MinMaxAll *min_max,
-             Parasitics *parasirics,
+             Parasitics *parasitics,
              StaState *sta);
 
 } // namespace sta

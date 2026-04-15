@@ -24,10 +24,10 @@
 
 #pragma once
 
-#include "MinMax.hh"
 #include "LibertyClass.hh"
-#include "SdcClass.hh"
+#include "MinMax.hh"
 #include "RiseFallMinMax.hh"
+#include "SdcClass.hh"
 
 namespace sta {
 
@@ -109,12 +109,6 @@ public:
 
 private:
   DeratingFactors factors_[timing_derate_cell_type_count];
-};
-
-class DeratingFactorsNet : public DeratingFactors
-{
-public:
-  DeratingFactorsNet();
 };
 
 } // namespace sta

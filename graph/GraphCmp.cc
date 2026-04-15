@@ -22,12 +22,13 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+#include "GraphCmp.hh"
+
 #include "ContainerHelpers.hh"
-#include "StringUtil.hh"
+#include "Graph.hh"
 #include "Network.hh"
 #include "NetworkCmp.hh"
-#include "Graph.hh"
-#include "GraphCmp.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -73,4 +74,4 @@ sortEdges(EdgeSeq *edges,
   sort(edges, EdgeLess(network, graph));
 }
 
-}
+} // namespace sta

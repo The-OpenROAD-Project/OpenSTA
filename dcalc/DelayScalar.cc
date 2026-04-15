@@ -27,8 +27,8 @@
 #include "DelayScalar.hh"
 
 #include "Fuzzy.hh"
-#include "Units.hh"
 #include "StaState.hh"
+#include "Units.hh"
 
 namespace sta {
 

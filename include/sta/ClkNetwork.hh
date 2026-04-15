@@ -26,10 +26,10 @@
 
 #include <map>
 
-#include "StaState.hh"
-#include "NetworkClass.hh"
 #include "GraphClass.hh"
+#include "NetworkClass.hh"
 #include "SdcClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 

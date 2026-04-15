@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <string_view>
 
 namespace sta {

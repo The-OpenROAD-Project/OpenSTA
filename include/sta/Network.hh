@@ -29,11 +29,11 @@
 #include <string>
 #include <string_view>
 
-#include "StringUtil.hh"
 #include "LibertyClass.hh"
-#include "VertexId.hh"
 #include "NetworkClass.hh"
 #include "StaState.hh"
+#include "StringUtil.hh"
+#include "VertexId.hh"
 
 namespace sta {
 
@@ -93,7 +93,7 @@ using NetDrvrPinsMap = std::map<const Net*, PinSet*>;
 class Network : public StaState
 {
 public:
-  Network();
+  Network() = default;
   ~Network() override;
   virtual void clear();
 
@@ -446,7 +446,7 @@ protected:
   void findInstancesMatching1(const Instance *context,
                               size_t context_name_length,
                               const PatternMatch *pattern,
-                              InstanceSeq &insts) const;
+                              InstanceSeq &matches) const;
   void findInstancesHierMatching1(const Instance *instance,
                                   const PatternMatch *pattern,
                                   InstanceSeq &matches) const;
@@ -475,7 +475,7 @@ protected:
                                     const PatternMatch *pattern,
                                     // Return value.
                                     PinSeq &matches) const;
-  void findInstPinsHierMatching(const Instance *parent,
+  void findInstPinsHierMatching(const Instance *instance,
                                 const PatternMatch *pattern,
                                 // Return value.
                                 PinSeq &matches) const;
@@ -490,9 +490,9 @@ protected:
   // nets may be connected across hierarchy levels.
   void clearNetDrvrPinMap();
 
-  LibertyLibrary *default_liberty_;
-  char divider_;
-  char escape_;
+  LibertyLibrary *default_liberty_{nullptr};
+  char divider_{'/'};
+  char escape_{'\\'};
   NetDrvrPinsMap net_drvr_pin_map_;
 };
 
@@ -500,7 +500,7 @@ protected:
 class NetworkEdit : public Network
 {
 public:
-  NetworkEdit();
+  NetworkEdit() = default;
   bool isEditable() const override { return true; }
   virtual Instance *makeInstance(LibertyCell *cell,
                                  std::string_view name,
@@ -619,7 +619,7 @@ private:
                         PinSet &pins);
 
   const Network *network_;
-  PinSet constant_pins_[2];
+  PinSet constant_pins_[2]{PinSet(network_), PinSet(network_)};
   LogicValue value_;
   PinSet::iterator pin_iter_;
 };

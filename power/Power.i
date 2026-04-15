@@ -25,12 +25,13 @@
 %module power
 
 %{
-#include "Sta.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
 #include "power/Power.hh"
-#include "power/VcdReader.hh"
+
+#include "Mode.hh"
+#include "Sdc.hh"
+#include "Sta.hh"
 #include "power/SaifReader.hh"
+#include "power/VcdReader.hh"
 
 using namespace sta;
 

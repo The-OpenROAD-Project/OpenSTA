@@ -25,10 +25,10 @@
 #pragma once
 
 #include "MinMax.hh"
-#include "Transition.hh"
-#include "RiseFallMinMax.hh"
 #include "MinMaxValues.hh"
 #include "NetworkClass.hh"
+#include "RiseFallMinMax.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -38,7 +38,6 @@ using FanoutValues = MinMaxIntValues;
 class PortExtCap
 {
 public:
-  PortExtCap();
   const Port *port() { return port_; }
   void pinCap(const RiseFall *rf,
               const MinMax *min_max,
@@ -70,7 +69,7 @@ public:
   const FanoutValues *fanout() const { return &fanout_; }
 
 private:
-  const Port *port_;
+  const Port *port_{nullptr};
   RiseFallMinMax pin_cap_;
   RiseFallMinMax wire_cap_;
   FanoutValues fanout_;

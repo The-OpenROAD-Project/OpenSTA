@@ -24,16 +24,16 @@
 
 #include "DelayCalcBase.hh"
 
+#include "Graph.hh"
+#include "GraphDelayCalc.hh"
 #include "Liberty.hh"
-#include "TimingArc.hh"
-#include "TimingModel.hh"
-#include "TableModel.hh"
 #include "Network.hh"
 #include "Parasitics.hh"
-#include "Graph.hh"
-#include "Sdc.hh"
 #include "Scene.hh"
-#include "GraphDelayCalc.hh"
+#include "Sdc.hh"
+#include "TableModel.hh"
+#include "TimingArc.hh"
+#include "TimingModel.hh"
 #include "Variables.hh"
 
 namespace sta {

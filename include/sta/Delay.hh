@@ -27,8 +27,8 @@
 #include <array>
 #include <cstddef>
 
-#include "StaConfig.hh"
 #include "MinMax.hh"
+#include "StaConfig.hh"
 
 namespace sta {
 
@@ -78,7 +78,7 @@ class DelayDbl
 {
 public:
   DelayDbl() noexcept;
-  DelayDbl(double value) noexcept;
+  DelayDbl(double mean) noexcept;
   double mean() const { return values_[0]; }
   void setMean(double mean);
   double meanShift() const { return values_[1]; }

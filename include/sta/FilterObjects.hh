@@ -41,52 +41,52 @@ class Report;
 
 PortSeq
 filterPorts(std::string_view filter_expression,
-            PortSeq *objects,
+            PortSeq *ports,
             Sta *sta);
 
 InstanceSeq
 filterInstances(std::string_view filter_expression,
-                InstanceSeq *objects,
+                InstanceSeq *insts,
                 Sta *sta);
 
 PinSeq
 filterPins(std::string_view filter_expression,
-           PinSeq *objects,
+           PinSeq *pins,
            Sta *sta);
 
 NetSeq
 filterNets(std::string_view filter_expression,
-           NetSeq *objects,
+           NetSeq *nets,
            Sta *sta);
 
 ClockSeq
 filterClocks(std::string_view filter_expression,
-             ClockSeq *objects,
+             ClockSeq *clks,
              Sta *sta);
 
 LibertyCellSeq
 filterLibCells(std::string_view filter_expression,
-               LibertyCellSeq *objects,
+               LibertyCellSeq *cells,
                Sta *sta);
 
 LibertyPortSeq
 filterLibPins(std::string_view filter_expression,
-              LibertyPortSeq *objects,
+              LibertyPortSeq *ports,
               Sta *sta);
 
 LibertyLibrarySeq
 filterLibertyLibraries(std::string_view filter_expression,
-                       LibertyLibrarySeq *objects,
+                       LibertyLibrarySeq *libs,
                        Sta *sta);
 
 EdgeSeq
 filterTimingArcs(std::string_view filter_expression,
-                  EdgeSeq *objects,
+                  EdgeSeq *edges,
                   Sta *sta);
 
 PathEndSeq
 filterPathEnds(std::string_view filter_expression,
-               PathEndSeq *objects,
+               PathEndSeq *ends,
                Sta *sta);
 
 // For FilterExpr unit tests.

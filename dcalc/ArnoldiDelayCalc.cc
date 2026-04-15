@@ -28,30 +28,34 @@
 
 #include "ArnoldiDelayCalc.hh"
 
-#include <cstdio>
+#include <algorithm>
 #include <cmath> // abs
+#include <cstddef>
+#include <cstdio>
+#include <numbers>
 
-#include "Report.hh"
-#include "Debug.hh"
-#include "Units.hh"
-#include "Liberty.hh"
-#include "TimingModel.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Parasitics.hh"
-#include "Sdc.hh"
-#include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
-#include "LumpedCapDelayCalc.hh"
-#include "GraphDelayCalc.hh"
-#include "Variables.hh"
 #include "Arnoldi.hh"
 #include "ArnoldiReduce.hh"
+#include "Debug.hh"
+#include "DelayCalc.hh"
+#include "Graph.hh"
+#include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "LumpedCapDelayCalc.hh"
+#include "Network.hh"
+#include "Parasitics.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Sdc.hh"
+#include "TableModel.hh"
+#include "TimingArc.hh"
+#include "TimingModel.hh"
+#include "Units.hh"
+#include "Variables.hh"
 
 namespace sta {
+// NOLINTBEGIN(modernize-avoid-c-style-cast)
 
 // wireload8 is n^2
 // do not delete arnoldi parasitics
@@ -76,7 +80,11 @@ delay_work_get_residues(delay_work *D,
                         int term_index);
 
 static bool
-tridiagEV(int n,double *d,double *e,double *p,double **v);
+tridiagEV(int n,
+          const double *din,
+          const double *ein,
+          double *d,
+          double **v);
 
 //////////////////////////////////////////////////////////////
 
@@ -229,7 +237,7 @@ private:
                  double *c_x1,
                  double *c_y1);
 
-  rcmodel *rcmodel_;
+  rcmodel *rcmodel_{nullptr};
   int _pinNmax;
   double *_delayV;
   double *_slewV;
@@ -246,7 +254,6 @@ makeArnoldiDelayCalc(StaState *sta)
 
 ArnoldiDelayCalc::ArnoldiDelayCalc(StaState *sta) :
   LumpedCapDelayCalc(sta),
-  rcmodel_(nullptr),
   reduce_(new ArnoldiReduce(sta)),
   delay_work_(delay_work_create())
 {
@@ -362,7 +369,7 @@ ArnoldiDelayCalc::inputPortDelay(const Pin *,
 
     for (int j=1;j<pin_n_;j++) {
       double elmore = rcmodel_->elmore(j);
-      double wire_delay = 0.6931472*elmore;
+      double wire_delay = std::numbers::ln2 * elmore;
       double load_slew = in_slew + c_log*elmore/slew_derate;
       _delayV[j] = wire_delay;
       _slewV[j] = load_slew;
@@ -487,7 +494,7 @@ ArnoldiDelayCalc::reportGateDelay(const Pin *drvr_pin,
 arnoldi1::~arnoldi1()
 {
   free(d);
-  free(U);
+  free(reinterpret_cast<void *>(U));
 }
 
 double
@@ -506,13 +513,16 @@ delay_work_create()
   int j;
   delay_work *D = (delay_work*)malloc(sizeof(delay_work));
   D->nmax = 256;
-  D->resi = (double**)malloc(D->nmax*sizeof(double*));
-  D->resi[0] = (double*)malloc(D->nmax*32*sizeof(double));
-  for (j=1;j<D->nmax;j++) D->resi[j] = D->resi[0] + j*32;
-  D->v[0] = (double*)malloc(32*32*sizeof(double));
-  for (j=1;j<32;j++) D->v[j] = D->v[0] + j*32;
-  D->w[0] = (double*)malloc(32*D->nmax*sizeof(double));
-  for (j=1;j<32;j++) D->w[j] = D->w[0] + j*D->nmax;
+  D->resi = (double**)malloc(static_cast<size_t>(D->nmax) * sizeof(double *));
+  D->resi[0] = (double*)malloc(static_cast<size_t>(D->nmax) * 32u * sizeof(double));
+  for (j=1;j<D->nmax;j++)
+    D->resi[j] = D->resi[0] + static_cast<ptrdiff_t>(j) * 32;
+  D->v[0] = (double*)malloc(static_cast<size_t>(32) * 32u * sizeof(double));
+  for (j=1;j<32;j++)
+    D->v[j] = D->v[0] + static_cast<ptrdiff_t>(j) * 32;
+  D->w[0] = (double*)malloc(32u * static_cast<size_t>(D->nmax) * sizeof(double));
+  for (j=1;j<32;j++)
+    D->w[j] = D->w[0] + static_cast<ptrdiff_t>(j) * D->nmax;
   D->lo_thresh = 0.0;
   D->hi_thresh = 0.0;
   D->slew_derate = 0.0;
@@ -535,7 +545,7 @@ static void
 delay_work_destroy(delay_work *D)
 {
   free(D->resi[0]);
-  free(D->resi);
+  free(reinterpret_cast<void *>(D->resi));
   free(D->v[0]);
   free(D->w[0]);
   free(D);
@@ -547,15 +557,17 @@ delay_work_alloc(delay_work *D,int n)
   if (n<=D->nmax) return;
   free(D->w[0]);
   free(D->resi[0]);
-  free(D->resi);
+  free(reinterpret_cast<void *>(D->resi));
   D->nmax *= 2;
-  if (n > D->nmax) D->nmax = n;
+  D->nmax = std::max(n, D->nmax);
   int j;
-  D->resi = (double**)malloc(D->nmax*sizeof(double*));
-  D->resi[0] = (double*)malloc(D->nmax*32*sizeof(double));
-  for (j=1;j<D->nmax;j++) D->resi[j] = D->resi[0] + j*32;
-  D->w[0] = (double*)malloc(32*D->nmax*sizeof(double));
-  for (j=1;j<32;j++) D->w[j] = D->w[0] + j*D->nmax;
+  D->resi = (double**)malloc(static_cast<size_t>(D->nmax) * sizeof(double *));
+  D->resi[0] = (double*)malloc(static_cast<size_t>(D->nmax) * 32u * sizeof(double));
+  for (j=1;j<D->nmax;j++)
+    D->resi[j] = D->resi[0] + static_cast<ptrdiff_t>(j) * 32;
+  D->w[0] = (double*)malloc(32u * static_cast<size_t>(D->nmax) * sizeof(double));
+  for (j=1;j<32;j++)
+    D->w[j] = D->w[0] + static_cast<ptrdiff_t>(j) * D->nmax;
 }
 
 void
@@ -622,8 +634,7 @@ void arnoldi1::calculate_poles_res(delay_work *D,
   d[0] = dsave;
 
   for (h=0;h<order;h++) {
-    if (p[h]<1e-14) // .01ps
-      p[h]=1e-14;
+    p[h] = std::max(p[h], 1e-14); // .01ps floor
     p[h] = 1.0/p[h];
   }
 
@@ -653,10 +664,10 @@ void arnoldi1::calculate_poles_res(delay_work *D,
 //  tridiagonal eigenvalues and eigenvectors
 //   assuming all eigenvalues are positive
 //
-//  tridiagEV(int n,double *d,double *e,double *p,double **v)
-//   d[0]..d[n-1]  diagonal elements
-//   e[0]..e[n-2]  off-diagonal elements
-//   p[0],..p[n-1] the eigenvalues
+//  tridiagEV(n, din, ein, d, v)
+//   din[0]..din[n-1]  diagonal elements (input)
+//   ein[0]..ein[n-2]  off-diagonal elements (input)
+//   d[0],..d[n-1] the eigenvalues (output)
 //   v[0],..v[n-1] the eigenvectors
 //    M*v[j] = p[j]*v[j]
 //
@@ -665,7 +676,11 @@ void arnoldi1::calculate_poles_res(delay_work *D,
 //   (M*v[j])[n-1] = d[n-1]*v[j][n-1]+e[n-2]*v[j][n-2]
 //
 static bool
-tridiagEV(int n,double *din,double *ein,double *d,double **v)
+tridiagEV(int n,
+          const double *din,
+          const double *ein,
+          double *d,
+          double **v)
 {
   int j,k;
   for (j=0;j<n;j++) for (k=0;k<n;k++) v[j][k]=0.0;
@@ -747,7 +762,12 @@ tridiagEV(int n,double *din,double *ein,double *d,double **v)
 
 // get a waveform point
 static void
-pr_get_v(double t, double s, int order, double *p, double *rr, double *va)
+pr_get_v(double t,
+         double s,
+         int order,
+         const double *p,
+         const double *rr,
+         double *va)
 {
   *va = 0.0;
   int h;
@@ -765,8 +785,13 @@ pr_get_v(double t, double s, int order, double *p, double *rr, double *va)
 }
 
 static void
-get_dv(double t, double s, int order, double *p, double *rr,
-       double *va, double *dva)
+get_dv(double t,
+       double s,
+       int order,
+       const double *p,
+       const double *rr,
+       double *va,
+       double *dva)
 {
   *va = 0.0;
   *dva = 0.0;
@@ -790,12 +815,19 @@ get_dv(double t, double s, int order, double *p, double *rr,
 }
 
 static double
-solve_t_bracketed(double s,int order,double *p,double *rr,
-                  double val,double x1,double x2,double v1,double v2)
+solve_t_bracketed(double s,
+                  int order,
+                  const double *p,
+                  const double *rr,
+                  double val,
+                  double x1,
+                  double x2,
+                  double v1,
+                  double v2)
 {
   int j;
   double df,dx,dxold,f,f2,f1;
-  double temp,xh,xl,rts;
+  double temp,xh,x_lo,rts;
   double xacc = .001e-12; // .001ps
   f1 = v1-val;
   f2 = v2-val;
@@ -803,12 +835,12 @@ solve_t_bracketed(double s,int order,double *p,double *rr,
   if (f2==0.0) return x2;
   rts = (f1*x2-f2*x1)/(f1-f2);
   if (f1<f2) {
-    xl = x1;
+    x_lo = x1;
     xh = x2;
     if (0.0<f1) return x1;
     if (f2<0.0) return x2;
   } else {
-    xl = x2;
+    x_lo = x2;
     xh = x1;
     if (0.0<f2) return x2;
     if (f1<0.0) return x1;
@@ -819,19 +851,19 @@ solve_t_bracketed(double s,int order,double *p,double *rr,
   f -= val;
   double flast = 0.0;
   for (j=1;j<10;j++) {
-    if ((((rts-xh)*df-f)*((rts-xl)*df-f) >= 0.0)
+    if ((((rts-xh)*df-f)*((rts-x_lo)*df-f) >= 0.0)
         || (std::abs(2.0*f) > std::abs(dxold*df))) {
       dxold = dx;
-      dx = 0.5*(xh-xl);
+      dx = 0.5*(xh-x_lo);
       if (flast*f >0.0) {
         // 2 successive bisections in same direction,
         // accelerate
-        if (f<0.0) dx = 0.9348*(xh-xl);
-        else dx = 0.0625*(xh-xl);
+        if (f<0.0) dx = 0.9348*(xh-x_lo);
+        else dx = 0.0625*(xh-x_lo);
       }
       flast = f;
-      rts = xl+dx;
-      if (xl == rts) {
+      rts = x_lo+dx;
+      if (x_lo == rts) {
         return rts;
       }
     } else {
@@ -849,13 +881,13 @@ solve_t_bracketed(double s,int order,double *p,double *rr,
     }
     get_dv(rts,s,order,p,rr,&f,&df); f -= val;
     if (f<0.0)
-      xl = rts;
+      x_lo = rts;
     else
       xh = rts;
   }
   if (std::abs(f)<1e-6) // 1uV
     return rts;
-  return 0.5*(xl+xh);
+  return 0.5*(x_lo+xh);
 }
 
 void
@@ -949,8 +981,7 @@ ArnoldiDelayCalc::pr_solve3(double s,
     for (h=1;h<order;h++) if (rr[h]>0.3 && rr[h]>rr[0]) { h0 = h; break; }
   }
   double p0 = p[h0];
-  if (p0>10e+9)  // 1/10ns
-    p0=10e+9;
+  p0 = std::min(p0, 10e+9);  // 1/10ns cap
   double ps,vs,ta,va;
   vs = 0.0;
   for (h=0;h<order;h++) {
@@ -1034,7 +1065,9 @@ ArnoldiDelayCalc::pr_solve3(double s,
     ta = s + 0.7/p0;
     pr_get_v(ta,s,order,p,rr,&va);
     while (va>vmid) {
-      tmin5 = tmin8 = ta; vmin5 = tmin8 = va;
+      tmin5 = ta;
+      tmin8 = ta;
+      vmin5 = va;
       ta += 0.7/p0;
       pr_get_v(ta,s,order,p,rr,&va);
     }
@@ -1064,18 +1097,14 @@ ArnoldiDelayCalc::pr_solve3(double s,
       pr_get_v(ta,s,order,p,rr,&va);
     }
     tmax2 = ta; vmax2 = va;
-    if (va < vmid) {
-      tmax5 = ta; vmax5 = va;
-    } else while (va > vmid) {
+    while (va > vmid) {
       tmin5 = tmin8 = ta;
       vmin5 = vmin8 = va;
       ta += 1.0/p0;
       pr_get_v(ta,s,order,p,rr,&va);
     }
     tmax5 = ta; vmax5 = va;
-    if (va < vlo) {
-      tmax8 = ta; vmax8 = va;
-    } else while (va > vlo) {
+    while (va > vlo) {
       tmin8 = ta;
       vmin8 = va;
       ta += 1.0/p0;
@@ -1248,11 +1277,12 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
 
   if (x <= x1) {
     y = y1 - 0.5*(x-x1);
-    if (y>1.0) y=1.0;
+    y = std::min(y, 1.0);
   } else {
     y =  y1 - (x-x1)*(0.5 + 8*(x-x1));
-    if (y<y2) y=y2;
+    y = std::max(y, y2);
   }
+  (void)y;
 
   ra_solve_for_pt(p*s,vlo,&ptlo,&dlo);
   ra_solve_for_pt(p*s,vhi,&pthi,&dhi);
@@ -1405,7 +1435,6 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   if (rdelay == 0.0) {
     rdelay = 1e+3; // 1kohm
   }
-  r = rdelay;
   r = ra_get_r(D,tab,rdelay,ctot);
   if (! (r>0.0
          && r<100e+3)) // 100khom
@@ -1436,9 +1465,6 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
                units_->timeUnit()->asString(tlox-thix));
   }
   ceff = ctot;
-  tab->table->gateDelay(tab->pvt, tab->in_slew, ceff, df, sf);
-  t50_sy = delayAsFloat(df);
-  t50_sr = ra_solve_for_t(1.0/(r*ceff),s,0.5);
 
   // calculate s,r,mod -> t50_srmod,
   // then   t50_srmod+t50_sy-t50_sr
@@ -1488,4 +1514,5 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   }
 }
 
+// NOLINTEND(modernize-avoid-c-style-cast)
 } // namespace sta

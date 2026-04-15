@@ -35,7 +35,6 @@ namespace sta {
 class Exception : public std::exception
 {
 public:
-  Exception();
   const char *what() const noexcept override = 0;
 };
 

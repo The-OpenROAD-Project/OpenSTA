@@ -70,7 +70,7 @@ class ParasiticNetwork {};
 class ConcreteParasitic : public Parasitic
 {
 public:
-  virtual ~ConcreteParasitic();
+  virtual ~ConcreteParasitic() = default;
   virtual float capacitance() const = 0;
   virtual bool isPiElmore() const;
   virtual bool isPiModel() const;
@@ -119,7 +119,7 @@ protected:
   float c2_;
   float rpi_;
   float c1_;
-  bool is_reduced_;
+  bool is_reduced_{false};
 };
 
 // Pi model for a driver pin and the elmore delay to each load.
@@ -158,9 +158,8 @@ private:
 class ConcretePoleResidue : public ConcreteParasitic
 {
 public:
-  ConcretePoleResidue();
-  virtual ~ConcretePoleResidue();
-  virtual bool isPoleResidue() const override { return true; }
+  ~ConcretePoleResidue() override;
+  bool isPoleResidue() const override { return true; }
   float capacitance() const override { return 0.0; }
   PinSet unannotatedLoads(const Pin *drvr_pin,
                           const Parasitics *parasitics) const override;
@@ -174,8 +173,8 @@ public:
   using ConcreteParasitic::setPoleResidue;
 
 private:
-  ComplexFloatSeq *poles_;
-  ComplexFloatSeq *residues_;
+  ComplexFloatSeq *poles_{nullptr};
+  ComplexFloatSeq *residues_{nullptr};
 };
 
 // Pi model for a driver pin and the pole/residues to each load.
@@ -186,23 +185,23 @@ public:
   ConcretePiPoleResidue(float c2,
                         float rpi,
                         float c1);
-  virtual bool isPiPoleResidue() const override { return true; }
-  virtual bool isPiModel() const override { return true; }
-  virtual float capacitance() const override;
-  virtual void piModel(float &c2,
-                       float &rpi,
-                       float &c1) const override;
-  virtual void setPiModel(float c2,
-                          float rpi,
-                          float c1) override;
-  virtual bool isReducedParasiticNetwork() const override;
-  virtual void setIsReduced(bool reduced) override;
-  virtual Parasitic *findPoleResidue(const Pin *load_pin) const override;
-  virtual void setPoleResidue(const Pin *load_pin,
-                              ComplexFloatSeq *poles,
-                              ComplexFloatSeq *residues) override;
-  virtual PinSet unannotatedLoads(const Pin *drvr_pin,
-                                  const Parasitics *parasitics) const override;
+  bool isPiPoleResidue() const override { return true; }
+  bool isPiModel() const override { return true; }
+  float capacitance() const override;
+  void piModel(float &c2,
+               float &rpi,
+               float &c1) const override;
+  void setPiModel(float c2,
+                  float rpi,
+                  float c1) override;
+  bool isReducedParasiticNetwork() const override;
+  void setIsReduced(bool reduced) override;
+  Parasitic *findPoleResidue(const Pin *load_pin) const override;
+  void setPoleResidue(const Pin *load_pin,
+                      ComplexFloatSeq *poles,
+                      ComplexFloatSeq *residues) override;
+  PinSet unannotatedLoads(const Pin *drvr_pin,
+                          const Parasitics *parasitics) const override;
   void deleteLoad(const Pin *load_pin);
   ConcretePoleResidueMap &loadResidues() { return load_pole_residue_; }
 
@@ -217,21 +216,21 @@ public:
   ConcreteParasiticNetwork(const Net *net,
                            bool includes_pin_caps,
                            const Network *network);
-  ConcreteParasiticNetwork(ConcreteParasiticNetwork &&parasitic);
-  virtual ~ConcreteParasiticNetwork();
-  virtual bool isParasiticNetwork() const { return true; }
+  ConcreteParasiticNetwork(ConcreteParasiticNetwork &&parasitic) noexcept;
+  ~ConcreteParasiticNetwork() override;
+  bool isParasiticNetwork() const override { return true; }
   const Net *net() const { return net_; }
   bool includesPinCaps() const { return includes_pin_caps_; }
   ConcreteParasiticNode *findParasiticNode(const Net *net,
-                                           int id,
+                                           uint32_t id,
                                            const Network *network) const;
   ConcreteParasiticNode *ensureParasiticNode(const Net *net,
-                                             int id,
+                                             uint32_t id,
                                              const Network *network);
   ConcreteParasiticNode *findParasiticNode(const Pin *pin) const;
   ConcreteParasiticNode *ensureParasiticNode(const Pin *pin,
                                              const Network *network);
-  virtual float capacitance() const;
+  float capacitance() const override;
   ParasiticNodeSeq nodes() const;
   void disconnectPin(const Pin *pin,
                      const Net *net,
@@ -240,8 +239,8 @@ public:
   void addResistor(ParasiticResistor *resistor);
   ParasiticCapacitorSeq capacitors() const { return capacitors_; }
   void addCapacitor(ParasiticCapacitor *capacitor);
-  virtual PinSet unannotatedLoads(const Pin *drvr_pin,
-                                  const Parasitics *parasitics) const;
+  PinSet unannotatedLoads(const Pin *drvr_pin,
+                          const Parasitics *parasitics) const override;
 
 private:
   void unannotatedLoads(ParasiticNode *node,
@@ -260,7 +259,7 @@ private:
   ConcreteParasiticPinNodeMap pin_nodes_;
   ParasiticResistorSeq resistors_;
   ParasiticCapacitorSeq capacitors_;
-  unsigned max_node_id_:31;
+  unsigned max_node_id_:31{0};
   bool includes_pin_caps_:1;
 };
 
@@ -268,7 +267,7 @@ class ConcreteParasiticNode : public ParasiticNode
 {
 public:
   ConcreteParasiticNode(const Net *net,
-                        int id,
+                        uint32_t id,
                         bool is_external);
   ConcreteParasiticNode(const Pin *pin,
                         bool is_external);
@@ -298,11 +297,11 @@ protected:
 class ConcreteParasiticDevice
 {
 public:
-  ConcreteParasiticDevice(size_t id,
+  ConcreteParasiticDevice(uint32_t id,
                           float value,
                           ConcreteParasiticNode *node1,
                           ConcreteParasiticNode *node2);
-  int id() const { return id_; }
+  uint32_t id() const { return id_; }
   float value() const { return value_; }
   ConcreteParasiticNode *node1() const { return node1_; }
   ConcreteParasiticNode *node2() const { return node2_; }
@@ -310,7 +309,7 @@ public:
                    ConcreteParasiticNode *to_node);
 
 protected:
-  size_t id_;
+  uint32_t id_;
   float value_;
   ConcreteParasiticNode *node1_;
   ConcreteParasiticNode *node2_;
@@ -320,7 +319,7 @@ class ConcreteParasiticResistor : public ParasiticResistor,
                                   public ConcreteParasiticDevice 
 {
 public:
-  ConcreteParasiticResistor(size_t id,
+  ConcreteParasiticResistor(uint32_t id,
                             float value,
                             ConcreteParasiticNode *node1,
                             ConcreteParasiticNode *node2);
@@ -330,7 +329,7 @@ class ConcreteParasiticCapacitor : public ParasiticCapacitor,
                                   public ConcreteParasiticDevice 
 {
 public:
-  ConcreteParasiticCapacitor(size_t id,
+  ConcreteParasiticCapacitor(uint32_t id,
                              float value,
                              ConcreteParasiticNode *node1,
                              ConcreteParasiticNode *node2);

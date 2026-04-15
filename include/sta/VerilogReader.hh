@@ -24,15 +24,15 @@
 
 #pragma once
 
+#include <map>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <map>
 
 #include "Format.hh"
+#include "NetworkClass.hh"
 #include "Report.hh"
 #include "StringUtil.hh"
-#include "NetworkClass.hh"
 
 namespace sta {
 
@@ -104,12 +104,12 @@ public:
   ~VerilogReader();
   bool read(std::string_view filename);
 
-  void makeModule(std::string_view module_name,
+  void makeModule(std::string_view module_vname,
                   VerilogNetSeq *ports,
                   VerilogStmtSeq *stmts,
                   VerilogAttrStmtSeq *attr_stmts,
                   int line);
-  void makeModule(std::string_view module_name,
+  void makeModule(std::string_view module_vname,
                   VerilogStmtSeq *port_dcls,
                   VerilogStmtSeq *stmts,
                   VerilogAttrStmtSeq *attr_stmts,
@@ -122,8 +122,8 @@ public:
                       VerilogDclArg *arg,
                       VerilogAttrStmtSeq *attr_stmts,
                       int line);
-  VerilogDclArg *makeDclArg(std::string_view net_name);
-  VerilogDclArg*makeDclArg(VerilogAssign *assign);
+  VerilogDclArg *makeDclArg(std::string_view net_vname);
+  VerilogDclArg *makeDclArg(VerilogAssign *assign);
   VerilogDclBus *makeDclBus(PortDirection *dir,
                             int from_index,
                             int to_index,
@@ -136,8 +136,8 @@ public:
                             VerilogDclArgSeq *args,
                             VerilogAttrStmtSeq *attr_stmts,
                             int line);
-  VerilogInst *makeModuleInst(std::string_view module_name,
-                              std::string_view inst_name,
+  VerilogInst *makeModuleInst(std::string_view module_vname,
+                              std::string_view inst_vname,
                               VerilogNetSeq *pins,
                               VerilogAttrStmtSeq *attr_stmts,
                               int line);
@@ -146,17 +146,17 @@ public:
                             int line);
   VerilogNetScalar *makeNetScalar(std::string_view name);
   VerilogNetPortRef *makeNetNamedPortRefScalarNet(std::string_view port_vname);
-  VerilogNetPortRef *makeNetNamedPortRefScalarNet(std::string_view port_name,
-                                                  std::string_view net_name);
-  VerilogNetPortRef *makeNetNamedPortRefBitSelect(std::string_view port_name,
-                                                  std::string_view bus_name,
+  VerilogNetPortRef *makeNetNamedPortRefScalarNet(std::string_view port_vname,
+                                                  std::string_view net_vname);
+  VerilogNetPortRef *makeNetNamedPortRefBitSelect(std::string_view port_vname,
+                                                  std::string_view bus_vname,
                                                   int index);
-  VerilogNetPortRef *makeNetNamedPortRefScalar(std::string_view port_name,
+  VerilogNetPortRef *makeNetNamedPortRefScalar(std::string_view port_vname,
                                                VerilogNet *net);
-  VerilogNetPortRef *makeNetNamedPortRefBit(std::string_view port_name,
+  VerilogNetPortRef *makeNetNamedPortRefBit(std::string_view port_vname,
                                             int index,
                                             VerilogNet *net);
-  VerilogNetPortRef *makeNetNamedPortRefPart(std::string_view port_name,
+  VerilogNetPortRef *makeNetNamedPortRefPart(std::string_view port_vname,
                                              int from_index,
                                              int to_index,
                                              VerilogNet *net);
@@ -306,8 +306,8 @@ protected:
   Debug *debug_;
   NetworkReader *network_;
 
-  Library *library_;
-  int black_box_index_;
+  Library *library_{nullptr};
+  int black_box_index_{0};
   VerilogModuleMap module_map_;
   VerilogErrorSeq link_errors_;
   const std::string zero_net_name_;

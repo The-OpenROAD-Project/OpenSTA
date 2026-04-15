@@ -25,8 +25,8 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "Iterator.hh"
 

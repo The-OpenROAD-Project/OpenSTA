@@ -24,23 +24,22 @@
 
 #include "Parasitics.hh"
 
-#include "Error.hh"
 #include "Debug.hh"
-#include "Units.hh"
+#include "Error.hh"
+#include "EstimateParasitics.hh"
 #include "Liberty.hh"
-#include "Wireload.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
-#include "Sdc.hh"
-#include "Scene.hh"
 #include "ReduceParasitics.hh"
-#include "EstimateParasitics.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "Units.hh"
+#include "Wireload.hh"
 
 namespace sta {
 
 Parasitics::Parasitics(StaState *sta) :
-  StaState(sta),
-  coupling_cap_factor_(1.0)
+  StaState(sta)
 {
 }
 

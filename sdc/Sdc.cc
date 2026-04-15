@@ -579,9 +579,9 @@ Sdc::setTimingDerate(const Net *net,
                      const EarlyLate *early_late,
                      float derate)
 {
-  DeratingFactorsNet *factors = findKey(net_derating_factors_, net);
+  DeratingFactors *factors = findKey(net_derating_factors_, net);
   if (factors == nullptr) { 
-    factors = new DeratingFactorsNet;
+    factors = new DeratingFactors;
     net_derating_factors_[net] = factors;
   }
   factors->setFactor(clk_data, rf, early_late, derate);
@@ -665,7 +665,7 @@ Sdc::timingDerateNet(const Pin *pin,
                      const EarlyLate *early_late) const
 {
   const Net *net = network_->net(pin);
-  DeratingFactorsNet *factors = findKey(net_derating_factors_, net);
+  DeratingFactors *factors = findKey(net_derating_factors_, net);
   if (factors) {
     float factor;
     bool exists;
@@ -719,7 +719,7 @@ Sdc::setDriveCell(const LibertyLibrary *library,
                   const LibertyCell *cell,
                   const Port *port,
                   const LibertyPort *from_port,
-                  float *from_slews,
+                  const DriveCellSlews &from_slews,
                   const LibertyPort *to_port,
                   const RiseFallBoth *rf,
                   const MinMaxAll *min_max)
@@ -1960,7 +1960,7 @@ Sdc::makeClockGroups(std::string_view name,
   ClockGroups *groups = new ClockGroups(group_name, logically_exclusive,
                                         physically_exclusive,
                                         asynchronous, allow_paths,
-                                        std::move(comment));
+                                        comment);
   clk_groups_name_map_[groups->name()] = groups;
   return groups;
 }

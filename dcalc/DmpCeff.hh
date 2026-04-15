@@ -44,7 +44,7 @@ class DmpCeffDelayCalc : public LumpedCapDelayCalc
 {
 public:
   DmpCeffDelayCalc(StaState *sta);
-  virtual ~DmpCeffDelayCalc();
+  ~DmpCeffDelayCalc() override;
   bool reduceSupported() const override { return true; }
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
@@ -98,7 +98,7 @@ private:
   DmpCap *dmp_cap_;
   DmpPi *dmp_pi_;
   DmpZeroC2 *dmp_zero_c2_;
-  DmpAlg *dmp_alg_;
+  DmpAlg *dmp_alg_{nullptr};
 };
 
 } // namespace sta

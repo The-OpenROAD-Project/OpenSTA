@@ -30,21 +30,21 @@
 #include <string_view>
 
 #include "Format.hh"
-#include "Zlib.hh"
-#include "StaConfig.hh"  // STA_VERSION
 #include "Fuzzy.hh"
-#include "StringUtil.hh"
-#include "Units.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Sdc.hh"
-#include "MinMaxValues.hh"
-#include "Network.hh"
 #include "Graph.hh"
 #include "GraphDelayCalc.hh"
-#include "StaState.hh"
+#include "Liberty.hh"
+#include "MinMaxValues.hh"
+#include "Network.hh"
 #include "Scene.hh"
+#include "Sdc.hh"
+#include "StaConfig.hh"  // STA_VERSION
+#include "StaState.hh"
+#include "StringUtil.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "Units.hh"
+#include "Zlib.hh"
 
 namespace sta {
 
@@ -118,7 +118,7 @@ private:
   bool include_typ_;
   float timescale_;
 
-  char sdf_escape_;
+  char sdf_escape_{'\\'};
   char network_escape_;
   int digits_;
 
@@ -146,7 +146,6 @@ writeSdf(std::string_view filename,
 
 SdfWriter::SdfWriter(StaState *sta) :
   StaState(sta),
-  sdf_escape_('\\'),
   network_escape_(network_->pathEscape())
 {
 }

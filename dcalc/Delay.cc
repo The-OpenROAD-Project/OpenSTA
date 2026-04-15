@@ -26,10 +26,10 @@
 
 #include <cmath>
 
-#include "StaConfig.hh"
 #include "Fuzzy.hh"
-#include "Units.hh"
+#include "StaConfig.hh"
 #include "StaState.hh"
+#include "Units.hh"
 #include "Variables.hh"
 
 namespace sta {

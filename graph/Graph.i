@@ -25,16 +25,16 @@
 %module graph
 
 %{
-#include "Graph.hh"
+#include "Clock.hh"
 #include "FuncExpr.hh"
-#include "TimingRole.hh"
+#include "Graph.hh"
 #include "Liberty.hh"
 #include "Network.hh"
-#include "Clock.hh"
 #include "Scene.hh"
 #include "Search.hh"
 #include "Sdc.hh"
 #include "Sta.hh"
+#include "TimingRole.hh"
 
 using namespace sta;
 

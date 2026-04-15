@@ -50,10 +50,10 @@ using ConcreteParasiticNetworkMap = std::map<const Net*, ConcreteParasiticNetwor
 class ConcreteParasitics : public Parasitics
 {
 public:
+  ~ConcreteParasitics() override;
   ConcreteParasitics(std::string_view name,
                      std::string_view filename,
                      StaState *sta);
-  ~ConcreteParasitics() override;
   const std::string &name() const override { return name_; };
   const std::string &filename() const override { return filename_; };
   bool haveParasitics() override;
@@ -130,11 +130,11 @@ public:
   bool includesPinCaps(const Parasitic *parasitic) const override;
   ParasiticNode *findParasiticNode(Parasitic *parasitic,
                                    const Net *net,
-                                   int id,
+                                   uint32_t id,
                                    const Network *network) const override;
   ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
                                      const Net *net,
-                                     int id,
+                                     uint32_t id,
                                      const Network *network) override;
   ParasiticNode *findParasiticNode(const Parasitic *parasitic,
                                    const Pin *pin) const override;
@@ -154,21 +154,21 @@ public:
 
   ParasiticResistorSeq resistors(const Parasitic *parasitic) const override;
   void makeResistor(Parasitic *parasitic,
-                    size_t id,
+                    uint32_t id,
                     float res,
                     ParasiticNode *node1,
                     ParasiticNode *node2) override;
-  size_t id(const ParasiticResistor *resistor) const override;
+  uint32_t id(const ParasiticResistor *resistor) const override;
   float value(const ParasiticResistor *resistor) const override;
   ParasiticNode *node1(const ParasiticResistor *resistor) const override;
   ParasiticNode *node2(const ParasiticResistor *resistor) const override;
   ParasiticCapacitorSeq capacitors(const Parasitic *parasitic) const override;
   void makeCapacitor(Parasitic *parasitic,
-                     size_t id,
+                     uint32_t id,
                      float cap,
                      ParasiticNode *node1,
                      ParasiticNode *node2) override;
-  size_t id(const ParasiticCapacitor *capacitor) const override;
+  uint32_t id(const ParasiticCapacitor *capacitor) const override;
   float value(const ParasiticCapacitor *capacitor) const override;
   ParasiticNode *node1(const ParasiticCapacitor *capacitor) const override;
   ParasiticNode *node2(const ParasiticCapacitor *capacitor) const override;
@@ -184,6 +184,7 @@ public:
   void deleteDrvrReducedParasitics(const Pin *drvr_pin) override;
 
 protected:
+  void deleteParasiticsImpl();
   Parasitic *ensureRspf(const Pin *drvr_pin);
   void makeAnalysisPtAfter();
   void deleteReducedParasitics(const Pin *pin);

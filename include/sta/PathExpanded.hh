@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include "TimingArc.hh"
 #include "GraphClass.hh"
-#include "SearchClass.hh"
 #include "Path.hh"
+#include "SearchClass.hh"
 #include "StaState.hh"
+#include "TimingArc.hh"
 
 namespace sta {
 

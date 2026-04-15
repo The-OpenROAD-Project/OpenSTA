@@ -24,12 +24,12 @@
 
 #include "ReportPower.hh"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
-#include "Report.hh"
-#include "Network.hh"
 #include "Format.hh"
+#include "Network.hh"
+#include "Report.hh"
 
 namespace sta {
 

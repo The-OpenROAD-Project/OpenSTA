@@ -26,10 +26,11 @@
 
 %{
 #include <string>
-#include "sdf/ReportAnnotation.hh"
-#include "sdf/SdfWriter.hh"
+
 #include "Search.hh"
 #include "Sta.hh"
+#include "sdf/ReportAnnotation.hh"
+#include "sdf/SdfWriter.hh"
 
 using sta::Sta;
 using sta::AnalysisType;

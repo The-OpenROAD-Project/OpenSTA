@@ -25,14 +25,14 @@
 #pragma once
 
 #include <functional>
-#include <string_view>
-#include <vector>
 #include <map>
 #include <set>
+#include <string_view>
+#include <vector>
 
-#include "StringUtil.hh"
-#include "Network.hh"
 #include "LibertyClass.hh"
+#include "Network.hh"
+#include "StringUtil.hh"
 
 namespace  sta {
 
@@ -263,6 +263,9 @@ public:
   using Network::isLeaf;
 
 protected:
+  void clearImpl();
+  void deleteCellNetworkViewsImpl();
+  void deleteInstanceImpl(Instance *inst);
   void addLibrary(ConcreteLibrary *library);
   void setName(std::string_view name);
   void clearConstantNets();
@@ -280,8 +283,8 @@ protected:
   // Cell lookup search order sequence.
   ConcreteLibrarySeq library_seq_;
   ConcreteLibraryMap library_map_;
-  Instance *top_instance_;
-  NetSet constant_nets_[2];  // LogicValue::zero/one
+  Instance *top_instance_{nullptr};
+  NetSet constant_nets_[2]{NetSet(this), NetSet(this)};  // LogicValue::zero/one
   LinkNetworkFunc link_func_;
   CellNetworkViewMap cell_network_view_map_;
   static ObjectId object_id_;
@@ -293,7 +296,7 @@ private:
 class ConcreteInstance
 {
 public:
-  std::string_view name() const { return name_; }
+  const std::string &name() const { return name_; }
   ObjectId id() const { return id_; }
   Cell *cell() const;
   ConcreteInstance *parent() const { return parent_; }
@@ -332,8 +335,8 @@ protected:
   ConcreteInstance *parent_;
   // Array of pins indexed by pin->port->index().
   ConcretePinSeq pins_;
-  ConcreteInstanceChildMap *children_;
-  ConcreteInstanceNetMap *nets_;
+  ConcreteInstanceChildMap *children_{nullptr};
+  ConcreteInstanceNetMap *nets_{nullptr};
   AttributeMap attribute_map_;
 
 private:
@@ -344,7 +347,7 @@ private:
 class ConcretePin
 {
 public:
-  std::string_view name() const;
+  const std::string &name() const;
   ConcreteInstance *instance() const { return instance_; }
   ConcreteNet *net() const { return net_; }
   ConcretePort *port() const { return port_; }
@@ -362,12 +365,12 @@ protected:
   ConcreteInstance *instance_;
   ConcretePort *port_;
   ConcreteNet *net_;
-  ConcreteTerm *term_;
+  ConcreteTerm *term_{nullptr};
   ObjectId id_;
   // Doubly linked list of net pins.
-  ConcretePin *net_next_;
-  ConcretePin *net_prev_;
-  VertexId vertex_id_;
+  ConcretePin *net_next_{nullptr};
+  ConcretePin *net_prev_{nullptr};
+  VertexId vertex_id_{vertex_id_null};
 
 private:
   friend class ConcreteNetwork;
@@ -378,7 +381,7 @@ private:
 class ConcreteTerm
 {
 public:
-  std::string_view name() const;
+  const std::string &name() const;
   ObjectId id() const { return id_; }
   ConcreteNet *net() const { return net_; }
   ConcretePin *pin() const { return pin_; }
@@ -392,7 +395,7 @@ protected:
   ConcreteNet *net_;
   ObjectId id_;
   // Linked list of net terms.
-  ConcreteTerm *net_next_;
+  ConcreteTerm *net_next_{nullptr};
 
 private:
   friend class ConcreteNetwork;
@@ -403,7 +406,7 @@ private:
 class ConcreteNet
 {
 public:
-  std::string_view name() const { return name_; }
+  const std::string &name() const { return name_; }
   ObjectId id() const { return id_; }
   ConcreteInstance *instance() const { return instance_; }
   void addPin(ConcretePin *pin);
@@ -420,12 +423,12 @@ protected:
   ObjectId id_;
   ConcreteInstance *instance_;
   // Pointer to head of linked list of pins.
-  ConcretePin *pins_;
+  ConcretePin *pins_{nullptr};
   // Pointer to head of linked list of terminals.
   // These terminals correspond to the pins attached to the instance that
   // contains this net in the hierarchy level above.
-  ConcreteTerm *terms_;
-  ConcreteNet *merged_into_;
+  ConcreteTerm *terms_{nullptr};
+  ConcreteNet *merged_into_{nullptr};
 
   friend class ConcreteNetwork;
   friend class ConcreteNetTermIterator;

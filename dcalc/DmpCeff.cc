@@ -40,17 +40,17 @@
 #include <tuple>
 #include <utility>
 
-#include "Format.hh"
-#include "Report.hh"
-#include "Debug.hh"
-#include "Units.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
-#include "Liberty.hh"
-#include "Sdc.hh"
-#include "Parasitics.hh"
 #include "ArcDelayCalc.hh"
+#include "Debug.hh"
 #include "FindRoot.hh"
+#include "Format.hh"
+#include "Liberty.hh"
+#include "Parasitics.hh"
+#include "Report.hh"
+#include "Sdc.hh"
+#include "TableModel.hh"
+#include "TimingArc.hh"
+#include "Units.hh"
 #include "Variables.hh"
 
 namespace sta {
@@ -72,7 +72,7 @@ class DmpError : public Exception
 {
 public:
   DmpError(std::string_view what);
-  virtual const char *what() const noexcept { return what_.c_str(); }
+  const char *what() const noexcept override { return what_.c_str(); }
 
 private:
   std::string what_;
@@ -127,7 +127,7 @@ protected:
   void newtonRaphson();
   // Find driver parameters t0, delta_t, Ceff.
   void findDriverParams(double ceff);
-  std::pair<double, double> gateCapDelaySlew(double cl);
+  std::pair<double, double> gateCapDelaySlew(double ceff);
   std::tuple<double, double, double> gateDelays(double ceff);
   // Partial derivatives of y(t) jacobian (dydt0, dyddt, dydcl).
   std::tuple<double, double, double> dy(double t,
@@ -143,12 +143,12 @@ protected:
   void showJacobian();
   std::pair<double, double> findDriverDelaySlew();
   double findVoCrossing(double vth,
-                        double lower_bound,
-                        double upper_bound);
+                        double t_lower,
+                        double t_upper);
   void showVo();
   double findVlCrossing(double vth,
-                        double lower_bound,
-                        double upper_bound);
+                        double t_lower,
+                        double t_upper);
   void showVl();
   void fail(std::string_view reason);
 
@@ -177,9 +177,9 @@ protected:
   const Pvt *pvt_;
   const GateTableModel *gate_model_;
   double in_slew_;
-  double c2_;
-  double rpi_;
-  double c1_;
+  double c2_{0.0};
+  double rpi_{0.0};
+  double c1_{0.0};
 
   double rd_;
   // Logic threshold (percentage of supply voltage).
@@ -232,9 +232,6 @@ protected:
 DmpAlg::DmpAlg(int nr_order,
                StaState *sta) :
   StaState(sta),
-  c2_(0.0),
-  rpi_(0.0),
-  c1_(0.0),
   nr_order_(nr_order)
 {
 }
@@ -465,8 +462,13 @@ DmpAlg::showVo()
 {
   report_->report("  t    vo(t)");
   double ub = voCrossingUpperBound();
-  for (double t = t0_; t < t0_ + ub; t += dt_ / 10.0)
+  const double step = dt_ / 10.0;
+  for (int i = 0;; ++i) {
+    double t = t0_ + step * i;
+    if (!(t < t0_ + ub))
+      break;
     report_->report(" {:g} {:g}", t, Vo(t).first);
+  }
 }
 
 std::pair<double, double>
@@ -567,8 +569,14 @@ DmpAlg::showVl()
 {
   report_->report("  t    vl(t)");
   double ub = vlCrossingUpperBound();
-  for (double t = t0_; t < t0_ + ub * 2.0; t += ub / 10.0)
+  const double step = ub / 10.0;
+  const double t_end = t0_ + ub * 2.0;
+  for (int i = 0;; ++i) {
+    double t = t0_ + step * i;
+    if (!(t < t_end))
+      break;
     report_->report(" {:g} {:g}", t, Vl(t).first);
+  }
 }
 
 void
@@ -605,9 +613,9 @@ public:
   std::pair<double, double> loadDelaySlew(const Pin *,
                                            double elmore) override;
   void evalDmpEqns() override;
-  double voCrossingUpperBound() override;
 
-private:
+protected:
+  double voCrossingUpperBound() override;
   std::pair<double, double> V0(double t) override;
   std::pair<double, double> Vl0(double t) override;
 };
@@ -702,7 +710,11 @@ public:
             double c1) override;
   std::pair<double, double> gateDelaySlew() override;
   void evalDmpEqns() override;
+
+protected:
   double voCrossingUpperBound() override;
+  std::pair<double, double> V0(double t) override;
+  std::pair<double, double> Vl0(double t) override;
 
 private:
   void findDriverParamsPi();
@@ -710,39 +722,26 @@ private:
                   double dt,
                   double ceff_time,
                   double ceff);
-  std::pair<double, double> V0(double t) override;
-  std::pair<double, double> Vl0(double t) override;
 
   // Poles/zero.
-  double p1_;
-  double p2_;
-  double z1_;
+  double p1_{0.0};
+  double p2_{0.0};
+  double z1_{0.0};
   // Residues.
-  double k0_;
-  double k1_;
-  double k2_;
-  double k3_;
-  double k4_;
+  double k0_{0.0};
+  double k1_{0.0};
+  double k2_{0.0};
+  double k3_{0.0};
+  double k4_{0.0};
   // Ipi coefficients.
-  double A_;
-  double B_;
-  double D_;
+  double A_{0.0};
+  double B_{0.0};
+  double D_{0.0};
 };
 
 DmpPi::DmpPi(StaState *sta) :
   DmpAlg(3,
-         sta),
-  p1_(0.0),
-  p2_(0.0),
-  z1_(0.0),
-  k0_(0.0),
-  k1_(0.0),
-  k2_(0.0),
-  k3_(0.0),
-  k4_(0.0),
-  A_(0.0),
-  B_(0.0),
-  D_(0.0)
+         sta)
 {
 }
 
@@ -846,8 +845,7 @@ DmpPi::evalDmpEqns()
     throw DmpError("eqn eval failed: slew = 0");
 
   double ceff_time = slew / (vh_ - vl_);
-  if (ceff_time > 1.4 * dt)
-    ceff_time = 1.4 * dt;
+  ceff_time = std::min(ceff_time, 1.4 * dt);
 
   if (dt <= 0.0)
     throw DmpError("eqn eval failed: dt < 0");
@@ -949,6 +947,8 @@ class DmpOnePole : public DmpAlg
 public:
   DmpOnePole(StaState *sta);
   void evalDmpEqns() override;
+
+protected:
   double voCrossingUpperBound() override;
 };
 
@@ -1018,29 +1018,24 @@ public:
             double c1) override;
   std::pair<double, double> gateDelaySlew() override;
 
-private:
+protected:
   std::pair<double, double> V0(double t) override;
   std::pair<double, double> Vl0(double t) override;
   double voCrossingUpperBound() override;
 
+private:
   // Pole/zero.
-  double p1_;
-  double z1_;
+  double p1_{0.0};
+  double z1_{0.0};
   // Residues.
-  double k0_;
-  double k1_;
-  double k2_;
-  double k3_;
+  double k0_{0.0};
+  double k1_{0.0};
+  double k2_{0.0};
+  double k3_{0.0};
 };
 
 DmpZeroC2::DmpZeroC2(StaState *sta) :
-  DmpOnePole(sta),
-  p1_(0.0),
-  z1_(0.0),
-  k0_(0.0),
-  k1_(0.0),
-  k2_(0.0),
-  k3_(0.0)
+  DmpOnePole(sta)
 {
 }
 
@@ -1172,8 +1167,7 @@ DmpAlg::luDecomp()
     double big = 0.0;
     for (int j = 0; j < size; j++) {
       double temp = std::abs(fjac_[i][j]);
-      if (temp > big)
-        big = temp;
+      big = std::max(temp, big);
     }
     if (big == 0.0)
       throw DmpError("LU decomposition: no non-zero row element");
@@ -1268,8 +1262,7 @@ DmpCeffDelayCalc::DmpCeffDelayCalc(StaState *sta) :
   LumpedCapDelayCalc(sta),
   dmp_cap_(new DmpCap(sta)),
   dmp_pi_(new DmpPi(sta)),
-  dmp_zero_c2_(new DmpZeroC2(sta)),
-  dmp_alg_(nullptr)
+  dmp_zero_c2_(new DmpZeroC2(sta))
 {
 }
 

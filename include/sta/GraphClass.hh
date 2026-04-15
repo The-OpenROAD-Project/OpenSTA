@@ -25,13 +25,13 @@
 #pragma once
 
 #include <limits>
-#include <vector>
 #include <set>
+#include <vector>
 
-#include "ObjectId.hh"
-#include "MinMax.hh"
-#include "Transition.hh"
 #include "Delay.hh"
+#include "MinMax.hh"
+#include "ObjectId.hh"
+#include "Transition.hh"
 
 namespace sta {
 

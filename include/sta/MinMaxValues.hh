@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "MinMax.hh"
 #include "Error.hh"
+#include "MinMax.hh"
 
 namespace sta {
 

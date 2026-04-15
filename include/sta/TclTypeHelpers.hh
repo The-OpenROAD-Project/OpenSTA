@@ -30,17 +30,17 @@
 namespace sta {
 
 #if TCL_MAJOR_VERSION < 9
-    typedef int Tcl_Size;
+    using Tcl_Size = int ;
 #endif
 
 StringSeq
-tclListStringSeq(Tcl_Obj *const source,
+tclListStringSeq(Tcl_Obj *source,
                  Tcl_Interp *interp);
 StringSeq *
-tclListStringSeqPtr(Tcl_Obj *const source,
+tclListStringSeqPtr(Tcl_Obj *source,
                     Tcl_Interp *interp);
 StringSet *
-tclListStringSet(Tcl_Obj *const source,
+tclListStringSet(Tcl_Obj *source,
                  Tcl_Interp *interp);
 
 void

@@ -26,8 +26,8 @@
 
 #include <map>
 
-#include "StaState.hh"
 #include "LibertyClass.hh"
+#include "StaState.hh"
 
 struct DdNode;
 struct DdManager;

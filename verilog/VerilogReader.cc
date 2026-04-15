@@ -24,27 +24,28 @@
 
 #include "VerilogReader.hh"
 
+#include <cstdint>
 #include <cstdlib>
 #include <string>
 #include <string_view>
 
 #include "ContainerHelpers.hh"
-#include "Zlib.hh"
 #include "Debug.hh"
-#include "Report.hh"
 #include "Error.hh"
-#include "Stats.hh"
 #include "Liberty.hh"
-#include "PortDirection.hh"
 #include "Network.hh"
-#include "VerilogNamespace.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Stats.hh"
 #include "StringUtil.hh"
+#include "VerilogNamespace.hh"
+#include "Zlib.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "verilog/VerilogScanner.hh"
 
 namespace sta {
 
-using VerilogConstant10 = unsigned long long;
+using VerilogConstant10 = std::uint64_t;
 
 static std::string
 verilogBusBitName(std::string_view bus_name,
@@ -111,8 +112,6 @@ VerilogReader::VerilogReader(NetworkReader *network) :
   report_(network->report()),
   debug_(network->debug()),
   network_(network),
-  library_(nullptr),
-  black_box_index_(0),
   zero_net_name_("zero_"),
   one_net_name_("one_")
 {
@@ -476,7 +475,7 @@ bool
 VerilogReader::hasScalarNamedPortRefs(LibertyCell *liberty_cell,
                                       VerilogNetSeq *pins)
 {
-  if (pins && pins->size() > 0 && (*pins)[0]->isNamedPortRef()) {
+  if (pins && !pins->empty() && (*pins)[0]->isNamedPortRef()) {
     for (VerilogNet *vpin : *pins) {
       std::string_view port_name = vpin->name();
       LibertyPort *port = liberty_cell->findLibertyPort(port_name);
@@ -724,13 +723,13 @@ VerilogModuleInst::~VerilogModuleInst()
 bool
 VerilogModuleInst::hasPins()
 {
-  return pins_ && pins_->size() > 0;
+  return pins_ && !pins_->empty();
 }
 
 bool
 VerilogModuleInst::namedPins()
 {
-  return pins_ && pins_->size() > 0 && (*pins_)[0]->isNamedPortRef();
+  return pins_ && !pins_->empty() && (*pins_)[0]->isNamedPortRef();
 }
 
 VerilogLibertyInst::VerilogLibertyInst(LibertyCell *cell,
@@ -879,12 +878,11 @@ public:
 
 protected:
   std::string name_;
-  bool has_next_;
+  bool has_next_{true};
 };
 
 VerilogOneNetNameIterator::VerilogOneNetNameIterator(const std::string &name) :
-  name_(name),
-  has_next_(true)
+  name_(name)
 {
 }
 
@@ -904,7 +902,7 @@ VerilogOneNetNameIterator::next()
 class VerilogBusNetNameIterator : public VerilogNetNameIterator
 {
 public:
-  VerilogBusNetNameIterator(const std::string bus_name,
+  VerilogBusNetNameIterator(std::string_view bus_name,
                             int from_index,
                             int to_index);
   bool hasNext() override;
@@ -918,7 +916,7 @@ protected:
   std::string bit_name_;
 };
 
-VerilogBusNetNameIterator::VerilogBusNetNameIterator(const std::string bus_name,
+VerilogBusNetNameIterator::VerilogBusNetNameIterator(std::string_view bus_name,
                                                      int from_index,
                                                      int to_index) :
   bus_name_(bus_name),
@@ -1007,7 +1005,7 @@ private:
   VerilogReader *reader_;
   VerilogNetSeq *nets_;
   VerilogNetSeq::iterator net_iter_;
-  VerilogNetNameIterator *net_name_iter_;
+  VerilogNetNameIterator *net_name_iter_{nullptr};
 };
 
 VerilogNetConcatNameIterator::VerilogNetConcatNameIterator(VerilogNetSeq *nets,
@@ -1016,8 +1014,7 @@ VerilogNetConcatNameIterator::VerilogNetConcatNameIterator(VerilogNetSeq *nets,
   module_(module),
   reader_(reader),
   nets_(nets),
-  net_iter_(nets->begin()),
-  net_name_iter_(nullptr)
+  net_iter_(nets->begin())
 {
   if (net_iter_ != nets_->end()) {
     VerilogNet *net = *net_iter_++;

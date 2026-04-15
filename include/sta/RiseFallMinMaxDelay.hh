@@ -24,9 +24,9 @@
 
 #pragma once
 
+#include "Delay.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
-#include "Delay.hh"
 
 namespace sta {
 

@@ -26,11 +26,6 @@
 
 namespace sta {
 
-PortExtCap::PortExtCap() :
-  port_(nullptr)
-{
-}
-
 void
 PortExtCap::pinCap(const RiseFall *rf,
                    const MinMax *min_max,

@@ -28,11 +28,11 @@
 #include <string>
 #include <string_view>
 
-#include "Zlib.hh"
-#include "StringUtil.hh"
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
 #include "StaState.hh"
+#include "StringUtil.hh"
+#include "Zlib.hh"
 
 namespace sta {
 
@@ -58,7 +58,7 @@ public:
              const MinMaxAll *min_max,
              Parasitics *parasitics,
              StaState *sta);
-  virtual ~SpefReader() = default;
+  ~SpefReader() override = default;
   bool read();
   char divider() const { return divider_; }
   void setDivider(char divider);
@@ -94,14 +94,14 @@ public:
   void dspfBegin(Net *net,
                  SpefTriple *total_cap);
   void dspfFinish();
-  void makeCapacitor(int id,
+  void makeCapacitor(uint32_t id,
                      std::string_view node_name,
                      SpefTriple *cap);
-  void makeCapacitor(int id,
+  void makeCapacitor(uint32_t id,
                      std::string_view node_name1,
                      std::string_view node_name2,
                      SpefTriple *cap);
-  void makeResistor(int id,
+  void makeResistor(uint32_t id,
                     std::string_view node_name1,
                     std::string_view node_name2,
                     SpefTriple *res);
@@ -134,21 +134,21 @@ private:
   const Scene *scene_;
   const MinMaxAll *min_max_;
   // Normally no need to keep device names.
-  char divider_;
-  char delimiter_;
-  char bus_brkt_left_;
-  char bus_brkt_right_;
-  Net *net_;
+  char divider_{'\0'};
+  char delimiter_{'\0'};
+  char bus_brkt_left_{'\0'};
+  char bus_brkt_right_{'\0'};
+  Net *net_{nullptr};
 
-  int triple_index_;
-  float time_scale_;
-  float cap_scale_;
-  float res_scale_;
-  float induct_scale_;
+  int triple_index_{0};
+  float time_scale_{1.0};
+  float cap_scale_{1.0};
+  float res_scale_{1.0};
+  float induct_scale_{1.0};
   SpefNameMap name_map_;
   StringSeq design_flow_;
   Parasitics *parasitics_;
-  Parasitic *parasitic_;
+  Parasitic *parasitic_{nullptr};
 };
 
 class SpefTriple

@@ -24,12 +24,13 @@
 
 #pragma once
 
+#include <map>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <map>
 
 #include "StringUtil.hh"
+#include "VerilogReader.hh"
 
 namespace sta {
 
@@ -98,10 +99,10 @@ public:
              VerilogDclArg *arg,
              VerilogAttrStmtSeq *attr_stmts,
              int line);
-  virtual ~VerilogDcl();
+  ~VerilogDcl() override;
   const std::string &portName();
   virtual bool isBus() const { return false; }
-  virtual bool isDeclaration() const { return true; }
+  bool isDeclaration() const override { return true; }
   VerilogDclArgSeq *args() const { return args_; }
   void appendArg(VerilogDclArg *arg);
   PortDirection *direction() const { return dir_; }
@@ -177,7 +178,7 @@ class VerilogInst : public VerilogStmt
 public:
   VerilogInst(std::string_view inst_name,
               VerilogAttrStmtSeq *attr_stmts,
-              const int line);
+              int line);
   ~VerilogInst() override;
   bool isInstance() const override { return true; }
   const std::string &instanceName() const { return inst_name_; }
@@ -196,7 +197,7 @@ public:
                     std::string_view inst_name,
                     VerilogNetSeq *pins,
                     VerilogAttrStmtSeq *attr_stmts,
-                    const int line);
+                    int line);
   ~VerilogModuleInst() override;
   bool isModuleInst() const override { return true; }
   const std::string &moduleName() const { return module_name_; }
@@ -219,7 +220,7 @@ public:
                      std::string_view inst_name,
                      const StringSeq &net_names,
                      VerilogAttrStmtSeq *attr_stmts,
-                     const int line);
+                     int line);
   bool isLibertyInst() const override { return true; }
   LibertyCell *cell() const { return cell_; }
   const StringSeq &netNames() const { return net_names_; }
@@ -246,7 +247,6 @@ public:
 class VerilogNetUnnamed : public VerilogNet
 {
 public:
-  VerilogNetUnnamed() {}
   bool isNamed() const override { return false; }
   const std::string &name() const override { return null_; }
 

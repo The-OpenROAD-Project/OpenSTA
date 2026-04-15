@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "SdcClass.hh"
 #include "GraphClass.hh"
+#include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
 

@@ -24,12 +24,14 @@
 
 #include "EstimateParasitics.hh"
 
-#include "Wireload.hh"
+#include <algorithm>
+
 #include "Liberty.hh"
-#include "PortDirection.hh"
 #include "Network.hh"
-#include "Sdc.hh"
 #include "Parasitics.hh"
+#include "PortDirection.hh"
+#include "Sdc.hh"
+#include "Wireload.hh"
 
 namespace sta {
 
@@ -205,8 +207,7 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
     else {
       c1 = static_cast<float>(y2 * y2 / y3);
       c2 = static_cast<float>(y1 - y2 * y2 / y3);
-      if (c2 < 0.0)
-        c2 = 0.0;
+      c2 = std::max(c2, 0.0f);
       rpi = static_cast<float>(-y3 * y3 / (y2 * y2 * y2));
     }
     elmore_res = static_cast<float>(res_fanout);
@@ -214,29 +215,5 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
     elmore_use_load_cap = true;
   }
 }
-
-#if 0
-static void
-selectWireload(Network *network)
-{
-  // Look for a default wireload selection group.
-  WireloadSelection *selection;
-  float area = instanceArea(network->topInstance(), network);
-  Wireload *wireload = selection->findWireload(area);
-}
-
-static float
-instanceArea(Instance *inst,
-             Network *network)
-{
-  float area = 0.0;
-  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-  while (network->hasNext(inst_iter)) {
-    Instance *leaf = network->next(inst_iter);
-    area += network->cell(leaf)->area();
-  }
-  return area;
-}
-#endif
 
 } // namespace sta

@@ -24,12 +24,12 @@
 
 #pragma once
 
-#include "MinMax.hh"
 #include "LibertyClass.hh"
+#include "MinMax.hh"
 #include "NetworkClass.hh"
 #include "NetworkCmp.hh"
-#include "SdcClass.hh"
 #include "RiseFallMinMax.hh"
+#include "SdcClass.hh"
 
 namespace sta {
 

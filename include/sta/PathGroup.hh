@@ -24,17 +24,17 @@
 
 #pragma once
 
+#include <map>
+#include <mutex>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <map>
-#include <mutex>
 
-#include "SdcClass.hh"
-#include "StaState.hh"
-#include "SearchClass.hh"
-#include "StringUtil.hh"
 #include "PathEnd.hh"
+#include "SdcClass.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 

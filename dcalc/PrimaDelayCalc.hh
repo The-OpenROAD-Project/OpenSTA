@@ -24,13 +24,14 @@
 
 #pragma once
 
-#include <vector>
-#include <map>
 #include <Eigen/SparseCore>
 #include <Eigen/SparseLU>
+#include <array>
+#include <map>
+#include <vector>
 
-#include "LumpedCapDelayCalc.hh"
 #include "ArcDcalcWaveforms.hh"
+#include "LumpedCapDelayCalc.hh"
 #include "Parasitics.hh"
 
 namespace sta {
@@ -57,7 +58,7 @@ class PrimaDelayCalc : public DelayCalcBase,
 public:
   PrimaDelayCalc(StaState *sta);
   PrimaDelayCalc(const PrimaDelayCalc &dcalc);
-  ~PrimaDelayCalc();
+  ~PrimaDelayCalc() override;
   ArcDelayCalc *copy() override;
   void copyState(const StaState *sta) override;
   std::string_view name() const override { return "prima"; }
@@ -123,7 +124,7 @@ protected:
                  const Eigen::MatrixXd &B,
                  const Eigen::VectorXd &x_init,
                  const Eigen::MatrixXd &x_to_v,
-                 const size_t order);
+                 size_t order);
   double maxTime();
   double timeStep();
   float driverResistance();
@@ -178,15 +179,15 @@ protected:
   void reportMatrix(Eigen::VectorXd &matrix);
   void reportVector(std::vector<double> &matrix);
 
-  ArcDcalcArgSeq *dcalc_args_;
+  ArcDcalcArgSeq *dcalc_args_{nullptr};
   size_t drvr_count_;
   float load_cap_;
-  const Scene *scene_;
-  const MinMax *min_max_;
-  Parasitics *parasitics_;
-  const Parasitic *parasitic_network_;
+  const Scene *scene_{nullptr};
+  const MinMax *min_max_{nullptr};
+  Parasitics *parasitics_{nullptr};
+  const Parasitic *parasitic_network_{nullptr};
   const RiseFall *drvr_rf_;
-  const LoadPinIndexMap *load_pin_index_map_;
+  const LoadPinIndexMap *load_pin_index_map_{nullptr};
 
   PinNodeMap pin_node_map_;     // Parasitic pin -> array index
   NodeIndexMap node_index_map_; // Parasitic node -> array index
@@ -210,7 +211,7 @@ protected:
   Eigen::VectorXd u_;
 
   // Prima reduced MNA eqns
-  size_t prima_order_;
+  size_t prima_order_{3};
   Eigen::MatrixXd Vq_;
   MatrixSd Gq_;
   MatrixSd Cq_;
@@ -231,9 +232,9 @@ protected:
   double time_step_prev_;
 
   // Waveform recording.
-  bool make_waveforms_;
-  const Pin *waveform_drvr_pin_;
-  const Pin *waveform_load_pin_;
+  bool make_waveforms_{false};
+  const Pin *waveform_drvr_pin_{nullptr};
+  const Pin *waveform_load_pin_{nullptr};
   FloatSeq drvr_voltages_;
   FloatSeq load_voltages_;
   WatchPinValuesMap watch_pin_values_;
@@ -248,7 +249,7 @@ protected:
   static constexpr size_t threshold_vth = 1;
   static constexpr size_t threshold_vh = 2;
   static constexpr size_t measure_threshold_count_ = 3;
-  typedef std::array<double, measure_threshold_count_> ThresholdTimes;
+  using ThresholdTimes = std::array<double, measure_threshold_count_>;
   // Vl Vth Vh
   ThresholdTimes measure_thresholds_;
   // Indexed by node number.

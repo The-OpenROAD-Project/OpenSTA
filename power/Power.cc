@@ -31,8 +31,6 @@
 #include <string>
 #include <utility>
 
-#include "cudd.h"
-
 #include "Bfs.hh"
 #include "ClkNetwork.hh"
 #include "Clock.hh"
@@ -71,6 +69,7 @@
 #include "Transition.hh"
 #include "Units.hh"
 #include "VertexVisitor.hh"
+#include "cudd.h"
 #include "search/Levelize.hh"
 #include "search/Sim.hh"
 
@@ -570,7 +569,6 @@ ActivitySrchPred::searchTo(const Vertex *,
 
 ////////////////////////////////////////////////////////////////
 
-// NOLINTNEXTLINE(misc-multiple-inheritance)
 class PropActivityVisitor : public VertexVisitor, StaState
 {
 public:

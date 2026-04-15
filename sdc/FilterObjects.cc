@@ -24,12 +24,12 @@
 
 #include "FilterObjects.hh"
 
+#include <cstddef>
+#include <map>
 #include <memory>
 #include <regex>
-#include <map>
-#include <stack>
-#include <cstddef>
 #include <set>
+#include <stack>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -42,15 +42,15 @@
 #include "GraphCmp.hh"
 #include "Liberty.hh"
 #include "LibertyClass.hh"
-#include "NetworkClass.hh"
 #include "Network.hh"
-#include "SearchClass.hh"
-#include "StringUtil.hh"
-#include "Property.hh"
+#include "NetworkClass.hh"
 #include "PathEnd.hh"
 #include "PatternMatch.hh"
+#include "Property.hh"
 #include "SdcClass.hh"
+#include "SearchClass.hh"
 #include "Sta.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -86,7 +86,7 @@ public:
     PredicateToken(std::string_view property,
                    std::string_view op,
                    std::string_view arg);
-    virtual ~PredicateToken() = default;
+    ~PredicateToken() override = default;
     const std::string &property() const { return property_; }
     const std::string &op() const { return op_; }
     const std::string &arg() const { return arg_; }

@@ -44,6 +44,22 @@ sta::SdfParse::error(const location_type &loc,
 }
 %}
 
+%code requires {
+#include <string>
+#include <vector>
+#include "StringUtil.hh"
+
+namespace sta {
+class SdfScanner;
+class SdfReader;
+class Transition;
+class SdfPortSpec;
+class SdfTriple;
+
+using SdfTripleSeq = std::vector<SdfTriple*>;
+}
+}
+
 %require  "3.2"
 %skeleton "lalr1.cc"
 %debug

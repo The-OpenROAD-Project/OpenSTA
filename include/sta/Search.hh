@@ -24,23 +24,23 @@
 
 #pragma once
 
-#include <mutex>
 #include <atomic>
+#include <mutex>
 #include <unordered_set>
 
-#include "MinMax.hh"
-#include "Transition.hh"
-#include "LibertyClass.hh"
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
 #include "Delay.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "NetworkClass.hh"
+#include "Path.hh"
 #include "SdcClass.hh"
-#include "StaState.hh"
 #include "SearchClass.hh"
 #include "SearchPred.hh"
-#include "VertexVisitor.hh"
-#include "Path.hh"
+#include "StaState.hh"
 #include "StringUtil.hh"
+#include "Transition.hh"
+#include "VertexVisitor.hh"
 
 namespace sta {
 
@@ -696,7 +696,6 @@ protected:
 
 // Class for visiting fanin/fanout paths of a vertex.
 // This used by forward/backward search to find arrival/required path times.
-// NOLINTNEXTLINE(misc-multiple-inheritance)
 class PathVisitor : public VertexVisitor,
                     public StaState
 {

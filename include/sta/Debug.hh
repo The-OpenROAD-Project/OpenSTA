@@ -24,10 +24,10 @@
 
 #pragma once
 
-#include <string>
-#include <string_view>
 #include <map>
 #include <mutex>
+#include <string>
+#include <string_view>
 
 #include "Format.hh"
 #include "Report.hh"

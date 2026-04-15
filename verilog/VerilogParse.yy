@@ -49,6 +49,31 @@ sta::VerilogParse::error(const location_type &loc,
 
 %}
 
+%code requires {
+#include <string>
+#include <vector>
+
+namespace sta {
+class PortDirection;
+class VerilogAssign;
+class VerilogAttr;
+class VerilogAttrEntry;
+class VerilogAttrStmt;
+class VerilogDclArg;
+class VerilogNet;
+class VerilogReader;
+class VerilogScanner;
+class VerilogStmt;
+
+using VerilogAttrEntrySeq = std::vector<VerilogAttrEntry*>;
+using VerilogAttrSeq = std::vector<VerilogAttr*>;
+using VerilogAttrStmtSeq = std::vector<VerilogAttrStmt*>;
+using VerilogDclArgSeq = std::vector<VerilogDclArg*>;
+using VerilogNetSeq = std::vector<VerilogNet*>;
+using VerilogStmtSeq = std::vector<VerilogStmt*>;
+}
+}
+
 %require  "3.2"
 %skeleton "lalr1.cc"
 %debug

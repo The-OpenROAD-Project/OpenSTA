@@ -24,9 +24,9 @@
 
 #pragma once
 
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 #include "GraphClass.hh"
 #include "SearchClass.hh"

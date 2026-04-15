@@ -26,8 +26,8 @@
 
 #include <string>
 
-#include "SdcCmdComment.hh"
 #include "SdcClass.hh"
+#include "SdcCmdComment.hh"
 
 namespace sta {
 

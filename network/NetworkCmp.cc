@@ -26,9 +26,9 @@
 
 #include <algorithm>
 
-#include "StringUtil.hh"
 #include "Liberty.hh"
 #include "Network.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 

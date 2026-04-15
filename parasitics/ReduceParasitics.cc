@@ -28,21 +28,21 @@
 #include <map>
 #include <set>
 
-#include "Error.hh"
 #include "Debug.hh"
-#include "MinMax.hh"
+#include "Error.hh"
 #include "Liberty.hh"
+#include "MinMax.hh"
 #include "Network.hh"
-#include "Sdc.hh"
-#include "Scene.hh"
 #include "Parasitics.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
 
 namespace sta {
 
-typedef std::map<ParasiticNode*, double> ParasiticNodeValueMap;
-typedef std::map<ParasiticResistor*, double> ResistorCurrentMap;
-typedef std::set<ParasiticResistor*> ParasiticResistorSet;
-typedef std::set<ParasiticNode*> ParasiticNodeSet;
+using ParasiticNodeValueMap = std::map<ParasiticNode *, double>;
+using ResistorCurrentMap = std::map<ParasiticResistor *, double>;
+using ParasiticResistorSet = std::set<ParasiticResistor *>;
+using ParasiticNodeSet = std::set<ParasiticNode *>;
 
 class ReduceToPi : public StaState
 {
@@ -82,26 +82,21 @@ protected:
 
   Parasitics *parasitics_;
   bool includes_pin_caps_;
-  float coupling_cap_multiplier_;
-  const RiseFall *rf_;
-  const Scene *scene_;
-  const MinMax *min_max_;
+  float coupling_cap_multiplier_ {1.0};
+  const RiseFall *rf_ {nullptr};
+  const Scene *scene_ {nullptr};
+  const MinMax *min_max_ {nullptr};
   ParasiticNodeResistorMap resistor_map_;
   ParasiticNodeCapacitorMap capacitor_map_;
 
   ParasiticNodeSet visited_nodes_;
   ParasiticNodeValueMap node_values_;
   ParasiticResistorSet loop_resistors_;
-  bool pin_caps_one_value_;
+  bool pin_caps_one_value_ {true};
 };
 
 ReduceToPi::ReduceToPi(StaState *sta) :
-  StaState(sta),
-  coupling_cap_multiplier_(1.0),
-  rf_(nullptr),
-  scene_(nullptr),
-  min_max_(nullptr),
-  pin_caps_one_value_(true)
+  StaState(sta)
 {
 }
 
@@ -340,7 +335,7 @@ ReduceToPiElmore::makePiElmore(const Parasitic *parasitic_network,
   Parasitic *pi_elmore = parasitics_->makePiElmore(drvr_pin, rf, min_max,
                                                    c2, rpi, c1);
   parasitics_->setIsReducedParasiticNetwork(pi_elmore, true);
-  reduceElmoreDfs(drvr_pin, drvr_node, 0, 0.0, pi_elmore);
+  reduceElmoreDfs(drvr_pin, drvr_node, nullptr, 0.0, pi_elmore);
   return pi_elmore;
 }
 
@@ -383,7 +378,7 @@ class ReduceToPiPoleResidue2 : public ReduceToPi
 {
 public:
   ReduceToPiPoleResidue2(StaState *sta);
-  ~ReduceToPiPoleResidue2();
+  ~ReduceToPiPoleResidue2() override;
   void findPolesResidues(const Parasitic *parasitic_network,
                          Parasitic *pi_pole_residue,
                          const Pin *drvr_pin,
@@ -424,12 +419,11 @@ private:
 
   // Resistor/capacitor currents.
   ResistorCurrentMap currents_;
-  ParasiticNodeValueMap *moments_;
+  ParasiticNodeValueMap *moments_ {nullptr};
 };
 
 ReduceToPiPoleResidue2::ReduceToPiPoleResidue2(StaState *sta) :
-  ReduceToPi(sta),
-  moments_(nullptr)
+  ReduceToPi(sta)
 {
 }
 
@@ -526,10 +520,10 @@ ReduceToPiPoleResidue2::findMoments(const Pin *drvr_pin,
   // current thru the resistors.  Thus, there is no point in doing a
   // pass to find the zero'th moments.
   for (int moment_index = 1; moment_index < moment_count; moment_index++) {
-    double rd_i = findBranchCurrents(drvr_pin, drvr_node, 0, moment_index);
+    double rd_i = findBranchCurrents(drvr_pin, drvr_node, nullptr, moment_index);
     double rd_volt = rd_i * rd;
     setMoment(drvr_node, 0.0, moment_index);
-    findMoments(drvr_pin, drvr_node, -rd_volt, 0, moment_index);
+    findMoments(drvr_pin, drvr_node, -rd_volt, nullptr, moment_index);
   }
 }
 

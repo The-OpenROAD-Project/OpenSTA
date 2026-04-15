@@ -28,10 +28,10 @@
 #include <cctype>
 #include <cstdarg>
 #include <cstring>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <set>
 
 #include "Machine.hh" // __attribute__
 

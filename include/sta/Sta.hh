@@ -24,27 +24,27 @@
 
 #pragma once
 
-#include <vector>
+#include <functional>
 #include <string>
 #include <string_view>
-#include <functional>
+#include <vector>
 
-#include "StringUtil.hh"
-#include "LibertyClass.hh"
-#include "NetworkClass.hh"
-#include "SdcClass.hh"
-#include "Scene.hh"
-#include "GraphClass.hh"
-#include "ParasiticsClass.hh"
-#include "StaState.hh"
-#include "VertexVisitor.hh"
-#include "SearchClass.hh"
-#include "PowerClass.hh"
 #include "ArcDelayCalc.hh"
 #include "CircuitSim.hh"
-#include "Variables.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "NetworkClass.hh"
+#include "ParasiticsClass.hh"
+#include "PowerClass.hh"
 #include "Property.hh"
 #include "RiseFallMinMaxDelay.hh"
+#include "Scene.hh"
+#include "SdcClass.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
+#include "StringUtil.hh"
+#include "Variables.hh"
+#include "VertexVisitor.hh"
 
 struct Tcl_Interp;
 
@@ -267,7 +267,7 @@ public:
                     const LibertyCell *cell,
                     const Port *port,
                     const LibertyPort *from_port,
-                    float *from_slews,
+                    const DriveCellSlews &from_slews,
                     const LibertyPort *to_port,
                     const RiseFallBoth *rf,
                     const MinMaxAll *min_max,

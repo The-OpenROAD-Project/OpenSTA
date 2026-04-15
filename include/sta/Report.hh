@@ -24,15 +24,15 @@
 
 #pragma once
 
-#include <stdio.h>
 #include <cstdarg>
-#include <string>
-#include <string_view>
 #include <mutex>
 #include <set>
+#include <cstdio>
+#include <string>
+#include <string_view>
 
-#include "Machine.hh"  // __attribute__
 #include "Format.hh"
+#include "Machine.hh"  // __attribute__
 
 struct Tcl_Interp;
 

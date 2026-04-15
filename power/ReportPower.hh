@@ -26,9 +26,9 @@
 
 #include <string_view>
 
-#include "StaState.hh"
 #include "NetworkClass.hh"
 #include "PowerClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 

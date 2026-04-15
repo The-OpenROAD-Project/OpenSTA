@@ -24,14 +24,13 @@
 
 #include "SdcNetwork.hh"
 
-#include "StringUtil.hh"
-#include "PatternMatch.hh"
 #include "ParseBus.hh"
+#include "PatternMatch.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
 NetworkNameAdapter::NetworkNameAdapter(Network *network) :
-  NetworkEdit(),
   network_(network),
   network_edit_(dynamic_cast<NetworkEdit*>(network))
 {
@@ -822,9 +821,8 @@ SdcNetwork::findInstancesMatching1(const Instance *context,
                                    InstanceSeq &matches) const
 {
   visitMatches(context, pattern,
-               [&](const Instance *instance,
-                   const PatternMatch *tail)
-               {
+               [&] (const Instance *instance,
+                    const PatternMatch *tail) {
                  size_t match_count = matches.size();
                  network_->findChildrenMatching(instance, tail, matches);
                  return matches.size() != match_count;
@@ -1193,7 +1191,7 @@ SdcNetwork::visitMatches(const Instance *parent,
                          const PatternMatch *pattern,
                          const std::function<bool (const Instance *instance,
                                                    const PatternMatch *tail)>
-                         visit_tail) const
+                         &visit_tail) const
 {
   int divider_count, path_length;
   scanPath(pattern->pattern(), divider_count, path_length);

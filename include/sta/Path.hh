@@ -24,14 +24,14 @@
 
 #pragma once
 
+#include "Delay.hh"
+#include "GraphClass.hh"
 #include "MinMax.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
-#include "Transition.hh"
-#include "GraphClass.hh"
-#include "Delay.hh"
-#include "StaState.hh"
 #include "SearchClass.hh"
+#include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 

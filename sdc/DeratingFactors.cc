@@ -26,16 +26,16 @@
 
 namespace sta {
 
-inline int
+inline size_t
 index(TimingDerateType type)
 {
-  return int(type);
+  return static_cast<size_t>(type);
 }
 
-inline int
+inline size_t
 index(TimingDerateCellType type)
 {
-  return int(type);
+  return static_cast<size_t>(type);
 }
 
 DeratingFactors::DeratingFactors()
@@ -49,8 +49,8 @@ DeratingFactors::setFactor(PathClkOrData clk_data,
                            const EarlyLate *early_late,
                            float factor)
 {
-  for (auto rf1 : rf->range())
-    factors_[int(clk_data)].setValue(rf1, early_late, factor);
+  for (const RiseFall *rf1 : rf->range())
+    factors_[static_cast<int>(clk_data)].setValue(rf1, early_late, factor);
 }
 
 void
@@ -60,14 +60,14 @@ DeratingFactors::factor(PathClkOrData clk_data,
                         float &factor,
                         bool &exists) const
 {
-  factors_[int(clk_data)].value(rf, early_late, factor, exists);
+  factors_[static_cast<int>(clk_data)].value(rf, early_late, factor, exists);
 }
 
 void
 DeratingFactors::clear()
 {
-  for (int clk_data = 0; clk_data < path_clk_or_data_count;clk_data++)
-    factors_[int(clk_data)].clear();
+  for (RiseFallMinMax &factors : factors_)
+    factors.clear();
 }
 
 void
@@ -91,7 +91,7 @@ DeratingFactors::isOneValue(PathClkOrData clk_data,
                             bool &is_one_value,
                             float &value) const
 {
-  is_one_value = factors_[int(clk_data)].isOneValue(early_late, value);
+  is_one_value = factors_[static_cast<int>(clk_data)].isOneValue(early_late, value);
 }
 
 bool
@@ -143,8 +143,8 @@ DeratingFactorsGlobal::factor(TimingDerateCellType type,
 void
 DeratingFactorsGlobal::clear()
 {
-  for (int type = 0; type < timing_derate_type_count; type++)
-    factors_[type].clear();
+  for (DeratingFactors &factors : factors_)
+    factors.clear();
 }
 
 DeratingFactors *
@@ -184,8 +184,8 @@ DeratingFactorsCell::factor(TimingDerateCellType type,
 void
 DeratingFactorsCell::clear()
 {
-  for (int type = 0; type < timing_derate_cell_type_count; type++)
-    factors_[type].clear();
+  for (DeratingFactors &factors : factors_)
+    factors.clear();
 }
 
 DeratingFactors *
@@ -209,12 +209,6 @@ DeratingFactorsCell::isOneValue(const EarlyLate *early_late,
     && is_one_value2
     && value1 == value2;
   value = value1;
-}
-
-////////////////////////////////////////////////////////////////
-
-DeratingFactorsNet::DeratingFactorsNet()
-{
 }
 
 } // namespace sta

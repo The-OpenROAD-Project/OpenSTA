@@ -24,19 +24,19 @@
 
 #pragma once
 
-#include <mutex>
 #include <atomic>
 #include <map>
+#include <mutex>
 
-#include "Iterator.hh"
-#include "ObjectTable.hh"
-#include "LibertyClass.hh"
-#include "NetworkClass.hh"
 #include "Delay.hh"
 #include "GraphClass.hh"
-#include "VertexId.hh"
+#include "Iterator.hh"
+#include "LibertyClass.hh"
+#include "NetworkClass.hh"
+#include "ObjectTable.hh"
 #include "Path.hh"
 #include "StaState.hh"
+#include "VertexId.hh"
 
 namespace sta {
 
@@ -102,7 +102,7 @@ public:
                const Slew &slew);
 
   // Edge functions.
-  Edge *edge(EdgeId edge_index) const;
+  Edge *edge(EdgeId edge_id) const;
   EdgeId id(const Edge *edge) const;
   Edge *makeEdge(Vertex *from,
                  Vertex *to,
@@ -211,8 +211,8 @@ protected:
   void initArcDelays(Edge *edge);
   void removeDelayAnnotated(Edge *edge);
 
-  VertexTable *vertices_;
-  EdgeTable *edges_;
+  VertexTable *vertices_{nullptr};
+  EdgeTable *edges_{nullptr};
   // Bidirect pins are split into two vertices:
   //  load/sink (top level output, instance pin input) vertex in pin_vertex_map
   //  driver/source (top level input, instance pin output) vertex
@@ -436,9 +436,9 @@ private:
   Network *network_;
   Instance *top_inst_;
   LeafInstanceIterator *inst_iter_;
-  InstancePinIterator *pin_iter_;
-  Vertex *vertex_;
-  Vertex *bidir_vertex_;
+  InstancePinIterator *pin_iter_{nullptr};
+  Vertex *vertex_{nullptr};
+  Vertex *bidir_vertex_{nullptr};
 };
 
 class VertexInEdgeIterator : public VertexEdgeIterator

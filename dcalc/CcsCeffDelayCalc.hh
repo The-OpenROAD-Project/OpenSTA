@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "LumpedCapDelayCalc.hh"
 #include "ArcDcalcWaveforms.hh"
+#include "LumpedCapDelayCalc.hh"
 
 namespace sta {
 
@@ -39,7 +39,7 @@ class CcsCeffDelayCalc : public LumpedCapDelayCalc,
 {
 public:
   CcsCeffDelayCalc(StaState *sta);
-  virtual ~CcsCeffDelayCalc();
+  ~CcsCeffDelayCalc() override;
   ArcDelayCalc *copy() override;
   std::string_view name() const override { return "ccs_ceff"; }
   bool reduceSupported() const override { return true; }
@@ -68,7 +68,7 @@ public:
   Waveform watchWaveform(const Pin *pin) override;
 
 protected:
-  typedef std::vector<double> Region;
+  using Region = std::vector<double>;
 
   void gateDelaySlew(const LibertyLibrary *drvr_library,
                      // Return values.
@@ -106,13 +106,13 @@ protected:
                             const Pin *load_pin,
                             const Scene *scene,
                             const MinMax *min_max);
-  void vl(double t,
-          double elmore,
-          // Return values.
-          double &vl,
-          double &dvl_dt);
-  double vl(double t,
-           double elmore);
+  void vLoad(double t,
+             double elmore,
+             // Return values.
+             double &vl,
+             double &dvl_dt);
+  double vLoad(double t,
+               double elmore);
   void fail(std::string_view reason);
 
   const Pin *drvr_pin_;
@@ -122,7 +122,7 @@ protected:
   Parasitics *parasitics_;
   const Parasitic *parasitic_;
 
-  OutputWaveforms *output_waveforms_;
+  OutputWaveforms *output_waveforms_{nullptr};
   double ref_time_;
   float vdd_;
   float vth_;
@@ -133,7 +133,7 @@ protected:
   float rpi_;
   float c1_;
 
-  size_t region_count_;
+  size_t region_count_{0};
   size_t region_vl_idx_;
   size_t region_vth_idx_;
   size_t region_vh_idx_;
@@ -146,7 +146,7 @@ protected:
   Region region_time_offsets_;
   Region region_ramp_times_;
   Region region_ramp_slopes_;
-  bool vl_fail_;
+  bool vl_fail_{false};
   // Waveform recording.
   WatchPinValuesMap watch_pin_values_;
 

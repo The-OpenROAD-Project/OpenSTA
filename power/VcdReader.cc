@@ -25,21 +25,21 @@
 #include "VcdReader.hh"
 
 #include <cmath>
-#include <inttypes.h>
+#include <cinttypes>
 #include <unordered_map>
 #include <vector>
 
-#include "VcdParse.hh"
 #include "Debug.hh"
-#include "Network.hh"
 #include "Liberty.hh"
-#include "PortDirection.hh"
-#include "VerilogNamespace.hh"
-#include "ParseBus.hh"
-#include "Sdc.hh"
 #include "Mode.hh"
+#include "Network.hh"
+#include "ParseBus.hh"
+#include "PortDirection.hh"
 #include "Power.hh"
+#include "Sdc.hh"
 #include "Sta.hh"
+#include "VcdParse.hh"
+#include "VerilogNamespace.hh"
 
 namespace sta {
 
@@ -60,17 +60,13 @@ public:
 
 private:
   PinSeq pins_;
-  VcdTime prev_time_;
-  char prev_value_;
-  VcdTime high_time_;
-  double transition_count_;
+  VcdTime prev_time_ = -1;
+  char prev_value_ = '\0';
+  VcdTime high_time_ = 0;
+  double transition_count_ = 0;
 };
 
-VcdCount::VcdCount() :
-  prev_time_(-1),
-  prev_value_('\0'),
-  high_time_(0),
-  transition_count_(0)
+VcdCount::VcdCount()
 {
 }
 
@@ -157,9 +153,9 @@ private:
 
   const std::string scope_;
 
-  double time_scale_;
-  VcdTime time_min_;
-  VcdTime time_max_;
+  double time_scale_ = 1.0;
+  VcdTime time_min_ = 0;
+  VcdTime time_max_ = 0;
   VcdIdCountsMap vcd_count_map_;
 
   const Network *sdc_network_;
@@ -172,9 +168,6 @@ VcdCountReader::VcdCountReader(std::string_view scope,
                                Report *report,
                                Debug *debug) :
   scope_(scope),
-  time_scale_(1.0),
-  time_min_(0),
-  time_max_(0),
   sdc_network_(sdc_network),
   report_(report),
   debug_(debug)
@@ -299,16 +292,14 @@ VcdCountReader::varAppendValue(const std::string &id,
   if (itr != vcd_count_map_.end()) {
     VcdCounts &vcd_counts = itr->second;
     if (debug_->check("read_vcd", 3)) {
-      for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {
-        VcdCount &vcd_count = vcd_counts[bit_idx];
+      for (auto &vcd_count : vcd_counts) {
         for (const Pin *pin : vcd_count.pins()) {
           debugPrint(debug_, "read_vcd", 3, "{} time {} value {}",
                      sdc_network_->pathName(pin), time, value);
         }
       }
     }
-    for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {
-      VcdCount &vcd_count = vcd_counts[bit_idx];
+    for (auto &vcd_count : vcd_counts) {
       vcd_count.incrCounts(time, value);
     }
   }
