@@ -1,0 +1,114 @@
+KAHN'S ALGORITHM BFS FOR OPENSTA
+Functional Specification
+April 2026
+
+
+1. MOTIVATION
+
+OpenSTA's parallel BFS traversal (visitParallel) processes vertices one level at a time. All threads must finish the current level before any thread can start the next. If a level has only a handful of vertices, most threads sit idle waiting for them to finish. In real designs, level sizes vary widely -- some levels have thousands of vertices and some have very few -- making this wait-at-every-level approach a significant bottleneck for multi-threaded timing analysis.
+
+Kahn's algorithm is a classical method for topological traversal of a directed acyclic graph. It tracks how many unprocessed predecessors each vertex has (its "in-degree"). A vertex becomes ready as soon as its in-degree reaches zero -- meaning all the vertices it depends on have been processed. This is a natural fit for timing analysis: a vertex's arrival time depends only on its fanin, so it can be computed the moment all fanin arrivals are known, without waiting for unrelated vertices at the same level to finish.
+
+
+2. PROPOSED SOLUTION
+
+Replace the per-level barrier model with Kahn's topological traversal. Instead of waiting for all vertices at level L to finish before starting level L+1, a vertex becomes eligible for processing as soon as every one of its predecessors has been processed. This allows vertices at different levels to execute concurrently, keeping threads busy.
+
+The implementation is integrated into the existing BfsIterator class hierarchy as a runtime toggle, supporting both forward (arrival) and backward (required-time) propagation. The original level-based BFS remains the default and is always available as a fallback.
+
+
+3. ALGORITHM
+
+The timing graph is already a DAG within each visitParallel() call: flip-flop feedback is broken at D inputs, latch D-to-Q edges are excluded by search predicates, and combinational loops are broken by the Levelizer's disabled-loop edges. This satisfies Kahn's requirement for an acyclic graph.
+
+When Kahn's is enabled, visitParallel() proceeds in two stages:
+
+Stage 1: Discovery and In-Degree Counting (single-threaded)
+
+Starting from the seed vertices already in the BFS queue, a forward BFS discovers all reachable vertices following the same edge-filtering rules used by the original traversal. As each new vertex is discovered, its in-degree (number of active predecessors) is recorded in a flat array indexed by graph vertex ID. Seed vertices have in-degree zero.
+
+Stage 2: Batch-Dispatch Parallel Traversal (multi-threaded)
+
+All zero-in-degree vertices form the initial ready batch. The algorithm loops:
+
+  1. Dispatch one task per ready vertex into the existing DispatchQueue thread pool.
+  2. Each task visits the vertex (computing arrivals or required times), then atomically decrements the in-degree of each successor. Any successor whose in-degree reaches zero is collected into the next batch.
+  3. finishTasks() waits for all tasks in the current batch to complete.
+  4. Swap in the next batch and repeat until no vertices remain.
+
+Small batches (fewer vertices than threads) are processed single-threaded to avoid dispatch overhead. The DispatchQueue uses condition_variable internally, so there is no spin-wait or wasted CPU.
+
+
+4. IMPLEMENTATION DETAILS
+
+Files modified:
+
+  include/sta/Bfs.hh -- Added kahnForEachSuccessor pure virtual method (forward follows out-edges, backward follows in-edges), persistent KahnState storage, use_kahns_ toggle, kahn_pred_ pointer for the discovery edge filter, and resetLevelBounds helper.
+
+  search/Bfs.cc -- Defined KahnState struct holding persistent in-degree arrays (reused across calls to avoid re-allocation). Added a third branch to visitParallel: single-threaded / original-parallel / Kahn's-parallel. Implemented kahnForEachSuccessor for both BfsFwdIterator and BfsBkwdIterator.
+
+  search/Search.cc -- Two lines in the Search constructor wire the Kahn's edge filter (SearchAdj) onto the arrival and required iterators.
+
+Enabling Kahn's requires two calls on a BfsIterator:
+
+  iterator->setKahnPred(predicate);  // edge filter for discovery
+  iterator->setUseKahns(true);       // enable Kahn's
+
+The edge filter is separate from the iterator's existing search_pred_ because the original BFS never uses search_pred_ directly for arrivals -- the visitor provides its own filter at call time. Kahn's discovery runs before any visitor, so it needs the filter upfront. If the filter is null, visitParallel falls back to the original BFS.
+
+Persistent state (KahnState) stores the in-degree arrays across calls. On the first call it allocates; on subsequent calls it resets only the entries touched previously, avoiding full re-initialization.
+
+
+5. INCREMENTAL TIMING UPDATES
+
+OpenSTA supports incremental timing: when a cell is resized or an edge delay changes, only the affected vertices need to be re-evaluated instead of recomputing the whole graph. This is driven by Search.cc, which tracks dirty vertices in an "invalid arrivals" set and enqueues them as seeds before the next findArrivals call. Our implementation hooks into this existing mechanism without modification.
+
+When Kahn's runs, the seed vertices in the BFS queue are exactly the dirty ones supplied by the incremental framework. The discovery stage walks forward from those seeds and finds the downstream subgraph that could be affected. Only that subgraph -- not the whole graph -- gets in-degrees computed and gets visited in Stage 2. For small updates (a few changed cells in a large design), the active set is a small fraction of the total graph, and the work is proportional to it.
+
+There is one behavioral difference from the original BFS worth noting. The original stops propagating through a vertex whose arrivals did not change after re-evaluation; it skips the enqueue of its fanout. Our Kahn's implementation discovers the full reachable subgraph upfront and decrements in-degrees unconditionally, so every reachable vertex is visited.
+
+The reason is fundamental to Kahn's algorithm: every active predecessor must decrement its successor's in-degree exactly once, otherwise the counter never reaches zero and the vertex stalls forever. If we skipped a decrement because "arrivals didn't change," a downstream vertex with multiple predecessors could be left waiting on a decrement that will never come -- even if its other predecessors did change and genuinely need to propagate.
+
+The practical cost is that vertices whose arrivals did not change are still visited, but the visitor detects no change and no downstream updates happen. This is correct but slightly more eager than the original. It has not caused test failures or measurable overhead in any regression so far.
+
+
+6. COMPARISON WITH ALTERNATE IMPLEMENTATION
+
+An alternate implementation (BfsFwdInDegreeIterator) in a separate repository takes a standalone-class approach used only for delay calculation.
+
+Architecture: The alternate creates a separate class. Ours integrates into the existing BfsIterator with a toggle, supporting both forward and backward BFS across all callers.
+
+Discovery cost: The alternate scans every vertex and edge in the entire graph to compute in-degrees -- O(V_total + E_total) where V_total is all vertices in the graph and E_total is all edges. Even if only a small portion needs re-timing, the full graph is walked. Ours starts from the dirty seed vertices and only walks the subgraph reachable from them -- O(V_active + E_active) where V_active and E_active are only the vertices and edges that actually need processing. For loop breaking, the alternate uses a raw level comparison (to_level >= from_level) to decide which edges to skip. Ours uses the same SearchAdj filter that the Levelizer and the rest of the BFS already use, so the set of skipped edges (disabled loops, latch D-to-Q, timing checks) is guaranteed to be consistent.
+
+Thread safety: The alternate uses a non-atomic visited flag from worker threads (data race risk) and maintains a per-edge mutex-locked set for deduplication (serialization bottleneck). Ours uses a read-only array for active-set checks and computes in-degrees upfront so edge tracking is unnecessary.
+
+What we adopted: The alternate's batch-dispatch model (one task per vertex into DispatchQueue with finishTasks barriers) proved far more efficient than our initial spin-wait worker design. Adopting it cut test overhead from 87s to 28s.
+
+
+7. FINDINGS FROM REGRESSIONS
+
+Finding 1: Vertex IDs can exceed vertexCount() after deletions
+
+The graph's ObjectTable stores vertices in blocks of 128. graph->id(vertex) returns (block_index * 128 + slot), which can be much larger than graph->vertexCount() (the live count) after cells are deleted. Sizing the in-degree array to vertexCount()+1 caused an out-of-bounds segfault during the rmp.gcd_restructure flow, which deletes cells during restructuring.
+
+Resolution: The in-degree array now grows dynamically during discovery when any vertex ID exceeds current capacity. Worker threads include bounds checks. The alternate implementation has the same latent issue but has not encountered it because its code path does not trigger the deletion pattern.
+
+Finding 2: The arrival iterator has a null search predicate
+
+The arrival BFS iterator is constructed with search_pred = nullptr because the original BFS never uses it -- the visitor always provides the filter. Kahn's discovery used search_pred directly, causing a null-pointer crash during arrival propagation in the rmp flow.
+
+Resolution: Introduced kahn_pred, a dedicated predicate for Kahn's discovery, wired to SearchAdj in the Search constructor. This keeps the original BFS path completely unchanged.
+
+Both findings were caught by rmp.gcd_restructure.tcl and resolved without changing the original BFS behavior.
+
+
+8. PERFORMANCE
+
+On the OpenSTA regression suite (6109 tests), Kahn's BFS runs at parity with the original level-based BFS (28s vs 27-30s). On small test designs the discovery stage overhead is negligible. On large designs with uneven level populations, barrier elimination should produce net speedups, particularly at high thread counts where the original BFS leaves threads idle.
+
+
+9. TEST RESULTS
+
+OpenSTA standalone: 6109/6109 tests PASS with Kahn's enabled.
+
+OpenROAD full regression: All tests PASS, including rmp.gcd_restructure (the test that surfaced both findings above), rsz (incremental netlist modification), and cts (buffer insertion with re-timing).

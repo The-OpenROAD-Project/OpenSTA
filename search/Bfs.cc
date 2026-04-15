@@ -25,6 +25,8 @@
 
 #include "Bfs.hh"
 
+#include <atomic>
+
 #include "Report.hh"
 #include "Debug.hh"
 #include "Mutex.hh"
@@ -36,6 +38,41 @@
 #include "SearchPred.hh"
 
 namespace sta {
+
+// Persistent storage for Kahn's algorithm arrays.
+// Allocated once and reused across visitParallel calls to
+// avoid repeated allocation of large per-graph arrays.
+struct BfsIterator::KahnState
+{
+  // -1 = not in active set, >= 0 = in-degree.
+  std::vector<int> in_degree_init;
+  // Atomic in-degrees for the parallel phase.
+  std::unique_ptr<std::atomic<int>[]> in_degree;
+  size_t in_degree_size = 0;
+  // Vertex IDs touched in the previous call -- reset to -1 before reuse.
+  std::vector<VertexId> prev_ids;
+
+  void ensureInitSize(size_t needed)
+  {
+    if (in_degree_init.size() < needed)
+      in_degree_init.resize(needed, -1);
+  }
+
+  void ensureAtomicSize(size_t needed)
+  {
+    if (in_degree_size < needed) {
+      in_degree = std::make_unique<std::atomic<int>[]>(needed);
+      in_degree_size = needed;
+    }
+  }
+
+  void resetPrevious()
+  {
+    for (VertexId vid : prev_ids)
+      in_degree_init[vid] = -1;
+    prev_ids.clear();
+  }
+};
 
 BfsIterator::BfsIterator(BfsIndex bfs_index,
                          Level level_min,
@@ -159,6 +196,22 @@ BfsIterator::visit(Level to_level,
   return visit_count;
 }
 
+// Recalculate first_level_/last_level_ from remaining queue entries.
+void
+BfsIterator::resetLevelBounds()
+{
+  first_level_ = level_max_;
+  last_level_ = level_min_;
+  for (Level l = 0; l < static_cast<Level>(queue_.size()); l++) {
+    if (!queue_[l].empty()) {
+      if (levelLess(l, first_level_))
+        first_level_ = l;
+      if (levelLess(last_level_, l))
+        last_level_ = l;
+    }
+  }
+}
+
 int
 BfsIterator::visitParallel(Level to_level,
                            VertexVisitor *visitor)
@@ -168,7 +221,8 @@ BfsIterator::visitParallel(Level to_level,
   if (!empty()) {
     if (thread_count == 1)
       visit_count = visit(to_level, visitor);
-    else {
+    else if (!use_kahns_ || !kahn_pred_) {
+      // Original level-based parallel BFS with per-level barriers.
       std::vector<VertexVisitor *> visitors;
       for (int k = 0; k < thread_count_; k++)
         visitors.push_back(visitor->copy());
@@ -193,8 +247,8 @@ BfsIterator::visitParallel(Level to_level,
             size_t chunk_size = vertex_count / thread_count;
             BfsIndex bfs_index = bfs_index_;
             for (size_t k = 0; k < thread_count; k++) {
-              // Last thread gets the left overs.
-              size_t to = (k == thread_count - 1) ? vertex_count : from + chunk_size;
+              size_t to = (k == thread_count - 1)
+                  ? vertex_count : from + chunk_size;
               dispatch_queue_->dispatch([=, this](size_t) {
                 for (size_t i = from; i < to; i++) {
                   Vertex *vertex = level_vertices[i];
@@ -214,8 +268,176 @@ BfsIterator::visitParallel(Level to_level,
           visit_count += vertex_count;
         }
       }
-      for (VertexVisitor *visitor : visitors)
-        delete visitor;
+      for (VertexVisitor *v : visitors)
+        delete v;
+    }
+    else {
+      // -------------------------------------------------------
+      // Kahn's algorithm: process vertices as soon as all their
+      // predecessors are done, eliminating per-level barriers.
+      // -------------------------------------------------------
+
+      // Lazy-init persistent Kahn state.
+      if (!kahn_state_)
+        kahn_state_ = std::make_unique<KahnState>();
+
+      // Vertex IDs can exceed vertexCount() after deletions
+      // (ObjectTable uses block-based IDs). Start with a
+      // reasonable estimate and grow dynamically during discovery.
+      VertexId vertex_count = graph_->vertexCount();
+      kahn_state_->ensureInitSize(vertex_count + 1);
+      kahn_state_->resetPrevious();
+
+      std::vector<int> &in_deg = kahn_state_->in_degree_init;
+      std::vector<Vertex*> active_vertices;
+      VertexId max_id = 0;
+
+      // Collect seed vertices from the level queue.
+      Level saved_first = first_level_;
+      Level saved_last = last_level_;
+      Level level = first_level_;
+      while (levelLessOrEqual(level, last_level_)
+             && levelLessOrEqual(level, to_level)) {
+        for (Vertex *vertex : queue_[level]) {
+          if (vertex) {
+            VertexId vid = graph_->id(vertex);
+            if (vid >= in_deg.size())
+              in_deg.resize(vid + 128, -1);
+            if (in_deg[vid] == -1) {
+              in_deg[vid] = 0;
+              active_vertices.push_back(vertex);
+              if (vid > max_id) max_id = vid;
+            }
+          }
+        }
+        incrLevel(level);
+      }
+
+      // BFS discovery -- mirrors enqueueAdjacentVertices logic.
+      size_t disc_idx = 0;
+      while (disc_idx < active_vertices.size()) {
+        Vertex *vertex = active_vertices[disc_idx++];
+        kahnForEachSuccessor(vertex, kahn_pred_,
+                             [&](Vertex *succ) {
+          if (!levelLessOrEqual(succ->level(), to_level))
+            return;
+          VertexId sid = graph_->id(succ);
+          if (sid >= in_deg.size())
+            in_deg.resize(sid + 128, -1);
+          if (in_deg[sid] == -1) {
+            in_deg[sid] = 1;
+            active_vertices.push_back(succ);
+            succ->setBfsInQueue(bfs_index_, true);
+            if (sid > max_id) max_id = sid;
+          }
+          else
+            in_deg[sid]++;
+        });
+      }
+
+      size_t active_count = active_vertices.size();
+      debugPrint(debug_, "bfs", 1, "kahns {} active vertices", active_count);
+
+      if (active_count == 0) {
+        kahn_state_->prev_ids.clear();
+        level = saved_first;
+        while (levelLessOrEqual(level, saved_last)
+               && levelLessOrEqual(level, to_level)) {
+          queue_[level].clear();
+          incrLevel(level);
+        }
+        resetLevelBounds();
+        return 0;
+      }
+
+      // Size atomic array to cover max discovered ID.
+      kahn_state_->ensureAtomicSize(max_id + 1);
+      std::atomic<int> *in_degree = kahn_state_->in_degree.get();
+
+      // Copy active in-degrees to atomic array and collect ready batch.
+      std::vector<Vertex*> ready_batch;
+      kahn_state_->prev_ids.clear();
+      kahn_state_->prev_ids.reserve(active_count);
+      for (Vertex *v : active_vertices) {
+        VertexId vid = graph_->id(v);
+        in_degree[vid].store(in_deg[vid], std::memory_order_relaxed);
+        kahn_state_->prev_ids.push_back(vid);
+        if (in_deg[vid] == 0)
+          ready_batch.push_back(v);
+      }
+      debugPrint(debug_, "bfs", 1, "kahns {} initial ready",
+                 ready_batch.size());
+
+      // Phase 3: Batch-dispatch Kahn's traversal.
+      std::vector<VertexVisitor *> visitors;
+      for (size_t k = 0; k < thread_count; k++)
+        visitors.push_back(visitor->copy());
+
+      std::atomic<int> total_visited{0};
+      BfsIndex bfs_index = bfs_index_;
+      SearchPred *pred = kahn_pred_;
+      std::vector<Vertex*> next_ready;
+      std::mutex next_ready_lock;
+
+      while (!ready_batch.empty()) {
+        next_ready.clear();
+
+        if (ready_batch.size() < thread_count) {
+          for (Vertex *vertex : ready_batch) {
+            vertex->setBfsInQueue(bfs_index, false);
+            visitor->visit(vertex);
+            total_visited.fetch_add(1, std::memory_order_relaxed);
+            kahnForEachSuccessor(vertex, pred, [&](Vertex *succ) {
+              VertexId sid = graph_->id(succ);
+              if (sid < in_deg.size() && in_deg[sid] >= 0) {
+                int prev = in_degree[sid]
+                    .fetch_sub(1, std::memory_order_acq_rel);
+                if (prev == 1)
+                  next_ready.push_back(succ);
+              }
+            });
+          }
+        }
+        else {
+          size_t in_deg_size = in_deg.size();
+          for (Vertex *vertex : ready_batch) {
+            dispatch_queue_->dispatch(
+                [&, vertex, bfs_index, pred, in_deg_size](size_t tid) {
+              vertex->setBfsInQueue(bfs_index, false);
+              visitors[tid]->visit(vertex);
+              total_visited.fetch_add(1, std::memory_order_relaxed);
+              kahnForEachSuccessor(vertex, pred, [&, in_deg_size](Vertex *succ) {
+                VertexId sid = graph_->id(succ);
+                if (sid < in_deg_size && in_deg[sid] >= 0) {
+                  int prev = in_degree[sid]
+                      .fetch_sub(1, std::memory_order_acq_rel);
+                  if (prev == 1) {
+                    LockGuard lock(next_ready_lock);
+                    next_ready.push_back(succ);
+                  }
+                }
+              });
+            });
+          }
+          dispatch_queue_->finishTasks();
+        }
+        ready_batch.swap(next_ready);
+      }
+
+      visit_count = total_visited.load(std::memory_order_relaxed);
+      visitor->levelFinished();
+
+      for (VertexVisitor *v : visitors)
+        delete v;
+
+      // Clear processed levels and update bounds for remaining entries.
+      level = saved_first;
+      while (levelLessOrEqual(level, saved_last)
+             && levelLessOrEqual(level, to_level)) {
+        queue_[level].clear();
+        incrLevel(level);
+      }
+      resetLevelBounds();
     }
   }
   return visit_count;
@@ -383,6 +605,22 @@ BfsFwdIterator::levelLess(Level level1,
 }
 
 void
+BfsFwdIterator::kahnForEachSuccessor(Vertex *vertex,
+                                     SearchPred *pred,
+                                     const VertexFn &fn)
+{
+  if (pred->searchFrom(vertex)) {
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      if (pred->searchThru(edge) && pred->searchTo(to_vertex))
+        fn(to_vertex);
+    }
+  }
+}
+
+void
 BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
                                         SearchPred *search_pred)
 {
@@ -452,6 +690,22 @@ BfsBkwdIterator::levelLess(Level level1,
                            Level level2) const
 {
   return level1 > level2;
+}
+
+void
+BfsBkwdIterator::kahnForEachSuccessor(Vertex *vertex,
+                                      SearchPred *pred,
+                                      const VertexFn &fn)
+{
+  if (pred->searchTo(vertex)) {
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *from_vertex = edge->from(graph_);
+      if (pred->searchFrom(from_vertex) && pred->searchThru(edge))
+        fn(from_vertex);
+    }
+  }
 }
 
 void

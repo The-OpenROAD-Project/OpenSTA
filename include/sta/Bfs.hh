@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <functional>
+#include <memory>
 #include <mutex>
 #include <vector>
 
@@ -76,6 +78,15 @@ public:
   void deleteVertexBefore(Vertex *vertex);
   void remove(Vertex *vertex);
   void reportEntries() const;
+  // Enable/disable Kahn's algorithm for parallel traversal.
+  // When disabled (default), the original level-based BFS is used.
+  // Kahn's requires a non-null kahn_pred to know which edges to
+  // follow during discovery. Set it via setKahnPred() before enabling.
+  void setUseKahns(bool use_kahns) { use_kahns_ = use_kahns; }
+  bool useKahns() const { return use_kahns_; }
+  // Search predicate used by Kahn's discovery and successor decrement.
+  // Separate from search_pred_ which is used by the original BFS.
+  void setKahnPred(SearchPred *pred) { kahn_pred_ = pred; }
 
   bool hasNext() override;
   bool hasNext(Level to_level);
@@ -109,6 +120,20 @@ protected:
   void checkLevel(Vertex *vertex,
                   Level level);
 
+  // Kahn's algorithm: iterate BFS-direction successor vertices
+  // with predicate filtering. Forward follows out-edges; backward
+  // follows in-edges. Called for discovery, in-degree counting,
+  // and successor decrement in the Kahn's worker.
+  using VertexFn = std::function<void(Vertex*)>;
+  virtual void kahnForEachSuccessor(Vertex *vertex,
+                                    SearchPred *pred,
+                                    const VertexFn &fn) = 0;
+  void resetLevelBounds();
+
+  // Persistent Kahn's state to avoid per-call allocation.
+  struct KahnState;
+  std::unique_ptr<KahnState> kahn_state_;
+
   BfsIndex bfs_index_;
   Level level_min_;
   Level level_max_;
@@ -119,6 +144,8 @@ protected:
   Level first_level_;
   // Max (min) level of queued vertices.
   Level last_level_;
+  bool use_kahns_ = true;
+  SearchPred *kahn_pred_ = nullptr;
 
   friend class BfsFwdIterator;
   friend class BfsBkwdIterator;
@@ -144,6 +171,9 @@ protected:
   bool levelLess(Level level1,
 		 Level level2) const override;
   void incrLevel(Level &level) const override;
+  void kahnForEachSuccessor(Vertex *vertex,
+                            SearchPred *pred,
+                            const VertexFn &fn) override;
 };
 
 class BfsBkwdIterator : public BfsIterator
@@ -166,6 +196,9 @@ protected:
   bool levelLess(Level level1,
 		 Level level2) const override;
   void incrLevel(Level &level) const override;
+  void kahnForEachSuccessor(Vertex *vertex,
+                            SearchPred *pred,
+                            const VertexFn &fn) override;
 };
 
 } // namespace

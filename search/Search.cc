@@ -288,6 +288,8 @@ Search::Search(StaState *sta) :
   check_crpr_(new CheckCrpr(this))
 {
   initVars();
+  arrival_iter_->setKahnPred(search_adj_);
+  required_iter_->setKahnPred(search_adj_);
 }
 
 // Init "options".
