@@ -366,7 +366,8 @@ define_cmd_args "report_check_types" \
      [> filename] [>> filename]}
 
 proc_redirect report_check_types {
-  global sta::float_inf sta::group_path_count_max
+  variable float_inf
+  variable group_path_count_max
   variable path_options
 
   parse_key_args "report_check_types" args \
